@@ -226,7 +226,7 @@ module Engine {
 		keys = [];
 		canv = <HTMLCanvasElement>document.createElement("canvas");
 		ctx: CanvasRenderingContext2D;
-		constructor(public width : number, public height : number){
+		constructor(public width : number, public height : number, public fullscreen? : bool){
 			this.actors = [];
 		}
 		
@@ -280,7 +280,11 @@ module Engine {
 			// Setup canvas drawing surface in DOM
 			this.canv.width = this.width;
 	    	this.canv.height = this.height;
-	    	
+	    	if(this.fullscreen){
+		    	document.body.style.margin = "0";
+		    	this.canv.style.width = "100%";
+		    	this.canv.style.height = "100%";
+	    	}
 	    	document.body.appendChild(this.canv);
 	    	this.ctx = this.canv.getContext("2d");
 		}

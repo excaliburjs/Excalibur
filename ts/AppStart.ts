@@ -2,7 +2,7 @@
 /// <reference path="Game.ts" />
 
 // Create an start the game
-var game = new Engine.SimpleGame(1000,500);
+var game = new Engine.SimpleGame(1000,500,true);
 
 for(var i = 0; i< 5; i++){
 	var color = new Engine.Color(Math.random()*255,Math.random()*255,Math.random()*255);
