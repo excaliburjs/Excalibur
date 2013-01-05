@@ -10,7 +10,24 @@ module Algebra {
 	}
 }
 
+
 module Engine {
+
+	export class Sound {
+		sound : HTMLAudioElement;
+		constructor(public path: string){
+			this.sound = new Audio(path);
+			this.sound.preload = "false";
+		}
+
+
+		play() {
+			//document.body.appendChild(this.sound);
+			this.sound.play();
+			//this.sound.play();
+		}
+	}
+
 
 	export interface Actor {
 		update(engine: SimpleGame, delta: number);
@@ -39,11 +56,14 @@ module Engine {
 		onGround : bool;
 		jumpFrames =0;
 		jumpVel = -8;
+
+		jumpSound : Sound;
 		
 		constructor (public x: number, public y: number, public width : number, public height:number){
 			this.jumping = false;
 			this.onGround = true;
 			this.box = new Box(x,y,width,height);
+			this.jumpSound = new Sound("../assets/smb_jump-small.wav");
 		}
 		update(engine: SimpleGame, delta: number){
 			
@@ -54,6 +74,7 @@ module Engine {
 				//this.y += this.jumpVel;
 				this.jumping = true;
 				this.onGround = false;
+				this.jumpSound.play();
 			}
 			
 			if(this.jumping && this.jumpFrames < 10){
@@ -199,7 +220,7 @@ module Engine {
 
 	export class SimpleGame {
 		
-		debugFontSize = 20;
+		debugFontSize = 50;
 		actors: Actor[] = [];
 		level: Block[] = [];
 		keys = [];
