@@ -1,0 +1,1 @@
+rm ./ts/gamestart.js
