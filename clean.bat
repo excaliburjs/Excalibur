@@ -1,1 +1,1 @@
-rm ./ts/gamestart.js
+rm ./js/gamestart.js

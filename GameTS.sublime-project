@@ -15,6 +15,7 @@
 		{
 			"name": "Build",
 			"cmd": ["build"],
+			"working_dir":"$project_path",
 
 			"windows":{
 				"cmd":["build.bat"]

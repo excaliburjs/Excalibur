@@ -1,6 +1,6 @@
 all: ./ts/AppStart.ts ./ts/Game.ts
-	tsc ./ts/AppStart.ts -out ./ts/gamestart.js
-	start ./html/GameStart.html
+	tsc ./sample-game/ts/AppStart.ts -out ./js/gamestart.js
+	start ./sample-game/html/GameStart.html
 
 clean:
-	rm ./ts/gamestart.js
+	rm ./js/gamestart.js
