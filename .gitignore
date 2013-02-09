@@ -1,6 +1,8 @@
 #Ignore compiled javascript #
 ######################
 ./ts/*.js
+./ts/*.*
+./sample-game/ts/*.js
 
 # Logs and databases #
 ######################

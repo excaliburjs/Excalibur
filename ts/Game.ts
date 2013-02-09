@@ -28,15 +28,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-module Algebra {
-	export class Util {
-		static Equals(x: number, y: number, delta: number){
-			return (((x-delta) <= y) && (y <= (x+delta)));
-		}
-	}
-}
 
-
+/// <reference path="Algebra.ts" />
 module Engine {
 
 	export class Sound {
@@ -80,16 +73,16 @@ module Engine {
 		
 		jumping : bool;
 		onGround : bool;
+
 		jumpFrames =0;
 		jumpVel = -8;
 
-		jumpSound : Sound;
 		
 		constructor (public x: number, public y: number, public width : number, public height:number){
 			this.jumping = false;
 			this.onGround = true;
 			this.box = new Box(x,y,width,height);
-			this.jumpSound = new Sound("../assets/smb_jump-small.wav");
+			
 		}
 		update(engine: SimpleGame, delta: number){
 			
@@ -97,10 +90,8 @@ module Engine {
 			var keys = engine.keys;
 			// Up key
 			if(keys.indexOf(38)>-1 && this.onGround){
-				//this.y += this.jumpVel;
 				this.jumping = true;
 				this.onGround = false;
-				this.jumpSound.play();
 			}
 			
 			if(this.jumping && this.jumpFrames < 10){
@@ -223,7 +214,7 @@ module Engine {
 		}
 			
 	}
-	
+
 	export class Image {
 		constructor (public path: string){
 			
@@ -233,7 +224,7 @@ module Engine {
 			
 		}
 	}
-	
+
 	export class Sprite {
 		constructor (public images: Image[], public duration: number){
 			
@@ -316,5 +307,5 @@ module Engine {
 		}
 		
 	}
-}
 
+}
