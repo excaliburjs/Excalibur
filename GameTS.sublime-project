@@ -1,0 +1,28 @@
+{
+	"folders":
+	[
+		{
+			"path": "/C/Users/Erik/Projects/GameTS",
+			"folder_exclude_patterns": ["js"]
+		}
+	],
+	"settings":
+	{
+		"tab_size":3
+	},
+	"build_systems":
+	[
+		{
+			"name": "Build",
+			"cmd": ["build"],
+
+			"windows":{
+				"cmd":["build.bat"]
+			},
+			"linux":{
+				"cmd":["make"]
+			}
+		}
+
+	]
+}
