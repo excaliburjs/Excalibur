@@ -11,15 +11,15 @@ modification, are permitted provided that the following conditions are met:
    documentation and/or other materials provided with the distribution.
 3. All advertising materials mentioning features or use of this software
    must display the following acknowledgement:
-   This product includes software developed by Erik Onarheim.
+   This product includes software developed by the GameTS Team.
 4. Neither the name of the creator nor the
    names of its contributors may be used to endorse or promote products
    derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY <COPYRIGHT HOLDER> ''AS IS'' AND ANY
+THIS SOFTWARE IS PROVIDED BY THE GAMETS TEAM ''AS IS'' AND ANY
 EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+DISCLAIMED. IN NO EVENT SHALL ERIK ONARHEIM BE LIABLE FOR ANY
 DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
@@ -322,23 +322,3 @@ module Engine {
 	}
 }
 
-/*
-// Create an start the game
-var game = new Engine.SimpleGame(1000,500);
-
-for(var i = 0; i< 5; i++){
-	var color = new Engine.Color(Math.random()*255,Math.random()*255,Math.random()*255);
-	//alert(color.toString());
-	game.addBlock(new Engine.Block(new Engine.Box(100*i+10,200+Math.random()*100,50,50),color));
-}
-game.addActor(new Engine.Player(100,100,100,100));
-
-//var box1 = new Engine.Box(0,0,10,10);
-//var box2 = new Engine.Box(0,1,10,10);
-//alert(String(box1.collides(box2)));
-//alert(String(box1.collides(new Engine.Box(100,100,10,10))));
-
-//alert(String(Algebra.Util.Equals(1,1.2,.1)));
-
-game.start();
-*/

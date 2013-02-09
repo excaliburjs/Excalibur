@@ -8,6 +8,9 @@
 *.sql
 *.sqlite
 
+# Sublime workspace settings #
+*.sublime-workspace
+
 # OS generated files #
 ######################
 .DS_Store
