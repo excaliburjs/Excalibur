@@ -23,7 +23,20 @@
 			"linux":{
 				"cmd":["make"]
 			}
+		},
+		{
+			"name": "Clean",
+			"cmd": ["clean"],
+			"working_dir":"$project_path",
+
+			"windows":{
+				"cmd":["clean.bat"]
+			},
+			"linux":{
+				"cmd":["make clean"]
+			}
 		}
+
 
 	]
 }

@@ -29,39 +29,45 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 module Algebra {
-	class Point2D {
-		
-		constructor (public x: number = 0, public y: number =0){
-			
-		}
-		
-		distance(p :Point2D){
-			return Math.sqrt(Math.pow(this.x-p.x,2) + Math.pow(this.y -p.y,2));
-		}
-		
-		toString(){
-			return "(" + this.x + "," + this.y + ")";
-		}
-	}
-
-	class Point3D extends Point2D {
-		constructor (x :number = 0, y:number =0 , public z:number = 0){
-			super(x,y);
-		}
-		
-		distance(p : Point3D){
-			return Math.sqrt(Math.pow(this.x-p.x,2)+Math.pow(this.y-p.y,2)+Math.pow(this.z-p.z,2));
-		}
-		
-		toString(){
-			return "(" + this.x + "," + this.y + "," + this.z + ")";
-		}
-	}
-
 	export class Util {
 		static Equals(x: number, y: number, delta: number){
 			return (((x-delta) <= y) && (y <= (x+delta)));
 		}
 	}
+
+	export class Point {
+		constructor(public x: number, public y: number){
+
+		}
+
+		minus (p: Point) : Vector {
+			return new Vector(this.x - p.x, this.y - p.y);
+		}
+
+		plus (v: Vector) : Point {
+			this.x += v.x;
+			this.y += v.y;
+			return this;
+		}
+
+	}
+
+	export class Vector {
+		constructor(public x: number, public y: number){
+
+		}
+
+		dot (v: Vector): number {
+			return this.x * v.x + this.y * v.y;
+		}
+
+		// 2d cross product returns a scalar
+		cross(v: Vector): number {
+			return this.x * v.y - this.y * v.x;
+		}
+
+	}
+
+
 
 }

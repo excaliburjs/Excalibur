@@ -42,6 +42,8 @@ for(var i = 0; i< 8; i++){
 
 game.addBlock(new Engine.Block(400, 200, 200,50,new Engine.Color(0,0,0)));
 
+game.addBlock(new Engine.Block(600, 130, 200,30,new Engine.Color(0,0,0)));
+
 // Create the player
 var player = new Engine.Player(100,100,100,100);
 player.addKeyHandler("up", 
