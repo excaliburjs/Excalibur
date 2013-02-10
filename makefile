@@ -1,11 +1,12 @@
 all: engine sample run
-	
+
 engine:
-	tsc --declaration ./ts/Game.ts -out ./js/Engine.js -c
+	tsc --declarations ./ts/Game.ts -out ./js/Engine.js -c
 sample:
 	tsc ./sample-game/ts/AppStart.ts -c
 run:
 	start ./sample-game/html/GameStart.html
 clean:
-	rm ./ts/*.js
-	rm ./sample-game/ts/*.js
+	rm -f ./js/*.js
+	rm -f ./js/*.d.ts
+	rm -f ./sample-game/ts/*.js

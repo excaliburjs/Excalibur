@@ -6,20 +6,29 @@ GameTS is a very simple game engine written in TypeScript for making games in ht
 
 * Built-in simple game loop 
 * Built-in naive collision detection
-* Built-in key handling system
+* Built-in key event handling
+* Sublime Text 2 project file
 
-# Usage
+# Requirements
+
+You will need have the TypeScript compiler installed on your platform to build from source.
+
+The compiler is available here:
+
+[Official Typescript Page](http://www.typescriptlang.org/)
+[Node Package Manager](https://npmjs.org/package/typescript)
+[Codeplex Source](http://typescript.codeplex.com/)
+
 
 ## To build the engine and run the sample game on these platforms:
 
-## Windows:
+Windows:
 
 	./build.bat
 
-## Unix/Linux:
+Unix/Linux:
 	
 	make all
-
 
 
 # License
