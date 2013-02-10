@@ -30,14 +30,39 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /// <reference path='../../js/Engine.d.ts' />
 
-// Create an start the game
+// Create an the game container
 var game = new Engine.SimpleGame(1000,500,true, new Engine.Color(114,213,224) );
 
+
+// Create the level
 for(var i = 0; i< 8; i++){
 	var color = new Engine.Color(Math.random()*255,Math.random()*255,Math.random()*255);
-	//alert(color.toString());
-	game.addBlock(new Engine.Block(new Engine.Box(100*i+10,200+Math.random()*100,50,50),color));
+	game.addBlock(new Engine.Block(100*i+10,350+Math.random()*100,50,50,color));
 }
-game.addActor(new Engine.Player(100,100,100,100));
 
+game.addBlock(new Engine.Block(400, 200, 200,50,new Engine.Color(0,0,0)));
+
+// Create the player
+var player = new Engine.Player(100,100,100,100);
+player.addKeyHandler("up", 
+   function(p:Engine.Player){
+      if(p.onGround){
+         p.dy = -40;
+         p.onGround = false;
+      }        
+   });
+
+player.addKeyHandler("left", 
+   function(p:Engine.Player){
+         p.dx -= 6;
+   });
+
+player.addKeyHandler("right", 
+   function(p:Engine.Player){
+         p.dx += 6;
+   });
+
+game.addActor(player);
+
+// Run the mainloop
 game.start();

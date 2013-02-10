@@ -84,8 +84,7 @@ module Engine {
 		onGround : bool;
 
 		// List of key handlers for a player
-		// (player:Player => void) [];
-		handlers : any [];
+		handlers : {[key:string]: { (player:Player): void; };} = {};
 
 		constructor (public x: number, public y: number, public width : number, public height:number){
 			this.onGround = false;
@@ -94,8 +93,8 @@ module Engine {
 			this.ay = this.gravity;
 		}
 
-		addKeyHandler(key:Key, handler: (player:Player) => void){
-			this.handlers.push(handler);
+		addKeyHandler(key:string, handler: (player:Player) => void){
+			this.handlers[key] = handler;
 		}
 
 		update(engine: SimpleGame, delta: number){
@@ -103,20 +102,11 @@ module Engine {
 			// Key Input
 			var keys = engine.keys;
 
-			// Left key
-			if(keys.indexOf(37)>-1){
-				this.dx -= 6;
-			}
-			
-			// Right key
-			if(keys.indexOf(39)>-1){
-				this.dx += 6;
-			}
-
-			// Up key
-			if(keys.indexOf(38)>-1 && this.onGround){
-				this.dy = -30;
-				this.onGround = false;
+			for(var key in this.handlers){
+				var pressedKey = engine.keyMap[key];
+				if(keys.indexOf(pressedKey)>-1){
+					this.handlers[key](this);
+				}
 			}
 
 			// Update placements based on physics
@@ -125,7 +115,7 @@ module Engine {
 
 			this.dx += this.ax;
 			this.dy += this.ay;
-			
+
 			this.onGround = false;
 
 			// Pseudo-Friction
@@ -137,31 +127,17 @@ module Engine {
 				
 				if(this.box.collides(levelBox)){
 
-					// Collision is on the bottom
-					if(this.box.getBottom() > levelBox.getTop()){
+					var overlap = this.box.getOverlap(levelBox);
+					if(Math.abs(overlap.y) < Math.abs(overlap.x)){ 
+						this.box.y += overlap.y; 
 						this.dy = 0;
-						this.box.y = levelBox.getTop() - this.height;
-						this.onGround = true;	
-					}else{
-						// Collision is left 
-						if(this.box.getLeft() + this.dx < levelBox.getRight()){
-							alert();
-							this.dx = 0;
-							this.box.x = levelBox.getRight();
-						// Collision is right
-						}else	if(this.box.getRight() + this.dx > levelBox.getLeft()){
-							alert();
-							this.dx = 0;
-							this.box.x = levelBox.getLeft() - this.width;
-						}
+						this.onGround = true;
+					} else { 
+						this.box.x += overlap.x; 
+						this.dx = 0;
 					}
-
 				}
-			}
-
-
-
-			
+			}			
 		}
 		
 		draw(ctx : CanvasRenderingContext2D, delta: number){
@@ -171,8 +147,10 @@ module Engine {
 	}
 	export class Block implements Actor {
 		color : Color;
-		constructor(public boundingBox:Box, color: Color){
+		boundingBox : Box;
+		constructor(public x:number, public y: number, public width: number, public height:number, color: Color){
 			this.color = color;	
+			this.boundingBox = new Box(this.x,this.y,this.width,this.height);
 		}
 		
 		toString(){
@@ -186,6 +164,12 @@ module Engine {
 			
 			ctx.fillStyle = this.color.toString();			
 			ctx.fillRect(this.boundingBox.x,this.boundingBox.y,this.boundingBox.width,this.boundingBox.height);
+		}
+	}
+
+	export class Overlap {
+		constructor(public x: number, public y: number){
+
 		}
 	}
 
@@ -227,42 +211,46 @@ module Engine {
 			this.height = bottom - this.y;
 		}
 
-		collidesLeftRightWithVel(box: Box, dx: number, dy: number){
-			return ((this.getLeft() + dx < box.getRight() && box.getRight() < this.getRight() + dx) ||
-					 (this.getLeft() + dx < box.getLeft() && box.getLeft() < this.getRight() + dx )) &&
-					 ((this.getTop() + dy < box.getBottom() && box.getBottom() < this.getBottom() + dy) ||
-					 (this.getTop()  + dy < box.getTop() && box.getTop() < this.getBottom() + dy));
+		getOverlap(box: Box): Overlap{
+			var xover = 0;
+			var yover = 0;
+			if(this.collides(box)){
+				if(this.getLeft() < box.getRight()){
+					xover = box.getRight() - this.getLeft();
+				}
+				if(box.getLeft() < this.getRight()){
+					var tmp =  box.getLeft() - this.getRight();
+					if(Math.abs(xover) > Math.abs(tmp)){
+						xover = tmp;
+					}
+				}
+
+				if(this.getBottom() > box.getTop()){
+					yover = box.getTop() - this.getBottom();
+				}
+
+				if(box.getBottom() > this.getTop()){
+					var tmp = box.getBottom() - this.getTop();
+					if(Math.abs(yover) > Math.abs(tmp)){
+						yover = tmp;
+					}
+				}
+
+			}
+			return new Overlap(xover,yover);
 		}
 		
 		collides(box : Box){
-			return ((this.getLeft() < box.getRight() && box.getRight() < this.getRight()) ||
-					 (this.getLeft() < box.getLeft() && box.getLeft() < this.getRight())) &&
-					 ((this.getTop() < box.getBottom() && box.getBottom() < this.getBottom()) ||
-					 (this.getTop() < box.getTop() && box.getTop() < this.getBottom()));
-		}
-		
-		collidesLeft(box: Box){
-			var result: bool;
-			result = ((this.getLeft() < box.getRight() && box.getRight() < this.getRight()) ||
-					   (this.getLeft() < box.getLeft() && box.getLeft() < this.getRight()))
-			return result;
-		}
-		
-		// TODO: Implement
-		collidesTop(box: Box){
-			return false;
-		}
-		
-		collidesBottom(box: Box){
-			var result: bool;
-			result = ((this.getTop() < box.getBottom() && box.getBottom() < this.getBottom()) ||
-					 (this.getTop() < box.getTop() && box.getTop() < this.getBottom()));
+			var w = 0.5 * (this.width + box.width);
+			var h = 0.5 * (this.height + box.height);
 
-			return result;
-		}
-		
-		collidesRight(box: Box){
-			return (Algebra.Util.Equals(this.getRight(),box.getLeft(),.1) && this.collides(box));
+			var dx = (this.x + this.width/2.0) - (box.x + box.width/2.0);
+			var dy = (this.y + this.height/2.0) - (box.y + box.height/2.0);
+
+			if (Math.abs(dx) < w && Math.abs(dy) < h)
+			{
+			    return true;
+			}
 		}
 			
 	}
@@ -293,6 +281,8 @@ module Engine {
 		actors: Actor[] = [];
 		level: Block[] = [];
 		keys = [];
+		keyMap : {[key:string]:number;} = {"up": 38, "down": 40, "left": 37, "right": 39 };
+		//inputMap : {[key:number]:string;} = {38: "up", 40: "down", 37: "left", 39: "right" };
 		canv = <HTMLCanvasElement>document.createElement("canvas");
 		ctx: CanvasRenderingContext2D;
 		constructor(public width : number, public height : number, public fullscreen? : bool, public backgroundColor?: Color){
