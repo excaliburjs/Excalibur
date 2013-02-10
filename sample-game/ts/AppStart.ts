@@ -31,9 +31,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /// <reference path='../../js/Engine.d.ts' />
 
 // Create an start the game
-var game = new Engine.SimpleGame(1000,500,true );
+var game = new Engine.SimpleGame(1000,500,true, new Engine.Color(114,213,224) );
 
-for(var i = 0; i< 5; i++){
+for(var i = 0; i< 8; i++){
 	var color = new Engine.Color(Math.random()*255,Math.random()*255,Math.random()*255);
 	//alert(color.toString());
 	game.addBlock(new Engine.Block(new Engine.Box(100*i+10,200+Math.random()*100,50,50),color));

@@ -32,6 +32,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /// <reference path="Algebra.ts" />
 module Engine {
 
+	export class Key {
+		constructor(public keyName:string, public keyCode:number){
+
+		}
+	}
+
 	export class Sound {
 		sound : HTMLAudioElement;
 		constructor(public path: string){
@@ -67,44 +73,36 @@ module Engine {
 		
 		box : Box;
 		gravity : number = 4;
-		
+
+		// Initial velocity is 0
 		dx: number = 0;
 		dy: number = 0;
 		
-		jumping : bool;
+		// Initial acceleartion is 0;
+		ax: number = 0;
+		ay: number = 0;
 		onGround : bool;
 
-		jumpFrames =0;
-		jumpVel = -8;
+		// List of key handlers for a player
+		// (player:Player => void) [];
+		handlers : any [];
 
-		
 		constructor (public x: number, public y: number, public width : number, public height:number){
-			this.jumping = false;
-			this.onGround = true;
+			this.onGround = false;
 			this.box = new Box(x,y,width,height);
 			
+			this.ay = this.gravity;
 		}
+
+		addKeyHandler(key:Key, handler: (player:Player) => void){
+			this.handlers.push(handler);
+		}
+
 		update(engine: SimpleGame, delta: number){
 			
-		
+			// Key Input
 			var keys = engine.keys;
-			// Up key
-			if(keys.indexOf(38)>-1 && this.onGround){
-				this.jumping = true;
-				this.onGround = false;
-			}
-			
-			if(this.jumping && this.jumpFrames < 10){
-				this.dy += this.jumpVel;
-				this.jumpFrames++;
-			}
-			
-			if(!this.onGround){
-				this.dy += this.gravity;
-			}
-			
-			
-			
+
 			// Left key
 			if(keys.indexOf(37)>-1){
 				this.dx -= 6;
@@ -114,53 +112,60 @@ module Engine {
 			if(keys.indexOf(39)>-1){
 				this.dx += 6;
 			}
+
+			// Up key
+			if(keys.indexOf(38)>-1 && this.onGround){
+				this.dy = -30;
+				this.onGround = false;
+			}
+
+			// Update placements based on physics
 			this.box.x += this.dx;
 			this.box.y += this.dy;
+
+			this.dx += this.ax;
+			this.dy += this.ay;
+			
+			this.onGround = false;
+
+			// Pseudo-Friction
+			this.dx = 0;
+
+			// Test Collision
 			for(var i = 0; i < engine.level.length; i++){
-				var tmpBox = engine.level[i].boundingBox;
+				var levelBox = engine.level[i].boundingBox;
 				
-				
-				if(this.box.collides(tmpBox)){				
-					
-					//this.box.y = tmpBox.y - this.box.height;
-					this.jumping = false;
-					this.onGround = true;
-					this.jumpFrames = 0;
-					
-					this.box.x -= this.dx;
-					this.box.y -= this.dy;
-					break;
-				}else if(!this.box.collidesBottom(tmpBox)){
-					if(Algebra.Util.Equals(this.box.x,tmpBox.x+tmpBox.width,.1)){
-						this.dx = 0;
-						//this.box.x = tmpBox.x + tmpBox.width
-						//break;
-					}
-									
-					if(Algebra.Util.Equals(this.box.x+this.box.width,tmpBox.x,.1)){
+				if(this.box.collides(levelBox)){
+
+					// Collision is on the bottom
+					if(this.box.getBottom() > levelBox.getTop()){
 						this.dy = 0;
-						//this.box.x = tmpBox.x - this.box.width
-						//break;
-					}									
-				
-					this.onGround = false;
-					
+						this.box.y = levelBox.getTop() - this.height;
+						this.onGround = true;	
+					}else{
+						// Collision is left 
+						if(this.box.getLeft() + this.dx < levelBox.getRight()){
+							alert();
+							this.dx = 0;
+							this.box.x = levelBox.getRight();
+						// Collision is right
+						}else	if(this.box.getRight() + this.dx > levelBox.getLeft()){
+							alert();
+							this.dx = 0;
+							this.box.x = levelBox.getLeft() - this.width;
+						}
+					}
+
 				}
 			}
+
+
+
 			
-			this.dx = 0;
-			this.dy = 0;
-			
-			
-			//if(this.y > 100){
-			//	this.y = 100;
-			//	this.jumping = false;
-			//	this.jumpFrames = 0;
-			//}
 		}
 		
 		draw(ctx : CanvasRenderingContext2D, delta: number){
-			ctx.fillStyle = "rgb(" + String(200) + ", " + String(200) + ", " + String(200) + ")";
+			ctx.fillStyle = "rgb(" + String(245) + ", " + String(110) + ", " + String(148) + ")";
 			ctx.fillRect(this.box.x,this.box.y,this.box.width,this.box.height);
 		}
 	}
@@ -189,28 +194,75 @@ module Engine {
 		constructor (public x: number, public y: number, public width : number, public height:number){
 			
 		}
+
+		getLeft() {
+			return this.x;
+		}
+
+		setLeft(left: number){
+			this.x = left;
+		}
+
+		getRight(){
+			return this.x + this.width;
+		}
+
+		setRight(right: number){
+			this.width = right - this.x;
+		}
+
+		getTop(){
+			return this.y;
+		}
+
+		setTop(top: number){
+			this.y = top;
+		}
+
+		getBottom(){
+			return this.y + this.height;
+		}
+
+		setBottom(bottom: number){
+			this.height = bottom - this.y;
+		}
+
+		collidesLeftRightWithVel(box: Box, dx: number, dy: number){
+			return ((this.getLeft() + dx < box.getRight() && box.getRight() < this.getRight() + dx) ||
+					 (this.getLeft() + dx < box.getLeft() && box.getLeft() < this.getRight() + dx )) &&
+					 ((this.getTop() + dy < box.getBottom() && box.getBottom() < this.getBottom() + dy) ||
+					 (this.getTop()  + dy < box.getTop() && box.getTop() < this.getBottom() + dy));
+		}
 		
 		collides(box : Box){
-			return !((this.x + this.width < box.x) ||  
-			   		 (this.x > box.x + box.width) ||
-			   		 (this.y + this.height < box.y) ||
-			   		 (this.y > box.y + box.height));
-		}
-		
-		collidesBottom(box: Box){
-			return (Algebra.Util.Equals(this.y+this.height,box.y,.1) && this.collides(box));
-		}
-		
-		collidesTop(box: Box){
-			
+			return ((this.getLeft() < box.getRight() && box.getRight() < this.getRight()) ||
+					 (this.getLeft() < box.getLeft() && box.getLeft() < this.getRight())) &&
+					 ((this.getTop() < box.getBottom() && box.getBottom() < this.getBottom()) ||
+					 (this.getTop() < box.getTop() && box.getTop() < this.getBottom()));
 		}
 		
 		collidesLeft(box: Box){
-			return (Algebra.Util.Equals(this.x,box.x+box.width,.1) && this.collides(box));
+			var result: bool;
+			result = ((this.getLeft() < box.getRight() && box.getRight() < this.getRight()) ||
+					   (this.getLeft() < box.getLeft() && box.getLeft() < this.getRight()))
+			return result;
+		}
+		
+		// TODO: Implement
+		collidesTop(box: Box){
+			return false;
+		}
+		
+		collidesBottom(box: Box){
+			var result: bool;
+			result = ((this.getTop() < box.getBottom() && box.getBottom() < this.getBottom()) ||
+					 (this.getTop() < box.getTop() && box.getTop() < this.getBottom()));
+
+			return result;
 		}
 		
 		collidesRight(box: Box){
-			return (Algebra.Util.Equals(this.x+this.width,box.x,.1) && this.collides(box));
+			return (Algebra.Util.Equals(this.getRight(),box.getLeft(),.1) && this.collides(box));
 		}
 			
 	}
@@ -243,7 +295,7 @@ module Engine {
 		keys = [];
 		canv = <HTMLCanvasElement>document.createElement("canvas");
 		ctx: CanvasRenderingContext2D;
-		constructor(public width : number, public height : number, public fullscreen? : bool){
+		constructor(public width : number, public height : number, public fullscreen? : bool, public backgroundColor?: Color){
 			this.actors = [];
 		}
 		
@@ -254,8 +306,11 @@ module Engine {
 		}
 		
 		draw(ctx, delta: number){
+			if(!this.backgroundColor){
+				this.backgroundColor = new Color(0,0,0);
+			}
 			// Draw Background color
-			this.ctx.fillStyle = new Color(0,0,0).toString();
+			this.ctx.fillStyle = this.backgroundColor.toString();
 			this.ctx.fillRect(0,0,this.width,this.height);
 			
 			// Draw debug information
