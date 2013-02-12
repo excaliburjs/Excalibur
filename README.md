@@ -19,6 +19,7 @@ The compiler is available here:
 [Node Package Manager](https://npmjs.org/package/typescript)
 [Codeplex Source](http://typescript.codeplex.com/)
 
+** Note: GameTS only supports the newest TypeScript compiler **
 
 ## To build the engine and run the sample game on these platforms:
 
