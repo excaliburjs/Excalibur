@@ -45,12 +45,15 @@ game.addBlock(new Engine.Block(400, 200, 200,50,new Engine.Color(0,0,0)));
 game.addBlock(new Engine.Block(600, 130, 200,30,new Engine.Color(0,0,0)));
 
 // Create the player
-var player = new Engine.Player(100,100,22,25);
+var player = new Engine.Player(100,100,44,50);
 
-// Create animations
-var spriteSheet = new Drawing.SpriteSheet('../images/TestPlayer.png', 10, 1, 22,25);
+// Create spritesheet
+var spriteSheet = new Drawing.SpriteSheet('../images/TestPlayer.png', 10, 1, 44,50);
 
+// Retrieve animation
 var animation = spriteSheet.getAnimationForRow(0, .2);
+animation.setScale(1.0);
+
 
 player.addAnimation("test", animation);
 

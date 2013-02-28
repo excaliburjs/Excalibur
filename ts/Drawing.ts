@@ -52,12 +52,17 @@ module Drawing{
 
    export class Sprite {
       internalImage : HTMLImageElement;
+      scale: number = 1.0;
    	constructor(image: HTMLImageElement, public sx: number, public sy:number, public swidth: number, public sheight : number){
          this.internalImage = image;
    	}
 
+      setScale(scale: number){
+         this.scale = scale;
+      }
+
       draw(ctx: CanvasRenderingContext2D, x: number, y: number){
-         ctx.drawImage(this.internalImage, this.sx, this.sy, this.swidth, this.sheight, x, y, this.swidth, this.sheight);
+         ctx.drawImage(this.internalImage, this.sx, this.sy, this.swidth, this.sheight, x, y, this.swidth*this.scale, this.sheight*this.scale);
       }
    }
 
@@ -74,6 +79,12 @@ module Drawing{
          this.speed = speed;
          this.maxIndex = images.length;
    	}
+
+      setScale(scale: number){
+         for(var i in this.sprites){
+            this.sprites[i].setScale(scale);
+         }
+      }
 
       tick(){
          var time = new Date().getTime();
