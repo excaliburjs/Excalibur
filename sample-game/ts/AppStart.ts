@@ -40,28 +40,34 @@ for(var i = 0; i< 16; i++){
 	game.addBlock(new Engine.Block(50*i+10,350+Math.random()*100,50,50,color));
 }
 
-game.addBlock(new Engine.Block(400, 200, 200,50,new Engine.Color(0,0,0)));
+game.addBlock(new Engine.Block(400, 300, 200,50,new Engine.Color(0,0,0)));
 
-game.addBlock(new Engine.Block(600, 130, 200,30,new Engine.Color(0,0,0)));
+game.addBlock(new Engine.Block(600, 230, 200,30,new Engine.Color(0,0,0)));
 
 // Create the player
 var player = new Engine.Player(100,100,44,50);
+player.setGravity(2.0);
 
 // Create spritesheet
 var spriteSheet = new Drawing.SpriteSheet('../images/TestPlayer.png', 10, 1, 44,50);
 
-// Retrieve animation
-var animation = spriteSheet.getAnimationForRow(0, .2);
-animation.setScale(1.0);
+// Retrieve animations
+var left = spriteSheet.getAnimationForRow(0, 8, 2, .2);
+var right = spriteSheet.getAnimationForRow(0, 3, 2, .2);
+var idle = spriteSheet.getAnimationForRow(0, 0, 3, .2);
+
+// Add animations to player
+player.addAnimation("left", left);
+player.addAnimation("right", right);
+player.addAnimation("idle", idle);
 
 
-player.addAnimation("test", animation);
-
-player.playAnimation("test");
+player.playAnimation("idle");
 
 // Create key handlers
 player.addKeyHandler("up", 
    function(p:Engine.Player){
+      player.playAnimation("idle");
       if(p.onGround){
          p.dy = -20;
          p.onGround = false;
@@ -70,12 +76,14 @@ player.addKeyHandler("up",
 
 player.addKeyHandler("left", 
    function(p:Engine.Player){
-         p.dx -= 6;
+         p.dx -= 3;
+         player.playAnimation("left");
    });
 
 player.addKeyHandler("right", 
    function(p:Engine.Player){
-         p.dx += 6;
+         p.dx += 3;
+         player.playAnimation("right");
    });
 
 game.addActor(player);

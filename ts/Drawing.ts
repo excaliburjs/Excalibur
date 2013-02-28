@@ -44,8 +44,8 @@ module Drawing{
          }
       }
 
-      getAnimationForRow(rowIndex: number, speed: number){
-         return new Animation(this.sprites[rowIndex], speed);
+      getAnimationForRow(rowIndex: number, start: number, count: number, speed: number){
+         return new Animation(this.sprites[rowIndex].slice(start,start+count), speed);
       }
 
    }

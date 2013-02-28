@@ -100,6 +100,11 @@ module Engine {
 			this.ay = this.gravity;
 		}
 
+		setGravity(gravity: number){
+			this.gravity = gravity;
+			this.ay = this.gravity;
+		}
+
 		addKeyHandler(key:string, handler: (player:Player) => void){
 			this.handlers[key] = handler;
 		}
