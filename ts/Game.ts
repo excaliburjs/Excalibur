@@ -30,8 +30,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 /// <reference path="Algebra.ts" />
-module Engine {
+/// <reference path="Drawing.ts" />
 
+module Engine {
 	export class Key {
 		constructor(public keyName:string, public keyCode:number){
 
@@ -83,8 +84,14 @@ module Engine {
 		ay: number = 0;
 		onGround : bool;
 
+		// Current animation
+		currentAnimation: Drawing.Animation = null;
+
 		// List of key handlers for a player
 		handlers : {[key:string]: { (player:Player): void; };} = {};
+
+		// List of animations for a player
+		animations : {[key:string]:Drawing.Animation;} = {};
 
 		constructor (public x: number, public y: number, public width : number, public height:number){
 			this.onGround = false;
@@ -95,6 +102,14 @@ module Engine {
 
 		addKeyHandler(key:string, handler: (player:Player) => void){
 			this.handlers[key] = handler;
+		}
+
+		addAnimation(key:string, animation: Drawing.Animation){
+			this.animations[key] = animation;
+		}
+
+		playAnimation(key){
+			this.currentAnimation = this.animations[key];
 		}
 
 		update(engine: SimpleGame, delta: number){
@@ -137,14 +152,22 @@ module Engine {
 						this.dx = 0;
 					}
 				}
-			}			
+			}
+
 		}
 		
 		draw(ctx : CanvasRenderingContext2D, delta: number){
-			ctx.fillStyle = "rgb(" + String(245) + ", " + String(110) + ", " + String(148) + ")";
-			ctx.fillRect(this.box.x,this.box.y,this.box.width,this.box.height);
+			if(this.currentAnimation){
+				this.currentAnimation.draw(ctx, this.box.x, this.box.y);
+			}else{
+				ctx.fillStyle = "rgb(" + String(245) + ", " + String(110) + ", " + String(148) + ")";
+				ctx.fillRect(this.box.x,this.box.y,this.box.width,this.box.height);				
+			}
+
 		}
 	}
+
+
 	export class Block implements Actor {
 		color : Color;
 		boundingBox : Box;
@@ -253,26 +276,6 @@ module Engine {
 			}
 		}
 			
-	}
-
-	export class Image {
-		constructor (public path: string){
-			
-		}
-		
-		draw(){
-			
-		}
-	}
-
-	export class Sprite {
-		constructor (public images: Image[], public duration: number){
-			
-		}
-		
-		draw(){
-			
-		}
 	}
 
 	export class SimpleGame {

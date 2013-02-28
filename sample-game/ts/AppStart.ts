@@ -35,9 +35,9 @@ var game = new Engine.SimpleGame(1000,500,true, new Engine.Color(114,213,224) );
 
 
 // Create the level
-for(var i = 0; i< 8; i++){
+for(var i = 0; i< 16; i++){
 	var color = new Engine.Color(Math.random()*255,Math.random()*255,Math.random()*255);
-	game.addBlock(new Engine.Block(100*i+10,350+Math.random()*100,50,50,color));
+	game.addBlock(new Engine.Block(50*i+10,350+Math.random()*100,50,50,color));
 }
 
 game.addBlock(new Engine.Block(400, 200, 200,50,new Engine.Color(0,0,0)));
@@ -45,11 +45,22 @@ game.addBlock(new Engine.Block(400, 200, 200,50,new Engine.Color(0,0,0)));
 game.addBlock(new Engine.Block(600, 130, 200,30,new Engine.Color(0,0,0)));
 
 // Create the player
-var player = new Engine.Player(100,100,100,100);
+var player = new Engine.Player(100,100,22,25);
+
+// Create animations
+var spriteSheet = new Drawing.SpriteSheet('../images/TestPlayer.png', 10, 1, 22,25);
+
+var animation = spriteSheet.getAnimationForRow(0, .2);
+
+player.addAnimation("test", animation);
+
+player.playAnimation("test");
+
+// Create key handlers
 player.addKeyHandler("up", 
    function(p:Engine.Player){
       if(p.onGround){
-         p.dy = -40;
+         p.dy = -20;
          p.onGround = false;
       }        
    });
