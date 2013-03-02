@@ -66,7 +66,7 @@ player.addAnimation("idle", idle);
 player.playAnimation("idle");
 
 // Create key handlers
-player.addKeyHandler("up", 
+player.addKeyHandler(["up","w"], 
    function(p:Core.Player){
       player.playAnimation("idle");
       if(p.onGround){
@@ -75,13 +75,13 @@ player.addKeyHandler("up",
       }        
    });
 
-player.addKeyHandler("left", 
+player.addKeyHandler(["left","a"], 
    function(p:Core.Player){
          p.dx -= 3;
          player.playAnimation("left");
    });
 
-player.addKeyHandler("right", 
+player.addKeyHandler(["right","d"], 
    function(p:Core.Player){
          p.dx += 3;
          player.playAnimation("right");

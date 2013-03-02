@@ -107,8 +107,16 @@ module Core {
 			this.ay = this.gravity;
 		}
 
+		/*
 		addKeyHandler(key:string, handler: (player:Player) => void){
 			this.handlers[key] = handler;
+		}*/
+
+		addKeyHandler(key:string[], handler: (player:Player) => void){
+			for(var i in key){
+				var k = key[i];
+				this.handlers[k] = handler;
+			}
 		}
 
 		addAnimation(key:string, animation: Drawing.Animation){
