@@ -30,6 +30,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 module Drawing{
 
+   export interface IDrawable{
+      setScale(scale: number);
+      setRotation(radians: number);
+      draw(ctx: CanvasRenderingContext2D, x: number, y: number);
+   }
+
    export class SpriteSheet {
       sprites : any = {};
       internalImage : HTMLImageElement;
@@ -50,12 +56,17 @@ module Drawing{
 
    }
 
-   export class Sprite {
+   export class Sprite implements IDrawable{
       internalImage : HTMLImageElement;
       scale: number = 1.0;
+      rotation: number = 0.0;
    	constructor(image: HTMLImageElement, public sx: number, public sy:number, public swidth: number, public sheight : number){
          this.internalImage = image;
    	}
+
+      setRotation(radians: number){
+         this.rotation = radians;
+      }
 
       setScale(scale: number){
          this.scale = scale;
@@ -66,13 +77,14 @@ module Drawing{
       }
    }
 
-   export class Animation {
+   export class Animation implements IDrawable {
    	sprites : Sprite[];
       speed : number;
       maxIndex : number;
       currIndex : number = 0;
       oldTime : number = new Date().getTime();
-
+      rotation : number = 0.0;
+      scale : number = 1.0;
 
    	constructor(images: Sprite[], speed: number){
    		this.sprites = images;
@@ -80,7 +92,15 @@ module Drawing{
          this.maxIndex = images.length;
    	}
 
+      setRotation(radians: number){
+         this.rotation = radians;
+         for(var i in this.sprites){
+            this.sprites[i].setRotation(radians);
+         }
+      }
+
       setScale(scale: number){
+         this.scale = scale;
          for(var i in this.sprites){
             this.sprites[i].setScale(scale);
          }

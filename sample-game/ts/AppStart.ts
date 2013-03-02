@@ -31,21 +31,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /// <reference path='../../js/Engine.d.ts' />
 
 // Create an the game container
-var game = new Engine.SimpleGame(1000,500,true, new Engine.Color(114,213,224) );
+var game = new Core.SimpleGame(1000,500,true, new Core.Color(114,213,224) );
 
 
 // Create the level
-for(var i = 0; i< 16; i++){
-	var color = new Engine.Color(Math.random()*255,Math.random()*255,Math.random()*255);
-	game.addBlock(new Engine.Block(50*i+10,350+Math.random()*100,50,50,color));
+for(var i = 0; i< 36; i++){
+	var color = new Core.Color(Math.random()*255,Math.random()*255,Math.random()*255);
+	game.addBlock(new Core.Block(50*i+10,350+Math.random()*100,50,50,color));
 }
 
-game.addBlock(new Engine.Block(400, 300, 200,50,new Engine.Color(0,0,0)));
+game.addBlock(new Core.Block(400, 300, 200,50,new Core.Color(0,0,0)));
 
-game.addBlock(new Engine.Block(600, 230, 200,30,new Engine.Color(0,0,0)));
+game.addBlock(new Core.Block(600, 230, 200,30,new Core.Color(0,0,0)));
+
 
 // Create the player
-var player = new Engine.Player(100,100,44,50);
+var player = new Core.Player(100,100,44,50);
 player.setGravity(2.0);
 
 // Create spritesheet
@@ -66,7 +67,7 @@ player.playAnimation("idle");
 
 // Create key handlers
 player.addKeyHandler("up", 
-   function(p:Engine.Player){
+   function(p:Core.Player){
       player.playAnimation("idle");
       if(p.onGround){
          p.dy = -20;
@@ -75,18 +76,26 @@ player.addKeyHandler("up",
    });
 
 player.addKeyHandler("left", 
-   function(p:Engine.Player){
+   function(p:Core.Player){
          p.dx -= 3;
          player.playAnimation("left");
    });
 
 player.addKeyHandler("right", 
-   function(p:Engine.Player){
+   function(p:Core.Player){
          p.dx += 3;
          player.playAnimation("right");
    });
 
+// Create a camera to track the player
+var camera = new Camera.SideCamera();
+camera.setActorToFollow(player);
+
+// Add player to game
 game.addActor(player);
+
+// Add camera to game
+game.addCamera(camera);
 
 // Run the mainloop
 game.start();

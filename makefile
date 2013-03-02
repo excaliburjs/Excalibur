@@ -1,7 +1,7 @@
 all: engine sample run
 	
 engine:
-	tsc --declaration ./ts/Game.ts -out ./js/Engine.js -c
+	tsc --declaration ./ts/Core.ts -out ./js/Engine.js -c
 sample:
 	tsc ./sample-game/ts/AppStart.ts -c
 run:

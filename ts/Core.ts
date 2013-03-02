@@ -31,13 +31,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /// <reference path="Algebra.ts" />
 /// <reference path="Drawing.ts" />
+/// <reference path="Camera.ts" />
 
-module Engine {
-	export class Key {
-		constructor(public keyName:string, public keyCode:number){
-
-		}
-	}
+module Core {
+	
+	var Keys : {[key:string]:number;} = 
+				{"up": 38, "down": 40, "left": 37, "right": 39,
+				 "space": 32, "a": 65, "s": 83, "d": 68, "w": 87,
+				 "shift": 16};
+	
 
 	export class Sound {
 		sound : HTMLAudioElement;
@@ -283,17 +285,38 @@ module Engine {
 			
 	}
 
-	export class SimpleGame {
+	export class Game {
+		constructor(){
+
+		}
+	}
+
+	export class TopDownGame extends Game {
+		constructor(){
+			super();
+		}
+	}
+
+	export class SimpleGame extends Game {
 		
 		debugFontSize = 50;
 		actors: Actor[] = [];
 		level: Block[] = [];
+
+		// key buffer
 		keys = [];
-		keyMap : {[key:string]:number;} = {"up": 38, "down": 40, "left": 37, "right": 39 };
-		//inputMap : {[key:number]:string;} = {38: "up", 40: "down", 37: "left", 39: "right" };
+		// key mappings
+		keyMap : {[key:string]:number;} = Keys;
+		
+		// internal canvase
 		canv = <HTMLCanvasElement>document.createElement("canvas");
-		ctx: CanvasRenderingContext2D;
+		ctx : CanvasRenderingContext2D;
+
+		// internal camera
+		camera : Camera.SideCamera = null;
+
 		constructor(public width : number, public height : number, public fullscreen? : bool, public backgroundColor?: Color){
+			super();
 			this.actors = [];
 		}
 		
@@ -301,6 +324,10 @@ module Engine {
 			for(var i = 0; i< this.actors.length; i++){
 				this.actors[i].update(engine, delta);
 			}
+		}
+
+		addCamera(camera : Camera.SideCamera){
+			this.camera = camera;
 		}
 		
 		draw(ctx, delta: number){
@@ -310,11 +337,17 @@ module Engine {
 			// Draw Background color
 			this.ctx.fillStyle = this.backgroundColor.toString();
 			this.ctx.fillRect(0,0,this.width,this.height);
-			
+
 			// Draw debug information
 			this.ctx.fillStyle = new Color(250,0,0).toString();
 			for (var j = 0; j < this.keys.length; j++){
 				this.ctx.fillText(this.keys[j],10, 10*j+10)
+			}
+
+			ctx.save();
+
+			if(this.camera){
+				this.camera.applyTransform(ctx, delta);	
 			}
 			
 			// Draw level
@@ -326,6 +359,7 @@ module Engine {
 			for(var i = 0; i< this.actors.length; i++){
 				this.actors[i].draw(ctx, delta);
 			}
+			ctx.restore();
 		}
 		
 		addActor(actor: Actor){

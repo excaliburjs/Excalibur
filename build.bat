@@ -1,3 +1,3 @@
-tsc --declaration ./ts/Game.ts -out ./js/Engine.js -c
-tsc ./sample-game/ts/AppStart.ts -c
-start ./sample-game/html/GameStart.html
+tsc --declaration ./ts/Core.ts -out ./js/Engine.js -c
+if %ERRORLEVEL% EQU 0 tsc ./sample-game/ts/AppStart.ts -c
+if %ERRORLEVEL% EQU 0 start ./sample-game/html/GameStart.html
