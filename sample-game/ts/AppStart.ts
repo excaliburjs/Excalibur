@@ -33,11 +33,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Create an the game container
 var game = new Core.SimpleGame(1000,500,true, new Core.Color(114,213,224) );
 
+// Create spritesheet
+var spriteSheet = new Drawing.SpriteSheet('../images/TestPlayer.png', 12, 1, 44,50);
+
+// Retrieve animations for blocks from sprite sheet
+var blockAnimation = spriteSheet.getAnimationForRow(0, 10, 1, .2);
 
 // Create the level
 for(var i = 0; i< 36; i++){
 	var color = new Core.Color(Math.random()*255,Math.random()*255,Math.random()*255);
-	game.addBlock(new Core.Block(50*i+10,350+Math.random()*100,50,50,color));
+	var block = new Core.Block(46*i+10,350+Math.random()*100,44,50,color);
+   
+   block.addAnimation("block", blockAnimation);
+   block.playAnimation("block");
+   
+   game.addBlock(block);
 }
 
 game.addBlock(new Core.Block(400, 300, 200,50,new Core.Color(0,0,0)));
@@ -60,10 +70,8 @@ physics.setGravity(2.0);
 player.setPhysicsSystem(physics);
 //player.setPhysicsSystem(physics);
 
-// Create spritesheet
-var spriteSheet = new Drawing.SpriteSheet('../images/TestPlayer.png', 10, 1, 44,50);
 
-// Retrieve animations
+// Retrieve animations for player from sprite sheet
 var left = spriteSheet.getAnimationForRow(0, 8, 2, .2);
 var right = spriteSheet.getAnimationForRow(0, 3, 2, .2);
 var idle = spriteSheet.getAnimationForRow(0, 0, 3, .2);

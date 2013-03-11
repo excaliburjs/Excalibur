@@ -57,6 +57,7 @@ module Core {
 	}
 
 
+	// Abstract class, must override update and draw
 	export class Actor {
 		// Initial velocity is 0
 		dx: number = 0;
@@ -66,12 +67,32 @@ module Core {
 		ax: number = 0;
 		ay: number = 0;
 		constructor(){
+		}
 
+		// List of animations for an Actor
+		animations : {[key:string]:Drawing.Animation;} = {};
+
+		// Current animation for an Actor
+		currentAnimation: Drawing.Animation = null;
+
+		// Add an animation to Actor's list
+		addAnimation(key:string, animation: Drawing.Animation){
+			this.animations[key] = animation;
+			if(!this.currentAnimation){
+				this.currentAnimation = animation;
+			}
+		}
+
+		// Play animation in Actor's list
+		playAnimation(key){
+			this.currentAnimation = this.animations[key];
 		}
 
 		update(engine: SimpleGame, delta: number){
+			// override
 		}
 		draw(ctx: CanvasRenderingContext2D, delta: number){
+			// override
 		}
 	}
 
@@ -221,20 +242,14 @@ module Core {
 
 
 	export class Player extends Actor {
-		
+		// bounding box
 		box : Box;
 
 		// internal physics system
 		system : IPhysicsSystem = null;
 
-		// Current animation
-		currentAnimation: Drawing.Animation = null;
-
 		// List of key handlers for a player
 		handlers : {[key:string]: { (player:Player): void; };} = {};
-
-		// List of animations for a player
-		animations : {[key:string]:Drawing.Animation;} = {};
 
 		constructor (public x: number, public y: number, public width : number, public height:number){
 			super()
@@ -259,14 +274,6 @@ module Core {
 				var k = key[i];
 				this.handlers[k] = handler;
 			}
-		}
-
-		addAnimation(key:string, animation: Drawing.Animation){
-			this.animations[key] = animation;
-		}
-
-		playAnimation(key){
-			this.currentAnimation = this.animations[key];
 		}
 
 		update(engine: SimpleGame, delta: number){
@@ -323,9 +330,12 @@ module Core {
 			
 		}
 		draw(ctx: CanvasRenderingContext2D, delta: number){
-			
-			ctx.fillStyle = this.color.toString();			
-			ctx.fillRect(this.boundingBox.x,this.boundingBox.y,this.boundingBox.width,this.boundingBox.height);
+			if(this.currentAnimation){
+				this.currentAnimation.draw(ctx, this.boundingBox.x, this.boundingBox.y);
+			}else{
+				ctx.fillStyle = this.color.toString();			
+				ctx.fillRect(this.boundingBox.x,this.boundingBox.y,this.boundingBox.width,this.boundingBox.height);
+			}
 		}
 	}
 
