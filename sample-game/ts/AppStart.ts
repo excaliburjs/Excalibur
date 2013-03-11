@@ -46,8 +46,19 @@ game.addBlock(new Core.Block(600, 230, 200,30,new Core.Color(0,0,0)));
 
 
 // Create the player
-var player = new Core.Player(100,100,44,50);
-player.setGravity(2.0);
+var player = new Core.Player(100,100,35,50);
+
+// Create a physics system for the player
+var physics = new Core.SideScrollerPhysics(player, game);
+physics.setGravity(2.0);
+
+// Top down physics system
+//var physics = new Core.TopDownPhysics(player, game);
+//physics.setFriction(.1);
+
+// Add physics system to player
+player.setPhysicsSystem(physics);
+//player.setPhysicsSystem(physics);
 
 // Create spritesheet
 var spriteSheet = new Drawing.SpriteSheet('../images/TestPlayer.png', 10, 1, 44,50);
@@ -62,29 +73,35 @@ player.addAnimation("left", left);
 player.addAnimation("right", right);
 player.addAnimation("idle", idle);
 
-
+// Set default animation
 player.playAnimation("idle");
 
 // Create key handlers
 player.addKeyHandler(["up","w"], 
    function(p:Core.Player){
       player.playAnimation("idle");
-      if(p.onGround){
+      var system  = player.getPhysicsSystem();
+      if(system.isGround()){
          p.dy = -20;
-         p.onGround = false;
+         system.setGround(false);
       }        
    });
 
 player.addKeyHandler(["left","a"], 
    function(p:Core.Player){
-         p.dx -= 3;
-         player.playAnimation("left");
+      p.dx -= 3;
+      player.playAnimation("left");
    });
 
 player.addKeyHandler(["right","d"], 
    function(p:Core.Player){
-         p.dx += 3;
-         player.playAnimation("right");
+      p.dx += 3;
+      player.playAnimation("right");
+   });
+
+player.addKeyHandler(["down", "s"],
+   function(p:Core.Player){
+      p.dy += 3;
    });
 
 // Create a camera to track the player

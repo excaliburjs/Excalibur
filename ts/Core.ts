@@ -57,9 +57,22 @@ module Core {
 	}
 
 
-	export interface Actor {
-		update(engine: SimpleGame, delta: number);
-		draw(ctx: CanvasRenderingContext2D, delta: number);
+	export class Actor {
+		// Initial velocity is 0
+		dx: number = 0;
+		dy: number = 0;
+		
+		// Initial acceleartion is 0;
+		ax: number = 0;
+		ay: number = 0;
+		constructor(){
+
+		}
+
+		update(engine: SimpleGame, delta: number){
+		}
+		draw(ctx: CanvasRenderingContext2D, delta: number){
+		}
 	}
 
 	export class Color {
@@ -72,19 +85,147 @@ module Core {
 		}
 	}
 
-	export class Player implements Actor {
+
+	// Handles collisions and interactions with other actors for an specific actor
+	export interface IPhysicsSystem {
+		update(delta: number);
+		isGround():bool; // this is a little leaky :/
+		setGround(onGround: bool);
+	}
+
+	// Side scroller physics implementation w/o inertia
+	export class SideScrollerPhysics implements IPhysicsSystem {
+
+		gravity: number = 4;
+		onGround : bool = false;
+		constructor(public actor: Player, public engine: SimpleGame){
+
+		}
+
+		isGround():bool{
+			return this.onGround;
+		}
+
+		setGround(onGround: bool){
+			this.onGround = onGround;
+		}
+
+		setGravity(gravity: number){
+			this.gravity = gravity;
+		}
+
+		update(delta: number){
+			this.actor.ay = this.gravity;
+
+			this.onGround = false;
+
+			// Pseudo-Friction
+			this.actor.dx = 0;
+
+			// Test Collision
+			for(var i = 0; i < this.engine.level.length; i++){
+				var levelBox = this.engine.level[i].boundingBox;
+				
+				if(this.actor.box.collides(levelBox)){
+
+					var overlap = this.actor.box.getOverlap(levelBox);
+					if(Math.abs(overlap.y) < Math.abs(overlap.x)){ 
+						this.actor.box.y += overlap.y; 
+						this.actor.dy = 0;
+						/// TODO: This isn't quite right since if we collide on the y we are considered "on the ground"
+						this.onGround = true;
+					} else { 
+						this.actor.box.x += overlap.x; 
+						this.actor.dx = 0;
+					}
+				}
+			}
+		}
+
+	}
+
+	// Side scroller physics implementation w inertia
+	export class SideScrollerInertiaPhysics implements IPhysicsSystem {
+		constructor(){
+
+		}
+		isGround(){
+			return false;
+		}
+		setGround(onGround: bool){
+
+		}
+		update(delta: number){
+
+		}		
+	}
+
+	// Top down game physics implementation
+	export class TopDownPhysics implements IPhysicsSystem {
+		friction : number = 0;
+		constructor(public actor: Player, public engine: SimpleGame){
+
+		}
+
+		setFriction(friction:number){
+			this.friction = friction;
+		}
+
+		isGround(){
+			return false;
+		}
+		setGround(onGround: bool){
+
+		}
+		update(delta: number){
+			// Pseudo-Friction
+			if(this.actor.dx != 0){
+				if(Math.abs(this.actor.dx) <= this.friction){
+					this.actor.dx = 0;
+				}else{
+					this.actor.dx = this.actor.dx + (this.actor.dx>0?-1:1)*this.friction;	
+				}
+			}
+
+			if(this.actor.dy != 0){
+				if(Math.abs(this.actor.dy) <= this.friction){
+					this.actor.dy = 0;
+				}else{
+					this.actor.dy = this.actor.dy + (this.actor.dy>0?-1:1)*this.friction;	
+				}
+			}
+
+			//this.actor.dx = 0;
+			//this.actor.dy = 0;
+
+			// Test Collision
+			for(var i = 0; i < this.engine.level.length; i++){
+				var levelBox = this.engine.level[i].boundingBox;
+				
+				if(this.actor.box.collides(levelBox)){
+
+					var overlap = this.actor.box.getOverlap(levelBox);
+					if(Math.abs(overlap.y) < Math.abs(overlap.x)){ 
+						this.actor.box.y += overlap.y; 
+						this.actor.dy = 0;
+					} else { 
+						this.actor.box.x += overlap.x; 
+						this.actor.dx = 0;
+					}
+				}
+			}
+		}
+	}
+
+
+
+
+	export class Player extends Actor {
 		
 		box : Box;
-		gravity : number = 4;
 
-		// Initial velocity is 0
-		dx: number = 0;
-		dy: number = 0;
-		
-		// Initial acceleartion is 0;
-		ax: number = 0;
-		ay: number = 0;
-		onGround : bool;
+		// internal physics system
+		system : IPhysicsSystem = null;
 
 		// Current animation
 		currentAnimation: Drawing.Animation = null;
@@ -96,15 +237,16 @@ module Core {
 		animations : {[key:string]:Drawing.Animation;} = {};
 
 		constructor (public x: number, public y: number, public width : number, public height:number){
-			this.onGround = false;
+			super()
 			this.box = new Box(x,y,width,height);
-			
-			this.ay = this.gravity;
 		}
 
-		setGravity(gravity: number){
-			this.gravity = gravity;
-			this.ay = this.gravity;
+		setPhysicsSystem(system: IPhysicsSystem){
+			this.system = system;
+		}
+
+		getPhysicsSystem(): IPhysicsSystem{
+			return this.system;
 		}
 
 		/*
@@ -139,36 +281,17 @@ module Core {
 				}
 			}
 
-			// Update placements based on physics
+			// Update placements based on linear algebra
 			this.box.x += this.dx;
 			this.box.y += this.dy;
 
 			this.dx += this.ax;
 			this.dy += this.ay;
 
-			this.onGround = false;
-
-			// Pseudo-Friction
-			this.dx = 0;
-
-			// Test Collision
-			for(var i = 0; i < engine.level.length; i++){
-				var levelBox = engine.level[i].boundingBox;
-				
-				if(this.box.collides(levelBox)){
-
-					var overlap = this.box.getOverlap(levelBox);
-					if(Math.abs(overlap.y) < Math.abs(overlap.x)){ 
-						this.box.y += overlap.y; 
-						this.dy = 0;
-						this.onGround = true;
-					} else { 
-						this.box.x += overlap.x; 
-						this.dx = 0;
-					}
-				}
+			// Update placements based on physics system if one exists
+			if(this.system){
+				this.system.update(delta);		
 			}
-
 		}
 		
 		draw(ctx : CanvasRenderingContext2D, delta: number){
@@ -183,10 +306,11 @@ module Core {
 	}
 
 
-	export class Block implements Actor {
+	export class Block extends Actor {
 		color : Color;
 		boundingBox : Box;
 		constructor(public x:number, public y: number, public width: number, public height:number, color: Color){
+			super();
 			this.color = color;	
 			this.boundingBox = new Box(this.x,this.y,this.width,this.height);
 		}
