@@ -84,6 +84,8 @@ player.addAnimation("idle", idle);
 // Set default animation
 player.playAnimation("idle");
 
+
+
 // Create key handlers
 player.addKeyHandler(["up","w"], 
    function(p:Core.Player){

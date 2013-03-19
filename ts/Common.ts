@@ -28,22 +28,40 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/// <reference path="Common.ts" />
 
-module Camera {
-	
+module Common {
+	export interface ICamera {
+		applyTransform(cts: CanvasRenderingContext2D, delta: number): void;
+	}
 
-	export class SideCamera implements Common.ICamera {
-		follow : Common.IActor;
-		constructor(){
-		}
-		setActorToFollow(actor: Common.IActor){
-			this.follow = actor;
-		}
+	export interface IEngine {
+		getKeys();
+		getKeyMap() : {[key:string]:number;};
+		update(engine: IEngine, delta: number);
+		draw(ctx: CanvasRenderingContext2D, delta: number);
+	}
 
-		applyTransform(ctx:CanvasRenderingContext2D, delta: number){
+	export interface IActor {
+		getX(): number;
+		setX(x: number);
 
-			ctx.translate(-this.follow.getX() + 400,0);
-		}
+		getY(): number;
+		setY(y: number);
+
+		getDx(): number;
+		setDx(dx: number);
+
+		getDy(): number;
+		setDy(dy: number);
+
+		getAx(): number;
+		setAx(ax: number);
+
+		getAy(): number;
+		setAy(ay:number);
+
+		update(engine: IEngine, delta: number);
+		draw(ctx: CanvasRenderingContext2D, delta: number);
 	}
 }
+

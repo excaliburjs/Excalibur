@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /// <reference path="Algebra.ts" />
 /// <reference path="Drawing.ts" />
 /// <reference path="Camera.ts" />
+/// <reference path="Common.ts" />
 
 module Core {
 	
@@ -57,8 +58,14 @@ module Core {
 	}
 
 
+
+
 	// Abstract class, must override update and draw
-	export class Actor {
+	export class Actor implements Common.IActor {
+		// Initial position is 0
+		x: number = 0;
+		y: number = 0;
+
 		// Initial velocity is 0
 		dx: number = 0;
 		dy: number = 0;
@@ -83,12 +90,60 @@ module Core {
 			}
 		}
 
+		setX(x : number){
+			this.x = x;
+		}
+
+		getX(): number {
+			return this.x;
+		}
+
+		setY(y: number){
+			this.y = y;
+		}
+
+		getY(): number {
+			return this.y;
+		}
+
+		setDx(dx : number){
+			this.dx = dx;
+		}
+
+		getDx(): number{
+			return this.dx;
+		}
+
+		setDy(dy : number){
+			this.dy = dy;
+		}
+
+		getDy(): number {
+			return this.dy;
+		}
+
+		setAx(ax: number){
+			this.ax = ax;
+		}
+
+		getAx(){
+			return this.ax;
+		}
+		
+		setAy(ay: number){
+			this.ay = ay;
+		}
+
+		getAy(){
+			return this.ay;
+		}
+
 		// Play animation in Actor's list
 		playAnimation(key){
 			this.currentAnimation = this.animations[key];
 		}
 
-		update(engine: SimpleGame, delta: number){
+		update(engine: Common.IEngine, delta: number){
 			// override
 		}
 		draw(ctx: CanvasRenderingContext2D, delta: number){
@@ -114,13 +169,15 @@ module Core {
 		setGround(onGround: bool);
 	}
 
+
+
 	// Side scroller physics implementation w/o inertia
 	export class SideScrollerPhysics implements IPhysicsSystem {
 
-		gravity: number = 4;
-		onGround : bool = false;
+		private gravity: number = 4;
+		private onGround : bool = false;
 		constructor(public actor: Player, public engine: SimpleGame){
-
+			
 		}
 
 		isGround():bool{
@@ -136,28 +193,29 @@ module Core {
 		}
 
 		update(delta: number){
-			this.actor.ay = this.gravity;
+			this.actor.setAy(this.gravity);
 
 			this.onGround = false;
+			
 
 			// Pseudo-Friction
-			this.actor.dx = 0;
+			this.actor.setDx(0);
 
 			// Test Collision
 			for(var i = 0; i < this.engine.level.length; i++){
-				var levelBox = this.engine.level[i].boundingBox;
+				var levelBox = this.engine.level[i].getBox();
 				
-				if(this.actor.box.collides(levelBox)){
+				if(this.actor.getBox().collides(levelBox)){
 
-					var overlap = this.actor.box.getOverlap(levelBox);
+					var overlap = this.actor.getBox().getOverlap(levelBox);
 					if(Math.abs(overlap.y) < Math.abs(overlap.x)){ 
-						this.actor.box.y += overlap.y; 
-						this.actor.dy = 0;
+						this.actor.adjustY(overlap.y); 
+						this.actor.setDy(0);
 						/// TODO: This isn't quite right since if we collide on the y we are considered "on the ground"
 						this.onGround = true;
 					} else { 
-						this.actor.box.x += overlap.x; 
-						this.actor.dx = 0;
+						this.actor.adjustX(overlap.x); 
+						this.actor.setDx(0);
 					}
 				}
 			}
@@ -183,7 +241,7 @@ module Core {
 
 	// Top down game physics implementation
 	export class TopDownPhysics implements IPhysicsSystem {
-		friction : number = 0;
+		private friction : number = 0;
 		constructor(public actor: Player, public engine: SimpleGame){
 
 		}
@@ -200,19 +258,19 @@ module Core {
 		}
 		update(delta: number){
 			// Pseudo-Friction
-			if(this.actor.dx != 0){
-				if(Math.abs(this.actor.dx) <= this.friction){
-					this.actor.dx = 0;
+			if(this.actor.getDx() != 0){
+				if(Math.abs(this.actor.getDx()) <= this.friction){
+					this.actor.setDx(0);
 				}else{
-					this.actor.dx = this.actor.dx + (this.actor.dx>0?-1:1)*this.friction;	
+					this.actor.setDx(this.actor.getDx() + (this.actor.getDx()>0?-1:1)*this.friction);	
 				}
 			}
 
-			if(this.actor.dy != 0){
-				if(Math.abs(this.actor.dy) <= this.friction){
-					this.actor.dy = 0;
+			if(this.actor.getDy() != 0){
+				if(Math.abs(this.actor.getDy()) <= this.friction){
+					this.actor.setDy(0);
 				}else{
-					this.actor.dy = this.actor.dy + (this.actor.dy>0?-1:1)*this.friction;	
+					this.actor.setDy(this.actor.getDy() + (this.actor.getDy()>0?-1:1)*this.friction);	
 				}
 			}
 
@@ -221,17 +279,17 @@ module Core {
 
 			// Test Collision
 			for(var i = 0; i < this.engine.level.length; i++){
-				var levelBox = this.engine.level[i].boundingBox;
+				var levelBox = this.engine.level[i].getBox();
 				
-				if(this.actor.box.collides(levelBox)){
+				if(this.actor.getBox().collides(levelBox)){
 
-					var overlap = this.actor.box.getOverlap(levelBox);
+					var overlap = this.actor.getBox().getOverlap(levelBox);
 					if(Math.abs(overlap.y) < Math.abs(overlap.x)){ 
-						this.actor.box.y += overlap.y; 
-						this.actor.dy = 0;
+						this.actor.adjustY(overlap.y); 
+						this.actor.setDy(0);
 					} else { 
-						this.actor.box.x += overlap.x; 
-						this.actor.dx = 0;
+						this.actor.adjustX(overlap.x); 
+						this.actor.setDy(0);
 					}
 				}
 			}
@@ -243,10 +301,10 @@ module Core {
 
 	export class Player extends Actor {
 		// bounding box
-		box : Box;
+		private box : Box;
 
 		// internal physics system
-		system : IPhysicsSystem = null;
+		private system : IPhysicsSystem = null;
 
 		// List of key handlers for a player
 		handlers : {[key:string]: { (player:Player): void; };} = {};
@@ -256,6 +314,34 @@ module Core {
 			this.box = new Box(x,y,width,height);
 		}
 
+		setX(x: number):void {
+			this.box.x = x;
+		}
+
+		adjustX(x: number){
+			this.box.x += x;
+		}
+
+		getX():number {
+			return this.box.x;
+		}
+
+		setY(y: number): void{
+			this.box.y = y;
+		}
+
+		adjustY(y: number): void{
+			this.box.y += y;
+		}
+
+		getY(): number{
+			return this.box.y;
+		}
+
+		getBox() : Box {
+			return this.box;
+		}
+
 		setPhysicsSystem(system: IPhysicsSystem){
 			this.system = system;
 		}
@@ -263,6 +349,8 @@ module Core {
 		getPhysicsSystem(): IPhysicsSystem{
 			return this.system;
 		}
+
+
 
 		/*
 		addKeyHandler(key:string, handler: (player:Player) => void){
@@ -276,13 +364,13 @@ module Core {
 			}
 		}
 
-		update(engine: SimpleGame, delta: number){
+		update(engine: Common.IEngine, delta: number){
 			
 			// Key Input
-			var keys = engine.keys;
+			var keys = engine.getKeys();
 
 			for(var key in this.handlers){
-				var pressedKey = engine.keyMap[key];
+				var pressedKey = engine.getKeyMap()[key];
 				if(keys.indexOf(pressedKey)>-1){
 					this.handlers[key](this);
 				}
@@ -314,19 +402,23 @@ module Core {
 
 
 	export class Block extends Actor {
-		color : Color;
-		boundingBox : Box;
+		private color : Color;
+		private boundingBox : Box;
 		constructor(public x:number, public y: number, public width: number, public height:number, color: Color){
 			super();
 			this.color = color;	
 			this.boundingBox = new Box(this.x,this.y,this.width,this.height);
+		}
+
+		getBox(): Box {
+			return this.boundingBox;
 		}
 		
 		toString(){
 			return "[x:" + this.boundingBox.x + ", y:" + this.boundingBox.y + ", w:" + this.boundingBox.width + ", h:" + this.boundingBox.height +"]";
 		}
 		
-		update(engine: SimpleGame, delta: number){
+		update(engine: Common.IEngine, delta: number){
 			
 		}
 		draw(ctx: CanvasRenderingContext2D, delta: number){
@@ -427,49 +519,50 @@ module Core {
 			
 	}
 
-	export class Game {
-		constructor(){
-
-		}
-	}
-
-	export class TopDownGame extends Game {
-		constructor(){
-			super();
-		}
-	}
-
-	export class SimpleGame extends Game {
+	
+	
+	export class SimpleGame implements Common.IEngine {
 		
 		debugFontSize = 50;
-		actors: Actor[] = [];
+		actors: Common.IActor[] = [];
 		level: Block[] = [];
 
 		// key buffer
-		keys = [];
+		private keys = [];
 		// key mappings
-		keyMap : {[key:string]:number;} = Keys;
+		private keyMap : {[key:string]:number;} = Keys;
 		
 		// internal canvase
 		canv = <HTMLCanvasElement>document.createElement("canvas");
 		ctx : CanvasRenderingContext2D;
 
 		// internal camera
-		camera : Camera.SideCamera = null;
+		camera : Common.ICamera = null;
 
 		constructor(public width : number, public height : number, public fullscreen? : bool, public backgroundColor?: Color){
-			super();
 			this.actors = [];
 		}
 		
-		update(engine: SimpleGame, delta: number){
+		getKeys(){
+			return this.keys;
+		}
+
+		getKeyMap(): {[key:string]:number;} {
+			return this.keyMap;
+		}
+
+		update(engine: Common.IEngine, delta: number){
 			for(var i = 0; i< this.actors.length; i++){
 				this.actors[i].update(engine, delta);
 			}
 		}
 
-		addCamera(camera : Camera.SideCamera){
+		addCamera(camera : Common.ICamera){
 			this.camera = camera;
+		}
+
+		getCamera() : Common.ICamera {
+			return this.camera;
 		}
 		
 		draw(ctx, delta: number){
