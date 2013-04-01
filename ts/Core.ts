@@ -85,8 +85,8 @@ module Core {
 		currentAnimation: Drawing.Animation = null;
 
 		// Add an animation to Actor's list
-		addAnimation(key:string, animation: Drawing.Animation){
-			this.animations[key] = animation;
+		addAnimation(key:any, animation: Drawing.Animation){
+			this.animations[<string>key] = animation;
 			if(!this.currentAnimation){
 				this.currentAnimation = animation;
 			}
@@ -146,7 +146,7 @@ module Core {
 
 		// Play animation in Actor's list
 		playAnimation(key){
-			this.currentAnimation = this.animations[key];
+			this.currentAnimation = this.animations[<string>key];
 		}
 
 		update(engine: Common.IEngine, delta: number){
@@ -351,9 +351,6 @@ module Core {
 		// bounding box
 		private box : Box;
 
-		// internal physics system
-		//private system : IPhysicsSystem = null;
-
 		// List of key handlers for a player
 		handlers : {[key:string]: { (player:Player): void; };} = {};
 
@@ -431,10 +428,6 @@ module Core {
 			this.dx += this.ax;
 			this.dy += this.ay;
 
-			// Update placements based on physics system if one exists
-			/*if(this.physicsSystem){
-				this.physicsSystem.update(delta);		
-			}*/
 		}
 		
 		draw(ctx : CanvasRenderingContext2D, delta: number){
@@ -589,8 +582,38 @@ module Core {
 		// internal camera
 		camera : Common.ICamera = null;
 
-		constructor(public width : number, public height : number, public fullscreen? : bool, public backgroundColor?: Color){
-			this.actors = [];
+		constructor(private width : number, public height : number, private fullscreen? : bool, private backgroundColor?: Color){}
+
+		setHeight(height: number){
+			this.height = height;
+		}
+
+		getHeight():number{
+			return this.height;
+		}
+
+		setWidth(width: number){
+			this.width = width;
+		}
+
+		getWidth():number{
+			return this.width;
+		}
+
+		setFullscreen(fullscreen){
+			this.fullscreen = fullscreen;
+		}
+
+		isFullscreen():bool{
+			return this.fullscreen;
+		}
+
+		setBackgroundColor(color: Color){
+			this.backgroundColor = color;
+		}
+
+		getBackgroundColor(): Color {
+			return this.backgroundColor;
 		}
 		
 		getKeys(){

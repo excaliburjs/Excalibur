@@ -31,7 +31,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /// <reference path='../../js/Engine.d.ts' />
 
 // Create an the game container
-var game = new Core.SimpleGame(1000,500,true, new Core.Color(114,213,224) );
+var game = new Core.SimpleGame(1000,500,true);
+
+game.setBackgroundColor(new Core.Color(114,213,224));
 
 // Create spritesheet
 var spriteSheet = new Drawing.SpriteSheet('../images/TestPlayer.png', 12, 1, 44,50);
@@ -39,13 +41,23 @@ var spriteSheet = new Drawing.SpriteSheet('../images/TestPlayer.png', 12, 1, 44,
 // Retrieve animations for blocks from sprite sheet
 var blockAnimation = spriteSheet.getAnimationForRow(0, 10, 1, .2);
 
+// Animation enum to prevent 'stringly' typed misspelling errors
+enum Animations {
+   Block = 1,
+   Idle = 2,
+   Left = 3,
+   Right = 4
+}
+
+
 // Create the level
 for(var i = 0; i< 36; i++){
 	var color = new Core.Color(Math.random()*255,Math.random()*255,Math.random()*255);
 	var block = new Core.Block(46*i+10,350+Math.random()*100,44,50,color);
    
-   block.addAnimation("block", blockAnimation);
-   block.playAnimation("block");
+   // To prevent 'stringly' typed errors like misspellings use an enum here
+   block.addAnimation(Animations.Block, blockAnimation);
+   block.playAnimation(Animations.Block);
    
    game.addBlock(block);
 }
@@ -62,7 +74,6 @@ var player = new Core.Player(100,100,35,50);
 var physics = new Core.SideScrollerPhysics(player, game);
 physics.setGravity(2.0);
 
-physics.addActor(player);
 
 // Top down physics system
 //var physics = new Core.TopDownPhysics(player, game);
@@ -80,19 +91,19 @@ var right = spriteSheet.getAnimationForRow(0, 3, 2, .2);
 var idle = spriteSheet.getAnimationForRow(0, 0, 3, .2);
 
 // Add animations to player
-player.addAnimation("left", left);
-player.addAnimation("right", right);
-player.addAnimation("idle", idle);
+player.addAnimation(Animations.Left, left); 
+player.addAnimation(Animations.Right, right);
+player.addAnimation(Animations.Idle, idle);
 
 // Set default animation
-player.playAnimation("idle");
+player.playAnimation(Animations.Idle);
 
 
 
 // Create key handlers
 player.addKeyHandler(["up","w"], 
    function(p:Core.Player){
-      player.playAnimation("idle");
+      player.playAnimation(Animations.Idle);
       var system  = player.getPhysicsSystem();
       if(system.getProperty("onGround")){
          p.dy = -20;
@@ -103,13 +114,13 @@ player.addKeyHandler(["up","w"],
 player.addKeyHandler(["left","a"], 
    function(p:Core.Player){
       p.dx -= 3;
-      player.playAnimation("left");
+      player.playAnimation(Animations.Left);
    });
 
 player.addKeyHandler(["right","d"], 
    function(p:Core.Player){
       p.dx += 3;
-      player.playAnimation("right");
+      player.playAnimation(Animations.Right);
    });
 
 player.addKeyHandler(["down", "s"],
