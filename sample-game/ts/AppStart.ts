@@ -62,6 +62,8 @@ var player = new Core.Player(100,100,35,50);
 var physics = new Core.SideScrollerPhysics(player, game);
 physics.setGravity(2.0);
 
+physics.addActor(player);
+
 // Top down physics system
 //var physics = new Core.TopDownPhysics(player, game);
 //physics.setFriction(.1);
@@ -69,6 +71,7 @@ physics.setGravity(2.0);
 // Add physics system to player
 player.setPhysicsSystem(physics);
 //player.setPhysicsSystem(physics);
+
 
 
 // Retrieve animations for player from sprite sheet
@@ -91,9 +94,9 @@ player.addKeyHandler(["up","w"],
    function(p:Core.Player){
       player.playAnimation("idle");
       var system  = player.getPhysicsSystem();
-      if(system.isGround()){
+      if(system.getProperty("onGround")){
          p.dy = -20;
-         system.setGround(false);
+         system.setProperty("onGround",false);
       }        
    });
 
@@ -123,6 +126,9 @@ game.addActor(player);
 
 // Add camera to game
 game.addCamera(camera);
+
+// Add physics system to the game
+game.addPhysics(physics);
 
 // Run the mainloop
 game.start();

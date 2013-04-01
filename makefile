@@ -5,7 +5,7 @@ engine:
 sample:
 	tsc ./sample-game/ts/AppStart.ts -c
 run:
-	start ./sample-game/html/GameStart.html
+	/opt/google/chrome/google-chrome ./sample-game/html/GameStart.html
 redist:
 	tar -cvzf GameTS.tar.gz ./js
 clean:

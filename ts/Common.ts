@@ -40,6 +40,14 @@ module Common {
 		update(engine: IEngine, delta: number);
 		draw(ctx: CanvasRenderingContext2D, delta: number);
 	}
+	
+	export interface IPhysicsSystem {
+		update(delta: number);
+		addActor(actor: Common.IActor):void;
+		removeActor(actor: Common.IActor): void;
+		getProperty(key: string):any;
+		setProperty(key: string, value: any):void;
+	}
 
 	export interface IActor {
 		getX(): number;
@@ -59,6 +67,8 @@ module Common {
 
 		getAy(): number;
 		setAy(ay:number);
+
+		setPhysicsSystem(IPhysicsSystem);
 
 		update(engine: IEngine, delta: number);
 		draw(ctx: CanvasRenderingContext2D, delta: number);
