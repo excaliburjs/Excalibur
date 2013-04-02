@@ -49,6 +49,16 @@ module Common {
 		setProperty(key: string, value: any):void;
 	}
 
+	export interface IColor {
+		r: number;
+		g: number;
+		b: number;
+		a: number;
+		toString(): string;
+	}
+
+
+
 	export interface IActor {
 		getX(): number;
 		setX(x: number);
@@ -69,6 +79,9 @@ module Common {
 		setAy(ay:number);
 
 		setPhysicsSystem(IPhysicsSystem);
+		
+		setColor(color: IColor);
+		getColor(): IColor;
 
 		update(engine: IEngine, delta: number);
 		draw(ctx: CanvasRenderingContext2D, delta: number);

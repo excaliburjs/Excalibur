@@ -62,8 +62,12 @@ module Core {
 
 	// Abstract class, must override update and draw
 	export class Actor implements Common.IActor {
-
+		// registered physics system
 		physicsSystem: Common.IPhysicsSystem;
+
+		// color
+		color: Color;
+
 		// Initial position is 0
 		x: number = 0;
 		y: number = 0;
@@ -144,6 +148,14 @@ module Core {
 			return this.ay;
 		}
 
+		getColor():Color{
+			return this.color;
+		}
+
+		setColor(color:Color){
+			this.color = color;
+		}
+
 		// Play animation in Actor's list
 		playAnimation(key){
 			this.currentAnimation = this.animations[<string>key];
@@ -157,13 +169,17 @@ module Core {
 		}
 	}
 
-	export class Color {
-		constructor(public r: number, public g: number, public b: number){
+	export class Color implements Common.IColor {
+		constructor(public r: number, public g: number, public b: number, public a?: number){
 
 		}
 
 		toString(){
-			return "rgb(" + String(this.r.toFixed(0)) + ", " + String(this.g.toFixed(0)) + ", " + String(this.b.toFixed(0)) + ")";
+			var result =  String(this.r.toFixed(0)) + ", " + String(this.g.toFixed(0)) + ", " + String(this.b.toFixed(0));
+			if(this.a){
+				return "rgba(" + result + ", "+ String(this.a) + ")";
+			}
+			return "rgb(" + result + ")";
 		}
 	}
 
@@ -434,7 +450,8 @@ module Core {
 			if(this.currentAnimation){
 				this.currentAnimation.draw(ctx, this.box.x, this.box.y);
 			}else{
-				ctx.fillStyle = "rgb(" + String(245) + ", " + String(110) + ", " + String(148) + ")";
+
+				ctx.fillStyle = this.color?this.color.toString():(new Color(0,0,0)).toString();
 				ctx.fillRect(this.box.x,this.box.y,this.box.width,this.box.height);				
 			}
 
@@ -445,7 +462,7 @@ module Core {
 	export class Block extends Actor {
 		private color : Color;
 		private boundingBox : Box;
-		constructor(public x:number, public y: number, public width: number, public height:number, color: Color){
+		constructor(public x:number, public y: number, public width: number, public height:number, color?: Color){
 			super();
 			this.color = color;	
 			this.boundingBox = new Box(this.x,this.y,this.width,this.height);
@@ -466,13 +483,21 @@ module Core {
 			if(this.currentAnimation){
 				this.currentAnimation.draw(ctx, this.boundingBox.x, this.boundingBox.y);
 			}else{
-				ctx.fillStyle = this.color.toString();			
+				ctx.fillStyle = this.color?this.color.toString():(new Color(0,0,0)).toString();
 				ctx.fillRect(this.boundingBox.x,this.boundingBox.y,this.boundingBox.width,this.boundingBox.height);
 			}
 		}
 	}
 
+	export enum Sides {
+			Top,
+			Bottom,
+			Left,
+			Right
+	}
+
 	export class Overlap {
+
 		constructor(public x: number, public y: number){
 
 		}

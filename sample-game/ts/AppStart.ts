@@ -41,12 +41,12 @@ var spriteSheet = new Drawing.SpriteSheet('../images/TestPlayer.png', 12, 1, 44,
 // Retrieve animations for blocks from sprite sheet
 var blockAnimation = spriteSheet.getAnimationForRow(0, 10, 1, .2);
 
-// Animation enum to prevent 'stringly' typed misspelling errors
-enum Animations {
-   Block = 1,
-   Idle = 2,
-   Left = 3,
-   Right = 4
+// Animation 'enum' to prevent 'stringly' typed misspelling errors
+class Animations {
+   public static Block = "block";
+   public static Idle = "idle";
+   public static Left = "left";
+   public static Right = "right";
 }
 
 
@@ -55,7 +55,6 @@ for(var i = 0; i< 36; i++){
 	var color = new Core.Color(Math.random()*255,Math.random()*255,Math.random()*255);
 	var block = new Core.Block(46*i+10,350+Math.random()*100,44,50,color);
    
-   // To prevent 'stringly' typed errors like misspellings use an enum here
    block.addAnimation(Animations.Block, blockAnimation);
    block.playAnimation(Animations.Block);
    

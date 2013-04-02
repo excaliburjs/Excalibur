@@ -37,8 +37,8 @@ module Drawing{
    }
 
    export class SpriteSheet {
-      sprites : any = {};
-      internalImage : HTMLImageElement;
+      private sprites : any = {};
+      private internalImage : HTMLImageElement;
       constructor(public path: string, columns: number, rows: number, spWidth: number, spHeight: number){
          this.internalImage = new Image();
          this.internalImage.src = path;
@@ -57,9 +57,9 @@ module Drawing{
    }
 
    export class Sprite implements IDrawable{
-      internalImage : HTMLImageElement;
-      scale: number = 1.0;
-      rotation: number = 0.0;
+      private internalImage : HTMLImageElement;
+      private scale: number = 1.0;
+      private rotation: number = 0.0;
    	constructor(image: HTMLImageElement, public sx: number, public sy:number, public swidth: number, public sheight : number){
          this.internalImage = image;
    	}
@@ -78,13 +78,13 @@ module Drawing{
    }
 
    export class Animation implements IDrawable {
-   	sprites : Sprite[];
-      speed : number;
-      maxIndex : number;
-      currIndex : number = 0;
-      oldTime : number = new Date().getTime();
-      rotation : number = 0.0;
-      scale : number = 1.0;
+   	private sprites : Sprite[];
+      private speed : number;
+      private maxIndex : number;
+      private currIndex : number = 0;
+      private oldTime : number = new Date().getTime();
+      private rotation : number = 0.0;
+      private scale : number = 1.0;
 
    	constructor(images: Sprite[], speed: number){
    		this.sprites = images;
