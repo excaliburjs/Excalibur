@@ -33,7 +33,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Create an the game container
 var game = new Core.SimpleGame(1000,500,true);
 
+// Set background color
 game.setBackgroundColor(new Core.Color(114,213,224));
+
+// Set fps
+game.setFps(60);
+
+// Turn on debug diagnostics
+game.setDebug(true);
 
 // Create spritesheet
 var spriteSheet = new Drawing.SpriteSheet('../images/TestPlayer.png', 12, 1, 44,50);

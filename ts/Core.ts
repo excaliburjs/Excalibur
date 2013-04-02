@@ -39,7 +39,10 @@ module Core {
 	var Keys : {[key:string]:number;} = 
 				{"up": 38, "down": 40, "left": 37, "right": 39,
 				 "space": 32, "a": 65, "s": 83, "d": 68, "w": 87,
-				 "shift": 16};
+				 "shift": 16, "b": 66, "c": 67, "e": 69, "f": 70, "g": 71,
+				 "h": 72, "i": 73, "j": 74, "k": 75, "l": 76, "m": 77,
+				 "n": 78, "o": 79, "p": 80, "q": 81, "r": 82, "t": 84,
+				 "u": 85, "v": 86, "x": 88, "y": 89, "z": 90};
 	
 
 	export class Sound {
@@ -589,16 +592,25 @@ module Core {
 	
 	export class SimpleGame implements Common.IEngine {
 		
-		debugFontSize = 50;
+		
 		actors: Common.IActor[] = [];
 		level: Block[] = [];
 
 		private physicsSystem: Common.IPhysicsSystem;
 
+		// default fps 30
+		private fps : number = 30;
+
+		// debug stuff
+		private isDebugOn : bool = false;
+		private debugColor : Color = new Color(250,0,0);
+		private debugFontSize : number = 10;
+
 		// key buffer
 		private keys = [];
 		// key mappings
 		private keyMap : {[key:string]:number;} = Keys;
+		private reverseKeyMap = {};
 		
 		// internal canvase
 		canv = <HTMLCanvasElement>document.createElement("canvas");
@@ -607,7 +619,28 @@ module Core {
 		// internal camera
 		camera : Common.ICamera = null;
 
-		constructor(private width : number, public height : number, private fullscreen? : bool, private backgroundColor?: Color){}
+		constructor(private width : number, public height : number, private fullscreen? : bool, private backgroundColor?: Color){
+
+			for(var id in this.keyMap){
+				this.reverseKeyMap[this.keyMap[id]] = id;
+			}
+		}
+
+		setDebugFontSize(debugFontSize: number){
+			this.debugFontSize = debugFontSize;
+		}
+
+		setDebug(isDebugOn: bool){
+			this.isDebugOn = isDebugOn;
+		}
+
+		setDebugColor(debugColor: Color){
+			this.debugColor = debugColor;
+		}
+
+		setFps(fps: number){
+			this.fps = fps;
+		}
 
 		setHeight(height: number){
 			this.height = height;
@@ -679,9 +712,16 @@ module Core {
 			this.ctx.fillRect(0,0,this.width,this.height);
 
 			// Draw debug information
-			this.ctx.fillStyle = new Color(250,0,0).toString();
-			for (var j = 0; j < this.keys.length; j++){
-				this.ctx.fillText(this.keys[j],10, 10*j+10)
+			if(this.isDebugOn){
+
+				this.ctx.font = this.debugFontSize + "pt Consolas";
+				this.ctx.fillStyle = this.debugColor.toString();
+				for (var j = 0; j < this.keys.length; j++){
+					this.ctx.fillText(this.keys[j] + " : " + (this.reverseKeyMap[this.keys[j]]?this.reverseKeyMap[this.keys[j]]:"Not Mapped"),10, 10*j+10)
+				}
+
+				var fps = 1.0/(delta/1000);
+				this.ctx.fillText("FPS:" + fps.toFixed(2).toString(), 90, 10);
 			}
 
 			ctx.save();
@@ -712,11 +752,20 @@ module Core {
 		}
 		
 		start(){
+			// Calculate loop time based on fps value
+			var loopTime = (1.0/this.fps) * 1000 // in milliseconds
+
 			// Mainloop
+			var lastTime = new Date().getTime();
 			window.setInterval(()=> {
-				this.update(this, 20); 
-				this.draw(this.ctx,20);
-			},20);
+        		// Get the time to calculate time-elapsed
+				var now = new Date().getTime();
+        		var elapsed = Math.floor((now - lastTime));
+
+				this.update(this, elapsed); 
+				this.draw(this.ctx, elapsed);
+				lastTime = now;
+			}, loopTime);
 
 			// Capture key events
 			window.onkeydown = (ev)=>{if(this.keys.indexOf(ev.keyCode)<0){this.keys.push(ev.keyCode)}};
