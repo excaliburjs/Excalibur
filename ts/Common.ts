@@ -30,17 +30,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 module Common {
-	export interface ICamera {
-		applyTransform(cts: CanvasRenderingContext2D, delta: number): void;
-	}
+	
 
 	export interface IEngine {
 		getKeys();
 		getKeyMap() : {[key:string]:number;};
+		getGraphicsCtx() : CanvasRenderingContext2D;
+		getCanvas() : HTMLCanvasElement;
 		update(engine: IEngine, delta: number);
 		draw(ctx: CanvasRenderingContext2D, delta: number);
 	}
-	
+
+	export interface ICamera {
+		applyTransform(engine: IEngine, delta: number): void;
+	}
 	export interface IPhysicsSystem {
 		update(delta: number);
 		addActor(actor: Common.IActor):void;

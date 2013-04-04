@@ -41,9 +41,24 @@ module Camera {
 			this.follow = actor;
 		}
 
-		applyTransform(ctx:CanvasRenderingContext2D, delta: number){
+		applyTransform(engine:Common.IEngine, delta: number){
 
-			ctx.translate(-this.follow.getX() + 400,0);
+			engine.getGraphicsCtx().translate(-this.follow.getX() + engine.getCanvas().width/2.0,0);
+		}
+	}
+
+	export class TopCamera implements Common.ICamera {
+		follow : Common.IActor;
+		constructor(){
+		}
+		setActorToFollow(actor: Common.IActor){
+			this.follow = actor;
+		}
+
+		applyTransform(engine:Common.IEngine, delta: number){
+
+			engine.getGraphicsCtx().translate(-this.follow.getX() + engine.getCanvas().width/2.0, 0);
+			engine.getGraphicsCtx().translate(0, -this.follow.getY() + engine.getCanvas().height/2.0);
 		}
 	}
 }

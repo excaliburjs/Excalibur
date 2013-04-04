@@ -480,7 +480,15 @@ module Core {
 		}
 		
 		update(engine: Common.IEngine, delta: number){
-			
+			// Update placements based on linear algebra
+			this.x += this.dx;
+			this.y += this.dy;
+
+			this.boundingBox.x += this.dx;
+			this.boundingBox.y += this.dy;
+
+			this.dx += this.ax;
+			this.dy += this.ay;
 		}
 		draw(ctx: CanvasRenderingContext2D, delta: number){
 			if(this.currentAnimation){
@@ -702,6 +710,14 @@ module Core {
 		getCamera() : Common.ICamera {
 			return this.camera;
 		}
+
+		getGraphicsCtx() : CanvasRenderingContext2D {
+			return this.ctx;
+		}
+
+		getCanvas() : HTMLCanvasElement{
+			return this.canv;
+		}
 		
 		draw(ctx, delta: number){
 			if(!this.backgroundColor){
@@ -727,7 +743,7 @@ module Core {
 			ctx.save();
 
 			if(this.camera){
-				this.camera.applyTransform(ctx, delta);	
+				this.camera.applyTransform(this, delta);	
 			}
 			
 			// Draw level
@@ -781,6 +797,12 @@ module Core {
 	    	}
 	    	document.body.appendChild(this.canv);
 	    	this.ctx = this.canv.getContext("2d");
+
+	    	// this has been added to the html5 canvas spec, but not all browser implement it including chrome.
+	    	(<any>this.ctx).webkitImageSmoothingEnabled = false;
+	    	(<any>this.ctx).mozImageSmoothingEnabled = false;
+	    	(<any>this.ctx).msImageSmoothingEnabled = false;
+	    	(<any>this.ctx).imageSmoothingEnabled = false;
 		}
 		
 	}
