@@ -9,8 +9,11 @@ physics:
 run:
 	/opt/google/chrome/google-chrome ./sample-game/html/GameStart.html&
 	/opt/google/chrome/google-chrome ./sample-physics-game/html/index.html&
-tests:
-	jasmine-node ./tests/spec/
+build-tests:
+	rm -rf "spec/*.js"
+	tsc "spec/ActorSpec.ts" -out "spec/ActorSpec.js"
+tests: build-tests
+	jasmine-node /spec/
 redist:
 	tar -cvzf GameTS.tar.gz ./js
 clean:
