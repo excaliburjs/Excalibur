@@ -59,7 +59,28 @@ module Common {
 		a: number;
 		toString(): string;
 	}
+	export interface IOverlap{
+		x:number;
+		y:number;
+	}
 
+	export interface IBox {
+		getLeft():number;
+		setLeft(left: number);
+
+		getRight():number;
+		setRight(right: number);
+
+		getTop():number;
+		setTop(top: number);
+
+		getBottom(): number;
+		setBottom(bottom: number);
+
+		getOverlap(box: IBox): IOverlap;
+		
+		collides(box : IBox): bool;
+	}
 
 
 	export interface IActor {
@@ -82,6 +103,10 @@ module Common {
 		setAy(ay:number);
 
 		setPhysicsSystem(IPhysicsSystem);
+		getPhysicsSystem(): IPhysicsSystem;
+
+		setBox(box: IBox);
+		getBox(): IBox;
 		
 		setColor(color: IColor);
 		getColor(): IColor;

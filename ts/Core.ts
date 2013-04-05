@@ -82,6 +82,11 @@ module Core {
 		// Initial acceleartion is 0;
 		ax: number = 0;
 		ay: number = 0;
+
+		// bounding box
+		box : Box;
+
+
 		constructor(){
 		}
 
@@ -99,8 +104,20 @@ module Core {
 			}
 		}
 
+		setBox(box: Box){
+			this.box = box;
+		}
+
+		getBox(): Box{
+			return this.box;
+		}
+
 		setPhysicsSystem(system: Common.IPhysicsSystem){
 			this.physicsSystem = system;
+		}
+
+		getPhysicsSystem():Common.IPhysicsSystem{
+			return this.physicsSystem;
 		}
 
 		setX(x : number){
@@ -165,7 +182,13 @@ module Core {
 		}
 
 		update(engine: Common.IEngine, delta: number){
-			// override
+			// Update placements based on linear algebra
+			this.x += this.dx;
+			this.y += this.dy;
+
+			this.dx += this.ax;
+			this.dy += this.ay;
+
 		}
 		draw(ctx: CanvasRenderingContext2D, delta: number){
 			// override
@@ -373,53 +396,24 @@ module Core {
 		// List of key handlers for a player
 		handlers : {[key:string]: { (player:Player): void; };} = {};
 
-		constructor (public x: number, public y: number, public width : number, public height:number){
+		constructor (x: number, y: number, public width : number, public height:number){
 			super()
+			this.x = x;
+			this.y = y;
 			this.box = new Box(x,y,width,height);
 		}
 
-		setX(x: number):void {
-			this.box.x = x;
-		}
-
 		adjustX(x: number){
-			this.box.x += x;
-		}
-
-		getX():number {
-			return this.box.x;
-		}
-
-		setY(y: number): void{
-			this.box.y = y;
+			this.x += x;
 		}
 
 		adjustY(y: number): void{
-			this.box.y += y;
-		}
-
-		getY(): number{
-			return this.box.y;
+			this.y += y;
 		}
 
 		getBox() : Box {
 			return this.box;
 		}
-
-		setPhysicsSystem(system: Common.IPhysicsSystem){
-			this.physicsSystem = system;
-		}
-
-		getPhysicsSystem(): Common.IPhysicsSystem{
-			return this.physicsSystem;
-		}
-
-
-
-		/*
-		addKeyHandler(key:string, handler: (player:Player) => void){
-			this.handlers[key] = handler;
-		}*/
 
 		addKeyHandler(key:string[], handler: (player:Player) => void){
 			for(var i in key){
@@ -439,19 +433,17 @@ module Core {
 					this.handlers[key](this);
 				}
 			}
-
+			
 			// Update placements based on linear algebra
-			this.box.x += this.dx;
-			this.box.y += this.dy;
+			super.update(engine, delta);
 
-			this.dx += this.ax;
-			this.dy += this.ay;
-
+			this.box.setLeft(this.x);
+			this.box.setTop(this.y);
 		}
 		
 		draw(ctx : CanvasRenderingContext2D, delta: number){
 			if(this.currentAnimation){
-				this.currentAnimation.draw(ctx, this.box.x, this.box.y);
+				this.currentAnimation.draw(ctx, this.x, this.y);
 			}else{
 
 				ctx.fillStyle = this.color?this.color.toString():(new Color(0,0,0)).toString();
@@ -507,14 +499,14 @@ module Core {
 			Right
 	}
 
-	export class Overlap {
+	export class Overlap implements Common.IOverlap{
 
 		constructor(public x: number, public y: number){
 
 		}
 	}
 
-	export class Box {
+	export class Box implements Common.IBox{
 		
 		constructor (public x: number, public y: number, public width : number, public height:number){
 			
