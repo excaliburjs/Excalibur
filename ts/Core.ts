@@ -33,37 +33,34 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /// <reference path="Drawing.ts" />
 /// <reference path="Camera.ts" />
 /// <reference path="Common.ts" />
+/// <reference path="Physics.ts" />
+/// <reference path="Sound.ts" />
 
-module Core {
-	
-	var Keys : {[key:string]:number;} = 
+
+module Core {	
+	export var Keys : {[key:string]:number;} = 
 				{"up": 38, "down": 40, "left": 37, "right": 39,
 				 "space": 32, "a": 65, "s": 83, "d": 68, "w": 87,
 				 "shift": 16, "b": 66, "c": 67, "e": 69, "f": 70, "g": 71,
 				 "h": 72, "i": 73, "j": 74, "k": 75, "l": 76, "m": 77,
 				 "n": 78, "o": 79, "p": 80, "q": 81, "r": 82, "t": 84,
 				 "u": 85, "v": 86, "x": 88, "y": 89, "z": 90};
-	
 
-	export class Sound {
-		sound : HTMLAudioElement;
-		constructor(public path: string){
-			this.sound = new Audio(path);
-			this.sound.preload = "false";
+
+	export class Color implements Common.IColor {
+		constructor(public r: number, public g: number, public b: number, public a?: number){
+
 		}
 
-
-		play() {
-			//document.body.appendChild(this.sound);
-			this.sound.play();
-			//this.sound.play();
+		toString(){
+			var result =  String(this.r.toFixed(0)) + ", " + String(this.g.toFixed(0)) + ", " + String(this.b.toFixed(0));
+			if(this.a){
+				return "rgba(" + result + ", "+ String(this.a) + ")";
+			}
+			return "rgb(" + result + ")";
 		}
 	}
 
-
-
-
-	// Abstract class, must override update and draw
 	export class Actor implements Common.IActor {
 		// registered physics system
 		physicsSystem: Common.IPhysicsSystem;
@@ -84,7 +81,7 @@ module Core {
 		ay: number = 0;
 
 		// bounding box
-		box : Box;
+		box : Physics.Box;
 
 
 		constructor(){
@@ -104,11 +101,11 @@ module Core {
 			}
 		}
 
-		setBox(box: Box){
+		setBox(box: Physics.Box){
 			this.box = box;
 		}
 
-		getBox(): Box{
+		getBox(): Physics.Box{
 			return this.box;
 		}
 
@@ -168,6 +165,14 @@ module Core {
 			return this.ay;
 		}
 
+		adjustX(x: number){
+			this.x += x;
+		}
+
+		adjustY(y: number): void{
+			this.y += y;
+		}
+
 		getColor():Color{
 			return this.color;
 		}
@@ -195,203 +200,9 @@ module Core {
 		}
 	}
 
-	export class Color implements Common.IColor {
-		constructor(public r: number, public g: number, public b: number, public a?: number){
-
-		}
-
-		toString(){
-			var result =  String(this.r.toFixed(0)) + ", " + String(this.g.toFixed(0)) + ", " + String(this.b.toFixed(0));
-			if(this.a){
-				return "rgba(" + result + ", "+ String(this.a) + ")";
-			}
-			return "rgb(" + result + ")";
-		}
-	}
-
-
-	// Handles collisions and interactions with other actors for an specific actor
-	
-
-
-
-	// Side scroller physics implementation w/o inertia
-	export class SideScrollerPhysics implements Common.IPhysicsSystem {
-
-		private gravity: number = 4;
-		private onGround : bool = false;
-		private actors : Common.IActor[] = [];
-
-		constructor(public actor: Player, public engine: SimpleGame){
-			
-		}
-
-		addActor(actor: Common.IActor){
-			this.actors.push(actor);
-			actor.setPhysicsSystem(this);
-		}
-
-		removeActor(actor: Common.IActor){
-			var index = this.actors.indexOf(actor);
-			this.actors.splice(index,1);
-		}
-
-		getProperty(key: string): any{
-			if(key == "onGround"){
-				return this.onGround;
-			}else{
-				return "invalid property";
-			}
-
-		}
-
-		setProperty(key: string, value: any){
-			if(key == "onGround"){
-				this.onGround = <bool>value;
-			}
-		}
-
-
-		setGravity(gravity: number){
-			this.gravity = gravity;
-		}
-
-		update(delta: number){
-			this.actor.setAy(this.gravity);
-
-			this.setProperty("onGround", false);
-			
-
-			// Pseudo-Friction
-			this.actor.setDx(0);
-
-			// Test Collision
-			for(var i = 0; i < this.engine.level.length; i++){
-				var levelBox = this.engine.level[i].getBox();
-				
-				if(this.actor.getBox().collides(levelBox)){
-
-					var overlap = this.actor.getBox().getOverlap(levelBox);
-					if(Math.abs(overlap.y) < Math.abs(overlap.x)){ 
-						this.actor.adjustY(overlap.y); 
-						this.actor.setDy(0);
-						/// TODO: This isn't quite right since if we collide on the y we are considered "on the ground"
-						this.setProperty("onGround", true);
-					} else { 
-						this.actor.adjustX(overlap.x); 
-						this.actor.setDx(0);
-					}
-				}
-			}
-		}
-
-	}
-
-	// Side scroller physics implementation w inertia
-	export class SideScrollerInertiaPhysics implements Common.IPhysicsSystem {
-
-		private actors : Common.IActor[] = [];
-		constructor(){
-
-		}
-		addActor(actor: Common.IActor){
-			this.actors.push(actor);
-			actor.setPhysicsSystem(this);
-		}
-
-		removeActor(actor: Common.IActor){
-			var index = this.actors.indexOf(actor);
-			this.actors.splice(index,1);
-		}
-		getProperty(key:string):any {
-			return false;
-		}
-		setProperty(key:string, value: any){
-
-		}
-		update(delta: number){
-
-		}		
-	}
-
-	// Top down game physics implementation
-	export class TopDownPhysics implements Common.IPhysicsSystem {
-		private friction : number = 0;
-		private actors : Common.IActor[] = [];
-		constructor(public engine: SimpleGame){
-
-		}
-
-		addActor(actor: Common.IActor){
-			this.actors.push(actor);
-			actor.setPhysicsSystem(this);
-		}
-
-		removeActor(actor: Common.IActor){
-			var index = this.actors.indexOf(actor);
-			this.actors.splice(index,1);
-		}
-
-		setFriction(friction:number){
-			this.friction = friction;
-		}
-		getProperty(key: string): any{
-			return false;
-		}
-
-		setProperty(key: string, value: any){
-
-		}
-
-		update(delta: number){
-			// Pseudo-Friction
-			for(var id in this.actors){
-				var actor = this.actors[id];
-				if(actor.getDx() != 0){
-					if(Math.abs(actor.getDx()) <= this.friction){
-						actor.setDx(0);
-					}else{
-						actor.setDx(actor.getDx() + (actor.getDx()>0?-1:1)*this.friction);	
-					}
-				}
-
-				if(actor.getDy() != 0){
-					if(Math.abs(actor.getDy()) <= this.friction){
-						actor.setDy(0);
-					}else{
-						actor.setDy(actor.getDy() + (actor.getDy()>0?-1:1)*this.friction);	
-					}
-				}
-
-				//this.actor.dx = 0;
-				//this.actor.dy = 0;
-
-				// Test Collision
-				for(var i = 0; i < this.engine.level.length; i++){
-					var levelBox = this.engine.level[i].getBox();
-					
-					if(actor.getBox().collides(levelBox)){
-
-						var overlap = actor.getBox().getOverlap(levelBox);
-						if(Math.abs(overlap.y) < Math.abs(overlap.x)){ 
-							actor.adjustY(overlap.y); 
-							actor.setDy(0);
-						} else { 
-							actor.adjustX(overlap.x); 
-							actor.setDy(0);
-						}
-					}
-				}
-			}
-		}
-	}
-
-
-
-
 	export class Player extends Actor {
 		// bounding box
-		private box : Box;
+		private box : Physics.Box;
 
 		// List of key handlers for a player
 		handlers : {[key:string]: { (player:Player): void; };} = {};
@@ -400,18 +211,12 @@ module Core {
 			super()
 			this.x = x;
 			this.y = y;
-			this.box = new Box(x,y,width,height);
+			this.box = new Physics.Box(x,y,width,height);
 		}
 
-		adjustX(x: number){
-			this.x += x;
-		}
+		
 
-		adjustY(y: number): void{
-			this.y += y;
-		}
-
-		getBox() : Box {
+		getBox() : Physics.Box {
 			return this.box;
 		}
 
@@ -456,14 +261,14 @@ module Core {
 
 	export class Block extends Actor {
 		private color : Color;
-		private boundingBox : Box;
+		private boundingBox : Physics.Box;
 		constructor(public x:number, public y: number, public width: number, public height:number, color?: Color){
 			super();
 			this.color = color;	
-			this.boundingBox = new Box(this.x,this.y,this.width,this.height);
+			this.boundingBox = new Physics.Box(this.x,this.y,this.width,this.height);
 		}
 
-		getBox(): Box {
+		getBox(): Physics.Box {
 			return this.boundingBox;
 		}
 		
@@ -492,103 +297,6 @@ module Core {
 		}
 	}
 
-	export enum Sides {
-			Top,
-			Bottom,
-			Left,
-			Right
-	}
-
-	export class Overlap implements Common.IOverlap{
-
-		constructor(public x: number, public y: number){
-
-		}
-	}
-
-	export class Box implements Common.IBox{
-		
-		constructor (public x: number, public y: number, public width : number, public height:number){
-			
-		}
-
-		getLeft() {
-			return this.x;
-		}
-
-		setLeft(left: number){
-			this.x = left;
-		}
-
-		getRight(){
-			return this.x + this.width;
-		}
-
-		setRight(right: number){
-			this.width = right - this.x;
-		}
-
-		getTop(){
-			return this.y;
-		}
-
-		setTop(top: number){
-			this.y = top;
-		}
-
-		getBottom(){
-			return this.y + this.height;
-		}
-
-		setBottom(bottom: number){
-			this.height = bottom - this.y;
-		}
-
-		getOverlap(box: Box): Overlap{
-			var xover = 0;
-			var yover = 0;
-			if(this.collides(box)){
-				if(this.getLeft() < box.getRight()){
-					xover = box.getRight() - this.getLeft();
-				}
-				if(box.getLeft() < this.getRight()){
-					var tmp =  box.getLeft() - this.getRight();
-					if(Math.abs(xover) > Math.abs(tmp)){
-						xover = tmp;
-					}
-				}
-
-				if(this.getBottom() > box.getTop()){
-					yover = box.getTop() - this.getBottom();
-				}
-
-				if(box.getBottom() > this.getTop()){
-					var tmp = box.getBottom() - this.getTop();
-					if(Math.abs(yover) > Math.abs(tmp)){
-						yover = tmp;
-					}
-				}
-
-			}
-			return new Overlap(xover,yover);
-		}
-		
-		collides(box : Box){
-			var w = 0.5 * (this.width + box.width);
-			var h = 0.5 * (this.height + box.height);
-
-			var dx = (this.x + this.width/2.0) - (box.x + box.width/2.0);
-			var dy = (this.y + this.height/2.0) - (box.y + box.height/2.0);
-
-			if (Math.abs(dx) < w && Math.abs(dy) < h)
-			{
-			    return true;
-			}
-		}
-			
-	}
-
-	
 	
 	export class SimpleGame implements Common.IEngine {
 		
@@ -682,6 +390,14 @@ module Core {
 			return this.keyMap;
 		}
 
+		getActors(){
+			return this.actors;
+		}
+
+		getLevel(){
+			return this.level;
+		}
+
 		update(engine: Common.IEngine, delta: number){
 			for(var i = 0; i< this.actors.length; i++){
 				this.actors[i].update(engine, delta);
@@ -760,12 +476,10 @@ module Core {
 		}
 		
 		start(){
+			// TODO: LoopTime needs to be updated in requestAnimationFrame
 			// Calculate loop time based on fps value
 			var loopTime = (1.0/this.fps) * 1000 // in milliseconds
 
-			
-
-			
 			// Capture key events
 			window.onkeydown = (ev)=>{if(this.keys.indexOf(ev.keyCode)<0){this.keys.push(ev.keyCode)}};
 			window.onkeyup = (ev)=>{var key = this.keys.indexOf(ev.keyCode); this.keys.splice(key,1);};
@@ -781,7 +495,7 @@ module Core {
 	    	document.body.appendChild(this.canv);
 	    	this.ctx = this.canv.getContext("2d");
 
-	    	// this has been added to the html5 canvas spec, but not all browser implement it including chrome.
+	    	// this has been added to the html5 canvas spec, but not all browsers implement it including chrome.
 	    	(<any>this.ctx).webkitImageSmoothingEnabled = false;
 	    	(<any>this.ctx).mozImageSmoothingEnabled = false;
 	    	(<any>this.ctx).msImageSmoothingEnabled = false;
@@ -792,8 +506,8 @@ module Core {
 	    	var game = this;
 	    	(function mainloop(){
 				window.requestAnimationFrame(mainloop);
-				// Get the time to calculate time-elapsed
 
+				// Get the time to calculate time-elapsed
 				var now = Date.now();
         		var elapsed = Math.floor((now - lastTime));
 

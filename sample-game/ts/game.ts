@@ -49,11 +49,11 @@ var spriteSheet = new Drawing.SpriteSheet('../images/TestPlayer.png', 12, 1, 44,
 var blockAnimation = spriteSheet.getAnimationForRow(0, 10, 1, .2);
 
 // Animation 'enum' to prevent 'stringly' typed misspelling errors
-class Animations {
-   public static Block = "block";
-   public static Idle = "idle";
-   public static Left = "left";
-   public static Right = "right";
+enum Animations {
+   Block,
+   Idle,
+   Left,
+   Right
 }
 
 
@@ -77,19 +77,13 @@ game.addBlock(new Core.Block(600, 230, 200,30,new Core.Color(0,0,0)));
 var player = new Core.Player(100,100,35,50);
 
 // Create a physics system for the player
-var physics = new Core.SideScrollerPhysics(player, game);
+var physics = new Physics.SideScrollerPhysics(player, game);
 physics.setGravity(2.0);
 
 
 // Top down physics system
 //var physics = new Core.TopDownPhysics(player, game);
 //physics.setFriction(.1);
-
-// Add physics system to player
-player.setPhysicsSystem(physics);
-//player.setPhysicsSystem(physics);
-
-
 
 // Retrieve animations for player from sprite sheet
 var left = spriteSheet.getAnimationForRow(0, 8, 2, .2);

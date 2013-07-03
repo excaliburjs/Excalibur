@@ -35,6 +35,8 @@ module Common {
 	export interface IEngine {
 		getKeys();
 		getKeyMap() : {[key:string]:number;};
+		getActors() : Common.IActor[];
+		getLevel() : Common.IActor[];
 		getGraphicsCtx() : CanvasRenderingContext2D;
 		getCanvas() : HTMLCanvasElement;
 		update(engine: IEngine, delta: number);
@@ -59,9 +61,38 @@ module Common {
 		a: number;
 		toString(): string;
 	}
+
+	export interface ISoundClip {
+
+	}
+
 	export interface IOverlap{
 		x:number;
 		y:number;
+	}
+
+	export interface ICollidable {
+		collides(primitive: ICollidable): bool;
+		collidesWithBox(box: IBoundingBox): bool;
+		collidesWithCircle(circle: IBoundingCircle): bool;
+		collidesWithPoly(poly: IBoundingPoly): bool;
+		collidesWithPixels(pixels: IBoundingPixels): bool;
+
+		getOverlapWithBox(box: IBoundingBox): IOverlap;
+		getOverlapWithCircle(circle: IBoundingCircle): IOverlap;
+		getOverlapWithPoly(poly: IBoundingPoly): IOverlap;
+		getOverlapWithPixels(pixels: IBoundingPixels): IOverlap;
+
+	}
+
+	export interface IBoundingBox extends ICollidable {
+	}
+
+	export interface IBoundingCircle extends ICollidable {
+	}
+	export interface IBoundingPoly extends ICollidable {
+	}
+	export interface IBoundingPixels extends ICollidable {
 	}
 
 	export interface IBox {
@@ -102,8 +133,11 @@ module Common {
 		getAy(): number;
 		setAy(ay:number);
 
+		adjustX(x: number);
+		adjustY(y: number);
+
 		setPhysicsSystem(IPhysicsSystem);
-		getPhysicsSystem(): IPhysicsSystem;
+		getPhysicsSystem():IPhysicsSystem;
 
 		setBox(box: IBox);
 		getBox(): IBox;
