@@ -28,7 +28,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
+/// <reference path="MonkeyPatch.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Drawing.ts" />
 /// <reference path="Camera.ts" />
@@ -763,18 +763,9 @@ module Core {
 			// Calculate loop time based on fps value
 			var loopTime = (1.0/this.fps) * 1000 // in milliseconds
 
-			// Mainloop
-			var lastTime = new Date().getTime();
-			window.setInterval(()=> {
-        		// Get the time to calculate time-elapsed
-				var now = new Date().getTime();
-        		var elapsed = Math.floor((now - lastTime));
+			
 
-				this.update(this, elapsed); 
-				this.draw(this.ctx, elapsed);
-				lastTime = now;
-			}, loopTime);
-
+			
 			// Capture key events
 			window.onkeydown = (ev)=>{if(this.keys.indexOf(ev.keyCode)<0){this.keys.push(ev.keyCode)}};
 			window.onkeyup = (ev)=>{var key = this.keys.indexOf(ev.keyCode); this.keys.splice(key,1);};
@@ -795,6 +786,22 @@ module Core {
 	    	(<any>this.ctx).mozImageSmoothingEnabled = false;
 	    	(<any>this.ctx).msImageSmoothingEnabled = false;
 	    	(<any>this.ctx).imageSmoothingEnabled = false;
+
+			// Mainloop
+			var lastTime =  Date.now();
+	    	var game = this;
+	    	(function mainloop(){
+				window.requestAnimationFrame(mainloop);
+				// Get the time to calculate time-elapsed
+
+				var now = Date.now();
+        		var elapsed = Math.floor((now - lastTime));
+
+				game.update(game, elapsed); 
+				game.draw(game.ctx, elapsed);
+
+				lastTime = now;
+			})();
 		}
 		
 	}

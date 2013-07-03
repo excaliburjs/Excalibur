@@ -7,7 +7,7 @@ sample:
 physics:
 	tsc ./sample-physics-game/ts/Game.ts -c
 run:
-	/opt/google/chrome/google-chrome ./sample-game/html/GameStart.html&
+	/opt/google/chrome/google-chrome ./sample-game/html/index.html&
 	/opt/google/chrome/google-chrome ./sample-physics-game/html/index.html&
 build-tests:
 	rm -rf "spec/*.js"

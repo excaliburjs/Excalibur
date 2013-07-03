@@ -82,7 +82,7 @@ module Drawing{
       private speed : number;
       private maxIndex : number;
       private currIndex : number = 0;
-      private oldTime : number = new Date().getTime();
+      private oldTime : number = Date.now();
       private rotation : number = 0.0;
       private scale : number = 1.0;
 
@@ -107,7 +107,7 @@ module Drawing{
       }
 
       tick(){
-         var time = new Date().getTime();
+         var time = Date.now();
          if((time - this.oldTime)/1000 > this.speed){
             this.currIndex = (this.currIndex + 1) % this.maxIndex;
             this.oldTime = time;
