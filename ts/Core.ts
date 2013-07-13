@@ -202,7 +202,7 @@ module Core {
 
 	export class Player extends Actor {
 		// bounding box
-		private box : Physics.Box;
+		//private box : Physics.Box;
 
 		// List of key handlers for a player
 		handlers : {[key:string]: { (player:Player): void; };} = {};
@@ -260,7 +260,7 @@ module Core {
 
 
 	export class Block extends Actor {
-		private color : Color;
+		//private color : Color;
 		private boundingBox : Physics.Box;
 		constructor(public x:number, public y: number, public width: number, public height:number, color?: Color){
 			super();

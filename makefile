@@ -1,11 +1,11 @@
-all: engine sample physics run redist
+all: engine sample run redist
 	
 engine:
 	tsc --declaration ./ts/Core.ts -out ./js/Engine.js -c
 sample:
-	tsc ./sample-game/ts/AppStart.ts -c
+	tsc ./sample-game/ts/game.ts -c
 physics:
-	tsc ./sample-physics-game/ts/Game.ts -c
+	tsc ./sample-physics-game/ts/game.ts -c
 run:
 	/opt/google/chrome/google-chrome ./sample-game/html/index.html&
 	/opt/google/chrome/google-chrome ./sample-physics-game/html/index.html&
