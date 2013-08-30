@@ -46,7 +46,7 @@ game.setDebug(true);
 var spriteSheet = new Drawing.SpriteSheet('../images/TestPlayer.png', 12, 1, 44,50);
 
 // Retrieve animations for blocks from sprite sheet
-var blockAnimation = spriteSheet.getAnimationForRow(0, 10, 1, .2);
+var blockAnimation = spriteSheet.getAnimationByIndices([10],.2);
 
 // Animation 'enum' to prevent 'stringly' typed misspelling errors
 enum Animations {
@@ -86,9 +86,9 @@ physics.setGravity(2.0);
 //physics.setFriction(.1);
 
 // Retrieve animations for player from sprite sheet
-var left = spriteSheet.getAnimationForRow(0, 8, 2, .2);
-var right = spriteSheet.getAnimationForRow(0, 3, 2, .2);
-var idle = spriteSheet.getAnimationForRow(0, 0, 3, .2);
+var left = spriteSheet.getAnimationByIndices([8, 9], .2);
+var right = spriteSheet.getAnimationByIndices([3, 4], .2);
+var idle = spriteSheet.getAnimationByIndices([0, 1, 2], .2);
 
 // Add animations to player
 player.addAnimation(Animations.Left, left); 

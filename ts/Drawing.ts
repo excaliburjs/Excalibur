@@ -37,21 +37,30 @@ module Drawing{
    }
 
    export class SpriteSheet {
-      private sprites : any = {};
+      private sprites : Sprite[] = [];
       private internalImage : HTMLImageElement;
-      constructor(public path: string, columns: number, rows: number, spWidth: number, spHeight: number){
+      constructor(public path: string, private columns: number, private rows: number, spWidth: number, spHeight: number){
          this.internalImage = new Image();
          this.internalImage.src = path;
+         this.sprites = new Array(rows*columns);
+
          for(var i = 0; i < rows; i++){
-            this.sprites[i] = [];
             for(var j= 0; j < columns; j++){
-               this.sprites[i].push(new Sprite(this.internalImage, j*spWidth, i*spHeight, spWidth, spHeight));
+               this.sprites[i+j*rows] = new Sprite(this.internalImage, j*spWidth, i*spHeight, spWidth, spHeight);
             }
          }
       }
 
       getAnimationForRow(rowIndex: number, start: number, count: number, speed: number){
-         return new Animation(this.sprites[rowIndex].slice(start,start+count), speed);
+         var begin = start+rowIndex*this.columns;
+         return new Animation(this.sprites.slice(begin,begin+count), speed);
+      }
+
+      getAnimationByIndices(indices: number[], speed: number){
+         var images : Sprite[] = this.sprites.filter(function(sprite, index){
+            return indices.indexOf(index) > -1;
+         });
+         return new Animation(images, speed);
       }
 
    }

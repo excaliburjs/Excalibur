@@ -48,10 +48,7 @@ module Core {
 
 
 	export class Color implements Common.IColor {
-		constructor(public r: number, public g: number, public b: number, public a?: number){
-
-		}
-
+		constructor(public r: number, public g: number, public b: number, public a?: number){}
 		toString(){
 			var result =  String(this.r.toFixed(0)) + ", " + String(this.g.toFixed(0)) + ", " + String(this.b.toFixed(0));
 			if(this.a){
