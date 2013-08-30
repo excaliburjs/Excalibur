@@ -72,11 +72,11 @@ module Common {
 	}
 
 	export interface ICollidable {
-		collides(primitive: ICollidable): bool;
-		collidesWithBox(box: IBoundingBox): bool;
-		collidesWithCircle(circle: IBoundingCircle): bool;
-		collidesWithPoly(poly: IBoundingPoly): bool;
-		collidesWithPixels(pixels: IBoundingPixels): bool;
+		collides(primitive: ICollidable): boolean;
+		collidesWithBox(box: IBoundingBox): boolean;
+		collidesWithCircle(circle: IBoundingCircle): boolean;
+		collidesWithPoly(poly: IBoundingPoly): boolean;
+		collidesWithPixels(pixels: IBoundingPixels): boolean;
 
 		getOverlapWithBox(box: IBoundingBox): IOverlap;
 		getOverlapWithCircle(circle: IBoundingCircle): IOverlap;
@@ -110,7 +110,7 @@ module Common {
 
 		getOverlap(box: IBox): IOverlap;
 		
-		collides(box : IBox): bool;
+		collides(box : IBox): boolean;
 	}
 
 

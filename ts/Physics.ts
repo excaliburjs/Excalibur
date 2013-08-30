@@ -121,7 +121,7 @@ module Physics {
 	export class SideScrollerPhysics implements Common.IPhysicsSystem {
 
 		private gravity: number = 4;
-		private onGround : bool = false;
+		private onGround : boolean = false;
 		private actors : Common.IActor[] = [];
 
 		constructor(public actor: Common.IActor, public engine: Common.IEngine){
@@ -149,7 +149,7 @@ module Physics {
 
 		setProperty(key: string, value: any){
 			if(key == "onGround"){
-				this.onGround = <bool>value;
+				this.onGround = <boolean>value;
 			}
 		}
 

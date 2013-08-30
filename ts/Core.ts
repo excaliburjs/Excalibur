@@ -310,7 +310,7 @@ module Core {
 		private fps : number = 30;
 
 		// debug stuff
-		private isDebugOn : bool = false;
+		private isDebugOn : boolean = false;
 		private debugColor : Color = new Color(250,0,0);
 		private debugFontSize : number = 10;
 
@@ -327,7 +327,7 @@ module Core {
 		// internal camera
 		camera : Common.ICamera = null;
 
-		constructor(private width : number, public height : number, private fullscreen? : bool, private backgroundColor?: Color){
+		constructor(private width : number, public height : number, private fullscreen? : boolean, private backgroundColor?: Color){
 
 			for(var id in this.keyMap){
 				this.reverseKeyMap[this.keyMap[id]] = id;
@@ -338,7 +338,7 @@ module Core {
 			this.debugFontSize = debugFontSize;
 		}
 
-		setDebug(isDebugOn: bool){
+		setDebug(isDebugOn: boolean){
 			this.isDebugOn = isDebugOn;
 		}
 
@@ -370,7 +370,7 @@ module Core {
 			this.fullscreen = fullscreen;
 		}
 
-		isFullscreen():bool{
+		isFullscreen():boolean{
 			return this.fullscreen;
 		}
 
