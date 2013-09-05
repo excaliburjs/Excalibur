@@ -31,34 +31,36 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /// <reference path="Common.ts" />
 
 module Camera {
-	
+	export interface ICamera {
+		applyTransform(engine: Engine, delta: number): void;
+	}	
 
-	export class SideCamera implements Common.ICamera {
-		follow : Common.IActor;
+	export class SideCamera implements ICamera {
+		follow : Actor;
 		constructor(){
 		}
-		setActorToFollow(actor: Common.IActor){
+		setActorToFollow(actor: Actor){
 			this.follow = actor;
 		}
 
-		applyTransform(engine:Common.IEngine, delta: number){
+		applyTransform(engine:Engine, delta: number){
 
-			engine.getGraphicsCtx().translate(-this.follow.getX() + engine.getCanvas().width/2.0,0);
+			engine.ctx.translate(-this.follow.x + engine.width/2.0,0);
 		}
 	}
 
-	export class TopCamera implements Common.ICamera {
-		follow : Common.IActor;
+	export class TopCamera implements ICamera {
+		follow : Actor;
 		constructor(){
 		}
-		setActorToFollow(actor: Common.IActor){
+		setActorToFollow(actor : Actor){
 			this.follow = actor;
 		}
 
-		applyTransform(engine:Common.IEngine, delta: number){
+		applyTransform(engine : Engine, delta : number){
 
-			engine.getGraphicsCtx().translate(-this.follow.getX() + engine.getCanvas().width/2.0, 0);
-			engine.getGraphicsCtx().translate(0, -this.follow.getY() + engine.getCanvas().height/2.0);
+			engine.ctx.translate(-this.follow.x + engine.width/2.0, 0);
+			engine.ctx.translate(0, -this.follow.y + engine.height/2.0);
 		}
 	}
 }

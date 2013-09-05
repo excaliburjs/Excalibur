@@ -43,9 +43,7 @@ module Common {
 		draw(ctx: CanvasRenderingContext2D, delta: number);
 	}
 
-	export interface ICamera {
-		applyTransform(engine: IEngine, delta: number): void;
-	}
+	
 	export interface IPhysicsSystem {
 		update(delta: number);
 		addActor(actor: Common.IActor):void;

@@ -30,94 +30,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /// <reference path="Common.ts" />
 
-module Physics {
-	export class Overlap implements Common.IOverlap{
-		constructor(public x: number, public y: number){}
-	}
+module Physics {	
 
-	export class Box implements Common.IBox{
-			
-		constructor (public x: number, public y: number, public width : number, public height:number){
-			
-		}
-
-		getLeft() {
-			return this.x;
-		}
-
-		setLeft(left: number){
-			this.x = left;
-		}
-
-		getRight(){
-			return this.x + this.width;
-		}
-
-		setRight(right: number){
-			this.width = right - this.x;
-		}
-
-		getTop(){
-			return this.y;
-		}
-
-		setTop(top: number){
-			this.y = top;
-		}
-
-		getBottom(){
-			return this.y + this.height;
-		}
-
-		setBottom(bottom: number){
-			this.height = bottom - this.y;
-		}
-
-		getOverlap(box: Box): Overlap{
-			var xover = 0;
-			var yover = 0;
-			if(this.collides(box)){
-				if(this.getLeft() < box.getRight()){
-					xover = box.getRight() - this.getLeft();
-				}
-				if(box.getLeft() < this.getRight()){
-					var tmp =  box.getLeft() - this.getRight();
-					if(Math.abs(xover) > Math.abs(tmp)){
-						xover = tmp;
-					}
-				}
-
-				if(this.getBottom() > box.getTop()){
-					yover = box.getTop() - this.getBottom();
-				}
-
-				if(box.getBottom() > this.getTop()){
-					var tmp = box.getBottom() - this.getTop();
-					if(Math.abs(yover) > Math.abs(tmp)){
-						yover = tmp;
-					}
-				}
-
-			}
-			return new Overlap(xover,yover);
-		}
-		
-		collides(box : Box){
-			var w = 0.5 * (this.width + box.width);
-			var h = 0.5 * (this.height + box.height);
-
-			var dx = (this.x + this.width/2.0) - (box.x + box.width/2.0);
-			var dy = (this.y + this.height/2.0) - (box.y + box.height/2.0);
-
-			if (Math.abs(dx) < w && Math.abs(dy) < h)
-			{
-			    return true;
-			}
-		}
-			
-	}
-
-		// Side scroller physics implementation w/o inertia
+	// Side scroller physics implementation w/o inertia
 	export class SideScrollerPhysics implements Common.IPhysicsSystem {
 
 		private gravity: number = 4;

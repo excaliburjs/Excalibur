@@ -30,17 +30,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /// <reference path='../../js/Engine.d.ts' />
 
+// Create screen appender 
+var screenAppender = new ScreenAppender();
+var logger = Logger.getInstance();
+logger.defaultLevel = Log.DEBUG;
+logger.addAppender(screenAppender);
+
+
 // Create an the game container
-var game = new Core.SimpleGame(1000,500,true);
+var game = new Engine();
 
 // Set background color
-game.setBackgroundColor(new Core.Color(114,213,224));
-
-// Set fps
-game.setFps(60);
+game.backgroundColor = new Color(114,213,224);
 
 // Turn on debug diagnostics
-game.setDebug(true);
+game.isDebug = true;
 
 // Create spritesheet
 var spriteSheet = new Drawing.SpriteSheet('../images/TestPlayer.png', 12, 1, 44,50);
@@ -59,31 +63,23 @@ enum Animations {
 
 // Create the level
 for(var i = 0; i< 36; i++){
-	var color = new Core.Color(Math.random()*255,Math.random()*255,Math.random()*255);
-	var block = new Core.Block(46*i+10,350+Math.random()*100,44,50,color);
+	var color = new Color(Math.random()*255,Math.random()*255,Math.random()*255);
+	var block = new Actor(46*i+10,350+Math.random()*100,44,50,color);
    
    block.addAnimation(Animations.Block, blockAnimation);
    block.playAnimation(Animations.Block);
    
-   game.addBlock(block);
+   game.addChild(block);
 }
 
-game.addBlock(new Core.Block(400, 300, 200,50,new Core.Color(0,0,0)));
+game.addChild(new Actor(400, 300, 200,50,new Color(0,0,0)));
 
-game.addBlock(new Core.Block(600, 230, 200,30,new Core.Color(0,0,0)));
+game.addChild(new Actor(600, 230, 200,30, new Color(0,0,0)));
 
 
 // Create the player
-var player = new Core.Player(100,100,35,50);
-
-// Create a physics system for the player
-var physics = new Physics.SideScrollerPhysics(player, game);
-physics.setGravity(2.0);
-
-
-// Top down physics system
-//var physics = new Core.TopDownPhysics(player, game);
-//physics.setFriction(.1);
+var player = new Actor(100,100,35,50);
+player.ay = 20;
 
 // Retrieve animations for player from sprite sheet
 var left = spriteSheet.getAnimationByIndices([8, 9], .2);
@@ -100,46 +96,41 @@ player.playAnimation(Animations.Idle);
 
 
 
-// Create key handlers
-player.addKeyHandler(["up","w"], 
-   function(p:Core.Player){
-      player.playAnimation(Animations.Idle);
-      var system  = player.getPhysicsSystem();
-      if(system.getProperty("onGround")){
-         p.dy = -20;
-         system.setProperty("onGround",false);
-      }        
-   });
+player.addEventListener(Keys[Keys.LEFT], (data)=>{
+   player.dx = -70;
+   player.playAnimation(Animations.Left);
+});
 
-player.addKeyHandler(["left","a"], 
-   function(p:Core.Player){
-      p.dx -= 3;
-      player.playAnimation(Animations.Left);
-   });
+player.addEventListener(Keys[Keys.RIGHT], (data)=>{
+   player.dx = 70;
+   player.playAnimation(Animations.Right);
+});
 
-player.addKeyHandler(["right","d"], 
-   function(p:Core.Player){
-      p.dx += 3;
-      player.playAnimation(Animations.Right);
-   });
+var inAir = false;
+player.addEventListener(Keys[Keys.UP], (data)=>{
+   if(!inAir){
+      player.dy = -500;
+      inAir = true;
+   }
+});
 
-player.addKeyHandler(["down", "s"],
-   function(p:Core.Player){
-      p.dy += 3;
-   });
+player.addEventListener(EventType[EventType.COLLISION], (data)=>{
+   logger.log("COLLISION", Log.DEBUG);
+   if(data.y > 0){
+      inAir = false;
+      player.dx = 0;
+   }
+})
 
 // Create a camera to track the player
 var camera = new Camera.SideCamera();
 camera.setActorToFollow(player);
 
 // Add player to game
-game.addActor(player);
+game.addChild(player);
 
 // Add camera to game
-game.addCamera(camera);
-
-// Add physics system to the game
-game.addPhysics(physics);
+game.camera = camera;
 
 // Run the mainloop
 game.start();

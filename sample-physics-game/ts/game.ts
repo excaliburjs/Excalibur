@@ -31,16 +31,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /// <reference path='../../js/Engine.d.ts' />
 
 // Create an the game container
-var game = new Core.SimpleGame(1000,500,true);
+var game = new Engine();
 
 // Set background color
-game.setBackgroundColor(new Core.Color(0,0,0));
-
-// Set fps
-game.setFps(60);
+game.backgroundColor = new Color(0,0,0);
 
 // Turn on debug diagnostics
-game.setDebug(true);
+game.isDebug = true;
 
 // Implement planetary physics
 class PlanetaryPhysics implements Common.IPhysicsSystem {
@@ -121,18 +118,18 @@ var camera = new Camera.TopCamera();
 // Create the level
 for(var i = 0; i< 10; i++){
    for(var j = 0; j< 10; j++){
-   	var color = new Core.Color(Math.random()*255,Math.random()*255,Math.random()*255);
-   	var block = new Core.Block(100+i*100,100+j*100,15,15,color);  
+   	var color = new Color(Math.random()*255,Math.random()*255,Math.random()*255);
+   	var block = new Actor(100+i*100,100+j*100,15,15,color);  
 
-      game.addActor(block);
-      physics.addActor(block);
+      game.addChild(block);
+      //physics.addActor(block);
    }
 
 }
 
 
 // Add physics system to the game
-game.addPhysics(physics);
+//game.addPhysics(physics);
 
 // Run the mainloop
 game.start();

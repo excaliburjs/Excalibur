@@ -37,467 +37,537 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /// <reference path="Sound.ts" />
 
 
-module Core {	
-	export var Keys : {[key:string]:number;} = 
-				{"up": 38, "down": 40, "left": 37, "right": 39,
-				 "space": 32, "a": 65, "s": 83, "d": 68, "w": 87,
-				 "shift": 16, "b": 66, "c": 67, "e": 69, "f": 70, "g": 71,
-				 "h": 72, "i": 73, "j": 74, "k": 75, "l": 76, "m": 77,
-				 "n": 78, "o": 79, "p": 80, "q": 81, "r": 82, "t": 84,
-				 "u": 85, "v": 86, "x": 88, "y": 89, "z": 90};
-
-
-	export class Color implements Common.IColor {
-		constructor(public r: number, public g: number, public b: number, public a?: number){}
-		toString(){
-			var result =  String(this.r.toFixed(0)) + ", " + String(this.g.toFixed(0)) + ", " + String(this.b.toFixed(0));
-			if(this.a){
-				return "rgba(" + result + ", "+ String(this.a) + ")";
-			}
-			return "rgb(" + result + ")";
+class Color {
+	constructor(public r: number, public g: number, public b: number, public a?: number){}
+	toString(){
+		var result =  String(this.r.toFixed(0)) + ", " + String(this.g.toFixed(0)) + ", " + String(this.b.toFixed(0));
+		if(this.a){
+			return "rgba(" + result + ", "+ String(this.a) + ")";
 		}
+		return "rgb(" + result + ")";
+	}
+}	
+
+
+class Overlap {
+	constructor(public x: number, public y: number){}
+}
+
+class SceneNode {
+	public children : SceneNode[];
+	constructor(actors?:SceneNode[]){
+		this.children = actors || [];
 	}
 
-	export class Actor implements Common.IActor {
-		// registered physics system
-		physicsSystem: Common.IPhysicsSystem;
-
-		// color
-		color: Color;
-
-		// Initial position is 0
-		x: number = 0;
-		y: number = 0;
-
-		// Initial velocity is 0
-		dx: number = 0;
-		dy: number = 0;
-		
-		// Initial acceleartion is 0;
-		ax: number = 0;
-		ay: number = 0;
-
-		// bounding box
-		box : Physics.Box;
-
-
-		constructor(){
-		}
-
-		// List of animations for an Actor
-		animations : {[key:string]:Drawing.Animation;} = {};
-
-		// Current animation for an Actor
-		currentAnimation: Drawing.Animation = null;
-
-		// Add an animation to Actor's list
-		addAnimation(key:any, animation: Drawing.Animation){
-			this.animations[<string>key] = animation;
-			if(!this.currentAnimation){
-				this.currentAnimation = animation;
-			}
-		}
-
-		setBox(box: Physics.Box){
-			this.box = box;
-		}
-
-		getBox(): Physics.Box{
-			return this.box;
-		}
-
-		setPhysicsSystem(system: Common.IPhysicsSystem){
-			this.physicsSystem = system;
-		}
-
-		getPhysicsSystem():Common.IPhysicsSystem{
-			return this.physicsSystem;
-		}
-
-		setX(x : number){
-			this.x = x;
-		}
-
-		getX(): number {
-			return this.x;
-		}
-
-		setY(y: number){
-			this.y = y;
-		}
-
-		getY(): number {
-			return this.y;
-		}
-
-		setDx(dx : number){
-			this.dx = dx;
-		}
-
-		getDx(): number{
-			return this.dx;
-		}
-
-		setDy(dy : number){
-			this.dy = dy;
-		}
-
-		getDy(): number {
-			return this.dy;
-		}
-
-		setAx(ax: number){
-			this.ax = ax;
-		}
-
-		getAx(){
-			return this.ax;
-		}
-		
-		setAy(ay: number){
-			this.ay = ay;
-		}
-
-		getAy(){
-			return this.ay;
-		}
-
-		adjustX(x: number){
-			this.x += x;
-		}
-
-		adjustY(y: number): void{
-			this.y += y;
-		}
-
-		getColor():Color{
-			return this.color;
-		}
-
-		setColor(color:Color){
-			this.color = color;
-		}
-
-		// Play animation in Actor's list
-		playAnimation(key){
-			this.currentAnimation = this.animations[<string>key];
-		}
-
-		update(engine: Common.IEngine, delta: number){
-			// Update placements based on linear algebra
-			this.x += this.dx;
-			this.y += this.dy;
-
-			this.dx += this.ax;
-			this.dy += this.ay;
-
-		}
-		draw(ctx: CanvasRenderingContext2D, delta: number){
-			// override
-		}
+	update (engine: Engine, delta: number){
+		this.children.forEach((actor)=>{
+			actor.update(engine, delta);
+		});
 	}
 
-	export class Player extends Actor {
-		// bounding box
-		//private box : Physics.Box;
+	draw (ctx: CanvasRenderingContext2D, delta: number){
+		this.children.forEach((actor)=>{
+			actor.draw(ctx, delta);
+		});
+	}
 
-		// List of key handlers for a player
-		handlers : {[key:string]: { (player:Player): void; };} = {};
+	addChild(actor: SceneNode){
+		this.children.push(actor);
+	}
 
-		constructor (x: number, y: number, public width : number, public height:number){
-			super()
-			this.x = x;
-			this.y = y;
-			this.box = new Physics.Box(x,y,width,height);
-		}
+	removeChild(actor: SceneNode){
+		var index = this.children.indexOf(actor);
+		this.children.splice(index,1);
+	}
 
-		
+};
+class Actor extends SceneNode {
+	public x: number = 0;
+	public y: number = 0;
+	public height : number = 0;
+	public width : number = 0;
 
-		getBox() : Physics.Box {
-			return this.box;
-		}
+	public dx: number = 0;
+	public dy: number = 0;
+	public ax: number = 0;
+	public ay: number = 0;
 
-		addKeyHandler(key:string[], handler: (player:Player) => void){
-			for(var i in key){
-				var k = key[i];
-				this.handlers[k] = handler;
+	public solid = false;
+
+	public animations : {[key:string]:Drawing.Animation;} = {};
+	public currentAnimation: Drawing.Animation = null;
+
+	public color: Color;
+	constructor (x? : number,  y? : number,  width? : number, height? : number, color? : Color){
+		super();
+		this.x = x || 0;
+		this.y = y || 0;
+		this.width = width || 0;
+		this.height = height || 0;
+		this.color = color;
+	}
+
+	// Play animation in Actor's list
+	playAnimation(key){
+		this.currentAnimation = this.animations[<string>key];
+	}
+
+	addEventListener(eventName: string, handler : (data: any) => void){
+		EventDispatcher.getInstance().subscribe(eventName, handler);
+	}
+
+	getLeft() {
+		return this.x;
+	}
+	getRight() {
+		return this.x + this.width;
+	}
+	getTop() {
+		return this.y;
+	}
+	getBottom() {
+		return this.y + this.height;
+	}
+
+	private getOverlap(box: Actor): Overlap {
+		var xover = 0;
+		var yover = 0;
+		if(this.collides(box)){
+			if(this.getLeft() < box.getRight()){
+				xover = box.getRight() - this.getLeft();
 			}
-		}
-
-		update(engine: Common.IEngine, delta: number){
-			
-			// Key Input
-			var keys = engine.getKeys();
-
-			for(var key in this.handlers){
-				var pressedKey = engine.getKeyMap()[key];
-				if(keys.indexOf(pressedKey)>-1){
-					this.handlers[key](this);
+			if(box.getLeft() < this.getRight()){
+				var tmp =  box.getLeft() - this.getRight();
+				if(Math.abs(xover) > Math.abs(tmp)){
+					xover = tmp;
 				}
 			}
-			
-			// Update placements based on linear algebra
-			super.update(engine, delta);
 
-			this.box.setLeft(this.x);
-			this.box.setTop(this.y);
-		}
-		
-		draw(ctx : CanvasRenderingContext2D, delta: number){
-			if(this.currentAnimation){
-				this.currentAnimation.draw(ctx, this.x, this.y);
-			}else{
+			if(this.getBottom() > box.getTop()){
+				yover = box.getTop() - this.getBottom();
+			}
 
-				ctx.fillStyle = this.color?this.color.toString():(new Color(0,0,0)).toString();
-				ctx.fillRect(this.box.x,this.box.y,this.box.width,this.box.height);				
+			if(box.getBottom() > this.getTop()){
+				var tmp = box.getBottom() - this.getTop();
+				if(Math.abs(yover) > Math.abs(tmp)){
+					yover = tmp;
+				}
 			}
 
 		}
+		return new Overlap(xover,yover);
 	}
-
-
-	export class Block extends Actor {
-		//private color : Color;
-		private boundingBox : Physics.Box;
-		constructor(public x:number, public y: number, public width: number, public height:number, color?: Color){
-			super();
-			this.color = color;	
-			this.boundingBox = new Physics.Box(this.x,this.y,this.width,this.height);
-		}
-
-		getBox(): Physics.Box {
-			return this.boundingBox;
-		}
 		
-		toString(){
-			return "[x:" + this.boundingBox.x + ", y:" + this.boundingBox.y + ", w:" + this.boundingBox.width + ", h:" + this.boundingBox.height +"]";
-		}
-		
-		update(engine: Common.IEngine, delta: number){
-			// Update placements based on linear algebra
-			this.x += this.dx;
-			this.y += this.dy;
+	public collides(box : Actor){
+		var w = 0.5 * (this.width + box.width);
+		var h = 0.5 * (this.height + box.height);
 
-			this.boundingBox.x += this.dx;
-			this.boundingBox.y += this.dy;
+		var dx = (this.x + this.width/2.0) - (box.x + box.width/2.0);
+		var dy = (this.y + this.height/2.0) - (box.y + box.height/2.0);
 
-			this.dx += this.ax;
-			this.dy += this.ay;
-		}
-		draw(ctx: CanvasRenderingContext2D, delta: number){
-			if(this.currentAnimation){
-				this.currentAnimation.draw(ctx, this.boundingBox.x, this.boundingBox.y);
-			}else{
-				ctx.fillStyle = this.color?this.color.toString():(new Color(0,0,0)).toString();
-				ctx.fillRect(this.boundingBox.x,this.boundingBox.y,this.boundingBox.width,this.boundingBox.height);
-			}
+		if (Math.abs(dx) < w && Math.abs(dy) < h){
+		    return true;
 		}
 	}
 
 	
-	export class SimpleGame implements Common.IEngine {
+
+	// Add an animation to Actor's list
+	public addAnimation(key:any, animation: Drawing.Animation){
+		this.animations[<string>key] = animation;
+		if(!this.currentAnimation){
+			this.currentAnimation = animation;
+		}
+	}
+	
+	
+
+	public update(engine: Engine, delta: number){
+		super.update(engine, delta);
 		
-		
-		actors: Common.IActor[] = [];
-		level: Block[] = [];
+		// Update placements based on linear algebra
+		this.x += this.dx * delta;
+		this.y += this.dy * delta;
 
-		private physicsSystem: Common.IPhysicsSystem;
+		this.dx += this.ax;
+		this.dy += this.ay;
 
-		// default fps 30
-		private fps : number = 30;
-
-		// debug stuff
-		private isDebugOn : boolean = false;
-		private debugColor : Color = new Color(250,0,0);
-		private debugFontSize : number = 10;
-
-		// key buffer
-		private keys = [];
-		// key mappings
-		private keyMap : {[key:string]:number;} = Keys;
-		private reverseKeyMap = {};
-		
-		// internal canvase
-		canv = <HTMLCanvasElement>document.createElement("canvas");
-		ctx : CanvasRenderingContext2D;
-
-		// internal camera
-		camera : Common.ICamera = null;
-
-		constructor(private width : number, public height : number, private fullscreen? : boolean, private backgroundColor?: Color){
-
-			for(var id in this.keyMap){
-				this.reverseKeyMap[this.keyMap[id]] = id;
-			}
-		}
-
-		setDebugFontSize(debugFontSize: number){
-			this.debugFontSize = debugFontSize;
-		}
-
-		setDebug(isDebugOn: boolean){
-			this.isDebugOn = isDebugOn;
-		}
-
-		setDebugColor(debugColor: Color){
-			this.debugColor = debugColor;
-		}
-
-		setFps(fps: number){
-			this.fps = fps;
-		}
-
-		setHeight(height: number){
-			this.height = height;
-		}
-
-		getHeight():number{
-			return this.height;
-		}
-
-		setWidth(width: number){
-			this.width = width;
-		}
-
-		getWidth():number{
-			return this.width;
-		}
-
-		setFullscreen(fullscreen){
-			this.fullscreen = fullscreen;
-		}
-
-		isFullscreen():boolean{
-			return this.fullscreen;
-		}
-
-		setBackgroundColor(color: Color){
-			this.backgroundColor = color;
-		}
-
-		getBackgroundColor(): Color {
-			return this.backgroundColor;
-		}
-		
-		getKeys(){
-			return this.keys;
-		}
-
-		getKeyMap(): {[key:string]:number;} {
-			return this.keyMap;
-		}
-
-		getActors(){
-			return this.actors;
-		}
-
-		getLevel(){
-			return this.level;
-		}
-
-		update(engine: Common.IEngine, delta: number){
-			for(var i = 0; i< this.actors.length; i++){
-				this.actors[i].update(engine, delta);
-			}
-			if(this.physicsSystem){
-				this.physicsSystem.update(delta);
-			}
-		}
-
-		addPhysics(physicsSystem: Common.IPhysicsSystem){
-			this.physicsSystem = physicsSystem;
-		}
-
-		addCamera(camera : Common.ICamera){
-			this.camera = camera;
-		}
-
-		getCamera() : Common.ICamera {
-			return this.camera;
-		}
-
-		getGraphicsCtx() : CanvasRenderingContext2D {
-			return this.ctx;
-		}
-
-		getCanvas() : HTMLCanvasElement{
-			return this.canv;
-		}
-		
-		draw(ctx, delta: number){
-			if(!this.backgroundColor){
-				this.backgroundColor = new Color(0,0,0);
-			}
-			// Draw Background color
-			this.ctx.fillStyle = this.backgroundColor.toString();
-			this.ctx.fillRect(0,0,this.width,this.height);
-
-			// Draw debug information
-			if(this.isDebugOn){
-
-				this.ctx.font = this.debugFontSize + "pt Consolas";
-				this.ctx.fillStyle = this.debugColor.toString();
-				for (var j = 0; j < this.keys.length; j++){
-					this.ctx.fillText(this.keys[j] + " : " + (this.reverseKeyMap[this.keys[j]]?this.reverseKeyMap[this.keys[j]]:"Not Mapped"),10, 10*j+10)
+		// Publish collision events
+		for(var i = 0; i < engine.currentScene.children.length; i++){
+			var other = engine.currentScene.children[i];
+			if(other !== this && this.collides(<Actor>other)){
+				var overlap = this.getOverlap(<Actor>other);
+				EventDispatcher.getInstance().publish(EventType[EventType.COLLISION], other);
+				if(Math.abs(overlap.y) < Math.abs(overlap.x)){ 
+					this.y += overlap.y; 
+					this.dy = 0;
+				} else { 
+					this.x += overlap.x; 
+					this.dx = 0;
 				}
+			}
+		}
 
-				var fps = 1.0/(delta/1000);
-				this.ctx.fillText("FPS:" + fps.toFixed(2).toString(), 90, 10);
+	}
+	draw(ctx: CanvasRenderingContext2D, delta: number){
+		super.draw(ctx, delta);
+
+		if(this.currentAnimation){
+			this.currentAnimation.draw(ctx, this.x, this.y);
+		}else{
+
+			ctx.fillStyle = this.color?this.color.toString():(new Color(0,0,0)).toString();
+			ctx.fillRect(this.x,this.y,this.width,this.height);				
+		}
+
+	}
+}
+
+	
+enum Keys {
+	NUM_1 = 97,
+	NUM_2 = 98,
+	NUM_3 = 99,
+	NUM_4 = 100,
+	NUM_5 = 101,
+	NUM_6 = 102,
+	NUM_7 = 103,
+	NUM_8 = 104,
+	NUM_9 = 105,
+	NUM_0 = 96,
+	NUM_LOCK = 144,
+	SEMICOLON = 186,
+	A = 65,
+	B = 66,
+	C = 67,
+	D = 68,
+	E = 69,
+	F = 70,
+	G = 71,
+	H = 72,
+	I = 73,
+	J = 74,
+	K = 75,
+	L = 76,
+	M = 77,
+	N = 78,
+	O = 79,
+	P = 80,
+	Q = 81,
+	R = 82,
+	S = 83,
+	T = 84,
+	U = 85,
+	V = 86,
+	W = 87,
+	X = 88,
+	Y = 89,
+	Z = 90,
+	SHIFT = 16,
+	ALT = 18,
+	UP = 38,
+	DOWN = 40,
+	LEFT = 37,
+	RIGHT = 39,
+	SPACE = 32,
+	ESC = 27
+};
+
+
+enum Log {
+	DEBUG,
+	INFO,
+	WARN,
+	ERROR,
+	FATAL
+}
+
+interface IAppender {
+	log(message: string, level: Log);
+}
+
+class ConsoleAppender implements IAppender {
+	constructor(){}
+	public log(message: string, level: Log){
+		if (level < Log.WARN){
+			console.log("["+Log[level]+"] : " + message);
+		} else if (level < Log.ERROR){
+			console.warn("["+Log[level]+"] : " + message);
+		} else {
+			console.error("["+Log[level]+"] : " + message);
+		}
+	}
+}
+
+class ScreenAppender implements IAppender {
+	
+	private _messages : string[] = [];
+	private canvas : HTMLCanvasElement;
+	private ctx : CanvasRenderingContext2D;
+	constructor(){
+		this.canvas = <HTMLCanvasElement>document.createElement('canvas');
+		this.canvas.width = window.innerWidth;
+		this.canvas.height = window.innerHeight;
+		this.canvas.style.position = 'absolute';
+		this.ctx = this.canvas.getContext('2d');
+		document.body.appendChild(this.canvas);
+	}
+
+	public log(message: string, level: Log){
+		//this.ctx.fillStyle = 'rgba(0,0,0,1.0)';
+		this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+
+
+		this._messages.unshift("["+Log[level]+"] : " + message);
+
+		var pos = 10;
+		var opacity = 1.0;
+		for(var i = 0; i < this._messages.length; i++){
+			this.ctx.fillStyle = 'rgba(255,255,255,'+opacity.toFixed(2)+')';
+			var message = this._messages[i];
+			this.ctx.fillText(message, 200, pos);
+			pos += 10;
+			opacity = opacity>0?opacity-.05:0;
+		}
+	}
+
+}
+
+class Logger {
+	private static _instance : Logger = null;
+	private appenders : IAppender[] = [];
+	public defaultLevel : Log = Log.INFO;
+
+	constructor(){
+		if(Logger._instance){
+			throw new Error("Logger is a singleton");
+		}
+		Logger._instance = this;
+	}
+
+	public static getInstance() : Logger {
+		if(Logger._instance == null){
+			Logger._instance = new Logger();
+		}
+		return Logger._instance;
+	}
+
+	public addAppender(appender: IAppender){
+		this.appenders.push(appender);
+	}
+
+	public log(message: string, level?: Log){
+		if(level == null){
+			level = this.defaultLevel;
+		}
+		var defaultLevel = this.defaultLevel;
+		this.appenders.forEach(function(appender){
+			if(level >= defaultLevel){
+				appender.log(message, level);
+			}
+		});
+	}
+}
+
+
+enum EventType {
+	KEY_DOWN,
+	KEY_UP,
+	KEY_HOLD,
+	MOUSE_DOWN,
+	MOUSE_UP,
+	MOUSE_CLICK,
+	USER_EVENT,
+	COLLISION,
+	WINDOW_BLUR,
+	UPDATE
+}
+
+
+class EventDispatcher {
+	private static _instance : EventDispatcher;
+	private _handlers : {[key:string] : { (data: any):void}[];} = {};
+	constructor(){
+		if(EventDispatcher._instance){
+			throw new Error("EventDispatcher is a singleton");
+		}
+		EventDispatcher._instance = this;
+	}
+
+	public publish(eventName: string, data: any){
+		if(this._handlers[eventName]){
+			this._handlers[eventName].forEach(function(callback){
+				callback(data);
+			});
+		}else{
+			//Logger.getInstance().log("No handler registered for event " + eventName, Log.WARN);
+		}
+	}
+
+	public subscribe(eventName: string, handler: (data: any)=>void){
+		if(!this._handlers[eventName]){
+			this._handlers[eventName] = [];
+		}
+		this._handlers[eventName].push(handler);
+	}
+
+	public static getInstance() : EventDispatcher{
+		if(EventDispatcher._instance == null){
+			EventDispatcher._instance = new EventDispatcher();
+		}
+		return EventDispatcher._instance;
+	}
+}
+
+class Engine {
+	public canvas : HTMLCanvasElement;
+	public ctx : CanvasRenderingContext2D;
+	public width : number;
+	public height : number;
+
+	private hasStarted : boolean = false;
+
+	
+	public keys : number[] = [];
+	public camera : Camera.ICamera;
+
+	public currentScene : SceneNode;
+	public rootScene : SceneNode;
+	//public camera : ICamera;
+	public isFullscreen : boolean = false;
+	public isDebug : boolean = false;
+	public debugColor : Color = new Color(255,255,255);
+	public backgroundColor : Color = new Color(0,0,100);
+	private logger : Logger;
+	constructor(width?:number, height?:number, canvasElementId?:string){
+		this.logger = Logger.getInstance();
+		this.logger.addAppender(new ConsoleAppender);
+		this.logger.log("Building engine...", Log.DEBUG);
+
+		this.rootScene = this.currentScene = new SceneNode();
+		if(canvasElementId){
+			this.logger.log("Using Canvas element specified: " + canvasElementId, Log.DEBUG);
+			this.canvas = <HTMLCanvasElement>document.getElementById(canvasElementId);
+		} else{
+			this.logger.log("Using generated canvas element", Log.DEBUG);
+			this.canvas = <HTMLCanvasElement>document.createElement('canvas');
+		}
+		if(width && height){
+			this.logger.log("Engine viewport is size " + width + " x " + height, Log.DEBUG);
+			this.width = width;
+			this.height = height;	
+		} else {
+			this.logger.log("Engine viewport is fullscreen", Log.DEBUG);
+			this.isFullscreen = true;
+		}
+
+		this.init();
+
+	}
+
+	
+	public addChild(actor: Actor){
+		this.currentScene.addChild(actor);
+	}
+
+	public removeChild(actor: Actor){
+		this.currentScene.removeChild(actor);
+	}
+
+	getWidth() : number {
+		return this.width;
+	}
+
+	getHeight() : number {
+		return this.height;
+	}
+	
+	private init(){
+		if(this.isFullscreen){
+			document.body.style.margin = '0px';
+			document.body.style.overflow = 'hidden';
+			this.width = this.canvas.width = window.innerWidth;
+			this.height = this.canvas.height = window.innerHeight;
+
+			window.addEventListener('resize', (ev: UIEvent) => {
+				this.logger.log("View port resized", Log.DEBUG);
+				this.width = this.canvas.width = window.innerWidth;
+				this.height = this.canvas.height = window.innerHeight;
+			});
+		}
+
+		window.addEventListener('blur', (ev: UIEvent) => {
+			this.keys.length = 0; // empties array efficiently
+		});
+
+		window.addEventListener('keyup', (ev: KeyboardEvent) => {
+			var key = this.keys.indexOf(ev.keyCode);
+			this.keys.splice(key,1);
+		});
+
+		window.addEventListener('keydown', (ev: KeyboardEvent) => {
+			if(this.keys.indexOf(ev.keyCode)=== -1){
+				this.keys.push(ev.keyCode);
+			}
+		});
+
+		window.addEventListener('mousedown', ()=>{
+			// TODO: Collect events
+		});
+
+		window.addEventListener('mouseup', ()=>{
+			// TODO: Collect events
+		});
+
+
+		this.ctx = this.canvas.getContext('2d');
+		document.body.appendChild(this.canvas);
+	}
+
+	private update(delta: number){
+		this.currentScene.update(this, delta/1000);
+
+		// Publish events
+		this.keys.forEach(function(key){
+			EventDispatcher.getInstance().publish(Keys[key], key);
+		});
+
+		EventDispatcher.getInstance().publish(EventType[EventType.UPDATE], delta/1000);
+	}
+
+	private draw(delta: number){
+		var ctx = this.ctx;
+		ctx.fillStyle =  this.backgroundColor.toString();
+		ctx.fillRect(0,0,this.width,this.height);
+
+		// Draw debug information
+		if(this.isDebug){
+
+			this.ctx.font = "Consolas";
+			this.ctx.fillStyle = this.debugColor.toString();
+			for (var j = 0; j < this.keys.length; j++){
+				this.ctx.fillText(this.keys[j].toString() + " : " + (Keys[this.keys[j]]?Keys[this.keys[j]]:"Not Mapped"),100, 10*j+10);
 			}
 
-			ctx.save();
+			var fps = 1.0/(delta/1000);
+			this.ctx.fillText("FPS:" + fps.toFixed(2).toString(), 10, 10);
+		}
 
-			if(this.camera){
-				this.camera.applyTransform(this, delta);	
-			}
+		this.ctx.save();
+
+		if(this.camera){
+			this.camera.applyTransform(this, delta);	
+		}
 			
-			// Draw level
-			for(var k = 0; k< this.level.length; k++){
-				this.level[k].draw(ctx, delta);
-			}
+		this.currentScene.draw(this.ctx, delta);
 
-			// Draw actors
-			for(var i = 0; i< this.actors.length; i++){
-				this.actors[i].draw(ctx, delta);
-			}
-			ctx.restore();
-		}
+		this.ctx.restore();
+	}
 
-		
-		addActor(actor: Actor){
-			this.actors.push(actor);
-		}
-		
-		addBlock(block: Block){
-			this.level.push(block);
-		}
-		
-		start(){
-			// TODO: LoopTime needs to be updated in requestAnimationFrame
-			// Calculate loop time based on fps value
-			var loopTime = (1.0/this.fps) * 1000 // in milliseconds
-
-			// Capture key events
-			window.onkeydown = (ev)=>{if(this.keys.indexOf(ev.keyCode)<0){this.keys.push(ev.keyCode)}};
-			window.onkeyup = (ev)=>{var key = this.keys.indexOf(ev.keyCode); this.keys.splice(key,1);};
-
-			// Setup canvas drawing surface in DOM
-			this.canv.width = this.width;
-	    	this.canv.height = this.height;
-	    	if(this.fullscreen){
-		    	document.body.style.margin = "0";
-		    	this.canv.style.width = "100%";
-		    	this.canv.style.height = "100%";
-	    	}
-	    	document.body.appendChild(this.canv);
-	    	this.ctx = this.canv.getContext("2d");
-
-	    	// this has been added to the html5 canvas spec, but not all browsers implement it including chrome.
-	    	(<any>this.ctx).webkitImageSmoothingEnabled = false;
-	    	(<any>this.ctx).mozImageSmoothingEnabled = false;
-	    	(<any>this.ctx).msImageSmoothingEnabled = false;
-	    	(<any>this.ctx).imageSmoothingEnabled = false;
-
+	public start(){
+		if(!this.hasStarted){
+			this.hasStarted = true;
+			this.logger.log("Starting mainloop...", Log.DEBUG);
 			// Mainloop
 			var lastTime =  Date.now();
 	    	var game = this;
@@ -508,13 +578,18 @@ module Core {
 				var now = Date.now();
         		var elapsed = Math.floor((now - lastTime));
 
-				game.update(game, elapsed); 
-				game.draw(game.ctx, elapsed);
+				game.update(elapsed); 
+				game.draw(elapsed);
 
 				lastTime = now;
 			})();
+			this.logger.log("Mainloop started", Log.DEBUG);
+		}else{
+			// Game already started;
+			throw new Error("Engine already started");
 		}
-		
+
 	}
 
-}
+};
+
