@@ -28,46 +28,51 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-module Algebra {
-	export class Util {
-		static Equals(x: number, y: number, delta: number){
-			return (((x-delta) <= y) && (y <= (x+delta)));
+class Util {
+	static Equals(x: number, y: number, delta: number){
+		return (((x-delta) <= y) && (y <= (x+delta)));
+	}
+}
+
+class Vector {
+	constructor(public x: number, public y: number){}
+
+	public distance(v?: Vector) : number {
+		if(!v){
+			v = new Vector(0.0, 0.0);
 		}
+		return Math.sqrt(Math.pow(this.x - v.x,2) + Math.pow(this.y - v.y,2));
 	}
 
-	export class Point {
-		constructor(public x: number, public y: number){
-
-		}
-
-		minus (p: Point) : Vector {
-			return new Vector(this.x - p.x, this.y - p.y);
-		}
-
-		plus (v: Vector) : Point {
-			this.x += v.x;
-			this.y += v.y;
-			return this;
-		}
-
+	public normalize() : Vector {
+		var d = this.distance();
+		if(d > 0) {
+			return new Vector(this.x/d, this.y/d);
+		}else{
+			return new Vector(0,1);
+		}			
 	}
 
-	export class Vector {
-		constructor(public x: number, public y: number){
-
-		}
-
-		dot (v: Vector): number {
-			return this.x * v.x + this.y * v.y;
-		}
-
-		// 2d cross product returns a scalar
-		cross(v: Vector): number {
-			return this.x * v.y - this.y * v.x;
-		}
-
+	public scale(size) : Vector {
+		return new Vector(this.x * size, this.y * size);
 	}
 
+	public add (v: Vector) : Vector {
+		return new Vector(this.x + v.x, this.y + v.y);
+	}
 
+	public minus(v: Vector) : Vector {
+		return new Vector(this.x - v.x, this.y - v.y);
+	}
+
+	public dot (v: Vector): number {
+		return this.x * v.x + this.y * v.y;
+	}
+
+	// 2d cross product returns a scalar
+	public cross(v: Vector): number {
+		return this.x * v.y - this.y * v.x;
+	}
 
 }
+

@@ -72,9 +72,17 @@ for(var i = 0; i< 36; i++){
    game.addChild(block);
 }
 
-game.addChild(new Actor(400, 300, 200,50,new Color(0,0,0)));
+var platform = new Actor(400, 300, 200,50,new Color(0,200,0));
+platform.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100).repeatForever();
+game.addChild(platform);
 
-game.addChild(new Actor(600, 230, 200,30, new Color(0,0,0)));
+var platform2 = new Actor(800, 300, 200,20, new Color(0,0,140));
+platform2.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).moveTo(800, 300, 100).repeatForever();
+game.addChild(platform2);
+
+var platform3 = new Actor(-200, 400, 200, 20, new Color(50, 0, 100));
+platform3.moveTo(-200, 800, 300).moveTo(-200, 400, 50).moveTo(-200, 300, 800).moveTo(-200, 400, 800).repeatForever();
+game.addChild(platform3);
 
 
 // Create the player
@@ -125,7 +133,6 @@ player.addEventListener(Keys[Keys.UP], (data)=>{
 });
 
 player.addEventListener(EventType[EventType.COLLISION], (data)=>{
-   //logger.log("COLLISION: " + Side[data.side], Log.DEBUG);
    inAir = true;
    if(data.actor == player && data.side === Side.BOTTOM){
       inAir = false;

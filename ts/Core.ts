@@ -29,12 +29,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /// <reference path="MonkeyPatch.ts" />
+/// <reference path="Action.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Drawing.ts" />
 /// <reference path="Camera.ts" />
 /// <reference path="Common.ts" />
 /// <reference path="Physics.ts" />
 /// <reference path="Sound.ts" />
+
 
 
 class Color {
@@ -89,9 +91,7 @@ enum Side {
 	RIGHT,
 	NONE
 }
-class Action{
-	constructor(){}
-}
+
 
 class Actor extends SceneNode {
 	public x: number = 0;
@@ -104,7 +104,7 @@ class Actor extends SceneNode {
 	public ax: number = 0;
 	public ay: number = 0;
 
-	private actionQueue : Action = [];
+	private actionQueue : ActionQueue;
 
 	public fixed = true;
 
@@ -119,6 +119,7 @@ class Actor extends SceneNode {
 		this.width = width || 0;
 		this.height = height || 0;
 		this.color = color;
+		this.actionQueue = new ActionQueue(this);
 	}
 
 	// Play animation in Actor's list
@@ -217,7 +218,7 @@ class Actor extends SceneNode {
 
 	// Actions
 	public moveTo(x : number, y : number, speed : number) : Actor {
-
+		this.actionQueue.add(new MoveTo(this, x, y, speed));
 		return this;
 	}
 
@@ -225,12 +226,51 @@ class Actor extends SceneNode {
 
 		return this;
 	}
+
+	public rotateTo(angleRadians: number, speed : number) : Actor {
+
+		return this;
+	}
+
+	public rotateBy(angleRadians: number, time : number) : Actor {
+		
+		return this;
+	}
+
+	public scaleTo(size: number, speed: number) : Actor {
+		return this;
+	}
+
+	public scaleBy(size: number, time: number) : Actor {
+		return this;
+	}
+
+	public delay(seconds: number) : Actor {
+
+		return this;
+	}
+
+	public repeat(times?: number) : Actor {
+		if(!times){
+			this.repeatForever();
+			return this;
+		}
+
+
+
+		return this;
+	}
+
+	public repeatForever() : Actor{
+		this.actionQueue.add(new RepeatForever(this, this.actionQueue.getActions()));
+		return this;
+	}
 	
 
 	public update(engine: Engine, delta: number){
 		super.update(engine, delta);
 		// Update action queue
-
+		this.actionQueue.update(delta);
 		
 		// Update placements based on linear algebra
 		this.x += this.dx * delta;
@@ -251,10 +291,13 @@ class Actor extends SceneNode {
 					if(Math.abs(overlap.y) < Math.abs(overlap.x)){ 
 						this.y += overlap.y; 
 						this.dy = 0;
+						this.dx += (<Actor>other).dx;
 					} else { 
 						this.x += overlap.x; 
 						this.dx = 0;
+						this.dy += (<Actor>other).dy;
 					}
+
 				}
 			}
 		}
