@@ -81,6 +81,18 @@ class SceneNode {
 	}
 
 };
+
+enum Side {
+	TOP,
+	BOTTOM,
+	LEFT,
+	RIGHT,
+	NONE
+}
+class Action{
+	constructor(){}
+}
+
 class Actor extends SceneNode {
 	public x: number = 0;
 	public y: number = 0;
@@ -92,7 +104,9 @@ class Actor extends SceneNode {
 	public ax: number = 0;
 	public ay: number = 0;
 
-	public solid = false;
+	private actionQueue : Action = [];
+
+	public fixed = true;
 
 	public animations : {[key:string]:Drawing.Animation;} = {};
 	public currentAnimation: Drawing.Animation = null;
@@ -158,7 +172,7 @@ class Actor extends SceneNode {
 		return new Overlap(xover,yover);
 	}
 		
-	public collides(box : Actor){
+	public collides(box : Actor) : Side{
 		var w = 0.5 * (this.width + box.width);
 		var h = 0.5 * (this.height + box.height);
 
@@ -166,10 +180,31 @@ class Actor extends SceneNode {
 		var dy = (this.y + this.height/2.0) - (box.y + box.height/2.0);
 
 		if (Math.abs(dx) < w && Math.abs(dy) < h){
-		    return true;
+			// collision detected
+		   var wy = w * dy;
+		   var hx = h * dx;
+
+		   if(wy > hx){
+		    	if(wy > -hx){
+		    		return Side.TOP;
+	    		}else{
+	    			return Side.LEFT
+	    		}		   
+		   }else{
+		   	if(wy > -hx){
+		   		return Side.RIGHT;
+		   	}else{
+		   		return Side.BOTTOM;
+		   	}
+		   }
 		}
+
+		return Side.NONE;
 	}
 
+	public within(actor: Actor, distance : number): boolean{
+		return Math.sqrt(Math.pow(this.x - actor.x, 2) + Math.pow(this.y - actor.y, 2)) <= distance;
+	}
 	
 
 	// Add an animation to Actor's list
@@ -179,11 +214,23 @@ class Actor extends SceneNode {
 			this.currentAnimation = animation;
 		}
 	}
-	
+
+	// Actions
+	public moveTo(x : number, y : number, speed : number) : Actor {
+
+		return this;
+	}
+
+	public moveBy(x : number, y : number, time : number) : Actor {
+
+		return this;
+	}
 	
 
 	public update(engine: Engine, delta: number){
 		super.update(engine, delta);
+		// Update action queue
+
 		
 		// Update placements based on linear algebra
 		this.x += this.dx * delta;
@@ -195,15 +242,19 @@ class Actor extends SceneNode {
 		// Publish collision events
 		for(var i = 0; i < engine.currentScene.children.length; i++){
 			var other = engine.currentScene.children[i];
-			if(other !== this && this.collides(<Actor>other)){
+			var side : Side = Side.NONE;
+			if(other !== this &&
+				(side = this.collides(<Actor>other)) !== Side.NONE){
 				var overlap = this.getOverlap(<Actor>other);
-				EventDispatcher.getInstance().publish(EventType[EventType.COLLISION], other);
-				if(Math.abs(overlap.y) < Math.abs(overlap.x)){ 
-					this.y += overlap.y; 
-					this.dy = 0;
-				} else { 
-					this.x += overlap.x; 
-					this.dx = 0;
+				EventDispatcher.getInstance().publish(EventType[EventType.COLLISION], {actor: this, side: side});
+				if(!this.fixed){
+					if(Math.abs(overlap.y) < Math.abs(overlap.x)){ 
+						this.y += overlap.y; 
+						this.dy = 0;
+					} else { 
+						this.x += overlap.x; 
+						this.dx = 0;
+					}
 				}
 			}
 		}
@@ -576,7 +627,7 @@ class Engine {
 
 				// Get the time to calculate time-elapsed
 				var now = Date.now();
-        		var elapsed = Math.floor((now - lastTime));
+        		var elapsed = Math.floor(now - lastTime);
 
 				game.update(elapsed); 
 				game.draw(elapsed);

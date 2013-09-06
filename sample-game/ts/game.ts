@@ -80,6 +80,7 @@ game.addChild(new Actor(600, 230, 200,30, new Color(0,0,0)));
 // Create the player
 var player = new Actor(100,100,35,50);
 player.ay = 20;
+player.fixed = false;
 
 // Retrieve animations for player from sprite sheet
 var left = spriteSheet.getAnimationByIndices([8, 9], .2);
@@ -96,27 +97,37 @@ player.playAnimation(Animations.Idle);
 
 
 
+var inAir = true;
+var groundSpeed = 90;
+var airSpeed = 200;
+var jumpSpeed = 500;
 player.addEventListener(Keys[Keys.LEFT], (data)=>{
-   player.dx = -70;
+   if(inAir){
+      player.dx += -airSpeed;
+   }
+   player.dx = -groundSpeed;
    player.playAnimation(Animations.Left);
 });
 
 player.addEventListener(Keys[Keys.RIGHT], (data)=>{
-   player.dx = 70;
+   if(inAir){
+      player.dx += airSpeed;
+   }
+   player.dx = groundSpeed;
    player.playAnimation(Animations.Right);
 });
 
-var inAir = false;
 player.addEventListener(Keys[Keys.UP], (data)=>{
    if(!inAir){
-      player.dy = -500;
+      player.dy = -jumpSpeed;
       inAir = true;
    }
 });
 
 player.addEventListener(EventType[EventType.COLLISION], (data)=>{
-   logger.log("COLLISION", Log.DEBUG);
-   if(data.y > 0){
+   //logger.log("COLLISION: " + Side[data.side], Log.DEBUG);
+   inAir = true;
+   if(data.actor == player && data.side === Side.BOTTOM){
       inAir = false;
       player.dx = 0;
    }
