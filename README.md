@@ -4,11 +4,35 @@ GameTS is a simple game engine written in TypeScript for making 2D games in HTML
 
 A compiled example can be found [here.](http://www.erikonarheim.com/sample-game/html/GameStart.html)
 
+# Example
+
+```
+/// <reference path='Engine.d.ts' />
+// Create an the game container
+var game = new Engine();
+
+// Create new actor at X=50, Y=50, Width=100, and Height= 100
+var player = new Actor(50, 50, 100, 100, new Color(0,200,0));
+
+player.addEventListener("UP", ()=>{
+	player.dy = -50;
+});
+
+player.addEventListener("DOWN", ()=>{
+	player.dy = 50;
+});
+
+game.addChild(player);
+game.start();
+
+```
+
 # Features
 
-* Built-in simple game loop 
-* Built-in naive collision detection
-* Built-in key event handling
+* Scence graph 
+* Naive collision detection
+* Event handling
+* Automation layer for actors
 * Sublime Text 2 project file
 
 # Requirements
@@ -21,7 +45,7 @@ The compiler is available here:
 [Node Package Manager](https://npmjs.org/package/typescript)
 [Codeplex Source](http://typescript.codeplex.com/)
 
-** Note: GameTS only supports the newest TypeScript compiler **
+** Note: GameTS only supports the newest TypeScript 9.x compiler **
 
 ## To build the engine and run the sample game on these platforms:
 
