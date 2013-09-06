@@ -1,6 +1,6 @@
 # GameTS
 
-GameTS is a very simple game engine written in TypeScript for making games in html5. The goal of GameTS is create a simple engine to demonstrate the capabilities of TypeScript and to illustrate simple game development to new developers.
+GameTS is a simple game engine written in TypeScript for making 2D games in HTML5 Canvas. The goal of GameTS is create a simple engine to demonstrate the capabilities of TypeScript and to illustrate simple game development to new developers.
 
 A compiled example can be found [here.](http://www.erikonarheim.com/sample-game/html/GameStart.html)
 
