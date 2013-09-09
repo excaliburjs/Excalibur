@@ -84,6 +84,10 @@ var platform3 = new Actor(-200, 400, 200, 20, new Color(50, 0, 100));
 platform3.moveTo(-200, 800, 300).moveTo(-200, 400, 50).moveTo(-200, 300, 800).moveTo(-200, 400, 800).repeatForever();
 game.addChild(platform3);
 
+var platform4 = new Actor(200, 200, 100, 50, new Color(200, 0, 100));
+platform4.moveBy(75, 300, .20);
+game.addChild(platform4);
+
 
 // Create the player
 var player = new Actor(100,100,35,50);

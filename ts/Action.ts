@@ -49,7 +49,7 @@ class MoveTo implements IAction{
 	private speed : number;
 	private distance : number;
 	private _started = false;
-	constructor(actor: Actor, destx: number, desty : number, speed : number){
+	constructor(actor: Actor, destx : number, desty : number, speed : number){
 		this.actor = actor;
 		this.end = new Vector(destx, desty);
 		this.speed = speed;
@@ -76,7 +76,61 @@ class MoveTo implements IAction{
 		}
 	}
 
-	public isComplete(actor: Actor) : boolean{
+	public isComplete(actor : Actor) : boolean{
+		return (new Vector(actor.x, actor.y)).distance(this.start) >= this.distance;
+	}
+
+	public reset() : void {
+		this._started = false;
+	}
+}
+
+class MoveBy implements IAction {
+	private actor : Actor;
+	public x : number;
+	public y : number;
+	private distance : number;
+	private speed : number;
+	private time : number;
+
+	private start : Vector;
+	private end : Vector;
+	private dir : Vector;
+	private _started = false;
+	constructor(actor: Actor, destx : number, desty : number, time : number){
+		this.actor = actor;
+		this.end = new Vector(destx, desty);
+		if(time <= 0) {
+			Logger.getInstance().log("Attempted to moveBy time less than or equal to zero : " + time, Log.ERROR);
+			throw new Error("Cannot move in time <= 0");
+		}
+		this.time = time;
+
+	}
+
+	public update(delta : Number){
+		if(!this._started){
+			this._started = true;
+			this.start = new Vector(this.actor.x, this.actor.y);
+			this.distance = this.start.distance(this.end);
+			this.dir = this.end.minus(this.start).normalize();
+			this.speed = this.distance/(this.time);
+		}
+
+		var m = this.dir.scale(this.speed);
+		this.actor.dx = m.x;
+		this.actor.dy = m.y;
+
+		//Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+		if(this.isComplete(this.actor)){
+			this.actor.x = this.end.x;
+			this.actor.y = this.end.y;
+			this.actor.dy = 0;
+			this.actor.dx = 0;
+		}
+	}
+
+	public isComplete(actor : Actor) : boolean{
 		return (new Vector(actor.x, actor.y)).distance(this.start) >= this.distance;
 	}
 

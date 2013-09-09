@@ -29,11 +29,11 @@ game.start();
 
 # Features
 
-* Scence graph 
+* Sprite Sheet Support
 * Naive collision detection
 * Event handling
 * Automation layer for actors
-* Sublime Text 2 project file
+* Sublime Text 2 Project
 
 # Requirements
 
@@ -42,7 +42,9 @@ You will need have the TypeScript compiler installed on your platform to build f
 The compiler is available here:
 
 [Official Typescript Page](http://www.typescriptlang.org/)
+
 [Node Package Manager](https://npmjs.org/package/typescript)
+
 [Codeplex Source](http://typescript.codeplex.com/)
 
 ** Note: GameTS only supports the newest TypeScript 9.x compiler **

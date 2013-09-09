@@ -223,7 +223,7 @@ class Actor extends SceneNode {
 	}
 
 	public moveBy(x : number, y : number, time : number) : Actor {
-
+		this.actionQueue.add(new MoveBy(this, x, y, time));
 		return this;
 	}
 
