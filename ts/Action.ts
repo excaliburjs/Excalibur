@@ -139,6 +139,76 @@ class MoveBy implements IAction {
 	}
 }
 
+class Delay implements IAction {
+	public x : number;
+	public y : number;
+	private actor : Actor;
+	private elapsedTime : number = 0;
+	private delay : number;
+	private _started : boolean = false;
+	constructor(actor : Actor, delay : number){
+		this.actor = actor;
+		this.delay = delay;
+	}
+
+	public update(delta : number) : void {
+		if(!this._started){
+			this._started = true;
+		}
+
+		this.x = this.actor.x;
+		this.y = this.actor.y;
+
+		this.elapsedTime += delta;
+	}
+
+	isComplete(actor : Actor) : boolean {
+		return this.elapsedTime >= this.delay;
+	}
+
+	reset() : void {
+		this.elapsedTime = 0;
+		this._started = false;
+	}
+}
+
+class Repeat implements IAction {
+	public x : number;
+	public y : number;
+	private actor : Actor;
+	private actionQueue : ActionQueue;
+	private repeat : number;
+	private originalRepeat : number;
+	constructor(actor : Actor, repeat : number, actions : IAction[]){
+		this.actor = actor;
+		this.actionQueue = new ActionQueue(actor);
+		this.repeat = repeat;
+		this.originalRepeat = repeat;
+		actions.forEach((action)=>{
+			action.reset();
+			this.actionQueue.add(action);
+		});
+	}
+
+	public update(delta) : void {
+		this.x = this.actor.x;
+		this.y = this.actor.y;
+		if(!this.actionQueue.hasNext()){
+			this.actionQueue.reset();
+			this.repeat--;
+		}
+		this.actionQueue.update(delta);
+	}
+
+	public isComplete() : boolean {
+		return this.repeat <= 0;
+	}
+
+	public reset() : void {
+		this.repeat = this.originalRepeat;
+	}
+}
+
 class RepeatForever implements IAction {
 	public x : number;
 	public y : number;

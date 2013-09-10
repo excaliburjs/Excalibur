@@ -246,7 +246,7 @@ class Actor extends SceneNode {
 	}
 
 	public delay(seconds: number) : Actor {
-
+		this.actionQueue.add(new Delay(this, seconds));
 		return this;
 	}
 
@@ -255,8 +255,7 @@ class Actor extends SceneNode {
 			this.repeatForever();
 			return this;
 		}
-
-
+		this.actionQueue.add(new Repeat(this, times, this.actionQueue.getActions()));
 
 		return this;
 	}
