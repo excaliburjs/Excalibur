@@ -106,6 +106,8 @@ class Actor extends SceneNode {
 
 	private actionQueue : ActionQueue;
 
+	private eventDispatcher : EventDispatcher;
+
 	public fixed = true;
 
 	public animations : {[key:string]:Drawing.Animation;} = {};
@@ -120,27 +122,32 @@ class Actor extends SceneNode {
 		this.height = height || 0;
 		this.color = color;
 		this.actionQueue = new ActionQueue(this);
+		this.eventDispatcher = new EventDispatcher();
 	}
 
 	// Play animation in Actor's list
-	playAnimation(key){
+	public playAnimation(key){
 		this.currentAnimation = this.animations[<string>key];
 	}
 
-	addEventListener(eventName: string, handler : (data: any) => void){
-		EventDispatcher.getInstance().subscribe(eventName, handler);
+	public addEventListener(eventName : string, handler : (data: any) => void){
+		this.eventDispatcher.subscribe(eventName, handler);
 	}
 
-	getLeft() {
+	public triggerEvent(eventName : string, event : ActorEvent){
+		this.eventDispatcher.publish(eventName, event);
+	}
+
+	public getLeft() {
 		return this.x;
 	}
-	getRight() {
+	public getRight() {
 		return this.x + this.width;
 	}
-	getTop() {
+	public getTop() {
 		return this.y;
 	}
-	getBottom() {
+	public getBottom() {
 		return this.y + this.height;
 	}
 
@@ -268,6 +275,11 @@ class Actor extends SceneNode {
 
 	public update(engine: Engine, delta: number){
 		super.update(engine, delta);
+		var eventDispatcher = this.eventDispatcher;
+
+		// Update event dispatcher
+		eventDispatcher.update();
+
 		// Update action queue
 		this.actionQueue.update(delta);
 		
@@ -278,6 +290,8 @@ class Actor extends SceneNode {
 		this.dx += this.ax;
 		this.dy += this.ay;
 
+
+
 		// Publish collision events
 		for(var i = 0; i < engine.currentScene.children.length; i++){
 			var other = engine.currentScene.children[i];
@@ -285,23 +299,32 @@ class Actor extends SceneNode {
 			if(other !== this &&
 				(side = this.collides(<Actor>other)) !== Side.NONE){
 				var overlap = this.getOverlap(<Actor>other);
-				EventDispatcher.getInstance().publish(EventType[EventType.COLLISION], {actor: this, side: side});
+				eventDispatcher.publish(EventType[EventType.COLLISION], new CollisonEvent(this, (<Actor>other), side));
 				if(!this.fixed){
 					if(Math.abs(overlap.y) < Math.abs(overlap.x)){ 
 						this.y += overlap.y; 
-						this.dy = 0;
-						this.dx += (<Actor>other).dx;
+						//this.dy = 0;
+						//this.dx += (<Actor>other).dx;
 					} else { 
 						this.x += overlap.x; 
-						this.dx = 0;
-						this.dy += (<Actor>other).dy;
+						//this.dx = 0;
+						//this.dy += (<Actor>other).dy;
 					}
 
 				}
 			}
 		}
 
+		
+
+		// Publish other events
+		engine.keys.forEach(function(key){
+			eventDispatcher.publish(Keys[key], new KeyEvent(this, key));
+		});
+
+		eventDispatcher.publish(EventType[EventType.UPDATE], delta/1000);
 	}
+
 	draw(ctx: CanvasRenderingContext2D, delta: number){
 		super.draw(ctx, delta);
 
@@ -476,40 +499,53 @@ enum EventType {
 	UPDATE
 }
 
+class ActorEvent {
+	constructor(){}
+}
+
+class CollisonEvent extends ActorEvent {
+	constructor(public actor : Actor, public other : Actor, public side : Side) {
+		super();
+	}
+}
+
+class KeyEvent extends ActorEvent {
+	constructor(public actor : Actor, public key : Keys){
+		super();
+	}
+}
 
 class EventDispatcher {
-	private static _instance : EventDispatcher;
-	private _handlers : {[key:string] : { (data: any):void}[];} = {};
+	private _handlers : {[key : string] : { (event: ActorEvent) : void}[]; } = {};
+	private queue : {(any: void):void}[] = [];
 	constructor(){
-		if(EventDispatcher._instance){
-			throw new Error("EventDispatcher is a singleton");
-		}
-		EventDispatcher._instance = this;
 	}
 
-	public publish(eventName: string, data: any){
+	public publish(eventName: string, event: ActorEvent){
+		var queue = this.queue;
 		if(this._handlers[eventName]){
 			this._handlers[eventName].forEach(function(callback){
-				callback(data);
+				queue.push(function(){
+					callback(event);
+				});
 			});
-		}else{
-			//Logger.getInstance().log("No handler registered for event " + eventName, Log.WARN);
 		}
 	}
 
-	public subscribe(eventName: string, handler: (data: any)=>void){
+	public subscribe(eventName: string, handler: (event: ActorEvent) => void){
 		if(!this._handlers[eventName]){
 			this._handlers[eventName] = [];
 		}
 		this._handlers[eventName].push(handler);
 	}
 
-	public static getInstance() : EventDispatcher{
-		if(EventDispatcher._instance == null){
-			EventDispatcher._instance = new EventDispatcher();
+	public update(){
+		var callback;
+		while(callback = this.queue.shift()){
+			callback();
 		}
-		return EventDispatcher._instance;
 	}
+
 }
 
 class Engine {
@@ -619,13 +655,6 @@ class Engine {
 
 	private update(delta: number){
 		this.currentScene.update(this, delta/1000);
-
-		// Publish events
-		this.keys.forEach(function(key){
-			EventDispatcher.getInstance().publish(Keys[key], key);
-		});
-
-		EventDispatcher.getInstance().publish(EventType[EventType.UPDATE], delta/1000);
 	}
 
 	private draw(delta: number){

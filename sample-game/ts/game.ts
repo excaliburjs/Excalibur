@@ -131,16 +131,17 @@ player.addEventListener(Keys[Keys.RIGHT], (data)=>{
 
 player.addEventListener(Keys[Keys.UP], (data)=>{
    if(!inAir){
-      player.dy = -jumpSpeed;
+      player.dy -= jumpSpeed;
       inAir = true;
    }
 });
 
 player.addEventListener(EventType[EventType.COLLISION], (data)=>{
    inAir = true;
-   if(data.actor == player && data.side === Side.BOTTOM){
+   if(data.side === Side.BOTTOM){
       inAir = false;
-      player.dx = 0;
+      player.dx = data.other.dx;
+      player.dy = data.other.dy;
    }
 })
 
