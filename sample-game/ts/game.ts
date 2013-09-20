@@ -81,7 +81,7 @@ platform2.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).mo
 game.addChild(platform2);
 
 var platform3 = new Actor(-200, 400, 200, 20, new Color(50, 0, 100));
-platform3.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3).moveTo(-200, 300, 800).moveTo(-200, 400, 800).repeatForever();
+platform3.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3000).moveTo(-200, 300, 800).moveTo(-200, 400, 800).repeatForever();
 game.addChild(platform3);
 
 var platform4 = new Actor(200, 200, 100, 50, new Color(200, 0, 100));
@@ -91,13 +91,13 @@ game.addChild(platform4);
 
 // Create the player
 var player = new Actor(100,100,35,50);
-player.ay = 20;
+player.ay = 800;
 player.fixed = false;
 
 // Retrieve animations for player from sprite sheet
-var left = spriteSheet.getAnimationByIndices([8, 9], .2);
-var right = spriteSheet.getAnimationByIndices([3, 4], .2);
-var idle = spriteSheet.getAnimationByIndices([0, 1, 2], .2);
+var left = spriteSheet.getAnimationByIndices([8, 9], 200);
+var right = spriteSheet.getAnimationByIndices([3, 4], 200);
+var idle = spriteSheet.getAnimationByIndices([0, 1, 2], 200);
 
 // Add animations to player
 player.addAnimation(Animations.Left, left); 
@@ -113,7 +113,7 @@ var inAir = true;
 var groundSpeed = 90;
 var airSpeed = 200;
 var jumpSpeed = 500;
-player.addEventListener(Keys[Keys.LEFT], (data)=>{
+player.addEventListener(Keys[Keys.LEFT], ()=>{
    if(inAir){
       player.dx += -airSpeed;
    }
@@ -121,7 +121,7 @@ player.addEventListener(Keys[Keys.LEFT], (data)=>{
    player.playAnimation(Animations.Left);
 });
 
-player.addEventListener(Keys[Keys.RIGHT], (data)=>{
+player.addEventListener(Keys[Keys.RIGHT], ()=>{
    if(inAir){
       player.dx += airSpeed;
    }
@@ -129,21 +129,29 @@ player.addEventListener(Keys[Keys.RIGHT], (data)=>{
    player.playAnimation(Animations.Right);
 });
 
-player.addEventListener(Keys[Keys.UP], (data)=>{
+player.addEventListener(Keys[Keys.UP], ()=>{
    if(!inAir){
       player.dy -= jumpSpeed;
       inAir = true;
    }
 });
 
-player.addEventListener(EventType[EventType.COLLISION], (data)=>{
+player.addEventListener(EventType[EventType.COLLISION], (data?: CollisonEvent)=>{
    inAir = true;
    if(data.side === Side.BOTTOM){
       inAir = false;
       player.dx = data.other.dx;
       player.dy = data.other.dy;
    }
-})
+});
+
+game.addEventListener(EventType[EventType.BLUR], ()=>{
+   game.stop();
+});
+
+game.addEventListener(EventType[EventType.FOCUS], ()=>{
+   game.start();
+});
 
 // Create a camera to track the player
 var camera = new Camera.SideCamera();

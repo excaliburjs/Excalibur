@@ -117,7 +117,7 @@ module Drawing{
 
       tick(){
          var time = Date.now();
-         if((time - this.oldTime)/1000 > this.speed){
+         if((time - this.oldTime) > this.speed){
             this.currIndex = (this.currIndex + 1) % this.maxIndex;
             this.oldTime = time;
          }

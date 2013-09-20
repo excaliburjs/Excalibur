@@ -130,11 +130,11 @@ class Actor extends SceneNode {
 		this.currentAnimation = this.animations[<string>key];
 	}
 
-	public addEventListener(eventName : string, handler : (data: any) => void){
+	public addEventListener(eventName : string, handler : (event?: ActorEvent) => void){
 		this.eventDispatcher.subscribe(eventName, handler);
 	}
 
-	public triggerEvent(eventName : string, event : ActorEvent){
+	public triggerEvent(eventName : string, event? : ActorEvent){
 		this.eventDispatcher.publish(eventName, event);
 	}
 
@@ -284,11 +284,11 @@ class Actor extends SceneNode {
 		this.actionQueue.update(delta);
 		
 		// Update placements based on linear algebra
-		this.x += this.dx * delta;
-		this.y += this.dy * delta;
+		this.x += this.dx * delta/1000;
+		this.y += this.dy * delta/1000;
 
-		this.dx += this.ax;
-		this.dy += this.ay;
+		this.dx += this.ax * delta/1000;
+		this.dy += this.ay * delta/1000;
 
 
 
@@ -313,9 +313,7 @@ class Actor extends SceneNode {
 
 				}
 			}
-		}
-
-		
+		}		
 
 		// Publish other events
 		engine.keys.forEach(function(key){
@@ -495,7 +493,8 @@ enum EventType {
 	MOUSE_CLICK,
 	USER_EVENT,
 	COLLISION,
-	WINDOW_BLUR,
+	BLUR,
+	FOCUS,
 	UPDATE
 }
 
@@ -516,12 +515,12 @@ class KeyEvent extends ActorEvent {
 }
 
 class EventDispatcher {
-	private _handlers : {[key : string] : { (event: ActorEvent) : void}[]; } = {};
+	private _handlers : {[key : string] : { (event?: ActorEvent) : void}[]; } = {};
 	private queue : {(any: void):void}[] = [];
 	constructor(){
 	}
 
-	public publish(eventName: string, event: ActorEvent){
+	public publish(eventName: string, event?: ActorEvent){
 		var queue = this.queue;
 		if(this._handlers[eventName]){
 			this._handlers[eventName].forEach(function(callback){
@@ -532,7 +531,7 @@ class EventDispatcher {
 		}
 	}
 
-	public subscribe(eventName: string, handler: (event: ActorEvent) => void){
+	public subscribe(eventName: string, handler: (event?: ActorEvent) => void){
 		if(!this._handlers[eventName]){
 			this._handlers[eventName] = [];
 		}
@@ -556,6 +555,7 @@ class Engine {
 
 	private hasStarted : boolean = false;
 
+	private eventDispatcher : EventDispatcher;
 	
 	public keys : number[] = [];
 	public camera : Camera.ICamera;
@@ -572,6 +572,8 @@ class Engine {
 		this.logger = Logger.getInstance();
 		this.logger.addAppender(new ConsoleAppender);
 		this.logger.log("Building engine...", Log.DEBUG);
+
+		this.eventDispatcher = new EventDispatcher();
 
 		this.rootScene = this.currentScene = new SceneNode();
 		if(canvasElementId){
@@ -594,6 +596,9 @@ class Engine {
 
 	}
 
+	public addEventListener(eventName : string,  handler: (event?: ActorEvent) => void){
+		this.eventDispatcher.subscribe(eventName, handler);
+	}
 	
 	public addChild(actor: Actor){
 		this.currentScene.addChild(actor);
@@ -638,14 +643,27 @@ class Engine {
 			if(this.keys.indexOf(ev.keyCode)=== -1){
 				this.keys.push(ev.keyCode);
 			}
+
 		});
 
 		window.addEventListener('mousedown', ()=>{
 			// TODO: Collect events
+			this.eventDispatcher.update()
 		});
 
 		window.addEventListener('mouseup', ()=>{
 			// TODO: Collect events
+			this.eventDispatcher.update()
+		});
+
+		window.addEventListener('blur', ()=>{
+			this.eventDispatcher.publish(EventType[EventType.BLUR]);
+			this.eventDispatcher.update()
+		});
+
+		window.addEventListener('focus', ()=>{
+			this.eventDispatcher.publish(EventType[EventType.FOCUS]);
+			this.eventDispatcher.update()
 		});
 
 
@@ -654,7 +672,8 @@ class Engine {
 	}
 
 	private update(delta: number){
-		this.currentScene.update(this, delta/1000);
+		this.eventDispatcher.update();
+		this.currentScene.update(this, delta);
 	}
 
 	private draw(delta: number){
@@ -689,28 +708,38 @@ class Engine {
 	public start(){
 		if(!this.hasStarted){
 			this.hasStarted = true;
-			this.logger.log("Starting mainloop...", Log.DEBUG);
+			this.logger.log("Starting game...", Log.DEBUG);
 			// Mainloop
 			var lastTime =  Date.now();
 	    	var game = this;
 	    	(function mainloop(){
+	    		if(!game.hasStarted){
+	    			return;
+	    		}
 				window.requestAnimationFrame(mainloop);
 
 				// Get the time to calculate time-elapsed
 				var now = Date.now();
-        		var elapsed = Math.floor(now - lastTime);
+        		var elapsed = Math.floor(now - lastTime) || 1;
 
 				game.update(elapsed); 
 				game.draw(elapsed);
 
 				lastTime = now;
 			})();
-			this.logger.log("Mainloop started", Log.DEBUG);
+			this.logger.log("Game started", Log.DEBUG);
 		}else{
 			// Game already started;
 			throw new Error("Engine already started");
 		}
 
+	}
+
+	public stop(){
+		if(this.hasStarted){
+			this.hasStarted = false;
+			this.logger.log("Game stopped", Log.DEBUG);
+		}
 	}
 
 };
