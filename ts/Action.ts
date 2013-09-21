@@ -139,6 +139,170 @@ class MoveBy implements IAction {
 	}
 }
 
+class RotateTo implements IAction{
+	private actor : Actor;
+	public x : number;
+	public y : number;
+	private start : number;
+	private end : number;
+	private speed : number;
+	private distance : number;
+	private _started = false;
+	constructor(actor: Actor, angleRadians : number, speed : number){
+		this.actor = actor;
+		this.end = angleRadians;
+		this.speed = speed;
+		
+	}
+
+	public update(delta : number) : void {
+		if(!this._started){
+			this._started = true;
+			this.start = this.actor.rotation;
+			this.distance = Math.abs(this.end - this.start);
+		}
+		this.actor.rx = this.speed;
+
+		//Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+		if(this.isComplete(this.actor)){
+			this.actor.rotation = this.end;
+			this.actor.rx = 0;
+		}
+	}
+
+	public isComplete(actor : Actor) : boolean{
+		return Math.abs(this.actor.rotation - this.start) >= this.distance;
+	}
+
+	public reset() : void {
+		this._started = false;
+	}
+}
+
+class RotateBy implements IAction{
+	private actor : Actor;
+	public x : number;
+	public y : number;
+	private start : number;
+	private end : number;
+	private time : number;
+	private distance : number;
+	private _started = false;
+	private speed : number;
+	constructor(actor: Actor, angleRadians : number, time : number){
+		this.actor = actor;
+		this.end = angleRadians;
+		this.time = time;
+		this.speed = (this.end - this.actor.rotation)/time*1000;
+		
+	}
+
+	public update(delta : number) : void {
+		if(!this._started){
+			this._started = true;
+			this.start = this.actor.rotation;
+			this.distance = Math.abs(this.end - this.start);
+		}
+		this.actor.rx = this.speed;
+
+		//Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+		if(this.isComplete(this.actor)){
+			this.actor.rotation = this.end;
+			this.actor.rx = 0;
+		}
+	}
+
+	public isComplete(actor : Actor) : boolean{
+		return Math.abs(this.actor.rotation - this.start) >= this.distance;
+	}
+
+	public reset() : void {
+		this._started = false;
+	}
+}
+
+class ScaleTo implements IAction{
+	private actor : Actor;
+	public x : number;
+	public y : number;
+	private start : number;
+	private end : number;
+	private speed : number;
+	private distance : number;
+	private _started = false;
+	constructor(actor: Actor, scale : number, speed : number){
+		this.actor = actor;
+		this.end = scale;
+		this.speed = speed;
+		
+	}
+
+	public update(delta : number) : void {
+		if(!this._started){
+			this._started = true;
+			this.start = this.actor.scale;
+			this.distance = Math.abs(this.end - this.start);
+		}
+		this.actor.sx = this.speed;
+
+		//Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+		if(this.isComplete(this.actor)){
+			this.actor.scale = this.end;
+			this.actor.sx = 0;
+		}
+	}
+
+	public isComplete(actor : Actor) : boolean{
+		return Math.abs(this.actor.scale - this.start) >= this.distance;
+	}
+
+	public reset() : void {
+		this._started = false;
+	}
+}
+
+class ScaleBy implements IAction{
+	private actor : Actor;
+	public x : number;
+	public y : number;
+	private start : number;
+	private end : number;
+	private time : number;
+	private distance : number;
+	private _started = false;
+	private speed : number;
+	constructor(actor: Actor, scale : number, time : number){
+		this.actor = actor;
+		this.end = scale;
+		this.time = time;
+		this.speed = (this.end - this.actor.scale)/time*1000;
+		
+	}
+
+	public update(delta : number) : void {
+		if(!this._started){
+			this._started = true;
+			this.start = this.actor.scale;
+			this.distance = Math.abs(this.end - this.start);
+		}
+		this.actor.sx = this.speed;
+
+		//Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+		if(this.isComplete(this.actor)){
+			this.actor.scale = this.end;
+			this.actor.sx = 0;
+		}
+	}
+
+	public isComplete(actor : Actor) : boolean{
+		return Math.abs(this.actor.scale - this.start) >= this.distance;
+	}
+
+	public reset() : void {
+		this._started = false;
+	}
+}
+
 class Delay implements IAction {
 	public x : number;
 	public y : number;
@@ -169,6 +333,66 @@ class Delay implements IAction {
 	reset() : void {
 		this.elapsedTime = 0;
 		this._started = false;
+	}
+}
+
+
+class Blink implements IAction {
+	public x : number;
+	public y : number;
+
+	private frequency : number;
+	private duration : number;
+	private actor : Actor;
+	private numBlinks : number;
+
+	private _started : boolean = false;
+	private nextBlink : number = 0;
+	private elapsedTime : number = 0;
+	private isBlinking : boolean = false;
+	constructor(actor : Actor, frequency : number, duration : number){
+		this.actor = actor;
+		this.frequency = frequency;
+		this.duration = duration;
+		this.numBlinks = Math.floor(frequency * duration);
+	}
+
+	public update(delta) : void {
+		if(!this._started){
+			this._started = true;
+			this.nextBlink += this.duration/this.numBlinks;
+		}
+		this.x = this.actor.x;
+		this.y = this.actor.y;
+
+		this.elapsedTime += delta;
+    	if(this.elapsedTime+100>this.nextBlink && this.nextBlink>this.elapsedTime-100){
+      	this.isBlinking = true;
+      	this.actor.invisible = true;
+   	} else {
+	      if(this.isBlinking){
+	      	this.isBlinking = false;
+	      	this.nextBlink += this.duration/this.numBlinks;
+	   	}
+      
+      	this.actor.invisible = false;;
+   	}
+
+   	if(this.isComplete(this.actor)){
+    		this.actor.invisible = false;
+   	}
+
+	}
+
+	public isComplete(actor : Actor) : boolean {
+		return this.elapsedTime >= this.duration;
+	}
+
+	public reset(){
+		this._started = false;
+		this.nextBlink = 0;
+		this.elapsedTime = 0;
+		this.isBlinking = false;
 	}
 }
 

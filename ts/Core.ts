@@ -73,6 +73,12 @@ class SceneNode {
 		});
 	}
 
+	debugDraw(ctx: CanvasRenderingContext2D){
+		this.children.forEach((actor)=>{
+			actor.debugDraw(ctx);
+		})
+	}
+
 	addChild(actor: SceneNode){
 		this.children.push(actor);
 	}
@@ -96,13 +102,20 @@ enum Side {
 class Actor extends SceneNode {
 	public x: number = 0;
 	public y: number = 0;
-	public height : number = 0;
-	public width : number = 0;
+	private height : number = 0;
+	private width : number = 0;
+	public rotation : number = 0; // radians
+	public rx : number = 0; //radions/sec
 
-	public dx: number = 0;
-	public dy: number = 0;
-	public ax: number = 0;
-	public ay: number = 0;
+	public scale : number = 1;
+	public sx : number = 0; //scale/sec
+
+	public dx : number = 0; // pixels/sec
+	public dy : number = 0;
+	public ax : number = 0; // pixels/sec/sec
+	public ay : number = 0;
+
+	public invisible : boolean = false;
 
 	private actionQueue : ActionQueue;
 
@@ -110,7 +123,7 @@ class Actor extends SceneNode {
 
 	public fixed = true;
 
-	public animations : {[key:string]:Drawing.Animation;} = {};
+	public animations : {[key : string] : Drawing.Animation;} = {};
 	public currentAnimation: Drawing.Animation = null;
 
 	public color: Color;
@@ -138,17 +151,25 @@ class Actor extends SceneNode {
 		this.eventDispatcher.publish(eventName, event);
 	}
 
+	public getWidth() {
+		return this.width * this.scale;
+	}
+
+	public getHeight(){
+		return this.height * this.scale;
+	}
+
 	public getLeft() {
 		return this.x;
 	}
 	public getRight() {
-		return this.x + this.width;
+		return this.x + this.getWidth();
 	}
 	public getTop() {
 		return this.y;
 	}
 	public getBottom() {
-		return this.y + this.height;
+		return this.y + this.getHeight();
 	}
 
 	private getOverlap(box: Actor): Overlap {
@@ -181,11 +202,11 @@ class Actor extends SceneNode {
 	}
 		
 	public collides(box : Actor) : Side{
-		var w = 0.5 * (this.width + box.width);
-		var h = 0.5 * (this.height + box.height);
+		var w = 0.5 * (this.getWidth() + box.getWidth());
+		var h = 0.5 * (this.getHeight() + box.getHeight());
 
-		var dx = (this.x + this.width/2.0) - (box.x + box.width/2.0);
-		var dy = (this.y + this.height/2.0) - (box.y + box.height/2.0);
+		var dx = (this.x + this.getWidth()/2.0) - (box.x + box.getWidth()/2.0);
+		var dy = (this.y + this.getHeight()/2.0) - (box.y + box.getHeight()/2.0);
 
 		if (Math.abs(dx) < w && Math.abs(dy) < h){
 			// collision detected
@@ -235,20 +256,27 @@ class Actor extends SceneNode {
 	}
 
 	public rotateTo(angleRadians: number, speed : number) : Actor {
-
+		this.actionQueue.add(new RotateTo(this, angleRadians, speed));
 		return this;
 	}
 
 	public rotateBy(angleRadians: number, time : number) : Actor {
-		
+		this.actionQueue.add(new RotateBy(this, angleRadians, time));
 		return this;
 	}
 
 	public scaleTo(size: number, speed: number) : Actor {
+		this.actionQueue.add(new ScaleTo(this, size, speed));
 		return this;
 	}
 
 	public scaleBy(size: number, time: number) : Actor {
+		this.actionQueue.add(new ScaleBy(this, size, time));
+		return this;
+	}
+
+	public blink(frequency : number, duration : number) : Actor {
+		this.actionQueue.add(new Blink(this, frequency, duration));
 		return this;
 	}
 
@@ -290,6 +318,9 @@ class Actor extends SceneNode {
 		this.dx += this.ax * delta/1000;
 		this.dy += this.ay * delta/1000;
 
+		this.rotation += this.rx * delta/1000;
+
+		this.scale += this.sx * delta/1000;
 
 
 		// Publish collision events
@@ -324,16 +355,38 @@ class Actor extends SceneNode {
 	}
 
 	draw(ctx: CanvasRenderingContext2D, delta: number){
+
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.scale(this.scale, this.scale);
+      ctx.rotate(this.rotation);
+
 		super.draw(ctx, delta);
 
-		if(this.currentAnimation){
-			this.currentAnimation.draw(ctx, this.x, this.y);
-		}else{
-
-			ctx.fillStyle = this.color?this.color.toString():(new Color(0,0,0)).toString();
-			ctx.fillRect(this.x,this.y,this.width,this.height);				
+		if(!this.invisible){
+			if(this.currentAnimation){
+				this.currentAnimation.draw(ctx, 0, 0);
+			}else{
+				ctx.fillStyle = this.color ? this.color.toString() : (new Color(0, 0, 0)).toString();
+				ctx.fillRect(0, 0, this.width, this.height);				
+			}
 		}
+		ctx.restore();
+	}
 
+	debugDraw(ctx: CanvasRenderingContext2D){
+		ctx.save();
+		ctx.translate(this.x, this.y);
+		ctx.scale(this.scale, this.scale);
+		ctx.rotate(this.rotation);
+
+		super.debugDraw(ctx);
+
+		ctx.beginPath();
+		ctx.rect(0, 0, this.width, this.height);
+		ctx.stroke();
+
+		ctx.restore();
 	}
 }
 
@@ -678,6 +731,7 @@ class Engine {
 
 	private draw(delta: number){
 		var ctx = this.ctx;
+		ctx.clearRect(0,0,this.width,this.height);
 		ctx.fillStyle =  this.backgroundColor.toString();
 		ctx.fillRect(0,0,this.width,this.height);
 
@@ -692,6 +746,8 @@ class Engine {
 
 			var fps = 1.0/(delta/1000);
 			this.ctx.fillText("FPS:" + fps.toFixed(2).toString(), 10, 10);
+
+
 		}
 
 		this.ctx.save();
@@ -699,8 +755,15 @@ class Engine {
 		if(this.camera){
 			this.camera.applyTransform(this, delta);	
 		}
-			
+
+		
 		this.currentScene.draw(this.ctx, delta);
+
+		if(this.isDebug){
+			this.ctx.strokeStyle = 'yellow'
+			this.currentScene.debugDraw(this.ctx);
+		}
+
 
 		this.ctx.restore();
 	}

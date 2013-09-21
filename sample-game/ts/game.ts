@@ -60,11 +60,12 @@ enum Animations {
    Right
 }
 
-
+var currentX = 0;
 // Create the level
 for(var i = 0; i< 36; i++){
+   currentX = 46*i+10;
 	var color = new Color(Math.random()*255,Math.random()*255,Math.random()*255);
-	var block = new Actor(46*i+10,350+Math.random()*100,44,50,color);
+	var block = new Actor(currentX,350+Math.random()*100,44,50,color);
    
    block.addAnimation(Animations.Block, blockAnimation);
    block.playAnimation(Animations.Block);
@@ -90,9 +91,14 @@ game.addChild(platform4);
 
 
 // Create the player
-var player = new Actor(100,100,35,50);
+var player = new Actor(100,100,44,50);
 player.ay = 800;
+player.scale = 1;
+player.rotation = 0;
 player.fixed = false;
+
+// Health bar example
+player.addChild(new Actor(-14.5, -20, 70, 5, new Color(0,255,0)));
 
 // Retrieve animations for player from sprite sheet
 var left = spriteSheet.getAnimationByIndices([8, 9], 200);
@@ -133,6 +139,7 @@ player.addEventListener(Keys[Keys.UP], ()=>{
    if(!inAir){
       player.dy -= jumpSpeed;
       inAir = true;
+      player.playAnimation(Animations.Idle);
    }
 });
 
@@ -143,6 +150,14 @@ player.addEventListener(EventType[EventType.COLLISION], (data?: CollisonEvent)=>
       player.dx = data.other.dx;
       player.dy = data.other.dy;
    }
+});
+
+player.addEventListener(Keys[Keys.B], ()=>{
+   var block = new Actor(currentX,350,44,50,color);
+   currentX += 46;
+   block.addAnimation(Animations.Block, blockAnimation);
+   block.playAnimation(Animations.Block);
+   game.addChild(block);
 });
 
 game.addEventListener(EventType[EventType.BLUR], ()=>{
