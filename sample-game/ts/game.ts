@@ -44,13 +44,13 @@ var game = new Engine();
 game.backgroundColor = new Color(114,213,224);
 
 // Turn on debug diagnostics
-game.isDebug = true;
+game.isDebug = false;
 
 // Create spritesheet
 var spriteSheet = new Drawing.SpriteSheet('../images/TestPlayer.png', 12, 1, 44,50);
 
 // Retrieve animations for blocks from sprite sheet
-var blockAnimation = spriteSheet.getAnimationByIndices([10],.2);
+var blockAnimation = spriteSheet.getAnimationByIndices([10], 200);
 
 // Animation 'enum' to prevent 'stringly' typed misspelling errors
 enum Animations {
@@ -92,10 +92,9 @@ game.addChild(platform4);
 
 // Create the player
 var player = new Actor(100,100,44,50);
-player.ay = 800;
 player.scale = 1;
 player.rotation = 0;
-player.fixed = false;
+player.solid = false;
 
 // Health bar example
 player.addChild(new Actor(-14.5, -20, 70, 5, new Color(0,255,0)));
@@ -117,22 +116,24 @@ player.playAnimation(Animations.Idle);
 
 var inAir = true;
 var groundSpeed = 90;
-var airSpeed = 200;
+var airSpeed = 90;
 var jumpSpeed = 500;
 player.addEventListener(Keys[Keys.LEFT], ()=>{
-   if(inAir){
-      player.dx += -airSpeed;
-   }
-   player.dx = -groundSpeed;
    player.playAnimation(Animations.Left);
+   if(inAir){
+      player.dx = -airSpeed;
+      return;
+   }
+   player.dx += -groundSpeed;
 });
 
 player.addEventListener(Keys[Keys.RIGHT], ()=>{
-   if(inAir){
-      player.dx += airSpeed;
-   }
-   player.dx = groundSpeed;
    player.playAnimation(Animations.Right);
+   if(inAir){
+      player.dx = airSpeed;
+      return;
+   }
+   player.dx += groundSpeed;
 });
 
 player.addEventListener(Keys[Keys.UP], ()=>{
@@ -144,7 +145,7 @@ player.addEventListener(Keys[Keys.UP], ()=>{
 });
 
 player.addEventListener(EventType[EventType.COLLISION], (data?: CollisonEvent)=>{
-   inAir = true;
+   
    if(data.side === Side.BOTTOM){
       inAir = false;
       player.dx = data.other.dx;
@@ -152,12 +153,35 @@ player.addEventListener(EventType[EventType.COLLISION], (data?: CollisonEvent)=>
    }
 });
 
-player.addEventListener(Keys[Keys.B], ()=>{
+player.addEventListener(EventType[EventType.UPDATE], (data?: UpdateEvent)=>{
+   if(inAir){
+      player.dy += 800 * data.delta/1000;
+   }
+   inAir = true;
+
+});
+
+game.addEventListener(Keys[Keys.B], ()=>{
    var block = new Actor(currentX,350,44,50,color);
    currentX += 46;
    block.addAnimation(Animations.Block, blockAnimation);
    block.playAnimation(Animations.Block);
    game.addChild(block);
+});
+
+var paused = false;
+game.addEventListener(Keys[Keys.P], ()=>{
+   if(!paused){
+      game.stop();
+   }else{
+      game.start();
+   }
+   paused != paused;
+});
+
+
+game.addEventListener(Keys[Keys.D], ()=>{
+   game.isDebug = !game.isDebug;
 });
 
 game.addEventListener(EventType[EventType.BLUR], ()=>{
@@ -172,7 +196,7 @@ game.addEventListener(EventType[EventType.FOCUS], ()=>{
 var camera = new Camera.SideCamera();
 camera.setActorToFollow(player);
 
-// Add player to game
+// Add player to game is synonymous with adding a player to the current scene
 game.addChild(player);
 
 // Add camera to game

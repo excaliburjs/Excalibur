@@ -121,7 +121,7 @@ class Actor extends SceneNode {
 
 	private eventDispatcher : EventDispatcher;
 
-	public fixed = true;
+	public solid = true;
 
 	public animations : {[key : string] : Drawing.Animation;} = {};
 	public currentAnimation: Drawing.Animation = null;
@@ -315,8 +315,10 @@ class Actor extends SceneNode {
 		this.x += this.dx * delta/1000;
 		this.y += this.dy * delta/1000;
 
-		this.dx += this.ax * delta/1000;
-		this.dy += this.ay * delta/1000;
+		//this.dx += this.ax * delta/1000;
+		//this.dy += this.ay * delta/1000;
+		//this.dx = 0;
+		//this.dy = 0;
 
 		this.rotation += this.rx * delta/1000;
 
@@ -331,7 +333,7 @@ class Actor extends SceneNode {
 				(side = this.collides(<Actor>other)) !== Side.NONE){
 				var overlap = this.getOverlap(<Actor>other);
 				eventDispatcher.publish(EventType[EventType.COLLISION], new CollisonEvent(this, (<Actor>other), side));
-				if(!this.fixed){
+				if(!this.solid){
 					if(Math.abs(overlap.y) < Math.abs(overlap.x)){ 
 						this.y += overlap.y; 
 						//this.dy = 0;
@@ -351,7 +353,7 @@ class Actor extends SceneNode {
 			eventDispatcher.publish(Keys[key], new KeyEvent(this, key));
 		});
 
-		eventDispatcher.publish(EventType[EventType.UPDATE], delta/1000);
+		eventDispatcher.publish(EventType[EventType.UPDATE], new UpdateEvent(delta));
 	}
 
 	draw(ctx: CanvasRenderingContext2D, delta: number){
@@ -561,6 +563,12 @@ class CollisonEvent extends ActorEvent {
 	}
 }
 
+class UpdateEvent extends ActorEvent {
+	constructor(public delta : number){
+		super();
+	}
+}
+
 class KeyEvent extends ActorEvent {
 	constructor(public actor : Actor, public key : Keys){
 		super();
@@ -690,23 +698,24 @@ class Engine {
 		window.addEventListener('keyup', (ev: KeyboardEvent) => {
 			var key = this.keys.indexOf(ev.keyCode);
 			this.keys.splice(key,1);
+			this.eventDispatcher.update();
 		});
 
 		window.addEventListener('keydown', (ev: KeyboardEvent) => {
 			if(this.keys.indexOf(ev.keyCode)=== -1){
 				this.keys.push(ev.keyCode);
 			}
-
+			this.eventDispatcher.update();
 		});
 
 		window.addEventListener('mousedown', ()=>{
 			// TODO: Collect events
-			this.eventDispatcher.update()
+			this.eventDispatcher.update();
 		});
 
 		window.addEventListener('mouseup', ()=>{
 			// TODO: Collect events
-			this.eventDispatcher.update()
+			this.eventDispatcher.update();
 		});
 
 		window.addEventListener('blur', ()=>{
@@ -727,6 +736,11 @@ class Engine {
 	private update(delta: number){
 		this.eventDispatcher.update();
 		this.currentScene.update(this, delta);
+
+		var eventDispatcher = this.eventDispatcher;
+		this.keys.forEach(function(key){
+			eventDispatcher.publish(Keys[key], new KeyEvent(this, key));
+		});
 	}
 
 	private draw(delta: number){
@@ -779,13 +793,17 @@ class Engine {
 	    		if(!game.hasStarted){
 	    			return;
 	    		}
+
 				window.requestAnimationFrame(mainloop);
 
 				// Get the time to calculate time-elapsed
 				var now = Date.now();
         		var elapsed = Math.floor(now - lastTime) || 1;
 
-				game.update(elapsed); 
+				game.update(elapsed);
+
+
+
 				game.draw(elapsed);
 
 				lastTime = now;
@@ -793,7 +811,6 @@ class Engine {
 			this.logger.log("Game started", Log.DEBUG);
 		}else{
 			// Game already started;
-			throw new Error("Engine already started");
 		}
 
 	}

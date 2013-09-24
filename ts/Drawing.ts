@@ -44,6 +44,14 @@ module Drawing{
          this.internalImage.src = path;
          this.sprites = new Array(rows*columns);
 
+         /*if(spWidth * columns > this.internalImage.naturalWidth){
+            throw new Error("SpriteSheet specified is wider than image width");
+         }
+
+         if(spHeight * rows > this.internalImage.naturalHeight){
+            throw new Error("SpriteSheet specified is higher than image height");
+         }*/
+
          for(var i = 0; i < rows; i++){
             for(var j= 0; j < columns; j++){
                this.sprites[i+j*rows] = new Sprite(this.internalImage, j*spWidth, i*spHeight, spWidth, spHeight);
@@ -65,7 +73,7 @@ module Drawing{
 
    }
 
-   export class Sprite implements IDrawable{
+   export class Sprite implements IDrawable {
       private internalImage : HTMLImageElement;
       private scale: number = 1.0;
       private rotation: number = 0.0;
