@@ -1,6 +1,6 @@
-# GameTS
+# Excalibur
 
-GameTS is a simple game engine written in TypeScript for making 2D games in HTML5 Canvas. The goal of GameTS is create a simple engine to demonstrate the capabilities of TypeScript and to illustrate simple game development to new developers.
+Excalibur is a simple game engine written in TypeScript for making 2D games in HTML5 Canvas. The goal of Excalibur is create a simple engine to demonstrate the capabilities of TypeScript and to illustrate simple game development to new developers.
 
 A compiled example can be found [here.](http://www.erikonarheim.com/sample-game/html/GameStart.html)
 
@@ -47,7 +47,7 @@ The compiler is available here:
 
 [Codeplex Source](http://typescript.codeplex.com/)
 
-** Note: GameTS only supports the newest TypeScript 9.x compiler **
+** Note: Excalibur only supports the newest TypeScript 9.x compiler **
 
 ## To build the engine and run the sample game on these platforms:
 
@@ -62,7 +62,7 @@ Unix/Linux:
 
 # License
 
-GameTS is open source and operates under a variant of the BSD license:
+Excalibur is open source and operates under a variant of the BSD license:
 
 	Copyright (c) 2013 Erik Onarheim
 	All rights reserved.
@@ -76,15 +76,15 @@ GameTS is open source and operates under a variant of the BSD license:
 	   documentation and/or other materials provided with the distribution.
 	3. All advertising materials mentioning features or use of this software
 	   must display the following acknowledgement:
-	   This product includes software developed by the GameTS Team.
+	   This product includes software developed by the Excalibur Team.
 	4. Neither the name of the creator nor the
 	   names of its contributors may be used to endorse or promote products
 	   derived from this software without specific prior written permission.
 
-	THIS SOFTWARE IS PROVIDED BY THE GAMETS TEAM ''AS IS'' AND ANY
+	THIS SOFTWARE IS PROVIDED BY THE EXCALIBUR TEAM ''AS IS'' AND ANY
 	EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-	DISCLAIMED. IN NO EVENT SHALL THE GAMETS TEAM BE LIABLE FOR ANY
+	DISCLAIMED. IN NO EVENT SHALL THE EXCALIBUR TEAM BE LIABLE FOR ANY
 	DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 	(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 	LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
