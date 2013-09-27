@@ -128,6 +128,12 @@ module Drawing{
       }
    }
 
+   export enum AnimationType {
+      CYCLE, // default
+      PINGPONG,
+      ONCE
+   }
+
    export class Animation implements IDrawable {
    	private sprites : Sprite[];
       private speed : number;
@@ -136,6 +142,9 @@ module Drawing{
       private oldTime : number = Date.now();
       private rotation : number = 0.0;
       private scale : number = 1.0;
+      public type : AnimationType = AnimationType.CYCLE;
+
+      private direction : number = 1;
 
    	constructor(images: Sprite[], speed: number){
    		this.sprites = images;
@@ -157,13 +166,49 @@ module Drawing{
          }
       }
 
-      tick(){
+      private cycle(){
          var time = Date.now();
          if((time - this.oldTime) > this.speed){
             this.currIndex = (this.currIndex + 1) % this.maxIndex;
             this.oldTime = time;
          }
+      }
 
+      private pingpong(){
+         var time = Date.now();
+         if((time - this.oldTime) > this.speed){
+            if(this.currIndex + this.direction === this.maxIndex || this.currIndex + this.direction === -1){
+               this.direction = -1 * this.direction;
+            }
+            this.currIndex += this.direction;
+
+            this.oldTime = time;
+         }
+      }
+
+      private once(){
+         var time = Date.now();
+         if((time - this.oldTime) > this.speed){
+            if(this.currIndex + 1 < this.maxIndex){
+               this.currIndex++;
+            }
+            this.oldTime = time;
+         }
+      }
+
+      reset(){
+         this.currIndex = 0;
+         this.direction = 1;
+      }
+
+      tick(){
+         if(this.type === AnimationType.CYCLE){
+            this.cycle();
+         }else if(this.type === AnimationType.PINGPONG){
+            this.pingpong();
+         }else if(this.type === AnimationType.ONCE){
+            this.once();
+         }
       }
 
       draw(ctx: CanvasRenderingContext2D, x: number, y: number){

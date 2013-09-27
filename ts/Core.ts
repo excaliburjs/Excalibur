@@ -140,7 +140,11 @@ class Actor extends SceneNode {
 
 	// Play animation in Actor's list
 	public playAnimation(key){
-		this.currentAnimation = this.animations[<string>key];
+
+		if(this.currentAnimation != this.animations[<string>key]){
+			this.animations[<string>key].reset();
+		}
+		this.currentAnimation = this.animations[<string>key];		
 	}
 
 	public addEventListener(eventName : string, handler : (event?: ActorEvent) => void){
