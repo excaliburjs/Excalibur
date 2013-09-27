@@ -135,7 +135,7 @@ class Actor extends SceneNode {
 		this.height = height || 0;
 		this.color = color;
 		this.actionQueue = new ActionQueue(this);
-		this.eventDispatcher = new EventDispatcher();
+		this.eventDispatcher = new EventDispatcher(this);
 	}
 
 	// Play animation in Actor's list
@@ -639,16 +639,19 @@ class KeyPress extends ActorEvent {
 class EventDispatcher {
 	private _handlers : {[key : string] : { (event?: ActorEvent) : void}[]; } = {};
 	private queue : {(any: void):void}[] = [];
-	constructor(){
+	private target : any;
+	constructor(target){
+		this.target = target;
 	}
 
 	public publish(eventName: string, event?: ActorEvent){
 		eventName = eventName.toLowerCase();
 		var queue = this.queue;
+		var target = this.target;
 		if(this._handlers[eventName]){
 			this._handlers[eventName].forEach(function(callback){
 				queue.push(function(){
-					callback(event);
+					callback.call(target, event);
 				});
 			});
 		}
@@ -697,7 +700,7 @@ class Engine {
 		this.logger.addAppender(new ConsoleAppender);
 		this.logger.log("Building engine...", Log.DEBUG);
 
-		this.eventDispatcher = new EventDispatcher();
+		this.eventDispatcher = new EventDispatcher(this);
 
 		this.rootScene = this.currentScene = new SceneNode();
 		if(canvasElementId){
