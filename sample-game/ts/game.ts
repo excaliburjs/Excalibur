@@ -118,7 +118,7 @@ var inAir = true;
 var groundSpeed = 90;
 var airSpeed = 90;
 var jumpSpeed = 500;
-player.addEventListener(Keys[Keys.LEFT], ()=>{
+player.addEventListener('left', ()=>{
    player.playAnimation(Animations.Left);
    if(inAir){
       player.dx = -airSpeed;
@@ -127,7 +127,7 @@ player.addEventListener(Keys[Keys.LEFT], ()=>{
    player.dx += -groundSpeed;
 });
 
-player.addEventListener(Keys[Keys.RIGHT], ()=>{
+player.addEventListener('right', ()=>{
    player.playAnimation(Animations.Right);
    if(inAir){
       player.dx = airSpeed;
@@ -136,7 +136,7 @@ player.addEventListener(Keys[Keys.RIGHT], ()=>{
    player.dx += groundSpeed;
 });
 
-player.addEventListener(Keys[Keys.UP], ()=>{
+player.addEventListener('up', ()=>{
    if(!inAir){
       player.dy -= jumpSpeed;
       inAir = true;
@@ -144,33 +144,37 @@ player.addEventListener(Keys[Keys.UP], ()=>{
    }
 });
 
-player.addEventListener(EventType[EventType.COLLISION], (data?: CollisonEvent)=>{
-   
+player.addEventListener('collision', (data?: CollisonEvent)=>{   
    if(data.side === Side.BOTTOM){
       inAir = false;
       player.dx = data.other.dx;
       player.dy = data.other.dy;
    }
+
+   if(data.side === Side.TOP){
+      player.dy = data.other.dy - player.dy;
+   }
 });
 
-player.addEventListener(EventType[EventType.UPDATE], (data?: UpdateEvent)=>{
+player.addEventListener('update', (data?: UpdateEvent)=>{
    if(inAir){
       player.dy += 800 * data.delta/1000;
    }
    inAir = true;
-
 });
 
-game.addEventListener(Keys[Keys.B], ()=>{
-   var block = new Actor(currentX,350,44,50,color);
-   currentX += 46;
-   block.addAnimation(Animations.Block, blockAnimation);
-   block.playAnimation(Animations.Block);
-   game.addChild(block);
+game.addEventListener('keydown', (keyDown? : KeyDown)=>{
+   if(keyDown.key === Keys.B){
+      var block = new Actor(currentX,350,44,50,color);
+      currentX += 46;
+      block.addAnimation(Animations.Block, blockAnimation);
+      block.playAnimation(Animations.Block);
+      game.addChild(block);
+   }
 });
 
 var paused = false;
-game.addEventListener(Keys[Keys.P], ()=>{
+game.addEventListener('p', ()=>{
    if(!paused){
       game.stop();
    }else{
@@ -180,15 +184,23 @@ game.addEventListener(Keys[Keys.P], ()=>{
 });
 
 
-game.addEventListener(Keys[Keys.D], ()=>{
-   game.isDebug = !game.isDebug;
+game.addEventListener('keydown', (keyDown? : KeyDown)=>{
+   if(keyDown.key === Keys.D){
+      game.isDebug = !game.isDebug;
+   }
 });
 
-game.addEventListener(EventType[EventType.BLUR], ()=>{
+game.addEventListener('keydown', (keyDown? : KeyDown)=>{
+   if(keyDown.key === Keys.F){
+      game.isDebug = !game.isDebug;
+   }
+});
+
+game.addEventListener('blur', ()=>{
    game.stop();
 });
 
-game.addEventListener(EventType[EventType.FOCUS], ()=>{
+game.addEventListener('focus', ()=>{
    game.start();
 });
 

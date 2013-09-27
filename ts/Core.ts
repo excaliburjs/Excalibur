@@ -377,10 +377,14 @@ class Actor extends SceneNode {
 	}
 
 	debugDraw(ctx: CanvasRenderingContext2D){
+		// Meant to draw debug information about actors
 		ctx.save();
 		ctx.translate(this.x, this.y);
+
+		
 		ctx.scale(this.scale, this.scale);
-		ctx.rotate(this.rotation);
+		// Currently collision primitives cannot rotate 
+		// ctx.rotate(this.rotation);
 
 		super.debugDraw(ctx);
 
@@ -473,10 +477,10 @@ class ScreenAppender implements IAppender {
 	private _messages : string[] = [];
 	private canvas : HTMLCanvasElement;
 	private ctx : CanvasRenderingContext2D;
-	constructor(){
+	constructor(width? : number, height? : number){
 		this.canvas = <HTMLCanvasElement>document.createElement('canvas');
-		this.canvas.width = window.innerWidth;
-		this.canvas.height = window.innerHeight;
+		this.canvas.width = width || window.innerWidth;
+		this.canvas.height = height || window.innerHeight;
 		this.canvas.style.position = 'absolute';
 		this.ctx = this.canvas.getContext('2d');
 		document.body.appendChild(this.canvas);
@@ -540,13 +544,13 @@ class Logger {
 
 
 enum EventType {
-	KEY_DOWN,
-	KEY_UP,
-	KEY_HOLD,
-	MOUSE_DOWN,
-	MOUSE_UP,
-	MOUSE_CLICK,
-	USER_EVENT,
+	KEYDOWN,
+	KEYUP,
+	KEYPRESS,
+	MOUSEDOWN,
+	MOUSEUP,
+	MOUSECLICK,
+	USEREVENT,
 	COLLISION,
 	BLUR,
 	FOCUS,
@@ -575,6 +579,24 @@ class KeyEvent extends ActorEvent {
 	}
 }
 
+class KeyDown extends ActorEvent {
+	constructor(public key : Keys){
+		super();
+	}
+}
+
+class KeyUp extends ActorEvent {
+	constructor(public key : Keys){
+		super();
+	}
+}
+
+class KeyPress extends ActorEvent {
+	constructor(public key : Keys){
+		super();
+	}
+}
+
 class EventDispatcher {
 	private _handlers : {[key : string] : { (event?: ActorEvent) : void}[]; } = {};
 	private queue : {(any: void):void}[] = [];
@@ -582,6 +604,7 @@ class EventDispatcher {
 	}
 
 	public publish(eventName: string, event?: ActorEvent){
+		eventName = eventName.toLowerCase();
 		var queue = this.queue;
 		if(this._handlers[eventName]){
 			this._handlers[eventName].forEach(function(callback){
@@ -593,6 +616,7 @@ class EventDispatcher {
 	}
 
 	public subscribe(eventName: string, handler: (event?: ActorEvent) => void){
+		eventName = eventName.toLowerCase();
 		if(!this._handlers[eventName]){
 			this._handlers[eventName] = [];
 		}
@@ -646,8 +670,8 @@ class Engine {
 		}
 		if(width && height){
 			this.logger.log("Engine viewport is size " + width + " x " + height, Log.DEBUG);
-			this.width = width;
-			this.height = height;	
+			this.width = this.canvas.width = width;
+			this.height = this.canvas.height = height;	
 		} else {
 			this.logger.log("Engine viewport is fullscreen", Log.DEBUG);
 			this.isFullscreen = true;
@@ -698,14 +722,15 @@ class Engine {
 		window.addEventListener('keyup', (ev: KeyboardEvent) => {
 			var key = this.keys.indexOf(ev.keyCode);
 			this.keys.splice(key,1);
-			this.eventDispatcher.update();
+			this.eventDispatcher.publish(EventType[EventType.KEYUP], new KeyUp(ev.keyCode));
+
 		});
 
 		window.addEventListener('keydown', (ev: KeyboardEvent) => {
 			if(this.keys.indexOf(ev.keyCode)=== -1){
 				this.keys.push(ev.keyCode);
+				this.eventDispatcher.publish(EventType[EventType.KEYDOWN], new KeyDown(ev.keyCode));
 			}
-			this.eventDispatcher.update();
 		});
 
 		window.addEventListener('mousedown', ()=>{

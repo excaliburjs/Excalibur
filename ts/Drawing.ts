@@ -70,8 +70,19 @@ module Drawing{
          });
          return new Animation(images, speed);
       }
-
    }
+
+   /*export class SpriteFont {
+      constructor(public path : string, private alphabet : string[], private columns : number, private rows : number, spWidth : number, spHeight : number){
+         super(path, columns, rows, spWidth, spHeight);
+      }
+
+      write(x : number, y : number, text : string){
+
+      }
+
+      draw()
+   }*/
 
    export class Sprite implements IDrawable {
       private internalImage : HTMLImageElement;
