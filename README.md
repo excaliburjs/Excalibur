@@ -4,7 +4,29 @@ Excalibur is a simple game engine written in TypeScript for making 2D games in H
 
 A compiled example can be found [here.](http://www.erikonarheim.com/sample-game/html/GameStart.html)
 
-# Example
+# Example in JavaScript
+
+```
+// Create an the game container
+var game = new Engine();
+
+// Create new actor at X=50, Y=50, Width=100, and Height= 100
+var player = new Actor(50, 50, 100, 100, new Color(0,200,0));
+
+player.addEventListener('up', function(){
+	player.dy = -50;
+});
+
+player.addEventListener('down', function(){
+	player.dy = 50;
+});
+
+game.addChild(player);
+game.start();
+
+```
+
+# Example in TypeScript
 
 ```
 /// <reference path='Engine.d.ts' />
@@ -14,11 +36,11 @@ var game = new Engine();
 // Create new actor at X=50, Y=50, Width=100, and Height= 100
 var player = new Actor(50, 50, 100, 100, new Color(0,200,0));
 
-player.addEventListener("UP", ()=>{
+player.addEventListener("up", ()=>{
 	player.dy = -50;
 });
 
-player.addEventListener("DOWN", ()=>{
+player.addEventListener("down", ()=>{
 	player.dy = 50;
 });
 
