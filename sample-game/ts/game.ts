@@ -49,6 +49,12 @@ game.isDebug = false;
 // Create spritesheet
 var spriteSheet = new Drawing.SpriteSheet('../images/TestPlayer.png', 12, 1, 44,50);
 
+// Create spriteFont
+var spriteFont = new Drawing.SpriteFont('../images/SpriteFont.png', '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
+var textActor = new TextActor('Hello World', 100, 100, spriteFont);
+textActor.scaleTo(2, .5).scaleTo(1,.5).repeatForever();
+game.addChild(textActor);
+
 // Retrieve animations for blocks from sprite sheet
 var blockAnimation = spriteSheet.getAnimationByIndices([10], 200);
 
@@ -98,6 +104,11 @@ player.solid = false;
 
 // Health bar example
 player.addChild(new Actor(-14.5, -20, 70, 5, new Color(0,255,0)));
+
+// Add Title above player
+var textActor = new TextActor('My Player', -14.5, -39, spriteFont);
+
+player.addChild(textActor);
 
 // Retrieve animations for player from sprite sheet
 var left = spriteSheet.getAnimationByIndices([8, 9], 200);
@@ -185,13 +196,8 @@ game.addEventListener('p', ()=>{
 
 
 game.addEventListener('keydown', (keyDown? : KeyDown)=>{
-   if(keyDown.key === Keys.D){
-      game.isDebug = !game.isDebug;
-   }
-});
 
-game.addEventListener('keydown', (keyDown? : KeyDown)=>{
-   if(keyDown.key === Keys.F){
+   if(keyDown.key === Keys.D){
       game.isDebug = !game.isDebug;
    }
 });

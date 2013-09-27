@@ -243,7 +243,8 @@ class ScaleTo implements IAction{
 			this.start = this.actor.scale;
 			this.distance = Math.abs(this.end - this.start);
 		}
-		this.actor.sx = this.speed;
+		var direction = this.end < this.start ? -1 : 1;
+		this.actor.sx = this.speed * direction;
 
 		//Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
 		if(this.isComplete(this.actor)){
@@ -285,7 +286,8 @@ class ScaleBy implements IAction{
 			this.start = this.actor.scale;
 			this.distance = Math.abs(this.end - this.start);
 		}
-		this.actor.sx = this.speed;
+		var direction = this.end < this.start ? -1 : 1;
+		this.actor.sx = this.speed * direction;
 
 		//Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
 		if(this.isComplete(this.actor)){

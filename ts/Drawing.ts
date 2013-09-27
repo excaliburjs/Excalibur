@@ -37,13 +37,14 @@ module Drawing{
    }
 
    export class SpriteSheet {
-      private sprites : Sprite[] = [];
+      public sprites : Sprite[] = [];
       private internalImage : HTMLImageElement;
       constructor(public path: string, private columns: number, private rows: number, spWidth: number, spHeight: number){
          this.internalImage = new Image();
          this.internalImage.src = path;
-         this.sprites = new Array(rows*columns);
+         this.sprites = new Array(columns*rows);
 
+         // TODO: Inspect actual image dimensions with preloading
          /*if(spWidth * columns > this.internalImage.naturalWidth){
             throw new Error("SpriteSheet specified is wider than image width");
          }
@@ -52,9 +53,11 @@ module Drawing{
             throw new Error("SpriteSheet specified is higher than image height");
          }*/
 
-         for(var i = 0; i < rows; i++){
-            for(var j= 0; j < columns; j++){
-               this.sprites[i+j*rows] = new Sprite(this.internalImage, j*spWidth, i*spHeight, spWidth, spHeight);
+         var i = 0;
+         var j = 0;
+         for(i = 0; i < rows; i++){
+            for(j = 0; j < columns; j++){
+               this.sprites[j+i*columns] = new Sprite(this.internalImage, j*spWidth, i*spHeight, spWidth, spHeight);
             }
          }
       }
@@ -72,17 +75,37 @@ module Drawing{
       }
    }
 
-   /*export class SpriteFont {
-      constructor(public path : string, private alphabet : string[], private columns : number, private rows : number, spWidth : number, spHeight : number){
+   export class SpriteFont extends SpriteSheet {
+      private spriteLookup : {[key:string] : Sprite;} = {};
+      constructor(public path : string, private alphabet : string, private caseInsensitive : boolean, columns : number, rows : number, spWidth : number, spHeight : number){
          super(path, columns, rows, spWidth, spHeight);
+         for(var i = 0; i < alphabet.length; i++){
+            var char = alphabet[i];
+            if(caseInsensitive){
+               char = char.toLowerCase();
+            }
+            this.spriteLookup[char] = this.sprites[i];
+         }
       }
 
-      write(x : number, y : number, text : string){
+      draw(ctx : CanvasRenderingContext2D, x : number, y : number, text : string){
+         var currX = x;
+         for(var i = 0; i < text.length; i++){
+            var char = text[i];
+            if(this.caseInsensitive){
+               char = char.toLowerCase();
+            }
+            try{
+               var charSprite = this.spriteLookup[char];
+               charSprite.draw(ctx, currX, y);
+            }catch(e){
+               Logger.getInstance().log("SpriteFont Error drawing char " + char, Log.ERROR);
+            }
+            currX += charSprite.swidth;
 
+         }
       }
-
-      draw()
-   }*/
+   }
 
    export class Sprite implements IDrawable {
       private internalImage : HTMLImageElement;
@@ -92,11 +115,11 @@ module Drawing{
          this.internalImage = image;
    	}
 
-      setRotation(radians: number){
+      setRotation(radians : number){
          this.rotation = radians;
       }
 
-      setScale(scale: number){
+      setScale(scale : number){
          this.scale = scale;
       }
 

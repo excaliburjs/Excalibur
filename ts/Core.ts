@@ -61,29 +61,29 @@ class SceneNode {
 		this.children = actors || [];
 	}
 
-	update (engine: Engine, delta: number){
+	update (engine : Engine, delta : number){
 		this.children.forEach((actor)=>{
 			actor.update(engine, delta);
 		});
 	}
 
-	draw (ctx: CanvasRenderingContext2D, delta: number){
+	draw (ctx : CanvasRenderingContext2D, delta: number){
 		this.children.forEach((actor)=>{
 			actor.draw(ctx, delta);
 		});
 	}
 
-	debugDraw(ctx: CanvasRenderingContext2D){
+	debugDraw(ctx : CanvasRenderingContext2D){
 		this.children.forEach((actor)=>{
 			actor.debugDraw(ctx);
 		})
 	}
 
-	addChild(actor: SceneNode){
+	addChild(actor : SceneNode){
 		this.children.push(actor);
 	}
 
-	removeChild(actor: SceneNode){
+	removeChild(actor : SceneNode){
 		var index = this.children.indexOf(actor);
 		this.children.splice(index,1);
 	}
@@ -356,7 +356,7 @@ class Actor extends SceneNode {
 		eventDispatcher.publish(EventType[EventType.UPDATE], new UpdateEvent(delta));
 	}
 
-	draw(ctx: CanvasRenderingContext2D, delta: number){
+	public draw(ctx: CanvasRenderingContext2D, delta: number){
 
       ctx.save();
       ctx.translate(this.x, this.y);
@@ -376,7 +376,7 @@ class Actor extends SceneNode {
 		ctx.restore();
 	}
 
-	debugDraw(ctx: CanvasRenderingContext2D){
+	public debugDraw(ctx: CanvasRenderingContext2D){
 		// Meant to draw debug information about actors
 		ctx.save();
 		ctx.translate(this.x, this.y);
@@ -396,6 +396,41 @@ class Actor extends SceneNode {
 	}
 }
 
+class TextActor extends Actor {
+	public text : string;
+	public spriteFont : Drawing.SpriteFont;
+	constructor(text? : string, x? : number, y? : number, spriteFont? : Drawing.SpriteFont){
+		super(x, y);
+		this.text = text || "";
+		this.spriteFont = spriteFont;
+	}
+
+	public update(engine: Engine, delta: number){
+		super.update(engine, delta);
+	}
+
+	public draw(ctx: CanvasRenderingContext2D, delta: number){
+
+		ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.scale(this.scale, this.scale);
+      ctx.rotate(this.rotation);
+		if(this.spriteFont){
+			this.spriteFont.draw(ctx, 0, 0, this.text);	
+		}else{
+			ctx.fillStyle = 'black';
+			ctx.fillText(this.text, 0, 0);
+		}
+		
+		super.draw(ctx, delta);
+		ctx.restore();
+	}
+
+	public debugDraw(ctx: CanvasRenderingContext2D){
+		super.debugDraw(ctx);
+	}
+
+}
 	
 enum Keys {
 	NUM_1 = 97,
@@ -456,7 +491,7 @@ enum Log {
 }
 
 interface IAppender {
-	log(message: string, level: Log);
+	log(message : string, level : Log);
 }
 
 class ConsoleAppender implements IAppender {
