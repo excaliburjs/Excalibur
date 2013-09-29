@@ -35,3 +35,8 @@ if(typeof window != 'undefined' && !window.requestAnimationFrame){
 								            window.setTimeout(callback, 1000 / 60);
 								          };
 }
+
+if(typeof window != 'undefined' && !(<any>window).audioContext){
+   (<any>window).audioContext = (<any>window).webkitAudioContext;
+}
+

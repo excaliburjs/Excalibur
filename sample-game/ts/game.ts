@@ -51,9 +51,9 @@ var spriteSheet = new Drawing.SpriteSheet('../images/TestPlayer.png', 12, 1, 44,
 
 // Create spriteFont
 var spriteFont = new Drawing.SpriteFont('../images/SpriteFont.png', '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
-var textActor = new TextActor('Hello World', 100, 100, spriteFont);
-textActor.scaleTo(2, .5).scaleTo(1,.5).repeatForever();
-game.addChild(textActor);
+var label = new Label('Hello World', 100, 100, spriteFont);
+label.scaleTo(2, .5).scaleTo(1,.5).repeatForever();
+game.addChild(label);
 
 // Retrieve animations for blocks from sprite sheet
 var blockAnimation = spriteSheet.getAnimationByIndices([10], 200);
@@ -106,9 +106,9 @@ player.solid = false;
 player.addChild(new Actor(-14.5, -20, 70, 5, new Color(0,255,0)));
 
 // Add Title above player
-var textActor = new TextActor('My Player', -14.5, -39, spriteFont);
+var playerLabel = new Label('My Player', -14.5, -39, spriteFont);
 
-player.addChild(textActor);
+player.addChild(playerLabel);
 
 // Retrieve animations for player from sprite sheet
 var left = spriteSheet.getAnimationByIndices([8, 9], 200);
@@ -124,12 +124,16 @@ player.addAnimation(Animations.Idle, idle);
 player.playAnimation(Animations.Idle);
 
 
+var jumpSound = new GameAudio.Sound("../sounds/smb_jump-small.wav");
+
 
 var inAir = true;
 var groundSpeed = 90;
 var airSpeed = 90;
 var jumpSpeed = 500;
+var direction = 1;
 player.addEventListener('left', ()=>{
+   direction = -1;
    player.playAnimation(Animations.Left);
    if(inAir){
       player.dx = -airSpeed;
@@ -139,6 +143,7 @@ player.addEventListener('left', ()=>{
 });
 
 player.addEventListener('right', ()=>{
+   direction = 1;
    player.playAnimation(Animations.Right);
    if(inAir){
       player.dx = airSpeed;
@@ -152,6 +157,29 @@ player.addEventListener('up', ()=>{
       player.dy -= jumpSpeed;
       inAir = true;
       player.playAnimation(Animations.Idle);
+      jumpSound.play();
+   }
+});
+
+game.addEventListener('keyDown', (keyDown? : KeyDown)=>{
+   if(keyDown.key === Keys.F){
+      var a = new Actor(player.x+10, player.y-50, 10, 10, new Color(222,222,222));
+      a.dx = 200*direction;
+      a.dy = 0;
+      a.solid = false;
+      var inAir = true;
+      a.addEventListener('collision', (data?: CollisonEvent)=>{
+         inAir = false;
+         a.dx = data.other.dx;
+         a.dy = data.other.dy;
+      });
+      a.addEventListener('update', (data?: UpdateEvent)=>{
+         if(inAir){
+            a.dy += 400 * data.delta/1000;
+         }
+         inAir = true;
+      });
+      game.addChild(a);
    }
 });
 

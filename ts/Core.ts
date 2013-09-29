@@ -400,7 +400,7 @@ class Actor extends SceneNode {
 	}
 }
 
-class TextActor extends Actor {
+class Label extends Actor {
 	public text : string;
 	public spriteFont : Drawing.SpriteFont;
 	constructor(text? : string, x? : number, y? : number, spriteFont? : Drawing.SpriteFont){

@@ -60,10 +60,6 @@ module Common {
 		toString(): string;
 	}
 
-	export interface ISoundClip {
-
-	}
-
 	export interface IOverlap{
 		x:number;
 		y:number;
