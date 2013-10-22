@@ -144,6 +144,10 @@ class Actor {
 		this.eventDispatcher.publish(eventName, event);
 	}
 
+	public getCenter() : Vector {
+		return new Vector(this.x + this.getWidth()/2, this.y + this.getHeight()/2);
+	}
+
 	public getWidth() {
 		return this.width * this.scale;
 	}
