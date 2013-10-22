@@ -29,14 +29,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /// <reference path="Core.ts" />
+/// <reference path="Algebra.ts" />
 
 class Overlap {
 	constructor(public x: number, public y: number){}
 }
 
 class SceneNode {
-	public children : SceneNode[];
-	constructor(actors?:SceneNode[]){
+	public children : Actor[];
+	constructor(actors?:Actor[]){
 		this.children = actors || [];
 	}
 
@@ -46,7 +47,7 @@ class SceneNode {
 		});
 	}
 
-	draw (ctx : CanvasRenderingContext2D, delta: number){
+	draw(ctx : CanvasRenderingContext2D, delta: number){
 		this.children.forEach((actor)=>{
 			actor.draw(ctx, delta);
 		});
@@ -58,15 +59,14 @@ class SceneNode {
 		})
 	}
 
-	addChild(actor : SceneNode){
+	addChild(actor : Actor){
 		this.children.push(actor);
 	}
 
-	removeChild(actor : SceneNode){
+	removeChild(actor : Actor){
 		var index = this.children.indexOf(actor);
 		this.children.splice(index,1);
 	}
-
 };
 
 enum Side {
@@ -78,7 +78,7 @@ enum Side {
 }
 
 
-class Actor extends SceneNode {
+class Actor {
 	public x: number = 0;
 	public y: number = 0;
 	private height : number = 0;
@@ -100,6 +100,8 @@ class Actor extends SceneNode {
 
 	private eventDispatcher : EventDispatcher;
 
+	private sceneNode : SceneNode;
+
 	public solid = true;
 
 	public animations : {[key : string] : Drawing.Animation;} = {};
@@ -107,7 +109,6 @@ class Actor extends SceneNode {
 
 	public color: Color;
 	constructor (x? : number,  y? : number,  width? : number, height? : number, color? : Color){
-		super();
 		this.x = x || 0;
 		this.y = y || 0;
 		this.width = width || 0;
@@ -115,6 +116,15 @@ class Actor extends SceneNode {
 		this.color = color;
 		this.actionQueue = new ActionQueue(this);
 		this.eventDispatcher = new EventDispatcher(this);
+		this.sceneNode = new SceneNode();
+	}
+
+	public addChild(actor : Actor){
+		this.sceneNode.addChild(actor);
+	}
+
+	public removeChild(actor : Actor){
+		this.sceneNode.removeChild(actor);
 	}
 
 	// Play animation in Actor's list
@@ -285,7 +295,7 @@ class Actor extends SceneNode {
 	
 
 	public update(engine: Engine, delta: number){
-		super.update(engine, delta);
+		this.sceneNode.update(engine, delta);
 		var eventDispatcher = this.eventDispatcher;
 
 		// Update event dispatcher
@@ -343,10 +353,10 @@ class Actor extends SceneNode {
 
       ctx.save();
       ctx.translate(this.x, this.y);
-      ctx.scale(this.scale, this.scale);
       ctx.rotate(this.rotation);
+      ctx.scale(this.scale, this.scale);
 
-		super.draw(ctx, delta);
+		this.sceneNode.draw(ctx, delta);
 
 		if(!this.invisible){
 			if(this.currentAnimation){
@@ -369,7 +379,7 @@ class Actor extends SceneNode {
 		// Currently collision primitives cannot rotate 
 		// ctx.rotate(this.rotation);
 
-		super.debugDraw(ctx);
+		this.sceneNode.debugDraw(ctx);
 
 		ctx.beginPath();
 		ctx.rect(0, 0, this.width, this.height);
