@@ -415,7 +415,7 @@ class Label extends Actor {
 		if(this.spriteFont){
 			this.spriteFont.draw(ctx, 0, 0, this.text);	
 		}else{
-			ctx.fillStyle = 'black';
+			ctx.fillStyle = this.color.toString();
 			ctx.fillText(this.text, 0, 0);
 		}
 		
