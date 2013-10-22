@@ -113,6 +113,9 @@ class Engine {
 	private eventDispatcher : EventDispatcher;
 	
 	public keys : number[] = [];
+	public keysDown : number[] = [];
+	public keysUp : number[] = [];
+
 	public camera : Camera.ICamera;
 
 	public currentScene : SceneNode;
@@ -192,6 +195,7 @@ class Engine {
 		window.addEventListener('keyup', (ev: KeyboardEvent) => {
 			var key = this.keys.indexOf(ev.keyCode);
 			this.keys.splice(key,1);
+			this.keysUp.push(ev.keyCode);
 			this.eventDispatcher.publish(EventType[EventType.KEYUP], new KeyUp(ev.keyCode));
 
 		});
@@ -199,6 +203,7 @@ class Engine {
 		window.addEventListener('keydown', (ev: KeyboardEvent) => {
 			if(this.keys.indexOf(ev.keyCode)=== -1){
 				this.keys.push(ev.keyCode);
+				this.keysDown.push(ev.keyCode);
 				this.eventDispatcher.publish(EventType[EventType.KEYDOWN], new KeyDown(ev.keyCode));
 			}
 		});
@@ -228,6 +233,18 @@ class Engine {
 		document.body.appendChild(this.canvas);
 	}
 
+	public isKeyDown(key : Keys) : boolean {
+		return this.keysDown.indexOf(key) > -1;
+	}
+
+	public isKeyPressed(key : Keys) : boolean {
+		return this.keys.indexOf(key) > -1;
+	}
+
+	public isKeyUp(key : Keys) : boolean {
+		return this.keysUp.indexOf(key) > -1;
+	}
+
 	private update(delta: number){
 		this.eventDispatcher.update();
 		this.currentScene.update(this, delta);
@@ -236,6 +253,9 @@ class Engine {
 		this.keys.forEach(function(key){
 			eventDispatcher.publish(Keys[key], new KeyEvent(this, key));
 		});
+		// Reset keysDown and keysUp after update is complete
+		this.keysDown.length = 0;
+		this.keysUp.length = 0;
 	}
 
 	private draw(delta: number){
