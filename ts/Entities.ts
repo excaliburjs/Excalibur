@@ -41,6 +41,12 @@ class SceneNode {
 		this.children = actors || [];
 	}
 
+	publish(eventType: string, event: ActorEvent){
+		this.children.forEach((actor) => {
+			actor.triggerEvent(eventType, event);
+		});
+	}
+
 	update (engine : Engine, delta : number){
 		this.children.forEach((actor)=>{
 			actor.update(engine, delta);

@@ -42,8 +42,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 class Color {
-	constructor(public r: number, public g: number, public b: number, public a?: number){}
-	toString(){
+	public static RED = 'red';
+	public static BLUE = 'blue';
+	public static GREEN = 'green';
+
+
+	constructor(public r: number, public g: number, public b: number, public a?: number){
+	}
+
+	public static fromRGB(r : number, g : number, b : number) : string{
+		return new Color(r,g,b).toString();
+	}
+
+	public static fromHex(hex : string) : string {
+		if(/^#?[0-9a-f]{6}$/i.test(hex)){
+			return hex;
+		}
+	}
+
+	public toString(){
 		var result =  String(this.r.toFixed(0)) + ", " + String(this.g.toFixed(0)) + ", " + String(this.b.toFixed(0));
 		if(this.a){
 			return "rgba(" + result + ", "+ String(this.a) + ")";
@@ -196,7 +213,9 @@ class Engine {
 			var key = this.keys.indexOf(ev.keyCode);
 			this.keys.splice(key,1);
 			this.keysUp.push(ev.keyCode);
-			this.eventDispatcher.publish(EventType[EventType.KEYUP], new KeyUp(ev.keyCode));
+			var keyEvent = new KeyUp(ev.keyCode);
+			this.eventDispatcher.publish(EventType[EventType.KEYUP], keyEvent);
+			this.currentScene.publish(EventType[EventType.KEYUP], keyEvent);
 
 		});
 
@@ -204,7 +223,10 @@ class Engine {
 			if(this.keys.indexOf(ev.keyCode)=== -1){
 				this.keys.push(ev.keyCode);
 				this.keysDown.push(ev.keyCode);
-				this.eventDispatcher.publish(EventType[EventType.KEYDOWN], new KeyDown(ev.keyCode));
+				var keyEvent = new KeyDown(ev.keyCode);
+				this.eventDispatcher.publish(EventType[EventType.KEYDOWN], keyEvent);
+				this.currentScene.publish(EventType[EventType.KEYDOWN], keyEvent)
+
 			}
 		});
 
