@@ -28,7 +28,9 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/// <reference path="Algebra.ts">
+/// <reference path="Algebra.ts" />
+/// <reference path="Core.ts" />
+/// <reference path="Entities.ts" />
 
 
 interface IAction {
