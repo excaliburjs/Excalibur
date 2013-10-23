@@ -29,95 +29,95 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 enum Log {
-	DEBUG,
-	INFO,
-	WARN,
-	ERROR,
-	FATAL
+   DEBUG,
+   INFO,
+   WARN,
+   ERROR,
+   FATAL
 }
 
 interface IAppender {
-	log(message : string, level : Log);
+   log(message : string, level : Log);
 }
 
 class ConsoleAppender implements IAppender {
-	constructor(){}
-	public log(message: string, level: Log){
-		if (level < Log.WARN){
-			console.log("["+Log[level]+"] : " + message);
-		} else if (level < Log.ERROR){
-			console.warn("["+Log[level]+"] : " + message);
-		} else {
-			console.error("["+Log[level]+"] : " + message);
-		}
-	}
+   constructor(){}
+   public log(message: string, level: Log){
+      if (level < Log.WARN){
+         console.log("["+Log[level]+"] : " + message);
+      } else if (level < Log.ERROR){
+         console.warn("["+Log[level]+"] : " + message);
+      } else {
+         console.error("["+Log[level]+"] : " + message);
+      }
+   }
 }
 
 class ScreenAppender implements IAppender {
-	
-	private _messages : string[] = [];
-	private canvas : HTMLCanvasElement;
-	private ctx : CanvasRenderingContext2D;
-	constructor(width? : number, height? : number){
-		this.canvas = <HTMLCanvasElement>document.createElement('canvas');
-		this.canvas.width = width || window.innerWidth;
-		this.canvas.height = height || window.innerHeight;
-		this.canvas.style.position = 'absolute';
-		this.ctx = this.canvas.getContext('2d');
-		document.body.appendChild(this.canvas);
-	}
+   
+   private _messages : string[] = [];
+   private canvas : HTMLCanvasElement;
+   private ctx : CanvasRenderingContext2D;
+   constructor(width? : number, height? : number){
+      this.canvas = <HTMLCanvasElement>document.createElement('canvas');
+      this.canvas.width = width || window.innerWidth;
+      this.canvas.height = height || window.innerHeight;
+      this.canvas.style.position = 'absolute';
+      this.ctx = this.canvas.getContext('2d');
+      document.body.appendChild(this.canvas);
+   }
 
-	public log(message: string, level: Log){
-		//this.ctx.fillStyle = 'rgba(0,0,0,1.0)';
-		this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+   public log(message: string, level: Log){
+      //this.ctx.fillStyle = 'rgba(0,0,0,1.0)';
+      this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
 
 
-		this._messages.unshift("["+Log[level]+"] : " + message);
+      this._messages.unshift("["+Log[level]+"] : " + message);
 
-		var pos = 10;
-		var opacity = 1.0;
-		for(var i = 0; i < this._messages.length; i++){
-			this.ctx.fillStyle = 'rgba(255,255,255,'+opacity.toFixed(2)+')';
-			var message = this._messages[i];
-			this.ctx.fillText(message, 200, pos);
-			pos += 10;
-			opacity = opacity>0?opacity-.05:0;
-		}
-	}
+      var pos = 10;
+      var opacity = 1.0;
+      for(var i = 0; i < this._messages.length; i++){
+         this.ctx.fillStyle = 'rgba(255,255,255,'+opacity.toFixed(2)+')';
+         var message = this._messages[i];
+         this.ctx.fillText(message, 200, pos);
+         pos += 10;
+         opacity = opacity>0?opacity-.05:0;
+      }
+   }
 }
 
 class Logger {
-	private static _instance : Logger = null;
-	private appenders : IAppender[] = [];
-	public defaultLevel : Log = Log.INFO;
+   private static _instance : Logger = null;
+   private appenders : IAppender[] = [];
+   public defaultLevel : Log = Log.INFO;
 
-	constructor(){
-		if(Logger._instance){
-			throw new Error("Logger is a singleton");
-		}
-		Logger._instance = this;
-	}
+   constructor(){
+      if(Logger._instance){
+         throw new Error("Logger is a singleton");
+      }
+      Logger._instance = this;
+   }
 
-	public static getInstance() : Logger {
-		if(Logger._instance == null){
-			Logger._instance = new Logger();
-		}
-		return Logger._instance;
-	}
+   public static getInstance() : Logger {
+      if(Logger._instance == null){
+         Logger._instance = new Logger();
+      }
+      return Logger._instance;
+   }
 
-	public addAppender(appender: IAppender){
-		this.appenders.push(appender);
-	}
+   public addAppender(appender: IAppender){
+      this.appenders.push(appender);
+   }
 
-	public log(message: string, level?: Log){
-		if(level == null){
-			level = this.defaultLevel;
-		}
-		var defaultLevel = this.defaultLevel;
-		this.appenders.forEach(function(appender){
-			if(level >= defaultLevel){
-				appender.log(message, level);
-			}
-		});
-	}
+   public log(message: string, level?: Log){
+      if(level == null){
+         level = this.defaultLevel;
+      }
+      var defaultLevel = this.defaultLevel;
+      this.appenders.forEach(function(appender){
+         if(level >= defaultLevel){
+            appender.log(message, level);
+         }
+      });
+   }
 }

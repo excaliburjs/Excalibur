@@ -31,59 +31,59 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /// <reference path="MonkeyPatch.ts" />
 
 module GameAudio {
-	export class Sound {
-		private context = new (<any>window).audioContext();
-		private volume = this.context.createGain();
-		private buffer = null;
-		private path = "";
-		private isLoaded = false;
-		constructor(soundPath : string, level? : number){
-			this.path = soundPath;
-			if(level){
-				this.volume.gain.value = level;
-			}else{
-				this.volume.gain.value = 1; // max volume
-			}
+   export class Sound {
+      private context = new (<any>window).audioContext();
+      private volume = this.context.createGain();
+      private buffer = null;
+      private path = "";
+      private isLoaded = false;
+      constructor(soundPath : string, level? : number){
+         this.path = soundPath;
+         if(level){
+            this.volume.gain.value = level;
+         }else{
+            this.volume.gain.value = 1; // max volume
+         }
 
-			this.load();
-		}
+         this.load();
+      }
 
-		public setVolume(level : number){
-			this.volume.gain.value = level;
-		}
+      public setVolume(level : number){
+         this.volume.gain.value = level;
+      }
 
-		private load(){
-			var request = new XMLHttpRequest();
-			request.open('GET', this.path);
-			request.responseType = 'arraybuffer';
-			request.onload = ()=>{
-				this.context.decodeAudioData(request.response, (buffer)=>{
-					this.buffer = buffer;
-					this.isLoaded = true;
-				});
-			}
-			try{
-				request.send();
-			}catch(e){
-				console.error("Error loading sound! If this is a cross origin error, you must host your sound with your html and javascript." );
-			}
-		}
+      private load(){
+         var request = new XMLHttpRequest();
+         request.open('GET', this.path);
+         request.responseType = 'arraybuffer';
+         request.onload = ()=>{
+            this.context.decodeAudioData(request.response, (buffer)=>{
+               this.buffer = buffer;
+               this.isLoaded = true;
+            });
+         }
+         try{
+            request.send();
+         }catch(e){
+            console.error("Error loading sound! If this is a cross origin error, you must host your sound with your html and javascript." );
+         }
+      }
 
-		public play(){
-			if(this.isLoaded){
-				var sound = this.context.createBufferSource();
-				sound.buffer = this.buffer;
-				sound.connect(this.volume);
-				this.volume.connect(this.context.destination);
-				sound.noteOn(0);
-			}
-		}
-	}
+      public play(){
+         if(this.isLoaded){
+            var sound = this.context.createBufferSource();
+            sound.buffer = this.buffer;
+            sound.connect(this.volume);
+            this.volume.connect(this.context.destination);
+            sound.noteOn(0);
+         }
+      }
+   }
 
-	export class SoundManager {
-		constructor(){}
+   export class SoundManager {
+      constructor(){}
 
-	}
+   }
 
 
 }

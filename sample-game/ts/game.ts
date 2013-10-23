@@ -70,8 +70,8 @@ var currentX = 0;
 // Create the level
 for(var i = 0; i< 36; i++){
    currentX = 46*i+10;
-	var color = new Color(Math.random()*255,Math.random()*255,Math.random()*255);
-	var block = new Actor(currentX,350+Math.random()*100,44,50,color);
+   var color = new Color(Math.random()*255,Math.random()*255,Math.random()*255);
+   var block = new Actor(currentX,350+Math.random()*100,44,50,color);
    
    block.addAnimation(Animations.Block, blockAnimation);
    block.playAnimation(Animations.Block);

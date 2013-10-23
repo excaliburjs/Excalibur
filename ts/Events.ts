@@ -32,93 +32,93 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /// <reference path="Entities.ts" />
 
 enum EventType {
-	KEYDOWN,
-	KEYUP,
-	KEYPRESS,
-	MOUSEDOWN,
-	MOUSEUP,
-	MOUSECLICK,
-	USEREVENT,
-	COLLISION,
-	BLUR,
-	FOCUS,
-	UPDATE
+   KEYDOWN,
+   KEYUP,
+   KEYPRESS,
+   MOUSEDOWN,
+   MOUSEUP,
+   MOUSECLICK,
+   USEREVENT,
+   COLLISION,
+   BLUR,
+   FOCUS,
+   UPDATE
 }
 
 class ActorEvent {
-	constructor(){}
+   constructor(){}
 }
 
 class CollisonEvent extends ActorEvent {
-	constructor(public actor : Actor, public other : Actor, public side : Side) {
-		super();
-	}
+   constructor(public actor : Actor, public other : Actor, public side : Side) {
+      super();
+   }
 }
 
 class UpdateEvent extends ActorEvent {
-	constructor(public delta : number){
-		super();
-	}
+   constructor(public delta : number){
+      super();
+   }
 }
 
 class KeyEvent extends ActorEvent {
-	constructor(public actor : Actor, public key : Keys){
-		super();
-	}
+   constructor(public actor : Actor, public key : Keys){
+      super();
+   }
 }
 
 class KeyDown extends ActorEvent {
-	constructor(public key : Keys){
-		super();
-	}
+   constructor(public key : Keys){
+      super();
+   }
 }
 
 class KeyUp extends ActorEvent {
-	constructor(public key : Keys){
-		super();
-	}
+   constructor(public key : Keys){
+      super();
+   }
 }
 
 class KeyPress extends ActorEvent {
-	constructor(public key : Keys){
-		super();
-	}
+   constructor(public key : Keys){
+      super();
+   }
 }
 
 class EventDispatcher {
-	private _handlers : {[key : string] : { (event?: ActorEvent) : void}[]; } = {};
-	private queue : {(any: void):void}[] = [];
-	private target : any;
-	constructor(target){
-		this.target = target;
-	}
+   private _handlers : {[key : string] : { (event?: ActorEvent) : void}[]; } = {};
+   private queue : {(any: void):void}[] = [];
+   private target : any;
+   constructor(target){
+      this.target = target;
+   }
 
-	public publish(eventName: string, event?: ActorEvent){
-		eventName = eventName.toLowerCase();
-		var queue = this.queue;
-		var target = this.target;
-		if(this._handlers[eventName]){
-			this._handlers[eventName].forEach(function(callback){
-				queue.push(function(){
-					callback.call(target, event);
-				});
-			});
-		}
-	}
+   public publish(eventName: string, event?: ActorEvent){
+      eventName = eventName.toLowerCase();
+      var queue = this.queue;
+      var target = this.target;
+      if(this._handlers[eventName]){
+         this._handlers[eventName].forEach(function(callback){
+            queue.push(function(){
+               callback.call(target, event);
+            });
+         });
+      }
+   }
 
-	public subscribe(eventName: string, handler: (event?: ActorEvent) => void){
-		eventName = eventName.toLowerCase();
-		if(!this._handlers[eventName]){
-			this._handlers[eventName] = [];
-		}
-		this._handlers[eventName].push(handler);
-	}
+   public subscribe(eventName: string, handler: (event?: ActorEvent) => void){
+      eventName = eventName.toLowerCase();
+      if(!this._handlers[eventName]){
+         this._handlers[eventName] = [];
+      }
+      this._handlers[eventName].push(handler);
+   }
 
-	public update(){
-		var callback;
-		while(callback = this.queue.shift()){
-			callback();
-		}
-	}
+   public update(){
+      var callback;
+      while(callback = this.queue.shift()){
+         callback();
+      }
+   }
 
 }
