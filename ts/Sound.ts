@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /// <reference path="MonkeyPatch.ts" />
 /// <reference path="Log.ts" />
 
-module GameAudio {
+module Media {
    export interface ISound {
       setVolume(volume : number);
       setLoop(loop : boolean);
@@ -79,7 +79,7 @@ module GameAudio {
             this.audioElement.volume = volume   
          }else{
             this.audioElement.volume = 1.0;
-         }  
+         }         
       }
 
       private audioLoaded(){
@@ -103,9 +103,10 @@ module GameAudio {
       }
 
    }
+   var audioContext : any = new (<any>window).audioContext();
 
    class WebAudio implements ISound{
-      private context = new (<any>window).audioContext();
+      private context = audioContext;
       private volume = this.context.createGain();
       private buffer = null;
       private sound = null;
