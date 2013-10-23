@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /// <reference path="Core.ts" />
 /// <reference path="Entities.ts" />
+/// <reference path="Log.ts" />
 
 enum EventType {
    KEYDOWN,
@@ -49,7 +50,7 @@ class ActorEvent {
    constructor(){}
 }
 
-class CollisonEvent extends ActorEvent {
+class CollisionEvent extends ActorEvent {
    constructor(public actor : Actor, public other : Actor, public side : Side) {
       super();
    }
@@ -89,11 +90,16 @@ class EventDispatcher {
    private _handlers : {[key : string] : { (event?: ActorEvent) : void}[]; } = {};
    private queue : {(any: void):void}[] = [];
    private target : any;
+   private log : Logger = Logger.getInstance();
    constructor(target){
       this.target = target;
    }
 
    public publish(eventName: string, event?: ActorEvent){
+      if(!eventName){
+         this.log.log("Unmapped event", Log.WARN);
+         return;
+      }
       eventName = eventName.toLowerCase();
       var queue = this.queue;
       var target = this.target;
