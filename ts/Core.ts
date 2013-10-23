@@ -42,21 +42,43 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 class Color {
-	public static RED = 'red';
-	public static BLUE = 'blue';
-	public static GREEN = 'green';
+	
+	public static Yellow : Color = Color.fromHex('#00FFFF');
+	public static Orange : Color  = Color.fromHex('#FFA500');
+	public static Red : Color  = Color.fromHex('#FF0000');
+	public static Vermillion : Color  = Color.fromHex('#FF5B31');
+	public static Rose : Color  = Color.fromHex('#FF007F');
+	public static Magenta : Color  = Color.fromHex('#FF00FF');
+	public static Violet : Color  = Color.fromHex('#7F00FF');
+	public static Blue : Color  = Color.fromHex('#0000FF');
+	public static Azure : Color  = Color.fromHex('#007FFF');
+	public static Cyan : Color  = Color.fromHex('#00FFFF');
+	public static Viridian : Color  = Color.fromHex('#59978F');
+	public static Green : Color  = Color.fromHex('#00FF00');
+	public static Chartreuse : Color  = Color.fromHex('#7FFF00');
 
-
-	constructor(public r: number, public g: number, public b: number, public a?: number){
+	constructor(public r: number, public g: number, public b: number, public a? : number){
 	}
 
-	public static fromRGB(r : number, g : number, b : number) : string{
-		return new Color(r,g,b).toString();
+	public static fromRGB(r : number, g : number, b : number, a? : number) : Color {
+		return new Color(r, g, b, a);
 	}
 
-	public static fromHex(hex : string) : string {
-		if(/^#?[0-9a-f]{6}$/i.test(hex)){
-			return hex;
+	// rgba
+	public static fromHex(hex : string) : Color {
+		var hexRegEx : RegExp = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})?$/i;
+		var match = null;
+		if(match = hex.match(hexRegEx)){
+			var r = parseInt(match[1], 16);
+			var g = parseInt(match[2], 16);
+			var b = parseInt(match[3], 16);
+			var a;
+			if(match[4]){
+				a = parseInt(match[4]);
+			}
+			return new Color(r, g, b, a);
+		}else{
+			throw new Error("Invalid hex string: " + hex);
 		}
 	}
 
