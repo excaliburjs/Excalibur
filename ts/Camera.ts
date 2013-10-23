@@ -28,39 +28,40 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/// <reference path="Core.ts" />
 /// <reference path="Common.ts" />
 
 module Camera {
-	export interface ICamera {
-		applyTransform(engine: Engine, delta: number): void;
-	}	
+   export interface ICamera {
+      applyTransform(engine: Engine, delta: number): void;
+   }  
 
-	export class SideCamera implements ICamera {
-		follow : Actor;
-		constructor(){
-		}
-		setActorToFollow(actor: Actor){
-			this.follow = actor;
-		}
+   export class SideCamera implements ICamera {
+      follow : Actor;
+      constructor(){
+      }
+      setActorToFollow(actor: Actor){
+         this.follow = actor;
+      }
 
-		applyTransform(engine:Engine, delta: number){
+      applyTransform(engine:Engine, delta: number){
 
-			engine.ctx.translate(-this.follow.x + engine.width/2.0,0);
-		}
-	}
+         engine.ctx.translate(-this.follow.x + engine.width/2.0,0);
+      }
+   }
 
-	export class TopCamera implements ICamera {
-		follow : Actor;
-		constructor(){
-		}
-		setActorToFollow(actor : Actor){
-			this.follow = actor;
-		}
+   export class TopCamera implements ICamera {
+      follow : Actor;
+      constructor(){
+      }
+      setActorToFollow(actor : Actor){
+         this.follow = actor;
+      }
 
-		applyTransform(engine : Engine, delta : number){
+      applyTransform(engine : Engine, delta : number){
 
-			engine.ctx.translate(-this.follow.x + engine.width/2.0, 0);
-			engine.ctx.translate(0, -this.follow.y + engine.height/2.0);
-		}
-	}
+         engine.ctx.translate(-this.follow.x + engine.width/2.0, 0);
+         engine.ctx.translate(0, -this.follow.y + engine.height/2.0);
+      }
+   }
 }

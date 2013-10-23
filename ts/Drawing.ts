@@ -111,9 +111,9 @@ module Drawing{
       private internalImage : HTMLImageElement;
       private scale: number = 1.0;
       private rotation: number = 0.0;
-   	constructor(image: HTMLImageElement, public sx: number, public sy:number, public swidth: number, public sheight : number){
+      constructor(image: HTMLImageElement, public sx: number, public sy:number, public swidth: number, public sheight : number){
          this.internalImage = image;
-   	}
+      }
 
       setRotation(radians : number){
          this.rotation = radians;
@@ -135,7 +135,7 @@ module Drawing{
    }
 
    export class Animation implements IDrawable {
-   	private sprites : Sprite[];
+      private sprites : Sprite[];
       private speed : number;
       private maxIndex : number;
       private currIndex : number = 0;
@@ -146,11 +146,11 @@ module Drawing{
 
       private direction : number = 1;
 
-   	constructor(images: Sprite[], speed: number){
-   		this.sprites = images;
+      constructor(images: Sprite[], speed: number){
+         this.sprites = images;
          this.speed = speed;
          this.maxIndex = images.length;
-   	}
+      }
 
       setRotation(radians: number){
          this.rotation = radians;

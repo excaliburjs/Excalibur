@@ -28,62 +28,141 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/// <reference path="./MonkeyPatch.ts" />
+/// <reference path="MonkeyPatch.ts" />
+/// <reference path="Log.ts" />
 
 module GameAudio {
-	export class Sound {
-		private context = new (<any>window).audioContext();
-		private volume = this.context.createGain();
-		private buffer = null;
-		private path = "";
-		private isLoaded = false;
-		constructor(soundPath : string, level? : number){
-			this.path = soundPath;
-			if(level){
-				this.volume.gain.value = level;
-			}else{
-				this.volume.gain.value = 1; // max volume
-			}
+   export interface ISound {
+      setVolume(volume : number);
+      setLoop(loop : boolean);
+      play();
+      stop();
+   }
 
-			this.load();
-		}
+   export class Sound implements ISound {
+      private soundImpl : ISound;
+      private log : Logger = Logger.getInstance();
+      constructor(path : string, volume? : number){
+         if((<any>window).audioContext){
+            this.log.log("Using new Web Audio Api for " + path);
+            this.soundImpl = new WebAudio(path, volume);
+         }else{
+            this.log.log("Falling back to Audio ELement for " + path, Log.WARN);
+            this.soundImpl = new AudioTag(path, volume)
+         }
+      }
 
-		public setVolume(level : number){
-			this.volume.gain.value = level;
-		}
+      public setVolume(volume : number){
+         this.soundImpl.setVolume(volume);
+      }
 
-		private load(){
-			var request = new XMLHttpRequest();
-			request.open('GET', this.path);
-			request.responseType = 'arraybuffer';
-			request.onload = ()=>{
-				this.context.decodeAudioData(request.response, (buffer)=>{
-					this.buffer = buffer;
-					this.isLoaded = true;
-				});
-			}
-			try{
-				request.send();
-			}catch(e){
-				console.error("Error loading sound! If this is a cross origin error, you must host your sound with your html and javascript." );
-			}
-		}
+      setLoop(loop : boolean){
+         this.soundImpl.setLoop(loop);
+      }
 
-		public play(){
-			if(this.isLoaded){
-				var sound = this.context.createBufferSource();
-				sound.buffer = this.buffer;
-				sound.connect(this.volume);
-				this.volume.connect(this.context.destination);
-				sound.noteOn(0);
-			}
-		}
-	}
+      public play(){
+         this.soundImpl.play();
+      }
 
-	export class SoundManager {
-		constructor(){}
+      public stop(){
+         this.soundImpl.stop();
+      }      
+   }
 
-	}
+   class AudioTag implements ISound{
+      private audioElement : HTMLAudioElement;
+      private isLoaded = false;
+      constructor(soundPath : string, volume? : number){
+         this.audioElement = new Audio();
+         this.audioElement.src = soundPath;
+         if(volume){
+            this.audioElement.volume = volume   
+         }else{
+            this.audioElement.volume = 1.0;
+         }  
+      }
 
+      private audioLoaded(){
+         this.isLoaded = true;
+      }
 
+      public setVolume(volume : number){
+         this.audioElement.volume = volume;
+      }
+
+      public setLoop(loop : boolean){
+         this.audioElement.loop = loop;
+      }
+
+      public play(){
+         this.audioElement.play();
+      }
+
+      public stop(){
+         this.audioElement.pause();
+      }
+
+   }
+
+   class WebAudio implements ISound{
+      private context = new (<any>window).audioContext();
+      private volume = this.context.createGain();
+      private buffer = null;
+      private sound = null;
+      private path = "";
+      private isLoaded = false;
+      private loop = false;
+      constructor(soundPath : string, volume? : number){
+         this.path = soundPath;
+         if(volume){
+            this.volume.gain.value = volume;
+         }else{
+            this.volume.gain.value = 1; // max volume
+         }
+
+         this.load();
+      }
+
+      public setVolume(volume : number){
+         this.volume.gain.value = volume;
+      }
+
+      private load(){
+         var request = new XMLHttpRequest();
+         request.open('GET', this.path);
+         request.responseType = 'arraybuffer';
+         request.onload = ()=>{
+            this.context.decodeAudioData(request.response, (buffer)=>{
+               this.buffer = buffer;
+               this.isLoaded = true;
+            });
+         }
+         try{
+            request.send();
+         }catch(e){
+            console.error("Error loading sound! If this is a cross origin error, you must host your sound with your html and javascript." );
+         }
+      }
+
+      public setLoop(loop : boolean){
+         this.loop = loop;
+      }
+
+      public play(){
+         if(this.isLoaded){
+            this.sound = this.context.createBufferSource();
+            this.sound.buffer = this.buffer;
+            this.sound.loop = this.loop;
+            this.sound.connect(this.volume);
+            this.volume.connect(this.context.destination);
+            this.sound.noteOn(0);
+         }
+      }
+
+      public stop(){
+         if(this.sound){
+            this.sound.noteOff(0);
+         }
+      }
+   }
 }

@@ -70,8 +70,8 @@ var currentX = 0;
 // Create the level
 for(var i = 0; i< 36; i++){
    currentX = 46*i+10;
-	var color = new Color(Math.random()*255,Math.random()*255,Math.random()*255);
-	var block = new Actor(currentX,350+Math.random()*100,44,50,color);
+   var color = new Color(Math.random()*255,Math.random()*255,Math.random()*255);
+   var block = new Actor(currentX,350+Math.random()*100,44,50,color);
    
    block.addAnimation(Animations.Block, blockAnimation);
    block.playAnimation(Animations.Block);
@@ -91,7 +91,7 @@ var platform3 = new Actor(-200, 400, 200, 20, new Color(50, 0, 100));
 platform3.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3000).moveTo(-200, 300, 800).moveTo(-200, 400, 800).repeatForever();
 game.addChild(platform3);
 
-var platform4 = new Actor(200, 200, 100, 50, new Color(200, 0, 100));
+var platform4 = new Actor(200, 200, 100, 50, Color.Azure);
 platform4.moveBy(75, 300, .20);
 game.addChild(platform4);
 

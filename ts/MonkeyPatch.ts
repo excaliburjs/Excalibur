@@ -29,11 +29,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 if(typeof window != 'undefined' && !window.requestAnimationFrame){
-	(<any>window).requestAnimationFrame = (<any>window).webkitRequestAnimationFrame ||
-								          (<any>window).mozRequestAnimationFrame    ||
-								          function( callback ){
-								            window.setInterval(callback, 1000 / 60);
-								          };
+   (<any>window).requestAnimationFrame = (<any>window).webkitRequestAnimationFrame ||
+                                  (<any>window).mozRequestAnimationFrame    ||
+                                  function( callback ){
+                                    window.setInterval(callback, 1000 / 60);
+                                  };
 }
 
 if(typeof window != 'undefined' && !(<any>window).audioContext){

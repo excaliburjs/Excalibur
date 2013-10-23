@@ -30,117 +30,117 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 module Common {
-	
+   
 
-	export interface IEngine {
-		getKeys();
-		getKeyMap() : {[key:string]:number;};
-		getActors() : Common.IActor[];
-		getLevel() : Common.IActor[];
-		getGraphicsCtx() : CanvasRenderingContext2D;
-		getCanvas() : HTMLCanvasElement;
-		update(engine: IEngine, delta: number);
-		draw(ctx: CanvasRenderingContext2D, delta: number);
-	}
+   export interface IEngine {
+      getKeys();
+      getKeyMap() : {[key:string]:number;};
+      getActors() : Common.IActor[];
+      getLevel() : Common.IActor[];
+      getGraphicsCtx() : CanvasRenderingContext2D;
+      getCanvas() : HTMLCanvasElement;
+      update(engine: IEngine, delta: number);
+      draw(ctx: CanvasRenderingContext2D, delta: number);
+   }
 
-	
-	export interface IPhysicsSystem {
-		update(delta: number);
-		addActor(actor: Common.IActor):void;
-		removeActor(actor: Common.IActor): void;
-		getProperty(key: string):any;
-		setProperty(key: string, value: any):void;
-	}
+   
+   export interface IPhysicsSystem {
+      update(delta: number);
+      addActor(actor: Common.IActor):void;
+      removeActor(actor: Common.IActor): void;
+      getProperty(key: string):any;
+      setProperty(key: string, value: any):void;
+   }
 
-	export interface IColor {
-		r: number;
-		g: number;
-		b: number;
-		a: number;
-		toString(): string;
-	}
+   export interface IColor {
+      r: number;
+      g: number;
+      b: number;
+      a: number;
+      toString(): string;
+   }
 
-	export interface IOverlap{
-		x:number;
-		y:number;
-	}
+   export interface IOverlap{
+      x:number;
+      y:number;
+   }
 
-	export interface ICollidable {
-		collides(primitive: ICollidable): boolean;
-		collidesWithBox(box: IBoundingBox): boolean;
-		collidesWithCircle(circle: IBoundingCircle): boolean;
-		collidesWithPoly(poly: IBoundingPoly): boolean;
-		collidesWithPixels(pixels: IBoundingPixels): boolean;
+   export interface ICollidable {
+      collides(primitive: ICollidable): boolean;
+      collidesWithBox(box: IBoundingBox): boolean;
+      collidesWithCircle(circle: IBoundingCircle): boolean;
+      collidesWithPoly(poly: IBoundingPoly): boolean;
+      collidesWithPixels(pixels: IBoundingPixels): boolean;
 
-		getOverlapWithBox(box: IBoundingBox): IOverlap;
-		getOverlapWithCircle(circle: IBoundingCircle): IOverlap;
-		getOverlapWithPoly(poly: IBoundingPoly): IOverlap;
-		getOverlapWithPixels(pixels: IBoundingPixels): IOverlap;
+      getOverlapWithBox(box: IBoundingBox): IOverlap;
+      getOverlapWithCircle(circle: IBoundingCircle): IOverlap;
+      getOverlapWithPoly(poly: IBoundingPoly): IOverlap;
+      getOverlapWithPixels(pixels: IBoundingPixels): IOverlap;
 
-	}
+   }
 
-	export interface IBoundingBox extends ICollidable {
-	}
+   export interface IBoundingBox extends ICollidable {
+   }
 
-	export interface IBoundingCircle extends ICollidable {
-	}
-	export interface IBoundingPoly extends ICollidable {
-	}
-	export interface IBoundingPixels extends ICollidable {
-	}
+   export interface IBoundingCircle extends ICollidable {
+   }
+   export interface IBoundingPoly extends ICollidable {
+   }
+   export interface IBoundingPixels extends ICollidable {
+   }
 
-	export interface IBox {
-		getLeft():number;
-		setLeft(left: number);
+   export interface IBox {
+      getLeft():number;
+      setLeft(left: number);
 
-		getRight():number;
-		setRight(right: number);
+      getRight():number;
+      setRight(right: number);
 
-		getTop():number;
-		setTop(top: number);
+      getTop():number;
+      setTop(top: number);
 
-		getBottom(): number;
-		setBottom(bottom: number);
+      getBottom(): number;
+      setBottom(bottom: number);
 
-		getOverlap(box: IBox): IOverlap;
-		
-		collides(box : IBox): boolean;
-	}
+      getOverlap(box: IBox): IOverlap;
+      
+      collides(box : IBox): boolean;
+   }
 
 
-	export interface IActor {
-		getX(): number;
-		setX(x: number);
+   export interface IActor {
+      getX(): number;
+      setX(x: number);
 
-		getY(): number;
-		setY(y: number);
+      getY(): number;
+      setY(y: number);
 
-		getDx(): number;
-		setDx(dx: number);
+      getDx(): number;
+      setDx(dx: number);
 
-		getDy(): number;
-		setDy(dy: number);
+      getDy(): number;
+      setDy(dy: number);
 
-		getAx(): number;
-		setAx(ax: number);
+      getAx(): number;
+      setAx(ax: number);
 
-		getAy(): number;
-		setAy(ay:number);
+      getAy(): number;
+      setAy(ay:number);
 
-		adjustX(x: number);
-		adjustY(y: number);
+      adjustX(x: number);
+      adjustY(y: number);
 
-		setPhysicsSystem(IPhysicsSystem);
-		getPhysicsSystem():IPhysicsSystem;
+      setPhysicsSystem(IPhysicsSystem);
+      getPhysicsSystem():IPhysicsSystem;
 
-		setBox(box: IBox);
-		getBox(): IBox;
-		
-		setColor(color: IColor);
-		getColor(): IColor;
+      setBox(box: IBox);
+      getBox(): IBox;
+      
+      setColor(color: IColor);
+      getColor(): IColor;
 
-		update(engine: IEngine, delta: number);
-		draw(ctx: CanvasRenderingContext2D, delta: number);
-	}
+      update(engine: IEngine, delta: number);
+      draw(ctx: CanvasRenderingContext2D, delta: number);
+   }
 }
 
