@@ -335,7 +335,7 @@ class Actor {
          if(other !== this &&
             (side = this.collides(other)) !== Side.NONE){
             var overlap = this.getOverlap(other);
-            eventDispatcher.publish(EventType[EventType.COLLISION], new CollisonEvent(this, (other), side));
+            eventDispatcher.publish(EventType[EventType.COLLISION], new CollisionEvent(this, other, side));
             if(!this.solid){
                if(Math.abs(overlap.y) < Math.abs(overlap.x)){ 
                   this.y += overlap.y; 
