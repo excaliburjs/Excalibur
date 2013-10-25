@@ -2,6 +2,7 @@
 ######################
 ./ts/*.js
 ./ts/*.*
+js/
 ./sample-game/ts/*.js
 
 # Logs and databases #

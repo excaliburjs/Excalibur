@@ -124,7 +124,7 @@ player.addAnimation(Animations.Idle, idle);
 player.playAnimation(Animations.Idle);
 
 
-var jumpSound = new GameAudio.Sound("../sounds/smb_jump-small.wav");
+var jumpSound = new Media.Sound("../sounds/smb_jump-small.wav");
 
 
 var inAir = true;
@@ -168,7 +168,7 @@ game.addEventListener('keyDown', (keyDown? : KeyDown)=>{
       a.dy = 0;
       a.solid = false;
       var inAir = true;
-      a.addEventListener('collision', (data?: CollisonEvent)=>{
+      a.addEventListener('collision', (data?: CollisionEvent)=>{
          inAir = false;
          a.dx = data.other.dx;
          a.dy = data.other.dy;
@@ -183,7 +183,7 @@ game.addEventListener('keyDown', (keyDown? : KeyDown)=>{
    }
 });
 
-player.addEventListener('collision', (data?: CollisonEvent)=>{   
+player.addEventListener('collision', (data?: CollisionEvent)=>{   
    if(data.side === Side.BOTTOM){
       inAir = false;
       player.dx = data.other.dx;
