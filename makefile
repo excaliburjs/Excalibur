@@ -1,7 +1,7 @@
 all: engine sample run redist
 	
 engine:
-	tsc --declaration ./ts/Core.ts -out ./js/Engine.js
+	tsc --declaration ./ts/Core.ts -out ./js/Excalibur.js
 sample:
 	tsc ./sample-game/ts/game.ts
 physics:

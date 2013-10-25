@@ -28,7 +28,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/// <reference path='../../js/Engine.d.ts' />
+/// <reference path='../../js/Excalibur.d.ts' />
 
 // Create screen appender 
 var screenAppender = new ScreenAppender();
