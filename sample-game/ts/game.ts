@@ -56,8 +56,7 @@ label.scaleTo(2, .5).scaleTo(1,.5).repeatForever();
 game.addChild(label);
 
 // Retrieve animations for blocks from sprite sheet
-var blockAnimation = spriteSheet.getAnimationByIndices(game, [10], 200);
-blockAnimation.loop = true;
+var blockAnimation = spriteSheet.getSprite(10);
 // Animation 'enum' to prevent 'stringly' typed misspelling errors
 enum Animations {
    Block,
@@ -73,8 +72,7 @@ for(var i = 0; i< 36; i++){
    var color = new Color(Math.random()*255,Math.random()*255,Math.random()*255);
    var block = new Actor(currentX,350+Math.random()*100,44,50,color);
    
-   block.addAnimation(Animations.Block, blockAnimation);
-   block.playAnimation(Animations.Block);
+   block.addDrawing(Animations.Block, blockAnimation);
    
    game.addChild(block);
 }
@@ -120,12 +118,12 @@ idle.loop = true;
 
 
 // Add animations to player
-player.addAnimation(Animations.Left, left); 
-player.addAnimation(Animations.Right, right);
-player.addAnimation(Animations.Idle, idle);
+player.addDrawing(Animations.Left, left); 
+player.addDrawing(Animations.Right, right);
+player.addDrawing(Animations.Idle, idle);
 
 // Set default animation
-player.playAnimation(Animations.Idle);
+player.setDrawing(Animations.Idle);
 
 
 var jumpSound = new Media.Sound("../sounds/smb_jump-small.wav");
@@ -138,7 +136,7 @@ var jumpSpeed = 500;
 var direction = 1;
 player.addEventListener('left', ()=>{
    direction = -1;
-   player.playAnimation(Animations.Left);
+   player.setDrawing(Animations.Left);
    if(inAir){
       player.dx = -airSpeed;
       return;
@@ -148,7 +146,7 @@ player.addEventListener('left', ()=>{
 
 player.addEventListener('right', ()=>{
    direction = 1;
-   player.playAnimation(Animations.Right);
+   player.setDrawing(Animations.Right);
    if(inAir){
       player.dx = airSpeed;
       return;
@@ -160,7 +158,7 @@ player.addEventListener('up', ()=>{
    if(!inAir){
       player.dy -= jumpSpeed;
       inAir = true;
-      player.playAnimation(Animations.Idle);
+      player.setDrawing(Animations.Idle);
       jumpSound.play();
    }
 });
@@ -210,8 +208,7 @@ game.addEventListener('keydown', (keyDown? : KeyDown)=>{
    if(keyDown.key === Keys.B){
       var block = new Actor(currentX,350,44,50,color);
       currentX += 46;
-      block.addAnimation(Animations.Block, blockAnimation);
-      block.playAnimation(Animations.Block);
+      block.addDrawing(Animations.Block, blockAnimation);
       game.addChild(block);
    }
 });

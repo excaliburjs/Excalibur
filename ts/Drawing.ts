@@ -35,6 +35,7 @@ module Drawing{
    export interface IDrawable{
       setScale(scale: number);
       setRotation(radians: number);
+      reset();
       draw(ctx: CanvasRenderingContext2D, x: number, y: number);
    }
 
@@ -64,23 +65,23 @@ module Drawing{
          }
       }
       
-      getAnimationByIndices(engine: Engine, indices: number[], speed : number){
+      public getAnimationByIndices(engine: Engine, indices: number[], speed : number){
          var images : Sprite[] = this.sprites.filter(function(sprite, index){
             return indices.indexOf(index) > -1;
          });
          return new Animation(engine, images, speed);
       }
 
-      getAnimationBetween(engine: Engine, beginIndex : number, endIndex : number, speed : number){
+      public getAnimationBetween(engine: Engine, beginIndex : number, endIndex : number, speed : number){
          var images = this.sprites.slice(beginIndex, endIndex);
          return new Animation(engine, images, speed);
       }
 
-      getAnimationForAll(engine: Engine, speed : number){
+      public getAnimationForAll(engine: Engine, speed : number){
          return new Animation(engine, this.sprites, speed);
       }
 
-      getSprite(index : number) : Sprite{
+      public getSprite(index : number) : Sprite{
          if(index >= 0 && index < this.sprites.length){
             return this.sprites[index];
          }
@@ -100,7 +101,7 @@ module Drawing{
          }
       }
 
-      draw(ctx : CanvasRenderingContext2D, x : number, y : number, text : string){
+      public draw(ctx : CanvasRenderingContext2D, x : number, y : number, text : string){
          var currX = x;
          for(var i = 0; i < text.length; i++){
             var char = text[i];
@@ -127,15 +128,18 @@ module Drawing{
          this.internalImage = image;
       }
 
-      setRotation(radians : number){
+      public setRotation(radians : number){
          this.rotation = radians;
       }
 
-      setScale(scale : number){
+      public setScale(scale : number){
          this.scale = scale;
       }
+      public reset(){
+         // do nothing
+      }
 
-      draw(ctx: CanvasRenderingContext2D, x: number, y: number){
+      public draw(ctx: CanvasRenderingContext2D, x: number, y: number){
          ctx.drawImage(this.internalImage, this.sx, this.sy, this.swidth, this.sheight, x, y, this.swidth*this.scale, this.sheight*this.scale);
       }
    }

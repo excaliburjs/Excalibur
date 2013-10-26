@@ -110,8 +110,10 @@ class Actor {
 
    public solid = true;
 
-   public animations : {[key : string] : Drawing.Animation;} = {};
-   public currentAnimation: Drawing.Animation = null;
+   public frames : {[key: string] : Drawing.IDrawable;} = {}
+   //public animations : {[key : string] : Drawing.Animation;} = {};
+   public currentDrawing : Drawing.IDrawable = null;
+   //public currentAnimation: Drawing.Animation = null;
 
    public color: Color;
    constructor (x? : number,  y? : number,  width? : number, height? : number, color? : Color){
@@ -134,12 +136,12 @@ class Actor {
    }
 
    // Play animation in Actor's list
-   public playAnimation(key){
+   public setDrawing(key){
 
-      if(this.currentAnimation != this.animations[<string>key]){
-         this.animations[<string>key].reset();
+      if(this.currentDrawing != this.frames[<string>key]){
+         this.frames[<string>key].reset();
       }
-      this.currentAnimation = this.animations[<string>key];    
+      this.currentDrawing = this.frames[<string>key];    
    }
 
    public addEventListener(eventName : string, handler : (event?: ActorEvent) => void){
@@ -248,10 +250,10 @@ class Actor {
    
 
    // Add an animation to Actor's list
-   public addAnimation(key:any, animation: Drawing.Animation){
-      this.animations[<string>key] = animation;
-      if(!this.currentAnimation){
-         this.currentAnimation = animation;
+   public addDrawing(key:any, drawing: Drawing.IDrawable){
+      this.frames[<string>key] = drawing;
+      if(!this.currentDrawing){
+         this.currentDrawing = drawing;
       }
    }
 
@@ -377,8 +379,8 @@ class Actor {
       this.sceneNode.draw(ctx, delta);
 
       if(!this.invisible){
-         if(this.currentAnimation){
-            this.currentAnimation.draw(ctx, 0, 0);
+         if(this.currentDrawing){
+            this.currentDrawing.draw(ctx, 0, 0);
          }else{
             ctx.fillStyle = this.color ? this.color.toString() : (new Color(0, 0, 0)).toString();
             ctx.fillRect(0, 0, this.width, this.height);          
