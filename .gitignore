@@ -5,6 +5,7 @@
 js/
 sample-game/ts/*.js
 spec/*.js
+node_modules/
 
 # Logs and databases #
 ######################
