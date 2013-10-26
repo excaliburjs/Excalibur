@@ -56,8 +56,8 @@ label.scaleTo(2, .5).scaleTo(1,.5).repeatForever();
 game.addChild(label);
 
 // Retrieve animations for blocks from sprite sheet
-var blockAnimation = spriteSheet.getAnimationByIndices([10], 200);
-
+var blockAnimation = spriteSheet.getAnimationByIndices(game, [10], 200);
+blockAnimation.loop = true;
 // Animation 'enum' to prevent 'stringly' typed misspelling errors
 enum Animations {
    Block,
@@ -111,9 +111,13 @@ var playerLabel = new Label('My Player', -14.5, -39, spriteFont);
 player.addChild(playerLabel);
 
 // Retrieve animations for player from sprite sheet
-var left = spriteSheet.getAnimationByIndices([8, 9], 200);
-var right = spriteSheet.getAnimationByIndices([3, 4], 200);
-var idle = spriteSheet.getAnimationByIndices([0, 1, 2], 200);
+var left = spriteSheet.getAnimationByIndices(game, [8, 9], 200);
+var right = spriteSheet.getAnimationByIndices(game, [3, 4], 200);
+var idle = spriteSheet.getAnimationByIndices(game, [0, 1, 2], 200);
+left.loop = true;
+right.loop = true;
+idle.loop = true;
+
 
 // Add animations to player
 player.addAnimation(Animations.Left, left); 
