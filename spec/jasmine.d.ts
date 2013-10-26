@@ -9,7 +9,7 @@ declare function xit(description : string, func : () => void ): void;
 declare function expect(actual: any): jasmine.Matchers;
 declare function beforeEach(afterEachFunction:() => void ): void;
 declare function afterEach(afterEachFunction:() => void): void;
-declare function spyOn(obj, methodName:string, ignoreMethodDoesntExist?:bool): jasmine.Spy;
+declare function spyOn(obj, methodName:string, ignoreMethodDoesntExist?:boolean): jasmine.Spy;
 
 declare function runs(func: () => void ) : void;
 declare function waitsFor(latchFunction:() => void, optional_timeoutMessage?:string, optional_timeout?:number) : void;
@@ -21,21 +21,21 @@ declare module jasmine {
     function createSpyObj(baseName: string, methodNames: any[]): any ;
 
     interface Matchers {
-        toBe(expected): bool;
-        toBeCloseTo(expected: number, precision: number): bool;
-        toBeDefined(): bool;
-        toBeFalsy(): bool;
-        toBeGreaterThan(expected): bool;
-        toBeLessThan(expected): bool;
-        toBeNull(): bool;
-        toBeTruthy(): bool;
-        toBeUndefined(): bool;
-        toContain(expected): bool;
-        toEqual(expected): bool;
+        toBe(expected): boolean;
+        toBeCloseTo(expected: number, precision: number): boolean;
+        toBeDefined(): boolean;
+        toBeFalsy(): boolean;
+        toBeGreaterThan(expected): boolean;
+        toBeLessThan(expected): boolean;
+        toBeNull(): boolean;
+        toBeTruthy(): boolean;
+        toBeUndefined(): boolean;
+        toContain(expected): boolean;
+        toEqual(expected): boolean;
         toHaveBeenCalled();
-        toHaveBeenCalledWith(...params: any[]): bool;
-        toMatch(expected): bool;
-        toThrow(expected: string): bool;
+        toHaveBeenCalledWith(...params: any[]): boolean;
+        toMatch(expected): boolean;
+        toThrow(expected: string): boolean;
         not: Matchers;  // dynamically added in jasmine code
         //Deprecated: toNotBe(expected);  toNotContain(expected) toNotEqual(expected) toNotMatch(expected) wasNotCalled() wasNotCalledWith(
     }
@@ -49,7 +49,7 @@ declare module jasmine {
         calls: any[];
         mostRecentCall: { args: any[]; };
         argsForCall: any[];
-        wasCalled: bool;
+        wasCalled: boolean;
         callCount: number;
     }
 
