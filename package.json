@@ -17,7 +17,11 @@
       "url": "https://github.com/eonarheim/Excalibur/blob/master/LICENSE.md"
     }
   ],
+  "scripts": {
+    "test": "jasmine-node /spec/"
+  },
   "devDependencies": {
-    "typescript": "0.9.1"
+    "typescript": "0.9.1",
+    "jasmine-node": "1.10.2"
   }
 }
