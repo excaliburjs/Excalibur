@@ -1,7 +1,8 @@
 all: engine sample run redist
-	
+ci: installdeps tests engine
+
 engine:
-	tsc --declaration ./ts/Core.ts -out ./js/Excalibur.js
+	tsc --declaration ./ts/Core.ts -out ./build/Excalibur.js
 sample:
 	tsc ./sample-game/ts/game.ts
 physics:
@@ -13,12 +14,12 @@ build-tests:
 	rm -rf "spec/*.js"
 	tsc "spec/ActorSpec.ts" -out "spec/ActorSpec.js"
 tests: build-tests
-	jasmine-node /spec/
+	jasmine-node spec/
 redist:
-	tar -cvzf GameTS.tar.gz ./js
+	tar -cvzf GameTS.tar.gz ./build
 clean:
-	rm -f ./js/*.d.ts
-	rm -f ./js/*.js
+	rm -f ./build/*.d.ts
+	rm -f ./build/*.js
 	rm -f ./sample-game/ts/*.js
 	rm -f ./sample-physics-game/ts/*.js
 installdeps:
