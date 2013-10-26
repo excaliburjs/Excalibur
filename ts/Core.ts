@@ -58,6 +58,7 @@ class Color {
    public static Chartreuse : Color  = Color.fromHex('#7FFF00');
 
    constructor(public r: number, public g: number, public b: number, public a? : number){
+      this.a = (a != null ? a : 255);
    }
 
    public static fromRGB(r : number, g : number, b : number, a? : number) : Color {
@@ -72,9 +73,9 @@ class Color {
          var r = parseInt(match[1], 16);
          var g = parseInt(match[2], 16);
          var b = parseInt(match[3], 16);
-         var a;
+         var a = 255;
          if(match[4]){
-            a = parseInt(match[4]);
+            a = parseInt(match[4], 16);
          }
          return new Color(r, g, b, a);
       }else{
@@ -139,7 +140,9 @@ enum Keys {
    SPACE = 32,
    ESC = 27
 };
-
+class AnimationNode {
+   constructor(public animation : Drawing.Animation, public x : number, public y : number){}
+}
 
 class Engine {
    public canvas : HTMLCanvasElement;
@@ -159,6 +162,9 @@ class Engine {
 
    public currentScene : SceneNode;
    public rootScene : SceneNode;
+
+   private animations : AnimationNode[] = [];
+
    //public camera : ICamera;
    public isFullscreen : boolean = false;
    public isDebug : boolean = false;
@@ -195,6 +201,10 @@ class Engine {
 
    public addEventListener(eventName : string,  handler: (event?: ActorEvent) => void){
       this.eventDispatcher.subscribe(eventName, handler);
+   }
+
+   public playAnimation(animation : Drawing.Animation, x : number, y : number){
+      this.animations.push(new AnimationNode(animation, x, y));
    }
    
    public addChild(actor: Actor){
@@ -297,6 +307,12 @@ class Engine {
       this.keys.forEach(function(key){
          eventDispatcher.publish(Keys[key], new KeyEvent(this, key));
       });
+
+      // update animations
+      this.animations = this.animations.filter(function(a){
+         return !a.animation.isDone();
+      });
+
       // Reset keysDown and keysUp after update is complete
       this.keysDown.length = 0;
       this.keysUp.length = 0;
@@ -331,6 +347,10 @@ class Engine {
 
       
       this.currentScene.draw(this.ctx, delta);
+
+      this.animations.forEach(function(a){
+         a.animation.draw(ctx, a.x, a.y);
+      });
 
       if(this.isDebug){
          this.ctx.strokeStyle = 'yellow'

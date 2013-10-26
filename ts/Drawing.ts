@@ -11,15 +11,15 @@ modification, are permitted provided that the following conditions are met:
    documentation and/or other materials provided with the distribution.
 3. All advertising materials mentioning features or use of this software
    must display the following acknowledgement:
-   This product includes software developed by the GameTS Team.
+   This product includes software developed by the ExcaliburJS Team.
 4. Neither the name of the creator nor the
    names of its contributors may be used to endorse or promote products
    derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE GAMETS TEAM ''AS IS'' AND ANY
+THIS SOFTWARE IS PROVIDED BY THE EXCALIBURJS TEAM ''AS IS'' AND ANY
 EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE GAMETS TEAM BE LIABLE FOR ANY
+DISCLAIMED. IN NO EVENT SHALL THE EXCALIBURJS TEAM BE LIABLE FOR ANY
 DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
@@ -28,11 +28,14 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/// <reference path="Core.ts" />
+
 module Drawing{
 
    export interface IDrawable{
       setScale(scale: number);
       setRotation(radians: number);
+      reset();
       draw(ctx: CanvasRenderingContext2D, x: number, y: number);
    }
 
@@ -61,17 +64,27 @@ module Drawing{
             }
          }
       }
-
-      getAnimationForRow(rowIndex: number, start: number, count: number, speed: number){
-         var begin = start+rowIndex*this.columns;
-         return new Animation(this.sprites.slice(begin,begin+count), speed);
-      }
-
-      getAnimationByIndices(indices: number[], speed: number){
+      
+      public getAnimationByIndices(engine: Engine, indices: number[], speed : number){
          var images : Sprite[] = this.sprites.filter(function(sprite, index){
             return indices.indexOf(index) > -1;
          });
-         return new Animation(images, speed);
+         return new Animation(engine, images, speed);
+      }
+
+      public getAnimationBetween(engine: Engine, beginIndex : number, endIndex : number, speed : number){
+         var images = this.sprites.slice(beginIndex, endIndex);
+         return new Animation(engine, images, speed);
+      }
+
+      public getAnimationForAll(engine: Engine, speed : number){
+         return new Animation(engine, this.sprites, speed);
+      }
+
+      public getSprite(index : number) : Sprite{
+         if(index >= 0 && index < this.sprites.length){
+            return this.sprites[index];
+         }
       }
    }
 
@@ -88,7 +101,7 @@ module Drawing{
          }
       }
 
-      draw(ctx : CanvasRenderingContext2D, x : number, y : number, text : string){
+      public draw(ctx : CanvasRenderingContext2D, x : number, y : number, text : string){
          var currX = x;
          for(var i = 0; i < text.length; i++){
             var char = text[i];
@@ -115,15 +128,18 @@ module Drawing{
          this.internalImage = image;
       }
 
-      setRotation(radians : number){
+      public setRotation(radians : number){
          this.rotation = radians;
       }
 
-      setScale(scale : number){
+      public setScale(scale : number){
          this.scale = scale;
       }
+      public reset(){
+         // do nothing
+      }
 
-      draw(ctx: CanvasRenderingContext2D, x: number, y: number){
+      public draw(ctx: CanvasRenderingContext2D, x: number, y: number){
          ctx.drawImage(this.internalImage, this.sx, this.sy, this.swidth, this.sheight, x, y, this.swidth*this.scale, this.sheight*this.scale);
       }
    }
@@ -137,83 +153,62 @@ module Drawing{
    export class Animation implements IDrawable {
       private sprites : Sprite[];
       private speed : number;
-      private maxIndex : number;
       private currIndex : number = 0;
       private oldTime : number = Date.now();
       private rotation : number = 0.0;
       private scale : number = 1.0;
-      public type : AnimationType = AnimationType.CYCLE;
+      public loop : boolean = false;
+      private engine : Engine;
 
-      private direction : number = 1;
-
-      constructor(images: Sprite[], speed: number){
+      constructor(engine : Engine, images: Sprite[], speed: number, loop? : boolean){
          this.sprites = images;
          this.speed = speed;
-         this.maxIndex = images.length;
+         this.engine = engine;
+         if(loop != null){
+            this.loop = loop;
+         }
       }
 
-      setRotation(radians: number){
+      public setRotation(radians: number){
          this.rotation = radians;
          for(var i in this.sprites){
             this.sprites[i].setRotation(radians);
          }
       }
 
-      setScale(scale: number){
+      public setScale(scale: number){
          this.scale = scale;
          for(var i in this.sprites){
             this.sprites[i].setScale(scale);
          }
       }
 
-      private cycle(){
-         var time = Date.now();
-         if((time - this.oldTime) > this.speed){
-            this.currIndex = (this.currIndex + 1) % this.maxIndex;
-            this.oldTime = time;
-         }
-      }
-
-      private pingpong(){
-         var time = Date.now();
-         if((time - this.oldTime) > this.speed){
-            if(this.currIndex + this.direction === this.maxIndex || this.currIndex + this.direction === -1){
-               this.direction = -1 * this.direction;
-            }
-            this.currIndex += this.direction;
-
-            this.oldTime = time;
-         }
-      }
-
-      private once(){
-         var time = Date.now();
-         if((time - this.oldTime) > this.speed){
-            if(this.currIndex + 1 < this.maxIndex){
-               this.currIndex++;
-            }
-            this.oldTime = time;
-         }
-      }
-
-      reset(){
+      public reset(){
          this.currIndex = 0;
-         this.direction = 1;
       }
 
-      tick(){
-         if(this.type === AnimationType.CYCLE){
-            this.cycle();
-         }else if(this.type === AnimationType.PINGPONG){
-            this.pingpong();
-         }else if(this.type === AnimationType.ONCE){
-            this.once();
+      public isDone(){
+         return (!this.loop && this.currIndex >= this.sprites.length);
+      }
+
+      public tick(){
+         var time = Date.now();
+         if((time - this.oldTime) > this.speed){
+            this.currIndex = (this.loop?(this.currIndex + 1) % this.sprites.length: this.currIndex + 1);
+            this.oldTime = time;
          }
       }
 
-      draw(ctx: CanvasRenderingContext2D, x: number, y: number){
+      public draw(ctx: CanvasRenderingContext2D, x: number, y: number){
          this.tick();
-         this.sprites[this.currIndex].draw(ctx, x, y);
+         if(this.currIndex < this.sprites.length){
+            this.sprites[this.currIndex].draw(ctx, x, y);
+         }
+      }
+
+      public play (x : number, y : number){
+         this.reset();
+         this.engine.playAnimation(this, x, y);
       }
    }
 }
