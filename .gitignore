@@ -2,7 +2,6 @@
 ######################
 ./ts/*.js
 ./ts/*.*
-js/
 sample-game/ts/*.js
 spec/*.js
 
@@ -25,3 +24,6 @@ spec/*.js
 Icon?
 ehthumbs.db
 Thumbs.db
+
+# Build
+build/
