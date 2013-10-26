@@ -158,8 +158,16 @@ class Actor {
       return this.width * this.scale;
    }
 
+   public setWidth(width){
+      this.width = width/this.scale;
+   }
+
    public getHeight(){
       return this.height * this.scale;
+   }
+
+   public setHeight(height){
+      this.height = height/this.scale;
    }
 
    public getLeft() {
