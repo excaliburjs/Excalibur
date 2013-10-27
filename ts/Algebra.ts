@@ -34,8 +34,15 @@ class Util {
    }
 }
 
-class Vector {
-   constructor(public x: number, public y: number){}
+class Point {
+   constructor(public x : number, public y : number){
+   }
+}
+
+class Vector extends Point {
+   constructor(public x : number, public y : number){
+      super(x, y);
+   }
 
    public distance(v?: Vector) : number {
       if(!v){
@@ -75,4 +82,6 @@ class Vector {
    }
 
 }
+
+
 

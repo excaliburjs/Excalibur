@@ -5,8 +5,16 @@
 describe("A game actor", () => {
 	
 	var actor;
+	var engine;
 	beforeEach(()=>{
 		actor = new Actor();
+		// mock engine
+		engine = {
+			currentScene : {
+				children : []
+			},
+			keys : []
+		}
 	});
 
 
@@ -16,10 +24,10 @@ describe("A game actor", () => {
 
 
 	it("can have animation", () => {
-		expect(actor.animations).toEqual({});
+		expect(actor.frames).toEqual({});
 
-		actor.addAnimation("first", null);
-		expect(actor.animations['first']).toBe(null);
+		actor.addDrawing("first", null);
+		expect(actor.frames['first']).toBe(null);
 
 	});
 
@@ -33,59 +41,265 @@ describe("A game actor", () => {
 		expect(actor.x).toBe(0);
 		expect(actor.y).toBe(0);
 
-		actor.update();
+		actor.update(engine, 1000);
 
 		expect(actor.x).toBe(-10);
 		expect(actor.y).toBe(10);
 
-		actor.update();
+		actor.update(engine, 1000);
 
 		expect(actor.x).toBe(-20);
 		expect(actor.y).toBe(20);
 
 	});
 
-	it("can change position and velocity when it has acceleration", ()=>{
-		expect(actor.y).toBe(0);
-		expect(actor.x).toBe(0);
+	it('can have its height and width scaled', ()=>{
+		expect(actor.getWidth()).toBe(0);
+		expect(actor.getHeight()).toBe(0);
 
-		expect(actor.dy).toBe(0);
-		expect(actor.dx).toBe(0);
+		actor.setWidth(20);
+		actor.setHeight(20);
 
+		expect(actor.getWidth()).toBe(20);
+		expect(actor.getHeight()).toBe(20);
 
-		actor.ay = -10;
-		actor.ax = 10;
+		actor.scale = 2;
 
-		expect(actor.y).toBe(0);
-		expect(actor.x).toBe(0);
+		expect(actor.getWidth()).toBe(40);
+		expect(actor.getHeight()).toBe(40);
 
-		expect(actor.dy).toBe(0);
-		expect(actor.dx).toBe(0);
+		actor.scale = .5;
 
-		actor.update();
+		expect(actor.getWidth()).toBe(10);
+		expect(actor.getHeight()).toBe(10);
 
-		expect(actor.y).toBe(0);
-		expect(actor.x).toBe(0);
-
-		expect(actor.dy).toBe(-10);
-		expect(actor.dx).toBe(10);
-
-		actor.update();
-
-		expect(actor.y).toBe(-10);
-		expect(actor.x).toBe(10);
-
-		expect(actor.dy).toBe(-20);
-		expect(actor.dx).toBe(20);
-
-		actor.update()
-
-		expect(actor.y).toBe(-30);
-		expect(actor.x).toBe(30);
-
-		expect(actor.dy).toBe(-30);
-		expect(actor.dx).toBe(30);
 
 	});
+
+	it('can have a center point', () => {
+		actor.setHeight(100);
+		actor.setWidth(50);
+
+		var center = actor.getCenter();
+		expect(center.x).toBe(25);
+		expect(center.y).toBe(50);
+
+		actor.x = 100;
+		actor.y = 100;
+
+		center = actor.getCenter();
+		expect(center.x).toBe(125);
+		expect(center.y).toBe(150);
+
+	});
+
+	it('has a left, right, top, and bottom', ()=>{
+		actor.setWidth(100);
+		actor.setHeight(100);
+
+		expect(actor.getLeft()).toBe(0);
+		expect(actor.getRight()).toBe(100);
+		expect(actor.getTop()).toBe(0);
+		expect(actor.getBottom()).toBe(100);
+
+	});
+
+	it('can collide with other actors', ()=>{
+		var otherActor = new Actor(10, 10, 20, 20);
+		actor.setHeight(20);
+		actor.setWidth(20);
+
+		expect(actor.collides(otherActor)).toBeTruthy();
+		expect(otherActor.collides(actor)).toBeTruthy();
+
+		otherActor.x = 19;
+		otherActor.y = 0;
+
+		expect(actor.collides(otherActor)).toBe(Side.LEFT);
+		expect(otherActor.collides(actor)).toBe(Side.RIGHT);
+
+		actor.x = 0;
+		actor.y = 0;
+		otherActor.x  = 21;
+		otherActor.y = 0;
+		expect(actor.collides(otherActor)).toBe(Side.NONE);
+
+		actor.setWidth(22);
+		expect(actor.collides(otherActor)).toBe(Side.LEFT);
+
+	});
+
+	it('can be moved to a location at a speed', ()=>{
+		expect(actor.x).toBe(0);
+		expect(actor.y).toBe(0);
+
+		actor.moveTo(100, 0, 100);
+		actor.update(engine, 500);
+
+		expect(actor.x).toBe(50);
+		expect(actor.y).toBe(0);
+
+		actor.update(engine, 500);
+		expect(actor.x).toBe(100);
+		expect(actor.y).toBe(0);
+	});
+
+	it('can be moved to a location by a certain time', ()=>{
+		expect(actor.x).toBe(0);
+		expect(actor.y).toBe(0);
+
+		actor.moveBy(100, 0,  2000);
+		actor.update(engine, 1000);
+
+		expect(actor.x).toBe(50);
+		expect(actor.y).toBe(0);
+
+	});
+
+	it('can be rotated to an angle at a speed', ()=>{
+		expect(actor.rotation).toBe(0);
+
+		actor.rotateTo(Math.PI/2, Math.PI/2);
+		actor.update(engine, 500);
+
+		expect(actor.rotation).toBe(Math.PI/4);
+
+		actor.update(engine, 500);
+		expect(actor.rotation).toBe(Math.PI/2);
+	});
+
+	it('can be rotated to an angle by a certain time', ()=>{
+		expect(actor.rotation).toBe(0);
+
+		actor.rotateBy(Math.PI/2, 2000);
+		actor.update(engine, 1000);
+
+		expect(actor.rotation).toBe(Math.PI/4);
+		actor.update(engine, 1000);
+
+		expect(actor.rotation).toBe(Math.PI/2);
+
+	});
+
+	it('can be scaled at a speed', ()=>{
+		expect(actor.scale).toBe(1);
+
+		actor.scaleTo(2, .5);
+		actor.update(engine, 1000);
+
+		expect(actor.scale).toBe(1.5);
+		actor.update(engine, 1000);
+
+		expect(actor.scale).toBe(2);
+	});
+
+	it('can be scaled by a certain time', ()=>{
+		expect(actor.scale).toBe(1);
+
+		actor.scaleBy(4, 1000);
+
+		actor.update(engine, 500);
+		expect(actor.scale).toBe(2.5);
+
+		actor.update(engine, 500);
+		expect(actor.scale).toBe(4);
+	});
+
+	it('can blink at a frequency', ()=>{
+		expect(actor.invisible).toBe(false);
+		actor.blink(1/1000, 3000);
+
+		actor.update(engine, 1000);
+		expect(actor.invisible).toBe(true);
+
+		actor.update(engine, 500);
+		expect(actor.invisible).toBe(false);
+
+	});
+
+	it('can be delayed by an amount off time', ()=>{
+		expect(actor.x).toBe(0);
+		expect(actor.y).toBe(0);
+
+		actor.delay(1000).moveTo(20, 0, 20);
+		actor.update(engine, 1000);
+
+		expect(actor.x).toBe(0);
+
+		actor.update(engine, 1000);
+
+		expect(actor.x).toBe(20);
+
+	});
+
+	it('can repeat previous actions', ()=>{
+		expect(actor.x).toBe(0);
+		expect(actor.y).toBe(0);
+
+		actor.moveTo(20, 0, 10).moveTo(0, 0, 10).repeat();
+
+		actor.update(engine, 1000);
+		expect(actor.x).toBe(10);
+		expect(actor.y).toBe(0);
+
+		actor.update(engine, 1000);
+		expect(actor.x).toBe(20);
+		expect(actor.y).toBe(0);
+
+		actor.update(engine, 1);
+		actor.update(engine, 1000);
+		expect(actor.x).toBe(10);
+		expect(actor.y).toBe(0);
+
+		actor.update(engine, 1000);
+		expect(actor.x).toBe(0);
+		expect(actor.y).toBe(0);
+
+		actor.update(engine, 1);
+		actor.update(engine, 1000);
+		expect(actor.x).toBe(10);
+		expect(actor.y).toBe(0);
+
+		actor.update(engine, 1000);
+		expect(actor.x).toBe(20);
+		expect(actor.y).toBe(0);
+
+		actor.update(engine, 1000);
+		expect(actor.x).toBe(20);
+		expect(actor.y).toBe(0);
+	});
+
+	it('can repeat previous actions forever', ()=>{
+		expect(actor.x).toBe(0);
+		expect(actor.y).toBe(0);
+
+		actor.moveTo(20, 0, 10).moveTo(0, 0, 10).repeatForever();
+
+		for(var i = 0; i < 20; i++){
+			actor.update(engine, 1000);
+			expect(actor.x).toBe(10);
+			expect(actor.y).toBe(0);
+
+			actor.update(engine, 1000);
+			expect(actor.x).toBe(20);
+			expect(actor.y).toBe(0);
+
+			actor.update(engine, 1);
+			actor.update(engine, 1000);
+			expect(actor.x).toBe(10);
+			expect(actor.y).toBe(0);
+
+			actor.update(engine, 1000);
+			expect(actor.x).toBe(0);
+			expect(actor.y).toBe(0);
+
+			actor.update(engine,1);
+		}
+
+	});
+
+
+
+
 
 });

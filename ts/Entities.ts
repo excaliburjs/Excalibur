@@ -185,7 +185,7 @@ class Actor {
       return this.y + this.getHeight();
    }
 
-   private getOverlap(box: Actor): Overlap {
+   private getOverlap(box : Actor) : Overlap {
       var xover = 0;
       var yover = 0;
       if(this.collides(box)){
@@ -214,7 +214,7 @@ class Actor {
       return new Overlap(xover,yover);
    }
       
-   public collides(box : Actor) : Side{
+   public collides(box : Actor) : Side {
       var w = 0.5 * (this.getWidth() + box.getWidth());
       var h = 0.5 * (this.getHeight() + box.getHeight());
 
@@ -244,13 +244,12 @@ class Actor {
       return Side.NONE;
    }
 
-   public within(actor: Actor, distance : number): boolean{
+   public within(actor : Actor, distance : number): boolean{
       return Math.sqrt(Math.pow(this.x - actor.x, 2) + Math.pow(this.y - actor.y, 2)) <= distance;
-   }
-   
+   }   
 
    // Add an animation to Actor's list
-   public addDrawing(key:any, drawing: Drawing.IDrawable){
+   public addDrawing(key : any, drawing : Drawing.IDrawable){
       this.frames[<string>key] = drawing;
       if(!this.currentDrawing){
          this.currentDrawing = drawing;
@@ -268,22 +267,22 @@ class Actor {
       return this;
    }
 
-   public rotateTo(angleRadians: number, speed : number) : Actor {
+   public rotateTo(angleRadians : number, speed : number) : Actor {
       this.actionQueue.add(new RotateTo(this, angleRadians, speed));
       return this;
    }
 
-   public rotateBy(angleRadians: number, time : number) : Actor {
+   public rotateBy(angleRadians : number, time : number) : Actor {
       this.actionQueue.add(new RotateBy(this, angleRadians, time));
       return this;
    }
 
-   public scaleTo(size: number, speed: number) : Actor {
+   public scaleTo(size : number, speed : number) : Actor {
       this.actionQueue.add(new ScaleTo(this, size, speed));
       return this;
    }
 
-   public scaleBy(size: number, time: number) : Actor {
+   public scaleBy(size : number, time : number) : Actor {
       this.actionQueue.add(new ScaleBy(this, size, time));
       return this;
    }
@@ -293,12 +292,12 @@ class Actor {
       return this;
    }
 
-   public delay(seconds: number) : Actor {
+   public delay(seconds : number) : Actor {
       this.actionQueue.add(new Delay(this, seconds));
       return this;
    }
 
-   public repeat(times?: number) : Actor {
+   public repeat(times? : number) : Actor {
       if(!times){
          this.repeatForever();
          return this;
@@ -314,7 +313,7 @@ class Actor {
    }
    
 
-   public update(engine: Engine, delta: number){
+   public update(engine : Engine, delta : number){
       this.sceneNode.update(engine, delta);
       var eventDispatcher = this.eventDispatcher;
 
@@ -328,15 +327,9 @@ class Actor {
       this.x += this.dx * delta/1000;
       this.y += this.dy * delta/1000;
 
-      //this.dx += this.ax * delta/1000;
-      //this.dy += this.ay * delta/1000;
-      //this.dx = 0;
-      //this.dy = 0;
-
       this.rotation += this.rx * delta/1000;
 
       this.scale += this.sx * delta/1000;
-
 
       // Publish collision events
       for(var i = 0; i < engine.currentScene.children.length; i++){
