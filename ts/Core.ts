@@ -43,7 +43,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 class Color {
-   
+   public static Black : Color = Color.fromHex('#FFFFFF');
+   public static White : Color = Color.fromHex('#000000');
    public static Yellow : Color = Color.fromHex('#00FFFF');
    public static Orange : Color  = Color.fromHex('#FFA500');
    public static Red : Color  = Color.fromHex('#FF0000');
@@ -453,7 +454,7 @@ class Engine {
       this.loadingDraw = fcn;
    }
 
-   
+
    public load(loader : ILoadable){
       this.isLoading = true;
       loader.begin();
