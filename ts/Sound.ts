@@ -37,6 +37,11 @@ module Media {
       setLoop(loop : boolean);
       play();
       stop();
+      load();
+      onload : (e : any) => void;
+      onprogress : (e : any) => void;
+      onerror : (e : any) => void;
+
    }
 
    export class Sound implements ISound {
@@ -60,6 +65,17 @@ module Media {
          this.soundImpl.setLoop(loop);
       }
 
+      public onload : (e : any) => void = ()=>{};
+      public onprogress : (e : any) => void = () => {};
+      public onerror : (e : any) => void = () => {};
+
+      public load(){
+         this.soundImpl.onload = this.onload;
+         this.soundImpl.onprogress = this.onprogress;
+         this.soundImpl.onerror = this.onerror;
+         this.soundImpl.load();
+      }
+
       public play(){
          this.soundImpl.play();
       }
@@ -72,9 +88,10 @@ module Media {
    class AudioTag implements ISound{
       private audioElement : HTMLAudioElement;
       private isLoaded = false;
-      constructor(soundPath : string, volume? : number){
+      constructor(public soundPath : string, volume? : number){
          this.audioElement = new Audio();
-         this.audioElement.src = soundPath;
+
+         
          if(volume){
             this.audioElement.volume = volume   
          }else{
@@ -94,6 +111,18 @@ module Media {
          this.audioElement.loop = loop;
       }
 
+      public onload : (e : any) => void = ()=>{};
+      public onprogress : (e : any) => void = () => {};
+      public onerror : (e : any) => void = () => {};
+
+      public load(){
+         this.audioElement.oncanplaythrough = this.onload;
+         this.audioElement.onprogress = this.onprogress;
+         this.audioElement.onerror = this.onerror;
+         this.audioElement.src = this.soundPath;
+
+      }
+
       public play(){
          this.audioElement.play();
       }
@@ -103,7 +132,10 @@ module Media {
       }
 
    }
-   var audioContext : any = new (<any>window).audioContext();
+
+   if((<any>window).audioContext){
+      var audioContext : any = new (<any>window).audioContext();
+   }
 
    class WebAudio implements ISound{
       private context = audioContext;
@@ -121,21 +153,28 @@ module Media {
             this.volume.gain.value = 1; // max volume
          }
 
-         this.load();
       }
 
       public setVolume(volume : number){
          this.volume.gain.value = volume;
       }
 
-      private load(){
+      public onload : (e : any) => void = ()=>{};
+      public onprogress : (e : any) => void = () => {};
+      public onerror : (e : any) => void = () => {};
+
+      public load(){
          var request = new XMLHttpRequest();
          request.open('GET', this.path);
          request.responseType = 'arraybuffer';
+         request.onprogress = this.onprogress;
+         request.onerror = this.onerror;
          request.onload = ()=>{
+
             this.context.decodeAudioData(request.response, (buffer)=>{
                this.buffer = buffer;
                this.isLoaded = true;
+               this.onload.call(this);
             });
          }
          try{
@@ -148,6 +187,8 @@ module Media {
       public setLoop(loop : boolean){
          this.loop = loop;
       }
+
+
 
       public play(){
          if(this.isLoaded){

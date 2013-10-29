@@ -97,7 +97,7 @@ class EventDispatcher {
 
    public publish(eventName: string, event?: ActorEvent){
       if(!eventName){
-         this.log.log("Unmapped event", Log.WARN);
+         // key not mapped
          return;
       }
       eventName = eventName.toLowerCase();

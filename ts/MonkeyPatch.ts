@@ -40,6 +40,6 @@ if(typeof window != 'undefined' && !window.requestAnimationFrame){
 }
 
 if(typeof window != 'undefined' && !(<any>window).audioContext){
-   (<any>window).audioContext = (<any>window).webkitAudioContext;
+   (<any>window).audioContext = (<any>window).webkitAudioContext || (<any>window.mozAudioContext);
 }
 

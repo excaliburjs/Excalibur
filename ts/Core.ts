@@ -38,6 +38,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /// <reference path="Camera.ts" />
 /// <reference path="Common.ts" />
 /// <reference path="Sound.ts" />
+/// <reference path="Loader.ts" />
 
 
 
@@ -171,6 +172,14 @@ class Engine {
    public debugColor : Color = new Color(255,255,255);
    public backgroundColor : Color = new Color(0,0,100);
    private logger : Logger;
+
+   // loading
+   private loader : ILoadable;
+   private isLoading : boolean = false;
+   private progress : number = 0;
+   private total : number = 1;
+   private loadingDraw : (ctx : CanvasRenderingContext2D, loaded : number, total : number)  => void;
+
    constructor(width?:number, height?:number, canvasElementId?:string){
       this.logger = Logger.getInstance();
       this.logger.addAppender(new ConsoleAppender);
@@ -194,6 +203,8 @@ class Engine {
          this.logger.log("Engine viewport is fullscreen", Log.DEBUG);
          this.isFullscreen = true;
       }
+
+      this.loader = new Loader();
 
       this.init();
 
@@ -300,6 +311,11 @@ class Engine {
    }
 
    private update(delta: number){
+      if(this.isLoading){
+         // suspend updates untill loading is finished
+         return;
+      }
+
       this.eventDispatcher.update();
       this.currentScene.update(this, delta);
 
@@ -320,9 +336,19 @@ class Engine {
 
    private draw(delta: number){
       var ctx = this.ctx;
+      
+      if(this.isLoading){
+         ctx.fillStyle = 'black'
+         ctx.fillRect(0,0,this.width,this.height);
+         this.drawLoadingBar(ctx, this.progress, this.total);
+         // Drawing nothing else while loading
+         return;
+      }
+
       ctx.clearRect(0,0,this.width,this.height);
       ctx.fillStyle =  this.backgroundColor.toString();
       ctx.fillRect(0,0,this.width,this.height);
+
 
       // Draw debug information
       if(this.isDebug){
@@ -361,6 +387,8 @@ class Engine {
       this.ctx.restore();
    }
 
+
+
    public start(){
       if(!this.hasStarted){
          this.hasStarted = true;
@@ -396,6 +424,49 @@ class Engine {
          this.hasStarted = false;
          this.logger.log("Game stopped", Log.DEBUG);
       }
+   }
+
+
+   private drawLoadingBar (ctx : CanvasRenderingContext2D, loaded : number, total : number){
+      if(this.loadingDraw){
+         this.loadingDraw(ctx, loaded, total);
+         return;
+      }
+
+      var y = this.canvas.height/2;
+      var width = this.canvas.width/3;
+      var x = width;
+
+      // loading box
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y, width, 20);
+
+      var progress = width * (loaded/total);
+      ctx.fillStyle = 'white';
+      var margin = 2;
+      ctx.fillRect(x + margin, y + margin, progress - margin*2, 20 - margin*2);
+   }
+
+
+   public setLoadingDrawFunction (fcn : (ctx : CanvasRenderingContext2D, loaded : number, total : number) => void){
+      this.loadingDraw = fcn;
+   }
+
+   
+   public load(loader : ILoadable){
+      this.isLoading = true;
+      loader.begin();
+      loader.onprogress = (e) => {
+         this.progress = <number>e.loaded;
+         this.total = <number>e.total;
+      };
+      loader.oncomplete = () => {
+         setTimeout(()=>{
+            this.isLoading = false;
+         },500);         
+      };
+
    }
 
 };
