@@ -30,38 +30,51 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /// <reference path="Core.ts" />
 /// <reference path="Common.ts" />
+/// <reference path="Algebra.ts" />
 
 module Camera {
    export interface ICamera {
-      applyTransform(engine: Engine, delta: number): void;
+      getFocus() : Point;
+      applyTransform(delta: number): void;
    }  
 
    export class SideCamera implements ICamera {
       follow : Actor;
-      constructor(){
+      engine : Engine;
+      constructor(engine : Engine){
+         this.engine = engine;
       }
       setActorToFollow(actor: Actor){
          this.follow = actor;
       }
 
-      applyTransform(engine:Engine, delta: number){
+      getFocus(){
+         return new Point(-this.follow.x + this.engine.width/2.0 , 0);
+      }
 
-         engine.ctx.translate(-this.follow.x + engine.width/2.0,0);
+      applyTransform(delta: number){
+         var focus = this.getFocus();
+         this.engine.ctx.translate(focus.x,focus.y);
       }
    }
 
    export class TopCamera implements ICamera {
       follow : Actor;
-      constructor(){
+      engine : Engine;
+      constructor(engine : Engine){
+         this.engine = engine;
       }
       setActorToFollow(actor : Actor){
          this.follow = actor;
       }
 
-      applyTransform(engine : Engine, delta : number){
+      getFocus(){
+         return new Point(-this.follow.x + this.engine.width/2.0, -this.follow.y + this.engine.height/2.0);
+      }
 
-         engine.ctx.translate(-this.follow.x + engine.width/2.0, 0);
-         engine.ctx.translate(0, -this.follow.y + engine.height/2.0);
+      applyTransform(delta : number){
+         var focus = this.getFocus();
+         this.engine.ctx.translate(focus.x,focus.y);
       }
    }
 }

@@ -31,10 +31,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /// <reference path='../../build/Excalibur.d.ts' />
 
 // Create screen appender 
-var screenAppender = new ScreenAppender();
-var logger = Logger.getInstance();
-logger.defaultLevel = Log.DEBUG;
-logger.addAppender(screenAppender);
+//var screenAppender = new ScreenAppender();
+//var logger = Logger.getInstance();
+//logger.defaultLevel = Log.DEBUG;
+//logger.addAppender(screenAppender);
 
 
 // Create an the game container
@@ -174,7 +174,15 @@ player.addEventListener('up', ()=>{
    }
 });
 
-game.addEventListener('keyDown', (keyDown? : KeyDown)=>{
+player.addEventListener('mousedown', ()=>{
+   alert("player clicked!");
+});
+
+game.addEventListener('mousedown', (e? : MouseDown)=>{
+   console.log(e.x + ", " +e.y);
+});
+
+game.addEventListener('keydown', (keyDown? : KeyDown)=>{
    if(keyDown.key === Keys.F){
       var a = new Actor(player.x+10, player.y-50, 10, 10, new Color(222,222,222));
       a.dx = 200*direction;
@@ -213,6 +221,7 @@ player.addEventListener('update', (data?: UpdateEvent)=>{
       player.dy += 800 * data.delta/1000;
    }
    inAir = true;
+   //console.log("Player Pos", player.x, player.y, player.getWidth(), player.getHeight());
 });
 
 game.addEventListener('keydown', (keyDown? : KeyDown)=>{
@@ -251,7 +260,7 @@ game.addEventListener('focus', ()=>{
 });
 
 // Create a camera to track the player
-var camera = new Camera.SideCamera();
+var camera = new Camera.SideCamera(game);
 camera.setActorToFollow(player);
 
 // Add player to game is synonymous with adding a player to the current scene

@@ -38,7 +38,7 @@ enum EventType {
    KEYPRESS,
    MOUSEDOWN,
    MOUSEUP,
-   MOUSECLICK,
+   CLICK,
    USEREVENT,
    COLLISION,
    BLUR,
@@ -82,6 +82,24 @@ class KeyUp extends ActorEvent {
 
 class KeyPress extends ActorEvent {
    constructor(public key : Keys){
+      super();
+   }
+}
+
+class MouseDown extends ActorEvent {
+   constructor(public x : number, public y : number){
+      super();
+   }
+}
+
+class MouseUp extends ActorEvent {
+   constructor(public x : number, public y : number){
+      super();
+   }
+}
+
+class Click extends ActorEvent {
+   constructor(public x : number, public y : number){
       super();
    }
 }

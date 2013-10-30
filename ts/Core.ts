@@ -43,8 +43,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 class Color {
-   public static Black : Color = Color.fromHex('#FFFFFF');
-   public static White : Color = Color.fromHex('#000000');
+   public static Black : Color = Color.fromHex('#000000');
+   public static White : Color = Color.fromHex('#FFFFFF');
    public static Yellow : Color = Color.fromHex('#00FFFF');
    public static Orange : Color  = Color.fromHex('#FFA500');
    public static Red : Color  = Color.fromHex('#FF0000');
@@ -154,11 +154,18 @@ class Engine {
 
    private hasStarted : boolean = false;
 
+   // Eventing
    private eventDispatcher : EventDispatcher;
    
+   // Key Events
    public keys : number[] = [];
    public keysDown : number[] = [];
    public keysUp : number[] = [];
+   // Mouse Events
+   public clicks : MouseDown[] = [];
+   public mouseDown : MouseDown[] = [];
+   public mouseUp : MouseUp[] = [];
+
 
    public camera : Camera.ICamera;
 
@@ -234,6 +241,18 @@ class Engine {
    getHeight() : number {
       return this.height;
    }
+
+   private transformToCanvasCoordinates(x : number, y : number) : Point {
+      var newX = Math.floor(x * this.canvas.width/this.canvas.clientWidth);
+      var newY = Math.floor(y * this.canvas.height/this.canvas.clientHeight);
+
+      if(this.camera){
+         var focus = this.camera.getFocus();
+         newX -= focus.x;
+         newY -= focus.y;
+      }
+      return new Point(newX, newY);      
+   }
    
    private init(){
       if(this.isFullscreen){
@@ -274,16 +293,6 @@ class Engine {
          }
       });
 
-      window.addEventListener('mousedown', ()=>{
-         // TODO: Collect events
-         this.eventDispatcher.update();
-      });
-
-      window.addEventListener('mouseup', ()=>{
-         // TODO: Collect events
-         this.eventDispatcher.update();
-      });
-
       window.addEventListener('blur', ()=>{
          this.eventDispatcher.publish(EventType[EventType.BLUR]);
          this.eventDispatcher.update()
@@ -294,7 +303,25 @@ class Engine {
          this.eventDispatcher.update()
       });
 
+      this.canvas.addEventListener('mousedown', (e : MouseEvent)=>{
+         var x : number = e.pageX - this.canvas.offsetLeft;
+         var y : number = e.pageY - this.canvas.offsetTop;
+         var transformedPoint = this.transformToCanvasCoordinates(x, y);
+         var mousedown = new MouseDown(transformedPoint.x,transformedPoint.y)
+         this.clicks.push(mousedown);
+         this.eventDispatcher.publish(EventType[EventType.MOUSEDOWN], mousedown);
+      });
 
+      this.canvas.addEventListener('mouseup', (e : MouseEvent)=>{
+         var x : number = e.pageX - this.canvas.offsetLeft;
+         var y : number = e.pageY - this.canvas.offsetTop;
+         var transformedPoint = this.transformToCanvasCoordinates(x, y);
+         var mouseup = new MouseUp(transformedPoint.x,transformedPoint.y);
+         this.mouseUp.push(mouseup);
+         this.eventDispatcher.publish(EventType[EventType.MOUSEUP], mouseup);
+      });
+
+      
       this.ctx = this.canvas.getContext('2d');
       document.body.appendChild(this.canvas);
    }
@@ -333,6 +360,9 @@ class Engine {
       // Reset keysDown and keysUp after update is complete
       this.keysDown.length = 0;
       this.keysUp.length = 0;
+
+      // Reset clicks
+      this.clicks.length = 0;
    }
 
    private draw(delta: number){
@@ -369,7 +399,7 @@ class Engine {
       this.ctx.save();
 
       if(this.camera){
-         this.camera.applyTransform(this, delta);  
+         this.camera.applyTransform(delta);  
       }
 
       
