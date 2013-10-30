@@ -272,6 +272,7 @@ class Engine {
          this.keys.length = 0; // empties array efficiently
       });
 
+      // key up is on window because canvas cannot have focus
       window.addEventListener('keyup', (ev: KeyboardEvent) => {
          var key = this.keys.indexOf(ev.keyCode);
          this.keys.splice(key,1);
@@ -282,6 +283,7 @@ class Engine {
 
       });
 
+      // key down is on window because canvas cannot have focus
       window.addEventListener('keydown', (ev: KeyboardEvent) => {
          if(this.keys.indexOf(ev.keyCode)=== -1){
             this.keys.push(ev.keyCode);
