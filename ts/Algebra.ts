@@ -28,12 +28,6 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class Util {
-   static Equals(x: number, y: number, delta: number){
-      return (((x-delta) <= y) && (y <= (x+delta)));
-   }
-}
-
 class Point {
    constructor(public x : number, public y : number){
    }

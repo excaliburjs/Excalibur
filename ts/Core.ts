@@ -493,6 +493,7 @@ class Engine {
       loader.onprogress = (e) => {
          this.progress = <number>e.loaded;
          this.total = <number>e.total;
+         this.logger.log('Loading ' + (100*this.progress/this.total).toFixed(0));
       };
       loader.oncomplete = () => {
          setTimeout(()=>{

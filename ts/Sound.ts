@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /// <reference path="MonkeyPatch.ts" />
+/// <reference path="Util.ts" />
 /// <reference path="Log.ts" />
 
 module Media {
@@ -48,11 +49,11 @@ module Media {
       private soundImpl : ISound;
       private log : Logger = Logger.getInstance();
       constructor(path : string, volume? : number){
-         if((<any>window).audioContext){
-            this.log.log("Using new Web Audio Api for " + path);
+         if((<any>window).AudioContext){
+            this.log.log("Using new Web Audio Api for " + path, Log.DEBUG);
             this.soundImpl = new WebAudio(path, volume);
          }else{
-            this.log.log("Falling back to Audio ELement for " + path, Log.WARN);
+            this.log.log("Falling back to Audio Element for " + path, Log.WARN);
             this.soundImpl = new AudioTag(path, volume)
          }
       }
@@ -116,11 +117,15 @@ module Media {
       public onerror : (e : any) => void = () => {};
 
       public load(){
-         this.audioElement.oncanplaythrough = this.onload;
-         this.audioElement.onprogress = this.onprogress;
-         this.audioElement.onerror = this.onerror;
-         this.audioElement.src = this.soundPath;
-
+         var request = new XMLHttpRequest();
+         request.onprogress = this.onprogress;
+         request.onload = (e) => {this.audioElement.src = "data:audio/wav;base64," + Util.base64Encode(request.responseText);this.onload(e)};
+         request.onerror = (e) => {this.onerror(e);};
+         request.open("GET", this.soundPath, true);
+         if(request.overrideMimeType) {
+            request.overrideMimeType('text/plain; charset=x-user-defined'); 
+         }
+         request.send();
       }
 
       public play(){
@@ -133,8 +138,8 @@ module Media {
 
    }
 
-   if((<any>window).audioContext){
-      var audioContext : any = new (<any>window).audioContext();
+   if((<any>window).AudioContext){
+      var audioContext : any = new (<any>window).AudioContext();
    }
 
    class WebAudio implements ISound{
@@ -197,13 +202,13 @@ module Media {
             this.sound.loop = this.loop;
             this.sound.connect(this.volume);
             this.volume.connect(this.context.destination);
-            this.sound.noteOn(0);
+            this.sound.start(0);
          }
       }
 
       public stop(){
          if(this.sound){
-            this.sound.noteOff(0);
+            this.sound.stop(0);
          }
       }
    }

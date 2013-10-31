@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /// <reference path="Sound.ts" />
+/// <reference path="Util.ts" />
 
 interface ILoadable {
    begin(func? : (e : any) => void); // begin loading
@@ -41,6 +42,7 @@ class PreloadedImage implements ILoadable {
    public width : number;
    public height : number;
    public image : HTMLImageElement;
+   private logger : Logger = Logger.getInstance();
 
    private progressCallback : (progress : number, total : number) => void
    private doneCallback : () => void;
@@ -50,58 +52,22 @@ class PreloadedImage implements ILoadable {
    }
 
    private _start(e : any){
-      console.log("Started loading image " + this.path, e);
+      this.logger.log("Started loading image " + this.path, Log.DEBUG);
    }
 
-   private base64Encode(inputStr : string){
-      var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-      var outputStr = "";
-      var i = 0;
-      
-      while (i < inputStr.length)
-      {
-          //all three "& 0xff" added below are there to fix a known bug 
-          //with bytes returned by xhr.responseText
-          var byte1 = inputStr.charCodeAt(i++) & 0xff;
-          var byte2 = inputStr.charCodeAt(i++) & 0xff;
-          var byte3 = inputStr.charCodeAt(i++) & 0xff;
    
-          var enc1 = byte1 >> 2;
-          var enc2 = ((byte1 & 3) << 4) | (byte2 >> 4);
-          
-          var enc3, enc4;
-          if (isNaN(byte2))
-          {
-              enc3 = enc4 = 64;
-          }
-          else
-          {
-              enc3 = ((byte2 & 15) << 2) | (byte3 >> 6);
-              if (isNaN(byte3))
-              {
-                  enc4 = 64;
-              }
-              else
-              {
-                  enc4 = byte3 & 63;
-              }
-          }
-   
-          outputStr += b64.charAt(enc1) + b64.charAt(enc2) + b64.charAt(enc3) + b64.charAt(enc4);
-       } 
-      
-       return outputStr;
-   }
-
    public begin(func? : (e : any)=>void){
       this.image = new Image();
       var request = new XMLHttpRequest();
+      request.open("GET", this.path, true);
+      request.responseType = "blob";
       request.onloadstart = (e) => {this._start(e)};
       request.onprogress = this.onprogress;
-      request.onload = (e) => {this.image.src = "data:image/jpeg;base64," + this.base64Encode(request.responseText);this.oncomplete()};
+      request.onload = (e) => {this.image.src = URL.createObjectURL(request.response);this.oncomplete()};
       request.onerror = (e) => {this.onerror(e);};
-      request.open("GET", this.path, true);
-      request.overrideMimeType('text/plain; charset=x-user-defined'); 
+      if(request.overrideMimeType) {
+         request.overrideMimeType('text/plain; charset=x-user-defined'); 
+      }
       request.send();
      
    }
@@ -164,9 +130,9 @@ class Loader implements ILoadable {
 
    private sumCounts(obj) : number {
       var sum = 0;
-      var vals = Object.keys(obj).forEach(function (key) {
-        sum += obj[key];
-      });
+      for(var i in obj){
+        sum += obj[i] | 0;
+      }
       return sum;
    }
 
@@ -178,14 +144,13 @@ class Loader implements ILoadable {
         r.onprogress = function(e){
            var total = <number>e.total;
            var progress = <number>e.loaded;
-           console.log('Inside progress '+ i);
            me.progressCounts[i] = progress;
            me.totalCounts[i] = total;
            me.onprogress.call(me, {loaded : me.sumCounts(me.progressCounts), total: me.sumCounts(me.totalCounts)});
         };
         r.oncomplete = function(){
            me.numLoaded++;
-           if(me.numLoaded == me.resourceCount){
+           if(me.numLoaded === me.resourceCount){
               me.oncomplete.call(me);
            }
         };
