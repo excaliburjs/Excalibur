@@ -1,5 +1,17 @@
 # Contributing
 
+## Contributing Code
+
+1. Create or discuss an issue you wish to contribute to
+2. Create a fork
+3. Commit to your fork with your changes
+4. Submit a pull request, making sure to reference the issue(s) you're addressing
+5. Make sure it passes the CI build (all tests pass)
+6. Wait for a project contributor to give you feedback
+7. Once you're merged, celebrate!
+
+Thank you for any contributions!
+
 ## Requirements
 
 - Typescript 9.x
@@ -32,14 +44,4 @@ Unix/Linux:
 	
 	make all
 
-## Contributing Code
 
-1. Create or discuss an issue you wish to contribute to
-2. Create a fork
-3. Commit to your fork with your changes
-4. Submit a pull request, making sure to reference the issue(s) you're addressing
-5. Make sure it passes the CI build (all tests pass)
-6. Wait for a project contributor to give you feedback
-7. Once you're merged, celebrate!
-
-Thank you for any contributions!
