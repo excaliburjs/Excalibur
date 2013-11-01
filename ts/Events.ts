@@ -38,7 +38,7 @@ enum EventType {
    KEYPRESS,
    MOUSEDOWN,
    MOUSEUP,
-   MOUSECLICK,
+   CLICK,
    USEREVENT,
    COLLISION,
    BLUR,
@@ -86,6 +86,24 @@ class KeyPress extends ActorEvent {
    }
 }
 
+class MouseDown extends ActorEvent {
+   constructor(public x : number, public y : number){
+      super();
+   }
+}
+
+class MouseUp extends ActorEvent {
+   constructor(public x : number, public y : number){
+      super();
+   }
+}
+
+class Click extends ActorEvent {
+   constructor(public x : number, public y : number){
+      super();
+   }
+}
+
 class EventDispatcher {
    private _handlers : {[key : string] : { (event?: ActorEvent) : void}[]; } = {};
    private queue : {(any: void):void}[] = [];
@@ -97,7 +115,7 @@ class EventDispatcher {
 
    public publish(eventName: string, event?: ActorEvent){
       if(!eventName){
-         this.log.log("Unmapped event", Log.WARN);
+         // key not mapped
          return;
       }
       eventName = eventName.toLowerCase();
