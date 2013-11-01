@@ -63,7 +63,7 @@ game.start();
 
 # Contributing
 
-Please view the [Contributing guidelines](Contributing.md).
+Please view the [Contributing guidelines](CONTRIBUTING.md).
 
 
 # License
