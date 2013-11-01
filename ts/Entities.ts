@@ -213,6 +213,10 @@ class Actor {
       }
       return new Overlap(xover,yover);
    }
+
+   public contains(x : number, y : number) : boolean{
+      return (this.x <= x && this.y <= y && this.getBottom() >= y && this.getRight() >= x);
+   }
       
    public collides(box : Actor) : Side {
       var w = 0.5 * (this.getWidth() + box.getWidth());
@@ -359,8 +363,23 @@ class Actor {
          eventDispatcher.publish(Keys[key], new KeyEvent(this, key));
       });
 
+      // Publish click events
+      engine.clicks.forEach((e)=>{
+         if(this.contains(e.x, e.y)){
+            eventDispatcher.publish(EventType[EventType.CLICK], new Click(e.x,e.y));
+            eventDispatcher.publish(EventType[EventType.MOUSEDOWN], new MouseDown(e.x,e.y));
+         }
+      });
+
+      engine.mouseUp.forEach((e)=>{
+         if(this.contains(e.x, e.y)){
+            eventDispatcher.publish(EventType[EventType.MOUSEUP], new MouseUp(e.x,e.y));
+         }
+      })
+
       eventDispatcher.publish(EventType[EventType.UPDATE], new UpdateEvent(delta));
    }
+   
 
    public draw(ctx: CanvasRenderingContext2D, delta: number){
 

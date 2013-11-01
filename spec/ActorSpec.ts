@@ -13,7 +13,10 @@ describe("A game actor", () => {
 			currentScene : {
 				children : []
 			},
-			keys : []
+			keys : [],
+			clicks : [],
+			mouseDown : [],
+			mouseUp : []
 		}
 	});
 
@@ -101,6 +104,29 @@ describe("A game actor", () => {
 		expect(actor.getRight()).toBe(100);
 		expect(actor.getTop()).toBe(0);
 		expect(actor.getBottom()).toBe(100);
+
+	});
+
+	it('can contain points', ()=>{
+		expect(actor.x).toBe(0);
+		expect(actor.y).toBe(0);
+		actor.setWidth(20);
+		actor.setHeight(20);
+
+		expect(actor.contains(10,10)).toBe(true);
+
+		expect(actor.contains(0, 0)).toBe(true);
+
+		expect(actor.contains(20, 20)).toBe(true);
+
+		expect(actor.contains(21, 20)).toBe(false);
+		expect(actor.contains(20, 21)).toBe(false);
+		
+		expect(actor.contains(0, -1)).toBe(false);
+		expect(actor.contains(-1, 0)).toBe(false);
+		expect(actor.contains(10, 0)).toBe(true);
+		expect(actor.contains(10, 20)).toBe(true);
+
 
 	});
 

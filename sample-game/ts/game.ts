@@ -31,14 +31,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /// <reference path='../../build/Excalibur.d.ts' />
 
 // Create screen appender 
-var screenAppender = new ScreenAppender();
+//var screenAppender = new ScreenAppender();
 var logger = Logger.getInstance();
 logger.defaultLevel = Log.DEBUG;
-logger.addAppender(screenAppender);
+//logger.addAppender(screenAppender);
 
 
 // Create an the game container
 var game = new Engine();
+
+var image = new PreloadedImage('../images/TestPlayer.png');
+var spriteFontImage = new PreloadedImage('../images/SpriteFont.png');
+var jump = new PreloadedSound('../sounds/jump.wav');
+
+var loader = new Loader();
+loader.addResource('player', image);
+loader.addResource('spriteFont', spriteFontImage);
+loader.addResource('jump', jump);
+game.load(loader);
+
 
 // Set background color
 game.backgroundColor = new Color(114,213,224);
@@ -47,10 +58,10 @@ game.backgroundColor = new Color(114,213,224);
 game.isDebug = false;
 
 // Create spritesheet
-var spriteSheet = new Drawing.SpriteSheet('../images/TestPlayer.png', 12, 1, 44,50);
+var spriteSheet = new Drawing.SpriteSheet(image, 12, 1, 44,50);
 
 // Create spriteFont
-var spriteFont = new Drawing.SpriteFont('../images/SpriteFont.png', '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
+var spriteFont = new Drawing.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
 var label = new Label('Hello World', 100, 100, spriteFont);
 label.scaleTo(2, .5).scaleTo(1,.5).repeatForever();
 game.addChild(label);
@@ -126,7 +137,7 @@ player.addDrawing(Animations.Idle, idle);
 player.setDrawing(Animations.Idle);
 
 
-var jumpSound = new Media.Sound("../sounds/smb_jump-small.wav");
+var jumpSound = jump.sound;
 
 
 var inAir = true;
@@ -163,7 +174,15 @@ player.addEventListener('up', ()=>{
    }
 });
 
-game.addEventListener('keyDown', (keyDown? : KeyDown)=>{
+player.addEventListener('mousedown', ()=>{
+   alert("player clicked!");
+});
+
+game.addEventListener('mousedown', (e? : MouseDown)=>{
+   console.log(e.x + ", " +e.y);
+});
+
+game.addEventListener('keydown', (keyDown? : KeyDown)=>{
    if(keyDown.key === Keys.F){
       var a = new Actor(player.x+10, player.y-50, 10, 10, new Color(222,222,222));
       a.dx = 200*direction;
@@ -202,6 +221,7 @@ player.addEventListener('update', (data?: UpdateEvent)=>{
       player.dy += 800 * data.delta/1000;
    }
    inAir = true;
+   //console.log("Player Pos", player.x, player.y, player.getWidth(), player.getHeight());
 });
 
 game.addEventListener('keydown', (keyDown? : KeyDown)=>{
@@ -240,7 +260,7 @@ game.addEventListener('focus', ()=>{
 });
 
 // Create a camera to track the player
-var camera = new Camera.SideCamera();
+var camera = new Camera.SideCamera(game);
 camera.setActorToFollow(player);
 
 // Add player to game is synonymous with adding a player to the current scene
