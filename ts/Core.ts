@@ -190,7 +190,7 @@ class Engine {
 
    constructor(width?:number, height?:number, canvasElementId?:string){
       this.logger = Logger.getInstance();
-      this.logger.addAppender(new ConsoleAppender);
+      this.logger.addAppender(new ConsoleAppender());
       this.logger.log("Building engine...", Log.DEBUG);
 
       this.eventDispatcher = new EventDispatcher(this);
@@ -477,8 +477,10 @@ class Engine {
 
       var progress = width * (loaded/total);
       ctx.fillStyle = 'white';
-      var margin = 2;
-      ctx.fillRect(x + margin, y + margin, progress - margin*2, 20 - margin*2);
+      var margin = 5;
+      var width = progress - margin*2;
+      var height = 20 - margin*2;
+      ctx.fillRect(x + margin, y + margin, width>0?width:0, height);
    }
 
 

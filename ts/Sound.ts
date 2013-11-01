@@ -118,13 +118,11 @@ module Media {
 
       public load(){
          var request = new XMLHttpRequest();
-         request.onprogress = this.onprogress;
-         request.onload = (e) => {this.audioElement.src = "data:audio/wav;base64," + Util.base64Encode(request.responseText);this.onload(e)};
-         request.onerror = (e) => {this.onerror(e);};
          request.open("GET", this.soundPath, true);
-         if(request.overrideMimeType) {
-            request.overrideMimeType('text/plain; charset=x-user-defined'); 
-         }
+         request.responseType = 'blob';
+         request.onprogress = this.onprogress;
+         request.onload = (e) => {this.audioElement.src = URL.createObjectURL(request.response);this.onload(e)};
+         request.onerror = (e) => {this.onerror(e);};
          request.send();
       }
 
@@ -150,6 +148,7 @@ module Media {
       private path = "";
       private isLoaded = false;
       private loop = false;
+      private logger : Logger = Logger.getInstance();
       constructor(soundPath : string, volume? : number){
          this.path = soundPath;
          if(volume){
@@ -175,11 +174,18 @@ module Media {
          request.onprogress = this.onprogress;
          request.onerror = this.onerror;
          request.onload = ()=>{
-
-            this.context.decodeAudioData(request.response, (buffer)=>{
+            this.context.decodeAudioData(request.response, 
+            (buffer)=>{
                this.buffer = buffer;
                this.isLoaded = true;
-               this.onload.call(this);
+               this.onload(this);
+            },
+            (e)=>{
+               this.logger.log("Unable to decode " + this.path + 
+               " this browser may not fully support this format, or the file may be corrupt, " +
+               "if this is an mp3 try removing id3 tags and album art from the file.", Log.ERROR);
+               this.isLoaded = false;
+               this.onload(this);
             });
          }
          try{

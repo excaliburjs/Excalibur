@@ -32,8 +32,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Create screen appender 
 //var screenAppender = new ScreenAppender();
-//var logger = Logger.getInstance();
-//logger.defaultLevel = Log.DEBUG;
+var logger = Logger.getInstance();
+logger.defaultLevel = Log.DEBUG;
 //logger.addAppender(screenAppender);
 
 
