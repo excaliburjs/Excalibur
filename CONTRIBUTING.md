@@ -20,7 +20,7 @@ The compiler is available here:
 
 Using Node.js:
 
-  npm install
+	npm install
   
 This will install any dev dependencies in your directory.
 
