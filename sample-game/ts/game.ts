@@ -168,6 +168,8 @@ player.addEventListener('left', ()=>{
       return;
    }
    player.dx = -groundSpeed;
+
+   // TODO: When platform is moving in same direction, add its dx
 });
 
 player.addEventListener('right', ()=>{
@@ -180,6 +182,8 @@ player.addEventListener('right', ()=>{
       return;
    }
    player.dx = groundSpeed;
+
+   // TODO: When platform is moving in same direction, add its dx
 });
 
 player.addEventListener('up', ()=>{
