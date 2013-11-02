@@ -63,7 +63,7 @@ game.isDebug = false;
 
 // Create spritesheet
 var spriteSheetRun = new Drawing.SpriteSheet(imageRun, 21, 1, 96, 96);
-var spriteSheetJump = new Drawing.SpriteSheet(imageJump, 11, 1, 96, 96);
+var spriteSheetJump = new Drawing.SpriteSheet(imageJump, 21, 1, 96, 96);
 var tileBlockWidth = 64,
     tileBlockHeight = 48,
     spriteTiles = new Drawing.SpriteSheet(imageBlocks, 1, 1, tileBlockWidth, tileBlockHeight);
@@ -82,7 +82,8 @@ enum Animations {
    Idle,
    Left,
    Right,
-   Jump
+   JumpRight,
+   JumpLeft
 }
 
 var currentX = 0;
@@ -132,6 +133,8 @@ player.addChild(playerLabel);
 var left = spriteSheetRun.getAnimationBetween(game, 1, 11, 100);
 var right = spriteSheetRun.getAnimationBetween(game, 11, 21, 100);
 var idle = spriteSheetRun.getAnimationByIndices(game, [0], 200);
+var jumpLeft = spriteSheetJump.getAnimationBetween(game, 0, 11, 150);
+var jumpRight = spriteSheetJump.getAnimationBetween(game, 11, 22, 150);
 left.loop = true;
 right.loop = true;
 idle.loop = true;
@@ -140,7 +143,8 @@ idle.loop = true;
 player.addDrawing(Animations.Left, left); 
 player.addDrawing(Animations.Right, right);
 player.addDrawing(Animations.Idle, idle);
-player.addDrawing(Animations.Jump, spriteSheetJump.getAnimationForAll(game, 150));
+player.addDrawing(Animations.JumpRight, jumpRight);
+player.addDrawing(Animations.JumpLeft, jumpLeft);
 
 // Set default animation
 player.setDrawing(Animations.Idle);
@@ -156,7 +160,9 @@ var jumpSpeed = 500;
 var direction = 1;
 player.addEventListener('left', ()=>{
    direction = -1;
-   player.setDrawing(Animations.Left);
+   if (!inAir) {
+      player.setDrawing(Animations.Left);
+   }
    if(inAir){
       player.dx = -airSpeed;
       return;
@@ -166,7 +172,9 @@ player.addEventListener('left', ()=>{
 
 player.addEventListener('right', ()=>{
    direction = 1;
-   player.setDrawing(Animations.Right);
+   if (!inAir) {
+      player.setDrawing(Animations.Right);
+   }
    if(inAir){
       player.dx = airSpeed;
       return;
@@ -178,7 +186,11 @@ player.addEventListener('up', ()=>{
    if(!inAir){
       player.dy -= jumpSpeed;
       inAir = true;
-      player.setDrawing(Animations.Jump);
+      if (direction === 1) {
+         player.setDrawing(Animations.JumpRight);
+      } else {
+         player.setDrawing(Animations.JumpLeft);
+      }
       jumpSound.play();
    }
 });
