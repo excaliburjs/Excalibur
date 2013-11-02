@@ -1,7 +1,7 @@
 #Ignore compiled javascript #
 ######################
-./ts/*.js
-./ts/*.*
+/ts/*.js
+/ts/*.*
 sample-game/ts/*.js
 spec/*.js
 node_modules/
