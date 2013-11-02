@@ -154,8 +154,8 @@ var jumpSound = jump.sound;
 
 
 var inAir = true;
-var groundSpeed = 90;
-var airSpeed = 90;
+var groundSpeed = 150;
+var airSpeed = 130;
 var jumpSpeed = 500;
 var direction = 1;
 player.addEventListener('left', ()=>{
