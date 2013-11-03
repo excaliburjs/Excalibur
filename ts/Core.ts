@@ -60,7 +60,7 @@ class Color {
    public static Chartreuse : Color  = Color.fromHex('#7FFF00');
 
    constructor(public r: number, public g: number, public b: number, public a? : number){
-      this.a = (a != null ? a : 255);
+      this.a = (a != null ? a : 1);
    }
 
    public static fromRGB(r : number, g : number, b : number, a? : number) : Color {
@@ -75,9 +75,9 @@ class Color {
          var r = parseInt(match[1], 16);
          var g = parseInt(match[2], 16);
          var b = parseInt(match[3], 16);
-         var a = 255;
+         var a = 1;
          if(match[4]){
-            a = parseInt(match[4], 16);
+            a = parseInt(match[4], 16)/255;
          }
          return new Color(r, g, b, a);
       }else{
