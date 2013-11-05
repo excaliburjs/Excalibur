@@ -193,6 +193,7 @@ game.addEventListener('keydown', (keyDown? : KeyDown)=>{
          inAir = false;
          a.dx = data.other.dx;
          a.dy = data.other.dy;
+         a.kill();
       });
       a.addEventListener('update', (data?: UpdateEvent)=>{
          if(inAir){

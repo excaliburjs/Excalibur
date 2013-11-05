@@ -66,6 +66,7 @@ class SceneNode {
    }
 
    addChild(actor : Actor){
+      actor.parent = this;
       this.children.push(actor);
    }
 
@@ -108,6 +109,10 @@ class Actor {
 
    private sceneNode : SceneNode;
 
+   private logger : Logger = Logger.getInstance();
+
+   public parent : SceneNode = null;
+
    public solid = true;
 
    public frames : {[key: string] : Drawing.IDrawable;} = {}
@@ -125,6 +130,14 @@ class Actor {
       this.actionQueue = new ActionQueue(this);
       this.eventDispatcher = new EventDispatcher(this);
       this.sceneNode = new SceneNode();
+   }
+
+   public kill() {
+      if(this.parent){
+         this.parent.removeChild(this);
+      }else{
+         this.logger.log("Cannot kill actor, it was never added to the Scene", Log.WARN);
+      }
    }
 
    public addChild(actor : Actor){
