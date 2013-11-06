@@ -36,9 +36,9 @@ class Overlap {
 }
 
 class SceneNode {
-   public children : Actor[];
-   constructor(actors?:Actor[]){
-      this.children = actors || [];
+   public children : Actor[] = [];
+   private engine : Engine;
+   constructor(){
    }
 
    publish(eventType: string, event: ActorEvent){

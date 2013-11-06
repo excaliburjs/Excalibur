@@ -182,6 +182,9 @@ game.addEventListener('mousedown', (e? : MouseDown)=>{
    console.log(e.x + ", " +e.y);
 });
 
+var newScene = new SceneNode();
+newScene.addChild(new Actor(100, 100, 100, 100, new Color(0,0,0,.5)));
+
 game.addEventListener('keydown', (keyDown? : KeyDown)=>{
    if(keyDown.key === Keys.F){
       var a = new Actor(player.x+10, player.y-50, 10, 10, new Color(222,222,222));
@@ -202,6 +205,10 @@ game.addEventListener('keydown', (keyDown? : KeyDown)=>{
          inAir = true;
       });
       game.addChild(a);
+   }else if(keyDown.key === Keys.U){
+      game.pushScene(newScene);
+   }else if(keyDown.key === Keys.I){
+      game.popScene();
    }
 });
 

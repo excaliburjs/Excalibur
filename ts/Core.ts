@@ -58,6 +58,7 @@ class Color {
    public static Viridian : Color  = Color.fromHex('#59978F');
    public static Green : Color  = Color.fromHex('#00FF00');
    public static Chartreuse : Color  = Color.fromHex('#7FFF00');
+   public static Transparent : Color = Color.fromHex('#FFFFFF00');
 
    constructor(public r: number, public g: number, public b: number, public a? : number){
       this.a = (a != null ? a : 1);
@@ -171,6 +172,8 @@ class Engine {
 
    public currentScene : SceneNode;
    public rootScene : SceneNode;
+   private sceneStack : SceneNode[] = [];
+
 
    private animations : AnimationNode[] = [];
 
@@ -196,6 +199,8 @@ class Engine {
       this.eventDispatcher = new EventDispatcher(this);
 
       this.rootScene = this.currentScene = new SceneNode();
+      this.sceneStack.push(this.rootScene);
+
       if(canvasElementId){
          this.logger.log("Using Canvas element specified: " + canvasElementId, Log.DEBUG);
          this.canvas = <HTMLCanvasElement>document.getElementById(canvasElementId);
@@ -232,6 +237,20 @@ class Engine {
 
    public removeChild(actor: Actor){
       this.currentScene.removeChild(actor);
+   }
+
+   public pushScene(scene : SceneNode){
+      if(this.sceneStack.indexOf(scene) === -1){
+         this.sceneStack.push(scene);
+         this.currentScene = scene;
+      }
+   }
+
+   public popScene(){
+      if(this.sceneStack.length > 1){
+         this.sceneStack.pop();
+         this.currentScene = this.sceneStack[this.sceneStack.length-1];
+      }
    }
 
    getWidth() : number {
@@ -420,8 +439,6 @@ class Engine {
       this.ctx.restore();
    }
 
-
-
    public start(){
       if(!this.hasStarted){
          this.hasStarted = true;
@@ -459,7 +476,6 @@ class Engine {
       }
    }
 
-
    private drawLoadingBar (ctx : CanvasRenderingContext2D, loaded : number, total : number){
       if(this.loadingDraw){
          this.loadingDraw(ctx, loaded, total);
@@ -483,11 +499,9 @@ class Engine {
       ctx.fillRect(x + margin, y + margin, width>0?width:0, height);
    }
 
-
    public setLoadingDrawFunction (fcn : (ctx : CanvasRenderingContext2D, loaded : number, total : number) => void){
       this.loadingDraw = fcn;
    }
-
 
    public load(loader : ILoadable){
       this.isLoading = true;
