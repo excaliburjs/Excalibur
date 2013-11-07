@@ -503,9 +503,9 @@ class Engine {
       this.loadingDraw = fcn;
    }
 
-   public load(loader : ILoadable){
+   public load(loader : ILoadable, doneFcn? : ()=>void){
       this.isLoading = true;
-      loader.begin();
+      loader.load();
       loader.onprogress = (e) => {
          this.progress = <number>e.loaded;
          this.total = <number>e.total;
@@ -514,7 +514,10 @@ class Engine {
       loader.oncomplete = () => {
          setTimeout(()=>{
             this.isLoading = false;
-         },500);         
+            if(doneFcn){
+               doneFcn.call(this);
+            }
+         },500);
       };
 
    }

@@ -45,10 +45,12 @@ var spriteFontImage = new PreloadedImage('../images/SpriteFont.png');
 var jump = new PreloadedSound('../sounds/jump.wav');
 
 var loader = new Loader();
-loader.addResource('player', image);
-loader.addResource('spriteFont', spriteFontImage);
-loader.addResource('jump', jump);
+loader.addResource(image);
+loader.addResource(spriteFontImage);
+loader.addResource(jump);
 game.load(loader);
+
+
 
 
 // Set background color

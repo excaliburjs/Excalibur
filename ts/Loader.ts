@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /// <reference path="Util.ts" />
 
 interface ILoadable {
-   begin(func? : (e : any) => void); // begin loading
+   load(func? : (e : any) => void); // begin loading
    onprogress : (e : any) => void;
    oncomplete : () => void;
    onerror : (e : any) => void;
@@ -56,7 +56,7 @@ class PreloadedImage implements ILoadable {
    }
 
    
-   public begin(func? : (e : any)=>void){
+   public load(func? : (e : any)=>void){
       this.image = new Image();
       var request = new XMLHttpRequest();
       request.open("GET", this.path, true);
@@ -92,7 +92,7 @@ class PreloadedSound implements ILoadable {
       this.sound = new Media.Sound(path, 1.0);
    }
 
-   public begin(){
+   public load(){
       this.sound.onprogress = this.onprogress;
       this.sound.onload = this.oncomplete;
       this.sound.onerror = this.onerror;
@@ -102,8 +102,6 @@ class PreloadedSound implements ILoadable {
 
 
 class Loader implements ILoadable {
-
-   private resources : {[key: string] : number;} = {}
    private resourceList : ILoadable[] = [];
    private index = 0;
    
@@ -112,20 +110,24 @@ class Loader implements ILoadable {
    private progressCounts : {[key: string] : number;} = {};
    private totalCounts : {[key: string] : number;} = {};
 
-   constructor(){
-
+   constructor(loadables? : ILoadable[]){
+      if(loadables){
+         this.addResources(loadables);
+      }
    }
 
-   public addResource(key : string, loadable : ILoadable){
-      this.resources[key] = this.index++;
+   public addResource(loadable : ILoadable){
+      var key = this.index++;
       this.resourceList.push(loadable);
       this.progressCounts[key] = 0;
       this.totalCounts[key] = 1;
       this.resourceCount++;
    }
 
-   public getResource(key : string) : ILoadable {
-      return this.resourceList[this.resources[key]];
+   public addResources(loadables : ILoadable[]){
+      loadables.forEach((l)=>{
+        this.addResource(l);
+      });
    }
 
    private sumCounts(obj) : number {
@@ -138,7 +140,7 @@ class Loader implements ILoadable {
 
   
    
-   public begin(){      
+   public load(){      
       var me = this;
       this.resourceList.forEach((r, i) => {
         r.onprogress = function(e){
@@ -154,7 +156,7 @@ class Loader implements ILoadable {
               me.oncomplete.call(me);
            }
         };
-        r.begin();
+        r.load();
       });
    }
 
