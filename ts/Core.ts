@@ -39,7 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /// <reference path="Common.ts" />
 /// <reference path="Sound.ts" />
 /// <reference path="Loader.ts" />
-
+/// <reference path="Promises.ts" />
 
 
 class Color {
@@ -503,8 +503,11 @@ class Engine {
       this.loadingDraw = fcn;
    }
 
-   public load(loader : ILoadable, doneFcn? : ()=>void){
+   public load(loader : ILoadable) : Promise<any> {
+      var complete = new Promise<any>();
+
       this.isLoading = true;
+
       loader.load();
       loader.onprogress = (e) => {
          this.progress = <number>e.loaded;
@@ -514,12 +517,11 @@ class Engine {
       loader.oncomplete = () => {
          setTimeout(()=>{
             this.isLoading = false;
-            if(doneFcn){
-               doneFcn.call(this);
-            }
+            complete.resolve();
          },500);
       };
 
+      return complete;
    }
 
 };

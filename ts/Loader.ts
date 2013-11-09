@@ -30,9 +30,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /// <reference path="Sound.ts" />
 /// <reference path="Util.ts" />
+/// <reference path="Promises.ts" />
 
 interface ILoadable {
-   load(func? : (e : any) => void); // begin loading
+   load() : Promise<any>;
    onprogress : (e : any) => void;
    oncomplete : () => void;
    onerror : (e : any) => void;
@@ -56,20 +57,30 @@ class PreloadedImage implements ILoadable {
    }
 
    
-   public load(func? : (e : any)=>void){
+   public load() : Promise<HTMLImageElement>{
+      var complete = new Promise();
+
       this.image = new Image();
       var request = new XMLHttpRequest();
       request.open("GET", this.path, true);
       request.responseType = "blob";
       request.onloadstart = (e) => {this._start(e)};
       request.onprogress = this.onprogress;
-      request.onload = (e) => {this.image.src = URL.createObjectURL(request.response);this.oncomplete()};
-      request.onerror = (e) => {this.onerror(e);};
+      request.onload = (e) => {
+        this.image.src = URL.createObjectURL(request.response);
+        this.oncomplete()
+        complete.resolve(this.image);
+      };
+      request.onerror = (e) => {
+        this.onerror(e);
+        complete.reject(e);
+      };
       if(request.overrideMimeType) {
          request.overrideMimeType('text/plain; charset=x-user-defined'); 
       }
       request.send();
-     
+
+      return complete;     
    }
 
    public onprogress : (e : any) => void = () => {};
@@ -92,11 +103,20 @@ class PreloadedSound implements ILoadable {
       this.sound = new Media.Sound(path, 1.0);
    }
 
-   public load(){
+   public load() : Promise<Media.Sound>{
+      var complete = new Promise<Media.Sound>();
+
       this.sound.onprogress = this.onprogress;
-      this.sound.onload = this.oncomplete;
-      this.sound.onerror = this.onerror;
+      this.sound.onload = ()=>{
+        this.oncomplete();
+        complete.resolve(this.sound);
+      }
+      this.sound.onerror = (e)=>{
+        this.onerror(e);
+        complete.reject(e);
+      }
       this.sound.load();
+      return complete;
    }
 }
 
@@ -140,7 +160,8 @@ class Loader implements ILoadable {
 
   
    
-   public load(){      
+   public load() : Promise<any>{      
+      var complete = new Promise<any>();
       var me = this;
       this.resourceList.forEach((r, i) => {
         r.onprogress = function(e){
@@ -154,10 +175,13 @@ class Loader implements ILoadable {
            me.numLoaded++;
            if(me.numLoaded === me.resourceCount){
               me.oncomplete.call(me);
+
            }
         };
         r.load();
       });
+
+      return complete;
    }
 
    public onprogress : (e : any) => void = () => {};

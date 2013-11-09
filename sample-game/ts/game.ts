@@ -48,7 +48,9 @@ var loader = new Loader();
 loader.addResource(image);
 loader.addResource(spriteFontImage);
 loader.addResource(jump);
-game.load(loader);
+game.load(loader).then(()=>{
+   logger.log("All Resources have finished loading", Log.INFO);
+});
 
 
 
