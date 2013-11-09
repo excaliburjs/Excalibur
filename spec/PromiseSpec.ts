@@ -143,14 +143,10 @@ describe('A promise', ()=>{
 
    it('should be able to wrap a value in a promise', ()=>{
       var p;
-      var p2;
-      var value;
+      var value : number;
       runs(()=>{
-         p = Promise.wrap(12);
+         p = Promise.wrap<number>(12);
          expect(p.state()).toBe(PromiseState.Resolved);
-
-         p2 = Promise.wrap(promise);
-         expect(p2.state()).toBe(PromiseState.Pending);
 
          p.then((v)=>{
             value = v;

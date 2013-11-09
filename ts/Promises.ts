@@ -48,26 +48,22 @@ interface IPromise {
    state() : PromiseState;
 }
 
-class Promise implements IPromise {
+class Promise<T> implements IPromise {
    private _state : PromiseState = PromiseState.Pending;
-   private value : any;
-   private successCallbacks : {(value? : any) : any}[] = [];
+   private value : T;
+   private successCallbacks : {(value? : T) : any}[] = [];
    private rejectCallback : (value? : any) => any = ()=>{};
    private errorCallback : (value? : any) => any = ()=>{};
 
-   public static wrap(value? : any) : IPromise {
-      if(value instanceof Promise){
-         return value;
-      }
-
-      var promise = (new Promise()).resolve(value);
+   public static wrap<T>(value? : T) : IPromise {
+      var promise = (new Promise<T>()).resolve(value);
 
       return promise;
    }
 
    constructor(){}
 
-   public then(successCallback? : (value? : any) => any, rejectCallback? : (value? : any) => any){
+   public then(successCallback? : (value? : T) => any, rejectCallback? : (value? : any) => any){
       if(successCallback){
          this.successCallbacks.push(successCallback);
 
@@ -103,7 +99,7 @@ class Promise implements IPromise {
       return this;
    }
 
-   public resolve(value? : any) {
+   public resolve(value? : T) {
       if(this._state === PromiseState.Pending){
          this.value = value;         
          try {
