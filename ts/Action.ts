@@ -116,7 +116,7 @@ class MoveBy implements IAction {
          this.start = new Vector(this.actor.x, this.actor.y);
          this.distance = this.start.distance(this.end);
          this.dir = this.end.minus(this.start).normalize();
-         this.speed = this.distance/(this.time);
+         this.speed = this.distance/(this.time/1000);
       }
 
       var m = this.dir.scale(this.speed);

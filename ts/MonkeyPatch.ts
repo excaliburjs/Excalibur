@@ -29,7 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 if(typeof window == 'undefined'){
-   var window : any = {audioContext: function(){}};
+   (<any>window)  = {audioContext: function(){}};
 }
 
 if(typeof window != 'undefined' && !window.requestAnimationFrame){
@@ -39,7 +39,7 @@ if(typeof window != 'undefined' && !window.requestAnimationFrame){
    function( callback ){window.setInterval(callback, 1000 / 60);};
 }
 
-if(typeof window != 'undefined' && !(<any>window).audioContext){
-   (<any>window).audioContext = (<any>window).webkitAudioContext;
+if(typeof window != 'undefined' && !(<any>window).AudioContext){
+   (<any>window).AudioContext = (<any>window).webkitAudioContext || (<any>window).mozAudioContext;
 }
 

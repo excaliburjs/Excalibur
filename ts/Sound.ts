@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /// <reference path="MonkeyPatch.ts" />
+/// <reference path="Util.ts" />
 /// <reference path="Log.ts" />
 
 module Media {
@@ -37,17 +38,22 @@ module Media {
       setLoop(loop : boolean);
       play();
       stop();
+      load();
+      onload : (e : any) => void;
+      onprogress : (e : any) => void;
+      onerror : (e : any) => void;
+
    }
 
    export class Sound implements ISound {
       private soundImpl : ISound;
       private log : Logger = Logger.getInstance();
       constructor(path : string, volume? : number){
-         if((<any>window).audioContext){
-            this.log.log("Using new Web Audio Api for " + path);
+         if((<any>window).AudioContext){
+            this.log.log("Using new Web Audio Api for " + path, Log.DEBUG);
             this.soundImpl = new WebAudio(path, volume);
          }else{
-            this.log.log("Falling back to Audio ELement for " + path, Log.WARN);
+            this.log.log("Falling back to Audio Element for " + path, Log.WARN);
             this.soundImpl = new AudioTag(path, volume)
          }
       }
@@ -58,6 +64,17 @@ module Media {
 
       setLoop(loop : boolean){
          this.soundImpl.setLoop(loop);
+      }
+
+      public onload : (e : any) => void = ()=>{};
+      public onprogress : (e : any) => void = () => {};
+      public onerror : (e : any) => void = () => {};
+
+      public load(){
+         this.soundImpl.onload = this.onload;
+         this.soundImpl.onprogress = this.onprogress;
+         this.soundImpl.onerror = this.onerror;
+         this.soundImpl.load();
       }
 
       public play(){
@@ -72,9 +89,10 @@ module Media {
    class AudioTag implements ISound{
       private audioElement : HTMLAudioElement;
       private isLoaded = false;
-      constructor(soundPath : string, volume? : number){
+      constructor(public soundPath : string, volume? : number){
          this.audioElement = new Audio();
-         this.audioElement.src = soundPath;
+
+         
          if(volume){
             this.audioElement.volume = volume   
          }else{
@@ -94,6 +112,20 @@ module Media {
          this.audioElement.loop = loop;
       }
 
+      public onload : (e : any) => void = ()=>{};
+      public onprogress : (e : any) => void = () => {};
+      public onerror : (e : any) => void = () => {};
+
+      public load(){
+         var request = new XMLHttpRequest();
+         request.open("GET", this.soundPath, true);
+         request.responseType = 'blob';
+         request.onprogress = this.onprogress;
+         request.onload = (e) => {this.audioElement.src = URL.createObjectURL(request.response);this.onload(e)};
+         request.onerror = (e) => {this.onerror(e);};
+         request.send();
+      }
+
       public play(){
          this.audioElement.play();
       }
@@ -103,7 +135,10 @@ module Media {
       }
 
    }
-   var audioContext : any = new (<any>window).audioContext();
+
+   if((<any>window).AudioContext){
+      var audioContext : any = new (<any>window).AudioContext();
+   }
 
    class WebAudio implements ISound{
       private context = audioContext;
@@ -113,6 +148,7 @@ module Media {
       private path = "";
       private isLoaded = false;
       private loop = false;
+      private logger : Logger = Logger.getInstance();
       constructor(soundPath : string, volume? : number){
          this.path = soundPath;
          if(volume){
@@ -121,21 +157,35 @@ module Media {
             this.volume.gain.value = 1; // max volume
          }
 
-         this.load();
       }
 
       public setVolume(volume : number){
          this.volume.gain.value = volume;
       }
 
-      private load(){
+      public onload : (e : any) => void = ()=>{};
+      public onprogress : (e : any) => void = () => {};
+      public onerror : (e : any) => void = () => {};
+
+      public load(){
          var request = new XMLHttpRequest();
          request.open('GET', this.path);
          request.responseType = 'arraybuffer';
+         request.onprogress = this.onprogress;
+         request.onerror = this.onerror;
          request.onload = ()=>{
-            this.context.decodeAudioData(request.response, (buffer)=>{
+            this.context.decodeAudioData(request.response, 
+            (buffer)=>{
                this.buffer = buffer;
                this.isLoaded = true;
+               this.onload(this);
+            },
+            (e)=>{
+               this.logger.log("Unable to decode " + this.path + 
+               " this browser may not fully support this format, or the file may be corrupt, " +
+               "if this is an mp3 try removing id3 tags and album art from the file.", Log.ERROR);
+               this.isLoaded = false;
+               this.onload(this);
             });
          }
          try{
@@ -149,6 +199,8 @@ module Media {
          this.loop = loop;
       }
 
+
+
       public play(){
          if(this.isLoaded){
             this.sound = this.context.createBufferSource();
@@ -156,13 +208,13 @@ module Media {
             this.sound.loop = this.loop;
             this.sound.connect(this.volume);
             this.volume.connect(this.context.destination);
-            this.sound.noteOn(0);
+            this.sound.start(0);
          }
       }
 
       public stop(){
          if(this.sound){
-            this.sound.noteOff(0);
+            this.sound.stop(0);
          }
       }
    }

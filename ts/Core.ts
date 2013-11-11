@@ -38,11 +38,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /// <reference path="Camera.ts" />
 /// <reference path="Common.ts" />
 /// <reference path="Sound.ts" />
+/// <reference path="Loader.ts" />
 
 
 
 class Color {
-   
+   public static Black : Color = Color.fromHex('#000000');
+   public static White : Color = Color.fromHex('#FFFFFF');
    public static Yellow : Color = Color.fromHex('#00FFFF');
    public static Orange : Color  = Color.fromHex('#FFA500');
    public static Red : Color  = Color.fromHex('#FF0000');
@@ -58,7 +60,7 @@ class Color {
    public static Chartreuse : Color  = Color.fromHex('#7FFF00');
 
    constructor(public r: number, public g: number, public b: number, public a? : number){
-      this.a = (a != null ? a : 255);
+      this.a = (a != null ? a : 1);
    }
 
    public static fromRGB(r : number, g : number, b : number, a? : number) : Color {
@@ -73,9 +75,9 @@ class Color {
          var r = parseInt(match[1], 16);
          var g = parseInt(match[2], 16);
          var b = parseInt(match[3], 16);
-         var a = 255;
+         var a = 1;
          if(match[4]){
-            a = parseInt(match[4], 16);
+            a = parseInt(match[4], 16)/255;
          }
          return new Color(r, g, b, a);
       }else{
@@ -152,11 +154,18 @@ class Engine {
 
    private hasStarted : boolean = false;
 
+   // Eventing
    private eventDispatcher : EventDispatcher;
    
+   // Key Events
    public keys : number[] = [];
    public keysDown : number[] = [];
    public keysUp : number[] = [];
+   // Mouse Events
+   public clicks : MouseDown[] = [];
+   public mouseDown : MouseDown[] = [];
+   public mouseUp : MouseUp[] = [];
+
 
    public camera : Camera.ICamera;
 
@@ -171,9 +180,17 @@ class Engine {
    public debugColor : Color = new Color(255,255,255);
    public backgroundColor : Color = new Color(0,0,100);
    private logger : Logger;
+
+   // loading
+   private loader : ILoadable;
+   private isLoading : boolean = false;
+   private progress : number = 0;
+   private total : number = 1;
+   private loadingDraw : (ctx : CanvasRenderingContext2D, loaded : number, total : number)  => void;
+
    constructor(width?:number, height?:number, canvasElementId?:string){
       this.logger = Logger.getInstance();
-      this.logger.addAppender(new ConsoleAppender);
+      this.logger.addAppender(new ConsoleAppender());
       this.logger.log("Building engine...", Log.DEBUG);
 
       this.eventDispatcher = new EventDispatcher(this);
@@ -194,6 +211,8 @@ class Engine {
          this.logger.log("Engine viewport is fullscreen", Log.DEBUG);
          this.isFullscreen = true;
       }
+
+      this.loader = new Loader();
 
       this.init();
 
@@ -222,6 +241,18 @@ class Engine {
    getHeight() : number {
       return this.height;
    }
+
+   private transformToCanvasCoordinates(x : number, y : number) : Point {
+      var newX = Math.floor(x * this.canvas.width/this.canvas.clientWidth);
+      var newY = Math.floor(y * this.canvas.height/this.canvas.clientHeight);
+
+      if(this.camera){
+         var focus = this.camera.getFocus();
+         newX -= focus.x;
+         newY -= focus.y;
+      }
+      return new Point(newX, newY);      
+   }
    
    private init(){
       if(this.isFullscreen){
@@ -241,6 +272,7 @@ class Engine {
          this.keys.length = 0; // empties array efficiently
       });
 
+      // key up is on window because canvas cannot have focus
       window.addEventListener('keyup', (ev: KeyboardEvent) => {
          var key = this.keys.indexOf(ev.keyCode);
          this.keys.splice(key,1);
@@ -251,6 +283,7 @@ class Engine {
 
       });
 
+      // key down is on window because canvas cannot have focus
       window.addEventListener('keydown', (ev: KeyboardEvent) => {
          if(this.keys.indexOf(ev.keyCode)=== -1){
             this.keys.push(ev.keyCode);
@@ -260,16 +293,6 @@ class Engine {
             this.currentScene.publish(EventType[EventType.KEYDOWN], keyEvent)
 
          }
-      });
-
-      window.addEventListener('mousedown', ()=>{
-         // TODO: Collect events
-         this.eventDispatcher.update();
-      });
-
-      window.addEventListener('mouseup', ()=>{
-         // TODO: Collect events
-         this.eventDispatcher.update();
       });
 
       window.addEventListener('blur', ()=>{
@@ -282,7 +305,25 @@ class Engine {
          this.eventDispatcher.update()
       });
 
+      this.canvas.addEventListener('mousedown', (e : MouseEvent)=>{
+         var x : number = e.pageX - this.canvas.offsetLeft;
+         var y : number = e.pageY - this.canvas.offsetTop;
+         var transformedPoint = this.transformToCanvasCoordinates(x, y);
+         var mousedown = new MouseDown(transformedPoint.x,transformedPoint.y)
+         this.clicks.push(mousedown);
+         this.eventDispatcher.publish(EventType[EventType.MOUSEDOWN], mousedown);
+      });
 
+      this.canvas.addEventListener('mouseup', (e : MouseEvent)=>{
+         var x : number = e.pageX - this.canvas.offsetLeft;
+         var y : number = e.pageY - this.canvas.offsetTop;
+         var transformedPoint = this.transformToCanvasCoordinates(x, y);
+         var mouseup = new MouseUp(transformedPoint.x,transformedPoint.y);
+         this.mouseUp.push(mouseup);
+         this.eventDispatcher.publish(EventType[EventType.MOUSEUP], mouseup);
+      });
+
+      
       this.ctx = this.canvas.getContext('2d');
       document.body.appendChild(this.canvas);
    }
@@ -300,6 +341,11 @@ class Engine {
    }
 
    private update(delta: number){
+      if(this.isLoading){
+         // suspend updates untill loading is finished
+         return;
+      }
+
       this.eventDispatcher.update();
       this.currentScene.update(this, delta);
 
@@ -316,13 +362,26 @@ class Engine {
       // Reset keysDown and keysUp after update is complete
       this.keysDown.length = 0;
       this.keysUp.length = 0;
+
+      // Reset clicks
+      this.clicks.length = 0;
    }
 
    private draw(delta: number){
       var ctx = this.ctx;
+      
+      if(this.isLoading){
+         ctx.fillStyle = 'black'
+         ctx.fillRect(0,0,this.width,this.height);
+         this.drawLoadingBar(ctx, this.progress, this.total);
+         // Drawing nothing else while loading
+         return;
+      }
+
       ctx.clearRect(0,0,this.width,this.height);
       ctx.fillStyle =  this.backgroundColor.toString();
       ctx.fillRect(0,0,this.width,this.height);
+
 
       // Draw debug information
       if(this.isDebug){
@@ -342,7 +401,7 @@ class Engine {
       this.ctx.save();
 
       if(this.camera){
-         this.camera.applyTransform(this, delta);  
+         this.camera.applyTransform(delta);  
       }
 
       
@@ -360,6 +419,8 @@ class Engine {
 
       this.ctx.restore();
    }
+
+
 
    public start(){
       if(!this.hasStarted){
@@ -396,6 +457,52 @@ class Engine {
          this.hasStarted = false;
          this.logger.log("Game stopped", Log.DEBUG);
       }
+   }
+
+
+   private drawLoadingBar (ctx : CanvasRenderingContext2D, loaded : number, total : number){
+      if(this.loadingDraw){
+         this.loadingDraw(ctx, loaded, total);
+         return;
+      }
+
+      var y = this.canvas.height/2;
+      var width = this.canvas.width/3;
+      var x = width;
+
+      // loading box
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y, width, 20);
+
+      var progress = width * (loaded/total);
+      ctx.fillStyle = 'white';
+      var margin = 5;
+      var width = progress - margin*2;
+      var height = 20 - margin*2;
+      ctx.fillRect(x + margin, y + margin, width>0?width:0, height);
+   }
+
+
+   public setLoadingDrawFunction (fcn : (ctx : CanvasRenderingContext2D, loaded : number, total : number) => void){
+      this.loadingDraw = fcn;
+   }
+
+
+   public load(loader : ILoadable){
+      this.isLoading = true;
+      loader.begin();
+      loader.onprogress = (e) => {
+         this.progress = <number>e.loaded;
+         this.total = <number>e.total;
+         this.logger.log('Loading ' + (100*this.progress/this.total).toFixed(0));
+      };
+      loader.oncomplete = () => {
+         setTimeout(()=>{
+            this.isLoading = false;
+         },500);         
+      };
+
    }
 
 };

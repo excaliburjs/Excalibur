@@ -1,3 +1,5 @@
+![Logo](/assets/icon.png?raw=true)
+
 # Excalibur
 
 [![Build Status](https://travis-ci.org/eonarheim/Excalibur.png?branch=master)](https://travis-ci.org/eonarheim/Excalibur)
@@ -6,9 +8,9 @@ Excalibur is a simple game engine written in TypeScript for making 2D games in H
 
 A compiled example can be found [here.](http://www.erikonarheim.com/sample-game/html/index.html)
 
-# Example in JavaScript
+## Example in JavaScript
 
-```
+```js
 // Create an the game container
 var game = new Engine();
 
@@ -28,9 +30,9 @@ game.start();
 
 ```
 
-# Example in TypeScript
+## Example in TypeScript
 
-```
+```js
 /// <reference path='Engine.d.ts' />
 // Create an the game container
 var game = new Engine();
@@ -59,29 +61,9 @@ game.start();
 * Automation layer for actors
 * Sublime Text 2 Project
 
-# Requirements
+# Contributing
 
-You will need have the TypeScript compiler installed on your platform to build from source.
-
-The compiler is available here:
-
-[Official Typescript Page](http://www.typescriptlang.org/)
-
-[Node Package Manager](https://npmjs.org/package/typescript)
-
-[Codeplex Source](http://typescript.codeplex.com/)
-
-** Note: Excalibur only supports the newest TypeScript 9.x compiler **
-
-## To build the engine and run the sample game on these platforms:
-
-Windows:
-
-	./build.bat
-
-Unix/Linux:
-	
-	make all
+Please view the [Contributing guidelines](CONTRIBUTING.md).
 
 
 # License
