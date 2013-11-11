@@ -40,12 +40,16 @@ logger.defaultLevel = Log.DEBUG;
 // Create an the game container
 var game = new Engine();
 
-var image = new PreloadedImage('../images/TestPlayer.png');
+var imageRun = new PreloadedImage('../images/PlayerRun.png');
+var imageJump = new PreloadedImage('../images/PlayerJump.png');
+var imageBlocks = new PreloadedImage('../images/BlockA0.png');
 var spriteFontImage = new PreloadedImage('../images/SpriteFont.png');
 var jump = new PreloadedSound('../sounds/jump.wav');
 
 var loader = new Loader();
-loader.addResource('player', image);
+loader.addResource('player', imageRun);
+loader.addResource('playerJump', imageJump);
+loader.addResource('blocks', imageBlocks);
 loader.addResource('spriteFont', spriteFontImage);
 loader.addResource('jump', jump);
 game.load(loader);
@@ -58,7 +62,11 @@ game.backgroundColor = new Color(114,213,224);
 game.isDebug = false;
 
 // Create spritesheet
-var spriteSheet = new Drawing.SpriteSheet(image, 12, 1, 44,50);
+var spriteSheetRun = new Drawing.SpriteSheet(imageRun, 21, 1, 96, 96);
+var spriteSheetJump = new Drawing.SpriteSheet(imageJump, 21, 1, 96, 96);
+var tileBlockWidth = 64,
+    tileBlockHeight = 48,
+    spriteTiles = new Drawing.SpriteSheet(imageBlocks, 1, 1, tileBlockWidth, tileBlockHeight);
 
 // Create spriteFont
 var spriteFont = new Drawing.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
@@ -67,21 +75,23 @@ label.scaleTo(2, .5).scaleTo(1,.5).repeatForever();
 game.addChild(label);
 
 // Retrieve animations for blocks from sprite sheet
-var blockAnimation = spriteSheet.getSprite(10);
+var blockAnimation = spriteTiles.getSprite(0);
 // Animation 'enum' to prevent 'stringly' typed misspelling errors
 enum Animations {
    Block,
    Idle,
    Left,
-   Right
+   Right,
+   JumpRight,
+   JumpLeft
 }
 
 var currentX = 0;
 // Create the level
 for(var i = 0; i< 36; i++){
-   currentX = 46*i+10;
-   var color = new Color(Math.random()*255,Math.random()*255,Math.random()*255);
-   var block = new Actor(currentX,350+Math.random()*100,44,50,color);
+   currentX = tileBlockWidth * i + 10;
+   var color = new Color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
+   var block = new Actor(currentX, 350 + Math.random() * 100, tileBlockWidth, tileBlockHeight, color);
    
    block.addDrawing(Animations.Block, blockAnimation);
    
@@ -106,7 +116,7 @@ game.addChild(platform4);
 
 
 // Create the player
-var player = new Actor(100,100,44,50);
+var player = new Actor(100,100,96,96);
 player.scale = 1;
 player.rotation = 0;
 player.solid = false;
@@ -120,18 +130,21 @@ var playerLabel = new Label('My Player', -14.5, -39, spriteFont);
 player.addChild(playerLabel);
 
 // Retrieve animations for player from sprite sheet
-var left = spriteSheet.getAnimationByIndices(game, [8, 9], 200);
-var right = spriteSheet.getAnimationByIndices(game, [3, 4], 200);
-var idle = spriteSheet.getAnimationByIndices(game, [0, 1, 2], 200);
+var left = spriteSheetRun.getAnimationBetween(game, 1, 11, 100);
+var right = spriteSheetRun.getAnimationBetween(game, 11, 21, 100);
+var idle = spriteSheetRun.getAnimationByIndices(game, [0], 200);
+var jumpLeft = spriteSheetJump.getAnimationBetween(game, 0, 11, 150);
+var jumpRight = spriteSheetJump.getAnimationBetween(game, 11, 22, 150);
 left.loop = true;
 right.loop = true;
 idle.loop = true;
-
 
 // Add animations to player
 player.addDrawing(Animations.Left, left); 
 player.addDrawing(Animations.Right, right);
 player.addDrawing(Animations.Idle, idle);
+player.addDrawing(Animations.JumpRight, jumpRight);
+player.addDrawing(Animations.JumpLeft, jumpLeft);
 
 // Set default animation
 player.setDrawing(Animations.Idle);
@@ -141,41 +154,62 @@ var jumpSound = jump.sound;
 
 
 var inAir = true;
-var groundSpeed = 90;
-var airSpeed = 90;
+var groundSpeed = 150;
+var airSpeed = 130;
 var jumpSpeed = 500;
 var direction = 1;
 player.addEventListener('left', ()=>{
    direction = -1;
-   player.setDrawing(Animations.Left);
+   if (!inAir) {
+      player.setDrawing(Animations.Left);
+   }
    if(inAir){
       player.dx = -airSpeed;
       return;
    }
-   player.dx += -groundSpeed;
+   player.dx = -groundSpeed;
+
+   // TODO: When platform is moving in same direction, add its dx
 });
 
 player.addEventListener('right', ()=>{
    direction = 1;
-   player.setDrawing(Animations.Right);
+   if (!inAir) {
+      player.setDrawing(Animations.Right);
+   }
    if(inAir){
       player.dx = airSpeed;
       return;
    }
-   player.dx += groundSpeed;
+   player.dx = groundSpeed;
+
+   // TODO: When platform is moving in same direction, add its dx
 });
 
 player.addEventListener('up', ()=>{
    if(!inAir){
       player.dy -= jumpSpeed;
       inAir = true;
-      player.setDrawing(Animations.Idle);
+      if (direction === 1) {
+         player.setDrawing(Animations.JumpRight);
+      } else {
+         player.setDrawing(Animations.JumpLeft);
+      }
       jumpSound.play();
    }
 });
 
 player.addEventListener('mousedown', ()=>{
    alert("player clicked!");
+});
+
+player.addEventListener('keyup', (e? : KeyUp) => {
+   if (inAir) return;
+   
+   if (e.key === Keys.LEFT ||
+       e.key === Keys.RIGHT) {
+      player.setDrawing(Animations.Idle);
+   }
 });
 
 game.addEventListener('mousedown', (e? : MouseDown)=>{
@@ -204,11 +238,19 @@ game.addEventListener('keydown', (keyDown? : KeyDown)=>{
    }
 });
 
+var isColliding = false;
 player.addEventListener('collision', (data?: CollisionEvent)=>{   
+       
    if(data.side === Side.BOTTOM){
+      isColliding = true;
+
+      if (inAir) {
+        //console.log("Collided on bottom with inAir", inAir);
+        player.setDrawing(Animations.Idle);
+      }
       inAir = false;
       player.dx = data.other.dx;
-      player.dy = data.other.dy;
+      player.dy = data.other.dy;      
    }
 
    if(data.side === Side.TOP){
@@ -217,10 +259,16 @@ player.addEventListener('collision', (data?: CollisionEvent)=>{
 });
 
 player.addEventListener('update', (data?: UpdateEvent)=>{
-   if(inAir){
+   // apply gravity if player is in the air
+   // only apply gravity when not colliding
+   if(!isColliding){
       player.dy += 800 * data.delta/1000;
    }
-   inAir = true;
+
+   // Reset values because we don't know until we check the next update
+   // inAir = true;
+   isColliding = false;
+
    //console.log("Player Pos", player.x, player.y, player.getWidth(), player.getHeight());
 });
 
