@@ -30,10 +30,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /// <reference path="Core.ts" />
 /// <reference path="Loader.ts" />
+/// <reference path="Util.ts" />
 
 module Drawing{
 
    export interface IDrawable{
+      flipX : boolean;
+      flipY : boolean;
       setScale(scale: number);
       setRotation(radians: number);
       reset();
@@ -70,21 +73,31 @@ module Drawing{
          var images : Sprite[] = this.sprites.filter(function(sprite, index){
             return indices.indexOf(index) > -1;
          });
+
+         images = images.map(function(i){
+            return i.clone();
+         });
          return new Animation(engine, images, speed);
       }
 
       public getAnimationBetween(engine: Engine, beginIndex : number, endIndex : number, speed : number){
          var images = this.sprites.slice(beginIndex, endIndex);
+         images = images.map(function(i){
+            return i.clone();
+         });
          return new Animation(engine, images, speed);
       }
 
       public getAnimationForAll(engine: Engine, speed : number){
-         return new Animation(engine, this.sprites, speed);
+         var sprites = this.sprites.map(function(i){
+            return i.clone();
+         });
+         return new Animation(engine, sprites, speed);
       }
 
       public getSprite(index : number) : Sprite{
          if(index >= 0 && index < this.sprites.length){
-            return this.sprites[index];
+            return this.sprites[index].clone();
          }
       }
    }
@@ -123,10 +136,14 @@ module Drawing{
 
    export class Sprite implements IDrawable {
       private internalImage : HTMLImageElement;
+      private preloadedImage : PreloadedImage;
       private scale: number = 1.0;
       private rotation: number = 0.0;
+      public flipX : boolean = false;
+      public flipY : boolean = false;
       constructor(image: PreloadedImage, public sx: number, public sy:number, public swidth: number, public sheight : number){
          this.internalImage = image.image;
+         this.preloadedImage = image;
       }
 
       public setRotation(radians : number){
@@ -141,7 +158,26 @@ module Drawing{
       }
 
       public draw(ctx: CanvasRenderingContext2D, x: number, y: number){
+         if(this.flipX){
+            ctx.translate(this.swidth, 0);
+            ctx.scale(-1, 1);
+         }
+
+         if(this.flipY){
+            ctx.translate(0, this.sheight);
+            ctx.scale(1, -1);
+         }
+
          ctx.drawImage(this.internalImage, this.sx, this.sy, this.swidth, this.sheight, x, y, this.swidth*this.scale, this.sheight*this.scale);
+      }
+
+      public clone() : Sprite {
+         var result = new Sprite(this.preloadedImage, this.sx, this.sy, this.swidth, this.sheight);
+         result.scale = this.scale;
+         result.rotation = this.rotation;
+         result.flipY = this.flipY;
+         result.flipX = this.flipX;
+         return result;
       }
    }
 
@@ -160,6 +196,9 @@ module Drawing{
       private scale : number = 1.0;
       public loop : boolean = false;
       private engine : Engine;
+
+      public flipX : boolean = false;
+      public flipY : boolean = false;
 
       constructor(engine : Engine, images: Sprite[], speed: number, loop? : boolean){
          this.sprites = images;
@@ -203,7 +242,14 @@ module Drawing{
       public draw(ctx: CanvasRenderingContext2D, x: number, y: number){
          this.tick();
          if(this.currIndex < this.sprites.length){
-            this.sprites[this.currIndex].draw(ctx, x, y);
+            var currSprite = this.sprites[this.currIndex];
+            if(this.flipX){
+               currSprite.flipX = this.flipX;
+            }
+            if(this.flipY){
+               currSprite.flipY = this.flipY;
+            }
+            currSprite.draw(ctx, x, y);
          }
       }
 
