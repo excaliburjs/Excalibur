@@ -37,6 +37,8 @@ module Drawing{
    export interface IDrawable{
       flipX : boolean;
       flipY : boolean;
+      width : number;
+      height : number;
       setScale(scale: number);
       setRotation(radians: number);
       reset();
@@ -141,9 +143,13 @@ module Drawing{
       private rotation: number = 0.0;
       public flipX : boolean = false;
       public flipY : boolean = false;
+      public width : number = 0;
+      public height : number = 0;
       constructor(image: PreloadedImage, public sx: number, public sy:number, public swidth: number, public sheight : number){
          this.internalImage = image.image;
          this.preloadedImage = image;
+         this.width = swidth;
+         this.height = sheight;
       }
 
       public setRotation(radians : number){
@@ -158,17 +164,20 @@ module Drawing{
       }
 
       public draw(ctx: CanvasRenderingContext2D, x: number, y: number){
-         if(this.flipX){
+         ctx.save();
+         ctx.translate(x, y);
+         if(this.flipY){            
             ctx.translate(this.swidth, 0);
             ctx.scale(-1, 1);
          }
 
-         if(this.flipY){
+         if(this.flipX){
             ctx.translate(0, this.sheight);
             ctx.scale(1, -1);
          }
 
-         ctx.drawImage(this.internalImage, this.sx, this.sy, this.swidth, this.sheight, x, y, this.swidth*this.scale, this.sheight*this.scale);
+         ctx.drawImage(this.internalImage, this.sx, this.sy, this.swidth, this.sheight, 0, 0, this.swidth*this.scale, this.sheight*this.scale);
+         ctx.restore();
       }
 
       public clone() : Sprite {
@@ -195,10 +204,13 @@ module Drawing{
       private rotation : number = 0.0;
       private scale : number = 1.0;
       public loop : boolean = false;
+      public freezeFrame : number = -1;
       private engine : Engine;
 
       public flipX : boolean = false;
       public flipY : boolean = false;
+      public width : number = 0;
+      public height : number = 0;
 
       constructor(engine : Engine, images: Sprite[], speed: number, loop? : boolean){
          this.sprites = images;
@@ -207,6 +219,8 @@ module Drawing{
          if(loop != null){
             this.loop = loop;
          }
+         this.height = images[0]?images[0].height : 0;
+         this.width = images[0]?images[0].width : 0;
       }
 
       public setRotation(radians: number){
@@ -249,6 +263,11 @@ module Drawing{
             if(this.flipY){
                currSprite.flipY = this.flipY;
             }
+            currSprite.draw(ctx, x, y);
+         }
+
+         if(this.freezeFrame !== -1 && this.currIndex >= this.sprites.length){
+            var currSprite = this.sprites[Util.clamp(this.freezeFrame,0, this.sprites.length-1)];
             currSprite.draw(ctx, x, y);
          }
       }

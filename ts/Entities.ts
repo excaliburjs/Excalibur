@@ -114,6 +114,7 @@ class Actor {
    public parent : SceneNode = null;
 
    public solid = true;
+   public preventCollisions = false;
 
    public frames : {[key: string] : Drawing.IDrawable;} = {}
    //public animations : {[key : string] : Drawing.Animation;} = {};
@@ -352,11 +353,11 @@ class Actor {
       for(var i = 0; i < engine.currentScene.children.length; i++){
          var other = engine.currentScene.children[i];
          var side : Side = Side.NONE;
-         if(other !== this &&
+         if(other !== this && !other.preventCollisions &&
             (side = this.collides(other)) !== Side.NONE){
             var overlap = this.getOverlap(other);
             eventDispatcher.publish(EventType[EventType.COLLISION], new CollisionEvent(this, other, side));
-            if(!this.solid){
+            if(!this.solid ){
                if(Math.abs(overlap.y) < Math.abs(overlap.x)){ 
                   this.y += overlap.y; 
                   //this.dy = 0;
@@ -405,7 +406,8 @@ class Actor {
 
       if(!this.invisible){
          if(this.currentDrawing){
-            this.currentDrawing.draw(ctx, 0, 0);
+            var diff = this.currentDrawing.width - this.width;
+            this.currentDrawing.draw(ctx, -diff/2, 0);
          }else{
             ctx.fillStyle = this.color ? this.color.toString() : (new Color(0, 0, 0)).toString();
             ctx.fillRect(0, 0, this.width, this.height);          
@@ -441,6 +443,8 @@ class Label extends Actor {
       super(x, y);
       this.text = text || "";
       this.spriteFont = spriteFont;
+      this.solid = true;
+      this.preventCollisions = true;
    }
 
    public update(engine: Engine, delta: number){

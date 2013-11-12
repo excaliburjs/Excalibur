@@ -117,29 +117,33 @@ game.addChild(platform4);
 
 
 // Create the player
-var player = new Actor(100,100,96,96);
+var player = new Actor(100,100,32,96);
 player.scale = 1;
 player.rotation = 0;
 player.solid = false;
 
 // Health bar example
-player.addChild(new Actor(-14.5, -20, 70, 5, new Color(0,255,0)));
+player.addChild(new Actor(-48, -20, 140, 5, new Color(0,255,0)));
 
 // Add Title above player
-var playerLabel = new Label('My Player', -14.5, -39, spriteFont);
+var playerLabel = new Label('My Player', -48, -39, spriteFont);
 
 player.addChild(playerLabel);
 
 // Retrieve animations for player from sprite sheet
-var left = spriteSheetRun.getAnimationBetween(game, 1, 11, 100);
-var right = spriteSheetRun.getAnimationBetween(game, 1, 11, 100);
-right.flipX = true;
+var left = spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
+var right = spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
+right.flipY = true;
 var idle = spriteSheetRun.getAnimationByIndices(game, [0], 200);
-var jumpLeft = spriteSheetJump.getAnimationBetween(game, 0, 11, 150);
-var jumpRight = spriteSheetJump.getAnimationBetween(game, 11, 22, 150);
+var jumpLeft = spriteSheetJump.getAnimationBetween(game, 0, 11, 100);
+var jumpRight = spriteSheetJump.getAnimationBetween(game, 11, 22, 100);
 left.loop = true;
 right.loop = true;
 idle.loop = true;
+
+jumpRight.freezeFrame = 11;
+jumpLeft.freezeFrame = 11;
+
 
 // Add animations to player
 player.addDrawing(Animations.Left, left); 
