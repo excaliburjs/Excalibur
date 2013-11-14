@@ -147,9 +147,17 @@ class AnimationNode {
    constructor(public animation : Drawing.Animation, public x : number, public y : number){}
 }
 
+enum DisplayMode {
+   FullScreen,
+   Container,
+   Fixed
+}
+
 class Engine {
    public canvas : HTMLCanvasElement;
    public ctx : CanvasRenderingContext2D;
+   public canvasElementId : string;
+
    public width : number;
    public height : number;
 
@@ -179,6 +187,7 @@ class Engine {
 
    //public camera : ICamera;
    public isFullscreen : boolean = false;
+   public displayMode : DisplayMode = DisplayMode.FullScreen;
    public isDebug : boolean = false;
    public debugColor : Color = new Color(255,255,255);
    public backgroundColor : Color = new Color(0,0,100);
@@ -191,10 +200,13 @@ class Engine {
    private total : number = 1;
    private loadingDraw : (ctx : CanvasRenderingContext2D, loaded : number, total : number)  => void;
 
-   constructor(width?:number, height?:number, canvasElementId?:string){
+   constructor(width? : number, height? : number, canvasElementId? : string, displayMode? : DisplayMode){
+      
       this.logger = Logger.getInstance();
       this.logger.addAppender(new ConsoleAppender());
       this.logger.log("Building engine...", Log.DEBUG);
+
+      this.canvasElementId = canvasElementId;
 
       this.eventDispatcher = new EventDispatcher(this);
 
@@ -209,12 +221,16 @@ class Engine {
          this.canvas = <HTMLCanvasElement>document.createElement('canvas');
       }
       if(width && height){
+         if(displayMode == undefined){
+            this.displayMode = DisplayMode.Fixed;
+         }
          this.logger.log("Engine viewport is size " + width + " x " + height, Log.DEBUG);
          this.width = this.canvas.width = width;
          this.height = this.canvas.height = height;   
-      } else {
+         
+      } else if(!displayMode){
          this.logger.log("Engine viewport is fullscreen", Log.DEBUG);
-         this.isFullscreen = true;
+         this.displayMode = DisplayMode.FullScreen;
       }
 
       this.loader = new Loader();
@@ -272,18 +288,33 @@ class Engine {
       }
       return new Point(newX, newY);      
    }
-   
-   private init(){
-      if(this.isFullscreen){
+
+   private setHeightByDisplayMode(parent : any){
+      if(this.displayMode === DisplayMode.Container){
+            this.width = this.canvas.width = parent.clientWidth;
+            this.height = this.canvas.height = parent.clientHeight
+      }
+
+      if(this.displayMode === DisplayMode.FullScreen){
          document.body.style.margin = '0px';
          document.body.style.overflow = 'hidden';
-         this.width = this.canvas.width = window.innerWidth;
-         this.height = this.canvas.height = window.innerHeight;
-
+         this.width = this.canvas.width = parent.innerWidth;
+         this.height = this.canvas.height = parent.innerHeight
+      }
+   }
+   
+   private init(){
+      if(this.displayMode === DisplayMode.FullScreen || this.displayMode === DisplayMode.Container){
+         
+         
+         var parent = <any>(this.displayMode === DisplayMode.Container ? <any>(this.canvas.parentElement || document.body) : <any>window);
+         
+         this.setHeightByDisplayMode(parent);
+         
          window.addEventListener('resize', (ev: UIEvent) => {
             this.logger.log("View port resized", Log.DEBUG);
-            this.width = this.canvas.width = window.innerWidth;
-            this.height = this.canvas.height = window.innerHeight;
+            this.setHeightByDisplayMode(parent);
+            this.logger.log("parent.clientHeight " + parent.clientHeight);
          });
       }
 
@@ -344,7 +375,9 @@ class Engine {
 
       
       this.ctx = this.canvas.getContext('2d');
-      document.body.appendChild(this.canvas);
+      if(!this.canvasElementId){
+         document.body.appendChild(this.canvas);
+      }
    }
 
    public isKeyDown(key : Keys) : boolean {

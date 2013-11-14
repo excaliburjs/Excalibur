@@ -38,7 +38,7 @@ logger.defaultLevel = Log.DEBUG;
 
 
 // Create an the game container
-var game = new Engine();
+var game = new Engine(800, 600, 'game');
 
 var imageRun = new PreloadedImage('../images/PlayerRun.png');
 var imageJump = new PreloadedImage('../images/PlayerJump.png');
@@ -141,7 +141,7 @@ left.loop = true;
 right.loop = true;
 idle.loop = true;
 
-jumpRight.freezeFrame = 11;
+jumpRight.freezeFrame = 0;
 jumpLeft.freezeFrame = 11;
 
 
