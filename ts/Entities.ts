@@ -275,6 +275,10 @@ class Actor {
    }
 
    // Actions
+   public clearActions() : void {
+      this.actionQueue.clearActions();
+   }
+
    public moveTo(x : number, y : number, speed : number) : Actor {
       this.actionQueue.add(new MoveTo(this, x, y, speed));
       return this;
