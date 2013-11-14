@@ -1,6 +1,4 @@
-![Logo](/assets/icon.png?raw=true)
-
-# Excalibur
+![Logo](/assets/excalibur-title-dark.png?raw=true)
 
 [![Build Status](https://travis-ci.org/eonarheim/Excalibur.png?branch=master)](https://travis-ci.org/eonarheim/Excalibur)
 
