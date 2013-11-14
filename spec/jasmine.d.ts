@@ -35,7 +35,7 @@ declare module jasmine {
         toHaveBeenCalled();
         toHaveBeenCalledWith(...params: any[]): boolean;
         toMatch(expected): boolean;
-        toThrow(expected: string): boolean;
+        toThrow(expected? : string): boolean;
         not: Matchers;  // dynamically added in jasmine code
         //Deprecated: toNotBe(expected);  toNotContain(expected) toNotEqual(expected) toNotMatch(expected) wasNotCalled() wasNotCalledWith(
     }

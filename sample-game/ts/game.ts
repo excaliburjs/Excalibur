@@ -38,7 +38,7 @@ logger.defaultLevel = Log.DEBUG;
 
 
 // Create an the game container
-var game = new Engine();
+var game = new Engine(800, 600, 'game');
 
 var imageRun = new PreloadedImage('../images/PlayerRun.png');
 var imageJump = new PreloadedImage('../images/PlayerJump.png');
@@ -47,13 +47,14 @@ var spriteFontImage = new PreloadedImage('../images/SpriteFont.png');
 var jump = new PreloadedSound('../sounds/jump.wav');
 
 var loader = new Loader();
-loader.addResource('player', imageRun);
-loader.addResource('playerJump', imageJump);
-loader.addResource('blocks', imageBlocks);
-loader.addResource('spriteFont', spriteFontImage);
-loader.addResource('jump', jump);
-game.load(loader);
-
+loader.addResource(imageRun);
+loader.addResource(imageJump);
+loader.addResource(imageBlocks);
+loader.addResource(spriteFontImage);
+loader.addResource(jump);
+game.load(loader).then(()=>{
+   logger.log("All Resources have finished loading", Log.INFO);
+});
 
 // Set background color
 game.backgroundColor = new Color(114,213,224);
@@ -116,28 +117,33 @@ game.addChild(platform4);
 
 
 // Create the player
-var player = new Actor(100,100,96,96);
+var player = new Actor(100,100,32,96);
 player.scale = 1;
 player.rotation = 0;
 player.solid = false;
 
 // Health bar example
-player.addChild(new Actor(-14.5, -20, 70, 5, new Color(0,255,0)));
+player.addChild(new Actor(-48, -20, 140, 5, new Color(0,255,0)));
 
 // Add Title above player
-var playerLabel = new Label('My Player', -14.5, -39, spriteFont);
+var playerLabel = new Label('My Player', -48, -39, spriteFont);
 
 player.addChild(playerLabel);
 
 // Retrieve animations for player from sprite sheet
-var left = spriteSheetRun.getAnimationBetween(game, 1, 11, 100);
-var right = spriteSheetRun.getAnimationBetween(game, 11, 21, 100);
+var left = spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
+var right = spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
+right.flipY = true;
 var idle = spriteSheetRun.getAnimationByIndices(game, [0], 200);
-var jumpLeft = spriteSheetJump.getAnimationBetween(game, 0, 11, 150);
-var jumpRight = spriteSheetJump.getAnimationBetween(game, 11, 22, 150);
+var jumpLeft = spriteSheetJump.getAnimationBetween(game, 0, 11, 100);
+var jumpRight = spriteSheetJump.getAnimationBetween(game, 11, 22, 100);
 left.loop = true;
 right.loop = true;
 idle.loop = true;
+
+jumpRight.freezeFrame = 0;
+jumpLeft.freezeFrame = 11;
+
 
 // Add animations to player
 player.addDrawing(Animations.Left, left); 
@@ -216,6 +222,9 @@ game.addEventListener('mousedown', (e? : MouseDown)=>{
    console.log(e.x + ", " +e.y);
 });
 
+var newScene = new SceneNode();
+newScene.addChild(new Actor(100, 100, 100, 100, new Color(0,0,0,.5)));
+
 game.addEventListener('keydown', (keyDown? : KeyDown)=>{
    if(keyDown.key === Keys.F){
       var a = new Actor(player.x+10, player.y-50, 10, 10, new Color(222,222,222));
@@ -227,6 +236,7 @@ game.addEventListener('keydown', (keyDown? : KeyDown)=>{
          inAir = false;
          a.dx = data.other.dx;
          a.dy = data.other.dy;
+         a.kill();
       });
       a.addEventListener('update', (data?: UpdateEvent)=>{
          if(inAir){
@@ -235,6 +245,10 @@ game.addEventListener('keydown', (keyDown? : KeyDown)=>{
          inAir = true;
       });
       game.addChild(a);
+   }else if(keyDown.key === Keys.U){
+      game.pushScene(newScene);
+   }else if(keyDown.key === Keys.I){
+      game.popScene();
    }
 });
 

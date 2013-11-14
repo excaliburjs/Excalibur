@@ -39,6 +39,7 @@ interface IAction {
    update(delta : number) : void
    isComplete(actor : Actor) : boolean
    reset() : void
+   stop() : void
 }
 
 class MoveTo implements IAction{
@@ -51,6 +52,7 @@ class MoveTo implements IAction{
    private speed : number;
    private distance : number;
    private _started = false;
+   private _stopped = false;
    constructor(actor: Actor, destx : number, desty : number, speed : number){
       this.actor = actor;
       this.end = new Vector(destx, desty);
@@ -79,7 +81,13 @@ class MoveTo implements IAction{
    }
 
    public isComplete(actor : Actor) : boolean{
-      return (new Vector(actor.x, actor.y)).distance(this.start) >= this.distance;
+      return this._stopped || (new Vector(actor.x, actor.y)).distance(this.start) >= this.distance;
+   }
+
+   public stop() : void {
+      this.actor.dy = 0;
+      this.actor.dx = 0;
+      this._stopped = true;
    }
 
    public reset() : void {
@@ -99,6 +107,7 @@ class MoveBy implements IAction {
    private end : Vector;
    private dir : Vector;
    private _started = false;
+   private _stopped = false;
    constructor(actor: Actor, destx : number, desty : number, time : number){
       this.actor = actor;
       this.end = new Vector(destx, desty);
@@ -133,7 +142,13 @@ class MoveBy implements IAction {
    }
 
    public isComplete(actor : Actor) : boolean{
-      return (new Vector(actor.x, actor.y)).distance(this.start) >= this.distance;
+      return this._stopped || (new Vector(actor.x, actor.y)).distance(this.start) >= this.distance;
+   }
+
+   public stop() : void {
+      this.actor.dy = 0;
+      this.actor.dx = 0;
+      this._stopped = true;
    }
 
    public reset() : void {
@@ -150,6 +165,7 @@ class RotateTo implements IAction{
    private speed : number;
    private distance : number;
    private _started = false;
+   private _stopped = false;
    constructor(actor: Actor, angleRadians : number, speed : number){
       this.actor = actor;
       this.end = angleRadians;
@@ -173,7 +189,12 @@ class RotateTo implements IAction{
    }
 
    public isComplete(actor : Actor) : boolean{
-      return Math.abs(this.actor.rotation - this.start) >= this.distance;
+      return this._stopped || (Math.abs(this.actor.rotation - this.start) >= this.distance);
+   }
+
+   public stop() : void {
+      this.actor.rx = 0;
+      this._stopped = true;
    }
 
    public reset() : void {
@@ -190,6 +211,7 @@ class RotateBy implements IAction{
    private time : number;
    private distance : number;
    private _started = false;
+   private _stopped = false;
    private speed : number;
    constructor(actor: Actor, angleRadians : number, time : number){
       this.actor = actor;
@@ -215,7 +237,12 @@ class RotateBy implements IAction{
    }
 
    public isComplete(actor : Actor) : boolean{
-      return Math.abs(this.actor.rotation - this.start) >= this.distance;
+      return this._stopped || (Math.abs(this.actor.rotation - this.start) >= this.distance);
+   }
+
+   public stop() : void {
+      this.actor.rx = 0;
+      this._stopped = true;
    }
 
    public reset() : void {
@@ -232,6 +259,7 @@ class ScaleTo implements IAction{
    private speed : number;
    private distance : number;
    private _started = false;
+   private _stopped = false;
    constructor(actor: Actor, scale : number, speed : number){
       this.actor = actor;
       this.end = scale;
@@ -256,7 +284,12 @@ class ScaleTo implements IAction{
    }
 
    public isComplete(actor : Actor) : boolean{
-      return Math.abs(this.actor.scale - this.start) >= this.distance;
+      return this._stopped || Math.abs(this.actor.scale - this.start) >= this.distance;
+   }
+
+   public stop() : void {
+      this.actor.sx = 0;
+      this._stopped = true;
    }
 
    public reset() : void {
@@ -273,6 +306,7 @@ class ScaleBy implements IAction{
    private time : number;
    private distance : number;
    private _started = false;
+   private _stopped = false;
    private speed : number;
    constructor(actor: Actor, scale : number, time : number){
       this.actor = actor;
@@ -299,7 +333,12 @@ class ScaleBy implements IAction{
    }
 
    public isComplete(actor : Actor) : boolean{
-      return Math.abs(this.actor.scale - this.start) >= this.distance;
+      return this._stopped ||  (Math.abs(this.actor.scale - this.start) >= this.distance);
+   }
+
+   public stop() : void {
+      this.actor.sx = 0;
+      this._stopped = true;
    }
 
    public reset() : void {
@@ -314,6 +353,7 @@ class Delay implements IAction {
    private elapsedTime : number = 0;
    private delay : number;
    private _started : boolean = false;
+   private _stopped = false;
    constructor(actor : Actor, delay : number){
       this.actor = actor;
       this.delay = delay;
@@ -331,7 +371,11 @@ class Delay implements IAction {
    }
 
    isComplete(actor : Actor) : boolean {
-      return this.elapsedTime >= this.delay;
+      return this._stopped || (this.elapsedTime >= this.delay);
+   }
+
+   public stop() : void {
+      this._stopped = true;
    }
 
    reset() : void {
@@ -339,7 +383,6 @@ class Delay implements IAction {
       this._started = false;
    }
 }
-
 
 class Blink implements IAction {
    public x : number;
@@ -354,6 +397,7 @@ class Blink implements IAction {
    private nextBlink : number = 0;
    private elapsedTime : number = 0;
    private isBlinking : boolean = false;
+   private _stopped : boolean = false;
    constructor(actor : Actor, frequency : number, duration : number){
       this.actor = actor;
       this.frequency = frequency;
@@ -379,7 +423,7 @@ class Blink implements IAction {
             this.nextBlink += this.duration/this.numBlinks;
          }
       
-         this.actor.invisible = false;;
+         this.actor.invisible = false;
       }
 
       if(this.isComplete(this.actor)){
@@ -389,7 +433,12 @@ class Blink implements IAction {
    }
 
    public isComplete(actor : Actor) : boolean {
-      return this.elapsedTime >= this.duration;
+      return this._stopped || (this.elapsedTime >= this.duration);
+   }
+
+   public stop() : void {
+      this.actor.invisible = false;
+      this._stopped = true;
    }
 
    public reset(){
@@ -407,6 +456,7 @@ class Repeat implements IAction {
    private actionQueue : ActionQueue;
    private repeat : number;
    private originalRepeat : number;
+   private _stopped : boolean = false;
    constructor(actor : Actor, repeat : number, actions : IAction[]){
       this.actor = actor;
       this.actionQueue = new ActionQueue(actor);
@@ -429,7 +479,11 @@ class Repeat implements IAction {
    }
 
    public isComplete() : boolean {
-      return this.repeat <= 0;
+      return this._stopped || (this.repeat <= 0);
+   }
+
+   public stop() : void {
+      this._stopped = true;
    }
 
    public reset() : void {
@@ -442,6 +496,7 @@ class RepeatForever implements IAction {
    public y : number;
    private actor : Actor;
    private actionQueue : ActionQueue;
+   private _stopped : boolean = false;
    constructor(actor : Actor, actions : IAction[]){
       this.actor = actor;
       this.actionQueue = new ActionQueue(actor);
@@ -454,6 +509,10 @@ class RepeatForever implements IAction {
    public update(delta) : void {
       this.x = this.actor.x;
       this.y = this.actor.y;
+      if(this._stopped){
+         return;
+      }
+
       if(!this.actionQueue.hasNext()){
          this.actionQueue.reset();
       }
@@ -461,7 +520,12 @@ class RepeatForever implements IAction {
    }
 
    public isComplete() : boolean {
-      return false;
+      return this._stopped;
+   }
+
+   public stop() : void {
+      this._stopped = true;
+      this.actionQueue.clearActions();
    }
 
    public reset() : void { }
@@ -483,6 +547,12 @@ class ActionQueue {
    public remove(action: IAction){
       var index = this._actions.indexOf(action);
       this._actions.splice(index, 1);
+   }
+
+   public clearActions() : void {
+      this._actions.length = 0;
+      this._completedActions.length = 0;
+      this._currentAction.stop();
    }
 
    public getActions() : IAction[]{

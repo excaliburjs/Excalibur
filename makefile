@@ -14,6 +14,7 @@ build-tests:
 	rm -rf "spec/*.js"
 	tsc "spec/ActorSpec.ts" -out "spec/ActorSpec.js"
 	tsc "spec/ColorSpec.ts" -out "spec/ColorSpec.js"
+	tsc "spec/PromiseSpec.ts" -out "spec/PromiseSpec.js"
 tests: build-tests
 	jasmine-node spec/
 redist:
