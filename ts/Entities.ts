@@ -446,6 +446,7 @@ class Label extends Actor {
    constructor(text? : string, x? : number, y? : number, spriteFont? : Drawing.SpriteFont){
       super(x, y);
       this.text = text || "";
+      this.color = Color.White;
       this.spriteFont = spriteFont;
       this.solid = true;
       this.preventCollisions = true;
@@ -461,11 +462,13 @@ class Label extends Actor {
       ctx.translate(this.x, this.y);
       ctx.scale(this.scale, this.scale);
       ctx.rotate(this.rotation);
-      if(this.spriteFont){
-         this.spriteFont.draw(ctx, 0, 0, this.text);  
-      }else{
-         ctx.fillStyle = this.color.toString();
-         ctx.fillText(this.text, 0, 0);
+      if(!this.invisible){
+         if(this.spriteFont){
+            this.spriteFont.draw(ctx, 0, 0, this.text);  
+         }else{
+            ctx.fillStyle = this.color.toString();
+            ctx.fillText(this.text, 0, 0);
+         }
       }
       
       super.draw(ctx, delta);
