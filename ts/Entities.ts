@@ -309,8 +309,8 @@ class Actor {
       return this;
    }
 
-   public blink(frequency : number, duration : number) : Actor {
-      this.actionQueue.add(new Blink(this, frequency, duration));
+   public blink(frequency : number, duration : number, blinkTime? : number) : Actor {
+      this.actionQueue.add(new Blink(this, frequency, duration, blinkTime));
       return this;
    }
 

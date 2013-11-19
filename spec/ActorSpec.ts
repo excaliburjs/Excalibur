@@ -233,14 +233,32 @@ describe("A game actor", () => {
 
 	it('can blink at a frequency', ()=>{
 		expect(actor.invisible).toBe(false);
-		actor.blink(1/1000, 3000);
-
-		actor.update(engine, 1000);
-		expect(actor.invisible).toBe(true);
+		actor.blink(1, 3000);
 
 		actor.update(engine, 500);
+		expect(actor.invisible).toBe(true);
+
+		actor.update(engine, 250);
+		actor.update(engine, 250);
 		expect(actor.invisible).toBe(false);
 
+	});
+
+	it('can blink at a frequency forever', ()=>{
+		expect(actor.invisible).toBe(false);
+		actor.blink(1, 1000).repeatForever();
+
+		
+		for(var i = 0; i < 2; i++){
+			actor.update(engine, 250);
+			actor.update(engine, 250);
+			expect(actor.invisible).toBe(true);
+			actor.update(engine, 250);
+			actor.update(engine, 250);
+			expect(actor.invisible).toBe(false);
+			actor.update(engine, 250);
+		}
+		
 	});
 
 	it('can be delayed by an amount off time', ()=>{
@@ -415,14 +433,15 @@ describe("A game actor", () => {
 
 	it('can have its blink action stopped', ()=>{
 		expect(actor.invisible).toBe(false);
-		actor.blink(1/1000, 3000);
+		actor.blink(1, 3000);
 
-		actor.update(engine, 1000);
+		actor.update(engine, 500);
 		expect(actor.invisible).toBe(true);
 
 		actor.clearActions();
-
-		actor.update(engine, 1000);
+		
+		actor.update(engine, 500);
+		actor.update(engine, 500);
 		expect(actor.invisible).toBe(false);
 	});
 

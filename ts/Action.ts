@@ -392,37 +392,39 @@ class Blink implements IAction {
    private duration : number;
    private actor : Actor;
    private numBlinks : number;
+   private blinkTime : number;
 
    private _started : boolean = false;
    private nextBlink : number = 0;
    private elapsedTime : number = 0;
    private isBlinking : boolean = false;
    private _stopped : boolean = false;
-   constructor(actor : Actor, frequency : number, duration : number){
+
+   constructor(actor : Actor, frequency : number, duration : number, blinkTime? : number){
       this.actor = actor;
       this.frequency = frequency;
       this.duration = duration;
-      this.numBlinks = Math.floor(frequency * duration);
+      this.numBlinks = Math.floor(frequency * duration/1000);
+      this.blinkTime = blinkTime || 200;
    }
 
    public update(delta) : void {
       if(!this._started){
          this._started = true;
-         this.nextBlink += this.duration/this.numBlinks;
+         this.nextBlink += this.duration/this.numBlinks/2;
       }
       this.x = this.actor.x;
       this.y = this.actor.y;
 
       this.elapsedTime += delta;
-      if(this.elapsedTime+100>this.nextBlink && this.nextBlink>this.elapsedTime-100){
+      if((this.elapsedTime+this.blinkTime/2)>this.nextBlink && this.nextBlink>(this.elapsedTime-this.blinkTime/2)){
          this.isBlinking = true;
          this.actor.invisible = true;
       } else {
          if(this.isBlinking){
             this.isBlinking = false;
             this.nextBlink += this.duration/this.numBlinks;
-         }
-      
+         }      
          this.actor.invisible = false;
       }
 
@@ -512,11 +514,14 @@ class RepeatForever implements IAction {
       if(this._stopped){
          return;
       }
+     
 
       if(!this.actionQueue.hasNext()){
          this.actionQueue.reset();
       }
+
       this.actionQueue.update(delta);
+      
    }
 
    public isComplete() : boolean {
@@ -560,7 +565,7 @@ class ActionQueue {
    }
 
    public hasNext() : boolean {
-      return this._actions.length > 1;
+      return this._actions.length > 0;
    }
 
    public reset() : void {
