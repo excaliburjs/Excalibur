@@ -4,5 +4,6 @@ node_js:
 before_script:
 install: true
 script: 
+   - "npm install grunt-cli -g"
    - "npm install"
    - "grunt travis"
