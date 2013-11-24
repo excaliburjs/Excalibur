@@ -2,7 +2,7 @@ all: engine sample run redist
 ci: installdeps tests engine
 
 engine:
-	tsc --declaration ./ts/Core.ts -out ./build/Excalibur.js
+	grunt
 sample:
 	tsc ./sample-game/ts/game.ts
 physics:
@@ -23,8 +23,7 @@ clean:
 	rm -f ./build/*.d.ts
 	rm -f ./build/*.js
 	rm -f ./sample-game/ts/*.js
-	rm -f ./sample-physics-game/ts/*.js
 installdeps:
-	npm install -g jasmine-node
-	npm install -g typescript
+	npm install
 	npm -f update -g typescript
+	

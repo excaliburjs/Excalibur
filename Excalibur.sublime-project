@@ -4,7 +4,10 @@
 		{
 			"path": ".",
 			"file_exclude_patterns" : [
-				"*.js"
+				"build/*.js",
+				"ts/*.js",
+				"spec/*.js",
+				"sample-game/*.js"
 			],
 			"folder_exclude_patterns" : [
 				"js"
