@@ -3,7 +3,7 @@
   <metadata>
     <id>Excalibur</id>
     <title>Excalibur.js</title>
-    <version>0.1.0-alpha</version>
+    <version>$version$</version>
     <authors>Erik Onarheim</authors>
     <projectUrl>https://github.com/eonarheim/Excalibur</projectUrl>
     <licenseUrl>https://github.com/eonarheim/Excalibur/master/blob/LICENSE.md</licenseUrl>
@@ -12,7 +12,8 @@
     <description>Excalibur.js is a simple game engine written in TypeScript for making 2D games in HTML5 Canvas. The goal of Excalibur is create a simple engine to demonstrate the capabilities of TypeScript and to illustrate simple game development to new developers.</description>
   </metadata>
   <files>
-    <file src="build\Excalibur.js" target="content/Scripts" />
-    <file src="build\Excalibur.d.ts" target="content/Scripts" />
+    <file src="build\Excalibur*.js" target="content/Scripts" />
+    <file src="build\Excalibur*.d.ts" target="content/Scripts" />
+    <file src="build\Excalibur*.js.map" target="content/Scripts" />
   </files>
 </package>
