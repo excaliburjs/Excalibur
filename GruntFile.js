@@ -60,7 +60,10 @@ module.exports = function(grunt) {
         'tsc "./spec/ColorSpec.ts" -out "./spec/ColorSpec.js";'+
         'tsc "./spec/PromiseSpec.ts" -out "./spec/PromiseSpec.js"',
         stdout: true
-      }
+      },
+      sample : {
+        command : 'tsc ./sample-game/ts/game.ts'
+      } 
     },
     watch: {
       files: '<config:source.files>',
@@ -78,7 +81,8 @@ module.exports = function(grunt) {
   // Default task.
 
   grunt.registerTask('tests', ['shell:specs', 'jasmine_node']);
-  grunt.registerTask('default', ['tests', 'shell:tsc', 'minified', 'concat', 'shell:nuget']);
+  grunt.registerTask('sample', ['shell:sample']);
+  grunt.registerTask('default', ['tests', 'shell:tsc', 'sample', 'minified', 'concat', 'shell:nuget']);
   grunt.registerTask('travis', 'default');
 
 };
