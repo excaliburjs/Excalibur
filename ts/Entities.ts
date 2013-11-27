@@ -113,7 +113,7 @@ class Actor {
 
    public parent : SceneNode = null;
 
-   public solid = true;
+   public fixed = true;
    public preventCollisions = false;
 
    public frames : {[key: string] : Drawing.IDrawable;} = {}
@@ -361,7 +361,7 @@ class Actor {
             (side = this.collides(other)) !== Side.NONE){
             var overlap = this.getOverlap(other);
             eventDispatcher.publish(EventType[EventType.COLLISION], new CollisionEvent(this, other, side));
-            if(!this.solid ){
+            if(!this.fixed){
                if(Math.abs(overlap.y) < Math.abs(overlap.x)){ 
                   this.y += overlap.y; 
                   //this.dy = 0;
@@ -448,7 +448,7 @@ class Label extends Actor {
       this.text = text || "";
       this.color = Color.White;
       this.spriteFont = spriteFont;
-      this.solid = true;
+      this.fixed = true;
       this.preventCollisions = true;
    }
 

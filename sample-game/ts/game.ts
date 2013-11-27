@@ -120,7 +120,7 @@ game.addChild(platform4);
 var player = new Actor(100,100,32,96);
 player.scale = 1;
 player.rotation = 0;
-player.solid = false;
+player.fixed = false;
 
 // Health bar example
 player.addChild(new Actor(-48, -20, 140, 5, new Color(0,255,0)));
@@ -230,7 +230,7 @@ game.addEventListener('keydown', (keyDown? : KeyDown)=>{
       var a = new Actor(player.x+10, player.y-50, 10, 10, new Color(222,222,222));
       a.dx = 200*direction;
       a.dy = 0;
-      a.solid = false;
+      a.fixed= false;
       var inAir = true;
       a.addEventListener('collision', (data?: CollisionEvent)=>{
          inAir = false;
