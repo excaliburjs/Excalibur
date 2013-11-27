@@ -77,11 +77,11 @@ class SceneNode {
 };
 
 enum Side {
+   NONE,
    TOP,
    BOTTOM,
    LEFT,
-   RIGHT,
-   NONE
+   RIGHT
 }
 
 
@@ -153,6 +153,7 @@ class Actor {
         __extends(subclass, clazz);
 
         for (var method in methods) {
+            // function binding magic, to for 'this' to be the instance
             subclass.prototype[method] = methods[method];
         }
         subclass.prototype["__super"] = clazz;
