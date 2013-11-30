@@ -137,6 +137,9 @@ class Actor {
     public static extend(methods: any) : any {
         var subclass = function () {
             this['__super'].apply(this, Array.prototype.slice.call(arguments, 0));
+            if(this['init']){
+               this['init'].apply(this, Array.prototype.slice.call(arguments, 0));
+            }
         };
 
         var __extends = function (d, b) {
@@ -153,11 +156,12 @@ class Actor {
         __extends(subclass, clazz);
 
         for (var method in methods) {
-            // function binding magic, to for 'this' to be the instance
             subclass.prototype[method] = methods[method];
         }
         subclass.prototype["__super"] = clazz;
         subclass.prototype["super"] = clazz.prototype;
+
+        return subclass;
    }
 
    public kill() {
