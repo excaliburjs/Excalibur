@@ -38,6 +38,7 @@ class Overlap {
 class SceneNode {
    public children : Actor[] = [];
    private engine : Engine;
+   private killQueue : Actor[] = [];
    constructor(){
    }
 
@@ -48,15 +49,33 @@ class SceneNode {
    }
 
    update (engine : Engine, delta : number){
-      this.children.forEach((actor)=>{
-         actor.update(engine, delta);
-      });
+      var len = 0;
+      var start = 0;
+      var end = 0;
+      var actor;
+      for(var i = 0, len = this.children.length; i < len; i++){
+         actor = this.children[i];
+         this.children[i].update(engine, delta);
+      }
+
+      // Remove actors from scene graph after being killed
+      var index = 0;
+      for(var j = 0, len = this.killQueue.length; j < len; j++){
+         index = this.children.indexOf(this.killQueue[j]);
+         this.children.splice(index, 1);
+      }
+      this.killQueue.length = 0;
    }
 
    draw(ctx : CanvasRenderingContext2D, delta: number){
-      this.children.forEach((actor)=>{
-         actor.draw(ctx, delta);
-      });
+      var len = 0;
+      var start = 0;
+      var end = 0;
+      var actor;
+      for(var i = 0, len = this.children.length; i < len; i++){
+         actor = this.children[i];
+         this.children[i].draw(ctx, delta);
+      }
    }
 
    debugDraw(ctx : CanvasRenderingContext2D){
@@ -71,17 +90,16 @@ class SceneNode {
    }
 
    removeChild(actor : Actor){
-      var index = this.children.indexOf(actor);
-      this.children.splice(index,1);
+      this.killQueue.push(actor);
    }
 };
 
 enum Side {
+   NONE,
    TOP,
    BOTTOM,
    LEFT,
-   RIGHT,
-   NONE
+   RIGHT
 }
 
 
@@ -113,7 +131,7 @@ class Actor {
 
    public parent : SceneNode = null;
 
-   public solid = true;
+   public fixed = true;
    public preventCollisions = false;
 
    public frames : {[key: string] : Drawing.IDrawable;} = {}
@@ -131,6 +149,37 @@ class Actor {
       this.actionQueue = new ActionQueue(this);
       this.eventDispatcher = new EventDispatcher(this);
       this.sceneNode = new SceneNode();
+   }
+
+
+    public static extend(methods: any) : any {
+        var subclass = function () {
+            this['__super'].apply(this, Array.prototype.slice.call(arguments, 0));
+            if(this['init']){
+               this['init'].apply(this, Array.prototype.slice.call(arguments, 0));
+            }
+        };
+
+        var __extends = function (d, b) {
+            for (var p in b)
+                if (b.hasOwnProperty(p))
+                    d[p] = b[p];
+            function __() {
+                this.constructor = d;
+            }
+            __.prototype = b.prototype;
+            d.prototype = new __();
+        };
+        var clazz = Actor;
+        __extends(subclass, clazz);
+
+        for (var method in methods) {
+            subclass.prototype[method] = methods[method];
+        }
+        subclass.prototype["__super"] = clazz;
+        subclass.prototype["super"] = clazz.prototype;
+
+        return subclass;
    }
 
    public kill() {
@@ -361,7 +410,7 @@ class Actor {
             (side = this.collides(other)) !== Side.NONE){
             var overlap = this.getOverlap(other);
             eventDispatcher.publish(EventType[EventType.COLLISION], new CollisionEvent(this, other, side));
-            if(!this.solid ){
+            if(!this.fixed){
                if(Math.abs(overlap.y) < Math.abs(overlap.x)){ 
                   this.y += overlap.y; 
                   //this.dy = 0;
@@ -448,7 +497,7 @@ class Label extends Actor {
       this.text = text || "";
       this.color = Color.White;
       this.spriteFont = spriteFont;
-      this.solid = true;
+      this.fixed = true;
       this.preventCollisions = true;
    }
 

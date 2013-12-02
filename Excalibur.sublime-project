@@ -28,10 +28,10 @@
 			"working_dir":"$project_path",
 
 			"windows":{
-				"cmd":["build.bat"]
+				"cmd":["grunt.cmd"]
 			},
 			"linux":{
-				"cmd":["make"]
+				"cmd":["grunt"]
 			}
 		},
 		{

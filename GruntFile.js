@@ -49,17 +49,32 @@ module.exports = function(grunt) {
     shell: {
       tsc : {
          command: 'tsc --sourcemap --removeComments --declaration ./ts/Core.ts -out ./build/<%= pkg.name %>-<%= pkg.version %>.js',
-         stdout: true
+         options : {
+          stdout : true,
+          failOnError : true
+         }
       },
       nuget : {
         command: 'tools\\nuget pack Excalibur.nuspec -version <%= pkg.version %> -OutputDirectory ./build',
-        stdout: true
+        options : {
+          stdout : true
+         }
       },
       specs : {
         command : 'tsc "./spec/ActorSpec.ts" -out "./spec/ActorSpec.js";' + 
         'tsc "./spec/ColorSpec.ts" -out "./spec/ColorSpec.js";'+
         'tsc "./spec/PromiseSpec.ts" -out "./spec/PromiseSpec.js"',
-        stdout: true
+        options : {
+          stdout : true,
+          failOnError : true
+        }
+      },
+      sample : {
+        command : 'tsc ./sample-game/ts/game.ts',
+        options : {
+          stdout : true,
+          failOnError : true
+        }
       }
     },
     watch: {
@@ -78,7 +93,8 @@ module.exports = function(grunt) {
   // Default task.
 
   grunt.registerTask('tests', ['shell:specs', 'jasmine_node']);
-  grunt.registerTask('default', ['tests', 'shell:tsc', 'minified', 'concat', 'shell:nuget']);
+  grunt.registerTask('sample', ['shell:sample']);
+  grunt.registerTask('default', ['tests', 'shell:tsc', 'sample', 'minified', 'concat', 'shell:nuget']);
   grunt.registerTask('travis', 'default');
 
 };
