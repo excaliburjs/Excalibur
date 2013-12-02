@@ -57,8 +57,7 @@ module.exports = function(grunt) {
       nuget : {
         command: 'tools\\nuget pack Excalibur.nuspec -version <%= pkg.version %> -OutputDirectory ./build',
         options : {
-          stdout : true,
-          failOnError : true
+          stdout : true
          }
       },
       specs : {
