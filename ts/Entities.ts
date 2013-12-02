@@ -38,6 +38,7 @@ class Overlap {
 class SceneNode {
    public children : Actor[] = [];
    private engine : Engine;
+   private killQueue : Actor[] = [];
    constructor(){
    }
 
@@ -48,15 +49,33 @@ class SceneNode {
    }
 
    update (engine : Engine, delta : number){
-      this.children.forEach((actor)=>{
-         actor.update(engine, delta);
-      });
+      var len = 0;
+      var start = 0;
+      var end = 0;
+      var actor;
+      for(var i = 0, len = this.children.length; i < len; i++){
+         actor = this.children[i];
+         this.children[i].update(engine, delta);
+      }
+
+      // Remove actors from scene graph after being killed
+      var index = 0;
+      for(var j = 0, len = this.killQueue.length; j < len; j++){
+         index = this.children.indexOf(this.killQueue[j]);
+         this.children.splice(index, 1);
+      }
+      this.killQueue.length = 0;
    }
 
    draw(ctx : CanvasRenderingContext2D, delta: number){
-      this.children.forEach((actor)=>{
-         actor.draw(ctx, delta);
-      });
+      var len = 0;
+      var start = 0;
+      var end = 0;
+      var actor;
+      for(var i = 0, len = this.children.length; i < len; i++){
+         actor = this.children[i];
+         this.children[i].draw(ctx, delta);
+      }
    }
 
    debugDraw(ctx : CanvasRenderingContext2D){
@@ -71,8 +90,7 @@ class SceneNode {
    }
 
    removeChild(actor : Actor){
-      var index = this.children.indexOf(actor);
-      this.children.splice(index,1);
+      this.killQueue.push(actor);
    }
 };
 
