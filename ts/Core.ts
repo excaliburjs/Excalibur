@@ -175,13 +175,10 @@ class Engine {
    public mouseDown : MouseDown[] = [];
    public mouseUp : MouseUp[] = [];
 
-
    public camera : Camera.ICamera;
-
    public currentScene : SceneNode;
    public rootScene : SceneNode;
    private sceneStack : SceneNode[] = [];
-
 
    private animations : AnimationNode[] = [];
 
@@ -378,6 +375,17 @@ class Engine {
       if(!this.canvasElementId){
          document.body.appendChild(this.canvas);
       }
+   }
+
+   public setAntialiasing(isSmooth : boolean){
+      (<any>this.ctx).imageSmoothingEnabled = isSmooth;
+      (<any>this.ctx).webkitImageSmoothingEnabled = isSmooth;
+      (<any>this.ctx).mozImageSmoothingEnabled = isSmooth;
+      (<any>this.ctx).msImageSmoothingEnabled = isSmooth;
+   }
+
+   public getAntialiasing() : boolean{
+      return (<any>this.ctx).imageSmoothingEnabled || (<any>this.ctx).webkitImageSmoothingEnabled || (<any>this.ctx).mozImageSmoothingEnabled || (<any>this.ctx).msImageSmoothingEnabled;
    }
 
    public isKeyDown(key : Keys) : boolean {
