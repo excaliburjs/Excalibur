@@ -39,7 +39,7 @@ interface ILoadable {
    onerror : (e : any) => void;
 }
 
-class PreloadedImage implements ILoadable {
+class Texture implements ILoadable {
    public width : number;
    public height : number;
    public image : HTMLImageElement;
@@ -90,21 +90,37 @@ class PreloadedImage implements ILoadable {
    public onerror : (e : any) => void = () => {};
 }
 
-class PreloadedSound implements ILoadable {
+class Sound implements ILoadable, Media.ISound {
    public onprogress : (e : any) => void = () => {};
 
    public oncomplete : () => void = () => {};
 
    public onerror : (e : any) => void = () => {};
 
-   public sound : Media.Sound;
+   public onload : (e : any) => void = () => {};
 
-   constructor(public path : string){
-      this.sound = new Media.Sound(path, 1.0);
+   public sound : Media.FallbackAudio;
+
+   constructor(public path : string, volume? : number){
+      this.sound = new Media.FallbackAudio(path, volume || 1.0);
    }
 
-   public load() : Promise<Media.Sound>{
-      var complete = new Promise<Media.Sound>();
+   public setVolume(volume : number){
+      if(this.sound) this.sound.setVolume(volume);
+   }
+   public setLoop(loop : boolean){
+      if(this.sound) this.sound.setLoop(loop);
+   }
+   public play(){
+      if(this.sound) this.sound.play();
+   }
+      
+   public stop(){
+      if(this.sound) this.sound.stop();
+   }      
+
+   public load() : Promise<Media.FallbackAudio>{
+      var complete = new Promise<Media.FallbackAudio>();
 
       this.sound.onprogress = this.onprogress;
       this.sound.onload = ()=>{
@@ -119,7 +135,6 @@ class PreloadedSound implements ILoadable {
       return complete;
    }
 }
-
 
 class Loader implements ILoadable {
    private resourceList : ILoadable[] = [];
@@ -163,6 +178,10 @@ class Loader implements ILoadable {
    public load() : Promise<any>{      
       var complete = new Promise<any>();
       var me = this;
+      if(this.resourceList.length === 0){
+         me.oncomplete.call(me);
+         return complete;
+      }
       this.resourceList.forEach((r, i) => {
         r.onprogress = function(e){
            var total = <number>e.total;
@@ -189,6 +208,5 @@ class Loader implements ILoadable {
    public oncomplete : ()=>void = () => {};
 
    public onerror : () => void = () => {};
-
 
 }

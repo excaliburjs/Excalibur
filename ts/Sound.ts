@@ -45,7 +45,7 @@ module Media {
 
    }
 
-   export class Sound implements ISound {
+   export class FallbackAudio implements ISound {
       private soundImpl : ISound;
       private log : Logger = Logger.getInstance();
       constructor(path : string, volume? : number){

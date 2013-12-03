@@ -40,11 +40,11 @@ logger.defaultLevel = Log.DEBUG;
 // Create an the game container
 var game = new Engine(800, 600, 'game');
 
-var imageRun = new PreloadedImage('../images/PlayerRun.png');
-var imageJump = new PreloadedImage('../images/PlayerJump.png');
-var imageBlocks = new PreloadedImage('../images/BlockA0.png');
-var spriteFontImage = new PreloadedImage('../images/SpriteFont.png');
-var jump = new PreloadedSound('../sounds/jump.wav');
+var imageRun = new Texture('../images/PlayerRun.png');
+var imageJump = new Texture('../images/PlayerJump.png');
+var imageBlocks = new Texture('../images/BlockA0.png');
+var spriteFontImage = new Texture('../images/SpriteFont.png');
+var jump = new Sound('../sounds/jump.wav');
 
 var loader = new Loader();
 loader.addResource(imageRun);

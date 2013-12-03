@@ -49,7 +49,7 @@ module Drawing{
       public sprites : Sprite[] = [];
       private internalImage : HTMLImageElement;
 
-      constructor(public image : PreloadedImage, private columns: number, private rows: number, spWidth: number, spHeight: number){
+      constructor(public image : Texture, private columns: number, private rows: number, spWidth: number, spHeight: number){
          this.internalImage = image.image;
          this.sprites = new Array(columns*rows);
 
@@ -106,7 +106,7 @@ module Drawing{
 
    export class SpriteFont extends SpriteSheet {
       private spriteLookup : {[key:string] : Sprite;} = {};
-      constructor(public image : PreloadedImage, private alphabet : string, private caseInsensitive : boolean, columns : number, rows : number, spWidth : number, spHeight : number){
+      constructor(public image : Texture, private alphabet : string, private caseInsensitive : boolean, columns : number, rows : number, spWidth : number, spHeight : number){
          super(image, columns, rows, spWidth, spHeight);
          for(var i = 0; i < alphabet.length; i++){
             var char = alphabet[i];
@@ -138,14 +138,14 @@ module Drawing{
 
    export class Sprite implements IDrawable {
       private internalImage : HTMLImageElement;
-      private preloadedImage : PreloadedImage;
+      private preloadedImage : Texture;
       private scale: number = 1.0;
       private rotation: number = 0.0;
       public flipX : boolean = false;
       public flipY : boolean = false;
       public width : number = 0;
       public height : number = 0;
-      constructor(image: PreloadedImage, public sx: number, public sy:number, public swidth: number, public sheight : number){
+      constructor(image: Texture, public sx: number, public sy:number, public swidth: number, public sheight : number){
          this.internalImage = image.image;
          this.preloadedImage = image;
          this.width = swidth;
