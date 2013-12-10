@@ -28,7 +28,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/// <reference path='../../build/Excalibur.d.ts' />
+/// <reference path='../../build/Excalibur-0.1.0-alpha.d.ts' />
 
 // Create screen appender 
 //var screenAppender = new ScreenAppender();
@@ -40,11 +40,11 @@ logger.defaultLevel = Log.DEBUG;
 // Create an the game container
 var game = new Engine(800, 600, 'game');
 
-var imageRun = new PreloadedImage('../images/PlayerRun.png');
-var imageJump = new PreloadedImage('../images/PlayerJump.png');
-var imageBlocks = new PreloadedImage('../images/BlockA0.png');
-var spriteFontImage = new PreloadedImage('../images/SpriteFont.png');
-var jump = new PreloadedSound('../sounds/jump.wav');
+var imageRun = new Texture('../images/PlayerRun.png');
+var imageJump = new Texture('../images/PlayerJump.png');
+var imageBlocks = new Texture('../images/BlockA0.png');
+var spriteFontImage = new Texture('../images/SpriteFont.png');
+var jump = new Sound('../sounds/jump.wav');
 
 var loader = new Loader();
 loader.addResource(imageRun);

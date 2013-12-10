@@ -49,21 +49,33 @@ module.exports = function(grunt) {
     shell: {
       tsc : {
          command: 'tsc --sourcemap --removeComments --declaration ./ts/Core.ts -out ./build/<%= pkg.name %>-<%= pkg.version %>.js',
-         stdout: true
+         options : {
+          stdout : true,
+          failOnError : true
+         }
       },
       nuget : {
         command: 'tools\\nuget pack Excalibur.nuspec -version <%= pkg.version %> -OutputDirectory ./build',
-        stdout: true
+        options : {
+          stdout : true
+         }
       },
       specs : {
         command : 'tsc "./spec/ActorSpec.ts" -out "./spec/ActorSpec.js";' + 
         'tsc "./spec/ColorSpec.ts" -out "./spec/ColorSpec.js";'+
         'tsc "./spec/PromiseSpec.ts" -out "./spec/PromiseSpec.js"',
-        stdout: true
+        options : {
+          stdout : true,
+          failOnError : true
+        }
       },
       sample : {
-        command : 'tsc ./sample-game/ts/game.ts'
-      } 
+        command : 'tsc ./sample-game/ts/game.ts',
+        options : {
+          stdout : true,
+          failOnError : true
+        }
+      }
     },
     watch: {
       files: '<config:source.files>',
