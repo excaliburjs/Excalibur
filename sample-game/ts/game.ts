@@ -39,12 +39,13 @@ logger.defaultLevel = Log.DEBUG;
 
 // Create an the game container
 var game = new Engine(800, 600, 'game');
+game.setAntialiasing(false);
 
-var imageRun = new PreloadedImage('../images/PlayerRun.png');
-var imageJump = new PreloadedImage('../images/PlayerJump.png');
-var imageBlocks = new PreloadedImage('../images/BlockA0.png');
-var spriteFontImage = new PreloadedImage('../images/SpriteFont.png');
-var jump = new PreloadedSound('../sounds/jump.wav');
+var imageRun = new Texture('../images/PlayerRun.png');
+var imageJump = new Texture('../images/PlayerJump.png');
+var imageBlocks = new Texture('../images/BlockA0.png');
+var spriteFontImage = new Texture('../images/SpriteFont.png');
+var jump = new Sound('../sounds/jump.wav');
 
 var loader = new Loader();
 loader.addResource(imageRun);
@@ -71,7 +72,7 @@ var tileBlockWidth = 64,
 
 // Create spriteFont
 var spriteFont = new Drawing.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
-var label = new Label('Hello World', 100, 100, spriteFont);
+var label = new Label('Hello World', 100, 100, null, spriteFont);
 label.scaleTo(2, .5).scaleTo(1,.5).repeatForever();
 game.addChild(label);
 
@@ -118,6 +119,7 @@ game.addChild(platform4);
 
 // Create the player
 var player = new Actor(100,100,32,96);
+
 player.scale = 1;
 player.rotation = 0;
 player.fixed = false;
@@ -126,7 +128,7 @@ player.fixed = false;
 player.addChild(new Actor(-48, -20, 140, 5, new Color(0,255,0)));
 
 // Add Title above player
-var playerLabel = new Label('My Player', -48, -39, spriteFont);
+var playerLabel = new Label('My Player', -48, -39, null, spriteFont);
 
 player.addChild(playerLabel);
 
@@ -154,7 +156,7 @@ player.addDrawing(Animations.JumpLeft, jumpLeft);
 
 // Set default animation
 player.setDrawing(Animations.Idle);
-
+player.setCenterDrawing(true);
 
 var jumpSound = jump.sound;
 

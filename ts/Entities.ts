@@ -137,6 +137,9 @@ class Actor {
    public frames : {[key: string] : Drawing.IDrawable;} = {}
    //public animations : {[key : string] : Drawing.Animation;} = {};
    public currentDrawing : Drawing.IDrawable = null;
+
+   private centerDrawingX = false;
+   private centerDrawingY = false;
    //public currentAnimation: Drawing.Animation = null;
 
    public color: Color;
@@ -233,6 +236,11 @@ class Actor {
 
    public setHeight(height){
       this.height = height/this.scale;
+   }
+
+   public setCenterDrawing(center : boolean){
+      this.centerDrawingY = true;
+      this.centerDrawingX = true;
    }
 
    public getLeft() {
@@ -459,8 +467,21 @@ class Actor {
 
       if(!this.invisible){
          if(this.currentDrawing){
-            var diff = this.currentDrawing.width - this.width;
-            this.currentDrawing.draw(ctx, -diff/2, 0);
+
+            var xDiff = 0;
+            var yDiff = 0;
+            if(this.centerDrawingX){
+               xDiff = (this.currentDrawing.width*this.currentDrawing.getScale() - this.width)/2;
+            }
+
+            if(this.centerDrawingY){
+               yDiff = (this.currentDrawing.height*this.currentDrawing.getScale() - this.height)/2;
+            }
+
+            //var xDiff = (this.currentDrawing.width*this.currentDrawing.getScale() - this.width)/2;
+            //var yDiff = (this.currentDrawing.height*this.currentDrawing.getScale() - this.height)/2;
+            this.currentDrawing.draw(ctx, -xDiff, -yDiff);
+
          }else{
             ctx.fillStyle = this.color ? this.color.toString() : (new Color(0, 0, 0)).toString();
             ctx.fillRect(0, 0, this.width, this.height);          
@@ -492,13 +513,15 @@ class Actor {
 class Label extends Actor {
    public text : string;
    public spriteFont : Drawing.SpriteFont;
-   constructor(text? : string, x? : number, y? : number, spriteFont? : Drawing.SpriteFont){
+   public font : string;
+   constructor(text? : string, x? : number, y? : number, font? : string, spriteFont? : Drawing.SpriteFont){
       super(x, y);
       this.text = text || "";
       this.color = Color.White;
       this.spriteFont = spriteFont;
       this.fixed = true;
       this.preventCollisions = true;
+      this.font = font || "10px sans-serif"; // coallesce to default canvas font
    }
 
    public update(engine: Engine, delta: number){
@@ -516,6 +539,7 @@ class Label extends Actor {
             this.spriteFont.draw(ctx, 0, 0, this.text);  
          }else{
             ctx.fillStyle = this.color.toString();
+            ctx.font = this.font;
             ctx.fillText(this.text, 0, 0);
          }
       }

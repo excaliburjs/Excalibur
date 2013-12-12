@@ -18,7 +18,8 @@
 	"settings":
 	{
 		"tab_size":3,
-		"translate_tabs_to_spaces":true
+		"translate_tabs_to_spaces":true,
+		"detect_indentation":false
 	},
 	"build_systems":
 	[

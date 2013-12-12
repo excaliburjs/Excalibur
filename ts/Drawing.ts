@@ -39,8 +39,11 @@ module Drawing{
       flipY : boolean;
       width : number;
       height : number;
+      transformAboutPoint(point : Point);
       setScale(scale: number);
+      getScale() : number;
       setRotation(radians: number);
+      getRotation() : number;
       reset();
       draw(ctx: CanvasRenderingContext2D, x: number, y: number);
    }
@@ -49,7 +52,7 @@ module Drawing{
       public sprites : Sprite[] = [];
       private internalImage : HTMLImageElement;
 
-      constructor(public image : PreloadedImage, private columns: number, private rows: number, spWidth: number, spHeight: number){
+      constructor(public image : Texture, private columns: number, private rows: number, spWidth: number, spHeight: number){
          this.internalImage = image.image;
          this.sprites = new Array(columns*rows);
 
@@ -106,7 +109,7 @@ module Drawing{
 
    export class SpriteFont extends SpriteSheet {
       private spriteLookup : {[key:string] : Sprite;} = {};
-      constructor(public image : PreloadedImage, private alphabet : string, private caseInsensitive : boolean, columns : number, rows : number, spWidth : number, spHeight : number){
+      constructor(public image : Texture, private alphabet : string, private caseInsensitive : boolean, columns : number, rows : number, spWidth : number, spHeight : number){
          super(image, columns, rows, spWidth, spHeight);
          for(var i = 0; i < alphabet.length; i++){
             var char = alphabet[i];
@@ -138,34 +141,54 @@ module Drawing{
 
    export class Sprite implements IDrawable {
       private internalImage : HTMLImageElement;
-      private preloadedImage : PreloadedImage;
-      private scale: number = 1.0;
-      private rotation: number = 0.0;
+      private preloadedImage : Texture;
+      private scale : number = 1.0;
+      private rotation : number = 0.0;
+      private transformPoint : Point = new Point(0, 0);
       public flipX : boolean = false;
       public flipY : boolean = false;
       public width : number = 0;
       public height : number = 0;
-      constructor(image: PreloadedImage, public sx: number, public sy:number, public swidth: number, public sheight : number){
+
+      constructor(image: Texture, public sx: number, public sy:number, public swidth: number, public sheight : number){
          this.internalImage = image.image;
          this.preloadedImage = image;
          this.width = swidth;
          this.height = sheight;
       }
 
+      public transformAboutPoint(point : Point){
+         this.transformPoint = point;
+      }
+
       public setRotation(radians : number){
          this.rotation = radians;
+      }
+
+      public getRotation() : number {
+         return this.rotation;
       }
 
       public setScale(scale : number){
          this.scale = scale;
       }
+
+      public getScale() : number {
+         return this.scale;
+      }
+
       public reset(){
          // do nothing
       }
 
       public draw(ctx: CanvasRenderingContext2D, x: number, y: number){
          ctx.save();
-         ctx.translate(x, y);
+         //var translateX = this.aboutCenter?this.swidth*this.scale/2:0;
+         //var translateY = this.aboutCenter?this.sheight*this.scale/2:0;
+         ctx.translate(x + this.transformPoint.x, y + this.transformPoint.y);
+         ctx.rotate(this.rotation);
+         //ctx.scale(this.scale, this.scale);
+        
          if(this.flipY){            
             ctx.translate(this.swidth, 0);
             ctx.scale(-1, 1);
@@ -176,7 +199,7 @@ module Drawing{
             ctx.scale(1, -1);
          }
 
-         ctx.drawImage(this.internalImage, this.sx, this.sy, this.swidth, this.sheight, 0, 0, this.swidth*this.scale, this.sheight*this.scale);
+         ctx.drawImage(this.internalImage, this.sx, this.sy, this.swidth, this.sheight, -this.transformPoint.x, -this.transformPoint.y, this.swidth*this.scale, this.sheight*this.scale);
          ctx.restore();
       }
 
@@ -223,6 +246,13 @@ module Drawing{
          this.width = images[0]?images[0].width : 0;
       }
 
+
+      public transformAboutPoint(point : Point){
+         for(var i in this.sprites){
+            this.sprites[i].transformAboutPoint(point);
+         }
+      }
+
       public setRotation(radians: number){
          this.rotation = radians;
          for(var i in this.sprites){
@@ -230,11 +260,19 @@ module Drawing{
          }
       }
 
+      public getRotation() : number {
+         return this.rotation;
+      }
+
       public setScale(scale: number){
          this.scale = scale;
          for(var i in this.sprites){
             this.sprites[i].setScale(scale);
          }
+      }
+
+      public getScale() : number {
+         return this.scale;
       }
 
       public reset(){
