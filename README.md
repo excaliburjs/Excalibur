@@ -4,7 +4,9 @@
 
 Excalibur is a simple game engine written in TypeScript for making 2D games in HTML5 Canvas. The goal of Excalibur is create a simple engine to demonstrate the capabilities of TypeScript and to illustrate simple game development to new developers.
 
-A compiled example can be found [here.](http://www.erikonarheim.com/sample-game/html/index.html)
+Documentation can be found at [excaliburjs.com](http://excaliburjs.com).
+
+A compiled examples can be found [here.](http://excaliburjs.com/gallery/home/).
 
 ## Example in JavaScript
 
