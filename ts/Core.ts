@@ -239,7 +239,7 @@ class Engine {
 
    }
 
-   public addEventListener(eventName : string,  handler: (event?: ActorEvent) => void){
+   public addEventListener(eventName : string,  handler: (event?: GameEvent) => void){
       this.eventDispatcher.subscribe(eventName, handler);
    }
 
@@ -329,8 +329,8 @@ class Engine {
          this.keys.splice(key,1);
          this.keysUp.push(ev.keyCode);
          var keyEvent = new KeyUp(ev.keyCode);
-         this.eventDispatcher.publish(EventType[EventType.KEYUP], keyEvent);
-         this.currentScene.publish(EventType[EventType.KEYUP], keyEvent);
+         this.eventDispatcher.publish(EventType[EventType.KeyUp], keyEvent);
+         this.currentScene.publish(EventType[EventType.KeyUp], keyEvent);
 
       });
 
@@ -340,20 +340,20 @@ class Engine {
             this.keys.push(ev.keyCode);
             this.keysDown.push(ev.keyCode);
             var keyEvent = new KeyDown(ev.keyCode);
-            this.eventDispatcher.publish(EventType[EventType.KEYDOWN], keyEvent);
-            this.currentScene.publish(EventType[EventType.KEYDOWN], keyEvent)
+            this.eventDispatcher.publish(EventType[EventType.KeyDown], keyEvent);
+            this.currentScene.publish(EventType[EventType.KeyDown], keyEvent);
 
          }
       });
 
       window.addEventListener('blur', ()=>{
-         this.eventDispatcher.publish(EventType[EventType.BLUR]);
-         this.eventDispatcher.update()
+         this.eventDispatcher.publish(EventType[EventType.Blur]);
+         this.eventDispatcher.update();
       });
 
       window.addEventListener('focus', ()=>{
-         this.eventDispatcher.publish(EventType[EventType.FOCUS]);
-         this.eventDispatcher.update()
+         this.eventDispatcher.publish(EventType[EventType.Focus]);
+         this.eventDispatcher.update();
       });
 
       this.canvas.addEventListener('mousedown', (e : MouseEvent)=>{
@@ -362,7 +362,7 @@ class Engine {
          var transformedPoint = this.transformToCanvasCoordinates(x, y);
          var mousedown = new MouseDown(transformedPoint.x,transformedPoint.y)
          this.clicks.push(mousedown);
-         this.eventDispatcher.publish(EventType[EventType.MOUSEDOWN], mousedown);
+         this.eventDispatcher.publish(EventType[EventType.MouseDown], mousedown);
       });
 
       this.canvas.addEventListener('mouseup', (e : MouseEvent)=>{
@@ -371,7 +371,7 @@ class Engine {
          var transformedPoint = this.transformToCanvasCoordinates(x, y);
          var mouseup = new MouseUp(transformedPoint.x,transformedPoint.y);
          this.mouseUp.push(mouseup);
-         this.eventDispatcher.publish(EventType[EventType.MOUSEUP], mouseup);
+         this.eventDispatcher.publish(EventType[EventType.MouseUp], mouseup);
       });
 
       
@@ -433,7 +433,7 @@ class Engine {
       this.clicks.length = 0;
 
       // Publish update event
-      this.eventDispatcher.publish(EventType[EventType.UPDATE], new UpdateEvent(delta));
+      this.eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
    }
 
    private draw(delta: number){

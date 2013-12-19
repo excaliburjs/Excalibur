@@ -42,7 +42,7 @@ class SceneNode {
    constructor(){
    }
 
-   publish(eventType: string, event: ActorEvent){
+   publish(eventType: string, event: GameEvent){
       this.children.forEach((actor) => {
          actor.triggerEvent(eventType, event);
       });
@@ -210,11 +210,11 @@ class Actor {
       this.currentDrawing = this.frames[<string>key];    
    }
 
-   public addEventListener(eventName : string, handler : (event?: ActorEvent) => void){
+   public addEventListener(eventName : string, handler : (event?: GameEvent) => void){
       this.eventDispatcher.subscribe(eventName, handler);
    }
 
-   public triggerEvent(eventName : string, event? : ActorEvent){
+   public triggerEvent(eventName : string, event? : GameEvent){
       this.eventDispatcher.publish(eventName, event);
    }
 
@@ -417,7 +417,7 @@ class Actor {
          if(other !== this && !other.preventCollisions &&
             (side = this.collides(other)) !== Side.NONE){
             var overlap = this.getOverlap(other);
-            eventDispatcher.publish(EventType[EventType.COLLISION], new CollisionEvent(this, other, side));
+            eventDispatcher.publish(EventType[EventType.Collision], new CollisionEvent(this, other, side));
             if(!this.fixed){
                if(Math.abs(overlap.y) < Math.abs(overlap.x)){ 
                   this.y += overlap.y; 
@@ -441,18 +441,18 @@ class Actor {
       // Publish click events
       engine.clicks.forEach((e)=>{
          if(this.contains(e.x, e.y)){
-            eventDispatcher.publish(EventType[EventType.CLICK], new Click(e.x,e.y));
-            eventDispatcher.publish(EventType[EventType.MOUSEDOWN], new MouseDown(e.x,e.y));
+            eventDispatcher.publish(EventType[EventType.Click], new Click(e.x,e.y));
+            eventDispatcher.publish(EventType[EventType.MouseDown], new MouseDown(e.x,e.y));
          }
       });
 
       engine.mouseUp.forEach((e)=>{
          if(this.contains(e.x, e.y)){
-            eventDispatcher.publish(EventType[EventType.MOUSEUP], new MouseUp(e.x,e.y));
+            eventDispatcher.publish(EventType[EventType.MouseUp], new MouseUp(e.x,e.y));
          }
       })
 
-      eventDispatcher.publish(EventType[EventType.UPDATE], new UpdateEvent(delta));
+      eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
    }
    
 

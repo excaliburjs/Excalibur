@@ -33,79 +33,79 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /// <reference path="Log.ts" />
 
 enum EventType {
-   KEYDOWN,
-   KEYUP,
-   KEYPRESS,
-   MOUSEDOWN,
-   MOUSEUP,
-   CLICK,
-   USEREVENT,
-   COLLISION,
-   BLUR,
-   FOCUS,
-   UPDATE
+   KeyDown,
+   KeyUp,
+   KeyPress,
+   MouseDown,
+   MouseUp,
+   Click,
+   UserEvent,
+   Collision,
+   Blur,
+   Focus,
+   Update
 }
 
-class ActorEvent {
+class GameEvent {
    constructor(){}
 }
 
-class CollisionEvent extends ActorEvent {
+class CollisionEvent extends GameEvent {
    constructor(public actor : Actor, public other : Actor, public side : Side) {
       super();
    }
 }
 
-class UpdateEvent extends ActorEvent {
+class UpdateEvent extends GameEvent {
    constructor(public delta : number){
       super();
    }
 }
 
-class KeyEvent extends ActorEvent {
+class KeyEvent extends GameEvent {
    constructor(public actor : Actor, public key : InputKey){
       super();
    }
 }
 
-class KeyDown extends ActorEvent {
+class KeyDown extends GameEvent {
    constructor(public key : InputKey){
       super();
    }
 }
 
-class KeyUp extends ActorEvent {
+class KeyUp extends GameEvent {
    constructor(public key : InputKey){
       super();
    }
 }
 
-class KeyPress extends ActorEvent {
+class KeyPress extends GameEvent {
    constructor(public key : InputKey){
       super();
    }
 }
 
-class MouseDown extends ActorEvent {
+class MouseDown extends GameEvent {
    constructor(public x : number, public y : number){
       super();
    }
 }
 
-class MouseUp extends ActorEvent {
+class MouseUp extends GameEvent {
    constructor(public x : number, public y : number){
       super();
    }
 }
 
-class Click extends ActorEvent {
+class Click extends GameEvent {
    constructor(public x : number, public y : number){
       super();
    }
 }
 
 class EventDispatcher {
-   private _handlers : {[key : string] : { (event?: ActorEvent) : void}[]; } = {};
+   private _handlers : {[key : string] : { (event?: GameEvent) : void}[]; } = {};
    private queue : {(any: void):void}[] = [];
    private target : any;
    private log : Logger = Logger.getInstance();
@@ -113,7 +113,7 @@ class EventDispatcher {
       this.target = target;
    }
 
-   public publish(eventName: string, event?: ActorEvent){
+   public publish(eventName: string, event?: GameEvent){
       if(!eventName){
          // key not mapped
          return;
@@ -130,7 +130,7 @@ class EventDispatcher {
       }
    }
 
-   public subscribe(eventName: string, handler: (event?: ActorEvent) => void){
+   public subscribe(eventName: string, handler: (event?: GameEvent) => void){
       eventName = eventName.toLowerCase();
       if(!this._handlers[eventName]){
          this._handlers[eventName] = [];
