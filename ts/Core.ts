@@ -409,7 +409,7 @@ class Engine {
          // suspend updates untill loading is finished
          return;
       }
-
+      // process engine level events
       this.eventDispatcher.update();
       this.currentScene.update(this, delta);
 
@@ -429,6 +429,9 @@ class Engine {
 
       // Reset clicks
       this.clicks.length = 0;
+
+      // Publish update event
+      this.eventDispatcher.publish(EventType[EventType.UPDATE], new UpdateEvent(delta));
    }
 
    private draw(delta: number){
