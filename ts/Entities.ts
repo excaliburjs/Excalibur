@@ -42,7 +42,7 @@ class SceneNode {
    constructor(){
    }
 
-   publish(eventType: string, event: ActorEvent){
+   publish(eventType: string, event: GameEvent){
       this.children.forEach((actor) => {
          actor.triggerEvent(eventType, event);
       });
@@ -103,6 +103,7 @@ enum Side {
 }
 
 
+
 class Actor {
    public x: number = 0;
    public y: number = 0;
@@ -155,7 +156,7 @@ class Actor {
    }
 
 
-    public static extend(methods: any) : any {
+    public static extend(methods: any): any {
         var subclass = function () {
             this['__super'].apply(this, Array.prototype.slice.call(arguments, 0));
             if(this['init']){
@@ -173,7 +174,7 @@ class Actor {
             __.prototype = b.prototype;
             d.prototype = new __();
         };
-        var clazz = Actor;
+        var clazz = this;
         __extends(subclass, clazz);
 
         for (var method in methods) {
@@ -210,11 +211,11 @@ class Actor {
       this.currentDrawing = this.frames[<string>key];    
    }
 
-   public addEventListener(eventName : string, handler : (event?: ActorEvent) => void){
+   public addEventListener(eventName : string, handler : (event?: GameEvent) => void){
       this.eventDispatcher.subscribe(eventName, handler);
    }
 
-   public triggerEvent(eventName : string, event? : ActorEvent){
+   public triggerEvent(eventName : string, event? : GameEvent){
       this.eventDispatcher.publish(eventName, event);
    }
 
@@ -417,7 +418,7 @@ class Actor {
          if(other !== this && !other.preventCollisions &&
             (side = this.collides(other)) !== Side.NONE){
             var overlap = this.getOverlap(other);
-            eventDispatcher.publish(EventType[EventType.COLLISION], new CollisionEvent(this, other, side));
+            eventDispatcher.publish(EventType[EventType.Collision], new CollisionEvent(this, other, side));
             if(!this.fixed){
                if(Math.abs(overlap.y) < Math.abs(overlap.x)){ 
                   this.y += overlap.y; 
@@ -435,24 +436,24 @@ class Actor {
 
       // Publish other events
       engine.keys.forEach(function(key){
-         eventDispatcher.publish(Keys[key], new KeyEvent(this, key));
+         eventDispatcher.publish(InputKey[key], new KeyEvent(this, key));
       });
 
       // Publish click events
       engine.clicks.forEach((e)=>{
          if(this.contains(e.x, e.y)){
-            eventDispatcher.publish(EventType[EventType.CLICK], new Click(e.x,e.y));
-            eventDispatcher.publish(EventType[EventType.MOUSEDOWN], new MouseDown(e.x,e.y));
+            eventDispatcher.publish(EventType[EventType.Click], new Click(e.x,e.y));
+            eventDispatcher.publish(EventType[EventType.MouseDown], new MouseDown(e.x,e.y));
          }
       });
 
       engine.mouseUp.forEach((e)=>{
          if(this.contains(e.x, e.y)){
-            eventDispatcher.publish(EventType[EventType.MOUSEUP], new MouseUp(e.x,e.y));
+            eventDispatcher.publish(EventType[EventType.MouseUp], new MouseUp(e.x,e.y));
          }
       })
 
-      eventDispatcher.publish(EventType[EventType.UPDATE], new UpdateEvent(delta));
+      eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
    }
    
 

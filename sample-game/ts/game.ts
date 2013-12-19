@@ -28,7 +28,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/// <reference path='../../build/Excalibur-0.1.0-alpha.d.ts' />
+/// <reference path='../../build/Excalibur-0.1.1-alpha.d.ts' />
 
 // Create screen appender 
 //var screenAppender = new ScreenAppender();
@@ -214,8 +214,8 @@ player.addEventListener('mousedown', ()=>{
 player.addEventListener('keyup', (e? : KeyUp) => {
    if (inAir) return;
    
-   if (e.key === Keys.LEFT ||
-       e.key === Keys.RIGHT) {
+   if (e.key === InputKey.Left ||
+       e.key === InputKey.Right) {
       player.setDrawing(Animations.Idle);
    }
 });
@@ -228,7 +228,7 @@ var newScene = new SceneNode();
 newScene.addChild(new Actor(100, 100, 100, 100, new Color(0,0,0,.5)));
 
 game.addEventListener('keydown', (keyDown? : KeyDown)=>{
-   if(keyDown.key === Keys.F){
+   if(keyDown.key === InputKey.F){
       var a = new Actor(player.x+10, player.y-50, 10, 10, new Color(222,222,222));
       a.dx = 200*direction;
       a.dy = 0;
@@ -248,9 +248,9 @@ game.addEventListener('keydown', (keyDown? : KeyDown)=>{
          inAir = true;
       });
       game.addChild(a);
-   }else if(keyDown.key === Keys.U){
+   }else if(keyDown.key === InputKey.U){
       game.pushScene(newScene);
-   }else if(keyDown.key === Keys.I){
+   }else if(keyDown.key === InputKey.I){
       game.popScene();
    }
 });
@@ -290,7 +290,7 @@ player.addEventListener('update', (data?: UpdateEvent)=>{
 });
 
 game.addEventListener('keydown', (keyDown? : KeyDown)=>{
-   if(keyDown.key === Keys.B){
+   if(keyDown.key === InputKey.B){
       var block = new Actor(currentX,350,44,50,color);
       currentX += 46;
       block.addDrawing(Animations.Block, blockAnimation);
@@ -311,7 +311,7 @@ game.addEventListener('p', ()=>{
 
 game.addEventListener('keydown', (keyDown? : KeyDown)=>{
 
-   if(keyDown.key === Keys.D){
+   if(keyDown.key === InputKey.D){
       game.isDebug = !game.isDebug;
    }
 });
