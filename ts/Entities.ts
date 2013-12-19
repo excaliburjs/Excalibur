@@ -103,6 +103,7 @@ enum Side {
 }
 
 
+
 class Actor {
    public x: number = 0;
    public y: number = 0;
@@ -155,7 +156,7 @@ class Actor {
    }
 
 
-    public static extend(methods: any) : any {
+    public static extend(methods: any): any {
         var subclass = function () {
             this['__super'].apply(this, Array.prototype.slice.call(arguments, 0));
             if(this['init']){
@@ -173,7 +174,7 @@ class Actor {
             __.prototype = b.prototype;
             d.prototype = new __();
         };
-        var clazz = Actor;
+        var clazz = this;
         __extends(subclass, clazz);
 
         for (var method in methods) {
