@@ -435,7 +435,7 @@ class Actor {
 
       // Publish other events
       engine.keys.forEach(function(key){
-         eventDispatcher.publish(Keys[key], new KeyEvent(this, key));
+         eventDispatcher.publish(InputKey[key], new KeyEvent(this, key));
       });
 
       // Publish click events

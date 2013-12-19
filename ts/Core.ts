@@ -94,20 +94,22 @@ class Color {
       return "rgb(" + result + ")";
    }
 }
-   
-enum Keys {
-   NUM_1 = 97,
-   NUM_2 = 98,
-   NUM_3 = 99,
-   NUM_4 = 100,
-   NUM_5 = 101,
-   NUM_6 = 102,
-   NUM_7 = 103,
-   NUM_8 = 104,
-   NUM_9 = 105,
-   NUM_0 = 96,
-   NUM_LOCK = 144,
-   SEMICOLON = 186,
+
+
+
+enum InputKey {
+   Num1 = 97,
+   Num2 = 98,
+   Num3 = 99,
+   Num4 = 100,
+   Num5 = 101,
+   Num6 = 102,
+   Num7 = 103,
+   Num8 = 104,
+   Num9 = 105,
+   Num0 = 96,
+   Numlock = 144,
+   Semicolon = 186,
    A = 65,
    B = 66,
    C = 67,
@@ -134,14 +136,14 @@ enum Keys {
    X = 88,
    Y = 89,
    Z = 90,
-   SHIFT = 16,
-   ALT = 18,
-   UP = 38,
-   DOWN = 40,
-   LEFT = 37,
-   RIGHT = 39,
-   SPACE = 32,
-   ESC = 27
+   Shift = 16,
+   Alt = 18,
+   Up = 38,
+   Down = 40,
+   Left = 37,
+   Right = 39,
+   Space = 32,
+   Esc = 27
 };
 class AnimationNode {
    constructor(public animation : Drawing.Animation, public x : number, public y : number){}
@@ -392,15 +394,15 @@ class Engine {
       return (<any>this.ctx).imageSmoothingEnabled || (<any>this.ctx).webkitImageSmoothingEnabled || (<any>this.ctx).mozImageSmoothingEnabled || (<any>this.ctx).msImageSmoothingEnabled;
    }
 
-   public isKeyDown(key : Keys) : boolean {
+   public isKeyDown(key : InputKey) : boolean {
       return this.keysDown.indexOf(key) > -1;
    }
 
-   public isKeyPressed(key : Keys) : boolean {
+   public isKeyPressed(key : InputKey) : boolean {
       return this.keys.indexOf(key) > -1;
    }
 
-   public isKeyUp(key : Keys) : boolean {
+   public isKeyUp(key : InputKey) : boolean {
       return this.keysUp.indexOf(key) > -1;
    }
 
@@ -415,7 +417,7 @@ class Engine {
 
       var eventDispatcher = this.eventDispatcher;
       this.keys.forEach(function(key){
-         eventDispatcher.publish(Keys[key], new KeyEvent(this, key));
+         eventDispatcher.publish(InputKey[key], new KeyEvent(this, key));
       });
 
       // update animations
@@ -456,7 +458,7 @@ class Engine {
          this.ctx.font = "Consolas";
          this.ctx.fillStyle = this.debugColor.toString();
          for (var j = 0; j < this.keys.length; j++){
-            this.ctx.fillText(this.keys[j].toString() + " : " + (Keys[this.keys[j]]?Keys[this.keys[j]]:"Not Mapped"),100, 10*j+10);
+            this.ctx.fillText(this.keys[j].toString() + " : " + (InputKey[this.keys[j]]?InputKey[this.keys[j]]:"Not Mapped"),100, 10*j+10);
          }
 
          var fps = 1.0/(delta/1000);

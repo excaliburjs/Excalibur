@@ -63,25 +63,25 @@ class UpdateEvent extends ActorEvent {
 }
 
 class KeyEvent extends ActorEvent {
-   constructor(public actor : Actor, public key : Keys){
+   constructor(public actor : Actor, public key : InputKey){
       super();
    }
 }
 
 class KeyDown extends ActorEvent {
-   constructor(public key : Keys){
+   constructor(public key : InputKey){
       super();
    }
 }
 
 class KeyUp extends ActorEvent {
-   constructor(public key : Keys){
+   constructor(public key : InputKey){
       super();
    }
 }
 
 class KeyPress extends ActorEvent {
-   constructor(public key : Keys){
+   constructor(public key : InputKey){
       super();
    }
 }
