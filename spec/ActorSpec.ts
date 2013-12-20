@@ -7,7 +7,7 @@ describe("A game actor", () => {
 	var actor;
 	var engine;
 	beforeEach(()=>{
-		actor = new Actor();
+		actor = new ex.Actor();
 		// mock engine
 		engine = {
 			currentScene : {
@@ -22,7 +22,7 @@ describe("A game actor", () => {
 
 
 	it("should be loaded", () => {
-		expect(Actor).toBeTruthy();
+		expect(ex.Actor).toBeTruthy();
 	});
 
 
@@ -131,7 +131,7 @@ describe("A game actor", () => {
 	});
 
 	it('can collide with other actors', ()=>{
-		var otherActor = new Actor(10, 10, 20, 20);
+		var otherActor = new ex.Actor(10, 10, 20, 20);
 		actor.setHeight(20);
 		actor.setWidth(20);
 
@@ -141,17 +141,17 @@ describe("A game actor", () => {
 		otherActor.x = 19;
 		otherActor.y = 0;
 
-		expect(actor.collides(otherActor)).toBe(Side.LEFT);
-		expect(otherActor.collides(actor)).toBe(Side.RIGHT);
+		expect(actor.collides(otherActor)).toBe(ex.Side.LEFT);
+		expect(otherActor.collides(actor)).toBe(ex.Side.RIGHT);
 
 		actor.x = 0;
 		actor.y = 0;
 		otherActor.x  = 21;
 		otherActor.y = 0;
-		expect(actor.collides(otherActor)).toBe(Side.NONE);
+		expect(actor.collides(otherActor)).toBe(ex.Side.NONE);
 
 		actor.setWidth(22);
-		expect(actor.collides(otherActor)).toBe(Side.LEFT);
+		expect(actor.collides(otherActor)).toBe(ex.Side.LEFT);
 
 	});
 

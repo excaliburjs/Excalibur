@@ -6,27 +6,27 @@
 describe('A promise', ()=>{
    var promise;
    beforeEach(()=>{
-      promise = new Promise();
+      promise = new ex.Promise();
    });
 
    it('should be loaded', ()=>{
-      expect(Promise).toBeTruthy();
+      expect(ex.Promise).toBeTruthy();
    });
 
    it('should be defaulted to pending', ()=>{
-      expect(promise.state()).toBe(PromiseState.Pending);
+      expect(promise.state()).toBe(ex.PromiseState.Pending);
    });
 
    it('can be resolved without a callback', ()=>{
-      expect(promise.state()).toBe(PromiseState.Pending);
+      expect(promise.state()).toBe(ex.PromiseState.Pending);
       promise.resolve();
-      expect(promise.state()).toBe(PromiseState.Resolved);
+      expect(promise.state()).toBe(ex.PromiseState.Resolved);
    });
 
    it('can be rejected without a callback', ()=>{
-      expect(promise.state()).toBe(PromiseState.Pending);
+      expect(promise.state()).toBe(ex.PromiseState.Pending);
       promise.reject();
-      expect(promise.state()).toBe(PromiseState.Rejected);
+      expect(promise.state()).toBe(ex.PromiseState.Rejected);
    });
 
    it('can be resolved with a callback async', ()=>{
@@ -145,8 +145,8 @@ describe('A promise', ()=>{
       var p;
       var value : number;
       runs(()=>{
-         p = Promise.wrap<number>(12);
-         expect(p.state()).toBe(PromiseState.Resolved);
+         p = ex.Promise.wrap<number>(12);
+         expect(p.state()).toBe(ex.PromiseState.Resolved);
 
          p.then((v)=>{
             value = v;

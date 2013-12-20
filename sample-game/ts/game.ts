@@ -1,78 +1,44 @@
-/**
-Copyright (c) 2013 Erik Onarheim
-All rights reserved.
+/// <reference path='../../build/Excalibur-0.2.0-alpha.d.ts' />
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-1. Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright
-   notice, this list of conditions and the following disclaimer in the
-   documentation and/or other materials provided with the distribution.
-3. All advertising materials mentioning features or use of this software
-   must display the following acknowledgement:
-   This product includes software developed by the ExcaliburJS Team.
-4. Neither the name of the creator nor the
-   names of its contributors may be used to endorse or promote products
-   derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE EXCALIBURJS TEAM ''AS IS'' AND ANY
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE EXCALIBURJS TEAM BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
-
-/// <reference path='../../build/Excalibur-0.1.1-alpha.d.ts' />
-
-// Create screen appender 
-//var screenAppender = new ScreenAppender();
-var logger = Logger.getInstance();
-logger.defaultLevel = Log.DEBUG;
-//logger.addAppender(screenAppender);
-
+var logger = ex.Logger.getInstance();
+logger.defaultLevel = ex.Log.Debug;
 
 // Create an the game container
-var game = new Engine(800, 600, 'game');
+var game = new ex.Engine(800, 600, 'game');
 game.setAntialiasing(false);
 
-var imageRun = new Texture('../images/PlayerRun.png');
-var imageJump = new Texture('../images/PlayerJump.png');
-var imageBlocks = new Texture('../images/BlockA0.png');
-var spriteFontImage = new Texture('../images/SpriteFont.png');
-var jump = new Sound('../sounds/jump.wav');
+var imageRun = new ex.Texture('../images/PlayerRun.png');
+var imageJump = new ex.Texture('../images/PlayerJump.png');
+var imageBlocks = new ex.Texture('../images/BlockA0.png');
+var spriteFontImage = new ex.Texture('../images/SpriteFont.png');
+var jump = new ex.Sound('../sounds/jump.wav');
 
-var loader = new Loader();
+var loader = new ex.Loader();
 loader.addResource(imageRun);
 loader.addResource(imageJump);
 loader.addResource(imageBlocks);
 loader.addResource(spriteFontImage);
 loader.addResource(jump);
 game.load(loader).then(()=>{
-   logger.log("All Resources have finished loading", Log.INFO);
+   logger.log("All Resources have finished loading", ex.Log.Info);
 });
 
 // Set background color
-game.backgroundColor = new Color(114,213,224);
+game.backgroundColor = new ex.Color(114,213,224);
 
 // Turn on debug diagnostics
 game.isDebug = false;
 
 // Create spritesheet
-var spriteSheetRun = new Drawing.SpriteSheet(imageRun, 21, 1, 96, 96);
-var spriteSheetJump = new Drawing.SpriteSheet(imageJump, 21, 1, 96, 96);
+var spriteSheetRun = new ex.SpriteSheet(imageRun, 21, 1, 96, 96);
+var spriteSheetJump = new ex.SpriteSheet(imageJump, 21, 1, 96, 96);
 var tileBlockWidth = 64,
     tileBlockHeight = 48,
-    spriteTiles = new Drawing.SpriteSheet(imageBlocks, 1, 1, tileBlockWidth, tileBlockHeight);
+    spriteTiles = new ex.SpriteSheet(imageBlocks, 1, 1, tileBlockWidth, tileBlockHeight);
 
 // Create spriteFont
-var spriteFont = new Drawing.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
-var label = new Label('Hello World', 100, 100, null, spriteFont);
+var spriteFont = new ex.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
+var label = new ex.Label('Hello World', 100, 100, null, spriteFont);
 label.scaleTo(2, .5).scaleTo(1,.5).repeatForever();
 game.addChild(label);
 
@@ -92,43 +58,43 @@ var currentX = 0;
 // Create the level
 for(var i = 0; i< 36; i++){
    currentX = tileBlockWidth * i + 10;
-   var color = new Color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
-   var block = new Actor(currentX, 350 + Math.random() * 100, tileBlockWidth, tileBlockHeight, color);
+   var color = new ex.Color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
+   var block = new ex.Actor(currentX, 350 + Math.random() * 100, tileBlockWidth, tileBlockHeight, color);
    
    block.addDrawing(Animations.Block, blockAnimation);
    
    game.addChild(block);
 }
 
-var platform = new Actor(400, 300, 200,50,new Color(0,200,0));
+var platform = new ex.Actor(400, 300, 200,50, new ex.Color(0,200,0));
 platform.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100).repeatForever();
 game.addChild(platform);
 
-var platform2 = new Actor(800, 300, 200,20, new Color(0,0,140));
+var platform2 = new ex.Actor(800, 300, 200,20, new ex.Color(0,0,140));
 platform2.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).moveTo(800, 300, 100).repeatForever();
 game.addChild(platform2);
 
-var platform3 = new Actor(-200, 400, 200, 20, new Color(50, 0, 100));
+var platform3 = new ex.Actor(-200, 400, 200, 20, new ex.Color(50, 0, 100));
 platform3.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3000).moveTo(-200, 300, 800).moveTo(-200, 400, 800).repeatForever();
 game.addChild(platform3);
 
-var platform4 = new Actor(200, 200, 100, 50, Color.Azure);
+var platform4 = new ex.Actor(200, 200, 100, 50, ex.Color.Azure);
 platform4.moveBy(75, 300, .20);
 game.addChild(platform4);
 
 
 // Create the player
-var player = new Actor(100,100,32,96);
+var player = new ex.Actor(100,100,32,96);
 
 player.scale = 1;
 player.rotation = 0;
 player.fixed = false;
 
 // Health bar example
-player.addChild(new Actor(-48, -20, 140, 5, new Color(0,255,0)));
+player.addChild(new ex.Actor(-48, -20, 140, 5, new ex.Color(0,255,0)));
 
 // Add Title above player
-var playerLabel = new Label('My Player', -48, -39, null, spriteFont);
+var playerLabel = new ex.Label('My Player', -48, -39, null, spriteFont);
 
 player.addChild(playerLabel);
 
@@ -211,54 +177,54 @@ player.addEventListener('mousedown', ()=>{
    alert("player clicked!");
 });
 
-player.addEventListener('keyup', (e? : KeyUp) => {
+player.addEventListener('keyup', (e? : ex.KeyUp) => {
    if (inAir) return;
    
-   if (e.key === InputKey.Left ||
-       e.key === InputKey.Right) {
+   if (e.key === ex.InputKey.Left ||
+       e.key === ex.InputKey.Right) {
       player.setDrawing(Animations.Idle);
    }
 });
 
-game.addEventListener('mousedown', (e? : MouseDown)=>{
+game.addEventListener('mousedown', (e? : ex.MouseDown)=>{
    console.log(e.x + ", " +e.y);
 });
 
-var newScene = new SceneNode();
-newScene.addChild(new Actor(100, 100, 100, 100, new Color(0,0,0,.5)));
+var newScene = new ex.SceneNode();
+newScene.addChild(new ex.Actor(100, 100, 100, 100, new ex.Color(0,0,0,.5)));
 
-game.addEventListener('keydown', (keyDown? : KeyDown)=>{
-   if(keyDown.key === InputKey.F){
-      var a = new Actor(player.x+10, player.y-50, 10, 10, new Color(222,222,222));
+game.addEventListener('keydown', (keyDown? : ex.KeyDown)=>{
+   if(keyDown.key === ex.InputKey.F){
+      var a = new ex.Actor(player.x+10, player.y-50, 10, 10, new ex.Color(222,222,222));
       a.dx = 200*direction;
       a.dy = 0;
       a.preventCollisions = true;
       a.fixed = false;
       var inAir = true;
-      a.addEventListener('collision', (data?: CollisionEvent)=>{
+      a.addEventListener('collision', (data?: ex.CollisionEvent)=>{
          inAir = false;
          a.dx = data.other.dx;
          a.dy = data.other.dy;
          a.kill();
       });
-      a.addEventListener('update', (data?: UpdateEvent)=>{
+      a.addEventListener('update', (data?: ex.UpdateEvent)=>{
          if(inAir){
             a.dy += 400 * data.delta/1000;
          }
          inAir = true;
       });
       game.addChild(a);
-   }else if(keyDown.key === InputKey.U){
+   }else if(keyDown.key === ex.InputKey.U){
       game.pushScene(newScene);
-   }else if(keyDown.key === InputKey.I){
+   }else if(keyDown.key === ex.InputKey.I){
       game.popScene();
    }
 });
 
 var isColliding = false;
-player.addEventListener('collision', (data?: CollisionEvent)=>{   
+player.addEventListener('collision', (data?: ex.CollisionEvent)=>{   
        
-   if(data.side === Side.BOTTOM){
+   if(data.side === ex.Side.BOTTOM){
       isColliding = true;
 
       if (inAir) {
@@ -270,12 +236,12 @@ player.addEventListener('collision', (data?: CollisionEvent)=>{
       player.dy = data.other.dy;      
    }
 
-   if(data.side === Side.TOP){
+   if(data.side === ex.Side.TOP){
       player.dy = data.other.dy - player.dy;
    }
 });
 
-player.addEventListener('update', (data?: UpdateEvent)=>{
+player.addEventListener('update', (data?: ex.UpdateEvent)=>{
    // apply gravity if player is in the air
    // only apply gravity when not colliding
    if(!isColliding){
@@ -289,9 +255,9 @@ player.addEventListener('update', (data?: UpdateEvent)=>{
    //console.log("Player Pos", player.x, player.y, player.getWidth(), player.getHeight());
 });
 
-game.addEventListener('keydown', (keyDown? : KeyDown)=>{
-   if(keyDown.key === InputKey.B){
-      var block = new Actor(currentX,350,44,50,color);
+game.addEventListener('keydown', (keyDown? : ex.KeyDown)=>{
+   if(keyDown.key === ex.InputKey.B){
+      var block = new ex.Actor(currentX,350,44,50,color);
       currentX += 46;
       block.addDrawing(Animations.Block, blockAnimation);
       game.addChild(block);
@@ -309,9 +275,9 @@ game.addEventListener('p', ()=>{
 });
 
 
-game.addEventListener('keydown', (keyDown? : KeyDown)=>{
+game.addEventListener('keydown', (keyDown? : ex.KeyDown)=>{
 
-   if(keyDown.key === InputKey.D){
+   if(keyDown.key === ex.InputKey.D){
       game.isDebug = !game.isDebug;
    }
 });
@@ -325,7 +291,7 @@ game.addEventListener('focus', ()=>{
 });
 
 // Create a camera to track the player
-var camera = new Camera.SideCamera(game);
+var camera = new ex.SideCamera(game);
 camera.setActorToFollow(player);
 
 // Add player to game is synonymous with adding a player to the current scene

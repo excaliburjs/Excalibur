@@ -1,7 +1,7 @@
 {
   "name": "Excalibur",
   "description": "Excalibur.js is a simple game engine written in TypeScript for making 2D games in HTML5 Canvas. The goal of Excalibur is create a simple engine to demonstrate the capabilities of TypeScript and to illustrate simple game development to new developers.",
-  "version": "0.1.1-alpha",
+  "version": "0.2.0-alpha",
   "author": "Erik Onarheim (http://erikonarheim.com)",
   "homepage": "https://github.com/eonarheim/Excalibur",
   "repository": {
@@ -21,7 +21,7 @@
     "test": "jasmine-node /spec/"
   },
   "devDependencies": {
-    "typescript": "0.9.1",
+    "typescript": "0.9.5",
     "jasmine-node": "1.10.2",
     "grunt": "0.4.2",
     "grunt-shell": "0.6.1",
