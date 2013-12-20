@@ -8,26 +8,27 @@ module ex {
       Pending,
    }
 
-   export interface IPromise {
-      then(successCallback?: (value?: any) => any, rejectCallback?: (value?: any) => any): IPromise;
-      error(rejectCallback?: (value?: any) => any): IPromise;
+   export interface IPromise<T> {
+      then(successCallback?: (value?: T) => any, rejectCallback?: (value?: T) => any): IPromise<T>;
+      error(rejectCallback?: (value?: any) => any): IPromise<T>;
 
-      wrap(value?: any): IPromise;
+      //Cannot define static methods on interfaces
+      //wrap<T>(value?: T): IPromise<T>;
 
-      resolve(value?: any): IPromise;
-      reject(value?: any): IPromise;
+      resolve(value?: T): IPromise<T>;
+      reject(value?: any): IPromise<T>;
 
       state(): PromiseState;
    }
 
-   export class Promise<T> implements IPromise {
+   export class Promise<T> implements IPromise<T> {
       private _state: PromiseState = PromiseState.Pending;
       private value: T;
       private successCallbacks: { (value?: T): any }[] = [];
       private rejectCallback: (value?: any) => any = () => { };
       private errorCallback: (value?: any) => any = () => { };
 
-      public static wrap<T>(value?: T): IPromise {
+      public static wrap<T>(value?: T): IPromise<T> {
          var promise = (new Promise<T>()).resolve(value);
 
          return promise;
@@ -71,7 +72,7 @@ module ex {
          return this;
       }
 
-      public resolve(value?: T) {
+      public resolve(value?: T) : Promise<T>{
          if (this._state === PromiseState.Pending) {
             this.value = value;
             try {

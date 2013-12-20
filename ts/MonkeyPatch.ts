@@ -1,5 +1,5 @@
 if (typeof window == 'undefined') {
-   (<any>window) = { audioContext: function () { } };
+   window = (<any>{ audioContext: function () { } });
 }
 
 if (typeof window != 'undefined' && !window.requestAnimationFrame) {

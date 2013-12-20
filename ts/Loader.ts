@@ -29,7 +29,7 @@ module ex {
 
 
       public load(): Promise<HTMLImageElement> {
-         var complete = new Promise();
+         var complete = new Promise<HTMLImageElement>();
 
          this.image = new Image();
          var request = new XMLHttpRequest();
