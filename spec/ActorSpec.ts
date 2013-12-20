@@ -324,52 +324,8 @@ describe("A game actor", () => {
 
 	});
 
-	it('can follow another actor', ()=>{
-		expect(actor.x).toBe(0);
-		expect(actor.y).toBe(0);
-
-		var actorToFollow = new Actor(10, 0);
-		actorToFollow.moveTo(100, 0, 10);
-		actor.follow(actorToFollow);
-		// actor.update(engine, 1000);
-		// expect(actor.x).toBe(actorToFollow.x);
-
-		for(var i = 1; i < 10; i++){
-			// actor.follow(actorToFollow);
-			actorToFollow.update(engine, 1000);
-			actor.update(engine, 1000);
-			expect(actor.x).toBe(actorToFollow.x-10)
-		}
 
 
-		// test different follow distances?
-	});
-
-	it('can meet another actor' , ()=>{
-		expect(actor.x).toBe(0);
-		expect(actor.y).toBe(0);
-
-		// testing basic meet
-		var actorToMeet = new Actor(10, 0);
-		actorToMeet.moveTo(100, 0, 10);
-		actor.meet(actorToMeet);
-
-		for(var i = 0; i < 9; i++){
-			actorToMeet.update(engine, 1000);
-			actor.update(engine, 1000);
-			expect(actor.x).toBe(actorToMeet.x-10)
-		}
-
-		// actor should have caught up to actorToFollow since it stopped moving
-		actorToMeet.update(engine, 1000);
-		actor.update(engine, 1000);
-		expect(actor.x).toBe (actorToMeet.x);
-
-		//TODO have actor to be followed traveling at a diagonal 'toward' the following actor
-		// testing when actorToMeet is moving in a direction towards the following actor
-
-
-		})
 
 
 });

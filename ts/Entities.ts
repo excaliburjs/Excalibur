@@ -311,28 +311,11 @@ class Actor {
       return this;
    }
 
-   public repeatForever() : Actor {
+   public repeatForever() : Actor{
       this.actionQueue.add(new RepeatForever(this, this.actionQueue.getActions()));
       return this;
    }
-
-   public follow(actor : Actor, followDistance? : number) : Actor {
-      if (followDistance == undefined){
-            this.actionQueue.add(new Follow(this, actor));
-         } else {
-            this.actionQueue.add(new Follow(this, actor, followDistance));
-         }
-      return this;
-   }
-
-   public meet(actor: Actor, speed? : number) : Actor {
-      if(speed == undefined){
-            this.actionQueue.add(new Meet(this, actor));
-         } else {
-            this.actionQueue.add(new Meet(this, actor, speed));
-         }
-      return this;
-   }
+   
 
    public update(engine : Engine, delta : number){
       this.sceneNode.update(engine, delta);
