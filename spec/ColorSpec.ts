@@ -6,12 +6,12 @@
 describe('A color', ()=>{
    var color;
    beforeEach(()=>{
-      color = new Color(0, 0, 0);
+      color = new ex.Color(0, 0, 0);
    });
 
 
    it('should be loaded', () => {
-      expect(Color).toBeTruthy();
+      expect(ex.Color).toBeTruthy();
    });
 
    it('should default to rgba(0, 0, 0, 1)', ()=>{
@@ -19,36 +19,36 @@ describe('A color', ()=>{
    });
 
    it('can be parsed from hex', ()=>{
-      color = Color.fromHex('ffffff');
+      color = ex.Color.fromHex('ffffff');
       expect(color.r).toBe(255);
       expect(color.g).toBe(255);
       expect(color.b).toBe(255);
       expect(color.a).toBe(1);
 
-      color = Color.fromHex('#ffffff');
+      color = ex.Color.fromHex('#ffffff');
       expect(color.r).toBe(255);
       expect(color.g).toBe(255);
       expect(color.b).toBe(255);
       expect(color.a).toBe(1);
 
-      color = Color.fromHex('aaffff00');
+      color = ex.Color.fromHex('aaffff00');
       expect(color.a).toBe(0);
 
-      color = Color.fromHex('#00bbaa00');
+      color = ex.Color.fromHex('#00bbaa00');
       expect(color.a).toBe(0);
    })
 
    it('should have a default alpha of 255 if not specified', ()=>{
-      color = Color.fromHex('#000000');
+      color = ex.Color.fromHex('#000000');
       expect(color.a).toBe(1);
-      color = Color.fromRGB(0,0,0);
+      color = ex.Color.fromRGB(0,0,0);
       expect(color.a).toBe(1);
    });
 
    it('should have the correct alpha parsed', ()=>{
-      color = Color.fromHex('#1111111f');
+      color = ex.Color.fromHex('#1111111f');
       expect(color.a).toBe(31/255);
-      color = Color.fromRGB(17,17,17,31/255);
+      color = ex.Color.fromRGB(17,17,17,31/255);
       expect(color.a).toBe(31/255);
    });
 });
