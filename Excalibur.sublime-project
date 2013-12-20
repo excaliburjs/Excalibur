@@ -4,7 +4,10 @@
 		{
 			"path": ".",
 			"file_exclude_patterns" : [
-				"*.js"
+				"build/*.js",
+				"ts/*.js",
+				"spec/*.js",
+				"sample-game/*.js"
 			],
 			"folder_exclude_patterns" : [
 				"js"
@@ -15,7 +18,8 @@
 	"settings":
 	{
 		"tab_size":3,
-		"translate_tabs_to_spaces":true
+		"translate_tabs_to_spaces":true,
+		"detect_indentation":false
 	},
 	"build_systems":
 	[
@@ -25,10 +29,10 @@
 			"working_dir":"$project_path",
 
 			"windows":{
-				"cmd":["build.bat"]
+				"cmd":["grunt.cmd"]
 			},
 			"linux":{
-				"cmd":["make"]
+				"cmd":["grunt"]
 			}
 		},
 		{

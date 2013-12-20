@@ -7,7 +7,7 @@ describe("A game actor", () => {
 	var actor;
 	var engine;
 	beforeEach(()=>{
-		actor = new Actor();
+		actor = new ex.Actor();
 		// mock engine
 		engine = {
 			currentScene : {
@@ -22,7 +22,7 @@ describe("A game actor", () => {
 
 
 	it("should be loaded", () => {
-		expect(Actor).toBeTruthy();
+		expect(ex.Actor).toBeTruthy();
 	});
 
 
@@ -131,7 +131,7 @@ describe("A game actor", () => {
 	});
 
 	it('can collide with other actors', ()=>{
-		var otherActor = new Actor(10, 10, 20, 20);
+		var otherActor = new ex.Actor(10, 10, 20, 20);
 		actor.setHeight(20);
 		actor.setWidth(20);
 
@@ -141,17 +141,17 @@ describe("A game actor", () => {
 		otherActor.x = 19;
 		otherActor.y = 0;
 
-		expect(actor.collides(otherActor)).toBe(Side.LEFT);
-		expect(otherActor.collides(actor)).toBe(Side.RIGHT);
+		expect(actor.collides(otherActor)).toBe(ex.Side.LEFT);
+		expect(otherActor.collides(actor)).toBe(ex.Side.RIGHT);
 
 		actor.x = 0;
 		actor.y = 0;
 		otherActor.x  = 21;
 		otherActor.y = 0;
-		expect(actor.collides(otherActor)).toBe(Side.NONE);
+		expect(actor.collides(otherActor)).toBe(ex.Side.NONE);
 
 		actor.setWidth(22);
-		expect(actor.collides(otherActor)).toBe(Side.LEFT);
+		expect(actor.collides(otherActor)).toBe(ex.Side.LEFT);
 
 	});
 
@@ -233,14 +233,32 @@ describe("A game actor", () => {
 
 	it('can blink at a frequency', ()=>{
 		expect(actor.invisible).toBe(false);
-		actor.blink(1/1000, 3000);
-
-		actor.update(engine, 1000);
-		expect(actor.invisible).toBe(true);
+		actor.blink(1, 3000);
 
 		actor.update(engine, 500);
+		expect(actor.invisible).toBe(true);
+
+		actor.update(engine, 250);
+		actor.update(engine, 250);
 		expect(actor.invisible).toBe(false);
 
+	});
+
+	it('can blink at a frequency forever', ()=>{
+		expect(actor.invisible).toBe(false);
+		actor.blink(1, 1000).repeatForever();
+
+		
+		for(var i = 0; i < 2; i++){
+			actor.update(engine, 250);
+			actor.update(engine, 250);
+			expect(actor.invisible).toBe(true);
+			actor.update(engine, 250);
+			actor.update(engine, 250);
+			expect(actor.invisible).toBe(false);
+			actor.update(engine, 250);
+		}
+		
 	});
 
 	it('can be delayed by an amount off time', ()=>{
@@ -324,8 +342,179 @@ describe("A game actor", () => {
 
 	});
 
+	it('can have its moveTo action stopped', ()=>{
+		expect(actor.x).toBe(0);
+		expect(actor.y).toBe(0);
 
+		actor.moveTo(20, 0, 10);
+		actor.update(engine,500);
 
+		actor.clearActions();
+		expect(actor.x).toBe(5);
+		expect(actor.y).toBe(0);
 
+		// Actor should not move after stop
+		actor.update(engine,500);
+		expect(actor.x).toBe(5);
+		expect(actor.y).toBe(0);
+	});
+
+	it('can have its moveBy action stopped', ()=>{
+		expect(actor.x).toBe(0);
+		expect(actor.y).toBe(0);
+
+		actor.moveBy(20, 0, 1000);
+		actor.update(engine,500);
+
+		actor.clearActions();
+		expect(actor.x).toBe(10);
+		expect(actor.y).toBe(0);
+
+		// Actor should not move after stop
+		actor.update(engine,500);
+		expect(actor.x).toBe(10);
+		expect(actor.y).toBe(0);
+	});
+
+	it('can have its rotateTo action stopped', ()=>{
+		expect(actor.rotation).toBe(0);
+
+		actor.rotateTo(Math.PI/2, Math.PI/2);
+		actor.update(engine, 500);
+
+		expect(actor.rotation).toBe(Math.PI/4);
+		actor.clearActions();
+
+		actor.update(engine, 500);
+		expect(actor.rotation).toBe(Math.PI/4);
+	});
+
+	it('can have its rotateBy action stopped', ()=>{
+		expect(actor.rotation).toBe(0);
+
+		actor.rotateBy(Math.PI/2, 2000);
+		
+		actor.update(engine, 1000);
+
+		actor.clearActions();
+		expect(actor.rotation).toBe(Math.PI/4);
+
+		actor.update(engine, 1000);
+
+		expect(actor.rotation).toBe(Math.PI/4);
+	});
+
+	it('can have its scaleTo action stopped', ()=>{
+		expect(actor.scale).toBe(1);
+
+		actor.scaleTo(2, .5);
+		actor.update(engine, 1000);
+
+		actor.clearActions();
+		expect(actor.scale).toBe(1.5);
+		actor.update(engine, 1000);
+
+		expect(actor.scale).toBe(1.5);
+	});
+
+	it('can have its scaleBy action stopped', ()=>{
+		expect(actor.scale).toBe(1);
+
+		actor.scaleBy(4, 1000);
+
+		actor.update(engine, 500);
+
+		actor.clearActions();
+		expect(actor.scale).toBe(2.5);
+
+		actor.update(engine, 500);
+		expect(actor.scale).toBe(2.5);
+	});
+
+	it('can have its blink action stopped', ()=>{
+		expect(actor.invisible).toBe(false);
+		actor.blink(1, 3000);
+
+		actor.update(engine, 500);
+		expect(actor.invisible).toBe(true);
+
+		actor.clearActions();
+		
+		actor.update(engine, 500);
+		actor.update(engine, 500);
+		expect(actor.invisible).toBe(false);
+	});
+
+	it('can have its delay action stopped', ()=>{
+		expect(actor.x).toBe(0);
+		expect(actor.y).toBe(0);
+
+		actor.delay(1000).moveTo(20, 0, 20);
+		actor.update(engine, 1000);
+
+		expect(actor.x).toBe(0);
+
+		actor.clearActions();
+		actor.update(engine, 1000);
+
+		expect(actor.x).toBe(0);
+	});
+
+	it('can have its repeat action stopped', ()=>{
+		expect(actor.x).toBe(0);
+		expect(actor.y).toBe(0);
+
+		actor.moveTo(20, 0, 10).moveTo(0, 0, 10).repeat();
+
+		actor.update(engine, 1000);
+		expect(actor.x).toBe(10);
+		expect(actor.y).toBe(0);
+
+		actor.update(engine, 1000);
+		expect(actor.x).toBe(20);
+		expect(actor.y).toBe(0);
+
+		actor.clearActions();
+		actor.update(engine, 1);
+		actor.update(engine, 1000);
+		expect(actor.x).toBe(20);
+		expect(actor.y).toBe(0);
+
+		actor.update(engine, 1000);
+		expect(actor.x).toBe(20);
+		expect(actor.y).toBe(0);
+
+		actor.update(engine, 1);
+		actor.update(engine, 1000);
+		expect(actor.x).toBe(20);
+		expect(actor.y).toBe(0);
+
+		actor.update(engine, 1000);
+		expect(actor.x).toBe(20);
+		expect(actor.y).toBe(0);
+
+		actor.update(engine, 1000);
+		expect(actor.x).toBe(20);
+		expect(actor.y).toBe(0);
+	});
+
+	it('can have its repeatForever action stopped', ()=>{
+		expect(actor.x).toBe(0);
+		expect(actor.y).toBe(0);
+
+		actor.moveTo(20, 0, 10).moveTo(0, 0, 10).repeatForever();
+
+		actor.update(engine, 1000);
+		expect(actor.x).toBe(10);
+		expect(actor.y).toBe(0);
+
+		actor.clearActions();
+
+		for(var i = 0; i < 20; i++){
+			actor.update(engine, 1000);
+			expect(actor.x).toBe(10);
+			expect(actor.y).toBe(0);
+		}
+	});
 
 });
