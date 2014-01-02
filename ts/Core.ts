@@ -9,6 +9,7 @@
 /// <reference path="Sound.ts" />
 /// <reference path="Loader.ts" />
 /// <reference path="Promises.ts" />
+/// <reference path="Util.ts" />
 
 module ex {
    export class Color {

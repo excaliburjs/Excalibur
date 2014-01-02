@@ -83,6 +83,7 @@ platform4.moveBy(75, 300, .20);
 game.addChild(platform4);
 
 
+
 // Create the player
 var player = new ex.Actor(100,100,32,96);
 
@@ -186,9 +187,7 @@ player.addEventListener('keyup', (e? : ex.KeyUp) => {
    }
 });
 
-game.addEventListener('mousedown', (e? : ex.MouseDown)=>{
-   console.log(e.x + ", " +e.y);
-});
+
 
 var newScene = new ex.SceneNode();
 newScene.addChild(new ex.Actor(100, 100, 100, 100, new ex.Color(0,0,0,.5)));
@@ -296,6 +295,32 @@ camera.setActorToFollow(player);
 
 // Add player to game is synonymous with adding a player to the current scene
 game.addChild(player);
+
+// Add particle emitter
+var emitter = new ex.ParticleEmitter(100, 100, 2, 2);
+emitter.minVel = 100;
+emitter.maxVel = 200;
+emitter.minAngle = 0;//-Math.PI/6 + Math.PI/2;
+emitter.maxAngle = Math.PI*2;//Math.PI/6 + Math.PI/2;
+emitter.isEmitting = true;
+emitter.emitRate = 300;
+emitter.opacity = 0.5;
+emitter.fade = true;
+emitter.particleLife = 1000; // 1 sec
+emitter.particleSize = 10;
+emitter.acceleration = new ex.Vector(0, -400);
+//emitter.focus = new ex.Vector(0, -100);
+emitter.focusAccel = 800;
+game.addChild(emitter);
+emitter.addEventListener('q', function(){
+   emitter.emit(1);
+});
+
+game.addEventListener('mousedown', (evt? : ex.MouseDown)=>{
+   console.log(evt.x + ", " +evt.y);
+   emitter.focus = new ex.Vector(evt.x - emitter.x, evt.y - emitter.y);
+});
+
 
 // Add camera to game
 game.camera = camera;
