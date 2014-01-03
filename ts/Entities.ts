@@ -600,7 +600,8 @@ module ex {
       public fade: boolean = false;
       public focus: Vector = null;
       public focusAccel: number = 1;
-      public particleSize: number = 5;
+      public minSize: number = 5;
+      public maxSize: number = 5;
       public particleColor: Color = Color.White;
 
       constructor(x?: number, y?: number, width?: number, height?: number) {    
@@ -633,13 +634,14 @@ module ex {
 
          var angle = Util.randomInRange(this.minAngle, this.maxAngle);
          var vel = Util.randomInRange(this.minVel, this.maxVel);
+         var size = Util.randomInRange(this.minSize, this.maxSize);
          var dx = vel * Math.cos(angle);
          var dy = vel * Math.sin(angle);
          
          var p = new Particle(this, this.particleLife, new Vector(ranX, ranY), new Vector(dx, dy), this.acceleration);
          p.opacity = this.opacity;
          p.fade = this.fade;
-         p.particleSize = this.particleSize;
+         p.particleSize = size;
          p.particleColor = this.particleColor;
          if (this.focus) {
             p.focus = this.focus.add(new ex.Vector(this.x, this.y));
@@ -680,7 +682,7 @@ module ex {
 
          if (this.focus) {
             ctx.fillRect(this.focus.x + this.x, this.focus.y + this.y, 3, 3);
-            Util.drawLine(ctx, "yellow", this.focus.x + this.x, this.focus.y + this.y, this.x, this.y);
+            Util.drawLine(ctx, "yellow", this.focus.x + this.x, this.focus.y + this.y, super.getCenter().x, super.getCenter().y);
             ctx.fillText("Focus", this.focus.x + this.x, this.focus.y + this.y);
          }
       }
