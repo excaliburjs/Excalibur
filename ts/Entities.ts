@@ -362,6 +362,23 @@ module ex {
          return this;
       }
 
+      public follow(actor : Actor, followDistance? : number) : Actor {
+      if (followDistance == undefined){
+            this.actionQueue.add(new ex.Internal.Actions.Follow(this, actor));
+         } else {
+            this.actionQueue.add(new ex.Internal.Actions.Follow(this, actor, followDistance));
+         }
+      return this;
+      }
+
+      public meet(actor: Actor, speed? : number) : Actor {
+         if(speed == undefined){
+               this.actionQueue.add(new ex.Internal.Actions.Meet(this, actor));
+            } else {
+               this.actionQueue.add(new ex.Internal.Actions.Meet(this, actor, speed));
+            }
+         return this;
+      }
 
       public update(engine: Engine, delta: number) {
          this.sceneNode.update(engine, delta);
