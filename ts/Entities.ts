@@ -1,5 +1,6 @@
 /// <reference path="Core.ts" />
 /// <reference path="Algebra.ts" />
+/// <reference path="Util.ts" />
 
 module ex {
    export class Overlap {
@@ -53,7 +54,7 @@ module ex {
          this.children.forEach((actor) => {
             actor.debugDraw(ctx);
          })
-   }
+      }
 
       addChild(actor: Actor) {
          actor.parent = this;
@@ -63,7 +64,7 @@ module ex {
       removeChild(actor: Actor) {
          this.killQueue.push(actor);
       }
-   };
+   }
 
    export enum Side {
       NONE,
@@ -104,9 +105,9 @@ module ex {
       public fixed = true;
       public preventCollisions = false;
 
-   public frames: { [key: string]: IDrawable; } = {}
-   //public animations : {[key : string] : Drawing.Animation;} = {};
-   public currentDrawing: IDrawable = null;
+      public frames: { [key: string]: IDrawable; } = {}
+      //public animations : {[key : string] : Drawing.Animation;} = {};
+      public currentDrawing: IDrawable = null;
 
       private centerDrawingX = false;
       private centerDrawingY = false;
@@ -361,6 +362,23 @@ module ex {
          return this;
       }
 
+      public follow(actor : Actor, followDistance? : number) : Actor {
+      if (followDistance == undefined){
+            this.actionQueue.add(new ex.Internal.Actions.Follow(this, actor));
+         } else {
+            this.actionQueue.add(new ex.Internal.Actions.Follow(this, actor, followDistance));
+         }
+      return this;
+      }
+
+      public meet(actor: Actor, speed? : number) : Actor {
+         if(speed == undefined){
+               this.actionQueue.add(new ex.Internal.Actions.Meet(this, actor));
+            } else {
+               this.actionQueue.add(new ex.Internal.Actions.Meet(this, actor, speed));
+            }
+         return this;
+      }
 
       public update(engine: Engine, delta: number) {
          this.sceneNode.update(engine, delta);
@@ -520,6 +538,170 @@ module ex {
 
       public debugDraw(ctx: CanvasRenderingContext2D) {
          super.debugDraw(ctx);
+      }
+
+   }
+
+
+   export class Particle {
+      public position: Vector = new Vector(0, 0);
+      public velocity: Vector = new Vector(0, 0);
+      public acceleration: Vector = new Vector(0, 0);
+      public focus: Vector = null;
+      public focusAccel: number = 0;
+      public opacity: number = 1;
+      public particleColor: Color = Color.White;
+      // Life is counted in ms
+      public life: number = 300;
+      public fade: boolean = false;
+      private fadeRate: number = 0;
+      public emitter: ParticleEmitter = null;
+      public particleSize: number = 5;
+
+      constructor(emitter: ParticleEmitter, life?: number, position?: Vector, velocity?: Vector, acceleration?: Vector) {
+         this.emitter = emitter;
+         this.life = life || this.life;
+         this.position = position || this.position;
+         this.velocity = velocity || this.velocity;
+         this.acceleration = acceleration || this.acceleration;
+         this.fadeRate = this.opacity / this.life;
+      }
+
+      public kill() {
+         this.emitter.removeParticle(this);
+      }
+
+      public update(delta: number) {
+         this.life = this.life - delta;
+         if (this.fade) {
+            this.opacity -= this.fadeRate * delta / 2;
+
+         }
+         if (this.life < 0) {
+            this.kill();
+         }
+         if (this.focus) {
+            var accel = this.focus.minus(this.position).normalize().scale(this.focusAccel).scale(delta / 1000);
+            this.velocity = this.velocity.add(accel);
+         } else {
+            this.velocity = this.velocity.add(this.acceleration.scale(delta / 1000));
+         }
+         this.position = this.position.add(this.velocity.scale(delta/1000));
+      }
+
+      public draw(ctx: CanvasRenderingContext2D) {
+         this.particleColor.a = (this.opacity < 0 ? 0.01: this.opacity);
+         ctx.fillStyle = this.particleColor.toString();
+         ctx.beginPath();
+         ctx.arc(this.position.x, this.position.y, this.particleSize, 0, Math.PI * 2);
+         ctx.fill();
+         ctx.closePath();
+      }
+   }
+
+   export class ParticleEmitter extends Actor {
+
+      public numParticles: number = 0;
+      public isEmitting: boolean = false;
+      public particles: Util.Collection<Particle> = null;
+      public deadParticles: Util.Collection<Particle> = null;
+
+      public minVel: number = 0;
+      public maxVel: number = 0;
+      public acceleration: Vector = new Vector(0, 0);
+      public minAngle: number = 0;
+      public maxAngle: number = 0;
+      public emitRate: number = 1; //particles/sec
+      public particleLife: number = 2000;
+      public opacity: number = 1;
+      public fade: boolean = false;
+      public focus: Vector = null;
+      public focusAccel: number = 1;
+      public minSize: number = 5;
+      public maxSize: number = 5;
+      public particleColor: Color = Color.White;
+
+      constructor(x?: number, y?: number, width?: number, height?: number) {    
+         super(x, y, width, height, Color.White);
+         this.preventCollisions = true;
+         this.particles = new Util.Collection<Particle>();
+         this.deadParticles = new Util.Collection<Particle>();
+      }
+
+      public removeParticle(particle: Particle) {
+         this.deadParticles.push(particle);
+      }
+
+      // Causes the emitter to emit particles
+      public emit(particleCount: number) {
+         for (var i = 0; i < particleCount; i++) {
+            this.particles.push(this.createParticle());
+         }
+      }
+
+      public clearParticles() {
+         this.particles.clear();
+      }
+
+      // Creates a new particle given the contraints of the emitter
+      private createParticle(): Particle {
+         // todo implement emitter contraints;
+         var ranX = Util.randomInRange(this.x, this.x + this.getWidth());
+         var ranY = Util.randomInRange(this.y, this.y + this.getHeight());
+
+         var angle = Util.randomInRange(this.minAngle, this.maxAngle);
+         var vel = Util.randomInRange(this.minVel, this.maxVel);
+         var size = Util.randomInRange(this.minSize, this.maxSize);
+         var dx = vel * Math.cos(angle);
+         var dy = vel * Math.sin(angle);
+         
+         var p = new Particle(this, this.particleLife, new Vector(ranX, ranY), new Vector(dx, dy), this.acceleration);
+         p.opacity = this.opacity;
+         p.fade = this.fade;
+         p.particleSize = size;
+         p.particleColor = this.particleColor;
+         if (this.focus) {
+            p.focus = this.focus.add(new ex.Vector(this.x, this.y));
+            p.focusAccel = this.focusAccel;
+         }
+         return p;
+      }
+      
+      public update(engine: Engine, delta: number) {
+         super.update(engine, delta);
+         if (this.isEmitting) {
+            var numParticles = Math.ceil(this.emitRate * delta / 1000);
+            this.emit(numParticles);
+         }
+
+         this.particles.forEach((particle: Particle, index: number) => {
+            particle.update(delta);
+         });
+
+         this.deadParticles.forEach((particle: Particle, index: number) => {
+            this.particles.removeElement(particle);
+         });
+         this.deadParticles.clear();
+      }
+
+      public draw(ctx: CanvasRenderingContext2D, delta: number) {
+         this.particles.forEach((particle: Particle, index: number) => {
+            // todo is there a more efficient to draw 
+            // possibly use a webgl offscreen canvas and shaders to do particles?
+            particle.draw(ctx);
+         });
+      }
+
+      public debugDraw(ctx: CanvasRenderingContext2D) {
+         super.debugDraw(ctx);
+         ctx.fillStyle = 'yellow';
+         ctx.fillText("Particles: " + this.particles.count(), this.x, this.y + 20);
+
+         if (this.focus) {
+            ctx.fillRect(this.focus.x + this.x, this.focus.y + this.y, 3, 3);
+            Util.drawLine(ctx, "yellow", this.focus.x + this.x, this.focus.y + this.y, super.getCenter().x, super.getCenter().y);
+            ctx.fillText("Focus", this.focus.x + this.x, this.focus.y + this.y);
+         }
       }
 
    }

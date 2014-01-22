@@ -284,5 +284,104 @@ module ex {
          this.reset();
          this.engine.playAnimation(this, x, y);
       }
-   }
+    }
+
+   export class Polygon implements IDrawable {
+      public flipX: boolean;
+      public flipY: boolean;
+      public width: number;
+      public height: number;
+      public lineColor: Color;
+      public fillColor: Color;
+      public lineWidth: number = 5;
+      public filled: boolean = false;
+      
+      private points: Point[] = [];
+      private transformationPoint = new Point(0, 0);
+      private rotation: number = 0;
+      private scale: number = 1;
+      constructor(points : Point[]) {
+         this.points = points;
+
+         var minX = this.points.reduce((prev: number, curr: Point) => {
+            return Math.min(prev, curr.x);
+         }, 0);
+         var maxX = this.points.reduce((prev: number, curr: Point) => {
+            return Math.max(prev, curr.x);
+         }, 0);
+
+         this.width = maxX - minX;
+
+         var minY = this.points.reduce((prev: number, curr: Point) => {
+            return Math.min(prev, curr.y);
+         }, 0);
+         var maxY = this.points.reduce((prev: number, curr: Point) => {
+            return Math.max(prev, curr.y);
+         }, 0);
+
+         this.height = maxY - minY;
+      }
+      public transformAboutPoint(point: Point) {
+         this.transformationPoint = point;
+      }
+
+      public setScale(scale: number) {
+         this.scale = scale;
+      }
+
+      public getScale() {
+         return this.scale;
+      }
+
+      public setRotation(radians: number) {
+         this.rotation = radians;
+      }
+
+      public getRotation() {
+         return this.rotation;
+      }
+
+      public reset() {
+         //pass
+      }
+
+      public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
+         ctx.save();
+         ctx.translate(x + this.transformationPoint.x, y + this.transformationPoint.y);
+         ctx.scale(this.scale, this.scale);
+         ctx.rotate(this.rotation);
+         ctx.beginPath();
+         ctx.lineWidth = this.lineWidth;
+
+         // Iterate through the supplied points and contruct a 'polygon'
+         var firstPoint = this.points[0];
+         ctx.moveTo(firstPoint.x, firstPoint.y);
+         this.points.forEach((point)=> {
+            ctx.lineTo(point.x, point.y);
+         });
+         ctx.lineTo(firstPoint.x, firstPoint.y);
+         ctx.closePath();
+
+         if (this.filled) {
+            ctx.fillStyle = this.fillColor.toString();
+            ctx.fill();
+         }
+
+         ctx.strokeStyle = this.lineColor.toString();
+
+         if (this.flipY) {
+            ctx.translate(this.width, 0);
+            ctx.scale(-1, 1);
+         }
+
+         if (this.flipX) {
+            ctx.translate(0, this.height);
+            ctx.scale(1, -1);
+         }
+
+         ctx.stroke();
+         ctx.restore();
+      }
+   };
+
 }

@@ -9,12 +9,13 @@
 /// <reference path="Sound.ts" />
 /// <reference path="Loader.ts" />
 /// <reference path="Promises.ts" />
+/// <reference path="Util.ts" />
 
 module ex {
    export class Color {
       public static Black: Color = Color.fromHex('#000000');
       public static White: Color = Color.fromHex('#FFFFFF');
-      public static Yellow: Color = Color.fromHex('#00FFFF');
+      public static Yellow: Color = Color.fromHex('#FFFF00');
       public static Orange: Color = Color.fromHex('#FFA500');
       public static Red: Color = Color.fromHex('#FF0000');
       public static Vermillion: Color = Color.fromHex('#FF5B31');
