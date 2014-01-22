@@ -146,7 +146,8 @@ module ex.Internal.Actions {
          this.current = new Vector(this.actor.x, this.actor.y);
          this.end = new Vector(actorToFollow.x, actorToFollow.y);
          this.maximumDistance = (followDistance != undefined) ? followDistance : this.current.distance(this.end);
-         }
+         this.speed = 0;
+      }
 
       public update(delta : number) : void {
          if(!this._started){
@@ -220,12 +221,12 @@ module ex.Internal.Actions {
          this.actorToMeet = actorToMeet;
          this.current = new Vector(this.actor.x, this.actor.y);
          this.end = new Vector(actorToMeet.x, actorToMeet.y);
-         this.speed = speed;
+         this.speed = speed || 0;
 
-         if (this.speed != undefined){
+         if (speed != undefined){
             this._speedWasSpecified = true;
-            }
          }
+      }
 
       public update(delta : number) : void {
          if(!this._started){

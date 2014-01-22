@@ -82,10 +82,17 @@ var platform4 = new ex.Actor(200, 200, 100, 50, ex.Color.Azure);
 platform4.moveBy(75, 300, .20);
 game.addChild(platform4);
 
+// Test follow api
+var follower = new ex.Actor(50, 100, 20, 20, ex.Color.Black);
+follower.preventCollisions = true;
+game.addChild(follower);
 
 
 // Create the player
 var player = new ex.Actor(100,100,32,96);
+follower.meet(player, 60);
+
+// follow player
 
 player.scale = 1;
 player.rotation = 0;
