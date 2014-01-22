@@ -1,0 +1,31 @@
+body {
+   margin: 0;
+   padding: 0;
+   background-color: black;
+   font-family: 'Press Start 2P';
+}
+
+label {
+   display: inline-block;
+   width: 200px;
+}
+
+input[type='range']{
+   width: 180px;
+}
+
+textarea {
+   width: 500px;
+}
+
+.particle-controls {
+   padding: 20px;
+   position: absolute;
+   left: 20px;
+   top: 20px;
+   width: 500px;
+   background-color: gray;
+   color: white;
+   border: none;
+   border-radius: 10px;
+}

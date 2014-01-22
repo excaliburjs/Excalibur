@@ -317,12 +317,13 @@ emitter.particleLife = 1000; // 1 sec
 emitter.maxSize = 10;
 emitter.minSize = 1;
 emitter.acceleration = new ex.Vector(0, -400);
+emitter.particleColor = ex.Color.Rose;
+//emitter.particleSprite = spriteTiles.getSprite(0);
 //emitter.focus = new ex.Vector(0, -100);
 emitter.focusAccel = 800;
 game.addChild(emitter);
-emitter.addEventListener('q', function(){
-   emitter.emit(1);
-});
+
+emitter.follow(player, 20);
 
 game.addEventListener('mousedown', (evt? : ex.MouseDown)=>{
    console.log(evt.x + ", " +evt.y);

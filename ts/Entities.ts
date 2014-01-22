@@ -557,6 +557,7 @@ module ex {
       private fadeRate: number = 0;
       public emitter: ParticleEmitter = null;
       public particleSize: number = 5;
+      public particleSprite: Sprite = null;
 
       constructor(emitter: ParticleEmitter, life?: number, position?: Vector, velocity?: Vector, acceleration?: Vector) {
          this.emitter = emitter;
@@ -590,6 +591,11 @@ module ex {
       }
 
       public draw(ctx: CanvasRenderingContext2D) {
+         if(this.particleSprite){
+            this.particleSprite.draw(ctx, this.position.x, this.position.y);
+            return;
+         }
+
          this.particleColor.a = (this.opacity < 0 ? 0.01: this.opacity);
          ctx.fillStyle = this.particleColor.toString();
          ctx.beginPath();
@@ -620,6 +626,7 @@ module ex {
       public minSize: number = 5;
       public maxSize: number = 5;
       public particleColor: Color = Color.White;
+      public particleSprite: ex.Sprite = null;
 
       constructor(x?: number, y?: number, width?: number, height?: number) {    
          super(x, y, width, height, Color.White);
@@ -660,6 +667,7 @@ module ex {
          p.fade = this.fade;
          p.particleSize = size;
          p.particleColor = this.particleColor;
+         p.particleSprite = this.particleSprite;
          if (this.focus) {
             p.focus = this.focus.add(new ex.Vector(this.x, this.y));
             p.focusAccel = this.focusAccel;
