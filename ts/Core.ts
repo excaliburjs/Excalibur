@@ -152,9 +152,9 @@ module ex {
       public mouseUp: MouseUp[] = [];
 
       public camera: ICamera;
-      public currentScene: SceneNode;
-      public rootScene: SceneNode;
-      private sceneStack: SceneNode[] = [];
+      public currentScene: Scene;
+      public rootScene: Scene;
+      private sceneStack: Scene[] = [];
 
       private animations: AnimationNode[] = [];
 
@@ -184,7 +184,7 @@ module ex {
 
          this.eventDispatcher = new EventDispatcher(this);
 
-         this.rootScene = this.currentScene = new SceneNode();
+         this.rootScene = this.currentScene = new Scene();
          this.sceneStack.push(this.rootScene);
 
          if (canvasElementId) {
@@ -229,7 +229,7 @@ module ex {
          this.currentScene.removeChild(actor);
       }
 
-      public pushScene(scene: SceneNode) {
+      public pushScene(scene: Scene) {
          if (this.sceneStack.indexOf(scene) === -1) {
             this.sceneStack.push(scene);
             this.currentScene = scene;

@@ -196,7 +196,7 @@ player.addEventListener('keyup', (e? : ex.KeyUp) => {
 
 
 
-var newScene = new ex.SceneNode();
+var newScene = new ex.Scene();
 newScene.addChild(new ex.Actor(100, 100, 100, 100, new ex.Color(0,0,0,.5)));
 
 game.addEventListener('keydown', (keyDown? : ex.KeyDown)=>{

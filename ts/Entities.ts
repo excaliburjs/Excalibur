@@ -7,7 +7,7 @@ module ex {
       constructor(public x: number, public y: number) { }
    }
 
-   export class SceneNode {
+   export class Scene {
       public children: Actor[] = [];
       private engine: Engine;
       private killQueue: Actor[] = [];
@@ -96,11 +96,11 @@ module ex {
 
       private eventDispatcher: EventDispatcher;
 
-      private sceneNode: SceneNode;
+      private sceneNode: Scene;
 
       private logger: Logger = Logger.getInstance();
 
-      public parent: SceneNode = null;
+      public parent: Scene = null;
 
       public fixed = true;
       public preventCollisions = false;
@@ -122,7 +122,7 @@ module ex {
          this.color = color;
          this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
          this.eventDispatcher = new EventDispatcher(this);
-         this.sceneNode = new SceneNode();
+         this.sceneNode = new Scene();
       }
 
 
