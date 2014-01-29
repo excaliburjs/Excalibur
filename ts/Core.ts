@@ -129,6 +129,34 @@ module ex {
       Fixed
    }
 
+   export class Timer {
+      public static id: number = 0;
+      public id: number = 0;
+      public interval: number = 10;
+      public fcn: ()=>void = ()=>{};
+      public repeats: boolean = false;
+      private elapsedTime: number = 0;
+      public complete: boolean = false;
+      constructor(fcn:()=>void, interval: number, repeats?: boolean){
+         this.id = Timer.id++;
+         this.interval = interval || this.interval;
+         this.fcn = fcn || this.fcn;
+         this.repeats = repeats || this.repeats;
+      }
+
+      public update(delta: number){
+         this.elapsedTime += delta;
+         if(this.elapsedTime > this.interval){
+            this.fcn.call(this);
+            if(this.repeats){
+               this.elapsedTime = 0;
+            }else{
+               this.complete = true;
+            }
+         }
+      }
+   }
+
    export class Engine {
       public canvas: HTMLCanvasElement;
       public ctx: CanvasRenderingContext2D;
@@ -228,6 +256,15 @@ module ex {
       public removeChild(actor: Actor) {
          this.currentScene.removeChild(actor);
       }
+
+       addTimer(timer: Timer): Timer{
+         return this.currentScene.addTimer(timer);
+      }
+
+      removeTimer(timer: Timer): Timer{
+         return this.currentScene.removeTimer(timer);
+      }
+
 
       public pushScene(scene: Scene) {
          if (this.sceneStack.indexOf(scene) === -1) {

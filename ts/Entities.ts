@@ -11,6 +11,7 @@ module ex {
       public children: Actor[] = [];
       private engine: Engine;
       private killQueue: Actor[] = [];
+      private timers: Timer[] = [];
       constructor() {
       }
 
@@ -37,6 +38,13 @@ module ex {
             this.children.splice(index, 1);
          }
          this.killQueue.length = 0;
+
+         // Cycle through timers
+         var that = this;
+         this.timers = this.timers.filter(function(timer){
+            timer.update(delta);
+            return !timer.complete;
+         });
       }
 
       draw(ctx: CanvasRenderingContext2D, delta: number) {
@@ -64,6 +72,18 @@ module ex {
       removeChild(actor: Actor) {
          this.killQueue.push(actor);
       }
+
+      addTimer(timer: Timer): Timer{
+         this.timers.push(timer);
+         return timer;
+      }
+
+      removeTimer(timer: Timer): Timer{
+         var i = this.timers.indexOf(timer);
+         this.timers.splice(i, 1);
+         return timer;
+      }
+
    }
 
    export enum Side {
