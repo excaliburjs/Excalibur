@@ -23,12 +23,13 @@ var EmitterViewModel = function(){
    var me = this;
    me.colors = [];
    for(var color in ex.Color){
-      if(ex.Color.hasOwnProperty(color) && color.indexOf('from') == -1){
+      if(ex.Color.hasOwnProperty(color) && color.indexOf('from') == -1 && color.indexOf('clone') == -1){
          me.colors.push({name: color, value: ex.Color[color]});
       }
    }
    me.colors.reverse();
-
+   me.x = ko.observable(0);
+   me.y = ko.observable(0);
    me.minVel = ko.observable(100);
    me.maxVel = ko.observable(200);
    me.minAngle = ko.observable(0);
@@ -38,7 +39,8 @@ var EmitterViewModel = function(){
    me.width = ko.observable(2);
    me.height = ko.observable(2);
 
-   me.particleColor = ko.observable({name: "Rose", value: ex.Color.Rose});
+   me.beginColor = ko.observable({name: "Rose", value: ex.Color.Rose});
+   me.endColor = ko.observable({name: "Yellow", value: ex.Color.Yellow});
 
    me.ax = ko.observable(0);
    me.ay = ko.observable(800);
@@ -85,8 +87,12 @@ var EmitterViewModel = function(){
       emitter.particleLife = parseInt(life);
    });
 
-   me.particleColor.subscribe(function(newColor){
-      emitter.particleColor = newColor.value;
+   me.beginColor.subscribe(function(newColor){
+      emitter.beginColor = newColor.value;
+   });
+
+   me.endColor.subscribe(function(newColor){
+      emitter.endColor = newColor.value;
    });
 
    me.opacity.subscribe(function(newOpacity){
@@ -114,7 +120,7 @@ var EmitterViewModel = function(){
    });
 
    me.code = ko.computed(function(){
-      return "var emitter = new ex.ParticleEmitter(game.getWidth()/2, game.getHeight()/2, "+me.width()+", "+me.height()+");\n"+
+      return "var emitter = new ex.ParticleEmitter("+me.x()+", "+me.y()+", "+me.width()+", "+me.height()+");\n"+
       "emitter.minVel = "+me.minVel()+";\n"+
       "emitter.maxVel = "+me.maxVel()+";\n"+
       "emitter.minAngle = "+me.minAngle()+";\n"+
@@ -127,17 +133,22 @@ var EmitterViewModel = function(){
       "emitter.maxSize = "+me.maxSize()+";\n"+
       "emitter.minSize = "+me.minSize()+";\n"+
       "emitter.acceleration = new ex.Vector("+me.ax()+", "+me.ay()+");\n"+
-      "emitter.particleColor = ex.Color."+me.particleColor().name+";\n"
+      "emitter.beginColor = ex.Color."+me.beginColor().name+";\n" +
+      "emitter.endColor = ex.Color."+me.endColor().name+";\n"
 });
 
    return me;
 };
+
+var vm = new EmitterViewModel();
 
 var click = false;
 game.canvas.addEventListener('mousedown', function(evt){
    click = true;
    emitter.x = evt.clientX;
    emitter.y = evt.clientY;
+   vm.x(emitter.x);
+   vm.y(emitter.y);
 });
 
 game.canvas.addEventListener('mouseup', function(evt){
@@ -148,9 +159,11 @@ game.canvas.addEventListener('mousemove', function(evt){
    if(click){
       emitter.x = evt.clientX;
       emitter.y = evt.clientY;
+      vm.x(emitter.x);
+      vm.y(emitter.y);
    }
 });
 
-var vm = new EmitterViewModel();
+
 ko.applyBindings(vm);
 

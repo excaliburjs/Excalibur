@@ -63,6 +63,10 @@ module ex {
          }
          return "rgb(" + result + ")";
       }
+
+      public clone(): Color {
+         return new Color(this.r, this.g, this.b, this.a);
+      }
    }
 
    export enum InputKey {
