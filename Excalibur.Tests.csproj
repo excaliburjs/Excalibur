@@ -61,11 +61,18 @@
     <TypeScriptCompile Include="spec\CollectionSpec.ts" />
     <TypeScriptCompile Include="spec\ColorSpec.ts" />
     <TypeScriptCompile Include="spec\jasmine.d.ts" />
+    <TypeScriptCompile Include="spec\LogSpec.ts" />
     <TypeScriptCompile Include="spec\PromiseSpec.ts" />
     <TypeScriptCompile Include="spec\require.d.ts" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="GruntFile.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="runTests.bat" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets')" />
   <PropertyGroup>
