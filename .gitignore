@@ -29,3 +29,7 @@ Thumbs.db
 
 # Build
 build/
+/bin
+/obj/Debug
+*.user
+*.suo
