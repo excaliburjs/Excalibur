@@ -195,7 +195,7 @@ module ex {
 
       public debugDraw(ctx: CanvasRenderingContext2D) {
          super.debugDraw(ctx);
-         ctx.fillStyle = 'yellow';
+         ctx.fillStyle = Color.Black.toString();
          ctx.fillText("Particles: " + this.particles.count(), this.x, this.y + 20);
 
          if (this.focus) {

@@ -112,9 +112,9 @@ module ex {
 
       public invisible: boolean = false;
 
-      private actionQueue: ex.Internal.Actions.ActionQueue;
+      public actionQueue: ex.Internal.Actions.ActionQueue;
 
-      private eventDispatcher: EventDispatcher;
+      public eventDispatcher: EventDispatcher;
 
       private sceneNode: Scene;
 
@@ -460,7 +460,7 @@ module ex {
             }
          })
 
-      eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
+         eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
       }
 
 
@@ -560,5 +560,85 @@ module ex {
          super.debugDraw(ctx);
       }
 
+   }
+
+   export class Trigger extends Actor {
+      private action : ()=>void = ()=>{};
+      public repeats : number = 1;
+      public target : Actor = null;
+      constructor(x?: number, y?: number, width?: number, height?: number, action?: ()=>void, repeats?: number){
+         super(x, y, width, height);
+         this.repeats = repeats || this.repeats;
+         this.action = action || this.action;
+         this.preventCollisions = true;
+         this.eventDispatcher = new EventDispatcher(this);
+         this.actionQueue = new Internal.Actions.ActionQueue(this);
+      }
+
+      public update(engine: Engine, delta: number){
+         var eventDispatcher = this.eventDispatcher;
+
+         // Update event dispatcher
+         eventDispatcher.update();
+
+         // Update action queue
+         this.actionQueue.update(delta);
+
+         // Update placements based on linear algebra
+         this.x += this.dx * delta / 1000;
+         this.y += this.dy * delta / 1000;
+
+         this.rotation += this.rx * delta / 1000;
+
+         this.scale += this.sx * delta / 1000;
+
+         // check for trigger collisions
+         if(this.target){
+            if(this.collides(this.target) !== Side.NONE){
+               this.dispatchAction();
+            }
+         }else{
+            for (var i = 0; i < engine.currentScene.children.length; i++) {
+               var other = engine.currentScene.children[i];
+               if(other !== this && this.collides(other) !== Side.NONE){
+                  this.dispatchAction();
+               }
+            }
+         }         
+
+         // remove trigger if its done, -1 repeat forever
+         if(this.repeats === 0){
+            this.kill();
+         }
+      }
+
+      private dispatchAction(){
+         this.action.call(this);
+         this.repeats--;
+      }
+
+      public draw(ctx: CanvasRenderingContext2D, delta: number){
+         // does not draw
+         return;
+      }
+
+      public debugDraw(ctx: CanvasRenderingContext2D){
+         super.debugDraw(ctx);
+          // Meant to draw debug information about actors
+         ctx.save();
+         ctx.translate(this.x, this.y);
+
+
+         // Currently collision primitives cannot rotate 
+         // ctx.rotate(this.rotation);
+         ctx.fillStyle = Color.Violet.toString();
+         ctx.strokeStyle = Color.Violet.toString();
+         ctx.fillText('Trigger', 10, 10);
+         ctx.beginPath();
+         ctx.rect(0, 0, this.getWidth(), this.getHeight());
+         ctx.stroke();
+
+         ctx.restore();
+      }
    }
 }
