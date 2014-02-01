@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Excalibur.Core", "Excalibur
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Excalibur.Tests", "Excalibur.Tests.csproj", "{3F3D99B4-B7E2-412D-AC02-37FF4A3844C0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Excalibur.SampleGame", "Excalibur.SampleGame.csproj", "{8215CF44-EFC4-4295-9E56-4354DCE0FF37}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{3F3D99B4-B7E2-412D-AC02-37FF4A3844C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F3D99B4-B7E2-412D-AC02-37FF4A3844C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F3D99B4-B7E2-412D-AC02-37FF4A3844C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8215CF44-EFC4-4295-9E56-4354DCE0FF37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8215CF44-EFC4-4295-9E56-4354DCE0FF37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8215CF44-EFC4-4295-9E56-4354DCE0FF37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8215CF44-EFC4-4295-9E56-4354DCE0FF37}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
