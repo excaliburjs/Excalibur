@@ -25,7 +25,7 @@ describe("Logger", () => {
          spiedAppender = spyOn(appender, "log");
          spiedAppender.andCallThrough();
 
-         logger.defaultLevel = ex.Log.Debug;
+         logger.defaultLevel = ex.LogLevel.Debug;
 
          spiedConsoleLog = spyOn(console, "log");
          spiedConsoleWarn = spyOn(console, "warn");
@@ -43,35 +43,35 @@ describe("Logger", () => {
 
          logger.info("test");
 
-         expect(spiedAppender).toHaveBeenCalledWith(ex.Log.Info, ["test"]);
+         expect(spiedAppender).toHaveBeenCalledWith(ex.LogLevel.Info, ["test"]);
       });
 
       it("should log a message with the Warn level", () => {
 
          logger.warn("test");
 
-         expect(spiedAppender).toHaveBeenCalledWith(ex.Log.Warn, ["test"]);
+         expect(spiedAppender).toHaveBeenCalledWith(ex.LogLevel.Warn, ["test"]);
       });
 
       it("should log a message with the Debug level", () => {
 
          logger.debug("test");
 
-         expect(spiedAppender).toHaveBeenCalledWith(ex.Log.Debug, ["test"]);
+         expect(spiedAppender).toHaveBeenCalledWith(ex.LogLevel.Debug, ["test"]);
       });
 
       it("should log a message with the Error level", () => {
 
          logger.error("test");
 
-         expect(spiedAppender).toHaveBeenCalledWith(ex.Log.Error, ["test"]);
+         expect(spiedAppender).toHaveBeenCalledWith(ex.LogLevel.Error, ["test"]);
       });
 
       it("should log a message with the Fatal level", () => {
 
          logger.fatal("test");
 
-         expect(spiedAppender).toHaveBeenCalledWith(ex.Log.Fatal, ["test"]);
+         expect(spiedAppender).toHaveBeenCalledWith(ex.LogLevel.Fatal, ["test"]);
       });
 
       it("should call console log for level Debug", () => {

@@ -1,5 +1,6 @@
 module ex {
-   export enum Log {
+
+   export enum LogLevel {
       Debug,
       Info,
       Warn,
@@ -8,19 +9,19 @@ module ex {
    }
 
    export interface IAppender {
-      log(level: Log, args: any[]);
+      log(level: LogLevel, args: any[]);
    }
 
    export class ConsoleAppender implements IAppender {
       constructor() { }
-      public log(level: Log, args: any[]) {
+      public log(level: LogLevel, args: any[]) {
          var consoleArgs = [];
          consoleArgs.unshift.apply(consoleArgs, args);
-         consoleArgs.unshift("[" + Log[level] + "] : ");         
+         consoleArgs.unshift("[" + LogLevel[level] + "] : ");         
 
-         if (level < Log.Warn) {
+         if (level < LogLevel.Warn) {
             console.log.apply(console, consoleArgs);
-         } else if (level < Log.Error) {
+         } else if (level < LogLevel.Error) {
             console.warn.apply(console, consoleArgs);
          } else {
             console.error.apply(console, consoleArgs);
@@ -42,13 +43,13 @@ module ex {
          document.body.appendChild(this.canvas);
       }
 
-      public log(level: Log, args: any[]) {
+      public log(level: LogLevel, args: any[]) {
          var message = args.join(",");
 
          //this.ctx.fillStyle = 'rgba(0,0,0,1.0)';
          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-         this._messages.unshift("[" + Log[level] + "] : " + message);
+         this._messages.unshift("[" + LogLevel[level] + "] : " + message);
 
          var pos = 10;
          var opacity = 1.0;
@@ -64,7 +65,7 @@ module ex {
    export class Logger {
       private static _instance: Logger = null;
       private appenders: IAppender[] = [];
-      public defaultLevel: Log = Log.Info;
+      public defaultLevel: LogLevel = LogLevel.Info;
 
       constructor() {
          if (Logger._instance) {
@@ -84,7 +85,7 @@ module ex {
          this.appenders.push(appender);
       }
 
-      private _log(level: Log, args: any[]): void {
+      private _log(level: LogLevel, args: any[]): void {
          if (level == null) {
             level = this.defaultLevel;
          }
@@ -97,23 +98,23 @@ module ex {
       }
 
       public debug(...args): void {
-         this._log(Log.Debug, args);
+         this._log(LogLevel.Debug, args);
       }
 
       public info(...args): void {
-         this._log(Log.Info, args);
+         this._log(LogLevel.Info, args);
       }
 
       public warn(...args): void {
-         this._log(Log.Warn, args);
+         this._log(LogLevel.Warn, args);
       }
 
       public error(...args): void {
-         this._log(Log.Error, args);
+         this._log(LogLevel.Error, args);
       }
 
       public fatal(...args): void {
-         this._log(Log.Fatal, args);
+         this._log(LogLevel.Fatal, args);
       }
    }
 }
