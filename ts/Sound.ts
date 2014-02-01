@@ -20,11 +20,11 @@ module ex.Internal {
       private log: Logger = Logger.getInstance();
       constructor(path: string, volume?: number) {
          if ((<any>window).AudioContext) {
-            this.log.log("Using new Web Audio Api for " + path, Log.Debug);
+            this.log.debug("Using new Web Audio Api for " + path);
             this.soundImpl = new WebAudio(path, volume);
          } else {
-            this.log.log("Falling back to Audio Element for " + path, Log.Warn);
-            this.soundImpl = new AudioTag(path, volume)
+            this.log.debug("Falling back to Audio Element for " + path);
+            this.soundImpl = new AudioTag(path, volume);
          }
       }
 
@@ -151,9 +151,9 @@ module ex.Internal {
                   this.onload(this);
                },
                (e) => {
-                  this.logger.log("Unable to decode " + this.path +
+                  this.logger.error("Unable to decode " + this.path +
                      " this browser may not fully support this format, or the file may be corrupt, " +
-                     "if this is an mp3 try removing id3 tags and album art from the file.", Log.Error);
+                     "if this is an mp3 try removing id3 tags and album art from the file.");
                   this.isLoaded = false;
                   this.onload(this);
                });

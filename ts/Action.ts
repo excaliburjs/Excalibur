@@ -82,7 +82,7 @@ module ex.Internal.Actions {
          this.actor = actor;
          this.end = new Vector(destx, desty);
          if (time <= 0) {
-            Logger.getInstance().log("Attempted to moveBy time less than or equal to zero : " + time, Log.Error);
+            Logger.getInstance().error("Attempted to moveBy time less than or equal to zero : " + time);
             throw new Error("Cannot move in time <= 0");
          }
          this.time = time;

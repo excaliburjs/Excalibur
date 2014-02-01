@@ -180,7 +180,7 @@ module ex {
          if (this.parent) {
             this.parent.removeChild(this);
          } else {
-            this.logger.log("Cannot kill actor, it was never added to the Scene", Log.Warn);
+            this.logger.warn("Cannot kill actor, it was never added to the Scene");
          }
       }
 

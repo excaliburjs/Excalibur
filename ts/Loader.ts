@@ -24,7 +24,7 @@ module ex {
       }
 
       private _start(e: any) {
-         this.logger.log("Started loading image " + this.path, Log.Debug);
+         this.logger.debug("Started loading image " + this.path);
       }
 
 

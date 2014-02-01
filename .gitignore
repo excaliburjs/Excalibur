@@ -33,3 +33,6 @@ build/
 /obj/Debug
 *.user
 *.suo
+/sample-game/bin
+/sample-game/obj/Debug
+*.map

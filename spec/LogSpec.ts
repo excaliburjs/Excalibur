@@ -2,113 +2,129 @@
 /// <reference path="require.d.ts" />
 /// <reference path="../ts/Log.ts" />
 
-describe("Logger", () => {
-    
-    var logger: ex.Logger;
+module ex.Tests {
 
-    describe("ConsoleAppender", ()=> {
-        var appender: ex.IAppender = new ex.ConsoleAppender();
-        var spiedAppender: jasmine.Spy;
-        var spiedConsoleLog: jasmine.Spy;
-        var spiedConsoleWarn: jasmine.Spy;
-        var spiedConsoleError: jasmine.Spy;
+   describe("Logger", ()=> {
 
-        beforeEach(()=> {
-            logger = ex.Logger.getInstance();
+      var logger: Logger;
+
+      describe("ConsoleAppender", ()=> {
+         var appender: IAppender;
+         var spiedAppender: jasmine.Spy;
+         var spiedConsoleLog: jasmine.Spy;
+         var spiedConsoleWarn: jasmine.Spy;
+         var spiedConsoleError: jasmine.Spy;
+
+         beforeEach(()=> {
+            appender = new ConsoleAppender();
+
+            if (Logger["_instance"]) {
+               Logger["_instance"] = null;
+            }
+
+            logger = Logger.getInstance();
             logger.addAppender(appender);
             spiedAppender = spyOn(appender, "log");
             spiedAppender.andCallThrough();
 
-            logger.defaultLevel = ex.Log.Debug;
+            logger.defaultLevel = LogLevel.Debug;
 
             spiedConsoleLog = spyOn(console, "log");
             spiedConsoleWarn = spyOn(console, "warn");
             spiedConsoleError = spyOn(console, "error");
-        });
+         });
 
-        it("should log a message", ()=> {
+         it("should log a message", ()=> {
 
-            logger.log("test");
+            logger.info("test");
 
             expect(spiedAppender).toHaveBeenCalled();
-        });
+         });
 
-        it("should log a message with the Info level", ()=> {
+         it("should log a message with the Info level", ()=> {
 
-            logger.log("test", ex.Log.Info);
+            logger.info("test");
 
-            expect(spiedAppender).toHaveBeenCalledWith("test", ex.Log.Info);
-        });
+            expect(spiedAppender).toHaveBeenCalledWith(LogLevel.Info, ["test"]);
+         });
 
-        it("should log a message with the Warn level", ()=> {
+         it("should log a message with the Warn level", ()=> {
 
-            logger.log("test", ex.Log.Warn);
+            logger.warn("test");
 
-            expect(spiedAppender).toHaveBeenCalledWith("test", ex.Log.Warn);
-        });
+            expect(spiedAppender).toHaveBeenCalledWith(LogLevel.Warn, ["test"]);
+         });
 
-        it("should log a message with the Debug level", ()=> {
-            
-            logger.log("test", ex.Log.Debug);
+         it("should log a message with the Debug level", ()=> {
 
-            expect(spiedAppender).toHaveBeenCalledWith("test", ex.Log.Debug);
-        });
+            logger.debug("test");
 
-        it("should log a message with the Error level", ()=> {
+            expect(spiedAppender).toHaveBeenCalledWith(LogLevel.Debug, ["test"]);
+         });
 
-            logger.log("test", ex.Log.Error);
+         it("should log a message with the Error level", ()=> {
 
-            expect(spiedAppender).toHaveBeenCalledWith("test", ex.Log.Error);
-        });
+            logger.error("test");
 
-        it("should log a message with the Fatal level", ()=> {
+            expect(spiedAppender).toHaveBeenCalledWith(LogLevel.Error, ["test"]);
+         });
 
-            logger.log("test", ex.Log.Fatal);
+         it("should log a message with the Fatal level", ()=> {
 
-            expect(spiedAppender).toHaveBeenCalledWith("test", ex.Log.Fatal);
-        });            
+            logger.fatal("test");
 
-        it("should call console log for level Debug", ()=> {
-                
-            logger.log("test", ex.Log.Debug);
+            expect(spiedAppender).toHaveBeenCalledWith(LogLevel.Fatal, ["test"]);
+         });
 
-            expect(spiedConsoleLog).toHaveBeenCalled();
-        });
+         it("should call console log for level Debug", ()=> {
 
-        it("should call console log for level Info", () => {
-
-            logger.log("test", ex.Log.Info);
+            logger.debug("test");
 
             expect(spiedConsoleLog).toHaveBeenCalled();
-        });
+         });
 
-        it("should call console warn for level Warn", () => {
+         it("should call console log for level Info", ()=> {
 
-            logger.log("test", ex.Log.Warn);
+            logger.info("test");
+
+            expect(spiedConsoleLog).toHaveBeenCalled();
+         });
+
+         it("should call console warn for level Warn", ()=> {
+
+            logger.warn("test");
 
             expect(spiedConsoleWarn).toHaveBeenCalled();
-        });
+         });
 
-        it("should call console error for level Error", () => {
+         it("should call console error for level Error", ()=> {
 
-            logger.log("test", ex.Log.Error);
-
-            expect(spiedConsoleError).toHaveBeenCalled();
-        });
-
-        it("should call console error for level Fatal", () => {
-
-            logger.log("test", ex.Log.Fatal);
+            logger.error("test");
 
             expect(spiedConsoleError).toHaveBeenCalled();
-        });
+         });
 
-        it("should format message to console with appropriate level", ()=> {
+         it("should call console error for level Fatal", ()=> {
 
-            logger.log("test", ex.Log.Info);
+            logger.fatal("test");
 
-            expect(spiedConsoleLog).toHaveBeenCalledWith("[Info] : test");
+            expect(spiedConsoleError).toHaveBeenCalled();
+         });
 
-        });
-    });
-});
+         it("should format message to console with appropriate level", ()=> {
+
+            logger.info("test");
+
+            expect(spiedConsoleLog).toHaveBeenCalledWith("[Info] : ", "test");
+
+         });
+
+         it("should support variable number of arguments and output appropriately to console", ()=> {
+
+            logger.info(1, 2, "foo", []);
+
+            expect(spiedConsoleLog).toHaveBeenCalledWith("[Info] : ", 1, 2, "foo", []);            
+         });
+      });
+   });
+}
