@@ -35,7 +35,7 @@ module ex.Util {
    }
 
    export function clamp(val, min, max) {
-      return val < min ? min : (val > max ? max : val);
+      return val <= min ? min : (val >= max ? max : val);
    }
 
    export function drawLine(ctx: CanvasRenderingContext2D, color: string, startx, starty, endx, endy) {

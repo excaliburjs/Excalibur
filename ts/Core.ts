@@ -3,6 +3,7 @@
 /// <reference path="Log.ts" />
 /// <reference path="Events.ts" />
 /// <reference path="Entities.ts" />
+/// <reference path="Particles.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Drawing.ts" />
 /// <reference path="Camera.ts" />
@@ -62,6 +63,10 @@ module ex {
             return "rgba(" + result + ", " + String(this.a) + ")";
          }
          return "rgb(" + result + ")";
+      }
+
+      public clone(): Color {
+         return new Color(this.r, this.g, this.b, this.a);
       }
    }
 
@@ -125,6 +130,34 @@ module ex {
       Fixed
    }
 
+   export class Timer {
+      public static id: number = 0;
+      public id: number = 0;
+      public interval: number = 10;
+      public fcn: ()=>void = ()=>{};
+      public repeats: boolean = false;
+      private elapsedTime: number = 0;
+      public complete: boolean = false;
+      constructor(fcn:()=>void, interval: number, repeats?: boolean){
+         this.id = Timer.id++;
+         this.interval = interval || this.interval;
+         this.fcn = fcn || this.fcn;
+         this.repeats = repeats || this.repeats;
+      }
+
+      public update(delta: number){
+         this.elapsedTime += delta;
+         if(this.elapsedTime > this.interval){
+            this.fcn.call(this);
+            if(this.repeats){
+               this.elapsedTime = 0;
+            }else{
+               this.complete = true;
+            }
+         }
+      }
+   }
+
    export class Engine {
       public canvas: HTMLCanvasElement;
       public ctx: CanvasRenderingContext2D;
@@ -148,9 +181,9 @@ module ex {
       public mouseUp: MouseUp[] = [];
 
       public camera: ICamera;
-      public currentScene: SceneNode;
-      public rootScene: SceneNode;
-      private sceneStack: SceneNode[] = [];
+      public currentScene: Scene;
+      public rootScene: Scene;
+      private sceneStack: Scene[] = [];
 
       private animations: AnimationNode[] = [];
 
@@ -180,7 +213,7 @@ module ex {
 
          this.eventDispatcher = new EventDispatcher(this);
 
-         this.rootScene = this.currentScene = new SceneNode();
+         this.rootScene = this.currentScene = new Scene();
          this.sceneStack.push(this.rootScene);
 
          if (canvasElementId) {
@@ -205,8 +238,38 @@ module ex {
 
          this.loader = new Loader();
 
-         this.init();
+         this.initialize();
 
+      }
+
+      public static extend(methods: any): any {
+         var subclass = function () {
+            this['__super'].apply(this, Array.prototype.slice.call(arguments, 0));
+            if (this['init']) {
+               this['init'].apply(this, Array.prototype.slice.call(arguments, 0));
+            }
+         };
+
+         var __extends = function (d, b) {
+            for (var p in b)
+               if (b.hasOwnProperty(p))
+                  d[p] = b[p];
+            function __() {
+               this.constructor = d;
+            }
+            __.prototype = b.prototype;
+            d.prototype = new __();
+         };
+         var clazz = this;
+         __extends(subclass, clazz);
+
+         for (var method in methods) {
+            subclass.prototype[method] = methods[method];
+         }
+         subclass.prototype["__super"] = clazz;
+         subclass.prototype["super"] = clazz.prototype;
+
+         return subclass;
       }
 
       public addEventListener(eventName: string, handler: (event?: GameEvent) => void) {
@@ -225,7 +288,16 @@ module ex {
          this.currentScene.removeChild(actor);
       }
 
-      public pushScene(scene: SceneNode) {
+       addTimer(timer: Timer): Timer{
+         return this.currentScene.addTimer(timer);
+      }
+
+      removeTimer(timer: Timer): Timer{
+         return this.currentScene.removeTimer(timer);
+      }
+
+
+      public pushScene(scene: Scene) {
          if (this.sceneStack.indexOf(scene) === -1) {
             this.sceneStack.push(scene);
             this.currentScene = scene;
@@ -273,7 +345,7 @@ module ex {
       }
       }
 
-      private init() {
+      private initialize() {
          if (this.displayMode === DisplayMode.FullScreen || this.displayMode === DisplayMode.Container) {
 
 

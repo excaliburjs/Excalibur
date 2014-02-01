@@ -196,7 +196,7 @@ player.addEventListener('keyup', (e? : ex.KeyUp) => {
 
 
 
-var newScene = new ex.SceneNode();
+var newScene = new ex.Scene();
 newScene.addChild(new ex.Actor(100, 100, 100, 100, new ex.Color(0,0,0,.5)));
 
 game.addEventListener('keydown', (keyDown? : ex.KeyDown)=>{
@@ -304,26 +304,45 @@ camera.setActorToFollow(player);
 game.addChild(player);
 
 // Add particle emitter
-var emitter = new ex.ParticleEmitter(100, 100, 2, 2);
-emitter.minVel = 100;
-emitter.maxVel = 200;
-emitter.minAngle = 0;//-Math.PI/6 + Math.PI/2;
-emitter.maxAngle = Math.PI*2;//Math.PI/6 + Math.PI/2;
-emitter.isEmitting = true;
-emitter.emitRate = 300;
-emitter.opacity = 0.5;
+var emitter = new ex.ParticleEmitter(100, 300, 2, 2);
+emitter.minVel = 417;
+emitter.maxVel = 589;
+emitter.minAngle = Math.PI;
+emitter.maxAngle = Math.PI*2;
+emitter.isEmitting = false;
+emitter.emitRate = 494;
+emitter.opacity = 0.84;
 emitter.fade = true;
-emitter.particleLife = 1000; // 1 sec
+emitter.particleLife = 2465;
 emitter.maxSize = 10;
 emitter.minSize = 1;
-emitter.acceleration = new ex.Vector(0, -400);
-emitter.particleColor = ex.Color.Rose;
+emitter.acceleration = new ex.Vector(0, 460);
+emitter.beginColor = ex.Color.Red;
+emitter.endColor = ex.Color.Yellow;
+//emitter.acceleration = new ex.Vector(0, -400);
 //emitter.particleSprite = spriteTiles.getSprite(0);
 //emitter.focus = new ex.Vector(0, -100);
-emitter.focusAccel = 800;
+//emitter.focusAccel = 800;
 game.addChild(emitter);
 
-emitter.follow(player, 20);
+//emitter.follow(player, 20);
+
+var exploding = false;
+var trigger = new ex.Trigger(400, 200, 100, 100, ()=>{
+   if(!exploding){
+      exploding = true;
+      emitter.isEmitting = true;
+      game.addTimer(new ex.Timer(()=>{
+         emitter.isEmitting = false;
+         exploding = false;
+      }, 2000));
+   }   
+});
+
+trigger.repeats = -1;
+trigger.target = player;
+
+game.addChild(trigger);
 
 game.addEventListener('mousedown', (evt? : ex.MouseDown)=>{
    logger.info(evt.x + ", " +evt.y);

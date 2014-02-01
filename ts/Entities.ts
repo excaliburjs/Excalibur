@@ -7,10 +7,11 @@ module ex {
       constructor(public x: number, public y: number) { }
    }
 
-   export class SceneNode {
+   export class Scene {
       public children: Actor[] = [];
       private engine: Engine;
       private killQueue: Actor[] = [];
+      private timers: Timer[] = [];
       constructor() {
       }
 
@@ -37,6 +38,13 @@ module ex {
             this.children.splice(index, 1);
          }
          this.killQueue.length = 0;
+
+         // Cycle through timers
+         var that = this;
+         this.timers = this.timers.filter(function(timer){
+            timer.update(delta);
+            return !timer.complete;
+         });
       }
 
       draw(ctx: CanvasRenderingContext2D, delta: number) {
@@ -64,6 +72,18 @@ module ex {
       removeChild(actor: Actor) {
          this.killQueue.push(actor);
       }
+
+      addTimer(timer: Timer): Timer{
+         this.timers.push(timer);
+         return timer;
+      }
+
+      removeTimer(timer: Timer): Timer{
+         var i = this.timers.indexOf(timer);
+         this.timers.splice(i, 1);
+         return timer;
+      }
+
    }
 
    export enum Side {
@@ -92,15 +112,15 @@ module ex {
 
       public invisible: boolean = false;
 
-      private actionQueue: ex.Internal.Actions.ActionQueue;
+      public actionQueue: ex.Internal.Actions.ActionQueue;
 
-      private eventDispatcher: EventDispatcher;
+      public eventDispatcher: EventDispatcher;
 
-      private sceneNode: SceneNode;
+      private sceneNode: Scene;
 
       private logger: Logger = Logger.getInstance();
 
-      public parent: SceneNode = null;
+      public parent: Scene = null;
 
       public fixed = true;
       public preventCollisions = false;
@@ -122,7 +142,7 @@ module ex {
          this.color = color;
          this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
          this.eventDispatcher = new EventDispatcher(this);
-         this.sceneNode = new SceneNode();
+         this.sceneNode = new Scene();
       }
 
 
@@ -440,7 +460,7 @@ module ex {
             }
          })
 
-      eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
+         eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
       }
 
 
@@ -542,175 +562,83 @@ module ex {
 
    }
 
-
-   export class Particle {
-      public position: Vector = new Vector(0, 0);
-      public velocity: Vector = new Vector(0, 0);
-      public acceleration: Vector = new Vector(0, 0);
-      public focus: Vector = null;
-      public focusAccel: number = 0;
-      public opacity: number = 1;
-      public particleColor: Color = Color.White;
-      // Life is counted in ms
-      public life: number = 300;
-      public fade: boolean = false;
-      private fadeRate: number = 0;
-      public emitter: ParticleEmitter = null;
-      public particleSize: number = 5;
-      public particleSprite: Sprite = null;
-
-      constructor(emitter: ParticleEmitter, life?: number, position?: Vector, velocity?: Vector, acceleration?: Vector) {
-         this.emitter = emitter;
-         this.life = life || this.life;
-         this.position = position || this.position;
-         this.velocity = velocity || this.velocity;
-         this.acceleration = acceleration || this.acceleration;
-         this.fadeRate = this.opacity / this.life;
+   export class Trigger extends Actor {
+      private action : ()=>void = ()=>{};
+      public repeats : number = 1;
+      public target : Actor = null;
+      constructor(x?: number, y?: number, width?: number, height?: number, action?: ()=>void, repeats?: number){
+         super(x, y, width, height);
+         this.repeats = repeats || this.repeats;
+         this.action = action || this.action;
+         this.preventCollisions = true;
+         this.eventDispatcher = new EventDispatcher(this);
+         this.actionQueue = new Internal.Actions.ActionQueue(this);
       }
 
-      public kill() {
-         this.emitter.removeParticle(this);
-      }
+      public update(engine: Engine, delta: number){
+         var eventDispatcher = this.eventDispatcher;
 
-      public update(delta: number) {
-         this.life = this.life - delta;
-         if (this.fade) {
-            this.opacity -= this.fadeRate * delta / 2;
+         // Update event dispatcher
+         eventDispatcher.update();
 
-         }
-         if (this.life < 0) {
+         // Update action queue
+         this.actionQueue.update(delta);
+
+         // Update placements based on linear algebra
+         this.x += this.dx * delta / 1000;
+         this.y += this.dy * delta / 1000;
+
+         this.rotation += this.rx * delta / 1000;
+
+         this.scale += this.sx * delta / 1000;
+
+         // check for trigger collisions
+         if(this.target){
+            if(this.collides(this.target) !== Side.NONE){
+               this.dispatchAction();
+            }
+         }else{
+            for (var i = 0; i < engine.currentScene.children.length; i++) {
+               var other = engine.currentScene.children[i];
+               if(other !== this && this.collides(other) !== Side.NONE){
+                  this.dispatchAction();
+               }
+            }
+         }         
+
+         // remove trigger if its done, -1 repeat forever
+         if(this.repeats === 0){
             this.kill();
          }
-         if (this.focus) {
-            var accel = this.focus.minus(this.position).normalize().scale(this.focusAccel).scale(delta / 1000);
-            this.velocity = this.velocity.add(accel);
-         } else {
-            this.velocity = this.velocity.add(this.acceleration.scale(delta / 1000));
-         }
-         this.position = this.position.add(this.velocity.scale(delta/1000));
       }
 
-      public draw(ctx: CanvasRenderingContext2D) {
-         if(this.particleSprite){
-            this.particleSprite.draw(ctx, this.position.x, this.position.y);
-            return;
-         }
-
-         this.particleColor.a = (this.opacity < 0 ? 0.01: this.opacity);
-         ctx.fillStyle = this.particleColor.toString();
-         ctx.beginPath();
-         ctx.arc(this.position.x, this.position.y, this.particleSize, 0, Math.PI * 2);
-         ctx.fill();
-         ctx.closePath();
-      }
-   }
-
-   export class ParticleEmitter extends Actor {
-
-      public numParticles: number = 0;
-      public isEmitting: boolean = false;
-      public particles: Util.Collection<Particle> = null;
-      public deadParticles: Util.Collection<Particle> = null;
-
-      public minVel: number = 0;
-      public maxVel: number = 0;
-      public acceleration: Vector = new Vector(0, 0);
-      public minAngle: number = 0;
-      public maxAngle: number = 0;
-      public emitRate: number = 1; //particles/sec
-      public particleLife: number = 2000;
-      public opacity: number = 1;
-      public fade: boolean = false;
-      public focus: Vector = null;
-      public focusAccel: number = 1;
-      public minSize: number = 5;
-      public maxSize: number = 5;
-      public particleColor: Color = Color.White;
-      public particleSprite: ex.Sprite = null;
-
-      constructor(x?: number, y?: number, width?: number, height?: number) {    
-         super(x, y, width, height, Color.White);
-         this.preventCollisions = true;
-         this.particles = new Util.Collection<Particle>();
-         this.deadParticles = new Util.Collection<Particle>();
+      private dispatchAction(){
+         this.action.call(this);
+         this.repeats--;
       }
 
-      public removeParticle(particle: Particle) {
-         this.deadParticles.push(particle);
+      public draw(ctx: CanvasRenderingContext2D, delta: number){
+         // does not draw
+         return;
       }
 
-      // Causes the emitter to emit particles
-      public emit(particleCount: number) {
-         for (var i = 0; i < particleCount; i++) {
-            this.particles.push(this.createParticle());
-         }
-      }
-
-      public clearParticles() {
-         this.particles.clear();
-      }
-
-      // Creates a new particle given the contraints of the emitter
-      private createParticle(): Particle {
-         // todo implement emitter contraints;
-         var ranX = Util.randomInRange(this.x, this.x + this.getWidth());
-         var ranY = Util.randomInRange(this.y, this.y + this.getHeight());
-
-         var angle = Util.randomInRange(this.minAngle, this.maxAngle);
-         var vel = Util.randomInRange(this.minVel, this.maxVel);
-         var size = Util.randomInRange(this.minSize, this.maxSize);
-         var dx = vel * Math.cos(angle);
-         var dy = vel * Math.sin(angle);
-         
-         var p = new Particle(this, this.particleLife, new Vector(ranX, ranY), new Vector(dx, dy), this.acceleration);
-         p.opacity = this.opacity;
-         p.fade = this.fade;
-         p.particleSize = size;
-         p.particleColor = this.particleColor;
-         p.particleSprite = this.particleSprite;
-         if (this.focus) {
-            p.focus = this.focus.add(new ex.Vector(this.x, this.y));
-            p.focusAccel = this.focusAccel;
-         }
-         return p;
-      }
-      
-      public update(engine: Engine, delta: number) {
-         super.update(engine, delta);
-         if (this.isEmitting) {
-            var numParticles = Math.ceil(this.emitRate * delta / 1000);
-            this.emit(numParticles);
-         }
-
-         this.particles.forEach((particle: Particle, index: number) => {
-            particle.update(delta);
-         });
-
-         this.deadParticles.forEach((particle: Particle, index: number) => {
-            this.particles.removeElement(particle);
-         });
-         this.deadParticles.clear();
-      }
-
-      public draw(ctx: CanvasRenderingContext2D, delta: number) {
-         this.particles.forEach((particle: Particle, index: number) => {
-            // todo is there a more efficient to draw 
-            // possibly use a webgl offscreen canvas and shaders to do particles?
-            particle.draw(ctx);
-         });
-      }
-
-      public debugDraw(ctx: CanvasRenderingContext2D) {
+      public debugDraw(ctx: CanvasRenderingContext2D){
          super.debugDraw(ctx);
-         ctx.fillStyle = 'yellow';
-         ctx.fillText("Particles: " + this.particles.count(), this.x, this.y + 20);
+          // Meant to draw debug information about actors
+         ctx.save();
+         ctx.translate(this.x, this.y);
 
-         if (this.focus) {
-            ctx.fillRect(this.focus.x + this.x, this.focus.y + this.y, 3, 3);
-            Util.drawLine(ctx, "yellow", this.focus.x + this.x, this.focus.y + this.y, super.getCenter().x, super.getCenter().y);
-            ctx.fillText("Focus", this.focus.x + this.x, this.focus.y + this.y);
-         }
+
+         // Currently collision primitives cannot rotate 
+         // ctx.rotate(this.rotation);
+         ctx.fillStyle = Color.Violet.toString();
+         ctx.strokeStyle = Color.Violet.toString();
+         ctx.fillText('Trigger', 10, 10);
+         ctx.beginPath();
+         ctx.rect(0, 0, this.getWidth(), this.getHeight());
+         ctx.stroke();
+
+         ctx.restore();
       }
-
    }
 }

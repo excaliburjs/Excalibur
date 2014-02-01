@@ -74,9 +74,7 @@ module.exports = function (grunt) {
          // Execute TypeScript compiler against Excalibur core
          //
          tsc: {
-            command: 'tsc --sourcemap --removeComments --declaration ./ts/Core.ts -out ./build/<%= pkg.name %>-<%= pkg.version %>.js;' +
-                'cp ./build/<%= pkg.name %>-<%= pkg.version %>.js ./build/<%= pkg.name %>.js;' +
-                'cp ./build/<%= pkg.name %>-<%= pkg.version %>.d.ts ./build/<%= pkg.name %>.d.ts;',
+            command: 'tsc --sourcemap --removeComments --declaration "./ts/Core.ts" -out "./build/<%= pkg.name %>-<%= pkg.version %>.js"',               
             options: {
                stdout: true,
                failOnError: true
@@ -101,7 +99,7 @@ module.exports = function (grunt) {
             command: 'tsc "./spec/ActorSpec.ts" -out "./spec/ActorSpec.js";' +
             'tsc "./spec/ColorSpec.ts" -out "./spec/ColorSpec.js";' +
             'tsc "./spec/PromiseSpec.ts" -out "./spec/PromiseSpec.js";' +
-            'tsc "./spec/CollectionSpec.ts" -out "./spec/CollectionSpec.js"' +
+            'tsc "./spec/CollectionSpec.ts" -out "./spec/CollectionSpec.js";' +
             'tsc "./spec/LogSpec.ts" -out "./spec/LogSpec.js"',
             options: {
                stdout: true,
@@ -120,6 +118,20 @@ module.exports = function (grunt) {
             }
          }
       },
+
+      //
+      // Copy Files for sample game
+      //
+      copy: {
+         main: {
+            files: [
+               {src: './build/<%= pkg.name %>-<%= pkg.version %>.js', dest: './build/<%= pkg.name %>.js'},
+               {src: './build/<%= pkg.name %>-<%= pkg.version %>.d.ts', dest: './build/<%= pkg.name %>.d.ts'}
+            ]
+         }
+      },
+
+
 
       //
       // Watch the source dirs and run shell tasks (re-compile) if they change
@@ -141,6 +153,7 @@ module.exports = function (grunt) {
    grunt.loadNpmTasks('grunt-shell');
    grunt.loadNpmTasks('grunt-minified');
    grunt.loadNpmTasks('grunt-contrib-concat');
+   grunt.loadNpmTasks('grunt-contrib-copy');
    grunt.loadNpmTasks('grunt-jasmine-node');
 
    //
@@ -151,7 +164,7 @@ module.exports = function (grunt) {
    grunt.registerTask('tests', ['shell:specs', 'jasmine_node']);
 
    // Compile sample game
-   grunt.registerTask('sample', ['shell:sample']);
+   grunt.registerTask('sample', ['copy', 'shell:sample']);
 
    // Default task - compile, test, build dists
    grunt.registerTask('default', ['tests', 'shell:tsc', 'sample', 'minified', 'concat', 'shell:nuget']);
