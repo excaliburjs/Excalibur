@@ -118,6 +118,13 @@ module ex.Tests {
             expect(spiedConsoleLog).toHaveBeenCalledWith("[Info] : ", "test");
 
          });
+
+         it("should support variable number of arguments and output appropriately to console", ()=> {
+
+            logger.info(1, 2, "foo", []);
+
+            expect(spiedConsoleLog).toHaveBeenCalledWith("[Info] : ", 1, 2, "foo", []);            
+         });
       });
    });
 }
