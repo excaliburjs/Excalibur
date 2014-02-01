@@ -3,112 +3,118 @@
 /// <reference path="../ts/Log.ts" />
 
 describe("Logger", () => {
-    
-    var logger: ex.Logger;
 
-    describe("ConsoleAppender", ()=> {
-        var appender: ex.IAppender = new ex.ConsoleAppender();
-        var spiedAppender: jasmine.Spy;
-        var spiedConsoleLog: jasmine.Spy;
-        var spiedConsoleWarn: jasmine.Spy;
-        var spiedConsoleError: jasmine.Spy;
+   var logger: ex.Logger;
 
-        beforeEach(()=> {
-            logger = ex.Logger.getInstance();
-            logger.addAppender(appender);
-            spiedAppender = spyOn(appender, "log");
-            spiedAppender.andCallThrough();
+   describe("ConsoleAppender", () => {
+      var appender: ex.IAppender;
+      var spiedAppender: jasmine.Spy;
+      var spiedConsoleLog: jasmine.Spy;
+      var spiedConsoleWarn: jasmine.Spy;
+      var spiedConsoleError: jasmine.Spy;
 
-            logger.defaultLevel = ex.Log.Debug;
+      beforeEach(() => {
+         appender = new ex.ConsoleAppender();
 
-            spiedConsoleLog = spyOn(console, "log");
-            spiedConsoleWarn = spyOn(console, "warn");
-            spiedConsoleError = spyOn(console, "error");
-        });
+         if (ex.Logger["_instance"]) {
+            ex.Logger["_instance"] = null;
+         }
 
-        it("should log a message", ()=> {
+         logger = ex.Logger.getInstance();
+         logger.addAppender(appender);
+         spiedAppender = spyOn(appender, "log");
+         spiedAppender.andCallThrough();
 
-            logger.log("test");
+         logger.defaultLevel = ex.Log.Debug;
 
-            expect(spiedAppender).toHaveBeenCalled();
-        });
+         spiedConsoleLog = spyOn(console, "log");
+         spiedConsoleWarn = spyOn(console, "warn");
+         spiedConsoleError = spyOn(console, "error");
+      });
 
-        it("should log a message with the Info level", ()=> {
+      it("should log a message", () => {
 
-            logger.log("test", ex.Log.Info);
+         logger.info("test");
 
-            expect(spiedAppender).toHaveBeenCalledWith("test", ex.Log.Info);
-        });
+         expect(spiedAppender).toHaveBeenCalled();
+      });
 
-        it("should log a message with the Warn level", ()=> {
+      it("should log a message with the Info level", () => {
 
-            logger.log("test", ex.Log.Warn);
+         logger.info("test");
 
-            expect(spiedAppender).toHaveBeenCalledWith("test", ex.Log.Warn);
-        });
+         expect(spiedAppender).toHaveBeenCalledWith(ex.Log.Info, ["test"]);
+      });
 
-        it("should log a message with the Debug level", ()=> {
-            
-            logger.log("test", ex.Log.Debug);
+      it("should log a message with the Warn level", () => {
 
-            expect(spiedAppender).toHaveBeenCalledWith("test", ex.Log.Debug);
-        });
+         logger.warn("test");
 
-        it("should log a message with the Error level", ()=> {
+         expect(spiedAppender).toHaveBeenCalledWith(ex.Log.Warn, ["test"]);
+      });
 
-            logger.log("test", ex.Log.Error);
+      it("should log a message with the Debug level", () => {
 
-            expect(spiedAppender).toHaveBeenCalledWith("test", ex.Log.Error);
-        });
+         logger.debug("test");
 
-        it("should log a message with the Fatal level", ()=> {
+         expect(spiedAppender).toHaveBeenCalledWith(ex.Log.Debug, ["test"]);
+      });
 
-            logger.log("test", ex.Log.Fatal);
+      it("should log a message with the Error level", () => {
 
-            expect(spiedAppender).toHaveBeenCalledWith("test", ex.Log.Fatal);
-        });            
+         logger.error("test");
 
-        it("should call console log for level Debug", ()=> {
-                
-            logger.log("test", ex.Log.Debug);
+         expect(spiedAppender).toHaveBeenCalledWith(ex.Log.Error, ["test"]);
+      });
 
-            expect(spiedConsoleLog).toHaveBeenCalled();
-        });
+      it("should log a message with the Fatal level", () => {
 
-        it("should call console log for level Info", () => {
+         logger.fatal("test");
 
-            logger.log("test", ex.Log.Info);
+         expect(spiedAppender).toHaveBeenCalledWith(ex.Log.Fatal, ["test"]);
+      });
 
-            expect(spiedConsoleLog).toHaveBeenCalled();
-        });
+      it("should call console log for level Debug", () => {
 
-        it("should call console warn for level Warn", () => {
+         logger.debug("test");
 
-            logger.log("test", ex.Log.Warn);
+         expect(spiedConsoleLog).toHaveBeenCalled();
+      });
 
-            expect(spiedConsoleWarn).toHaveBeenCalled();
-        });
+      it("should call console log for level Info", () => {
 
-        it("should call console error for level Error", () => {
+         logger.info("test");
 
-            logger.log("test", ex.Log.Error);
+         expect(spiedConsoleLog).toHaveBeenCalled();
+      });
 
-            expect(spiedConsoleError).toHaveBeenCalled();
-        });
+      it("should call console warn for level Warn", () => {
 
-        it("should call console error for level Fatal", () => {
+         logger.warn("test");
 
-            logger.log("test", ex.Log.Fatal);
+         expect(spiedConsoleWarn).toHaveBeenCalled();
+      });
 
-            expect(spiedConsoleError).toHaveBeenCalled();
-        });
+      it("should call console error for level Error", () => {
 
-        it("should format message to console with appropriate level", ()=> {
+         logger.error("test");
 
-            logger.log("test", ex.Log.Info);
+         expect(spiedConsoleError).toHaveBeenCalled();
+      });
 
-            expect(spiedConsoleLog).toHaveBeenCalledWith("[Info] : test");
+      it("should call console error for level Fatal", () => {
 
-        });
-    });
+         logger.fatal("test");
+
+         expect(spiedConsoleError).toHaveBeenCalled();
+      });
+
+      it("should format message to console with appropriate level", () => {
+
+         logger.info("test");
+
+         expect(spiedConsoleLog).toHaveBeenCalledWith("[Info] : ", "test");
+
+      });
+   });
 });

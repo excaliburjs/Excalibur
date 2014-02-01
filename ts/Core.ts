@@ -174,7 +174,7 @@ module ex {
 
          this.logger = Logger.getInstance();
          this.logger.addAppender(new ConsoleAppender());
-         this.logger.log("Building engine...", Log.Debug);
+         this.logger.debug("Building engine...");
 
          this.canvasElementId = canvasElementId;
 
@@ -184,22 +184,22 @@ module ex {
          this.sceneStack.push(this.rootScene);
 
          if (canvasElementId) {
-            this.logger.log("Using Canvas element specified: " + canvasElementId, Log.Debug);
+            this.logger.debug("Using Canvas element specified: " + canvasElementId);
             this.canvas = <HTMLCanvasElement>document.getElementById(canvasElementId);
          } else {
-            this.logger.log("Using generated canvas element", Log.Debug);
+            this.logger.debug("Using generated canvas element");
             this.canvas = <HTMLCanvasElement>document.createElement('canvas');
          }
          if (width && height) {
             if (displayMode == undefined) {
                this.displayMode = DisplayMode.Fixed;
             }
-            this.logger.log("Engine viewport is size " + width + " x " + height, Log.Debug);
+            this.logger.debug("Engine viewport is size " + width + " x " + height);
             this.width = this.canvas.width = width;
             this.height = this.canvas.height = height;
 
          } else if (!displayMode) {
-            this.logger.log("Engine viewport is fullscreen", Log.Debug);
+            this.logger.debug("Engine viewport is fullscreen");
             this.displayMode = DisplayMode.FullScreen;
          }
 
@@ -282,9 +282,9 @@ module ex {
             this.setHeightByDisplayMode(parent);
 
             window.addEventListener('resize', (ev: UIEvent) => {
-               this.logger.log("View port resized", Log.Debug);
+               this.logger.debug("View port resized");
                this.setHeightByDisplayMode(parent);
-               this.logger.log("parent.clientHeight " + parent.clientHeight);
+               this.logger.info("parent.clientHeight " + parent.clientHeight);
                this.setAntialiasing(this.isSmoothingEnabled);
             });
          }
@@ -462,7 +462,7 @@ module ex {
       public start() {
          if (!this.hasStarted) {
             this.hasStarted = true;
-            this.logger.log("Starting game...", Log.Debug);
+            this.logger.debug("Starting game...");
             // Mainloop
             var lastTime = Date.now();
             var game = this;
@@ -482,7 +482,7 @@ module ex {
 
                lastTime = now;
             })();
-            this.logger.log("Game started", Log.Debug);
+            this.logger.debug("Game started");
          } else {
             // Game already started;
          }
@@ -492,7 +492,7 @@ module ex {
       public stop() {
          if (this.hasStarted) {
             this.hasStarted = false;
-            this.logger.log("Game stopped", Log.Debug);
+            this.logger.debug("Game stopped");
          }
       }
 
@@ -542,7 +542,7 @@ module ex {
          loader.onprogress = (e) => {
             this.progress = <number>e.loaded;
             this.total = <number>e.total;
-            this.logger.log('Loading ' + (100 * this.progress / this.total).toFixed(0));
+            this.logger.info('Loading ' + (100 * this.progress / this.total).toFixed(0));
          };
          loader.oncomplete = () => {
             setTimeout(() => {

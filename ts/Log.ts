@@ -8,18 +8,22 @@ module ex {
    }
 
    export interface IAppender {
-      log(message: string, level: Log);
+      log(level: Log, args: any[]);
    }
 
    export class ConsoleAppender implements IAppender {
       constructor() { }
-      public log(message: string, level: Log) {
+      public log(level: Log, args: any[]) {
+         var consoleArgs = [];
+         consoleArgs.unshift.apply(consoleArgs, args);
+         consoleArgs.unshift("[" + Log[level] + "] : ");         
+
          if (level < Log.Warn) {
-            console.log("[" + Log[level] + "] : " + message);
+            console.log.apply(console, consoleArgs);
          } else if (level < Log.Error) {
-            console.warn("[" + Log[level] + "] : " + message);
+            console.warn.apply(console, consoleArgs);
          } else {
-            console.error("[" + Log[level] + "] : " + message);
+            console.error.apply(console, consoleArgs);
          }
       }
    }
@@ -38,19 +42,19 @@ module ex {
          document.body.appendChild(this.canvas);
       }
 
-      public log(message: string, level: Log) {
+      public log(level: Log, args: any[]) {
+         var message = args.join(",");
+
          //this.ctx.fillStyle = 'rgba(0,0,0,1.0)';
          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
 
          this._messages.unshift("[" + Log[level] + "] : " + message);
 
          var pos = 10;
          var opacity = 1.0;
          for (var i = 0; i < this._messages.length; i++) {
-            this.ctx.fillStyle = 'rgba(255,255,255,' + opacity.toFixed(2) + ')';
-            var message = this._messages[i];
-            this.ctx.fillText(message, 200, pos);
+            this.ctx.fillStyle = 'rgba(255,255,255,' + opacity.toFixed(2) + ')';            
+            this.ctx.fillText(this._messages[i], 200, pos);
             pos += 10;
             opacity = opacity > 0 ? opacity - .05 : 0;
          }
@@ -80,16 +84,36 @@ module ex {
          this.appenders.push(appender);
       }
 
-      public log(message: string, level?: Log) {
+      private _log(level: Log, args: any[]): void {
          if (level == null) {
             level = this.defaultLevel;
          }
          var defaultLevel = this.defaultLevel;
          this.appenders.forEach(function (appender) {
             if (level >= defaultLevel) {
-               appender.log(message, level);
+               appender.log(level, args);
             }
          });
+      }
+
+      public debug(...args): void {
+         this._log(Log.Debug, args);
+      }
+
+      public info(...args): void {
+         this._log(Log.Info, args);
+      }
+
+      public warn(...args): void {
+         this._log(Log.Warn, args);
+      }
+
+      public error(...args): void {
+         this._log(Log.Error, args);
+      }
+
+      public fatal(...args): void {
+         this._log(Log.Fatal, args);
       }
    }
 }

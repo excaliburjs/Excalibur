@@ -1,4 +1,4 @@
-/// <reference path='../../build/Excalibur-0.2.0-alpha.d.ts' />
+/// <reference path='../../build/Excalibur.d.ts' />
 
 var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.Log.Debug;
@@ -20,7 +20,7 @@ loader.addResource(imageBlocks);
 loader.addResource(spriteFontImage);
 loader.addResource(jump);
 game.load(loader).then(()=>{
-   logger.log("All Resources have finished loading", ex.Log.Info);
+   logger.info("All Resources have finished loading");
 });
 
 // Set background color
@@ -326,7 +326,7 @@ game.addChild(emitter);
 emitter.follow(player, 20);
 
 game.addEventListener('mousedown', (evt? : ex.MouseDown)=>{
-   console.log(evt.x + ", " +evt.y);
+   ex.Logger.getInstance().info(evt.x + ", " +evt.y);
    emitter.focus = new ex.Vector(evt.x - emitter.x, evt.y - emitter.y);
 });
 
