@@ -36,3 +36,4 @@ build/
 /sample-game/bin
 /sample-game/obj/Debug
 *.map
+/spec/bin
