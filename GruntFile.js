@@ -49,7 +49,8 @@ module.exports = function(grunt) {
     shell: {
       tsc : {
           command: 'tsc --sourcemap --removeComments --declaration ./ts/Core.ts -out ./build/<%= pkg.name %>-<%= pkg.version %>.js;' +
-              'cp ./build/<%= pkg.name %>-<%= pkg.version %>.js ./build/<%= pkg.name %>.js',
+              'cp ./build/<%= pkg.name %>-<%= pkg.version %>.js ./build/<%= pkg.name %>.js;' +
+              'cp ./build/<%= pkg.name %>-<%= pkg.version %>.d.ts ./build/<%= pkg.name %>.d.ts;',
          options : {
           stdout : true,
           failOnError : true
