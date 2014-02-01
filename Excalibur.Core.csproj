@@ -51,6 +51,7 @@
     <TypeScriptOutDir>D:\Development\Contrib\Excalibur\js</TypeScriptOutDir>
     <TypeScriptOutFile>build\Excalibur.js</TypeScriptOutFile>
     <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
+    <OutputPath>ts\bin\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptTarget>ES5</TypeScriptTarget>

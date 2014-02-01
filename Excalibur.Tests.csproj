@@ -49,6 +49,7 @@
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
     <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <OutputPath>spec\bin\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptTarget>ES5</TypeScriptTarget>
@@ -73,6 +74,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="runTests.bat" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Excalibur.Core.csproj">
+      <Project>{1df7cfca-a048-417c-84e7-4d1cc6a3fd77}</Project>
+      <Name>Excalibur.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets')" />
   <PropertyGroup>
