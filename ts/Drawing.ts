@@ -93,18 +93,17 @@ module ex {
       public draw(ctx: CanvasRenderingContext2D, x: number, y: number, text: string) {
          var currX = x;
          for (var i = 0; i < text.length; i++) {
-            var char = text[i];
+            var character = text[i];
             if (this.caseInsensitive) {
-               char = char.toLowerCase();
+               character = character.toLowerCase();
             }
             try {
-               var charSprite = this.spriteLookup[char];
+               var charSprite = this.spriteLookup[character];
                charSprite.draw(ctx, currX, y);
+               currX += charSprite.swidth;
             } catch (e) {
-               Logger.getInstance().log("SpriteFont Error drawing char " + char, Log.Error);
-            }
-            currX += charSprite.swidth;
-
+               Logger.getInstance().error("SpriteFont Error drawing char " + character);
+            }           
          }
       }
    }
