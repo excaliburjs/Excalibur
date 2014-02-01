@@ -237,8 +237,38 @@ module ex {
 
          this.loader = new Loader();
 
-         this.init();
+         this.initialize();
 
+      }
+
+      public static extend(methods: any): any {
+         var subclass = function () {
+            this['__super'].apply(this, Array.prototype.slice.call(arguments, 0));
+            if (this['init']) {
+               this['init'].apply(this, Array.prototype.slice.call(arguments, 0));
+            }
+         };
+
+         var __extends = function (d, b) {
+            for (var p in b)
+               if (b.hasOwnProperty(p))
+                  d[p] = b[p];
+            function __() {
+               this.constructor = d;
+            }
+            __.prototype = b.prototype;
+            d.prototype = new __();
+         };
+         var clazz = this;
+         __extends(subclass, clazz);
+
+         for (var method in methods) {
+            subclass.prototype[method] = methods[method];
+         }
+         subclass.prototype["__super"] = clazz;
+         subclass.prototype["super"] = clazz.prototype;
+
+         return subclass;
       }
 
       public addEventListener(eventName: string, handler: (event?: GameEvent) => void) {
@@ -314,7 +344,7 @@ module ex {
       }
       }
 
-      private init() {
+      private initialize() {
          if (this.displayMode === DisplayMode.FullScreen || this.displayMode === DisplayMode.Container) {
 
 
