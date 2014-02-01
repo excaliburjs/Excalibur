@@ -1,7 +1,7 @@
 /// <reference path='../../build/Excalibur.d.ts' />
 
 var logger = ex.Logger.getInstance();
-logger.defaultLevel = ex.Log.Debug;
+logger.defaultLevel = ex.LogLevel.Debug;
 
 // Create an the game container
 var game = new ex.Engine(800, 600, 'game');
