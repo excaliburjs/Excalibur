@@ -3,6 +3,7 @@
 /// <reference path="Log.ts" />
 /// <reference path="Events.ts" />
 /// <reference path="Entities.ts" />
+/// <reference path="Particles.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Drawing.ts" />
 /// <reference path="Camera.ts" />
