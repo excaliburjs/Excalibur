@@ -326,7 +326,7 @@ game.addChild(emitter);
 emitter.follow(player, 20);
 
 game.addEventListener('mousedown', (evt? : ex.MouseDown)=>{
-   ex.Logger.getInstance().info(evt.x + ", " +evt.y);
+   logger.info(evt.x + ", " +evt.y);
    emitter.focus = new ex.Vector(evt.x - emitter.x, evt.y - emitter.y);
 });
 
