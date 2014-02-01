@@ -62,7 +62,6 @@
     <Compile Include="sample-game\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="build\Excalibur.js" />
     <Content Include="sample-game\html\index.html" />
     <Content Include="sample-game\images\BlockA0.png" />
     <Content Include="sample-game\images\favicon.png" />
@@ -75,12 +74,7 @@
     <Content Include="sample-game\images\PlayerRun.psd" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="build\Excalibur.d.ts" />
     <TypeScriptCompile Include="sample-game\ts\game.ts" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="build\Excalibur.0.1.0-alpha.nupkg" />
-    <Content Include="build\Excalibur.js.map" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Excalibur.Core.csproj">
