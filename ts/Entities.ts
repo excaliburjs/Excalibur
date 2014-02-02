@@ -469,9 +469,7 @@ module ex {
          ctx.save();
          ctx.translate(this.x, this.y);
          ctx.rotate(this.rotation);
-         ctx.scale(this.scale, this.scale);
-
-         this.sceneNode.draw(ctx, delta);
+         ctx.scale(this.scale, this.scale);         
 
          if (!this.invisible) {
             if (this.currentDrawing) {
@@ -495,6 +493,9 @@ module ex {
                ctx.fillRect(0, 0, this.width, this.height);
             }
          }
+
+         this.sceneNode.draw(ctx, delta);
+
          ctx.restore();
       }
 
