@@ -8,6 +8,7 @@ module ex {
       KeyUp,
       KeyPress,
       MouseDown,
+      MouseMove,
       MouseUp,
       Click,
       UserEvent,
@@ -58,6 +59,12 @@ module ex {
    }
 
    export class MouseDown extends GameEvent {
+      constructor(public x: number, public y: number) {
+         super();
+      }
+   }
+
+   export class MouseMove extends GameEvent {
       constructor(public x: number, public y: number) {
          super();
       }

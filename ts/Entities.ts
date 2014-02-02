@@ -501,11 +501,17 @@ module ex {
             }
          });
 
-         engine.mouseUp.forEach((e) => {
+         engine.mouseMove.forEach((e) => {
+            if (this.contains(e.x, e.y)) {
+               eventDispatcher.publish(EventType[EventType.MouseMove], new MouseMove(e.x, e.y));
+            }
+         });
+
+         engine.mouseUp.forEach((e)=> {
             if (this.contains(e.x, e.y)) {
                eventDispatcher.publish(EventType[EventType.MouseUp], new MouseUp(e.x, e.y));
             }
-         })
+         });
 
          eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
       }
