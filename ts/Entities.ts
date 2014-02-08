@@ -11,43 +11,55 @@ module ex {
       public children: Actor[] = [];
       private engine: Engine;
       private killQueue: Actor[] = [];
+
       private timers: Timer[] = [];
+      private cancelQueue: Timer[] = [];
+
+      public collisionGroups: {[key:string]: Actor[]} = {};
+
       constructor() {
       }
 
-      publish(eventType: string, event: GameEvent) {
+      public publish(eventType: string, event: GameEvent) {
          this.children.forEach((actor) => {
             actor.triggerEvent(eventType, event);
          });
       }
 
-      update(engine: Engine, delta: number) {
+      public update(engine: Engine, delta: number) {
          var len = 0;
          var start = 0;
          var end = 0;
          var actor;
+         // Cycle through actors updating actors
          for (var i = 0, len = this.children.length; i < len; i++) {
-            actor = this.children[i];
             this.children[i].update(engine, delta);
          }
 
          // Remove actors from scene graph after being killed
-         var index = 0;
+         var actorIndex = 0;
          for (var j = 0, len = this.killQueue.length; j < len; j++) {
-            index = this.children.indexOf(this.killQueue[j]);
-            this.children.splice(index, 1);
+            this.removeChild(this.killQueue[j]);
          }
          this.killQueue.length = 0;
 
-         // Cycle through timers
-         var that = this;
+
+         // Remove timers in the cancel queue before updating them
+         var timerIndex = 0;
+         for(var k = 0, len = this.cancelQueue.length; k < len; k++){
+            this.removeTimer(this.cancelQueue[k]);
+         }
+         this.cancelQueue.length = 0;
+
+         // Cycle through timers updating timers
+         var that = this; 
          this.timers = this.timers.filter(function(timer){
             timer.update(delta);
             return !timer.complete;
          });
       }
 
-      draw(ctx: CanvasRenderingContext2D, delta: number) {
+      public draw(ctx: CanvasRenderingContext2D, delta: number) {
          var len = 0;
          var start = 0;
          var end = 0;
@@ -58,30 +70,59 @@ module ex {
          }
       }
 
-      debugDraw(ctx: CanvasRenderingContext2D) {
+      public debugDraw(ctx: CanvasRenderingContext2D) {
          this.children.forEach((actor) => {
             actor.debugDraw(ctx);
          })
       }
 
-      addChild(actor: Actor) {
+      public addChild(actor: Actor) {
          actor.parent = this;
+         this.updateAddCollisionGroups(actor);
          this.children.push(actor);
       }
 
-      removeChild(actor: Actor) {
+      public updateAddCollisionGroups(actor: Actor){
+         actor.collisionGroups.forEach((group)=>{
+            if(!(this.collisionGroups[group] instanceof Array)){
+               this.collisionGroups[group] = [];
+            }
+            this.collisionGroups[group].push(actor);
+         });
+      }
+
+      public removeChild(actor: Actor) {
+         this.updateRemoveCollisionGroups(actor);
          this.killQueue.push(actor);
       }
 
-      addTimer(timer: Timer): Timer{
+      public updateRemoveCollisionGroups(actor: Actor){
+         for(var group in this.collisionGroups){
+            this.collisionGroups[group] = this.collisionGroups[group].filter((a)=>{
+               return a != actor;
+            });
+         }
+      }
+
+      public addTimer(timer: Timer): Timer{
          this.timers.push(timer);
+         timer.scene = this;
          return timer;
       }
 
-      removeTimer(timer: Timer): Timer{
+      public removeTimer(timer: Timer): Timer{
          var i = this.timers.indexOf(timer);
          this.timers.splice(i, 1);
          return timer;
+      }
+
+      public cancelTimer(timer: Timer): Timer{
+         this.cancelQueue.push(timer);
+         return timer;
+      }
+
+      public isTimerActive(timer: Timer): boolean {
+         return (this.timers.indexOf(timer) > -1);
       }
 
    }
@@ -124,6 +165,7 @@ module ex {
 
       public fixed = true;
       public preventCollisions = false;
+      public collisionGroups : string[] = [];
 
       public frames: { [key: string]: IDrawable; } = {}
       //public animations : {[key : string] : Drawing.Animation;} = {};
@@ -209,6 +251,21 @@ module ex {
          this.eventDispatcher.publish(eventName, event);
       }
 
+      public addCollisionGroup(name: string){
+         this.collisionGroups.push(name);
+         if(this.parent){
+            this.parent.updateAddCollisionGroups(this);
+         }
+      }
+
+      public removeCollisionGroup(name: string){
+         var index = this.collisionGroups.indexOf(name);
+         this.collisionGroups.splice(index, 1);
+         if(this.parent){
+            this.parent.updateRemoveCollisionGroups(this);
+         }
+      }
+ 
       public getCenter(): Vector {
          return new Vector(this.x + this.getWidth() / 2, this.y + this.getHeight() / 2);
       }
@@ -418,9 +475,19 @@ module ex {
 
          this.scale += this.sx * delta / 1000;
 
+         
+
+         var potentialColliders = engine.currentScene.children;
+         if(this.collisionGroups.length !== 0){
+            potentialColliders = [];
+            for(var group in this.parent.collisionGroups){
+               potentialColliders = potentialColliders.concat(this.parent.collisionGroups[group]);
+            }
+         }
+
          // Publish collision events
-         for (var i = 0; i < engine.currentScene.children.length; i++) {
-            var other = engine.currentScene.children[i];
+         for (var i = 0; i < potentialColliders.length; i++) {
+            var other = potentialColliders[i];
             var side: Side = Side.NONE;
             if (other !== this && !other.preventCollisions &&
                (side = this.collides(other)) !== Side.NONE) {
@@ -470,8 +537,7 @@ module ex {
          ctx.translate(this.x, this.y);
          ctx.rotate(this.rotation);
          ctx.scale(this.scale, this.scale);
-
-         this.sceneNode.draw(ctx, delta);
+       
 
          if (!this.invisible) {
             if (this.currentDrawing) {
@@ -495,6 +561,8 @@ module ex {
                ctx.fillRect(0, 0, this.width, this.height);
             }
          }
+
+         this.sceneNode.draw(ctx, delta);
          ctx.restore();
       }
 

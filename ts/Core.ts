@@ -138,6 +138,7 @@ module ex {
       public repeats: boolean = false;
       private elapsedTime: number = 0;
       public complete: boolean = false;
+      public scene: Scene = null;
       constructor(fcn:()=>void, interval: number, repeats?: boolean){
          this.id = Timer.id++;
          this.interval = interval || this.interval;
@@ -156,6 +157,13 @@ module ex {
             }
          }
       }
+
+      public cancel(){
+         if(this.scene){
+            this.scene.cancelTimer(this);
+         }
+      }
+
    }
 
    export class Engine {
@@ -288,11 +296,11 @@ module ex {
          this.currentScene.removeChild(actor);
       }
 
-       addTimer(timer: Timer): Timer{
+      public addTimer(timer: Timer): Timer{
          return this.currentScene.addTimer(timer);
       }
 
-      removeTimer(timer: Timer): Timer{
+      public removeTimer(timer: Timer): Timer{
          return this.currentScene.removeTimer(timer);
       }
 
