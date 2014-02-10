@@ -33,6 +33,7 @@ module ex.Util {
          SubClass.prototype.constructor = SubClass;
          SubClass.prototype = SuperClass;
          SubClass.prototype._super = SubClass;
+         SubClass.prototype.super = _super;
          (<any>SubClass).extend = Class.extend;
           
          return SubClass;

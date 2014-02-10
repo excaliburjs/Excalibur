@@ -15,7 +15,11 @@ describe("A Class", ()=>{
          parents : false,
          init: function(){
             this._super('Bruce Wayne');
+         },
+         getName: function(){
+            return this.name;
          }
+
       });
 
       var Robin: any = BatMan.extend({
@@ -23,6 +27,9 @@ describe("A Class", ()=>{
          init: function(){
             this._super();
             this.name = 'Dick Grayson';
+         },
+         getName: function(){
+            return this.super.getName.call(this);
          }
       })
 
@@ -39,6 +46,7 @@ describe("A Class", ()=>{
       expect(r.name).toBe('Dick Grayson');
       expect(r.parents).toBe(false);
       expect(r.isNightWing).toBe(false);
+      expect(r.getName()).toBe('Dick Grayson');
 
    });
 
