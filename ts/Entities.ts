@@ -135,7 +135,7 @@ module ex {
       RIGHT
    }
 
-   export class Actor {
+   export class Actor extends ex.Util.Class {
       public x: number = 0;
       public y: number = 0;
       private height: number = 0;
@@ -177,6 +177,7 @@ module ex {
 
       public color: Color;
       constructor(x?: number, y?: number, width?: number, height?: number, color?: Color) {
+         super();
          this.x = x || 0;
          this.y = y || 0;
          this.width = width || 0;
@@ -185,37 +186,6 @@ module ex {
          this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
          this.eventDispatcher = new EventDispatcher(this);
          this.sceneNode = new Scene();
-      }
-
-
-      public static extend(methods: any): any {
-         var subclass = function () {
-            this['__super'].apply(this, Array.prototype.slice.call(arguments, 0));
-            if (this['init']) {
-               this['init'].apply(this, Array.prototype.slice.call(arguments, 0));
-            }
-         };
-
-         var __extends = function (d, b) {
-            for (var p in b)
-               if (b.hasOwnProperty(p))
-                  d[p] = b[p];
-            function __() {
-               this.constructor = d;
-            }
-            __.prototype = b.prototype;
-            d.prototype = new __();
-         };
-         var clazz = this;
-         __extends(subclass, clazz);
-
-         for (var method in methods) {
-            subclass.prototype[method] = methods[method];
-         }
-         subclass.prototype["__super"] = clazz;
-         subclass.prototype["super"] = clazz.prototype;
-
-         return subclass;
       }
 
       public kill() {
