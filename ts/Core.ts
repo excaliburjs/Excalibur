@@ -186,6 +186,7 @@ module ex {
       // Mouse Events
       public clicks: MouseDown[] = [];
       public mouseDown: MouseDown[] = [];
+      public mouseMove: MouseMove[] = [];
       public mouseUp: MouseUp[] = [];
 
       public camera: ICamera;
@@ -382,9 +383,19 @@ module ex {
             var x: number = e.pageX - this.canvas.offsetLeft;
             var y: number = e.pageY - this.canvas.offsetTop;
             var transformedPoint = this.transformToCanvasCoordinates(x, y);
-            var mousedown = new MouseDown(transformedPoint.x, transformedPoint.y)
-         this.clicks.push(mousedown);
+            var mousedown = new MouseDown(transformedPoint.x, transformedPoint.y);
+            this.mouseDown.push(mousedown);
+            this.clicks.push(mousedown);
             this.eventDispatcher.publish(EventType[EventType.MouseDown], mousedown);
+         });
+
+         this.canvas.addEventListener('mousemove', (e: MouseEvent) => {
+            var x: number = e.pageX - this.canvas.offsetLeft;
+            var y: number = e.pageY - this.canvas.offsetTop;
+            var transformedPoint = this.transformToCanvasCoordinates(x, y);
+            var mousemove = new MouseMove(transformedPoint.x, transformedPoint.y);            
+            this.mouseMove.push(mousemove);
+            this.eventDispatcher.publish(EventType[EventType.MouseMove], mousemove);
          });
 
          this.canvas.addEventListener('mouseup', (e: MouseEvent) => {
@@ -453,6 +464,11 @@ module ex {
 
          // Reset clicks
          this.clicks.length = 0;
+
+         // Reset mouse
+         this.mouseDown.length = 0;
+         this.mouseMove.length = 0;
+         this.mouseUp.length = 0;
 
          // Publish update event
          this.eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));

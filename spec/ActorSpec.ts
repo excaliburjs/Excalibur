@@ -6,18 +6,19 @@ describe("A game actor", () => {
 	
 	var actor;
 	var engine;
-   var scene;
+    var scene;
 	beforeEach(()=>{
 		actor = new ex.Actor();
-      scene = new ex.Scene();
-		// mock engine
-		engine = {
-			currentScene : scene,
-			keys : [],
-			clicks : [],
-			mouseDown : [],
-			mouseUp : []
-		}
+        scene = new ex.Scene();
+		// mock engine		
+	    engine = {
+	      currentScene : scene,
+	      keys: [],
+	      clicks: [],
+	      mouseDown: [],
+	      mouseMove: [],
+	      mouseUp: []
+	   };
 	});
 
 
