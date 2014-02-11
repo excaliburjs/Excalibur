@@ -95,7 +95,7 @@ module ex {
    export class ParticleEmitter extends Actor {
 
       public numParticles: number = 0;
-      public isEmitting: boolean = false;
+      public isEmitting: boolean = true;
       public particles: Util.Collection<Particle> = null;
       public deadParticles: Util.Collection<Particle> = null;
 
