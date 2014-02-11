@@ -463,7 +463,7 @@ module ex {
 
          if (this.isLoading) {
             ctx.fillStyle = 'black'
-         ctx.fillRect(0, 0, this.width, this.height);
+            ctx.fillRect(0, 0, this.width, this.height);
             this.drawLoadingBar(ctx, this.progress, this.total);
             // Drawing nothing else while loading
             return;
@@ -511,10 +511,18 @@ module ex {
          this.ctx.restore();
       }
 
-      public start() {
+      public start(loader?: ILoadable) : Promise<any> {
+         var loadingComplete: Promise<any>;
+         if(loader){
+            loadingComplete = this.load(loader);
+         }
+
          if (!this.hasStarted) {
             this.hasStarted = true;
             this.logger.debug("Starting game...");
+            
+
+
             // Mainloop
             var lastTime = Date.now();
             var game = this;
@@ -535,9 +543,11 @@ module ex {
                lastTime = now;
             })();
             this.logger.debug("Game started");
+            
          } else {
             // Game already started;
          }
+         return loadingComplete;
 
       }
       // Test

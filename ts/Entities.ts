@@ -17,8 +17,7 @@ module ex {
 
       public collisionGroups: {[key:string]: Actor[]} = {};
 
-      constructor() {
-      }
+      constructor() {}
 
       public publish(eventType: string, event: GameEvent) {
          this.children.forEach((actor) => {
@@ -39,7 +38,8 @@ module ex {
          // Remove actors from scene graph after being killed
          var actorIndex = 0;
          for (var j = 0, len = this.killQueue.length; j < len; j++) {
-            this.removeChild(this.killQueue[j]);
+            actorIndex = this.children.indexOf(this.killQueue[j]);
+            this.children.splice(actorIndex, 1);
          }
          this.killQueue.length = 0;
 
@@ -307,12 +307,14 @@ module ex {
          return (this.x <= x && this.y <= y && this.getBottom() >= y && this.getRight() >= x);
       }
 
-      public collides(box: Actor): Side {
-         var w = 0.5 * (this.getWidth() + box.getWidth());
-         var h = 0.5 * (this.getHeight() + box.getHeight());
+      public collides(actor: Actor): Side {
 
-         var dx = (this.x + this.getWidth() / 2.0) - (box.x + box.getWidth() / 2.0);
-         var dy = (this.y + this.getHeight() / 2.0) - (box.y + box.getHeight() / 2.0);
+
+         var w = 0.5 * (this.getWidth() + actor.getWidth());
+         var h = 0.5 * (this.getHeight() + actor.getHeight());
+
+         var dx = (this.x + this.getWidth() / 2.0) - (actor.x + actor.getWidth() / 2.0);
+         var dy = (this.y + this.getHeight() / 2.0) - (actor.y + actor.getHeight() / 2.0);
 
          if (Math.abs(dx) < w && Math.abs(dy) < h) {
             // collision detected
@@ -537,22 +539,20 @@ module ex {
       }
 
       public debugDraw(ctx: CanvasRenderingContext2D) {
+         
          // Meant to draw debug information about actors
          ctx.save();
-         ctx.translate(this.x, this.y);
+         ctx.translate(this.x, this.y);         
 
-
-         ctx.scale(this.scale, this.scale);
-         // Currently collision primitives cannot rotate 
-         // ctx.rotate(this.rotation);
-
-         this.sceneNode.debugDraw(ctx);
-
+         ctx.fillStyle = Color.Yellow.toString();
+         ctx.strokeStyle = Color.Yellow.toString();
          ctx.beginPath();
-         ctx.rect(0, 0, this.width, this.height);
+         ctx.rect(0, 0, this.getWidth(), this.getHeight());
          ctx.stroke();
 
+         this.sceneNode.debugDraw(ctx);
          ctx.restore();
+
       }
    }
 

@@ -40,7 +40,7 @@ module ex {
          request.onload = (e) => {
             this.image.src = URL.createObjectURL(request.response);
             this.oncomplete()
-        complete.resolve(this.image);
+            complete.resolve(this.image);
          };
          request.onerror = (e) => {
             this.onerror(e);
