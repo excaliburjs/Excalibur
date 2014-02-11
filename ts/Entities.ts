@@ -507,9 +507,8 @@ module ex {
 
          ctx.save();
          ctx.translate(this.x, this.y);
-         ctx.rotate(this.rotation);
-         ctx.scale(this.scale, this.scale);
-       
+         ctx.rotate(this.rotation);     
+         ctx.scale(this.scale, this.scale);         
 
          if (!this.invisible) {
             if (this.currentDrawing) {
@@ -535,6 +534,7 @@ module ex {
          }
 
          this.sceneNode.draw(ctx, delta);
+
          ctx.restore();
       }
 
