@@ -109,8 +109,7 @@ module ex {
    }
 
    export class Sprite implements IDrawable {
-      private internalImage: HTMLImageElement;
-      private preloadedImage: Texture;
+      private texture: Texture;
       private scale: number = 1.0;
       private rotation: number = 0.0;
       private transformPoint: Point = new Point(0, 0);
@@ -120,8 +119,7 @@ module ex {
       public height: number = 0;
 
       constructor(image: Texture, public sx: number, public sy: number, public swidth: number, public sheight: number) {
-         this.internalImage = image.image;
-         this.preloadedImage = image;
+         this.texture = image;
          this.width = swidth;
          this.height = sheight;
       }
@@ -167,13 +165,14 @@ module ex {
             ctx.translate(0, this.sheight);
             ctx.scale(1, -1);
          }
-
-         ctx.drawImage(this.internalImage, this.sx, this.sy, this.swidth, this.sheight, -this.transformPoint.x, -this.transformPoint.y, this.swidth * this.scale, this.sheight * this.scale);
+         if(this.texture.image){
+            ctx.drawImage(this.texture.image, this.sx, this.sy, this.swidth, this.sheight, -this.transformPoint.x, -this.transformPoint.y, this.swidth * this.scale, this.sheight * this.scale);
+         }
          ctx.restore();
       }
 
       public clone(): Sprite {
-         var result = new Sprite(this.preloadedImage, this.sx, this.sy, this.swidth, this.sheight);
+         var result = new Sprite(this.texture, this.sx, this.sy, this.swidth, this.sheight);
          result.scale = this.scale;
          result.rotation = this.rotation;
          result.flipY = this.flipY;

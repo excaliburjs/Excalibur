@@ -100,7 +100,9 @@ module.exports = function (grunt) {
             'tsc "./spec/ColorSpec.ts" -out "./spec/ColorSpec.js";' +
             'tsc "./spec/PromiseSpec.ts" -out "./spec/PromiseSpec.js";' +
             'tsc "./spec/CollectionSpec.ts" -out "./spec/CollectionSpec.js";' +
-            'tsc "./spec/LogSpec.ts" -out "./spec/LogSpec.js"',
+            'tsc "./spec/LogSpec.ts" -out "./spec/LogSpec.js";' + 
+            'tsc "./spec/TimerSpec.ts" -out "./spec/TimerSpec.js";' +
+            'tsc "./spec/ClassSpec.ts" -out "./spec/ClassSpec.js"',
             options: {
                stdout: true,
                failOnError: true

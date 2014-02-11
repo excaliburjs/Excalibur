@@ -1,4 +1,46 @@
 module ex.Util {
+   export class Class {
+      constructor(){}
+
+      public static extend(methods: any){
+         var _super = this.prototype;
+         var SubClass = function(){
+            if(this.init){
+               this.init.apply(this, Array.prototype.slice.call(arguments));
+            }
+         };       
+          
+         // Create our super class and populate
+         var SuperClass = new this();
+         for(var prop in methods){
+            if(typeof _super[prop] == "function" && /\b_super\b/.test(methods[prop])){
+            // if we have encountered a super constructor lazily call it
+               SuperClass[prop] = (function(name, fn){
+                  return function(){
+                     var tmp = this._super;
+                     this._super = _super[name];
+                     var ret = fn.apply(this, arguments);
+                     this._super = tmp;
+                     return ret;
+                  }
+               })(prop, methods[prop]);
+            }else{
+
+               SuperClass[prop] = methods[prop];
+            }
+         } 
+
+         SubClass.prototype.constructor = SubClass;
+         SubClass.prototype = SuperClass;
+         SubClass.prototype._super = SubClass;
+         SubClass.prototype.super = _super;
+         (<any>SubClass).extend = Class.extend;
+          
+         return SubClass;
+      }
+   }
+   
+
    export function base64Encode(inputStr: string) {
       var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
       var outputStr = "";

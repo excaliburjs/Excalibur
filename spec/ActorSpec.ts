@@ -6,13 +6,13 @@ describe("A game actor", () => {
 	
 	var actor;
 	var engine;
+    var scene;
 	beforeEach(()=>{
 		actor = new ex.Actor();
-		// mock engine
-	   engine = {
-	      currentScene: {
-	         children: []
-	      },
+        scene = new ex.Scene();
+		// mock engine		
+	    engine = {
+	      currentScene : scene,
 	      keys: [],
 	      clicks: [],
 	      mouseDown: [],
@@ -561,8 +561,14 @@ describe("A game actor", () => {
 
 		//TODO have actor to be followed traveling at a diagonal 'toward' the following actor
 		// testing when actorToMeet is moving in a direction towards the following actor
+	});
 
-
-		})
+   it('can be removed from the scene', ()=>{
+      scene.addChild(actor);
+      expect(scene.children.length).toBe(1);
+      actor.kill();
+      scene.update(engine, 100);
+      expect(scene.children.length).toBe(0);
+   });
 
 });

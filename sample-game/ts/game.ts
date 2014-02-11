@@ -19,9 +19,7 @@ loader.addResource(imageJump);
 loader.addResource(imageBlocks);
 loader.addResource(spriteFontImage);
 loader.addResource(jump);
-game.load(loader).then(()=>{
-   logger.info("All Resources have finished loading");
-});
+
 
 // Set background color
 game.backgroundColor = new ex.Color(114,213,224);
@@ -60,7 +58,8 @@ for(var i = 0; i< 36; i++){
    currentX = tileBlockWidth * i + 10;
    var color = new ex.Color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
    var block = new ex.Actor(currentX, 350 + Math.random() * 100, tileBlockWidth, tileBlockHeight, color);
-   
+
+   block.addCollisionGroup('ground');
    block.addDrawing(Animations.Block, blockAnimation);
    
    game.addChild(block);
@@ -90,6 +89,7 @@ game.addChild(follower);
 
 // Create the player
 var player = new ex.Actor(100,100,32,96);
+player.addCollisionGroup('ground');
 follower.meet(player, 60);
 
 // follow player
@@ -354,4 +354,6 @@ game.addEventListener('mousedown', (evt? : ex.MouseDown)=>{
 game.camera = camera;
 
 // Run the mainloop
-game.start();
+game.start(loader).then(()=>{
+   logger.info("All Resources have finished loading");
+});

@@ -28,7 +28,7 @@ module ex {
       private rejectCallback: (value?: any) => any = () => { };
       private errorCallback: (value?: any) => any = () => { };
 
-      public static wrap<T>(value?: T): IPromise<T> {
+      public static wrap<T>(value?: T): Promise<T> {
          var promise = (new Promise<T>()).resolve(value);
 
          return promise;
