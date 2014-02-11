@@ -16,8 +16,8 @@ module ex {
       public image: HTMLImageElement;
       private logger: Logger = Logger.getInstance();
 
-   private progressCallback: (progress: number, total: number) => void
-   private doneCallback: () => void;
+      private progressCallback: (progress: number, total: number) => void
+      private doneCallback: () => void;
       private errorCallback: (e: string) => void;
 
       constructor(public path: string) {
@@ -62,6 +62,8 @@ module ex {
    }
 
    export class Sound implements ILoadable, ex.Internal.ISound {
+      private logger: Logger = Logger.getInstance();
+
       public onprogress: (e: any) => void = () => { };
 
       public oncomplete: () => void = () => { };
@@ -72,8 +74,38 @@ module ex {
 
       public sound: ex.Internal.FallbackAudio;
 
-      constructor(public path: string, volume?: number) {
-         this.sound = new ex.Internal.FallbackAudio(path, volume || 1.0);
+
+      public static canPlayFile(file: string): boolean {
+         var a = new Audio();
+         var filetype = /.*\.([A-Za-z0-9]+)$/;
+         var type = file.match(filetype)[1];
+         if(a.canPlayType('audio/'+type)){
+            return true;
+         }{
+            return false;
+         }
+      }
+
+      constructor(...paths: string[]) {
+         /* Chrome : MP3, WAV, Ogg
+          * Firefox : WAV, Ogg, 
+          * IE : MP3, 
+          * Safari MP3, WAV, Ogg           
+          */
+         var selectedFile = "";
+         for(var i = 0; i < paths.length; i++){
+            if(Sound.canPlayFile(paths[i])){
+               selectedFile = paths[i];
+               break;
+            }               
+         }
+
+         if(!selectedFile){
+            this.logger.warn("This browser does not support any of the files specified");
+            selectedFile = paths[0]; // select the first specified
+         }
+
+         this.sound = new ex.Internal.FallbackAudio(selectedFile, 1.0);
       }
 
       public setVolume(volume: number) {
