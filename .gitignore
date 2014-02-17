@@ -29,11 +29,9 @@ Thumbs.db
 
 # Build
 build/
-/bin
-/obj/Debug
+bld/
+bin/
+obj/
 *.user
 *.suo
-/sample-game/bin
-/sample-game/obj/Debug
 *.map
-/spec/bin
