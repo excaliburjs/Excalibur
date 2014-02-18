@@ -11,7 +11,7 @@ var imageRun = new ex.Texture('../images/PlayerRun.png');
 var imageJump = new ex.Texture('../images/PlayerJump.png');
 var imageBlocks = new ex.Texture('../images/BlockA0.png');
 var spriteFontImage = new ex.Texture('../images/SpriteFont.png');
-var jump = new ex.Sound('../sounds/jump.wav');
+var jump = new ex.Sound('../sounds/jump.wav', '../sounds/jump.mp3');
 
 var loader = new ex.Loader();
 loader.addResource(imageRun);
@@ -42,6 +42,7 @@ game.addChild(label);
 
 // Retrieve animations for blocks from sprite sheet
 var blockAnimation = spriteTiles.getSprite(0);
+blockAnimation.addEffect(new ex.Effects.Grayscale());
 // Animation 'enum' to prevent 'stringly' typed misspelling errors
 enum Animations {
    Block,
