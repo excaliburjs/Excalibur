@@ -127,6 +127,16 @@ module ex {
          }
       }
 
+      export class Invert implements ISpriteEffect {
+         updatePixel(x: number, y: number, imageData: ImageData): void{
+            var firstPixel = (x+y*imageData.width)*4;
+            var pixel = imageData.data;
+            pixel[firstPixel+0] = 255 - pixel[firstPixel+0];
+            pixel[firstPixel+1] = 255 - pixel[firstPixel+1];
+            pixel[firstPixel+2] = 255 - pixel[firstPixel+2];
+         }
+      }
+
       export class Opacity implements ISpriteEffect {
          constructor(public opacity: number){}
          updatePixel(x: number, y: number, imageData: ImageData): void{
