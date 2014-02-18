@@ -513,6 +513,30 @@ module ex {
             }
          });
 
+         engine.touchStart.forEach((e) => {
+            if (this.contains(e.x, e.y)) {
+               eventDispatcher.publish(EventType[EventType.TouchStart], new TouchStart(e.x, e.y));
+            }
+         });
+
+         engine.touchMove.forEach((e) => {
+            if (this.contains(e.x, e.y)) {
+               eventDispatcher.publish(EventType[EventType.TouchMove], new TouchMove(e.x, e.y));
+            }
+         });
+
+         engine.touchEnd.forEach((e) => {
+            if (this.contains(e.x, e.y)) {
+               eventDispatcher.publish(EventType[EventType.TouchEnd], new TouchEnd(e.x, e.y));
+            }
+         });
+
+         engine.touchCancel.forEach((e) => {
+            if (this.contains(e.x, e.y)) {
+               eventDispatcher.publish(EventType[EventType.TouchCancel], new TouchCancel(e.x, e.y));
+            }
+         });
+
          eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
       }
 

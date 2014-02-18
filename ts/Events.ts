@@ -10,6 +10,10 @@ module ex {
       MouseDown,
       MouseMove,
       MouseUp,
+      TouchStart,
+      TouchMove,
+      TouchEnd,
+      TouchCancel,
       Click,
       UserEvent,
       Collision,
@@ -71,6 +75,63 @@ module ex {
    }
 
    export class MouseUp extends GameEvent {
+      constructor(public x: number, public y: number) {
+         super();
+      }
+   }
+
+   export interface Touch {
+      identifier: string;
+      screenX: number;
+      screenY: number;
+      clientX: number;
+      clientY: number;
+      pageX: number;
+      pageY: number;
+      radiusX: number;
+      radiusY: number;
+      rotationAngle: number;
+      force: number;
+      target: Element;
+   }
+
+   // TODO: Uncomment when declaration compiler is fixed
+   //export interface TouchList extends Array<Touch> {
+   //   identifiedTouch(): Touch;
+   //   item(i: number): Touch;
+   //}
+
+   export interface TouchEvent extends Event {
+      altKey: boolean;
+      changedTouches: Touch[];
+      ctrlKey: boolean;
+      metaKey: boolean;
+      shiftKey: boolean;
+      targetTouches: Touch[];
+      touches: Touch[];
+      type: string;
+      target: Element;
+   }   
+
+   export class TouchStart extends GameEvent {
+      constructor(public x: number, public y: number) {
+         super();
+      }
+   }
+
+   export class TouchMove extends GameEvent {
+      constructor(public x: number, public y: number) {
+         super();
+      }
+   }
+
+   export class TouchEnd extends GameEvent {
+      constructor(public x: number, public y: number) {
+         super();
+      }
+   }
+
+   export class TouchCancel extends GameEvent {
       constructor(public x: number, public y: number) {
          super();
       }

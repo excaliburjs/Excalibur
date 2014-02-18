@@ -263,6 +263,11 @@ module ex {
       public mouseDown: MouseDown[] = [];
       public mouseMove: MouseMove[] = [];
       public mouseUp: MouseUp[] = [];
+      // Touch Events
+      public touchStart: TouchStart[] = [];
+      public touchMove: TouchMove[] = [];
+      public touchEnd: TouchEnd[] = [];
+      public touchCancel: TouchCancel[] = [];
 
       public camera: ICamera;
       public currentScene: Scene;
@@ -494,6 +499,93 @@ module ex {
             this.eventDispatcher.publish(EventType[EventType.MouseUp], mouseup);
          });
 
+         //
+         // Touch Events
+         //
+
+         this.canvas.addEventListener('touchstart', (e: any) => {
+            var te = <TouchEvent>e;
+            te.preventDefault();
+            var x: number = te.changedTouches[0].pageX - this.canvas.offsetLeft;
+            var y: number = te.changedTouches[0].pageY - this.canvas.offsetTop;
+            var transformedPoint = this.transformToCanvasCoordinates(x, y);
+            var touchstart = new TouchStart(transformedPoint.x, transformedPoint.y);
+            this.touchStart.push(touchstart);
+            this.eventDispatcher.publish(EventType[EventType.TouchStart], touchstart);
+         });
+
+         this.canvas.addEventListener('touchmove', (e: any) => {
+            var te = <TouchEvent>e;
+            te.preventDefault();
+            var x: number = te.changedTouches[0].pageX - this.canvas.offsetLeft;
+            var y: number = te.changedTouches[0].pageY - this.canvas.offsetTop;
+            var transformedPoint = this.transformToCanvasCoordinates(x, y);
+            var touchmove = new TouchMove(transformedPoint.x, transformedPoint.y);
+            this.touchMove.push(touchmove);
+            this.eventDispatcher.publish(EventType[EventType.TouchMove], touchmove);
+         });
+
+         this.canvas.addEventListener('touchend', (e: any) => {
+            var te = <TouchEvent>e;
+            te.preventDefault();
+            var x: number = te.changedTouches[0].pageX - this.canvas.offsetLeft;
+            var y: number = te.changedTouches[0].pageY - this.canvas.offsetTop;
+            var transformedPoint = this.transformToCanvasCoordinates(x, y);
+            var touchend = new TouchEnd(transformedPoint.x, transformedPoint.y);
+            this.touchEnd.push(touchend);
+            this.eventDispatcher.publish(EventType[EventType.TouchEnd], touchend);
+         });
+
+         this.canvas.addEventListener('touchcancel', (e: any) => {
+            var te = <TouchEvent>e;
+            te.preventDefault();            
+            var x: number = te.changedTouches[0].pageX - this.canvas.offsetLeft;
+            var y: number = te.changedTouches[0].pageY - this.canvas.offsetTop;
+            var transformedPoint = this.transformToCanvasCoordinates(x, y);
+            var touchcancel = new TouchCancel(transformedPoint.x, transformedPoint.y);
+            this.touchCancel.push(touchcancel);
+            this.eventDispatcher.publish(EventType[EventType.TouchCancel], touchcancel);
+         });
+
+         // W3C Pointer Events (IE11)
+         if ((<any>navigator).maxTouchPoints) {
+            
+            this.canvas.addEventListener('pointerdown', (e: MSPointerEvent) => {
+               if (e.pointerType !== "touch") return;
+
+               e.preventDefault();               
+               var x: number = e.pageX - this.canvas.offsetLeft;
+               var y: number = e.pageY - this.canvas.offsetTop;
+               var transformedPoint = this.transformToCanvasCoordinates(x, y);
+               var touchstart = new TouchStart(transformedPoint.x, transformedPoint.y);
+               this.touchStart.push(touchstart);
+               this.eventDispatcher.publish(EventType[EventType.TouchStart], touchstart);
+            });
+
+            this.canvas.addEventListener('pointermove', (e: MSPointerEvent) => {
+               if (e.pointerType !== "touch") return;
+
+               e.preventDefault();
+               var x: number = e.pageX - this.canvas.offsetLeft;
+               var y: number = e.pageY - this.canvas.offsetTop;
+               var transformedPoint = this.transformToCanvasCoordinates(x, y);
+               var touchmove = new TouchMove(transformedPoint.x, transformedPoint.y);
+               this.touchMove.push(touchmove);
+               this.eventDispatcher.publish(EventType[EventType.TouchMove], touchmove);
+            });
+
+            this.canvas.addEventListener('pointerup', (e: MSPointerEvent) => {
+               if (e.pointerType !== "touch") return;
+
+               e.preventDefault();
+               var x: number = e.pageX - this.canvas.offsetLeft;
+               var y: number = e.pageY - this.canvas.offsetTop;
+               var transformedPoint = this.transformToCanvasCoordinates(x, y);
+               var touchend = new TouchEnd(transformedPoint.x, transformedPoint.y);
+               this.touchEnd.push(touchend);
+               this.eventDispatcher.publish(EventType[EventType.TouchEnd], touchend);
+            });
+         }
 
          this.ctx = this.canvas.getContext('2d');
          if (!this.canvasElementId) {
@@ -556,6 +648,12 @@ module ex {
          this.mouseDown.length = 0;
          this.mouseMove.length = 0;
          this.mouseUp.length = 0;
+
+         // Reset touch
+         this.touchStart.length = 0;
+         this.touchMove.length = 0;
+         this.touchEnd.length = 0;
+         this.touchCancel.length = 0;
 
          // Publish update event
          this.eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
