@@ -9,6 +9,8 @@ module ex {
       flipY: boolean;
       width: number;
       height: number;
+      addEffect(effect: Effects.ISpriteEffect);
+      clearEffects();
       transformAboutPoint(point: Point);
       setScale(scale: number);
       getScale(): number;
@@ -108,6 +110,36 @@ module ex {
       }
    }
 
+
+   export module Effects {
+      export interface ISpriteEffect {
+         updatePixel(x: number, y: number, imageData: ImageData): void;
+      }
+
+      export class Grayscale implements ISpriteEffect {
+         updatePixel(x: number, y: number, imageData: ImageData): void{
+            var firstPixel = (x+y*imageData.width)*4;
+            var pixel = imageData.data;
+            var avg = (pixel[firstPixel+0] + pixel[firstPixel+1] + pixel[firstPixel+2])/3;
+            pixel[firstPixel+0] = avg;
+            pixel[firstPixel+1] = avg;
+            pixel[firstPixel+2] = avg;
+         }
+      }
+
+      export class Opacity implements ISpriteEffect {
+         constructor(public opacity: number){}
+         updatePixel(x: number, y: number, imageData: ImageData): void{
+            var firstPixel = (x+y*imageData.width)*4;
+            var pixel = imageData.data;
+            if(pixel[firstPixel+3] !== 0){
+               pixel[firstPixel+3] = Math.round(this.opacity);
+            }
+         }
+      }
+
+   }
+
    export class Sprite implements IDrawable {
       private texture: Texture;
       private scale: number = 1.0;
@@ -117,11 +149,66 @@ module ex {
       public flipY: boolean = false;
       public width: number = 0;
       public height: number = 0;
+      public effects: Effects.ISpriteEffect[] = [];
+
+      private internalImage: HTMLImageElement = new Image();
+      private spriteCanvas: HTMLCanvasElement = null;
+      private spriteCtx: CanvasRenderingContext2D = null;
+      private pixelData: ImageData = null;
+      private pixelsLoaded: boolean = false;
+      private dirtyEffect: boolean = false;
+
 
       constructor(image: Texture, public sx: number, public sy: number, public swidth: number, public sheight: number) {
          this.texture = image;
+         this.spriteCanvas = document.createElement('canvas');
+         this.spriteCanvas.width = swidth;
+         this.spriteCanvas.height = sheight;
+         this.spriteCtx = this.spriteCanvas.getContext('2d');
+
          this.width = swidth;
          this.height = sheight;
+      }
+
+      private loadPixels(){
+         if(this.texture.image && !this.pixelsLoaded){
+            this.spriteCtx.drawImage(this.texture.image, this.sx, this.sy, this.swidth, this.sheight, 0, 0, this.swidth, this.sheight);
+            //this.pixelData = this.spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
+            
+            this.internalImage.src = this.spriteCanvas.toDataURL("image/png");
+            this.pixelsLoaded = true;
+         }
+      }
+
+      public addEffect(effect: Effects.ISpriteEffect){
+         this.effects.push(effect);
+         if(!this.texture.image){
+            this.dirtyEffect = true;
+         }else{
+            this.applyEffects();
+         }
+      }
+
+      private applyEffects(){
+         this.spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
+         this.spriteCtx.drawImage(this.texture.image, this.sx, this.sy, this.swidth, this.sheight, 0, 0, this.swidth, this.sheight);
+         this.pixelData = this.spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
+
+         this.effects.forEach((effect)=>{
+            for(var y = 0; y < this.sheight; y++){            
+               for(var x = 0; x < this.swidth; x++){
+                  effect.updatePixel(x, y, this.pixelData);
+               }
+            }
+         });
+         this.spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
+         this.spriteCtx.putImageData(this.pixelData, 0, 0);
+         this.internalImage.src = this.spriteCanvas.toDataURL("image/png");
+      }
+
+      public clearEffects(){
+         this.effects.length = 0;
+         this.applyEffects();
       }
 
       public transformAboutPoint(point: Point) {
@@ -149,6 +236,12 @@ module ex {
       }
 
       public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
+         this.loadPixels();
+         if(this.dirtyEffect){
+            this.applyEffects();
+            this.dirtyEffect = false;
+         }
+
          ctx.save();
          //var translateX = this.aboutCenter?this.swidth*this.scale/2:0;
          //var translateY = this.aboutCenter?this.sheight*this.scale/2:0;
@@ -165,8 +258,8 @@ module ex {
             ctx.translate(0, this.sheight);
             ctx.scale(1, -1);
          }
-         if(this.texture.image){
-            ctx.drawImage(this.texture.image, this.sx, this.sy, this.swidth, this.sheight, -this.transformPoint.x, -this.transformPoint.y, this.swidth * this.scale, this.sheight * this.scale);
+         if(this.internalImage){
+            ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, -this.transformPoint.x, -this.transformPoint.y, this.swidth * this.scale, this.sheight * this.scale);
          }
          ctx.restore();
       }
@@ -179,12 +272,6 @@ module ex {
          result.flipX = this.flipX;
          return result;
       }
-   }
-
-   export enum AnimationType {
-      CYCLE, // default
-      PINGPONG,
-      ONCE
    }
 
    export class Animation implements IDrawable {
@@ -214,6 +301,17 @@ module ex {
          this.width = images[0] ? images[0].width : 0;
       }
 
+      public addEffect(effect: Effects.ISpriteEffect){
+         for(var i in this.sprites){
+            this.sprites[i].addEffect(effect);
+         }
+      }
+
+      public clearEffects(){
+         for(var i in this.sprites){
+            this.sprites[i].clearEffects();
+         }  
+      }
 
       public transformAboutPoint(point: Point) {
          for (var i in this.sprites) {
@@ -319,6 +417,15 @@ module ex {
 
          this.height = maxY - minY;
       }
+
+      public addEffect(effect: Effects.ISpriteEffect){
+         // not supported on polygons
+      }
+
+      public clearEffects(){
+         // not supported on polygons
+      }
+
       public transformAboutPoint(point: Point) {
          this.transformationPoint = point;
       }

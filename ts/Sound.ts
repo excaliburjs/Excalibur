@@ -97,6 +97,7 @@ module ex.Internal {
       }
 
       public play() {
+         this.audioElement.load();
          this.audioElement.play();
       }
 
