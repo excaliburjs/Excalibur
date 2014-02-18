@@ -9,6 +9,8 @@ module ex {
       flipY: boolean;
       width: number;
       height: number;
+      addEffect(effect: Effects.ISpriteEffect);
+      clearEffects();
       transformAboutPoint(point: Point);
       setScale(scale: number);
       getScale(): number;
@@ -123,7 +125,19 @@ module ex {
             pixel[firstPixel+1] = avg;
             pixel[firstPixel+2] = avg;
          }
-      }   
+      }
+
+      export class Opacity implements ISpriteEffect {
+         constructor(public opacity: number){}
+         updatePixel(x: number, y: number, imageData: ImageData): void{
+            var firstPixel = (x+y*imageData.width)*4;
+            var pixel = imageData.data;
+            if(pixel[firstPixel+3] !== 0){
+               pixel[firstPixel+3] = Math.round(this.opacity);
+            }
+         }
+      }
+
    }
 
    export class Sprite implements IDrawable {
@@ -137,7 +151,7 @@ module ex {
       public height: number = 0;
       public effects: Effects.ISpriteEffect[] = [];
 
-      private internalImage: HTMLImageElement = null;
+      private internalImage: HTMLImageElement = new Image();
       private spriteCanvas: HTMLCanvasElement = null;
       private spriteCtx: CanvasRenderingContext2D = null;
       private pixelData: ImageData = null;
@@ -160,7 +174,7 @@ module ex {
          if(this.texture.image && !this.pixelsLoaded){
             this.spriteCtx.drawImage(this.texture.image, this.sx, this.sy, this.swidth, this.sheight, 0, 0, this.swidth, this.sheight);
             //this.pixelData = this.spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
-            this.internalImage = new Image();
+            
             this.internalImage.src = this.spriteCanvas.toDataURL("image/png");
             this.pixelsLoaded = true;
          }
@@ -260,12 +274,6 @@ module ex {
       }
    }
 
-   export enum AnimationType {
-      CYCLE, // default
-      PINGPONG,
-      ONCE
-   }
-
    export class Animation implements IDrawable {
       private sprites: Sprite[];
       private speed: number;
@@ -293,6 +301,17 @@ module ex {
          this.width = images[0] ? images[0].width : 0;
       }
 
+      public addEffect(effect: Effects.ISpriteEffect){
+         for(var i in this.sprites){
+            this.sprites[i].addEffect(effect);
+         }
+      }
+
+      public clearEffects(){
+         for(var i in this.sprites){
+            this.sprites[i].clearEffects();
+         }  
+      }
 
       public transformAboutPoint(point: Point) {
          for (var i in this.sprites) {
@@ -398,6 +417,15 @@ module ex {
 
          this.height = maxY - minY;
       }
+
+      public addEffect(effect: Effects.ISpriteEffect){
+         // not supported on polygons
+      }
+
+      public clearEffects(){
+         // not supported on polygons
+      }
+
       public transformAboutPoint(point: Point) {
          this.transformationPoint = point;
       }
