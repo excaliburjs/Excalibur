@@ -194,7 +194,9 @@ player.addEventListener('keyup', (e? : ex.KeyUp) => {
    }
 });
 
-
+player.addEventListener('touchstart', ()=> {
+   alert("player touched!");
+});
 
 var newScene = new ex.Scene();
 newScene.addChild(new ex.Actor(100, 100, 100, 100, new ex.Color(0,0,0,.5)));
