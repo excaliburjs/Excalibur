@@ -42,6 +42,7 @@ game.addChild(label);
 
 // Retrieve animations for blocks from sprite sheet
 var blockAnimation = spriteTiles.getSprite(0);
+blockAnimation.addEffect(new ex.Effects.Grayscale());
 // Animation 'enum' to prevent 'stringly' typed misspelling errors
 enum Animations {
    Block,
