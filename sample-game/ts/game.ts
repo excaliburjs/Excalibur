@@ -110,7 +110,7 @@ player.addChild(playerLabel);
 // Retrieve animations for player from sprite sheet
 var left = spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
 var right = spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
-right.flipY = true;
+right.flipHorizontal = true;
 var idle = spriteSheetRun.getAnimationByIndices(game, [0], 200);
 var jumpLeft = spriteSheetJump.getAnimationBetween(game, 0, 11, 100);
 var jumpRight = spriteSheetJump.getAnimationBetween(game, 11, 22, 100);
