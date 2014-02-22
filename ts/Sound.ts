@@ -57,17 +57,19 @@ module ex.Internal {
    }
 
    export class AudioTag implements ISound {
-      private audioElement: HTMLAudioElement;
+      private audioElements: HTMLAudioElement[] = new Array<HTMLAudioElement>(5);
+      private _loadedAudio: string = null;
       private isLoaded = false;
+      private index = 0;
+      private log: Logger = Logger.getInstance();
       constructor(public soundPath: string, volume?: number) {
-         this.audioElement = new Audio();
-
-
-         if (volume) {
-            this.audioElement.volume = volume
-         } else {
-            this.audioElement.volume = 1.0;
+         for(var i = 0; i < this.audioElements.length; i++){
+            ((i)=>{
+               this.audioElements[i] = new Audio();
+            })(i);
          }
+         
+         this.setVolume(volume || 1.0);
       }
 
       private audioLoaded() {
@@ -75,11 +77,15 @@ module ex.Internal {
       }
 
       public setVolume(volume: number) {
-         this.audioElement.volume = volume;
+         this.audioElements.forEach((a)=>{
+            a.volume = volume;
+         });
       }
 
       public setLoop(loop: boolean) {
-         this.audioElement.loop = loop;
+         this.audioElements.forEach((a)=>{
+            a.loop = loop;
+         });         
       }
 
       public onload: (e: any) => void = () => { };
@@ -91,18 +97,27 @@ module ex.Internal {
          request.open("GET", this.soundPath, true);
          request.responseType = 'blob';
          request.onprogress = this.onprogress;
-         request.onload = (e) => { this.audioElement.src = URL.createObjectURL(request.response); this.onload(e) };
+         request.onload = (e) => { 
+            this._loadedAudio = URL.createObjectURL(request.response);
+            this.audioElements.forEach((a)=>{
+               a.src = this._loadedAudio;
+            });
+            this.onload(e) 
+         };
          request.onerror = (e) => { this.onerror(e); };
          request.send();
       }
 
       public play() {
-         this.audioElement.load();
-         this.audioElement.play();
+         this.audioElements[this.index].load();
+         this.audioElements[this.index].play();
+         this.index = (this.index + 1) % this.audioElements.length;
       }
 
       public stop() {
-         this.audioElement.pause();
+         this.audioElements.forEach((a)=>{
+            a.pause();
+         });
       }
 
    }
