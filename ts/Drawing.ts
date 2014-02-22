@@ -5,8 +5,8 @@
 module ex {
 
    export interface IDrawable {
-      flipX: boolean;
-      flipY: boolean;
+      flipVertical: boolean;
+      flipHorizontal: boolean;
       width: number;
       height: number;
       addEffect(effect: Effects.ISpriteEffect);
@@ -127,6 +127,16 @@ module ex {
          }
       }
 
+      export class Invert implements ISpriteEffect {
+         updatePixel(x: number, y: number, imageData: ImageData): void{
+            var firstPixel = (x+y*imageData.width)*4;
+            var pixel = imageData.data;
+            pixel[firstPixel+0] = 255 - pixel[firstPixel+0];
+            pixel[firstPixel+1] = 255 - pixel[firstPixel+1];
+            pixel[firstPixel+2] = 255 - pixel[firstPixel+2];
+         }
+      }
+
       export class Opacity implements ISpriteEffect {
          constructor(public opacity: number){}
          updatePixel(x: number, y: number, imageData: ImageData): void{
@@ -145,8 +155,8 @@ module ex {
       private scale: number = 1.0;
       private rotation: number = 0.0;
       private transformPoint: Point = new Point(0, 0);
-      public flipX: boolean = false;
-      public flipY: boolean = false;
+      public flipVertical: boolean = false;
+      public flipHorizontal: boolean = false;
       public width: number = 0;
       public height: number = 0;
       public effects: Effects.ISpriteEffect[] = [];
@@ -249,12 +259,12 @@ module ex {
          ctx.rotate(this.rotation);
          //ctx.scale(this.scale, this.scale);
 
-         if (this.flipY) {
+         if (this.flipHorizontal) {
             ctx.translate(this.swidth, 0);
             ctx.scale(-1, 1);
          }
 
-         if (this.flipX) {
+         if (this.flipVertical) {
             ctx.translate(0, this.sheight);
             ctx.scale(1, -1);
          }
@@ -268,8 +278,8 @@ module ex {
          var result = new Sprite(this.texture, this.sx, this.sy, this.swidth, this.sheight);
          result.scale = this.scale;
          result.rotation = this.rotation;
-         result.flipY = this.flipY;
-         result.flipX = this.flipX;
+         result.flipHorizontal = this.flipHorizontal;
+         result.flipVertical = this.flipVertical;
          return result;
       }
    }
@@ -285,8 +295,8 @@ module ex {
       public freezeFrame: number = -1;
       private engine: Engine;
 
-      public flipX: boolean = false;
-      public flipY: boolean = false;
+      public flipVertical: boolean = false;
+      public flipHorizontal: boolean = false;
       public width: number = 0;
       public height: number = 0;
 
@@ -361,11 +371,11 @@ module ex {
          this.tick();
          if (this.currIndex < this.sprites.length) {
             var currSprite = this.sprites[this.currIndex];
-            if (this.flipX) {
-               currSprite.flipX = this.flipX;
+            if (this.flipVertical) {
+               currSprite.flipVertical = this.flipVertical;
             }
-            if (this.flipY) {
-               currSprite.flipY = this.flipY;
+            if (this.flipHorizontal) {
+               currSprite.flipHorizontal = this.flipHorizontal;
             }
             currSprite.draw(ctx, x, y);
          }
@@ -383,8 +393,8 @@ module ex {
     }
 
    export class Polygon implements IDrawable {
-      public flipX: boolean;
-      public flipY: boolean;
+      public flipVertical: boolean;
+      public flipHorizontal: boolean;
       public width: number;
       public height: number;
       public lineColor: Color;
@@ -474,12 +484,12 @@ module ex {
 
          ctx.strokeStyle = this.lineColor.toString();
 
-         if (this.flipY) {
+         if (this.flipHorizontal) {
             ctx.translate(this.width, 0);
             ctx.scale(-1, 1);
          }
 
-         if (this.flipX) {
+         if (this.flipVertical) {
             ctx.translate(0, this.height);
             ctx.scale(1, -1);
          }
