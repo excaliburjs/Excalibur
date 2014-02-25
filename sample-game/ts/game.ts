@@ -200,7 +200,14 @@ player.addEventListener('touchstart', ()=> {
 });
 
 var newScene = new ex.Scene();
-newScene.addChild(new ex.Actor(100, 100, 100, 100, new ex.Color(0,0,0,.5)));
+newScene.addChild(new ex.Label("MAH LABEL!", 200, 100));
+newScene.onActivate = function(){
+   console.log('activated newScene');
+};
+newScene.onDeactivate = function(){
+   console.log('deactivated newScene');
+};
+game.addScene('label', newScene);
 
 game.addEventListener('keydown', (keyDown? : ex.KeyDown)=>{
    if(keyDown.key === ex.InputKey.F){
@@ -224,9 +231,9 @@ game.addEventListener('keydown', (keyDown? : ex.KeyDown)=>{
       });
       game.addChild(a);
    }else if(keyDown.key === ex.InputKey.U){
-      game.pushScene(newScene);
+      game.goToScene('label');
    }else if(keyDown.key === ex.InputKey.I){
-      game.popScene();
+      game.goToScene('root');
    }
 });
 
@@ -350,6 +357,12 @@ game.addChild(trigger);
 game.addEventListener('mousedown', (evt? : ex.MouseDown)=>{
    logger.info(evt.x + ", " +evt.y);
    emitter.focus = new ex.Vector(evt.x - emitter.x, evt.y - emitter.y);
+});
+
+game.addEventListener('keyup', (evt?: ex.KeyUp)=>{
+   if(evt.key == ex.InputKey.F){
+      jump.play();
+   }
 });
 
 

@@ -19,6 +19,10 @@ module ex {
 
       constructor() {}
 
+      public onActivate: () => void = ()=>{};
+
+      public onDeactivate: () => void = ()=>{};
+
       public publish(eventType: string, event: GameEvent) {
          this.children.forEach((actor) => {
             actor.triggerEvent(eventType, event);

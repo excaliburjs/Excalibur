@@ -13,33 +13,71 @@
 /// <reference path="Util.ts" />
 
 module ex {
+   /**
+    * Creates a new instance of Color from an r, g, b, a
+    * @param r {number} - The red component of color (0-255)
+    * @param g {number} - The green component of color (0-255)
+    * @param b {number} - The blue component of color (0-255)
+    * @param [a=1] {number} - The alpha component of color (0-1.0)
+    * @constructor
+    * @class Color
+    */
    export class Color {
+      /** @static Black {ex.Color} Color constant*/
       public static Black: Color = Color.fromHex('#000000');
+      /** @static White {ex.Color} Color constant*/
       public static White: Color = Color.fromHex('#FFFFFF');
+      /** @static Yellow {ex.Color} Color constant*/
       public static Yellow: Color = Color.fromHex('#FFFF00');
+      /** @static Orange {ex.Color} Color constant*/
       public static Orange: Color = Color.fromHex('#FFA500');
+      /** @static Red {ex.Color} Color constant*/
       public static Red: Color = Color.fromHex('#FF0000');
+      /** @static Vermillino {ex.Color} Color constant*/
       public static Vermillion: Color = Color.fromHex('#FF5B31');
+      /** @static Rose {ex.Color} Color constant*/
       public static Rose: Color = Color.fromHex('#FF007F');
+      /** @static Magenta {ex.Color} Color constant*/
       public static Magenta: Color = Color.fromHex('#FF00FF');
+      /** @static {ex.Color} Color constant*/
       public static Violet: Color = Color.fromHex('#7F00FF');
+      /** @static Blue {ex.Color} Color constant*/
       public static Blue: Color = Color.fromHex('#0000FF');
+      /** @static Azure {ex.Color} Color constant*/
       public static Azure: Color = Color.fromHex('#007FFF');
+      /** @static Cyan {ex.Color} Color constant*/
       public static Cyan: Color = Color.fromHex('#00FFFF');
+      /** @static Viridian {ex.Color} Color constant*/
       public static Viridian: Color = Color.fromHex('#59978F');
+      /** @static Green {ex.Color} Color constant*/
       public static Green: Color = Color.fromHex('#00FF00');
+      /** @static Chartreuse {ex.Color} Color constant*/
       public static Chartreuse: Color = Color.fromHex('#7FFF00');
+      /** @static Transparent {ex.Color} Color constant*/
       public static Transparent: Color = Color.fromHex('#FFFFFF00');
 
+      
       constructor(public r: number, public g: number, public b: number, public a?: number) {
          this.a = (a != null ? a : 1);
       }
 
+      /**
+       * Creates a new instance of Color from an r, g, b, a
+       * @param r {number} - The red component of color (0-255)
+       * @param g {number} - The green component of color (0-255)
+       * @param b {number} - The blue component of color (0-255)
+       * @param [a=1] {number} - The alpha component of color (0-1.0)
+       * @method 
+       * @static
+       */
       public static fromRGB(r: number, g: number, b: number, a?: number): Color {
          return new Color(r, g, b, a);
       }
 
-      // rgba
+      /**
+       * Creates a new inscance of Color from a hex string
+       * @param hex {string} - CSS color string of the form #ffffff, the alpha component is optional
+       */
       public static fromHex(hex: string): Color {
          var hexRegEx: RegExp = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})?$/i;
          var match = null;
@@ -57,6 +95,10 @@ module ex {
          }
       }
 
+      /**
+       * Returns a CSS string representation of a color. 
+       * @returns string
+       */
       public toString() {
          var result = String(this.r.toFixed(0)) + ", " + String(this.g.toFixed(0)) + ", " + String(this.b.toFixed(0));
          if (this.a) {
@@ -65,11 +107,20 @@ module ex {
          return "rgb(" + result + ")";
       }
 
+      /**
+       * Returns a clone of the current color.
+       * @returns Color
+       */
       public clone(): Color {
          return new Color(this.r, this.g, this.b, this.a);
       }
    }
 
+   /**
+    * Enum representing input key codes 
+    * @enum
+    * @readonly
+    */
    export enum InputKey {
       Num1 = 97,
       Num2 = 98,
@@ -124,12 +175,27 @@ module ex {
       constructor(public animation: Animation, public x: number, public y: number) { }
    }
 
+   /**
+    * Enum representing the different display modes available to Excalibur
+    * @readonly
+    * @enum
+    */
    export enum DisplayMode {
+      /** Show the game as full screen */
       FullScreen,
+      /** Scale the game to the parent DOM container */
       Container,
+      /** Show the game as a fixed size */
       Fixed
    }
 
+   /**
+    * The Excalibur timer hooks into the internal timer and fires callbacks, after a certain interval, optionally repeating.
+    * @param callback {callback} The callback to be fired after the interval is complete.
+    * @param [repeats=false] {boolean} Indicates whether this call back should be fired only once, or repeat after every interval as completed.
+    * @constructor
+    * @class
+    */
    export class Timer {
       public static id: number = 0;
       public id: number = 0;
@@ -139,6 +205,7 @@ module ex {
       private elapsedTime: number = 0;
       public complete: boolean = false;
       public scene: Scene = null;
+      
       constructor(fcn:()=>void, interval: number, repeats?: boolean){
          this.id = Timer.id++;
          this.interval = interval || this.interval;
@@ -146,6 +213,10 @@ module ex {
          this.repeats = repeats || this.repeats;
       }
 
+      /**
+       * Updates the timer after a certain number of milliseconds have elapsed. This is used internally by the engine.
+       * @param delta {number} Number of elapsed milliseconds since the last update.
+       */
       public update(delta: number){
          this.elapsedTime += delta;
          if(this.elapsedTime > this.interval){
@@ -158,6 +229,9 @@ module ex {
          }
       }
 
+      /**
+       * Cancels the timer, preventing any further executions.
+       */
       public cancel(){
          if(this.scene){
             this.scene.cancelTimer(this);
@@ -165,6 +239,7 @@ module ex {
       }
 
    }
+
 
    export class Engine extends ex.Util.Class {
       public canvas: HTMLCanvasElement;
@@ -197,8 +272,8 @@ module ex {
       public camera: ICamera;
       public currentScene: Scene;
       public rootScene: Scene;
-      private sceneStack: Scene[] = [];
-
+      private sceneHash: {[key:string]: Scene;} = {};
+      
       private animations: AnimationNode[] = [];
 
       //public camera : ICamera;
@@ -217,6 +292,16 @@ module ex {
       private total: number = 1;
       private loadingDraw: (ctx: CanvasRenderingContext2D, loaded: number, total: number) => void;
 
+      /**
+       * The 'Engine' object is the main driver for a game. It is responsible for 
+       *starting/stopping the game, maintaining state, transmitting events, 
+       * loading resources, and managing the scene.
+       * @param width {number} - The width in pixels of the Excalibur game viewport
+       * @param height {number} - The height in pixels of the Excalibur game viewport
+       * @param canvasElementId {string} - If this is not specified, then a new canvas will be created and inserted into the body.
+       * @param displayMode {DisplayMode} - If this is not specified, then it will fall back to fixed if a height and width are specified, else the display mode will be FullScreen.
+       * @constructor
+       */
       constructor(width?: number, height?: number, canvasElementId?: string, displayMode?: DisplayMode) {
 
          super();
@@ -230,7 +315,7 @@ module ex {
          this.eventDispatcher = new EventDispatcher(this);
 
          this.rootScene = this.currentScene = new Scene();
-         this.sceneStack.push(this.rootScene);
+         this.sceneHash['root'] = this.rootScene;
 
          if (canvasElementId) {
             this.logger.debug("Using Canvas element specified: " + canvasElementId);
@@ -282,18 +367,20 @@ module ex {
          return this.currentScene.removeTimer(timer);
       }
 
-
-      public pushScene(scene: Scene) {
-         if (this.sceneStack.indexOf(scene) === -1) {
-            this.sceneStack.push(scene);
-            this.currentScene = scene;
+      public addScene(name: string, scene: Scene){
+         if(this.sceneHash[name]){
+            this.logger.warn("Scene", name, "already exists overwriting");
          }
+         this.sceneHash[name] = scene;
       }
 
-      public popScene() {
-         if (this.sceneStack.length > 1) {
-            this.sceneStack.pop();
-            this.currentScene = this.sceneStack[this.sceneStack.length - 1];
+      public goToScene(name: string){
+         if(this.sceneHash[name]){
+            this.currentScene.onDeactivate.call(this.currentScene);
+            this.currentScene = this.sceneHash[name];
+            this.currentScene.onActivate.call(this.currentScene);
+         }else{
+            this.logger.error("Scene", name, "does not exist!");
          }
       }
 
