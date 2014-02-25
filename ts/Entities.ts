@@ -19,9 +19,13 @@ module ex {
 
       constructor() {}
 
-      public onActivate: () => void = ()=>{};
+      public onActivate(): void {
+         // will be overridden
+      }
 
-      public onDeactivate: () => void = ()=>{};
+      public onDeactivate(): void {
+         // will be overridden
+      }
 
       public publish(eventType: string, event: GameEvent) {
          this.children.forEach((actor) => {
