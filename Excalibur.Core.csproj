@@ -48,7 +48,6 @@
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
-    <TypeScriptOutDir>D:\Development\Contrib\Excalibur\js</TypeScriptOutDir>
     <TypeScriptOutFile>build\Excalibur.js</TypeScriptOutFile>
     <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
     <OutputPath>ts\bin\</OutputPath>
