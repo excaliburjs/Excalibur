@@ -10,14 +10,19 @@ describe("A game actor", () => {
 	beforeEach(()=>{
 		actor = new ex.Actor();
       scene = new ex.Scene();
-		// mock engine
-		engine = {
-			currentScene : scene,
-			keys : [],
-			clicks : [],
-			mouseDown : [],
-			mouseUp : []
-		}
+		// mock engine		
+	   engine = {
+	      currentScene : scene,
+	      keys: [],
+	      clicks: [],
+	      mouseDown: [],
+	      mouseMove: [],
+         mouseUp: [],
+         touchStart: [],
+         touchMove: [],
+         touchEnd: [],
+         touchCancel: []
+	   };
 	});
 
 

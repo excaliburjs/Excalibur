@@ -195,7 +195,9 @@ player.addEventListener('keyup', (e? : ex.KeyUp) => {
    }
 });
 
-
+player.addEventListener('touchstart', ()=> {
+   alert("player touched!");
+});
 
 var newScene = new ex.Scene();
 newScene.addChild(new ex.Label("MAH LABEL!", 200, 100));
