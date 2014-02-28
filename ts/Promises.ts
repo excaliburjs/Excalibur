@@ -26,7 +26,7 @@ module ex {
       private value: T;
       private successCallbacks: { (value?: T): any }[] = [];
       private rejectCallback: (value?: any) => any = () => { };
-      private errorCallback: (value?: any) => any = () => { };
+      private errorCallback: (value?: any) => any;// = () => { };
       private logger : Logger = Logger.getInstance();
 
       public static wrap<T>(value?: T): Promise<T> {
