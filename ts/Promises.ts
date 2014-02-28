@@ -112,6 +112,8 @@ module ex {
       private handleError(e: any) {
          if (this.errorCallback) {
             this.errorCallback.call(this, e);
+         }else{
+            this.logger.error("The error:", e, "was thrown in your promise callback");
          }
       }
    }
