@@ -177,6 +177,21 @@ module ex {
          this._handlers[eventName].push(handler);
       }
 
+      public unsubscribe(eventName: string, handler?: (event?: GameEvent) => void){
+         eventName = eventName.toLowerCase();
+         var eventHandlers = this._handlers[eventName];
+         
+         if(eventHandlers){
+            // if no explicit handler is give with the event name clear all handlers
+            if(!handler){
+               this._handlers[eventName].length = 0;
+            }else {               
+               var index = eventHandlers.indexOf(handler);
+               this._handlers[eventName].splice(index, 1);               
+            }
+         }
+      }
+
       public update() {
          var callback;
          while (callback = this.queue.shift()) {
