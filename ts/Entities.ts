@@ -9,7 +9,7 @@ module ex {
 
    export class Scene {
       public children: Actor[] = [];
-      private engine: Engine;
+      public engine: Engine;
       private killQueue: Actor[] = [];
 
       private timers: Timer[] = [];

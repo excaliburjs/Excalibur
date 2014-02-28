@@ -309,7 +309,7 @@ module ex {
          this.eventDispatcher = new EventDispatcher(this);
 
          this.rootScene = this.currentScene = new Scene();
-         this.sceneHash['root'] = this.rootScene;
+         this.addScene('root', this.rootScene);
 
          if (canvasElementId) {
             this.logger.debug("Using Canvas element specified: " + canvasElementId);
@@ -366,6 +366,7 @@ module ex {
             this.logger.warn("Scene", name, "already exists overwriting");
          }
          this.sceneHash[name] = scene;
+         scene.engine = this;
       }
 
       public goToScene(name: string){
