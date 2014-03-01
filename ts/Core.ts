@@ -347,6 +347,10 @@ module ex {
          this.eventDispatcher.subscribe(eventName, handler);
       }
 
+      public removeEventListener(eventName: string, handler?:(event?: GameEvent)=> void){
+         this.eventDispatcher.unsubscribe(eventName, handler);
+      }
+
       public playAnimation(animation: Animation, x: number, y: number) {
          this.animations.push(new AnimationNode(animation, x, y));
       }

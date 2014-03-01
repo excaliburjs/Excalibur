@@ -225,6 +225,10 @@ module ex {
          this.eventDispatcher.subscribe(eventName, handler);
       }
 
+      public removeEventListener(eventName: string, handler?:(event?: GameEvent)=> void){
+         this.eventDispatcher.unsubscribe(eventName, handler);
+      }
+
       public triggerEvent(eventName: string, event?: GameEvent) {
          this.eventDispatcher.publish(eventName, event);
       }
