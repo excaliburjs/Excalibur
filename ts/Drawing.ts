@@ -168,7 +168,11 @@ module ex {
       private pixelsLoaded: boolean = false;
       private dirtyEffect: boolean = false;
 
-
+      /**
+       * Sprite image
+       * @class Sprite
+       * @constructor
+       */
       constructor(image: Texture, public sx: number, public sy: number, public swidth: number, public sheight: number) {
          this.texture = image;
          this.spriteCanvas = document.createElement('canvas');
@@ -299,7 +303,11 @@ module ex {
       public flipHorizontal: boolean = false;
       public width: number = 0;
       public height: number = 0;
-
+      /**
+       * Sprite animation
+       * @class Animation
+       * @constructor
+       */
       constructor(engine: Engine, images: Sprite[], speed: number, loop?: boolean) {
          this.sprites = images;
          this.speed = speed;
@@ -406,6 +414,12 @@ module ex {
       private transformationPoint = new Point(0, 0);
       private rotation: number = 0;
       private scale: number = 1;
+
+      /**
+       * Polygon
+       * @class Polygon
+       * @constructor
+       */
       constructor(points : Point[]) {
          this.points = points;
 

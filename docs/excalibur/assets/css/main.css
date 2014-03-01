@@ -1,0 +1,275 @@
+/*****************************************************************************/
+/*
+/* Common
+/*
+/*****************************************************************************/
+
+/* Global Reset */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body { height: 100%; }
+
+body {
+  background-color: #FFF;
+  font: 13.34px Helvetica, Arial, sans-serif;
+  font-size: small;
+  text-align: center;
+}
+
+
+h1, h2, h3 {
+  font-size: 100%; 
+}
+
+h4, h5, h6 {
+  font-size: 90%;
+}
+
+hr {
+  margin-bottom:  20px;
+}
+
+h1 { margin-bottom: 1em; }
+p { margin: 1em 0; }
+
+/* Base */
+body {
+  height: 100%;
+  font-family: Lato, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 21px;
+  font-weight: 300;
+  color: #ddd;
+  background: #345;
+  border-top: 5px solid #ffb62a;
+  /*box-shadow: inset 0 3px 30px rgba(0,0,0,.3);*/
+  text-shadow: 0 1px 3px rgba(0,0,0,.5);  
+}
+
+body > header h1, body > header nav {
+  display: inline-block;
+}
+
+body > header h1 span {
+  display: none;
+}
+
+pre {
+  color: #ffb62a;
+  white-space: pre-wrap;
+}
+
+a:hover {
+  color: #f90;
+}
+a {
+  color: #ffb62a;
+  text-decoration: none;
+  transition: all .25s;
+  -moz-transition: all .25s;
+  -webkit-transition: all .25s;
+}
+
+article {
+  text-align: left;
+  background: #444;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 0 10px;
+  box-shadow: 0 3px 10px rgba(0,0,0,.1);
+  font-size: 20px;
+}
+
+h1 {
+  font-size: 1.4em;
+}
+
+aside {
+  text-align: left;
+  padding-top: 30px;
+}
+
+aside li {
+  list-style-type: none;
+}
+
+aside li a {
+  font-size: 20px;
+  position: relative;
+  padding-left: 10px;
+}
+
+aside li.current a:before {
+  content: "";
+  border-color: transparent transparent transparent #444;
+  border-style: solid;
+  border-width: 10px;
+  width: 0;
+  height: 0;
+  position: absolute;
+  top: 0;
+  left: -30px;
+}
+
+table {
+   border: solid 1px;
+   color: #ffb62a;
+   border-style: solid;
+   border-radius: 10px;
+   padding: 5px;
+   border-collapse: separate;
+   width: 90%;
+   margin: 20px
+}
+
+thead {
+   color: #ddd;
+}
+
+td {
+   padding-left: 5px;
+   padding-right: 5px;
+}
+
+/* Navigation */
+.main-nav {
+  margin-top: 52px;
+}
+
+.main-nav li a {
+  border-radius: 5px;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 0.5em 1em;
+  text-shadow: none;
+  text-transform: uppercase;
+  transition: all .25s;
+   -moz-transition: all .25s;
+   -webkit-transition: all .25s;
+}
+
+.main-nav li a:hover {
+  background: #404040;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.5), 0 1px 0 rgba(255,255,255,.1);
+  text-shadow: 0 1px 3px rgba(0,0,0,.5);
+}
+
+.main-nav li.selected a {
+  background: #ffb62a;
+  color: #345;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 1px 5px rgba(0,0,0,.5);
+  text-shadow: 0 1px 0 rgba(255,255,255,.3);
+}
+
+.main-nav li {
+  margin-right: 10px;
+}
+nav li {
+  display: inline-block;
+}
+
+.section-nav > div {
+  width: 49.5%;
+}
+
+.section-nav {
+  margin: 40px -20px 10px;
+  padding-top: 10px;
+  padding-bottom: 25px;
+}
+
+.section-nav a, .section-nav span {
+  color: #fff;
+  font-size: 16px;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 8px 12px 10px;
+  border-radius: 5px;
+  border: 1px solid #333;
+  box-shadow: 0 1px 3px rgba(0,0,0,.3), inset 0 1px 1px rgba(255,255,255,.5);
+  background: #777;
+}
+
+
+.first {
+  font-size: 2.3em;
+}
+
+.highlight {
+  overflow: auto;
+  text-align: left;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+
+
+.highlight, p > pre, p > code, p > nobr > code, li > code, h5 > code, .note > code {
+  background: #333;
+  color: #fff;
+  border-radius: 5px;
+  box-shadow: inset 0 1px 10px rgba(0,0,0,.3), 0 1px 0 rgba(255,255,255,.1), 0 -1px 0 rgba(0,0,0,.5);
+}
+
+.left { float: left; }
+.right { float: right; }
+
+.jekyll {
+  width: 100px;
+  vertical-align: middle;
+}
+
+.border {
+  border: solid;
+  border-width: thin;
+  border-color: #aaa;
+}
+
+.parameters {
+   margin-left: 20px;
+}
+
+
+
+
+/*****************************************************************************/
+/*
+/* Home
+/*
+/*****************************************************************************/
+ul.posts {
+  list-style-type: none;
+  margin-bottom: 2em;
+}
+
+ul.posts li {
+  line-height: 1.75em;
+}
+
+ul.posts span {
+  color: #aaa;
+  font-family: Monaco, "Courier New", monospace;
+  font-size: 80%;
+}
+
+/*****************************************************************************/
+/*
+/* Site
+/*
+/*****************************************************************************/
+
+.site {
+  font-size: 115%;
+  text-align: justify;
+  width: 42em;
+  margin: 3em auto 2em;
+  line-height: 1.5em;
+}
+
+/*****************************************************************************/
+/*
+/* Posts
+/*
+/*****************************************************************************/

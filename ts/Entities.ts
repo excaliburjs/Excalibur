@@ -17,6 +17,7 @@ module ex {
 
       public collisionGroups: {[key:string]: Actor[]} = {};
 
+
       constructor() {}
 
       public onActivate(): void {
@@ -142,27 +143,74 @@ module ex {
       LEFT,
       RIGHT
    }
-
+   /**
+    * The most important primitive in Excalibur is an "Actor." Anything that
+    * can move on the screen, collide with another Actor, respond to events, 
+    * or interact with the current scene, must be an actor.
+    * @class Actor
+    * 
+    */
    export class Actor extends ex.Util.Class {
+      /** 
+       * The x coordinate of the actor (left edge)
+       * @property x {number} 
+       */ 
       public x: number = 0;
+      /** 
+       * The y coordinate of the actor (top edge)
+       * @property y {number} 
+       */
       public y: number = 0;
       private height: number = 0;
       private width: number = 0;
+      /** 
+       * The rotation of the actor in radians
+       * @property rotation {number} 
+       */
       public rotation: number = 0; // radians
+      /** 
+       * The rotational velocity of the actor in radians/second
+       * @property rx {number} 
+       */
       public rx: number = 0; //radions/sec
-
+      /** 
+       * The scale of the actor
+       * @property scale {number} 
+       */
       public scale: number = 1;
+      /** 
+       * The scalar velocity of the actor in scale/second
+       * @property sx {number} 
+       */
       public sx: number = 0; //scale/sec
-
+      /** 
+       * The x velocity of the actor in pixels/second
+       * @property dx {number} 
+       */
       public dx: number = 0; // pixels/sec
+      /** 
+       * The x velocity of the actor in pixels/second
+       * @property dx {number} 
+       */
       public dy: number = 0;
       public ax: number = 0; // pixels/sec/sec
       public ay: number = 0;
-
+      /** 
+       * The visibility of an actor
+       * @property invisible {boolean} 
+       */
       public invisible: boolean = false;
 
+      /** 
+       * Direct access to the actor's action queue. Useful if you are building custom actions.
+       * @property actionQueue {ActionQueue} 
+       */
       public actionQueue: ex.Internal.Actions.ActionQueue;
 
+      /**
+       * Direct access to the actor's event dispatcher.
+       * @property eventDispatcher {EventDispatcher}
+       */
       public eventDispatcher: EventDispatcher;
 
       private sceneNode: Scene;
@@ -176,14 +224,32 @@ module ex {
       public collisionGroups : string[] = [];
 
       public frames: { [key: string]: IDrawable; } = {}
-      //public animations : {[key : string] : Drawing.Animation;} = {};
+      
+      /**
+       * Access to the current drawing on for the actor, this can be an {{#crossLink "Animation"}}{{/crossLink}}, 
+       * {{#crossLink "Sprite"}}{{/crossLink}}, or {{#crossLink "Polygon"}}{{/crossLink}}. 
+       * Set drawings with the {{#crossLink "Actor/setDrawing:method"}}{{/crossLink}}.
+       * @property currentDrawing {IDrawable}
+       */
       public currentDrawing: IDrawable = null;
 
       private centerDrawingX = false;
       private centerDrawingY = false;
-      //public currentAnimation: Drawing.Animation = null;
-
+      
       public color: Color;
+
+      /**
+       * The most important primitive in Excalibur is an "Actor." Anything that
+       * can move on the screen, collide with another Actor, respond to events, 
+       * or interact with the current scene, must be an actor.
+       * @class Actor
+       * @constructor
+       * @param [x=0.0] {number} The starting x coordinate of the actor
+       * @param [y=0.0] {number} The starting y coordinate of the actor
+       * @param [width=0.0] {number} The starting width of the actor
+       * @param [height=0.0] {number} The starting height of the actor
+       * @param [color=undefined] {Color} The starting color of the actor
+       */      
       constructor(x?: number, y?: number, width?: number, height?: number, color?: Color) {
          super();
          this.x = x || 0;
@@ -196,6 +262,11 @@ module ex {
          this.sceneNode = new Scene();
       }
 
+      /**
+       * If the current actors is a member of the scene. This will remove
+       * it from the scene graph. It will no longer be drawn or updated.
+       * @method kill
+       */
       public kill() {
          if (this.parent) {
             this.parent.removeChild(this);
@@ -203,16 +274,32 @@ module ex {
             this.logger.warn("Cannot kill actor, it was never added to the Scene");
          }
       }
-
+      /**
+       * Adds a child actor to this actor. All movement of the child actor will be
+       * relative to the parent actor. Meaning if the parent moves the child will
+       * move with
+       * @method addChild
+       * @param actor {Actor} The child actor to add
+       */
       public addChild(actor: Actor) {
          this.sceneNode.addChild(actor);
       }
 
+      /**
+       * Removes a child actor from this actor. 
+       * @method removeChild
+       * @param actor {Actor} The child actor to remove
+       */
       public removeChild(actor: Actor) {
          this.sceneNode.removeChild(actor);
       }
 
-      // Play animation in Actor's list
+      /**
+       * Sets the current drawing of the actor to the drawing correspoding to
+       * the key.
+       * @method setDrawing 
+       * @param key {string} The key of the drawing
+       */
       public setDrawing(key) {
 
          if (this.currentDrawing != this.frames[<string>key]) {
@@ -221,18 +308,63 @@ module ex {
          this.currentDrawing = this.frames[<string>key];
       }
 
+      /**
+       * Adds a drawing to the list of available drawings for an actor.
+       * @method addDrawing
+       * @param key {string} The key to associate with a drawing for this actor
+       * @param drawing {IDrawable} this can be an {{#crossLink "Animation"}}{{/crossLink}}, 
+       * {{#crossLink "Sprite"}}{{/crossLink}}, or {{#crossLink "Polygon"}}{{/crossLink}}. 
+       */
+      public addDrawing(key: any, drawing: IDrawable) {
+         this.frames[<string>key] = drawing;
+         if (!this.currentDrawing) {
+            this.currentDrawing = drawing;
+         }
+      }
+
+      /**
+       * Add an event listener. You can listen for a variety of
+       * events off of the engine; see the events section below for a complete list.
+       * @method addEventListener
+       * @param eventName {string} Name of the event to listen for
+       * @param handler {event=>void} Event handler for the thrown event
+       */
       public addEventListener(eventName: string, handler: (event?: GameEvent) => void) {
          this.eventDispatcher.subscribe(eventName, handler);
       }
-
+      /**
+       * Removes an event listener. If only the eventName is specified
+       * it will remove all handlers registered for that specific event. If the eventName
+       * and the handler instance are specified just that handler will be removed.
+       *
+       * @method removeEventListener
+       * @param eventName {string} Name of the event to listen for
+       * @param [handler=undefined] {event=>void} Event handler for the thrown event
+       */
       public removeEventListener(eventName: string, handler?:(event?: GameEvent)=> void){
          this.eventDispatcher.unsubscribe(eventName, handler);
       }
 
+      /**
+       * Artificially trigger an event on an actor, useful when creating custom events.
+       * @method triggerEvent
+       * @param eventName {string} The name of the event to trigger
+       * @param [event=undefined] {GameEvent} The event object to pass to the callback
+       */
       public triggerEvent(eventName: string, event?: GameEvent) {
          this.eventDispatcher.publish(eventName, event);
       }
 
+      /** 
+       * Adds an actor to a collision group. Actors with no named collision group are
+       * considered to be in every collision group.
+       *
+       * Once in a collision group(s) actors will only collide with other actors in 
+       * that group.
+       *
+       * @method addCollisionGroup
+       * @param name {string} The name of the collision group
+       */
       public addCollisionGroup(name: string){
          this.collisionGroups.push(name);
          if(this.parent){
@@ -240,6 +372,11 @@ module ex {
          }
       }
 
+      /**
+       * Remove an actor from a collision group.
+       * @method removeCollisionGroup
+       * @param name {string} The name of the collision group
+       */
       public removeCollisionGroup(name: string){
          var index = this.collisionGroups.indexOf(name);
          this.collisionGroups.splice(index, 1);
@@ -248,6 +385,11 @@ module ex {
          }
       }
  
+      /**
+       * Get the center point of an actor
+       * @method getCenter
+       * @returns Vector
+       */
       public getCenter(): Vector {
          return new Vector(this.x + this.getWidth() / 2, this.y + this.getHeight() / 2);
       }
@@ -355,13 +497,7 @@ module ex {
          return Math.sqrt(Math.pow(this.x - actor.x, 2) + Math.pow(this.y - actor.y, 2)) <= distance;
       }
 
-      // Add an animation to Actor's list
-      public addDrawing(key: any, drawing: IDrawable) {
-         this.frames[<string>key] = drawing;
-         if (!this.currentDrawing) {
-            this.currentDrawing = drawing;
-         }
-      }
+      
 
       // Actions
       public clearActions(): void {
