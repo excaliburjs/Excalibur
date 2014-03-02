@@ -269,7 +269,7 @@ module ex {
       public touchEnd: TouchEnd[] = [];
       public touchCancel: TouchCancel[] = [];
 
-      public camera: ICamera;
+      public camera: BaseCamera;
       public currentScene: Scene;
       public rootScene: Scene;
       private sceneHash: {[key:string]: Scene;} = {};
@@ -698,7 +698,7 @@ module ex {
          this.ctx.save();
 
          if (this.camera) {
-            this.camera.applyTransform(delta);
+            this.camera.update(delta);
          }
 
 
