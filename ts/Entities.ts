@@ -7,7 +7,18 @@ module ex {
       constructor(public x: number, public y: number) { }
    }
 
+   /**
+    * Actors are composed together into groupings called Scenes in 
+    * Excalibur. The metaphor models the same idea behind real world 
+    * actors in a scene. Only actors in scenes will be updated and drawn.
+    * @class Scene
+    * @constructor
+    */
    export class Scene {
+      /**
+       * The actors in the current scene
+       * @property children {Actor[]}
+       */
       public children: Actor[] = [];
       public engine: Engine;
       private killQueue: Actor[] = [];
@@ -20,20 +31,42 @@ module ex {
 
       constructor() {}
 
+      /**
+       * This is called when the scene is made active and started. It is meant to be overriden,
+       * this is where you should setup any DOM UI or event handlers needed for the scene.
+       * @method onActivate
+       */
       public onActivate(): void {
          // will be overridden
       }
 
+      /**
+       * This is called when the scene is made transitioned away from and stopped. It is meant to be overriden,
+       * this is where you should cleanup any DOM UI or event handlers needed for the scene.
+       * @method onDeactivate
+       */
       public onDeactivate(): void {
          // will be overridden
       }
 
+      /**
+       * Publish an event to all actors in the scene
+       * @method publish
+       * @param eventType {string} The name of the event to publish
+       * @param event {GameEvent} The event object to send 
+       */
       public publish(eventType: string, event: GameEvent) {
          this.children.forEach((actor) => {
             actor.triggerEvent(eventType, event);
          });
       }
 
+      /**
+       * Updates all the actors and timers in the Scene. Called by the Engine.
+       * @method update
+       * @param engine {Engine} Reference to the current Engine
+       * @param delta {number} The number of milliseconds since the last update
+       */
       public update(engine: Engine, delta: number) {
          var len = 0;
          var start = 0;
@@ -68,6 +101,12 @@ module ex {
          });
       }
 
+      /**
+       * Draws all the actors in the Scene. Called by the Engine.
+       * @method draw
+       * @param ctx {CanvasRenderingContext2D} The current rendering context
+       * @param delta {number} The number of milliseconds since the last draw
+       */
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
          var len = 0;
          var start = 0;
@@ -79,12 +118,22 @@ module ex {
          }
       }
 
+      /**
+       * Draws all the actors' debug information in the Scene. Called by the Engine.
+       * @method draw
+       * @param ctx {CanvasRenderingContext2D} The current rendering context
+       */
       public debugDraw(ctx: CanvasRenderingContext2D) {
          this.children.forEach((actor) => {
             actor.debugDraw(ctx);
          })
       }
 
+      /**
+       * Adds an actor to the Scene, once this is done the actor will be drawn and updated.
+       * @method addChild
+       * @param actor {Actor} The actor to add
+       */
       public addChild(actor: Actor) {
          actor.parent = this;
          this.updateAddCollisionGroups(actor);
@@ -100,6 +149,11 @@ module ex {
          });
       }
 
+      /**
+       * Removes an actor from the Scene, it will no longer be drawn or updated.
+       * @method removeChild
+       * @param actor {Actor} The actor to remove
+       */
       public removeChild(actor: Actor) {
          this.updateRemoveCollisionGroups(actor);
          this.killQueue.push(actor);
@@ -113,43 +167,104 @@ module ex {
          }
       }
 
+      /**
+       * Adds a timer to the Scene
+       * @method addTimer
+       * @param timer {Timer} The timer to add
+       * @returns Timer
+       */
       public addTimer(timer: Timer): Timer{
          this.timers.push(timer);
          timer.scene = this;
          return timer;
       }
 
-      public removeTimer(timer: Timer): Timer{
+      /**
+       * Removes a timer to the Scene, can be dangerous
+       * @method removeTimer
+       * @private
+       * @param timer {Timer} The timer to remove
+       * @returns Timer
+       */
+      private removeTimer(timer: Timer): Timer{
          var i = this.timers.indexOf(timer);
          this.timers.splice(i, 1);
          return timer;
       }
 
+      /**
+       * Cancels a timer, removing it from the scene nicely
+       * @method cancelTimer
+       * @param timer {Timer} The timer to cancel
+       * @returns Timer
+       */
       public cancelTimer(timer: Timer): Timer{
          this.cancelQueue.push(timer);
          return timer;
       }
 
+      /**
+       * Tests whether a timer is active in the scene
+       * @method isTimerActive
+       * @param timer {Timer}
+       * @returns boolean
+       */
       public isTimerActive(timer: Timer): boolean {
          return (this.timers.indexOf(timer) > -1);
       }
 
    }
 
+   /**
+    * An enum that describes the sides of an Actor for collision
+    * @class Side
+    */
    export enum Side {
+      /**
+      @property NONE {Side}
+      @static
+      @final
+      */
+      /**
+      @property TOP {Side}
+      @static
+      @final
+      */
+      /**
+      @property BOTTOM {Side}
+      @static
+      @final
+      */
+      /**
+      @property LEFT {Side}
+      @static
+      @final
+      */
+      /**
+      @property RIGHT {Side}
+      @static
+      @final
+      */
       NONE,
       TOP,
       BOTTOM,
       LEFT,
       RIGHT
    }
+
    /**
     * The most important primitive in Excalibur is an "Actor." Anything that
     * can move on the screen, collide with another Actor, respond to events, 
-    * or interact with the current scene, must be an actor.
+    * or interact with the current scene, must be an actor. An Actor <b>must</b>
+    * be part of a {{#crossLink "Scene"}}{{/crossLink}} for it to be drawn to the screen.
     * @class Actor
-    * 
-    */
+    * @constructor
+    * @param [x=0.0] {number} The starting x coordinate of the actor
+    * @param [y=0.0] {number} The starting y coordinate of the actor
+    * @param [width=0.0] {number} The starting width of the actor
+    * @param [height=0.0] {number} The starting height of the actor
+    * @param [color=undefined] {Color} The starting color of the actor
+    */     
    export class Actor extends ex.Util.Class {
       /** 
        * The x coordinate of the actor (left edge)
@@ -236,20 +351,13 @@ module ex {
       private centerDrawingX = false;
       private centerDrawingY = false;
       
+      /**
+       * Sets the color of the actor. A rectangle of this color will be drawn if now IDrawable is specified as the actors drawing.
+       * @property color {Color}
+       */
       public color: Color;
 
-      /**
-       * The most important primitive in Excalibur is an "Actor." Anything that
-       * can move on the screen, collide with another Actor, respond to events, 
-       * or interact with the current scene, must be an actor.
-       * @class Actor
-       * @constructor
-       * @param [x=0.0] {number} The starting x coordinate of the actor
-       * @param [y=0.0] {number} The starting y coordinate of the actor
-       * @param [width=0.0] {number} The starting width of the actor
-       * @param [height=0.0] {number} The starting height of the actor
-       * @param [color=undefined] {Color} The starting color of the actor
-       */      
+       
       constructor(x?: number, y?: number, width?: number, height?: number, color?: Color) {
          super();
          this.x = x || 0;
@@ -335,7 +443,7 @@ module ex {
       /**
        * Removes an event listener. If only the eventName is specified
        * it will remove all handlers registered for that specific event. If the eventName
-       * and the handler instance are specified just that handler will be removed.
+       * and the handler instance are specified only that handler will be removed.
        *
        * @method removeEventListener
        * @param eventName {string} Name of the event to listen for
@@ -394,39 +502,86 @@ module ex {
          return new Vector(this.x + this.getWidth() / 2, this.y + this.getHeight() / 2);
       }
 
+      /**
+       * Gets the calculated width of an actor
+       * @method getWidth
+       * @returns number
+       */
       public getWidth() {
          return this.width * this.scale;
       }
 
+      /**
+       * Sets the width of an actor, factoring in the current scale
+       * @method setWidth
+       */
       public setWidth(width) {
          this.width = width / this.scale;
       }
 
+      /**
+       * Gets the calculated height of an actor
+       * @method getHeight
+       * @returns number
+       */
       public getHeight() {
          return this.height * this.scale;
       }
 
+      /**
+       * Sets the height of an actor, factoring in the current scale
+       * @method setHeight
+       */
       public setHeight(height) {
          this.height = height / this.scale;
       }
 
+      /**
+       * Centers the actor's drawing around the center of the actor's bounding box
+       * @method setCenterDrawing
+       * @param center {boolean} Indicates to center the drawing around the actor
+       */       
       public setCenterDrawing(center: boolean) {
          this.centerDrawingY = true;
          this.centerDrawingX = true;
       }
 
+      /**
+       * Gets the left edge of the actor
+       * @method getLeft
+       * @returns number
+       */
       public getLeft() {
          return this.x;
       }
+
+      /**
+       * Gets the right edge of the actor
+       * @method getRight
+       * @returns number
+       */
       public getRight() {
          return this.x + this.getWidth();
       }
+
+      /**
+       * Gets the top edge of the actor
+       * @method getTop
+       * @returns number
+       */
       public getTop() {
          return this.y;
       }
+
+      /**
+       * Gets the bottom edge of the actor
+       * @method getBottom
+       * @returns number
+       */
       public getBottom() {
          return this.y + this.getHeight();
       }
+
 
       private getOverlap(box: Actor): Overlap {
          var xover = 0;

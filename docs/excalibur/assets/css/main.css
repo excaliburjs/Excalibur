@@ -114,8 +114,9 @@ aside li.current a:before {
 }
 
 table {
-   border: solid 1px;
-   color: #ffb62a;
+   border: solid 1px #555;
+   /*color: #ffb62a;*/
+   color: #ddd;
    border-style: solid;
    border-radius: 10px;
    padding: 5px;

@@ -15,37 +15,117 @@
 module ex {
    
    export class Color {
-      /** @static Black {ex.Color} Color constant*/
+      /**
+       * Color constant
+       * @property Black {ex.Color} 
+       * @static 
+       * @final
+       */
       public static Black: Color = Color.fromHex('#000000');
-      /** @static White {ex.Color} Color constant*/
+      /**
+       * Color constant
+       * @property White {ex.Color} 
+       * @static 
+       * @final
+       */
       public static White: Color = Color.fromHex('#FFFFFF');
-      /** @static Yellow {ex.Color} Color constant*/
+      /**
+       * Color constant
+       * @property Yellow {ex.Color} 
+       * @static 
+       * @final
+       */
       public static Yellow: Color = Color.fromHex('#FFFF00');
-      /** @static Orange {ex.Color} Color constant*/
+      /**
+       * Color constant
+       * @property Orange {ex.Color} 
+       * @static 
+       * @final
+       */
       public static Orange: Color = Color.fromHex('#FFA500');
-      /** @static Red {ex.Color} Color constant*/
+      /**
+       * Color constant
+       * @property Red {ex.Color} 
+       * @static 
+       * @final
+       */
       public static Red: Color = Color.fromHex('#FF0000');
-      /** @static Vermillino {ex.Color} Color constant*/
+      /**
+       * Color constant
+       * @property Vermillion {ex.Color} 
+       * @static 
+       * @final
+       */
       public static Vermillion: Color = Color.fromHex('#FF5B31');
-      /** @static Rose {ex.Color} Color constant*/
+      /**
+       * Color constant
+       * @property Rose {ex.Color} 
+       * @static 
+       * @final
+       */
       public static Rose: Color = Color.fromHex('#FF007F');
-      /** @static Magenta {ex.Color} Color constant*/
+      /**
+       * Color constant
+       * @property Magenta {ex.Color} 
+       * @static 
+       * @final
+       */
       public static Magenta: Color = Color.fromHex('#FF00FF');
-      /** @static {ex.Color} Color constant*/
+      /**
+       * Color constant
+       * @property Violet {ex.Color} 
+       * @static 
+       * @final
+       */
       public static Violet: Color = Color.fromHex('#7F00FF');
-      /** @static Blue {ex.Color} Color constant*/
+      /**
+       * Color constant
+       * @property Blue {ex.Color} 
+       * @static 
+       * @final
+       */
       public static Blue: Color = Color.fromHex('#0000FF');
-      /** @static Azure {ex.Color} Color constant*/
+      /**
+       * Color constant
+       * @property Azure {ex.Color} 
+       * @static 
+       * @final
+       */
       public static Azure: Color = Color.fromHex('#007FFF');
-      /** @static Cyan {ex.Color} Color constant*/
+      /**
+       * Color constant
+       * @property Cyan {ex.Color} 
+       * @static 
+       * @final
+       */
       public static Cyan: Color = Color.fromHex('#00FFFF');
-      /** @static Viridian {ex.Color} Color constant*/
+      /**
+       * Color constant
+       * @property Viridian {ex.Color} 
+       * @static 
+       * @final
+       */
       public static Viridian: Color = Color.fromHex('#59978F');
-      /** @static Green {ex.Color} Color constant*/
+      /**
+       * Color constant
+       * @property Green {ex.Color} 
+       * @static 
+       * @final
+       */
       public static Green: Color = Color.fromHex('#00FF00');
-      /** @static Chartreuse {ex.Color} Color constant*/
+      /**
+       * Color constant
+       * @property Chartreuse {ex.Color} 
+       * @static 
+       * @final
+       */
       public static Chartreuse: Color = Color.fromHex('#7FFF00');
-      /** @static Transparent {ex.Color} Color constant*/
+      /**
+       * Color constant
+       * @property Transparent {ex.Color} 
+       * @static 
+       * @final
+       */
       public static Transparent: Color = Color.fromHex('#FFFFFF00');
 
       /**
@@ -129,17 +209,36 @@ module ex {
     * 
     */
    export enum InputKey {
-      /** @property Num1 */
-      /** @property Num2 */
-      /** @property Num3 */
-      /** @property Num4 */
-      /** @property Num5 */
-      /** @property Num6 */
-      /** @property Num7 */
-      /** @property Num8 */
-      /** @property Num9 */
-      /** @property Num0 */
-
+      /** 
+      @property Num1 {InputKey}
+      */
+      /** 
+      @property Num2 {InputKey}
+      */
+      /** 
+      @property Num3 {InputKey}
+      */
+      /** 
+      @property Num4 {InputKey}
+      */
+      /** 
+      @property Num5 {InputKey}
+      */
+      /** 
+      @property Num6 {InputKey}
+      */
+      /** 
+      @property Num7 {InputKey}
+      */
+      /** 
+      @property Num8 {InputKey}
+      */
+      /** 
+      @property Num9 {InputKey}
+      */
+      /** 
+      @property Num0 {InputKey}
+      */
       Num1 = 97,
       Num2 = 98,
       Num3 = 99,
@@ -150,8 +249,92 @@ module ex {
       Num8 = 104,
       Num9 = 105,
       Num0 = 96,
+      /** 
+      @property Numlock {InputKey}
+      */
       Numlock = 144,
+      /** 
+      @property Semicolon {InputKey}
+      */
       Semicolon = 186,
+      /** 
+      @property A {InputKey}
+      */
+      /** 
+      @property B {InputKey}
+      */
+      /** 
+      @property C {InputKey}
+      */
+      /** 
+      @property D {InputKey}
+      */
+      /** 
+      @property E {InputKey}
+      */
+      /** 
+      @property F {InputKey}
+      */
+      /** 
+      @property G {InputKey}
+      */
+      /** 
+      @property H {InputKey}
+      */
+      /** 
+      @property I {InputKey}
+      */
+      /** 
+      @property J {InputKey}
+      */
+      /** 
+      @property K {InputKey}
+      */
+      /** 
+      @property L {InputKey}
+      */
+      /** 
+      @property M {InputKey}
+      */
+      /** 
+      @property N {InputKey}
+      */
+      /** 
+      @property O {InputKey}
+      */
+      /** 
+      @property P {InputKey}
+      */
+      /** 
+      @property Q {InputKey}
+      */
+      /** 
+      @property R {InputKey}
+      */
+      /** 
+      @property S {InputKey}
+      */
+      /** 
+      @property T {InputKey}
+      */
+      /** 
+      @property U {InputKey}
+      */
+      /** 
+      @property V {InputKey}
+      */
+      /** 
+      @property W {InputKey}
+      */
+      /** 
+      @property X {InputKey}
+      */
+      /** 
+      @property Y {InputKey}
+      */
+      /** 
+      @property Z {InputKey}
+      */
       A = 65,
       B = 66,
       C = 67,
@@ -178,6 +361,30 @@ module ex {
       X = 88,
       Y = 89,
       Z = 90,
+      /** 
+      @property Shift {InputKey}
+      */
+      /** 
+      @property Alt {InputKey}
+      */
+      /** 
+      @property Up {InputKey}
+      */
+      /** 
+      @property Down {InputKey}
+      */
+      /** 
+      @property Left {InputKey}
+      */
+      /** 
+      @property Right {InputKey}
+      */
+      /** 
+      @property Space {InputKey}
+      */
+      /** 
+      @property Esc {InputKey}
+      */
       Shift = 16,
       Alt = 18,
       Up = 38,
@@ -186,12 +393,7 @@ module ex {
       Right = 39,
       Space = 32,
       Esc = 27
-   };
-
-   // internal
-   class AnimationNode {
-      constructor(public animation: Animation, public x: number, public y: number) { }
-   }
+   };   
 
    /**
     * Enum representing the different display modes available to Excalibur
@@ -214,7 +416,11 @@ module ex {
        */
       Fixed
    }
-   
+
+   // internal
+   class AnimationNode {
+      constructor(public animation: Animation, public x: number, public y: number) { }
+   }
    export class Timer {
       public static id: number = 0;
       public id: number = 0;
@@ -269,13 +475,44 @@ module ex {
 
    }
 
-
+   /**
+    * The 'Engine' is the main driver for a game. It is responsible for 
+    * starting/stopping the game, maintaining state, transmitting events, 
+    * loading resources, and managing the scene.
+    * 
+    * @class Engine
+    * @constructor
+    * @param [width] {number} The width in pixels of the Excalibur game viewport
+    * @param [height] {number} The height in pixels of the Excalibur game viewport
+    * @param [canvasElementId] {string} If this is not specified, then a new canvas will be created and inserted into the body.
+    * @param [displayMode] {DisplayMode} If this is not specified, then it will fall back to fixed if a height and width are specified, else the display mode will be FullScreen.
+    */
    export class Engine extends ex.Util.Class {
+      /**
+       * Direct access to the engine's canvas element
+       * @property canvas {HTMLCanvasElement}
+       */
       public canvas: HTMLCanvasElement;
+      /**
+       * Direct access to the engine's 2D rendering context
+       * @property ctx {CanvasRenderingContext2D}
+       */
       public ctx: CanvasRenderingContext2D;
+      /**
+       * Direct access to the canvas element id, if an id exists
+       * @property canvasElementId {string}
+       */
       public canvasElementId: string;
 
+      /**
+       * The width of the game canvas in pixels
+       * @property width {number}
+       */
       public width: number;
+      /**
+       * The height of the game canvas in pixels
+       * @property height {number}
+       */
       public height: number;
 
       private hasStarted: boolean = false;
@@ -298,18 +535,45 @@ module ex {
       public touchEnd: TouchEnd[] = [];
       public touchCancel: TouchCancel[] = [];
 
+      /**
+       * Direct access to the Engine's camera
+       * @property camera {ICamera}
+       */
       public camera: ICamera;
+      /**
+       * Current scene of the game, use {{#crossLink "Engine/goToScene"}}{{/crossLink}} to transition to different scenes.
+       * @property currentScene {Scene}
+       */
       public currentScene: Scene;
+      /**
+       * The default scene of the game, use {{#crossLink "Engine/goToScene"}}{{/crossLink}} to transition to different scenes.
+       * @property rootScene {Scene}
+       */
       public rootScene: Scene;
       private sceneHash: {[key:string]: Scene;} = {};
       
       private animations: AnimationNode[] = [];
-
-      //public camera : ICamera;
+      
+      /**
+       * Indicates whether the engine is set to fullscreen or not
+       * @property isFullscreen {boolean} 
+       */
       public isFullscreen: boolean = false;
+      /**
+       * Indicates the current DisplayMode of the engine.
+       * @property [displayMode=FullScreen] {DisplayMode}
+       */
       public displayMode: DisplayMode = DisplayMode.FullScreen;
+      /**
+       * Indicates whether the engine should draw with debug information
+       * @property [isDebug=false] {boolean}
+       */
       public isDebug: boolean = false;
       public debugColor: Color = new Color(255, 255, 255);
+      /**
+       * Sets the background color for the engine.
+       * @property [backgroundColor=new Color(0, 0, 100)] {Color}
+       */
       public backgroundColor: Color = new Color(0, 0, 100);
       private logger: Logger;
       private isSmoothingEnabled: boolean = true;
@@ -321,18 +585,7 @@ module ex {
       private total: number = 1;
       private loadingDraw: (ctx: CanvasRenderingContext2D, loaded: number, total: number) => void;
 
-      /**
-       * The 'Engine' object is the main driver for a game. It is responsible for 
-       * starting/stopping the game, maintaining state, transmitting events, 
-       * loading resources, and managing the scene.
-       * 
-       * @class Engine
-       * @constructor
-       * @param [width] {number} The width in pixels of the Excalibur game viewport
-       * @param [height] {number} The height in pixels of the Excalibur game viewport
-       * @param [canvasElementId] {string} If this is not specified, then a new canvas will be created and inserted into the body.
-       * @param [displayMode] {DisplayMode} If this is not specified, then it will fall back to fixed if a height and width are specified, else the display mode will be FullScreen.
-       */
+      
       constructor(width?: number, height?: number, canvasElementId?: string, displayMode?: DisplayMode) {
 
          super();
