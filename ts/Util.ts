@@ -1,3 +1,5 @@
+/// <reference path="Algebra.ts"/>
+
 module ex.Util {
    export class Class {
       constructor(){}
