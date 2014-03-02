@@ -307,7 +307,7 @@ module ex {
        * @class Effects.Opacity
        * @extends ISpriteEffect
        * @constructor
-       * @param opacity {number} The new opacity of the sprite from 0-255       
+       * @param opacity {number} The new opacity of the sprite from 0-255  
        */
       export class Opacity implements ISpriteEffect {
          constructor(public opacity: number){}

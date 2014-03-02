@@ -612,10 +612,22 @@ module ex {
          return new Overlap(xover, yover);
       }
 
+      /**
+       * Tests whether the x/y specified are contained in the actor
+       * @method contains
+       * @param x {number} X coordinate to test (in world coordinates)
+       * @param y {number} Y coordinate to test (in world coordinates)
+       */
       public contains(x: number, y: number): boolean {
          return (this.x <= x && this.y <= y && this.getBottom() >= y && this.getRight() >= x);
       }
 
+      /**
+       * Test whether the actor has collided with another actor, returns the side that collided.
+       * @method collides
+       * @param actor {Actor} The other actor to test
+       * @returns Side
+       */
       public collides(actor: Actor): Side {
 
 
@@ -648,13 +660,21 @@ module ex {
          return Side.NONE;
       }
 
+      /**
+       * Returns true if the two actors are less than or equal to the distance specified from each other
+       * @method within
+       * @param actor {Actor} Actor to test
+       * @param distance {number} Distance in pixels to test
+       * @returns boolean
+       */
       public within(actor: Actor, distance: number): boolean {
          return Math.sqrt(Math.pow(this.x - actor.x, 2) + Math.pow(this.y - actor.y, 2)) <= distance;
-      }
+      }      
 
-      
-
-      // Actions
+      /**
+       * Clears all queued actions from the Actor
+       * @method clearActions
+       */
       public clearActions(): void {
          this.actionQueue.clearActions();
       }
