@@ -11,11 +11,13 @@ module ex {
    */
    export class BaseCamera {
       follow: Actor;
+      focus: Point = new Point(0, 0);
       engine: Engine;
 
       //camera effects
       isShaking: boolean = false;
-      private shakeMagnitude: number = 0;
+      private shakeMagnitudeX: number = 0;
+      private shakeMagnitudeY: number = 0;
       private shakeDuration: number = 0;
       private elapsedShakeTime: number = 0;
 
@@ -39,19 +41,37 @@ module ex {
       */
       getFocus() {
          // this should always be overridden
-         return new Point(0, 0);
+         if (this.follow) {
+            return new Point(0, 0);
+            } else {
+               return this.focus;
+            }
       }
 
+      /**
+      * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
+      * @method setFocus
+      * @param x {number} The x coordinate of the focal point
+      * @param y {number} The y coordinate of the focal point
+      */
+      setFocus(x: number, y: number) {
+         if (!this.follow) {
+            this.focus.x = x;
+            this.focus.y = y;
+         }
+      }
 
       /**
-      * Sets the camera to shake at the specified magnitude for the specified duration
+      * Sets the camera to shake at the specified magnitudes for the specified duration
       * @method shake
-      * @param magnitude {number} the magnitude of the shake
+      * @param magnitudeX {number} the x magnitude of the shake
+      * @param magnitudeY {number} the y magnitude of the shake
       * @param duration {number} the duration of the shake
       */
-      shake(magnitude: number, duration: number) {
+      shake(magnitudeX: number, magnitudeY: number, duration: number) {
          this.isShaking = true;
-         this.shakeMagnitude = magnitude;
+         this.shakeMagnitudeX = magnitudeX;
+         this.shakeMagnitudeY = magnitudeY;
          this.shakeDuration = duration;
       }
 
@@ -69,12 +89,13 @@ module ex {
          if (this.isDoneShaking()) {
                this.isShaking = false;
                this.elapsedShakeTime = 0;
-               this.shakeMagnitude = 0;
+               this.shakeMagnitudeX = 0;
+               this.shakeMagnitudeY = 0;
                this.shakeDuration = 0;
             } else {
                this.elapsedShakeTime += delta;
-               xShake = (Math.random() * this.shakeMagnitude | 0) + 1;
-               yShake = (Math.random() * this.shakeMagnitude | 0) + 1;
+               xShake = (Math.random() * this.shakeMagnitudeX | 0) + 1;
+               yShake = (Math.random() * this.shakeMagnitudeY | 0) + 1;
             }
 
          this.engine.ctx.translate(focus.x + xShake, focus.y + yShake);
@@ -95,7 +116,11 @@ module ex {
    export class SideCamera extends BaseCamera {
       
       getFocus() {
-         return new Point(-this.follow.x + this.engine.width / 2.0, 0);
+         if (this.follow) {
+            return new Point(-this.follow.x + this.engine.width / 2.0, 0);
+         } else {
+            return this.focus;
+         }
       }
 
    }
@@ -110,7 +135,11 @@ module ex {
    export class TopCamera extends BaseCamera {
 
       getFocus() {
-         return new Point(-this.follow.x + this.engine.width / 2.0, -this.follow.y + this.engine.height / 2.0);
+         if (this.follow) {
+            return new Point(-this.follow.x + this.engine.width / 2.0, -this.follow.y + this.engine.height / 2.0);
+            } else {
+               return this.focus;
+            }
       }
 
    }
