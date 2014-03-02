@@ -93,6 +93,30 @@ module ex.Util {
       return min + Math.random() * (max - min);
    }
 
+   export function getPosition(el: HTMLElement): Point {
+      var oLeft: number = 0,
+         oTop: number = 0;
+
+      var calcOffsetLeft = (parent: HTMLElement) => {
+         oLeft += parent.offsetLeft; 
+
+         if (parent.offsetParent) {
+            calcOffsetLeft(parent.offsetParent);
+         }                 
+      };
+      var calcOffsetTop = (parent: HTMLElement) => {
+         oTop += parent.offsetTop;  
+         if (parent.offsetParent) {
+            calcOffsetTop(parent.offsetParent);
+         }                
+      };
+
+      calcOffsetLeft(el);
+      calcOffsetTop(el);
+
+      return new Point(oLeft, oTop);
+   }
+
    // Dynamic resizing
    export class Collection<T> {
       public static DefaultSize = 200;

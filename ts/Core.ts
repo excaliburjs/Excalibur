@@ -477,8 +477,8 @@ module ex {
          });
 
          this.canvas.addEventListener('mousedown', (e: MouseEvent) => {
-            var x: number = e.pageX - this.canvas.offsetLeft;
-            var y: number = e.pageY - this.canvas.offsetTop;
+            var x: number = e.pageX - Util.getPosition(this.canvas).x;
+            var y: number = e.pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.transformToCanvasCoordinates(x, y);
             var mousedown = new MouseDown(transformedPoint.x, transformedPoint.y);
             this.mouseDown.push(mousedown);
@@ -487,8 +487,8 @@ module ex {
          });
 
          this.canvas.addEventListener('mousemove', (e: MouseEvent) => {
-            var x: number = e.pageX - this.canvas.offsetLeft;
-            var y: number = e.pageY - this.canvas.offsetTop;
+            var x: number = e.pageX - Util.getPosition(this.canvas).x;
+            var y: number = e.pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.transformToCanvasCoordinates(x, y);
             var mousemove = new MouseMove(transformedPoint.x, transformedPoint.y);            
             this.mouseMove.push(mousemove);
@@ -496,8 +496,8 @@ module ex {
          });
 
          this.canvas.addEventListener('mouseup', (e: MouseEvent) => {
-            var x: number = e.pageX - this.canvas.offsetLeft;
-            var y: number = e.pageY - this.canvas.offsetTop;
+            var x: number = e.pageX - Util.getPosition(this.canvas).x;
+            var y: number = e.pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.transformToCanvasCoordinates(x, y);
             var mouseup = new MouseUp(transformedPoint.x, transformedPoint.y);
             this.mouseUp.push(mouseup);
@@ -511,8 +511,8 @@ module ex {
          this.canvas.addEventListener('touchstart', (e: any) => {
             var te = <TouchEvent>e;
             te.preventDefault();
-            var x: number = te.changedTouches[0].pageX - this.canvas.offsetLeft;
-            var y: number = te.changedTouches[0].pageY - this.canvas.offsetTop;
+            var x: number = te.changedTouches[0].pageX - Util.getPosition(this.canvas).x;
+            var y: number = te.changedTouches[0].pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.transformToCanvasCoordinates(x, y);
             var touchstart = new TouchStart(transformedPoint.x, transformedPoint.y);
             this.touchStart.push(touchstart);
@@ -522,8 +522,8 @@ module ex {
          this.canvas.addEventListener('touchmove', (e: any) => {
             var te = <TouchEvent>e;
             te.preventDefault();
-            var x: number = te.changedTouches[0].pageX - this.canvas.offsetLeft;
-            var y: number = te.changedTouches[0].pageY - this.canvas.offsetTop;
+            var x: number = te.changedTouches[0].pageX - Util.getPosition(this.canvas).x;
+            var y: number = te.changedTouches[0].pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.transformToCanvasCoordinates(x, y);
             var touchmove = new TouchMove(transformedPoint.x, transformedPoint.y);
             this.touchMove.push(touchmove);
@@ -533,8 +533,8 @@ module ex {
          this.canvas.addEventListener('touchend', (e: any) => {
             var te = <TouchEvent>e;
             te.preventDefault();
-            var x: number = te.changedTouches[0].pageX - this.canvas.offsetLeft;
-            var y: number = te.changedTouches[0].pageY - this.canvas.offsetTop;
+            var x: number = te.changedTouches[0].pageX - Util.getPosition(this.canvas).x;
+            var y: number = te.changedTouches[0].pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.transformToCanvasCoordinates(x, y);
             var touchend = new TouchEnd(transformedPoint.x, transformedPoint.y);
             this.touchEnd.push(touchend);
@@ -544,8 +544,8 @@ module ex {
          this.canvas.addEventListener('touchcancel', (e: any) => {
             var te = <TouchEvent>e;
             te.preventDefault();            
-            var x: number = te.changedTouches[0].pageX - this.canvas.offsetLeft;
-            var y: number = te.changedTouches[0].pageY - this.canvas.offsetTop;
+            var x: number = te.changedTouches[0].pageX - Util.getPosition(this.canvas).x;
+            var y: number = te.changedTouches[0].pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.transformToCanvasCoordinates(x, y);
             var touchcancel = new TouchCancel(transformedPoint.x, transformedPoint.y);
             this.touchCancel.push(touchcancel);
@@ -559,8 +559,8 @@ module ex {
                if (e.pointerType !== "touch") return;
 
                e.preventDefault();               
-               var x: number = e.pageX - this.canvas.offsetLeft;
-               var y: number = e.pageY - this.canvas.offsetTop;
+               var x: number = e.pageX - Util.getPosition(this.canvas).x;
+               var y: number = e.pageY - Util.getPosition(this.canvas).y;
                var transformedPoint = this.transformToCanvasCoordinates(x, y);
                var touchstart = new TouchStart(transformedPoint.x, transformedPoint.y);
                this.touchStart.push(touchstart);
@@ -571,8 +571,8 @@ module ex {
                if (e.pointerType !== "touch") return;
 
                e.preventDefault();
-               var x: number = e.pageX - this.canvas.offsetLeft;
-               var y: number = e.pageY - this.canvas.offsetTop;
+               var x: number = e.pageX - Util.getPosition(this.canvas).x;
+               var y: number = e.pageY - Util.getPosition(this.canvas).y;
                var transformedPoint = this.transformToCanvasCoordinates(x, y);
                var touchmove = new TouchMove(transformedPoint.x, transformedPoint.y);
                this.touchMove.push(touchmove);
@@ -583,8 +583,8 @@ module ex {
                if (e.pointerType !== "touch") return;
 
                e.preventDefault();
-               var x: number = e.pageX - this.canvas.offsetLeft;
-               var y: number = e.pageY - this.canvas.offsetTop;
+               var x: number = e.pageX - Util.getPosition(this.canvas).x;
+               var y: number = e.pageY - Util.getPosition(this.canvas).y;
                var transformedPoint = this.transformToCanvasCoordinates(x, y);
                var touchend = new TouchEnd(transformedPoint.x, transformedPoint.y);
                this.touchEnd.push(touchend);
