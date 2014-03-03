@@ -106,4 +106,11 @@ describe("A camera", () => {
 
    });
 
+   it("can zoom", () => {
+      sideCamera.zoom(2);
+
+      expect(sideCamera.isZooming).toBe(true);
+   
+   });
+
 });

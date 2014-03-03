@@ -21,6 +21,13 @@ module ex {
       private shakeDuration: number = 0;
       private elapsedShakeTime: number = 0;
 
+      isZooming: boolean = false;
+      private currentZoomScale: number = 1;
+      private maxZoomScale: number = 1;
+      private zoomDuration: number = 0;
+      private elapsedZoomTime: number = 0;
+      private zoomIncrement: number = 0.01;
+
       constructor(engine: Engine) {
          this.engine = engine;
       }
@@ -76,6 +83,45 @@ module ex {
       }
 
       /**
+      * Zooms the camera in or out by the specified scale over the specified duration. 
+      * If no duration is specified, it will zoom by a set amount until the scale is reached.
+      * @method zoom
+      * @param scale {number} the scale of the zoom
+      * @param [duration] {number} the duration of the zoom
+      */
+      zoom(scale: number, duration?: number) {
+         this.isZooming = true;
+         this.maxZoomScale = scale;
+         this.zoomDuration = duration | 0;
+         if (duration) {
+            this.zoomIncrement = Math.abs(this.maxZoomScale - this.currentZoomScale) / duration * 1000;
+         }
+
+         if (this.maxZoomScale < 1) {
+            if (duration) {
+               this.zoomIncrement = -1 * this.zoomIncrement;
+            } else {
+               this.zoomIncrement = -0.01;
+            }
+         }
+
+         console.log("zoom increment: " + this.zoomIncrement);
+      }
+
+      /**
+      * gets the current zoom scale
+      * @method getCurrentZoomScale
+      * @returns {Number} the current zoom scale
+      */
+      getCurrentZoomScale() {
+         return this.currentZoomScale;
+      }
+
+      private setCurrentZoomScale(zoomScale: number) {
+         this.currentZoomScale = zoomScale;
+      }
+
+      /**
       * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
       * @method update
       * @param delta {number} The number of milliseconds since the last update
@@ -85,6 +131,11 @@ module ex {
 
          var xShake = 0;
          var yShake = 0;
+
+         var canvasWidth = this.engine.ctx.canvas.width;
+         var canvasHeight = this.engine.ctx.canvas.height;
+         var newCanvasWidth = canvasWidth * this.getCurrentZoomScale();
+         var newCanvasHeight =  canvasHeight * this.getCurrentZoomScale();
 
          if (this.isDoneShaking()) {
                this.isShaking = false;
@@ -99,10 +150,37 @@ module ex {
             }
 
          this.engine.ctx.translate(focus.x + xShake, focus.y + yShake);
+
+         if (this.isDoneZooming()) {
+            this.isZooming = false;
+            this.elapsedZoomTime = 0;
+            this.zoomDuration = 0;
+
+         } else {
+            this.elapsedZoomTime += delta;
+
+            this.setCurrentZoomScale(this.getCurrentZoomScale() + this.zoomIncrement * delta / 1000);
+         }
+
+         this.engine.ctx.translate(-((newCanvasWidth - canvasWidth)/2), -((newCanvasHeight - canvasHeight)/2));
+         this.engine.ctx.scale(this.getCurrentZoomScale(), this.getCurrentZoomScale());
       }
 
       private isDoneShaking(): boolean {
          return !(this.isShaking) || (this.elapsedShakeTime >= this.shakeDuration);
+      }
+
+      private isDoneZooming(): boolean {
+         if (this.zoomDuration != 0) {
+            return (this.elapsedZoomTime >= this.zoomDuration);
+            } else {
+               if (this.maxZoomScale < 1) {
+                     return (this.currentZoomScale <= this.maxZoomScale);
+                  } else {
+                     return (this.currentZoomScale >= this.maxZoomScale);
+                  }
+            }
+         
       }
    }
 
@@ -117,7 +195,8 @@ module ex {
       
       getFocus() {
          if (this.follow) {
-            return new Point(-this.follow.x + this.engine.width / 2.0, 0);
+            // return new Point(-this.follow.x + this.engine.width / 2.0, 0);
+            return new Point((-this.follow.x * this.getCurrentZoomScale()) + (this.engine.width * this.getCurrentZoomScale()) / 2.0, 0);
          } else {
             return this.focus;
          }
@@ -126,7 +205,7 @@ module ex {
    }
 
    /**
-   * An extension of BaseCamera that is locked to an actor; the actor will appear in the center of the screen.
+   * An extension of BaseCamera that is locked to an actor or focal point; the actor will appear in the center of the screen.
    * @class TopCamera
    * @extends BaseCamera
    * @constructor
@@ -136,7 +215,8 @@ module ex {
 
       getFocus() {
          if (this.follow) {
-            return new Point(-this.follow.x + this.engine.width / 2.0, -this.follow.y + this.engine.height / 2.0);
+            return new Point((-this.follow.x * this.getCurrentZoomScale()) + (this.engine.width * this.getCurrentZoomScale()) / 2.0, 
+                             (-this.follow.y * this.getCurrentZoomScale()) + (this.engine.height * this.getCurrentZoomScale()) / 2.0);
             } else {
                return this.focus;
             }
