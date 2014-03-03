@@ -3,16 +3,49 @@
 /// <reference path="Promises.ts" />
 
 module ex {
+   /**
+    * An interface describing loadable resources in Excalibur
+    * @class ILoadable
+    */
    export interface ILoadable {
+      /**
+       * Begins loading the resource and returns a promise to be resolved on completion
+       * @method load
+       * @returns Promise&lt;any&gt;
+       */
       load(): Promise<any>;
+      /**
+       * onprogress handler
+       * @property onprogress {any=>void}
+       */
       onprogress: (e: any) => void;
+      /**
+       * oncomplete handler
+       * @property oncomplete {any=>void}
+       */
       oncomplete: () => void;
+      /**
+       * onerror handler
+       * @property onerror {any=>void}
+       */
       onerror: (e: any) => void;
    }
 
+   /**
+    * The Texture object allows games built in Excalibur to load image resources.
+    * It is generally recommended to preload images using the "Texture" object.
+    * @class Texture
+    * @extend ILoadable
+    * @constructor
+    * @param path {string} Path to the image resource
+    */
    export class Texture implements ILoadable {
       public width: number;
       public height: number;
+      /**
+       * Populated once loading is complete
+       * @property image {HTMLImageElement}
+       */
       public image: HTMLImageElement;
       private logger: Logger = Logger.getInstance();
 
@@ -27,7 +60,11 @@ module ex {
          this.logger.debug("Started loading image " + this.path);
       }
 
-
+      /**
+       * Begins loading the texture and returns a promise to be resolved on completion
+       * @method load
+       * @returns Promise&lt;HTMLImageElement&gt;
+       */
       public load(): Promise<HTMLImageElement> {
          var complete = new Promise<HTMLImageElement>();
 
@@ -61,6 +98,15 @@ module ex {
       public onerror: (e: any) => void = () => { };
    }
 
+   /**
+    * The Sound object allows games built in Excalibur to load audio 
+    * components, from soundtracks to sound effects. It is generally 
+    * recommended to load sound resources when using Excalibur
+    * @class Sound
+    * @extend ILoadable
+    * @constructor
+    * @param ...paths {string[]} A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
+    */
    export class Sound implements ILoadable, ex.Internal.ISound {
       private logger: Logger = Logger.getInstance();
 
@@ -72,6 +118,10 @@ module ex {
 
       public onload: (e: any) => void = () => { };
 
+      /**
+       * Populated once loading is complete
+       * @property sound {Sound}
+       */
       public sound: ex.Internal.FallbackAudio;
 
 
@@ -108,20 +158,45 @@ module ex {
          this.sound = new ex.Internal.FallbackAudio(selectedFile, 1.0);
       }
 
+      /**
+       * Sets the volume of the sound clip
+       * @method setVolume
+       * @param volume {number} A volume value between 0-1.0
+       */
       public setVolume(volume: number) {
          if (this.sound) this.sound.setVolume(volume);
       }
+
+      /**
+       * Indicates whether the clip should loop when complete
+       * @method setLoop 
+       * @param loop {boolean} Set the looping flag
+       */
       public setLoop(loop: boolean) {
          if (this.sound) this.sound.setLoop(loop);
       }
+
+      /**
+       * Play the sound
+       * @method play
+       */
       public play() {
          if (this.sound) this.sound.play();
       }
 
+      /**
+       * Stop the sound and rewind
+       * @method stop
+       */
       public stop() {
          if (this.sound) this.sound.stop();
       }
 
+      /**
+       * Begins loading the sound and returns a promise to be resolved on completion
+       * @method load
+       * @returns Promise&lt;Sound&gt;
+       */
       public load(): Promise<ex.Internal.FallbackAudio> {
          var complete = new Promise<ex.Internal.FallbackAudio>();
 
@@ -139,6 +214,15 @@ module ex {
       }
    }
 
+   /**
+    * The loader provides a mechanism to preload multiple resources at 
+    * one time. The loader must be passed to the engine in order to 
+    * trigger the loading progress bar
+    * @class Loader
+    * @extend ILoadable
+    * @constructor
+    * @param [loadables=undefined] {ILoadable[]} Optionally provide the list of resources you want to load at constructor time
+    */
    export class Loader implements ILoadable {
       private resourceList: ILoadable[] = [];
       private index = 0;
@@ -154,6 +238,11 @@ module ex {
          }
       }
 
+      /**
+       * Add a resource to the loader to load
+       * @method addResource
+       * @param loadable {ILoadable} Resource to add
+       */
       public addResource(loadable: ILoadable) {
          var key = this.index++;
          this.resourceList.push(loadable);
@@ -162,6 +251,11 @@ module ex {
          this.resourceCount++;
       }
 
+      /**
+       * Add a list of resources to the loader to load
+       * @method addResources
+       * @param loadables {ILoadable[]} The list of resources to load
+       */
       public addResources(loadables: ILoadable[]) {
          loadables.forEach((l) => {
             this.addResource(l);
@@ -177,7 +271,11 @@ module ex {
       }
 
 
-
+      /**
+       * Begin loading all of the supplied resources, returning a promise that resolves when loading of all is complete
+       * @method load
+       * @returns Promsie&lt;any&gt;
+       */
       public load(): Promise<any> {
          var complete = new Promise<any>();
          var me = this;

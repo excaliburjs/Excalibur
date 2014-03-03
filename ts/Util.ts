@@ -1,9 +1,32 @@
 /// <reference path="Algebra.ts"/>
 
 module ex.Util {
+   /**
+    * Excalibur base class
+    * @class Class
+    * @constructor 
+    */
    export class Class {
       constructor(){}
+      /**
+       * You may wish to extend native Excalibur functionality. Any method on 
+       * actor may be extended to support additional functionaliy. In the 
+       * example below we create a new type called "MyActor"
+       * <br/><b>Example</b><pre>var MyActor = Actor.extend({
+   init : function(){ // custom initializer },
+   update : function(engine, delta){
+      // Implement custom update 
 
+         // Call super constructor update
+         this.super.update.call(this, engine, delta);
+         console.log("Something cool!");
+   }
+});
+var myActor = new MyActor(100, 100, 100, 100, Color.Azure);</pre>
+       * @method extend
+       * @static
+       * @param methods {any}
+       */
       public static extend(methods: any){
          var _super = this.prototype;
          var SubClass = function(){
@@ -119,8 +142,19 @@ module ex.Util {
       return new Point(oLeft, oTop);
    }
 
-   // Dynamic resizing
+   /**
+    * Excaliburs dynamically resizing collection
+    * @class Collection<T>
+    * @contsructor
+    * @param [initialSize=200] {number} Initial size of the internal backing array
+    */
    export class Collection<T> {
+      /**
+       * Default collection size
+       * @property DefaultSize {number}
+       * @static
+       * @final
+       */
       public static DefaultSize = 200;
       private internalArray: T[] = null;
       private endPointer: number = 0;
@@ -143,6 +177,12 @@ module ex.Util {
          this.internalArray = newArray;
       }
 
+      /**
+       * Push elements to the end of the collection
+       * @method push
+       * @param element {T}
+       * @returns T
+       */
       public push(element: T): T {
          if (this.endPointer === this.internalArray.length) {
             this.resize();
@@ -150,23 +190,48 @@ module ex.Util {
          return this.internalArray[this.endPointer++] = element;
       }
 
+      /**
+       * Removes elements from the end of the collection
+       * @method pop
+       * @returns T
+       */
       public pop(): T {
          this.endPointer = this.endPointer - 1 < 0 ? 0 : this.endPointer - 1;
          return this.internalArray[this.endPointer];
       }
 
+      /**
+       * Returns the count of the collection
+       * @method count
+       * @returns number
+       */
       public count(): number {
          return this.endPointer;
       }
 
+      /**
+       * Empties the collection
+       * @method clear
+       */
       public clear() {
          this.endPointer = 0;
       }
 
+      /**
+       * Returns the size of the internal backing array
+       * @method internalSize
+       * @returns number
+       */
       public internalSize(): number {
          return this.internalArray.length;   
       }
 
+      /**
+       * Returns an element at a specific index
+       * @method elementAt
+       * @param index {number} Index of element to retreive
+       * @returns T
+       */
       public elementAt(index: number): T {
          if (index >= this.count()) {
             return;
@@ -174,6 +239,12 @@ module ex.Util {
          return this.internalArray[index];
       }
 
+      /**
+       * Inserts an element at a specific index
+       * @method insert
+       * @param index {number} Index to insert the element
+       * @returns T
+       */
       public insert(index: number, value: T): T {
          if (index >= this.count()) {
             this.resize();
@@ -181,6 +252,12 @@ module ex.Util {
          return this.internalArray[index] = value;
       }
 
+      /**
+       * Removes an element at a specific index
+       * @method remove
+       * @param index {number} Index of element to remove
+       * @returns T
+       */
       public remove(index: number): T {
          var count = this.count();
          if (count === 0) return;
@@ -193,15 +270,30 @@ module ex.Util {
          return removed;
       }
 
+      /**
+       * Removes an element by reference
+       * @method removeElement
+       * @param element {T} Index of element to retreive
+       */
       public removeElement(element: T) {
          var index = this.internalArray.indexOf(element);
          this.remove(index);
       }
 
+      /**
+       * Returns a array representing the collection
+       * @method toArray
+       * @returns T[]
+       */
       public toArray(): T[] {
          return this.internalArray.slice(0, this.endPointer);
       }
 
+      /**
+       * Iterate over every element in the collection
+       * @method forEach
+       * @param func {(T,number)=>any} Callback to call for each element passing a reference to the element and its index, returned values are ignored
+       */
       public forEach(func: (element: T, index: number) => any) {
          var count = this.count();
          for (var i = 0; i < count; i++) {
@@ -209,6 +301,11 @@ module ex.Util {
          }
       }
 
+      /**
+       * Mutate every element in the collection
+       * @method map
+       * @param func {(T,number)=>any} Callback to call for each element passing a reference to the element and its index, any values returned mutate the collection
+       */
       public map(func: (element: T, index: number) => any) {
          var count = this.count();
          for (var i = 0; i < count; i++) {

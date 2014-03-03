@@ -186,7 +186,7 @@ module ex {
        * @param timer {Timer} The timer to remove
        * @returns Timer
        */
-      private removeTimer(timer: Timer): Timer{
+      public removeTimer(timer: Timer): Timer{
          var i = this.timers.indexOf(timer);
          this.timers.splice(i, 1);
          return timer;
@@ -258,6 +258,7 @@ module ex {
     * or interact with the current scene, must be an actor. An Actor <b>must</b>
     * be part of a {{#crossLink "Scene"}}{{/crossLink}} for it to be drawn to the screen.
     * @class Actor
+    * @extends Class
     * @constructor
     * @param [x=0.0] {number} The starting x coordinate of the actor
     * @param [y=0.0] {number} The starting y coordinate of the actor
@@ -679,46 +680,133 @@ module ex {
          this.actionQueue.clearActions();
       }
 
+      /**
+       * This method will move an actor to the specified x and y position at the 
+       * speed specified (in pixels per second) and return back the actor. This 
+       * method is part of the actor 'Action' fluent API allowing action chaining.
+       * @method moveTo
+       * @param x {number} The x location to move the actor to
+       * @param y {number} The y location to move the actor to
+       * @param speed {number} The speed in pixels per second to move
+       * @returns Actor
+       */
       public moveTo(x: number, y: number, speed: number): Actor {
          this.actionQueue.add(new ex.Internal.Actions.MoveTo(this, x, y, speed));
          return this;
       }
 
+      /**
+       * This method will move an actor to the specified x and y position by a 
+       * certain time (in milliseconds). This method is part of the actor 
+       * 'Action' fluent API allowing action chaining.
+       * @method moveBy
+       * @param x {number} The x location to move the actor to
+       * @param y {number} The y location to move the actor to
+       * @param time {number} The time it should take the actor to move to the new location in milliseconds
+       * @returns Actor
+       */
       public moveBy(x: number, y: number, time: number): Actor {
          this.actionQueue.add(new ex.Internal.Actions.MoveBy(this, x, y, time));
          return this;
       }
 
+      /**
+       * This method will rotate an actor to the specified angle at the speed
+       * specified (in radians per second) and return back the actor. This 
+       * method is part of the actor 'Action' fluent API allowing action chaining.
+       * @method rotateTo
+       * @param angleRadians {number} The angle to rotate to in radians
+       * @param speed {number} The angular velocity of the rotation specified in radians per second
+       * @returns Actor
+       */
       public rotateTo(angleRadians: number, speed: number): Actor {
          this.actionQueue.add(new ex.Internal.Actions.RotateTo(this, angleRadians, speed));
          return this;
       }
 
+      /**
+       * This method will rotate an actor to the specified angle by a certain
+       * time (in milliseconds) and return back the actor. This method is part
+       * of the actor 'Action' fluent API allowing action chaining.
+       * @method rotateBy
+       * @param angleRadians {number} The angle to rotate to in radians
+       * @param time {number} The time it should take the actor to complete the rotation in milliseconds
+       * @returns Actor
+       */
       public rotateBy(angleRadians: number, time: number): Actor {
          this.actionQueue.add(new ex.Internal.Actions.RotateBy(this, angleRadians, time));
          return this;
       }
 
+      /**
+       * This method will scale an actor to the specified size at the speed
+       * specified (in magnitude increase per second) and return back the 
+       * actor. This method is part of the actor 'Action' fluent API allowing 
+       * action chaining.
+       * @method scaleTo
+       * @param size {number} The scaling factor to apply
+       * @param speed {number} The speed of scaling specified in magnitude increase per second
+       * @returns Actor
+       */
       public scaleTo(size: number, speed: number): Actor {
          this.actionQueue.add(new ex.Internal.Actions.ScaleTo(this, size, speed));
          return this;
       }
 
+      /**
+       * This method will scale an actor to the specified size by a certain time
+       * (in milliseconds) and return back the actor. This method is part of the
+       * actor 'Action' fluent API allowing action chaining.
+       * @method scaleBy
+       * @param size {number} The scaling factor to apply
+       * @param time {number} The time it should take to complete the scaling in milliseconds
+       * @returns Actor
+       */
       public scaleBy(size: number, time: number): Actor {
          this.actionQueue.add(new ex.Internal.Actions.ScaleBy(this, size, time));
          return this;
       }
 
+      /**
+       * This method will cause an actor to blink (become visible and and 
+       * invisible) at a frequency (blinks per second) for a duration (in
+       * milliseconds). Optionally, you may specify blinkTime, which indicates
+       * the amount of time the actor is invisible during each blink.<br/>
+       * To have the actor blink 3 times in 1 second, call actor.blink(3, 1000).<br/>
+       * This method is part of the actor 'Action' fluent API allowing action chaining.
+       * @method blink
+       * @param frequency {number} The blinks per second 
+       * @param duration {number} The total duration of the blinking specified in milliseconds
+       * @param [blinkTime=200] {number} The amount of time each blink that the actor is visible in milliseconds
+       * @returns Actor
+       */
       public blink(frequency: number, duration: number, blinkTime?: number): Actor {
          this.actionQueue.add(new ex.Internal.Actions.Blink(this, frequency, duration, blinkTime));
          return this;
       }
 
-      public delay(seconds: number): Actor {
-         this.actionQueue.add(new ex.Internal.Actions.Delay(this, seconds));
+      /**
+       * This method will delay the next action from executing for a certain 
+       * amount of time (in milliseconds). This method is part of the actor 
+       * 'Action' fluent API allowing action chaining.
+       * @method delay
+       * @param time {number} The amount of time to delay the next action in the queue from executing in milliseconds
+       * @returns Actor
+       */
+      public delay(time: number): Actor {
+         this.actionQueue.add(new ex.Internal.Actions.Delay(this, time));
          return this;
       }
 
+      /**
+       * This method will cause the actor to repeat all of the previously 
+       * called actions a certain number of times. If the number of repeats 
+       * is not specified it will repeat forever. This method is part of 
+       * the actor 'Action' fluent API allowing action chaining
+       * @method repeat
+       * @param [times=undefined] {number} The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will repeat forever
+       * @returns Actor
+       */
       public repeat(times?: number): Actor {
          if (!times) {
             this.repeatForever();
@@ -729,11 +817,25 @@ module ex {
          return this;
       }
 
+      /**
+       * This method will cause the actor to repeat all of the previously 
+       * called actions forever. This method is part of the actor 'Action'
+       * fluent API allowing action chaining.
+       * @method repeatForever
+       * @returns Actor
+       */
       public repeatForever(): Actor {
          this.actionQueue.add(new ex.Internal.Actions.RepeatForever(this, this.actionQueue.getActions()));
          return this;
       }
 
+      /**
+       * This method will cause the actor to follow another at a specified distance
+       * @method follow
+       * @param actor {Actor} The actor to follow
+       * @param [followDistance=currentDistance] {number} The distance to maintain when following, if not specified the actor will follow at the current distance.
+       * @returns Actor
+       */
       public follow(actor : Actor, followDistance? : number) : Actor {
       if (followDistance == undefined){
             this.actionQueue.add(new ex.Internal.Actions.Follow(this, actor));
@@ -743,6 +845,14 @@ module ex {
       return this;
       }
 
+      /**
+       * This method will cause the actor to move towards another until they 
+       * collide "meet" at a specified speed.
+       * @method meet
+       * @param actor {Actor} The actor to meet
+       * @param [speed=0] {number} The speed in pixels per second to move, if not specified it will match the speed of the other actor
+       * @returns Actor
+       */
       public meet(actor: Actor, speed? : number) : Actor {
          if(speed == undefined){
                this.actionQueue.add(new ex.Internal.Actions.Meet(this, actor));
@@ -752,6 +862,12 @@ module ex {
          return this;
       }
 
+      /**
+       * Called by the Engine, updates the state of the actor
+       * @method update 
+       * @param engine {Engine} The reference to the current game engine
+       * @param delta {number} The time elapsed since the last update in milliseconds
+       */
       public update(engine: Engine, delta: number) {
          this.sceneNode.update(engine, delta);
          var eventDispatcher = this.eventDispatcher;
@@ -856,6 +972,12 @@ module ex {
       }
 
 
+      /**
+       * Called by the Engine, draws the actor to the screen
+       * @method draw
+       * @param ctx {CanvasRenderingContext2D} The rendering context
+       * @param delta {number} The time since the last draw in milliseconds
+       */
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
 
          ctx.save();
@@ -891,6 +1013,11 @@ module ex {
          ctx.restore();
       }
 
+      /**
+       * Called by the Engine, draws the actors debugging to the screen
+       * @method debugDraw
+       * @param ctx {CanvasRenderingContext2D} The rendering context
+       */
       public debugDraw(ctx: CanvasRenderingContext2D) {
          
          // Meant to draw debug information about actors
@@ -909,6 +1036,19 @@ module ex {
       }
    }
 
+   /**
+    * Labels are the way to draw small amounts of text to the screen in Excalibur. They are
+    * actors and inherit all of the benifits and capabilities.
+    * @class Label
+    * @extends Actor
+    * @constructor
+    * @param [text=empty] {string} The text of the label
+    * @param [x=0] {number} The x position of the label
+    * @param [y=0] {number} The y position of the label
+    * @param [font=sans-serif] {string} Use any valid css font string for the label's font. Default is "10px sans-serif".
+    * @param [spriteFont=undefined] {SpriteFont} Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precendence over a css font.
+    *
+    */
    export class Label extends Actor {
       public text: string;
       public spriteFont: SpriteFont;
@@ -953,6 +1093,19 @@ module ex {
 
    }
 
+   /**
+    * Triggers a method of firing arbitrary code on collision. These are useful
+    * as 'buttons', 'switches', or to trigger effects in a game. By defualt triggers
+    * are invisible, and can only be seen with debug mode enabled on the Engine.
+    * @class Trigger
+    * @constructor
+    * @param [x=0] {number} The x position of the trigger
+    * @param [y=0] {number} The y position of the trigger
+    * @param [width=0] {number} The width of the trigger
+    * @param [height=0] {number} The height of the trigger
+    * @param [action=null] {()=>void} Callback to fire when trigger is activated
+    * @param [repeats=1] {number} The number of times that this trigger should fire, by default it is 1, if -1 is supplied it will fire indefinitely
+    */
    export class Trigger extends Actor {
       private action : ()=>void = ()=>{};
       public repeats : number = 1;

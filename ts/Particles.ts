@@ -5,6 +5,8 @@
 
 
 module ex {
+
+   
    export class Particle {
       public position: Vector = new Vector(0, 0);
       public velocity: Vector = new Vector(0, 0);
@@ -92,35 +94,124 @@ module ex {
       }
    }
 
+   /**
+    * Using a particle emitter is a great way to create intersting effects 
+    * in your game, like smoke, fire, water, explosions, etc. Particle Emitters
+    * extend Actor allowing you to use all the features that come with actor
+    * @class ParticleEmitter
+    * @constructor
+    * @param [x=0] {number} The x position of the emitter
+    * @param [y=0] {number} The y position of the emitter
+    * @param [width=0] {number} The width of the emitter
+    * @param [height=0] {number} The height of the emitter
+    */
    export class ParticleEmitter extends Actor {
 
       public numParticles: number = 0;
+
+      /**
+       * Gets or sets the isEmitting flag
+       * @property isEmitting {boolean}
+       */
       public isEmitting: boolean = true;
+      /**
+       * Gets or sets the backing particle collection
+       * @property particles {Util.Collection&lt;Particle&gt;}
+       */
       public particles: Util.Collection<Particle> = null;
+
+      /**
+       * Gets or sets the backing deadParticle collection
+       * @property particles {Util.Collection&lt;Particle&gt;}
+       */
       public deadParticles: Util.Collection<Particle> = null;
 
+      /**
+       * Gets or sets the minimum partical velocity
+       * @property [minVel=0] {number} 
+       */
       public minVel: number = 0;
+      /**
+       * Gets or sets the maximum partical velocity
+       * @property [maxVel=0] {number} 
+       */
       public maxVel: number = 0;
+
+      /**
+       * Gets or sets the acceleration vector for all particles
+       * @property [acceleration=new Vector(0,0)] {Vector} 
+       */
       public acceleration: Vector = new Vector(0, 0);
 
+      /**
+       * Gets or sets the minimum angle in radians
+       * @property [minAngle=0] {number} 
+       */
       public minAngle: number = 0;
+      /**
+       * Gets or sets the maximum angle in radians
+       * @property [maxAngle=0] {number} 
+       */
       public maxAngle: number = 0;
 
+      /**
+       * Gets or sets the emission rate for particles (particles/sec)
+       * @property [emitRate=1] {number}
+       */
       public emitRate: number = 1; //particles/sec
+      /**
+       * Gets or sets the life of each particle in milliseconds
+       * @property [particleLife=2000] {number}
+       */
       public particleLife: number = 2000;
-
+      /**
+       * Gets or sets the opacity of each particle from 0 to 1.0
+       * @property [opacity=1.0] {number}
+       */
       public opacity: number = 1;
+      /**
+       * Gets or sets the fade flag which causes partilces to gradually fade out over the course of their life.
+       * @property [fade=false] {boolean}
+       */
       public fade: boolean = false;
 
+      /**
+       * Gets or sets the optional focus where all particles should accelerate towards
+       * @property [focus=null] {Vector}
+       */
       public focus: Vector = null;
+      /**
+       * Gets or sets the acceleration for focusing particles if a focus has been specified
+       * @property [focusAccel=1] {number}
+       */
       public focusAccel: number = 1;
 
+      /**
+       * Gets or sets the minimum size of all particles
+       * @property [minSize=5] {number}
+       */
       public minSize: number = 5;
+      /**
+       * Gets or sets the maximum size of all particles
+       * @property [maxSize=5] {number}
+       */
       public maxSize: number = 5;
 
+      /**
+       * Gets or sets the beginning color of all particles
+       * @property [beginColor=Color.White] {Color}
+       */
       public beginColor: Color = Color.White;
+      /**
+       * Gets or sets the ending color of all particles
+       * @property [endColor=Color.White] {Color}
+       */
       public endColor: Color = Color.White;
 
+      /**
+       * Gets or sets the sprite that a particle should use
+       * @property [particleSprite=null] {Sprite}
+       */
       public particleSprite: ex.Sprite = null;
 
       constructor(x?: number, y?: number, width?: number, height?: number) {    
@@ -134,7 +225,11 @@ module ex {
          this.deadParticles.push(particle);
       }
 
-      // Causes the emitter to emit particles
+      /**
+       * Causes the emitter to emit particles
+       * @method emit
+       * @param particleCount {number} Number of particles to emit right now
+       */
       public emit(particleCount: number) {
          for (var i = 0; i < particleCount; i++) {
             this.particles.push(this.createParticle());

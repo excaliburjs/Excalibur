@@ -2,8 +2,34 @@ module ex {
 
    /**
     * Logging level that Excalibur will tag
+    * @class LogLevel
     */
    export enum LogLevel {
+      /**
+       @property Debug {LogLevel}
+       @static 
+       @final
+       */
+       /**
+       @property Info {LogLevel}
+       @static 
+       @final
+       */
+       /**
+       @property Warn {LogLevel}
+       @static 
+       @final
+       */
+       /**
+       @property Error {LogLevel}
+       @static 
+       @final
+       */
+       /**
+       @property Fatal {LogLevel}
+       @static 
+       @final
+       */
       Debug,
       Info,
       Warn,
@@ -13,15 +39,18 @@ module ex {
 
    /**
     * Static singleton that represents the logging facility for Excalibur.
-    * Excalibur comes built-in with a `ConsoleAppender` and `ScreenAppender`.
-    * Derive from `IAppender` to create your own logging appenders.
+    * Excalibur comes built-in with a ConsoleAppender and ScreenAppender.
+    * Derive from IAppender to create your own logging appenders.
+    * @class Logger
+    * @static
+    * @singleton
     */
    export class Logger {
       private static _instance: Logger = null;
       private appenders: IAppender[] = [];      
 
       /**
-       * Use `Logger.getInstance()` to retrieve the logging instance.
+       * Use Logger.getInstance() to retrieve the logging instance.
        */
       constructor() {
          if (Logger._instance) {
@@ -33,11 +62,15 @@ module ex {
       /**
        * Gets or sets the default logging level. Excalibur will only log 
        * messages if equal to or above this level.
+       * @property defaultLevel {LogLevel}
        */
       public defaultLevel: LogLevel = LogLevel.Info;
 
       /**
-       * Gets the current static instance of `Logger`
+       * Gets the current static instance of Logger
+       * @method getInstance
+       * @static
+       * @returns Logger
        */
       public static getInstance(): Logger {
          if (Logger._instance == null) {
@@ -47,15 +80,19 @@ module ex {
       }
 
       /**
-       * Adds a new `IAppender` to the list of appenders to write to
+       * Adds a new IAppender to the list of appenders to write to
+       * @method addAppender
+       * @param appender {IAppender} Appender to add
        */
       public addAppender(appender: IAppender): void {
          this.appenders.push(appender);
       }
 
       /**
-       * Logs a message at a given `LogLevel`
-       * @param level The `LogLevel` to log the message at
+       * Logs a message at a given LogLevel
+       * @method _log
+       * @private
+       * @param level {LogLevel}The LogLevel`to log the message at
        * @param args An array of arguments to write to an appender
        */
       private _log(level: LogLevel, args: any[]): void {
@@ -71,40 +108,45 @@ module ex {
       }
 
       /**
-       * Writes a log message at the `LogLevel.Debug` level
-       * @param args Accepts any number of arguments
+       * Writes a log message at the LogLevel.Debug level
+       * @method debug
+       * @param ...args Accepts any number of arguments
        */
       public debug(...args): void {
          this._log(LogLevel.Debug, args);
       }
 
       /**
-       * Writes a log message at the `LogLevel.Info` level
-       * @param args Accepts any number of arguments
+       * Writes a log message at the LogLevel.Info level
+       * @method info
+       * @param ...args Accepts any number of arguments
        */
       public info(...args): void {
          this._log(LogLevel.Info, args);
       }
 
       /**
-       * Writes a log message at the `LogLevel.Warn` level
-       * @param args Accepts any number of arguments
+       * Writes a log message at the LogLevel.Warn level
+       * @method warn
+       * @param ...args Accepts any number of arguments
        */
       public warn(...args): void {
          this._log(LogLevel.Warn, args);
       }
 
       /**
-       * Writes a log message at the `LogLevel.Error` level
-       * @param args Accepts any number of arguments
+       * Writes a log message at the LogLevel.Error level
+       * @method error
+       * @param ...args Accepts any number of arguments
        */
       public error(...args): void {
          this._log(LogLevel.Error, args);
       }
 
       /**
-       * Writes a log message at the `LogLevel.Fatal` level
-       * @param args Accepts any number of arguments
+       * Writes a log message at the LogLevel.Fatal level
+       * @method fatal
+       * @param ...args Accepts any number of arguments
        */
       public fatal(...args): void {
          this._log(LogLevel.Fatal, args);
@@ -113,17 +155,24 @@ module ex {
 
    /**
     * Contract for any log appender (such as console/screen)
+    * @class IAppender
     */
    export interface IAppender {
 
       /**
-       * Logs a message at the given `LogLevel`
+       * Logs a message at the given LogLevel
+       * @method log
+       * @param level {LogLevel} Level to log at
+       * @param args {any[]} Arguments to log
        */
       log(level: LogLevel, args: any[]): void;
    }
 
    /**
     * Console appender for browsers (i.e. console.log)
+    * @class ConsoleAppender
+    * @constructor
+    * @extends IAppender
     */
    export class ConsoleAppender implements IAppender {
       
@@ -153,6 +202,11 @@ module ex {
    /**
     * On-screen (canvas) appender
     * @todo Clean this up
+    * @class ScreenAppender
+    * @extends IAppender
+    * @constructor
+    * @param width {number} Width of the screen appender in pixels
+    * @param height {number} Height of the screen appender in pixels
     */
    export class ScreenAppender implements IAppender {
 
