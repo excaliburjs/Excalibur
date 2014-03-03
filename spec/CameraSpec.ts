@@ -80,13 +80,37 @@ describe("A camera", () => {
 
    });
 
+   it("can focus on a point", () => {
+      topCamera.setFocus(10, 20);
+
+      expect(topCamera.getFocus().x).toBe(10);
+      expect(topCamera.getFocus().y).toBe(20);
+
+      });
+
+   it("cannot focus on a point if it has an actor to follow", () => {
+      //TODO
+      // expect(true).toBe(false);
+      topCamera.setActorToFollow(actor);
+      topCamera.setFocus(100, 150);
+
+      expect(topCamera.getFocus().x).toBe(0);
+      expect(topCamera.getFocus().y).toBe(0);
+      });
+
    it("can shake", () => {
       sideCamera.setActorToFollow(actor);
-      sideCamera.shake(5, 5000);
+      sideCamera.shake(5, 5, 5000);
 
       expect(sideCamera.isShaking).toBe(true);
 
    });
 
-});
+   it("can zoom", () => {
+      sideCamera.zoom(2);
+
+      expect(sideCamera.isZooming).toBe(true);
    
+   });
+
+});

@@ -309,7 +309,9 @@ game.addEventListener('focus', ()=>{
 // Create a camera to track the player
 var camera = new ex.SideCamera(game);
 camera.setActorToFollow(player);
-camera.shake(50, 1000);
+// camera.shake(5, 5, 1000);
+// camera.zoom(0.5);
+// camera.zoom(1.5, 10000);
 
 // Add player to game is synonymous with adding a player to the current scene
 game.addChild(player);
