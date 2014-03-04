@@ -105,7 +105,7 @@ module ex {
             }
          }
 
-         console.log("zoom increment: " + this.zoomIncrement);
+         // console.log("zoom increment: " + this.zoomIncrement);
       }
 
       /**
