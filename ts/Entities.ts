@@ -7,7 +7,18 @@ module ex {
       constructor(public x: number, public y: number) { }
    }
 
+   /**
+    * Actors are composed together into groupings called Scenes in 
+    * Excalibur. The metaphor models the same idea behind real world 
+    * actors in a scene. Only actors in scenes will be updated and drawn.
+    * @class Scene
+    * @constructor
+    */
    export class Scene {
+      /**
+       * The actors in the current scene
+       * @property children {Actor[]}
+       */
       public children: Actor[] = [];
       public engine: Engine;
       private killQueue: Actor[] = [];
@@ -17,22 +28,45 @@ module ex {
 
       public collisionGroups: {[key:string]: Actor[]} = {};
 
+
       constructor() {}
 
+      /**
+       * This is called when the scene is made active and started. It is meant to be overriden,
+       * this is where you should setup any DOM UI or event handlers needed for the scene.
+       * @method onActivate
+       */
       public onActivate(): void {
          // will be overridden
       }
 
+      /**
+       * This is called when the scene is made transitioned away from and stopped. It is meant to be overriden,
+       * this is where you should cleanup any DOM UI or event handlers needed for the scene.
+       * @method onDeactivate
+       */
       public onDeactivate(): void {
          // will be overridden
       }
 
+      /**
+       * Publish an event to all actors in the scene
+       * @method publish
+       * @param eventType {string} The name of the event to publish
+       * @param event {GameEvent} The event object to send 
+       */
       public publish(eventType: string, event: GameEvent) {
          this.children.forEach((actor) => {
             actor.triggerEvent(eventType, event);
          });
       }
 
+      /**
+       * Updates all the actors and timers in the Scene. Called by the Engine.
+       * @method update
+       * @param engine {Engine} Reference to the current Engine
+       * @param delta {number} The number of milliseconds since the last update
+       */
       public update(engine: Engine, delta: number) {
          var len = 0;
          var start = 0;
@@ -67,6 +101,12 @@ module ex {
          });
       }
 
+      /**
+       * Draws all the actors in the Scene. Called by the Engine.
+       * @method draw
+       * @param ctx {CanvasRenderingContext2D} The current rendering context
+       * @param delta {number} The number of milliseconds since the last draw
+       */
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
          var len = 0;
          var start = 0;
@@ -78,12 +118,22 @@ module ex {
          }
       }
 
+      /**
+       * Draws all the actors' debug information in the Scene. Called by the Engine.
+       * @method draw
+       * @param ctx {CanvasRenderingContext2D} The current rendering context
+       */
       public debugDraw(ctx: CanvasRenderingContext2D) {
          this.children.forEach((actor) => {
             actor.debugDraw(ctx);
          })
       }
 
+      /**
+       * Adds an actor to the Scene, once this is done the actor will be drawn and updated.
+       * @method addChild
+       * @param actor {Actor} The actor to add
+       */
       public addChild(actor: Actor) {
          actor.parent = this;
          this.updateAddCollisionGroups(actor);
@@ -99,6 +149,11 @@ module ex {
          });
       }
 
+      /**
+       * Removes an actor from the Scene, it will no longer be drawn or updated.
+       * @method removeChild
+       * @param actor {Actor} The actor to remove
+       */
       public removeChild(actor: Actor) {
          this.updateRemoveCollisionGroups(actor);
          this.killQueue.push(actor);
@@ -112,30 +167,84 @@ module ex {
          }
       }
 
+      /**
+       * Adds a timer to the Scene
+       * @method addTimer
+       * @param timer {Timer} The timer to add
+       * @returns Timer
+       */
       public addTimer(timer: Timer): Timer{
          this.timers.push(timer);
          timer.scene = this;
          return timer;
       }
 
+      /**
+       * Removes a timer to the Scene, can be dangerous
+       * @method removeTimer
+       * @private
+       * @param timer {Timer} The timer to remove
+       * @returns Timer
+       */
       public removeTimer(timer: Timer): Timer{
          var i = this.timers.indexOf(timer);
          this.timers.splice(i, 1);
          return timer;
       }
 
+      /**
+       * Cancels a timer, removing it from the scene nicely
+       * @method cancelTimer
+       * @param timer {Timer} The timer to cancel
+       * @returns Timer
+       */
       public cancelTimer(timer: Timer): Timer{
          this.cancelQueue.push(timer);
          return timer;
       }
 
+      /**
+       * Tests whether a timer is active in the scene
+       * @method isTimerActive
+       * @param timer {Timer}
+       * @returns boolean
+       */
       public isTimerActive(timer: Timer): boolean {
          return (this.timers.indexOf(timer) > -1);
       }
 
    }
 
+   /**
+    * An enum that describes the sides of an Actor for collision
+    * @class Side
+    */
    export enum Side {
+      /**
+      @property NONE {Side}
+      @static
+      @final
+      */
+      /**
+      @property TOP {Side}
+      @static
+      @final
+      */
+      /**
+      @property BOTTOM {Side}
+      @static
+      @final
+      */
+      /**
+      @property LEFT {Side}
+      @static
+      @final
+      */
+      /**
+      @property RIGHT {Side}
+      @static
+      @final
+      */
       NONE,
       TOP,
       BOTTOM,
@@ -143,26 +252,81 @@ module ex {
       RIGHT
    }
 
+   /**
+    * The most important primitive in Excalibur is an "Actor." Anything that
+    * can move on the screen, collide with another Actor, respond to events, 
+    * or interact with the current scene, must be an actor. An Actor <b>must</b>
+    * be part of a {{#crossLink "Scene"}}{{/crossLink}} for it to be drawn to the screen.
+    * @class Actor
+    * @extends Class
+    * @constructor
+    * @param [x=0.0] {number} The starting x coordinate of the actor
+    * @param [y=0.0] {number} The starting y coordinate of the actor
+    * @param [width=0.0] {number} The starting width of the actor
+    * @param [height=0.0] {number} The starting height of the actor
+    * @param [color=undefined] {Color} The starting color of the actor
+    */     
    export class Actor extends ex.Util.Class {
+      /** 
+       * The x coordinate of the actor (left edge)
+       * @property x {number} 
+       */ 
       public x: number = 0;
+      /** 
+       * The y coordinate of the actor (top edge)
+       * @property y {number} 
+       */
       public y: number = 0;
       private height: number = 0;
       private width: number = 0;
+      /** 
+       * The rotation of the actor in radians
+       * @property rotation {number} 
+       */
       public rotation: number = 0; // radians
+      /** 
+       * The rotational velocity of the actor in radians/second
+       * @property rx {number} 
+       */
       public rx: number = 0; //radions/sec
-
+      /** 
+       * The scale of the actor
+       * @property scale {number} 
+       */
       public scale: number = 1;
+      /** 
+       * The scalar velocity of the actor in scale/second
+       * @property sx {number} 
+       */
       public sx: number = 0; //scale/sec
-
+      /** 
+       * The x velocity of the actor in pixels/second
+       * @property dx {number} 
+       */
       public dx: number = 0; // pixels/sec
+      /** 
+       * The x velocity of the actor in pixels/second
+       * @property dx {number} 
+       */
       public dy: number = 0;
       public ax: number = 0; // pixels/sec/sec
       public ay: number = 0;
-
+      /** 
+       * The visibility of an actor
+       * @property invisible {boolean} 
+       */
       public invisible: boolean = false;
 
+      /** 
+       * Direct access to the actor's action queue. Useful if you are building custom actions.
+       * @property actionQueue {ActionQueue} 
+       */
       public actionQueue: ex.Internal.Actions.ActionQueue;
 
+      /**
+       * Direct access to the actor's event dispatcher.
+       * @property eventDispatcher {EventDispatcher}
+       */
       public eventDispatcher: EventDispatcher;
 
       private sceneNode: Scene;
@@ -176,14 +340,25 @@ module ex {
       public collisionGroups : string[] = [];
 
       public frames: { [key: string]: IDrawable; } = {}
-      //public animations : {[key : string] : Drawing.Animation;} = {};
+      
+      /**
+       * Access to the current drawing on for the actor, this can be an {{#crossLink "Animation"}}{{/crossLink}}, 
+       * {{#crossLink "Sprite"}}{{/crossLink}}, or {{#crossLink "Polygon"}}{{/crossLink}}. 
+       * Set drawings with the {{#crossLink "Actor/setDrawing:method"}}{{/crossLink}}.
+       * @property currentDrawing {IDrawable}
+       */
       public currentDrawing: IDrawable = null;
 
       private centerDrawingX = false;
       private centerDrawingY = false;
-      //public currentAnimation: Drawing.Animation = null;
-
+      
+      /**
+       * Sets the color of the actor. A rectangle of this color will be drawn if now IDrawable is specified as the actors drawing.
+       * @property color {Color}
+       */
       public color: Color;
+
+       
       constructor(x?: number, y?: number, width?: number, height?: number, color?: Color) {
          super();
          this.x = x || 0;
@@ -196,6 +371,11 @@ module ex {
          this.sceneNode = new Scene();
       }
 
+      /**
+       * If the current actors is a member of the scene. This will remove
+       * it from the scene graph. It will no longer be drawn or updated.
+       * @method kill
+       */
       public kill() {
          if (this.parent) {
             this.parent.removeChild(this);
@@ -203,16 +383,32 @@ module ex {
             this.logger.warn("Cannot kill actor, it was never added to the Scene");
          }
       }
-
+      /**
+       * Adds a child actor to this actor. All movement of the child actor will be
+       * relative to the parent actor. Meaning if the parent moves the child will
+       * move with
+       * @method addChild
+       * @param actor {Actor} The child actor to add
+       */
       public addChild(actor: Actor) {
          this.sceneNode.addChild(actor);
       }
 
+      /**
+       * Removes a child actor from this actor. 
+       * @method removeChild
+       * @param actor {Actor} The child actor to remove
+       */
       public removeChild(actor: Actor) {
          this.sceneNode.removeChild(actor);
       }
 
-      // Play animation in Actor's list
+      /**
+       * Sets the current drawing of the actor to the drawing correspoding to
+       * the key.
+       * @method setDrawing 
+       * @param key {string} The key of the drawing
+       */
       public setDrawing(key) {
 
          if (this.currentDrawing != this.frames[<string>key]) {
@@ -221,18 +417,63 @@ module ex {
          this.currentDrawing = this.frames[<string>key];
       }
 
+      /**
+       * Adds a drawing to the list of available drawings for an actor.
+       * @method addDrawing
+       * @param key {string} The key to associate with a drawing for this actor
+       * @param drawing {IDrawable} this can be an {{#crossLink "Animation"}}{{/crossLink}}, 
+       * {{#crossLink "Sprite"}}{{/crossLink}}, or {{#crossLink "Polygon"}}{{/crossLink}}. 
+       */
+      public addDrawing(key: any, drawing: IDrawable) {
+         this.frames[<string>key] = drawing;
+         if (!this.currentDrawing) {
+            this.currentDrawing = drawing;
+         }
+      }
+
+      /**
+       * Add an event listener. You can listen for a variety of
+       * events off of the engine; see the events section below for a complete list.
+       * @method addEventListener
+       * @param eventName {string} Name of the event to listen for
+       * @param handler {event=>void} Event handler for the thrown event
+       */
       public addEventListener(eventName: string, handler: (event?: GameEvent) => void) {
          this.eventDispatcher.subscribe(eventName, handler);
       }
-
+      /**
+       * Removes an event listener. If only the eventName is specified
+       * it will remove all handlers registered for that specific event. If the eventName
+       * and the handler instance are specified only that handler will be removed.
+       *
+       * @method removeEventListener
+       * @param eventName {string} Name of the event to listen for
+       * @param [handler=undefined] {event=>void} Event handler for the thrown event
+       */
       public removeEventListener(eventName: string, handler?:(event?: GameEvent)=> void){
          this.eventDispatcher.unsubscribe(eventName, handler);
       }
 
+      /**
+       * Artificially trigger an event on an actor, useful when creating custom events.
+       * @method triggerEvent
+       * @param eventName {string} The name of the event to trigger
+       * @param [event=undefined] {GameEvent} The event object to pass to the callback
+       */
       public triggerEvent(eventName: string, event?: GameEvent) {
          this.eventDispatcher.publish(eventName, event);
       }
 
+      /** 
+       * Adds an actor to a collision group. Actors with no named collision group are
+       * considered to be in every collision group.
+       *
+       * Once in a collision group(s) actors will only collide with other actors in 
+       * that group.
+       *
+       * @method addCollisionGroup
+       * @param name {string} The name of the collision group
+       */
       public addCollisionGroup(name: string){
          this.collisionGroups.push(name);
          if(this.parent){
@@ -240,6 +481,11 @@ module ex {
          }
       }
 
+      /**
+       * Remove an actor from a collision group.
+       * @method removeCollisionGroup
+       * @param name {string} The name of the collision group
+       */
       public removeCollisionGroup(name: string){
          var index = this.collisionGroups.indexOf(name);
          this.collisionGroups.splice(index, 1);
@@ -248,43 +494,95 @@ module ex {
          }
       }
  
+      /**
+       * Get the center point of an actor
+       * @method getCenter
+       * @returns Vector
+       */
       public getCenter(): Vector {
          return new Vector(this.x + this.getWidth() / 2, this.y + this.getHeight() / 2);
       }
 
+      /**
+       * Gets the calculated width of an actor
+       * @method getWidth
+       * @returns number
+       */
       public getWidth() {
          return this.width * this.scale;
       }
 
+      /**
+       * Sets the width of an actor, factoring in the current scale
+       * @method setWidth
+       */
       public setWidth(width) {
          this.width = width / this.scale;
       }
 
+      /**
+       * Gets the calculated height of an actor
+       * @method getHeight
+       * @returns number
+       */
       public getHeight() {
          return this.height * this.scale;
       }
 
+      /**
+       * Sets the height of an actor, factoring in the current scale
+       * @method setHeight
+       */
       public setHeight(height) {
          this.height = height / this.scale;
       }
 
+      /**
+       * Centers the actor's drawing around the center of the actor's bounding box
+       * @method setCenterDrawing
+       * @param center {boolean} Indicates to center the drawing around the actor
+       */       
       public setCenterDrawing(center: boolean) {
          this.centerDrawingY = true;
          this.centerDrawingX = true;
       }
 
+      /**
+       * Gets the left edge of the actor
+       * @method getLeft
+       * @returns number
+       */
       public getLeft() {
          return this.x;
       }
+
+      /**
+       * Gets the right edge of the actor
+       * @method getRight
+       * @returns number
+       */
       public getRight() {
          return this.x + this.getWidth();
       }
+
+      /**
+       * Gets the top edge of the actor
+       * @method getTop
+       * @returns number
+       */
       public getTop() {
          return this.y;
       }
+
+      /**
+       * Gets the bottom edge of the actor
+       * @method getBottom
+       * @returns number
+       */
       public getBottom() {
          return this.y + this.getHeight();
       }
+
 
       private getOverlap(box: Actor): Overlap {
          var xover = 0;
@@ -315,10 +613,22 @@ module ex {
          return new Overlap(xover, yover);
       }
 
+      /**
+       * Tests whether the x/y specified are contained in the actor
+       * @method contains
+       * @param x {number} X coordinate to test (in world coordinates)
+       * @param y {number} Y coordinate to test (in world coordinates)
+       */
       public contains(x: number, y: number): boolean {
          return (this.x <= x && this.y <= y && this.getBottom() >= y && this.getRight() >= x);
       }
 
+      /**
+       * Test whether the actor has collided with another actor, returns the side that collided.
+       * @method collides
+       * @param actor {Actor} The other actor to test
+       * @returns Side
+       */
       public collides(actor: Actor): Side {
 
 
@@ -351,63 +661,152 @@ module ex {
          return Side.NONE;
       }
 
+      /**
+       * Returns true if the two actors are less than or equal to the distance specified from each other
+       * @method within
+       * @param actor {Actor} Actor to test
+       * @param distance {number} Distance in pixels to test
+       * @returns boolean
+       */
       public within(actor: Actor, distance: number): boolean {
          return Math.sqrt(Math.pow(this.x - actor.x, 2) + Math.pow(this.y - actor.y, 2)) <= distance;
-      }
+      }      
 
-      // Add an animation to Actor's list
-      public addDrawing(key: any, drawing: IDrawable) {
-         this.frames[<string>key] = drawing;
-         if (!this.currentDrawing) {
-            this.currentDrawing = drawing;
-         }
-      }
-
-      // Actions
+      /**
+       * Clears all queued actions from the Actor
+       * @method clearActions
+       */
       public clearActions(): void {
          this.actionQueue.clearActions();
       }
 
+      /**
+       * This method will move an actor to the specified x and y position at the 
+       * speed specified (in pixels per second) and return back the actor. This 
+       * method is part of the actor 'Action' fluent API allowing action chaining.
+       * @method moveTo
+       * @param x {number} The x location to move the actor to
+       * @param y {number} The y location to move the actor to
+       * @param speed {number} The speed in pixels per second to move
+       * @returns Actor
+       */
       public moveTo(x: number, y: number, speed: number): Actor {
          this.actionQueue.add(new ex.Internal.Actions.MoveTo(this, x, y, speed));
          return this;
       }
 
+      /**
+       * This method will move an actor to the specified x and y position by a 
+       * certain time (in milliseconds). This method is part of the actor 
+       * 'Action' fluent API allowing action chaining.
+       * @method moveBy
+       * @param x {number} The x location to move the actor to
+       * @param y {number} The y location to move the actor to
+       * @param time {number} The time it should take the actor to move to the new location in milliseconds
+       * @returns Actor
+       */
       public moveBy(x: number, y: number, time: number): Actor {
          this.actionQueue.add(new ex.Internal.Actions.MoveBy(this, x, y, time));
          return this;
       }
 
+      /**
+       * This method will rotate an actor to the specified angle at the speed
+       * specified (in radians per second) and return back the actor. This 
+       * method is part of the actor 'Action' fluent API allowing action chaining.
+       * @method rotateTo
+       * @param angleRadians {number} The angle to rotate to in radians
+       * @param speed {number} The angular velocity of the rotation specified in radians per second
+       * @returns Actor
+       */
       public rotateTo(angleRadians: number, speed: number): Actor {
          this.actionQueue.add(new ex.Internal.Actions.RotateTo(this, angleRadians, speed));
          return this;
       }
 
+      /**
+       * This method will rotate an actor to the specified angle by a certain
+       * time (in milliseconds) and return back the actor. This method is part
+       * of the actor 'Action' fluent API allowing action chaining.
+       * @method rotateBy
+       * @param angleRadians {number} The angle to rotate to in radians
+       * @param time {number} The time it should take the actor to complete the rotation in milliseconds
+       * @returns Actor
+       */
       public rotateBy(angleRadians: number, time: number): Actor {
          this.actionQueue.add(new ex.Internal.Actions.RotateBy(this, angleRadians, time));
          return this;
       }
 
+      /**
+       * This method will scale an actor to the specified size at the speed
+       * specified (in magnitude increase per second) and return back the 
+       * actor. This method is part of the actor 'Action' fluent API allowing 
+       * action chaining.
+       * @method scaleTo
+       * @param size {number} The scaling factor to apply
+       * @param speed {number} The speed of scaling specified in magnitude increase per second
+       * @returns Actor
+       */
       public scaleTo(size: number, speed: number): Actor {
          this.actionQueue.add(new ex.Internal.Actions.ScaleTo(this, size, speed));
          return this;
       }
 
+      /**
+       * This method will scale an actor to the specified size by a certain time
+       * (in milliseconds) and return back the actor. This method is part of the
+       * actor 'Action' fluent API allowing action chaining.
+       * @method scaleBy
+       * @param size {number} The scaling factor to apply
+       * @param time {number} The time it should take to complete the scaling in milliseconds
+       * @returns Actor
+       */
       public scaleBy(size: number, time: number): Actor {
          this.actionQueue.add(new ex.Internal.Actions.ScaleBy(this, size, time));
          return this;
       }
 
+      /**
+       * This method will cause an actor to blink (become visible and and 
+       * invisible) at a frequency (blinks per second) for a duration (in
+       * milliseconds). Optionally, you may specify blinkTime, which indicates
+       * the amount of time the actor is invisible during each blink.<br/>
+       * To have the actor blink 3 times in 1 second, call actor.blink(3, 1000).<br/>
+       * This method is part of the actor 'Action' fluent API allowing action chaining.
+       * @method blink
+       * @param frequency {number} The blinks per second 
+       * @param duration {number} The total duration of the blinking specified in milliseconds
+       * @param [blinkTime=200] {number} The amount of time each blink that the actor is visible in milliseconds
+       * @returns Actor
+       */
       public blink(frequency: number, duration: number, blinkTime?: number): Actor {
          this.actionQueue.add(new ex.Internal.Actions.Blink(this, frequency, duration, blinkTime));
          return this;
       }
 
-      public delay(seconds: number): Actor {
-         this.actionQueue.add(new ex.Internal.Actions.Delay(this, seconds));
+      /**
+       * This method will delay the next action from executing for a certain 
+       * amount of time (in milliseconds). This method is part of the actor 
+       * 'Action' fluent API allowing action chaining.
+       * @method delay
+       * @param time {number} The amount of time to delay the next action in the queue from executing in milliseconds
+       * @returns Actor
+       */
+      public delay(time: number): Actor {
+         this.actionQueue.add(new ex.Internal.Actions.Delay(this, time));
          return this;
       }
 
+      /**
+       * This method will cause the actor to repeat all of the previously 
+       * called actions a certain number of times. If the number of repeats 
+       * is not specified it will repeat forever. This method is part of 
+       * the actor 'Action' fluent API allowing action chaining
+       * @method repeat
+       * @param [times=undefined] {number} The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will repeat forever
+       * @returns Actor
+       */
       public repeat(times?: number): Actor {
          if (!times) {
             this.repeatForever();
@@ -418,11 +817,25 @@ module ex {
          return this;
       }
 
+      /**
+       * This method will cause the actor to repeat all of the previously 
+       * called actions forever. This method is part of the actor 'Action'
+       * fluent API allowing action chaining.
+       * @method repeatForever
+       * @returns Actor
+       */
       public repeatForever(): Actor {
          this.actionQueue.add(new ex.Internal.Actions.RepeatForever(this, this.actionQueue.getActions()));
          return this;
       }
 
+      /**
+       * This method will cause the actor to follow another at a specified distance
+       * @method follow
+       * @param actor {Actor} The actor to follow
+       * @param [followDistance=currentDistance] {number} The distance to maintain when following, if not specified the actor will follow at the current distance.
+       * @returns Actor
+       */
       public follow(actor : Actor, followDistance? : number) : Actor {
       if (followDistance == undefined){
             this.actionQueue.add(new ex.Internal.Actions.Follow(this, actor));
@@ -432,6 +845,14 @@ module ex {
       return this;
       }
 
+      /**
+       * This method will cause the actor to move towards another until they 
+       * collide "meet" at a specified speed.
+       * @method meet
+       * @param actor {Actor} The actor to meet
+       * @param [speed=0] {number} The speed in pixels per second to move, if not specified it will match the speed of the other actor
+       * @returns Actor
+       */
       public meet(actor: Actor, speed? : number) : Actor {
          if(speed == undefined){
                this.actionQueue.add(new ex.Internal.Actions.Meet(this, actor));
@@ -441,6 +862,12 @@ module ex {
          return this;
       }
 
+      /**
+       * Called by the Engine, updates the state of the actor
+       * @method update 
+       * @param engine {Engine} The reference to the current game engine
+       * @param delta {number} The time elapsed since the last update in milliseconds
+       */
       public update(engine: Engine, delta: number) {
          this.sceneNode.update(engine, delta);
          var eventDispatcher = this.eventDispatcher;
@@ -545,6 +972,12 @@ module ex {
       }
 
 
+      /**
+       * Called by the Engine, draws the actor to the screen
+       * @method draw
+       * @param ctx {CanvasRenderingContext2D} The rendering context
+       * @param delta {number} The time since the last draw in milliseconds
+       */
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
 
          ctx.save();
@@ -580,6 +1013,11 @@ module ex {
          ctx.restore();
       }
 
+      /**
+       * Called by the Engine, draws the actors debugging to the screen
+       * @method debugDraw
+       * @param ctx {CanvasRenderingContext2D} The rendering context
+       */
       public debugDraw(ctx: CanvasRenderingContext2D) {
          
          // Meant to draw debug information about actors
@@ -598,6 +1036,19 @@ module ex {
       }
    }
 
+   /**
+    * Labels are the way to draw small amounts of text to the screen in Excalibur. They are
+    * actors and inherit all of the benifits and capabilities.
+    * @class Label
+    * @extends Actor
+    * @constructor
+    * @param [text=empty] {string} The text of the label
+    * @param [x=0] {number} The x position of the label
+    * @param [y=0] {number} The y position of the label
+    * @param [font=sans-serif] {string} Use any valid css font string for the label's font. Default is "10px sans-serif".
+    * @param [spriteFont=undefined] {SpriteFont} Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precendence over a css font.
+    *
+    */
    export class Label extends Actor {
       public text: string;
       public spriteFont: SpriteFont;
@@ -642,6 +1093,19 @@ module ex {
 
    }
 
+   /**
+    * Triggers a method of firing arbitrary code on collision. These are useful
+    * as 'buttons', 'switches', or to trigger effects in a game. By defualt triggers
+    * are invisible, and can only be seen with debug mode enabled on the Engine.
+    * @class Trigger
+    * @constructor
+    * @param [x=0] {number} The x position of the trigger
+    * @param [y=0] {number} The y position of the trigger
+    * @param [width=0] {number} The width of the trigger
+    * @param [height=0] {number} The height of the trigger
+    * @param [action=null] {()=>void} Callback to fire when trigger is activated
+    * @param [repeats=1] {number} The number of times that this trigger should fire, by default it is 1, if -1 is supplied it will fire indefinitely
+    */
    export class Trigger extends Actor {
       private action : ()=>void = ()=>{};
       public repeats : number = 1;

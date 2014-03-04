@@ -105,7 +105,7 @@ module ex {
             }
          }
 
-         console.log("zoom increment: " + this.zoomIncrement);
+         // console.log("zoom increment: " + this.zoomIncrement);
       }
 
       /**
@@ -213,6 +213,11 @@ module ex {
    */
    export class TopCamera extends BaseCamera {
 
+      /**
+       * Returns the focal point of the camera
+       * @method getFocus
+       * @returns Point
+       */
       getFocus() {
          if (this.follow) {
             return new Point((-this.follow.x * this.getCurrentZoomScale()) + (this.engine.width * this.getCurrentZoomScale()) / 2.0, 

@@ -89,7 +89,7 @@ module.exports = function (grunt) {
             options: {
                stdout: true
             }
-         },
+         },         
 
          //
          // TypeScript Compile Jasmine specs
@@ -119,6 +119,17 @@ module.exports = function (grunt) {
                stdout: true,
                failOnError: true
             }
+         },
+
+         //
+         // Build documentation site
+         //
+         docs: {
+            command: 'yuidoc --helpers ./docs/strip.js --themedir ./docs/excalibur --norecurse --extension .ts --outdir ./docs/out ./ts ',
+            options: {
+               stdout: true,
+               failOnError: true
+            }
          }
       },
 
@@ -133,8 +144,6 @@ module.exports = function (grunt) {
             ]
          }
       },
-
-
 
       //
       // Watch the source dirs and run shell tasks (re-compile) if they change
@@ -174,5 +183,8 @@ module.exports = function (grunt) {
 
    // Travis task - for Travis CI
    grunt.registerTask('travis', 'default');
+
+   // Generate documentation site
+   grunt.registerTask('docs', 'shell:docs');
 
 };

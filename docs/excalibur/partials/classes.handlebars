@@ -1,0 +1,84 @@
+<section class="docs">
+ <div class="grid">
+
+   
+   <div class="unit four-fifths">
+     <article>
+      <h1>{{moduleName}}</h1>
+      {{#if uses}}
+          Uses:
+          {{#each uses}}
+              <a href="{{this}}.html">{{this}}</a>
+          {{/each}}
+          <br>
+      {{/if}}
+      {{#if extension_for}}
+          Extension For:
+          {{#each extension_for}}
+              <a href="{{this}}.html">{{this}}</a>
+          {{/each}}
+          <br>
+      {{/if}}
+      {{#if extends}}
+          Extends: {{#crossLink extends}}{{/crossLink}}<br>
+      {{/if}}
+      <div class="intro">{{{classDescription}}}</div>
+
+      {{#if is_constructor}}
+         <h2>Constructor</h2>
+          {{#is_constructor}}
+          {{>method}}
+          {{/is_constructor}}
+      {{/if}}
+    <div>
+          {{#if methods}}
+        <h2>Methods</h2>
+        {{/if}}
+        {{#if methods}}
+            <div id="methods">
+            {{#methods}}
+               {{#ifNotPrivate access}}
+               {{>method}}
+               {{/ifNotPrivate}}
+            {{/methods}}
+            </div>
+        {{/if}}
+        {{#if properties}}
+        <h2>Properties</h2>
+        {{#if properties}}
+            <div id="props">
+            {{#properties}}
+                {{>props}}
+            {{/properties}}
+            </div>
+        {{/if}}
+         {{/if}}
+        {{#if attrs}}
+        <h2>Attributes</h2>
+        {{/if}}
+        {{#if attrs}}
+            <div id="attrs">
+            {{#attrs}}
+                {{>attrs}}
+            {{/attrs}}
+            </div>
+        {{/if}}
+        {{#if events}}
+        <h2>Events</h2>
+        {{/if}}
+        {{#if events}}
+            <div id="events">
+            {{#events}}
+                {{>events}}
+            {{/events}}
+            </div>
+        {{/if}}
+    </div>
+    
+</div>
+{{#if name}}
+  {{>side-nav}}
+{{/if}}
+<div class="clear"></div>
+
+</section>

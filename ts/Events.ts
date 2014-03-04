@@ -3,7 +3,86 @@
 /// <reference path="Log.ts" />
 
 module ex {
+   /**
+    * An enum representing all of the built in event types for Excalibur
+    * @class EventType
+    */
    export enum EventType {
+      /**
+       @property KeyDown {EventType}
+       @static
+       @final
+       */
+       /**
+       @property KeyUp {EventType}
+       @static
+       @final
+       */
+       /**
+       @property KeyPress {EventType}
+       @static
+       @final
+       */
+       /**
+       @property MouseDown {EventType}
+       @static
+       @final
+       */
+       /**
+       @property MouseMove {EventType}
+       @static
+       @final
+       */
+       /**
+       @property MouseUp {EventType}
+       @static
+       @final
+       */
+       /**
+       @property TouchStart {EventType}
+       @static
+       @final
+       */
+       /**
+       @property TouchMove {EventType}
+       @static
+       @final
+       */
+       /**
+       @property TouchEnd {EventType}
+       @static
+       @final
+       */
+       /**
+       @property TouchCancel {EventType}
+       @static
+       @final
+       */
+       /**
+       @property Click {EventType}
+       @static
+       @final
+       */
+       /**
+       @property UserEvent {EventType}
+       @static
+       @final
+       */
+       /**
+       @property Blur {EventType}
+       @static
+       @final
+       */
+       /**
+       @property Focus {EventType}
+       @static
+       @final
+       */
+       /**
+       @property Update {EventType}
+       @static
+       @final
+       */
       KeyDown,
       KeyUp,
       KeyPress,
@@ -143,6 +222,12 @@ module ex {
       }
    }
 
+   /**
+    * Excalibur's internal queueing event dispatcher. Callbacks are queued up and not fired until the update is called.
+    * @class EventDispatcher
+    * @constructor
+    * @param target {any} The object that will be the recipient of events from this event dispatcher
+    */
    export class EventDispatcher {
       private _handlers: { [key: string]: { (event?: GameEvent): void }[]; } = {};
       private queue: { (any: void): void }[] = [];
@@ -152,6 +237,12 @@ module ex {
          this.target = target;
       }
 
+      /**
+       * Publish an event for target
+       * @method publish
+       * @param eventName {string} The name of the event to publish
+       * @param [event=undefined] {GameEvent} Optionally pass an event data object to the handler
+       */
       public publish(eventName: string, event?: GameEvent) {
          if (!eventName) {
             // key not mapped
@@ -169,6 +260,12 @@ module ex {
          }
       }
 
+      /**
+       * Subscribe an event handler to a particular event name, multiple handlers per event name are allowed.
+       * @method subscribe
+       * @param eventName {string} The name of the event to subscribe to
+       * @param handler {GameEvent=>void} The handler callback to fire on this event
+       */
       public subscribe(eventName: string, handler: (event?: GameEvent) => void) {
          eventName = eventName.toLowerCase();
          if (!this._handlers[eventName]) {
@@ -177,6 +274,15 @@ module ex {
          this._handlers[eventName].push(handler);
       }
 
+      /**
+       * Unsubscribe a event handler(s) from an event. If a specific handler
+       * is specified for an event, only that handler will be unsubscribed. 
+       * Otherwise all handlers will be unsubscribed for that event.
+       * @method unsubscribe
+       * @param eventName {string} The name of the event to unsubscribe
+       * @param [handler=undefined] Optionally the specific handler to unsubscribe
+       *
+       */
       public unsubscribe(eventName: string, handler?: (event?: GameEvent) => void){
          eventName = eventName.toLowerCase();
          var eventHandlers = this._handlers[eventName];
@@ -192,6 +298,10 @@ module ex {
          }
       }
 
+      /**
+       * Dispatches all queued events to their handlers for execution.
+       * @method update
+       */
       public update() {
          var callback;
          while (callback = this.queue.shift()) {

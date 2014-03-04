@@ -5,6 +5,8 @@
 sample-game/ts/*.js
 spec/*.js
 node_modules/
+/docs/out/*.*
+/docs/out/
 
 # Logs and databases #
 ######################
@@ -34,3 +36,4 @@ obj/
 *.user
 *.suo
 *.map
+*.orig

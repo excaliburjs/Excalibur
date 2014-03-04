@@ -1,0 +1,34 @@
+{
+    "yuiGridsUrl": "http://yui.yahooapis.com/3.8.0pr2/build/cssgrids/cssgrids-min.css",
+    "yuiSeedUrl": "http://yui.yahooapis.com/combo?3.8.0pr2/build/yui/yui-min.js",
+    "headings":[
+      {
+         "name":"Core",
+         "values":["Actor", "Scene", "Engine", "Label", "Class", "Color", "Trigger", "DisplayMode", "Side"]
+      },
+      {
+         "name":"Media",
+         "values":["Sound", "Texture", "Polygon", "Animation", "Sprite", "SpriteSheet", "SpriteFont"]
+      },
+      {
+         "name":"Cameras",
+         "values": ["TopCamera", "SideCamera"]
+      },
+      {
+         "name":"Effects",
+         "values": ["ParticleEmitter", "Grayscale", "Invert", "Opacity"]
+      },
+      {
+         "name":"Utility",
+         "values": ["Loader", "Promise", "PromiseState", "Timer", "Collection", "EventDispatcher", "EventType", "Logger", "LogLevel", "ConsoleAppender", "ScreenAppender"]
+      },
+      {
+         "name": "Math",
+         "values":["Point", "Vector"]
+      },
+      {
+         "name": "Interfaces",
+         "values": ["IAppender", "IDrawable", "ILoadable", "InputKey", "ISpriteEffect"]
+      }
+   ]
+}
