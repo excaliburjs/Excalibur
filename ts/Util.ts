@@ -144,7 +144,7 @@ var myActor = new MyActor(100, 100, 100, 100, Color.Azure);</pre>
 
    /**
     * Excaliburs dynamically resizing collection
-    * @class Collection<T>
+    * @class Collection
     * @contsructor
     * @param [initialSize=200] {number} Initial size of the internal backing array
     */

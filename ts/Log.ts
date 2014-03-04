@@ -49,9 +49,6 @@ module ex {
       private static _instance: Logger = null;
       private appenders: IAppender[] = [];      
 
-      /**
-       * Use Logger.getInstance() to retrieve the logging instance.
-       */
       constructor() {
          if (Logger._instance) {
             throw new Error("Logger is a singleton");
@@ -214,9 +211,6 @@ module ex {
       private canvas: HTMLCanvasElement;
       private ctx: CanvasRenderingContext2D;
 
-      /**
-       * Creates a new `ScreenAppender` with the given width and height
-       */
       constructor(width?: number, height?: number) {
          this.canvas = <HTMLCanvasElement>document.createElement('canvas');
          this.canvas.width = width || window.innerWidth;

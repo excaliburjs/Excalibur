@@ -23,6 +23,7 @@
   "devDependencies": {
     "typescript": "0.9.7",
     "jasmine-node": "1.10.2",
+    "yuidoc": "0.3.48",
     "grunt": "0.4.2",
     "grunt-shell": "0.6.1",
     "grunt-minified": "0.0.6",

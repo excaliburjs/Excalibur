@@ -3,6 +3,9 @@ module.exports = {
          var rex = /<\/?.*?>/g;
          return item.replace(rex, "").replace('\n','').replace('\r','');
     },
+    toLower: function(item){
+      return item.toLowerCase();
+    },
     isNotPrivate: function(item){
       var access = item.access || "";
       if(!(access.toLowerCase().indexOf('private') > -1)){

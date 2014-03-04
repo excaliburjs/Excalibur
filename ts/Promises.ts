@@ -36,7 +36,7 @@ module ex {
 
    /**
     * Promises/A+ spec implementation of promises
-    * @class Promise<T>
+    * @class Promise
     * @constructor
     */
    export class Promise<T> implements IPromise<T> {

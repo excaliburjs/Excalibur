@@ -1171,6 +1171,7 @@ module ex {
 
       /**
        * Stops Excalibur's mainloop, useful for pausing the game.
+       * @method stop
        */
       public stop() {
          if (this.hasStarted) {

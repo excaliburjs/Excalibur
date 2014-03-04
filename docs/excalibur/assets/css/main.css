@@ -221,6 +221,10 @@ nav li {
   width: 100px;
   vertical-align: middle;
 }
+.yui {
+   width: 100px;
+   vertical-align: middle;
+}
 
 .border {
   border: solid;

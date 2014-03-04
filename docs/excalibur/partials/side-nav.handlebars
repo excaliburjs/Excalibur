@@ -1,11 +1,18 @@
 <div class="unit one-fifth hide-on-mobiles">
   <aside>
-    <h4>Getting Started</h4>     
-    <h4>Excalibur</h4>
+    <h4>Getting Started</h4>
+      <ul>
+      <li><a href="/docs/home/">Welcome</a></li>
+      <li><a href="/docs/install/">Installation</a></li>
+      <li><a href="/docs/quickstart/">Quick Start</a></li>
+      </ul>
     <ul>
-      {{#classes}}
-      <li><a href="{{../projectRoot}}classes/{{name}}.html">{{displayName}}</a></li>
-      {{/classes}}
+      {{#headings}}
+         <h4>{{name}}</h4>
+         {{#each values}}
+         <li><a href="/classes/{{this}}.html">{{this}}</a></li>
+         {{/each}}
+      {{/headings}}
    </ul>
   </aside>
 </div>
