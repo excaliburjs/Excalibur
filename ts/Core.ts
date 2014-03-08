@@ -833,12 +833,12 @@ module ex {
          });
 
          window.addEventListener('blur', () => {
-            this.eventDispatcher.publish(EventType[EventType.Blur]);
+            this.eventDispatcher.publish(EventType[EventType.Blur], new BlurEvent());
             this.eventDispatcher.update();
          });
 
          window.addEventListener('focus', () => {
-            this.eventDispatcher.publish(EventType[EventType.Focus]);
+            this.eventDispatcher.publish(EventType[EventType.Focus], new FocusEvent());
             this.eventDispatcher.update();
          });
 
@@ -1033,7 +1033,7 @@ module ex {
 
          var eventDispatcher = this.eventDispatcher;
          this.keys.forEach(function (key) {
-            eventDispatcher.publish(InputKey[key], new KeyEvent(this, key));
+            eventDispatcher.publish(InputKey[key], new KeyEvent(key));
          });
 
          // update animations

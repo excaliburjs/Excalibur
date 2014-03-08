@@ -12,6 +12,7 @@ var imageJump = new ex.Texture('../images/PlayerJump.png');
 var imageBlocks = new ex.Texture('../images/BlockA0.png');
 var spriteFontImage = new ex.Texture('../images/SpriteFont.png');
 var jump = new ex.Sound('../sounds/jump.wav', '../sounds/jump.mp3');
+jump.setVolume(.3);
 
 var loader = new ex.Loader();
 loader.addResource(imageRun);
@@ -261,7 +262,7 @@ player.addEventListener('update', (data?: ex.UpdateEvent)=>{
    // apply gravity if player is in the air
    // only apply gravity when not colliding
    if(!isColliding){
-      player.dy += 800 * data.delta/1000;
+      data.target.dy += 800 * data.delta/1000;
    }
 
    // Reset values because we don't know until we check the next update
@@ -345,6 +346,7 @@ var trigger = new ex.Trigger(400, 200, 100, 100, ()=>{
    if(!exploding){
       exploding = true;
       emitter.isEmitting = true;
+      camera.shake(10, 10, 2000);
       game.addTimer(new ex.Timer(()=>{
          emitter.isEmitting = false;
          exploding = false;

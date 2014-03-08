@@ -921,7 +921,7 @@ module ex {
 
          // Publish other events
          engine.keys.forEach(function (key) {
-            eventDispatcher.publish(InputKey[key], new KeyEvent(this, key));
+            eventDispatcher.publish(InputKey[key], new KeyEvent(key));
          });
 
          // Publish click events

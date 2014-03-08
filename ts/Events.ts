@@ -101,58 +101,174 @@ module ex {
       Update
    }
 
+   /**
+    * Base event type in Excalibur that all other event types derive from.
+    *
+    * @class GameEvent
+    * @constructor 
+    * @param target {any} Events can have target game object, like the Engine, or an Actor.
+    */
    export class GameEvent {
-      constructor() { }
+      /**
+       * Target object for this event.
+       * @property target {any}
+       */
+      public target: any;
+      constructor() { 
+      }
    }
 
+   /**
+    * Event received by the Engine when the browser window receives focus
+    *
+    * @class FocusEvent
+    * @extends GameEvent
+    * @constructor 
+    */
+   export class FocusEvent extends GameEvent {
+      constructor(){
+         super();
+      }
+   }
+
+   /**
+    * Event received by the Engine when the browser window is blurred
+    *
+    * @class BlurEvent
+    * @extends GameEvent
+    * @constructor 
+    */
+   export class BlurEvent extends GameEvent {
+      constructor(){
+         super();
+      }
+   }
+
+   /**
+    * Event thrown on an actor when a collision has occured
+    *
+    * @class CollisionEvent
+    * @extends GameEvent
+    * @constructor 
+    * @param actor {Actor} The actor the event was thrown on
+    * @param other {Actor} The actor that was collided with
+    * @param side {Side} The side that was collided with
+    */
    export class CollisionEvent extends GameEvent {
       constructor(public actor: Actor, public other: Actor, public side: Side) {
          super();
       }
    }
 
+   /**
+    * Event thrown on a game object on Excalibur update
+    *
+    * @class UpdateEvent
+    * @extends GameEvent
+    * @constructor 
+    * @param delta {number} The number of milliseconds since the last update
+    */
    export class UpdateEvent extends GameEvent {
       constructor(public delta: number) {
          super();
       }
    }
 
+   /**
+    * Event thrown on a game object on KeyEvent
+    *
+    * @class KeyEvent
+    * @extends GameEvent
+    * @constructor 
+    * @param key {InputKey} The key responsible for throwing the event
+    */
    export class KeyEvent extends GameEvent {
-      constructor(public actor: Actor, public key: InputKey) {
+      constructor(public key: InputKey) {
          super();
       }
    }
-
+   
+   /**
+    * Event thrown on a game object on KeyDown
+    *
+    * @class KeyDown
+    * @extends GameEvent
+    * @constructor 
+    * @param key {InputKey} The key responsible for throwing the event
+    */
    export class KeyDown extends GameEvent {
       constructor(public key: InputKey) {
          super();
       }
    }
 
+   /**
+    * Event thrown on a game object on KeyUp
+    *
+    * @class KeyUp
+    * @extends GameEvent
+    * @constructor 
+    * @param key {InputKey} The key responsible for throwing the event
+    */
    export class KeyUp extends GameEvent {
       constructor(public key: InputKey) {
          super();
       }
    }
 
+   /**
+    * Event thrown on a game object on KeyPress
+    *
+    * @class KeyPress
+    * @extends GameEvent
+    * @constructor 
+    * @param key {InputKey} The key responsible for throwing the event
+    */
    export class KeyPress extends GameEvent {
       constructor(public key: InputKey) {
          super();
       }
    }
 
+   /**
+    * Event thrown on a game object on MouseDown
+    *
+    * @class MouseDown
+    * @extends GameEvent
+    * @constructor 
+    * @param x {number} The x coordinate of the event
+    * @param y {number} The y coordinate of the event
+    */
    export class MouseDown extends GameEvent {
       constructor(public x: number, public y: number) {
          super();
       }
    }
 
+   /**
+    * Event thrown on a game object on MouseMove
+    *
+    * @class MouseMove
+    * @extends GameEvent
+    * @constructor 
+    * @param x {number} The x coordinate of the event
+    * @param y {number} The y coordinate of the event
+    */
    export class MouseMove extends GameEvent {
       constructor(public x: number, public y: number) {
          super();
       }
    }
 
+   /**
+    * Event thrown on a game object on MouseUp
+    *
+    * @class MouseUp
+    * @extends GameEvent
+    * @constructor 
+    * @param x {number} The x coordinate of the event
+    * @param y {number} The y coordinate of the event
+    */
    export class MouseUp extends GameEvent {
       constructor(public x: number, public y: number) {
          super();
@@ -180,6 +296,15 @@ module ex {
    //   item(i: number): Touch;
    //}
 
+   /**
+    * Event thrown on a game object on TouchEvent
+    *
+    * @class TouchEvent
+    * @extends GameEvent
+    * @constructor 
+    * @param x {number} The x coordinate of the event
+    * @param y {number} The y coordinate of the event
+    */
    export interface TouchEvent extends Event {
       altKey: boolean;
       changedTouches: Touch[];
@@ -192,30 +317,75 @@ module ex {
       target: Element;
    }   
 
+   /**
+    * Event thrown on a game object on TouchStart
+    *
+    * @class TouchStart
+    * @extends GameEvent
+    * @constructor 
+    * @param x {number} The x coordinate of the event
+    * @param y {number} The y coordinate of the event
+    */
    export class TouchStart extends GameEvent {
       constructor(public x: number, public y: number) {
          super();
       }
    }
 
+   /**
+    * Event thrown on a game object on TouchMove
+    *
+    * @class TouchMove
+    * @extends GameEvent
+    * @constructor 
+    * @param x {number} The x coordinate of the event
+    * @param y {number} The y coordinate of the event
+    */
    export class TouchMove extends GameEvent {
       constructor(public x: number, public y: number) {
          super();
       }
    }
 
+   /**
+    * Event thrown on a game object on TouchEnd
+    *
+    * @class TouchEnd
+    * @extends GameEvent
+    * @constructor 
+    * @param x {number} The x coordinate of the event
+    * @param y {number} The y coordinate of the event
+    */
    export class TouchEnd extends GameEvent {
       constructor(public x: number, public y: number) {
          super();
       }
    }
 
+   /**
+    * Event thrown on a game object on TouchCancel
+    *
+    * @class TouchCancel
+    * @extends GameEvent
+    * @constructor 
+    * @param x {number} The x coordinate of the event
+    * @param y {number} The y coordinate of the event
+    */
    export class TouchCancel extends GameEvent {
       constructor(public x: number, public y: number) {
          super();
       }
    }
 
+   /**
+    * Event thrown on a game object on Click
+    *
+    * @class Click
+    * @extends GameEvent
+    * @constructor 
+    * @param x {number} The x coordinate of the event
+    * @param y {number} The y coordinate of the event
+    */
    export class Click extends GameEvent {
       constructor(public x: number, public y: number) {
          super();
@@ -251,6 +421,7 @@ module ex {
          eventName = eventName.toLowerCase();
          var queue = this.queue;
          var target = this.target;
+         event.target = target;
          if (this._handlers[eventName]) {
             this._handlers[eventName].forEach(function (callback) {
                queue.push(function () {
