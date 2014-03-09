@@ -1075,7 +1075,7 @@ module ex {
          ctx.rotate(this.rotation);
          if (!this.invisible) {
             if (this.spriteFont) {
-               this.spriteFont.draw(ctx, 0, 0, this.text);
+               this.spriteFont.draw(ctx, 0, 0, this.text, this.color);
             } else {
                ctx.fillStyle = this.color.toString();
                ctx.font = this.font;
