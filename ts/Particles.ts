@@ -6,6 +6,23 @@
 
 module ex {
 
+   /**
+    * An enum that represents the types of emitter nozzles
+    * @class EmitterType
+    */ 
+   export enum EmitterType {
+      /**
+       * Constant for the circular emitter type
+       * @property Circle {EmitterType}
+       */
+      Circle,
+      /**
+       * Constant for the rectangular emitter type
+       * @property Rectangle {EmitterType}
+       */
+      Rectangle
+   }
+
    
    export class Particle {
       public position: Vector = new Vector(0, 0);
@@ -214,6 +231,18 @@ module ex {
        */
       public particleSprite: ex.Sprite = null;
 
+      /**
+       * Gets or sets the emitter type for the particle emitter
+       * @property [emitterType=EmitterType.Rectangle] {EmitterType}
+       */
+      public emitterType: ex.EmitterType = EmitterType.Rectangle;
+
+      /**
+       * Gets or sets the emitter radius, only takes effect when the emitterType is Circle
+       * @property [radius=0] {number}
+       */
+      public radius: number = 0;
+
       constructor(x?: number, y?: number, width?: number, height?: number) {    
          super(x, y, width, height, Color.White);
          this.preventCollisions = true;
@@ -243,14 +272,23 @@ module ex {
       // Creates a new particle given the contraints of the emitter
       private createParticle(): Particle {
          // todo implement emitter contraints;
-         var ranX = Util.randomInRange(this.x, this.x + this.getWidth());
-         var ranY = Util.randomInRange(this.y, this.y + this.getHeight());
+         var ranX = 0;
+         var ranY = 0;
 
          var angle = Util.randomInRange(this.minAngle, this.maxAngle);
          var vel = Util.randomInRange(this.minVel, this.maxVel);
          var size = Util.randomInRange(this.minSize, this.maxSize);
          var dx = vel * Math.cos(angle);
          var dy = vel * Math.sin(angle);
+
+         if(this.emitterType === EmitterType.Rectangle){
+            ranX = Util.randomInRange(this.x, this.x + this.getWidth());
+            ranY = Util.randomInRange(this.y, this.y + this.getHeight());
+         }else if(this.emitterType === EmitterType.Circle){
+            var radius = Util.randomInRange(0, this.radius);
+            ranX = radius * Math.cos(angle) + this.x;
+            ranY = radius * Math.sin(angle) + this.y;
+         }         
          
          var p = new Particle(this, this.particleLife, this.opacity, this.beginColor, this.endColor, new Vector(ranX, ranY), new Vector(dx, dy), this.acceleration);
          p.fade = this.fade;

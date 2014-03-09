@@ -1,6 +1,8 @@
 var game = new ex.Engine(null, null, "game");
 game.backgroundColor = ex.Color.Black;
 var emitter = new ex.ParticleEmitter(game.getWidth()/2, game.getHeight()/2, 2, 2);
+emitter.emitterType = ex.EmitterType.Rectangle;
+emitter.radius = 5;
 emitter.minVel = 100;
 emitter.maxVel = 200;
 emitter.minAngle = 0;
@@ -27,6 +29,13 @@ var EmitterViewModel = function(){
          me.colors.push({name: color, value: ex.Color[color]});
       }
    }
+   me.emitterTypes = [];
+   for(var type in ex.EmitterType){
+      if(ex.EmitterType.hasOwnProperty(type) && isNaN(type)){
+         me.emitterTypes.push({name: type, value: ex.EmitterType[type]});
+      }
+   }
+
    me.colors.reverse();
    me.x = ko.observable(0);
    me.y = ko.observable(0);
@@ -38,6 +47,8 @@ var EmitterViewModel = function(){
    me.maxSize = ko.observable(10);
    me.width = ko.observable(2);
    me.height = ko.observable(2);
+   me.radius = ko.observable(5);
+   me.emitterType = ko.observable(me.emitterTypes[1]);
 
    me.beginColor = ko.observable({name: "Rose", value: ex.Color.Rose});
    me.endColor = ko.observable({name: "Yellow", value: ex.Color.Yellow});
@@ -57,6 +68,14 @@ var EmitterViewModel = function(){
    // setup subscriptions
    me.emitRate.subscribe(function(newRate){
       emitter.emitRate = parseInt(newRate);
+   });
+
+   me.emitterType.subscribe(function(newType){
+      emitter.emitterType = newType.value;
+   });
+
+   me.radius.subscribe(function(newRadius){
+      emitter.radius = newRadius;
    });
 
    me.minVel.subscribe(function(newVel){
@@ -121,6 +140,8 @@ var EmitterViewModel = function(){
 
    me.code = ko.computed(function(){
       return "var emitter = new ex.ParticleEmitter("+me.x()+", "+me.y()+", "+me.width()+", "+me.height()+");\n"+
+      "emitter.emitterType = ex.EmitterType."+me.emitterType().name+";\n"+
+      "emitter.radius = "+me.radius()+";\n"+
       "emitter.minVel = "+me.minVel()+";\n"+
       "emitter.maxVel = "+me.maxVel()+";\n"+
       "emitter.minAngle = "+me.minAngle()+";\n"+

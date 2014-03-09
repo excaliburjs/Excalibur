@@ -16,7 +16,7 @@
       },
       {
          "name":"Effects",
-         "values": ["ParticleEmitter", "Grayscale", "Invert", "Opacity"]
+         "values": ["ParticleEmitter", "EmitterType", "Grayscale", "Invert", "Opacity"]
       },
       {
          "name":"Utility",

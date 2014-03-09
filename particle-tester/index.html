@@ -3,6 +3,7 @@
    <title>Excalibur Particle Tester</title>
    <link rel="stylesheet" type="text/css" href="main.css">
    <link href='http://fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'>
+   <link rel="icon" type="image/x-icon" href="favicon.png" />
 </head>
 <body>
    <div class="surface"> 
@@ -14,6 +15,15 @@
          <label for="emit">Emit Rate<br>(p/s)</label>
          <input type="range" id="emit" min="0" max="1000" step="1" data-bind="value: emitRate">
          <span data-bind="text: emitRate"></span>
+         <br>
+
+         <label for="typeSelect">Emitter Type</label>
+         <select id="typeSelect" data-bind="options: emitterTypes, optionsText: 'name', value: emitterType"></select>
+         <br>
+
+         <label for="radius">Radius<br>(pixels)</label>
+         <input type="range" id="radius" min="0" max="1000" step="1" data-bind="value: radius">
+         <span data-bind="text: radius"></span>
          <br>
 
          <label for="width">Width</label>
