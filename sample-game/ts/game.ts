@@ -370,6 +370,12 @@ game.addEventListener('keyup', (evt?: ex.KeyUp)=>{
    }
 });
 
+game.addEventListener('keyup', (evt?: ex.KeyUp)=>{
+   if(evt.key == ex.InputKey.S){
+      jump.stop();
+   }
+});
+
 
 // Add camera to game
 game.camera = camera;

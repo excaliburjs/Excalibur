@@ -214,7 +214,8 @@ module ex {
     * @param spHeight {number} The height of each character in pixels
     */
    export class SpriteFont extends SpriteSheet {
-      private spriteLookup: { [key: string]: Sprite; } = {};
+      private spriteLookup: { [key: string]: number; } = {};
+      private colorLookup: {[key: string]: Sprite[];} = {};
       constructor(public image: Texture, private alphabet: string, private caseInsensitive: boolean, columns: number, rows: number, spWidth: number, spHeight: number) {
          super(image, columns, rows, spWidth, spHeight);
          for (var i = 0; i < alphabet.length; i++) {
@@ -222,9 +223,27 @@ module ex {
             if (caseInsensitive) {
                char = char.toLowerCase();
             }
-            this.spriteLookup[char] = this.sprites[i];
+            this.spriteLookup[char] = i;
          }
       }
+
+      /**
+       * Sets the color of the sprite font by applying the Fill effect to the underlying sprites.
+       * @method setColor
+       * @private
+       * @param color {Color} The color to apply over the backing sprites for the font
+       */
+      private setColor(color: Color){
+         if(!this.colorLookup[color.toString()]){
+            this.colorLookup[color.toString()] = this.sprites.map((s)=>{               
+               s.clearEffects();
+               s.addEffect(new Effects.Fill(color));
+               return s.clone();
+            });
+         }
+         this.sprites = this.colorLookup[color.toString()];
+      }
+   
 
       /**
        * Draw a particalur string to rendering context using this font
@@ -233,8 +252,12 @@ module ex {
        * @param x {number} The x position on the canvas to place the text
        * @param y {number} The y position on the canvas to place the text
        * @param text {string} The text to write to the screen
+       * @param [color=undefined] {Color} Optionally a color to fill the text with
        */
-      public draw(ctx: CanvasRenderingContext2D, x: number, y: number, text: string) {
+      public draw(ctx: CanvasRenderingContext2D, x: number, y: number, text: string, color?: Color) {
+         if(color){
+            this.setColor(color);
+         }
          var currX = x;
          for (var i = 0; i < text.length; i++) {
             var character = text[i];
@@ -242,7 +265,7 @@ module ex {
                character = character.toLowerCase();
             }
             try {
-               var charSprite = this.spriteLookup[character];
+               var charSprite = this.sprites[this.spriteLookup[character]];
                charSprite.draw(ctx, currX, y);
                currX += charSprite.swidth;
             } catch (e) {
@@ -320,6 +343,47 @@ module ex {
          }
       }
 
+      /**
+       * Applies the "Colorize" effect to a sprite, changing the color channels of all the pixels to an 
+       * average of the original color and the provided color
+       * @class Effects.Colorize
+       * @extends ISpriteEffect
+       * @constructor
+       * @param color {Color} The color to apply to the sprite
+       */
+      export class Colorize implements ISpriteEffect {
+         constructor(public color: Color){}
+         updatePixel(x: number, y: number, imageData: ImageData): void {
+            var firstPixel = (x+y*imageData.width)*4;
+            var pixel = imageData.data;
+            if(pixel[firstPixel+3] !== 0){
+               pixel[firstPixel+0] = (pixel[firstPixel+0] + this.color.r)/2;
+               pixel[firstPixel+1] = (pixel[firstPixel+1] + this.color.g)/2;
+               pixel[firstPixel+2] = (pixel[firstPixel+2] + this.color.b)/2;
+            }
+         }
+      }
+
+      /**
+       * Applies the "Fill" effect to a sprite, changing the color channels of all non-transparent pixels to match
+       * a given color
+       * @class Effects.Fill
+       * @extends ISpriteEffect
+       * @constructor
+       * @param color {Color} The color to apply to the sprite
+       */
+      export class Fill implements ISpriteEffect {
+         constructor(public color: Color){}
+         updatePixel(x: number, y: number, imageData: ImageData): void {
+            var firstPixel = (x+y*imageData.width)*4;
+            var pixel = imageData.data;
+            if(pixel[firstPixel+3] !== 0){
+               pixel[firstPixel+0] = this.color.r;
+               pixel[firstPixel+1] = this.color.g;
+               pixel[firstPixel+2] = this.color.b;
+            }
+         }
+      }
    }
 
    /**
@@ -514,6 +578,9 @@ module ex {
          result.rotation = this.rotation;
          result.flipHorizontal = this.flipHorizontal;
          result.flipVertical = this.flipVertical;
+         this.effects.forEach((e)=>{
+            result.addEffect(e);
+         });
          return result;
       }
    }
