@@ -200,7 +200,11 @@ module ex.Internal {
 
       public stop() {
          if (this.sound) {
-            this.sound.stop(0);
+            try {
+               this.sound.stop(0);
+            } catch(e) {
+               this.logger.warn("The sound clip", this.path, "has already been stopped!");
+            }
          }
       }
    }
