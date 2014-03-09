@@ -1154,7 +1154,13 @@ module ex {
                // Get the time to calculate time-elapsed
                var now = Date.now();
                var elapsed = Math.floor(now - lastTime) || 1;
-
+               // Resolves issue #138 if the game has been paused, or blurred for 
+               // more than a 200 milliseconds, reset elapsed time to 1. This improves reliability 
+               // and provides more expected behavior when the engine comes back
+               // into focus
+               if(elapsed > 200){
+                  elapsed = 1;
+               }
                game.update(elapsed);
                game.draw(elapsed);
 
