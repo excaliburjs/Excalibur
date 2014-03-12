@@ -55,11 +55,11 @@ game.start();
 
 # Features
 
-* Sprite Sheet Support
+* Sprite sheet support
 * Naive collision detection
 * Event handling
 * Automation layer for actors
-* Sublime Text 2 Project
+* Sublime Text 2 project
 
 # Contributing
 
