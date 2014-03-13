@@ -176,10 +176,10 @@ module.exports = function (grunt) {
    grunt.registerTask('tests', ['shell:specs', 'jasmine_node']);
 
    // Compile sample game
-   grunt.registerTask('sample', ['copy', 'shell:sample']);
+   grunt.registerTask('sample', ['shell:sample']);
 
    // Default task - compile, test, build dists
-   grunt.registerTask('default', ['tests', 'shell:tsc', 'sample', 'minified', 'concat', 'shell:nuget']);
+   grunt.registerTask('default', ['tests', 'shell:tsc', 'sample', 'minified', 'concat', 'copy', 'shell:nuget']);
 
    // Travis task - for Travis CI
    grunt.registerTask('travis', 'default');
