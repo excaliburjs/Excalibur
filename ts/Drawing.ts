@@ -216,62 +216,26 @@ module ex {
    export class SpriteFont extends SpriteSheet {
       private spriteLookup: { [key: string]: number; } = {};
       private colorLookup: {[key: string]: Sprite[];} = {};
+      private _currentColor: Color = Color.Black;
       constructor(public image: Texture, private alphabet: string, private caseInsensitive: boolean, columns: number, rows: number, spWidth: number, spHeight: number) {
          super(image, columns, rows, spWidth, spHeight);
-         for (var i = 0; i < alphabet.length; i++) {
-            var char = alphabet[i];
-            if (caseInsensitive) {
+      }
+
+      /**
+       * Returns a dictionary that maps each character in the alphabet to the appropriate Sprite.
+       * @method getTextSprites
+       * @returns {Object}
+       */
+      public getTextSprites(): { [key: string]: Sprite; }{
+         var lookup: { [key: string]: Sprite; } = {};
+         for (var i = 0; i < this.alphabet.length; i++) {
+            var char = this.alphabet[i];
+            if (this.caseInsensitive) {
                char = char.toLowerCase();
             }
-            this.spriteLookup[char] = i;
+            lookup[char] = this.sprites[i].clone();
          }
-      }
-
-      /**
-       * Sets the color of the sprite font by applying the Fill effect to the underlying sprites.
-       * @method setColor
-       * @private
-       * @param color {Color} The color to apply over the backing sprites for the font
-       */
-      private setColor(color: Color){
-         if(!this.colorLookup[color.toString()]){
-            this.colorLookup[color.toString()] = this.sprites.map((s)=>{               
-               s.clearEffects();
-               s.addEffect(new Effects.Fill(color));
-               return s.clone();
-            });
-         }
-         this.sprites = this.colorLookup[color.toString()];
-      }
-   
-
-      /**
-       * Draw a particalur string to rendering context using this font
-       * @method draw
-       * @param ctx {CanvasRenderingContext2D} The 2D rendering context
-       * @param x {number} The x position on the canvas to place the text
-       * @param y {number} The y position on the canvas to place the text
-       * @param text {string} The text to write to the screen
-       * @param [color=undefined] {Color} Optionally a color to fill the text with
-       */
-      public draw(ctx: CanvasRenderingContext2D, x: number, y: number, text: string, color?: Color) {
-         if(color){
-            this.setColor(color);
-         }
-         var currX = x;
-         for (var i = 0; i < text.length; i++) {
-            var character = text[i];
-            if (this.caseInsensitive) {
-               character = character.toLowerCase();
-            }
-            try {
-               var charSprite = this.sprites[this.spriteLookup[character]];
-               charSprite.draw(ctx, currX, y);
-               currX += charSprite.swidth;
-            } catch (e) {
-               Logger.getInstance().error("SpriteFont Error drawing char " + character);
-            }           
-         }
+         return lookup;
       }
    }
 
@@ -444,7 +408,9 @@ module ex {
        */
       public addEffect(effect: Effects.ISpriteEffect){
          this.effects.push(effect);
-         if(!this.texture.image){
+         // We must check if the texture and the backing sprite pixels are loaded as well before 
+         // an effect can be applied
+         if(!this.texture.isLoaded() || !this.pixelsLoaded){
             this.dirtyEffect = true;
          }else{
             this.applyEffects();
@@ -578,6 +544,7 @@ module ex {
          result.rotation = this.rotation;
          result.flipHorizontal = this.flipHorizontal;
          result.flipVertical = this.flipVertical;
+
          this.effects.forEach((e)=>{
             result.addEffect(e);
          });
