@@ -29,6 +29,13 @@ module ex {
        * @property onerror {any=>void}
        */
       onerror: (e: any) => void;
+
+      /**
+       * Returns true if the loadable is loaded
+       * @method isLoaded
+       * @returns boolean
+       */
+       isLoaded(): boolean;
    }
 
    /**
@@ -58,6 +65,16 @@ module ex {
 
       private _start(e: any) {
          this.logger.debug("Started loading image " + this.path);
+      }
+
+      /**
+       * Returns true if the Texture is completely loaded and is ready
+       * to be drawn.
+       * @method isLoaded 
+       * @returns boolean
+       */
+      public isLoaded(): boolean {
+         return (!!this.image && !!this.image.src);
       }
 
       /**
@@ -117,6 +134,8 @@ module ex {
       public onerror: (e: any) => void = () => { };
 
       public onload: (e: any) => void = () => { };
+
+      private _isLoaded: boolean = false;
 
       /**
        * Populated once loading is complete
@@ -193,6 +212,14 @@ module ex {
       }
 
       /**
+       * Returns true if the sound is loaded
+       * @method isLoaded
+       */
+      public isLoaded(){
+         return this._isLoaded;
+      }
+
+      /**
        * Begins loading the sound and returns a promise to be resolved on completion
        * @method load
        * @returns Promise&lt;Sound&gt;
@@ -203,6 +230,7 @@ module ex {
          this.sound.onprogress = this.onprogress;
          this.sound.onload = () => {
             this.oncomplete();
+            this._isLoaded = true;
             complete.resolve(this.sound);
          }
       this.sound.onerror = (e) => {
@@ -264,10 +292,19 @@ module ex {
 
       private sumCounts(obj): number {
          var sum = 0;
+         var prev = 0;
          for (var i in obj) {
             sum += obj[i] | 0;
          }
          return sum;
+      }
+
+      /**
+       * Returns true if the loader has completely loaded all resources
+       * @method isLoaded
+       */
+      public isLoaded(){
+         return this.numLoaded === this.resourceCount;
       }
 
 
@@ -283,23 +320,31 @@ module ex {
             me.oncomplete.call(me);
             return complete;
          }
+
          this.resourceList.forEach((r, i) => {
             r.onprogress = function (e) {
                var total = <number>e.total;
-               var progress = <number>e.loaded;
+               var progress = <number>e.loaded;               
                me.progressCounts[i] = progress;
                me.totalCounts[i] = total;
+               console.log("Resource", (<any>r).path);
                me.onprogress.call(me, { loaded: me.sumCounts(me.progressCounts), total: me.sumCounts(me.totalCounts) });
             };
             r.oncomplete = function () {
                me.numLoaded++;
                if (me.numLoaded === me.resourceCount) {
                   me.oncomplete.call(me);
-
+                  complete.resolve();
                }
             };
-            r.load();
          });
+         this.resourceList.reduce((loadable, next)=>{
+
+            (<ILoadable>loadable).load().then(function(){
+               next.load();
+            });
+            return next;
+         }, this.resourceList[0]);
 
          return complete;
       }

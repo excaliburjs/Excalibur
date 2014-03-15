@@ -299,13 +299,6 @@ game.addEventListener('keydown', (keyDown? : ex.KeyDown)=>{
    }
 });
 
-game.addEventListener('blur', ()=>{
-   game.stop();
-});
-
-game.addEventListener('focus', ()=>{
-   game.start();
-});
 
 // Create a camera to track the player
 var camera = new ex.SideCamera(game);
