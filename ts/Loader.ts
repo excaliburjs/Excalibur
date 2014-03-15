@@ -94,6 +94,7 @@ module ex {
          request.onload = (e) => {
             this.image.src = URL.createObjectURL(request.response);
             this.oncomplete()
+            this.logger.debug("Completed loading image", this.path);
             complete.resolve(this.image);
          };
          request.onerror = (e) => {
@@ -137,6 +138,8 @@ module ex {
 
       private _isLoaded: boolean = false;
 
+      private _selectedFile: string = "";
+
       /**
        * Populated once loading is complete
        * @property sound {Sound}
@@ -161,20 +164,20 @@ module ex {
           * IE : MP3, 
           * Safari MP3, WAV, Ogg           
           */
-         var selectedFile = "";
+         this._selectedFile = "";
          for(var i = 0; i < paths.length; i++){
             if(Sound.canPlayFile(paths[i])){
-               selectedFile = paths[i];
+               this._selectedFile = paths[i];
                break;
             }               
          }
 
-         if(!selectedFile){
+         if(!this._selectedFile){
             this.logger.warn("This browser does not support any of the files specified");
-            selectedFile = paths[0]; // select the first specified
+            this._selectedFile = paths[0]; // select the first specified
          }
 
-         this.sound = new ex.Internal.FallbackAudio(selectedFile, 1.0);
+         this.sound = new ex.Internal.FallbackAudio(this._selectedFile, 1.0);
       }
 
       /**
@@ -226,18 +229,19 @@ module ex {
        */
       public load(): Promise<ex.Internal.FallbackAudio> {
          var complete = new Promise<ex.Internal.FallbackAudio>();
-
+         this.logger.debug("Started loading sound", this._selectedFile);
          this.sound.onprogress = this.onprogress;
          this.sound.onload = () => {
             this.oncomplete();
             this._isLoaded = true;
+            this.logger.debug("Completed loading sound", this._selectedFile);
             complete.resolve(this.sound);
          }
-      this.sound.onerror = (e) => {
-            this.onerror(e);
-            complete.reject(e);
-         }
-      this.sound.load();
+         this.sound.onerror = (e) => {
+               this.onerror(e);
+               complete.reject(e);
+            }
+         this.sound.load();
          return complete;
       }
    }
@@ -321,30 +325,38 @@ module ex {
             return complete;
          }
 
+         var progressArray = new Array<any>(this.resourceList.length);
+         var progressChunks = this.resourceList.length;
+
          this.resourceList.forEach((r, i) => {
             r.onprogress = function (e) {
                var total = <number>e.total;
-               var progress = <number>e.loaded;               
-               me.progressCounts[i] = progress;
-               me.totalCounts[i] = total;
-               console.log("Resource", (<any>r).path);
-               me.onprogress.call(me, { loaded: me.sumCounts(me.progressCounts), total: me.sumCounts(me.totalCounts) });
+               var loaded = <number>e.loaded;
+               progressArray[i] = {loaded: ((loaded/total)*(100/progressChunks)), total: 100};
+
+               var progressResult: any = progressArray.reduce(function(accum, next){
+                  return {loaded: (accum.loaded + next.loaded), total: 100};
+               }, {loaded: 0, total: 100});
+
+               me.onprogress.call(me, progressResult);
             };
             r.oncomplete = function () {
                me.numLoaded++;
                if (me.numLoaded === me.resourceCount) {
+                  
                   me.oncomplete.call(me);
                   complete.resolve();
                }
             };
          });
-         this.resourceList.reduce((loadable, next)=>{
 
-            (<ILoadable>loadable).load().then(function(){
-               next.load();
+         function loadNext(list, index){
+            if(!list[index]) return;
+            list[index].load().then(function(){
+               loadNext(list, index+1);
             });
-            return next;
-         }, this.resourceList[0]);
+         }
+         loadNext(this.resourceList, 0);         
 
          return complete;
       }
