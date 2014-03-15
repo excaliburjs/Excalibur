@@ -1,0 +1,40 @@
+{
+  "name": "excalibur",
+  "version": "0.2.0",
+  "homepage": "https://github.com/eonarheim/Excalibur",
+  "authors": [
+    "https://github.com/excaliburjs/Excalibur/graphs/contributors"
+  ],
+  "description": "Excalibur.js is a simple game engine written in TypeScript for making 2D games in HTML5 Canvas. The goal of Excalibur is to make web game development as simple as possible",
+  "main": "build/Excalibur.js",
+  "keywords": [
+    "excalibur",
+    "game",
+    "engine",
+    "typescript",
+    "javascript",
+    "simple"
+  ],
+  "license": "BSD",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "assets",
+    "bin",
+    "docs",
+    "Excalibur.Samples.Win8",
+    "particle-tester",
+    "sample-game",
+    "spec",
+    "tools",
+    "*.md",
+    "Gruntfile.js",
+    "package.json",
+    "*.csproj",
+    "*.sublime-*",
+    "*.sln",
+    "*.bat",
+    "*.nuspec"
+  ]
+}
