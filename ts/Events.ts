@@ -230,6 +230,30 @@ module ex {
       }
    }
 
+
+   /**
+    * Enum representing the different mouse buttons
+    * @class MouseButton
+    */
+   export enum MouseButton {
+      /**
+       * @property Left
+       * @static
+       */
+      Left,
+      /**
+       * @property Left
+       * @static
+       */
+      Middle,
+      /**
+       * @property Left
+       * @static
+       */
+      Right
+   }
+
+
    /**
     * Event thrown on a game object on MouseDown
     *
@@ -238,9 +262,10 @@ module ex {
     * @constructor 
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
+    * @param mouseEvent {MouseEvent} The native mouse event thrown 
     */
    export class MouseDown extends GameEvent {
-      constructor(public x: number, public y: number) {
+      constructor(public x: number, public y: number, public mouseEvent: MouseEvent) {
          super();
       }
    }
@@ -253,9 +278,10 @@ module ex {
     * @constructor 
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
+    * @param mouseEvent {MouseEvent} The native mouse event thrown 
     */
    export class MouseMove extends GameEvent {
-      constructor(public x: number, public y: number) {
+      constructor(public x: number, public y: number, public mouseEvent: MouseEvent) {
          super();
       }
    }
@@ -268,12 +294,14 @@ module ex {
     * @constructor 
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
+    * @param mouseEvent {MouseEvent} The native mouse event thrown 
     */
    export class MouseUp extends GameEvent {
-      constructor(public x: number, public y: number) {
+      constructor(public x: number, public y: number, public mouseEvent: MouseEvent) {
          super();
       }
    }
+
 
    export interface Touch {
       identifier: string;
@@ -387,7 +415,7 @@ module ex {
     * @param y {number} The y coordinate of the event
     */
    export class Click extends GameEvent {
-      constructor(public x: number, public y: number) {
+      constructor(public x: number, public y: number, public mouseEvent: MouseEvent) {
          super();
       }
    }
