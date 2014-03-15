@@ -18,7 +18,7 @@ Thank you for any contributions!
 - Sublime Text 2+
 - Node.js (recommended)
 
-You will need have the TypeScript compiler installed on your platform to build from source.
+You will need to have the TypeScript compiler installed on your platform to build from source.
 
 The compiler is available here:
 

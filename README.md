@@ -1,8 +1,8 @@
 ![Logo](/assets/excalibur-title-dark.png?raw=true)
 
-[![Build Status](https://travis-ci.org/eonarheim/Excalibur.png?branch=master)](https://travis-ci.org/eonarheim/Excalibur)
+[![Build Status](https://travis-ci.org/excaliburjs/Excalibur.png?branch=master)](https://travis-ci.org/excaliburjs/Excalibur)
 
-Excalibur is a simple game engine written in TypeScript for making 2D games in HTML5 Canvas. The goal of Excalibur is create a simple engine to demonstrate the capabilities of TypeScript and to illustrate simple game development to new developers.
+Excalibur is a simple game engine written in TypeScript for making 2D games in HTML5 Canvas. The goal of Excalibur is  to demonstrate the capabilities of TypeScript and to illustrate game development to new developers.
 
 Documentation can be found at [excaliburjs.com](http://excaliburjs.com).
 
@@ -55,11 +55,11 @@ game.start();
 
 # Features
 
-* Sprite Sheet Support
+* Sprite sheet support
 * Naive collision detection
 * Event handling
 * Automation layer for actors
-* Sublime Text 2 Project
+* Sublime Text 2 project
 
 # Contributing
 
