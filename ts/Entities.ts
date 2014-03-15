@@ -323,6 +323,10 @@ module ex {
        */
       public invisible: boolean = false;
 
+      /**
+       * The opacity of an actor
+       * @property opacity {number}
+       */
       public opacity: number = 1;
       private previousOpacity: number = 1;
 
@@ -450,19 +454,6 @@ module ex {
             this.currentDrawing = drawing;
          }
       }
-
-      /**
-       * TODO
-       */
-      // public setOpacity(opacity: number) {
-      //    if (this.opacity != opacity) {
-      //       Object.keys(this.frames).forEach(function (key) {
-      //          frames[key].addEffect(new ex.Effects.Opacity(opacity));
-      //       })
-
-      //       this.opacity = opacity;
-      //    }
-      // }
 
       /**
        * Add an event listener. You can listen for a variety of
