@@ -36,7 +36,7 @@ module ex {
 
       // Life is counted in ms
       public life: number = 300;
-      public fade: boolean = false;
+      public fadeFlag: boolean = false;
 
       // Color transitions
       private rRate: number = 1;
@@ -78,7 +78,7 @@ module ex {
             this.kill();
          }
 
-         if (this.fade) {
+         if (this.fadeFlag) {
             this.opacity = ex.Util.clamp(this.aRate * this.life, 0.0001, 1);
          }
 
@@ -187,10 +187,10 @@ module ex {
        */
       public opacity: number = 1;
       /**
-       * Gets or sets the fade flag which causes partilces to gradually fade out over the course of their life.
+       * Gets or sets the fade flag which causes particles to gradually fade out over the course of their life.
        * @property [fade=false] {boolean}
        */
-      public fade: boolean = false;
+      public fadeFlag: boolean = false;
 
       /**
        * Gets or sets the optional focus where all particles should accelerate towards
@@ -291,7 +291,7 @@ module ex {
          }         
          
          var p = new Particle(this, this.particleLife, this.opacity, this.beginColor, this.endColor, new Vector(ranX, ranY), new Vector(dx, dy), this.acceleration);
-         p.fade = this.fade;
+         p.fadeFlag = this.fadeFlag;
          p.particleSize = size;
          p.particleSprite = this.particleSprite;
          if (this.focus) {
