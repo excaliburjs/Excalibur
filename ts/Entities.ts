@@ -323,6 +323,9 @@ module ex {
        */
       public invisible: boolean = false;
 
+      public opacity: number = 1;
+      private previousOpacity: number = 1;
+
       /** 
        * Direct access to the actor's action queue. Useful if you are building custom actions.
        * @property actionQueue {ActionQueue} 
@@ -447,6 +450,19 @@ module ex {
             this.currentDrawing = drawing;
          }
       }
+
+      /**
+       * TODO
+       */
+      // public setOpacity(opacity: number) {
+      //    if (this.opacity != opacity) {
+      //       Object.keys(this.frames).forEach(function (key) {
+      //          frames[key].addEffect(new ex.Effects.Opacity(opacity));
+      //       })
+
+      //       this.opacity = opacity;
+      //    }
+      // }
 
       /**
        * Add an event listener. You can listen for a variety of
@@ -1037,7 +1053,17 @@ module ex {
          ctx.save();
          ctx.translate(this.x, this.y);
          ctx.rotate(this.rotation);     
-         ctx.scale(this.scale, this.scale);         
+         ctx.scale(this.scale, this.scale);
+
+         if (this.previousOpacity != this.opacity) {
+            // Object.keys(this.frames).forEach(function (key) {
+            //    frames[key].addEffect(new ex.Effects.Opacity(this.opacity));
+            // });
+            for (var drawing in this.frames) {
+               this.frames[drawing].addEffect(new ex.Effects.Opacity(this.opacity));
+            }
+            this.previousOpacity = this.opacity;
+         }
 
          if (!this.invisible) {
             if (this.currentDrawing) {
