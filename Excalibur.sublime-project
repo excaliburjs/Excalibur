@@ -10,7 +10,8 @@
 				"sample-game/*.js"
 			],
 			"folder_exclude_patterns" : [
-				"js"
+				"js",
+            "node_modules"
 			]
 		}
 

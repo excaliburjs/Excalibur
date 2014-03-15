@@ -294,7 +294,7 @@ module ex {
        * @class Effects.Opacity
        * @extends ISpriteEffect
        * @constructor
-       * @param opacity {number} The new opacity of the sprite from 0-255  
+       * @param opacity {number} The new opacity of the sprite from 0-1.0  
        */
       export class Opacity implements ISpriteEffect {
          constructor(public opacity: number){}
@@ -302,7 +302,7 @@ module ex {
             var firstPixel = (x+y*imageData.width)*4;
             var pixel = imageData.data;
             if(pixel[firstPixel+3] !== 0){
-               pixel[firstPixel+3] = Math.round(this.opacity);
+               pixel[firstPixel+3] = Math.round(this.opacity*255);
             }
          }
       }

@@ -183,8 +183,16 @@ player.addEventListener('up', ()=>{
    }
 });
 
-player.addEventListener('mousedown', ()=>{
-   alert("player clicked!");
+player.addEventListener('mousedown', (e?: ex.MouseDown)=>{
+   var button = "";
+   if(e.mouseEvent.button == ex.MouseButton.Left){
+      button = "Left";
+   }else if (e.mouseEvent.button == ex.MouseButton.Middle){
+      button = "Middle";
+   }else if (e.mouseEvent.button == ex.MouseButton.Right){
+      button = "Right";
+   }
+   alert("Player clicked with " + button + " button!");
 });
 
 player.addEventListener('keyup', (e? : ex.KeyUp) => {

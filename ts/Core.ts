@@ -846,7 +846,7 @@ module ex {
             var x: number = e.pageX - Util.getPosition(this.canvas).x;
             var y: number = e.pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.transformToCanvasCoordinates(x, y);
-            var mousedown = new MouseDown(transformedPoint.x, transformedPoint.y);
+            var mousedown = new MouseDown(transformedPoint.x, transformedPoint.y, (<MouseEvent>e));
             this.mouseDown.push(mousedown);
             this.clicks.push(mousedown);
             this.eventDispatcher.publish(EventType[EventType.MouseDown], mousedown);
@@ -856,7 +856,7 @@ module ex {
             var x: number = e.pageX - Util.getPosition(this.canvas).x;
             var y: number = e.pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.transformToCanvasCoordinates(x, y);
-            var mousemove = new MouseMove(transformedPoint.x, transformedPoint.y);            
+            var mousemove = new MouseMove(transformedPoint.x, transformedPoint.y, (<MouseEvent>e));            
             this.mouseMove.push(mousemove);
             this.eventDispatcher.publish(EventType[EventType.MouseMove], mousemove);
          });
@@ -865,7 +865,7 @@ module ex {
             var x: number = e.pageX - Util.getPosition(this.canvas).x;
             var y: number = e.pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.transformToCanvasCoordinates(x, y);
-            var mouseup = new MouseUp(transformedPoint.x, transformedPoint.y);
+            var mouseup = new MouseUp(transformedPoint.x, transformedPoint.y, (<MouseEvent>e));
             this.mouseUp.push(mouseup);
             this.eventDispatcher.publish(EventType[EventType.MouseUp], mouseup);
          });

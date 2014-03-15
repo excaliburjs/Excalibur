@@ -114,7 +114,7 @@ module.exports = function (grunt) {
          // TypeScript Compile sample game
          //
          sample: {
-            command: 'tsc ./sample-game/ts/game.ts',
+            command: 'tsc ./sandbox/ts/game.ts',
             options: {
                stdout: true,
                failOnError: true

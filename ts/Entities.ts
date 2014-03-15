@@ -981,20 +981,20 @@ module ex {
          // Publish click events
          engine.clicks.forEach((e) => {
             if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.Click], new Click(e.x, e.y));
-               eventDispatcher.publish(EventType[EventType.MouseDown], new MouseDown(e.x, e.y));
+               eventDispatcher.publish(EventType[EventType.Click], new Click(e.x, e.y, e.mouseEvent));
+               eventDispatcher.publish(EventType[EventType.MouseDown], new MouseDown(e.x, e.y, e.mouseEvent));
             }
          });
 
          engine.mouseMove.forEach((e) => {
             if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.MouseMove], new MouseMove(e.x, e.y));
+               eventDispatcher.publish(EventType[EventType.MouseMove], new MouseMove(e.x, e.y, e.mouseEvent));
             }
          });
 
          engine.mouseUp.forEach((e)=> {
             if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.MouseUp], new MouseUp(e.x, e.y));
+               eventDispatcher.publish(EventType[EventType.MouseUp], new MouseUp(e.x, e.y, e.mouseEvent));
             }
          });
 
