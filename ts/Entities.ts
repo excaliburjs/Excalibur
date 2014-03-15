@@ -945,7 +945,7 @@ module ex {
          var potentialColliders = engine.currentScene.children;
          if(this.collisionGroups.length !== 0){
             potentialColliders = [];
-            for(var group in this.parent.collisionGroups){
+            for(var group in this.scene.collisionGroups){
                potentialColliders = potentialColliders.concat(this.scene.collisionGroups[group]);
             }
          }
