@@ -179,7 +179,7 @@ module.exports = function (grunt) {
    grunt.registerTask('sample', ['shell:sample']);
 
    // Default task - compile, test, build dists
-   grunt.registerTask('default', ['tests', 'shell:tsc', 'sample', 'minified', 'concat', 'copy', 'shell:nuget']);
+   grunt.registerTask('default', ['tests', 'shell:tsc', 'minified', 'concat', 'copy', 'sample', 'shell:nuget']);
 
    // Travis task - for Travis CI
    grunt.registerTask('travis', 'default');
