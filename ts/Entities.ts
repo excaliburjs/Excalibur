@@ -15,6 +15,10 @@ module ex {
     * @constructor
     */
    export class Scene {
+
+      //The actor this scene is attached to , if any
+      public actor: Actor;
+      
       /**
        * The actors in the current scene
        * @property children {Actor[]}
@@ -135,9 +139,10 @@ module ex {
        * @param actor {Actor} The actor to add
        */
       public addChild(actor: Actor) {
-         actor.parent = this;
+         actor.scene = this;
          this.updateAddCollisionGroups(actor);
          this.children.push(actor);
+         actor.parent = this.actor;
       }
 
       public updateAddCollisionGroups(actor: Actor){
@@ -157,6 +162,7 @@ module ex {
       public removeChild(actor: Actor) {
          this.updateRemoveCollisionGroups(actor);
          this.killQueue.push(actor);
+         actor.parent = null;
       }
 
       public updateRemoveCollisionGroups(actor: Actor){
@@ -329,11 +335,21 @@ module ex {
        */
       public eventDispatcher: EventDispatcher;
 
-      private sceneNode: Scene;
+      private sceneNode: Scene; //the scene that the actor contains
 
       private logger: Logger = Logger.getInstance();
 
-      public parent: Scene = null;
+      /**
+      * The scene that the actor is in
+      * @property scene {Scene}
+      */
+      public scene: Scene = null; //formerly "parent"
+
+      /**
+      * The parent of this actor
+      * @property parent {Actor}
+      */
+      public parent: Actor = null;
 
       public fixed = true;
       public preventCollisions = false;
@@ -369,6 +385,7 @@ module ex {
          this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
          this.eventDispatcher = new EventDispatcher(this);
          this.sceneNode = new Scene();
+         this.sceneNode.actor = this;
       }
 
       /**
@@ -377,8 +394,8 @@ module ex {
        * @method kill
        */
       public kill() {
-         if (this.parent) {
-            this.parent.removeChild(this);
+         if (this.scene) {
+            this.scene.removeChild(this);
          } else {
             this.logger.warn("Cannot kill actor, it was never added to the Scene");
          }
@@ -476,8 +493,8 @@ module ex {
        */
       public addCollisionGroup(name: string){
          this.collisionGroups.push(name);
-         if(this.parent){
-            this.parent.updateAddCollisionGroups(this);
+         if(this.scene){
+            this.scene.updateAddCollisionGroups(this);
          }
       }
 
@@ -489,8 +506,8 @@ module ex {
       public removeCollisionGroup(name: string){
          var index = this.collisionGroups.indexOf(name);
          this.collisionGroups.splice(index, 1);
-         if(this.parent){
-            this.parent.updateRemoveCollisionGroups(this);
+         if(this.scene){
+            this.scene.updateRemoveCollisionGroups(this);
          }
       }
  
@@ -583,6 +600,43 @@ module ex {
          return this.y + this.getHeight();
       }
 
+      /**
+      * Gets the x value of the Actor in global coordinates
+      * @method getGlobalX
+      * @returns number
+      */
+      public getGlobalX() {
+         var previous;
+         var current = this.parent;
+         while (current) {
+            previous = current;
+            current = current.parent;
+         }
+         if (previous) {
+            return this.x + previous.x;
+            } else {
+               return this.x;
+            }
+      }
+
+      /**
+      * Gets the y value of the Actor in global coordinates
+      * @method getGlobalY
+      * @returns number
+      */
+      public getGlobalY() {
+         var previous;
+         var current = this.parent;
+         while (current) {
+            previous = current;
+            current = current.parent;
+         }
+         if (previous) {
+            return this.y + previous.y;
+            } else {
+               return this.y;
+            }
+      }
 
       private getOverlap(box: Actor): Overlap {
          var xover = 0;
@@ -892,7 +946,7 @@ module ex {
          if(this.collisionGroups.length !== 0){
             potentialColliders = [];
             for(var group in this.parent.collisionGroups){
-               potentialColliders = potentialColliders.concat(this.parent.collisionGroups[group]);
+               potentialColliders = potentialColliders.concat(this.scene.collisionGroups[group]);
             }
          }
 

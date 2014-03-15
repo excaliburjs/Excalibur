@@ -567,6 +567,34 @@ describe("A game actor", () => {
 		// testing when actorToMeet is moving in a direction towards the following actor
 	});
 
+   it('can find its global coordinates if it has a parent', ()=>{
+         expect(actor.x).toBe(0);
+         expect(actor.y).toBe(0);
+
+         var childActor = new ex.Actor(50, 50);
+         expect(childActor.x).toBe(50);
+         expect(childActor.y).toBe(50);
+
+         actor.addChild(childActor);
+
+         actor.moveBy(10, 15, 1000);
+         actor.update(engine, 1000);
+
+         expect(childActor.getGlobalX()).toBe(60);
+         expect(childActor.getGlobalY()).toBe(65);
+   });
+
+   it('can find its global coordinates if it doesn\'t have a parent', ()=>{
+         expect(actor.x).toBe(0);
+         expect(actor.y).toBe(0);
+
+         actor.moveBy(10,15, 1000);
+         actor.update(engine, 1000);
+
+         expect(actor.getGlobalX()).toBe(10);
+         expect(actor.getGlobalY()).toBe(15);
+   });
+
    it('can be removed from the scene', ()=>{
       scene.addChild(actor);
       expect(scene.children.length).toBe(1);
