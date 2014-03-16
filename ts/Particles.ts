@@ -50,7 +50,12 @@ module ex {
       public particleSize: number = 5;
       public particleSprite: Sprite = null;
 
-      constructor(emitter: ParticleEmitter, life?: number, opacity?: number, beginColor?: Color, endColor?: Color, position?: Vector, velocity?: Vector, acceleration?: Vector) {
+      public startSize: number;
+      public endSize: number;
+      public sizeRate: number = 0;
+      public elapsedMultiplier: number = 0;
+
+      constructor(emitter: ParticleEmitter, life?: number, opacity?: number, beginColor?: Color, endColor?: Color, position?: Vector, velocity?: Vector, acceleration?: Vector, startSize?: number, endSize?: number) {
          this.emitter = emitter;
          this.life = life || this.life;
          this.opacity = opacity || this.opacity;
@@ -65,6 +70,16 @@ module ex {
          this.bRate = (this.endColor.b - this.beginColor.b) / this.life;
          this.aRate = this.opacity / this.life;
 
+         this.startSize = startSize || 0;
+         this.endSize = endSize || 0;
+
+         if ((this.endSize > 0) && (this.startSize > 0)) {
+            if (this.startSize < this.endSize) {
+               this.sizeRate = (this.endSize / this.startSize) / this.life;
+            } else {
+               this.sizeRate = (this.startSize / this.endSize) / this.life;
+            }
+         }
       }
 
       public kill() {
@@ -73,6 +88,7 @@ module ex {
 
       public update(delta: number) {
          this.life = this.life - delta;
+         this.elapsedMultiplier = this.elapsedMultiplier + delta;
          
          if (this.life < 0) {
             this.kill();
@@ -80,6 +96,14 @@ module ex {
 
          if (this.fadeFlag) {
             this.opacity = ex.Util.clamp(this.aRate * this.life, 0.0001, 1);
+         }
+
+         if ((this.startSize > 0) && (this.endSize > 0)) {
+            if (this.startSize < this.endSize) {
+               this.particleSize = ex.Util.clamp(this.sizeRate * this.elapsedMultiplier, this.startSize, this.endSize);
+            } else {
+               this.particleSize = ex.Util.clamp(this.sizeRate * this.life, this.endSize, this.startSize);
+            }
          }
 
          this.currentColor.r = ex.Util.clamp(this.currentColor.r + this.rRate * delta, 0, 255);
@@ -112,9 +136,9 @@ module ex {
    }
 
    /**
-    * Using a particle emitter is a great way to create intersting effects 
+    * Using a particle emitter is a great way to create interesting effects 
     * in your game, like smoke, fire, water, explosions, etc. Particle Emitters
-    * extend Actor allowing you to use all the features that come with actor
+    * extend Actor allowing you to use all of the features that come with Actor
     * @class ParticleEmitter
     * @constructor
     * @param [x=0] {number} The x position of the emitter
@@ -202,6 +226,16 @@ module ex {
        * @property [focusAccel=1] {number}
        */
       public focusAccel: number = 1;
+      /*
+       * Gets or sets the optional starting size for the particles
+       * @property [startSize=null] {number}
+       */
+      public startSize: number = null;
+      /*
+       * Gets or sets the optional ending size for the particles
+       * @property [endSize=null] {number}
+       */
+      public endSize: number = null;
 
       /**
        * Gets or sets the minimum size of all particles
@@ -277,7 +311,7 @@ module ex {
 
          var angle = Util.randomInRange(this.minAngle, this.maxAngle);
          var vel = Util.randomInRange(this.minVel, this.maxVel);
-         var size = Util.randomInRange(this.minSize, this.maxSize);
+         var size = this.startSize || Util.randomInRange(this.minSize, this.maxSize);
          var dx = vel * Math.cos(angle);
          var dy = vel * Math.sin(angle);
 
@@ -290,7 +324,7 @@ module ex {
             ranY = radius * Math.sin(angle) + this.y;
          }         
          
-         var p = new Particle(this, this.particleLife, this.opacity, this.beginColor, this.endColor, new Vector(ranX, ranY), new Vector(dx, dy), this.acceleration);
+         var p = new Particle(this, this.particleLife, this.opacity, this.beginColor, this.endColor, new Vector(ranX, ranY), new Vector(dx, dy), this.acceleration, this.startSize, this.endSize);
          p.fadeFlag = this.fadeFlag;
          p.particleSize = size;
          p.particleSprite = this.particleSprite;
