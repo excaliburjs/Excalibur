@@ -847,6 +847,20 @@ module ex {
       }
 
       /**
+       * This method will cause an actor's opacity to change from its current value
+       * to the provided value by a specified time (in milliseconds). This method is
+       * part of the actor 'Action' fluent API allowing action chaining.
+       * @method fade
+       * @param opacity {number} The ending opacity
+       * @param time {number} The time it should take to fade the actor (in milliseconds)
+       * @returns Actor
+       */
+      public fade(opacity: number, time: number): Actor {
+         this.actionQueue.add(new ex.Internal.Actions.Fade(this, opacity, time));
+         return this;
+      }
+
+      /**
        * This method will delay the next action from executing for a certain 
        * amount of time (in milliseconds). This method is part of the actor 
        * 'Action' fluent API allowing action chaining.

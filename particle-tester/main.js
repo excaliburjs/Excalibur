@@ -10,7 +10,7 @@ emitter.maxAngle = Math.PI*2;
 emitter.isEmitting = true;
 emitter.emitRate = 300;
 emitter.opacity = 0.5;
-emitter.fade = true;
+emitter.fadeFlag = true;
 emitter.particleLife = 1000; // 1 sec
 emitter.maxSize = 10;
 emitter.minSize = 1;
@@ -119,7 +119,7 @@ var EmitterViewModel = function(){
    });
 
    me.fade.subscribe(function(newFade){
-      emitter.fade = newFade;
+      emitter.fadeFlag = newFade;
    });
 
    me.ax.subscribe(function(newAx){
@@ -149,7 +149,7 @@ var EmitterViewModel = function(){
       "emitter.isEmitting = true;\n"+
       "emitter.emitRate = "+me.emitRate()+";\n"+
       "emitter.opacity = "+me.opacity()+";\n"+
-      "emitter.fade = "+me.fade()+";\n"+
+      "emitter.fadeFlag = "+me.fade()+";\n"+
       "emitter.particleLife = "+me.particleLife()+";\n"+
       "emitter.maxSize = "+me.maxSize()+";\n"+
       "emitter.minSize = "+me.minSize()+";\n"+

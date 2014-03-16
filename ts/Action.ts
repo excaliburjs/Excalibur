@@ -570,6 +570,54 @@ module ex.Internal.Actions {
       }
    }
 
+   export class Fade implements IAction {
+      public x: number;
+      public y: number;
+
+      private actor: Actor;
+      private endOpacity: number;
+      private speed: number;
+      private multiplyer: number = 1;
+      private _started = false;
+      private _stopped = false;
+
+      constructor(actor: Actor, endOpacity: number, speed: number) {
+         this.actor = actor;
+         this.endOpacity = endOpacity;
+         this.speed = speed;
+         if (endOpacity < actor.opacity) {
+            this.multiplyer = -1;
+         }
+      }
+
+      public update(delta: number): void {
+         if (!this._started) {
+            this._started = true;
+         }
+         if (this.speed > 0) {
+            this.actor.opacity += this.multiplyer * (Math.abs(this.actor.opacity - this.endOpacity) * delta)/this.speed;
+         }
+         this.speed -= delta;
+
+         Logger.getInstance().debug("actor opacity: " + this.actor.opacity);
+         if (this.isComplete(this.actor)) {
+            this.actor.opacity = this.endOpacity;
+         }
+      }
+
+      public isComplete(actor: Actor): boolean {
+         return this._stopped || (Math.abs(this.actor.opacity - this.endOpacity) < 0.01);
+      }
+
+      public stop(): void {
+         this._stopped = true;
+      }
+
+      public reset(): void {
+         this._started = false;
+      }
+   }
+
    export class Repeat implements IAction {
       public x: number;
       public y: number;
