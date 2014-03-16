@@ -54,6 +54,9 @@ module ex {
             throw new Error("Logger is a singleton");
          }
          Logger._instance = this;
+         // Default console appender
+         Logger._instance.addAppender(new ConsoleAppender());
+         return Logger._instance;
       }
 
       /**
@@ -83,6 +86,14 @@ module ex {
        */
       public addAppender(appender: IAppender): void {
          this.appenders.push(appender);
+      }
+
+      /**
+       * Clears all appenders from the logger
+       * @method clearAppenders
+       */
+      public clearAppenders(): void {
+         this.appenders.length = 0;
       }
 
       /**

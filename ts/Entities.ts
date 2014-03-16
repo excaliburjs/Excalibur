@@ -337,7 +337,11 @@ module ex {
 
       private sceneNode: Scene; //the scene that the actor contains
 
-      private logger: Logger = Logger.getInstance();
+      /**
+       * Convenience reference to the global logger
+       * @property logger {Logger}
+       */
+      public logger: Logger = Logger.getInstance();
 
       /**
       * The scene that the actor is in

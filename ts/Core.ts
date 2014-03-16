@@ -583,7 +583,7 @@ module ex {
          super();
 
          this.logger = Logger.getInstance();
-         this.logger.addAppender(new ConsoleAppender());
+         
          this.logger.debug("Building engine...");
 
          this.canvasElementId = canvasElementId;
