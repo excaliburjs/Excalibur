@@ -16,12 +16,12 @@ module.exports = function (grunt) {
       //
       jasmine_node: {
          specNameMatcher: "Spec", // load only specs containing specNameMatcher
-         projectRoot: "./spec",
+         projectRoot: "./src/spec",
          requirejs: false,
          forceExit: true,
          jUnit: {
             report: false,
-            savePath: "./build/reports/jasmine/",
+            savePath: "./dist/reports/jasmine/",
             useDotNotation: true,
             consolidate: true
          }
@@ -33,12 +33,12 @@ module.exports = function (grunt) {
       //
       concat: {
          main: {
-            src: ['build/<%= pkg.name %>-<%= pkg.version %>.js'],
-            dest: 'build/<%= pkg.name %>-<%= pkg.version %>.js'
+            src: ['dist/<%= pkg.name %>-<%= pkg.version %>.js'],
+            dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js'
          },
          minified: {
-            src: ['build/<%= pkg.name %>-<%= pkg.version %>.min.js'],
-            dest: 'build/<%= pkg.name %>-<%= pkg.version %>.min.js'
+            src: ['dist/<%= pkg.name %>-<%= pkg.version %>.min.js'],
+            dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.min.js'
          },
          options: {
             separator: '\n;\n',
@@ -55,8 +55,8 @@ module.exports = function (grunt) {
       //
       minified: {
          files: {
-            src: 'build/<%= pkg.name %>-<%= pkg.version %>.js',
-            dest: 'build/<%= pkg.name %>-<%= pkg.version %>'
+            src: 'dist/<%= pkg.name %>-<%= pkg.version %>.js',
+            dest: 'dist/<%= pkg.name %>-<%= pkg.version %>'
          },
          options: {
             sourcemap: false,
@@ -74,7 +74,7 @@ module.exports = function (grunt) {
          // Execute TypeScript compiler against Excalibur core
          //
          tsc: {
-            command: 'tsc --sourcemap --removeComments --declaration "./ts/Core.ts" -out "./build/<%= pkg.name %>-<%= pkg.version %>.js"',               
+            command: 'tsc --sourcemap --removeComments --declaration "./src/engine/Core.ts" -out "./dist/<%= pkg.name %>-<%= pkg.version %>.js"',               
             options: {
                stdout: true,
                failOnError: true
@@ -85,7 +85,7 @@ module.exports = function (grunt) {
          // Package up Nuget (Windows only)
          //
          nuget: {
-            command: 'tools\\nuget pack Excalibur.nuspec -version <%= pkg.version %> -OutputDirectory ./build',
+            command: 'src\\tools\\nuget pack Excalibur.nuspec -version <%= pkg.version %> -OutputDirectory ./dist',
             options: {
                stdout: true
             }
@@ -96,14 +96,14 @@ module.exports = function (grunt) {
          // TODO: Simplify this so we don't have to always update it every time we add a spec
          //
          specs: {
-            command: 'tsc "./spec/ActorSpec.ts" -out "./spec/ActorSpec.js";' +
-            'tsc "./spec/ColorSpec.ts" -out "./spec/ColorSpec.js";' +
-            'tsc "./spec/PromiseSpec.ts" -out "./spec/PromiseSpec.js";' +
-            'tsc "./spec/CollectionSpec.ts" -out "./spec/CollectionSpec.js";' +
-            'tsc "./spec/LogSpec.ts" -out "./spec/LogSpec.js";' + 
-            'tsc "./spec/TimerSpec.ts" -out "./spec/TimerSpec.js";' +
-            'tsc "./spec/ClassSpec.ts" -out "./spec/ClassSpec.js";' + 
-            'tsc "./spec/CameraSpec.ts" -out "./spec/CameraSpec.js"',
+            command: 'tsc "./src/spec/ActorSpec.ts" -out "./src/spec/ActorSpec.js";' +
+            'tsc "./src/spec/ColorSpec.ts" -out "./src/spec/ColorSpec.js";' +
+            'tsc "./src/spec/PromiseSpec.ts" -out "./src/spec/PromiseSpec.js";' +
+            'tsc "./src/spec/CollectionSpec.ts" -out "./src/spec/CollectionSpec.js";' +
+            'tsc "./src/spec/LogSpec.ts" -out "./src/spec/LogSpec.js";' + 
+            'tsc "./src/spec/TimerSpec.ts" -out "./src/spec/TimerSpec.js";' +
+            'tsc "./src/spec/ClassSpec.ts" -out "./src/spec/ClassSpec.js";' + 
+            'tsc "./src/spec/CameraSpec.ts" -out "./src/spec/CameraSpec.js"',
             options: {
                stdout: true,
                failOnError: true
@@ -114,7 +114,7 @@ module.exports = function (grunt) {
          // TypeScript Compile sample game
          //
          sample: {
-            command: 'tsc ./sandbox/ts/game.ts',
+            command: 'tsc ./sandbox/src/game.ts',
             options: {
                stdout: true,
                failOnError: true
@@ -125,7 +125,7 @@ module.exports = function (grunt) {
          // Build documentation site
          //
          docs: {
-            command: 'yuidoc --helpers ./docs/strip.js --themedir ./docs/excalibur --norecurse --extension .ts --outdir ./docs/out ./ts ',
+            command: 'yuidoc --helpers ./docs/strip.js --themedir ./docs/excalibur --norecurse --extension .ts --outdir ./docs/out ./src/engine ',
             options: {
                stdout: true,
                failOnError: true
@@ -139,8 +139,8 @@ module.exports = function (grunt) {
       copy: {
          main: {
             files: [
-               {src: './build/<%= pkg.name %>-<%= pkg.version %>.js', dest: './build/<%= pkg.name %>.js'},
-               {src: './build/<%= pkg.name %>-<%= pkg.version %>.d.ts', dest: './build/<%= pkg.name %>.d.ts'}
+               {src: './dist/<%= pkg.name %>-<%= pkg.version %>.js', dest: './dist/<%= pkg.name %>.js'},
+               {src: './dist/<%= pkg.name %>-<%= pkg.version %>.d.ts', dest: './dist/<%= pkg.name %>.d.ts'}
             ]
          }
       },

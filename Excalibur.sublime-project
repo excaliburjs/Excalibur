@@ -4,14 +4,14 @@
 		{
 			"path": ".",
 			"file_exclude_patterns" : [
-				"build/*.js",
-				"ts/*.js",
-				"spec/*.js",
-				"sample-game/*.js"
+				"src/spec/*.js",
+				"sandbox/*.js",
+            "src/engine/*.js"
 			],
 			"folder_exclude_patterns" : [
 				"js",
-            "node_modules"
+            "node_modules",
+            "bin"
 			]
 		}
 

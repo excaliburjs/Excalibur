@@ -1,4 +1,4 @@
-/// <reference path='../../build/Excalibur.d.ts' />
+/// <reference path='../../dist/Excalibur.d.ts' />
 
 var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
