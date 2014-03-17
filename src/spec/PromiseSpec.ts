@@ -1,7 +1,7 @@
 // Promise Tests 
 /// <reference path="jasmine.d.ts" />
 /// <reference path="require.d.ts" />
-/// <reference path="../ts/Promises.ts" />
+/// <reference path="../engine/Promises.ts" />
 
 describe('A promise', ()=>{
    var promise;

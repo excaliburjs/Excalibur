@@ -1,6 +1,6 @@
 /// <reference path="jasmine.d.ts" />
 /// <reference path="require.d.ts" />
-/// <reference path="../ts/Util.ts" />
+/// <reference path="../engine/Util.ts" />
 
 describe('A collection', () => {
    var collection;

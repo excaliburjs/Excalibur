@@ -1,6 +1,6 @@
 /// <reference path="jasmine.d.ts" />
 /// <reference path="require.d.ts" />
-/// <reference path="../ts/Core.ts" />
+/// <reference path="../engine/Core.ts" />
 
 describe("A game actor", () => {
 	
