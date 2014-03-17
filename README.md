@@ -12,10 +12,10 @@ Compiled examples can be found [here](http://excaliburjs.com/gallery/home/).
 
 ```js
 // Create an the game container
-var game = new Engine();
+var game = new ex.Engine();
 
 // Create new actor at X=50, Y=50, Width=100, and Height= 100
-var player = new Actor(50, 50, 100, 100, new Color(0,200,0));
+var player = new Actor(50, 50, 100, 100, new ex.Color(0,200,0));
 
 player.addEventListener('up', function(){
 	player.dy = -50;
@@ -35,10 +35,10 @@ game.start();
 ```js
 /// <reference path='Engine.d.ts' />
 // Create an the game container
-var game = new Engine();
+var game = new ex.Engine();
 
 // Create new actor at X=50, Y=50, Width=100, and Height= 100
-var player = new Actor(50, 50, 100, 100, new Color(0,200,0));
+var player = new ex.Actor(50, 50, 100, 100, new Color(0,200,0));
 
 player.addEventListener("up", ()=>{
 	player.dy = -50;

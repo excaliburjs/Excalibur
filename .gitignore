@@ -1,9 +1,9 @@
 #Ignore compiled javascript #
 ######################
-/ts/*.js
-/ts/*.map
-sample-game/ts/*.js
-spec/*.js
+/src/engine/*.js
+/src/engine/*.map
+/sandbox/src/*.js
+/src/spec/*.js
 node_modules/
 /docs/out/*.*
 /docs/out/

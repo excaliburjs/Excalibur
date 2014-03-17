@@ -1,6 +1,6 @@
 /// <reference path="jasmine.d.ts" />
 /// <reference path="require.d.ts" />
-/// <reference path="../ts/Log.ts" />
+/// <reference path="../engine/Log.ts" />
 
 module ex.Tests {
 
