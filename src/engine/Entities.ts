@@ -30,9 +30,6 @@ module ex {
       private timers: Timer[] = [];
       private cancelQueue: Timer[] = [];
 
-      public collisionGroups: {[key:string]: Actor[]} = {};
-
-
       constructor() {}
 
       /**
@@ -140,37 +137,19 @@ module ex {
        */
       public addChild(actor: Actor) {
          actor.scene = this;
-         this.updateAddCollisionGroups(actor);
          this.children.push(actor);
          actor.parent = this.actor;
       }
 
-      public updateAddCollisionGroups(actor: Actor){
-         actor.collisionGroups.forEach((group)=>{
-            if(!(this.collisionGroups[group] instanceof Array)){
-               this.collisionGroups[group] = [];
-            }
-            this.collisionGroups[group].push(actor);
-         });
-      }
-
+    
       /**
        * Removes an actor from the Scene, it will no longer be drawn or updated.
        * @method removeChild
        * @param actor {Actor} The actor to remove
        */
       public removeChild(actor: Actor) {
-         this.updateRemoveCollisionGroups(actor);
          this.killQueue.push(actor);
          actor.parent = null;
-      }
-
-      public updateRemoveCollisionGroups(actor: Actor){
-         for(var group in this.collisionGroups){
-            this.collisionGroups[group] = this.collisionGroups[group].filter((a)=>{
-               return a != actor;
-            });
-         }
       }
 
       /**
@@ -365,6 +344,7 @@ module ex {
       public fixed = true;
       public preventCollisions = false;
       public collisionGroups : string[] = [];
+      private _collisionHandlers: {[key: string]: {(actor: Actor):void}[];} = {};
 
       public frames: { [key: string]: IDrawable; } = {}
       
@@ -504,9 +484,6 @@ module ex {
        */
       public addCollisionGroup(name: string){
          this.collisionGroups.push(name);
-         if(this.scene){
-            this.scene.updateAddCollisionGroups(this);
-         }
       }
 
       /**
@@ -517,9 +494,6 @@ module ex {
       public removeCollisionGroup(name: string){
          var index = this.collisionGroups.indexOf(name);
          this.collisionGroups.splice(index, 1);
-         if(this.scene){
-            this.scene.updateRemoveCollisionGroups(this);
-         }
       }
  
       /**
@@ -694,9 +668,8 @@ module ex {
        * @param actor {Actor} The other actor to test
        * @returns Side
        */
-      public collides(actor: Actor): Side {
-
-
+      public collides(actor: Actor): Side {         
+        
          var w = 0.5 * (this.getWidth() + actor.getWidth());
          var h = 0.5 * (this.getHeight() + actor.getHeight());
 
@@ -725,6 +698,29 @@ module ex {
 
          return Side.NONE;
       }
+
+      /**
+       * Register a handler to fire when this actor collides with another in a specified group
+       * @method onCollidesWith
+       * @param group {string} The group name to listen for
+       * @param func {callback} The callback to fire on collision with another actor from the group. The callback is passed the other actor.
+       */
+      public onCollidesWith(group: string, func: (actor: Actor)=>void){
+         if(!this._collisionHandlers[group]){
+            this._collisionHandlers[group] = [];
+         }
+         this._collisionHandlers[group].push(func);
+      }
+
+      /**
+       * Removes all collision handlers for this group on this actor
+       * @method removeCollidesWith
+       * @param group {string} Group to remove all handlers for on this actor.
+       */
+      public removeCollidesWith(group: string){
+         this._collisionHandlers[group] = [];         
+      }
+
 
       /**
        * Returns true if the two actors are less than or equal to the distance specified from each other
@@ -965,16 +961,7 @@ module ex {
 
          this.scale += this.sx * delta / 1000;
 
-         
-
          var potentialColliders = engine.currentScene.children;
-         if(this.collisionGroups.length !== 0){
-            potentialColliders = [];
-            for(var group in this.scene.collisionGroups){
-               potentialColliders = potentialColliders.concat(this.scene.collisionGroups[group]);
-            }
-         }
-
          // Publish collision events
          for (var i = 0; i < potentialColliders.length; i++) {
             var other = potentialColliders[i];
@@ -983,18 +970,21 @@ module ex {
                (side = this.collides(other)) !== Side.NONE) {
                var overlap = this.getOverlap(other);
                eventDispatcher.publish(EventType[EventType.Collision], new CollisionEvent(this, other, side));
+
                if (!this.fixed) {
                   if (Math.abs(overlap.y) < Math.abs(overlap.x)) {
                      this.y += overlap.y;
-                     //this.dy = 0;
-                     //this.dx += (<Actor>other).dx;
                   } else {
                      this.x += overlap.x;
-                     //this.dx = 0;
-                     //this.dy += (<Actor>other).dy;
                   }
-
                }
+               other.collisionGroups.forEach((group)=>{
+                  if(this._collisionHandlers[group]){
+                     this._collisionHandlers[group].forEach((handler)=>{
+                        handler.call(this, other);
+                     });
+                  }
+               });
             }
          }
 
