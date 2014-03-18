@@ -91,8 +91,9 @@ game.addChild(follower);
 
 // Create the player
 var player = new ex.Actor(100,100,32,96);
-player.addCollisionGroup('ground');
 follower.meet(player, 60);
+
+
 
 // follow player
 

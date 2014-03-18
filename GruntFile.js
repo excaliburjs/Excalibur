@@ -103,6 +103,7 @@ module.exports = function (grunt) {
             'tsc "./src/spec/LogSpec.ts" -out "./src/spec/LogSpec.js";' + 
             'tsc "./src/spec/TimerSpec.ts" -out "./src/spec/TimerSpec.js";' +
             'tsc "./src/spec/ClassSpec.ts" -out "./src/spec/ClassSpec.js";' + 
+            'tsc "./src/spec/CollisionGroupSpec.ts" -out "./src/spec/CollisionGroupSpec.js";' + 
             'tsc "./src/spec/CameraSpec.ts" -out "./src/spec/CameraSpec.js"',
             options: {
                stdout: true,
