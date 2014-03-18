@@ -14,6 +14,8 @@ emitter.fadeFlag = true;
 emitter.particleLife = 1000; // 1 sec
 emitter.maxSize = 10;
 emitter.minSize = 1;
+emitter.startSize = 0;
+emitter.endSize = 0;
 emitter.acceleration = new ex.Vector(0, 800);
 emitter.particleColor = ex.Color.Rose;
 emitter.focusAccel = 800;
@@ -45,6 +47,8 @@ var EmitterViewModel = function(){
    me.maxAngle = ko.observable(6.2);
    me.minSize = ko.observable(1);
    me.maxSize = ko.observable(10);
+   me.startSize = ko.observable(0);
+   me.endSize = ko.observable(0);
    me.width = ko.observable(2);
    me.height = ko.observable(2);
    me.radius = ko.observable(5);
@@ -102,6 +106,14 @@ var EmitterViewModel = function(){
       emitter.maxSize = parseInt(newSize);
    });
 
+   me.startSize.subscribe(function(newSize){
+      emitter.startSize = parseInt(newSize);
+   });
+
+   me.endSize.subscribe(function(newSize){
+      emitter.endSize = parseInt(newSize);
+   });
+
    me.particleLife.subscribe(function(life){
       emitter.particleLife = parseInt(life);
    });
@@ -153,6 +165,8 @@ var EmitterViewModel = function(){
       "emitter.particleLife = "+me.particleLife()+";\n"+
       "emitter.maxSize = "+me.maxSize()+";\n"+
       "emitter.minSize = "+me.minSize()+";\n"+
+      "emitter.startSize = "+me.startSize()+";\n"+
+      "emitter.endSize = "+me.endSize()+";\n"+
       "emitter.acceleration = new ex.Vector("+me.ax()+", "+me.ay()+");\n"+
       "emitter.beginColor = ex.Color."+me.beginColor().name+";\n" +
       "emitter.endColor = ex.Color."+me.endColor().name+";\n"

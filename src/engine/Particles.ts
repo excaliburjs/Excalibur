@@ -74,11 +74,8 @@ module ex {
          this.endSize = endSize || 0;
 
          if ((this.endSize > 0) && (this.startSize > 0)) {
-            if (this.startSize < this.endSize) {
-               this.sizeRate = (this.endSize / this.startSize) / this.life;
-            } else {
-               this.sizeRate = (this.startSize / this.endSize) / this.life;
-            }
+            this.sizeRate = (this.endSize - this.startSize) / this.life;
+            this.particleSize = this.startSize;
          }
       }
 
@@ -99,11 +96,7 @@ module ex {
          }
 
          if ((this.startSize > 0) && (this.endSize > 0)) {
-            if (this.startSize < this.endSize) {
-               this.particleSize = ex.Util.clamp(this.sizeRate * this.elapsedMultiplier, this.startSize, this.endSize);
-            } else {
-               this.particleSize = ex.Util.clamp(this.sizeRate * this.life, this.endSize, this.startSize);
-            }
+               this.particleSize = ex.Util.clamp(this.sizeRate * delta + this.particleSize , Math.min(this.startSize, this.endSize), Math.max(this.startSize, this.endSize));
          }
 
          this.currentColor.r = ex.Util.clamp(this.currentColor.r + this.rRate * delta, 0, 255);
