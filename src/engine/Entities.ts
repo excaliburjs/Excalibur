@@ -30,7 +30,16 @@ module ex {
       private timers: Timer[] = [];
       private cancelQueue: Timer[] = [];
 
-      constructor() {}
+      /**
+       * Direct access to the actor's event dispatcher.
+       * @property eventDispatcher {EventDispatcher}
+       */
+      public eventDispatcher: EventDispatcher;
+      private _isInitialized: boolean = false;
+
+      constructor() {
+         this.eventDispatcher = new EventDispatcher(this);
+      }
 
       /**
        * This is called when the scene is made active and started. It is meant to be overriden,
@@ -48,6 +57,39 @@ module ex {
        */
       public onDeactivate(): void {
          // will be overridden
+      }
+
+      /**
+       * This is called before the first update of the actor. This method is meant to be
+       * overridden. This is where initialization of child actors should take place.
+       * @method onInitialize
+       * @param engine {Engine}
+       */
+      public onInitialize(engine: Engine): void {
+         // will be overridden
+      }
+
+      /**
+       * Add an event listener. You can listen for a variety of
+       * events off of the engine; see the events section below for a complete list.
+       * @method addEventListener
+       * @param eventName {string} Name of the event to listen for
+       * @param handler {event=>void} Event handler for the thrown event
+       */
+      public addEventListener(eventName: string, handler: (event?: GameEvent) => void) {
+         this.eventDispatcher.subscribe(eventName, handler);
+      }
+      /**
+       * Removes an event listener. If only the eventName is specified
+       * it will remove all handlers registered for that specific event. If the eventName
+       * and the handler instance are specified only that handler will be removed.
+       *
+       * @method removeEventListener
+       * @param eventName {string} Name of the event to listen for
+       * @param [handler=undefined] {event=>void} Event handler for the thrown event
+       */
+      public removeEventListener(eventName: string, handler?:(event?: GameEvent)=> void){
+         this.eventDispatcher.unsubscribe(eventName, handler);
       }
 
       /**
@@ -69,6 +111,15 @@ module ex {
        * @param delta {number} The number of milliseconds since the last update
        */
       public update(engine: Engine, delta: number) {
+         if(!this._isInitialized){
+            this.onInitialize(engine);
+            this.eventDispatcher.publish('initialize', new InitializeEvent(engine));
+            this._isInitialized = true;
+         }
+
+         // Update event dispatcher
+         this.eventDispatcher.update();
+
          var len = 0;
          var start = 0;
          var end = 0;
@@ -352,6 +403,7 @@ module ex {
       public preventCollisions = false;
       public collisionGroups : string[] = [];
       private _collisionHandlers: {[key: string]: {(actor: Actor):void}[];} = {};
+      private _isInitialized : boolean = false;
 
       public frames: { [key: string]: IDrawable; } = {}
       
@@ -384,6 +436,16 @@ module ex {
          this.eventDispatcher = new EventDispatcher(this);
          this.sceneNode = new Scene();
          this.sceneNode.actor = this;
+      }
+
+      /**
+       * This is called before the first update of the actor. This method is meant to be
+       * overridden. This is where initialization of child actors should take place.
+       * @method onInitialize
+       * @param engine {Engine}
+       */
+      public onInitialize(engine: Engine): void {
+         // will be overridden
       }
 
       /**
@@ -951,6 +1013,12 @@ module ex {
        * @param delta {number} The time elapsed since the last update in milliseconds
        */
       public update(engine: Engine, delta: number) {
+         if(!this._isInitialized){
+            this.onInitialize(engine);
+            this.eventDispatcher.publish('initialize', new InitializeEvent(engine));
+            this._isInitialized = true;
+         }
+
          this.sceneNode.update(engine, delta);
          var eventDispatcher = this.eventDispatcher;
 
