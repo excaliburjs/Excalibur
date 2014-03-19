@@ -749,8 +749,7 @@ module ex {
       /**
        * Transforms the current x, y from screen coordinates to world coordinates
        * @method screenToWorldCoordinates
-       * @param x {number} X screen coordinate
-       * @param y {number} y screen coordinate
+       * @param point {Point} screen coordinate to convert
        */
       public screenToWorldCoordinates(point: Point): Point {
          var newX = Math.floor(point.x * this.canvas.width / this.canvas.clientWidth);
@@ -762,6 +761,24 @@ module ex {
             newY -= focus.y;
          }
          return new Point(newX, newY);
+      }
+
+      /**
+       * Transforms a world coordinate, to a screen coordinate
+       * @method worldToScreenCoordinates
+       * @param point {Point} world coordinate to convert
+       *
+       */
+      public worldToScreenCoordinates(point: Point): Point {
+         var screenX = Math.floor(point.x / (this.canvas.width / this.canvas.clientWidth));
+         var screenY = Math.floor(point.y / (this.canvas.height / this.canvas.clientHeight));
+
+         if(this.camera){
+            var focus = this.camera.getFocus();
+            screenX += focus.x;
+            screenY += focus.y;
+         }
+         return new Point(screenX, screenY);
       }
 
       /**
