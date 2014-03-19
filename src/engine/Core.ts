@@ -723,8 +723,17 @@ module ex {
       public goToScene(name: string){
          if(this.sceneHash[name]){
             this.currentScene.onDeactivate.call(this.currentScene);
+            
+            var oldScene = this.currentScene;
             this.currentScene = this.sceneHash[name];
+
+            oldScene.eventDispatcher.publish('deactivate', new DeactivateEvent(this.currentScene));
+            oldScene.eventDispatcher.update();
+
             this.currentScene.onActivate.call(this.currentScene);
+
+            this.currentScene.eventDispatcher.publish('activate', new ActivateEvent(oldScene));
+            this.currentScene.eventDispatcher.update();
          }else{
             this.logger.error("Scene", name, "does not exist!");
          }

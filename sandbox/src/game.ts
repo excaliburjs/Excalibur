@@ -211,12 +211,23 @@ player.addEventListener('touchstart', ()=> {
 
 var newScene = new ex.Scene();
 newScene.addChild(new ex.Label("MAH LABEL!", 200, 100));
-newScene.onActivate = function(){
-   console.log('activated newScene');
-};
-newScene.onDeactivate = function(){
-   console.log('deactivated newScene');
-};
+//newScene.onActivate = function(){
+//   console.log('activated newScene');
+//};
+//newScene.onDeactivate = function(){
+//   console.log('deactivated newScene');
+//};
+newScene.addEventListener('activate', (evt?: ex.ActivateEvent)=>{
+   console.log('activate newScene');
+});
+
+newScene.addEventListener('deactivate', (evt?: ex.ActivateEvent)=>{
+   console.log('deactivate newScene');
+});
+
+
+
+
 game.addScene('label', newScene);
 
 game.addEventListener('keydown', (keyDown? : ex.KeyDown)=>{
@@ -279,6 +290,10 @@ player.addEventListener('update', (data?: ex.UpdateEvent)=>{
    isColliding = false;
 
    //console.log("Player Pos", player.x, player.y, player.getWidth(), player.getHeight());
+});
+
+player.addEventListener('initialize', (evt?: ex.InitializeEvent)=>{
+   console.log("Player initialized", evt.engine);
 });
 
 game.addEventListener('keydown', (keyDown? : ex.KeyDown)=>{
