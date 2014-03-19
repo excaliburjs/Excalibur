@@ -24,7 +24,17 @@ describe("A camera", () => {
          touchStart: [],
          touchMove: [],
          touchEnd: [],
-         touchCancel: []
+         touchCancel: [],
+         canvas: {
+            width: 0,
+            height: 0,
+         },
+         worldToScreenCoordinates: function(){
+            return new ex.Point(0,0);
+         },
+         screenToWorldCoordinates: function(){
+            return new ex.Point(0,0);
+         }
       };
       engine.width = 500;
       engine.height = 500;

@@ -174,6 +174,29 @@ module ex {
       }
    }
 
+
+   /**
+    * Event thrown on an Actor when it completely leaves the screen.
+    * @class ExitViewPortEvent
+    * @constructor
+    */
+   export class ExitViewPortEvent extends GameEvent {
+      constructor(){
+         super();
+      }
+   }
+
+   /**
+    * Event thrown on an Actor when it completely leaves the screen.
+    * @class EnterViewPortEvent
+    * @constructor
+    */
+   export class EnterViewPortEvent extends GameEvent {
+      constructor(){
+         super();
+      }
+   }
+
    /**
     * Event thrown on a game object on KeyEvent
     *

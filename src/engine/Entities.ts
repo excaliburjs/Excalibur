@@ -296,6 +296,13 @@ module ex {
       public dy: number = 0;
       public ax: number = 0; // pixels/sec/sec
       public ay: number = 0;
+
+      /**
+       * Indicates wether the actor is physically in the viewport
+       * @property isOffScreen {boolean}
+       */
+      public isOffScreen = false;
+
       /** 
        * The visibility of an actor
        * @property invisible {boolean} 
@@ -1037,6 +1044,28 @@ module ex {
             }
          });
 
+         var actorScreenCoords = engine.worldToScreenCoordinates(new Point(this.x, this.y));
+         if(!this.isOffScreen){
+            if(actorScreenCoords.x + this.getWidth() < 0 || 
+               actorScreenCoords.y + this.getHeight() < 0 ||
+               actorScreenCoords.x > engine.canvas.width ||
+               actorScreenCoords.y > engine.canvas.height){
+               
+               eventDispatcher.publish('exitviewport', new ExitViewPortEvent());
+               this.isOffScreen = true;
+            }
+         }else{
+            if(actorScreenCoords.x + this.getWidth() > 0 &&
+               actorScreenCoords.y + this.getHeight() > 0 &&
+               actorScreenCoords.x < engine.canvas.width &&
+               actorScreenCoords.y < engine.canvas.height){
+               
+               eventDispatcher.publish('enterviewport', new EnterViewPortEvent());               
+               this.isOffScreen = false;
+            }
+         }
+
+
          eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
       }
 
@@ -1156,7 +1185,7 @@ module ex {
     * Enum representing the different baseline text alignments
     * @class BaseAlign
     */
-    export enum BaseAlign {
+   export enum BaseAlign {
       /**
        * The text baseline is the top of the em square.
        * @property Top
