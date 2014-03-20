@@ -394,6 +394,7 @@ module ex {
        */
       public color: Color;
 
+      private _isKilled: boolean = false;
        
       constructor(x?: number, y?: number, width?: number, height?: number, color?: Color) {
          super();
@@ -425,6 +426,7 @@ module ex {
       public kill() {
          if (this.scene) {
             this.scene.removeChild(this);
+            this._isKilled = true;
          } else {
             this.logger.warn("Cannot kill actor, it was never added to the Scene");
          }
@@ -984,7 +986,9 @@ module ex {
 
          this.scale += this.sx * delta / 1000;
 
-         var potentialColliders = engine.currentScene.children;
+         var potentialColliders = engine.currentScene.children.filter(function(actor){
+            return !actor._isKilled;
+         });
          // Publish collision events
          for (var i = 0; i < potentialColliders.length; i++) {
             var other = potentialColliders[i];
