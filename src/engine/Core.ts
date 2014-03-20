@@ -517,9 +517,6 @@ module ex {
 
       private hasStarted: boolean = false;
 
-      // Eventing
-      private eventDispatcher: EventDispatcher;
-
       // Key Events
       public keys: number[] = [];
       public keysDown: number[] = [];
@@ -588,8 +585,6 @@ module ex {
 
          this.canvasElementId = canvasElementId;
 
-         this.eventDispatcher = new EventDispatcher(this);
-
          this.rootScene = this.currentScene = new Scene();
          this.addScene('root', this.rootScene);
 
@@ -619,29 +614,6 @@ module ex {
 
       }
 
-      /**
-       * Add an event listener. You can listen for a variety of
-       * events off of the engine; see the events section below for a complete list.
-       * @method addEventListener
-       * @param eventName {string} Name of the event to listen for
-       * @param handler {event=>void} Event handler for the thrown event
-       */
-      public addEventListener(eventName: string, handler: (event?: GameEvent) => void) {
-         this.eventDispatcher.subscribe(eventName, handler);
-      }
-
-      /**
-       * Removes an event listener. If only the eventName is specified
-       * it will remove all handlers registered for that specific event. If the eventName
-       * and the handler instance are specified just that handler will be removed.
-       *
-       * @method removeEventListener
-       * @param eventName {string} Name of the event to listen for
-       * @param [handler=undefined] {event=>void} Event handler for the thrown event
-       */
-      public removeEventListener(eventName: string, handler?:(event?: GameEvent)=> void){
-         this.eventDispatcher.unsubscribe(eventName, handler);
-      }
      /**
       * Plays a sprite animation on the screen at the specified x and y
       * (in game coordinates, not screen pixels). These animations play

@@ -14,7 +14,7 @@ module ex {
     * @class Scene
     * @constructor
     */
-   export class Scene {
+   export class Scene extends ex.Util.Class {
 
       //The actor this scene is attached to , if any
       public actor: Actor;
@@ -30,15 +30,10 @@ module ex {
       private timers: Timer[] = [];
       private cancelQueue: Timer[] = [];
 
-      /**
-       * Direct access to the actor's event dispatcher.
-       * @property eventDispatcher {EventDispatcher}
-       */
-      public eventDispatcher: EventDispatcher;
       private _isInitialized: boolean = false;
 
       constructor() {
-         this.eventDispatcher = new EventDispatcher(this);
+         super();
       }
 
       /**
@@ -67,29 +62,6 @@ module ex {
        */
       public onInitialize(engine: Engine): void {
          // will be overridden
-      }
-
-      /**
-       * Add an event listener. You can listen for a variety of
-       * events off of the engine; see the events section below for a complete list.
-       * @method addEventListener
-       * @param eventName {string} Name of the event to listen for
-       * @param handler {event=>void} Event handler for the thrown event
-       */
-      public addEventListener(eventName: string, handler: (event?: GameEvent) => void) {
-         this.eventDispatcher.subscribe(eventName, handler);
-      }
-      /**
-       * Removes an event listener. If only the eventName is specified
-       * it will remove all handlers registered for that specific event. If the eventName
-       * and the handler instance are specified only that handler will be removed.
-       *
-       * @method removeEventListener
-       * @param eventName {string} Name of the event to listen for
-       * @param [handler=undefined] {event=>void} Event handler for the thrown event
-       */
-      public removeEventListener(eventName: string, handler?:(event?: GameEvent)=> void){
-         this.eventDispatcher.unsubscribe(eventName, handler);
       }
 
       /**
@@ -377,12 +349,6 @@ module ex {
        */
       public actionQueue: ex.Internal.Actions.ActionQueue;
 
-      /**
-       * Direct access to the actor's event dispatcher.
-       * @property eventDispatcher {EventDispatcher}
-       */
-      public eventDispatcher: EventDispatcher;
-
       private sceneNode: Scene; //the scene that the actor contains
 
       /**
@@ -437,7 +403,6 @@ module ex {
          this.height = height || 0;
          this.color = color;
          this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
-         this.eventDispatcher = new EventDispatcher(this);
          this.sceneNode = new Scene();
          this.sceneNode.actor = this;
       }
@@ -510,29 +475,6 @@ module ex {
          if (!this.currentDrawing) {
             this.currentDrawing = drawing;
          }
-      }
-
-      /**
-       * Add an event listener. You can listen for a variety of
-       * events off of the engine; see the events section below for a complete list.
-       * @method addEventListener
-       * @param eventName {string} Name of the event to listen for
-       * @param handler {event=>void} Event handler for the thrown event
-       */
-      public addEventListener(eventName: string, handler: (event?: GameEvent) => void) {
-         this.eventDispatcher.subscribe(eventName, handler);
-      }
-      /**
-       * Removes an event listener. If only the eventName is specified
-       * it will remove all handlers registered for that specific event. If the eventName
-       * and the handler instance are specified only that handler will be removed.
-       *
-       * @method removeEventListener
-       * @param eventName {string} Name of the event to listen for
-       * @param [handler=undefined] {event=>void} Event handler for the thrown event
-       */
-      public removeEventListener(eventName: string, handler?:(event?: GameEvent)=> void){
-         this.eventDispatcher.unsubscribe(eventName, handler);
       }
 
       /**
