@@ -83,6 +83,31 @@ module ex {
        @static
        @final
        */
+       /**
+       @property EnterViewPort {EventType}
+       @static
+       @final
+       */
+       /**
+       @property ExitViewPort {EventType}
+       @static
+       @final
+       */
+       /**
+       @property Activate {EventType}
+       @static
+       @final
+       */
+       /**
+       @property Deactivate {EventType}
+       @static
+       @final
+       */
+       /**
+       @property Initialize {EventType}
+       @static
+       @final
+       */
       KeyDown,
       KeyUp,
       KeyPress,
@@ -94,11 +119,15 @@ module ex {
       TouchEnd,
       TouchCancel,
       Click,
-      UserEvent,
       Collision,
+      EnterViewPort,
+      ExitViewPort,
       Blur,
       Focus,
-      Update
+      Update,
+      Activate,
+      Deactivate,
+      Initialize
    }
 
    /**
@@ -170,6 +199,71 @@ module ex {
     */
    export class UpdateEvent extends GameEvent {
       constructor(public delta: number) {
+         super();
+      }
+   }
+
+   /**
+    * Event thrown on an Actor only once before the first update call
+    *
+    * @class InitializeEvent
+    * @extends GameEvent
+    * @constructor 
+    * @param engine {Engine} The reference to the current engine
+    */
+   export class InitializeEvent extends GameEvent {
+      constructor(public engine: Engine) {
+         super();
+      }
+   }
+
+   /**
+    * Event thrown on a Scene on activation
+    *
+    * @class ActivateEvent
+    * @extends GameEvent
+    * @constructor 
+    * @param oldScene {Scene} The reference to the old scene
+    */
+   export class ActivateEvent extends GameEvent {
+      constructor(public oldScene: Scene) {
+         super();
+      }
+   }
+
+   /**
+    * Event thrown on a Scene on deactivation
+    *
+    * @class DeactivateEvent
+    * @extends GameEvent
+    * @constructor 
+    * @param newScene {Scene} The reference to the new scene
+    */
+   export class DeactivateEvent extends GameEvent {
+      constructor(public newScene: Scene) {
+         super();
+      }
+   }
+
+
+   /**
+    * Event thrown on an Actor when it completely leaves the screen.
+    * @class ExitViewPortEvent
+    * @constructor
+    */
+   export class ExitViewPortEvent extends GameEvent {
+      constructor(){
+         super();
+      }
+   }
+
+   /**
+    * Event thrown on an Actor when it completely leaves the screen.
+    * @class EnterViewPortEvent
+    * @constructor
+    */
+   export class EnterViewPortEvent extends GameEvent {
+      constructor(){
          super();
       }
    }

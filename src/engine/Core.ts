@@ -517,9 +517,6 @@ module ex {
 
       private hasStarted: boolean = false;
 
-      // Eventing
-      private eventDispatcher: EventDispatcher;
-
       // Key Events
       public keys: number[] = [];
       public keysDown: number[] = [];
@@ -588,8 +585,6 @@ module ex {
 
          this.canvasElementId = canvasElementId;
 
-         this.eventDispatcher = new EventDispatcher(this);
-
          this.rootScene = this.currentScene = new Scene();
          this.addScene('root', this.rootScene);
 
@@ -619,29 +614,6 @@ module ex {
 
       }
 
-      /**
-       * Add an event listener. You can listen for a variety of
-       * events off of the engine; see the events section below for a complete list.
-       * @method addEventListener
-       * @param eventName {string} Name of the event to listen for
-       * @param handler {event=>void} Event handler for the thrown event
-       */
-      public addEventListener(eventName: string, handler: (event?: GameEvent) => void) {
-         this.eventDispatcher.subscribe(eventName, handler);
-      }
-
-      /**
-       * Removes an event listener. If only the eventName is specified
-       * it will remove all handlers registered for that specific event. If the eventName
-       * and the handler instance are specified just that handler will be removed.
-       *
-       * @method removeEventListener
-       * @param eventName {string} Name of the event to listen for
-       * @param [handler=undefined] {event=>void} Event handler for the thrown event
-       */
-      public removeEventListener(eventName: string, handler?:(event?: GameEvent)=> void){
-         this.eventDispatcher.unsubscribe(eventName, handler);
-      }
      /**
       * Plays a sprite animation on the screen at the specified x and y
       * (in game coordinates, not screen pixels). These animations play
@@ -723,8 +695,17 @@ module ex {
       public goToScene(name: string){
          if(this.sceneHash[name]){
             this.currentScene.onDeactivate.call(this.currentScene);
+            
+            var oldScene = this.currentScene;
             this.currentScene = this.sceneHash[name];
+
+            oldScene.eventDispatcher.publish('deactivate', new DeactivateEvent(this.currentScene));
+            oldScene.eventDispatcher.update();
+
             this.currentScene.onActivate.call(this.currentScene);
+
+            this.currentScene.eventDispatcher.publish('activate', new ActivateEvent(oldScene));
+            this.currentScene.eventDispatcher.update();
          }else{
             this.logger.error("Scene", name, "does not exist!");
          }
@@ -749,8 +730,7 @@ module ex {
       /**
        * Transforms the current x, y from screen coordinates to world coordinates
        * @method screenToWorldCoordinates
-       * @param x {number} X screen coordinate
-       * @param y {number} y screen coordinate
+       * @param point {Point} screen coordinate to convert
        */
       public screenToWorldCoordinates(point: Point): Point {
          var newX = Math.floor(point.x * this.canvas.width / this.canvas.clientWidth);
@@ -762,6 +742,24 @@ module ex {
             newY -= focus.y;
          }
          return new Point(newX, newY);
+      }
+
+      /**
+       * Transforms a world coordinate, to a screen coordinate
+       * @method worldToScreenCoordinates
+       * @param point {Point} world coordinate to convert
+       *
+       */
+      public worldToScreenCoordinates(point: Point): Point {
+         var screenX = Math.floor(point.x / (this.canvas.width / this.canvas.clientWidth));
+         var screenY = Math.floor(point.y / (this.canvas.height / this.canvas.clientHeight));
+
+         if(this.camera){
+            var focus = this.camera.getFocus();
+            screenX += focus.x;
+            screenY += focus.y;
+         }
+         return new Point(screenX, screenY);
       }
 
       /**

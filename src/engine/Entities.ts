@@ -14,7 +14,7 @@ module ex {
     * @class Scene
     * @constructor
     */
-   export class Scene {
+   export class Scene extends ex.Util.Class {
 
       //The actor this scene is attached to , if any
       public actor: Actor;
@@ -30,7 +30,11 @@ module ex {
       private timers: Timer[] = [];
       private cancelQueue: Timer[] = [];
 
-      constructor() {}
+      private _isInitialized: boolean = false;
+
+      constructor() {
+         super();
+      }
 
       /**
        * This is called when the scene is made active and started. It is meant to be overriden,
@@ -47,6 +51,16 @@ module ex {
        * @method onDeactivate
        */
       public onDeactivate(): void {
+         // will be overridden
+      }
+
+      /**
+       * This is called before the first update of the actor. This method is meant to be
+       * overridden. This is where initialization of child actors should take place.
+       * @method onInitialize
+       * @param engine {Engine}
+       */
+      public onInitialize(engine: Engine): void {
          // will be overridden
       }
 
@@ -69,6 +83,15 @@ module ex {
        * @param delta {number} The number of milliseconds since the last update
        */
       public update(engine: Engine, delta: number) {
+         if(!this._isInitialized){
+            this.onInitialize(engine);
+            this.eventDispatcher.publish('initialize', new InitializeEvent(engine));
+            this._isInitialized = true;
+         }
+
+         // Update event dispatcher
+         this.eventDispatcher.update();
+
          var len = 0;
          var start = 0;
          var end = 0;
@@ -82,7 +105,9 @@ module ex {
          var actorIndex = 0;
          for (var j = 0, len = this.killQueue.length; j < len; j++) {
             actorIndex = this.children.indexOf(this.killQueue[j]);
-            this.children.splice(actorIndex, 1);
+            if(actorIndex !== -1){
+               this.children.splice(actorIndex, 1);
+            }
          }
          this.killQueue.length = 0;
 
@@ -173,8 +198,10 @@ module ex {
        */
       public removeTimer(timer: Timer): Timer{
          var i = this.timers.indexOf(timer);
-         this.timers.splice(i, 1);
-         return timer;
+         if(i !== -1){
+            this.timers.splice(i, 1);   
+         }
+         return timer;         
       }
 
       /**
@@ -296,6 +323,13 @@ module ex {
       public dy: number = 0;
       public ax: number = 0; // pixels/sec/sec
       public ay: number = 0;
+
+      /**
+       * Indicates wether the actor is physically in the viewport
+       * @property isOffScreen {boolean}
+       */
+      public isOffScreen = false;
+
       /** 
        * The visibility of an actor
        * @property invisible {boolean} 
@@ -314,12 +348,6 @@ module ex {
        * @property actionQueue {ActionQueue} 
        */
       public actionQueue: ex.Internal.Actions.ActionQueue;
-
-      /**
-       * Direct access to the actor's event dispatcher.
-       * @property eventDispatcher {EventDispatcher}
-       */
-      public eventDispatcher: EventDispatcher;
 
       private sceneNode: Scene; //the scene that the actor contains
 
@@ -345,6 +373,7 @@ module ex {
       public preventCollisions = false;
       public collisionGroups : string[] = [];
       private _collisionHandlers: {[key: string]: {(actor: Actor):void}[];} = {};
+      private _isInitialized : boolean = false;
 
       public frames: { [key: string]: IDrawable; } = {}
       
@@ -365,6 +394,7 @@ module ex {
        */
       public color: Color;
 
+      private _isKilled: boolean = false;
        
       constructor(x?: number, y?: number, width?: number, height?: number, color?: Color) {
          super();
@@ -374,9 +404,18 @@ module ex {
          this.height = height || 0;
          this.color = color;
          this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
-         this.eventDispatcher = new EventDispatcher(this);
          this.sceneNode = new Scene();
          this.sceneNode.actor = this;
+      }
+
+      /**
+       * This is called before the first update of the actor. This method is meant to be
+       * overridden. This is where initialization of child actors should take place.
+       * @method onInitialize
+       * @param engine {Engine}
+       */
+      public onInitialize(engine: Engine): void {
+         // will be overridden
       }
 
       /**
@@ -387,6 +426,7 @@ module ex {
       public kill() {
          if (this.scene) {
             this.scene.removeChild(this);
+            this._isKilled = true;
          } else {
             this.logger.warn("Cannot kill actor, it was never added to the Scene");
          }
@@ -440,29 +480,6 @@ module ex {
       }
 
       /**
-       * Add an event listener. You can listen for a variety of
-       * events off of the engine; see the events section below for a complete list.
-       * @method addEventListener
-       * @param eventName {string} Name of the event to listen for
-       * @param handler {event=>void} Event handler for the thrown event
-       */
-      public addEventListener(eventName: string, handler: (event?: GameEvent) => void) {
-         this.eventDispatcher.subscribe(eventName, handler);
-      }
-      /**
-       * Removes an event listener. If only the eventName is specified
-       * it will remove all handlers registered for that specific event. If the eventName
-       * and the handler instance are specified only that handler will be removed.
-       *
-       * @method removeEventListener
-       * @param eventName {string} Name of the event to listen for
-       * @param [handler=undefined] {event=>void} Event handler for the thrown event
-       */
-      public removeEventListener(eventName: string, handler?:(event?: GameEvent)=> void){
-         this.eventDispatcher.unsubscribe(eventName, handler);
-      }
-
-      /**
        * Artificially trigger an event on an actor, useful when creating custom events.
        * @method triggerEvent
        * @param eventName {string} The name of the event to trigger
@@ -493,7 +510,9 @@ module ex {
        */
       public removeCollisionGroup(name: string){
          var index = this.collisionGroups.indexOf(name);
-         this.collisionGroups.splice(index, 1);
+         if(index !== -1){
+            this.collisionGroups.splice(index, 1);
+         }
       }
  
       /**
@@ -944,6 +963,12 @@ module ex {
        * @param delta {number} The time elapsed since the last update in milliseconds
        */
       public update(engine: Engine, delta: number) {
+         if(!this._isInitialized){
+            this.onInitialize(engine);
+            this.eventDispatcher.publish('initialize', new InitializeEvent(engine));
+            this._isInitialized = true;
+         }
+
          this.sceneNode.update(engine, delta);
          var eventDispatcher = this.eventDispatcher;
 
@@ -961,7 +986,9 @@ module ex {
 
          this.scale += this.sx * delta / 1000;
 
-         var potentialColliders = engine.currentScene.children;
+         var potentialColliders = engine.currentScene.children.filter(function(actor){
+            return !actor._isKilled;
+         });
          // Publish collision events
          for (var i = 0; i < potentialColliders.length; i++) {
             var other = potentialColliders[i];
@@ -1036,6 +1063,28 @@ module ex {
                eventDispatcher.publish(EventType[EventType.TouchCancel], new TouchCancel(e.x, e.y));
             }
          });
+
+         var actorScreenCoords = engine.worldToScreenCoordinates(new Point(this.x, this.y));
+         if(!this.isOffScreen){
+            if(actorScreenCoords.x + this.getWidth() < 0 || 
+               actorScreenCoords.y + this.getHeight() < 0 ||
+               actorScreenCoords.x > engine.canvas.width ||
+               actorScreenCoords.y > engine.canvas.height){
+               
+               eventDispatcher.publish('exitviewport', new ExitViewPortEvent());
+               this.isOffScreen = true;
+            }
+         }else{
+            if(actorScreenCoords.x + this.getWidth() > 0 &&
+               actorScreenCoords.y + this.getHeight() > 0 &&
+               actorScreenCoords.x < engine.canvas.width &&
+               actorScreenCoords.y < engine.canvas.height){
+               
+               eventDispatcher.publish('enterviewport', new EnterViewPortEvent());               
+               this.isOffScreen = false;
+            }
+         }
+
 
          eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
       }
@@ -1156,7 +1205,7 @@ module ex {
     * Enum representing the different baseline text alignments
     * @class BaseAlign
     */
-    export enum BaseAlign {
+   export enum BaseAlign {
       /**
        * The text baseline is the top of the em square.
        * @property Top
