@@ -133,7 +133,9 @@ module ex {
          var actorIndex = 0;
          for (var j = 0, len = this.killQueue.length; j < len; j++) {
             actorIndex = this.children.indexOf(this.killQueue[j]);
-            this.children.splice(actorIndex, 1);
+            if(actorIndex !== -1){
+               this.children.splice(actorIndex, 1);
+            }
          }
          this.killQueue.length = 0;
 
@@ -224,8 +226,10 @@ module ex {
        */
       public removeTimer(timer: Timer): Timer{
          var i = this.timers.indexOf(timer);
-         this.timers.splice(i, 1);
-         return timer;
+         if(i !== -1){
+            this.timers.splice(i, 1);   
+         }
+         return timer;         
       }
 
       /**
@@ -562,7 +566,9 @@ module ex {
        */
       public removeCollisionGroup(name: string){
          var index = this.collisionGroups.indexOf(name);
-         this.collisionGroups.splice(index, 1);
+         if(index !== -1){
+            this.collisionGroups.splice(index, 1);
+         }
       }
  
       /**
