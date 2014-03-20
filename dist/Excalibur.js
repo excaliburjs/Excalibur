@@ -1,4 +1,4 @@
-/*! Excalibur - v0.2.0 - 2014-03-17
+/*! Excalibur - v0.2.0 - 2014-03-20
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -14,6 +14,28 @@ if (typeof window != 'undefined' && !window.requestAnimationFrame) {
 
 if (typeof window != 'undefined' && !window.AudioContext) {
     window.AudioContext = window.webkitAudioContext || window.mozAudioContext;
+}
+
+if (!Array.prototype.some) {
+    Array.prototype.some = function (fun) {
+        'use strict';
+
+        if (this === void 0 || this === null)
+            throw new TypeError();
+
+        var t = Object(this);
+        var len = t.length >>> 0;
+        if (typeof fun !== 'function')
+            throw new TypeError();
+
+        var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
+        for (var i = 0; i < len; i++) {
+            if (i in t && fun.call(thisArg, t[i], i, t))
+                return true;
+        }
+
+        return false;
+    };
 }
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -80,10 +102,494 @@ var ex;
 })(ex || (ex = {}));
 var ex;
 (function (ex) {
+    (function (LogLevel) {
+        LogLevel[LogLevel["Debug"] = 0] = "Debug";
+        LogLevel[LogLevel["Info"] = 1] = "Info";
+        LogLevel[LogLevel["Warn"] = 2] = "Warn";
+        LogLevel[LogLevel["Error"] = 3] = "Error";
+        LogLevel[LogLevel["Fatal"] = 4] = "Fatal";
+    })(ex.LogLevel || (ex.LogLevel = {}));
+    var LogLevel = ex.LogLevel;
+
+    var Logger = (function () {
+        function Logger() {
+            this.appenders = [];
+            this.defaultLevel = 1 /* Info */;
+            if (Logger._instance) {
+                throw new Error("Logger is a singleton");
+            }
+            Logger._instance = this;
+
+            Logger._instance.addAppender(new ConsoleAppender());
+            return Logger._instance;
+        }
+        Logger.getInstance = function () {
+            if (Logger._instance == null) {
+                Logger._instance = new Logger();
+            }
+            return Logger._instance;
+        };
+
+        Logger.prototype.addAppender = function (appender) {
+            this.appenders.push(appender);
+        };
+
+        Logger.prototype.clearAppenders = function () {
+            this.appenders.length = 0;
+        };
+
+        Logger.prototype._log = function (level, args) {
+            var _this = this;
+            if (level == null) {
+                level = this.defaultLevel;
+            }
+
+            this.appenders.forEach(function (appender) {
+                if (level >= _this.defaultLevel) {
+                    appender.log(level, args);
+                }
+            });
+        };
+
+        Logger.prototype.debug = function () {
+            var args = [];
+            for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                args[_i] = arguments[_i + 0];
+            }
+            this._log(0 /* Debug */, args);
+        };
+
+        Logger.prototype.info = function () {
+            var args = [];
+            for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                args[_i] = arguments[_i + 0];
+            }
+            this._log(1 /* Info */, args);
+        };
+
+        Logger.prototype.warn = function () {
+            var args = [];
+            for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                args[_i] = arguments[_i + 0];
+            }
+            this._log(2 /* Warn */, args);
+        };
+
+        Logger.prototype.error = function () {
+            var args = [];
+            for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                args[_i] = arguments[_i + 0];
+            }
+            this._log(3 /* Error */, args);
+        };
+
+        Logger.prototype.fatal = function () {
+            var args = [];
+            for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                args[_i] = arguments[_i + 0];
+            }
+            this._log(4 /* Fatal */, args);
+        };
+        Logger._instance = null;
+        return Logger;
+    })();
+    ex.Logger = Logger;
+
+    
+
+    var ConsoleAppender = (function () {
+        function ConsoleAppender() {
+        }
+        ConsoleAppender.prototype.log = function (level, args) {
+            var consoleArgs = [];
+            consoleArgs.unshift.apply(consoleArgs, args);
+            consoleArgs.unshift("[" + LogLevel[level] + "] : ");
+
+            if (level < 2 /* Warn */) {
+                console.log.apply(console, consoleArgs);
+            } else if (level < 3 /* Error */) {
+                console.warn.apply(console, consoleArgs);
+            } else {
+                console.error.apply(console, consoleArgs);
+            }
+        };
+        return ConsoleAppender;
+    })();
+    ex.ConsoleAppender = ConsoleAppender;
+
+    var ScreenAppender = (function () {
+        function ScreenAppender(width, height) {
+            this._messages = [];
+            this.canvas = document.createElement('canvas');
+            this.canvas.width = width || window.innerWidth;
+            this.canvas.height = height || window.innerHeight;
+            this.canvas.style.position = 'absolute';
+            this.ctx = this.canvas.getContext('2d');
+            document.body.appendChild(this.canvas);
+        }
+        ScreenAppender.prototype.log = function (level, args) {
+            var message = args.join(",");
+
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+            this._messages.unshift("[" + LogLevel[level] + "] : " + message);
+
+            var pos = 10;
+            var opacity = 1.0;
+            for (var i = 0; i < this._messages.length; i++) {
+                this.ctx.fillStyle = 'rgba(255,255,255,' + opacity.toFixed(2) + ')';
+                this.ctx.fillText(this._messages[i], 200, pos);
+                pos += 10;
+                opacity = opacity > 0 ? opacity - .05 : 0;
+            }
+        };
+        return ScreenAppender;
+    })();
+    ex.ScreenAppender = ScreenAppender;
+})(ex || (ex = {}));
+var ex;
+(function (ex) {
+    (function (EventType) {
+        EventType[EventType["KeyDown"] = 0] = "KeyDown";
+        EventType[EventType["KeyUp"] = 1] = "KeyUp";
+        EventType[EventType["KeyPress"] = 2] = "KeyPress";
+        EventType[EventType["MouseDown"] = 3] = "MouseDown";
+        EventType[EventType["MouseMove"] = 4] = "MouseMove";
+        EventType[EventType["MouseUp"] = 5] = "MouseUp";
+        EventType[EventType["TouchStart"] = 6] = "TouchStart";
+        EventType[EventType["TouchMove"] = 7] = "TouchMove";
+        EventType[EventType["TouchEnd"] = 8] = "TouchEnd";
+        EventType[EventType["TouchCancel"] = 9] = "TouchCancel";
+        EventType[EventType["Click"] = 10] = "Click";
+        EventType[EventType["Collision"] = 11] = "Collision";
+        EventType[EventType["EnterViewPort"] = 12] = "EnterViewPort";
+        EventType[EventType["ExitViewPort"] = 13] = "ExitViewPort";
+        EventType[EventType["Blur"] = 14] = "Blur";
+        EventType[EventType["Focus"] = 15] = "Focus";
+        EventType[EventType["Update"] = 16] = "Update";
+        EventType[EventType["Activate"] = 17] = "Activate";
+        EventType[EventType["Deactivate"] = 18] = "Deactivate";
+        EventType[EventType["Initialize"] = 19] = "Initialize";
+    })(ex.EventType || (ex.EventType = {}));
+    var EventType = ex.EventType;
+
+    var GameEvent = (function () {
+        function GameEvent() {
+        }
+        return GameEvent;
+    })();
+    ex.GameEvent = GameEvent;
+
+    var FocusEvent = (function (_super) {
+        __extends(FocusEvent, _super);
+        function FocusEvent() {
+            _super.call(this);
+        }
+        return FocusEvent;
+    })(GameEvent);
+    ex.FocusEvent = FocusEvent;
+
+    var BlurEvent = (function (_super) {
+        __extends(BlurEvent, _super);
+        function BlurEvent() {
+            _super.call(this);
+        }
+        return BlurEvent;
+    })(GameEvent);
+    ex.BlurEvent = BlurEvent;
+
+    var CollisionEvent = (function (_super) {
+        __extends(CollisionEvent, _super);
+        function CollisionEvent(actor, other, side) {
+            _super.call(this);
+            this.actor = actor;
+            this.other = other;
+            this.side = side;
+        }
+        return CollisionEvent;
+    })(GameEvent);
+    ex.CollisionEvent = CollisionEvent;
+
+    var UpdateEvent = (function (_super) {
+        __extends(UpdateEvent, _super);
+        function UpdateEvent(delta) {
+            _super.call(this);
+            this.delta = delta;
+        }
+        return UpdateEvent;
+    })(GameEvent);
+    ex.UpdateEvent = UpdateEvent;
+
+    var InitializeEvent = (function (_super) {
+        __extends(InitializeEvent, _super);
+        function InitializeEvent(engine) {
+            _super.call(this);
+            this.engine = engine;
+        }
+        return InitializeEvent;
+    })(GameEvent);
+    ex.InitializeEvent = InitializeEvent;
+
+    var ActivateEvent = (function (_super) {
+        __extends(ActivateEvent, _super);
+        function ActivateEvent(oldScene) {
+            _super.call(this);
+            this.oldScene = oldScene;
+        }
+        return ActivateEvent;
+    })(GameEvent);
+    ex.ActivateEvent = ActivateEvent;
+
+    var DeactivateEvent = (function (_super) {
+        __extends(DeactivateEvent, _super);
+        function DeactivateEvent(newScene) {
+            _super.call(this);
+            this.newScene = newScene;
+        }
+        return DeactivateEvent;
+    })(GameEvent);
+    ex.DeactivateEvent = DeactivateEvent;
+
+    var ExitViewPortEvent = (function (_super) {
+        __extends(ExitViewPortEvent, _super);
+        function ExitViewPortEvent() {
+            _super.call(this);
+        }
+        return ExitViewPortEvent;
+    })(GameEvent);
+    ex.ExitViewPortEvent = ExitViewPortEvent;
+
+    var EnterViewPortEvent = (function (_super) {
+        __extends(EnterViewPortEvent, _super);
+        function EnterViewPortEvent() {
+            _super.call(this);
+        }
+        return EnterViewPortEvent;
+    })(GameEvent);
+    ex.EnterViewPortEvent = EnterViewPortEvent;
+
+    var KeyEvent = (function (_super) {
+        __extends(KeyEvent, _super);
+        function KeyEvent(key) {
+            _super.call(this);
+            this.key = key;
+        }
+        return KeyEvent;
+    })(GameEvent);
+    ex.KeyEvent = KeyEvent;
+
+    var KeyDown = (function (_super) {
+        __extends(KeyDown, _super);
+        function KeyDown(key) {
+            _super.call(this);
+            this.key = key;
+        }
+        return KeyDown;
+    })(GameEvent);
+    ex.KeyDown = KeyDown;
+
+    var KeyUp = (function (_super) {
+        __extends(KeyUp, _super);
+        function KeyUp(key) {
+            _super.call(this);
+            this.key = key;
+        }
+        return KeyUp;
+    })(GameEvent);
+    ex.KeyUp = KeyUp;
+
+    var KeyPress = (function (_super) {
+        __extends(KeyPress, _super);
+        function KeyPress(key) {
+            _super.call(this);
+            this.key = key;
+        }
+        return KeyPress;
+    })(GameEvent);
+    ex.KeyPress = KeyPress;
+
+    (function (MouseButton) {
+        MouseButton[MouseButton["Left"] = 0] = "Left";
+
+        MouseButton[MouseButton["Middle"] = 1] = "Middle";
+
+        MouseButton[MouseButton["Right"] = 2] = "Right";
+    })(ex.MouseButton || (ex.MouseButton = {}));
+    var MouseButton = ex.MouseButton;
+
+    var MouseDown = (function (_super) {
+        __extends(MouseDown, _super);
+        function MouseDown(x, y, mouseEvent) {
+            _super.call(this);
+            this.x = x;
+            this.y = y;
+            this.mouseEvent = mouseEvent;
+        }
+        return MouseDown;
+    })(GameEvent);
+    ex.MouseDown = MouseDown;
+
+    var MouseMove = (function (_super) {
+        __extends(MouseMove, _super);
+        function MouseMove(x, y, mouseEvent) {
+            _super.call(this);
+            this.x = x;
+            this.y = y;
+            this.mouseEvent = mouseEvent;
+        }
+        return MouseMove;
+    })(GameEvent);
+    ex.MouseMove = MouseMove;
+
+    var MouseUp = (function (_super) {
+        __extends(MouseUp, _super);
+        function MouseUp(x, y, mouseEvent) {
+            _super.call(this);
+            this.x = x;
+            this.y = y;
+            this.mouseEvent = mouseEvent;
+        }
+        return MouseUp;
+    })(GameEvent);
+    ex.MouseUp = MouseUp;
+
+    
+
+    var TouchStart = (function (_super) {
+        __extends(TouchStart, _super);
+        function TouchStart(x, y) {
+            _super.call(this);
+            this.x = x;
+            this.y = y;
+        }
+        return TouchStart;
+    })(GameEvent);
+    ex.TouchStart = TouchStart;
+
+    var TouchMove = (function (_super) {
+        __extends(TouchMove, _super);
+        function TouchMove(x, y) {
+            _super.call(this);
+            this.x = x;
+            this.y = y;
+        }
+        return TouchMove;
+    })(GameEvent);
+    ex.TouchMove = TouchMove;
+
+    var TouchEnd = (function (_super) {
+        __extends(TouchEnd, _super);
+        function TouchEnd(x, y) {
+            _super.call(this);
+            this.x = x;
+            this.y = y;
+        }
+        return TouchEnd;
+    })(GameEvent);
+    ex.TouchEnd = TouchEnd;
+
+    var TouchCancel = (function (_super) {
+        __extends(TouchCancel, _super);
+        function TouchCancel(x, y) {
+            _super.call(this);
+            this.x = x;
+            this.y = y;
+        }
+        return TouchCancel;
+    })(GameEvent);
+    ex.TouchCancel = TouchCancel;
+
+    var Click = (function (_super) {
+        __extends(Click, _super);
+        function Click(x, y, mouseEvent) {
+            _super.call(this);
+            this.x = x;
+            this.y = y;
+            this.mouseEvent = mouseEvent;
+        }
+        return Click;
+    })(GameEvent);
+    ex.Click = Click;
+
+    var EventDispatcher = (function () {
+        function EventDispatcher(target) {
+            this._handlers = {};
+            this.queue = [];
+            this.log = ex.Logger.getInstance();
+            this.target = target;
+        }
+        EventDispatcher.prototype.publish = function (eventName, event) {
+            if (!eventName) {
+                return;
+            }
+            eventName = eventName.toLowerCase();
+            var queue = this.queue;
+            var target = this.target;
+            event.target = target;
+            if (this._handlers[eventName]) {
+                this._handlers[eventName].forEach(function (callback) {
+                    queue.push(function () {
+                        callback.call(target, event);
+                    });
+                });
+            }
+        };
+
+        EventDispatcher.prototype.subscribe = function (eventName, handler) {
+            eventName = eventName.toLowerCase();
+            if (!this._handlers[eventName]) {
+                this._handlers[eventName] = [];
+            }
+            this._handlers[eventName].push(handler);
+        };
+
+        EventDispatcher.prototype.unsubscribe = function (eventName, handler) {
+            eventName = eventName.toLowerCase();
+            var eventHandlers = this._handlers[eventName];
+
+            if (eventHandlers) {
+                if (!handler) {
+                    this._handlers[eventName].length = 0;
+                } else {
+                    var index = eventHandlers.indexOf(handler);
+                    this._handlers[eventName].splice(index, 1);
+                }
+            }
+        };
+
+        EventDispatcher.prototype.update = function () {
+            var callback;
+            while (callback = this.queue.shift()) {
+                callback();
+            }
+        };
+        return EventDispatcher;
+    })();
+    ex.EventDispatcher = EventDispatcher;
+})(ex || (ex = {}));
+var ex;
+(function (ex) {
     (function (Util) {
         var Class = (function () {
             function Class() {
+                this.eventDispatcher = new ex.EventDispatcher(this);
             }
+            Class.prototype.addEventListener = function (eventName, handler) {
+                this.eventDispatcher.subscribe(eventName, handler);
+            };
+
+            Class.prototype.removeEventListener = function (eventName, handler) {
+                this.eventDispatcher.unsubscribe(eventName, handler);
+            };
+
+            Class.prototype.on = function (eventName, handler) {
+                this.eventDispatcher.subscribe(eventName, handler);
+            };
+
+            Class.prototype.off = function (eventName, handler) {
+                this.eventDispatcher.unsubscribe(eventName, handler);
+            };
+
             Class.extend = function (methods) {
                 var _super = this.prototype;
                 var SubClass = function () {
@@ -307,18 +813,23 @@ var ex;
     })();
     ex.Overlap = Overlap;
 
-    var Scene = (function () {
+    var Scene = (function (_super) {
+        __extends(Scene, _super);
         function Scene() {
+            _super.call(this);
             this.children = [];
             this.killQueue = [];
             this.timers = [];
             this.cancelQueue = [];
-            this.collisionGroups = {};
+            this._isInitialized = false;
         }
         Scene.prototype.onActivate = function () {
         };
 
         Scene.prototype.onDeactivate = function () {
+        };
+
+        Scene.prototype.onInitialize = function (engine) {
         };
 
         Scene.prototype.publish = function (eventType, event) {
@@ -328,6 +839,14 @@ var ex;
         };
 
         Scene.prototype.update = function (engine, delta) {
+            if (!this._isInitialized) {
+                this.onInitialize(engine);
+                this.eventDispatcher.publish('initialize', new ex.InitializeEvent(engine));
+                this._isInitialized = true;
+            }
+
+            this.eventDispatcher.update();
+
             var len = 0;
             var start = 0;
             var end = 0;
@@ -340,7 +859,9 @@ var ex;
             var actorIndex = 0;
             for (var j = 0, len = this.killQueue.length; j < len; j++) {
                 actorIndex = this.children.indexOf(this.killQueue[j]);
-                this.children.splice(actorIndex, 1);
+                if (actorIndex !== -1) {
+                    this.children.splice(actorIndex, 1);
+                }
             }
             this.killQueue.length = 0;
 
@@ -376,33 +897,13 @@ var ex;
 
         Scene.prototype.addChild = function (actor) {
             actor.scene = this;
-            this.updateAddCollisionGroups(actor);
             this.children.push(actor);
             actor.parent = this.actor;
         };
 
-        Scene.prototype.updateAddCollisionGroups = function (actor) {
-            var _this = this;
-            actor.collisionGroups.forEach(function (group) {
-                if (!(_this.collisionGroups[group] instanceof Array)) {
-                    _this.collisionGroups[group] = [];
-                }
-                _this.collisionGroups[group].push(actor);
-            });
-        };
-
         Scene.prototype.removeChild = function (actor) {
-            this.updateRemoveCollisionGroups(actor);
             this.killQueue.push(actor);
             actor.parent = null;
-        };
-
-        Scene.prototype.updateRemoveCollisionGroups = function (actor) {
-            for (var group in this.collisionGroups) {
-                this.collisionGroups[group] = this.collisionGroups[group].filter(function (a) {
-                    return a != actor;
-                });
-            }
         };
 
         Scene.prototype.addTimer = function (timer) {
@@ -413,7 +914,9 @@ var ex;
 
         Scene.prototype.removeTimer = function (timer) {
             var i = this.timers.indexOf(timer);
-            this.timers.splice(i, 1);
+            if (i !== -1) {
+                this.timers.splice(i, 1);
+            }
             return timer;
         };
 
@@ -426,7 +929,7 @@ var ex;
             return (this.timers.indexOf(timer) > -1);
         };
         return Scene;
-    })();
+    })(ex.Util.Class);
     ex.Scene = Scene;
 
     (function (Side) {
@@ -454,6 +957,7 @@ var ex;
             this.dy = 0;
             this.ax = 0;
             this.ay = 0;
+            this.isOffScreen = false;
             this.invisible = false;
             this.opacity = 1;
             this.previousOpacity = 1;
@@ -463,23 +967,29 @@ var ex;
             this.fixed = true;
             this.preventCollisions = false;
             this.collisionGroups = [];
+            this._collisionHandlers = {};
+            this._isInitialized = false;
             this.frames = {};
             this.currentDrawing = null;
             this.centerDrawingX = false;
             this.centerDrawingY = false;
+            this._isKilled = false;
             this.x = x || 0;
             this.y = y || 0;
             this.width = width || 0;
             this.height = height || 0;
             this.color = color;
             this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
-            this.eventDispatcher = new ex.EventDispatcher(this);
             this.sceneNode = new Scene();
             this.sceneNode.actor = this;
         }
+        Actor.prototype.onInitialize = function (engine) {
+        };
+
         Actor.prototype.kill = function () {
             if (this.scene) {
                 this.scene.removeChild(this);
+                this._isKilled = true;
             } else {
                 this.logger.warn("Cannot kill actor, it was never added to the Scene");
             }
@@ -507,30 +1017,18 @@ var ex;
             }
         };
 
-        Actor.prototype.addEventListener = function (eventName, handler) {
-            this.eventDispatcher.subscribe(eventName, handler);
-        };
-
-        Actor.prototype.removeEventListener = function (eventName, handler) {
-            this.eventDispatcher.unsubscribe(eventName, handler);
-        };
-
         Actor.prototype.triggerEvent = function (eventName, event) {
             this.eventDispatcher.publish(eventName, event);
         };
 
         Actor.prototype.addCollisionGroup = function (name) {
             this.collisionGroups.push(name);
-            if (this.scene) {
-                this.scene.updateAddCollisionGroups(this);
-            }
         };
 
         Actor.prototype.removeCollisionGroup = function (name) {
             var index = this.collisionGroups.indexOf(name);
-            this.collisionGroups.splice(index, 1);
-            if (this.scene) {
-                this.scene.updateRemoveCollisionGroups(this);
+            if (index !== -1) {
+                this.collisionGroups.splice(index, 1);
             }
         };
 
@@ -664,6 +1162,17 @@ var ex;
             return 0 /* NONE */;
         };
 
+        Actor.prototype.onCollidesWith = function (group, func) {
+            if (!this._collisionHandlers[group]) {
+                this._collisionHandlers[group] = [];
+            }
+            this._collisionHandlers[group].push(func);
+        };
+
+        Actor.prototype.removeCollidesWith = function (group) {
+            this._collisionHandlers[group] = [];
+        };
+
         Actor.prototype.within = function (actor, distance) {
             return Math.sqrt(Math.pow(this.x - actor.x, 2) + Math.pow(this.y - actor.y, 2)) <= distance;
         };
@@ -717,6 +1226,11 @@ var ex;
             return this;
         };
 
+        Actor.prototype.die = function () {
+            this.actionQueue.add(new ex.Internal.Actions.Die(this));
+            return this;
+        };
+
         Actor.prototype.repeat = function (times) {
             if (!times) {
                 this.repeatForever();
@@ -752,6 +1266,12 @@ var ex;
 
         Actor.prototype.update = function (engine, delta) {
             var _this = this;
+            if (!this._isInitialized) {
+                this.onInitialize(engine);
+                this.eventDispatcher.publish('initialize', new ex.InitializeEvent(engine));
+                this._isInitialized = true;
+            }
+
             this.sceneNode.update(engine, delta);
             var eventDispatcher = this.eventDispatcher;
 
@@ -766,20 +1286,17 @@ var ex;
 
             this.scale += this.sx * delta / 1000;
 
-            var potentialColliders = engine.currentScene.children;
-            if (this.collisionGroups.length !== 0) {
-                potentialColliders = [];
-                for (var group in this.scene.collisionGroups) {
-                    potentialColliders = potentialColliders.concat(this.scene.collisionGroups[group]);
-                }
-            }
+            var potentialColliders = engine.currentScene.children.filter(function (actor) {
+                return !actor._isKilled;
+            });
 
             for (var i = 0; i < potentialColliders.length; i++) {
                 var other = potentialColliders[i];
                 var side = 0 /* NONE */;
                 if (other !== this && !other.preventCollisions && (side = this.collides(other)) !== 0 /* NONE */) {
                     var overlap = this.getOverlap(other);
-                    eventDispatcher.publish(ex.EventType[12 /* Collision */], new ex.CollisionEvent(this, other, side));
+                    eventDispatcher.publish(ex.EventType[11 /* Collision */], new ex.CollisionEvent(this, other, side));
+
                     if (!this.fixed) {
                         if (Math.abs(overlap.y) < Math.abs(overlap.x)) {
                             this.y += overlap.y;
@@ -787,6 +1304,13 @@ var ex;
                             this.x += overlap.x;
                         }
                     }
+                    other.collisionGroups.forEach(function (group) {
+                        if (_this._collisionHandlers[group]) {
+                            _this._collisionHandlers[group].forEach(function (handler) {
+                                handler.call(_this, other);
+                            });
+                        }
+                    });
                 }
             }
 
@@ -837,7 +1361,20 @@ var ex;
                 }
             });
 
-            eventDispatcher.publish(ex.EventType[15 /* Update */], new ex.UpdateEvent(delta));
+            var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Point(this.x, this.y));
+            if (!this.isOffScreen) {
+                if (actorScreenCoords.x + this.getWidth() < 0 || actorScreenCoords.y + this.getHeight() < 0 || actorScreenCoords.x > engine.canvas.width || actorScreenCoords.y > engine.canvas.height) {
+                    eventDispatcher.publish('exitviewport', new ex.ExitViewPortEvent());
+                    this.isOffScreen = true;
+                }
+            } else {
+                if (actorScreenCoords.x + this.getWidth() > 0 && actorScreenCoords.y + this.getHeight() > 0 && actorScreenCoords.x < engine.canvas.width && actorScreenCoords.y < engine.canvas.height) {
+                    eventDispatcher.publish('enterviewport', new ex.EnterViewPortEvent());
+                    this.isOffScreen = false;
+                }
+            }
+
+            eventDispatcher.publish(ex.EventType[16 /* Update */], new ex.UpdateEvent(delta));
         };
 
         Actor.prototype.draw = function (ctx, delta) {
@@ -1693,6 +2230,31 @@ var ex;
             })();
             Actions.Fade = Fade;
 
+            var Die = (function () {
+                function Die(actor) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                }
+                Die.prototype.update = function (delta) {
+                    this.actor.actionQueue.clearActions();
+                    this.actor.kill();
+                    this._stopped = true;
+                };
+
+                Die.prototype.isComplete = function () {
+                    return this._stopped;
+                };
+
+                Die.prototype.stop = function () {
+                };
+
+                Die.prototype.reset = function () {
+                };
+                return Die;
+            })();
+            Actions.Die = Die;
+
             var Repeat = (function () {
                 function Repeat(actor, repeat, actions) {
                     var _this = this;
@@ -1828,421 +2390,6 @@ var ex;
 })(ex || (ex = {}));
 var ex;
 (function (ex) {
-    (function (LogLevel) {
-        LogLevel[LogLevel["Debug"] = 0] = "Debug";
-        LogLevel[LogLevel["Info"] = 1] = "Info";
-        LogLevel[LogLevel["Warn"] = 2] = "Warn";
-        LogLevel[LogLevel["Error"] = 3] = "Error";
-        LogLevel[LogLevel["Fatal"] = 4] = "Fatal";
-    })(ex.LogLevel || (ex.LogLevel = {}));
-    var LogLevel = ex.LogLevel;
-
-    var Logger = (function () {
-        function Logger() {
-            this.appenders = [];
-            this.defaultLevel = 1 /* Info */;
-            if (Logger._instance) {
-                throw new Error("Logger is a singleton");
-            }
-            Logger._instance = this;
-
-            Logger._instance.addAppender(new ConsoleAppender());
-            return Logger._instance;
-        }
-        Logger.getInstance = function () {
-            if (Logger._instance == null) {
-                Logger._instance = new Logger();
-            }
-            return Logger._instance;
-        };
-
-        Logger.prototype.addAppender = function (appender) {
-            this.appenders.push(appender);
-        };
-
-        Logger.prototype.clearAppenders = function () {
-            this.appenders.length = 0;
-        };
-
-        Logger.prototype._log = function (level, args) {
-            var _this = this;
-            if (level == null) {
-                level = this.defaultLevel;
-            }
-
-            this.appenders.forEach(function (appender) {
-                if (level >= _this.defaultLevel) {
-                    appender.log(level, args);
-                }
-            });
-        };
-
-        Logger.prototype.debug = function () {
-            var args = [];
-            for (var _i = 0; _i < (arguments.length - 0); _i++) {
-                args[_i] = arguments[_i + 0];
-            }
-            this._log(0 /* Debug */, args);
-        };
-
-        Logger.prototype.info = function () {
-            var args = [];
-            for (var _i = 0; _i < (arguments.length - 0); _i++) {
-                args[_i] = arguments[_i + 0];
-            }
-            this._log(1 /* Info */, args);
-        };
-
-        Logger.prototype.warn = function () {
-            var args = [];
-            for (var _i = 0; _i < (arguments.length - 0); _i++) {
-                args[_i] = arguments[_i + 0];
-            }
-            this._log(2 /* Warn */, args);
-        };
-
-        Logger.prototype.error = function () {
-            var args = [];
-            for (var _i = 0; _i < (arguments.length - 0); _i++) {
-                args[_i] = arguments[_i + 0];
-            }
-            this._log(3 /* Error */, args);
-        };
-
-        Logger.prototype.fatal = function () {
-            var args = [];
-            for (var _i = 0; _i < (arguments.length - 0); _i++) {
-                args[_i] = arguments[_i + 0];
-            }
-            this._log(4 /* Fatal */, args);
-        };
-        Logger._instance = null;
-        return Logger;
-    })();
-    ex.Logger = Logger;
-
-    
-
-    var ConsoleAppender = (function () {
-        function ConsoleAppender() {
-        }
-        ConsoleAppender.prototype.log = function (level, args) {
-            var consoleArgs = [];
-            consoleArgs.unshift.apply(consoleArgs, args);
-            consoleArgs.unshift("[" + LogLevel[level] + "] : ");
-
-            if (level < 2 /* Warn */) {
-                console.log.apply(console, consoleArgs);
-            } else if (level < 3 /* Error */) {
-                console.warn.apply(console, consoleArgs);
-            } else {
-                console.error.apply(console, consoleArgs);
-            }
-        };
-        return ConsoleAppender;
-    })();
-    ex.ConsoleAppender = ConsoleAppender;
-
-    var ScreenAppender = (function () {
-        function ScreenAppender(width, height) {
-            this._messages = [];
-            this.canvas = document.createElement('canvas');
-            this.canvas.width = width || window.innerWidth;
-            this.canvas.height = height || window.innerHeight;
-            this.canvas.style.position = 'absolute';
-            this.ctx = this.canvas.getContext('2d');
-            document.body.appendChild(this.canvas);
-        }
-        ScreenAppender.prototype.log = function (level, args) {
-            var message = args.join(",");
-
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-            this._messages.unshift("[" + LogLevel[level] + "] : " + message);
-
-            var pos = 10;
-            var opacity = 1.0;
-            for (var i = 0; i < this._messages.length; i++) {
-                this.ctx.fillStyle = 'rgba(255,255,255,' + opacity.toFixed(2) + ')';
-                this.ctx.fillText(this._messages[i], 200, pos);
-                pos += 10;
-                opacity = opacity > 0 ? opacity - .05 : 0;
-            }
-        };
-        return ScreenAppender;
-    })();
-    ex.ScreenAppender = ScreenAppender;
-})(ex || (ex = {}));
-var ex;
-(function (ex) {
-    (function (EventType) {
-        EventType[EventType["KeyDown"] = 0] = "KeyDown";
-        EventType[EventType["KeyUp"] = 1] = "KeyUp";
-        EventType[EventType["KeyPress"] = 2] = "KeyPress";
-        EventType[EventType["MouseDown"] = 3] = "MouseDown";
-        EventType[EventType["MouseMove"] = 4] = "MouseMove";
-        EventType[EventType["MouseUp"] = 5] = "MouseUp";
-        EventType[EventType["TouchStart"] = 6] = "TouchStart";
-        EventType[EventType["TouchMove"] = 7] = "TouchMove";
-        EventType[EventType["TouchEnd"] = 8] = "TouchEnd";
-        EventType[EventType["TouchCancel"] = 9] = "TouchCancel";
-        EventType[EventType["Click"] = 10] = "Click";
-        EventType[EventType["UserEvent"] = 11] = "UserEvent";
-        EventType[EventType["Collision"] = 12] = "Collision";
-        EventType[EventType["Blur"] = 13] = "Blur";
-        EventType[EventType["Focus"] = 14] = "Focus";
-        EventType[EventType["Update"] = 15] = "Update";
-    })(ex.EventType || (ex.EventType = {}));
-    var EventType = ex.EventType;
-
-    var GameEvent = (function () {
-        function GameEvent() {
-        }
-        return GameEvent;
-    })();
-    ex.GameEvent = GameEvent;
-
-    var FocusEvent = (function (_super) {
-        __extends(FocusEvent, _super);
-        function FocusEvent() {
-            _super.call(this);
-        }
-        return FocusEvent;
-    })(GameEvent);
-    ex.FocusEvent = FocusEvent;
-
-    var BlurEvent = (function (_super) {
-        __extends(BlurEvent, _super);
-        function BlurEvent() {
-            _super.call(this);
-        }
-        return BlurEvent;
-    })(GameEvent);
-    ex.BlurEvent = BlurEvent;
-
-    var CollisionEvent = (function (_super) {
-        __extends(CollisionEvent, _super);
-        function CollisionEvent(actor, other, side) {
-            _super.call(this);
-            this.actor = actor;
-            this.other = other;
-            this.side = side;
-        }
-        return CollisionEvent;
-    })(GameEvent);
-    ex.CollisionEvent = CollisionEvent;
-
-    var UpdateEvent = (function (_super) {
-        __extends(UpdateEvent, _super);
-        function UpdateEvent(delta) {
-            _super.call(this);
-            this.delta = delta;
-        }
-        return UpdateEvent;
-    })(GameEvent);
-    ex.UpdateEvent = UpdateEvent;
-
-    var KeyEvent = (function (_super) {
-        __extends(KeyEvent, _super);
-        function KeyEvent(key) {
-            _super.call(this);
-            this.key = key;
-        }
-        return KeyEvent;
-    })(GameEvent);
-    ex.KeyEvent = KeyEvent;
-
-    var KeyDown = (function (_super) {
-        __extends(KeyDown, _super);
-        function KeyDown(key) {
-            _super.call(this);
-            this.key = key;
-        }
-        return KeyDown;
-    })(GameEvent);
-    ex.KeyDown = KeyDown;
-
-    var KeyUp = (function (_super) {
-        __extends(KeyUp, _super);
-        function KeyUp(key) {
-            _super.call(this);
-            this.key = key;
-        }
-        return KeyUp;
-    })(GameEvent);
-    ex.KeyUp = KeyUp;
-
-    var KeyPress = (function (_super) {
-        __extends(KeyPress, _super);
-        function KeyPress(key) {
-            _super.call(this);
-            this.key = key;
-        }
-        return KeyPress;
-    })(GameEvent);
-    ex.KeyPress = KeyPress;
-
-    (function (MouseButton) {
-        MouseButton[MouseButton["Left"] = 0] = "Left";
-
-        MouseButton[MouseButton["Middle"] = 1] = "Middle";
-
-        MouseButton[MouseButton["Right"] = 2] = "Right";
-    })(ex.MouseButton || (ex.MouseButton = {}));
-    var MouseButton = ex.MouseButton;
-
-    var MouseDown = (function (_super) {
-        __extends(MouseDown, _super);
-        function MouseDown(x, y, mouseEvent) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-            this.mouseEvent = mouseEvent;
-        }
-        return MouseDown;
-    })(GameEvent);
-    ex.MouseDown = MouseDown;
-
-    var MouseMove = (function (_super) {
-        __extends(MouseMove, _super);
-        function MouseMove(x, y, mouseEvent) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-            this.mouseEvent = mouseEvent;
-        }
-        return MouseMove;
-    })(GameEvent);
-    ex.MouseMove = MouseMove;
-
-    var MouseUp = (function (_super) {
-        __extends(MouseUp, _super);
-        function MouseUp(x, y, mouseEvent) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-            this.mouseEvent = mouseEvent;
-        }
-        return MouseUp;
-    })(GameEvent);
-    ex.MouseUp = MouseUp;
-
-    
-
-    var TouchStart = (function (_super) {
-        __extends(TouchStart, _super);
-        function TouchStart(x, y) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-        }
-        return TouchStart;
-    })(GameEvent);
-    ex.TouchStart = TouchStart;
-
-    var TouchMove = (function (_super) {
-        __extends(TouchMove, _super);
-        function TouchMove(x, y) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-        }
-        return TouchMove;
-    })(GameEvent);
-    ex.TouchMove = TouchMove;
-
-    var TouchEnd = (function (_super) {
-        __extends(TouchEnd, _super);
-        function TouchEnd(x, y) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-        }
-        return TouchEnd;
-    })(GameEvent);
-    ex.TouchEnd = TouchEnd;
-
-    var TouchCancel = (function (_super) {
-        __extends(TouchCancel, _super);
-        function TouchCancel(x, y) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-        }
-        return TouchCancel;
-    })(GameEvent);
-    ex.TouchCancel = TouchCancel;
-
-    var Click = (function (_super) {
-        __extends(Click, _super);
-        function Click(x, y, mouseEvent) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-            this.mouseEvent = mouseEvent;
-        }
-        return Click;
-    })(GameEvent);
-    ex.Click = Click;
-
-    var EventDispatcher = (function () {
-        function EventDispatcher(target) {
-            this._handlers = {};
-            this.queue = [];
-            this.log = ex.Logger.getInstance();
-            this.target = target;
-        }
-        EventDispatcher.prototype.publish = function (eventName, event) {
-            if (!eventName) {
-                return;
-            }
-            eventName = eventName.toLowerCase();
-            var queue = this.queue;
-            var target = this.target;
-            event.target = target;
-            if (this._handlers[eventName]) {
-                this._handlers[eventName].forEach(function (callback) {
-                    queue.push(function () {
-                        callback.call(target, event);
-                    });
-                });
-            }
-        };
-
-        EventDispatcher.prototype.subscribe = function (eventName, handler) {
-            eventName = eventName.toLowerCase();
-            if (!this._handlers[eventName]) {
-                this._handlers[eventName] = [];
-            }
-            this._handlers[eventName].push(handler);
-        };
-
-        EventDispatcher.prototype.unsubscribe = function (eventName, handler) {
-            eventName = eventName.toLowerCase();
-            var eventHandlers = this._handlers[eventName];
-
-            if (eventHandlers) {
-                if (!handler) {
-                    this._handlers[eventName].length = 0;
-                } else {
-                    var index = eventHandlers.indexOf(handler);
-                    this._handlers[eventName].splice(index, 1);
-                }
-            }
-        };
-
-        EventDispatcher.prototype.update = function () {
-            var callback;
-            while (callback = this.queue.shift()) {
-                callback();
-            }
-        };
-        return EventDispatcher;
-    })();
-    ex.EventDispatcher = EventDispatcher;
-})(ex || (ex = {}));
-var ex;
-(function (ex) {
     (function (EmitterType) {
         EmitterType[EmitterType["Circle"] = 0] = "Circle";
 
@@ -2251,7 +2398,7 @@ var ex;
     var EmitterType = ex.EmitterType;
 
     var Particle = (function () {
-        function Particle(emitter, life, opacity, beginColor, endColor, position, velocity, acceleration) {
+        function Particle(emitter, life, opacity, beginColor, endColor, position, velocity, acceleration, startSize, endSize) {
             this.position = new ex.Vector(0, 0);
             this.velocity = new ex.Vector(0, 0);
             this.acceleration = new ex.Vector(0, 0);
@@ -2270,6 +2417,8 @@ var ex;
             this.emitter = null;
             this.particleSize = 5;
             this.particleSprite = null;
+            this.sizeRate = 0;
+            this.elapsedMultiplier = 0;
             this.emitter = emitter;
             this.life = life || this.life;
             this.opacity = opacity || this.opacity;
@@ -2283,6 +2432,14 @@ var ex;
             this.gRate = (this.endColor.g - this.beginColor.g) / this.life;
             this.bRate = (this.endColor.b - this.beginColor.b) / this.life;
             this.aRate = this.opacity / this.life;
+
+            this.startSize = startSize || 0;
+            this.endSize = endSize || 0;
+
+            if ((this.endSize > 0) && (this.startSize > 0)) {
+                this.sizeRate = (this.endSize - this.startSize) / this.life;
+                this.particleSize = this.startSize;
+            }
         }
         Particle.prototype.kill = function () {
             this.emitter.removeParticle(this);
@@ -2290,6 +2447,7 @@ var ex;
 
         Particle.prototype.update = function (delta) {
             this.life = this.life - delta;
+            this.elapsedMultiplier = this.elapsedMultiplier + delta;
 
             if (this.life < 0) {
                 this.kill();
@@ -2297,6 +2455,10 @@ var ex;
 
             if (this.fadeFlag) {
                 this.opacity = ex.Util.clamp(this.aRate * this.life, 0.0001, 1);
+            }
+
+            if ((this.startSize > 0) && (this.endSize > 0)) {
+                this.particleSize = ex.Util.clamp(this.sizeRate * delta + this.particleSize, Math.min(this.startSize, this.endSize), Math.max(this.startSize, this.endSize));
             }
 
             this.currentColor.r = ex.Util.clamp(this.currentColor.r + this.rRate * delta, 0, 255);
@@ -2349,6 +2511,8 @@ var ex;
             this.fadeFlag = false;
             this.focus = null;
             this.focusAccel = 1;
+            this.startSize = null;
+            this.endSize = null;
             this.minSize = 5;
             this.maxSize = 5;
             this.beginColor = ex.Color.White;
@@ -2380,7 +2544,7 @@ var ex;
 
             var angle = ex.Util.randomInRange(this.minAngle, this.maxAngle);
             var vel = ex.Util.randomInRange(this.minVel, this.maxVel);
-            var size = ex.Util.randomInRange(this.minSize, this.maxSize);
+            var size = this.startSize || ex.Util.randomInRange(this.minSize, this.maxSize);
             var dx = vel * Math.cos(angle);
             var dy = vel * Math.sin(angle);
 
@@ -2393,7 +2557,7 @@ var ex;
                 ranY = radius * Math.sin(angle) + this.y;
             }
 
-            var p = new Particle(this, this.particleLife, this.opacity, this.beginColor, this.endColor, new ex.Vector(ranX, ranY), new ex.Vector(dx, dy), this.acceleration);
+            var p = new Particle(this, this.particleLife, this.opacity, this.beginColor, this.endColor, new ex.Vector(ranX, ranY), new ex.Vector(dx, dy), this.acceleration, this.startSize, this.endSize);
             p.fadeFlag = this.fadeFlag;
             p.particleSize = size;
             p.particleSprite = this.particleSprite;
@@ -3875,8 +4039,6 @@ var ex;
 
             this.canvasElementId = canvasElementId;
 
-            this.eventDispatcher = new ex.EventDispatcher(this);
-
             this.rootScene = this.currentScene = new ex.Scene();
             this.addScene('root', this.rootScene);
 
@@ -3903,14 +4065,6 @@ var ex;
 
             this.initialize();
         }
-        Engine.prototype.addEventListener = function (eventName, handler) {
-            this.eventDispatcher.subscribe(eventName, handler);
-        };
-
-        Engine.prototype.removeEventListener = function (eventName, handler) {
-            this.eventDispatcher.unsubscribe(eventName, handler);
-        };
-
         Engine.prototype.playAnimation = function (animation, x, y) {
             this.animations.push(new AnimationNode(animation, x, y));
         };
@@ -3942,8 +4096,17 @@ var ex;
         Engine.prototype.goToScene = function (name) {
             if (this.sceneHash[name]) {
                 this.currentScene.onDeactivate.call(this.currentScene);
+
+                var oldScene = this.currentScene;
                 this.currentScene = this.sceneHash[name];
+
+                oldScene.eventDispatcher.publish('deactivate', new ex.DeactivateEvent(this.currentScene));
+                oldScene.eventDispatcher.update();
+
                 this.currentScene.onActivate.call(this.currentScene);
+
+                this.currentScene.eventDispatcher.publish('activate', new ex.ActivateEvent(oldScene));
+                this.currentScene.eventDispatcher.update();
             } else {
                 this.logger.error("Scene", name, "does not exist!");
             }
@@ -3967,6 +4130,18 @@ var ex;
                 newY -= focus.y;
             }
             return new ex.Point(newX, newY);
+        };
+
+        Engine.prototype.worldToScreenCoordinates = function (point) {
+            var screenX = Math.floor(point.x / (this.canvas.width / this.canvas.clientWidth));
+            var screenY = Math.floor(point.y / (this.canvas.height / this.canvas.clientHeight));
+
+            if (this.camera) {
+                var focus = this.camera.getFocus();
+                screenX += focus.x;
+                screenY += focus.y;
+            }
+            return new ex.Point(screenX, screenY);
         };
 
         Engine.prototype.setHeightByDisplayMode = function (parent) {
@@ -4022,12 +4197,12 @@ var ex;
             });
 
             window.addEventListener('blur', function () {
-                _this.eventDispatcher.publish(ex.EventType[13 /* Blur */], new ex.BlurEvent());
+                _this.eventDispatcher.publish(ex.EventType[14 /* Blur */], new ex.BlurEvent());
                 _this.eventDispatcher.update();
             });
 
             window.addEventListener('focus', function () {
-                _this.eventDispatcher.publish(ex.EventType[14 /* Focus */], new ex.FocusEvent());
+                _this.eventDispatcher.publish(ex.EventType[15 /* Focus */], new ex.FocusEvent());
                 _this.eventDispatcher.update();
             });
 
@@ -4205,7 +4380,7 @@ var ex;
             this.touchEnd.length = 0;
             this.touchCancel.length = 0;
 
-            this.eventDispatcher.publish(ex.EventType[15 /* Update */], new ex.UpdateEvent(delta));
+            this.eventDispatcher.publish(ex.EventType[16 /* Update */], new ex.UpdateEvent(delta));
         };
 
         Engine.prototype.draw = function (delta) {

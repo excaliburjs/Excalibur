@@ -17,443 +17,6 @@ declare module ex {
         public cross(v: Vector): number;
     }
 }
-declare module ex.Util {
-    class Class {
-        constructor();
-        static extend(methods: any): () => void;
-    }
-    function base64Encode(inputStr: string): string;
-    function clamp(val: any, min: any, max: any): any;
-    function drawLine(ctx: CanvasRenderingContext2D, color: string, startx: any, starty: any, endx: any, endy: any): void;
-    function randomInRange(min: number, max: number): number;
-    function getPosition(el: HTMLElement): Point;
-    class Collection<T> {
-        static DefaultSize: number;
-        private internalArray;
-        private endPointer;
-        constructor(initialSize?: number);
-        private resize();
-        public push(element: T): T;
-        public pop(): T;
-        public count(): number;
-        public clear(): void;
-        public internalSize(): number;
-        public elementAt(index: number): T;
-        public insert(index: number, value: T): T;
-        public remove(index: number): T;
-        public removeElement(element: T): void;
-        public toArray(): T[];
-        public forEach(func: (element: T, index: number) => any): void;
-        public map(func: (element: T, index: number) => any): void;
-    }
-}
-declare module ex {
-    class Overlap {
-        public x: number;
-        public y: number;
-        constructor(x: number, y: number);
-    }
-    class Scene {
-        public actor: Actor;
-        public children: Actor[];
-        public engine: Engine;
-        private killQueue;
-        private timers;
-        private cancelQueue;
-        public collisionGroups: {
-            [key: string]: Actor[];
-        };
-        constructor();
-        public onActivate(): void;
-        public onDeactivate(): void;
-        public publish(eventType: string, event: GameEvent): void;
-        public update(engine: Engine, delta: number): void;
-        public draw(ctx: CanvasRenderingContext2D, delta: number): void;
-        public debugDraw(ctx: CanvasRenderingContext2D): void;
-        public addChild(actor: Actor): void;
-        public updateAddCollisionGroups(actor: Actor): void;
-        public removeChild(actor: Actor): void;
-        public updateRemoveCollisionGroups(actor: Actor): void;
-        public addTimer(timer: Timer): Timer;
-        public removeTimer(timer: Timer): Timer;
-        public cancelTimer(timer: Timer): Timer;
-        public isTimerActive(timer: Timer): boolean;
-    }
-    enum Side {
-        NONE = 0,
-        TOP = 1,
-        BOTTOM = 2,
-        LEFT = 3,
-        RIGHT = 4,
-    }
-    class Actor extends Util.Class {
-        public x: number;
-        public y: number;
-        private height;
-        private width;
-        public rotation: number;
-        public rx: number;
-        public scale: number;
-        public sx: number;
-        public dx: number;
-        public dy: number;
-        public ax: number;
-        public ay: number;
-        public invisible: boolean;
-        public opacity: number;
-        private previousOpacity;
-        public actionQueue: Internal.Actions.ActionQueue;
-        public eventDispatcher: EventDispatcher;
-        private sceneNode;
-        public logger: Logger;
-        public scene: Scene;
-        public parent: Actor;
-        public fixed: boolean;
-        public preventCollisions: boolean;
-        public collisionGroups: string[];
-        public frames: {
-            [key: string]: IDrawable;
-        };
-        public currentDrawing: IDrawable;
-        private centerDrawingX;
-        private centerDrawingY;
-        public color: Color;
-        constructor(x?: number, y?: number, width?: number, height?: number, color?: Color);
-        public kill(): void;
-        public addChild(actor: Actor): void;
-        public removeChild(actor: Actor): void;
-        public setDrawing(key: any): void;
-        public addDrawing(key: any, drawing: IDrawable): void;
-        public addEventListener(eventName: string, handler: (event?: GameEvent) => void): void;
-        public removeEventListener(eventName: string, handler?: (event?: GameEvent) => void): void;
-        public triggerEvent(eventName: string, event?: GameEvent): void;
-        public addCollisionGroup(name: string): void;
-        public removeCollisionGroup(name: string): void;
-        public getCenter(): Vector;
-        public getWidth(): number;
-        public setWidth(width: any): void;
-        public getHeight(): number;
-        public setHeight(height: any): void;
-        public setCenterDrawing(center: boolean): void;
-        public getLeft(): number;
-        public getRight(): number;
-        public getTop(): number;
-        public getBottom(): number;
-        public getGlobalX(): any;
-        public getGlobalY(): any;
-        private getOverlap(box);
-        public contains(x: number, y: number): boolean;
-        public collides(actor: Actor): Side;
-        public within(actor: Actor, distance: number): boolean;
-        public clearActions(): void;
-        public moveTo(x: number, y: number, speed: number): Actor;
-        public moveBy(x: number, y: number, time: number): Actor;
-        public rotateTo(angleRadians: number, speed: number): Actor;
-        public rotateBy(angleRadians: number, time: number): Actor;
-        public scaleTo(size: number, speed: number): Actor;
-        public scaleBy(size: number, time: number): Actor;
-        public blink(frequency: number, duration: number, blinkTime?: number): Actor;
-        public fade(opacity: number, time: number): Actor;
-        public delay(time: number): Actor;
-        public repeat(times?: number): Actor;
-        public repeatForever(): Actor;
-        public follow(actor: Actor, followDistance?: number): Actor;
-        public meet(actor: Actor, speed?: number): Actor;
-        public update(engine: Engine, delta: number): void;
-        public draw(ctx: CanvasRenderingContext2D, delta: number): void;
-        public debugDraw(ctx: CanvasRenderingContext2D): void;
-    }
-    enum TextAlign {
-        Left = 0,
-        Right = 1,
-        Center = 2,
-        Start = 3,
-        End = 4,
-    }
-    enum BaseAlign {
-        Top = 0,
-        Hanging = 1,
-        Middle = 2,
-        Alphabetic = 3,
-        Ideographic = 4,
-        Bottom = 5,
-    }
-    class Label extends Actor {
-        public text: string;
-        public spriteFont: SpriteFont;
-        public font: string;
-        public textAlign: TextAlign;
-        public baseAlign: BaseAlign;
-        public maxWidth: number;
-        public letterSpacing: number;
-        public caseInsensitive: boolean;
-        private _textShadowOn;
-        private _shadowOffsetX;
-        private _shadowOffsetY;
-        private _shadowColor;
-        private _shadowColorDirty;
-        private _textSprites;
-        private _shadowSprites;
-        private _color;
-        constructor(text?: string, x?: number, y?: number, font?: string, spriteFont?: SpriteFont);
-        public getTextWidth(ctx: CanvasRenderingContext2D): number;
-        private _lookupTextAlign(textAlign);
-        private _lookupBaseAlign(baseAlign);
-        public setTextShadow(offsetX: number, offsetY: number, shadowColor: Color): void;
-        public clearTextShadow(): void;
-        public update(engine: Engine, delta: number): void;
-        public draw(ctx: CanvasRenderingContext2D, delta: number): void;
-        private _fontDraw(ctx, delta, sprites);
-        public debugDraw(ctx: CanvasRenderingContext2D): void;
-    }
-    class Trigger extends Actor {
-        private action;
-        public repeats: number;
-        public target: Actor;
-        constructor(x?: number, y?: number, width?: number, height?: number, action?: () => void, repeats?: number);
-        public update(engine: Engine, delta: number): void;
-        private dispatchAction();
-        public draw(ctx: CanvasRenderingContext2D, delta: number): void;
-        public debugDraw(ctx: CanvasRenderingContext2D): void;
-    }
-}
-declare module ex.Internal.Actions {
-    interface IAction {
-        x: number;
-        y: number;
-        update(delta: number): void;
-        isComplete(actor: Actor): boolean;
-        reset(): void;
-        stop(): void;
-    }
-    class MoveTo implements IAction {
-        private actor;
-        public x: number;
-        public y: number;
-        private start;
-        private end;
-        private dir;
-        private speed;
-        private distance;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, destx: number, desty: number, speed: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class MoveBy implements IAction {
-        private actor;
-        public x: number;
-        public y: number;
-        private distance;
-        private speed;
-        private time;
-        private start;
-        private end;
-        private dir;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, destx: number, desty: number, time: number);
-        public update(delta: Number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class Follow implements IAction {
-        private actor;
-        private actorToFollow;
-        public x: number;
-        public y: number;
-        private current;
-        private end;
-        private dir;
-        private speed;
-        private maximumDistance;
-        private distanceBetween;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, actorToFollow: Actor, followDistance?: number);
-        public update(delta: number): void;
-        public stop(): void;
-        public isComplete(actor: Actor): boolean;
-        public reset(): void;
-    }
-    class Meet implements IAction {
-        private actor;
-        private actorToMeet;
-        public x: number;
-        public y: number;
-        private current;
-        private end;
-        private dir;
-        private speed;
-        private distanceBetween;
-        private _started;
-        private _stopped;
-        private _speedWasSpecified;
-        constructor(actor: Actor, actorToMeet: Actor, speed?: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class RotateTo implements IAction {
-        private actor;
-        public x: number;
-        public y: number;
-        private start;
-        private end;
-        private speed;
-        private distance;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, angleRadians: number, speed: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class RotateBy implements IAction {
-        private actor;
-        public x: number;
-        public y: number;
-        private start;
-        private end;
-        private time;
-        private distance;
-        private _started;
-        private _stopped;
-        private speed;
-        constructor(actor: Actor, angleRadians: number, time: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class ScaleTo implements IAction {
-        private actor;
-        public x: number;
-        public y: number;
-        private start;
-        private end;
-        private speed;
-        private distance;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, scale: number, speed: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class ScaleBy implements IAction {
-        private actor;
-        public x: number;
-        public y: number;
-        private start;
-        private end;
-        private time;
-        private distance;
-        private _started;
-        private _stopped;
-        private speed;
-        constructor(actor: Actor, scale: number, time: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class Delay implements IAction {
-        public x: number;
-        public y: number;
-        private actor;
-        private elapsedTime;
-        private delay;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, delay: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class Blink implements IAction {
-        public x: number;
-        public y: number;
-        private frequency;
-        private duration;
-        private actor;
-        private numBlinks;
-        private blinkTime;
-        private _started;
-        private nextBlink;
-        private elapsedTime;
-        private isBlinking;
-        private _stopped;
-        constructor(actor: Actor, frequency: number, duration: number, blinkTime?: number);
-        public update(delta: any): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class Fade implements IAction {
-        public x: number;
-        public y: number;
-        private actor;
-        private endOpacity;
-        private speed;
-        private multiplyer;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, endOpacity: number, speed: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class Repeat implements IAction {
-        public x: number;
-        public y: number;
-        private actor;
-        private actionQueue;
-        private repeat;
-        private originalRepeat;
-        private _stopped;
-        constructor(actor: Actor, repeat: number, actions: IAction[]);
-        public update(delta: any): void;
-        public isComplete(): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class RepeatForever implements IAction {
-        public x: number;
-        public y: number;
-        private actor;
-        private actionQueue;
-        private _stopped;
-        constructor(actor: Actor, actions: IAction[]);
-        public update(delta: any): void;
-        public isComplete(): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class ActionQueue {
-        private actor;
-        private _actions;
-        private _currentAction;
-        private _completedActions;
-        constructor(actor: Actor);
-        public add(action: IAction): void;
-        public remove(action: IAction): void;
-        public clearActions(): void;
-        public getActions(): IAction[];
-        public hasNext(): boolean;
-        public reset(): void;
-        public update(delta: number): void;
-    }
-}
 declare module ex {
     enum LogLevel {
         Debug = 0,
@@ -504,11 +67,15 @@ declare module ex {
         TouchEnd = 8,
         TouchCancel = 9,
         Click = 10,
-        UserEvent = 11,
-        Collision = 12,
-        Blur = 13,
-        Focus = 14,
-        Update = 15,
+        Collision = 11,
+        EnterViewPort = 12,
+        ExitViewPort = 13,
+        Blur = 14,
+        Focus = 15,
+        Update = 16,
+        Activate = 17,
+        Deactivate = 18,
+        Initialize = 19,
     }
     class GameEvent {
         public target: any;
@@ -521,30 +88,48 @@ declare module ex {
         constructor();
     }
     class CollisionEvent extends GameEvent {
-        public actor: Actor;
-        public other: Actor;
-        public side: Side;
-        constructor(actor: Actor, other: Actor, side: Side);
+        public actor: ex.Actor;
+        public other: ex.Actor;
+        public side: ex.Side;
+        constructor(actor: ex.Actor, other: ex.Actor, side: ex.Side);
     }
     class UpdateEvent extends GameEvent {
         public delta: number;
         constructor(delta: number);
     }
+    class InitializeEvent extends GameEvent {
+        public engine: ex.Engine;
+        constructor(engine: ex.Engine);
+    }
+    class ActivateEvent extends GameEvent {
+        public oldScene: ex.Scene;
+        constructor(oldScene: ex.Scene);
+    }
+    class DeactivateEvent extends GameEvent {
+        public newScene: ex.Scene;
+        constructor(newScene: ex.Scene);
+    }
+    class ExitViewPortEvent extends GameEvent {
+        constructor();
+    }
+    class EnterViewPortEvent extends GameEvent {
+        constructor();
+    }
     class KeyEvent extends GameEvent {
-        public key: InputKey;
-        constructor(key: InputKey);
+        public key: ex.InputKey;
+        constructor(key: ex.InputKey);
     }
     class KeyDown extends GameEvent {
-        public key: InputKey;
-        constructor(key: InputKey);
+        public key: ex.InputKey;
+        constructor(key: ex.InputKey);
     }
     class KeyUp extends GameEvent {
-        public key: InputKey;
-        constructor(key: InputKey);
+        public key: ex.InputKey;
+        constructor(key: ex.InputKey);
     }
     class KeyPress extends GameEvent {
-        public key: InputKey;
-        constructor(key: InputKey);
+        public key: ex.InputKey;
+        constructor(key: ex.InputKey);
     }
     enum MouseButton {
         Left = 0,
@@ -632,20 +217,476 @@ declare module ex {
         public update(): void;
     }
 }
+declare module ex.Util {
+    class Class {
+        public eventDispatcher: ex.EventDispatcher;
+        constructor();
+        public addEventListener(eventName: string, handler: (event?: ex.GameEvent) => void): void;
+        public removeEventListener(eventName: string, handler?: (event?: ex.GameEvent) => void): void;
+        public on(eventName: string, handler: (event?: ex.GameEvent) => void): void;
+        public off(eventName: string, handler?: (event?: ex.GameEvent) => void): void;
+        static extend(methods: any): () => void;
+    }
+    function base64Encode(inputStr: string): string;
+    function clamp(val: any, min: any, max: any): any;
+    function drawLine(ctx: CanvasRenderingContext2D, color: string, startx: any, starty: any, endx: any, endy: any): void;
+    function randomInRange(min: number, max: number): number;
+    function getPosition(el: HTMLElement): ex.Point;
+    class Collection<T> {
+        static DefaultSize: number;
+        private internalArray;
+        private endPointer;
+        constructor(initialSize?: number);
+        private resize();
+        public push(element: T): T;
+        public pop(): T;
+        public count(): number;
+        public clear(): void;
+        public internalSize(): number;
+        public elementAt(index: number): T;
+        public insert(index: number, value: T): T;
+        public remove(index: number): T;
+        public removeElement(element: T): void;
+        public toArray(): T[];
+        public forEach(func: (element: T, index: number) => any): void;
+        public map(func: (element: T, index: number) => any): void;
+    }
+}
+declare module ex {
+    class Overlap {
+        public x: number;
+        public y: number;
+        constructor(x: number, y: number);
+    }
+    class Scene extends ex.Util.Class {
+        public actor: Actor;
+        public children: Actor[];
+        public engine: ex.Engine;
+        private killQueue;
+        private timers;
+        private cancelQueue;
+        private _isInitialized;
+        constructor();
+        public onActivate(): void;
+        public onDeactivate(): void;
+        public onInitialize(engine: ex.Engine): void;
+        public publish(eventType: string, event: ex.GameEvent): void;
+        public update(engine: ex.Engine, delta: number): void;
+        public draw(ctx: CanvasRenderingContext2D, delta: number): void;
+        public debugDraw(ctx: CanvasRenderingContext2D): void;
+        public addChild(actor: Actor): void;
+        public removeChild(actor: Actor): void;
+        public addTimer(timer: ex.Timer): ex.Timer;
+        public removeTimer(timer: ex.Timer): ex.Timer;
+        public cancelTimer(timer: ex.Timer): ex.Timer;
+        public isTimerActive(timer: ex.Timer): boolean;
+    }
+    enum Side {
+        NONE = 0,
+        TOP = 1,
+        BOTTOM = 2,
+        LEFT = 3,
+        RIGHT = 4,
+    }
+    class Actor extends ex.Util.Class {
+        public x: number;
+        public y: number;
+        private height;
+        private width;
+        public rotation: number;
+        public rx: number;
+        public scale: number;
+        public sx: number;
+        public dx: number;
+        public dy: number;
+        public ax: number;
+        public ay: number;
+        public isOffScreen: boolean;
+        public invisible: boolean;
+        public opacity: number;
+        private previousOpacity;
+        public actionQueue: ex.Internal.Actions.ActionQueue;
+        private sceneNode;
+        public logger: ex.Logger;
+        public scene: Scene;
+        public parent: Actor;
+        public fixed: boolean;
+        public preventCollisions: boolean;
+        public collisionGroups: string[];
+        private _collisionHandlers;
+        private _isInitialized;
+        public frames: {
+            [key: string]: ex.IDrawable;
+        };
+        public currentDrawing: ex.IDrawable;
+        private centerDrawingX;
+        private centerDrawingY;
+        public color: ex.Color;
+        private _isKilled;
+        constructor(x?: number, y?: number, width?: number, height?: number, color?: ex.Color);
+        public onInitialize(engine: ex.Engine): void;
+        public kill(): void;
+        public addChild(actor: Actor): void;
+        public removeChild(actor: Actor): void;
+        public setDrawing(key: any): void;
+        public addDrawing(key: any, drawing: ex.IDrawable): void;
+        public triggerEvent(eventName: string, event?: ex.GameEvent): void;
+        public addCollisionGroup(name: string): void;
+        public removeCollisionGroup(name: string): void;
+        public getCenter(): ex.Vector;
+        public getWidth(): number;
+        public setWidth(width: any): void;
+        public getHeight(): number;
+        public setHeight(height: any): void;
+        public setCenterDrawing(center: boolean): void;
+        public getLeft(): number;
+        public getRight(): number;
+        public getTop(): number;
+        public getBottom(): number;
+        public getGlobalX(): any;
+        public getGlobalY(): any;
+        private getOverlap(box);
+        public contains(x: number, y: number): boolean;
+        public collides(actor: Actor): Side;
+        public onCollidesWith(group: string, func: (actor: Actor) => void): void;
+        public removeCollidesWith(group: string): void;
+        public within(actor: Actor, distance: number): boolean;
+        public clearActions(): void;
+        public moveTo(x: number, y: number, speed: number): Actor;
+        public moveBy(x: number, y: number, time: number): Actor;
+        public rotateTo(angleRadians: number, speed: number): Actor;
+        public rotateBy(angleRadians: number, time: number): Actor;
+        public scaleTo(size: number, speed: number): Actor;
+        public scaleBy(size: number, time: number): Actor;
+        public blink(frequency: number, duration: number, blinkTime?: number): Actor;
+        public fade(opacity: number, time: number): Actor;
+        public delay(time: number): Actor;
+        public die(): Actor;
+        public repeat(times?: number): Actor;
+        public repeatForever(): Actor;
+        public follow(actor: Actor, followDistance?: number): Actor;
+        public meet(actor: Actor, speed?: number): Actor;
+        public update(engine: ex.Engine, delta: number): void;
+        public draw(ctx: CanvasRenderingContext2D, delta: number): void;
+        public debugDraw(ctx: CanvasRenderingContext2D): void;
+    }
+    enum TextAlign {
+        Left = 0,
+        Right = 1,
+        Center = 2,
+        Start = 3,
+        End = 4,
+    }
+    enum BaseAlign {
+        Top = 0,
+        Hanging = 1,
+        Middle = 2,
+        Alphabetic = 3,
+        Ideographic = 4,
+        Bottom = 5,
+    }
+    class Label extends Actor {
+        public text: string;
+        public spriteFont: ex.SpriteFont;
+        public font: string;
+        public textAlign: TextAlign;
+        public baseAlign: BaseAlign;
+        public maxWidth: number;
+        public letterSpacing: number;
+        public caseInsensitive: boolean;
+        private _textShadowOn;
+        private _shadowOffsetX;
+        private _shadowOffsetY;
+        private _shadowColor;
+        private _shadowColorDirty;
+        private _textSprites;
+        private _shadowSprites;
+        private _color;
+        constructor(text?: string, x?: number, y?: number, font?: string, spriteFont?: ex.SpriteFont);
+        public getTextWidth(ctx: CanvasRenderingContext2D): number;
+        private _lookupTextAlign(textAlign);
+        private _lookupBaseAlign(baseAlign);
+        public setTextShadow(offsetX: number, offsetY: number, shadowColor: ex.Color): void;
+        public clearTextShadow(): void;
+        public update(engine: ex.Engine, delta: number): void;
+        public draw(ctx: CanvasRenderingContext2D, delta: number): void;
+        private _fontDraw(ctx, delta, sprites);
+        public debugDraw(ctx: CanvasRenderingContext2D): void;
+    }
+    class Trigger extends Actor {
+        private action;
+        public repeats: number;
+        public target: Actor;
+        constructor(x?: number, y?: number, width?: number, height?: number, action?: () => void, repeats?: number);
+        public update(engine: ex.Engine, delta: number): void;
+        private dispatchAction();
+        public draw(ctx: CanvasRenderingContext2D, delta: number): void;
+        public debugDraw(ctx: CanvasRenderingContext2D): void;
+    }
+}
+declare module ex.Internal.Actions {
+    interface IAction {
+        x: number;
+        y: number;
+        update(delta: number): void;
+        isComplete(actor: ex.Actor): boolean;
+        reset(): void;
+        stop(): void;
+    }
+    class MoveTo implements IAction {
+        private actor;
+        public x: number;
+        public y: number;
+        private start;
+        private end;
+        private dir;
+        private speed;
+        private distance;
+        private _started;
+        private _stopped;
+        constructor(actor: ex.Actor, destx: number, desty: number, speed: number);
+        public update(delta: number): void;
+        public isComplete(actor: ex.Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class MoveBy implements IAction {
+        private actor;
+        public x: number;
+        public y: number;
+        private distance;
+        private speed;
+        private time;
+        private start;
+        private end;
+        private dir;
+        private _started;
+        private _stopped;
+        constructor(actor: ex.Actor, destx: number, desty: number, time: number);
+        public update(delta: Number): void;
+        public isComplete(actor: ex.Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class Follow implements IAction {
+        private actor;
+        private actorToFollow;
+        public x: number;
+        public y: number;
+        private current;
+        private end;
+        private dir;
+        private speed;
+        private maximumDistance;
+        private distanceBetween;
+        private _started;
+        private _stopped;
+        constructor(actor: ex.Actor, actorToFollow: ex.Actor, followDistance?: number);
+        public update(delta: number): void;
+        public stop(): void;
+        public isComplete(actor: ex.Actor): boolean;
+        public reset(): void;
+    }
+    class Meet implements IAction {
+        private actor;
+        private actorToMeet;
+        public x: number;
+        public y: number;
+        private current;
+        private end;
+        private dir;
+        private speed;
+        private distanceBetween;
+        private _started;
+        private _stopped;
+        private _speedWasSpecified;
+        constructor(actor: ex.Actor, actorToMeet: ex.Actor, speed?: number);
+        public update(delta: number): void;
+        public isComplete(actor: ex.Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class RotateTo implements IAction {
+        private actor;
+        public x: number;
+        public y: number;
+        private start;
+        private end;
+        private speed;
+        private distance;
+        private _started;
+        private _stopped;
+        constructor(actor: ex.Actor, angleRadians: number, speed: number);
+        public update(delta: number): void;
+        public isComplete(actor: ex.Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class RotateBy implements IAction {
+        private actor;
+        public x: number;
+        public y: number;
+        private start;
+        private end;
+        private time;
+        private distance;
+        private _started;
+        private _stopped;
+        private speed;
+        constructor(actor: ex.Actor, angleRadians: number, time: number);
+        public update(delta: number): void;
+        public isComplete(actor: ex.Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class ScaleTo implements IAction {
+        private actor;
+        public x: number;
+        public y: number;
+        private start;
+        private end;
+        private speed;
+        private distance;
+        private _started;
+        private _stopped;
+        constructor(actor: ex.Actor, scale: number, speed: number);
+        public update(delta: number): void;
+        public isComplete(actor: ex.Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class ScaleBy implements IAction {
+        private actor;
+        public x: number;
+        public y: number;
+        private start;
+        private end;
+        private time;
+        private distance;
+        private _started;
+        private _stopped;
+        private speed;
+        constructor(actor: ex.Actor, scale: number, time: number);
+        public update(delta: number): void;
+        public isComplete(actor: ex.Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class Delay implements IAction {
+        public x: number;
+        public y: number;
+        private actor;
+        private elapsedTime;
+        private delay;
+        private _started;
+        private _stopped;
+        constructor(actor: ex.Actor, delay: number);
+        public update(delta: number): void;
+        public isComplete(actor: ex.Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class Blink implements IAction {
+        public x: number;
+        public y: number;
+        private frequency;
+        private duration;
+        private actor;
+        private numBlinks;
+        private blinkTime;
+        private _started;
+        private nextBlink;
+        private elapsedTime;
+        private isBlinking;
+        private _stopped;
+        constructor(actor: ex.Actor, frequency: number, duration: number, blinkTime?: number);
+        public update(delta: any): void;
+        public isComplete(actor: ex.Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class Fade implements IAction {
+        public x: number;
+        public y: number;
+        private actor;
+        private endOpacity;
+        private speed;
+        private multiplyer;
+        private _started;
+        private _stopped;
+        constructor(actor: ex.Actor, endOpacity: number, speed: number);
+        public update(delta: number): void;
+        public isComplete(actor: ex.Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class Die implements IAction {
+        public x: number;
+        public y: number;
+        private actor;
+        private _started;
+        private _stopped;
+        constructor(actor: ex.Actor);
+        public update(delta: number): void;
+        public isComplete(): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class Repeat implements IAction {
+        public x: number;
+        public y: number;
+        private actor;
+        private actionQueue;
+        private repeat;
+        private originalRepeat;
+        private _stopped;
+        constructor(actor: ex.Actor, repeat: number, actions: IAction[]);
+        public update(delta: any): void;
+        public isComplete(): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class RepeatForever implements IAction {
+        public x: number;
+        public y: number;
+        private actor;
+        private actionQueue;
+        private _stopped;
+        constructor(actor: ex.Actor, actions: IAction[]);
+        public update(delta: any): void;
+        public isComplete(): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class ActionQueue {
+        private actor;
+        private _actions;
+        private _currentAction;
+        private _completedActions;
+        constructor(actor: ex.Actor);
+        public add(action: IAction): void;
+        public remove(action: IAction): void;
+        public clearActions(): void;
+        public getActions(): IAction[];
+        public hasNext(): boolean;
+        public reset(): void;
+        public update(delta: number): void;
+    }
+}
 declare module ex {
     enum EmitterType {
         Circle = 0,
         Rectangle = 1,
     }
     class Particle {
-        public position: Vector;
-        public velocity: Vector;
-        public acceleration: Vector;
-        public focus: Vector;
+        public position: ex.Vector;
+        public velocity: ex.Vector;
+        public acceleration: ex.Vector;
+        public focus: ex.Vector;
         public focusAccel: number;
         public opacity: number;
-        public beginColor: Color;
-        public endColor: Color;
+        public beginColor: ex.Color;
+        public endColor: ex.Color;
         public life: number;
         public fadeFlag: boolean;
         private rRate;
@@ -655,33 +696,39 @@ declare module ex {
         private currentColor;
         public emitter: ParticleEmitter;
         public particleSize: number;
-        public particleSprite: Sprite;
-        constructor(emitter: ParticleEmitter, life?: number, opacity?: number, beginColor?: Color, endColor?: Color, position?: Vector, velocity?: Vector, acceleration?: Vector);
+        public particleSprite: ex.Sprite;
+        public startSize: number;
+        public endSize: number;
+        public sizeRate: number;
+        public elapsedMultiplier: number;
+        constructor(emitter: ParticleEmitter, life?: number, opacity?: number, beginColor?: ex.Color, endColor?: ex.Color, position?: ex.Vector, velocity?: ex.Vector, acceleration?: ex.Vector, startSize?: number, endSize?: number);
         public kill(): void;
         public update(delta: number): void;
         public draw(ctx: CanvasRenderingContext2D): void;
     }
-    class ParticleEmitter extends Actor {
+    class ParticleEmitter extends ex.Actor {
         public numParticles: number;
         public isEmitting: boolean;
-        public particles: Util.Collection<Particle>;
-        public deadParticles: Util.Collection<Particle>;
+        public particles: ex.Util.Collection<Particle>;
+        public deadParticles: ex.Util.Collection<Particle>;
         public minVel: number;
         public maxVel: number;
-        public acceleration: Vector;
+        public acceleration: ex.Vector;
         public minAngle: number;
         public maxAngle: number;
         public emitRate: number;
         public particleLife: number;
         public opacity: number;
         public fadeFlag: boolean;
-        public focus: Vector;
+        public focus: ex.Vector;
         public focusAccel: number;
+        public startSize: number;
+        public endSize: number;
         public minSize: number;
         public maxSize: number;
-        public beginColor: Color;
-        public endColor: Color;
-        public particleSprite: Sprite;
+        public beginColor: ex.Color;
+        public endColor: ex.Color;
+        public particleSprite: ex.Sprite;
         public emitterType: EmitterType;
         public radius: number;
         constructor(x?: number, y?: number, width?: number, height?: number);
@@ -689,7 +736,7 @@ declare module ex {
         public emit(particleCount: number): void;
         public clearParticles(): void;
         private createParticle();
-        public update(engine: Engine, delta: number): void;
+        public update(engine: ex.Engine, delta: number): void;
         public draw(ctx: CanvasRenderingContext2D, delta: number): void;
         public debugDraw(ctx: CanvasRenderingContext2D): void;
     }
@@ -788,7 +835,7 @@ declare module ex {
 }
 declare module ex {
     interface ILoadable {
-        load(): Promise<any>;
+        load(): ex.Promise<any>;
         onprogress: (e: any) => void;
         oncomplete: () => void;
         onerror: (e: any) => void;
@@ -806,12 +853,12 @@ declare module ex {
         constructor(path: string);
         private _start(e);
         public isLoaded(): boolean;
-        public load(): Promise<HTMLImageElement>;
+        public load(): ex.Promise<HTMLImageElement>;
         public onprogress: (e: any) => void;
         public oncomplete: () => void;
         public onerror: (e: any) => void;
     }
-    class Sound implements ILoadable, Internal.ISound {
+    class Sound implements ILoadable, ex.Internal.ISound {
         private logger;
         public onprogress: (e: any) => void;
         public oncomplete: () => void;
@@ -819,7 +866,7 @@ declare module ex {
         public onload: (e: any) => void;
         private _isLoaded;
         private _selectedFile;
-        public sound: Internal.FallbackAudio;
+        public sound: ex.Internal.FallbackAudio;
         static canPlayFile(file: string): boolean;
         constructor(...paths: string[]);
         public setVolume(volume: number): void;
@@ -827,7 +874,7 @@ declare module ex {
         public play(): void;
         public stop(): void;
         public isLoaded(): boolean;
-        public load(): Promise<Internal.FallbackAudio>;
+        public load(): ex.Promise<ex.Internal.FallbackAudio>;
     }
     class Loader implements ILoadable {
         private resourceList;
@@ -841,7 +888,7 @@ declare module ex {
         public addResources(loadables: ILoadable[]): void;
         private sumCounts(obj);
         public isLoaded(): boolean;
-        public load(): Promise<any>;
+        public load(): ex.Promise<any>;
         public onprogress: (e: any) => void;
         public oncomplete: () => void;
         public onerror: () => void;
@@ -855,7 +902,7 @@ declare module ex {
         height: number;
         addEffect(effect: Effects.ISpriteEffect): any;
         clearEffects(): any;
-        transformAboutPoint(point: Point): any;
+        transformAboutPoint(point: ex.Point): any;
         setScale(scale: number): any;
         getScale(): number;
         setRotation(radians: number): any;
@@ -864,25 +911,25 @@ declare module ex {
         draw(ctx: CanvasRenderingContext2D, x: number, y: number): any;
     }
     class SpriteSheet {
-        public image: Texture;
+        public image: ex.Texture;
         private columns;
         private rows;
         public sprites: Sprite[];
         private internalImage;
-        constructor(image: Texture, columns: number, rows: number, spWidth: number, spHeight: number);
-        public getAnimationByIndices(engine: Engine, indices: number[], speed: number): Animation;
-        public getAnimationBetween(engine: Engine, beginIndex: number, endIndex: number, speed: number): Animation;
-        public getAnimationForAll(engine: Engine, speed: number): Animation;
+        constructor(image: ex.Texture, columns: number, rows: number, spWidth: number, spHeight: number);
+        public getAnimationByIndices(engine: ex.Engine, indices: number[], speed: number): Animation;
+        public getAnimationBetween(engine: ex.Engine, beginIndex: number, endIndex: number, speed: number): Animation;
+        public getAnimationForAll(engine: ex.Engine, speed: number): Animation;
         public getSprite(index: number): Sprite;
     }
     class SpriteFont extends SpriteSheet {
-        public image: Texture;
+        public image: ex.Texture;
         private alphabet;
         private caseInsensitive;
         private spriteLookup;
         private colorLookup;
         private _currentColor;
-        constructor(image: Texture, alphabet: string, caseInsensitive: boolean, columns: number, rows: number, spWidth: number, spHeight: number);
+        constructor(image: ex.Texture, alphabet: string, caseInsensitive: boolean, columns: number, rows: number, spWidth: number, spHeight: number);
         public getTextSprites(): {
             [key: string]: Sprite;
         };
@@ -903,13 +950,13 @@ declare module ex {
             public updatePixel(x: number, y: number, imageData: ImageData): void;
         }
         class Colorize implements ISpriteEffect {
-            public color: Color;
-            constructor(color: Color);
+            public color: ex.Color;
+            constructor(color: ex.Color);
             public updatePixel(x: number, y: number, imageData: ImageData): void;
         }
         class Fill implements ISpriteEffect {
-            public color: Color;
-            constructor(color: Color);
+            public color: ex.Color;
+            constructor(color: ex.Color);
             public updatePixel(x: number, y: number, imageData: ImageData): void;
         }
     }
@@ -933,12 +980,12 @@ declare module ex {
         private pixelData;
         private pixelsLoaded;
         private dirtyEffect;
-        constructor(image: Texture, sx: number, sy: number, swidth: number, sheight: number);
+        constructor(image: ex.Texture, sx: number, sy: number, swidth: number, sheight: number);
         private loadPixels();
         public addEffect(effect: Effects.ISpriteEffect): void;
         private applyEffects();
         public clearEffects(): void;
-        public transformAboutPoint(point: Point): void;
+        public transformAboutPoint(point: ex.Point): void;
         public setRotation(radians: number): void;
         public getRotation(): number;
         public setScale(scale: number): void;
@@ -961,10 +1008,10 @@ declare module ex {
         public flipHorizontal: boolean;
         public width: number;
         public height: number;
-        constructor(engine: Engine, images: Sprite[], speed: number, loop?: boolean);
+        constructor(engine: ex.Engine, images: Sprite[], speed: number, loop?: boolean);
         public addEffect(effect: Effects.ISpriteEffect): void;
         public clearEffects(): void;
-        public transformAboutPoint(point: Point): void;
+        public transformAboutPoint(point: ex.Point): void;
         public setRotation(radians: number): void;
         public getRotation(): number;
         public setScale(scale: number): void;
@@ -980,18 +1027,18 @@ declare module ex {
         public flipHorizontal: boolean;
         public width: number;
         public height: number;
-        public lineColor: Color;
-        public fillColor: Color;
+        public lineColor: ex.Color;
+        public fillColor: ex.Color;
         public lineWidth: number;
         public filled: boolean;
         private points;
         private transformationPoint;
         private rotation;
         private scale;
-        constructor(points: Point[]);
+        constructor(points: ex.Point[]);
         public addEffect(effect: Effects.ISpriteEffect): void;
         public clearEffects(): void;
-        public transformAboutPoint(point: Point): void;
+        public transformAboutPoint(point: ex.Point): void;
         public setScale(scale: number): void;
         public getScale(): number;
         public setRotation(radians: number): void;
@@ -1002,9 +1049,9 @@ declare module ex {
 }
 declare module ex {
     class BaseCamera {
-        public follow: Actor;
-        public focus: Point;
-        public engine: Engine;
+        public follow: ex.Actor;
+        public focus: ex.Point;
+        public engine: ex.Engine;
         public isShaking: boolean;
         private shakeMagnitudeX;
         private shakeMagnitudeY;
@@ -1016,9 +1063,9 @@ declare module ex {
         private zoomDuration;
         private elapsedZoomTime;
         private zoomIncrement;
-        constructor(engine: Engine);
-        public setActorToFollow(actor: Actor): void;
-        public getFocus(): Point;
+        constructor(engine: ex.Engine);
+        public setActorToFollow(actor: ex.Actor): void;
+        public getFocus(): ex.Point;
         public setFocus(x: number, y: number): void;
         public shake(magnitudeX: number, magnitudeY: number, duration: number): void;
         public zoom(scale: number, duration?: number): void;
@@ -1029,10 +1076,10 @@ declare module ex {
         private isDoneZooming();
     }
     class SideCamera extends BaseCamera {
-        public getFocus(): Point;
+        public getFocus(): ex.Point;
     }
     class TopCamera extends BaseCamera {
-        public getFocus(): Point;
+        public getFocus(): ex.Point;
     }
 }
 declare module ex {
@@ -1124,33 +1171,32 @@ declare module ex {
         public repeats: boolean;
         private elapsedTime;
         public complete: boolean;
-        public scene: Scene;
+        public scene: ex.Scene;
         constructor(fcn: () => void, interval: number, repeats?: boolean);
         public update(delta: number): void;
         public cancel(): void;
     }
-    class Engine extends Util.Class {
+    class Engine extends ex.Util.Class {
         public canvas: HTMLCanvasElement;
         public ctx: CanvasRenderingContext2D;
         public canvasElementId: string;
         public width: number;
         public height: number;
         private hasStarted;
-        private eventDispatcher;
         public keys: number[];
         public keysDown: number[];
         public keysUp: number[];
-        public clicks: MouseDown[];
-        public mouseDown: MouseDown[];
-        public mouseMove: MouseMove[];
-        public mouseUp: MouseUp[];
-        public touchStart: TouchStart[];
-        public touchMove: TouchMove[];
-        public touchEnd: TouchEnd[];
-        public touchCancel: TouchCancel[];
-        public camera: BaseCamera;
-        public currentScene: Scene;
-        public rootScene: Scene;
+        public clicks: ex.MouseDown[];
+        public mouseDown: ex.MouseDown[];
+        public mouseMove: ex.MouseMove[];
+        public mouseUp: ex.MouseUp[];
+        public touchStart: ex.TouchStart[];
+        public touchMove: ex.TouchMove[];
+        public touchEnd: ex.TouchEnd[];
+        public touchCancel: ex.TouchCancel[];
+        public camera: ex.BaseCamera;
+        public currentScene: ex.Scene;
+        public rootScene: ex.Scene;
         private sceneHash;
         private animations;
         public isFullscreen: boolean;
@@ -1166,18 +1212,17 @@ declare module ex {
         private total;
         private loadingDraw;
         constructor(width?: number, height?: number, canvasElementId?: string, displayMode?: DisplayMode);
-        public addEventListener(eventName: string, handler: (event?: GameEvent) => void): void;
-        public removeEventListener(eventName: string, handler?: (event?: GameEvent) => void): void;
-        public playAnimation(animation: Animation, x: number, y: number): void;
-        public addChild(actor: Actor): void;
-        public removeChild(actor: Actor): void;
+        public playAnimation(animation: ex.Animation, x: number, y: number): void;
+        public addChild(actor: ex.Actor): void;
+        public removeChild(actor: ex.Actor): void;
         public addTimer(timer: Timer): Timer;
         public removeTimer(timer: Timer): Timer;
-        public addScene(name: string, scene: Scene): void;
+        public addScene(name: string, scene: ex.Scene): void;
         public goToScene(name: string): void;
         public getWidth(): number;
         public getHeight(): number;
-        public screenToWorldCoordinates(point: Point): Point;
+        public screenToWorldCoordinates(point: ex.Point): ex.Point;
+        public worldToScreenCoordinates(point: ex.Point): ex.Point;
         private setHeightByDisplayMode(parent);
         private initialize();
         public setAntialiasing(isSmooth: boolean): void;
@@ -1187,10 +1232,10 @@ declare module ex {
         public isKeyUp(key: InputKey): boolean;
         private update(delta);
         private draw(delta);
-        public start(loader?: ILoadable): Promise<any>;
+        public start(loader?: ex.ILoadable): ex.Promise<any>;
         public stop(): void;
         private drawLoadingBar(ctx, loaded, total);
         public setLoadingDrawFunction(fcn: (ctx: CanvasRenderingContext2D, loaded: number, total: number) => void): void;
-        public load(loader: ILoadable): Promise<any>;
+        public load(loader: ex.ILoadable): ex.Promise<any>;
     }
 }
