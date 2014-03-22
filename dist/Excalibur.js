@@ -1,6 +1,123 @@
-/*! Excalibur - v0.2.0 - 2014-03-20
-* https://github.com/excaliburjs/Excalibur
-* Copyright (c) 2014 ; Licensed BSD*/
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var ex;
+(function (ex) {
+    /**
+    * A simple 2D point on a plane
+    * @class Point
+    * @constructor
+    * @param x {number} X coordinate of the point
+    * @param y {number} Y coordinate of the point
+    *
+    */
+    var Point = (function () {
+        function Point(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+        return Point;
+    })();
+    ex.Point = Point;
+
+    /**
+    * A 2D vector on a plane.
+    * @class Vector
+    * @extends Point
+    * @constructor
+    * @param x {number} X component of the Vector
+    * @param y {number} Y component of the Vector
+    */
+    var Vector = (function (_super) {
+        __extends(Vector, _super);
+        function Vector(x, y) {
+            _super.call(this, x, y);
+            this.x = x;
+            this.y = y;
+        }
+        /**
+        * The distance to another vector
+        * @method distance
+        * @param v {Vector} The other vector
+        * @returns number
+        */
+        Vector.prototype.distance = function (v) {
+            if (!v) {
+                v = new Vector(0.0, 0.0);
+            }
+            return Math.sqrt(Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2));
+        };
+
+        /**
+        * Normalizes a vector to have a magnitude of 1.
+        * @method normalize
+        * @return Vector
+        */
+        Vector.prototype.normalize = function () {
+            var d = this.distance();
+            if (d > 0) {
+                return new Vector(this.x / d, this.y / d);
+            } else {
+                return new Vector(0, 1);
+            }
+        };
+
+        /**
+        * Scales a vector's by a factor of size
+        * @method scale
+        * @param size {number} The factor to scale the magnitude by
+        * @returns Vector
+        */
+        Vector.prototype.scale = function (size) {
+            return new Vector(this.x * size, this.y * size);
+        };
+
+        /**
+        * Adds one vector to another
+        * @method add
+        * @param v {Vector} The vector to add
+        * @returns Vector
+        */
+        Vector.prototype.add = function (v) {
+            return new Vector(this.x + v.x, this.y + v.y);
+        };
+
+        /**
+        * Subtracts a vector from the current vector
+        * @method minus
+        * @param v {Vector} The vector to subtract
+        * @returns Vector
+        */
+        Vector.prototype.minus = function (v) {
+            return new Vector(this.x - v.x, this.y - v.y);
+        };
+
+        /**
+        * Performs a dot product with another vector
+        * @method dot
+        * @param v {Vector} The vector to dot
+        * @returns number
+        */
+        Vector.prototype.dot = function (v) {
+            return this.x * v.x + this.y * v.y;
+        };
+
+        /**
+        * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
+        * @method cross
+        * @param v {Vector} The vector to cross
+        * @returns number
+        */
+        Vector.prototype.cross = function (v) {
+            return this.x * v.y - this.y * v.x;
+        };
+        return Vector;
+    })(Point);
+    ex.Vector = Vector;
+})(ex || (ex = {}));
 if (typeof window == 'undefined') {
     window = { audioContext: function () {
         } };
@@ -16,8 +133,9 @@ if (typeof window != 'undefined' && !window.AudioContext) {
     window.AudioContext = window.webkitAudioContext || window.mozAudioContext;
 }
 
+// Polyfill from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
 if (!Array.prototype.some) {
-    Array.prototype.some = function (fun) {
+    Array.prototype.some = function (fun /*, thisArg */ ) {
         'use strict';
 
         if (this === void 0 || this === null)
@@ -37,72 +155,38 @@ if (!Array.prototype.some) {
         return false;
     };
 }
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var ex;
 (function (ex) {
-    var Point = (function () {
-        function Point(x, y) {
-            this.x = x;
-            this.y = y;
-        }
-        return Point;
-    })();
-    ex.Point = Point;
-
-    var Vector = (function (_super) {
-        __extends(Vector, _super);
-        function Vector(x, y) {
-            _super.call(this, x, y);
-            this.x = x;
-            this.y = y;
-        }
-        Vector.prototype.distance = function (v) {
-            if (!v) {
-                v = new Vector(0.0, 0.0);
-            }
-            return Math.sqrt(Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2));
-        };
-
-        Vector.prototype.normalize = function () {
-            var d = this.distance();
-            if (d > 0) {
-                return new Vector(this.x / d, this.y / d);
-            } else {
-                return new Vector(0, 1);
-            }
-        };
-
-        Vector.prototype.scale = function (size) {
-            return new Vector(this.x * size, this.y * size);
-        };
-
-        Vector.prototype.add = function (v) {
-            return new Vector(this.x + v.x, this.y + v.y);
-        };
-
-        Vector.prototype.minus = function (v) {
-            return new Vector(this.x - v.x, this.y - v.y);
-        };
-
-        Vector.prototype.dot = function (v) {
-            return this.x * v.x + this.y * v.y;
-        };
-
-        Vector.prototype.cross = function (v) {
-            return this.x * v.y - this.y * v.x;
-        };
-        return Vector;
-    })(Point);
-    ex.Vector = Vector;
-})(ex || (ex = {}));
-var ex;
-(function (ex) {
+    /**
+    * Logging level that Excalibur will tag
+    * @class LogLevel
+    */
     (function (LogLevel) {
+        /**
+        @property Debug {LogLevel}
+        @static
+        @final
+        */
+        /**
+        @property Info {LogLevel}
+        @static
+        @final
+        */
+        /**
+        @property Warn {LogLevel}
+        @static
+        @final
+        */
+        /**
+        @property Error {LogLevel}
+        @static
+        @final
+        */
+        /**
+        @property Fatal {LogLevel}
+        @static
+        @final
+        */
         LogLevel[LogLevel["Debug"] = 0] = "Debug";
         LogLevel[LogLevel["Info"] = 1] = "Info";
         LogLevel[LogLevel["Warn"] = 2] = "Warn";
@@ -111,18 +195,38 @@ var ex;
     })(ex.LogLevel || (ex.LogLevel = {}));
     var LogLevel = ex.LogLevel;
 
+    /**
+    * Static singleton that represents the logging facility for Excalibur.
+    * Excalibur comes built-in with a ConsoleAppender and ScreenAppender.
+    * Derive from IAppender to create your own logging appenders.
+    * @class Logger
+    * @static
+    * @singleton
+    */
     var Logger = (function () {
         function Logger() {
             this.appenders = [];
+            /**
+            * Gets or sets the default logging level. Excalibur will only log
+            * messages if equal to or above this level.
+            * @property defaultLevel {LogLevel}
+            */
             this.defaultLevel = 1 /* Info */;
             if (Logger._instance) {
                 throw new Error("Logger is a singleton");
             }
             Logger._instance = this;
 
+            // Default console appender
             Logger._instance.addAppender(new ConsoleAppender());
             return Logger._instance;
         }
+        /**
+        * Gets the current static instance of Logger
+        * @method getInstance
+        * @static
+        * @returns Logger
+        */
         Logger.getInstance = function () {
             if (Logger._instance == null) {
                 Logger._instance = new Logger();
@@ -130,14 +234,30 @@ var ex;
             return Logger._instance;
         };
 
+        /**
+        * Adds a new IAppender to the list of appenders to write to
+        * @method addAppender
+        * @param appender {IAppender} Appender to add
+        */
         Logger.prototype.addAppender = function (appender) {
             this.appenders.push(appender);
         };
 
+        /**
+        * Clears all appenders from the logger
+        * @method clearAppenders
+        */
         Logger.prototype.clearAppenders = function () {
             this.appenders.length = 0;
         };
 
+        /**
+        * Logs a message at a given LogLevel
+        * @method _log
+        * @private
+        * @param level {LogLevel}The LogLevel`to log the message at
+        * @param args An array of arguments to write to an appender
+        */
         Logger.prototype._log = function (level, args) {
             var _this = this;
             if (level == null) {
@@ -151,6 +271,11 @@ var ex;
             });
         };
 
+        /**
+        * Writes a log message at the LogLevel.Debug level
+        * @method debug
+        * @param ...args Accepts any number of arguments
+        */
         Logger.prototype.debug = function () {
             var args = [];
             for (var _i = 0; _i < (arguments.length - 0); _i++) {
@@ -159,6 +284,11 @@ var ex;
             this._log(0 /* Debug */, args);
         };
 
+        /**
+        * Writes a log message at the LogLevel.Info level
+        * @method info
+        * @param ...args Accepts any number of arguments
+        */
         Logger.prototype.info = function () {
             var args = [];
             for (var _i = 0; _i < (arguments.length - 0); _i++) {
@@ -167,6 +297,11 @@ var ex;
             this._log(1 /* Info */, args);
         };
 
+        /**
+        * Writes a log message at the LogLevel.Warn level
+        * @method warn
+        * @param ...args Accepts any number of arguments
+        */
         Logger.prototype.warn = function () {
             var args = [];
             for (var _i = 0; _i < (arguments.length - 0); _i++) {
@@ -175,6 +310,11 @@ var ex;
             this._log(2 /* Warn */, args);
         };
 
+        /**
+        * Writes a log message at the LogLevel.Error level
+        * @method error
+        * @param ...args Accepts any number of arguments
+        */
         Logger.prototype.error = function () {
             var args = [];
             for (var _i = 0; _i < (arguments.length - 0); _i++) {
@@ -183,6 +323,11 @@ var ex;
             this._log(3 /* Error */, args);
         };
 
+        /**
+        * Writes a log message at the LogLevel.Fatal level
+        * @method fatal
+        * @param ...args Accepts any number of arguments
+        */
         Logger.prototype.fatal = function () {
             var args = [];
             for (var _i = 0; _i < (arguments.length - 0); _i++) {
@@ -197,19 +342,29 @@ var ex;
 
     
 
+    /**
+    * Console appender for browsers (i.e. console.log)
+    * @class ConsoleAppender
+    * @constructor
+    * @extends IAppender
+    */
     var ConsoleAppender = (function () {
         function ConsoleAppender() {
         }
         ConsoleAppender.prototype.log = function (level, args) {
+            // Create a new console args array
             var consoleArgs = [];
             consoleArgs.unshift.apply(consoleArgs, args);
             consoleArgs.unshift("[" + LogLevel[level] + "] : ");
 
             if (level < 2 /* Warn */) {
+                // Call .log for Debug/Info
                 console.log.apply(console, consoleArgs);
             } else if (level < 3 /* Error */) {
+                // Call .warn for Warn
                 console.warn.apply(console, consoleArgs);
             } else {
+                // Call .error for Error/Fatal
                 console.error.apply(console, consoleArgs);
             }
         };
@@ -217,6 +372,15 @@ var ex;
     })();
     ex.ConsoleAppender = ConsoleAppender;
 
+    /**
+    * On-screen (canvas) appender
+    * @todo Clean this up
+    * @class ScreenAppender
+    * @extends IAppender
+    * @constructor
+    * @param width {number} Width of the screen appender in pixels
+    * @param height {number} Height of the screen appender in pixels
+    */
     var ScreenAppender = (function () {
         function ScreenAppender(width, height) {
             this._messages = [];
@@ -247,349 +411,87 @@ var ex;
     })();
     ex.ScreenAppender = ScreenAppender;
 })(ex || (ex = {}));
-var ex;
-(function (ex) {
-    (function (EventType) {
-        EventType[EventType["KeyDown"] = 0] = "KeyDown";
-        EventType[EventType["KeyUp"] = 1] = "KeyUp";
-        EventType[EventType["KeyPress"] = 2] = "KeyPress";
-        EventType[EventType["MouseDown"] = 3] = "MouseDown";
-        EventType[EventType["MouseMove"] = 4] = "MouseMove";
-        EventType[EventType["MouseUp"] = 5] = "MouseUp";
-        EventType[EventType["TouchStart"] = 6] = "TouchStart";
-        EventType[EventType["TouchMove"] = 7] = "TouchMove";
-        EventType[EventType["TouchEnd"] = 8] = "TouchEnd";
-        EventType[EventType["TouchCancel"] = 9] = "TouchCancel";
-        EventType[EventType["Click"] = 10] = "Click";
-        EventType[EventType["Collision"] = 11] = "Collision";
-        EventType[EventType["EnterViewPort"] = 12] = "EnterViewPort";
-        EventType[EventType["ExitViewPort"] = 13] = "ExitViewPort";
-        EventType[EventType["Blur"] = 14] = "Blur";
-        EventType[EventType["Focus"] = 15] = "Focus";
-        EventType[EventType["Update"] = 16] = "Update";
-        EventType[EventType["Activate"] = 17] = "Activate";
-        EventType[EventType["Deactivate"] = 18] = "Deactivate";
-        EventType[EventType["Initialize"] = 19] = "Initialize";
-    })(ex.EventType || (ex.EventType = {}));
-    var EventType = ex.EventType;
-
-    var GameEvent = (function () {
-        function GameEvent() {
-        }
-        return GameEvent;
-    })();
-    ex.GameEvent = GameEvent;
-
-    var FocusEvent = (function (_super) {
-        __extends(FocusEvent, _super);
-        function FocusEvent() {
-            _super.call(this);
-        }
-        return FocusEvent;
-    })(GameEvent);
-    ex.FocusEvent = FocusEvent;
-
-    var BlurEvent = (function (_super) {
-        __extends(BlurEvent, _super);
-        function BlurEvent() {
-            _super.call(this);
-        }
-        return BlurEvent;
-    })(GameEvent);
-    ex.BlurEvent = BlurEvent;
-
-    var CollisionEvent = (function (_super) {
-        __extends(CollisionEvent, _super);
-        function CollisionEvent(actor, other, side) {
-            _super.call(this);
-            this.actor = actor;
-            this.other = other;
-            this.side = side;
-        }
-        return CollisionEvent;
-    })(GameEvent);
-    ex.CollisionEvent = CollisionEvent;
-
-    var UpdateEvent = (function (_super) {
-        __extends(UpdateEvent, _super);
-        function UpdateEvent(delta) {
-            _super.call(this);
-            this.delta = delta;
-        }
-        return UpdateEvent;
-    })(GameEvent);
-    ex.UpdateEvent = UpdateEvent;
-
-    var InitializeEvent = (function (_super) {
-        __extends(InitializeEvent, _super);
-        function InitializeEvent(engine) {
-            _super.call(this);
-            this.engine = engine;
-        }
-        return InitializeEvent;
-    })(GameEvent);
-    ex.InitializeEvent = InitializeEvent;
-
-    var ActivateEvent = (function (_super) {
-        __extends(ActivateEvent, _super);
-        function ActivateEvent(oldScene) {
-            _super.call(this);
-            this.oldScene = oldScene;
-        }
-        return ActivateEvent;
-    })(GameEvent);
-    ex.ActivateEvent = ActivateEvent;
-
-    var DeactivateEvent = (function (_super) {
-        __extends(DeactivateEvent, _super);
-        function DeactivateEvent(newScene) {
-            _super.call(this);
-            this.newScene = newScene;
-        }
-        return DeactivateEvent;
-    })(GameEvent);
-    ex.DeactivateEvent = DeactivateEvent;
-
-    var ExitViewPortEvent = (function (_super) {
-        __extends(ExitViewPortEvent, _super);
-        function ExitViewPortEvent() {
-            _super.call(this);
-        }
-        return ExitViewPortEvent;
-    })(GameEvent);
-    ex.ExitViewPortEvent = ExitViewPortEvent;
-
-    var EnterViewPortEvent = (function (_super) {
-        __extends(EnterViewPortEvent, _super);
-        function EnterViewPortEvent() {
-            _super.call(this);
-        }
-        return EnterViewPortEvent;
-    })(GameEvent);
-    ex.EnterViewPortEvent = EnterViewPortEvent;
-
-    var KeyEvent = (function (_super) {
-        __extends(KeyEvent, _super);
-        function KeyEvent(key) {
-            _super.call(this);
-            this.key = key;
-        }
-        return KeyEvent;
-    })(GameEvent);
-    ex.KeyEvent = KeyEvent;
-
-    var KeyDown = (function (_super) {
-        __extends(KeyDown, _super);
-        function KeyDown(key) {
-            _super.call(this);
-            this.key = key;
-        }
-        return KeyDown;
-    })(GameEvent);
-    ex.KeyDown = KeyDown;
-
-    var KeyUp = (function (_super) {
-        __extends(KeyUp, _super);
-        function KeyUp(key) {
-            _super.call(this);
-            this.key = key;
-        }
-        return KeyUp;
-    })(GameEvent);
-    ex.KeyUp = KeyUp;
-
-    var KeyPress = (function (_super) {
-        __extends(KeyPress, _super);
-        function KeyPress(key) {
-            _super.call(this);
-            this.key = key;
-        }
-        return KeyPress;
-    })(GameEvent);
-    ex.KeyPress = KeyPress;
-
-    (function (MouseButton) {
-        MouseButton[MouseButton["Left"] = 0] = "Left";
-
-        MouseButton[MouseButton["Middle"] = 1] = "Middle";
-
-        MouseButton[MouseButton["Right"] = 2] = "Right";
-    })(ex.MouseButton || (ex.MouseButton = {}));
-    var MouseButton = ex.MouseButton;
-
-    var MouseDown = (function (_super) {
-        __extends(MouseDown, _super);
-        function MouseDown(x, y, mouseEvent) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-            this.mouseEvent = mouseEvent;
-        }
-        return MouseDown;
-    })(GameEvent);
-    ex.MouseDown = MouseDown;
-
-    var MouseMove = (function (_super) {
-        __extends(MouseMove, _super);
-        function MouseMove(x, y, mouseEvent) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-            this.mouseEvent = mouseEvent;
-        }
-        return MouseMove;
-    })(GameEvent);
-    ex.MouseMove = MouseMove;
-
-    var MouseUp = (function (_super) {
-        __extends(MouseUp, _super);
-        function MouseUp(x, y, mouseEvent) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-            this.mouseEvent = mouseEvent;
-        }
-        return MouseUp;
-    })(GameEvent);
-    ex.MouseUp = MouseUp;
-
-    
-
-    var TouchStart = (function (_super) {
-        __extends(TouchStart, _super);
-        function TouchStart(x, y) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-        }
-        return TouchStart;
-    })(GameEvent);
-    ex.TouchStart = TouchStart;
-
-    var TouchMove = (function (_super) {
-        __extends(TouchMove, _super);
-        function TouchMove(x, y) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-        }
-        return TouchMove;
-    })(GameEvent);
-    ex.TouchMove = TouchMove;
-
-    var TouchEnd = (function (_super) {
-        __extends(TouchEnd, _super);
-        function TouchEnd(x, y) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-        }
-        return TouchEnd;
-    })(GameEvent);
-    ex.TouchEnd = TouchEnd;
-
-    var TouchCancel = (function (_super) {
-        __extends(TouchCancel, _super);
-        function TouchCancel(x, y) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-        }
-        return TouchCancel;
-    })(GameEvent);
-    ex.TouchCancel = TouchCancel;
-
-    var Click = (function (_super) {
-        __extends(Click, _super);
-        function Click(x, y, mouseEvent) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-            this.mouseEvent = mouseEvent;
-        }
-        return Click;
-    })(GameEvent);
-    ex.Click = Click;
-
-    var EventDispatcher = (function () {
-        function EventDispatcher(target) {
-            this._handlers = {};
-            this.queue = [];
-            this.log = ex.Logger.getInstance();
-            this.target = target;
-        }
-        EventDispatcher.prototype.publish = function (eventName, event) {
-            if (!eventName) {
-                return;
-            }
-            eventName = eventName.toLowerCase();
-            var queue = this.queue;
-            var target = this.target;
-            event.target = target;
-            if (this._handlers[eventName]) {
-                this._handlers[eventName].forEach(function (callback) {
-                    queue.push(function () {
-                        callback.call(target, event);
-                    });
-                });
-            }
-        };
-
-        EventDispatcher.prototype.subscribe = function (eventName, handler) {
-            eventName = eventName.toLowerCase();
-            if (!this._handlers[eventName]) {
-                this._handlers[eventName] = [];
-            }
-            this._handlers[eventName].push(handler);
-        };
-
-        EventDispatcher.prototype.unsubscribe = function (eventName, handler) {
-            eventName = eventName.toLowerCase();
-            var eventHandlers = this._handlers[eventName];
-
-            if (eventHandlers) {
-                if (!handler) {
-                    this._handlers[eventName].length = 0;
-                } else {
-                    var index = eventHandlers.indexOf(handler);
-                    this._handlers[eventName].splice(index, 1);
-                }
-            }
-        };
-
-        EventDispatcher.prototype.update = function () {
-            var callback;
-            while (callback = this.queue.shift()) {
-                callback();
-            }
-        };
-        return EventDispatcher;
-    })();
-    ex.EventDispatcher = EventDispatcher;
-})(ex || (ex = {}));
+/// <reference path="Algebra.ts"/>
+/// <reference path="Events.ts"/>
 var ex;
 (function (ex) {
     (function (Util) {
+        /**
+        * Excalibur base class
+        * @class Class
+        * @constructor
+        */
         var Class = (function () {
             function Class() {
                 this.eventDispatcher = new ex.EventDispatcher(this);
             }
+            /**
+            * Add an event listener. You can listen for a variety of
+            * events off of the engine; see the events section below for a complete list.
+            * @method addEventListener
+            * @param eventName {string} Name of the event to listen for
+            * @param handler {event=>void} Event handler for the thrown event
+            */
             Class.prototype.addEventListener = function (eventName, handler) {
                 this.eventDispatcher.subscribe(eventName, handler);
             };
 
+            /**
+            * Removes an event listener. If only the eventName is specified
+            * it will remove all handlers registered for that specific event. If the eventName
+            * and the handler instance are specified just that handler will be removed.
+            *
+            * @method removeEventListener
+            * @param eventName {string} Name of the event to listen for
+            * @param [handler=undefined] {event=>void} Event handler for the thrown event
+            */
             Class.prototype.removeEventListener = function (eventName, handler) {
                 this.eventDispatcher.unsubscribe(eventName, handler);
             };
 
+            /**
+            * Alias for "addEventListener". You can listen for a variety of
+            * events off of the engine; see the events section below for a complete list.
+            * @method on
+            * @param eventName {string} Name of the event to listen for
+            * @param handler {event=>void} Event handler for the thrown event
+            */
             Class.prototype.on = function (eventName, handler) {
                 this.eventDispatcher.subscribe(eventName, handler);
             };
 
+            /**
+            * Alias for "removeEventListener". If only the eventName is specified
+            * it will remove all handlers registered for that specific event. If the eventName
+            * and the handler instance are specified only that handler will be removed.
+            *
+            * @method off
+            * @param eventName {string} Name of the event to listen for
+            * @param [handler=undefined] {event=>void} Event handler for the thrown event
+            */
             Class.prototype.off = function (eventName, handler) {
                 this.eventDispatcher.unsubscribe(eventName, handler);
             };
 
+            /**
+            * You may wish to extend native Excalibur functionality. Any method on
+            * actor may be extended to support additional functionaliy. In the
+            * example below we create a new type called "MyActor"
+            * <br/><b>Example</b><pre>var MyActor = Actor.extend({
+            init : function(){ // custom initializer },
+            update : function(engine, delta){
+            // Implement custom update
+            
+            // Call super constructor update
+            this.super.update.call(this, engine, delta);
+            console.log("Something cool!");
+            }
+            });
+            var myActor = new MyActor(100, 100, 100, 100, Color.Azure);</pre>
+            * @method extend
+            * @static
+            * @param methods {any}
+            */
             Class.extend = function (methods) {
                 var _super = this.prototype;
                 var SubClass = function () {
@@ -598,9 +500,11 @@ var ex;
                     }
                 };
 
+                // Create our super class and populate
                 var SuperClass = new this();
                 for (var prop in methods) {
                     if (typeof _super[prop] == "function" && /\b_super\b/.test(methods[prop])) {
+                        // if we have encountered a super constructor lazily call it
                         SuperClass[prop] = (function (name, fn) {
                             return function () {
                                 var tmp = this._super;
@@ -633,6 +537,8 @@ var ex;
             var i = 0;
 
             while (i < inputStr.length) {
+                //all three "& 0xff" added below are there to fix a known bug
+                //with bytes returned by xhr.responseText
                 var byte1 = inputStr.charCodeAt(i++) & 0xff;
                 var byte2 = inputStr.charCodeAt(i++) & 0xff;
                 var byte3 = inputStr.charCodeAt(i++) & 0xff;
@@ -703,6 +609,12 @@ var ex;
         }
         Util.getPosition = getPosition;
 
+        /**
+        * Excaliburs dynamically resizing collection
+        * @class Collection
+        * @contsructor
+        * @param [initialSize=200] {number} Initial size of the internal backing array
+        */
         var Collection = (function () {
             function Collection(initialSize) {
                 this.internalArray = null;
@@ -722,6 +634,12 @@ var ex;
                 this.internalArray = newArray;
             };
 
+            /**
+            * Push elements to the end of the collection
+            * @method push
+            * @param element {T}
+            * @returns T
+            */
             Collection.prototype.push = function (element) {
                 if (this.endPointer === this.internalArray.length) {
                     this.resize();
@@ -729,23 +647,48 @@ var ex;
                 return this.internalArray[this.endPointer++] = element;
             };
 
+            /**
+            * Removes elements from the end of the collection
+            * @method pop
+            * @returns T
+            */
             Collection.prototype.pop = function () {
                 this.endPointer = this.endPointer - 1 < 0 ? 0 : this.endPointer - 1;
                 return this.internalArray[this.endPointer];
             };
 
+            /**
+            * Returns the count of the collection
+            * @method count
+            * @returns number
+            */
             Collection.prototype.count = function () {
                 return this.endPointer;
             };
 
+            /**
+            * Empties the collection
+            * @method clear
+            */
             Collection.prototype.clear = function () {
                 this.endPointer = 0;
             };
 
+            /**
+            * Returns the size of the internal backing array
+            * @method internalSize
+            * @returns number
+            */
             Collection.prototype.internalSize = function () {
                 return this.internalArray.length;
             };
 
+            /**
+            * Returns an element at a specific index
+            * @method elementAt
+            * @param index {number} Index of element to retreive
+            * @returns T
+            */
             Collection.prototype.elementAt = function (index) {
                 if (index >= this.count()) {
                     return;
@@ -753,6 +696,12 @@ var ex;
                 return this.internalArray[index];
             };
 
+            /**
+            * Inserts an element at a specific index
+            * @method insert
+            * @param index {number} Index to insert the element
+            * @returns T
+            */
             Collection.prototype.insert = function (index, value) {
                 if (index >= this.count()) {
                     this.resize();
@@ -760,11 +709,18 @@ var ex;
                 return this.internalArray[index] = value;
             };
 
+            /**
+            * Removes an element at a specific index
+            * @method remove
+            * @param index {number} Index of element to remove
+            * @returns T
+            */
             Collection.prototype.remove = function (index) {
                 var count = this.count();
                 if (count === 0)
                     return;
 
+                // O(n) Shift
                 var removed = this.internalArray[index];
                 for (var i = index; i < count; i++) {
                     this.internalArray[i] = this.internalArray[i + 1];
@@ -773,15 +729,30 @@ var ex;
                 return removed;
             };
 
+            /**
+            * Removes an element by reference
+            * @method removeElement
+            * @param element {T} Index of element to retreive
+            */
             Collection.prototype.removeElement = function (element) {
                 var index = this.internalArray.indexOf(element);
                 this.remove(index);
             };
 
+            /**
+            * Returns a array representing the collection
+            * @method toArray
+            * @returns T[]
+            */
             Collection.prototype.toArray = function () {
                 return this.internalArray.slice(0, this.endPointer);
             };
 
+            /**
+            * Iterate over every element in the collection
+            * @method forEach
+            * @param func {(T,number)=>any} Callback to call for each element passing a reference to the element and its index, returned values are ignored
+            */
             Collection.prototype.forEach = function (func) {
                 var count = this.count();
                 for (var i = 0; i < count; i++) {
@@ -789,6 +760,11 @@ var ex;
                 }
             };
 
+            /**
+            * Mutate every element in the collection
+            * @method map
+            * @param func {(T,number)=>any} Callback to call for each element passing a reference to the element and its index, any values returned mutate the collection
+            */
             Collection.prototype.map = function (func) {
                 var count = this.count();
                 for (var i = 0; i < count; i++) {
@@ -802,6 +778,9 @@ var ex;
     })(ex.Util || (ex.Util = {}));
     var Util = ex.Util;
 })(ex || (ex = {}));
+/// <reference path="Core.ts" />
+/// <reference path="Algebra.ts" />
+/// <reference path="Util.ts" />
 var ex;
 (function (ex) {
     var Overlap = (function () {
@@ -813,31 +792,73 @@ var ex;
     })();
     ex.Overlap = Overlap;
 
+    /**
+    * Actors are composed together into groupings called Scenes in
+    * Excalibur. The metaphor models the same idea behind real world
+    * actors in a scene. Only actors in scenes will be updated and drawn.
+    * @class Scene
+    * @constructor
+    */
     var Scene = (function (_super) {
         __extends(Scene, _super);
         function Scene() {
             _super.call(this);
+            /**
+            * The actors in the current scene
+            * @property children {Actor[]}
+            */
             this.children = [];
             this.killQueue = [];
             this.timers = [];
             this.cancelQueue = [];
             this._isInitialized = false;
         }
+        /**
+        * This is called when the scene is made active and started. It is meant to be overriden,
+        * this is where you should setup any DOM UI or event handlers needed for the scene.
+        * @method onActivate
+        */
         Scene.prototype.onActivate = function () {
+            // will be overridden
         };
 
+        /**
+        * This is called when the scene is made transitioned away from and stopped. It is meant to be overriden,
+        * this is where you should cleanup any DOM UI or event handlers needed for the scene.
+        * @method onDeactivate
+        */
         Scene.prototype.onDeactivate = function () {
+            // will be overridden
         };
 
+        /**
+        * This is called before the first update of the actor. This method is meant to be
+        * overridden. This is where initialization of child actors should take place.
+        * @method onInitialize
+        * @param engine {Engine}
+        */
         Scene.prototype.onInitialize = function (engine) {
+            // will be overridden
         };
 
+        /**
+        * Publish an event to all actors in the scene
+        * @method publish
+        * @param eventType {string} The name of the event to publish
+        * @param event {GameEvent} The event object to send
+        */
         Scene.prototype.publish = function (eventType, event) {
             this.children.forEach(function (actor) {
                 actor.triggerEvent(eventType, event);
             });
         };
 
+        /**
+        * Updates all the actors and timers in the Scene. Called by the Engine.
+        * @method update
+        * @param engine {Engine} Reference to the current Engine
+        * @param delta {number} The number of milliseconds since the last update
+        */
         Scene.prototype.update = function (engine, delta) {
             if (!this._isInitialized) {
                 this.onInitialize(engine);
@@ -845,6 +866,7 @@ var ex;
                 this._isInitialized = true;
             }
 
+            // Update event dispatcher
             this.eventDispatcher.update();
 
             var len = 0;
@@ -856,6 +878,7 @@ var ex;
                 this.children[i].update(engine, delta);
             }
 
+            // Remove actors from scene graph after being killed
             var actorIndex = 0;
             for (var j = 0, len = this.killQueue.length; j < len; j++) {
                 actorIndex = this.children.indexOf(this.killQueue[j]);
@@ -865,12 +888,14 @@ var ex;
             }
             this.killQueue.length = 0;
 
+            // Remove timers in the cancel queue before updating them
             var timerIndex = 0;
             for (var k = 0, len = this.cancelQueue.length; k < len; k++) {
                 this.removeTimer(this.cancelQueue[k]);
             }
             this.cancelQueue.length = 0;
 
+            // Cycle through timers updating timers
             var that = this;
             this.timers = this.timers.filter(function (timer) {
                 timer.update(delta);
@@ -878,6 +903,12 @@ var ex;
             });
         };
 
+        /**
+        * Draws all the actors in the Scene. Called by the Engine.
+        * @method draw
+        * @param ctx {CanvasRenderingContext2D} The current rendering context
+        * @param delta {number} The number of milliseconds since the last draw
+        */
         Scene.prototype.draw = function (ctx, delta) {
             var len = 0;
             var start = 0;
@@ -889,29 +920,57 @@ var ex;
             }
         };
 
+        /**
+        * Draws all the actors' debug information in the Scene. Called by the Engine.
+        * @method draw
+        * @param ctx {CanvasRenderingContext2D} The current rendering context
+        */
         Scene.prototype.debugDraw = function (ctx) {
             this.children.forEach(function (actor) {
                 actor.debugDraw(ctx);
             });
         };
 
+        /**
+        * Adds an actor to the Scene, once this is done the actor will be drawn and updated.
+        * @method addChild
+        * @param actor {Actor} The actor to add
+        */
         Scene.prototype.addChild = function (actor) {
             actor.scene = this;
             this.children.push(actor);
             actor.parent = this.actor;
         };
 
+        /**
+        * Removes an actor from the Scene, it will no longer be drawn or updated.
+        * @method removeChild
+        * @param actor {Actor} The actor to remove
+        */
         Scene.prototype.removeChild = function (actor) {
             this.killQueue.push(actor);
             actor.parent = null;
         };
 
+        /**
+        * Adds a timer to the Scene
+        * @method addTimer
+        * @param timer {Timer} The timer to add
+        * @returns Timer
+        */
         Scene.prototype.addTimer = function (timer) {
             this.timers.push(timer);
             timer.scene = this;
             return timer;
         };
 
+        /**
+        * Removes a timer to the Scene, can be dangerous
+        * @method removeTimer
+        * @private
+        * @param timer {Timer} The timer to remove
+        * @returns Timer
+        */
         Scene.prototype.removeTimer = function (timer) {
             var i = this.timers.indexOf(timer);
             if (i !== -1) {
@@ -920,11 +979,23 @@ var ex;
             return timer;
         };
 
+        /**
+        * Cancels a timer, removing it from the scene nicely
+        * @method cancelTimer
+        * @param timer {Timer} The timer to cancel
+        * @returns Timer
+        */
         Scene.prototype.cancelTimer = function (timer) {
             this.cancelQueue.push(timer);
             return timer;
         };
 
+        /**
+        * Tests whether a timer is active in the scene
+        * @method isTimerActive
+        * @param timer {Timer}
+        * @returns boolean
+        */
         Scene.prototype.isTimerActive = function (timer) {
             return (this.timers.indexOf(timer) > -1);
         };
@@ -932,7 +1003,36 @@ var ex;
     })(ex.Util.Class);
     ex.Scene = Scene;
 
+    /**
+    * An enum that describes the sides of an Actor for collision
+    * @class Side
+    */
     (function (Side) {
+        /**
+        @property NONE {Side}
+        @static
+        @final
+        */
+        /**
+        @property TOP {Side}
+        @static
+        @final
+        */
+        /**
+        @property BOTTOM {Side}
+        @static
+        @final
+        */
+        /**
+        @property LEFT {Side}
+        @static
+        @final
+        */
+        /**
+        @property RIGHT {Side}
+        @static
+        @final
+        */
         Side[Side["NONE"] = 0] = "NONE";
         Side[Side["TOP"] = 1] = "TOP";
         Side[Side["BOTTOM"] = 2] = "BOTTOM";
@@ -941,28 +1041,98 @@ var ex;
     })(ex.Side || (ex.Side = {}));
     var Side = ex.Side;
 
+    /**
+    * The most important primitive in Excalibur is an "Actor." Anything that
+    * can move on the screen, collide with another Actor, respond to events,
+    * or interact with the current scene, must be an actor. An Actor <b>must</b>
+    * be part of a {{#crossLink "Scene"}}{{/crossLink}} for it to be drawn to the screen.
+    * @class Actor
+    * @extends Class
+    * @constructor
+    * @param [x=0.0] {number} The starting x coordinate of the actor
+    * @param [y=0.0] {number} The starting y coordinate of the actor
+    * @param [width=0.0] {number} The starting width of the actor
+    * @param [height=0.0] {number} The starting height of the actor
+    * @param [color=undefined] {Color} The starting color of the actor
+    */
     var Actor = (function (_super) {
         __extends(Actor, _super);
         function Actor(x, y, width, height, color) {
             _super.call(this);
+            /**
+            * The x coordinate of the actor (left edge)
+            * @property x {number}
+            */
             this.x = 0;
+            /**
+            * The y coordinate of the actor (top edge)
+            * @property y {number}
+            */
             this.y = 0;
             this.height = 0;
             this.width = 0;
+            /**
+            * The rotation of the actor in radians
+            * @property rotation {number}
+            */
             this.rotation = 0;
+            /**
+            * The rotational velocity of the actor in radians/second
+            * @property rx {number}
+            */
             this.rx = 0;
+            /**
+            * The scale of the actor
+            * @property scale {number}
+            */
             this.scale = 1;
+            /**
+            * The scalar velocity of the actor in scale/second
+            * @property sx {number}
+            */
             this.sx = 0;
+            /**
+            * The x velocity of the actor in pixels/second
+            * @property dx {number}
+            */
             this.dx = 0;
+            /**
+            * The x velocity of the actor in pixels/second
+            * @property dx {number}
+            */
             this.dy = 0;
             this.ax = 0;
             this.ay = 0;
+            /**
+            * Indicates wether the actor is physically in the viewport
+            * @property isOffScreen {boolean}
+            */
             this.isOffScreen = false;
+            /**
+            * The visibility of an actor
+            * @property invisible {boolean}
+            */
             this.invisible = false;
+            /**
+            * The opacity of an actor
+            * @property opacity {number}
+            */
             this.opacity = 1;
             this.previousOpacity = 1;
+            /**
+            * Convenience reference to the global logger
+            * @property logger {Logger}
+            */
             this.logger = ex.Logger.getInstance();
+            /**
+            * The scene that the actor is in
+            * @property scene {Scene}
+            */
             this.scene = null;
+            /**
+            * The parent of this actor
+            * @property parent {Actor}
+            */
             this.parent = null;
             this.fixed = true;
             this.preventCollisions = false;
@@ -970,6 +1140,12 @@ var ex;
             this._collisionHandlers = {};
             this._isInitialized = false;
             this.frames = {};
+            /**
+            * Access to the current drawing on for the actor, this can be an {{#crossLink "Animation"}}{{/crossLink}},
+            * {{#crossLink "Sprite"}}{{/crossLink}}, or {{#crossLink "Polygon"}}{{/crossLink}}.
+            * Set drawings with the {{#crossLink "Actor/setDrawing:method"}}{{/crossLink}}.
+            * @property currentDrawing {IDrawable}
+            */
             this.currentDrawing = null;
             this.centerDrawingX = false;
             this.centerDrawingY = false;
@@ -983,9 +1159,21 @@ var ex;
             this.sceneNode = new Scene();
             this.sceneNode.actor = this;
         }
+        /**
+        * This is called before the first update of the actor. This method is meant to be
+        * overridden. This is where initialization of child actors should take place.
+        * @method onInitialize
+        * @param engine {Engine}
+        */
         Actor.prototype.onInitialize = function (engine) {
+            // will be overridden
         };
 
+        /**
+        * If the current actors is a member of the scene. This will remove
+        * it from the scene graph. It will no longer be drawn or updated.
+        * @method kill
+        */
         Actor.prototype.kill = function () {
             if (this.scene) {
                 this.scene.removeChild(this);
@@ -995,14 +1183,32 @@ var ex;
             }
         };
 
+        /**
+        * Adds a child actor to this actor. All movement of the child actor will be
+        * relative to the parent actor. Meaning if the parent moves the child will
+        * move with
+        * @method addChild
+        * @param actor {Actor} The child actor to add
+        */
         Actor.prototype.addChild = function (actor) {
             this.sceneNode.addChild(actor);
         };
 
+        /**
+        * Removes a child actor from this actor.
+        * @method removeChild
+        * @param actor {Actor} The child actor to remove
+        */
         Actor.prototype.removeChild = function (actor) {
             this.sceneNode.removeChild(actor);
         };
 
+        /**
+        * Sets the current drawing of the actor to the drawing correspoding to
+        * the key.
+        * @method setDrawing
+        * @param key {string} The key of the drawing
+        */
         Actor.prototype.setDrawing = function (key) {
             if (this.currentDrawing != this.frames[key]) {
                 this.frames[key].reset();
@@ -1010,6 +1216,13 @@ var ex;
             this.currentDrawing = this.frames[key];
         };
 
+        /**
+        * Adds a drawing to the list of available drawings for an actor.
+        * @method addDrawing
+        * @param key {string} The key to associate with a drawing for this actor
+        * @param drawing {IDrawable} this can be an {{#crossLink "Animation"}}{{/crossLink}},
+        * {{#crossLink "Sprite"}}{{/crossLink}}, or {{#crossLink "Polygon"}}{{/crossLink}}.
+        */
         Actor.prototype.addDrawing = function (key, drawing) {
             this.frames[key] = drawing;
             if (!this.currentDrawing) {
@@ -1017,14 +1230,35 @@ var ex;
             }
         };
 
+        /**
+        * Artificially trigger an event on an actor, useful when creating custom events.
+        * @method triggerEvent
+        * @param eventName {string} The name of the event to trigger
+        * @param [event=undefined] {GameEvent} The event object to pass to the callback
+        */
         Actor.prototype.triggerEvent = function (eventName, event) {
             this.eventDispatcher.publish(eventName, event);
         };
 
+        /**
+        * Adds an actor to a collision group. Actors with no named collision group are
+        * considered to be in every collision group.
+        *
+        * Once in a collision group(s) actors will only collide with other actors in
+        * that group.
+        *
+        * @method addCollisionGroup
+        * @param name {string} The name of the collision group
+        */
         Actor.prototype.addCollisionGroup = function (name) {
             this.collisionGroups.push(name);
         };
 
+        /**
+        * Remove an actor from a collision group.
+        * @method removeCollisionGroup
+        * @param name {string} The name of the collision group
+        */
         Actor.prototype.removeCollisionGroup = function (name) {
             var index = this.collisionGroups.indexOf(name);
             if (index !== -1) {
@@ -1032,47 +1266,100 @@ var ex;
             }
         };
 
+        /**
+        * Get the center point of an actor
+        * @method getCenter
+        * @returns Vector
+        */
         Actor.prototype.getCenter = function () {
             return new ex.Vector(this.x + this.getWidth() / 2, this.y + this.getHeight() / 2);
         };
 
+        /**
+        * Gets the calculated width of an actor
+        * @method getWidth
+        * @returns number
+        */
         Actor.prototype.getWidth = function () {
             return this.width * this.scale;
         };
 
+        /**
+        * Sets the width of an actor, factoring in the current scale
+        * @method setWidth
+        */
         Actor.prototype.setWidth = function (width) {
             this.width = width / this.scale;
         };
 
+        /**
+        * Gets the calculated height of an actor
+        * @method getHeight
+        * @returns number
+        */
         Actor.prototype.getHeight = function () {
             return this.height * this.scale;
         };
 
+        /**
+        * Sets the height of an actor, factoring in the current scale
+        * @method setHeight
+        */
         Actor.prototype.setHeight = function (height) {
             this.height = height / this.scale;
         };
 
+        /**
+        * Centers the actor's drawing around the center of the actor's bounding box
+        * @method setCenterDrawing
+        * @param center {boolean} Indicates to center the drawing around the actor
+        */
         Actor.prototype.setCenterDrawing = function (center) {
             this.centerDrawingY = true;
             this.centerDrawingX = true;
         };
 
+        /**
+        * Gets the left edge of the actor
+        * @method getLeft
+        * @returns number
+        */
         Actor.prototype.getLeft = function () {
             return this.x;
         };
 
+        /**
+        * Gets the right edge of the actor
+        * @method getRight
+        * @returns number
+        */
         Actor.prototype.getRight = function () {
             return this.x + this.getWidth();
         };
 
+        /**
+        * Gets the top edge of the actor
+        * @method getTop
+        * @returns number
+        */
         Actor.prototype.getTop = function () {
             return this.y;
         };
 
+        /**
+        * Gets the bottom edge of the actor
+        * @method getBottom
+        * @returns number
+        */
         Actor.prototype.getBottom = function () {
             return this.y + this.getHeight();
         };
 
+        /**
+        * Gets the x value of the Actor in global coordinates
+        * @method getGlobalX
+        * @returns number
+        */
         Actor.prototype.getGlobalX = function () {
             var previous;
             var current = this.parent;
@@ -1087,6 +1374,11 @@ var ex;
             }
         };
 
+        /**
+        * Gets the y value of the Actor in global coordinates
+        * @method getGlobalY
+        * @returns number
+        */
         Actor.prototype.getGlobalY = function () {
             var previous;
             var current = this.parent;
@@ -1129,10 +1421,22 @@ var ex;
             return new Overlap(xover, yover);
         };
 
+        /**
+        * Tests whether the x/y specified are contained in the actor
+        * @method contains
+        * @param x {number} X coordinate to test (in world coordinates)
+        * @param y {number} Y coordinate to test (in world coordinates)
+        */
         Actor.prototype.contains = function (x, y) {
             return (this.x <= x && this.y <= y && this.getBottom() >= y && this.getRight() >= x);
         };
 
+        /**
+        * Test whether the actor has collided with another actor, returns the side that collided.
+        * @method collides
+        * @param actor {Actor} The other actor to test
+        * @returns Side
+        */
         Actor.prototype.collides = function (actor) {
             var w = 0.5 * (this.getWidth() + actor.getWidth());
             var h = 0.5 * (this.getHeight() + actor.getHeight());
@@ -1141,6 +1445,7 @@ var ex;
             var dy = (this.y + this.getHeight() / 2.0) - (actor.y + actor.getHeight() / 2.0);
 
             if (Math.abs(dx) < w && Math.abs(dy) < h) {
+                // collision detected
                 var wy = w * dy;
                 var hx = h * dx;
 
@@ -1162,6 +1467,12 @@ var ex;
             return 0 /* NONE */;
         };
 
+        /**
+        * Register a handler to fire when this actor collides with another in a specified group
+        * @method onCollidesWith
+        * @param group {string} The group name to listen for
+        * @param func {callback} The callback to fire on collision with another actor from the group. The callback is passed the other actor.
+        */
         Actor.prototype.onCollidesWith = function (group, func) {
             if (!this._collisionHandlers[group]) {
                 this._collisionHandlers[group] = [];
@@ -1169,68 +1480,187 @@ var ex;
             this._collisionHandlers[group].push(func);
         };
 
+        /**
+        * Removes all collision handlers for this group on this actor
+        * @method removeCollidesWith
+        * @param group {string} Group to remove all handlers for on this actor.
+        */
         Actor.prototype.removeCollidesWith = function (group) {
             this._collisionHandlers[group] = [];
         };
 
+        /**
+        * Returns true if the two actors are less than or equal to the distance specified from each other
+        * @method within
+        * @param actor {Actor} Actor to test
+        * @param distance {number} Distance in pixels to test
+        * @returns boolean
+        */
         Actor.prototype.within = function (actor, distance) {
             return Math.sqrt(Math.pow(this.x - actor.x, 2) + Math.pow(this.y - actor.y, 2)) <= distance;
         };
 
+        /**
+        * Clears all queued actions from the Actor
+        * @method clearActions
+        */
         Actor.prototype.clearActions = function () {
             this.actionQueue.clearActions();
         };
 
+        /**
+        * This method will move an actor to the specified x and y position at the
+        * speed specified (in pixels per second) and return back the actor. This
+        * method is part of the actor 'Action' fluent API allowing action chaining.
+        * @method moveTo
+        * @param x {number} The x location to move the actor to
+        * @param y {number} The y location to move the actor to
+        * @param speed {number} The speed in pixels per second to move
+        * @returns Actor
+        */
         Actor.prototype.moveTo = function (x, y, speed) {
             this.actionQueue.add(new ex.Internal.Actions.MoveTo(this, x, y, speed));
             return this;
         };
 
+        /**
+        * This method will move an actor to the specified x and y position by a
+        * certain time (in milliseconds). This method is part of the actor
+        * 'Action' fluent API allowing action chaining.
+        * @method moveBy
+        * @param x {number} The x location to move the actor to
+        * @param y {number} The y location to move the actor to
+        * @param time {number} The time it should take the actor to move to the new location in milliseconds
+        * @returns Actor
+        */
         Actor.prototype.moveBy = function (x, y, time) {
             this.actionQueue.add(new ex.Internal.Actions.MoveBy(this, x, y, time));
             return this;
         };
 
+        /**
+        * This method will rotate an actor to the specified angle at the speed
+        * specified (in radians per second) and return back the actor. This
+        * method is part of the actor 'Action' fluent API allowing action chaining.
+        * @method rotateTo
+        * @param angleRadians {number} The angle to rotate to in radians
+        * @param speed {number} The angular velocity of the rotation specified in radians per second
+        * @returns Actor
+        */
         Actor.prototype.rotateTo = function (angleRadians, speed) {
             this.actionQueue.add(new ex.Internal.Actions.RotateTo(this, angleRadians, speed));
             return this;
         };
 
+        /**
+        * This method will rotate an actor to the specified angle by a certain
+        * time (in milliseconds) and return back the actor. This method is part
+        * of the actor 'Action' fluent API allowing action chaining.
+        * @method rotateBy
+        * @param angleRadians {number} The angle to rotate to in radians
+        * @param time {number} The time it should take the actor to complete the rotation in milliseconds
+        * @returns Actor
+        */
         Actor.prototype.rotateBy = function (angleRadians, time) {
             this.actionQueue.add(new ex.Internal.Actions.RotateBy(this, angleRadians, time));
             return this;
         };
 
+        /**
+        * This method will scale an actor to the specified size at the speed
+        * specified (in magnitude increase per second) and return back the
+        * actor. This method is part of the actor 'Action' fluent API allowing
+        * action chaining.
+        * @method scaleTo
+        * @param size {number} The scaling factor to apply
+        * @param speed {number} The speed of scaling specified in magnitude increase per second
+        * @returns Actor
+        */
         Actor.prototype.scaleTo = function (size, speed) {
             this.actionQueue.add(new ex.Internal.Actions.ScaleTo(this, size, speed));
             return this;
         };
 
+        /**
+        * This method will scale an actor to the specified size by a certain time
+        * (in milliseconds) and return back the actor. This method is part of the
+        * actor 'Action' fluent API allowing action chaining.
+        * @method scaleBy
+        * @param size {number} The scaling factor to apply
+        * @param time {number} The time it should take to complete the scaling in milliseconds
+        * @returns Actor
+        */
         Actor.prototype.scaleBy = function (size, time) {
             this.actionQueue.add(new ex.Internal.Actions.ScaleBy(this, size, time));
             return this;
         };
 
+        /**
+        * This method will cause an actor to blink (become visible and and
+        * invisible) at a frequency (blinks per second) for a duration (in
+        * milliseconds). Optionally, you may specify blinkTime, which indicates
+        * the amount of time the actor is invisible during each blink.<br/>
+        * To have the actor blink 3 times in 1 second, call actor.blink(3, 1000).<br/>
+        * This method is part of the actor 'Action' fluent API allowing action chaining.
+        * @method blink
+        * @param frequency {number} The blinks per second
+        * @param duration {number} The total duration of the blinking specified in milliseconds
+        * @param [blinkTime=200] {number} The amount of time each blink that the actor is visible in milliseconds
+        * @returns Actor
+        */
         Actor.prototype.blink = function (frequency, duration, blinkTime) {
             this.actionQueue.add(new ex.Internal.Actions.Blink(this, frequency, duration, blinkTime));
             return this;
         };
 
+        /**
+        * This method will cause an actor's opacity to change from its current value
+        * to the provided value by a specified time (in milliseconds). This method is
+        * part of the actor 'Action' fluent API allowing action chaining.
+        * @method fade
+        * @param opacity {number} The ending opacity
+        * @param time {number} The time it should take to fade the actor (in milliseconds)
+        * @returns Actor
+        */
         Actor.prototype.fade = function (opacity, time) {
             this.actionQueue.add(new ex.Internal.Actions.Fade(this, opacity, time));
             return this;
         };
 
+        /**
+        * This method will delay the next action from executing for a certain
+        * amount of time (in milliseconds). This method is part of the actor
+        * 'Action' fluent API allowing action chaining.
+        * @method delay
+        * @param time {number} The amount of time to delay the next action in the queue from executing in milliseconds
+        * @returns Actor
+        */
         Actor.prototype.delay = function (time) {
             this.actionQueue.add(new ex.Internal.Actions.Delay(this, time));
             return this;
         };
 
+        /**
+        * This method will add an action to the queu that will remove the actor from the
+        * scene once it has completed its previous actions. Any actions on the
+        * action queue after this action will not be executed.
+        * @method die
+        * @returns Actor
+        */
         Actor.prototype.die = function () {
             this.actionQueue.add(new ex.Internal.Actions.Die(this));
             return this;
         };
 
+        /**
+        * This method will cause the actor to repeat all of the previously
+        * called actions a certain number of times. If the number of repeats
+        * is not specified it will repeat forever. This method is part of
+        * the actor 'Action' fluent API allowing action chaining
+        * @method repeat
+        * @param [times=undefined] {number} The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will repeat forever
+        * @returns Actor
+        */
         Actor.prototype.repeat = function (times) {
             if (!times) {
                 this.repeatForever();
@@ -1241,11 +1671,25 @@ var ex;
             return this;
         };
 
+        /**
+        * This method will cause the actor to repeat all of the previously
+        * called actions forever. This method is part of the actor 'Action'
+        * fluent API allowing action chaining.
+        * @method repeatForever
+        * @returns Actor
+        */
         Actor.prototype.repeatForever = function () {
             this.actionQueue.add(new ex.Internal.Actions.RepeatForever(this, this.actionQueue.getActions()));
             return this;
         };
 
+        /**
+        * This method will cause the actor to follow another at a specified distance
+        * @method follow
+        * @param actor {Actor} The actor to follow
+        * @param [followDistance=currentDistance] {number} The distance to maintain when following, if not specified the actor will follow at the current distance.
+        * @returns Actor
+        */
         Actor.prototype.follow = function (actor, followDistance) {
             if (followDistance == undefined) {
                 this.actionQueue.add(new ex.Internal.Actions.Follow(this, actor));
@@ -1255,6 +1699,14 @@ var ex;
             return this;
         };
 
+        /**
+        * This method will cause the actor to move towards another until they
+        * collide "meet" at a specified speed.
+        * @method meet
+        * @param actor {Actor} The actor to meet
+        * @param [speed=0] {number} The speed in pixels per second to move, if not specified it will match the speed of the other actor
+        * @returns Actor
+        */
         Actor.prototype.meet = function (actor, speed) {
             if (speed == undefined) {
                 this.actionQueue.add(new ex.Internal.Actions.Meet(this, actor));
@@ -1264,6 +1716,12 @@ var ex;
             return this;
         };
 
+        /**
+        * Called by the Engine, updates the state of the actor
+        * @method update
+        * @param engine {Engine} The reference to the current game engine
+        * @param delta {number} The time elapsed since the last update in milliseconds
+        */
         Actor.prototype.update = function (engine, delta) {
             var _this = this;
             if (!this._isInitialized) {
@@ -1275,10 +1733,13 @@ var ex;
             this.sceneNode.update(engine, delta);
             var eventDispatcher = this.eventDispatcher;
 
+            // Update event dispatcher
             eventDispatcher.update();
 
+            // Update action queue
             this.actionQueue.update(delta);
 
+            // Update placements based on linear algebra
             this.x += this.dx * delta / 1000;
             this.y += this.dy * delta / 1000;
 
@@ -1314,10 +1775,12 @@ var ex;
                 }
             }
 
+            // Publish other events
             engine.keys.forEach(function (key) {
                 eventDispatcher.publish(ex.InputKey[key], new ex.KeyEvent(key));
             });
 
+            // Publish click events
             engine.clicks.forEach(function (e) {
                 if (_this.contains(e.x, e.y)) {
                     eventDispatcher.publish(ex.EventType[10 /* Click */], new ex.Click(e.x, e.y, e.mouseEvent));
@@ -1377,6 +1840,12 @@ var ex;
             eventDispatcher.publish(ex.EventType[16 /* Update */], new ex.UpdateEvent(delta));
         };
 
+        /**
+        * Called by the Engine, draws the actor to the screen
+        * @method draw
+        * @param ctx {CanvasRenderingContext2D} The rendering context
+        * @param delta {number} The time since the last draw in milliseconds
+        */
         Actor.prototype.draw = function (ctx, delta) {
             ctx.save();
             ctx.translate(this.x, this.y);
@@ -1402,6 +1871,8 @@ var ex;
                         yDiff = (this.currentDrawing.height * this.currentDrawing.getScale() - this.height) / 2;
                     }
 
+                    //var xDiff = (this.currentDrawing.width*this.currentDrawing.getScale() - this.width)/2;
+                    //var yDiff = (this.currentDrawing.height*this.currentDrawing.getScale() - this.height)/2;
                     this.currentDrawing.draw(ctx, -xDiff, -yDiff);
                 } else {
                     ctx.fillStyle = this.color ? this.color.toString() : (new ex.Color(0, 0, 0)).toString();
@@ -1414,7 +1885,13 @@ var ex;
             ctx.restore();
         };
 
+        /**
+        * Called by the Engine, draws the actors debugging to the screen
+        * @method debugDraw
+        * @param ctx {CanvasRenderingContext2D} The rendering context
+        */
         Actor.prototype.debugDraw = function (ctx) {
+            // Meant to draw debug information about actors
             ctx.save();
             ctx.translate(this.x, this.y);
 
@@ -1431,38 +1908,123 @@ var ex;
     })(ex.Util.Class);
     ex.Actor = Actor;
 
+    /**
+    * Enum representing the different horizontal text alignments
+    * @class TextAlign
+    */
     (function (TextAlign) {
+        /**
+        * The text is left-aligned.
+        * @property Left
+        * @static
+        */
         TextAlign[TextAlign["Left"] = 0] = "Left";
 
+        /**
+        * The text is right-aligned.
+        * @property Right
+        * @static
+        */
         TextAlign[TextAlign["Right"] = 1] = "Right";
 
+        /**
+        * The text is centered.
+        * @property Center
+        * @static
+        */
         TextAlign[TextAlign["Center"] = 2] = "Center";
 
+        /**
+        * The text is aligned at the normal start of the line (left-aligned for left-to-right locales, right-aligned for right-to-left locales).
+        * @property Start
+        * @static
+        */
         TextAlign[TextAlign["Start"] = 3] = "Start";
 
+        /**
+        * The text is aligned at the normal end of the line (right-aligned for left-to-right locales, left-aligned for right-to-left locales).
+        * @property End
+        * @static
+        */
         TextAlign[TextAlign["End"] = 4] = "End";
     })(ex.TextAlign || (ex.TextAlign = {}));
     var TextAlign = ex.TextAlign;
 
+    /**
+    * Enum representing the different baseline text alignments
+    * @class BaseAlign
+    */
     (function (BaseAlign) {
+        /**
+        * The text baseline is the top of the em square.
+        * @property Top
+        * @static
+        */
         BaseAlign[BaseAlign["Top"] = 0] = "Top";
 
+        /**
+        * The text baseline is the hanging baseline.  Currently unsupported; this will act like alphabetic.
+        * @property Hanging
+        * @static
+        */
         BaseAlign[BaseAlign["Hanging"] = 1] = "Hanging";
 
+        /**
+        * The text baseline is the middle of the em square.
+        * @property Middle
+        * @static
+        */
         BaseAlign[BaseAlign["Middle"] = 2] = "Middle";
 
+        /**
+        * The text baseline is the normal alphabetic baseline.
+        * @property Alphabetic
+        * @static
+        */
         BaseAlign[BaseAlign["Alphabetic"] = 3] = "Alphabetic";
 
+        /**
+        * The text baseline is the ideographic baseline; this is the bottom of
+        * the body of the characters, if the main body of characters protrudes
+        * beneath the alphabetic baseline.  Currently unsupported; this will
+        * act like alphabetic.
+        * @property Ideographic
+        * @static
+        */
         BaseAlign[BaseAlign["Ideographic"] = 4] = "Ideographic";
 
+        /**
+        * The text baseline is the bottom of the bounding box.  This differs
+        * from the ideographic baseline in that the ideographic baseline
+        * doesn't consider descenders.
+        * @property Bottom
+        * @static
+        */
         BaseAlign[BaseAlign["Bottom"] = 5] = "Bottom";
     })(ex.BaseAlign || (ex.BaseAlign = {}));
     var BaseAlign = ex.BaseAlign;
 
+    /**
+    * Labels are the way to draw small amounts of text to the screen in Excalibur. They are
+    * actors and inherit all of the benifits and capabilities.
+    * @class Label
+    * @extends Actor
+    * @constructor
+    * @param [text=empty] {string} The text of the label
+    * @param [x=0] {number} The x position of the label
+    * @param [y=0] {number} The y position of the label
+    * @param [font=sans-serif] {string} Use any valid css font string for the label's font. Default is "10px sans-serif".
+    * @param [spriteFont=undefined] {SpriteFont} Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precendence over a css font.
+    *
+    */
     var Label = (function (_super) {
         __extends(Label, _super);
         function Label(text, x, y, font, spriteFont) {
             _super.call(this, x, y);
+            /**
+            * Gets or sets the letter spacing on a Label. Only supported with Sprite Fonts.
+            * @property [letterSpacing=0] {number}
+            */
             this.letterSpacing = 0;
             this.caseInsensitive = true;
             this._textShadowOn = false;
@@ -1478,11 +2040,16 @@ var ex;
             this.spriteFont = spriteFont;
             this.fixed = true;
             this.preventCollisions = true;
-            this.font = font || "10px sans-serif";
+            this.font = font || "10px sans-serif"; // coallesce to default canvas font
             if (spriteFont) {
                 this._textSprites = spriteFont.getTextSprites();
             }
         }
+        /**
+        * Returns the width of the text in the label (in pixels);
+        * @method getTextWidth {number}
+        * @param ctx {CanvasRenderingContext2D} Rending context to measure the string with
+        */
         Label.prototype.getTextWidth = function (ctx) {
             var oldFont = ctx.font;
             ctx.font = this.font;
@@ -1491,6 +2058,7 @@ var ex;
             return width;
         };
 
+        // TypeScript doesn't support string enums :(
         Label.prototype._lookupTextAlign = function (textAlign) {
             switch (textAlign) {
                 case 0 /* Left */:
@@ -1540,6 +2108,13 @@ var ex;
             }
         };
 
+        /**
+        * Sets the text shadow for sprite fonts
+        * @method setTextShadow
+        * @param offsetX {number} The x offset in pixels to place the shadow
+        * @param offsetY {number} The y offset in pixles to place the shadow
+        * @param shadowColor {Color} The color of the text shadow
+        */
         Label.prototype.setTextShadow = function (offsetX, offsetY, shadowColor) {
             this._textShadowOn = true;
             this._shadowOffsetX = offsetX;
@@ -1551,6 +2126,10 @@ var ex;
             }
         };
 
+        /**
+        * Clears the current text shadow
+        * @method clearTextShadow
+        */
         Label.prototype.clearTextShadow = function () {
             this._textShadowOn = false;
             this._shadowOffsetX = 0;
@@ -1613,6 +2192,7 @@ var ex;
                             ex.Logger.getInstance().error("SpriteFont Error drawing char " + character);
                         }
                     }
+                    //this.spriteFont.draw(ctx, 0, 0, this.text, color, this.letterSpacing);
                 } else {
                     var oldAlign = ctx.textAlign;
                     var oldTextBaseline = ctx.textBaseline;
@@ -1641,6 +2221,19 @@ var ex;
     })(Actor);
     ex.Label = Label;
 
+    /**
+    * Triggers a method of firing arbitrary code on collision. These are useful
+    * as 'buttons', 'switches', or to trigger effects in a game. By defualt triggers
+    * are invisible, and can only be seen with debug mode enabled on the Engine.
+    * @class Trigger
+    * @constructor
+    * @param [x=0] {number} The x position of the trigger
+    * @param [y=0] {number} The y position of the trigger
+    * @param [width=0] {number} The width of the trigger
+    * @param [height=0] {number} The height of the trigger
+    * @param [action=null] {()=>void} Callback to fire when trigger is activated
+    * @param [repeats=1] {number} The number of times that this trigger should fire, by default it is 1, if -1 is supplied it will fire indefinitely
+    */
     var Trigger = (function (_super) {
         __extends(Trigger, _super);
         function Trigger(x, y, width, height, action, repeats) {
@@ -1658,10 +2251,13 @@ var ex;
         Trigger.prototype.update = function (engine, delta) {
             var eventDispatcher = this.eventDispatcher;
 
+            // Update event dispatcher
             eventDispatcher.update();
 
+            // Update action queue
             this.actionQueue.update(delta);
 
+            // Update placements based on linear algebra
             this.x += this.dx * delta / 1000;
             this.y += this.dy * delta / 1000;
 
@@ -1669,6 +2265,7 @@ var ex;
 
             this.scale += this.sx * delta / 1000;
 
+            // check for trigger collisions
             if (this.target) {
                 if (this.collides(this.target) !== 0 /* NONE */) {
                     this.dispatchAction();
@@ -1682,6 +2279,7 @@ var ex;
                 }
             }
 
+            // remove trigger if its done, -1 repeat forever
             if (this.repeats === 0) {
                 this.kill();
             }
@@ -1693,15 +2291,19 @@ var ex;
         };
 
         Trigger.prototype.draw = function (ctx, delta) {
+            // does not draw
             return;
         };
 
         Trigger.prototype.debugDraw = function (ctx) {
             _super.prototype.debugDraw.call(this, ctx);
 
+            // Meant to draw debug information about actors
             ctx.save();
             ctx.translate(this.x, this.y);
 
+            // Currently collision primitives cannot rotate
+            // ctx.rotate(this.rotation);
             ctx.fillStyle = ex.Color.Violet.toString();
             ctx.strokeStyle = ex.Color.Violet.toString();
             ctx.fillText('Trigger', 10, 10);
@@ -1715,6 +2317,3846 @@ var ex;
     })(Actor);
     ex.Trigger = Trigger;
 })(ex || (ex = {}));
+/// <reference path="Core.ts" />
+/// <reference path="Entities.ts" />
+/// <reference path="Log.ts" />
+var ex;
+(function (ex) {
+    /**
+    * An enum representing all of the built in event types for Excalibur
+    * @class EventType
+    */
+    (function (EventType) {
+        /**
+        @property KeyDown {EventType}
+        @static
+        @final
+        */
+        /**
+        @property KeyUp {EventType}
+        @static
+        @final
+        */
+        /**
+        @property KeyPress {EventType}
+        @static
+        @final
+        */
+        /**
+        @property MouseDown {EventType}
+        @static
+        @final
+        */
+        /**
+        @property MouseMove {EventType}
+        @static
+        @final
+        */
+        /**
+        @property MouseUp {EventType}
+        @static
+        @final
+        */
+        /**
+        @property TouchStart {EventType}
+        @static
+        @final
+        */
+        /**
+        @property TouchMove {EventType}
+        @static
+        @final
+        */
+        /**
+        @property TouchEnd {EventType}
+        @static
+        @final
+        */
+        /**
+        @property TouchCancel {EventType}
+        @static
+        @final
+        */
+        /**
+        @property Click {EventType}
+        @static
+        @final
+        */
+        /**
+        @property UserEvent {EventType}
+        @static
+        @final
+        */
+        /**
+        @property Blur {EventType}
+        @static
+        @final
+        */
+        /**
+        @property Focus {EventType}
+        @static
+        @final
+        */
+        /**
+        @property Update {EventType}
+        @static
+        @final
+        */
+        /**
+        @property EnterViewPort {EventType}
+        @static
+        @final
+        */
+        /**
+        @property ExitViewPort {EventType}
+        @static
+        @final
+        */
+        /**
+        @property Activate {EventType}
+        @static
+        @final
+        */
+        /**
+        @property Deactivate {EventType}
+        @static
+        @final
+        */
+        /**
+        @property Initialize {EventType}
+        @static
+        @final
+        */
+        EventType[EventType["KeyDown"] = 0] = "KeyDown";
+        EventType[EventType["KeyUp"] = 1] = "KeyUp";
+        EventType[EventType["KeyPress"] = 2] = "KeyPress";
+        EventType[EventType["MouseDown"] = 3] = "MouseDown";
+        EventType[EventType["MouseMove"] = 4] = "MouseMove";
+        EventType[EventType["MouseUp"] = 5] = "MouseUp";
+        EventType[EventType["TouchStart"] = 6] = "TouchStart";
+        EventType[EventType["TouchMove"] = 7] = "TouchMove";
+        EventType[EventType["TouchEnd"] = 8] = "TouchEnd";
+        EventType[EventType["TouchCancel"] = 9] = "TouchCancel";
+        EventType[EventType["Click"] = 10] = "Click";
+        EventType[EventType["Collision"] = 11] = "Collision";
+        EventType[EventType["EnterViewPort"] = 12] = "EnterViewPort";
+        EventType[EventType["ExitViewPort"] = 13] = "ExitViewPort";
+        EventType[EventType["Blur"] = 14] = "Blur";
+        EventType[EventType["Focus"] = 15] = "Focus";
+        EventType[EventType["Update"] = 16] = "Update";
+        EventType[EventType["Activate"] = 17] = "Activate";
+        EventType[EventType["Deactivate"] = 18] = "Deactivate";
+        EventType[EventType["Initialize"] = 19] = "Initialize";
+    })(ex.EventType || (ex.EventType = {}));
+    var EventType = ex.EventType;
+
+    /**
+    * Base event type in Excalibur that all other event types derive from.
+    *
+    * @class GameEvent
+    * @constructor
+    * @param target {any} Events can have target game object, like the Engine, or an Actor.
+    */
+    var GameEvent = (function () {
+        function GameEvent() {
+        }
+        return GameEvent;
+    })();
+    ex.GameEvent = GameEvent;
+
+    /**
+    * Event received by the Engine when the browser window receives focus
+    *
+    * @class FocusEvent
+    * @extends GameEvent
+    * @constructor
+    */
+    var FocusEvent = (function (_super) {
+        __extends(FocusEvent, _super);
+        function FocusEvent() {
+            _super.call(this);
+        }
+        return FocusEvent;
+    })(GameEvent);
+    ex.FocusEvent = FocusEvent;
+
+    /**
+    * Event received by the Engine when the browser window is blurred
+    *
+    * @class BlurEvent
+    * @extends GameEvent
+    * @constructor
+    */
+    var BlurEvent = (function (_super) {
+        __extends(BlurEvent, _super);
+        function BlurEvent() {
+            _super.call(this);
+        }
+        return BlurEvent;
+    })(GameEvent);
+    ex.BlurEvent = BlurEvent;
+
+    /**
+    * Event thrown on an actor when a collision has occured
+    *
+    * @class CollisionEvent
+    * @extends GameEvent
+    * @constructor
+    * @param actor {Actor} The actor the event was thrown on
+    * @param other {Actor} The actor that was collided with
+    * @param side {Side} The side that was collided with
+    */
+    var CollisionEvent = (function (_super) {
+        __extends(CollisionEvent, _super);
+        function CollisionEvent(actor, other, side) {
+            _super.call(this);
+            this.actor = actor;
+            this.other = other;
+            this.side = side;
+        }
+        return CollisionEvent;
+    })(GameEvent);
+    ex.CollisionEvent = CollisionEvent;
+
+    /**
+    * Event thrown on a game object on Excalibur update
+    *
+    * @class UpdateEvent
+    * @extends GameEvent
+    * @constructor
+    * @param delta {number} The number of milliseconds since the last update
+    */
+    var UpdateEvent = (function (_super) {
+        __extends(UpdateEvent, _super);
+        function UpdateEvent(delta) {
+            _super.call(this);
+            this.delta = delta;
+        }
+        return UpdateEvent;
+    })(GameEvent);
+    ex.UpdateEvent = UpdateEvent;
+
+    /**
+    * Event thrown on an Actor only once before the first update call
+    *
+    * @class InitializeEvent
+    * @extends GameEvent
+    * @constructor
+    * @param engine {Engine} The reference to the current engine
+    */
+    var InitializeEvent = (function (_super) {
+        __extends(InitializeEvent, _super);
+        function InitializeEvent(engine) {
+            _super.call(this);
+            this.engine = engine;
+        }
+        return InitializeEvent;
+    })(GameEvent);
+    ex.InitializeEvent = InitializeEvent;
+
+    /**
+    * Event thrown on a Scene on activation
+    *
+    * @class ActivateEvent
+    * @extends GameEvent
+    * @constructor
+    * @param oldScene {Scene} The reference to the old scene
+    */
+    var ActivateEvent = (function (_super) {
+        __extends(ActivateEvent, _super);
+        function ActivateEvent(oldScene) {
+            _super.call(this);
+            this.oldScene = oldScene;
+        }
+        return ActivateEvent;
+    })(GameEvent);
+    ex.ActivateEvent = ActivateEvent;
+
+    /**
+    * Event thrown on a Scene on deactivation
+    *
+    * @class DeactivateEvent
+    * @extends GameEvent
+    * @constructor
+    * @param newScene {Scene} The reference to the new scene
+    */
+    var DeactivateEvent = (function (_super) {
+        __extends(DeactivateEvent, _super);
+        function DeactivateEvent(newScene) {
+            _super.call(this);
+            this.newScene = newScene;
+        }
+        return DeactivateEvent;
+    })(GameEvent);
+    ex.DeactivateEvent = DeactivateEvent;
+
+    /**
+    * Event thrown on an Actor when it completely leaves the screen.
+    * @class ExitViewPortEvent
+    * @constructor
+    */
+    var ExitViewPortEvent = (function (_super) {
+        __extends(ExitViewPortEvent, _super);
+        function ExitViewPortEvent() {
+            _super.call(this);
+        }
+        return ExitViewPortEvent;
+    })(GameEvent);
+    ex.ExitViewPortEvent = ExitViewPortEvent;
+
+    /**
+    * Event thrown on an Actor when it completely leaves the screen.
+    * @class EnterViewPortEvent
+    * @constructor
+    */
+    var EnterViewPortEvent = (function (_super) {
+        __extends(EnterViewPortEvent, _super);
+        function EnterViewPortEvent() {
+            _super.call(this);
+        }
+        return EnterViewPortEvent;
+    })(GameEvent);
+    ex.EnterViewPortEvent = EnterViewPortEvent;
+
+    /**
+    * Event thrown on a game object on KeyEvent
+    *
+    * @class KeyEvent
+    * @extends GameEvent
+    * @constructor
+    * @param key {InputKey} The key responsible for throwing the event
+    */
+    var KeyEvent = (function (_super) {
+        __extends(KeyEvent, _super);
+        function KeyEvent(key) {
+            _super.call(this);
+            this.key = key;
+        }
+        return KeyEvent;
+    })(GameEvent);
+    ex.KeyEvent = KeyEvent;
+
+    /**
+    * Event thrown on a game object on KeyDown
+    *
+    * @class KeyDown
+    * @extends GameEvent
+    * @constructor
+    * @param key {InputKey} The key responsible for throwing the event
+    */
+    var KeyDown = (function (_super) {
+        __extends(KeyDown, _super);
+        function KeyDown(key) {
+            _super.call(this);
+            this.key = key;
+        }
+        return KeyDown;
+    })(GameEvent);
+    ex.KeyDown = KeyDown;
+
+    /**
+    * Event thrown on a game object on KeyUp
+    *
+    * @class KeyUp
+    * @extends GameEvent
+    * @constructor
+    * @param key {InputKey} The key responsible for throwing the event
+    */
+    var KeyUp = (function (_super) {
+        __extends(KeyUp, _super);
+        function KeyUp(key) {
+            _super.call(this);
+            this.key = key;
+        }
+        return KeyUp;
+    })(GameEvent);
+    ex.KeyUp = KeyUp;
+
+    /**
+    * Event thrown on a game object on KeyPress
+    *
+    * @class KeyPress
+    * @extends GameEvent
+    * @constructor
+    * @param key {InputKey} The key responsible for throwing the event
+    */
+    var KeyPress = (function (_super) {
+        __extends(KeyPress, _super);
+        function KeyPress(key) {
+            _super.call(this);
+            this.key = key;
+        }
+        return KeyPress;
+    })(GameEvent);
+    ex.KeyPress = KeyPress;
+
+    /**
+    * Enum representing the different mouse buttons
+    * @class MouseButton
+    */
+    (function (MouseButton) {
+        /**
+        * @property Left
+        * @static
+        */
+        MouseButton[MouseButton["Left"] = 0] = "Left";
+
+        /**
+        * @property Left
+        * @static
+        */
+        MouseButton[MouseButton["Middle"] = 1] = "Middle";
+
+        /**
+        * @property Left
+        * @static
+        */
+        MouseButton[MouseButton["Right"] = 2] = "Right";
+    })(ex.MouseButton || (ex.MouseButton = {}));
+    var MouseButton = ex.MouseButton;
+
+    /**
+    * Event thrown on a game object on MouseDown
+    *
+    * @class MouseDown
+    * @extends GameEvent
+    * @constructor
+    * @param x {number} The x coordinate of the event
+    * @param y {number} The y coordinate of the event
+    * @param mouseEvent {MouseEvent} The native mouse event thrown
+    */
+    var MouseDown = (function (_super) {
+        __extends(MouseDown, _super);
+        function MouseDown(x, y, mouseEvent) {
+            _super.call(this);
+            this.x = x;
+            this.y = y;
+            this.mouseEvent = mouseEvent;
+        }
+        return MouseDown;
+    })(GameEvent);
+    ex.MouseDown = MouseDown;
+
+    /**
+    * Event thrown on a game object on MouseMove
+    *
+    * @class MouseMove
+    * @extends GameEvent
+    * @constructor
+    * @param x {number} The x coordinate of the event
+    * @param y {number} The y coordinate of the event
+    * @param mouseEvent {MouseEvent} The native mouse event thrown
+    */
+    var MouseMove = (function (_super) {
+        __extends(MouseMove, _super);
+        function MouseMove(x, y, mouseEvent) {
+            _super.call(this);
+            this.x = x;
+            this.y = y;
+            this.mouseEvent = mouseEvent;
+        }
+        return MouseMove;
+    })(GameEvent);
+    ex.MouseMove = MouseMove;
+
+    /**
+    * Event thrown on a game object on MouseUp
+    *
+    * @class MouseUp
+    * @extends GameEvent
+    * @constructor
+    * @param x {number} The x coordinate of the event
+    * @param y {number} The y coordinate of the event
+    * @param mouseEvent {MouseEvent} The native mouse event thrown
+    */
+    var MouseUp = (function (_super) {
+        __extends(MouseUp, _super);
+        function MouseUp(x, y, mouseEvent) {
+            _super.call(this);
+            this.x = x;
+            this.y = y;
+            this.mouseEvent = mouseEvent;
+        }
+        return MouseUp;
+    })(GameEvent);
+    ex.MouseUp = MouseUp;
+
+    
+
+    /**
+    * Event thrown on a game object on TouchStart
+    *
+    * @class TouchStart
+    * @extends GameEvent
+    * @constructor
+    * @param x {number} The x coordinate of the event
+    * @param y {number} The y coordinate of the event
+    */
+    var TouchStart = (function (_super) {
+        __extends(TouchStart, _super);
+        function TouchStart(x, y) {
+            _super.call(this);
+            this.x = x;
+            this.y = y;
+        }
+        return TouchStart;
+    })(GameEvent);
+    ex.TouchStart = TouchStart;
+
+    /**
+    * Event thrown on a game object on TouchMove
+    *
+    * @class TouchMove
+    * @extends GameEvent
+    * @constructor
+    * @param x {number} The x coordinate of the event
+    * @param y {number} The y coordinate of the event
+    */
+    var TouchMove = (function (_super) {
+        __extends(TouchMove, _super);
+        function TouchMove(x, y) {
+            _super.call(this);
+            this.x = x;
+            this.y = y;
+        }
+        return TouchMove;
+    })(GameEvent);
+    ex.TouchMove = TouchMove;
+
+    /**
+    * Event thrown on a game object on TouchEnd
+    *
+    * @class TouchEnd
+    * @extends GameEvent
+    * @constructor
+    * @param x {number} The x coordinate of the event
+    * @param y {number} The y coordinate of the event
+    */
+    var TouchEnd = (function (_super) {
+        __extends(TouchEnd, _super);
+        function TouchEnd(x, y) {
+            _super.call(this);
+            this.x = x;
+            this.y = y;
+        }
+        return TouchEnd;
+    })(GameEvent);
+    ex.TouchEnd = TouchEnd;
+
+    /**
+    * Event thrown on a game object on TouchCancel
+    *
+    * @class TouchCancel
+    * @extends GameEvent
+    * @constructor
+    * @param x {number} The x coordinate of the event
+    * @param y {number} The y coordinate of the event
+    */
+    var TouchCancel = (function (_super) {
+        __extends(TouchCancel, _super);
+        function TouchCancel(x, y) {
+            _super.call(this);
+            this.x = x;
+            this.y = y;
+        }
+        return TouchCancel;
+    })(GameEvent);
+    ex.TouchCancel = TouchCancel;
+
+    /**
+    * Event thrown on a game object on Click
+    *
+    * @class Click
+    * @extends GameEvent
+    * @constructor
+    * @param x {number} The x coordinate of the event
+    * @param y {number} The y coordinate of the event
+    */
+    var Click = (function (_super) {
+        __extends(Click, _super);
+        function Click(x, y, mouseEvent) {
+            _super.call(this);
+            this.x = x;
+            this.y = y;
+            this.mouseEvent = mouseEvent;
+        }
+        return Click;
+    })(GameEvent);
+    ex.Click = Click;
+
+    /**
+    * Excalibur's internal queueing event dispatcher. Callbacks are queued up and not fired until the update is called.
+    * @class EventDispatcher
+    * @constructor
+    * @param target {any} The object that will be the recipient of events from this event dispatcher
+    */
+    var EventDispatcher = (function () {
+        function EventDispatcher(target) {
+            this._handlers = {};
+            this.queue = [];
+            this.log = ex.Logger.getInstance();
+            this.target = target;
+        }
+        /**
+        * Publish an event for target
+        * @method publish
+        * @param eventName {string} The name of the event to publish
+        * @param [event=undefined] {GameEvent} Optionally pass an event data object to the handler
+        */
+        EventDispatcher.prototype.publish = function (eventName, event) {
+            if (!eventName) {
+                // key not mapped
+                return;
+            }
+            eventName = eventName.toLowerCase();
+            var queue = this.queue;
+            var target = this.target;
+            event.target = target;
+            if (this._handlers[eventName]) {
+                this._handlers[eventName].forEach(function (callback) {
+                    queue.push(function () {
+                        callback.call(target, event);
+                    });
+                });
+            }
+        };
+
+        /**
+        * Subscribe an event handler to a particular event name, multiple handlers per event name are allowed.
+        * @method subscribe
+        * @param eventName {string} The name of the event to subscribe to
+        * @param handler {GameEvent=>void} The handler callback to fire on this event
+        */
+        EventDispatcher.prototype.subscribe = function (eventName, handler) {
+            eventName = eventName.toLowerCase();
+            if (!this._handlers[eventName]) {
+                this._handlers[eventName] = [];
+            }
+            this._handlers[eventName].push(handler);
+        };
+
+        /**
+        * Unsubscribe a event handler(s) from an event. If a specific handler
+        * is specified for an event, only that handler will be unsubscribed.
+        * Otherwise all handlers will be unsubscribed for that event.
+        * @method unsubscribe
+        * @param eventName {string} The name of the event to unsubscribe
+        * @param [handler=undefined] Optionally the specific handler to unsubscribe
+        *
+        */
+        EventDispatcher.prototype.unsubscribe = function (eventName, handler) {
+            eventName = eventName.toLowerCase();
+            var eventHandlers = this._handlers[eventName];
+
+            if (eventHandlers) {
+                // if no explicit handler is give with the event name clear all handlers
+                if (!handler) {
+                    this._handlers[eventName].length = 0;
+                } else {
+                    var index = eventHandlers.indexOf(handler);
+                    this._handlers[eventName].splice(index, 1);
+                }
+            }
+        };
+
+        /**
+        * Dispatches all queued events to their handlers for execution.
+        * @method update
+        */
+        EventDispatcher.prototype.update = function () {
+            var callback;
+            while (callback = this.queue.shift()) {
+                callback();
+            }
+        };
+        return EventDispatcher;
+    })();
+    ex.EventDispatcher = EventDispatcher;
+})(ex || (ex = {}));
+/// <reference path="Core.ts" />
+/// <reference path="Algebra.ts" />
+/// <reference path="Util.ts" />
+/// <reference path="Entities.ts" />
+var ex;
+(function (ex) {
+    /**
+    * An enum that represents the types of emitter nozzles
+    * @class EmitterType
+    */
+    (function (EmitterType) {
+        /**
+        * Constant for the circular emitter type
+        * @property Circle {EmitterType}
+        */
+        EmitterType[EmitterType["Circle"] = 0] = "Circle";
+
+        /**
+        * Constant for the rectangular emitter type
+        * @property Rectangle {EmitterType}
+        */
+        EmitterType[EmitterType["Rectangle"] = 1] = "Rectangle";
+    })(ex.EmitterType || (ex.EmitterType = {}));
+    var EmitterType = ex.EmitterType;
+
+    var Particle = (function () {
+        function Particle(emitter, life, opacity, beginColor, endColor, position, velocity, acceleration, startSize, endSize) {
+            this.position = new ex.Vector(0, 0);
+            this.velocity = new ex.Vector(0, 0);
+            this.acceleration = new ex.Vector(0, 0);
+            this.focus = null;
+            this.focusAccel = 0;
+            this.opacity = 1;
+            this.beginColor = ex.Color.White.clone();
+            this.endColor = ex.Color.White.clone();
+            // Life is counted in ms
+            this.life = 300;
+            this.fadeFlag = false;
+            // Color transitions
+            this.rRate = 1;
+            this.gRate = 1;
+            this.bRate = 1;
+            this.aRate = 0;
+            this.currentColor = ex.Color.White.clone();
+            this.emitter = null;
+            this.particleSize = 5;
+            this.particleSprite = null;
+            this.sizeRate = 0;
+            this.elapsedMultiplier = 0;
+            this.emitter = emitter;
+            this.life = life || this.life;
+            this.opacity = opacity || this.opacity;
+            this.endColor = endColor || this.endColor.clone();
+            this.beginColor = beginColor || this.beginColor.clone();
+            this.currentColor = this.beginColor.clone();
+            this.position = position || this.position;
+            this.velocity = velocity || this.velocity;
+            this.acceleration = acceleration || this.acceleration;
+            this.rRate = (this.endColor.r - this.beginColor.r) / this.life;
+            this.gRate = (this.endColor.g - this.beginColor.g) / this.life;
+            this.bRate = (this.endColor.b - this.beginColor.b) / this.life;
+            this.aRate = this.opacity / this.life;
+
+            this.startSize = startSize || 0;
+            this.endSize = endSize || 0;
+
+            if ((this.endSize > 0) && (this.startSize > 0)) {
+                this.sizeRate = (this.endSize - this.startSize) / this.life;
+                this.particleSize = this.startSize;
+            }
+        }
+        Particle.prototype.kill = function () {
+            this.emitter.removeParticle(this);
+        };
+
+        Particle.prototype.update = function (delta) {
+            this.life = this.life - delta;
+            this.elapsedMultiplier = this.elapsedMultiplier + delta;
+
+            if (this.life < 0) {
+                this.kill();
+            }
+
+            if (this.fadeFlag) {
+                this.opacity = ex.Util.clamp(this.aRate * this.life, 0.0001, 1);
+            }
+
+            if ((this.startSize > 0) && (this.endSize > 0)) {
+                this.particleSize = ex.Util.clamp(this.sizeRate * delta + this.particleSize, Math.min(this.startSize, this.endSize), Math.max(this.startSize, this.endSize));
+            }
+
+            this.currentColor.r = ex.Util.clamp(this.currentColor.r + this.rRate * delta, 0, 255);
+            this.currentColor.g = ex.Util.clamp(this.currentColor.g + this.gRate * delta, 0, 255);
+            this.currentColor.b = ex.Util.clamp(this.currentColor.b + this.bRate * delta, 0, 255);
+            this.currentColor.a = ex.Util.clamp(this.opacity, 0.0001, 1);
+
+            if (this.focus) {
+                var accel = this.focus.minus(this.position).normalize().scale(this.focusAccel).scale(delta / 1000);
+                this.velocity = this.velocity.add(accel);
+            } else {
+                this.velocity = this.velocity.add(this.acceleration.scale(delta / 1000));
+            }
+            this.position = this.position.add(this.velocity.scale(delta / 1000));
+        };
+
+        Particle.prototype.draw = function (ctx) {
+            if (this.particleSprite) {
+                this.particleSprite.draw(ctx, this.position.x, this.position.y);
+                return;
+            }
+
+            this.currentColor.a = ex.Util.clamp(this.opacity, 0.0001, 1);
+            ctx.fillStyle = this.currentColor.toString();
+            ctx.beginPath();
+            ctx.arc(this.position.x, this.position.y, this.particleSize, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.closePath();
+        };
+        return Particle;
+    })();
+    ex.Particle = Particle;
+
+    /**
+    * Using a particle emitter is a great way to create interesting effects
+    * in your game, like smoke, fire, water, explosions, etc. Particle Emitters
+    * extend Actor allowing you to use all of the features that come with Actor
+    * @class ParticleEmitter
+    * @constructor
+    * @param [x=0] {number} The x position of the emitter
+    * @param [y=0] {number} The y position of the emitter
+    * @param [width=0] {number} The width of the emitter
+    * @param [height=0] {number} The height of the emitter
+    */
+    var ParticleEmitter = (function (_super) {
+        __extends(ParticleEmitter, _super);
+        function ParticleEmitter(x, y, width, height) {
+            _super.call(this, x, y, width, height, ex.Color.White);
+            this.numParticles = 0;
+            /**
+            * Gets or sets the isEmitting flag
+            * @property isEmitting {boolean}
+            */
+            this.isEmitting = true;
+            /**
+            * Gets or sets the backing particle collection
+            * @property particles {Util.Collection&lt;Particle&gt;}
+            */
+            this.particles = null;
+            /**
+            * Gets or sets the backing deadParticle collection
+            * @property particles {Util.Collection&lt;Particle&gt;}
+            */
+            this.deadParticles = null;
+            /**
+            * Gets or sets the minimum partical velocity
+            * @property [minVel=0] {number}
+            */
+            this.minVel = 0;
+            /**
+            * Gets or sets the maximum partical velocity
+            * @property [maxVel=0] {number}
+            */
+            this.maxVel = 0;
+            /**
+            * Gets or sets the acceleration vector for all particles
+            * @property [acceleration=new Vector(0,0)] {Vector}
+            */
+            this.acceleration = new ex.Vector(0, 0);
+            /**
+            * Gets or sets the minimum angle in radians
+            * @property [minAngle=0] {number}
+            */
+            this.minAngle = 0;
+            /**
+            * Gets or sets the maximum angle in radians
+            * @property [maxAngle=0] {number}
+            */
+            this.maxAngle = 0;
+            /**
+            * Gets or sets the emission rate for particles (particles/sec)
+            * @property [emitRate=1] {number}
+            */
+            this.emitRate = 1;
+            /**
+            * Gets or sets the life of each particle in milliseconds
+            * @property [particleLife=2000] {number}
+            */
+            this.particleLife = 2000;
+            /**
+            * Gets or sets the opacity of each particle from 0 to 1.0
+            * @property [opacity=1.0] {number}
+            */
+            this.opacity = 1;
+            /**
+            * Gets or sets the fade flag which causes particles to gradually fade out over the course of their life.
+            * @property [fade=false] {boolean}
+            */
+            this.fadeFlag = false;
+            /**
+            * Gets or sets the optional focus where all particles should accelerate towards
+            * @property [focus=null] {Vector}
+            */
+            this.focus = null;
+            /**
+            * Gets or sets the acceleration for focusing particles if a focus has been specified
+            * @property [focusAccel=1] {number}
+            */
+            this.focusAccel = 1;
+            /*
+            * Gets or sets the optional starting size for the particles
+            * @property [startSize=null] {number}
+            */
+            this.startSize = null;
+            /*
+            * Gets or sets the optional ending size for the particles
+            * @property [endSize=null] {number}
+            */
+            this.endSize = null;
+            /**
+            * Gets or sets the minimum size of all particles
+            * @property [minSize=5] {number}
+            */
+            this.minSize = 5;
+            /**
+            * Gets or sets the maximum size of all particles
+            * @property [maxSize=5] {number}
+            */
+            this.maxSize = 5;
+            /**
+            * Gets or sets the beginning color of all particles
+            * @property [beginColor=Color.White] {Color}
+            */
+            this.beginColor = ex.Color.White;
+            /**
+            * Gets or sets the ending color of all particles
+            * @property [endColor=Color.White] {Color}
+            */
+            this.endColor = ex.Color.White;
+            /**
+            * Gets or sets the sprite that a particle should use
+            * @property [particleSprite=null] {Sprite}
+            */
+            this.particleSprite = null;
+            /**
+            * Gets or sets the emitter type for the particle emitter
+            * @property [emitterType=EmitterType.Rectangle] {EmitterType}
+            */
+            this.emitterType = 1 /* Rectangle */;
+            /**
+            * Gets or sets the emitter radius, only takes effect when the emitterType is Circle
+            * @property [radius=0] {number}
+            */
+            this.radius = 0;
+            this.preventCollisions = true;
+            this.particles = new ex.Util.Collection();
+            this.deadParticles = new ex.Util.Collection();
+        }
+        ParticleEmitter.prototype.removeParticle = function (particle) {
+            this.deadParticles.push(particle);
+        };
+
+        /**
+        * Causes the emitter to emit particles
+        * @method emit
+        * @param particleCount {number} Number of particles to emit right now
+        */
+        ParticleEmitter.prototype.emit = function (particleCount) {
+            for (var i = 0; i < particleCount; i++) {
+                this.particles.push(this.createParticle());
+            }
+        };
+
+        ParticleEmitter.prototype.clearParticles = function () {
+            this.particles.clear();
+        };
+
+        // Creates a new particle given the contraints of the emitter
+        ParticleEmitter.prototype.createParticle = function () {
+            // todo implement emitter contraints;
+            var ranX = 0;
+            var ranY = 0;
+
+            var angle = ex.Util.randomInRange(this.minAngle, this.maxAngle);
+            var vel = ex.Util.randomInRange(this.minVel, this.maxVel);
+            var size = this.startSize || ex.Util.randomInRange(this.minSize, this.maxSize);
+            var dx = vel * Math.cos(angle);
+            var dy = vel * Math.sin(angle);
+
+            if (this.emitterType === 1 /* Rectangle */) {
+                ranX = ex.Util.randomInRange(this.x, this.x + this.getWidth());
+                ranY = ex.Util.randomInRange(this.y, this.y + this.getHeight());
+            } else if (this.emitterType === 0 /* Circle */) {
+                var radius = ex.Util.randomInRange(0, this.radius);
+                ranX = radius * Math.cos(angle) + this.x;
+                ranY = radius * Math.sin(angle) + this.y;
+            }
+
+            var p = new Particle(this, this.particleLife, this.opacity, this.beginColor, this.endColor, new ex.Vector(ranX, ranY), new ex.Vector(dx, dy), this.acceleration, this.startSize, this.endSize);
+            p.fadeFlag = this.fadeFlag;
+            p.particleSize = size;
+            p.particleSprite = this.particleSprite;
+            if (this.focus) {
+                p.focus = this.focus.add(new ex.Vector(this.x, this.y));
+                p.focusAccel = this.focusAccel;
+            }
+            return p;
+        };
+
+        ParticleEmitter.prototype.update = function (engine, delta) {
+            var _this = this;
+            _super.prototype.update.call(this, engine, delta);
+            if (this.isEmitting) {
+                var numParticles = Math.ceil(this.emitRate * delta / 1000);
+                this.emit(numParticles);
+            }
+
+            this.particles.forEach(function (particle, index) {
+                particle.update(delta);
+            });
+
+            this.deadParticles.forEach(function (particle, index) {
+                _this.particles.removeElement(particle);
+            });
+            this.deadParticles.clear();
+        };
+
+        ParticleEmitter.prototype.draw = function (ctx, delta) {
+            this.particles.forEach(function (particle, index) {
+                // todo is there a more efficient to draw
+                // possibly use a webgl offscreen canvas and shaders to do particles?
+                particle.draw(ctx);
+            });
+        };
+
+        ParticleEmitter.prototype.debugDraw = function (ctx) {
+            _super.prototype.debugDraw.call(this, ctx);
+            ctx.fillStyle = ex.Color.Black.toString();
+            ctx.fillText("Particles: " + this.particles.count(), this.x, this.y + 20);
+
+            if (this.focus) {
+                ctx.fillRect(this.focus.x + this.x, this.focus.y + this.y, 3, 3);
+                ex.Util.drawLine(ctx, "yellow", this.focus.x + this.x, this.focus.y + this.y, _super.prototype.getCenter.call(this).x, _super.prototype.getCenter.call(this).y);
+                ctx.fillText("Focus", this.focus.x + this.x, this.focus.y + this.y);
+            }
+        };
+        return ParticleEmitter;
+    })(ex.Actor);
+    ex.ParticleEmitter = ParticleEmitter;
+})(ex || (ex = {}));
+/// <reference path="MonkeyPatch.ts" />
+/// <reference path="Util.ts" />
+/// <reference path="Log.ts" />
+var ex;
+(function (ex) {
+    (function (Internal) {
+        var FallbackAudio = (function () {
+            function FallbackAudio(path, volume) {
+                this.log = ex.Logger.getInstance();
+                this.onload = function () {
+                };
+                this.onprogress = function () {
+                };
+                this.onerror = function () {
+                };
+                if (window.AudioContext) {
+                    this.log.debug("Using new Web Audio Api for " + path);
+                    this.soundImpl = new WebAudio(path, volume);
+                } else {
+                    this.log.debug("Falling back to Audio Element for " + path);
+                    this.soundImpl = new AudioTag(path, volume);
+                }
+            }
+            FallbackAudio.prototype.setVolume = function (volume) {
+                this.soundImpl.setVolume(volume);
+            };
+
+            FallbackAudio.prototype.setLoop = function (loop) {
+                this.soundImpl.setLoop(loop);
+            };
+
+            FallbackAudio.prototype.load = function () {
+                this.soundImpl.onload = this.onload;
+                this.soundImpl.onprogress = this.onprogress;
+                this.soundImpl.onerror = this.onerror;
+                this.soundImpl.load();
+            };
+
+            FallbackAudio.prototype.play = function () {
+                this.soundImpl.play();
+            };
+
+            FallbackAudio.prototype.stop = function () {
+                this.soundImpl.stop();
+            };
+            return FallbackAudio;
+        })();
+        Internal.FallbackAudio = FallbackAudio;
+
+        var AudioTag = (function () {
+            function AudioTag(soundPath, volume) {
+                var _this = this;
+                this.soundPath = soundPath;
+                this.audioElements = new Array(5);
+                this._loadedAudio = null;
+                this.isLoaded = false;
+                this.index = 0;
+                this.log = ex.Logger.getInstance();
+                this.onload = function () {
+                };
+                this.onprogress = function () {
+                };
+                this.onerror = function () {
+                };
+                for (var i = 0; i < this.audioElements.length; i++) {
+                    (function (i) {
+                        _this.audioElements[i] = new Audio();
+                    })(i);
+                }
+
+                this.setVolume(volume || 1.0);
+            }
+            AudioTag.prototype.audioLoaded = function () {
+                this.isLoaded = true;
+            };
+
+            AudioTag.prototype.setVolume = function (volume) {
+                this.audioElements.forEach(function (a) {
+                    a.volume = volume;
+                });
+            };
+
+            AudioTag.prototype.setLoop = function (loop) {
+                this.audioElements.forEach(function (a) {
+                    a.loop = loop;
+                });
+            };
+
+            AudioTag.prototype.load = function () {
+                var _this = this;
+                var request = new XMLHttpRequest();
+                request.open("GET", this.soundPath, true);
+                request.responseType = 'blob';
+                request.onprogress = this.onprogress;
+                request.onload = function (e) {
+                    _this._loadedAudio = URL.createObjectURL(request.response);
+                    _this.audioElements.forEach(function (a) {
+                        a.src = _this._loadedAudio;
+                    });
+                    _this.onload(e);
+                };
+                request.onerror = function (e) {
+                    _this.onerror(e);
+                };
+                request.send();
+            };
+
+            AudioTag.prototype.play = function () {
+                this.audioElements[this.index].load();
+                this.audioElements[this.index].play();
+                this.index = (this.index + 1) % this.audioElements.length;
+            };
+
+            AudioTag.prototype.stop = function () {
+                this.audioElements.forEach(function (a) {
+                    a.pause();
+                });
+            };
+            return AudioTag;
+        })();
+        Internal.AudioTag = AudioTag;
+
+        if (window.AudioContext) {
+            var audioContext = new window.AudioContext();
+        }
+
+        var WebAudio = (function () {
+            function WebAudio(soundPath, volume) {
+                this.context = audioContext;
+                this.volume = this.context.createGain();
+                this.buffer = null;
+                this.sound = null;
+                this.path = "";
+                this.isLoaded = false;
+                this.loop = false;
+                this.logger = ex.Logger.getInstance();
+                this.onload = function () {
+                };
+                this.onprogress = function () {
+                };
+                this.onerror = function () {
+                };
+                this.path = soundPath;
+                if (volume) {
+                    this.volume.gain.value = volume;
+                } else {
+                    this.volume.gain.value = 1; // max volume
+                }
+            }
+            WebAudio.prototype.setVolume = function (volume) {
+                this.volume.gain.value = volume;
+            };
+
+            WebAudio.prototype.load = function () {
+                var _this = this;
+                var request = new XMLHttpRequest();
+                request.open('GET', this.path);
+                request.responseType = 'arraybuffer';
+                request.onprogress = this.onprogress;
+                request.onerror = this.onerror;
+                request.onload = function () {
+                    _this.context.decodeAudioData(request.response, function (buffer) {
+                        _this.buffer = buffer;
+                        _this.isLoaded = true;
+                        _this.onload(_this);
+                    }, function (e) {
+                        _this.logger.error("Unable to decode " + _this.path + " this browser may not fully support this format, or the file may be corrupt, " + "if this is an mp3 try removing id3 tags and album art from the file.");
+                        _this.isLoaded = false;
+                        _this.onload(_this);
+                    });
+                };
+                try  {
+                    request.send();
+                } catch (e) {
+                    console.error("Error loading sound! If this is a cross origin error, you must host your sound with your html and javascript.");
+                }
+            };
+
+            WebAudio.prototype.setLoop = function (loop) {
+                this.loop = loop;
+            };
+
+            WebAudio.prototype.play = function () {
+                if (this.isLoaded) {
+                    this.sound = this.context.createBufferSource();
+                    this.sound.buffer = this.buffer;
+                    this.sound.loop = this.loop;
+                    this.sound.connect(this.volume);
+                    this.volume.connect(this.context.destination);
+                    this.sound.start(0);
+                }
+            };
+
+            WebAudio.prototype.stop = function () {
+                if (this.sound) {
+                    try  {
+                        this.sound.stop(0);
+                    } catch (e) {
+                        this.logger.warn("The sound clip", this.path, "has already been stopped!");
+                    }
+                }
+            };
+            return WebAudio;
+        })();
+        Internal.WebAudio = WebAudio;
+    })(ex.Internal || (ex.Internal = {}));
+    var Internal = ex.Internal;
+})(ex || (ex = {}));
+/// <reference path="Log.ts" />
+// Promises/A+ Spec http://promises-aplus.github.io/promises-spec/
+var ex;
+(function (ex) {
+    /**
+    * Valid states for a promise to be in
+    * @class PromiseState
+    */
+    (function (PromiseState) {
+        /**
+        @property Resolved {PromiseState}
+        */
+        PromiseState[PromiseState["Resolved"] = 0] = "Resolved";
+
+        /**
+        @property Rejected {PromiseState}
+        */
+        PromiseState[PromiseState["Rejected"] = 1] = "Rejected";
+
+        /**
+        @property Pending {PromiseState}
+        */
+        PromiseState[PromiseState["Pending"] = 2] = "Pending";
+    })(ex.PromiseState || (ex.PromiseState = {}));
+    var PromiseState = ex.PromiseState;
+
+    /**
+    * Promises/A+ spec implementation of promises
+    * @class Promise
+    * @constructor
+    */
+    var Promise = (function () {
+        function Promise() {
+            this._state = 2 /* Pending */;
+            this.successCallbacks = [];
+            this.rejectCallback = function () {
+            };
+            this.logger = ex.Logger.getInstance();
+        }
+        /**
+        * Wrap a value in a resolved promise
+        * @method wrap<T>
+        * @param [value=undefined] {T} An optional value to wrap in a resolved promise
+        * @returns Promise&lt;T&gt;
+        */
+        Promise.wrap = function (value) {
+            var promise = (new Promise()).resolve(value);
+
+            return promise;
+        };
+
+        /**
+        * Chain success and reject callbacks after the promise is resovled
+        * @method then
+        * @param successCallback {T=>any} Call on resolution of promise
+        * @param rejectCallback {any=>any} Call on rejection of promise
+        * @returns Promise&lt;T&gt;
+        */
+        Promise.prototype.then = function (successCallback, rejectCallback) {
+            if (successCallback) {
+                this.successCallbacks.push(successCallback);
+
+                // If the promise is already resovled call immediately
+                if (this.state() === 0 /* Resolved */) {
+                    try  {
+                        successCallback.call(this, this.value);
+                    } catch (e) {
+                        this.handleError(e);
+                    }
+                }
+            }
+            if (rejectCallback) {
+                this.rejectCallback = rejectCallback;
+
+                // If the promise is already rejected call immediately
+                if (this.state() === 1 /* Rejected */) {
+                    try  {
+                        rejectCallback.call(this, this.value);
+                    } catch (e) {
+                        this.handleError(e);
+                    }
+                }
+            }
+
+            return this;
+        };
+
+        /**
+        * Add an error callback to the promise
+        * @method error
+        * @param errorCallback {any=>any} Call if there was an error in a callback
+        * @returns Promise&lt;T&gt;
+        */
+        Promise.prototype.error = function (errorCallback) {
+            if (errorCallback) {
+                this.errorCallback = errorCallback;
+            }
+            return this;
+        };
+
+        /**
+        * Resolve the promise and pass an option value to the success callbacks
+        * @method resolve
+        * @param [value=undefined] {T} Value to pass to the success callbacks
+        */
+        Promise.prototype.resolve = function (value) {
+            var _this = this;
+            if (this._state === 2 /* Pending */) {
+                this.value = value;
+                try  {
+                    this._state = 0 /* Resolved */;
+                    this.successCallbacks.forEach(function (cb) {
+                        cb.call(_this, _this.value);
+                    });
+                } catch (e) {
+                    this.handleError(e);
+                }
+            } else {
+                throw new Error('Cannot resolve a promise that is not in a pending state!');
+            }
+            return this;
+        };
+
+        /**
+        * Reject the promise and pass an option value to the reject callbacks
+        * @method reject
+        * @param [value=undefined] {T} Value to pass to the reject callbacks
+        */
+        Promise.prototype.reject = function (value) {
+            if (this._state === 2 /* Pending */) {
+                this.value = value;
+                try  {
+                    this._state = 1 /* Rejected */;
+                    this.rejectCallback.call(this, this.value);
+                } catch (e) {
+                    this.handleError(e);
+                }
+            } else {
+                throw new Error('Cannot reject a promise that is not in a pending state!');
+            }
+            return this;
+        };
+
+        /**
+        * Inpect the current state of a promise
+        * @method state
+        * @returns PromiseState
+        */
+        Promise.prototype.state = function () {
+            return this._state;
+        };
+
+        Promise.prototype.handleError = function (e) {
+            if (this.errorCallback) {
+                this.errorCallback.call(this, e);
+            }
+        };
+        return Promise;
+    })();
+    ex.Promise = Promise;
+})(ex || (ex = {}));
+/// <reference path="Sound.ts" />
+/// <reference path="Util.ts" />
+/// <reference path="Promises.ts" />
+var ex;
+(function (ex) {
+    
+
+    /**
+    * The Texture object allows games built in Excalibur to load image resources.
+    * It is generally recommended to preload images using the "Texture" object.
+    * @class Texture
+    * @extend ILoadable
+    * @constructor
+    * @param path {string} Path to the image resource
+    */
+    var Texture = (function () {
+        function Texture(path) {
+            this.path = path;
+            this.logger = ex.Logger.getInstance();
+            this.onprogress = function () {
+            };
+            this.oncomplete = function () {
+            };
+            this.onerror = function () {
+            };
+        }
+        Texture.prototype._start = function (e) {
+            this.logger.debug("Started loading image " + this.path);
+        };
+
+        /**
+        * Returns true if the Texture is completely loaded and is ready
+        * to be drawn.
+        * @method isLoaded
+        * @returns boolean
+        */
+        Texture.prototype.isLoaded = function () {
+            return (!!this.image && !!this.image.src);
+        };
+
+        /**
+        * Begins loading the texture and returns a promise to be resolved on completion
+        * @method load
+        * @returns Promise&lt;HTMLImageElement&gt;
+        */
+        Texture.prototype.load = function () {
+            var _this = this;
+            var complete = new ex.Promise();
+
+            this.image = new Image();
+            var request = new XMLHttpRequest();
+            request.open("GET", this.path, true);
+            request.responseType = "blob";
+            request.onloadstart = function (e) {
+                _this._start(e);
+            };
+            request.onprogress = this.onprogress;
+            request.onload = function (e) {
+                _this.image.src = URL.createObjectURL(request.response);
+                _this.oncomplete();
+                _this.logger.debug("Completed loading image", _this.path);
+                complete.resolve(_this.image);
+            };
+            request.onerror = function (e) {
+                _this.onerror(e);
+                complete.reject(e);
+            };
+            if (request.overrideMimeType) {
+                request.overrideMimeType('text/plain; charset=x-user-defined');
+            }
+            request.send();
+
+            return complete;
+        };
+        return Texture;
+    })();
+    ex.Texture = Texture;
+
+    /**
+    * The Sound object allows games built in Excalibur to load audio
+    * components, from soundtracks to sound effects. It is generally
+    * recommended to load sound resources when using Excalibur
+    * @class Sound
+    * @extend ILoadable
+    * @constructor
+    * @param ...paths {string[]} A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
+    */
+    var Sound = (function () {
+        function Sound() {
+            var paths = [];
+            for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                paths[_i] = arguments[_i + 0];
+            }
+            this.logger = ex.Logger.getInstance();
+            this.onprogress = function () {
+            };
+            this.oncomplete = function () {
+            };
+            this.onerror = function () {
+            };
+            this.onload = function () {
+            };
+            this._isLoaded = false;
+            this._selectedFile = "";
+            /* Chrome : MP3, WAV, Ogg
+            * Firefox : WAV, Ogg,
+            * IE : MP3,
+            * Safari MP3, WAV, Ogg
+            */
+            this._selectedFile = "";
+            for (var i = 0; i < paths.length; i++) {
+                if (Sound.canPlayFile(paths[i])) {
+                    this._selectedFile = paths[i];
+                    break;
+                }
+            }
+
+            if (!this._selectedFile) {
+                this.logger.warn("This browser does not support any of the files specified");
+                this._selectedFile = paths[0]; // select the first specified
+            }
+
+            this.sound = new ex.Internal.FallbackAudio(this._selectedFile, 1.0);
+        }
+        Sound.canPlayFile = function (file) {
+            var a = new Audio();
+            var filetype = /.*\.([A-Za-z0-9]+)$/;
+            var type = file.match(filetype)[1];
+            if (a.canPlayType('audio/' + type)) {
+                return true;
+            }
+             {
+                return false;
+            }
+        };
+
+        /**
+        * Sets the volume of the sound clip
+        * @method setVolume
+        * @param volume {number} A volume value between 0-1.0
+        */
+        Sound.prototype.setVolume = function (volume) {
+            if (this.sound)
+                this.sound.setVolume(volume);
+        };
+
+        /**
+        * Indicates whether the clip should loop when complete
+        * @method setLoop
+        * @param loop {boolean} Set the looping flag
+        */
+        Sound.prototype.setLoop = function (loop) {
+            if (this.sound)
+                this.sound.setLoop(loop);
+        };
+
+        /**
+        * Play the sound
+        * @method play
+        */
+        Sound.prototype.play = function () {
+            if (this.sound)
+                this.sound.play();
+        };
+
+        /**
+        * Stop the sound and rewind
+        * @method stop
+        */
+        Sound.prototype.stop = function () {
+            if (this.sound)
+                this.sound.stop();
+        };
+
+        /**
+        * Returns true if the sound is loaded
+        * @method isLoaded
+        */
+        Sound.prototype.isLoaded = function () {
+            return this._isLoaded;
+        };
+
+        /**
+        * Begins loading the sound and returns a promise to be resolved on completion
+        * @method load
+        * @returns Promise&lt;Sound&gt;
+        */
+        Sound.prototype.load = function () {
+            var _this = this;
+            var complete = new ex.Promise();
+            this.logger.debug("Started loading sound", this._selectedFile);
+            this.sound.onprogress = this.onprogress;
+            this.sound.onload = function () {
+                _this.oncomplete();
+                _this._isLoaded = true;
+                _this.logger.debug("Completed loading sound", _this._selectedFile);
+                complete.resolve(_this.sound);
+            };
+            this.sound.onerror = function (e) {
+                _this.onerror(e);
+                complete.reject(e);
+            };
+            this.sound.load();
+            return complete;
+        };
+        return Sound;
+    })();
+    ex.Sound = Sound;
+
+    /**
+    * The loader provides a mechanism to preload multiple resources at
+    * one time. The loader must be passed to the engine in order to
+    * trigger the loading progress bar
+    * @class Loader
+    * @extend ILoadable
+    * @constructor
+    * @param [loadables=undefined] {ILoadable[]} Optionally provide the list of resources you want to load at constructor time
+    */
+    var Loader = (function () {
+        function Loader(loadables) {
+            this.resourceList = [];
+            this.index = 0;
+            this.resourceCount = 0;
+            this.numLoaded = 0;
+            this.progressCounts = {};
+            this.totalCounts = {};
+            this.onprogress = function () {
+            };
+            this.oncomplete = function () {
+            };
+            this.onerror = function () {
+            };
+            if (loadables) {
+                this.addResources(loadables);
+            }
+        }
+        /**
+        * Add a resource to the loader to load
+        * @method addResource
+        * @param loadable {ILoadable} Resource to add
+        */
+        Loader.prototype.addResource = function (loadable) {
+            var key = this.index++;
+            this.resourceList.push(loadable);
+            this.progressCounts[key] = 0;
+            this.totalCounts[key] = 1;
+            this.resourceCount++;
+        };
+
+        /**
+        * Add a list of resources to the loader to load
+        * @method addResources
+        * @param loadables {ILoadable[]} The list of resources to load
+        */
+        Loader.prototype.addResources = function (loadables) {
+            var _this = this;
+            loadables.forEach(function (l) {
+                _this.addResource(l);
+            });
+        };
+
+        Loader.prototype.sumCounts = function (obj) {
+            var sum = 0;
+            var prev = 0;
+            for (var i in obj) {
+                sum += obj[i] | 0;
+            }
+            return sum;
+        };
+
+        /**
+        * Returns true if the loader has completely loaded all resources
+        * @method isLoaded
+        */
+        Loader.prototype.isLoaded = function () {
+            return this.numLoaded === this.resourceCount;
+        };
+
+        /**
+        * Begin loading all of the supplied resources, returning a promise that resolves when loading of all is complete
+        * @method load
+        * @returns Promsie&lt;any&gt;
+        */
+        Loader.prototype.load = function () {
+            var complete = new ex.Promise();
+            var me = this;
+            if (this.resourceList.length === 0) {
+                me.oncomplete.call(me);
+                return complete;
+            }
+
+            var progressArray = new Array(this.resourceList.length);
+            var progressChunks = this.resourceList.length;
+
+            this.resourceList.forEach(function (r, i) {
+                r.onprogress = function (e) {
+                    var total = e.total;
+                    var loaded = e.loaded;
+                    progressArray[i] = { loaded: ((loaded / total) * (100 / progressChunks)), total: 100 };
+
+                    var progressResult = progressArray.reduce(function (accum, next) {
+                        return { loaded: (accum.loaded + next.loaded), total: 100 };
+                    }, { loaded: 0, total: 100 });
+
+                    me.onprogress.call(me, progressResult);
+                };
+                r.oncomplete = function () {
+                    me.numLoaded++;
+                    if (me.numLoaded === me.resourceCount) {
+                        me.oncomplete.call(me);
+                        complete.resolve();
+                    }
+                };
+            });
+
+            function loadNext(list, index) {
+                if (!list[index])
+                    return;
+                list[index].load().then(function () {
+                    loadNext(list, index + 1);
+                });
+            }
+            loadNext(this.resourceList, 0);
+
+            return complete;
+        };
+        return Loader;
+    })();
+    ex.Loader = Loader;
+})(ex || (ex = {}));
+/// <reference path="Core.ts" />
+/// <reference path="Loader.ts" />
+/// <reference path="Util.ts" />
+var ex;
+(function (ex) {
+    
+
+    /**
+    * SpriteSheets are a useful mechanism for slicing up image resources into
+    * separate sprites or for generating in game animations. Sprites are organized
+    * in row major order in the SpriteSheet.
+    * @class SpriteSheet
+    * @contructor
+    * @param image {Texture} The backing image texture to build the SpriteSheet
+    * @param columns {number} The number of columns in the image texture
+    * @param rows {number} The number of rows in the image texture
+    * @param spWidth {number} The width of each individual sprite in pixels
+    * @param spHeight {number} The height of each individual sprite in pixels
+    */
+    var SpriteSheet = (function () {
+        function SpriteSheet(image, columns, rows, spWidth, spHeight) {
+            this.image = image;
+            this.columns = columns;
+            this.rows = rows;
+            this.sprites = [];
+            this.internalImage = image.image;
+            this.sprites = new Array(columns * rows);
+
+            // TODO: Inspect actual image dimensions with preloading
+            /*if(spWidth * columns > this.internalImage.naturalWidth){
+            throw new Error("SpriteSheet specified is wider than image width");
+            }
+            
+            if(spHeight * rows > this.internalImage.naturalHeight){
+            throw new Error("SpriteSheet specified is higher than image height");
+            }*/
+            var i = 0;
+            var j = 0;
+            for (i = 0; i < rows; i++) {
+                for (j = 0; j < columns; j++) {
+                    this.sprites[j + i * columns] = new Sprite(this.image, j * spWidth, i * spHeight, spWidth, spHeight);
+                }
+            }
+        }
+        /**
+        * Create an animation from the this SpriteSheet by listing out the
+        * sprite indices. Sprites are organized in row major order in the SpriteSheet.
+        * @method getAnimationByIndices
+        * @param engine {Engine} Reference to the current game Engine
+        * @param indices {number[]} An array of sprite indices to use in the animation
+        * @param speed {number} The number in milliseconds to display each frame in the animation
+        * @returns Animation
+        */
+        SpriteSheet.prototype.getAnimationByIndices = function (engine, indices, speed) {
+            var images = this.sprites.filter(function (sprite, index) {
+                return indices.indexOf(index) > -1;
+            });
+
+            images = images.map(function (i) {
+                return i.clone();
+            });
+            return new Animation(engine, images, speed);
+        };
+
+        /**
+        * Create an animation from the this SpriteSheet by specifing the range of
+        * images with the beginning and ending index
+        * @method getAnimationBetween
+        * @param engine {Engine} Reference to the current game Engine
+        * @param beginIndex {number} The index to start taking frames
+        * @param endIndex {number} The index to stop taking frames
+        * @param speed {number} The number in milliseconds to display each frame in the animation
+        * @returns Animation
+        */
+        SpriteSheet.prototype.getAnimationBetween = function (engine, beginIndex, endIndex, speed) {
+            var images = this.sprites.slice(beginIndex, endIndex);
+            images = images.map(function (i) {
+                return i.clone();
+            });
+            return new Animation(engine, images, speed);
+        };
+
+        /**
+        * Treat the entire SpriteSheet as one animation, organizing the frames in
+        * row major order.
+        * @method getAnimationForAll
+        * @param engine {Engine} Reference to the current game Engine
+        * @param speed {number} The number in milliseconds to display each frame the animation
+        * @returns Animation
+        */
+        SpriteSheet.prototype.getAnimationForAll = function (engine, speed) {
+            var sprites = this.sprites.map(function (i) {
+                return i.clone();
+            });
+            return new Animation(engine, sprites, speed);
+        };
+
+        /**
+        * Retreive a specific sprite from the SpriteSheet by its index. Sprites are organized
+        * in row major order in the SpriteSheet.
+        * @method getSprite
+        * @param index {number} The index of the sprite
+        * @returns Sprite
+        */
+        SpriteSheet.prototype.getSprite = function (index) {
+            if (index >= 0 && index < this.sprites.length) {
+                return this.sprites[index].clone();
+            }
+        };
+        return SpriteSheet;
+    })();
+    ex.SpriteSheet = SpriteSheet;
+
+    /**
+    * SpriteFonts are a used in conjunction with a {{#crossLink Label}}{{/crossLink}} to specify
+    * a particular bitmap as a font.
+    * @class SpriteFont
+    * @extends SpriteSheet
+    * @constructor
+    * @param image {Texture} The backing image texture to build the SpriteFont
+    * @param alphabet {string} A string representing all the charaters in the image, in row major order.
+    * @param caseInsensitve {boolean} Indicate whether this font takes case into account
+    * @param columns {number} The number of columns of characters in the image
+    * @param rows {number} The number of rows of characters in the image
+    * @param spWdith {number} The width of each character in pixels
+    * @param spHeight {number} The height of each character in pixels
+    */
+    var SpriteFont = (function (_super) {
+        __extends(SpriteFont, _super);
+        function SpriteFont(image, alphabet, caseInsensitive, columns, rows, spWidth, spHeight) {
+            _super.call(this, image, columns, rows, spWidth, spHeight);
+            this.image = image;
+            this.alphabet = alphabet;
+            this.caseInsensitive = caseInsensitive;
+            this.spriteLookup = {};
+            this.colorLookup = {};
+            this._currentColor = ex.Color.Black;
+        }
+        /**
+        * Returns a dictionary that maps each character in the alphabet to the appropriate Sprite.
+        * @method getTextSprites
+        * @returns {Object}
+        */
+        SpriteFont.prototype.getTextSprites = function () {
+            var lookup = {};
+            for (var i = 0; i < this.alphabet.length; i++) {
+                var char = this.alphabet[i];
+                if (this.caseInsensitive) {
+                    char = char.toLowerCase();
+                }
+                lookup[char] = this.sprites[i].clone();
+            }
+            return lookup;
+        };
+        return SpriteFont;
+    })(SpriteSheet);
+    ex.SpriteFont = SpriteFont;
+
+    (function (Effects) {
+        
+
+        /**
+        * Applies the "Grayscale" effect to a sprite, removing color information.
+        * @class Effects.Grayscale
+        * @constructor
+        * @extends ISpriteEffect
+        */
+        var Grayscale = (function () {
+            function Grayscale() {
+            }
+            Grayscale.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                var avg = (pixel[firstPixel + 0] + pixel[firstPixel + 1] + pixel[firstPixel + 2]) / 3;
+                pixel[firstPixel + 0] = avg;
+                pixel[firstPixel + 1] = avg;
+                pixel[firstPixel + 2] = avg;
+            };
+            return Grayscale;
+        })();
+        Effects.Grayscale = Grayscale;
+
+        /**
+        * Applies the "Invert" effect to a sprite, inverting the pixel colors.
+        * @class Effects.Invert
+        * @constructor
+        * @extends ISpriteEffect
+        */
+        var Invert = (function () {
+            function Invert() {
+            }
+            Invert.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                pixel[firstPixel + 0] = 255 - pixel[firstPixel + 0];
+                pixel[firstPixel + 1] = 255 - pixel[firstPixel + 1];
+                pixel[firstPixel + 2] = 255 - pixel[firstPixel + 2];
+            };
+            return Invert;
+        })();
+        Effects.Invert = Invert;
+
+        /**
+        * Applies the "Opacity" effect to a sprite, setting the alpha of all pixels to a given value.
+        * @class Effects.Opacity
+        * @extends ISpriteEffect
+        * @constructor
+        * @param opacity {number} The new opacity of the sprite from 0-1.0
+        */
+        var Opacity = (function () {
+            function Opacity(opacity) {
+                this.opacity = opacity;
+            }
+            Opacity.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                if (pixel[firstPixel + 3] !== 0) {
+                    pixel[firstPixel + 3] = Math.round(this.opacity * 255);
+                }
+            };
+            return Opacity;
+        })();
+        Effects.Opacity = Opacity;
+
+        /**
+        * Applies the "Colorize" effect to a sprite, changing the color channels of all the pixels to an
+        * average of the original color and the provided color
+        * @class Effects.Colorize
+        * @extends ISpriteEffect
+        * @constructor
+        * @param color {Color} The color to apply to the sprite
+        */
+        var Colorize = (function () {
+            function Colorize(color) {
+                this.color = color;
+            }
+            Colorize.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                if (pixel[firstPixel + 3] !== 0) {
+                    pixel[firstPixel + 0] = (pixel[firstPixel + 0] + this.color.r) / 2;
+                    pixel[firstPixel + 1] = (pixel[firstPixel + 1] + this.color.g) / 2;
+                    pixel[firstPixel + 2] = (pixel[firstPixel + 2] + this.color.b) / 2;
+                }
+            };
+            return Colorize;
+        })();
+        Effects.Colorize = Colorize;
+
+        /**
+        * Applies the "Fill" effect to a sprite, changing the color channels of all non-transparent pixels to match
+        * a given color
+        * @class Effects.Fill
+        * @extends ISpriteEffect
+        * @constructor
+        * @param color {Color} The color to apply to the sprite
+        */
+        var Fill = (function () {
+            function Fill(color) {
+                this.color = color;
+            }
+            Fill.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                if (pixel[firstPixel + 3] !== 0) {
+                    pixel[firstPixel + 0] = this.color.r;
+                    pixel[firstPixel + 1] = this.color.g;
+                    pixel[firstPixel + 2] = this.color.b;
+                }
+            };
+            return Fill;
+        })();
+        Effects.Fill = Fill;
+    })(ex.Effects || (ex.Effects = {}));
+    var Effects = ex.Effects;
+
+    /**
+    * A Sprite is one of the main drawing primitives. It is responsible for drawing
+    * images or parts of images known as Textures to the screen.
+    * @class Sprite
+    * @constructor
+    * @param image {Texture} The backing image texture to build the Sprite
+    * @param sx {number} The x position of the sprite
+    * @param sy {number} The y position of the sprite
+    * @param swidth {number} The width of the sprite in pixels
+    * @param sheight {number} The height of the sprite in pixels
+    */
+    var Sprite = (function () {
+        function Sprite(image, sx, sy, swidth, sheight) {
+            this.sx = sx;
+            this.sy = sy;
+            this.swidth = swidth;
+            this.sheight = sheight;
+            this.scale = 1.0;
+            this.rotation = 0.0;
+            this.transformPoint = new ex.Point(0, 0);
+            this.flipVertical = false;
+            this.flipHorizontal = false;
+            this.width = 0;
+            this.height = 0;
+            this.effects = [];
+            this.internalImage = new Image();
+            this.spriteCanvas = null;
+            this.spriteCtx = null;
+            this.pixelData = null;
+            this.pixelsLoaded = false;
+            this.dirtyEffect = false;
+            this.texture = image;
+            this.spriteCanvas = document.createElement('canvas');
+            this.spriteCanvas.width = swidth;
+            this.spriteCanvas.height = sheight;
+            this.spriteCtx = this.spriteCanvas.getContext('2d');
+
+            this.width = swidth;
+            this.height = sheight;
+        }
+        Sprite.prototype.loadPixels = function () {
+            if (this.texture.image && !this.pixelsLoaded) {
+                this.spriteCtx.drawImage(this.texture.image, this.sx, this.sy, this.swidth, this.sheight, 0, 0, this.swidth, this.sheight);
+
+                //this.pixelData = this.spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
+                this.internalImage.src = this.spriteCanvas.toDataURL("image/png");
+                this.pixelsLoaded = true;
+            }
+        };
+
+        /**
+        * Adds a new {{#crossLink Effects.ISpriteEffect}}{{/crossLink}} to this drawing.
+        * @method addEffect
+        * @param effect {Effects.ISpriteEffect} Effect to add to the this drawing
+        */
+        Sprite.prototype.addEffect = function (effect) {
+            this.effects.push(effect);
+
+            // We must check if the texture and the backing sprite pixels are loaded as well before
+            // an effect can be applied
+            if (!this.texture.isLoaded() || !this.pixelsLoaded) {
+                this.dirtyEffect = true;
+            } else {
+                this.applyEffects();
+            }
+        };
+
+        Sprite.prototype.applyEffects = function () {
+            var _this = this;
+            this.spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
+            this.spriteCtx.drawImage(this.texture.image, this.sx, this.sy, this.swidth, this.sheight, 0, 0, this.swidth, this.sheight);
+            this.pixelData = this.spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
+
+            this.effects.forEach(function (effect) {
+                for (var y = 0; y < _this.sheight; y++) {
+                    for (var x = 0; x < _this.swidth; x++) {
+                        effect.updatePixel(x, y, _this.pixelData);
+                    }
+                }
+            });
+            this.spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
+            this.spriteCtx.putImageData(this.pixelData, 0, 0);
+            this.internalImage.src = this.spriteCanvas.toDataURL("image/png");
+        };
+
+        /**
+        * Clears all effects from the drawing and return it to its original state.
+        * @method clearEffects
+        */
+        Sprite.prototype.clearEffects = function () {
+            this.effects.length = 0;
+            this.applyEffects();
+        };
+
+        /**
+        * Sets the point about which to apply transformations to the drawing relative to the
+        * top left corner of the drawing.
+        * @method transformAbotPoint
+        * @param point {Point} The point about which to apply transformations
+        */
+        Sprite.prototype.transformAboutPoint = function (point) {
+            this.transformPoint = point;
+        };
+
+        /**
+        * Sets the current rotation transformation for the drawing.
+        * @method setRotation
+        * @param radians {number} The rotation to apply to the drawing.
+        */
+        Sprite.prototype.setRotation = function (radians) {
+            this.rotation = radians;
+        };
+
+        /**
+        * Returns the current rotation for the drawing in radians.
+        * @method getRotation
+        * @returns number
+        */
+        Sprite.prototype.getRotation = function () {
+            return this.rotation;
+        };
+
+        /**
+        * Sets the scale trasformation
+        * @method setScale
+        * @param scale {number} The magnitude to scale the drawing
+        */
+        Sprite.prototype.setScale = function (scale) {
+            this.scale = scale;
+        };
+
+        /**
+        * Returns the current magnitude of the drawing's scale.
+        * @method getScale
+        * @returns number
+        */
+        Sprite.prototype.getScale = function () {
+            return this.scale;
+        };
+
+        /**
+        * Resets the internal state of the drawing (if any)
+        * @method reset
+        */
+        Sprite.prototype.reset = function () {
+            // do nothing
+        };
+
+        /**
+        * Draws the sprite appropriately to the 2D rendering context, at an x and y coordinate.
+        * @method draw
+        * @param ctx {CanvasRenderingContext2D} The 2D rendering context
+        * @param x {number} The x coordinate of where to draw
+        * @param y {number} The y coordinate of where to draw
+        */
+        Sprite.prototype.draw = function (ctx, x, y) {
+            this.loadPixels();
+            if (this.dirtyEffect) {
+                this.applyEffects();
+                this.dirtyEffect = false;
+            }
+
+            ctx.save();
+
+            //var translateX = this.aboutCenter?this.swidth*this.scale/2:0;
+            //var translateY = this.aboutCenter?this.sheight*this.scale/2:0;
+            ctx.translate(x + this.transformPoint.x, y + this.transformPoint.y);
+            ctx.rotate(this.rotation);
+
+            //ctx.scale(this.scale, this.scale);
+            if (this.flipHorizontal) {
+                ctx.translate(this.swidth, 0);
+                ctx.scale(-1, 1);
+            }
+
+            if (this.flipVertical) {
+                ctx.translate(0, this.sheight);
+                ctx.scale(1, -1);
+            }
+            if (this.internalImage) {
+                ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, -this.transformPoint.x, -this.transformPoint.y, this.swidth * this.scale, this.sheight * this.scale);
+            }
+            ctx.restore();
+        };
+
+        /**
+        * Produces a copy of the current sprite
+        * @method clone
+        * @returns Sprite
+        */
+        Sprite.prototype.clone = function () {
+            var result = new Sprite(this.texture, this.sx, this.sy, this.swidth, this.sheight);
+            result.scale = this.scale;
+            result.rotation = this.rotation;
+            result.flipHorizontal = this.flipHorizontal;
+            result.flipVertical = this.flipVertical;
+
+            this.effects.forEach(function (e) {
+                result.addEffect(e);
+            });
+            return result;
+        };
+        return Sprite;
+    })();
+    ex.Sprite = Sprite;
+
+    /**
+    * Animations allow you to display a series of images one after another,
+    * creating the illusion of change. Generally these images will come from a sprite sheet source.
+    * @class Animation
+    * @extends IDrawable
+    * @constructor
+    * @param engine {Engine} Reference to the current game engine
+    * @param images {Sprite[]} An array of sprites to create the frames for the animation
+    * @param speed {number} The number in milliseconds to display each frame in the animation
+    * @param [loop=false] {boolean} Indicates whether the animation should loop after it is completed
+    */
+    var Animation = (function () {
+        function Animation(engine, images, speed, loop) {
+            this.currIndex = 0;
+            this.oldTime = Date.now();
+            this.rotation = 0.0;
+            this.scale = 1.0;
+            /**
+            * Indicates whether the animation should loop after it is completed
+            * @property [loop=false] {boolean}
+            */
+            this.loop = false;
+            this.freezeFrame = -1;
+            this.flipVertical = false;
+            this.flipHorizontal = false;
+            this.width = 0;
+            this.height = 0;
+            this.sprites = images;
+            this.speed = speed;
+            this.engine = engine;
+            if (loop != null) {
+                this.loop = loop;
+            }
+            this.height = images[0] ? images[0].height : 0;
+            this.width = images[0] ? images[0].width : 0;
+        }
+        Animation.prototype.addEffect = function (effect) {
+            for (var i in this.sprites) {
+                this.sprites[i].addEffect(effect);
+            }
+        };
+
+        Animation.prototype.clearEffects = function () {
+            for (var i in this.sprites) {
+                this.sprites[i].clearEffects();
+            }
+        };
+
+        Animation.prototype.transformAboutPoint = function (point) {
+            for (var i in this.sprites) {
+                this.sprites[i].transformAboutPoint(point);
+            }
+        };
+
+        Animation.prototype.setRotation = function (radians) {
+            this.rotation = radians;
+            for (var i in this.sprites) {
+                this.sprites[i].setRotation(radians);
+            }
+        };
+
+        Animation.prototype.getRotation = function () {
+            return this.rotation;
+        };
+
+        Animation.prototype.setScale = function (scale) {
+            this.scale = scale;
+            for (var i in this.sprites) {
+                this.sprites[i].setScale(scale);
+            }
+        };
+
+        Animation.prototype.getScale = function () {
+            return this.scale;
+        };
+
+        /**
+        * Resets the animation to first frame.
+        * @method reset
+        */
+        Animation.prototype.reset = function () {
+            this.currIndex = 0;
+        };
+
+        /**
+        * Indicates whether the animation is complete, animations that loop are never complete.
+        * @method isDone
+        * @returns boolean
+        */
+        Animation.prototype.isDone = function () {
+            return (!this.loop && this.currIndex >= this.sprites.length);
+        };
+
+        /**
+        * Not meant to be called by game developers. Ticks the animation forward internally an
+        * calculates whether to change to teh frame.
+        * @method tick
+        */
+        Animation.prototype.tick = function () {
+            var time = Date.now();
+            if ((time - this.oldTime) > this.speed) {
+                this.currIndex = (this.loop ? (this.currIndex + 1) % this.sprites.length : this.currIndex + 1);
+                this.oldTime = time;
+            }
+        };
+
+        Animation.prototype.draw = function (ctx, x, y) {
+            this.tick();
+            if (this.currIndex < this.sprites.length) {
+                var currSprite = this.sprites[this.currIndex];
+                if (this.flipVertical) {
+                    currSprite.flipVertical = this.flipVertical;
+                }
+                if (this.flipHorizontal) {
+                    currSprite.flipHorizontal = this.flipHorizontal;
+                }
+                currSprite.draw(ctx, x, y);
+            }
+
+            if (this.freezeFrame !== -1 && this.currIndex >= this.sprites.length) {
+                var currSprite = this.sprites[ex.Util.clamp(this.freezeFrame, 0, this.sprites.length - 1)];
+                currSprite.draw(ctx, x, y);
+            }
+        };
+
+        /**
+        * Plays an animation at an arbitrary location in the game.
+        * @method play
+        * @param x {number} The x position in the game to play
+        * @param y {number} The y position in the game to play
+        */
+        Animation.prototype.play = function (x, y) {
+            this.reset();
+            this.engine.playAnimation(this, x, y);
+        };
+        return Animation;
+    })();
+    ex.Animation = Animation;
+
+    /**
+    * Creates a closed polygon drawing given a list a of points. Polygons should be
+    * used sparingly as there is a <b>performance</b> impact for using them.
+    * @class Polygon
+    * @extends IDrawable
+    * @constructor
+    * @params points {Point[]} The points to use to build the polygon in order
+    */
+    var Polygon = (function () {
+        function Polygon(points) {
+            /**
+            * The width of the lines of the polygon
+            * @property [lineWidth=5] {number} The width of the lines in pixels
+            */
+            this.lineWidth = 5;
+            /**
+            * Indicates whether the polygon is filled or not.
+            * @property [filled=false] {boolean}
+            */
+            this.filled = false;
+            this.points = [];
+            this.transformationPoint = new ex.Point(0, 0);
+            this.rotation = 0;
+            this.scale = 1;
+            this.points = points;
+
+            var minX = this.points.reduce(function (prev, curr) {
+                return Math.min(prev, curr.x);
+            }, 0);
+            var maxX = this.points.reduce(function (prev, curr) {
+                return Math.max(prev, curr.x);
+            }, 0);
+
+            this.width = maxX - minX;
+
+            var minY = this.points.reduce(function (prev, curr) {
+                return Math.min(prev, curr.y);
+            }, 0);
+            var maxY = this.points.reduce(function (prev, curr) {
+                return Math.max(prev, curr.y);
+            }, 0);
+
+            this.height = maxY - minY;
+        }
+        /**
+        * Effects are <b>not supported</b> on polygons
+        * @method addEffect
+        */
+        Polygon.prototype.addEffect = function (effect) {
+            // not supported on polygons
+        };
+
+        /**
+        * Effects are <b>not supported</b> on polygons
+        * @method clearEffects
+        */
+        Polygon.prototype.clearEffects = function () {
+            // not supported on polygons
+        };
+
+        Polygon.prototype.transformAboutPoint = function (point) {
+            this.transformationPoint = point;
+        };
+
+        Polygon.prototype.setScale = function (scale) {
+            this.scale = scale;
+        };
+
+        Polygon.prototype.getScale = function () {
+            return this.scale;
+        };
+
+        Polygon.prototype.setRotation = function (radians) {
+            this.rotation = radians;
+        };
+
+        Polygon.prototype.getRotation = function () {
+            return this.rotation;
+        };
+
+        Polygon.prototype.reset = function () {
+            //pass
+        };
+
+        Polygon.prototype.draw = function (ctx, x, y) {
+            ctx.save();
+            ctx.translate(x + this.transformationPoint.x, y + this.transformationPoint.y);
+            ctx.scale(this.scale, this.scale);
+            ctx.rotate(this.rotation);
+            ctx.beginPath();
+            ctx.lineWidth = this.lineWidth;
+
+            // Iterate through the supplied points and contruct a 'polygon'
+            var firstPoint = this.points[0];
+            ctx.moveTo(firstPoint.x, firstPoint.y);
+            this.points.forEach(function (point) {
+                ctx.lineTo(point.x, point.y);
+            });
+            ctx.lineTo(firstPoint.x, firstPoint.y);
+            ctx.closePath();
+
+            if (this.filled) {
+                ctx.fillStyle = this.fillColor.toString();
+                ctx.fill();
+            }
+
+            ctx.strokeStyle = this.lineColor.toString();
+
+            if (this.flipHorizontal) {
+                ctx.translate(this.width, 0);
+                ctx.scale(-1, 1);
+            }
+
+            if (this.flipVertical) {
+                ctx.translate(0, this.height);
+                ctx.scale(1, -1);
+            }
+
+            ctx.stroke();
+            ctx.restore();
+        };
+        return Polygon;
+    })();
+    ex.Polygon = Polygon;
+    ;
+})(ex || (ex = {}));
+/// <reference path="Core.ts" />
+/// <reference path="Algebra.ts" />
+var ex;
+(function (ex) {
+    /**
+    * A base implementation of a camera. This class is meant to be extended.
+    * @class Camera
+    * @constructor
+    * @param engine {Engine} Reference to the current engine
+    */
+    var BaseCamera = (function () {
+        function BaseCamera(engine) {
+            this.focus = new ex.Point(0, 0);
+            //camera effects
+            this.isShaking = false;
+            this.shakeMagnitudeX = 0;
+            this.shakeMagnitudeY = 0;
+            this.shakeDuration = 0;
+            this.elapsedShakeTime = 0;
+            this.isZooming = false;
+            this.currentZoomScale = 1;
+            this.maxZoomScale = 1;
+            this.zoomDuration = 0;
+            this.elapsedZoomTime = 0;
+            this.zoomIncrement = 0.01;
+            this.engine = engine;
+        }
+        /**
+        * Sets the {{#crossLink Actor}}{{//crossLink}} to follow with the camera
+        * @method setActorToFollow
+        * @param actor {Actor} The actor to follow
+        */
+        BaseCamera.prototype.setActorToFollow = function (actor) {
+            this.follow = actor;
+        };
+
+        /**
+        * Returns the focal point of the camera
+        * @method getFocus
+        * @returns Point
+        */
+        BaseCamera.prototype.getFocus = function () {
+            // this should always be overridden
+            if (this.follow) {
+                return new ex.Point(0, 0);
+            } else {
+                return this.focus;
+            }
+        };
+
+        /**
+        * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
+        * @method setFocus
+        * @param x {number} The x coordinate of the focal point
+        * @param y {number} The y coordinate of the focal point
+        */
+        BaseCamera.prototype.setFocus = function (x, y) {
+            if (!this.follow) {
+                this.focus.x = x;
+                this.focus.y = y;
+            }
+        };
+
+        /**
+        * Sets the camera to shake at the specified magnitudes for the specified duration
+        * @method shake
+        * @param magnitudeX {number} the x magnitude of the shake
+        * @param magnitudeY {number} the y magnitude of the shake
+        * @param duration {number} the duration of the shake
+        */
+        BaseCamera.prototype.shake = function (magnitudeX, magnitudeY, duration) {
+            this.isShaking = true;
+            this.shakeMagnitudeX = magnitudeX;
+            this.shakeMagnitudeY = magnitudeY;
+            this.shakeDuration = duration;
+        };
+
+        /**
+        * Zooms the camera in or out by the specified scale over the specified duration.
+        * If no duration is specified, it will zoom by a set amount until the scale is reached.
+        * @method zoom
+        * @param scale {number} the scale of the zoom
+        * @param [duration] {number} the duration of the zoom
+        */
+        BaseCamera.prototype.zoom = function (scale, duration) {
+            this.isZooming = true;
+            this.maxZoomScale = scale;
+            this.zoomDuration = duration | 0;
+            if (duration) {
+                this.zoomIncrement = Math.abs(this.maxZoomScale - this.currentZoomScale) / duration * 1000;
+            }
+
+            if (this.maxZoomScale < 1) {
+                if (duration) {
+                    this.zoomIncrement = -1 * this.zoomIncrement;
+                } else {
+                    this.zoomIncrement = -0.01;
+                }
+            }
+            // console.log("zoom increment: " + this.zoomIncrement);
+        };
+
+        /**
+        * gets the current zoom scale
+        * @method getCurrentZoomScale
+        * @returns {Number} the current zoom scale
+        */
+        BaseCamera.prototype.getCurrentZoomScale = function () {
+            return this.currentZoomScale;
+        };
+
+        BaseCamera.prototype.setCurrentZoomScale = function (zoomScale) {
+            this.currentZoomScale = zoomScale;
+        };
+
+        /**
+        * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
+        * @method update
+        * @param delta {number} The number of milliseconds since the last update
+        */
+        BaseCamera.prototype.update = function (delta) {
+            var focus = this.getFocus();
+
+            var xShake = 0;
+            var yShake = 0;
+
+            var canvasWidth = this.engine.ctx.canvas.width;
+            var canvasHeight = this.engine.ctx.canvas.height;
+            var newCanvasWidth = canvasWidth * this.getCurrentZoomScale();
+            var newCanvasHeight = canvasHeight * this.getCurrentZoomScale();
+
+            if (this.isDoneShaking()) {
+                this.isShaking = false;
+                this.elapsedShakeTime = 0;
+                this.shakeMagnitudeX = 0;
+                this.shakeMagnitudeY = 0;
+                this.shakeDuration = 0;
+            } else {
+                this.elapsedShakeTime += delta;
+                xShake = (Math.random() * this.shakeMagnitudeX | 0) + 1;
+                yShake = (Math.random() * this.shakeMagnitudeY | 0) + 1;
+            }
+
+            this.engine.ctx.translate(focus.x + xShake, focus.y + yShake);
+
+            if (this.isDoneZooming()) {
+                this.isZooming = false;
+                this.elapsedZoomTime = 0;
+                this.zoomDuration = 0;
+            } else {
+                this.elapsedZoomTime += delta;
+
+                this.setCurrentZoomScale(this.getCurrentZoomScale() + this.zoomIncrement * delta / 1000);
+            }
+
+            this.engine.ctx.translate(-((newCanvasWidth - canvasWidth) / 2), -((newCanvasHeight - canvasHeight) / 2));
+            this.engine.ctx.scale(this.getCurrentZoomScale(), this.getCurrentZoomScale());
+        };
+
+        BaseCamera.prototype.isDoneShaking = function () {
+            return !(this.isShaking) || (this.elapsedShakeTime >= this.shakeDuration);
+        };
+
+        BaseCamera.prototype.isDoneZooming = function () {
+            if (this.zoomDuration != 0) {
+                return (this.elapsedZoomTime >= this.zoomDuration);
+            } else {
+                if (this.maxZoomScale < 1) {
+                    return (this.currentZoomScale <= this.maxZoomScale);
+                } else {
+                    return (this.currentZoomScale >= this.maxZoomScale);
+                }
+            }
+        };
+        return BaseCamera;
+    })();
+    ex.BaseCamera = BaseCamera;
+
+    /**
+    * An extension of BaseCamera that is locked vertically; it will only move side to side.
+    * @class SideCamera
+    * @extends BaseCamera
+    * @constructor
+    * @param engine {Engine} Reference to the current engine
+    */
+    var SideCamera = (function (_super) {
+        __extends(SideCamera, _super);
+        function SideCamera() {
+            _super.apply(this, arguments);
+        }
+        SideCamera.prototype.getFocus = function () {
+            if (this.follow) {
+                // return new Point(-this.follow.x + this.engine.width / 2.0, 0);
+                return new ex.Point((-this.follow.x * this.getCurrentZoomScale()) + (this.engine.width * this.getCurrentZoomScale()) / 2.0, 0);
+            } else {
+                return this.focus;
+            }
+        };
+        return SideCamera;
+    })(BaseCamera);
+    ex.SideCamera = SideCamera;
+
+    /**
+    * An extension of BaseCamera that is locked to an actor or focal point; the actor will appear in the center of the screen.
+    * @class TopCamera
+    * @extends BaseCamera
+    * @constructor
+    * @param engine {Engine} Reference to the current engine
+    */
+    var TopCamera = (function (_super) {
+        __extends(TopCamera, _super);
+        function TopCamera() {
+            _super.apply(this, arguments);
+        }
+        /**
+        * Returns the focal point of the camera
+        * @method getFocus
+        * @returns Point
+        */
+        TopCamera.prototype.getFocus = function () {
+            if (this.follow) {
+                return new ex.Point((-this.follow.x * this.getCurrentZoomScale()) + (this.engine.width * this.getCurrentZoomScale()) / 2.0, (-this.follow.y * this.getCurrentZoomScale()) + (this.engine.height * this.getCurrentZoomScale()) / 2.0);
+            } else {
+                return this.focus;
+            }
+        };
+        return TopCamera;
+    })(BaseCamera);
+    ex.TopCamera = TopCamera;
+})(ex || (ex = {}));
+/// <reference path="MonkeyPatch.ts" />
+/// <reference path="Action.ts" />
+/// <reference path="Log.ts" />
+/// <reference path="Events.ts" />
+/// <reference path="Entities.ts" />
+/// <reference path="Particles.ts" />
+/// <reference path="Algebra.ts" />
+/// <reference path="Drawing.ts" />
+/// <reference path="Camera.ts" />
+/// <reference path="Sound.ts" />
+/// <reference path="Loader.ts" />
+/// <reference path="Promises.ts" />
+/// <reference path="Util.ts" />
+var ex;
+(function (ex) {
+    var Color = (function () {
+        /**
+        * Creates a new instance of Color from an r, g, b, a
+        *
+        * @class Color
+        * @constructor
+        * @param r {number} The red component of color (0-255)
+        * @param g {number} The green component of color (0-255)
+        * @param b {number} The blue component of color (0-255)
+        * @param [a=1] {number} The alpha component of color (0-1.0)
+        */
+        function Color(r, g, b, a) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.a = a;
+            this.a = (a != null ? a : 1);
+        }
+        /**
+        * Creates a new instance of Color from an r, g, b, a
+        *
+        * @method fromRGB
+        * @static
+        * @param r {number} The red component of color (0-255)
+        * @param g {number} The green component of color (0-255)
+        * @param b {number} The blue component of color (0-255)
+        * @param [a=1] {number} The alpha component of color (0-1.0)
+        */
+        Color.fromRGB = function (r, g, b, a) {
+            return new Color(r, g, b, a);
+        };
+
+        /**
+        * Creates a new inscance of Color from a hex string
+        *
+        * @method fromHex
+        * @static
+        * @param hex {string} CSS color string of the form #ffffff, the alpha component is optional
+        */
+        Color.fromHex = function (hex) {
+            var hexRegEx = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})?$/i;
+            var match = null;
+            if (match = hex.match(hexRegEx)) {
+                var r = parseInt(match[1], 16);
+                var g = parseInt(match[2], 16);
+                var b = parseInt(match[3], 16);
+                var a = 1;
+                if (match[4]) {
+                    a = parseInt(match[4], 16) / 255;
+                }
+                return new Color(r, g, b, a);
+            } else {
+                throw new Error("Invalid hex string: " + hex);
+            }
+        };
+
+        /**
+        * Returns a CSS string representation of a color.
+        * @method toString
+        * @returns string
+        */
+        Color.prototype.toString = function () {
+            var result = String(this.r.toFixed(0)) + ", " + String(this.g.toFixed(0)) + ", " + String(this.b.toFixed(0));
+            if (this.a) {
+                return "rgba(" + result + ", " + String(this.a) + ")";
+            }
+            return "rgb(" + result + ")";
+        };
+
+        /**
+        * Returns a clone of the current color.
+        * @method clone
+        * @returns Color
+        */
+        Color.prototype.clone = function () {
+            return new Color(this.r, this.g, this.b, this.a);
+        };
+        Color.Black = Color.fromHex('#000000');
+
+        Color.White = Color.fromHex('#FFFFFF');
+
+        Color.Yellow = Color.fromHex('#FFFF00');
+
+        Color.Orange = Color.fromHex('#FFA500');
+
+        Color.Red = Color.fromHex('#FF0000');
+
+        Color.Vermillion = Color.fromHex('#FF5B31');
+
+        Color.Rose = Color.fromHex('#FF007F');
+
+        Color.Magenta = Color.fromHex('#FF00FF');
+
+        Color.Violet = Color.fromHex('#7F00FF');
+
+        Color.Blue = Color.fromHex('#0000FF');
+
+        Color.Azure = Color.fromHex('#007FFF');
+
+        Color.Cyan = Color.fromHex('#00FFFF');
+
+        Color.Viridian = Color.fromHex('#59978F');
+
+        Color.Green = Color.fromHex('#00FF00');
+
+        Color.Chartreuse = Color.fromHex('#7FFF00');
+
+        Color.Transparent = Color.fromHex('#FFFFFF00');
+        return Color;
+    })();
+    ex.Color = Color;
+
+    /**
+    * Enum representing input key codes
+    * @class InputKey
+    *
+    */
+    (function (InputKey) {
+        /**
+        @property Num1 {InputKey}
+        */
+        /**
+        @property Num2 {InputKey}
+        */
+        /**
+        @property Num3 {InputKey}
+        */
+        /**
+        @property Num4 {InputKey}
+        */
+        /**
+        @property Num5 {InputKey}
+        */
+        /**
+        @property Num6 {InputKey}
+        */
+        /**
+        @property Num7 {InputKey}
+        */
+        /**
+        @property Num8 {InputKey}
+        */
+        /**
+        @property Num9 {InputKey}
+        */
+        /**
+        @property Num0 {InputKey}
+        */
+        InputKey[InputKey["Num1"] = 97] = "Num1";
+        InputKey[InputKey["Num2"] = 98] = "Num2";
+        InputKey[InputKey["Num3"] = 99] = "Num3";
+        InputKey[InputKey["Num4"] = 100] = "Num4";
+        InputKey[InputKey["Num5"] = 101] = "Num5";
+        InputKey[InputKey["Num6"] = 102] = "Num6";
+        InputKey[InputKey["Num7"] = 103] = "Num7";
+        InputKey[InputKey["Num8"] = 104] = "Num8";
+        InputKey[InputKey["Num9"] = 105] = "Num9";
+        InputKey[InputKey["Num0"] = 96] = "Num0";
+
+        /**
+        @property Numlock {InputKey}
+        */
+        InputKey[InputKey["Numlock"] = 144] = "Numlock";
+
+        /**
+        @property Semicolon {InputKey}
+        */
+        InputKey[InputKey["Semicolon"] = 186] = "Semicolon";
+
+        /**
+        @property A {InputKey}
+        */
+        /**
+        @property B {InputKey}
+        */
+        /**
+        @property C {InputKey}
+        */
+        /**
+        @property D {InputKey}
+        */
+        /**
+        @property E {InputKey}
+        */
+        /**
+        @property F {InputKey}
+        */
+        /**
+        @property G {InputKey}
+        */
+        /**
+        @property H {InputKey}
+        */
+        /**
+        @property I {InputKey}
+        */
+        /**
+        @property J {InputKey}
+        */
+        /**
+        @property K {InputKey}
+        */
+        /**
+        @property L {InputKey}
+        */
+        /**
+        @property M {InputKey}
+        */
+        /**
+        @property N {InputKey}
+        */
+        /**
+        @property O {InputKey}
+        */
+        /**
+        @property P {InputKey}
+        */
+        /**
+        @property Q {InputKey}
+        */
+        /**
+        @property R {InputKey}
+        */
+        /**
+        @property S {InputKey}
+        */
+        /**
+        @property T {InputKey}
+        */
+        /**
+        @property U {InputKey}
+        */
+        /**
+        @property V {InputKey}
+        */
+        /**
+        @property W {InputKey}
+        */
+        /**
+        @property X {InputKey}
+        */
+        /**
+        @property Y {InputKey}
+        */
+        /**
+        @property Z {InputKey}
+        */
+        InputKey[InputKey["A"] = 65] = "A";
+        InputKey[InputKey["B"] = 66] = "B";
+        InputKey[InputKey["C"] = 67] = "C";
+        InputKey[InputKey["D"] = 68] = "D";
+        InputKey[InputKey["E"] = 69] = "E";
+        InputKey[InputKey["F"] = 70] = "F";
+        InputKey[InputKey["G"] = 71] = "G";
+        InputKey[InputKey["H"] = 72] = "H";
+        InputKey[InputKey["I"] = 73] = "I";
+        InputKey[InputKey["J"] = 74] = "J";
+        InputKey[InputKey["K"] = 75] = "K";
+        InputKey[InputKey["L"] = 76] = "L";
+        InputKey[InputKey["M"] = 77] = "M";
+        InputKey[InputKey["N"] = 78] = "N";
+        InputKey[InputKey["O"] = 79] = "O";
+        InputKey[InputKey["P"] = 80] = "P";
+        InputKey[InputKey["Q"] = 81] = "Q";
+        InputKey[InputKey["R"] = 82] = "R";
+        InputKey[InputKey["S"] = 83] = "S";
+        InputKey[InputKey["T"] = 84] = "T";
+        InputKey[InputKey["U"] = 85] = "U";
+        InputKey[InputKey["V"] = 86] = "V";
+        InputKey[InputKey["W"] = 87] = "W";
+        InputKey[InputKey["X"] = 88] = "X";
+        InputKey[InputKey["Y"] = 89] = "Y";
+        InputKey[InputKey["Z"] = 90] = "Z";
+
+        /**
+        @property Shift {InputKey}
+        */
+        /**
+        @property Alt {InputKey}
+        */
+        /**
+        @property Up {InputKey}
+        */
+        /**
+        @property Down {InputKey}
+        */
+        /**
+        @property Left {InputKey}
+        */
+        /**
+        @property Right {InputKey}
+        */
+        /**
+        @property Space {InputKey}
+        */
+        /**
+        @property Esc {InputKey}
+        */
+        InputKey[InputKey["Shift"] = 16] = "Shift";
+        InputKey[InputKey["Alt"] = 18] = "Alt";
+        InputKey[InputKey["Up"] = 38] = "Up";
+        InputKey[InputKey["Down"] = 40] = "Down";
+        InputKey[InputKey["Left"] = 37] = "Left";
+        InputKey[InputKey["Right"] = 39] = "Right";
+        InputKey[InputKey["Space"] = 32] = "Space";
+        InputKey[InputKey["Esc"] = 27] = "Esc";
+    })(ex.InputKey || (ex.InputKey = {}));
+    var InputKey = ex.InputKey;
+    ;
+
+    /**
+    * Enum representing the different display modes available to Excalibur
+    * @class DisplayMode
+    */
+    (function (DisplayMode) {
+        /**
+        * Show the game as full screen
+        * @property FullScreen {DisplayMode}
+        */
+        DisplayMode[DisplayMode["FullScreen"] = 0] = "FullScreen";
+
+        /**
+        * Scale the game to the parent DOM container
+        * @property Container {DisplayMode}
+        */
+        DisplayMode[DisplayMode["Container"] = 1] = "Container";
+
+        /**
+        * Show the game as a fixed size
+        * @Property Fixed {DisplayMode}
+        */
+        DisplayMode[DisplayMode["Fixed"] = 2] = "Fixed";
+    })(ex.DisplayMode || (ex.DisplayMode = {}));
+    var DisplayMode = ex.DisplayMode;
+
+    // internal
+    var AnimationNode = (function () {
+        function AnimationNode(animation, x, y) {
+            this.animation = animation;
+            this.x = x;
+            this.y = y;
+        }
+        return AnimationNode;
+    })();
+    var Timer = (function () {
+        /**
+        * The Excalibur timer hooks into the internal timer and fires callbacks, after a certain interval, optionally repeating.
+        *
+        * @class Timer
+        * @constructor
+        * @param callback {callback} The callback to be fired after the interval is complete.
+        * @param [repeats=false] {boolean} Indicates whether this call back should be fired only once, or repeat after every interval as completed.
+        */
+        function Timer(fcn, interval, repeats) {
+            this.id = 0;
+            this.interval = 10;
+            this.fcn = function () {
+            };
+            this.repeats = false;
+            this.elapsedTime = 0;
+            this.complete = false;
+            this.scene = null;
+            this.id = Timer.id++;
+            this.interval = interval || this.interval;
+            this.fcn = fcn || this.fcn;
+            this.repeats = repeats || this.repeats;
+        }
+        /**
+        * Updates the timer after a certain number of milliseconds have elapsed. This is used internally by the engine.
+        * @method update
+        * @param delta {number} Number of elapsed milliseconds since the last update.
+        */
+        Timer.prototype.update = function (delta) {
+            this.elapsedTime += delta;
+            if (this.elapsedTime > this.interval) {
+                this.fcn.call(this);
+                if (this.repeats) {
+                    this.elapsedTime = 0;
+                } else {
+                    this.complete = true;
+                }
+            }
+        };
+
+        /**
+        * Cancels the timer, preventing any further executions.
+        * @method cancel
+        */
+        Timer.prototype.cancel = function () {
+            if (this.scene) {
+                this.scene.cancelTimer(this);
+            }
+        };
+        Timer.id = 0;
+        return Timer;
+    })();
+    ex.Timer = Timer;
+
+    /**
+    * The 'Engine' is the main driver for a game. It is responsible for
+    * starting/stopping the game, maintaining state, transmitting events,
+    * loading resources, and managing the scene.
+    *
+    * @class Engine
+    * @constructor
+    * @param [width] {number} The width in pixels of the Excalibur game viewport
+    * @param [height] {number} The height in pixels of the Excalibur game viewport
+    * @param [canvasElementId] {string} If this is not specified, then a new canvas will be created and inserted into the body.
+    * @param [displayMode] {DisplayMode} If this is not specified, then it will fall back to fixed if a height and width are specified, else the display mode will be FullScreen.
+    */
+    var Engine = (function (_super) {
+        __extends(Engine, _super);
+        function Engine(width, height, canvasElementId, displayMode) {
+            _super.call(this);
+            this.hasStarted = false;
+            // Key Events
+            this.keys = [];
+            this.keysDown = [];
+            this.keysUp = [];
+            // Mouse Events
+            this.clicks = [];
+            this.mouseDown = [];
+            this.mouseMove = [];
+            this.mouseUp = [];
+            // Touch Events
+            this.touchStart = [];
+            this.touchMove = [];
+            this.touchEnd = [];
+            this.touchCancel = [];
+            this.sceneHash = {};
+            this.animations = [];
+            /**
+            * Indicates whether the engine is set to fullscreen or not
+            * @property isFullscreen {boolean}
+            */
+            this.isFullscreen = false;
+            /**
+            * Indicates the current DisplayMode of the engine.
+            * @property [displayMode=FullScreen] {DisplayMode}
+            */
+            this.displayMode = 0 /* FullScreen */;
+            /**
+            * Indicates whether the engine should draw with debug information
+            * @property [isDebug=false] {boolean}
+            */
+            this.isDebug = false;
+            this.debugColor = new Color(255, 255, 255);
+            /**
+            * Sets the background color for the engine.
+            * @property [backgroundColor=new Color(0, 0, 100)] {Color}
+            */
+            this.backgroundColor = new Color(0, 0, 100);
+            this.isSmoothingEnabled = true;
+            this.isLoading = false;
+            this.progress = 0;
+            this.total = 1;
+
+            this.logger = ex.Logger.getInstance();
+
+            this.logger.debug("Building engine...");
+
+            this.canvasElementId = canvasElementId;
+
+            this.rootScene = this.currentScene = new ex.Scene();
+            this.addScene('root', this.rootScene);
+
+            if (canvasElementId) {
+                this.logger.debug("Using Canvas element specified: " + canvasElementId);
+                this.canvas = document.getElementById(canvasElementId);
+            } else {
+                this.logger.debug("Using generated canvas element");
+                this.canvas = document.createElement('canvas');
+            }
+            if (width && height) {
+                if (displayMode == undefined) {
+                    this.displayMode = 2 /* Fixed */;
+                }
+                this.logger.debug("Engine viewport is size " + width + " x " + height);
+                this.width = this.canvas.width = width;
+                this.height = this.canvas.height = height;
+            } else if (!displayMode) {
+                this.logger.debug("Engine viewport is fullscreen");
+                this.displayMode = 0 /* FullScreen */;
+            }
+
+            this.loader = new ex.Loader();
+
+            this.initialize();
+        }
+        /**
+        * Plays a sprite animation on the screen at the specified x and y
+        * (in game coordinates, not screen pixels). These animations play
+        * independent of actors, and will be cleaned up internally as soon
+        * as they are complete. Note animations that loop will never be
+        * cleaned up.
+        * @method playAnimation
+        * @param animation {Animation} Animation to play
+        * @param x {number} x game coordinate to play the animation
+        * @param y {number} y game coordinate to play the animation
+        */
+        Engine.prototype.playAnimation = function (animation, x, y) {
+            this.animations.push(new AnimationNode(animation, x, y));
+        };
+
+        /**
+        * Adds an actor to the current scene of the game. This is synonymous
+        * to calling engine.currentScene.addChild(actor : Actor).
+        *
+        * Actors can only be drawn if they are a member of a scene, and only
+        * the 'currentScene' may be drawn or updated.
+        * @method addChild
+        * @param actor {Actor} The actor to add to the current scene
+        */
+        Engine.prototype.addChild = function (actor) {
+            this.currentScene.addChild(actor);
+        };
+
+        /**
+        * Removes an actor from the currentScene of the game. This is synonymous
+        * to calling engine.currentScene.removeChild(actor : Actor).
+        * Actors that are removed from a scene will no longer be drawn or updated.
+        *
+        * @method removeChild
+        * @param actor {Actor} The actor to remove from the current scene.
+        */
+        Engine.prototype.removeChild = function (actor) {
+            this.currentScene.removeChild(actor);
+        };
+
+        /**
+        * Adds an excalibur timer to the current scene.
+        * @param timer {Timer} The timer to add to the current scene.
+        * @method addTimer
+        */
+        Engine.prototype.addTimer = function (timer) {
+            return this.currentScene.addTimer(timer);
+        };
+
+        /**
+        * Removes an excalibur timer from the current scene.
+        * @method removeTimer
+        * @param timer {Timer} The timer to remove to the current scene.
+        */
+        Engine.prototype.removeTimer = function (timer) {
+            return this.currentScene.removeTimer(timer);
+        };
+
+        /**
+        * Adds a scene to the engine, think of scenes in excalibur as you
+        * would scenes in a play.
+        * @method addScene
+        * @param name {string} The name of the scene, must be unique
+        * @param scene {Scene} The scene to add to the engine
+        */
+        Engine.prototype.addScene = function (name, scene) {
+            if (this.sceneHash[name]) {
+                this.logger.warn("Scene", name, "already exists overwriting");
+            }
+            this.sceneHash[name] = scene;
+            scene.engine = this;
+        };
+
+        /**
+        * Changes the currently updating and drawing scene to a different,
+        * named scene.
+        * @method goToScene
+        * @param name {string} The name of the scene to trasition to.
+        */
+        Engine.prototype.goToScene = function (name) {
+            if (this.sceneHash[name]) {
+                this.currentScene.onDeactivate.call(this.currentScene);
+
+                var oldScene = this.currentScene;
+                this.currentScene = this.sceneHash[name];
+
+                oldScene.eventDispatcher.publish('deactivate', new ex.DeactivateEvent(this.currentScene));
+                oldScene.eventDispatcher.update();
+
+                this.currentScene.onActivate.call(this.currentScene);
+
+                this.currentScene.eventDispatcher.publish('activate', new ex.ActivateEvent(oldScene));
+                this.currentScene.eventDispatcher.update();
+            } else {
+                this.logger.error("Scene", name, "does not exist!");
+            }
+        };
+
+        /**
+        * Returns the width of the engines drawing surface in pixels.
+        * @method getWidth
+        * @returns number The width of the drawing surface in pixels.
+        */
+        Engine.prototype.getWidth = function () {
+            return this.width;
+        };
+
+        /**
+        * Returns the height of the engines drawing surface in pixels.
+        * @method getHeight
+        * @returns number The height of the drawing surface in pixels.
+        */
+        Engine.prototype.getHeight = function () {
+            return this.height;
+        };
+
+        /**
+        * Transforms the current x, y from screen coordinates to world coordinates
+        * @method screenToWorldCoordinates
+        * @param point {Point} screen coordinate to convert
+        */
+        Engine.prototype.screenToWorldCoordinates = function (point) {
+            var newX = Math.floor(point.x * this.canvas.width / this.canvas.clientWidth);
+            var newY = Math.floor(point.y * this.canvas.height / this.canvas.clientHeight);
+
+            if (this.camera) {
+                var focus = this.camera.getFocus();
+                newX -= focus.x;
+                newY -= focus.y;
+            }
+            return new ex.Point(newX, newY);
+        };
+
+        /**
+        * Transforms a world coordinate, to a screen coordinate
+        * @method worldToScreenCoordinates
+        * @param point {Point} world coordinate to convert
+        *
+        */
+        Engine.prototype.worldToScreenCoordinates = function (point) {
+            var screenX = Math.floor(point.x / (this.canvas.width / this.canvas.clientWidth));
+            var screenY = Math.floor(point.y / (this.canvas.height / this.canvas.clientHeight));
+
+            if (this.camera) {
+                var focus = this.camera.getFocus();
+                screenX += focus.x;
+                screenY += focus.y;
+            }
+            return new ex.Point(screenX, screenY);
+        };
+
+        /**
+        * Sets the internal canvas height based on the selected display mode.
+        * @method setHeightByDisplayMode
+        * @private
+        */
+        Engine.prototype.setHeightByDisplayMode = function (parent) {
+            if (this.displayMode === 1 /* Container */) {
+                this.width = this.canvas.width = parent.clientWidth;
+                this.height = this.canvas.height = parent.clientHeight;
+            }
+
+            if (this.displayMode === 0 /* FullScreen */) {
+                document.body.style.margin = '0px';
+                document.body.style.overflow = 'hidden';
+                this.width = this.canvas.width = parent.innerWidth;
+                this.height = this.canvas.height = parent.innerHeight;
+            }
+        };
+
+        /**
+        * Initializes the internal canvas, rendering context, displaymode, and native event listeners
+        * @method initialize
+        * @private
+        */
+        Engine.prototype.initialize = function () {
+            var _this = this;
+            if (this.displayMode === 0 /* FullScreen */ || this.displayMode === 1 /* Container */) {
+                var parent = (this.displayMode === 1 /* Container */ ? (this.canvas.parentElement || document.body) : window);
+
+                this.setHeightByDisplayMode(parent);
+
+                window.addEventListener('resize', function (ev) {
+                    _this.logger.debug("View port resized");
+                    _this.setHeightByDisplayMode(parent);
+                    _this.logger.info("parent.clientHeight " + parent.clientHeight);
+                    _this.setAntialiasing(_this.isSmoothingEnabled);
+                });
+            }
+
+            window.addEventListener('blur', function (ev) {
+                _this.keys.length = 0; // empties array efficiently
+            });
+
+            // key up is on window because canvas cannot have focus
+            window.addEventListener('keyup', function (ev) {
+                var key = _this.keys.indexOf(ev.keyCode);
+                _this.keys.splice(key, 1);
+                _this.keysUp.push(ev.keyCode);
+                var keyEvent = new ex.KeyUp(ev.keyCode);
+                _this.eventDispatcher.publish(ex.EventType[1 /* KeyUp */], keyEvent);
+                _this.currentScene.publish(ex.EventType[1 /* KeyUp */], keyEvent);
+            });
+
+            // key down is on window because canvas cannot have focus
+            window.addEventListener('keydown', function (ev) {
+                if (_this.keys.indexOf(ev.keyCode) === -1) {
+                    _this.keys.push(ev.keyCode);
+                    _this.keysDown.push(ev.keyCode);
+                    var keyEvent = new ex.KeyDown(ev.keyCode);
+                    _this.eventDispatcher.publish(ex.EventType[0 /* KeyDown */], keyEvent);
+                    _this.currentScene.publish(ex.EventType[0 /* KeyDown */], keyEvent);
+                }
+            });
+
+            window.addEventListener('blur', function () {
+                _this.eventDispatcher.publish(ex.EventType[14 /* Blur */], new ex.BlurEvent());
+                _this.eventDispatcher.update();
+            });
+
+            window.addEventListener('focus', function () {
+                _this.eventDispatcher.publish(ex.EventType[15 /* Focus */], new ex.FocusEvent());
+                _this.eventDispatcher.update();
+            });
+
+            this.canvas.addEventListener('mousedown', function (e) {
+                var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
+                var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
+                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
+                var mousedown = new ex.MouseDown(transformedPoint.x, transformedPoint.y, e);
+                _this.mouseDown.push(mousedown);
+                _this.clicks.push(mousedown);
+                _this.eventDispatcher.publish(ex.EventType[3 /* MouseDown */], mousedown);
+            });
+
+            this.canvas.addEventListener('mousemove', function (e) {
+                var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
+                var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
+                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
+                var mousemove = new ex.MouseMove(transformedPoint.x, transformedPoint.y, e);
+                _this.mouseMove.push(mousemove);
+                _this.eventDispatcher.publish(ex.EventType[4 /* MouseMove */], mousemove);
+            });
+
+            this.canvas.addEventListener('mouseup', function (e) {
+                var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
+                var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
+                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
+                var mouseup = new ex.MouseUp(transformedPoint.x, transformedPoint.y, e);
+                _this.mouseUp.push(mouseup);
+                _this.eventDispatcher.publish(ex.EventType[5 /* MouseUp */], mouseup);
+            });
+
+            //
+            // Touch Events
+            //
+            this.canvas.addEventListener('touchstart', function (e) {
+                var te = e;
+                te.preventDefault();
+                var x = te.changedTouches[0].pageX - ex.Util.getPosition(_this.canvas).x;
+                var y = te.changedTouches[0].pageY - ex.Util.getPosition(_this.canvas).y;
+                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
+                var touchstart = new ex.TouchStart(transformedPoint.x, transformedPoint.y);
+                _this.touchStart.push(touchstart);
+                _this.eventDispatcher.publish(ex.EventType[6 /* TouchStart */], touchstart);
+            });
+
+            this.canvas.addEventListener('touchmove', function (e) {
+                var te = e;
+                te.preventDefault();
+                var x = te.changedTouches[0].pageX - ex.Util.getPosition(_this.canvas).x;
+                var y = te.changedTouches[0].pageY - ex.Util.getPosition(_this.canvas).y;
+                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
+                var touchmove = new ex.TouchMove(transformedPoint.x, transformedPoint.y);
+                _this.touchMove.push(touchmove);
+                _this.eventDispatcher.publish(ex.EventType[7 /* TouchMove */], touchmove);
+            });
+
+            this.canvas.addEventListener('touchend', function (e) {
+                var te = e;
+                te.preventDefault();
+                var x = te.changedTouches[0].pageX - ex.Util.getPosition(_this.canvas).x;
+                var y = te.changedTouches[0].pageY - ex.Util.getPosition(_this.canvas).y;
+                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
+                var touchend = new ex.TouchEnd(transformedPoint.x, transformedPoint.y);
+                _this.touchEnd.push(touchend);
+                _this.eventDispatcher.publish(ex.EventType[8 /* TouchEnd */], touchend);
+            });
+
+            this.canvas.addEventListener('touchcancel', function (e) {
+                var te = e;
+                te.preventDefault();
+                var x = te.changedTouches[0].pageX - ex.Util.getPosition(_this.canvas).x;
+                var y = te.changedTouches[0].pageY - ex.Util.getPosition(_this.canvas).y;
+                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
+                var touchcancel = new ex.TouchCancel(transformedPoint.x, transformedPoint.y);
+                _this.touchCancel.push(touchcancel);
+                _this.eventDispatcher.publish(ex.EventType[9 /* TouchCancel */], touchcancel);
+            });
+
+            // W3C Pointer Events (IE11)
+            if (navigator.maxTouchPoints) {
+                this.canvas.addEventListener('pointerdown', function (e) {
+                    if (e.pointerType !== "touch")
+                        return;
+
+                    e.preventDefault();
+                    var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
+                    var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
+                    var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
+                    var touchstart = new ex.TouchStart(transformedPoint.x, transformedPoint.y);
+                    _this.touchStart.push(touchstart);
+                    _this.eventDispatcher.publish(ex.EventType[6 /* TouchStart */], touchstart);
+                });
+
+                this.canvas.addEventListener('pointermove', function (e) {
+                    if (e.pointerType !== "touch")
+                        return;
+
+                    e.preventDefault();
+                    var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
+                    var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
+                    var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
+                    var touchmove = new ex.TouchMove(transformedPoint.x, transformedPoint.y);
+                    _this.touchMove.push(touchmove);
+                    _this.eventDispatcher.publish(ex.EventType[7 /* TouchMove */], touchmove);
+                });
+
+                this.canvas.addEventListener('pointerup', function (e) {
+                    if (e.pointerType !== "touch")
+                        return;
+
+                    e.preventDefault();
+                    var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
+                    var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
+                    var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
+                    var touchend = new ex.TouchEnd(transformedPoint.x, transformedPoint.y);
+                    _this.touchEnd.push(touchend);
+                    _this.eventDispatcher.publish(ex.EventType[8 /* TouchEnd */], touchend);
+                });
+            }
+
+            this.ctx = this.canvas.getContext('2d');
+            if (!this.canvasElementId) {
+                document.body.appendChild(this.canvas);
+            }
+        };
+
+        /**
+        * If supported by the browser, this will set the antialiasing flag on the
+        * canvas. Set this to false if you want a 'jagged' pixel art look to your
+        * image resources.
+        * @method setAntialiasing
+        * @param isSmooth {boolean} Set smoothing to true or false
+        */
+        Engine.prototype.setAntialiasing = function (isSmooth) {
+            this.isSmoothingEnabled = isSmooth;
+            this.ctx.imageSmoothingEnabled = isSmooth;
+            this.ctx.webkitImageSmoothingEnabled = isSmooth;
+            this.ctx.mozImageSmoothingEnabled = isSmooth;
+            this.ctx.msImageSmoothingEnabled = isSmooth;
+        };
+
+        /**
+        *  Return the current smoothing status of the canvas
+        * @method getAntialiasing
+        * @returns boolean
+        */
+        Engine.prototype.getAntialiasing = function () {
+            return this.ctx.imageSmoothingEnabled || this.ctx.webkitImageSmoothingEnabled || this.ctx.mozImageSmoothingEnabled || this.ctx.msImageSmoothingEnabled;
+        };
+
+        /**
+        *  Tests if a certain key is down.
+        * @method isKeyDown
+        * @param key {InputKey} Test wether a key is down
+        * @returns boolean
+        */
+        Engine.prototype.isKeyDown = function (key) {
+            return this.keysDown.indexOf(key) > -1;
+        };
+
+        /**
+        *  Tests if a certain key is pressed.
+        * @method isKeyPressed
+        * @param key {InputKey} Test wether a key is pressed
+        * @returns boolean
+        */
+        Engine.prototype.isKeyPressed = function (key) {
+            return this.keys.indexOf(key) > -1;
+        };
+
+        /**
+        *  Tests if a certain key is up.
+        * @method isKeyUp
+        * @param key {InputKey} Test wether a key is up
+        * @returns boolean
+        */
+        Engine.prototype.isKeyUp = function (key) {
+            return this.keysUp.indexOf(key) > -1;
+        };
+
+        /**
+        * Updates the entire state of the game
+        * @method update
+        * @private
+        * @param delta {number} Number of milliseconds elapsed since the last update.
+        */
+        Engine.prototype.update = function (delta) {
+            if (this.isLoading) {
+                // suspend updates untill loading is finished
+                return;
+            }
+
+            // process engine level events
+            this.eventDispatcher.update();
+            this.currentScene.update(this, delta);
+
+            var eventDispatcher = this.eventDispatcher;
+            this.keys.forEach(function (key) {
+                eventDispatcher.publish(InputKey[key], new ex.KeyEvent(key));
+            });
+
+            // update animations
+            this.animations = this.animations.filter(function (a) {
+                return !a.animation.isDone();
+            });
+
+            // Reset keysDown and keysUp after update is complete
+            this.keysDown.length = 0;
+            this.keysUp.length = 0;
+
+            // Reset clicks
+            this.clicks.length = 0;
+
+            // Reset mouse
+            this.mouseDown.length = 0;
+            this.mouseMove.length = 0;
+            this.mouseUp.length = 0;
+
+            // Reset touch
+            this.touchStart.length = 0;
+            this.touchMove.length = 0;
+            this.touchEnd.length = 0;
+            this.touchCancel.length = 0;
+
+            // Publish update event
+            this.eventDispatcher.publish(ex.EventType[16 /* Update */], new ex.UpdateEvent(delta));
+        };
+
+        /**
+        * Draws the entire game
+        * @method draw
+        * @private
+        * @param draw {number} Number of milliseconds elapsed since the last draw.
+        */
+        Engine.prototype.draw = function (delta) {
+            var ctx = this.ctx;
+
+            if (this.isLoading) {
+                ctx.fillStyle = 'black';
+                ctx.fillRect(0, 0, this.width, this.height);
+                this.drawLoadingBar(ctx, this.progress, this.total);
+
+                // Drawing nothing else while loading
+                return;
+            }
+
+            ctx.clearRect(0, 0, this.width, this.height);
+            ctx.fillStyle = this.backgroundColor.toString();
+            ctx.fillRect(0, 0, this.width, this.height);
+
+            // Draw debug information
+            if (this.isDebug) {
+                this.ctx.font = "Consolas";
+                this.ctx.fillStyle = this.debugColor.toString();
+                for (var j = 0; j < this.keys.length; j++) {
+                    this.ctx.fillText(this.keys[j].toString() + " : " + (InputKey[this.keys[j]] ? InputKey[this.keys[j]] : "Not Mapped"), 100, 10 * j + 10);
+                }
+
+                var fps = 1.0 / (delta / 1000);
+                this.ctx.fillText("FPS:" + fps.toFixed(2).toString(), 10, 10);
+            }
+
+            this.ctx.save();
+
+            if (this.camera) {
+                this.camera.update(delta);
+            }
+
+            this.currentScene.draw(this.ctx, delta);
+
+            this.animations.forEach(function (a) {
+                a.animation.draw(ctx, a.x, a.y);
+            });
+
+            if (this.isDebug) {
+                this.ctx.strokeStyle = 'yellow';
+                this.currentScene.debugDraw(this.ctx);
+            }
+
+            this.ctx.restore();
+        };
+
+        /**
+        * Starts the internal game loop for Excalibur after loading
+        * any provided assets.
+        * @method start
+        * @param [loader=undefined] {ILoadable} Optional resources to load before
+        * starting the mainloop. Some loadable such as a Loader collection, Sound, or Texture.
+        * @returns Promise
+        */
+        Engine.prototype.start = function (loader) {
+            var loadingComplete;
+            if (loader) {
+                loadingComplete = this.load(loader);
+            }
+
+            if (!this.hasStarted) {
+                this.hasStarted = true;
+                this.logger.debug("Starting game...");
+
+                // Mainloop
+                var lastTime = Date.now();
+                var game = this;
+                (function mainloop() {
+                    if (!game.hasStarted) {
+                        return;
+                    }
+
+                    window.requestAnimationFrame(mainloop);
+
+                    // Get the time to calculate time-elapsed
+                    var now = Date.now();
+                    var elapsed = Math.floor(now - lastTime) || 1;
+
+                    // Resolves issue #138 if the game has been paused, or blurred for
+                    // more than a 200 milliseconds, reset elapsed time to 1. This improves reliability
+                    // and provides more expected behavior when the engine comes back
+                    // into focus
+                    if (elapsed > 200) {
+                        elapsed = 1;
+                    }
+                    game.update(elapsed);
+                    game.draw(elapsed);
+
+                    lastTime = now;
+                })();
+                this.logger.debug("Game started");
+            } else {
+                // Game already started;
+            }
+            return loadingComplete;
+        };
+
+        /**
+        * Stops Excalibur's mainloop, useful for pausing the game.
+        * @method stop
+        */
+        Engine.prototype.stop = function () {
+            if (this.hasStarted) {
+                this.hasStarted = false;
+                this.logger.debug("Game stopped");
+            }
+        };
+
+        /**
+        * Draws the Excalibur loading bar
+        * @method drawLoadingBar
+        * @private
+        * @param ctx {CanvasRenderingContext2D} The canvas rendering context
+        * @param loaded {number} Number of bytes loaded
+        * @param total {number} Total number of bytes to load
+        */
+        Engine.prototype.drawLoadingBar = function (ctx, loaded, total) {
+            if (this.loadingDraw) {
+                this.loadingDraw(ctx, loaded, total);
+                return;
+            }
+
+            var y = this.canvas.height / 2;
+            var width = this.canvas.width / 3;
+            var x = width;
+
+            // loading image
+            var image = new Image();
+
+            // 64 bit string encoding of the excalibur logo
+            image.src = 'data:image/png;base64,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';
+
+            var imageHeight = width * 3 / 8;
+            var oldAntialias = this.getAntialiasing();
+            this.setAntialiasing(true);
+            ctx.drawImage(image, 0, 0, 800, 300, x, y - imageHeight - 20, width, imageHeight);
+
+            // loading box
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, width, 20);
+
+            var progress = width * (loaded / total);
+            ctx.fillStyle = 'white';
+            var margin = 5;
+            var width = progress - margin * 2;
+            var height = 20 - margin * 2;
+            ctx.fillRect(x + margin, y + margin, width > 0 ? width : 0, height);
+            this.setAntialiasing(oldAntialias);
+        };
+
+        /**
+        * Sets the loading screen draw function if you want to customize the draw
+        * @method setLoadingDrawFunction
+        * @param fcn {ctx: CanvasRenderingContext2D, loaded: number, total: number) => void}
+        * Callback to draw the loading screen which is passed a rendering context, the number of bytes loaded, and the total number of bytes to load.
+        */
+        Engine.prototype.setLoadingDrawFunction = function (fcn) {
+            this.loadingDraw = fcn;
+        };
+
+        /**
+        * Another option available to you to load resources into the game.
+        * Immediately after calling this the game will pause and the loading screen
+        * will appear.
+        * @method load
+        * @param loader {ILoadable} Some loadable such as a Loader collection, Sound, or Texture.
+        */
+        Engine.prototype.load = function (loader) {
+            var _this = this;
+            var complete = new ex.Promise();
+
+            this.isLoading = true;
+
+            loader.load();
+            loader.onprogress = function (e) {
+                _this.progress = e.loaded;
+                _this.total = e.total;
+                _this.logger.info('Loading ' + (100 * _this.progress / _this.total).toFixed(0));
+            };
+            loader.oncomplete = function () {
+                setTimeout(function () {
+                    _this.isLoading = false;
+                    complete.resolve();
+                }, 500);
+            };
+
+            return complete;
+        };
+        return Engine;
+    })(ex.Util.Class);
+    ex.Engine = Engine;
+    ;
+})(ex || (ex = {}));
+/// <reference path="Algebra.ts" />
+/// <reference path="Core.ts" />
+/// <reference path="Entities.ts" />
 var ex;
 (function (ex) {
     (function (Internal) {
@@ -1738,6 +6180,7 @@ var ex;
                     this.actor.dx = m.x;
                     this.actor.dy = m.y;
 
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
                     if (this.isComplete(this.actor)) {
                         this.actor.x = this.end.x;
                         this.actor.y = this.end.y;
@@ -1788,6 +6231,7 @@ var ex;
                     this.actor.dx = m.x;
                     this.actor.dy = m.y;
 
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
                     if (this.isComplete(this.actor)) {
                         this.actor.x = this.end.x;
                         this.actor.y = this.end.y;
@@ -1853,6 +6297,7 @@ var ex;
                     }
 
                     if (this.isComplete(this.actor)) {
+                        // TODO this should never occur
                         this.actor.x = this.end.x;
                         this.actor.y = this.end.y;
                         this.actor.dy = 0;
@@ -1867,6 +6312,7 @@ var ex;
                 };
 
                 Follow.prototype.isComplete = function (actor) {
+                    // the actor following should never stop unless specified to do so
                     return this._stopped;
                 };
 
@@ -1916,6 +6362,7 @@ var ex;
                     this.actor.dy = m.y;
 
                     if (this.isComplete(this.actor)) {
+                        // console.log("meeting is complete")
                         this.actor.x = this.end.x;
                         this.actor.y = this.end.y;
                         this.actor.dy = 0;
@@ -1956,6 +6403,7 @@ var ex;
                     }
                     this.actor.rx = this.speed;
 
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
                     if (this.isComplete(this.actor)) {
                         this.actor.rotation = this.end;
                         this.actor.rx = 0;
@@ -1995,6 +6443,7 @@ var ex;
                     }
                     this.actor.rx = this.speed;
 
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
                     if (this.isComplete(this.actor)) {
                         this.actor.rotation = this.end;
                         this.actor.rx = 0;
@@ -2034,6 +6483,7 @@ var ex;
                     var direction = this.end < this.start ? -1 : 1;
                     this.actor.sx = this.speed * direction;
 
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
                     if (this.isComplete(this.actor)) {
                         this.actor.scale = this.end;
                         this.actor.sx = 0;
@@ -2074,6 +6524,7 @@ var ex;
                     var direction = this.end < this.start ? -1 : 1;
                     this.actor.sx = this.speed * direction;
 
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
                     if (this.isComplete(this.actor)) {
                         this.actor.scale = this.end;
                         this.actor.sx = 0;
@@ -2376,6 +6827,7 @@ var ex;
                         this._currentAction.update(delta);
 
                         if (this._currentAction.isComplete(this.actor)) {
+                            //Logger.getInstance().log("Action complete!", Log.DEBUG);
                             this._completedActions.push(this._actions.shift());
                         }
                     }
@@ -2388,2150 +6840,4 @@ var ex;
     })(ex.Internal || (ex.Internal = {}));
     var Internal = ex.Internal;
 })(ex || (ex = {}));
-var ex;
-(function (ex) {
-    (function (EmitterType) {
-        EmitterType[EmitterType["Circle"] = 0] = "Circle";
-
-        EmitterType[EmitterType["Rectangle"] = 1] = "Rectangle";
-    })(ex.EmitterType || (ex.EmitterType = {}));
-    var EmitterType = ex.EmitterType;
-
-    var Particle = (function () {
-        function Particle(emitter, life, opacity, beginColor, endColor, position, velocity, acceleration, startSize, endSize) {
-            this.position = new ex.Vector(0, 0);
-            this.velocity = new ex.Vector(0, 0);
-            this.acceleration = new ex.Vector(0, 0);
-            this.focus = null;
-            this.focusAccel = 0;
-            this.opacity = 1;
-            this.beginColor = ex.Color.White.clone();
-            this.endColor = ex.Color.White.clone();
-            this.life = 300;
-            this.fadeFlag = false;
-            this.rRate = 1;
-            this.gRate = 1;
-            this.bRate = 1;
-            this.aRate = 0;
-            this.currentColor = ex.Color.White.clone();
-            this.emitter = null;
-            this.particleSize = 5;
-            this.particleSprite = null;
-            this.sizeRate = 0;
-            this.elapsedMultiplier = 0;
-            this.emitter = emitter;
-            this.life = life || this.life;
-            this.opacity = opacity || this.opacity;
-            this.endColor = endColor || this.endColor.clone();
-            this.beginColor = beginColor || this.beginColor.clone();
-            this.currentColor = this.beginColor.clone();
-            this.position = position || this.position;
-            this.velocity = velocity || this.velocity;
-            this.acceleration = acceleration || this.acceleration;
-            this.rRate = (this.endColor.r - this.beginColor.r) / this.life;
-            this.gRate = (this.endColor.g - this.beginColor.g) / this.life;
-            this.bRate = (this.endColor.b - this.beginColor.b) / this.life;
-            this.aRate = this.opacity / this.life;
-
-            this.startSize = startSize || 0;
-            this.endSize = endSize || 0;
-
-            if ((this.endSize > 0) && (this.startSize > 0)) {
-                this.sizeRate = (this.endSize - this.startSize) / this.life;
-                this.particleSize = this.startSize;
-            }
-        }
-        Particle.prototype.kill = function () {
-            this.emitter.removeParticle(this);
-        };
-
-        Particle.prototype.update = function (delta) {
-            this.life = this.life - delta;
-            this.elapsedMultiplier = this.elapsedMultiplier + delta;
-
-            if (this.life < 0) {
-                this.kill();
-            }
-
-            if (this.fadeFlag) {
-                this.opacity = ex.Util.clamp(this.aRate * this.life, 0.0001, 1);
-            }
-
-            if ((this.startSize > 0) && (this.endSize > 0)) {
-                this.particleSize = ex.Util.clamp(this.sizeRate * delta + this.particleSize, Math.min(this.startSize, this.endSize), Math.max(this.startSize, this.endSize));
-            }
-
-            this.currentColor.r = ex.Util.clamp(this.currentColor.r + this.rRate * delta, 0, 255);
-            this.currentColor.g = ex.Util.clamp(this.currentColor.g + this.gRate * delta, 0, 255);
-            this.currentColor.b = ex.Util.clamp(this.currentColor.b + this.bRate * delta, 0, 255);
-            this.currentColor.a = ex.Util.clamp(this.opacity, 0.0001, 1);
-
-            if (this.focus) {
-                var accel = this.focus.minus(this.position).normalize().scale(this.focusAccel).scale(delta / 1000);
-                this.velocity = this.velocity.add(accel);
-            } else {
-                this.velocity = this.velocity.add(this.acceleration.scale(delta / 1000));
-            }
-            this.position = this.position.add(this.velocity.scale(delta / 1000));
-        };
-
-        Particle.prototype.draw = function (ctx) {
-            if (this.particleSprite) {
-                this.particleSprite.draw(ctx, this.position.x, this.position.y);
-                return;
-            }
-
-            this.currentColor.a = ex.Util.clamp(this.opacity, 0.0001, 1);
-            ctx.fillStyle = this.currentColor.toString();
-            ctx.beginPath();
-            ctx.arc(this.position.x, this.position.y, this.particleSize, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.closePath();
-        };
-        return Particle;
-    })();
-    ex.Particle = Particle;
-
-    var ParticleEmitter = (function (_super) {
-        __extends(ParticleEmitter, _super);
-        function ParticleEmitter(x, y, width, height) {
-            _super.call(this, x, y, width, height, ex.Color.White);
-            this.numParticles = 0;
-            this.isEmitting = true;
-            this.particles = null;
-            this.deadParticles = null;
-            this.minVel = 0;
-            this.maxVel = 0;
-            this.acceleration = new ex.Vector(0, 0);
-            this.minAngle = 0;
-            this.maxAngle = 0;
-            this.emitRate = 1;
-            this.particleLife = 2000;
-            this.opacity = 1;
-            this.fadeFlag = false;
-            this.focus = null;
-            this.focusAccel = 1;
-            this.startSize = null;
-            this.endSize = null;
-            this.minSize = 5;
-            this.maxSize = 5;
-            this.beginColor = ex.Color.White;
-            this.endColor = ex.Color.White;
-            this.particleSprite = null;
-            this.emitterType = 1 /* Rectangle */;
-            this.radius = 0;
-            this.preventCollisions = true;
-            this.particles = new ex.Util.Collection();
-            this.deadParticles = new ex.Util.Collection();
-        }
-        ParticleEmitter.prototype.removeParticle = function (particle) {
-            this.deadParticles.push(particle);
-        };
-
-        ParticleEmitter.prototype.emit = function (particleCount) {
-            for (var i = 0; i < particleCount; i++) {
-                this.particles.push(this.createParticle());
-            }
-        };
-
-        ParticleEmitter.prototype.clearParticles = function () {
-            this.particles.clear();
-        };
-
-        ParticleEmitter.prototype.createParticle = function () {
-            var ranX = 0;
-            var ranY = 0;
-
-            var angle = ex.Util.randomInRange(this.minAngle, this.maxAngle);
-            var vel = ex.Util.randomInRange(this.minVel, this.maxVel);
-            var size = this.startSize || ex.Util.randomInRange(this.minSize, this.maxSize);
-            var dx = vel * Math.cos(angle);
-            var dy = vel * Math.sin(angle);
-
-            if (this.emitterType === 1 /* Rectangle */) {
-                ranX = ex.Util.randomInRange(this.x, this.x + this.getWidth());
-                ranY = ex.Util.randomInRange(this.y, this.y + this.getHeight());
-            } else if (this.emitterType === 0 /* Circle */) {
-                var radius = ex.Util.randomInRange(0, this.radius);
-                ranX = radius * Math.cos(angle) + this.x;
-                ranY = radius * Math.sin(angle) + this.y;
-            }
-
-            var p = new Particle(this, this.particleLife, this.opacity, this.beginColor, this.endColor, new ex.Vector(ranX, ranY), new ex.Vector(dx, dy), this.acceleration, this.startSize, this.endSize);
-            p.fadeFlag = this.fadeFlag;
-            p.particleSize = size;
-            p.particleSprite = this.particleSprite;
-            if (this.focus) {
-                p.focus = this.focus.add(new ex.Vector(this.x, this.y));
-                p.focusAccel = this.focusAccel;
-            }
-            return p;
-        };
-
-        ParticleEmitter.prototype.update = function (engine, delta) {
-            var _this = this;
-            _super.prototype.update.call(this, engine, delta);
-            if (this.isEmitting) {
-                var numParticles = Math.ceil(this.emitRate * delta / 1000);
-                this.emit(numParticles);
-            }
-
-            this.particles.forEach(function (particle, index) {
-                particle.update(delta);
-            });
-
-            this.deadParticles.forEach(function (particle, index) {
-                _this.particles.removeElement(particle);
-            });
-            this.deadParticles.clear();
-        };
-
-        ParticleEmitter.prototype.draw = function (ctx, delta) {
-            this.particles.forEach(function (particle, index) {
-                particle.draw(ctx);
-            });
-        };
-
-        ParticleEmitter.prototype.debugDraw = function (ctx) {
-            _super.prototype.debugDraw.call(this, ctx);
-            ctx.fillStyle = ex.Color.Black.toString();
-            ctx.fillText("Particles: " + this.particles.count(), this.x, this.y + 20);
-
-            if (this.focus) {
-                ctx.fillRect(this.focus.x + this.x, this.focus.y + this.y, 3, 3);
-                ex.Util.drawLine(ctx, "yellow", this.focus.x + this.x, this.focus.y + this.y, _super.prototype.getCenter.call(this).x, _super.prototype.getCenter.call(this).y);
-                ctx.fillText("Focus", this.focus.x + this.x, this.focus.y + this.y);
-            }
-        };
-        return ParticleEmitter;
-    })(ex.Actor);
-    ex.ParticleEmitter = ParticleEmitter;
-})(ex || (ex = {}));
-var ex;
-(function (ex) {
-    (function (Internal) {
-        var FallbackAudio = (function () {
-            function FallbackAudio(path, volume) {
-                this.log = ex.Logger.getInstance();
-                this.onload = function () {
-                };
-                this.onprogress = function () {
-                };
-                this.onerror = function () {
-                };
-                if (window.AudioContext) {
-                    this.log.debug("Using new Web Audio Api for " + path);
-                    this.soundImpl = new WebAudio(path, volume);
-                } else {
-                    this.log.debug("Falling back to Audio Element for " + path);
-                    this.soundImpl = new AudioTag(path, volume);
-                }
-            }
-            FallbackAudio.prototype.setVolume = function (volume) {
-                this.soundImpl.setVolume(volume);
-            };
-
-            FallbackAudio.prototype.setLoop = function (loop) {
-                this.soundImpl.setLoop(loop);
-            };
-
-            FallbackAudio.prototype.load = function () {
-                this.soundImpl.onload = this.onload;
-                this.soundImpl.onprogress = this.onprogress;
-                this.soundImpl.onerror = this.onerror;
-                this.soundImpl.load();
-            };
-
-            FallbackAudio.prototype.play = function () {
-                this.soundImpl.play();
-            };
-
-            FallbackAudio.prototype.stop = function () {
-                this.soundImpl.stop();
-            };
-            return FallbackAudio;
-        })();
-        Internal.FallbackAudio = FallbackAudio;
-
-        var AudioTag = (function () {
-            function AudioTag(soundPath, volume) {
-                var _this = this;
-                this.soundPath = soundPath;
-                this.audioElements = new Array(5);
-                this._loadedAudio = null;
-                this.isLoaded = false;
-                this.index = 0;
-                this.log = ex.Logger.getInstance();
-                this.onload = function () {
-                };
-                this.onprogress = function () {
-                };
-                this.onerror = function () {
-                };
-                for (var i = 0; i < this.audioElements.length; i++) {
-                    (function (i) {
-                        _this.audioElements[i] = new Audio();
-                    })(i);
-                }
-
-                this.setVolume(volume || 1.0);
-            }
-            AudioTag.prototype.audioLoaded = function () {
-                this.isLoaded = true;
-            };
-
-            AudioTag.prototype.setVolume = function (volume) {
-                this.audioElements.forEach(function (a) {
-                    a.volume = volume;
-                });
-            };
-
-            AudioTag.prototype.setLoop = function (loop) {
-                this.audioElements.forEach(function (a) {
-                    a.loop = loop;
-                });
-            };
-
-            AudioTag.prototype.load = function () {
-                var _this = this;
-                var request = new XMLHttpRequest();
-                request.open("GET", this.soundPath, true);
-                request.responseType = 'blob';
-                request.onprogress = this.onprogress;
-                request.onload = function (e) {
-                    _this._loadedAudio = URL.createObjectURL(request.response);
-                    _this.audioElements.forEach(function (a) {
-                        a.src = _this._loadedAudio;
-                    });
-                    _this.onload(e);
-                };
-                request.onerror = function (e) {
-                    _this.onerror(e);
-                };
-                request.send();
-            };
-
-            AudioTag.prototype.play = function () {
-                this.audioElements[this.index].load();
-                this.audioElements[this.index].play();
-                this.index = (this.index + 1) % this.audioElements.length;
-            };
-
-            AudioTag.prototype.stop = function () {
-                this.audioElements.forEach(function (a) {
-                    a.pause();
-                });
-            };
-            return AudioTag;
-        })();
-        Internal.AudioTag = AudioTag;
-
-        if (window.AudioContext) {
-            var audioContext = new window.AudioContext();
-        }
-
-        var WebAudio = (function () {
-            function WebAudio(soundPath, volume) {
-                this.context = audioContext;
-                this.volume = this.context.createGain();
-                this.buffer = null;
-                this.sound = null;
-                this.path = "";
-                this.isLoaded = false;
-                this.loop = false;
-                this.logger = ex.Logger.getInstance();
-                this.onload = function () {
-                };
-                this.onprogress = function () {
-                };
-                this.onerror = function () {
-                };
-                this.path = soundPath;
-                if (volume) {
-                    this.volume.gain.value = volume;
-                } else {
-                    this.volume.gain.value = 1;
-                }
-            }
-            WebAudio.prototype.setVolume = function (volume) {
-                this.volume.gain.value = volume;
-            };
-
-            WebAudio.prototype.load = function () {
-                var _this = this;
-                var request = new XMLHttpRequest();
-                request.open('GET', this.path);
-                request.responseType = 'arraybuffer';
-                request.onprogress = this.onprogress;
-                request.onerror = this.onerror;
-                request.onload = function () {
-                    _this.context.decodeAudioData(request.response, function (buffer) {
-                        _this.buffer = buffer;
-                        _this.isLoaded = true;
-                        _this.onload(_this);
-                    }, function (e) {
-                        _this.logger.error("Unable to decode " + _this.path + " this browser may not fully support this format, or the file may be corrupt, " + "if this is an mp3 try removing id3 tags and album art from the file.");
-                        _this.isLoaded = false;
-                        _this.onload(_this);
-                    });
-                };
-                try  {
-                    request.send();
-                } catch (e) {
-                    console.error("Error loading sound! If this is a cross origin error, you must host your sound with your html and javascript.");
-                }
-            };
-
-            WebAudio.prototype.setLoop = function (loop) {
-                this.loop = loop;
-            };
-
-            WebAudio.prototype.play = function () {
-                if (this.isLoaded) {
-                    this.sound = this.context.createBufferSource();
-                    this.sound.buffer = this.buffer;
-                    this.sound.loop = this.loop;
-                    this.sound.connect(this.volume);
-                    this.volume.connect(this.context.destination);
-                    this.sound.start(0);
-                }
-            };
-
-            WebAudio.prototype.stop = function () {
-                if (this.sound) {
-                    try  {
-                        this.sound.stop(0);
-                    } catch (e) {
-                        this.logger.warn("The sound clip", this.path, "has already been stopped!");
-                    }
-                }
-            };
-            return WebAudio;
-        })();
-        Internal.WebAudio = WebAudio;
-    })(ex.Internal || (ex.Internal = {}));
-    var Internal = ex.Internal;
-})(ex || (ex = {}));
-var ex;
-(function (ex) {
-    (function (PromiseState) {
-        PromiseState[PromiseState["Resolved"] = 0] = "Resolved";
-
-        PromiseState[PromiseState["Rejected"] = 1] = "Rejected";
-
-        PromiseState[PromiseState["Pending"] = 2] = "Pending";
-    })(ex.PromiseState || (ex.PromiseState = {}));
-    var PromiseState = ex.PromiseState;
-
-    var Promise = (function () {
-        function Promise() {
-            this._state = 2 /* Pending */;
-            this.successCallbacks = [];
-            this.rejectCallback = function () {
-            };
-            this.logger = ex.Logger.getInstance();
-        }
-        Promise.wrap = function (value) {
-            var promise = (new Promise()).resolve(value);
-
-            return promise;
-        };
-
-        Promise.prototype.then = function (successCallback, rejectCallback) {
-            if (successCallback) {
-                this.successCallbacks.push(successCallback);
-
-                if (this.state() === 0 /* Resolved */) {
-                    try  {
-                        successCallback.call(this, this.value);
-                    } catch (e) {
-                        this.handleError(e);
-                    }
-                }
-            }
-            if (rejectCallback) {
-                this.rejectCallback = rejectCallback;
-
-                if (this.state() === 1 /* Rejected */) {
-                    try  {
-                        rejectCallback.call(this, this.value);
-                    } catch (e) {
-                        this.handleError(e);
-                    }
-                }
-            }
-
-            return this;
-        };
-
-        Promise.prototype.error = function (errorCallback) {
-            if (errorCallback) {
-                this.errorCallback = errorCallback;
-            }
-            return this;
-        };
-
-        Promise.prototype.resolve = function (value) {
-            var _this = this;
-            if (this._state === 2 /* Pending */) {
-                this.value = value;
-                try  {
-                    this._state = 0 /* Resolved */;
-                    this.successCallbacks.forEach(function (cb) {
-                        cb.call(_this, _this.value);
-                    });
-                } catch (e) {
-                    this.handleError(e);
-                }
-            } else {
-                throw new Error('Cannot resolve a promise that is not in a pending state!');
-            }
-            return this;
-        };
-
-        Promise.prototype.reject = function (value) {
-            if (this._state === 2 /* Pending */) {
-                this.value = value;
-                try  {
-                    this._state = 1 /* Rejected */;
-                    this.rejectCallback.call(this, this.value);
-                } catch (e) {
-                    this.handleError(e);
-                }
-            } else {
-                throw new Error('Cannot reject a promise that is not in a pending state!');
-            }
-            return this;
-        };
-
-        Promise.prototype.state = function () {
-            return this._state;
-        };
-
-        Promise.prototype.handleError = function (e) {
-            if (this.errorCallback) {
-                this.errorCallback.call(this, e);
-            }
-        };
-        return Promise;
-    })();
-    ex.Promise = Promise;
-})(ex || (ex = {}));
-var ex;
-(function (ex) {
-    
-
-    var Texture = (function () {
-        function Texture(path) {
-            this.path = path;
-            this.logger = ex.Logger.getInstance();
-            this.onprogress = function () {
-            };
-            this.oncomplete = function () {
-            };
-            this.onerror = function () {
-            };
-        }
-        Texture.prototype._start = function (e) {
-            this.logger.debug("Started loading image " + this.path);
-        };
-
-        Texture.prototype.isLoaded = function () {
-            return (!!this.image && !!this.image.src);
-        };
-
-        Texture.prototype.load = function () {
-            var _this = this;
-            var complete = new ex.Promise();
-
-            this.image = new Image();
-            var request = new XMLHttpRequest();
-            request.open("GET", this.path, true);
-            request.responseType = "blob";
-            request.onloadstart = function (e) {
-                _this._start(e);
-            };
-            request.onprogress = this.onprogress;
-            request.onload = function (e) {
-                _this.image.src = URL.createObjectURL(request.response);
-                _this.oncomplete();
-                _this.logger.debug("Completed loading image", _this.path);
-                complete.resolve(_this.image);
-            };
-            request.onerror = function (e) {
-                _this.onerror(e);
-                complete.reject(e);
-            };
-            if (request.overrideMimeType) {
-                request.overrideMimeType('text/plain; charset=x-user-defined');
-            }
-            request.send();
-
-            return complete;
-        };
-        return Texture;
-    })();
-    ex.Texture = Texture;
-
-    var Sound = (function () {
-        function Sound() {
-            var paths = [];
-            for (var _i = 0; _i < (arguments.length - 0); _i++) {
-                paths[_i] = arguments[_i + 0];
-            }
-            this.logger = ex.Logger.getInstance();
-            this.onprogress = function () {
-            };
-            this.oncomplete = function () {
-            };
-            this.onerror = function () {
-            };
-            this.onload = function () {
-            };
-            this._isLoaded = false;
-            this._selectedFile = "";
-            this._selectedFile = "";
-            for (var i = 0; i < paths.length; i++) {
-                if (Sound.canPlayFile(paths[i])) {
-                    this._selectedFile = paths[i];
-                    break;
-                }
-            }
-
-            if (!this._selectedFile) {
-                this.logger.warn("This browser does not support any of the files specified");
-                this._selectedFile = paths[0];
-            }
-
-            this.sound = new ex.Internal.FallbackAudio(this._selectedFile, 1.0);
-        }
-        Sound.canPlayFile = function (file) {
-            var a = new Audio();
-            var filetype = /.*\.([A-Za-z0-9]+)$/;
-            var type = file.match(filetype)[1];
-            if (a.canPlayType('audio/' + type)) {
-                return true;
-            }
-             {
-                return false;
-            }
-        };
-
-        Sound.prototype.setVolume = function (volume) {
-            if (this.sound)
-                this.sound.setVolume(volume);
-        };
-
-        Sound.prototype.setLoop = function (loop) {
-            if (this.sound)
-                this.sound.setLoop(loop);
-        };
-
-        Sound.prototype.play = function () {
-            if (this.sound)
-                this.sound.play();
-        };
-
-        Sound.prototype.stop = function () {
-            if (this.sound)
-                this.sound.stop();
-        };
-
-        Sound.prototype.isLoaded = function () {
-            return this._isLoaded;
-        };
-
-        Sound.prototype.load = function () {
-            var _this = this;
-            var complete = new ex.Promise();
-            this.logger.debug("Started loading sound", this._selectedFile);
-            this.sound.onprogress = this.onprogress;
-            this.sound.onload = function () {
-                _this.oncomplete();
-                _this._isLoaded = true;
-                _this.logger.debug("Completed loading sound", _this._selectedFile);
-                complete.resolve(_this.sound);
-            };
-            this.sound.onerror = function (e) {
-                _this.onerror(e);
-                complete.reject(e);
-            };
-            this.sound.load();
-            return complete;
-        };
-        return Sound;
-    })();
-    ex.Sound = Sound;
-
-    var Loader = (function () {
-        function Loader(loadables) {
-            this.resourceList = [];
-            this.index = 0;
-            this.resourceCount = 0;
-            this.numLoaded = 0;
-            this.progressCounts = {};
-            this.totalCounts = {};
-            this.onprogress = function () {
-            };
-            this.oncomplete = function () {
-            };
-            this.onerror = function () {
-            };
-            if (loadables) {
-                this.addResources(loadables);
-            }
-        }
-        Loader.prototype.addResource = function (loadable) {
-            var key = this.index++;
-            this.resourceList.push(loadable);
-            this.progressCounts[key] = 0;
-            this.totalCounts[key] = 1;
-            this.resourceCount++;
-        };
-
-        Loader.prototype.addResources = function (loadables) {
-            var _this = this;
-            loadables.forEach(function (l) {
-                _this.addResource(l);
-            });
-        };
-
-        Loader.prototype.sumCounts = function (obj) {
-            var sum = 0;
-            var prev = 0;
-            for (var i in obj) {
-                sum += obj[i] | 0;
-            }
-            return sum;
-        };
-
-        Loader.prototype.isLoaded = function () {
-            return this.numLoaded === this.resourceCount;
-        };
-
-        Loader.prototype.load = function () {
-            var complete = new ex.Promise();
-            var me = this;
-            if (this.resourceList.length === 0) {
-                me.oncomplete.call(me);
-                return complete;
-            }
-
-            var progressArray = new Array(this.resourceList.length);
-            var progressChunks = this.resourceList.length;
-
-            this.resourceList.forEach(function (r, i) {
-                r.onprogress = function (e) {
-                    var total = e.total;
-                    var loaded = e.loaded;
-                    progressArray[i] = { loaded: ((loaded / total) * (100 / progressChunks)), total: 100 };
-
-                    var progressResult = progressArray.reduce(function (accum, next) {
-                        return { loaded: (accum.loaded + next.loaded), total: 100 };
-                    }, { loaded: 0, total: 100 });
-
-                    me.onprogress.call(me, progressResult);
-                };
-                r.oncomplete = function () {
-                    me.numLoaded++;
-                    if (me.numLoaded === me.resourceCount) {
-                        me.oncomplete.call(me);
-                        complete.resolve();
-                    }
-                };
-            });
-
-            function loadNext(list, index) {
-                if (!list[index])
-                    return;
-                list[index].load().then(function () {
-                    loadNext(list, index + 1);
-                });
-            }
-            loadNext(this.resourceList, 0);
-
-            return complete;
-        };
-        return Loader;
-    })();
-    ex.Loader = Loader;
-})(ex || (ex = {}));
-var ex;
-(function (ex) {
-    
-
-    var SpriteSheet = (function () {
-        function SpriteSheet(image, columns, rows, spWidth, spHeight) {
-            this.image = image;
-            this.columns = columns;
-            this.rows = rows;
-            this.sprites = [];
-            this.internalImage = image.image;
-            this.sprites = new Array(columns * rows);
-
-            var i = 0;
-            var j = 0;
-            for (i = 0; i < rows; i++) {
-                for (j = 0; j < columns; j++) {
-                    this.sprites[j + i * columns] = new Sprite(this.image, j * spWidth, i * spHeight, spWidth, spHeight);
-                }
-            }
-        }
-        SpriteSheet.prototype.getAnimationByIndices = function (engine, indices, speed) {
-            var images = this.sprites.filter(function (sprite, index) {
-                return indices.indexOf(index) > -1;
-            });
-
-            images = images.map(function (i) {
-                return i.clone();
-            });
-            return new Animation(engine, images, speed);
-        };
-
-        SpriteSheet.prototype.getAnimationBetween = function (engine, beginIndex, endIndex, speed) {
-            var images = this.sprites.slice(beginIndex, endIndex);
-            images = images.map(function (i) {
-                return i.clone();
-            });
-            return new Animation(engine, images, speed);
-        };
-
-        SpriteSheet.prototype.getAnimationForAll = function (engine, speed) {
-            var sprites = this.sprites.map(function (i) {
-                return i.clone();
-            });
-            return new Animation(engine, sprites, speed);
-        };
-
-        SpriteSheet.prototype.getSprite = function (index) {
-            if (index >= 0 && index < this.sprites.length) {
-                return this.sprites[index].clone();
-            }
-        };
-        return SpriteSheet;
-    })();
-    ex.SpriteSheet = SpriteSheet;
-
-    var SpriteFont = (function (_super) {
-        __extends(SpriteFont, _super);
-        function SpriteFont(image, alphabet, caseInsensitive, columns, rows, spWidth, spHeight) {
-            _super.call(this, image, columns, rows, spWidth, spHeight);
-            this.image = image;
-            this.alphabet = alphabet;
-            this.caseInsensitive = caseInsensitive;
-            this.spriteLookup = {};
-            this.colorLookup = {};
-            this._currentColor = ex.Color.Black;
-        }
-        SpriteFont.prototype.getTextSprites = function () {
-            var lookup = {};
-            for (var i = 0; i < this.alphabet.length; i++) {
-                var char = this.alphabet[i];
-                if (this.caseInsensitive) {
-                    char = char.toLowerCase();
-                }
-                lookup[char] = this.sprites[i].clone();
-            }
-            return lookup;
-        };
-        return SpriteFont;
-    })(SpriteSheet);
-    ex.SpriteFont = SpriteFont;
-
-    (function (Effects) {
-        
-
-        var Grayscale = (function () {
-            function Grayscale() {
-            }
-            Grayscale.prototype.updatePixel = function (x, y, imageData) {
-                var firstPixel = (x + y * imageData.width) * 4;
-                var pixel = imageData.data;
-                var avg = (pixel[firstPixel + 0] + pixel[firstPixel + 1] + pixel[firstPixel + 2]) / 3;
-                pixel[firstPixel + 0] = avg;
-                pixel[firstPixel + 1] = avg;
-                pixel[firstPixel + 2] = avg;
-            };
-            return Grayscale;
-        })();
-        Effects.Grayscale = Grayscale;
-
-        var Invert = (function () {
-            function Invert() {
-            }
-            Invert.prototype.updatePixel = function (x, y, imageData) {
-                var firstPixel = (x + y * imageData.width) * 4;
-                var pixel = imageData.data;
-                pixel[firstPixel + 0] = 255 - pixel[firstPixel + 0];
-                pixel[firstPixel + 1] = 255 - pixel[firstPixel + 1];
-                pixel[firstPixel + 2] = 255 - pixel[firstPixel + 2];
-            };
-            return Invert;
-        })();
-        Effects.Invert = Invert;
-
-        var Opacity = (function () {
-            function Opacity(opacity) {
-                this.opacity = opacity;
-            }
-            Opacity.prototype.updatePixel = function (x, y, imageData) {
-                var firstPixel = (x + y * imageData.width) * 4;
-                var pixel = imageData.data;
-                if (pixel[firstPixel + 3] !== 0) {
-                    pixel[firstPixel + 3] = Math.round(this.opacity * 255);
-                }
-            };
-            return Opacity;
-        })();
-        Effects.Opacity = Opacity;
-
-        var Colorize = (function () {
-            function Colorize(color) {
-                this.color = color;
-            }
-            Colorize.prototype.updatePixel = function (x, y, imageData) {
-                var firstPixel = (x + y * imageData.width) * 4;
-                var pixel = imageData.data;
-                if (pixel[firstPixel + 3] !== 0) {
-                    pixel[firstPixel + 0] = (pixel[firstPixel + 0] + this.color.r) / 2;
-                    pixel[firstPixel + 1] = (pixel[firstPixel + 1] + this.color.g) / 2;
-                    pixel[firstPixel + 2] = (pixel[firstPixel + 2] + this.color.b) / 2;
-                }
-            };
-            return Colorize;
-        })();
-        Effects.Colorize = Colorize;
-
-        var Fill = (function () {
-            function Fill(color) {
-                this.color = color;
-            }
-            Fill.prototype.updatePixel = function (x, y, imageData) {
-                var firstPixel = (x + y * imageData.width) * 4;
-                var pixel = imageData.data;
-                if (pixel[firstPixel + 3] !== 0) {
-                    pixel[firstPixel + 0] = this.color.r;
-                    pixel[firstPixel + 1] = this.color.g;
-                    pixel[firstPixel + 2] = this.color.b;
-                }
-            };
-            return Fill;
-        })();
-        Effects.Fill = Fill;
-    })(ex.Effects || (ex.Effects = {}));
-    var Effects = ex.Effects;
-
-    var Sprite = (function () {
-        function Sprite(image, sx, sy, swidth, sheight) {
-            this.sx = sx;
-            this.sy = sy;
-            this.swidth = swidth;
-            this.sheight = sheight;
-            this.scale = 1.0;
-            this.rotation = 0.0;
-            this.transformPoint = new ex.Point(0, 0);
-            this.flipVertical = false;
-            this.flipHorizontal = false;
-            this.width = 0;
-            this.height = 0;
-            this.effects = [];
-            this.internalImage = new Image();
-            this.spriteCanvas = null;
-            this.spriteCtx = null;
-            this.pixelData = null;
-            this.pixelsLoaded = false;
-            this.dirtyEffect = false;
-            this.texture = image;
-            this.spriteCanvas = document.createElement('canvas');
-            this.spriteCanvas.width = swidth;
-            this.spriteCanvas.height = sheight;
-            this.spriteCtx = this.spriteCanvas.getContext('2d');
-
-            this.width = swidth;
-            this.height = sheight;
-        }
-        Sprite.prototype.loadPixels = function () {
-            if (this.texture.image && !this.pixelsLoaded) {
-                this.spriteCtx.drawImage(this.texture.image, this.sx, this.sy, this.swidth, this.sheight, 0, 0, this.swidth, this.sheight);
-
-                this.internalImage.src = this.spriteCanvas.toDataURL("image/png");
-                this.pixelsLoaded = true;
-            }
-        };
-
-        Sprite.prototype.addEffect = function (effect) {
-            this.effects.push(effect);
-
-            if (!this.texture.isLoaded() || !this.pixelsLoaded) {
-                this.dirtyEffect = true;
-            } else {
-                this.applyEffects();
-            }
-        };
-
-        Sprite.prototype.applyEffects = function () {
-            var _this = this;
-            this.spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
-            this.spriteCtx.drawImage(this.texture.image, this.sx, this.sy, this.swidth, this.sheight, 0, 0, this.swidth, this.sheight);
-            this.pixelData = this.spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
-
-            this.effects.forEach(function (effect) {
-                for (var y = 0; y < _this.sheight; y++) {
-                    for (var x = 0; x < _this.swidth; x++) {
-                        effect.updatePixel(x, y, _this.pixelData);
-                    }
-                }
-            });
-            this.spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
-            this.spriteCtx.putImageData(this.pixelData, 0, 0);
-            this.internalImage.src = this.spriteCanvas.toDataURL("image/png");
-        };
-
-        Sprite.prototype.clearEffects = function () {
-            this.effects.length = 0;
-            this.applyEffects();
-        };
-
-        Sprite.prototype.transformAboutPoint = function (point) {
-            this.transformPoint = point;
-        };
-
-        Sprite.prototype.setRotation = function (radians) {
-            this.rotation = radians;
-        };
-
-        Sprite.prototype.getRotation = function () {
-            return this.rotation;
-        };
-
-        Sprite.prototype.setScale = function (scale) {
-            this.scale = scale;
-        };
-
-        Sprite.prototype.getScale = function () {
-            return this.scale;
-        };
-
-        Sprite.prototype.reset = function () {
-        };
-
-        Sprite.prototype.draw = function (ctx, x, y) {
-            this.loadPixels();
-            if (this.dirtyEffect) {
-                this.applyEffects();
-                this.dirtyEffect = false;
-            }
-
-            ctx.save();
-
-            ctx.translate(x + this.transformPoint.x, y + this.transformPoint.y);
-            ctx.rotate(this.rotation);
-
-            if (this.flipHorizontal) {
-                ctx.translate(this.swidth, 0);
-                ctx.scale(-1, 1);
-            }
-
-            if (this.flipVertical) {
-                ctx.translate(0, this.sheight);
-                ctx.scale(1, -1);
-            }
-            if (this.internalImage) {
-                ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, -this.transformPoint.x, -this.transformPoint.y, this.swidth * this.scale, this.sheight * this.scale);
-            }
-            ctx.restore();
-        };
-
-        Sprite.prototype.clone = function () {
-            var result = new Sprite(this.texture, this.sx, this.sy, this.swidth, this.sheight);
-            result.scale = this.scale;
-            result.rotation = this.rotation;
-            result.flipHorizontal = this.flipHorizontal;
-            result.flipVertical = this.flipVertical;
-
-            this.effects.forEach(function (e) {
-                result.addEffect(e);
-            });
-            return result;
-        };
-        return Sprite;
-    })();
-    ex.Sprite = Sprite;
-
-    var Animation = (function () {
-        function Animation(engine, images, speed, loop) {
-            this.currIndex = 0;
-            this.oldTime = Date.now();
-            this.rotation = 0.0;
-            this.scale = 1.0;
-            this.loop = false;
-            this.freezeFrame = -1;
-            this.flipVertical = false;
-            this.flipHorizontal = false;
-            this.width = 0;
-            this.height = 0;
-            this.sprites = images;
-            this.speed = speed;
-            this.engine = engine;
-            if (loop != null) {
-                this.loop = loop;
-            }
-            this.height = images[0] ? images[0].height : 0;
-            this.width = images[0] ? images[0].width : 0;
-        }
-        Animation.prototype.addEffect = function (effect) {
-            for (var i in this.sprites) {
-                this.sprites[i].addEffect(effect);
-            }
-        };
-
-        Animation.prototype.clearEffects = function () {
-            for (var i in this.sprites) {
-                this.sprites[i].clearEffects();
-            }
-        };
-
-        Animation.prototype.transformAboutPoint = function (point) {
-            for (var i in this.sprites) {
-                this.sprites[i].transformAboutPoint(point);
-            }
-        };
-
-        Animation.prototype.setRotation = function (radians) {
-            this.rotation = radians;
-            for (var i in this.sprites) {
-                this.sprites[i].setRotation(radians);
-            }
-        };
-
-        Animation.prototype.getRotation = function () {
-            return this.rotation;
-        };
-
-        Animation.prototype.setScale = function (scale) {
-            this.scale = scale;
-            for (var i in this.sprites) {
-                this.sprites[i].setScale(scale);
-            }
-        };
-
-        Animation.prototype.getScale = function () {
-            return this.scale;
-        };
-
-        Animation.prototype.reset = function () {
-            this.currIndex = 0;
-        };
-
-        Animation.prototype.isDone = function () {
-            return (!this.loop && this.currIndex >= this.sprites.length);
-        };
-
-        Animation.prototype.tick = function () {
-            var time = Date.now();
-            if ((time - this.oldTime) > this.speed) {
-                this.currIndex = (this.loop ? (this.currIndex + 1) % this.sprites.length : this.currIndex + 1);
-                this.oldTime = time;
-            }
-        };
-
-        Animation.prototype.draw = function (ctx, x, y) {
-            this.tick();
-            if (this.currIndex < this.sprites.length) {
-                var currSprite = this.sprites[this.currIndex];
-                if (this.flipVertical) {
-                    currSprite.flipVertical = this.flipVertical;
-                }
-                if (this.flipHorizontal) {
-                    currSprite.flipHorizontal = this.flipHorizontal;
-                }
-                currSprite.draw(ctx, x, y);
-            }
-
-            if (this.freezeFrame !== -1 && this.currIndex >= this.sprites.length) {
-                var currSprite = this.sprites[ex.Util.clamp(this.freezeFrame, 0, this.sprites.length - 1)];
-                currSprite.draw(ctx, x, y);
-            }
-        };
-
-        Animation.prototype.play = function (x, y) {
-            this.reset();
-            this.engine.playAnimation(this, x, y);
-        };
-        return Animation;
-    })();
-    ex.Animation = Animation;
-
-    var Polygon = (function () {
-        function Polygon(points) {
-            this.lineWidth = 5;
-            this.filled = false;
-            this.points = [];
-            this.transformationPoint = new ex.Point(0, 0);
-            this.rotation = 0;
-            this.scale = 1;
-            this.points = points;
-
-            var minX = this.points.reduce(function (prev, curr) {
-                return Math.min(prev, curr.x);
-            }, 0);
-            var maxX = this.points.reduce(function (prev, curr) {
-                return Math.max(prev, curr.x);
-            }, 0);
-
-            this.width = maxX - minX;
-
-            var minY = this.points.reduce(function (prev, curr) {
-                return Math.min(prev, curr.y);
-            }, 0);
-            var maxY = this.points.reduce(function (prev, curr) {
-                return Math.max(prev, curr.y);
-            }, 0);
-
-            this.height = maxY - minY;
-        }
-        Polygon.prototype.addEffect = function (effect) {
-        };
-
-        Polygon.prototype.clearEffects = function () {
-        };
-
-        Polygon.prototype.transformAboutPoint = function (point) {
-            this.transformationPoint = point;
-        };
-
-        Polygon.prototype.setScale = function (scale) {
-            this.scale = scale;
-        };
-
-        Polygon.prototype.getScale = function () {
-            return this.scale;
-        };
-
-        Polygon.prototype.setRotation = function (radians) {
-            this.rotation = radians;
-        };
-
-        Polygon.prototype.getRotation = function () {
-            return this.rotation;
-        };
-
-        Polygon.prototype.reset = function () {
-        };
-
-        Polygon.prototype.draw = function (ctx, x, y) {
-            ctx.save();
-            ctx.translate(x + this.transformationPoint.x, y + this.transformationPoint.y);
-            ctx.scale(this.scale, this.scale);
-            ctx.rotate(this.rotation);
-            ctx.beginPath();
-            ctx.lineWidth = this.lineWidth;
-
-            var firstPoint = this.points[0];
-            ctx.moveTo(firstPoint.x, firstPoint.y);
-            this.points.forEach(function (point) {
-                ctx.lineTo(point.x, point.y);
-            });
-            ctx.lineTo(firstPoint.x, firstPoint.y);
-            ctx.closePath();
-
-            if (this.filled) {
-                ctx.fillStyle = this.fillColor.toString();
-                ctx.fill();
-            }
-
-            ctx.strokeStyle = this.lineColor.toString();
-
-            if (this.flipHorizontal) {
-                ctx.translate(this.width, 0);
-                ctx.scale(-1, 1);
-            }
-
-            if (this.flipVertical) {
-                ctx.translate(0, this.height);
-                ctx.scale(1, -1);
-            }
-
-            ctx.stroke();
-            ctx.restore();
-        };
-        return Polygon;
-    })();
-    ex.Polygon = Polygon;
-    ;
-})(ex || (ex = {}));
-var ex;
-(function (ex) {
-    var BaseCamera = (function () {
-        function BaseCamera(engine) {
-            this.focus = new ex.Point(0, 0);
-            this.isShaking = false;
-            this.shakeMagnitudeX = 0;
-            this.shakeMagnitudeY = 0;
-            this.shakeDuration = 0;
-            this.elapsedShakeTime = 0;
-            this.isZooming = false;
-            this.currentZoomScale = 1;
-            this.maxZoomScale = 1;
-            this.zoomDuration = 0;
-            this.elapsedZoomTime = 0;
-            this.zoomIncrement = 0.01;
-            this.engine = engine;
-        }
-        BaseCamera.prototype.setActorToFollow = function (actor) {
-            this.follow = actor;
-        };
-
-        BaseCamera.prototype.getFocus = function () {
-            if (this.follow) {
-                return new ex.Point(0, 0);
-            } else {
-                return this.focus;
-            }
-        };
-
-        BaseCamera.prototype.setFocus = function (x, y) {
-            if (!this.follow) {
-                this.focus.x = x;
-                this.focus.y = y;
-            }
-        };
-
-        BaseCamera.prototype.shake = function (magnitudeX, magnitudeY, duration) {
-            this.isShaking = true;
-            this.shakeMagnitudeX = magnitudeX;
-            this.shakeMagnitudeY = magnitudeY;
-            this.shakeDuration = duration;
-        };
-
-        BaseCamera.prototype.zoom = function (scale, duration) {
-            this.isZooming = true;
-            this.maxZoomScale = scale;
-            this.zoomDuration = duration | 0;
-            if (duration) {
-                this.zoomIncrement = Math.abs(this.maxZoomScale - this.currentZoomScale) / duration * 1000;
-            }
-
-            if (this.maxZoomScale < 1) {
-                if (duration) {
-                    this.zoomIncrement = -1 * this.zoomIncrement;
-                } else {
-                    this.zoomIncrement = -0.01;
-                }
-            }
-        };
-
-        BaseCamera.prototype.getCurrentZoomScale = function () {
-            return this.currentZoomScale;
-        };
-
-        BaseCamera.prototype.setCurrentZoomScale = function (zoomScale) {
-            this.currentZoomScale = zoomScale;
-        };
-
-        BaseCamera.prototype.update = function (delta) {
-            var focus = this.getFocus();
-
-            var xShake = 0;
-            var yShake = 0;
-
-            var canvasWidth = this.engine.ctx.canvas.width;
-            var canvasHeight = this.engine.ctx.canvas.height;
-            var newCanvasWidth = canvasWidth * this.getCurrentZoomScale();
-            var newCanvasHeight = canvasHeight * this.getCurrentZoomScale();
-
-            if (this.isDoneShaking()) {
-                this.isShaking = false;
-                this.elapsedShakeTime = 0;
-                this.shakeMagnitudeX = 0;
-                this.shakeMagnitudeY = 0;
-                this.shakeDuration = 0;
-            } else {
-                this.elapsedShakeTime += delta;
-                xShake = (Math.random() * this.shakeMagnitudeX | 0) + 1;
-                yShake = (Math.random() * this.shakeMagnitudeY | 0) + 1;
-            }
-
-            this.engine.ctx.translate(focus.x + xShake, focus.y + yShake);
-
-            if (this.isDoneZooming()) {
-                this.isZooming = false;
-                this.elapsedZoomTime = 0;
-                this.zoomDuration = 0;
-            } else {
-                this.elapsedZoomTime += delta;
-
-                this.setCurrentZoomScale(this.getCurrentZoomScale() + this.zoomIncrement * delta / 1000);
-            }
-
-            this.engine.ctx.translate(-((newCanvasWidth - canvasWidth) / 2), -((newCanvasHeight - canvasHeight) / 2));
-            this.engine.ctx.scale(this.getCurrentZoomScale(), this.getCurrentZoomScale());
-        };
-
-        BaseCamera.prototype.isDoneShaking = function () {
-            return !(this.isShaking) || (this.elapsedShakeTime >= this.shakeDuration);
-        };
-
-        BaseCamera.prototype.isDoneZooming = function () {
-            if (this.zoomDuration != 0) {
-                return (this.elapsedZoomTime >= this.zoomDuration);
-            } else {
-                if (this.maxZoomScale < 1) {
-                    return (this.currentZoomScale <= this.maxZoomScale);
-                } else {
-                    return (this.currentZoomScale >= this.maxZoomScale);
-                }
-            }
-        };
-        return BaseCamera;
-    })();
-    ex.BaseCamera = BaseCamera;
-
-    var SideCamera = (function (_super) {
-        __extends(SideCamera, _super);
-        function SideCamera() {
-            _super.apply(this, arguments);
-        }
-        SideCamera.prototype.getFocus = function () {
-            if (this.follow) {
-                return new ex.Point((-this.follow.x * this.getCurrentZoomScale()) + (this.engine.width * this.getCurrentZoomScale()) / 2.0, 0);
-            } else {
-                return this.focus;
-            }
-        };
-        return SideCamera;
-    })(BaseCamera);
-    ex.SideCamera = SideCamera;
-
-    var TopCamera = (function (_super) {
-        __extends(TopCamera, _super);
-        function TopCamera() {
-            _super.apply(this, arguments);
-        }
-        TopCamera.prototype.getFocus = function () {
-            if (this.follow) {
-                return new ex.Point((-this.follow.x * this.getCurrentZoomScale()) + (this.engine.width * this.getCurrentZoomScale()) / 2.0, (-this.follow.y * this.getCurrentZoomScale()) + (this.engine.height * this.getCurrentZoomScale()) / 2.0);
-            } else {
-                return this.focus;
-            }
-        };
-        return TopCamera;
-    })(BaseCamera);
-    ex.TopCamera = TopCamera;
-})(ex || (ex = {}));
-var ex;
-(function (ex) {
-    var Color = (function () {
-        function Color(r, g, b, a) {
-            this.r = r;
-            this.g = g;
-            this.b = b;
-            this.a = a;
-            this.a = (a != null ? a : 1);
-        }
-        Color.fromRGB = function (r, g, b, a) {
-            return new Color(r, g, b, a);
-        };
-
-        Color.fromHex = function (hex) {
-            var hexRegEx = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})?$/i;
-            var match = null;
-            if (match = hex.match(hexRegEx)) {
-                var r = parseInt(match[1], 16);
-                var g = parseInt(match[2], 16);
-                var b = parseInt(match[3], 16);
-                var a = 1;
-                if (match[4]) {
-                    a = parseInt(match[4], 16) / 255;
-                }
-                return new Color(r, g, b, a);
-            } else {
-                throw new Error("Invalid hex string: " + hex);
-            }
-        };
-
-        Color.prototype.toString = function () {
-            var result = String(this.r.toFixed(0)) + ", " + String(this.g.toFixed(0)) + ", " + String(this.b.toFixed(0));
-            if (this.a) {
-                return "rgba(" + result + ", " + String(this.a) + ")";
-            }
-            return "rgb(" + result + ")";
-        };
-
-        Color.prototype.clone = function () {
-            return new Color(this.r, this.g, this.b, this.a);
-        };
-        Color.Black = Color.fromHex('#000000');
-
-        Color.White = Color.fromHex('#FFFFFF');
-
-        Color.Yellow = Color.fromHex('#FFFF00');
-
-        Color.Orange = Color.fromHex('#FFA500');
-
-        Color.Red = Color.fromHex('#FF0000');
-
-        Color.Vermillion = Color.fromHex('#FF5B31');
-
-        Color.Rose = Color.fromHex('#FF007F');
-
-        Color.Magenta = Color.fromHex('#FF00FF');
-
-        Color.Violet = Color.fromHex('#7F00FF');
-
-        Color.Blue = Color.fromHex('#0000FF');
-
-        Color.Azure = Color.fromHex('#007FFF');
-
-        Color.Cyan = Color.fromHex('#00FFFF');
-
-        Color.Viridian = Color.fromHex('#59978F');
-
-        Color.Green = Color.fromHex('#00FF00');
-
-        Color.Chartreuse = Color.fromHex('#7FFF00');
-
-        Color.Transparent = Color.fromHex('#FFFFFF00');
-        return Color;
-    })();
-    ex.Color = Color;
-
-    (function (InputKey) {
-        InputKey[InputKey["Num1"] = 97] = "Num1";
-        InputKey[InputKey["Num2"] = 98] = "Num2";
-        InputKey[InputKey["Num3"] = 99] = "Num3";
-        InputKey[InputKey["Num4"] = 100] = "Num4";
-        InputKey[InputKey["Num5"] = 101] = "Num5";
-        InputKey[InputKey["Num6"] = 102] = "Num6";
-        InputKey[InputKey["Num7"] = 103] = "Num7";
-        InputKey[InputKey["Num8"] = 104] = "Num8";
-        InputKey[InputKey["Num9"] = 105] = "Num9";
-        InputKey[InputKey["Num0"] = 96] = "Num0";
-
-        InputKey[InputKey["Numlock"] = 144] = "Numlock";
-
-        InputKey[InputKey["Semicolon"] = 186] = "Semicolon";
-
-        InputKey[InputKey["A"] = 65] = "A";
-        InputKey[InputKey["B"] = 66] = "B";
-        InputKey[InputKey["C"] = 67] = "C";
-        InputKey[InputKey["D"] = 68] = "D";
-        InputKey[InputKey["E"] = 69] = "E";
-        InputKey[InputKey["F"] = 70] = "F";
-        InputKey[InputKey["G"] = 71] = "G";
-        InputKey[InputKey["H"] = 72] = "H";
-        InputKey[InputKey["I"] = 73] = "I";
-        InputKey[InputKey["J"] = 74] = "J";
-        InputKey[InputKey["K"] = 75] = "K";
-        InputKey[InputKey["L"] = 76] = "L";
-        InputKey[InputKey["M"] = 77] = "M";
-        InputKey[InputKey["N"] = 78] = "N";
-        InputKey[InputKey["O"] = 79] = "O";
-        InputKey[InputKey["P"] = 80] = "P";
-        InputKey[InputKey["Q"] = 81] = "Q";
-        InputKey[InputKey["R"] = 82] = "R";
-        InputKey[InputKey["S"] = 83] = "S";
-        InputKey[InputKey["T"] = 84] = "T";
-        InputKey[InputKey["U"] = 85] = "U";
-        InputKey[InputKey["V"] = 86] = "V";
-        InputKey[InputKey["W"] = 87] = "W";
-        InputKey[InputKey["X"] = 88] = "X";
-        InputKey[InputKey["Y"] = 89] = "Y";
-        InputKey[InputKey["Z"] = 90] = "Z";
-
-        InputKey[InputKey["Shift"] = 16] = "Shift";
-        InputKey[InputKey["Alt"] = 18] = "Alt";
-        InputKey[InputKey["Up"] = 38] = "Up";
-        InputKey[InputKey["Down"] = 40] = "Down";
-        InputKey[InputKey["Left"] = 37] = "Left";
-        InputKey[InputKey["Right"] = 39] = "Right";
-        InputKey[InputKey["Space"] = 32] = "Space";
-        InputKey[InputKey["Esc"] = 27] = "Esc";
-    })(ex.InputKey || (ex.InputKey = {}));
-    var InputKey = ex.InputKey;
-    ;
-
-    (function (DisplayMode) {
-        DisplayMode[DisplayMode["FullScreen"] = 0] = "FullScreen";
-
-        DisplayMode[DisplayMode["Container"] = 1] = "Container";
-
-        DisplayMode[DisplayMode["Fixed"] = 2] = "Fixed";
-    })(ex.DisplayMode || (ex.DisplayMode = {}));
-    var DisplayMode = ex.DisplayMode;
-
-    var AnimationNode = (function () {
-        function AnimationNode(animation, x, y) {
-            this.animation = animation;
-            this.x = x;
-            this.y = y;
-        }
-        return AnimationNode;
-    })();
-    var Timer = (function () {
-        function Timer(fcn, interval, repeats) {
-            this.id = 0;
-            this.interval = 10;
-            this.fcn = function () {
-            };
-            this.repeats = false;
-            this.elapsedTime = 0;
-            this.complete = false;
-            this.scene = null;
-            this.id = Timer.id++;
-            this.interval = interval || this.interval;
-            this.fcn = fcn || this.fcn;
-            this.repeats = repeats || this.repeats;
-        }
-        Timer.prototype.update = function (delta) {
-            this.elapsedTime += delta;
-            if (this.elapsedTime > this.interval) {
-                this.fcn.call(this);
-                if (this.repeats) {
-                    this.elapsedTime = 0;
-                } else {
-                    this.complete = true;
-                }
-            }
-        };
-
-        Timer.prototype.cancel = function () {
-            if (this.scene) {
-                this.scene.cancelTimer(this);
-            }
-        };
-        Timer.id = 0;
-        return Timer;
-    })();
-    ex.Timer = Timer;
-
-    var Engine = (function (_super) {
-        __extends(Engine, _super);
-        function Engine(width, height, canvasElementId, displayMode) {
-            _super.call(this);
-            this.hasStarted = false;
-            this.keys = [];
-            this.keysDown = [];
-            this.keysUp = [];
-            this.clicks = [];
-            this.mouseDown = [];
-            this.mouseMove = [];
-            this.mouseUp = [];
-            this.touchStart = [];
-            this.touchMove = [];
-            this.touchEnd = [];
-            this.touchCancel = [];
-            this.sceneHash = {};
-            this.animations = [];
-            this.isFullscreen = false;
-            this.displayMode = 0 /* FullScreen */;
-            this.isDebug = false;
-            this.debugColor = new Color(255, 255, 255);
-            this.backgroundColor = new Color(0, 0, 100);
-            this.isSmoothingEnabled = true;
-            this.isLoading = false;
-            this.progress = 0;
-            this.total = 1;
-
-            this.logger = ex.Logger.getInstance();
-
-            this.logger.debug("Building engine...");
-
-            this.canvasElementId = canvasElementId;
-
-            this.rootScene = this.currentScene = new ex.Scene();
-            this.addScene('root', this.rootScene);
-
-            if (canvasElementId) {
-                this.logger.debug("Using Canvas element specified: " + canvasElementId);
-                this.canvas = document.getElementById(canvasElementId);
-            } else {
-                this.logger.debug("Using generated canvas element");
-                this.canvas = document.createElement('canvas');
-            }
-            if (width && height) {
-                if (displayMode == undefined) {
-                    this.displayMode = 2 /* Fixed */;
-                }
-                this.logger.debug("Engine viewport is size " + width + " x " + height);
-                this.width = this.canvas.width = width;
-                this.height = this.canvas.height = height;
-            } else if (!displayMode) {
-                this.logger.debug("Engine viewport is fullscreen");
-                this.displayMode = 0 /* FullScreen */;
-            }
-
-            this.loader = new ex.Loader();
-
-            this.initialize();
-        }
-        Engine.prototype.playAnimation = function (animation, x, y) {
-            this.animations.push(new AnimationNode(animation, x, y));
-        };
-
-        Engine.prototype.addChild = function (actor) {
-            this.currentScene.addChild(actor);
-        };
-
-        Engine.prototype.removeChild = function (actor) {
-            this.currentScene.removeChild(actor);
-        };
-
-        Engine.prototype.addTimer = function (timer) {
-            return this.currentScene.addTimer(timer);
-        };
-
-        Engine.prototype.removeTimer = function (timer) {
-            return this.currentScene.removeTimer(timer);
-        };
-
-        Engine.prototype.addScene = function (name, scene) {
-            if (this.sceneHash[name]) {
-                this.logger.warn("Scene", name, "already exists overwriting");
-            }
-            this.sceneHash[name] = scene;
-            scene.engine = this;
-        };
-
-        Engine.prototype.goToScene = function (name) {
-            if (this.sceneHash[name]) {
-                this.currentScene.onDeactivate.call(this.currentScene);
-
-                var oldScene = this.currentScene;
-                this.currentScene = this.sceneHash[name];
-
-                oldScene.eventDispatcher.publish('deactivate', new ex.DeactivateEvent(this.currentScene));
-                oldScene.eventDispatcher.update();
-
-                this.currentScene.onActivate.call(this.currentScene);
-
-                this.currentScene.eventDispatcher.publish('activate', new ex.ActivateEvent(oldScene));
-                this.currentScene.eventDispatcher.update();
-            } else {
-                this.logger.error("Scene", name, "does not exist!");
-            }
-        };
-
-        Engine.prototype.getWidth = function () {
-            return this.width;
-        };
-
-        Engine.prototype.getHeight = function () {
-            return this.height;
-        };
-
-        Engine.prototype.screenToWorldCoordinates = function (point) {
-            var newX = Math.floor(point.x * this.canvas.width / this.canvas.clientWidth);
-            var newY = Math.floor(point.y * this.canvas.height / this.canvas.clientHeight);
-
-            if (this.camera) {
-                var focus = this.camera.getFocus();
-                newX -= focus.x;
-                newY -= focus.y;
-            }
-            return new ex.Point(newX, newY);
-        };
-
-        Engine.prototype.worldToScreenCoordinates = function (point) {
-            var screenX = Math.floor(point.x / (this.canvas.width / this.canvas.clientWidth));
-            var screenY = Math.floor(point.y / (this.canvas.height / this.canvas.clientHeight));
-
-            if (this.camera) {
-                var focus = this.camera.getFocus();
-                screenX += focus.x;
-                screenY += focus.y;
-            }
-            return new ex.Point(screenX, screenY);
-        };
-
-        Engine.prototype.setHeightByDisplayMode = function (parent) {
-            if (this.displayMode === 1 /* Container */) {
-                this.width = this.canvas.width = parent.clientWidth;
-                this.height = this.canvas.height = parent.clientHeight;
-            }
-
-            if (this.displayMode === 0 /* FullScreen */) {
-                document.body.style.margin = '0px';
-                document.body.style.overflow = 'hidden';
-                this.width = this.canvas.width = parent.innerWidth;
-                this.height = this.canvas.height = parent.innerHeight;
-            }
-        };
-
-        Engine.prototype.initialize = function () {
-            var _this = this;
-            if (this.displayMode === 0 /* FullScreen */ || this.displayMode === 1 /* Container */) {
-                var parent = (this.displayMode === 1 /* Container */ ? (this.canvas.parentElement || document.body) : window);
-
-                this.setHeightByDisplayMode(parent);
-
-                window.addEventListener('resize', function (ev) {
-                    _this.logger.debug("View port resized");
-                    _this.setHeightByDisplayMode(parent);
-                    _this.logger.info("parent.clientHeight " + parent.clientHeight);
-                    _this.setAntialiasing(_this.isSmoothingEnabled);
-                });
-            }
-
-            window.addEventListener('blur', function (ev) {
-                _this.keys.length = 0;
-            });
-
-            window.addEventListener('keyup', function (ev) {
-                var key = _this.keys.indexOf(ev.keyCode);
-                _this.keys.splice(key, 1);
-                _this.keysUp.push(ev.keyCode);
-                var keyEvent = new ex.KeyUp(ev.keyCode);
-                _this.eventDispatcher.publish(ex.EventType[1 /* KeyUp */], keyEvent);
-                _this.currentScene.publish(ex.EventType[1 /* KeyUp */], keyEvent);
-            });
-
-            window.addEventListener('keydown', function (ev) {
-                if (_this.keys.indexOf(ev.keyCode) === -1) {
-                    _this.keys.push(ev.keyCode);
-                    _this.keysDown.push(ev.keyCode);
-                    var keyEvent = new ex.KeyDown(ev.keyCode);
-                    _this.eventDispatcher.publish(ex.EventType[0 /* KeyDown */], keyEvent);
-                    _this.currentScene.publish(ex.EventType[0 /* KeyDown */], keyEvent);
-                }
-            });
-
-            window.addEventListener('blur', function () {
-                _this.eventDispatcher.publish(ex.EventType[14 /* Blur */], new ex.BlurEvent());
-                _this.eventDispatcher.update();
-            });
-
-            window.addEventListener('focus', function () {
-                _this.eventDispatcher.publish(ex.EventType[15 /* Focus */], new ex.FocusEvent());
-                _this.eventDispatcher.update();
-            });
-
-            this.canvas.addEventListener('mousedown', function (e) {
-                var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
-                var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
-                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var mousedown = new ex.MouseDown(transformedPoint.x, transformedPoint.y, e);
-                _this.mouseDown.push(mousedown);
-                _this.clicks.push(mousedown);
-                _this.eventDispatcher.publish(ex.EventType[3 /* MouseDown */], mousedown);
-            });
-
-            this.canvas.addEventListener('mousemove', function (e) {
-                var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
-                var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
-                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var mousemove = new ex.MouseMove(transformedPoint.x, transformedPoint.y, e);
-                _this.mouseMove.push(mousemove);
-                _this.eventDispatcher.publish(ex.EventType[4 /* MouseMove */], mousemove);
-            });
-
-            this.canvas.addEventListener('mouseup', function (e) {
-                var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
-                var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
-                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var mouseup = new ex.MouseUp(transformedPoint.x, transformedPoint.y, e);
-                _this.mouseUp.push(mouseup);
-                _this.eventDispatcher.publish(ex.EventType[5 /* MouseUp */], mouseup);
-            });
-
-            this.canvas.addEventListener('touchstart', function (e) {
-                var te = e;
-                te.preventDefault();
-                var x = te.changedTouches[0].pageX - ex.Util.getPosition(_this.canvas).x;
-                var y = te.changedTouches[0].pageY - ex.Util.getPosition(_this.canvas).y;
-                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var touchstart = new ex.TouchStart(transformedPoint.x, transformedPoint.y);
-                _this.touchStart.push(touchstart);
-                _this.eventDispatcher.publish(ex.EventType[6 /* TouchStart */], touchstart);
-            });
-
-            this.canvas.addEventListener('touchmove', function (e) {
-                var te = e;
-                te.preventDefault();
-                var x = te.changedTouches[0].pageX - ex.Util.getPosition(_this.canvas).x;
-                var y = te.changedTouches[0].pageY - ex.Util.getPosition(_this.canvas).y;
-                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var touchmove = new ex.TouchMove(transformedPoint.x, transformedPoint.y);
-                _this.touchMove.push(touchmove);
-                _this.eventDispatcher.publish(ex.EventType[7 /* TouchMove */], touchmove);
-            });
-
-            this.canvas.addEventListener('touchend', function (e) {
-                var te = e;
-                te.preventDefault();
-                var x = te.changedTouches[0].pageX - ex.Util.getPosition(_this.canvas).x;
-                var y = te.changedTouches[0].pageY - ex.Util.getPosition(_this.canvas).y;
-                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var touchend = new ex.TouchEnd(transformedPoint.x, transformedPoint.y);
-                _this.touchEnd.push(touchend);
-                _this.eventDispatcher.publish(ex.EventType[8 /* TouchEnd */], touchend);
-            });
-
-            this.canvas.addEventListener('touchcancel', function (e) {
-                var te = e;
-                te.preventDefault();
-                var x = te.changedTouches[0].pageX - ex.Util.getPosition(_this.canvas).x;
-                var y = te.changedTouches[0].pageY - ex.Util.getPosition(_this.canvas).y;
-                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var touchcancel = new ex.TouchCancel(transformedPoint.x, transformedPoint.y);
-                _this.touchCancel.push(touchcancel);
-                _this.eventDispatcher.publish(ex.EventType[9 /* TouchCancel */], touchcancel);
-            });
-
-            if (navigator.maxTouchPoints) {
-                this.canvas.addEventListener('pointerdown', function (e) {
-                    if (e.pointerType !== "touch")
-                        return;
-
-                    e.preventDefault();
-                    var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
-                    var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
-                    var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                    var touchstart = new ex.TouchStart(transformedPoint.x, transformedPoint.y);
-                    _this.touchStart.push(touchstart);
-                    _this.eventDispatcher.publish(ex.EventType[6 /* TouchStart */], touchstart);
-                });
-
-                this.canvas.addEventListener('pointermove', function (e) {
-                    if (e.pointerType !== "touch")
-                        return;
-
-                    e.preventDefault();
-                    var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
-                    var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
-                    var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                    var touchmove = new ex.TouchMove(transformedPoint.x, transformedPoint.y);
-                    _this.touchMove.push(touchmove);
-                    _this.eventDispatcher.publish(ex.EventType[7 /* TouchMove */], touchmove);
-                });
-
-                this.canvas.addEventListener('pointerup', function (e) {
-                    if (e.pointerType !== "touch")
-                        return;
-
-                    e.preventDefault();
-                    var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
-                    var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
-                    var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                    var touchend = new ex.TouchEnd(transformedPoint.x, transformedPoint.y);
-                    _this.touchEnd.push(touchend);
-                    _this.eventDispatcher.publish(ex.EventType[8 /* TouchEnd */], touchend);
-                });
-            }
-
-            this.ctx = this.canvas.getContext('2d');
-            if (!this.canvasElementId) {
-                document.body.appendChild(this.canvas);
-            }
-        };
-
-        Engine.prototype.setAntialiasing = function (isSmooth) {
-            this.isSmoothingEnabled = isSmooth;
-            this.ctx.imageSmoothingEnabled = isSmooth;
-            this.ctx.webkitImageSmoothingEnabled = isSmooth;
-            this.ctx.mozImageSmoothingEnabled = isSmooth;
-            this.ctx.msImageSmoothingEnabled = isSmooth;
-        };
-
-        Engine.prototype.getAntialiasing = function () {
-            return this.ctx.imageSmoothingEnabled || this.ctx.webkitImageSmoothingEnabled || this.ctx.mozImageSmoothingEnabled || this.ctx.msImageSmoothingEnabled;
-        };
-
-        Engine.prototype.isKeyDown = function (key) {
-            return this.keysDown.indexOf(key) > -1;
-        };
-
-        Engine.prototype.isKeyPressed = function (key) {
-            return this.keys.indexOf(key) > -1;
-        };
-
-        Engine.prototype.isKeyUp = function (key) {
-            return this.keysUp.indexOf(key) > -1;
-        };
-
-        Engine.prototype.update = function (delta) {
-            if (this.isLoading) {
-                return;
-            }
-
-            this.eventDispatcher.update();
-            this.currentScene.update(this, delta);
-
-            var eventDispatcher = this.eventDispatcher;
-            this.keys.forEach(function (key) {
-                eventDispatcher.publish(InputKey[key], new ex.KeyEvent(key));
-            });
-
-            this.animations = this.animations.filter(function (a) {
-                return !a.animation.isDone();
-            });
-
-            this.keysDown.length = 0;
-            this.keysUp.length = 0;
-
-            this.clicks.length = 0;
-
-            this.mouseDown.length = 0;
-            this.mouseMove.length = 0;
-            this.mouseUp.length = 0;
-
-            this.touchStart.length = 0;
-            this.touchMove.length = 0;
-            this.touchEnd.length = 0;
-            this.touchCancel.length = 0;
-
-            this.eventDispatcher.publish(ex.EventType[16 /* Update */], new ex.UpdateEvent(delta));
-        };
-
-        Engine.prototype.draw = function (delta) {
-            var ctx = this.ctx;
-
-            if (this.isLoading) {
-                ctx.fillStyle = 'black';
-                ctx.fillRect(0, 0, this.width, this.height);
-                this.drawLoadingBar(ctx, this.progress, this.total);
-
-                return;
-            }
-
-            ctx.clearRect(0, 0, this.width, this.height);
-            ctx.fillStyle = this.backgroundColor.toString();
-            ctx.fillRect(0, 0, this.width, this.height);
-
-            if (this.isDebug) {
-                this.ctx.font = "Consolas";
-                this.ctx.fillStyle = this.debugColor.toString();
-                for (var j = 0; j < this.keys.length; j++) {
-                    this.ctx.fillText(this.keys[j].toString() + " : " + (InputKey[this.keys[j]] ? InputKey[this.keys[j]] : "Not Mapped"), 100, 10 * j + 10);
-                }
-
-                var fps = 1.0 / (delta / 1000);
-                this.ctx.fillText("FPS:" + fps.toFixed(2).toString(), 10, 10);
-            }
-
-            this.ctx.save();
-
-            if (this.camera) {
-                this.camera.update(delta);
-            }
-
-            this.currentScene.draw(this.ctx, delta);
-
-            this.animations.forEach(function (a) {
-                a.animation.draw(ctx, a.x, a.y);
-            });
-
-            if (this.isDebug) {
-                this.ctx.strokeStyle = 'yellow';
-                this.currentScene.debugDraw(this.ctx);
-            }
-
-            this.ctx.restore();
-        };
-
-        Engine.prototype.start = function (loader) {
-            var loadingComplete;
-            if (loader) {
-                loadingComplete = this.load(loader);
-            }
-
-            if (!this.hasStarted) {
-                this.hasStarted = true;
-                this.logger.debug("Starting game...");
-
-                var lastTime = Date.now();
-                var game = this;
-                (function mainloop() {
-                    if (!game.hasStarted) {
-                        return;
-                    }
-
-                    window.requestAnimationFrame(mainloop);
-
-                    var now = Date.now();
-                    var elapsed = Math.floor(now - lastTime) || 1;
-
-                    if (elapsed > 200) {
-                        elapsed = 1;
-                    }
-                    game.update(elapsed);
-                    game.draw(elapsed);
-
-                    lastTime = now;
-                })();
-                this.logger.debug("Game started");
-            } else {
-            }
-            return loadingComplete;
-        };
-
-        Engine.prototype.stop = function () {
-            if (this.hasStarted) {
-                this.hasStarted = false;
-                this.logger.debug("Game stopped");
-            }
-        };
-
-        Engine.prototype.drawLoadingBar = function (ctx, loaded, total) {
-            if (this.loadingDraw) {
-                this.loadingDraw(ctx, loaded, total);
-                return;
-            }
-
-            var y = this.canvas.height / 2;
-            var width = this.canvas.width / 3;
-            var x = width;
-
-            var image = new Image();
-
-            image.src = 'data:image/png;base64,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';
-
-            var imageHeight = width * 3 / 8;
-            var oldAntialias = this.getAntialiasing();
-            this.setAntialiasing(true);
-            ctx.drawImage(image, 0, 0, 800, 300, x, y - imageHeight - 20, width, imageHeight);
-
-            ctx.strokeStyle = 'white';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(x, y, width, 20);
-
-            var progress = width * (loaded / total);
-            ctx.fillStyle = 'white';
-            var margin = 5;
-            var width = progress - margin * 2;
-            var height = 20 - margin * 2;
-            ctx.fillRect(x + margin, y + margin, width > 0 ? width : 0, height);
-            this.setAntialiasing(oldAntialias);
-        };
-
-        Engine.prototype.setLoadingDrawFunction = function (fcn) {
-            this.loadingDraw = fcn;
-        };
-
-        Engine.prototype.load = function (loader) {
-            var _this = this;
-            var complete = new ex.Promise();
-
-            this.isLoading = true;
-
-            loader.load();
-            loader.onprogress = function (e) {
-                _this.progress = e.loaded;
-                _this.total = e.total;
-                _this.logger.info('Loading ' + (100 * _this.progress / _this.total).toFixed(0));
-            };
-            loader.oncomplete = function () {
-                setTimeout(function () {
-                    _this.isLoading = false;
-                    complete.resolve();
-                }, 500);
-            };
-
-            return complete;
-        };
-        return Engine;
-    })(ex.Util.Class);
-    ex.Engine = Engine;
-    ;
-})(ex || (ex = {}));
-//# sourceMappingURL=Excalibur-0.2.0.js.map
+//# sourceMappingURL=Excalibur.js.map

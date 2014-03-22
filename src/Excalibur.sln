@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30110.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Excalibur.Core", "Excalibur.Core.csproj", "{1DF7CFCA-A048-417C-84E7-4D1CC6A3FD77}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Excalibur.Core", "engine\Excalibur.Core.csproj", "{1DF7CFCA-A048-417C-84E7-4D1CC6A3FD77}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Excalibur.Tests", "Excalibur.Tests.csproj", "{3F3D99B4-B7E2-412D-AC02-37FF4A3844C0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Excalibur.Tests", "spec\Excalibur.Tests.csproj", "{3F3D99B4-B7E2-412D-AC02-37FF4A3844C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Excalibur.Samples", "Excalibur.Samples.csproj", "{8215CF44-EFC4-4295-9E56-4354DCE0FF37}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Excalibur.Sandbox", "..\Sandbox\Excalibur.Sandbox.csproj", "{8215CF44-EFC4-4295-9E56-4354DCE0FF37}"
 EndProject
-Project("{262852C6-CD72-467D-83FE-5EEB1973A190}") = "Excalibur.Samples.Win8", "Excalibur.Samples.Win8\Excalibur.Samples.Win8.jsproj", "{B57EA9C6-4322-4F96-8181-1417068DCC78}"
+Project("{262852C6-CD72-467D-83FE-5EEB1973A190}") = "Excalibur.Samples.Win8", "win8\Excalibur.Samples.Win8.jsproj", "{B57EA9C6-4322-4F96-8181-1417068DCC78}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
