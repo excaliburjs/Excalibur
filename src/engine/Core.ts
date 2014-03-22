@@ -11,6 +11,7 @@
 /// <reference path="Loader.ts" />
 /// <reference path="Promises.ts" />
 /// <reference path="Util.ts" />
+/// <reference path="Binding.ts" />
 
 module ex {
    
