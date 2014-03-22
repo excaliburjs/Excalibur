@@ -12,6 +12,7 @@ var imageJump = new ex.Texture('../images/PlayerJump.png');
 var imageBlocks = new ex.Texture('../images/BlockA0.png');
 var spriteFontImage = new ex.Texture('../images/SpriteFont.png');
 var jump = new ex.Sound('../sounds/jump.wav', '../sounds/jump.mp3');
+var template = new ex.Template('healthbar.tmpl');
 jump.setVolume(.3);
 
 var loader = new ex.Loader();
@@ -20,6 +21,7 @@ loader.addResource(imageJump);
 loader.addResource(imageBlocks);
 loader.addResource(spriteFontImage);
 loader.addResource(jump);
+loader.addResource(template);
 
 
 // Set background color
@@ -398,6 +400,9 @@ game.addEventListener('keyup', (evt?: ex.KeyUp)=>{
 game.camera = camera;
 
 // Run the mainloop
+var binding: ex.Binding;
 game.start(loader).then(()=>{
    logger.info("All Resources have finished loading");
+   binding = new ex.Binding("container", template, emitter);
+   binding.listen(emitter, ["update"]);
 });
