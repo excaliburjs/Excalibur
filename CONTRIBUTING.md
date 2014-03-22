@@ -16,7 +16,7 @@ Thank you for any contributions!
 
 - Typescript 9.x
 - Sublime Text 2+
-- Node.js (recommended)
+- Node.js
 
 You will need to have the TypeScript compiler installed on your platform to build from source.
 
@@ -38,10 +38,10 @@ This will install any dev dependencies in your directory.
 
 Windows:
 
-	./build.bat
+	grunt
 
 Unix/Linux:
 	
-	make all
+	grunt
 
 

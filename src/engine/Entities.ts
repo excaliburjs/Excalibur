@@ -893,6 +893,18 @@ module ex {
       }
 
       /**
+       * This method will add an action to the queu that will remove the actor from the 
+       * scene once it has completed its previous actions. Any actions on the
+       * action queue after this action will not be executed.
+       * @method die
+       * @returns Actor
+       */
+      public die(): Actor {
+         this.actionQueue.add(new ex.Internal.Actions.Die(this));
+         return this;
+      }
+
+      /**
        * This method will cause the actor to repeat all of the previously 
        * called actions a certain number of times. If the number of repeats 
        * is not specified it will repeat forever. This method is part of 

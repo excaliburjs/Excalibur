@@ -56,28 +56,34 @@
     <AppxManifest Include="package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <Content Include="..\build\Excalibur.js">
+    <Content Include="..\..\dist\Excalibur.js">
       <Link>js\Excalibur.js</Link>
     </Content>
-    <Content Include="..\sample-game\images\BlockA0.png">
+    <Content Include="..\..\sandbox\images\BlockA0.png">
       <Link>images\BlockA0.png</Link>
     </Content>
-    <Content Include="..\sample-game\images\favicon.png">
+    <Content Include="..\..\sandbox\images\favicon.png">
       <Link>images\favicon.png</Link>
     </Content>
-    <Content Include="..\sample-game\images\PlayerJump.png">
+    <Content Include="..\..\sandbox\images\PlayerJump.png">
       <Link>images\PlayerJump.png</Link>
     </Content>
-    <Content Include="..\sample-game\images\PlayerRun.png">
+    <Content Include="..\..\sandbox\images\PlayerRun.png">
       <Link>images\PlayerRun.png</Link>
     </Content>
-    <Content Include="..\sample-game\images\SpriteFont.png">
+    <Content Include="..\..\sandbox\images\PlayerRun.psd">
+      <Link>images\PlayerRun.psd</Link>
+    </Content>
+    <Content Include="..\..\sandbox\images\SpriteFont.png">
       <Link>images\SpriteFont.png</Link>
     </Content>
-    <Content Include="..\sample-game\sounds\jump.wav">
+    <Content Include="..\..\sandbox\sounds\jump.mp3">
+      <Link>sounds\jump.mp3</Link>
+    </Content>
+    <Content Include="..\..\sandbox\sounds\jump.wav">
       <Link>sounds\jump.wav</Link>
     </Content>
-    <Content Include="..\sample-game\ts\game.js">
+    <Content Include="..\..\sandbox\src\game.js">
       <Link>js\game.js</Link>
     </Content>
     <Content Include="default.html" />

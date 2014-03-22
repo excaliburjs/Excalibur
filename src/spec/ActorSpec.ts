@@ -291,6 +291,36 @@ describe("A game actor", () => {
 
 	});
 
+   it('can die', ()=>{
+      scene.addChild(actor);
+      expect(scene.children.length).toBe(1);
+      actor.die();
+      scene.update(engine, 100);
+      expect(scene.children.length).toBe(0);
+   });
+
+   it('can perform actions and then die', ()=>{
+      scene.addChild(actor);
+      expect(actor.x).toBe(0);
+      expect(actor.y).toBe(0);
+      expect(scene.children.length).toBe(1);
+
+      actor.moveTo(100, 0, 100).delay(1000).die();
+      actor.update(engine, 1000);
+
+      expect(actor.x).toBe(100);
+      expect(actor.y).toBe(0);
+
+      actor.update(engine, 500);
+      expect(actor.x).toBe(100);
+      expect(actor.y).toBe(0);
+
+      actor.update(engine, 1000);
+      scene.update(engine, 100);
+      expect(scene.children.length).toBe(0);
+
+   });
+
 	it('can repeat previous actions', ()=>{
 		expect(actor.x).toBe(0);
 		expect(actor.y).toBe(0);

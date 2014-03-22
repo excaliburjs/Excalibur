@@ -618,6 +618,34 @@ module ex.Internal.Actions {
       }
    }
 
+   export class Die implements IAction {
+      public x: number;
+      public y: number;
+
+      private actor: Actor;
+
+      private _started = false;
+      private _stopped = false;
+
+      constructor(actor: Actor) {
+         this.actor = actor;
+      }
+
+      public update(delta: number): void {
+         this.actor.actionQueue.clearActions();
+         this.actor.kill();
+         this._stopped = true;
+      }
+
+      public isComplete(): boolean {
+         return this._stopped;
+      }
+
+      public stop(): void { }
+
+      public reset(): void { }
+   }
+   
    export class Repeat implements IAction {
       public x: number;
       public y: number;
