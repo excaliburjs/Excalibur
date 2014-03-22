@@ -26,7 +26,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>sample-game\bin\</OutputPath>
+    <OutputPath>bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -59,35 +59,30 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="sample-game\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="particle-tester\index.html" />
-    <Content Include="particle-tester\knockout-3.0.0.js" />
-    <Content Include="particle-tester\main.css" />
-    <Content Include="particle-tester\main.js" />
-    <Content Include="sample-game\html\index.html" />
-    <Content Include="sample-game\images\BlockA0.png" />
-    <Content Include="sample-game\images\favicon.png" />
-    <Content Include="sample-game\images\PlayerJump.png" />
-    <Content Include="sample-game\images\PlayerRun.png" />
-    <Content Include="sample-game\images\SpriteFont.png" />
-    <Content Include="sample-game\sounds\jump.wav" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="sample-game\images\PlayerRun.psd" />
-  </ItemGroup>
-  <ItemGroup>
-    <TypeScriptCompile Include="sample-game\ts\game.ts" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="Excalibur.Core.csproj">
+    <ProjectReference Include="..\src\engine\Excalibur.Core.csproj">
       <Project>{1df7cfca-a048-417c-84e7-4d1cc6a3fd77}</Project>
       <Name>Excalibur.Core</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <Content Include="html\index.html" />
+    <Content Include="images\BlockA0.png" />
+    <Content Include="images\favicon.png" />
+    <Content Include="images\PlayerJump.png" />
+    <Content Include="images\PlayerRun.png" />
+    <Content Include="images\SpriteFont.png" />
+    <Content Include="sounds\jump.mp3" />
+    <Content Include="sounds\jump.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="images\PlayerRun.psd" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="src\game.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

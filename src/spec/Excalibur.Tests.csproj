@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <ProjectGuid>{1DF7CFCA-A048-417C-84E7-4D1CC6A3FD77}</ProjectGuid>
+    <ProjectGuid>{3F3D99B4-B7E2-412D-AC02-37FF4A3844C0}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <OutputPath>bin</OutputPath>
@@ -48,9 +48,8 @@
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
-    <TypeScriptOutFile>build\Excalibur.js</TypeScriptOutFile>
-    <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
-    <OutputPath>ts\bin\</OutputPath>
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <OutputPath>spec\bin\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptTarget>ES5</TypeScriptTarget>
@@ -59,25 +58,31 @@
     <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="GruntFile.js" />
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="ts\Action.ts" />
-    <TypeScriptCompile Include="ts\Algebra.ts" />
-    <TypeScriptCompile Include="ts\Camera.ts" />
-    <TypeScriptCompile Include="ts\Core.ts" />
-    <TypeScriptCompile Include="ts\Drawing.ts" />
-    <TypeScriptCompile Include="ts\Entities.ts" />
-    <TypeScriptCompile Include="ts\Events.ts" />
-    <TypeScriptCompile Include="ts\Loader.ts" />
-    <TypeScriptCompile Include="ts\Log.ts" />
-    <TypeScriptCompile Include="ts\MonkeyPatch.ts" />
-    <TypeScriptCompile Include="ts\Promises.ts" />
-    <TypeScriptCompile Include="ts\Sound.ts" />
-    <TypeScriptCompile Include="ts\Util.ts" />
+    <ProjectReference Include="..\engine\Excalibur.Core.csproj">
+      <Project>{1df7cfca-a048-417c-84e7-4d1cc6a3fd77}</Project>
+      <Name>Excalibur.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="package.json" />
+    <TypeScriptCompile Include="ActorSpec.ts" />
+    <TypeScriptCompile Include="CameraSpec.ts" />
+    <None Include="chutzpah.json" />
+    <TypeScriptCompile Include="ClassSpec.ts" />
+    <TypeScriptCompile Include="CollectionSpec.ts" />
+    <TypeScriptCompile Include="CollisionGroupSpec.ts" />
+    <TypeScriptCompile Include="ColorSpec.ts" />
+    <TypeScriptCompile Include="jasmine.d.ts" />
+    <TypeScriptCompile Include="LogSpec.ts" />
+    <TypeScriptCompile Include="PromiseSpec.ts" />
+    <TypeScriptCompile Include="require.d.ts" />
+    <TypeScriptCompile Include="TimerSpec.ts" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets')" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
 </Project>
