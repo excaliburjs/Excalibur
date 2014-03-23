@@ -543,6 +543,9 @@ module ex {
          eventName = eventName.toLowerCase();
          var queue = this.queue;
          var target = this.target;
+         if(!event){
+            event = new GameEvent();
+         }
          event.target = target;
          if (this._handlers[eventName]) {
             this._handlers[eventName].forEach(function (callback) {
