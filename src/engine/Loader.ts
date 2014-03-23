@@ -239,7 +239,7 @@ module ex {
          }
          this.sound.onerror = (e) => {
                this.onerror(e);
-               complete.reject(e);
+               complete.resolve(e);
             }
          this.sound.load();
          return complete;
@@ -340,7 +340,7 @@ module ex {
 
                me.onprogress.call(me, progressResult);
             };
-            r.oncomplete = function () {
+            r.oncomplete = r.onerror = function () {
                me.numLoaded++;
                if (me.numLoaded === me.resourceCount) {
                   

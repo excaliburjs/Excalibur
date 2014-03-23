@@ -160,6 +160,13 @@ module ex.Internal {
          request.onprogress = this.onprogress;
          request.onerror = this.onerror;
          request.onload = () => {
+            if(request.status !== 200){
+               this.logger.error("Failed to load audio resource ", this.path, " server responded with error code", request.status);
+               this.onerror(request.response);
+               this.isLoaded = false;
+               return;
+            }
+
             this.context.decodeAudioData(request.response,
                (buffer) => {
                   this.buffer = buffer;
