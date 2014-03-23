@@ -81,15 +81,17 @@ describe("A game actor", () => {
 		expect(actor.getWidth()).toBe(20);
 		expect(actor.getHeight()).toBe(20);
 
-		actor.scale = 2;
+		actor.scaleX = 2;
+      actor.scaleY = 3;
 
 		expect(actor.getWidth()).toBe(40);
-		expect(actor.getHeight()).toBe(40);
+		expect(actor.getHeight()).toBe(60);
 
-		actor.scale = .5;
+		actor.scaleX = .5;
+      actor.scaleY = .1;
 
 		expect(actor.getWidth()).toBe(10);
-		expect(actor.getHeight()).toBe(10);
+		expect(actor.getHeight()).toBe(2);
 
 
 	});
@@ -223,27 +225,37 @@ describe("A game actor", () => {
 	});
 
 	it('can be scaled at a speed', ()=>{
-		expect(actor.scale).toBe(1);
+		expect(actor.scaleX).toBe(1);
+      expect(actor.scaleY).toBe(1);
 
-		actor.scaleTo(2, .5);
+		actor.scaleTo(2, 4, .5, .5);
 		actor.update(engine, 1000);
 
-		expect(actor.scale).toBe(1.5);
+		expect(actor.scaleX).toBe(1.5);
+      expect(actor.scaleY).toBe(1.5);
 		actor.update(engine, 1000);
 
-		expect(actor.scale).toBe(2);
+		expect(actor.scaleX).toBe(2);
+      expect(actor.scaleY).toBe(2);
+      actor.update(engine, 1000);
+
+      expect(actor.scaleX).toBe(2);
+      expect(actor.scaleY).toBe(2.5);
 	});
 
 	it('can be scaled by a certain time', ()=>{
-		expect(actor.scale).toBe(1);
+		expect(actor.scaleX).toBe(1);
+      expect(actor.scaleY).toBe(1);
 
-		actor.scaleBy(4, 1000);
-
-		actor.update(engine, 500);
-		expect(actor.scale).toBe(2.5);
+		actor.scaleBy(4, 5, 1000);
 
 		actor.update(engine, 500);
-		expect(actor.scale).toBe(4);
+		expect(actor.scaleX).toBe(2.5);
+      expect(actor.scaleY).toBe(3);
+
+		actor.update(engine, 500);
+		expect(actor.scaleX).toBe(4);
+      expect(actor.scaleY).toBe(5);
 	});
 
 	it('can blink at a frequency', ()=>{
@@ -450,30 +462,36 @@ describe("A game actor", () => {
 	});
 
 	it('can have its scaleTo action stopped', ()=>{
-		expect(actor.scale).toBe(1);
+		expect(actor.scaleX).toBe(1);
+      expect(actor.scaleY).toBe(1);
 
-		actor.scaleTo(2, .5);
+		actor.scaleTo(2, 2, .5, .5);
 		actor.update(engine, 1000);
 
 		actor.clearActions();
-		expect(actor.scale).toBe(1.5);
+		expect(actor.scaleX).toBe(1.5);
+      expect(actor.scaleY).toBe(1.5);
 		actor.update(engine, 1000);
 
-		expect(actor.scale).toBe(1.5);
+		expect(actor.scaleX).toBe(1.5);
+      expect(actor.scaleY).toBe(1.5);
 	});
 
 	it('can have its scaleBy action stopped', ()=>{
-		expect(actor.scale).toBe(1);
+		expect(actor.scaleX).toBe(1);
+      expect(actor.scaleY).toBe(1);
 
-		actor.scaleBy(4, 1000);
+		actor.scaleBy(4, 4, 1000);
 
 		actor.update(engine, 500);
 
 		actor.clearActions();
-		expect(actor.scale).toBe(2.5);
+		expect(actor.scaleX).toBe(2.5);
+      expect(actor.scaleY).toBe(2.5);
 
 		actor.update(engine, 500);
-		expect(actor.scale).toBe(2.5);
+		expect(actor.scaleX).toBe(2.5);
+      expect(actor.scaleY).toBe(2.5);
 	});
 
 	it('can have its blink action stopped', ()=>{

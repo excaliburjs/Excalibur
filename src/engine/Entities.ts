@@ -289,8 +289,10 @@ module ex {
        * @property y {number} 
        */
       public y: number = 0;
+
       private height: number = 0;
       private width: number = 0;
+
       /** 
        * The rotation of the actor in radians
        * @property rotation {number} 
@@ -302,15 +304,25 @@ module ex {
        */
       public rx: number = 0; //radions/sec
       /** 
-       * The scale of the actor
-       * @property scale {number} 
+       * The x scale of the actor
+       * @property scaleX {number} 
        */
-      public scale: number = 1;
+      public scaleX: number = 1;
+      /**
+       * The y scale of the actor
+       * @property scaleY {number}
+       */
+      public scaleY: number = 1;
       /** 
-       * The scalar velocity of the actor in scale/second
+       * The x scalar velocity of the actor in scale/second
        * @property sx {number} 
        */
       public sx: number = 0; //scale/sec
+      /** 
+       * The y scalar velocity of the actor in scale/second
+       * @property sy {number} 
+       */
+      public sy: number = 0; //scale/sec
       /** 
        * The x velocity of the actor in pixels/second
        * @property dx {number} 
@@ -321,6 +333,7 @@ module ex {
        * @property dx {number} 
        */
       public dy: number = 0;
+      
       public ax: number = 0; // pixels/sec/sec
       public ay: number = 0;
 
@@ -530,7 +543,7 @@ module ex {
        * @returns number
        */
       public getWidth() {
-         return this.width * this.scale;
+         return this.width * this.scaleX;
       }
 
       /**
@@ -538,7 +551,7 @@ module ex {
        * @method setWidth
        */
       public setWidth(width) {
-         this.width = width / this.scale;
+         this.width = width / this.scaleX;
       }
 
       /**
@@ -547,7 +560,7 @@ module ex {
        * @returns number
        */
       public getHeight() {
-         return this.height * this.scale;
+         return this.height * this.scaleY;
       }
 
       /**
@@ -555,7 +568,7 @@ module ex {
        * @method setHeight
        */
       public setHeight(height) {
-         this.height = height / this.scale;
+         this.height = height / this.scaleY;
       }
 
       /**
@@ -828,8 +841,8 @@ module ex {
        * @param speed {number} The speed of scaling specified in magnitude increase per second
        * @returns Actor
        */
-      public scaleTo(size: number, speed: number): Actor {
-         this.actionQueue.add(new ex.Internal.Actions.ScaleTo(this, size, speed));
+      public scaleTo(sizeX: number, sizeY: number, speedX: number, speedY: number): Actor {
+         this.actionQueue.add(new ex.Internal.Actions.ScaleTo(this, sizeX, sizeY, speedX, speedY));
          return this;
       }
 
@@ -842,8 +855,8 @@ module ex {
        * @param time {number} The time it should take to complete the scaling in milliseconds
        * @returns Actor
        */
-      public scaleBy(size: number, time: number): Actor {
-         this.actionQueue.add(new ex.Internal.Actions.ScaleBy(this, size, time));
+      public scaleBy(sizeX: number, sizeY: number, time: number): Actor {
+         this.actionQueue.add(new ex.Internal.Actions.ScaleBy(this, sizeX, sizeY, time));
          return this;
       }
 
@@ -996,7 +1009,8 @@ module ex {
 
          this.rotation += this.rx * delta / 1000;
 
-         this.scale += this.sx * delta / 1000;
+         this.scaleX += this.sx * delta / 1000;
+         this.scaleY += this.sy * delta / 1000;
 
          var potentialColliders = engine.currentScene.children.filter(function(actor){
             return !actor._isKilled;
@@ -1113,7 +1127,7 @@ module ex {
          ctx.save();
          ctx.translate(this.x, this.y);
          ctx.rotate(this.rotation);     
-         ctx.scale(this.scale, this.scale);
+         ctx.scale(this.scaleX, this.scaleY);
 
          if (this.previousOpacity != this.opacity) {
             // Object.keys(this.frames).forEach(function (key) {
@@ -1131,11 +1145,11 @@ module ex {
                var xDiff = 0;
                var yDiff = 0;
                if (this.centerDrawingX) {
-                  xDiff = (this.currentDrawing.width * this.currentDrawing.getScale() - this.width) / 2;
+                  xDiff = (this.currentDrawing.width * this.currentDrawing.getScaleX() - this.width) / 2;
                }
 
                if (this.centerDrawingY) {
-                  yDiff = (this.currentDrawing.height * this.currentDrawing.getScale() - this.height) / 2;
+                  yDiff = (this.currentDrawing.height * this.currentDrawing.getScaleY() - this.height) / 2;
                }
 
                //var xDiff = (this.currentDrawing.width*this.currentDrawing.getScale() - this.width)/2;
@@ -1442,7 +1456,7 @@ module ex {
 
          ctx.save();
          ctx.translate(this.x, this.y);
-         ctx.scale(this.scale, this.scale);
+         ctx.scale(this.scaleX, this.scaleY);
          ctx.rotate(this.rotation);
          
          if(this._textShadowOn){
@@ -1543,7 +1557,8 @@ module ex {
 
          this.rotation += this.rx * delta / 1000;
 
-         this.scale += this.sx * delta / 1000;
+         this.scaleX += this.sx * delta / 1000;
+         this.scaleY += this.sy * delta / 1000;
 
          // check for trigger collisions
          if(this.target){

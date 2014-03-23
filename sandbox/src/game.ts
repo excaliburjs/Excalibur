@@ -40,7 +40,7 @@ var tileBlockWidth = 64,
 // Create spriteFont
 var spriteFont = new ex.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
 var label = new ex.Label('Hello World', 100, 100, null, spriteFont);
-label.scaleTo(2, .5).scaleTo(1,.5).repeatForever();
+label.scaleTo(2, 2, .5, .5).scaleTo(1, 1, .5, .5).repeatForever();
 game.addChild(label);
 
 // Retrieve animations for blocks from sprite sheet
@@ -99,7 +99,8 @@ follower.meet(player, 60);
 
 // follow player
 
-player.scale = 1;
+player.scaleX = 1;
+player.scaleY = 1;
 player.rotation = 0;
 player.fixed = false;
 
