@@ -91,15 +91,19 @@ module ex {
          request.responseType = "blob";
          request.onloadstart = (e) => { this._start(e) };
          request.onprogress = this.onprogress;
+         request.onerror = this.onerror;
          request.onload = (e) => {
+            if(request.status !== 200){
+               this.logger.error("Failed to load image resource ", this.path, " server responded with error code", request.status);
+               this.onerror(request.response);
+               complete.resolve(request.response);
+               return;
+            }
+
             this.image.src = URL.createObjectURL(request.response);
             this.oncomplete()
             this.logger.debug("Completed loading image", this.path);
             complete.resolve(this.image);
-         };
-         request.onerror = (e) => {
-            this.onerror(e);
-            complete.reject(e);
          };
          if (request.overrideMimeType) {
             request.overrideMimeType('text/plain; charset=x-user-defined');
