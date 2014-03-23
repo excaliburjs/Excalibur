@@ -69,12 +69,15 @@ module ex.Util {
        * actor may be extended to support additional functionaliy. In the 
        * example below we create a new type called "MyActor"
        * <br/><b>Example</b><pre>var MyActor = Actor.extend({
-   init : function(){ // custom initializer },
+   constructor : function(){ 
+      this.newprop = 'something';
+      Actor.apply(this, arguments);
+   },
    update : function(engine, delta){
       // Implement custom update 
 
          // Call super constructor update
-         this.super.update.call(this, engine, delta);
+         Actor.prototype.update.call(this, engine, delta);
          console.log("Something cool!");
    }
 });
@@ -83,41 +86,33 @@ var myActor = new MyActor(100, 100, 100, 100, Color.Azure);</pre>
        * @static
        * @param methods {any}
        */
-      public static extend(methods: any){
-         var _super = this.prototype;
-         var SubClass = function(){
-            if(this.init){
-               this.init.apply(this, Array.prototype.slice.call(arguments));
-            }
-         };       
-          
-         // Create our super class and populate
-         var SuperClass = new this();
-         for(var prop in methods){
-            if(typeof _super[prop] == "function" && /\b_super\b/.test(methods[prop])){
-            // if we have encountered a super constructor lazily call it
-               SuperClass[prop] = (function(name, fn){
-                  return function(){
-                     var tmp = this._super;
-                     this._super = _super[name];
-                     var ret = fn.apply(this, arguments);
-                     this._super = tmp;
-                     return ret;
-                  }
-               })(prop, methods[prop]);
-            }else{
+      public static extend(methods: any): any{
+          var parent: any = this;
+          var child: any;
 
-               SuperClass[prop] = methods[prop];
-            }
-         } 
+          if (methods && methods.hasOwnProperty('constructor')) {
+            child = methods.constructor;
+          } else {
+            child = function(){ return parent.apply(this, arguments); };
+          }
 
-         SubClass.prototype.constructor = SubClass;
-         SubClass.prototype = SuperClass;
-         SubClass.prototype._super = SubClass;
-         SubClass.prototype.super = _super;
-         (<any>SubClass).extend = Class.extend;
-          
-         return SubClass;
+          // Using constructor allows JS to lazily instantiate super classes
+          var Super: any = function(){ this.constructor = child; };
+          Super.prototype = parent.prototype;
+          child.prototype = new Super;
+
+          if (methods){
+            for(var prop in methods){
+               if(methods.hasOwnProperty(prop)){
+                  child.prototype[prop] = methods[prop];
+               }
+            }
+          }
+
+          // Make subclasses extendable
+          child.extend = Class.extend;
+
+          return child;
       }
    }
    

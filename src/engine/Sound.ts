@@ -62,7 +62,7 @@ module ex.Internal {
       private isLoaded = false;
       private index = 0;
       private log: Logger = Logger.getInstance();
-      constructor(public soundPath: string, volume?: number) {
+      constructor(public path: string, volume?: number) {
          for(var i = 0; i < this.audioElements.length; i++){
             ((i)=>{
                this.audioElements[i] = new Audio();
@@ -94,17 +94,24 @@ module ex.Internal {
 
       public load() {
          var request = new XMLHttpRequest();
-         request.open("GET", this.soundPath, true);
+         request.open("GET", this.path, true);
          request.responseType = 'blob';
          request.onprogress = this.onprogress;
+         request.onerror = this.onerror;
          request.onload = (e) => { 
+            if(request.status !== 200){
+               this.log.error("Failed to load audio resource ", this.path, " server responded with error code", request.status);
+               this.onerror(request.response);
+               this.isLoaded = false;
+               return;
+            }
+
             this._loadedAudio = URL.createObjectURL(request.response);
             this.audioElements.forEach((a)=>{
                a.src = this._loadedAudio;
             });
             this.onload(e) 
          };
-         request.onerror = (e) => { this.onerror(e); };
          request.send();
       }
 
@@ -160,6 +167,13 @@ module ex.Internal {
          request.onprogress = this.onprogress;
          request.onerror = this.onerror;
          request.onload = () => {
+            if(request.status !== 200){
+               this.logger.error("Failed to load audio resource ", this.path, " server responded with error code", request.status);
+               this.onerror(request.response);
+               this.isLoaded = false;
+               return;
+            }
+
             this.context.decodeAudioData(request.response,
                (buffer) => {
                   this.buffer = buffer;

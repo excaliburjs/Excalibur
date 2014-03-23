@@ -105,17 +105,21 @@ module ex {
          request.open("GET", this.path, true);
          request.responseType = "text";
          request.onprogress = this.onprogress;
+         request.onerror = this.onerror;
          request.onload = (e) => {
+            if(request.status !== 200){
+               this.logger.error("Failed to load html template resource ", this.path, " server responded with error code", request.status);
+               this.onerror(request.response);
+               this._isLoaded = false;
+               complete.resolve("error");
+               return;
+            }
             this._htmlString = request.response;
             this.oncomplete()
             this.logger.debug("Completed loading template", this.path);
             this._compile();
             this._isLoaded = true;
             complete.resolve(this._htmlString);
-         };
-         request.onerror = (e) => {
-            this.onerror(e);
-            complete.reject(e);
          };
          if(request.overrideMimeType){
             request.overrideMimeType('text/plain; charset=x-user-defined');
