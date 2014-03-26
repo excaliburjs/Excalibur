@@ -26,6 +26,11 @@ describe("A game actor", () => {
             width: 0,
             height: 0,
          },
+         getWidth: function(){return 0},
+         getHeight: function(){return 0},
+         camera: {
+            getZoom: function(){return 1}
+         },
          worldToScreenCoordinates: function(){
             return new ex.Point(0,0);
          },

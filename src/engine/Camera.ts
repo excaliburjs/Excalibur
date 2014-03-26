@@ -37,7 +37,7 @@ module ex {
       * @method setActorToFollow
       * @param actor {Actor} The actor to follow
       */
-      setActorToFollow(actor: Actor) {
+      public setActorToFollow(actor: Actor) {
          this.follow = actor;
       }
 
@@ -46,7 +46,7 @@ module ex {
       * @method getFocus
       * @returns Point
       */
-      getFocus() {
+      public getFocus() {
          // this should always be overridden
          if (this.follow) {
             return new Point(0, 0);
@@ -61,7 +61,7 @@ module ex {
       * @param x {number} The x coordinate of the focal point
       * @param y {number} The y coordinate of the focal point
       */
-      setFocus(x: number, y: number) {
+      public setFocus(x: number, y: number) {
          if (!this.follow) {
             this.focus.x = x;
             this.focus.y = y;
@@ -75,7 +75,7 @@ module ex {
       * @param magnitudeY {number} the y magnitude of the shake
       * @param duration {number} the duration of the shake
       */
-      shake(magnitudeX: number, magnitudeY: number, duration: number) {
+      public shake(magnitudeX: number, magnitudeY: number, duration: number) {
          this.isShaking = true;
          this.shakeMagnitudeX = magnitudeX;
          this.shakeMagnitudeY = magnitudeY;
@@ -89,7 +89,7 @@ module ex {
       * @param scale {number} the scale of the zoom
       * @param [duration] {number} the duration of the zoom
       */
-      zoom(scale: number, duration?: number) {
+      public zoom(scale: number, duration?: number) {
          this.isZooming = true;
          this.maxZoomScale = scale;
          this.zoomDuration = duration | 0;
@@ -101,7 +101,13 @@ module ex {
             if (duration) {
                this.zoomIncrement = -1 * this.zoomIncrement;
             } else {
-               this.zoomIncrement = -0.01;
+               this.isZooming = false;
+               this.setCurrentZoomScale(this.maxZoomScale);
+            }
+         }else{
+            if(!duration){
+               this.isZooming = false;
+               this.setCurrentZoomScale(this.maxZoomScale);
             }
          }
 
@@ -110,10 +116,10 @@ module ex {
 
       /**
       * gets the current zoom scale
-      * @method getCurrentZoomScale
+      * @method getZoom
       * @returns {Number} the current zoom scale
       */
-      getCurrentZoomScale() {
+      public getZoom() {
          return this.currentZoomScale;
       }
 
@@ -134,8 +140,8 @@ module ex {
 
          var canvasWidth = this.engine.ctx.canvas.width;
          var canvasHeight = this.engine.ctx.canvas.height;
-         var newCanvasWidth = canvasWidth * this.getCurrentZoomScale();
-         var newCanvasHeight =  canvasHeight * this.getCurrentZoomScale();
+         var newCanvasWidth = canvasWidth * this.getZoom();
+         var newCanvasHeight =  canvasHeight * this.getZoom();
 
          if (this.isDoneShaking()) {
                this.isShaking = false;
@@ -155,15 +161,25 @@ module ex {
             this.isZooming = false;
             this.elapsedZoomTime = 0;
             this.zoomDuration = 0;
+            this.setCurrentZoomScale(this.maxZoomScale);
 
          } else {
             this.elapsedZoomTime += delta;
 
-            this.setCurrentZoomScale(this.getCurrentZoomScale() + this.zoomIncrement * delta / 1000);
+            this.setCurrentZoomScale(this.getZoom() + this.zoomIncrement * delta / 1000);
          }
 
-         this.engine.ctx.translate(-((newCanvasWidth - canvasWidth)/2), -((newCanvasHeight - canvasHeight)/2));
-         this.engine.ctx.scale(this.getCurrentZoomScale(), this.getCurrentZoomScale());
+         //this.engine.ctx.translate(-((newCanvasWidth - canvasWidth)/2), -((newCanvasHeight - canvasHeight)/2));
+         this.engine.ctx.scale(this.getZoom(), this.getZoom());
+      }
+
+      public debugDraw(ctx: CanvasRenderingContext2D){
+         var focus = this.getFocus();
+         ctx.fillStyle = 'yellow';
+         ctx.beginPath();
+         ctx.arc(this.follow.x + this.follow.getWidth()/2, 0, 15, 0, Math.PI*2);
+         ctx.closePath();
+         ctx.fill();
       }
 
       private isDoneShaking(): boolean {
@@ -193,14 +209,21 @@ module ex {
    */
    export class SideCamera extends BaseCamera {
       
+      /**
+       * Returns the focal point of the camera in world space
+       * @method getFocus
+       * @returns point
+       */
       getFocus() {
          if (this.follow) {
             // return new Point(-this.follow.x + this.engine.width / 2.0, 0);
-            return new Point((-this.follow.x * this.getCurrentZoomScale()) + (this.engine.width * this.getCurrentZoomScale()) / 2.0, 0);
+            return new Point(((-this.follow.x - this.follow.getWidth()/2) * this.getZoom()) + (this.engine.getWidth() * this.getZoom()) / 2.0, 0);
          } else {
             return this.focus;
          }
       }
+
+
 
    }
 
@@ -214,14 +237,14 @@ module ex {
    export class TopCamera extends BaseCamera {
 
       /**
-       * Returns the focal point of the camera
+       * Returns the focal point of the camera in world space
        * @method getFocus
        * @returns Point
        */
       getFocus() {
          if (this.follow) {
-            return new Point((-this.follow.x * this.getCurrentZoomScale()) + (this.engine.width * this.getCurrentZoomScale()) / 2.0, 
-                             (-this.follow.y * this.getCurrentZoomScale()) + (this.engine.height * this.getCurrentZoomScale()) / 2.0);
+            return new Point(((-this.follow.x - this.follow.getWidth() / 2) * this.getZoom()) + (this.engine.getWidth() * this.getZoom()) / 2.0, 
+                             ((-this.follow.y - this.follow.getHeight() / 2) * this.getZoom()) + (this.engine.getHeight() * this.getZoom()) / 2.0);
             } else {
                return this.focus;
             }

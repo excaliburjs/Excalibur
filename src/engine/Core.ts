@@ -12,6 +12,7 @@
 /// <reference path="Promises.ts" />
 /// <reference path="Util.ts" />
 /// <reference path="Binding.ts" />
+/// <reference path="CollisionMap.ts" />
 
 module ex {
    
@@ -601,8 +602,10 @@ module ex {
                this.displayMode = DisplayMode.Fixed;
             }
             this.logger.debug("Engine viewport is size " + width + " x " + height);
-            this.width = this.canvas.width = width;
-            this.height = this.canvas.height = height;
+            this.width = width; 
+            this.canvas.width = width;
+            this.height = height; 
+            this.canvas.height = height;
 
          } else if (!displayMode) {
             this.logger.debug("Engine viewport is fullscreen");
@@ -651,6 +654,15 @@ module ex {
        */
       public removeChild(actor: Actor) {
          this.currentScene.removeChild(actor);
+      }
+
+
+      public addCollisionMap(collisionMap: CollisionMap){
+         this.currentScene.addCollisionMap(collisionMap);
+      }
+
+      public removeCollisionMap(collisionMap: CollisionMap){
+         this.currentScene.removeCollisionMap(collisionMap);
       }
 
       /**
@@ -717,6 +729,9 @@ module ex {
        * @returns number The width of the drawing surface in pixels.
        */
       getWidth(): number {
+         if(this.camera){
+            return this.width/this.camera.getZoom();
+         }
          return this.width;
       }
       /**
@@ -725,6 +740,9 @@ module ex {
        * @returns number The height of the drawing surface in pixels.
        */
       getHeight(): number {
+         if(this.camera){
+            return this.height/this.camera.getZoom();
+         }
          return this.height;
       }
 
@@ -734,14 +752,18 @@ module ex {
        * @param point {Point} screen coordinate to convert
        */
       public screenToWorldCoordinates(point: Point): Point {
-         var newX = Math.floor(point.x * this.canvas.width / this.canvas.clientWidth);
-         var newY = Math.floor(point.y * this.canvas.height / this.canvas.clientHeight);
+         // todo set these back this.canvas.clientWidth
+         var newX = point.x;
+         var newY = point.y;
 
          if (this.camera) {
             var focus = this.camera.getFocus();
             newX -= focus.x;
             newY -= focus.y;
          }
+
+         newX = Math.floor((newX / this.canvas.clientWidth) * this.getWidth());
+         newY = Math.floor((newY / this.canvas.clientHeight) * this.getHeight());
          return new Point(newX, newY);
       }
 
@@ -752,14 +774,21 @@ module ex {
        *
        */
       public worldToScreenCoordinates(point: Point): Point {
-         var screenX = Math.floor(point.x / (this.canvas.width / this.canvas.clientWidth));
-         var screenY = Math.floor(point.y / (this.canvas.height / this.canvas.clientHeight));
+         // todo set these back this.canvas.clientWidth
+         // this isn't correct on zoom
+         var screenX = point.x;
+         var screenY = point.y;
 
          if(this.camera){
             var focus = this.camera.getFocus();
-            screenX += focus.x;
-            screenY += focus.y;
+
+            screenX += focus.x * (this.getWidth() / this.canvas.clientWidth);
+            screenY += focus.y * (this.getHeight() / this.canvas.clientHeight);
          }
+
+         screenX = Math.floor((screenX / this.getWidth()) * this.canvas.clientWidth);
+         screenY = Math.floor((screenY / this.getHeight()) * this.canvas.clientHeight);
+
          return new Point(screenX, screenY);
       }
 
@@ -1112,7 +1141,8 @@ module ex {
 
          if (this.isDebug) {
             this.ctx.strokeStyle = 'yellow'
-         this.currentScene.debugDraw(this.ctx);
+            this.currentScene.debugDraw(this.ctx);
+            this.camera.debugDraw(this.ctx);
          }
 
 

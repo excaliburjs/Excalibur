@@ -6,7 +6,8 @@
 			"file_exclude_patterns" : [
 				"src/spec/*.js",
 				"sandbox/*.js",
-            "src/engine/*.js"
+            "src/engine/*.js",
+            "*.csproj"
 			],
 			"folder_exclude_patterns" : [
 				"js",

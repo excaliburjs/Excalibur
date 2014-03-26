@@ -194,7 +194,7 @@ module ex {
        */
       public getSprite(index: number): Sprite {
          if (index >= 0 && index < this.sprites.length) {
-            return this.sprites[index].clone();
+            return this.sprites[index];
          }
       }
    }
@@ -393,7 +393,7 @@ module ex {
       }
 
       private loadPixels(){
-         if(this.texture.image && !this.pixelsLoaded){
+         if(this.texture.isLoaded() && !this.pixelsLoaded){
             this.spriteCtx.drawImage(this.texture.image, this.sx, this.sy, this.swidth, this.sheight, 0, 0, this.swidth, this.sheight);
             //this.pixelData = this.spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
             

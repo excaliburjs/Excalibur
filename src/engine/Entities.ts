@@ -1,6 +1,7 @@
 /// <reference path="Core.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util.ts" />
+/// <reference path="CollisionMap.ts" />
 
 module ex {
    export class Overlap {
@@ -24,6 +25,7 @@ module ex {
        * @property children {Actor[]}
        */
       public children: Actor[] = [];
+      public collisionMaps: CollisionMap[] = [];
       public engine: Engine;
       private killQueue: Actor[] = [];
 
@@ -105,7 +107,7 @@ module ex {
          var actorIndex = 0;
          for (var j = 0, len = this.killQueue.length; j < len; j++) {
             actorIndex = this.children.indexOf(this.killQueue[j]);
-            if(actorIndex !== -1){
+            if(actorIndex > -1){
                this.children.splice(actorIndex, 1);
             }
          }
@@ -134,6 +136,10 @@ module ex {
        * @param delta {number} The number of milliseconds since the last draw
        */
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
+         this.collisionMaps.forEach(function(cm){
+            cm.draw(ctx, delta);
+         });
+
          var len = 0;
          var start = 0;
          var end = 0;
@@ -150,9 +156,13 @@ module ex {
        * @param ctx {CanvasRenderingContext2D} The current rendering context
        */
       public debugDraw(ctx: CanvasRenderingContext2D) {
+         this.collisionMaps.forEach(map =>{
+            map.debugDraw(ctx);
+         });
+
          this.children.forEach((actor) => {
             actor.debugDraw(ctx);
-         })
+         });         
       }
 
       /**
@@ -164,6 +174,17 @@ module ex {
          actor.scene = this;
          this.children.push(actor);
          actor.parent = this.actor;
+      }
+
+      public addCollisionMap(collisionMap: CollisionMap){
+         this.collisionMaps.push(collisionMap);
+      }
+
+      public removeCollisionMap(collisionMap: CollisionMap){
+         var index = this.collisionMaps.indexOf(collisionMap);
+         if(index > -1){
+            this.collisionMaps.splice(index, 1);
+         }
       }
 
     
@@ -1077,20 +1098,21 @@ module ex {
          });
 
          var actorScreenCoords = engine.worldToScreenCoordinates(new Point(this.x, this.y));
+         var zoom = engine.camera.getZoom();
          if(!this.isOffScreen){
-            if(actorScreenCoords.x + this.getWidth() < 0 || 
-               actorScreenCoords.y + this.getHeight() < 0 ||
-               actorScreenCoords.x > engine.canvas.width ||
-               actorScreenCoords.y > engine.canvas.height){
+            if(actorScreenCoords.x + this.getWidth() * zoom < 0 || 
+               actorScreenCoords.y + this.getHeight() * zoom < 0 ||
+               actorScreenCoords.x > engine.width ||
+               actorScreenCoords.y > engine.height ){
                
                eventDispatcher.publish('exitviewport', new ExitViewPortEvent());
                this.isOffScreen = true;
             }
          }else{
-            if(actorScreenCoords.x + this.getWidth() > 0 &&
-               actorScreenCoords.y + this.getHeight() > 0 &&
-               actorScreenCoords.x < engine.canvas.width &&
-               actorScreenCoords.y < engine.canvas.height){
+            if(actorScreenCoords.x + this.getWidth() * zoom > 0 &&
+               actorScreenCoords.y + this.getHeight() * zoom > 0 &&
+               actorScreenCoords.x < engine.width &&
+               actorScreenCoords.y < engine.height){
                
                eventDispatcher.publish('enterviewport', new EnterViewPortEvent());               
                this.isOffScreen = false;
@@ -1109,6 +1131,8 @@ module ex {
        * @param delta {number} The time since the last draw in milliseconds
        */
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
+         // only draw if onscreen 
+         if(this.isOffScreen) return;
 
          ctx.save();
          ctx.translate(this.x, this.y);
