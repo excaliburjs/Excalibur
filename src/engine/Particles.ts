@@ -272,7 +272,7 @@ module ex {
 
       constructor(x?: number, y?: number, width?: number, height?: number) {    
          super(x, y, width, height, Color.White);
-         this.preventCollisions = true;
+         this.collisionType = CollisionType.PreventCollision;
          this.particles = new Util.Collection<Particle>();
          this.deadParticles = new Util.Collection<Particle>();
       }

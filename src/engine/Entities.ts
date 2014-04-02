@@ -254,36 +254,85 @@ module ex {
     */
    export enum Side {
       /**
-      @property NONE {Side}
+      @property None {Side}
       @static
       @final
       */
+      None,
       /**
-      @property TOP {Side}
+      @property Top {Side}
       @static
       @final
       */
+      Top,
       /**
-      @property BOTTOM {Side}
+      @property Bottom {Side}
       @static
       @final
       */
+      Bottom,
       /**
-      @property LEFT {Side}
+      @property Left {Side}
       @static
       @final
       */
+      Left,
       /**
-      @property RIGHT {Side}
+      @property Right {Side}
       @static
       @final
       */
-      NONE,
-      TOP,
-      BOTTOM,
-      LEFT,
-      RIGHT
+      Right
    }
+
+   /**
+    * An enum that describes the types of collisions actors can participate in
+    * @class CollisionType
+    */
+    export enum CollisionType {
+      /**
+       * Actors with the PreventCollision setting do not participate in any
+       * collisions and do not raise collision events.
+       * @property PreventCollision {CollisionType}
+       * @static
+       */
+      PreventCollision,
+      /**
+       * Actors with the Passive setting only raise collision events, but are not
+       * influenced or moved by other actors and do not influence or move other actors.
+       * @property Passive {CollisionType}
+       * @static
+       */
+      Passive,
+      /**
+       * Actors with the Active setting raise collision events and participate
+       * in collisions with other actors and will be push or moved by actors sharing
+       * the Active or Fixed setting.
+       * @property Active {CollisionType}
+       * @static
+       */
+      Active,
+
+      /**
+       * Actors with the Elastic setting will behave the same as Active, except that they will
+       * "bounce" in the opposite direction given their velocity dx/dy. This is a naive implementation meant for
+       * prototyping, for a more robust elastic collision listen to the "collision" event and perform your custom logic.
+       * @property Elastic {CollisionType}
+       * @static
+       */
+      Elastic,
+      /**
+       * Actors with the Fixed setting raise collision events and participate in
+       * collisions with other actors. Actors with the Fixed setting will not be
+       * pushed or moved by other actors sharing the Fixed or Actors. Think of Fixed
+       * actors as "immovable/onstoppable" objects. If two Fixed actors meet they will
+       * not be pushed or moved by each other, they will not interact except to throw
+       * collision events.
+       * @property Fixed {CollisionType}
+       * @static
+       */
+      Fixed
+    }
 
    /**
     * The most important primitive in Excalibur is an "Actor." Anything that
@@ -390,9 +439,14 @@ module ex {
       */
       public parent: Actor = null;
 
-      public fixed = true;
-      public preventCollisions = false;
+      /**
+       * Gets or sets the current collision type of this actor. By 
+       * default all actors participate in Active collisions.
+       * @property collisionType {CollisionType}
+       */
+      public collisionType : CollisionType = CollisionType.Active;
       public collisionGroups : string[] = [];
+
       private _collisionHandlers: {[key: string]: {(actor: Actor):void}[];} = {};
       private _isInitialized : boolean = false;
 
@@ -703,7 +757,7 @@ module ex {
       }
 
       /**
-       * Test whether the actor has collided with another actor, returns the side that collided.
+       * Test whether the actor has collided with another actor, returns the side of the current actor that collided.
        * @method collides
        * @param actor {Actor} The other actor to test
        * @returns Side
@@ -723,20 +777,20 @@ module ex {
 
             if (wy > hx) {
                if (wy > -hx) {
-                  return Side.TOP;
+                  return Side.Top;
                } else {
-               return Side.LEFT
+               return Side.Right;
             }
             } else {
                if (wy > -hx) {
-                  return Side.RIGHT;
+                  return Side.Left;
                } else {
-                  return Side.BOTTOM;
+                  return Side.Bottom;
                }
             }
          }
 
-         return Side.NONE;
+         return Side.None;
       }
 
       /**
@@ -1019,6 +1073,61 @@ module ex {
 
          this.scale += this.sx * delta / 1000;
 
+         if(this.collisionType !== CollisionType.PreventCollision){
+            // Retrieve the list of potential colliders, exclude killed, prevented, and self
+            var potentialColliders = engine.currentScene.children.filter((actor) => {
+               return !actor._isKilled && actor.collisionType !== CollisionType.PreventCollision && this !== actor;
+            });
+
+            for(var i = 0; i < potentialColliders.length; i++){
+               var side = Side.None;
+               var collider = potentialColliders[i];
+
+               if((side = this.collides(collider)) !== Side.None){
+                  // Publish collision events
+                  eventDispatcher.publish('collision', new CollisionEvent(this, collider, side));
+
+                  // Send collision group updates
+                  collider.collisionGroups.forEach((group)=>{
+                     if(this._collisionHandlers[group]){
+                        this._collisionHandlers[group].forEach((handler)=>{
+                           handler.call(this, collider);
+                        });
+                     }
+                  });
+
+                  // If the actor is active push the actor out if its not passive
+                  if((this.collisionType === CollisionType.Active || this.collisionType === CollisionType.Elastic) && collider.collisionType !== CollisionType.Passive){
+                     var overlap = this.getOverlap(collider);
+                     if (Math.abs(overlap.y) < Math.abs(overlap.x)) {
+                        this.y += overlap.y;
+                     } else {
+                        this.x += overlap.x;
+                     }
+
+                     // Naive elastic bounce
+                     if(this.collisionType === CollisionType.Elastic){
+                        if(side === Side.Left){
+                           this.dx = Math.abs(this.dx);
+                        }else if(side === Side.Right){
+                           this.dx = -Math.abs(this.dx);
+                        }else if(side === Side.Top){
+                           this.dy = Math.abs(this.dy);
+                        }else if(side === Side.Bottom){
+                           this.dy = -Math.abs(this.dy);
+                        }
+                     }                 
+                  }
+               }
+
+            }
+
+         }
+
+
+
+         /* Old collision code
+
          var potentialColliders = engine.currentScene.children.filter(function(actor){
             return !actor._isKilled;
          });
@@ -1046,7 +1155,7 @@ module ex {
                   }
                });
             }
-         }
+         }*/
 
          // Publish other events
          engine.keys.forEach(function (key) {
@@ -1341,8 +1450,7 @@ module ex {
          this.text = text || "";
          this.color = Color.Black.clone();
          this.spriteFont = spriteFont;
-         this.fixed = true;
-         this.preventCollisions = true;
+         this.collisionType = CollisionType.PreventCollision;
          this.font = font || "10px sans-serif"; // coallesce to default canvas font
          if(spriteFont){
             this._textSprites = spriteFont.getTextSprites();
@@ -1547,7 +1655,7 @@ module ex {
          super(x, y, width, height);
          this.repeats = repeats || this.repeats;
          this.action = action || this.action;
-         this.preventCollisions = true;
+         this.collisionType = CollisionType.PreventCollision;
          this.eventDispatcher = new EventDispatcher(this);
          this.actionQueue = new Internal.Actions.ActionQueue(this);
       }
@@ -1571,13 +1679,15 @@ module ex {
 
          // check for trigger collisions
          if(this.target){
-            if(this.collides(this.target) !== Side.NONE){
+            if(this.collides(this.target) !== Side.None){
                this.dispatchAction();
             }
          }else{
             for (var i = 0; i < engine.currentScene.children.length; i++) {
                var other = engine.currentScene.children[i];
-               if(other !== this && this.collides(other) !== Side.NONE){
+               if(other !== this && 
+                  other.collisionType !== CollisionType.PreventCollision && 
+                  this.collides(other) !== Side.None){
                   this.dispatchAction();
                }
             }

@@ -24,6 +24,8 @@ loader.addResource(jump);
 loader.addResource(template);
 
 
+
+
 // Set background color
 game.backgroundColor = new ex.Color(114,213,224);
 
@@ -37,6 +39,14 @@ var tileBlockWidth = 64,
     tileBlockHeight = 48,
     spriteTiles = new ex.SpriteSheet(imageBlocks, 1, 1, tileBlockWidth, tileBlockHeight);
 
+// create a collision map
+var data: ex.CollisionData[] = [];
+for(var i = 0; i < (100*3); i++){
+   data.push(new ex.CollisionData(true, 0));
+}
+var collisionMap = new ex.CollisionMap(0, 0, tileBlockWidth, tileBlockHeight, 3, 100, spriteTiles, data);
+game.addCollisionMap(collisionMap);
+
 // Create spriteFont
 var spriteFont = new ex.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
 var label = new ex.Label('Hello World', 100, 100, null, spriteFont);
@@ -44,7 +54,7 @@ label.scaleTo(2, .5).scaleTo(1,.5).repeatForever();
 game.addChild(label);
 
 // Retrieve animations for blocks from sprite sheet
-var blockAnimation = spriteTiles.getSprite(0);
+var blockAnimation = spriteTiles.getSprite(0).clone();
 blockAnimation.addEffect(new ex.Effects.Grayscale());
 // Animation 'enum' to prevent 'stringly' typed misspelling errors
 enum Animations {
@@ -62,7 +72,7 @@ for(var i = 0; i< 36; i++){
    currentX = tileBlockWidth * i + 10;
    var color = new ex.Color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
    var block = new ex.Actor(currentX, 350 + Math.random() * 100, tileBlockWidth, tileBlockHeight, color);
-
+   block.collisionType = ex.CollisionType.Fixed;
    block.addCollisionGroup('ground');
    block.addDrawing(Animations.Block, blockAnimation);
    
@@ -70,29 +80,33 @@ for(var i = 0; i< 36; i++){
 }
 
 var platform = new ex.Actor(400, 300, 200,50, new ex.Color(0,200,0));
+platform.collisionType = ex.CollisionType.Fixed;
 platform.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100).repeatForever();
 game.addChild(platform);
 
 var platform2 = new ex.Actor(800, 300, 200,20, new ex.Color(0,0,140));
+platform2.collisionType = ex.CollisionType.Fixed;
 platform2.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).moveTo(800, 300, 100).repeatForever();
 game.addChild(platform2);
 
 var platform3 = new ex.Actor(-200, 400, 200, 20, new ex.Color(50, 0, 100));
+platform3.collisionType = ex.CollisionType.Fixed;
 platform3.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3000).moveTo(-200, 300, 800).moveTo(-200, 400, 800).repeatForever();
 game.addChild(platform3);
 
 var platform4 = new ex.Actor(200, 200, 100, 50, ex.Color.Azure);
+platform4.collisionType = ex.CollisionType.Fixed;
 platform4.moveBy(75, 300, .20);
 game.addChild(platform4);
 
 // Test follow api
 var follower = new ex.Actor(50, 100, 20, 20, ex.Color.Black);
-follower.preventCollisions = true;
+follower.collisionType = ex.CollisionType.PreventCollision;
 game.addChild(follower);
 
 
 // Create the player
-var player = new ex.Actor(100,100,32,96);
+var player = new ex.Actor(100,200,32,96);
 follower.meet(player, 60);
 
 
@@ -101,7 +115,6 @@ follower.meet(player, 60);
 
 player.scale = 1;
 player.rotation = 0;
-player.fixed = false;
 
 // Health bar example
 player.addChild(new ex.Actor(-48, -20, 140, 5, new ex.Color(0,255,0)));
@@ -237,14 +250,13 @@ game.addEventListener('keydown', (keyDown? : ex.KeyDown)=>{
       var a = new ex.Actor(player.x+10, player.y-50, 10, 10, new ex.Color(222,222,222));
       a.dx = 200*direction;
       a.dy = 0;
-      a.preventCollisions = true;
-      a.fixed = false;
+      a.collisionType = ex.CollisionType.Elastic;
       var inAir = true;
       a.addEventListener('collision', (data?: ex.CollisionEvent)=>{
          inAir = false;
-         a.dx = data.other.dx;
-         a.dy = data.other.dy;
-         a.kill();
+         //a.dx = data.other.dx;
+         //a.dy = data.other.dy;
+         //a.kill();
       });
       a.addEventListener('update', (data?: ex.UpdateEvent)=>{
          if(inAir){
@@ -263,7 +275,7 @@ game.addEventListener('keydown', (keyDown? : ex.KeyDown)=>{
 var isColliding = false;
 player.addEventListener('collision', (data?: ex.CollisionEvent)=>{   
        
-   if(data.side === ex.Side.BOTTOM){
+   if(data.side === ex.Side.Bottom){
       isColliding = true;
 
       if (inAir) {
@@ -275,7 +287,7 @@ player.addEventListener('collision', (data?: ex.CollisionEvent)=>{
       player.dy = data.other.dy;      
    }
 
-   if(data.side === ex.Side.TOP){
+   if(data.side === ex.Side.Top){
       player.dy = data.other.dy - player.dy;
    }
 });
@@ -290,6 +302,10 @@ player.addEventListener('update', (data?: ex.UpdateEvent)=>{
    // Reset values because we don't know until we check the next update
    // inAir = true;
    isColliding = false;
+
+   if(collisionMap.collidesActor(player)){
+      player.dy = -player.dy;
+   }
 
    //console.log("Player Pos", player.x, player.y, player.getWidth(), player.getHeight());
 });
@@ -380,7 +396,7 @@ game.addChild(trigger);
 
 game.addEventListener('mousedown', (evt? : ex.MouseDown)=>{
    logger.info(evt.x + ", " +evt.y);
-   emitter.focus = new ex.Vector(evt.x - emitter.x, evt.y - emitter.y);
+   //emitter.focus = new ex.Vector(evt.x - emitter.x, evt.y - emitter.y);
 });
 
 game.addEventListener('keyup', (evt?: ex.KeyUp)=>{
@@ -403,6 +419,6 @@ game.camera = camera;
 var binding: ex.Binding;
 game.start(loader).then(()=>{
    logger.info("All Resources have finished loading");
-   binding = new ex.Binding("container", template, emitter);
-   binding.listen(emitter, ["update"]);
+   //binding = new ex.Binding("container", template, emitter);
+   //binding.listen(emitter, ["update"]);
 });
