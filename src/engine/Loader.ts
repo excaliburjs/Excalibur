@@ -347,7 +347,7 @@ module ex {
             r.oncomplete = r.onerror = function () {
                me.numLoaded++;
                if (me.numLoaded === me.resourceCount) {
-                  
+                  me.onprogress.call(me, {loaded: 100, total: 100});
                   me.oncomplete.call(me);
                   complete.resolve();
                }
