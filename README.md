@@ -70,7 +70,7 @@ Please view the [Contributing guidelines](CONTRIBUTING.md).
 
 Excalibur is open source and operates under the 2 clause BSD license:
 
-	Copyright (c) 2013, Erik Onarheim
+	Copyright (c) 2014, Erik Onarheim
 	All rights reserved.
 	
 	Redistribution and use in source and binary forms, with or without
