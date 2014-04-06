@@ -968,7 +968,7 @@ module ex {
       }
 
       /**
-       * This method will add an action to the queu that will remove the actor from the 
+       * This method will add an action to the queue that will remove the actor from the 
        * scene once it has completed its previous actions. Any actions on the
        * action queue after this action will not be executed.
        * @method die
@@ -976,6 +976,18 @@ module ex {
        */
       public die(): Actor {
          this.actionQueue.add(new ex.Internal.Actions.Die(this));
+         return this;
+      }
+
+      /**
+       * This method allows you to call an arbitrary method as the next action in the
+       * action queue. This is useful if you want to execute code in after a specific
+       * action, i.e An actor arrives at a destinatino after traversing a path
+       * @method callMethod
+       * @returns Actor
+       */
+      public callMethod(method: ()=>any): Actor {
+         this.actionQueue.add(new ex.Internal.Actions.CallMethod(this, method));
          return this;
       }
 

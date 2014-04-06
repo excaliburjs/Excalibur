@@ -45,7 +45,7 @@ for(var i = 0; i < (100*3); i++){
    data.push(new ex.CollisionData(true, 0));
 }
 var collisionMap = new ex.CollisionMap(0, 0, tileBlockWidth, tileBlockHeight, 3, 100, spriteTiles, data);
-game.addCollisionMap(collisionMap);
+//game.addCollisionMap(collisionMap);
 
 // Create spriteFont
 var spriteFont = new ex.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
@@ -81,7 +81,7 @@ for(var i = 0; i< 36; i++){
 
 var platform = new ex.Actor(400, 300, 200,50, new ex.Color(0,200,0));
 platform.collisionType = ex.CollisionType.Fixed;
-platform.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100).repeatForever();
+platform.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100).callMethod(function(){console.log("Call method", this); console.log("Action cycle complete");}).repeatForever();
 game.addChild(platform);
 
 var platform2 = new ex.Actor(800, 300, 200,20, new ex.Color(0,0,140));
@@ -302,12 +302,6 @@ player.addEventListener('update', (data?: ex.UpdateEvent)=>{
    // Reset values because we don't know until we check the next update
    // inAir = true;
    isColliding = false;
-
-   if(collisionMap.collidesActor(player)){
-      player.dy = -player.dy;
-   }
-
-   //console.log("Player Pos", player.x, player.y, player.getWidth(), player.getHeight());
 });
 
 player.addEventListener('initialize', (evt?: ex.InitializeEvent)=>{
