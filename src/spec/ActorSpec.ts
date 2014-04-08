@@ -155,33 +155,33 @@ describe("A game actor", () => {
 		var other = new ex.Actor(10, 10, 10, 10);
 
       // Actors are adjacent and not overlapping should not collide
-		expect(actor.collides(other)).toBeFalsy();
-		expect(other.collides(actor)).toBeFalsy();
+		expect(actor.collidesWithSide(other)).toBeFalsy();
+		expect(other.collidesWithSide(actor)).toBeFalsy();
 
       // move other actor into collision range from the right side
 		other.x = 9;
 		other.y = 0;
-		expect(actor.collides(other)).toBe(ex.Side.Right);
-		expect(other.collides(actor)).toBe(ex.Side.Left);
+		expect(actor.collidesWithSide(other)).toBe(ex.Side.Right);
+		expect(other.collidesWithSide(actor)).toBe(ex.Side.Left);
 
       // move other actor into collision range from the left side
       other.x = -9;
       other.y = 0;
-      expect(actor.collides(other)).toBe(ex.Side.Left);
-      expect(other.collides(actor)).toBe(ex.Side.Right);
+      expect(actor.collidesWithSide(other)).toBe(ex.Side.Left);
+      expect(other.collidesWithSide(actor)).toBe(ex.Side.Right);
 
 
       // move other actor into collision range from the top
       other.x = 0
       other.y = -9;
-      expect(actor.collides(other)).toBe(ex.Side.Top);
-      expect(other.collides(actor)).toBe(ex.Side.Bottom);
+      expect(actor.collidesWithSide(other)).toBe(ex.Side.Top);
+      expect(other.collidesWithSide(actor)).toBe(ex.Side.Bottom);
 
       // move other actor into collision range from the bottom
       other.x = 0;
       other.y = 9;
-      expect(actor.collides(other)).toBe(ex.Side.Bottom);
-      expect(other.collides(actor)).toBe(ex.Side.Top);
+      expect(actor.collidesWithSide(other)).toBe(ex.Side.Bottom);
+      expect(other.collidesWithSide(actor)).toBe(ex.Side.Top);
 
 	});
 

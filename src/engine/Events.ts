@@ -184,7 +184,7 @@ module ex {
     * @param side {Side} The side that was collided with
     */
    export class CollisionEvent extends GameEvent {
-      constructor(public actor: Actor, public other: Actor, public side: Side) {
+      constructor(public actor: Actor, public other: Actor, public side: Side, public intersection: Vector) {
          super();
       }
    }

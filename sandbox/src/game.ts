@@ -21,7 +21,7 @@ loader.addResource(imageJump);
 loader.addResource(imageBlocks);
 loader.addResource(spriteFontImage);
 loader.addResource(jump);
-loader.addResource(template);
+//loader.addResource(template);
 
 
 
@@ -40,12 +40,15 @@ var tileBlockWidth = 64,
     spriteTiles = new ex.SpriteSheet(imageBlocks, 1, 1, tileBlockWidth, tileBlockHeight);
 
 // create a collision map
-var data: ex.CollisionData[] = [];
-for(var i = 0; i < (100*3); i++){
-   data.push(new ex.CollisionData(true, 0));
-}
-var collisionMap = new ex.CollisionMap(0, 0, tileBlockWidth, tileBlockHeight, 3, 100, spriteTiles, data);
-//game.addCollisionMap(collisionMap);
+var collisionMap = new ex.CollisionMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500, spriteTiles);
+collisionMap.data.forEach(function(cell){
+   cell.solid = true;
+   cell.spriteId = 0;
+});
+var c = collisionMap.getCell(1, 0);
+c.spriteId = -1;
+c.solid = false;
+game.addCollisionMap(collisionMap);
 
 // Create spriteFont
 var spriteFont = new ex.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
@@ -81,7 +84,7 @@ for(var i = 0; i< 36; i++){
 
 var platform = new ex.Actor(400, 300, 200,50, new ex.Color(0,200,0));
 platform.collisionType = ex.CollisionType.Fixed;
-platform.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100).callMethod(function(){console.log("Call method", this); console.log("Action cycle complete");}).repeatForever();
+platform.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100).repeatForever();
 game.addChild(platform);
 
 var platform2 = new ex.Actor(800, 300, 200,20, new ex.Color(0,0,140));
@@ -106,7 +109,7 @@ game.addChild(follower);
 
 
 // Create the player
-var player = new ex.Actor(100,200,32,96);
+var player = new ex.Actor(100,-200,32,96);
 follower.meet(player, 60);
 
 
@@ -283,12 +286,22 @@ player.addEventListener('collision', (data?: ex.CollisionEvent)=>{
         player.setDrawing(Animations.Idle);
       }
       inAir = false;
-      player.dx = data.other.dx;
-      player.dy = data.other.dy;      
+      if(data.other){
+         player.dx = data.other.dx;
+         player.dy = data.other.dy;      
+      }else{
+         player.dx = 0;
+         player.dy = 0;
+      }
    }
 
    if(data.side === ex.Side.Top){
-      player.dy = data.other.dy - player.dy;
+      if(data.other){
+         player.dy = data.other.dy - player.dy;   
+      }else{
+         player.dy = 0;
+      }
+      
    }
 });
 
@@ -302,6 +315,8 @@ player.addEventListener('update', (data?: ex.UpdateEvent)=>{
    // Reset values because we don't know until we check the next update
    // inAir = true;
    isColliding = false;
+
+   //console.log("Player Pos", player.x, player.y, player.getWidth(), player.getHeight());
 });
 
 player.addEventListener('initialize', (evt?: ex.InitializeEvent)=>{
@@ -337,7 +352,7 @@ game.addEventListener('keydown', (keyDown? : ex.KeyDown)=>{
 
 
 // Create a camera to track the player
-var camera = new ex.SideCamera(game);
+var camera = new ex.TopCamera(game);
 camera.setActorToFollow(player);
 // camera.shake(5, 5, 1000);
 // camera.zoom(0.5);
@@ -389,7 +404,19 @@ trigger.target = player;
 game.addChild(trigger);
 
 game.addEventListener('mousedown', (evt? : ex.MouseDown)=>{
-   logger.info(evt.x + ", " +evt.y);
+   var c = collisionMap.getCellByPoint(evt.x, evt.y);
+   if(c){
+      if(c.solid){
+         c.solid = false;
+         c.spriteId = -1;   
+      }else{
+         c.solid = true;
+         c.spriteId = 0;   
+      }      
+   }
+
+
+   //logger.info("Collides", collisionMap.collidesPoint(evt.x, evt.y));
    //emitter.focus = new ex.Vector(evt.x - emitter.x, evt.y - emitter.y);
 });
 

@@ -29,8 +29,10 @@
     "javascript",
     "simple"
   ],
-  "devDependencies": {
-    "typescript": "0.9.7",
+  "scripts":{
+    "preinstall": "npm i -g typescript@1.0.0"
+  },
+  "devDependencies": {    
     "jasmine-node": "1.10.2",
     "yuidocjs": "0.3.48",
     "grunt": "0.4.2",

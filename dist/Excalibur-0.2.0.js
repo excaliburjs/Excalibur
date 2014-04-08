@@ -1,4 +1,4 @@
-/*! Excalibur - v0.2.0 - 2014-03-20
+/*! Excalibur - v0.2.0 - 2014-04-07
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -300,11 +300,12 @@ var ex;
 
     var CollisionEvent = (function (_super) {
         __extends(CollisionEvent, _super);
-        function CollisionEvent(actor, other, side) {
+        function CollisionEvent(actor, other, side, intersection) {
             _super.call(this);
             this.actor = actor;
             this.other = other;
             this.side = side;
+            this.intersection = intersection;
         }
         return CollisionEvent;
     })(GameEvent);
@@ -525,6 +526,9 @@ var ex;
             eventName = eventName.toLowerCase();
             var queue = this.queue;
             var target = this.target;
+            if (!event) {
+                event = new GameEvent();
+            }
             event.target = target;
             if (this._handlers[eventName]) {
                 this._handlers[eventName].forEach(function (callback) {
@@ -591,37 +595,34 @@ var ex;
             };
 
             Class.extend = function (methods) {
-                var _super = this.prototype;
-                var SubClass = function () {
-                    if (this.init) {
-                        this.init.apply(this, Array.prototype.slice.call(arguments));
-                    }
-                };
+                var parent = this;
+                var child;
 
-                var SuperClass = new this();
-                for (var prop in methods) {
-                    if (typeof _super[prop] == "function" && /\b_super\b/.test(methods[prop])) {
-                        SuperClass[prop] = (function (name, fn) {
-                            return function () {
-                                var tmp = this._super;
-                                this._super = _super[name];
-                                var ret = fn.apply(this, arguments);
-                                this._super = tmp;
-                                return ret;
-                            };
-                        })(prop, methods[prop]);
-                    } else {
-                        SuperClass[prop] = methods[prop];
+                if (methods && methods.hasOwnProperty('constructor')) {
+                    child = methods.constructor;
+                } else {
+                    child = function () {
+                        return parent.apply(this, arguments);
+                    };
+                }
+
+                var Super = function () {
+                    this.constructor = child;
+                };
+                Super.prototype = parent.prototype;
+                child.prototype = new Super;
+
+                if (methods) {
+                    for (var prop in methods) {
+                        if (methods.hasOwnProperty(prop)) {
+                            child.prototype[prop] = methods[prop];
+                        }
                     }
                 }
 
-                SubClass.prototype.constructor = SubClass;
-                SubClass.prototype = SuperClass;
-                SubClass.prototype._super = SubClass;
-                SubClass.prototype.super = _super;
-                SubClass.extend = Class.extend;
+                child.extend = Class.extend;
 
-                return SubClass;
+                return child;
             };
             return Class;
         })();
@@ -804,6 +805,231 @@ var ex;
 })(ex || (ex = {}));
 var ex;
 (function (ex) {
+    var Cell = (function () {
+        function Cell(x, y, width, height, index, solid, spriteId) {
+            if (typeof solid === "undefined") { solid = false; }
+            if (typeof spriteId === "undefined") { spriteId = -1; }
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.index = index;
+            this.solid = solid;
+            this.spriteId = spriteId;
+            this._bounds = new ex.BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
+        }
+        Cell.prototype.getBounds = function () {
+            return this._bounds;
+        };
+        return Cell;
+    })();
+    ex.Cell = Cell;
+
+    var CollisionMap = (function () {
+        function CollisionMap(x, y, cellWidth, cellHeight, rows, cols, spriteSheet) {
+            var _this = this;
+            this.x = x;
+            this.y = y;
+            this.cellWidth = cellWidth;
+            this.cellHeight = cellHeight;
+            this.rows = rows;
+            this.cols = cols;
+            this.spriteSheet = spriteSheet;
+            this._collidingX = -1;
+            this._collidingY = -1;
+            this._onScreenXStart = 0;
+            this._onScreenXEnd = 9999;
+            this._onScreenYStart = 0;
+            this._onScreenYEnd = 9999;
+            this.data = [];
+            this.data = new Array(rows * cols);
+            for (var i = 0; i < cols; i++) {
+                for (var j = 0; j < rows; j++) {
+                    (function () {
+                        var cd = new Cell(i * cellWidth + x, j * cellHeight + y, cellWidth, cellHeight, i + j * cols);
+                        _this.data[i + j * cols] = cd;
+                    })();
+                }
+            }
+        }
+        CollisionMap.prototype.collides = function (actor) {
+            var points = [];
+            var width = actor.x + actor.getWidth();
+            var height = actor.y + actor.getHeight();
+            var actorBounds = actor.getBounds();
+
+            var overlaps = [];
+
+            for (var x = actor.x; x <= width; x += Math.min(actor.getWidth() / 2, this.cellWidth / 2)) {
+                for (var y = actor.y; y <= height; y += Math.min(actor.getHeight() / 2, this.cellHeight / 2)) {
+                    var cell = this.getCellByPoint(x, y);
+                    var xover = 0;
+                    var yover = 0;
+                    if (cell && cell.solid) {
+                        var overlap = actorBounds.collides(cell.getBounds());
+                        if (overlap) {
+                            overlaps.push(overlap);
+                        }
+                    }
+                }
+            }
+
+            if (overlaps.length === 0) {
+                return null;
+            }
+
+            var result = overlaps.reduce(function (accum, next) {
+                var x = accum.x;
+                var y = accum.y;
+
+                if (Math.abs(accum.x) < Math.abs(next.x)) {
+                    x = next.x;
+                }
+
+                if (Math.abs(accum.y) < Math.abs(next.y)) {
+                    y = next.y;
+                }
+                return new ex.Vector(x, y);
+            });
+
+            return result;
+        };
+
+        CollisionMap.prototype.getCellByIndex = function (index) {
+            return this.data[index];
+        };
+
+        CollisionMap.prototype.getCell = function (x, y) {
+            if (x < 0 || y < 0 || x >= this.cols || y >= this.rows) {
+                return null;
+            }
+
+            return this.data[x + y * this.cols];
+        };
+
+        CollisionMap.prototype.getCellByPoint = function (x, y) {
+            var x = Math.floor((x - this.x) / this.cellWidth);
+            var y = Math.floor((y - this.y) / this.cellHeight);
+
+            var cell = this.getCell(x, y);
+            if (x >= 0 && y >= 0 && x < this.cols && y < this.rows && cell) {
+                return cell;
+            }
+
+            return null;
+        };
+
+        CollisionMap.prototype.update = function (engine, delta) {
+            var worldCoordsUpperLeft = engine.screenToWorldCoordinates(new ex.Point(0, 0));
+            var worldCoordsLowerRight = engine.screenToWorldCoordinates(new ex.Point(engine.width, engine.height));
+
+            this._onScreenXStart = Math.max(Math.floor(worldCoordsUpperLeft.x / this.cellWidth) - 2, 0);
+            this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight), 0);
+            this._onScreenXEnd = Math.max(Math.floor(worldCoordsLowerRight.x / this.cellWidth), 0);
+            this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 1, 0);
+        };
+
+        CollisionMap.prototype.draw = function (ctx, delta) {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+
+            for (var x = this._onScreenXStart; x < Math.min(this._onScreenXEnd, this.cols); x++) {
+                for (var y = this._onScreenYStart; y < Math.min(this._onScreenYEnd, this.rows); y++) {
+                    var spriteId = this.getCell(x, y).spriteId;
+                    if (spriteId > -1) {
+                        this.spriteSheet.getSprite(spriteId).draw(ctx, x * this.cellWidth, y * this.cellHeight);
+                    }
+                }
+            }
+            ctx.restore();
+        };
+
+        CollisionMap.prototype.debugDraw = function (ctx) {
+            var width = this.cols * this.cellWidth;
+            var height = this.rows * this.cellHeight;
+
+            ctx.save();
+
+            ctx.strokeStyle = ex.Color.Red.toString();
+            for (var x = 0; x < this.cols + 1; x++) {
+                ctx.beginPath();
+                ctx.moveTo(this.x + x * this.cellWidth, this.y);
+                ctx.lineTo(this.x + x * this.cellWidth, this.y + height);
+                ctx.stroke();
+            }
+            for (var y = 0; y < this.rows + 1; y++) {
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y + y * this.cellHeight);
+                ctx.lineTo(this.x + width, this.y + y * this.cellHeight);
+                ctx.stroke();
+            }
+
+            if (this._collidingY > -1 && this._collidingX > -1) {
+                ctx.fillStyle = ex.Color.Cyan.toString();
+                ctx.fillRect(this.x + this._collidingX * this.cellWidth, this.y + this._collidingY * this.cellHeight, this.cellWidth, this.cellHeight);
+            }
+            ctx.restore();
+        };
+        return CollisionMap;
+    })();
+    ex.CollisionMap = CollisionMap;
+})(ex || (ex = {}));
+var ex;
+(function (ex) {
+    
+
+    var BoundingBox = (function () {
+        function BoundingBox(left, top, right, bottom) {
+            this.left = left;
+            this.top = top;
+            this.right = right;
+            this.bottom = bottom;
+        }
+        BoundingBox.prototype.getWidth = function () {
+            return this.right - this.left;
+        };
+
+        BoundingBox.prototype.getHeight = function () {
+            return this.bottom - this.top;
+        };
+
+        BoundingBox.prototype.contains = function (p) {
+            return (this.left <= p.x && this.top <= p.y && this.bottom >= p.y && this.right >= p.x);
+        };
+
+        BoundingBox.prototype.collides = function (collidable) {
+            if (collidable instanceof BoundingBox) {
+                var other = collidable;
+                var totalBoundingBox = new BoundingBox(Math.min(this.left, other.left), Math.min(this.top, other.top), Math.max(this.right, other.right), Math.max(this.bottom, other.bottom));
+
+                if (totalBoundingBox.getWidth() < other.getWidth() + this.getWidth() && totalBoundingBox.getHeight() < other.getHeight() + this.getHeight()) {
+                    var overlapX = 0;
+                    if (this.right > other.left && this.right < other.right) {
+                        overlapX = other.left - this.right;
+                    } else {
+                        overlapX = other.right - this.left;
+                    }
+
+                    var overlapY = 0;
+                    if (this.top < other.bottom && this.top > other.top) {
+                        overlapY = other.bottom - this.top;
+                    } else {
+                        overlapY = other.top - this.bottom;
+                    }
+                    return new ex.Vector(overlapX, overlapY);
+                } else {
+                    return null;
+                }
+            }
+
+            return null;
+        };
+        return BoundingBox;
+    })();
+    ex.BoundingBox = BoundingBox;
+})(ex || (ex = {}));
+var ex;
+(function (ex) {
     var Overlap = (function () {
         function Overlap(x, y) {
             this.x = x;
@@ -818,6 +1044,7 @@ var ex;
         function Scene() {
             _super.call(this);
             this.children = [];
+            this.collisionMaps = [];
             this.killQueue = [];
             this.timers = [];
             this.cancelQueue = [];
@@ -845,6 +1072,10 @@ var ex;
                 this._isInitialized = true;
             }
 
+            this.collisionMaps.forEach(function (cm) {
+                cm.update(engine, delta);
+            });
+
             this.eventDispatcher.update();
 
             var len = 0;
@@ -859,7 +1090,7 @@ var ex;
             var actorIndex = 0;
             for (var j = 0, len = this.killQueue.length; j < len; j++) {
                 actorIndex = this.children.indexOf(this.killQueue[j]);
-                if (actorIndex !== -1) {
+                if (actorIndex > -1) {
                     this.children.splice(actorIndex, 1);
                 }
             }
@@ -879,6 +1110,10 @@ var ex;
         };
 
         Scene.prototype.draw = function (ctx, delta) {
+            this.collisionMaps.forEach(function (cm) {
+                cm.draw(ctx, delta);
+            });
+
             var len = 0;
             var start = 0;
             var end = 0;
@@ -890,6 +1125,10 @@ var ex;
         };
 
         Scene.prototype.debugDraw = function (ctx) {
+            this.collisionMaps.forEach(function (map) {
+                map.debugDraw(ctx);
+            });
+
             this.children.forEach(function (actor) {
                 actor.debugDraw(ctx);
             });
@@ -899,6 +1138,17 @@ var ex;
             actor.scene = this;
             this.children.push(actor);
             actor.parent = this.actor;
+        };
+
+        Scene.prototype.addCollisionMap = function (collisionMap) {
+            this.collisionMaps.push(collisionMap);
+        };
+
+        Scene.prototype.removeCollisionMap = function (collisionMap) {
+            var index = this.collisionMaps.indexOf(collisionMap);
+            if (index > -1) {
+                this.collisionMaps.splice(index, 1);
+            }
         };
 
         Scene.prototype.removeChild = function (actor) {
@@ -933,13 +1183,30 @@ var ex;
     ex.Scene = Scene;
 
     (function (Side) {
-        Side[Side["NONE"] = 0] = "NONE";
-        Side[Side["TOP"] = 1] = "TOP";
-        Side[Side["BOTTOM"] = 2] = "BOTTOM";
-        Side[Side["LEFT"] = 3] = "LEFT";
-        Side[Side["RIGHT"] = 4] = "RIGHT";
+        Side[Side["None"] = 0] = "None";
+
+        Side[Side["Top"] = 1] = "Top";
+
+        Side[Side["Bottom"] = 2] = "Bottom";
+
+        Side[Side["Left"] = 3] = "Left";
+
+        Side[Side["Right"] = 4] = "Right";
     })(ex.Side || (ex.Side = {}));
     var Side = ex.Side;
+
+    (function (CollisionType) {
+        CollisionType[CollisionType["PreventCollision"] = 0] = "PreventCollision";
+
+        CollisionType[CollisionType["Passive"] = 1] = "Passive";
+
+        CollisionType[CollisionType["Active"] = 2] = "Active";
+
+        CollisionType[CollisionType["Elastic"] = 3] = "Elastic";
+
+        CollisionType[CollisionType["Fixed"] = 4] = "Fixed";
+    })(ex.CollisionType || (ex.CollisionType = {}));
+    var CollisionType = ex.CollisionType;
 
     var Actor = (function (_super) {
         __extends(Actor, _super);
@@ -964,8 +1231,7 @@ var ex;
             this.logger = ex.Logger.getInstance();
             this.scene = null;
             this.parent = null;
-            this.fixed = true;
-            this.preventCollisions = false;
+            this.collisionType = 2 /* Active */;
             this.collisionGroups = [];
             this._collisionHandlers = {};
             this._isInitialized = false;
@@ -996,6 +1262,7 @@ var ex;
         };
 
         Actor.prototype.addChild = function (actor) {
+            actor.collisionType = 0 /* PreventCollision */;
             this.sceneNode.addChild(actor);
         };
 
@@ -1101,65 +1368,41 @@ var ex;
             }
         };
 
-        Actor.prototype.getOverlap = function (box) {
-            var xover = 0;
-            var yover = 0;
-            if (this.collides(box)) {
-                if (this.getLeft() < box.getRight()) {
-                    xover = box.getRight() - this.getLeft();
-                }
-                if (box.getLeft() < this.getRight()) {
-                    var tmp = box.getLeft() - this.getRight();
-                    if (Math.abs(xover) > Math.abs(tmp)) {
-                        xover = tmp;
-                    }
-                }
-
-                if (this.getBottom() > box.getTop()) {
-                    yover = box.getTop() - this.getBottom();
-                }
-
-                if (box.getBottom() > this.getTop()) {
-                    var tmp = box.getBottom() - this.getTop();
-                    if (Math.abs(yover) > Math.abs(tmp)) {
-                        yover = tmp;
-                    }
-                }
-            }
-            return new Overlap(xover, yover);
+        Actor.prototype.getBounds = function () {
+            return new ex.BoundingBox(this.getGlobalX(), this.getGlobalY(), this.getGlobalX() + this.getWidth(), this.getGlobalY() + this.getHeight());
         };
 
         Actor.prototype.contains = function (x, y) {
-            return (this.x <= x && this.y <= y && this.getBottom() >= y && this.getRight() >= x);
+            return this.getBounds().contains(new ex.Point(x, y));
+        };
+
+        Actor.prototype.getSideFromIntersect = function (intersect) {
+            if (intersect) {
+                if (Math.abs(intersect.x) < Math.abs(intersect.y)) {
+                    if (intersect.x < 0) {
+                        return 4 /* Right */;
+                    }
+                    return 3 /* Left */;
+                } else {
+                    if (intersect.y < 0) {
+                        return 2 /* Bottom */;
+                    }
+                    return 1 /* Top */;
+                }
+            }
+            return 0 /* None */;
+        };
+
+        Actor.prototype.collidesWithSide = function (actor) {
+            return this.getSideFromIntersect(this.collides(actor));
         };
 
         Actor.prototype.collides = function (actor) {
-            var w = 0.5 * (this.getWidth() + actor.getWidth());
-            var h = 0.5 * (this.getHeight() + actor.getHeight());
+            var bounds = this.getBounds();
+            var otherBounds = actor.getBounds();
 
-            var dx = (this.x + this.getWidth() / 2.0) - (actor.x + actor.getWidth() / 2.0);
-            var dy = (this.y + this.getHeight() / 2.0) - (actor.y + actor.getHeight() / 2.0);
-
-            if (Math.abs(dx) < w && Math.abs(dy) < h) {
-                var wy = w * dy;
-                var hx = h * dx;
-
-                if (wy > hx) {
-                    if (wy > -hx) {
-                        return 1 /* TOP */;
-                    } else {
-                        return 3 /* LEFT */;
-                    }
-                } else {
-                    if (wy > -hx) {
-                        return 4 /* RIGHT */;
-                    } else {
-                        return 2 /* BOTTOM */;
-                    }
-                }
-            }
-
-            return 0 /* NONE */;
+            var intersect = bounds.collides(otherBounds);
+            return intersect;
         };
 
         Actor.prototype.onCollidesWith = function (group, func) {
@@ -1231,6 +1474,11 @@ var ex;
             return this;
         };
 
+        Actor.prototype.callMethod = function (method) {
+            this.actionQueue.add(new ex.Internal.Actions.CallMethod(this, method));
+            return this;
+        };
+
         Actor.prototype.repeat = function (times) {
             if (!times) {
                 this.repeatForever();
@@ -1286,31 +1534,85 @@ var ex;
 
             this.scale += this.sx * delta / 1000;
 
-            var potentialColliders = engine.currentScene.children.filter(function (actor) {
-                return !actor._isKilled;
-            });
+            if (this.collisionType !== 0 /* PreventCollision */) {
+                var potentialColliders = engine.currentScene.children.filter(function (actor) {
+                    return !actor._isKilled && actor.collisionType !== 0 /* PreventCollision */ && _this !== actor;
+                });
 
-            for (var i = 0; i < potentialColliders.length; i++) {
-                var other = potentialColliders[i];
-                var side = 0 /* NONE */;
-                if (other !== this && !other.preventCollisions && (side = this.collides(other)) !== 0 /* NONE */) {
-                    var overlap = this.getOverlap(other);
-                    eventDispatcher.publish(ex.EventType[11 /* Collision */], new ex.CollisionEvent(this, other, side));
+                for (var i = 0; i < potentialColliders.length; i++) {
+                    var intersectActor;
+                    var side;
+                    var collider = potentialColliders[i];
 
-                    if (!this.fixed) {
-                        if (Math.abs(overlap.y) < Math.abs(overlap.x)) {
-                            this.y += overlap.y;
-                        } else {
-                            this.x += overlap.x;
+                    if (intersectActor = this.collides(collider)) {
+                        side = this.getSideFromIntersect(intersectActor);
+
+                        eventDispatcher.publish('collision', new ex.CollisionEvent(this, collider, side, intersectActor));
+
+                        collider.collisionGroups.forEach(function (group) {
+                            if (_this._collisionHandlers[group]) {
+                                _this._collisionHandlers[group].forEach(function (handler) {
+                                    handler.call(_this, collider);
+                                });
+                            }
+                        });
+
+                        if ((this.collisionType === 2 /* Active */ || this.collisionType === 3 /* Elastic */) && collider.collisionType !== 1 /* Passive */) {
+                            if (Math.abs(intersectActor.y) < Math.abs(intersectActor.x)) {
+                                this.y += intersectActor.y;
+                            } else {
+                                this.x += intersectActor.x;
+                            }
+
+                            if (this.collisionType === 3 /* Elastic */) {
+                                if (side === 3 /* Left */) {
+                                    this.dx = Math.abs(this.dx);
+                                } else if (side === 4 /* Right */) {
+                                    this.dx = -Math.abs(this.dx);
+                                } else if (side === 1 /* Top */) {
+                                    this.dy = Math.abs(this.dy);
+                                } else if (side === 2 /* Bottom */) {
+                                    this.dy = -Math.abs(this.dy);
+                                }
+                            }
                         }
                     }
-                    other.collisionGroups.forEach(function (group) {
-                        if (_this._collisionHandlers[group]) {
-                            _this._collisionHandlers[group].forEach(function (handler) {
-                                handler.call(_this, other);
-                            });
+                }
+
+                for (var j = 0; j < engine.currentScene.collisionMaps.length; j++) {
+                    var map = engine.currentScene.collisionMaps[j];
+                    var intersectMap;
+                    var side = 0 /* None */;
+                    var max = 2;
+                    var hasBounced = false;
+
+                    while (intersectMap = map.collides(this)) {
+                        if (max-- < 0) {
+                            break;
                         }
-                    });
+                        side = this.getSideFromIntersect(intersectMap);
+                        eventDispatcher.publish('collision', new ex.CollisionEvent(this, null, side, intersectMap));
+                        if ((this.collisionType === 2 /* Active */ || this.collisionType === 3 /* Elastic */) && collider.collisionType !== 1 /* Passive */) {
+                            if (Math.abs(intersectMap.y) < Math.abs(intersectMap.x)) {
+                                this.y += intersectMap.y;
+                            } else {
+                                this.x += intersectMap.x;
+                            }
+
+                            if (this.collisionType === 3 /* Elastic */ && !hasBounced) {
+                                hasBounced = true;
+                                if (side === 3 /* Left */) {
+                                    this.dx = Math.abs(this.dx);
+                                } else if (side === 4 /* Right */) {
+                                    this.dx = -Math.abs(this.dx);
+                                } else if (side === 1 /* Top */) {
+                                    this.dy = Math.abs(this.dy);
+                                } else if (side === 2 /* Bottom */) {
+                                    this.dy = -Math.abs(this.dy);
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -1361,14 +1663,15 @@ var ex;
                 }
             });
 
-            var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Point(this.x, this.y));
+            var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Point(this.getGlobalX(), this.getGlobalY()));
+            var zoom = engine.camera.getZoom();
             if (!this.isOffScreen) {
-                if (actorScreenCoords.x + this.getWidth() < 0 || actorScreenCoords.y + this.getHeight() < 0 || actorScreenCoords.x > engine.canvas.width || actorScreenCoords.y > engine.canvas.height) {
+                if (actorScreenCoords.x + this.getWidth() * zoom < 0 || actorScreenCoords.y + this.getHeight() * zoom < 0 || actorScreenCoords.x > engine.width || actorScreenCoords.y > engine.height) {
                     eventDispatcher.publish('exitviewport', new ex.ExitViewPortEvent());
                     this.isOffScreen = true;
                 }
             } else {
-                if (actorScreenCoords.x + this.getWidth() > 0 && actorScreenCoords.y + this.getHeight() > 0 && actorScreenCoords.x < engine.canvas.width && actorScreenCoords.y < engine.canvas.height) {
+                if (actorScreenCoords.x + this.getWidth() * zoom > 0 && actorScreenCoords.y + this.getHeight() * zoom > 0 && actorScreenCoords.x < engine.width && actorScreenCoords.y < engine.height) {
                     eventDispatcher.publish('enterviewport', new ex.EnterViewPortEvent());
                     this.isOffScreen = false;
                 }
@@ -1378,6 +1681,9 @@ var ex;
         };
 
         Actor.prototype.draw = function (ctx, delta) {
+            if (this.isOffScreen)
+                return;
+
             ctx.save();
             ctx.translate(this.x, this.y);
             ctx.rotate(this.rotation);
@@ -1476,8 +1782,7 @@ var ex;
             this.text = text || "";
             this.color = ex.Color.Black.clone();
             this.spriteFont = spriteFont;
-            this.fixed = true;
-            this.preventCollisions = true;
+            this.collisionType = 0 /* PreventCollision */;
             this.font = font || "10px sans-serif";
             if (spriteFont) {
                 this._textSprites = spriteFont.getTextSprites();
@@ -1651,7 +1956,7 @@ var ex;
             this.target = null;
             this.repeats = repeats || this.repeats;
             this.action = action || this.action;
-            this.preventCollisions = true;
+            this.collisionType = 0 /* PreventCollision */;
             this.eventDispatcher = new ex.EventDispatcher(this);
             this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
         }
@@ -1670,13 +1975,13 @@ var ex;
             this.scale += this.sx * delta / 1000;
 
             if (this.target) {
-                if (this.collides(this.target) !== 0 /* NONE */) {
+                if (this.collides(this.target)) {
                     this.dispatchAction();
                 }
             } else {
                 for (var i = 0; i < engine.currentScene.children.length; i++) {
                     var other = engine.currentScene.children[i];
-                    if (other !== this && this.collides(other) !== 0 /* NONE */) {
+                    if (other !== this && other.collisionType !== 0 /* PreventCollision */ && this.collides(other)) {
                         this.dispatchAction();
                     }
                 }
@@ -2255,6 +2560,31 @@ var ex;
             })();
             Actions.Die = Die;
 
+            var CallMethod = (function () {
+                function CallMethod(actor, method) {
+                    this._method = null;
+                    this._actor = null;
+                    this._hasBeenCalled = false;
+                    this._actor = actor;
+                    this._method = method;
+                }
+                CallMethod.prototype.update = function (delta) {
+                    this._method.call(this._actor);
+                    this._hasBeenCalled = true;
+                };
+                CallMethod.prototype.isComplete = function (actor) {
+                    return this._hasBeenCalled;
+                };
+                CallMethod.prototype.reset = function () {
+                    this._hasBeenCalled = false;
+                };
+                CallMethod.prototype.stop = function () {
+                    this._hasBeenCalled = true;
+                };
+                return CallMethod;
+            })();
+            Actions.CallMethod = CallMethod;
+
             var Repeat = (function () {
                 function Repeat(actor, repeat, actions) {
                     var _this = this;
@@ -2520,7 +2850,7 @@ var ex;
             this.particleSprite = null;
             this.emitterType = 1 /* Rectangle */;
             this.radius = 0;
-            this.preventCollisions = true;
+            this.collisionType = 0 /* PreventCollision */;
             this.particles = new ex.Util.Collection();
             this.deadParticles = new ex.Util.Collection();
         }
@@ -2654,9 +2984,9 @@ var ex;
         Internal.FallbackAudio = FallbackAudio;
 
         var AudioTag = (function () {
-            function AudioTag(soundPath, volume) {
+            function AudioTag(path, volume) {
                 var _this = this;
-                this.soundPath = soundPath;
+                this.path = path;
                 this.audioElements = new Array(5);
                 this._loadedAudio = null;
                 this.isLoaded = false;
@@ -2695,18 +3025,23 @@ var ex;
             AudioTag.prototype.load = function () {
                 var _this = this;
                 var request = new XMLHttpRequest();
-                request.open("GET", this.soundPath, true);
+                request.open("GET", this.path, true);
                 request.responseType = 'blob';
                 request.onprogress = this.onprogress;
+                request.onerror = this.onerror;
                 request.onload = function (e) {
+                    if (request.status !== 200) {
+                        _this.log.error("Failed to load audio resource ", _this.path, " server responded with error code", request.status);
+                        _this.onerror(request.response);
+                        _this.isLoaded = false;
+                        return;
+                    }
+
                     _this._loadedAudio = URL.createObjectURL(request.response);
                     _this.audioElements.forEach(function (a) {
                         a.src = _this._loadedAudio;
                     });
                     _this.onload(e);
-                };
-                request.onerror = function (e) {
-                    _this.onerror(e);
                 };
                 request.send();
             };
@@ -2765,6 +3100,13 @@ var ex;
                 request.onprogress = this.onprogress;
                 request.onerror = this.onerror;
                 request.onload = function () {
+                    if (request.status !== 200) {
+                        _this.logger.error("Failed to load audio resource ", _this.path, " server responded with error code", request.status);
+                        _this.onerror(request.response);
+                        _this.isLoaded = false;
+                        return;
+                    }
+
                     _this.context.decodeAudioData(request.response, function (buffer) {
                         _this.buffer = buffer;
                         _this.isLoaded = true;
@@ -2952,15 +3294,19 @@ var ex;
                 _this._start(e);
             };
             request.onprogress = this.onprogress;
+            request.onerror = this.onerror;
             request.onload = function (e) {
+                if (request.status !== 200) {
+                    _this.logger.error("Failed to load image resource ", _this.path, " server responded with error code", request.status);
+                    _this.onerror(request.response);
+                    complete.resolve(request.response);
+                    return;
+                }
+
                 _this.image.src = URL.createObjectURL(request.response);
                 _this.oncomplete();
                 _this.logger.debug("Completed loading image", _this.path);
                 complete.resolve(_this.image);
-            };
-            request.onerror = function (e) {
-                _this.onerror(e);
-                complete.reject(e);
             };
             if (request.overrideMimeType) {
                 request.overrideMimeType('text/plain; charset=x-user-defined');
@@ -3054,7 +3400,7 @@ var ex;
             };
             this.sound.onerror = function (e) {
                 _this.onerror(e);
-                complete.reject(e);
+                complete.resolve(e);
             };
             this.sound.load();
             return complete;
@@ -3132,9 +3478,10 @@ var ex;
 
                     me.onprogress.call(me, progressResult);
                 };
-                r.oncomplete = function () {
+                r.oncomplete = r.onerror = function () {
                     me.numLoaded++;
                     if (me.numLoaded === me.resourceCount) {
+                        me.onprogress.call(me, { loaded: 100, total: 100 });
                         me.oncomplete.call(me);
                         complete.resolve();
                     }
@@ -3205,7 +3552,7 @@ var ex;
 
         SpriteSheet.prototype.getSprite = function (index) {
             if (index >= 0 && index < this.sprites.length) {
-                return this.sprites[index].clone();
+                return this.sprites[index];
             }
         };
         return SpriteSheet;
@@ -3351,7 +3698,7 @@ var ex;
             this.height = sheight;
         }
         Sprite.prototype.loadPixels = function () {
-            if (this.texture.image && !this.pixelsLoaded) {
+            if (this.texture.isLoaded() && !this.pixelsLoaded) {
                 this.spriteCtx.drawImage(this.texture.image, this.sx, this.sy, this.swidth, this.sheight, 0, 0, this.swidth, this.sheight);
 
                 this.internalImage.src = this.spriteCanvas.toDataURL("image/png");
@@ -3716,12 +4063,18 @@ var ex;
                 if (duration) {
                     this.zoomIncrement = -1 * this.zoomIncrement;
                 } else {
-                    this.zoomIncrement = -0.01;
+                    this.isZooming = false;
+                    this.setCurrentZoomScale(this.maxZoomScale);
+                }
+            } else {
+                if (!duration) {
+                    this.isZooming = false;
+                    this.setCurrentZoomScale(this.maxZoomScale);
                 }
             }
         };
 
-        BaseCamera.prototype.getCurrentZoomScale = function () {
+        BaseCamera.prototype.getZoom = function () {
             return this.currentZoomScale;
         };
 
@@ -3737,8 +4090,8 @@ var ex;
 
             var canvasWidth = this.engine.ctx.canvas.width;
             var canvasHeight = this.engine.ctx.canvas.height;
-            var newCanvasWidth = canvasWidth * this.getCurrentZoomScale();
-            var newCanvasHeight = canvasHeight * this.getCurrentZoomScale();
+            var newCanvasWidth = canvasWidth * this.getZoom();
+            var newCanvasHeight = canvasHeight * this.getZoom();
 
             if (this.isDoneShaking()) {
                 this.isShaking = false;
@@ -3758,14 +4111,23 @@ var ex;
                 this.isZooming = false;
                 this.elapsedZoomTime = 0;
                 this.zoomDuration = 0;
+                this.setCurrentZoomScale(this.maxZoomScale);
             } else {
                 this.elapsedZoomTime += delta;
 
-                this.setCurrentZoomScale(this.getCurrentZoomScale() + this.zoomIncrement * delta / 1000);
+                this.setCurrentZoomScale(this.getZoom() + this.zoomIncrement * delta / 1000);
             }
 
-            this.engine.ctx.translate(-((newCanvasWidth - canvasWidth) / 2), -((newCanvasHeight - canvasHeight) / 2));
-            this.engine.ctx.scale(this.getCurrentZoomScale(), this.getCurrentZoomScale());
+            this.engine.ctx.scale(this.getZoom(), this.getZoom());
+        };
+
+        BaseCamera.prototype.debugDraw = function (ctx) {
+            var focus = this.getFocus();
+            ctx.fillStyle = 'yellow';
+            ctx.beginPath();
+            ctx.arc(this.follow.x + this.follow.getWidth() / 2, 0, 15, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fill();
         };
 
         BaseCamera.prototype.isDoneShaking = function () {
@@ -3794,7 +4156,7 @@ var ex;
         }
         SideCamera.prototype.getFocus = function () {
             if (this.follow) {
-                return new ex.Point((-this.follow.x * this.getCurrentZoomScale()) + (this.engine.width * this.getCurrentZoomScale()) / 2.0, 0);
+                return new ex.Point(((-this.follow.x - this.follow.getWidth() / 2) * this.getZoom()) + (this.engine.getWidth() * this.getZoom()) / 2.0, 0);
             } else {
                 return this.focus;
             }
@@ -3810,7 +4172,7 @@ var ex;
         }
         TopCamera.prototype.getFocus = function () {
             if (this.follow) {
-                return new ex.Point((-this.follow.x * this.getCurrentZoomScale()) + (this.engine.width * this.getCurrentZoomScale()) / 2.0, (-this.follow.y * this.getCurrentZoomScale()) + (this.engine.height * this.getCurrentZoomScale()) / 2.0);
+                return new ex.Point(((-this.follow.x - this.follow.getWidth() / 2) * this.getZoom()) + (this.engine.getWidth() * this.getZoom()) / 2.0, ((-this.follow.y - this.follow.getHeight() / 2) * this.getZoom()) + (this.engine.getHeight() * this.getZoom()) / 2.0);
             } else {
                 return this.focus;
             }
@@ -3818,6 +4180,155 @@ var ex;
         return TopCamera;
     })(BaseCamera);
     ex.TopCamera = TopCamera;
+})(ex || (ex = {}));
+var ex;
+(function (ex) {
+    var Template = (function () {
+        function Template(path) {
+            this.path = path;
+            this._isLoaded = false;
+            this.logger = ex.Logger.getInstance();
+            this.onprogress = function () {
+            };
+            this.oncomplete = function () {
+            };
+            this.onerror = function () {
+            };
+            this._innerElement = document.createElement('div');
+            this._innerElement.className = "excalibur-template";
+        }
+        Template.prototype.getTemplateString = function () {
+            if (!this._isLoaded)
+                return "";
+            return this._htmlString;
+        };
+
+        Template.prototype._compile = function () {
+            this._innerElement.innerHTML = this._htmlString;
+            this._styleElements = this._innerElement.querySelectorAll('[data-style]');
+            this._textElements = this._innerElement.querySelectorAll('[data-text]');
+        };
+        Template.prototype._evaluateExpresion = function (expression, ctx) {
+            var func = new Function("return " + expression + ";");
+            var val = func.call(ctx);
+            return val;
+        };
+
+        Template.prototype.apply = function (ctx) {
+            var _this = this;
+            for (var j = 0; j < this._styleElements.length; j++) {
+                (function () {
+                    var styles = {};
+                    _this._styleElements[j].dataset["style"].split(";").forEach(function (s) {
+                        if (s) {
+                            var vals = s.split(":");
+                            styles[vals[0].trim()] = vals[1].trim();
+                        }
+                    });
+
+                    for (var style in styles) {
+                        (function () {
+                            var expression = styles[style];
+                            _this._styleElements[j].style[style] = _this._evaluateExpresion(expression, ctx);
+                        })();
+                    }
+                })();
+            }
+            for (var i = 0; i < this._textElements.length; i++) {
+                (function () {
+                    var expression = _this._textElements[i].dataset["text"];
+                    _this._textElements[i].innerText = _this._evaluateExpresion(expression, ctx);
+                })();
+            }
+
+            if (this._innerElement.children.length === 1) {
+                this._innerElement = this._innerElement.firstChild;
+            }
+
+            return this._innerElement;
+        };
+
+        Template.prototype.load = function () {
+            var _this = this;
+            var complete = new ex.Promise();
+
+            var request = new XMLHttpRequest();
+            request.open("GET", this.path, true);
+            request.responseType = "text";
+            request.onprogress = this.onprogress;
+            request.onerror = this.onerror;
+            request.onload = function (e) {
+                if (request.status !== 200) {
+                    _this.logger.error("Failed to load html template resource ", _this.path, " server responded with error code", request.status);
+                    _this.onerror(request.response);
+                    _this._isLoaded = false;
+                    complete.resolve("error");
+                    return;
+                }
+                _this._htmlString = request.response;
+                _this.oncomplete();
+                _this.logger.debug("Completed loading template", _this.path);
+                _this._compile();
+                _this._isLoaded = true;
+                complete.resolve(_this._htmlString);
+            };
+            if (request.overrideMimeType) {
+                request.overrideMimeType('text/plain; charset=x-user-defined');
+            }
+            request.send();
+
+            return complete;
+        };
+
+        Template.prototype.isLoaded = function () {
+            return this._isLoaded;
+        };
+        return Template;
+    })();
+    ex.Template = Template;
+
+    var Binding = (function () {
+        function Binding(parentElementId, template, ctx) {
+            this.parent = document.getElementById(parentElementId);
+            this.template = template;
+            this._ctx = ctx;
+            this.update();
+        }
+        Binding.prototype.listen = function (obj, events, handler) {
+            var _this = this;
+            if (!handler) {
+                handler = function () {
+                    _this.update();
+                };
+            }
+
+            if (obj.addEventListener) {
+                events.forEach(function (e) {
+                    obj.addEventListener(e, handler);
+                });
+            }
+        };
+
+        Binding.prototype.update = function () {
+            var html = this._applyTemplate(this.template, this._ctx);
+            if (html instanceof String) {
+                this.parent.innerHTML = html;
+            }
+            if (html instanceof Node) {
+                if (this.parent.lastChild !== html) {
+                    this.parent.appendChild(html);
+                }
+            }
+        };
+
+        Binding.prototype._applyTemplate = function (template, ctx) {
+            if (template.isLoaded()) {
+                return template.apply(ctx);
+            }
+        };
+        return Binding;
+    })();
+    ex.Binding = Binding;
 })(ex || (ex = {}));
 var ex;
 (function (ex) {
@@ -4054,8 +4565,10 @@ var ex;
                     this.displayMode = 2 /* Fixed */;
                 }
                 this.logger.debug("Engine viewport is size " + width + " x " + height);
-                this.width = this.canvas.width = width;
-                this.height = this.canvas.height = height;
+                this.width = width;
+                this.canvas.width = width;
+                this.height = height;
+                this.canvas.height = height;
             } else if (!displayMode) {
                 this.logger.debug("Engine viewport is fullscreen");
                 this.displayMode = 0 /* FullScreen */;
@@ -4075,6 +4588,14 @@ var ex;
 
         Engine.prototype.removeChild = function (actor) {
             this.currentScene.removeChild(actor);
+        };
+
+        Engine.prototype.addCollisionMap = function (collisionMap) {
+            this.currentScene.addCollisionMap(collisionMap);
+        };
+
+        Engine.prototype.removeCollisionMap = function (collisionMap) {
+            this.currentScene.removeCollisionMap(collisionMap);
         };
 
         Engine.prototype.addTimer = function (timer) {
@@ -4113,34 +4634,48 @@ var ex;
         };
 
         Engine.prototype.getWidth = function () {
+            if (this.camera) {
+                return this.width / this.camera.getZoom();
+            }
             return this.width;
         };
 
         Engine.prototype.getHeight = function () {
+            if (this.camera) {
+                return this.height / this.camera.getZoom();
+            }
             return this.height;
         };
 
         Engine.prototype.screenToWorldCoordinates = function (point) {
-            var newX = Math.floor(point.x * this.canvas.width / this.canvas.clientWidth);
-            var newY = Math.floor(point.y * this.canvas.height / this.canvas.clientHeight);
+            var newX = point.x;
+            var newY = point.y;
 
             if (this.camera) {
                 var focus = this.camera.getFocus();
                 newX -= focus.x;
                 newY -= focus.y;
             }
+
+            newX = Math.floor((newX / this.canvas.clientWidth) * this.getWidth());
+            newY = Math.floor((newY / this.canvas.clientHeight) * this.getHeight());
             return new ex.Point(newX, newY);
         };
 
         Engine.prototype.worldToScreenCoordinates = function (point) {
-            var screenX = Math.floor(point.x / (this.canvas.width / this.canvas.clientWidth));
-            var screenY = Math.floor(point.y / (this.canvas.height / this.canvas.clientHeight));
+            var screenX = point.x;
+            var screenY = point.y;
 
             if (this.camera) {
                 var focus = this.camera.getFocus();
-                screenX += focus.x;
-                screenY += focus.y;
+
+                screenX += focus.x * (this.getWidth() / this.canvas.clientWidth);
+                screenY += focus.y * (this.getHeight() / this.canvas.clientHeight);
             }
+
+            screenX = Math.floor((screenX / this.getWidth()) * this.canvas.clientWidth);
+            screenY = Math.floor((screenY / this.getHeight()) * this.canvas.clientHeight);
+
             return new ex.Point(screenX, screenY);
         };
 
@@ -4424,6 +4959,7 @@ var ex;
             if (this.isDebug) {
                 this.ctx.strokeStyle = 'yellow';
                 this.currentScene.debugDraw(this.ctx);
+                this.camera.debugDraw(this.ctx);
             }
 
             this.ctx.restore();
