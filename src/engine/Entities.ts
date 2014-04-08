@@ -396,7 +396,16 @@ module ex {
        * @property dx {number} 
        */
       public dy: number = 0;
+
+      /**
+       * The x acceleration of the actor in pixels/second^2
+       * @property ax {number}
+       */
       public ax: number = 0; // pixels/sec/sec
+      /**
+       * The y acceleration of the actor in pixels/second^2
+       * @property ay {number}
+       */
       public ay: number = 0;
 
       /**
@@ -1077,6 +1086,9 @@ module ex {
          // Update placements based on linear algebra
          this.x += this.dx * delta / 1000;
          this.y += this.dy * delta / 1000;
+
+         this.dx += this.ax * delta / 1000;
+         this.dy += this.ay * delta / 1000;
 
          this.rotation += this.rx * delta / 1000;
 

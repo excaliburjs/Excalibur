@@ -263,7 +263,9 @@ game.addEventListener('keydown', (keyDown? : ex.KeyDown)=>{
       });
       a.addEventListener('update', (data?: ex.UpdateEvent)=>{
          if(inAir){
-            a.dy += 400 * data.delta/1000;
+            a.ay = 400;// * data.delta/1000;
+         }else{
+            a.ay = 0;
          }
          inAir = true;
       });
@@ -309,7 +311,9 @@ player.addEventListener('update', (data?: ex.UpdateEvent)=>{
    // apply gravity if player is in the air
    // only apply gravity when not colliding
    if(!isColliding){
-      data.target.dy += 800 * data.delta/1000;
+      data.target.ay = 800;// * data.delta/1000;
+   }else{
+      data.target.ay = 0;
    }
 
    // Reset values because we don't know until we check the next update
