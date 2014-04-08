@@ -1,6 +1,8 @@
 /// <reference path="Core.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util.ts" />
+/// <reference path="CollisionMap.ts" />
+/// <reference path="BoundingBox.ts" />
 
 module ex {
    export class Overlap {
@@ -24,6 +26,7 @@ module ex {
        * @property children {Actor[]}
        */
       public children: Actor[] = [];
+      public collisionMaps: CollisionMap[] = [];
       public engine: Engine;
       private killQueue: Actor[] = [];
 
@@ -89,6 +92,10 @@ module ex {
             this._isInitialized = true;
          }
 
+         this.collisionMaps.forEach(function(cm){
+            cm.update(engine, delta);
+         });
+
          // Update event dispatcher
          this.eventDispatcher.update();
 
@@ -105,7 +112,7 @@ module ex {
          var actorIndex = 0;
          for (var j = 0, len = this.killQueue.length; j < len; j++) {
             actorIndex = this.children.indexOf(this.killQueue[j]);
-            if(actorIndex !== -1){
+            if(actorIndex > -1){
                this.children.splice(actorIndex, 1);
             }
          }
@@ -134,6 +141,10 @@ module ex {
        * @param delta {number} The number of milliseconds since the last draw
        */
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
+         this.collisionMaps.forEach(function(cm){
+            cm.draw(ctx, delta);
+         });
+
          var len = 0;
          var start = 0;
          var end = 0;
@@ -150,9 +161,13 @@ module ex {
        * @param ctx {CanvasRenderingContext2D} The current rendering context
        */
       public debugDraw(ctx: CanvasRenderingContext2D) {
+         this.collisionMaps.forEach(map =>{
+            map.debugDraw(ctx);
+         });
+
          this.children.forEach((actor) => {
             actor.debugDraw(ctx);
-         })
+         });         
       }
 
       /**
@@ -164,6 +179,17 @@ module ex {
          actor.scene = this;
          this.children.push(actor);
          actor.parent = this.actor;
+      }
+
+      public addCollisionMap(collisionMap: CollisionMap){
+         this.collisionMaps.push(collisionMap);
+      }
+
+      public removeCollisionMap(collisionMap: CollisionMap){
+         var index = this.collisionMaps.indexOf(collisionMap);
+         if(index > -1){
+            this.collisionMaps.splice(index, 1);
+         }
       }
 
     
@@ -233,36 +259,85 @@ module ex {
     */
    export enum Side {
       /**
-      @property NONE {Side}
+      @property None {Side}
       @static
       @final
       */
+      None,
       /**
-      @property TOP {Side}
+      @property Top {Side}
       @static
       @final
       */
+      Top,
       /**
-      @property BOTTOM {Side}
+      @property Bottom {Side}
       @static
       @final
       */
+      Bottom,
       /**
-      @property LEFT {Side}
+      @property Left {Side}
       @static
       @final
       */
+      Left,
       /**
-      @property RIGHT {Side}
+      @property Right {Side}
       @static
       @final
       */
-      NONE,
-      TOP,
-      BOTTOM,
-      LEFT,
-      RIGHT
+      Right
    }
+
+   /**
+    * An enum that describes the types of collisions actors can participate in
+    * @class CollisionType
+    */
+    export enum CollisionType {
+      /**
+       * Actors with the PreventCollision setting do not participate in any
+       * collisions and do not raise collision events.
+       * @property PreventCollision {CollisionType}
+       * @static
+       */
+      PreventCollision,
+      /**
+       * Actors with the Passive setting only raise collision events, but are not
+       * influenced or moved by other actors and do not influence or move other actors.
+       * @property Passive {CollisionType}
+       * @static
+       */
+      Passive,
+      /**
+       * Actors with the Active setting raise collision events and participate
+       * in collisions with other actors and will be push or moved by actors sharing
+       * the Active or Fixed setting.
+       * @property Active {CollisionType}
+       * @static
+       */
+      Active,
+
+      /**
+       * Actors with the Elastic setting will behave the same as Active, except that they will
+       * "bounce" in the opposite direction given their velocity dx/dy. This is a naive implementation meant for
+       * prototyping, for a more robust elastic collision listen to the "collision" event and perform your custom logic.
+       * @property Elastic {CollisionType}
+       * @static
+       */
+      Elastic,
+      /**
+       * Actors with the Fixed setting raise collision events and participate in
+       * collisions with other actors. Actors with the Fixed setting will not be
+       * pushed or moved by other actors sharing the Fixed or Actors. Think of Fixed
+       * actors as "immovable/onstoppable" objects. If two Fixed actors meet they will
+       * not be pushed or moved by each other, they will not interact except to throw
+       * collision events.
+       * @property Fixed {CollisionType}
+       * @static
+       */
+      Fixed
+    }
 
    /**
     * The most important primitive in Excalibur is an "Actor." Anything that
@@ -382,9 +457,14 @@ module ex {
       */
       public parent: Actor = null;
 
-      public fixed = true;
-      public preventCollisions = false;
+      /**
+       * Gets or sets the current collision type of this actor. By 
+       * default all actors participate in Active collisions.
+       * @property collisionType {CollisionType}
+       */
+      public collisionType : CollisionType = CollisionType.Active;
       public collisionGroups : string[] = [];
+
       private _collisionHandlers: {[key: string]: {(actor: Actor):void}[];} = {};
       private _isInitialized : boolean = false;
 
@@ -452,6 +532,7 @@ module ex {
        * @param actor {Actor} The child actor to add
        */
       public addChild(actor: Actor) {
+         actor.collisionType = CollisionType.PreventCollision;
          this.sceneNode.addChild(actor);
       }
 
@@ -655,33 +736,13 @@ module ex {
             }
       }
 
-      private getOverlap(box: Actor): Overlap {
-         var xover = 0;
-         var yover = 0;
-         if (this.collides(box)) {
-            if (this.getLeft() < box.getRight()) {
-               xover = box.getRight() - this.getLeft();
-            }
-            if (box.getLeft() < this.getRight()) {
-               var tmp = box.getLeft() - this.getRight();
-               if (Math.abs(xover) > Math.abs(tmp)) {
-                  xover = tmp;
-               }
-            }
-
-            if (this.getBottom() > box.getTop()) {
-               yover = box.getTop() - this.getBottom();
-            }
-
-            if (box.getBottom() > this.getTop()) {
-               var tmp = box.getBottom() - this.getTop();
-               if (Math.abs(yover) > Math.abs(tmp)) {
-                  yover = tmp;
-               }
-            }
-
-         }
-         return new Overlap(xover, yover);
+      /**
+       * Returns the actor's bounding box calculated for this instant.
+       * @method getBounds
+       * @returns BoundingBox
+       */
+      public getBounds(){
+         return new BoundingBox(this.getGlobalX(), this.getGlobalY(), this.getGlobalX() + this.getWidth(), this.getGlobalY() + this.getHeight());
       }
 
       /**
@@ -691,44 +752,55 @@ module ex {
        * @param y {number} Y coordinate to test (in world coordinates)
        */
       public contains(x: number, y: number): boolean {
-         return (this.x <= x && this.y <= y && this.getBottom() >= y && this.getRight() >= x);
+         return this.getBounds().contains(new Point(x, y));
       }
 
       /**
-       * Test whether the actor has collided with another actor, returns the side that collided.
+       * Returns the side of the collision based on the intersection 
+       * @getSideFromIntersect
+       * @param intersect {Vector} The displacement vector returned by a collision
+       * @returns Side
+      */
+      public getSideFromIntersect(intersect: Vector){
+         if(intersect){
+            if(Math.abs(intersect.x) < Math.abs(intersect.y)){
+               if(intersect.x < 0){
+                  return Side.Right;
+               }
+               return Side.Left;
+            }else{
+               if(intersect.y < 0){
+                  return Side.Bottom;
+               }
+               return Side.Top;
+            }
+         }
+         return Side.None;
+      }
+
+      /**
+       * Test whether the actor has collided with another actor, returns the side of the current actor that collided.
        * @method collides
        * @param actor {Actor} The other actor to test
        * @returns Side
        */
-      public collides(actor: Actor): Side {         
-        
-         var w = 0.5 * (this.getWidth() + actor.getWidth());
-         var h = 0.5 * (this.getHeight() + actor.getHeight());
+      public collidesWithSide(actor: Actor): Side {
+         return this.getSideFromIntersect(this.collides(actor));
+      }
 
-         var dx = (this.x + this.getWidth() / 2.0) - (actor.x + actor.getWidth() / 2.0);
-         var dy = (this.y + this.getHeight() / 2.0) - (actor.y + actor.getHeight() / 2.0);
+      /**
+       * Test whether the actor has collided with another actor, returns the intersection vector on collision. Returns
+       * null when there is no collision;
+       * @method collides
+       * @param actor {Actor} The other actor to test
+       * @returns Vector
+       */
+      public collides(actor: Actor): Vector {   
+         var bounds = this.getBounds();
+         var otherBounds = actor.getBounds();
 
-         if (Math.abs(dx) < w && Math.abs(dy) < h) {
-            // collision detected
-            var wy = w * dy;
-            var hx = h * dx;
-
-            if (wy > hx) {
-               if (wy > -hx) {
-                  return Side.TOP;
-               } else {
-               return Side.LEFT
-            }
-            } else {
-               if (wy > -hx) {
-                  return Side.RIGHT;
-               } else {
-                  return Side.BOTTOM;
-               }
-            }
-         }
-
-         return Side.NONE;
+         var intersect = bounds.collides(otherBounds);
+         return intersect
       }
 
       /**
@@ -906,7 +978,7 @@ module ex {
       }
 
       /**
-       * This method will add an action to the queu that will remove the actor from the 
+       * This method will add an action to the queue that will remove the actor from the 
        * scene once it has completed its previous actions. Any actions on the
        * action queue after this action will not be executed.
        * @method die
@@ -914,6 +986,18 @@ module ex {
        */
       public die(): Actor {
          this.actionQueue.add(new ex.Internal.Actions.Die(this));
+         return this;
+      }
+
+      /**
+       * This method allows you to call an arbitrary method as the next action in the
+       * action queue. This is useful if you want to execute code in after a specific
+       * action, i.e An actor arrives at a destinatino after traversing a path
+       * @method callMethod
+       * @returns Actor
+       */
+      public callMethod(method: ()=>any): Actor {
+         this.actionQueue.add(new ex.Internal.Actions.CallMethod(this, method));
          return this;
       }
 
@@ -1012,34 +1096,99 @@ module ex {
          this.scaleX += this.sx * delta / 1000;
          this.scaleY += this.sy * delta / 1000;
 
-         var potentialColliders = engine.currentScene.children.filter(function(actor){
-            return !actor._isKilled;
-         });
-         // Publish collision events
-         for (var i = 0; i < potentialColliders.length; i++) {
-            var other = potentialColliders[i];
-            var side: Side = Side.NONE;
-            if (other !== this && !other.preventCollisions &&
-               (side = this.collides(other)) !== Side.NONE) {
-               var overlap = this.getOverlap(other);
-               eventDispatcher.publish(EventType[EventType.Collision], new CollisionEvent(this, other, side));
+         if(this.collisionType !== CollisionType.PreventCollision){
+            // Retrieve the list of potential colliders, exclude killed, prevented, and self
+            var potentialColliders = engine.currentScene.children.filter((actor) => {
+               return !actor._isKilled && actor.collisionType !== CollisionType.PreventCollision && this !== actor;
+            });
 
-               if (!this.fixed) {
-                  if (Math.abs(overlap.y) < Math.abs(overlap.x)) {
-                     this.y += overlap.y;
-                  } else {
-                     this.x += overlap.x;
+            for(var i = 0; i < potentialColliders.length; i++){
+               var intersectActor: Vector;
+               var side: Side;
+               var collider = potentialColliders[i];
+
+               if(intersectActor = this.collides(collider)){
+                  side = this.getSideFromIntersect(intersectActor);
+                  // Publish collision events
+                  eventDispatcher.publish('collision', new CollisionEvent(this, collider, side, intersectActor));
+
+                  // Send collision group updates
+                  collider.collisionGroups.forEach((group)=>{
+                     if(this._collisionHandlers[group]){
+                        this._collisionHandlers[group].forEach((handler)=>{
+                           handler.call(this, collider);
+                        });
+                     }
+                  });
+
+                  // If the actor is active push the actor out if its not passive
+                  if((this.collisionType === CollisionType.Active || this.collisionType === CollisionType.Elastic) && collider.collisionType !== CollisionType.Passive){
+                     
+                     if (Math.abs(intersectActor.y) < Math.abs(intersectActor.x)) {
+                        this.y += intersectActor.y;
+                     } else {
+                        this.x += intersectActor.x;
+                     }
+
+                     // Naive elastic bounce
+                     if(this.collisionType === CollisionType.Elastic){
+                        if(side === Side.Left){
+                           this.dx = Math.abs(this.dx);
+                        }else if(side === Side.Right){
+                           this.dx = -Math.abs(this.dx);
+                        }else if(side === Side.Top){
+                           this.dy = Math.abs(this.dy);
+                        }else if(side === Side.Bottom){
+                           this.dy = -Math.abs(this.dy);
+                        }
+                     }                 
                   }
                }
-               other.collisionGroups.forEach((group)=>{
-                  if(this._collisionHandlers[group]){
-                     this._collisionHandlers[group].forEach((handler)=>{
-                        handler.call(this, other);
-                     });
+
+            }
+
+            for(var j = 0; j < engine.currentScene.collisionMaps.length; j++){
+               var map = engine.currentScene.collisionMaps[j];
+               var intersectMap: Vector;
+               var side = Side.None;
+               var max = 2;
+               var hasBounced = false;
+               //var iters: Vector[] = [];
+               while(intersectMap = map.collides(this)){
+                  //iters.push(intersectMap);
+                  if(max--<0){
+                     //console.log(iters);
+                     //console.log("Max iterations exceeded!");
+                     break;
+                  } 
+                  side = this.getSideFromIntersect(intersectMap);
+                  eventDispatcher.publish('collision', new CollisionEvent(this, null, side, intersectMap));
+                  if((this.collisionType === CollisionType.Active || this.collisionType === CollisionType.Elastic) && collider.collisionType !== CollisionType.Passive){
+                     //var intersectMap = map.getOverlap(this);
+                     if (Math.abs(intersectMap.y) < Math.abs(intersectMap.x)) {
+                        this.y += intersectMap.y;
+                     } else {
+                        this.x += intersectMap.x;
+                     }
+
+                     // Naive elastic bounce
+                     if(this.collisionType === CollisionType.Elastic && !hasBounced){
+                        hasBounced = true;
+                        if(side === Side.Left){
+                           this.dx = Math.abs(this.dx);
+                        }else if(side === Side.Right){
+                           this.dx = -Math.abs(this.dx);
+                        }else if(side === Side.Top){
+                           this.dy = Math.abs(this.dy);
+                        }else if(side === Side.Bottom){
+                           this.dy = -Math.abs(this.dy);
+                        }
+                     }                 
                   }
-               });
+               }
             }
          }
+
 
          // Publish other events
          engine.keys.forEach(function (key) {
@@ -1090,21 +1239,22 @@ module ex {
             }
          });
 
-         var actorScreenCoords = engine.worldToScreenCoordinates(new Point(this.x, this.y));
+         var actorScreenCoords = engine.worldToScreenCoordinates(new Point(this.getGlobalX(), this.getGlobalY()));
+         var zoom = engine.camera.getZoom();
          if(!this.isOffScreen){
-            if(actorScreenCoords.x + this.getWidth() < 0 || 
-               actorScreenCoords.y + this.getHeight() < 0 ||
-               actorScreenCoords.x > engine.canvas.width ||
-               actorScreenCoords.y > engine.canvas.height){
+            if(actorScreenCoords.x + this.getWidth() * zoom < 0 || 
+               actorScreenCoords.y + this.getHeight() * zoom < 0 ||
+               actorScreenCoords.x > engine.width ||
+               actorScreenCoords.y > engine.height ){
                
                eventDispatcher.publish('exitviewport', new ExitViewPortEvent());
                this.isOffScreen = true;
             }
          }else{
-            if(actorScreenCoords.x + this.getWidth() > 0 &&
-               actorScreenCoords.y + this.getHeight() > 0 &&
-               actorScreenCoords.x < engine.canvas.width &&
-               actorScreenCoords.y < engine.canvas.height){
+            if(actorScreenCoords.x + this.getWidth() * zoom > 0 &&
+               actorScreenCoords.y + this.getHeight() * zoom > 0 &&
+               actorScreenCoords.x < engine.width &&
+               actorScreenCoords.y < engine.height){
                
                eventDispatcher.publish('enterviewport', new EnterViewPortEvent());               
                this.isOffScreen = false;
@@ -1123,6 +1273,8 @@ module ex {
        * @param delta {number} The time since the last draw in milliseconds
        */
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
+         // only draw if onscreen 
+         if(this.isOffScreen) return;
 
          ctx.save();
          ctx.translate(this.x, this.y);
@@ -1331,8 +1483,7 @@ module ex {
          this.text = text || "";
          this.color = Color.Black.clone();
          this.spriteFont = spriteFont;
-         this.fixed = true;
-         this.preventCollisions = true;
+         this.collisionType = CollisionType.PreventCollision;
          this.font = font || "10px sans-serif"; // coallesce to default canvas font
          if(spriteFont){
             this._textSprites = spriteFont.getTextSprites();
@@ -1537,7 +1688,7 @@ module ex {
          super(x, y, width, height);
          this.repeats = repeats || this.repeats;
          this.action = action || this.action;
-         this.preventCollisions = true;
+         this.collisionType = CollisionType.PreventCollision;
          this.eventDispatcher = new EventDispatcher(this);
          this.actionQueue = new Internal.Actions.ActionQueue(this);
       }
@@ -1562,13 +1713,15 @@ module ex {
 
          // check for trigger collisions
          if(this.target){
-            if(this.collides(this.target) !== Side.NONE){
+            if(this.collides(this.target)){
                this.dispatchAction();
             }
          }else{
             for (var i = 0; i < engine.currentScene.children.length; i++) {
                var other = engine.currentScene.children[i];
-               if(other !== this && this.collides(other) !== Side.NONE){
+               if(other !== this && 
+                  other.collisionType !== CollisionType.PreventCollision && 
+                  this.collides(other)){
                   this.dispatchAction();
                }
             }

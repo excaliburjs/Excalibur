@@ -88,26 +88,27 @@ declare module ex {
         constructor();
     }
     class CollisionEvent extends GameEvent {
-        public actor: ex.Actor;
-        public other: ex.Actor;
-        public side: ex.Side;
-        constructor(actor: ex.Actor, other: ex.Actor, side: ex.Side);
+        public actor: Actor;
+        public other: Actor;
+        public side: Side;
+        public intersection: Vector;
+        constructor(actor: Actor, other: Actor, side: Side, intersection: Vector);
     }
     class UpdateEvent extends GameEvent {
         public delta: number;
         constructor(delta: number);
     }
     class InitializeEvent extends GameEvent {
-        public engine: ex.Engine;
-        constructor(engine: ex.Engine);
+        public engine: Engine;
+        constructor(engine: Engine);
     }
     class ActivateEvent extends GameEvent {
-        public oldScene: ex.Scene;
-        constructor(oldScene: ex.Scene);
+        public oldScene: Scene;
+        constructor(oldScene: Scene);
     }
     class DeactivateEvent extends GameEvent {
-        public newScene: ex.Scene;
-        constructor(newScene: ex.Scene);
+        public newScene: Scene;
+        constructor(newScene: Scene);
     }
     class ExitViewPortEvent extends GameEvent {
         constructor();
@@ -116,20 +117,20 @@ declare module ex {
         constructor();
     }
     class KeyEvent extends GameEvent {
-        public key: ex.InputKey;
-        constructor(key: ex.InputKey);
+        public key: InputKey;
+        constructor(key: InputKey);
     }
     class KeyDown extends GameEvent {
-        public key: ex.InputKey;
-        constructor(key: ex.InputKey);
+        public key: InputKey;
+        constructor(key: InputKey);
     }
     class KeyUp extends GameEvent {
-        public key: ex.InputKey;
-        constructor(key: ex.InputKey);
+        public key: InputKey;
+        constructor(key: InputKey);
     }
     class KeyPress extends GameEvent {
-        public key: ex.InputKey;
-        constructor(key: ex.InputKey);
+        public key: InputKey;
+        constructor(key: InputKey);
     }
     enum MouseButton {
         Left = 0,
@@ -219,19 +220,19 @@ declare module ex {
 }
 declare module ex.Util {
     class Class {
-        public eventDispatcher: ex.EventDispatcher;
+        public eventDispatcher: EventDispatcher;
         constructor();
-        public addEventListener(eventName: string, handler: (event?: ex.GameEvent) => void): void;
-        public removeEventListener(eventName: string, handler?: (event?: ex.GameEvent) => void): void;
-        public on(eventName: string, handler: (event?: ex.GameEvent) => void): void;
-        public off(eventName: string, handler?: (event?: ex.GameEvent) => void): void;
-        static extend(methods: any): () => void;
+        public addEventListener(eventName: string, handler: (event?: GameEvent) => void): void;
+        public removeEventListener(eventName: string, handler?: (event?: GameEvent) => void): void;
+        public on(eventName: string, handler: (event?: GameEvent) => void): void;
+        public off(eventName: string, handler?: (event?: GameEvent) => void): void;
+        static extend(methods: any): any;
     }
     function base64Encode(inputStr: string): string;
     function clamp(val: any, min: any, max: any): any;
     function drawLine(ctx: CanvasRenderingContext2D, color: string, startx: any, starty: any, endx: any, endy: any): void;
     function randomInRange(min: number, max: number): number;
-    function getPosition(el: HTMLElement): ex.Point;
+    function getPosition(el: HTMLElement): Point;
     class Collection<T> {
         static DefaultSize: number;
         private internalArray;
@@ -253,15 +254,71 @@ declare module ex.Util {
     }
 }
 declare module ex {
+    class Cell {
+        public x: number;
+        public y: number;
+        public width: number;
+        public height: number;
+        public index: number;
+        public solid: boolean;
+        public spriteId: number;
+        private _bounds;
+        constructor(x: number, y: number, width: number, height: number, index: number, solid?: boolean, spriteId?: number);
+        public getBounds(): BoundingBox;
+    }
+    class CollisionMap {
+        public x: number;
+        public y: number;
+        public cellWidth: number;
+        public cellHeight: number;
+        public rows: number;
+        public cols: number;
+        public spriteSheet: SpriteSheet;
+        private _collidingX;
+        private _collidingY;
+        private _onScreenXStart;
+        private _onScreenXEnd;
+        private _onScreenYStart;
+        private _onScreenYEnd;
+        public data: Cell[];
+        constructor(x: number, y: number, cellWidth: number, cellHeight: number, rows: number, cols: number, spriteSheet: SpriteSheet);
+        public collides(actor: Actor): Vector;
+        public getCellByIndex(index: number): Cell;
+        public getCell(x: number, y: number): Cell;
+        public getCellByPoint(x: number, y: number): Cell;
+        public update(engine: Engine, delta: number): void;
+        public draw(ctx: CanvasRenderingContext2D, delta: number): void;
+        public debugDraw(ctx: CanvasRenderingContext2D): void;
+    }
+}
+declare module ex {
+    interface ICollidable {
+        collides(collidable: ICollidable): Vector;
+        contains(point: Point): boolean;
+    }
+    class BoundingBox implements ICollidable {
+        public left: number;
+        public top: number;
+        public right: number;
+        public bottom: number;
+        constructor(left: number, top: number, right: number, bottom: number);
+        public getWidth(): number;
+        public getHeight(): number;
+        public contains(p: Point): boolean;
+        public collides(collidable: ICollidable): Vector;
+    }
+}
+declare module ex {
     class Overlap {
         public x: number;
         public y: number;
         constructor(x: number, y: number);
     }
-    class Scene extends ex.Util.Class {
+    class Scene extends Util.Class {
         public actor: Actor;
         public children: Actor[];
-        public engine: ex.Engine;
+        public collisionMaps: CollisionMap[];
+        public engine: Engine;
         private killQueue;
         private timers;
         private cancelQueue;
@@ -269,26 +326,35 @@ declare module ex {
         constructor();
         public onActivate(): void;
         public onDeactivate(): void;
-        public onInitialize(engine: ex.Engine): void;
-        public publish(eventType: string, event: ex.GameEvent): void;
-        public update(engine: ex.Engine, delta: number): void;
+        public onInitialize(engine: Engine): void;
+        public publish(eventType: string, event: GameEvent): void;
+        public update(engine: Engine, delta: number): void;
         public draw(ctx: CanvasRenderingContext2D, delta: number): void;
         public debugDraw(ctx: CanvasRenderingContext2D): void;
         public addChild(actor: Actor): void;
+        public addCollisionMap(collisionMap: CollisionMap): void;
+        public removeCollisionMap(collisionMap: CollisionMap): void;
         public removeChild(actor: Actor): void;
-        public addTimer(timer: ex.Timer): ex.Timer;
-        public removeTimer(timer: ex.Timer): ex.Timer;
-        public cancelTimer(timer: ex.Timer): ex.Timer;
-        public isTimerActive(timer: ex.Timer): boolean;
+        public addTimer(timer: Timer): Timer;
+        public removeTimer(timer: Timer): Timer;
+        public cancelTimer(timer: Timer): Timer;
+        public isTimerActive(timer: Timer): boolean;
     }
     enum Side {
-        NONE = 0,
-        TOP = 1,
-        BOTTOM = 2,
-        LEFT = 3,
-        RIGHT = 4,
+        None = 0,
+        Top = 1,
+        Bottom = 2,
+        Left = 3,
+        Right = 4,
     }
-    class Actor extends ex.Util.Class {
+    enum CollisionType {
+        PreventCollision = 0,
+        Passive = 1,
+        Active = 2,
+        Elastic = 3,
+        Fixed = 4,
+    }
+    class Actor extends Util.Class {
         public x: number;
         public y: number;
         private height;
@@ -305,35 +371,34 @@ declare module ex {
         public invisible: boolean;
         public opacity: number;
         private previousOpacity;
-        public actionQueue: ex.Internal.Actions.ActionQueue;
+        public actionQueue: Internal.Actions.ActionQueue;
         private sceneNode;
-        public logger: ex.Logger;
+        public logger: Logger;
         public scene: Scene;
         public parent: Actor;
-        public fixed: boolean;
-        public preventCollisions: boolean;
+        public collisionType: CollisionType;
         public collisionGroups: string[];
         private _collisionHandlers;
         private _isInitialized;
         public frames: {
-            [key: string]: ex.IDrawable;
+            [key: string]: IDrawable;
         };
-        public currentDrawing: ex.IDrawable;
+        public currentDrawing: IDrawable;
         private centerDrawingX;
         private centerDrawingY;
-        public color: ex.Color;
+        public color: Color;
         private _isKilled;
-        constructor(x?: number, y?: number, width?: number, height?: number, color?: ex.Color);
-        public onInitialize(engine: ex.Engine): void;
+        constructor(x?: number, y?: number, width?: number, height?: number, color?: Color);
+        public onInitialize(engine: Engine): void;
         public kill(): void;
         public addChild(actor: Actor): void;
         public removeChild(actor: Actor): void;
         public setDrawing(key: any): void;
-        public addDrawing(key: any, drawing: ex.IDrawable): void;
-        public triggerEvent(eventName: string, event?: ex.GameEvent): void;
+        public addDrawing(key: any, drawing: IDrawable): void;
+        public triggerEvent(eventName: string, event?: GameEvent): void;
         public addCollisionGroup(name: string): void;
         public removeCollisionGroup(name: string): void;
-        public getCenter(): ex.Vector;
+        public getCenter(): Vector;
         public getWidth(): number;
         public setWidth(width: any): void;
         public getHeight(): number;
@@ -345,9 +410,11 @@ declare module ex {
         public getBottom(): number;
         public getGlobalX(): any;
         public getGlobalY(): any;
-        private getOverlap(box);
+        public getBounds(): BoundingBox;
         public contains(x: number, y: number): boolean;
-        public collides(actor: Actor): Side;
+        public getSideFromIntersect(intersect: Vector): Side;
+        public collidesWithSide(actor: Actor): Side;
+        public collides(actor: Actor): Vector;
         public onCollidesWith(group: string, func: (actor: Actor) => void): void;
         public removeCollidesWith(group: string): void;
         public within(actor: Actor, distance: number): boolean;
@@ -362,11 +429,12 @@ declare module ex {
         public fade(opacity: number, time: number): Actor;
         public delay(time: number): Actor;
         public die(): Actor;
+        public callMethod(method: () => any): Actor;
         public repeat(times?: number): Actor;
         public repeatForever(): Actor;
         public follow(actor: Actor, followDistance?: number): Actor;
         public meet(actor: Actor, speed?: number): Actor;
-        public update(engine: ex.Engine, delta: number): void;
+        public update(engine: Engine, delta: number): void;
         public draw(ctx: CanvasRenderingContext2D, delta: number): void;
         public debugDraw(ctx: CanvasRenderingContext2D): void;
     }
@@ -387,7 +455,7 @@ declare module ex {
     }
     class Label extends Actor {
         public text: string;
-        public spriteFont: ex.SpriteFont;
+        public spriteFont: SpriteFont;
         public font: string;
         public textAlign: TextAlign;
         public baseAlign: BaseAlign;
@@ -402,13 +470,13 @@ declare module ex {
         private _textSprites;
         private _shadowSprites;
         private _color;
-        constructor(text?: string, x?: number, y?: number, font?: string, spriteFont?: ex.SpriteFont);
+        constructor(text?: string, x?: number, y?: number, font?: string, spriteFont?: SpriteFont);
         public getTextWidth(ctx: CanvasRenderingContext2D): number;
         private _lookupTextAlign(textAlign);
         private _lookupBaseAlign(baseAlign);
-        public setTextShadow(offsetX: number, offsetY: number, shadowColor: ex.Color): void;
+        public setTextShadow(offsetX: number, offsetY: number, shadowColor: Color): void;
         public clearTextShadow(): void;
-        public update(engine: ex.Engine, delta: number): void;
+        public update(engine: Engine, delta: number): void;
         public draw(ctx: CanvasRenderingContext2D, delta: number): void;
         private _fontDraw(ctx, delta, sprites);
         public debugDraw(ctx: CanvasRenderingContext2D): void;
@@ -418,7 +486,7 @@ declare module ex {
         public repeats: number;
         public target: Actor;
         constructor(x?: number, y?: number, width?: number, height?: number, action?: () => void, repeats?: number);
-        public update(engine: ex.Engine, delta: number): void;
+        public update(engine: Engine, delta: number): void;
         private dispatchAction();
         public draw(ctx: CanvasRenderingContext2D, delta: number): void;
         public debugDraw(ctx: CanvasRenderingContext2D): void;
@@ -429,7 +497,7 @@ declare module ex.Internal.Actions {
         x: number;
         y: number;
         update(delta: number): void;
-        isComplete(actor: ex.Actor): boolean;
+        isComplete(actor: Actor): boolean;
         reset(): void;
         stop(): void;
     }
@@ -444,9 +512,9 @@ declare module ex.Internal.Actions {
         private distance;
         private _started;
         private _stopped;
-        constructor(actor: ex.Actor, destx: number, desty: number, speed: number);
+        constructor(actor: Actor, destx: number, desty: number, speed: number);
         public update(delta: number): void;
-        public isComplete(actor: ex.Actor): boolean;
+        public isComplete(actor: Actor): boolean;
         public stop(): void;
         public reset(): void;
     }
@@ -462,9 +530,9 @@ declare module ex.Internal.Actions {
         private dir;
         private _started;
         private _stopped;
-        constructor(actor: ex.Actor, destx: number, desty: number, time: number);
+        constructor(actor: Actor, destx: number, desty: number, time: number);
         public update(delta: Number): void;
-        public isComplete(actor: ex.Actor): boolean;
+        public isComplete(actor: Actor): boolean;
         public stop(): void;
         public reset(): void;
     }
@@ -481,10 +549,10 @@ declare module ex.Internal.Actions {
         private distanceBetween;
         private _started;
         private _stopped;
-        constructor(actor: ex.Actor, actorToFollow: ex.Actor, followDistance?: number);
+        constructor(actor: Actor, actorToFollow: Actor, followDistance?: number);
         public update(delta: number): void;
         public stop(): void;
-        public isComplete(actor: ex.Actor): boolean;
+        public isComplete(actor: Actor): boolean;
         public reset(): void;
     }
     class Meet implements IAction {
@@ -500,9 +568,9 @@ declare module ex.Internal.Actions {
         private _started;
         private _stopped;
         private _speedWasSpecified;
-        constructor(actor: ex.Actor, actorToMeet: ex.Actor, speed?: number);
+        constructor(actor: Actor, actorToMeet: Actor, speed?: number);
         public update(delta: number): void;
-        public isComplete(actor: ex.Actor): boolean;
+        public isComplete(actor: Actor): boolean;
         public stop(): void;
         public reset(): void;
     }
@@ -516,9 +584,9 @@ declare module ex.Internal.Actions {
         private distance;
         private _started;
         private _stopped;
-        constructor(actor: ex.Actor, angleRadians: number, speed: number);
+        constructor(actor: Actor, angleRadians: number, speed: number);
         public update(delta: number): void;
-        public isComplete(actor: ex.Actor): boolean;
+        public isComplete(actor: Actor): boolean;
         public stop(): void;
         public reset(): void;
     }
@@ -533,9 +601,9 @@ declare module ex.Internal.Actions {
         private _started;
         private _stopped;
         private speed;
-        constructor(actor: ex.Actor, angleRadians: number, time: number);
+        constructor(actor: Actor, angleRadians: number, time: number);
         public update(delta: number): void;
-        public isComplete(actor: ex.Actor): boolean;
+        public isComplete(actor: Actor): boolean;
         public stop(): void;
         public reset(): void;
     }
@@ -549,9 +617,9 @@ declare module ex.Internal.Actions {
         private distance;
         private _started;
         private _stopped;
-        constructor(actor: ex.Actor, scale: number, speed: number);
+        constructor(actor: Actor, scale: number, speed: number);
         public update(delta: number): void;
-        public isComplete(actor: ex.Actor): boolean;
+        public isComplete(actor: Actor): boolean;
         public stop(): void;
         public reset(): void;
     }
@@ -566,9 +634,9 @@ declare module ex.Internal.Actions {
         private _started;
         private _stopped;
         private speed;
-        constructor(actor: ex.Actor, scale: number, time: number);
+        constructor(actor: Actor, scale: number, time: number);
         public update(delta: number): void;
-        public isComplete(actor: ex.Actor): boolean;
+        public isComplete(actor: Actor): boolean;
         public stop(): void;
         public reset(): void;
     }
@@ -580,9 +648,9 @@ declare module ex.Internal.Actions {
         private delay;
         private _started;
         private _stopped;
-        constructor(actor: ex.Actor, delay: number);
+        constructor(actor: Actor, delay: number);
         public update(delta: number): void;
-        public isComplete(actor: ex.Actor): boolean;
+        public isComplete(actor: Actor): boolean;
         public stop(): void;
         public reset(): void;
     }
@@ -599,9 +667,9 @@ declare module ex.Internal.Actions {
         private elapsedTime;
         private isBlinking;
         private _stopped;
-        constructor(actor: ex.Actor, frequency: number, duration: number, blinkTime?: number);
+        constructor(actor: Actor, frequency: number, duration: number, blinkTime?: number);
         public update(delta: any): void;
-        public isComplete(actor: ex.Actor): boolean;
+        public isComplete(actor: Actor): boolean;
         public stop(): void;
         public reset(): void;
     }
@@ -614,9 +682,9 @@ declare module ex.Internal.Actions {
         private multiplyer;
         private _started;
         private _stopped;
-        constructor(actor: ex.Actor, endOpacity: number, speed: number);
+        constructor(actor: Actor, endOpacity: number, speed: number);
         public update(delta: number): void;
-        public isComplete(actor: ex.Actor): boolean;
+        public isComplete(actor: Actor): boolean;
         public stop(): void;
         public reset(): void;
     }
@@ -626,11 +694,23 @@ declare module ex.Internal.Actions {
         private actor;
         private _started;
         private _stopped;
-        constructor(actor: ex.Actor);
+        constructor(actor: Actor);
         public update(delta: number): void;
         public isComplete(): boolean;
         public stop(): void;
         public reset(): void;
+    }
+    class CallMethod implements IAction {
+        public x: number;
+        public y: number;
+        private _method;
+        private _actor;
+        private _hasBeenCalled;
+        constructor(actor: Actor, method: () => any);
+        public update(delta: number): void;
+        public isComplete(actor: Actor): boolean;
+        public reset(): void;
+        public stop(): void;
     }
     class Repeat implements IAction {
         public x: number;
@@ -640,7 +720,7 @@ declare module ex.Internal.Actions {
         private repeat;
         private originalRepeat;
         private _stopped;
-        constructor(actor: ex.Actor, repeat: number, actions: IAction[]);
+        constructor(actor: Actor, repeat: number, actions: IAction[]);
         public update(delta: any): void;
         public isComplete(): boolean;
         public stop(): void;
@@ -652,7 +732,7 @@ declare module ex.Internal.Actions {
         private actor;
         private actionQueue;
         private _stopped;
-        constructor(actor: ex.Actor, actions: IAction[]);
+        constructor(actor: Actor, actions: IAction[]);
         public update(delta: any): void;
         public isComplete(): boolean;
         public stop(): void;
@@ -663,7 +743,7 @@ declare module ex.Internal.Actions {
         private _actions;
         private _currentAction;
         private _completedActions;
-        constructor(actor: ex.Actor);
+        constructor(actor: Actor);
         public add(action: IAction): void;
         public remove(action: IAction): void;
         public clearActions(): void;
@@ -679,14 +759,14 @@ declare module ex {
         Rectangle = 1,
     }
     class Particle {
-        public position: ex.Vector;
-        public velocity: ex.Vector;
-        public acceleration: ex.Vector;
-        public focus: ex.Vector;
+        public position: Vector;
+        public velocity: Vector;
+        public acceleration: Vector;
+        public focus: Vector;
         public focusAccel: number;
         public opacity: number;
-        public beginColor: ex.Color;
-        public endColor: ex.Color;
+        public beginColor: Color;
+        public endColor: Color;
         public life: number;
         public fadeFlag: boolean;
         private rRate;
@@ -696,39 +776,39 @@ declare module ex {
         private currentColor;
         public emitter: ParticleEmitter;
         public particleSize: number;
-        public particleSprite: ex.Sprite;
+        public particleSprite: Sprite;
         public startSize: number;
         public endSize: number;
         public sizeRate: number;
         public elapsedMultiplier: number;
-        constructor(emitter: ParticleEmitter, life?: number, opacity?: number, beginColor?: ex.Color, endColor?: ex.Color, position?: ex.Vector, velocity?: ex.Vector, acceleration?: ex.Vector, startSize?: number, endSize?: number);
+        constructor(emitter: ParticleEmitter, life?: number, opacity?: number, beginColor?: Color, endColor?: Color, position?: Vector, velocity?: Vector, acceleration?: Vector, startSize?: number, endSize?: number);
         public kill(): void;
         public update(delta: number): void;
         public draw(ctx: CanvasRenderingContext2D): void;
     }
-    class ParticleEmitter extends ex.Actor {
+    class ParticleEmitter extends Actor {
         public numParticles: number;
         public isEmitting: boolean;
-        public particles: ex.Util.Collection<Particle>;
-        public deadParticles: ex.Util.Collection<Particle>;
+        public particles: Util.Collection<Particle>;
+        public deadParticles: Util.Collection<Particle>;
         public minVel: number;
         public maxVel: number;
-        public acceleration: ex.Vector;
+        public acceleration: Vector;
         public minAngle: number;
         public maxAngle: number;
         public emitRate: number;
         public particleLife: number;
         public opacity: number;
         public fadeFlag: boolean;
-        public focus: ex.Vector;
+        public focus: Vector;
         public focusAccel: number;
         public startSize: number;
         public endSize: number;
         public minSize: number;
         public maxSize: number;
-        public beginColor: ex.Color;
-        public endColor: ex.Color;
-        public particleSprite: ex.Sprite;
+        public beginColor: Color;
+        public endColor: Color;
+        public particleSprite: Sprite;
         public emitterType: EmitterType;
         public radius: number;
         constructor(x?: number, y?: number, width?: number, height?: number);
@@ -736,7 +816,7 @@ declare module ex {
         public emit(particleCount: number): void;
         public clearParticles(): void;
         private createParticle();
-        public update(engine: ex.Engine, delta: number): void;
+        public update(engine: Engine, delta: number): void;
         public draw(ctx: CanvasRenderingContext2D, delta: number): void;
         public debugDraw(ctx: CanvasRenderingContext2D): void;
     }
@@ -766,13 +846,13 @@ declare module ex.Internal {
         public stop(): void;
     }
     class AudioTag implements ISound {
-        public soundPath: string;
+        public path: string;
         private audioElements;
         private _loadedAudio;
         private isLoaded;
         private index;
         private log;
-        constructor(soundPath: string, volume?: number);
+        constructor(path: string, volume?: number);
         private audioLoaded();
         public setVolume(volume: number): void;
         public setLoop(loop: boolean): void;
@@ -835,7 +915,7 @@ declare module ex {
 }
 declare module ex {
     interface ILoadable {
-        load(): ex.Promise<any>;
+        load(): Promise<any>;
         onprogress: (e: any) => void;
         oncomplete: () => void;
         onerror: (e: any) => void;
@@ -853,12 +933,12 @@ declare module ex {
         constructor(path: string);
         private _start(e);
         public isLoaded(): boolean;
-        public load(): ex.Promise<HTMLImageElement>;
+        public load(): Promise<HTMLImageElement>;
         public onprogress: (e: any) => void;
         public oncomplete: () => void;
         public onerror: (e: any) => void;
     }
-    class Sound implements ILoadable, ex.Internal.ISound {
+    class Sound implements ILoadable, Internal.ISound {
         private logger;
         public onprogress: (e: any) => void;
         public oncomplete: () => void;
@@ -866,7 +946,7 @@ declare module ex {
         public onload: (e: any) => void;
         private _isLoaded;
         private _selectedFile;
-        public sound: ex.Internal.FallbackAudio;
+        public sound: Internal.FallbackAudio;
         static canPlayFile(file: string): boolean;
         constructor(...paths: string[]);
         public setVolume(volume: number): void;
@@ -874,7 +954,7 @@ declare module ex {
         public play(): void;
         public stop(): void;
         public isLoaded(): boolean;
-        public load(): ex.Promise<ex.Internal.FallbackAudio>;
+        public load(): Promise<Internal.FallbackAudio>;
     }
     class Loader implements ILoadable {
         private resourceList;
@@ -888,7 +968,7 @@ declare module ex {
         public addResources(loadables: ILoadable[]): void;
         private sumCounts(obj);
         public isLoaded(): boolean;
-        public load(): ex.Promise<any>;
+        public load(): Promise<any>;
         public onprogress: (e: any) => void;
         public oncomplete: () => void;
         public onerror: () => void;
@@ -902,7 +982,7 @@ declare module ex {
         height: number;
         addEffect(effect: Effects.ISpriteEffect): any;
         clearEffects(): any;
-        transformAboutPoint(point: ex.Point): any;
+        transformAboutPoint(point: Point): any;
         setScale(scale: number): any;
         getScale(): number;
         setRotation(radians: number): any;
@@ -911,25 +991,25 @@ declare module ex {
         draw(ctx: CanvasRenderingContext2D, x: number, y: number): any;
     }
     class SpriteSheet {
-        public image: ex.Texture;
+        public image: Texture;
         private columns;
         private rows;
         public sprites: Sprite[];
         private internalImage;
-        constructor(image: ex.Texture, columns: number, rows: number, spWidth: number, spHeight: number);
-        public getAnimationByIndices(engine: ex.Engine, indices: number[], speed: number): Animation;
-        public getAnimationBetween(engine: ex.Engine, beginIndex: number, endIndex: number, speed: number): Animation;
-        public getAnimationForAll(engine: ex.Engine, speed: number): Animation;
+        constructor(image: Texture, columns: number, rows: number, spWidth: number, spHeight: number);
+        public getAnimationByIndices(engine: Engine, indices: number[], speed: number): Animation;
+        public getAnimationBetween(engine: Engine, beginIndex: number, endIndex: number, speed: number): Animation;
+        public getAnimationForAll(engine: Engine, speed: number): Animation;
         public getSprite(index: number): Sprite;
     }
     class SpriteFont extends SpriteSheet {
-        public image: ex.Texture;
+        public image: Texture;
         private alphabet;
         private caseInsensitive;
         private spriteLookup;
         private colorLookup;
         private _currentColor;
-        constructor(image: ex.Texture, alphabet: string, caseInsensitive: boolean, columns: number, rows: number, spWidth: number, spHeight: number);
+        constructor(image: Texture, alphabet: string, caseInsensitive: boolean, columns: number, rows: number, spWidth: number, spHeight: number);
         public getTextSprites(): {
             [key: string]: Sprite;
         };
@@ -950,13 +1030,13 @@ declare module ex {
             public updatePixel(x: number, y: number, imageData: ImageData): void;
         }
         class Colorize implements ISpriteEffect {
-            public color: ex.Color;
-            constructor(color: ex.Color);
+            public color: Color;
+            constructor(color: Color);
             public updatePixel(x: number, y: number, imageData: ImageData): void;
         }
         class Fill implements ISpriteEffect {
-            public color: ex.Color;
-            constructor(color: ex.Color);
+            public color: Color;
+            constructor(color: Color);
             public updatePixel(x: number, y: number, imageData: ImageData): void;
         }
     }
@@ -980,12 +1060,12 @@ declare module ex {
         private pixelData;
         private pixelsLoaded;
         private dirtyEffect;
-        constructor(image: ex.Texture, sx: number, sy: number, swidth: number, sheight: number);
+        constructor(image: Texture, sx: number, sy: number, swidth: number, sheight: number);
         private loadPixels();
         public addEffect(effect: Effects.ISpriteEffect): void;
         private applyEffects();
         public clearEffects(): void;
-        public transformAboutPoint(point: ex.Point): void;
+        public transformAboutPoint(point: Point): void;
         public setRotation(radians: number): void;
         public getRotation(): number;
         public setScale(scale: number): void;
@@ -1008,10 +1088,10 @@ declare module ex {
         public flipHorizontal: boolean;
         public width: number;
         public height: number;
-        constructor(engine: ex.Engine, images: Sprite[], speed: number, loop?: boolean);
+        constructor(engine: Engine, images: Sprite[], speed: number, loop?: boolean);
         public addEffect(effect: Effects.ISpriteEffect): void;
         public clearEffects(): void;
-        public transformAboutPoint(point: ex.Point): void;
+        public transformAboutPoint(point: Point): void;
         public setRotation(radians: number): void;
         public getRotation(): number;
         public setScale(scale: number): void;
@@ -1027,18 +1107,18 @@ declare module ex {
         public flipHorizontal: boolean;
         public width: number;
         public height: number;
-        public lineColor: ex.Color;
-        public fillColor: ex.Color;
+        public lineColor: Color;
+        public fillColor: Color;
         public lineWidth: number;
         public filled: boolean;
         private points;
         private transformationPoint;
         private rotation;
         private scale;
-        constructor(points: ex.Point[]);
+        constructor(points: Point[]);
         public addEffect(effect: Effects.ISpriteEffect): void;
         public clearEffects(): void;
-        public transformAboutPoint(point: ex.Point): void;
+        public transformAboutPoint(point: Point): void;
         public setScale(scale: number): void;
         public getScale(): number;
         public setRotation(radians: number): void;
@@ -1049,9 +1129,9 @@ declare module ex {
 }
 declare module ex {
     class BaseCamera {
-        public follow: ex.Actor;
-        public focus: ex.Point;
-        public engine: ex.Engine;
+        public follow: Actor;
+        public focus: Point;
+        public engine: Engine;
         public isShaking: boolean;
         private shakeMagnitudeX;
         private shakeMagnitudeY;
@@ -1063,23 +1143,57 @@ declare module ex {
         private zoomDuration;
         private elapsedZoomTime;
         private zoomIncrement;
-        constructor(engine: ex.Engine);
-        public setActorToFollow(actor: ex.Actor): void;
-        public getFocus(): ex.Point;
+        constructor(engine: Engine);
+        public setActorToFollow(actor: Actor): void;
+        public getFocus(): Point;
         public setFocus(x: number, y: number): void;
         public shake(magnitudeX: number, magnitudeY: number, duration: number): void;
         public zoom(scale: number, duration?: number): void;
-        public getCurrentZoomScale(): number;
+        public getZoom(): number;
         private setCurrentZoomScale(zoomScale);
         public update(delta: number): void;
+        public debugDraw(ctx: CanvasRenderingContext2D): void;
         private isDoneShaking();
         private isDoneZooming();
     }
     class SideCamera extends BaseCamera {
-        public getFocus(): ex.Point;
+        public getFocus(): Point;
     }
     class TopCamera extends BaseCamera {
-        public getFocus(): ex.Point;
+        public getFocus(): Point;
+    }
+}
+declare module ex {
+    class Template implements ILoadable {
+        public path: string;
+        private _htmlString;
+        private _styleElements;
+        private _textElements;
+        private _innerElement;
+        private _isLoaded;
+        public logger: Logger;
+        constructor(path: string);
+        public getTemplateString(): string;
+        private _compile();
+        private _evaluateExpresion(expression, ctx);
+        public apply(ctx: any): any;
+        public load(): Promise<string>;
+        public isLoaded(): boolean;
+        public onprogress: (e: any) => void;
+        public oncomplete: () => void;
+        public onerror: (e: any) => void;
+    }
+    class Binding {
+        public parent: HTMLElement;
+        public template: Template;
+        private _renderedTemplate;
+        private _ctx;
+        constructor(parentElementId: string, template: Template, ctx: any);
+        public listen(obj: {
+            addEventListener: any;
+        }, events: string[], handler?: (evt?: GameEvent) => void): void;
+        public update(): void;
+        private _applyTemplate(template, ctx);
     }
 }
 declare module ex {
@@ -1171,12 +1285,12 @@ declare module ex {
         public repeats: boolean;
         private elapsedTime;
         public complete: boolean;
-        public scene: ex.Scene;
+        public scene: Scene;
         constructor(fcn: () => void, interval: number, repeats?: boolean);
         public update(delta: number): void;
         public cancel(): void;
     }
-    class Engine extends ex.Util.Class {
+    class Engine extends Util.Class {
         public canvas: HTMLCanvasElement;
         public ctx: CanvasRenderingContext2D;
         public canvasElementId: string;
@@ -1186,17 +1300,17 @@ declare module ex {
         public keys: number[];
         public keysDown: number[];
         public keysUp: number[];
-        public clicks: ex.MouseDown[];
-        public mouseDown: ex.MouseDown[];
-        public mouseMove: ex.MouseMove[];
-        public mouseUp: ex.MouseUp[];
-        public touchStart: ex.TouchStart[];
-        public touchMove: ex.TouchMove[];
-        public touchEnd: ex.TouchEnd[];
-        public touchCancel: ex.TouchCancel[];
-        public camera: ex.BaseCamera;
-        public currentScene: ex.Scene;
-        public rootScene: ex.Scene;
+        public clicks: MouseDown[];
+        public mouseDown: MouseDown[];
+        public mouseMove: MouseMove[];
+        public mouseUp: MouseUp[];
+        public touchStart: TouchStart[];
+        public touchMove: TouchMove[];
+        public touchEnd: TouchEnd[];
+        public touchCancel: TouchCancel[];
+        public camera: BaseCamera;
+        public currentScene: Scene;
+        public rootScene: Scene;
         private sceneHash;
         private animations;
         public isFullscreen: boolean;
@@ -1212,17 +1326,19 @@ declare module ex {
         private total;
         private loadingDraw;
         constructor(width?: number, height?: number, canvasElementId?: string, displayMode?: DisplayMode);
-        public playAnimation(animation: ex.Animation, x: number, y: number): void;
-        public addChild(actor: ex.Actor): void;
-        public removeChild(actor: ex.Actor): void;
+        public playAnimation(animation: Animation, x: number, y: number): void;
+        public addChild(actor: Actor): void;
+        public removeChild(actor: Actor): void;
+        public addCollisionMap(collisionMap: CollisionMap): void;
+        public removeCollisionMap(collisionMap: CollisionMap): void;
         public addTimer(timer: Timer): Timer;
         public removeTimer(timer: Timer): Timer;
-        public addScene(name: string, scene: ex.Scene): void;
+        public addScene(name: string, scene: Scene): void;
         public goToScene(name: string): void;
         public getWidth(): number;
         public getHeight(): number;
-        public screenToWorldCoordinates(point: ex.Point): ex.Point;
-        public worldToScreenCoordinates(point: ex.Point): ex.Point;
+        public screenToWorldCoordinates(point: Point): Point;
+        public worldToScreenCoordinates(point: Point): Point;
         private setHeightByDisplayMode(parent);
         private initialize();
         public setAntialiasing(isSmooth: boolean): void;
@@ -1232,10 +1348,10 @@ declare module ex {
         public isKeyUp(key: InputKey): boolean;
         private update(delta);
         private draw(delta);
-        public start(loader?: ex.ILoadable): ex.Promise<any>;
+        public start(loader?: ILoadable): Promise<any>;
         public stop(): void;
         private drawLoadingBar(ctx, loaded, total);
         public setLoadingDrawFunction(fcn: (ctx: CanvasRenderingContext2D, loaded: number, total: number) => void): void;
-        public load(loader: ex.ILoadable): ex.Promise<any>;
+        public load(loader: ILoadable): Promise<any>;
     }
 }

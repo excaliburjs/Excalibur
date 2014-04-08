@@ -13,6 +13,10 @@ describe("A Collision Group", ()=>{
       scene = new ex.Scene();
       actor1 = new ex.Actor(100, 100, 100, 100);
       actor2 = new ex.Actor(100, 100, 100, 100);
+      // Setting actor collision types to passive otherwise they push each other around
+      actor1.collisionType = ex.CollisionType.Passive;
+      actor2.collisionType = ex.CollisionType.Passive;
+      
       scene.addChild(actor1);
       scene.addChild(actor2);
       // mock engine    
@@ -31,6 +35,11 @@ describe("A Collision Group", ()=>{
             width: 0,
             height: 0,
          },
+         camera: {
+            getZoom: function(){return 1}
+         },
+         getWidth: function(){return 0},
+         getHeight: function(){return 0},
          worldToScreenCoordinates: function(){
             return new ex.Point(0,0);
          },
@@ -41,8 +50,8 @@ describe("A Collision Group", ()=>{
    });
 
    it("does not effect actors without collision groupings", ()=>{
-      expect(actor1.collides(actor2)).not.toBe(ex.Side.NONE);
-      expect(actor2.collides(actor1)).not.toBe(ex.Side.NONE);
+      expect(actor1.collides(actor2)).not.toBe(ex.Side.None);
+      expect(actor2.collides(actor1)).not.toBe(ex.Side.None);
    });
 
    it("handler should fire only on collision with registered group", ()=>{

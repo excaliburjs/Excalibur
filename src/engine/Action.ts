@@ -5,11 +5,11 @@
 module ex.Internal.Actions {
    export interface IAction {
       x: number
-       y: number
-       update(delta: number): void
-       isComplete(actor: Actor): boolean
-       reset(): void
-       stop(): void
+      y: number
+      update(delta: number): void
+      isComplete(actor: Actor): boolean
+      reset(): void
+      stop(): void
    }
 
    export class MoveTo implements IAction {
@@ -679,6 +679,32 @@ module ex.Internal.Actions {
       public stop(): void { }
 
       public reset(): void { }
+   }
+
+   export class CallMethod implements IAction {
+      public x: number;
+      public y: number;
+      private _method: ()=>any = null;
+      private _actor: Actor = null;
+      private _hasBeenCalled: boolean = false;
+      constructor(actor: Actor, method: ()=>any){
+         this._actor = actor;
+         this._method = method;
+      }
+
+      public update(delta: number){
+         this._method.call(this._actor);
+         this._hasBeenCalled = true;
+      }
+      public isComplete(actor: Actor){
+         return this._hasBeenCalled;
+      }
+      public reset(){
+         this._hasBeenCalled = false;
+      }
+      public stop(){
+         this._hasBeenCalled = true;
+      }
    }
    
    export class Repeat implements IAction {

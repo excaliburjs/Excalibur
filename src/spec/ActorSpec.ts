@@ -26,6 +26,11 @@ describe("A game actor", () => {
             width: 0,
             height: 0,
          },
+         getWidth: function(){return 0},
+         getHeight: function(){return 0},
+         camera: {
+            getZoom: function(){return 1}
+         },
          worldToScreenCoordinates: function(){
             return new ex.Point(0,0);
          },
@@ -148,29 +153,41 @@ describe("A game actor", () => {
 	});
 
 	it('can collide with other actors', ()=>{
-		var otherActor = new ex.Actor(10, 10, 20, 20);
-		actor.setHeight(20);
-		actor.setWidth(20);
+      var actor = new ex.Actor(0, 0, 10, 10);
+		var other = new ex.Actor(10, 10, 10, 10);
 
-		expect(actor.collides(otherActor)).toBeTruthy();
-		expect(otherActor.collides(actor)).toBeTruthy();
+      // Actors are adjacent and not overlapping should not collide
+		expect(actor.collidesWithSide(other)).toBeFalsy();
+		expect(other.collidesWithSide(actor)).toBeFalsy();
 
-		otherActor.x = 19;
-		otherActor.y = 0;
+      // move other actor into collision range from the right side
+		other.x = 9;
+		other.y = 0;
+		expect(actor.collidesWithSide(other)).toBe(ex.Side.Right);
+		expect(other.collidesWithSide(actor)).toBe(ex.Side.Left);
 
-		expect(actor.collides(otherActor)).toBe(ex.Side.LEFT);
-		expect(otherActor.collides(actor)).toBe(ex.Side.RIGHT);
+      // move other actor into collision range from the left side
+      other.x = -9;
+      other.y = 0;
+      expect(actor.collidesWithSide(other)).toBe(ex.Side.Left);
+      expect(other.collidesWithSide(actor)).toBe(ex.Side.Right);
 
-		actor.x = 0;
-		actor.y = 0;
-		otherActor.x  = 21;
-		otherActor.y = 0;
-		expect(actor.collides(otherActor)).toBe(ex.Side.NONE);
 
-		actor.setWidth(22);
-		expect(actor.collides(otherActor)).toBe(ex.Side.LEFT);
+      // move other actor into collision range from the top
+      other.x = 0
+      other.y = -9;
+      expect(actor.collidesWithSide(other)).toBe(ex.Side.Top);
+      expect(other.collidesWithSide(actor)).toBe(ex.Side.Bottom);
+
+      // move other actor into collision range from the bottom
+      other.x = 0;
+      other.y = 9;
+      expect(actor.collidesWithSide(other)).toBe(ex.Side.Bottom);
+      expect(other.collidesWithSide(actor)).toBe(ex.Side.Top);
 
 	});
+
+
 
 	it('can be moved to a location at a speed', ()=>{
 		expect(actor.x).toBe(0);
