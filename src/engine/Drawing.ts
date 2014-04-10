@@ -53,16 +53,30 @@ module ex {
       /**
        * Sets the scale trasformation
        * @method setScale
-       * @param scale {number} The magnitude to scale the drawing
+       * @param scale {number} The magnitude to scale the drawing in the x direction
        */
-      setScale(scale: number);
+      setScaleX(scale: number);
 
       /**
-       * Returns the current magnitude of the drawing's scale.
-       * @method getScale
+       * Sets the scale trasformation
+       * @method setScale
+       * @param scale {number} The magnitude to scale the drawing in the y direction
+       */
+      setScaleY(scale: number);
+
+      /**
+       * Returns the current magnitude of the drawing's scale in the x direction.
+       * @method getScaleX
        * @returns number
        */
-      getScale(): number;
+      getScaleX(): number;
+
+      /**
+       * Returns the current magnitude of the drawing's scale in the y direction.
+       * @method getScaleY
+       * @returns number
+       */
+      getScaleY(): number;
 
       /**
        * Sets the current rotation transformation for the drawing.
@@ -363,7 +377,8 @@ module ex {
     */
    export class Sprite implements IDrawable {
       private texture: Texture;
-      private scale: number = 1.0;
+      private scaleX: number = 1.0;
+      private scaleY: number = 1.0;
       private rotation: number = 0.0;
       private transformPoint: Point = new Point(0, 0);
 
@@ -472,21 +487,39 @@ module ex {
       }
 
       /**
-       * Sets the scale trasformation
+       * Sets the scale trasformation in the x direction
        * @method setScale
-       * @param scale {number} The magnitude to scale the drawing
+       * @param scale {number} The magnitude to scale the drawing in the x direction
        */
-      public setScale(scale: number) {
-         this.scale = scale;
+      public setScaleX(scaleX: number) {
+         this.scaleX = scaleX;
       }
 
       /**
-       * Returns the current magnitude of the drawing's scale.
+       * Sets the scale trasformation in the x direction
+       * @method setScale
+       * @param scale {number} The magnitude to scale the drawing in the x direction
+       */
+      public setScaleY(scaleY: number) {
+         this.scaleY = scaleY;
+      }
+
+      /**
+       * Returns the current magnitude of the drawing's scale in the x direction
        * @method getScale
        * @returns number
        */
-      public getScale(): number {
-         return this.scale;
+      public getScaleX(): number {
+         return this.scaleX;
+      }
+
+      /**
+       * Returns the current magnitude of the drawing's scale in the y direction
+       * @method getScale
+       * @returns number
+       */
+      public getScaleY(): number {
+         return this.scaleY;
       }
 
       /**
@@ -528,7 +561,7 @@ module ex {
             ctx.scale(1, -1);
          }
          if(this.internalImage){
-            ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, -this.transformPoint.x, -this.transformPoint.y, this.swidth * this.scale, this.sheight * this.scale);
+            ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, -this.transformPoint.x, -this.transformPoint.y, this.swidth * this.scaleX, this.sheight * this.scaleY);
          }
          ctx.restore();
       }
@@ -540,7 +573,8 @@ module ex {
        */
       public clone(): Sprite {
          var result = new Sprite(this.texture, this.sx, this.sy, this.swidth, this.sheight);
-         result.scale = this.scale;
+         result.scaleX = this.scaleX;
+         result.scaleY = this.scaleY;
          result.rotation = this.rotation;
          result.flipHorizontal = this.flipHorizontal;
          result.flipVertical = this.flipVertical;
@@ -569,7 +603,8 @@ module ex {
       private currIndex: number = 0;
       private oldTime: number = Date.now();
       private rotation: number = 0.0;
-      private scale: number = 1.0;
+      private scaleX: number = 1.0;
+      private scaleY: number = 1.0;
       /**
        * Indicates whether the animation should loop after it is completed
        * @property [loop=false] {boolean} 
@@ -623,15 +658,26 @@ module ex {
          return this.rotation;
       }
 
-      public setScale(scale: number) {
-         this.scale = scale;
+      public setScaleX(scaleX: number) {
+         this.scaleX = scaleX;
          for (var i in this.sprites) {
-            this.sprites[i].setScale(scale);
+            this.sprites[i].setScaleX(scaleX);
          }
       }
 
-      public getScale(): number {
-         return this.scale;
+      public setScaleY(scaleY: number) {
+         this.scaleY = scaleY;
+         for (var i in this.sprites) {
+            this.sprites[i].setScaleY(scaleY);
+         }
+      }
+
+      public getScaleX(): number {
+         return this.scaleX;
+      }
+
+      public getScaleY(): number {
+         return this.scaleY;
       }
 
       /**
@@ -733,7 +779,8 @@ module ex {
       private points: Point[] = [];
       private transformationPoint = new Point(0, 0);
       private rotation: number = 0;
-      private scale: number = 1;
+      private scaleX: number = 1;
+      private scaleY: number = 1;
 
       
       constructor(points : Point[]) {
@@ -778,12 +825,20 @@ module ex {
          this.transformationPoint = point;
       }
 
-      public setScale(scale: number) {
-         this.scale = scale;
+      public setScaleX(scaleX: number) {
+         this.scaleX = scaleX;
       }
 
-      public getScale() {
-         return this.scale;
+      public setScaleY(scaleY: number) {
+         this.scaleY = scaleY;
+      }
+
+      public getScaleX() {
+         return this.scaleX;
+      }
+
+      public getScaleY() {
+         return this.scaleY;
       }
 
       public setRotation(radians: number) {
@@ -801,7 +856,7 @@ module ex {
       public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
          ctx.save();
          ctx.translate(x + this.transformationPoint.x, y + this.transformationPoint.y);
-         ctx.scale(this.scale, this.scale);
+         ctx.scale(this.scaleX, this.scaleY);
          ctx.rotate(this.rotation);
          ctx.beginPath();
          ctx.lineWidth = this.lineWidth;
