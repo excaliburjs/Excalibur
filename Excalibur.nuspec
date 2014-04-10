@@ -9,11 +9,11 @@
     <licenseUrl>https://github.com/eonarheim/Excalibur/master/blob/LICENSE.md</licenseUrl>
     <iconUrl>https://raw.github.com/eonarheim/Excalibur/master/assets/icon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Excalibur.js is a simple game engine written in TypeScript for making 2D games in HTML5 Canvas. The goal of Excalibur is create a simple engine to demonstrate the capabilities of TypeScript and to illustrate simple game development to new developers.</description>
+    <description>Excalibur.js is a simple JavaScript game engine with TypeScript bindings for making 2D games in HTML5 Canvas. Our mission is to make web game development as simple as possible.</description>
   </metadata>
   <files>
-    <file src="build\Excalibur*.js" target="content/Scripts" />
-    <file src="build\Excalibur*.d.ts" target="content/Scripts" />
-    <file src="build\Excalibur*.js.map" target="content/Scripts" />
+    <file src="dist\Excalibur*.js" target="content/Scripts" />
+    <file src="dist\Excalibur*.d.ts" target="content/Scripts" />
+    <file src="dist\Excalibur*.js.map" target="content/Scripts" />
   </files>
 </package>
