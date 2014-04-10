@@ -113,7 +113,7 @@ module ex {
     * separate sprites or for generating in game animations. Sprites are organized
     * in row major order in the SpriteSheet.
     * @class SpriteSheet
-    * @contructor 
+    * @constructor 
     * @param image {Texture} The backing image texture to build the SpriteSheet
     * @param columns {number} The number of columns in the image texture
     * @param rows {number} The number of rows in the image texture
@@ -747,7 +747,7 @@ module ex {
     * @class Polygon
     * @extends IDrawable
     * @constructor
-    * @params points {Point[]} The points to use to build the polygon in order
+    * @param points {Point[]} The points to use to build the polygon in order
     */
    export class Polygon implements IDrawable {
       public flipVertical: boolean;

@@ -74,7 +74,7 @@ module.exports = function (grunt) {
          // Execute TypeScript compiler against Excalibur core
          //
          tsc: {
-            command: 'tsc --sourcemap --removeComments --declaration "./src/engine/Core.ts" -out "./dist/<%= pkg.name %>-<%= pkg.version %>.js"',               
+            command: 'tsc --sourcemap --declaration "./src/engine/Core.ts" -out "./dist/<%= pkg.name %>-<%= pkg.version %>.js"',               
             options: {
                stdout: true,
                failOnError: true
@@ -127,7 +127,18 @@ module.exports = function (grunt) {
          // Build documentation site
          //
          docs: {
-            command: 'yuidoc --helpers ./docs/strip.js --themedir ./docs/excalibur --norecurse --extension .ts --outdir ./docs/out ./src/engine ',
+            command: 'yuidoc --helpers ./docs/strip.js --themedir ./docs/excalibur --norecurse --extension .ts --outdir ./docs/out ./src/engine',
+            options: {
+               stdout: true,
+               failOnError: true
+            }
+         },
+
+         //
+         // Build docs data
+         //
+         docsData: {
+            command: 'yuidoc --helpers ./docs/strip.js --norecurse --extension .ts --outdir ./docs/out --parse-only ./src/engine',
             options: {
                stdout: true,
                failOnError: true
@@ -142,6 +153,7 @@ module.exports = function (grunt) {
          main: {
             files: [
                {src: './dist/<%= pkg.name %>-<%= pkg.version %>.js', dest: './dist/<%= pkg.name %>.js'},
+               {src: './dist/<%= pkg.name %>-<%= pkg.version %>.min.js', dest: './dist/<%= pkg.name %>.min.js'},
                {src: './dist/<%= pkg.name %>-<%= pkg.version %>.d.ts', dest: './dist/<%= pkg.name %>.d.ts'}
             ]
          }

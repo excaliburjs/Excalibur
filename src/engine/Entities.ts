@@ -408,8 +408,16 @@ module ex {
        * @property dx {number} 
        */
       public dy: number = 0;
-      
+
+      /**
+       * The x acceleration of the actor in pixels/second^2
+       * @property ax {number}
+       */
       public ax: number = 0; // pixels/sec/sec
+      /**
+       * The y acceleration of the actor in pixels/second^2
+       * @property ay {number}
+       */
       public ay: number = 0;
 
       /**
@@ -757,7 +765,7 @@ module ex {
 
       /**
        * Returns the side of the collision based on the intersection 
-       * @getSideFromIntersect
+       * @method getSideFromIntersect
        * @param intersect {Vector} The displacement vector returned by a collision
        * @returns Side
       */
@@ -1091,6 +1099,9 @@ module ex {
          this.x += this.dx * delta / 1000;
          this.y += this.dy * delta / 1000;
 
+         this.dx += this.ax * delta / 1000;
+         this.dy += this.ay * delta / 1000;
+
          this.rotation += this.rx * delta / 1000;
 
          this.scaleX += this.sx * delta / 1000;
@@ -1240,7 +1251,11 @@ module ex {
          });
 
          var actorScreenCoords = engine.worldToScreenCoordinates(new Point(this.getGlobalX(), this.getGlobalY()));
-         var zoom = engine.camera.getZoom();
+         var zoom = 1.0;
+         if(engine.camera){
+            zoom = engine.camera.getZoom();   
+         }
+         
          if(!this.isOffScreen){
             if(actorScreenCoords.x + this.getWidth() * zoom < 0 || 
                actorScreenCoords.y + this.getHeight() * zoom < 0 ||
