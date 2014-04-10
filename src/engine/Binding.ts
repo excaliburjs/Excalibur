@@ -29,7 +29,8 @@ module ex {
 
       /**
        * Returns the full html template string once loaded.
-       * @getTemplateString
+       * @method getTemplateString
+       * @returns string
        */
       public getTemplateString(){
          if(!this._isLoaded) return "";
@@ -53,7 +54,7 @@ module ex {
        * You may return either an HTML string or a Dom node.
        * @method apply
        * @param ctx {any} Any object you wish to apply to the template
-       * @returns {any} 
+       * @returns any 
        */
       public apply(ctx: any): any {
          for(var j = 0; j < this._styleElements.length; j++){

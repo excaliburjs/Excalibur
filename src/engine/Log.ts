@@ -43,7 +43,6 @@ module ex {
     * Derive from IAppender to create your own logging appenders.
     * @class Logger
     * @static
-    * @singleton
     */
    export class Logger {
       private static _instance: Logger = null;

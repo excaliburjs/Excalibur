@@ -580,7 +580,8 @@ module ex {
       constructor(width?: number, height?: number, canvasElementId?: string, displayMode?: DisplayMode) {
 
          super();
-
+         console.log("Powered by Excalibur.js visit","http://excaliburjs.com","for more information.");
+         
          this.logger = Logger.getInstance();
          
          this.logger.debug("Building engine...");
@@ -1282,7 +1283,7 @@ module ex {
          loader.onprogress = (e) => {
             this.progress = <number>e.loaded;
             this.total = <number>e.total;
-            this.logger.info('Loading ' + (100 * this.progress / this.total).toFixed(0));
+            this.logger.debug('Loading ' + (100 * this.progress / this.total).toFixed(0));
          };
          loader.oncomplete = () => {
             setTimeout(() => {

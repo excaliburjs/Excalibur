@@ -753,7 +753,7 @@ module ex {
 
       /**
        * Returns the side of the collision based on the intersection 
-       * @getSideFromIntersect
+       * @method getSideFromIntersect
        * @param intersect {Vector} The displacement vector returned by a collision
        * @returns Side
       */

@@ -21,37 +21,37 @@ module ex {
       constructor(
          /**
           * Gets or sets x coordinate of the cell in world coordinates
-          * @property x
+          * @property x {number}
           */
          public x: number,
          /**
           * Gets or sets y coordinate of the cell in world coordinates
-          * @property y
+          * @property y {number}
           */
          public y: number,
          /**
           * Gets or sets the width of the cell 
-          * @property width
+          * @property width {number}
           */
          public width: number,
          /**
           * Gets or sets the height of the cell 
-          * @property height
+          * @property height {number}
           */
          public height: number,
          /**
           * The index of the cell in row major order
-          * @property index
+          * @property index {number}
           */
          public index: number, 
          /**
           * Gets or sets whether this cell is solid
-          * @property solid
+          * @property solid {boolean}
           */
          public solid: boolean = false, 
          /**
           * The index of the sprite to use from the CollisionMap SpriteSheet, if -1 is specified nothing is drawn.
-          * @property number
+          * @property number {number}
           */
          public spriteId: number = -1){
          this._bounds = new BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
