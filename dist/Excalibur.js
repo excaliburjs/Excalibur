@@ -2226,15 +2226,25 @@ var ex;
             */
             this.rx = 0;
             /**
-            * The scale of the actor
-            * @property scale {number}
+            * The x scale of the actor
+            * @property scaleX {number}
             */
-            this.scale = 1;
+            this.scaleX = 1;
             /**
-            * The scalar velocity of the actor in scale/second
+            * The y scale of the actor
+            * @property scaleY {number}
+            */
+            this.scaleY = 1;
+            /**
+            * The x scalar velocity of the actor in scale/second
             * @property sx {number}
             */
             this.sx = 0;
+            /**
+            * The y scalar velocity of the actor in scale/second
+            * @property sy {number}
+            */
+            this.sy = 0;
             /**
             * The x velocity of the actor in pixels/second
             * @property dx {number}
@@ -2438,7 +2448,7 @@ var ex;
         * @returns number
         */
         Actor.prototype.getWidth = function () {
-            return this.width * this.scale;
+            return this.width * this.scaleX;
         };
 
         /**
@@ -2446,7 +2456,7 @@ var ex;
         * @method setWidth
         */
         Actor.prototype.setWidth = function (width) {
-            this.width = width / this.scale;
+            this.width = width / this.scaleX;
         };
 
         /**
@@ -2455,7 +2465,7 @@ var ex;
         * @returns number
         */
         Actor.prototype.getHeight = function () {
-            return this.height * this.scale;
+            return this.height * this.scaleY;
         };
 
         /**
@@ -2463,7 +2473,7 @@ var ex;
         * @method setHeight
         */
         Actor.prototype.setHeight = function (height) {
-            this.height = height / this.scale;
+            this.height = height / this.scaleY;
         };
 
         /**
@@ -2726,8 +2736,8 @@ var ex;
         * @param speed {number} The speed of scaling specified in magnitude increase per second
         * @returns Actor
         */
-        Actor.prototype.scaleTo = function (size, speed) {
-            this.actionQueue.add(new ex.Internal.Actions.ScaleTo(this, size, speed));
+        Actor.prototype.scaleTo = function (sizeX, sizeY, speedX, speedY) {
+            this.actionQueue.add(new ex.Internal.Actions.ScaleTo(this, sizeX, sizeY, speedX, speedY));
             return this;
         };
 
@@ -2740,8 +2750,8 @@ var ex;
         * @param time {number} The time it should take to complete the scaling in milliseconds
         * @returns Actor
         */
-        Actor.prototype.scaleBy = function (size, time) {
-            this.actionQueue.add(new ex.Internal.Actions.ScaleBy(this, size, time));
+        Actor.prototype.scaleBy = function (sizeX, sizeY, time) {
+            this.actionQueue.add(new ex.Internal.Actions.ScaleBy(this, sizeX, sizeY, time));
             return this;
         };
 
@@ -2910,7 +2920,8 @@ var ex;
 
             this.rotation += this.rx * delta / 1000;
 
-            this.scale += this.sx * delta / 1000;
+            this.scaleX += this.sx * delta / 1000;
+            this.scaleY += this.sy * delta / 1000;
 
             if (this.collisionType !== 0 /* PreventCollision */) {
                 // Retrieve the list of potential colliders, exclude killed, prevented, and self
@@ -3086,7 +3097,7 @@ var ex;
             ctx.save();
             ctx.translate(this.x, this.y);
             ctx.rotate(this.rotation);
-            ctx.scale(this.scale, this.scale);
+            ctx.scale(this.scaleX, this.scaleY);
 
             if (this.previousOpacity != this.opacity) {
                 for (var drawing in this.frames) {
@@ -3100,11 +3111,11 @@ var ex;
                     var xDiff = 0;
                     var yDiff = 0;
                     if (this.centerDrawingX) {
-                        xDiff = (this.currentDrawing.width * this.currentDrawing.getScale() - this.width) / 2;
+                        xDiff = (this.currentDrawing.width * this.currentDrawing.getScaleX() - this.width) / 2;
                     }
 
                     if (this.centerDrawingY) {
-                        yDiff = (this.currentDrawing.height * this.currentDrawing.getScale() - this.height) / 2;
+                        yDiff = (this.currentDrawing.height * this.currentDrawing.getScaleY() - this.height) / 2;
                     }
 
                     //var xDiff = (this.currentDrawing.width*this.currentDrawing.getScale() - this.width)/2;
@@ -3395,7 +3406,7 @@ var ex;
         Label.prototype.draw = function (ctx, delta) {
             ctx.save();
             ctx.translate(this.x, this.y);
-            ctx.scale(this.scale, this.scale);
+            ctx.scale(this.scaleX, this.scaleY);
             ctx.rotate(this.rotation);
 
             if (this._textShadowOn) {
@@ -3498,7 +3509,8 @@ var ex;
 
             this.rotation += this.rx * delta / 1000;
 
-            this.scale += this.sx * delta / 1000;
+            this.scaleX += this.sx * delta / 1000;
+            this.scaleY += this.sy * delta / 1000;
 
             // check for trigger collisions
             if (this.target) {
@@ -3865,35 +3877,54 @@ var ex;
             Actions.RotateBy = RotateBy;
 
             var ScaleTo = (function () {
-                function ScaleTo(actor, scale, speed) {
+                function ScaleTo(actor, scaleX, scaleY, speedX, speedY) {
                     this._started = false;
                     this._stopped = false;
                     this.actor = actor;
-                    this.end = scale;
-                    this.speed = speed;
+                    this.endX = scaleX;
+                    this.endY = scaleY;
+                    this.speedX = speedX;
+                    this.speedY = speedY;
                 }
                 ScaleTo.prototype.update = function (delta) {
                     if (!this._started) {
                         this._started = true;
-                        this.start = this.actor.scale;
-                        this.distance = Math.abs(this.end - this.start);
+                        this.startX = this.actor.scaleX;
+                        this.startY = this.actor.scaleY;
+                        this.distanceX = Math.abs(this.endX - this.startX);
+                        this.distanceY = Math.abs(this.endY - this.startY);
                     }
-                    var direction = this.end < this.start ? -1 : 1;
-                    this.actor.sx = this.speed * direction;
+
+                    if (!(Math.abs(this.actor.scaleX - this.startX) >= this.distanceX)) {
+                        var directionX = this.endY < this.startY ? -1 : 1;
+                        this.actor.sx = this.speedX * directionX;
+                    } else {
+                        this.actor.sx = 0;
+                    }
+
+                    if (!(Math.abs(this.actor.scaleY - this.startY) >= this.distanceY)) {
+                        var directionY = this.endY < this.startY ? -1 : 1;
+                        this.actor.sy = this.speedY * directionY;
+                    } else {
+                        this.actor.sy = 0;
+                    }
 
                     //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
                     if (this.isComplete(this.actor)) {
-                        this.actor.scale = this.end;
+                        this.actor.scaleX = this.endX;
+                        this.actor.scaleY = this.endY;
                         this.actor.sx = 0;
+                        this.actor.sy = 0;
                     }
                 };
 
                 ScaleTo.prototype.isComplete = function (actor) {
-                    return this._stopped || Math.abs(this.actor.scale - this.start) >= this.distance;
+                    return this._stopped || ((Math.abs(this.actor.scaleX - this.startX) >= this.distanceX) && (Math.abs(this.actor.scaleY - this.startY) >= this.distanceY));
                 };
 
                 ScaleTo.prototype.stop = function () {
                     this.actor.sx = 0;
+                    this.actor.sy = 0;
                     this._stopped = true;
                 };
 
@@ -3905,36 +3936,45 @@ var ex;
             Actions.ScaleTo = ScaleTo;
 
             var ScaleBy = (function () {
-                function ScaleBy(actor, scale, time) {
+                function ScaleBy(actor, scaleX, scaleY, time) {
                     this._started = false;
                     this._stopped = false;
                     this.actor = actor;
-                    this.end = scale;
+                    this.endX = scaleX;
+                    this.endY = scaleY;
                     this.time = time;
-                    this.speed = (this.end - this.actor.scale) / time * 1000;
+                    this.speedX = (this.endX - this.actor.scaleX) / time * 1000;
+                    this.speedY = (this.endY - this.actor.scaleY) / time * 1000;
                 }
                 ScaleBy.prototype.update = function (delta) {
                     if (!this._started) {
                         this._started = true;
-                        this.start = this.actor.scale;
-                        this.distance = Math.abs(this.end - this.start);
+                        this.startX = this.actor.scaleX;
+                        this.startY = this.actor.scaleY;
+                        this.distanceX = Math.abs(this.endX - this.startX);
+                        this.distanceY = Math.abs(this.endY - this.startY);
                     }
-                    var direction = this.end < this.start ? -1 : 1;
-                    this.actor.sx = this.speed * direction;
+                    var directionX = this.endX < this.startX ? -1 : 1;
+                    var directionY = this.endY < this.startY ? -1 : 1;
+                    this.actor.sx = this.speedX * directionX;
+                    this.actor.sy = this.speedY * directionY;
 
                     //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
                     if (this.isComplete(this.actor)) {
-                        this.actor.scale = this.end;
+                        this.actor.scaleX = this.endX;
+                        this.actor.scaleY = this.endY;
                         this.actor.sx = 0;
+                        this.actor.sy = 0;
                     }
                 };
 
                 ScaleBy.prototype.isComplete = function (actor) {
-                    return this._stopped || (Math.abs(this.actor.scale - this.start) >= this.distance);
+                    return this._stopped || ((Math.abs(this.actor.scaleX - this.startX) >= this.distanceX) && (Math.abs(this.actor.scaleY - this.startY) >= this.distanceY));
                 };
 
                 ScaleBy.prototype.stop = function () {
                     this.actor.sx = 0;
+                    this.actor.sy = 0;
                     this._stopped = true;
                 };
 
@@ -5621,7 +5661,8 @@ var ex;
             this.sy = sy;
             this.swidth = swidth;
             this.sheight = sheight;
-            this.scale = 1.0;
+            this.scaleX = 1.0;
+            this.scaleY = 1.0;
             this.rotation = 0.0;
             this.transformPoint = new ex.Point(0, 0);
             this.flipVertical = false;
@@ -5727,21 +5768,39 @@ var ex;
         };
 
         /**
-        * Sets the scale trasformation
+        * Sets the scale trasformation in the x direction
         * @method setScale
-        * @param scale {number} The magnitude to scale the drawing
+        * @param scale {number} The magnitude to scale the drawing in the x direction
         */
-        Sprite.prototype.setScale = function (scale) {
-            this.scale = scale;
+        Sprite.prototype.setScaleX = function (scaleX) {
+            this.scaleX = scaleX;
         };
 
         /**
-        * Returns the current magnitude of the drawing's scale.
+        * Sets the scale trasformation in the x direction
+        * @method setScale
+        * @param scale {number} The magnitude to scale the drawing in the x direction
+        */
+        Sprite.prototype.setScaleY = function (scaleY) {
+            this.scaleY = scaleY;
+        };
+
+        /**
+        * Returns the current magnitude of the drawing's scale in the x direction
         * @method getScale
         * @returns number
         */
-        Sprite.prototype.getScale = function () {
-            return this.scale;
+        Sprite.prototype.getScaleX = function () {
+            return this.scaleX;
+        };
+
+        /**
+        * Returns the current magnitude of the drawing's scale in the y direction
+        * @method getScale
+        * @returns number
+        */
+        Sprite.prototype.getScaleY = function () {
+            return this.scaleY;
         };
 
         /**
@@ -5784,7 +5843,7 @@ var ex;
                 ctx.scale(1, -1);
             }
             if (this.internalImage) {
-                ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, -this.transformPoint.x, -this.transformPoint.y, this.swidth * this.scale, this.sheight * this.scale);
+                ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, -this.transformPoint.x, -this.transformPoint.y, this.swidth * this.scaleX, this.sheight * this.scaleY);
             }
             ctx.restore();
         };
@@ -5796,7 +5855,8 @@ var ex;
         */
         Sprite.prototype.clone = function () {
             var result = new Sprite(this.texture, this.sx, this.sy, this.swidth, this.sheight);
-            result.scale = this.scale;
+            result.scaleX = this.scaleX;
+            result.scaleY = this.scaleY;
             result.rotation = this.rotation;
             result.flipHorizontal = this.flipHorizontal;
             result.flipVertical = this.flipVertical;
@@ -5826,7 +5886,8 @@ var ex;
             this.currIndex = 0;
             this.oldTime = Date.now();
             this.rotation = 0.0;
-            this.scale = 1.0;
+            this.scaleX = 1.0;
+            this.scaleY = 1.0;
             /**
             * Indicates whether the animation should loop after it is completed
             * @property [loop=false] {boolean}
@@ -5875,15 +5936,26 @@ var ex;
             return this.rotation;
         };
 
-        Animation.prototype.setScale = function (scale) {
-            this.scale = scale;
+        Animation.prototype.setScaleX = function (scaleX) {
+            this.scaleX = scaleX;
             for (var i in this.sprites) {
-                this.sprites[i].setScale(scale);
+                this.sprites[i].setScaleX(scaleX);
             }
         };
 
-        Animation.prototype.getScale = function () {
-            return this.scale;
+        Animation.prototype.setScaleY = function (scaleY) {
+            this.scaleY = scaleY;
+            for (var i in this.sprites) {
+                this.sprites[i].setScaleY(scaleY);
+            }
+        };
+
+        Animation.prototype.getScaleX = function () {
+            return this.scaleX;
+        };
+
+        Animation.prototype.getScaleY = function () {
+            return this.scaleY;
         };
 
         /**
@@ -5972,7 +6044,8 @@ var ex;
             this.points = [];
             this.transformationPoint = new ex.Point(0, 0);
             this.rotation = 0;
-            this.scale = 1;
+            this.scaleX = 1;
+            this.scaleY = 1;
             this.points = points;
 
             var minX = this.points.reduce(function (prev, curr) {
@@ -6013,12 +6086,20 @@ var ex;
             this.transformationPoint = point;
         };
 
-        Polygon.prototype.setScale = function (scale) {
-            this.scale = scale;
+        Polygon.prototype.setScaleX = function (scaleX) {
+            this.scaleX = scaleX;
         };
 
-        Polygon.prototype.getScale = function () {
-            return this.scale;
+        Polygon.prototype.setScaleY = function (scaleY) {
+            this.scaleY = scaleY;
+        };
+
+        Polygon.prototype.getScaleX = function () {
+            return this.scaleX;
+        };
+
+        Polygon.prototype.getScaleY = function () {
+            return this.scaleY;
         };
 
         Polygon.prototype.setRotation = function (radians) {
@@ -6036,7 +6117,7 @@ var ex;
         Polygon.prototype.draw = function (ctx, x, y) {
             ctx.save();
             ctx.translate(x + this.transformationPoint.x, y + this.transformationPoint.y);
-            ctx.scale(this.scale, this.scale);
+            ctx.scale(this.scaleX, this.scaleY);
             ctx.rotate(this.rotation);
             ctx.beginPath();
             ctx.lineWidth = this.lineWidth;

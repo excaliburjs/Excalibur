@@ -1374,15 +1374,25 @@ declare module ex {
         */
         public rx: number;
         /**
-        * The scale of the actor
-        * @property scale {number}
+        * The x scale of the actor
+        * @property scaleX {number}
         */
-        public scale: number;
+        public scaleX: number;
         /**
-        * The scalar velocity of the actor in scale/second
+        * The y scale of the actor
+        * @property scaleY {number}
+        */
+        public scaleY: number;
+        /**
+        * The x scalar velocity of the actor in scale/second
         * @property sx {number}
         */
         public sx: number;
+        /**
+        * The y scalar velocity of the actor in scale/second
+        * @property sy {number}
+        */
+        public sy: number;
         /**
         * The x velocity of the actor in pixels/second
         * @property dx {number}
@@ -1717,7 +1727,7 @@ declare module ex {
         * @param speed {number} The speed of scaling specified in magnitude increase per second
         * @returns Actor
         */
-        public scaleTo(size: number, speed: number): Actor;
+        public scaleTo(sizeX: number, sizeY: number, speedX: number, speedY: number): Actor;
         /**
         * This method will scale an actor to the specified size by a certain time
         * (in milliseconds) and return back the actor. This method is part of the
@@ -1727,7 +1737,7 @@ declare module ex {
         * @param time {number} The time it should take to complete the scaling in milliseconds
         * @returns Actor
         */
-        public scaleBy(size: number, time: number): Actor;
+        public scaleBy(sizeX: number, sizeY: number, time: number): Actor;
         /**
         * This method will cause an actor to blink (become visible and and
         * invisible) at a frequency (blinks per second) for a duration (in
@@ -2132,13 +2142,17 @@ declare module ex.Internal.Actions {
         private actor;
         public x: number;
         public y: number;
-        private start;
-        private end;
-        private speed;
-        private distance;
+        private startX;
+        private startY;
+        private endX;
+        private endY;
+        private speedX;
+        private speedY;
+        private distanceX;
+        private distanceY;
         private _started;
         private _stopped;
-        constructor(actor: Actor, scale: number, speed: number);
+        constructor(actor: Actor, scaleX: number, scaleY: number, speedX: number, speedY: number);
         public update(delta: number): void;
         public isComplete(actor: Actor): boolean;
         public stop(): void;
@@ -2148,14 +2162,18 @@ declare module ex.Internal.Actions {
         private actor;
         public x: number;
         public y: number;
-        private start;
-        private end;
+        private startX;
+        private startY;
+        private endX;
+        private endY;
         private time;
-        private distance;
+        private distanceX;
+        private distanceY;
         private _started;
         private _stopped;
-        private speed;
-        constructor(actor: Actor, scale: number, time: number);
+        private speedX;
+        private speedY;
+        constructor(actor: Actor, scaleX: number, scaleY: number, time: number);
         public update(delta: number): void;
         public isComplete(actor: Actor): boolean;
         public stop(): void;
@@ -2823,15 +2841,27 @@ declare module ex {
         /**
         * Sets the scale trasformation
         * @method setScale
-        * @param scale {number} The magnitude to scale the drawing
+        * @param scale {number} The magnitude to scale the drawing in the x direction
         */
-        setScale(scale: number): any;
+        setScaleX(scale: number): any;
         /**
-        * Returns the current magnitude of the drawing's scale.
-        * @method getScale
+        * Sets the scale trasformation
+        * @method setScale
+        * @param scale {number} The magnitude to scale the drawing in the y direction
+        */
+        setScaleY(scale: number): any;
+        /**
+        * Returns the current magnitude of the drawing's scale in the x direction.
+        * @method getScaleX
         * @returns number
         */
-        getScale(): number;
+        getScaleX(): number;
+        /**
+        * Returns the current magnitude of the drawing's scale in the y direction.
+        * @method getScaleY
+        * @returns number
+        */
+        getScaleY(): number;
         /**
         * Sets the current rotation transformation for the drawing.
         * @method setRotation
@@ -3036,7 +3066,8 @@ declare module ex {
         public swidth: number;
         public sheight: number;
         private texture;
-        private scale;
+        private scaleX;
+        private scaleY;
         private rotation;
         private transformPoint;
         public flipVertical: boolean;
@@ -3084,17 +3115,29 @@ declare module ex {
         */
         public getRotation(): number;
         /**
-        * Sets the scale trasformation
+        * Sets the scale trasformation in the x direction
         * @method setScale
-        * @param scale {number} The magnitude to scale the drawing
+        * @param scale {number} The magnitude to scale the drawing in the x direction
         */
-        public setScale(scale: number): void;
+        public setScaleX(scaleX: number): void;
         /**
-        * Returns the current magnitude of the drawing's scale.
+        * Sets the scale trasformation in the x direction
+        * @method setScale
+        * @param scale {number} The magnitude to scale the drawing in the x direction
+        */
+        public setScaleY(scaleY: number): void;
+        /**
+        * Returns the current magnitude of the drawing's scale in the x direction
         * @method getScale
         * @returns number
         */
-        public getScale(): number;
+        public getScaleX(): number;
+        /**
+        * Returns the current magnitude of the drawing's scale in the y direction
+        * @method getScale
+        * @returns number
+        */
+        public getScaleY(): number;
         /**
         * Resets the internal state of the drawing (if any)
         * @method reset
@@ -3132,7 +3175,8 @@ declare module ex {
         private currIndex;
         private oldTime;
         private rotation;
-        private scale;
+        private scaleX;
+        private scaleY;
         /**
         * Indicates whether the animation should loop after it is completed
         * @property [loop=false] {boolean}
@@ -3150,8 +3194,10 @@ declare module ex {
         public transformAboutPoint(point: Point): void;
         public setRotation(radians: number): void;
         public getRotation(): number;
-        public setScale(scale: number): void;
-        public getScale(): number;
+        public setScaleX(scaleX: number): void;
+        public setScaleY(scaleY: number): void;
+        public getScaleX(): number;
+        public getScaleY(): number;
         /**
         * Resets the animation to first frame.
         * @method reset
@@ -3214,7 +3260,8 @@ declare module ex {
         private points;
         private transformationPoint;
         private rotation;
-        private scale;
+        private scaleX;
+        private scaleY;
         constructor(points: Point[]);
         /**
         * Effects are <b>not supported</b> on polygons
@@ -3227,8 +3274,10 @@ declare module ex {
         */
         public clearEffects(): void;
         public transformAboutPoint(point: Point): void;
-        public setScale(scale: number): void;
-        public getScale(): number;
+        public setScaleX(scaleX: number): void;
+        public setScaleY(scaleY: number): void;
+        public getScaleX(): number;
+        public getScaleY(): number;
         public setRotation(radians: number): void;
         public getRotation(): number;
         public reset(): void;
