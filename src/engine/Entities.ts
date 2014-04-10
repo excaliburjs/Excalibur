@@ -1238,7 +1238,11 @@ module ex {
          });
 
          var actorScreenCoords = engine.worldToScreenCoordinates(new Point(this.getGlobalX(), this.getGlobalY()));
-         var zoom = engine.camera.getZoom();
+         var zoom = 1.0;
+         if(engine.camera){
+            zoom = engine.camera.getZoom();   
+         }
+         
          if(!this.isOffScreen){
             if(actorScreenCoords.x + this.getWidth() * zoom < 0 || 
                actorScreenCoords.y + this.getHeight() * zoom < 0 ||
