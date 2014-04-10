@@ -15,8 +15,12 @@
          "values": ["TopCamera", "SideCamera"]
       },
       {
+         "name":"Collision",
+         "values": ["BoundingBox", "CollisionMap", "Cell"]
+      },
+      {
          "name":"Effects",
-         "values": ["ParticleEmitter", "EmitterType", "Grayscale", "Invert", "Opacity"]
+         "values": ["ParticleEmitter", "EmitterType", "Effects.Grayscale", "Effects.Invert", "Effects.Opacity", "Effects.Colorize"]
       },
       {
          "name":"Utility",
@@ -28,11 +32,12 @@
       },
       {
          "name": "Interfaces",
-         "values": ["IAppender", "IDrawable", "ILoadable", "InputKey", "ISpriteEffect"]
+         "values": ["IAppender", "IDrawable", "ILoadable", "InputKey", "ISpriteEffect", "ICollidable"]
       },
       {
          "name": "Events",
-         "values": ["GameEvent","UpdateEvent", "FocusEvent", "BlurEvent", "KeyEvent", "KeyUp", "KeyDown", "KeyPress", 
+         "values": ["GameEvent","UpdateEvent", "ActivateEvent", "DeactivateEvent", "CollisionEvent", 
+                  "InitializeEvent", "ExitViewPortEvent", "EnterViewPortEvent", "FocusEvent", "BlurEvent", "KeyEvent", "KeyUp", "KeyDown", "KeyPress", 
                   "MouseUp", "MouseDown", "MouseMove", "TouchEvent", "TouchStart", "TouchEnd", "TouchMove", "TouchCancel"]
       }
    ]
