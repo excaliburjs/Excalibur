@@ -193,6 +193,15 @@ var myActor = new MyActor(100, 100, 100, 100, Color.Azure);</pre>
       return new Point(oLeft, oTop);
    }
 
+   export function getOppositeSide(side: ex.Side){
+      if(side === ex.Side.Top) return ex.Side.Bottom;
+      if(side === ex.Side.Bottom) return ex.Side.Top;
+      if(side === ex.Side.Left) return ex.Side.Right;
+      if(side === ex.Side.Right) return ex.Side.Left
+
+      return ex.Side.None
+   }
+
    /**
     * Excaliburs dynamically resizing collection
     * @class Collection

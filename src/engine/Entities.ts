@@ -1120,8 +1120,9 @@ module ex {
 
                if(intersectActor = this.collides(collider)){
                   side = this.getSideFromIntersect(intersectActor);
-                  // Publish collision events
+                  // Publish collision events on both participants
                   eventDispatcher.publish('collision', new CollisionEvent(this, collider, side, intersectActor));
+                  collider.eventDispatcher.publish('collision', new CollisionEvent(collider, this, ex.Util.getOppositeSide(side), intersectActor.scale(-1.0)));
 
                   // Send collision group updates
                   collider.collisionGroups.forEach((group)=>{

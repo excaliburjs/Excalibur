@@ -7,6 +7,7 @@
 node_modules/
 /docs/out/*.*
 /docs/out/
+/bower_components/
 
 # Logs and databases #
 ######################
