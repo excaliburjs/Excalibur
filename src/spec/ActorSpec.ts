@@ -187,7 +187,29 @@ describe("A game actor", () => {
 
 	});
 
+   it('participates with another in a collision', ()=>{
+      var actor = new ex.Actor(0, 0, 10, 10);
+      var other = new ex.Actor(8, 0, 10, 10);
+      var actorCalled = 'false';
+      var otherCalled = 'false';
 
+      actor.on('collision', function(){
+         actorCalled = 'actor';
+      });
+
+      other.on('collision', function(){
+         otherCalled = 'other';
+      });
+
+      scene.addChild(actor);
+      scene.addChild(other);
+      scene.update(engine, 20);
+      scene.update(engine, 20);
+
+      expect(actorCalled).toBe('actor');
+      expect(otherCalled).toBe('other');
+
+   });
 
 	it('can be moved to a location at a speed', ()=>{
 		expect(actor.x).toBe(0);
