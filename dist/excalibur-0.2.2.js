@@ -1,4 +1,4 @@
-/*! Excalibur - v0.2.0 - 2014-04-09
+/*! excalibur - v0.2.2 - 2014-04-15
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -7806,4 +7806,4 @@ var ex;
     ex.Engine = Engine;
     ;
 })(ex || (ex = {}));
-//# sourceMappingURL=Excalibur-0.2.0.js.map
+//# sourceMappingURL=excalibur-0.2.2.js.map

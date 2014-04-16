@@ -12,8 +12,8 @@
     <description>Excalibur.js is a simple JavaScript game engine with TypeScript bindings for making 2D games in HTML5 Canvas. Our mission is to make web game development as simple as possible.</description>
   </metadata>
   <files>
-    <file src="dist\Excalibur*.js" target="content/Scripts" />
-    <file src="dist\Excalibur*.d.ts" target="content/Scripts" />
-    <file src="dist\Excalibur*.js.map" target="content/Scripts" />
+    <file src="dist\excalibur-*.js" target="content/Scripts" />
+    <file src="dist\excalibur-*.d.ts" target="content/Scripts" />
+    <file src="dist\excalibur-*.js.map" target="content/Scripts" />
   </files>
 </package>
