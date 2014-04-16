@@ -18,6 +18,11 @@ describe('A color', ()=>{
       expect(color.toString()).toBe('rgba(0, 0, 0, 1)');
    });
 
+   it('should handle alpha values of 0', ()=>{
+      var color = new ex.Color(255, 255, 255, 0);
+      expect(color.toString()).toBe('rgba(255, 255, 255, 0)');
+   });
+
    it('can be parsed from hex', ()=>{
       color = ex.Color.fromHex('ffffff');
       expect(color.r).toBe(255);
