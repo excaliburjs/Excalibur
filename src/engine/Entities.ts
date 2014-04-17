@@ -1304,6 +1304,7 @@ module ex {
             for (var drawing in this.frames) {
                this.frames[drawing].addEffect(new ex.Effects.Opacity(this.opacity));
             }
+
             this.previousOpacity = this.opacity;
          }
 
@@ -1325,6 +1326,7 @@ module ex {
                this.currentDrawing.draw(ctx, -xDiff, -yDiff);
 
             } else {
+               if(this.color) this.color.a = this.opacity;
                ctx.fillStyle = this.color ? this.color.toString() : (new Color(0, 0, 0)).toString();
                ctx.fillRect(0, 0, this.width, this.height);
             }

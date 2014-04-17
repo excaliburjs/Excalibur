@@ -189,7 +189,7 @@ module ex {
        */
       public toString() {
          var result = String(this.r.toFixed(0)) + ", " + String(this.g.toFixed(0)) + ", " + String(this.b.toFixed(0));
-         if (this.a) {
+         if (this.a !== undefined || this.a !== null) {
             return "rgba(" + result + ", " + String(this.a) + ")";
          }
          return "rgb(" + result + ")";
