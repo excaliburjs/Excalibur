@@ -437,7 +437,7 @@ module ex {
        * @property opacity {number}
        */
       public opacity: number = 1;
-      private previousOpacity: number = 1;
+      public previousOpacity: number = 1;
 
       /** 
        * Direct access to the actor's action queue. Useful if you are building custom actions.
@@ -1642,21 +1642,30 @@ module ex {
 
       private _fontDraw(ctx: CanvasRenderingContext2D, delta: number, sprites: { [key: string]: Sprite; }){
          if (!this.invisible) {
-            if (this.spriteFont) {
+            if (this.spriteFont) {              
+
                var currX = 0;
-               for (var i = 0; i < this.text.length; i++) {
-                  var character = this.text[i];
-                  if (this.caseInsensitive) {
-                     character = character.toLowerCase();
+               
+                  for (var i = 0; i < this.text.length; i++) {
+                     var character = this.text[i];
+                     if (this.caseInsensitive) {
+                        character = character.toLowerCase();
+                     }
+                     try {
+                        var charSprite = sprites[character];
+                        if (this.previousOpacity !== this.opacity) {
+                           charSprite.clearEffects();
+                           charSprite.addEffect(new ex.Effects.Opacity(this.opacity));
+                        }
+                        charSprite.draw(ctx, currX, 0);
+                        currX += (charSprite.swidth + this.letterSpacing);
+                     } catch (e) {
+                        Logger.getInstance().error("SpriteFont Error drawing char " + character);
+                     }           
                   }
-                  try {
-                     var charSprite = sprites[character];
-                     charSprite.draw(ctx, currX, 0);
-                     currX += (charSprite.swidth + this.letterSpacing);
-                  } catch (e) {
-                     Logger.getInstance().error("SpriteFont Error drawing char " + character);
-                  }           
-               }
+                  if (this.previousOpacity !== this.opacity) {
+                     this.previousOpacity = this.opacity;
+                  }
                //this.spriteFont.draw(ctx, 0, 0, this.text, color, this.letterSpacing);
             } else {
                var oldAlign = ctx.textAlign;
@@ -1664,7 +1673,9 @@ module ex {
 
                ctx.textAlign = this._lookupTextAlign(this.textAlign);
                ctx.textBaseline = this._lookupBaseAlign(this.baseAlign);
-
+               if(this.color){
+                  this.color.a = this.opacity;
+               }
                ctx.fillStyle = this.color.toString();
                ctx.font = this.font;
                if(this.maxWidth){
