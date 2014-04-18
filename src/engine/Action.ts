@@ -641,7 +641,7 @@ module ex.Internal.Actions {
       }
 
       public isComplete(actor: Actor): boolean {
-         return this._stopped || (Math.abs(this.actor.opacity - this.endOpacity) < 0.01);
+         return this._stopped || (Math.abs(this.actor.opacity - this.endOpacity) < 0.05);
       }
 
       public stop(): void {
