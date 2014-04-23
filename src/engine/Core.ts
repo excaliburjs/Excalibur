@@ -534,6 +534,10 @@ module ex {
       public touchEnd: TouchEnd[] = [];
       public touchCancel: TouchCancel[] = [];
 
+      /** 
+       * Gets or sets the camera to be used in the game.
+       * @property camera {BaseCamera}
+       */
       public camera: BaseCamera;
       public currentScene: Scene;
       /**
@@ -588,6 +592,7 @@ module ex {
 
          this.canvasElementId = canvasElementId;
 
+         this.camera = new BaseCamera(this);
          this.rootScene = this.currentScene = new Scene();
          this.addScene('root', this.rootScene);
 
