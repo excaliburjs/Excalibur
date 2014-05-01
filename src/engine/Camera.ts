@@ -33,7 +33,7 @@ module ex {
       }
 
       /**
-      * Sets the {{#crossLink Actor}}{{//crossLink}} to follow with the camera
+      * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
       * @method setActorToFollow
       * @param actor {Actor} The actor to follow
       */
