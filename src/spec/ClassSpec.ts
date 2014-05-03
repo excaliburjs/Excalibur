@@ -1,10 +1,10 @@
 /// <reference path="jasmine.d.ts" />
 /// <reference path="require.d.ts" />
-/// <reference path="../engine/Core.ts" />
+/// <reference path="../engine/Engine.ts" />
 
 describe("A Class", ()=>{
    it("can be extended indefinitely", ()=>{
-      var Person: any = ex.Util.Class.extend({
+      var Person: any = ex.Class.extend({
          name: '',
          constructor: function(name){
             this.name = name;
@@ -60,7 +60,7 @@ describe("A Class", ()=>{
    });
 
    it('does not share the same instance of the super type', ()=>{
-      var Person: any = ex.Util.Class.extend({
+      var Person: any = ex.Class.extend({
          name: '',
          constructor: function(name){
             this.name = name;

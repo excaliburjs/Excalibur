@@ -1,12 +1,12 @@
 {
   "name": "excalibur",
-  "version": "0.2.2",
+  "version": "0.2.5",
   "homepage": "https://github.com/eonarheim/Excalibur",
   "authors": [
     "https://github.com/excaliburjs/Excalibur/graphs/contributors"
   ],
   "description": "Excalibur.js is a simple JavaScript game engine with TypeScript bindings for making 2D games in HTML5 Canvas. Our mission is to make web game development as simple as possible.",
-  "main": "dist/excalibur-0.2.2.js",
+  "main": "dist/excalibur-0.2.5.js",
   "keywords": [
     "excalibur",
     "game",

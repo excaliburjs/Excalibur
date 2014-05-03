@@ -1,4 +1,5 @@
-/// <reference path="Core.ts" />
+/// <reference path="Engine.ts" />
+/// <reference path="SpriteSheet.ts" />
 
 
 module ex {
