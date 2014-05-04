@@ -137,18 +137,11 @@ describe("A game actor", () => {
 
 		expect(actor.contains(10,10)).toBe(true);
 
-		expect(actor.contains(0, 0)).toBe(true);
-
-		expect(actor.contains(20, 20)).toBe(true);
-
 		expect(actor.contains(21, 20)).toBe(false);
 		expect(actor.contains(20, 21)).toBe(false);
 		
 		expect(actor.contains(0, -1)).toBe(false);
 		expect(actor.contains(-1, 0)).toBe(false);
-		expect(actor.contains(10, 0)).toBe(true);
-		expect(actor.contains(10, 20)).toBe(true);
-
 
 	});
 

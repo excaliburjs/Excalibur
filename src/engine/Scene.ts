@@ -18,7 +18,7 @@ module ex {
        * @property children {Actor[]}
        */
       public children: Actor[] = [];
-      public collisionMaps: CollisionMap[] = [];
+      public tileMaps: TileMap[] = [];
       public engine: Engine;
       private killQueue: Actor[] = [];
 
@@ -84,7 +84,7 @@ module ex {
             this._isInitialized = true;
          }
 
-         this.collisionMaps.forEach(function(cm){
+         this.tileMaps.forEach(function(cm){
             cm.update(engine, delta);
          });
 
@@ -133,7 +133,7 @@ module ex {
        * @param delta {number} The number of milliseconds since the last draw
        */
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
-         this.collisionMaps.forEach(function(cm){
+         this.tileMaps.forEach(function(cm){
             cm.draw(ctx, delta);
          });
 
@@ -153,7 +153,7 @@ module ex {
        * @param ctx {CanvasRenderingContext2D} The current rendering context
        */
       public debugDraw(ctx: CanvasRenderingContext2D) {
-         this.collisionMaps.forEach(map =>{
+         this.tileMaps.forEach(map =>{
             map.debugDraw(ctx);
          });
 
@@ -173,14 +173,14 @@ module ex {
          actor.parent = this.actor;
       }
 
-      public addCollisionMap(collisionMap: CollisionMap){
-         this.collisionMaps.push(collisionMap);
+      public addTileMap(tileMap: TileMap){
+         this.tileMaps.push(tileMap);
       }
 
-      public removeCollisionMap(collisionMap: CollisionMap){
-         var index = this.collisionMaps.indexOf(collisionMap);
+      public removeTileMap(tileMap: TileMap){
+         var index = this.tileMaps.indexOf(tileMap);
          if(index > -1){
-            this.collisionMaps.splice(index, 1);
+            this.tileMaps.splice(index, 1);
          }
       }
 

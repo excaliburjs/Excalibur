@@ -1,4 +1,4 @@
-/// <reference path='../../dist/Excalibur.d.ts' />
+/// <reference path='../../dist/excalibur.d.ts' />
 
 var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
@@ -21,10 +21,6 @@ loader.addResource(imageJump);
 loader.addResource(imageBlocks);
 loader.addResource(spriteFontImage);
 loader.addResource(jump);
-//loader.addResource(template);
-
-
-
 
 // Set background color
 game.backgroundColor = new ex.Color(114,213,224);
@@ -40,15 +36,13 @@ var tileBlockWidth = 64,
     spriteTiles = new ex.SpriteSheet(imageBlocks, 1, 1, tileBlockWidth, tileBlockHeight);
 
 // create a collision map
-var collisionMap = new ex.CollisionMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500, spriteTiles);
-collisionMap.data.forEach(function(cell){
+var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
+tileMap.registerSpriteSheet("default", spriteTiles);
+tileMap.data.forEach(function(cell : ex.Cell){
    cell.solid = true;
-   cell.spriteId = 0;
+   cell.pushSprite(new ex.TileSprite("default", 0));
 });
-var c = collisionMap.getCell(1, 0);
-c.spriteId = -1;
-c.solid = false;
-game.addCollisionMap(collisionMap);
+game.addTileMap(tileMap);
 
 // Create spriteFont
 var spriteFont = new ex.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
@@ -409,19 +403,19 @@ trigger.target = player;
 game.addChild(trigger);
 
 game.addEventListener('mousedown', (evt? : ex.MouseDown)=>{
-   var c = collisionMap.getCellByPoint(evt.x, evt.y);
+   var c = tileMap.getCellByPoint(evt.x, evt.y);
    if(c){
       if(c.solid){
          c.solid = false;
-         c.spriteId = -1;   
+         c.sprites.pop();
       }else{
          c.solid = true;
-         c.spriteId = 0;   
+         c.pushSprite(new ex.TileSprite("default", 0));
       }      
    }
 
 
-   //logger.info("Collides", collisionMap.collidesPoint(evt.x, evt.y));
+   //logger.info("Collides", tileMap.collidesPoint(evt.x, evt.y));
    //emitter.focus = new ex.Vector(evt.x - emitter.x, evt.y - emitter.y);
 });
 

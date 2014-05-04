@@ -15,7 +15,7 @@
 /// <reference path="Promises.ts" />
 /// <reference path="Util.ts" />
 /// <reference path="Binding.ts" />
-/// <reference path="CollisionMap.ts" />
+/// <reference path="TileMap.ts" />
 /// <reference path="Label.ts" />
 
 module ex {
@@ -425,12 +425,12 @@ module ex {
       }
 
 
-      public addCollisionMap(collisionMap: CollisionMap){
-         this.currentScene.addCollisionMap(collisionMap);
+      public addTileMap(tileMap: TileMap){
+         this.currentScene.addTileMap(tileMap);
       }
 
-      public removeCollisionMap(collisionMap: CollisionMap){
-         this.currentScene.removeCollisionMap(collisionMap);
+      public removeTileMap(tileMap: TileMap){
+         this.currentScene.removeTileMap(tileMap);
       }
 
       /**

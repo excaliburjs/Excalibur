@@ -1,7 +1,7 @@
 /// <reference path="Interfaces/IDrawable.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util.ts" />
-/// <reference path="CollisionMap.ts" />
+/// <reference path="TileMap.ts" />
 /// <reference path="BoundingBox.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Action.ts" />
@@ -532,16 +532,16 @@ module ex {
       */
       public getSideFromIntersect(intersect: Vector){
          if(intersect){
-            if(Math.abs(intersect.x) < Math.abs(intersect.y)){
-               if(intersect.x < 0){
-                  return Side.Right;
-               }
-               return Side.Left;
+            if(Math.abs(intersect.x) > Math.abs(intersect.y)){
+                if (intersect.x < 0) {
+                    return Side.Right;
+                }
+                return Side.Left;
             }else{
-               if(intersect.y < 0){
-                  return Side.Bottom;
-               }
-               return Side.Top;
+                if (intersect.y < 0) {
+                    return Side.Bottom;
+                }
+                return Side.Top;
             }
          }
          return Side.None;
@@ -553,9 +553,29 @@ module ex {
        * @param actor {Actor} The other actor to test
        * @returns Side
        */
-      public collidesWithSide(actor: Actor): Side {
-         return this.getSideFromIntersect(this.collides(actor));
+     public collidesWithSide(actor: Actor): Side {
+         var separationVector = this.collides(actor);
+         if(!separationVector){
+            return ex.Side.None;
+         }
+
+         if(Math.abs(separationVector.x) > Math.abs(separationVector.y)){
+            if(this.x < actor.x){
+               return ex.Side.Right;
+            }else{
+               return ex.Side.Left;
+            }
+         }else{
+            if(this.y < actor.y){
+               return ex.Side.Bottom;
+            }else{
+               return ex.Side.Top;
+            }
+         }
+
+         return ex.Side.None;
       }
+
 
       /**
        * Test whether the actor has collided with another actor, returns the intersection vector on collision. Returns
@@ -896,12 +916,8 @@ module ex {
 
                   // If the actor is active push the actor out if its not passive
                   if((this.collisionType === CollisionType.Active || this.collisionType === CollisionType.Elastic) && collider.collisionType !== CollisionType.Passive){
-                     
-                     if (Math.abs(intersectActor.y) < Math.abs(intersectActor.x)) {
-                        this.y += intersectActor.y;
-                     } else {
-                        this.x += intersectActor.x;
-                     }
+                     this.y += intersectActor.y;
+                     this.x += intersectActor.x;
 
                      // Naive elastic bounce
                      if(this.collisionType === CollisionType.Elastic){
@@ -920,29 +936,21 @@ module ex {
 
             }
 
-            for(var j = 0; j < engine.currentScene.collisionMaps.length; j++){
-               var map = engine.currentScene.collisionMaps[j];
+            for(var j = 0; j < engine.currentScene.tileMaps.length; j++){
+               var map = engine.currentScene.tileMaps[j];
                var intersectMap: Vector;
                var side = Side.None;
                var max = 2;
                var hasBounced = false;
-               //var iters: Vector[] = [];
                while(intersectMap = map.collides(this)){
-                  //iters.push(intersectMap);
                   if(max--<0){
-                     //console.log(iters);
-                     //console.log("Max iterations exceeded!");
                      break;
                   } 
                   side = this.getSideFromIntersect(intersectMap);
                   eventDispatcher.publish('collision', new CollisionEvent(this, null, side, intersectMap));
                   if((this.collisionType === CollisionType.Active || this.collisionType === CollisionType.Elastic) && collider.collisionType !== CollisionType.Passive){
-                     //var intersectMap = map.getOverlap(this);
-                     if (Math.abs(intersectMap.y) < Math.abs(intersectMap.x)) {
-                        this.y += intersectMap.y;
-                     } else {
-                        this.x += intersectMap.x;
-                     }
+                     this.y += intersectMap.y;
+                     this.x += intersectMap.x;
 
                      // Naive elastic bounce
                      if(this.collisionType === CollisionType.Elastic && !hasBounced){
@@ -1106,17 +1114,8 @@ module ex {
       public debugDraw(ctx: CanvasRenderingContext2D) {
          
          // Meant to draw debug information about actors
-         ctx.save();
-         ctx.translate(this.x, this.y);         
-
-         ctx.fillStyle = Color.Yellow.toString();
-         ctx.strokeStyle = Color.Yellow.toString();
-         ctx.beginPath();
-         ctx.rect(0, 0, this.getWidth(), this.getHeight());
-         ctx.stroke();
-
          this.sceneNode.debugDraw(ctx);
-         ctx.restore();
+         this.getBounds().debugDraw(ctx);
 
       }
    }

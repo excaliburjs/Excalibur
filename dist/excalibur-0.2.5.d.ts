@@ -180,6 +180,33 @@ declare module ex {
         public x: number;
         public y: number;
         constructor(x: number, y: number);
+        /**
+        * X Coordinate of the point
+        * @property x {number}
+        */
+        /**
+        * Y Coordinate of the point
+        * @property y {number}
+        */
+        /**
+        * Convert this point to a vector
+        * @method toVector
+        * @returns Vector
+        */
+        public toVector(): Vector;
+        /**
+        * Rotates the current point around another by a certain number of
+        * degrees in radians
+        * @method rotate
+        * @returns Point
+        */
+        public rotate(angle: number, anchor?: Point): Point;
+        /**
+        * Translates the current point by a vector
+        * @method add
+        * @returns Point
+        */
+        public add(vector: Vector): Point;
     }
     /**
     * A 2D vector on a plane.
@@ -192,6 +219,14 @@ declare module ex {
     class Vector extends Point {
         public x: number;
         public y: number;
+        /**
+        * Returns a vector of unit length in the direction of the specified angle.
+        * @method fromAngle
+        * @static
+        * @param angle {number} The angle to generate the vector
+        * @returns Vector
+        */
+        static fromAngle(angle: number): Vector;
         constructor(x: number, y: number);
         /**
         * The distance to another vector
@@ -241,6 +276,94 @@ declare module ex {
         * @returns number
         */
         public cross(v: Vector): number;
+        /**
+        * Returns the perpendicular vector to this one
+        * @method perpendicular
+        * @return Vector
+        */
+        public perpendicular(): Vector;
+        /**
+        * Returns the normal vector to this one
+        * @method normal
+        * @return Vector
+        */
+        public normal(): Vector;
+        /**
+        * Returns the angle of this vector.
+        * @method toAngle
+        * @returns number
+        */
+        public toAngle(): number;
+        /**
+        * Returns the point represention of this vector
+        * @method toPoint
+        * @returns Point
+        */
+        public toPoint(): Point;
+        /**
+        * Rotates the current vector around a point by a certain number of
+        * degrees in radians
+        * @method rotate
+        * @returns Vector
+        */
+        public rotate(angle: number, anchor: Point): Vector;
+    }
+    /**
+    * A 2D ray that can be cast into the scene to do collision detection
+    * @class Ray
+    * @constructor
+    * @param pos {Point} The starting position for the ray
+    * @param dir {Vector} The vector indicating the direction of the ray
+    */
+    class Ray {
+        public pos: Point;
+        public dir: Vector;
+        constructor(pos: Point, dir: Vector);
+        /**
+        * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
+        * This number indicates the mathematical intersection time.
+        * @method intersect
+        * @param line {Line} The line to test
+        * @returns number
+        */
+        public intersect(line: Line): number;
+        /**
+        * Returns the point of intersection given the intersection time
+        * @method getPoint
+        * @returns Point
+        */
+        public getPoint(time: number): Point;
+    }
+    /**
+    * A 2D line segment
+    * @class Line
+    * @constructor
+    * @param begin {Point} The starting point of the line segment
+    * @param end {Point} The ending point of the line segment
+    */
+    class Line {
+        public begin: Point;
+        public end: Point;
+        constructor(begin: Point, end: Point);
+        /**
+        * Returns the slope of the line in the form of a vector
+        * @method getSlope
+        * @returns Vector
+        */
+        public getSlope(): Vector;
+        /**
+        * Returns the length of the line segment in pixels
+        * @method getLength
+        * @returns number
+        */
+        public getLength(): number;
+    }
+    class Projection {
+        public min: number;
+        public max: number;
+        constructor(min: number, max: number);
+        public overlaps(projection: Projection): boolean;
+        public getOverlap(projection: Projection): number;
     }
 }
 declare module ex.Util {
@@ -548,6 +671,11 @@ declare module ex {
     }
 }
 declare module ex {
+    class TileSprite {
+        public spriteSheetKey: string;
+        public spriteId: number;
+        constructor(spriteSheetKey: string, spriteId: number);
+    }
     /**
     * A light-weight object that occupies a space in a collision map. Generally
     * created by a CollisionMap.
@@ -596,7 +724,7 @@ declare module ex {
         * The index of the sprite to use from the CollisionMap SpriteSheet, if -1 is specified nothing is drawn.
         * @property number {number}
         */
-        public spriteId: number;
+        public sprites: TileSprite[];
         private _bounds;
         constructor(/**
             * Gets or sets x coordinate of the cell in world coordinates
@@ -626,18 +754,23 @@ declare module ex {
             * The index of the sprite to use from the CollisionMap SpriteSheet, if -1 is specified nothing is drawn.
             * @property number {number}
             */
-            spriteId?: number);
+            sprites?: TileSprite[]);
         /**
         * Returns the bounding box for this cell
         * @method getBounds
         * @returns BoundingBox
         */
         public getBounds(): BoundingBox;
+        public getCenter(): Vector;
+        public pushSprite(tileSprite: TileSprite): void;
+        public removeSprite(tileSprite: TileSprite): void;
+        public clearSprites(): void;
     }
     /**
     * The CollisionMap object provides a lightweight way to do large complex scenes with collision
     * without the overhead of actors.
     * @class CollisionMap
+    * @constructor
     * @param x {number} The x coordinate to anchor the collision map's upper left corner (should not be changed once set)
     * @param y {number} The y coordinate to anchor the collision map's upper left corner (should not be changed once set)
     * @param cellWidth {number} The individual width of each cell (in pixels) (should not be changed once set)
@@ -646,22 +779,24 @@ declare module ex {
     * @param cols {number} The number of cols in the collision map (should not be changed once set)
     * @param spriteSheet {SpriteSheet} The spriteSheet to use for drawing
     */
-    class CollisionMap {
+    class TileMap {
         public x: number;
         public y: number;
         public cellWidth: number;
         public cellHeight: number;
         public rows: number;
         public cols: number;
-        public spriteSheet: SpriteSheet;
         private _collidingX;
         private _collidingY;
         private _onScreenXStart;
         private _onScreenXEnd;
         private _onScreenYStart;
         private _onScreenYEnd;
+        private _spriteSheets;
+        public logger: Logger;
         public data: Cell[];
-        constructor(x: number, y: number, cellWidth: number, cellHeight: number, rows: number, cols: number, spriteSheet: SpriteSheet);
+        constructor(x: number, y: number, cellWidth: number, cellHeight: number, rows: number, cols: number);
+        public registerSpriteSheet(key: string, spriteSheet: SpriteSheet): void;
         /**
         * Returns the intesection vector that can be used to resolve collisions with actors. If there
         * is no collision null is returned.
@@ -711,6 +846,10 @@ declare module ex {
     }
 }
 declare module ex {
+    enum CollisionStrategy {
+        AxisAligned = 0,
+        SeparatingAxis = 1,
+    }
     /**
     * Interface all collidable objects must implement
     * @class ICollidable
@@ -732,6 +871,7 @@ declare module ex {
         * @returns boolean
         */
         contains(point: Point): boolean;
+        debugDraw(ctx: CanvasRenderingContext2D): void;
     }
     /**
     * Axis Aligned collision primitive for Excalibur.
@@ -776,6 +916,36 @@ declare module ex {
         * @returns Vector
         */
         public collides(collidable: ICollidable): Vector;
+        public debugDraw(ctx: CanvasRenderingContext2D): void;
+    }
+    class SATBoundingBox implements ICollidable {
+        private _points;
+        constructor(points: Point[]);
+        public getSides(): Line[];
+        public getAxes(): Vector[];
+        public project(axis: Vector): Projection;
+        /**
+        * Returns the calculated width of the bounding box, by generating an axis aligned box around the current
+        * @method getWidth
+        * @returns number
+        */
+        public getWidth(): number;
+        /**
+        * Returns the calculated height of the bounding box, by generating an axis aligned box around the current
+        * @method getHeight
+        * @returns number
+        */
+        public getHeight(): number;
+        /**
+        * Tests wether a point is contained within the bounding box, using the PIP algorithm
+        * http://en.wikipedia.org/wiki/Point_in_polygon
+        * @method contains
+        * @param p {Point} The point to test
+        * @returns boolean
+        */
+        public contains(p: Point): boolean;
+        public collides(collidable: ICollidable): Vector;
+        public debugDraw(ctx: CanvasRenderingContext2D): void;
     }
 }
 declare module ex {
@@ -899,7 +1069,7 @@ declare module ex {
         * @property children {Actor[]}
         */
         public children: Actor[];
-        public collisionMaps: CollisionMap[];
+        public tileMaps: TileMap[];
         public engine: Engine;
         private killQueue;
         private timers;
@@ -958,8 +1128,8 @@ declare module ex {
         * @param actor {Actor} The actor to add
         */
         public addChild(actor: Actor): void;
-        public addCollisionMap(collisionMap: CollisionMap): void;
-        public removeCollisionMap(collisionMap: CollisionMap): void;
+        public addTileMap(tileMap: TileMap): void;
+        public removeTileMap(tileMap: TileMap): void;
         /**
         * Removes an actor from the Scene, it will no longer be drawn or updated.
         * @method removeChild
@@ -3968,8 +4138,8 @@ declare module ex {
         * @param actor {Actor} The actor to remove from the current scene.
         */
         public removeChild(actor: Actor): void;
-        public addCollisionMap(collisionMap: CollisionMap): void;
-        public removeCollisionMap(collisionMap: CollisionMap): void;
+        public addTileMap(tileMap: TileMap): void;
+        public removeTileMap(tileMap: TileMap): void;
         /**
         * Adds an excalibur timer to the current scene.
         * @param timer {Timer} The timer to add to the current scene.

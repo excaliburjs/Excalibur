@@ -828,7 +828,7 @@ module ex.Internal.Actions {
          this._actions = this.getActions();
          this._actions.forEach((action) => {
             action.reset();
-         })
+         });
       this._completedActions = [];
       }
 

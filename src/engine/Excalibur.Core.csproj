@@ -9,7 +9,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <TypeScriptToolsVersion>0.9</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>1.0</TypeScriptToolsVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
@@ -48,7 +48,7 @@
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
-    <TypeScriptOutFile>..\..\dist\Excalibur.js</TypeScriptOutFile>
+    <TypeScriptOutFile>..\..\dist\excalibur.js</TypeScriptOutFile>
     <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
     <OutputPath>ts\bin\</OutputPath>
   </PropertyGroup>
@@ -60,18 +60,31 @@
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="Action.ts" />
+    <TypeScriptCompile Include="Actor.ts" />
     <TypeScriptCompile Include="Algebra.ts" />
+    <TypeScriptCompile Include="Animation.ts" />
+    <TypeScriptCompile Include="Binding.ts" />
+    <TypeScriptCompile Include="BoundingBox.ts" />
     <TypeScriptCompile Include="Camera.ts" />
-    <TypeScriptCompile Include="Core.ts" />
-    <TypeScriptCompile Include="Drawing.ts" />
-    <TypeScriptCompile Include="Entities.ts" />
+    <TypeScriptCompile Include="Class.ts" />
+    <TypeScriptCompile Include="Color.ts" />
+    <TypeScriptCompile Include="Engine.ts" />
     <TypeScriptCompile Include="Events.ts" />
+    <TypeScriptCompile Include="Label.ts" />
     <TypeScriptCompile Include="Loader.ts" />
     <TypeScriptCompile Include="Log.ts" />
     <TypeScriptCompile Include="MonkeyPatch.ts" />
     <TypeScriptCompile Include="Particles.ts" />
+    <TypeScriptCompile Include="Polygon.ts" />
     <TypeScriptCompile Include="Promises.ts" />
+    <TypeScriptCompile Include="Scene.ts" />
     <TypeScriptCompile Include="Sound.ts" />
+    <TypeScriptCompile Include="Sprite.ts" />
+    <TypeScriptCompile Include="SpriteEffects.ts" />
+    <TypeScriptCompile Include="SpriteSheet.ts" />
+    <TypeScriptCompile Include="TileMap.ts" />
+    <TypeScriptCompile Include="Timer.ts" />
+    <TypeScriptCompile Include="Trigger.ts" />
     <TypeScriptCompile Include="Util.ts" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets')" />

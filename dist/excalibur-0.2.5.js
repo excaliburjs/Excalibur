@@ -180,6 +180,47 @@ var ex;
             this.x = x;
             this.y = y;
         }
+        /**
+        * X Coordinate of the point
+        * @property x {number}
+        */
+        /**
+        * Y Coordinate of the point
+        * @property y {number}
+        */
+        /**
+        * Convert this point to a vector
+        * @method toVector
+        * @returns Vector
+        */
+        Point.prototype.toVector = function () {
+            return new Vector(this.x, this.y);
+        };
+
+        /**
+        * Rotates the current point around another by a certain number of
+        * degrees in radians
+        * @method rotate
+        * @returns Point
+        */
+        Point.prototype.rotate = function (angle, anchor) {
+            if (!anchor) {
+                anchor = new ex.Point(0, 0);
+            }
+            var x = (this.x - anchor.x) * Math.cos(angle) + anchor.x;
+            var y = (this.y - anchor.y) * Math.sin(angle) + anchor.y;
+
+            return new Point(x, y);
+        };
+
+        /**
+        * Translates the current point by a vector
+        * @method add
+        * @returns Point
+        */
+        Point.prototype.add = function (vector) {
+            return new Point(this.x + vector.x, this.y + vector.y);
+        };
         return Point;
     })();
     ex.Point = Point;
@@ -199,6 +240,17 @@ var ex;
             this.x = x;
             this.y = y;
         }
+        /**
+        * Returns a vector of unit length in the direction of the specified angle.
+        * @method fromAngle
+        * @static
+        * @param angle {number} The angle to generate the vector
+        * @returns Vector
+        */
+        Vector.fromAngle = function (angle) {
+            return new Vector(Math.cos(angle), Math.sin(angle));
+        };
+
         /**
         * The distance to another vector
         * @method distance
@@ -275,9 +327,173 @@ var ex;
         Vector.prototype.cross = function (v) {
             return this.x * v.y - this.y * v.x;
         };
+
+        /**
+        * Returns the perpendicular vector to this one
+        * @method perpendicular
+        * @return Vector
+        */
+        Vector.prototype.perpendicular = function () {
+            return new Vector(this.y, -this.x);
+        };
+
+        /**
+        * Returns the normal vector to this one
+        * @method normal
+        * @return Vector
+        */
+        Vector.prototype.normal = function () {
+            return this.perpendicular().normalize();
+        };
+
+        /**
+        * Returns the angle of this vector.
+        * @method toAngle
+        * @returns number
+        */
+        Vector.prototype.toAngle = function () {
+            return Math.atan2(this.y, this.x);
+        };
+
+        /**
+        * Returns the point represention of this vector
+        * @method toPoint
+        * @returns Point
+        */
+        Vector.prototype.toPoint = function () {
+            return new Point(this.x, this.y);
+        };
+
+        /**
+        * Rotates the current vector around a point by a certain number of
+        * degrees in radians
+        * @method rotate
+        * @returns Vector
+        */
+        Vector.prototype.rotate = function (angle, anchor) {
+            return _super.prototype.rotate.call(this, angle, anchor).toVector();
+        };
         return Vector;
     })(Point);
     ex.Vector = Vector;
+
+    /**
+    * A 2D ray that can be cast into the scene to do collision detection
+    * @class Ray
+    * @constructor
+    * @param pos {Point} The starting position for the ray
+    * @param dir {Vector} The vector indicating the direction of the ray
+    */
+    var Ray = (function () {
+        function Ray(pos, dir) {
+            this.pos = pos;
+            this.dir = dir.normalize();
+        }
+        /**
+        * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
+        * This number indicates the mathematical intersection time.
+        * @method intersect
+        * @param line {Line} The line to test
+        * @returns number
+        */
+        Ray.prototype.intersect = function (line) {
+            var numerator = line.begin.toVector().minus(this.pos.toVector());
+
+            // Test is line and ray are parallel and non intersecting
+            if (this.dir.cross(line.getSlope()) === 0 && numerator.cross(this.dir) !== 0) {
+                return -1;
+            }
+
+            // Lines are parallel
+            var divisor = (this.dir.cross(line.getSlope()));
+            if (divisor === 0) {
+                return -1;
+            }
+
+            var t = numerator.cross(line.getSlope()) / divisor;
+
+            if (t >= 0) {
+                var u = (numerator.cross(this.dir) / divisor) / line.getLength();
+                if (u >= 0 && u <= 1) {
+                    return t;
+                }
+            }
+            return -1;
+        };
+
+        /**
+        * Returns the point of intersection given the intersection time
+        * @method getPoint
+        * @returns Point
+        */
+        Ray.prototype.getPoint = function (time) {
+            return this.pos.toVector().add(this.dir.scale(time)).toPoint();
+        };
+        return Ray;
+    })();
+    ex.Ray = Ray;
+
+    /**
+    * A 2D line segment
+    * @class Line
+    * @constructor
+    * @param begin {Point} The starting point of the line segment
+    * @param end {Point} The ending point of the line segment
+    */
+    var Line = (function () {
+        function Line(begin, end) {
+            this.begin = begin;
+            this.end = end;
+        }
+        /**
+        * Returns the slope of the line in the form of a vector
+        * @method getSlope
+        * @returns Vector
+        */
+        Line.prototype.getSlope = function () {
+            var begin = this.begin.toVector();
+            var end = this.end.toVector();
+            var distance = begin.distance(end);
+            return end.minus(begin).scale(1 / distance);
+        };
+
+        /**
+        * Returns the length of the line segment in pixels
+        * @method getLength
+        * @returns number
+        */
+        Line.prototype.getLength = function () {
+            var begin = this.begin.toVector();
+            var end = this.end.toVector();
+            var distance = begin.distance(end);
+            return distance;
+        };
+        return Line;
+    })();
+    ex.Line = Line;
+
+    var Projection = (function () {
+        function Projection(min, max) {
+            this.min = min;
+            this.max = max;
+        }
+        Projection.prototype.overlaps = function (projection) {
+            return this.max > projection.min && projection.max > this.min;
+        };
+
+        Projection.prototype.getOverlap = function (projection) {
+            if (this.overlaps(projection)) {
+                if (this.max > projection.max) {
+                    return projection.max - this.min;
+                } else {
+                    return this.max - projection.min;
+                }
+            }
+            return 0;
+        };
+        return Projection;
+    })();
+    ex.Projection = Projection;
 })(ex || (ex = {}));
 /// <reference path="Algebra.ts"/>
 /// <reference path="Events.ts"/>
@@ -931,6 +1147,15 @@ var ex;
 /// <reference path="SpriteSheet.ts" />
 var ex;
 (function (ex) {
+    var TileSprite = (function () {
+        function TileSprite(spriteSheetKey, spriteId) {
+            this.spriteSheetKey = spriteSheetKey;
+            this.spriteId = spriteId;
+        }
+        return TileSprite;
+    })();
+    ex.TileSprite = TileSprite;
+
     /**
     * A light-weight object that occupies a space in a collision map. Generally
     * created by a CollisionMap.
@@ -973,16 +1198,16 @@ var ex;
         * The index of the sprite to use from the CollisionMap SpriteSheet, if -1 is specified nothing is drawn.
         * @property number {number}
         */
-        spriteId) {
+        sprites) {
             if (typeof solid === "undefined") { solid = false; }
-            if (typeof spriteId === "undefined") { spriteId = -1; }
+            if (typeof sprites === "undefined") { sprites = []; }
             this.x = x;
             this.y = y;
             this.width = width;
             this.height = height;
             this.index = index;
             this.solid = solid;
-            this.spriteId = spriteId;
+            this.sprites = sprites;
             this._bounds = new ex.BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
         }
         /**
@@ -993,6 +1218,25 @@ var ex;
         Cell.prototype.getBounds = function () {
             return this._bounds;
         };
+
+        Cell.prototype.getCenter = function () {
+            return new ex.Vector(this.x + this.width / 2, this.y + this.height / 2);
+        };
+
+        Cell.prototype.pushSprite = function (tileSprite) {
+            this.sprites.push(tileSprite);
+        };
+
+        Cell.prototype.removeSprite = function (tileSprite) {
+            var index = -1;
+            if ((index = this.sprites.indexOf(tileSprite)) > -1) {
+                this.sprites.splice(index, 1);
+            }
+        };
+
+        Cell.prototype.clearSprites = function () {
+            this.sprites.length = 0;
+        };
         return Cell;
     })();
     ex.Cell = Cell;
@@ -1001,6 +1245,7 @@ var ex;
     * The CollisionMap object provides a lightweight way to do large complex scenes with collision
     * without the overhead of actors.
     * @class CollisionMap
+    * @constructor
     * @param x {number} The x coordinate to anchor the collision map's upper left corner (should not be changed once set)
     * @param y {number} The y coordinate to anchor the collision map's upper left corner (should not be changed once set)
     * @param cellWidth {number} The individual width of each cell (in pixels) (should not be changed once set)
@@ -1009,8 +1254,8 @@ var ex;
     * @param cols {number} The number of cols in the collision map (should not be changed once set)
     * @param spriteSheet {SpriteSheet} The spriteSheet to use for drawing
     */
-    var CollisionMap = (function () {
-        function CollisionMap(x, y, cellWidth, cellHeight, rows, cols, spriteSheet) {
+    var TileMap = (function () {
+        function TileMap(x, y, cellWidth, cellHeight, rows, cols) {
             var _this = this;
             this.x = x;
             this.y = y;
@@ -1018,13 +1263,14 @@ var ex;
             this.cellHeight = cellHeight;
             this.rows = rows;
             this.cols = cols;
-            this.spriteSheet = spriteSheet;
             this._collidingX = -1;
             this._collidingY = -1;
             this._onScreenXStart = 0;
             this._onScreenXEnd = 9999;
             this._onScreenYStart = 0;
             this._onScreenYEnd = 9999;
+            this._spriteSheets = {};
+            this.logger = ex.Logger.getInstance();
             this.data = [];
             this.data = new Array(rows * cols);
             for (var i = 0; i < cols; i++) {
@@ -1036,6 +1282,10 @@ var ex;
                 }
             }
         }
+        TileMap.prototype.registerSpriteSheet = function (key, spriteSheet) {
+            this._spriteSheets[key] = spriteSheet;
+        };
+
         /**
         * Returns the intesection vector that can be used to resolve collisions with actors. If there
         * is no collision null is returned.
@@ -1043,7 +1293,7 @@ var ex;
         * @param actor {Actor}
         * @returns Vector
         */
-        CollisionMap.prototype.collides = function (actor) {
+        TileMap.prototype.collides = function (actor) {
             var points = [];
             var width = actor.x + actor.getWidth();
             var height = actor.y + actor.getHeight();
@@ -1058,7 +1308,9 @@ var ex;
                     var yover = 0;
                     if (cell && cell.solid) {
                         var overlap = actorBounds.collides(cell.getBounds());
-                        if (overlap) {
+                        var dir = actor.getCenter().minus(cell.getCenter());
+
+                        if (overlap && overlap.dot(dir) > 0) {
                             overlaps.push(overlap);
                         }
                     }
@@ -1132,7 +1384,7 @@ var ex;
         * @param index {number}
         * @returns Cell
         */
-        CollisionMap.prototype.getCellByIndex = function (index) {
+        TileMap.prototype.getCellByIndex = function (index) {
             return this.data[index];
         };
 
@@ -1143,7 +1395,7 @@ var ex;
         * @param y {number}
         * @returns Cell
         */
-        CollisionMap.prototype.getCell = function (x, y) {
+        TileMap.prototype.getCell = function (x, y) {
             if (x < 0 || y < 0 || x >= this.cols || y >= this.rows) {
                 return null;
             }
@@ -1159,7 +1411,7 @@ var ex;
         * @param y {number}
         * @returns Cell
         */
-        CollisionMap.prototype.getCellByPoint = function (x, y) {
+        TileMap.prototype.getCellByPoint = function (x, y) {
             var x = Math.floor((x - this.x) / this.cellWidth);
             var y = Math.floor((y - this.y) / this.cellHeight);
 
@@ -1171,14 +1423,14 @@ var ex;
             return null;
         };
 
-        CollisionMap.prototype.update = function (engine, delta) {
+        TileMap.prototype.update = function (engine, delta) {
             var worldCoordsUpperLeft = engine.screenToWorldCoordinates(new ex.Point(0, 0));
             var worldCoordsLowerRight = engine.screenToWorldCoordinates(new ex.Point(engine.width, engine.height));
 
             this._onScreenXStart = Math.max(Math.floor(worldCoordsUpperLeft.x / this.cellWidth) - 2, 0);
-            this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight), 0);
-            this._onScreenXEnd = Math.max(Math.floor(worldCoordsLowerRight.x / this.cellWidth), 0);
-            this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 1, 0);
+            this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);
+            this._onScreenXEnd = Math.max(Math.floor(worldCoordsLowerRight.x / this.cellWidth) + 2, 0);
+            this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0);
         };
 
         /**
@@ -1187,16 +1439,28 @@ var ex;
         * @param ctx {CanvasRenderingContext2D} The current rendering context
         * @param delta {number} The number of milliseconds since the last draw
         */
-        CollisionMap.prototype.draw = function (ctx, delta) {
+        TileMap.prototype.draw = function (ctx, delta) {
+            var _this = this;
             ctx.save();
             ctx.translate(this.x, this.y);
 
             for (var x = this._onScreenXStart; x < Math.min(this._onScreenXEnd, this.cols); x++) {
                 for (var y = this._onScreenYStart; y < Math.min(this._onScreenYEnd, this.rows); y++) {
-                    var spriteId = this.getCell(x, y).spriteId;
-                    if (spriteId > -1) {
-                        this.spriteSheet.getSprite(spriteId).draw(ctx, x * this.cellWidth, y * this.cellHeight);
-                    }
+                    this.getCell(x, y).sprites.filter(function (s) {
+                        return s.spriteId > -1;
+                    }).forEach(function (ts) {
+                        var ss = _this._spriteSheets[ts.spriteSheetKey];
+                        if (ss) {
+                            var sprite = ss.getSprite(ts.spriteId);
+                            if (sprite) {
+                                sprite.draw(ctx, x * _this.cellWidth, y * _this.cellHeight);
+                            } else {
+                                _this.logger.warn("Sprite does not exist for id", ts.spriteId, "in sprite sheet", ts.spriteSheetKey, sprite, ss);
+                            }
+                        } else {
+                            _this.logger.warn("Sprite sheet", ts.spriteSheetKey, "does not exist", ss);
+                        }
+                    });
                 }
             }
             ctx.restore();
@@ -1207,7 +1471,7 @@ var ex;
         * @method draw
         * @param ctx {CanvasRenderingContext2D} The current rendering context
         */
-        CollisionMap.prototype.debugDraw = function (ctx) {
+        TileMap.prototype.debugDraw = function (ctx) {
             var width = this.cols * this.cellWidth;
             var height = this.rows * this.cellHeight;
 
@@ -1226,6 +1490,14 @@ var ex;
                 ctx.lineTo(this.x + width, this.y + y * this.cellHeight);
                 ctx.stroke();
             }
+            var solid = ex.Color.Red.clone();
+            solid.a = .3;
+            this.data.filter(function (cell) {
+                return cell.solid;
+            }).forEach(function (cell) {
+                ctx.fillStyle = solid.toString();
+                ctx.fillRect(cell.x, cell.y, cell.width, cell.height);
+            });
 
             if (this._collidingY > -1 && this._collidingX > -1) {
                 ctx.fillStyle = ex.Color.Cyan.toString();
@@ -1233,13 +1505,19 @@ var ex;
             }
             ctx.restore();
         };
-        return CollisionMap;
+        return TileMap;
     })();
-    ex.CollisionMap = CollisionMap;
+    ex.TileMap = TileMap;
 })(ex || (ex = {}));
 /// <reference path="Algebra.ts" />
 var ex;
 (function (ex) {
+    (function (CollisionStrategy) {
+        CollisionStrategy[CollisionStrategy["AxisAligned"] = 0] = "AxisAligned";
+        CollisionStrategy[CollisionStrategy["SeparatingAxis"] = 1] = "SeparatingAxis";
+    })(ex.CollisionStrategy || (ex.CollisionStrategy = {}));
+    var CollisionStrategy = ex.CollisionStrategy;
+
     
 
     /**
@@ -1283,7 +1561,7 @@ var ex;
         * @returns boolean
         */
         BoundingBox.prototype.contains = function (p) {
-            return (this.left <= p.x && this.top <= p.y && this.bottom >= p.y && this.right >= p.x);
+            return (this.left < p.x && this.top < p.y && this.bottom > p.y && this.right > p.x);
         };
 
         /**
@@ -1303,19 +1581,24 @@ var ex;
                 if (totalBoundingBox.getWidth() < other.getWidth() + this.getWidth() && totalBoundingBox.getHeight() < other.getHeight() + this.getHeight()) {
                     // collision
                     var overlapX = 0;
-                    if (this.right > other.left && this.right < other.right) {
+                    if (this.right >= other.left && this.right <= other.right) {
                         overlapX = other.left - this.right;
                     } else {
                         overlapX = other.right - this.left;
                     }
 
                     var overlapY = 0;
-                    if (this.top < other.bottom && this.top > other.top) {
+                    if (this.top <= other.bottom && this.top >= other.top) {
                         overlapY = other.bottom - this.top;
                     } else {
                         overlapY = other.top - this.bottom;
                     }
-                    return new ex.Vector(overlapX, overlapY);
+
+                    if (Math.abs(overlapX) < Math.abs(overlapY)) {
+                        return new ex.Vector(overlapX, 0);
+                    } else {
+                        return new ex.Vector(0, overlapY);
+                    }
                 } else {
                     return null;
                 }
@@ -1323,9 +1606,160 @@ var ex;
 
             return null;
         };
+
+        BoundingBox.prototype.debugDraw = function (ctx) {
+            ctx.strokeStyle = ex.Color.Yellow.toString();
+            ctx.lineWidth = 2;
+            ctx.strokeRect(this.left, this.top, this.getWidth(), this.getHeight());
+        };
         return BoundingBox;
     })();
     ex.BoundingBox = BoundingBox;
+
+    var SATBoundingBox = (function () {
+        function SATBoundingBox(points) {
+            this._points = points.map(function (p) {
+                return p.toVector();
+            });
+        }
+        SATBoundingBox.prototype.getSides = function () {
+            var lines = [];
+            var len = this._points.length;
+            for (var i = 0; i < len; i++) {
+                lines.push(new ex.Line(this._points[i], this._points[(i + 1) % len]));
+            }
+            return lines;
+        };
+
+        SATBoundingBox.prototype.getAxes = function () {
+            var axes = [];
+            var len = this._points.length;
+            for (var i = 0; i < len; i++) {
+                axes.push(this._points[i].minus(this._points[(i + 1) % len]).normal());
+            }
+            return axes;
+        };
+
+        SATBoundingBox.prototype.project = function (axis) {
+            var scalars = [];
+
+            var len = this._points.length;
+            for (var i = 0; i < len; i++) {
+                scalars.push(this._points[i].dot(axis));
+            }
+
+            return new ex.Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
+        };
+
+        /**
+        * Returns the calculated width of the bounding box, by generating an axis aligned box around the current
+        * @method getWidth
+        * @returns number
+        */
+        SATBoundingBox.prototype.getWidth = function () {
+            var left = this._points.reduce(function (accum, p, i, arr) {
+                return Math.min(accum, p.x);
+            }, Infinity);
+
+            var right = this._points.reduce(function (accum, p, i, arr) {
+                return Math.max(accum, p.x);
+            }, -Infinity);
+
+            return right - left;
+        };
+
+        /**
+        * Returns the calculated height of the bounding box, by generating an axis aligned box around the current
+        * @method getHeight
+        * @returns number
+        */
+        SATBoundingBox.prototype.getHeight = function () {
+            var top = this._points.reduce(function (accum, p, i, arr) {
+                return Math.min(accum, p.y);
+            }, Infinity);
+
+            var bottom = this._points.reduce(function (accum, p, i, arr) {
+                return Math.max(accum, p.y);
+            }, -Infinity);
+
+            return top - bottom;
+        };
+
+        /**
+        * Tests wether a point is contained within the bounding box, using the PIP algorithm
+        * http://en.wikipedia.org/wiki/Point_in_polygon
+        * @method contains
+        * @param p {Point} The point to test
+        * @returns boolean
+        */
+        SATBoundingBox.prototype.contains = function (p) {
+            // Always cast to the right, as long as we cast in a consitent fixed direction we
+            // will be fine
+            var testRay = new ex.Ray(p, new ex.Vector(1, 0));
+            var intersectCount = this.getSides().reduce(function (accum, side, i, arr) {
+                if (testRay.intersect(side) >= 0) {
+                    return accum + 1;
+                }
+                return accum;
+            }, 0);
+
+            if (intersectCount % 2 === 0) {
+                return false;
+            }
+            return true;
+        };
+
+        SATBoundingBox.prototype.collides = function (collidable) {
+            if (collidable instanceof SATBoundingBox) {
+                var other = collidable;
+                var axes = this.getAxes();
+                axes = other.getAxes().concat(axes);
+                var minOverlap = 99999;
+                var minAxis = null;
+                for (var i = 0; i < axes.length; i++) {
+                    var proj1 = this.project(axes[i]);
+                    var proj2 = other.project(axes[i]);
+                    var overlap = proj1.getOverlap(proj2);
+
+                    if (overlap === 0) {
+                        return null;
+                    } else {
+                        if (overlap <= minOverlap) {
+                            minOverlap = overlap;
+                            minAxis = axes[i];
+                        }
+                    }
+                }
+
+                if (minAxis) {
+                    return minAxis.normalize().scale(minOverlap);
+                } else {
+                    return null;
+                }
+            }
+
+            return null;
+        };
+
+        SATBoundingBox.prototype.debugDraw = function (ctx) {
+            ctx.beginPath();
+            ctx.lineWidth = 2;
+
+            // Iterate through the supplied points and contruct a 'polygon'
+            var firstPoint = this._points[0];
+            ctx.moveTo(firstPoint.x, firstPoint.y);
+            this._points.forEach(function (point) {
+                ctx.lineTo(point.x, point.y);
+            });
+            ctx.lineTo(firstPoint.x, firstPoint.y);
+            ctx.closePath();
+
+            ctx.strokeStyle = ex.Color.Blue.toString();
+            ctx.stroke();
+        };
+        return SATBoundingBox;
+    })();
+    ex.SATBoundingBox = SATBoundingBox;
 })(ex || (ex = {}));
 /// <reference path="Events.ts" />
 var ex;
@@ -1521,7 +1955,7 @@ var ex;
             * @property children {Actor[]}
             */
             this.children = [];
-            this.collisionMaps = [];
+            this.tileMaps = [];
             this.killQueue = [];
             this.timers = [];
             this.cancelQueue = [];
@@ -1580,7 +2014,7 @@ var ex;
                 this._isInitialized = true;
             }
 
-            this.collisionMaps.forEach(function (cm) {
+            this.tileMaps.forEach(function (cm) {
                 cm.update(engine, delta);
             });
 
@@ -1628,7 +2062,7 @@ var ex;
         * @param delta {number} The number of milliseconds since the last draw
         */
         Scene.prototype.draw = function (ctx, delta) {
-            this.collisionMaps.forEach(function (cm) {
+            this.tileMaps.forEach(function (cm) {
                 cm.draw(ctx, delta);
             });
 
@@ -1648,7 +2082,7 @@ var ex;
         * @param ctx {CanvasRenderingContext2D} The current rendering context
         */
         Scene.prototype.debugDraw = function (ctx) {
-            this.collisionMaps.forEach(function (map) {
+            this.tileMaps.forEach(function (map) {
                 map.debugDraw(ctx);
             });
 
@@ -1668,14 +2102,14 @@ var ex;
             actor.parent = this.actor;
         };
 
-        Scene.prototype.addCollisionMap = function (collisionMap) {
-            this.collisionMaps.push(collisionMap);
+        Scene.prototype.addTileMap = function (tileMap) {
+            this.tileMaps.push(tileMap);
         };
 
-        Scene.prototype.removeCollisionMap = function (collisionMap) {
-            var index = this.collisionMaps.indexOf(collisionMap);
+        Scene.prototype.removeTileMap = function (tileMap) {
+            var index = this.tileMaps.indexOf(tileMap);
             if (index > -1) {
-                this.collisionMaps.splice(index, 1);
+                this.tileMaps.splice(index, 1);
             }
         };
 
@@ -2482,7 +2916,7 @@ var ex;
 /// <reference path="Interfaces/IDrawable.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util.ts" />
-/// <reference path="CollisionMap.ts" />
+/// <reference path="TileMap.ts" />
 /// <reference path="BoundingBox.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Action.ts" />
@@ -2994,7 +3428,7 @@ var ex;
         */
         Actor.prototype.getSideFromIntersect = function (intersect) {
             if (intersect) {
-                if (Math.abs(intersect.x) < Math.abs(intersect.y)) {
+                if (Math.abs(intersect.x) > Math.abs(intersect.y)) {
                     if (intersect.x < 0) {
                         return 4 /* Right */;
                     }
@@ -3016,7 +3450,26 @@ var ex;
         * @returns Side
         */
         Actor.prototype.collidesWithSide = function (actor) {
-            return this.getSideFromIntersect(this.collides(actor));
+            var separationVector = this.collides(actor);
+            if (!separationVector) {
+                return 0 /* None */;
+            }
+
+            if (Math.abs(separationVector.x) > Math.abs(separationVector.y)) {
+                if (this.x < actor.x) {
+                    return 4 /* Right */;
+                } else {
+                    return 3 /* Left */;
+                }
+            } else {
+                if (this.y < actor.y) {
+                    return 2 /* Bottom */;
+                } else {
+                    return 1 /* Top */;
+                }
+            }
+
+            return 0 /* None */;
         };
 
         /**
@@ -3359,11 +3812,8 @@ var ex;
 
                         // If the actor is active push the actor out if its not passive
                         if ((this.collisionType === 2 /* Active */ || this.collisionType === 3 /* Elastic */) && collider.collisionType !== 1 /* Passive */) {
-                            if (Math.abs(intersectActor.y) < Math.abs(intersectActor.x)) {
-                                this.y += intersectActor.y;
-                            } else {
-                                this.x += intersectActor.x;
-                            }
+                            this.y += intersectActor.y;
+                            this.x += intersectActor.x;
 
                             // Naive elastic bounce
                             if (this.collisionType === 3 /* Elastic */) {
@@ -3381,27 +3831,21 @@ var ex;
                     }
                 }
 
-                for (var j = 0; j < engine.currentScene.collisionMaps.length; j++) {
-                    var map = engine.currentScene.collisionMaps[j];
+                for (var j = 0; j < engine.currentScene.tileMaps.length; j++) {
+                    var map = engine.currentScene.tileMaps[j];
                     var intersectMap;
                     var side = 0 /* None */;
                     var max = 2;
                     var hasBounced = false;
-
                     while (intersectMap = map.collides(this)) {
-                        //iters.push(intersectMap);
                         if (max-- < 0) {
                             break;
                         }
                         side = this.getSideFromIntersect(intersectMap);
                         eventDispatcher.publish('collision', new ex.CollisionEvent(this, null, side, intersectMap));
                         if ((this.collisionType === 2 /* Active */ || this.collisionType === 3 /* Elastic */) && collider.collisionType !== 1 /* Passive */) {
-                            //var intersectMap = map.getOverlap(this);
-                            if (Math.abs(intersectMap.y) < Math.abs(intersectMap.x)) {
-                                this.y += intersectMap.y;
-                            } else {
-                                this.x += intersectMap.x;
-                            }
+                            this.y += intersectMap.y;
+                            this.x += intersectMap.x;
 
                             // Naive elastic bounce
                             if (this.collisionType === 3 /* Elastic */ && !hasBounced) {
@@ -3550,17 +3994,8 @@ var ex;
         */
         Actor.prototype.debugDraw = function (ctx) {
             // Meant to draw debug information about actors
-            ctx.save();
-            ctx.translate(this.x, this.y);
-
-            ctx.fillStyle = ex.Color.Yellow.toString();
-            ctx.strokeStyle = ex.Color.Yellow.toString();
-            ctx.beginPath();
-            ctx.rect(0, 0, this.getWidth(), this.getHeight());
-            ctx.stroke();
-
             this.sceneNode.debugDraw(ctx);
-            ctx.restore();
+            this.getBounds().debugDraw(ctx);
         };
         return Actor;
     })(ex.Class);
@@ -6722,7 +7157,7 @@ var ex;
 /// <reference path="Promises.ts" />
 /// <reference path="Util.ts" />
 /// <reference path="Binding.ts" />
-/// <reference path="CollisionMap.ts" />
+/// <reference path="TileMap.ts" />
 /// <reference path="Label.ts" />
 var ex;
 (function (ex) {
@@ -7094,12 +7529,12 @@ var ex;
             this.currentScene.removeChild(actor);
         };
 
-        Engine.prototype.addCollisionMap = function (collisionMap) {
-            this.currentScene.addCollisionMap(collisionMap);
+        Engine.prototype.addTileMap = function (tileMap) {
+            this.currentScene.addTileMap(tileMap);
         };
 
-        Engine.prototype.removeCollisionMap = function (collisionMap) {
-            this.currentScene.removeCollisionMap(collisionMap);
+        Engine.prototype.removeTileMap = function (tileMap) {
+            this.currentScene.removeTileMap(tileMap);
         };
 
         /**
