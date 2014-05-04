@@ -3073,7 +3073,7 @@ declare module ex {
     * @param [loop=false] {boolean} Indicates whether the animation should loop after it is completed
     */
     class Animation implements IDrawable {
-        private sprites;
+        public sprites: Sprite[];
         private speed;
         private currIndex;
         private oldTime;

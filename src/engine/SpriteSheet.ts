@@ -49,8 +49,8 @@ module ex {
        * @returns Animation
        */
       public getAnimationByIndices(engine: Engine, indices: number[], speed: number) {
-         var images: Sprite[] = this.sprites.filter(function (sprite, index) {
-            return indices.indexOf(index) > -1;
+         var images: Sprite[] = indices.map((index) => {
+            return this.sprites[index];
          });
 
          images = images.map(function (i) {

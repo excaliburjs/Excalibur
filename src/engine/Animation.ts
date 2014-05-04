@@ -11,7 +11,7 @@ module ex {
     * @param [loop=false] {boolean} Indicates whether the animation should loop after it is completed
     */
    export class Animation implements IDrawable {
-      private sprites: Sprite[];
+      public sprites: Sprite[];
       private speed: number;
       private currIndex: number = 0;
       private oldTime: number = Date.now();
