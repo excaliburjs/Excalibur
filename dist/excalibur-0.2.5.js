@@ -5331,6 +5331,7 @@ var ex;
         __extends(ParticleEmitter, _super);
         function ParticleEmitter(x, y, width, height) {
             _super.call(this, x, y, width, height, ex.Color.White);
+            this._particlesToEmit = 0;
             this.numParticles = 0;
             /**
             * Gets or sets the isEmitting flag
@@ -5506,8 +5507,12 @@ var ex;
             var _this = this;
             _super.prototype.update.call(this, engine, delta);
             if (this.isEmitting) {
+                this._particlesToEmit += this.emitRate * (delta / 1000);
                 var numParticles = Math.ceil(this.emitRate * delta / 1000);
-                this.emit(numParticles);
+                if (this._particlesToEmit > 1.0) {
+                    this.emit(Math.floor(this._particlesToEmit));
+                    this._particlesToEmit = this._particlesToEmit - Math.floor(this._particlesToEmit);
+                }
             }
 
             this.particles.forEach(function (particle, index) {

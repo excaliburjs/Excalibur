@@ -141,6 +141,8 @@ module ex {
     */
    export class ParticleEmitter extends Actor {
 
+      private _particlesToEmit: number = 0;
+
       public numParticles: number = 0;
 
       /**
@@ -331,8 +333,12 @@ module ex {
       public update(engine: Engine, delta: number) {
          super.update(engine, delta);
          if (this.isEmitting) {
+            this._particlesToEmit += this.emitRate * (delta / 1000);
             var numParticles = Math.ceil(this.emitRate * delta / 1000);
-            this.emit(numParticles);
+            if (this._particlesToEmit > 1.0) {
+               this.emit(Math.floor(this._particlesToEmit));
+               this._particlesToEmit = this._particlesToEmit - Math.floor(this._particlesToEmit);
+            }
          }
 
          this.particles.forEach((particle: Particle, index: number) => {

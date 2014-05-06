@@ -2959,6 +2959,7 @@ declare module ex {
     * @param [height=0] {number} The height of the emitter
     */
     class ParticleEmitter extends Actor {
+        private _particlesToEmit;
         public numParticles: number;
         /**
         * Gets or sets the isEmitting flag
