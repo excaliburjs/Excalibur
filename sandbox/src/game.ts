@@ -42,7 +42,7 @@ tileMap.data.forEach(function(cell : ex.Cell){
    cell.solid = true;
    cell.pushSprite(new ex.TileSprite("default", 0));
 });
-game.addTileMap(tileMap);
+game.add(tileMap);
 
 // Create spriteFont
 var spriteFont = new ex.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
@@ -73,33 +73,33 @@ for(var i = 0; i< 36; i++){
    block.addCollisionGroup('ground');
    block.addDrawing(Animations.Block, blockAnimation);
    
-   game.addChild(block);
+   game.add(block);
 }
 
 var platform = new ex.Actor(400, 300, 200,50, new ex.Color(0,200,0));
 platform.collisionType = ex.CollisionType.Fixed;
 platform.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100).repeatForever();
-game.addChild(platform);
+game.add(platform);
 
 var platform2 = new ex.Actor(800, 300, 200,20, new ex.Color(0,0,140));
 platform2.collisionType = ex.CollisionType.Fixed;
 platform2.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).moveTo(800, 300, 100).repeatForever();
-game.addChild(platform2);
+game.add(platform2);
 
 var platform3 = new ex.Actor(-200, 400, 200, 20, new ex.Color(50, 0, 100));
 platform3.collisionType = ex.CollisionType.Fixed;
 platform3.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3000).moveTo(-200, 300, 800).moveTo(-200, 400, 800).repeatForever();
-game.addChild(platform3);
+game.add(platform3);
 
 var platform4 = new ex.Actor(200, 200, 100, 50, ex.Color.Azure);
 platform4.collisionType = ex.CollisionType.Fixed;
 platform4.moveBy(75, 300, .20);
-game.addChild(platform4);
+game.add(platform4);
 
 // Test follow api
 var follower = new ex.Actor(50, 100, 20, 20, ex.Color.Black);
 follower.collisionType = ex.CollisionType.PreventCollision;
-game.addChild(follower);
+game.add(follower);
 
 
 // Create the player
@@ -224,7 +224,7 @@ player.addEventListener('touchstart', ()=> {
 });
 
 var newScene = new ex.Scene();
-newScene.addChild(new ex.Label("MAH LABEL!", 200, 100));
+newScene.add(new ex.Label("MAH LABEL!", 200, 100));
 //newScene.onActivate = function(){
 //   console.log('activated newScene');
 //};
@@ -359,7 +359,7 @@ camera.setActorToFollow(player);
 // camera.zoom(1.5, 10000);
 
 // Add player to game is synonymous with adding a player to the current scene
-game.addChild(player);
+game.add(player);
 
 // Add particle emitter
 var emitter = new ex.ParticleEmitter(100, 300, 2, 2);
@@ -381,7 +381,7 @@ emitter.endColor = ex.Color.Yellow;
 //emitter.particleSprite = spriteTiles.getSprite(0);
 //emitter.focus = new ex.Vector(0, -100);
 //emitter.focusAccel = 800;
-game.addChild(emitter);
+game.add(emitter);
 
 //emitter.follow(player, 20);
 
@@ -401,7 +401,7 @@ var trigger = new ex.Trigger(400, 200, 100, 100, ()=>{
 trigger.repeats = -1;
 trigger.target = player;
 
-game.addChild(trigger);
+game.add(trigger);
 
 game.addEventListener('mousedown', (evt? : ex.MouseDown)=>{
    var c = tileMap.getCellByPoint(evt.x, evt.y);

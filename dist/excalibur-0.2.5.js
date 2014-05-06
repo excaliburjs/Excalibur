@@ -2093,10 +2093,36 @@ var ex;
             });
         };
 
+        Scene.prototype.add = function (entity) {
+            if (entity instanceof ex.Actor) {
+                this.addChild(entity);
+            }
+            if (entity instanceof ex.Timer) {
+                this.addTimer(entity);
+            }
+
+            if (entity instanceof ex.TileMap) {
+                this.addTileMap(entity);
+            }
+        };
+
+        Scene.prototype.remove = function (entity) {
+            if (entity instanceof ex.Actor) {
+                this.removeChild(entity);
+            }
+            if (entity instanceof ex.Timer) {
+                this.removeTimer(entity);
+            }
+
+            if (entity instanceof ex.TileMap) {
+                this.removeTileMap(entity);
+            }
+        };
+
         /**
         * Adds an actor to the Scene, once this is done the actor will be drawn and updated.
         * @method addChild
-        * @param actor {Actor} The actor to add
+        * @param actor {Actor}
         */
         Scene.prototype.addChild = function (actor) {
             actor.scene = this;
@@ -2104,10 +2130,20 @@ var ex;
             actor.parent = this.actor;
         };
 
+        /**
+        * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+        * @method addTileMap
+        * @param tileMap {TileMap}
+        */
         Scene.prototype.addTileMap = function (tileMap) {
             this.tileMaps.push(tileMap);
         };
 
+        /**
+        * Removes a TileMap from the Scene, it willno longer be drawn or updated.
+        * @method removeTileMap
+        * @param tileMap {TileMap}
+        */
         Scene.prototype.removeTileMap = function (tileMap) {
             var index = this.tileMaps.indexOf(tileMap);
             if (index > -1) {
@@ -3652,16 +3688,14 @@ var ex;
         };
 
         /**
-        * This method will cause an actor to blink (become visible and and
-        * visible) at a frequency (blinks per second) for a duration (in
-        * milliseconds). Optionally, you may specify blinkTime, which indicates
-        * the amount of time the actor is visible during each blink.<br/>
-        * To have the actor blink 3 times in 1 second, call actor.blink(3, 1000).<br/>
+        * This method will cause an actor to blink (become visible and not
+        * visible). Optionally, you may specify the number of blinks. Specify the amount of time
+        * the actor should be visible per blink, and the amount of time not visible.
         * This method is part of the actor 'Action' fluent API allowing action chaining.
         * @method blink
-        * @param frequency {number} The blinks per second
-        * @param duration {number} The total duration of the blinking specified in milliseconds
-        * @param [blinkTime=200] {number} The amount of time each blink that the actor is visible in milliseconds
+        * @param timeVisible {number} The amount of time to stay visible per blink in milliseconds
+        * @param timeNotVisible {number} The amount of time to stay not visible per blink in milliseconds
+        * @param [numBlinks] {number} The number of times to blink
         * @returns Actor
         */
         Actor.prototype.blink = function (timeVisible, timeNotVisible, numBlinks) {
@@ -5097,7 +5131,7 @@ var ex;
     /**
     * Triggers a method of firing arbitrary code on collision. These are useful
     * as 'buttons', 'switches', or to trigger effects in a game. By defualt triggers
-    * are visible, and can only be seen with debug mode enabled on the Engine.
+    * are invisible, and can only be seen with debug mode enabled on the Engine.
     * @class Trigger
     * @constructor
     * @param [x=0] {number} The x position of the trigger
@@ -7593,10 +7627,20 @@ var ex;
             this.currentScene.removeChild(actor);
         };
 
+        /**
+        * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+        * @method addTileMap
+        * @param tileMap {TileMap}
+        */
         Engine.prototype.addTileMap = function (tileMap) {
             this.currentScene.addTileMap(tileMap);
         };
 
+        /**
+        * Removes a TileMap from the Scene, it willno longer be drawn or updated.
+        * @method removeTileMap
+        * @param tileMap {TileMap}
+        */
         Engine.prototype.removeTileMap = function (tileMap) {
             this.currentScene.removeTileMap(tileMap);
         };
@@ -7632,6 +7676,61 @@ var ex;
             }
             this.sceneHash[name] = scene;
             scene.engine = this;
+        };
+
+        Engine.prototype.removeScene = function (entity) {
+            if (entity instanceof ex.Scene) {
+                for (var key in this.sceneHash) {
+                    if (this.sceneHash.hasOwnProperty(key)) {
+                        if (this.sceneHash[key] === entity) {
+                            delete this.sceneHash[key];
+                        }
+                    }
+                }
+            }
+
+            if (typeof entity === "string") {
+                // remove scene
+                delete this.sceneHash[entity];
+            }
+        };
+
+        Engine.prototype.add = function (entity) {
+            if (entity instanceof ex.Actor) {
+                this.addChild(entity);
+            }
+            if (entity instanceof ex.Timer) {
+                this.addTimer(entity);
+            }
+
+            if (entity instanceof ex.TileMap) {
+                this.addTileMap(entity);
+            }
+
+            if (arguments.length === 2) {
+                this.addScene(arguments[0], arguments[1]);
+            }
+        };
+
+        Engine.prototype.remove = function (entity) {
+            if (entity instanceof ex.Actor) {
+                this.removeChild(entity);
+            }
+            if (entity instanceof ex.Timer) {
+                this.removeTimer(entity);
+            }
+
+            if (entity instanceof ex.TileMap) {
+                this.removeTileMap(entity);
+            }
+
+            if (entity instanceof ex.Scene) {
+                this.removeScene(entity);
+            }
+
+            if (typeof entity === "string") {
+                this.removeScene(entity);
+            }
         };
 
         /**
