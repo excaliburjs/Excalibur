@@ -143,7 +143,10 @@ module ex {
          var actor;
          for (var i = 0, len = this.children.length; i < len; i++) {
             actor = this.children[i];
-            this.children[i].draw(ctx, delta);
+            // only draw actors that are visible
+            if (actor.visible) {
+               this.children[i].draw(ctx, delta);
+            }
          }
       }
 

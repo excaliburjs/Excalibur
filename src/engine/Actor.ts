@@ -238,9 +238,9 @@ module ex {
 
       /** 
        * The visibility of an actor
-       * @property invisible {boolean} 
+       * @property visible {boolean} 
        */
-      public invisible: boolean = false;
+      public visible: boolean = true;
 
       /**
        * The opacity of an actor
@@ -774,20 +774,18 @@ module ex {
       }
 
       /**
-       * This method will cause an actor to blink (become visible and and 
-       * invisible) at a frequency (blinks per second) for a duration (in
-       * milliseconds). Optionally, you may specify blinkTime, which indicates
-       * the amount of time the actor is invisible during each blink.<br/>
-       * To have the actor blink 3 times in 1 second, call actor.blink(3, 1000).<br/>
+       * This method will cause an actor to blink (become visible and not 
+       * visible). Optionally, you may specify the number of blinks. Specify the amount of time 
+       * the actor should be visible per blink, and the amount of time not visible.
        * This method is part of the actor 'Action' fluent API allowing action chaining.
        * @method blink
-       * @param frequency {number} The blinks per second 
-       * @param duration {number} The total duration of the blinking specified in milliseconds
-       * @param [blinkTime=200] {number} The amount of time each blink that the actor is visible in milliseconds
+       * @param timeVisible {number} The amount of time to stay visible per blink in milliseconds
+       * @param timeNotVisible {number} The amount of time to stay not visible per blink in milliseconds
+       * @param [numBlinks] {number} The number of times to blink
        * @returns Actor
        */
-      public blink(frequency: number, duration: number, blinkTime?: number): Actor {
-         this.actionQueue.add(new ex.Internal.Actions.Blink(this, frequency, duration, blinkTime));
+      public blink(timeVisible: number, timeNotVisible: number, numBlinks: number = 1): Actor {
+         this.actionQueue.add(new ex.Internal.Actions.Blink(this, timeVisible, timeNotVisible, numBlinks));
          return this;
       }
 
@@ -1111,8 +1109,7 @@ module ex {
        * @param delta {number} The time since the last draw in milliseconds
        */
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
-         // only draw if onscreen 
-         if (this.isOffScreen) return;
+         if (this.isOffScreen){return;}
 
          var anchorPoint = this.anchor.getAnchorPoint();
 
@@ -1120,9 +1117,8 @@ module ex {
          ctx.translate(this.x, this.y);
          ctx.rotate(this.rotation);     
          ctx.scale(this.scaleX, this.scaleY);
-
          
-
+         // calculate changing opacity
          if (this.previousOpacity != this.opacity) {
             for (var drawing in this.frames) {
                this.frames[drawing].addEffect(new ex.Effects.Opacity(this.opacity));
@@ -1131,27 +1127,25 @@ module ex {
             this.previousOpacity = this.opacity;
          }
 
-         if (!this.invisible) {
-            if (this.currentDrawing) {
-
-               var xDiff = 0;
-               var yDiff = 0;
-               if (this.centerDrawingX) {
-                  xDiff = (this.currentDrawing.width * this.currentDrawing.getScaleX() - this.getWidth()) / 2;
-               }
-
-               if (this.centerDrawingY) {
-                  yDiff = (this.currentDrawing.height * this.currentDrawing.getScaleY() - this.getHeight()) / 2;
-               }
-
-               this.currentDrawing.draw(ctx, -xDiff - anchorPoint.x, -yDiff - anchorPoint.y);
-
-            } else {
-               if(this.color) this.color.a = this.opacity;
-               ctx.fillStyle = this.color ? this.color.toString() : (new Color(0, 0, 0)).toString();
-               ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this.width, this.height);
+         if (this.currentDrawing) {
+            var xDiff = 0;
+            var yDiff = 0;
+            if (this.centerDrawingX) {
+               xDiff = (this.currentDrawing.width * this.currentDrawing.getScaleX() - this.getWidth()) / 2;
             }
+
+            if (this.centerDrawingY) {
+               yDiff = (this.currentDrawing.height * this.currentDrawing.getScaleY() - this.getHeight()) / 2;
+            }
+
+            this.currentDrawing.draw(ctx, -xDiff - anchorPoint.x, -yDiff - anchorPoint.y);
+
+         } else {
+            if(this.color) this.color.a = this.opacity;
+            ctx.fillStyle = this.color ? this.color.toString() : (new Color(0, 0, 0)).toString();
+            ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this.width, this.height);
          }
+         
          
          this.sceneNode.draw(ctx, delta);
 

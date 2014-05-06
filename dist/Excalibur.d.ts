@@ -1362,9 +1362,9 @@ declare module ex {
         public isOffScreen: boolean;
         /**
         * The visibility of an actor
-        * @property invisible {boolean}
+        * @property visible {boolean}
         */
-        public invisible: boolean;
+        public visible: boolean;
         /**
         * The opacity of an actor
         * @property opacity {number}
@@ -1681,19 +1681,17 @@ declare module ex {
         */
         public scaleBy(sizeX: number, sizeY: number, time: number): Actor;
         /**
-        * This method will cause an actor to blink (become visible and and
-        * invisible) at a frequency (blinks per second) for a duration (in
-        * milliseconds). Optionally, you may specify blinkTime, which indicates
-        * the amount of time the actor is invisible during each blink.<br/>
-        * To have the actor blink 3 times in 1 second, call actor.blink(3, 1000).<br/>
+        * This method will cause an actor to blink (become visible and not
+        * visible). Optionally, you may specify the number of blinks. Specify the amount of time
+        * the actor should be visible per blink, and the amount of time not visible.
         * This method is part of the actor 'Action' fluent API allowing action chaining.
         * @method blink
-        * @param frequency {number} The blinks per second
-        * @param duration {number} The total duration of the blinking specified in milliseconds
-        * @param [blinkTime=200] {number} The amount of time each blink that the actor is visible in milliseconds
+        * @param timeVisible {number} The amount of time to stay visible per blink in milliseconds
+        * @param timeNotVisible {number} The amount of time to stay not visible per blink in milliseconds
+        * @param [numBlinks] {number} The number of times to blink
         * @returns Actor
         */
-        public blink(frequency: number, duration: number, blinkTime?: number): Actor;
+        public blink(timeVisible: number, timeNotVisible: number, numBlinks?: number): Actor;
         /**
         * This method will cause an actor's opacity to change from its current value
         * to the provided value by a specified time (in milliseconds). This method is
@@ -4049,8 +4047,6 @@ declare module ex {
 }
 declare module ex.Internal.Actions {
     interface IAction {
-        x: number;
-        y: number;
         update(delta: number): void;
         isComplete(actor: Actor): boolean;
         reset(): void;
@@ -4218,19 +4214,15 @@ declare module ex.Internal.Actions {
         public reset(): void;
     }
     class Blink implements IAction {
-        public x: number;
-        public y: number;
-        private frequency;
-        private duration;
-        private actor;
-        private numBlinks;
-        private blinkTime;
-        private _started;
-        private nextBlink;
+        private timeVisible;
+        private timeNotVisible;
         private elapsedTime;
-        private isBlinking;
+        private totalTime;
+        private actor;
+        private duration;
         private _stopped;
-        constructor(actor: Actor, frequency: number, duration: number, blinkTime?: number);
+        private _started;
+        constructor(actor: Actor, timeVisible: number, timeNotVisible: number, numBlinks?: number);
         public update(delta: any): void;
         public isComplete(actor: Actor): boolean;
         public stop(): void;

@@ -84,8 +84,8 @@ module ex {
        * @static 
        */
       Bottom
-    }
-   
+   }
+
    /**
     * Labels are the way to draw small amounts of text to the screen in Excalibur. They are
     * actors and inherit all of the benifits and capabilities.
@@ -144,7 +144,7 @@ module ex {
          this.spriteFont = spriteFont;
          this.collisionType = CollisionType.PreventCollision;
          this.font = font || "10px sans-serif"; // coallesce to default canvas font
-         if(spriteFont){
+         if (spriteFont) {
             this._textSprites = spriteFont.getTextSprites();
          }
       }
@@ -165,52 +165,52 @@ module ex {
 
       // TypeScript doesn't support string enums :(
       private _lookupTextAlign(textAlign: TextAlign): string {
-         switch(textAlign){
-             case TextAlign.Left:
-                 return "left";
-                 break;
-             case TextAlign.Right:
-                 return "right";
-                 break;
-             case TextAlign.Center:
-                 return "center";
-                 break;
-             case TextAlign.End:
-                 return "end";
-                 break;
-             case TextAlign.Start:
-                 return "start";
-                 break;
-             default:
-                 return "start";
-                 break;
+         switch (textAlign) {
+            case TextAlign.Left:
+               return "left";
+               break;
+            case TextAlign.Right:
+               return "right";
+               break;
+            case TextAlign.Center:
+               return "center";
+               break;
+            case TextAlign.End:
+               return "end";
+               break;
+            case TextAlign.Start:
+               return "start";
+               break;
+            default:
+               return "start";
+               break;
          }
       }
 
       private _lookupBaseAlign(baseAlign: BaseAlign): string {
-          switch (baseAlign) {
-              case BaseAlign.Alphabetic:
-                  return "alphabetic";
-                  break;
-              case BaseAlign.Bottom:
-                  return "bottom";
-                  break;
-              case BaseAlign.Hanging:
-                  return "hangin";
-                  break;
-              case BaseAlign.Ideographic:
-                  return "ideographic";
-                  break;
-              case BaseAlign.Middle:
-                  return "middle";
-                  break;
-              case BaseAlign.Top:
-                  return "top";
-                  break;
-              default:
-                  return "alphabetic";
-                  break;
-          }
+         switch (baseAlign) {
+            case BaseAlign.Alphabetic:
+               return "alphabetic";
+               break;
+            case BaseAlign.Bottom:
+               return "bottom";
+               break;
+            case BaseAlign.Hanging:
+               return "hangin";
+               break;
+            case BaseAlign.Ideographic:
+               return "ideographic";
+               break;
+            case BaseAlign.Middle:
+               return "middle";
+               break;
+            case BaseAlign.Top:
+               return "top";
+               break;
+            default:
+               return "alphabetic";
+               break;
+         }
       }
 
       /**
@@ -220,13 +220,13 @@ module ex {
        * @param offsetY {number} The y offset in pixles to place the shadow
        * @param shadowColor {Color} The color of the text shadow
        */
-      public setTextShadow(offsetX: number, offsetY: number, shadowColor: Color){
+      public setTextShadow(offsetX: number, offsetY: number, shadowColor: Color) {
          this._textShadowOn = true;
          this._shadowOffsetX = offsetX;
          this._shadowOffsetY = offsetY;
          this._shadowColor = shadowColor.clone();
          this._shadowColorDirty = true;
-         for(var character in this._textSprites){
+         for (var character in this._textSprites) {
             this._shadowSprites[character] = this._textSprites[character].clone();
          }
       }
@@ -235,29 +235,29 @@ module ex {
        * Clears the current text shadow
        * @method clearTextShadow
        */
-      public clearTextShadow(){
+      public clearTextShadow() {
          this._textShadowOn = false;
          this._shadowOffsetX = 0;
          this._shadowOffsetY = 0;
-         this._shadowColor = Color.Black.clone();  
+         this._shadowColor = Color.Black.clone();
       }
 
       public update(engine: Engine, delta: number) {
          super.update(engine, delta);
 
-         if(this.spriteFont && this._color !== this.color){
-            for(var character in this._textSprites){
+         if (this.spriteFont && this._color !== this.color) {
+            for (var character in this._textSprites) {
                this._textSprites[character].clearEffects();
                this._textSprites[character].addEffect(new Effects.Fill(this.color.clone()));
                this._color = this.color;
             }
          }
 
-         if(this.spriteFont && this._textShadowOn && this._shadowColorDirty && this._shadowColor){
-            for(var character in this._shadowSprites){
+         if (this.spriteFont && this._textShadowOn && this._shadowColorDirty && this._shadowColor) {
+            for (var character in this._shadowSprites) {
                this._shadowSprites[character].clearEffects();
                this._shadowSprites[character].addEffect(new Effects.Fill(this._shadowColor.clone()));
-            }  
+            }
             this._shadowColorDirty = false;
          }
       }
@@ -268,8 +268,8 @@ module ex {
          ctx.translate(this.x, this.y);
          ctx.scale(this.scaleX, this.scaleY);
          ctx.rotate(this.rotation);
-         
-         if(this._textShadowOn){
+
+         if (this._textShadowOn) {
             ctx.save();
             ctx.translate(this._shadowOffsetX, this._shadowOffsetY);
             this._fontDraw(ctx, delta, this._shadowSprites);
@@ -281,53 +281,52 @@ module ex {
          ctx.restore();
       }
 
-      private _fontDraw(ctx: CanvasRenderingContext2D, delta: number, sprites: { [key: string]: Sprite; }){
-         if (!this.invisible) {
-            if (this.spriteFont) {              
+      private _fontDraw(ctx: CanvasRenderingContext2D, delta: number, sprites: { [key: string]: Sprite; }) {
 
-               var currX = 0;
-               
-                  for (var i = 0; i < this.text.length; i++) {
-                     var character = this.text[i];
-                     if (this.caseInsensitive) {
-                        character = character.toLowerCase();
-                     }
-                     try {
-                        var charSprite = sprites[character];
-                        if (this.previousOpacity !== this.opacity) {
-                           charSprite.clearEffects();
-                           charSprite.addEffect(new ex.Effects.Opacity(this.opacity));
-                        }
-                        charSprite.draw(ctx, currX, 0);
-                        currX += (charSprite.swidth + this.letterSpacing);
-                     } catch (e) {
-                        Logger.getInstance().error("SpriteFont Error drawing char " + character);
-                     }           
-                  }
+         if (this.spriteFont) {
+
+            var currX = 0;
+
+            for (var i = 0; i < this.text.length; i++) {
+               var character = this.text[i];
+               if (this.caseInsensitive) {
+                  character = character.toLowerCase();
+               }
+               try {
+                  var charSprite = sprites[character];
                   if (this.previousOpacity !== this.opacity) {
-                     this.previousOpacity = this.opacity;
+                     charSprite.clearEffects();
+                     charSprite.addEffect(new ex.Effects.Opacity(this.opacity));
                   }
-               //this.spriteFont.draw(ctx, 0, 0, this.text, color, this.letterSpacing);
-            } else {
-               var oldAlign = ctx.textAlign;
-               var oldTextBaseline = ctx.textBaseline;
-
-               ctx.textAlign = this._lookupTextAlign(this.textAlign);
-               ctx.textBaseline = this._lookupBaseAlign(this.baseAlign);
-               if(this.color){
-                  this.color.a = this.opacity;
+                  charSprite.draw(ctx, currX, 0);
+                  currX += (charSprite.swidth + this.letterSpacing);
+               } catch (e) {
+                  Logger.getInstance().error("SpriteFont Error drawing char " + character);
                }
-               ctx.fillStyle = this.color.toString();
-               ctx.font = this.font;
-               if(this.maxWidth){
-                  ctx.fillText(this.text, 0, 0, this.maxWidth);
-               }else{
-                  ctx.fillText(this.text, 0, 0);
-               }
-
-               ctx.textAlign = oldAlign;
-               ctx.textBaseline = oldTextBaseline;
             }
+            if (this.previousOpacity !== this.opacity) {
+               this.previousOpacity = this.opacity;
+            }
+            //this.spriteFont.draw(ctx, 0, 0, this.text, color, this.letterSpacing);
+         } else {
+            var oldAlign = ctx.textAlign;
+            var oldTextBaseline = ctx.textBaseline;
+
+            ctx.textAlign = this._lookupTextAlign(this.textAlign);
+            ctx.textBaseline = this._lookupBaseAlign(this.baseAlign);
+            if (this.color) {
+               this.color.a = this.opacity;
+            }
+            ctx.fillStyle = this.color.toString();
+            ctx.font = this.font;
+            if (this.maxWidth) {
+               ctx.fillText(this.text, 0, 0, this.maxWidth);
+            } else {
+               ctx.fillText(this.text, 0, 0);
+            }
+
+            ctx.textAlign = oldAlign;
+            ctx.textBaseline = oldTextBaseline;
          }
       }
 

@@ -2070,7 +2070,11 @@ var ex;
             var actor;
             for (var i = 0, len = this.children.length; i < len; i++) {
                 actor = this.children[i];
-                this.children[i].draw(ctx, delta);
+
+                // only draw actors that are visible
+                if (actor.visible) {
+                    this.children[i].draw(ctx, delta);
+                }
             }
         };
 
@@ -2629,57 +2633,54 @@ var ex;
             Actions.Delay = Delay;
 
             var Blink = (function () {
-                function Blink(actor, frequency, duration, blinkTime) {
-                    this._started = false;
-                    this.nextBlink = 0;
+                function Blink(actor, timeVisible, timeNotVisible, numBlinks) {
+                    if (typeof numBlinks === "undefined") { numBlinks = 1; }
+                    this.timeVisible = 0;
+                    this.timeNotVisible = 0;
                     this.elapsedTime = 0;
-                    this.isBlinking = false;
+                    this.totalTime = 0;
                     this._stopped = false;
+                    this._started = false;
                     this.actor = actor;
-                    this.frequency = frequency;
-                    this.duration = duration;
-                    this.numBlinks = Math.floor(frequency * duration / 1000);
-                    this.blinkTime = blinkTime || 200;
+                    this.timeVisible = timeVisible;
+                    this.timeNotVisible = timeNotVisible;
+                    this.duration = (timeVisible + timeNotVisible) * numBlinks;
                 }
                 Blink.prototype.update = function (delta) {
                     if (!this._started) {
                         this._started = true;
-                        this.nextBlink += this.duration / this.numBlinks / 2;
                     }
-                    this.x = this.actor.x;
-                    this.y = this.actor.y;
 
                     this.elapsedTime += delta;
-                    if ((this.elapsedTime + this.blinkTime / 2) > this.nextBlink && this.nextBlink > (this.elapsedTime - this.blinkTime / 2)) {
-                        this.isBlinking = true;
-                        this.actor.invisible = true;
-                    } else {
-                        if (this.isBlinking) {
-                            this.isBlinking = false;
-                            this.nextBlink += this.duration / this.numBlinks;
-                        }
-                        this.actor.invisible = false;
+                    this.totalTime += delta;
+                    if (this.actor.visible && this.elapsedTime >= this.timeVisible) {
+                        this.actor.visible = false;
+                        this.elapsedTime = 0;
+                    }
+
+                    if (!this.actor.visible && this.elapsedTime >= this.timeNotVisible) {
+                        this.actor.visible = true;
+                        this.elapsedTime = 0;
                     }
 
                     if (this.isComplete(this.actor)) {
-                        this.actor.invisible = false;
+                        this.actor.visible = true;
                     }
                 };
 
                 Blink.prototype.isComplete = function (actor) {
-                    return this._stopped || (this.elapsedTime >= this.duration);
+                    return this._stopped || (this.totalTime >= this.duration);
                 };
 
                 Blink.prototype.stop = function () {
-                    this.actor.invisible = false;
+                    this.actor.visible = true;
                     this._stopped = true;
                 };
 
                 Blink.prototype.reset = function () {
                     this._started = false;
-                    this.nextBlink = 0;
                     this.elapsedTime = 0;
-                    this.isBlinking = false;
+                    this.totalTime = 0;
                 };
                 return Blink;
             })();
@@ -3145,9 +3146,9 @@ var ex;
             this.isOffScreen = false;
             /**
             * The visibility of an actor
-            * @property invisible {boolean}
+            * @property visible {boolean}
             */
-            this.invisible = false;
+            this.visible = true;
             /**
             * The opacity of an actor
             * @property opacity {number}
@@ -3652,9 +3653,9 @@ var ex;
 
         /**
         * This method will cause an actor to blink (become visible and and
-        * invisible) at a frequency (blinks per second) for a duration (in
+        * visible) at a frequency (blinks per second) for a duration (in
         * milliseconds). Optionally, you may specify blinkTime, which indicates
-        * the amount of time the actor is invisible during each blink.<br/>
+        * the amount of time the actor is visible during each blink.<br/>
         * To have the actor blink 3 times in 1 second, call actor.blink(3, 1000).<br/>
         * This method is part of the actor 'Action' fluent API allowing action chaining.
         * @method blink
@@ -3663,8 +3664,9 @@ var ex;
         * @param [blinkTime=200] {number} The amount of time each blink that the actor is visible in milliseconds
         * @returns Actor
         */
-        Actor.prototype.blink = function (frequency, duration, blinkTime) {
-            this.actionQueue.add(new ex.Internal.Actions.Blink(this, frequency, duration, blinkTime));
+        Actor.prototype.blink = function (timeVisible, timeNotVisible, numBlinks) {
+            if (typeof numBlinks === "undefined") { numBlinks = 1; }
+            this.actionQueue.add(new ex.Internal.Actions.Blink(this, timeVisible, timeNotVisible, numBlinks));
             return this;
         };
 
@@ -3978,9 +3980,9 @@ var ex;
         * @param delta {number} The time since the last draw in milliseconds
         */
         Actor.prototype.draw = function (ctx, delta) {
-            // only draw if onscreen
-            if (this.isOffScreen)
+            if (this.isOffScreen) {
                 return;
+            }
 
             var anchorPoint = this.anchor.getAnchorPoint();
 
@@ -3989,6 +3991,7 @@ var ex;
             ctx.rotate(this.rotation);
             ctx.scale(this.scaleX, this.scaleY);
 
+            // calculate changing opacity
             if (this.previousOpacity != this.opacity) {
                 for (var drawing in this.frames) {
                     this.frames[drawing].addEffect(new ex.Effects.Opacity(this.opacity));
@@ -3997,25 +4000,23 @@ var ex;
                 this.previousOpacity = this.opacity;
             }
 
-            if (!this.invisible) {
-                if (this.currentDrawing) {
-                    var xDiff = 0;
-                    var yDiff = 0;
-                    if (this.centerDrawingX) {
-                        xDiff = (this.currentDrawing.width * this.currentDrawing.getScaleX() - this.getWidth()) / 2;
-                    }
-
-                    if (this.centerDrawingY) {
-                        yDiff = (this.currentDrawing.height * this.currentDrawing.getScaleY() - this.getHeight()) / 2;
-                    }
-
-                    this.currentDrawing.draw(ctx, -xDiff - anchorPoint.x, -yDiff - anchorPoint.y);
-                } else {
-                    if (this.color)
-                        this.color.a = this.opacity;
-                    ctx.fillStyle = this.color ? this.color.toString() : (new ex.Color(0, 0, 0)).toString();
-                    ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this.width, this.height);
+            if (this.currentDrawing) {
+                var xDiff = 0;
+                var yDiff = 0;
+                if (this.centerDrawingX) {
+                    xDiff = (this.currentDrawing.width * this.currentDrawing.getScaleX() - this.getWidth()) / 2;
                 }
+
+                if (this.centerDrawingY) {
+                    yDiff = (this.currentDrawing.height * this.currentDrawing.getScaleY() - this.getHeight()) / 2;
+                }
+
+                this.currentDrawing.draw(ctx, -xDiff - anchorPoint.x, -yDiff - anchorPoint.y);
+            } else {
+                if (this.color)
+                    this.color.a = this.opacity;
+                ctx.fillStyle = this.color ? this.color.toString() : (new ex.Color(0, 0, 0)).toString();
+                ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this.width, this.height);
             }
 
             this.sceneNode.draw(ctx, delta);
@@ -5096,7 +5097,7 @@ var ex;
     /**
     * Triggers a method of firing arbitrary code on collision. These are useful
     * as 'buttons', 'switches', or to trigger effects in a game. By defualt triggers
-    * are invisible, and can only be seen with debug mode enabled on the Engine.
+    * are visible, and can only be seen with debug mode enabled on the Engine.
     * @class Trigger
     * @constructor
     * @param [x=0] {number} The x position of the trigger
@@ -7150,51 +7151,49 @@ var ex;
         };
 
         Label.prototype._fontDraw = function (ctx, delta, sprites) {
-            if (!this.invisible) {
-                if (this.spriteFont) {
-                    var currX = 0;
+            if (this.spriteFont) {
+                var currX = 0;
 
-                    for (var i = 0; i < this.text.length; i++) {
-                        var character = this.text[i];
-                        if (this.caseInsensitive) {
-                            character = character.toLowerCase();
+                for (var i = 0; i < this.text.length; i++) {
+                    var character = this.text[i];
+                    if (this.caseInsensitive) {
+                        character = character.toLowerCase();
+                    }
+                    try  {
+                        var charSprite = sprites[character];
+                        if (this.previousOpacity !== this.opacity) {
+                            charSprite.clearEffects();
+                            charSprite.addEffect(new ex.Effects.Opacity(this.opacity));
                         }
-                        try  {
-                            var charSprite = sprites[character];
-                            if (this.previousOpacity !== this.opacity) {
-                                charSprite.clearEffects();
-                                charSprite.addEffect(new ex.Effects.Opacity(this.opacity));
-                            }
-                            charSprite.draw(ctx, currX, 0);
-                            currX += (charSprite.swidth + this.letterSpacing);
-                        } catch (e) {
-                            ex.Logger.getInstance().error("SpriteFont Error drawing char " + character);
-                        }
+                        charSprite.draw(ctx, currX, 0);
+                        currX += (charSprite.swidth + this.letterSpacing);
+                    } catch (e) {
+                        ex.Logger.getInstance().error("SpriteFont Error drawing char " + character);
                     }
-                    if (this.previousOpacity !== this.opacity) {
-                        this.previousOpacity = this.opacity;
-                    }
-                    //this.spriteFont.draw(ctx, 0, 0, this.text, color, this.letterSpacing);
-                } else {
-                    var oldAlign = ctx.textAlign;
-                    var oldTextBaseline = ctx.textBaseline;
-
-                    ctx.textAlign = this._lookupTextAlign(this.textAlign);
-                    ctx.textBaseline = this._lookupBaseAlign(this.baseAlign);
-                    if (this.color) {
-                        this.color.a = this.opacity;
-                    }
-                    ctx.fillStyle = this.color.toString();
-                    ctx.font = this.font;
-                    if (this.maxWidth) {
-                        ctx.fillText(this.text, 0, 0, this.maxWidth);
-                    } else {
-                        ctx.fillText(this.text, 0, 0);
-                    }
-
-                    ctx.textAlign = oldAlign;
-                    ctx.textBaseline = oldTextBaseline;
                 }
+                if (this.previousOpacity !== this.opacity) {
+                    this.previousOpacity = this.opacity;
+                }
+                //this.spriteFont.draw(ctx, 0, 0, this.text, color, this.letterSpacing);
+            } else {
+                var oldAlign = ctx.textAlign;
+                var oldTextBaseline = ctx.textBaseline;
+
+                ctx.textAlign = this._lookupTextAlign(this.textAlign);
+                ctx.textBaseline = this._lookupBaseAlign(this.baseAlign);
+                if (this.color) {
+                    this.color.a = this.opacity;
+                }
+                ctx.fillStyle = this.color.toString();
+                ctx.font = this.font;
+                if (this.maxWidth) {
+                    ctx.fillText(this.text, 0, 0, this.maxWidth);
+                } else {
+                    ctx.fillText(this.text, 0, 0);
+                }
+
+                ctx.textAlign = oldAlign;
+                ctx.textBaseline = oldTextBaseline;
             }
         };
 
