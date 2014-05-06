@@ -115,10 +115,11 @@ player.scaleY = 1;
 player.rotation = 0;
 
 // Health bar example
-player.addChild(new ex.Actor(-48, -20, 140, 5, new ex.Color(0,255,0)));
+var healthbar = new ex.Actor(0, -70, 140, 5, new ex.Color(0,255,0));
+player.addChild(healthbar);
 
 // Add Title above player
-var playerLabel = new ex.Label('My Player', -48, -39, null, spriteFont);
+var playerLabel = new ex.Label('My Player', -70, -69, null, spriteFont);
 
 player.addChild(playerLabel);
 

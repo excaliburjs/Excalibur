@@ -11,7 +11,48 @@ module ex {
       constructor(public x: number, public y: number) { }
    }
 
-   
+   /**
+    * 
+    */
+   export class Anchor {
+      private _percentageX: number = 0;
+      private _percentageY: number = 0;
+      private _percentagePoint: Point;
+      private _point: Point;
+      public actor: Actor;
+
+      constructor(actor: Actor, percentageX: number, percentageY: number);
+      constructor(actor: Actor, point: Point);
+      constructor(actor: Actor, arg2: any) {
+         this.actor = actor;
+         if (arguments.length === 3 && arg2 instanceof Point) {
+            this.setTo(arg2);
+         } else {
+            this.setTo(arguments[1], arguments[2]);
+         }
+      }
+
+      public setTo(percentageX: number, percentageY: number): void;
+      public setTo(point: Point): void;
+      public setTo(arg1: any): void {
+         if (arguments.length === 2 && typeof arg1 === "number") {
+            this._percentageX = (<number>arg1);
+            this._percentageY = (<number>arguments[1]);
+            this._percentagePoint = new ex.Point(this.actor.getWidth() * this._percentageX, this.actor.getHeight() * this._percentageY);
+         } else if (arg1 instanceof Point) {
+            this._point = arg1;
+         }
+      }
+
+      public getAnchorPoint() {
+         if (this._point) {
+            return this._point;
+         }
+         return this._percentagePoint;
+
+      }
+
+   }
 
    /**
     * An enum that describes the sides of an Actor for collision
@@ -125,6 +166,14 @@ module ex {
        * @property y {number} 
        */
       public y: number = 0;
+
+      /**
+       * The anchor to apply all actor related transformations like rotation,
+       * translation, and rotation. By default the anchor is in the center of
+       * the actor.
+       * @property anchor {Anchor}
+       */
+      public anchor: Anchor;
 
       private height: number = 0;
       private width: number = 0;
@@ -268,6 +317,7 @@ module ex {
          this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
          this.sceneNode = new Scene();
          this.sceneNode.actor = this;
+         this.anchor = new Anchor(this, .5, .5);
       }
 
       /**
@@ -384,7 +434,8 @@ module ex {
        * @returns Vector
        */
       public getCenter(): Vector {
-         return new Vector(this.x + this.getWidth() / 2, this.y + this.getHeight() / 2);
+         var anchor = this.anchor.getAnchorPoint();
+         return new Vector(this.x + this.getWidth() / 2 - anchor.x, this.y + this.getHeight() / 2 - anchor.y);
       }
 
       /**
@@ -510,8 +561,9 @@ module ex {
        * @method getBounds
        * @returns BoundingBox
        */
-      public getBounds(){
-         return new BoundingBox(this.getGlobalX(), this.getGlobalY(), this.getGlobalX() + this.getWidth(), this.getGlobalY() + this.getHeight());
+      public getBounds() {
+         var anchor = this.anchor.getAnchorPoint();
+         return new BoundingBox(this.getGlobalX()-anchor.x, this.getGlobalY() - anchor.y, this.getGlobalX() + this.getWidth() - anchor.x, this.getGlobalY() + this.getHeight() - anchor.y);
       }
 
       /**
@@ -589,7 +641,7 @@ module ex {
          var otherBounds = actor.getBounds();
 
          var intersect = bounds.collides(otherBounds);
-         return intersect
+         return intersect;
       }
 
       /**
@@ -1020,7 +1072,8 @@ module ex {
             }
          });
 
-         var actorScreenCoords = engine.worldToScreenCoordinates(new Point(this.getGlobalX(), this.getGlobalY()));
+         var anchor = this.anchor.getAnchorPoint();
+         var actorScreenCoords = engine.worldToScreenCoordinates(new Point(this.getGlobalX()-anchor.x, this.getGlobalY()-anchor.y));
          var zoom = 1.0;
          if(engine.camera){
             zoom = engine.camera.getZoom();   
@@ -1059,17 +1112,18 @@ module ex {
        */
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
          // only draw if onscreen 
-         if(this.isOffScreen) return;
+         if (this.isOffScreen) return;
+
+         var anchorPoint = this.anchor.getAnchorPoint();
 
          ctx.save();
          ctx.translate(this.x, this.y);
          ctx.rotate(this.rotation);     
          ctx.scale(this.scaleX, this.scaleY);
 
+         
+
          if (this.previousOpacity != this.opacity) {
-            // Object.keys(this.frames).forEach(function (key) {
-            //    frames[key].addEffect(new ex.Effects.Opacity(this.opacity));
-            // });
             for (var drawing in this.frames) {
                this.frames[drawing].addEffect(new ex.Effects.Opacity(this.opacity));
             }
@@ -1083,24 +1137,22 @@ module ex {
                var xDiff = 0;
                var yDiff = 0;
                if (this.centerDrawingX) {
-                  xDiff = (this.currentDrawing.width * this.currentDrawing.getScaleX() - this.width) / 2;
+                  xDiff = (this.currentDrawing.width * this.currentDrawing.getScaleX() - this.getWidth()) / 2;
                }
 
                if (this.centerDrawingY) {
-                  yDiff = (this.currentDrawing.height * this.currentDrawing.getScaleY() - this.height) / 2;
+                  yDiff = (this.currentDrawing.height * this.currentDrawing.getScaleY() - this.getHeight()) / 2;
                }
 
-               //var xDiff = (this.currentDrawing.width*this.currentDrawing.getScale() - this.width)/2;
-               //var yDiff = (this.currentDrawing.height*this.currentDrawing.getScale() - this.height)/2;
-               this.currentDrawing.draw(ctx, -xDiff, -yDiff);
+               this.currentDrawing.draw(ctx, -xDiff - anchorPoint.x, -yDiff - anchorPoint.y);
 
             } else {
                if(this.color) this.color.a = this.opacity;
                ctx.fillStyle = this.color ? this.color.toString() : (new Color(0, 0, 0)).toString();
-               ctx.fillRect(0, 0, this.width, this.height);
+               ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this.width, this.height);
             }
          }
-
+         
          this.sceneNode.draw(ctx, delta);
 
          ctx.restore();
@@ -1112,11 +1164,29 @@ module ex {
        * @param ctx {CanvasRenderingContext2D} The rendering context
        */
       public debugDraw(ctx: CanvasRenderingContext2D) {
-         
+         var anchorPoint = this.anchor.getAnchorPoint();
          // Meant to draw debug information about actors
-         this.sceneNode.debugDraw(ctx);
-         this.getBounds().debugDraw(ctx);
+         
+         ctx.save();
+         ctx.translate(this.x, this.y);
+         ctx.rotate(this.rotation);
+         ctx.scale(this.scaleX, this.scaleY);
 
+         this.sceneNode.debugDraw(ctx);
+         var bb = this.getBounds();
+         bb.left = bb.left - this.getGlobalX();
+         bb.right = bb.right - this.getGlobalX();
+         bb.top = bb.top - this.getGlobalY();
+         bb.bottom = bb.bottom - this.getGlobalY();
+         bb.debugDraw(ctx);
+
+         ctx.fillStyle = Color.Yellow.toString();
+         ctx.beginPath();
+         ctx.arc(0, 0, 3, 0, Math.PI * 2);
+         ctx.closePath();
+         ctx.fill();
+
+         ctx.restore();
       }
    }
 }

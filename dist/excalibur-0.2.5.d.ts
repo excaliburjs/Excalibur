@@ -1443,6 +1443,21 @@ declare module ex {
         constructor(x: number, y: number);
     }
     /**
+    *
+    */
+    class Anchor {
+        private _percentageX;
+        private _percentageY;
+        private _percentagePoint;
+        private _point;
+        public actor: Actor;
+        constructor(actor: Actor, percentageX: number, percentageY: number);
+        constructor(actor: Actor, point: Point);
+        public setTo(percentageX: number, percentageY: number): void;
+        public setTo(point: Point): void;
+        public getAnchorPoint(): Point;
+    }
+    /**
     * An enum that describes the sides of an Actor for collision
     * @class Side
     */
@@ -1550,6 +1565,13 @@ declare module ex {
         * @property y {number}
         */
         public y: number;
+        /**
+        * The anchor to apply all actor related transformations like rotation,
+        * translation, and rotation. By default the anchor is in the center of
+        * the actor.
+        * @property anchor {Anchor}
+        */
+        public anchor: Anchor;
         private height;
         private width;
         /**
@@ -3152,7 +3174,7 @@ declare module ex {
         private zoomIncrement;
         constructor(engine: Engine);
         /**
-        * Sets the {{#crossLink Actor}}{{//crossLink}} to follow with the camera
+        * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
         * @method setActorToFollow
         * @param actor {Actor} The actor to follow
         */

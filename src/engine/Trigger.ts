@@ -83,15 +83,18 @@ module ex {
          ctx.save();
          ctx.translate(this.x, this.y);
 
+         var bb = this.getBounds();
+         bb.left = bb.left - this.getGlobalX();
+         bb.right = bb.right - this.getGlobalX();
+         bb.top = bb.top - this.getGlobalY();
+         bb.bottom = bb.bottom - this.getGlobalY();
 
          // Currently collision primitives cannot rotate 
          // ctx.rotate(this.rotation);
          ctx.fillStyle = Color.Violet.toString();
          ctx.strokeStyle = Color.Violet.toString();
          ctx.fillText('Trigger', 10, 10);
-         ctx.beginPath();
-         ctx.rect(0, 0, this.getWidth(), this.getHeight());
-         ctx.stroke();
+         bb.debugDraw(ctx);
 
          ctx.restore();
       }

@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-05-03
+/*! excalibur - v0.2.5 - 2014-05-05
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -1302,11 +1302,9 @@ var ex;
 
             var overlaps = [];
 
-            for (var x = actor.x; x <= width; x += Math.min(actor.getWidth() / 2, this.cellWidth / 2)) {
-                for (var y = actor.y; y <= height; y += Math.min(actor.getHeight() / 2, this.cellHeight / 2)) {
+            for (var x = actorBounds.left; x <= width; x += Math.min(actor.getWidth() / 2, this.cellWidth / 2)) {
+                for (var y = actorBounds.top; y <= height; y += Math.min(actor.getHeight() / 2, this.cellHeight / 2)) {
                     var cell = this.getCellByPoint(x, y);
-                    var xover = 0;
-                    var yover = 0;
                     if (cell && cell.solid) {
                         var overlap = actorBounds.collides(cell.getBounds());
                         var dir = actor.getCenter().minus(cell.getCenter());
@@ -1609,7 +1607,6 @@ var ex;
         };
 
         BoundingBox.prototype.debugDraw = function (ctx) {
-            ctx.strokeStyle = ex.Color.Yellow.toString();
             ctx.lineWidth = 2;
             ctx.strokeRect(this.left, this.top, this.getWidth(), this.getHeight());
         };
@@ -2933,6 +2930,40 @@ var ex;
     ex.Overlap = Overlap;
 
     /**
+    *
+    */
+    var Anchor = (function () {
+        function Anchor(actor, arg2) {
+            this._percentageX = 0;
+            this._percentageY = 0;
+            this.actor = actor;
+            if (arguments.length === 3 && arg2 instanceof ex.Point) {
+                this.setTo(arg2);
+            } else {
+                this.setTo(arguments[1], arguments[2]);
+            }
+        }
+        Anchor.prototype.setTo = function (arg1) {
+            if (arguments.length === 2 && typeof arg1 === "number") {
+                this._percentageX = arg1;
+                this._percentageY = arguments[1];
+                this._percentagePoint = new ex.Point(this.actor.getWidth() * this._percentageX, this.actor.getHeight() * this._percentageY);
+            } else if (arg1 instanceof ex.Point) {
+                this._point = arg1;
+            }
+        };
+
+        Anchor.prototype.getAnchorPoint = function () {
+            if (this._point) {
+                return this._point;
+            }
+            return this._percentagePoint;
+        };
+        return Anchor;
+    })();
+    ex.Anchor = Anchor;
+
+    /**
     * An enum that describes the sides of an Actor for collision
     * @class Side
     */
@@ -3166,6 +3197,7 @@ var ex;
             this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
             this.sceneNode = new ex.Scene();
             this.sceneNode.actor = this;
+            this.anchor = new Anchor(this, .5, .5);
         }
         /**
         * This is called before the first update of the actor. This method is meant to be
@@ -3281,7 +3313,8 @@ var ex;
         * @returns Vector
         */
         Actor.prototype.getCenter = function () {
-            return new ex.Vector(this.x + this.getWidth() / 2, this.y + this.getHeight() / 2);
+            var anchor = this.anchor.getAnchorPoint();
+            return new ex.Vector(this.x + this.getWidth() / 2 - anchor.x, this.y + this.getHeight() / 2 - anchor.y);
         };
 
         /**
@@ -3408,7 +3441,8 @@ var ex;
         * @returns BoundingBox
         */
         Actor.prototype.getBounds = function () {
-            return new ex.BoundingBox(this.getGlobalX(), this.getGlobalY(), this.getGlobalX() + this.getWidth(), this.getGlobalY() + this.getHeight());
+            var anchor = this.anchor.getAnchorPoint();
+            return new ex.BoundingBox(this.getGlobalX() - anchor.x, this.getGlobalY() - anchor.y, this.getGlobalX() + this.getWidth() - anchor.x, this.getGlobalY() + this.getHeight() - anchor.y);
         };
 
         /**
@@ -3915,7 +3949,8 @@ var ex;
                 }
             });
 
-            var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Point(this.getGlobalX(), this.getGlobalY()));
+            var anchor = this.anchor.getAnchorPoint();
+            var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Point(this.getGlobalX() - anchor.x, this.getGlobalY() - anchor.y));
             var zoom = 1.0;
             if (engine.camera) {
                 zoom = engine.camera.getZoom();
@@ -3947,6 +3982,8 @@ var ex;
             if (this.isOffScreen)
                 return;
 
+            var anchorPoint = this.anchor.getAnchorPoint();
+
             ctx.save();
             ctx.translate(this.x, this.y);
             ctx.rotate(this.rotation);
@@ -3965,21 +4002,19 @@ var ex;
                     var xDiff = 0;
                     var yDiff = 0;
                     if (this.centerDrawingX) {
-                        xDiff = (this.currentDrawing.width * this.currentDrawing.getScaleX() - this.width) / 2;
+                        xDiff = (this.currentDrawing.width * this.currentDrawing.getScaleX() - this.getWidth()) / 2;
                     }
 
                     if (this.centerDrawingY) {
-                        yDiff = (this.currentDrawing.height * this.currentDrawing.getScaleY() - this.height) / 2;
+                        yDiff = (this.currentDrawing.height * this.currentDrawing.getScaleY() - this.getHeight()) / 2;
                     }
 
-                    //var xDiff = (this.currentDrawing.width*this.currentDrawing.getScale() - this.width)/2;
-                    //var yDiff = (this.currentDrawing.height*this.currentDrawing.getScale() - this.height)/2;
-                    this.currentDrawing.draw(ctx, -xDiff, -yDiff);
+                    this.currentDrawing.draw(ctx, -xDiff - anchorPoint.x, -yDiff - anchorPoint.y);
                 } else {
                     if (this.color)
                         this.color.a = this.opacity;
                     ctx.fillStyle = this.color ? this.color.toString() : (new ex.Color(0, 0, 0)).toString();
-                    ctx.fillRect(0, 0, this.width, this.height);
+                    ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this.width, this.height);
                 }
             }
 
@@ -3994,9 +4029,29 @@ var ex;
         * @param ctx {CanvasRenderingContext2D} The rendering context
         */
         Actor.prototype.debugDraw = function (ctx) {
+            var anchorPoint = this.anchor.getAnchorPoint();
+
             // Meant to draw debug information about actors
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.rotation);
+            ctx.scale(this.scaleX, this.scaleY);
+
             this.sceneNode.debugDraw(ctx);
-            this.getBounds().debugDraw(ctx);
+            var bb = this.getBounds();
+            bb.left = bb.left - this.getGlobalX();
+            bb.right = bb.right - this.getGlobalX();
+            bb.top = bb.top - this.getGlobalY();
+            bb.bottom = bb.bottom - this.getGlobalY();
+            bb.debugDraw(ctx);
+
+            ctx.fillStyle = ex.Color.Yellow.toString();
+            ctx.beginPath();
+            ctx.arc(0, 0, 3, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
         };
         return Actor;
     })(ex.Class);
@@ -5120,14 +5175,18 @@ var ex;
             ctx.save();
             ctx.translate(this.x, this.y);
 
+            var bb = this.getBounds();
+            bb.left = bb.left - this.getGlobalX();
+            bb.right = bb.right - this.getGlobalX();
+            bb.top = bb.top - this.getGlobalY();
+            bb.bottom = bb.bottom - this.getGlobalY();
+
             // Currently collision primitives cannot rotate
             // ctx.rotate(this.rotation);
             ctx.fillStyle = ex.Color.Violet.toString();
             ctx.strokeStyle = ex.Color.Violet.toString();
             ctx.fillText('Trigger', 10, 10);
-            ctx.beginPath();
-            ctx.rect(0, 0, this.getWidth(), this.getHeight());
-            ctx.stroke();
+            bb.debugDraw(ctx);
 
             ctx.restore();
         };
@@ -5665,7 +5724,7 @@ var ex;
             this.engine = engine;
         }
         /**
-        * Sets the {{#crossLink Actor}}{{//crossLink}} to follow with the camera
+        * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
         * @method setActorToFollow
         * @param actor {Actor} The actor to follow
         */
