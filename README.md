@@ -20,7 +20,7 @@ We've made it easy to install Excalibur on a wide variety of package managers:
     
 ### Nuget
 
-    PM> Install-Package Exalibur -Pre
+    PM> Install-Package Exalibur
 
 # Features and Documentation
 
