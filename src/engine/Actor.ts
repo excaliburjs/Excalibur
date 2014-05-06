@@ -1,257 +1,17 @@
-/// <reference path="Core.ts" />
+/// <reference path="Interfaces/IDrawable.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util.ts" />
-/// <reference path="CollisionMap.ts" />
+/// <reference path="TileMap.ts" />
 /// <reference path="BoundingBox.ts" />
+/// <reference path="Scene.ts" />
+/// <reference path="Action.ts" />
 
 module ex {
    export class Overlap {
       constructor(public x: number, public y: number) { }
    }
 
-   /**
-    * Actors are composed together into groupings called Scenes in 
-    * Excalibur. The metaphor models the same idea behind real world 
-    * actors in a scene. Only actors in scenes will be updated and drawn.
-    * @class Scene
-    * @constructor
-    */
-   export class Scene extends ex.Util.Class {
-
-      //The actor this scene is attached to , if any
-      public actor: Actor;
-      
-      /**
-       * The actors in the current scene
-       * @property children {Actor[]}
-       */
-      public children: Actor[] = [];
-      public collisionMaps: CollisionMap[] = [];
-      public engine: Engine;
-      private killQueue: Actor[] = [];
-
-      private timers: Timer[] = [];
-      private cancelQueue: Timer[] = [];
-
-      private _isInitialized: boolean = false;
-
-      constructor() {
-         super();
-      }
-
-      /**
-       * This is called when the scene is made active and started. It is meant to be overriden,
-       * this is where you should setup any DOM UI or event handlers needed for the scene.
-       * @method onActivate
-       */
-      public onActivate(): void {
-         // will be overridden
-      }
-
-      /**
-       * This is called when the scene is made transitioned away from and stopped. It is meant to be overriden,
-       * this is where you should cleanup any DOM UI or event handlers needed for the scene.
-       * @method onDeactivate
-       */
-      public onDeactivate(): void {
-         // will be overridden
-      }
-
-      /**
-       * This is called before the first update of the actor. This method is meant to be
-       * overridden. This is where initialization of child actors should take place.
-       * @method onInitialize
-       * @param engine {Engine}
-       */
-      public onInitialize(engine: Engine): void {
-         // will be overridden
-      }
-
-      /**
-       * Publish an event to all actors in the scene
-       * @method publish
-       * @param eventType {string} The name of the event to publish
-       * @param event {GameEvent} The event object to send 
-       */
-      public publish(eventType: string, event: GameEvent) {
-         this.children.forEach((actor) => {
-            actor.triggerEvent(eventType, event);
-         });
-      }
-
-      /**
-       * Updates all the actors and timers in the Scene. Called by the Engine.
-       * @method update
-       * @param engine {Engine} Reference to the current Engine
-       * @param delta {number} The number of milliseconds since the last update
-       */
-      public update(engine: Engine, delta: number) {
-         if(!this._isInitialized){
-            this.onInitialize(engine);
-            this.eventDispatcher.publish('initialize', new InitializeEvent(engine));
-            this._isInitialized = true;
-         }
-
-         this.collisionMaps.forEach(function(cm){
-            cm.update(engine, delta);
-         });
-
-         // Update event dispatcher
-         this.eventDispatcher.update();
-
-         var len = 0;
-         var start = 0;
-         var end = 0;
-         var actor;
-         // Cycle through actors updating actors
-         for (var i = 0, len = this.children.length; i < len; i++) {
-            this.children[i].update(engine, delta);
-         }
-
-         // Remove actors from scene graph after being killed
-         var actorIndex = 0;
-         for (var j = 0, len = this.killQueue.length; j < len; j++) {
-            actorIndex = this.children.indexOf(this.killQueue[j]);
-            if(actorIndex > -1){
-               this.children.splice(actorIndex, 1);
-            }
-         }
-         this.killQueue.length = 0;
-
-
-         // Remove timers in the cancel queue before updating them
-         var timerIndex = 0;
-         for(var k = 0, len = this.cancelQueue.length; k < len; k++){
-            this.removeTimer(this.cancelQueue[k]);
-         }
-         this.cancelQueue.length = 0;
-
-         // Cycle through timers updating timers
-         var that = this; 
-         this.timers = this.timers.filter(function(timer){
-            timer.update(delta);
-            return !timer.complete;
-         });
-      }
-
-      /**
-       * Draws all the actors in the Scene. Called by the Engine.
-       * @method draw
-       * @param ctx {CanvasRenderingContext2D} The current rendering context
-       * @param delta {number} The number of milliseconds since the last draw
-       */
-      public draw(ctx: CanvasRenderingContext2D, delta: number) {
-         this.collisionMaps.forEach(function(cm){
-            cm.draw(ctx, delta);
-         });
-
-         var len = 0;
-         var start = 0;
-         var end = 0;
-         var actor;
-         for (var i = 0, len = this.children.length; i < len; i++) {
-            actor = this.children[i];
-            this.children[i].draw(ctx, delta);
-         }
-      }
-
-      /**
-       * Draws all the actors' debug information in the Scene. Called by the Engine.
-       * @method draw
-       * @param ctx {CanvasRenderingContext2D} The current rendering context
-       */
-      public debugDraw(ctx: CanvasRenderingContext2D) {
-         this.collisionMaps.forEach(map =>{
-            map.debugDraw(ctx);
-         });
-
-         this.children.forEach((actor) => {
-            actor.debugDraw(ctx);
-         });         
-      }
-
-      /**
-       * Adds an actor to the Scene, once this is done the actor will be drawn and updated.
-       * @method addChild
-       * @param actor {Actor} The actor to add
-       */
-      public addChild(actor: Actor) {
-         actor.scene = this;
-         this.children.push(actor);
-         actor.parent = this.actor;
-      }
-
-      public addCollisionMap(collisionMap: CollisionMap){
-         this.collisionMaps.push(collisionMap);
-      }
-
-      public removeCollisionMap(collisionMap: CollisionMap){
-         var index = this.collisionMaps.indexOf(collisionMap);
-         if(index > -1){
-            this.collisionMaps.splice(index, 1);
-         }
-      }
-
-    
-      /**
-       * Removes an actor from the Scene, it will no longer be drawn or updated.
-       * @method removeChild
-       * @param actor {Actor} The actor to remove
-       */
-      public removeChild(actor: Actor) {
-         this.killQueue.push(actor);
-         actor.parent = null;
-      }
-
-      /**
-       * Adds a timer to the Scene
-       * @method addTimer
-       * @param timer {Timer} The timer to add
-       * @returns Timer
-       */
-      public addTimer(timer: Timer): Timer{
-         this.timers.push(timer);
-         timer.scene = this;
-         return timer;
-      }
-
-      /**
-       * Removes a timer to the Scene, can be dangerous
-       * @method removeTimer
-       * @private
-       * @param timer {Timer} The timer to remove
-       * @returns Timer
-       */
-      public removeTimer(timer: Timer): Timer{
-         var i = this.timers.indexOf(timer);
-         if(i !== -1){
-            this.timers.splice(i, 1);   
-         }
-         return timer;         
-      }
-
-      /**
-       * Cancels a timer, removing it from the scene nicely
-       * @method cancelTimer
-       * @param timer {Timer} The timer to cancel
-       * @returns Timer
-       */
-      public cancelTimer(timer: Timer): Timer{
-         this.cancelQueue.push(timer);
-         return timer;
-      }
-
-      /**
-       * Tests whether a timer is active in the scene
-       * @method isTimerActive
-       * @param timer {Timer}
-       * @returns boolean
-       */
-      public isTimerActive(timer: Timer): boolean {
-         return (this.timers.indexOf(timer) > -1);
-      }
-
-   }
+   
 
    /**
     * An enum that describes the sides of an Actor for collision
@@ -339,6 +99,7 @@ module ex {
       Fixed
     }
 
+
    /**
     * The most important primitive in Excalibur is an "Actor." Anything that
     * can move on the screen, collide with another Actor, respond to events, 
@@ -353,7 +114,7 @@ module ex {
     * @param [height=0.0] {number} The starting height of the actor
     * @param [color=undefined] {Color} The starting color of the actor
     */     
-   export class Actor extends ex.Util.Class {
+   export class Actor extends ex.Class {
       /** 
        * The x coordinate of the actor (left edge)
        * @property x {number} 
@@ -771,16 +532,16 @@ module ex {
       */
       public getSideFromIntersect(intersect: Vector){
          if(intersect){
-            if(Math.abs(intersect.x) < Math.abs(intersect.y)){
-               if(intersect.x < 0){
-                  return Side.Right;
-               }
-               return Side.Left;
+            if(Math.abs(intersect.x) > Math.abs(intersect.y)){
+                if (intersect.x < 0) {
+                    return Side.Right;
+                }
+                return Side.Left;
             }else{
-               if(intersect.y < 0){
-                  return Side.Bottom;
-               }
-               return Side.Top;
+                if (intersect.y < 0) {
+                    return Side.Bottom;
+                }
+                return Side.Top;
             }
          }
          return Side.None;
@@ -792,9 +553,29 @@ module ex {
        * @param actor {Actor} The other actor to test
        * @returns Side
        */
-      public collidesWithSide(actor: Actor): Side {
-         return this.getSideFromIntersect(this.collides(actor));
+     public collidesWithSide(actor: Actor): Side {
+         var separationVector = this.collides(actor);
+         if(!separationVector){
+            return ex.Side.None;
+         }
+
+         if(Math.abs(separationVector.x) > Math.abs(separationVector.y)){
+            if(this.x < actor.x){
+               return ex.Side.Right;
+            }else{
+               return ex.Side.Left;
+            }
+         }else{
+            if(this.y < actor.y){
+               return ex.Side.Bottom;
+            }else{
+               return ex.Side.Top;
+            }
+         }
+
+         return ex.Side.None;
       }
+
 
       /**
        * Test whether the actor has collided with another actor, returns the intersection vector on collision. Returns
@@ -1135,12 +916,8 @@ module ex {
 
                   // If the actor is active push the actor out if its not passive
                   if((this.collisionType === CollisionType.Active || this.collisionType === CollisionType.Elastic) && collider.collisionType !== CollisionType.Passive){
-                     
-                     if (Math.abs(intersectActor.y) < Math.abs(intersectActor.x)) {
-                        this.y += intersectActor.y;
-                     } else {
-                        this.x += intersectActor.x;
-                     }
+                     this.y += intersectActor.y;
+                     this.x += intersectActor.x;
 
                      // Naive elastic bounce
                      if(this.collisionType === CollisionType.Elastic){
@@ -1159,29 +936,21 @@ module ex {
 
             }
 
-            for(var j = 0; j < engine.currentScene.collisionMaps.length; j++){
-               var map = engine.currentScene.collisionMaps[j];
+            for(var j = 0; j < engine.currentScene.tileMaps.length; j++){
+               var map = engine.currentScene.tileMaps[j];
                var intersectMap: Vector;
                var side = Side.None;
                var max = 2;
                var hasBounced = false;
-               //var iters: Vector[] = [];
                while(intersectMap = map.collides(this)){
-                  //iters.push(intersectMap);
                   if(max--<0){
-                     //console.log(iters);
-                     //console.log("Max iterations exceeded!");
                      break;
                   } 
                   side = this.getSideFromIntersect(intersectMap);
                   eventDispatcher.publish('collision', new CollisionEvent(this, null, side, intersectMap));
                   if((this.collisionType === CollisionType.Active || this.collisionType === CollisionType.Elastic) && collider.collisionType !== CollisionType.Passive){
-                     //var intersectMap = map.getOverlap(this);
-                     if (Math.abs(intersectMap.y) < Math.abs(intersectMap.x)) {
-                        this.y += intersectMap.y;
-                     } else {
-                        this.x += intersectMap.x;
-                     }
+                     this.y += intersectMap.y;
+                     this.x += intersectMap.x;
 
                      // Naive elastic bounce
                      if(this.collisionType === CollisionType.Elastic && !hasBounced){
@@ -1345,450 +1114,9 @@ module ex {
       public debugDraw(ctx: CanvasRenderingContext2D) {
          
          // Meant to draw debug information about actors
-         ctx.save();
-         ctx.translate(this.x, this.y);         
-
-         ctx.fillStyle = Color.Yellow.toString();
-         ctx.strokeStyle = Color.Yellow.toString();
-         ctx.beginPath();
-         ctx.rect(0, 0, this.getWidth(), this.getHeight());
-         ctx.stroke();
-
          this.sceneNode.debugDraw(ctx);
-         ctx.restore();
+         this.getBounds().debugDraw(ctx);
 
-      }
-   }
-
-   /**
-    * Enum representing the different horizontal text alignments
-    * @class TextAlign
-    */
-   export enum TextAlign {
-      /**
-       * The text is left-aligned.
-       * @property Left
-       * @static 
-       */
-      Left,
-      /**
-       * The text is right-aligned.
-       * @property Right
-       * @static 
-       */
-      Right,
-      /**
-       * The text is centered.
-       * @property Center
-       * @static 
-       */
-      Center,
-      /**
-       * The text is aligned at the normal start of the line (left-aligned for left-to-right locales, right-aligned for right-to-left locales).
-       * @property Start
-       * @static 
-       */
-      Start,
-      /**
-       * The text is aligned at the normal end of the line (right-aligned for left-to-right locales, left-aligned for right-to-left locales).
-       * @property End
-       * @static 
-       */
-      End
-   }
-
-   /**
-    * Enum representing the different baseline text alignments
-    * @class BaseAlign
-    */
-   export enum BaseAlign {
-      /**
-       * The text baseline is the top of the em square.
-       * @property Top
-       * @static 
-       */
-      Top,
-      /**
-       * The text baseline is the hanging baseline.  Currently unsupported; this will act like alphabetic.
-       * @property Hanging
-       * @static 
-       */
-      Hanging,
-      /**
-       * The text baseline is the middle of the em square.
-       * @property Middle
-       * @static 
-       */
-      Middle,
-      /**
-       * The text baseline is the normal alphabetic baseline.
-       * @property Alphabetic
-       * @static 
-       */
-      Alphabetic,
-      /**
-       * The text baseline is the ideographic baseline; this is the bottom of 
-       * the body of the characters, if the main body of characters protrudes 
-       * beneath the alphabetic baseline.  Currently unsupported; this will 
-       * act like alphabetic.
-       * @property Ideographic
-       * @static 
-       */
-      Ideographic,
-      /**
-       * The text baseline is the bottom of the bounding box.  This differs
-       * from the ideographic baseline in that the ideographic baseline 
-       * doesn't consider descenders.
-       * @property Bottom
-       * @static 
-       */
-      Bottom
-    }
-
-   /**
-    * Labels are the way to draw small amounts of text to the screen in Excalibur. They are
-    * actors and inherit all of the benifits and capabilities.
-    * @class Label
-    * @extends Actor
-    * @constructor
-    * @param [text=empty] {string} The text of the label
-    * @param [x=0] {number} The x position of the label
-    * @param [y=0] {number} The y position of the label
-    * @param [font=sans-serif] {string} Use any valid css font string for the label's font. Default is "10px sans-serif".
-    * @param [spriteFont=undefined] {SpriteFont} Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precendence over a css font.
-    *
-    */
-   export class Label extends Actor {
-
-      public text: string;
-      public spriteFont: SpriteFont;
-      public font: string;
-      /**
-       * Gets or sets the horizontal text alignment property for the label. 
-       * @property textAlign {TextAlign}
-       */
-      public textAlign: TextAlign;
-      /**
-       * Gets or sets the baseline alignment property for the label.
-       * @property textBaseline {BaseAlign}
-       */
-      public baseAlign: BaseAlign;
-      /**
-       * Gets or sets the maximum width (in pixels) that the label should occupy
-       * @property maxWidth {number}
-       */
-      public maxWidth: number;
-      /**
-       * Gets or sets the letter spacing on a Label. Only supported with Sprite Fonts.
-       * @property [letterSpacing=0] {number}
-       */
-      public letterSpacing: number = 0;//px
-
-      public caseInsensitive: boolean = true;
-
-      private _textShadowOn: boolean = false;
-      private _shadowOffsetX: number = 0;
-      private _shadowOffsetY: number = 0;
-      private _shadowColor: Color = Color.Black.clone();
-      private _shadowColorDirty: boolean = false;
-
-      private _textSprites: { [key: string]: Sprite; } = {};
-      private _shadowSprites: { [key: string]: Sprite; } = {};
-
-      private _color: Color = Color.Black.clone();
-      constructor(text?: string, x?: number, y?: number, font?: string, spriteFont?: SpriteFont) {
-         super(x, y);
-         this.text = text || "";
-         this.color = Color.Black.clone();
-         this.spriteFont = spriteFont;
-         this.collisionType = CollisionType.PreventCollision;
-         this.font = font || "10px sans-serif"; // coallesce to default canvas font
-         if(spriteFont){
-            this._textSprites = spriteFont.getTextSprites();
-         }
-      }
-
-
-      /**
-       * Returns the width of the text in the label (in pixels);
-       * @method getTextWidth {number}
-       * @param ctx {CanvasRenderingContext2D} Rending context to measure the string with
-       */
-      public getTextWidth(ctx: CanvasRenderingContext2D): number {
-         var oldFont = ctx.font;
-         ctx.font = this.font;
-         var width = ctx.measureText(this.text).width;
-         ctx.font = oldFont;
-         return width;
-      }
-
-      // TypeScript doesn't support string enums :(
-      private _lookupTextAlign(textAlign: TextAlign): string {
-         switch(textAlign){
-             case TextAlign.Left:
-                 return "left";
-                 break;
-             case TextAlign.Right:
-                 return "right";
-                 break;
-             case TextAlign.Center:
-                 return "center";
-                 break;
-             case TextAlign.End:
-                 return "end";
-                 break;
-             case TextAlign.Start:
-                 return "start";
-                 break;
-             default:
-                 return "start";
-                 break;
-         }
-      }
-
-      private _lookupBaseAlign(baseAlign: BaseAlign): string {
-          switch (baseAlign) {
-              case BaseAlign.Alphabetic:
-                  return "alphabetic";
-                  break;
-              case BaseAlign.Bottom:
-                  return "bottom";
-                  break;
-              case BaseAlign.Hanging:
-                  return "hangin";
-                  break;
-              case BaseAlign.Ideographic:
-                  return "ideographic";
-                  break;
-              case BaseAlign.Middle:
-                  return "middle";
-                  break;
-              case BaseAlign.Top:
-                  return "top";
-                  break;
-              default:
-                  return "alphabetic";
-                  break;
-          }
-      }
-
-      /**
-       * Sets the text shadow for sprite fonts
-       * @method setTextShadow
-       * @param offsetX {number} The x offset in pixels to place the shadow
-       * @param offsetY {number} The y offset in pixles to place the shadow
-       * @param shadowColor {Color} The color of the text shadow
-       */
-      public setTextShadow(offsetX: number, offsetY: number, shadowColor: Color){
-         this._textShadowOn = true;
-         this._shadowOffsetX = offsetX;
-         this._shadowOffsetY = offsetY;
-         this._shadowColor = shadowColor.clone();
-         this._shadowColorDirty = true;
-         for(var character in this._textSprites){
-            this._shadowSprites[character] = this._textSprites[character].clone();
-         }
-      }
-
-      /**
-       * Clears the current text shadow
-       * @method clearTextShadow
-       */
-      public clearTextShadow(){
-         this._textShadowOn = false;
-         this._shadowOffsetX = 0;
-         this._shadowOffsetY = 0;
-         this._shadowColor = Color.Black.clone();  
-      }
-
-      public update(engine: Engine, delta: number) {
-         super.update(engine, delta);
-
-         if(this.spriteFont && this._color !== this.color){
-            for(var character in this._textSprites){
-               this._textSprites[character].clearEffects();
-               this._textSprites[character].addEffect(new Effects.Fill(this.color.clone()));
-               this._color = this.color;
-            }
-         }
-
-         if(this.spriteFont && this._textShadowOn && this._shadowColorDirty && this._shadowColor){
-            for(var character in this._shadowSprites){
-               this._shadowSprites[character].clearEffects();
-               this._shadowSprites[character].addEffect(new Effects.Fill(this._shadowColor.clone()));
-            }  
-            this._shadowColorDirty = false;
-         }
-      }
-
-      public draw(ctx: CanvasRenderingContext2D, delta: number) {
-
-         ctx.save();
-         ctx.translate(this.x, this.y);
-         ctx.scale(this.scaleX, this.scaleY);
-         ctx.rotate(this.rotation);
-         
-         if(this._textShadowOn){
-            ctx.save();
-            ctx.translate(this._shadowOffsetX, this._shadowOffsetY);
-            this._fontDraw(ctx, delta, this._shadowSprites);
-            ctx.restore();
-         }
-         this._fontDraw(ctx, delta, this._textSprites);
-
-         super.draw(ctx, delta);
-         ctx.restore();
-      }
-
-      private _fontDraw(ctx: CanvasRenderingContext2D, delta: number, sprites: { [key: string]: Sprite; }){
-         if (!this.invisible) {
-            if (this.spriteFont) {              
-
-               var currX = 0;
-               
-                  for (var i = 0; i < this.text.length; i++) {
-                     var character = this.text[i];
-                     if (this.caseInsensitive) {
-                        character = character.toLowerCase();
-                     }
-                     try {
-                        var charSprite = sprites[character];
-                        if (this.previousOpacity !== this.opacity) {
-                           charSprite.clearEffects();
-                           charSprite.addEffect(new ex.Effects.Opacity(this.opacity));
-                        }
-                        charSprite.draw(ctx, currX, 0);
-                        currX += (charSprite.swidth + this.letterSpacing);
-                     } catch (e) {
-                        Logger.getInstance().error("SpriteFont Error drawing char " + character);
-                     }           
-                  }
-                  if (this.previousOpacity !== this.opacity) {
-                     this.previousOpacity = this.opacity;
-                  }
-               //this.spriteFont.draw(ctx, 0, 0, this.text, color, this.letterSpacing);
-            } else {
-               var oldAlign = ctx.textAlign;
-               var oldTextBaseline = ctx.textBaseline;
-
-               ctx.textAlign = this._lookupTextAlign(this.textAlign);
-               ctx.textBaseline = this._lookupBaseAlign(this.baseAlign);
-               if(this.color){
-                  this.color.a = this.opacity;
-               }
-               ctx.fillStyle = this.color.toString();
-               ctx.font = this.font;
-               if(this.maxWidth){
-                  ctx.fillText(this.text, 0, 0, this.maxWidth);
-               }else{
-                  ctx.fillText(this.text, 0, 0);
-               }
-
-               ctx.textAlign = oldAlign;
-               ctx.textBaseline = oldTextBaseline;
-            }
-         }
-      }
-
-      public debugDraw(ctx: CanvasRenderingContext2D) {
-         super.debugDraw(ctx);
-      }
-
-   }
-
-   /**
-    * Triggers a method of firing arbitrary code on collision. These are useful
-    * as 'buttons', 'switches', or to trigger effects in a game. By defualt triggers
-    * are invisible, and can only be seen with debug mode enabled on the Engine.
-    * @class Trigger
-    * @constructor
-    * @param [x=0] {number} The x position of the trigger
-    * @param [y=0] {number} The y position of the trigger
-    * @param [width=0] {number} The width of the trigger
-    * @param [height=0] {number} The height of the trigger
-    * @param [action=null] {()=>void} Callback to fire when trigger is activated
-    * @param [repeats=1] {number} The number of times that this trigger should fire, by default it is 1, if -1 is supplied it will fire indefinitely
-    */
-   export class Trigger extends Actor {
-      private action : ()=>void = ()=>{};
-      public repeats : number = 1;
-      public target : Actor = null;
-      constructor(x?: number, y?: number, width?: number, height?: number, action?: ()=>void, repeats?: number){
-         super(x, y, width, height);
-         this.repeats = repeats || this.repeats;
-         this.action = action || this.action;
-         this.collisionType = CollisionType.PreventCollision;
-         this.eventDispatcher = new EventDispatcher(this);
-         this.actionQueue = new Internal.Actions.ActionQueue(this);
-      }
-
-      public update(engine: Engine, delta: number){
-         var eventDispatcher = this.eventDispatcher;
-
-         // Update event dispatcher
-         eventDispatcher.update();
-
-         // Update action queue
-         this.actionQueue.update(delta);
-
-         // Update placements based on linear algebra
-         this.x += this.dx * delta / 1000;
-         this.y += this.dy * delta / 1000;
-
-         this.rotation += this.rx * delta / 1000;
-
-         this.scaleX += this.sx * delta / 1000;
-         this.scaleY += this.sy * delta / 1000;
-
-         // check for trigger collisions
-         if(this.target){
-            if(this.collides(this.target)){
-               this.dispatchAction();
-            }
-         }else{
-            for (var i = 0; i < engine.currentScene.children.length; i++) {
-               var other = engine.currentScene.children[i];
-               if(other !== this && 
-                  other.collisionType !== CollisionType.PreventCollision && 
-                  this.collides(other)){
-                  this.dispatchAction();
-               }
-            }
-         }         
-
-         // remove trigger if its done, -1 repeat forever
-         if(this.repeats === 0){
-            this.kill();
-         }
-      }
-
-      private dispatchAction(){
-         this.action.call(this);
-         this.repeats--;
-      }
-
-      public draw(ctx: CanvasRenderingContext2D, delta: number){
-         // does not draw
-         return;
-      }
-
-      public debugDraw(ctx: CanvasRenderingContext2D){
-         super.debugDraw(ctx);
-          // Meant to draw debug information about actors
-         ctx.save();
-         ctx.translate(this.x, this.y);
-
-
-         // Currently collision primitives cannot rotate 
-         // ctx.rotate(this.rotation);
-         ctx.fillStyle = Color.Violet.toString();
-         ctx.strokeStyle = Color.Violet.toString();
-         ctx.fillText('Trigger', 10, 10);
-         ctx.beginPath();
-         ctx.rect(0, 0, this.getWidth(), this.getHeight());
-         ctx.stroke();
-
-         ctx.restore();
       }
    }
 }

@@ -1,7 +1,12 @@
-/// <reference path="Core.ts" />
+/// <reference path="Engine.ts" />
+/// <reference path="SpriteSheet.ts" />
 
 
 module ex {
+
+   export class TileSprite {
+      constructor(public spriteSheetKey: string, public spriteId : number){}
+   }
 
    /**
     * A light-weight object that occupies a space in a collision map. Generally
@@ -53,7 +58,8 @@ module ex {
           * The index of the sprite to use from the CollisionMap SpriteSheet, if -1 is specified nothing is drawn.
           * @property number {number}
           */
-         public spriteId: number = -1){
+         public sprites: TileSprite[] = []){
+
          this._bounds = new BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
       }
     
@@ -65,12 +71,33 @@ module ex {
       public getBounds(){
          return this._bounds;
       }
+
+      public getCenter(): Vector {
+          return new Vector(this.x+ this.width / 2, this.y + this.height / 2);
+      }
+
+      public pushSprite(tileSprite: TileSprite){
+         this.sprites.push(tileSprite);
+      }
+
+      public removeSprite(tileSprite: TileSprite) {
+         var index = -1;
+         if((index = this.sprites.indexOf(tileSprite)) > -1)
+         {
+            this.sprites.splice(index, 1);
+         }
+      }
+
+      public clearSprites() {
+         this.sprites.length = 0;
+      }
    }
 
    /**
     * The CollisionMap object provides a lightweight way to do large complex scenes with collision
     * without the overhead of actors.
     * @class CollisionMap
+    * @constructor
     * @param x {number} The x coordinate to anchor the collision map's upper left corner (should not be changed once set)
     * @param y {number} The y coordinate to anchor the collision map's upper left corner (should not be changed once set)
     * @param cellWidth {number} The individual width of each cell (in pixels) (should not be changed once set)
@@ -79,7 +106,7 @@ module ex {
     * @param cols {number} The number of cols in the collision map (should not be changed once set)
     * @param spriteSheet {SpriteSheet} The spriteSheet to use for drawing
     */
-   export class CollisionMap {
+   export class TileMap {
       private _collidingX: number = -1;
       private _collidingY: number = -1;
 
@@ -87,6 +114,8 @@ module ex {
       private _onScreenXEnd: number = 9999;
       private _onScreenYStart: number = 0;
       private _onScreenYEnd: number = 9999;
+      private _spriteSheets: {[key: string]: SpriteSheet} = {};
+      public logger: Logger = Logger.getInstance();
 
       public data: Cell[] = [];
 
@@ -96,8 +125,7 @@ module ex {
          public cellWidth: number, 
          public cellHeight: number, 
          public rows: number, 
-         public cols: number, 
-         public spriteSheet: SpriteSheet){
+         public cols: number){
          this.data = new Array<Cell>(rows*cols);
          for(var i = 0; i < cols; i++){
             for(var j = 0; j < rows; j++){
@@ -114,6 +142,10 @@ module ex {
          }
       }
       
+      public registerSpriteSheet(key: string, spriteSheet: SpriteSheet){
+         this._spriteSheets[key] = spriteSheet;
+      }
+
       /**
        * Returns the intesection vector that can be used to resolve collisions with actors. If there
        * is no collision null is returned.
@@ -136,8 +168,10 @@ module ex {
                var xover = 0;
                var yover = 0;
                if(cell && cell.solid){
-                  var overlap = actorBounds.collides(cell.getBounds());
-                  if(overlap){
+                   var overlap = actorBounds.collides(cell.getBounds());
+                   var dir = actor.getCenter().minus(cell.getCenter());
+
+                  if(overlap && overlap.dot(dir) > 0){
                      overlaps.push(overlap);                  
                   }
                }
@@ -259,9 +293,9 @@ module ex {
          var worldCoordsLowerRight = engine.screenToWorldCoordinates(new Point(engine.width, engine.height));
          
          this._onScreenXStart = Math.max(Math.floor(worldCoordsUpperLeft.x/this.cellWidth)-2,0);
-         this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y-this.y)/this.cellHeight),0);
-         this._onScreenXEnd = Math.max(Math.floor(worldCoordsLowerRight.x/this.cellWidth),0);
-         this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y-this.y)/this.cellHeight)+1,0);
+         this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y-this.y)/this.cellHeight)-2,0);
+         this._onScreenXEnd = Math.max(Math.floor(worldCoordsLowerRight.x/this.cellWidth)+2,0);
+         this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y-this.y)/this.cellHeight)+2,0);
       }
 
       /**
@@ -276,10 +310,21 @@ module ex {
 
          for(var x = this._onScreenXStart; x < Math.min(this._onScreenXEnd, this.cols); x++){
             for(var y = this._onScreenYStart; y < Math.min(this._onScreenYEnd, this.rows); y++){
-               var spriteId = this.getCell(x,y).spriteId;
-               if(spriteId > -1){
-                  this.spriteSheet.getSprite(spriteId).draw(ctx, x*this.cellWidth, y*this.cellHeight);
-               }
+               this.getCell(x,y).sprites.filter((s)=>{
+                  return s.spriteId > -1;
+               }).forEach((ts)=>{
+                  var ss = this._spriteSheets[ts.spriteSheetKey];
+                  if(ss){
+                     var sprite = ss.getSprite(ts.spriteId);
+                     if(sprite){
+                        sprite.draw(ctx, x * this.cellWidth, y * this.cellHeight);                        
+                     }else{
+                        this.logger.warn("Sprite does not exist for id", ts.spriteId, "in sprite sheet", ts.spriteSheetKey, sprite, ss);
+                     }
+                  }else{
+                     this.logger.warn("Sprite sheet", ts.spriteSheetKey, "does not exist", ss)
+                  }
+               });
             }
          }
          ctx.restore();
@@ -309,7 +354,14 @@ module ex {
             ctx.lineTo(this.x + width, this.y + y*this.cellHeight);
             ctx.stroke()
          }
-
+         var solid = ex.Color.Red.clone();
+         solid.a = .3;
+         this.data.filter(function(cell){
+            return cell.solid;
+         }).forEach(function(cell){
+            ctx.fillStyle = solid.toString();
+            ctx.fillRect(cell.x, cell.y, cell.width, cell.height);
+         });
 
 
          if(this._collidingY > -1 && this._collidingX > -1){

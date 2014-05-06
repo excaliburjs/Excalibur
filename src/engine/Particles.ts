@@ -1,7 +1,7 @@
-/// <reference path="Core.ts" />
+/// <reference path="Engine.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util.ts" />
-/// <reference path="Entities.ts" />
+/// <reference path="Actor.ts" />
 
 
 module ex {

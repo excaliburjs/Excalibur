@@ -1,4 +1,4 @@
-/// <reference path="Core.ts" />
+/// <reference path="Engine.ts" />
 /// <reference path="Algebra.ts" />
 
 module ex {
