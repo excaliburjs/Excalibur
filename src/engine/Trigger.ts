@@ -27,7 +27,10 @@ module ex {
          this.actionQueue = new Internal.Actions.ActionQueue(this);
       }
 
-      public update(engine: Engine, delta: number){
+      public update(engine: Engine, delta: number) {
+         // Recalcuate the anchor point
+         this.calculatedAnchor = new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
+
          var eventDispatcher = this.eventDispatcher;
 
          // Update event dispatcher

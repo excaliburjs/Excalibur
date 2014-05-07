@@ -11,49 +11,7 @@ module ex {
       constructor(public x: number, public y: number) { }
    }
 
-   /**
-    * 
-    */
-   export class Anchor {
-      private _percentageX: number = 0;
-      private _percentageY: number = 0;
-      private _percentagePoint: Point;
-      private _point: Point;
-      public actor: Actor;
-
-      constructor(actor: Actor, percentageX: number, percentageY: number);
-      constructor(actor: Actor, point: Point);
-      constructor(actor: Actor, arg2: any) {
-         this.actor = actor;
-         if (arguments.length === 3 && arg2 instanceof Point) {
-            this.setTo(arg2);
-         } else {
-            this.setTo(arguments[1], arguments[2]);
-         }
-      }
-
-      public setTo(percentageX: number, percentageY: number): void;
-      public setTo(point: Point): void;
-      public setTo(arg1: any): void {
-         if (arguments.length === 2 && typeof arg1 === "number") {
-            this._percentageX = (<number>arg1);
-            this._percentageY = (<number>arguments[1]);
-            this._percentagePoint = new ex.Point(this.actor.getWidth() * this._percentageX, this.actor.getHeight() * this._percentageY);
-         } else if (arg1 instanceof Point) {
-            this._point = arg1;
-         }
-      }
-
-      public getAnchorPoint() {
-         if (this._point) {
-            return this._point;
-         }
-         return this._percentagePoint;
-
-      }
-
-   }
-
+   
    /**
     * An enum that describes the sides of an Actor for collision
     * @class Side
@@ -171,9 +129,15 @@ module ex {
        * The anchor to apply all actor related transformations like rotation,
        * translation, and rotation. By default the anchor is in the center of
        * the actor.
-       * @property anchor {Anchor}
+       * @property anchor {Point}
        */
-      public anchor: Anchor;
+      public anchor: Point;
+
+      /**
+       * Gets the calculated anchor point, should not be set.
+       * @property calculatedAnchor {Point}
+       */
+      public calculatedAnchor: Point = new Point(0,0);
 
       private height: number = 0;
       private width: number = 0;
@@ -317,7 +281,7 @@ module ex {
          this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
          this.sceneNode = new Scene();
          this.sceneNode.actor = this;
-         this.anchor = new Anchor(this, .5, .5);
+         this.anchor = new Point(.5, .5);
       }
 
       /**
@@ -434,7 +398,7 @@ module ex {
        * @returns Vector
        */
       public getCenter(): Vector {
-         var anchor = this.anchor.getAnchorPoint();
+         var anchor = this.calculatedAnchor;
          return new Vector(this.x + this.getWidth() / 2 - anchor.x, this.y + this.getHeight() / 2 - anchor.y);
       }
 
@@ -562,7 +526,7 @@ module ex {
        * @returns BoundingBox
        */
       public getBounds() {
-         var anchor = this.anchor.getAnchorPoint();
+         var anchor = this.calculatedAnchor;
          return new BoundingBox(this.getGlobalX()-anchor.x, this.getGlobalY() - anchor.y, this.getGlobalX() + this.getWidth() - anchor.x, this.getGlobalY() + this.getHeight() - anchor.y);
       }
 
@@ -917,6 +881,9 @@ module ex {
             this._isInitialized = true;
          }
 
+         // Recalcuate the anchor point
+         this.calculatedAnchor = new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
+
          this.sceneNode.update(engine, delta);
          var eventDispatcher = this.eventDispatcher;
 
@@ -1070,7 +1037,7 @@ module ex {
             }
          });
 
-         var anchor = this.anchor.getAnchorPoint();
+         var anchor = this.calculatedAnchor;
          var actorScreenCoords = engine.worldToScreenCoordinates(new Point(this.getGlobalX()-anchor.x, this.getGlobalY()-anchor.y));
          var zoom = 1.0;
          if(engine.camera){
@@ -1111,7 +1078,7 @@ module ex {
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
          if (this.isOffScreen){return;}
 
-         var anchorPoint = this.anchor.getAnchorPoint();
+         var anchorPoint = this.calculatedAnchor;
 
          ctx.save();
          ctx.translate(this.x, this.y);
@@ -1158,7 +1125,7 @@ module ex {
        * @param ctx {CanvasRenderingContext2D} The rendering context
        */
       public debugDraw(ctx: CanvasRenderingContext2D) {
-         var anchorPoint = this.anchor.getAnchorPoint();
+         var anchorPoint = this.calculatedAnchor;
          // Meant to draw debug information about actors
          
          ctx.save();
