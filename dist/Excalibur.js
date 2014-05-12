@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-05-06
+/*! excalibur - v0.2.5 - 2014-05-11
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -3202,6 +3202,10 @@ var ex;
             this.width = width || 0;
             this.height = height || 0;
             this.color = color;
+            if (color) {
+                // set default opacticy of an actor to the color
+                this.opacity = color.a || 1;
+            }
             this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
             this.sceneNode = new ex.Scene();
             this.sceneNode.actor = this;

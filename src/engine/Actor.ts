@@ -278,6 +278,10 @@ module ex {
          this.width = width || 0;
          this.height = height || 0;
          this.color = color;
+         if(color){
+            // set default opacticy of an actor to the color
+            this.opacity = color.a || 1;   
+         }         
          this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
          this.sceneNode = new Scene();
          this.sceneNode.actor = this;
