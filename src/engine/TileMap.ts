@@ -162,11 +162,9 @@ module ex {
 
          var overlaps: Vector[] = [];
          // trace points for overlap
-         for(var x = actor.x; x <= width; x += Math.min(actor.getWidth()/2,this.cellWidth/2)){
-            for(var y = actor.y; y <= height; y += Math.min(actor.getHeight()/2, this.cellHeight/2)){
+         for (var x = actorBounds.left; x <= width; x += Math.min(actor.getWidth()/2,this.cellWidth/2)){
+            for (var y = actorBounds.top; y <= height; y += Math.min(actor.getHeight()/2, this.cellHeight/2)){
                var cell = this.getCellByPoint(x, y);
-               var xover = 0;
-               var yover = 0;
                if(cell && cell.solid){
                    var overlap = actorBounds.collides(cell.getBounds());
                    var dir = actor.getCenter().minus(cell.getCenter());

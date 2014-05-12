@@ -27,7 +27,10 @@ module ex {
          this.actionQueue = new Internal.Actions.ActionQueue(this);
       }
 
-      public update(engine: Engine, delta: number){
+      public update(engine: Engine, delta: number) {
+         // Recalcuate the anchor point
+         this.calculatedAnchor = new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
+
          var eventDispatcher = this.eventDispatcher;
 
          // Update event dispatcher
@@ -83,15 +86,18 @@ module ex {
          ctx.save();
          ctx.translate(this.x, this.y);
 
+         var bb = this.getBounds();
+         bb.left = bb.left - this.getGlobalX();
+         bb.right = bb.right - this.getGlobalX();
+         bb.top = bb.top - this.getGlobalY();
+         bb.bottom = bb.bottom - this.getGlobalY();
 
          // Currently collision primitives cannot rotate 
          // ctx.rotate(this.rotation);
          ctx.fillStyle = Color.Violet.toString();
          ctx.strokeStyle = Color.Violet.toString();
          ctx.fillText('Trigger', 10, 10);
-         ctx.beginPath();
-         ctx.rect(0, 0, this.getWidth(), this.getHeight());
-         ctx.stroke();
+         bb.debugDraw(ctx);
 
          ctx.restore();
       }

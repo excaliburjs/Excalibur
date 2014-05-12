@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-05-03
+/*! excalibur - v0.2.5 - 2014-05-11
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -1302,11 +1302,9 @@ var ex;
 
             var overlaps = [];
 
-            for (var x = actor.x; x <= width; x += Math.min(actor.getWidth() / 2, this.cellWidth / 2)) {
-                for (var y = actor.y; y <= height; y += Math.min(actor.getHeight() / 2, this.cellHeight / 2)) {
+            for (var x = actorBounds.left; x <= width; x += Math.min(actor.getWidth() / 2, this.cellWidth / 2)) {
+                for (var y = actorBounds.top; y <= height; y += Math.min(actor.getHeight() / 2, this.cellHeight / 2)) {
                     var cell = this.getCellByPoint(x, y);
-                    var xover = 0;
-                    var yover = 0;
                     if (cell && cell.solid) {
                         var overlap = actorBounds.collides(cell.getBounds());
                         var dir = actor.getCenter().minus(cell.getCenter());
@@ -1609,7 +1607,6 @@ var ex;
         };
 
         BoundingBox.prototype.debugDraw = function (ctx) {
-            ctx.strokeStyle = ex.Color.Yellow.toString();
             ctx.lineWidth = 2;
             ctx.strokeRect(this.left, this.top, this.getWidth(), this.getHeight());
         };
@@ -2073,7 +2070,11 @@ var ex;
             var actor;
             for (var i = 0, len = this.children.length; i < len; i++) {
                 actor = this.children[i];
-                this.children[i].draw(ctx, delta);
+
+                // only draw actors that are visible
+                if (actor.visible) {
+                    this.children[i].draw(ctx, delta);
+                }
             }
         };
 
@@ -2092,10 +2093,36 @@ var ex;
             });
         };
 
+        Scene.prototype.add = function (entity) {
+            if (entity instanceof ex.Actor) {
+                this.addChild(entity);
+            }
+            if (entity instanceof ex.Timer) {
+                this.addTimer(entity);
+            }
+
+            if (entity instanceof ex.TileMap) {
+                this.addTileMap(entity);
+            }
+        };
+
+        Scene.prototype.remove = function (entity) {
+            if (entity instanceof ex.Actor) {
+                this.removeChild(entity);
+            }
+            if (entity instanceof ex.Timer) {
+                this.removeTimer(entity);
+            }
+
+            if (entity instanceof ex.TileMap) {
+                this.removeTileMap(entity);
+            }
+        };
+
         /**
         * Adds an actor to the Scene, once this is done the actor will be drawn and updated.
         * @method addChild
-        * @param actor {Actor} The actor to add
+        * @param actor {Actor}
         */
         Scene.prototype.addChild = function (actor) {
             actor.scene = this;
@@ -2103,10 +2130,20 @@ var ex;
             actor.parent = this.actor;
         };
 
+        /**
+        * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+        * @method addTileMap
+        * @param tileMap {TileMap}
+        */
         Scene.prototype.addTileMap = function (tileMap) {
             this.tileMaps.push(tileMap);
         };
 
+        /**
+        * Removes a TileMap from the Scene, it willno longer be drawn or updated.
+        * @method removeTileMap
+        * @param tileMap {TileMap}
+        */
         Scene.prototype.removeTileMap = function (tileMap) {
             var index = this.tileMaps.indexOf(tileMap);
             if (index > -1) {
@@ -2632,57 +2669,54 @@ var ex;
             Actions.Delay = Delay;
 
             var Blink = (function () {
-                function Blink(actor, frequency, duration, blinkTime) {
-                    this._started = false;
-                    this.nextBlink = 0;
+                function Blink(actor, timeVisible, timeNotVisible, numBlinks) {
+                    if (typeof numBlinks === "undefined") { numBlinks = 1; }
+                    this.timeVisible = 0;
+                    this.timeNotVisible = 0;
                     this.elapsedTime = 0;
-                    this.isBlinking = false;
+                    this.totalTime = 0;
                     this._stopped = false;
+                    this._started = false;
                     this.actor = actor;
-                    this.frequency = frequency;
-                    this.duration = duration;
-                    this.numBlinks = Math.floor(frequency * duration / 1000);
-                    this.blinkTime = blinkTime || 200;
+                    this.timeVisible = timeVisible;
+                    this.timeNotVisible = timeNotVisible;
+                    this.duration = (timeVisible + timeNotVisible) * numBlinks;
                 }
                 Blink.prototype.update = function (delta) {
                     if (!this._started) {
                         this._started = true;
-                        this.nextBlink += this.duration / this.numBlinks / 2;
                     }
-                    this.x = this.actor.x;
-                    this.y = this.actor.y;
 
                     this.elapsedTime += delta;
-                    if ((this.elapsedTime + this.blinkTime / 2) > this.nextBlink && this.nextBlink > (this.elapsedTime - this.blinkTime / 2)) {
-                        this.isBlinking = true;
-                        this.actor.invisible = true;
-                    } else {
-                        if (this.isBlinking) {
-                            this.isBlinking = false;
-                            this.nextBlink += this.duration / this.numBlinks;
-                        }
-                        this.actor.invisible = false;
+                    this.totalTime += delta;
+                    if (this.actor.visible && this.elapsedTime >= this.timeVisible) {
+                        this.actor.visible = false;
+                        this.elapsedTime = 0;
+                    }
+
+                    if (!this.actor.visible && this.elapsedTime >= this.timeNotVisible) {
+                        this.actor.visible = true;
+                        this.elapsedTime = 0;
                     }
 
                     if (this.isComplete(this.actor)) {
-                        this.actor.invisible = false;
+                        this.actor.visible = true;
                     }
                 };
 
                 Blink.prototype.isComplete = function (actor) {
-                    return this._stopped || (this.elapsedTime >= this.duration);
+                    return this._stopped || (this.totalTime >= this.duration);
                 };
 
                 Blink.prototype.stop = function () {
-                    this.actor.invisible = false;
+                    this.actor.visible = true;
                     this._stopped = true;
                 };
 
                 Blink.prototype.reset = function () {
                     this._started = false;
-                    this.nextBlink = 0;
                     this.elapsedTime = 0;
-                    this.isBlinking = false;
+                    this.totalTime = 0;
                 };
                 return Blink;
             })();
@@ -3055,6 +3089,11 @@ var ex;
             * @property y {number}
             */
             this.y = 0;
+            /**
+            * Gets the calculated anchor point, should not be set.
+            * @property calculatedAnchor {Point}
+            */
+            this.calculatedAnchor = new ex.Point(0, 0);
             this.height = 0;
             this.width = 0;
             /**
@@ -3114,9 +3153,9 @@ var ex;
             this.isOffScreen = false;
             /**
             * The visibility of an actor
-            * @property invisible {boolean}
+            * @property visible {boolean}
             */
-            this.invisible = false;
+            this.visible = true;
             /**
             * The opacity of an actor
             * @property opacity {number}
@@ -3163,9 +3202,14 @@ var ex;
             this.width = width || 0;
             this.height = height || 0;
             this.color = color;
+            if (color) {
+                // set default opacticy of an actor to the color
+                this.opacity = color.a || 1;
+            }
             this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
             this.sceneNode = new ex.Scene();
             this.sceneNode.actor = this;
+            this.anchor = new ex.Point(.5, .5);
         }
         /**
         * This is called before the first update of the actor. This method is meant to be
@@ -3281,7 +3325,8 @@ var ex;
         * @returns Vector
         */
         Actor.prototype.getCenter = function () {
-            return new ex.Vector(this.x + this.getWidth() / 2, this.y + this.getHeight() / 2);
+            var anchor = this.calculatedAnchor;
+            return new ex.Vector(this.x + this.getWidth() / 2 - anchor.x, this.y + this.getHeight() / 2 - anchor.y);
         };
 
         /**
@@ -3408,7 +3453,8 @@ var ex;
         * @returns BoundingBox
         */
         Actor.prototype.getBounds = function () {
-            return new ex.BoundingBox(this.getGlobalX(), this.getGlobalY(), this.getGlobalX() + this.getWidth(), this.getGlobalY() + this.getHeight());
+            var anchor = this.calculatedAnchor;
+            return new ex.BoundingBox(this.getGlobalX() - anchor.x, this.getGlobalY() - anchor.y, this.getGlobalX() + this.getWidth() - anchor.x, this.getGlobalY() + this.getHeight() - anchor.y);
         };
 
         /**
@@ -3617,20 +3663,19 @@ var ex;
         };
 
         /**
-        * This method will cause an actor to blink (become visible and and
-        * invisible) at a frequency (blinks per second) for a duration (in
-        * milliseconds). Optionally, you may specify blinkTime, which indicates
-        * the amount of time the actor is invisible during each blink.<br/>
-        * To have the actor blink 3 times in 1 second, call actor.blink(3, 1000).<br/>
+        * This method will cause an actor to blink (become visible and not
+        * visible). Optionally, you may specify the number of blinks. Specify the amount of time
+        * the actor should be visible per blink, and the amount of time not visible.
         * This method is part of the actor 'Action' fluent API allowing action chaining.
         * @method blink
-        * @param frequency {number} The blinks per second
-        * @param duration {number} The total duration of the blinking specified in milliseconds
-        * @param [blinkTime=200] {number} The amount of time each blink that the actor is visible in milliseconds
+        * @param timeVisible {number} The amount of time to stay visible per blink in milliseconds
+        * @param timeNotVisible {number} The amount of time to stay not visible per blink in milliseconds
+        * @param [numBlinks] {number} The number of times to blink
         * @returns Actor
         */
-        Actor.prototype.blink = function (frequency, duration, blinkTime) {
-            this.actionQueue.add(new ex.Internal.Actions.Blink(this, frequency, duration, blinkTime));
+        Actor.prototype.blink = function (timeVisible, timeNotVisible, numBlinks) {
+            if (typeof numBlinks === "undefined") { numBlinks = 1; }
+            this.actionQueue.add(new ex.Internal.Actions.Blink(this, timeVisible, timeNotVisible, numBlinks));
             return this;
         };
 
@@ -3762,6 +3807,9 @@ var ex;
                 this.eventDispatcher.publish('initialize', new ex.InitializeEvent(engine));
                 this._isInitialized = true;
             }
+
+            // Recalcuate the anchor point
+            this.calculatedAnchor = new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
 
             this.sceneNode.update(engine, delta);
             var eventDispatcher = this.eventDispatcher;
@@ -3915,7 +3963,8 @@ var ex;
                 }
             });
 
-            var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Point(this.getGlobalX(), this.getGlobalY()));
+            var anchor = this.calculatedAnchor;
+            var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Point(this.getGlobalX() - anchor.x, this.getGlobalY() - anchor.y));
             var zoom = 1.0;
             if (engine.camera) {
                 zoom = engine.camera.getZoom();
@@ -3943,15 +3992,18 @@ var ex;
         * @param delta {number} The time since the last draw in milliseconds
         */
         Actor.prototype.draw = function (ctx, delta) {
-            // only draw if onscreen
-            if (this.isOffScreen)
+            if (this.isOffScreen) {
                 return;
+            }
+
+            var anchorPoint = this.calculatedAnchor;
 
             ctx.save();
             ctx.translate(this.x, this.y);
             ctx.rotate(this.rotation);
             ctx.scale(this.scaleX, this.scaleY);
 
+            // calculate changing opacity
             if (this.previousOpacity != this.opacity) {
                 for (var drawing in this.frames) {
                     this.frames[drawing].addEffect(new ex.Effects.Opacity(this.opacity));
@@ -3960,27 +4012,23 @@ var ex;
                 this.previousOpacity = this.opacity;
             }
 
-            if (!this.invisible) {
-                if (this.currentDrawing) {
-                    var xDiff = 0;
-                    var yDiff = 0;
-                    if (this.centerDrawingX) {
-                        xDiff = (this.currentDrawing.width * this.currentDrawing.getScaleX() - this.width) / 2;
-                    }
-
-                    if (this.centerDrawingY) {
-                        yDiff = (this.currentDrawing.height * this.currentDrawing.getScaleY() - this.height) / 2;
-                    }
-
-                    //var xDiff = (this.currentDrawing.width*this.currentDrawing.getScale() - this.width)/2;
-                    //var yDiff = (this.currentDrawing.height*this.currentDrawing.getScale() - this.height)/2;
-                    this.currentDrawing.draw(ctx, -xDiff, -yDiff);
-                } else {
-                    if (this.color)
-                        this.color.a = this.opacity;
-                    ctx.fillStyle = this.color ? this.color.toString() : (new ex.Color(0, 0, 0)).toString();
-                    ctx.fillRect(0, 0, this.width, this.height);
+            if (this.currentDrawing) {
+                var xDiff = 0;
+                var yDiff = 0;
+                if (this.centerDrawingX) {
+                    xDiff = (this.currentDrawing.width * this.currentDrawing.getScaleX() - this.getWidth()) / 2;
                 }
+
+                if (this.centerDrawingY) {
+                    yDiff = (this.currentDrawing.height * this.currentDrawing.getScaleY() - this.getHeight()) / 2;
+                }
+
+                this.currentDrawing.draw(ctx, -xDiff - anchorPoint.x, -yDiff - anchorPoint.y);
+            } else {
+                if (this.color)
+                    this.color.a = this.opacity;
+                ctx.fillStyle = this.color ? this.color.toString() : (new ex.Color(0, 0, 0)).toString();
+                ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this.width, this.height);
             }
 
             this.sceneNode.draw(ctx, delta);
@@ -3994,9 +4042,29 @@ var ex;
         * @param ctx {CanvasRenderingContext2D} The rendering context
         */
         Actor.prototype.debugDraw = function (ctx) {
+            var anchorPoint = this.calculatedAnchor;
+
             // Meant to draw debug information about actors
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.rotation);
+            ctx.scale(this.scaleX, this.scaleY);
+
             this.sceneNode.debugDraw(ctx);
-            this.getBounds().debugDraw(ctx);
+            var bb = this.getBounds();
+            bb.left = bb.left - this.getGlobalX();
+            bb.right = bb.right - this.getGlobalX();
+            bb.top = bb.top - this.getGlobalY();
+            bb.bottom = bb.bottom - this.getGlobalY();
+            bb.debugDraw(ctx);
+
+            ctx.fillStyle = ex.Color.Yellow.toString();
+            ctx.beginPath();
+            ctx.arc(0, 0, 3, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
         };
         return Actor;
     })(ex.Class);
@@ -5066,6 +5134,9 @@ var ex;
             this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
         }
         Trigger.prototype.update = function (engine, delta) {
+            // Recalcuate the anchor point
+            this.calculatedAnchor = new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
+
             var eventDispatcher = this.eventDispatcher;
 
             // Update event dispatcher
@@ -5120,14 +5191,18 @@ var ex;
             ctx.save();
             ctx.translate(this.x, this.y);
 
+            var bb = this.getBounds();
+            bb.left = bb.left - this.getGlobalX();
+            bb.right = bb.right - this.getGlobalX();
+            bb.top = bb.top - this.getGlobalY();
+            bb.bottom = bb.bottom - this.getGlobalY();
+
             // Currently collision primitives cannot rotate
             // ctx.rotate(this.rotation);
             ctx.fillStyle = ex.Color.Violet.toString();
             ctx.strokeStyle = ex.Color.Violet.toString();
             ctx.fillText('Trigger', 10, 10);
-            ctx.beginPath();
-            ctx.rect(0, 0, this.getWidth(), this.getHeight());
-            ctx.stroke();
+            bb.debugDraw(ctx);
 
             ctx.restore();
         };
@@ -5272,6 +5347,7 @@ var ex;
         __extends(ParticleEmitter, _super);
         function ParticleEmitter(x, y, width, height) {
             _super.call(this, x, y, width, height, ex.Color.White);
+            this._particlesToEmit = 0;
             this.numParticles = 0;
             /**
             * Gets or sets the isEmitting flag
@@ -5447,8 +5523,12 @@ var ex;
             var _this = this;
             _super.prototype.update.call(this, engine, delta);
             if (this.isEmitting) {
+                this._particlesToEmit += this.emitRate * (delta / 1000);
                 var numParticles = Math.ceil(this.emitRate * delta / 1000);
-                this.emit(numParticles);
+                if (this._particlesToEmit > 1.0) {
+                    this.emit(Math.floor(this._particlesToEmit));
+                    this._particlesToEmit = this._particlesToEmit - Math.floor(this._particlesToEmit);
+                }
             }
 
             this.particles.forEach(function (particle, index) {
@@ -5665,7 +5745,7 @@ var ex;
             this.engine = engine;
         }
         /**
-        * Sets the {{#crossLink Actor}}{{//crossLink}} to follow with the camera
+        * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
         * @method setActorToFollow
         * @param actor {Actor} The actor to follow
         */
@@ -7086,51 +7166,49 @@ var ex;
         };
 
         Label.prototype._fontDraw = function (ctx, delta, sprites) {
-            if (!this.invisible) {
-                if (this.spriteFont) {
-                    var currX = 0;
+            if (this.spriteFont) {
+                var currX = 0;
 
-                    for (var i = 0; i < this.text.length; i++) {
-                        var character = this.text[i];
-                        if (this.caseInsensitive) {
-                            character = character.toLowerCase();
+                for (var i = 0; i < this.text.length; i++) {
+                    var character = this.text[i];
+                    if (this.caseInsensitive) {
+                        character = character.toLowerCase();
+                    }
+                    try  {
+                        var charSprite = sprites[character];
+                        if (this.previousOpacity !== this.opacity) {
+                            charSprite.clearEffects();
+                            charSprite.addEffect(new ex.Effects.Opacity(this.opacity));
                         }
-                        try  {
-                            var charSprite = sprites[character];
-                            if (this.previousOpacity !== this.opacity) {
-                                charSprite.clearEffects();
-                                charSprite.addEffect(new ex.Effects.Opacity(this.opacity));
-                            }
-                            charSprite.draw(ctx, currX, 0);
-                            currX += (charSprite.swidth + this.letterSpacing);
-                        } catch (e) {
-                            ex.Logger.getInstance().error("SpriteFont Error drawing char " + character);
-                        }
+                        charSprite.draw(ctx, currX, 0);
+                        currX += (charSprite.swidth + this.letterSpacing);
+                    } catch (e) {
+                        ex.Logger.getInstance().error("SpriteFont Error drawing char " + character);
                     }
-                    if (this.previousOpacity !== this.opacity) {
-                        this.previousOpacity = this.opacity;
-                    }
-                    //this.spriteFont.draw(ctx, 0, 0, this.text, color, this.letterSpacing);
-                } else {
-                    var oldAlign = ctx.textAlign;
-                    var oldTextBaseline = ctx.textBaseline;
-
-                    ctx.textAlign = this._lookupTextAlign(this.textAlign);
-                    ctx.textBaseline = this._lookupBaseAlign(this.baseAlign);
-                    if (this.color) {
-                        this.color.a = this.opacity;
-                    }
-                    ctx.fillStyle = this.color.toString();
-                    ctx.font = this.font;
-                    if (this.maxWidth) {
-                        ctx.fillText(this.text, 0, 0, this.maxWidth);
-                    } else {
-                        ctx.fillText(this.text, 0, 0);
-                    }
-
-                    ctx.textAlign = oldAlign;
-                    ctx.textBaseline = oldTextBaseline;
                 }
+                if (this.previousOpacity !== this.opacity) {
+                    this.previousOpacity = this.opacity;
+                }
+                //this.spriteFont.draw(ctx, 0, 0, this.text, color, this.letterSpacing);
+            } else {
+                var oldAlign = ctx.textAlign;
+                var oldTextBaseline = ctx.textBaseline;
+
+                ctx.textAlign = this._lookupTextAlign(this.textAlign);
+                ctx.textBaseline = this._lookupBaseAlign(this.baseAlign);
+                if (this.color) {
+                    this.color.a = this.opacity;
+                }
+                ctx.fillStyle = this.color.toString();
+                ctx.font = this.font;
+                if (this.maxWidth) {
+                    ctx.fillText(this.text, 0, 0, this.maxWidth);
+                } else {
+                    ctx.fillText(this.text, 0, 0);
+                }
+
+                ctx.textAlign = oldAlign;
+                ctx.textBaseline = oldTextBaseline;
             }
         };
 
@@ -7530,10 +7608,20 @@ var ex;
             this.currentScene.removeChild(actor);
         };
 
+        /**
+        * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+        * @method addTileMap
+        * @param tileMap {TileMap}
+        */
         Engine.prototype.addTileMap = function (tileMap) {
             this.currentScene.addTileMap(tileMap);
         };
 
+        /**
+        * Removes a TileMap from the Scene, it willno longer be drawn or updated.
+        * @method removeTileMap
+        * @param tileMap {TileMap}
+        */
         Engine.prototype.removeTileMap = function (tileMap) {
             this.currentScene.removeTileMap(tileMap);
         };
@@ -7569,6 +7657,61 @@ var ex;
             }
             this.sceneHash[name] = scene;
             scene.engine = this;
+        };
+
+        Engine.prototype.removeScene = function (entity) {
+            if (entity instanceof ex.Scene) {
+                for (var key in this.sceneHash) {
+                    if (this.sceneHash.hasOwnProperty(key)) {
+                        if (this.sceneHash[key] === entity) {
+                            delete this.sceneHash[key];
+                        }
+                    }
+                }
+            }
+
+            if (typeof entity === "string") {
+                // remove scene
+                delete this.sceneHash[entity];
+            }
+        };
+
+        Engine.prototype.add = function (entity) {
+            if (entity instanceof ex.Actor) {
+                this.addChild(entity);
+            }
+            if (entity instanceof ex.Timer) {
+                this.addTimer(entity);
+            }
+
+            if (entity instanceof ex.TileMap) {
+                this.addTileMap(entity);
+            }
+
+            if (arguments.length === 2) {
+                this.addScene(arguments[0], arguments[1]);
+            }
+        };
+
+        Engine.prototype.remove = function (entity) {
+            if (entity instanceof ex.Actor) {
+                this.removeChild(entity);
+            }
+            if (entity instanceof ex.Timer) {
+                this.removeTimer(entity);
+            }
+
+            if (entity instanceof ex.TileMap) {
+                this.removeTileMap(entity);
+            }
+
+            if (entity instanceof ex.Scene) {
+                this.removeScene(entity);
+            }
+
+            if (typeof entity === "string") {
+                this.removeScene(entity);
+            }
         };
 
         /**

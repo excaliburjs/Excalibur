@@ -1123,12 +1123,58 @@ declare module ex {
         */
         public debugDraw(ctx: CanvasRenderingContext2D): void;
         /**
+        * Adds an excalibur Timer to the current scene.
+        * @param timer {Timer} The timer to add to the current scene.
+        * @method add
+        */
+        public add(timer: Timer): void;
+        /**
+        * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+        * @method add
+        * @param tileMap {TileMap}
+        */
+        public add(tileMap: TileMap): void;
+        /**
+        * Adds an actor to the Scene, once this is done the Actor will be drawn and updated.
+        * @method add
+        * @param actor {Actor} The actor to add to the current scene
+        */
+        public add(actor: Actor): void;
+        /**
+        * Removes an excalibur Timer from the current scene.
+        * @method remove
+        * @param timer {Timer} The timer to remove to the current scene.
+        */
+        public remove(timer: Timer): void;
+        /**
+        * Removes a TileMap from the Scene, it will no longer be drawn or updated.
+        * @method remove
+        * @param tileMap {TileMap}
+        */
+        public remove(tileMap: TileMap): void;
+        /**
+        * Removes an actor from the Scene, it will no longer be drawn or updated.
+        * @method remove
+        * @param actor {Actor} The actor to remove from the current scene.
+        */
+        public remove(actor: Actor): void;
+        /**
         * Adds an actor to the Scene, once this is done the actor will be drawn and updated.
         * @method addChild
-        * @param actor {Actor} The actor to add
+        * @param actor {Actor}
         */
         public addChild(actor: Actor): void;
+        /**
+        * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+        * @method addTileMap
+        * @param tileMap {TileMap}
+        */
         public addTileMap(tileMap: TileMap): void;
+        /**
+        * Removes a TileMap from the Scene, it willno longer be drawn or updated.
+        * @method removeTileMap
+        * @param tileMap {TileMap}
+        */
         public removeTileMap(tileMap: TileMap): void;
         /**
         * Removes an actor from the Scene, it will no longer be drawn or updated.
@@ -1169,8 +1215,6 @@ declare module ex {
 }
 declare module ex.Internal.Actions {
     interface IAction {
-        x: number;
-        y: number;
         update(delta: number): void;
         isComplete(actor: Actor): boolean;
         reset(): void;
@@ -1338,19 +1382,15 @@ declare module ex.Internal.Actions {
         public reset(): void;
     }
     class Blink implements IAction {
-        public x: number;
-        public y: number;
-        private frequency;
-        private duration;
-        private actor;
-        private numBlinks;
-        private blinkTime;
-        private _started;
-        private nextBlink;
+        private timeVisible;
+        private timeNotVisible;
         private elapsedTime;
-        private isBlinking;
+        private totalTime;
+        private actor;
+        private duration;
         private _stopped;
-        constructor(actor: Actor, frequency: number, duration: number, blinkTime?: number);
+        private _started;
+        constructor(actor: Actor, timeVisible: number, timeNotVisible: number, numBlinks?: number);
         public update(delta: any): void;
         public isComplete(actor: Actor): boolean;
         public stop(): void;
@@ -1550,6 +1590,18 @@ declare module ex {
         * @property y {number}
         */
         public y: number;
+        /**
+        * The anchor to apply all actor related transformations like rotation,
+        * translation, and rotation. By default the anchor is in the center of
+        * the actor.
+        * @property anchor {Point}
+        */
+        public anchor: Point;
+        /**
+        * Gets the calculated anchor point, should not be set.
+        * @property calculatedAnchor {Point}
+        */
+        public calculatedAnchor: Point;
         private height;
         private width;
         /**
@@ -1609,9 +1661,9 @@ declare module ex {
         public isOffScreen: boolean;
         /**
         * The visibility of an actor
-        * @property invisible {boolean}
+        * @property visible {boolean}
         */
-        public invisible: boolean;
+        public visible: boolean;
         /**
         * The opacity of an actor
         * @property opacity {number}
@@ -1928,19 +1980,17 @@ declare module ex {
         */
         public scaleBy(sizeX: number, sizeY: number, time: number): Actor;
         /**
-        * This method will cause an actor to blink (become visible and and
-        * invisible) at a frequency (blinks per second) for a duration (in
-        * milliseconds). Optionally, you may specify blinkTime, which indicates
-        * the amount of time the actor is invisible during each blink.<br/>
-        * To have the actor blink 3 times in 1 second, call actor.blink(3, 1000).<br/>
+        * This method will cause an actor to blink (become visible and not
+        * visible). Optionally, you may specify the number of blinks. Specify the amount of time
+        * the actor should be visible per blink, and the amount of time not visible.
         * This method is part of the actor 'Action' fluent API allowing action chaining.
         * @method blink
-        * @param frequency {number} The blinks per second
-        * @param duration {number} The total duration of the blinking specified in milliseconds
-        * @param [blinkTime=200] {number} The amount of time each blink that the actor is visible in milliseconds
+        * @param timeVisible {number} The amount of time to stay visible per blink in milliseconds
+        * @param timeNotVisible {number} The amount of time to stay not visible per blink in milliseconds
+        * @param [numBlinks] {number} The number of times to blink
         * @returns Actor
         */
-        public blink(frequency: number, duration: number, blinkTime?: number): Actor;
+        public blink(timeVisible: number, timeNotVisible: number, numBlinks?: number): Actor;
         /**
         * This method will cause an actor's opacity to change from its current value
         * to the provided value by a specified time (in milliseconds). This method is
@@ -2937,6 +2987,7 @@ declare module ex {
     * @param [height=0] {number} The height of the emitter
     */
     class ParticleEmitter extends Actor {
+        private _particlesToEmit;
         public numParticles: number;
         /**
         * Gets or sets the isEmitting flag
@@ -3152,7 +3203,7 @@ declare module ex {
         private zoomIncrement;
         constructor(engine: Engine);
         /**
-        * Sets the {{#crossLink Actor}}{{//crossLink}} to follow with the camera
+        * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
         * @method setActorToFollow
         * @param actor {Actor} The actor to follow
         */
@@ -4138,7 +4189,17 @@ declare module ex {
         * @param actor {Actor} The actor to remove from the current scene.
         */
         public removeChild(actor: Actor): void;
+        /**
+        * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+        * @method addTileMap
+        * @param tileMap {TileMap}
+        */
         public addTileMap(tileMap: TileMap): void;
+        /**
+        * Removes a TileMap from the Scene, it willno longer be drawn or updated.
+        * @method removeTileMap
+        * @param tileMap {TileMap}
+        */
         public removeTileMap(tileMap: TileMap): void;
         /**
         * Adds an excalibur timer to the current scene.
@@ -4160,6 +4221,81 @@ declare module ex {
         * @param scene {Scene} The scene to add to the engine
         */
         public addScene(name: string, scene: Scene): void;
+        /**
+        * Removes a scene from the engine
+        * @method removeScene
+        * @param scene {Scene} The scene to remove
+        */
+        public removeScene(scene: Scene): void;
+        /**
+        * Removes a scene from the engine
+        * @method removeScene
+        * @param sceneName {string} The scene to remove
+        */
+        public removeScene(sceneName: string): void;
+        /**
+        * Adds a scene to the engine, think of scenes in excalibur as you
+        * would scenes in a play.
+        * @method add
+        * @param name {string} The name of the scene, must be unique
+        * @param scene {Scene} The scene to add to the engine
+        */
+        public add(sceneName: string, scene: Scene): void;
+        /**
+        * Adds an excalibur timer to the current scene.
+        * @param timer {Timer} The timer to add to the current scene.
+        * @method add
+        */
+        public add(timer: Timer): void;
+        /**
+        * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+        * @method add
+        * @param tileMap {TileMap}
+        */
+        public add(tileMap: TileMap): void;
+        /**
+        * Adds an actor to the current scene of the game. This is synonymous
+        * to calling engine.currentScene.addChild(actor : Actor).
+        *
+        * Actors can only be drawn if they are a member of a scene, and only
+        * the 'currentScene' may be drawn or updated.
+        * @method add
+        * @param actor {Actor} The actor to add to the current scene
+        */
+        public add(actor: Actor): void;
+        /**
+        * Removes a scene from the engine
+        * @method removeScene
+        * @param scene {Scene} The scene to remove
+        */
+        public remove(scene: Scene): void;
+        /**
+        * Removes a scene from the engine
+        * @method removeScene
+        * @param sceneName {string} The scene to remove
+        */
+        public remove(sceneName: string): void;
+        /**
+        * Removes an excalibur timer from the current scene.
+        * @method remove
+        * @param timer {Timer} The timer to remove to the current scene.
+        */
+        public remove(timer: Timer): void;
+        /**
+        * Removes a TileMap from the Scene, it willno longer be drawn or updated.
+        * @method remove
+        * @param tileMap {TileMap}
+        */
+        public remove(tileMap: TileMap): void;
+        /**
+        * Removes an actor from the currentScene of the game. This is synonymous
+        * to calling engine.currentScene.removeChild(actor : Actor).
+        * Actors that are removed from a scene will no longer be drawn or updated.
+        *
+        * @method remove
+        * @param actor {Actor} The actor to remove from the current scene.
+        */
+        public remove(actor: Actor): void;
         /**
         * Changes the currently updating and drawing scene to a different,
         * named scene.

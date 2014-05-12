@@ -122,7 +122,6 @@ module ex {
       }
 
       public debugDraw(ctx: CanvasRenderingContext2D) {
-         ctx.strokeStyle = ex.Color.Yellow.toString();
          ctx.lineWidth = 2;
          ctx.strokeRect(this.left, this.top, this.getWidth(), this.getHeight());
 

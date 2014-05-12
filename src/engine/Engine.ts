@@ -424,15 +424,24 @@ module ex {
          this.currentScene.removeChild(actor);
       }
 
-
+      /**
+       * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+       * @method addTileMap
+       * @param tileMap {TileMap} 
+       */
       public addTileMap(tileMap: TileMap){
          this.currentScene.addTileMap(tileMap);
       }
 
+      /**
+       * Removes a TileMap from the Scene, it willno longer be drawn or updated.
+       * @method removeTileMap
+       * @param tileMap {TileMap}
+       */
       public removeTileMap(tileMap: TileMap){
          this.currentScene.removeTileMap(tileMap);
       }
-
+      
       /**
        * Adds an excalibur timer to the current scene.
        * @param timer {Timer} The timer to add to the current scene.
@@ -466,6 +475,138 @@ module ex {
          this.sceneHash[name] = scene;
          scene.engine = this;
       }
+
+      /**
+       * Removes a scene from the engine
+       * @method removeScene
+       * @param scene {Scene} The scene to remove
+       */
+      public removeScene(scene: Scene): void;
+      /**
+       * Removes a scene from the engine
+       * @method removeScene
+       * @param sceneName {string} The scene to remove
+       */
+      public removeScene(sceneName: string): void;
+      public removeScene(entity: any): void {
+         if (entity instanceof Scene) {
+            // remove scene
+            for (var key in this.sceneHash) {
+               if (this.sceneHash.hasOwnProperty(key)) {
+                  if (this.sceneHash[key] === entity) {
+                     delete this.sceneHash[key];
+                  }
+               }
+            }
+         }
+
+         if (typeof entity === "string") {
+            // remove scene
+            delete this.sceneHash[entity];
+         }
+      }
+
+      /**
+       * Adds a scene to the engine, think of scenes in excalibur as you
+       * would scenes in a play.
+       * @method add
+       * @param name {string} The name of the scene, must be unique
+       * @param scene {Scene} The scene to add to the engine       
+       */
+      public add(sceneName: string, scene: Scene): void;
+      /**
+       * Adds an excalibur timer to the current scene.
+       * @param timer {Timer} The timer to add to the current scene.
+       * @method add
+       */
+      public add(timer: Timer): void;
+      /**
+       * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+       * @method add
+       * @param tileMap {TileMap} 
+       */
+      public add(tileMap: TileMap): void;
+      /**
+      * Adds an actor to the current scene of the game. This is synonymous
+      * to calling engine.currentScene.addChild(actor : Actor).
+      *
+      * Actors can only be drawn if they are a member of a scene, and only
+      * the 'currentScene' may be drawn or updated.
+      * @method add
+      * @param actor {Actor} The actor to add to the current scene
+      */
+      public add(actor: Actor): void;
+      public add(entity: any): void {
+         if (entity instanceof Actor) {
+            this.addChild(entity);
+         }
+         if (entity instanceof Timer) {
+            this.addTimer(entity);
+         }
+
+         if (entity instanceof TileMap) {
+            this.addTileMap(entity);
+         }
+
+         if (arguments.length === 2) {
+            this.addScene((<string>arguments[0]), (<Scene>arguments[1]));
+         }
+      }
+
+      /**
+       * Removes a scene from the engine
+       * @method removeScene
+       * @param scene {Scene} The scene to remove
+       */
+      public remove(scene: Scene): void;
+      /**
+       * Removes a scene from the engine
+       * @method removeScene
+       * @param sceneName {string} The scene to remove
+       */
+      public remove(sceneName: string): void;
+      /**
+       * Removes an excalibur timer from the current scene.
+       * @method remove
+       * @param timer {Timer} The timer to remove to the current scene.       
+       */
+      public remove(timer: Timer): void;
+      /**
+       * Removes a TileMap from the Scene, it willno longer be drawn or updated.
+       * @method remove
+       * @param tileMap {TileMap}
+       */
+      public remove(tileMap: TileMap): void;
+      /**
+       * Removes an actor from the currentScene of the game. This is synonymous
+       * to calling engine.currentScene.removeChild(actor : Actor).
+       * Actors that are removed from a scene will no longer be drawn or updated.
+       *
+       * @method remove       
+       * @param actor {Actor} The actor to remove from the current scene.      
+       */
+      public remove(actor: Actor): void;
+      public remove(entity: any): void {
+         if (entity instanceof Actor) {
+            this.removeChild(entity);
+         }
+         if (entity instanceof Timer) {
+            this.removeTimer(entity);
+         }
+
+         if (entity instanceof TileMap) {
+            this.removeTileMap(entity);
+         }
+
+         if (entity instanceof Scene) {
+            this.removeScene(entity);
+         }
+
+         if (typeof entity === "string") {
+            this.removeScene(entity);
+         }
+      }
+
 
       /**
        * Changes the currently updating and drawing scene to a different,

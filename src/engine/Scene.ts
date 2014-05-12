@@ -12,7 +12,7 @@ module ex {
 
       //The actor this scene is attached to , if any
       public actor: Actor;
-      
+
       /**
        * The actors in the current scene
        * @property children {Actor[]}
@@ -78,13 +78,13 @@ module ex {
        * @param delta {number} The number of milliseconds since the last update
        */
       public update(engine: Engine, delta: number) {
-         if(!this._isInitialized){
+         if (!this._isInitialized) {
             this.onInitialize(engine);
             this.eventDispatcher.publish('initialize', new InitializeEvent(engine));
             this._isInitialized = true;
          }
 
-         this.tileMaps.forEach(function(cm){
+         this.tileMaps.forEach(function (cm) {
             cm.update(engine, delta);
          });
 
@@ -104,7 +104,7 @@ module ex {
          var actorIndex = 0;
          for (var j = 0, len = this.killQueue.length; j < len; j++) {
             actorIndex = this.children.indexOf(this.killQueue[j]);
-            if(actorIndex > -1){
+            if (actorIndex > -1) {
                this.children.splice(actorIndex, 1);
             }
          }
@@ -113,14 +113,14 @@ module ex {
 
          // Remove timers in the cancel queue before updating them
          var timerIndex = 0;
-         for(var k = 0, len = this.cancelQueue.length; k < len; k++){
+         for (var k = 0, len = this.cancelQueue.length; k < len; k++) {
             this.removeTimer(this.cancelQueue[k]);
          }
          this.cancelQueue.length = 0;
 
          // Cycle through timers updating timers
-         var that = this; 
-         this.timers = this.timers.filter(function(timer){
+         var that = this;
+         this.timers = this.timers.filter(function (timer) {
             timer.update(delta);
             return !timer.complete;
          });
@@ -133,7 +133,7 @@ module ex {
        * @param delta {number} The number of milliseconds since the last draw
        */
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
-         this.tileMaps.forEach(function(cm){
+         this.tileMaps.forEach(function (cm) {
             cm.draw(ctx, delta);
          });
 
@@ -143,7 +143,10 @@ module ex {
          var actor;
          for (var i = 0, len = this.children.length; i < len; i++) {
             actor = this.children[i];
-            this.children[i].draw(ctx, delta);
+            // only draw actors that are visible
+            if (actor.visible) {
+               this.children[i].draw(ctx, delta);
+            }
          }
       }
 
@@ -153,19 +156,85 @@ module ex {
        * @param ctx {CanvasRenderingContext2D} The current rendering context
        */
       public debugDraw(ctx: CanvasRenderingContext2D) {
-         this.tileMaps.forEach(map =>{
+         this.tileMaps.forEach(map => {
             map.debugDraw(ctx);
          });
 
          this.children.forEach((actor) => {
             actor.debugDraw(ctx);
-         });         
+         });
       }
+
+      /**
+       * Adds an excalibur Timer to the current scene.
+       * @param timer {Timer} The timer to add to the current scene.
+       * @method add
+       */
+      public add(timer: Timer): void;
+      /**
+       * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+       * @method add
+       * @param tileMap {TileMap} 
+       */
+      public add(tileMap: TileMap): void;
+      /**
+      * Adds an actor to the Scene, once this is done the Actor will be drawn and updated.
+      * @method add
+      * @param actor {Actor} The actor to add to the current scene
+      */
+      public add(actor: Actor): void;
+      public add(entity: any): void {
+         if (entity instanceof Actor) {
+            this.addChild(entity);
+         }
+         if (entity instanceof Timer) {
+            this.addTimer(entity);
+         }
+
+         if (entity instanceof TileMap) {
+            this.addTileMap(entity);
+         }
+      }
+
+
+    
+      /**
+       * Removes an excalibur Timer from the current scene.
+       * @method remove
+       * @param timer {Timer} The timer to remove to the current scene.       
+       */
+      public remove(timer: Timer): void;
+      /**
+       * Removes a TileMap from the Scene, it will no longer be drawn or updated.
+       * @method remove
+       * @param tileMap {TileMap}
+       */
+      public remove(tileMap: TileMap): void;
+      /**
+       * Removes an actor from the Scene, it will no longer be drawn or updated.
+       * @method remove       
+       * @param actor {Actor} The actor to remove from the current scene.      
+       */
+      public remove(actor: Actor): void;
+      public remove(entity: any): void {
+         if (entity instanceof Actor) {
+            this.removeChild(entity);
+         }
+         if (entity instanceof Timer) {
+            this.removeTimer(entity);
+         }
+
+         if (entity instanceof TileMap) {
+            this.removeTileMap(entity);
+         }
+
+      }
+
 
       /**
        * Adds an actor to the Scene, once this is done the actor will be drawn and updated.
        * @method addChild
-       * @param actor {Actor} The actor to add
+       * @param actor {Actor} 
        */
       public addChild(actor: Actor) {
          actor.scene = this;
@@ -173,18 +242,29 @@ module ex {
          actor.parent = this.actor;
       }
 
-      public addTileMap(tileMap: TileMap){
+
+      /**
+       * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+       * @method addTileMap
+       * @param tileMap {TileMap} 
+       */
+      public addTileMap(tileMap: TileMap) {
          this.tileMaps.push(tileMap);
       }
 
-      public removeTileMap(tileMap: TileMap){
+      /**
+       * Removes a TileMap from the Scene, it willno longer be drawn or updated.
+       * @method removeTileMap
+       * @param tileMap {TileMap}
+       */
+      public removeTileMap(tileMap: TileMap) {
          var index = this.tileMaps.indexOf(tileMap);
-         if(index > -1){
+         if (index > -1) {
             this.tileMaps.splice(index, 1);
          }
       }
 
-    
+
       /**
        * Removes an actor from the Scene, it will no longer be drawn or updated.
        * @method removeChild
@@ -201,7 +281,7 @@ module ex {
        * @param timer {Timer} The timer to add
        * @returns Timer
        */
-      public addTimer(timer: Timer): Timer{
+      public addTimer(timer: Timer): Timer {
          this.timers.push(timer);
          timer.scene = this;
          return timer;
@@ -214,12 +294,12 @@ module ex {
        * @param timer {Timer} The timer to remove
        * @returns Timer
        */
-      public removeTimer(timer: Timer): Timer{
+      public removeTimer(timer: Timer): Timer {
          var i = this.timers.indexOf(timer);
-         if(i !== -1){
-            this.timers.splice(i, 1);   
+         if (i !== -1) {
+            this.timers.splice(i, 1);
          }
-         return timer;         
+         return timer;
       }
 
       /**
@@ -228,7 +308,7 @@ module ex {
        * @param timer {Timer} The timer to cancel
        * @returns Timer
        */
-      public cancelTimer(timer: Timer): Timer{
+      public cancelTimer(timer: Timer): Timer {
          this.cancelQueue.push(timer);
          return timer;
       }
