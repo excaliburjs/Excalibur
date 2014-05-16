@@ -68,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="ActorSpec.ts" />
+    <TypeScriptCompile Include="BoundingBoxSpec.ts" />
     <TypeScriptCompile Include="CameraSpec.ts" />
     <None Include="chutzpah.json" />
     <TypeScriptCompile Include="ClassSpec.ts" />
@@ -80,6 +81,9 @@
     <TypeScriptCompile Include="require.d.ts" />
     <TypeScriptCompile Include="TimerSpec.ts" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptOutFile>TestSpec.js</TypeScriptOutFile>
+  </PropertyGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets')" />
   <PropertyGroup>
     <PostBuildEvent>

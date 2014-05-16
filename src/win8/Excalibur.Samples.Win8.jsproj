@@ -59,6 +59,9 @@
     <Content Include="..\..\dist\Excalibur.js">
       <Link>js\Excalibur.js</Link>
     </Content>
+    <Content Include="..\..\sandbox\html\healthbar.tmpl">
+      <Link>healthbar.tmpl</Link>
+    </Content>
     <Content Include="..\..\sandbox\images\BlockA0.png">
       <Link>images\BlockA0.png</Link>
     </Content>
