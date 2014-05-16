@@ -1,4 +1,5 @@
 /// <reference path="Interfaces/IDrawable.ts" />
+/// <reference path="Side.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util.ts" />
 /// <reference path="TileMap.ts" />
@@ -6,49 +7,9 @@
 /// <reference path="Scene.ts" />
 /// <reference path="Action.ts" />
 
+
 module ex {
-   export class Overlap {
-      constructor(public x: number, public y: number) { }
-   }
-
-   
-   /**
-    * An enum that describes the sides of an Actor for collision
-    * @class Side
-    */
-   export enum Side {
-      /**
-      @property None {Side}
-      @static
-      @final
-      */
-      None,
-      /**
-      @property Top {Side}
-      @static
-      @final
-      */
-      Top,
-      /**
-      @property Bottom {Side}
-      @static
-      @final
-      */
-      Bottom,
-      /**
-      @property Left {Side}
-      @static
-      @final
-      */
-      Left,
-      /**
-      @property Right {Side}
-      @static
-      @final
-      */
-      Right
-   }
-
+ 
    /**
     * An enum that describes the types of collisions actors can participate in
     * @class CollisionType
@@ -891,9 +852,6 @@ module ex {
          this.sceneNode.update(engine, delta);
          var eventDispatcher = this.eventDispatcher;
 
-         // Update event dispatcher
-         eventDispatcher.update();
-
          // Update action queue
          this.actionQueue.update(delta);
 
@@ -922,11 +880,8 @@ module ex {
 
                if(intersectActor = this.collides(collider)){
                   side = this.getSideFromIntersect(intersectActor);
-                  // Publish collision events on both participants
-                  eventDispatcher.publish('collision', new CollisionEvent(this, collider, side, intersectActor));
-                  collider.eventDispatcher.publish('collision', new CollisionEvent(collider, this, ex.Util.getOppositeSide(side), intersectActor.scale(-1.0)));
+                  this.scene.addCollisionPair(new CollisionPair(this, collider, intersectActor, side));
 
-                  // Send collision group updates
                   collider.collisionGroups.forEach((group)=>{
                      if(this._collisionHandlers[group]){
                         this._collisionHandlers[group].forEach((handler)=>{
@@ -935,24 +890,6 @@ module ex {
                      }
                   });
 
-                  // If the actor is active push the actor out if its not passive
-                  if((this.collisionType === CollisionType.Active || this.collisionType === CollisionType.Elastic) && collider.collisionType !== CollisionType.Passive){
-                     this.y += intersectActor.y;
-                     this.x += intersectActor.x;
-
-                     // Naive elastic bounce
-                     if(this.collisionType === CollisionType.Elastic){
-                        if(side === Side.Left){
-                           this.dx = Math.abs(this.dx);
-                        }else if(side === Side.Right){
-                           this.dx = -Math.abs(this.dx);
-                        }else if(side === Side.Top){
-                           this.dy = Math.abs(this.dy);
-                        }else if(side === Side.Bottom){
-                           this.dy = -Math.abs(this.dy);
-                        }
-                     }                 
-                  }
                }
 
             }

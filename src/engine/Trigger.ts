@@ -33,9 +33,6 @@ module ex {
 
          var eventDispatcher = this.eventDispatcher;
 
-         // Update event dispatcher
-         eventDispatcher.update();
-
          // Update action queue
          this.actionQueue.update(delta);
 

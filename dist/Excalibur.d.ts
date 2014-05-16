@@ -1,4 +1,211 @@
 declare module ex {
+    module Effects {
+        /**
+        * The interface that all sprite effects must implement
+        * @class ISpriteEffect
+        */
+        interface ISpriteEffect {
+            /**
+            * Should update individual pixels values
+            * @method updatePixel
+            * @param x {number} The pixel's x coordinate
+            * @param y {number} The pixel's y coordinate
+            * @param imageData {ImageData} The sprites raw pixel data
+            */
+            updatePixel(x: number, y: number, imageData: ImageData): void;
+        }
+        /**
+        * Applies the "Grayscale" effect to a sprite, removing color information.
+        * @class Effects.Grayscale
+        * @constructor
+        * @extends ISpriteEffect
+        */
+        class Grayscale implements ISpriteEffect {
+            public updatePixel(x: number, y: number, imageData: ImageData): void;
+        }
+        /**
+        * Applies the "Invert" effect to a sprite, inverting the pixel colors.
+        * @class Effects.Invert
+        * @constructor
+        * @extends ISpriteEffect
+        */
+        class Invert implements ISpriteEffect {
+            public updatePixel(x: number, y: number, imageData: ImageData): void;
+        }
+        /**
+        * Applies the "Opacity" effect to a sprite, setting the alpha of all pixels to a given value.
+        * @class Effects.Opacity
+        * @extends ISpriteEffect
+        * @constructor
+        * @param opacity {number} The new opacity of the sprite from 0-1.0
+        */
+        class Opacity implements ISpriteEffect {
+            public opacity: number;
+            constructor(opacity: number);
+            public updatePixel(x: number, y: number, imageData: ImageData): void;
+        }
+        /**
+        * Applies the "Colorize" effect to a sprite, changing the color channels of all the pixels to an
+        * average of the original color and the provided color
+        * @class Effects.Colorize
+        * @extends ISpriteEffect
+        * @constructor
+        * @param color {Color} The color to apply to the sprite
+        */
+        class Colorize implements ISpriteEffect {
+            public color: Color;
+            constructor(color: Color);
+            public updatePixel(x: number, y: number, imageData: ImageData): void;
+        }
+        /**
+        * Applies the "Fill" effect to a sprite, changing the color channels of all non-transparent pixels to match
+        * a given color
+        * @class Effects.Fill
+        * @extends ISpriteEffect
+        * @constructor
+        * @param color {Color} The color to apply to the sprite
+        */
+        class Fill implements ISpriteEffect {
+            public color: Color;
+            constructor(color: Color);
+            public updatePixel(x: number, y: number, imageData: ImageData): void;
+        }
+    }
+}
+declare module ex {
+    /**
+    * Interface for implementing anything in Excalibur that can be drawn to the screen.
+    * @class IDrawable
+    */
+    interface IDrawable {
+        /**
+        * Indicates whether the drawing is to be flipped vertically
+        * @property flipVertical {boolean}
+        */
+        flipVertical: boolean;
+        /**
+        * Indicates whether the drawing is to be flipped horizontally
+        * @property flipHorizontal {boolean}
+        */
+        flipHorizontal: boolean;
+        /**
+        * Indicates the width of the drawing in pixels
+        * @property width {number}
+        */
+        width: number;
+        /**
+        * Indicates the height of the drawing in pixels
+        * @property height {number}
+        */
+        height: number;
+        /**
+        * Adds a new {{#crossLink ISpriteEffect}}{{/crossLink}} to this drawing.
+        * @method addEffect
+        * @param effect {ISpriteEffect} Effect to add to the this drawing
+        */
+        addEffect(effect: Effects.ISpriteEffect): any;
+        /**
+        * Clears all effects from the drawing and return it to its original state.
+        * @method clearEffects
+        */
+        clearEffects(): any;
+        /**
+        * Sets the point about which to apply transformations to the drawing relative to the
+        * top left corner of the drawing.
+        * @method transformAbotPoint
+        * @param point {Point} The point about which to apply transformations
+        */
+        transformAboutPoint(point: Point): any;
+        /**
+        * Sets the scale trasformation
+        * @method setScale
+        * @param scale {number} The magnitude to scale the drawing in the x direction
+        */
+        setScaleX(scale: number): any;
+        /**
+        * Sets the scale trasformation
+        * @method setScale
+        * @param scale {number} The magnitude to scale the drawing in the y direction
+        */
+        setScaleY(scale: number): any;
+        /**
+        * Returns the current magnitude of the drawing's scale in the x direction.
+        * @method getScaleX
+        * @returns number
+        */
+        getScaleX(): number;
+        /**
+        * Returns the current magnitude of the drawing's scale in the y direction.
+        * @method getScaleY
+        * @returns number
+        */
+        getScaleY(): number;
+        /**
+        * Sets the current rotation transformation for the drawing.
+        * @method setRotation
+        * @param radians {number} The rotation to apply to the drawing.
+        */
+        setRotation(radians: number): any;
+        /**
+        * Returns the current rotation for the drawing.
+        * @method getRotation
+        * @returns number
+        */
+        getRotation(): number;
+        /**
+        * Resets the internal state of the drawing (if any)
+        * @method reset
+        */
+        reset(): any;
+        /**
+        * Draws the sprite appropriately to the 2D rendering context.
+        * @method draw
+        * @param ctx {CanvasRenderingContext2D} The 2D rendering context
+        * @param x {number} The x coordinate of where to draw
+        * @param y {number} The y coordinate of where to draw
+        */
+        draw(ctx: CanvasRenderingContext2D, x: number, y: number): any;
+    }
+}
+declare module ex {
+    /**
+    * An enum that describes the sides of an Actor for collision
+    * @class Side
+    */
+    enum Side {
+        /**
+        @property None {Side}
+        @static
+        @final
+        */
+        None = 0,
+        /**
+        @property Top {Side}
+        @static
+        @final
+        */
+        Top = 1,
+        /**
+        @property Bottom {Side}
+        @static
+        @final
+        */
+        Bottom = 2,
+        /**
+        @property Left {Side}
+        @static
+        @final
+        */
+        Left = 3,
+        /**
+        @property Right {Side}
+        @static
+        @final
+        */
+        Right = 4,
+    }
+}
+declare module ex {
     /**
     * A simple 2D point on a plane
     * @class Point
@@ -195,175 +402,6 @@ declare module ex {
         constructor(min: number, max: number);
         public overlaps(projection: Projection): boolean;
         public getOverlap(projection: Projection): number;
-    }
-}
-declare module ex {
-    module Effects {
-        /**
-        * The interface that all sprite effects must implement
-        * @class ISpriteEffect
-        */
-        interface ISpriteEffect {
-            /**
-            * Should update individual pixels values
-            * @method updatePixel
-            * @param x {number} The pixel's x coordinate
-            * @param y {number} The pixel's y coordinate
-            * @param imageData {ImageData} The sprites raw pixel data
-            */
-            updatePixel(x: number, y: number, imageData: ImageData): void;
-        }
-        /**
-        * Applies the "Grayscale" effect to a sprite, removing color information.
-        * @class Effects.Grayscale
-        * @constructor
-        * @extends ISpriteEffect
-        */
-        class Grayscale implements ISpriteEffect {
-            public updatePixel(x: number, y: number, imageData: ImageData): void;
-        }
-        /**
-        * Applies the "Invert" effect to a sprite, inverting the pixel colors.
-        * @class Effects.Invert
-        * @constructor
-        * @extends ISpriteEffect
-        */
-        class Invert implements ISpriteEffect {
-            public updatePixel(x: number, y: number, imageData: ImageData): void;
-        }
-        /**
-        * Applies the "Opacity" effect to a sprite, setting the alpha of all pixels to a given value.
-        * @class Effects.Opacity
-        * @extends ISpriteEffect
-        * @constructor
-        * @param opacity {number} The new opacity of the sprite from 0-1.0
-        */
-        class Opacity implements ISpriteEffect {
-            public opacity: number;
-            constructor(opacity: number);
-            public updatePixel(x: number, y: number, imageData: ImageData): void;
-        }
-        /**
-        * Applies the "Colorize" effect to a sprite, changing the color channels of all the pixels to an
-        * average of the original color and the provided color
-        * @class Effects.Colorize
-        * @extends ISpriteEffect
-        * @constructor
-        * @param color {Color} The color to apply to the sprite
-        */
-        class Colorize implements ISpriteEffect {
-            public color: Color;
-            constructor(color: Color);
-            public updatePixel(x: number, y: number, imageData: ImageData): void;
-        }
-        /**
-        * Applies the "Fill" effect to a sprite, changing the color channels of all non-transparent pixels to match
-        * a given color
-        * @class Effects.Fill
-        * @extends ISpriteEffect
-        * @constructor
-        * @param color {Color} The color to apply to the sprite
-        */
-        class Fill implements ISpriteEffect {
-            public color: Color;
-            constructor(color: Color);
-            public updatePixel(x: number, y: number, imageData: ImageData): void;
-        }
-    }
-}
-declare module ex {
-    /**
-    * Interface for implementing anything in Excalibur that can be drawn to the screen.
-    * @class IDrawable
-    */
-    interface IDrawable {
-        /**
-        * Indicates whether the drawing is to be flipped vertically
-        * @property flipVertical {boolean}
-        */
-        flipVertical: boolean;
-        /**
-        * Indicates whether the drawing is to be flipped horizontally
-        * @property flipHorizontal {boolean}
-        */
-        flipHorizontal: boolean;
-        /**
-        * Indicates the width of the drawing in pixels
-        * @property width {number}
-        */
-        width: number;
-        /**
-        * Indicates the height of the drawing in pixels
-        * @property height {number}
-        */
-        height: number;
-        /**
-        * Adds a new {{#crossLink ISpriteEffect}}{{/crossLink}} to this drawing.
-        * @method addEffect
-        * @param effect {ISpriteEffect} Effect to add to the this drawing
-        */
-        addEffect(effect: Effects.ISpriteEffect): any;
-        /**
-        * Clears all effects from the drawing and return it to its original state.
-        * @method clearEffects
-        */
-        clearEffects(): any;
-        /**
-        * Sets the point about which to apply transformations to the drawing relative to the
-        * top left corner of the drawing.
-        * @method transformAbotPoint
-        * @param point {Point} The point about which to apply transformations
-        */
-        transformAboutPoint(point: Point): any;
-        /**
-        * Sets the scale trasformation
-        * @method setScale
-        * @param scale {number} The magnitude to scale the drawing in the x direction
-        */
-        setScaleX(scale: number): any;
-        /**
-        * Sets the scale trasformation
-        * @method setScale
-        * @param scale {number} The magnitude to scale the drawing in the y direction
-        */
-        setScaleY(scale: number): any;
-        /**
-        * Returns the current magnitude of the drawing's scale in the x direction.
-        * @method getScaleX
-        * @returns number
-        */
-        getScaleX(): number;
-        /**
-        * Returns the current magnitude of the drawing's scale in the y direction.
-        * @method getScaleY
-        * @returns number
-        */
-        getScaleY(): number;
-        /**
-        * Sets the current rotation transformation for the drawing.
-        * @method setRotation
-        * @param radians {number} The rotation to apply to the drawing.
-        */
-        setRotation(radians: number): any;
-        /**
-        * Returns the current rotation for the drawing.
-        * @method getRotation
-        * @returns number
-        */
-        getRotation(): number;
-        /**
-        * Resets the internal state of the drawing (if any)
-        * @method reset
-        */
-        reset(): any;
-        /**
-        * Draws the sprite appropriately to the 2D rendering context.
-        * @method draw
-        * @param ctx {CanvasRenderingContext2D} The 2D rendering context
-        * @param x {number} The x coordinate of where to draw
-        * @param y {number} The y coordinate of where to draw
-        */
-        draw(ctx: CanvasRenderingContext2D, x: number, y: number): any;
     }
 }
 declare module ex.Util {
@@ -1056,6 +1094,37 @@ declare module ex {
 }
 declare module ex {
     /**
+    * Collision pairs are used internally by Excalibur to resolve collision between actors. The
+    * Pair prevents collisions from being evaluated more than one time
+    * @class CollisionPair
+    * @constructor
+    * @param left {Actor} The first actor in the collision pair
+    * @param right {Actor} The second actor in the collision pair
+    * @param intersect {Vector} The minimum translation vector to separate the actors from the perspective of the left actor
+    * @param side {Side} The side on which the collision occured from the perspective of the left actor
+    */
+    class CollisionPair {
+        public left: Actor;
+        public right: Actor;
+        public intersect: Vector;
+        public side: Side;
+        constructor(left: Actor, right: Actor, intersect: Vector, side: Side);
+        /**
+        * Determines if this collision pair and another are equivalent.
+        * @method equals
+        * @param collisionPair {CollisionPair}
+        * @returns boolean
+        */
+        public equals(collisionPair: CollisionPair): boolean;
+        /**
+        * Evaluates the collision pair, performing collision resolution and event publishing appropriate to each collision type.
+        * @method evaluate
+        */
+        public evaluate(): void;
+    }
+}
+declare module ex {
+    /**
     * Actors are composed together into groupings called Scenes in
     * Excalibur. The metaphor models the same idea behind real world
     * actors in a scene. Only actors in scenes will be updated and drawn.
@@ -1075,6 +1144,7 @@ declare module ex {
         private timers;
         private cancelQueue;
         private _isInitialized;
+        public _collisionPairs: CollisionPair[];
         constructor();
         /**
         * This is called when the scene is made active and started. It is meant to be overriden,
@@ -1140,6 +1210,14 @@ declare module ex {
         * @param actor {Actor} The actor to add to the current scene
         */
         public add(actor: Actor): void;
+        /**
+        * Adds a collision resolution pair to the current scene. Should only be called
+        * by actors.
+        * @method addCollisionPair
+        * @param collisionPair {CollisionPair}
+        *
+        */
+        public addCollisionPair(collisionPair: CollisionPair): void;
         /**
         * Removes an excalibur Timer from the current scene.
         * @method remove
@@ -1213,48 +1291,270 @@ declare module ex {
         public isTimerActive(timer: Timer): boolean;
     }
 }
-declare module ex {
-    class Overlap {
+declare module ex.Internal.Actions {
+    interface IAction {
+        update(delta: number): void;
+        isComplete(actor: Actor): boolean;
+        reset(): void;
+        stop(): void;
+    }
+    class MoveTo implements IAction {
+        private actor;
         public x: number;
         public y: number;
-        constructor(x: number, y: number);
+        private start;
+        private end;
+        private dir;
+        private speed;
+        private distance;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, destx: number, desty: number, speed: number);
+        public update(delta: number): void;
+        public isComplete(actor: Actor): boolean;
+        public stop(): void;
+        public reset(): void;
     }
-    /**
-    * An enum that describes the sides of an Actor for collision
-    * @class Side
-    */
-    enum Side {
-        /**
-        @property None {Side}
-        @static
-        @final
-        */
-        None = 0,
-        /**
-        @property Top {Side}
-        @static
-        @final
-        */
-        Top = 1,
-        /**
-        @property Bottom {Side}
-        @static
-        @final
-        */
-        Bottom = 2,
-        /**
-        @property Left {Side}
-        @static
-        @final
-        */
-        Left = 3,
-        /**
-        @property Right {Side}
-        @static
-        @final
-        */
-        Right = 4,
+    class MoveBy implements IAction {
+        private actor;
+        public x: number;
+        public y: number;
+        private distance;
+        private speed;
+        private time;
+        private start;
+        private end;
+        private dir;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, destx: number, desty: number, time: number);
+        public update(delta: Number): void;
+        public isComplete(actor: Actor): boolean;
+        public stop(): void;
+        public reset(): void;
     }
+    class Follow implements IAction {
+        private actor;
+        private actorToFollow;
+        public x: number;
+        public y: number;
+        private current;
+        private end;
+        private dir;
+        private speed;
+        private maximumDistance;
+        private distanceBetween;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, actorToFollow: Actor, followDistance?: number);
+        public update(delta: number): void;
+        public stop(): void;
+        public isComplete(actor: Actor): boolean;
+        public reset(): void;
+    }
+    class Meet implements IAction {
+        private actor;
+        private actorToMeet;
+        public x: number;
+        public y: number;
+        private current;
+        private end;
+        private dir;
+        private speed;
+        private distanceBetween;
+        private _started;
+        private _stopped;
+        private _speedWasSpecified;
+        constructor(actor: Actor, actorToMeet: Actor, speed?: number);
+        public update(delta: number): void;
+        public isComplete(actor: Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class RotateTo implements IAction {
+        private actor;
+        public x: number;
+        public y: number;
+        private start;
+        private end;
+        private speed;
+        private distance;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, angleRadians: number, speed: number);
+        public update(delta: number): void;
+        public isComplete(actor: Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class RotateBy implements IAction {
+        private actor;
+        public x: number;
+        public y: number;
+        private start;
+        private end;
+        private time;
+        private distance;
+        private _started;
+        private _stopped;
+        private speed;
+        constructor(actor: Actor, angleRadians: number, time: number);
+        public update(delta: number): void;
+        public isComplete(actor: Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class ScaleTo implements IAction {
+        private actor;
+        public x: number;
+        public y: number;
+        private startX;
+        private startY;
+        private endX;
+        private endY;
+        private speedX;
+        private speedY;
+        private distanceX;
+        private distanceY;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, scaleX: number, scaleY: number, speedX: number, speedY: number);
+        public update(delta: number): void;
+        public isComplete(actor: Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class ScaleBy implements IAction {
+        private actor;
+        public x: number;
+        public y: number;
+        private startX;
+        private startY;
+        private endX;
+        private endY;
+        private time;
+        private distanceX;
+        private distanceY;
+        private _started;
+        private _stopped;
+        private speedX;
+        private speedY;
+        constructor(actor: Actor, scaleX: number, scaleY: number, time: number);
+        public update(delta: number): void;
+        public isComplete(actor: Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class Delay implements IAction {
+        public x: number;
+        public y: number;
+        private actor;
+        private elapsedTime;
+        private delay;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, delay: number);
+        public update(delta: number): void;
+        public isComplete(actor: Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class Blink implements IAction {
+        private timeVisible;
+        private timeNotVisible;
+        private elapsedTime;
+        private totalTime;
+        private actor;
+        private duration;
+        private _stopped;
+        private _started;
+        constructor(actor: Actor, timeVisible: number, timeNotVisible: number, numBlinks?: number);
+        public update(delta: any): void;
+        public isComplete(actor: Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class Fade implements IAction {
+        public x: number;
+        public y: number;
+        private actor;
+        private endOpacity;
+        private speed;
+        private multiplyer;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, endOpacity: number, speed: number);
+        public update(delta: number): void;
+        public isComplete(actor: Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class Die implements IAction {
+        public x: number;
+        public y: number;
+        private actor;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor);
+        public update(delta: number): void;
+        public isComplete(): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class CallMethod implements IAction {
+        public x: number;
+        public y: number;
+        private _method;
+        private _actor;
+        private _hasBeenCalled;
+        constructor(actor: Actor, method: () => any);
+        public update(delta: number): void;
+        public isComplete(actor: Actor): boolean;
+        public reset(): void;
+        public stop(): void;
+    }
+    class Repeat implements IAction {
+        public x: number;
+        public y: number;
+        private actor;
+        private actionQueue;
+        private repeat;
+        private originalRepeat;
+        private _stopped;
+        constructor(actor: Actor, repeat: number, actions: IAction[]);
+        public update(delta: any): void;
+        public isComplete(): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class RepeatForever implements IAction {
+        public x: number;
+        public y: number;
+        private actor;
+        private actionQueue;
+        private _stopped;
+        constructor(actor: Actor, actions: IAction[]);
+        public update(delta: any): void;
+        public isComplete(): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class ActionQueue {
+        private actor;
+        private _actions;
+        private _currentAction;
+        private _completedActions;
+        constructor(actor: Actor);
+        public add(action: IAction): void;
+        public remove(action: IAction): void;
+        public clearActions(): void;
+        public getActions(): IAction[];
+        public hasNext(): boolean;
+        public reset(): void;
+        public update(delta: number): void;
+    }
+}
+declare module ex {
     /**
     * An enum that describes the types of collisions actors can participate in
     * @class CollisionType
@@ -2438,14 +2738,13 @@ declare module ex {
 }
 declare module ex {
     /**
-    * Excalibur's internal queueing event dispatcher. Callbacks are queued up and not fired until the update is called.
+    * Excalibur's internal event dispatcher implementation. Callbacks are fired immediately after an event is published
     * @class EventDispatcher
     * @constructor
     * @param target {any} The object that will be the recipient of events from this event dispatcher
     */
     class EventDispatcher {
         private _handlers;
-        private queue;
         private target;
         private log;
         constructor(target: any);
@@ -2473,11 +2772,6 @@ declare module ex {
         *
         */
         public unsubscribe(eventName: string, handler?: (event?: GameEvent) => void): void;
-        /**
-        * Dispatches all queued events to their handlers for execution.
-        * @method update
-        */
-        public update(): void;
     }
 }
 declare module ex {
@@ -4164,329 +4458,5 @@ declare module ex {
         * @param loader {ILoadable} Some loadable such as a Loader collection, Sound, or Texture.
         */
         public load(loader: ILoadable): Promise<any>;
-    }
-}
-declare module ex.Internal.Actions {
-    interface IAction {
-        update(delta: number): void;
-        isComplete(actor: Actor): boolean;
-        reset(): void;
-        stop(): void;
-    }
-    class MoveTo implements IAction {
-        private actor;
-        public x: number;
-        public y: number;
-        private start;
-        private end;
-        private dir;
-        private speed;
-        private distance;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, destx: number, desty: number, speed: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class MoveBy implements IAction {
-        private actor;
-        public x: number;
-        public y: number;
-        private distance;
-        private speed;
-        private time;
-        private start;
-        private end;
-        private dir;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, destx: number, desty: number, time: number);
-        public update(delta: Number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class Follow implements IAction {
-        private actor;
-        private actorToFollow;
-        public x: number;
-        public y: number;
-        private current;
-        private end;
-        private dir;
-        private speed;
-        private maximumDistance;
-        private distanceBetween;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, actorToFollow: Actor, followDistance?: number);
-        public update(delta: number): void;
-        public stop(): void;
-        public isComplete(actor: Actor): boolean;
-        public reset(): void;
-    }
-    class Meet implements IAction {
-        private actor;
-        private actorToMeet;
-        public x: number;
-        public y: number;
-        private current;
-        private end;
-        private dir;
-        private speed;
-        private distanceBetween;
-        private _started;
-        private _stopped;
-        private _speedWasSpecified;
-        constructor(actor: Actor, actorToMeet: Actor, speed?: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class RotateTo implements IAction {
-        private actor;
-        public x: number;
-        public y: number;
-        private start;
-        private end;
-        private speed;
-        private distance;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, angleRadians: number, speed: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class RotateBy implements IAction {
-        private actor;
-        public x: number;
-        public y: number;
-        private start;
-        private end;
-        private time;
-        private distance;
-        private _started;
-        private _stopped;
-        private speed;
-        constructor(actor: Actor, angleRadians: number, time: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class ScaleTo implements IAction {
-        private actor;
-        public x: number;
-        public y: number;
-        private startX;
-        private startY;
-        private endX;
-        private endY;
-        private speedX;
-        private speedY;
-        private distanceX;
-        private distanceY;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, scaleX: number, scaleY: number, speedX: number, speedY: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class ScaleBy implements IAction {
-        private actor;
-        public x: number;
-        public y: number;
-        private startX;
-        private startY;
-        private endX;
-        private endY;
-        private time;
-        private distanceX;
-        private distanceY;
-        private _started;
-        private _stopped;
-        private speedX;
-        private speedY;
-        constructor(actor: Actor, scaleX: number, scaleY: number, time: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class Delay implements IAction {
-        public x: number;
-        public y: number;
-        private actor;
-        private elapsedTime;
-        private delay;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, delay: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class Blink implements IAction {
-        private timeVisible;
-        private timeNotVisible;
-        private elapsedTime;
-        private totalTime;
-        private actor;
-        private duration;
-        private _stopped;
-        private _started;
-        constructor(actor: Actor, timeVisible: number, timeNotVisible: number, numBlinks?: number);
-        public update(delta: any): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class Fade implements IAction {
-        public x: number;
-        public y: number;
-        private actor;
-        private endOpacity;
-        private speed;
-        private multiplyer;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, endOpacity: number, speed: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class Die implements IAction {
-        public x: number;
-        public y: number;
-        private actor;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor);
-        public update(delta: number): void;
-        public isComplete(): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class CallMethod implements IAction {
-        public x: number;
-        public y: number;
-        private _method;
-        private _actor;
-        private _hasBeenCalled;
-        constructor(actor: Actor, method: () => any);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public reset(): void;
-        public stop(): void;
-    }
-    class Repeat implements IAction {
-        public x: number;
-        public y: number;
-        private actor;
-        private actionQueue;
-        private repeat;
-        private originalRepeat;
-        private _stopped;
-        constructor(actor: Actor, repeat: number, actions: IAction[]);
-        public update(delta: any): void;
-        public isComplete(): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class RepeatForever implements IAction {
-        public x: number;
-        public y: number;
-        private actor;
-        private actionQueue;
-        private _stopped;
-        constructor(actor: Actor, actions: IAction[]);
-        public update(delta: any): void;
-        public isComplete(): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class ActionQueue {
-        private actor;
-        private _actions;
-        private _currentAction;
-        private _completedActions;
-        constructor(actor: Actor);
-        public add(action: IAction): void;
-        public remove(action: IAction): void;
-        public clearActions(): void;
-        public getActions(): IAction[];
-        public hasNext(): boolean;
-        public reset(): void;
-        public update(delta: number): void;
-    }
-}
-declare module ex {
-    /**
-    * Creates a closed polygon drawing given a list a of points. Polygons should be
-    * used sparingly as there is a <b>performance</b> impact for using them.
-    * @class Polygon
-    * @extends IDrawable
-    * @constructor
-    * @param points {Point[]} The points to use to build the polygon in order
-    */
-    class Polygon implements IDrawable {
-        public flipVertical: boolean;
-        public flipHorizontal: boolean;
-        public width: number;
-        public height: number;
-        /**
-        * The color to use for the lines of the polygon
-        * @property lineColor {Color}
-        */
-        public lineColor: Color;
-        /**
-        * The color to use for the interior of the polygon
-        * @property fillColor {Color}
-        */
-        public fillColor: Color;
-        /**
-        * The width of the lines of the polygon
-        * @property [lineWidth=5] {number} The width of the lines in pixels
-        */
-        public lineWidth: number;
-        /**
-        * Indicates whether the polygon is filled or not.
-        * @property [filled=false] {boolean}
-        */
-        public filled: boolean;
-        private points;
-        private transformationPoint;
-        private rotation;
-        private scaleX;
-        private scaleY;
-        constructor(points: Point[]);
-        /**
-        * Effects are <b>not supported</b> on polygons
-        * @method addEffect
-        */
-        public addEffect(effect: Effects.ISpriteEffect): void;
-        /**
-        * Effects are <b>not supported</b> on polygons
-        * @method clearEffects
-        */
-        public clearEffects(): void;
-        public transformAboutPoint(point: Point): void;
-        public setScaleX(scaleX: number): void;
-        public setScaleY(scaleY: number): void;
-        public getScaleX(): number;
-        public getScaleY(): number;
-        public setRotation(radians: number): void;
-        public getRotation(): number;
-        public reset(): void;
-        public draw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
     }
 }

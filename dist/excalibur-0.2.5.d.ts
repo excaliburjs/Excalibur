@@ -169,6 +169,44 @@ declare module ex {
 }
 declare module ex {
     /**
+    * An enum that describes the sides of an Actor for collision
+    * @class Side
+    */
+    enum Side {
+        /**
+        @property None {Side}
+        @static
+        @final
+        */
+        None = 0,
+        /**
+        @property Top {Side}
+        @static
+        @final
+        */
+        Top = 1,
+        /**
+        @property Bottom {Side}
+        @static
+        @final
+        */
+        Bottom = 2,
+        /**
+        @property Left {Side}
+        @static
+        @final
+        */
+        Left = 3,
+        /**
+        @property Right {Side}
+        @static
+        @final
+        */
+        Right = 4,
+    }
+}
+declare module ex {
+    /**
     * A simple 2D point on a plane
     * @class Point
     * @constructor
@@ -1056,6 +1094,37 @@ declare module ex {
 }
 declare module ex {
     /**
+    * Collision pairs are used internally by Excalibur to resolve collision between actors. The
+    * Pair prevents collisions from being evaluated more than one time
+    * @class CollisionPair
+    * @constructor
+    * @param left {Actor} The first actor in the collision pair
+    * @param right {Actor} The second actor in the collision pair
+    * @param intersect {Vector} The minimum translation vector to separate the actors from the perspective of the left actor
+    * @param side {Side} The side on which the collision occured from the perspective of the left actor
+    */
+    class CollisionPair {
+        public left: Actor;
+        public right: Actor;
+        public intersect: Vector;
+        public side: Side;
+        constructor(left: Actor, right: Actor, intersect: Vector, side: Side);
+        /**
+        * Determines if this collision pair and another are equivalent.
+        * @method equals
+        * @param collisionPair {CollisionPair}
+        * @returns boolean
+        */
+        public equals(collisionPair: CollisionPair): boolean;
+        /**
+        * Evaluates the collision pair, performing collision resolution and event publishing appropriate to each collision type.
+        * @method evaluate
+        */
+        public evaluate(): void;
+    }
+}
+declare module ex {
+    /**
     * Actors are composed together into groupings called Scenes in
     * Excalibur. The metaphor models the same idea behind real world
     * actors in a scene. Only actors in scenes will be updated and drawn.
@@ -1075,6 +1144,7 @@ declare module ex {
         private timers;
         private cancelQueue;
         private _isInitialized;
+        public _collisionPairs: CollisionPair[];
         constructor();
         /**
         * This is called when the scene is made active and started. It is meant to be overriden,
@@ -1140,6 +1210,14 @@ declare module ex {
         * @param actor {Actor} The actor to add to the current scene
         */
         public add(actor: Actor): void;
+        /**
+        * Adds a collision resolution pair to the current scene. Should only be called
+        * by actors.
+        * @method addCollisionPair
+        * @param collisionPair {CollisionPair}
+        *
+        */
+        public addCollisionPair(collisionPair: CollisionPair): void;
         /**
         * Removes an excalibur Timer from the current scene.
         * @method remove
@@ -1477,47 +1555,6 @@ declare module ex.Internal.Actions {
     }
 }
 declare module ex {
-    class Overlap {
-        public x: number;
-        public y: number;
-        constructor(x: number, y: number);
-    }
-    /**
-    * An enum that describes the sides of an Actor for collision
-    * @class Side
-    */
-    enum Side {
-        /**
-        @property None {Side}
-        @static
-        @final
-        */
-        None = 0,
-        /**
-        @property Top {Side}
-        @static
-        @final
-        */
-        Top = 1,
-        /**
-        @property Bottom {Side}
-        @static
-        @final
-        */
-        Bottom = 2,
-        /**
-        @property Left {Side}
-        @static
-        @final
-        */
-        Left = 3,
-        /**
-        @property Right {Side}
-        @static
-        @final
-        */
-        Right = 4,
-    }
     /**
     * An enum that describes the types of collisions actors can participate in
     * @class CollisionType
@@ -2701,14 +2738,13 @@ declare module ex {
 }
 declare module ex {
     /**
-    * Excalibur's internal queueing event dispatcher. Callbacks are queued up and not fired until the update is called.
+    * Excalibur's internal event dispatcher implementation. Callbacks are fired immediately after an event is published
     * @class EventDispatcher
     * @constructor
     * @param target {any} The object that will be the recipient of events from this event dispatcher
     */
     class EventDispatcher {
         private _handlers;
-        private queue;
         private target;
         private log;
         constructor(target: any);
@@ -2736,11 +2772,6 @@ declare module ex {
         *
         */
         public unsubscribe(eventName: string, handler?: (event?: GameEvent) => void): void;
-        /**
-        * Dispatches all queued events to their handlers for execution.
-        * @method update
-        */
-        public update(): void;
     }
 }
 declare module ex {
