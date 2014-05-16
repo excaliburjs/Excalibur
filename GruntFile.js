@@ -117,6 +117,7 @@ module.exports = function (grunt) {
              "./src/spec/TimerSpec.ts",
              "./src/spec/ClassSpec.ts",
              "./src/spec/CollisionGroupSpec.ts",
+             "./src/spec/CollisionSpec.ts",
              "./src/spec/CameraSpec.ts"].join(' ') + ' --out ./src/spec/TestsSpec.js',
             options: {
                stdout: true,

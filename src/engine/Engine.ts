@@ -4,6 +4,7 @@
 /// <reference path="Class.ts" />
 /// <reference path="Color.ts" />
 /// <reference path="Log.ts" />
+/// <reference path="Side.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actor.ts" />
 /// <reference path="Trigger.ts" />
@@ -622,12 +623,12 @@ module ex {
             this.currentScene = this.sceneHash[name];
 
             oldScene.eventDispatcher.publish('deactivate', new DeactivateEvent(this.currentScene));
-            oldScene.eventDispatcher.update();
+            
 
             this.currentScene.onActivate.call(this.currentScene);
 
             this.currentScene.eventDispatcher.publish('activate', new ActivateEvent(oldScene));
-            this.currentScene.eventDispatcher.update();
+            
          }else{
             this.logger.error("Scene", name, "does not exist!");
          }
@@ -770,12 +771,10 @@ module ex {
 
          window.addEventListener('blur', () => {
             this.eventDispatcher.publish(EventType[EventType.Blur], new BlurEvent());
-            this.eventDispatcher.update();
          });
 
          window.addEventListener('focus', () => {
             this.eventDispatcher.publish(EventType[EventType.Focus], new FocusEvent());
-            this.eventDispatcher.update();
          });
 
          this.canvas.addEventListener('mousedown', (e: MouseEvent) => {
@@ -964,7 +963,6 @@ module ex {
             return;
          }
          // process engine level events
-         this.eventDispatcher.update();
          this.currentScene.update(this, delta);
 
          var eventDispatcher = this.eventDispatcher;

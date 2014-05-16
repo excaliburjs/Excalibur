@@ -1,6 +1,8 @@
 /// <reference path="Class.ts" />
 /// <reference path="Timer.ts" />
+/// <reference path="CollisionPair.ts" />
 module ex {
+
    /**
     * Actors are composed together into groupings called Scenes in 
     * Excalibur. The metaphor models the same idea behind real world 
@@ -26,6 +28,8 @@ module ex {
       private cancelQueue: Timer[] = [];
 
       private _isInitialized: boolean = false;
+
+      public _collisionPairs: CollisionPair[] = [];
 
       constructor() {
          super();
@@ -88,9 +92,6 @@ module ex {
             cm.update(engine, delta);
          });
 
-         // Update event dispatcher
-         this.eventDispatcher.update();
-
          var len = 0;
          var start = 0;
          var end = 0;
@@ -100,10 +101,16 @@ module ex {
             this.children[i].update(engine, delta);
          }
 
+         // Cycle through collision pairs and evaluate collisions
+         for(var i = 0, len = this._collisionPairs.length; i < len; i++){
+            this._collisionPairs[i].evaluate();
+         }
+         this._collisionPairs.length = 0;
+
          // Remove actors from scene graph after being killed
          var actorIndex = 0;
-         for (var j = 0, len = this.killQueue.length; j < len; j++) {
-            actorIndex = this.children.indexOf(this.killQueue[j]);
+         for (var i = 0, len = this.killQueue.length; i < len; i++) {
+            actorIndex = this.children.indexOf(this.killQueue[i]);
             if (actorIndex > -1) {
                this.children.splice(actorIndex, 1);
             }
@@ -113,8 +120,8 @@ module ex {
 
          // Remove timers in the cancel queue before updating them
          var timerIndex = 0;
-         for (var k = 0, len = this.cancelQueue.length; k < len; k++) {
-            this.removeTimer(this.cancelQueue[k]);
+         for (var i = 0, len = this.cancelQueue.length; i < len; i++) {
+            this.removeTimer(this.cancelQueue[i]);
          }
          this.cancelQueue.length = 0;
 
@@ -196,9 +203,22 @@ module ex {
          }
       }
 
-
-    
       /**
+       * Adds a collision resolution pair to the current scene. Should only be called
+       * by actors.
+       * @method addCollisionPair
+       * @param collisionPair {CollisionPair}
+       *
+       */
+      public addCollisionPair(collisionPair: CollisionPair){
+         if(!this._collisionPairs.some((cp)=>{
+            return cp.equals(collisionPair);
+         })){
+            this._collisionPairs.push(collisionPair);
+         }
+      }
+
+     /**
        * Removes an excalibur Timer from the current scene.
        * @method remove
        * @param timer {Timer} The timer to remove to the current scene.       

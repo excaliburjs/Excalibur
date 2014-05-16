@@ -274,7 +274,7 @@ game.addEventListener('keydown', (keyDown? : ex.KeyDown)=>{
 });
 
 var isColliding = false;
-player.addEventListener('collision', (data?: ex.CollisionEvent)=>{   
+player.addEventListener('collision', (data?: ex.CollisionEvent) => {
        
    if(data.side === ex.Side.Bottom){
       isColliding = true;
@@ -284,13 +284,16 @@ player.addEventListener('collision', (data?: ex.CollisionEvent)=>{
         player.setDrawing(Animations.Idle);
       }
       inAir = false;
-      if(data.other){
+      if(data.other && !(game.isKeyPressed(ex.InputKey.Left) || game.isKeyPressed(ex.InputKey.Right) || game.isKeyPressed(ex.InputKey.Up) || game.isKeyPressed(ex.InputKey.Down))){
          player.dx = data.other.dx;
          player.dy = data.other.dy;      
-      }else{
+      }     
+
+      if(!data.other){
          player.dx = 0;
          player.dy = 0;
       }
+
    }
 
    if(data.side === ex.Side.Top){
