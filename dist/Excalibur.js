@@ -5332,23 +5332,9 @@ var ex;
                         return;
                     }
 
-                    var self = _this;
                     _this._loadedAudio = URL.createObjectURL(request.response);
-                    _this.audioElements.forEach(function (a, i) {
-                        a.actualIndex = i;
-                        a.addEventListener('play', function () {
-                            ex.Logger.getInstance().debug("Began playback for ", self.path, "actualIndex", this.actualIndex);
-                        });
-                        a.addEventListener('ended', function () {
-                            ex.Logger.getInstance().debug("Ended playback for ", self.path, "actualIndex", this.actualIndex);
-                        });
-                        a.addEventListener('pause', function () {
-                            ex.Logger.getInstance().debug("Paused playback for ", self.path, "actualIndex", this.actualIndex);
-                        });
+                    _this.audioElements.forEach(function (a) {
                         a.src = _this._loadedAudio;
-                        a.preload = 'auto';
-                        a.load();
-                        a.pause();
                     });
                     _this.onload(e);
                 };
@@ -5356,18 +5342,14 @@ var ex;
             };
 
             AudioTag.prototype.play = function () {
-                var audioElement = this.audioElements[this.index];
-                if (audioElement.paused || audioElement.ended) {
-                    ex.Logger.getInstance().debug("Calling play on ", this.path, "actualIndex", audioElement.actualIndex);
-                    audioElement.play();
-                }
+                this.audioElements[this.index].load();
+                this.audioElements[this.index].play();
                 this.index = (this.index + 1) % this.audioElements.length;
             };
 
             AudioTag.prototype.stop = function () {
                 this.audioElements.forEach(function (a) {
                     a.pause();
-                    a.currentTime = 0;
                 });
             };
             return AudioTag;
