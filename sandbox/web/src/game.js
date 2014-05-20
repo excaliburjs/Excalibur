@@ -328,10 +328,12 @@ player.addEventListener('collision', function (data) {
             player.setDrawing(1 /* Idle */);
         }
         inAir = false;
-        if (data.other) {
+        if (data.other && !(game.isKeyPressed(37 /* Left */) || game.isKeyPressed(39 /* Right */) || game.isKeyPressed(38 /* Up */) || game.isKeyPressed(40 /* Down */))) {
             player.dx = data.other.dx;
             player.dy = data.other.dy;
-        } else {
+        }
+
+        if (!data.other) {
             player.dx = 0;
             player.dy = 0;
         }
