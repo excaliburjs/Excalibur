@@ -1,5 +1,37 @@
-/// <reference path='../../dist/excalibur.d.ts' />
-
+/// <reference path='../../../dist/excalibur.d.ts' />
+/*********************
+ *                  uuuuuuuuuuuuuuuuuuuu                                    
+ *                u" uuuuuuuuuuuuuuuuuu "u                                  
+ *              u" u$$$$$$$$$$$$$$$$$$$$u "u        
+ *            u" u$$$$$$$$$$$$$$$$$$$$$$$$u "u                              
+ *          u" u$$$$$$$$$$$$$$$$$$$$$$$$$$$$u "u                            
+ *        u" u$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$u "u                          
+ *      u" u$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$u "u                        
+ *      $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $                        
+ *      $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $                        
+ *      $ $$$" ... "$...  ...$" ... "$$$  ... "$$$ $                        
+ *      $ $$$u `"$$$$$$$  $$$  $$$$$  $$  $$$  $$$ $                        
+ *      $ $$$$$$uu "$$$$  $$$  $$$$$  $$  """ u$$$ $                        
+ *      $ $$$""$$$  $$$$  $$$u "$$$" u$$  $$$$$$$$ $                        
+ *      $ $$$$....,$$$$$..$$$$$....,$$$$..$$$$$$$$ $                        
+ *      $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $                        
+ *      "u "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" u"                        
+ *        "u "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" u"                          
+ *          "u "$$$$$$$$$$$$$$$$$$$$$$$$$$$$" u"                            
+ *            "u "$$$$$$$$$$$$$$$$$$$$$$$$" u"                              
+ *              "u "$$$$$$$$$$$$$$$$$$$$" u"                                
+ *                "u """""""""""""""""" u"                                  
+ *                  """"""""""""""""""""
+ *      
+ * WARNING: Do not use this sandbox as a "sample" of how to use Excalibur *properly.*
+ * This is a messy POS that we use to do crazy integration testing and is really
+ * a terrible example.
+ * 
+ * Please don't reference this. Reference the official sample games!
+ * 
+ * Thank you,
+ * Excalibur.js team
+ */
 var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
 
@@ -157,36 +189,37 @@ var groundSpeed = 150;
 var airSpeed = 130;
 var jumpSpeed = 500;
 var direction = 1;
-player.addEventListener('left', ()=>{
+
+var moveLeft = () => {
    direction = -1;
    if (!inAir) {
       player.setDrawing(Animations.Left);
    }
-   if(inAir){
+   if (inAir) {
       player.dx = -airSpeed;
       return;
    }
    player.dx = -groundSpeed;
 
    // TODO: When platform is moving in same direction, add its dx
-});
+};
 
-player.addEventListener('right', ()=>{
+var moveRight = () => {
    direction = 1;
    if (!inAir) {
       player.setDrawing(Animations.Right);
    }
-   if(inAir){
+   if (inAir) {
       player.dx = airSpeed;
       return;
    }
    player.dx = groundSpeed;
 
    // TODO: When platform is moving in same direction, add its dx
-});
+};
 
-player.addEventListener('up', ()=>{
-   if(!inAir){
+var moveJump = () => {
+   if (!inAir) {
       player.dy -= jumpSpeed;
       inAir = true;
       if (direction === 1) {
@@ -196,7 +229,20 @@ player.addEventListener('up', ()=>{
       }
       jumpSound.play();
    }
-});
+};
+
+var resetToIdle = (e?: ex.KeyUp) => {
+   if (inAir) return;
+
+   if (e.key === ex.InputKey.Left ||
+      e.key === ex.InputKey.Right) {
+      player.setDrawing(Animations.Idle);
+   }
+};
+
+player.addEventListener('left', moveLeft);
+player.addEventListener('right', moveRight);
+player.addEventListener('up', moveJump);
 
 player.addEventListener('mousedown', (e?: ex.MouseDown)=>{
    var button = "";
@@ -210,17 +256,25 @@ player.addEventListener('mousedown', (e?: ex.MouseDown)=>{
    alert("Player clicked with " + button + " button!");
 });
 
-player.addEventListener('keyup', (e? : ex.KeyUp) => {
-   if (inAir) return;
-   
-   if (e.key === ex.InputKey.Left ||
-       e.key === ex.InputKey.Right) {
-      player.setDrawing(Animations.Idle);
-   }
+player.addEventListener('keyup', resetToIdle);
+
+player.addEventListener('touchstart', (e?: ex.TouchStart)=> {
+   alert("player touched!");
 });
 
-player.addEventListener('touchstart', ()=> {
-   alert("player touched!");
+// touch movement
+var touchGoRight = false;
+game.addEventListener('touchstart', () => {
+   touchGoRight = true;
+});
+game.addEventListener('touchend', () => {
+   touchGoRight = false;
+
+   moveJump();
+
+   if (inAir) return;
+   
+   player.setDrawing(Animations.Idle);   
 });
 
 var newScene = new ex.Scene();
@@ -310,6 +364,10 @@ player.addEventListener('update', (data?: ex.UpdateEvent)=>{
       data.target.ay = 800;// * data.delta/1000;
    }else{
       data.target.ay = 0;
+   }
+
+   if (touchGoRight) {
+      moveRight();
    }
 
    // Reset values because we don't know until we check the next update

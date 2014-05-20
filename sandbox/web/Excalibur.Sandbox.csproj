@@ -59,7 +59,7 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\src\engine\Excalibur.Core.csproj">
+    <ProjectReference Include="..\..\src\engine\Excalibur.Core.csproj">
       <Project>{1df7cfca-a048-417c-84e7-4d1cc6a3fd77}</Project>
       <Name>Excalibur.Core</Name>
     </ProjectReference>

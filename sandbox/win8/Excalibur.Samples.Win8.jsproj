@@ -59,34 +59,31 @@
     <Content Include="..\..\dist\Excalibur.js">
       <Link>js\Excalibur.js</Link>
     </Content>
-    <Content Include="..\..\sandbox\html\healthbar.tmpl">
+    <Content Include="..\web\html\healthbar.tmpl">
       <Link>healthbar.tmpl</Link>
     </Content>
-    <Content Include="..\..\sandbox\images\BlockA0.png">
+    <Content Include="..\web\images\BlockA0.png">
       <Link>images\BlockA0.png</Link>
     </Content>
-    <Content Include="..\..\sandbox\images\favicon.png">
+    <Content Include="..\web\images\favicon.png">
       <Link>images\favicon.png</Link>
     </Content>
-    <Content Include="..\..\sandbox\images\PlayerJump.png">
+    <Content Include="..\web\images\PlayerJump.png">
       <Link>images\PlayerJump.png</Link>
     </Content>
-    <Content Include="..\..\sandbox\images\PlayerRun.png">
+    <Content Include="..\web\images\PlayerRun.png">
       <Link>images\PlayerRun.png</Link>
     </Content>
-    <Content Include="..\..\sandbox\images\PlayerRun.psd">
-      <Link>images\PlayerRun.psd</Link>
-    </Content>
-    <Content Include="..\..\sandbox\images\SpriteFont.png">
+    <Content Include="..\web\images\SpriteFont.png">
       <Link>images\SpriteFont.png</Link>
     </Content>
-    <Content Include="..\..\sandbox\sounds\jump.mp3">
+    <Content Include="..\web\sounds\jump.mp3">
       <Link>sounds\jump.mp3</Link>
     </Content>
-    <Content Include="..\..\sandbox\sounds\jump.wav">
+    <Content Include="..\web\sounds\jump.wav">
       <Link>sounds\jump.wav</Link>
     </Content>
-    <Content Include="..\..\sandbox\src\game.js">
+    <Content Include="..\web\src\game.js">
       <Link>js\game.js</Link>
     </Content>
     <Content Include="default.html" />
@@ -104,6 +101,7 @@
   <ItemGroup>
     <Folder Include="sounds\" />
   </ItemGroup>
+  <Import Project="..\winshared\Excalibur.Samples.Win8.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\$(WMSJSProjectDirectory)\Microsoft.VisualStudio.$(WMSJSProject).targets" />
   <!-- To modify your build process, add your task inside one of the targets below then uncomment
        that target and the DisableFastUpToDateCheck PropertyGroup. 
