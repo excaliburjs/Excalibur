@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-05-11
+/*! excalibur - v0.2.5 - 2014-05-15
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -159,6 +159,50 @@ var ex;
     var Effects = ex.Effects;
 })(ex || (ex = {}));
 /// <reference path="../SpriteEffects.ts" />
+var ex;
+(function (ex) {
+    /**
+    * An enum that describes the sides of an Actor for collision
+    * @class Side
+    */
+    (function (Side) {
+        /**
+        @property None {Side}
+        @static
+        @final
+        */
+        Side[Side["None"] = 0] = "None";
+
+        /**
+        @property Top {Side}
+        @static
+        @final
+        */
+        Side[Side["Top"] = 1] = "Top";
+
+        /**
+        @property Bottom {Side}
+        @static
+        @final
+        */
+        Side[Side["Bottom"] = 2] = "Bottom";
+
+        /**
+        @property Left {Side}
+        @static
+        @final
+        */
+        Side[Side["Left"] = 3] = "Left";
+
+        /**
+        @property Right {Side}
+        @static
+        @final
+        */
+        Side[Side["Right"] = 4] = "Right";
+    })(ex.Side || (ex.Side = {}));
+    var Side = ex.Side;
+})(ex || (ex = {}));
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -1933,8 +1977,93 @@ var ex;
     })();
     ex.Timer = Timer;
 })(ex || (ex = {}));
+var ex;
+(function (ex) {
+    /**
+    * Collision pairs are used internally by Excalibur to resolve collision between actors. The
+    * Pair prevents collisions from being evaluated more than one time
+    * @class CollisionPair
+    * @constructor
+    * @param left {Actor} The first actor in the collision pair
+    * @param right {Actor} The second actor in the collision pair
+    * @param intersect {Vector} The minimum translation vector to separate the actors from the perspective of the left actor
+    * @param side {Side} The side on which the collision occured from the perspective of the left actor
+    */
+    var CollisionPair = (function () {
+        function CollisionPair(left, right, intersect, side) {
+            this.left = left;
+            this.right = right;
+            this.intersect = intersect;
+            this.side = side;
+        }
+        /**
+        * Determines if this collision pair and another are equivalent.
+        * @method equals
+        * @param collisionPair {CollisionPair}
+        * @returns boolean
+        */
+        CollisionPair.prototype.equals = function (collisionPair) {
+            return (collisionPair.left === this.left && collisionPair.right === this.right) || (collisionPair.right === this.left && collisionPair.left === this.right);
+        };
+
+        /**
+        * Evaluates the collision pair, performing collision resolution and event publishing appropriate to each collision type.
+        * @method evaluate
+        */
+        CollisionPair.prototype.evaluate = function () {
+            // todo fire collision events on left and right actor
+            // todo resolve collisions
+            // Publish collision events on both participants
+            this.left.eventDispatcher.publish('collision', new ex.CollisionEvent(this.left, this.right, this.side, this.intersect));
+            this.right.eventDispatcher.publish('collision', new ex.CollisionEvent(this.right, this.left, ex.Util.getOppositeSide(this.side), this.intersect.scale(-1.0)));
+
+            // If the actor is active push the actor out if its not passive
+            var leftSide = this.side;
+            if ((this.left.collisionType === 2 /* Active */ || this.left.collisionType === 3 /* Elastic */) && this.right.collisionType !== 1 /* Passive */) {
+                this.left.y += this.intersect.y;
+                this.left.x += this.intersect.x;
+
+                // Naive elastic bounce
+                if (this.left.collisionType === 3 /* Elastic */) {
+                    if (leftSide === 3 /* Left */) {
+                        this.left.dx = Math.abs(this.left.dx);
+                    } else if (leftSide === 4 /* Right */) {
+                        this.left.dx = -Math.abs(this.left.dx);
+                    } else if (leftSide === 1 /* Top */) {
+                        this.left.dy = Math.abs(this.left.dy);
+                    } else if (leftSide === 2 /* Bottom */) {
+                        this.left.dy = -Math.abs(this.left.dy);
+                    }
+                }
+            }
+
+            var rightSide = ex.Util.getOppositeSide(this.side);
+            var rightIntersect = this.intersect.scale(-1.0);
+            if ((this.right.collisionType === 2 /* Active */ || this.right.collisionType === 3 /* Elastic */) && this.left.collisionType !== 1 /* Passive */) {
+                this.right.y += rightIntersect.y;
+                this.right.x += rightIntersect.x;
+
+                // Naive elastic bounce
+                if (this.right.collisionType === 3 /* Elastic */) {
+                    if (rightSide === 3 /* Left */) {
+                        this.right.dx = Math.abs(this.right.dx);
+                    } else if (rightSide === 4 /* Right */) {
+                        this.right.dx = -Math.abs(this.right.dx);
+                    } else if (rightSide === 1 /* Top */) {
+                        this.right.dy = Math.abs(this.right.dy);
+                    } else if (rightSide === 2 /* Bottom */) {
+                        this.right.dy = -Math.abs(this.right.dy);
+                    }
+                }
+            }
+        };
+        return CollisionPair;
+    })();
+    ex.CollisionPair = CollisionPair;
+})(ex || (ex = {}));
 /// <reference path="Class.ts" />
 /// <reference path="Timer.ts" />
+/// <reference path="CollisionPair.ts" />
 var ex;
 (function (ex) {
     /**
@@ -1958,6 +2087,7 @@ var ex;
             this.timers = [];
             this.cancelQueue = [];
             this._isInitialized = false;
+            this._collisionPairs = [];
         }
         /**
         * This is called when the scene is made active and started. It is meant to be overriden,
@@ -2016,9 +2146,6 @@ var ex;
                 cm.update(engine, delta);
             });
 
-            // Update event dispatcher
-            this.eventDispatcher.update();
-
             var len = 0;
             var start = 0;
             var end = 0;
@@ -2028,10 +2155,15 @@ var ex;
                 this.children[i].update(engine, delta);
             }
 
+            for (var i = 0, len = this._collisionPairs.length; i < len; i++) {
+                this._collisionPairs[i].evaluate();
+            }
+            this._collisionPairs.length = 0;
+
             // Remove actors from scene graph after being killed
             var actorIndex = 0;
-            for (var j = 0, len = this.killQueue.length; j < len; j++) {
-                actorIndex = this.children.indexOf(this.killQueue[j]);
+            for (var i = 0, len = this.killQueue.length; i < len; i++) {
+                actorIndex = this.children.indexOf(this.killQueue[i]);
                 if (actorIndex > -1) {
                     this.children.splice(actorIndex, 1);
                 }
@@ -2040,8 +2172,8 @@ var ex;
 
             // Remove timers in the cancel queue before updating them
             var timerIndex = 0;
-            for (var k = 0, len = this.cancelQueue.length; k < len; k++) {
-                this.removeTimer(this.cancelQueue[k]);
+            for (var i = 0, len = this.cancelQueue.length; i < len; i++) {
+                this.removeTimer(this.cancelQueue[i]);
             }
             this.cancelQueue.length = 0;
 
@@ -2103,6 +2235,21 @@ var ex;
 
             if (entity instanceof ex.TileMap) {
                 this.addTileMap(entity);
+            }
+        };
+
+        /**
+        * Adds a collision resolution pair to the current scene. Should only be called
+        * by actors.
+        * @method addCollisionPair
+        * @param collisionPair {CollisionPair}
+        *
+        */
+        Scene.prototype.addCollisionPair = function (collisionPair) {
+            if (!this._collisionPairs.some(function (cp) {
+                return cp.equals(collisionPair);
+            })) {
+                this._collisionPairs.push(collisionPair);
             }
         };
 
@@ -2949,6 +3096,7 @@ var ex;
     var Internal = ex.Internal;
 })(ex || (ex = {}));
 /// <reference path="Interfaces/IDrawable.ts" />
+/// <reference path="Side.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util.ts" />
 /// <reference path="TileMap.ts" />
@@ -2957,57 +3105,6 @@ var ex;
 /// <reference path="Action.ts" />
 var ex;
 (function (ex) {
-    var Overlap = (function () {
-        function Overlap(x, y) {
-            this.x = x;
-            this.y = y;
-        }
-        return Overlap;
-    })();
-    ex.Overlap = Overlap;
-
-    /**
-    * An enum that describes the sides of an Actor for collision
-    * @class Side
-    */
-    (function (Side) {
-        /**
-        @property None {Side}
-        @static
-        @final
-        */
-        Side[Side["None"] = 0] = "None";
-
-        /**
-        @property Top {Side}
-        @static
-        @final
-        */
-        Side[Side["Top"] = 1] = "Top";
-
-        /**
-        @property Bottom {Side}
-        @static
-        @final
-        */
-        Side[Side["Bottom"] = 2] = "Bottom";
-
-        /**
-        @property Left {Side}
-        @static
-        @final
-        */
-        Side[Side["Left"] = 3] = "Left";
-
-        /**
-        @property Right {Side}
-        @static
-        @final
-        */
-        Side[Side["Right"] = 4] = "Right";
-    })(ex.Side || (ex.Side = {}));
-    var Side = ex.Side;
-
     /**
     * An enum that describes the types of collisions actors can participate in
     * @class CollisionType
@@ -3814,9 +3911,6 @@ var ex;
             this.sceneNode.update(engine, delta);
             var eventDispatcher = this.eventDispatcher;
 
-            // Update event dispatcher
-            eventDispatcher.update();
-
             // Update action queue
             this.actionQueue.update(delta);
 
@@ -3845,12 +3939,8 @@ var ex;
 
                     if (intersectActor = this.collides(collider)) {
                         side = this.getSideFromIntersect(intersectActor);
+                        this.scene.addCollisionPair(new ex.CollisionPair(this, collider, intersectActor, side));
 
-                        // Publish collision events on both participants
-                        eventDispatcher.publish('collision', new ex.CollisionEvent(this, collider, side, intersectActor));
-                        collider.eventDispatcher.publish('collision', new ex.CollisionEvent(collider, this, ex.Util.getOppositeSide(side), intersectActor.scale(-1.0)));
-
-                        // Send collision group updates
                         collider.collisionGroups.forEach(function (group) {
                             if (_this._collisionHandlers[group]) {
                                 _this._collisionHandlers[group].forEach(function (handler) {
@@ -3858,25 +3948,6 @@ var ex;
                                 });
                             }
                         });
-
-                        // If the actor is active push the actor out if its not passive
-                        if ((this.collisionType === 2 /* Active */ || this.collisionType === 3 /* Elastic */) && collider.collisionType !== 1 /* Passive */) {
-                            this.y += intersectActor.y;
-                            this.x += intersectActor.x;
-
-                            // Naive elastic bounce
-                            if (this.collisionType === 3 /* Elastic */) {
-                                if (side === 3 /* Left */) {
-                                    this.dx = Math.abs(this.dx);
-                                } else if (side === 4 /* Right */) {
-                                    this.dx = -Math.abs(this.dx);
-                                } else if (side === 1 /* Top */) {
-                                    this.dy = Math.abs(this.dy);
-                                } else if (side === 2 /* Bottom */) {
-                                    this.dy = -Math.abs(this.dy);
-                                }
-                            }
-                        }
                     }
                 }
 
@@ -4897,7 +4968,7 @@ var ex;
 var ex;
 (function (ex) {
     /**
-    * Excalibur's internal queueing event dispatcher. Callbacks are queued up and not fired until the update is called.
+    * Excalibur's internal event dispatcher implementation. Callbacks are fired immediately after an event is published
     * @class EventDispatcher
     * @constructor
     * @param target {any} The object that will be the recipient of events from this event dispatcher
@@ -4905,7 +4976,6 @@ var ex;
     var EventDispatcher = (function () {
         function EventDispatcher(target) {
             this._handlers = {};
-            this.queue = [];
             this.log = ex.Logger.getInstance();
             this.target = target;
         }
@@ -4921,7 +4991,6 @@ var ex;
                 return;
             }
             eventName = eventName.toLowerCase();
-            var queue = this.queue;
             var target = this.target;
             if (!event) {
                 event = new ex.GameEvent();
@@ -4929,9 +4998,7 @@ var ex;
             event.target = target;
             if (this._handlers[eventName]) {
                 this._handlers[eventName].forEach(function (callback) {
-                    queue.push(function () {
-                        callback.call(target, event);
-                    });
+                    callback.call(target, event);
                 });
             }
         };
@@ -4971,17 +5038,6 @@ var ex;
                     var index = eventHandlers.indexOf(handler);
                     this._handlers[eventName].splice(index, 1);
                 }
-            }
-        };
-
-        /**
-        * Dispatches all queued events to their handlers for execution.
-        * @method update
-        */
-        EventDispatcher.prototype.update = function () {
-            var callback;
-            while (callback = this.queue.shift()) {
-                callback();
             }
         };
         return EventDispatcher;
@@ -5138,9 +5194,6 @@ var ex;
             this.calculatedAnchor = new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
 
             var eventDispatcher = this.eventDispatcher;
-
-            // Update event dispatcher
-            eventDispatcher.update();
 
             // Update action queue
             this.actionQueue.update(delta);
@@ -7225,6 +7278,7 @@ var ex;
 /// <reference path="Class.ts" />
 /// <reference path="Color.ts" />
 /// <reference path="Log.ts" />
+/// <reference path="Side.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actor.ts" />
 /// <reference path="Trigger.ts" />
@@ -7728,12 +7782,10 @@ var ex;
                 this.currentScene = this.sceneHash[name];
 
                 oldScene.eventDispatcher.publish('deactivate', new ex.DeactivateEvent(this.currentScene));
-                oldScene.eventDispatcher.update();
 
                 this.currentScene.onActivate.call(this.currentScene);
 
                 this.currentScene.eventDispatcher.publish('activate', new ex.ActivateEvent(oldScene));
-                this.currentScene.eventDispatcher.update();
             } else {
                 this.logger.error("Scene", name, "does not exist!");
             }
@@ -7875,12 +7927,10 @@ var ex;
 
             window.addEventListener('blur', function () {
                 _this.eventDispatcher.publish(ex.EventType[14 /* Blur */], new ex.BlurEvent());
-                _this.eventDispatcher.update();
             });
 
             window.addEventListener('focus', function () {
                 _this.eventDispatcher.publish(ex.EventType[15 /* Focus */], new ex.FocusEvent());
-                _this.eventDispatcher.update();
             });
 
             this.canvas.addEventListener('mousedown', function (e) {
@@ -8073,7 +8123,6 @@ var ex;
             }
 
             // process engine level events
-            this.eventDispatcher.update();
             this.currentScene.update(this, delta);
 
             var eventDispatcher = this.eventDispatcher;
