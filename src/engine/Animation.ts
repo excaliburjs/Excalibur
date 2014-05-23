@@ -123,6 +123,15 @@ module ex {
          }
       }
 
+      /**
+       * Skips ahead a specified number of frames in the animation
+       * @method skip
+       * @param frames {number} Frames to skip ahead
+       */
+      public skip(frames: number) {
+         this.currIndex = (this.currIndex + frames) % this.sprites.length;
+      }
+
       public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
          this.tick();
          if (this.currIndex < this.sprites.length) {
