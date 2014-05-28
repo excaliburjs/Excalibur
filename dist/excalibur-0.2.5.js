@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-05-15
+/*! excalibur - v0.2.5 - 2014-05-23
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -5737,6 +5737,15 @@ var ex;
             }
         };
 
+        /**
+        * Skips ahead a specified number of frames in the animation
+        * @method skip
+        * @param frames {number} Frames to skip ahead
+        */
+        Animation.prototype.skip = function (frames) {
+            this.currIndex = (this.currIndex + frames) % this.sprites.length;
+        };
+
         Animation.prototype.draw = function (ctx, x, y) {
             this.tick();
             if (this.currIndex < this.sprites.length) {
@@ -6405,10 +6414,9 @@ var ex;
 /// <reference path="Sound.ts" />
 /// <reference path="Util.ts" />
 /// <reference path="Promises.ts" />
+/// <reference path="Interfaces/ILoadable.ts" />
 var ex;
 (function (ex) {
-    
-
     /**
     * The Texture object allows games built in Excalibur to load image resources.
     * It is generally recommended to preload images using the "Texture" object.
@@ -8360,4 +8368,14 @@ var ex;
     ex.Engine = Engine;
     ;
 })(ex || (ex = {}));
+
+// Captures the global object either window or global
+// in order to detect module.exports for browserify
+if (!global) {
+    var global;
+}
+global = global || window;
+if (global && global.module) {
+    global.module.exports = ex;
+}
 //# sourceMappingURL=excalibur-0.2.5.js.map

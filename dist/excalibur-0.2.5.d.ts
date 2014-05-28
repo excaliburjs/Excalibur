@@ -3200,6 +3200,12 @@ declare module ex {
         * @method tick
         */
         public tick(): void;
+        /**
+        * Skips ahead a specified number of frames in the animation
+        * @method skip
+        * @param frames {number} Frames to skip ahead
+        */
+        public skip(frames: number): void;
         public draw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
         /**
         * Plays an animation at an arbitrary location in the game.
@@ -3494,6 +3500,8 @@ declare module ex {
         */
         isLoaded(): boolean;
     }
+}
+declare module ex {
     /**
     * The Texture object allows games built in Excalibur to load image resources.
     * It is generally recommended to preload images using the "Texture" object.
