@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-05-23
+/*! excalibur - v0.2.5 - 2014-05-28
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -6411,23 +6411,21 @@ var ex;
     })();
     ex.Promise = Promise;
 })(ex || (ex = {}));
-/// <reference path="Sound.ts" />
-/// <reference path="Util.ts" />
-/// <reference path="Promises.ts" />
 /// <reference path="Interfaces/ILoadable.ts" />
 var ex;
 (function (ex) {
     /**
-    * The Texture object allows games built in Excalibur to load image resources.
-    * It is generally recommended to preload images using the "Texture" object.
-    * @class Texture
+    * The Resource type allows games built in Excalibur to load generic resources.
+    * For any type of remote resource it is recome
+    * @class Resource
     * @extend ILoadable
     * @constructor
-    * @param path {string} Path to the image resource
+    * @param path {string} Path to the remote resource
     */
-    var Texture = (function () {
-        function Texture(path) {
+    var Resource = (function () {
+        function Resource(path) {
             this.path = path;
+            this.data = null;
             this.logger = ex.Logger.getInstance();
             this.onprogress = function () {
             };
@@ -6436,10 +6434,108 @@ var ex;
             this.onerror = function () {
             };
         }
-        Texture.prototype._start = function (e) {
-            this.logger.debug("Started loading image " + this.path);
+        /**
+        * Returns true if the Resource is completely loaded and is ready
+        * to be drawn.
+        * @method isLoaded
+        * @returns boolean
+        */
+        Resource.prototype.isLoaded = function () {
+            return !!this.data;
         };
 
+        Resource.prototype.cacheBust = function (uri) {
+            var query = /\?\w*=\w*/;
+            if (query.test(uri)) {
+                uri += ("&__=" + Date.now());
+            } else {
+                uri += ("?__=" + Date.now());
+            }
+            return uri;
+        };
+
+        Resource.prototype._start = function (e) {
+            this.logger.debug("Started loading resource " + this.path);
+        };
+
+        /**
+        * Begin loading the resource and returns a promise to be resolved on completion
+        * @method load
+        * @returns Promise&lt;any&gt;
+        */
+        Resource.prototype.load = function () {
+            var _this = this;
+            var complete = new ex.Promise();
+
+            var request = new XMLHttpRequest();
+            request.open("GET", this.cacheBust(this.path), true);
+            request.responseType = "blob";
+            request.onloadstart = function (e) {
+                _this._start(e);
+            };
+            request.onprogress = this.onprogress;
+            request.onerror = this.onerror;
+            request.onload = function (e) {
+                if (request.status !== 200) {
+                    _this.logger.error("Failed to load resource ", _this.path, " server responded with error code", request.status);
+                    _this.onerror(request.response);
+                    complete.resolve(request.response);
+                    return;
+                }
+
+                _this.data = URL.createObjectURL(request.response);
+                _this.ProcessDownload.call(_this);
+                _this.oncomplete();
+                _this.logger.debug("Completed loading resource", _this.path);
+                complete.resolve(_this.data);
+            };
+            request.send();
+
+            return complete;
+        };
+
+        /**
+        * Returns the loaded data once the resource is loaded
+        * @method GetData
+        * @returns string
+        */
+        Resource.prototype.GetData = function () {
+            return this.data;
+        };
+
+        /**
+        * This method is meant to be overriden to handle any additional
+        * processing. Such as decoding downloaded audio bits.
+        * @method ProcessDownload
+        */
+        Resource.prototype.ProcessDownload = function () {
+            // Handle any additional loading after the xhr has completed.
+        };
+        return Resource;
+    })();
+    ex.Resource = Resource;
+})(ex || (ex = {}));
+/// <reference path="Sound.ts" />
+/// <reference path="Util.ts" />
+/// <reference path="Promises.ts" />
+/// <reference path="Resource.ts" />
+/// <reference path="Interfaces/ILoadable.ts" />
+var ex;
+(function (ex) {
+    /**
+    * The Texture object allows games built in Excalibur to load image resources.
+    * It is generally recommended to preload images using the "Texture" object.
+    * @class Texture
+    * @extend Resource
+    * @constructor
+    * @param path {string} Path to the image resource
+    */
+    var Texture = (function (_super) {
+        __extends(Texture, _super);
+        function Texture(path) {
+            _super.call(this, path);
+            this.path = path;
+        }
         /**
         * Returns true if the Texture is completely loaded and is ready
         * to be drawn.
@@ -6459,37 +6555,18 @@ var ex;
             var _this = this;
             var complete = new ex.Promise();
 
-            this.image = new Image();
-            var request = new XMLHttpRequest();
-            request.open("GET", this.path, true);
-            request.responseType = "blob";
-            request.onloadstart = function (e) {
-                _this._start(e);
-            };
-            request.onprogress = this.onprogress;
-            request.onerror = this.onerror;
-            request.onload = function (e) {
-                if (request.status !== 200) {
-                    _this.logger.error("Failed to load image resource ", _this.path, " server responded with error code", request.status);
-                    _this.onerror(request.response);
-                    complete.resolve(request.response);
-                    return;
-                }
-
-                _this.image.src = URL.createObjectURL(request.response);
-                _this.oncomplete();
-                _this.logger.debug("Completed loading image", _this.path);
+            var loaded = _super.prototype.load.call(this);
+            loaded.then(function () {
+                _this.image = new Image();
+                _this.image.src = _super.prototype.GetData.call(_this);
                 complete.resolve(_this.image);
-            };
-            if (request.overrideMimeType) {
-                request.overrideMimeType('text/plain; charset=x-user-defined');
-            }
-            request.send();
-
+            }, function () {
+                complete.reject("Error loading texture.");
+            });
             return complete;
         };
         return Texture;
-    })();
+    })(ex.Resource);
     ex.Texture = Texture;
 
     /**
@@ -6497,7 +6574,7 @@ var ex;
     * components, from soundtracks to sound effects. It is generally
     * recommended to load sound resources when using Excalibur
     * @class Sound
-    * @extend ILoadable
+    * @extend Resource
     * @constructor
     * @param ...paths {string[]} A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
     */
@@ -8368,14 +8445,10 @@ var ex;
     ex.Engine = Engine;
     ;
 })(ex || (ex = {}));
-
-// Captures the global object either window or global
-// in order to detect module.exports for browserify
-if (!global) {
-    var global;
-}
-global = global || window;
-if (global && global.module) {
-    global.module.exports = ex;
-}
 //# sourceMappingURL=excalibur-0.2.5.js.map
+
+;
+// Concatenated onto excalibur after build
+// Exports the excalibur module so it can be used with browserify
+// https://github.com/excaliburjs/Excalibur/issues/312
+if (typeof module !== 'undefined') {module.exports = ex;}

@@ -3503,14 +3503,60 @@ declare module ex {
 }
 declare module ex {
     /**
+    * The Resource type allows games built in Excalibur to load generic resources.
+    * For any type of remote resource it is recome
+    * @class Resource
+    * @extend ILoadable
+    * @constructor
+    * @param path {string} Path to the remote resource
+    */
+    class Resource<T> implements ILoadable {
+        public path: string;
+        public data: string;
+        public logger: Logger;
+        constructor(path: string);
+        /**
+        * Returns true if the Resource is completely loaded and is ready
+        * to be drawn.
+        * @method isLoaded
+        * @returns boolean
+        */
+        public isLoaded(): boolean;
+        private cacheBust(uri);
+        private _start(e);
+        /**
+        * Begin loading the resource and returns a promise to be resolved on completion
+        * @method load
+        * @returns Promise&lt;any&gt;
+        */
+        public load(): Promise<any>;
+        /**
+        * Returns the loaded data once the resource is loaded
+        * @method GetData
+        * @returns string
+        */
+        public GetData(): string;
+        /**
+        * This method is meant to be overriden to handle any additional
+        * processing. Such as decoding downloaded audio bits.
+        * @method ProcessDownload
+        */
+        public ProcessDownload(): void;
+        public onprogress: (e: any) => void;
+        public oncomplete: () => void;
+        public onerror: (e: any) => void;
+    }
+}
+declare module ex {
+    /**
     * The Texture object allows games built in Excalibur to load image resources.
     * It is generally recommended to preload images using the "Texture" object.
     * @class Texture
-    * @extend ILoadable
+    * @extend Resource
     * @constructor
     * @param path {string} Path to the image resource
     */
-    class Texture implements ILoadable {
+    class Texture extends Resource<HTMLImageElement> {
         public path: string;
         public width: number;
         public height: number;
@@ -3519,12 +3565,10 @@ declare module ex {
         * @property image {HTMLImageElement}
         */
         public image: HTMLImageElement;
-        private logger;
         private progressCallback;
         private doneCallback;
         private errorCallback;
         constructor(path: string);
-        private _start(e);
         /**
         * Returns true if the Texture is completely loaded and is ready
         * to be drawn.
@@ -3538,16 +3582,13 @@ declare module ex {
         * @returns Promise&lt;HTMLImageElement&gt;
         */
         public load(): Promise<HTMLImageElement>;
-        public onprogress: (e: any) => void;
-        public oncomplete: () => void;
-        public onerror: (e: any) => void;
     }
     /**
     * The Sound object allows games built in Excalibur to load audio
     * components, from soundtracks to sound effects. It is generally
     * recommended to load sound resources when using Excalibur
     * @class Sound
-    * @extend ILoadable
+    * @extend Resource
     * @constructor
     * @param ...paths {string[]} A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
     */
