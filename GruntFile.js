@@ -33,11 +33,11 @@ module.exports = function (grunt) {
       //
       concat: {
          main: {
-            src: ['dist/<%= pkg.name %>-<%= pkg.version %>.js'],
+            src: ['dist/<%= pkg.name %>-<%= pkg.version %>.js', 'src/engine/Exports.js'],
             dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js'
          },
          minified: {
-            src: ['dist/<%= pkg.name %>-<%= pkg.version %>.min.js'],
+            src: ['dist/<%= pkg.name %>-<%= pkg.version %>.min.js', 'src/engine/Exports.js'],
             dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.min.js'
          },
          options: {
