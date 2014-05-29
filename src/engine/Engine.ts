@@ -1204,13 +1204,3 @@ module ex {
    };
 
 }
-
-// Captures the global object either window or global
-// in order to detect module.exports for browserify
-if(!global){
-   var global: any;
-}
-global =  (<any>global) || (<any>window);
-if(global && global.module){
-   (<any>global).module.exports = ex;
-}
