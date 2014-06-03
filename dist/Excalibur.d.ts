@@ -245,6 +245,13 @@ declare module ex {
         * @returns Point
         */
         public add(vector: Vector): Point;
+        /**
+        * Sets the x and y components at once
+        * @method setTo
+        * @param x {number}
+        * @param y {number}
+        */
+        public setTo(x: number, y: number): void;
     }
     /**
     * A 2D vector on a plane.
@@ -2592,7 +2599,7 @@ declare module ex {
     * @param y {number} The y coordinate of the event
     * @param mouseEvent {MouseEvent} The native mouse event thrown
     */
-    class MouseDown extends GameEvent {
+    class MouseDownEvent extends GameEvent {
         public x: number;
         public y: number;
         public mouseEvent: MouseEvent;
@@ -2608,7 +2615,7 @@ declare module ex {
     * @param y {number} The y coordinate of the event
     * @param mouseEvent {MouseEvent} The native mouse event thrown
     */
-    class MouseMove extends GameEvent {
+    class MouseMoveEvent extends GameEvent {
         public x: number;
         public y: number;
         public mouseEvent: MouseEvent;
@@ -2624,7 +2631,7 @@ declare module ex {
     * @param y {number} The y coordinate of the event
     * @param mouseEvent {MouseEvent} The native mouse event thrown
     */
-    class MouseUp extends GameEvent {
+    class MouseUpEvent extends GameEvent {
         public x: number;
         public y: number;
         public mouseEvent: MouseEvent;
@@ -2673,7 +2680,7 @@ declare module ex {
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    class TouchStart extends GameEvent {
+    class TouchStartEvent extends GameEvent {
         public x: number;
         public y: number;
         constructor(x: number, y: number);
@@ -2687,7 +2694,7 @@ declare module ex {
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    class TouchMove extends GameEvent {
+    class TouchMoveEvent extends GameEvent {
         public x: number;
         public y: number;
         constructor(x: number, y: number);
@@ -2701,7 +2708,7 @@ declare module ex {
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    class TouchEnd extends GameEvent {
+    class TouchEndEvent extends GameEvent {
         public x: number;
         public y: number;
         constructor(x: number, y: number);
@@ -2715,7 +2722,7 @@ declare module ex {
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    class TouchCancel extends GameEvent {
+    class TouchCancelEvent extends GameEvent {
         public x: number;
         public y: number;
         constructor(x: number, y: number);
@@ -2729,7 +2736,7 @@ declare module ex {
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    class Click extends GameEvent {
+    class ClickEvent extends GameEvent {
         public x: number;
         public y: number;
         public mouseEvent: MouseEvent;
@@ -4188,14 +4195,14 @@ declare module ex {
         public keys: number[];
         public keysDown: number[];
         public keysUp: number[];
-        public clicks: MouseDown[];
-        public mouseDown: MouseDown[];
-        public mouseMove: MouseMove[];
-        public mouseUp: MouseUp[];
-        public touchStart: TouchStart[];
-        public touchMove: TouchMove[];
-        public touchEnd: TouchEnd[];
-        public touchCancel: TouchCancel[];
+        public clicks: MouseDownEvent[];
+        public mouseDown: MouseDownEvent[];
+        public mouseMove: MouseMoveEvent[];
+        public mouseUp: MouseUpEvent[];
+        public touchStart: TouchStartEvent[];
+        public touchMove: TouchMoveEvent[];
+        public touchEnd: TouchEndEvent[];
+        public touchCancel: TouchCancelEvent[];
         /**
         * Gets or sets the camera to be used in the game.
         * @property camera {BaseCamera}

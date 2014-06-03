@@ -51,25 +51,24 @@ describe("A Bounding Box", ()=>{
 
    it('can collide with other bounding boxes', ()=>{
       var b2 = new ex.BoundingBox(2, 0, 20, 10);
-      var b3 = new ex.BoundingBox(10, 0, 30, 10);
+      var b3 = new ex.BoundingBox(12, 0, 28, 10);
 
-      // bb should resolve by being displaced -10 to the left against b2
+      // bb should resolve by being displaced -8 to the left against b2
       expect(bb.collides(b2).x).toBe(-8);
 
-      // b2 should resolve by being displaced -10 to the left against b3
-      expect(b2.collides(b3).x).toBe(-10);
+      // b2 should resolve by being displaced -8 to the left against b3
+      expect(b2.collides(b3).x).toBe(-8);
 
       // bb should not collide with b3, they are only touching
       expect(bb.collides(b3)).toBeFalsy();
 
       b2.top = 5;
-      b2.left = 5;
+      b2.left = 6;
       b2.right = 15;
       b2.bottom = 15;
 
       // bb should be displaced up and out by -5 against b2
-      expect(bb.collides(b2).x).toBe(-5);
-      expect(bb.collides(b2).y).toBe(-5);
+      expect(bb.collides(b2).x).toBe(-4);
 
    });
 });

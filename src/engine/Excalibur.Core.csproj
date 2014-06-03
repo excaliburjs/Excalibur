@@ -92,5 +92,8 @@
     <TypeScriptCompile Include="Trigger.ts" />
     <TypeScriptCompile Include="Util.ts" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Exports.js" />
+  </ItemGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets')" />
 </Project>

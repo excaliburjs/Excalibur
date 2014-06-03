@@ -198,7 +198,7 @@ player.addEventListener('up', ()=>{
    }
 });
 
-player.addEventListener('mousedown', (e?: ex.MouseDown)=>{
+player.addEventListener('mousedown', (e?: ex.MouseDownEvent)=>{
    var button = "";
    if(e.mouseEvent.button == ex.MouseButton.Left){
       button = "Left";
@@ -406,7 +406,7 @@ trigger.target = player;
 
 game.add(trigger);
 
-game.addEventListener('mousedown', (evt? : ex.MouseDown)=>{
+game.addEventListener('mousedown', (evt?: ex.MouseDownEvent)=>{
    var c = tileMap.getCellByPoint(evt.x, evt.y);
    if(c){
       if(c.solid){
