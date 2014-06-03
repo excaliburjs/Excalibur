@@ -205,7 +205,7 @@ module ex {
        * default all actors participate in Active collisions.
        * @property collisionType {CollisionType}
        */
-      public collisionType : CollisionType = CollisionType.Active;
+      public collisionType : CollisionType = CollisionType.PreventCollision;
       public collisionGroups : string[] = [];
 
       private _collisionHandlers: {[key: string]: {(actor: Actor):void}[];} = {};
