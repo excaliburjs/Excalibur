@@ -10,9 +10,9 @@ module ex {
     * @param path {string} Path to the remote resource
     */
    export class Resource<T> implements ILoadable {
-      public data: string = null;
+      public data: T = null;
       public logger: Logger = Logger.getInstance();
-      constructor(public path: string) {}
+      constructor(public path: string, public responseType: string) {}
 
       /**
        * Returns true if the Resource is completely loaded and is ready
@@ -43,12 +43,12 @@ module ex {
        * @method load
        * @returns Promise&lt;any&gt;
        */
-      public load(): Promise<any> {
-         var complete = new Promise<any>();
+      public load(): Promise<T> {
+         var complete = new Promise<T>();
 
          var request = new XMLHttpRequest();
          request.open("GET", this.cacheBust(this.path), true);
-         request.responseType = "blob";
+         request.responseType = this.responseType;
          request.onloadstart = (e) => { this._start(e); };
          request.onprogress = this.onprogress;
          request.onerror = this.onerror;
@@ -60,8 +60,8 @@ module ex {
                return;
             }
 
-            this.data = URL.createObjectURL(request.response);
-            this.ProcessDownload.call(this);
+            this.data = this.processDownload(request.response);
+
             this.oncomplete();
             this.logger.debug("Completed loading resource", this.path);
             complete.resolve(this.data);
@@ -75,9 +75,9 @@ module ex {
       /**
        * Returns the loaded data once the resource is loaded
        * @method GetData
-       * @returns string
+       * @returns any
        */
-      public GetData(): string {
+      public getData(): any {
          return this.data;
       }
 
@@ -86,8 +86,9 @@ module ex {
        * processing. Such as decoding downloaded audio bits.
        * @method ProcessDownload
        */
-      public ProcessDownload(): void{
+      public processDownload(data: T): any{
          // Handle any additional loading after the xhr has completed.
+         return URL.createObjectURL(data);
       }
 
       public onprogress: (e: any) => void = () => { };

@@ -3290,7 +3290,7 @@ var ex;
             * default all actors participate in Active collisions.
             * @property collisionType {CollisionType}
             */
-            this.collisionType = 2 /* Active */;
+            this.collisionType = 0 /* PreventCollision */;
             this.collisionGroups = [];
             this._collisionHandlers = {};
             this._isInitialized = false;
@@ -6434,8 +6434,9 @@ var ex;
     * @param path {string} Path to the remote resource
     */
     var Resource = (function () {
-        function Resource(path) {
+        function Resource(path, responseType) {
             this.path = path;
+            this.responseType = responseType;
             this.data = null;
             this.logger = ex.Logger.getInstance();
             this.onprogress = function () {
@@ -6480,7 +6481,7 @@ var ex;
 
             var request = new XMLHttpRequest();
             request.open("GET", this.cacheBust(this.path), true);
-            request.responseType = "blob";
+            request.responseType = this.responseType;
             request.onloadstart = function (e) {
                 _this._start(e);
             };
@@ -6494,8 +6495,8 @@ var ex;
                     return;
                 }
 
-                _this.data = URL.createObjectURL(request.response);
-                _this.ProcessDownload.call(_this);
+                _this.data = _this.processDownload(request.response);
+
                 _this.oncomplete();
                 _this.logger.debug("Completed loading resource", _this.path);
                 complete.resolve(_this.data);
@@ -6508,9 +6509,9 @@ var ex;
         /**
         * Returns the loaded data once the resource is loaded
         * @method GetData
-        * @returns string
+        * @returns any
         */
-        Resource.prototype.GetData = function () {
+        Resource.prototype.getData = function () {
             return this.data;
         };
 
@@ -6519,8 +6520,9 @@ var ex;
         * processing. Such as decoding downloaded audio bits.
         * @method ProcessDownload
         */
-        Resource.prototype.ProcessDownload = function () {
+        Resource.prototype.processDownload = function (data) {
             // Handle any additional loading after the xhr has completed.
+            return URL.createObjectURL(data);
         };
         return Resource;
     })();
@@ -6544,7 +6546,7 @@ var ex;
     var Texture = (function (_super) {
         __extends(Texture, _super);
         function Texture(path) {
-            _super.call(this, path);
+            _super.call(this, path, 'blob');
             this.path = path;
         }
         /**
@@ -6569,7 +6571,7 @@ var ex;
             var loaded = _super.prototype.load.call(this);
             loaded.then(function () {
                 _this.image = new Image();
-                _this.image.src = _super.prototype.GetData.call(_this);
+                _this.image.src = _super.prototype.getData.call(_this);
                 complete.resolve(_this.image);
             }, function () {
                 complete.reject("Error loading texture.");

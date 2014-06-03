@@ -3519,9 +3519,10 @@ declare module ex {
     */
     class Resource<T> implements ILoadable {
         public path: string;
-        public data: string;
+        public responseType: string;
+        public data: T;
         public logger: Logger;
-        constructor(path: string);
+        constructor(path: string, responseType: string);
         /**
         * Returns true if the Resource is completely loaded and is ready
         * to be drawn.
@@ -3536,19 +3537,19 @@ declare module ex {
         * @method load
         * @returns Promise&lt;any&gt;
         */
-        public load(): Promise<any>;
+        public load(): Promise<T>;
         /**
         * Returns the loaded data once the resource is loaded
         * @method GetData
-        * @returns string
+        * @returns any
         */
-        public GetData(): string;
+        public getData(): any;
         /**
         * This method is meant to be overriden to handle any additional
         * processing. Such as decoding downloaded audio bits.
         * @method ProcessDownload
         */
-        public ProcessDownload(): void;
+        public processDownload(data: T): any;
         public onprogress: (e: any) => void;
         public oncomplete: () => void;
         public onerror: (e: any) => void;
