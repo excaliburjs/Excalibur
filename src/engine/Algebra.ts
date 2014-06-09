@@ -53,6 +53,17 @@ module ex {
          return new Point(this.x + vector.x, this.y + vector.y);
       }
 
+      /**
+       * Sets the x and y components at once
+       * @method setTo
+       * @param x {number}
+       * @param y {number}
+       */
+      public setTo(x: number, y: number){
+         this.x = x;
+         this.y = y;
+      }
+
    }
 
    /**

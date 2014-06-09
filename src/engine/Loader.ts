@@ -29,7 +29,7 @@ module ex {
       private errorCallback: (e: string) => void;
 
       constructor(public path: string) {
-         super(path);
+         super(path, 'blob');
       }
       
 
@@ -54,7 +54,7 @@ module ex {
          var loaded = super.load();
          loaded.then(() => {
             this.image = new Image();
-            this.image.src = super.GetData();
+            this.image.src = super.getData();
             complete.resolve(this.image);
          }, () => {
             complete.reject("Error loading texture.");

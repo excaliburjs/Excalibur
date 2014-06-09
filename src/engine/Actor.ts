@@ -205,7 +205,7 @@ module ex {
        * default all actors participate in Active collisions.
        * @property collisionType {CollisionType}
        */
-      public collisionType : CollisionType = CollisionType.Active;
+      public collisionType : CollisionType = CollisionType.PreventCollision;
       public collisionGroups : string[] = [];
 
       private _collisionHandlers: {[key: string]: {(actor: Actor):void}[];} = {};
@@ -937,44 +937,44 @@ module ex {
          // Publish click events
          engine.clicks.forEach((e) => {
             if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.Click], new Click(e.x, e.y, e.mouseEvent));
-               eventDispatcher.publish(EventType[EventType.MouseDown], new MouseDown(e.x, e.y, e.mouseEvent));
+               eventDispatcher.publish(EventType[EventType.Click], new ClickEvent(e.x, e.y, e.mouseEvent));
+               eventDispatcher.publish(EventType[EventType.MouseDown], new MouseDownEvent(e.x, e.y, e.mouseEvent));
             }
          });
 
          engine.mouseMove.forEach((e) => {
             if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.MouseMove], new MouseMove(e.x, e.y, e.mouseEvent));
+               eventDispatcher.publish(EventType[EventType.MouseMove], new MouseMoveEvent(e.x, e.y, e.mouseEvent));
             }
          });
 
          engine.mouseUp.forEach((e)=> {
             if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.MouseUp], new MouseUp(e.x, e.y, e.mouseEvent));
+               eventDispatcher.publish(EventType[EventType.MouseUp], new MouseUpEvent(e.x, e.y, e.mouseEvent));
             }
          });
 
          engine.touchStart.forEach((e) => {
             if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.TouchStart], new TouchStart(e.x, e.y));
+               eventDispatcher.publish(EventType[EventType.TouchStart], new TouchStartEvent(e.x, e.y));
             }
          });
 
          engine.touchMove.forEach((e) => {
             if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.TouchMove], new TouchMove(e.x, e.y));
+               eventDispatcher.publish(EventType[EventType.TouchMove], new TouchMoveEvent(e.x, e.y));
             }
          });
 
          engine.touchEnd.forEach((e) => {
             if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.TouchEnd], new TouchEnd(e.x, e.y));
+               eventDispatcher.publish(EventType[EventType.TouchEnd], new TouchEndEvent(e.x, e.y));
             }
          });
 
          engine.touchCancel.forEach((e) => {
             if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.TouchCancel], new TouchCancel(e.x, e.y));
+               eventDispatcher.publish(EventType[EventType.TouchCancel], new TouchCancelEvent(e.x, e.y));
             }
          });
 

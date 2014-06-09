@@ -9,6 +9,7 @@ describe("A game actor", () => {
    var scene;
 	beforeEach(()=>{
 		actor = new ex.Actor();
+      actor.collisionType = ex.CollisionType.Active;
       scene = new ex.Scene();
 		// mock engine		
 	   engine = {
@@ -182,7 +183,9 @@ describe("A game actor", () => {
 
    it('participates with another in a collision', ()=>{
       var actor = new ex.Actor(0, 0, 10, 10);
+      actor.collisionType = ex.CollisionType.Active;
       var other = new ex.Actor(8, 0, 10, 10);
+      other.collisionType = ex.CollisionType.Active;
       var actorCalled = 'false';
       var otherCalled = 'false';
 

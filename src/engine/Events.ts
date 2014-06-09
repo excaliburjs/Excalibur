@@ -358,7 +358,7 @@ module ex {
     * @param y {number} The y coordinate of the event
     * @param mouseEvent {MouseEvent} The native mouse event thrown 
     */
-   export class MouseDown extends GameEvent {
+   export class MouseDownEvent extends GameEvent {
       constructor(public x: number, public y: number, public mouseEvent: MouseEvent) {
          super();
       }
@@ -374,7 +374,7 @@ module ex {
     * @param y {number} The y coordinate of the event
     * @param mouseEvent {MouseEvent} The native mouse event thrown 
     */
-   export class MouseMove extends GameEvent {
+   export class MouseMoveEvent extends GameEvent {
       constructor(public x: number, public y: number, public mouseEvent: MouseEvent) {
          super();
       }
@@ -390,7 +390,7 @@ module ex {
     * @param y {number} The y coordinate of the event
     * @param mouseEvent {MouseEvent} The native mouse event thrown 
     */
-   export class MouseUp extends GameEvent {
+   export class MouseUpEvent extends GameEvent {
       constructor(public x: number, public y: number, public mouseEvent: MouseEvent) {
          super();
       }
@@ -448,7 +448,7 @@ module ex {
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-   export class TouchStart extends GameEvent {
+   export class TouchStartEvent extends GameEvent {
       constructor(public x: number, public y: number) {
          super();
       }
@@ -463,7 +463,7 @@ module ex {
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-   export class TouchMove extends GameEvent {
+   export class TouchMoveEvent extends GameEvent {
       constructor(public x: number, public y: number) {
          super();
       }
@@ -478,7 +478,7 @@ module ex {
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-   export class TouchEnd extends GameEvent {
+   export class TouchEndEvent extends GameEvent {
       constructor(public x: number, public y: number) {
          super();
       }
@@ -493,7 +493,7 @@ module ex {
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-   export class TouchCancel extends GameEvent {
+   export class TouchCancelEvent extends GameEvent {
       constructor(public x: number, public y: number) {
          super();
       }
@@ -508,7 +508,7 @@ module ex {
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-   export class Click extends GameEvent {
+   export class ClickEvent extends GameEvent {
       constructor(public x: number, public y: number, public mouseEvent: MouseEvent) {
          super();
       }

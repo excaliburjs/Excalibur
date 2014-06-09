@@ -104,6 +104,7 @@ game.add(follower);
 
 // Create the player
 var player = new ex.Actor(100,-200,32,96);
+player.collisionType = ex.CollisionType.Active;
 follower.meet(player, 60);
 
 
@@ -187,7 +188,7 @@ player.addEventListener('right', ()=>{
 
 player.addEventListener('up', ()=>{
    if(!inAir){
-      player.dy -= jumpSpeed;
+      player.dy = -jumpSpeed;
       inAir = true;
       if (direction === 1) {
          player.setDrawing(Animations.JumpRight);
@@ -198,7 +199,7 @@ player.addEventListener('up', ()=>{
    }
 });
 
-player.addEventListener('mousedown', (e?: ex.MouseDown)=>{
+player.addEventListener('mousedown', (e?: ex.MouseDownEvent)=>{
    var button = "";
    if(e.mouseEvent.button == ex.MouseButton.Left){
       button = "Left";
@@ -406,7 +407,7 @@ trigger.target = player;
 
 game.add(trigger);
 
-game.addEventListener('mousedown', (evt? : ex.MouseDown)=>{
+game.addEventListener('mousedown', (evt?: ex.MouseDownEvent)=>{
    var c = tileMap.getCellByPoint(evt.x, evt.y);
    if(c){
       if(c.solid){
