@@ -1,52 +1,21 @@
 /// <reference path="Sound.ts" />
 /// <reference path="Util.ts" />
 /// <reference path="Promises.ts" />
+/// <reference path="Resource.ts" />
+/// <reference path="Interfaces/ILoadable.ts" />
 
 module ex {
-   /**
-    * An interface describing loadable resources in Excalibur
-    * @class ILoadable
-    */
-   export interface ILoadable {
-      /**
-       * Begins loading the resource and returns a promise to be resolved on completion
-       * @method load
-       * @returns Promise&lt;any&gt;
-       */
-      load(): Promise<any>;
-      /**
-       * onprogress handler
-       * @property onprogress {any=>void}
-       */
-      onprogress: (e: any) => void;
-      /**
-       * oncomplete handler
-       * @property oncomplete {any=>void}
-       */
-      oncomplete: () => void;
-      /**
-       * onerror handler
-       * @property onerror {any=>void}
-       */
-      onerror: (e: any) => void;
-
-      /**
-       * Returns true if the loadable is loaded
-       * @method isLoaded
-       * @returns boolean
-       */
-       isLoaded(): boolean;
-   }
+   
 
    /**
     * The Texture object allows games built in Excalibur to load image resources.
     * It is generally recommended to preload images using the "Texture" object.
     * @class Texture
-    * @extend ILoadable
+    * @extend Resource
     * @constructor
     * @param path {string} Path to the image resource
     */
-   export class Texture implements ILoadable {
+   export class Texture extends Resource<HTMLImageElement> {
       public width: number;
       public height: number;
       /**
@@ -54,18 +23,15 @@ module ex {
        * @property image {HTMLImageElement}
        */
       public image: HTMLImageElement;
-      private logger: Logger = Logger.getInstance();
 
       private progressCallback: (progress: number, total: number) => void
       private doneCallback: () => void;
       private errorCallback: (e: string) => void;
 
       constructor(public path: string) {
+         super(path, 'blob');
       }
-
-      private _start(e: any) {
-         this.logger.debug("Started loading image " + this.path);
-      }
+      
 
       /**
        * Returns true if the Texture is completely loaded and is ready
@@ -85,39 +51,17 @@ module ex {
       public load(): Promise<HTMLImageElement> {
          var complete = new Promise<HTMLImageElement>();
 
-         this.image = new Image();
-         var request = new XMLHttpRequest();
-         request.open("GET", this.path, true);
-         request.responseType = "blob";
-         request.onloadstart = (e) => { this._start(e) };
-         request.onprogress = this.onprogress;
-         request.onerror = this.onerror;
-         request.onload = (e) => {
-            if(request.status !== 200){
-               this.logger.error("Failed to load image resource ", this.path, " server responded with error code", request.status);
-               this.onerror(request.response);
-               complete.resolve(request.response);
-               return;
-            }
-
-            this.image.src = URL.createObjectURL(request.response);
-            this.oncomplete()
-            this.logger.debug("Completed loading image", this.path);
+         var loaded = super.load();
+         loaded.then(() => {
+            this.image = new Image();
+            this.image.src = super.getData();
             complete.resolve(this.image);
-         };
-         if (request.overrideMimeType) {
-            request.overrideMimeType('text/plain; charset=x-user-defined');
-         }
-         request.send();
-
+         }, () => {
+            complete.reject("Error loading texture.");
+         });
          return complete;
       }
 
-      public onprogress: (e: any) => void = () => { };
-
-      public oncomplete: () => void = () => { };
-
-      public onerror: (e: any) => void = () => { };
    }
 
    /**
@@ -125,7 +69,7 @@ module ex {
     * components, from soundtracks to sound effects. It is generally 
     * recommended to load sound resources when using Excalibur
     * @class Sound
-    * @extend ILoadable
+    * @extend Resource
     * @constructor
     * @param ...paths {string[]} A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
     */

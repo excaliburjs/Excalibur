@@ -64,7 +64,9 @@
       <Name>Excalibur.Core</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="html\healthbar.tmpl" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="html\index.html" />
     <Content Include="images\BlockA0.png" />

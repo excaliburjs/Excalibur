@@ -169,6 +169,44 @@ declare module ex {
 }
 declare module ex {
     /**
+    * An enum that describes the sides of an Actor for collision
+    * @class Side
+    */
+    enum Side {
+        /**
+        @property None {Side}
+        @static
+        @final
+        */
+        None = 0,
+        /**
+        @property Top {Side}
+        @static
+        @final
+        */
+        Top = 1,
+        /**
+        @property Bottom {Side}
+        @static
+        @final
+        */
+        Bottom = 2,
+        /**
+        @property Left {Side}
+        @static
+        @final
+        */
+        Left = 3,
+        /**
+        @property Right {Side}
+        @static
+        @final
+        */
+        Right = 4,
+    }
+}
+declare module ex {
+    /**
     * A simple 2D point on a plane
     * @class Point
     * @constructor
@@ -207,6 +245,13 @@ declare module ex {
         * @returns Point
         */
         public add(vector: Vector): Point;
+        /**
+        * Sets the x and y components at once
+        * @method setTo
+        * @param x {number}
+        * @param y {number}
+        */
+        public setTo(x: number, y: number): void;
     }
     /**
     * A 2D vector on a plane.
@@ -1056,6 +1101,37 @@ declare module ex {
 }
 declare module ex {
     /**
+    * Collision pairs are used internally by Excalibur to resolve collision between actors. The
+    * Pair prevents collisions from being evaluated more than one time
+    * @class CollisionPair
+    * @constructor
+    * @param left {Actor} The first actor in the collision pair
+    * @param right {Actor} The second actor in the collision pair
+    * @param intersect {Vector} The minimum translation vector to separate the actors from the perspective of the left actor
+    * @param side {Side} The side on which the collision occured from the perspective of the left actor
+    */
+    class CollisionPair {
+        public left: Actor;
+        public right: Actor;
+        public intersect: Vector;
+        public side: Side;
+        constructor(left: Actor, right: Actor, intersect: Vector, side: Side);
+        /**
+        * Determines if this collision pair and another are equivalent.
+        * @method equals
+        * @param collisionPair {CollisionPair}
+        * @returns boolean
+        */
+        public equals(collisionPair: CollisionPair): boolean;
+        /**
+        * Evaluates the collision pair, performing collision resolution and event publishing appropriate to each collision type.
+        * @method evaluate
+        */
+        public evaluate(): void;
+    }
+}
+declare module ex {
+    /**
     * Actors are composed together into groupings called Scenes in
     * Excalibur. The metaphor models the same idea behind real world
     * actors in a scene. Only actors in scenes will be updated and drawn.
@@ -1075,6 +1151,7 @@ declare module ex {
         private timers;
         private cancelQueue;
         private _isInitialized;
+        public _collisionPairs: CollisionPair[];
         constructor();
         /**
         * This is called when the scene is made active and started. It is meant to be overriden,
@@ -1123,12 +1200,66 @@ declare module ex {
         */
         public debugDraw(ctx: CanvasRenderingContext2D): void;
         /**
+        * Adds an excalibur Timer to the current scene.
+        * @param timer {Timer} The timer to add to the current scene.
+        * @method add
+        */
+        public add(timer: Timer): void;
+        /**
+        * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+        * @method add
+        * @param tileMap {TileMap}
+        */
+        public add(tileMap: TileMap): void;
+        /**
+        * Adds an actor to the Scene, once this is done the Actor will be drawn and updated.
+        * @method add
+        * @param actor {Actor} The actor to add to the current scene
+        */
+        public add(actor: Actor): void;
+        /**
+        * Adds a collision resolution pair to the current scene. Should only be called
+        * by actors.
+        * @method addCollisionPair
+        * @param collisionPair {CollisionPair}
+        *
+        */
+        public addCollisionPair(collisionPair: CollisionPair): void;
+        /**
+        * Removes an excalibur Timer from the current scene.
+        * @method remove
+        * @param timer {Timer} The timer to remove to the current scene.
+        */
+        public remove(timer: Timer): void;
+        /**
+        * Removes a TileMap from the Scene, it will no longer be drawn or updated.
+        * @method remove
+        * @param tileMap {TileMap}
+        */
+        public remove(tileMap: TileMap): void;
+        /**
+        * Removes an actor from the Scene, it will no longer be drawn or updated.
+        * @method remove
+        * @param actor {Actor} The actor to remove from the current scene.
+        */
+        public remove(actor: Actor): void;
+        /**
         * Adds an actor to the Scene, once this is done the actor will be drawn and updated.
         * @method addChild
-        * @param actor {Actor} The actor to add
+        * @param actor {Actor}
         */
         public addChild(actor: Actor): void;
+        /**
+        * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+        * @method addTileMap
+        * @param tileMap {TileMap}
+        */
         public addTileMap(tileMap: TileMap): void;
+        /**
+        * Removes a TileMap from the Scene, it willno longer be drawn or updated.
+        * @method removeTileMap
+        * @param tileMap {TileMap}
+        */
         public removeTileMap(tileMap: TileMap): void;
         /**
         * Removes an actor from the Scene, it will no longer be drawn or updated.
@@ -1169,8 +1300,6 @@ declare module ex {
 }
 declare module ex.Internal.Actions {
     interface IAction {
-        x: number;
-        y: number;
         update(delta: number): void;
         isComplete(actor: Actor): boolean;
         reset(): void;
@@ -1338,19 +1467,15 @@ declare module ex.Internal.Actions {
         public reset(): void;
     }
     class Blink implements IAction {
-        public x: number;
-        public y: number;
-        private frequency;
-        private duration;
-        private actor;
-        private numBlinks;
-        private blinkTime;
-        private _started;
-        private nextBlink;
+        private timeVisible;
+        private timeNotVisible;
         private elapsedTime;
-        private isBlinking;
+        private totalTime;
+        private actor;
+        private duration;
         private _stopped;
-        constructor(actor: Actor, frequency: number, duration: number, blinkTime?: number);
+        private _started;
+        constructor(actor: Actor, timeVisible: number, timeNotVisible: number, numBlinks?: number);
         public update(delta: any): void;
         public isComplete(actor: Actor): boolean;
         public stop(): void;
@@ -1437,47 +1562,6 @@ declare module ex.Internal.Actions {
     }
 }
 declare module ex {
-    class Overlap {
-        public x: number;
-        public y: number;
-        constructor(x: number, y: number);
-    }
-    /**
-    * An enum that describes the sides of an Actor for collision
-    * @class Side
-    */
-    enum Side {
-        /**
-        @property None {Side}
-        @static
-        @final
-        */
-        None = 0,
-        /**
-        @property Top {Side}
-        @static
-        @final
-        */
-        Top = 1,
-        /**
-        @property Bottom {Side}
-        @static
-        @final
-        */
-        Bottom = 2,
-        /**
-        @property Left {Side}
-        @static
-        @final
-        */
-        Left = 3,
-        /**
-        @property Right {Side}
-        @static
-        @final
-        */
-        Right = 4,
-    }
     /**
     * An enum that describes the types of collisions actors can participate in
     * @class CollisionType
@@ -1550,6 +1634,18 @@ declare module ex {
         * @property y {number}
         */
         public y: number;
+        /**
+        * The anchor to apply all actor related transformations like rotation,
+        * translation, and rotation. By default the anchor is in the center of
+        * the actor.
+        * @property anchor {Point}
+        */
+        public anchor: Point;
+        /**
+        * Gets the calculated anchor point, should not be set.
+        * @property calculatedAnchor {Point}
+        */
+        public calculatedAnchor: Point;
         private height;
         private width;
         /**
@@ -1609,9 +1705,9 @@ declare module ex {
         public isOffScreen: boolean;
         /**
         * The visibility of an actor
-        * @property invisible {boolean}
+        * @property visible {boolean}
         */
-        public invisible: boolean;
+        public visible: boolean;
         /**
         * The opacity of an actor
         * @property opacity {number}
@@ -1928,19 +2024,17 @@ declare module ex {
         */
         public scaleBy(sizeX: number, sizeY: number, time: number): Actor;
         /**
-        * This method will cause an actor to blink (become visible and and
-        * invisible) at a frequency (blinks per second) for a duration (in
-        * milliseconds). Optionally, you may specify blinkTime, which indicates
-        * the amount of time the actor is invisible during each blink.<br/>
-        * To have the actor blink 3 times in 1 second, call actor.blink(3, 1000).<br/>
+        * This method will cause an actor to blink (become visible and not
+        * visible). Optionally, you may specify the number of blinks. Specify the amount of time
+        * the actor should be visible per blink, and the amount of time not visible.
         * This method is part of the actor 'Action' fluent API allowing action chaining.
         * @method blink
-        * @param frequency {number} The blinks per second
-        * @param duration {number} The total duration of the blinking specified in milliseconds
-        * @param [blinkTime=200] {number} The amount of time each blink that the actor is visible in milliseconds
+        * @param timeVisible {number} The amount of time to stay visible per blink in milliseconds
+        * @param timeNotVisible {number} The amount of time to stay not visible per blink in milliseconds
+        * @param [numBlinks] {number} The number of times to blink
         * @returns Actor
         */
-        public blink(frequency: number, duration: number, blinkTime?: number): Actor;
+        public blink(timeVisible: number, timeNotVisible: number, numBlinks?: number): Actor;
         /**
         * This method will cause an actor's opacity to change from its current value
         * to the provided value by a specified time (in milliseconds). This method is
@@ -2505,7 +2599,7 @@ declare module ex {
     * @param y {number} The y coordinate of the event
     * @param mouseEvent {MouseEvent} The native mouse event thrown
     */
-    class MouseDown extends GameEvent {
+    class MouseDownEvent extends GameEvent {
         public x: number;
         public y: number;
         public mouseEvent: MouseEvent;
@@ -2521,7 +2615,7 @@ declare module ex {
     * @param y {number} The y coordinate of the event
     * @param mouseEvent {MouseEvent} The native mouse event thrown
     */
-    class MouseMove extends GameEvent {
+    class MouseMoveEvent extends GameEvent {
         public x: number;
         public y: number;
         public mouseEvent: MouseEvent;
@@ -2537,7 +2631,7 @@ declare module ex {
     * @param y {number} The y coordinate of the event
     * @param mouseEvent {MouseEvent} The native mouse event thrown
     */
-    class MouseUp extends GameEvent {
+    class MouseUpEvent extends GameEvent {
         public x: number;
         public y: number;
         public mouseEvent: MouseEvent;
@@ -2586,7 +2680,7 @@ declare module ex {
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    class TouchStart extends GameEvent {
+    class TouchStartEvent extends GameEvent {
         public x: number;
         public y: number;
         constructor(x: number, y: number);
@@ -2600,7 +2694,7 @@ declare module ex {
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    class TouchMove extends GameEvent {
+    class TouchMoveEvent extends GameEvent {
         public x: number;
         public y: number;
         constructor(x: number, y: number);
@@ -2614,7 +2708,7 @@ declare module ex {
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    class TouchEnd extends GameEvent {
+    class TouchEndEvent extends GameEvent {
         public x: number;
         public y: number;
         constructor(x: number, y: number);
@@ -2628,7 +2722,7 @@ declare module ex {
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    class TouchCancel extends GameEvent {
+    class TouchCancelEvent extends GameEvent {
         public x: number;
         public y: number;
         constructor(x: number, y: number);
@@ -2642,7 +2736,7 @@ declare module ex {
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    class Click extends GameEvent {
+    class ClickEvent extends GameEvent {
         public x: number;
         public y: number;
         public mouseEvent: MouseEvent;
@@ -2651,14 +2745,13 @@ declare module ex {
 }
 declare module ex {
     /**
-    * Excalibur's internal queueing event dispatcher. Callbacks are queued up and not fired until the update is called.
+    * Excalibur's internal event dispatcher implementation. Callbacks are fired immediately after an event is published
     * @class EventDispatcher
     * @constructor
     * @param target {any} The object that will be the recipient of events from this event dispatcher
     */
     class EventDispatcher {
         private _handlers;
-        private queue;
         private target;
         private log;
         constructor(target: any);
@@ -2686,11 +2779,6 @@ declare module ex {
         *
         */
         public unsubscribe(eventName: string, handler?: (event?: GameEvent) => void): void;
-        /**
-        * Dispatches all queued events to their handlers for execution.
-        * @method update
-        */
-        public update(): void;
     }
 }
 declare module ex {
@@ -2937,6 +3025,7 @@ declare module ex {
     * @param [height=0] {number} The height of the emitter
     */
     class ParticleEmitter extends Actor {
+        private _particlesToEmit;
         public numParticles: number;
         /**
         * Gets or sets the isEmitting flag
@@ -3118,6 +3207,12 @@ declare module ex {
         * @method tick
         */
         public tick(): void;
+        /**
+        * Skips ahead a specified number of frames in the animation
+        * @method skip
+        * @param frames {number} Frames to skip ahead
+        */
+        public skip(frames: number): void;
         public draw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
         /**
         * Plays an animation at an arbitrary location in the game.
@@ -3152,7 +3247,7 @@ declare module ex {
         private zoomIncrement;
         constructor(engine: Engine);
         /**
-        * Sets the {{#crossLink Actor}}{{//crossLink}} to follow with the camera
+        * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
         * @method setActorToFollow
         * @param actor {Actor} The actor to follow
         */
@@ -3412,15 +3507,64 @@ declare module ex {
         */
         isLoaded(): boolean;
     }
+}
+declare module ex {
+    /**
+    * The Resource type allows games built in Excalibur to load generic resources.
+    * For any type of remote resource it is recome
+    * @class Resource
+    * @extend ILoadable
+    * @constructor
+    * @param path {string} Path to the remote resource
+    */
+    class Resource<T> implements ILoadable {
+        public path: string;
+        public responseType: string;
+        public data: T;
+        public logger: Logger;
+        constructor(path: string, responseType: string);
+        /**
+        * Returns true if the Resource is completely loaded and is ready
+        * to be drawn.
+        * @method isLoaded
+        * @returns boolean
+        */
+        public isLoaded(): boolean;
+        private cacheBust(uri);
+        private _start(e);
+        /**
+        * Begin loading the resource and returns a promise to be resolved on completion
+        * @method load
+        * @returns Promise&lt;any&gt;
+        */
+        public load(): Promise<T>;
+        /**
+        * Returns the loaded data once the resource is loaded
+        * @method GetData
+        * @returns any
+        */
+        public getData(): any;
+        /**
+        * This method is meant to be overriden to handle any additional
+        * processing. Such as decoding downloaded audio bits.
+        * @method ProcessDownload
+        */
+        public processDownload(data: T): any;
+        public onprogress: (e: any) => void;
+        public oncomplete: () => void;
+        public onerror: (e: any) => void;
+    }
+}
+declare module ex {
     /**
     * The Texture object allows games built in Excalibur to load image resources.
     * It is generally recommended to preload images using the "Texture" object.
     * @class Texture
-    * @extend ILoadable
+    * @extend Resource
     * @constructor
     * @param path {string} Path to the image resource
     */
-    class Texture implements ILoadable {
+    class Texture extends Resource<HTMLImageElement> {
         public path: string;
         public width: number;
         public height: number;
@@ -3429,12 +3573,10 @@ declare module ex {
         * @property image {HTMLImageElement}
         */
         public image: HTMLImageElement;
-        private logger;
         private progressCallback;
         private doneCallback;
         private errorCallback;
         constructor(path: string);
-        private _start(e);
         /**
         * Returns true if the Texture is completely loaded and is ready
         * to be drawn.
@@ -3448,16 +3590,13 @@ declare module ex {
         * @returns Promise&lt;HTMLImageElement&gt;
         */
         public load(): Promise<HTMLImageElement>;
-        public onprogress: (e: any) => void;
-        public oncomplete: () => void;
-        public onerror: (e: any) => void;
     }
     /**
     * The Sound object allows games built in Excalibur to load audio
     * components, from soundtracks to sound effects. It is generally
     * recommended to load sound resources when using Excalibur
     * @class Sound
-    * @extend ILoadable
+    * @extend Resource
     * @constructor
     * @param ...paths {string[]} A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
     */
@@ -4057,14 +4196,14 @@ declare module ex {
         public keys: number[];
         public keysDown: number[];
         public keysUp: number[];
-        public clicks: MouseDown[];
-        public mouseDown: MouseDown[];
-        public mouseMove: MouseMove[];
-        public mouseUp: MouseUp[];
-        public touchStart: TouchStart[];
-        public touchMove: TouchMove[];
-        public touchEnd: TouchEnd[];
-        public touchCancel: TouchCancel[];
+        public clicks: MouseDownEvent[];
+        public mouseDown: MouseDownEvent[];
+        public mouseMove: MouseMoveEvent[];
+        public mouseUp: MouseUpEvent[];
+        public touchStart: TouchStartEvent[];
+        public touchMove: TouchMoveEvent[];
+        public touchEnd: TouchEndEvent[];
+        public touchCancel: TouchCancelEvent[];
         /**
         * Gets or sets the camera to be used in the game.
         * @property camera {BaseCamera}
@@ -4138,7 +4277,17 @@ declare module ex {
         * @param actor {Actor} The actor to remove from the current scene.
         */
         public removeChild(actor: Actor): void;
+        /**
+        * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+        * @method addTileMap
+        * @param tileMap {TileMap}
+        */
         public addTileMap(tileMap: TileMap): void;
+        /**
+        * Removes a TileMap from the Scene, it willno longer be drawn or updated.
+        * @method removeTileMap
+        * @param tileMap {TileMap}
+        */
         public removeTileMap(tileMap: TileMap): void;
         /**
         * Adds an excalibur timer to the current scene.
@@ -4160,6 +4309,81 @@ declare module ex {
         * @param scene {Scene} The scene to add to the engine
         */
         public addScene(name: string, scene: Scene): void;
+        /**
+        * Removes a scene from the engine
+        * @method removeScene
+        * @param scene {Scene} The scene to remove
+        */
+        public removeScene(scene: Scene): void;
+        /**
+        * Removes a scene from the engine
+        * @method removeScene
+        * @param sceneName {string} The scene to remove
+        */
+        public removeScene(sceneName: string): void;
+        /**
+        * Adds a scene to the engine, think of scenes in excalibur as you
+        * would scenes in a play.
+        * @method add
+        * @param name {string} The name of the scene, must be unique
+        * @param scene {Scene} The scene to add to the engine
+        */
+        public add(sceneName: string, scene: Scene): void;
+        /**
+        * Adds an excalibur timer to the current scene.
+        * @param timer {Timer} The timer to add to the current scene.
+        * @method add
+        */
+        public add(timer: Timer): void;
+        /**
+        * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+        * @method add
+        * @param tileMap {TileMap}
+        */
+        public add(tileMap: TileMap): void;
+        /**
+        * Adds an actor to the current scene of the game. This is synonymous
+        * to calling engine.currentScene.addChild(actor : Actor).
+        *
+        * Actors can only be drawn if they are a member of a scene, and only
+        * the 'currentScene' may be drawn or updated.
+        * @method add
+        * @param actor {Actor} The actor to add to the current scene
+        */
+        public add(actor: Actor): void;
+        /**
+        * Removes a scene from the engine
+        * @method removeScene
+        * @param scene {Scene} The scene to remove
+        */
+        public remove(scene: Scene): void;
+        /**
+        * Removes a scene from the engine
+        * @method removeScene
+        * @param sceneName {string} The scene to remove
+        */
+        public remove(sceneName: string): void;
+        /**
+        * Removes an excalibur timer from the current scene.
+        * @method remove
+        * @param timer {Timer} The timer to remove to the current scene.
+        */
+        public remove(timer: Timer): void;
+        /**
+        * Removes a TileMap from the Scene, it willno longer be drawn or updated.
+        * @method remove
+        * @param tileMap {TileMap}
+        */
+        public remove(tileMap: TileMap): void;
+        /**
+        * Removes an actor from the currentScene of the game. This is synonymous
+        * to calling engine.currentScene.removeChild(actor : Actor).
+        * Actors that are removed from a scene will no longer be drawn or updated.
+        *
+        * @method remove
+        * @param actor {Actor} The actor to remove from the current scene.
+        */
+        public remove(actor: Actor): void;
         /**
         * Changes the currently updating and drawing scene to a different,
         * named scene.

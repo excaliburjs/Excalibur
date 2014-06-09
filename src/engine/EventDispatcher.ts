@@ -2,14 +2,13 @@
 
 module ex {
    /**
-    * Excalibur's internal queueing event dispatcher. Callbacks are queued up and not fired until the update is called.
+    * Excalibur's internal event dispatcher implementation. Callbacks are fired immediately after an event is published
     * @class EventDispatcher
     * @constructor
     * @param target {any} The object that will be the recipient of events from this event dispatcher
     */
    export class EventDispatcher {
       private _handlers: { [key: string]: { (event?: GameEvent): void }[]; } = {};
-      private queue: { (any: void): void }[] = [];
       private target: any;
       private log: Logger = Logger.getInstance();
       constructor(target) {
@@ -28,7 +27,6 @@ module ex {
             return;
          }
          eventName = eventName.toLowerCase();
-         var queue = this.queue;
          var target = this.target;
          if(!event){
             event = new GameEvent();
@@ -36,9 +34,7 @@ module ex {
          event.target = target;
          if (this._handlers[eventName]) {
             this._handlers[eventName].forEach(function (callback) {
-               queue.push(function () {
-                  callback.call(target, event);
-               });
+               callback.call(target, event);
             });
          }
       }
@@ -80,17 +76,5 @@ module ex {
             }
          }
       }
-
-      /**
-       * Dispatches all queued events to their handlers for execution.
-       * @method update
-       */
-      public update() {
-         var callback;
-         while (callback = this.queue.shift()) {
-            callback();
-         }
-      }
-
    }
 }

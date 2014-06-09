@@ -69,7 +69,10 @@
     <TypeScriptCompile Include="Class.ts" />
     <TypeScriptCompile Include="Color.ts" />
     <TypeScriptCompile Include="Engine.ts" />
+    <TypeScriptCompile Include="EventDispatcher.ts" />
     <TypeScriptCompile Include="Events.ts" />
+    <TypeScriptCompile Include="Interfaces\IDrawable.ts" />
+    <TypeScriptCompile Include="Interfaces\ILoadable.ts" />
     <TypeScriptCompile Include="Label.ts" />
     <TypeScriptCompile Include="Loader.ts" />
     <TypeScriptCompile Include="Log.ts" />
@@ -77,7 +80,9 @@
     <TypeScriptCompile Include="Particles.ts" />
     <TypeScriptCompile Include="Polygon.ts" />
     <TypeScriptCompile Include="Promises.ts" />
+    <TypeScriptCompile Include="Resource.ts" />
     <TypeScriptCompile Include="Scene.ts" />
+    <TypeScriptCompile Include="Side.ts" />
     <TypeScriptCompile Include="Sound.ts" />
     <TypeScriptCompile Include="Sprite.ts" />
     <TypeScriptCompile Include="SpriteEffects.ts" />
@@ -86,6 +91,9 @@
     <TypeScriptCompile Include="Timer.ts" />
     <TypeScriptCompile Include="Trigger.ts" />
     <TypeScriptCompile Include="Util.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Exports.js" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets')" />
 </Project>

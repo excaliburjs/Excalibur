@@ -33,11 +33,11 @@ module.exports = function (grunt) {
       //
       concat: {
          main: {
-            src: ['dist/<%= pkg.name %>-<%= pkg.version %>.js'],
+            src: ['dist/<%= pkg.name %>-<%= pkg.version %>.js', 'src/engine/Exports.js'],
             dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js'
          },
          minified: {
-            src: ['dist/<%= pkg.name %>-<%= pkg.version %>.min.js'],
+            src: ['dist/<%= pkg.name %>-<%= pkg.version %>.min.js', 'src/engine/Exports.js'],
             dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.min.js'
          },
          options: {
@@ -87,7 +87,7 @@ module.exports = function (grunt) {
          // Execute TypeScript compiler against Excalibur core
          //
          tsc: {
-            command: 'tsc --sourcemap --declaration "./src/engine/Engine.ts" -out "./dist/<%= pkg.name %>-<%= pkg.version %>.js"',               
+            command: 'tsc --sourcemap --declaration "./src/engine/Engine.ts" --out "./dist/<%= pkg.name %>-<%= pkg.version %>.js"',               
             options: {
                stdout: true,
                failOnError: true
@@ -109,15 +109,17 @@ module.exports = function (grunt) {
          // TODO: Simplify this so we don't have to always update it every time we add a spec
          //
          specs: {
-            command: ['tsc "./src/spec/ActorSpec.ts" -out "./src/spec/ActorSpec.js"',
-            'tsc "./src/spec/ColorSpec.ts" -out "./src/spec/ColorSpec.js"',
-            'tsc "./src/spec/PromiseSpec.ts" -out "./src/spec/PromiseSpec.js"',
-            'tsc "./src/spec/CollectionSpec.ts" -out "./src/spec/CollectionSpec.js"',
-            'tsc "./src/spec/LogSpec.ts" -out "./src/spec/LogSpec.js"',
-            'tsc "./src/spec/TimerSpec.ts" -out "./src/spec/TimerSpec.js"',
-            'tsc "./src/spec/ClassSpec.ts" -out "./src/spec/ClassSpec.js"',
-            'tsc "./src/spec/CollisionGroupSpec.ts" -out "./src/spec/CollisionGroupSpec.js"', 
-            'tsc "./src/spec/CameraSpec.ts" -out "./src/spec/CameraSpec.js"'].join('&&'),
+            command: 'tsc ' + ["./src/spec/ActorSpec.ts",
+             "./src/spec/ColorSpec.ts",
+             "./src/spec/PromiseSpec.ts",
+             "./src/spec/CollectionSpec.ts",
+             "./src/spec/LogSpec.ts",
+             "./src/spec/TimerSpec.ts",
+             "./src/spec/ClassSpec.ts",
+             "./src/spec/CollisionGroupSpec.ts",
+             "./src/spec/CollisionSpec.ts",
+             "./src/spec/BoundingBoxSpec.ts",
+             "./src/spec/CameraSpec.ts"].join(' ') + ' --out ./src/spec/TestsSpec.js',
             options: {
                stdout: true,
                failOnError: true

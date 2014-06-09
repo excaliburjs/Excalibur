@@ -4,8 +4,6 @@
 
 module ex.Internal.Actions {
    export interface IAction {
-      x: number
-      y: number
       update(delta: number): void
       isComplete(actor: Actor): boolean
       reset(): void
@@ -539,69 +537,57 @@ module ex.Internal.Actions {
    }
 
    export class Blink implements IAction {
-      public x: number;
-      public y: number;
-
-      private frequency: number;
-      private duration: number;
-      private actor: Actor;
-      private numBlinks: number;
-      private blinkTime: number;
-
-      private _started: boolean = false;
-      private nextBlink: number = 0;
+      private timeVisible: number = 0;
+      private timeNotVisible: number = 0;
       private elapsedTime: number = 0;
-      private isBlinking: boolean = false;
+      private totalTime: number = 0;
+      private actor: Actor;
+      private duration: number;
       private _stopped: boolean = false;
-
-      constructor(actor: Actor, frequency: number, duration: number, blinkTime?: number) {
+      private _started: boolean = false;
+      constructor(actor: Actor, timeVisible: number, timeNotVisible: number, numBlinks: number = 1) {
          this.actor = actor;
-         this.frequency = frequency;
-         this.duration = duration;
-         this.numBlinks = Math.floor(frequency * duration / 1000);
-         this.blinkTime = blinkTime || 200;
+         this.timeVisible = timeVisible;
+         this.timeNotVisible = timeNotVisible;
+         this.duration = (timeVisible + timeNotVisible) * numBlinks;
       }
 
       public update(delta): void {
          if (!this._started) {
             this._started = true;
-            this.nextBlink += this.duration / this.numBlinks / 2;
          }
-         this.x = this.actor.x;
-         this.y = this.actor.y;
 
          this.elapsedTime += delta;
-         if ((this.elapsedTime + this.blinkTime / 2) > this.nextBlink && this.nextBlink > (this.elapsedTime - this.blinkTime / 2)) {
-            this.isBlinking = true;
-            this.actor.invisible = true;
-         } else {
-            if (this.isBlinking) {
-               this.isBlinking = false;
-               this.nextBlink += this.duration / this.numBlinks;
-            }
-            this.actor.invisible = false;
+         this.totalTime += delta;
+         if (this.actor.visible && this.elapsedTime >= this.timeVisible) {
+            this.actor.visible = false;
+            this.elapsedTime = 0;
+         }
+
+         if (!this.actor.visible && this.elapsedTime >= this.timeNotVisible) {
+            this.actor.visible = true;
+            this.elapsedTime = 0;
          }
 
          if (this.isComplete(this.actor)) {
-            this.actor.invisible = false;
+            this.actor.visible = true;
          }
 
       }
 
       public isComplete(actor: Actor): boolean {
-         return this._stopped || (this.elapsedTime >= this.duration);
+         return this._stopped || (this.totalTime >= this.duration);
       }
 
       public stop(): void {
-         this.actor.invisible = false;
+         this.actor.visible = true;
          this._stopped = true;
       }
 
       public reset() {
          this._started = false;
-         this.nextBlink = 0;
          this.elapsedTime = 0;
-         this.isBlinking = false;
+         this.totalTime = 0;
       }
    }
 

@@ -1,4 +1,5 @@
 /// <reference path="Interfaces/IDrawable.ts" />
+/// <reference path="Side.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util.ts" />
 /// <reference path="TileMap.ts" />
@@ -6,50 +7,9 @@
 /// <reference path="Scene.ts" />
 /// <reference path="Action.ts" />
 
+
 module ex {
-   export class Overlap {
-      constructor(public x: number, public y: number) { }
-   }
-
-   
-
-   /**
-    * An enum that describes the sides of an Actor for collision
-    * @class Side
-    */
-   export enum Side {
-      /**
-      @property None {Side}
-      @static
-      @final
-      */
-      None,
-      /**
-      @property Top {Side}
-      @static
-      @final
-      */
-      Top,
-      /**
-      @property Bottom {Side}
-      @static
-      @final
-      */
-      Bottom,
-      /**
-      @property Left {Side}
-      @static
-      @final
-      */
-      Left,
-      /**
-      @property Right {Side}
-      @static
-      @final
-      */
-      Right
-   }
-
+ 
    /**
     * An enum that describes the types of collisions actors can participate in
     * @class CollisionType
@@ -126,6 +86,20 @@ module ex {
        */
       public y: number = 0;
 
+      /**
+       * The anchor to apply all actor related transformations like rotation,
+       * translation, and rotation. By default the anchor is in the center of
+       * the actor.
+       * @property anchor {Point}
+       */
+      public anchor: Point;
+
+      /**
+       * Gets the calculated anchor point, should not be set.
+       * @property calculatedAnchor {Point}
+       */
+      public calculatedAnchor: Point = new Point(0,0);
+
       private height: number = 0;
       private width: number = 0;
 
@@ -189,9 +163,9 @@ module ex {
 
       /** 
        * The visibility of an actor
-       * @property invisible {boolean} 
+       * @property visible {boolean} 
        */
-      public invisible: boolean = false;
+      public visible: boolean = true;
 
       /**
        * The opacity of an actor
@@ -231,7 +205,7 @@ module ex {
        * default all actors participate in Active collisions.
        * @property collisionType {CollisionType}
        */
-      public collisionType : CollisionType = CollisionType.Active;
+      public collisionType : CollisionType = CollisionType.PreventCollision;
       public collisionGroups : string[] = [];
 
       private _collisionHandlers: {[key: string]: {(actor: Actor):void}[];} = {};
@@ -265,9 +239,14 @@ module ex {
          this.width = width || 0;
          this.height = height || 0;
          this.color = color;
+         if(color){
+            // set default opacticy of an actor to the color
+            this.opacity = color.a || 1;   
+         }         
          this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
          this.sceneNode = new Scene();
          this.sceneNode.actor = this;
+         this.anchor = new Point(.5, .5);
       }
 
       /**
@@ -384,7 +363,8 @@ module ex {
        * @returns Vector
        */
       public getCenter(): Vector {
-         return new Vector(this.x + this.getWidth() / 2, this.y + this.getHeight() / 2);
+         var anchor = this.calculatedAnchor;
+         return new Vector(this.x + this.getWidth() / 2 - anchor.x, this.y + this.getHeight() / 2 - anchor.y);
       }
 
       /**
@@ -510,8 +490,9 @@ module ex {
        * @method getBounds
        * @returns BoundingBox
        */
-      public getBounds(){
-         return new BoundingBox(this.getGlobalX(), this.getGlobalY(), this.getGlobalX() + this.getWidth(), this.getGlobalY() + this.getHeight());
+      public getBounds() {
+         var anchor = this.calculatedAnchor;
+         return new BoundingBox(this.getGlobalX()-anchor.x, this.getGlobalY() - anchor.y, this.getGlobalX() + this.getWidth() - anchor.x, this.getGlobalY() + this.getHeight() - anchor.y);
       }
 
       /**
@@ -589,7 +570,7 @@ module ex {
          var otherBounds = actor.getBounds();
 
          var intersect = bounds.collides(otherBounds);
-         return intersect
+         return intersect;
       }
 
       /**
@@ -722,20 +703,18 @@ module ex {
       }
 
       /**
-       * This method will cause an actor to blink (become visible and and 
-       * invisible) at a frequency (blinks per second) for a duration (in
-       * milliseconds). Optionally, you may specify blinkTime, which indicates
-       * the amount of time the actor is invisible during each blink.<br/>
-       * To have the actor blink 3 times in 1 second, call actor.blink(3, 1000).<br/>
+       * This method will cause an actor to blink (become visible and not 
+       * visible). Optionally, you may specify the number of blinks. Specify the amount of time 
+       * the actor should be visible per blink, and the amount of time not visible.
        * This method is part of the actor 'Action' fluent API allowing action chaining.
        * @method blink
-       * @param frequency {number} The blinks per second 
-       * @param duration {number} The total duration of the blinking specified in milliseconds
-       * @param [blinkTime=200] {number} The amount of time each blink that the actor is visible in milliseconds
+       * @param timeVisible {number} The amount of time to stay visible per blink in milliseconds
+       * @param timeNotVisible {number} The amount of time to stay not visible per blink in milliseconds
+       * @param [numBlinks] {number} The number of times to blink
        * @returns Actor
        */
-      public blink(frequency: number, duration: number, blinkTime?: number): Actor {
-         this.actionQueue.add(new ex.Internal.Actions.Blink(this, frequency, duration, blinkTime));
+      public blink(timeVisible: number, timeNotVisible: number, numBlinks: number = 1): Actor {
+         this.actionQueue.add(new ex.Internal.Actions.Blink(this, timeVisible, timeNotVisible, numBlinks));
          return this;
       }
 
@@ -867,11 +846,11 @@ module ex {
             this._isInitialized = true;
          }
 
+         // Recalcuate the anchor point
+         this.calculatedAnchor = new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
+
          this.sceneNode.update(engine, delta);
          var eventDispatcher = this.eventDispatcher;
-
-         // Update event dispatcher
-         eventDispatcher.update();
 
          // Update action queue
          this.actionQueue.update(delta);
@@ -901,11 +880,8 @@ module ex {
 
                if(intersectActor = this.collides(collider)){
                   side = this.getSideFromIntersect(intersectActor);
-                  // Publish collision events on both participants
-                  eventDispatcher.publish('collision', new CollisionEvent(this, collider, side, intersectActor));
-                  collider.eventDispatcher.publish('collision', new CollisionEvent(collider, this, ex.Util.getOppositeSide(side), intersectActor.scale(-1.0)));
+                  this.scene.addCollisionPair(new CollisionPair(this, collider, intersectActor, side));
 
-                  // Send collision group updates
                   collider.collisionGroups.forEach((group)=>{
                      if(this._collisionHandlers[group]){
                         this._collisionHandlers[group].forEach((handler)=>{
@@ -914,24 +890,6 @@ module ex {
                      }
                   });
 
-                  // If the actor is active push the actor out if its not passive
-                  if((this.collisionType === CollisionType.Active || this.collisionType === CollisionType.Elastic) && collider.collisionType !== CollisionType.Passive){
-                     this.y += intersectActor.y;
-                     this.x += intersectActor.x;
-
-                     // Naive elastic bounce
-                     if(this.collisionType === CollisionType.Elastic){
-                        if(side === Side.Left){
-                           this.dx = Math.abs(this.dx);
-                        }else if(side === Side.Right){
-                           this.dx = -Math.abs(this.dx);
-                        }else if(side === Side.Top){
-                           this.dy = Math.abs(this.dy);
-                        }else if(side === Side.Bottom){
-                           this.dy = -Math.abs(this.dy);
-                        }
-                     }                 
-                  }
                }
 
             }
@@ -979,48 +937,49 @@ module ex {
          // Publish click events
          engine.clicks.forEach((e) => {
             if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.Click], new Click(e.x, e.y, e.mouseEvent));
-               eventDispatcher.publish(EventType[EventType.MouseDown], new MouseDown(e.x, e.y, e.mouseEvent));
+               eventDispatcher.publish(EventType[EventType.Click], new ClickEvent(e.x, e.y, e.mouseEvent));
+               eventDispatcher.publish(EventType[EventType.MouseDown], new MouseDownEvent(e.x, e.y, e.mouseEvent));
             }
          });
 
          engine.mouseMove.forEach((e) => {
             if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.MouseMove], new MouseMove(e.x, e.y, e.mouseEvent));
+               eventDispatcher.publish(EventType[EventType.MouseMove], new MouseMoveEvent(e.x, e.y, e.mouseEvent));
             }
          });
 
          engine.mouseUp.forEach((e)=> {
             if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.MouseUp], new MouseUp(e.x, e.y, e.mouseEvent));
+               eventDispatcher.publish(EventType[EventType.MouseUp], new MouseUpEvent(e.x, e.y, e.mouseEvent));
             }
          });
 
          engine.touchStart.forEach((e) => {
             if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.TouchStart], new TouchStart(e.x, e.y));
+               eventDispatcher.publish(EventType[EventType.TouchStart], new TouchStartEvent(e.x, e.y));
             }
          });
 
          engine.touchMove.forEach((e) => {
             if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.TouchMove], new TouchMove(e.x, e.y));
+               eventDispatcher.publish(EventType[EventType.TouchMove], new TouchMoveEvent(e.x, e.y));
             }
          });
 
          engine.touchEnd.forEach((e) => {
             if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.TouchEnd], new TouchEnd(e.x, e.y));
+               eventDispatcher.publish(EventType[EventType.TouchEnd], new TouchEndEvent(e.x, e.y));
             }
          });
 
          engine.touchCancel.forEach((e) => {
             if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.TouchCancel], new TouchCancel(e.x, e.y));
+               eventDispatcher.publish(EventType[EventType.TouchCancel], new TouchCancelEvent(e.x, e.y));
             }
          });
 
-         var actorScreenCoords = engine.worldToScreenCoordinates(new Point(this.getGlobalX(), this.getGlobalY()));
+         var anchor = this.calculatedAnchor;
+         var actorScreenCoords = engine.worldToScreenCoordinates(new Point(this.getGlobalX()-anchor.x, this.getGlobalY()-anchor.y));
          var zoom = 1.0;
          if(engine.camera){
             zoom = engine.camera.getZoom();   
@@ -1058,18 +1017,17 @@ module ex {
        * @param delta {number} The time since the last draw in milliseconds
        */
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
-         // only draw if onscreen 
-         if(this.isOffScreen) return;
+         if (this.isOffScreen){return;}
+
+         var anchorPoint = this.calculatedAnchor;
 
          ctx.save();
          ctx.translate(this.x, this.y);
          ctx.rotate(this.rotation);     
          ctx.scale(this.scaleX, this.scaleY);
-
+         
+         // calculate changing opacity
          if (this.previousOpacity != this.opacity) {
-            // Object.keys(this.frames).forEach(function (key) {
-            //    frames[key].addEffect(new ex.Effects.Opacity(this.opacity));
-            // });
             for (var drawing in this.frames) {
                this.frames[drawing].addEffect(new ex.Effects.Opacity(this.opacity));
             }
@@ -1077,30 +1035,26 @@ module ex {
             this.previousOpacity = this.opacity;
          }
 
-         if (!this.invisible) {
-            if (this.currentDrawing) {
-
-               var xDiff = 0;
-               var yDiff = 0;
-               if (this.centerDrawingX) {
-                  xDiff = (this.currentDrawing.width * this.currentDrawing.getScaleX() - this.width) / 2;
-               }
-
-               if (this.centerDrawingY) {
-                  yDiff = (this.currentDrawing.height * this.currentDrawing.getScaleY() - this.height) / 2;
-               }
-
-               //var xDiff = (this.currentDrawing.width*this.currentDrawing.getScale() - this.width)/2;
-               //var yDiff = (this.currentDrawing.height*this.currentDrawing.getScale() - this.height)/2;
-               this.currentDrawing.draw(ctx, -xDiff, -yDiff);
-
-            } else {
-               if(this.color) this.color.a = this.opacity;
-               ctx.fillStyle = this.color ? this.color.toString() : (new Color(0, 0, 0)).toString();
-               ctx.fillRect(0, 0, this.width, this.height);
+         if (this.currentDrawing) {
+            var xDiff = 0;
+            var yDiff = 0;
+            if (this.centerDrawingX) {
+               xDiff = (this.currentDrawing.width * this.currentDrawing.getScaleX() - this.getWidth()) / 2;
             }
-         }
 
+            if (this.centerDrawingY) {
+               yDiff = (this.currentDrawing.height * this.currentDrawing.getScaleY() - this.getHeight()) / 2;
+            }
+
+            this.currentDrawing.draw(ctx, -xDiff - anchorPoint.x, -yDiff - anchorPoint.y);
+
+         } else {
+            if(this.color) this.color.a = this.opacity;
+            ctx.fillStyle = this.color ? this.color.toString() : (new Color(0, 0, 0)).toString();
+            ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this.width, this.height);
+         }
+         
+         
          this.sceneNode.draw(ctx, delta);
 
          ctx.restore();
@@ -1112,11 +1066,29 @@ module ex {
        * @param ctx {CanvasRenderingContext2D} The rendering context
        */
       public debugDraw(ctx: CanvasRenderingContext2D) {
-         
+         var anchorPoint = this.calculatedAnchor;
          // Meant to draw debug information about actors
-         this.sceneNode.debugDraw(ctx);
-         this.getBounds().debugDraw(ctx);
+         
+         ctx.save();
+         ctx.translate(this.x, this.y);
+         ctx.rotate(this.rotation);
+         ctx.scale(this.scaleX, this.scaleY);
 
+         this.sceneNode.debugDraw(ctx);
+         var bb = this.getBounds();
+         bb.left = bb.left - this.getGlobalX();
+         bb.right = bb.right - this.getGlobalX();
+         bb.top = bb.top - this.getGlobalY();
+         bb.bottom = bb.bottom - this.getGlobalY();
+         bb.debugDraw(ctx);
+
+         ctx.fillStyle = Color.Yellow.toString();
+         ctx.beginPath();
+         ctx.arc(0, 0, 3, 0, Math.PI * 2);
+         ctx.closePath();
+         ctx.fill();
+
+         ctx.restore();
       }
    }
 }

@@ -4,6 +4,7 @@
 /// <reference path="Class.ts" />
 /// <reference path="Color.ts" />
 /// <reference path="Log.ts" />
+/// <reference path="Side.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actor.ts" />
 /// <reference path="Trigger.ts" />
@@ -286,15 +287,15 @@ module ex {
       public keysDown: number[] = [];
       public keysUp: number[] = [];
       // Mouse Events
-      public clicks: MouseDown[] = [];
-      public mouseDown: MouseDown[] = [];
-      public mouseMove: MouseMove[] = [];
-      public mouseUp: MouseUp[] = [];
+      public clicks: MouseDownEvent[] = [];
+      public mouseDown: MouseDownEvent[] = [];
+      public mouseMove: MouseMoveEvent[] = [];
+      public mouseUp: MouseUpEvent[] = [];
       // Touch Events
-      public touchStart: TouchStart[] = [];
-      public touchMove: TouchMove[] = [];
-      public touchEnd: TouchEnd[] = [];
-      public touchCancel: TouchCancel[] = [];
+      public touchStart: TouchStartEvent[] = [];
+      public touchMove: TouchMoveEvent[] = [];
+      public touchEnd: TouchEndEvent[] = [];
+      public touchCancel: TouchCancelEvent[] = [];
 
       /** 
        * Gets or sets the camera to be used in the game.
@@ -424,15 +425,24 @@ module ex {
          this.currentScene.removeChild(actor);
       }
 
-
+      /**
+       * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+       * @method addTileMap
+       * @param tileMap {TileMap} 
+       */
       public addTileMap(tileMap: TileMap){
          this.currentScene.addTileMap(tileMap);
       }
 
+      /**
+       * Removes a TileMap from the Scene, it willno longer be drawn or updated.
+       * @method removeTileMap
+       * @param tileMap {TileMap}
+       */
       public removeTileMap(tileMap: TileMap){
          this.currentScene.removeTileMap(tileMap);
       }
-
+      
       /**
        * Adds an excalibur timer to the current scene.
        * @param timer {Timer} The timer to add to the current scene.
@@ -468,6 +478,138 @@ module ex {
       }
 
       /**
+       * Removes a scene from the engine
+       * @method removeScene
+       * @param scene {Scene} The scene to remove
+       */
+      public removeScene(scene: Scene): void;
+      /**
+       * Removes a scene from the engine
+       * @method removeScene
+       * @param sceneName {string} The scene to remove
+       */
+      public removeScene(sceneName: string): void;
+      public removeScene(entity: any): void {
+         if (entity instanceof Scene) {
+            // remove scene
+            for (var key in this.sceneHash) {
+               if (this.sceneHash.hasOwnProperty(key)) {
+                  if (this.sceneHash[key] === entity) {
+                     delete this.sceneHash[key];
+                  }
+               }
+            }
+         }
+
+         if (typeof entity === "string") {
+            // remove scene
+            delete this.sceneHash[entity];
+         }
+      }
+
+      /**
+       * Adds a scene to the engine, think of scenes in excalibur as you
+       * would scenes in a play.
+       * @method add
+       * @param name {string} The name of the scene, must be unique
+       * @param scene {Scene} The scene to add to the engine       
+       */
+      public add(sceneName: string, scene: Scene): void;
+      /**
+       * Adds an excalibur timer to the current scene.
+       * @param timer {Timer} The timer to add to the current scene.
+       * @method add
+       */
+      public add(timer: Timer): void;
+      /**
+       * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+       * @method add
+       * @param tileMap {TileMap} 
+       */
+      public add(tileMap: TileMap): void;
+      /**
+      * Adds an actor to the current scene of the game. This is synonymous
+      * to calling engine.currentScene.addChild(actor : Actor).
+      *
+      * Actors can only be drawn if they are a member of a scene, and only
+      * the 'currentScene' may be drawn or updated.
+      * @method add
+      * @param actor {Actor} The actor to add to the current scene
+      */
+      public add(actor: Actor): void;
+      public add(entity: any): void {
+         if (entity instanceof Actor) {
+            this.addChild(entity);
+         }
+         if (entity instanceof Timer) {
+            this.addTimer(entity);
+         }
+
+         if (entity instanceof TileMap) {
+            this.addTileMap(entity);
+         }
+
+         if (arguments.length === 2) {
+            this.addScene((<string>arguments[0]), (<Scene>arguments[1]));
+         }
+      }
+
+      /**
+       * Removes a scene from the engine
+       * @method removeScene
+       * @param scene {Scene} The scene to remove
+       */
+      public remove(scene: Scene): void;
+      /**
+       * Removes a scene from the engine
+       * @method removeScene
+       * @param sceneName {string} The scene to remove
+       */
+      public remove(sceneName: string): void;
+      /**
+       * Removes an excalibur timer from the current scene.
+       * @method remove
+       * @param timer {Timer} The timer to remove to the current scene.       
+       */
+      public remove(timer: Timer): void;
+      /**
+       * Removes a TileMap from the Scene, it willno longer be drawn or updated.
+       * @method remove
+       * @param tileMap {TileMap}
+       */
+      public remove(tileMap: TileMap): void;
+      /**
+       * Removes an actor from the currentScene of the game. This is synonymous
+       * to calling engine.currentScene.removeChild(actor : Actor).
+       * Actors that are removed from a scene will no longer be drawn or updated.
+       *
+       * @method remove       
+       * @param actor {Actor} The actor to remove from the current scene.      
+       */
+      public remove(actor: Actor): void;
+      public remove(entity: any): void {
+         if (entity instanceof Actor) {
+            this.removeChild(entity);
+         }
+         if (entity instanceof Timer) {
+            this.removeTimer(entity);
+         }
+
+         if (entity instanceof TileMap) {
+            this.removeTileMap(entity);
+         }
+
+         if (entity instanceof Scene) {
+            this.removeScene(entity);
+         }
+
+         if (typeof entity === "string") {
+            this.removeScene(entity);
+         }
+      }
+
+
+      /**
        * Changes the currently updating and drawing scene to a different,
        * named scene.
        * @method goToScene
@@ -481,12 +623,12 @@ module ex {
             this.currentScene = this.sceneHash[name];
 
             oldScene.eventDispatcher.publish('deactivate', new DeactivateEvent(this.currentScene));
-            oldScene.eventDispatcher.update();
+            
 
             this.currentScene.onActivate.call(this.currentScene);
 
             this.currentScene.eventDispatcher.publish('activate', new ActivateEvent(oldScene));
-            this.currentScene.eventDispatcher.update();
+            
          }else{
             this.logger.error("Scene", name, "does not exist!");
          }
@@ -629,19 +771,17 @@ module ex {
 
          window.addEventListener('blur', () => {
             this.eventDispatcher.publish(EventType[EventType.Blur], new BlurEvent());
-            this.eventDispatcher.update();
          });
 
          window.addEventListener('focus', () => {
             this.eventDispatcher.publish(EventType[EventType.Focus], new FocusEvent());
-            this.eventDispatcher.update();
          });
 
          this.canvas.addEventListener('mousedown', (e: MouseEvent) => {
             var x: number = e.pageX - Util.getPosition(this.canvas).x;
             var y: number = e.pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.screenToWorldCoordinates(new Point(x, y));
-            var mousedown = new MouseDown(transformedPoint.x, transformedPoint.y, (<MouseEvent>e));
+            var mousedown = new MouseDownEvent(transformedPoint.x, transformedPoint.y, (<MouseEvent>e));
             this.mouseDown.push(mousedown);
             this.clicks.push(mousedown);
             this.eventDispatcher.publish(EventType[EventType.MouseDown], mousedown);
@@ -651,7 +791,7 @@ module ex {
             var x: number = e.pageX - Util.getPosition(this.canvas).x;
             var y: number = e.pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-            var mousemove = new MouseMove(transformedPoint.x, transformedPoint.y, (<MouseEvent>e));            
+            var mousemove = new MouseMoveEvent(transformedPoint.x, transformedPoint.y, (<MouseEvent>e));            
             this.mouseMove.push(mousemove);
             this.eventDispatcher.publish(EventType[EventType.MouseMove], mousemove);
          });
@@ -660,7 +800,7 @@ module ex {
             var x: number = e.pageX - Util.getPosition(this.canvas).x;
             var y: number = e.pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-            var mouseup = new MouseUp(transformedPoint.x, transformedPoint.y, (<MouseEvent>e));
+            var mouseup = new MouseUpEvent(transformedPoint.x, transformedPoint.y, (<MouseEvent>e));
             this.mouseUp.push(mouseup);
             this.eventDispatcher.publish(EventType[EventType.MouseUp], mouseup);
          });
@@ -675,7 +815,7 @@ module ex {
             var x: number = te.changedTouches[0].pageX - Util.getPosition(this.canvas).x;
             var y: number = te.changedTouches[0].pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-            var touchstart = new TouchStart(transformedPoint.x, transformedPoint.y);
+            var touchstart = new TouchStartEvent(transformedPoint.x, transformedPoint.y);
             this.touchStart.push(touchstart);
             this.eventDispatcher.publish(EventType[EventType.TouchStart], touchstart);
          });
@@ -686,7 +826,7 @@ module ex {
             var x: number = te.changedTouches[0].pageX - Util.getPosition(this.canvas).x;
             var y: number = te.changedTouches[0].pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-            var touchmove = new TouchMove(transformedPoint.x, transformedPoint.y);
+            var touchmove = new TouchMoveEvent(transformedPoint.x, transformedPoint.y);
             this.touchMove.push(touchmove);
             this.eventDispatcher.publish(EventType[EventType.TouchMove], touchmove);
          });
@@ -697,7 +837,7 @@ module ex {
             var x: number = te.changedTouches[0].pageX - Util.getPosition(this.canvas).x;
             var y: number = te.changedTouches[0].pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-            var touchend = new TouchEnd(transformedPoint.x, transformedPoint.y);
+            var touchend = new TouchEndEvent(transformedPoint.x, transformedPoint.y);
             this.touchEnd.push(touchend);
             this.eventDispatcher.publish(EventType[EventType.TouchEnd], touchend);
          });
@@ -708,7 +848,7 @@ module ex {
             var x: number = te.changedTouches[0].pageX - Util.getPosition(this.canvas).x;
             var y: number = te.changedTouches[0].pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-            var touchcancel = new TouchCancel(transformedPoint.x, transformedPoint.y);
+            var touchcancel = new TouchCancelEvent(transformedPoint.x, transformedPoint.y);
             this.touchCancel.push(touchcancel);
             this.eventDispatcher.publish(EventType[EventType.TouchCancel], touchcancel);
          });
@@ -723,7 +863,7 @@ module ex {
                var x: number = e.pageX - Util.getPosition(this.canvas).x;
                var y: number = e.pageY - Util.getPosition(this.canvas).y;
                var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-               var touchstart = new TouchStart(transformedPoint.x, transformedPoint.y);
+               var touchstart = new TouchStartEvent(transformedPoint.x, transformedPoint.y);
                this.touchStart.push(touchstart);
                this.eventDispatcher.publish(EventType[EventType.TouchStart], touchstart);
             });
@@ -735,7 +875,7 @@ module ex {
                var x: number = e.pageX - Util.getPosition(this.canvas).x;
                var y: number = e.pageY - Util.getPosition(this.canvas).y;
                var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-               var touchmove = new TouchMove(transformedPoint.x, transformedPoint.y);
+               var touchmove = new TouchMoveEvent(transformedPoint.x, transformedPoint.y);
                this.touchMove.push(touchmove);
                this.eventDispatcher.publish(EventType[EventType.TouchMove], touchmove);
             });
@@ -747,7 +887,7 @@ module ex {
                var x: number = e.pageX - Util.getPosition(this.canvas).x;
                var y: number = e.pageY - Util.getPosition(this.canvas).y;
                var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-               var touchend = new TouchEnd(transformedPoint.x, transformedPoint.y);
+               var touchend = new TouchEndEvent(transformedPoint.x, transformedPoint.y);
                this.touchEnd.push(touchend);
                this.eventDispatcher.publish(EventType[EventType.TouchEnd], touchend);
             });
@@ -823,7 +963,6 @@ module ex {
             return;
          }
          // process engine level events
-         this.eventDispatcher.update();
          this.currentScene.update(this, delta);
 
          var eventDispatcher = this.eventDispatcher;

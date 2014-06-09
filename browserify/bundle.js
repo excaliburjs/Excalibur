@@ -1,4 +1,13 @@
-/*! excalibur - v0.2.5 - 2014-06-02
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var ex = require("../dist/excalibur.js");
+
+var game = new ex.Engine();
+
+game.add(new ex.Actor(0, 0, 100, 100, ex.Color.Red));
+
+game.start();
+},{"../dist/excalibur.js":2}],2:[function(require,module,exports){
+/*! excalibur - v0.2.5 - 2014-05-28
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -264,17 +273,6 @@ var ex;
         */
         Point.prototype.add = function (vector) {
             return new Point(this.x + vector.x, this.y + vector.y);
-        };
-
-        /**
-        * Sets the x and y components at once
-        * @method setTo
-        * @param x {number}
-        * @param y {number}
-        */
-        Point.prototype.setTo = function (x, y) {
-            this.x = x;
-            this.y = y;
         };
         return Point;
     })();
@@ -1615,7 +1613,7 @@ var ex;
         * @returns boolean
         */
         BoundingBox.prototype.contains = function (p) {
-            return (this.left <= p.x && this.top <= p.y && this.bottom >= p.y && this.right >= p.x);
+            return (this.left < p.x && this.top < p.y && this.bottom > p.y && this.right > p.x);
         };
 
         /**
@@ -3290,7 +3288,7 @@ var ex;
             * default all actors participate in Active collisions.
             * @property collisionType {CollisionType}
             */
-            this.collisionType = 0 /* PreventCollision */;
+            this.collisionType = 2 /* Active */;
             this.collisionGroups = [];
             this._collisionHandlers = {};
             this._isInitialized = false;
@@ -4004,44 +4002,44 @@ var ex;
             // Publish click events
             engine.clicks.forEach(function (e) {
                 if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[10 /* Click */], new ex.ClickEvent(e.x, e.y, e.mouseEvent));
-                    eventDispatcher.publish(ex.EventType[3 /* MouseDown */], new ex.MouseDownEvent(e.x, e.y, e.mouseEvent));
+                    eventDispatcher.publish(ex.EventType[10 /* Click */], new ex.Click(e.x, e.y, e.mouseEvent));
+                    eventDispatcher.publish(ex.EventType[3 /* MouseDown */], new ex.MouseDown(e.x, e.y, e.mouseEvent));
                 }
             });
 
             engine.mouseMove.forEach(function (e) {
                 if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[4 /* MouseMove */], new ex.MouseMoveEvent(e.x, e.y, e.mouseEvent));
+                    eventDispatcher.publish(ex.EventType[4 /* MouseMove */], new ex.MouseMove(e.x, e.y, e.mouseEvent));
                 }
             });
 
             engine.mouseUp.forEach(function (e) {
                 if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[5 /* MouseUp */], new ex.MouseUpEvent(e.x, e.y, e.mouseEvent));
+                    eventDispatcher.publish(ex.EventType[5 /* MouseUp */], new ex.MouseUp(e.x, e.y, e.mouseEvent));
                 }
             });
 
             engine.touchStart.forEach(function (e) {
                 if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[6 /* TouchStart */], new ex.TouchStartEvent(e.x, e.y));
+                    eventDispatcher.publish(ex.EventType[6 /* TouchStart */], new ex.TouchStart(e.x, e.y));
                 }
             });
 
             engine.touchMove.forEach(function (e) {
                 if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[7 /* TouchMove */], new ex.TouchMoveEvent(e.x, e.y));
+                    eventDispatcher.publish(ex.EventType[7 /* TouchMove */], new ex.TouchMove(e.x, e.y));
                 }
             });
 
             engine.touchEnd.forEach(function (e) {
                 if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[8 /* TouchEnd */], new ex.TouchEndEvent(e.x, e.y));
+                    eventDispatcher.publish(ex.EventType[8 /* TouchEnd */], new ex.TouchEnd(e.x, e.y));
                 }
             });
 
             engine.touchCancel.forEach(function (e) {
                 if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[9 /* TouchCancel */], new ex.TouchCancelEvent(e.x, e.y));
+                    eventDispatcher.publish(ex.EventType[9 /* TouchCancel */], new ex.TouchCancel(e.x, e.y));
                 }
             });
 
@@ -4816,17 +4814,17 @@ var ex;
     * @param y {number} The y coordinate of the event
     * @param mouseEvent {MouseEvent} The native mouse event thrown
     */
-    var MouseDownEvent = (function (_super) {
-        __extends(MouseDownEvent, _super);
-        function MouseDownEvent(x, y, mouseEvent) {
+    var MouseDown = (function (_super) {
+        __extends(MouseDown, _super);
+        function MouseDown(x, y, mouseEvent) {
             _super.call(this);
             this.x = x;
             this.y = y;
             this.mouseEvent = mouseEvent;
         }
-        return MouseDownEvent;
+        return MouseDown;
     })(GameEvent);
-    ex.MouseDownEvent = MouseDownEvent;
+    ex.MouseDown = MouseDown;
 
     /**
     * Event thrown on a game object on MouseMove
@@ -4838,17 +4836,17 @@ var ex;
     * @param y {number} The y coordinate of the event
     * @param mouseEvent {MouseEvent} The native mouse event thrown
     */
-    var MouseMoveEvent = (function (_super) {
-        __extends(MouseMoveEvent, _super);
-        function MouseMoveEvent(x, y, mouseEvent) {
+    var MouseMove = (function (_super) {
+        __extends(MouseMove, _super);
+        function MouseMove(x, y, mouseEvent) {
             _super.call(this);
             this.x = x;
             this.y = y;
             this.mouseEvent = mouseEvent;
         }
-        return MouseMoveEvent;
+        return MouseMove;
     })(GameEvent);
-    ex.MouseMoveEvent = MouseMoveEvent;
+    ex.MouseMove = MouseMove;
 
     /**
     * Event thrown on a game object on MouseUp
@@ -4860,17 +4858,17 @@ var ex;
     * @param y {number} The y coordinate of the event
     * @param mouseEvent {MouseEvent} The native mouse event thrown
     */
-    var MouseUpEvent = (function (_super) {
-        __extends(MouseUpEvent, _super);
-        function MouseUpEvent(x, y, mouseEvent) {
+    var MouseUp = (function (_super) {
+        __extends(MouseUp, _super);
+        function MouseUp(x, y, mouseEvent) {
             _super.call(this);
             this.x = x;
             this.y = y;
             this.mouseEvent = mouseEvent;
         }
-        return MouseUpEvent;
+        return MouseUp;
     })(GameEvent);
-    ex.MouseUpEvent = MouseUpEvent;
+    ex.MouseUp = MouseUp;
 
     
 
@@ -4883,16 +4881,16 @@ var ex;
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    var TouchStartEvent = (function (_super) {
-        __extends(TouchStartEvent, _super);
-        function TouchStartEvent(x, y) {
+    var TouchStart = (function (_super) {
+        __extends(TouchStart, _super);
+        function TouchStart(x, y) {
             _super.call(this);
             this.x = x;
             this.y = y;
         }
-        return TouchStartEvent;
+        return TouchStart;
     })(GameEvent);
-    ex.TouchStartEvent = TouchStartEvent;
+    ex.TouchStart = TouchStart;
 
     /**
     * Event thrown on a game object on TouchMove
@@ -4903,16 +4901,16 @@ var ex;
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    var TouchMoveEvent = (function (_super) {
-        __extends(TouchMoveEvent, _super);
-        function TouchMoveEvent(x, y) {
+    var TouchMove = (function (_super) {
+        __extends(TouchMove, _super);
+        function TouchMove(x, y) {
             _super.call(this);
             this.x = x;
             this.y = y;
         }
-        return TouchMoveEvent;
+        return TouchMove;
     })(GameEvent);
-    ex.TouchMoveEvent = TouchMoveEvent;
+    ex.TouchMove = TouchMove;
 
     /**
     * Event thrown on a game object on TouchEnd
@@ -4923,16 +4921,16 @@ var ex;
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    var TouchEndEvent = (function (_super) {
-        __extends(TouchEndEvent, _super);
-        function TouchEndEvent(x, y) {
+    var TouchEnd = (function (_super) {
+        __extends(TouchEnd, _super);
+        function TouchEnd(x, y) {
             _super.call(this);
             this.x = x;
             this.y = y;
         }
-        return TouchEndEvent;
+        return TouchEnd;
     })(GameEvent);
-    ex.TouchEndEvent = TouchEndEvent;
+    ex.TouchEnd = TouchEnd;
 
     /**
     * Event thrown on a game object on TouchCancel
@@ -4943,16 +4941,16 @@ var ex;
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    var TouchCancelEvent = (function (_super) {
-        __extends(TouchCancelEvent, _super);
-        function TouchCancelEvent(x, y) {
+    var TouchCancel = (function (_super) {
+        __extends(TouchCancel, _super);
+        function TouchCancel(x, y) {
             _super.call(this);
             this.x = x;
             this.y = y;
         }
-        return TouchCancelEvent;
+        return TouchCancel;
     })(GameEvent);
-    ex.TouchCancelEvent = TouchCancelEvent;
+    ex.TouchCancel = TouchCancel;
 
     /**
     * Event thrown on a game object on Click
@@ -4963,17 +4961,17 @@ var ex;
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    var ClickEvent = (function (_super) {
-        __extends(ClickEvent, _super);
-        function ClickEvent(x, y, mouseEvent) {
+    var Click = (function (_super) {
+        __extends(Click, _super);
+        function Click(x, y, mouseEvent) {
             _super.call(this);
             this.x = x;
             this.y = y;
             this.mouseEvent = mouseEvent;
         }
-        return ClickEvent;
+        return Click;
     })(GameEvent);
-    ex.ClickEvent = ClickEvent;
+    ex.Click = Click;
 })(ex || (ex = {}));
 /// <reference path="Events.ts" />
 var ex;
@@ -6434,9 +6432,8 @@ var ex;
     * @param path {string} Path to the remote resource
     */
     var Resource = (function () {
-        function Resource(path, responseType) {
+        function Resource(path) {
             this.path = path;
-            this.responseType = responseType;
             this.data = null;
             this.logger = ex.Logger.getInstance();
             this.onprogress = function () {
@@ -6481,7 +6478,7 @@ var ex;
 
             var request = new XMLHttpRequest();
             request.open("GET", this.cacheBust(this.path), true);
-            request.responseType = this.responseType;
+            request.responseType = "blob";
             request.onloadstart = function (e) {
                 _this._start(e);
             };
@@ -6495,8 +6492,8 @@ var ex;
                     return;
                 }
 
-                _this.data = _this.processDownload(request.response);
-
+                _this.data = URL.createObjectURL(request.response);
+                _this.ProcessDownload.call(_this);
                 _this.oncomplete();
                 _this.logger.debug("Completed loading resource", _this.path);
                 complete.resolve(_this.data);
@@ -6509,9 +6506,9 @@ var ex;
         /**
         * Returns the loaded data once the resource is loaded
         * @method GetData
-        * @returns any
+        * @returns string
         */
-        Resource.prototype.getData = function () {
+        Resource.prototype.GetData = function () {
             return this.data;
         };
 
@@ -6520,9 +6517,8 @@ var ex;
         * processing. Such as decoding downloaded audio bits.
         * @method ProcessDownload
         */
-        Resource.prototype.processDownload = function (data) {
+        Resource.prototype.ProcessDownload = function () {
             // Handle any additional loading after the xhr has completed.
-            return URL.createObjectURL(data);
         };
         return Resource;
     })();
@@ -6546,7 +6542,7 @@ var ex;
     var Texture = (function (_super) {
         __extends(Texture, _super);
         function Texture(path) {
-            _super.call(this, path, 'blob');
+            _super.call(this, path);
             this.path = path;
         }
         /**
@@ -6571,7 +6567,7 @@ var ex;
             var loaded = _super.prototype.load.call(this);
             loaded.then(function () {
                 _this.image = new Image();
-                _this.image.src = _super.prototype.getData.call(_this);
+                _this.image.src = _super.prototype.GetData.call(_this);
                 complete.resolve(_this.image);
             }, function () {
                 complete.reject("Error loading texture.");
@@ -8035,7 +8031,7 @@ var ex;
                 var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
                 var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
                 var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var mousedown = new ex.MouseDownEvent(transformedPoint.x, transformedPoint.y, e);
+                var mousedown = new ex.MouseDown(transformedPoint.x, transformedPoint.y, e);
                 _this.mouseDown.push(mousedown);
                 _this.clicks.push(mousedown);
                 _this.eventDispatcher.publish(ex.EventType[3 /* MouseDown */], mousedown);
@@ -8045,7 +8041,7 @@ var ex;
                 var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
                 var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
                 var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var mousemove = new ex.MouseMoveEvent(transformedPoint.x, transformedPoint.y, e);
+                var mousemove = new ex.MouseMove(transformedPoint.x, transformedPoint.y, e);
                 _this.mouseMove.push(mousemove);
                 _this.eventDispatcher.publish(ex.EventType[4 /* MouseMove */], mousemove);
             });
@@ -8054,7 +8050,7 @@ var ex;
                 var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
                 var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
                 var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var mouseup = new ex.MouseUpEvent(transformedPoint.x, transformedPoint.y, e);
+                var mouseup = new ex.MouseUp(transformedPoint.x, transformedPoint.y, e);
                 _this.mouseUp.push(mouseup);
                 _this.eventDispatcher.publish(ex.EventType[5 /* MouseUp */], mouseup);
             });
@@ -8068,7 +8064,7 @@ var ex;
                 var x = te.changedTouches[0].pageX - ex.Util.getPosition(_this.canvas).x;
                 var y = te.changedTouches[0].pageY - ex.Util.getPosition(_this.canvas).y;
                 var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var touchstart = new ex.TouchStartEvent(transformedPoint.x, transformedPoint.y);
+                var touchstart = new ex.TouchStart(transformedPoint.x, transformedPoint.y);
                 _this.touchStart.push(touchstart);
                 _this.eventDispatcher.publish(ex.EventType[6 /* TouchStart */], touchstart);
             });
@@ -8079,7 +8075,7 @@ var ex;
                 var x = te.changedTouches[0].pageX - ex.Util.getPosition(_this.canvas).x;
                 var y = te.changedTouches[0].pageY - ex.Util.getPosition(_this.canvas).y;
                 var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var touchmove = new ex.TouchMoveEvent(transformedPoint.x, transformedPoint.y);
+                var touchmove = new ex.TouchMove(transformedPoint.x, transformedPoint.y);
                 _this.touchMove.push(touchmove);
                 _this.eventDispatcher.publish(ex.EventType[7 /* TouchMove */], touchmove);
             });
@@ -8090,7 +8086,7 @@ var ex;
                 var x = te.changedTouches[0].pageX - ex.Util.getPosition(_this.canvas).x;
                 var y = te.changedTouches[0].pageY - ex.Util.getPosition(_this.canvas).y;
                 var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var touchend = new ex.TouchEndEvent(transformedPoint.x, transformedPoint.y);
+                var touchend = new ex.TouchEnd(transformedPoint.x, transformedPoint.y);
                 _this.touchEnd.push(touchend);
                 _this.eventDispatcher.publish(ex.EventType[8 /* TouchEnd */], touchend);
             });
@@ -8101,7 +8097,7 @@ var ex;
                 var x = te.changedTouches[0].pageX - ex.Util.getPosition(_this.canvas).x;
                 var y = te.changedTouches[0].pageY - ex.Util.getPosition(_this.canvas).y;
                 var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var touchcancel = new ex.TouchCancelEvent(transformedPoint.x, transformedPoint.y);
+                var touchcancel = new ex.TouchCancel(transformedPoint.x, transformedPoint.y);
                 _this.touchCancel.push(touchcancel);
                 _this.eventDispatcher.publish(ex.EventType[9 /* TouchCancel */], touchcancel);
             });
@@ -8116,7 +8112,7 @@ var ex;
                     var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
                     var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
                     var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                    var touchstart = new ex.TouchStartEvent(transformedPoint.x, transformedPoint.y);
+                    var touchstart = new ex.TouchStart(transformedPoint.x, transformedPoint.y);
                     _this.touchStart.push(touchstart);
                     _this.eventDispatcher.publish(ex.EventType[6 /* TouchStart */], touchstart);
                 });
@@ -8129,7 +8125,7 @@ var ex;
                     var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
                     var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
                     var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                    var touchmove = new ex.TouchMoveEvent(transformedPoint.x, transformedPoint.y);
+                    var touchmove = new ex.TouchMove(transformedPoint.x, transformedPoint.y);
                     _this.touchMove.push(touchmove);
                     _this.eventDispatcher.publish(ex.EventType[7 /* TouchMove */], touchmove);
                 });
@@ -8142,7 +8138,7 @@ var ex;
                     var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
                     var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
                     var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                    var touchend = new ex.TouchEndEvent(transformedPoint.x, transformedPoint.y);
+                    var touchend = new ex.TouchEnd(transformedPoint.x, transformedPoint.y);
                     _this.touchEnd.push(touchend);
                     _this.eventDispatcher.publish(ex.EventType[8 /* TouchEnd */], touchend);
                 });
@@ -8465,3 +8461,4 @@ var ex;
 // Exports the excalibur module so it can be used with browserify
 // https://github.com/excaliburjs/Excalibur/issues/312
 if (typeof module !== 'undefined') {module.exports = ex;}
+},{}]},{},[1])

@@ -69,7 +69,7 @@ module ex {
        * @returns boolean
        */
       public contains(p: Point): boolean {
-         return (this.left < p.x && this.top < p.y && this.bottom > p.y && this.right > p.x);
+         return (this.left <= p.x && this.top <= p.y && this.bottom >= p.y && this.right >= p.x);
       }
 
       /** 
@@ -122,7 +122,6 @@ module ex {
       }
 
       public debugDraw(ctx: CanvasRenderingContext2D) {
-         ctx.strokeStyle = ex.Color.Yellow.toString();
          ctx.lineWidth = 2;
          ctx.strokeRect(this.left, this.top, this.getWidth(), this.getHeight());
 
