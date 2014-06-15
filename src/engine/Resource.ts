@@ -24,7 +24,7 @@ module ex {
          return !!this.data;
       }
 
-      private cacheBust(uri: string): string{
+      private _cacheBust(uri: string): string{
          var query: RegExp = /\?\w*=\w*/;
          if(query.test(uri)){
             uri += ("&__=" + Date.now());
@@ -47,7 +47,7 @@ module ex {
          var complete = new Promise<T>();
 
          var request = new XMLHttpRequest();
-         request.open("GET", this.cacheBust(this.path), true);
+         request.open("GET", this._cacheBust(this.path), true);
          request.responseType = this.responseType;
          request.onloadstart = (e) => { this._start(e); };
          request.onprogress = this.onprogress;

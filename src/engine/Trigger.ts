@@ -15,13 +15,13 @@ module ex {
     * @param [repeats=1] {number} The number of times that this trigger should fire, by default it is 1, if -1 is supplied it will fire indefinitely
     */
    export class Trigger extends Actor {
-      private action : ()=>void = ()=>{};
+      private _action : ()=>void = ()=>{};
       public repeats : number = 1;
       public target : Actor = null;
       constructor(x?: number, y?: number, width?: number, height?: number, action?: ()=>void, repeats?: number){
          super(x, y, width, height);
          this.repeats = repeats || this.repeats;
-         this.action = action || this.action;
+         this._action = action || this._action;
          this.collisionType = CollisionType.PreventCollision;
          this.eventDispatcher = new EventDispatcher(this);
          this.actionQueue = new Internal.Actions.ActionQueue(this);
@@ -48,7 +48,7 @@ module ex {
          // check for trigger collisions
          if(this.target){
             if(this.collides(this.target)){
-               this.dispatchAction();
+               this._dispatchAction();
             }
          }else{
             for (var i = 0; i < engine.currentScene.children.length; i++) {
@@ -56,7 +56,7 @@ module ex {
                if(other !== this && 
                   other.collisionType !== CollisionType.PreventCollision && 
                   this.collides(other)){
-                  this.dispatchAction();
+                  this._dispatchAction();
                }
             }
          }         
@@ -67,8 +67,8 @@ module ex {
          }
       }
 
-      private dispatchAction(){
-         this.action.call(this);
+      private _dispatchAction(){
+         this._action.call(this);
          this.repeats--;
       }
 

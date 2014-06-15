@@ -218,30 +218,30 @@ module ex {
    export class ScreenAppender implements IAppender {
 
       private _messages: string[] = [];
-      private canvas: HTMLCanvasElement;
-      private ctx: CanvasRenderingContext2D;
+      private _canvas: HTMLCanvasElement;
+      private _ctx: CanvasRenderingContext2D;
 
       constructor(width?: number, height?: number) {
-         this.canvas = <HTMLCanvasElement>document.createElement('canvas');
-         this.canvas.width = width || window.innerWidth;
-         this.canvas.height = height || window.innerHeight;
-         this.canvas.style.position = 'absolute';
-         this.ctx = this.canvas.getContext('2d');
-         document.body.appendChild(this.canvas);
+         this._canvas = <HTMLCanvasElement>document.createElement('canvas');
+         this._canvas.width = width || window.innerWidth;
+         this._canvas.height = height || window.innerHeight;
+         this._canvas.style.position = 'absolute';
+         this._ctx = this._canvas.getContext('2d');
+         document.body.appendChild(this._canvas);
       }
 
       public log(level: LogLevel, args: any[]): void {
          var message = args.join(",");
          
-         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+         this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
          this._messages.unshift("[" + LogLevel[level] + "] : " + message);
 
          var pos = 10;
          var opacity = 1.0;
          for (var i = 0; i < this._messages.length; i++) {
-            this.ctx.fillStyle = 'rgba(255,255,255,' + opacity.toFixed(2) + ')';
-            this.ctx.fillText(this._messages[i], 200, pos);
+            this._ctx.fillStyle = 'rgba(255,255,255,' + opacity.toFixed(2) + ')';
+            this._ctx.fillText(this._messages[i], 200, pos);
             pos += 10;
             opacity = opacity > 0 ? opacity - .05 : 0;
          }

@@ -1,3 +1,209 @@
+﻿declare module ex {
+    /**
+    * A simple 2D point on a plane
+    * @class Point
+    * @constructor
+    * @param x {number} X coordinate of the point
+    * @param y {number} Y coordinate of the point
+    *
+    */
+    class Point {
+        public x: number;
+        public y: number;
+        constructor(x: number, y: number);
+        /**
+        * X Coordinate of the point
+        * @property x {number}
+        */
+        /**
+        * Y Coordinate of the point
+        * @property y {number}
+        */
+        /**
+        * Convert this point to a vector
+        * @method toVector
+        * @returns Vector
+        */
+        public toVector(): Vector;
+        /**
+        * Rotates the current point around another by a certain number of
+        * degrees in radians
+        * @method rotate
+        * @returns Point
+        */
+        public rotate(angle: number, anchor?: Point): Point;
+        /**
+        * Translates the current point by a vector
+        * @method add
+        * @returns Point
+        */
+        public add(vector: Vector): Point;
+        /**
+        * Sets the x and y components at once
+        * @method setTo
+        * @param x {number}
+        * @param y {number}
+        */
+        public setTo(x: number, y: number): void;
+    }
+    /**
+    * A 2D vector on a plane.
+    * @class Vector
+    * @extends Point
+    * @constructor
+    * @param x {number} X component of the Vector
+    * @param y {number} Y component of the Vector
+    */
+    class Vector extends Point {
+        public x: number;
+        public y: number;
+        /**
+        * Returns a vector of unit length in the direction of the specified angle.
+        * @method fromAngle
+        * @static
+        * @param angle {number} The angle to generate the vector
+        * @returns Vector
+        */
+        static fromAngle(angle: number): Vector;
+        constructor(x: number, y: number);
+        /**
+        * The distance to another vector
+        * @method distance
+        * @param v {Vector} The other vector
+        * @returns number
+        */
+        public distance(v?: Vector): number;
+        /**
+        * Normalizes a vector to have a magnitude of 1.
+        * @method normalize
+        * @return Vector
+        */
+        public normalize(): Vector;
+        /**
+        * Scales a vector's by a factor of size
+        * @method scale
+        * @param size {number} The factor to scale the magnitude by
+        * @returns Vector
+        */
+        public scale(size: any): Vector;
+        /**
+        * Adds one vector to another
+        * @method add
+        * @param v {Vector} The vector to add
+        * @returns Vector
+        */
+        public add(v: Vector): Vector;
+        /**
+        * Subtracts a vector from the current vector
+        * @method minus
+        * @param v {Vector} The vector to subtract
+        * @returns Vector
+        */
+        public minus(v: Vector): Vector;
+        /**
+        * Performs a dot product with another vector
+        * @method dot
+        * @param v {Vector} The vector to dot
+        * @returns number
+        */
+        public dot(v: Vector): number;
+        /**
+        * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
+        * @method cross
+        * @param v {Vector} The vector to cross
+        * @returns number
+        */
+        public cross(v: Vector): number;
+        /**
+        * Returns the perpendicular vector to this one
+        * @method perpendicular
+        * @return Vector
+        */
+        public perpendicular(): Vector;
+        /**
+        * Returns the normal vector to this one
+        * @method normal
+        * @return Vector
+        */
+        public normal(): Vector;
+        /**
+        * Returns the angle of this vector.
+        * @method toAngle
+        * @returns number
+        */
+        public toAngle(): number;
+        /**
+        * Returns the point represention of this vector
+        * @method toPoint
+        * @returns Point
+        */
+        public toPoint(): Point;
+        /**
+        * Rotates the current vector around a point by a certain number of
+        * degrees in radians
+        * @method rotate
+        * @returns Vector
+        */
+        public rotate(angle: number, anchor: Point): Vector;
+    }
+    /**
+    * A 2D ray that can be cast into the scene to do collision detection
+    * @class Ray
+    * @constructor
+    * @param pos {Point} The starting position for the ray
+    * @param dir {Vector} The vector indicating the direction of the ray
+    */
+    class Ray {
+        public pos: Point;
+        public dir: Vector;
+        constructor(pos: Point, dir: Vector);
+        /**
+        * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
+        * This number indicates the mathematical intersection time.
+        * @method intersect
+        * @param line {Line} The line to test
+        * @returns number
+        */
+        public intersect(line: Line): number;
+        /**
+        * Returns the point of intersection given the intersection time
+        * @method getPoint
+        * @returns Point
+        */
+        public getPoint(time: number): Point;
+    }
+    /**
+    * A 2D line segment
+    * @class Line
+    * @constructor
+    * @param begin {Point} The starting point of the line segment
+    * @param end {Point} The ending point of the line segment
+    */
+    class Line {
+        public begin: Point;
+        public end: Point;
+        constructor(begin: Point, end: Point);
+        /**
+        * Returns the slope of the line in the form of a vector
+        * @method getSlope
+        * @returns Vector
+        */
+        public getSlope(): Vector;
+        /**
+        * Returns the length of the line segment in pixels
+        * @method getLength
+        * @returns number
+        */
+        public getLength(): number;
+    }
+    class Projection {
+        public min: number;
+        public max: number;
+        constructor(min: number, max: number);
+        public overlaps(projection: Projection): boolean;
+        public getOverlap(projection: Projection): number;
+    }
+}
 declare module ex {
     module Effects {
         /**
@@ -205,212 +411,6 @@ declare module ex {
         Right = 4,
     }
 }
-declare module ex {
-    /**
-    * A simple 2D point on a plane
-    * @class Point
-    * @constructor
-    * @param x {number} X coordinate of the point
-    * @param y {number} Y coordinate of the point
-    *
-    */
-    class Point {
-        public x: number;
-        public y: number;
-        constructor(x: number, y: number);
-        /**
-        * X Coordinate of the point
-        * @property x {number}
-        */
-        /**
-        * Y Coordinate of the point
-        * @property y {number}
-        */
-        /**
-        * Convert this point to a vector
-        * @method toVector
-        * @returns Vector
-        */
-        public toVector(): Vector;
-        /**
-        * Rotates the current point around another by a certain number of
-        * degrees in radians
-        * @method rotate
-        * @returns Point
-        */
-        public rotate(angle: number, anchor?: Point): Point;
-        /**
-        * Translates the current point by a vector
-        * @method add
-        * @returns Point
-        */
-        public add(vector: Vector): Point;
-        /**
-        * Sets the x and y components at once
-        * @method setTo
-        * @param x {number}
-        * @param y {number}
-        */
-        public setTo(x: number, y: number): void;
-    }
-    /**
-    * A 2D vector on a plane.
-    * @class Vector
-    * @extends Point
-    * @constructor
-    * @param x {number} X component of the Vector
-    * @param y {number} Y component of the Vector
-    */
-    class Vector extends Point {
-        public x: number;
-        public y: number;
-        /**
-        * Returns a vector of unit length in the direction of the specified angle.
-        * @method fromAngle
-        * @static
-        * @param angle {number} The angle to generate the vector
-        * @returns Vector
-        */
-        static fromAngle(angle: number): Vector;
-        constructor(x: number, y: number);
-        /**
-        * The distance to another vector
-        * @method distance
-        * @param v {Vector} The other vector
-        * @returns number
-        */
-        public distance(v?: Vector): number;
-        /**
-        * Normalizes a vector to have a magnitude of 1.
-        * @method normalize
-        * @return Vector
-        */
-        public normalize(): Vector;
-        /**
-        * Scales a vector's by a factor of size
-        * @method scale
-        * @param size {number} The factor to scale the magnitude by
-        * @returns Vector
-        */
-        public scale(size: any): Vector;
-        /**
-        * Adds one vector to another
-        * @method add
-        * @param v {Vector} The vector to add
-        * @returns Vector
-        */
-        public add(v: Vector): Vector;
-        /**
-        * Subtracts a vector from the current vector
-        * @method minus
-        * @param v {Vector} The vector to subtract
-        * @returns Vector
-        */
-        public minus(v: Vector): Vector;
-        /**
-        * Performs a dot product with another vector
-        * @method dot
-        * @param v {Vector} The vector to dot
-        * @returns number
-        */
-        public dot(v: Vector): number;
-        /**
-        * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
-        * @method cross
-        * @param v {Vector} The vector to cross
-        * @returns number
-        */
-        public cross(v: Vector): number;
-        /**
-        * Returns the perpendicular vector to this one
-        * @method perpendicular
-        * @return Vector
-        */
-        public perpendicular(): Vector;
-        /**
-        * Returns the normal vector to this one
-        * @method normal
-        * @return Vector
-        */
-        public normal(): Vector;
-        /**
-        * Returns the angle of this vector.
-        * @method toAngle
-        * @returns number
-        */
-        public toAngle(): number;
-        /**
-        * Returns the point represention of this vector
-        * @method toPoint
-        * @returns Point
-        */
-        public toPoint(): Point;
-        /**
-        * Rotates the current vector around a point by a certain number of
-        * degrees in radians
-        * @method rotate
-        * @returns Vector
-        */
-        public rotate(angle: number, anchor: Point): Vector;
-    }
-    /**
-    * A 2D ray that can be cast into the scene to do collision detection
-    * @class Ray
-    * @constructor
-    * @param pos {Point} The starting position for the ray
-    * @param dir {Vector} The vector indicating the direction of the ray
-    */
-    class Ray {
-        public pos: Point;
-        public dir: Vector;
-        constructor(pos: Point, dir: Vector);
-        /**
-        * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
-        * This number indicates the mathematical intersection time.
-        * @method intersect
-        * @param line {Line} The line to test
-        * @returns number
-        */
-        public intersect(line: Line): number;
-        /**
-        * Returns the point of intersection given the intersection time
-        * @method getPoint
-        * @returns Point
-        */
-        public getPoint(time: number): Point;
-    }
-    /**
-    * A 2D line segment
-    * @class Line
-    * @constructor
-    * @param begin {Point} The starting point of the line segment
-    * @param end {Point} The ending point of the line segment
-    */
-    class Line {
-        public begin: Point;
-        public end: Point;
-        constructor(begin: Point, end: Point);
-        /**
-        * Returns the slope of the line in the form of a vector
-        * @method getSlope
-        * @returns Vector
-        */
-        public getSlope(): Vector;
-        /**
-        * Returns the length of the line segment in pixels
-        * @method getLength
-        * @returns number
-        */
-        public getLength(): number;
-    }
-    class Projection {
-        public min: number;
-        public max: number;
-        constructor(min: number, max: number);
-        public overlaps(projection: Projection): boolean;
-        public getOverlap(projection: Projection): number;
-    }
-}
 declare module ex.Util {
     function base64Encode(inputStr: string): string;
     function clamp(val: any, min: any, max: any): any;
@@ -432,10 +432,10 @@ declare module ex.Util {
         * @final
         */
         static DefaultSize: number;
-        private internalArray;
-        private endPointer;
+        private _internalArray;
+        private _endPointer;
         constructor(initialSize?: number);
-        private resize();
+        private _resize();
         /**
         * Push elements to the end of the collection
         * @method push
@@ -530,31 +530,31 @@ declare module ex {
         public sy: number;
         public swidth: number;
         public sheight: number;
-        private texture;
-        private scaleX;
-        private scaleY;
-        private rotation;
-        private transformPoint;
+        private _texture;
+        private _scaleX;
+        private _scaleY;
+        private _rotation;
+        private _transformPoint;
         public flipVertical: boolean;
         public flipHorizontal: boolean;
         public width: number;
         public height: number;
         public effects: Effects.ISpriteEffect[];
-        private internalImage;
-        private spriteCanvas;
-        private spriteCtx;
-        private pixelData;
-        private pixelsLoaded;
-        private dirtyEffect;
+        private _internalImage;
+        private _spriteCanvas;
+        private _spriteCtx;
+        private _pixelData;
+        private _pixelsLoaded;
+        private _dirtyEffect;
         constructor(image: Texture, sx: number, sy: number, swidth: number, sheight: number);
-        private loadPixels();
+        private _loadPixels();
         /**
         * Adds a new {{#crossLink Effects.ISpriteEffect}}{{/crossLink}} to this drawing.
         * @method addEffect
         * @param effect {Effects.ISpriteEffect} Effect to add to the this drawing
         */
         public addEffect(effect: Effects.ISpriteEffect): void;
-        private applyEffects();
+        private _applyEffects();
         /**
         * Clears all effects from the drawing and return it to its original state.
         * @method clearEffects
@@ -639,11 +639,11 @@ declare module ex {
     */
     class SpriteSheet {
         public image: Texture;
-        private columns;
-        private rows;
+        private _columns;
+        private _rows;
         public sprites: Sprite[];
-        private internalImage;
-        constructor(image: Texture, columns: number, rows: number, spWidth: number, spHeight: number);
+        private _internalImage;
+        constructor(image: Texture, _columns: number, _rows: number, spWidth: number, spHeight: number);
         /**
         * Create an animation from the this SpriteSheet by listing out the
         * sprite indices. Sprites are organized in row major order in the SpriteSheet.
@@ -699,12 +699,12 @@ declare module ex {
     */
     class SpriteFont extends SpriteSheet {
         public image: Texture;
-        private alphabet;
-        private caseInsensitive;
-        private spriteLookup;
-        private colorLookup;
-        private _currentColor;
-        constructor(image: Texture, alphabet: string, caseInsensitive: boolean, columns: number, rows: number, spWidth: number, spHeight: number);
+        private _alphabet;
+        private _caseInsensitive;
+        private _spriteLookup;
+        private _colorLookup;
+        private __currentColor;
+        constructor(image: Texture, _alphabet: string, _caseInsensitive: boolean, columns: number, rows: number, spWidth: number, spHeight: number);
         /**
         * Returns a dictionary that maps each character in the alphabet to the appropriate Sprite.
         * @method getTextSprites
@@ -1074,7 +1074,7 @@ declare module ex {
         public interval: number;
         public fcn: () => void;
         public repeats: boolean;
-        private elapsedTime;
+        private _elapsedTime;
         public complete: boolean;
         public scene: Scene;
         /**
@@ -1147,9 +1147,9 @@ declare module ex {
         public children: Actor[];
         public tileMaps: TileMap[];
         public engine: Engine;
-        private killQueue;
-        private timers;
-        private cancelQueue;
+        private _killQueue;
+        private _timers;
+        private _cancelQueue;
         private _isInitialized;
         public _collisionPairs: CollisionPair[];
         constructor();
@@ -1298,269 +1298,6 @@ declare module ex {
         public isTimerActive(timer: Timer): boolean;
     }
 }
-declare module ex.Internal.Actions {
-    interface IAction {
-        update(delta: number): void;
-        isComplete(actor: Actor): boolean;
-        reset(): void;
-        stop(): void;
-    }
-    class MoveTo implements IAction {
-        private actor;
-        public x: number;
-        public y: number;
-        private start;
-        private end;
-        private dir;
-        private speed;
-        private distance;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, destx: number, desty: number, speed: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class MoveBy implements IAction {
-        private actor;
-        public x: number;
-        public y: number;
-        private distance;
-        private speed;
-        private time;
-        private start;
-        private end;
-        private dir;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, destx: number, desty: number, time: number);
-        public update(delta: Number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class Follow implements IAction {
-        private actor;
-        private actorToFollow;
-        public x: number;
-        public y: number;
-        private current;
-        private end;
-        private dir;
-        private speed;
-        private maximumDistance;
-        private distanceBetween;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, actorToFollow: Actor, followDistance?: number);
-        public update(delta: number): void;
-        public stop(): void;
-        public isComplete(actor: Actor): boolean;
-        public reset(): void;
-    }
-    class Meet implements IAction {
-        private actor;
-        private actorToMeet;
-        public x: number;
-        public y: number;
-        private current;
-        private end;
-        private dir;
-        private speed;
-        private distanceBetween;
-        private _started;
-        private _stopped;
-        private _speedWasSpecified;
-        constructor(actor: Actor, actorToMeet: Actor, speed?: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class RotateTo implements IAction {
-        private actor;
-        public x: number;
-        public y: number;
-        private start;
-        private end;
-        private speed;
-        private distance;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, angleRadians: number, speed: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class RotateBy implements IAction {
-        private actor;
-        public x: number;
-        public y: number;
-        private start;
-        private end;
-        private time;
-        private distance;
-        private _started;
-        private _stopped;
-        private speed;
-        constructor(actor: Actor, angleRadians: number, time: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class ScaleTo implements IAction {
-        private actor;
-        public x: number;
-        public y: number;
-        private startX;
-        private startY;
-        private endX;
-        private endY;
-        private speedX;
-        private speedY;
-        private distanceX;
-        private distanceY;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, scaleX: number, scaleY: number, speedX: number, speedY: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class ScaleBy implements IAction {
-        private actor;
-        public x: number;
-        public y: number;
-        private startX;
-        private startY;
-        private endX;
-        private endY;
-        private time;
-        private distanceX;
-        private distanceY;
-        private _started;
-        private _stopped;
-        private speedX;
-        private speedY;
-        constructor(actor: Actor, scaleX: number, scaleY: number, time: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class Delay implements IAction {
-        public x: number;
-        public y: number;
-        private actor;
-        private elapsedTime;
-        private delay;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, delay: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class Blink implements IAction {
-        private timeVisible;
-        private timeNotVisible;
-        private elapsedTime;
-        private totalTime;
-        private actor;
-        private duration;
-        private _stopped;
-        private _started;
-        constructor(actor: Actor, timeVisible: number, timeNotVisible: number, numBlinks?: number);
-        public update(delta: any): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class Fade implements IAction {
-        public x: number;
-        public y: number;
-        private actor;
-        private endOpacity;
-        private speed;
-        private multiplyer;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, endOpacity: number, speed: number);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class Die implements IAction {
-        public x: number;
-        public y: number;
-        private actor;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor);
-        public update(delta: number): void;
-        public isComplete(): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class CallMethod implements IAction {
-        public x: number;
-        public y: number;
-        private _method;
-        private _actor;
-        private _hasBeenCalled;
-        constructor(actor: Actor, method: () => any);
-        public update(delta: number): void;
-        public isComplete(actor: Actor): boolean;
-        public reset(): void;
-        public stop(): void;
-    }
-    class Repeat implements IAction {
-        public x: number;
-        public y: number;
-        private actor;
-        private actionQueue;
-        private repeat;
-        private originalRepeat;
-        private _stopped;
-        constructor(actor: Actor, repeat: number, actions: IAction[]);
-        public update(delta: any): void;
-        public isComplete(): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class RepeatForever implements IAction {
-        public x: number;
-        public y: number;
-        private actor;
-        private actionQueue;
-        private _stopped;
-        constructor(actor: Actor, actions: IAction[]);
-        public update(delta: any): void;
-        public isComplete(): boolean;
-        public stop(): void;
-        public reset(): void;
-    }
-    class ActionQueue {
-        private actor;
-        private _actions;
-        private _currentAction;
-        private _completedActions;
-        constructor(actor: Actor);
-        public add(action: IAction): void;
-        public remove(action: IAction): void;
-        public clearActions(): void;
-        public getActions(): IAction[];
-        public hasNext(): boolean;
-        public reset(): void;
-        public update(delta: number): void;
-    }
-}
 declare module ex {
     /**
     * An enum that describes the types of collisions actors can participate in
@@ -1646,8 +1383,8 @@ declare module ex {
         * @property calculatedAnchor {Point}
         */
         public calculatedAnchor: Point;
-        private height;
-        private width;
+        private _height;
+        private _width;
         /**
         * The rotation of the actor in radians
         * @property rotation {number}
@@ -1719,7 +1456,7 @@ declare module ex {
         * @property actionQueue {ActionQueue}
         */
         public actionQueue: Internal.Actions.ActionQueue;
-        private sceneNode;
+        private _sceneNode;
         /**
         * Convenience reference to the global logger
         * @property logger {Logger}
@@ -1754,8 +1491,8 @@ declare module ex {
         * @property currentDrawing {IDrawable}
         */
         public currentDrawing: IDrawable;
-        private centerDrawingX;
-        private centerDrawingY;
+        private _centerDrawingX;
+        private _centerDrawingY;
         /**
         * Sets the color of the actor. A rectangle of this color will be drawn if now IDrawable is specified as the actors drawing.
         * @property color {Color}
@@ -2271,8 +2008,8 @@ declare module ex {
     */
     class ScreenAppender implements IAppender {
         private _messages;
-        private canvas;
-        private ctx;
+        private _canvas;
+        private _ctx;
         constructor(width?: number, height?: number);
         public log(level: LogLevel, args: any[]): void;
     }
@@ -2752,8 +2489,8 @@ declare module ex {
     */
     class EventDispatcher {
         private _handlers;
-        private target;
-        private log;
+        private _target;
+        private _log;
         constructor(target: any);
         /**
         * Publish an event for target
@@ -2958,12 +2695,12 @@ declare module ex {
     * @param [repeats=1] {number} The number of times that this trigger should fire, by default it is 1, if -1 is supplied it will fire indefinitely
     */
     class Trigger extends Actor {
-        private action;
+        private _action;
         public repeats: number;
         public target: Actor;
         constructor(x?: number, y?: number, width?: number, height?: number, action?: () => void, repeats?: number);
         public update(engine: Engine, delta: number): void;
-        private dispatchAction();
+        private _dispatchAction();
         public draw(ctx: CanvasRenderingContext2D, delta: number): void;
         public debugDraw(ctx: CanvasRenderingContext2D): void;
     }
@@ -2996,11 +2733,11 @@ declare module ex {
         public endColor: Color;
         public life: number;
         public fadeFlag: boolean;
-        private rRate;
-        private gRate;
-        private bRate;
-        private aRate;
-        private currentColor;
+        private _rRate;
+        private _gRate;
+        private _bRate;
+        private _aRate;
+        private _currentColor;
         public emitter: ParticleEmitter;
         public particleSize: number;
         public particleSprite: Sprite;
@@ -3143,7 +2880,7 @@ declare module ex {
         */
         public emit(particleCount: number): void;
         public clearParticles(): void;
-        private createParticle();
+        private _createParticle();
         public update(engine: Engine, delta: number): void;
         public draw(ctx: CanvasRenderingContext2D, delta: number): void;
         public debugDraw(ctx: CanvasRenderingContext2D): void;
@@ -3163,19 +2900,19 @@ declare module ex {
     */
     class Animation implements IDrawable {
         public sprites: Sprite[];
-        private speed;
-        private currIndex;
-        private oldTime;
-        private rotation;
-        private scaleX;
-        private scaleY;
+        private _speed;
+        private _currIndex;
+        private _oldTime;
+        private _rotation;
+        private _scaleX;
+        private _scaleY;
         /**
         * Indicates whether the animation should loop after it is completed
         * @property [loop=false] {boolean}
         */
         public loop: boolean;
         public freezeFrame: number;
-        private engine;
+        private _engine;
         public flipVertical: boolean;
         public flipHorizontal: boolean;
         public width: number;
@@ -3235,16 +2972,16 @@ declare module ex {
         public focus: Point;
         public engine: Engine;
         public isShaking: boolean;
-        private shakeMagnitudeX;
-        private shakeMagnitudeY;
-        private shakeDuration;
-        private elapsedShakeTime;
+        private _shakeMagnitudeX;
+        private _shakeMagnitudeY;
+        private _shakeDuration;
+        private _elapsedShakeTime;
         public isZooming: boolean;
-        private currentZoomScale;
-        private maxZoomScale;
-        private zoomDuration;
-        private elapsedZoomTime;
-        private zoomIncrement;
+        private _currentZoomScale;
+        private _maxZoomScale;
+        private _zoomDuration;
+        private _elapsedZoomTime;
+        private _zoomIncrement;
         constructor(engine: Engine);
         /**
         * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
@@ -3287,7 +3024,7 @@ declare module ex {
         * @returns {Number} the current zoom scale
         */
         public getZoom(): number;
-        private setCurrentZoomScale(zoomScale);
+        private _setCurrentZoomScale(zoomScale);
         /**
         * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
         * @method update
@@ -3295,8 +3032,8 @@ declare module ex {
         */
         public update(delta: number): void;
         public debugDraw(ctx: CanvasRenderingContext2D): void;
-        private isDoneShaking();
-        private isDoneZooming();
+        private _isDoneShaking();
+        private _isDoneZooming();
     }
     /**
     * An extension of BaseCamera that is locked vertically; it will only move side to side.
@@ -3315,12 +3052,12 @@ declare module ex {
     }
     /**
     * An extension of BaseCamera that is locked to an actor or focal point; the actor will appear in the center of the screen.
-    * @class TopCamera
+    * @class LockedCamera
     * @extends BaseCamera
     * @constructor
     * @param engine {Engine} Reference to the current engine
     */
-    class TopCamera extends BaseCamera {
+    class LockedCamera extends BaseCamera {
         /**
         * Returns the focal point of the camera in world space
         * @method getFocus
@@ -3341,8 +3078,8 @@ declare module ex.Internal {
         onerror: (e: any) => void;
     }
     class FallbackAudio implements ISound {
-        private soundImpl;
-        private log;
+        private _soundImpl;
+        private _log;
         constructor(path: string, volume?: number);
         public setVolume(volume: number): void;
         public setLoop(loop: boolean): void;
@@ -3355,13 +3092,13 @@ declare module ex.Internal {
     }
     class AudioTag implements ISound {
         public path: string;
-        private audioElements;
+        private _audioElements;
         private _loadedAudio;
-        private isLoaded;
-        private index;
-        private log;
+        private _isLoaded;
+        private _index;
+        private _log;
         constructor(path: string, volume?: number);
-        private audioLoaded();
+        private _audioLoaded();
         public setVolume(volume: number): void;
         public setLoop(loop: boolean): void;
         public onload: (e: any) => void;
@@ -3372,14 +3109,14 @@ declare module ex.Internal {
         public stop(): void;
     }
     class WebAudio implements ISound {
-        private context;
-        private volume;
-        private buffer;
-        private sound;
-        private path;
-        private isLoaded;
-        private loop;
-        private logger;
+        private _context;
+        private _volume;
+        private _buffer;
+        private _sound;
+        private _path;
+        private _isLoaded;
+        private _loop;
+        private _logger;
         constructor(soundPath: string, volume?: number);
         public setVolume(volume: number): void;
         public onload: (e: any) => void;
@@ -3424,11 +3161,11 @@ declare module ex {
     */
     class Promise<T> implements IPromise<T> {
         private _state;
-        private value;
-        private successCallbacks;
-        private rejectCallback;
-        private errorCallback;
-        private logger;
+        private _value;
+        private _successCallbacks;
+        private _rejectCallback;
+        private _errorCallback;
+        private _logger;
         /**
         * Wrap a value in a resolved promise
         * @method wrap<T>
@@ -3470,7 +3207,7 @@ declare module ex {
         * @returns PromiseState
         */
         public state(): PromiseState;
-        private handleError(e);
+        private _handleError(e);
     }
 }
 declare module ex {
@@ -3530,7 +3267,7 @@ declare module ex {
         * @returns boolean
         */
         public isLoaded(): boolean;
-        private cacheBust(uri);
+        private _cacheBust(uri);
         private _start(e);
         /**
         * Begin loading the resource and returns a promise to be resolved on completion
@@ -3573,9 +3310,9 @@ declare module ex {
         * @property image {HTMLImageElement}
         */
         public image: HTMLImageElement;
-        private progressCallback;
-        private doneCallback;
-        private errorCallback;
+        private _progressCallback;
+        private _doneCallback;
+        private _errorCallback;
         constructor(path: string);
         /**
         * Returns true if the Texture is completely loaded and is ready
@@ -3601,7 +3338,7 @@ declare module ex {
     * @param ...paths {string[]} A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
     */
     class Sound implements ILoadable, Internal.ISound {
-        private logger;
+        private _logger;
         public onprogress: (e: any) => void;
         public oncomplete: () => void;
         public onerror: (e: any) => void;
@@ -3659,12 +3396,12 @@ declare module ex {
     * @param [loadables=undefined] {ILoadable[]} Optionally provide the list of resources you want to load at constructor time
     */
     class Loader implements ILoadable {
-        private resourceList;
-        private index;
-        private resourceCount;
-        private numLoaded;
-        private progressCounts;
-        private totalCounts;
+        private _resourceList;
+        private _index;
+        private _resourceCount;
+        private _numLoaded;
+        private _progressCounts;
+        private _totalCounts;
         constructor(loadables?: ILoadable[]);
         /**
         * Add a resource to the loader to load
@@ -3678,7 +3415,7 @@ declare module ex {
         * @param loadables {ILoadable[]} The list of resources to load
         */
         public addResources(loadables: ILoadable[]): void;
-        private sumCounts(obj);
+        private _sumCounts(obj);
         /**
         * Returns true if the loader has completely loaded all resources
         * @method isLoaded
@@ -4192,7 +3929,7 @@ declare module ex {
         * @property height {number}
         */
         public height: number;
-        private hasStarted;
+        private _hasStarted;
         public keys: number[];
         public keysDown: number[];
         public keysUp: number[];
@@ -4215,8 +3952,8 @@ declare module ex {
         * @property rootScene {Scene}
         */
         public rootScene: Scene;
-        private sceneHash;
-        private animations;
+        private _sceneHash;
+        private _animations;
         /**
         * Indicates whether the engine is set to fullscreen or not
         * @property isFullscreen {boolean}
@@ -4238,13 +3975,13 @@ declare module ex {
         * @property [backgroundColor=new Color(0, 0, 100)] {Color}
         */
         public backgroundColor: Color;
-        private logger;
-        private isSmoothingEnabled;
-        private loader;
-        private isLoading;
-        private progress;
-        private total;
-        private loadingDraw;
+        private _logger;
+        private _isSmoothingEnabled;
+        private _loader;
+        private _isLoading;
+        private _progress;
+        private _total;
+        private _loadingDraw;
         constructor(width?: number, height?: number, canvasElementId?: string, displayMode?: DisplayMode);
         /**
         * Plays a sprite animation on the screen at the specified x and y
@@ -4421,13 +4158,13 @@ declare module ex {
         * @method setHeightByDisplayMode
         * @private
         */
-        private setHeightByDisplayMode(parent);
+        private _setHeightByDisplayMode(parent);
         /**
         * Initializes the internal canvas, rendering context, displaymode, and native event listeners
         * @method initialize
         * @private
         */
-        private initialize();
+        private _initialize();
         /**
         * If supported by the browser, this will set the antialiasing flag on the
         * canvas. Set this to false if you want a 'jagged' pixel art look to your
@@ -4469,14 +4206,14 @@ declare module ex {
         * @private
         * @param delta {number} Number of milliseconds elapsed since the last update.
         */
-        private update(delta);
+        private _update(delta);
         /**
         * Draws the entire game
         * @method draw
         * @private
         * @param draw {number} Number of milliseconds elapsed since the last draw.
         */
-        private draw(delta);
+        private _draw(delta);
         /**
         * Starts the internal game loop for Excalibur after loading
         * any provided assets.
@@ -4499,7 +4236,7 @@ declare module ex {
         * @param loaded {number} Number of bytes loaded
         * @param total {number} Total number of bytes to load
         */
-        private drawLoadingBar(ctx, loaded, total);
+        private _drawLoadingBar(ctx, loaded, total);
         /**
         * Sets the loading screen draw function if you want to customize the draw
         * @method setLoadingDrawFunction
@@ -4515,5 +4252,329 @@ declare module ex {
         * @param loader {ILoadable} Some loadable such as a Loader collection, Sound, or Texture.
         */
         public load(loader: ILoadable): Promise<any>;
+    }
+}
+declare module ex.Internal.Actions {
+    interface IAction {
+        update(delta: number): void;
+        isComplete(actor: Actor): boolean;
+        reset(): void;
+        stop(): void;
+    }
+    class MoveTo implements IAction {
+        private _actor;
+        public x: number;
+        public y: number;
+        private _start;
+        private _end;
+        private _dir;
+        private _speed;
+        private _distance;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, destx: number, desty: number, speed: number);
+        public update(delta: number): void;
+        public isComplete(actor: Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class MoveBy implements IAction {
+        private _actor;
+        public x: number;
+        public y: number;
+        private _distance;
+        private _speed;
+        private _time;
+        private _start;
+        private _end;
+        private _dir;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, destx: number, desty: number, time: number);
+        public update(delta: Number): void;
+        public isComplete(actor: Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class Follow implements IAction {
+        private _actor;
+        private _actorToFollow;
+        public x: number;
+        public y: number;
+        private _current;
+        private _end;
+        private _dir;
+        private _speed;
+        private _maximumDistance;
+        private _distanceBetween;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, actorToFollow: Actor, followDistance?: number);
+        public update(delta: number): void;
+        public stop(): void;
+        public isComplete(actor: Actor): boolean;
+        public reset(): void;
+    }
+    class Meet implements IAction {
+        private _actor;
+        private _actorToMeet;
+        public x: number;
+        public y: number;
+        private _current;
+        private _end;
+        private _dir;
+        private _speed;
+        private _distanceBetween;
+        private _started;
+        private _stopped;
+        private _speedWasSpecified;
+        constructor(actor: Actor, actorToMeet: Actor, speed?: number);
+        public update(delta: number): void;
+        public isComplete(actor: Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class RotateTo implements IAction {
+        private _actor;
+        public x: number;
+        public y: number;
+        private _start;
+        private _end;
+        private _speed;
+        private _distance;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, angleRadians: number, speed: number);
+        public update(delta: number): void;
+        public isComplete(actor: Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class RotateBy implements IAction {
+        private _actor;
+        public x: number;
+        public y: number;
+        private _start;
+        private _end;
+        private _time;
+        private _distance;
+        private _started;
+        private _stopped;
+        private _speed;
+        constructor(actor: Actor, angleRadians: number, time: number);
+        public update(delta: number): void;
+        public isComplete(actor: Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class ScaleTo implements IAction {
+        private _actor;
+        public x: number;
+        public y: number;
+        private _startX;
+        private _startY;
+        private _endX;
+        private _endY;
+        private _speedX;
+        private _speedY;
+        private _distanceX;
+        private _distanceY;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, scaleX: number, scaleY: number, speedX: number, speedY: number);
+        public update(delta: number): void;
+        public isComplete(actor: Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class ScaleBy implements IAction {
+        private _actor;
+        public x: number;
+        public y: number;
+        private _startX;
+        private _startY;
+        private _endX;
+        private _endY;
+        private _time;
+        private _distanceX;
+        private _distanceY;
+        private _started;
+        private _stopped;
+        private _speedX;
+        private _speedY;
+        constructor(actor: Actor, scaleX: number, scaleY: number, time: number);
+        public update(delta: number): void;
+        public isComplete(actor: Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class Delay implements IAction {
+        public x: number;
+        public y: number;
+        private _actor;
+        private _elapsedTime;
+        private _delay;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, delay: number);
+        public update(delta: number): void;
+        public isComplete(actor: Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class Blink implements IAction {
+        private _timeVisible;
+        private _timeNotVisible;
+        private _elapsedTime;
+        private _totalTime;
+        private _actor;
+        private _duration;
+        private _stopped;
+        private _started;
+        constructor(actor: Actor, timeVisible: number, timeNotVisible: number, numBlinks?: number);
+        public update(delta: any): void;
+        public isComplete(actor: Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class Fade implements IAction {
+        public x: number;
+        public y: number;
+        private _actor;
+        private _endOpacity;
+        private _speed;
+        private _multiplyer;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, endOpacity: number, speed: number);
+        public update(delta: number): void;
+        public isComplete(actor: Actor): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class Die implements IAction {
+        public x: number;
+        public y: number;
+        private _actor;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor);
+        public update(delta: number): void;
+        public isComplete(): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class CallMethod implements IAction {
+        public x: number;
+        public y: number;
+        private _method;
+        private _actor;
+        private _hasBeenCalled;
+        constructor(actor: Actor, method: () => any);
+        public update(delta: number): void;
+        public isComplete(actor: Actor): boolean;
+        public reset(): void;
+        public stop(): void;
+    }
+    class Repeat implements IAction {
+        public x: number;
+        public y: number;
+        private _actor;
+        private _actionQueue;
+        private _repeat;
+        private _originalRepeat;
+        private _stopped;
+        constructor(actor: Actor, repeat: number, actions: IAction[]);
+        public update(delta: any): void;
+        public isComplete(): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class RepeatForever implements IAction {
+        public x: number;
+        public y: number;
+        private _actor;
+        private _actionQueue;
+        private _stopped;
+        constructor(actor: Actor, actions: IAction[]);
+        public update(delta: any): void;
+        public isComplete(): boolean;
+        public stop(): void;
+        public reset(): void;
+    }
+    class ActionQueue {
+        private _actor;
+        private _actions;
+        private _currentAction;
+        private _completedActions;
+        constructor(actor: Actor);
+        public add(action: IAction): void;
+        public remove(action: IAction): void;
+        public clearActions(): void;
+        public getActions(): IAction[];
+        public hasNext(): boolean;
+        public reset(): void;
+        public update(delta: number): void;
+    }
+}
+declare module ex {
+    /**
+    * Creates a closed polygon drawing given a list a of points. Polygons should be
+    * used sparingly as there is a <b>performance</b> impact for using them.
+    * @class Polygon
+    * @extends IDrawable
+    * @constructor
+    * @param points {Point[]} The points to use to build the polygon in order
+    */
+    class Polygon implements IDrawable {
+        public flipVertical: boolean;
+        public flipHorizontal: boolean;
+        public width: number;
+        public height: number;
+        /**
+        * The color to use for the lines of the polygon
+        * @property lineColor {Color}
+        */
+        public lineColor: Color;
+        /**
+        * The color to use for the interior of the polygon
+        * @property fillColor {Color}
+        */
+        public fillColor: Color;
+        /**
+        * The width of the lines of the polygon
+        * @property [lineWidth=5] {number} The width of the lines in pixels
+        */
+        public lineWidth: number;
+        /**
+        * Indicates whether the polygon is filled or not.
+        * @property [filled=false] {boolean}
+        */
+        public filled: boolean;
+        private _points;
+        private _transformationPoint;
+        private _rotation;
+        private _scaleX;
+        private _scaleY;
+        constructor(points: Point[]);
+        /**
+        * Effects are <b>not supported</b> on polygons
+        * @method addEffect
+        */
+        public addEffect(effect: Effects.ISpriteEffect): void;
+        /**
+        * Effects are <b>not supported</b> on polygons
+        * @method clearEffects
+        */
+        public clearEffects(): void;
+        public transformAboutPoint(point: Point): void;
+        public setScaleX(scaleX: number): void;
+        public setScaleY(scaleY: number): void;
+        public getScaleX(): number;
+        public getScaleY(): number;
+        public setRotation(radians: number): void;
+        public getRotation(): number;
+        public reset(): void;
+        public draw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
     }
 }

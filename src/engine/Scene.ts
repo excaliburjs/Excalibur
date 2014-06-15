@@ -22,10 +22,10 @@ module ex {
       public children: Actor[] = [];
       public tileMaps: TileMap[] = [];
       public engine: Engine;
-      private killQueue: Actor[] = [];
+      private _killQueue: Actor[] = [];
 
-      private timers: Timer[] = [];
-      private cancelQueue: Timer[] = [];
+      private _timers: Timer[] = [];
+      private _cancelQueue: Timer[] = [];
 
       private _isInitialized: boolean = false;
 
@@ -109,25 +109,25 @@ module ex {
 
          // Remove actors from scene graph after being killed
          var actorIndex = 0;
-         for (var i = 0, len = this.killQueue.length; i < len; i++) {
-            actorIndex = this.children.indexOf(this.killQueue[i]);
+         for (var i = 0, len = this._killQueue.length; i < len; i++) {
+            actorIndex = this.children.indexOf(this._killQueue[i]);
             if (actorIndex > -1) {
                this.children.splice(actorIndex, 1);
             }
          }
-         this.killQueue.length = 0;
+         this._killQueue.length = 0;
 
 
          // Remove timers in the cancel queue before updating them
          var timerIndex = 0;
-         for (var i = 0, len = this.cancelQueue.length; i < len; i++) {
-            this.removeTimer(this.cancelQueue[i]);
+         for (var i = 0, len = this._cancelQueue.length; i < len; i++) {
+            this.removeTimer(this._cancelQueue[i]);
          }
-         this.cancelQueue.length = 0;
+         this._cancelQueue.length = 0;
 
          // Cycle through timers updating timers
          var that = this;
-         this.timers = this.timers.filter(function (timer) {
+         this._timers = this._timers.filter(function (timer) {
             timer.update(delta);
             return !timer.complete;
          });
@@ -291,7 +291,7 @@ module ex {
        * @param actor {Actor} The actor to remove
        */
       public removeChild(actor: Actor) {
-         this.killQueue.push(actor);
+         this._killQueue.push(actor);
          actor.parent = null;
       }
 
@@ -302,7 +302,7 @@ module ex {
        * @returns Timer
        */
       public addTimer(timer: Timer): Timer {
-         this.timers.push(timer);
+         this._timers.push(timer);
          timer.scene = this;
          return timer;
       }
@@ -315,9 +315,9 @@ module ex {
        * @returns Timer
        */
       public removeTimer(timer: Timer): Timer {
-         var i = this.timers.indexOf(timer);
+         var i = this._timers.indexOf(timer);
          if (i !== -1) {
-            this.timers.splice(i, 1);
+            this._timers.splice(i, 1);
          }
          return timer;
       }
@@ -329,7 +329,7 @@ module ex {
        * @returns Timer
        */
       public cancelTimer(timer: Timer): Timer {
-         this.cancelQueue.push(timer);
+         this._cancelQueue.push(timer);
          return timer;
       }
 
@@ -340,7 +340,7 @@ module ex {
        * @returns boolean
        */
       public isTimerActive(timer: Timer): boolean {
-         return (this.timers.indexOf(timer) > -1);
+         return (this._timers.indexOf(timer) > -1);
       }
 
    }

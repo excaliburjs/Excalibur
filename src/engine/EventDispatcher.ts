@@ -9,10 +9,10 @@ module ex {
     */
    export class EventDispatcher {
       private _handlers: { [key: string]: { (event?: GameEvent): void }[]; } = {};
-      private target: any;
-      private log: Logger = Logger.getInstance();
+      private _target: any;
+      private _log: Logger = Logger.getInstance();
       constructor(target) {
-         this.target = target;
+         this._target = target;
       }
 
       /**
@@ -27,7 +27,7 @@ module ex {
             return;
          }
          eventName = eventName.toLowerCase();
-         var target = this.target;
+         var target = this._target;
          if(!event){
             event = new GameEvent();
          }

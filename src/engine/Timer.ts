@@ -5,7 +5,7 @@ module ex {
       public interval: number = 10;
       public fcn: ()=>void = ()=>{};
       public repeats: boolean = false;
-      private elapsedTime: number = 0;
+      private _elapsedTime: number = 0;
       public complete: boolean = false;
       public scene: Scene = null;
 
@@ -30,11 +30,11 @@ module ex {
        * @param delta {number} Number of elapsed milliseconds since the last update.
        */
       public update(delta: number){
-         this.elapsedTime += delta;
-         if(this.elapsedTime > this.interval){
+         this._elapsedTime += delta;
+         if (this._elapsedTime > this.interval){
             this.fcn.call(this);
             if(this.repeats){
-               this.elapsedTime = 0;
+               this._elapsedTime = 0;
             }else{
                this.complete = true;
             }

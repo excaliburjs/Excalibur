@@ -12,19 +12,19 @@ module ex {
     */
    export class Animation implements IDrawable {
       public sprites: Sprite[];
-      private speed: number;
-      private currIndex: number = 0;
-      private oldTime: number = Date.now();
-      private rotation: number = 0.0;
-      private scaleX: number = 1.0;
-      private scaleY: number = 1.0;
+      private _speed: number;
+      private _currIndex: number = 0;
+      private _oldTime: number = Date.now();
+      private _rotation: number = 0.0;
+      private _scaleX: number = 1.0;
+      private _scaleY: number = 1.0;
       /**
        * Indicates whether the animation should loop after it is completed
        * @property [loop=false] {boolean} 
        */
       public loop: boolean = false;
       public freezeFrame: number = -1;
-      private engine: Engine;
+      private _engine: Engine;
 
       public flipVertical: boolean = false;
       public flipHorizontal: boolean = false;
@@ -33,8 +33,8 @@ module ex {
 
       constructor(engine: Engine, images: Sprite[], speed: number, loop?: boolean) {
          this.sprites = images;
-         this.speed = speed;
-         this.engine = engine;
+         this._speed = speed;
+         this._engine = engine;
          if (loop != null) {
             this.loop = loop;
          }
@@ -61,36 +61,36 @@ module ex {
       }
 
       public setRotation(radians: number) {
-         this.rotation = radians;
+         this._rotation = radians;
          for (var i in this.sprites) {
             this.sprites[i].setRotation(radians);
          }
       }
 
       public getRotation(): number {
-         return this.rotation;
+         return this._rotation;
       }
 
       public setScaleX(scaleX: number) {
-         this.scaleX = scaleX;
+         this._scaleX = scaleX;
          for (var i in this.sprites) {
             this.sprites[i].setScaleX(scaleX);
          }
       }
 
       public setScaleY(scaleY: number) {
-         this.scaleY = scaleY;
+         this._scaleY = scaleY;
          for (var i in this.sprites) {
             this.sprites[i].setScaleY(scaleY);
          }
       }
 
       public getScaleX(): number {
-         return this.scaleX;
+         return this._scaleX;
       }
 
       public getScaleY(): number {
-         return this.scaleY;
+         return this._scaleY;
       }
 
       /**
@@ -98,7 +98,7 @@ module ex {
        * @method reset
        */
       public reset() {
-         this.currIndex = 0;
+         this._currIndex = 0;
       }
 
       /**
@@ -107,7 +107,7 @@ module ex {
        * @returns boolean
        */
       public isDone() {
-         return (!this.loop && this.currIndex >= this.sprites.length);
+         return (!this.loop && this._currIndex >= this.sprites.length);
       }
 
       /**
@@ -117,9 +117,9 @@ module ex {
        */
       public tick() {
          var time = Date.now();
-         if ((time - this.oldTime) > this.speed) {
-            this.currIndex = (this.loop ? (this.currIndex + 1) % this.sprites.length : this.currIndex + 1);
-            this.oldTime = time;
+         if ((time - this._oldTime) > this._speed) {
+            this._currIndex = (this.loop ? (this._currIndex + 1) % this.sprites.length : this._currIndex + 1);
+            this._oldTime = time;
          }
       }
 
@@ -129,13 +129,13 @@ module ex {
        * @param frames {number} Frames to skip ahead
        */
       public skip(frames: number) {
-         this.currIndex = (this.currIndex + frames) % this.sprites.length;
+         this._currIndex = (this._currIndex + frames) % this.sprites.length;
       }
 
       public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
          this.tick();
-         if (this.currIndex < this.sprites.length) {
-            var currSprite = this.sprites[this.currIndex];
+         if (this._currIndex < this.sprites.length) {
+            var currSprite = this.sprites[this._currIndex];
             if (this.flipVertical) {
                currSprite.flipVertical = this.flipVertical;
             }
@@ -145,7 +145,7 @@ module ex {
             currSprite.draw(ctx, x, y);
          }
 
-         if (this.freezeFrame !== -1 && this.currIndex >= this.sprites.length) {
+         if (this.freezeFrame !== -1 && this._currIndex >= this.sprites.length) {
             var currSprite = this.sprites[Util.clamp(this.freezeFrame, 0, this.sprites.length - 1)];
             currSprite.draw(ctx, x, y);
          }
@@ -159,7 +159,7 @@ module ex {
        */
       public play(x: number, y: number) {
          this.reset();
-         this.engine.playAnimation(this, x, y);
+         this._engine.playAnimation(this, x, y);
       }
     }
 }

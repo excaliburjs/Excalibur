@@ -100,8 +100,8 @@ module ex {
        */
       public calculatedAnchor: Point = new Point(0,0);
 
-      private height: number = 0;
-      private width: number = 0;
+      private _height: number = 0;
+      private _width: number = 0;
 
       /** 
        * The rotation of the actor in radians
@@ -180,7 +180,7 @@ module ex {
        */
       public actionQueue: ex.Internal.Actions.ActionQueue;
 
-      private sceneNode: Scene; //the scene that the actor contains
+      private _sceneNode: Scene; //the scene that the actor contains
 
       /**
        * Convenience reference to the global logger
@@ -221,8 +221,8 @@ module ex {
        */
       public currentDrawing: IDrawable = null;
 
-      private centerDrawingX = false;
-      private centerDrawingY = false;
+      private _centerDrawingX = false;
+      private _centerDrawingY = false;
       
       /**
        * Sets the color of the actor. A rectangle of this color will be drawn if now IDrawable is specified as the actors drawing.
@@ -236,16 +236,16 @@ module ex {
          super();
          this.x = x || 0;
          this.y = y || 0;
-         this.width = width || 0;
-         this.height = height || 0;
+         this._width = width || 0;
+         this._height = height || 0;
          this.color = color;
          if(color){
             // set default opacticy of an actor to the color
             this.opacity = color.a || 1;   
          }         
          this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
-         this.sceneNode = new Scene();
-         this.sceneNode.actor = this;
+         this._sceneNode = new Scene();
+         this._sceneNode.actor = this;
          this.anchor = new Point(.5, .5);
       }
 
@@ -281,7 +281,7 @@ module ex {
        */
       public addChild(actor: Actor) {
          actor.collisionType = CollisionType.PreventCollision;
-         this.sceneNode.addChild(actor);
+         this._sceneNode.addChild(actor);
       }
 
       /**
@@ -290,7 +290,7 @@ module ex {
        * @param actor {Actor} The child actor to remove
        */
       public removeChild(actor: Actor) {
-         this.sceneNode.removeChild(actor);
+         this._sceneNode.removeChild(actor);
       }
 
       /**
@@ -373,7 +373,7 @@ module ex {
        * @returns number
        */
       public getWidth() {
-         return this.width * this.scaleX;
+         return this._width * this.scaleX;
       }
 
       /**
@@ -381,7 +381,7 @@ module ex {
        * @method setWidth
        */
       public setWidth(width) {
-         this.width = width / this.scaleX;
+         this._width = width / this.scaleX;
       }
 
       /**
@@ -390,7 +390,7 @@ module ex {
        * @returns number
        */
       public getHeight() {
-         return this.height * this.scaleY;
+         return this._height * this.scaleY;
       }
 
       /**
@@ -398,7 +398,7 @@ module ex {
        * @method setHeight
        */
       public setHeight(height) {
-         this.height = height / this.scaleY;
+         this._height = height / this.scaleY;
       }
 
       /**
@@ -407,8 +407,8 @@ module ex {
        * @param center {boolean} Indicates to center the drawing around the actor
        */       
       public setCenterDrawing(center: boolean) {
-         this.centerDrawingY = true;
-         this.centerDrawingX = true;
+         this._centerDrawingY = true;
+         this._centerDrawingX = true;
       }
 
       /**
@@ -849,7 +849,7 @@ module ex {
          // Recalcuate the anchor point
          this.calculatedAnchor = new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
 
-         this.sceneNode.update(engine, delta);
+         this._sceneNode.update(engine, delta);
          var eventDispatcher = this.eventDispatcher;
 
          // Update action queue
@@ -1038,11 +1038,11 @@ module ex {
          if (this.currentDrawing) {
             var xDiff = 0;
             var yDiff = 0;
-            if (this.centerDrawingX) {
+            if (this._centerDrawingX) {
                xDiff = (this.currentDrawing.width * this.currentDrawing.getScaleX() - this.getWidth()) / 2;
             }
 
-            if (this.centerDrawingY) {
+            if (this._centerDrawingY) {
                yDiff = (this.currentDrawing.height * this.currentDrawing.getScaleY() - this.getHeight()) / 2;
             }
 
@@ -1051,11 +1051,11 @@ module ex {
          } else {
             if(this.color) this.color.a = this.opacity;
             ctx.fillStyle = this.color ? this.color.toString() : (new Color(0, 0, 0)).toString();
-            ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this.width, this.height);
+            ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this._width, this._height);
          }
          
          
-         this.sceneNode.draw(ctx, delta);
+         this._sceneNode.draw(ctx, delta);
 
          ctx.restore();
       }
@@ -1074,7 +1074,7 @@ module ex {
          ctx.rotate(this.rotation);
          ctx.scale(this.scaleX, this.scaleY);
 
-         this.sceneNode.debugDraw(ctx);
+         this._sceneNode.debugDraw(ctx);
          var bb = this.getBounds();
          bb.left = bb.left - this.getGlobalX();
          bb.right = bb.right - this.getGlobalX();

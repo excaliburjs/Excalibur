@@ -39,11 +39,11 @@ module ex {
       public fadeFlag: boolean = false;
 
       // Color transitions
-      private rRate: number = 1;
-      private gRate: number = 1;
-      private bRate: number = 1;
-      private aRate: number = 0;
-      private currentColor: Color = Color.White.clone();
+      private _rRate: number = 1;
+      private _gRate: number = 1;
+      private _bRate: number = 1;
+      private _aRate: number = 0;
+      private _currentColor: Color = Color.White.clone();
 
 
       public emitter: ParticleEmitter = null;
@@ -61,14 +61,14 @@ module ex {
          this.opacity = opacity || this.opacity;
          this.endColor = endColor || this.endColor.clone();
          this.beginColor = beginColor || this.beginColor.clone();
-         this.currentColor = this.beginColor.clone();
+         this._currentColor = this.beginColor.clone();
          this.position = position || this.position;
          this.velocity = velocity || this.velocity;
          this.acceleration = acceleration || this.acceleration;
-         this.rRate = (this.endColor.r - this.beginColor.r) / this.life;
-         this.gRate = (this.endColor.g - this.beginColor.g) / this.life;
-         this.bRate = (this.endColor.b - this.beginColor.b) / this.life;
-         this.aRate = this.opacity / this.life;
+         this._rRate = (this.endColor.r - this.beginColor.r) / this.life;
+         this._gRate = (this.endColor.g - this.beginColor.g) / this.life;
+         this._bRate = (this.endColor.b - this.beginColor.b) / this.life;
+         this._aRate = this.opacity / this.life;
 
          this.startSize = startSize || 0;
          this.endSize = endSize || 0;
@@ -92,17 +92,17 @@ module ex {
          }
 
          if (this.fadeFlag) {
-            this.opacity = ex.Util.clamp(this.aRate * this.life, 0.0001, 1);
+            this.opacity = ex.Util.clamp(this._aRate * this.life, 0.0001, 1);
          }
 
          if ((this.startSize > 0) && (this.endSize > 0)) {
                this.particleSize = ex.Util.clamp(this.sizeRate * delta + this.particleSize , Math.min(this.startSize, this.endSize), Math.max(this.startSize, this.endSize));
          }
 
-         this.currentColor.r = ex.Util.clamp(this.currentColor.r + this.rRate * delta, 0, 255);
-         this.currentColor.g = ex.Util.clamp(this.currentColor.g + this.gRate * delta, 0, 255);
-         this.currentColor.b = ex.Util.clamp(this.currentColor.b + this.bRate * delta, 0, 255);
-         this.currentColor.a = ex.Util.clamp(this.opacity, 0.0001, 1);
+         this._currentColor.r = ex.Util.clamp(this._currentColor.r + this._rRate * delta, 0, 255);
+         this._currentColor.g = ex.Util.clamp(this._currentColor.g + this._gRate * delta, 0, 255);
+         this._currentColor.b = ex.Util.clamp(this._currentColor.b + this._bRate * delta, 0, 255);
+         this._currentColor.a = ex.Util.clamp(this.opacity, 0.0001, 1);
 
          if (this.focus) {
             var accel = this.focus.minus(this.position).normalize().scale(this.focusAccel).scale(delta / 1000);
@@ -119,8 +119,8 @@ module ex {
             return;
          }
 
-         this.currentColor.a = ex.Util.clamp(this.opacity, 0.0001, 1);
-         ctx.fillStyle = this.currentColor.toString();
+         this._currentColor.a = ex.Util.clamp(this.opacity, 0.0001, 1);
+         ctx.fillStyle = this._currentColor.toString();
          ctx.beginPath();
          ctx.arc(this.position.x, this.position.y, this.particleSize, 0, Math.PI * 2);
          ctx.fill();
@@ -290,7 +290,7 @@ module ex {
        */
       public emit(particleCount: number) {
          for (var i = 0; i < particleCount; i++) {
-            this.particles.push(this.createParticle());
+            this.particles.push(this._createParticle());
          }
       }
 
@@ -299,7 +299,7 @@ module ex {
       }
 
       // Creates a new particle given the contraints of the emitter
-      private createParticle(): Particle {
+      private _createParticle(): Particle {
          // todo implement emitter contraints;
          var ranX = 0;
          var ranY = 0;

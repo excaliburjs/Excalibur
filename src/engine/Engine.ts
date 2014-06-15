@@ -280,7 +280,7 @@ module ex {
        */
       public height: number;
 
-      private hasStarted: boolean = false;
+      private _hasStarted: boolean = false;
 
       // Key Events
       public keys: number[] = [];
@@ -308,9 +308,9 @@ module ex {
        * @property rootScene {Scene}
        */
       public rootScene: Scene;
-      private sceneHash: {[key:string]: Scene;} = {};
+      private _sceneHash: {[key:string]: Scene;} = {};
       
-      private animations: AnimationNode[] = [];
+      private _animations: AnimationNode[] = [];
       
       /**
        * Indicates whether the engine is set to fullscreen or not
@@ -333,15 +333,15 @@ module ex {
        * @property [backgroundColor=new Color(0, 0, 100)] {Color}
        */
       public backgroundColor: Color = new Color(0, 0, 100);
-      private logger: Logger;
-      private isSmoothingEnabled: boolean = true;
+      private _logger: Logger;
+      private _isSmoothingEnabled: boolean = true;
 
       // loading
-      private loader: ILoadable;
-      private isLoading: boolean = false;
-      private progress: number = 0;
-      private total: number = 1;
-      private loadingDraw: (ctx: CanvasRenderingContext2D, loaded: number, total: number) => void;
+      private _loader: ILoadable;
+      private _isLoading: boolean = false;
+      private _progress: number = 0;
+      private _total: number = 1;
+      private _loadingDraw: (ctx: CanvasRenderingContext2D, loaded: number, total: number) => void;
 
       
       constructor(width?: number, height?: number, canvasElementId?: string, displayMode?: DisplayMode) {
@@ -349,9 +349,9 @@ module ex {
          super();
          console.log("Powered by Excalibur.js visit","http://excaliburjs.com","for more information.");
          
-         this.logger = Logger.getInstance();
+         this._logger = Logger.getInstance();
          
-         this.logger.debug("Building engine...");
+         this._logger.debug("Building engine...");
 
          this.canvasElementId = canvasElementId;
 
@@ -360,30 +360,30 @@ module ex {
          this.addScene('root', this.rootScene);
 
          if (canvasElementId) {
-            this.logger.debug("Using Canvas element specified: " + canvasElementId);
+            this._logger.debug("Using Canvas element specified: " + canvasElementId);
             this.canvas = <HTMLCanvasElement>document.getElementById(canvasElementId);
          } else {
-            this.logger.debug("Using generated canvas element");
+            this._logger.debug("Using generated canvas element");
             this.canvas = <HTMLCanvasElement>document.createElement('canvas');
          }
          if (width && height) {
             if (displayMode == undefined) {
                this.displayMode = DisplayMode.Fixed;
             }
-            this.logger.debug("Engine viewport is size " + width + " x " + height);
+            this._logger.debug("Engine viewport is size " + width + " x " + height);
             this.width = width; 
             this.canvas.width = width;
             this.height = height; 
             this.canvas.height = height;
 
          } else if (!displayMode) {
-            this.logger.debug("Engine viewport is fullscreen");
+            this._logger.debug("Engine viewport is fullscreen");
             this.displayMode = DisplayMode.FullScreen;
          }
 
-         this.loader = new Loader();
+         this._loader = new Loader();
 
-         this.initialize();
+         this._initialize();
 
       }
 
@@ -399,7 +399,7 @@ module ex {
       * @param y {number} y game coordinate to play the animation
       */
       public playAnimation(animation: Animation, x: number, y: number) {
-         this.animations.push(new AnimationNode(animation, x, y));
+         this._animations.push(new AnimationNode(animation, x, y));
       }
      /**
       * Adds an actor to the current scene of the game. This is synonymous
@@ -470,10 +470,10 @@ module ex {
        * @param scene {Scene} The scene to add to the engine       
        */
       public addScene(name: string, scene: Scene){
-         if(this.sceneHash[name]){
-            this.logger.warn("Scene", name, "already exists overwriting");
+         if (this._sceneHash[name]){
+            this._logger.warn("Scene", name, "already exists overwriting");
          }
-         this.sceneHash[name] = scene;
+         this._sceneHash[name] = scene;
          scene.engine = this;
       }
 
@@ -492,10 +492,10 @@ module ex {
       public removeScene(entity: any): void {
          if (entity instanceof Scene) {
             // remove scene
-            for (var key in this.sceneHash) {
-               if (this.sceneHash.hasOwnProperty(key)) {
-                  if (this.sceneHash[key] === entity) {
-                     delete this.sceneHash[key];
+            for (var key in this._sceneHash) {
+               if (this._sceneHash.hasOwnProperty(key)) {
+                  if (this._sceneHash[key] === entity) {
+                     delete this._sceneHash[key];
                   }
                }
             }
@@ -503,7 +503,7 @@ module ex {
 
          if (typeof entity === "string") {
             // remove scene
-            delete this.sceneHash[entity];
+            delete this._sceneHash[entity];
          }
       }
 
@@ -616,11 +616,11 @@ module ex {
        * @param name {string} The name of the scene to trasition to.       
        */
       public goToScene(name: string){
-         if(this.sceneHash[name]){
+         if (this._sceneHash[name]){
             this.currentScene.onDeactivate.call(this.currentScene);
             
             var oldScene = this.currentScene;
-            this.currentScene = this.sceneHash[name];
+            this.currentScene = this._sceneHash[name];
 
             oldScene.eventDispatcher.publish('deactivate', new DeactivateEvent(this.currentScene));
             
@@ -630,7 +630,7 @@ module ex {
             this.currentScene.eventDispatcher.publish('activate', new ActivateEvent(oldScene));
             
          }else{
-            this.logger.error("Scene", name, "does not exist!");
+            this._logger.error("Scene", name, "does not exist!");
          }
       }
       /**
@@ -707,7 +707,7 @@ module ex {
        * @method setHeightByDisplayMode
        * @private
        */
-      private setHeightByDisplayMode(parent: any) {
+      private _setHeightByDisplayMode(parent: any) {
          if (this.displayMode === DisplayMode.Container) {
             this.width = this.canvas.width = parent.clientWidth;
             this.height = this.canvas.height = parent.clientHeight
@@ -726,19 +726,19 @@ module ex {
        * @method initialize
        * @private
        */
-      private initialize() {
+      private _initialize() {
          if (this.displayMode === DisplayMode.FullScreen || this.displayMode === DisplayMode.Container) {
 
 
             var parent = <any>(this.displayMode === DisplayMode.Container ? <any>(this.canvas.parentElement || document.body) : <any>window);
 
-            this.setHeightByDisplayMode(parent);
+            this._setHeightByDisplayMode(parent);
 
             window.addEventListener('resize', (ev: UIEvent) => {
-               this.logger.debug("View port resized");
-               this.setHeightByDisplayMode(parent);
-               this.logger.info("parent.clientHeight " + parent.clientHeight);
-               this.setAntialiasing(this.isSmoothingEnabled);
+               this._logger.debug("View port resized");
+               this._setHeightByDisplayMode(parent);
+               this._logger.info("parent.clientHeight " + parent.clientHeight);
+               this.setAntialiasing(this._isSmoothingEnabled);
             });
          }
 
@@ -908,7 +908,7 @@ module ex {
        * @param isSmooth {boolean} Set smoothing to true or false       
        */
       public setAntialiasing(isSmooth: boolean) {
-         this.isSmoothingEnabled = isSmooth;
+         this._isSmoothingEnabled = isSmooth;
          (<any>this.ctx).imageSmoothingEnabled = isSmooth;
          (<any>this.ctx).webkitImageSmoothingEnabled = isSmooth;
          (<any>this.ctx).mozImageSmoothingEnabled = isSmooth;
@@ -957,8 +957,8 @@ module ex {
        * @private
        * @param delta {number} Number of milliseconds elapsed since the last update.
        */
-      private update(delta: number) {
-         if (this.isLoading) {
+      private _update(delta: number) {
+         if (this._isLoading) {
             // suspend updates untill loading is finished
             return;
          }
@@ -971,7 +971,7 @@ module ex {
          });
 
          // update animations
-         this.animations = this.animations.filter(function (a) {
+         this._animations = this._animations.filter(function (a) {
             return !a.animation.isDone();
          });
 
@@ -1002,13 +1002,13 @@ module ex {
        * @private
        * @param draw {number} Number of milliseconds elapsed since the last draw.
        */
-      private draw(delta: number) {
+      private _draw(delta: number) {
          var ctx = this.ctx;
 
-         if (this.isLoading) {
+         if (this._isLoading) {
             ctx.fillStyle = 'black'
             ctx.fillRect(0, 0, this.width, this.height);
-            this.drawLoadingBar(ctx, this.progress, this.total);
+            this._drawLoadingBar(ctx, this._progress, this._total);
             // Drawing nothing else while loading
             return;
          }
@@ -1042,7 +1042,7 @@ module ex {
 
          this.currentScene.draw(this.ctx, delta);
 
-         this.animations.forEach(function (a) {
+         this._animations.forEach(function (a) {
             a.animation.draw(ctx, a.x, a.y);
          });
 
@@ -1070,9 +1070,9 @@ module ex {
             loadingComplete = this.load(loader);
          }
 
-         if (!this.hasStarted) {
-            this.hasStarted = true;
-            this.logger.debug("Starting game...");
+         if (!this._hasStarted) {
+            this._hasStarted = true;
+            this._logger.debug("Starting game...");
             
 
 
@@ -1080,7 +1080,7 @@ module ex {
             var lastTime = Date.now();
             var game = this;
             (function mainloop() {
-               if (!game.hasStarted) {
+               if (!game._hasStarted) {
                   return;
                }
 
@@ -1096,12 +1096,12 @@ module ex {
                if(elapsed > 200){
                   elapsed = 1;
                }
-               game.update(elapsed);
-               game.draw(elapsed);
+               game._update(elapsed);
+               game._draw(elapsed);
 
                lastTime = now;
             })();
-            this.logger.debug("Game started");
+            this._logger.debug("Game started");
             
          } else {
             // Game already started;
@@ -1115,9 +1115,9 @@ module ex {
        * @method stop
        */
       public stop() {
-         if (this.hasStarted) {
-            this.hasStarted = false;
-            this.logger.debug("Game stopped");
+         if (this._hasStarted) {
+            this._hasStarted = false;
+            this._logger.debug("Game stopped");
          }
       }
 
@@ -1129,9 +1129,9 @@ module ex {
        * @param loaded {number} Number of bytes loaded
        * @param total {number} Total number of bytes to load
        */
-      private drawLoadingBar(ctx: CanvasRenderingContext2D, loaded: number, total: number) {
-         if (this.loadingDraw) {
-            this.loadingDraw(ctx, loaded, total);
+      private _drawLoadingBar(ctx: CanvasRenderingContext2D, loaded: number, total: number) {
+         if (this._loadingDraw) {
+            this._loadingDraw(ctx, loaded, total);
             return;
          }
 
@@ -1170,7 +1170,7 @@ module ex {
        * Callback to draw the loading screen which is passed a rendering context, the number of bytes loaded, and the total number of bytes to load.
        */
       public setLoadingDrawFunction(fcn: (ctx: CanvasRenderingContext2D, loaded: number, total: number) => void) {
-         this.loadingDraw = fcn;
+         this._loadingDraw = fcn;
       }
 
       /**
@@ -1183,17 +1183,17 @@ module ex {
       public load(loader: ILoadable): Promise<any> {
          var complete = new Promise<any>();
 
-         this.isLoading = true;
+         this._isLoading = true;
 
          loader.load();
          loader.onprogress = (e) => {
-            this.progress = <number>e.loaded;
-            this.total = <number>e.total;
-            this.logger.debug('Loading ' + (100 * this.progress / this.total).toFixed(0));
+            this._progress = <number>e.loaded;
+            this._total = <number>e.total;
+            this._logger.debug('Loading ' + (100 * this._progress / this._total).toFixed(0));
          };
          loader.oncomplete = () => {
             setTimeout(() => {
-               this.isLoading = false;
+               this._isLoading = false;
                complete.resolve();
             }, 500);
          };

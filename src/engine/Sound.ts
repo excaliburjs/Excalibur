@@ -16,24 +16,24 @@ module ex.Internal {
    }
 
    export class FallbackAudio implements ISound {
-      private soundImpl: ISound;
-      private log: Logger = Logger.getInstance();
+      private _soundImpl: ISound;
+      private _log: Logger = Logger.getInstance();
       constructor(path: string, volume?: number) {
          if ((<any>window).AudioContext) {
-            this.log.debug("Using new Web Audio Api for " + path);
-            this.soundImpl = new WebAudio(path, volume);
+            this._log.debug("Using new Web Audio Api for " + path);
+            this._soundImpl = new WebAudio(path, volume);
          } else {
-            this.log.debug("Falling back to Audio Element for " + path);
-            this.soundImpl = new AudioTag(path, volume);
+            this._log.debug("Falling back to Audio Element for " + path);
+            this._soundImpl = new AudioTag(path, volume);
          }
       }
 
       public setVolume(volume: number) {
-         this.soundImpl.setVolume(volume);
+         this._soundImpl.setVolume(volume);
       }
 
       setLoop(loop: boolean) {
-         this.soundImpl.setLoop(loop);
+         this._soundImpl.setLoop(loop);
       }
 
       public onload: (e: any) => void = () => { };
@@ -41,49 +41,49 @@ module ex.Internal {
       public onerror: (e: any) => void = () => { };
 
       public load() {
-         this.soundImpl.onload = this.onload;
-         this.soundImpl.onprogress = this.onprogress;
-         this.soundImpl.onerror = this.onerror;
-         this.soundImpl.load();
+         this._soundImpl.onload = this.onload;
+         this._soundImpl.onprogress = this.onprogress;
+         this._soundImpl.onerror = this.onerror;
+         this._soundImpl.load();
       }
 
       public play() {
-         this.soundImpl.play();
+         this._soundImpl.play();
       }
 
       public stop() {
-         this.soundImpl.stop();
+         this._soundImpl.stop();
       }
    }
 
    export class AudioTag implements ISound {
-      private audioElements: HTMLAudioElement[] = new Array<HTMLAudioElement>(5);
+      private _audioElements: HTMLAudioElement[] = new Array<HTMLAudioElement>(5);
       private _loadedAudio: string = null;
-      private isLoaded = false;
-      private index = 0;
-      private log: Logger = Logger.getInstance();
+      private _isLoaded = false;
+      private _index = 0;
+      private _log: Logger = Logger.getInstance();
       constructor(public path: string, volume?: number) {
-         for(var i = 0; i < this.audioElements.length; i++){
+         for (var i = 0; i < this._audioElements.length; i++){
             ((i)=>{
-               this.audioElements[i] = new Audio();
+               this._audioElements[i] = new Audio();
             })(i);
          }
          
          this.setVolume(volume || 1.0);
       }
 
-      private audioLoaded() {
-         this.isLoaded = true;
+      private _audioLoaded() {
+         this._isLoaded = true;
       }
 
       public setVolume(volume: number) {
-         this.audioElements.forEach((a)=>{
+         this._audioElements.forEach((a)=>{
             a.volume = volume;
          });
       }
 
       public setLoop(loop: boolean) {
-         this.audioElements.forEach((a)=>{
+         this._audioElements.forEach((a)=>{
             a.loop = loop;
          });         
       }
@@ -100,14 +100,14 @@ module ex.Internal {
          request.onerror = this.onerror;
          request.onload = (e) => { 
             if(request.status !== 200){
-               this.log.error("Failed to load audio resource ", this.path, " server responded with error code", request.status);
+               this._log.error("Failed to load audio resource ", this.path, " server responded with error code", request.status);
                this.onerror(request.response);
-               this.isLoaded = false;
+               this._isLoaded = false;
                return;
             }
 
             this._loadedAudio = URL.createObjectURL(request.response);
-            this.audioElements.forEach((a)=>{
+            this._audioElements.forEach((a)=>{
                a.src = this._loadedAudio;
             });
             this.onload(e) 
@@ -116,13 +116,13 @@ module ex.Internal {
       }
 
       public play() {
-         this.audioElements[this.index].load();
-         this.audioElements[this.index].play();
-         this.index = (this.index + 1) % this.audioElements.length;
+         this._audioElements[this._index].load();
+         this._audioElements[this._index].play();
+         this._index = (this._index + 1) % this._audioElements.length;
       }
 
       public stop() {
-         this.audioElements.forEach((a)=>{
+         this._audioElements.forEach((a)=>{
             a.pause();
          });
       }
@@ -134,26 +134,26 @@ module ex.Internal {
    }
 
    export class WebAudio implements ISound {
-      private context = audioContext;
-      private volume = this.context.createGain();
-      private buffer = null;
-      private sound = null;
-      private path = "";
-      private isLoaded = false;
-      private loop = false;
-      private logger: Logger = Logger.getInstance();
+      private _context = audioContext;
+      private _volume = this._context.createGain();
+      private _buffer = null;
+      private _sound = null;
+      private _path = "";
+      private _isLoaded = false;
+      private _loop = false;
+      private _logger: Logger = Logger.getInstance();
       constructor(soundPath: string, volume?: number) {
-         this.path = soundPath;
+         this._path = soundPath;
          if (volume) {
-            this.volume.gain.value = volume;
+            this._volume.gain.value = volume;
          } else {
-            this.volume.gain.value = 1; // max volume
+            this._volume.gain.value = 1; // max volume
          }
 
       }
 
       public setVolume(volume: number) {
-         this.volume.gain.value = volume;
+         this._volume.gain.value = volume;
       }
 
       public onload: (e: any) => void = () => { };
@@ -162,29 +162,29 @@ module ex.Internal {
 
       public load() {
          var request = new XMLHttpRequest();
-         request.open('GET', this.path);
+         request.open('GET', this._path);
          request.responseType = 'arraybuffer';
          request.onprogress = this.onprogress;
          request.onerror = this.onerror;
          request.onload = () => {
             if(request.status !== 200){
-               this.logger.error("Failed to load audio resource ", this.path, " server responded with error code", request.status);
+               this._logger.error("Failed to load audio resource ", this._path, " server responded with error code", request.status);
                this.onerror(request.response);
-               this.isLoaded = false;
+               this._isLoaded = false;
                return;
             }
 
-            this.context.decodeAudioData(request.response,
+            this._context.decodeAudioData(request.response,
                (buffer) => {
-                  this.buffer = buffer;
-                  this.isLoaded = true;
+                  this._buffer = buffer;
+                  this._isLoaded = true;
                   this.onload(this);
                },
                (e) => {
-                  this.logger.error("Unable to decode " + this.path +
+                  this._logger.error("Unable to decode " + this._path +
                      " this browser may not fully support this format, or the file may be corrupt, " +
                      "if this is an mp3 try removing id3 tags and album art from the file.");
-                  this.isLoaded = false;
+                  this._isLoaded = false;
                   this.onload(this);
                });
          }
@@ -196,28 +196,28 @@ module ex.Internal {
       }
 
       public setLoop(loop: boolean) {
-         this.loop = loop;
+         this._loop = loop;
       }
 
 
 
       public play() {
-         if (this.isLoaded) {
-            this.sound = this.context.createBufferSource();
-            this.sound.buffer = this.buffer;
-            this.sound.loop = this.loop;
-            this.sound.connect(this.volume);
-            this.volume.connect(this.context.destination);
-            this.sound.start(0);
+         if (this._isLoaded) {
+            this._sound = this._context.createBufferSource();
+            this._sound.buffer = this._buffer;
+            this._sound.loop = this._loop;
+            this._sound.connect(this._volume);
+            this._volume.connect(this._context.destination);
+            this._sound.start(0);
          }
       }
 
       public stop() {
-         if (this.sound) {
+         if (this._sound) {
             try {
-               this.sound.stop(0);
+               this._sound.stop(0);
             } catch(e) {
-               this.logger.warn("The sound clip", this.path, "has already been stopped!");
+               this._logger.warn("The sound clip", this._path, "has already been stopped!");
             }
          }
       }

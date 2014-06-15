@@ -35,29 +35,29 @@ module ex {
        */
       public filled: boolean = false;
       
-      private points: Point[] = [];
-      private transformationPoint = new Point(0, 0);
-      private rotation: number = 0;
-      private scaleX: number = 1;
-      private scaleY: number = 1;
+      private _points: Point[] = [];
+      private _transformationPoint = new Point(0, 0);
+      private _rotation: number = 0;
+      private _scaleX: number = 1;
+      private _scaleY: number = 1;
 
       
       constructor(points : Point[]) {
-         this.points = points;
+         this._points = points;
 
-         var minX = this.points.reduce((prev: number, curr: Point) => {
+         var minX = this._points.reduce((prev: number, curr: Point) => {
             return Math.min(prev, curr.x);
          }, 0);
-         var maxX = this.points.reduce((prev: number, curr: Point) => {
+         var maxX = this._points.reduce((prev: number, curr: Point) => {
             return Math.max(prev, curr.x);
          }, 0);
 
          this.width = maxX - minX;
 
-         var minY = this.points.reduce((prev: number, curr: Point) => {
+         var minY = this._points.reduce((prev: number, curr: Point) => {
             return Math.min(prev, curr.y);
          }, 0);
-         var maxY = this.points.reduce((prev: number, curr: Point) => {
+         var maxY = this._points.reduce((prev: number, curr: Point) => {
             return Math.max(prev, curr.y);
          }, 0);
 
@@ -81,31 +81,31 @@ module ex {
       }
 
       public transformAboutPoint(point: Point) {
-         this.transformationPoint = point;
+         this._transformationPoint = point;
       }
 
       public setScaleX(scaleX: number) {
-         this.scaleX = scaleX;
+         this._scaleX = scaleX;
       }
 
       public setScaleY(scaleY: number) {
-         this.scaleY = scaleY;
+         this._scaleY = scaleY;
       }
 
       public getScaleX() {
-         return this.scaleX;
+         return this._scaleX;
       }
 
       public getScaleY() {
-         return this.scaleY;
+         return this._scaleY;
       }
 
       public setRotation(radians: number) {
-         this.rotation = radians;
+         this._rotation = radians;
       }
 
       public getRotation() {
-         return this.rotation;
+         return this._rotation;
       }
 
       public reset() {
@@ -114,16 +114,16 @@ module ex {
 
       public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
          ctx.save();
-         ctx.translate(x + this.transformationPoint.x, y + this.transformationPoint.y);
-         ctx.scale(this.scaleX, this.scaleY);
-         ctx.rotate(this.rotation);
+         ctx.translate(x + this._transformationPoint.x, y + this._transformationPoint.y);
+         ctx.scale(this._scaleX, this._scaleY);
+         ctx.rotate(this._rotation);
          ctx.beginPath();
          ctx.lineWidth = this.lineWidth;
 
          // Iterate through the supplied points and contruct a 'polygon'
-         var firstPoint = this.points[0];
+         var firstPoint = this._points[0];
          ctx.moveTo(firstPoint.x, firstPoint.y);
-         this.points.forEach((point)=> {
+         this._points.forEach((point)=> {
             ctx.lineTo(point.x, point.y);
          });
          ctx.lineTo(firstPoint.x, firstPoint.y);
