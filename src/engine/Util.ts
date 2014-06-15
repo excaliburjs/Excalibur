@@ -104,25 +104,25 @@ module ex.Util {
        * @final
        */
       public static DefaultSize = 200;
-      private internalArray: T[] = null;
-      private endPointer: number = 0;
+      private _internalArray: T[] = null;
+      private _endPointer: number = 0;
 
 
       constructor(initialSize?: number) {
          var size = initialSize || Collection.DefaultSize;
-         this.internalArray = new Array<T>(size);
+         this._internalArray = new Array<T>(size);
       } 
 
-      private resize() {
-         var newSize = this.internalArray.length * 2;
+      private _resize() {
+         var newSize = this._internalArray.length * 2;
          var newArray = new Array<T>(newSize);
          var count = this.count();
          for (var i = 0; i < count; i++) {
-            newArray[i] = this.internalArray[i];
+            newArray[i] = this._internalArray[i];
          }
 
-         delete this.internalArray;
-         this.internalArray = newArray;
+         delete this._internalArray;
+         this._internalArray = newArray;
       }
 
       /**
@@ -132,10 +132,10 @@ module ex.Util {
        * @returns T
        */
       public push(element: T): T {
-         if (this.endPointer === this.internalArray.length) {
-            this.resize();
+         if (this._endPointer === this._internalArray.length) {
+            this._resize();
          }
-         return this.internalArray[this.endPointer++] = element;
+         return this._internalArray[this._endPointer++] = element;
       }
 
       /**
@@ -144,8 +144,8 @@ module ex.Util {
        * @returns T
        */
       public pop(): T {
-         this.endPointer = this.endPointer - 1 < 0 ? 0 : this.endPointer - 1;
-         return this.internalArray[this.endPointer];
+         this._endPointer = this._endPointer - 1 < 0 ? 0 : this._endPointer - 1;
+         return this._internalArray[this._endPointer];
       }
 
       /**
@@ -154,7 +154,7 @@ module ex.Util {
        * @returns number
        */
       public count(): number {
-         return this.endPointer;
+         return this._endPointer;
       }
 
       /**
@@ -162,7 +162,7 @@ module ex.Util {
        * @method clear
        */
       public clear() {
-         this.endPointer = 0;
+         this._endPointer = 0;
       }
 
       /**
@@ -171,7 +171,7 @@ module ex.Util {
        * @returns number
        */
       public internalSize(): number {
-         return this.internalArray.length;   
+         return this._internalArray.length;   
       }
 
       /**
@@ -184,7 +184,7 @@ module ex.Util {
          if (index >= this.count()) {
             return;
          }
-         return this.internalArray[index];
+         return this._internalArray[index];
       }
 
       /**
@@ -195,9 +195,9 @@ module ex.Util {
        */
       public insert(index: number, value: T): T {
          if (index >= this.count()) {
-            this.resize();
+            this._resize();
          }
-         return this.internalArray[index] = value;
+         return this._internalArray[index] = value;
       }
 
       /**
@@ -210,11 +210,11 @@ module ex.Util {
          var count = this.count();
          if (count === 0) return;
          // O(n) Shift 
-         var removed = this.internalArray[index];
+         var removed = this._internalArray[index];
          for (var i = index; i < count; i++) {
-            this.internalArray[i] = this.internalArray[i + 1];
+            this._internalArray[i] = this._internalArray[i + 1];
          }
-         this.endPointer--;
+         this._endPointer--;
          return removed;
       }
 
@@ -224,7 +224,7 @@ module ex.Util {
        * @param element {T} Index of element to retreive
        */
       public removeElement(element: T) {
-         var index = this.internalArray.indexOf(element);
+         var index = this._internalArray.indexOf(element);
          this.remove(index);
       }
 
@@ -234,7 +234,7 @@ module ex.Util {
        * @returns T[]
        */
       public toArray(): T[] {
-         return this.internalArray.slice(0, this.endPointer);
+         return this._internalArray.slice(0, this._endPointer);
       }
 
       /**
@@ -245,7 +245,7 @@ module ex.Util {
       public forEach(func: (element: T, index: number) => any) {
          var count = this.count();
          for (var i = 0; i < count; i++) {
-            func.call(this, this.internalArray[i], i);
+            func.call(this, this._internalArray[i], i);
          }
       }
 
@@ -257,7 +257,7 @@ module ex.Util {
       public map(func: (element: T, index: number) => any) {
          var count = this.count();
          for (var i = 0; i < count; i++) {
-            this.internalArray[i] = func.call(this, this.internalArray[i], i);
+            this._internalArray[i] = func.call(this, this._internalArray[i], i);
          }
       }
    }

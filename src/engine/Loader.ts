@@ -24,9 +24,9 @@ module ex {
        */
       public image: HTMLImageElement;
 
-      private progressCallback: (progress: number, total: number) => void
-      private doneCallback: () => void;
-      private errorCallback: (e: string) => void;
+      private _progressCallback: (progress: number, total: number) => void
+      private _doneCallback: () => void;
+      private _errorCallback: (e: string) => void;
 
       constructor(public path: string) {
          super(path, 'blob');
@@ -74,7 +74,7 @@ module ex {
     * @param ...paths {string[]} A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
     */
    export class Sound implements ILoadable, ex.Internal.ISound {
-      private logger: Logger = Logger.getInstance();
+      private _logger: Logger = Logger.getInstance();
 
       public onprogress: (e: any) => void = () => { };
 
@@ -121,7 +121,7 @@ module ex {
          }
 
          if(!this._selectedFile){
-            this.logger.warn("This browser does not support any of the files specified");
+            this._logger.warn("This browser does not support any of the files specified");
             this._selectedFile = paths[0]; // select the first specified
          }
 
@@ -177,12 +177,12 @@ module ex {
        */
       public load(): Promise<ex.Internal.FallbackAudio> {
          var complete = new Promise<ex.Internal.FallbackAudio>();
-         this.logger.debug("Started loading sound", this._selectedFile);
+         this._logger.debug("Started loading sound", this._selectedFile);
          this.sound.onprogress = this.onprogress;
          this.sound.onload = () => {
             this.oncomplete();
             this._isLoaded = true;
-            this.logger.debug("Completed loading sound", this._selectedFile);
+            this._logger.debug("Completed loading sound", this._selectedFile);
             complete.resolve(this.sound);
          }
          this.sound.onerror = (e) => {
@@ -204,13 +204,13 @@ module ex {
     * @param [loadables=undefined] {ILoadable[]} Optionally provide the list of resources you want to load at constructor time
     */
    export class Loader implements ILoadable {
-      private resourceList: ILoadable[] = [];
-      private index = 0;
+      private _resourceList: ILoadable[] = [];
+      private _index = 0;
 
-      private resourceCount: number = 0;
-      private numLoaded: number = 0;
-      private progressCounts: { [key: string]: number; } = {};
-      private totalCounts: { [key: string]: number; } = {};
+      private _resourceCount: number = 0;
+      private _numLoaded: number = 0;
+      private _progressCounts: { [key: string]: number; } = {};
+      private _totalCounts: { [key: string]: number; } = {};
 
       constructor(loadables?: ILoadable[]) {
          if (loadables) {
@@ -224,11 +224,11 @@ module ex {
        * @param loadable {ILoadable} Resource to add
        */
       public addResource(loadable: ILoadable) {
-         var key = this.index++;
-         this.resourceList.push(loadable);
-         this.progressCounts[key] = 0;
-         this.totalCounts[key] = 1;
-         this.resourceCount++;
+         var key = this._index++;
+         this._resourceList.push(loadable);
+         this._progressCounts[key] = 0;
+         this._totalCounts[key] = 1;
+         this._resourceCount++;
       }
 
       /**
@@ -242,7 +242,7 @@ module ex {
          });
       }
 
-      private sumCounts(obj): number {
+      private _sumCounts(obj): number {
          var sum = 0;
          var prev = 0;
          for (var i in obj) {
@@ -256,7 +256,7 @@ module ex {
        * @method isLoaded
        */
       public isLoaded(){
-         return this.numLoaded === this.resourceCount;
+         return this._numLoaded === this._resourceCount;
       }
 
 
@@ -268,15 +268,15 @@ module ex {
       public load(): Promise<any> {
          var complete = new Promise<any>();
          var me = this;
-         if (this.resourceList.length === 0) {
+         if (this._resourceList.length === 0) {
             me.oncomplete.call(me);
             return complete;
          }
 
-         var progressArray = new Array<any>(this.resourceList.length);
-         var progressChunks = this.resourceList.length;
+         var progressArray = new Array<any>(this._resourceList.length);
+         var progressChunks = this._resourceList.length;
 
-         this.resourceList.forEach((r, i) => {
+         this._resourceList.forEach((r, i) => {
             r.onprogress = function (e) {
                var total = <number>e.total;
                var loaded = <number>e.loaded;
@@ -289,8 +289,8 @@ module ex {
                me.onprogress.call(me, progressResult);
             };
             r.oncomplete = r.onerror = function () {
-               me.numLoaded++;
-               if (me.numLoaded === me.resourceCount) {
+               me._numLoaded++;
+               if (me._numLoaded === me._resourceCount) {
                   me.onprogress.call(me, {loaded: 100, total: 100});
                   me.oncomplete.call(me);
                   complete.resolve();
@@ -304,7 +304,7 @@ module ex {
                loadNext(list, index+1);
             });
          }
-         loadNext(this.resourceList, 0);         
+         loadNext(this._resourceList, 0);         
 
          return complete;
       }

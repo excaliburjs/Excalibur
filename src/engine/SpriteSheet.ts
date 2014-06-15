@@ -15,11 +15,11 @@ module ex {
     */
    export class SpriteSheet {
       public sprites: Sprite[] = [];
-      private internalImage: HTMLImageElement;
+      private _internalImage: HTMLImageElement;
 
-      constructor(public image: Texture, private columns: number, private rows: number, spWidth: number, spHeight: number) {
-         this.internalImage = image.image;
-         this.sprites = new Array(columns * rows);
+      constructor(public image: Texture, private _columns: number, private _rows: number, spWidth: number, spHeight: number) {
+         this._internalImage = image.image;
+         this.sprites = new Array(_columns * _rows);
 
          // TODO: Inspect actual image dimensions with preloading
          /*if(spWidth * columns > this.internalImage.naturalWidth){
@@ -32,9 +32,9 @@ module ex {
 
          var i = 0;
          var j = 0;
-         for (i = 0; i < rows; i++) {
-            for (j = 0; j < columns; j++) {
-               this.sprites[j + i * columns] = new Sprite(this.image, j * spWidth, i * spHeight, spWidth, spHeight);
+         for (i = 0; i < _rows; i++) {
+            for (j = 0; j < _columns; j++) {
+               this.sprites[j + i * _columns] = new Sprite(this.image, j * spWidth, i * spHeight, spWidth, spHeight);
             }
          }
       }
@@ -121,10 +121,10 @@ module ex {
     * @param spHeight {number} The height of each character in pixels
     */
    export class SpriteFont extends SpriteSheet {
-      private spriteLookup: { [key: string]: number; } = {};
-      private colorLookup: {[key: string]: Sprite[];} = {};
-      private _currentColor: Color = Color.Black;
-      constructor(public image: Texture, private alphabet: string, private caseInsensitive: boolean, columns: number, rows: number, spWidth: number, spHeight: number) {
+      private _spriteLookup: { [key: string]: number; } = {};
+      private _colorLookup: {[key: string]: Sprite[];} = {};
+      private __currentColor: Color = Color.Black;
+      constructor(public image: Texture, private _alphabet: string, private _caseInsensitive: boolean, columns: number, rows: number, spWidth: number, spHeight: number) {
          super(image, columns, rows, spWidth, spHeight);
       }
 
@@ -135,9 +135,9 @@ module ex {
        */
       public getTextSprites(): { [key: string]: Sprite; }{
          var lookup: { [key: string]: Sprite; } = {};
-         for (var i = 0; i < this.alphabet.length; i++) {
-            var char = this.alphabet[i];
-            if (this.caseInsensitive) {
+         for (var i = 0; i < this._alphabet.length; i++) {
+            var char = this._alphabet[i];
+            if (this._caseInsensitive) {
                char = char.toLowerCase();
             }
             lookup[char] = this.sprites[i].clone();
