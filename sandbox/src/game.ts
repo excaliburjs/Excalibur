@@ -356,7 +356,7 @@ game.addEventListener('keydown', (keyDown? : ex.KeyDown)=>{
 
 
 // Create a camera to track the player
-var camera = new ex.TopCamera(game);
+var camera = new ex.LockedCamera(game);
 camera.setActorToFollow(player);
 // camera.shake(5, 5, 1000);
 // camera.zoom(0.5);

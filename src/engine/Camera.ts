@@ -195,9 +195,9 @@ module ex {
                   } else {
                      return (this.currentZoomScale >= this.maxZoomScale);
                   }
-            }
-         
+            }  
       }
+
    }
 
    /**
@@ -223,18 +223,16 @@ module ex {
          }
       }
 
-
-
    }
 
    /**
    * An extension of BaseCamera that is locked to an actor or focal point; the actor will appear in the center of the screen.
-   * @class TopCamera
+   * @class LockedCamera
    * @extends BaseCamera
    * @constructor
    * @param engine {Engine} Reference to the current engine
    */
-   export class TopCamera extends BaseCamera {
+   export class LockedCamera extends BaseCamera {
 
       /**
        * Returns the focal point of the camera in world space
