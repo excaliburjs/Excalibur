@@ -852,6 +852,10 @@ var ex;
             this.pixelData = null;
             this.pixelsLoaded = false;
             this.dirtyEffect = false;
+            if (sx < 0 || sy < 0 || swidth < 0 || sheight < 0) {
+                this.logger.error("Sprite cannot have any negative dimensions x:", sx, "y:", sy, "width:", swidth, "height:", sheight);
+            }
+
             this.texture = image;
             this.spriteCanvas = document.createElement('canvas');
             this.spriteCanvas.width = swidth;
@@ -869,7 +873,17 @@ var ex;
         }
         Sprite.prototype.loadPixels = function () {
             if (this.texture.isLoaded() && !this.pixelsLoaded) {
-                this.spriteCtx.drawImage(this.texture.image, this.sx, this.sy, this.swidth, this.sheight, 0, 0, this.swidth, this.sheight);
+                var clamp = ex.Util.clamp;
+                var naturalWidth = this.texture.image.naturalWidth || 0;
+                var naturalHeight = this.texture.image.naturalHeight || 0;
+
+                if (this.swidth > naturalWidth) {
+                    this.logger.warn("The sprite width", this.swidth, "exceeds the width", naturalWidth, "of the backing texture", this.texture.path);
+                }
+                if (this.sheight > naturalHeight) {
+                    this.logger.warn("The sprite height", this.sheight, "exceeds the height", naturalHeight, "of the backing texture", this.texture.path);
+                }
+                this.spriteCtx.drawImage(this.texture.image, clamp(this.sx, 0, naturalWidth), clamp(this.sy, 0, naturalHeight), clamp(this.swidth, 0, naturalWidth), clamp(this.sheight, 0, naturalHeight), 0, 0, this.swidth, this.sheight);
 
                 //this.pixelData = this.spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
                 this.internalImage.src = this.spriteCanvas.toDataURL("image/png");
@@ -6580,10 +6594,12 @@ var ex;
             var loaded = _super.prototype.load.call(this);
             loaded.then(function () {
                 _this.image = new Image();
+                _this.image.addEventListener("load", function () {
+                    _this._isLoaded = true;
+                    _this.loaded.resolve(_this.image);
+                    complete.resolve(_this.image);
+                });
                 _this.image.src = _super.prototype.getData.call(_this);
-                _this.loaded.resolve(_this.image);
-                complete.resolve(_this.image);
-                _this._isLoaded = true;
             }, function () {
                 complete.reject("Error loading texture.");
             });

@@ -34,6 +34,10 @@ module ex {
 
       
       constructor(image: Texture, public sx: number, public sy: number, public swidth: number, public sheight: number) {
+         if(sx < 0 || sy < 0 || swidth < 0 || sheight < 0){
+            this.logger.error("Sprite cannot have any negative dimensions x:",sx,"y:",sy,"width:",swidth,"height:",sheight);            
+         }
+
          this.texture = image;
          this.spriteCanvas = document.createElement('canvas');
          this.spriteCanvas.width = swidth;
@@ -53,7 +57,22 @@ module ex {
 
       private loadPixels(){
          if(this.texture.isLoaded() && !this.pixelsLoaded){
-            this.spriteCtx.drawImage(this.texture.image, this.sx, this.sy, this.swidth, this.sheight, 0, 0, this.swidth, this.sheight);
+            var clamp = ex.Util.clamp;
+            var naturalWidth = this.texture.image.naturalWidth || 0;
+            var naturalHeight = this.texture.image.naturalHeight || 0;
+
+            if(this.swidth > naturalWidth){
+               this.logger.warn("The sprite width",this.swidth,"exceeds the width", naturalWidth, "of the backing texture", this.texture.path);
+            }            
+            if(this.sheight > naturalHeight){
+               this.logger.warn("The sprite height",this.sheight,"exceeds the height", naturalHeight, "of the backing texture", this.texture.path);
+            }
+            this.spriteCtx.drawImage(this.texture.image, 
+               clamp(this.sx, 0, naturalWidth), 
+               clamp(this.sy, 0, naturalHeight),
+               clamp(this.swidth, 0, naturalWidth),
+               clamp(this.sheight, 0, naturalHeight),
+               0, 0, this.swidth, this.sheight);
             //this.pixelData = this.spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
             
             this.internalImage.src = this.spriteCanvas.toDataURL("image/png");

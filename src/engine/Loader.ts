@@ -57,10 +57,13 @@ module ex {
          var loaded = super.load();
          loaded.then(() => {
             this.image = new Image();
-            this.image.src = super.getData();
-            this.loaded.resolve(this.image);
-            complete.resolve(this.image);
-            this._isLoaded = true;
+            this.image.addEventListener("load", ()=>{
+               this._isLoaded = true;
+               this.loaded.resolve(this.image);
+               complete.resolve(this.image);
+            });
+            this.image.src = super.getData();            
+            
 
          }, () => {
             complete.reject("Error loading texture.");
