@@ -18,6 +18,9 @@ module ex {
    export class Texture extends Resource<HTMLImageElement> {
       public width: number;
       public height: number;
+      public loaded: Promise<any> = new Promise<any>();
+      private _isLoaded: boolean = false;
+
       /**
        * Populated once loading is complete
        * @property image {HTMLImageElement}
@@ -40,7 +43,7 @@ module ex {
        * @returns boolean
        */
       public isLoaded(): boolean {
-         return (!!this.image && !!this.image.src);
+         return this._isLoaded;
       }
 
       /**
@@ -55,7 +58,10 @@ module ex {
          loaded.then(() => {
             this.image = new Image();
             this.image.src = super.getData();
+            this.loaded.resolve(this.image);
             complete.resolve(this.image);
+            this._isLoaded = true;
+
          }, () => {
             complete.reject("Error loading texture.");
          });

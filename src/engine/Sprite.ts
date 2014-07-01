@@ -17,6 +17,8 @@ module ex {
       private rotation: number = 0.0;
       private transformPoint: Point = new Point(0, 0);
 
+      public logger: Logger = Logger.getInstance();
+
       public flipVertical: boolean = false;
       public flipHorizontal: boolean = false;
       public width: number = 0;
@@ -37,6 +39,13 @@ module ex {
          this.spriteCanvas.width = swidth;
          this.spriteCanvas.height = sheight;
          this.spriteCtx = this.spriteCanvas.getContext('2d');
+         this.texture.loaded.then(()=>{
+            this.loadPixels();            
+            this.dirtyEffect = true;
+         }).error((e)=>{
+            this.logger.error("Error loading texture ", this.texture.path, e);
+         });
+         
 
          this.width = swidth;
          this.height = sheight;
@@ -173,7 +182,6 @@ module ex {
        * @param y {number} The y coordinate of where to draw
        */
       public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
-         this.loadPixels();
          if(this.dirtyEffect){
             this.applyEffects();
             this.dirtyEffect = false;

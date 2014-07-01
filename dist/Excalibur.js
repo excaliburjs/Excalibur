@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-06-02
+/*! excalibur - v0.2.5 - 2014-06-30
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -831,6 +831,7 @@ var ex;
     */
     var Sprite = (function () {
         function Sprite(image, sx, sy, swidth, sheight) {
+            var _this = this;
             this.sx = sx;
             this.sy = sy;
             this.swidth = swidth;
@@ -839,6 +840,7 @@ var ex;
             this.scaleY = 1.0;
             this.rotation = 0.0;
             this.transformPoint = new ex.Point(0, 0);
+            this.logger = ex.Logger.getInstance();
             this.flipVertical = false;
             this.flipHorizontal = false;
             this.width = 0;
@@ -855,6 +857,12 @@ var ex;
             this.spriteCanvas.width = swidth;
             this.spriteCanvas.height = sheight;
             this.spriteCtx = this.spriteCanvas.getContext('2d');
+            this.texture.loaded.then(function () {
+                _this.loadPixels();
+                _this.dirtyEffect = true;
+            }).error(function (e) {
+                _this.logger.error("Error loading texture ", _this.texture.path, e);
+            });
 
             this.width = swidth;
             this.height = sheight;
@@ -993,7 +1001,6 @@ var ex;
         * @param y {number} The y coordinate of where to draw
         */
         Sprite.prototype.draw = function (ctx, x, y) {
-            this.loadPixels();
             if (this.dirtyEffect) {
                 this.applyEffects();
                 this.dirtyEffect = false;
@@ -6548,6 +6555,8 @@ var ex;
         function Texture(path) {
             _super.call(this, path, 'blob');
             this.path = path;
+            this.loaded = new ex.Promise();
+            this._isLoaded = false;
         }
         /**
         * Returns true if the Texture is completely loaded and is ready
@@ -6556,7 +6565,7 @@ var ex;
         * @returns boolean
         */
         Texture.prototype.isLoaded = function () {
-            return (!!this.image && !!this.image.src);
+            return this._isLoaded;
         };
 
         /**
@@ -6572,7 +6581,9 @@ var ex;
             loaded.then(function () {
                 _this.image = new Image();
                 _this.image.src = _super.prototype.getData.call(_this);
+                _this.loaded.resolve(_this.image);
                 complete.resolve(_this.image);
+                _this._isLoaded = true;
             }, function () {
                 complete.reject("Error loading texture.");
             });
