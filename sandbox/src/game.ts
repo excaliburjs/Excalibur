@@ -27,13 +27,15 @@ game.backgroundColor = new ex.Color(114,213,224);
 
 // Turn on debug diagnostics
 game.isDebug = false;
-
+var blockSprite = new ex.Sprite(imageBlocks, 0, 0, 65, 49);
 // Create spritesheet
 var spriteSheetRun = new ex.SpriteSheet(imageRun, 21, 1, 96, 96);
 var spriteSheetJump = new ex.SpriteSheet(imageJump, 21, 1, 96, 96);
 var tileBlockWidth = 64,
     tileBlockHeight = 48,
     spriteTiles = new ex.SpriteSheet(imageBlocks, 1, 1, tileBlockWidth, tileBlockHeight);
+
+
 
 // create a collision map
 var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);

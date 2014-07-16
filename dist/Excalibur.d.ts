@@ -535,6 +535,7 @@ declare module ex {
         private scaleY;
         private rotation;
         private transformPoint;
+        public logger: Logger;
         public flipVertical: boolean;
         public flipHorizontal: boolean;
         public width: number;
@@ -3568,6 +3569,8 @@ declare module ex {
         public path: string;
         public width: number;
         public height: number;
+        public loaded: Promise<any>;
+        private _isLoaded;
         /**
         * Populated once loading is complete
         * @property image {HTMLImageElement}
