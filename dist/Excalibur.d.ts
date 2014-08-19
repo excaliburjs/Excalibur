@@ -412,10 +412,15 @@ declare module ex {
     }
 }
 declare module ex.Util {
+    var TwoPI: number;
     function base64Encode(inputStr: string): string;
     function clamp(val: any, min: any, max: any): any;
     function drawLine(ctx: CanvasRenderingContext2D, color: string, startx: any, starty: any, endx: any, endy: any): void;
     function randomInRange(min: number, max: number): number;
+    function randomIntInRange(min: number, max: number): number;
+    function canonicalizeAngle(angle: number): number;
+    function toDegrees(radians: number): number;
+    function toRadians(degrees: number): number;
     function getPosition(el: HTMLElement): Point;
     function getOppositeSide(side: Side): Side;
     /**

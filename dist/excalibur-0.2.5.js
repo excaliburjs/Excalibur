@@ -556,6 +556,8 @@ var ex;
 var ex;
 (function (ex) {
     (function (Util) {
+        Util.TwoPI = Math.PI * 2;
+
         function base64Encode(inputStr) {
             var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
             var outputStr = "";
@@ -609,6 +611,38 @@ var ex;
             return min + Math.random() * (max - min);
         }
         Util.randomInRange = randomInRange;
+
+        function randomIntInRange(min, max) {
+            return Math.round(randomInRange(min, max));
+        }
+        Util.randomIntInRange = randomIntInRange;
+
+        function canonicalizeAngle(angle) {
+            var tmpAngle = angle;
+            if (angle > this.TwoPI) {
+                while (tmpAngle > this.TwoPI) {
+                    tmpAngle -= this.TwoPI;
+                }
+            }
+
+            if (angle < 0) {
+                while (tmpAngle < 0) {
+                    tmpAngle += this.TwoPI;
+                }
+            }
+            return tmpAngle;
+        }
+        Util.canonicalizeAngle = canonicalizeAngle;
+
+        function toDegrees(radians) {
+            return 180 / Math.PI * radians;
+        }
+        Util.toDegrees = toDegrees;
+
+        function toRadians(degrees) {
+            return degrees / 180 * Math.PI;
+        }
+        Util.toRadians = toRadians;
 
         function getPosition(el) {
             var oLeft = 0, oTop = 0;

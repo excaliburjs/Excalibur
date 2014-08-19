@@ -116,6 +116,7 @@ module.exports = function (grunt) {
              "./src/spec/LogSpec.ts",
              "./src/spec/TimerSpec.ts",
              "./src/spec/ClassSpec.ts",
+             "./src/spec/MathSpec.ts",
              "./src/spec/CollisionGroupSpec.ts",
              "./src/spec/CollisionSpec.ts",
              "./src/spec/BoundingBoxSpec.ts",
