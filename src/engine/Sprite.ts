@@ -207,11 +207,10 @@ module ex {
          }
 
          ctx.save();
-         //var translateX = this.aboutCenter?this.swidth*this.scale/2:0;
-         //var translateY = this.aboutCenter?this.sheight*this.scale/2:0;
-         ctx.translate(x + this.transformPoint.x, y + this.transformPoint.y);
+
+         ctx.translate(x, y);
          ctx.rotate(this.rotation);
-         //ctx.scale(this.scale, this.scale);
+         
 
          if (this.flipHorizontal) {
             ctx.translate(this.swidth, 0);
@@ -223,7 +222,11 @@ module ex {
             ctx.scale(1, -1);
          }
          if(this.internalImage){
-            ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, -this.transformPoint.x, -this.transformPoint.y, this.swidth * this.scaleX, this.sheight * this.scaleY);
+            ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, 
+               -(this.transformPoint.x*this.swidth)*this.scaleX, 
+               -(this.transformPoint.y*this.sheight)*this.scaleY, 
+               this.swidth * this.scaleX, 
+               this.sheight * this.scaleY);
          }
          ctx.restore();
       }

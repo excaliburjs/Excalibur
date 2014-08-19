@@ -378,11 +378,18 @@ emitter.emitRate = 494;
 emitter.opacity = 0.84;
 emitter.fadeFlag = true;
 emitter.particleLife = 2465;
-emitter.maxSize = 10;
-emitter.minSize = 1;
+emitter.maxSize = 1.5;
+emitter.minSize = .1;
 emitter.acceleration = new ex.Vector(0, 460);
 emitter.beginColor = ex.Color.Red;
 emitter.endColor = ex.Color.Yellow;
+emitter.particleSprite = blockSprite.clone();
+emitter.particleSprite.transformAboutPoint(new ex.Point(.5, .5));
+emitter.particleRotationalVelocity = Math.PI/10;
+emitter.randomRotation = true;
+emitter.particleSprite.addEffect(new ex.Effects.Grayscale());
+
+
 //emitter.acceleration = new ex.Vector(0, -400);
 //emitter.particleSprite = spriteTiles.getSprite(0);
 //emitter.focus = new ex.Vector(0, -100);

@@ -2990,6 +2990,8 @@ declare module ex {
         public position: Vector;
         public velocity: Vector;
         public acceleration: Vector;
+        public particleRotationalVelocity: number;
+        public currentRotation: number;
         public focus: Vector;
         public focusAccel: number;
         public opacity: number;
@@ -3135,6 +3137,16 @@ declare module ex {
         * @property [radius=0] {number}
         */
         public radius: number;
+        /**
+        * Gets or sets the particle rotational speed velocity
+        * @property [particleRotationalVelocity=0] {number}
+        */
+        public particleRotationalVelocity: number;
+        /**
+        * Indicates whether particles should start with a random rotation
+        * @property [randomRotation=false] {boolean}
+        */
+        public randomRotation: boolean;
         constructor(x?: number, y?: number, width?: number, height?: number);
         public removeParticle(particle: Particle): void;
         /**
