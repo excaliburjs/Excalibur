@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-06-30
+/*! excalibur - v0.2.5 - 2014-08-18
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -251,9 +251,10 @@ var ex;
             if (!anchor) {
                 anchor = new ex.Point(0, 0);
             }
-            var x = (this.x - anchor.x) * Math.cos(angle) + anchor.x;
-            var y = (this.y - anchor.y) * Math.sin(angle) + anchor.y;
-
+            var sinAngle = Math.sin(angle);
+            var cosAngle = Math.cos(angle);
+            var x = cosAngle * (this.x - anchor.x) - sinAngle * (this.y - anchor.y) + anchor.x;
+            var y = sinAngle * (this.x - anchor.x) + cosAngle * (this.y - anchor.y) + anchor.y;
             return new Point(x, y);
         };
 
@@ -555,6 +556,8 @@ var ex;
 var ex;
 (function (ex) {
     (function (Util) {
+        Util.TwoPI = Math.PI * 2;
+
         function base64Encode(inputStr) {
             var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
             var outputStr = "";
@@ -608,6 +611,38 @@ var ex;
             return min + Math.random() * (max - min);
         }
         Util.randomInRange = randomInRange;
+
+        function randomIntInRange(min, max) {
+            return Math.round(randomInRange(min, max));
+        }
+        Util.randomIntInRange = randomIntInRange;
+
+        function canonicalizeAngle(angle) {
+            var tmpAngle = angle;
+            if (angle > this.TwoPI) {
+                while (tmpAngle > this.TwoPI) {
+                    tmpAngle -= this.TwoPI;
+                }
+            }
+
+            if (angle < 0) {
+                while (tmpAngle < 0) {
+                    tmpAngle += this.TwoPI;
+                }
+            }
+            return tmpAngle;
+        }
+        Util.canonicalizeAngle = canonicalizeAngle;
+
+        function toDegrees(radians) {
+            return 180 / Math.PI * radians;
+        }
+        Util.toDegrees = toDegrees;
+
+        function toRadians(degrees) {
+            return degrees / 180 * Math.PI;
+        }
+        Util.toRadians = toRadians;
 
         function getPosition(el) {
             var oLeft = 0, oTop = 0;
@@ -1022,12 +1057,9 @@ var ex;
 
             ctx.save();
 
-            //var translateX = this.aboutCenter?this.swidth*this.scale/2:0;
-            //var translateY = this.aboutCenter?this.sheight*this.scale/2:0;
-            ctx.translate(x + this.transformPoint.x, y + this.transformPoint.y);
+            ctx.translate(x, y);
             ctx.rotate(this.rotation);
 
-            //ctx.scale(this.scale, this.scale);
             if (this.flipHorizontal) {
                 ctx.translate(this.swidth, 0);
                 ctx.scale(-1, 1);
@@ -1038,7 +1070,7 @@ var ex;
                 ctx.scale(1, -1);
             }
             if (this.internalImage) {
-                ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, -this.transformPoint.x, -this.transformPoint.y, this.swidth * this.scaleX, this.sheight * this.scaleY);
+                ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, -(this.transformPoint.x * this.swidth) * this.scaleX, -(this.transformPoint.y * this.sheight) * this.scaleY, this.swidth * this.scaleX, this.sheight * this.scaleY);
             }
             ctx.restore();
         };
@@ -5325,6 +5357,8 @@ var ex;
             this.position = new ex.Vector(0, 0);
             this.velocity = new ex.Vector(0, 0);
             this.acceleration = new ex.Vector(0, 0);
+            this.particleRotationalVelocity = 0;
+            this.currentRotation = 0;
             this.focus = null;
             this.focusAccel = 0;
             this.opacity = 1;
@@ -5398,10 +5432,17 @@ var ex;
                 this.velocity = this.velocity.add(this.acceleration.scale(delta / 1000));
             }
             this.position = this.position.add(this.velocity.scale(delta / 1000));
+
+            if (this.particleRotationalVelocity) {
+                this.currentRotation = (this.currentRotation + this.particleRotationalVelocity * delta / 1000) % (2 * Math.PI);
+            }
         };
 
         Particle.prototype.draw = function (ctx) {
             if (this.particleSprite) {
+                this.particleSprite.setRotation(this.currentRotation);
+                this.particleSprite.setScaleX(this.particleSize);
+                this.particleSprite.setScaleY(this.particleSize);
                 this.particleSprite.draw(ctx, this.position.x, this.position.y);
                 return;
             }
@@ -5549,6 +5590,16 @@ var ex;
             * @property [radius=0] {number}
             */
             this.radius = 0;
+            /**
+            * Gets or sets the particle rotational speed velocity
+            * @property [particleRotationalVelocity=0] {number}
+            */
+            this.particleRotationalVelocity = 0;
+            /**
+            * Indicates whether particles should start with a random rotation
+            * @property [randomRotation=false] {boolean}
+            */
+            this.randomRotation = false;
             this.collisionType = 0 /* PreventCollision */;
             this.particles = new ex.Util.Collection();
             this.deadParticles = new ex.Util.Collection();
@@ -5596,7 +5647,13 @@ var ex;
             var p = new Particle(this, this.particleLife, this.opacity, this.beginColor, this.endColor, new ex.Vector(ranX, ranY), new ex.Vector(dx, dy), this.acceleration, this.startSize, this.endSize);
             p.fadeFlag = this.fadeFlag;
             p.particleSize = size;
-            p.particleSprite = this.particleSprite;
+            if (this.particleSprite) {
+                p.particleSprite = this.particleSprite;
+            }
+            p.particleRotationalVelocity = this.particleRotationalVelocity;
+            if (this.randomRotation) {
+                p.currentRotation = ex.Util.randomInRange(0, Math.PI * 2);
+            }
             if (this.focus) {
                 p.focus = this.focus.add(new ex.Vector(this.x, this.y));
                 p.focusAccel = this.focusAccel;

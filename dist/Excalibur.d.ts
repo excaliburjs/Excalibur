@@ -412,10 +412,15 @@ declare module ex {
     }
 }
 declare module ex.Util {
+    var TwoPI: number;
     function base64Encode(inputStr: string): string;
     function clamp(val: any, min: any, max: any): any;
     function drawLine(ctx: CanvasRenderingContext2D, color: string, startx: any, starty: any, endx: any, endy: any): void;
     function randomInRange(min: number, max: number): number;
+    function randomIntInRange(min: number, max: number): number;
+    function canonicalizeAngle(angle: number): number;
+    function toDegrees(radians: number): number;
+    function toRadians(degrees: number): number;
     function getPosition(el: HTMLElement): Point;
     function getOppositeSide(side: Side): Side;
     /**
@@ -2990,6 +2995,8 @@ declare module ex {
         public position: Vector;
         public velocity: Vector;
         public acceleration: Vector;
+        public particleRotationalVelocity: number;
+        public currentRotation: number;
         public focus: Vector;
         public focusAccel: number;
         public opacity: number;
@@ -3135,6 +3142,16 @@ declare module ex {
         * @property [radius=0] {number}
         */
         public radius: number;
+        /**
+        * Gets or sets the particle rotational speed velocity
+        * @property [particleRotationalVelocity=0] {number}
+        */
+        public particleRotationalVelocity: number;
+        /**
+        * Indicates whether particles should start with a random rotation
+        * @property [randomRotation=false] {boolean}
+        */
+        public randomRotation: boolean;
         constructor(x?: number, y?: number, width?: number, height?: number);
         public removeParticle(particle: Particle): void;
         /**
