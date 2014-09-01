@@ -105,6 +105,19 @@ declare module ex {
         */
         addEffect(effect: Effects.ISpriteEffect): any;
         /**
+        * Removes an effect {{#crossLink ISpriteEffect}}{{/crossLink}} from this drawing.
+        * @method removeEffect
+        * @param effect {{ISpriteEffect}} Effect to remove from this drawing
+        */
+        removeEffect(effect: Effects.ISpriteEffect): any;
+        /**
+        * Removes an effect by index from this drawing.
+        * @method removeEffect
+        * @param index {{number}} Index of the effect to remove from this drawing
+        */
+        removeEffect(index: number): any;
+        removeEffect(param: any): any;
+        /**
         * Clears all effects from the drawing and return it to its original state.
         * @method clearEffects
         */
@@ -165,6 +178,35 @@ declare module ex {
         * @param y {number} The y coordinate of where to draw
         */
         draw(ctx: CanvasRenderingContext2D, x: number, y: number): any;
+    }
+}
+declare module ex {
+    /**
+    * An interface describing actor update pipeline modules
+    * @class ILoadable
+    */
+    interface IPipelineModule {
+        update(actor: Actor, engine: Engine, delta: number): void;
+    }
+}
+declare module ex {
+    class MovementModule implements IPipelineModule {
+        public update(actor: Actor, engine: Engine, delta: number): void;
+    }
+}
+declare module ex {
+    class OffscreenCullingModule implements IPipelineModule {
+        public update(actor: Actor, engine: Engine, delta: number): void;
+    }
+}
+declare module ex {
+    class EventPropagationModule implements IPipelineModule {
+        public update(actor: Actor, engine: Engine, delta: number): void;
+    }
+}
+declare module ex {
+    class CollisionDetectionModule implements IPipelineModule {
+        public update(actor: Actor, engine: Engine, delta: number): void;
     }
 }
 declare module ex {
@@ -560,6 +602,18 @@ declare module ex {
         * @param effect {Effects.ISpriteEffect} Effect to add to the this drawing
         */
         public addEffect(effect: Effects.ISpriteEffect): void;
+        /**
+        * Removes a {{#crossLink Effects.ISpriteEffect}}{{/crossLink}} from this sprite.
+        * @method removeEffect
+        * @param effect {Effects.ISpriteEffect} Effect to remove from this sprite
+        */
+        public removeEffect(effect: Effects.ISpriteEffect): void;
+        /**
+        * Removes an effect given the index from this sprite.
+        * @method removeEffect
+        * @param index {number} Index of the effect to remove from this sprite
+        */
+        public removeEffect(index: number): void;
         private applyEffects();
         /**
         * Clears all effects from the drawing and return it to its original state.
@@ -1763,6 +1817,12 @@ declare module ex {
         private centerDrawingX;
         private centerDrawingY;
         /**
+        * Modify the current actor update pipeline.
+        *
+        *
+        */
+        public pipeline: IPipelineModule[];
+        /**
         * Sets the color of the actor. A rectangle of this color will be drawn if now IDrawable is specified as the actors drawing.
         * @property color {Color}
         */
@@ -1782,6 +1842,12 @@ declare module ex {
         * @method kill
         */
         public kill(): void;
+        /**
+        * Indicates wether the actor has been killed.
+        * @method isKilled
+        * @returns boolean
+        */
+        public isKilled(): boolean;
         /**
         * Adds a child actor to this actor. All movement of the child actor will be
         * relative to the parent actor. Meaning if the parent moves the child will
@@ -1947,6 +2013,11 @@ declare module ex {
         * @param func {callback} The callback to fire on collision with another actor from the group. The callback is passed the other actor.
         */
         public onCollidesWith(group: string, func: (actor: Actor) => void): void;
+        public getCollisionHandlers(): {
+            [key: string]: {
+                (actor: Actor): void;
+            }[];
+        };
         /**
         * Removes all collision handlers for this group on this actor
         * @method removeCollidesWith
@@ -2942,6 +3013,12 @@ declare module ex {
         */
         public toString(): string;
         /**
+        * Returns a CSS string representation of a color.
+        * @method fillStyle
+        * @returns string
+        */
+        public fillStyle(): string;
+        /**
         * Returns a clone of the current color.
         * @method clone
         * @returns Color
@@ -3200,6 +3277,18 @@ declare module ex {
         public height: number;
         constructor(engine: Engine, images: Sprite[], speed: number, loop?: boolean);
         public addEffect(effect: Effects.ISpriteEffect): void;
+        /**
+        * Removes a {{#crossLink Effects.ISpriteEffect}}{{/crossLink}} from this animation.
+        * @method removeEffect
+        * @param effect {Effects.ISpriteEffect} Effect to remove from this animation
+        */
+        public removeEffect(effect: Effects.ISpriteEffect): void;
+        /**
+        * Removes an effect given the index from this animation.
+        * @method removeEffect
+        * @param index {number} Index of the effect to remove from this animation
+        */
+        public removeEffect(index: number): void;
         public clearEffects(): void;
         public transformAboutPoint(point: Point): void;
         public setRotation(radians: number): void;

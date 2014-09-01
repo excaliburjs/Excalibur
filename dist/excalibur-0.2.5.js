@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-08-18
+/*! excalibur - v0.2.5 - 2014-08-31
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -159,6 +159,195 @@ var ex;
     var Effects = ex.Effects;
 })(ex || (ex = {}));
 /// <reference path="../SpriteEffects.ts" />
+/// <reference path="../Interfaces/IPipelineModule.ts" />
+var ex;
+(function (ex) {
+    var MovementModule = (function () {
+        function MovementModule() {
+        }
+        MovementModule.prototype.update = function (actor, engine, delta) {
+            // Update placements based on linear algebra
+            actor.x += actor.dx * delta / 1000;
+            actor.y += actor.dy * delta / 1000;
+
+            actor.dx += actor.ax * delta / 1000;
+            actor.dy += actor.ay * delta / 1000;
+
+            actor.rotation += actor.rx * delta / 1000;
+
+            actor.scaleX += actor.sx * delta / 1000;
+            actor.scaleY += actor.sy * delta / 1000;
+        };
+        return MovementModule;
+    })();
+    ex.MovementModule = MovementModule;
+})(ex || (ex = {}));
+/// <reference path="../Interfaces/IPipelineModule.ts" />
+var ex;
+(function (ex) {
+    var OffscreenCullingModule = (function () {
+        function OffscreenCullingModule() {
+        }
+        OffscreenCullingModule.prototype.update = function (actor, engine, delta) {
+            var eventDispatcher = actor.eventDispatcher;
+            var anchor = actor.calculatedAnchor;
+            var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Point(actor.getGlobalX() - anchor.x, actor.getGlobalY() - anchor.y));
+            var zoom = 1.0;
+            if (engine.camera) {
+                zoom = engine.camera.getZoom();
+            }
+
+            if (!actor.isOffScreen) {
+                if (actorScreenCoords.x + actor.getWidth() * zoom < 0 || actorScreenCoords.y + actor.getHeight() * zoom < 0 || actorScreenCoords.x > engine.width || actorScreenCoords.y > engine.height) {
+                    eventDispatcher.publish('exitviewport', new ex.ExitViewPortEvent());
+                    actor.isOffScreen = true;
+                }
+            } else {
+                if (actorScreenCoords.x + actor.getWidth() * zoom > 0 && actorScreenCoords.y + actor.getHeight() * zoom > 0 && actorScreenCoords.x < engine.width && actorScreenCoords.y < engine.height) {
+                    eventDispatcher.publish('enterviewport', new ex.EnterViewPortEvent());
+                    actor.isOffScreen = false;
+                }
+            }
+        };
+        return OffscreenCullingModule;
+    })();
+    ex.OffscreenCullingModule = OffscreenCullingModule;
+})(ex || (ex = {}));
+/// <reference path="../Interfaces/IPipelineModule.ts" />
+var ex;
+(function (ex) {
+    var EventPropagationModule = (function () {
+        function EventPropagationModule() {
+        }
+        EventPropagationModule.prototype.update = function (actor, engine, delta) {
+            var eventDispatcher = actor.eventDispatcher;
+
+            // Publish other events
+            engine.keys.forEach(function (key) {
+                eventDispatcher.publish(ex.InputKey[key], new ex.KeyEvent(key));
+            });
+
+            // Publish click events
+            engine.clicks.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[10 /* Click */], new ex.ClickEvent(e.x, e.y, e.mouseEvent));
+                    eventDispatcher.publish(ex.EventType[3 /* MouseDown */], new ex.MouseDownEvent(e.x, e.y, e.mouseEvent));
+                }
+            });
+
+            engine.mouseMove.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[4 /* MouseMove */], new ex.MouseMoveEvent(e.x, e.y, e.mouseEvent));
+                }
+            });
+
+            engine.mouseUp.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[5 /* MouseUp */], new ex.MouseUpEvent(e.x, e.y, e.mouseEvent));
+                }
+            });
+
+            engine.touchStart.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[6 /* TouchStart */], new ex.TouchStartEvent(e.x, e.y));
+                }
+            });
+
+            engine.touchMove.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[7 /* TouchMove */], new ex.TouchMoveEvent(e.x, e.y));
+                }
+            });
+
+            engine.touchEnd.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[8 /* TouchEnd */], new ex.TouchEndEvent(e.x, e.y));
+                }
+            });
+
+            engine.touchCancel.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[9 /* TouchCancel */], new ex.TouchCancelEvent(e.x, e.y));
+                }
+            });
+        };
+        return EventPropagationModule;
+    })();
+    ex.EventPropagationModule = EventPropagationModule;
+})(ex || (ex = {}));
+/// <reference path="../Interfaces/IPipelineModule.ts" />
+var ex;
+(function (ex) {
+    var CollisionDetectionModule = (function () {
+        function CollisionDetectionModule() {
+        }
+        CollisionDetectionModule.prototype.update = function (actor, engine, delta) {
+            var _this = this;
+            var eventDispatcher = actor.eventDispatcher;
+            if (actor.collisionType !== 0 /* PreventCollision */) {
+                // Retrieve the list of potential colliders, exclude killed, prevented, and self
+                var potentialColliders = engine.currentScene.children.filter(function (other) {
+                    return !other.isKilled() && other.collisionType !== 0 /* PreventCollision */ && actor !== other;
+                });
+
+                for (var i = 0; i < potentialColliders.length; i++) {
+                    var intersectActor;
+                    var side;
+                    var collider = potentialColliders[i];
+
+                    if (intersectActor = actor.collides(collider)) {
+                        side = actor.getSideFromIntersect(intersectActor);
+                        actor.scene.addCollisionPair(new ex.CollisionPair(actor, collider, intersectActor, side));
+
+                        var actorCollisionGroups = actor.getCollisionHandlers();
+                        collider.collisionGroups.forEach(function (group) {
+                            if (actorCollisionGroups[group]) {
+                                actorCollisionGroups[group].forEach(function (handler) {
+                                    handler.call(_this, collider);
+                                });
+                            }
+                        });
+                    }
+                }
+
+                for (var j = 0; j < engine.currentScene.tileMaps.length; j++) {
+                    var map = engine.currentScene.tileMaps[j];
+                    var intersectMap;
+                    var side = 0 /* None */;
+                    var max = 2;
+                    var hasBounced = false;
+                    while (intersectMap = map.collides(actor)) {
+                        if (max-- < 0) {
+                            break;
+                        }
+                        side = actor.getSideFromIntersect(intersectMap);
+                        eventDispatcher.publish('collision', new ex.CollisionEvent(actor, null, side, intersectMap));
+                        if ((actor.collisionType === 2 /* Active */ || actor.collisionType === 3 /* Elastic */) && collider.collisionType !== 1 /* Passive */) {
+                            actor.y += intersectMap.y;
+                            actor.x += intersectMap.x;
+
+                            // Naive elastic bounce
+                            if (actor.collisionType === 3 /* Elastic */ && !hasBounced) {
+                                hasBounced = true;
+                                if (side === 3 /* Left */) {
+                                    actor.dx = Math.abs(actor.dx);
+                                } else if (side === 4 /* Right */) {
+                                    actor.dx = -Math.abs(actor.dx);
+                                } else if (side === 1 /* Top */) {
+                                    actor.dy = Math.abs(actor.dy);
+                                } else if (side === 2 /* Bottom */) {
+                                    actor.dy = -Math.abs(actor.dy);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        return CollisionDetectionModule;
+    })();
+    ex.CollisionDetectionModule = CollisionDetectionModule;
+})(ex || (ex = {}));
 var ex;
 (function (ex) {
     /**
@@ -933,6 +1122,25 @@ var ex;
         */
         Sprite.prototype.addEffect = function (effect) {
             this.effects.push(effect);
+
+            // We must check if the texture and the backing sprite pixels are loaded as well before
+            // an effect can be applied
+            if (!this.texture.isLoaded() || !this.pixelsLoaded) {
+                this.dirtyEffect = true;
+            } else {
+                this.applyEffects();
+            }
+        };
+
+        Sprite.prototype.removeEffect = function (param) {
+            var indexToRemove = null;
+            if (typeof param === 'number') {
+                indexToRemove = param;
+            } else {
+                indexToRemove = this.effects.indexOf(param);
+            }
+
+            this.effects.splice(indexToRemove, 1);
 
             // We must check if the texture and the backing sprite pixels are loaded as well before
             // an effect can be applied
@@ -3160,6 +3368,10 @@ var ex;
     var Internal = ex.Internal;
 })(ex || (ex = {}));
 /// <reference path="Interfaces/IDrawable.ts" />
+/// <reference path="Modules/MovementModule.ts" />
+/// <reference path="Modules/OffscreenCullingModule.ts" />
+/// <reference path="Modules/EventPropagationModule.ts" />
+/// <reference path="Modules/CollisionDetectionModule.ts" />
 /// <reference path="Side.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util.ts" />
@@ -3357,16 +3569,30 @@ var ex;
             this.currentDrawing = null;
             this.centerDrawingX = false;
             this.centerDrawingY = false;
+            /**
+            * Modify the current actor update pipeline.
+            *
+            *
+            */
+            this.pipeline = [];
             this._isKilled = false;
             this.x = x || 0;
             this.y = y || 0;
             this.width = width || 0;
             this.height = height || 0;
-            this.color = color;
             if (color) {
+                this.color = color.clone();
+
                 // set default opacticy of an actor to the color
-                this.opacity = color.a || 1;
+                this.opacity = color.a;
             }
+
+            // Build default pipeline
+            this.pipeline.push(new ex.MovementModule());
+            this.pipeline.push(new ex.CollisionDetectionModule());
+            this.pipeline.push(new ex.OffscreenCullingModule());
+            this.pipeline.push(new ex.EventPropagationModule());
+
             this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
             this.sceneNode = new ex.Scene();
             this.sceneNode.actor = this;
@@ -3394,6 +3620,15 @@ var ex;
             } else {
                 this.logger.warn("Cannot kill actor, it was never added to the Scene");
             }
+        };
+
+        /**
+        * Indicates wether the actor has been killed.
+        * @method isKilled
+        * @returns boolean
+        */
+        Actor.prototype.isKilled = function () {
+            return this._isKilled;
         };
 
         /**
@@ -3708,6 +3943,10 @@ var ex;
             this._collisionHandlers[group].push(func);
         };
 
+        Actor.prototype.getCollisionHandlers = function () {
+            return this._collisionHandlers;
+        };
+
         /**
         * Removes all collision handlers for this group on this actor
         * @method removeCollidesWith
@@ -3962,7 +4201,6 @@ var ex;
         * @param delta {number} The time elapsed since the last update in milliseconds
         */
         Actor.prototype.update = function (engine, delta) {
-            var _this = this;
             if (!this._isInitialized) {
                 this.onInitialize(engine);
                 this.eventDispatcher.publish('initialize', new ex.InitializeEvent(engine));
@@ -3978,143 +4216,8 @@ var ex;
             // Update action queue
             this.actionQueue.update(delta);
 
-            // Update placements based on linear algebra
-            this.x += this.dx * delta / 1000;
-            this.y += this.dy * delta / 1000;
-
-            this.dx += this.ax * delta / 1000;
-            this.dy += this.ay * delta / 1000;
-
-            this.rotation += this.rx * delta / 1000;
-
-            this.scaleX += this.sx * delta / 1000;
-            this.scaleY += this.sy * delta / 1000;
-
-            if (this.collisionType !== 0 /* PreventCollision */) {
-                // Retrieve the list of potential colliders, exclude killed, prevented, and self
-                var potentialColliders = engine.currentScene.children.filter(function (actor) {
-                    return !actor._isKilled && actor.collisionType !== 0 /* PreventCollision */ && _this !== actor;
-                });
-
-                for (var i = 0; i < potentialColliders.length; i++) {
-                    var intersectActor;
-                    var side;
-                    var collider = potentialColliders[i];
-
-                    if (intersectActor = this.collides(collider)) {
-                        side = this.getSideFromIntersect(intersectActor);
-                        this.scene.addCollisionPair(new ex.CollisionPair(this, collider, intersectActor, side));
-
-                        collider.collisionGroups.forEach(function (group) {
-                            if (_this._collisionHandlers[group]) {
-                                _this._collisionHandlers[group].forEach(function (handler) {
-                                    handler.call(_this, collider);
-                                });
-                            }
-                        });
-                    }
-                }
-
-                for (var j = 0; j < engine.currentScene.tileMaps.length; j++) {
-                    var map = engine.currentScene.tileMaps[j];
-                    var intersectMap;
-                    var side = 0 /* None */;
-                    var max = 2;
-                    var hasBounced = false;
-                    while (intersectMap = map.collides(this)) {
-                        if (max-- < 0) {
-                            break;
-                        }
-                        side = this.getSideFromIntersect(intersectMap);
-                        eventDispatcher.publish('collision', new ex.CollisionEvent(this, null, side, intersectMap));
-                        if ((this.collisionType === 2 /* Active */ || this.collisionType === 3 /* Elastic */) && collider.collisionType !== 1 /* Passive */) {
-                            this.y += intersectMap.y;
-                            this.x += intersectMap.x;
-
-                            // Naive elastic bounce
-                            if (this.collisionType === 3 /* Elastic */ && !hasBounced) {
-                                hasBounced = true;
-                                if (side === 3 /* Left */) {
-                                    this.dx = Math.abs(this.dx);
-                                } else if (side === 4 /* Right */) {
-                                    this.dx = -Math.abs(this.dx);
-                                } else if (side === 1 /* Top */) {
-                                    this.dy = Math.abs(this.dy);
-                                } else if (side === 2 /* Bottom */) {
-                                    this.dy = -Math.abs(this.dy);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Publish other events
-            engine.keys.forEach(function (key) {
-                eventDispatcher.publish(ex.InputKey[key], new ex.KeyEvent(key));
-            });
-
-            // Publish click events
-            engine.clicks.forEach(function (e) {
-                if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[10 /* Click */], new ex.ClickEvent(e.x, e.y, e.mouseEvent));
-                    eventDispatcher.publish(ex.EventType[3 /* MouseDown */], new ex.MouseDownEvent(e.x, e.y, e.mouseEvent));
-                }
-            });
-
-            engine.mouseMove.forEach(function (e) {
-                if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[4 /* MouseMove */], new ex.MouseMoveEvent(e.x, e.y, e.mouseEvent));
-                }
-            });
-
-            engine.mouseUp.forEach(function (e) {
-                if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[5 /* MouseUp */], new ex.MouseUpEvent(e.x, e.y, e.mouseEvent));
-                }
-            });
-
-            engine.touchStart.forEach(function (e) {
-                if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[6 /* TouchStart */], new ex.TouchStartEvent(e.x, e.y));
-                }
-            });
-
-            engine.touchMove.forEach(function (e) {
-                if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[7 /* TouchMove */], new ex.TouchMoveEvent(e.x, e.y));
-                }
-            });
-
-            engine.touchEnd.forEach(function (e) {
-                if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[8 /* TouchEnd */], new ex.TouchEndEvent(e.x, e.y));
-                }
-            });
-
-            engine.touchCancel.forEach(function (e) {
-                if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[9 /* TouchCancel */], new ex.TouchCancelEvent(e.x, e.y));
-                }
-            });
-
-            var anchor = this.calculatedAnchor;
-            var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Point(this.getGlobalX() - anchor.x, this.getGlobalY() - anchor.y));
-            var zoom = 1.0;
-            if (engine.camera) {
-                zoom = engine.camera.getZoom();
-            }
-
-            if (!this.isOffScreen) {
-                if (actorScreenCoords.x + this.getWidth() * zoom < 0 || actorScreenCoords.y + this.getHeight() * zoom < 0 || actorScreenCoords.x > engine.width || actorScreenCoords.y > engine.height) {
-                    eventDispatcher.publish('exitviewport', new ex.ExitViewPortEvent());
-                    this.isOffScreen = true;
-                }
-            } else {
-                if (actorScreenCoords.x + this.getWidth() * zoom > 0 && actorScreenCoords.y + this.getHeight() * zoom > 0 && actorScreenCoords.x < engine.width && actorScreenCoords.y < engine.height) {
-                    eventDispatcher.publish('enterviewport', new ex.EnterViewPortEvent());
-                    this.isOffScreen = false;
-                }
+            for (var i = 0; i < this.pipeline.length; i++) {
+                this.pipeline[i].update(this, engine, delta);
             }
 
             eventDispatcher.publish(ex.EventType[16 /* Update */], new ex.UpdateEvent(delta));
@@ -4160,10 +4263,10 @@ var ex;
 
                 this.currentDrawing.draw(ctx, -xDiff - anchorPoint.x, -yDiff - anchorPoint.y);
             } else {
-                if (this.color)
-                    this.color.a = this.opacity;
-                ctx.fillStyle = this.color ? this.color.toString() : (new ex.Color(0, 0, 0)).toString();
-                ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this.width, this.height);
+                if (this.color) {
+                    ctx.fillStyle = this.color.toString();
+                    ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this.width, this.height);
+                }
             }
 
             this.sceneNode.draw(ctx, delta);
@@ -5180,6 +5283,15 @@ var ex;
         };
 
         /**
+        * Returns a CSS string representation of a color.
+        * @method fillStyle
+        * @returns string
+        */
+        Color.prototype.fillStyle = function () {
+            return this.toString();
+        };
+
+        /**
         * Returns a clone of the current color.
         * @method clone
         * @returns Color
@@ -5748,6 +5860,12 @@ var ex;
         Animation.prototype.addEffect = function (effect) {
             for (var i in this.sprites) {
                 this.sprites[i].addEffect(effect);
+            }
+        };
+
+        Animation.prototype.removeEffect = function (param) {
+            for (var i in this.sprites) {
+                this.sprites[i].removeEffect(param);
             }
         };
 

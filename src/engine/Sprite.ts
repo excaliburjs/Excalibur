@@ -95,6 +95,37 @@ module ex {
          }
       }
 
+      /**
+       * Removes a {{#crossLink Effects.ISpriteEffect}}{{/crossLink}} from this sprite.
+       * @method removeEffect
+       * @param effect {Effects.ISpriteEffect} Effect to remove from this sprite
+       */
+      public removeEffect(effect: Effects.ISpriteEffect): void;
+      
+      /**
+       * Removes an effect given the index from this sprite.
+       * @method removeEffect
+       * @param index {number} Index of the effect to remove from this sprite
+       */
+      public removeEffect(index: number): void;
+      public removeEffect(param: any) {
+         var indexToRemove = null;
+         if(typeof param === 'number'){
+            indexToRemove = param;
+         }else{
+            indexToRemove = this.effects.indexOf(param);
+         }
+
+         this.effects.splice(indexToRemove, 1);
+         // We must check if the texture and the backing sprite pixels are loaded as well before 
+         // an effect can be applied
+         if(!this.texture.isLoaded() || !this.pixelsLoaded){
+            this.dirtyEffect = true;
+         }else{
+            this.applyEffects();
+         }
+      }
+
       private applyEffects(){
          this.spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
          this.spriteCtx.drawImage(this.texture.image, this.sx, this.sy, this.swidth, this.sheight, 0, 0, this.swidth, this.sheight);
