@@ -33,6 +33,23 @@ module ex {
        * @param effect {ISpriteEffect} Effect to add to the this drawing
        */
       addEffect(effect: ex.Effects.ISpriteEffect);
+
+      /**
+       * Removes an effect {{#crossLink ISpriteEffect}}{{/crossLink}} from this drawing.
+       * @method removeEffect
+       * @param effect {{ISpriteEffect}} Effect to remove from this drawing
+       */
+      removeEffect(effect: ex.Effects.ISpriteEffect);
+
+      /**
+       * Removes an effect by index from this drawing.
+       * @method removeEffect
+       * @param index {{number}} Index of the effect to remove from this drawing
+       */
+      removeEffect(index: number);
+      removeEffect(param: any);
+
+
       /**
        * Clears all effects from the drawing and return it to its original state.
        * @method clearEffects

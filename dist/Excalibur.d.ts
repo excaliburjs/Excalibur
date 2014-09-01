@@ -105,6 +105,19 @@ declare module ex {
         */
         addEffect(effect: Effects.ISpriteEffect): any;
         /**
+        * Removes an effect {{#crossLink ISpriteEffect}}{{/crossLink}} from this drawing.
+        * @method removeEffect
+        * @param effect {{ISpriteEffect}} Effect to remove from this drawing
+        */
+        removeEffect(effect: Effects.ISpriteEffect): any;
+        /**
+        * Removes an effect by index from this drawing.
+        * @method removeEffect
+        * @param index {{number}} Index of the effect to remove from this drawing
+        */
+        removeEffect(index: number): any;
+        removeEffect(param: any): any;
+        /**
         * Clears all effects from the drawing and return it to its original state.
         * @method clearEffects
         */
@@ -589,6 +602,18 @@ declare module ex {
         * @param effect {Effects.ISpriteEffect} Effect to add to the this drawing
         */
         public addEffect(effect: Effects.ISpriteEffect): void;
+        /**
+        * Removes a {{#crossLink Effects.ISpriteEffect}}{{/crossLink}} from this sprite.
+        * @method removeEffect
+        * @param effect {Effects.ISpriteEffect} Effect to remove from this sprite
+        */
+        public removeEffect(effect: Effects.ISpriteEffect): void;
+        /**
+        * Removes an effect given the index from this sprite.
+        * @method removeEffect
+        * @param index {number} Index of the effect to remove from this sprite
+        */
+        public removeEffect(index: number): void;
         private applyEffects();
         /**
         * Clears all effects from the drawing and return it to its original state.
@@ -3252,6 +3277,18 @@ declare module ex {
         public height: number;
         constructor(engine: Engine, images: Sprite[], speed: number, loop?: boolean);
         public addEffect(effect: Effects.ISpriteEffect): void;
+        /**
+        * Removes a {{#crossLink Effects.ISpriteEffect}}{{/crossLink}} from this animation.
+        * @method removeEffect
+        * @param effect {Effects.ISpriteEffect} Effect to remove from this animation
+        */
+        public removeEffect(effect: Effects.ISpriteEffect): void;
+        /**
+        * Removes an effect given the index from this animation.
+        * @method removeEffect
+        * @param index {number} Index of the effect to remove from this animation
+        */
+        public removeEffect(index: number): void;
         public clearEffects(): void;
         public transformAboutPoint(point: Point): void;
         public setRotation(radians: number): void;

@@ -48,6 +48,25 @@ module ex {
          }
       }
 
+      /**
+       * Removes a {{#crossLink Effects.ISpriteEffect}}{{/crossLink}} from this animation.
+       * @method removeEffect
+       * @param effect {Effects.ISpriteEffect} Effect to remove from this animation
+       */
+      public removeEffect(effect: Effects.ISpriteEffect): void;
+      
+      /**
+       * Removes an effect given the index from this animation.
+       * @method removeEffect
+       * @param index {number} Index of the effect to remove from this animation
+       */
+      public removeEffect(index: number): void;
+      public removeEffect(param: any) {
+         for(var i in this.sprites){
+            this.sprites[i].removeEffect(param);
+         }
+      }
+
       public clearEffects(){
          for(var i in this.sprites){
             this.sprites[i].clearEffects();
