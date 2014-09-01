@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-08-31
+/*! excalibur - v0.2.5 - 2014-09-01
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -8524,6 +8524,8 @@ var ex;
             var loadingComplete;
             if (loader) {
                 loadingComplete = this.load(loader);
+            } else {
+                loadingComplete = ex.Promise.wrap();
             }
 
             if (!this.hasStarted) {

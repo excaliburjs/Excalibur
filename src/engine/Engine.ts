@@ -1068,6 +1068,8 @@ module ex {
          var loadingComplete: Promise<any>;
          if(loader){
             loadingComplete = this.load(loader);
+         }else{
+            loadingComplete = Promise.wrap();
          }
 
          if (!this.hasStarted) {
