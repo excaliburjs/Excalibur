@@ -169,6 +169,35 @@ declare module ex {
 }
 declare module ex {
     /**
+    * An interface describing actor update pipeline modules
+    * @class ILoadable
+    */
+    interface IPipelineModule {
+        update(actor: Actor, engine: Engine, delta: number): void;
+    }
+}
+declare module ex {
+    class MovementModule implements IPipelineModule {
+        public update(actor: Actor, engine: Engine, delta: number): void;
+    }
+}
+declare module ex {
+    class OffscreenCullingModule implements IPipelineModule {
+        public update(actor: Actor, engine: Engine, delta: number): void;
+    }
+}
+declare module ex {
+    class EventPropagationModule implements IPipelineModule {
+        public update(actor: Actor, engine: Engine, delta: number): void;
+    }
+}
+declare module ex {
+    class CollisionDetectionModule implements IPipelineModule {
+        public update(actor: Actor, engine: Engine, delta: number): void;
+    }
+}
+declare module ex {
+    /**
     * An enum that describes the sides of an Actor for collision
     * @class Side
     */
@@ -1763,6 +1792,12 @@ declare module ex {
         private centerDrawingX;
         private centerDrawingY;
         /**
+        * Modify the current actor update pipeline.
+        *
+        *
+        */
+        public pipeline: IPipelineModule[];
+        /**
         * Sets the color of the actor. A rectangle of this color will be drawn if now IDrawable is specified as the actors drawing.
         * @property color {Color}
         */
@@ -1782,6 +1817,12 @@ declare module ex {
         * @method kill
         */
         public kill(): void;
+        /**
+        * Indicates wether the actor has been killed.
+        * @method isKilled
+        * @returns boolean
+        */
+        public isKilled(): boolean;
         /**
         * Adds a child actor to this actor. All movement of the child actor will be
         * relative to the parent actor. Meaning if the parent moves the child will
@@ -1947,6 +1988,11 @@ declare module ex {
         * @param func {callback} The callback to fire on collision with another actor from the group. The callback is passed the other actor.
         */
         public onCollidesWith(group: string, func: (actor: Actor) => void): void;
+        public getCollisionHandlers(): {
+            [key: string]: {
+                (actor: Actor): void;
+            }[];
+        };
         /**
         * Removes all collision handlers for this group on this actor
         * @method removeCollidesWith
@@ -2941,6 +2987,12 @@ declare module ex {
         * @returns string
         */
         public toString(): string;
+        /**
+        * Returns a CSS string representation of a color.
+        * @method fillStyle
+        * @returns string
+        */
+        public fillStyle(): string;
         /**
         * Returns a clone of the current color.
         * @method clone
