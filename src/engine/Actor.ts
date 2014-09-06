@@ -483,17 +483,8 @@ module ex {
       * @returns number
       */
       public getGlobalX() {
-         var previous;
-         var current = this.parent;
-         while (current) {
-            previous = current;
-            current = current.parent;
-         }
-         if (previous) {
-            return this.x + previous.x;
-            } else {
-               return this.x;
-            }
+         if(!this.parent) return this.x;
+         return this.x * this.parent.scaleX + this.parent.getGlobalX();
       }
 
       /**
@@ -502,18 +493,20 @@ module ex {
       * @returns number
       */
       public getGlobalY() {
-         var previous;
-         var current = this.parent;
-         while (current) {
-            previous = current;
-            current = current.parent;
-         }
-         if (previous) {
-            return this.y + previous.y;
-            } else {
-               return this.y;
-            }
+        if(!this.parent) return this.y;
+         return this.y * this.parent.scaleY + this.parent.getGlobalY();
       }
+
+      /**
+       * Gets the global scale of the Actor
+       * @method getGlobalScale
+       * @returns Point
+       */
+       public getGlobalScale() {
+         if(!this.parent) return new Point(this.scaleX, this.scaleY);
+         var parentScale = this.parent.getGlobalScale();
+         return new Point(this.scaleX * parentScale.x, this.scaleY * parentScale.y);
+       }
 
       /**
        * Returns the actor's bounding box calculated for this instant.

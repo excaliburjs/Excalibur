@@ -57,23 +57,23 @@ describe("A camera", () => {
       engine.camera = topCamera;
       topCamera.setActorToFollow(actor);
 
-      expect(topCamera.getFocus().x).toBe(-255);
-      expect(topCamera.getFocus().y).toBe(-255);
+      expect(topCamera.getFocus().x).toBe(255);
+      expect(topCamera.getFocus().y).toBe(255);
 
       actor.dx = 10;
       actor.dy = 15;
 
       actor.update(engine, 1000);
 
-      expect(topCamera.getFocus().x).toBe(-265);
-      expect(topCamera.getFocus().y).toBe(-270);
+      expect(topCamera.getFocus().x).toBe(265);
+      expect(topCamera.getFocus().y).toBe(270);
    });
 
    it("can follow an actor if it is a SideCamera", () => {
       engine.camera = sideCamera;
       sideCamera.setActorToFollow(actor);
 
-      expect(sideCamera.getFocus().x).toBe(-255);
+      expect(sideCamera.getFocus().x).toBe(255);
       expect(sideCamera.getFocus().y).toBe(0);
 
       actor.dx = 10;
@@ -81,7 +81,7 @@ describe("A camera", () => {
 
       actor.update(engine, 1000);
 
-      expect(sideCamera.getFocus().x).toBe(-265);
+      expect(sideCamera.getFocus().x).toBe(265);
       expect(sideCamera.getFocus().y).toBe(0);
 
    });
@@ -95,7 +95,7 @@ describe("A camera", () => {
 
       actor.update(engine, 1000);
 
-      expect(sideCamera.getFocus().x).toBe(-265);
+      expect(sideCamera.getFocus().x).toBe(265);
       expect(sideCamera.getFocus().y).toBe(0);
 
    });
@@ -116,8 +116,8 @@ describe("A camera", () => {
       topCamera.setActorToFollow(actor);
       topCamera.setFocus(100, 150);
 
-      expect(topCamera.getFocus().x).toBe(-255);
-      expect(topCamera.getFocus().y).toBe(-255);
+      expect(topCamera.getFocus().x).toBe(255);
+      expect(topCamera.getFocus().y).toBe(255);
       });
 
    it("can shake", () => {

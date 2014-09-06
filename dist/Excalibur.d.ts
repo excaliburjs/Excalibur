@@ -294,6 +294,12 @@ declare module ex {
         * @param y {number}
         */
         public setTo(x: number, y: number): void;
+        /**
+        * Clones a new point that is a copy of this one.
+        * @method clone
+        * @returns Point
+        */
+        public clone(): Point;
     }
     /**
     * A 2D vector on a plane.
@@ -1972,6 +1978,12 @@ declare module ex {
         */
         public getGlobalY(): any;
         /**
+        * Gets the global scale of the Actor
+        * @method getGlobalScale
+        * @returns Point
+        */
+        public getGlobalScale(): Point;
+        /**
         * Returns the actor's bounding box calculated for this instant.
         * @method getBounds
         * @returns BoundingBox
@@ -3341,6 +3353,13 @@ declare module ex {
         public follow: Actor;
         public focus: Point;
         public engine: Engine;
+        public lerp: boolean;
+        private _cameraMoving;
+        private _currentLerpTime;
+        private _lerpDuration;
+        private _totalLerpTime;
+        private _lerpStart;
+        private _lerpEnd;
         public isShaking: boolean;
         private shakeMagnitudeX;
         private shakeMagnitudeY;
@@ -3353,6 +3372,7 @@ declare module ex {
         private elapsedZoomTime;
         private zoomIncrement;
         constructor(engine: Engine);
+        private easeInOutCubic(currentTime, startValue, endValue, duration);
         /**
         * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
         * @method setActorToFollow
@@ -3413,11 +3433,6 @@ declare module ex {
     * @param engine {Engine} Reference to the current engine
     */
     class SideCamera extends BaseCamera {
-        /**
-        * Returns the focal point of the camera in world space
-        * @method getFocus
-        * @returns point
-        */
         public getFocus(): Point;
     }
     /**
@@ -3428,11 +3443,6 @@ declare module ex {
     * @param engine {Engine} Reference to the current engine
     */
     class TopCamera extends BaseCamera {
-        /**
-        * Returns the focal point of the camera in world space
-        * @method getFocus
-        * @returns Point
-        */
         public getFocus(): Point;
     }
 }
