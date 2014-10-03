@@ -59,7 +59,52 @@ module ex {
          return promise;
       }
 
+      /**
+       * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
+       * when at least 1 promise rejects.
+       * @param promises {Promise[]}
+       * @returns Promise
+       */
+      public static join<T>(...promises: Promise<T>[]){
+         var joinedPromise = new Promise<T>();
+         if(!promises){
+            return joinedPromise.resolve();
+         }
+
+         var total = promises.length;
+         var successes = 0;
+         var rejects = 0;
+         var errors = [];
+         promises.forEach((p)=>{
+            p.then(
+               ()=>{
+                  successes += 1;
+                  if(successes === total){
+                     joinedPromise.resolve();
+                  }else if(successes + rejects + errors.length === total){
+                     joinedPromise.reject(errors);
+                  }
+               },
+               ()=>{
+                  rejects += 1;
+                  if(successes + rejects + errors.length === total){
+                     joinedPromise.reject(errors);
+                  }
+               }
+            ).error((e) => {
+               errors.push(e);
+               if((errors.length + successes + rejects) === total){
+                  joinedPromise.reject(errors);
+               }
+            });
+         });
+
+
+         return joinedPromise;
+      }
+
       constructor() { }
+
 
       /**
        * Chain success and reject callbacks after the promise is resovled

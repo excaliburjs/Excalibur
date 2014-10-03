@@ -6560,6 +6560,50 @@ var ex;
         };
 
         /**
+        * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
+        * when at least 1 promise rejects.
+        * @param promises {Promise[]}
+        * @returns Promise
+        */
+        Promise.join = function () {
+            var promises = [];
+            for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                promises[_i] = arguments[_i + 0];
+            }
+            var joinedPromise = new Promise();
+            if (!promises) {
+                return joinedPromise.resolve();
+            }
+
+            var total = promises.length;
+            var successes = 0;
+            var rejects = 0;
+            var errors = [];
+            promises.forEach(function (p) {
+                p.then(function () {
+                    successes += 1;
+                    if (successes === total) {
+                        joinedPromise.resolve();
+                    } else if (successes + rejects + errors.length === total) {
+                        joinedPromise.reject(errors);
+                    }
+                }, function () {
+                    rejects += 1;
+                    if (successes + rejects + errors.length === total) {
+                        joinedPromise.reject(errors);
+                    }
+                }).error(function (e) {
+                    errors.push(e);
+                    if ((errors.length + successes + rejects) === total) {
+                        joinedPromise.reject(errors);
+                    }
+                });
+            });
+
+            return joinedPromise;
+        };
+
+        /**
         * Chain success and reject callbacks after the promise is resovled
         * @method then
         * @param successCallback {T=>any} Call on resolution of promise

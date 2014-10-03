@@ -161,4 +161,48 @@ describe('A promise', ()=>{
          expect(value).toBe(12);
       });
    });
+
+   it('can join promises and resovle when all resolve', ()=>{
+      var p1 = new ex.Promise();
+      var p2 = new ex.Promise();
+      var p3 = new ex.Promise();
+
+      var composite = ex.Promise.join(p1, p2, p3);
+
+      expect(composite.state()).toBe(ex.PromiseState.Pending);
+
+      p1.resolve();
+
+      expect(composite.state()).toBe(ex.PromiseState.Pending);
+
+      p2.resolve();
+
+      expect(composite.state()).toBe(ex.PromiseState.Pending);
+
+      p3.resolve();
+
+      expect(composite.state()).toBe(ex.PromiseState.Resolved);
+   });
+
+   it('can join promises and resovle when some reject', ()=>{
+      var p1 = new ex.Promise();
+      var p2 = new ex.Promise();
+      var p3 = new ex.Promise();
+
+      var composite = ex.Promise.join(p1, p2, p3);
+
+      expect(composite.state()).toBe(ex.PromiseState.Pending);
+
+      p1.reject();
+
+      expect(composite.state()).toBe(ex.PromiseState.Pending);
+
+      p2.resolve();
+
+      expect(composite.state()).toBe(ex.PromiseState.Pending);
+
+      p3.resolve();
+
+      expect(composite.state()).toBe(ex.PromiseState.Rejected);
+   });
 });

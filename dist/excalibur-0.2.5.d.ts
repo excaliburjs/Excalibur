@@ -3560,6 +3560,13 @@ declare module ex {
         * @returns Promise&lt;T&gt;
         */
         static wrap<T>(value?: T): Promise<T>;
+        /**
+        * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
+        * when at least 1 promise rejects.
+        * @param promises {Promise[]}
+        * @returns Promise
+        */
+        static join<T>(...promises: Promise<T>[]): Promise<T>;
         constructor();
         /**
         * Chain success and reject callbacks after the promise is resovled
