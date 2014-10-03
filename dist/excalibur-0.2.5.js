@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-09-05
+/*! excalibur - v0.2.5 - 2014-10-02
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -4201,6 +4201,20 @@ var ex;
                 this.actionQueue.add(new ex.Internal.Actions.Meet(this, actor, speed));
             }
             return this;
+        };
+
+        /**
+        * Returns a promise that resolves when the current action queue up to now
+        * is finished.
+        * @method asPromise
+        * @returns Promise
+        */
+        Actor.prototype.asPromise = function () {
+            var complete = new ex.Promise();
+            this.callMethod(function () {
+                complete.resolve();
+            });
+            return complete;
         };
 
         /**

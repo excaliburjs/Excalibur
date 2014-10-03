@@ -2195,6 +2195,13 @@ declare module ex {
         */
         public meet(actor: Actor, speed?: number): Actor;
         /**
+        * Returns a promise that resolves when the current action queue up to now
+        * is finished.
+        * @method asPromise
+        * @returns Promise
+        */
+        public asPromise<T>(): Promise<T>;
+        /**
         * Called by the Engine, updates the state of the actor
         * @method update
         * @param engine {Engine} The reference to the current game engine

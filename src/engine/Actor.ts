@@ -860,6 +860,21 @@ module ex {
          return this;
       }
 
+
+      /**
+       * Returns a promise that resolves when the current action queue up to now
+       * is finished.
+       * @method asPromise
+       * @returns Promise
+       */
+      public asPromise<T>() : Promise<T> {
+         var complete = new Promise<T>();
+         this.callMethod(()=>{
+            complete.resolve();
+         });
+         return complete;
+      }
+
       /**
        * Called by the Engine, updates the state of the actor
        * @method update 
