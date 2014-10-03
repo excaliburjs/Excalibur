@@ -205,4 +205,14 @@ describe('A promise', ()=>{
 
       expect(composite.state()).toBe(ex.PromiseState.Rejected);
    });
+
+   it('does not swallow errors if no error callback is supplied', ()=>{
+      var promise = new ex.Promise();
+      promise.then(()=>{
+         throw new Error("ERROR!!!!!");
+      });
+      
+      expect(function(){promise.resolve();}).toThrow();
+
+   });
 });

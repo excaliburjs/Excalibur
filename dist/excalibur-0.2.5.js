@@ -6707,6 +6707,8 @@ var ex;
         Promise.prototype.handleError = function (e) {
             if (this.errorCallback) {
                 this.errorCallback.call(this, e);
+            } else {
+                throw e;
             }
         };
         return Promise;

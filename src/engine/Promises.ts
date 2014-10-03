@@ -210,6 +210,9 @@ module ex {
       private handleError(e: any) {
          if (this.errorCallback) {
             this.errorCallback.call(this, e);
+         }else{
+            // rethrow error
+            throw e;
          }
       }
    }
