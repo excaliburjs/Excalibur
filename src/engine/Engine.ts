@@ -668,8 +668,8 @@ module ex {
 
          if (this.camera) {
             var focus = this.camera.getFocus();
-            newX -= focus.x;
-            newY -= focus.y;
+            newX = focus.x + (point.x - (this.getWidth()/2));
+            newY = focus.y + (point.y - (this.getHeight()/2));
          }
 
          newX = Math.floor((newX / this.canvas.clientWidth) * this.getWidth());
@@ -692,8 +692,8 @@ module ex {
          if(this.camera){
             var focus = this.camera.getFocus();
 
-            screenX += focus.x * (this.getWidth() / this.canvas.clientWidth);
-            screenY += focus.y * (this.getHeight() / this.canvas.clientHeight);
+            screenX = (point.x - focus.x) + (this.getWidth()/2);//(this.getWidth() / this.canvas.clientWidth);
+            screenY = (point.y - focus.y) + (this.getHeight()/2);// (this.getHeight() / this.canvas.clientHeight);
          }
 
          screenX = Math.floor((screenX / this.getWidth()) * this.canvas.clientWidth);

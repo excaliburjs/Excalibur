@@ -65,6 +65,14 @@ module ex {
          this.y = y;
       }
 
+      /**
+       * Clones a new point that is a copy of this one.
+       * @method clone
+       * @returns Point
+       */
+      public clone(){
+         return new Point(this.x, this.y);
+      }
    }
 
    /**

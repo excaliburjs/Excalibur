@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-09-01
+/*! excalibur - v0.2.5 - 2014-10-02
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -190,20 +190,24 @@ var ex;
         }
         OffscreenCullingModule.prototype.update = function (actor, engine, delta) {
             var eventDispatcher = actor.eventDispatcher;
-            var anchor = actor.calculatedAnchor;
-            var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Point(actor.getGlobalX() - anchor.x, actor.getGlobalY() - anchor.y));
+            var anchor = actor.anchor;
+            var globalScale = actor.getGlobalScale();
+            var width = globalScale.x * actor.getWidth() / actor.scaleX;
+            var height = globalScale.y * actor.getHeight() / actor.scaleY;
+            var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Point(actor.getGlobalX() - anchor.x * width, actor.getGlobalY() - anchor.y * height));
+
             var zoom = 1.0;
             if (engine.camera) {
                 zoom = engine.camera.getZoom();
             }
 
             if (!actor.isOffScreen) {
-                if (actorScreenCoords.x + actor.getWidth() * zoom < 0 || actorScreenCoords.y + actor.getHeight() * zoom < 0 || actorScreenCoords.x > engine.width || actorScreenCoords.y > engine.height) {
+                if (actorScreenCoords.x + width * zoom < 0 || actorScreenCoords.y + height * zoom < 0 || actorScreenCoords.x > engine.width || actorScreenCoords.y > engine.height) {
                     eventDispatcher.publish('exitviewport', new ex.ExitViewPortEvent());
                     actor.isOffScreen = true;
                 }
             } else {
-                if (actorScreenCoords.x + actor.getWidth() * zoom > 0 && actorScreenCoords.y + actor.getHeight() * zoom > 0 && actorScreenCoords.x < engine.width && actorScreenCoords.y < engine.height) {
+                if (actorScreenCoords.x + width * zoom > 0 && actorScreenCoords.y + height * zoom > 0 && actorScreenCoords.x < engine.width && actorScreenCoords.y < engine.height) {
                     eventDispatcher.publish('enterviewport', new ex.EnterViewPortEvent());
                     actor.isOffScreen = false;
                 }
@@ -465,6 +469,15 @@ var ex;
         Point.prototype.setTo = function (x, y) {
             this.x = x;
             this.y = y;
+        };
+
+        /**
+        * Clones a new point that is a copy of this one.
+        * @method clone
+        * @returns Point
+        */
+        Point.prototype.clone = function () {
+            return new Point(this.x, this.y);
         };
         return Point;
     })();
@@ -3811,17 +3824,9 @@ var ex;
         * @returns number
         */
         Actor.prototype.getGlobalX = function () {
-            var previous;
-            var current = this.parent;
-            while (current) {
-                previous = current;
-                current = current.parent;
-            }
-            if (previous) {
-                return this.x + previous.x;
-            } else {
+            if (!this.parent)
                 return this.x;
-            }
+            return this.x * this.parent.scaleX + this.parent.getGlobalX();
         };
 
         /**
@@ -3830,17 +3835,21 @@ var ex;
         * @returns number
         */
         Actor.prototype.getGlobalY = function () {
-            var previous;
-            var current = this.parent;
-            while (current) {
-                previous = current;
-                current = current.parent;
-            }
-            if (previous) {
-                return this.y + previous.y;
-            } else {
+            if (!this.parent)
                 return this.y;
-            }
+            return this.y * this.parent.scaleY + this.parent.getGlobalY();
+        };
+
+        /**
+        * Gets the global scale of the Actor
+        * @method getGlobalScale
+        * @returns Point
+        */
+        Actor.prototype.getGlobalScale = function () {
+            if (!this.parent)
+                return new ex.Point(this.scaleX, this.scaleY);
+            var parentScale = this.parent.getGlobalScale();
+            return new ex.Point(this.scaleX * parentScale.x, this.scaleY * parentScale.y);
         };
 
         /**
@@ -4192,6 +4201,20 @@ var ex;
                 this.actionQueue.add(new ex.Internal.Actions.Meet(this, actor, speed));
             }
             return this;
+        };
+
+        /**
+        * Returns a promise that resolves when the current action queue up to now
+        * is finished.
+        * @method asPromise
+        * @returns Promise
+        */
+        Actor.prototype.asPromise = function () {
+            var complete = new ex.Promise();
+            this.callMethod(function () {
+                complete.resolve();
+            });
+            return complete;
         };
 
         /**
@@ -5999,6 +6022,13 @@ var ex;
     var BaseCamera = (function () {
         function BaseCamera(engine) {
             this.focus = new ex.Point(0, 0);
+            this.lerp = false;
+            this._cameraMoving = false;
+            this._currentLerpTime = 0;
+            this._lerpDuration = 1 * 1000;
+            this._totalLerpTime = 0;
+            this._lerpStart = null;
+            this._lerpEnd = null;
             //camera effects
             this.isShaking = false;
             this.shakeMagnitudeX = 0;
@@ -6013,6 +6043,15 @@ var ex;
             this.zoomIncrement = 0.01;
             this.engine = engine;
         }
+        BaseCamera.prototype.easeInOutCubic = function (currentTime, startValue, endValue, duration) {
+            endValue = (endValue - startValue);
+            currentTime /= duration / 2;
+            if (currentTime < 1)
+                return endValue / 2 * currentTime * currentTime * currentTime + startValue;
+            currentTime -= 2;
+            return endValue / 2 * (currentTime * currentTime * currentTime + 2) + startValue;
+        };
+
         /**
         * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
         * @method setActorToFollow
@@ -6028,12 +6067,7 @@ var ex;
         * @returns Point
         */
         BaseCamera.prototype.getFocus = function () {
-            // this should always be overridden
-            if (this.follow) {
-                return new ex.Point(0, 0);
-            } else {
-                return this.focus;
-            }
+            return this.focus;
         };
 
         /**
@@ -6043,9 +6077,16 @@ var ex;
         * @param y {number} The y coordinate of the focal point
         */
         BaseCamera.prototype.setFocus = function (x, y) {
-            if (!this.follow) {
+            if (!this.follow && !this.lerp) {
                 this.focus.x = x;
                 this.focus.y = y;
+            }
+
+            if (this.lerp) {
+                this._lerpStart = this.focus.clone();
+                this._lerpEnd = new ex.Point(x, y);
+                this._currentLerpTime = 0;
+                this._cameraMoving = true;
             }
         };
 
@@ -6123,6 +6164,28 @@ var ex;
             var newCanvasWidth = canvasWidth * this.getZoom();
             var newCanvasHeight = canvasHeight * this.getZoom();
 
+            if (this.lerp) {
+                if (this._currentLerpTime < this._lerpDuration && this._cameraMoving) {
+                    if (this._lerpEnd.x < this._lerpStart.x) {
+                        this.focus.x = this._lerpStart.x - (this.easeInOutCubic(this._currentLerpTime, this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
+                    } else {
+                        this.focus.x = this.easeInOutCubic(this._currentLerpTime, this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
+                    }
+
+                    if (this._lerpEnd.y < this._lerpStart.y) {
+                        this.focus.y = this._lerpStart.y - (this.easeInOutCubic(this._currentLerpTime, this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
+                    } else {
+                        this.focus.y = this.easeInOutCubic(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
+                    }
+                    this._currentLerpTime += delta;
+                } else {
+                    this._lerpStart = null;
+                    this._lerpEnd = null;
+                    this._currentLerpTime = 0;
+                    this._cameraMoving = false;
+                }
+            }
+
             if (this.isDoneShaking()) {
                 this.isShaking = false;
                 this.elapsedShakeTime = 0;
@@ -6135,7 +6198,7 @@ var ex;
                 yShake = (Math.random() * this.shakeMagnitudeY | 0) + 1;
             }
 
-            this.engine.ctx.translate(focus.x + xShake, focus.y + yShake);
+            this.engine.ctx.translate(-focus.x + xShake + (newCanvasWidth / 2), -focus.y + yShake + (newCanvasHeight / 2));
 
             if (this.isDoneZooming()) {
                 this.isZooming = false;
@@ -6148,15 +6211,14 @@ var ex;
                 this.setCurrentZoomScale(this.getZoom() + this.zoomIncrement * delta / 1000);
             }
 
-            //this.engine.ctx.translate(-((newCanvasWidth - canvasWidth)/2), -((newCanvasHeight - canvasHeight)/2));
             this.engine.ctx.scale(this.getZoom(), this.getZoom());
         };
 
         BaseCamera.prototype.debugDraw = function (ctx) {
             var focus = this.getFocus();
-            ctx.fillStyle = 'yellow';
+            ctx.fillStyle = 'red';
             ctx.beginPath();
-            ctx.arc(this.follow.x + this.follow.getWidth() / 2, 0, 15, 0, Math.PI * 2);
+            ctx.arc(focus.x, focus.y, 15, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fill();
         };
@@ -6192,15 +6254,9 @@ var ex;
         function SideCamera() {
             _super.apply(this, arguments);
         }
-        /**
-        * Returns the focal point of the camera in world space
-        * @method getFocus
-        * @returns point
-        */
         SideCamera.prototype.getFocus = function () {
             if (this.follow) {
-                // return new Point(-this.follow.x + this.engine.width / 2.0, 0);
-                return new ex.Point(((-this.follow.x - this.follow.getWidth() / 2) * this.getZoom()) + (this.engine.getWidth() * this.getZoom()) / 2.0, 0);
+                return new ex.Point(this.follow.x + this.follow.getWidth() / 2, this.focus.y);
             } else {
                 return this.focus;
             }
@@ -6221,14 +6277,9 @@ var ex;
         function TopCamera() {
             _super.apply(this, arguments);
         }
-        /**
-        * Returns the focal point of the camera in world space
-        * @method getFocus
-        * @returns Point
-        */
         TopCamera.prototype.getFocus = function () {
             if (this.follow) {
-                return new ex.Point(((-this.follow.x - this.follow.getWidth() / 2) * this.getZoom()) + (this.engine.getWidth() * this.getZoom()) / 2.0, ((-this.follow.y - this.follow.getHeight() / 2) * this.getZoom()) + (this.engine.getHeight() * this.getZoom()) / 2.0);
+                return new ex.Point(this.follow.x + this.follow.getWidth() / 2, this.follow.y + this.follow.getHeight() / 2);
             } else {
                 return this.focus;
             }
@@ -6509,6 +6560,50 @@ var ex;
         };
 
         /**
+        * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
+        * when at least 1 promise rejects.
+        * @param promises {Promise[]}
+        * @returns Promise
+        */
+        Promise.join = function () {
+            var promises = [];
+            for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                promises[_i] = arguments[_i + 0];
+            }
+            var joinedPromise = new Promise();
+            if (!promises) {
+                return joinedPromise.resolve();
+            }
+
+            var total = promises.length;
+            var successes = 0;
+            var rejects = 0;
+            var errors = [];
+            promises.forEach(function (p) {
+                p.then(function () {
+                    successes += 1;
+                    if (successes === total) {
+                        joinedPromise.resolve();
+                    } else if (successes + rejects + errors.length === total) {
+                        joinedPromise.reject(errors);
+                    }
+                }, function () {
+                    rejects += 1;
+                    if (successes + rejects + errors.length === total) {
+                        joinedPromise.reject(errors);
+                    }
+                }).error(function (e) {
+                    errors.push(e);
+                    if ((errors.length + successes + rejects) === total) {
+                        joinedPromise.reject(errors);
+                    }
+                });
+            });
+
+            return joinedPromise;
+        };
+
+        /**
         * Chain success and reject callbacks after the promise is resovled
         * @method then
         * @param successCallback {T=>any} Call on resolution of promise
@@ -6612,6 +6707,8 @@ var ex;
         Promise.prototype.handleError = function (e) {
             if (this.errorCallback) {
                 this.errorCallback.call(this, e);
+            } else {
+                throw e;
             }
         };
         return Promise;
@@ -8127,8 +8224,8 @@ var ex;
 
             if (this.camera) {
                 var focus = this.camera.getFocus();
-                newX -= focus.x;
-                newY -= focus.y;
+                newX = focus.x + (point.x - (this.getWidth() / 2));
+                newY = focus.y + (point.y - (this.getHeight() / 2));
             }
 
             newX = Math.floor((newX / this.canvas.clientWidth) * this.getWidth());
@@ -8151,8 +8248,8 @@ var ex;
             if (this.camera) {
                 var focus = this.camera.getFocus();
 
-                screenX += focus.x * (this.getWidth() / this.canvas.clientWidth);
-                screenY += focus.y * (this.getHeight() / this.canvas.clientHeight);
+                screenX = (point.x - focus.x) + (this.getWidth() / 2); //(this.getWidth() / this.canvas.clientWidth);
+                screenY = (point.y - focus.y) + (this.getHeight() / 2); // (this.getHeight() / this.canvas.clientHeight);
             }
 
             screenX = Math.floor((screenX / this.getWidth()) * this.canvas.clientWidth);
