@@ -30,7 +30,7 @@
     "simple"
   ],
   "scripts":{
-    "preinstall": "npm install -g typescript"
+    "preinstall": "npm install -g typescript@1.0.1"
   },
   "devDependencies": {    
     "jasmine-node": "1.10.2",
