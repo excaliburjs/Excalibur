@@ -38,9 +38,10 @@ module ex {
          if(!anchor){
             anchor = new ex.Point(0,0);
          }
-         var x = (this.x - anchor.x) * Math.cos(angle) + anchor.x;
-         var y = (this.y - anchor.y) * Math.sin(angle) + anchor.y;
-
+         var sinAngle = Math.sin(angle);
+         var cosAngle = Math.cos(angle);
+         var x = cosAngle * (this.x - anchor.x) - sinAngle * (this.y - anchor.y) + anchor.x;
+         var y = sinAngle * (this.x - anchor.x) + cosAngle * (this.y - anchor.y) + anchor.y;
          return new Point(x, y);
       }
 
@@ -53,6 +54,25 @@ module ex {
          return new Point(this.x + vector.x, this.y + vector.y);
       }
 
+      /**
+       * Sets the x and y components at once
+       * @method setTo
+       * @param x {number}
+       * @param y {number}
+       */
+      public setTo(x: number, y: number){
+         this.x = x;
+         this.y = y;
+      }
+
+      /**
+       * Clones a new point that is a copy of this one.
+       * @method clone
+       * @returns Point
+       */
+      public clone(){
+         return new Point(this.x, this.y);
+      }
    }
 
    /**

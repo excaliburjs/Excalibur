@@ -72,6 +72,12 @@ module ex {
          // not supported on polygons
       }
 
+      public removeEffect(index: number);
+      public removeEffect(effect: Effects.ISpriteEffect);
+      public removeEffect(param: any){
+         // not supported on polygons
+      }
+
       /**
        * Effects are <b>not supported</b> on polygons
        * @method clearEffects

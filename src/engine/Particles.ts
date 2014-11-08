@@ -28,6 +28,9 @@ module ex {
       public position: Vector = new Vector(0, 0);
       public velocity: Vector = new Vector(0, 0);
       public acceleration: Vector = new Vector(0, 0);
+      public particleRotationalVelocity: number = 0;
+      public currentRotation: number = 0;
+
       public focus: Vector = null;
       public focusAccel: number = 0;
       public opacity: number = 1;
@@ -68,7 +71,7 @@ module ex {
          this.rRate = (this.endColor.r - this.beginColor.r) / this.life;
          this.gRate = (this.endColor.g - this.beginColor.g) / this.life;
          this.bRate = (this.endColor.b - this.beginColor.b) / this.life;
-         this.aRate = this.opacity / this.life;
+         this.aRate = this.opacity / this.life;         
 
          this.startSize = startSize || 0;
          this.endSize = endSize || 0;
@@ -111,10 +114,18 @@ module ex {
             this.velocity = this.velocity.add(this.acceleration.scale(delta / 1000));
          }
          this.position = this.position.add(this.velocity.scale(delta/1000));
+
+         if(this.particleRotationalVelocity){
+            this.currentRotation = (this.currentRotation + this.particleRotationalVelocity*delta/1000) % (2*Math.PI);
+         }
       }
 
       public draw(ctx: CanvasRenderingContext2D) {
+         
          if(this.particleSprite){
+            this.particleSprite.setRotation(this.currentRotation);
+            this.particleSprite.setScaleX(this.particleSize);
+            this.particleSprite.setScaleY(this.particleSize);
             this.particleSprite.draw(ctx, this.position.x, this.position.y);
             return;
          }
@@ -125,6 +136,7 @@ module ex {
          ctx.arc(this.position.x, this.position.y, this.particleSize, 0, Math.PI * 2);
          ctx.fill();
          ctx.closePath();
+         
       }
    }
 
@@ -272,6 +284,18 @@ module ex {
        */
       public radius: number = 0;
 
+      /**
+       * Gets or sets the particle rotational speed velocity 
+       * @property [particleRotationalVelocity=0] {number}
+       */
+      public particleRotationalVelocity: number = 0;
+
+       /**
+        * Indicates whether particles should start with a random rotation
+        * @property [randomRotation=false] {boolean}
+        */
+      public randomRotation: boolean = false;
+
       constructor(x?: number, y?: number, width?: number, height?: number) {    
          super(x, y, width, height, Color.White);
          this.collisionType = CollisionType.PreventCollision;
@@ -322,7 +346,13 @@ module ex {
          var p = new Particle(this, this.particleLife, this.opacity, this.beginColor, this.endColor, new Vector(ranX, ranY), new Vector(dx, dy), this.acceleration, this.startSize, this.endSize);
          p.fadeFlag = this.fadeFlag;
          p.particleSize = size;
-         p.particleSprite = this.particleSprite;
+         if(this.particleSprite){
+            p.particleSprite = this.particleSprite;            
+         }
+         p.particleRotationalVelocity = this.particleRotationalVelocity;
+         if(this.randomRotation){
+            p.currentRotation = Util.randomInRange(0, Math.PI*2);
+         }
          if (this.focus) {
             p.focus = this.focus.add(new ex.Vector(this.x, this.y));
             p.focusAccel = this.focusAccel;

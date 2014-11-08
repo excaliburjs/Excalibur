@@ -13,6 +13,13 @@ module ex {
       follow: Actor;
       focus: Point = new Point(0, 0);
       engine: Engine;
+      lerp: boolean = false;
+      private _cameraMoving: boolean = false;
+      private _currentLerpTime: number = 0;
+      private _lerpDuration: number = 1* 1000; // 5 seconds
+      private _totalLerpTime: number = 0;
+      private _lerpStart: Point = null;
+      private _lerpEnd: Point = null;
 
       //camera effects
       isShaking: boolean = false;
@@ -32,6 +39,15 @@ module ex {
          this.engine = engine;
       }
 
+      private easeInOutCubic(currentTime: number, startValue: number, endValue: number, duration: number){
+         
+         endValue = (endValue - startValue);
+         currentTime /= duration/2;
+         if (currentTime < 1) return endValue/2*currentTime*currentTime*currentTime + startValue;
+         currentTime -= 2;
+         return endValue/2*(currentTime*currentTime*currentTime + 2) + startValue;
+      }
+
       /**
       * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
       * @method setActorToFollow
@@ -47,12 +63,7 @@ module ex {
       * @returns Point
       */
       public getFocus() {
-         // this should always be overridden
-         if (this.follow) {
-            return new Point(0, 0);
-            } else {
-               return this.focus;
-            }
+         return this.focus;
       }
 
       /**
@@ -62,10 +73,18 @@ module ex {
       * @param y {number} The y coordinate of the focal point
       */
       public setFocus(x: number, y: number) {
-         if (!this.follow) {
+         if (!this.follow && !this.lerp) {
             this.focus.x = x;
             this.focus.y = y;
          }
+
+         if(this.lerp){
+            this._lerpStart = this.focus.clone();
+            this._lerpEnd = new Point(x, y);
+            this._currentLerpTime = 0;
+            this._cameraMoving = true;
+         }
+
       }
 
       /**
@@ -132,7 +151,7 @@ module ex {
       * @method update
       * @param delta {number} The number of milliseconds since the last update
       */
-      update(delta: number) {
+      public update(delta: number) {
          var focus = this.getFocus();
 
          var xShake = 0;
@@ -141,7 +160,30 @@ module ex {
          var canvasWidth = this.engine.ctx.canvas.width;
          var canvasHeight = this.engine.ctx.canvas.height;
          var newCanvasWidth = canvasWidth * this.getZoom();
-         var newCanvasHeight =  canvasHeight * this.getZoom();
+         var newCanvasHeight = canvasHeight * this.getZoom();
+
+         if(this.lerp){
+            if(this._currentLerpTime < this._lerpDuration && this._cameraMoving){
+               
+               if(this._lerpEnd.x < this._lerpStart.x){
+                  this.focus.x = this._lerpStart.x - (this.easeInOutCubic(this._currentLerpTime, this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x); 
+               }else{
+                  this.focus.x = this.easeInOutCubic(this._currentLerpTime, this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
+               }
+
+               if(this._lerpEnd.y < this._lerpStart.y){
+                  this.focus.y = this._lerpStart.y - (this.easeInOutCubic(this._currentLerpTime, this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
+               }else{
+                  this.focus.y = this.easeInOutCubic(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);                  
+               }
+               this._currentLerpTime += delta;
+            }else{               
+               this._lerpStart = null;
+               this._lerpEnd = null;
+               this._currentLerpTime = 0;
+               this._cameraMoving = false;
+            }
+         }
 
          if (this.isDoneShaking()) {
                this.isShaking = false;
@@ -155,7 +197,7 @@ module ex {
                yShake = (Math.random() * this.shakeMagnitudeY | 0) + 1;
             }
 
-         this.engine.ctx.translate(focus.x + xShake, focus.y + yShake);
+         this.engine.ctx.translate(-focus.x + xShake + (newCanvasWidth/2), -focus.y + yShake + (newCanvasHeight/2));
 
          if (this.isDoneZooming()) {
             this.isZooming = false;
@@ -169,15 +211,14 @@ module ex {
             this.setCurrentZoomScale(this.getZoom() + this.zoomIncrement * delta / 1000);
          }
 
-         //this.engine.ctx.translate(-((newCanvasWidth - canvasWidth)/2), -((newCanvasHeight - canvasHeight)/2));
          this.engine.ctx.scale(this.getZoom(), this.getZoom());
       }
 
       public debugDraw(ctx: CanvasRenderingContext2D){
          var focus = this.getFocus();
-         ctx.fillStyle = 'yellow';
+         ctx.fillStyle = 'red';
          ctx.beginPath();
-         ctx.arc(this.follow.x + this.follow.getWidth()/2, 0, 15, 0, Math.PI*2);
+         ctx.arc(focus.x, focus.y, 15, 0, Math.PI*2);
          ctx.closePath();
          ctx.fill();
       }
@@ -209,22 +250,13 @@ module ex {
    */
    export class SideCamera extends BaseCamera {
       
-      /**
-       * Returns the focal point of the camera in world space
-       * @method getFocus
-       * @returns point
-       */
-      getFocus() {
-         if (this.follow) {
-            // return new Point(-this.follow.x + this.engine.width / 2.0, 0);
-            return new Point(((-this.follow.x - this.follow.getWidth()/2) * this.getZoom()) + (this.engine.getWidth() * this.getZoom()) / 2.0, 0);
-         } else {
+      public getFocus(){
+         if(this.follow){
+            return new Point(this.follow.x + this.follow.getWidth()/2, this.focus.y)
+         }else{
             return this.focus;
          }
       }
-
-
-
    }
 
    /**
@@ -236,18 +268,12 @@ module ex {
    */
    export class TopCamera extends BaseCamera {
 
-      /**
-       * Returns the focal point of the camera in world space
-       * @method getFocus
-       * @returns Point
-       */
-      getFocus() {
-         if (this.follow) {
-            return new Point(((-this.follow.x - this.follow.getWidth() / 2) * this.getZoom()) + (this.engine.getWidth() * this.getZoom()) / 2.0, 
-                             ((-this.follow.y - this.follow.getHeight() / 2) * this.getZoom()) + (this.engine.getHeight() * this.getZoom()) / 2.0);
-            } else {
-               return this.focus;
-            }
+      public getFocus(){
+         if(this.follow){
+            return new Point(this.follow.x + this.follow.getWidth()/2, this.follow.y + this.follow.getHeight()/2)
+         }else{
+            return this.focus;
+         }
       }
 
    }

@@ -3,7 +3,7 @@
 
 module ex.Util {
    
-   
+   export var TwoPI: number = Math.PI * 2;
 
    export function base64Encode(inputStr: string) {
       var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
@@ -55,6 +55,34 @@ module ex.Util {
 
    export function randomInRange(min: number, max: number) : number {
       return min + Math.random() * (max - min);
+   }
+
+   export function randomIntInRange(min: number, max: number): number {
+      return Math.round(randomInRange(min, max));
+   }
+
+   export function canonicalizeAngle(angle: number): number {
+      var tmpAngle = angle;
+      if(angle > this.TwoPI) {
+         while(tmpAngle > this.TwoPI){
+            tmpAngle -= this.TwoPI;
+         }
+      }
+
+      if(angle < 0){
+         while(tmpAngle < 0){
+            tmpAngle += this.TwoPI;
+         }
+      }
+      return tmpAngle;
+   }
+
+   export function toDegrees(radians: number): number {
+      return 180/Math.PI * radians;
+   }
+
+   export function toRadians(degrees: number): number {
+      return degrees/180 * Math.PI;
    }
 
    export function getPosition(el: HTMLElement): Point {

@@ -17,6 +17,8 @@ module ex {
       private rotation: number = 0.0;
       private transformPoint: Point = new Point(0, 0);
 
+      public logger: Logger = Logger.getInstance();
+
       public flipVertical: boolean = false;
       public flipHorizontal: boolean = false;
       public width: number = 0;
@@ -32,11 +34,22 @@ module ex {
 
       
       constructor(image: Texture, public sx: number, public sy: number, public swidth: number, public sheight: number) {
+         if(sx < 0 || sy < 0 || swidth < 0 || sheight < 0){
+            this.logger.error("Sprite cannot have any negative dimensions x:",sx,"y:",sy,"width:",swidth,"height:",sheight);            
+         }
+
          this.texture = image;
          this.spriteCanvas = document.createElement('canvas');
          this.spriteCanvas.width = swidth;
          this.spriteCanvas.height = sheight;
          this.spriteCtx = this.spriteCanvas.getContext('2d');
+         this.texture.loaded.then(()=>{
+            this.loadPixels();            
+            this.dirtyEffect = true;
+         }).error((e)=>{
+            this.logger.error("Error loading texture ", this.texture.path, e);
+         });
+         
 
          this.width = swidth;
          this.height = sheight;
@@ -44,7 +57,22 @@ module ex {
 
       private loadPixels(){
          if(this.texture.isLoaded() && !this.pixelsLoaded){
-            this.spriteCtx.drawImage(this.texture.image, this.sx, this.sy, this.swidth, this.sheight, 0, 0, this.swidth, this.sheight);
+            var clamp = ex.Util.clamp;
+            var naturalWidth = this.texture.image.naturalWidth || 0;
+            var naturalHeight = this.texture.image.naturalHeight || 0;
+
+            if(this.swidth > naturalWidth){
+               this.logger.warn("The sprite width",this.swidth,"exceeds the width", naturalWidth, "of the backing texture", this.texture.path);
+            }            
+            if(this.sheight > naturalHeight){
+               this.logger.warn("The sprite height",this.sheight,"exceeds the height", naturalHeight, "of the backing texture", this.texture.path);
+            }
+            this.spriteCtx.drawImage(this.texture.image, 
+               clamp(this.sx, 0, naturalWidth), 
+               clamp(this.sy, 0, naturalHeight),
+               clamp(this.swidth, 0, naturalWidth),
+               clamp(this.sheight, 0, naturalHeight),
+               0, 0, this.swidth, this.sheight);
             //this.pixelData = this.spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
             
             this.internalImage.src = this.spriteCanvas.toDataURL("image/png");
@@ -58,6 +86,37 @@ module ex {
        */
       public addEffect(effect: Effects.ISpriteEffect){
          this.effects.push(effect);
+         // We must check if the texture and the backing sprite pixels are loaded as well before 
+         // an effect can be applied
+         if(!this.texture.isLoaded() || !this.pixelsLoaded){
+            this.dirtyEffect = true;
+         }else{
+            this.applyEffects();
+         }
+      }
+
+      /**
+       * Removes a {{#crossLink Effects.ISpriteEffect}}{{/crossLink}} from this sprite.
+       * @method removeEffect
+       * @param effect {Effects.ISpriteEffect} Effect to remove from this sprite
+       */
+      public removeEffect(effect: Effects.ISpriteEffect): void;
+      
+      /**
+       * Removes an effect given the index from this sprite.
+       * @method removeEffect
+       * @param index {number} Index of the effect to remove from this sprite
+       */
+      public removeEffect(index: number): void;
+      public removeEffect(param: any) {
+         var indexToRemove = null;
+         if(typeof param === 'number'){
+            indexToRemove = param;
+         }else{
+            indexToRemove = this.effects.indexOf(param);
+         }
+
+         this.effects.splice(indexToRemove, 1);
          // We must check if the texture and the backing sprite pixels are loaded as well before 
          // an effect can be applied
          if(!this.texture.isLoaded() || !this.pixelsLoaded){
@@ -173,18 +232,16 @@ module ex {
        * @param y {number} The y coordinate of where to draw
        */
       public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
-         this.loadPixels();
          if(this.dirtyEffect){
             this.applyEffects();
             this.dirtyEffect = false;
          }
 
          ctx.save();
-         //var translateX = this.aboutCenter?this.swidth*this.scale/2:0;
-         //var translateY = this.aboutCenter?this.sheight*this.scale/2:0;
-         ctx.translate(x + this.transformPoint.x, y + this.transformPoint.y);
+
+         ctx.translate(x, y);
          ctx.rotate(this.rotation);
-         //ctx.scale(this.scale, this.scale);
+         
 
          if (this.flipHorizontal) {
             ctx.translate(this.swidth, 0);
@@ -196,7 +253,11 @@ module ex {
             ctx.scale(1, -1);
          }
          if(this.internalImage){
-            ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, -this.transformPoint.x, -this.transformPoint.y, this.swidth * this.scaleX, this.sheight * this.scaleY);
+            ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, 
+               -(this.transformPoint.x*this.swidth)*this.scaleX, 
+               -(this.transformPoint.y*this.sheight)*this.scaleY, 
+               this.swidth * this.scaleX, 
+               this.sheight * this.scaleY);
          }
          ctx.restore();
       }

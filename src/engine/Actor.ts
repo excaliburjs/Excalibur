@@ -1,4 +1,8 @@
 /// <reference path="Interfaces/IDrawable.ts" />
+/// <reference path="Modules/MovementModule.ts" />
+/// <reference path="Modules/OffscreenCullingModule.ts" />
+/// <reference path="Modules/EventPropagationModule.ts" />
+/// <reference path="Modules/CollisionDetectionModule.ts" />
 /// <reference path="Side.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util.ts" />
@@ -6,6 +10,8 @@
 /// <reference path="BoundingBox.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Action.ts" />
+
+
 
 
 module ex {
@@ -205,7 +211,7 @@ module ex {
        * default all actors participate in Active collisions.
        * @property collisionType {CollisionType}
        */
-      public collisionType : CollisionType = CollisionType.Active;
+      public collisionType : CollisionType = CollisionType.PreventCollision;
       public collisionGroups : string[] = [];
 
       private _collisionHandlers: {[key: string]: {(actor: Actor):void}[];} = {};
@@ -223,6 +229,13 @@ module ex {
 
       private centerDrawingX = false;
       private centerDrawingY = false;
+
+      /**
+       * Modify the current actor update pipeline. 
+       *
+       *
+       */
+      public pipeline: IPipelineModule[] = [];
       
       /**
        * Sets the color of the actor. A rectangle of this color will be drawn if now IDrawable is specified as the actors drawing.
@@ -237,12 +250,19 @@ module ex {
          this.x = x || 0;
          this.y = y || 0;
          this.width = width || 0;
-         this.height = height || 0;
-         this.color = color;
+         this.height = height || 0;         
          if(color){
+            this.color = color.clone();
             // set default opacticy of an actor to the color
-            this.opacity = color.a || 1;   
+            this.opacity = color.a;  
          }         
+
+         // Build default pipeline
+         this.pipeline.push(new ex.MovementModule());
+         this.pipeline.push(new ex.CollisionDetectionModule());
+         this.pipeline.push(new ex.OffscreenCullingModule());
+         this.pipeline.push(new ex.EventPropagationModule());
+
          this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
          this.sceneNode = new Scene();
          this.sceneNode.actor = this;
@@ -272,6 +292,16 @@ module ex {
             this.logger.warn("Cannot kill actor, it was never added to the Scene");
          }
       }
+
+      /**
+       * Indicates wether the actor has been killed.
+       * @method isKilled
+       * @returns boolean
+       */
+      public isKilled() { 
+         return this._isKilled;
+      }
+
       /**
        * Adds a child actor to this actor. All movement of the child actor will be
        * relative to the parent actor. Meaning if the parent moves the child will
@@ -453,17 +483,8 @@ module ex {
       * @returns number
       */
       public getGlobalX() {
-         var previous;
-         var current = this.parent;
-         while (current) {
-            previous = current;
-            current = current.parent;
-         }
-         if (previous) {
-            return this.x + previous.x;
-            } else {
-               return this.x;
-            }
+         if(!this.parent) return this.x;
+         return this.x * this.parent.scaleX + this.parent.getGlobalX();
       }
 
       /**
@@ -472,18 +493,20 @@ module ex {
       * @returns number
       */
       public getGlobalY() {
-         var previous;
-         var current = this.parent;
-         while (current) {
-            previous = current;
-            current = current.parent;
-         }
-         if (previous) {
-            return this.y + previous.y;
-            } else {
-               return this.y;
-            }
+        if(!this.parent) return this.y;
+         return this.y * this.parent.scaleY + this.parent.getGlobalY();
       }
+
+      /**
+       * Gets the global scale of the Actor
+       * @method getGlobalScale
+       * @returns Point
+       */
+       public getGlobalScale() {
+         if(!this.parent) return new Point(this.scaleX, this.scaleY);
+         var parentScale = this.parent.getGlobalScale();
+         return new Point(this.scaleX * parentScale.x, this.scaleY * parentScale.y);
+       }
 
       /**
        * Returns the actor's bounding box calculated for this instant.
@@ -584,6 +607,10 @@ module ex {
             this._collisionHandlers[group] = [];
          }
          this._collisionHandlers[group].push(func);
+      }
+
+      public getCollisionHandlers() : {[key: string]: {(actor: Actor):void}[];} {
+         return this._collisionHandlers;
       }
 
       /**
@@ -833,6 +860,21 @@ module ex {
          return this;
       }
 
+
+      /**
+       * Returns a promise that resolves when the current action queue up to now
+       * is finished.
+       * @method asPromise
+       * @returns Promise
+       */
+      public asPromise<T>() : Promise<T> {
+         var complete = new Promise<T>();
+         this.callMethod(()=>{
+            complete.resolve();
+         });
+         return complete;
+      }
+
       /**
        * Called by the Engine, updates the state of the actor
        * @method update 
@@ -855,156 +897,10 @@ module ex {
          // Update action queue
          this.actionQueue.update(delta);
 
-         // Update placements based on linear algebra
-         this.x += this.dx * delta / 1000;
-         this.y += this.dy * delta / 1000;
-
-         this.dx += this.ax * delta / 1000;
-         this.dy += this.ay * delta / 1000;
-
-         this.rotation += this.rx * delta / 1000;
-
-         this.scaleX += this.sx * delta / 1000;
-         this.scaleY += this.sy * delta / 1000;
-
-         if(this.collisionType !== CollisionType.PreventCollision){
-            // Retrieve the list of potential colliders, exclude killed, prevented, and self
-            var potentialColliders = engine.currentScene.children.filter((actor) => {
-               return !actor._isKilled && actor.collisionType !== CollisionType.PreventCollision && this !== actor;
-            });
-
-            for(var i = 0; i < potentialColliders.length; i++){
-               var intersectActor: Vector;
-               var side: Side;
-               var collider = potentialColliders[i];
-
-               if(intersectActor = this.collides(collider)){
-                  side = this.getSideFromIntersect(intersectActor);
-                  this.scene.addCollisionPair(new CollisionPair(this, collider, intersectActor, side));
-
-                  collider.collisionGroups.forEach((group)=>{
-                     if(this._collisionHandlers[group]){
-                        this._collisionHandlers[group].forEach((handler)=>{
-                           handler.call(this, collider);
-                        });
-                     }
-                  });
-
-               }
-
-            }
-
-            for(var j = 0; j < engine.currentScene.tileMaps.length; j++){
-               var map = engine.currentScene.tileMaps[j];
-               var intersectMap: Vector;
-               var side = Side.None;
-               var max = 2;
-               var hasBounced = false;
-               while(intersectMap = map.collides(this)){
-                  if(max--<0){
-                     break;
-                  } 
-                  side = this.getSideFromIntersect(intersectMap);
-                  eventDispatcher.publish('collision', new CollisionEvent(this, null, side, intersectMap));
-                  if((this.collisionType === CollisionType.Active || this.collisionType === CollisionType.Elastic) && collider.collisionType !== CollisionType.Passive){
-                     this.y += intersectMap.y;
-                     this.x += intersectMap.x;
-
-                     // Naive elastic bounce
-                     if(this.collisionType === CollisionType.Elastic && !hasBounced){
-                        hasBounced = true;
-                        if(side === Side.Left){
-                           this.dx = Math.abs(this.dx);
-                        }else if(side === Side.Right){
-                           this.dx = -Math.abs(this.dx);
-                        }else if(side === Side.Top){
-                           this.dy = Math.abs(this.dy);
-                        }else if(side === Side.Bottom){
-                           this.dy = -Math.abs(this.dy);
-                        }
-                     }                 
-                  }
-               }
-            }
+         // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
+         for(var i = 0; i< this.pipeline.length; i++){
+            this.pipeline[i].update(this, engine, delta);
          }
-
-
-         // Publish other events
-         engine.keys.forEach(function (key) {
-            eventDispatcher.publish(InputKey[key], new KeyEvent(key));
-         });
-
-         // Publish click events
-         engine.clicks.forEach((e) => {
-            if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.Click], new Click(e.x, e.y, e.mouseEvent));
-               eventDispatcher.publish(EventType[EventType.MouseDown], new MouseDown(e.x, e.y, e.mouseEvent));
-            }
-         });
-
-         engine.mouseMove.forEach((e) => {
-            if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.MouseMove], new MouseMove(e.x, e.y, e.mouseEvent));
-            }
-         });
-
-         engine.mouseUp.forEach((e)=> {
-            if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.MouseUp], new MouseUp(e.x, e.y, e.mouseEvent));
-            }
-         });
-
-         engine.touchStart.forEach((e) => {
-            if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.TouchStart], new TouchStart(e.x, e.y));
-            }
-         });
-
-         engine.touchMove.forEach((e) => {
-            if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.TouchMove], new TouchMove(e.x, e.y));
-            }
-         });
-
-         engine.touchEnd.forEach((e) => {
-            if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.TouchEnd], new TouchEnd(e.x, e.y));
-            }
-         });
-
-         engine.touchCancel.forEach((e) => {
-            if (this.contains(e.x, e.y)) {
-               eventDispatcher.publish(EventType[EventType.TouchCancel], new TouchCancel(e.x, e.y));
-            }
-         });
-
-         var anchor = this.calculatedAnchor;
-         var actorScreenCoords = engine.worldToScreenCoordinates(new Point(this.getGlobalX()-anchor.x, this.getGlobalY()-anchor.y));
-         var zoom = 1.0;
-         if(engine.camera){
-            zoom = engine.camera.getZoom();   
-         }
-         
-         if(!this.isOffScreen){
-            if(actorScreenCoords.x + this.getWidth() * zoom < 0 || 
-               actorScreenCoords.y + this.getHeight() * zoom < 0 ||
-               actorScreenCoords.x > engine.width ||
-               actorScreenCoords.y > engine.height ){
-               
-               eventDispatcher.publish('exitviewport', new ExitViewPortEvent());
-               this.isOffScreen = true;
-            }
-         }else{
-            if(actorScreenCoords.x + this.getWidth() * zoom > 0 &&
-               actorScreenCoords.y + this.getHeight() * zoom > 0 &&
-               actorScreenCoords.x < engine.width &&
-               actorScreenCoords.y < engine.height){
-               
-               eventDispatcher.publish('enterviewport', new EnterViewPortEvent());               
-               this.isOffScreen = false;
-            }
-         }
-
 
          eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
       }
@@ -1049,9 +945,11 @@ module ex {
             this.currentDrawing.draw(ctx, -xDiff - anchorPoint.x, -yDiff - anchorPoint.y);
 
          } else {
-            if(this.color) this.color.a = this.opacity;
-            ctx.fillStyle = this.color ? this.color.toString() : (new Color(0, 0, 0)).toString();
-            ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this.width, this.height);
+            if(this.color) {
+               ctx.fillStyle = this.color.toString();
+               ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this.width, this.height);
+            } 
+            
          }
          
          

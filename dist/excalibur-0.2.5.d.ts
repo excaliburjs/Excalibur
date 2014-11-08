@@ -105,6 +105,19 @@ declare module ex {
         */
         addEffect(effect: Effects.ISpriteEffect): any;
         /**
+        * Removes an effect {{#crossLink ISpriteEffect}}{{/crossLink}} from this drawing.
+        * @method removeEffect
+        * @param effect {{ISpriteEffect}} Effect to remove from this drawing
+        */
+        removeEffect(effect: Effects.ISpriteEffect): any;
+        /**
+        * Removes an effect by index from this drawing.
+        * @method removeEffect
+        * @param index {{number}} Index of the effect to remove from this drawing
+        */
+        removeEffect(index: number): any;
+        removeEffect(param: any): any;
+        /**
         * Clears all effects from the drawing and return it to its original state.
         * @method clearEffects
         */
@@ -165,6 +178,35 @@ declare module ex {
         * @param y {number} The y coordinate of where to draw
         */
         draw(ctx: CanvasRenderingContext2D, x: number, y: number): any;
+    }
+}
+declare module ex {
+    /**
+    * An interface describing actor update pipeline modules
+    * @class ILoadable
+    */
+    interface IPipelineModule {
+        update(actor: Actor, engine: Engine, delta: number): void;
+    }
+}
+declare module ex {
+    class MovementModule implements IPipelineModule {
+        public update(actor: Actor, engine: Engine, delta: number): void;
+    }
+}
+declare module ex {
+    class OffscreenCullingModule implements IPipelineModule {
+        public update(actor: Actor, engine: Engine, delta: number): void;
+    }
+}
+declare module ex {
+    class EventPropagationModule implements IPipelineModule {
+        public update(actor: Actor, engine: Engine, delta: number): void;
+    }
+}
+declare module ex {
+    class CollisionDetectionModule implements IPipelineModule {
+        public update(actor: Actor, engine: Engine, delta: number): void;
     }
 }
 declare module ex {
@@ -245,6 +287,19 @@ declare module ex {
         * @returns Point
         */
         public add(vector: Vector): Point;
+        /**
+        * Sets the x and y components at once
+        * @method setTo
+        * @param x {number}
+        * @param y {number}
+        */
+        public setTo(x: number, y: number): void;
+        /**
+        * Clones a new point that is a copy of this one.
+        * @method clone
+        * @returns Point
+        */
+        public clone(): Point;
     }
     /**
     * A 2D vector on a plane.
@@ -405,10 +460,15 @@ declare module ex {
     }
 }
 declare module ex.Util {
+    var TwoPI: number;
     function base64Encode(inputStr: string): string;
     function clamp(val: any, min: any, max: any): any;
     function drawLine(ctx: CanvasRenderingContext2D, color: string, startx: any, starty: any, endx: any, endy: any): void;
     function randomInRange(min: number, max: number): number;
+    function randomIntInRange(min: number, max: number): number;
+    function canonicalizeAngle(angle: number): number;
+    function toDegrees(radians: number): number;
+    function toRadians(degrees: number): number;
     function getPosition(el: HTMLElement): Point;
     function getOppositeSide(side: Side): Side;
     /**
@@ -528,6 +588,7 @@ declare module ex {
         private scaleY;
         private rotation;
         private transformPoint;
+        public logger: Logger;
         public flipVertical: boolean;
         public flipHorizontal: boolean;
         public width: number;
@@ -547,6 +608,18 @@ declare module ex {
         * @param effect {Effects.ISpriteEffect} Effect to add to the this drawing
         */
         public addEffect(effect: Effects.ISpriteEffect): void;
+        /**
+        * Removes a {{#crossLink Effects.ISpriteEffect}}{{/crossLink}} from this sprite.
+        * @method removeEffect
+        * @param effect {Effects.ISpriteEffect} Effect to remove from this sprite
+        */
+        public removeEffect(effect: Effects.ISpriteEffect): void;
+        /**
+        * Removes an effect given the index from this sprite.
+        * @method removeEffect
+        * @param index {number} Index of the effect to remove from this sprite
+        */
+        public removeEffect(index: number): void;
         private applyEffects();
         /**
         * Clears all effects from the drawing and return it to its original state.
@@ -1750,6 +1823,12 @@ declare module ex {
         private centerDrawingX;
         private centerDrawingY;
         /**
+        * Modify the current actor update pipeline.
+        *
+        *
+        */
+        public pipeline: IPipelineModule[];
+        /**
         * Sets the color of the actor. A rectangle of this color will be drawn if now IDrawable is specified as the actors drawing.
         * @property color {Color}
         */
@@ -1769,6 +1848,12 @@ declare module ex {
         * @method kill
         */
         public kill(): void;
+        /**
+        * Indicates wether the actor has been killed.
+        * @method isKilled
+        * @returns boolean
+        */
+        public isKilled(): boolean;
         /**
         * Adds a child actor to this actor. All movement of the child actor will be
         * relative to the parent actor. Meaning if the parent moves the child will
@@ -1893,6 +1978,12 @@ declare module ex {
         */
         public getGlobalY(): any;
         /**
+        * Gets the global scale of the Actor
+        * @method getGlobalScale
+        * @returns Point
+        */
+        public getGlobalScale(): Point;
+        /**
         * Returns the actor's bounding box calculated for this instant.
         * @method getBounds
         * @returns BoundingBox
@@ -1934,6 +2025,11 @@ declare module ex {
         * @param func {callback} The callback to fire on collision with another actor from the group. The callback is passed the other actor.
         */
         public onCollidesWith(group: string, func: (actor: Actor) => void): void;
+        public getCollisionHandlers(): {
+            [key: string]: {
+                (actor: Actor): void;
+            }[];
+        };
         /**
         * Removes all collision handlers for this group on this actor
         * @method removeCollidesWith
@@ -2098,6 +2194,13 @@ declare module ex {
         * @returns Actor
         */
         public meet(actor: Actor, speed?: number): Actor;
+        /**
+        * Returns a promise that resolves when the current action queue up to now
+        * is finished.
+        * @method asPromise
+        * @returns Promise
+        */
+        public asPromise<T>(): Promise<T>;
         /**
         * Called by the Engine, updates the state of the actor
         * @method update
@@ -2592,7 +2695,7 @@ declare module ex {
     * @param y {number} The y coordinate of the event
     * @param mouseEvent {MouseEvent} The native mouse event thrown
     */
-    class MouseDown extends GameEvent {
+    class MouseDownEvent extends GameEvent {
         public x: number;
         public y: number;
         public mouseEvent: MouseEvent;
@@ -2608,7 +2711,7 @@ declare module ex {
     * @param y {number} The y coordinate of the event
     * @param mouseEvent {MouseEvent} The native mouse event thrown
     */
-    class MouseMove extends GameEvent {
+    class MouseMoveEvent extends GameEvent {
         public x: number;
         public y: number;
         public mouseEvent: MouseEvent;
@@ -2624,7 +2727,7 @@ declare module ex {
     * @param y {number} The y coordinate of the event
     * @param mouseEvent {MouseEvent} The native mouse event thrown
     */
-    class MouseUp extends GameEvent {
+    class MouseUpEvent extends GameEvent {
         public x: number;
         public y: number;
         public mouseEvent: MouseEvent;
@@ -2673,7 +2776,7 @@ declare module ex {
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    class TouchStart extends GameEvent {
+    class TouchStartEvent extends GameEvent {
         public x: number;
         public y: number;
         constructor(x: number, y: number);
@@ -2687,7 +2790,7 @@ declare module ex {
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    class TouchMove extends GameEvent {
+    class TouchMoveEvent extends GameEvent {
         public x: number;
         public y: number;
         constructor(x: number, y: number);
@@ -2701,7 +2804,7 @@ declare module ex {
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    class TouchEnd extends GameEvent {
+    class TouchEndEvent extends GameEvent {
         public x: number;
         public y: number;
         constructor(x: number, y: number);
@@ -2715,7 +2818,7 @@ declare module ex {
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    class TouchCancel extends GameEvent {
+    class TouchCancelEvent extends GameEvent {
         public x: number;
         public y: number;
         constructor(x: number, y: number);
@@ -2729,7 +2832,7 @@ declare module ex {
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    class Click extends GameEvent {
+    class ClickEvent extends GameEvent {
         public x: number;
         public y: number;
         public mouseEvent: MouseEvent;
@@ -2929,6 +3032,12 @@ declare module ex {
         */
         public toString(): string;
         /**
+        * Returns a CSS string representation of a color.
+        * @method fillStyle
+        * @returns string
+        */
+        public fillStyle(): string;
+        /**
         * Returns a clone of the current color.
         * @method clone
         * @returns Color
@@ -2982,6 +3091,8 @@ declare module ex {
         public position: Vector;
         public velocity: Vector;
         public acceleration: Vector;
+        public particleRotationalVelocity: number;
+        public currentRotation: number;
         public focus: Vector;
         public focusAccel: number;
         public opacity: number;
@@ -3127,6 +3238,16 @@ declare module ex {
         * @property [radius=0] {number}
         */
         public radius: number;
+        /**
+        * Gets or sets the particle rotational speed velocity
+        * @property [particleRotationalVelocity=0] {number}
+        */
+        public particleRotationalVelocity: number;
+        /**
+        * Indicates whether particles should start with a random rotation
+        * @property [randomRotation=false] {boolean}
+        */
+        public randomRotation: boolean;
         constructor(x?: number, y?: number, width?: number, height?: number);
         public removeParticle(particle: Particle): void;
         /**
@@ -3175,6 +3296,18 @@ declare module ex {
         public height: number;
         constructor(engine: Engine, images: Sprite[], speed: number, loop?: boolean);
         public addEffect(effect: Effects.ISpriteEffect): void;
+        /**
+        * Removes a {{#crossLink Effects.ISpriteEffect}}{{/crossLink}} from this animation.
+        * @method removeEffect
+        * @param effect {Effects.ISpriteEffect} Effect to remove from this animation
+        */
+        public removeEffect(effect: Effects.ISpriteEffect): void;
+        /**
+        * Removes an effect given the index from this animation.
+        * @method removeEffect
+        * @param index {number} Index of the effect to remove from this animation
+        */
+        public removeEffect(index: number): void;
         public clearEffects(): void;
         public transformAboutPoint(point: Point): void;
         public setRotation(radians: number): void;
@@ -3200,6 +3333,12 @@ declare module ex {
         * @method tick
         */
         public tick(): void;
+        /**
+        * Skips ahead a specified number of frames in the animation
+        * @method skip
+        * @param frames {number} Frames to skip ahead
+        */
+        public skip(frames: number): void;
         public draw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
         /**
         * Plays an animation at an arbitrary location in the game.
@@ -3221,6 +3360,13 @@ declare module ex {
         public follow: Actor;
         public focus: Point;
         public engine: Engine;
+        public lerp: boolean;
+        private _cameraMoving;
+        private _currentLerpTime;
+        private _lerpDuration;
+        private _totalLerpTime;
+        private _lerpStart;
+        private _lerpEnd;
         public isShaking: boolean;
         private shakeMagnitudeX;
         private shakeMagnitudeY;
@@ -3233,6 +3379,7 @@ declare module ex {
         private elapsedZoomTime;
         private zoomIncrement;
         constructor(engine: Engine);
+        private easeInOutCubic(currentTime, startValue, endValue, duration);
         /**
         * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
         * @method setActorToFollow
@@ -3293,11 +3440,6 @@ declare module ex {
     * @param engine {Engine} Reference to the current engine
     */
     class SideCamera extends BaseCamera {
-        /**
-        * Returns the focal point of the camera in world space
-        * @method getFocus
-        * @returns point
-        */
         public getFocus(): Point;
     }
     /**
@@ -3308,11 +3450,6 @@ declare module ex {
     * @param engine {Engine} Reference to the current engine
     */
     class TopCamera extends BaseCamera {
-        /**
-        * Returns the focal point of the camera in world space
-        * @method getFocus
-        * @returns Point
-        */
         public getFocus(): Point;
     }
 }
@@ -3423,6 +3560,13 @@ declare module ex {
         * @returns Promise&lt;T&gt;
         */
         static wrap<T>(value?: T): Promise<T>;
+        /**
+        * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
+        * when at least 1 promise rejects.
+        * @param promises {Promise[]}
+        * @returns Promise
+        */
+        static join<T>(...promises: Promise<T>[]): Promise<T>;
         constructor();
         /**
         * Chain success and reject callbacks after the promise is resovled
@@ -3494,29 +3638,78 @@ declare module ex {
         */
         isLoaded(): boolean;
     }
+}
+declare module ex {
+    /**
+    * The Resource type allows games built in Excalibur to load generic resources.
+    * For any type of remote resource it is recome
+    * @class Resource
+    * @extend ILoadable
+    * @constructor
+    * @param path {string} Path to the remote resource
+    */
+    class Resource<T> implements ILoadable {
+        public path: string;
+        public responseType: string;
+        public data: T;
+        public logger: Logger;
+        constructor(path: string, responseType: string);
+        /**
+        * Returns true if the Resource is completely loaded and is ready
+        * to be drawn.
+        * @method isLoaded
+        * @returns boolean
+        */
+        public isLoaded(): boolean;
+        private cacheBust(uri);
+        private _start(e);
+        /**
+        * Begin loading the resource and returns a promise to be resolved on completion
+        * @method load
+        * @returns Promise&lt;any&gt;
+        */
+        public load(): Promise<T>;
+        /**
+        * Returns the loaded data once the resource is loaded
+        * @method GetData
+        * @returns any
+        */
+        public getData(): any;
+        /**
+        * This method is meant to be overriden to handle any additional
+        * processing. Such as decoding downloaded audio bits.
+        * @method ProcessDownload
+        */
+        public processDownload(data: T): any;
+        public onprogress: (e: any) => void;
+        public oncomplete: () => void;
+        public onerror: (e: any) => void;
+    }
+}
+declare module ex {
     /**
     * The Texture object allows games built in Excalibur to load image resources.
     * It is generally recommended to preload images using the "Texture" object.
     * @class Texture
-    * @extend ILoadable
+    * @extend Resource
     * @constructor
     * @param path {string} Path to the image resource
     */
-    class Texture implements ILoadable {
+    class Texture extends Resource<HTMLImageElement> {
         public path: string;
         public width: number;
         public height: number;
+        public loaded: Promise<any>;
+        private _isLoaded;
         /**
         * Populated once loading is complete
         * @property image {HTMLImageElement}
         */
         public image: HTMLImageElement;
-        private logger;
         private progressCallback;
         private doneCallback;
         private errorCallback;
         constructor(path: string);
-        private _start(e);
         /**
         * Returns true if the Texture is completely loaded and is ready
         * to be drawn.
@@ -3530,16 +3723,13 @@ declare module ex {
         * @returns Promise&lt;HTMLImageElement&gt;
         */
         public load(): Promise<HTMLImageElement>;
-        public onprogress: (e: any) => void;
-        public oncomplete: () => void;
-        public onerror: (e: any) => void;
     }
     /**
     * The Sound object allows games built in Excalibur to load audio
     * components, from soundtracks to sound effects. It is generally
     * recommended to load sound resources when using Excalibur
     * @class Sound
-    * @extend ILoadable
+    * @extend Resource
     * @constructor
     * @param ...paths {string[]} A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
     */
@@ -4139,14 +4329,14 @@ declare module ex {
         public keys: number[];
         public keysDown: number[];
         public keysUp: number[];
-        public clicks: MouseDown[];
-        public mouseDown: MouseDown[];
-        public mouseMove: MouseMove[];
-        public mouseUp: MouseUp[];
-        public touchStart: TouchStart[];
-        public touchMove: TouchMove[];
-        public touchEnd: TouchEnd[];
-        public touchCancel: TouchCancel[];
+        public clicks: MouseDownEvent[];
+        public mouseDown: MouseDownEvent[];
+        public mouseMove: MouseMoveEvent[];
+        public mouseUp: MouseUpEvent[];
+        public touchStart: TouchStartEvent[];
+        public touchMove: TouchMoveEvent[];
+        public touchEnd: TouchEndEvent[];
+        public touchCancel: TouchCancelEvent[];
         /**
         * Gets or sets the camera to be used in the game.
         * @property camera {BaseCamera}

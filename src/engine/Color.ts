@@ -179,6 +179,15 @@ module ex {
       }
 
       /**
+       * Returns a CSS string representation of a color.
+       * @method fillStyle
+       * @returns string
+       */
+      public fillStyle(){
+         return this.toString();
+      }
+
+      /**
        * Returns a clone of the current color.
        * @method clone
        * @returns Color

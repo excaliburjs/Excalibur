@@ -33,11 +33,11 @@ module.exports = function (grunt) {
       //
       concat: {
          main: {
-            src: ['dist/<%= pkg.name %>-<%= pkg.version %>.js'],
+            src: ['dist/<%= pkg.name %>-<%= pkg.version %>.js', 'src/engine/Exports.js'],
             dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js'
          },
          minified: {
-            src: ['dist/<%= pkg.name %>-<%= pkg.version %>.min.js'],
+            src: ['dist/<%= pkg.name %>-<%= pkg.version %>.min.js', 'src/engine/Exports.js'],
             dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.min.js'
          },
          options: {
@@ -105,7 +105,7 @@ module.exports = function (grunt) {
          },         
 
          //
-         // TypeScript Compile Jasmine specs         
+         // TypeScript Compile Jasmine specs
          //
          specs: {
             command: function () {
@@ -123,7 +123,7 @@ module.exports = function (grunt) {
          // TypeScript Compile sample game
          //
          sample: {
-            command: 'tsc ./sandbox/web/src/game.ts',
+            command: 'tsc ./sandbox/src/game.ts',
             options: {
                stdout: true,
                failOnError: true

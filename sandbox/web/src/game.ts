@@ -59,13 +59,15 @@ game.backgroundColor = new ex.Color(114,213,224);
 
 // Turn on debug diagnostics
 game.isDebug = false;
-
+var blockSprite = new ex.Sprite(imageBlocks, 0, 0, 65, 49);
 // Create spritesheet
 var spriteSheetRun = new ex.SpriteSheet(imageRun, 21, 1, 96, 96);
 var spriteSheetJump = new ex.SpriteSheet(imageJump, 21, 1, 96, 96);
 var tileBlockWidth = 64,
     tileBlockHeight = 48,
     spriteTiles = new ex.SpriteSheet(imageBlocks, 1, 1, tileBlockWidth, tileBlockHeight);
+
+
 
 // create a collision map
 var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
@@ -136,7 +138,10 @@ game.add(follower);
 
 // Create the player
 var player = new ex.Actor(100,-200,32,96);
-follower.meet(player, 60);
+player.collisionType = ex.CollisionType.Active;
+follower.meet(player, 60).asPromise().then(()=>{
+   console.log("Player met!!");
+});
 
 
 
@@ -218,9 +223,9 @@ var moveRight = () => {
    // TODO: When platform is moving in same direction, add its dx
 };
 
-var moveJump = () => {
-   if (!inAir) {
-      player.dy -= jumpSpeed;
+player.addEventListener('up', ()=>{
+   if(!inAir){
+      player.dy = -jumpSpeed;
       inAir = true;
       if (direction === 1) {
          player.setDrawing(Animations.JumpRight);
@@ -229,22 +234,9 @@ var moveJump = () => {
       }
       jumpSound.play();
    }
-};
+});
 
-var resetToIdle = (e?: ex.KeyUp) => {
-   if (inAir) return;
-
-   if (e.key === ex.InputKey.Left ||
-      e.key === ex.InputKey.Right) {
-      player.setDrawing(Animations.Idle);
-   }
-};
-
-player.addEventListener('left', moveLeft);
-player.addEventListener('right', moveRight);
-player.addEventListener('up', moveJump);
-
-player.addEventListener('mousedown', (e?: ex.MouseDown)=>{
+player.addEventListener('mousedown', (e?: ex.MouseDownEvent)=>{
    var button = "";
    if(e.mouseEvent.button == ex.MouseButton.Left){
       button = "Left";
@@ -256,25 +248,17 @@ player.addEventListener('mousedown', (e?: ex.MouseDown)=>{
    alert("Player clicked with " + button + " button!");
 });
 
-player.addEventListener('keyup', resetToIdle);
-
-player.addEventListener('touchstart', (e?: ex.TouchStart)=> {
-   alert("player touched!");
-});
-
-// touch movement
-var touchGoRight = false;
-game.addEventListener('touchstart', () => {
-   touchGoRight = true;
-});
-game.addEventListener('touchend', () => {
-   touchGoRight = false;
-
-   moveJump();
-
+player.addEventListener('keyup', (e? : ex.KeyUp) => {
    if (inAir) return;
    
-   player.setDrawing(Animations.Idle);   
+   if (e.key === ex.InputKey.Left ||
+       e.key === ex.InputKey.Right) {
+      player.setDrawing(Animations.Idle);
+   }
+});
+
+player.addEventListener('touchstart', ()=> {
+   alert("player touched!");
 });
 
 var newScene = new ex.Scene();
@@ -369,10 +353,6 @@ player.addEventListener('update', (data?: ex.UpdateEvent)=>{
       data.target.ay = 0;
    }
 
-   if (touchGoRight) {
-      moveRight();
-   }
-
    // Reset values because we don't know until we check the next update
    // inAir = true;
    isColliding = false;
@@ -433,11 +413,18 @@ emitter.emitRate = 494;
 emitter.opacity = 0.84;
 emitter.fadeFlag = true;
 emitter.particleLife = 2465;
-emitter.maxSize = 10;
-emitter.minSize = 1;
+emitter.maxSize = 1.5;
+emitter.minSize = .1;
 emitter.acceleration = new ex.Vector(0, 460);
 emitter.beginColor = ex.Color.Red;
 emitter.endColor = ex.Color.Yellow;
+emitter.particleSprite = blockSprite.clone();
+emitter.particleSprite.transformAboutPoint(new ex.Point(.5, .5));
+emitter.particleRotationalVelocity = Math.PI/10;
+emitter.randomRotation = true;
+emitter.particleSprite.addEffect(new ex.Effects.Grayscale());
+
+
 //emitter.acceleration = new ex.Vector(0, -400);
 //emitter.particleSprite = spriteTiles.getSprite(0);
 //emitter.focus = new ex.Vector(0, -100);
@@ -464,7 +451,7 @@ trigger.target = player;
 
 game.add(trigger);
 
-game.addEventListener('mousedown', (evt? : ex.MouseDown)=>{
+game.addEventListener('mousedown', (evt?: ex.MouseDownEvent)=>{
    var c = tileMap.getCellByPoint(evt.x, evt.y);
    if(c){
       if(c.solid){

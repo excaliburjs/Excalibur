@@ -1,3 +1,401 @@
+/*! excalibur - v0.2.5 - 2014-10-02
+* https://github.com/excaliburjs/Excalibur
+* Copyright (c) 2014 ; Licensed BSD*/
+if (typeof window == 'undefined') {
+    window = { audioContext: function () {
+        } };
+}
+
+if (typeof window != 'undefined' && !window.requestAnimationFrame) {
+    window.requestAnimationFrame = window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (callback) {
+        window.setInterval(callback, 1000 / 60);
+    };
+}
+
+if (typeof window != 'undefined' && !window.AudioContext) {
+    window.AudioContext = window.webkitAudioContext || window.mozAudioContext;
+}
+
+// Polyfill from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
+if (!Array.prototype.some) {
+    Array.prototype.some = function (fun /*, thisArg */ ) {
+        'use strict';
+
+        if (this === void 0 || this === null)
+            throw new TypeError();
+
+        var t = Object(this);
+        var len = t.length >>> 0;
+        if (typeof fun !== 'function')
+            throw new TypeError();
+
+        var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
+        for (var i = 0; i < len; i++) {
+            if (i in t && fun.call(thisArg, t[i], i, t))
+                return true;
+        }
+
+        return false;
+    };
+}
+var ex;
+(function (ex) {
+    (function (Effects) {
+        
+
+        /**
+        * Applies the "Grayscale" effect to a sprite, removing color information.
+        * @class Effects.Grayscale
+        * @constructor
+        * @extends ISpriteEffect
+        */
+        var Grayscale = (function () {
+            function Grayscale() {
+            }
+            Grayscale.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                var avg = (pixel[firstPixel + 0] + pixel[firstPixel + 1] + pixel[firstPixel + 2]) / 3;
+                pixel[firstPixel + 0] = avg;
+                pixel[firstPixel + 1] = avg;
+                pixel[firstPixel + 2] = avg;
+            };
+            return Grayscale;
+        })();
+        Effects.Grayscale = Grayscale;
+
+        /**
+        * Applies the "Invert" effect to a sprite, inverting the pixel colors.
+        * @class Effects.Invert
+        * @constructor
+        * @extends ISpriteEffect
+        */
+        var Invert = (function () {
+            function Invert() {
+            }
+            Invert.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                pixel[firstPixel + 0] = 255 - pixel[firstPixel + 0];
+                pixel[firstPixel + 1] = 255 - pixel[firstPixel + 1];
+                pixel[firstPixel + 2] = 255 - pixel[firstPixel + 2];
+            };
+            return Invert;
+        })();
+        Effects.Invert = Invert;
+
+        /**
+        * Applies the "Opacity" effect to a sprite, setting the alpha of all pixels to a given value.
+        * @class Effects.Opacity
+        * @extends ISpriteEffect
+        * @constructor
+        * @param opacity {number} The new opacity of the sprite from 0-1.0
+        */
+        var Opacity = (function () {
+            function Opacity(opacity) {
+                this.opacity = opacity;
+            }
+            Opacity.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                if (pixel[firstPixel + 3] !== 0) {
+                    pixel[firstPixel + 3] = Math.round(this.opacity * 255);
+                }
+            };
+            return Opacity;
+        })();
+        Effects.Opacity = Opacity;
+
+        /**
+        * Applies the "Colorize" effect to a sprite, changing the color channels of all the pixels to an
+        * average of the original color and the provided color
+        * @class Effects.Colorize
+        * @extends ISpriteEffect
+        * @constructor
+        * @param color {Color} The color to apply to the sprite
+        */
+        var Colorize = (function () {
+            function Colorize(color) {
+                this.color = color;
+            }
+            Colorize.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                if (pixel[firstPixel + 3] !== 0) {
+                    pixel[firstPixel + 0] = (pixel[firstPixel + 0] + this.color.r) / 2;
+                    pixel[firstPixel + 1] = (pixel[firstPixel + 1] + this.color.g) / 2;
+                    pixel[firstPixel + 2] = (pixel[firstPixel + 2] + this.color.b) / 2;
+                }
+            };
+            return Colorize;
+        })();
+        Effects.Colorize = Colorize;
+
+        /**
+        * Applies the "Fill" effect to a sprite, changing the color channels of all non-transparent pixels to match
+        * a given color
+        * @class Effects.Fill
+        * @extends ISpriteEffect
+        * @constructor
+        * @param color {Color} The color to apply to the sprite
+        */
+        var Fill = (function () {
+            function Fill(color) {
+                this.color = color;
+            }
+            Fill.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                if (pixel[firstPixel + 3] !== 0) {
+                    pixel[firstPixel + 0] = this.color.r;
+                    pixel[firstPixel + 1] = this.color.g;
+                    pixel[firstPixel + 2] = this.color.b;
+                }
+            };
+            return Fill;
+        })();
+        Effects.Fill = Fill;
+    })(ex.Effects || (ex.Effects = {}));
+    var Effects = ex.Effects;
+})(ex || (ex = {}));
+/// <reference path="../SpriteEffects.ts" />
+/// <reference path="../Interfaces/IPipelineModule.ts" />
+var ex;
+(function (ex) {
+    var MovementModule = (function () {
+        function MovementModule() {
+        }
+        MovementModule.prototype.update = function (actor, engine, delta) {
+            // Update placements based on linear algebra
+            actor.x += actor.dx * delta / 1000;
+            actor.y += actor.dy * delta / 1000;
+
+            actor.dx += actor.ax * delta / 1000;
+            actor.dy += actor.ay * delta / 1000;
+
+            actor.rotation += actor.rx * delta / 1000;
+
+            actor.scaleX += actor.sx * delta / 1000;
+            actor.scaleY += actor.sy * delta / 1000;
+        };
+        return MovementModule;
+    })();
+    ex.MovementModule = MovementModule;
+})(ex || (ex = {}));
+/// <reference path="../Interfaces/IPipelineModule.ts" />
+var ex;
+(function (ex) {
+    var OffscreenCullingModule = (function () {
+        function OffscreenCullingModule() {
+        }
+        OffscreenCullingModule.prototype.update = function (actor, engine, delta) {
+            var eventDispatcher = actor.eventDispatcher;
+            var anchor = actor.anchor;
+            var globalScale = actor.getGlobalScale();
+            var width = globalScale.x * actor.getWidth() / actor.scaleX;
+            var height = globalScale.y * actor.getHeight() / actor.scaleY;
+            var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Point(actor.getGlobalX() - anchor.x * width, actor.getGlobalY() - anchor.y * height));
+
+            var zoom = 1.0;
+            if (engine.camera) {
+                zoom = engine.camera.getZoom();
+            }
+
+            if (!actor.isOffScreen) {
+                if (actorScreenCoords.x + width * zoom < 0 || actorScreenCoords.y + height * zoom < 0 || actorScreenCoords.x > engine.width || actorScreenCoords.y > engine.height) {
+                    eventDispatcher.publish('exitviewport', new ex.ExitViewPortEvent());
+                    actor.isOffScreen = true;
+                }
+            } else {
+                if (actorScreenCoords.x + width * zoom > 0 && actorScreenCoords.y + height * zoom > 0 && actorScreenCoords.x < engine.width && actorScreenCoords.y < engine.height) {
+                    eventDispatcher.publish('enterviewport', new ex.EnterViewPortEvent());
+                    actor.isOffScreen = false;
+                }
+            }
+        };
+        return OffscreenCullingModule;
+    })();
+    ex.OffscreenCullingModule = OffscreenCullingModule;
+})(ex || (ex = {}));
+/// <reference path="../Interfaces/IPipelineModule.ts" />
+var ex;
+(function (ex) {
+    var EventPropagationModule = (function () {
+        function EventPropagationModule() {
+        }
+        EventPropagationModule.prototype.update = function (actor, engine, delta) {
+            var eventDispatcher = actor.eventDispatcher;
+
+            // Publish other events
+            engine.keys.forEach(function (key) {
+                eventDispatcher.publish(ex.InputKey[key], new ex.KeyEvent(key));
+            });
+
+            // Publish click events
+            engine.clicks.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[10 /* Click */], new ex.ClickEvent(e.x, e.y, e.mouseEvent));
+                    eventDispatcher.publish(ex.EventType[3 /* MouseDown */], new ex.MouseDownEvent(e.x, e.y, e.mouseEvent));
+                }
+            });
+
+            engine.mouseMove.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[4 /* MouseMove */], new ex.MouseMoveEvent(e.x, e.y, e.mouseEvent));
+                }
+            });
+
+            engine.mouseUp.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[5 /* MouseUp */], new ex.MouseUpEvent(e.x, e.y, e.mouseEvent));
+                }
+            });
+
+            engine.touchStart.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[6 /* TouchStart */], new ex.TouchStartEvent(e.x, e.y));
+                }
+            });
+
+            engine.touchMove.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[7 /* TouchMove */], new ex.TouchMoveEvent(e.x, e.y));
+                }
+            });
+
+            engine.touchEnd.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[8 /* TouchEnd */], new ex.TouchEndEvent(e.x, e.y));
+                }
+            });
+
+            engine.touchCancel.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[9 /* TouchCancel */], new ex.TouchCancelEvent(e.x, e.y));
+                }
+            });
+        };
+        return EventPropagationModule;
+    })();
+    ex.EventPropagationModule = EventPropagationModule;
+})(ex || (ex = {}));
+/// <reference path="../Interfaces/IPipelineModule.ts" />
+var ex;
+(function (ex) {
+    var CollisionDetectionModule = (function () {
+        function CollisionDetectionModule() {
+        }
+        CollisionDetectionModule.prototype.update = function (actor, engine, delta) {
+            var _this = this;
+            var eventDispatcher = actor.eventDispatcher;
+            if (actor.collisionType !== 0 /* PreventCollision */) {
+                // Retrieve the list of potential colliders, exclude killed, prevented, and self
+                var potentialColliders = engine.currentScene.children.filter(function (other) {
+                    return !other.isKilled() && other.collisionType !== 0 /* PreventCollision */ && actor !== other;
+                });
+
+                for (var i = 0; i < potentialColliders.length; i++) {
+                    var intersectActor;
+                    var side;
+                    var collider = potentialColliders[i];
+
+                    if (intersectActor = actor.collides(collider)) {
+                        side = actor.getSideFromIntersect(intersectActor);
+                        actor.scene.addCollisionPair(new ex.CollisionPair(actor, collider, intersectActor, side));
+
+                        var actorCollisionGroups = actor.getCollisionHandlers();
+                        collider.collisionGroups.forEach(function (group) {
+                            if (actorCollisionGroups[group]) {
+                                actorCollisionGroups[group].forEach(function (handler) {
+                                    handler.call(_this, collider);
+                                });
+                            }
+                        });
+                    }
+                }
+
+                for (var j = 0; j < engine.currentScene.tileMaps.length; j++) {
+                    var map = engine.currentScene.tileMaps[j];
+                    var intersectMap;
+                    var side = 0 /* None */;
+                    var max = 2;
+                    var hasBounced = false;
+                    while (intersectMap = map.collides(actor)) {
+                        if (max-- < 0) {
+                            break;
+                        }
+                        side = actor.getSideFromIntersect(intersectMap);
+                        eventDispatcher.publish('collision', new ex.CollisionEvent(actor, null, side, intersectMap));
+                        if ((actor.collisionType === 2 /* Active */ || actor.collisionType === 3 /* Elastic */) && collider.collisionType !== 1 /* Passive */) {
+                            actor.y += intersectMap.y;
+                            actor.x += intersectMap.x;
+
+                            // Naive elastic bounce
+                            if (actor.collisionType === 3 /* Elastic */ && !hasBounced) {
+                                hasBounced = true;
+                                if (side === 3 /* Left */) {
+                                    actor.dx = Math.abs(actor.dx);
+                                } else if (side === 4 /* Right */) {
+                                    actor.dx = -Math.abs(actor.dx);
+                                } else if (side === 1 /* Top */) {
+                                    actor.dy = Math.abs(actor.dy);
+                                } else if (side === 2 /* Bottom */) {
+                                    actor.dy = -Math.abs(actor.dy);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        return CollisionDetectionModule;
+    })();
+    ex.CollisionDetectionModule = CollisionDetectionModule;
+})(ex || (ex = {}));
+var ex;
+(function (ex) {
+    /**
+    * An enum that describes the sides of an Actor for collision
+    * @class Side
+    */
+    (function (Side) {
+        /**
+        @property None {Side}
+        @static
+        @final
+        */
+        Side[Side["None"] = 0] = "None";
+
+        /**
+        @property Top {Side}
+        @static
+        @final
+        */
+        Side[Side["Top"] = 1] = "Top";
+
+        /**
+        @property Bottom {Side}
+        @static
+        @final
+        */
+        Side[Side["Bottom"] = 2] = "Bottom";
+
+        /**
+        @property Left {Side}
+        @static
+        @final
+        */
+        Side[Side["Left"] = 3] = "Left";
+
+        /**
+        @property Right {Side}
+        @static
+        @final
+        */
+        Side[Side["Right"] = 4] = "Right";
+    })(ex.Side || (ex.Side = {}));
+    var Side = ex.Side;
+})(ex || (ex = {}));
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -46,9 +444,10 @@ var ex;
             if (!anchor) {
                 anchor = new ex.Point(0, 0);
             }
-            var x = (this.x - anchor.x) * Math.cos(angle) + anchor.x;
-            var y = (this.y - anchor.y) * Math.sin(angle) + anchor.y;
-
+            var sinAngle = Math.sin(angle);
+            var cosAngle = Math.cos(angle);
+            var x = cosAngle * (this.x - anchor.x) - sinAngle * (this.y - anchor.y) + anchor.x;
+            var y = sinAngle * (this.x - anchor.x) + cosAngle * (this.y - anchor.y) + anchor.y;
             return new Point(x, y);
         };
 
@@ -59,6 +458,26 @@ var ex;
         */
         Point.prototype.add = function (vector) {
             return new Point(this.x + vector.x, this.y + vector.y);
+        };
+
+        /**
+        * Sets the x and y components at once
+        * @method setTo
+        * @param x {number}
+        * @param y {number}
+        */
+        Point.prototype.setTo = function (x, y) {
+            this.x = x;
+            this.y = y;
+        };
+
+        /**
+        * Clones a new point that is a copy of this one.
+        * @method clone
+        * @returns Point
+        */
+        Point.prototype.clone = function () {
+            return new Point(this.x, this.y);
         };
         return Point;
     })();
@@ -541,6 +960,8 @@ var ex;
 var ex;
 (function (ex) {
     (function (Util) {
+        Util.TwoPI = Math.PI * 2;
+
         function base64Encode(inputStr) {
             var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
             var outputStr = "";
@@ -594,6 +1015,38 @@ var ex;
             return min + Math.random() * (max - min);
         }
         Util.randomInRange = randomInRange;
+
+        function randomIntInRange(min, max) {
+            return Math.round(randomInRange(min, max));
+        }
+        Util.randomIntInRange = randomIntInRange;
+
+        function canonicalizeAngle(angle) {
+            var tmpAngle = angle;
+            if (angle > this.TwoPI) {
+                while (tmpAngle > this.TwoPI) {
+                    tmpAngle -= this.TwoPI;
+                }
+            }
+
+            if (angle < 0) {
+                while (tmpAngle < 0) {
+                    tmpAngle += this.TwoPI;
+                }
+            }
+            return tmpAngle;
+        }
+        Util.canonicalizeAngle = canonicalizeAngle;
+
+        function toDegrees(radians) {
+            return 180 / Math.PI * radians;
+        }
+        Util.toDegrees = toDegrees;
+
+        function toRadians(degrees) {
+            return degrees / 180 * Math.PI;
+        }
+        Util.toRadians = toRadians;
 
         function getPosition(el) {
             var oLeft = 0, oTop = 0;
@@ -817,6 +1270,7 @@ var ex;
     */
     var Sprite = (function () {
         function Sprite(image, sx, sy, swidth, sheight) {
+            var _this = this;
             this.sx = sx;
             this.sy = sy;
             this.swidth = swidth;
@@ -825,6 +1279,7 @@ var ex;
             this.scaleY = 1.0;
             this.rotation = 0.0;
             this.transformPoint = new ex.Point(0, 0);
+            this.logger = ex.Logger.getInstance();
             this.flipVertical = false;
             this.flipHorizontal = false;
             this.width = 0;
@@ -836,18 +1291,38 @@ var ex;
             this.pixelData = null;
             this.pixelsLoaded = false;
             this.dirtyEffect = false;
+            if (sx < 0 || sy < 0 || swidth < 0 || sheight < 0) {
+                this.logger.error("Sprite cannot have any negative dimensions x:", sx, "y:", sy, "width:", swidth, "height:", sheight);
+            }
+
             this.texture = image;
             this.spriteCanvas = document.createElement('canvas');
             this.spriteCanvas.width = swidth;
             this.spriteCanvas.height = sheight;
             this.spriteCtx = this.spriteCanvas.getContext('2d');
+            this.texture.loaded.then(function () {
+                _this.loadPixels();
+                _this.dirtyEffect = true;
+            }).error(function (e) {
+                _this.logger.error("Error loading texture ", _this.texture.path, e);
+            });
 
             this.width = swidth;
             this.height = sheight;
         }
         Sprite.prototype.loadPixels = function () {
             if (this.texture.isLoaded() && !this.pixelsLoaded) {
-                this.spriteCtx.drawImage(this.texture.image, this.sx, this.sy, this.swidth, this.sheight, 0, 0, this.swidth, this.sheight);
+                var clamp = ex.Util.clamp;
+                var naturalWidth = this.texture.image.naturalWidth || 0;
+                var naturalHeight = this.texture.image.naturalHeight || 0;
+
+                if (this.swidth > naturalWidth) {
+                    this.logger.warn("The sprite width", this.swidth, "exceeds the width", naturalWidth, "of the backing texture", this.texture.path);
+                }
+                if (this.sheight > naturalHeight) {
+                    this.logger.warn("The sprite height", this.sheight, "exceeds the height", naturalHeight, "of the backing texture", this.texture.path);
+                }
+                this.spriteCtx.drawImage(this.texture.image, clamp(this.sx, 0, naturalWidth), clamp(this.sy, 0, naturalHeight), clamp(this.swidth, 0, naturalWidth), clamp(this.sheight, 0, naturalHeight), 0, 0, this.swidth, this.sheight);
 
                 //this.pixelData = this.spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
                 this.internalImage.src = this.spriteCanvas.toDataURL("image/png");
@@ -862,6 +1337,25 @@ var ex;
         */
         Sprite.prototype.addEffect = function (effect) {
             this.effects.push(effect);
+
+            // We must check if the texture and the backing sprite pixels are loaded as well before
+            // an effect can be applied
+            if (!this.texture.isLoaded() || !this.pixelsLoaded) {
+                this.dirtyEffect = true;
+            } else {
+                this.applyEffects();
+            }
+        };
+
+        Sprite.prototype.removeEffect = function (param) {
+            var indexToRemove = null;
+            if (typeof param === 'number') {
+                indexToRemove = param;
+            } else {
+                indexToRemove = this.effects.indexOf(param);
+            }
+
+            this.effects.splice(indexToRemove, 1);
 
             // We must check if the texture and the backing sprite pixels are loaded as well before
             // an effect can be applied
@@ -979,7 +1473,6 @@ var ex;
         * @param y {number} The y coordinate of where to draw
         */
         Sprite.prototype.draw = function (ctx, x, y) {
-            this.loadPixels();
             if (this.dirtyEffect) {
                 this.applyEffects();
                 this.dirtyEffect = false;
@@ -987,12 +1480,9 @@ var ex;
 
             ctx.save();
 
-            //var translateX = this.aboutCenter?this.swidth*this.scale/2:0;
-            //var translateY = this.aboutCenter?this.sheight*this.scale/2:0;
-            ctx.translate(x + this.transformPoint.x, y + this.transformPoint.y);
+            ctx.translate(x, y);
             ctx.rotate(this.rotation);
 
-            //ctx.scale(this.scale, this.scale);
             if (this.flipHorizontal) {
                 ctx.translate(this.swidth, 0);
                 ctx.scale(-1, 1);
@@ -1003,7 +1493,7 @@ var ex;
                 ctx.scale(1, -1);
             }
             if (this.internalImage) {
-                ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, -this.transformPoint.x, -this.transformPoint.y, this.swidth * this.scaleX, this.sheight * this.scaleY);
+                ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, -(this.transformPoint.x * this.swidth) * this.scaleX, -(this.transformPoint.y * this.sheight) * this.scaleY, this.swidth * this.scaleX, this.sheight * this.scaleY);
             }
             ctx.restore();
         };
@@ -1601,7 +2091,7 @@ var ex;
         * @returns boolean
         */
         BoundingBox.prototype.contains = function (p) {
-            return (this.left < p.x && this.top < p.y && this.bottom > p.y && this.right > p.x);
+            return (this.left <= p.x && this.top <= p.y && this.bottom >= p.y && this.right >= p.x);
         };
 
         /**
@@ -2357,6 +2847,10 @@ var ex;
     ex.Scene = Scene;
 })(ex || (ex = {}));
 /// <reference path="Interfaces/IDrawable.ts" />
+/// <reference path="Modules/MovementModule.ts" />
+/// <reference path="Modules/OffscreenCullingModule.ts" />
+/// <reference path="Modules/EventPropagationModule.ts" />
+/// <reference path="Modules/CollisionDetectionModule.ts" />
 /// <reference path="Side.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util.ts" />
@@ -2540,7 +3034,7 @@ var ex;
             * default all actors participate in Active collisions.
             * @property collisionType {CollisionType}
             */
-            this.collisionType = 2 /* Active */;
+            this.collisionType = 0 /* PreventCollision */;
             this.collisionGroups = [];
             this._collisionHandlers = {};
             this._isInitialized = false;
@@ -2554,16 +3048,30 @@ var ex;
             this.currentDrawing = null;
             this.centerDrawingX = false;
             this.centerDrawingY = false;
+            /**
+            * Modify the current actor update pipeline.
+            *
+            *
+            */
+            this.pipeline = [];
             this._isKilled = false;
             this.x = x || 0;
             this.y = y || 0;
             this.width = width || 0;
             this.height = height || 0;
-            this.color = color;
             if (color) {
+                this.color = color.clone();
+
                 // set default opacticy of an actor to the color
-                this.opacity = color.a || 1;
+                this.opacity = color.a;
             }
+
+            // Build default pipeline
+            this.pipeline.push(new ex.MovementModule());
+            this.pipeline.push(new ex.CollisionDetectionModule());
+            this.pipeline.push(new ex.OffscreenCullingModule());
+            this.pipeline.push(new ex.EventPropagationModule());
+
             this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
             this.sceneNode = new ex.Scene();
             this.sceneNode.actor = this;
@@ -2591,6 +3099,15 @@ var ex;
             } else {
                 this.logger.warn("Cannot kill actor, it was never added to the Scene");
             }
+        };
+
+        /**
+        * Indicates wether the actor has been killed.
+        * @method isKilled
+        * @returns boolean
+        */
+        Actor.prototype.isKilled = function () {
+            return this._isKilled;
         };
 
         /**
@@ -2773,17 +3290,9 @@ var ex;
         * @returns number
         */
         Actor.prototype.getGlobalX = function () {
-            var previous;
-            var current = this.parent;
-            while (current) {
-                previous = current;
-                current = current.parent;
-            }
-            if (previous) {
-                return this.x + previous.x;
-            } else {
+            if (!this.parent)
                 return this.x;
-            }
+            return this.x * this.parent.scaleX + this.parent.getGlobalX();
         };
 
         /**
@@ -2792,17 +3301,21 @@ var ex;
         * @returns number
         */
         Actor.prototype.getGlobalY = function () {
-            var previous;
-            var current = this.parent;
-            while (current) {
-                previous = current;
-                current = current.parent;
-            }
-            if (previous) {
-                return this.y + previous.y;
-            } else {
+            if (!this.parent)
                 return this.y;
-            }
+            return this.y * this.parent.scaleY + this.parent.getGlobalY();
+        };
+
+        /**
+        * Gets the global scale of the Actor
+        * @method getGlobalScale
+        * @returns Point
+        */
+        Actor.prototype.getGlobalScale = function () {
+            if (!this.parent)
+                return new ex.Point(this.scaleX, this.scaleY);
+            var parentScale = this.parent.getGlobalScale();
+            return new ex.Point(this.scaleX * parentScale.x, this.scaleY * parentScale.y);
         };
 
         /**
@@ -2903,6 +3416,10 @@ var ex;
                 this._collisionHandlers[group] = [];
             }
             this._collisionHandlers[group].push(func);
+        };
+
+        Actor.prototype.getCollisionHandlers = function () {
+            return this._collisionHandlers;
         };
 
         /**
@@ -3153,13 +3670,26 @@ var ex;
         };
 
         /**
+        * Returns a promise that resolves when the current action queue up to now
+        * is finished.
+        * @method asPromise
+        * @returns Promise
+        */
+        Actor.prototype.asPromise = function () {
+            var complete = new ex.Promise();
+            this.callMethod(function () {
+                complete.resolve();
+            });
+            return complete;
+        };
+
+        /**
         * Called by the Engine, updates the state of the actor
         * @method update
         * @param engine {Engine} The reference to the current game engine
         * @param delta {number} The time elapsed since the last update in milliseconds
         */
         Actor.prototype.update = function (engine, delta) {
-            var _this = this;
             if (!this._isInitialized) {
                 this.onInitialize(engine);
                 this.eventDispatcher.publish('initialize', new ex.InitializeEvent(engine));
@@ -3175,144 +3705,9 @@ var ex;
             // Update action queue
             this.actionQueue.update(delta);
 
-            // Update placements based on linear algebra
-            this.x += this.dx * delta / 1000;
-            this.y += this.dy * delta / 1000;
-
-            this.dx += this.ax * delta / 1000;
-            this.dy += this.ay * delta / 1000;
-
-            this.rotation += this.rx * delta / 1000;
-
-            this.scaleX += this.sx * delta / 1000;
-            this.scaleY += this.sy * delta / 1000;
-
-            if (this.collisionType !== 0 /* PreventCollision */) {
-                // Retrieve the list of potential colliders, exclude killed, prevented, and self
-                var potentialColliders = engine.currentScene.children.filter(function (actor) {
-                    return !actor._isKilled && actor.collisionType !== 0 /* PreventCollision */ && _this !== actor;
-                });
-
-                for (var i = 0; i < potentialColliders.length; i++) {
-                    var intersectActor;
-                    var side;
-                    var collider = potentialColliders[i];
-
-                    if (intersectActor = this.collides(collider)) {
-                        side = this.getSideFromIntersect(intersectActor);
-                        this.scene.addCollisionPair(new ex.CollisionPair(this, collider, intersectActor, side));
-
-                        collider.collisionGroups.forEach(function (group) {
-                            if (_this._collisionHandlers[group]) {
-                                _this._collisionHandlers[group].forEach(function (handler) {
-                                    handler.call(_this, collider);
-                                });
-                            }
-                        });
-                    }
+            for (var i = 0; i < this.pipeline.length; i++) {
+                this.pipeline[i].update(this, engine, delta);
                 }
-
-                for (var j = 0; j < engine.currentScene.tileMaps.length; j++) {
-                    var map = engine.currentScene.tileMaps[j];
-                    var intersectMap;
-                    var side = 0 /* None */;
-                    var max = 2;
-                    var hasBounced = false;
-                    while (intersectMap = map.collides(this)) {
-                        if (max-- < 0) {
-                            break;
-                        }
-                        side = this.getSideFromIntersect(intersectMap);
-                        eventDispatcher.publish('collision', new ex.CollisionEvent(this, null, side, intersectMap));
-                        if ((this.collisionType === 2 /* Active */ || this.collisionType === 3 /* Elastic */) && collider.collisionType !== 1 /* Passive */) {
-                            this.y += intersectMap.y;
-                            this.x += intersectMap.x;
-
-                            // Naive elastic bounce
-                            if (this.collisionType === 3 /* Elastic */ && !hasBounced) {
-                                hasBounced = true;
-                                if (side === 3 /* Left */) {
-                                    this.dx = Math.abs(this.dx);
-                                } else if (side === 4 /* Right */) {
-                                    this.dx = -Math.abs(this.dx);
-                                } else if (side === 1 /* Top */) {
-                                    this.dy = Math.abs(this.dy);
-                                } else if (side === 2 /* Bottom */) {
-                                    this.dy = -Math.abs(this.dy);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Publish other events
-            engine.keys.forEach(function (key) {
-                eventDispatcher.publish(ex.InputKey[key], new ex.KeyEvent(key));
-            });
-
-            // Publish click events
-            engine.clicks.forEach(function (e) {
-                if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[10 /* Click */], new ex.Click(e.x, e.y, e.mouseEvent));
-                    eventDispatcher.publish(ex.EventType[3 /* MouseDown */], new ex.MouseDown(e.x, e.y, e.mouseEvent));
-                }
-            });
-
-            engine.mouseMove.forEach(function (e) {
-                if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[4 /* MouseMove */], new ex.MouseMove(e.x, e.y, e.mouseEvent));
-                }
-            });
-
-            engine.mouseUp.forEach(function (e) {
-                if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[5 /* MouseUp */], new ex.MouseUp(e.x, e.y, e.mouseEvent));
-                }
-            });
-
-            engine.touchStart.forEach(function (e) {
-                if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[6 /* TouchStart */], new ex.TouchStart(e.x, e.y));
-                }
-            });
-
-            engine.touchMove.forEach(function (e) {
-                if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[7 /* TouchMove */], new ex.TouchMove(e.x, e.y));
-                }
-            });
-
-            engine.touchEnd.forEach(function (e) {
-                if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[8 /* TouchEnd */], new ex.TouchEnd(e.x, e.y));
-                }
-            });
-
-            engine.touchCancel.forEach(function (e) {
-                if (_this.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[9 /* TouchCancel */], new ex.TouchCancel(e.x, e.y));
-                }
-            });
-
-            var anchor = this.calculatedAnchor;
-            var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Point(this.getGlobalX() - anchor.x, this.getGlobalY() - anchor.y));
-            var zoom = 1.0;
-            if (engine.camera) {
-                zoom = engine.camera.getZoom();
-            }
-
-            if (!this.isOffScreen) {
-                if (actorScreenCoords.x + this.getWidth() * zoom < 0 || actorScreenCoords.y + this.getHeight() * zoom < 0 || actorScreenCoords.x > engine.width || actorScreenCoords.y > engine.height) {
-                    eventDispatcher.publish('exitviewport', new ex.ExitViewPortEvent());
-                    this.isOffScreen = true;
-                }
-            } else {
-                if (actorScreenCoords.x + this.getWidth() * zoom > 0 && actorScreenCoords.y + this.getHeight() * zoom > 0 && actorScreenCoords.x < engine.width && actorScreenCoords.y < engine.height) {
-                    eventDispatcher.publish('enterviewport', new ex.EnterViewPortEvent());
-                    this.isOffScreen = false;
-                }
-            }
 
             eventDispatcher.publish(ex.EventType[16 /* Update */], new ex.UpdateEvent(delta));
         };
@@ -3357,10 +3752,10 @@ var ex;
 
                 this.currentDrawing.draw(ctx, -xDiff - anchorPoint.x, -yDiff - anchorPoint.y);
             } else {
-                if (this.color)
-                    this.color.a = this.opacity;
-                ctx.fillStyle = this.color ? this.color.toString() : (new ex.Color(0, 0, 0)).toString();
+                if (this.color) {
+                    ctx.fillStyle = this.color.toString();
                 ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this.width, this.height);
+            }
             }
 
             this.sceneNode.draw(ctx, delta);
@@ -4066,17 +4461,17 @@ var ex;
     * @param y {number} The y coordinate of the event
     * @param mouseEvent {MouseEvent} The native mouse event thrown
     */
-    var MouseDown = (function (_super) {
-        __extends(MouseDown, _super);
-        function MouseDown(x, y, mouseEvent) {
+    var MouseDownEvent = (function (_super) {
+        __extends(MouseDownEvent, _super);
+        function MouseDownEvent(x, y, mouseEvent) {
             _super.call(this);
             this.x = x;
             this.y = y;
             this.mouseEvent = mouseEvent;
         }
-        return MouseDown;
+        return MouseDownEvent;
     })(GameEvent);
-    ex.MouseDown = MouseDown;
+    ex.MouseDownEvent = MouseDownEvent;
 
     /**
     * Event thrown on a game object on MouseMove
@@ -4088,17 +4483,17 @@ var ex;
     * @param y {number} The y coordinate of the event
     * @param mouseEvent {MouseEvent} The native mouse event thrown
     */
-    var MouseMove = (function (_super) {
-        __extends(MouseMove, _super);
-        function MouseMove(x, y, mouseEvent) {
+    var MouseMoveEvent = (function (_super) {
+        __extends(MouseMoveEvent, _super);
+        function MouseMoveEvent(x, y, mouseEvent) {
             _super.call(this);
             this.x = x;
             this.y = y;
             this.mouseEvent = mouseEvent;
         }
-        return MouseMove;
+        return MouseMoveEvent;
     })(GameEvent);
-    ex.MouseMove = MouseMove;
+    ex.MouseMoveEvent = MouseMoveEvent;
 
     /**
     * Event thrown on a game object on MouseUp
@@ -4110,17 +4505,17 @@ var ex;
     * @param y {number} The y coordinate of the event
     * @param mouseEvent {MouseEvent} The native mouse event thrown
     */
-    var MouseUp = (function (_super) {
-        __extends(MouseUp, _super);
-        function MouseUp(x, y, mouseEvent) {
+    var MouseUpEvent = (function (_super) {
+        __extends(MouseUpEvent, _super);
+        function MouseUpEvent(x, y, mouseEvent) {
             _super.call(this);
             this.x = x;
             this.y = y;
             this.mouseEvent = mouseEvent;
         }
-        return MouseUp;
+        return MouseUpEvent;
     })(GameEvent);
-    ex.MouseUp = MouseUp;
+    ex.MouseUpEvent = MouseUpEvent;
 
     
 
@@ -4133,16 +4528,16 @@ var ex;
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    var TouchStart = (function (_super) {
-        __extends(TouchStart, _super);
-        function TouchStart(x, y) {
+    var TouchStartEvent = (function (_super) {
+        __extends(TouchStartEvent, _super);
+        function TouchStartEvent(x, y) {
             _super.call(this);
             this.x = x;
             this.y = y;
         }
-        return TouchStart;
+        return TouchStartEvent;
     })(GameEvent);
-    ex.TouchStart = TouchStart;
+    ex.TouchStartEvent = TouchStartEvent;
 
     /**
     * Event thrown on a game object on TouchMove
@@ -4153,16 +4548,16 @@ var ex;
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    var TouchMove = (function (_super) {
-        __extends(TouchMove, _super);
-        function TouchMove(x, y) {
+    var TouchMoveEvent = (function (_super) {
+        __extends(TouchMoveEvent, _super);
+        function TouchMoveEvent(x, y) {
             _super.call(this);
             this.x = x;
             this.y = y;
         }
-        return TouchMove;
+        return TouchMoveEvent;
     })(GameEvent);
-    ex.TouchMove = TouchMove;
+    ex.TouchMoveEvent = TouchMoveEvent;
 
     /**
     * Event thrown on a game object on TouchEnd
@@ -4173,16 +4568,16 @@ var ex;
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    var TouchEnd = (function (_super) {
-        __extends(TouchEnd, _super);
-        function TouchEnd(x, y) {
+    var TouchEndEvent = (function (_super) {
+        __extends(TouchEndEvent, _super);
+        function TouchEndEvent(x, y) {
             _super.call(this);
             this.x = x;
             this.y = y;
         }
-        return TouchEnd;
+        return TouchEndEvent;
     })(GameEvent);
-    ex.TouchEnd = TouchEnd;
+    ex.TouchEndEvent = TouchEndEvent;
 
     /**
     * Event thrown on a game object on TouchCancel
@@ -4193,16 +4588,16 @@ var ex;
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    var TouchCancel = (function (_super) {
-        __extends(TouchCancel, _super);
-        function TouchCancel(x, y) {
+    var TouchCancelEvent = (function (_super) {
+        __extends(TouchCancelEvent, _super);
+        function TouchCancelEvent(x, y) {
             _super.call(this);
             this.x = x;
             this.y = y;
         }
-        return TouchCancel;
+        return TouchCancelEvent;
     })(GameEvent);
-    ex.TouchCancel = TouchCancel;
+    ex.TouchCancelEvent = TouchCancelEvent;
 
     /**
     * Event thrown on a game object on Click
@@ -4213,17 +4608,17 @@ var ex;
     * @param x {number} The x coordinate of the event
     * @param y {number} The y coordinate of the event
     */
-    var Click = (function (_super) {
-        __extends(Click, _super);
-        function Click(x, y, mouseEvent) {
+    var ClickEvent = (function (_super) {
+        __extends(ClickEvent, _super);
+        function ClickEvent(x, y, mouseEvent) {
             _super.call(this);
             this.x = x;
             this.y = y;
             this.mouseEvent = mouseEvent;
         }
-        return Click;
+        return ClickEvent;
     })(GameEvent);
-    ex.Click = Click;
+    ex.ClickEvent = ClickEvent;
 })(ex || (ex = {}));
 /// <reference path="Events.ts" />
 var ex;
@@ -4374,6 +4769,15 @@ var ex;
                 return "rgba(" + result + ", " + String(this.a) + ")";
             }
             return "rgb(" + result + ")";
+        };
+
+        /**
+        * Returns a CSS string representation of a color.
+        * @method fillStyle
+        * @returns string
+        */
+        Color.prototype.fillStyle = function () {
+            return this.toString();
         };
 
         /**
@@ -4554,6 +4958,8 @@ var ex;
             this.position = new ex.Vector(0, 0);
             this.velocity = new ex.Vector(0, 0);
             this.acceleration = new ex.Vector(0, 0);
+            this.particleRotationalVelocity = 0;
+            this.currentRotation = 0;
             this.focus = null;
             this.focusAccel = 0;
             this.opacity = 1;
@@ -4627,10 +5033,17 @@ var ex;
                 this.velocity = this.velocity.add(this.acceleration.scale(delta / 1000));
             }
             this.position = this.position.add(this.velocity.scale(delta / 1000));
+
+            if (this.particleRotationalVelocity) {
+                this.currentRotation = (this.currentRotation + this.particleRotationalVelocity * delta / 1000) % (2 * Math.PI);
+            }
         };
 
         Particle.prototype.draw = function (ctx) {
             if (this.particleSprite) {
+                this.particleSprite.setRotation(this.currentRotation);
+                this.particleSprite.setScaleX(this.particleSize);
+                this.particleSprite.setScaleY(this.particleSize);
                 this.particleSprite.draw(ctx, this.position.x, this.position.y);
                 return;
             }
@@ -4778,6 +5191,16 @@ var ex;
             * @property [radius=0] {number}
             */
             this.radius = 0;
+            /**
+            * Gets or sets the particle rotational speed velocity
+            * @property [particleRotationalVelocity=0] {number}
+            */
+            this.particleRotationalVelocity = 0;
+            /**
+            * Indicates whether particles should start with a random rotation
+            * @property [randomRotation=false] {boolean}
+            */
+            this.randomRotation = false;
             this.collisionType = 0 /* PreventCollision */;
             this.particles = new ex.Util.Collection();
             this.deadParticles = new ex.Util.Collection();
@@ -4825,7 +5248,13 @@ var ex;
             var p = new Particle(this, this.particleLife, this.opacity, this.beginColor, this.endColor, new ex.Vector(ranX, ranY), new ex.Vector(dx, dy), this.acceleration, this.startSize, this.endSize);
             p.fadeFlag = this.fadeFlag;
             p.particleSize = size;
+            if (this.particleSprite) {
             p.particleSprite = this.particleSprite;
+            }
+            p.particleRotationalVelocity = this.particleRotationalVelocity;
+            if (this.randomRotation) {
+                p.currentRotation = ex.Util.randomInRange(0, Math.PI * 2);
+            }
             if (this.focus) {
                 p.focus = this.focus.add(new ex.Vector(this.x, this.y));
                 p.focusAccel = this.focusAccel;
@@ -4923,6 +5352,12 @@ var ex;
             }
         };
 
+        Animation.prototype.removeEffect = function (param) {
+            for (var i in this.sprites) {
+                this.sprites[i].removeEffect(param);
+            }
+        };
+
         Animation.prototype.clearEffects = function () {
             for (var i in this.sprites) {
                 this.sprites[i].clearEffects();
@@ -4998,6 +5433,15 @@ var ex;
             }
         };
 
+        /**
+        * Skips ahead a specified number of frames in the animation
+        * @method skip
+        * @param frames {number} Frames to skip ahead
+        */
+        Animation.prototype.skip = function (frames) {
+            this.currIndex = (this.currIndex + frames) % this.sprites.length;
+        };
+
         Animation.prototype.draw = function (ctx, x, y) {
             this.tick();
             if (this.currIndex < this.sprites.length) {
@@ -5044,6 +5488,13 @@ var ex;
     var BaseCamera = (function () {
         function BaseCamera(engine) {
             this.focus = new ex.Point(0, 0);
+            this.lerp = false;
+            this._cameraMoving = false;
+            this._currentLerpTime = 0;
+            this._lerpDuration = 1 * 1000;
+            this._totalLerpTime = 0;
+            this._lerpStart = null;
+            this._lerpEnd = null;
             //camera effects
             this.isShaking = false;
             this.shakeMagnitudeX = 0;
@@ -5058,6 +5509,15 @@ var ex;
             this.zoomIncrement = 0.01;
             this.engine = engine;
         }
+        BaseCamera.prototype.easeInOutCubic = function (currentTime, startValue, endValue, duration) {
+            endValue = (endValue - startValue);
+            currentTime /= duration / 2;
+            if (currentTime < 1)
+                return endValue / 2 * currentTime * currentTime * currentTime + startValue;
+            currentTime -= 2;
+            return endValue / 2 * (currentTime * currentTime * currentTime + 2) + startValue;
+        };
+
         /**
         * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
         * @method setActorToFollow
@@ -5073,12 +5533,7 @@ var ex;
         * @returns Point
         */
         BaseCamera.prototype.getFocus = function () {
-            // this should always be overridden
-            if (this.follow) {
-                return new ex.Point(0, 0);
-            } else {
                 return this.focus;
-            }
         };
 
         /**
@@ -5088,9 +5543,16 @@ var ex;
         * @param y {number} The y coordinate of the focal point
         */
         BaseCamera.prototype.setFocus = function (x, y) {
-            if (!this.follow) {
+            if (!this.follow && !this.lerp) {
                 this.focus.x = x;
                 this.focus.y = y;
+            }
+
+            if (this.lerp) {
+                this._lerpStart = this.focus.clone();
+                this._lerpEnd = new ex.Point(x, y);
+                this._currentLerpTime = 0;
+                this._cameraMoving = true;
             }
         };
 
@@ -5168,6 +5630,28 @@ var ex;
             var newCanvasWidth = canvasWidth * this.getZoom();
             var newCanvasHeight = canvasHeight * this.getZoom();
 
+            if (this.lerp) {
+                if (this._currentLerpTime < this._lerpDuration && this._cameraMoving) {
+                    if (this._lerpEnd.x < this._lerpStart.x) {
+                        this.focus.x = this._lerpStart.x - (this.easeInOutCubic(this._currentLerpTime, this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
+                    } else {
+                        this.focus.x = this.easeInOutCubic(this._currentLerpTime, this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
+                    }
+
+                    if (this._lerpEnd.y < this._lerpStart.y) {
+                        this.focus.y = this._lerpStart.y - (this.easeInOutCubic(this._currentLerpTime, this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
+                    } else {
+                        this.focus.y = this.easeInOutCubic(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
+                    }
+                    this._currentLerpTime += delta;
+                } else {
+                    this._lerpStart = null;
+                    this._lerpEnd = null;
+                    this._currentLerpTime = 0;
+                    this._cameraMoving = false;
+                }
+            }
+
             if (this.isDoneShaking()) {
                 this.isShaking = false;
                 this.elapsedShakeTime = 0;
@@ -5180,7 +5664,7 @@ var ex;
                 yShake = (Math.random() * this.shakeMagnitudeY | 0) + 1;
             }
 
-            this.engine.ctx.translate(focus.x + xShake, focus.y + yShake);
+            this.engine.ctx.translate(-focus.x + xShake + (newCanvasWidth / 2), -focus.y + yShake + (newCanvasHeight / 2));
 
             if (this.isDoneZooming()) {
                 this.isZooming = false;
@@ -5193,15 +5677,14 @@ var ex;
                 this.setCurrentZoomScale(this.getZoom() + this.zoomIncrement * delta / 1000);
             }
 
-            //this.engine.ctx.translate(-((newCanvasWidth - canvasWidth)/2), -((newCanvasHeight - canvasHeight)/2));
             this.engine.ctx.scale(this.getZoom(), this.getZoom());
         };
 
         BaseCamera.prototype.debugDraw = function (ctx) {
             var focus = this.getFocus();
-            ctx.fillStyle = 'yellow';
+            ctx.fillStyle = 'red';
             ctx.beginPath();
-            ctx.arc(this.follow.x + this.follow.getWidth() / 2, 0, 15, 0, Math.PI * 2);
+            ctx.arc(focus.x, focus.y, 15, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fill();
         };
@@ -5237,15 +5720,9 @@ var ex;
         function SideCamera() {
             _super.apply(this, arguments);
         }
-        /**
-        * Returns the focal point of the camera in world space
-        * @method getFocus
-        * @returns point
-        */
         SideCamera.prototype.getFocus = function () {
             if (this.follow) {
-                // return new Point(-this.follow.x + this.engine.width / 2.0, 0);
-                return new ex.Point(((-this.follow.x - this.follow.getWidth() / 2) * this.getZoom()) + (this.engine.getWidth() * this.getZoom()) / 2.0, 0);
+                return new ex.Point(this.follow.x + this.follow.getWidth() / 2, this.focus.y);
             } else {
                 return this.focus;
             }
@@ -5266,14 +5743,9 @@ var ex;
         function TopCamera() {
             _super.apply(this, arguments);
         }
-        /**
-        * Returns the focal point of the camera in world space
-        * @method getFocus
-        * @returns Point
-        */
         TopCamera.prototype.getFocus = function () {
             if (this.follow) {
-                return new ex.Point(((-this.follow.x - this.follow.getWidth() / 2) * this.getZoom()) + (this.engine.getWidth() * this.getZoom()) / 2.0, ((-this.follow.y - this.follow.getHeight() / 2) * this.getZoom()) + (this.engine.getHeight() * this.getZoom()) / 2.0);
+                return new ex.Point(this.follow.x + this.follow.getWidth() / 2, this.follow.y + this.follow.getHeight() / 2);
             } else {
                 return this.focus;
             }
@@ -5554,6 +6026,50 @@ var ex;
         };
 
         /**
+        * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
+        * when at least 1 promise rejects.
+        * @param promises {Promise[]}
+        * @returns Promise
+        */
+        Promise.join = function () {
+            var promises = [];
+            for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                promises[_i] = arguments[_i + 0];
+            }
+            var joinedPromise = new Promise();
+            if (!promises) {
+                return joinedPromise.resolve();
+            }
+
+            var total = promises.length;
+            var successes = 0;
+            var rejects = 0;
+            var errors = [];
+            promises.forEach(function (p) {
+                p.then(function () {
+                    successes += 1;
+                    if (successes === total) {
+                        joinedPromise.resolve();
+                    } else if (successes + rejects + errors.length === total) {
+                        joinedPromise.reject(errors);
+                    }
+                }, function () {
+                    rejects += 1;
+                    if (successes + rejects + errors.length === total) {
+                        joinedPromise.reject(errors);
+                    }
+                }).error(function (e) {
+                    errors.push(e);
+                    if ((errors.length + successes + rejects) === total) {
+                        joinedPromise.reject(errors);
+                    }
+                });
+            });
+
+            return joinedPromise;
+        };
+
+        /**
         * Chain success and reject callbacks after the promise is resovled
         * @method then
         * @param successCallback {T=>any} Call on resolution of promise
@@ -5657,30 +6173,30 @@ var ex;
         Promise.prototype.handleError = function (e) {
             if (this.errorCallback) {
                 this.errorCallback.call(this, e);
+            } else {
+                throw e;
             }
         };
         return Promise;
     })();
     ex.Promise = Promise;
 })(ex || (ex = {}));
-/// <reference path="Sound.ts" />
-/// <reference path="Util.ts" />
-/// <reference path="Promises.ts" />
+/// <reference path="Interfaces/ILoadable.ts" />
 var ex;
 (function (ex) {
-    
-
     /**
-    * The Texture object allows games built in Excalibur to load image resources.
-    * It is generally recommended to preload images using the "Texture" object.
-    * @class Texture
+    * The Resource type allows games built in Excalibur to load generic resources.
+    * For any type of remote resource it is recome
+    * @class Resource
     * @extend ILoadable
     * @constructor
-    * @param path {string} Path to the image resource
+    * @param path {string} Path to the remote resource
     */
-    var Texture = (function () {
-        function Texture(path) {
+    var Resource = (function () {
+        function Resource(path, responseType) {
             this.path = path;
+            this.responseType = responseType;
+            this.data = null;
             this.logger = ex.Logger.getInstance();
             this.onprogress = function () {
             };
@@ -5689,10 +6205,111 @@ var ex;
             this.onerror = function () {
             };
         }
-        Texture.prototype._start = function (e) {
-            this.logger.debug("Started loading image " + this.path);
+        /**
+        * Returns true if the Resource is completely loaded and is ready
+        * to be drawn.
+        * @method isLoaded
+        * @returns boolean
+        */
+        Resource.prototype.isLoaded = function () {
+            return !!this.data;
         };
 
+        Resource.prototype.cacheBust = function (uri) {
+            var query = /\?\w*=\w*/;
+            if (query.test(uri)) {
+                uri += ("&__=" + Date.now());
+            } else {
+                uri += ("?__=" + Date.now());
+            }
+            return uri;
+        };
+
+        Resource.prototype._start = function (e) {
+            this.logger.debug("Started loading resource " + this.path);
+        };
+
+        /**
+        * Begin loading the resource and returns a promise to be resolved on completion
+        * @method load
+        * @returns Promise&lt;any&gt;
+        */
+        Resource.prototype.load = function () {
+            var _this = this;
+            var complete = new ex.Promise();
+
+            var request = new XMLHttpRequest();
+            request.open("GET", this.cacheBust(this.path), true);
+            request.responseType = this.responseType;
+            request.onloadstart = function (e) {
+                _this._start(e);
+            };
+            request.onprogress = this.onprogress;
+            request.onerror = this.onerror;
+            request.onload = function (e) {
+                if (request.status !== 200) {
+                    _this.logger.error("Failed to load resource ", _this.path, " server responded with error code", request.status);
+                    _this.onerror(request.response);
+                    complete.resolve(request.response);
+                    return;
+                }
+
+                _this.data = _this.processDownload(request.response);
+
+                _this.oncomplete();
+                _this.logger.debug("Completed loading resource", _this.path);
+                complete.resolve(_this.data);
+            };
+            request.send();
+
+            return complete;
+        };
+
+        /**
+        * Returns the loaded data once the resource is loaded
+        * @method GetData
+        * @returns any
+        */
+        Resource.prototype.getData = function () {
+            return this.data;
+        };
+
+        /**
+        * This method is meant to be overriden to handle any additional
+        * processing. Such as decoding downloaded audio bits.
+        * @method ProcessDownload
+        */
+        Resource.prototype.processDownload = function (data) {
+            // Handle any additional loading after the xhr has completed.
+            return URL.createObjectURL(data);
+            };
+        return Resource;
+    })();
+    ex.Resource = Resource;
+})(ex || (ex = {}));
+/// <reference path="Sound.ts" />
+/// <reference path="Util.ts" />
+/// <reference path="Promises.ts" />
+/// <reference path="Resource.ts" />
+/// <reference path="Interfaces/ILoadable.ts" />
+var ex;
+(function (ex) {
+    /**
+    * The Texture object allows games built in Excalibur to load image resources.
+    * It is generally recommended to preload images using the "Texture" object.
+    * @class Texture
+    * @extend Resource
+    * @constructor
+    * @param path {string} Path to the image resource
+    */
+    var Texture = (function (_super) {
+        __extends(Texture, _super);
+        function Texture(path) {
+            _super.call(this, path, 'blob');
+            this.path = path;
+            this.loaded = new ex.Promise();
+            this._isLoaded = false;
+            }
         /**
         * Returns true if the Texture is completely loaded and is ready
         * to be drawn.
@@ -5700,7 +6317,7 @@ var ex;
         * @returns boolean
         */
         Texture.prototype.isLoaded = function () {
-            return (!!this.image && !!this.image.src);
+            return this._isLoaded;
         };
 
         /**
@@ -5712,37 +6329,22 @@ var ex;
             var _this = this;
             var complete = new ex.Promise();
 
-            this.image = new Image();
-            var request = new XMLHttpRequest();
-            request.open("GET", this.path, true);
-            request.responseType = "blob";
-            request.onloadstart = function (e) {
-                _this._start(e);
-            };
-            request.onprogress = this.onprogress;
-            request.onerror = this.onerror;
-            request.onload = function (e) {
-                if (request.status !== 200) {
-                    _this.logger.error("Failed to load image resource ", _this.path, " server responded with error code", request.status);
-                    _this.onerror(request.response);
-                    complete.resolve(request.response);
-                    return;
-                }
-
-                _this.image.src = URL.createObjectURL(request.response);
-                _this.oncomplete();
-                _this.logger.debug("Completed loading image", _this.path);
-                complete.resolve(_this.image);
-            };
-            if (request.overrideMimeType) {
-                request.overrideMimeType('text/plain; charset=x-user-defined');
-            }
-            request.send();
-
+            var loaded = _super.prototype.load.call(this);
+            loaded.then(function () {
+                _this.image = new Image();
+                _this.image.addEventListener("load", function () {
+                    _this._isLoaded = true;
+                    _this.loaded.resolve(_this.image);
+                    complete.resolve(_this.image);
+                });
+                _this.image.src = _super.prototype.getData.call(_this);
+            }, function () {
+                complete.reject("Error loading texture.");
+            });
             return complete;
         };
         return Texture;
-    })();
+    })(ex.Resource);
     ex.Texture = Texture;
 
     /**
@@ -5750,7 +6352,7 @@ var ex;
     * components, from soundtracks to sound effects. It is generally
     * recommended to load sound resources when using Excalibur
     * @class Sound
-    * @extend ILoadable
+    * @extend Resource
     * @constructor
     * @param ...paths {string[]} A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
     */
@@ -7088,8 +7690,8 @@ var ex;
 
             if (this.camera) {
                 var focus = this.camera.getFocus();
-                newX -= focus.x;
-                newY -= focus.y;
+                newX = focus.x + (point.x - (this.getWidth() / 2));
+                newY = focus.y + (point.y - (this.getHeight() / 2));
             }
 
             newX = Math.floor((newX / this.canvas.clientWidth) * this.getWidth());
@@ -7112,8 +7714,8 @@ var ex;
             if (this.camera) {
                 var focus = this.camera.getFocus();
 
-                screenX += focus.x * (this.getWidth() / this.canvas.clientWidth);
-                screenY += focus.y * (this.getHeight() / this.canvas.clientHeight);
+                screenX = (point.x - focus.x) + (this.getWidth() / 2); //(this.getWidth() / this.canvas.clientWidth);
+                screenY = (point.y - focus.y) + (this.getHeight() / 2); // (this.getHeight() / this.canvas.clientHeight);
             }
 
             screenX = Math.floor((screenX / this.getWidth()) * this.canvas.clientWidth);
@@ -7198,7 +7800,7 @@ var ex;
                 var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
                 var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
                 var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var mousedown = new ex.MouseDown(transformedPoint.x, transformedPoint.y, e);
+                var mousedown = new ex.MouseDownEvent(transformedPoint.x, transformedPoint.y, e);
                 _this.mouseDown.push(mousedown);
                 _this.clicks.push(mousedown);
                 _this.eventDispatcher.publish(ex.EventType[3 /* MouseDown */], mousedown);
@@ -7208,7 +7810,7 @@ var ex;
                 var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
                 var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
                 var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var mousemove = new ex.MouseMove(transformedPoint.x, transformedPoint.y, e);
+                var mousemove = new ex.MouseMoveEvent(transformedPoint.x, transformedPoint.y, e);
                 _this.mouseMove.push(mousemove);
                 _this.eventDispatcher.publish(ex.EventType[4 /* MouseMove */], mousemove);
             });
@@ -7217,7 +7819,7 @@ var ex;
                 var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
                 var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
                 var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var mouseup = new ex.MouseUp(transformedPoint.x, transformedPoint.y, e);
+                var mouseup = new ex.MouseUpEvent(transformedPoint.x, transformedPoint.y, e);
                 _this.mouseUp.push(mouseup);
                 _this.eventDispatcher.publish(ex.EventType[5 /* MouseUp */], mouseup);
             });
@@ -7231,7 +7833,7 @@ var ex;
                 var x = te.changedTouches[0].pageX - ex.Util.getPosition(_this.canvas).x;
                 var y = te.changedTouches[0].pageY - ex.Util.getPosition(_this.canvas).y;
                 var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var touchstart = new ex.TouchStart(transformedPoint.x, transformedPoint.y);
+                var touchstart = new ex.TouchStartEvent(transformedPoint.x, transformedPoint.y);
                 _this.touchStart.push(touchstart);
                 _this.eventDispatcher.publish(ex.EventType[6 /* TouchStart */], touchstart);
             });
@@ -7242,7 +7844,7 @@ var ex;
                 var x = te.changedTouches[0].pageX - ex.Util.getPosition(_this.canvas).x;
                 var y = te.changedTouches[0].pageY - ex.Util.getPosition(_this.canvas).y;
                 var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var touchmove = new ex.TouchMove(transformedPoint.x, transformedPoint.y);
+                var touchmove = new ex.TouchMoveEvent(transformedPoint.x, transformedPoint.y);
                 _this.touchMove.push(touchmove);
                 _this.eventDispatcher.publish(ex.EventType[7 /* TouchMove */], touchmove);
             });
@@ -7253,7 +7855,7 @@ var ex;
                 var x = te.changedTouches[0].pageX - ex.Util.getPosition(_this.canvas).x;
                 var y = te.changedTouches[0].pageY - ex.Util.getPosition(_this.canvas).y;
                 var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var touchend = new ex.TouchEnd(transformedPoint.x, transformedPoint.y);
+                var touchend = new ex.TouchEndEvent(transformedPoint.x, transformedPoint.y);
                 _this.touchEnd.push(touchend);
                 _this.eventDispatcher.publish(ex.EventType[8 /* TouchEnd */], touchend);
             });
@@ -7264,7 +7866,7 @@ var ex;
                 var x = te.changedTouches[0].pageX - ex.Util.getPosition(_this.canvas).x;
                 var y = te.changedTouches[0].pageY - ex.Util.getPosition(_this.canvas).y;
                 var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var touchcancel = new ex.TouchCancel(transformedPoint.x, transformedPoint.y);
+                var touchcancel = new ex.TouchCancelEvent(transformedPoint.x, transformedPoint.y);
                 _this.touchCancel.push(touchcancel);
                 _this.eventDispatcher.publish(ex.EventType[9 /* TouchCancel */], touchcancel);
             });
@@ -7279,7 +7881,7 @@ var ex;
                     var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
                     var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
                     var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                    var touchstart = new ex.TouchStart(transformedPoint.x, transformedPoint.y);
+                    var touchstart = new ex.TouchStartEvent(transformedPoint.x, transformedPoint.y);
                     _this.touchStart.push(touchstart);
                     _this.eventDispatcher.publish(ex.EventType[6 /* TouchStart */], touchstart);
                 });
@@ -7292,7 +7894,7 @@ var ex;
                     var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
                     var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
                     var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                    var touchmove = new ex.TouchMove(transformedPoint.x, transformedPoint.y);
+                    var touchmove = new ex.TouchMoveEvent(transformedPoint.x, transformedPoint.y);
                     _this.touchMove.push(touchmove);
                     _this.eventDispatcher.publish(ex.EventType[7 /* TouchMove */], touchmove);
                 });
@@ -7305,7 +7907,7 @@ var ex;
                     var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
                     var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
                     var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                    var touchend = new ex.TouchEnd(transformedPoint.x, transformedPoint.y);
+                    var touchend = new ex.TouchEndEvent(transformedPoint.x, transformedPoint.y);
                     _this.touchEnd.push(touchend);
                     _this.eventDispatcher.publish(ex.EventType[8 /* TouchEnd */], touchend);
                 });
@@ -7485,6 +8087,8 @@ var ex;
             var loadingComplete;
             if (loader) {
                 loadingComplete = this.load(loader);
+            } else {
+                loadingComplete = ex.Promise.wrap();
             }
 
             if (!this.hasStarted) {
@@ -7621,877 +8225,10 @@ var ex;
     ex.Engine = Engine;
     ;
 })(ex || (ex = {}));
-/// <reference path="Algebra.ts" />
-/// <reference path="Engine.ts" />
-/// <reference path="Actor.ts" />
-var ex;
-(function (ex) {
-    (function (Internal) {
-        (function (Actions) {
-            var MoveTo = (function () {
-                function MoveTo(actor, destx, desty, speed) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.end = new ex.Vector(destx, desty);
-                    this.speed = speed;
-                }
-                MoveTo.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.start = new ex.Vector(this.actor.x, this.actor.y);
-                        this.distance = this.start.distance(this.end);
-                        this.dir = this.end.minus(this.start).normalize();
-                    }
-                    var m = this.dir.scale(this.speed);
-                    this.actor.dx = m.x;
-                    this.actor.dy = m.y;
-
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.x = this.end.x;
-                        this.actor.y = this.end.y;
-                        this.actor.dy = 0;
-                        this.actor.dx = 0;
-                    }
-                };
-
-                MoveTo.prototype.isComplete = function (actor) {
-                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this.start) >= this.distance;
-                };
-
-                MoveTo.prototype.stop = function () {
-                    this.actor.dy = 0;
-                    this.actor.dx = 0;
-                    this._stopped = true;
-                };
-
-                MoveTo.prototype.reset = function () {
-                    this._started = false;
-                };
-                return MoveTo;
-            })();
-            Actions.MoveTo = MoveTo;
-
-            var MoveBy = (function () {
-                function MoveBy(actor, destx, desty, time) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.end = new ex.Vector(destx, desty);
-                    if (time <= 0) {
-                        ex.Logger.getInstance().error("Attempted to moveBy time less than or equal to zero : " + time);
-                        throw new Error("Cannot move in time <= 0");
-                    }
-                    this.time = time;
-                }
-                MoveBy.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.start = new ex.Vector(this.actor.x, this.actor.y);
-                        this.distance = this.start.distance(this.end);
-                        this.dir = this.end.minus(this.start).normalize();
-                        this.speed = this.distance / (this.time / 1000);
-                    }
-
-                    var m = this.dir.scale(this.speed);
-                    this.actor.dx = m.x;
-                    this.actor.dy = m.y;
-
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.x = this.end.x;
-                        this.actor.y = this.end.y;
-                        this.actor.dy = 0;
-                        this.actor.dx = 0;
-                    }
-                };
-
-                MoveBy.prototype.isComplete = function (actor) {
-                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this.start) >= this.distance;
-                };
-
-                MoveBy.prototype.stop = function () {
-                    this.actor.dy = 0;
-                    this.actor.dx = 0;
-                    this._stopped = true;
-                };
-
-                MoveBy.prototype.reset = function () {
-                    this._started = false;
-                };
-                return MoveBy;
-            })();
-            Actions.MoveBy = MoveBy;
-
-            var Follow = (function () {
-                function Follow(actor, actorToFollow, followDistance) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.actorToFollow = actorToFollow;
-                    this.current = new ex.Vector(this.actor.x, this.actor.y);
-                    this.end = new ex.Vector(actorToFollow.x, actorToFollow.y);
-                    this.maximumDistance = (followDistance != undefined) ? followDistance : this.current.distance(this.end);
-                    this.speed = 0;
-                }
-                Follow.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.distanceBetween = this.current.distance(this.end);
-                        this.dir = this.end.minus(this.current).normalize();
-                    }
-
-                    var actorToFollowSpeed = Math.sqrt(Math.pow(this.actorToFollow.dx, 2) + Math.pow(this.actorToFollow.dy, 2));
-                    if (actorToFollowSpeed != 0) {
-                        this.speed = actorToFollowSpeed;
-                    }
-                    this.current.x = this.actor.x;
-                    this.current.y = this.actor.y;
-
-                    this.end.x = this.actorToFollow.x;
-                    this.end.y = this.actorToFollow.y;
-                    this.distanceBetween = this.current.distance(this.end);
-                    this.dir = this.end.minus(this.current).normalize();
-
-                    if (this.distanceBetween >= this.maximumDistance) {
-                        var m = this.dir.scale(this.speed);
-                        this.actor.dx = m.x;
-                        this.actor.dy = m.y;
-                    } else {
-                        this.actor.dx = 0;
-                        this.actor.dy = 0;
-                    }
-
-                    if (this.isComplete(this.actor)) {
-                        // TODO this should never occur
-                        this.actor.x = this.end.x;
-                        this.actor.y = this.end.y;
-                        this.actor.dy = 0;
-                        this.actor.dx = 0;
-                    }
-                };
-
-                Follow.prototype.stop = function () {
-                    this.actor.dy = 0;
-                    this.actor.dx = 0;
-                    this._stopped = true;
-                };
-
-                Follow.prototype.isComplete = function (actor) {
-                    // the actor following should never stop unless specified to do so
-                    return this._stopped;
-                };
-
-                Follow.prototype.reset = function () {
-                    this._started = false;
-                };
-                return Follow;
-            })();
-            Actions.Follow = Follow;
-
-            var Meet = (function () {
-                function Meet(actor, actorToMeet, speed) {
-                    this._started = false;
-                    this._stopped = false;
-                    this._speedWasSpecified = false;
-                    this.actor = actor;
-                    this.actorToMeet = actorToMeet;
-                    this.current = new ex.Vector(this.actor.x, this.actor.y);
-                    this.end = new ex.Vector(actorToMeet.x, actorToMeet.y);
-                    this.speed = speed || 0;
-
-                    if (speed != undefined) {
-                        this._speedWasSpecified = true;
-                    }
-                }
-                Meet.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.distanceBetween = this.current.distance(this.end);
-                        this.dir = this.end.minus(this.current).normalize();
-                    }
-
-                    var actorToMeetSpeed = Math.sqrt(Math.pow(this.actorToMeet.dx, 2) + Math.pow(this.actorToMeet.dy, 2));
-                    if ((actorToMeetSpeed != 0) && (!this._speedWasSpecified)) {
-                        this.speed = actorToMeetSpeed;
-                    }
-                    this.current.x = this.actor.x;
-                    this.current.y = this.actor.y;
-
-                    this.end.x = this.actorToMeet.x;
-                    this.end.y = this.actorToMeet.y;
-                    this.distanceBetween = this.current.distance(this.end);
-                    this.dir = this.end.minus(this.current).normalize();
-
-                    var m = this.dir.scale(this.speed);
-                    this.actor.dx = m.x;
-                    this.actor.dy = m.y;
-
-                    if (this.isComplete(this.actor)) {
-                        // console.log("meeting is complete")
-                        this.actor.x = this.end.x;
-                        this.actor.y = this.end.y;
-                        this.actor.dy = 0;
-                        this.actor.dx = 0;
-                    }
-                };
-
-                Meet.prototype.isComplete = function (actor) {
-                    return this._stopped || (this.distanceBetween <= 1);
-                };
-
-                Meet.prototype.stop = function () {
-                    this.actor.dy = 0;
-                    this.actor.dx = 0;
-                    this._stopped = true;
-                };
-
-                Meet.prototype.reset = function () {
-                    this._started = false;
-                };
-                return Meet;
-            })();
-            Actions.Meet = Meet;
-
-            var RotateTo = (function () {
-                function RotateTo(actor, angleRadians, speed) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.end = angleRadians;
-                    this.speed = speed;
-                }
-                RotateTo.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.start = this.actor.rotation;
-                        this.distance = Math.abs(this.end - this.start);
-                    }
-                    this.actor.rx = this.speed;
-
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.rotation = this.end;
-                        this.actor.rx = 0;
-                    }
-                };
-
-                RotateTo.prototype.isComplete = function (actor) {
-                    return this._stopped || (Math.abs(this.actor.rotation - this.start) >= this.distance);
-                };
-
-                RotateTo.prototype.stop = function () {
-                    this.actor.rx = 0;
-                    this._stopped = true;
-                };
-
-                RotateTo.prototype.reset = function () {
-                    this._started = false;
-                };
-                return RotateTo;
-            })();
-            Actions.RotateTo = RotateTo;
-
-            var RotateBy = (function () {
-                function RotateBy(actor, angleRadians, time) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.end = angleRadians;
-                    this.time = time;
-                    this.speed = (this.end - this.actor.rotation) / time * 1000;
-                }
-                RotateBy.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.start = this.actor.rotation;
-                        this.distance = Math.abs(this.end - this.start);
-                    }
-                    this.actor.rx = this.speed;
-
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.rotation = this.end;
-                        this.actor.rx = 0;
-                    }
-                };
-
-                RotateBy.prototype.isComplete = function (actor) {
-                    return this._stopped || (Math.abs(this.actor.rotation - this.start) >= this.distance);
-                };
-
-                RotateBy.prototype.stop = function () {
-                    this.actor.rx = 0;
-                    this._stopped = true;
-                };
-
-                RotateBy.prototype.reset = function () {
-                    this._started = false;
-                };
-                return RotateBy;
-            })();
-            Actions.RotateBy = RotateBy;
-
-            var ScaleTo = (function () {
-                function ScaleTo(actor, scaleX, scaleY, speedX, speedY) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.endX = scaleX;
-                    this.endY = scaleY;
-                    this.speedX = speedX;
-                    this.speedY = speedY;
-                }
-                ScaleTo.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.startX = this.actor.scaleX;
-                        this.startY = this.actor.scaleY;
-                        this.distanceX = Math.abs(this.endX - this.startX);
-                        this.distanceY = Math.abs(this.endY - this.startY);
-                    }
-
-                    if (!(Math.abs(this.actor.scaleX - this.startX) >= this.distanceX)) {
-                        var directionX = this.endY < this.startY ? -1 : 1;
-                        this.actor.sx = this.speedX * directionX;
-                    } else {
-                        this.actor.sx = 0;
-                    }
-
-                    if (!(Math.abs(this.actor.scaleY - this.startY) >= this.distanceY)) {
-                        var directionY = this.endY < this.startY ? -1 : 1;
-                        this.actor.sy = this.speedY * directionY;
-                    } else {
-                        this.actor.sy = 0;
-                    }
-
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.scaleX = this.endX;
-                        this.actor.scaleY = this.endY;
-                        this.actor.sx = 0;
-                        this.actor.sy = 0;
-                    }
-                };
-
-                ScaleTo.prototype.isComplete = function (actor) {
-                    return this._stopped || ((Math.abs(this.actor.scaleX - this.startX) >= this.distanceX) && (Math.abs(this.actor.scaleY - this.startY) >= this.distanceY));
-                };
-
-                ScaleTo.prototype.stop = function () {
-                    this.actor.sx = 0;
-                    this.actor.sy = 0;
-                    this._stopped = true;
-                };
-
-                ScaleTo.prototype.reset = function () {
-                    this._started = false;
-                };
-                return ScaleTo;
-            })();
-            Actions.ScaleTo = ScaleTo;
-
-            var ScaleBy = (function () {
-                function ScaleBy(actor, scaleX, scaleY, time) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.endX = scaleX;
-                    this.endY = scaleY;
-                    this.time = time;
-                    this.speedX = (this.endX - this.actor.scaleX) / time * 1000;
-                    this.speedY = (this.endY - this.actor.scaleY) / time * 1000;
-                }
-                ScaleBy.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.startX = this.actor.scaleX;
-                        this.startY = this.actor.scaleY;
-                        this.distanceX = Math.abs(this.endX - this.startX);
-                        this.distanceY = Math.abs(this.endY - this.startY);
-                    }
-                    var directionX = this.endX < this.startX ? -1 : 1;
-                    var directionY = this.endY < this.startY ? -1 : 1;
-                    this.actor.sx = this.speedX * directionX;
-                    this.actor.sy = this.speedY * directionY;
-
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.scaleX = this.endX;
-                        this.actor.scaleY = this.endY;
-                        this.actor.sx = 0;
-                        this.actor.sy = 0;
-                    }
-                };
-
-                ScaleBy.prototype.isComplete = function (actor) {
-                    return this._stopped || ((Math.abs(this.actor.scaleX - this.startX) >= this.distanceX) && (Math.abs(this.actor.scaleY - this.startY) >= this.distanceY));
-                };
-
-                ScaleBy.prototype.stop = function () {
-                    this.actor.sx = 0;
-                    this.actor.sy = 0;
-                    this._stopped = true;
-                };
-
-                ScaleBy.prototype.reset = function () {
-                    this._started = false;
-                };
-                return ScaleBy;
-            })();
-            Actions.ScaleBy = ScaleBy;
-
-            var Delay = (function () {
-                function Delay(actor, delay) {
-                    this.elapsedTime = 0;
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.delay = delay;
-                }
-                Delay.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                    }
-
-                    this.x = this.actor.x;
-                    this.y = this.actor.y;
-
-                    this.elapsedTime += delta;
-                };
-
-                Delay.prototype.isComplete = function (actor) {
-                    return this._stopped || (this.elapsedTime >= this.delay);
-                };
-
-                Delay.prototype.stop = function () {
-                    this._stopped = true;
-                };
-
-                Delay.prototype.reset = function () {
-                    this.elapsedTime = 0;
-                    this._started = false;
-                };
-                return Delay;
-            })();
-            Actions.Delay = Delay;
-
-            var Blink = (function () {
-                function Blink(actor, timeVisible, timeNotVisible, numBlinks) {
-                    if (typeof numBlinks === "undefined") { numBlinks = 1; }
-                    this.timeVisible = 0;
-                    this.timeNotVisible = 0;
-                    this.elapsedTime = 0;
-                    this.totalTime = 0;
-                    this._stopped = false;
-                    this._started = false;
-                    this.actor = actor;
-                    this.timeVisible = timeVisible;
-                    this.timeNotVisible = timeNotVisible;
-                    this.duration = (timeVisible + timeNotVisible) * numBlinks;
-                }
-                Blink.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                    }
-
-                    this.elapsedTime += delta;
-                    this.totalTime += delta;
-                    if (this.actor.visible && this.elapsedTime >= this.timeVisible) {
-                        this.actor.visible = false;
-                        this.elapsedTime = 0;
-                    }
-
-                    if (!this.actor.visible && this.elapsedTime >= this.timeNotVisible) {
-                        this.actor.visible = true;
-                        this.elapsedTime = 0;
-                    }
-
-                    if (this.isComplete(this.actor)) {
-                        this.actor.visible = true;
-                    }
-                };
-
-                Blink.prototype.isComplete = function (actor) {
-                    return this._stopped || (this.totalTime >= this.duration);
-                };
-
-                Blink.prototype.stop = function () {
-                    this.actor.visible = true;
-                    this._stopped = true;
-                };
-
-                Blink.prototype.reset = function () {
-                    this._started = false;
-                    this.elapsedTime = 0;
-                    this.totalTime = 0;
-                };
-                return Blink;
-            })();
-            Actions.Blink = Blink;
-
-            var Fade = (function () {
-                function Fade(actor, endOpacity, speed) {
-                    this.multiplyer = 1;
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.endOpacity = endOpacity;
-                    this.speed = speed;
-                    if (endOpacity < actor.opacity) {
-                        this.multiplyer = -1;
-                    }
-                }
-                Fade.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                    }
-                    if (this.speed > 0) {
-                        this.actor.opacity += this.multiplyer * (Math.abs(this.actor.opacity - this.endOpacity) * delta) / this.speed;
-                    }
-                    this.speed -= delta;
-
-                    ex.Logger.getInstance().debug("actor opacity: " + this.actor.opacity);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.opacity = this.endOpacity;
-                    }
-                };
-
-                Fade.prototype.isComplete = function (actor) {
-                    return this._stopped || (Math.abs(this.actor.opacity - this.endOpacity) < 0.05);
-                };
-
-                Fade.prototype.stop = function () {
-                    this._stopped = true;
-                };
-
-                Fade.prototype.reset = function () {
-                    this._started = false;
-                };
-                return Fade;
-            })();
-            Actions.Fade = Fade;
-
-            var Die = (function () {
-                function Die(actor) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                }
-                Die.prototype.update = function (delta) {
-                    this.actor.actionQueue.clearActions();
-                    this.actor.kill();
-                    this._stopped = true;
-                };
-
-                Die.prototype.isComplete = function () {
-                    return this._stopped;
-                };
-
-                Die.prototype.stop = function () {
-                };
-
-                Die.prototype.reset = function () {
-                };
-                return Die;
-            })();
-            Actions.Die = Die;
-
-            var CallMethod = (function () {
-                function CallMethod(actor, method) {
-                    this._method = null;
-                    this._actor = null;
-                    this._hasBeenCalled = false;
-                    this._actor = actor;
-                    this._method = method;
-                }
-                CallMethod.prototype.update = function (delta) {
-                    this._method.call(this._actor);
-                    this._hasBeenCalled = true;
-                };
-                CallMethod.prototype.isComplete = function (actor) {
-                    return this._hasBeenCalled;
-                };
-                CallMethod.prototype.reset = function () {
-                    this._hasBeenCalled = false;
-                };
-                CallMethod.prototype.stop = function () {
-                    this._hasBeenCalled = true;
-                };
-                return CallMethod;
-            })();
-            Actions.CallMethod = CallMethod;
-
-            var Repeat = (function () {
-                function Repeat(actor, repeat, actions) {
-                    var _this = this;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.actionQueue = new ActionQueue(actor);
-                    this.repeat = repeat;
-                    this.originalRepeat = repeat;
-                    actions.forEach(function (action) {
-                        action.reset();
-                        _this.actionQueue.add(action);
-                    });
-                }
-                Repeat.prototype.update = function (delta) {
-                    this.x = this.actor.x;
-                    this.y = this.actor.y;
-                    if (!this.actionQueue.hasNext()) {
-                        this.actionQueue.reset();
-                        this.repeat--;
-                    }
-                    this.actionQueue.update(delta);
-                };
-
-                Repeat.prototype.isComplete = function () {
-                    return this._stopped || (this.repeat <= 0);
-                };
-
-                Repeat.prototype.stop = function () {
-                    this._stopped = true;
-                };
-
-                Repeat.prototype.reset = function () {
-                    this.repeat = this.originalRepeat;
-                };
-                return Repeat;
-            })();
-            Actions.Repeat = Repeat;
-
-            var RepeatForever = (function () {
-                function RepeatForever(actor, actions) {
-                    var _this = this;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.actionQueue = new ActionQueue(actor);
-                    actions.forEach(function (action) {
-                        action.reset();
-                        _this.actionQueue.add(action);
-                    });
-                }
-                RepeatForever.prototype.update = function (delta) {
-                    this.x = this.actor.x;
-                    this.y = this.actor.y;
-                    if (this._stopped) {
-                        return;
-                    }
-
-                    if (!this.actionQueue.hasNext()) {
-                        this.actionQueue.reset();
-                    }
-
-                    this.actionQueue.update(delta);
-                };
-
-                RepeatForever.prototype.isComplete = function () {
-                    return this._stopped;
-                };
-
-                RepeatForever.prototype.stop = function () {
-                    this._stopped = true;
-                    this.actionQueue.clearActions();
-                };
-
-                RepeatForever.prototype.reset = function () {
-                };
-                return RepeatForever;
-            })();
-            Actions.RepeatForever = RepeatForever;
-
-            var ActionQueue = (function () {
-                function ActionQueue(actor) {
-                    this._actions = [];
-                    this._completedActions = [];
-                    this.actor = actor;
-                }
-                ActionQueue.prototype.add = function (action) {
-                    this._actions.push(action);
-                };
-
-                ActionQueue.prototype.remove = function (action) {
-                    var index = this._actions.indexOf(action);
-                    this._actions.splice(index, 1);
-                };
-
-                ActionQueue.prototype.clearActions = function () {
-                    this._actions.length = 0;
-                    this._completedActions.length = 0;
-                    this._currentAction.stop();
-                };
-
-                ActionQueue.prototype.getActions = function () {
-                    return this._actions.concat(this._completedActions);
-                };
-
-                ActionQueue.prototype.hasNext = function () {
-                    return this._actions.length > 0;
-                };
-
-                ActionQueue.prototype.reset = function () {
-                    this._actions = this.getActions();
-                    this._actions.forEach(function (action) {
-                        action.reset();
-                    });
-                    this._completedActions = [];
-                };
-
-                ActionQueue.prototype.update = function (delta) {
-                    if (this._actions.length > 0) {
-                        this._currentAction = this._actions[0];
-                        this._currentAction.update(delta);
-
-                        if (this._currentAction.isComplete(this.actor)) {
-                            //Logger.getInstance().log("Action complete!", Log.DEBUG);
-                            this._completedActions.push(this._actions.shift());
-                        }
-                    }
-                };
-                return ActionQueue;
-            })();
-            Actions.ActionQueue = ActionQueue;
-        })(Internal.Actions || (Internal.Actions = {}));
-        var Actions = Internal.Actions;
-    })(ex.Internal || (ex.Internal = {}));
-    var Internal = ex.Internal;
-})(ex || (ex = {}));
-/// <reference path="Interfaces/IDrawable.ts" />
-var ex;
-(function (ex) {
-    /**
-    * Creates a closed polygon drawing given a list a of points. Polygons should be
-    * used sparingly as there is a <b>performance</b> impact for using them.
-    * @class Polygon
-    * @extends IDrawable
-    * @constructor
-    * @param points {Point[]} The points to use to build the polygon in order
-    */
-    var Polygon = (function () {
-        function Polygon(points) {
-            /**
-            * The width of the lines of the polygon
-            * @property [lineWidth=5] {number} The width of the lines in pixels
-            */
-            this.lineWidth = 5;
-            /**
-            * Indicates whether the polygon is filled or not.
-            * @property [filled=false] {boolean}
-            */
-            this.filled = false;
-            this.points = [];
-            this.transformationPoint = new ex.Point(0, 0);
-            this.rotation = 0;
-            this.scaleX = 1;
-            this.scaleY = 1;
-            this.points = points;
-
-            var minX = this.points.reduce(function (prev, curr) {
-                return Math.min(prev, curr.x);
-            }, 0);
-            var maxX = this.points.reduce(function (prev, curr) {
-                return Math.max(prev, curr.x);
-            }, 0);
-
-            this.width = maxX - minX;
-
-            var minY = this.points.reduce(function (prev, curr) {
-                return Math.min(prev, curr.y);
-            }, 0);
-            var maxY = this.points.reduce(function (prev, curr) {
-                return Math.max(prev, curr.y);
-            }, 0);
-
-            this.height = maxY - minY;
-        }
-        /**
-        * Effects are <b>not supported</b> on polygons
-        * @method addEffect
-        */
-        Polygon.prototype.addEffect = function (effect) {
-            // not supported on polygons
-        };
-
-        /**
-        * Effects are <b>not supported</b> on polygons
-        * @method clearEffects
-        */
-        Polygon.prototype.clearEffects = function () {
-            // not supported on polygons
-        };
-
-        Polygon.prototype.transformAboutPoint = function (point) {
-            this.transformationPoint = point;
-        };
-
-        Polygon.prototype.setScaleX = function (scaleX) {
-            this.scaleX = scaleX;
-        };
-
-        Polygon.prototype.setScaleY = function (scaleY) {
-            this.scaleY = scaleY;
-        };
-
-        Polygon.prototype.getScaleX = function () {
-            return this.scaleX;
-        };
-
-        Polygon.prototype.getScaleY = function () {
-            return this.scaleY;
-        };
-
-        Polygon.prototype.setRotation = function (radians) {
-            this.rotation = radians;
-        };
-
-        Polygon.prototype.getRotation = function () {
-            return this.rotation;
-        };
-
-        Polygon.prototype.reset = function () {
-            //pass
-        };
-
-        Polygon.prototype.draw = function (ctx, x, y) {
-            ctx.save();
-            ctx.translate(x + this.transformationPoint.x, y + this.transformationPoint.y);
-            ctx.scale(this.scaleX, this.scaleY);
-            ctx.rotate(this.rotation);
-            ctx.beginPath();
-            ctx.lineWidth = this.lineWidth;
-
-            // Iterate through the supplied points and contruct a 'polygon'
-            var firstPoint = this.points[0];
-            ctx.moveTo(firstPoint.x, firstPoint.y);
-            this.points.forEach(function (point) {
-                ctx.lineTo(point.x, point.y);
-            });
-            ctx.lineTo(firstPoint.x, firstPoint.y);
-            ctx.closePath();
-
-            if (this.filled) {
-                ctx.fillStyle = this.fillColor.toString();
-                ctx.fill();
-            }
-
-            ctx.strokeStyle = this.lineColor.toString();
-
-            if (this.flipHorizontal) {
-                ctx.translate(this.width, 0);
-                ctx.scale(-1, 1);
-            }
-
-            if (this.flipVertical) {
-                ctx.translate(0, this.height);
-                ctx.scale(1, -1);
-            }
-
-            ctx.stroke();
-            ctx.restore();
-        };
-        return Polygon;
-    })();
-    ex.Polygon = Polygon;
-})(ex || (ex = {}));
-//# sourceMappingURL=Excalibur.js.map
+//# sourceMappingURL=excalibur-0.2.5.js.map
+
+;
+// Concatenated onto excalibur after build
+// Exports the excalibur module so it can be used with browserify
+// https://github.com/excaliburjs/Excalibur/issues/312
+if (typeof module !== 'undefined') {module.exports = ex;}

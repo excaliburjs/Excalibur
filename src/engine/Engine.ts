@@ -287,15 +287,15 @@ module ex {
       public keysDown: number[] = [];
       public keysUp: number[] = [];
       // Mouse Events
-      public clicks: MouseDown[] = [];
-      public mouseDown: MouseDown[] = [];
-      public mouseMove: MouseMove[] = [];
-      public mouseUp: MouseUp[] = [];
+      public clicks: MouseDownEvent[] = [];
+      public mouseDown: MouseDownEvent[] = [];
+      public mouseMove: MouseMoveEvent[] = [];
+      public mouseUp: MouseUpEvent[] = [];
       // Touch Events
-      public touchStart: TouchStart[] = [];
-      public touchMove: TouchMove[] = [];
-      public touchEnd: TouchEnd[] = [];
-      public touchCancel: TouchCancel[] = [];
+      public touchStart: TouchStartEvent[] = [];
+      public touchMove: TouchMoveEvent[] = [];
+      public touchEnd: TouchEndEvent[] = [];
+      public touchCancel: TouchCancelEvent[] = [];
 
       /** 
        * Gets or sets the camera to be used in the game.
@@ -668,8 +668,8 @@ module ex {
 
          if (this.camera) {
             var focus = this.camera.getFocus();
-            newX -= focus.x;
-            newY -= focus.y;
+            newX = focus.x + (point.x - (this.getWidth()/2));
+            newY = focus.y + (point.y - (this.getHeight()/2));
          }
 
          newX = Math.floor((newX / this.canvas.clientWidth) * this.getWidth());
@@ -692,8 +692,8 @@ module ex {
          if(this.camera){
             var focus = this.camera.getFocus();
 
-            screenX += focus.x * (this.getWidth() / this.canvas.clientWidth);
-            screenY += focus.y * (this.getHeight() / this.canvas.clientHeight);
+            screenX = (point.x - focus.x) + (this.getWidth()/2);//(this.getWidth() / this.canvas.clientWidth);
+            screenY = (point.y - focus.y) + (this.getHeight()/2);// (this.getHeight() / this.canvas.clientHeight);
          }
 
          screenX = Math.floor((screenX / this.getWidth()) * this.canvas.clientWidth);
@@ -781,7 +781,7 @@ module ex {
             var x: number = e.pageX - Util.getPosition(this.canvas).x;
             var y: number = e.pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.screenToWorldCoordinates(new Point(x, y));
-            var mousedown = new MouseDown(transformedPoint.x, transformedPoint.y, (<MouseEvent>e));
+            var mousedown = new MouseDownEvent(transformedPoint.x, transformedPoint.y, (<MouseEvent>e));
             this.mouseDown.push(mousedown);
             this.clicks.push(mousedown);
             this.eventDispatcher.publish(EventType[EventType.MouseDown], mousedown);
@@ -791,7 +791,7 @@ module ex {
             var x: number = e.pageX - Util.getPosition(this.canvas).x;
             var y: number = e.pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-            var mousemove = new MouseMove(transformedPoint.x, transformedPoint.y, (<MouseEvent>e));            
+            var mousemove = new MouseMoveEvent(transformedPoint.x, transformedPoint.y, (<MouseEvent>e));            
             this.mouseMove.push(mousemove);
             this.eventDispatcher.publish(EventType[EventType.MouseMove], mousemove);
          });
@@ -800,7 +800,7 @@ module ex {
             var x: number = e.pageX - Util.getPosition(this.canvas).x;
             var y: number = e.pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-            var mouseup = new MouseUp(transformedPoint.x, transformedPoint.y, (<MouseEvent>e));
+            var mouseup = new MouseUpEvent(transformedPoint.x, transformedPoint.y, (<MouseEvent>e));
             this.mouseUp.push(mouseup);
             this.eventDispatcher.publish(EventType[EventType.MouseUp], mouseup);
          });
@@ -815,7 +815,7 @@ module ex {
             var x: number = te.changedTouches[0].pageX - Util.getPosition(this.canvas).x;
             var y: number = te.changedTouches[0].pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-            var touchstart = new TouchStart(transformedPoint.x, transformedPoint.y);
+            var touchstart = new TouchStartEvent(transformedPoint.x, transformedPoint.y);
             this.touchStart.push(touchstart);
             this.eventDispatcher.publish(EventType[EventType.TouchStart], touchstart);
          });
@@ -826,7 +826,7 @@ module ex {
             var x: number = te.changedTouches[0].pageX - Util.getPosition(this.canvas).x;
             var y: number = te.changedTouches[0].pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-            var touchmove = new TouchMove(transformedPoint.x, transformedPoint.y);
+            var touchmove = new TouchMoveEvent(transformedPoint.x, transformedPoint.y);
             this.touchMove.push(touchmove);
             this.eventDispatcher.publish(EventType[EventType.TouchMove], touchmove);
          });
@@ -837,7 +837,7 @@ module ex {
             var x: number = te.changedTouches[0].pageX - Util.getPosition(this.canvas).x;
             var y: number = te.changedTouches[0].pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-            var touchend = new TouchEnd(transformedPoint.x, transformedPoint.y);
+            var touchend = new TouchEndEvent(transformedPoint.x, transformedPoint.y);
             this.touchEnd.push(touchend);
             this.eventDispatcher.publish(EventType[EventType.TouchEnd], touchend);
          });
@@ -848,7 +848,7 @@ module ex {
             var x: number = te.changedTouches[0].pageX - Util.getPosition(this.canvas).x;
             var y: number = te.changedTouches[0].pageY - Util.getPosition(this.canvas).y;
             var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-            var touchcancel = new TouchCancel(transformedPoint.x, transformedPoint.y);
+            var touchcancel = new TouchCancelEvent(transformedPoint.x, transformedPoint.y);
             this.touchCancel.push(touchcancel);
             this.eventDispatcher.publish(EventType[EventType.TouchCancel], touchcancel);
          });
@@ -863,7 +863,7 @@ module ex {
                var x: number = e.pageX - Util.getPosition(this.canvas).x;
                var y: number = e.pageY - Util.getPosition(this.canvas).y;
                var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-               var touchstart = new TouchStart(transformedPoint.x, transformedPoint.y);
+               var touchstart = new TouchStartEvent(transformedPoint.x, transformedPoint.y);
                this.touchStart.push(touchstart);
                this.eventDispatcher.publish(EventType[EventType.TouchStart], touchstart);
             });
@@ -875,7 +875,7 @@ module ex {
                var x: number = e.pageX - Util.getPosition(this.canvas).x;
                var y: number = e.pageY - Util.getPosition(this.canvas).y;
                var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-               var touchmove = new TouchMove(transformedPoint.x, transformedPoint.y);
+               var touchmove = new TouchMoveEvent(transformedPoint.x, transformedPoint.y);
                this.touchMove.push(touchmove);
                this.eventDispatcher.publish(EventType[EventType.TouchMove], touchmove);
             });
@@ -887,7 +887,7 @@ module ex {
                var x: number = e.pageX - Util.getPosition(this.canvas).x;
                var y: number = e.pageY - Util.getPosition(this.canvas).y;
                var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-               var touchend = new TouchEnd(transformedPoint.x, transformedPoint.y);
+               var touchend = new TouchEndEvent(transformedPoint.x, transformedPoint.y);
                this.touchEnd.push(touchend);
                this.eventDispatcher.publish(EventType[EventType.TouchEnd], touchend);
             });
@@ -1068,6 +1068,8 @@ module ex {
          var loadingComplete: Promise<any>;
          if(loader){
             loadingComplete = this.load(loader);
+         }else{
+            loadingComplete = Promise.wrap();
          }
 
          if (!this.hasStarted) {
