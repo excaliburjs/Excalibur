@@ -78,6 +78,7 @@
     <TypeScriptCompile Include="ColorSpec.ts" />
     <TypeScriptCompile Include="jasmine.d.ts" />
     <TypeScriptCompile Include="LogSpec.ts" />
+    <TypeScriptCompile Include="MathSpec.ts" />
     <TypeScriptCompile Include="PromiseSpec.ts" />
     <TypeScriptCompile Include="require.d.ts" />
     <TypeScriptCompile Include="TimerSpec.ts" />
