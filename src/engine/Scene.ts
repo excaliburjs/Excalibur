@@ -1,5 +1,7 @@
 /// <reference path="Class.ts" />
 /// <reference path="Timer.ts" />
+/// <reference path="Collision/NaiveCollisionResolver.ts"/>
+/// <reference path="Collision/DynamicTreeCollisionResolver.ts"/>
 /// <reference path="CollisionPair.ts" />
 module ex {
 
@@ -22,14 +24,15 @@ module ex {
       public children: Actor[] = [];
       public tileMaps: TileMap[] = [];
       public engine: Engine;
-      private killQueue: Actor[] = [];
 
-      private timers: Timer[] = [];
-      private cancelQueue: Timer[] = [];
+      
+      private _collisionResolver: ICollisionResolver = new DynamicTreeCollisionResolver();
 
+      private _killQueue: Actor[] = [];
+      private _timers: Timer[] = [];
+      private _cancelQueue: Timer[] = [];
       private _isInitialized: boolean = false;
-
-      public _collisionPairs: CollisionPair[] = [];
+      
 
       constructor() {
          super();
@@ -61,6 +64,7 @@ module ex {
        */
       public onInitialize(engine: Engine): void {
          // will be overridden
+         
       }
 
       /**
@@ -92,42 +96,41 @@ module ex {
             cm.update(engine, delta);
          });
 
+
          var len = 0;
-         var start = 0;
-         var end = 0;
-         var actor;
          // Cycle through actors updating actors
          for (var i = 0, len = this.children.length; i < len; i++) {
             this.children[i].update(engine, delta);
          }
 
-         // Cycle through collision pairs and evaluate collisions
-         for(var i = 0, len = this._collisionPairs.length; i < len; i++){
-            this._collisionPairs[i].evaluate();
+         // Run collision resolution strategy
+         if (this._collisionResolver) {
+            this._collisionResolver.update(this.children);
+            this._collisionResolver.evaluate(this.children);
          }
-         this._collisionPairs.length = 0;
+
 
          // Remove actors from scene graph after being killed
          var actorIndex = 0;
-         for (var i = 0, len = this.killQueue.length; i < len; i++) {
-            actorIndex = this.children.indexOf(this.killQueue[i]);
+         for (var i = 0, len = this._killQueue.length; i < len; i++) {
+            actorIndex = this.children.indexOf(this._killQueue[i]);
             if (actorIndex > -1) {
                this.children.splice(actorIndex, 1);
             }
          }
-         this.killQueue.length = 0;
+         this._killQueue.length = 0;
 
 
          // Remove timers in the cancel queue before updating them
          var timerIndex = 0;
-         for (var i = 0, len = this.cancelQueue.length; i < len; i++) {
-            this.removeTimer(this.cancelQueue[i]);
+         for (var i = 0, len = this._cancelQueue.length; i < len; i++) {
+            this.removeTimer(this._cancelQueue[i]);
          }
-         this.cancelQueue.length = 0;
+         this._cancelQueue.length = 0;
 
          // Cycle through timers updating timers
          var that = this;
-         this.timers = this.timers.filter(function (timer) {
+         this._timers = this._timers.filter(function (timer) {
             timer.update(delta);
             return !timer.complete;
          });
@@ -170,6 +173,8 @@ module ex {
          this.children.forEach((actor) => {
             actor.debugDraw(ctx);
          });
+
+         this._collisionResolver.debugDraw(ctx, 20);
       }
 
       /**
@@ -202,22 +207,7 @@ module ex {
             this.addTileMap(entity);
          }
       }
-
-      /**
-       * Adds a collision resolution pair to the current scene. Should only be called
-       * by actors.
-       * @method addCollisionPair
-       * @param collisionPair {CollisionPair}
-       *
-       */
-      public addCollisionPair(collisionPair: CollisionPair){
-         if(!this._collisionPairs.some((cp)=>{
-            return cp.equals(collisionPair);
-         })){
-            this._collisionPairs.push(collisionPair);
-         }
-      }
-
+      
      /**
        * Removes an excalibur Timer from the current scene.
        * @method remove
@@ -238,6 +228,7 @@ module ex {
       public remove(actor: Actor): void;
       public remove(entity: any): void {
          if (entity instanceof Actor) {
+            this._collisionResolver.remove(entity);
             this.removeChild(entity);
          }
          if (entity instanceof Timer) {
@@ -257,6 +248,7 @@ module ex {
        * @param actor {Actor} 
        */
       public addChild(actor: Actor) {
+         this._collisionResolver.register(actor);
          actor.scene = this;
          this.children.push(actor);
          actor.parent = this.actor;
@@ -291,7 +283,7 @@ module ex {
        * @param actor {Actor} The actor to remove
        */
       public removeChild(actor: Actor) {
-         this.killQueue.push(actor);
+         this._killQueue.push(actor);
          actor.parent = null;
       }
 
@@ -302,7 +294,7 @@ module ex {
        * @returns Timer
        */
       public addTimer(timer: Timer): Timer {
-         this.timers.push(timer);
+         this._timers.push(timer);
          timer.scene = this;
          return timer;
       }
@@ -315,9 +307,9 @@ module ex {
        * @returns Timer
        */
       public removeTimer(timer: Timer): Timer {
-         var i = this.timers.indexOf(timer);
+         var i = this._timers.indexOf(timer);
          if (i !== -1) {
-            this.timers.splice(i, 1);
+            this._timers.splice(i, 1);
          }
          return timer;
       }
@@ -329,7 +321,7 @@ module ex {
        * @returns Timer
        */
       public cancelTimer(timer: Timer): Timer {
-         this.cancelQueue.push(timer);
+         this._cancelQueue.push(timer);
          return timer;
       }
 
@@ -340,7 +332,7 @@ module ex {
        * @returns boolean
        */
       public isTimerActive(timer: Timer): boolean {
-         return (this.timers.indexOf(timer) > -1);
+         return (this._timers.indexOf(timer) > -1);
       }
 
    }

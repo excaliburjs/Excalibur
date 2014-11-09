@@ -4,7 +4,7 @@
 /// <reference path="Class.ts" />
 /// <reference path="Color.ts" />
 /// <reference path="Log.ts" />
-/// <reference path="Side.ts" />
+/// <reference path="Collision/Side.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actor.ts" />
 /// <reference path="Trigger.ts" />
@@ -253,6 +253,7 @@ module ex {
     * @param [displayMode] {DisplayMode} If this is not specified, then it will fall back to fixed if a height and width are specified, else the display mode will be FullScreen.
     */
    export class Engine extends ex.Class {
+
       /**
        * Direct access to the engine's canvas element
        * @property canvas {HTMLCanvasElement}
@@ -279,6 +280,13 @@ module ex {
        * @property height {number}
        */
       public height: number;
+
+
+      /**
+       * Sets or gets the collision strategy for Excalibur
+       * @property collisionStrategy {CollisionStrategy}
+       */
+      public collisionStrategy: CollisionStrategy = CollisionStrategy.DynamicAABBTree;
 
       private hasStarted: boolean = false;
 
@@ -710,15 +718,15 @@ module ex {
       private setHeightByDisplayMode(parent: any) {
          if (this.displayMode === DisplayMode.Container) {
             this.width = this.canvas.width = parent.clientWidth;
-            this.height = this.canvas.height = parent.clientHeight
-      }
+            this.height = this.canvas.height = parent.clientHeight;
+         }
 
          if (this.displayMode === DisplayMode.FullScreen) {
             document.body.style.margin = '0px';
             document.body.style.overflow = 'hidden';
             this.width = this.canvas.width = parent.innerWidth;
-            this.height = this.canvas.height = parent.innerHeight
-      }
+            this.height = this.canvas.height = parent.innerHeight;
+         }
       }
 
       /**

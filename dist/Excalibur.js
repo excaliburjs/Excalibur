@@ -1,402 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-10-02
-* https://github.com/excaliburjs/Excalibur
-* Copyright (c) 2014 ; Licensed BSD*/
-if (typeof window == 'undefined') {
-    window = { audioContext: function () {
-        } };
-}
-
-if (typeof window != 'undefined' && !window.requestAnimationFrame) {
-    window.requestAnimationFrame = window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (callback) {
-        window.setInterval(callback, 1000 / 60);
-    };
-}
-
-if (typeof window != 'undefined' && !window.AudioContext) {
-    window.AudioContext = window.webkitAudioContext || window.mozAudioContext;
-}
-
-// Polyfill from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
-if (!Array.prototype.some) {
-    Array.prototype.some = function (fun /*, thisArg */ ) {
-        'use strict';
-
-        if (this === void 0 || this === null)
-            throw new TypeError();
-
-        var t = Object(this);
-        var len = t.length >>> 0;
-        if (typeof fun !== 'function')
-            throw new TypeError();
-
-        var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
-        for (var i = 0; i < len; i++) {
-            if (i in t && fun.call(thisArg, t[i], i, t))
-                return true;
-        }
-
-        return false;
-    };
-}
-var ex;
-(function (ex) {
-    (function (Effects) {
-        
-
-        /**
-        * Applies the "Grayscale" effect to a sprite, removing color information.
-        * @class Effects.Grayscale
-        * @constructor
-        * @extends ISpriteEffect
-        */
-        var Grayscale = (function () {
-            function Grayscale() {
-            }
-            Grayscale.prototype.updatePixel = function (x, y, imageData) {
-                var firstPixel = (x + y * imageData.width) * 4;
-                var pixel = imageData.data;
-                var avg = (pixel[firstPixel + 0] + pixel[firstPixel + 1] + pixel[firstPixel + 2]) / 3;
-                pixel[firstPixel + 0] = avg;
-                pixel[firstPixel + 1] = avg;
-                pixel[firstPixel + 2] = avg;
-            };
-            return Grayscale;
-        })();
-        Effects.Grayscale = Grayscale;
-
-        /**
-        * Applies the "Invert" effect to a sprite, inverting the pixel colors.
-        * @class Effects.Invert
-        * @constructor
-        * @extends ISpriteEffect
-        */
-        var Invert = (function () {
-            function Invert() {
-            }
-            Invert.prototype.updatePixel = function (x, y, imageData) {
-                var firstPixel = (x + y * imageData.width) * 4;
-                var pixel = imageData.data;
-                pixel[firstPixel + 0] = 255 - pixel[firstPixel + 0];
-                pixel[firstPixel + 1] = 255 - pixel[firstPixel + 1];
-                pixel[firstPixel + 2] = 255 - pixel[firstPixel + 2];
-            };
-            return Invert;
-        })();
-        Effects.Invert = Invert;
-
-        /**
-        * Applies the "Opacity" effect to a sprite, setting the alpha of all pixels to a given value.
-        * @class Effects.Opacity
-        * @extends ISpriteEffect
-        * @constructor
-        * @param opacity {number} The new opacity of the sprite from 0-1.0
-        */
-        var Opacity = (function () {
-            function Opacity(opacity) {
-                this.opacity = opacity;
-            }
-            Opacity.prototype.updatePixel = function (x, y, imageData) {
-                var firstPixel = (x + y * imageData.width) * 4;
-                var pixel = imageData.data;
-                if (pixel[firstPixel + 3] !== 0) {
-                    pixel[firstPixel + 3] = Math.round(this.opacity * 255);
-                }
-            };
-            return Opacity;
-        })();
-        Effects.Opacity = Opacity;
-
-        /**
-        * Applies the "Colorize" effect to a sprite, changing the color channels of all the pixels to an
-        * average of the original color and the provided color
-        * @class Effects.Colorize
-        * @extends ISpriteEffect
-        * @constructor
-        * @param color {Color} The color to apply to the sprite
-        */
-        var Colorize = (function () {
-            function Colorize(color) {
-                this.color = color;
-            }
-            Colorize.prototype.updatePixel = function (x, y, imageData) {
-                var firstPixel = (x + y * imageData.width) * 4;
-                var pixel = imageData.data;
-                if (pixel[firstPixel + 3] !== 0) {
-                    pixel[firstPixel + 0] = (pixel[firstPixel + 0] + this.color.r) / 2;
-                    pixel[firstPixel + 1] = (pixel[firstPixel + 1] + this.color.g) / 2;
-                    pixel[firstPixel + 2] = (pixel[firstPixel + 2] + this.color.b) / 2;
-                }
-            };
-            return Colorize;
-        })();
-        Effects.Colorize = Colorize;
-
-        /**
-        * Applies the "Fill" effect to a sprite, changing the color channels of all non-transparent pixels to match
-        * a given color
-        * @class Effects.Fill
-        * @extends ISpriteEffect
-        * @constructor
-        * @param color {Color} The color to apply to the sprite
-        */
-        var Fill = (function () {
-            function Fill(color) {
-                this.color = color;
-            }
-            Fill.prototype.updatePixel = function (x, y, imageData) {
-                var firstPixel = (x + y * imageData.width) * 4;
-                var pixel = imageData.data;
-                if (pixel[firstPixel + 3] !== 0) {
-                    pixel[firstPixel + 0] = this.color.r;
-                    pixel[firstPixel + 1] = this.color.g;
-                    pixel[firstPixel + 2] = this.color.b;
-                }
-            };
-            return Fill;
-        })();
-        Effects.Fill = Fill;
-    })(ex.Effects || (ex.Effects = {}));
-    var Effects = ex.Effects;
-})(ex || (ex = {}));
-/// <reference path="../SpriteEffects.ts" />
-/// <reference path="../Interfaces/IPipelineModule.ts" />
-var ex;
-(function (ex) {
-    var MovementModule = (function () {
-        function MovementModule() {
-        }
-        MovementModule.prototype.update = function (actor, engine, delta) {
-            // Update placements based on linear algebra
-            actor.x += actor.dx * delta / 1000;
-            actor.y += actor.dy * delta / 1000;
-
-            actor.dx += actor.ax * delta / 1000;
-            actor.dy += actor.ay * delta / 1000;
-
-            actor.rotation += actor.rx * delta / 1000;
-
-            actor.scaleX += actor.sx * delta / 1000;
-            actor.scaleY += actor.sy * delta / 1000;
-        };
-        return MovementModule;
-    })();
-    ex.MovementModule = MovementModule;
-})(ex || (ex = {}));
-/// <reference path="../Interfaces/IPipelineModule.ts" />
-var ex;
-(function (ex) {
-    var OffscreenCullingModule = (function () {
-        function OffscreenCullingModule() {
-        }
-        OffscreenCullingModule.prototype.update = function (actor, engine, delta) {
-            var eventDispatcher = actor.eventDispatcher;
-            var anchor = actor.anchor;
-            var globalScale = actor.getGlobalScale();
-            var width = globalScale.x * actor.getWidth() / actor.scaleX;
-            var height = globalScale.y * actor.getHeight() / actor.scaleY;
-            var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Point(actor.getGlobalX() - anchor.x * width, actor.getGlobalY() - anchor.y * height));
-
-            var zoom = 1.0;
-            if (engine.camera) {
-                zoom = engine.camera.getZoom();
-            }
-
-            if (!actor.isOffScreen) {
-                if (actorScreenCoords.x + width * zoom < 0 || actorScreenCoords.y + height * zoom < 0 || actorScreenCoords.x > engine.width || actorScreenCoords.y > engine.height) {
-                    eventDispatcher.publish('exitviewport', new ex.ExitViewPortEvent());
-                    actor.isOffScreen = true;
-                }
-            } else {
-                if (actorScreenCoords.x + width * zoom > 0 && actorScreenCoords.y + height * zoom > 0 && actorScreenCoords.x < engine.width && actorScreenCoords.y < engine.height) {
-                    eventDispatcher.publish('enterviewport', new ex.EnterViewPortEvent());
-                    actor.isOffScreen = false;
-                }
-            }
-        };
-        return OffscreenCullingModule;
-    })();
-    ex.OffscreenCullingModule = OffscreenCullingModule;
-})(ex || (ex = {}));
-/// <reference path="../Interfaces/IPipelineModule.ts" />
-var ex;
-(function (ex) {
-    var EventPropagationModule = (function () {
-        function EventPropagationModule() {
-        }
-        EventPropagationModule.prototype.update = function (actor, engine, delta) {
-            var eventDispatcher = actor.eventDispatcher;
-
-            // Publish other events
-            engine.keys.forEach(function (key) {
-                eventDispatcher.publish(ex.InputKey[key], new ex.KeyEvent(key));
-            });
-
-            // Publish click events
-            engine.clicks.forEach(function (e) {
-                if (actor.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[10 /* Click */], new ex.ClickEvent(e.x, e.y, e.mouseEvent));
-                    eventDispatcher.publish(ex.EventType[3 /* MouseDown */], new ex.MouseDownEvent(e.x, e.y, e.mouseEvent));
-                }
-            });
-
-            engine.mouseMove.forEach(function (e) {
-                if (actor.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[4 /* MouseMove */], new ex.MouseMoveEvent(e.x, e.y, e.mouseEvent));
-                }
-            });
-
-            engine.mouseUp.forEach(function (e) {
-                if (actor.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[5 /* MouseUp */], new ex.MouseUpEvent(e.x, e.y, e.mouseEvent));
-                }
-            });
-
-            engine.touchStart.forEach(function (e) {
-                if (actor.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[6 /* TouchStart */], new ex.TouchStartEvent(e.x, e.y));
-                }
-            });
-
-            engine.touchMove.forEach(function (e) {
-                if (actor.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[7 /* TouchMove */], new ex.TouchMoveEvent(e.x, e.y));
-                }
-            });
-
-            engine.touchEnd.forEach(function (e) {
-                if (actor.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[8 /* TouchEnd */], new ex.TouchEndEvent(e.x, e.y));
-                }
-            });
-
-            engine.touchCancel.forEach(function (e) {
-                if (actor.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[9 /* TouchCancel */], new ex.TouchCancelEvent(e.x, e.y));
-                }
-            });
-        };
-        return EventPropagationModule;
-    })();
-    ex.EventPropagationModule = EventPropagationModule;
-})(ex || (ex = {}));
-/// <reference path="../Interfaces/IPipelineModule.ts" />
-var ex;
-(function (ex) {
-    var CollisionDetectionModule = (function () {
-        function CollisionDetectionModule() {
-        }
-        CollisionDetectionModule.prototype.update = function (actor, engine, delta) {
-            var _this = this;
-            var eventDispatcher = actor.eventDispatcher;
-            if (actor.collisionType !== 0 /* PreventCollision */) {
-                // Retrieve the list of potential colliders, exclude killed, prevented, and self
-                var potentialColliders = engine.currentScene.children.filter(function (other) {
-                    return !other.isKilled() && other.collisionType !== 0 /* PreventCollision */ && actor !== other;
-                });
-
-                for (var i = 0; i < potentialColliders.length; i++) {
-                    var intersectActor;
-                    var side;
-                    var collider = potentialColliders[i];
-
-                    if (intersectActor = actor.collides(collider)) {
-                        side = actor.getSideFromIntersect(intersectActor);
-                        actor.scene.addCollisionPair(new ex.CollisionPair(actor, collider, intersectActor, side));
-
-                        var actorCollisionGroups = actor.getCollisionHandlers();
-                        collider.collisionGroups.forEach(function (group) {
-                            if (actorCollisionGroups[group]) {
-                                actorCollisionGroups[group].forEach(function (handler) {
-                                    handler.call(_this, collider);
-                                });
-                            }
-                        });
-                    }
-                }
-
-                for (var j = 0; j < engine.currentScene.tileMaps.length; j++) {
-                    var map = engine.currentScene.tileMaps[j];
-                    var intersectMap;
-                    var side = 0 /* None */;
-                    var max = 2;
-                    var hasBounced = false;
-                    while (intersectMap = map.collides(actor)) {
-                        if (max-- < 0) {
-                            break;
-                        }
-                        side = actor.getSideFromIntersect(intersectMap);
-                        eventDispatcher.publish('collision', new ex.CollisionEvent(actor, null, side, intersectMap));
-                        if ((actor.collisionType === 2 /* Active */ || actor.collisionType === 3 /* Elastic */) && collider.collisionType !== 1 /* Passive */) {
-                            actor.y += intersectMap.y;
-                            actor.x += intersectMap.x;
-
-                            // Naive elastic bounce
-                            if (actor.collisionType === 3 /* Elastic */ && !hasBounced) {
-                                hasBounced = true;
-                                if (side === 3 /* Left */) {
-                                    actor.dx = Math.abs(actor.dx);
-                                } else if (side === 4 /* Right */) {
-                                    actor.dx = -Math.abs(actor.dx);
-                                } else if (side === 1 /* Top */) {
-                                    actor.dy = Math.abs(actor.dy);
-                                } else if (side === 2 /* Bottom */) {
-                                    actor.dy = -Math.abs(actor.dy);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        };
-        return CollisionDetectionModule;
-    })();
-    ex.CollisionDetectionModule = CollisionDetectionModule;
-})(ex || (ex = {}));
-var ex;
-(function (ex) {
-    /**
-    * An enum that describes the sides of an Actor for collision
-    * @class Side
-    */
-    (function (Side) {
-        /**
-        @property None {Side}
-        @static
-        @final
-        */
-        Side[Side["None"] = 0] = "None";
-
-        /**
-        @property Top {Side}
-        @static
-        @final
-        */
-        Side[Side["Top"] = 1] = "Top";
-
-        /**
-        @property Bottom {Side}
-        @static
-        @final
-        */
-        Side[Side["Bottom"] = 2] = "Bottom";
-
-        /**
-        @property Left {Side}
-        @static
-        @final
-        */
-        Side[Side["Left"] = 3] = "Left";
-
-        /**
-        @property Right {Side}
-        @static
-        @final
-        */
-        Side[Side["Right"] = 4] = "Right";
-    })(ex.Side || (ex.Side = {}));
-    var Side = ex.Side;
-})(ex || (ex = {}));
-var __extends = this.__extends || function (d, b) {
+﻿var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
@@ -752,6 +354,375 @@ var ex;
         return Projection;
     })();
     ex.Projection = Projection;
+})(ex || (ex = {}));
+if (typeof window == 'undefined') {
+    window = { audioContext: function () {
+        } };
+}
+
+if (typeof window != 'undefined' && !window.requestAnimationFrame) {
+    window.requestAnimationFrame = window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (callback) {
+        window.setInterval(callback, 1000 / 60);
+    };
+}
+
+if (typeof window != 'undefined' && !window.AudioContext) {
+    window.AudioContext = window.webkitAudioContext || window.mozAudioContext;
+}
+
+// Polyfill from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
+if (!Array.prototype.some) {
+    Array.prototype.some = function (fun /*, thisArg */ ) {
+        'use strict';
+
+        if (this === void 0 || this === null)
+            throw new TypeError();
+
+        var t = Object(this);
+        var len = t.length >>> 0;
+        if (typeof fun !== 'function')
+            throw new TypeError();
+
+        var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
+        for (var i = 0; i < len; i++) {
+            if (i in t && fun.call(thisArg, t[i], i, t))
+                return true;
+        }
+
+        return false;
+    };
+}
+var ex;
+(function (ex) {
+    (function (Effects) {
+        
+
+        /**
+        * Applies the "Grayscale" effect to a sprite, removing color information.
+        * @class Effects.Grayscale
+        * @constructor
+        * @extends ISpriteEffect
+        */
+        var Grayscale = (function () {
+            function Grayscale() {
+            }
+            Grayscale.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                var avg = (pixel[firstPixel + 0] + pixel[firstPixel + 1] + pixel[firstPixel + 2]) / 3;
+                pixel[firstPixel + 0] = avg;
+                pixel[firstPixel + 1] = avg;
+                pixel[firstPixel + 2] = avg;
+            };
+            return Grayscale;
+        })();
+        Effects.Grayscale = Grayscale;
+
+        /**
+        * Applies the "Invert" effect to a sprite, inverting the pixel colors.
+        * @class Effects.Invert
+        * @constructor
+        * @extends ISpriteEffect
+        */
+        var Invert = (function () {
+            function Invert() {
+            }
+            Invert.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                pixel[firstPixel + 0] = 255 - pixel[firstPixel + 0];
+                pixel[firstPixel + 1] = 255 - pixel[firstPixel + 1];
+                pixel[firstPixel + 2] = 255 - pixel[firstPixel + 2];
+            };
+            return Invert;
+        })();
+        Effects.Invert = Invert;
+
+        /**
+        * Applies the "Opacity" effect to a sprite, setting the alpha of all pixels to a given value.
+        * @class Effects.Opacity
+        * @extends ISpriteEffect
+        * @constructor
+        * @param opacity {number} The new opacity of the sprite from 0-1.0
+        */
+        var Opacity = (function () {
+            function Opacity(opacity) {
+                this.opacity = opacity;
+            }
+            Opacity.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                if (pixel[firstPixel + 3] !== 0) {
+                    pixel[firstPixel + 3] = Math.round(this.opacity * 255);
+                }
+            };
+            return Opacity;
+        })();
+        Effects.Opacity = Opacity;
+
+        /**
+        * Applies the "Colorize" effect to a sprite, changing the color channels of all the pixels to an
+        * average of the original color and the provided color
+        * @class Effects.Colorize
+        * @extends ISpriteEffect
+        * @constructor
+        * @param color {Color} The color to apply to the sprite
+        */
+        var Colorize = (function () {
+            function Colorize(color) {
+                this.color = color;
+            }
+            Colorize.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                if (pixel[firstPixel + 3] !== 0) {
+                    pixel[firstPixel + 0] = (pixel[firstPixel + 0] + this.color.r) / 2;
+                    pixel[firstPixel + 1] = (pixel[firstPixel + 1] + this.color.g) / 2;
+                    pixel[firstPixel + 2] = (pixel[firstPixel + 2] + this.color.b) / 2;
+                }
+            };
+            return Colorize;
+        })();
+        Effects.Colorize = Colorize;
+
+        /**
+        * Applies the "Fill" effect to a sprite, changing the color channels of all non-transparent pixels to match
+        * a given color
+        * @class Effects.Fill
+        * @extends ISpriteEffect
+        * @constructor
+        * @param color {Color} The color to apply to the sprite
+        */
+        var Fill = (function () {
+            function Fill(color) {
+                this.color = color;
+            }
+            Fill.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                if (pixel[firstPixel + 3] !== 0) {
+                    pixel[firstPixel + 0] = this.color.r;
+                    pixel[firstPixel + 1] = this.color.g;
+                    pixel[firstPixel + 2] = this.color.b;
+                }
+            };
+            return Fill;
+        })();
+        Effects.Fill = Fill;
+    })(ex.Effects || (ex.Effects = {}));
+    var Effects = ex.Effects;
+})(ex || (ex = {}));
+/// <reference path="../SpriteEffects.ts" />
+/// <reference path="../Interfaces/IPipelineModule.ts" />
+var ex;
+(function (ex) {
+    var MovementModule = (function () {
+        function MovementModule() {
+        }
+        MovementModule.prototype.update = function (actor, engine, delta) {
+            // Update placements based on linear algebra
+            actor.x += actor.dx * delta / 1000;
+            actor.y += actor.dy * delta / 1000;
+
+            actor.dx += actor.ax * delta / 1000;
+            actor.dy += actor.ay * delta / 1000;
+
+            actor.rotation += actor.rx * delta / 1000;
+
+            actor.scaleX += actor.sx * delta / 1000;
+            actor.scaleY += actor.sy * delta / 1000;
+        };
+        return MovementModule;
+    })();
+    ex.MovementModule = MovementModule;
+})(ex || (ex = {}));
+/// <reference path="../Interfaces/IPipelineModule.ts" />
+var ex;
+(function (ex) {
+    var OffscreenCullingModule = (function () {
+        function OffscreenCullingModule() {
+        }
+        OffscreenCullingModule.prototype.update = function (actor, engine, delta) {
+            var eventDispatcher = actor.eventDispatcher;
+            var anchor = actor.anchor;
+            var globalScale = actor.getGlobalScale();
+            var width = globalScale.x * actor.getWidth() / actor.scaleX;
+            var height = globalScale.y * actor.getHeight() / actor.scaleY;
+            var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Point(actor.getGlobalX() - anchor.x * width, actor.getGlobalY() - anchor.y * height));
+
+            var zoom = 1.0;
+            if (engine.camera) {
+                zoom = engine.camera.getZoom();
+            }
+
+            if (!actor.isOffScreen) {
+                if (actorScreenCoords.x + width * zoom < 0 || actorScreenCoords.y + height * zoom < 0 || actorScreenCoords.x > engine.width || actorScreenCoords.y > engine.height) {
+                    eventDispatcher.publish('exitviewport', new ex.ExitViewPortEvent());
+                    actor.isOffScreen = true;
+                }
+            } else {
+                if (actorScreenCoords.x + width * zoom > 0 && actorScreenCoords.y + height * zoom > 0 && actorScreenCoords.x < engine.width && actorScreenCoords.y < engine.height) {
+                    eventDispatcher.publish('enterviewport', new ex.EnterViewPortEvent());
+                    actor.isOffScreen = false;
+                }
+            }
+        };
+        return OffscreenCullingModule;
+    })();
+    ex.OffscreenCullingModule = OffscreenCullingModule;
+})(ex || (ex = {}));
+/// <reference path="../Interfaces/IPipelineModule.ts" />
+var ex;
+(function (ex) {
+    var EventPropagationModule = (function () {
+        function EventPropagationModule() {
+        }
+        EventPropagationModule.prototype.update = function (actor, engine, delta) {
+            var eventDispatcher = actor.eventDispatcher;
+
+            // Publish other events
+            engine.keys.forEach(function (key) {
+                eventDispatcher.publish(ex.InputKey[key], new ex.KeyEvent(key));
+            });
+
+            // Publish click events
+            engine.clicks.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[10 /* Click */], new ex.ClickEvent(e.x, e.y, e.mouseEvent));
+                    eventDispatcher.publish(ex.EventType[3 /* MouseDown */], new ex.MouseDownEvent(e.x, e.y, e.mouseEvent));
+                }
+            });
+
+            engine.mouseMove.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[4 /* MouseMove */], new ex.MouseMoveEvent(e.x, e.y, e.mouseEvent));
+                }
+            });
+
+            engine.mouseUp.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[5 /* MouseUp */], new ex.MouseUpEvent(e.x, e.y, e.mouseEvent));
+                }
+            });
+
+            engine.touchStart.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[6 /* TouchStart */], new ex.TouchStartEvent(e.x, e.y));
+                }
+            });
+
+            engine.touchMove.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[7 /* TouchMove */], new ex.TouchMoveEvent(e.x, e.y));
+                }
+            });
+
+            engine.touchEnd.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[8 /* TouchEnd */], new ex.TouchEndEvent(e.x, e.y));
+                }
+            });
+
+            engine.touchCancel.forEach(function (e) {
+                if (actor.contains(e.x, e.y)) {
+                    eventDispatcher.publish(ex.EventType[9 /* TouchCancel */], new ex.TouchCancelEvent(e.x, e.y));
+                }
+            });
+        };
+        return EventPropagationModule;
+    })();
+    ex.EventPropagationModule = EventPropagationModule;
+})(ex || (ex = {}));
+/// <reference path="../Interfaces/IPipelineModule.ts" />
+var ex;
+(function (ex) {
+    var CollisionDetectionModule = (function () {
+        function CollisionDetectionModule() {
+        }
+        CollisionDetectionModule.prototype.update = function (actor, engine, delta) {
+            var eventDispatcher = actor.eventDispatcher;
+            if (actor.collisionType !== 0 /* PreventCollision */) {
+                for (var j = 0; j < engine.currentScene.tileMaps.length; j++) {
+                    var map = engine.currentScene.tileMaps[j];
+                    var intersectMap;
+                    var side = 0 /* None */;
+                    var max = 2;
+                    var hasBounced = false;
+                    while (intersectMap = map.collides(actor)) {
+                        if (max-- < 0) {
+                            break;
+                        }
+                        side = actor.getSideFromIntersect(intersectMap);
+                        eventDispatcher.publish('collision', new ex.CollisionEvent(actor, null, side, intersectMap));
+                        if ((actor.collisionType === 2 /* Active */ || actor.collisionType === 3 /* Elastic */)) {
+                            actor.y += intersectMap.y;
+                            actor.x += intersectMap.x;
+
+                            // Naive elastic bounce
+                            if (actor.collisionType === 3 /* Elastic */ && !hasBounced) {
+                                hasBounced = true;
+                                if (side === 3 /* Left */) {
+                                    actor.dx = Math.abs(actor.dx);
+                                } else if (side === 4 /* Right */) {
+                                    actor.dx = -Math.abs(actor.dx);
+                                } else if (side === 1 /* Top */) {
+                                    actor.dy = Math.abs(actor.dy);
+                                } else if (side === 2 /* Bottom */) {
+                                    actor.dy = -Math.abs(actor.dy);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        return CollisionDetectionModule;
+    })();
+    ex.CollisionDetectionModule = CollisionDetectionModule;
+})(ex || (ex = {}));
+var ex;
+(function (ex) {
+    /**
+    * An enum that describes the sides of an Actor for collision
+    * @class Side
+    */
+    (function (Side) {
+        /**
+        @property None {Side}
+        @static
+        @final
+        */
+        Side[Side["None"] = 0] = "None";
+
+        /**
+        @property Top {Side}
+        @static
+        @final
+        */
+        Side[Side["Top"] = 1] = "Top";
+
+        /**
+        @property Bottom {Side}
+        @static
+        @final
+        */
+        Side[Side["Bottom"] = 2] = "Bottom";
+
+        /**
+        @property Left {Side}
+        @static
+        @final
+        */
+        Side[Side["Left"] = 3] = "Left";
+
+        /**
+        @property Right {Side}
+        @static
+        @final
+        */
+        Side[Side["Right"] = 4] = "Right";
+    })(ex.Side || (ex.Side = {}));
+    var Side = ex.Side;
 })(ex || (ex = {}));
 /// <reference path="Algebra.ts"/>
 /// <reference path="Events.ts"/>
@@ -1837,12 +1808,13 @@ var ex;
     })();
     ex.TileMap = TileMap;
 })(ex || (ex = {}));
-/// <reference path="Algebra.ts" />
+/// <reference path="../Algebra.ts" />
 var ex;
 (function (ex) {
     (function (CollisionStrategy) {
-        CollisionStrategy[CollisionStrategy["AxisAligned"] = 0] = "AxisAligned";
-        CollisionStrategy[CollisionStrategy["SeparatingAxis"] = 1] = "SeparatingAxis";
+        CollisionStrategy[CollisionStrategy["Naive"] = 0] = "Naive";
+        CollisionStrategy[CollisionStrategy["DynamicAABBTree"] = 1] = "DynamicAABBTree";
+        CollisionStrategy[CollisionStrategy["SeparatingAxis"] = 2] = "SeparatingAxis";
     })(ex.CollisionStrategy || (ex.CollisionStrategy = {}));
     var CollisionStrategy = ex.CollisionStrategy;
 
@@ -1859,6 +1831,10 @@ var ex;
     */
     var BoundingBox = (function () {
         function BoundingBox(left, top, right, bottom) {
+            if (typeof left === "undefined") { left = 0; }
+            if (typeof top === "undefined") { top = 0; }
+            if (typeof right === "undefined") { right = 0; }
+            if (typeof bottom === "undefined") { bottom = 0; }
             this.left = left;
             this.top = top;
             this.right = right;
@@ -1883,13 +1859,37 @@ var ex;
         };
 
         /**
-        * Tests wether a point is contained within the bounding box
-        * @method contains
-        * @param p {Point} The point to test
-        * @returns boolean
+        * Returns the perimeter of the bounding box
+        * @method getPerimeter
+        * @returns number
         */
-        BoundingBox.prototype.contains = function (p) {
-            return (this.left <= p.x && this.top <= p.y && this.bottom >= p.y && this.right >= p.x);
+        BoundingBox.prototype.getPerimeter = function () {
+            var wx = this.getWidth();
+            var wy = this.getHeight();
+            return 2 * (wx + wy);
+        };
+
+        BoundingBox.prototype.contains = function (val) {
+            if (val instanceof ex.Point) {
+                return (this.left <= val.x && this.top <= val.y && this.bottom >= val.y && this.right >= val.x);
+            } else if (val instanceof BoundingBox) {
+                if (this.left < val.left && this.top < val.top && val.bottom < this.bottom && val.right < this.right) {
+                    return true;
+                }
+                return false;
+            }
+            return false;
+        };
+
+        /**
+        * Combines this bounding box and another together returning a new bounding box
+        * @method combine
+        * @param other {BoundingBox} The bounding box to combine
+        * @returns BoundingBox
+        */
+        BoundingBox.prototype.combine = function (other) {
+            var compositeBB = new BoundingBox(Math.min(this.left, other.left), Math.min(this.top, other.top), Math.max(this.right, other.right), Math.max(this.bottom, other.bottom));
+            return compositeBB;
         };
 
         /**
@@ -1903,7 +1903,7 @@ var ex;
         BoundingBox.prototype.collides = function (collidable) {
             if (collidable instanceof BoundingBox) {
                 var other = collidable;
-                var totalBoundingBox = new BoundingBox(Math.min(this.left, other.left), Math.min(this.top, other.top), Math.max(this.right, other.right), Math.max(this.bottom, other.bottom));
+                var totalBoundingBox = this.combine(other);
 
                 // If the total bounding box is less than the sum of the 2 bounds then there is collision
                 if (totalBoundingBox.getWidth() < other.getWidth() + this.getWidth() && totalBoundingBox.getHeight() < other.getHeight() + this.getHeight()) {
@@ -2262,6 +2262,540 @@ var ex;
     })();
     ex.Timer = Timer;
 })(ex || (ex = {}));
+/// <reference path="../Actor.ts"/>
+/// <reference path="Side.ts"/>
+/// <reference path="ICollisionResolver.ts"/>
+var ex;
+(function (ex) {
+    var NaiveCollisionResolver = (function () {
+        function NaiveCollisionResolver() {
+        }
+        NaiveCollisionResolver.prototype.register = function (target) {
+            // pass
+        };
+
+        NaiveCollisionResolver.prototype.remove = function (tartet) {
+            // pass
+        };
+
+        NaiveCollisionResolver.prototype.evaluate = function (targets) {
+            // Retrieve the list of potential colliders, exclude killed, prevented, and self
+            var potentialColliders = targets.filter(function (other) {
+                return !other.isKilled() && other.collisionType !== 0 /* PreventCollision */;
+            });
+
+            var actor1;
+            var actor2;
+            var collisionPairs = [];
+
+            for (var j = 0, l = potentialColliders.length; j < l; j++) {
+                actor1 = potentialColliders[j];
+
+                for (var i = j + 1; i < l; i++) {
+                    actor2 = potentialColliders[i];
+
+                    var minimumTranslationVector;
+                    if (minimumTranslationVector = actor1.collides(actor2)) {
+                        var side = actor1.getSideFromIntersect(minimumTranslationVector);
+                        var collisionPair = new ex.CollisionPair(actor1, actor2, minimumTranslationVector, side);
+                        if (!collisionPairs.some(function (cp) {
+                            return cp.equals(collisionPair);
+                        })) {
+                            collisionPairs.push(collisionPair);
+                        }
+                    }
+                }
+            }
+
+            collisionPairs.forEach(function (p) {
+                return p.evaluate();
+            });
+
+            return collisionPairs;
+        };
+
+        NaiveCollisionResolver.prototype.update = function (targets) {
+            return 0;
+        };
+
+        NaiveCollisionResolver.prototype.debugDraw = function (ctx, delta) {
+        };
+        return NaiveCollisionResolver;
+    })();
+    ex.NaiveCollisionResolver = NaiveCollisionResolver;
+})(ex || (ex = {}));
+/// <reference path="BoundingBox.ts"/>
+var ex;
+(function (ex) {
+    var TreeNode = (function () {
+        function TreeNode(parent) {
+            this.parent = parent;
+            this.parent = parent || null;
+            this.actor = null;
+            this.bounds = new ex.BoundingBox();
+            this.left = null;
+            this.right = null;
+            this.height = 0;
+        }
+        TreeNode.prototype.isLeaf = function () {
+            return (!this.left && !this.right);
+        };
+        return TreeNode;
+    })();
+    ex.TreeNode = TreeNode;
+
+    var DynamicTree = (function () {
+        function DynamicTree() {
+            this.root = null;
+            this.nodes = {};
+        }
+        DynamicTree.prototype.insert = function (leaf) {
+            // If there are no nodes in the tree, make this the root leaf
+            if (this.root === null) {
+                this.root = leaf;
+                this.root.parent = null;
+                return;
+            }
+
+            // Search the tree for a node that is not a leaf and find the best place to insert
+            var leafAABB = leaf.bounds;
+            var currentRoot = this.root;
+            while (!currentRoot.isLeaf()) {
+                var left = currentRoot.left;
+                var right = currentRoot.right;
+
+                var area = currentRoot.bounds.getPerimeter();
+                var combinedAABB = currentRoot.bounds.combine(leafAABB);
+                var combinedArea = combinedAABB.getPerimeter();
+
+                // Calculate cost heuristic for creating a new parent and leaf
+                var cost = 2 * combinedArea;
+
+                // Minimum cost of pushing the leaf down the tree
+                var inheritanceCost = 2 * (combinedArea - area);
+
+                // Cost of descending
+                var leftCost = 0;
+                var leftCombined = leafAABB.combine(left.bounds);
+                var newArea;
+                var oldArea;
+                if (left.isLeaf()) {
+                    leftCost = leftCombined.getPerimeter() + inheritanceCost;
+                } else {
+                    oldArea = left.bounds.getPerimeter();
+                    newArea = leftCombined.getPerimeter();
+                    leftCost = (newArea - oldArea) + inheritanceCost;
+                }
+
+                var rightCost = 0;
+                var rightCombined = leafAABB.combine(right.bounds);
+                if (right.isLeaf()) {
+                    rightCost = rightCombined.getPerimeter() + inheritanceCost;
+                } else {
+                    oldArea = right.bounds.getPerimeter();
+                    newArea = rightCombined.getPerimeter();
+                    rightCost = (newArea - oldArea) + inheritanceCost;
+                }
+
+                // cost is acceptable
+                if (cost < leftCost && cost < rightCost) {
+                    break;
+                }
+
+                // Descend to the depths
+                if (leftCost < rightCost) {
+                    currentRoot = left;
+                } else {
+                    currentRoot = right;
+                }
+            }
+
+            // Create the new parent node and insert into the tree
+            var oldParent = currentRoot.parent;
+            var newParent = new TreeNode(oldParent);
+            newParent.bounds = leafAABB.combine(currentRoot.bounds);
+            newParent.height = currentRoot.height + 1;
+
+            if (oldParent !== null) {
+                // The sibling node was not the root
+                if (oldParent.left === currentRoot) {
+                    oldParent.left = newParent;
+                } else {
+                    oldParent.right = newParent;
+                }
+
+                newParent.left = currentRoot;
+                newParent.right = leaf;
+
+                currentRoot.parent = newParent;
+                leaf.parent = newParent;
+            } else {
+                // The sibling node was the root
+                newParent.left = currentRoot;
+                newParent.right = leaf;
+
+                currentRoot.parent = newParent;
+                leaf.parent = newParent;
+                this.root = newParent;
+            }
+
+            // Walk up the tree fixing heights and AABBs
+            var currentNode = leaf.parent;
+            while (currentNode) {
+                currentNode = this.balance(currentNode);
+
+                if (!currentNode.left) {
+                    throw new Error("Parent of current leaf cannot have a null left child" + currentNode);
+                }
+                if (!currentNode.right) {
+                    throw new Error("Parent of current leaf cannot have a null right child" + currentNode);
+                }
+
+                currentNode.height = 1 + Math.max(currentNode.left.height, currentNode.right.height);
+                currentNode.bounds = currentNode.left.bounds.combine(currentNode.right.bounds);
+
+                currentNode = currentNode.parent;
+            }
+        };
+
+        DynamicTree.prototype.remove = function (leaf) {
+            if (leaf === this.root) {
+                this.root = null;
+                return;
+            }
+
+            var parent = leaf.parent;
+            var grandParent = parent.parent;
+            var sibling;
+            if (parent.left === leaf) {
+                sibling = parent.right;
+            } else {
+                sibling = parent.left;
+            }
+
+            if (grandParent) {
+                if (grandParent.left === parent) {
+                    grandParent.left = sibling;
+                } else {
+                    grandParent.right = sibling;
+                }
+                sibling.parent = grandParent;
+
+                var currentNode = grandParent;
+                while (currentNode) {
+                    currentNode = this.balance(currentNode);
+                    currentNode.bounds = currentNode.left.bounds.combine(currentNode.right.bounds);
+                    currentNode.height = 1 + Math.max(currentNode.left.height, currentNode.right.height);
+
+                    currentNode = currentNode.parent;
+                }
+            } else {
+                this.root = sibling;
+                sibling.parent = null;
+            }
+        };
+
+        DynamicTree.prototype.registerActor = function (actor) {
+            var node = new TreeNode();
+            node.actor = actor;
+            node.bounds = actor.getBounds();
+            node.bounds.left -= 10;
+            node.bounds.top -= 10;
+            node.bounds.right += 10;
+            node.bounds.bottom += 10;
+            this.nodes[actor.id] = node;
+            this.insert(node);
+        };
+
+        DynamicTree.prototype.updateActor = function (actor) {
+            var node = this.nodes[actor.id];
+            if (!node)
+                return;
+            var b = actor.getBounds();
+            if (node.bounds.contains(b)) {
+                return false;
+            }
+
+            this.remove(node);
+            b.left -= 5;
+            b.top -= 5;
+            b.right += 5;
+            b.bottom += 5;
+
+            var multdx = actor.dx * 2;
+            var multdy = actor.dy * 2;
+
+            if (multdx < 0) {
+                b.left += multdx;
+            } else {
+                b.right += multdx;
+            }
+
+            if (multdy < 0) {
+                b.top += multdy;
+            } else {
+                b.bottom += multdy;
+            }
+
+            node.bounds = b;
+            this.insert(node);
+            return true;
+        };
+
+        DynamicTree.prototype.removeActor = function (actor) {
+            // todo needs implementation!
+        };
+
+        DynamicTree.prototype.balance = function (node) {
+            if (node === null) {
+                throw new Error("Cannot balance at null node");
+            }
+
+            if (node.isLeaf() || node.height < 2) {
+                return node;
+            }
+
+            var left = node.left;
+            var right = node.right;
+
+            var a = node;
+            var b = left;
+            var c = right;
+            var d = left.left;
+            var e = left.right;
+            var f = right.left;
+            var g = right.right;
+
+            var balance = c.height - b.height;
+
+            // Rotate c node up
+            if (balance > 1) {
+                // Swap the right node with it's parent
+                c.left = a;
+                c.parent = a.parent;
+                a.parent = c;
+
+                // The original node's old parent should point to the right node
+                // this is mega confusing
+                if (c.parent) {
+                    if (c.parent.left === a) {
+                        c.parent.left = c;
+                    } else {
+                        c.parent.right = c;
+                    }
+                } else {
+                    this.root = c;
+                }
+
+                // Rotate
+                if (f.height > g.height) {
+                    c.right = f;
+                    a.right = g;
+                    g.parent = a;
+
+                    a.bounds = b.bounds.combine(g.bounds);
+                    c.bounds = a.bounds.combine(f.bounds);
+
+                    a.height = 1 + Math.max(b.height, g.height);
+                    c.height = 1 + Math.max(a.height, f.height);
+                } else {
+                    c.right = g;
+                    a.right = f;
+                    f.parent = a;
+
+                    a.bounds = b.bounds.combine(f.bounds);
+                    c.bounds = a.bounds.combine(g.bounds);
+
+                    a.height = 1 + Math.max(b.height, f.height);
+                    c.height = 1 + Math.max(a.height, g.height);
+                }
+
+                return c;
+            }
+
+            // Rotate left node up
+            if (balance < -1) {
+                // swap
+                b.left = a;
+                b.parent = a.parent;
+                a.parent = b;
+
+                // node's old parent should point to b
+                if (b.parent) {
+                    if (b.parent.left === a) {
+                        b.parent.left = b;
+                    } else {
+                        if (b.parent.right !== a)
+                            throw "Error rotating Dynamic Tree";
+                        b.parent.right = b;
+                    }
+                } else {
+                    this.root = b;
+                }
+
+                // rotate
+                if (d.height > e.height) {
+                    b.right = d;
+                    a.left = e;
+                    e.parent = a;
+
+                    a.bounds = c.bounds.combine(e.bounds);
+                    b.bounds = a.bounds.combine(d.bounds);
+
+                    a.height = 1 + Math.max(c.height, e.height);
+                    b.height = 1 + Math.max(a.height, d.height);
+                } else {
+                    b.right = e;
+                    a.left = d;
+                    d.parent = a;
+
+                    a.bounds = c.bounds.combine(d.bounds);
+                    b.bounds = a.bounds.combine(e.bounds);
+
+                    a.height = 1 + Math.max(c.height, d.height);
+                    b.height = 1 + Math.max(a.height, e.height);
+                }
+                return b;
+            }
+
+            return node;
+        };
+
+        DynamicTree.prototype.getHeight = function () {
+            if (this.root === null) {
+                return 0;
+            }
+            return this.root.height;
+        };
+
+        DynamicTree.prototype.query = function (actor, callback) {
+            var bounds = actor.getBounds();
+            var helper = function (currentNode) {
+                if (currentNode && currentNode.bounds.collides(bounds)) {
+                    if (currentNode.isLeaf() && currentNode.actor !== actor) {
+                        if (callback.call(actor, currentNode.actor)) {
+                            return true;
+                        }
+                    } else {
+                        return helper(currentNode.left) || helper(currentNode.right);
+                    }
+                } else {
+                    return null;
+                }
+            };
+            return helper(this.root);
+        };
+
+        DynamicTree.prototype.rayCast = function (ray, max) {
+            // todo implement
+            return null;
+        };
+
+        DynamicTree.prototype.getNodes = function () {
+            var helper = function (currentNode) {
+                if (currentNode) {
+                    return [currentNode].concat(helper(currentNode.left), helper(currentNode.right));
+                } else {
+                    return [];
+                }
+            };
+            return helper(this.root);
+        };
+
+        DynamicTree.prototype.debugDraw = function (ctx, delta) {
+            // draw all the nodes in the Dynamic Tree
+            var helper = function (currentNode) {
+                if (currentNode) {
+                    if (currentNode.isLeaf()) {
+                        ctx.strokeStyle = 'green';
+                    } else {
+                        ctx.strokeStyle = 'white';
+                    }
+                    currentNode.bounds.debugDraw(ctx);
+
+                    if (currentNode.left)
+                        helper(currentNode.left);
+                    if (currentNode.right)
+                        helper(currentNode.right);
+                }
+            };
+
+            helper(this.root);
+        };
+        return DynamicTree;
+    })();
+    ex.DynamicTree = DynamicTree;
+})(ex || (ex = {}));
+/// <reference path="ICollisionResolver.ts"/>
+/// <reference path="DynamicTree.ts"/>
+var ex;
+(function (ex) {
+    var DynamicTreeCollisionResolver = (function () {
+        function DynamicTreeCollisionResolver() {
+            this._dynamicCollisionTree = new ex.DynamicTree();
+        }
+        DynamicTreeCollisionResolver.prototype.register = function (target) {
+            this._dynamicCollisionTree.registerActor(target);
+        };
+
+        DynamicTreeCollisionResolver.prototype.remove = function (target) {
+            this._dynamicCollisionTree.removeActor(target);
+        };
+
+        DynamicTreeCollisionResolver.prototype.evaluate = function (targets) {
+            // Retrieve the list of potential colliders, exclude killed, prevented, and self
+            var potentialColliders = targets.filter(function (other) {
+                return !other.isKilled() && other.collisionType !== 0 /* PreventCollision */;
+            });
+
+            var actor;
+            var collisionPairs = [];
+
+            for (var j = 0, l = potentialColliders.length; j < l; j++) {
+                actor = potentialColliders[j];
+
+                this._dynamicCollisionTree.query(actor, function (other) {
+                    var minimumTranslationVector;
+                    if (minimumTranslationVector = actor.collides(other)) {
+                        var side = actor.getSideFromIntersect(minimumTranslationVector);
+                        var collisionPair = new ex.CollisionPair(actor, other, minimumTranslationVector, side);
+                        if (!collisionPairs.some(function (cp) {
+                            return cp.equals(collisionPair);
+                        })) {
+                            collisionPairs.push(collisionPair);
+                        }
+                        return true;
+                    }
+                    return false;
+                });
+            }
+
+            collisionPairs.forEach(function (p) {
+                return p.evaluate();
+            });
+
+            return collisionPairs;
+        };
+
+        DynamicTreeCollisionResolver.prototype.update = function (targets) {
+            var _this = this;
+            var updated = 0;
+            targets.forEach(function (a) {
+                if (_this._dynamicCollisionTree.updateActor(a)) {
+                    updated++;
+                }
+            });
+
+            return updated;
+        };
+
+        DynamicTreeCollisionResolver.prototype.debugDraw = function (ctx, delta) {
+            this._dynamicCollisionTree.debugDraw(ctx, delta);
+        };
+        return DynamicTreeCollisionResolver;
+    })();
+    ex.DynamicTreeCollisionResolver = DynamicTreeCollisionResolver;
+})(ex || (ex = {}));
 var ex;
 (function (ex) {
     /**
@@ -2348,6 +2882,8 @@ var ex;
 })(ex || (ex = {}));
 /// <reference path="Class.ts" />
 /// <reference path="Timer.ts" />
+/// <reference path="Collision/NaiveCollisionResolver.ts"/>
+/// <reference path="Collision/DynamicTreeCollisionResolver.ts"/>
 /// <reference path="CollisionPair.ts" />
 var ex;
 (function (ex) {
@@ -2368,11 +2904,11 @@ var ex;
             */
             this.children = [];
             this.tileMaps = [];
-            this.killQueue = [];
-            this.timers = [];
-            this.cancelQueue = [];
+            this._collisionResolver = new ex.DynamicTreeCollisionResolver();
+            this._killQueue = [];
+            this._timers = [];
+            this._cancelQueue = [];
             this._isInitialized = false;
-            this._collisionPairs = [];
         }
         /**
         * This is called when the scene is made active and started. It is meant to be overriden,
@@ -2432,39 +2968,37 @@ var ex;
             });
 
             var len = 0;
-            var start = 0;
-            var end = 0;
-            var actor;
 
             for (var i = 0, len = this.children.length; i < len; i++) {
                 this.children[i].update(engine, delta);
             }
 
-            for (var i = 0, len = this._collisionPairs.length; i < len; i++) {
-                this._collisionPairs[i].evaluate();
+            // Run collision resolution strategy
+            if (this._collisionResolver) {
+                this._collisionResolver.update(this.children);
+                this._collisionResolver.evaluate(this.children);
             }
-            this._collisionPairs.length = 0;
 
             // Remove actors from scene graph after being killed
             var actorIndex = 0;
-            for (var i = 0, len = this.killQueue.length; i < len; i++) {
-                actorIndex = this.children.indexOf(this.killQueue[i]);
+            for (var i = 0, len = this._killQueue.length; i < len; i++) {
+                actorIndex = this.children.indexOf(this._killQueue[i]);
                 if (actorIndex > -1) {
                     this.children.splice(actorIndex, 1);
                 }
             }
-            this.killQueue.length = 0;
+            this._killQueue.length = 0;
 
             // Remove timers in the cancel queue before updating them
             var timerIndex = 0;
-            for (var i = 0, len = this.cancelQueue.length; i < len; i++) {
-                this.removeTimer(this.cancelQueue[i]);
+            for (var i = 0, len = this._cancelQueue.length; i < len; i++) {
+                this.removeTimer(this._cancelQueue[i]);
             }
-            this.cancelQueue.length = 0;
+            this._cancelQueue.length = 0;
 
             // Cycle through timers updating timers
             var that = this;
-            this.timers = this.timers.filter(function (timer) {
+            this._timers = this._timers.filter(function (timer) {
                 timer.update(delta);
                 return !timer.complete;
             });
@@ -2508,6 +3042,8 @@ var ex;
             this.children.forEach(function (actor) {
                 actor.debugDraw(ctx);
             });
+
+            this._collisionResolver.debugDraw(ctx, 20);
         };
 
         Scene.prototype.add = function (entity) {
@@ -2523,23 +3059,9 @@ var ex;
             }
         };
 
-        /**
-        * Adds a collision resolution pair to the current scene. Should only be called
-        * by actors.
-        * @method addCollisionPair
-        * @param collisionPair {CollisionPair}
-        *
-        */
-        Scene.prototype.addCollisionPair = function (collisionPair) {
-            if (!this._collisionPairs.some(function (cp) {
-                return cp.equals(collisionPair);
-            })) {
-                this._collisionPairs.push(collisionPair);
-            }
-        };
-
         Scene.prototype.remove = function (entity) {
             if (entity instanceof ex.Actor) {
+                this._collisionResolver.remove(entity);
                 this.removeChild(entity);
             }
             if (entity instanceof ex.Timer) {
@@ -2557,6 +3079,7 @@ var ex;
         * @param actor {Actor}
         */
         Scene.prototype.addChild = function (actor) {
+            this._collisionResolver.register(actor);
             actor.scene = this;
             this.children.push(actor);
             actor.parent = this.actor;
@@ -2589,7 +3112,7 @@ var ex;
         * @param actor {Actor} The actor to remove
         */
         Scene.prototype.removeChild = function (actor) {
-            this.killQueue.push(actor);
+            this._killQueue.push(actor);
             actor.parent = null;
         };
 
@@ -2600,7 +3123,7 @@ var ex;
         * @returns Timer
         */
         Scene.prototype.addTimer = function (timer) {
-            this.timers.push(timer);
+            this._timers.push(timer);
             timer.scene = this;
             return timer;
         };
@@ -2613,9 +3136,9 @@ var ex;
         * @returns Timer
         */
         Scene.prototype.removeTimer = function (timer) {
-            var i = this.timers.indexOf(timer);
+            var i = this._timers.indexOf(timer);
             if (i !== -1) {
-                this.timers.splice(i, 1);
+                this._timers.splice(i, 1);
             }
             return timer;
         };
@@ -2627,7 +3150,7 @@ var ex;
         * @returns Timer
         */
         Scene.prototype.cancelTimer = function (timer) {
-            this.cancelQueue.push(timer);
+            this._cancelQueue.push(timer);
             return timer;
         };
 
@@ -2638,758 +3161,22 @@ var ex;
         * @returns boolean
         */
         Scene.prototype.isTimerActive = function (timer) {
-            return (this.timers.indexOf(timer) > -1);
+            return (this._timers.indexOf(timer) > -1);
         };
         return Scene;
     })(ex.Class);
     ex.Scene = Scene;
-})(ex || (ex = {}));
-/// <reference path="Algebra.ts" />
-/// <reference path="Engine.ts" />
-/// <reference path="Actor.ts" />
-var ex;
-(function (ex) {
-    (function (Internal) {
-        (function (Actions) {
-            var MoveTo = (function () {
-                function MoveTo(actor, destx, desty, speed) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.end = new ex.Vector(destx, desty);
-                    this.speed = speed;
-                }
-                MoveTo.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.start = new ex.Vector(this.actor.x, this.actor.y);
-                        this.distance = this.start.distance(this.end);
-                        this.dir = this.end.minus(this.start).normalize();
-                    }
-                    var m = this.dir.scale(this.speed);
-                    this.actor.dx = m.x;
-                    this.actor.dy = m.y;
-
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.x = this.end.x;
-                        this.actor.y = this.end.y;
-                        this.actor.dy = 0;
-                        this.actor.dx = 0;
-                    }
-                };
-
-                MoveTo.prototype.isComplete = function (actor) {
-                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this.start) >= this.distance;
-                };
-
-                MoveTo.prototype.stop = function () {
-                    this.actor.dy = 0;
-                    this.actor.dx = 0;
-                    this._stopped = true;
-                };
-
-                MoveTo.prototype.reset = function () {
-                    this._started = false;
-                };
-                return MoveTo;
-            })();
-            Actions.MoveTo = MoveTo;
-
-            var MoveBy = (function () {
-                function MoveBy(actor, destx, desty, time) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.end = new ex.Vector(destx, desty);
-                    if (time <= 0) {
-                        ex.Logger.getInstance().error("Attempted to moveBy time less than or equal to zero : " + time);
-                        throw new Error("Cannot move in time <= 0");
-                    }
-                    this.time = time;
-                }
-                MoveBy.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.start = new ex.Vector(this.actor.x, this.actor.y);
-                        this.distance = this.start.distance(this.end);
-                        this.dir = this.end.minus(this.start).normalize();
-                        this.speed = this.distance / (this.time / 1000);
-                    }
-
-                    var m = this.dir.scale(this.speed);
-                    this.actor.dx = m.x;
-                    this.actor.dy = m.y;
-
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.x = this.end.x;
-                        this.actor.y = this.end.y;
-                        this.actor.dy = 0;
-                        this.actor.dx = 0;
-                    }
-                };
-
-                MoveBy.prototype.isComplete = function (actor) {
-                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this.start) >= this.distance;
-                };
-
-                MoveBy.prototype.stop = function () {
-                    this.actor.dy = 0;
-                    this.actor.dx = 0;
-                    this._stopped = true;
-                };
-
-                MoveBy.prototype.reset = function () {
-                    this._started = false;
-                };
-                return MoveBy;
-            })();
-            Actions.MoveBy = MoveBy;
-
-            var Follow = (function () {
-                function Follow(actor, actorToFollow, followDistance) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.actorToFollow = actorToFollow;
-                    this.current = new ex.Vector(this.actor.x, this.actor.y);
-                    this.end = new ex.Vector(actorToFollow.x, actorToFollow.y);
-                    this.maximumDistance = (followDistance != undefined) ? followDistance : this.current.distance(this.end);
-                    this.speed = 0;
-                }
-                Follow.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.distanceBetween = this.current.distance(this.end);
-                        this.dir = this.end.minus(this.current).normalize();
-                    }
-
-                    var actorToFollowSpeed = Math.sqrt(Math.pow(this.actorToFollow.dx, 2) + Math.pow(this.actorToFollow.dy, 2));
-                    if (actorToFollowSpeed != 0) {
-                        this.speed = actorToFollowSpeed;
-                    }
-                    this.current.x = this.actor.x;
-                    this.current.y = this.actor.y;
-
-                    this.end.x = this.actorToFollow.x;
-                    this.end.y = this.actorToFollow.y;
-                    this.distanceBetween = this.current.distance(this.end);
-                    this.dir = this.end.minus(this.current).normalize();
-
-                    if (this.distanceBetween >= this.maximumDistance) {
-                        var m = this.dir.scale(this.speed);
-                        this.actor.dx = m.x;
-                        this.actor.dy = m.y;
-                    } else {
-                        this.actor.dx = 0;
-                        this.actor.dy = 0;
-                    }
-
-                    if (this.isComplete(this.actor)) {
-                        // TODO this should never occur
-                        this.actor.x = this.end.x;
-                        this.actor.y = this.end.y;
-                        this.actor.dy = 0;
-                        this.actor.dx = 0;
-                    }
-                };
-
-                Follow.prototype.stop = function () {
-                    this.actor.dy = 0;
-                    this.actor.dx = 0;
-                    this._stopped = true;
-                };
-
-                Follow.prototype.isComplete = function (actor) {
-                    // the actor following should never stop unless specified to do so
-                    return this._stopped;
-                };
-
-                Follow.prototype.reset = function () {
-                    this._started = false;
-                };
-                return Follow;
-            })();
-            Actions.Follow = Follow;
-
-            var Meet = (function () {
-                function Meet(actor, actorToMeet, speed) {
-                    this._started = false;
-                    this._stopped = false;
-                    this._speedWasSpecified = false;
-                    this.actor = actor;
-                    this.actorToMeet = actorToMeet;
-                    this.current = new ex.Vector(this.actor.x, this.actor.y);
-                    this.end = new ex.Vector(actorToMeet.x, actorToMeet.y);
-                    this.speed = speed || 0;
-
-                    if (speed != undefined) {
-                        this._speedWasSpecified = true;
-                    }
-                }
-                Meet.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.distanceBetween = this.current.distance(this.end);
-                        this.dir = this.end.minus(this.current).normalize();
-                    }
-
-                    var actorToMeetSpeed = Math.sqrt(Math.pow(this.actorToMeet.dx, 2) + Math.pow(this.actorToMeet.dy, 2));
-                    if ((actorToMeetSpeed != 0) && (!this._speedWasSpecified)) {
-                        this.speed = actorToMeetSpeed;
-                    }
-                    this.current.x = this.actor.x;
-                    this.current.y = this.actor.y;
-
-                    this.end.x = this.actorToMeet.x;
-                    this.end.y = this.actorToMeet.y;
-                    this.distanceBetween = this.current.distance(this.end);
-                    this.dir = this.end.minus(this.current).normalize();
-
-                    var m = this.dir.scale(this.speed);
-                    this.actor.dx = m.x;
-                    this.actor.dy = m.y;
-
-                    if (this.isComplete(this.actor)) {
-                        // console.log("meeting is complete")
-                        this.actor.x = this.end.x;
-                        this.actor.y = this.end.y;
-                        this.actor.dy = 0;
-                        this.actor.dx = 0;
-                    }
-                };
-
-                Meet.prototype.isComplete = function (actor) {
-                    return this._stopped || (this.distanceBetween <= 1);
-                };
-
-                Meet.prototype.stop = function () {
-                    this.actor.dy = 0;
-                    this.actor.dx = 0;
-                    this._stopped = true;
-                };
-
-                Meet.prototype.reset = function () {
-                    this._started = false;
-                };
-                return Meet;
-            })();
-            Actions.Meet = Meet;
-
-            var RotateTo = (function () {
-                function RotateTo(actor, angleRadians, speed) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.end = angleRadians;
-                    this.speed = speed;
-                }
-                RotateTo.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.start = this.actor.rotation;
-                        this.distance = Math.abs(this.end - this.start);
-                    }
-                    this.actor.rx = this.speed;
-
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.rotation = this.end;
-                        this.actor.rx = 0;
-                    }
-                };
-
-                RotateTo.prototype.isComplete = function (actor) {
-                    return this._stopped || (Math.abs(this.actor.rotation - this.start) >= this.distance);
-                };
-
-                RotateTo.prototype.stop = function () {
-                    this.actor.rx = 0;
-                    this._stopped = true;
-                };
-
-                RotateTo.prototype.reset = function () {
-                    this._started = false;
-                };
-                return RotateTo;
-            })();
-            Actions.RotateTo = RotateTo;
-
-            var RotateBy = (function () {
-                function RotateBy(actor, angleRadians, time) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.end = angleRadians;
-                    this.time = time;
-                    this.speed = (this.end - this.actor.rotation) / time * 1000;
-                }
-                RotateBy.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.start = this.actor.rotation;
-                        this.distance = Math.abs(this.end - this.start);
-                    }
-                    this.actor.rx = this.speed;
-
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.rotation = this.end;
-                        this.actor.rx = 0;
-                    }
-                };
-
-                RotateBy.prototype.isComplete = function (actor) {
-                    return this._stopped || (Math.abs(this.actor.rotation - this.start) >= this.distance);
-                };
-
-                RotateBy.prototype.stop = function () {
-                    this.actor.rx = 0;
-                    this._stopped = true;
-                };
-
-                RotateBy.prototype.reset = function () {
-                    this._started = false;
-                };
-                return RotateBy;
-            })();
-            Actions.RotateBy = RotateBy;
-
-            var ScaleTo = (function () {
-                function ScaleTo(actor, scaleX, scaleY, speedX, speedY) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.endX = scaleX;
-                    this.endY = scaleY;
-                    this.speedX = speedX;
-                    this.speedY = speedY;
-                }
-                ScaleTo.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.startX = this.actor.scaleX;
-                        this.startY = this.actor.scaleY;
-                        this.distanceX = Math.abs(this.endX - this.startX);
-                        this.distanceY = Math.abs(this.endY - this.startY);
-                    }
-
-                    if (!(Math.abs(this.actor.scaleX - this.startX) >= this.distanceX)) {
-                        var directionX = this.endY < this.startY ? -1 : 1;
-                        this.actor.sx = this.speedX * directionX;
-                    } else {
-                        this.actor.sx = 0;
-                    }
-
-                    if (!(Math.abs(this.actor.scaleY - this.startY) >= this.distanceY)) {
-                        var directionY = this.endY < this.startY ? -1 : 1;
-                        this.actor.sy = this.speedY * directionY;
-                    } else {
-                        this.actor.sy = 0;
-                    }
-
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.scaleX = this.endX;
-                        this.actor.scaleY = this.endY;
-                        this.actor.sx = 0;
-                        this.actor.sy = 0;
-                    }
-                };
-
-                ScaleTo.prototype.isComplete = function (actor) {
-                    return this._stopped || ((Math.abs(this.actor.scaleX - this.startX) >= this.distanceX) && (Math.abs(this.actor.scaleY - this.startY) >= this.distanceY));
-                };
-
-                ScaleTo.prototype.stop = function () {
-                    this.actor.sx = 0;
-                    this.actor.sy = 0;
-                    this._stopped = true;
-                };
-
-                ScaleTo.prototype.reset = function () {
-                    this._started = false;
-                };
-                return ScaleTo;
-            })();
-            Actions.ScaleTo = ScaleTo;
-
-            var ScaleBy = (function () {
-                function ScaleBy(actor, scaleX, scaleY, time) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.endX = scaleX;
-                    this.endY = scaleY;
-                    this.time = time;
-                    this.speedX = (this.endX - this.actor.scaleX) / time * 1000;
-                    this.speedY = (this.endY - this.actor.scaleY) / time * 1000;
-                }
-                ScaleBy.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.startX = this.actor.scaleX;
-                        this.startY = this.actor.scaleY;
-                        this.distanceX = Math.abs(this.endX - this.startX);
-                        this.distanceY = Math.abs(this.endY - this.startY);
-                    }
-                    var directionX = this.endX < this.startX ? -1 : 1;
-                    var directionY = this.endY < this.startY ? -1 : 1;
-                    this.actor.sx = this.speedX * directionX;
-                    this.actor.sy = this.speedY * directionY;
-
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.scaleX = this.endX;
-                        this.actor.scaleY = this.endY;
-                        this.actor.sx = 0;
-                        this.actor.sy = 0;
-                    }
-                };
-
-                ScaleBy.prototype.isComplete = function (actor) {
-                    return this._stopped || ((Math.abs(this.actor.scaleX - this.startX) >= this.distanceX) && (Math.abs(this.actor.scaleY - this.startY) >= this.distanceY));
-                };
-
-                ScaleBy.prototype.stop = function () {
-                    this.actor.sx = 0;
-                    this.actor.sy = 0;
-                    this._stopped = true;
-                };
-
-                ScaleBy.prototype.reset = function () {
-                    this._started = false;
-                };
-                return ScaleBy;
-            })();
-            Actions.ScaleBy = ScaleBy;
-
-            var Delay = (function () {
-                function Delay(actor, delay) {
-                    this.elapsedTime = 0;
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.delay = delay;
-                }
-                Delay.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                    }
-
-                    this.x = this.actor.x;
-                    this.y = this.actor.y;
-
-                    this.elapsedTime += delta;
-                };
-
-                Delay.prototype.isComplete = function (actor) {
-                    return this._stopped || (this.elapsedTime >= this.delay);
-                };
-
-                Delay.prototype.stop = function () {
-                    this._stopped = true;
-                };
-
-                Delay.prototype.reset = function () {
-                    this.elapsedTime = 0;
-                    this._started = false;
-                };
-                return Delay;
-            })();
-            Actions.Delay = Delay;
-
-            var Blink = (function () {
-                function Blink(actor, timeVisible, timeNotVisible, numBlinks) {
-                    if (typeof numBlinks === "undefined") { numBlinks = 1; }
-                    this.timeVisible = 0;
-                    this.timeNotVisible = 0;
-                    this.elapsedTime = 0;
-                    this.totalTime = 0;
-                    this._stopped = false;
-                    this._started = false;
-                    this.actor = actor;
-                    this.timeVisible = timeVisible;
-                    this.timeNotVisible = timeNotVisible;
-                    this.duration = (timeVisible + timeNotVisible) * numBlinks;
-                }
-                Blink.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                    }
-
-                    this.elapsedTime += delta;
-                    this.totalTime += delta;
-                    if (this.actor.visible && this.elapsedTime >= this.timeVisible) {
-                        this.actor.visible = false;
-                        this.elapsedTime = 0;
-                    }
-
-                    if (!this.actor.visible && this.elapsedTime >= this.timeNotVisible) {
-                        this.actor.visible = true;
-                        this.elapsedTime = 0;
-                    }
-
-                    if (this.isComplete(this.actor)) {
-                        this.actor.visible = true;
-                    }
-                };
-
-                Blink.prototype.isComplete = function (actor) {
-                    return this._stopped || (this.totalTime >= this.duration);
-                };
-
-                Blink.prototype.stop = function () {
-                    this.actor.visible = true;
-                    this._stopped = true;
-                };
-
-                Blink.prototype.reset = function () {
-                    this._started = false;
-                    this.elapsedTime = 0;
-                    this.totalTime = 0;
-                };
-                return Blink;
-            })();
-            Actions.Blink = Blink;
-
-            var Fade = (function () {
-                function Fade(actor, endOpacity, speed) {
-                    this.multiplyer = 1;
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.endOpacity = endOpacity;
-                    this.speed = speed;
-                    if (endOpacity < actor.opacity) {
-                        this.multiplyer = -1;
-                    }
-                }
-                Fade.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                    }
-                    if (this.speed > 0) {
-                        this.actor.opacity += this.multiplyer * (Math.abs(this.actor.opacity - this.endOpacity) * delta) / this.speed;
-                    }
-                    this.speed -= delta;
-
-                    ex.Logger.getInstance().debug("actor opacity: " + this.actor.opacity);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.opacity = this.endOpacity;
-                    }
-                };
-
-                Fade.prototype.isComplete = function (actor) {
-                    return this._stopped || (Math.abs(this.actor.opacity - this.endOpacity) < 0.05);
-                };
-
-                Fade.prototype.stop = function () {
-                    this._stopped = true;
-                };
-
-                Fade.prototype.reset = function () {
-                    this._started = false;
-                };
-                return Fade;
-            })();
-            Actions.Fade = Fade;
-
-            var Die = (function () {
-                function Die(actor) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                }
-                Die.prototype.update = function (delta) {
-                    this.actor.actionQueue.clearActions();
-                    this.actor.kill();
-                    this._stopped = true;
-                };
-
-                Die.prototype.isComplete = function () {
-                    return this._stopped;
-                };
-
-                Die.prototype.stop = function () {
-                };
-
-                Die.prototype.reset = function () {
-                };
-                return Die;
-            })();
-            Actions.Die = Die;
-
-            var CallMethod = (function () {
-                function CallMethod(actor, method) {
-                    this._method = null;
-                    this._actor = null;
-                    this._hasBeenCalled = false;
-                    this._actor = actor;
-                    this._method = method;
-                }
-                CallMethod.prototype.update = function (delta) {
-                    this._method.call(this._actor);
-                    this._hasBeenCalled = true;
-                };
-                CallMethod.prototype.isComplete = function (actor) {
-                    return this._hasBeenCalled;
-                };
-                CallMethod.prototype.reset = function () {
-                    this._hasBeenCalled = false;
-                };
-                CallMethod.prototype.stop = function () {
-                    this._hasBeenCalled = true;
-                };
-                return CallMethod;
-            })();
-            Actions.CallMethod = CallMethod;
-
-            var Repeat = (function () {
-                function Repeat(actor, repeat, actions) {
-                    var _this = this;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.actionQueue = new ActionQueue(actor);
-                    this.repeat = repeat;
-                    this.originalRepeat = repeat;
-                    actions.forEach(function (action) {
-                        action.reset();
-                        _this.actionQueue.add(action);
-                    });
-                }
-                Repeat.prototype.update = function (delta) {
-                    this.x = this.actor.x;
-                    this.y = this.actor.y;
-                    if (!this.actionQueue.hasNext()) {
-                        this.actionQueue.reset();
-                        this.repeat--;
-                    }
-                    this.actionQueue.update(delta);
-                };
-
-                Repeat.prototype.isComplete = function () {
-                    return this._stopped || (this.repeat <= 0);
-                };
-
-                Repeat.prototype.stop = function () {
-                    this._stopped = true;
-                };
-
-                Repeat.prototype.reset = function () {
-                    this.repeat = this.originalRepeat;
-                };
-                return Repeat;
-            })();
-            Actions.Repeat = Repeat;
-
-            var RepeatForever = (function () {
-                function RepeatForever(actor, actions) {
-                    var _this = this;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.actionQueue = new ActionQueue(actor);
-                    actions.forEach(function (action) {
-                        action.reset();
-                        _this.actionQueue.add(action);
-                    });
-                }
-                RepeatForever.prototype.update = function (delta) {
-                    this.x = this.actor.x;
-                    this.y = this.actor.y;
-                    if (this._stopped) {
-                        return;
-                    }
-
-                    if (!this.actionQueue.hasNext()) {
-                        this.actionQueue.reset();
-                    }
-
-                    this.actionQueue.update(delta);
-                };
-
-                RepeatForever.prototype.isComplete = function () {
-                    return this._stopped;
-                };
-
-                RepeatForever.prototype.stop = function () {
-                    this._stopped = true;
-                    this.actionQueue.clearActions();
-                };
-
-                RepeatForever.prototype.reset = function () {
-                };
-                return RepeatForever;
-            })();
-            Actions.RepeatForever = RepeatForever;
-
-            var ActionQueue = (function () {
-                function ActionQueue(actor) {
-                    this._actions = [];
-                    this._completedActions = [];
-                    this.actor = actor;
-                }
-                ActionQueue.prototype.add = function (action) {
-                    this._actions.push(action);
-                };
-
-                ActionQueue.prototype.remove = function (action) {
-                    var index = this._actions.indexOf(action);
-                    this._actions.splice(index, 1);
-                };
-
-                ActionQueue.prototype.clearActions = function () {
-                    this._actions.length = 0;
-                    this._completedActions.length = 0;
-                    this._currentAction.stop();
-                };
-
-                ActionQueue.prototype.getActions = function () {
-                    return this._actions.concat(this._completedActions);
-                };
-
-                ActionQueue.prototype.hasNext = function () {
-                    return this._actions.length > 0;
-                };
-
-                ActionQueue.prototype.reset = function () {
-                    this._actions = this.getActions();
-                    this._actions.forEach(function (action) {
-                        action.reset();
-                    });
-                    this._completedActions = [];
-                };
-
-                ActionQueue.prototype.update = function (delta) {
-                    if (this._actions.length > 0) {
-                        this._currentAction = this._actions[0];
-                        this._currentAction.update(delta);
-
-                        if (this._currentAction.isComplete(this.actor)) {
-                            //Logger.getInstance().log("Action complete!", Log.DEBUG);
-                            this._completedActions.push(this._actions.shift());
-                        }
-                    }
-                };
-                return ActionQueue;
-            })();
-            Actions.ActionQueue = ActionQueue;
-        })(Internal.Actions || (Internal.Actions = {}));
-        var Actions = Internal.Actions;
-    })(ex.Internal || (ex.Internal = {}));
-    var Internal = ex.Internal;
 })(ex || (ex = {}));
 /// <reference path="Interfaces/IDrawable.ts" />
 /// <reference path="Modules/MovementModule.ts" />
 /// <reference path="Modules/OffscreenCullingModule.ts" />
 /// <reference path="Modules/EventPropagationModule.ts" />
 /// <reference path="Modules/CollisionDetectionModule.ts" />
-/// <reference path="Side.ts" />
+/// <reference path="Collision/Side.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util.ts" />
 /// <reference path="TileMap.ts" />
-/// <reference path="BoundingBox.ts" />
+/// <reference path="Collision/BoundingBox.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Action.ts" />
 var ex;
@@ -3465,6 +3252,10 @@ var ex;
         __extends(Actor, _super);
         function Actor(x, y, width, height, color) {
             _super.call(this);
+            /**
+            * The unique identifier for the actor
+            */
+            this.id = Actor.maxId++;
             /**
             * The x coordinate of the actor (left edge)
             * @property x {number}
@@ -3602,7 +3393,8 @@ var ex;
 
             // Build default pipeline
             this.pipeline.push(new ex.MovementModule());
-            this.pipeline.push(new ex.CollisionDetectionModule());
+
+            //this.pipeline.push(new ex.CollisionDetectionModule());
             this.pipeline.push(new ex.OffscreenCullingModule());
             this.pipeline.push(new ex.EventPropagationModule());
 
@@ -4233,7 +4025,6 @@ var ex;
             // Recalcuate the anchor point
             this.calculatedAnchor = new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
 
-            this.sceneNode.update(engine, delta);
             var eventDispatcher = this.eventDispatcher;
 
             // Update action queue
@@ -4327,6 +4118,7 @@ var ex;
 
             ctx.restore();
         };
+        Actor.maxId = 0;
         return Actor;
     })(ex.Class);
     ex.Actor = Actor;
@@ -7675,7 +7467,7 @@ var ex;
 /// <reference path="Class.ts" />
 /// <reference path="Color.ts" />
 /// <reference path="Log.ts" />
-/// <reference path="Side.ts" />
+/// <reference path="Collision/Side.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actor.ts" />
 /// <reference path="Trigger.ts" />
@@ -7940,6 +7732,11 @@ var ex;
         __extends(Engine, _super);
         function Engine(width, height, canvasElementId, displayMode) {
             _super.call(this);
+            /**
+            * Sets or gets the collision strategy for Excalibur
+            * @property collisionStrategy {CollisionStrategy}
+            */
+            this.collisionStrategy = 1 /* DynamicAABBTree */;
             this.hasStarted = false;
             // Key Events
             this.keys = [];
@@ -8759,10 +8556,881 @@ var ex;
     ex.Engine = Engine;
     ;
 })(ex || (ex = {}));
-//# sourceMappingURL=excalibur-0.2.5.js.map
+/// <reference path="Algebra.ts" />
+/// <reference path="Engine.ts" />
+/// <reference path="Actor.ts" />
+var ex;
+(function (ex) {
+    (function (Internal) {
+        (function (Actions) {
+            var MoveTo = (function () {
+                function MoveTo(actor, destx, desty, speed) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.end = new ex.Vector(destx, desty);
+                    this.speed = speed;
+                }
+                MoveTo.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.start = new ex.Vector(this.actor.x, this.actor.y);
+                        this.distance = this.start.distance(this.end);
+                        this.dir = this.end.minus(this.start).normalize();
+                    }
+                    var m = this.dir.scale(this.speed);
+                    this.actor.dx = m.x;
+                    this.actor.dy = m.y;
 
-;
-// Concatenated onto excalibur after build
-// Exports the excalibur module so it can be used with browserify
-// https://github.com/excaliburjs/Excalibur/issues/312
-if (typeof module !== 'undefined') {module.exports = ex;}
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.x = this.end.x;
+                        this.actor.y = this.end.y;
+                        this.actor.dy = 0;
+                        this.actor.dx = 0;
+                    }
+                };
+
+                MoveTo.prototype.isComplete = function (actor) {
+                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this.start) >= this.distance;
+                };
+
+                MoveTo.prototype.stop = function () {
+                    this.actor.dy = 0;
+                    this.actor.dx = 0;
+                    this._stopped = true;
+                };
+
+                MoveTo.prototype.reset = function () {
+                    this._started = false;
+                };
+                return MoveTo;
+            })();
+            Actions.MoveTo = MoveTo;
+
+            var MoveBy = (function () {
+                function MoveBy(actor, destx, desty, time) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.end = new ex.Vector(destx, desty);
+                    if (time <= 0) {
+                        ex.Logger.getInstance().error("Attempted to moveBy time less than or equal to zero : " + time);
+                        throw new Error("Cannot move in time <= 0");
+                    }
+                    this.time = time;
+                }
+                MoveBy.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.start = new ex.Vector(this.actor.x, this.actor.y);
+                        this.distance = this.start.distance(this.end);
+                        this.dir = this.end.minus(this.start).normalize();
+                        this.speed = this.distance / (this.time / 1000);
+                    }
+
+                    var m = this.dir.scale(this.speed);
+                    this.actor.dx = m.x;
+                    this.actor.dy = m.y;
+
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.x = this.end.x;
+                        this.actor.y = this.end.y;
+                        this.actor.dy = 0;
+                        this.actor.dx = 0;
+                    }
+                };
+
+                MoveBy.prototype.isComplete = function (actor) {
+                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this.start) >= this.distance;
+                };
+
+                MoveBy.prototype.stop = function () {
+                    this.actor.dy = 0;
+                    this.actor.dx = 0;
+                    this._stopped = true;
+                };
+
+                MoveBy.prototype.reset = function () {
+                    this._started = false;
+                };
+                return MoveBy;
+            })();
+            Actions.MoveBy = MoveBy;
+
+            var Follow = (function () {
+                function Follow(actor, actorToFollow, followDistance) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.actorToFollow = actorToFollow;
+                    this.current = new ex.Vector(this.actor.x, this.actor.y);
+                    this.end = new ex.Vector(actorToFollow.x, actorToFollow.y);
+                    this.maximumDistance = (followDistance != undefined) ? followDistance : this.current.distance(this.end);
+                    this.speed = 0;
+                }
+                Follow.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.distanceBetween = this.current.distance(this.end);
+                        this.dir = this.end.minus(this.current).normalize();
+                    }
+
+                    var actorToFollowSpeed = Math.sqrt(Math.pow(this.actorToFollow.dx, 2) + Math.pow(this.actorToFollow.dy, 2));
+                    if (actorToFollowSpeed != 0) {
+                        this.speed = actorToFollowSpeed;
+                    }
+                    this.current.x = this.actor.x;
+                    this.current.y = this.actor.y;
+
+                    this.end.x = this.actorToFollow.x;
+                    this.end.y = this.actorToFollow.y;
+                    this.distanceBetween = this.current.distance(this.end);
+                    this.dir = this.end.minus(this.current).normalize();
+
+                    if (this.distanceBetween >= this.maximumDistance) {
+                        var m = this.dir.scale(this.speed);
+                        this.actor.dx = m.x;
+                        this.actor.dy = m.y;
+                    } else {
+                        this.actor.dx = 0;
+                        this.actor.dy = 0;
+                    }
+
+                    if (this.isComplete(this.actor)) {
+                        // TODO this should never occur
+                        this.actor.x = this.end.x;
+                        this.actor.y = this.end.y;
+                        this.actor.dy = 0;
+                        this.actor.dx = 0;
+                    }
+                };
+
+                Follow.prototype.stop = function () {
+                    this.actor.dy = 0;
+                    this.actor.dx = 0;
+                    this._stopped = true;
+                };
+
+                Follow.prototype.isComplete = function (actor) {
+                    // the actor following should never stop unless specified to do so
+                    return this._stopped;
+                };
+
+                Follow.prototype.reset = function () {
+                    this._started = false;
+                };
+                return Follow;
+            })();
+            Actions.Follow = Follow;
+
+            var Meet = (function () {
+                function Meet(actor, actorToMeet, speed) {
+                    this._started = false;
+                    this._stopped = false;
+                    this._speedWasSpecified = false;
+                    this.actor = actor;
+                    this.actorToMeet = actorToMeet;
+                    this.current = new ex.Vector(this.actor.x, this.actor.y);
+                    this.end = new ex.Vector(actorToMeet.x, actorToMeet.y);
+                    this.speed = speed || 0;
+
+                    if (speed != undefined) {
+                        this._speedWasSpecified = true;
+                    }
+                }
+                Meet.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.distanceBetween = this.current.distance(this.end);
+                        this.dir = this.end.minus(this.current).normalize();
+                    }
+
+                    var actorToMeetSpeed = Math.sqrt(Math.pow(this.actorToMeet.dx, 2) + Math.pow(this.actorToMeet.dy, 2));
+                    if ((actorToMeetSpeed != 0) && (!this._speedWasSpecified)) {
+                        this.speed = actorToMeetSpeed;
+                    }
+                    this.current.x = this.actor.x;
+                    this.current.y = this.actor.y;
+
+                    this.end.x = this.actorToMeet.x;
+                    this.end.y = this.actorToMeet.y;
+                    this.distanceBetween = this.current.distance(this.end);
+                    this.dir = this.end.minus(this.current).normalize();
+
+                    var m = this.dir.scale(this.speed);
+                    this.actor.dx = m.x;
+                    this.actor.dy = m.y;
+
+                    if (this.isComplete(this.actor)) {
+                        // console.log("meeting is complete")
+                        this.actor.x = this.end.x;
+                        this.actor.y = this.end.y;
+                        this.actor.dy = 0;
+                        this.actor.dx = 0;
+                    }
+                };
+
+                Meet.prototype.isComplete = function (actor) {
+                    return this._stopped || (this.distanceBetween <= 1);
+                };
+
+                Meet.prototype.stop = function () {
+                    this.actor.dy = 0;
+                    this.actor.dx = 0;
+                    this._stopped = true;
+                };
+
+                Meet.prototype.reset = function () {
+                    this._started = false;
+                };
+                return Meet;
+            })();
+            Actions.Meet = Meet;
+
+            var RotateTo = (function () {
+                function RotateTo(actor, angleRadians, speed) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.end = angleRadians;
+                    this.speed = speed;
+                }
+                RotateTo.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.start = this.actor.rotation;
+                        this.distance = Math.abs(this.end - this.start);
+                    }
+                    this.actor.rx = this.speed;
+
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.rotation = this.end;
+                        this.actor.rx = 0;
+                    }
+                };
+
+                RotateTo.prototype.isComplete = function (actor) {
+                    return this._stopped || (Math.abs(this.actor.rotation - this.start) >= this.distance);
+                };
+
+                RotateTo.prototype.stop = function () {
+                    this.actor.rx = 0;
+                    this._stopped = true;
+                };
+
+                RotateTo.prototype.reset = function () {
+                    this._started = false;
+                };
+                return RotateTo;
+            })();
+            Actions.RotateTo = RotateTo;
+
+            var RotateBy = (function () {
+                function RotateBy(actor, angleRadians, time) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.end = angleRadians;
+                    this.time = time;
+                    this.speed = (this.end - this.actor.rotation) / time * 1000;
+                }
+                RotateBy.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.start = this.actor.rotation;
+                        this.distance = Math.abs(this.end - this.start);
+                    }
+                    this.actor.rx = this.speed;
+
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.rotation = this.end;
+                        this.actor.rx = 0;
+                    }
+                };
+
+                RotateBy.prototype.isComplete = function (actor) {
+                    return this._stopped || (Math.abs(this.actor.rotation - this.start) >= this.distance);
+                };
+
+                RotateBy.prototype.stop = function () {
+                    this.actor.rx = 0;
+                    this._stopped = true;
+                };
+
+                RotateBy.prototype.reset = function () {
+                    this._started = false;
+                };
+                return RotateBy;
+            })();
+            Actions.RotateBy = RotateBy;
+
+            var ScaleTo = (function () {
+                function ScaleTo(actor, scaleX, scaleY, speedX, speedY) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.endX = scaleX;
+                    this.endY = scaleY;
+                    this.speedX = speedX;
+                    this.speedY = speedY;
+                }
+                ScaleTo.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.startX = this.actor.scaleX;
+                        this.startY = this.actor.scaleY;
+                        this.distanceX = Math.abs(this.endX - this.startX);
+                        this.distanceY = Math.abs(this.endY - this.startY);
+                    }
+
+                    if (!(Math.abs(this.actor.scaleX - this.startX) >= this.distanceX)) {
+                        var directionX = this.endY < this.startY ? -1 : 1;
+                        this.actor.sx = this.speedX * directionX;
+                    } else {
+                        this.actor.sx = 0;
+                    }
+
+                    if (!(Math.abs(this.actor.scaleY - this.startY) >= this.distanceY)) {
+                        var directionY = this.endY < this.startY ? -1 : 1;
+                        this.actor.sy = this.speedY * directionY;
+                    } else {
+                        this.actor.sy = 0;
+                    }
+
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.scaleX = this.endX;
+                        this.actor.scaleY = this.endY;
+                        this.actor.sx = 0;
+                        this.actor.sy = 0;
+                    }
+                };
+
+                ScaleTo.prototype.isComplete = function (actor) {
+                    return this._stopped || ((Math.abs(this.actor.scaleX - this.startX) >= this.distanceX) && (Math.abs(this.actor.scaleY - this.startY) >= this.distanceY));
+                };
+
+                ScaleTo.prototype.stop = function () {
+                    this.actor.sx = 0;
+                    this.actor.sy = 0;
+                    this._stopped = true;
+                };
+
+                ScaleTo.prototype.reset = function () {
+                    this._started = false;
+                };
+                return ScaleTo;
+            })();
+            Actions.ScaleTo = ScaleTo;
+
+            var ScaleBy = (function () {
+                function ScaleBy(actor, scaleX, scaleY, time) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.endX = scaleX;
+                    this.endY = scaleY;
+                    this.time = time;
+                    this.speedX = (this.endX - this.actor.scaleX) / time * 1000;
+                    this.speedY = (this.endY - this.actor.scaleY) / time * 1000;
+                }
+                ScaleBy.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.startX = this.actor.scaleX;
+                        this.startY = this.actor.scaleY;
+                        this.distanceX = Math.abs(this.endX - this.startX);
+                        this.distanceY = Math.abs(this.endY - this.startY);
+                    }
+                    var directionX = this.endX < this.startX ? -1 : 1;
+                    var directionY = this.endY < this.startY ? -1 : 1;
+                    this.actor.sx = this.speedX * directionX;
+                    this.actor.sy = this.speedY * directionY;
+
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.scaleX = this.endX;
+                        this.actor.scaleY = this.endY;
+                        this.actor.sx = 0;
+                        this.actor.sy = 0;
+                    }
+                };
+
+                ScaleBy.prototype.isComplete = function (actor) {
+                    return this._stopped || ((Math.abs(this.actor.scaleX - this.startX) >= this.distanceX) && (Math.abs(this.actor.scaleY - this.startY) >= this.distanceY));
+                };
+
+                ScaleBy.prototype.stop = function () {
+                    this.actor.sx = 0;
+                    this.actor.sy = 0;
+                    this._stopped = true;
+                };
+
+                ScaleBy.prototype.reset = function () {
+                    this._started = false;
+                };
+                return ScaleBy;
+            })();
+            Actions.ScaleBy = ScaleBy;
+
+            var Delay = (function () {
+                function Delay(actor, delay) {
+                    this.elapsedTime = 0;
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.delay = delay;
+                }
+                Delay.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                    }
+
+                    this.x = this.actor.x;
+                    this.y = this.actor.y;
+
+                    this.elapsedTime += delta;
+                };
+
+                Delay.prototype.isComplete = function (actor) {
+                    return this._stopped || (this.elapsedTime >= this.delay);
+                };
+
+                Delay.prototype.stop = function () {
+                    this._stopped = true;
+                };
+
+                Delay.prototype.reset = function () {
+                    this.elapsedTime = 0;
+                    this._started = false;
+                };
+                return Delay;
+            })();
+            Actions.Delay = Delay;
+
+            var Blink = (function () {
+                function Blink(actor, timeVisible, timeNotVisible, numBlinks) {
+                    if (typeof numBlinks === "undefined") { numBlinks = 1; }
+                    this.timeVisible = 0;
+                    this.timeNotVisible = 0;
+                    this.elapsedTime = 0;
+                    this.totalTime = 0;
+                    this._stopped = false;
+                    this._started = false;
+                    this.actor = actor;
+                    this.timeVisible = timeVisible;
+                    this.timeNotVisible = timeNotVisible;
+                    this.duration = (timeVisible + timeNotVisible) * numBlinks;
+                }
+                Blink.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                    }
+
+                    this.elapsedTime += delta;
+                    this.totalTime += delta;
+                    if (this.actor.visible && this.elapsedTime >= this.timeVisible) {
+                        this.actor.visible = false;
+                        this.elapsedTime = 0;
+                    }
+
+                    if (!this.actor.visible && this.elapsedTime >= this.timeNotVisible) {
+                        this.actor.visible = true;
+                        this.elapsedTime = 0;
+                    }
+
+                    if (this.isComplete(this.actor)) {
+                        this.actor.visible = true;
+                    }
+                };
+
+                Blink.prototype.isComplete = function (actor) {
+                    return this._stopped || (this.totalTime >= this.duration);
+                };
+
+                Blink.prototype.stop = function () {
+                    this.actor.visible = true;
+                    this._stopped = true;
+                };
+
+                Blink.prototype.reset = function () {
+                    this._started = false;
+                    this.elapsedTime = 0;
+                    this.totalTime = 0;
+                };
+                return Blink;
+            })();
+            Actions.Blink = Blink;
+
+            var Fade = (function () {
+                function Fade(actor, endOpacity, speed) {
+                    this.multiplyer = 1;
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.endOpacity = endOpacity;
+                    this.speed = speed;
+                    if (endOpacity < actor.opacity) {
+                        this.multiplyer = -1;
+                    }
+                }
+                Fade.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                    }
+                    if (this.speed > 0) {
+                        this.actor.opacity += this.multiplyer * (Math.abs(this.actor.opacity - this.endOpacity) * delta) / this.speed;
+                    }
+                    this.speed -= delta;
+
+                    ex.Logger.getInstance().debug("actor opacity: " + this.actor.opacity);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.opacity = this.endOpacity;
+                    }
+                };
+
+                Fade.prototype.isComplete = function (actor) {
+                    return this._stopped || (Math.abs(this.actor.opacity - this.endOpacity) < 0.05);
+                };
+
+                Fade.prototype.stop = function () {
+                    this._stopped = true;
+                };
+
+                Fade.prototype.reset = function () {
+                    this._started = false;
+                };
+                return Fade;
+            })();
+            Actions.Fade = Fade;
+
+            var Die = (function () {
+                function Die(actor) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                }
+                Die.prototype.update = function (delta) {
+                    this.actor.actionQueue.clearActions();
+                    this.actor.kill();
+                    this._stopped = true;
+                };
+
+                Die.prototype.isComplete = function () {
+                    return this._stopped;
+                };
+
+                Die.prototype.stop = function () {
+                };
+
+                Die.prototype.reset = function () {
+                };
+                return Die;
+            })();
+            Actions.Die = Die;
+
+            var CallMethod = (function () {
+                function CallMethod(actor, method) {
+                    this._method = null;
+                    this._actor = null;
+                    this._hasBeenCalled = false;
+                    this._actor = actor;
+                    this._method = method;
+                }
+                CallMethod.prototype.update = function (delta) {
+                    this._method.call(this._actor);
+                    this._hasBeenCalled = true;
+                };
+                CallMethod.prototype.isComplete = function (actor) {
+                    return this._hasBeenCalled;
+                };
+                CallMethod.prototype.reset = function () {
+                    this._hasBeenCalled = false;
+                };
+                CallMethod.prototype.stop = function () {
+                    this._hasBeenCalled = true;
+                };
+                return CallMethod;
+            })();
+            Actions.CallMethod = CallMethod;
+
+            var Repeat = (function () {
+                function Repeat(actor, repeat, actions) {
+                    var _this = this;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.actionQueue = new ActionQueue(actor);
+                    this.repeat = repeat;
+                    this.originalRepeat = repeat;
+                    actions.forEach(function (action) {
+                        action.reset();
+                        _this.actionQueue.add(action);
+                    });
+                }
+                Repeat.prototype.update = function (delta) {
+                    this.x = this.actor.x;
+                    this.y = this.actor.y;
+                    if (!this.actionQueue.hasNext()) {
+                        this.actionQueue.reset();
+                        this.repeat--;
+                    }
+                    this.actionQueue.update(delta);
+                };
+
+                Repeat.prototype.isComplete = function () {
+                    return this._stopped || (this.repeat <= 0);
+                };
+
+                Repeat.prototype.stop = function () {
+                    this._stopped = true;
+                };
+
+                Repeat.prototype.reset = function () {
+                    this.repeat = this.originalRepeat;
+                };
+                return Repeat;
+            })();
+            Actions.Repeat = Repeat;
+
+            var RepeatForever = (function () {
+                function RepeatForever(actor, actions) {
+                    var _this = this;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.actionQueue = new ActionQueue(actor);
+                    actions.forEach(function (action) {
+                        action.reset();
+                        _this.actionQueue.add(action);
+                    });
+                }
+                RepeatForever.prototype.update = function (delta) {
+                    this.x = this.actor.x;
+                    this.y = this.actor.y;
+                    if (this._stopped) {
+                        return;
+                    }
+
+                    if (!this.actionQueue.hasNext()) {
+                        this.actionQueue.reset();
+                    }
+
+                    this.actionQueue.update(delta);
+                };
+
+                RepeatForever.prototype.isComplete = function () {
+                    return this._stopped;
+                };
+
+                RepeatForever.prototype.stop = function () {
+                    this._stopped = true;
+                    this.actionQueue.clearActions();
+                };
+
+                RepeatForever.prototype.reset = function () {
+                };
+                return RepeatForever;
+            })();
+            Actions.RepeatForever = RepeatForever;
+
+            var ActionQueue = (function () {
+                function ActionQueue(actor) {
+                    this._actions = [];
+                    this._completedActions = [];
+                    this.actor = actor;
+                }
+                ActionQueue.prototype.add = function (action) {
+                    this._actions.push(action);
+                };
+
+                ActionQueue.prototype.remove = function (action) {
+                    var index = this._actions.indexOf(action);
+                    this._actions.splice(index, 1);
+                };
+
+                ActionQueue.prototype.clearActions = function () {
+                    this._actions.length = 0;
+                    this._completedActions.length = 0;
+                    this._currentAction.stop();
+                };
+
+                ActionQueue.prototype.getActions = function () {
+                    return this._actions.concat(this._completedActions);
+                };
+
+                ActionQueue.prototype.hasNext = function () {
+                    return this._actions.length > 0;
+                };
+
+                ActionQueue.prototype.reset = function () {
+                    this._actions = this.getActions();
+                    this._actions.forEach(function (action) {
+                        action.reset();
+                    });
+                    this._completedActions = [];
+                };
+
+                ActionQueue.prototype.update = function (delta) {
+                    if (this._actions.length > 0) {
+                        this._currentAction = this._actions[0];
+                        this._currentAction.update(delta);
+
+                        if (this._currentAction.isComplete(this.actor)) {
+                            //Logger.getInstance().log("Action complete!", Log.DEBUG);
+                            this._completedActions.push(this._actions.shift());
+                        }
+                    }
+                };
+                return ActionQueue;
+            })();
+            Actions.ActionQueue = ActionQueue;
+        })(Internal.Actions || (Internal.Actions = {}));
+        var Actions = Internal.Actions;
+    })(ex.Internal || (ex.Internal = {}));
+    var Internal = ex.Internal;
+})(ex || (ex = {}));
+/// <reference path="Interfaces/IDrawable.ts" />
+var ex;
+(function (ex) {
+    /**
+    * Creates a closed polygon drawing given a list a of points. Polygons should be
+    * used sparingly as there is a <b>performance</b> impact for using them.
+    * @class Polygon
+    * @extends IDrawable
+    * @constructor
+    * @param points {Point[]} The points to use to build the polygon in order
+    */
+    var Polygon = (function () {
+        function Polygon(points) {
+            /**
+            * The width of the lines of the polygon
+            * @property [lineWidth=5] {number} The width of the lines in pixels
+            */
+            this.lineWidth = 5;
+            /**
+            * Indicates whether the polygon is filled or not.
+            * @property [filled=false] {boolean}
+            */
+            this.filled = false;
+            this.points = [];
+            this.transformationPoint = new ex.Point(0, 0);
+            this.rotation = 0;
+            this.scaleX = 1;
+            this.scaleY = 1;
+            this.points = points;
+
+            var minX = this.points.reduce(function (prev, curr) {
+                return Math.min(prev, curr.x);
+            }, 0);
+            var maxX = this.points.reduce(function (prev, curr) {
+                return Math.max(prev, curr.x);
+            }, 0);
+
+            this.width = maxX - minX;
+
+            var minY = this.points.reduce(function (prev, curr) {
+                return Math.min(prev, curr.y);
+            }, 0);
+            var maxY = this.points.reduce(function (prev, curr) {
+                return Math.max(prev, curr.y);
+            }, 0);
+
+            this.height = maxY - minY;
+        }
+        /**
+        * Effects are <b>not supported</b> on polygons
+        * @method addEffect
+        */
+        Polygon.prototype.addEffect = function (effect) {
+            // not supported on polygons
+        };
+
+        Polygon.prototype.removeEffect = function (param) {
+            // not supported on polygons
+        };
+
+        /**
+        * Effects are <b>not supported</b> on polygons
+        * @method clearEffects
+        */
+        Polygon.prototype.clearEffects = function () {
+            // not supported on polygons
+        };
+
+        Polygon.prototype.transformAboutPoint = function (point) {
+            this.transformationPoint = point;
+        };
+
+        Polygon.prototype.setScaleX = function (scaleX) {
+            this.scaleX = scaleX;
+        };
+
+        Polygon.prototype.setScaleY = function (scaleY) {
+            this.scaleY = scaleY;
+        };
+
+        Polygon.prototype.getScaleX = function () {
+            return this.scaleX;
+        };
+
+        Polygon.prototype.getScaleY = function () {
+            return this.scaleY;
+        };
+
+        Polygon.prototype.setRotation = function (radians) {
+            this.rotation = radians;
+        };
+
+        Polygon.prototype.getRotation = function () {
+            return this.rotation;
+        };
+
+        Polygon.prototype.reset = function () {
+            //pass
+        };
+
+        Polygon.prototype.draw = function (ctx, x, y) {
+            ctx.save();
+            ctx.translate(x + this.transformationPoint.x, y + this.transformationPoint.y);
+            ctx.scale(this.scaleX, this.scaleY);
+            ctx.rotate(this.rotation);
+            ctx.beginPath();
+            ctx.lineWidth = this.lineWidth;
+
+            // Iterate through the supplied points and contruct a 'polygon'
+            var firstPoint = this.points[0];
+            ctx.moveTo(firstPoint.x, firstPoint.y);
+            this.points.forEach(function (point) {
+                ctx.lineTo(point.x, point.y);
+            });
+            ctx.lineTo(firstPoint.x, firstPoint.y);
+            ctx.closePath();
+
+            if (this.filled) {
+                ctx.fillStyle = this.fillColor.toString();
+                ctx.fill();
+            }
+
+            ctx.strokeStyle = this.lineColor.toString();
+
+            if (this.flipHorizontal) {
+                ctx.translate(this.width, 0);
+                ctx.scale(-1, 1);
+            }
+
+            if (this.flipVertical) {
+                ctx.translate(0, this.height);
+                ctx.scale(1, -1);
+            }
+
+            ctx.stroke();
+            ctx.restore();
+        };
+        return Polygon;
+    })();
+    ex.Polygon = Polygon;
+})(ex || (ex = {}));
+//# sourceMappingURL=excalibur.js.map

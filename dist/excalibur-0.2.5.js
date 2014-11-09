@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-10-02
+/*! excalibur - v0.2.5 - 2014-11-08
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -286,34 +286,8 @@ var ex;
         function CollisionDetectionModule() {
         }
         CollisionDetectionModule.prototype.update = function (actor, engine, delta) {
-            var _this = this;
             var eventDispatcher = actor.eventDispatcher;
             if (actor.collisionType !== 0 /* PreventCollision */) {
-                // Retrieve the list of potential colliders, exclude killed, prevented, and self
-                var potentialColliders = engine.currentScene.children.filter(function (other) {
-                    return !other.isKilled() && other.collisionType !== 0 /* PreventCollision */ && actor !== other;
-                });
-
-                for (var i = 0; i < potentialColliders.length; i++) {
-                    var intersectActor;
-                    var side;
-                    var collider = potentialColliders[i];
-
-                    if (intersectActor = actor.collides(collider)) {
-                        side = actor.getSideFromIntersect(intersectActor);
-                        actor.scene.addCollisionPair(new ex.CollisionPair(actor, collider, intersectActor, side));
-
-                        var actorCollisionGroups = actor.getCollisionHandlers();
-                        collider.collisionGroups.forEach(function (group) {
-                            if (actorCollisionGroups[group]) {
-                                actorCollisionGroups[group].forEach(function (handler) {
-                                    handler.call(_this, collider);
-                                });
-                            }
-                        });
-                    }
-                }
-
                 for (var j = 0; j < engine.currentScene.tileMaps.length; j++) {
                     var map = engine.currentScene.tileMaps[j];
                     var intersectMap;
@@ -326,7 +300,7 @@ var ex;
                         }
                         side = actor.getSideFromIntersect(intersectMap);
                         eventDispatcher.publish('collision', new ex.CollisionEvent(actor, null, side, intersectMap));
-                        if ((actor.collisionType === 2 /* Active */ || actor.collisionType === 3 /* Elastic */) && collider.collisionType !== 1 /* Passive */) {
+                        if ((actor.collisionType === 2 /* Active */ || actor.collisionType === 3 /* Elastic */)) {
                             actor.y += intersectMap.y;
                             actor.x += intersectMap.x;
 
@@ -1837,12 +1811,13 @@ var ex;
     })();
     ex.TileMap = TileMap;
 })(ex || (ex = {}));
-/// <reference path="Algebra.ts" />
+/// <reference path="../Algebra.ts" />
 var ex;
 (function (ex) {
     (function (CollisionStrategy) {
-        CollisionStrategy[CollisionStrategy["AxisAligned"] = 0] = "AxisAligned";
-        CollisionStrategy[CollisionStrategy["SeparatingAxis"] = 1] = "SeparatingAxis";
+        CollisionStrategy[CollisionStrategy["Naive"] = 0] = "Naive";
+        CollisionStrategy[CollisionStrategy["DynamicAABBTree"] = 1] = "DynamicAABBTree";
+        CollisionStrategy[CollisionStrategy["SeparatingAxis"] = 2] = "SeparatingAxis";
     })(ex.CollisionStrategy || (ex.CollisionStrategy = {}));
     var CollisionStrategy = ex.CollisionStrategy;
 
@@ -1859,6 +1834,10 @@ var ex;
     */
     var BoundingBox = (function () {
         function BoundingBox(left, top, right, bottom) {
+            if (typeof left === "undefined") { left = 0; }
+            if (typeof top === "undefined") { top = 0; }
+            if (typeof right === "undefined") { right = 0; }
+            if (typeof bottom === "undefined") { bottom = 0; }
             this.left = left;
             this.top = top;
             this.right = right;
@@ -1883,13 +1862,37 @@ var ex;
         };
 
         /**
-        * Tests wether a point is contained within the bounding box
-        * @method contains
-        * @param p {Point} The point to test
-        * @returns boolean
+        * Returns the perimeter of the bounding box
+        * @method getPerimeter
+        * @returns number
         */
-        BoundingBox.prototype.contains = function (p) {
-            return (this.left <= p.x && this.top <= p.y && this.bottom >= p.y && this.right >= p.x);
+        BoundingBox.prototype.getPerimeter = function () {
+            var wx = this.getWidth();
+            var wy = this.getHeight();
+            return 2 * (wx + wy);
+        };
+
+        BoundingBox.prototype.contains = function (val) {
+            if (val instanceof ex.Point) {
+                return (this.left <= val.x && this.top <= val.y && this.bottom >= val.y && this.right >= val.x);
+            } else if (val instanceof BoundingBox) {
+                if (this.left < val.left && this.top < val.top && val.bottom < this.bottom && val.right < this.right) {
+                    return true;
+                }
+                return false;
+            }
+            return false;
+        };
+
+        /**
+        * Combines this bounding box and another together returning a new bounding box
+        * @method combine
+        * @param other {BoundingBox} The bounding box to combine
+        * @returns BoundingBox
+        */
+        BoundingBox.prototype.combine = function (other) {
+            var compositeBB = new BoundingBox(Math.min(this.left, other.left), Math.min(this.top, other.top), Math.max(this.right, other.right), Math.max(this.bottom, other.bottom));
+            return compositeBB;
         };
 
         /**
@@ -1903,7 +1906,7 @@ var ex;
         BoundingBox.prototype.collides = function (collidable) {
             if (collidable instanceof BoundingBox) {
                 var other = collidable;
-                var totalBoundingBox = new BoundingBox(Math.min(this.left, other.left), Math.min(this.top, other.top), Math.max(this.right, other.right), Math.max(this.bottom, other.bottom));
+                var totalBoundingBox = this.combine(other);
 
                 // If the total bounding box is less than the sum of the 2 bounds then there is collision
                 if (totalBoundingBox.getWidth() < other.getWidth() + this.getWidth() && totalBoundingBox.getHeight() < other.getHeight() + this.getHeight()) {
@@ -2262,6 +2265,533 @@ var ex;
     })();
     ex.Timer = Timer;
 })(ex || (ex = {}));
+/// <reference path="../Actor.ts"/>
+/// <reference path="Side.ts"/>
+/// <reference path="ICollisionResolver.ts"/>
+var ex;
+(function (ex) {
+    var NaiveCollisionResolver = (function () {
+        function NaiveCollisionResolver() {
+        }
+        NaiveCollisionResolver.prototype.register = function (target) {
+            // pass
+        };
+
+        NaiveCollisionResolver.prototype.remove = function (tartet) {
+            // pass
+        };
+
+        NaiveCollisionResolver.prototype.evaluate = function (targets) {
+            // Retrieve the list of potential colliders, exclude killed, prevented, and self
+            var potentialColliders = targets.filter(function (other) {
+                return !other.isKilled() && other.collisionType !== 0 /* PreventCollision */;
+            });
+
+            var actor1;
+            var actor2;
+            var collisionPairs = [];
+
+            for (var j = 0, l = potentialColliders.length; j < l; j++) {
+                actor1 = potentialColliders[j];
+
+                for (var i = j + 1; i < l; i++) {
+                    actor2 = potentialColliders[i];
+
+                    var minimumTranslationVector;
+                    if (minimumTranslationVector = actor1.collides(actor2)) {
+                        var side = actor1.getSideFromIntersect(minimumTranslationVector);
+                        var collisionPair = new ex.CollisionPair(actor1, actor2, minimumTranslationVector, side);
+                        if (!collisionPairs.some(function (cp) {
+                            return cp.equals(collisionPair);
+                        })) {
+                            collisionPairs.push(collisionPair);
+                        }
+                    }
+                }
+            }
+
+            collisionPairs.forEach(function (p) {
+                return p.evaluate();
+            });
+
+            return collisionPairs;
+        };
+
+        NaiveCollisionResolver.prototype.update = function (targets) {
+            return 0;
+        };
+
+        NaiveCollisionResolver.prototype.debugDraw = function (ctx, delta) {
+        };
+        return NaiveCollisionResolver;
+    })();
+    ex.NaiveCollisionResolver = NaiveCollisionResolver;
+})(ex || (ex = {}));
+/// <reference path="BoundingBox.ts"/>
+var ex;
+(function (ex) {
+    var TreeNode = (function () {
+        function TreeNode(parent) {
+            this.parent = parent;
+            this.parent = parent || null;
+            this.actor = null;
+            this.bounds = new ex.BoundingBox();
+            this.left = null;
+            this.right = null;
+            this.height = 0;
+        }
+        TreeNode.prototype.isLeaf = function () {
+            return (!this.left && !this.right);
+        };
+        return TreeNode;
+    })();
+    ex.TreeNode = TreeNode;
+
+    var DynamicTree = (function () {
+        function DynamicTree() {
+            this.root = null;
+            this.nodes = {};
+        }
+        DynamicTree.prototype.insert = function (leaf) {
+            // If there are no nodes in the tree, make this the root leaf
+            if (this.root === null) {
+                this.root = leaf;
+                this.root.parent = null;
+                return;
+            }
+
+            // Search the tree for a node that is not a leaf and find the best place to insert
+            var leafAABB = leaf.bounds;
+            var currentRoot = this.root;
+            while (!currentRoot.isLeaf()) {
+                var left = currentRoot.left;
+                var right = currentRoot.right;
+
+                var area = currentRoot.bounds.getPerimeter();
+                var combinedAABB = currentRoot.bounds.combine(leafAABB);
+                var combinedArea = combinedAABB.getPerimeter();
+
+                // Calculate cost heuristic for creating a new parent and leaf
+                var cost = 2 * combinedArea;
+
+                // Minimum cost of pushing the leaf down the tree
+                var inheritanceCost = 2 * (combinedArea - area);
+
+                // Cost of descending
+                var leftCost = 0;
+                var leftCombined = leafAABB.combine(left.bounds);
+                var newArea;
+                var oldArea;
+                if (left.isLeaf()) {
+                    leftCost = leftCombined.getPerimeter() + inheritanceCost;
+                } else {
+                    oldArea = left.bounds.getPerimeter();
+                    newArea = leftCombined.getPerimeter();
+                    leftCost = (newArea - oldArea) + inheritanceCost;
+                }
+
+                var rightCost = 0;
+                var rightCombined = leafAABB.combine(right.bounds);
+                if (right.isLeaf()) {
+                    rightCost = rightCombined.getPerimeter() + inheritanceCost;
+                } else {
+                    oldArea = right.bounds.getPerimeter();
+                    newArea = rightCombined.getPerimeter();
+                    rightCost = (newArea - oldArea) + inheritanceCost;
+                }
+
+                // cost is acceptable
+                if (cost < leftCost && cost < rightCost) {
+                    break;
+                }
+
+                // Descend to the depths
+                if (leftCost < rightCost) {
+                    currentRoot = left;
+                } else {
+                    currentRoot = right;
+                }
+            }
+
+            // Create the new parent node and insert into the tree
+            var oldParent = currentRoot.parent;
+            var newParent = new TreeNode(oldParent);
+            newParent.bounds = leafAABB.combine(currentRoot.bounds);
+            newParent.height = currentRoot.height + 1;
+
+            if (oldParent !== null) {
+                // The sibling node was not the root
+                if (oldParent.left === currentRoot) {
+                    oldParent.left = newParent;
+                } else {
+                    oldParent.right = newParent;
+                }
+
+                newParent.left = currentRoot;
+                newParent.right = leaf;
+
+                currentRoot.parent = newParent;
+                leaf.parent = newParent;
+            } else {
+                // The sibling node was the root
+                newParent.left = currentRoot;
+                newParent.right = leaf;
+
+                currentRoot.parent = newParent;
+                leaf.parent = newParent;
+                this.root = newParent;
+            }
+
+            // Walk up the tree fixing heights and AABBs
+            var currentNode = leaf.parent;
+            while (currentNode) {
+                currentNode = this.balance(currentNode);
+
+                if (!currentNode.left) {
+                    throw new Error("Parent of current leaf cannot have a null left child" + currentNode);
+                }
+                if (!currentNode.right) {
+                    throw new Error("Parent of current leaf cannot have a null right child" + currentNode);
+                }
+
+                currentNode.height = 1 + Math.max(currentNode.left.height, currentNode.right.height);
+                currentNode.bounds = currentNode.left.bounds.combine(currentNode.right.bounds);
+
+                currentNode = currentNode.parent;
+            }
+        };
+
+        DynamicTree.prototype.remove = function (leaf) {
+            if (leaf === this.root) {
+                this.root = null;
+                return;
+            }
+
+            var parent = leaf.parent;
+            var grandParent = parent.parent;
+            var sibling;
+            if (parent.left === leaf) {
+                sibling = parent.right;
+            } else {
+                sibling = parent.left;
+            }
+
+            if (grandParent) {
+                if (grandParent.left === parent) {
+                    grandParent.left = sibling;
+                } else {
+                    grandParent.right = sibling;
+                }
+                sibling.parent = grandParent;
+
+                var currentNode = grandParent;
+                while (currentNode) {
+                    currentNode = this.balance(currentNode);
+                    currentNode.bounds = currentNode.left.bounds.combine(currentNode.right.bounds);
+                    currentNode.height = 1 + Math.max(currentNode.left.height, currentNode.right.height);
+
+                    currentNode = currentNode.parent;
+                }
+            } else {
+                this.root = sibling;
+                sibling.parent = null;
+            }
+        };
+
+        DynamicTree.prototype.registerActor = function (actor) {
+            var node = new TreeNode();
+            node.actor = actor;
+            node.bounds = actor.getBounds();
+            node.bounds.left -= 10;
+            node.bounds.top -= 10;
+            node.bounds.right += 10;
+            node.bounds.bottom += 10;
+            this.nodes[actor.id] = node;
+            this.insert(node);
+        };
+
+        DynamicTree.prototype.updateActor = function (actor) {
+            var node = this.nodes[actor.id];
+            if (!node)
+                return;
+            var b = actor.getBounds();
+            if (node.bounds.contains(b)) {
+                return false;
+            }
+
+            this.remove(node);
+            b.left -= 5;
+            b.top -= 5;
+            b.right += 5;
+            b.bottom += 5;
+
+            var multdx = actor.dx * 2;
+            var multdy = actor.dy * 2;
+
+            if (multdx < 0) {
+                b.left += multdx;
+            } else {
+                b.right += multdx;
+            }
+
+            if (multdy < 0) {
+                b.top += multdy;
+            } else {
+                b.bottom += multdy;
+            }
+
+            node.bounds = b;
+            this.insert(node);
+            return true;
+        };
+
+        DynamicTree.prototype.removeActor = function (actor) {
+            // todo needs implementation!
+        };
+
+        DynamicTree.prototype.balance = function (node) {
+            if (node === null) {
+                throw new Error("Cannot balance at null node");
+            }
+
+            if (node.isLeaf() || node.height < 2) {
+                return node;
+            }
+
+            var left = node.left;
+            var right = node.right;
+
+            var a = node;
+            var b = left;
+            var c = right;
+            var d = left.left;
+            var e = left.right;
+            var f = right.left;
+            var g = right.right;
+
+            var balance = c.height - b.height;
+
+            // Rotate c node up
+            if (balance > 1) {
+                // Swap the right node with it's parent
+                c.left = a;
+                c.parent = a.parent;
+                a.parent = c;
+
+                // The original node's old parent should point to the right node
+                // this is mega confusing
+                if (c.parent) {
+                    if (c.parent.left === a) {
+                        c.parent.left = c;
+                    } else {
+                        c.parent.right = c;
+                    }
+                } else {
+                    this.root = c;
+                }
+
+                // Rotate
+                if (f.height > g.height) {
+                    c.right = f;
+                    a.right = g;
+                    g.parent = a;
+
+                    a.bounds = b.bounds.combine(g.bounds);
+                    c.bounds = a.bounds.combine(f.bounds);
+
+                    a.height = 1 + Math.max(b.height, g.height);
+                    c.height = 1 + Math.max(a.height, f.height);
+                } else {
+                    c.right = g;
+                    a.right = f;
+                    f.parent = a;
+
+                    a.bounds = b.bounds.combine(f.bounds);
+                    c.bounds = a.bounds.combine(g.bounds);
+
+                    a.height = 1 + Math.max(b.height, f.height);
+                    c.height = 1 + Math.max(a.height, g.height);
+                }
+
+                return c;
+            }
+
+            // Rotate left node up
+            if (balance < -1) {
+                // swap
+                b.left = a;
+                b.parent = a.parent;
+                a.parent = b;
+
+                // node's old parent should point to b
+                if (b.parent) {
+                    if (b.parent.left === a) {
+                        b.parent.left = b;
+                    } else {
+                        if (b.parent.right !== a)
+                            throw "Error rotating Dynamic Tree";
+                        b.parent.right = b;
+                    }
+                } else {
+                    this.root = b;
+                }
+
+                // rotate
+                if (d.height > e.height) {
+                    b.right = d;
+                    a.left = e;
+                    e.parent = a;
+
+                    a.bounds = c.bounds.combine(e.bounds);
+                    b.bounds = a.bounds.combine(d.bounds);
+
+                    a.height = 1 + Math.max(c.height, e.height);
+                    b.height = 1 + Math.max(a.height, d.height);
+                } else {
+                    b.right = e;
+                    a.left = d;
+                    d.parent = a;
+
+                    a.bounds = c.bounds.combine(d.bounds);
+                    b.bounds = a.bounds.combine(e.bounds);
+
+                    a.height = 1 + Math.max(c.height, d.height);
+                    b.height = 1 + Math.max(a.height, e.height);
+                }
+                return b;
+            }
+
+            return node;
+        };
+
+        DynamicTree.prototype.getHeight = function () {
+            if (this.root === null) {
+                return 0;
+            }
+            return this.root.height;
+        };
+
+        DynamicTree.prototype.query = function (actor) {
+            var bounds = actor.getBounds();
+            var helper = function (currentNode) {
+                if (currentNode && currentNode.bounds.collides(bounds)) {
+                    if (currentNode.isLeaf() && currentNode.actor !== actor) {
+                        return currentNode.actor;
+                    } else {
+                        return helper(currentNode.left) || helper(currentNode.right);
+                    }
+                } else {
+                    return null;
+                }
+            };
+            return helper(this.root);
+        };
+
+        DynamicTree.prototype.getNodes = function () {
+            var helper = function (currentNode) {
+                if (currentNode) {
+                    return [currentNode].concat(helper(currentNode.left), helper(currentNode.right));
+                } else {
+                    return [];
+                }
+            };
+            return helper(this.root);
+        };
+
+        DynamicTree.prototype.debugDraw = function (ctx, delta) {
+            // draw all the nodes in the Dynamic Tree
+            var helper = function (currentNode) {
+                if (currentNode) {
+                    if (currentNode.isLeaf()) {
+                        ctx.strokeStyle = 'green';
+                    } else {
+                        ctx.strokeStyle = 'white';
+                    }
+                    currentNode.bounds.debugDraw(ctx);
+
+                    if (currentNode.left)
+                        helper(currentNode.left);
+                    if (currentNode.right)
+                        helper(currentNode.right);
+                }
+            };
+
+            helper(this.root);
+        };
+        return DynamicTree;
+    })();
+    ex.DynamicTree = DynamicTree;
+})(ex || (ex = {}));
+/// <reference path="ICollisionResolver.ts"/>
+/// <reference path="DynamicTree.ts"/>
+var ex;
+(function (ex) {
+    var DynamicTreeCollisionResolver = (function () {
+        function DynamicTreeCollisionResolver() {
+            this._dynamicCollisionTree = new ex.DynamicTree();
+        }
+        DynamicTreeCollisionResolver.prototype.register = function (target) {
+            this._dynamicCollisionTree.registerActor(target);
+        };
+
+        DynamicTreeCollisionResolver.prototype.remove = function (target) {
+            this._dynamicCollisionTree.removeActor(target);
+        };
+
+        DynamicTreeCollisionResolver.prototype.evaluate = function (targets) {
+            // Retrieve the list of potential colliders, exclude killed, prevented, and self
+            var potentialColliders = targets.filter(function (other) {
+                return !other.isKilled() && other.collisionType !== 0 /* PreventCollision */;
+            });
+
+            var actor;
+            var other;
+            var collisionPairs = [];
+
+            for (var j = 0, l = potentialColliders.length; j < l; j++) {
+                actor = potentialColliders[j];
+
+                other = this._dynamicCollisionTree.query(actor);
+                if (!other)
+                    continue;
+                var minimumTranslationVector;
+                if (minimumTranslationVector = actor.collides(other)) {
+                    var side = actor.getSideFromIntersect(minimumTranslationVector);
+                    var collisionPair = new ex.CollisionPair(actor, other, minimumTranslationVector, side);
+                    if (!collisionPairs.some(function (cp) {
+                        return cp.equals(collisionPair);
+                    })) {
+                        collisionPairs.push(collisionPair);
+                    }
+                }
+            }
+
+            collisionPairs.forEach(function (p) {
+                return p.evaluate();
+            });
+
+            return collisionPairs;
+        };
+
+        DynamicTreeCollisionResolver.prototype.update = function (targets) {
+            var _this = this;
+            var updated = 0;
+            targets.forEach(function (a) {
+                if (_this._dynamicCollisionTree.updateActor(a)) {
+                    updated++;
+                }
+            });
+
+            return updated;
+        };
+
+        DynamicTreeCollisionResolver.prototype.debugDraw = function (ctx, delta) {
+            this._dynamicCollisionTree.debugDraw(ctx, delta);
+        };
+        return DynamicTreeCollisionResolver;
+    })();
+    ex.DynamicTreeCollisionResolver = DynamicTreeCollisionResolver;
+})(ex || (ex = {}));
 var ex;
 (function (ex) {
     /**
@@ -2348,6 +2878,8 @@ var ex;
 })(ex || (ex = {}));
 /// <reference path="Class.ts" />
 /// <reference path="Timer.ts" />
+/// <reference path="Collision/NaiveCollisionResolver.ts"/>
+/// <reference path="Collision/DynamicTreeCollisionResolver.ts"/>
 /// <reference path="CollisionPair.ts" />
 var ex;
 (function (ex) {
@@ -2368,11 +2900,11 @@ var ex;
             */
             this.children = [];
             this.tileMaps = [];
-            this.killQueue = [];
-            this.timers = [];
-            this.cancelQueue = [];
+            this._collisionResolver = new ex.DynamicTreeCollisionResolver();
+            this._killQueue = [];
+            this._timers = [];
+            this._cancelQueue = [];
             this._isInitialized = false;
-            this._collisionPairs = [];
         }
         /**
         * This is called when the scene is made active and started. It is meant to be overriden,
@@ -2432,39 +2964,37 @@ var ex;
             });
 
             var len = 0;
-            var start = 0;
-            var end = 0;
-            var actor;
 
             for (var i = 0, len = this.children.length; i < len; i++) {
                 this.children[i].update(engine, delta);
             }
 
-            for (var i = 0, len = this._collisionPairs.length; i < len; i++) {
-                this._collisionPairs[i].evaluate();
+            // Run collision resolution strategy
+            if (this._collisionResolver) {
+                this._collisionResolver.update(this.children);
+                this._collisionResolver.evaluate(this.children);
             }
-            this._collisionPairs.length = 0;
 
             // Remove actors from scene graph after being killed
             var actorIndex = 0;
-            for (var i = 0, len = this.killQueue.length; i < len; i++) {
-                actorIndex = this.children.indexOf(this.killQueue[i]);
+            for (var i = 0, len = this._killQueue.length; i < len; i++) {
+                actorIndex = this.children.indexOf(this._killQueue[i]);
                 if (actorIndex > -1) {
                     this.children.splice(actorIndex, 1);
                 }
             }
-            this.killQueue.length = 0;
+            this._killQueue.length = 0;
 
             // Remove timers in the cancel queue before updating them
             var timerIndex = 0;
-            for (var i = 0, len = this.cancelQueue.length; i < len; i++) {
-                this.removeTimer(this.cancelQueue[i]);
+            for (var i = 0, len = this._cancelQueue.length; i < len; i++) {
+                this.removeTimer(this._cancelQueue[i]);
             }
-            this.cancelQueue.length = 0;
+            this._cancelQueue.length = 0;
 
             // Cycle through timers updating timers
             var that = this;
-            this.timers = this.timers.filter(function (timer) {
+            this._timers = this._timers.filter(function (timer) {
                 timer.update(delta);
                 return !timer.complete;
             });
@@ -2508,6 +3038,8 @@ var ex;
             this.children.forEach(function (actor) {
                 actor.debugDraw(ctx);
             });
+
+            this._collisionResolver.debugDraw(ctx, 20);
         };
 
         Scene.prototype.add = function (entity) {
@@ -2523,23 +3055,9 @@ var ex;
             }
         };
 
-        /**
-        * Adds a collision resolution pair to the current scene. Should only be called
-        * by actors.
-        * @method addCollisionPair
-        * @param collisionPair {CollisionPair}
-        *
-        */
-        Scene.prototype.addCollisionPair = function (collisionPair) {
-            if (!this._collisionPairs.some(function (cp) {
-                return cp.equals(collisionPair);
-            })) {
-                this._collisionPairs.push(collisionPair);
-            }
-        };
-
         Scene.prototype.remove = function (entity) {
             if (entity instanceof ex.Actor) {
+                this._collisionResolver.remove(entity);
                 this.removeChild(entity);
             }
             if (entity instanceof ex.Timer) {
@@ -2557,6 +3075,7 @@ var ex;
         * @param actor {Actor}
         */
         Scene.prototype.addChild = function (actor) {
+            this._collisionResolver.register(actor);
             actor.scene = this;
             this.children.push(actor);
             actor.parent = this.actor;
@@ -2589,7 +3108,7 @@ var ex;
         * @param actor {Actor} The actor to remove
         */
         Scene.prototype.removeChild = function (actor) {
-            this.killQueue.push(actor);
+            this._killQueue.push(actor);
             actor.parent = null;
         };
 
@@ -2600,7 +3119,7 @@ var ex;
         * @returns Timer
         */
         Scene.prototype.addTimer = function (timer) {
-            this.timers.push(timer);
+            this._timers.push(timer);
             timer.scene = this;
             return timer;
         };
@@ -2613,9 +3132,9 @@ var ex;
         * @returns Timer
         */
         Scene.prototype.removeTimer = function (timer) {
-            var i = this.timers.indexOf(timer);
+            var i = this._timers.indexOf(timer);
             if (i !== -1) {
-                this.timers.splice(i, 1);
+                this._timers.splice(i, 1);
             }
             return timer;
         };
@@ -2627,7 +3146,7 @@ var ex;
         * @returns Timer
         */
         Scene.prototype.cancelTimer = function (timer) {
-            this.cancelQueue.push(timer);
+            this._cancelQueue.push(timer);
             return timer;
         };
 
@@ -2638,7 +3157,7 @@ var ex;
         * @returns boolean
         */
         Scene.prototype.isTimerActive = function (timer) {
-            return (this.timers.indexOf(timer) > -1);
+            return (this._timers.indexOf(timer) > -1);
         };
         return Scene;
     })(ex.Class);
@@ -3385,11 +3904,11 @@ var ex;
 /// <reference path="Modules/OffscreenCullingModule.ts" />
 /// <reference path="Modules/EventPropagationModule.ts" />
 /// <reference path="Modules/CollisionDetectionModule.ts" />
-/// <reference path="Side.ts" />
+/// <reference path="Collision/Side.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util.ts" />
 /// <reference path="TileMap.ts" />
-/// <reference path="BoundingBox.ts" />
+/// <reference path="Collision/BoundingBox.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Action.ts" />
 var ex;
@@ -3465,6 +3984,10 @@ var ex;
         __extends(Actor, _super);
         function Actor(x, y, width, height, color) {
             _super.call(this);
+            /**
+            * The unique identifier for the actor
+            */
+            this.id = Actor.maxId++;
             /**
             * The x coordinate of the actor (left edge)
             * @property x {number}
@@ -3602,7 +4125,8 @@ var ex;
 
             // Build default pipeline
             this.pipeline.push(new ex.MovementModule());
-            this.pipeline.push(new ex.CollisionDetectionModule());
+
+            //this.pipeline.push(new ex.CollisionDetectionModule());
             this.pipeline.push(new ex.OffscreenCullingModule());
             this.pipeline.push(new ex.EventPropagationModule());
 
@@ -4233,7 +4757,6 @@ var ex;
             // Recalcuate the anchor point
             this.calculatedAnchor = new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
 
-            this.sceneNode.update(engine, delta);
             var eventDispatcher = this.eventDispatcher;
 
             // Update action queue
@@ -4327,6 +4850,7 @@ var ex;
 
             ctx.restore();
         };
+        Actor.maxId = 0;
         return Actor;
     })(ex.Class);
     ex.Actor = Actor;
@@ -7675,7 +8199,7 @@ var ex;
 /// <reference path="Class.ts" />
 /// <reference path="Color.ts" />
 /// <reference path="Log.ts" />
-/// <reference path="Side.ts" />
+/// <reference path="Collision/Side.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actor.ts" />
 /// <reference path="Trigger.ts" />
@@ -7940,6 +8464,11 @@ var ex;
         __extends(Engine, _super);
         function Engine(width, height, canvasElementId, displayMode) {
             _super.call(this);
+            /**
+            * Sets or gets the collision strategy for Excalibur
+            * @property collisionStrategy {CollisionStrategy}
+            */
+            this.collisionStrategy = 1 /* DynamicAABBTree */;
             this.hasStarted = false;
             // Key Events
             this.keys = [];

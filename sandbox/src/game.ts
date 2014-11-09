@@ -38,13 +38,13 @@ var tileBlockWidth = 64,
 
 
 // create a collision map
-var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
+/*var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
 tileMap.registerSpriteSheet("default", spriteTiles);
 tileMap.data.forEach(function(cell : ex.Cell){
    cell.solid = true;
    cell.pushSprite(new ex.TileSprite("default", 0));
 });
-game.add(tileMap);
+game.add(tileMap);*/
 
 // Create spriteFont
 var spriteFont = new ex.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
@@ -418,7 +418,7 @@ trigger.target = player;
 
 game.add(trigger);
 
-game.addEventListener('mousedown', (evt?: ex.MouseDownEvent)=>{
+/*game.addEventListener('mousedown', (evt?: ex.MouseDownEvent)=>{
    var c = tileMap.getCellByPoint(evt.x, evt.y);
    if(c){
       if(c.solid){
@@ -433,7 +433,7 @@ game.addEventListener('mousedown', (evt?: ex.MouseDownEvent)=>{
 
    //logger.info("Collides", tileMap.collidesPoint(evt.x, evt.y));
    //emitter.focus = new ex.Vector(evt.x - emitter.x, evt.y - emitter.y);
-});
+});*/
 
 game.addEventListener('keyup', (evt?: ex.KeyUp)=>{
    if(evt.key == ex.InputKey.F){

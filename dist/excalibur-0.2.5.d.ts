@@ -958,8 +958,9 @@ declare module ex {
 }
 declare module ex {
     enum CollisionStrategy {
-        AxisAligned = 0,
-        SeparatingAxis = 1,
+        Naive = 0,
+        DynamicAABBTree = 1,
+        SeparatingAxis = 2,
     }
     /**
     * Interface all collidable objects must implement
@@ -998,7 +999,7 @@ declare module ex {
         public top: number;
         public right: number;
         public bottom: number;
-        constructor(left: number, top: number, right: number, bottom: number);
+        constructor(left?: number, top?: number, right?: number, bottom?: number);
         /**
         * Returns the calculated width of the bounding box
         * @method getWidth
@@ -1012,12 +1013,32 @@ declare module ex {
         */
         public getHeight(): number;
         /**
+        * Returns the perimeter of the bounding box
+        * @method getPerimeter
+        * @returns number
+        */
+        public getPerimeter(): number;
+        /**
         * Tests wether a point is contained within the bounding box
         * @method contains
         * @param p {Point} The point to test
         * @returns boolean
         */
         public contains(p: Point): boolean;
+        /**
+        * Tests whether another bounding box is totally contained in this one
+        * @method contains
+        * @param other {BoundingBox} The bounding box to test
+        * @returns boolean
+        */
+        public contains(bb: BoundingBox): boolean;
+        /**
+        * Combines this bounding box and another together returning a new bounding box
+        * @method combine
+        * @param other {BoundingBox} The bounding box to combine
+        * @returns BoundingBox
+        */
+        public combine(other: BoundingBox): BoundingBox;
         /**
         * Test wether this bounding box collides with another returning,
         * the intersection vector that can be used to resovle the collision. If there
@@ -1166,6 +1187,65 @@ declare module ex {
     }
 }
 declare module ex {
+    interface ICollisionResolver {
+        register(target: Actor): any;
+        remove(tartet: Actor): any;
+        evaluate(targets: Actor[]): CollisionPair[];
+        update(targets: Actor[]): number;
+        debugDraw(ctx: any, delta: any): void;
+    }
+}
+declare module ex {
+    class NaiveCollisionResolver implements ICollisionResolver {
+        constructor();
+        public register(target: Actor): void;
+        public remove(tartet: Actor): void;
+        public evaluate(targets: Actor[]): CollisionPair[];
+        public update(targets: Actor[]): number;
+        public debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
+    }
+}
+declare module ex {
+    class TreeNode {
+        public parent: any;
+        public left: TreeNode;
+        public right: TreeNode;
+        public bounds: BoundingBox;
+        public height: number;
+        public actor: Actor;
+        constructor(parent?: any);
+        public isLeaf(): boolean;
+    }
+    class DynamicTree {
+        public root: TreeNode;
+        public nodes: {
+            [key: number]: TreeNode;
+        };
+        constructor();
+        public insert(leaf: TreeNode): void;
+        public remove(leaf: TreeNode): void;
+        public registerActor(actor: Actor): void;
+        public updateActor(actor: Actor): boolean;
+        public removeActor(actor: Actor): void;
+        public balance(node: TreeNode): TreeNode;
+        public getHeight(): number;
+        public query(actor: Actor): Actor;
+        public getNodes(): TreeNode[];
+        public debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
+    }
+}
+declare module ex {
+    class DynamicTreeCollisionResolver implements ICollisionResolver {
+        private _dynamicCollisionTree;
+        constructor();
+        public register(target: Actor): void;
+        public remove(target: Actor): void;
+        public evaluate(targets: Actor[]): CollisionPair[];
+        public update(targets: Actor[]): number;
+        public debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
+    }
+}
+declare module ex {
     /**
     * Collision pairs are used internally by Excalibur to resolve collision between actors. The
     * Pair prevents collisions from being evaluated more than one time
@@ -1213,11 +1293,11 @@ declare module ex {
         public children: Actor[];
         public tileMaps: TileMap[];
         public engine: Engine;
-        private killQueue;
-        private timers;
-        private cancelQueue;
+        private _collisionResolver;
+        private _killQueue;
+        private _timers;
+        private _cancelQueue;
         private _isInitialized;
-        public _collisionPairs: CollisionPair[];
         constructor();
         /**
         * This is called when the scene is made active and started. It is meant to be overriden,
@@ -1283,14 +1363,6 @@ declare module ex {
         * @param actor {Actor} The actor to add to the current scene
         */
         public add(actor: Actor): void;
-        /**
-        * Adds a collision resolution pair to the current scene. Should only be called
-        * by actors.
-        * @method addCollisionPair
-        * @param collisionPair {CollisionPair}
-        *
-        */
-        public addCollisionPair(collisionPair: CollisionPair): void;
         /**
         * Removes an excalibur Timer from the current scene.
         * @method remove
@@ -1690,6 +1762,14 @@ declare module ex {
     * @param [color=undefined] {Color} The starting color of the actor
     */ 
     class Actor extends Class {
+        /**
+        * Indicates the next id to be set
+        */
+        static maxId: number;
+        /**
+        * The unique identifier for the actor
+        */
+        public id: number;
         /**
         * The x coordinate of the actor (left edge)
         * @property x {number}
@@ -4325,6 +4405,11 @@ declare module ex {
         * @property height {number}
         */
         public height: number;
+        /**
+        * Sets or gets the collision strategy for Excalibur
+        * @property collisionStrategy {CollisionStrategy}
+        */
+        public collisionStrategy: CollisionStrategy;
         private hasStarted;
         public keys: number[];
         public keysDown: number[];
