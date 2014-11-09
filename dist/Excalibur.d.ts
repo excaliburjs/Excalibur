@@ -3572,7 +3572,11 @@ declare module ex.Input {
         constructor(x: number, y: number, ev: any);
     }
     /**
-    * Handles pointer events (mouse, touch, stylus, etc.) and conforms to W3C Pointer Events
+    * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to W3C Pointer Events
+    *
+    * @class Pointer
+    * @extends Class
+    * @constructor
     */
     class Pointer extends Class {
         private _engine;
@@ -3799,6 +3803,14 @@ declare module ex.Input {
         public key: Keys;
         constructor(key: Keys);
     }
+    /**
+    * Manages Keyboard input events that you can query or listen for events on
+    *
+    * @class Keyboard
+    * @extends Class
+    * @constructor
+    *
+    */
     class Keyboard extends Class {
         private _keys;
         private _keysUp;
@@ -3838,22 +3850,109 @@ declare module ex.Input {
     }
 }
 declare module ex.Input {
+    /**
+    * Manages Gamepad API input. You can query the gamepads that are connected
+    * or listen to events ("button" and "axis").
+    * @class Gamepads
+    * @extends Class
+    * @param pads {Gamepad[]} The connected gamepads.
+    * @param supported {boolean} Whether or not the Gamepad API is present
+    */
+    class Gamepads extends Class {
+        /**
+        * Access to the individual pads
+        * @property pads {Array<Gamepad>}
+        */
+        public pads: Gamepad[];
+        /**
+        * Whether or not to poll for Gamepad input (default: false)
+        * @property enabled {boolean}
+        */
+        public enabled: boolean;
+        /**
+        * Whether or not Gamepad API is supported
+        * @property supported {boolean}
+        */
+        public supported: boolean;
+        /**
+        * The minimum value an axis has to move before considering it a change
+        * @property MinAxisMoveThreshold {number}
+        * @static
+        */
+        static MinAxisMoveThreshold: number;
+        private _gamePadTimeStamps;
+        private _oldPads;
+        private _engine;
+        private _navigator;
+        constructor(engine: Engine);
+        public init(): void;
+        /**
+        * Updates Gamepad state and publishes Gamepad events
+        */
+        public update(delta: number): void;
+        /**
+        * The number of connected gamepads
+        */
+        public count(): number;
+        private _clonePads(pads);
+        /**
+        * Fastest way to clone a known object is to do it yourself
+        */
+        private _clonePad(pad);
+    }
+    /**
+    * Individual state for a Gamepad
+    * @class Gamepad
+    * @extends Class
+    */
+    class Gamepad extends Class {
+        public connected: boolean;
+        private _buttons;
+        private _axes;
+        constructor();
+        /**
+        * Whether or not the given button is pressed
+        * @param button {Buttons}
+        * @param [threshold=1] {number} The threshold over which the button is considered to be pressed
+        */
+        public isButtonPressed(button: Buttons, threshold?: number): boolean;
+        /**
+        * Gets the given button value
+        * @param button {Buttons}
+        */
+        public getButton(button: Buttons): number;
+        /**
+        * Gets the given axis value
+        * @param axes {Axes}
+        */
+        public getAxes(axes: Axes): number;
+        public updateButton(buttonIndex: number, value: number): void;
+        public updateAxes(axesIndex: number, value: number): void;
+    }
+    /**
+    * Gamepad Buttons enumeration
+    * @class Buttons
+    */
     enum Buttons {
         /**
         * Face 1 button (e.g. A)
         * @property Face1 {Buttons}
+        * @static
         */
         /**
         * Face 2 button (e.g. B)
         * @property Face2 {Buttons}
+        * @static
         */
         /**
         * Face 3 button (e.g. X)
         * @property Face3 {Buttons}
+        * @static
         */
         /**
         * Face 4 button (e.g. Y)
         * @property Face4 {Buttons}
+        * @static
         */
         Face1 = 0,
         Face2 = 1,
@@ -3862,89 +3961,105 @@ declare module ex.Input {
         /**
         * Left bumper button
         * @property LeftBumper {Buttons}
+        * @static
         */
         /**
         * Right bumper button
         * @property RightBumper {Buttons}
+        * @static
         */
         LeftBumper = 4,
         RightBumper = 5,
         /**
         * Left trigger button
         * @property LeftTrigger {Buttons}
+        * @static
         */
         /**
         * Right trigger button
         * @property RightTrigger {Buttons}
+        * @static
         */
         LeftTrigger = 6,
         RightTrigger = 7,
         /**
         * Select button
         * @property Select {Buttons}
+        * @static
         */
         /**
         * Start button
         * @property Start {Buttons}
+        * @static
         */
         Select = 8,
         Start = 9,
         /**
         * Left analog stick press (e.g. L3)
         * @property LeftStick {Buttons}
+        * @static
         */
         /**
         * Right analog stick press (e.g. R3)
         * @property Start {Buttons}
+        * @static
         */
         LeftStick = 10,
         RightStick = 11,
         /**
         * D-pad up
         * @property DpadUp {Buttons}
+        * @static
         */
         /**
         * D-pad down
         * @property DpadDown {Buttons}
+        * @static
         */
         /**
         * D-pad left
         * @property DpadLeft {Buttons}
+        * @static
         */
         /**
         * D-pad right
         * @property DpadRight {Buttons}
+        * @static
         */
         DpadUp = 12,
         DpadDown = 13,
         DpadLeft = 14,
         DpadRight = 15,
     }
+    /**
+    * Gamepad Axes enumeration
+    * @class Axes
+    */
     enum Axes {
         /**
         * Left analogue stick X direction
         * @property LeftStickX {Axes}
+        * @static
         */
         /**
         * Left analogue stick Y direction
         * @property LeftStickY {Axes}
+        * @static
         */
         /**
         * Right analogue stick X direction
         * @property RightStickX {Axes}
+        * @static
         */
         /**
         * Right analogue stick Y direction
         * @property RightStickY {Axes}
+        * @static
         */
         LeftStickX = 0,
         LeftStickY = 1,
         RightStickX = 2,
         RightStickY = 3,
-    }
-    class GamepadEvent extends GameEvent implements INavigatorGamepadEvent {
-        public gamepad: INavigatorGamepad;
-        constructor(gamepad: INavigatorGamepad);
     }
     class GamepadButtonEvent extends GameEvent {
         public button: Buttons;
@@ -3971,52 +4086,6 @@ declare module ex.Input {
     }
     interface INavigatorGamepadEvent {
         gamepad: INavigatorGamepad;
-    }
-    class Gamepads extends Class {
-        /**
-        * Access to the individual pads
-        * @property pads {Array<Gamepad>}
-        */
-        public pads: Gamepad[];
-        /**
-        * Whether or not to poll for Gamepad input (default: false)
-        * @property enabled {boolean}
-        */
-        public enabled: boolean;
-        /**
-        * Whether or not Gamepad API is supported
-        * @property supported {boolean}
-        */
-        public supported: boolean;
-        /**
-        * The minimum value an axis has to move before considering it a change
-        * @property MinAxisMoveThreshold {number}
-        */
-        static MinAxisMoveThreshold: number;
-        private _gamePadTimeStamps;
-        private _oldPads;
-        private _engine;
-        private _navigator;
-        constructor(engine: Engine);
-        public init(): void;
-        public update(delta: number): void;
-        public count(): number;
-        private _clonePads(pads);
-        /**
-        * Fastest way to clone a known object is to do it yourself
-        */
-        private _clonePad(pad);
-    }
-    class Gamepad extends Class {
-        public connected: boolean;
-        private _buttons;
-        private _axes;
-        constructor();
-        public isButtonPressed(button: Buttons, threshold?: number): boolean;
-        public getButton(button: Buttons): number;
-        public getAxes(axes: Axes): number;
-        public updateButton(buttonIndex: number, value: number): void;
-        public updateAxes(axesIndex: number, value: number): void;
     }
 }
 declare module ex {

@@ -136,6 +136,7 @@ game.add(follower);
 
 // Create the player
 var player = new ex.Actor(100, -200, 32, 96);
+player.inputEnabled = true;
 player.collisionType = 2 /* Active */;
 follower.meet(player, 60).asPromise().then(function () {
     console.log("Player met!!");
@@ -187,68 +188,56 @@ var groundSpeed = 150;
 var airSpeed = 130;
 var jumpSpeed = 500;
 var direction = 1;
-player.addEventListener('left', function () {
-    direction = -1;
-    if (!inAir) {
-        player.setDrawing(2 /* Left */);
-    }
-    if (inAir) {
-        player.dx = -airSpeed;
-        return;
-    }
-    player.dx = -groundSpeed;
-    // TODO: When platform is moving in same direction, add its dx
-});
-
-player.addEventListener('right', function () {
-    direction = 1;
-    if (!inAir) {
-        player.setDrawing(3 /* Right */);
-    }
-    if (inAir) {
-        player.dx = airSpeed;
-        return;
-    }
-    player.dx = groundSpeed;
-    // TODO: When platform is moving in same direction, add its dx
-});
-
-player.addEventListener('up', function () {
-    if (!inAir) {
-        player.dy = -jumpSpeed;
-        inAir = true;
-        if (direction === 1) {
-            player.setDrawing(4 /* JumpRight */);
-        } else {
-            player.setDrawing(5 /* JumpLeft */);
+player.on('update', function () {
+    if (game.input.keyboard.isKeyPressed(37 /* Left */)) {
+        direction = -1;
+        if (!inAir) {
+            player.setDrawing(2 /* Left */);
         }
-        jumpSound.play();
+        if (inAir) {
+            player.dx = -airSpeed;
+            return;
+        }
+        player.dx = -groundSpeed;
+        // TODO: When platform is moving in same direction, add its dx
+    } else if (game.input.keyboard.isKeyPressed(39 /* Right */)) {
+        direction = 1;
+        if (!inAir) {
+            player.setDrawing(3 /* Right */);
+        }
+        if (inAir) {
+            player.dx = airSpeed;
+            return;
+        }
+        player.dx = groundSpeed;
+        // TODO: When platform is moving in same direction, add its dx
+    }
+
+    if (game.input.keyboard.isKeyPressed(38 /* Up */)) {
+        if (!inAir) {
+            player.dy = -jumpSpeed;
+            inAir = true;
+            if (direction === 1) {
+                player.setDrawing(4 /* JumpRight */);
+            } else {
+                player.setDrawing(5 /* JumpLeft */);
+            }
+            jumpSound.play();
+        }
     }
 });
 
-player.addEventListener('mousedown', function (e) {
-    var button = "";
-    if (e.mouseEvent.button == 0 /* Left */) {
-        button = "Left";
-    } else if (e.mouseEvent.button == 1 /* Middle */) {
-        button = "Middle";
-    } else if (e.mouseEvent.button == 2 /* Right */) {
-        button = "Right";
-    }
-    alert("Player clicked with " + button + " button!");
-});
-
-player.addEventListener('keyup', function (e) {
+game.input.keyboard.on('up', function (e) {
     if (inAir)
         return;
 
-    if (e.key === ex.InputKey.Left || e.key === ex.InputKey.Right) {
+    if (e.key === 37 /* Left */ || e.key === 39 /* Right */) {
         player.setDrawing(1 /* Idle */);
     }
 });
 
-player.addEventListener('touchstart', function () {
-    alert("player touched!");
+player.on('pointerdown', function (e) {
+    alert("Player clicked!");
 });
 
 var newScene = new ex.Scene();
@@ -270,8 +259,8 @@ newScene.addEventListener('deactivate', function (evt) {
 
 game.addScene('label', newScene);
 
-game.addEventListener('keydown', function (keyDown) {
-    if (keyDown.key === ex.InputKey.F) {
+game.input.keyboard.on('down', function (keyDown) {
+    if (keyDown.key === 70 /* F */) {
         var a = new ex.Actor(player.x + 10, player.y - 50, 10, 10, new ex.Color(222, 222, 222));
         a.dx = 200 * direction;
         a.dy = 0;
@@ -292,9 +281,9 @@ game.addEventListener('keydown', function (keyDown) {
             inAir = true;
         });
         game.addChild(a);
-    } else if (keyDown.key === ex.InputKey.U) {
+    } else if (keyDown.key === 85 /* U */) {
         game.goToScene('label');
-    } else if (keyDown.key === ex.InputKey.I) {
+    } else if (keyDown.key === 73 /* I */) {
         game.goToScene('root');
     }
 });
@@ -309,7 +298,7 @@ player.addEventListener('collision', function (data) {
             player.setDrawing(1 /* Idle */);
         }
         inAir = false;
-        if (data.other && !(game.isKeyPressed(ex.InputKey.Left) || game.isKeyPressed(ex.InputKey.Right) || game.isKeyPressed(ex.InputKey.Up) || game.isKeyPressed(ex.InputKey.Down))) {
+        if (data.other && !(game.input.keyboard.isKeyPressed(37 /* Left */) || game.input.keyboard.isKeyPressed(39 /* Right */) || game.input.keyboard.isKeyPressed(38 /* Up */) || game.input.keyboard.isKeyPressed(40 /* Down */))) {
             player.dx = data.other.dx;
             player.dy = data.other.dy;
         }
@@ -348,12 +337,15 @@ player.addEventListener('initialize', function (evt) {
     console.log("Player initialized", evt.engine);
 });
 
-game.addEventListener('keydown', function (keyDown) {
-    if (keyDown.key === ex.InputKey.B) {
+game.input.keyboard.on('down', function (keyDown) {
+    if (keyDown.key === 66 /* B */) {
         var block = new ex.Actor(currentX, 350, 44, 50, color);
         currentX += 46;
         block.addDrawing(0 /* Block */, blockAnimation);
         game.addChild(block);
+    }
+    if (keyDown.key === 68 /* D */) {
+        game.isDebug = !game.isDebug;
     }
 });
 
@@ -365,12 +357,6 @@ game.addEventListener('p', function () {
         game.start();
     }
     paused != paused;
-});
-
-game.addEventListener('keydown', function (keyDown) {
-    if (keyDown.key === ex.InputKey.D) {
-        game.isDebug = !game.isDebug;
-    }
 });
 
 // Create a camera to track the player
@@ -430,7 +416,7 @@ trigger.target = player;
 
 game.add(trigger);
 
-game.addEventListener('mousedown', function (evt) {
+game.input.pointer.on('down', function (evt) {
     var c = tileMap.getCellByPoint(evt.x, evt.y);
     if (c) {
         if (c.solid) {
@@ -445,14 +431,11 @@ game.addEventListener('mousedown', function (evt) {
     //emitter.focus = new ex.Vector(evt.x - emitter.x, evt.y - emitter.y);
 });
 
-game.addEventListener('keyup', function (evt) {
-    if (evt.key == ex.InputKey.F) {
+game.input.keyboard.on('up', function (evt) {
+    if (evt.key == 70 /* F */) {
         jump.play();
     }
-});
-
-game.addEventListener('keyup', function (evt) {
-    if (evt.key == ex.InputKey.S) {
+    if (evt.key == 83 /* S */) {
         jump.stop();
     }
 });

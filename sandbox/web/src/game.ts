@@ -138,6 +138,7 @@ game.add(follower);
 
 // Create the player
 var player = new ex.Actor(100, -200, 32, 96);
+player.inputEnabled = true;
 player.collisionType = ex.CollisionType.Active;
 follower.meet(player, 60).asPromise().then(() => {
    console.log("Player met!!");
@@ -194,70 +195,60 @@ var groundSpeed = 150;
 var airSpeed = 130;
 var jumpSpeed = 500;
 var direction = 1;
-player.addEventListener('left', () => {
-   direction = -1;
-   if (!inAir) {
-      player.setDrawing(Animations.Left);
-   }
-   if (inAir) {
-      player.dx = -airSpeed;
-      return;
-   }
-   player.dx = -groundSpeed;
+player.on('update', () => {
 
-   // TODO: When platform is moving in same direction, add its dx
-});
-
-player.addEventListener('right', () => {
-   direction = 1;
-   if (!inAir) {
-      player.setDrawing(Animations.Right);
-   }
-   if (inAir) {
-      player.dx = airSpeed;
-      return;
-   }
-   player.dx = groundSpeed;
-
-   // TODO: When platform is moving in same direction, add its dx
-});
-
-player.addEventListener('up', () => {
-   if (!inAir) {
-      player.dy = -jumpSpeed;
-      inAir = true;
-      if (direction === 1) {
-         player.setDrawing(Animations.JumpRight);
-      } else {
-         player.setDrawing(Animations.JumpLeft);
+   if (game.input.keyboard.isKeyPressed(ex.Input.Keys.Left)) {
+      direction = -1;
+      if (!inAir) {
+         player.setDrawing(Animations.Left);
       }
-      jumpSound.play();
+      if (inAir) {
+         player.dx = -airSpeed;
+         return;
+      }
+      player.dx = -groundSpeed;
+
+      // TODO: When platform is moving in same direction, add its dx
+
+   } else if (game.input.keyboard.isKeyPressed(ex.Input.Keys.Right)) {
+      direction = 1;
+      if (!inAir) {
+         player.setDrawing(Animations.Right);
+      }
+      if (inAir) {
+         player.dx = airSpeed;
+         return;
+      }
+      player.dx = groundSpeed;
+
+      // TODO: When platform is moving in same direction, add its dx
+   }
+
+   if (game.input.keyboard.isKeyPressed(ex.Input.Keys.Up)) {
+      if (!inAir) {
+         player.dy = -jumpSpeed;
+         inAir = true;
+         if (direction === 1) {
+            player.setDrawing(Animations.JumpRight);
+         } else {
+            player.setDrawing(Animations.JumpLeft);
+         }
+         jumpSound.play();
+      }
    }
 });
 
-player.addEventListener('mousedown', (e?: ex.MouseDownEvent) => {
-   var button = "";
-   if (e.mouseEvent.button == ex.MouseButton.Left) {
-      button = "Left";
-   } else if (e.mouseEvent.button == ex.MouseButton.Middle) {
-      button = "Middle";
-   } else if (e.mouseEvent.button == ex.MouseButton.Right) {
-      button = "Right";
-   }
-   alert("Player clicked with " + button + " button!");
-});
-
-player.addEventListener('keyup', (e?: ex.KeyUp) => {
+game.input.keyboard.on('up', (e?: ex.Input.KeyEvent) => {
    if (inAir) return;
 
-   if (e.key === ex.InputKey.Left ||
-      e.key === ex.InputKey.Right) {
+   if (e.key === ex.Input.Keys.Left ||
+      e.key === ex.Input.Keys.Right) {
       player.setDrawing(Animations.Idle);
    }
 });
 
-player.addEventListener('touchstart', () => {
-   alert("player touched!");
+player.on('pointerdown', (e?: ex.Input.PointerEvent) => {
+   alert("Player clicked!");
 });
 
 var newScene = new ex.Scene();
@@ -281,8 +272,8 @@ newScene.addEventListener('deactivate', (evt?: ex.ActivateEvent) => {
 
 game.addScene('label', newScene);
 
-game.addEventListener('keydown', (keyDown?: ex.KeyDown) => {
-   if (keyDown.key === ex.InputKey.F) {
+game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
+   if (keyDown.key === ex.Input.Keys.F) {
       var a = new ex.Actor(player.x + 10, player.y - 50, 10, 10, new ex.Color(222, 222, 222));
       a.dx = 200 * direction;
       a.dy = 0;
@@ -303,9 +294,9 @@ game.addEventListener('keydown', (keyDown?: ex.KeyDown) => {
          inAir = true;
       });
       game.addChild(a);
-   } else if (keyDown.key === ex.InputKey.U) {
+   } else if (keyDown.key === ex.Input.Keys.U) {
       game.goToScene('label');
-   } else if (keyDown.key === ex.InputKey.I) {
+   } else if (keyDown.key === ex.Input.Keys.I) {
       game.goToScene('root');
    }
 });
@@ -321,7 +312,7 @@ player.addEventListener('collision', (data?: ex.CollisionEvent) => {
          player.setDrawing(Animations.Idle);
       }
       inAir = false;
-      if (data.other && !(game.isKeyPressed(ex.InputKey.Left) || game.isKeyPressed(ex.InputKey.Right) || game.isKeyPressed(ex.InputKey.Up) || game.isKeyPressed(ex.InputKey.Down))) {
+      if (data.other && !(game.input.keyboard.isKeyPressed(ex.Input.Keys.Left) || game.input.keyboard.isKeyPressed(ex.Input.Keys.Right) || game.input.keyboard.isKeyPressed(ex.Input.Keys.Up) || game.input.keyboard.isKeyPressed(ex.Input.Keys.Down))) {
          player.dx = data.other.dx;
          player.dy = data.other.dy;
       }
@@ -363,12 +354,15 @@ player.addEventListener('initialize', (evt?: ex.InitializeEvent) => {
    console.log("Player initialized", evt.engine);
 });
 
-game.addEventListener('keydown', (keyDown?: ex.KeyDown) => {
-   if (keyDown.key === ex.InputKey.B) {
+game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
+   if (keyDown.key === ex.Input.Keys.B) {
       var block = new ex.Actor(currentX, 350, 44, 50, color);
       currentX += 46;
       block.addDrawing(Animations.Block, blockAnimation);
       game.addChild(block);
+   }
+   if (keyDown.key === ex.Input.Keys.D) {
+      game.isDebug = !game.isDebug;
    }
 });
 
@@ -381,15 +375,6 @@ game.addEventListener('p', () => {
    }
    paused != paused;
 });
-
-
-game.addEventListener('keydown', (keyDown?: ex.KeyDown) => {
-
-   if (keyDown.key === ex.InputKey.D) {
-      game.isDebug = !game.isDebug;
-   }
-});
-
 
 // Create a camera to track the player
 var camera = new ex.TopCamera(game);
@@ -450,7 +435,7 @@ trigger.target = player;
 
 game.add(trigger);
 
-game.addEventListener('mousedown', (evt?: ex.MouseDownEvent) => {
+game.input.pointer.on('down', (evt?: ex.Input.PointerEvent) => {
    var c = tileMap.getCellByPoint(evt.x, evt.y);
    if (c) {
       if (c.solid) {
@@ -467,18 +452,14 @@ game.addEventListener('mousedown', (evt?: ex.MouseDownEvent) => {
    //emitter.focus = new ex.Vector(evt.x - emitter.x, evt.y - emitter.y);
 });
 
-game.addEventListener('keyup', (evt?: ex.KeyUp) => {
-   if (evt.key == ex.InputKey.F) {
+game.input.keyboard.on('up', (evt?: ex.Input.KeyEvent) => {
+   if (evt.key == ex.Input.Keys.F) {
       jump.play();
    }
-});
-
-game.addEventListener('keyup', (evt?: ex.KeyUp) => {
-   if (evt.key == ex.InputKey.S) {
+   if (evt.key == ex.Input.Keys.S) {
       jump.stop();
    }
 });
-
 
 // Add camera to game
 game.camera = camera;

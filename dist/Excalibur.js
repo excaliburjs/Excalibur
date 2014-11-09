@@ -6608,7 +6608,11 @@ var ex;
         ;
 
         /**
-        * Handles pointer events (mouse, touch, stylus, etc.) and conforms to W3C Pointer Events
+        * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to W3C Pointer Events
+        *
+        * @class Pointer
+        * @extends Class
+        * @constructor
         */
         var Pointer = (function (_super) {
             __extends(Pointer, _super);
@@ -6944,6 +6948,14 @@ var ex;
         })(ex.GameEvent);
         Input.KeyEvent = KeyEvent;
 
+        /**
+        * Manages Keyboard input events that you can query or listen for events on
+        *
+        * @class Keyboard
+        * @extends Class
+        * @constructor
+        *
+        */
         var Keyboard = (function (_super) {
             __extends(Keyboard, _super);
             function Keyboard(engine) {
@@ -7034,151 +7046,14 @@ var ex;
 var ex;
 (function (ex) {
     (function (Input) {
-        (function (Buttons) {
-            /**
-            * Face 1 button (e.g. A)
-            * @property Face1 {Buttons}
-            */
-            /**
-            * Face 2 button (e.g. B)
-            * @property Face2 {Buttons}
-            */
-            /**
-            * Face 3 button (e.g. X)
-            * @property Face3 {Buttons}
-            */
-            /**
-            * Face 4 button (e.g. Y)
-            * @property Face4 {Buttons}
-            */
-            Buttons[Buttons["Face1"] = 0] = "Face1";
-            Buttons[Buttons["Face2"] = 1] = "Face2";
-            Buttons[Buttons["Face3"] = 2] = "Face3";
-            Buttons[Buttons["Face4"] = 3] = "Face4";
-
-            /**
-            * Left bumper button
-            * @property LeftBumper {Buttons}
-            */
-            /**
-            * Right bumper button
-            * @property RightBumper {Buttons}
-            */
-            Buttons[Buttons["LeftBumper"] = 4] = "LeftBumper";
-            Buttons[Buttons["RightBumper"] = 5] = "RightBumper";
-
-            /**
-            * Left trigger button
-            * @property LeftTrigger {Buttons}
-            */
-            /**
-            * Right trigger button
-            * @property RightTrigger {Buttons}
-            */
-            Buttons[Buttons["LeftTrigger"] = 6] = "LeftTrigger";
-            Buttons[Buttons["RightTrigger"] = 7] = "RightTrigger";
-
-            /**
-            * Select button
-            * @property Select {Buttons}
-            */
-            /**
-            * Start button
-            * @property Start {Buttons}
-            */
-            Buttons[Buttons["Select"] = 8] = "Select";
-            Buttons[Buttons["Start"] = 9] = "Start";
-
-            /**
-            * Left analog stick press (e.g. L3)
-            * @property LeftStick {Buttons}
-            */
-            /**
-            * Right analog stick press (e.g. R3)
-            * @property Start {Buttons}
-            */
-            Buttons[Buttons["LeftStick"] = 10] = "LeftStick";
-            Buttons[Buttons["RightStick"] = 11] = "RightStick";
-
-            /**
-            * D-pad up
-            * @property DpadUp {Buttons}
-            */
-            /**
-            * D-pad down
-            * @property DpadDown {Buttons}
-            */
-            /**
-            * D-pad left
-            * @property DpadLeft {Buttons}
-            */
-            /**
-            * D-pad right
-            * @property DpadRight {Buttons}
-            */
-            Buttons[Buttons["DpadUp"] = 12] = "DpadUp";
-            Buttons[Buttons["DpadDown"] = 13] = "DpadDown";
-            Buttons[Buttons["DpadLeft"] = 14] = "DpadLeft";
-            Buttons[Buttons["DpadRight"] = 15] = "DpadRight";
-        })(Input.Buttons || (Input.Buttons = {}));
-        var Buttons = Input.Buttons;
-
-        (function (Axes) {
-            /**
-            * Left analogue stick X direction
-            * @property LeftStickX {Axes}
-            */
-            /**
-            * Left analogue stick Y direction
-            * @property LeftStickY {Axes}
-            */
-            /**
-            * Right analogue stick X direction
-            * @property RightStickX {Axes}
-            */
-            /**
-            * Right analogue stick Y direction
-            * @property RightStickY {Axes}
-            */
-            Axes[Axes["LeftStickX"] = 0] = "LeftStickX";
-            Axes[Axes["LeftStickY"] = 1] = "LeftStickY";
-            Axes[Axes["RightStickX"] = 2] = "RightStickX";
-            Axes[Axes["RightStickY"] = 3] = "RightStickY";
-        })(Input.Axes || (Input.Axes = {}));
-        var Axes = Input.Axes;
-
-        var GamepadEvent = (function (_super) {
-            __extends(GamepadEvent, _super);
-            function GamepadEvent(gamepad) {
-                _super.call(this);
-                this.gamepad = gamepad;
-            }
-            return GamepadEvent;
-        })(ex.GameEvent);
-        Input.GamepadEvent = GamepadEvent;
-
-        var GamepadButtonEvent = (function (_super) {
-            __extends(GamepadButtonEvent, _super);
-            function GamepadButtonEvent(button, value) {
-                _super.call(this);
-                this.button = button;
-                this.value = value;
-            }
-            return GamepadButtonEvent;
-        })(ex.GameEvent);
-        Input.GamepadButtonEvent = GamepadButtonEvent;
-
-        var GamepadAxisEvent = (function (_super) {
-            __extends(GamepadAxisEvent, _super);
-            function GamepadAxisEvent(axis, value) {
-                _super.call(this);
-                this.axis = axis;
-                this.value = value;
-            }
-            return GamepadAxisEvent;
-        })(ex.GameEvent);
-        Input.GamepadAxisEvent = GamepadAxisEvent;
-
+        /**
+        * Manages Gamepad API input. You can query the gamepads that are connected
+        * or listen to events ("button" and "axis").
+        * @class Gamepads
+        * @extends Class
+        * @param pads {Gamepad[]} The connected gamepads.
+        * @param supported {boolean} Whether or not the Gamepad API is present
+        */
         var Gamepads = (function (_super) {
             __extends(Gamepads, _super);
             function Gamepads(engine) {
@@ -7208,9 +7083,14 @@ var ex;
                 if (!this.supported)
                     return;
 
+                // In Chrome, this will return 4 undefined items until a button is pressed
+                // In FF, this will not return any items until a button is pressed
                 this._oldPads = this._clonePads(this._navigator.getGamepads());
             };
 
+            /**
+            * Updates Gamepad state and publishes Gamepad events
+            */
             Gamepads.prototype.update = function (delta) {
                 if (!this.enabled || !this.supported)
                     return;
@@ -7219,18 +7099,22 @@ var ex;
 
                 for (var i = 0; i < gamepads.length; i++) {
                     if (!gamepads[i]) {
+                        // Reset connection status
                         if (this.pads[i]) {
                             this.pads[i].connected = false;
                         }
 
                         continue;
                     } else {
+                        // New pad?
                         if (this.pads.length === i) {
                             this.pads.push(new Gamepad());
                         }
                         if (this._oldPads.length === i) {
                             this._oldPads.push(this._clonePad(gamepads[i]));
                         }
+
+                        // Set connection status
                         this.pads[i].connected = true;
                     }
                     ;
@@ -7249,9 +7133,11 @@ var ex;
                             continue;
 
                         var buttonIndex = Buttons[b];
-                        if (gamepads[i].buttons[buttonIndex].value !== this._oldPads[i].buttons[buttonIndex].value) {
+                        var value = gamepads[i].buttons[buttonIndex].value;
+                        if (value !== this._oldPads[i].buttons[buttonIndex].value) {
                             if (gamepads[i].buttons[buttonIndex].pressed) {
-                                this.pads[i].updateButton(buttonIndex, gamepads[i].buttons[buttonIndex].value);
+                                this.pads[i].updateButton(buttonIndex, value);
+                                this.eventDispatcher.publish("button", new GamepadButtonEvent(buttonIndex, value));
                             } else {
                                 this.pads[i].updateButton(buttonIndex, 0);
                             }
@@ -7263,8 +7149,10 @@ var ex;
                             continue;
 
                         var axesIndex = Axes[a];
-                        if (gamepads[i].axes[axesIndex] !== this._oldPads[i].axes[axesIndex]) {
-                            this.pads[i].updateAxes(axesIndex, gamepads[i].axes[axesIndex]);
+                        var value = gamepads[i].axes[axesIndex];
+                        if (value !== this._oldPads[i].axes[axesIndex]) {
+                            this.pads[i].updateAxes(axesIndex, value);
+                            this.eventDispatcher.publish("axis", new GamepadAxisEvent(axesIndex, value));
                         }
                     }
 
@@ -7272,6 +7160,9 @@ var ex;
                 }
             };
 
+            /**
+            * The number of connected gamepads
+            */
             Gamepads.prototype.count = function () {
                 return this.pads.filter(function (p) {
                     return p.connected;
@@ -7313,6 +7204,11 @@ var ex;
         })(ex.Class);
         Input.Gamepads = Gamepads;
 
+        /**
+        * Individual state for a Gamepad
+        * @class Gamepad
+        * @extends Class
+        */
         var Gamepad = (function (_super) {
             __extends(Gamepad, _super);
             function Gamepad() {
@@ -7329,15 +7225,28 @@ var ex;
                     this._axes[i] = 0;
                 }
             }
+            /**
+            * Whether or not the given button is pressed
+            * @param button {Buttons}
+            * @param [threshold=1] {number} The threshold over which the button is considered to be pressed
+            */
             Gamepad.prototype.isButtonPressed = function (button, threshold) {
                 if (typeof threshold === "undefined") { threshold = 1; }
                 return this._buttons[button] >= threshold;
             };
 
+            /**
+            * Gets the given button value
+            * @param button {Buttons}
+            */
             Gamepad.prototype.getButton = function (button) {
                 return this._buttons[button];
             };
 
+            /**
+            * Gets the given axis value
+            * @param axes {Axes}
+            */
             Gamepad.prototype.getAxes = function (axes) {
                 var value = this._axes[axes];
 
@@ -7358,6 +7267,169 @@ var ex;
             return Gamepad;
         })(ex.Class);
         Input.Gamepad = Gamepad;
+
+        /**
+        * Gamepad Buttons enumeration
+        * @class Buttons
+        */
+        (function (Buttons) {
+            /**
+            * Face 1 button (e.g. A)
+            * @property Face1 {Buttons}
+            * @static
+            */
+            /**
+            * Face 2 button (e.g. B)
+            * @property Face2 {Buttons}
+            * @static
+            */
+            /**
+            * Face 3 button (e.g. X)
+            * @property Face3 {Buttons}
+            * @static
+            */
+            /**
+            * Face 4 button (e.g. Y)
+            * @property Face4 {Buttons}
+            * @static
+            */
+            Buttons[Buttons["Face1"] = 0] = "Face1";
+            Buttons[Buttons["Face2"] = 1] = "Face2";
+            Buttons[Buttons["Face3"] = 2] = "Face3";
+            Buttons[Buttons["Face4"] = 3] = "Face4";
+
+            /**
+            * Left bumper button
+            * @property LeftBumper {Buttons}
+            * @static
+            */
+            /**
+            * Right bumper button
+            * @property RightBumper {Buttons}
+            * @static
+            */
+            Buttons[Buttons["LeftBumper"] = 4] = "LeftBumper";
+            Buttons[Buttons["RightBumper"] = 5] = "RightBumper";
+
+            /**
+            * Left trigger button
+            * @property LeftTrigger {Buttons}
+            * @static
+            */
+            /**
+            * Right trigger button
+            * @property RightTrigger {Buttons}
+            * @static
+            */
+            Buttons[Buttons["LeftTrigger"] = 6] = "LeftTrigger";
+            Buttons[Buttons["RightTrigger"] = 7] = "RightTrigger";
+
+            /**
+            * Select button
+            * @property Select {Buttons}
+            * @static
+            */
+            /**
+            * Start button
+            * @property Start {Buttons}
+            * @static
+            */
+            Buttons[Buttons["Select"] = 8] = "Select";
+            Buttons[Buttons["Start"] = 9] = "Start";
+
+            /**
+            * Left analog stick press (e.g. L3)
+            * @property LeftStick {Buttons}
+            * @static
+            */
+            /**
+            * Right analog stick press (e.g. R3)
+            * @property Start {Buttons}
+            * @static
+            */
+            Buttons[Buttons["LeftStick"] = 10] = "LeftStick";
+            Buttons[Buttons["RightStick"] = 11] = "RightStick";
+
+            /**
+            * D-pad up
+            * @property DpadUp {Buttons}
+            * @static
+            */
+            /**
+            * D-pad down
+            * @property DpadDown {Buttons}
+            * @static
+            */
+            /**
+            * D-pad left
+            * @property DpadLeft {Buttons}
+            * @static
+            */
+            /**
+            * D-pad right
+            * @property DpadRight {Buttons}
+            * @static
+            */
+            Buttons[Buttons["DpadUp"] = 12] = "DpadUp";
+            Buttons[Buttons["DpadDown"] = 13] = "DpadDown";
+            Buttons[Buttons["DpadLeft"] = 14] = "DpadLeft";
+            Buttons[Buttons["DpadRight"] = 15] = "DpadRight";
+        })(Input.Buttons || (Input.Buttons = {}));
+        var Buttons = Input.Buttons;
+
+        /**
+        * Gamepad Axes enumeration
+        * @class Axes
+        */
+        (function (Axes) {
+            /**
+            * Left analogue stick X direction
+            * @property LeftStickX {Axes}
+            * @static
+            */
+            /**
+            * Left analogue stick Y direction
+            * @property LeftStickY {Axes}
+            * @static
+            */
+            /**
+            * Right analogue stick X direction
+            * @property RightStickX {Axes}
+            * @static
+            */
+            /**
+            * Right analogue stick Y direction
+            * @property RightStickY {Axes}
+            * @static
+            */
+            Axes[Axes["LeftStickX"] = 0] = "LeftStickX";
+            Axes[Axes["LeftStickY"] = 1] = "LeftStickY";
+            Axes[Axes["RightStickX"] = 2] = "RightStickX";
+            Axes[Axes["RightStickY"] = 3] = "RightStickY";
+        })(Input.Axes || (Input.Axes = {}));
+        var Axes = Input.Axes;
+
+        var GamepadButtonEvent = (function (_super) {
+            __extends(GamepadButtonEvent, _super);
+            function GamepadButtonEvent(button, value) {
+                _super.call(this);
+                this.button = button;
+                this.value = value;
+            }
+            return GamepadButtonEvent;
+        })(ex.GameEvent);
+        Input.GamepadButtonEvent = GamepadButtonEvent;
+
+        var GamepadAxisEvent = (function (_super) {
+            __extends(GamepadAxisEvent, _super);
+            function GamepadAxisEvent(axis, value) {
+                _super.call(this);
+                this.axis = axis;
+                this.value = value;
+            }
+            return GamepadAxisEvent;
+        })(ex.GameEvent);
+        Input.GamepadAxisEvent = GamepadAxisEvent;
     })(ex.Input || (ex.Input = {}));
     var Input = ex.Input;
 })(ex || (ex = {}));

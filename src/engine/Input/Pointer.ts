@@ -7,7 +7,11 @@
    };
 
    /**
-    * Handles pointer events (mouse, touch, stylus, etc.) and conforms to W3C Pointer Events
+    * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to W3C Pointer Events
+    * 
+    * @class Pointer
+    * @extends Class
+    * @constructor
     */
    export class Pointer extends ex.Class {
       private _engine: ex.Engine;

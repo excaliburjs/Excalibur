@@ -206,6 +206,14 @@
       }
    }
    
+   /**
+    * Manages Keyboard input events that you can query or listen for events on
+    * 
+    * @class Keyboard
+    * @extends Class
+    * @constructor
+    * 
+    */
    export class Keyboard extends ex.Class {
 
       private _keys: number[] = [];
