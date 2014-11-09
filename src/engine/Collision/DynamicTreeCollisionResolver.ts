@@ -29,6 +29,8 @@ module ex {
             actor = potentialColliders[j];
 
             this._dynamicCollisionTree.query(actor, (other: Actor) => {
+               if (other.collisionType === CollisionType.PreventCollision) return false;
+
                var minimumTranslationVector;
                if (minimumTranslationVector = actor.collides(other)) {
                   var side = actor.getSideFromIntersect(minimumTranslationVector);

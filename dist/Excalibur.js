@@ -1,360 +1,6 @@
-﻿var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var ex;
-(function (ex) {
-    /**
-    * A simple 2D point on a plane
-    * @class Point
-    * @constructor
-    * @param x {number} X coordinate of the point
-    * @param y {number} Y coordinate of the point
-    *
-    */
-    var Point = (function () {
-        function Point(x, y) {
-            this.x = x;
-            this.y = y;
-        }
-        /**
-        * X Coordinate of the point
-        * @property x {number}
-        */
-        /**
-        * Y Coordinate of the point
-        * @property y {number}
-        */
-        /**
-        * Convert this point to a vector
-        * @method toVector
-        * @returns Vector
-        */
-        Point.prototype.toVector = function () {
-            return new Vector(this.x, this.y);
-        };
-
-        /**
-        * Rotates the current point around another by a certain number of
-        * degrees in radians
-        * @method rotate
-        * @returns Point
-        */
-        Point.prototype.rotate = function (angle, anchor) {
-            if (!anchor) {
-                anchor = new ex.Point(0, 0);
-            }
-            var sinAngle = Math.sin(angle);
-            var cosAngle = Math.cos(angle);
-            var x = cosAngle * (this.x - anchor.x) - sinAngle * (this.y - anchor.y) + anchor.x;
-            var y = sinAngle * (this.x - anchor.x) + cosAngle * (this.y - anchor.y) + anchor.y;
-            return new Point(x, y);
-        };
-
-        /**
-        * Translates the current point by a vector
-        * @method add
-        * @returns Point
-        */
-        Point.prototype.add = function (vector) {
-            return new Point(this.x + vector.x, this.y + vector.y);
-        };
-
-        /**
-        * Sets the x and y components at once
-        * @method setTo
-        * @param x {number}
-        * @param y {number}
-        */
-        Point.prototype.setTo = function (x, y) {
-            this.x = x;
-            this.y = y;
-        };
-
-        /**
-        * Clones a new point that is a copy of this one.
-        * @method clone
-        * @returns Point
-        */
-        Point.prototype.clone = function () {
-            return new Point(this.x, this.y);
-        };
-        return Point;
-    })();
-    ex.Point = Point;
-
-    /**
-    * A 2D vector on a plane.
-    * @class Vector
-    * @extends Point
-    * @constructor
-    * @param x {number} X component of the Vector
-    * @param y {number} Y component of the Vector
-    */
-    var Vector = (function (_super) {
-        __extends(Vector, _super);
-        function Vector(x, y) {
-            _super.call(this, x, y);
-            this.x = x;
-            this.y = y;
-        }
-        /**
-        * Returns a vector of unit length in the direction of the specified angle.
-        * @method fromAngle
-        * @static
-        * @param angle {number} The angle to generate the vector
-        * @returns Vector
-        */
-        Vector.fromAngle = function (angle) {
-            return new Vector(Math.cos(angle), Math.sin(angle));
-        };
-
-        /**
-        * The distance to another vector
-        * @method distance
-        * @param v {Vector} The other vector
-        * @returns number
-        */
-        Vector.prototype.distance = function (v) {
-            if (!v) {
-                v = new Vector(0.0, 0.0);
-            }
-            return Math.sqrt(Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2));
-        };
-
-        /**
-        * Normalizes a vector to have a magnitude of 1.
-        * @method normalize
-        * @return Vector
-        */
-        Vector.prototype.normalize = function () {
-            var d = this.distance();
-            if (d > 0) {
-                return new Vector(this.x / d, this.y / d);
-            } else {
-                return new Vector(0, 1);
-            }
-        };
-
-        /**
-        * Scales a vector's by a factor of size
-        * @method scale
-        * @param size {number} The factor to scale the magnitude by
-        * @returns Vector
-        */
-        Vector.prototype.scale = function (size) {
-            return new Vector(this.x * size, this.y * size);
-        };
-
-        /**
-        * Adds one vector to another
-        * @method add
-        * @param v {Vector} The vector to add
-        * @returns Vector
-        */
-        Vector.prototype.add = function (v) {
-            return new Vector(this.x + v.x, this.y + v.y);
-        };
-
-        /**
-        * Subtracts a vector from the current vector
-        * @method minus
-        * @param v {Vector} The vector to subtract
-        * @returns Vector
-        */
-        Vector.prototype.minus = function (v) {
-            return new Vector(this.x - v.x, this.y - v.y);
-        };
-
-        /**
-        * Performs a dot product with another vector
-        * @method dot
-        * @param v {Vector} The vector to dot
-        * @returns number
-        */
-        Vector.prototype.dot = function (v) {
-            return this.x * v.x + this.y * v.y;
-        };
-
-        /**
-        * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
-        * @method cross
-        * @param v {Vector} The vector to cross
-        * @returns number
-        */
-        Vector.prototype.cross = function (v) {
-            return this.x * v.y - this.y * v.x;
-        };
-
-        /**
-        * Returns the perpendicular vector to this one
-        * @method perpendicular
-        * @return Vector
-        */
-        Vector.prototype.perpendicular = function () {
-            return new Vector(this.y, -this.x);
-        };
-
-        /**
-        * Returns the normal vector to this one
-        * @method normal
-        * @return Vector
-        */
-        Vector.prototype.normal = function () {
-            return this.perpendicular().normalize();
-        };
-
-        /**
-        * Returns the angle of this vector.
-        * @method toAngle
-        * @returns number
-        */
-        Vector.prototype.toAngle = function () {
-            return Math.atan2(this.y, this.x);
-        };
-
-        /**
-        * Returns the point represention of this vector
-        * @method toPoint
-        * @returns Point
-        */
-        Vector.prototype.toPoint = function () {
-            return new Point(this.x, this.y);
-        };
-
-        /**
-        * Rotates the current vector around a point by a certain number of
-        * degrees in radians
-        * @method rotate
-        * @returns Vector
-        */
-        Vector.prototype.rotate = function (angle, anchor) {
-            return _super.prototype.rotate.call(this, angle, anchor).toVector();
-        };
-        return Vector;
-    })(Point);
-    ex.Vector = Vector;
-
-    /**
-    * A 2D ray that can be cast into the scene to do collision detection
-    * @class Ray
-    * @constructor
-    * @param pos {Point} The starting position for the ray
-    * @param dir {Vector} The vector indicating the direction of the ray
-    */
-    var Ray = (function () {
-        function Ray(pos, dir) {
-            this.pos = pos;
-            this.dir = dir.normalize();
-        }
-        /**
-        * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
-        * This number indicates the mathematical intersection time.
-        * @method intersect
-        * @param line {Line} The line to test
-        * @returns number
-        */
-        Ray.prototype.intersect = function (line) {
-            var numerator = line.begin.toVector().minus(this.pos.toVector());
-
-            // Test is line and ray are parallel and non intersecting
-            if (this.dir.cross(line.getSlope()) === 0 && numerator.cross(this.dir) !== 0) {
-                return -1;
-            }
-
-            // Lines are parallel
-            var divisor = (this.dir.cross(line.getSlope()));
-            if (divisor === 0) {
-                return -1;
-            }
-
-            var t = numerator.cross(line.getSlope()) / divisor;
-
-            if (t >= 0) {
-                var u = (numerator.cross(this.dir) / divisor) / line.getLength();
-                if (u >= 0 && u <= 1) {
-                    return t;
-                }
-            }
-            return -1;
-        };
-
-        /**
-        * Returns the point of intersection given the intersection time
-        * @method getPoint
-        * @returns Point
-        */
-        Ray.prototype.getPoint = function (time) {
-            return this.pos.toVector().add(this.dir.scale(time)).toPoint();
-        };
-        return Ray;
-    })();
-    ex.Ray = Ray;
-
-    /**
-    * A 2D line segment
-    * @class Line
-    * @constructor
-    * @param begin {Point} The starting point of the line segment
-    * @param end {Point} The ending point of the line segment
-    */
-    var Line = (function () {
-        function Line(begin, end) {
-            this.begin = begin;
-            this.end = end;
-        }
-        /**
-        * Returns the slope of the line in the form of a vector
-        * @method getSlope
-        * @returns Vector
-        */
-        Line.prototype.getSlope = function () {
-            var begin = this.begin.toVector();
-            var end = this.end.toVector();
-            var distance = begin.distance(end);
-            return end.minus(begin).scale(1 / distance);
-        };
-
-        /**
-        * Returns the length of the line segment in pixels
-        * @method getLength
-        * @returns number
-        */
-        Line.prototype.getLength = function () {
-            var begin = this.begin.toVector();
-            var end = this.end.toVector();
-            var distance = begin.distance(end);
-            return distance;
-        };
-        return Line;
-    })();
-    ex.Line = Line;
-
-    var Projection = (function () {
-        function Projection(min, max) {
-            this.min = min;
-            this.max = max;
-        }
-        Projection.prototype.overlaps = function (projection) {
-            return this.max > projection.min && projection.max > this.min;
-        };
-
-        Projection.prototype.getOverlap = function (projection) {
-            if (this.overlaps(projection)) {
-                if (this.max > projection.max) {
-                    return projection.max - this.min;
-                } else {
-                    return this.max - projection.min;
-                }
-            }
-            return 0;
-        };
-        return Projection;
-    })();
-    ex.Projection = Projection;
-})(ex || (ex = {}));
+/*! excalibur - v0.2.5 - 2014-11-08
+* https://github.com/excaliburjs/Excalibur
+* Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
     window = { audioContext: function () {
         } };
@@ -723,6 +369,363 @@ var ex;
         Side[Side["Right"] = 4] = "Right";
     })(ex.Side || (ex.Side = {}));
     var Side = ex.Side;
+})(ex || (ex = {}));
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var ex;
+(function (ex) {
+    /**
+    * A simple 2D point on a plane
+    * @class Point
+    * @constructor
+    * @param x {number} X coordinate of the point
+    * @param y {number} Y coordinate of the point
+    *
+    */
+    var Point = (function () {
+        function Point(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+        /**
+        * X Coordinate of the point
+        * @property x {number}
+        */
+        /**
+        * Y Coordinate of the point
+        * @property y {number}
+        */
+        /**
+        * Convert this point to a vector
+        * @method toVector
+        * @returns Vector
+        */
+        Point.prototype.toVector = function () {
+            return new Vector(this.x, this.y);
+        };
+
+        /**
+        * Rotates the current point around another by a certain number of
+        * degrees in radians
+        * @method rotate
+        * @returns Point
+        */
+        Point.prototype.rotate = function (angle, anchor) {
+            if (!anchor) {
+                anchor = new ex.Point(0, 0);
+            }
+            var sinAngle = Math.sin(angle);
+            var cosAngle = Math.cos(angle);
+            var x = cosAngle * (this.x - anchor.x) - sinAngle * (this.y - anchor.y) + anchor.x;
+            var y = sinAngle * (this.x - anchor.x) + cosAngle * (this.y - anchor.y) + anchor.y;
+            return new Point(x, y);
+        };
+
+        /**
+        * Translates the current point by a vector
+        * @method add
+        * @returns Point
+        */
+        Point.prototype.add = function (vector) {
+            return new Point(this.x + vector.x, this.y + vector.y);
+        };
+
+        /**
+        * Sets the x and y components at once
+        * @method setTo
+        * @param x {number}
+        * @param y {number}
+        */
+        Point.prototype.setTo = function (x, y) {
+            this.x = x;
+            this.y = y;
+        };
+
+        /**
+        * Clones a new point that is a copy of this one.
+        * @method clone
+        * @returns Point
+        */
+        Point.prototype.clone = function () {
+            return new Point(this.x, this.y);
+        };
+        return Point;
+    })();
+    ex.Point = Point;
+
+    /**
+    * A 2D vector on a plane.
+    * @class Vector
+    * @extends Point
+    * @constructor
+    * @param x {number} X component of the Vector
+    * @param y {number} Y component of the Vector
+    */
+    var Vector = (function (_super) {
+        __extends(Vector, _super);
+        function Vector(x, y) {
+            _super.call(this, x, y);
+            this.x = x;
+            this.y = y;
+        }
+        /**
+        * Returns a vector of unit length in the direction of the specified angle.
+        * @method fromAngle
+        * @static
+        * @param angle {number} The angle to generate the vector
+        * @returns Vector
+        */
+        Vector.fromAngle = function (angle) {
+            return new Vector(Math.cos(angle), Math.sin(angle));
+        };
+
+        /**
+        * The distance to another vector
+        * @method distance
+        * @param v {Vector} The other vector
+        * @returns number
+        */
+        Vector.prototype.distance = function (v) {
+            if (!v) {
+                v = new Vector(0.0, 0.0);
+            }
+            return Math.sqrt(Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2));
+        };
+
+        /**
+        * Normalizes a vector to have a magnitude of 1.
+        * @method normalize
+        * @return Vector
+        */
+        Vector.prototype.normalize = function () {
+            var d = this.distance();
+            if (d > 0) {
+                return new Vector(this.x / d, this.y / d);
+            } else {
+                return new Vector(0, 1);
+            }
+        };
+
+        /**
+        * Scales a vector's by a factor of size
+        * @method scale
+        * @param size {number} The factor to scale the magnitude by
+        * @returns Vector
+        */
+        Vector.prototype.scale = function (size) {
+            return new Vector(this.x * size, this.y * size);
+        };
+
+        /**
+        * Adds one vector to another
+        * @method add
+        * @param v {Vector} The vector to add
+        * @returns Vector
+        */
+        Vector.prototype.add = function (v) {
+            return new Vector(this.x + v.x, this.y + v.y);
+        };
+
+        /**
+        * Subtracts a vector from the current vector
+        * @method minus
+        * @param v {Vector} The vector to subtract
+        * @returns Vector
+        */
+        Vector.prototype.minus = function (v) {
+            return new Vector(this.x - v.x, this.y - v.y);
+        };
+
+        /**
+        * Performs a dot product with another vector
+        * @method dot
+        * @param v {Vector} The vector to dot
+        * @returns number
+        */
+        Vector.prototype.dot = function (v) {
+            return this.x * v.x + this.y * v.y;
+        };
+
+        /**
+        * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
+        * @method cross
+        * @param v {Vector} The vector to cross
+        * @returns number
+        */
+        Vector.prototype.cross = function (v) {
+            return this.x * v.y - this.y * v.x;
+        };
+
+        /**
+        * Returns the perpendicular vector to this one
+        * @method perpendicular
+        * @return Vector
+        */
+        Vector.prototype.perpendicular = function () {
+            return new Vector(this.y, -this.x);
+        };
+
+        /**
+        * Returns the normal vector to this one
+        * @method normal
+        * @return Vector
+        */
+        Vector.prototype.normal = function () {
+            return this.perpendicular().normalize();
+        };
+
+        /**
+        * Returns the angle of this vector.
+        * @method toAngle
+        * @returns number
+        */
+        Vector.prototype.toAngle = function () {
+            return Math.atan2(this.y, this.x);
+        };
+
+        /**
+        * Returns the point represention of this vector
+        * @method toPoint
+        * @returns Point
+        */
+        Vector.prototype.toPoint = function () {
+            return new Point(this.x, this.y);
+        };
+
+        /**
+        * Rotates the current vector around a point by a certain number of
+        * degrees in radians
+        * @method rotate
+        * @returns Vector
+        */
+        Vector.prototype.rotate = function (angle, anchor) {
+            return _super.prototype.rotate.call(this, angle, anchor).toVector();
+        };
+        return Vector;
+    })(Point);
+    ex.Vector = Vector;
+
+    /**
+    * A 2D ray that can be cast into the scene to do collision detection
+    * @class Ray
+    * @constructor
+    * @param pos {Point} The starting position for the ray
+    * @param dir {Vector} The vector indicating the direction of the ray
+    */
+    var Ray = (function () {
+        function Ray(pos, dir) {
+            this.pos = pos;
+            this.dir = dir.normalize();
+        }
+        /**
+        * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
+        * This number indicates the mathematical intersection time.
+        * @method intersect
+        * @param line {Line} The line to test
+        * @returns number
+        */
+        Ray.prototype.intersect = function (line) {
+            var numerator = line.begin.toVector().minus(this.pos.toVector());
+
+            // Test is line and ray are parallel and non intersecting
+            if (this.dir.cross(line.getSlope()) === 0 && numerator.cross(this.dir) !== 0) {
+                return -1;
+            }
+
+            // Lines are parallel
+            var divisor = (this.dir.cross(line.getSlope()));
+            if (divisor === 0) {
+                return -1;
+            }
+
+            var t = numerator.cross(line.getSlope()) / divisor;
+
+            if (t >= 0) {
+                var u = (numerator.cross(this.dir) / divisor) / line.getLength();
+                if (u >= 0 && u <= 1) {
+                    return t;
+                }
+            }
+            return -1;
+        };
+
+        /**
+        * Returns the point of intersection given the intersection time
+        * @method getPoint
+        * @returns Point
+        */
+        Ray.prototype.getPoint = function (time) {
+            return this.pos.toVector().add(this.dir.scale(time)).toPoint();
+        };
+        return Ray;
+    })();
+    ex.Ray = Ray;
+
+    /**
+    * A 2D line segment
+    * @class Line
+    * @constructor
+    * @param begin {Point} The starting point of the line segment
+    * @param end {Point} The ending point of the line segment
+    */
+    var Line = (function () {
+        function Line(begin, end) {
+            this.begin = begin;
+            this.end = end;
+        }
+        /**
+        * Returns the slope of the line in the form of a vector
+        * @method getSlope
+        * @returns Vector
+        */
+        Line.prototype.getSlope = function () {
+            var begin = this.begin.toVector();
+            var end = this.end.toVector();
+            var distance = begin.distance(end);
+            return end.minus(begin).scale(1 / distance);
+        };
+
+        /**
+        * Returns the length of the line segment in pixels
+        * @method getLength
+        * @returns number
+        */
+        Line.prototype.getLength = function () {
+            var begin = this.begin.toVector();
+            var end = this.end.toVector();
+            var distance = begin.distance(end);
+            return distance;
+        };
+        return Line;
+    })();
+    ex.Line = Line;
+
+    var Projection = (function () {
+        function Projection(min, max) {
+            this.min = min;
+            this.max = max;
+        }
+        Projection.prototype.overlaps = function (projection) {
+            return this.max > projection.min && projection.max > this.min;
+        };
+
+        Projection.prototype.getOverlap = function (projection) {
+            if (this.overlaps(projection)) {
+                if (this.max > projection.max) {
+                    return projection.max - this.min;
+                } else {
+                    return this.max - projection.min;
+                }
+            }
+            return 0;
+        };
+        return Projection;
+    })();
+    ex.Projection = Projection;
 })(ex || (ex = {}));
 /// <reference path="Algebra.ts"/>
 /// <reference path="Events.ts"/>
@@ -2499,10 +2502,10 @@ var ex;
             var node = new TreeNode();
             node.actor = actor;
             node.bounds = actor.getBounds();
-            node.bounds.left -= 10;
-            node.bounds.top -= 10;
-            node.bounds.right += 10;
-            node.bounds.bottom += 10;
+            node.bounds.left -= 2;
+            node.bounds.top -= 2;
+            node.bounds.right += 2;
+            node.bounds.bottom += 2;
             this.nodes[actor.id] = node;
             this.insert(node);
         };
@@ -2522,8 +2525,8 @@ var ex;
             b.right += 5;
             b.bottom += 5;
 
-            var multdx = actor.dx * 2;
-            var multdy = actor.dy * 2;
+            var multdx = actor.dx * .2;
+            var multdy = actor.dy * .2;
 
             if (multdx < 0) {
                 b.left += multdx;
@@ -2755,6 +2758,9 @@ var ex;
                 actor = potentialColliders[j];
 
                 this._dynamicCollisionTree.query(actor, function (other) {
+                    if (other.collisionType === 0 /* PreventCollision */)
+                        return false;
+
                     var minimumTranslationVector;
                     if (minimumTranslationVector = actor.collides(other)) {
                         var side = actor.getSideFromIntersect(minimumTranslationVector);
@@ -3166,6 +3172,742 @@ var ex;
         return Scene;
     })(ex.Class);
     ex.Scene = Scene;
+})(ex || (ex = {}));
+/// <reference path="Algebra.ts" />
+/// <reference path="Engine.ts" />
+/// <reference path="Actor.ts" />
+var ex;
+(function (ex) {
+    (function (Internal) {
+        (function (Actions) {
+            var MoveTo = (function () {
+                function MoveTo(actor, destx, desty, speed) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.end = new ex.Vector(destx, desty);
+                    this.speed = speed;
+                }
+                MoveTo.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.start = new ex.Vector(this.actor.x, this.actor.y);
+                        this.distance = this.start.distance(this.end);
+                        this.dir = this.end.minus(this.start).normalize();
+                    }
+                    var m = this.dir.scale(this.speed);
+                    this.actor.dx = m.x;
+                    this.actor.dy = m.y;
+
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.x = this.end.x;
+                        this.actor.y = this.end.y;
+                        this.actor.dy = 0;
+                        this.actor.dx = 0;
+                    }
+                };
+
+                MoveTo.prototype.isComplete = function (actor) {
+                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this.start) >= this.distance;
+                };
+
+                MoveTo.prototype.stop = function () {
+                    this.actor.dy = 0;
+                    this.actor.dx = 0;
+                    this._stopped = true;
+                };
+
+                MoveTo.prototype.reset = function () {
+                    this._started = false;
+                };
+                return MoveTo;
+            })();
+            Actions.MoveTo = MoveTo;
+
+            var MoveBy = (function () {
+                function MoveBy(actor, destx, desty, time) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.end = new ex.Vector(destx, desty);
+                    if (time <= 0) {
+                        ex.Logger.getInstance().error("Attempted to moveBy time less than or equal to zero : " + time);
+                        throw new Error("Cannot move in time <= 0");
+                    }
+                    this.time = time;
+                }
+                MoveBy.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.start = new ex.Vector(this.actor.x, this.actor.y);
+                        this.distance = this.start.distance(this.end);
+                        this.dir = this.end.minus(this.start).normalize();
+                        this.speed = this.distance / (this.time / 1000);
+                    }
+
+                    var m = this.dir.scale(this.speed);
+                    this.actor.dx = m.x;
+                    this.actor.dy = m.y;
+
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.x = this.end.x;
+                        this.actor.y = this.end.y;
+                        this.actor.dy = 0;
+                        this.actor.dx = 0;
+                    }
+                };
+
+                MoveBy.prototype.isComplete = function (actor) {
+                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this.start) >= this.distance;
+                };
+
+                MoveBy.prototype.stop = function () {
+                    this.actor.dy = 0;
+                    this.actor.dx = 0;
+                    this._stopped = true;
+                };
+
+                MoveBy.prototype.reset = function () {
+                    this._started = false;
+                };
+                return MoveBy;
+            })();
+            Actions.MoveBy = MoveBy;
+
+            var Follow = (function () {
+                function Follow(actor, actorToFollow, followDistance) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.actorToFollow = actorToFollow;
+                    this.current = new ex.Vector(this.actor.x, this.actor.y);
+                    this.end = new ex.Vector(actorToFollow.x, actorToFollow.y);
+                    this.maximumDistance = (followDistance != undefined) ? followDistance : this.current.distance(this.end);
+                    this.speed = 0;
+                }
+                Follow.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.distanceBetween = this.current.distance(this.end);
+                        this.dir = this.end.minus(this.current).normalize();
+                    }
+
+                    var actorToFollowSpeed = Math.sqrt(Math.pow(this.actorToFollow.dx, 2) + Math.pow(this.actorToFollow.dy, 2));
+                    if (actorToFollowSpeed != 0) {
+                        this.speed = actorToFollowSpeed;
+                    }
+                    this.current.x = this.actor.x;
+                    this.current.y = this.actor.y;
+
+                    this.end.x = this.actorToFollow.x;
+                    this.end.y = this.actorToFollow.y;
+                    this.distanceBetween = this.current.distance(this.end);
+                    this.dir = this.end.minus(this.current).normalize();
+
+                    if (this.distanceBetween >= this.maximumDistance) {
+                        var m = this.dir.scale(this.speed);
+                        this.actor.dx = m.x;
+                        this.actor.dy = m.y;
+                    } else {
+                        this.actor.dx = 0;
+                        this.actor.dy = 0;
+                    }
+
+                    if (this.isComplete(this.actor)) {
+                        // TODO this should never occur
+                        this.actor.x = this.end.x;
+                        this.actor.y = this.end.y;
+                        this.actor.dy = 0;
+                        this.actor.dx = 0;
+                    }
+                };
+
+                Follow.prototype.stop = function () {
+                    this.actor.dy = 0;
+                    this.actor.dx = 0;
+                    this._stopped = true;
+                };
+
+                Follow.prototype.isComplete = function (actor) {
+                    // the actor following should never stop unless specified to do so
+                    return this._stopped;
+                };
+
+                Follow.prototype.reset = function () {
+                    this._started = false;
+                };
+                return Follow;
+            })();
+            Actions.Follow = Follow;
+
+            var Meet = (function () {
+                function Meet(actor, actorToMeet, speed) {
+                    this._started = false;
+                    this._stopped = false;
+                    this._speedWasSpecified = false;
+                    this.actor = actor;
+                    this.actorToMeet = actorToMeet;
+                    this.current = new ex.Vector(this.actor.x, this.actor.y);
+                    this.end = new ex.Vector(actorToMeet.x, actorToMeet.y);
+                    this.speed = speed || 0;
+
+                    if (speed != undefined) {
+                        this._speedWasSpecified = true;
+                    }
+                }
+                Meet.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.distanceBetween = this.current.distance(this.end);
+                        this.dir = this.end.minus(this.current).normalize();
+                    }
+
+                    var actorToMeetSpeed = Math.sqrt(Math.pow(this.actorToMeet.dx, 2) + Math.pow(this.actorToMeet.dy, 2));
+                    if ((actorToMeetSpeed != 0) && (!this._speedWasSpecified)) {
+                        this.speed = actorToMeetSpeed;
+                    }
+                    this.current.x = this.actor.x;
+                    this.current.y = this.actor.y;
+
+                    this.end.x = this.actorToMeet.x;
+                    this.end.y = this.actorToMeet.y;
+                    this.distanceBetween = this.current.distance(this.end);
+                    this.dir = this.end.minus(this.current).normalize();
+
+                    var m = this.dir.scale(this.speed);
+                    this.actor.dx = m.x;
+                    this.actor.dy = m.y;
+
+                    if (this.isComplete(this.actor)) {
+                        // console.log("meeting is complete")
+                        this.actor.x = this.end.x;
+                        this.actor.y = this.end.y;
+                        this.actor.dy = 0;
+                        this.actor.dx = 0;
+                    }
+                };
+
+                Meet.prototype.isComplete = function (actor) {
+                    return this._stopped || (this.distanceBetween <= 1);
+                };
+
+                Meet.prototype.stop = function () {
+                    this.actor.dy = 0;
+                    this.actor.dx = 0;
+                    this._stopped = true;
+                };
+
+                Meet.prototype.reset = function () {
+                    this._started = false;
+                };
+                return Meet;
+            })();
+            Actions.Meet = Meet;
+
+            var RotateTo = (function () {
+                function RotateTo(actor, angleRadians, speed) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.end = angleRadians;
+                    this.speed = speed;
+                }
+                RotateTo.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.start = this.actor.rotation;
+                        this.distance = Math.abs(this.end - this.start);
+                    }
+                    this.actor.rx = this.speed;
+
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.rotation = this.end;
+                        this.actor.rx = 0;
+                    }
+                };
+
+                RotateTo.prototype.isComplete = function (actor) {
+                    return this._stopped || (Math.abs(this.actor.rotation - this.start) >= this.distance);
+                };
+
+                RotateTo.prototype.stop = function () {
+                    this.actor.rx = 0;
+                    this._stopped = true;
+                };
+
+                RotateTo.prototype.reset = function () {
+                    this._started = false;
+                };
+                return RotateTo;
+            })();
+            Actions.RotateTo = RotateTo;
+
+            var RotateBy = (function () {
+                function RotateBy(actor, angleRadians, time) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.end = angleRadians;
+                    this.time = time;
+                    this.speed = (this.end - this.actor.rotation) / time * 1000;
+                }
+                RotateBy.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.start = this.actor.rotation;
+                        this.distance = Math.abs(this.end - this.start);
+                    }
+                    this.actor.rx = this.speed;
+
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.rotation = this.end;
+                        this.actor.rx = 0;
+                    }
+                };
+
+                RotateBy.prototype.isComplete = function (actor) {
+                    return this._stopped || (Math.abs(this.actor.rotation - this.start) >= this.distance);
+                };
+
+                RotateBy.prototype.stop = function () {
+                    this.actor.rx = 0;
+                    this._stopped = true;
+                };
+
+                RotateBy.prototype.reset = function () {
+                    this._started = false;
+                };
+                return RotateBy;
+            })();
+            Actions.RotateBy = RotateBy;
+
+            var ScaleTo = (function () {
+                function ScaleTo(actor, scaleX, scaleY, speedX, speedY) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.endX = scaleX;
+                    this.endY = scaleY;
+                    this.speedX = speedX;
+                    this.speedY = speedY;
+                }
+                ScaleTo.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.startX = this.actor.scaleX;
+                        this.startY = this.actor.scaleY;
+                        this.distanceX = Math.abs(this.endX - this.startX);
+                        this.distanceY = Math.abs(this.endY - this.startY);
+                    }
+
+                    if (!(Math.abs(this.actor.scaleX - this.startX) >= this.distanceX)) {
+                        var directionX = this.endY < this.startY ? -1 : 1;
+                        this.actor.sx = this.speedX * directionX;
+                    } else {
+                        this.actor.sx = 0;
+                    }
+
+                    if (!(Math.abs(this.actor.scaleY - this.startY) >= this.distanceY)) {
+                        var directionY = this.endY < this.startY ? -1 : 1;
+                        this.actor.sy = this.speedY * directionY;
+                    } else {
+                        this.actor.sy = 0;
+                    }
+
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.scaleX = this.endX;
+                        this.actor.scaleY = this.endY;
+                        this.actor.sx = 0;
+                        this.actor.sy = 0;
+                    }
+                };
+
+                ScaleTo.prototype.isComplete = function (actor) {
+                    return this._stopped || ((Math.abs(this.actor.scaleX - this.startX) >= this.distanceX) && (Math.abs(this.actor.scaleY - this.startY) >= this.distanceY));
+                };
+
+                ScaleTo.prototype.stop = function () {
+                    this.actor.sx = 0;
+                    this.actor.sy = 0;
+                    this._stopped = true;
+                };
+
+                ScaleTo.prototype.reset = function () {
+                    this._started = false;
+                };
+                return ScaleTo;
+            })();
+            Actions.ScaleTo = ScaleTo;
+
+            var ScaleBy = (function () {
+                function ScaleBy(actor, scaleX, scaleY, time) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.endX = scaleX;
+                    this.endY = scaleY;
+                    this.time = time;
+                    this.speedX = (this.endX - this.actor.scaleX) / time * 1000;
+                    this.speedY = (this.endY - this.actor.scaleY) / time * 1000;
+                }
+                ScaleBy.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.startX = this.actor.scaleX;
+                        this.startY = this.actor.scaleY;
+                        this.distanceX = Math.abs(this.endX - this.startX);
+                        this.distanceY = Math.abs(this.endY - this.startY);
+                    }
+                    var directionX = this.endX < this.startX ? -1 : 1;
+                    var directionY = this.endY < this.startY ? -1 : 1;
+                    this.actor.sx = this.speedX * directionX;
+                    this.actor.sy = this.speedY * directionY;
+
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.scaleX = this.endX;
+                        this.actor.scaleY = this.endY;
+                        this.actor.sx = 0;
+                        this.actor.sy = 0;
+                    }
+                };
+
+                ScaleBy.prototype.isComplete = function (actor) {
+                    return this._stopped || ((Math.abs(this.actor.scaleX - this.startX) >= this.distanceX) && (Math.abs(this.actor.scaleY - this.startY) >= this.distanceY));
+                };
+
+                ScaleBy.prototype.stop = function () {
+                    this.actor.sx = 0;
+                    this.actor.sy = 0;
+                    this._stopped = true;
+                };
+
+                ScaleBy.prototype.reset = function () {
+                    this._started = false;
+                };
+                return ScaleBy;
+            })();
+            Actions.ScaleBy = ScaleBy;
+
+            var Delay = (function () {
+                function Delay(actor, delay) {
+                    this.elapsedTime = 0;
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.delay = delay;
+                }
+                Delay.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                    }
+
+                    this.x = this.actor.x;
+                    this.y = this.actor.y;
+
+                    this.elapsedTime += delta;
+                };
+
+                Delay.prototype.isComplete = function (actor) {
+                    return this._stopped || (this.elapsedTime >= this.delay);
+                };
+
+                Delay.prototype.stop = function () {
+                    this._stopped = true;
+                };
+
+                Delay.prototype.reset = function () {
+                    this.elapsedTime = 0;
+                    this._started = false;
+                };
+                return Delay;
+            })();
+            Actions.Delay = Delay;
+
+            var Blink = (function () {
+                function Blink(actor, timeVisible, timeNotVisible, numBlinks) {
+                    if (typeof numBlinks === "undefined") { numBlinks = 1; }
+                    this.timeVisible = 0;
+                    this.timeNotVisible = 0;
+                    this.elapsedTime = 0;
+                    this.totalTime = 0;
+                    this._stopped = false;
+                    this._started = false;
+                    this.actor = actor;
+                    this.timeVisible = timeVisible;
+                    this.timeNotVisible = timeNotVisible;
+                    this.duration = (timeVisible + timeNotVisible) * numBlinks;
+                }
+                Blink.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                    }
+
+                    this.elapsedTime += delta;
+                    this.totalTime += delta;
+                    if (this.actor.visible && this.elapsedTime >= this.timeVisible) {
+                        this.actor.visible = false;
+                        this.elapsedTime = 0;
+                    }
+
+                    if (!this.actor.visible && this.elapsedTime >= this.timeNotVisible) {
+                        this.actor.visible = true;
+                        this.elapsedTime = 0;
+                    }
+
+                    if (this.isComplete(this.actor)) {
+                        this.actor.visible = true;
+                    }
+                };
+
+                Blink.prototype.isComplete = function (actor) {
+                    return this._stopped || (this.totalTime >= this.duration);
+                };
+
+                Blink.prototype.stop = function () {
+                    this.actor.visible = true;
+                    this._stopped = true;
+                };
+
+                Blink.prototype.reset = function () {
+                    this._started = false;
+                    this.elapsedTime = 0;
+                    this.totalTime = 0;
+                };
+                return Blink;
+            })();
+            Actions.Blink = Blink;
+
+            var Fade = (function () {
+                function Fade(actor, endOpacity, speed) {
+                    this.multiplyer = 1;
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.endOpacity = endOpacity;
+                    this.speed = speed;
+                    if (endOpacity < actor.opacity) {
+                        this.multiplyer = -1;
+                    }
+                }
+                Fade.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                    }
+                    if (this.speed > 0) {
+                        this.actor.opacity += this.multiplyer * (Math.abs(this.actor.opacity - this.endOpacity) * delta) / this.speed;
+                    }
+                    this.speed -= delta;
+
+                    ex.Logger.getInstance().debug("actor opacity: " + this.actor.opacity);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.opacity = this.endOpacity;
+                    }
+                };
+
+                Fade.prototype.isComplete = function (actor) {
+                    return this._stopped || (Math.abs(this.actor.opacity - this.endOpacity) < 0.05);
+                };
+
+                Fade.prototype.stop = function () {
+                    this._stopped = true;
+                };
+
+                Fade.prototype.reset = function () {
+                    this._started = false;
+                };
+                return Fade;
+            })();
+            Actions.Fade = Fade;
+
+            var Die = (function () {
+                function Die(actor) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                }
+                Die.prototype.update = function (delta) {
+                    this.actor.actionQueue.clearActions();
+                    this.actor.kill();
+                    this._stopped = true;
+                };
+
+                Die.prototype.isComplete = function () {
+                    return this._stopped;
+                };
+
+                Die.prototype.stop = function () {
+                };
+
+                Die.prototype.reset = function () {
+                };
+                return Die;
+            })();
+            Actions.Die = Die;
+
+            var CallMethod = (function () {
+                function CallMethod(actor, method) {
+                    this._method = null;
+                    this._actor = null;
+                    this._hasBeenCalled = false;
+                    this._actor = actor;
+                    this._method = method;
+                }
+                CallMethod.prototype.update = function (delta) {
+                    this._method.call(this._actor);
+                    this._hasBeenCalled = true;
+                };
+                CallMethod.prototype.isComplete = function (actor) {
+                    return this._hasBeenCalled;
+                };
+                CallMethod.prototype.reset = function () {
+                    this._hasBeenCalled = false;
+                };
+                CallMethod.prototype.stop = function () {
+                    this._hasBeenCalled = true;
+                };
+                return CallMethod;
+            })();
+            Actions.CallMethod = CallMethod;
+
+            var Repeat = (function () {
+                function Repeat(actor, repeat, actions) {
+                    var _this = this;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.actionQueue = new ActionQueue(actor);
+                    this.repeat = repeat;
+                    this.originalRepeat = repeat;
+                    actions.forEach(function (action) {
+                        action.reset();
+                        _this.actionQueue.add(action);
+                    });
+                }
+                Repeat.prototype.update = function (delta) {
+                    this.x = this.actor.x;
+                    this.y = this.actor.y;
+                    if (!this.actionQueue.hasNext()) {
+                        this.actionQueue.reset();
+                        this.repeat--;
+                    }
+                    this.actionQueue.update(delta);
+                };
+
+                Repeat.prototype.isComplete = function () {
+                    return this._stopped || (this.repeat <= 0);
+                };
+
+                Repeat.prototype.stop = function () {
+                    this._stopped = true;
+                };
+
+                Repeat.prototype.reset = function () {
+                    this.repeat = this.originalRepeat;
+                };
+                return Repeat;
+            })();
+            Actions.Repeat = Repeat;
+
+            var RepeatForever = (function () {
+                function RepeatForever(actor, actions) {
+                    var _this = this;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.actionQueue = new ActionQueue(actor);
+                    actions.forEach(function (action) {
+                        action.reset();
+                        _this.actionQueue.add(action);
+                    });
+                }
+                RepeatForever.prototype.update = function (delta) {
+                    this.x = this.actor.x;
+                    this.y = this.actor.y;
+                    if (this._stopped) {
+                        return;
+                    }
+
+                    if (!this.actionQueue.hasNext()) {
+                        this.actionQueue.reset();
+                    }
+
+                    this.actionQueue.update(delta);
+                };
+
+                RepeatForever.prototype.isComplete = function () {
+                    return this._stopped;
+                };
+
+                RepeatForever.prototype.stop = function () {
+                    this._stopped = true;
+                    this.actionQueue.clearActions();
+                };
+
+                RepeatForever.prototype.reset = function () {
+                };
+                return RepeatForever;
+            })();
+            Actions.RepeatForever = RepeatForever;
+
+            var ActionQueue = (function () {
+                function ActionQueue(actor) {
+                    this._actions = [];
+                    this._completedActions = [];
+                    this.actor = actor;
+                }
+                ActionQueue.prototype.add = function (action) {
+                    this._actions.push(action);
+                };
+
+                ActionQueue.prototype.remove = function (action) {
+                    var index = this._actions.indexOf(action);
+                    this._actions.splice(index, 1);
+                };
+
+                ActionQueue.prototype.clearActions = function () {
+                    this._actions.length = 0;
+                    this._completedActions.length = 0;
+                    this._currentAction.stop();
+                };
+
+                ActionQueue.prototype.getActions = function () {
+                    return this._actions.concat(this._completedActions);
+                };
+
+                ActionQueue.prototype.hasNext = function () {
+                    return this._actions.length > 0;
+                };
+
+                ActionQueue.prototype.reset = function () {
+                    this._actions = this.getActions();
+                    this._actions.forEach(function (action) {
+                        action.reset();
+                    });
+                    this._completedActions = [];
+                };
+
+                ActionQueue.prototype.update = function (delta) {
+                    if (this._actions.length > 0) {
+                        this._currentAction = this._actions[0];
+                        this._currentAction.update(delta);
+
+                        if (this._currentAction.isComplete(this.actor)) {
+                            //Logger.getInstance().log("Action complete!", Log.DEBUG);
+                            this._completedActions.push(this._actions.shift());
+                        }
+                    }
+                };
+                return ActionQueue;
+            })();
+            Actions.ActionQueue = ActionQueue;
+        })(Internal.Actions || (Internal.Actions = {}));
+        var Actions = Internal.Actions;
+    })(ex.Internal || (ex.Internal = {}));
+    var Internal = ex.Internal;
 })(ex || (ex = {}));
 /// <reference path="Interfaces/IDrawable.ts" />
 /// <reference path="Modules/MovementModule.ts" />
@@ -8556,881 +9298,10 @@ var ex;
     ex.Engine = Engine;
     ;
 })(ex || (ex = {}));
-/// <reference path="Algebra.ts" />
-/// <reference path="Engine.ts" />
-/// <reference path="Actor.ts" />
-var ex;
-(function (ex) {
-    (function (Internal) {
-        (function (Actions) {
-            var MoveTo = (function () {
-                function MoveTo(actor, destx, desty, speed) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.end = new ex.Vector(destx, desty);
-                    this.speed = speed;
-                }
-                MoveTo.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.start = new ex.Vector(this.actor.x, this.actor.y);
-                        this.distance = this.start.distance(this.end);
-                        this.dir = this.end.minus(this.start).normalize();
-                    }
-                    var m = this.dir.scale(this.speed);
-                    this.actor.dx = m.x;
-                    this.actor.dy = m.y;
-
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.x = this.end.x;
-                        this.actor.y = this.end.y;
-                        this.actor.dy = 0;
-                        this.actor.dx = 0;
-                    }
-                };
-
-                MoveTo.prototype.isComplete = function (actor) {
-                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this.start) >= this.distance;
-                };
-
-                MoveTo.prototype.stop = function () {
-                    this.actor.dy = 0;
-                    this.actor.dx = 0;
-                    this._stopped = true;
-                };
-
-                MoveTo.prototype.reset = function () {
-                    this._started = false;
-                };
-                return MoveTo;
-            })();
-            Actions.MoveTo = MoveTo;
-
-            var MoveBy = (function () {
-                function MoveBy(actor, destx, desty, time) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.end = new ex.Vector(destx, desty);
-                    if (time <= 0) {
-                        ex.Logger.getInstance().error("Attempted to moveBy time less than or equal to zero : " + time);
-                        throw new Error("Cannot move in time <= 0");
-                    }
-                    this.time = time;
-                }
-                MoveBy.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.start = new ex.Vector(this.actor.x, this.actor.y);
-                        this.distance = this.start.distance(this.end);
-                        this.dir = this.end.minus(this.start).normalize();
-                        this.speed = this.distance / (this.time / 1000);
-                    }
-
-                    var m = this.dir.scale(this.speed);
-                    this.actor.dx = m.x;
-                    this.actor.dy = m.y;
-
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.x = this.end.x;
-                        this.actor.y = this.end.y;
-                        this.actor.dy = 0;
-                        this.actor.dx = 0;
-                    }
-                };
-
-                MoveBy.prototype.isComplete = function (actor) {
-                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this.start) >= this.distance;
-                };
-
-                MoveBy.prototype.stop = function () {
-                    this.actor.dy = 0;
-                    this.actor.dx = 0;
-                    this._stopped = true;
-                };
-
-                MoveBy.prototype.reset = function () {
-                    this._started = false;
-                };
-                return MoveBy;
-            })();
-            Actions.MoveBy = MoveBy;
-
-            var Follow = (function () {
-                function Follow(actor, actorToFollow, followDistance) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.actorToFollow = actorToFollow;
-                    this.current = new ex.Vector(this.actor.x, this.actor.y);
-                    this.end = new ex.Vector(actorToFollow.x, actorToFollow.y);
-                    this.maximumDistance = (followDistance != undefined) ? followDistance : this.current.distance(this.end);
-                    this.speed = 0;
-                }
-                Follow.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.distanceBetween = this.current.distance(this.end);
-                        this.dir = this.end.minus(this.current).normalize();
-                    }
-
-                    var actorToFollowSpeed = Math.sqrt(Math.pow(this.actorToFollow.dx, 2) + Math.pow(this.actorToFollow.dy, 2));
-                    if (actorToFollowSpeed != 0) {
-                        this.speed = actorToFollowSpeed;
-                    }
-                    this.current.x = this.actor.x;
-                    this.current.y = this.actor.y;
-
-                    this.end.x = this.actorToFollow.x;
-                    this.end.y = this.actorToFollow.y;
-                    this.distanceBetween = this.current.distance(this.end);
-                    this.dir = this.end.minus(this.current).normalize();
-
-                    if (this.distanceBetween >= this.maximumDistance) {
-                        var m = this.dir.scale(this.speed);
-                        this.actor.dx = m.x;
-                        this.actor.dy = m.y;
-                    } else {
-                        this.actor.dx = 0;
-                        this.actor.dy = 0;
-                    }
-
-                    if (this.isComplete(this.actor)) {
-                        // TODO this should never occur
-                        this.actor.x = this.end.x;
-                        this.actor.y = this.end.y;
-                        this.actor.dy = 0;
-                        this.actor.dx = 0;
-                    }
-                };
-
-                Follow.prototype.stop = function () {
-                    this.actor.dy = 0;
-                    this.actor.dx = 0;
-                    this._stopped = true;
-                };
-
-                Follow.prototype.isComplete = function (actor) {
-                    // the actor following should never stop unless specified to do so
-                    return this._stopped;
-                };
-
-                Follow.prototype.reset = function () {
-                    this._started = false;
-                };
-                return Follow;
-            })();
-            Actions.Follow = Follow;
-
-            var Meet = (function () {
-                function Meet(actor, actorToMeet, speed) {
-                    this._started = false;
-                    this._stopped = false;
-                    this._speedWasSpecified = false;
-                    this.actor = actor;
-                    this.actorToMeet = actorToMeet;
-                    this.current = new ex.Vector(this.actor.x, this.actor.y);
-                    this.end = new ex.Vector(actorToMeet.x, actorToMeet.y);
-                    this.speed = speed || 0;
-
-                    if (speed != undefined) {
-                        this._speedWasSpecified = true;
-                    }
-                }
-                Meet.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.distanceBetween = this.current.distance(this.end);
-                        this.dir = this.end.minus(this.current).normalize();
-                    }
-
-                    var actorToMeetSpeed = Math.sqrt(Math.pow(this.actorToMeet.dx, 2) + Math.pow(this.actorToMeet.dy, 2));
-                    if ((actorToMeetSpeed != 0) && (!this._speedWasSpecified)) {
-                        this.speed = actorToMeetSpeed;
-                    }
-                    this.current.x = this.actor.x;
-                    this.current.y = this.actor.y;
-
-                    this.end.x = this.actorToMeet.x;
-                    this.end.y = this.actorToMeet.y;
-                    this.distanceBetween = this.current.distance(this.end);
-                    this.dir = this.end.minus(this.current).normalize();
-
-                    var m = this.dir.scale(this.speed);
-                    this.actor.dx = m.x;
-                    this.actor.dy = m.y;
-
-                    if (this.isComplete(this.actor)) {
-                        // console.log("meeting is complete")
-                        this.actor.x = this.end.x;
-                        this.actor.y = this.end.y;
-                        this.actor.dy = 0;
-                        this.actor.dx = 0;
-                    }
-                };
-
-                Meet.prototype.isComplete = function (actor) {
-                    return this._stopped || (this.distanceBetween <= 1);
-                };
-
-                Meet.prototype.stop = function () {
-                    this.actor.dy = 0;
-                    this.actor.dx = 0;
-                    this._stopped = true;
-                };
-
-                Meet.prototype.reset = function () {
-                    this._started = false;
-                };
-                return Meet;
-            })();
-            Actions.Meet = Meet;
-
-            var RotateTo = (function () {
-                function RotateTo(actor, angleRadians, speed) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.end = angleRadians;
-                    this.speed = speed;
-                }
-                RotateTo.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.start = this.actor.rotation;
-                        this.distance = Math.abs(this.end - this.start);
-                    }
-                    this.actor.rx = this.speed;
-
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.rotation = this.end;
-                        this.actor.rx = 0;
-                    }
-                };
-
-                RotateTo.prototype.isComplete = function (actor) {
-                    return this._stopped || (Math.abs(this.actor.rotation - this.start) >= this.distance);
-                };
-
-                RotateTo.prototype.stop = function () {
-                    this.actor.rx = 0;
-                    this._stopped = true;
-                };
-
-                RotateTo.prototype.reset = function () {
-                    this._started = false;
-                };
-                return RotateTo;
-            })();
-            Actions.RotateTo = RotateTo;
-
-            var RotateBy = (function () {
-                function RotateBy(actor, angleRadians, time) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.end = angleRadians;
-                    this.time = time;
-                    this.speed = (this.end - this.actor.rotation) / time * 1000;
-                }
-                RotateBy.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.start = this.actor.rotation;
-                        this.distance = Math.abs(this.end - this.start);
-                    }
-                    this.actor.rx = this.speed;
-
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.rotation = this.end;
-                        this.actor.rx = 0;
-                    }
-                };
-
-                RotateBy.prototype.isComplete = function (actor) {
-                    return this._stopped || (Math.abs(this.actor.rotation - this.start) >= this.distance);
-                };
-
-                RotateBy.prototype.stop = function () {
-                    this.actor.rx = 0;
-                    this._stopped = true;
-                };
-
-                RotateBy.prototype.reset = function () {
-                    this._started = false;
-                };
-                return RotateBy;
-            })();
-            Actions.RotateBy = RotateBy;
-
-            var ScaleTo = (function () {
-                function ScaleTo(actor, scaleX, scaleY, speedX, speedY) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.endX = scaleX;
-                    this.endY = scaleY;
-                    this.speedX = speedX;
-                    this.speedY = speedY;
-                }
-                ScaleTo.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.startX = this.actor.scaleX;
-                        this.startY = this.actor.scaleY;
-                        this.distanceX = Math.abs(this.endX - this.startX);
-                        this.distanceY = Math.abs(this.endY - this.startY);
-                    }
-
-                    if (!(Math.abs(this.actor.scaleX - this.startX) >= this.distanceX)) {
-                        var directionX = this.endY < this.startY ? -1 : 1;
-                        this.actor.sx = this.speedX * directionX;
-                    } else {
-                        this.actor.sx = 0;
-                    }
-
-                    if (!(Math.abs(this.actor.scaleY - this.startY) >= this.distanceY)) {
-                        var directionY = this.endY < this.startY ? -1 : 1;
-                        this.actor.sy = this.speedY * directionY;
-                    } else {
-                        this.actor.sy = 0;
-                    }
-
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.scaleX = this.endX;
-                        this.actor.scaleY = this.endY;
-                        this.actor.sx = 0;
-                        this.actor.sy = 0;
-                    }
-                };
-
-                ScaleTo.prototype.isComplete = function (actor) {
-                    return this._stopped || ((Math.abs(this.actor.scaleX - this.startX) >= this.distanceX) && (Math.abs(this.actor.scaleY - this.startY) >= this.distanceY));
-                };
-
-                ScaleTo.prototype.stop = function () {
-                    this.actor.sx = 0;
-                    this.actor.sy = 0;
-                    this._stopped = true;
-                };
-
-                ScaleTo.prototype.reset = function () {
-                    this._started = false;
-                };
-                return ScaleTo;
-            })();
-            Actions.ScaleTo = ScaleTo;
-
-            var ScaleBy = (function () {
-                function ScaleBy(actor, scaleX, scaleY, time) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.endX = scaleX;
-                    this.endY = scaleY;
-                    this.time = time;
-                    this.speedX = (this.endX - this.actor.scaleX) / time * 1000;
-                    this.speedY = (this.endY - this.actor.scaleY) / time * 1000;
-                }
-                ScaleBy.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.startX = this.actor.scaleX;
-                        this.startY = this.actor.scaleY;
-                        this.distanceX = Math.abs(this.endX - this.startX);
-                        this.distanceY = Math.abs(this.endY - this.startY);
-                    }
-                    var directionX = this.endX < this.startX ? -1 : 1;
-                    var directionY = this.endY < this.startY ? -1 : 1;
-                    this.actor.sx = this.speedX * directionX;
-                    this.actor.sy = this.speedY * directionY;
-
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.scaleX = this.endX;
-                        this.actor.scaleY = this.endY;
-                        this.actor.sx = 0;
-                        this.actor.sy = 0;
-                    }
-                };
-
-                ScaleBy.prototype.isComplete = function (actor) {
-                    return this._stopped || ((Math.abs(this.actor.scaleX - this.startX) >= this.distanceX) && (Math.abs(this.actor.scaleY - this.startY) >= this.distanceY));
-                };
-
-                ScaleBy.prototype.stop = function () {
-                    this.actor.sx = 0;
-                    this.actor.sy = 0;
-                    this._stopped = true;
-                };
-
-                ScaleBy.prototype.reset = function () {
-                    this._started = false;
-                };
-                return ScaleBy;
-            })();
-            Actions.ScaleBy = ScaleBy;
-
-            var Delay = (function () {
-                function Delay(actor, delay) {
-                    this.elapsedTime = 0;
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.delay = delay;
-                }
-                Delay.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                    }
-
-                    this.x = this.actor.x;
-                    this.y = this.actor.y;
-
-                    this.elapsedTime += delta;
-                };
-
-                Delay.prototype.isComplete = function (actor) {
-                    return this._stopped || (this.elapsedTime >= this.delay);
-                };
-
-                Delay.prototype.stop = function () {
-                    this._stopped = true;
-                };
-
-                Delay.prototype.reset = function () {
-                    this.elapsedTime = 0;
-                    this._started = false;
-                };
-                return Delay;
-            })();
-            Actions.Delay = Delay;
-
-            var Blink = (function () {
-                function Blink(actor, timeVisible, timeNotVisible, numBlinks) {
-                    if (typeof numBlinks === "undefined") { numBlinks = 1; }
-                    this.timeVisible = 0;
-                    this.timeNotVisible = 0;
-                    this.elapsedTime = 0;
-                    this.totalTime = 0;
-                    this._stopped = false;
-                    this._started = false;
-                    this.actor = actor;
-                    this.timeVisible = timeVisible;
-                    this.timeNotVisible = timeNotVisible;
-                    this.duration = (timeVisible + timeNotVisible) * numBlinks;
-                }
-                Blink.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                    }
-
-                    this.elapsedTime += delta;
-                    this.totalTime += delta;
-                    if (this.actor.visible && this.elapsedTime >= this.timeVisible) {
-                        this.actor.visible = false;
-                        this.elapsedTime = 0;
-                    }
-
-                    if (!this.actor.visible && this.elapsedTime >= this.timeNotVisible) {
-                        this.actor.visible = true;
-                        this.elapsedTime = 0;
-                    }
-
-                    if (this.isComplete(this.actor)) {
-                        this.actor.visible = true;
-                    }
-                };
-
-                Blink.prototype.isComplete = function (actor) {
-                    return this._stopped || (this.totalTime >= this.duration);
-                };
-
-                Blink.prototype.stop = function () {
-                    this.actor.visible = true;
-                    this._stopped = true;
-                };
-
-                Blink.prototype.reset = function () {
-                    this._started = false;
-                    this.elapsedTime = 0;
-                    this.totalTime = 0;
-                };
-                return Blink;
-            })();
-            Actions.Blink = Blink;
-
-            var Fade = (function () {
-                function Fade(actor, endOpacity, speed) {
-                    this.multiplyer = 1;
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.endOpacity = endOpacity;
-                    this.speed = speed;
-                    if (endOpacity < actor.opacity) {
-                        this.multiplyer = -1;
-                    }
-                }
-                Fade.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                    }
-                    if (this.speed > 0) {
-                        this.actor.opacity += this.multiplyer * (Math.abs(this.actor.opacity - this.endOpacity) * delta) / this.speed;
-                    }
-                    this.speed -= delta;
-
-                    ex.Logger.getInstance().debug("actor opacity: " + this.actor.opacity);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.opacity = this.endOpacity;
-                    }
-                };
-
-                Fade.prototype.isComplete = function (actor) {
-                    return this._stopped || (Math.abs(this.actor.opacity - this.endOpacity) < 0.05);
-                };
-
-                Fade.prototype.stop = function () {
-                    this._stopped = true;
-                };
-
-                Fade.prototype.reset = function () {
-                    this._started = false;
-                };
-                return Fade;
-            })();
-            Actions.Fade = Fade;
-
-            var Die = (function () {
-                function Die(actor) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                }
-                Die.prototype.update = function (delta) {
-                    this.actor.actionQueue.clearActions();
-                    this.actor.kill();
-                    this._stopped = true;
-                };
-
-                Die.prototype.isComplete = function () {
-                    return this._stopped;
-                };
-
-                Die.prototype.stop = function () {
-                };
-
-                Die.prototype.reset = function () {
-                };
-                return Die;
-            })();
-            Actions.Die = Die;
-
-            var CallMethod = (function () {
-                function CallMethod(actor, method) {
-                    this._method = null;
-                    this._actor = null;
-                    this._hasBeenCalled = false;
-                    this._actor = actor;
-                    this._method = method;
-                }
-                CallMethod.prototype.update = function (delta) {
-                    this._method.call(this._actor);
-                    this._hasBeenCalled = true;
-                };
-                CallMethod.prototype.isComplete = function (actor) {
-                    return this._hasBeenCalled;
-                };
-                CallMethod.prototype.reset = function () {
-                    this._hasBeenCalled = false;
-                };
-                CallMethod.prototype.stop = function () {
-                    this._hasBeenCalled = true;
-                };
-                return CallMethod;
-            })();
-            Actions.CallMethod = CallMethod;
-
-            var Repeat = (function () {
-                function Repeat(actor, repeat, actions) {
-                    var _this = this;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.actionQueue = new ActionQueue(actor);
-                    this.repeat = repeat;
-                    this.originalRepeat = repeat;
-                    actions.forEach(function (action) {
-                        action.reset();
-                        _this.actionQueue.add(action);
-                    });
-                }
-                Repeat.prototype.update = function (delta) {
-                    this.x = this.actor.x;
-                    this.y = this.actor.y;
-                    if (!this.actionQueue.hasNext()) {
-                        this.actionQueue.reset();
-                        this.repeat--;
-                    }
-                    this.actionQueue.update(delta);
-                };
-
-                Repeat.prototype.isComplete = function () {
-                    return this._stopped || (this.repeat <= 0);
-                };
-
-                Repeat.prototype.stop = function () {
-                    this._stopped = true;
-                };
-
-                Repeat.prototype.reset = function () {
-                    this.repeat = this.originalRepeat;
-                };
-                return Repeat;
-            })();
-            Actions.Repeat = Repeat;
-
-            var RepeatForever = (function () {
-                function RepeatForever(actor, actions) {
-                    var _this = this;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.actionQueue = new ActionQueue(actor);
-                    actions.forEach(function (action) {
-                        action.reset();
-                        _this.actionQueue.add(action);
-                    });
-                }
-                RepeatForever.prototype.update = function (delta) {
-                    this.x = this.actor.x;
-                    this.y = this.actor.y;
-                    if (this._stopped) {
-                        return;
-                    }
-
-                    if (!this.actionQueue.hasNext()) {
-                        this.actionQueue.reset();
-                    }
-
-                    this.actionQueue.update(delta);
-                };
-
-                RepeatForever.prototype.isComplete = function () {
-                    return this._stopped;
-                };
-
-                RepeatForever.prototype.stop = function () {
-                    this._stopped = true;
-                    this.actionQueue.clearActions();
-                };
-
-                RepeatForever.prototype.reset = function () {
-                };
-                return RepeatForever;
-            })();
-            Actions.RepeatForever = RepeatForever;
-
-            var ActionQueue = (function () {
-                function ActionQueue(actor) {
-                    this._actions = [];
-                    this._completedActions = [];
-                    this.actor = actor;
-                }
-                ActionQueue.prototype.add = function (action) {
-                    this._actions.push(action);
-                };
-
-                ActionQueue.prototype.remove = function (action) {
-                    var index = this._actions.indexOf(action);
-                    this._actions.splice(index, 1);
-                };
-
-                ActionQueue.prototype.clearActions = function () {
-                    this._actions.length = 0;
-                    this._completedActions.length = 0;
-                    this._currentAction.stop();
-                };
-
-                ActionQueue.prototype.getActions = function () {
-                    return this._actions.concat(this._completedActions);
-                };
-
-                ActionQueue.prototype.hasNext = function () {
-                    return this._actions.length > 0;
-                };
-
-                ActionQueue.prototype.reset = function () {
-                    this._actions = this.getActions();
-                    this._actions.forEach(function (action) {
-                        action.reset();
-                    });
-                    this._completedActions = [];
-                };
-
-                ActionQueue.prototype.update = function (delta) {
-                    if (this._actions.length > 0) {
-                        this._currentAction = this._actions[0];
-                        this._currentAction.update(delta);
-
-                        if (this._currentAction.isComplete(this.actor)) {
-                            //Logger.getInstance().log("Action complete!", Log.DEBUG);
-                            this._completedActions.push(this._actions.shift());
-                        }
-                    }
-                };
-                return ActionQueue;
-            })();
-            Actions.ActionQueue = ActionQueue;
-        })(Internal.Actions || (Internal.Actions = {}));
-        var Actions = Internal.Actions;
-    })(ex.Internal || (ex.Internal = {}));
-    var Internal = ex.Internal;
-})(ex || (ex = {}));
-/// <reference path="Interfaces/IDrawable.ts" />
-var ex;
-(function (ex) {
-    /**
-    * Creates a closed polygon drawing given a list a of points. Polygons should be
-    * used sparingly as there is a <b>performance</b> impact for using them.
-    * @class Polygon
-    * @extends IDrawable
-    * @constructor
-    * @param points {Point[]} The points to use to build the polygon in order
-    */
-    var Polygon = (function () {
-        function Polygon(points) {
-            /**
-            * The width of the lines of the polygon
-            * @property [lineWidth=5] {number} The width of the lines in pixels
-            */
-            this.lineWidth = 5;
-            /**
-            * Indicates whether the polygon is filled or not.
-            * @property [filled=false] {boolean}
-            */
-            this.filled = false;
-            this.points = [];
-            this.transformationPoint = new ex.Point(0, 0);
-            this.rotation = 0;
-            this.scaleX = 1;
-            this.scaleY = 1;
-            this.points = points;
-
-            var minX = this.points.reduce(function (prev, curr) {
-                return Math.min(prev, curr.x);
-            }, 0);
-            var maxX = this.points.reduce(function (prev, curr) {
-                return Math.max(prev, curr.x);
-            }, 0);
-
-            this.width = maxX - minX;
-
-            var minY = this.points.reduce(function (prev, curr) {
-                return Math.min(prev, curr.y);
-            }, 0);
-            var maxY = this.points.reduce(function (prev, curr) {
-                return Math.max(prev, curr.y);
-            }, 0);
-
-            this.height = maxY - minY;
-        }
-        /**
-        * Effects are <b>not supported</b> on polygons
-        * @method addEffect
-        */
-        Polygon.prototype.addEffect = function (effect) {
-            // not supported on polygons
-        };
-
-        Polygon.prototype.removeEffect = function (param) {
-            // not supported on polygons
-        };
-
-        /**
-        * Effects are <b>not supported</b> on polygons
-        * @method clearEffects
-        */
-        Polygon.prototype.clearEffects = function () {
-            // not supported on polygons
-        };
-
-        Polygon.prototype.transformAboutPoint = function (point) {
-            this.transformationPoint = point;
-        };
-
-        Polygon.prototype.setScaleX = function (scaleX) {
-            this.scaleX = scaleX;
-        };
-
-        Polygon.prototype.setScaleY = function (scaleY) {
-            this.scaleY = scaleY;
-        };
-
-        Polygon.prototype.getScaleX = function () {
-            return this.scaleX;
-        };
-
-        Polygon.prototype.getScaleY = function () {
-            return this.scaleY;
-        };
-
-        Polygon.prototype.setRotation = function (radians) {
-            this.rotation = radians;
-        };
-
-        Polygon.prototype.getRotation = function () {
-            return this.rotation;
-        };
-
-        Polygon.prototype.reset = function () {
-            //pass
-        };
-
-        Polygon.prototype.draw = function (ctx, x, y) {
-            ctx.save();
-            ctx.translate(x + this.transformationPoint.x, y + this.transformationPoint.y);
-            ctx.scale(this.scaleX, this.scaleY);
-            ctx.rotate(this.rotation);
-            ctx.beginPath();
-            ctx.lineWidth = this.lineWidth;
-
-            // Iterate through the supplied points and contruct a 'polygon'
-            var firstPoint = this.points[0];
-            ctx.moveTo(firstPoint.x, firstPoint.y);
-            this.points.forEach(function (point) {
-                ctx.lineTo(point.x, point.y);
-            });
-            ctx.lineTo(firstPoint.x, firstPoint.y);
-            ctx.closePath();
-
-            if (this.filled) {
-                ctx.fillStyle = this.fillColor.toString();
-                ctx.fill();
-            }
-
-            ctx.strokeStyle = this.lineColor.toString();
-
-            if (this.flipHorizontal) {
-                ctx.translate(this.width, 0);
-                ctx.scale(-1, 1);
-            }
-
-            if (this.flipVertical) {
-                ctx.translate(0, this.height);
-                ctx.scale(1, -1);
-            }
-
-            ctx.stroke();
-            ctx.restore();
-        };
-        return Polygon;
-    })();
-    ex.Polygon = Polygon;
-})(ex || (ex = {}));
-//# sourceMappingURL=excalibur.js.map
+//# sourceMappingURL=excalibur-0.2.5.js.map
+
+;
+// Concatenated onto excalibur after build
+// Exports the excalibur module so it can be used with browserify
+// https://github.com/excaliburjs/Excalibur/issues/312
+if (typeof module !== 'undefined') {module.exports = ex;}

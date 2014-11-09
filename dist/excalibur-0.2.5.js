@@ -2502,10 +2502,10 @@ var ex;
             var node = new TreeNode();
             node.actor = actor;
             node.bounds = actor.getBounds();
-            node.bounds.left -= 10;
-            node.bounds.top -= 10;
-            node.bounds.right += 10;
-            node.bounds.bottom += 10;
+            node.bounds.left -= 2;
+            node.bounds.top -= 2;
+            node.bounds.right += 2;
+            node.bounds.bottom += 2;
             this.nodes[actor.id] = node;
             this.insert(node);
         };
@@ -2525,8 +2525,8 @@ var ex;
             b.right += 5;
             b.bottom += 5;
 
-            var multdx = actor.dx * 2;
-            var multdy = actor.dy * 2;
+            var multdx = actor.dx * .2;
+            var multdy = actor.dy * .2;
 
             if (multdx < 0) {
                 b.left += multdx;
@@ -2671,12 +2671,14 @@ var ex;
             return this.root.height;
         };
 
-        DynamicTree.prototype.query = function (actor) {
+        DynamicTree.prototype.query = function (actor, callback) {
             var bounds = actor.getBounds();
             var helper = function (currentNode) {
                 if (currentNode && currentNode.bounds.collides(bounds)) {
                     if (currentNode.isLeaf() && currentNode.actor !== actor) {
-                        return currentNode.actor;
+                        if (callback.call(actor, currentNode.actor)) {
+                            return true;
+                        }
                     } else {
                         return helper(currentNode.left) || helper(currentNode.right);
                     }
@@ -2685,6 +2687,11 @@ var ex;
                 }
             };
             return helper(this.root);
+        };
+
+        DynamicTree.prototype.rayCast = function (ray, max) {
+            // todo implement
+            return null;
         };
 
         DynamicTree.prototype.getNodes = function () {
@@ -2745,25 +2752,28 @@ var ex;
             });
 
             var actor;
-            var other;
             var collisionPairs = [];
 
             for (var j = 0, l = potentialColliders.length; j < l; j++) {
                 actor = potentialColliders[j];
 
-                other = this._dynamicCollisionTree.query(actor);
-                if (!other)
-                    continue;
-                var minimumTranslationVector;
-                if (minimumTranslationVector = actor.collides(other)) {
-                    var side = actor.getSideFromIntersect(minimumTranslationVector);
-                    var collisionPair = new ex.CollisionPair(actor, other, minimumTranslationVector, side);
-                    if (!collisionPairs.some(function (cp) {
-                        return cp.equals(collisionPair);
-                    })) {
-                        collisionPairs.push(collisionPair);
+                this._dynamicCollisionTree.query(actor, function (other) {
+                    if (other.collisionType === 0 /* PreventCollision */)
+                        return false;
+
+                    var minimumTranslationVector;
+                    if (minimumTranslationVector = actor.collides(other)) {
+                        var side = actor.getSideFromIntersect(minimumTranslationVector);
+                        var collisionPair = new ex.CollisionPair(actor, other, minimumTranslationVector, side);
+                        if (!collisionPairs.some(function (cp) {
+                            return cp.equals(collisionPair);
+                        })) {
+                            collisionPairs.push(collisionPair);
+                        }
+                        return true;
                     }
-                }
+                    return false;
+                });
             }
 
             collisionPairs.forEach(function (p) {

@@ -1229,7 +1229,8 @@ declare module ex {
         public removeActor(actor: Actor): void;
         public balance(node: TreeNode): TreeNode;
         public getHeight(): number;
-        public query(actor: Actor): Actor;
+        public query(actor: Actor, callback: (other: Actor) => boolean): void;
+        public rayCast(ray: Ray, max: any): Actor;
         public getNodes(): TreeNode[];
         public debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
     }

@@ -184,10 +184,10 @@ module ex {
          var node = new TreeNode();
          node.actor = actor;
          node.bounds = actor.getBounds();
-         node.bounds.left -= 10;
-         node.bounds.top -= 10;
-         node.bounds.right += 10;
-         node.bounds.bottom += 10;
+         node.bounds.left -= 2;
+         node.bounds.top -= 2;
+         node.bounds.right += 2;
+         node.bounds.bottom += 2;
          this.nodes[actor.id] = node;
          this.insert(node);
       }
@@ -206,8 +206,8 @@ module ex {
          b.right += 5;
          b.bottom += 5;
 
-         var multdx = actor.dx * 2;
-         var multdy = actor.dy * 2;
+         var multdx = actor.dx * .2;
+         var multdy = actor.dy * .2;
 
          if (multdx < 0) {
             b.left += multdx;
