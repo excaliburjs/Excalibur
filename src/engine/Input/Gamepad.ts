@@ -165,8 +165,7 @@
        * Whether or not Gamepad API is supported
        * @property supported {boolean}
        */
-      public supported = !!(<any>navigator).webkitGetGamepads ||
-                         !!(<any>navigator).webkitGamepads;
+      public supported = !!(<any>navigator).getGamepads;
 
       /**
        * The minimum value an axis has to move before considering it a change
@@ -188,66 +187,63 @@
       public init() {
          if (!this.supported) return;
 
-         // These events are currently not yet implemented in browsers
-         // Firefox implements MozGamepadConnected/MozGamepadDisconnected
-         (<any>window).addEventListener("gamepadconnected", (ev: INavigatorGamepadEvent) => {
-            this.eventDispatcher.publish("connected", new GamepadEvent(ev.gamepad));
-            this.pads[ev.gamepad.index].connected = true;
-         });
-         (<any>window).addEventListener("gamepaddisconnected", (ev: INavigatorGamepadEvent) => {
-            this.eventDispatcher.publish("disconnected", new GamepadEvent(ev.gamepad));
-            this.pads[ev.gamepad.index].connected = false;
-         });
-
          this._oldPads = this._clonePads(this._navigator.getGamepads());
-
-         for (var p = 0; p < this._oldPads.length; p++) {
-            this.pads.push(new Gamepad());
-         }
       }
 
       public update(delta: number) {
-         if (!this.enabled) return;
+         if (!this.enabled || !this.supported) return;
 
          var gamepads = this._navigator.getGamepads();
 
          for (var i = 0; i < gamepads.length; i++) {
 
-            if (gamepads[i] && (gamepads[i].timestamp !== this._gamePadTimeStamps[i])) {
+            if (!gamepads[i]) {
+               if (this.pads[i]) {
+                  this.pads[i].connected = false;
+               }
 
-               // Set connection status
+               continue;
+            } else {
+               if (this.pads.length === i) {
+                  this.pads.push(new Gamepad());
+               }
+               if (this._oldPads.length === i) {
+                  this._oldPads.push(this._clonePad(gamepads[i]));
+               }
                this.pads[i].connected = true;
+            };
 
-               // Buttons
-               var b: string,
-                  a: string;
-               for (b in Buttons) {
-                  if (typeof Buttons[b] !== "number") continue;
-
-                  var buttonIndex: number = Buttons[b];
-                  if (gamepads[i].buttons[buttonIndex].value !== this._oldPads[i].buttons[buttonIndex].value) {
-                     if (gamepads[i].buttons[buttonIndex].pressed) {
-                        this.pads[i].updateButton(buttonIndex, gamepads[i].buttons[buttonIndex].value);
-                     } else {
-                        this.pads[i].updateButton(buttonIndex, 0);
-                     }
-                  }
-               }
-
-               // Axes
-               for (a in Axes) {
-                  if (typeof Axes[a] !== "number") continue;
-
-                  var axesIndex: number = Axes[a];
-                  if (gamepads[i].axes[axesIndex] !== this._oldPads[i].axes[axesIndex]) {
-                     this.pads[i].updateAxes(axesIndex, gamepads[i].axes[axesIndex]);
-                  }
-               }
-
-               this._gamePadTimeStamps[i] = gamepads[i].timestamp;
-            } else if (!gamepads[i]) {
-               this.pads[i].connected = false;
+            // Only supported in Chrome
+            if (gamepads[i].timestamp && gamepads[i].timestamp === this._gamePadTimeStamps[i]) {
+               continue;
             }
+
+            this._gamePadTimeStamps[i] = gamepads[i].timestamp;
+
+            // Buttons
+            var b: string, a: string;
+            for (b in Buttons) {
+               if (typeof Buttons[b] !== "number") continue;
+
+               var buttonIndex: number = Buttons[b];
+               if (gamepads[i].buttons[buttonIndex].value !== this._oldPads[i].buttons[buttonIndex].value) {
+                  if (gamepads[i].buttons[buttonIndex].pressed) {
+                     this.pads[i].updateButton(buttonIndex, gamepads[i].buttons[buttonIndex].value);
+                  } else {
+                     this.pads[i].updateButton(buttonIndex, 0);
+                  }
+               }
+            }
+
+            // Axes
+            for (a in Axes) {
+               if (typeof Axes[a] !== "number") continue;
+
+               var axesIndex: number = Axes[a];
+               if (gamepads[i].axes[axesIndex] !== this._oldPads[i].axes[axesIndex]) {
+                  this.pads[i].updateAxes(axesIndex, gamepads[i].axes[axesIndex]);
+               }
+            }                      
 
             this._oldPads[i] = this._clonePad(gamepads[i]);
          }
@@ -297,7 +293,7 @@
       constructor() {
          super();
 
-         var i;
+         var i: number;
          for (i = 0; i < this._buttons.length; i++) {
             this._buttons[i] = 0;
          }
@@ -308,6 +304,10 @@
 
       public isButtonPressed(button: Buttons, threshold: number = 1) {
          return this._buttons[button] >= threshold;
+      }
+
+      public getButton(button: Buttons) {
+         return this._buttons[button];
       }
 
       public getAxes(axes: Axes) {

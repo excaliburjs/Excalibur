@@ -16,33 +16,36 @@ box.inputEnableMoveEvents = true;
 // Move box with Up, Down, Left, Right keyboard keys
 // Move box with Gamepad axes and D-pad
 box.on("update", function (ue) {
-    var axesLeftX = game.input.gamepads.pads[0].getAxes(0 /* LeftStickX */);
-    var axesLeftY = game.input.gamepads.pads[0].getAxes(1 /* LeftStickY */);
+    var pad1 = game.input.gamepads.pads[0];
+    var axesLeftX = pad1 && pad1.getAxes(0 /* LeftStickX */);
+    var axesLeftY = pad1 && pad1.getAxes(1 /* LeftStickY */);
 
     // Right/Left
-    if (game.input.keyboard.isKeyPressed(39 /* Right */) || game.input.gamepads.pads[0].isButtonPressed(15 /* DpadRight */)) {
+    if (game.input.keyboard.isKeyPressed(39 /* Right */) || (pad1 && pad1.isButtonPressed(15 /* DpadRight */))) {
         box.dx = 20;
-    } else if (game.input.keyboard.isKeyPressed(37 /* Left */) || game.input.gamepads.pads[0].isButtonPressed(14 /* DpadLeft */)) {
+    } else if (game.input.keyboard.isKeyPressed(37 /* Left */) || (pad1 && pad1.isButtonPressed(14 /* DpadLeft */))) {
         box.dx = -20;
-    } else if (axesLeftX === 0 && axesLeftY === 0) {
+    } else if (!axesLeftX && !axesLeftY) {
         box.dx = 0;
     }
 
     // Up/Down
-    if (game.input.keyboard.isKeyPressed(38 /* Up */) || game.input.gamepads.pads[0].isButtonPressed(12 /* DpadUp */)) {
+    if (game.input.keyboard.isKeyPressed(38 /* Up */) || (pad1 && pad1.isButtonPressed(12 /* DpadUp */))) {
         box.dy = -20;
-    } else if (game.input.keyboard.isKeyPressed(40 /* Down */) || game.input.gamepads.pads[0].isButtonPressed(13 /* DpadDown */)) {
+    } else if (game.input.keyboard.isKeyPressed(40 /* Down */) || (pad1 && pad1.isButtonPressed(13 /* DpadDown */))) {
         box.dy = 20;
-    } else if (axesLeftY === 0 && axesLeftX === 0) {
+    } else if (!axesLeftY && !axesLeftX) {
         box.dy = 0;
     }
 
     // Axes movement
-    if (Math.abs(axesLeftX) > 0) {
-        box.dx = axesLeftX * 20;
-    }
-    if (Math.abs(axesLeftY) > 0) {
-        box.dy = axesLeftY * 20;
+    if (pad1) {
+        if (Math.abs(axesLeftX) > 0) {
+            box.dx = axesLeftX * 20;
+        }
+        if (Math.abs(axesLeftY) > 0) {
+            box.dy = axesLeftY * 20;
+        }
     }
 });
 
@@ -75,7 +78,7 @@ game.input.pointer.on("move", function (pe) {
     cursor.x = pe.x;
     cursor.y = pe.y;
 
-    document.getElementById("pointer-coord").innerText = "(" + pe.x.toString() + ", " + pe.y.toString() + ")";
+    document.getElementById("pointer-coord").innerHTML = "(" + pe.x.toString() + ", " + pe.y.toString() + ")";
 });
 
 game.on("update", function (ue) {
@@ -83,13 +86,15 @@ game.on("update", function (ue) {
         return (ex.Input.Keys[k] || "Unknown") + "(" + k.toString() + ")";
     }).join(", ");
 
-    document.getElementById("key-presses").innerText = keys;
-    document.getElementById("gamepad-num").innerText = game.input.gamepads.count().toString();
+    document.getElementById("key-presses").innerHTML = keys;
+    document.getElementById("gamepad-num").innerHTML = game.input.gamepads.count().toString();
 
-    var axesLeftX = game.input.gamepads.pads[0].getAxes(0 /* LeftStickX */);
-    var axesLeftY = game.input.gamepads.pads[0].getAxes(1 /* LeftStickY */);
+    if (game.input.gamepads.count() > 0) {
+        var axesLeftX = game.input.gamepads.pads[0].getAxes(0 /* LeftStickX */);
+        var axesLeftY = game.input.gamepads.pads[0].getAxes(1 /* LeftStickY */);
 
-    document.getElementById("gamepad-left-stick").innerText = "(" + axesLeftX.toString() + "," + axesLeftY.toString() + ")";
+        document.getElementById("gamepad-left-stick").innerHTML = "(" + axesLeftX.toString() + "," + axesLeftY.toString() + ")";
+    }
 });
 
 game.add(box);

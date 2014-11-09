@@ -4013,6 +4013,7 @@ declare module ex.Input {
         private _axes;
         constructor();
         public isButtonPressed(button: Buttons, threshold?: number): boolean;
+        public getButton(button: Buttons): number;
         public getAxes(axes: Axes): number;
         public updateButton(buttonIndex: number, value: number): void;
         public updateAxes(axesIndex: number, value: number): void;
