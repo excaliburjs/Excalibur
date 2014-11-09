@@ -1,7 +1,7 @@
 /// <reference path="Interfaces/IDrawable.ts" />
 /// <reference path="Modules/MovementModule.ts" />
 /// <reference path="Modules/OffscreenCullingModule.ts" />
-/// <reference path="Modules/EventPropagationModule.ts" />
+/// <reference path="Modules/InputPropagationModule.ts" />
 /// <reference path="Modules/CollisionDetectionModule.ts" />
 /// <reference path="Side.ts" />
 /// <reference path="Algebra.ts" />
@@ -243,6 +243,18 @@ module ex {
        */
       public color: Color;
 
+      /**
+       * Whether or not to enable the input pipeline to receive input events like pointer.
+       * @property inputEnabled {boolean}
+       */
+      public inputEnabled: boolean = false;
+
+      /**
+       * If input is enabled, allow this actor to receive "move" events (this may be expensive!).
+       * @property inputEnableMoveEvents {boolean}
+       */
+      public inputEnableMoveEvents = false;
+
       private _isKilled: boolean = false;
        
       constructor(x?: number, y?: number, width?: number, height?: number, color?: Color) {
@@ -260,8 +272,8 @@ module ex {
          // Build default pipeline
          this.pipeline.push(new ex.MovementModule());
          this.pipeline.push(new ex.CollisionDetectionModule());
-         this.pipeline.push(new ex.OffscreenCullingModule());
-         this.pipeline.push(new ex.EventPropagationModule());
+         this.pipeline.push(new ex.OffscreenCullingModule());         
+         this.pipeline.push(new ex.InputPropagationModule());
 
          this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
          this.sceneNode = new Scene();
@@ -276,7 +288,7 @@ module ex {
        * @param engine {Engine}
        */
       public onInitialize(engine: Engine): void {
-         // will be overridden
+
       }
 
       /**

@@ -242,7 +242,7 @@ player.addEventListener('keyup', function (e) {
     if (inAir)
         return;
 
-    if (e.key === 37 /* Left */ || e.key === 39 /* Right */) {
+    if (e.key === ex.InputKey.Left || e.key === ex.InputKey.Right) {
         player.setDrawing(1 /* Idle */);
     }
 });
@@ -271,7 +271,7 @@ newScene.addEventListener('deactivate', function (evt) {
 game.addScene('label', newScene);
 
 game.addEventListener('keydown', function (keyDown) {
-    if (keyDown.key === 70 /* F */) {
+    if (keyDown.key === ex.InputKey.F) {
         var a = new ex.Actor(player.x + 10, player.y - 50, 10, 10, new ex.Color(222, 222, 222));
         a.dx = 200 * direction;
         a.dy = 0;
@@ -292,9 +292,9 @@ game.addEventListener('keydown', function (keyDown) {
             inAir = true;
         });
         game.addChild(a);
-    } else if (keyDown.key === 85 /* U */) {
+    } else if (keyDown.key === ex.InputKey.U) {
         game.goToScene('label');
-    } else if (keyDown.key === 73 /* I */) {
+    } else if (keyDown.key === ex.InputKey.I) {
         game.goToScene('root');
     }
 });
@@ -309,7 +309,7 @@ player.addEventListener('collision', function (data) {
             player.setDrawing(1 /* Idle */);
         }
         inAir = false;
-        if (data.other && !(game.isKeyPressed(37 /* Left */) || game.isKeyPressed(39 /* Right */) || game.isKeyPressed(38 /* Up */) || game.isKeyPressed(40 /* Down */))) {
+        if (data.other && !(game.isKeyPressed(ex.InputKey.Left) || game.isKeyPressed(ex.InputKey.Right) || game.isKeyPressed(ex.InputKey.Up) || game.isKeyPressed(ex.InputKey.Down))) {
             player.dx = data.other.dx;
             player.dy = data.other.dy;
         }
@@ -349,7 +349,7 @@ player.addEventListener('initialize', function (evt) {
 });
 
 game.addEventListener('keydown', function (keyDown) {
-    if (keyDown.key === 66 /* B */) {
+    if (keyDown.key === ex.InputKey.B) {
         var block = new ex.Actor(currentX, 350, 44, 50, color);
         currentX += 46;
         block.addDrawing(0 /* Block */, blockAnimation);
@@ -368,7 +368,7 @@ game.addEventListener('p', function () {
 });
 
 game.addEventListener('keydown', function (keyDown) {
-    if (keyDown.key === 68 /* D */) {
+    if (keyDown.key === ex.InputKey.D) {
         game.isDebug = !game.isDebug;
     }
 });
@@ -446,13 +446,13 @@ game.addEventListener('mousedown', function (evt) {
 });
 
 game.addEventListener('keyup', function (evt) {
-    if (evt.key == 70 /* F */) {
+    if (evt.key == ex.InputKey.F) {
         jump.play();
     }
 });
 
 game.addEventListener('keyup', function (evt) {
-    if (evt.key == 83 /* S */) {
+    if (evt.key == ex.InputKey.S) {
         jump.stop();
     }
 });

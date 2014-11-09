@@ -8,61 +8,6 @@ module ex {
     * @class EventType
     */
    export enum EventType {
-      /**
-       @property KeyDown {EventType}
-       @static
-       @final
-       */
-       /**
-       @property KeyUp {EventType}
-       @static
-       @final
-       */
-       /**
-       @property KeyPress {EventType}
-       @static
-       @final
-       */
-       /**
-       @property MouseDown {EventType}
-       @static
-       @final
-       */
-       /**
-       @property MouseMove {EventType}
-       @static
-       @final
-       */
-       /**
-       @property MouseUp {EventType}
-       @static
-       @final
-       */
-       /**
-       @property TouchStart {EventType}
-       @static
-       @final
-       */
-       /**
-       @property TouchMove {EventType}
-       @static
-       @final
-       */
-       /**
-       @property TouchEnd {EventType}
-       @static
-       @final
-       */
-       /**
-       @property TouchCancel {EventType}
-       @static
-       @final
-       */
-       /**
-       @property Click {EventType}
-       @static
-       @final
-       */
        /**
        @property UserEvent {EventType}
        @static
@@ -108,17 +53,6 @@ module ex {
        @static
        @final
        */
-      KeyDown,
-      KeyUp,
-      KeyPress,
-      MouseDown,
-      MouseMove,
-      MouseUp,
-      TouchStart,
-      TouchMove,
-      TouchEnd,
-      TouchCancel,
-      Click,
       Collision,
       EnterViewPort,
       ExitViewPort,
@@ -269,63 +203,6 @@ module ex {
    }
 
    /**
-    * Event thrown on a game object on KeyEvent
-    *
-    * @class KeyEvent
-    * @extends GameEvent
-    * @constructor 
-    * @param key {InputKey} The key responsible for throwing the event
-    */
-   export class KeyEvent extends GameEvent {
-      constructor(public key: InputKey) {
-         super();
-      }
-   }
-   
-   /**
-    * Event thrown on a game object on KeyDown
-    *
-    * @class KeyDown
-    * @extends GameEvent
-    * @constructor 
-    * @param key {InputKey} The key responsible for throwing the event
-    */
-   export class KeyDown extends GameEvent {
-      constructor(public key: InputKey) {
-         super();
-      }
-   }
-
-   /**
-    * Event thrown on a game object on KeyUp
-    *
-    * @class KeyUp
-    * @extends GameEvent
-    * @constructor 
-    * @param key {InputKey} The key responsible for throwing the event
-    */
-   export class KeyUp extends GameEvent {
-      constructor(public key: InputKey) {
-         super();
-      }
-   }
-
-   /**
-    * Event thrown on a game object on KeyPress
-    *
-    * @class KeyPress
-    * @extends GameEvent
-    * @constructor 
-    * @param key {InputKey} The key responsible for throwing the event
-    */
-   export class KeyPress extends GameEvent {
-      constructor(public key: InputKey) {
-         super();
-      }
-   }
-
-
-   /**
     * Enum representing the different mouse buttons
     * @class MouseButton
     */
@@ -346,171 +223,10 @@ module ex {
        */
       Right
    }
-
-
-   /**
-    * Event thrown on a game object on MouseDown
-    *
-    * @class MouseDown
-    * @extends GameEvent
-    * @constructor 
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    * @param mouseEvent {MouseEvent} The native mouse event thrown 
-    */
-   export class MouseDownEvent extends GameEvent {
-      constructor(public x: number, public y: number, public mouseEvent: MouseEvent) {
-         super();
-      }
-   }
-
-   /**
-    * Event thrown on a game object on MouseMove
-    *
-    * @class MouseMove
-    * @extends GameEvent
-    * @constructor 
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    * @param mouseEvent {MouseEvent} The native mouse event thrown 
-    */
-   export class MouseMoveEvent extends GameEvent {
-      constructor(public x: number, public y: number, public mouseEvent: MouseEvent) {
-         super();
-      }
-   }
-
-   /**
-    * Event thrown on a game object on MouseUp
-    *
-    * @class MouseUp
-    * @extends GameEvent
-    * @constructor 
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    * @param mouseEvent {MouseEvent} The native mouse event thrown 
-    */
-   export class MouseUpEvent extends GameEvent {
-      constructor(public x: number, public y: number, public mouseEvent: MouseEvent) {
-         super();
-      }
-   }
-
-
-   export interface Touch {
-      identifier: string;
-      screenX: number;
-      screenY: number;
-      clientX: number;
-      clientY: number;
-      pageX: number;
-      pageY: number;
-      radiusX: number;
-      radiusY: number;
-      rotationAngle: number;
-      force: number;
-      target: Element;
-   }
-
+   
    // TODO: Uncomment when declaration compiler is fixed
    //export interface TouchList extends Array<Touch> {
    //   identifiedTouch(): Touch;
    //   item(i: number): Touch;
-   //}
-
-   /**
-    * Event thrown on a game object on TouchEvent
-    *
-    * @class TouchEvent
-    * @extends GameEvent
-    * @constructor 
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    */
-   export interface TouchEvent extends Event {
-      altKey: boolean;
-      changedTouches: Touch[];
-      ctrlKey: boolean;
-      metaKey: boolean;
-      shiftKey: boolean;
-      targetTouches: Touch[];
-      touches: Touch[];
-      type: string;
-      target: Element;
-   }   
-
-   /**
-    * Event thrown on a game object on TouchStart
-    *
-    * @class TouchStart
-    * @extends GameEvent
-    * @constructor 
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    */
-   export class TouchStartEvent extends GameEvent {
-      constructor(public x: number, public y: number) {
-         super();
-      }
-   }
-
-   /**
-    * Event thrown on a game object on TouchMove
-    *
-    * @class TouchMove
-    * @extends GameEvent
-    * @constructor 
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    */
-   export class TouchMoveEvent extends GameEvent {
-      constructor(public x: number, public y: number) {
-         super();
-      }
-   }
-
-   /**
-    * Event thrown on a game object on TouchEnd
-    *
-    * @class TouchEnd
-    * @extends GameEvent
-    * @constructor 
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    */
-   export class TouchEndEvent extends GameEvent {
-      constructor(public x: number, public y: number) {
-         super();
-      }
-   }
-
-   /**
-    * Event thrown on a game object on TouchCancel
-    *
-    * @class TouchCancel
-    * @extends GameEvent
-    * @constructor 
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    */
-   export class TouchCancelEvent extends GameEvent {
-      constructor(public x: number, public y: number) {
-         super();
-      }
-   }
-
-   /**
-    * Event thrown on a game object on Click
-    *
-    * @class Click
-    * @extends GameEvent
-    * @constructor 
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    */
-   export class ClickEvent extends GameEvent {
-      constructor(public x: number, public y: number, public mouseEvent: MouseEvent) {
-         super();
-      }
-   }   
+   //} 
 }
