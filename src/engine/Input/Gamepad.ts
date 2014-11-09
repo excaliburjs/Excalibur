@@ -103,7 +103,7 @@
                if (value !== this._oldPads[i].buttons[buttonIndex].value) {
                   if (gamepads[i].buttons[buttonIndex].pressed) {
                      this.pads[i].updateButton(buttonIndex, value);
-                     this.eventDispatcher.publish("button", new GamepadButtonEvent(buttonIndex, value));
+                     this.pads[i].eventDispatcher.publish("button", new GamepadButtonEvent(buttonIndex, value));
                   } else {
                      this.pads[i].updateButton(buttonIndex, 0);
                   }
@@ -118,7 +118,7 @@
                var value = gamepads[i].axes[axesIndex];
                if (value !== this._oldPads[i].axes[axesIndex]) {
                   this.pads[i].updateAxes(axesIndex, value);
-                  this.eventDispatcher.publish("axis", new GamepadAxisEvent(axesIndex, value));
+                  this.pads[i].eventDispatcher.publish("axis", new GamepadAxisEvent(axesIndex, value));
                }
             }                      
 
