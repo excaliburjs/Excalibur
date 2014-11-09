@@ -227,7 +227,11 @@ module ex {
       }
 
       public removeActor(actor: Actor) {
-         // todo needs implementation!
+         var node = this.nodes[actor.id];
+         if (!node) return;
+         this.remove(node);
+         this.nodes[actor.id] = null;
+         delete this.nodes[actor.id];
       }
 
       public balance(node: TreeNode) {

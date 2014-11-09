@@ -283,6 +283,7 @@ module ex {
        * @param actor {Actor} The actor to remove
        */
       public removeChild(actor: Actor) {
+         this._collisionResolver.remove(actor);
          this._killQueue.push(actor);
          actor.parent = null;
       }
