@@ -206,8 +206,8 @@ module ex {
          b.right += 5;
          b.bottom += 5;
 
-         var multdx = actor.dx * .2;
-         var multdy = actor.dy * .2;
+         var multdx = actor.dx * 2;
+         var multdy = actor.dy * 2;
 
          if (multdx < 0) {
             b.left += multdx;

@@ -29,7 +29,7 @@ module ex {
             actor = potentialColliders[j];
 
             this._dynamicCollisionTree.query(actor, (other: Actor) => {
-               if (other.collisionType === CollisionType.PreventCollision) return false;
+               if (other.collisionType === CollisionType.PreventCollision || other.isKilled()) return false;
 
                var minimumTranslationVector;
                if (minimumTranslationVector = actor.collides(other)) {
