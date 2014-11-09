@@ -126,9 +126,17 @@ module ex {
          }
       }
 
-      private applyEffects(){
+      private applyEffects() {
+         var clamp = ex.Util.clamp;
+         var naturalWidth = this.texture.image.naturalWidth || 0;
+         var naturalHeight = this.texture.image.naturalHeight || 0;
+
          this.spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
-         this.spriteCtx.drawImage(this.texture.image, this.sx, this.sy, this.swidth, this.sheight, 0, 0, this.swidth, this.sheight);
+         this.spriteCtx.drawImage(this.texture.image, clamp(this.sx, 0, naturalWidth),
+            clamp(this.sy, 0, naturalHeight),
+            clamp(this.swidth, 0, naturalWidth),
+            clamp(this.sheight, 0, naturalHeight),
+            0, 0, this.swidth, this.sheight);
          this.pixelData = this.spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
 
          this.effects.forEach((effect)=>{
