@@ -37,6 +37,7 @@
 
       private _gamePadTimeStamps = [0, 0, 0, 0];
       private _oldPads: INavigatorGamepad[] = [];
+      private _initSuccess: boolean = false;
       private _engine: ex.Engine;
       private _navigator: INavigatorGamepads = <any>navigator;
 
@@ -48,10 +49,14 @@
 
       public init() {
          if (!this.supported) return;
+         if (this._initSuccess) return;
 
          // In Chrome, this will return 4 undefined items until a button is pressed
          // In FF, this will not return any items until a button is pressed
          this._oldPads = this._clonePads(this._navigator.getGamepads());
+         if(this._oldPads.length && this._oldPads[0]){
+            this._initSuccess = true;
+         }
       }
 
       /**
@@ -59,6 +64,7 @@
        */
       public update(delta: number) {
          if (!this.enabled || !this.supported) return;
+         this.init();
 
          var gamepads = this._navigator.getGamepads();
 
