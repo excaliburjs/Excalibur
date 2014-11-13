@@ -3572,12 +3572,19 @@ declare module ex.Input {
     }
 }
 declare module ex.Input {
+    enum PointerType {
+        Touch = 0,
+        Mouse = 1,
+        Pen = 2,
+        Unknown = 3,
+    }
     class PointerEvent extends GameEvent {
         x: number;
         y: number;
         index: number;
+        pointerType: PointerType;
         ev: any;
-        constructor(x: number, y: number, index: number, ev: any);
+        constructor(x: number, y: number, index: number, pointerType: PointerType, ev: any);
     }
     /**
      * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to W3C Pointer Events.
@@ -3594,6 +3601,7 @@ declare module ex.Input {
         private _pointerMove;
         private _pointerCancel;
         private _pointers;
+        private _activePointers;
         constructor(engine: Engine);
         /**
          * Primary pointer (mouse, 1 finger, stylus, etc.)
@@ -3611,12 +3619,23 @@ declare module ex.Input {
          */
         at(index: number): Pointer;
         /**
+         * Get number of pointers
+         */
+        count(): number;
+        /**
          * Propogates events to actor if necessary
          */
         propogate(actor: Actor): void;
         private _handleMouseEvent(eventName, eventArr);
         private _handleTouchEvent(eventName, eventArr);
         private _handlePointerEvent(eventName, eventArr);
+        /**
+         * Gets the index of the pointer specified for the given pointer ID or finds the next empty pointer slot available.
+         * This is required because IE10/11 uses incrementing pointer IDs so we need to store a mapping of ID => idx
+         * @private
+         */
+        private _getPointerIndex(pointerId);
+        private _stringToPointerType(s);
     }
     /**
      * Captures and dispatches PointerEvents

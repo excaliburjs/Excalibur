@@ -2,8 +2,15 @@
 
 module ex.Input {
 
+   export enum PointerType {
+      Touch,
+      Mouse,
+      Pen,
+      Unknown
+   }
+
    export class PointerEvent extends ex.GameEvent {
-      constructor(public x: number, public y: number, public index: number, public ev) {
+      constructor(public x: number, public y: number, public index: number, public pointerType: PointerType, public ev) {
          super();
       }
    };
@@ -24,12 +31,14 @@ module ex.Input {
       private _pointerMove: PointerEvent[] = [];
       private _pointerCancel: PointerEvent[] = [];
       private _pointers: Pointer[] = [];
+      private _activePointers: number[] = [];
 
       constructor(engine: ex.Engine) {
          super();
 
          this._engine = engine;
          this._pointers.push(new Pointer());
+         this._activePointers = [-1];
          this.primary = this._pointers[0];
       }
 
@@ -52,8 +61,9 @@ module ex.Input {
 
          // W3C Pointer Events
          // Current: IE11
-         if ((<any>window).MSPointerEvent) {
+         if ((<any>window).PointerEvent) {
 
+            this._engine.canvas.style.touchAction = "none";
             this._engine.canvas.addEventListener('pointerdown', this._handlePointerEvent("down", this._pointerDown));
             this._engine.canvas.addEventListener('pointerup', this._handlePointerEvent("up", this._pointerUp));
             this._engine.canvas.addEventListener('pointermove', this._handlePointerEvent("move", this._pointerMove));
@@ -85,10 +95,18 @@ module ex.Input {
             // Ensure there is a pointer to retrieve
             for (var i = this._pointers.length - 1, max = index; i < max; i++) {
                this._pointers.push(new Pointer());
+               this._activePointers.push(-1);
             }
          }
 
          return this._pointers[index];
+      }
+
+      /**
+       * Get number of pointers
+       */
+      public count(): number {
+         return this._pointers.length;
       }
 
       /**
@@ -125,7 +143,7 @@ module ex.Input {
             var x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
             var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
             var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
-            var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, 0, e);
+            var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, 0, PointerType.Mouse, e);
             eventArr.push(pe);
             this.at(0).eventDispatcher.publish(eventName, pe);
          };
@@ -134,14 +152,14 @@ module ex.Input {
       private _handleTouchEvent(eventName: string, eventArr: PointerEvent[]) {
          return (e: TouchEvent) => {
             e.preventDefault();
-
             for (var i = 0, len = e.changedTouches.length; i < len; i++) {
+               var index = e.changedTouches[i].identifier;
                var x: number = e.changedTouches[i].pageX - Util.getPosition(this._engine.canvas).x;
                var y: number = e.changedTouches[i].pageY - Util.getPosition(this._engine.canvas).y;
                var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
-               var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, i, e);
+               var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, PointerType.Touch, e);
                eventArr.push(pe);
-               this.at(i).eventDispatcher.publish(eventName, pe);
+               this.at(index).eventDispatcher.publish(eventName, pe);
             }
          };
       }
@@ -149,16 +167,60 @@ module ex.Input {
       private _handlePointerEvent(eventName: string, eventArr: PointerEvent[]) {
          return (e: MSPointerEvent) => {
             e.preventDefault();
-
-            // TODO test multi-touch input
-            var index = e.isPrimary ? 0 : e.pointerId;
+            
+            // get the index for this pointer ID if multi-pointer is asked for
+            var index = this._pointers.length > 1 ? this._getPointerIndex(e.pointerId) : 0;
             var x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
             var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
             var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
-            var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, e);
+            var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, this._stringToPointerType(e.pointerType), e);
             eventArr.push(pe);
             this.at(index).eventDispatcher.publish(eventName, pe);
+
+            // only with multi-pointer
+            if (this._pointers.length > 1) {
+               if (eventName === "up") {
+
+                  // remove pointer ID from pool when pointer is lifted
+                  this._activePointers[index] = -1;
+               } else if (eventName === "down") {
+
+                  // set pointer ID to given index
+                  this._activePointers[index] = e.pointerId;
+               }
+            }
          };
+      }
+
+      /**
+       * Gets the index of the pointer specified for the given pointer ID or finds the next empty pointer slot available.
+       * This is required because IE10/11 uses incrementing pointer IDs so we need to store a mapping of ID => idx
+       * @private
+       */
+      private _getPointerIndex(pointerId: number) {
+         var idx;
+         if ((idx = this._activePointers.indexOf(pointerId)) > -1) {
+            return idx;
+         }
+
+         for (var i = 0; i < this._activePointers.length; i++) {
+            if (this._activePointers[i] === -1) return i;
+         }
+
+         return 0;
+      }
+
+      private _stringToPointerType(s) {
+         switch (s) {
+            case "touch":
+               return PointerType.Touch;
+            case "mouse":
+               return PointerType.Mouse;
+            case "pen":
+               return PointerType.Pen;
+            default:
+               return PointerType.Unknown;
+         }
       }
    }
 
@@ -185,7 +247,7 @@ module ex.Input {
    }
 
    interface Touch {
-      identifier: string;
+      identifier: number;
       screenX: number;
       screenY: number;
       clientX: number;

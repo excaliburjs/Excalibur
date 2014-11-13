@@ -6223,13 +6223,21 @@ var ex;
 (function (ex) {
     var Input;
     (function (Input) {
+        (function (PointerType) {
+            PointerType[PointerType["Touch"] = 0] = "Touch";
+            PointerType[PointerType["Mouse"] = 1] = "Mouse";
+            PointerType[PointerType["Pen"] = 2] = "Pen";
+            PointerType[PointerType["Unknown"] = 3] = "Unknown";
+        })(Input.PointerType || (Input.PointerType = {}));
+        var PointerType = Input.PointerType;
         var PointerEvent = (function (_super) {
             __extends(PointerEvent, _super);
-            function PointerEvent(x, y, index, ev) {
+            function PointerEvent(x, y, index, pointerType, ev) {
                 _super.call(this);
                 this.x = x;
                 this.y = y;
                 this.index = index;
+                this.pointerType = pointerType;
                 this.ev = ev;
             }
             return PointerEvent;
@@ -6253,8 +6261,10 @@ var ex;
                 this._pointerMove = [];
                 this._pointerCancel = [];
                 this._pointers = [];
+                this._activePointers = [];
                 this._engine = engine;
                 this._pointers.push(new Pointer());
+                this._activePointers = [-1];
                 this.primary = this._pointers[0];
             }
             /**
@@ -6268,7 +6278,8 @@ var ex;
                 this._engine.canvas.addEventListener('touchcancel', this._handleTouchEvent("cancel", this._pointerCancel));
                 // W3C Pointer Events
                 // Current: IE11
-                if (window.MSPointerEvent) {
+                if (window.PointerEvent) {
+                    this._engine.canvas.style.touchAction = "none";
                     this._engine.canvas.addEventListener('pointerdown', this._handlePointerEvent("down", this._pointerDown));
                     this._engine.canvas.addEventListener('pointerup', this._handlePointerEvent("up", this._pointerUp));
                     this._engine.canvas.addEventListener('pointermove', this._handlePointerEvent("move", this._pointerMove));
@@ -6295,9 +6306,16 @@ var ex;
                 if (index >= this._pointers.length) {
                     for (var i = this._pointers.length - 1, max = index; i < max; i++) {
                         this._pointers.push(new Pointer());
+                        this._activePointers.push(-1);
                     }
                 }
                 return this._pointers[index];
+            };
+            /**
+             * Get number of pointers
+             */
+            Pointers.prototype.count = function () {
+                return this._pointers.length;
             };
             /**
              * Propogates events to actor if necessary
@@ -6333,7 +6351,7 @@ var ex;
                     var x = e.pageX - ex.Util.getPosition(_this._engine.canvas).x;
                     var y = e.pageY - ex.Util.getPosition(_this._engine.canvas).y;
                     var transformedPoint = _this._engine.screenToWorldCoordinates(new ex.Point(x, y));
-                    var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, 0, e);
+                    var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, 0, 1 /* Mouse */, e);
                     eventArr.push(pe);
                     _this.at(0).eventDispatcher.publish(eventName, pe);
                 };
@@ -6343,12 +6361,13 @@ var ex;
                 return function (e) {
                     e.preventDefault();
                     for (var i = 0, len = e.changedTouches.length; i < len; i++) {
+                        var index = e.changedTouches[i].identifier;
                         var x = e.changedTouches[i].pageX - ex.Util.getPosition(_this._engine.canvas).x;
                         var y = e.changedTouches[i].pageY - ex.Util.getPosition(_this._engine.canvas).y;
                         var transformedPoint = _this._engine.screenToWorldCoordinates(new ex.Point(x, y));
-                        var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, i, e);
+                        var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, 0 /* Touch */, e);
                         eventArr.push(pe);
-                        _this.at(i).eventDispatcher.publish(eventName, pe);
+                        _this.at(index).eventDispatcher.publish(eventName, pe);
                     }
                 };
             };
@@ -6356,15 +6375,54 @@ var ex;
                 var _this = this;
                 return function (e) {
                     e.preventDefault();
-                    // TODO test multi-touch input
-                    var index = e.isPrimary ? 0 : e.pointerId;
+                    // get the index for this pointer ID if multi-pointer is asked for
+                    var index = _this._pointers.length > 1 ? _this._getPointerIndex(e.pointerId) : 0;
                     var x = e.pageX - ex.Util.getPosition(_this._engine.canvas).x;
                     var y = e.pageY - ex.Util.getPosition(_this._engine.canvas).y;
                     var transformedPoint = _this._engine.screenToWorldCoordinates(new ex.Point(x, y));
-                    var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, e);
+                    var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, _this._stringToPointerType(e.pointerType), e);
                     eventArr.push(pe);
                     _this.at(index).eventDispatcher.publish(eventName, pe);
+                    // only with multi-pointer
+                    if (_this._pointers.length > 1) {
+                        if (eventName === "up") {
+                            // remove pointer ID from pool when pointer is lifted
+                            _this._activePointers[index] = -1;
+                        }
+                        else if (eventName === "down") {
+                            // set pointer ID to given index
+                            _this._activePointers[index] = e.pointerId;
+                        }
+                    }
                 };
+            };
+            /**
+             * Gets the index of the pointer specified for the given pointer ID or finds the next empty pointer slot available.
+             * This is required because IE10/11 uses incrementing pointer IDs so we need to store a mapping of ID => idx
+             * @private
+             */
+            Pointers.prototype._getPointerIndex = function (pointerId) {
+                var idx;
+                if ((idx = this._activePointers.indexOf(pointerId)) > -1) {
+                    return idx;
+                }
+                for (var i = 0; i < this._activePointers.length; i++) {
+                    if (this._activePointers[i] === -1)
+                        return i;
+                }
+                return 0;
+            };
+            Pointers.prototype._stringToPointerType = function (s) {
+                switch (s) {
+                    case "touch":
+                        return 0 /* Touch */;
+                    case "mouse":
+                        return 1 /* Mouse */;
+                    case "pen":
+                        return 2 /* Pen */;
+                    default:
+                        return 3 /* Unknown */;
+                }
             };
             return Pointers;
         })(ex.Class);
