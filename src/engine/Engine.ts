@@ -549,11 +549,11 @@ module ex {
          // initialize inputs
          this.input = {
             keyboard: new ex.Input.Keyboard(this),
-            pointer: new ex.Input.Pointer(this),
+            pointers: new ex.Input.Pointers(this),
             gamepads: new ex.Input.Gamepads(this)
          };
          this.input.keyboard.init();
-         this.input.pointer.init();
+         this.input.pointers.init();
          this.input.gamepads.init();
          
          window.addEventListener('blur', () => {
@@ -617,7 +617,7 @@ module ex {
 
          // Update input listeners
          this.input.keyboard.update(delta);
-         this.input.pointer.update(delta);
+         this.input.pointers.update(delta);
          this.input.gamepads.update(delta);
 
          // Publish update event

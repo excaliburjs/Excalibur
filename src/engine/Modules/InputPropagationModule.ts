@@ -11,7 +11,7 @@ module ex {
          if (!actor.inputEnabled) return;
          if (actor.isKilled()) return;
          
-         engine.input.pointer.propogate(actor);         
+         engine.input.pointers.propogate(actor);         
       }
    }
 }

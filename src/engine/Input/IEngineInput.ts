@@ -1,7 +1,7 @@
 ﻿module ex.Input {
    export interface IEngineInput {
       keyboard: Keyboard;
-      pointer: Pointer;
+      pointers: Pointers;
       gamepads: Gamepads;
    }
 } 

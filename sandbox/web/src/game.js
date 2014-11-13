@@ -416,7 +416,7 @@ trigger.target = player;
 
 game.add(trigger);
 
-game.input.pointer.on('down', function (evt) {
+game.input.pointers.primary.on('down', function (evt) {
     var c = tileMap.getCellByPoint(evt.x, evt.y);
     if (c) {
         if (c.solid) {

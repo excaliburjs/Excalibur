@@ -74,7 +74,7 @@ box.on("pointerdown", function (pe) {
 });
 
 // Move cursor with pointer
-game.input.pointer.on("move", function (pe) {
+game.input.pointers.primary.on("move", function (pe) {
     cursor.x = pe.x;
     cursor.y = pe.y;
 

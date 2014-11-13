@@ -1,31 +1,41 @@
 ﻿module ex.Input {
 
    export class PointerEvent extends ex.GameEvent {
-      constructor(public x: number, public y: number, public ev) {
+      constructor(public x: number, public y: number, public index: number, public ev) {
          super();
       }
    };
 
    /**
-    * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to W3C Pointer Events
+    * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to W3C Pointer Events. 
+    * There is always at least one pointer available (primary).
     * 
-    * @class Pointer
+    * @class Pointers
     * @extends Class
     * @constructor
     */
-   export class Pointer extends ex.Class {
+   export class Pointers extends ex.Class {
       private _engine: ex.Engine;
 
       private _pointerDown: PointerEvent[] = [];
       private _pointerUp: PointerEvent[] = [];
       private _pointerMove: PointerEvent[] = [];
       private _pointerCancel: PointerEvent[] = [];
+      private _pointers: Pointer[] = [];
 
       constructor(engine: ex.Engine) {
          super();
 
          this._engine = engine;
+         this._pointers.push(new Pointer());
+         this.primary = this._pointers[0];
       }
+
+      /**
+       * Primary pointer (mouse, 1 finger, stylus, etc.)
+       * @property primary {Pointer}
+       */
+      public primary: Pointer;
 
       /**
        * Initializes pointer event listeners
@@ -64,6 +74,22 @@
       }
 
       /**
+       * Safely gets a Pointer at a specific index and initializes one if it doesn't yet exist
+       * @param index {number} The pointer index to retrieve
+       */
+      public at(index: number): Pointer {
+         if (index >= this._pointers.length) {
+
+            // Ensure there is a pointer to retrieve
+            for (var i = this._pointers.length - 1, max = index; i < max; i++) {
+               this._pointers.push(new Pointer());
+            }
+         }
+
+         return this._pointers[index];
+      }
+
+      /**
        * Propogates events to actor if necessary
        */
       public propogate(actor: Actor) {
@@ -97,35 +123,51 @@
             var x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
             var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
             var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
-            var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, e);
+            var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, 0, e);
             eventArr.push(pe);
-            this.eventDispatcher.publish(eventName, pe);
+            this.at(0).eventDispatcher.publish(eventName, pe);
          };
       }
 
       private _handleTouchEvent(eventName: string, eventArr: PointerEvent[]) {
          return (e: TouchEvent) => {
             e.preventDefault();
-            var x: number = e.changedTouches[0].pageX - Util.getPosition(this._engine.canvas).x;
-            var y: number = e.changedTouches[0].pageY - Util.getPosition(this._engine.canvas).y;
-            var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
-            var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, e);
-            eventArr.push(pe);
-            this.eventDispatcher.publish(eventName, pe);
+
+            for (var i = 0, len = e.changedTouches.length; i < len; i++) {
+               var x: number = e.changedTouches[i].pageX - Util.getPosition(this._engine.canvas).x;
+               var y: number = e.changedTouches[i].pageY - Util.getPosition(this._engine.canvas).y;
+               var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
+               var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, i, e);
+               eventArr.push(pe);
+               this.at(i).eventDispatcher.publish(eventName, pe);
+            }
          };
       }
 
       private _handlePointerEvent(eventName: string, eventArr: PointerEvent[]) {
          return (e: MSPointerEvent) => {
             e.preventDefault();
+
+            // TODO test multi-touch input
+            var index = e.isPrimary ? 0 : e.pointerId;
             var x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
             var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
             var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
-            var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, e);
+            var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, e);
             eventArr.push(pe);
-            this.eventDispatcher.publish(eventName, pe);
+            this.at(index).eventDispatcher.publish(eventName, pe);
          };
       }
+   }
+
+   /**
+    * Captures and dispatches PointerEvents
+    * @class Pointer
+    * @constructor
+    * @extends Class
+    */
+   export class Pointer extends Class {
+      
    }
 
    interface TouchEvent extends Event {

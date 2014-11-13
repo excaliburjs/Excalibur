@@ -80,7 +80,7 @@ box.on("pointerdown", (pe: ex.Input.PointerEvent) => {
 });
 
 // Move cursor with pointer
-game.input.pointer.on("move", (pe: ex.Input.PointerEvent) => {
+game.input.pointers.primary.on("move", (pe: ex.Input.PointerEvent) => {
    cursor.x = pe.x;
    cursor.y = pe.y;
 

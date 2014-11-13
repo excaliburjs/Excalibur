@@ -3560,7 +3560,7 @@ declare module ex {
 declare module ex.Input {
     interface IEngineInput {
         keyboard: Keyboard;
-        pointer: Pointer;
+        pointers: Pointers;
         gamepads: Gamepads;
     }
 }
@@ -3574,11 +3574,11 @@ declare module ex.Input {
     /**
     * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to W3C Pointer Events
     *
-    * @class Pointer
+    * @class Pointers
     * @extends Class
     * @constructor
     */
-    class Pointer extends Class {
+    class Pointers extends Class {
         private _engine;
         private _pointerDown;
         private _pointerUp;
@@ -3882,6 +3882,7 @@ declare module ex.Input {
         static MinAxisMoveThreshold: number;
         private _gamePadTimeStamps;
         private _oldPads;
+        private _initSuccess;
         private _engine;
         private _navigator;
         constructor(engine: Engine);
