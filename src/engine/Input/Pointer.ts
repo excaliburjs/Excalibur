@@ -104,7 +104,7 @@ module ex.Input {
       }
 
       /**
-       * Get number of pointers
+       * Get number of pointers being watched
        */
       public count(): number {
          return this._pointers.length;
@@ -171,6 +171,7 @@ module ex.Input {
             
             // get the index for this pointer ID if multi-pointer is asked for
             var index = this._pointers.length > 1 ? this._getPointerIndex(e.pointerId) : 0;
+            if (index === -1) return;
             var x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
             var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
             var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
@@ -208,7 +209,8 @@ module ex.Input {
             if (this._activePointers[i] === -1) return i;
          }
 
-         return 0;
+         // ignore pointer because game isn't watching
+         return -1;
       }
 
       private _stringToPointerType(s) {

@@ -6442,7 +6442,7 @@ var ex;
                 return this._pointers[index];
             };
             /**
-             * Get number of pointers
+             * Get number of pointers being watched
              */
             Pointers.prototype.count = function () {
                 return this._pointers.length;
@@ -6507,6 +6507,8 @@ var ex;
                     e.preventDefault();
                     // get the index for this pointer ID if multi-pointer is asked for
                     var index = _this._pointers.length > 1 ? _this._getPointerIndex(e.pointerId) : 0;
+                    if (index === -1)
+                        return;
                     var x = e.pageX - ex.Util.getPosition(_this._engine.canvas).x;
                     var y = e.pageY - ex.Util.getPosition(_this._engine.canvas).y;
                     var transformedPoint = _this._engine.screenToWorldCoordinates(new ex.Point(x, y));
@@ -6540,7 +6542,8 @@ var ex;
                     if (this._activePointers[i] === -1)
                         return i;
                 }
-                return 0;
+                // ignore pointer because game isn't watching
+                return -1;
             };
             Pointers.prototype._stringToPointerType = function (s) {
                 switch (s) {
@@ -6890,11 +6893,6 @@ var ex;
             function Gamepads(engine) {
                 _super.call(this);
                 /**
-                 * Access to the individual pads
-                 * @property pads {Array<Gamepad>}
-                 */
-                this.pads = [];
-                /**
                  * Whether or not to poll for Gamepad input (default: false)
                  * @property enabled {boolean}
                  */
@@ -6906,6 +6904,7 @@ var ex;
                 this.supported = !!navigator.getGamepads;
                 this._gamePadTimeStamps = [0, 0, 0, 0];
                 this._oldPads = [];
+                this._pads = [];
                 this._initSuccess = false;
                 this._navigator = navigator;
                 this._engine = engine;
@@ -6933,21 +6932,12 @@ var ex;
                 for (var i = 0; i < gamepads.length; i++) {
                     if (!gamepads[i]) {
                         // Reset connection status
-                        if (this.pads[i]) {
-                            this.pads[i].connected = false;
-                        }
+                        this.at(i).connected = false;
                         continue;
                     }
                     else {
-                        // New pad?
-                        if (this.pads.length === i) {
-                            this.pads.push(new Gamepad());
-                        }
-                        if (this._oldPads.length === i) {
-                            this._oldPads.push(this._clonePad(gamepads[i]));
-                        }
                         // Set connection status
-                        this.pads[i].connected = true;
+                        this.at(i).connected = true;
                     }
                     ;
                     // Only supported in Chrome
@@ -6956,40 +6946,52 @@ var ex;
                     }
                     this._gamePadTimeStamps[i] = gamepads[i].timestamp;
                     // Buttons
-                    var b, a;
+                    var b, a, value, buttonIndex, axesIndex;
                     for (b in Buttons) {
                         if (typeof Buttons[b] !== "number")
                             continue;
-                        var buttonIndex = Buttons[b];
-                        var value = gamepads[i].buttons[buttonIndex].value;
-                        if (value !== this._oldPads[i].buttons[buttonIndex].value) {
+                        buttonIndex = Buttons[b];
+                        value = gamepads[i].buttons[buttonIndex].value;
+                        if (value !== this._oldPads[i].getButton(buttonIndex)) {
                             if (gamepads[i].buttons[buttonIndex].pressed) {
-                                this.pads[i].updateButton(buttonIndex, value);
-                                this.pads[i].eventDispatcher.publish("button", new GamepadButtonEvent(buttonIndex, value));
+                                this.at(i).updateButton(buttonIndex, value);
+                                this.at(i).eventDispatcher.publish("button", new GamepadButtonEvent(buttonIndex, value));
                             }
                             else {
-                                this.pads[i].updateButton(buttonIndex, 0);
+                                this.at(i).updateButton(buttonIndex, 0);
                             }
                         }
                     }
                     for (a in Axes) {
                         if (typeof Axes[a] !== "number")
                             continue;
-                        var axesIndex = Axes[a];
-                        var value = gamepads[i].axes[axesIndex];
-                        if (value !== this._oldPads[i].axes[axesIndex]) {
-                            this.pads[i].updateAxes(axesIndex, value);
-                            this.pads[i].eventDispatcher.publish("axis", new GamepadAxisEvent(axesIndex, value));
+                        axesIndex = Axes[a];
+                        value = gamepads[i].axes[axesIndex];
+                        if (value !== this._oldPads[i].getAxes(axesIndex)) {
+                            this.at(i).updateAxes(axesIndex, value);
+                            this.at(i).eventDispatcher.publish("axis", new GamepadAxisEvent(axesIndex, value));
                         }
                     }
                     this._oldPads[i] = this._clonePad(gamepads[i]);
                 }
             };
             /**
-             * The number of connected gamepads
+             * Safely retrieves a Gamepad at a specific index and creates one if it doesn't yet exist
+             */
+            Gamepads.prototype.at = function (index) {
+                if (index >= this._pads.length) {
+                    for (var i = this._pads.length - 1, max = index; i < max; i++) {
+                        this._pads.push(new Gamepad());
+                        this._oldPads.push(new Gamepad());
+                    }
+                }
+                return this._pads[index];
+            };
+            /**
+             * Gets the number of connected gamepads
              */
             Gamepads.prototype.count = function () {
-                return this.pads.filter(function (p) { return p.connected; }).length;
+                return this._pads.filter(function (p) { return p.connected; }).length;
             };
             Gamepads.prototype._clonePads = function (pads) {
                 var arr = [];
@@ -7003,17 +7005,14 @@ var ex;
              */
             Gamepads.prototype._clonePad = function (pad) {
                 var i, len;
-                var clonedPad = {
-                    axes: [],
-                    buttons: []
-                };
+                var clonedPad = new Gamepad();
                 if (!pad)
-                    return pad;
+                    return clonedPad;
                 for (i = 0, len = pad.buttons.length; i < len; i++) {
-                    clonedPad.buttons.push({ pressed: pad.buttons[i].pressed, value: pad.buttons[i].value });
+                    clonedPad.updateButton(i, pad.buttons[i].value);
                 }
                 for (i = 0, len = pad.axes.length; i < len; i++) {
-                    clonedPad.axes.push(pad.axes[i]);
+                    clonedPad.updateAxes(i, pad.axes[i]);
                 }
                 return clonedPad;
             };

@@ -3576,7 +3576,7 @@ declare module ex.Input {
          */
         at(index: number): Pointer;
         /**
-         * Get number of pointers
+         * Get number of pointers being watched
          */
         count(): number;
         /**
@@ -3864,11 +3864,6 @@ declare module ex.Input {
      */
     class Gamepads extends Class {
         /**
-         * Access to the individual pads
-         * @property pads {Array<Gamepad>}
-         */
-        pads: Gamepad[];
-        /**
          * Whether or not to poll for Gamepad input (default: false)
          * @property enabled {boolean}
          */
@@ -3886,6 +3881,7 @@ declare module ex.Input {
         static MinAxisMoveThreshold: number;
         private _gamePadTimeStamps;
         private _oldPads;
+        private _pads;
         private _initSuccess;
         private _engine;
         private _navigator;
@@ -3896,7 +3892,11 @@ declare module ex.Input {
          */
         update(delta: number): void;
         /**
-         * The number of connected gamepads
+         * Safely retrieves a Gamepad at a specific index and creates one if it doesn't yet exist
+         */
+        at(index: number): Gamepad;
+        /**
+         * Gets the number of connected gamepads
          */
         count(): number;
         private _clonePads(pads);
