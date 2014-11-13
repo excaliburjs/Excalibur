@@ -61,6 +61,7 @@ module ex.Input {
 
          // W3C Pointer Events
          // Current: IE11
+         // TODO support IE10 MSPointerEvent
          if ((<any>window).PointerEvent) {
 
             this._engine.canvas.style.touchAction = "none";
