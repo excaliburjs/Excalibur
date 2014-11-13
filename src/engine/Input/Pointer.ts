@@ -1,4 +1,6 @@
-﻿module ex.Input {
+﻿/// <reference path="../Events.ts"/>
+
+module ex.Input {
 
    export class PointerEvent extends ex.GameEvent {
       constructor(public x: number, public y: number, public index: number, public ev) {

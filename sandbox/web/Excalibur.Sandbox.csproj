@@ -20,7 +20,6 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
-    <TypeScriptToolsVersion>1.0</TypeScriptToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -68,7 +67,7 @@
     <Content Include="Excalibur.js" />
     <Content Include="html\healthbar.tmpl" />
     <Content Include="tests\input\index.html" />
-    <Content Include="tests\input\input.js" />
+    <Content Include="tests\input\index.js" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="html\index.html" />
@@ -85,7 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="src\game.ts" />
-    <TypeScriptCompile Include="tests\input\input.ts" />
+    <TypeScriptCompile Include="tests\input\index.ts" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
