@@ -44,6 +44,8 @@ module ex {
          this.spriteCanvas.height = sheight;
          this.spriteCtx = this.spriteCanvas.getContext('2d');
          this.texture.loaded.then(()=>{
+            this.spriteCanvas.width = this.spriteCanvas.width || this.texture.image.naturalWidth;
+            this.spriteCanvas.height = this.spriteCanvas.height || this.texture.image.naturalHeight;
             this.loadPixels();            
             this.dirtyEffect = true;
          }).error((e)=>{
