@@ -167,6 +167,7 @@ module ex {
          this.canvasElementId = canvasElementId;
 
          this.camera = new BaseCamera(this);
+
          this.rootScene = this.currentScene = new Scene();
          this.addScene('root', this.rootScene);
 
@@ -192,6 +193,7 @@ module ex {
             this.displayMode = DisplayMode.FullScreen;
          }
 
+         this.camera.setFocus(this.width/2, this.height/2);
          this.loader = new Loader();
 
          this.initialize();

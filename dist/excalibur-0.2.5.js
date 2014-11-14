@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-11-12
+/*! excalibur - v0.2.5 - 2014-11-13
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -8842,6 +8842,7 @@ var ex;
             this.canvasElementId = canvasElementId;
 
             this.camera = new ex.BaseCamera(this);
+
             this.rootScene = this.currentScene = new ex.Scene();
             this.addScene('root', this.rootScene);
 
@@ -8866,6 +8867,7 @@ var ex;
                 this.displayMode = 0 /* FullScreen */;
             }
 
+            this.camera.setFocus(this.width / 2, this.height / 2);
             this.loader = new ex.Loader();
 
             this.initialize();
