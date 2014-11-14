@@ -66,8 +66,8 @@
   <ItemGroup>
     <Content Include="Excalibur.js" />
     <Content Include="html\healthbar.tmpl" />
+    <Content Include="tests\input\gamepad.html" />
     <Content Include="tests\input\index.html" />
-    <Content Include="tests\input\index.js" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="html\index.html" />
@@ -84,6 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="src\game.ts" />
+    <TypeScriptCompile Include="tests\input\gamepad.ts" />
     <TypeScriptCompile Include="tests\input\index.ts" />
   </ItemGroup>
   <ItemGroup>
