@@ -67,6 +67,7 @@
     <Content Include="Excalibur.js" />
     <Content Include="html\healthbar.tmpl" />
     <Content Include="tests\input\gamepad.html" />
+    <Content Include="tests\input\gamepad.png" />
     <Content Include="tests\input\index.html" />
   </ItemGroup>
   <ItemGroup>
