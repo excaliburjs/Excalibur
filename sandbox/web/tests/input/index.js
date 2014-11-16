@@ -1,6 +1,6 @@
 /// <reference path="../../../../dist/Excalibur.d.ts"/>
 var game = new ex.Engine(500, 500, "game");
-var box = new ex.Actor(50, 50, 100, 100, ex.Color.Red);
+var box = new ex.Actor(250, 250, 100, 100, ex.Color.Red);
 // Enable Gamepad support
 game.input.gamepads.enabled = true;
 // Move box with Up, Down, Left, Right keyboard keys
@@ -31,23 +31,12 @@ box.on("update", function (ue) {
     }
     // Axes movement
     if (Math.abs(axesLeftX) > 0) {
-        box.dx = axesLeftX * 20;
+        box.dx = axesLeftX * 120;
     }
     if (Math.abs(axesLeftY) > 0) {
-        box.dy = axesLeftY * 20;
+        box.dy = axesLeftY * 120;
     }
 });
-game.on("update", function (ue) {
-    var keys = game.input.keyboard.getKeys().map(function (k) {
-        return (ex.Input.Keys[k] || "Unknown") + "(" + k.toString() + ")";
-    }).join(", ");
-    document.getElementById("key-presses").innerHTML = keys;
-    document.getElementById("gamepad-num").innerHTML = game.input.gamepads.count().toString();
-    var axesLeftX = game.input.gamepads.at(0).getAxes(0 /* LeftStickX */);
-    var axesLeftY = game.input.gamepads.at(0).getAxes(1 /* LeftStickY */);
-    document.getElementById("gamepad-left-stick").innerHTML = "(" + axesLeftX.toString() + "," + axesLeftY.toString() + ")";
-});
 game.add(box);
-game.add(cursor);
 game.start();
 //# sourceMappingURL=index.js.map
