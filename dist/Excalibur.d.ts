@@ -412,10 +412,17 @@ declare module ex {
     }
 }
 declare module ex {
+    interface ICapturePointerConfig {
+        /**
+         * Capture PointerMove events (may be expensive!)
+         * @property
+         */
+        captureMoveEvents: boolean;
+    }
     /**
-     * Propogates input events to the actor (i.e. PointerEvents)
+     * Propogates pointer events to the actor
      */
-    class InputPropagationModule implements IPipelineModule {
+    class CapturePointerModule implements IPipelineModule {
         update(actor: Actor, engine: Engine, delta: number): void;
     }
 }
@@ -1662,15 +1669,15 @@ declare module ex {
          */
         color: Color;
         /**
-         * Whether or not to enable the input pipeline to receive input events like pointer.
-         * @property inputEnabled {boolean}
+         * Whether or not to enable the CapturePointer trait that propogates pointer events to this actor
+         * @property [enableCapturePointer=false] {boolean}
          */
-        inputEnabled: boolean;
+        enableCapturePointer: boolean;
         /**
-         * If input is enabled, allow this actor to receive "move" events (this may be expensive!).
-         * @property inputEnableMoveEvents {boolean}
+         * Configuration for CapturePointer trait
+         * @property capturePointer {ICapturePointerConfig}
          */
-        inputEnableMoveEvents: boolean;
+        capturePointer: ICapturePointerConfig;
         private _isKilled;
         constructor(x?: number, y?: number, width?: number, height?: number, color?: Color);
         /**

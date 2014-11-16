@@ -533,21 +533,21 @@ var ex;
 var ex;
 (function (ex) {
     /**
-     * Propogates input events to the actor (i.e. PointerEvents)
+     * Propogates pointer events to the actor
      */
-    var InputPropagationModule = (function () {
-        function InputPropagationModule() {
+    var CapturePointerModule = (function () {
+        function CapturePointerModule() {
         }
-        InputPropagationModule.prototype.update = function (actor, engine, delta) {
-            if (!actor.inputEnabled)
+        CapturePointerModule.prototype.update = function (actor, engine, delta) {
+            if (!actor.enableCapturePointer)
                 return;
             if (actor.isKilled())
                 return;
             engine.input.pointers.propogate(actor);
         };
-        return InputPropagationModule;
+        return CapturePointerModule;
     })();
-    ex.InputPropagationModule = InputPropagationModule;
+    ex.CapturePointerModule = CapturePointerModule;
 })(ex || (ex = {}));
 /// <reference path="../Interfaces/IPipelineModule.ts" />
 var ex;
@@ -2892,7 +2892,7 @@ var ex;
 /// <reference path="Interfaces/IDrawable.ts" />
 /// <reference path="Modules/MovementModule.ts" />
 /// <reference path="Modules/OffscreenCullingModule.ts" />
-/// <reference path="Modules/InputPropagationModule.ts" />
+/// <reference path="Modules/CapturePointerModule.ts" />
 /// <reference path="Modules/CollisionDetectionModule.ts" />
 /// <reference path="Collision/Side.ts" />
 /// <reference path="Algebra.ts" />
@@ -3097,15 +3097,17 @@ var ex;
              */
             this.pipeline = [];
             /**
-             * Whether or not to enable the input pipeline to receive input events like pointer.
-             * @property inputEnabled {boolean}
+             * Whether or not to enable the CapturePointer trait that propogates pointer events to this actor
+             * @property [enableCapturePointer=false] {boolean}
              */
-            this.inputEnabled = false;
+            this.enableCapturePointer = false;
             /**
-             * If input is enabled, allow this actor to receive "move" events (this may be expensive!).
-             * @property inputEnableMoveEvents {boolean}
+             * Configuration for CapturePointer trait
+             * @property capturePointer {ICapturePointerConfig}
              */
-            this.inputEnableMoveEvents = false;
+            this.capturePointer = {
+                captureMoveEvents: false
+            };
             this._isKilled = false;
             this.x = x || 0;
             this.y = y || 0;
@@ -3113,14 +3115,14 @@ var ex;
             this.height = height || 0;
             if (color) {
                 this.color = color.clone();
-                // set default opacticy of an actor to the color
+                // set default opacity of an actor to the color
                 this.opacity = color.a;
             }
             // Build default pipeline
             this.pipeline.push(new ex.MovementModule());
             //this.pipeline.push(new ex.CollisionDetectionModule());
             this.pipeline.push(new ex.OffscreenCullingModule());
-            this.pipeline.push(new ex.InputPropagationModule());
+            this.pipeline.push(new ex.CapturePointerModule());
             this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
             this.sceneNode = new ex.Scene();
             this.sceneNode.actor = this;
@@ -6841,7 +6843,7 @@ var ex;
                         actor.eventDispatcher.publish("pointerdown", e);
                     }
                 });
-                if (actor.inputEnableMoveEvents) {
+                if (actor.capturePointer.captureMoveEvents) {
                     this._pointerMove.forEach(function (e) {
                         if (actor.contains(e.x, e.y)) {
                             actor.eventDispatcher.publish("pointermove", e);

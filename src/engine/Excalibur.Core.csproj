@@ -85,7 +85,7 @@
     <TypeScriptCompile Include="Loader.ts" />
     <TypeScriptCompile Include="Log.ts" />
     <TypeScriptCompile Include="Modules\CollisionDetectionModule.ts" />
-    <TypeScriptCompile Include="Modules\InputPropagationModule.ts" />
+    <TypeScriptCompile Include="Modules\CapturePointerModule.ts" />
     <TypeScriptCompile Include="Modules\MovementModule.ts" />
     <TypeScriptCompile Include="Modules\OffscreenCullingModule.ts" />
     <TypeScriptCompile Include="MonkeyPatch.ts" />

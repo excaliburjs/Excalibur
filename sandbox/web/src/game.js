@@ -117,7 +117,7 @@ follower.collisionType = 0 /* PreventCollision */;
 game.add(follower);
 // Create the player
 var player = new ex.Actor(100, -200, 32, 96);
-player.inputEnabled = true;
+player.enableCapturePointer = true;
 player.collisionType = 2 /* Active */;
 follower.meet(player, 60).asPromise().then(function () {
     console.log("Player met!!");

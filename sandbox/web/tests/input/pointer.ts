@@ -6,10 +6,10 @@ var cursor = new ex.Actor(0, 0, 10, 10, ex.Color.Chartreuse);
 var boxPointerDown = false;
 
 // Enable pointer input for box
-box.inputEnabled = true;
+box.enableCapturePointer = true;
 
 // Enable tracking mouse movement for box
-box.inputEnableMoveEvents = true;
+box.capturePointer.captureMoveEvents = true;
 
 // Change color of box when clicked
 box.on("pointerup", (pe: ex.Input.PointerEvent) => {

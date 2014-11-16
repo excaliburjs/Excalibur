@@ -1,7 +1,7 @@
 /// <reference path="Interfaces/IDrawable.ts" />
 /// <reference path="Modules/MovementModule.ts" />
 /// <reference path="Modules/OffscreenCullingModule.ts" />
-/// <reference path="Modules/InputPropagationModule.ts" />
+/// <reference path="Modules/CapturePointerModule.ts" />
 /// <reference path="Modules/CollisionDetectionModule.ts" />
 /// <reference path="Collision/Side.ts" />
 /// <reference path="Algebra.ts" />
@@ -255,16 +255,18 @@ module ex {
       public color: Color;
 
       /**
-       * Whether or not to enable the input pipeline to receive input events like pointer.
-       * @property inputEnabled {boolean}
+       * Whether or not to enable the CapturePointer trait that propogates pointer events to this actor
+       * @property [enableCapturePointer=false] {boolean}
        */
-      public inputEnabled: boolean = false;
+      public enableCapturePointer: boolean = false;
 
       /**
-       * If input is enabled, allow this actor to receive "move" events (this may be expensive!).
-       * @property inputEnableMoveEvents {boolean}
+       * Configuration for CapturePointer trait
+       * @property capturePointer {ICapturePointerConfig}
        */
-      public inputEnableMoveEvents = false;
+      public capturePointer: ex.ICapturePointerConfig = {
+         captureMoveEvents: false
+      };
 
       private _isKilled: boolean = false;
        
@@ -276,7 +278,7 @@ module ex {
          this.height = height || 0;         
          if(color){
             this.color = color.clone();
-            // set default opacticy of an actor to the color
+            // set default opacity of an actor to the color
             this.opacity = color.a;  
          }         
 
@@ -284,7 +286,7 @@ module ex {
          this.pipeline.push(new ex.MovementModule());
          //this.pipeline.push(new ex.CollisionDetectionModule());
          this.pipeline.push(new ex.OffscreenCullingModule());         
-         this.pipeline.push(new ex.InputPropagationModule());
+         this.pipeline.push(new ex.CapturePointerModule());
 
          this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
          this.sceneNode = new Scene();
