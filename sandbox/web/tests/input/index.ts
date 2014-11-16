@@ -2,17 +2,9 @@
 
 var game = new ex.Engine(500, 500, "game");
 var box = new ex.Actor(50, 50, 100, 100, ex.Color.Red);
-var cursor = new ex.Actor(100, 100, 3, 3, ex.Color.Green);
-var boxPointerDown = false;
 
 // Enable Gamepad support
 game.input.gamepads.enabled = true;
-
-// Enable pointer input for box
-box.inputEnabled = true;
-
-// Enable tracking mouse movement for box
-box.inputEnableMoveEvents = true;
 
 // Move box with Up, Down, Left, Right keyboard keys
 // Move box with Gamepad axes and D-pad
@@ -53,60 +45,6 @@ box.on("update", (ue: ex.UpdateEvent) => {
    }
 });
 
-// Change color of box when clicked
-box.on("pointerup", (pe: ex.Input.PointerEvent) => {
-   boxPointerDown = false;
-
-   if (box.color == ex.Color.Red) {
-      box.color = ex.Color.Blue;
-   } else {
-      box.color = ex.Color.Red;
-   }
-});
-
-// Drag box around
-box.on("pointermove", (pe: ex.Input.PointerEvent) => {
-   if (boxPointerDown) {
-      box.x = pe.x;
-      box.y = pe.y;
-   }
-});
-
-// Set pointer down flag
-box.on("pointerdown", (pe: ex.Input.PointerEvent) => {
-   boxPointerDown = true;   
-});
-
-// Move cursor with pointer
-game.input.pointers.primary.on("move", (pe: ex.Input.PointerEvent) => {
-   cursor.x = pe.x;
-   cursor.y = pe.y;
-
-   document.getElementById("pointer-coord").innerHTML = "(" + pe.x.toString() + ", " + pe.y.toString() + ")";
-});
-
-var paintBrush = {
-   paint: (x: number, y: number, color: ex.Color) => {
-      var brush = new ex.Actor(x, y, 5, 5, color);
-
-      game.add(brush);
-   }
-}
-
-function handleTouch(color: ex.Color) {
-
-   return (pe: ex.Input.PointerEvent) => {
-      if (pe.pointerType !== ex.Input.PointerType.Touch) return;
-
-      paintBrush.paint(pe.x, pe.y, color);
-   }
-}
-
-// Multi-touch (2 fingers + primary)
-game.input.pointers.at(0).on("move", handleTouch(ex.Color.Azure));
-game.input.pointers.at(1).on("move", handleTouch(ex.Color.Chartreuse));
-game.input.pointers.at(2).on("move", handleTouch(ex.Color.Magenta));
-
 game.on("update", (ue: ex.UpdateEvent) => {
 
    var keys = game.input.keyboard.getKeys().map((k) => {
@@ -121,8 +59,6 @@ game.on("update", (ue: ex.UpdateEvent) => {
 
    document.getElementById("gamepad-left-stick").innerHTML = "(" + axesLeftX.toString() + "," + axesLeftY.toString() + ")";
    
-
-   document.getElementById("pointer-num").innerHTML = game.input.pointers.count().toString();
 });
 
 game.add(box);

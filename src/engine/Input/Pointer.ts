@@ -9,8 +9,15 @@ module ex.Input {
       Unknown
    }
 
+   export enum PointerButton {
+      Left,
+      Middle,
+      Right,
+      Unknown
+   }
+
    export class PointerEvent extends ex.GameEvent {
-      constructor(public x: number, public y: number, public index: number, public pointerType: PointerType, public ev) {
+      constructor(public x: number, public y: number, public index: number, public pointerType: PointerType, public button: PointerButton, public ev) {
          super();
       }
    };
@@ -60,15 +67,22 @@ module ex.Input {
          this._engine.canvas.addEventListener('touchcancel', this._handleTouchEvent("cancel", this._pointerCancel));
 
          // W3C Pointer Events
-         // Current: IE11
-         // TODO support IE10 MSPointerEvent
+         // Current: IE11, IE10
          if ((<any>window).PointerEvent) {
-
+            // IE11
             this._engine.canvas.style.touchAction = "none";
             this._engine.canvas.addEventListener('pointerdown', this._handlePointerEvent("down", this._pointerDown));
             this._engine.canvas.addEventListener('pointerup', this._handlePointerEvent("up", this._pointerUp));
             this._engine.canvas.addEventListener('pointermove', this._handlePointerEvent("move", this._pointerMove));
             this._engine.canvas.addEventListener('pointercancel', this._handlePointerEvent("cancel", this._pointerMove));
+
+         } else if ((<any>window).MSPointerEvent) {
+            // IE10
+            this._engine.canvas.style.msTouchAction = "none";
+            this._engine.canvas.addEventListener('MSPointerDown', this._handlePointerEvent("down", this._pointerDown));
+            this._engine.canvas.addEventListener('MSPointerUp', this._handlePointerEvent("up", this._pointerUp));
+            this._engine.canvas.addEventListener('MSPointerMove', this._handlePointerEvent("move", this._pointerMove));
+            this._engine.canvas.addEventListener('MSPointerCancel', this._handlePointerEvent("cancel", this._pointerMove));
 
          } else {
 
@@ -144,7 +158,7 @@ module ex.Input {
             var x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
             var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
             var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
-            var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, 0, PointerType.Mouse, e);
+            var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, 0, PointerType.Mouse, e.button, e);
             eventArr.push(pe);
             this.at(0).eventDispatcher.publish(eventName, pe);
          };
@@ -158,7 +172,7 @@ module ex.Input {
                var x: number = e.changedTouches[i].pageX - Util.getPosition(this._engine.canvas).x;
                var y: number = e.changedTouches[i].pageY - Util.getPosition(this._engine.canvas).y;
                var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
-               var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, PointerType.Touch, e);
+               var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, PointerType.Touch, PointerButton.Unknown, e);
                eventArr.push(pe);
                this.at(index).eventDispatcher.publish(eventName, pe);
             }
@@ -175,7 +189,7 @@ module ex.Input {
             var x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
             var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
             var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
-            var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, this._stringToPointerType(e.pointerType), e);
+            var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, this._stringToPointerType(e.pointerType), e.button, e);
             eventArr.push(pe);
             this.at(index).eventDispatcher.publish(eventName, pe);
 

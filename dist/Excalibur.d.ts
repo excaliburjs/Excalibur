@@ -3661,13 +3661,20 @@ declare module ex.Input {
         Pen = 2,
         Unknown = 3,
     }
+    enum PointerButton {
+        Left = 0,
+        Middle = 1,
+        Right = 2,
+        Unknown = 3,
+    }
     class PointerEvent extends GameEvent {
         x: number;
         y: number;
         index: number;
         pointerType: PointerType;
+        button: PointerButton;
         ev: any;
-        constructor(x: number, y: number, index: number, pointerType: PointerType, ev: any);
+        constructor(x: number, y: number, index: number, pointerType: PointerType, button: PointerButton, ev: any);
     }
     /**
      * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to W3C Pointer Events.
