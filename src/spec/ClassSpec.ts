@@ -31,9 +31,9 @@ describe("A Class", ()=>{
             this.name = 'Dick Grayson';
          },
          getName: function(){
-            console.log(this.super);
+            /*console.log(this.super);
             console.log(this);
-            console.log(this.__super__);
+            console.log(this.__super__);*/
             return BatMan.prototype.getName.call(this);
             //return this.super.getName.call(this);
          },

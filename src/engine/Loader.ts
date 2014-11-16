@@ -20,6 +20,7 @@ module ex {
       public height: number;
       public loaded: Promise<any> = new Promise<any>();
       private _isLoaded: boolean = false;
+      private _sprite: Sprite = null;
 
       /**
        * Populated once loading is complete
@@ -33,6 +34,7 @@ module ex {
 
       constructor(public path: string) {
          super(path, 'blob');
+         this._sprite = new Sprite(this, 0, 0, 0, 0);
       }
       
 
@@ -59,6 +61,8 @@ module ex {
             this.image = new Image();
             this.image.addEventListener("load", ()=>{
                this._isLoaded = true;
+               this.width = this._sprite.swidth = this._sprite.width = this.image.naturalWidth;
+               this.height = this._sprite.sheight = this._sprite.height = this.image.naturalHeight;
                this.loaded.resolve(this.image);
                complete.resolve(this.image);
             });
@@ -69,6 +73,10 @@ module ex {
             complete.reject("Error loading texture.");
          });
          return complete;
+      }
+
+      public asSprite(): Sprite {
+         return this._sprite;
       }
 
    }

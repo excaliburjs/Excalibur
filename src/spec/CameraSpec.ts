@@ -15,6 +15,7 @@ describe("A camera", () => {
       scene = new ex.Scene();
       // mock engine    
       engine = {
+         collisionStrategy: 0,
          currentScene : scene,
          keys: [],
          clicks: [],

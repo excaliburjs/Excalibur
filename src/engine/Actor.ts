@@ -3,11 +3,11 @@
 /// <reference path="Modules/OffscreenCullingModule.ts" />
 /// <reference path="Modules/InputPropagationModule.ts" />
 /// <reference path="Modules/CollisionDetectionModule.ts" />
-/// <reference path="Side.ts" />
+/// <reference path="Collision/Side.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util.ts" />
 /// <reference path="TileMap.ts" />
-/// <reference path="BoundingBox.ts" />
+/// <reference path="Collision/BoundingBox.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Action.ts" />
 
@@ -81,6 +81,17 @@ module ex {
     * @param [color=undefined] {Color} The starting color of the actor
     */     
    export class Actor extends ex.Class {
+      /**
+       * Indicates the next id to be set
+       */
+      public static maxId = 0;
+
+      /**
+       * The unique identifier for the actor
+       */
+      public id: number = Actor.maxId++;
+
+
       /** 
        * The x coordinate of the actor (left edge)
        * @property x {number} 
@@ -271,7 +282,7 @@ module ex {
 
          // Build default pipeline
          this.pipeline.push(new ex.MovementModule());
-         this.pipeline.push(new ex.CollisionDetectionModule());
+         //this.pipeline.push(new ex.CollisionDetectionModule());
          this.pipeline.push(new ex.OffscreenCullingModule());         
          this.pipeline.push(new ex.InputPropagationModule());
 
@@ -903,7 +914,7 @@ module ex {
          // Recalcuate the anchor point
          this.calculatedAnchor = new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
 
-         this.sceneNode.update(engine, delta);
+         
          var eventDispatcher = this.eventDispatcher;
 
          // Update action queue
