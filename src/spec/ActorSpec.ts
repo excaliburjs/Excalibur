@@ -12,7 +12,8 @@ describe("A game actor", () => {
       actor.collisionType = ex.CollisionType.Active;
       scene = new ex.Scene();
 		// mock engine		
-	   engine = {
+      engine = {
+         collisionStrategy: 0,
 	      currentScene : scene,
 	      keys: [],
 	      clicks: [],

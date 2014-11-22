@@ -200,7 +200,10 @@ declare module ex {
     }
 }
 declare module ex {
-    class EventPropagationModule implements IPipelineModule {
+    /**
+    * Propogates input events to the actor (i.e. PointerEvents)
+    */
+    class InputPropagationModule implements IPipelineModule {
         public update(actor: Actor, engine: Engine, delta: number): void;
     }
 }
@@ -958,8 +961,9 @@ declare module ex {
 }
 declare module ex {
     enum CollisionStrategy {
-        AxisAligned = 0,
-        SeparatingAxis = 1,
+        Naive = 0,
+        DynamicAABBTree = 1,
+        SeparatingAxis = 2,
     }
     /**
     * Interface all collidable objects must implement
@@ -998,7 +1002,7 @@ declare module ex {
         public top: number;
         public right: number;
         public bottom: number;
-        constructor(left: number, top: number, right: number, bottom: number);
+        constructor(left?: number, top?: number, right?: number, bottom?: number);
         /**
         * Returns the calculated width of the bounding box
         * @method getWidth
@@ -1012,12 +1016,32 @@ declare module ex {
         */
         public getHeight(): number;
         /**
+        * Returns the perimeter of the bounding box
+        * @method getPerimeter
+        * @returns number
+        */
+        public getPerimeter(): number;
+        /**
         * Tests wether a point is contained within the bounding box
         * @method contains
         * @param p {Point} The point to test
         * @returns boolean
         */
         public contains(p: Point): boolean;
+        /**
+        * Tests whether another bounding box is totally contained in this one
+        * @method contains
+        * @param other {BoundingBox} The bounding box to test
+        * @returns boolean
+        */
+        public contains(bb: BoundingBox): boolean;
+        /**
+        * Combines this bounding box and another together returning a new bounding box
+        * @method combine
+        * @param other {BoundingBox} The bounding box to combine
+        * @returns BoundingBox
+        */
+        public combine(other: BoundingBox): BoundingBox;
         /**
         * Test wether this bounding box collides with another returning,
         * the intersection vector that can be used to resovle the collision. If there
@@ -1166,6 +1190,66 @@ declare module ex {
     }
 }
 declare module ex {
+    interface ICollisionResolver {
+        register(target: Actor): any;
+        remove(tartet: Actor): any;
+        evaluate(targets: Actor[]): CollisionPair[];
+        update(targets: Actor[]): number;
+        debugDraw(ctx: any, delta: any): void;
+    }
+}
+declare module ex {
+    class NaiveCollisionResolver implements ICollisionResolver {
+        constructor();
+        public register(target: Actor): void;
+        public remove(tartet: Actor): void;
+        public evaluate(targets: Actor[]): CollisionPair[];
+        public update(targets: Actor[]): number;
+        public debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
+    }
+}
+declare module ex {
+    class TreeNode {
+        public parent: any;
+        public left: TreeNode;
+        public right: TreeNode;
+        public bounds: BoundingBox;
+        public height: number;
+        public actor: Actor;
+        constructor(parent?: any);
+        public isLeaf(): boolean;
+    }
+    class DynamicTree {
+        public root: TreeNode;
+        public nodes: {
+            [key: number]: TreeNode;
+        };
+        constructor();
+        public insert(leaf: TreeNode): void;
+        public remove(leaf: TreeNode): void;
+        public registerActor(actor: Actor): void;
+        public updateActor(actor: Actor): boolean;
+        public removeActor(actor: Actor): void;
+        public balance(node: TreeNode): TreeNode;
+        public getHeight(): number;
+        public query(actor: Actor, callback: (other: Actor) => boolean): void;
+        public rayCast(ray: Ray, max: any): Actor;
+        public getNodes(): TreeNode[];
+        public debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
+    }
+}
+declare module ex {
+    class DynamicTreeCollisionResolver implements ICollisionResolver {
+        private _dynamicCollisionTree;
+        constructor();
+        public register(target: Actor): void;
+        public remove(target: Actor): void;
+        public evaluate(targets: Actor[]): CollisionPair[];
+        public update(targets: Actor[]): number;
+        public debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
+    }
+}
+declare module ex {
     /**
     * Collision pairs are used internally by Excalibur to resolve collision between actors. The
     * Pair prevents collisions from being evaluated more than one time
@@ -1213,11 +1297,11 @@ declare module ex {
         public children: Actor[];
         public tileMaps: TileMap[];
         public engine: Engine;
-        private killQueue;
-        private timers;
-        private cancelQueue;
+        private _collisionResolver;
+        private _killQueue;
+        private _timers;
+        private _cancelQueue;
         private _isInitialized;
-        public _collisionPairs: CollisionPair[];
         constructor();
         /**
         * This is called when the scene is made active and started. It is meant to be overriden,
@@ -1283,14 +1367,6 @@ declare module ex {
         * @param actor {Actor} The actor to add to the current scene
         */
         public add(actor: Actor): void;
-        /**
-        * Adds a collision resolution pair to the current scene. Should only be called
-        * by actors.
-        * @method addCollisionPair
-        * @param collisionPair {CollisionPair}
-        *
-        */
-        public addCollisionPair(collisionPair: CollisionPair): void;
         /**
         * Removes an excalibur Timer from the current scene.
         * @method remove
@@ -1691,6 +1767,14 @@ declare module ex {
     */ 
     class Actor extends Class {
         /**
+        * Indicates the next id to be set
+        */
+        static maxId: number;
+        /**
+        * The unique identifier for the actor
+        */
+        public id: number;
+        /**
         * The x coordinate of the actor (left edge)
         * @property x {number}
         */ 
@@ -1833,6 +1917,16 @@ declare module ex {
         * @property color {Color}
         */
         public color: Color;
+        /**
+        * Whether or not to enable the input pipeline to receive input events like pointer.
+        * @property inputEnabled {boolean}
+        */
+        public inputEnabled: boolean;
+        /**
+        * If input is enabled, allow this actor to receive "move" events (this may be expensive!).
+        * @property inputEnableMoveEvents {boolean}
+        */
+        public inputEnableMoveEvents: boolean;
         private _isKilled;
         constructor(x?: number, y?: number, width?: number, height?: number, color?: Color);
         /**
@@ -2380,61 +2474,6 @@ declare module ex {
     */
     enum EventType {
         /**
-        @property KeyDown {EventType}
-        @static
-        @final
-        */
-        /**
-        @property KeyUp {EventType}
-        @static
-        @final
-        */
-        /**
-        @property KeyPress {EventType}
-        @static
-        @final
-        */
-        /**
-        @property MouseDown {EventType}
-        @static
-        @final
-        */
-        /**
-        @property MouseMove {EventType}
-        @static
-        @final
-        */
-        /**
-        @property MouseUp {EventType}
-        @static
-        @final
-        */
-        /**
-        @property TouchStart {EventType}
-        @static
-        @final
-        */
-        /**
-        @property TouchMove {EventType}
-        @static
-        @final
-        */
-        /**
-        @property TouchEnd {EventType}
-        @static
-        @final
-        */
-        /**
-        @property TouchCancel {EventType}
-        @static
-        @final
-        */
-        /**
-        @property Click {EventType}
-        @static
-        @final
-        */
-        /**
         @property UserEvent {EventType}
         @static
         @final
@@ -2479,26 +2518,15 @@ declare module ex {
         @static
         @final
         */
-        KeyDown = 0,
-        KeyUp = 1,
-        KeyPress = 2,
-        MouseDown = 3,
-        MouseMove = 4,
-        MouseUp = 5,
-        TouchStart = 6,
-        TouchMove = 7,
-        TouchEnd = 8,
-        TouchCancel = 9,
-        Click = 10,
-        Collision = 11,
-        EnterViewPort = 12,
-        ExitViewPort = 13,
-        Blur = 14,
-        Focus = 15,
-        Update = 16,
-        Activate = 17,
-        Deactivate = 18,
-        Initialize = 19,
+        Collision = 0,
+        EnterViewPort = 1,
+        ExitViewPort = 2,
+        Blur = 3,
+        Focus = 4,
+        Update = 5,
+        Activate = 6,
+        Deactivate = 7,
+        Initialize = 8,
     }
     /**
     * Base event type in Excalibur that all other event types derive from.
@@ -2617,54 +2645,6 @@ declare module ex {
         constructor();
     }
     /**
-    * Event thrown on a game object on KeyEvent
-    *
-    * @class KeyEvent
-    * @extends GameEvent
-    * @constructor
-    * @param key {InputKey} The key responsible for throwing the event
-    */
-    class KeyEvent extends GameEvent {
-        public key: InputKey;
-        constructor(key: InputKey);
-    }
-    /**
-    * Event thrown on a game object on KeyDown
-    *
-    * @class KeyDown
-    * @extends GameEvent
-    * @constructor
-    * @param key {InputKey} The key responsible for throwing the event
-    */
-    class KeyDown extends GameEvent {
-        public key: InputKey;
-        constructor(key: InputKey);
-    }
-    /**
-    * Event thrown on a game object on KeyUp
-    *
-    * @class KeyUp
-    * @extends GameEvent
-    * @constructor
-    * @param key {InputKey} The key responsible for throwing the event
-    */
-    class KeyUp extends GameEvent {
-        public key: InputKey;
-        constructor(key: InputKey);
-    }
-    /**
-    * Event thrown on a game object on KeyPress
-    *
-    * @class KeyPress
-    * @extends GameEvent
-    * @constructor
-    * @param key {InputKey} The key responsible for throwing the event
-    */
-    class KeyPress extends GameEvent {
-        public key: InputKey;
-        constructor(key: InputKey);
-    }
-    /**
     * Enum representing the different mouse buttons
     * @class MouseButton
     */
@@ -2684,159 +2664,6 @@ declare module ex {
         * @static
         */
         Right = 2,
-    }
-    /**
-    * Event thrown on a game object on MouseDown
-    *
-    * @class MouseDown
-    * @extends GameEvent
-    * @constructor
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    * @param mouseEvent {MouseEvent} The native mouse event thrown
-    */
-    class MouseDownEvent extends GameEvent {
-        public x: number;
-        public y: number;
-        public mouseEvent: MouseEvent;
-        constructor(x: number, y: number, mouseEvent: MouseEvent);
-    }
-    /**
-    * Event thrown on a game object on MouseMove
-    *
-    * @class MouseMove
-    * @extends GameEvent
-    * @constructor
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    * @param mouseEvent {MouseEvent} The native mouse event thrown
-    */
-    class MouseMoveEvent extends GameEvent {
-        public x: number;
-        public y: number;
-        public mouseEvent: MouseEvent;
-        constructor(x: number, y: number, mouseEvent: MouseEvent);
-    }
-    /**
-    * Event thrown on a game object on MouseUp
-    *
-    * @class MouseUp
-    * @extends GameEvent
-    * @constructor
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    * @param mouseEvent {MouseEvent} The native mouse event thrown
-    */
-    class MouseUpEvent extends GameEvent {
-        public x: number;
-        public y: number;
-        public mouseEvent: MouseEvent;
-        constructor(x: number, y: number, mouseEvent: MouseEvent);
-    }
-    interface Touch {
-        identifier: string;
-        screenX: number;
-        screenY: number;
-        clientX: number;
-        clientY: number;
-        pageX: number;
-        pageY: number;
-        radiusX: number;
-        radiusY: number;
-        rotationAngle: number;
-        force: number;
-        target: Element;
-    }
-    /**
-    * Event thrown on a game object on TouchEvent
-    *
-    * @class TouchEvent
-    * @extends GameEvent
-    * @constructor
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    */
-    interface TouchEvent extends Event {
-        altKey: boolean;
-        changedTouches: Touch[];
-        ctrlKey: boolean;
-        metaKey: boolean;
-        shiftKey: boolean;
-        targetTouches: Touch[];
-        touches: Touch[];
-        type: string;
-        target: Element;
-    }
-    /**
-    * Event thrown on a game object on TouchStart
-    *
-    * @class TouchStart
-    * @extends GameEvent
-    * @constructor
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    */
-    class TouchStartEvent extends GameEvent {
-        public x: number;
-        public y: number;
-        constructor(x: number, y: number);
-    }
-    /**
-    * Event thrown on a game object on TouchMove
-    *
-    * @class TouchMove
-    * @extends GameEvent
-    * @constructor
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    */
-    class TouchMoveEvent extends GameEvent {
-        public x: number;
-        public y: number;
-        constructor(x: number, y: number);
-    }
-    /**
-    * Event thrown on a game object on TouchEnd
-    *
-    * @class TouchEnd
-    * @extends GameEvent
-    * @constructor
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    */
-    class TouchEndEvent extends GameEvent {
-        public x: number;
-        public y: number;
-        constructor(x: number, y: number);
-    }
-    /**
-    * Event thrown on a game object on TouchCancel
-    *
-    * @class TouchCancel
-    * @extends GameEvent
-    * @constructor
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    */
-    class TouchCancelEvent extends GameEvent {
-        public x: number;
-        public y: number;
-        constructor(x: number, y: number);
-    }
-    /**
-    * Event thrown on a game object on Click
-    *
-    * @class Click
-    * @extends GameEvent
-    * @constructor
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    */
-    class ClickEvent extends GameEvent {
-        public x: number;
-        public y: number;
-        public mouseEvent: MouseEvent;
-        constructor(x: number, y: number, mouseEvent: MouseEvent);
     }
 }
 declare module ex {
@@ -4074,42 +3901,84 @@ declare module ex {
         public debugDraw(ctx: CanvasRenderingContext2D): void;
     }
 }
-declare module ex {
+declare module ex.Input {
+    interface IEngineInput {
+        keyboard: Keyboard;
+        pointer: Pointer;
+        gamepads: Gamepads;
+    }
+}
+declare module ex.Input {
+    class PointerEvent extends GameEvent {
+        public x: number;
+        public y: number;
+        public ev: any;
+        constructor(x: number, y: number, ev: any);
+    }
+    /**
+    * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to W3C Pointer Events
+    *
+    * @class Pointer
+    * @extends Class
+    * @constructor
+    */
+    class Pointer extends Class {
+        private _engine;
+        private _pointerDown;
+        private _pointerUp;
+        private _pointerMove;
+        private _pointerCancel;
+        constructor(engine: Engine);
+        /**
+        * Initializes pointer event listeners
+        */
+        public init(): void;
+        public update(delta: number): void;
+        /**
+        * Propogates events to actor if necessary
+        */
+        public propogate(actor: Actor): void;
+        private _handleMouseEvent(eventName, eventArr);
+        private _handleTouchEvent(eventName, eventArr);
+        private _handlePointerEvent(eventName, eventArr);
+    }
+}
+declare module ex.Input {
     /**
     * Enum representing input key codes
-    * @class InputKey
+    * @class Keys
     *
     */
-    enum InputKey {
+    enum Keys {
         /**
-        @property Num1 {InputKey}
+        @property Num1 {Keys}
         */
         /**
-        @property Num2 {InputKey}
+        @property Num2 {Keys}
         */
         /**
-        @property Num3 {InputKey}
+        @property Num3 {Keys}
         */
         /**
-        @property Num4 {InputKey}
+        @property Num4 {Keys}
         */
         /**
-        @property Num5 {InputKey}
+        @property Num5 {Keys}
         */
         /**
-        @property Num6 {InputKey}
+        @property Num6 {Keys}
         */
         /**
-        @property Num7 {InputKey}
+        @property Num7 {Keys}
         */
         /**
-        @property Num8 {InputKey}
+        @property Num8 {Keys}
         */
         /**
-        @property Num9 {InputKey}
+        @property Num9 {Keys}
         */
         /**
-        @property Num0 {InputKey}
+        @property Num0 {Keys}
         */
         Num1 = 97,
         Num2 = 98,
@@ -4122,90 +3991,90 @@ declare module ex {
         Num9 = 105,
         Num0 = 96,
         /**
-        @property Numlock {InputKey}
+        @property Numlock {Keys}
         */
         Numlock = 144,
         /**
-        @property Semicolon {InputKey}
+        @property Semicolon {Keys}
         */
         Semicolon = 186,
         /**
-        @property A {InputKey}
+        @property A {Keys}
         */
         /**
-        @property B {InputKey}
+        @property B {Keys}
         */
         /**
-        @property C {InputKey}
+        @property C {Keys}
         */
         /**
-        @property D {InputKey}
+        @property D {Keys}
         */
         /**
-        @property E {InputKey}
+        @property E {Keys}
         */
         /**
-        @property F {InputKey}
+        @property F {Keys}
         */
         /**
-        @property G {InputKey}
+        @property G {Keys}
         */
         /**
-        @property H {InputKey}
+        @property H {Keys}
         */
         /**
-        @property I {InputKey}
+        @property I {Keys}
         */
         /**
-        @property J {InputKey}
+        @property J {Keys}
         */
         /**
-        @property K {InputKey}
+        @property K {Keys}
         */
         /**
-        @property L {InputKey}
+        @property L {Keys}
         */
         /**
-        @property M {InputKey}
+        @property M {Keys}
         */
         /**
-        @property N {InputKey}
+        @property N {Keys}
         */
         /**
-        @property O {InputKey}
+        @property O {Keys}
         */
         /**
-        @property P {InputKey}
+        @property P {Keys}
         */
         /**
-        @property Q {InputKey}
+        @property Q {Keys}
         */
         /**
-        @property R {InputKey}
+        @property R {Keys}
         */
         /**
-        @property S {InputKey}
+        @property S {Keys}
         */
         /**
-        @property T {InputKey}
+        @property T {Keys}
         */
         /**
-        @property U {InputKey}
+        @property U {Keys}
         */
         /**
-        @property V {InputKey}
+        @property V {Keys}
         */
         /**
-        @property W {InputKey}
+        @property W {Keys}
         */
         /**
-        @property X {InputKey}
+        @property X {Keys}
         */
         /**
-        @property Y {InputKey}
+        @property Y {Keys}
         */
         /**
-        @property Z {InputKey}
+        @property Z {Keys}
         */
         A = 65,
         B = 66,
@@ -4234,28 +4103,28 @@ declare module ex {
         Y = 89,
         Z = 90,
         /**
-        @property Shift {InputKey}
+        @property Shift {Keys}
         */
         /**
-        @property Alt {InputKey}
+        @property Alt {Keys}
         */
         /**
-        @property Up {InputKey}
+        @property Up {Keys}
         */
         /**
-        @property Down {InputKey}
+        @property Down {Keys}
         */
         /**
-        @property Left {InputKey}
+        @property Left {Keys}
         */
         /**
-        @property Right {InputKey}
+        @property Right {Keys}
         */
         /**
-        @property Space {InputKey}
+        @property Space {Keys}
         */
         /**
-        @property Esc {InputKey}
+        @property Esc {Keys}
         */
         Shift = 16,
         Alt = 18,
@@ -4266,6 +4135,305 @@ declare module ex {
         Space = 32,
         Esc = 27,
     }
+    /**
+    * Event thrown on a game object for a key event
+    *
+    * @class KeyEvent
+    * @extends GameEvent
+    * @constructor
+    * @param key {InputKey} The key responsible for throwing the event
+    */
+    class KeyEvent extends GameEvent {
+        public key: Keys;
+        constructor(key: Keys);
+    }
+    /**
+    * Manages Keyboard input events that you can query or listen for events on
+    *
+    * @class Keyboard
+    * @extends Class
+    * @constructor
+    *
+    */
+    class Keyboard extends Class {
+        private _keys;
+        private _keysUp;
+        private _keysDown;
+        private _engine;
+        constructor(engine: Engine);
+        /**
+        * Initialize Keyboard event listeners
+        */
+        public init(): void;
+        public update(delta: number): void;
+        /**
+        * Gets list of keys being pressed down
+        */
+        public getKeys(): Keys[];
+        /**
+        *  Tests if a certain key is down.
+        * @method isKeyDown
+        * @param key {Keys} Test wether a key is down
+        * @returns boolean
+        */
+        public isKeyDown(key: Keys): boolean;
+        /**
+        *  Tests if a certain key is pressed.
+        * @method isKeyPressed
+        * @param key {Keys} Test wether a key is pressed
+        * @returns boolean
+        */
+        public isKeyPressed(key: Keys): boolean;
+        /**
+        *  Tests if a certain key is up.
+        * @method isKeyUp
+        * @param key {Keys} Test wether a key is up
+        * @returns boolean
+        */
+        public isKeyUp(key: Keys): boolean;
+    }
+}
+declare module ex.Input {
+    /**
+    * Manages Gamepad API input. You can query the gamepads that are connected
+    * or listen to events ("button" and "axis").
+    * @class Gamepads
+    * @extends Class
+    * @param pads {Gamepad[]} The connected gamepads.
+    * @param supported {boolean} Whether or not the Gamepad API is present
+    */
+    class Gamepads extends Class {
+        /**
+        * Access to the individual pads
+        * @property pads {Array<Gamepad>}
+        */
+        public pads: Gamepad[];
+        /**
+        * Whether or not to poll for Gamepad input (default: false)
+        * @property enabled {boolean}
+        */
+        public enabled: boolean;
+        /**
+        * Whether or not Gamepad API is supported
+        * @property supported {boolean}
+        */
+        public supported: boolean;
+        /**
+        * The minimum value an axis has to move before considering it a change
+        * @property MinAxisMoveThreshold {number}
+        * @static
+        */
+        static MinAxisMoveThreshold: number;
+        private _gamePadTimeStamps;
+        private _oldPads;
+        private _initSuccess;
+        private _engine;
+        private _navigator;
+        constructor(engine: Engine);
+        public init(): void;
+        /**
+        * Updates Gamepad state and publishes Gamepad events
+        */
+        public update(delta: number): void;
+        /**
+        * The number of connected gamepads
+        */
+        public count(): number;
+        private _clonePads(pads);
+        /**
+        * Fastest way to clone a known object is to do it yourself
+        */
+        private _clonePad(pad);
+    }
+    /**
+    * Individual state for a Gamepad
+    * @class Gamepad
+    * @extends Class
+    */
+    class Gamepad extends Class {
+        public connected: boolean;
+        private _buttons;
+        private _axes;
+        constructor();
+        /**
+        * Whether or not the given button is pressed
+        * @param button {Buttons}
+        * @param [threshold=1] {number} The threshold over which the button is considered to be pressed
+        */
+        public isButtonPressed(button: Buttons, threshold?: number): boolean;
+        /**
+        * Gets the given button value
+        * @param button {Buttons}
+        */
+        public getButton(button: Buttons): number;
+        /**
+        * Gets the given axis value
+        * @param axes {Axes}
+        */
+        public getAxes(axes: Axes): number;
+        public updateButton(buttonIndex: number, value: number): void;
+        public updateAxes(axesIndex: number, value: number): void;
+    }
+    /**
+    * Gamepad Buttons enumeration
+    * @class Buttons
+    */
+    enum Buttons {
+        /**
+        * Face 1 button (e.g. A)
+        * @property Face1 {Buttons}
+        * @static
+        */
+        /**
+        * Face 2 button (e.g. B)
+        * @property Face2 {Buttons}
+        * @static
+        */
+        /**
+        * Face 3 button (e.g. X)
+        * @property Face3 {Buttons}
+        * @static
+        */
+        /**
+        * Face 4 button (e.g. Y)
+        * @property Face4 {Buttons}
+        * @static
+        */
+        Face1 = 0,
+        Face2 = 1,
+        Face3 = 2,
+        Face4 = 3,
+        /**
+        * Left bumper button
+        * @property LeftBumper {Buttons}
+        * @static
+        */
+        /**
+        * Right bumper button
+        * @property RightBumper {Buttons}
+        * @static
+        */
+        LeftBumper = 4,
+        RightBumper = 5,
+        /**
+        * Left trigger button
+        * @property LeftTrigger {Buttons}
+        * @static
+        */
+        /**
+        * Right trigger button
+        * @property RightTrigger {Buttons}
+        * @static
+        */
+        LeftTrigger = 6,
+        RightTrigger = 7,
+        /**
+        * Select button
+        * @property Select {Buttons}
+        * @static
+        */
+        /**
+        * Start button
+        * @property Start {Buttons}
+        * @static
+        */
+        Select = 8,
+        Start = 9,
+        /**
+        * Left analog stick press (e.g. L3)
+        * @property LeftStick {Buttons}
+        * @static
+        */
+        /**
+        * Right analog stick press (e.g. R3)
+        * @property Start {Buttons}
+        * @static
+        */
+        LeftStick = 10,
+        RightStick = 11,
+        /**
+        * D-pad up
+        * @property DpadUp {Buttons}
+        * @static
+        */
+        /**
+        * D-pad down
+        * @property DpadDown {Buttons}
+        * @static
+        */
+        /**
+        * D-pad left
+        * @property DpadLeft {Buttons}
+        * @static
+        */
+        /**
+        * D-pad right
+        * @property DpadRight {Buttons}
+        * @static
+        */
+        DpadUp = 12,
+        DpadDown = 13,
+        DpadLeft = 14,
+        DpadRight = 15,
+    }
+    /**
+    * Gamepad Axes enumeration
+    * @class Axes
+    */
+    enum Axes {
+        /**
+        * Left analogue stick X direction
+        * @property LeftStickX {Axes}
+        * @static
+        */
+        /**
+        * Left analogue stick Y direction
+        * @property LeftStickY {Axes}
+        * @static
+        */
+        /**
+        * Right analogue stick X direction
+        * @property RightStickX {Axes}
+        * @static
+        */
+        /**
+        * Right analogue stick Y direction
+        * @property RightStickY {Axes}
+        * @static
+        */
+        LeftStickX = 0,
+        LeftStickY = 1,
+        RightStickX = 2,
+        RightStickY = 3,
+    }
+    class GamepadButtonEvent extends GameEvent {
+        public button: Buttons;
+        public value: number;
+        constructor(button: Buttons, value: number);
+    }
+    class GamepadAxisEvent extends GameEvent {
+        public axis: Axes;
+        public value: number;
+        constructor(axis: Axes, value: number);
+    }
+    interface INavigatorGamepad {
+        axes: number[];
+        buttons: INavigatorGamepadButton[];
+        connected: boolean;
+        id: string;
+        index: number;
+        mapping: string;
+        timestamp: number;
+    }
+    interface INavigatorGamepadButton {
+        pressed: boolean;
+        value: number;
+    }
+    interface INavigatorGamepadEvent {
+        gamepad: INavigatorGamepad;
+    }
+}
+declare module ex {
     /**
     * Enum representing the different display modes available to Excalibur
     * @class DisplayMode
@@ -4325,18 +4493,17 @@ declare module ex {
         * @property height {number}
         */
         public height: number;
+        /**
+        * Access engine input like pointer, keyboard, or gamepad
+        * @property input {IEngineInput}
+        */
+        public input: Input.IEngineInput;
+        /**
+        * Sets or gets the collision strategy for Excalibur
+        * @property collisionStrategy {CollisionStrategy}
+        */
+        public collisionStrategy: CollisionStrategy;
         private hasStarted;
-        public keys: number[];
-        public keysDown: number[];
-        public keysUp: number[];
-        public clicks: MouseDownEvent[];
-        public mouseDown: MouseDownEvent[];
-        public mouseMove: MouseMoveEvent[];
-        public mouseUp: MouseUpEvent[];
-        public touchStart: TouchStartEvent[];
-        public touchMove: TouchMoveEvent[];
-        public touchEnd: TouchEndEvent[];
-        public touchCancel: TouchCancelEvent[];
         /**
         * Gets or sets the camera to be used in the game.
         * @property camera {BaseCamera}
@@ -4575,27 +4742,6 @@ declare module ex {
         * @returns boolean
         */
         public getAntialiasing(): boolean;
-        /**
-        *  Tests if a certain key is down.
-        * @method isKeyDown
-        * @param key {InputKey} Test wether a key is down
-        * @returns boolean
-        */
-        public isKeyDown(key: InputKey): boolean;
-        /**
-        *  Tests if a certain key is pressed.
-        * @method isKeyPressed
-        * @param key {InputKey} Test wether a key is pressed
-        * @returns boolean
-        */
-        public isKeyPressed(key: InputKey): boolean;
-        /**
-        *  Tests if a certain key is up.
-        * @method isKeyUp
-        * @param key {InputKey} Test wether a key is up
-        * @returns boolean
-        */
-        public isKeyUp(key: InputKey): boolean;
         /**
         * Updates the entire state of the game
         * @method update

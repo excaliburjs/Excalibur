@@ -1,17 +1,28 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Excalibur.Core", "engine\Excalibur.Core.csproj", "{1DF7CFCA-A048-417C-84E7-4D1CC6A3FD77}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Excalibur.Tests", "spec\Excalibur.Tests.csproj", "{3F3D99B4-B7E2-412D-AC02-37FF4A3844C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Excalibur.Sandbox", "..\Sandbox\Excalibur.Sandbox.csproj", "{8215CF44-EFC4-4295-9E56-4354DCE0FF37}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Excalibur.Sandbox", "..\Sandbox\web\Excalibur.Sandbox.csproj", "{8215CF44-EFC4-4295-9E56-4354DCE0FF37}"
 EndProject
-Project("{262852C6-CD72-467D-83FE-5EEB1973A190}") = "Excalibur.Samples.Win8", "win8\Excalibur.Samples.Win8.jsproj", "{B57EA9C6-4322-4F96-8181-1417068DCC78}"
+Project("{262852C6-CD72-467D-83FE-5EEB1973A190}") = "Excalibur.Samples.Win8", "..\Sandbox\win8\Excalibur.Samples.Win8.jsproj", "{B57EA9C6-4322-4F96-8181-1417068DCC78}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Excalibur.Samples.WinJS", "Excalibur.Samples.WinJS", "{657F373E-4687-4017-8B96-91AC68B3EE6D}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Excalibur.Samples.Win8.Shared", "..\Sandbox\winshared\Excalibur.Samples.Win8.Shared.shproj", "{294AF50B-487A-4CA9-BE75-E8A2234C54D8}"
+EndProject
+Project("{262852C6-CD72-467D-83FE-5EEB1973A190}") = "Excalibur.Samples.WindowsPhone", "..\Sandbox\wp81\Excalibur.Samples.WindowsPhone.jsproj", "{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}"
 EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\Sandbox\winshared\Excalibur.Samples.Win8.Shared.projitems*{294af50b-487a-4ca9-be75-e8a2234c54d8}*SharedItemsImports = 13
+		..\Sandbox\winshared\Excalibur.Samples.Win8.Shared.projitems*{b57ea9c6-4322-4f96-8181-1417068dcc78}*SharedItemsImports = 5
+		..\Sandbox\winshared\Excalibur.Samples.Win8.Shared.projitems*{de460248-58eb-4df7-a744-dec83e1f7c7b}*SharedItemsImports = 5
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|ARM = Debug|ARM
@@ -77,8 +88,33 @@ Global
 		{B57EA9C6-4322-4F96-8181-1417068DCC78}.Release|x86.ActiveCfg = Release|x86
 		{B57EA9C6-4322-4F96-8181-1417068DCC78}.Release|x86.Build.0 = Release|x86
 		{B57EA9C6-4322-4F96-8181-1417068DCC78}.Release|x86.Deploy.0 = Release|x86
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}.Debug|ARM.ActiveCfg = Debug|ARM
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}.Debug|ARM.Build.0 = Debug|ARM
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}.Debug|ARM.Deploy.0 = Debug|ARM
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}.Debug|x86.ActiveCfg = Debug|x86
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}.Debug|x86.Build.0 = Debug|x86
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}.Debug|x86.Deploy.0 = Debug|x86
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}.Release|ARM.ActiveCfg = Release|ARM
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}.Release|ARM.Build.0 = Release|ARM
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}.Release|ARM.Deploy.0 = Release|ARM
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}.Release|x64.ActiveCfg = Release|Any CPU
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}.Release|x86.ActiveCfg = Release|x86
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}.Release|x86.Build.0 = Release|x86
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B57EA9C6-4322-4F96-8181-1417068DCC78} = {657F373E-4687-4017-8B96-91AC68B3EE6D}
+		{294AF50B-487A-4CA9-BE75-E8A2234C54D8} = {657F373E-4687-4017-8B96-91AC68B3EE6D}
+		{DE460248-58EB-4DF7-A744-DEC83E1F7C7B} = {657F373E-4687-4017-8B96-91AC68B3EE6D}
 	EndGlobalSection
 EndGlobal

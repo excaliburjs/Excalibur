@@ -1,5 +1,37 @@
-/// <reference path='../../dist/excalibur.d.ts' />
-
+/// <reference path='../../../dist/excalibur.d.ts' />
+/*********************
+ *                  uuuuuuuuuuuuuuuuuuuu                                    
+ *                u" uuuuuuuuuuuuuuuuuu "u                                  
+ *              u" u$$$$$$$$$$$$$$$$$$$$u "u        
+ *            u" u$$$$$$$$$$$$$$$$$$$$$$$$u "u                              
+ *          u" u$$$$$$$$$$$$$$$$$$$$$$$$$$$$u "u                            
+ *        u" u$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$u "u                          
+ *      u" u$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$u "u                        
+ *      $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $                        
+ *      $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $                        
+ *      $ $$$" ... "$...  ...$" ... "$$$  ... "$$$ $                        
+ *      $ $$$u `"$$$$$$$  $$$  $$$$$  $$  $$$  $$$ $                        
+ *      $ $$$$$$uu "$$$$  $$$  $$$$$  $$  """ u$$$ $                        
+ *      $ $$$""$$$  $$$$  $$$u "$$$" u$$  $$$$$$$$ $                        
+ *      $ $$$$....,$$$$$..$$$$$....,$$$$..$$$$$$$$ $                        
+ *      $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $                        
+ *      "u "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" u"                        
+ *        "u "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" u"                          
+ *          "u "$$$$$$$$$$$$$$$$$$$$$$$$$$$$" u"                            
+ *            "u "$$$$$$$$$$$$$$$$$$$$$$$$" u"                              
+ *              "u "$$$$$$$$$$$$$$$$$$$$" u"                                
+ *                "u """""""""""""""""" u"                                  
+ *                  """"""""""""""""""""
+ *      
+ * WARNING: Do not use this sandbox as a "sample" of how to use Excalibur *properly.*
+ * This is a messy POS that we use to do crazy integration testing and is really
+ * a terrible example.
+ * 
+ * Please don't reference this. Reference the official sample games!
+ * 
+ * Thank you,
+ * Excalibur.js team
+ */
 var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
 
@@ -23,7 +55,7 @@ loader.addResource(spriteFontImage);
 loader.addResource(jump);
 
 // Set background color
-game.backgroundColor = new ex.Color(114,213,224);
+game.backgroundColor = new ex.Color(114, 213, 224);
 
 // Turn on debug diagnostics
 game.isDebug = false;
@@ -32,15 +64,15 @@ var blockSprite = new ex.Sprite(imageBlocks, 0, 0, 65, 49);
 var spriteSheetRun = new ex.SpriteSheet(imageRun, 21, 1, 96, 96);
 var spriteSheetJump = new ex.SpriteSheet(imageJump, 21, 1, 96, 96);
 var tileBlockWidth = 64,
-    tileBlockHeight = 48,
-    spriteTiles = new ex.SpriteSheet(imageBlocks, 1, 1, tileBlockWidth, tileBlockHeight);
+   tileBlockHeight = 48,
+   spriteTiles = new ex.SpriteSheet(imageBlocks, 1, 1, tileBlockWidth, tileBlockHeight);
 
 
 
 // create a collision map
 var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
 tileMap.registerSpriteSheet("default", spriteTiles);
-tileMap.data.forEach(function(cell : ex.Cell){
+tileMap.data.forEach(function (cell: ex.Cell) {
    cell.solid = true;
    cell.pushSprite(new ex.TileSprite("default", 0));
 });
@@ -67,23 +99,23 @@ enum Animations {
 
 var currentX = 0;
 // Create the level
-for(var i = 0; i< 36; i++){
+for (var i = 0; i < 36; i++) {
    currentX = tileBlockWidth * i + 10;
    var color = new ex.Color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
    var block = new ex.Actor(currentX, 350 + Math.random() * 100, tileBlockWidth, tileBlockHeight, color);
    block.collisionType = ex.CollisionType.Fixed;
    block.addCollisionGroup('ground');
    block.addDrawing(Animations.Block, blockAnimation);
-   
+
    game.add(block);
 }
 
-var platform = new ex.Actor(400, 300, 200,50, new ex.Color(0,200,0));
+var platform = new ex.Actor(400, 300, 200, 50, new ex.Color(0, 200, 0));
 platform.collisionType = ex.CollisionType.Fixed;
 platform.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100).repeatForever();
 game.add(platform);
 
-var platform2 = new ex.Actor(800, 300, 200,20, new ex.Color(0,0,140));
+var platform2 = new ex.Actor(800, 300, 200, 20, new ex.Color(0, 0, 140));
 platform2.collisionType = ex.CollisionType.Fixed;
 platform2.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).moveTo(800, 300, 100).repeatForever();
 game.add(platform2);
@@ -105,9 +137,10 @@ game.add(follower);
 
 
 // Create the player
-var player = new ex.Actor(100,-200,32,96);
+var player = new ex.Actor(100, -200, 32, 96);
+player.enableCapturePointer = true;
 player.collisionType = ex.CollisionType.Active;
-follower.meet(player, 60).asPromise().then(()=>{
+follower.meet(player, 60).asPromise().then(() => {
    console.log("Player met!!");
 });
 
@@ -120,7 +153,7 @@ player.scaleY = 1;
 player.rotation = 0;
 
 // Health bar example
-var healthbar = new ex.Actor(0, -70, 140, 5, new ex.Color(0,255,0));
+var healthbar = new ex.Actor(0, -70, 140, 5, new ex.Color(0, 255, 0));
 player.addChild(healthbar);
 
 // Add Title above player
@@ -144,7 +177,7 @@ jumpLeft.freezeFrame = 11;
 
 
 // Add animations to player
-player.addDrawing(Animations.Left, left); 
+player.addDrawing(Animations.Left, left);
 player.addDrawing(Animations.Right, right);
 player.addDrawing(Animations.Idle, idle);
 player.addDrawing(Animations.JumpRight, jumpRight);
@@ -162,70 +195,60 @@ var groundSpeed = 150;
 var airSpeed = 130;
 var jumpSpeed = 500;
 var direction = 1;
-player.addEventListener('left', ()=>{
-   direction = -1;
-   if (!inAir) {
-      player.setDrawing(Animations.Left);
-   }
-   if(inAir){
-      player.dx = -airSpeed;
-      return;
-   }
-   player.dx = -groundSpeed;
+player.on('update', () => {
 
-   // TODO: When platform is moving in same direction, add its dx
-});
-
-player.addEventListener('right', ()=>{
-   direction = 1;
-   if (!inAir) {
-      player.setDrawing(Animations.Right);
-   }
-   if(inAir){
-      player.dx = airSpeed;
-      return;
-   }
-   player.dx = groundSpeed;
-
-   // TODO: When platform is moving in same direction, add its dx
-});
-
-player.addEventListener('up', ()=>{
-   if(!inAir){
-      player.dy = -jumpSpeed;
-      inAir = true;
-      if (direction === 1) {
-         player.setDrawing(Animations.JumpRight);
-      } else {
-         player.setDrawing(Animations.JumpLeft);
+   if (game.input.keyboard.isKeyPressed(ex.Input.Keys.Left)) {
+      direction = -1;
+      if (!inAir) {
+         player.setDrawing(Animations.Left);
       }
-      jumpSound.play();
+      if (inAir) {
+         player.dx = -airSpeed;
+         return;
+      }
+      player.dx = -groundSpeed;
+
+      // TODO: When platform is moving in same direction, add its dx
+
+   } else if (game.input.keyboard.isKeyPressed(ex.Input.Keys.Right)) {
+      direction = 1;
+      if (!inAir) {
+         player.setDrawing(Animations.Right);
+      }
+      if (inAir) {
+         player.dx = airSpeed;
+         return;
+      }
+      player.dx = groundSpeed;
+
+      // TODO: When platform is moving in same direction, add its dx
+   }
+
+   if (game.input.keyboard.isKeyPressed(ex.Input.Keys.Up)) {
+      if (!inAir) {
+         player.dy = -jumpSpeed;
+         inAir = true;
+         if (direction === 1) {
+            player.setDrawing(Animations.JumpRight);
+         } else {
+            player.setDrawing(Animations.JumpLeft);
+         }
+         jumpSound.play();
+      }
    }
 });
 
-player.addEventListener('mousedown', (e?: ex.MouseDownEvent)=>{
-   var button = "";
-   if(e.mouseEvent.button == ex.MouseButton.Left){
-      button = "Left";
-   }else if (e.mouseEvent.button == ex.MouseButton.Middle){
-      button = "Middle";
-   }else if (e.mouseEvent.button == ex.MouseButton.Right){
-      button = "Right";
-   }
-   alert("Player clicked with " + button + " button!");
-});
-
-player.addEventListener('keyup', (e? : ex.KeyUp) => {
+game.input.keyboard.on('up', (e?: ex.Input.KeyEvent) => {
    if (inAir) return;
-   
-   if (e.key === ex.InputKey.Left ||
-       e.key === ex.InputKey.Right) {
+
+   if (e.key === ex.Input.Keys.Left ||
+      e.key === ex.Input.Keys.Right) {
       player.setDrawing(Animations.Idle);
    }
 });
 
-player.addEventListener('touchstart', ()=> {
-   alert("player touched!");
+player.on('pointerdown', (e?: ex.Input.PointerEvent) => {
+   alert("Player clicked!");
 });
 
 var newScene = new ex.Scene();
@@ -236,11 +259,11 @@ newScene.add(new ex.Label("MAH LABEL!", 200, 100));
 //newScene.onDeactivate = function(){
 //   console.log('deactivated newScene');
 //};
-newScene.addEventListener('activate', (evt?: ex.ActivateEvent)=>{
+newScene.addEventListener('activate', (evt?: ex.ActivateEvent) => {
    console.log('activate newScene');
 });
 
-newScene.addEventListener('deactivate', (evt?: ex.ActivateEvent)=>{
+newScene.addEventListener('deactivate', (evt?: ex.ActivateEvent) => {
    console.log('deactivate newScene');
 });
 
@@ -249,74 +272,74 @@ newScene.addEventListener('deactivate', (evt?: ex.ActivateEvent)=>{
 
 game.addScene('label', newScene);
 
-game.addEventListener('keydown', (keyDown? : ex.KeyDown)=>{
-   if(keyDown.key === ex.InputKey.F){
-      var a = new ex.Actor(player.x+10, player.y-50, 10, 10, new ex.Color(222,222,222));
-      a.dx = 200*direction;
+game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
+   if (keyDown.key === ex.Input.Keys.F) {
+      var a = new ex.Actor(player.x + 10, player.y - 50, 10, 10, new ex.Color(222, 222, 222));
+      a.dx = 200 * direction;
       a.dy = 0;
       a.collisionType = ex.CollisionType.Elastic;
       var inAir = true;
-      a.addEventListener('collision', (data?: ex.CollisionEvent)=>{
+      a.addEventListener('collision', (data?: ex.CollisionEvent) => {
          inAir = false;
          //a.dx = data.other.dx;
          //a.dy = data.other.dy;
          //a.kill();
       });
-      a.addEventListener('update', (data?: ex.UpdateEvent)=>{
-         if(inAir){
+      a.addEventListener('update', (data?: ex.UpdateEvent) => {
+         if (inAir) {
             a.ay = 400;// * data.delta/1000;
-         }else{
+         } else {
             a.ay = 0;
          }
          inAir = true;
       });
       game.addChild(a);
-   }else if(keyDown.key === ex.InputKey.U){
+   } else if (keyDown.key === ex.Input.Keys.U) {
       game.goToScene('label');
-   }else if(keyDown.key === ex.InputKey.I){
+   } else if (keyDown.key === ex.Input.Keys.I) {
       game.goToScene('root');
    }
 });
 
 var isColliding = false;
 player.addEventListener('collision', (data?: ex.CollisionEvent) => {
-       
-   if(data.side === ex.Side.Bottom){
+
+   if (data.side === ex.Side.Bottom) {
       isColliding = true;
 
       if (inAir) {
-        //console.log("Collided on bottom with inAir", inAir);
-        player.setDrawing(Animations.Idle);
+         //console.log("Collided on bottom with inAir", inAir);
+         player.setDrawing(Animations.Idle);
       }
       inAir = false;
-      if(data.other && !(game.isKeyPressed(ex.InputKey.Left) || game.isKeyPressed(ex.InputKey.Right) || game.isKeyPressed(ex.InputKey.Up) || game.isKeyPressed(ex.InputKey.Down))){
+      if (data.other && !(game.input.keyboard.isKeyPressed(ex.Input.Keys.Left) || game.input.keyboard.isKeyPressed(ex.Input.Keys.Right) || game.input.keyboard.isKeyPressed(ex.Input.Keys.Up) || game.input.keyboard.isKeyPressed(ex.Input.Keys.Down))) {
          player.dx = data.other.dx;
-         player.dy = data.other.dy;      
-      }     
+         player.dy = data.other.dy;
+      }
 
-      if(!data.other){
+      if (!data.other) {
          player.dx = 0;
          player.dy = 0;
       }
 
    }
 
-   if(data.side === ex.Side.Top){
-      if(data.other){
-         player.dy = data.other.dy - player.dy;   
-      }else{
+   if (data.side === ex.Side.Top) {
+      if (data.other) {
+         player.dy = data.other.dy - player.dy;
+      } else {
          player.dy = 0;
       }
-      
+
    }
 });
 
-player.addEventListener('update', (data?: ex.UpdateEvent)=>{
+player.addEventListener('update', (data?: ex.UpdateEvent) => {
    // apply gravity if player is in the air
    // only apply gravity when not colliding
-   if(!isColliding){
+   if (!isColliding) {
       data.target.ay = 800;// * data.delta/1000;
-   }else{
+   } else {
       data.target.ay = 0;
    }
 
@@ -327,37 +350,31 @@ player.addEventListener('update', (data?: ex.UpdateEvent)=>{
    //console.log("Player Pos", player.x, player.y, player.getWidth(), player.getHeight());
 });
 
-player.addEventListener('initialize', (evt?: ex.InitializeEvent)=>{
+player.addEventListener('initialize', (evt?: ex.InitializeEvent) => {
    console.log("Player initialized", evt.engine);
 });
 
-game.addEventListener('keydown', (keyDown? : ex.KeyDown)=>{
-   if(keyDown.key === ex.InputKey.B){
-      var block = new ex.Actor(currentX,350,44,50,color);
+game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
+   if (keyDown.key === ex.Input.Keys.B) {
+      var block = new ex.Actor(currentX, 350, 44, 50, color);
       currentX += 46;
       block.addDrawing(Animations.Block, blockAnimation);
       game.addChild(block);
    }
-});
-
-var paused = false;
-game.addEventListener('p', ()=>{
-   if(!paused){
-      game.stop();
-   }else{
-      game.start();
-   }
-   paused != paused;
-});
-
-
-game.addEventListener('keydown', (keyDown? : ex.KeyDown)=>{
-
-   if(keyDown.key === ex.InputKey.D){
+   if (keyDown.key === ex.Input.Keys.D) {
       game.isDebug = !game.isDebug;
    }
 });
 
+var paused = false;
+game.addEventListener('p', () => {
+   if (!paused) {
+      game.stop();
+   } else {
+      game.start();
+   }
+   paused != paused;
+});
 
 // Create a camera to track the player
 var camera = new ex.TopCamera(game);
@@ -374,7 +391,7 @@ var emitter = new ex.ParticleEmitter(100, 300, 2, 2);
 emitter.minVel = 417;
 emitter.maxVel = 589;
 emitter.minAngle = Math.PI;
-emitter.maxAngle = Math.PI*2;
+emitter.maxAngle = Math.PI * 2;
 emitter.isEmitting = false;
 emitter.emitRate = 494;
 emitter.opacity = 0.84;
@@ -387,7 +404,7 @@ emitter.beginColor = ex.Color.Red;
 emitter.endColor = ex.Color.Yellow;
 emitter.particleSprite = blockSprite.clone();
 emitter.particleSprite.transformAboutPoint(new ex.Point(.5, .5));
-emitter.particleRotationalVelocity = Math.PI/10;
+emitter.particleRotationalVelocity = Math.PI / 10;
 emitter.randomRotation = true;
 emitter.particleSprite.addEffect(new ex.Effects.Grayscale());
 
@@ -401,16 +418,16 @@ game.add(emitter);
 //emitter.follow(player, 20);
 
 var exploding = false;
-var trigger = new ex.Trigger(400, 200, 100, 100, ()=>{
-   if(!exploding){
+var trigger = new ex.Trigger(400, 200, 100, 100, () => {
+   if (!exploding) {
       exploding = true;
       emitter.isEmitting = true;
       camera.shake(10, 10, 2000);
-      game.addTimer(new ex.Timer(()=>{
+      game.addTimer(new ex.Timer(() => {
          emitter.isEmitting = false;
          exploding = false;
       }, 2000));
-   }   
+   }
 });
 
 trigger.repeats = -1;
@@ -418,16 +435,16 @@ trigger.target = player;
 
 game.add(trigger);
 
-game.addEventListener('mousedown', (evt?: ex.MouseDownEvent)=>{
+game.input.pointers.primary.on('down', (evt?: ex.Input.PointerEvent) => {
    var c = tileMap.getCellByPoint(evt.x, evt.y);
-   if(c){
-      if(c.solid){
+   if (c) {
+      if (c.solid) {
          c.solid = false;
          c.sprites.pop();
-      }else{
+      } else {
          c.solid = true;
          c.pushSprite(new ex.TileSprite("default", 0));
-      }      
+      }
    }
 
 
@@ -435,25 +452,21 @@ game.addEventListener('mousedown', (evt?: ex.MouseDownEvent)=>{
    //emitter.focus = new ex.Vector(evt.x - emitter.x, evt.y - emitter.y);
 });
 
-game.addEventListener('keyup', (evt?: ex.KeyUp)=>{
-   if(evt.key == ex.InputKey.F){
+game.input.keyboard.on('up', (evt?: ex.Input.KeyEvent) => {
+   if (evt.key == ex.Input.Keys.F) {
       jump.play();
    }
-});
-
-game.addEventListener('keyup', (evt?: ex.KeyUp)=>{
-   if(evt.key == ex.InputKey.S){
+   if (evt.key == ex.Input.Keys.S) {
       jump.stop();
    }
 });
-
 
 // Add camera to game
 game.camera = camera;
 
 // Run the mainloop
 var binding: ex.Binding;
-game.start(loader).then(()=>{
+game.start(loader).then(() => {
    logger.info("All Resources have finished loading");
    //binding = new ex.Binding("container", template, emitter);
    //binding.listen(emitter, ["update"]);

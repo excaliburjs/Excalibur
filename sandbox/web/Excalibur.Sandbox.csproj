@@ -20,7 +20,6 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
-    <TypeScriptToolsVersion>1.0</TypeScriptToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -59,13 +58,19 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\src\engine\Excalibur.Core.csproj">
+    <ProjectReference Include="..\..\src\engine\Excalibur.Core.csproj">
       <Project>{1df7cfca-a048-417c-84e7-4d1cc6a3fd77}</Project>
       <Name>Excalibur.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Excalibur.js" />
     <Content Include="html\healthbar.tmpl" />
+    <Content Include="tests\input\keyboard.html" />
+    <Content Include="tests\input\pointer.html" />
+    <Content Include="tests\input\gamepad.html" />
+    <Content Include="tests\input\gamepad.png" />
+    <Content Include="tests\input\index.html" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="html\index.html" />
@@ -82,6 +87,10 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="src\game.ts" />
+    <TypeScriptCompile Include="tests\input\keyboard.ts" />
+    <TypeScriptCompile Include="tests\input\pointer.ts" />
+    <TypeScriptCompile Include="tests\input\gamepad.ts" />
+    <TypeScriptCompile Include="tests\input\index.ts" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -90,7 +99,13 @@
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
+  </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+  </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
@@ -113,8 +128,11 @@
     </VisualStudio>
   </ProjectExtensions>
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>copy $(SolutionDir)..\dist\Excalibur.js $(ProjectDir)</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

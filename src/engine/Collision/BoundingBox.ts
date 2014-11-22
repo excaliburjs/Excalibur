@@ -1,9 +1,10 @@
-/// <reference path="Algebra.ts" />
+/// <reference path="../Algebra.ts" />
 
 module ex {
 
    export enum CollisionStrategy {
-      AxisAligned,
+      Naive,
+      DynamicAABBTree,
       SeparatingAxis
    }
 
@@ -43,7 +44,7 @@ module ex {
     * @param bottom {number} y coordinate of the bottom edge
     */
    export class BoundingBox implements ICollidable {
-      constructor(public left: number, public top: number, public right: number, public bottom: number) { }
+      constructor(public left: number = 0, public top: number = 0, public right: number = 0, public bottom: number = 0) { }
       /**
        * Returns the calculated width of the bounding box
        * @method getWidth
@@ -63,13 +64,58 @@ module ex {
       }
 
       /**
+       * Returns the perimeter of the bounding box
+       * @method getPerimeter
+       * @returns number
+       */
+      public getPerimeter(): number {
+         var wx = this.getWidth();
+         var wy = this.getHeight();
+         return 2 * (wx + wy);
+      }
+
+      /**
        * Tests wether a point is contained within the bounding box
        * @method contains
        * @param p {Point} The point to test
        * @returns boolean
        */
-      public contains(p: Point): boolean {
-         return (this.left <= p.x && this.top <= p.y && this.bottom >= p.y && this.right >= p.x);
+      public contains(p: Point): boolean;
+
+      /**
+       * Tests whether another bounding box is totally contained in this one
+       * @method contains
+       * @param other {BoundingBox} The bounding box to test
+       * @returns boolean
+       */
+      public contains(bb: BoundingBox):boolean;
+      public contains(val: any): boolean {
+         if (val instanceof Point) {
+            return (this.left <= val.x && this.top <= val.y && this.bottom >= val.y && this.right >= val.x);
+         }else if (val instanceof BoundingBox) {
+            if (this.left < val.left &&
+               this.top < val.top &&
+               val.bottom < this.bottom &&
+               val.right < this.right) {
+               return true;
+            }
+            return false;
+         }
+         return false;
+      }
+
+      /**
+       * Combines this bounding box and another together returning a new bounding box
+       * @method combine
+       * @param other {BoundingBox} The bounding box to combine
+       * @returns BoundingBox
+       */
+      public combine(other: BoundingBox): BoundingBox {
+         var compositeBB = new BoundingBox(Math.min(this.left, other.left),
+            Math.min(this.top, other.top),
+            Math.max(this.right, other.right),
+            Math.max(this.bottom, other.bottom));
+         return compositeBB;
       }
 
       /** 
@@ -83,11 +129,7 @@ module ex {
       public collides(collidable: ICollidable): Vector {
          if (collidable instanceof BoundingBox) {
             var other: BoundingBox = <BoundingBox>collidable;
-            var totalBoundingBox = new BoundingBox(
-               Math.min(this.left, other.left),
-               Math.min(this.top, other.top),
-               Math.max(this.right, other.right),
-               Math.max(this.bottom, other.bottom));
+            var totalBoundingBox = this.combine(other);
 
             // If the total bounding box is less than the sum of the 2 bounds then there is collision
             if (totalBoundingBox.getWidth() < other.getWidth() + this.getWidth() &&

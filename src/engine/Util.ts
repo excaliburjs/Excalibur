@@ -93,13 +93,13 @@ module ex.Util {
          oLeft += parent.offsetLeft; 
 
          if (parent.offsetParent) {
-            calcOffsetLeft(parent.offsetParent);
+            calcOffsetLeft(<HTMLElement>parent.offsetParent);
          }                 
       };
       var calcOffsetTop = (parent: HTMLElement) => {
          oTop += parent.offsetTop;  
          if (parent.offsetParent) {
-            calcOffsetTop(parent.offsetParent);
+            calcOffsetTop(<HTMLElement>parent.offsetParent);
          }                
       };
 

@@ -106,21 +106,13 @@ module.exports = function (grunt) {
 
          //
          // TypeScript Compile Jasmine specs
-         // TODO: Simplify this so we don't have to always update it every time we add a spec
          //
          specs: {
-            command: 'tsc ' + ["./src/spec/ActorSpec.ts",
-             "./src/spec/ColorSpec.ts",
-             "./src/spec/PromiseSpec.ts",
-             "./src/spec/CollectionSpec.ts",
-             "./src/spec/LogSpec.ts",
-             "./src/spec/TimerSpec.ts",
-             "./src/spec/ClassSpec.ts",
-             "./src/spec/MathSpec.ts",
-             "./src/spec/CollisionGroupSpec.ts",
-             "./src/spec/CollisionSpec.ts",
-             "./src/spec/BoundingBoxSpec.ts",
-             "./src/spec/CameraSpec.ts"].join(' ') + ' --out ./src/spec/TestsSpec.js',
+            command: function () {
+            	var files = grunt.file.expand("./src/spec/*.ts");
+
+            	return 'tsc ' + files.join(' ') + ' --out ./src/spec/TestsSpec.js'
+            },
             options: {
                stdout: true,
                failOnError: true
@@ -131,7 +123,7 @@ module.exports = function (grunt) {
          // TypeScript Compile sample game
          //
          sample: {
-            command: 'tsc ./sandbox/src/game.ts',
+            command: 'tsc ./sandbox/web/src/game.ts',
             options: {
                stdout: true,
                failOnError: true

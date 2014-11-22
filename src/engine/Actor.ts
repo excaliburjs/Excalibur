@@ -1,13 +1,13 @@
 /// <reference path="Interfaces/IDrawable.ts" />
 /// <reference path="Modules/MovementModule.ts" />
 /// <reference path="Modules/OffscreenCullingModule.ts" />
-/// <reference path="Modules/EventPropagationModule.ts" />
+/// <reference path="Modules/CapturePointerModule.ts" />
 /// <reference path="Modules/CollisionDetectionModule.ts" />
-/// <reference path="Side.ts" />
+/// <reference path="Collision/Side.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util.ts" />
 /// <reference path="TileMap.ts" />
-/// <reference path="BoundingBox.ts" />
+/// <reference path="Collision/BoundingBox.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Action.ts" />
 
@@ -81,6 +81,17 @@ module ex {
     * @param [color=undefined] {Color} The starting color of the actor
     */     
    export class Actor extends ex.Class {
+      /**
+       * Indicates the next id to be set
+       */
+      public static maxId = 0;
+
+      /**
+       * The unique identifier for the actor
+       */
+      public id: number = Actor.maxId++;
+
+
       /** 
        * The x coordinate of the actor (left edge)
        * @property x {number} 
@@ -243,6 +254,20 @@ module ex {
        */
       public color: Color;
 
+      /**
+       * Whether or not to enable the CapturePointer trait that propogates pointer events to this actor
+       * @property [enableCapturePointer=false] {boolean}
+       */
+      public enableCapturePointer: boolean = false;
+
+      /**
+       * Configuration for CapturePointer trait
+       * @property capturePointer {ICapturePointerConfig}
+       */
+      public capturePointer: ex.ICapturePointerConfig = {
+         captureMoveEvents: false
+      };
+
       private _isKilled: boolean = false;
        
       constructor(x?: number, y?: number, width?: number, height?: number, color?: Color) {
@@ -253,15 +278,15 @@ module ex {
          this.height = height || 0;         
          if(color){
             this.color = color.clone();
-            // set default opacticy of an actor to the color
+            // set default opacity of an actor to the color
             this.opacity = color.a;  
          }         
 
          // Build default pipeline
          this.pipeline.push(new ex.MovementModule());
-         this.pipeline.push(new ex.CollisionDetectionModule());
-         this.pipeline.push(new ex.OffscreenCullingModule());
-         this.pipeline.push(new ex.EventPropagationModule());
+         //this.pipeline.push(new ex.CollisionDetectionModule());
+         this.pipeline.push(new ex.OffscreenCullingModule());         
+         this.pipeline.push(new ex.CapturePointerModule());
 
          this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
          this.sceneNode = new Scene();
@@ -276,7 +301,7 @@ module ex {
        * @param engine {Engine}
        */
       public onInitialize(engine: Engine): void {
-         // will be overridden
+
       }
 
       /**
@@ -891,7 +916,7 @@ module ex {
          // Recalcuate the anchor point
          this.calculatedAnchor = new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
 
-         this.sceneNode.update(engine, delta);
+         
          var eventDispatcher = this.eventDispatcher;
 
          // Update action queue

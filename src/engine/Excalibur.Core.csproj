@@ -9,7 +9,6 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <TypeScriptToolsVersion>1.0</TypeScriptToolsVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
@@ -64,25 +63,38 @@
     <TypeScriptCompile Include="Algebra.ts" />
     <TypeScriptCompile Include="Animation.ts" />
     <TypeScriptCompile Include="Binding.ts" />
-    <TypeScriptCompile Include="BoundingBox.ts" />
     <TypeScriptCompile Include="Camera.ts" />
     <TypeScriptCompile Include="Class.ts" />
+    <TypeScriptCompile Include="Collision\BoundingBox.ts" />
+    <TypeScriptCompile Include="Collision\DynamicTreeCollisionResolver.ts" />
+    <TypeScriptCompile Include="Collision\NaiveCollisionResolver.ts" />
     <TypeScriptCompile Include="Color.ts" />
+    <TypeScriptCompile Include="Collision\DynamicTree.ts" />
     <TypeScriptCompile Include="Engine.ts" />
     <TypeScriptCompile Include="EventDispatcher.ts" />
     <TypeScriptCompile Include="Events.ts" />
+    <TypeScriptCompile Include="Collision\ICollisionResolver.ts" />
+    <TypeScriptCompile Include="Input\Gamepad.ts" />
+    <TypeScriptCompile Include="Input\IEngineInput.ts" />
+    <TypeScriptCompile Include="Input\Keyboard.ts" />
+    <TypeScriptCompile Include="Input\Pointer.ts" />
     <TypeScriptCompile Include="Interfaces\IDrawable.ts" />
     <TypeScriptCompile Include="Interfaces\ILoadable.ts" />
+    <TypeScriptCompile Include="Interfaces\IPipelineModule.ts" />
     <TypeScriptCompile Include="Label.ts" />
     <TypeScriptCompile Include="Loader.ts" />
     <TypeScriptCompile Include="Log.ts" />
+    <TypeScriptCompile Include="Modules\CollisionDetectionModule.ts" />
+    <TypeScriptCompile Include="Modules\CapturePointerModule.ts" />
+    <TypeScriptCompile Include="Modules\MovementModule.ts" />
+    <TypeScriptCompile Include="Modules\OffscreenCullingModule.ts" />
     <TypeScriptCompile Include="MonkeyPatch.ts" />
     <TypeScriptCompile Include="Particles.ts" />
     <TypeScriptCompile Include="Polygon.ts" />
     <TypeScriptCompile Include="Promises.ts" />
     <TypeScriptCompile Include="Resource.ts" />
     <TypeScriptCompile Include="Scene.ts" />
-    <TypeScriptCompile Include="Side.ts" />
+    <TypeScriptCompile Include="Collision\Side.ts" />
     <TypeScriptCompile Include="Sound.ts" />
     <TypeScriptCompile Include="Sprite.ts" />
     <TypeScriptCompile Include="SpriteEffects.ts" />
@@ -95,5 +107,6 @@
   <ItemGroup>
     <Content Include="Exports.js" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets')" />
 </Project>

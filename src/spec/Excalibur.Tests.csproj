@@ -9,7 +9,6 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <TypeScriptToolsVersion>1.0</TypeScriptToolsVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
@@ -74,15 +73,17 @@
     <TypeScriptCompile Include="ClassSpec.ts" />
     <TypeScriptCompile Include="CollectionSpec.ts" />
     <TypeScriptCompile Include="CollisionGroupSpec.ts" />
+    <TypeScriptCompile Include="CollisionSpec.ts" />
     <TypeScriptCompile Include="ColorSpec.ts" />
     <TypeScriptCompile Include="jasmine.d.ts" />
     <TypeScriptCompile Include="LogSpec.ts" />
+    <TypeScriptCompile Include="MathSpec.ts" />
     <TypeScriptCompile Include="PromiseSpec.ts" />
     <TypeScriptCompile Include="require.d.ts" />
     <TypeScriptCompile Include="TimerSpec.ts" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <TypeScriptOutFile>TestSpec.js</TypeScriptOutFile>
+    <TypeScriptOutFile>TestsSpec.js</TypeScriptOutFile>
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets')" />
   <PropertyGroup>

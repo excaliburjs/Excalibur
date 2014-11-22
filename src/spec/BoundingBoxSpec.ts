@@ -1,5 +1,5 @@
 /// <reference path="jasmine.d.ts" />
-/// <reference path="../engine/BoundingBox.ts" />
+/// <reference path="../engine/Collision/BoundingBox.ts" />
 
 describe("A Bounding Box", ()=>{
    // left, top, right, bottom

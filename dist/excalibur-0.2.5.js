@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-10-02
+/*! excalibur - v0.2.5 - 2014-11-13
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -220,64 +220,23 @@ var ex;
 /// <reference path="../Interfaces/IPipelineModule.ts" />
 var ex;
 (function (ex) {
-    var EventPropagationModule = (function () {
-        function EventPropagationModule() {
+    /**
+    * Propogates input events to the actor (i.e. PointerEvents)
+    */
+    var InputPropagationModule = (function () {
+        function InputPropagationModule() {
         }
-        EventPropagationModule.prototype.update = function (actor, engine, delta) {
-            var eventDispatcher = actor.eventDispatcher;
+        InputPropagationModule.prototype.update = function (actor, engine, delta) {
+            if (!actor.inputEnabled)
+                return;
+            if (actor.isKilled())
+                return;
 
-            // Publish other events
-            engine.keys.forEach(function (key) {
-                eventDispatcher.publish(ex.InputKey[key], new ex.KeyEvent(key));
-            });
-
-            // Publish click events
-            engine.clicks.forEach(function (e) {
-                if (actor.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[10 /* Click */], new ex.ClickEvent(e.x, e.y, e.mouseEvent));
-                    eventDispatcher.publish(ex.EventType[3 /* MouseDown */], new ex.MouseDownEvent(e.x, e.y, e.mouseEvent));
-                }
-            });
-
-            engine.mouseMove.forEach(function (e) {
-                if (actor.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[4 /* MouseMove */], new ex.MouseMoveEvent(e.x, e.y, e.mouseEvent));
-                }
-            });
-
-            engine.mouseUp.forEach(function (e) {
-                if (actor.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[5 /* MouseUp */], new ex.MouseUpEvent(e.x, e.y, e.mouseEvent));
-                }
-            });
-
-            engine.touchStart.forEach(function (e) {
-                if (actor.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[6 /* TouchStart */], new ex.TouchStartEvent(e.x, e.y));
-                }
-            });
-
-            engine.touchMove.forEach(function (e) {
-                if (actor.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[7 /* TouchMove */], new ex.TouchMoveEvent(e.x, e.y));
-                }
-            });
-
-            engine.touchEnd.forEach(function (e) {
-                if (actor.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[8 /* TouchEnd */], new ex.TouchEndEvent(e.x, e.y));
-                }
-            });
-
-            engine.touchCancel.forEach(function (e) {
-                if (actor.contains(e.x, e.y)) {
-                    eventDispatcher.publish(ex.EventType[9 /* TouchCancel */], new ex.TouchCancelEvent(e.x, e.y));
-                }
-            });
+            engine.input.pointer.propogate(actor);
         };
-        return EventPropagationModule;
+        return InputPropagationModule;
     })();
-    ex.EventPropagationModule = EventPropagationModule;
+    ex.InputPropagationModule = InputPropagationModule;
 })(ex || (ex = {}));
 /// <reference path="../Interfaces/IPipelineModule.ts" />
 var ex;
@@ -286,34 +245,8 @@ var ex;
         function CollisionDetectionModule() {
         }
         CollisionDetectionModule.prototype.update = function (actor, engine, delta) {
-            var _this = this;
             var eventDispatcher = actor.eventDispatcher;
             if (actor.collisionType !== 0 /* PreventCollision */) {
-                // Retrieve the list of potential colliders, exclude killed, prevented, and self
-                var potentialColliders = engine.currentScene.children.filter(function (other) {
-                    return !other.isKilled() && other.collisionType !== 0 /* PreventCollision */ && actor !== other;
-                });
-
-                for (var i = 0; i < potentialColliders.length; i++) {
-                    var intersectActor;
-                    var side;
-                    var collider = potentialColliders[i];
-
-                    if (intersectActor = actor.collides(collider)) {
-                        side = actor.getSideFromIntersect(intersectActor);
-                        actor.scene.addCollisionPair(new ex.CollisionPair(actor, collider, intersectActor, side));
-
-                        var actorCollisionGroups = actor.getCollisionHandlers();
-                        collider.collisionGroups.forEach(function (group) {
-                            if (actorCollisionGroups[group]) {
-                                actorCollisionGroups[group].forEach(function (handler) {
-                                    handler.call(_this, collider);
-                                });
-                            }
-                        });
-                    }
-                }
-
                 for (var j = 0; j < engine.currentScene.tileMaps.length; j++) {
                     var map = engine.currentScene.tileMaps[j];
                     var intersectMap;
@@ -326,7 +259,7 @@ var ex;
                         }
                         side = actor.getSideFromIntersect(intersectMap);
                         eventDispatcher.publish('collision', new ex.CollisionEvent(actor, null, side, intersectMap));
-                        if ((actor.collisionType === 2 /* Active */ || actor.collisionType === 3 /* Elastic */) && collider.collisionType !== 1 /* Passive */) {
+                        if ((actor.collisionType === 2 /* Active */ || actor.collisionType === 3 /* Elastic */)) {
                             actor.y += intersectMap.y;
                             actor.x += intersectMap.x;
 
@@ -1166,8 +1099,12 @@ var ex;
 
         Sprite.prototype.applyEffects = function () {
             var _this = this;
+            var clamp = ex.Util.clamp;
+            var naturalWidth = this.texture.image.naturalWidth || 0;
+            var naturalHeight = this.texture.image.naturalHeight || 0;
+
             this.spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
-            this.spriteCtx.drawImage(this.texture.image, this.sx, this.sy, this.swidth, this.sheight, 0, 0, this.swidth, this.sheight);
+            this.spriteCtx.drawImage(this.texture.image, clamp(this.sx, 0, naturalWidth), clamp(this.sy, 0, naturalHeight), clamp(this.swidth, 0, naturalWidth), clamp(this.sheight, 0, naturalHeight), 0, 0, this.swidth, this.sheight);
             this.pixelData = this.spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
 
             this.effects.forEach(function (effect) {
@@ -1837,12 +1774,13 @@ var ex;
     })();
     ex.TileMap = TileMap;
 })(ex || (ex = {}));
-/// <reference path="Algebra.ts" />
+/// <reference path="../Algebra.ts" />
 var ex;
 (function (ex) {
     (function (CollisionStrategy) {
-        CollisionStrategy[CollisionStrategy["AxisAligned"] = 0] = "AxisAligned";
-        CollisionStrategy[CollisionStrategy["SeparatingAxis"] = 1] = "SeparatingAxis";
+        CollisionStrategy[CollisionStrategy["Naive"] = 0] = "Naive";
+        CollisionStrategy[CollisionStrategy["DynamicAABBTree"] = 1] = "DynamicAABBTree";
+        CollisionStrategy[CollisionStrategy["SeparatingAxis"] = 2] = "SeparatingAxis";
     })(ex.CollisionStrategy || (ex.CollisionStrategy = {}));
     var CollisionStrategy = ex.CollisionStrategy;
 
@@ -1859,6 +1797,10 @@ var ex;
     */
     var BoundingBox = (function () {
         function BoundingBox(left, top, right, bottom) {
+            if (typeof left === "undefined") { left = 0; }
+            if (typeof top === "undefined") { top = 0; }
+            if (typeof right === "undefined") { right = 0; }
+            if (typeof bottom === "undefined") { bottom = 0; }
             this.left = left;
             this.top = top;
             this.right = right;
@@ -1883,13 +1825,37 @@ var ex;
         };
 
         /**
-        * Tests wether a point is contained within the bounding box
-        * @method contains
-        * @param p {Point} The point to test
-        * @returns boolean
+        * Returns the perimeter of the bounding box
+        * @method getPerimeter
+        * @returns number
         */
-        BoundingBox.prototype.contains = function (p) {
-            return (this.left <= p.x && this.top <= p.y && this.bottom >= p.y && this.right >= p.x);
+        BoundingBox.prototype.getPerimeter = function () {
+            var wx = this.getWidth();
+            var wy = this.getHeight();
+            return 2 * (wx + wy);
+        };
+
+        BoundingBox.prototype.contains = function (val) {
+            if (val instanceof ex.Point) {
+                return (this.left <= val.x && this.top <= val.y && this.bottom >= val.y && this.right >= val.x);
+            } else if (val instanceof BoundingBox) {
+                if (this.left < val.left && this.top < val.top && val.bottom < this.bottom && val.right < this.right) {
+                    return true;
+                }
+                return false;
+            }
+            return false;
+        };
+
+        /**
+        * Combines this bounding box and another together returning a new bounding box
+        * @method combine
+        * @param other {BoundingBox} The bounding box to combine
+        * @returns BoundingBox
+        */
+        BoundingBox.prototype.combine = function (other) {
+            var compositeBB = new BoundingBox(Math.min(this.left, other.left), Math.min(this.top, other.top), Math.max(this.right, other.right), Math.max(this.bottom, other.bottom));
+            return compositeBB;
         };
 
         /**
@@ -1903,7 +1869,7 @@ var ex;
         BoundingBox.prototype.collides = function (collidable) {
             if (collidable instanceof BoundingBox) {
                 var other = collidable;
-                var totalBoundingBox = new BoundingBox(Math.min(this.left, other.left), Math.min(this.top, other.top), Math.max(this.right, other.right), Math.max(this.bottom, other.bottom));
+                var totalBoundingBox = this.combine(other);
 
                 // If the total bounding box is less than the sum of the 2 bounds then there is collision
                 if (totalBoundingBox.getWidth() < other.getWidth() + this.getWidth() && totalBoundingBox.getHeight() < other.getHeight() + this.getHeight()) {
@@ -2262,6 +2228,548 @@ var ex;
     })();
     ex.Timer = Timer;
 })(ex || (ex = {}));
+/// <reference path="../Actor.ts"/>
+/// <reference path="Side.ts"/>
+/// <reference path="ICollisionResolver.ts"/>
+var ex;
+(function (ex) {
+    var NaiveCollisionResolver = (function () {
+        function NaiveCollisionResolver() {
+        }
+        NaiveCollisionResolver.prototype.register = function (target) {
+            // pass
+        };
+
+        NaiveCollisionResolver.prototype.remove = function (tartet) {
+            // pass
+        };
+
+        NaiveCollisionResolver.prototype.evaluate = function (targets) {
+            // Retrieve the list of potential colliders, exclude killed, prevented, and self
+            var potentialColliders = targets.filter(function (other) {
+                return !other.isKilled() && other.collisionType !== 0 /* PreventCollision */;
+            });
+
+            var actor1;
+            var actor2;
+            var collisionPairs = [];
+
+            for (var j = 0, l = potentialColliders.length; j < l; j++) {
+                actor1 = potentialColliders[j];
+
+                for (var i = j + 1; i < l; i++) {
+                    actor2 = potentialColliders[i];
+
+                    var minimumTranslationVector;
+                    if (minimumTranslationVector = actor1.collides(actor2)) {
+                        var side = actor1.getSideFromIntersect(minimumTranslationVector);
+                        var collisionPair = new ex.CollisionPair(actor1, actor2, minimumTranslationVector, side);
+                        if (!collisionPairs.some(function (cp) {
+                            return cp.equals(collisionPair);
+                        })) {
+                            collisionPairs.push(collisionPair);
+                        }
+                    }
+                }
+            }
+
+            collisionPairs.forEach(function (p) {
+                return p.evaluate();
+            });
+
+            return collisionPairs;
+        };
+
+        NaiveCollisionResolver.prototype.update = function (targets) {
+            return 0;
+        };
+
+        NaiveCollisionResolver.prototype.debugDraw = function (ctx, delta) {
+        };
+        return NaiveCollisionResolver;
+    })();
+    ex.NaiveCollisionResolver = NaiveCollisionResolver;
+})(ex || (ex = {}));
+/// <reference path="BoundingBox.ts"/>
+var ex;
+(function (ex) {
+    var TreeNode = (function () {
+        function TreeNode(parent) {
+            this.parent = parent;
+            this.parent = parent || null;
+            this.actor = null;
+            this.bounds = new ex.BoundingBox();
+            this.left = null;
+            this.right = null;
+            this.height = 0;
+        }
+        TreeNode.prototype.isLeaf = function () {
+            return (!this.left && !this.right);
+        };
+        return TreeNode;
+    })();
+    ex.TreeNode = TreeNode;
+
+    var DynamicTree = (function () {
+        function DynamicTree() {
+            this.root = null;
+            this.nodes = {};
+        }
+        DynamicTree.prototype.insert = function (leaf) {
+            // If there are no nodes in the tree, make this the root leaf
+            if (this.root === null) {
+                this.root = leaf;
+                this.root.parent = null;
+                return;
+            }
+
+            // Search the tree for a node that is not a leaf and find the best place to insert
+            var leafAABB = leaf.bounds;
+            var currentRoot = this.root;
+            while (!currentRoot.isLeaf()) {
+                var left = currentRoot.left;
+                var right = currentRoot.right;
+
+                var area = currentRoot.bounds.getPerimeter();
+                var combinedAABB = currentRoot.bounds.combine(leafAABB);
+                var combinedArea = combinedAABB.getPerimeter();
+
+                // Calculate cost heuristic for creating a new parent and leaf
+                var cost = 2 * combinedArea;
+
+                // Minimum cost of pushing the leaf down the tree
+                var inheritanceCost = 2 * (combinedArea - area);
+
+                // Cost of descending
+                var leftCost = 0;
+                var leftCombined = leafAABB.combine(left.bounds);
+                var newArea;
+                var oldArea;
+                if (left.isLeaf()) {
+                    leftCost = leftCombined.getPerimeter() + inheritanceCost;
+                } else {
+                    oldArea = left.bounds.getPerimeter();
+                    newArea = leftCombined.getPerimeter();
+                    leftCost = (newArea - oldArea) + inheritanceCost;
+                }
+
+                var rightCost = 0;
+                var rightCombined = leafAABB.combine(right.bounds);
+                if (right.isLeaf()) {
+                    rightCost = rightCombined.getPerimeter() + inheritanceCost;
+                } else {
+                    oldArea = right.bounds.getPerimeter();
+                    newArea = rightCombined.getPerimeter();
+                    rightCost = (newArea - oldArea) + inheritanceCost;
+                }
+
+                // cost is acceptable
+                if (cost < leftCost && cost < rightCost) {
+                    break;
+                }
+
+                // Descend to the depths
+                if (leftCost < rightCost) {
+                    currentRoot = left;
+                } else {
+                    currentRoot = right;
+                }
+            }
+
+            // Create the new parent node and insert into the tree
+            var oldParent = currentRoot.parent;
+            var newParent = new TreeNode(oldParent);
+            newParent.bounds = leafAABB.combine(currentRoot.bounds);
+            newParent.height = currentRoot.height + 1;
+
+            if (oldParent !== null) {
+                // The sibling node was not the root
+                if (oldParent.left === currentRoot) {
+                    oldParent.left = newParent;
+                } else {
+                    oldParent.right = newParent;
+                }
+
+                newParent.left = currentRoot;
+                newParent.right = leaf;
+
+                currentRoot.parent = newParent;
+                leaf.parent = newParent;
+            } else {
+                // The sibling node was the root
+                newParent.left = currentRoot;
+                newParent.right = leaf;
+
+                currentRoot.parent = newParent;
+                leaf.parent = newParent;
+                this.root = newParent;
+            }
+
+            // Walk up the tree fixing heights and AABBs
+            var currentNode = leaf.parent;
+            while (currentNode) {
+                currentNode = this.balance(currentNode);
+
+                if (!currentNode.left) {
+                    throw new Error("Parent of current leaf cannot have a null left child" + currentNode);
+                }
+                if (!currentNode.right) {
+                    throw new Error("Parent of current leaf cannot have a null right child" + currentNode);
+                }
+
+                currentNode.height = 1 + Math.max(currentNode.left.height, currentNode.right.height);
+                currentNode.bounds = currentNode.left.bounds.combine(currentNode.right.bounds);
+
+                currentNode = currentNode.parent;
+            }
+        };
+
+        DynamicTree.prototype.remove = function (leaf) {
+            if (leaf === this.root) {
+                this.root = null;
+                return;
+            }
+
+            var parent = leaf.parent;
+            var grandParent = parent.parent;
+            var sibling;
+            if (parent.left === leaf) {
+                sibling = parent.right;
+            } else {
+                sibling = parent.left;
+            }
+
+            if (grandParent) {
+                if (grandParent.left === parent) {
+                    grandParent.left = sibling;
+                } else {
+                    grandParent.right = sibling;
+                }
+                sibling.parent = grandParent;
+
+                var currentNode = grandParent;
+                while (currentNode) {
+                    currentNode = this.balance(currentNode);
+                    currentNode.bounds = currentNode.left.bounds.combine(currentNode.right.bounds);
+                    currentNode.height = 1 + Math.max(currentNode.left.height, currentNode.right.height);
+
+                    currentNode = currentNode.parent;
+                }
+            } else {
+                this.root = sibling;
+                sibling.parent = null;
+            }
+        };
+
+        DynamicTree.prototype.registerActor = function (actor) {
+            var node = new TreeNode();
+            node.actor = actor;
+            node.bounds = actor.getBounds();
+            node.bounds.left -= 2;
+            node.bounds.top -= 2;
+            node.bounds.right += 2;
+            node.bounds.bottom += 2;
+            this.nodes[actor.id] = node;
+            this.insert(node);
+        };
+
+        DynamicTree.prototype.updateActor = function (actor) {
+            var node = this.nodes[actor.id];
+            if (!node)
+                return;
+            var b = actor.getBounds();
+            if (node.bounds.contains(b)) {
+                return false;
+            }
+
+            this.remove(node);
+            b.left -= 5;
+            b.top -= 5;
+            b.right += 5;
+            b.bottom += 5;
+
+            var multdx = actor.dx * 2;
+            var multdy = actor.dy * 2;
+
+            if (multdx < 0) {
+                b.left += multdx;
+            } else {
+                b.right += multdx;
+            }
+
+            if (multdy < 0) {
+                b.top += multdy;
+            } else {
+                b.bottom += multdy;
+            }
+
+            node.bounds = b;
+            this.insert(node);
+            return true;
+        };
+
+        DynamicTree.prototype.removeActor = function (actor) {
+            var node = this.nodes[actor.id];
+            if (!node)
+                return;
+            this.remove(node);
+            this.nodes[actor.id] = null;
+            delete this.nodes[actor.id];
+        };
+
+        DynamicTree.prototype.balance = function (node) {
+            if (node === null) {
+                throw new Error("Cannot balance at null node");
+            }
+
+            if (node.isLeaf() || node.height < 2) {
+                return node;
+            }
+
+            var left = node.left;
+            var right = node.right;
+
+            var a = node;
+            var b = left;
+            var c = right;
+            var d = left.left;
+            var e = left.right;
+            var f = right.left;
+            var g = right.right;
+
+            var balance = c.height - b.height;
+
+            // Rotate c node up
+            if (balance > 1) {
+                // Swap the right node with it's parent
+                c.left = a;
+                c.parent = a.parent;
+                a.parent = c;
+
+                // The original node's old parent should point to the right node
+                // this is mega confusing
+                if (c.parent) {
+                    if (c.parent.left === a) {
+                        c.parent.left = c;
+                    } else {
+                        c.parent.right = c;
+                    }
+                } else {
+                    this.root = c;
+                }
+
+                // Rotate
+                if (f.height > g.height) {
+                    c.right = f;
+                    a.right = g;
+                    g.parent = a;
+
+                    a.bounds = b.bounds.combine(g.bounds);
+                    c.bounds = a.bounds.combine(f.bounds);
+
+                    a.height = 1 + Math.max(b.height, g.height);
+                    c.height = 1 + Math.max(a.height, f.height);
+                } else {
+                    c.right = g;
+                    a.right = f;
+                    f.parent = a;
+
+                    a.bounds = b.bounds.combine(f.bounds);
+                    c.bounds = a.bounds.combine(g.bounds);
+
+                    a.height = 1 + Math.max(b.height, f.height);
+                    c.height = 1 + Math.max(a.height, g.height);
+                }
+
+                return c;
+            }
+
+            // Rotate left node up
+            if (balance < -1) {
+                // swap
+                b.left = a;
+                b.parent = a.parent;
+                a.parent = b;
+
+                // node's old parent should point to b
+                if (b.parent) {
+                    if (b.parent.left === a) {
+                        b.parent.left = b;
+                    } else {
+                        if (b.parent.right !== a)
+                            throw "Error rotating Dynamic Tree";
+                        b.parent.right = b;
+                    }
+                } else {
+                    this.root = b;
+                }
+
+                // rotate
+                if (d.height > e.height) {
+                    b.right = d;
+                    a.left = e;
+                    e.parent = a;
+
+                    a.bounds = c.bounds.combine(e.bounds);
+                    b.bounds = a.bounds.combine(d.bounds);
+
+                    a.height = 1 + Math.max(c.height, e.height);
+                    b.height = 1 + Math.max(a.height, d.height);
+                } else {
+                    b.right = e;
+                    a.left = d;
+                    d.parent = a;
+
+                    a.bounds = c.bounds.combine(d.bounds);
+                    b.bounds = a.bounds.combine(e.bounds);
+
+                    a.height = 1 + Math.max(c.height, d.height);
+                    b.height = 1 + Math.max(a.height, e.height);
+                }
+                return b;
+            }
+
+            return node;
+        };
+
+        DynamicTree.prototype.getHeight = function () {
+            if (this.root === null) {
+                return 0;
+            }
+            return this.root.height;
+        };
+
+        DynamicTree.prototype.query = function (actor, callback) {
+            var bounds = actor.getBounds();
+            var helper = function (currentNode) {
+                if (currentNode && currentNode.bounds.collides(bounds)) {
+                    if (currentNode.isLeaf() && currentNode.actor !== actor) {
+                        if (callback.call(actor, currentNode.actor)) {
+                            return true;
+                        }
+                    } else {
+                        return helper(currentNode.left) || helper(currentNode.right);
+                    }
+                } else {
+                    return null;
+                }
+            };
+            return helper(this.root);
+        };
+
+        DynamicTree.prototype.rayCast = function (ray, max) {
+            // todo implement
+            return null;
+        };
+
+        DynamicTree.prototype.getNodes = function () {
+            var helper = function (currentNode) {
+                if (currentNode) {
+                    return [currentNode].concat(helper(currentNode.left), helper(currentNode.right));
+                } else {
+                    return [];
+                }
+            };
+            return helper(this.root);
+        };
+
+        DynamicTree.prototype.debugDraw = function (ctx, delta) {
+            // draw all the nodes in the Dynamic Tree
+            var helper = function (currentNode) {
+                if (currentNode) {
+                    if (currentNode.isLeaf()) {
+                        ctx.strokeStyle = 'green';
+                    } else {
+                        ctx.strokeStyle = 'white';
+                    }
+                    currentNode.bounds.debugDraw(ctx);
+
+                    if (currentNode.left)
+                        helper(currentNode.left);
+                    if (currentNode.right)
+                        helper(currentNode.right);
+                }
+            };
+
+            helper(this.root);
+        };
+        return DynamicTree;
+    })();
+    ex.DynamicTree = DynamicTree;
+})(ex || (ex = {}));
+/// <reference path="ICollisionResolver.ts"/>
+/// <reference path="DynamicTree.ts"/>
+var ex;
+(function (ex) {
+    var DynamicTreeCollisionResolver = (function () {
+        function DynamicTreeCollisionResolver() {
+            this._dynamicCollisionTree = new ex.DynamicTree();
+        }
+        DynamicTreeCollisionResolver.prototype.register = function (target) {
+            this._dynamicCollisionTree.registerActor(target);
+        };
+
+        DynamicTreeCollisionResolver.prototype.remove = function (target) {
+            this._dynamicCollisionTree.removeActor(target);
+        };
+
+        DynamicTreeCollisionResolver.prototype.evaluate = function (targets) {
+            // Retrieve the list of potential colliders, exclude killed, prevented, and self
+            var potentialColliders = targets.filter(function (other) {
+                return !other.isKilled() && other.collisionType !== 0 /* PreventCollision */;
+            });
+
+            var actor;
+            var collisionPairs = [];
+
+            for (var j = 0, l = potentialColliders.length; j < l; j++) {
+                actor = potentialColliders[j];
+
+                this._dynamicCollisionTree.query(actor, function (other) {
+                    if (other.collisionType === 0 /* PreventCollision */ || other.isKilled())
+                        return false;
+
+                    var minimumTranslationVector;
+                    if (minimumTranslationVector = actor.collides(other)) {
+                        var side = actor.getSideFromIntersect(minimumTranslationVector);
+                        var collisionPair = new ex.CollisionPair(actor, other, minimumTranslationVector, side);
+                        if (!collisionPairs.some(function (cp) {
+                            return cp.equals(collisionPair);
+                        })) {
+                            collisionPairs.push(collisionPair);
+                        }
+                        return true;
+                    }
+                    return false;
+                });
+            }
+
+            collisionPairs.forEach(function (p) {
+                return p.evaluate();
+            });
+
+            return collisionPairs;
+        };
+
+        DynamicTreeCollisionResolver.prototype.update = function (targets) {
+            var _this = this;
+            var updated = 0;
+            targets.forEach(function (a) {
+                if (_this._dynamicCollisionTree.updateActor(a)) {
+                    updated++;
+                }
+            });
+
+            return updated;
+        };
+
+        DynamicTreeCollisionResolver.prototype.debugDraw = function (ctx, delta) {
+            this._dynamicCollisionTree.debugDraw(ctx, delta);
+        };
+        return DynamicTreeCollisionResolver;
+    })();
+    ex.DynamicTreeCollisionResolver = DynamicTreeCollisionResolver;
+})(ex || (ex = {}));
 var ex;
 (function (ex) {
     /**
@@ -2348,6 +2856,8 @@ var ex;
 })(ex || (ex = {}));
 /// <reference path="Class.ts" />
 /// <reference path="Timer.ts" />
+/// <reference path="Collision/NaiveCollisionResolver.ts"/>
+/// <reference path="Collision/DynamicTreeCollisionResolver.ts"/>
 /// <reference path="CollisionPair.ts" />
 var ex;
 (function (ex) {
@@ -2368,11 +2878,11 @@ var ex;
             */
             this.children = [];
             this.tileMaps = [];
-            this.killQueue = [];
-            this.timers = [];
-            this.cancelQueue = [];
+            this._collisionResolver = new ex.DynamicTreeCollisionResolver();
+            this._killQueue = [];
+            this._timers = [];
+            this._cancelQueue = [];
             this._isInitialized = false;
-            this._collisionPairs = [];
         }
         /**
         * This is called when the scene is made active and started. It is meant to be overriden,
@@ -2432,39 +2942,37 @@ var ex;
             });
 
             var len = 0;
-            var start = 0;
-            var end = 0;
-            var actor;
 
             for (var i = 0, len = this.children.length; i < len; i++) {
                 this.children[i].update(engine, delta);
             }
 
-            for (var i = 0, len = this._collisionPairs.length; i < len; i++) {
-                this._collisionPairs[i].evaluate();
+            // Run collision resolution strategy
+            if (this._collisionResolver) {
+                this._collisionResolver.update(this.children);
+                this._collisionResolver.evaluate(this.children);
             }
-            this._collisionPairs.length = 0;
 
             // Remove actors from scene graph after being killed
             var actorIndex = 0;
-            for (var i = 0, len = this.killQueue.length; i < len; i++) {
-                actorIndex = this.children.indexOf(this.killQueue[i]);
+            for (var i = 0, len = this._killQueue.length; i < len; i++) {
+                actorIndex = this.children.indexOf(this._killQueue[i]);
                 if (actorIndex > -1) {
                     this.children.splice(actorIndex, 1);
                 }
             }
-            this.killQueue.length = 0;
+            this._killQueue.length = 0;
 
             // Remove timers in the cancel queue before updating them
             var timerIndex = 0;
-            for (var i = 0, len = this.cancelQueue.length; i < len; i++) {
-                this.removeTimer(this.cancelQueue[i]);
+            for (var i = 0, len = this._cancelQueue.length; i < len; i++) {
+                this.removeTimer(this._cancelQueue[i]);
             }
-            this.cancelQueue.length = 0;
+            this._cancelQueue.length = 0;
 
             // Cycle through timers updating timers
             var that = this;
-            this.timers = this.timers.filter(function (timer) {
+            this._timers = this._timers.filter(function (timer) {
                 timer.update(delta);
                 return !timer.complete;
             });
@@ -2508,6 +3016,8 @@ var ex;
             this.children.forEach(function (actor) {
                 actor.debugDraw(ctx);
             });
+
+            this._collisionResolver.debugDraw(ctx, 20);
         };
 
         Scene.prototype.add = function (entity) {
@@ -2523,23 +3033,9 @@ var ex;
             }
         };
 
-        /**
-        * Adds a collision resolution pair to the current scene. Should only be called
-        * by actors.
-        * @method addCollisionPair
-        * @param collisionPair {CollisionPair}
-        *
-        */
-        Scene.prototype.addCollisionPair = function (collisionPair) {
-            if (!this._collisionPairs.some(function (cp) {
-                return cp.equals(collisionPair);
-            })) {
-                this._collisionPairs.push(collisionPair);
-            }
-        };
-
         Scene.prototype.remove = function (entity) {
             if (entity instanceof ex.Actor) {
+                this._collisionResolver.remove(entity);
                 this.removeChild(entity);
             }
             if (entity instanceof ex.Timer) {
@@ -2557,6 +3053,7 @@ var ex;
         * @param actor {Actor}
         */
         Scene.prototype.addChild = function (actor) {
+            this._collisionResolver.register(actor);
             actor.scene = this;
             this.children.push(actor);
             actor.parent = this.actor;
@@ -2589,7 +3086,8 @@ var ex;
         * @param actor {Actor} The actor to remove
         */
         Scene.prototype.removeChild = function (actor) {
-            this.killQueue.push(actor);
+            this._collisionResolver.remove(actor);
+            this._killQueue.push(actor);
             actor.parent = null;
         };
 
@@ -2600,7 +3098,7 @@ var ex;
         * @returns Timer
         */
         Scene.prototype.addTimer = function (timer) {
-            this.timers.push(timer);
+            this._timers.push(timer);
             timer.scene = this;
             return timer;
         };
@@ -2613,9 +3111,9 @@ var ex;
         * @returns Timer
         */
         Scene.prototype.removeTimer = function (timer) {
-            var i = this.timers.indexOf(timer);
+            var i = this._timers.indexOf(timer);
             if (i !== -1) {
-                this.timers.splice(i, 1);
+                this._timers.splice(i, 1);
             }
             return timer;
         };
@@ -2627,7 +3125,7 @@ var ex;
         * @returns Timer
         */
         Scene.prototype.cancelTimer = function (timer) {
-            this.cancelQueue.push(timer);
+            this._cancelQueue.push(timer);
             return timer;
         };
 
@@ -2638,7 +3136,7 @@ var ex;
         * @returns boolean
         */
         Scene.prototype.isTimerActive = function (timer) {
-            return (this.timers.indexOf(timer) > -1);
+            return (this._timers.indexOf(timer) > -1);
         };
         return Scene;
     })(ex.Class);
@@ -3383,13 +3881,13 @@ var ex;
 /// <reference path="Interfaces/IDrawable.ts" />
 /// <reference path="Modules/MovementModule.ts" />
 /// <reference path="Modules/OffscreenCullingModule.ts" />
-/// <reference path="Modules/EventPropagationModule.ts" />
+/// <reference path="Modules/InputPropagationModule.ts" />
 /// <reference path="Modules/CollisionDetectionModule.ts" />
-/// <reference path="Side.ts" />
+/// <reference path="Collision/Side.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util.ts" />
 /// <reference path="TileMap.ts" />
-/// <reference path="BoundingBox.ts" />
+/// <reference path="Collision/BoundingBox.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Action.ts" />
 var ex;
@@ -3465,6 +3963,10 @@ var ex;
         __extends(Actor, _super);
         function Actor(x, y, width, height, color) {
             _super.call(this);
+            /**
+            * The unique identifier for the actor
+            */
+            this.id = Actor.maxId++;
             /**
             * The x coordinate of the actor (left edge)
             * @property x {number}
@@ -3588,6 +4090,16 @@ var ex;
             *
             */
             this.pipeline = [];
+            /**
+            * Whether or not to enable the input pipeline to receive input events like pointer.
+            * @property inputEnabled {boolean}
+            */
+            this.inputEnabled = false;
+            /**
+            * If input is enabled, allow this actor to receive "move" events (this may be expensive!).
+            * @property inputEnableMoveEvents {boolean}
+            */
+            this.inputEnableMoveEvents = false;
             this._isKilled = false;
             this.x = x || 0;
             this.y = y || 0;
@@ -3602,9 +4114,10 @@ var ex;
 
             // Build default pipeline
             this.pipeline.push(new ex.MovementModule());
-            this.pipeline.push(new ex.CollisionDetectionModule());
+
+            //this.pipeline.push(new ex.CollisionDetectionModule());
             this.pipeline.push(new ex.OffscreenCullingModule());
-            this.pipeline.push(new ex.EventPropagationModule());
+            this.pipeline.push(new ex.InputPropagationModule());
 
             this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
             this.sceneNode = new ex.Scene();
@@ -3618,7 +4131,6 @@ var ex;
         * @param engine {Engine}
         */
         Actor.prototype.onInitialize = function (engine) {
-            // will be overridden
         };
 
         /**
@@ -4233,7 +4745,6 @@ var ex;
             // Recalcuate the anchor point
             this.calculatedAnchor = new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
 
-            this.sceneNode.update(engine, delta);
             var eventDispatcher = this.eventDispatcher;
 
             // Update action queue
@@ -4243,7 +4754,7 @@ var ex;
                 this.pipeline[i].update(this, engine, delta);
             }
 
-            eventDispatcher.publish(ex.EventType[16 /* Update */], new ex.UpdateEvent(delta));
+            eventDispatcher.publish(ex.EventType[5 /* Update */], new ex.UpdateEvent(delta));
         };
 
         /**
@@ -4327,6 +4838,7 @@ var ex;
 
             ctx.restore();
         };
+        Actor.maxId = 0;
         return Actor;
     })(ex.Class);
     ex.Actor = Actor;
@@ -4597,61 +5109,6 @@ var ex;
     */
     (function (EventType) {
         /**
-        @property KeyDown {EventType}
-        @static
-        @final
-        */
-        /**
-        @property KeyUp {EventType}
-        @static
-        @final
-        */
-        /**
-        @property KeyPress {EventType}
-        @static
-        @final
-        */
-        /**
-        @property MouseDown {EventType}
-        @static
-        @final
-        */
-        /**
-        @property MouseMove {EventType}
-        @static
-        @final
-        */
-        /**
-        @property MouseUp {EventType}
-        @static
-        @final
-        */
-        /**
-        @property TouchStart {EventType}
-        @static
-        @final
-        */
-        /**
-        @property TouchMove {EventType}
-        @static
-        @final
-        */
-        /**
-        @property TouchEnd {EventType}
-        @static
-        @final
-        */
-        /**
-        @property TouchCancel {EventType}
-        @static
-        @final
-        */
-        /**
-        @property Click {EventType}
-        @static
-        @final
-        */
-        /**
         @property UserEvent {EventType}
         @static
         @final
@@ -4696,26 +5153,15 @@ var ex;
         @static
         @final
         */
-        EventType[EventType["KeyDown"] = 0] = "KeyDown";
-        EventType[EventType["KeyUp"] = 1] = "KeyUp";
-        EventType[EventType["KeyPress"] = 2] = "KeyPress";
-        EventType[EventType["MouseDown"] = 3] = "MouseDown";
-        EventType[EventType["MouseMove"] = 4] = "MouseMove";
-        EventType[EventType["MouseUp"] = 5] = "MouseUp";
-        EventType[EventType["TouchStart"] = 6] = "TouchStart";
-        EventType[EventType["TouchMove"] = 7] = "TouchMove";
-        EventType[EventType["TouchEnd"] = 8] = "TouchEnd";
-        EventType[EventType["TouchCancel"] = 9] = "TouchCancel";
-        EventType[EventType["Click"] = 10] = "Click";
-        EventType[EventType["Collision"] = 11] = "Collision";
-        EventType[EventType["EnterViewPort"] = 12] = "EnterViewPort";
-        EventType[EventType["ExitViewPort"] = 13] = "ExitViewPort";
-        EventType[EventType["Blur"] = 14] = "Blur";
-        EventType[EventType["Focus"] = 15] = "Focus";
-        EventType[EventType["Update"] = 16] = "Update";
-        EventType[EventType["Activate"] = 17] = "Activate";
-        EventType[EventType["Deactivate"] = 18] = "Deactivate";
-        EventType[EventType["Initialize"] = 19] = "Initialize";
+        EventType[EventType["Collision"] = 0] = "Collision";
+        EventType[EventType["EnterViewPort"] = 1] = "EnterViewPort";
+        EventType[EventType["ExitViewPort"] = 2] = "ExitViewPort";
+        EventType[EventType["Blur"] = 3] = "Blur";
+        EventType[EventType["Focus"] = 4] = "Focus";
+        EventType[EventType["Update"] = 5] = "Update";
+        EventType[EventType["Activate"] = 6] = "Activate";
+        EventType[EventType["Deactivate"] = 7] = "Deactivate";
+        EventType[EventType["Initialize"] = 8] = "Initialize";
     })(ex.EventType || (ex.EventType = {}));
     var EventType = ex.EventType;
 
@@ -4889,78 +5335,6 @@ var ex;
     ex.EnterViewPortEvent = EnterViewPortEvent;
 
     /**
-    * Event thrown on a game object on KeyEvent
-    *
-    * @class KeyEvent
-    * @extends GameEvent
-    * @constructor
-    * @param key {InputKey} The key responsible for throwing the event
-    */
-    var KeyEvent = (function (_super) {
-        __extends(KeyEvent, _super);
-        function KeyEvent(key) {
-            _super.call(this);
-            this.key = key;
-        }
-        return KeyEvent;
-    })(GameEvent);
-    ex.KeyEvent = KeyEvent;
-
-    /**
-    * Event thrown on a game object on KeyDown
-    *
-    * @class KeyDown
-    * @extends GameEvent
-    * @constructor
-    * @param key {InputKey} The key responsible for throwing the event
-    */
-    var KeyDown = (function (_super) {
-        __extends(KeyDown, _super);
-        function KeyDown(key) {
-            _super.call(this);
-            this.key = key;
-        }
-        return KeyDown;
-    })(GameEvent);
-    ex.KeyDown = KeyDown;
-
-    /**
-    * Event thrown on a game object on KeyUp
-    *
-    * @class KeyUp
-    * @extends GameEvent
-    * @constructor
-    * @param key {InputKey} The key responsible for throwing the event
-    */
-    var KeyUp = (function (_super) {
-        __extends(KeyUp, _super);
-        function KeyUp(key) {
-            _super.call(this);
-            this.key = key;
-        }
-        return KeyUp;
-    })(GameEvent);
-    ex.KeyUp = KeyUp;
-
-    /**
-    * Event thrown on a game object on KeyPress
-    *
-    * @class KeyPress
-    * @extends GameEvent
-    * @constructor
-    * @param key {InputKey} The key responsible for throwing the event
-    */
-    var KeyPress = (function (_super) {
-        __extends(KeyPress, _super);
-        function KeyPress(key) {
-            _super.call(this);
-            this.key = key;
-        }
-        return KeyPress;
-    })(GameEvent);
-    ex.KeyPress = KeyPress;
-
-    /**
     * Enum representing the different mouse buttons
     * @class MouseButton
     */
@@ -4984,175 +5358,6 @@ var ex;
         MouseButton[MouseButton["Right"] = 2] = "Right";
     })(ex.MouseButton || (ex.MouseButton = {}));
     var MouseButton = ex.MouseButton;
-
-    /**
-    * Event thrown on a game object on MouseDown
-    *
-    * @class MouseDown
-    * @extends GameEvent
-    * @constructor
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    * @param mouseEvent {MouseEvent} The native mouse event thrown
-    */
-    var MouseDownEvent = (function (_super) {
-        __extends(MouseDownEvent, _super);
-        function MouseDownEvent(x, y, mouseEvent) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-            this.mouseEvent = mouseEvent;
-        }
-        return MouseDownEvent;
-    })(GameEvent);
-    ex.MouseDownEvent = MouseDownEvent;
-
-    /**
-    * Event thrown on a game object on MouseMove
-    *
-    * @class MouseMove
-    * @extends GameEvent
-    * @constructor
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    * @param mouseEvent {MouseEvent} The native mouse event thrown
-    */
-    var MouseMoveEvent = (function (_super) {
-        __extends(MouseMoveEvent, _super);
-        function MouseMoveEvent(x, y, mouseEvent) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-            this.mouseEvent = mouseEvent;
-        }
-        return MouseMoveEvent;
-    })(GameEvent);
-    ex.MouseMoveEvent = MouseMoveEvent;
-
-    /**
-    * Event thrown on a game object on MouseUp
-    *
-    * @class MouseUp
-    * @extends GameEvent
-    * @constructor
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    * @param mouseEvent {MouseEvent} The native mouse event thrown
-    */
-    var MouseUpEvent = (function (_super) {
-        __extends(MouseUpEvent, _super);
-        function MouseUpEvent(x, y, mouseEvent) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-            this.mouseEvent = mouseEvent;
-        }
-        return MouseUpEvent;
-    })(GameEvent);
-    ex.MouseUpEvent = MouseUpEvent;
-
-    
-
-    /**
-    * Event thrown on a game object on TouchStart
-    *
-    * @class TouchStart
-    * @extends GameEvent
-    * @constructor
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    */
-    var TouchStartEvent = (function (_super) {
-        __extends(TouchStartEvent, _super);
-        function TouchStartEvent(x, y) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-        }
-        return TouchStartEvent;
-    })(GameEvent);
-    ex.TouchStartEvent = TouchStartEvent;
-
-    /**
-    * Event thrown on a game object on TouchMove
-    *
-    * @class TouchMove
-    * @extends GameEvent
-    * @constructor
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    */
-    var TouchMoveEvent = (function (_super) {
-        __extends(TouchMoveEvent, _super);
-        function TouchMoveEvent(x, y) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-        }
-        return TouchMoveEvent;
-    })(GameEvent);
-    ex.TouchMoveEvent = TouchMoveEvent;
-
-    /**
-    * Event thrown on a game object on TouchEnd
-    *
-    * @class TouchEnd
-    * @extends GameEvent
-    * @constructor
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    */
-    var TouchEndEvent = (function (_super) {
-        __extends(TouchEndEvent, _super);
-        function TouchEndEvent(x, y) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-        }
-        return TouchEndEvent;
-    })(GameEvent);
-    ex.TouchEndEvent = TouchEndEvent;
-
-    /**
-    * Event thrown on a game object on TouchCancel
-    *
-    * @class TouchCancel
-    * @extends GameEvent
-    * @constructor
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    */
-    var TouchCancelEvent = (function (_super) {
-        __extends(TouchCancelEvent, _super);
-        function TouchCancelEvent(x, y) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-        }
-        return TouchCancelEvent;
-    })(GameEvent);
-    ex.TouchCancelEvent = TouchCancelEvent;
-
-    /**
-    * Event thrown on a game object on Click
-    *
-    * @class Click
-    * @extends GameEvent
-    * @constructor
-    * @param x {number} The x coordinate of the event
-    * @param y {number} The y coordinate of the event
-    */
-    var ClickEvent = (function (_super) {
-        __extends(ClickEvent, _super);
-        function ClickEvent(x, y, mouseEvent) {
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-            this.mouseEvent = mouseEvent;
-        }
-        return ClickEvent;
-    })(GameEvent);
-    ex.ClickEvent = ClickEvent;
 })(ex || (ex = {}));
 /// <reference path="Events.ts" />
 var ex;
@@ -7669,13 +7874,862 @@ var ex;
     })(ex.Actor);
     ex.Label = Label;
 })(ex || (ex = {}));
+var ex;
+(function (ex) {
+    (function (Input) {
+        var PointerEvent = (function (_super) {
+            __extends(PointerEvent, _super);
+            function PointerEvent(x, y, ev) {
+                _super.call(this);
+                this.x = x;
+                this.y = y;
+                this.ev = ev;
+            }
+            return PointerEvent;
+        })(ex.GameEvent);
+        Input.PointerEvent = PointerEvent;
+        ;
+
+        /**
+        * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to W3C Pointer Events
+        *
+        * @class Pointer
+        * @extends Class
+        * @constructor
+        */
+        var Pointer = (function (_super) {
+            __extends(Pointer, _super);
+            function Pointer(engine) {
+                _super.call(this);
+                this._pointerDown = [];
+                this._pointerUp = [];
+                this._pointerMove = [];
+                this._pointerCancel = [];
+
+                this._engine = engine;
+            }
+            /**
+            * Initializes pointer event listeners
+            */
+            Pointer.prototype.init = function () {
+                // Touch Events
+                this._engine.canvas.addEventListener('touchstart', this._handleTouchEvent("down", this._pointerDown));
+                this._engine.canvas.addEventListener('touchend', this._handleTouchEvent("up", this._pointerUp));
+                this._engine.canvas.addEventListener('touchmove', this._handleTouchEvent("move", this._pointerMove));
+                this._engine.canvas.addEventListener('touchcancel', this._handleTouchEvent("cancel", this._pointerCancel));
+
+                // W3C Pointer Events
+                // Current: IE11
+                if (window.MSPointerEvent) {
+                    this._engine.canvas.addEventListener('pointerdown', this._handlePointerEvent("down", this._pointerDown));
+                    this._engine.canvas.addEventListener('pointerup', this._handlePointerEvent("up", this._pointerUp));
+                    this._engine.canvas.addEventListener('pointermove', this._handlePointerEvent("move", this._pointerMove));
+                    this._engine.canvas.addEventListener('pointercancel', this._handlePointerEvent("cancel", this._pointerMove));
+                } else {
+                    // Mouse Events
+                    this._engine.canvas.addEventListener('mousedown', this._handleMouseEvent("down", this._pointerDown));
+                    this._engine.canvas.addEventListener('mouseup', this._handleMouseEvent("up", this._pointerUp));
+                    this._engine.canvas.addEventListener('mousemove', this._handleMouseEvent("move", this._pointerMove));
+                }
+            };
+
+            Pointer.prototype.update = function (delta) {
+                this._pointerUp.length = 0;
+                this._pointerDown.length = 0;
+                this._pointerMove.length = 0;
+                this._pointerCancel.length = 0;
+            };
+
+            /**
+            * Propogates events to actor if necessary
+            */
+            Pointer.prototype.propogate = function (actor) {
+                this._pointerUp.forEach(function (e) {
+                    if (actor.contains(e.x, e.y)) {
+                        actor.eventDispatcher.publish("pointerup", e);
+                    }
+                });
+                this._pointerDown.forEach(function (e) {
+                    if (actor.contains(e.x, e.y)) {
+                        actor.eventDispatcher.publish("pointerdown", e);
+                    }
+                });
+                if (actor.inputEnableMoveEvents) {
+                    this._pointerMove.forEach(function (e) {
+                        if (actor.contains(e.x, e.y)) {
+                            actor.eventDispatcher.publish("pointermove", e);
+                        }
+                    });
+                }
+                this._pointerCancel.forEach(function (e) {
+                    if (actor.contains(e.x, e.y)) {
+                        actor.eventDispatcher.publish("pointercancel", e);
+                    }
+                });
+            };
+
+            Pointer.prototype._handleMouseEvent = function (eventName, eventArr) {
+                var _this = this;
+                return function (e) {
+                    e.preventDefault();
+                    var x = e.pageX - ex.Util.getPosition(_this._engine.canvas).x;
+                    var y = e.pageY - ex.Util.getPosition(_this._engine.canvas).y;
+                    var transformedPoint = _this._engine.screenToWorldCoordinates(new ex.Point(x, y));
+                    var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, e);
+                    eventArr.push(pe);
+                    _this.eventDispatcher.publish(eventName, pe);
+                };
+            };
+
+            Pointer.prototype._handleTouchEvent = function (eventName, eventArr) {
+                var _this = this;
+                return function (e) {
+                    e.preventDefault();
+                    var x = e.changedTouches[0].pageX - ex.Util.getPosition(_this._engine.canvas).x;
+                    var y = e.changedTouches[0].pageY - ex.Util.getPosition(_this._engine.canvas).y;
+                    var transformedPoint = _this._engine.screenToWorldCoordinates(new ex.Point(x, y));
+                    var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, e);
+                    eventArr.push(pe);
+                    _this.eventDispatcher.publish(eventName, pe);
+                };
+            };
+
+            Pointer.prototype._handlePointerEvent = function (eventName, eventArr) {
+                var _this = this;
+                return function (e) {
+                    e.preventDefault();
+                    var x = e.pageX - ex.Util.getPosition(_this._engine.canvas).x;
+                    var y = e.pageY - ex.Util.getPosition(_this._engine.canvas).y;
+                    var transformedPoint = _this._engine.screenToWorldCoordinates(new ex.Point(x, y));
+                    var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, e);
+                    eventArr.push(pe);
+                    _this.eventDispatcher.publish(eventName, pe);
+                };
+            };
+            return Pointer;
+        })(ex.Class);
+        Input.Pointer = Pointer;
+    })(ex.Input || (ex.Input = {}));
+    var Input = ex.Input;
+})(ex || (ex = {}));
+var ex;
+(function (ex) {
+    (function (Input) {
+        /**
+        * Enum representing input key codes
+        * @class Keys
+        *
+        */
+        (function (Keys) {
+            /**
+            @property Num1 {Keys}
+            */
+            /**
+            @property Num2 {Keys}
+            */
+            /**
+            @property Num3 {Keys}
+            */
+            /**
+            @property Num4 {Keys}
+            */
+            /**
+            @property Num5 {Keys}
+            */
+            /**
+            @property Num6 {Keys}
+            */
+            /**
+            @property Num7 {Keys}
+            */
+            /**
+            @property Num8 {Keys}
+            */
+            /**
+            @property Num9 {Keys}
+            */
+            /**
+            @property Num0 {Keys}
+            */
+            Keys[Keys["Num1"] = 97] = "Num1";
+            Keys[Keys["Num2"] = 98] = "Num2";
+            Keys[Keys["Num3"] = 99] = "Num3";
+            Keys[Keys["Num4"] = 100] = "Num4";
+            Keys[Keys["Num5"] = 101] = "Num5";
+            Keys[Keys["Num6"] = 102] = "Num6";
+            Keys[Keys["Num7"] = 103] = "Num7";
+            Keys[Keys["Num8"] = 104] = "Num8";
+            Keys[Keys["Num9"] = 105] = "Num9";
+            Keys[Keys["Num0"] = 96] = "Num0";
+
+            /**
+            @property Numlock {Keys}
+            */
+            Keys[Keys["Numlock"] = 144] = "Numlock";
+
+            /**
+            @property Semicolon {Keys}
+            */
+            Keys[Keys["Semicolon"] = 186] = "Semicolon";
+
+            /**
+            @property A {Keys}
+            */
+            /**
+            @property B {Keys}
+            */
+            /**
+            @property C {Keys}
+            */
+            /**
+            @property D {Keys}
+            */
+            /**
+            @property E {Keys}
+            */
+            /**
+            @property F {Keys}
+            */
+            /**
+            @property G {Keys}
+            */
+            /**
+            @property H {Keys}
+            */
+            /**
+            @property I {Keys}
+            */
+            /**
+            @property J {Keys}
+            */
+            /**
+            @property K {Keys}
+            */
+            /**
+            @property L {Keys}
+            */
+            /**
+            @property M {Keys}
+            */
+            /**
+            @property N {Keys}
+            */
+            /**
+            @property O {Keys}
+            */
+            /**
+            @property P {Keys}
+            */
+            /**
+            @property Q {Keys}
+            */
+            /**
+            @property R {Keys}
+            */
+            /**
+            @property S {Keys}
+            */
+            /**
+            @property T {Keys}
+            */
+            /**
+            @property U {Keys}
+            */
+            /**
+            @property V {Keys}
+            */
+            /**
+            @property W {Keys}
+            */
+            /**
+            @property X {Keys}
+            */
+            /**
+            @property Y {Keys}
+            */
+            /**
+            @property Z {Keys}
+            */
+            Keys[Keys["A"] = 65] = "A";
+            Keys[Keys["B"] = 66] = "B";
+            Keys[Keys["C"] = 67] = "C";
+            Keys[Keys["D"] = 68] = "D";
+            Keys[Keys["E"] = 69] = "E";
+            Keys[Keys["F"] = 70] = "F";
+            Keys[Keys["G"] = 71] = "G";
+            Keys[Keys["H"] = 72] = "H";
+            Keys[Keys["I"] = 73] = "I";
+            Keys[Keys["J"] = 74] = "J";
+            Keys[Keys["K"] = 75] = "K";
+            Keys[Keys["L"] = 76] = "L";
+            Keys[Keys["M"] = 77] = "M";
+            Keys[Keys["N"] = 78] = "N";
+            Keys[Keys["O"] = 79] = "O";
+            Keys[Keys["P"] = 80] = "P";
+            Keys[Keys["Q"] = 81] = "Q";
+            Keys[Keys["R"] = 82] = "R";
+            Keys[Keys["S"] = 83] = "S";
+            Keys[Keys["T"] = 84] = "T";
+            Keys[Keys["U"] = 85] = "U";
+            Keys[Keys["V"] = 86] = "V";
+            Keys[Keys["W"] = 87] = "W";
+            Keys[Keys["X"] = 88] = "X";
+            Keys[Keys["Y"] = 89] = "Y";
+            Keys[Keys["Z"] = 90] = "Z";
+
+            /**
+            @property Shift {Keys}
+            */
+            /**
+            @property Alt {Keys}
+            */
+            /**
+            @property Up {Keys}
+            */
+            /**
+            @property Down {Keys}
+            */
+            /**
+            @property Left {Keys}
+            */
+            /**
+            @property Right {Keys}
+            */
+            /**
+            @property Space {Keys}
+            */
+            /**
+            @property Esc {Keys}
+            */
+            Keys[Keys["Shift"] = 16] = "Shift";
+            Keys[Keys["Alt"] = 18] = "Alt";
+            Keys[Keys["Up"] = 38] = "Up";
+            Keys[Keys["Down"] = 40] = "Down";
+            Keys[Keys["Left"] = 37] = "Left";
+            Keys[Keys["Right"] = 39] = "Right";
+            Keys[Keys["Space"] = 32] = "Space";
+            Keys[Keys["Esc"] = 27] = "Esc";
+        })(Input.Keys || (Input.Keys = {}));
+        var Keys = Input.Keys;
+        ;
+
+        /**
+        * Event thrown on a game object for a key event
+        *
+        * @class KeyEvent
+        * @extends GameEvent
+        * @constructor
+        * @param key {InputKey} The key responsible for throwing the event
+        */
+        var KeyEvent = (function (_super) {
+            __extends(KeyEvent, _super);
+            function KeyEvent(key) {
+                _super.call(this);
+                this.key = key;
+            }
+            return KeyEvent;
+        })(ex.GameEvent);
+        Input.KeyEvent = KeyEvent;
+
+        /**
+        * Manages Keyboard input events that you can query or listen for events on
+        *
+        * @class Keyboard
+        * @extends Class
+        * @constructor
+        *
+        */
+        var Keyboard = (function (_super) {
+            __extends(Keyboard, _super);
+            function Keyboard(engine) {
+                _super.call(this);
+                this._keys = [];
+                this._keysUp = [];
+                this._keysDown = [];
+
+                this._engine = engine;
+            }
+            /**
+            * Initialize Keyboard event listeners
+            */
+            Keyboard.prototype.init = function () {
+                var _this = this;
+                window.addEventListener('blur', function (ev) {
+                    _this._keys.length = 0; // empties array efficiently
+                });
+
+                // key up is on window because canvas cannot have focus
+                window.addEventListener('keyup', function (ev) {
+                    var key = _this._keys.indexOf(ev.keyCode);
+                    _this._keys.splice(key, 1);
+                    _this._keysUp.push(ev.keyCode);
+                    var keyEvent = new KeyEvent(ev.keyCode);
+                    _this.eventDispatcher.publish("up", keyEvent);
+                });
+
+                // key down is on window because canvas cannot have focus
+                window.addEventListener('keydown', function (ev) {
+                    if (_this._keys.indexOf(ev.keyCode) === -1) {
+                        _this._keys.push(ev.keyCode);
+                        _this._keysDown.push(ev.keyCode);
+                        var keyEvent = new KeyEvent(ev.keyCode);
+                        _this.eventDispatcher.publish("down", keyEvent);
+                    }
+                });
+            };
+
+            Keyboard.prototype.update = function (delta) {
+                // Reset keysDown and keysUp after update is complete
+                this._keysDown.length = 0;
+                this._keysUp.length = 0;
+            };
+
+            /**
+            * Gets list of keys being pressed down
+            */
+            Keyboard.prototype.getKeys = function () {
+                return this._keys;
+            };
+
+            /**
+            *  Tests if a certain key is down.
+            * @method isKeyDown
+            * @param key {Keys} Test wether a key is down
+            * @returns boolean
+            */
+            Keyboard.prototype.isKeyDown = function (key) {
+                return this._keysDown.indexOf(key) > -1;
+            };
+
+            /**
+            *  Tests if a certain key is pressed.
+            * @method isKeyPressed
+            * @param key {Keys} Test wether a key is pressed
+            * @returns boolean
+            */
+            Keyboard.prototype.isKeyPressed = function (key) {
+                return this._keys.indexOf(key) > -1;
+            };
+
+            /**
+            *  Tests if a certain key is up.
+            * @method isKeyUp
+            * @param key {Keys} Test wether a key is up
+            * @returns boolean
+            */
+            Keyboard.prototype.isKeyUp = function (key) {
+                return this._keysUp.indexOf(key) > -1;
+            };
+            return Keyboard;
+        })(ex.Class);
+        Input.Keyboard = Keyboard;
+    })(ex.Input || (ex.Input = {}));
+    var Input = ex.Input;
+})(ex || (ex = {}));
+var ex;
+(function (ex) {
+    (function (Input) {
+        /**
+        * Manages Gamepad API input. You can query the gamepads that are connected
+        * or listen to events ("button" and "axis").
+        * @class Gamepads
+        * @extends Class
+        * @param pads {Gamepad[]} The connected gamepads.
+        * @param supported {boolean} Whether or not the Gamepad API is present
+        */
+        var Gamepads = (function (_super) {
+            __extends(Gamepads, _super);
+            function Gamepads(engine) {
+                _super.call(this);
+                /**
+                * Access to the individual pads
+                * @property pads {Array<Gamepad>}
+                */
+                this.pads = [];
+                /**
+                * Whether or not to poll for Gamepad input (default: false)
+                * @property enabled {boolean}
+                */
+                this.enabled = false;
+                /**
+                * Whether or not Gamepad API is supported
+                * @property supported {boolean}
+                */
+                this.supported = !!navigator.getGamepads;
+                this._gamePadTimeStamps = [0, 0, 0, 0];
+                this._oldPads = [];
+                this._initSuccess = false;
+                this._navigator = navigator;
+
+                this._engine = engine;
+            }
+            Gamepads.prototype.init = function () {
+                if (!this.supported)
+                    return;
+                if (this._initSuccess)
+                    return;
+
+                // In Chrome, this will return 4 undefined items until a button is pressed
+                // In FF, this will not return any items until a button is pressed
+                this._oldPads = this._clonePads(this._navigator.getGamepads());
+                if (this._oldPads.length && this._oldPads[0]) {
+                    this._initSuccess = true;
+                }
+            };
+
+            /**
+            * Updates Gamepad state and publishes Gamepad events
+            */
+            Gamepads.prototype.update = function (delta) {
+                if (!this.enabled || !this.supported)
+                    return;
+                this.init();
+
+                var gamepads = this._navigator.getGamepads();
+
+                for (var i = 0; i < gamepads.length; i++) {
+                    if (!gamepads[i]) {
+                        // Reset connection status
+                        if (this.pads[i]) {
+                            this.pads[i].connected = false;
+                        }
+
+                        continue;
+                    } else {
+                        // New pad?
+                        if (this.pads.length === i) {
+                            this.pads.push(new Gamepad());
+                        }
+                        if (this._oldPads.length === i) {
+                            this._oldPads.push(this._clonePad(gamepads[i]));
+                        }
+
+                        // Set connection status
+                        this.pads[i].connected = true;
+                    }
+                    ;
+
+                    // Only supported in Chrome
+                    if (gamepads[i].timestamp && gamepads[i].timestamp === this._gamePadTimeStamps[i]) {
+                        continue;
+                    }
+
+                    this._gamePadTimeStamps[i] = gamepads[i].timestamp;
+
+                    // Buttons
+                    var b, a;
+                    for (b in Buttons) {
+                        if (typeof Buttons[b] !== "number")
+                            continue;
+
+                        var buttonIndex = Buttons[b];
+                        var value = gamepads[i].buttons[buttonIndex].value;
+                        if (value !== this._oldPads[i].buttons[buttonIndex].value) {
+                            if (gamepads[i].buttons[buttonIndex].pressed) {
+                                this.pads[i].updateButton(buttonIndex, value);
+                                this.pads[i].eventDispatcher.publish("button", new GamepadButtonEvent(buttonIndex, value));
+                            } else {
+                                this.pads[i].updateButton(buttonIndex, 0);
+                            }
+                        }
+                    }
+
+                    for (a in Axes) {
+                        if (typeof Axes[a] !== "number")
+                            continue;
+
+                        var axesIndex = Axes[a];
+                        var value = gamepads[i].axes[axesIndex];
+                        if (value !== this._oldPads[i].axes[axesIndex]) {
+                            this.pads[i].updateAxes(axesIndex, value);
+                            this.pads[i].eventDispatcher.publish("axis", new GamepadAxisEvent(axesIndex, value));
+                        }
+                    }
+
+                    this._oldPads[i] = this._clonePad(gamepads[i]);
+                }
+            };
+
+            /**
+            * The number of connected gamepads
+            */
+            Gamepads.prototype.count = function () {
+                return this.pads.filter(function (p) {
+                    return p.connected;
+                }).length;
+            };
+
+            Gamepads.prototype._clonePads = function (pads) {
+                var arr = [];
+                for (var i = 0, len = pads.length; i < len; i++) {
+                    arr.push(this._clonePad(pads[i]));
+                }
+                return arr;
+            };
+
+            /**
+            * Fastest way to clone a known object is to do it yourself
+            */
+            Gamepads.prototype._clonePad = function (pad) {
+                var i, len;
+                var clonedPad = {
+                    axes: [],
+                    buttons: []
+                };
+
+                if (!pad)
+                    return pad;
+
+                for (i = 0, len = pad.buttons.length; i < len; i++) {
+                    clonedPad.buttons.push({ pressed: pad.buttons[i].pressed, value: pad.buttons[i].value });
+                }
+                for (i = 0, len = pad.axes.length; i < len; i++) {
+                    clonedPad.axes.push(pad.axes[i]);
+                }
+
+                return clonedPad;
+            };
+            Gamepads.MinAxisMoveThreshold = 0.05;
+            return Gamepads;
+        })(ex.Class);
+        Input.Gamepads = Gamepads;
+
+        /**
+        * Individual state for a Gamepad
+        * @class Gamepad
+        * @extends Class
+        */
+        var Gamepad = (function (_super) {
+            __extends(Gamepad, _super);
+            function Gamepad() {
+                _super.call(this);
+                this.connected = false;
+                this._buttons = new Array(16);
+                this._axes = new Array(4);
+
+                var i;
+                for (i = 0; i < this._buttons.length; i++) {
+                    this._buttons[i] = 0;
+                }
+                for (i = 0; i < this._axes.length; i++) {
+                    this._axes[i] = 0;
+                }
+            }
+            /**
+            * Whether or not the given button is pressed
+            * @param button {Buttons}
+            * @param [threshold=1] {number} The threshold over which the button is considered to be pressed
+            */
+            Gamepad.prototype.isButtonPressed = function (button, threshold) {
+                if (typeof threshold === "undefined") { threshold = 1; }
+                return this._buttons[button] >= threshold;
+            };
+
+            /**
+            * Gets the given button value
+            * @param button {Buttons}
+            */
+            Gamepad.prototype.getButton = function (button) {
+                return this._buttons[button];
+            };
+
+            /**
+            * Gets the given axis value
+            * @param axes {Axes}
+            */
+            Gamepad.prototype.getAxes = function (axes) {
+                var value = this._axes[axes];
+
+                if (Math.abs(value) < Gamepads.MinAxisMoveThreshold) {
+                    return 0;
+                } else {
+                    return value;
+                }
+            };
+
+            Gamepad.prototype.updateButton = function (buttonIndex, value) {
+                this._buttons[buttonIndex] = value;
+            };
+
+            Gamepad.prototype.updateAxes = function (axesIndex, value) {
+                this._axes[axesIndex] = value;
+            };
+            return Gamepad;
+        })(ex.Class);
+        Input.Gamepad = Gamepad;
+
+        /**
+        * Gamepad Buttons enumeration
+        * @class Buttons
+        */
+        (function (Buttons) {
+            /**
+            * Face 1 button (e.g. A)
+            * @property Face1 {Buttons}
+            * @static
+            */
+            /**
+            * Face 2 button (e.g. B)
+            * @property Face2 {Buttons}
+            * @static
+            */
+            /**
+            * Face 3 button (e.g. X)
+            * @property Face3 {Buttons}
+            * @static
+            */
+            /**
+            * Face 4 button (e.g. Y)
+            * @property Face4 {Buttons}
+            * @static
+            */
+            Buttons[Buttons["Face1"] = 0] = "Face1";
+            Buttons[Buttons["Face2"] = 1] = "Face2";
+            Buttons[Buttons["Face3"] = 2] = "Face3";
+            Buttons[Buttons["Face4"] = 3] = "Face4";
+
+            /**
+            * Left bumper button
+            * @property LeftBumper {Buttons}
+            * @static
+            */
+            /**
+            * Right bumper button
+            * @property RightBumper {Buttons}
+            * @static
+            */
+            Buttons[Buttons["LeftBumper"] = 4] = "LeftBumper";
+            Buttons[Buttons["RightBumper"] = 5] = "RightBumper";
+
+            /**
+            * Left trigger button
+            * @property LeftTrigger {Buttons}
+            * @static
+            */
+            /**
+            * Right trigger button
+            * @property RightTrigger {Buttons}
+            * @static
+            */
+            Buttons[Buttons["LeftTrigger"] = 6] = "LeftTrigger";
+            Buttons[Buttons["RightTrigger"] = 7] = "RightTrigger";
+
+            /**
+            * Select button
+            * @property Select {Buttons}
+            * @static
+            */
+            /**
+            * Start button
+            * @property Start {Buttons}
+            * @static
+            */
+            Buttons[Buttons["Select"] = 8] = "Select";
+            Buttons[Buttons["Start"] = 9] = "Start";
+
+            /**
+            * Left analog stick press (e.g. L3)
+            * @property LeftStick {Buttons}
+            * @static
+            */
+            /**
+            * Right analog stick press (e.g. R3)
+            * @property Start {Buttons}
+            * @static
+            */
+            Buttons[Buttons["LeftStick"] = 10] = "LeftStick";
+            Buttons[Buttons["RightStick"] = 11] = "RightStick";
+
+            /**
+            * D-pad up
+            * @property DpadUp {Buttons}
+            * @static
+            */
+            /**
+            * D-pad down
+            * @property DpadDown {Buttons}
+            * @static
+            */
+            /**
+            * D-pad left
+            * @property DpadLeft {Buttons}
+            * @static
+            */
+            /**
+            * D-pad right
+            * @property DpadRight {Buttons}
+            * @static
+            */
+            Buttons[Buttons["DpadUp"] = 12] = "DpadUp";
+            Buttons[Buttons["DpadDown"] = 13] = "DpadDown";
+            Buttons[Buttons["DpadLeft"] = 14] = "DpadLeft";
+            Buttons[Buttons["DpadRight"] = 15] = "DpadRight";
+        })(Input.Buttons || (Input.Buttons = {}));
+        var Buttons = Input.Buttons;
+
+        /**
+        * Gamepad Axes enumeration
+        * @class Axes
+        */
+        (function (Axes) {
+            /**
+            * Left analogue stick X direction
+            * @property LeftStickX {Axes}
+            * @static
+            */
+            /**
+            * Left analogue stick Y direction
+            * @property LeftStickY {Axes}
+            * @static
+            */
+            /**
+            * Right analogue stick X direction
+            * @property RightStickX {Axes}
+            * @static
+            */
+            /**
+            * Right analogue stick Y direction
+            * @property RightStickY {Axes}
+            * @static
+            */
+            Axes[Axes["LeftStickX"] = 0] = "LeftStickX";
+            Axes[Axes["LeftStickY"] = 1] = "LeftStickY";
+            Axes[Axes["RightStickX"] = 2] = "RightStickX";
+            Axes[Axes["RightStickY"] = 3] = "RightStickY";
+        })(Input.Axes || (Input.Axes = {}));
+        var Axes = Input.Axes;
+
+        var GamepadButtonEvent = (function (_super) {
+            __extends(GamepadButtonEvent, _super);
+            function GamepadButtonEvent(button, value) {
+                _super.call(this);
+                this.button = button;
+                this.value = value;
+            }
+            return GamepadButtonEvent;
+        })(ex.GameEvent);
+        Input.GamepadButtonEvent = GamepadButtonEvent;
+
+        var GamepadAxisEvent = (function (_super) {
+            __extends(GamepadAxisEvent, _super);
+            function GamepadAxisEvent(axis, value) {
+                _super.call(this);
+                this.axis = axis;
+                this.value = value;
+            }
+            return GamepadAxisEvent;
+        })(ex.GameEvent);
+        Input.GamepadAxisEvent = GamepadAxisEvent;
+    })(ex.Input || (ex.Input = {}));
+    var Input = ex.Input;
+})(ex || (ex = {}));
 /// <reference path="MonkeyPatch.ts" />
 /// <reference path="Events.ts" />
 /// <reference path="EventDispatcher.ts" />
 /// <reference path="Class.ts" />
 /// <reference path="Color.ts" />
 /// <reference path="Log.ts" />
-/// <reference path="Side.ts" />
+/// <reference path="Collision/Side.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actor.ts" />
 /// <reference path="Trigger.ts" />
@@ -7689,206 +8743,12 @@ var ex;
 /// <reference path="Binding.ts" />
 /// <reference path="TileMap.ts" />
 /// <reference path="Label.ts" />
+/// <reference path="Input/IEngineInput.ts"/>
+/// <reference path="Input/Pointer.ts"/>
+/// <reference path="Input/Keyboard.ts"/>
+/// <reference path="Input/Gamepad.ts"/>
 var ex;
 (function (ex) {
-    /**
-    * Enum representing input key codes
-    * @class InputKey
-    *
-    */
-    (function (InputKey) {
-        /**
-        @property Num1 {InputKey}
-        */
-        /**
-        @property Num2 {InputKey}
-        */
-        /**
-        @property Num3 {InputKey}
-        */
-        /**
-        @property Num4 {InputKey}
-        */
-        /**
-        @property Num5 {InputKey}
-        */
-        /**
-        @property Num6 {InputKey}
-        */
-        /**
-        @property Num7 {InputKey}
-        */
-        /**
-        @property Num8 {InputKey}
-        */
-        /**
-        @property Num9 {InputKey}
-        */
-        /**
-        @property Num0 {InputKey}
-        */
-        InputKey[InputKey["Num1"] = 97] = "Num1";
-        InputKey[InputKey["Num2"] = 98] = "Num2";
-        InputKey[InputKey["Num3"] = 99] = "Num3";
-        InputKey[InputKey["Num4"] = 100] = "Num4";
-        InputKey[InputKey["Num5"] = 101] = "Num5";
-        InputKey[InputKey["Num6"] = 102] = "Num6";
-        InputKey[InputKey["Num7"] = 103] = "Num7";
-        InputKey[InputKey["Num8"] = 104] = "Num8";
-        InputKey[InputKey["Num9"] = 105] = "Num9";
-        InputKey[InputKey["Num0"] = 96] = "Num0";
-
-        /**
-        @property Numlock {InputKey}
-        */
-        InputKey[InputKey["Numlock"] = 144] = "Numlock";
-
-        /**
-        @property Semicolon {InputKey}
-        */
-        InputKey[InputKey["Semicolon"] = 186] = "Semicolon";
-
-        /**
-        @property A {InputKey}
-        */
-        /**
-        @property B {InputKey}
-        */
-        /**
-        @property C {InputKey}
-        */
-        /**
-        @property D {InputKey}
-        */
-        /**
-        @property E {InputKey}
-        */
-        /**
-        @property F {InputKey}
-        */
-        /**
-        @property G {InputKey}
-        */
-        /**
-        @property H {InputKey}
-        */
-        /**
-        @property I {InputKey}
-        */
-        /**
-        @property J {InputKey}
-        */
-        /**
-        @property K {InputKey}
-        */
-        /**
-        @property L {InputKey}
-        */
-        /**
-        @property M {InputKey}
-        */
-        /**
-        @property N {InputKey}
-        */
-        /**
-        @property O {InputKey}
-        */
-        /**
-        @property P {InputKey}
-        */
-        /**
-        @property Q {InputKey}
-        */
-        /**
-        @property R {InputKey}
-        */
-        /**
-        @property S {InputKey}
-        */
-        /**
-        @property T {InputKey}
-        */
-        /**
-        @property U {InputKey}
-        */
-        /**
-        @property V {InputKey}
-        */
-        /**
-        @property W {InputKey}
-        */
-        /**
-        @property X {InputKey}
-        */
-        /**
-        @property Y {InputKey}
-        */
-        /**
-        @property Z {InputKey}
-        */
-        InputKey[InputKey["A"] = 65] = "A";
-        InputKey[InputKey["B"] = 66] = "B";
-        InputKey[InputKey["C"] = 67] = "C";
-        InputKey[InputKey["D"] = 68] = "D";
-        InputKey[InputKey["E"] = 69] = "E";
-        InputKey[InputKey["F"] = 70] = "F";
-        InputKey[InputKey["G"] = 71] = "G";
-        InputKey[InputKey["H"] = 72] = "H";
-        InputKey[InputKey["I"] = 73] = "I";
-        InputKey[InputKey["J"] = 74] = "J";
-        InputKey[InputKey["K"] = 75] = "K";
-        InputKey[InputKey["L"] = 76] = "L";
-        InputKey[InputKey["M"] = 77] = "M";
-        InputKey[InputKey["N"] = 78] = "N";
-        InputKey[InputKey["O"] = 79] = "O";
-        InputKey[InputKey["P"] = 80] = "P";
-        InputKey[InputKey["Q"] = 81] = "Q";
-        InputKey[InputKey["R"] = 82] = "R";
-        InputKey[InputKey["S"] = 83] = "S";
-        InputKey[InputKey["T"] = 84] = "T";
-        InputKey[InputKey["U"] = 85] = "U";
-        InputKey[InputKey["V"] = 86] = "V";
-        InputKey[InputKey["W"] = 87] = "W";
-        InputKey[InputKey["X"] = 88] = "X";
-        InputKey[InputKey["Y"] = 89] = "Y";
-        InputKey[InputKey["Z"] = 90] = "Z";
-
-        /**
-        @property Shift {InputKey}
-        */
-        /**
-        @property Alt {InputKey}
-        */
-        /**
-        @property Up {InputKey}
-        */
-        /**
-        @property Down {InputKey}
-        */
-        /**
-        @property Left {InputKey}
-        */
-        /**
-        @property Right {InputKey}
-        */
-        /**
-        @property Space {InputKey}
-        */
-        /**
-        @property Esc {InputKey}
-        */
-        InputKey[InputKey["Shift"] = 16] = "Shift";
-        InputKey[InputKey["Alt"] = 18] = "Alt";
-        InputKey[InputKey["Up"] = 38] = "Up";
-        InputKey[InputKey["Down"] = 40] = "Down";
-        InputKey[InputKey["Left"] = 37] = "Left";
-        InputKey[InputKey["Right"] = 39] = "Right";
-        InputKey[InputKey["Space"] = 32] = "Space";
-        InputKey[InputKey["Esc"] = 27] = "Esc";
-    })(ex.InputKey || (ex.InputKey = {}));
-    var InputKey = ex.InputKey;
-    ;
-
     /**
     * Enum representing the different display modes available to Excalibur
     * @class DisplayMode
@@ -7940,21 +8800,12 @@ var ex;
         __extends(Engine, _super);
         function Engine(width, height, canvasElementId, displayMode) {
             _super.call(this);
+            /**
+            * Sets or gets the collision strategy for Excalibur
+            * @property collisionStrategy {CollisionStrategy}
+            */
+            this.collisionStrategy = 1 /* DynamicAABBTree */;
             this.hasStarted = false;
-            // Key Events
-            this.keys = [];
-            this.keysDown = [];
-            this.keysUp = [];
-            // Mouse Events
-            this.clicks = [];
-            this.mouseDown = [];
-            this.mouseMove = [];
-            this.mouseUp = [];
-            // Touch Events
-            this.touchStart = [];
-            this.touchMove = [];
-            this.touchEnd = [];
-            this.touchCancel = [];
             this.sceneHash = {};
             this.animations = [];
             /**
@@ -7991,6 +8842,7 @@ var ex;
             this.canvasElementId = canvasElementId;
 
             this.camera = new ex.BaseCamera(this);
+
             this.rootScene = this.currentScene = new ex.Scene();
             this.addScene('root', this.rootScene);
 
@@ -8015,6 +8867,7 @@ var ex;
                 this.displayMode = 0 /* FullScreen */;
             }
 
+            this.camera.setFocus(this.width / 2, this.height / 2);
             this.loader = new ex.Loader();
 
             this.initialize();
@@ -8297,155 +9150,23 @@ var ex;
                 });
             }
 
-            window.addEventListener('blur', function (ev) {
-                _this.keys.length = 0; // empties array efficiently
-            });
-
-            // key up is on window because canvas cannot have focus
-            window.addEventListener('keyup', function (ev) {
-                var key = _this.keys.indexOf(ev.keyCode);
-                _this.keys.splice(key, 1);
-                _this.keysUp.push(ev.keyCode);
-                var keyEvent = new ex.KeyUp(ev.keyCode);
-                _this.eventDispatcher.publish(ex.EventType[1 /* KeyUp */], keyEvent);
-                _this.currentScene.publish(ex.EventType[1 /* KeyUp */], keyEvent);
-            });
-
-            // key down is on window because canvas cannot have focus
-            window.addEventListener('keydown', function (ev) {
-                if (_this.keys.indexOf(ev.keyCode) === -1) {
-                    _this.keys.push(ev.keyCode);
-                    _this.keysDown.push(ev.keyCode);
-                    var keyEvent = new ex.KeyDown(ev.keyCode);
-                    _this.eventDispatcher.publish(ex.EventType[0 /* KeyDown */], keyEvent);
-                    _this.currentScene.publish(ex.EventType[0 /* KeyDown */], keyEvent);
-                }
-            });
+            // initialize inputs
+            this.input = {
+                keyboard: new ex.Input.Keyboard(this),
+                pointer: new ex.Input.Pointer(this),
+                gamepads: new ex.Input.Gamepads(this)
+            };
+            this.input.keyboard.init();
+            this.input.pointer.init();
+            this.input.gamepads.init();
 
             window.addEventListener('blur', function () {
-                _this.eventDispatcher.publish(ex.EventType[14 /* Blur */], new ex.BlurEvent());
+                _this.eventDispatcher.publish(ex.EventType[3 /* Blur */], new ex.BlurEvent());
             });
 
             window.addEventListener('focus', function () {
-                _this.eventDispatcher.publish(ex.EventType[15 /* Focus */], new ex.FocusEvent());
+                _this.eventDispatcher.publish(ex.EventType[4 /* Focus */], new ex.FocusEvent());
             });
-
-            this.canvas.addEventListener('mousedown', function (e) {
-                var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
-                var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
-                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var mousedown = new ex.MouseDownEvent(transformedPoint.x, transformedPoint.y, e);
-                _this.mouseDown.push(mousedown);
-                _this.clicks.push(mousedown);
-                _this.eventDispatcher.publish(ex.EventType[3 /* MouseDown */], mousedown);
-            });
-
-            this.canvas.addEventListener('mousemove', function (e) {
-                var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
-                var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
-                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var mousemove = new ex.MouseMoveEvent(transformedPoint.x, transformedPoint.y, e);
-                _this.mouseMove.push(mousemove);
-                _this.eventDispatcher.publish(ex.EventType[4 /* MouseMove */], mousemove);
-            });
-
-            this.canvas.addEventListener('mouseup', function (e) {
-                var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
-                var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
-                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var mouseup = new ex.MouseUpEvent(transformedPoint.x, transformedPoint.y, e);
-                _this.mouseUp.push(mouseup);
-                _this.eventDispatcher.publish(ex.EventType[5 /* MouseUp */], mouseup);
-            });
-
-            //
-            // Touch Events
-            //
-            this.canvas.addEventListener('touchstart', function (e) {
-                var te = e;
-                te.preventDefault();
-                var x = te.changedTouches[0].pageX - ex.Util.getPosition(_this.canvas).x;
-                var y = te.changedTouches[0].pageY - ex.Util.getPosition(_this.canvas).y;
-                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var touchstart = new ex.TouchStartEvent(transformedPoint.x, transformedPoint.y);
-                _this.touchStart.push(touchstart);
-                _this.eventDispatcher.publish(ex.EventType[6 /* TouchStart */], touchstart);
-            });
-
-            this.canvas.addEventListener('touchmove', function (e) {
-                var te = e;
-                te.preventDefault();
-                var x = te.changedTouches[0].pageX - ex.Util.getPosition(_this.canvas).x;
-                var y = te.changedTouches[0].pageY - ex.Util.getPosition(_this.canvas).y;
-                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var touchmove = new ex.TouchMoveEvent(transformedPoint.x, transformedPoint.y);
-                _this.touchMove.push(touchmove);
-                _this.eventDispatcher.publish(ex.EventType[7 /* TouchMove */], touchmove);
-            });
-
-            this.canvas.addEventListener('touchend', function (e) {
-                var te = e;
-                te.preventDefault();
-                var x = te.changedTouches[0].pageX - ex.Util.getPosition(_this.canvas).x;
-                var y = te.changedTouches[0].pageY - ex.Util.getPosition(_this.canvas).y;
-                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var touchend = new ex.TouchEndEvent(transformedPoint.x, transformedPoint.y);
-                _this.touchEnd.push(touchend);
-                _this.eventDispatcher.publish(ex.EventType[8 /* TouchEnd */], touchend);
-            });
-
-            this.canvas.addEventListener('touchcancel', function (e) {
-                var te = e;
-                te.preventDefault();
-                var x = te.changedTouches[0].pageX - ex.Util.getPosition(_this.canvas).x;
-                var y = te.changedTouches[0].pageY - ex.Util.getPosition(_this.canvas).y;
-                var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                var touchcancel = new ex.TouchCancelEvent(transformedPoint.x, transformedPoint.y);
-                _this.touchCancel.push(touchcancel);
-                _this.eventDispatcher.publish(ex.EventType[9 /* TouchCancel */], touchcancel);
-            });
-
-            // W3C Pointer Events (IE11)
-            if (navigator.maxTouchPoints) {
-                this.canvas.addEventListener('pointerdown', function (e) {
-                    if (e.pointerType !== "touch")
-                        return;
-
-                    e.preventDefault();
-                    var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
-                    var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
-                    var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                    var touchstart = new ex.TouchStartEvent(transformedPoint.x, transformedPoint.y);
-                    _this.touchStart.push(touchstart);
-                    _this.eventDispatcher.publish(ex.EventType[6 /* TouchStart */], touchstart);
-                });
-
-                this.canvas.addEventListener('pointermove', function (e) {
-                    if (e.pointerType !== "touch")
-                        return;
-
-                    e.preventDefault();
-                    var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
-                    var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
-                    var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                    var touchmove = new ex.TouchMoveEvent(transformedPoint.x, transformedPoint.y);
-                    _this.touchMove.push(touchmove);
-                    _this.eventDispatcher.publish(ex.EventType[7 /* TouchMove */], touchmove);
-                });
-
-                this.canvas.addEventListener('pointerup', function (e) {
-                    if (e.pointerType !== "touch")
-                        return;
-
-                    e.preventDefault();
-                    var x = e.pageX - ex.Util.getPosition(_this.canvas).x;
-                    var y = e.pageY - ex.Util.getPosition(_this.canvas).y;
-                    var transformedPoint = _this.screenToWorldCoordinates(new ex.Point(x, y));
-                    var touchend = new ex.TouchEndEvent(transformedPoint.x, transformedPoint.y);
-                    _this.touchEnd.push(touchend);
-                    _this.eventDispatcher.publish(ex.EventType[8 /* TouchEnd */], touchend);
-                });
-            }
 
             this.ctx = this.canvas.getContext('2d');
             if (!this.canvasElementId) {
@@ -8478,36 +9199,6 @@ var ex;
         };
 
         /**
-        *  Tests if a certain key is down.
-        * @method isKeyDown
-        * @param key {InputKey} Test wether a key is down
-        * @returns boolean
-        */
-        Engine.prototype.isKeyDown = function (key) {
-            return this.keysDown.indexOf(key) > -1;
-        };
-
-        /**
-        *  Tests if a certain key is pressed.
-        * @method isKeyPressed
-        * @param key {InputKey} Test wether a key is pressed
-        * @returns boolean
-        */
-        Engine.prototype.isKeyPressed = function (key) {
-            return this.keys.indexOf(key) > -1;
-        };
-
-        /**
-        *  Tests if a certain key is up.
-        * @method isKeyUp
-        * @param key {InputKey} Test wether a key is up
-        * @returns boolean
-        */
-        Engine.prototype.isKeyUp = function (key) {
-            return this.keysUp.indexOf(key) > -1;
-        };
-
-        /**
         * Updates the entire state of the game
         * @method update
         * @private
@@ -8522,36 +9213,18 @@ var ex;
             // process engine level events
             this.currentScene.update(this, delta);
 
-            var eventDispatcher = this.eventDispatcher;
-            this.keys.forEach(function (key) {
-                eventDispatcher.publish(InputKey[key], new ex.KeyEvent(key));
-            });
-
             // update animations
             this.animations = this.animations.filter(function (a) {
                 return !a.animation.isDone();
             });
 
-            // Reset keysDown and keysUp after update is complete
-            this.keysDown.length = 0;
-            this.keysUp.length = 0;
-
-            // Reset clicks
-            this.clicks.length = 0;
-
-            // Reset mouse
-            this.mouseDown.length = 0;
-            this.mouseMove.length = 0;
-            this.mouseUp.length = 0;
-
-            // Reset touch
-            this.touchStart.length = 0;
-            this.touchMove.length = 0;
-            this.touchEnd.length = 0;
-            this.touchCancel.length = 0;
+            // Update input listeners
+            this.input.keyboard.update(delta);
+            this.input.pointer.update(delta);
+            this.input.gamepads.update(delta);
 
             // Publish update event
-            this.eventDispatcher.publish(ex.EventType[16 /* Update */], new ex.UpdateEvent(delta));
+            this.eventDispatcher.publish(ex.EventType[5 /* Update */], new ex.UpdateEvent(delta));
         };
 
         /**
@@ -8580,8 +9253,9 @@ var ex;
             if (this.isDebug) {
                 this.ctx.font = "Consolas";
                 this.ctx.fillStyle = this.debugColor.toString();
-                for (var j = 0; j < this.keys.length; j++) {
-                    this.ctx.fillText(this.keys[j].toString() + " : " + (InputKey[this.keys[j]] ? InputKey[this.keys[j]] : "Not Mapped"), 100, 10 * j + 10);
+                var keys = this.input.keyboard.getKeys();
+                for (var j = 0; j < keys.length; j++) {
+                    this.ctx.fillText(keys[j].toString() + " : " + (ex.Input.Keys[keys[j]] ? ex.Input.Keys[keys[j]] : "Not Mapped"), 100, 10 * j + 10);
                 }
 
                 var fps = 1.0 / (delta / 1000);

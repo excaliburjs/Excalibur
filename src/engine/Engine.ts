@@ -4,7 +4,7 @@
 /// <reference path="Class.ts" />
 /// <reference path="Color.ts" />
 /// <reference path="Log.ts" />
-/// <reference path="Side.ts" />
+/// <reference path="Collision/Side.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actor.ts" />
 /// <reference path="Trigger.ts" />
@@ -18,199 +18,12 @@
 /// <reference path="Binding.ts" />
 /// <reference path="TileMap.ts" />
 /// <reference path="Label.ts" />
+/// <reference path="Input/IEngineInput.ts"/>
+/// <reference path="Input/Pointer.ts"/>
+/// <reference path="Input/Keyboard.ts"/>
+/// <reference path="Input/Gamepad.ts"/>
 
 module ex {
-   /**
-    * Enum representing input key codes 
-    * @class InputKey
-    * 
-    */
-   export enum InputKey {
-      /** 
-      @property Num1 {InputKey}
-      */
-      /** 
-      @property Num2 {InputKey}
-      */
-      /** 
-      @property Num3 {InputKey}
-      */
-      /** 
-      @property Num4 {InputKey}
-      */
-      /** 
-      @property Num5 {InputKey}
-      */
-      /** 
-      @property Num6 {InputKey}
-      */
-      /** 
-      @property Num7 {InputKey}
-      */
-      /** 
-      @property Num8 {InputKey}
-      */
-      /** 
-      @property Num9 {InputKey}
-      */
-      /** 
-      @property Num0 {InputKey}
-      */
-      Num1 = 97,
-      Num2 = 98,
-      Num3 = 99,
-      Num4 = 100,
-      Num5 = 101,
-      Num6 = 102,
-      Num7 = 103,
-      Num8 = 104,
-      Num9 = 105,
-      Num0 = 96,
-      /** 
-      @property Numlock {InputKey}
-      */
-      Numlock = 144,
-      /** 
-      @property Semicolon {InputKey}
-      */
-      Semicolon = 186,
-      /** 
-      @property A {InputKey}
-      */
-      /** 
-      @property B {InputKey}
-      */
-      /** 
-      @property C {InputKey}
-      */
-      /** 
-      @property D {InputKey}
-      */
-      /** 
-      @property E {InputKey}
-      */
-      /** 
-      @property F {InputKey}
-      */
-      /** 
-      @property G {InputKey}
-      */
-      /** 
-      @property H {InputKey}
-      */
-      /** 
-      @property I {InputKey}
-      */
-      /** 
-      @property J {InputKey}
-      */
-      /** 
-      @property K {InputKey}
-      */
-      /** 
-      @property L {InputKey}
-      */
-      /** 
-      @property M {InputKey}
-      */
-      /** 
-      @property N {InputKey}
-      */
-      /** 
-      @property O {InputKey}
-      */
-      /** 
-      @property P {InputKey}
-      */
-      /** 
-      @property Q {InputKey}
-      */
-      /** 
-      @property R {InputKey}
-      */
-      /** 
-      @property S {InputKey}
-      */
-      /** 
-      @property T {InputKey}
-      */
-      /** 
-      @property U {InputKey}
-      */
-      /** 
-      @property V {InputKey}
-      */
-      /** 
-      @property W {InputKey}
-      */
-      /** 
-      @property X {InputKey}
-      */
-      /** 
-      @property Y {InputKey}
-      */
-      /** 
-      @property Z {InputKey}
-      */
-      A = 65,
-      B = 66,
-      C = 67,
-      D = 68,
-      E = 69,
-      F = 70,
-      G = 71,
-      H = 72,
-      I = 73,
-      J = 74,
-      K = 75,
-      L = 76,
-      M = 77,
-      N = 78,
-      O = 79,
-      P = 80,
-      Q = 81,
-      R = 82,
-      S = 83,
-      T = 84,
-      U = 85,
-      V = 86,
-      W = 87,
-      X = 88,
-      Y = 89,
-      Z = 90,
-      /** 
-      @property Shift {InputKey}
-      */
-      /** 
-      @property Alt {InputKey}
-      */
-      /** 
-      @property Up {InputKey}
-      */
-      /** 
-      @property Down {InputKey}
-      */
-      /** 
-      @property Left {InputKey}
-      */
-      /** 
-      @property Right {InputKey}
-      */
-      /** 
-      @property Space {InputKey}
-      */
-      /** 
-      @property Esc {InputKey}
-      */
-      Shift = 16,
-      Alt = 18,
-      Up = 38,
-      Down = 40,
-      Left = 37,
-      Right = 39,
-      Space = 32,
-      Esc = 27
-   };   
 
    /**
     * Enum representing the different display modes available to Excalibur
@@ -253,6 +66,7 @@ module ex {
     * @param [displayMode] {DisplayMode} If this is not specified, then it will fall back to fixed if a height and width are specified, else the display mode will be FullScreen.
     */
    export class Engine extends ex.Class {
+
       /**
        * Direct access to the engine's canvas element
        * @property canvas {HTMLCanvasElement}
@@ -280,23 +94,20 @@ module ex {
        */
       public height: number;
 
+      /**
+       * Access engine input like pointer, keyboard, or gamepad
+       * @property input {IEngineInput}
+       */
+      public input: ex.Input.IEngineInput;
+
+      /**
+       * Sets or gets the collision strategy for Excalibur
+       * @property collisionStrategy {CollisionStrategy}
+       */
+      public collisionStrategy: CollisionStrategy = CollisionStrategy.DynamicAABBTree;
+
       private hasStarted: boolean = false;
-
-      // Key Events
-      public keys: number[] = [];
-      public keysDown: number[] = [];
-      public keysUp: number[] = [];
-      // Mouse Events
-      public clicks: MouseDownEvent[] = [];
-      public mouseDown: MouseDownEvent[] = [];
-      public mouseMove: MouseMoveEvent[] = [];
-      public mouseUp: MouseUpEvent[] = [];
-      // Touch Events
-      public touchStart: TouchStartEvent[] = [];
-      public touchMove: TouchMoveEvent[] = [];
-      public touchEnd: TouchEndEvent[] = [];
-      public touchCancel: TouchCancelEvent[] = [];
-
+      
       /** 
        * Gets or sets the camera to be used in the game.
        * @property camera {BaseCamera}
@@ -356,6 +167,7 @@ module ex {
          this.canvasElementId = canvasElementId;
 
          this.camera = new BaseCamera(this);
+
          this.rootScene = this.currentScene = new Scene();
          this.addScene('root', this.rootScene);
 
@@ -381,6 +193,7 @@ module ex {
             this.displayMode = DisplayMode.FullScreen;
          }
 
+         this.camera.setFocus(this.width/2, this.height/2);
          this.loader = new Loader();
 
          this.initialize();
@@ -710,15 +523,15 @@ module ex {
       private setHeightByDisplayMode(parent: any) {
          if (this.displayMode === DisplayMode.Container) {
             this.width = this.canvas.width = parent.clientWidth;
-            this.height = this.canvas.height = parent.clientHeight
-      }
+            this.height = this.canvas.height = parent.clientHeight;
+         }
 
          if (this.displayMode === DisplayMode.FullScreen) {
             document.body.style.margin = '0px';
             document.body.style.overflow = 'hidden';
             this.width = this.canvas.width = parent.innerWidth;
-            this.height = this.canvas.height = parent.innerHeight
-      }
+            this.height = this.canvas.height = parent.innerHeight;
+         }
       }
 
       /**
@@ -742,33 +555,16 @@ module ex {
             });
          }
 
-         window.addEventListener('blur', (ev: UIEvent) => {
-            this.keys.length = 0; // empties array efficiently
-         });
-
-         // key up is on window because canvas cannot have focus
-         window.addEventListener('keyup', (ev: KeyboardEvent) => {
-            var key = this.keys.indexOf(ev.keyCode);
-            this.keys.splice(key, 1);
-            this.keysUp.push(ev.keyCode);
-            var keyEvent = new KeyUp(ev.keyCode);
-            this.eventDispatcher.publish(EventType[EventType.KeyUp], keyEvent);
-            this.currentScene.publish(EventType[EventType.KeyUp], keyEvent);
-
-         });
-
-         // key down is on window because canvas cannot have focus
-         window.addEventListener('keydown', (ev: KeyboardEvent) => {
-            if (this.keys.indexOf(ev.keyCode) === -1) {
-               this.keys.push(ev.keyCode);
-               this.keysDown.push(ev.keyCode);
-               var keyEvent = new KeyDown(ev.keyCode);
-               this.eventDispatcher.publish(EventType[EventType.KeyDown], keyEvent);
-               this.currentScene.publish(EventType[EventType.KeyDown], keyEvent);
-
-            }
-         });
-
+         // initialize inputs
+         this.input = {
+            keyboard: new ex.Input.Keyboard(this),
+            pointers: new ex.Input.Pointers(this),
+            gamepads: new ex.Input.Gamepads(this)
+         };
+         this.input.keyboard.init();
+         this.input.pointers.init();
+         this.input.gamepads.init();
+         
          window.addEventListener('blur', () => {
             this.eventDispatcher.publish(EventType[EventType.Blur], new BlurEvent());
          });
@@ -776,123 +572,7 @@ module ex {
          window.addEventListener('focus', () => {
             this.eventDispatcher.publish(EventType[EventType.Focus], new FocusEvent());
          });
-
-         this.canvas.addEventListener('mousedown', (e: MouseEvent) => {
-            var x: number = e.pageX - Util.getPosition(this.canvas).x;
-            var y: number = e.pageY - Util.getPosition(this.canvas).y;
-            var transformedPoint = this.screenToWorldCoordinates(new Point(x, y));
-            var mousedown = new MouseDownEvent(transformedPoint.x, transformedPoint.y, (<MouseEvent>e));
-            this.mouseDown.push(mousedown);
-            this.clicks.push(mousedown);
-            this.eventDispatcher.publish(EventType[EventType.MouseDown], mousedown);
-         });
-
-         this.canvas.addEventListener('mousemove', (e: MouseEvent) => {
-            var x: number = e.pageX - Util.getPosition(this.canvas).x;
-            var y: number = e.pageY - Util.getPosition(this.canvas).y;
-            var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-            var mousemove = new MouseMoveEvent(transformedPoint.x, transformedPoint.y, (<MouseEvent>e));            
-            this.mouseMove.push(mousemove);
-            this.eventDispatcher.publish(EventType[EventType.MouseMove], mousemove);
-         });
-
-         this.canvas.addEventListener('mouseup', (e: MouseEvent) => {
-            var x: number = e.pageX - Util.getPosition(this.canvas).x;
-            var y: number = e.pageY - Util.getPosition(this.canvas).y;
-            var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-            var mouseup = new MouseUpEvent(transformedPoint.x, transformedPoint.y, (<MouseEvent>e));
-            this.mouseUp.push(mouseup);
-            this.eventDispatcher.publish(EventType[EventType.MouseUp], mouseup);
-         });
-
-         //
-         // Touch Events
-         //
-
-         this.canvas.addEventListener('touchstart', (e: any) => {
-            var te = <TouchEvent>e;
-            te.preventDefault();
-            var x: number = te.changedTouches[0].pageX - Util.getPosition(this.canvas).x;
-            var y: number = te.changedTouches[0].pageY - Util.getPosition(this.canvas).y;
-            var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-            var touchstart = new TouchStartEvent(transformedPoint.x, transformedPoint.y);
-            this.touchStart.push(touchstart);
-            this.eventDispatcher.publish(EventType[EventType.TouchStart], touchstart);
-         });
-
-         this.canvas.addEventListener('touchmove', (e: any) => {
-            var te = <TouchEvent>e;
-            te.preventDefault();
-            var x: number = te.changedTouches[0].pageX - Util.getPosition(this.canvas).x;
-            var y: number = te.changedTouches[0].pageY - Util.getPosition(this.canvas).y;
-            var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-            var touchmove = new TouchMoveEvent(transformedPoint.x, transformedPoint.y);
-            this.touchMove.push(touchmove);
-            this.eventDispatcher.publish(EventType[EventType.TouchMove], touchmove);
-         });
-
-         this.canvas.addEventListener('touchend', (e: any) => {
-            var te = <TouchEvent>e;
-            te.preventDefault();
-            var x: number = te.changedTouches[0].pageX - Util.getPosition(this.canvas).x;
-            var y: number = te.changedTouches[0].pageY - Util.getPosition(this.canvas).y;
-            var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-            var touchend = new TouchEndEvent(transformedPoint.x, transformedPoint.y);
-            this.touchEnd.push(touchend);
-            this.eventDispatcher.publish(EventType[EventType.TouchEnd], touchend);
-         });
-
-         this.canvas.addEventListener('touchcancel', (e: any) => {
-            var te = <TouchEvent>e;
-            te.preventDefault();            
-            var x: number = te.changedTouches[0].pageX - Util.getPosition(this.canvas).x;
-            var y: number = te.changedTouches[0].pageY - Util.getPosition(this.canvas).y;
-            var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-            var touchcancel = new TouchCancelEvent(transformedPoint.x, transformedPoint.y);
-            this.touchCancel.push(touchcancel);
-            this.eventDispatcher.publish(EventType[EventType.TouchCancel], touchcancel);
-         });
-
-         // W3C Pointer Events (IE11)
-         if ((<any>navigator).maxTouchPoints) {
-            
-            this.canvas.addEventListener('pointerdown', (e: MSPointerEvent) => {
-               if (e.pointerType !== "touch") return;
-
-               e.preventDefault();               
-               var x: number = e.pageX - Util.getPosition(this.canvas).x;
-               var y: number = e.pageY - Util.getPosition(this.canvas).y;
-               var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-               var touchstart = new TouchStartEvent(transformedPoint.x, transformedPoint.y);
-               this.touchStart.push(touchstart);
-               this.eventDispatcher.publish(EventType[EventType.TouchStart], touchstart);
-            });
-
-            this.canvas.addEventListener('pointermove', (e: MSPointerEvent) => {
-               if (e.pointerType !== "touch") return;
-
-               e.preventDefault();
-               var x: number = e.pageX - Util.getPosition(this.canvas).x;
-               var y: number = e.pageY - Util.getPosition(this.canvas).y;
-               var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-               var touchmove = new TouchMoveEvent(transformedPoint.x, transformedPoint.y);
-               this.touchMove.push(touchmove);
-               this.eventDispatcher.publish(EventType[EventType.TouchMove], touchmove);
-            });
-
-            this.canvas.addEventListener('pointerup', (e: MSPointerEvent) => {
-               if (e.pointerType !== "touch") return;
-
-               e.preventDefault();
-               var x: number = e.pageX - Util.getPosition(this.canvas).x;
-               var y: number = e.pageY - Util.getPosition(this.canvas).y;
-               var transformedPoint = this.screenToWorldCoordinates(new Point(x, y))
-               var touchend = new TouchEndEvent(transformedPoint.x, transformedPoint.y);
-               this.touchEnd.push(touchend);
-               this.eventDispatcher.publish(EventType[EventType.TouchEnd], touchend);
-            });
-         }
-
+         
          this.ctx = this.canvas.getContext('2d');
          if (!this.canvasElementId) {
             document.body.appendChild(this.canvas);
@@ -924,33 +604,7 @@ module ex {
          return (<any>this.ctx).imageSmoothingEnabled || (<any>this.ctx).webkitImageSmoothingEnabled || (<any>this.ctx).mozImageSmoothingEnabled || (<any>this.ctx).msImageSmoothingEnabled;
       }
 
-      /**
-       *  Tests if a certain key is down.
-       * @method isKeyDown
-       * @param key {InputKey} Test wether a key is down
-       * @returns boolean
-       */
-      public isKeyDown(key: InputKey): boolean {
-         return this.keysDown.indexOf(key) > -1;
-      }
-      /**
-       *  Tests if a certain key is pressed.
-       * @method isKeyPressed
-       * @param key {InputKey} Test wether a key is pressed
-       * @returns boolean
-       */
-      public isKeyPressed(key: InputKey): boolean {
-         return this.keys.indexOf(key) > -1;
-      }
-      /**
-       *  Tests if a certain key is up.
-       * @method isKeyUp
-       * @param key {InputKey} Test wether a key is up
-       * @returns boolean
-       */
-      public isKeyUp(key: InputKey): boolean {
-         return this.keysUp.indexOf(key) > -1;
-      }
+      
       /**
        * Updates the entire state of the game
        * @method update
@@ -965,33 +619,15 @@ module ex {
          // process engine level events
          this.currentScene.update(this, delta);
 
-         var eventDispatcher = this.eventDispatcher;
-         this.keys.forEach(function (key) {
-            eventDispatcher.publish(InputKey[key], new KeyEvent(key));
-         });
-
          // update animations
          this.animations = this.animations.filter(function (a) {
             return !a.animation.isDone();
          });
 
-         // Reset keysDown and keysUp after update is complete
-         this.keysDown.length = 0;
-         this.keysUp.length = 0;
-
-         // Reset clicks
-         this.clicks.length = 0;
-
-         // Reset mouse
-         this.mouseDown.length = 0;
-         this.mouseMove.length = 0;
-         this.mouseUp.length = 0;
-
-         // Reset touch
-         this.touchStart.length = 0;
-         this.touchMove.length = 0;
-         this.touchEnd.length = 0;
-         this.touchCancel.length = 0;
+         // Update input listeners
+         this.input.keyboard.update(delta);
+         this.input.pointers.update(delta);
+         this.input.gamepads.update(delta);
 
          // Publish update event
          this.eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
@@ -1023,8 +659,9 @@ module ex {
 
             this.ctx.font = "Consolas";
             this.ctx.fillStyle = this.debugColor.toString();
-            for (var j = 0; j < this.keys.length; j++) {
-               this.ctx.fillText(this.keys[j].toString() + " : " + (InputKey[this.keys[j]] ? InputKey[this.keys[j]] : "Not Mapped"), 100, 10 * j + 10);
+            var keys = this.input.keyboard.getKeys();
+            for (var j = 0; j < keys.length; j++) {
+               this.ctx.fillText(keys[j].toString() + " : " + (Input.Keys[keys[j]] ? Input.Keys[keys[j]] : "Not Mapped"), 100, 10 * j + 10);
             }
 
             var fps = 1.0 / (delta / 1000);

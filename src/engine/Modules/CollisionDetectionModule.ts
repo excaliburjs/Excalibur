@@ -5,7 +5,7 @@ module ex {
       public update(actor: Actor, engine: Engine, delta: number){
          var eventDispatcher = actor.eventDispatcher;
          if(actor.collisionType !== CollisionType.PreventCollision){
-            // Retrieve the list of potential colliders, exclude killed, prevented, and self
+            /*// Retrieve the list of potential colliders, exclude killed, prevented, and self
             var potentialColliders = engine.currentScene.children.filter((other) => {
                return !other.isKilled() && other.collisionType !== CollisionType.PreventCollision && actor !== other;
             });
@@ -30,7 +30,7 @@ module ex {
 
                }
 
-            }
+            }*/
 
             for(var j = 0; j < engine.currentScene.tileMaps.length; j++){
                var map = engine.currentScene.tileMaps[j];
@@ -44,7 +44,7 @@ module ex {
                   } 
                   side = actor.getSideFromIntersect(intersectMap);
                   eventDispatcher.publish('collision', new CollisionEvent(actor, null, side, intersectMap));
-                  if((actor.collisionType === CollisionType.Active || actor.collisionType === CollisionType.Elastic) && collider.collisionType !== CollisionType.Passive){
+                  if((actor.collisionType === CollisionType.Active || actor.collisionType === CollisionType.Elastic)){
                      actor.y += intersectMap.y;
                      actor.x += intersectMap.x;
 
