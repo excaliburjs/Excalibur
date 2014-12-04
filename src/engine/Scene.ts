@@ -3,6 +3,7 @@
 /// <reference path="Collision/NaiveCollisionResolver.ts"/>
 /// <reference path="Collision/DynamicTreeCollisionResolver.ts"/>
 /// <reference path="CollisionPair.ts" />
+/// <reference path="Camera.ts" />
 module ex {
 
    /**
@@ -16,6 +17,12 @@ module ex {
 
       //The actor this scene is attached to , if any
       public actor: Actor;
+
+      /**
+       * Gets or sets the current camera for the scene
+       * @property camera {Camera}
+       */
+      public camera: BaseCamera;
 
       /**
        * The actors in the current scene
@@ -34,8 +41,12 @@ module ex {
       private _isInitialized: boolean = false;
       
 
-      constructor() {
+      constructor(engine?: Engine) {
          super();
+         this.camera = new BaseCamera()
+         if(engine){
+            this.camera.setFocus(engine.width/2, engine.height/2);
+         }
       }
 
       /**
@@ -143,6 +154,12 @@ module ex {
        * @param delta {number} The number of milliseconds since the last draw
        */
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
+         ctx.save();
+
+         if (this.camera) {
+            this.camera.update(ctx, delta);
+         }
+
          this.tileMaps.forEach(function (cm) {
             cm.draw(ctx, delta);
          });
@@ -158,6 +175,11 @@ module ex {
                this.children[i].draw(ctx, delta);
             }
          }
+
+         ctx.restore();
+
+         // todo unlocked drawing here
+
       }
 
       /**
@@ -175,6 +197,8 @@ module ex {
          });
 
          this._collisionResolver.debugDraw(ctx, 20);
+
+         this.camera.debugDraw(ctx);
       }
 
       /**

@@ -289,8 +289,10 @@ module ex {
          this.pipeline.push(new ex.CapturePointerModule());
 
          this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
+         
          this.sceneNode = new Scene();
          this.sceneNode.actor = this;
+
          this.anchor = new Point(.5, .5);
       }
 

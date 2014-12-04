@@ -377,7 +377,7 @@ game.addEventListener('p', () => {
 });
 
 // Create a camera to track the player
-var camera = new ex.TopCamera(game);
+var camera = new ex.TopCamera();
 camera.setActorToFollow(player);
 // camera.shake(5, 5, 1000);
 // camera.zoom(0.5);
@@ -462,7 +462,7 @@ game.input.keyboard.on('up', (evt?: ex.Input.KeyEvent) => {
 });
 
 // Add camera to game
-game.camera = camera;
+game.currentScene.camera = camera;
 
 // Run the mainloop
 var binding: ex.Binding;

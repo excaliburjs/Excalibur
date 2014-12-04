@@ -12,7 +12,6 @@ module ex {
    export class BaseCamera {
       follow: Actor;
       focus: Point = new Point(0, 0);
-      engine: Engine;
       lerp: boolean = false;
       private _cameraMoving: boolean = false;
       private _currentLerpTime: number = 0;
@@ -35,9 +34,7 @@ module ex {
       private elapsedZoomTime: number = 0;
       private zoomIncrement: number = 0.01;
 
-      constructor(engine: Engine) {
-         this.engine = engine;
-      }
+      constructor() { }
 
       private easeInOutCubic(currentTime: number, startValue: number, endValue: number, duration: number){
          
@@ -151,14 +148,14 @@ module ex {
       * @method update
       * @param delta {number} The number of milliseconds since the last update
       */
-      public update(delta: number) {
+      public update(ctx: CanvasRenderingContext2D, delta: number) {
          var focus = this.getFocus();
 
          var xShake = 0;
          var yShake = 0;
 
-         var canvasWidth = this.engine.ctx.canvas.width;
-         var canvasHeight = this.engine.ctx.canvas.height;
+         var canvasWidth = ctx.canvas.width;
+         var canvasHeight = ctx.canvas.height;
          var newCanvasWidth = canvasWidth * this.getZoom();
          var newCanvasHeight = canvasHeight * this.getZoom();
 
@@ -197,7 +194,7 @@ module ex {
                yShake = (Math.random() * this.shakeMagnitudeY | 0) + 1;
             }
 
-         this.engine.ctx.translate(-focus.x + xShake + (newCanvasWidth/2), -focus.y + yShake + (newCanvasHeight/2));
+         ctx.translate(-focus.x + xShake + (newCanvasWidth/2), -focus.y + yShake + (newCanvasHeight/2));
 
          if (this.isDoneZooming()) {
             this.isZooming = false;
@@ -211,7 +208,7 @@ module ex {
             this.setCurrentZoomScale(this.getZoom() + this.zoomIncrement * delta / 1000);
          }
 
-         this.engine.ctx.scale(this.getZoom(), this.getZoom());
+         ctx.scale(this.getZoom(), this.getZoom());
       }
 
       public debugDraw(ctx: CanvasRenderingContext2D){
@@ -249,7 +246,7 @@ module ex {
    * @param engine {Engine} Reference to the current engine
    */
    export class SideCamera extends BaseCamera {
-      
+            
       public getFocus(){
          if(this.follow){
             return new Point(this.follow.x + this.follow.getWidth()/2, this.focus.y)
@@ -267,7 +264,7 @@ module ex {
    * @param engine {Engine} Reference to the current engine
    */
    export class TopCamera extends BaseCamera {
-
+      
       public getFocus(){
          if(this.follow){
             return new Point(this.follow.x + this.follow.getWidth()/2, this.follow.y + this.follow.getHeight()/2)
@@ -275,7 +272,5 @@ module ex {
             return this.focus;
          }
       }
-
    }
-
 }

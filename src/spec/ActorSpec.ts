@@ -10,7 +10,7 @@ describe("A game actor", () => {
 	beforeEach(()=>{
 		actor = new ex.Actor();
       actor.collisionType = ex.CollisionType.Active;
-      scene = new ex.Scene();
+      scene = new ex.Scene(engine);
 		// mock engine		
       engine = {
          collisionStrategy: 0,

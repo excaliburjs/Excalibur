@@ -200,10 +200,17 @@ declare module ex {
     }
 }
 declare module ex {
+    interface ICapturePointerConfig {
+        /**
+        * Capture PointerMove events (may be expensive!)
+        * @property
+        */
+        captureMoveEvents: boolean;
+    }
     /**
-    * Propogates input events to the actor (i.e. PointerEvents)
+    * Propogates pointer events to the actor
     */
-    class InputPropagationModule implements IPipelineModule {
+    class CapturePointerModule implements IPipelineModule {
         public update(actor: Actor, engine: Engine, delta: number): void;
     }
 }
@@ -1282,6 +1289,109 @@ declare module ex {
 }
 declare module ex {
     /**
+    * A base implementation of a camera. This class is meant to be extended.
+    * @class Camera
+    * @constructor
+    * @param engine {Engine} Reference to the current engine
+    */
+    class BaseCamera {
+        public follow: Actor;
+        public focus: Point;
+        public lerp: boolean;
+        private _cameraMoving;
+        private _currentLerpTime;
+        private _lerpDuration;
+        private _totalLerpTime;
+        private _lerpStart;
+        private _lerpEnd;
+        public isShaking: boolean;
+        private shakeMagnitudeX;
+        private shakeMagnitudeY;
+        private shakeDuration;
+        private elapsedShakeTime;
+        public isZooming: boolean;
+        private currentZoomScale;
+        private maxZoomScale;
+        private zoomDuration;
+        private elapsedZoomTime;
+        private zoomIncrement;
+        constructor();
+        private easeInOutCubic(currentTime, startValue, endValue, duration);
+        /**
+        * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
+        * @method setActorToFollow
+        * @param actor {Actor} The actor to follow
+        */
+        public setActorToFollow(actor: Actor): void;
+        /**
+        * Returns the focal point of the camera
+        * @method getFocus
+        * @returns Point
+        */
+        public getFocus(): Point;
+        /**
+        * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
+        * @method setFocus
+        * @param x {number} The x coordinate of the focal point
+        * @param y {number} The y coordinate of the focal point
+        */
+        public setFocus(x: number, y: number): void;
+        /**
+        * Sets the camera to shake at the specified magnitudes for the specified duration
+        * @method shake
+        * @param magnitudeX {number} the x magnitude of the shake
+        * @param magnitudeY {number} the y magnitude of the shake
+        * @param duration {number} the duration of the shake
+        */
+        public shake(magnitudeX: number, magnitudeY: number, duration: number): void;
+        /**
+        * Zooms the camera in or out by the specified scale over the specified duration.
+        * If no duration is specified, it will zoom by a set amount until the scale is reached.
+        * @method zoom
+        * @param scale {number} the scale of the zoom
+        * @param [duration] {number} the duration of the zoom
+        */
+        public zoom(scale: number, duration?: number): void;
+        /**
+        * gets the current zoom scale
+        * @method getZoom
+        * @returns {Number} the current zoom scale
+        */
+        public getZoom(): number;
+        private setCurrentZoomScale(zoomScale);
+        /**
+        * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
+        * @method update
+        * @param delta {number} The number of milliseconds since the last update
+        */
+        public update(ctx: CanvasRenderingContext2D, delta: number): void;
+        public debugDraw(ctx: CanvasRenderingContext2D): void;
+        private isDoneShaking();
+        private isDoneZooming();
+    }
+    /**
+    * An extension of BaseCamera that is locked vertically; it will only move side to side.
+    * @class SideCamera
+    * @extends BaseCamera
+    * @constructor
+    * @param engine {Engine} Reference to the current engine
+    */
+    class SideCamera extends BaseCamera {
+        public getFocus(): Point;
+    }
+    /**
+    * An extension of BaseCamera that is locked to an actor or focal point; the actor will appear in the center of the screen.
+    * @class TopCamera
+    * @extends BaseCamera
+    * @constructor
+    * @param engine {Engine} Reference to the current engine
+    */
+    class TopCamera extends BaseCamera {
+        public getFocus(): Point;
+    }
+}
+declare module ex {
+    /**
     * Actors are composed together into groupings called Scenes in
     * Excalibur. The metaphor models the same idea behind real world
     * actors in a scene. Only actors in scenes will be updated and drawn.
@@ -1290,6 +1400,11 @@ declare module ex {
     */
     class Scene extends Class {
         public actor: Actor;
+        /**
+        * Gets or sets the current camera for the scene
+        * @property camera {Camera}
+        */
+        public camera: BaseCamera;
         /**
         * The actors in the current scene
         * @property children {Actor[]}
@@ -1302,7 +1417,7 @@ declare module ex {
         private _timers;
         private _cancelQueue;
         private _isInitialized;
-        constructor();
+        constructor(engine?: Engine);
         /**
         * This is called when the scene is made active and started. It is meant to be overriden,
         * this is where you should setup any DOM UI or event handlers needed for the scene.
@@ -1918,15 +2033,15 @@ declare module ex {
         */
         public color: Color;
         /**
-        * Whether or not to enable the input pipeline to receive input events like pointer.
-        * @property inputEnabled {boolean}
+        * Whether or not to enable the CapturePointer trait that propogates pointer events to this actor
+        * @property [enableCapturePointer=false] {boolean}
         */
-        public inputEnabled: boolean;
+        public enableCapturePointer: boolean;
         /**
-        * If input is enabled, allow this actor to receive "move" events (this may be expensive!).
-        * @property inputEnableMoveEvents {boolean}
+        * Configuration for CapturePointer trait
+        * @property capturePointer {ICapturePointerConfig}
         */
-        public inputEnableMoveEvents: boolean;
+        public capturePointer: ICapturePointerConfig;
         private _isKilled;
         constructor(x?: number, y?: number, width?: number, height?: number, color?: Color);
         /**
@@ -3176,110 +3291,6 @@ declare module ex {
         public play(x: number, y: number): void;
     }
 }
-declare module ex {
-    /**
-    * A base implementation of a camera. This class is meant to be extended.
-    * @class Camera
-    * @constructor
-    * @param engine {Engine} Reference to the current engine
-    */
-    class BaseCamera {
-        public follow: Actor;
-        public focus: Point;
-        public engine: Engine;
-        public lerp: boolean;
-        private _cameraMoving;
-        private _currentLerpTime;
-        private _lerpDuration;
-        private _totalLerpTime;
-        private _lerpStart;
-        private _lerpEnd;
-        public isShaking: boolean;
-        private shakeMagnitudeX;
-        private shakeMagnitudeY;
-        private shakeDuration;
-        private elapsedShakeTime;
-        public isZooming: boolean;
-        private currentZoomScale;
-        private maxZoomScale;
-        private zoomDuration;
-        private elapsedZoomTime;
-        private zoomIncrement;
-        constructor(engine: Engine);
-        private easeInOutCubic(currentTime, startValue, endValue, duration);
-        /**
-        * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
-        * @method setActorToFollow
-        * @param actor {Actor} The actor to follow
-        */
-        public setActorToFollow(actor: Actor): void;
-        /**
-        * Returns the focal point of the camera
-        * @method getFocus
-        * @returns Point
-        */
-        public getFocus(): Point;
-        /**
-        * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
-        * @method setFocus
-        * @param x {number} The x coordinate of the focal point
-        * @param y {number} The y coordinate of the focal point
-        */
-        public setFocus(x: number, y: number): void;
-        /**
-        * Sets the camera to shake at the specified magnitudes for the specified duration
-        * @method shake
-        * @param magnitudeX {number} the x magnitude of the shake
-        * @param magnitudeY {number} the y magnitude of the shake
-        * @param duration {number} the duration of the shake
-        */
-        public shake(magnitudeX: number, magnitudeY: number, duration: number): void;
-        /**
-        * Zooms the camera in or out by the specified scale over the specified duration.
-        * If no duration is specified, it will zoom by a set amount until the scale is reached.
-        * @method zoom
-        * @param scale {number} the scale of the zoom
-        * @param [duration] {number} the duration of the zoom
-        */
-        public zoom(scale: number, duration?: number): void;
-        /**
-        * gets the current zoom scale
-        * @method getZoom
-        * @returns {Number} the current zoom scale
-        */
-        public getZoom(): number;
-        private setCurrentZoomScale(zoomScale);
-        /**
-        * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
-        * @method update
-        * @param delta {number} The number of milliseconds since the last update
-        */
-        public update(delta: number): void;
-        public debugDraw(ctx: CanvasRenderingContext2D): void;
-        private isDoneShaking();
-        private isDoneZooming();
-    }
-    /**
-    * An extension of BaseCamera that is locked vertically; it will only move side to side.
-    * @class SideCamera
-    * @extends BaseCamera
-    * @constructor
-    * @param engine {Engine} Reference to the current engine
-    */
-    class SideCamera extends BaseCamera {
-        public getFocus(): Point;
-    }
-    /**
-    * An extension of BaseCamera that is locked to an actor or focal point; the actor will appear in the center of the screen.
-    * @class TopCamera
-    * @extends BaseCamera
-    * @constructor
-    * @param engine {Engine} Reference to the current engine
-    */
-    class TopCamera extends BaseCamera {
-        public getFocus(): Point;
-    }
-}
 declare module ex.Internal {
     interface ISound {
         setVolume(volume: number): any;
@@ -3528,6 +3539,7 @@ declare module ex {
         public height: number;
         public loaded: Promise<any>;
         private _isLoaded;
+        private _sprite;
         /**
         * Populated once loading is complete
         * @property image {HTMLImageElement}
@@ -3550,6 +3562,7 @@ declare module ex {
         * @returns Promise&lt;HTMLImageElement&gt;
         */
         public load(): Promise<HTMLImageElement>;
+        public asSprite(): Sprite;
     }
     /**
     * The Sound object allows games built in Excalibur to load audio
@@ -3904,36 +3917,68 @@ declare module ex {
 declare module ex.Input {
     interface IEngineInput {
         keyboard: Keyboard;
-        pointer: Pointer;
+        pointers: Pointers;
         gamepads: Gamepads;
     }
 }
 declare module ex.Input {
+    enum PointerType {
+        Touch = 0,
+        Mouse = 1,
+        Pen = 2,
+        Unknown = 3,
+    }
+    enum PointerButton {
+        Left = 0,
+        Middle = 1,
+        Right = 2,
+        Unknown = 3,
+    }
     class PointerEvent extends GameEvent {
         public x: number;
         public y: number;
+        public index: number;
+        public pointerType: PointerType;
+        public button: PointerButton;
         public ev: any;
-        constructor(x: number, y: number, ev: any);
+        constructor(x: number, y: number, index: number, pointerType: PointerType, button: PointerButton, ev: any);
     }
     /**
-    * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to W3C Pointer Events
+    * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to W3C Pointer Events.
+    * There is always at least one pointer available (primary).
     *
-    * @class Pointer
+    * @class Pointers
     * @extends Class
     * @constructor
     */
-    class Pointer extends Class {
+    class Pointers extends Class {
         private _engine;
         private _pointerDown;
         private _pointerUp;
         private _pointerMove;
         private _pointerCancel;
+        private _pointers;
+        private _activePointers;
         constructor(engine: Engine);
+        /**
+        * Primary pointer (mouse, 1 finger, stylus, etc.)
+        * @property primary {Pointer}
+        */
+        public primary: Pointer;
         /**
         * Initializes pointer event listeners
         */
         public init(): void;
         public update(delta: number): void;
+        /**
+        * Safely gets a Pointer at a specific index and initializes one if it doesn't yet exist
+        * @param index {number} The pointer index to retrieve
+        */
+        public at(index: number): Pointer;
+        /**
+        * Get number of pointers being watched
+        */
+        public count(): number;
         /**
         * Propogates events to actor if necessary
         */
@@ -3941,6 +3986,21 @@ declare module ex.Input {
         private _handleMouseEvent(eventName, eventArr);
         private _handleTouchEvent(eventName, eventArr);
         private _handlePointerEvent(eventName, eventArr);
+        /**
+        * Gets the index of the pointer specified for the given pointer ID or finds the next empty pointer slot available.
+        * This is required because IE10/11 uses incrementing pointer IDs so we need to store a mapping of ID => idx
+        * @private
+        */
+        private _getPointerIndex(pointerId);
+        private _stringToPointerType(s);
+    }
+    /**
+    * Captures and dispatches PointerEvents
+    * @class Pointer
+    * @constructor
+    * @extends Class
+    */
+    class Pointer extends Class {
     }
 }
 declare module ex.Input {
@@ -4204,11 +4264,6 @@ declare module ex.Input {
     */
     class Gamepads extends Class {
         /**
-        * Access to the individual pads
-        * @property pads {Array<Gamepad>}
-        */
-        public pads: Gamepad[];
-        /**
         * Whether or not to poll for Gamepad input (default: false)
         * @property enabled {boolean}
         */
@@ -4226,6 +4281,7 @@ declare module ex.Input {
         static MinAxisMoveThreshold: number;
         private _gamePadTimeStamps;
         private _oldPads;
+        private _pads;
         private _initSuccess;
         private _engine;
         private _navigator;
@@ -4236,7 +4292,11 @@ declare module ex.Input {
         */
         public update(delta: number): void;
         /**
-        * The number of connected gamepads
+        * Safely retrieves a Gamepad at a specific index and creates one if it doesn't yet exist
+        */
+        public at(index: number): Gamepad;
+        /**
+        * Gets the number of connected gamepads
         */
         public count(): number;
         private _clonePads(pads);
@@ -4504,11 +4564,6 @@ declare module ex {
         */
         public collisionStrategy: CollisionStrategy;
         private hasStarted;
-        /**
-        * Gets or sets the camera to be used in the game.
-        * @property camera {BaseCamera}
-        */
-        public camera: BaseCamera;
         public currentScene: Scene;
         /**
         * The default scene of the game, use {{#crossLink "Engine/goToScene"}}{{/crossLink}} to transition to different scenes.

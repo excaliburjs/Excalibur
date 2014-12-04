@@ -12,7 +12,7 @@ describe("A camera", () => {
 
    beforeEach(()=>{
       actor = new ex.Actor();
-      scene = new ex.Scene();
+      
       // mock engine    
       engine = {
          collisionStrategy: 0,
@@ -49,9 +49,10 @@ describe("A camera", () => {
       actor.width = 10;
       actor.y = 250;
       actor.height = 10;
+      scene = new ex.Scene(engine);
 
-      sideCamera = new ex.SideCamera(engine);
-      topCamera = new ex.TopCamera(engine);
+      sideCamera = new ex.SideCamera();
+      topCamera = new ex.TopCamera();
    });
 
    it("can follow an actor if it is a TopCamera", () => {

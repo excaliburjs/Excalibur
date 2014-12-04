@@ -5,9 +5,38 @@
 describe("A Timer", ()=>{
    var timer;
    var scene;
+   var engine;
    beforeEach(()=>{
+      // mock engine    
+      engine = {
+         currentScene : scene,
+         keys: [],
+         clicks: [],
+         mouseDown: [],
+         mouseMove: [],
+         mouseUp: [],
+         touchStart: [],
+         touchMove: [],
+         touchEnd: [],
+         touchCancel: [],
+         canvas: {
+            width: 0,
+            height: 0,
+         },
+         getWidth: function(){return 0},
+         getHeight: function(){return 0},
+         camera: {
+            getZoom: function(){return 1}
+         },
+         worldToScreenCoordinates: function(){
+            return new ex.Point(0,0);
+         },
+         screenToWorldCoordinates: function(){
+            return new ex.Point(0,0);
+         }
+      };
       timer = new ex.Timer(function(){}, 500);     
-      scene = new ex.Scene();
+      scene = new ex.Scene(engine);
    });
 
    it("has a unique id", ()=>{

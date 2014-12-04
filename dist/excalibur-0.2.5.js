@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-11-13
+/*! excalibur - v0.2.5 - 2014-12-03
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -197,8 +197,8 @@ var ex;
             var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Point(actor.getGlobalX() - anchor.x * width, actor.getGlobalY() - anchor.y * height));
 
             var zoom = 1.0;
-            if (engine.camera) {
-                zoom = engine.camera.getZoom();
+            if (actor.scene && actor.scene.camera) {
+                zoom = actor.scene.camera.getZoom();
             }
 
             if (!actor.isOffScreen) {
@@ -221,22 +221,22 @@ var ex;
 var ex;
 (function (ex) {
     /**
-    * Propogates input events to the actor (i.e. PointerEvents)
+    * Propogates pointer events to the actor
     */
-    var InputPropagationModule = (function () {
-        function InputPropagationModule() {
+    var CapturePointerModule = (function () {
+        function CapturePointerModule() {
         }
-        InputPropagationModule.prototype.update = function (actor, engine, delta) {
-            if (!actor.inputEnabled)
+        CapturePointerModule.prototype.update = function (actor, engine, delta) {
+            if (!actor.enableCapturePointer)
                 return;
             if (actor.isKilled())
                 return;
 
-            engine.input.pointer.propogate(actor);
+            engine.input.pointers.propogate(actor);
         };
-        return InputPropagationModule;
+        return CapturePointerModule;
     })();
-    ex.InputPropagationModule = InputPropagationModule;
+    ex.CapturePointerModule = CapturePointerModule;
 })(ex || (ex = {}));
 /// <reference path="../Interfaces/IPipelineModule.ts" />
 var ex;
@@ -1032,6 +1032,8 @@ var ex;
             this.spriteCanvas.height = sheight;
             this.spriteCtx = this.spriteCanvas.getContext('2d');
             this.texture.loaded.then(function () {
+                _this.spriteCanvas.width = _this.spriteCanvas.width || _this.texture.image.naturalWidth;
+                _this.spriteCanvas.height = _this.spriteCanvas.height || _this.texture.image.naturalHeight;
                 _this.loadPixels();
                 _this.dirtyEffect = true;
             }).error(function (e) {
@@ -2854,11 +2856,290 @@ var ex;
     })();
     ex.CollisionPair = CollisionPair;
 })(ex || (ex = {}));
+/// <reference path="Engine.ts" />
+/// <reference path="Algebra.ts" />
+var ex;
+(function (ex) {
+    /**
+    * A base implementation of a camera. This class is meant to be extended.
+    * @class Camera
+    * @constructor
+    * @param engine {Engine} Reference to the current engine
+    */
+    var BaseCamera = (function () {
+        function BaseCamera() {
+            this.focus = new ex.Point(0, 0);
+            this.lerp = false;
+            this._cameraMoving = false;
+            this._currentLerpTime = 0;
+            this._lerpDuration = 1 * 1000;
+            this._totalLerpTime = 0;
+            this._lerpStart = null;
+            this._lerpEnd = null;
+            //camera effects
+            this.isShaking = false;
+            this.shakeMagnitudeX = 0;
+            this.shakeMagnitudeY = 0;
+            this.shakeDuration = 0;
+            this.elapsedShakeTime = 0;
+            this.isZooming = false;
+            this.currentZoomScale = 1;
+            this.maxZoomScale = 1;
+            this.zoomDuration = 0;
+            this.elapsedZoomTime = 0;
+            this.zoomIncrement = 0.01;
+        }
+        BaseCamera.prototype.easeInOutCubic = function (currentTime, startValue, endValue, duration) {
+            endValue = (endValue - startValue);
+            currentTime /= duration / 2;
+            if (currentTime < 1)
+                return endValue / 2 * currentTime * currentTime * currentTime + startValue;
+            currentTime -= 2;
+            return endValue / 2 * (currentTime * currentTime * currentTime + 2) + startValue;
+        };
+
+        /**
+        * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
+        * @method setActorToFollow
+        * @param actor {Actor} The actor to follow
+        */
+        BaseCamera.prototype.setActorToFollow = function (actor) {
+            this.follow = actor;
+        };
+
+        /**
+        * Returns the focal point of the camera
+        * @method getFocus
+        * @returns Point
+        */
+        BaseCamera.prototype.getFocus = function () {
+            return this.focus;
+        };
+
+        /**
+        * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
+        * @method setFocus
+        * @param x {number} The x coordinate of the focal point
+        * @param y {number} The y coordinate of the focal point
+        */
+        BaseCamera.prototype.setFocus = function (x, y) {
+            if (!this.follow && !this.lerp) {
+                this.focus.x = x;
+                this.focus.y = y;
+            }
+
+            if (this.lerp) {
+                this._lerpStart = this.focus.clone();
+                this._lerpEnd = new ex.Point(x, y);
+                this._currentLerpTime = 0;
+                this._cameraMoving = true;
+            }
+        };
+
+        /**
+        * Sets the camera to shake at the specified magnitudes for the specified duration
+        * @method shake
+        * @param magnitudeX {number} the x magnitude of the shake
+        * @param magnitudeY {number} the y magnitude of the shake
+        * @param duration {number} the duration of the shake
+        */
+        BaseCamera.prototype.shake = function (magnitudeX, magnitudeY, duration) {
+            this.isShaking = true;
+            this.shakeMagnitudeX = magnitudeX;
+            this.shakeMagnitudeY = magnitudeY;
+            this.shakeDuration = duration;
+        };
+
+        /**
+        * Zooms the camera in or out by the specified scale over the specified duration.
+        * If no duration is specified, it will zoom by a set amount until the scale is reached.
+        * @method zoom
+        * @param scale {number} the scale of the zoom
+        * @param [duration] {number} the duration of the zoom
+        */
+        BaseCamera.prototype.zoom = function (scale, duration) {
+            this.isZooming = true;
+            this.maxZoomScale = scale;
+            this.zoomDuration = duration | 0;
+            if (duration) {
+                this.zoomIncrement = Math.abs(this.maxZoomScale - this.currentZoomScale) / duration * 1000;
+            }
+
+            if (this.maxZoomScale < 1) {
+                if (duration) {
+                    this.zoomIncrement = -1 * this.zoomIncrement;
+                } else {
+                    this.isZooming = false;
+                    this.setCurrentZoomScale(this.maxZoomScale);
+                }
+            } else {
+                if (!duration) {
+                    this.isZooming = false;
+                    this.setCurrentZoomScale(this.maxZoomScale);
+                }
+            }
+            // console.log("zoom increment: " + this.zoomIncrement);
+        };
+
+        /**
+        * gets the current zoom scale
+        * @method getZoom
+        * @returns {Number} the current zoom scale
+        */
+        BaseCamera.prototype.getZoom = function () {
+            return this.currentZoomScale;
+        };
+
+        BaseCamera.prototype.setCurrentZoomScale = function (zoomScale) {
+            this.currentZoomScale = zoomScale;
+        };
+
+        /**
+        * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
+        * @method update
+        * @param delta {number} The number of milliseconds since the last update
+        */
+        BaseCamera.prototype.update = function (ctx, delta) {
+            var focus = this.getFocus();
+
+            var xShake = 0;
+            var yShake = 0;
+
+            var canvasWidth = ctx.canvas.width;
+            var canvasHeight = ctx.canvas.height;
+            var newCanvasWidth = canvasWidth * this.getZoom();
+            var newCanvasHeight = canvasHeight * this.getZoom();
+
+            if (this.lerp) {
+                if (this._currentLerpTime < this._lerpDuration && this._cameraMoving) {
+                    if (this._lerpEnd.x < this._lerpStart.x) {
+                        this.focus.x = this._lerpStart.x - (this.easeInOutCubic(this._currentLerpTime, this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
+                    } else {
+                        this.focus.x = this.easeInOutCubic(this._currentLerpTime, this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
+                    }
+
+                    if (this._lerpEnd.y < this._lerpStart.y) {
+                        this.focus.y = this._lerpStart.y - (this.easeInOutCubic(this._currentLerpTime, this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
+                    } else {
+                        this.focus.y = this.easeInOutCubic(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
+                    }
+                    this._currentLerpTime += delta;
+                } else {
+                    this._lerpStart = null;
+                    this._lerpEnd = null;
+                    this._currentLerpTime = 0;
+                    this._cameraMoving = false;
+                }
+            }
+
+            if (this.isDoneShaking()) {
+                this.isShaking = false;
+                this.elapsedShakeTime = 0;
+                this.shakeMagnitudeX = 0;
+                this.shakeMagnitudeY = 0;
+                this.shakeDuration = 0;
+            } else {
+                this.elapsedShakeTime += delta;
+                xShake = (Math.random() * this.shakeMagnitudeX | 0) + 1;
+                yShake = (Math.random() * this.shakeMagnitudeY | 0) + 1;
+            }
+
+            ctx.translate(-focus.x + xShake + (newCanvasWidth / 2), -focus.y + yShake + (newCanvasHeight / 2));
+
+            if (this.isDoneZooming()) {
+                this.isZooming = false;
+                this.elapsedZoomTime = 0;
+                this.zoomDuration = 0;
+                this.setCurrentZoomScale(this.maxZoomScale);
+            } else {
+                this.elapsedZoomTime += delta;
+
+                this.setCurrentZoomScale(this.getZoom() + this.zoomIncrement * delta / 1000);
+            }
+
+            ctx.scale(this.getZoom(), this.getZoom());
+        };
+
+        BaseCamera.prototype.debugDraw = function (ctx) {
+            var focus = this.getFocus();
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(focus.x, focus.y, 15, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fill();
+        };
+
+        BaseCamera.prototype.isDoneShaking = function () {
+            return !(this.isShaking) || (this.elapsedShakeTime >= this.shakeDuration);
+        };
+
+        BaseCamera.prototype.isDoneZooming = function () {
+            if (this.zoomDuration != 0) {
+                return (this.elapsedZoomTime >= this.zoomDuration);
+            } else {
+                if (this.maxZoomScale < 1) {
+                    return (this.currentZoomScale <= this.maxZoomScale);
+                } else {
+                    return (this.currentZoomScale >= this.maxZoomScale);
+                }
+            }
+        };
+        return BaseCamera;
+    })();
+    ex.BaseCamera = BaseCamera;
+
+    /**
+    * An extension of BaseCamera that is locked vertically; it will only move side to side.
+    * @class SideCamera
+    * @extends BaseCamera
+    * @constructor
+    * @param engine {Engine} Reference to the current engine
+    */
+    var SideCamera = (function (_super) {
+        __extends(SideCamera, _super);
+        function SideCamera() {
+            _super.apply(this, arguments);
+        }
+        SideCamera.prototype.getFocus = function () {
+            if (this.follow) {
+                return new ex.Point(this.follow.x + this.follow.getWidth() / 2, this.focus.y);
+            } else {
+                return this.focus;
+            }
+        };
+        return SideCamera;
+    })(BaseCamera);
+    ex.SideCamera = SideCamera;
+
+    /**
+    * An extension of BaseCamera that is locked to an actor or focal point; the actor will appear in the center of the screen.
+    * @class TopCamera
+    * @extends BaseCamera
+    * @constructor
+    * @param engine {Engine} Reference to the current engine
+    */
+    var TopCamera = (function (_super) {
+        __extends(TopCamera, _super);
+        function TopCamera() {
+            _super.apply(this, arguments);
+        }
+        TopCamera.prototype.getFocus = function () {
+            if (this.follow) {
+                return new ex.Point(this.follow.x + this.follow.getWidth() / 2, this.follow.y + this.follow.getHeight() / 2);
+            } else {
+                return this.focus;
+            }
+        };
+        return TopCamera;
+    })(BaseCamera);
+    ex.TopCamera = TopCamera;
+})(ex || (ex = {}));
 /// <reference path="Class.ts" />
 /// <reference path="Timer.ts" />
 /// <reference path="Collision/NaiveCollisionResolver.ts"/>
 /// <reference path="Collision/DynamicTreeCollisionResolver.ts"/>
 /// <reference path="CollisionPair.ts" />
+/// <reference path="Camera.ts" />
 var ex;
 (function (ex) {
     /**
@@ -2870,7 +3151,7 @@ var ex;
     */
     var Scene = (function (_super) {
         __extends(Scene, _super);
-        function Scene() {
+        function Scene(engine) {
             _super.call(this);
             /**
             * The actors in the current scene
@@ -2883,6 +3164,10 @@ var ex;
             this._timers = [];
             this._cancelQueue = [];
             this._isInitialized = false;
+            this.camera = new ex.BaseCamera();
+            if (engine) {
+                this.camera.setFocus(engine.width / 2, engine.height / 2);
+            }
         }
         /**
         * This is called when the scene is made active and started. It is meant to be overriden,
@@ -2985,6 +3270,12 @@ var ex;
         * @param delta {number} The number of milliseconds since the last draw
         */
         Scene.prototype.draw = function (ctx, delta) {
+            ctx.save();
+
+            if (this.camera) {
+                this.camera.update(ctx, delta);
+            }
+
             this.tileMaps.forEach(function (cm) {
                 cm.draw(ctx, delta);
             });
@@ -3001,6 +3292,9 @@ var ex;
                     this.children[i].draw(ctx, delta);
                 }
             }
+
+            ctx.restore();
+            // todo unlocked drawing here
         };
 
         /**
@@ -3018,6 +3312,8 @@ var ex;
             });
 
             this._collisionResolver.debugDraw(ctx, 20);
+
+            this.camera.debugDraw(ctx);
         };
 
         Scene.prototype.add = function (entity) {
@@ -3881,7 +4177,7 @@ var ex;
 /// <reference path="Interfaces/IDrawable.ts" />
 /// <reference path="Modules/MovementModule.ts" />
 /// <reference path="Modules/OffscreenCullingModule.ts" />
-/// <reference path="Modules/InputPropagationModule.ts" />
+/// <reference path="Modules/CapturePointerModule.ts" />
 /// <reference path="Modules/CollisionDetectionModule.ts" />
 /// <reference path="Collision/Side.ts" />
 /// <reference path="Algebra.ts" />
@@ -4091,15 +4387,17 @@ var ex;
             */
             this.pipeline = [];
             /**
-            * Whether or not to enable the input pipeline to receive input events like pointer.
-            * @property inputEnabled {boolean}
+            * Whether or not to enable the CapturePointer trait that propogates pointer events to this actor
+            * @property [enableCapturePointer=false] {boolean}
             */
-            this.inputEnabled = false;
+            this.enableCapturePointer = false;
             /**
-            * If input is enabled, allow this actor to receive "move" events (this may be expensive!).
-            * @property inputEnableMoveEvents {boolean}
+            * Configuration for CapturePointer trait
+            * @property capturePointer {ICapturePointerConfig}
             */
-            this.inputEnableMoveEvents = false;
+            this.capturePointer = {
+                captureMoveEvents: false
+            };
             this._isKilled = false;
             this.x = x || 0;
             this.y = y || 0;
@@ -4108,7 +4406,7 @@ var ex;
             if (color) {
                 this.color = color.clone();
 
-                // set default opacticy of an actor to the color
+                // set default opacity of an actor to the color
                 this.opacity = color.a;
             }
 
@@ -4117,11 +4415,13 @@ var ex;
 
             //this.pipeline.push(new ex.CollisionDetectionModule());
             this.pipeline.push(new ex.OffscreenCullingModule());
-            this.pipeline.push(new ex.InputPropagationModule());
+            this.pipeline.push(new ex.CapturePointerModule());
 
             this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
+
             this.sceneNode = new ex.Scene();
             this.sceneNode.actor = this;
+
             this.anchor = new ex.Point(.5, .5);
         }
         /**
@@ -6214,285 +6514,6 @@ var ex;
     })();
     ex.Animation = Animation;
 })(ex || (ex = {}));
-/// <reference path="Engine.ts" />
-/// <reference path="Algebra.ts" />
-var ex;
-(function (ex) {
-    /**
-    * A base implementation of a camera. This class is meant to be extended.
-    * @class Camera
-    * @constructor
-    * @param engine {Engine} Reference to the current engine
-    */
-    var BaseCamera = (function () {
-        function BaseCamera(engine) {
-            this.focus = new ex.Point(0, 0);
-            this.lerp = false;
-            this._cameraMoving = false;
-            this._currentLerpTime = 0;
-            this._lerpDuration = 1 * 1000;
-            this._totalLerpTime = 0;
-            this._lerpStart = null;
-            this._lerpEnd = null;
-            //camera effects
-            this.isShaking = false;
-            this.shakeMagnitudeX = 0;
-            this.shakeMagnitudeY = 0;
-            this.shakeDuration = 0;
-            this.elapsedShakeTime = 0;
-            this.isZooming = false;
-            this.currentZoomScale = 1;
-            this.maxZoomScale = 1;
-            this.zoomDuration = 0;
-            this.elapsedZoomTime = 0;
-            this.zoomIncrement = 0.01;
-            this.engine = engine;
-        }
-        BaseCamera.prototype.easeInOutCubic = function (currentTime, startValue, endValue, duration) {
-            endValue = (endValue - startValue);
-            currentTime /= duration / 2;
-            if (currentTime < 1)
-                return endValue / 2 * currentTime * currentTime * currentTime + startValue;
-            currentTime -= 2;
-            return endValue / 2 * (currentTime * currentTime * currentTime + 2) + startValue;
-        };
-
-        /**
-        * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
-        * @method setActorToFollow
-        * @param actor {Actor} The actor to follow
-        */
-        BaseCamera.prototype.setActorToFollow = function (actor) {
-            this.follow = actor;
-        };
-
-        /**
-        * Returns the focal point of the camera
-        * @method getFocus
-        * @returns Point
-        */
-        BaseCamera.prototype.getFocus = function () {
-            return this.focus;
-        };
-
-        /**
-        * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
-        * @method setFocus
-        * @param x {number} The x coordinate of the focal point
-        * @param y {number} The y coordinate of the focal point
-        */
-        BaseCamera.prototype.setFocus = function (x, y) {
-            if (!this.follow && !this.lerp) {
-                this.focus.x = x;
-                this.focus.y = y;
-            }
-
-            if (this.lerp) {
-                this._lerpStart = this.focus.clone();
-                this._lerpEnd = new ex.Point(x, y);
-                this._currentLerpTime = 0;
-                this._cameraMoving = true;
-            }
-        };
-
-        /**
-        * Sets the camera to shake at the specified magnitudes for the specified duration
-        * @method shake
-        * @param magnitudeX {number} the x magnitude of the shake
-        * @param magnitudeY {number} the y magnitude of the shake
-        * @param duration {number} the duration of the shake
-        */
-        BaseCamera.prototype.shake = function (magnitudeX, magnitudeY, duration) {
-            this.isShaking = true;
-            this.shakeMagnitudeX = magnitudeX;
-            this.shakeMagnitudeY = magnitudeY;
-            this.shakeDuration = duration;
-        };
-
-        /**
-        * Zooms the camera in or out by the specified scale over the specified duration.
-        * If no duration is specified, it will zoom by a set amount until the scale is reached.
-        * @method zoom
-        * @param scale {number} the scale of the zoom
-        * @param [duration] {number} the duration of the zoom
-        */
-        BaseCamera.prototype.zoom = function (scale, duration) {
-            this.isZooming = true;
-            this.maxZoomScale = scale;
-            this.zoomDuration = duration | 0;
-            if (duration) {
-                this.zoomIncrement = Math.abs(this.maxZoomScale - this.currentZoomScale) / duration * 1000;
-            }
-
-            if (this.maxZoomScale < 1) {
-                if (duration) {
-                    this.zoomIncrement = -1 * this.zoomIncrement;
-                } else {
-                    this.isZooming = false;
-                    this.setCurrentZoomScale(this.maxZoomScale);
-                }
-            } else {
-                if (!duration) {
-                    this.isZooming = false;
-                    this.setCurrentZoomScale(this.maxZoomScale);
-                }
-            }
-            // console.log("zoom increment: " + this.zoomIncrement);
-        };
-
-        /**
-        * gets the current zoom scale
-        * @method getZoom
-        * @returns {Number} the current zoom scale
-        */
-        BaseCamera.prototype.getZoom = function () {
-            return this.currentZoomScale;
-        };
-
-        BaseCamera.prototype.setCurrentZoomScale = function (zoomScale) {
-            this.currentZoomScale = zoomScale;
-        };
-
-        /**
-        * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
-        * @method update
-        * @param delta {number} The number of milliseconds since the last update
-        */
-        BaseCamera.prototype.update = function (delta) {
-            var focus = this.getFocus();
-
-            var xShake = 0;
-            var yShake = 0;
-
-            var canvasWidth = this.engine.ctx.canvas.width;
-            var canvasHeight = this.engine.ctx.canvas.height;
-            var newCanvasWidth = canvasWidth * this.getZoom();
-            var newCanvasHeight = canvasHeight * this.getZoom();
-
-            if (this.lerp) {
-                if (this._currentLerpTime < this._lerpDuration && this._cameraMoving) {
-                    if (this._lerpEnd.x < this._lerpStart.x) {
-                        this.focus.x = this._lerpStart.x - (this.easeInOutCubic(this._currentLerpTime, this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
-                    } else {
-                        this.focus.x = this.easeInOutCubic(this._currentLerpTime, this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
-                    }
-
-                    if (this._lerpEnd.y < this._lerpStart.y) {
-                        this.focus.y = this._lerpStart.y - (this.easeInOutCubic(this._currentLerpTime, this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
-                    } else {
-                        this.focus.y = this.easeInOutCubic(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
-                    }
-                    this._currentLerpTime += delta;
-                } else {
-                    this._lerpStart = null;
-                    this._lerpEnd = null;
-                    this._currentLerpTime = 0;
-                    this._cameraMoving = false;
-                }
-            }
-
-            if (this.isDoneShaking()) {
-                this.isShaking = false;
-                this.elapsedShakeTime = 0;
-                this.shakeMagnitudeX = 0;
-                this.shakeMagnitudeY = 0;
-                this.shakeDuration = 0;
-            } else {
-                this.elapsedShakeTime += delta;
-                xShake = (Math.random() * this.shakeMagnitudeX | 0) + 1;
-                yShake = (Math.random() * this.shakeMagnitudeY | 0) + 1;
-            }
-
-            this.engine.ctx.translate(-focus.x + xShake + (newCanvasWidth / 2), -focus.y + yShake + (newCanvasHeight / 2));
-
-            if (this.isDoneZooming()) {
-                this.isZooming = false;
-                this.elapsedZoomTime = 0;
-                this.zoomDuration = 0;
-                this.setCurrentZoomScale(this.maxZoomScale);
-            } else {
-                this.elapsedZoomTime += delta;
-
-                this.setCurrentZoomScale(this.getZoom() + this.zoomIncrement * delta / 1000);
-            }
-
-            this.engine.ctx.scale(this.getZoom(), this.getZoom());
-        };
-
-        BaseCamera.prototype.debugDraw = function (ctx) {
-            var focus = this.getFocus();
-            ctx.fillStyle = 'red';
-            ctx.beginPath();
-            ctx.arc(focus.x, focus.y, 15, 0, Math.PI * 2);
-            ctx.closePath();
-            ctx.fill();
-        };
-
-        BaseCamera.prototype.isDoneShaking = function () {
-            return !(this.isShaking) || (this.elapsedShakeTime >= this.shakeDuration);
-        };
-
-        BaseCamera.prototype.isDoneZooming = function () {
-            if (this.zoomDuration != 0) {
-                return (this.elapsedZoomTime >= this.zoomDuration);
-            } else {
-                if (this.maxZoomScale < 1) {
-                    return (this.currentZoomScale <= this.maxZoomScale);
-                } else {
-                    return (this.currentZoomScale >= this.maxZoomScale);
-                }
-            }
-        };
-        return BaseCamera;
-    })();
-    ex.BaseCamera = BaseCamera;
-
-    /**
-    * An extension of BaseCamera that is locked vertically; it will only move side to side.
-    * @class SideCamera
-    * @extends BaseCamera
-    * @constructor
-    * @param engine {Engine} Reference to the current engine
-    */
-    var SideCamera = (function (_super) {
-        __extends(SideCamera, _super);
-        function SideCamera() {
-            _super.apply(this, arguments);
-        }
-        SideCamera.prototype.getFocus = function () {
-            if (this.follow) {
-                return new ex.Point(this.follow.x + this.follow.getWidth() / 2, this.focus.y);
-            } else {
-                return this.focus;
-            }
-        };
-        return SideCamera;
-    })(BaseCamera);
-    ex.SideCamera = SideCamera;
-
-    /**
-    * An extension of BaseCamera that is locked to an actor or focal point; the actor will appear in the center of the screen.
-    * @class TopCamera
-    * @extends BaseCamera
-    * @constructor
-    * @param engine {Engine} Reference to the current engine
-    */
-    var TopCamera = (function (_super) {
-        __extends(TopCamera, _super);
-        function TopCamera() {
-            _super.apply(this, arguments);
-        }
-        TopCamera.prototype.getFocus = function () {
-            if (this.follow) {
-                return new ex.Point(this.follow.x + this.follow.getWidth() / 2, this.follow.y + this.follow.getHeight() / 2);
-            } else {
-                return this.focus;
-            }
-        };
-        return TopCamera;
-    })(BaseCamera);
-    ex.TopCamera = TopCamera;
-})(ex || (ex = {}));
 /// <reference path="MonkeyPatch.ts" />
 /// <reference path="Util.ts" />
 /// <reference path="Log.ts" />
@@ -7048,6 +7069,8 @@ var ex;
             this.path = path;
             this.loaded = new ex.Promise();
             this._isLoaded = false;
+            this._sprite = null;
+            this._sprite = new ex.Sprite(this, 0, 0, 0, 0);
         }
         /**
         * Returns true if the Texture is completely loaded and is ready
@@ -7073,6 +7096,8 @@ var ex;
                 _this.image = new Image();
                 _this.image.addEventListener("load", function () {
                     _this._isLoaded = true;
+                    _this.width = _this._sprite.swidth = _this._sprite.width = _this.image.naturalWidth;
+                    _this.height = _this._sprite.sheight = _this._sprite.height = _this.image.naturalHeight;
                     _this.loaded.resolve(_this.image);
                     complete.resolve(_this.image);
                 });
@@ -7081,6 +7106,10 @@ var ex;
                 complete.reject("Error loading texture.");
             });
             return complete;
+        };
+
+        Texture.prototype.asSprite = function () {
+            return this._sprite;
         };
         return Texture;
     })(ex.Resource);
@@ -7874,15 +7903,35 @@ var ex;
     })(ex.Actor);
     ex.Label = Label;
 })(ex || (ex = {}));
+/// <reference path="../Events.ts"/>
 var ex;
 (function (ex) {
     (function (Input) {
+        (function (PointerType) {
+            PointerType[PointerType["Touch"] = 0] = "Touch";
+            PointerType[PointerType["Mouse"] = 1] = "Mouse";
+            PointerType[PointerType["Pen"] = 2] = "Pen";
+            PointerType[PointerType["Unknown"] = 3] = "Unknown";
+        })(Input.PointerType || (Input.PointerType = {}));
+        var PointerType = Input.PointerType;
+
+        (function (PointerButton) {
+            PointerButton[PointerButton["Left"] = 0] = "Left";
+            PointerButton[PointerButton["Middle"] = 1] = "Middle";
+            PointerButton[PointerButton["Right"] = 2] = "Right";
+            PointerButton[PointerButton["Unknown"] = 3] = "Unknown";
+        })(Input.PointerButton || (Input.PointerButton = {}));
+        var PointerButton = Input.PointerButton;
+
         var PointerEvent = (function (_super) {
             __extends(PointerEvent, _super);
-            function PointerEvent(x, y, ev) {
+            function PointerEvent(x, y, index, pointerType, button, ev) {
                 _super.call(this);
                 this.x = x;
                 this.y = y;
+                this.index = index;
+                this.pointerType = pointerType;
+                this.button = button;
                 this.ev = ev;
             }
             return PointerEvent;
@@ -7891,27 +7940,33 @@ var ex;
         ;
 
         /**
-        * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to W3C Pointer Events
+        * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to W3C Pointer Events.
+        * There is always at least one pointer available (primary).
         *
-        * @class Pointer
+        * @class Pointers
         * @extends Class
         * @constructor
         */
-        var Pointer = (function (_super) {
-            __extends(Pointer, _super);
-            function Pointer(engine) {
+        var Pointers = (function (_super) {
+            __extends(Pointers, _super);
+            function Pointers(engine) {
                 _super.call(this);
                 this._pointerDown = [];
                 this._pointerUp = [];
                 this._pointerMove = [];
                 this._pointerCancel = [];
+                this._pointers = [];
+                this._activePointers = [];
 
                 this._engine = engine;
+                this._pointers.push(new Pointer());
+                this._activePointers = [-1];
+                this.primary = this._pointers[0];
             }
             /**
             * Initializes pointer event listeners
             */
-            Pointer.prototype.init = function () {
+            Pointers.prototype.init = function () {
                 // Touch Events
                 this._engine.canvas.addEventListener('touchstart', this._handleTouchEvent("down", this._pointerDown));
                 this._engine.canvas.addEventListener('touchend', this._handleTouchEvent("up", this._pointerUp));
@@ -7919,12 +7974,21 @@ var ex;
                 this._engine.canvas.addEventListener('touchcancel', this._handleTouchEvent("cancel", this._pointerCancel));
 
                 // W3C Pointer Events
-                // Current: IE11
-                if (window.MSPointerEvent) {
+                // Current: IE11, IE10
+                if (window.PointerEvent) {
+                    // IE11
+                    this._engine.canvas.style.touchAction = "none";
                     this._engine.canvas.addEventListener('pointerdown', this._handlePointerEvent("down", this._pointerDown));
                     this._engine.canvas.addEventListener('pointerup', this._handlePointerEvent("up", this._pointerUp));
                     this._engine.canvas.addEventListener('pointermove', this._handlePointerEvent("move", this._pointerMove));
                     this._engine.canvas.addEventListener('pointercancel', this._handlePointerEvent("cancel", this._pointerMove));
+                } else if (window.MSPointerEvent) {
+                    // IE10
+                    this._engine.canvas.style.msTouchAction = "none";
+                    this._engine.canvas.addEventListener('MSPointerDown', this._handlePointerEvent("down", this._pointerDown));
+                    this._engine.canvas.addEventListener('MSPointerUp', this._handlePointerEvent("up", this._pointerUp));
+                    this._engine.canvas.addEventListener('MSPointerMove', this._handlePointerEvent("move", this._pointerMove));
+                    this._engine.canvas.addEventListener('MSPointerCancel', this._handlePointerEvent("cancel", this._pointerMove));
                 } else {
                     // Mouse Events
                     this._engine.canvas.addEventListener('mousedown', this._handleMouseEvent("down", this._pointerDown));
@@ -7933,7 +7997,7 @@ var ex;
                 }
             };
 
-            Pointer.prototype.update = function (delta) {
+            Pointers.prototype.update = function (delta) {
                 this._pointerUp.length = 0;
                 this._pointerDown.length = 0;
                 this._pointerMove.length = 0;
@@ -7941,9 +8005,31 @@ var ex;
             };
 
             /**
+            * Safely gets a Pointer at a specific index and initializes one if it doesn't yet exist
+            * @param index {number} The pointer index to retrieve
+            */
+            Pointers.prototype.at = function (index) {
+                if (index >= this._pointers.length) {
+                    for (var i = this._pointers.length - 1, max = index; i < max; i++) {
+                        this._pointers.push(new Pointer());
+                        this._activePointers.push(-1);
+                    }
+                }
+
+                return this._pointers[index];
+            };
+
+            /**
+            * Get number of pointers being watched
+            */
+            Pointers.prototype.count = function () {
+                return this._pointers.length;
+            };
+
+            /**
             * Propogates events to actor if necessary
             */
-            Pointer.prototype.propogate = function (actor) {
+            Pointers.prototype.propogate = function (actor) {
                 this._pointerUp.forEach(function (e) {
                     if (actor.contains(e.x, e.y)) {
                         actor.eventDispatcher.publish("pointerup", e);
@@ -7954,7 +8040,7 @@ var ex;
                         actor.eventDispatcher.publish("pointerdown", e);
                     }
                 });
-                if (actor.inputEnableMoveEvents) {
+                if (actor.capturePointer.captureMoveEvents) {
                     this._pointerMove.forEach(function (e) {
                         if (actor.contains(e.x, e.y)) {
                             actor.eventDispatcher.publish("pointermove", e);
@@ -7968,44 +8054,111 @@ var ex;
                 });
             };
 
-            Pointer.prototype._handleMouseEvent = function (eventName, eventArr) {
+            Pointers.prototype._handleMouseEvent = function (eventName, eventArr) {
                 var _this = this;
                 return function (e) {
                     e.preventDefault();
                     var x = e.pageX - ex.Util.getPosition(_this._engine.canvas).x;
                     var y = e.pageY - ex.Util.getPosition(_this._engine.canvas).y;
                     var transformedPoint = _this._engine.screenToWorldCoordinates(new ex.Point(x, y));
-                    var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, e);
+                    var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, 0, 1 /* Mouse */, e.button, e);
                     eventArr.push(pe);
-                    _this.eventDispatcher.publish(eventName, pe);
+                    _this.at(0).eventDispatcher.publish(eventName, pe);
                 };
             };
 
-            Pointer.prototype._handleTouchEvent = function (eventName, eventArr) {
+            Pointers.prototype._handleTouchEvent = function (eventName, eventArr) {
                 var _this = this;
                 return function (e) {
                     e.preventDefault();
-                    var x = e.changedTouches[0].pageX - ex.Util.getPosition(_this._engine.canvas).x;
-                    var y = e.changedTouches[0].pageY - ex.Util.getPosition(_this._engine.canvas).y;
-                    var transformedPoint = _this._engine.screenToWorldCoordinates(new ex.Point(x, y));
-                    var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, e);
-                    eventArr.push(pe);
-                    _this.eventDispatcher.publish(eventName, pe);
+                    for (var i = 0, len = e.changedTouches.length; i < len; i++) {
+                        var index = e.changedTouches[i].identifier;
+                        var x = e.changedTouches[i].pageX - ex.Util.getPosition(_this._engine.canvas).x;
+                        var y = e.changedTouches[i].pageY - ex.Util.getPosition(_this._engine.canvas).y;
+                        var transformedPoint = _this._engine.screenToWorldCoordinates(new ex.Point(x, y));
+                        var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, 0 /* Touch */, 3 /* Unknown */, e);
+                        eventArr.push(pe);
+                        _this.at(index).eventDispatcher.publish(eventName, pe);
+                    }
                 };
             };
 
-            Pointer.prototype._handlePointerEvent = function (eventName, eventArr) {
+            Pointers.prototype._handlePointerEvent = function (eventName, eventArr) {
                 var _this = this;
                 return function (e) {
                     e.preventDefault();
+
+                    // get the index for this pointer ID if multi-pointer is asked for
+                    var index = _this._pointers.length > 1 ? _this._getPointerIndex(e.pointerId) : 0;
+                    if (index === -1)
+                        return;
                     var x = e.pageX - ex.Util.getPosition(_this._engine.canvas).x;
                     var y = e.pageY - ex.Util.getPosition(_this._engine.canvas).y;
                     var transformedPoint = _this._engine.screenToWorldCoordinates(new ex.Point(x, y));
-                    var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, e);
+                    var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, _this._stringToPointerType(e.pointerType), e.button, e);
                     eventArr.push(pe);
-                    _this.eventDispatcher.publish(eventName, pe);
+                    _this.at(index).eventDispatcher.publish(eventName, pe);
+
+                    // only with multi-pointer
+                    if (_this._pointers.length > 1) {
+                        if (eventName === "up") {
+                            // remove pointer ID from pool when pointer is lifted
+                            _this._activePointers[index] = -1;
+                        } else if (eventName === "down") {
+                            // set pointer ID to given index
+                            _this._activePointers[index] = e.pointerId;
+                        }
+                    }
                 };
             };
+
+            /**
+            * Gets the index of the pointer specified for the given pointer ID or finds the next empty pointer slot available.
+            * This is required because IE10/11 uses incrementing pointer IDs so we need to store a mapping of ID => idx
+            * @private
+            */
+            Pointers.prototype._getPointerIndex = function (pointerId) {
+                var idx;
+                if ((idx = this._activePointers.indexOf(pointerId)) > -1) {
+                    return idx;
+                }
+
+                for (var i = 0; i < this._activePointers.length; i++) {
+                    if (this._activePointers[i] === -1)
+                        return i;
+                }
+
+                // ignore pointer because game isn't watching
+                return -1;
+            };
+
+            Pointers.prototype._stringToPointerType = function (s) {
+                switch (s) {
+                    case "touch":
+                        return 0 /* Touch */;
+                    case "mouse":
+                        return 1 /* Mouse */;
+                    case "pen":
+                        return 2 /* Pen */;
+                    default:
+                        return 3 /* Unknown */;
+                }
+            };
+            return Pointers;
+        })(ex.Class);
+        Input.Pointers = Pointers;
+
+        /**
+        * Captures and dispatches PointerEvents
+        * @class Pointer
+        * @constructor
+        * @extends Class
+        */
+        var Pointer = (function (_super) {
+            __extends(Pointer, _super);
+            function Pointer() {
+                _super.apply(this, arguments);
+            }
             return Pointer;
         })(ex.Class);
         Input.Pointer = Pointer;
@@ -8342,11 +8495,6 @@ var ex;
             function Gamepads(engine) {
                 _super.call(this);
                 /**
-                * Access to the individual pads
-                * @property pads {Array<Gamepad>}
-                */
-                this.pads = [];
-                /**
                 * Whether or not to poll for Gamepad input (default: false)
                 * @property enabled {boolean}
                 */
@@ -8358,6 +8506,7 @@ var ex;
                 this.supported = !!navigator.getGamepads;
                 this._gamePadTimeStamps = [0, 0, 0, 0];
                 this._oldPads = [];
+                this._pads = [];
                 this._initSuccess = false;
                 this._navigator = navigator;
 
@@ -8390,22 +8539,12 @@ var ex;
                 for (var i = 0; i < gamepads.length; i++) {
                     if (!gamepads[i]) {
                         // Reset connection status
-                        if (this.pads[i]) {
-                            this.pads[i].connected = false;
-                        }
+                        this.at(i).connected = false;
 
                         continue;
                     } else {
-                        // New pad?
-                        if (this.pads.length === i) {
-                            this.pads.push(new Gamepad());
-                        }
-                        if (this._oldPads.length === i) {
-                            this._oldPads.push(this._clonePad(gamepads[i]));
-                        }
-
                         // Set connection status
-                        this.pads[i].connected = true;
+                        this.at(i).connected = true;
                     }
                     ;
 
@@ -8417,19 +8556,19 @@ var ex;
                     this._gamePadTimeStamps[i] = gamepads[i].timestamp;
 
                     // Buttons
-                    var b, a;
+                    var b, a, value, buttonIndex, axesIndex;
                     for (b in Buttons) {
                         if (typeof Buttons[b] !== "number")
                             continue;
 
-                        var buttonIndex = Buttons[b];
-                        var value = gamepads[i].buttons[buttonIndex].value;
-                        if (value !== this._oldPads[i].buttons[buttonIndex].value) {
+                        buttonIndex = Buttons[b];
+                        value = gamepads[i].buttons[buttonIndex].value;
+                        if (value !== this._oldPads[i].getButton(buttonIndex)) {
                             if (gamepads[i].buttons[buttonIndex].pressed) {
-                                this.pads[i].updateButton(buttonIndex, value);
-                                this.pads[i].eventDispatcher.publish("button", new GamepadButtonEvent(buttonIndex, value));
+                                this.at(i).updateButton(buttonIndex, value);
+                                this.at(i).eventDispatcher.publish("button", new GamepadButtonEvent(buttonIndex, value));
                             } else {
-                                this.pads[i].updateButton(buttonIndex, 0);
+                                this.at(i).updateButton(buttonIndex, 0);
                             }
                         }
                     }
@@ -8438,11 +8577,11 @@ var ex;
                         if (typeof Axes[a] !== "number")
                             continue;
 
-                        var axesIndex = Axes[a];
-                        var value = gamepads[i].axes[axesIndex];
-                        if (value !== this._oldPads[i].axes[axesIndex]) {
-                            this.pads[i].updateAxes(axesIndex, value);
-                            this.pads[i].eventDispatcher.publish("axis", new GamepadAxisEvent(axesIndex, value));
+                        axesIndex = Axes[a];
+                        value = gamepads[i].axes[axesIndex];
+                        if (value !== this._oldPads[i].getAxes(axesIndex)) {
+                            this.at(i).updateAxes(axesIndex, value);
+                            this.at(i).eventDispatcher.publish("axis", new GamepadAxisEvent(axesIndex, value));
                         }
                     }
 
@@ -8451,10 +8590,24 @@ var ex;
             };
 
             /**
-            * The number of connected gamepads
+            * Safely retrieves a Gamepad at a specific index and creates one if it doesn't yet exist
+            */
+            Gamepads.prototype.at = function (index) {
+                if (index >= this._pads.length) {
+                    for (var i = this._pads.length - 1, max = index; i < max; i++) {
+                        this._pads.push(new Gamepad());
+                        this._oldPads.push(new Gamepad());
+                    }
+                }
+
+                return this._pads[index];
+            };
+
+            /**
+            * Gets the number of connected gamepads
             */
             Gamepads.prototype.count = function () {
-                return this.pads.filter(function (p) {
+                return this._pads.filter(function (p) {
                     return p.connected;
                 }).length;
             };
@@ -8472,19 +8625,16 @@ var ex;
             */
             Gamepads.prototype._clonePad = function (pad) {
                 var i, len;
-                var clonedPad = {
-                    axes: [],
-                    buttons: []
-                };
+                var clonedPad = new Gamepad();
 
                 if (!pad)
-                    return pad;
+                    return clonedPad;
 
                 for (i = 0, len = pad.buttons.length; i < len; i++) {
-                    clonedPad.buttons.push({ pressed: pad.buttons[i].pressed, value: pad.buttons[i].value });
+                    clonedPad.updateButton(i, pad.buttons[i].value);
                 }
                 for (i = 0, len = pad.axes.length; i < len; i++) {
-                    clonedPad.axes.push(pad.axes[i]);
+                    clonedPad.updateAxes(i, pad.axes[i]);
                 }
 
                 return clonedPad;
@@ -8841,9 +8991,7 @@ var ex;
 
             this.canvasElementId = canvasElementId;
 
-            this.camera = new ex.BaseCamera(this);
-
-            this.rootScene = this.currentScene = new ex.Scene();
+            this.rootScene = this.currentScene = new ex.Scene(this);
             this.addScene('root', this.rootScene);
 
             if (canvasElementId) {
@@ -8867,7 +9015,6 @@ var ex;
                 this.displayMode = 0 /* FullScreen */;
             }
 
-            this.camera.setFocus(this.width / 2, this.height / 2);
             this.loader = new ex.Loader();
 
             this.initialize();
@@ -9047,8 +9194,8 @@ var ex;
         * @returns number The width of the drawing surface in pixels.
         */
         Engine.prototype.getWidth = function () {
-            if (this.camera) {
-                return this.width / this.camera.getZoom();
+            if (this.currentScene && this.currentScene.camera) {
+                return this.width / this.currentScene.camera.getZoom();
             }
             return this.width;
         };
@@ -9059,8 +9206,8 @@ var ex;
         * @returns number The height of the drawing surface in pixels.
         */
         Engine.prototype.getHeight = function () {
-            if (this.camera) {
-                return this.height / this.camera.getZoom();
+            if (this.currentScene && this.currentScene.camera) {
+                return this.height / this.currentScene.camera.getZoom();
             }
             return this.height;
         };
@@ -9075,8 +9222,8 @@ var ex;
             var newX = point.x;
             var newY = point.y;
 
-            if (this.camera) {
-                var focus = this.camera.getFocus();
+            if (this.currentScene && this.currentScene.camera) {
+                var focus = this.currentScene.camera.getFocus();
                 newX = focus.x + (point.x - (this.getWidth() / 2));
                 newY = focus.y + (point.y - (this.getHeight() / 2));
             }
@@ -9098,8 +9245,8 @@ var ex;
             var screenX = point.x;
             var screenY = point.y;
 
-            if (this.camera) {
-                var focus = this.camera.getFocus();
+            if (this.currentScene && this.currentScene.camera) {
+                var focus = this.currentScene.camera.getFocus();
 
                 screenX = (point.x - focus.x) + (this.getWidth() / 2); //(this.getWidth() / this.canvas.clientWidth);
                 screenY = (point.y - focus.y) + (this.getHeight() / 2); // (this.getHeight() / this.canvas.clientHeight);
@@ -9153,11 +9300,11 @@ var ex;
             // initialize inputs
             this.input = {
                 keyboard: new ex.Input.Keyboard(this),
-                pointer: new ex.Input.Pointer(this),
+                pointers: new ex.Input.Pointers(this),
                 gamepads: new ex.Input.Gamepads(this)
             };
             this.input.keyboard.init();
-            this.input.pointer.init();
+            this.input.pointers.init();
             this.input.gamepads.init();
 
             window.addEventListener('blur', function () {
@@ -9220,7 +9367,7 @@ var ex;
 
             // Update input listeners
             this.input.keyboard.update(delta);
-            this.input.pointer.update(delta);
+            this.input.pointers.update(delta);
             this.input.gamepads.update(delta);
 
             // Publish update event
@@ -9262,12 +9409,6 @@ var ex;
                 this.ctx.fillText("FPS:" + fps.toFixed(2).toString(), 10, 10);
             }
 
-            this.ctx.save();
-
-            if (this.camera) {
-                this.camera.update(delta);
-            }
-
             this.currentScene.draw(this.ctx, delta);
 
             this.animations.forEach(function (a) {
@@ -9277,10 +9418,7 @@ var ex;
             if (this.isDebug) {
                 this.ctx.strokeStyle = 'yellow';
                 this.currentScene.debugDraw(this.ctx);
-                this.camera.debugDraw(this.ctx);
             }
-
-            this.ctx.restore();
         };
 
         /**

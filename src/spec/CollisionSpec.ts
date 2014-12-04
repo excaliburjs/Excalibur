@@ -9,7 +9,7 @@ describe('A Collision', ()=>{
    var engine = null;
    beforeEach(()=>{
 
-      scene = new ex.Scene();
+      
       // mock engine    
       engine = {
          currentScene : scene,
@@ -38,6 +38,7 @@ describe('A Collision', ()=>{
             return new ex.Point(0,0);
          }
       };
+      scene = new ex.Scene(engine);
       actor1 = new ex.Actor(0, 0, 10, 10);
       actor2 = new ex.Actor(0, 0, 10, 10);
       actor1.collisionType = ex.CollisionType.Fixed;
