@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-12-03
+/*! excalibur - v0.2.5 - 2014-12-04
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -5831,6 +5831,12 @@ var ex;
 
         Color.White = Color.fromHex('#FFFFFF');
 
+        Color.Gray = Color.fromHex('#808080');
+
+        Color.LightGray = Color.fromHex('#D3D3D3');
+
+        Color.DarkGray = Color.fromHex('#A9A9A9');
+
         Color.Yellow = Color.fromHex('#FFFF00');
 
         Color.Orange = Color.fromHex('#FFA500');
@@ -8992,6 +8998,7 @@ var ex;
             this.canvasElementId = canvasElementId;
 
             this.rootScene = this.currentScene = new ex.Scene(this);
+
             this.addScene('root', this.rootScene);
 
             if (canvasElementId) {

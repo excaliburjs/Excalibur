@@ -37,7 +37,7 @@ module ex {
        * @static
        * @final
        */
-      public static DarkGray: Color = Color.fromHex('#A9A9A9'):
+      public static DarkGray: Color = Color.fromHex('#A9A9A9');
 
       /**
        * Color constant

@@ -2841,6 +2841,27 @@ declare module ex {
         static White: Color;
         /**
         * Color constant
+        * @property Gray {ex.Color}
+        * @static
+        * @final
+        */
+        static Gray: Color;
+        /**
+        * Color constant
+        * @property LightGray {ex.Color}
+        * @static
+        * @final
+        */
+        static LightGray: Color;
+        /**
+        * Color constant
+        * @property DarkGray {ex.Color}
+        * @static
+        * @final
+        */
+        static DarkGray: Color;
+        /**
+        * Color constant
         * @property Yellow {ex.Color}
         * @static
         * @final
