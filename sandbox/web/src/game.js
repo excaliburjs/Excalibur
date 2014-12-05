@@ -60,7 +60,7 @@ loader.addResource(jump);
 game.backgroundColor = new ex.Color(114, 213, 224);
 
 // Add some UI
-var heart = new ex.UIActor(100, 100, 20, 20);
+var heart = new ex.UIActor(0, 0, 20, 20);
 heart.scale.setTo(2, 2);
 heart.addDrawing('heart', heartTex.asSprite());
 game.currentScene.addUIActor(heart);
