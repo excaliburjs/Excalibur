@@ -12,8 +12,8 @@ module ex {
 
          actor.rotation += actor.rx * delta / 1000;
 
-         actor.scaleX += actor.sx * delta / 1000;
-         actor.scaleY += actor.sy * delta / 1000;
+         actor.scale.x += actor.sx * delta / 1000;
+         actor.scale.y += actor.sy * delta / 1000;
 
          
       }

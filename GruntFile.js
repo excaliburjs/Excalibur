@@ -160,6 +160,7 @@ module.exports = function (grunt) {
          main: {
             files: [
                {src: './dist/<%= pkg.name %>-<%= pkg.version %>.js', dest: './dist/<%= pkg.name %>.js'},
+               {src: './dist/<%= pkg.name %>-<%= pkg.version %>.js', dest: './sandbox/web/<%= pkg.name %>.js'},
                {src: './dist/<%= pkg.name %>-<%= pkg.version %>.min.js', dest: './dist/<%= pkg.name %>.min.js'},
                {src: './dist/<%= pkg.name %>-<%= pkg.version %>.d.ts', dest: './dist/<%= pkg.name %>.d.ts'}
             ]

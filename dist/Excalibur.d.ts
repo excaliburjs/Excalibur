@@ -1412,6 +1412,7 @@ declare module ex {
         public children: Actor[];
         public tileMaps: TileMap[];
         public engine: Engine;
+        public uiActors: Actor[];
         private _collisionResolver;
         private _killQueue;
         private _timers;
@@ -1500,6 +1501,19 @@ declare module ex {
         * @param actor {Actor} The actor to remove from the current scene.
         */
         public remove(actor: Actor): void;
+        /**
+        * Adds an actor to act as a piece of UI, meaning it is always positioned
+        * in screen coordinates. UI actors do not participate in collisions
+        * @method addUIActor
+        * @param actor {Actor}
+        */
+        public addUIActor(actor: Actor): void;
+        /**
+        * Removes an actor as a piec of UI
+        * @method removeUIActor
+        * @param actor {Actor}
+        */
+        public removeUIActor(actor: Actor): void;
         /**
         * Adds an actor to the Scene, once this is done the actor will be drawn and updated.
         * @method addChild
@@ -1924,15 +1938,10 @@ declare module ex {
         */
         public rx: number;
         /**
-        * The x scale of the actor
-        * @property scaleX {number}
+        * The scale vector of the actor
+        * @property scale
         */
-        public scaleX: number;
-        /**
-        * The y scale of the actor
-        * @property scaleY {number}
-        */
-        public scaleY: number;
+        public scale: Vector;
         /**
         * The x scalar velocity of the actor in scale/second
         * @property sx {number}
@@ -3006,6 +3015,11 @@ declare module ex {
         * @returns Color
         */
         public clone(): Color;
+    }
+}
+declare module ex {
+    class UIActor extends Actor {
+        constructor(x?: number, y?: number, width?: number, height?: number);
     }
 }
 declare module ex {

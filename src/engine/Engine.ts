@@ -7,6 +7,7 @@
 /// <reference path="Collision/Side.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actor.ts" />
+/// <reference path="UIActor.ts" />
 /// <reference path="Trigger.ts" />
 /// <reference path="Particles.ts" />
 /// <reference path="Animation.ts" />
@@ -668,10 +669,7 @@ module ex {
             a.animation.draw(ctx, a.x, a.y);
          });
 
-         if (this.isDebug) {
-            this.ctx.strokeStyle = 'yellow'
-            this.currentScene.debugDraw(this.ctx);            
-         }
+         
       }
 
       /**

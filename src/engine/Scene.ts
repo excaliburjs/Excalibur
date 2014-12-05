@@ -32,7 +32,8 @@ module ex {
       public tileMaps: TileMap[] = [];
       public engine: Engine;
 
-      
+      public uiActors: Actor[] = [];
+
       private _collisionResolver: ICollisionResolver = new DynamicTreeCollisionResolver();
 
       private _killQueue: Actor[] = [];
@@ -102,6 +103,10 @@ module ex {
             this.eventDispatcher.publish('initialize', new InitializeEvent(engine));
             this._isInitialized = true;
          }
+
+         this.uiActors.forEach(function(ui){
+            ui.update(engine, delta);
+         });
 
          this.tileMaps.forEach(function (cm) {
             cm.update(engine, delta);
@@ -176,9 +181,23 @@ module ex {
             }
          }
 
+         if (this.engine && this.engine.isDebug) {
+            ctx.strokeStyle = 'yellow'
+            this.debugDraw(ctx);            
+         }
+
          ctx.restore();
 
          // todo unlocked drawing here
+         this.uiActors.forEach(function(ui){
+            ui.draw(ctx, delta);
+         });
+
+         if (this.engine && this.engine.isDebug) {
+            this.uiActors.forEach(function(ui){
+               ui.debugDraw(ctx);
+            });
+         }
 
       }
 
@@ -188,6 +207,8 @@ module ex {
        * @param ctx {CanvasRenderingContext2D} The current rendering context
        */
       public debugDraw(ctx: CanvasRenderingContext2D) {
+
+
          this.tileMaps.forEach(map => {
             map.debugDraw(ctx);
          });
@@ -196,9 +217,10 @@ module ex {
             actor.debugDraw(ctx);
          });
 
-         this._collisionResolver.debugDraw(ctx, 20);
+         // todo possibly enable this with excalibur flags features?
+         //this._collisionResolver.debugDraw(ctx, 20);
 
-         this.camera.debugDraw(ctx);
+         //this.camera.debugDraw(ctx);
       }
 
       /**
@@ -263,6 +285,28 @@ module ex {
             this.removeTileMap(entity);
          }
 
+      }
+
+      /**
+       * Adds an actor to act as a piece of UI, meaning it is always positioned
+       * in screen coordinates. UI actors do not participate in collisions
+       * @method addUIActor
+       * @param actor {Actor}
+       */
+      public addUIActor(actor: Actor){
+         this.uiActors.push(actor);
+      }
+
+      /**
+       * Removes an actor as a piec of UI
+       * @method removeUIActor
+       * @param actor {Actor}
+       */
+      public removeUIActor(actor: Actor){
+         var index = this.uiActors.indexOf(actor);
+         if(index > -1){
+            this.uiActors.splice(index, 1);
+         }
       }
 
 

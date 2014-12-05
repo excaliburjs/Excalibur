@@ -6,8 +6,8 @@ module ex {
          var eventDispatcher = actor.eventDispatcher;
          var anchor = actor.anchor;
          var globalScale = actor.getGlobalScale();
-         var width = globalScale.x * actor.getWidth()/actor.scaleX;
-         var height = globalScale.y * actor.getHeight()/actor.scaleY;
+         var width = globalScale.x * actor.getWidth()/actor.scale.x;
+         var height = globalScale.y * actor.getHeight()/actor.scale.y;
          var actorScreenCoords = engine.worldToScreenCoordinates(new Point(actor.getGlobalX()-anchor.x*width, actor.getGlobalY()-anchor.y*height));
 
          var zoom = 1.0;
