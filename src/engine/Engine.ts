@@ -824,7 +824,6 @@ module ex {
 
          this.isLoading = true;
 
-         loader.load();
          loader.onprogress = (e) => {
             this.progress = <number>e.loaded;
             this.total = <number>e.total;
@@ -836,7 +835,8 @@ module ex {
                complete.resolve();
             }, 500);
          };
-
+         loader.load();
+         
          return complete;
       }
 
