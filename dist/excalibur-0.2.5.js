@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-12-05
+/*! excalibur - v0.2.5 - 2014-12-06
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
