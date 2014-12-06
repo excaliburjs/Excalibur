@@ -8966,7 +8966,6 @@ var ex;
             var _this = this;
             var complete = new ex.Promise();
             this.isLoading = true;
-            loader.load();
             loader.onprogress = function (e) {
                 _this.progress = e.loaded;
                 _this.total = e.total;
@@ -8978,6 +8977,7 @@ var ex;
                     complete.resolve();
                 }, 500);
             };
+            loader.load();
             return complete;
         };
         return Engine;
