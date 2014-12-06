@@ -229,22 +229,36 @@ module ex {
        * @method add
        */
       public add(timer: Timer): void;
+
       /**
        * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
        * @method add
        * @param tileMap {TileMap} 
        */
       public add(tileMap: TileMap): void;
+
       /**
-      * Adds an actor to the Scene, once this is done the Actor will be drawn and updated.
-      * @method add
-      * @param actor {Actor} The actor to add to the current scene
-      */
+       * Adds an actor to the Scene, once this is done the Actor will be drawn and updated.
+       * @method add
+       * @param actor {Actor} The actor to add to the current scene
+       */
       public add(actor: Actor): void;
+
+      /**
+       * Adds a UIActor to the scene, UIActors do not participate in collisions, instead the remain in the same place on the screen.
+       * @method add
+       * @param uiActor {UIActor} The UIActor to add to the current scene
+       */
+      public add(uiActor: UIActor): void;
       public add(entity: any): void {
+         if (entity instanceof UIActor) {
+            this.addUIActor(entity);
+            return;
+         }
          if (entity instanceof Actor) {
             this.addChild(entity);
          }
+         
          if (entity instanceof Timer) {
             this.addTimer(entity);
          }
@@ -260,19 +274,32 @@ module ex {
        * @param timer {Timer} The timer to remove to the current scene.       
        */
       public remove(timer: Timer): void;
+
       /**
        * Removes a TileMap from the Scene, it will no longer be drawn or updated.
        * @method remove
        * @param tileMap {TileMap}
        */
       public remove(tileMap: TileMap): void;
+
       /**
        * Removes an actor from the Scene, it will no longer be drawn or updated.
        * @method remove       
        * @param actor {Actor} The actor to remove from the current scene.      
        */
       public remove(actor: Actor): void;
+
+      /**
+       * Removes a UIActor to the scene, it will no longer be drawn or updated
+       * @method remove
+       * @param uiActor {UIActor} The UIActor to remove from the current scene
+       */
+      public remove(uiActor: UIActor): void;
       public remove(entity: any): void {
+         if (entity instanceof UIActor) {
+            this.removeUIActor(entity);
+            return;
+         }
          if (entity instanceof Actor) {
             this._collisionResolver.remove(entity);
             this.removeChild(entity);

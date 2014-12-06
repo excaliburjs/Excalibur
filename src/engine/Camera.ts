@@ -34,7 +34,7 @@ module ex {
       private elapsedZoomTime: number = 0;
       private zoomIncrement: number = 0.01;
 
-      constructor() { }
+      
 
       private easeInOutCubic(currentTime: number, startValue: number, endValue: number, duration: number){
          

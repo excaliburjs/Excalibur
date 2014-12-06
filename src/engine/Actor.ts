@@ -362,16 +362,28 @@ module ex {
       }
 
       /**
+       * Adds a whole texture as the "default" drawing. 
+       * @method addDrawing
+       * @param texture {Texture} 
+       */
+      public addDrawing(texture: Texture);
+
+      /**
        * Adds a drawing to the list of available drawings for an actor.
        * @method addDrawing
        * @param key {string} The key to associate with a drawing for this actor
        * @param drawing {IDrawable} this can be an {{#crossLink "Animation"}}{{/crossLink}}, 
        * {{#crossLink "Sprite"}}{{/crossLink}}, or {{#crossLink "Polygon"}}{{/crossLink}}. 
        */
-      public addDrawing(key: any, drawing: IDrawable) {
-         this.frames[<string>key] = drawing;
-         if (!this.currentDrawing) {
-            this.currentDrawing = drawing;
+      public addDrawing(key: any, drawing: IDrawable);
+      public addDrawing(args: any) {
+         if (arguments.length === 2) {
+            this.frames[<string>arguments[0]] = arguments[1];
+            if (!this.currentDrawing) {
+               this.currentDrawing = arguments[1];
+            }
+         } else {
+            this.addDrawing("default", arguments[0].asSprite());
          }
       }
 

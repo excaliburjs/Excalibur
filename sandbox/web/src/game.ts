@@ -63,8 +63,8 @@ game.backgroundColor = new ex.Color(114, 213, 224);
 // Add some UI
 var heart = new ex.UIActor(0, 0, 20, 20);
 heart.scale.setTo(2, 2);
-heart.addDrawing('heart', heartTex.asSprite());
-game.currentScene.addUIActor(heart);
+heart.addDrawing(heartTex);
+game.add(heart);
 
 // Turn on debug diagnostics
 game.isDebug = false;

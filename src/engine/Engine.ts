@@ -345,7 +345,18 @@ module ex {
       * @param actor {Actor} The actor to add to the current scene
       */
       public add(actor: Actor): void;
+
+      /**
+       * Adds a UIActor to the current scene of the game, UIActors do not participate in collisions, instead the remain in the same place on the screen.
+       * @method add
+       * @param uiActor {UIActor} The UIActor to add to the current scene
+       */
+      public add(uiActor: UIActor): void;
       public add(entity: any): void {
+         if (entity instanceof UIActor) {
+            this.currentScene.addUIActor(entity);
+            return;
+         } 
          if (entity instanceof Actor) {
             this.addChild(entity);
          }
@@ -395,7 +406,17 @@ module ex {
        * @param actor {Actor} The actor to remove from the current scene.      
        */
       public remove(actor: Actor): void;
+      /**
+      * Removes a UIActor to the scene, it will no longer be drawn or updated
+      * @method remove
+      * @param uiActor {UIActor} The UIActor to remove from the current scene
+      */
+      public remove(uiActor: UIActor): void;
       public remove(entity: any): void {
+         if (entity instanceof UIActor) {
+            this.currentScene.removeUIActor(entity);
+            return;
+         } 
          if (entity instanceof Actor) {
             this.removeChild(entity);
          }
