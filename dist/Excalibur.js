@@ -4166,7 +4166,12 @@ var ex;
                 }
             }
             else {
-                this.addDrawing("default", arguments[0].asSprite());
+                if (arguments[0] instanceof ex.Sprite) {
+                    this.addDrawing("default", arguments[0]);
+                }
+                if (arguments[0] instanceof ex.Texture) {
+                    this.addDrawing("default", arguments[0].asSprite());
+                }
             }
         };
         /**

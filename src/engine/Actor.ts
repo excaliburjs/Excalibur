@@ -369,6 +369,13 @@ module ex {
       public addDrawing(texture: Texture);
 
       /**
+       * Adds a whole sprite as the "default" drawing. 
+       * @method addDrawing
+       * @param sprite {Texture} 
+       */
+      public addDrawing(sprite: Sprite);
+
+      /**
        * Adds a drawing to the list of available drawings for an actor.
        * @method addDrawing
        * @param key {string} The key to associate with a drawing for this actor
@@ -383,7 +390,12 @@ module ex {
                this.currentDrawing = arguments[1];
             }
          } else {
-            this.addDrawing("default", arguments[0].asSprite());
+            if (arguments[0] instanceof Sprite) {
+               this.addDrawing("default", arguments[0]);   
+            }
+            if (arguments[0] instanceof Texture) {
+               this.addDrawing("default", arguments[0].asSprite());
+            }
          }
       }
 

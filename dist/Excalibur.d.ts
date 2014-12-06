@@ -2118,6 +2118,12 @@ declare module ex {
          */
         addDrawing(texture: Texture): any;
         /**
+         * Adds a whole sprite as the "default" drawing.
+         * @method addDrawing
+         * @param sprite {Texture}
+         */
+        addDrawing(sprite: Sprite): any;
+        /**
          * Adds a drawing to the list of available drawings for an actor.
          * @method addDrawing
          * @param key {string} The key to associate with a drawing for this actor
