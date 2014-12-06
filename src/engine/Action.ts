@@ -393,20 +393,20 @@ module ex.Internal.Actions {
       public update(delta: number): void {
          if (!this._started) {
             this._started = true;
-            this.startX = this.actor.scaleX;
-            this.startY = this.actor.scaleY;
+            this.startX = this.actor.scale.x;
+            this.startY = this.actor.scale.y;
             this.distanceX = Math.abs(this.endX - this.startX);
             this.distanceY = Math.abs(this.endY - this.startY);
          }
 
-         if (!(Math.abs(this.actor.scaleX - this.startX) >= this.distanceX)) {
+         if (!(Math.abs(this.actor.scale.x - this.startX) >= this.distanceX)) {
             var directionX = this.endY < this.startY ? -1 : 1;
             this.actor.sx = this.speedX * directionX;
          } else {
             this.actor.sx = 0;
          }
          
-         if (!(Math.abs(this.actor.scaleY - this.startY) >= this.distanceY)) {
+         if (!(Math.abs(this.actor.scale.y - this.startY) >= this.distanceY)) {
             var directionY = this.endY < this.startY ? -1 : 1;
             this.actor.sy = this.speedY * directionY;
          } else {
@@ -415,15 +415,15 @@ module ex.Internal.Actions {
 
          //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
          if (this.isComplete(this.actor)) {
-            this.actor.scaleX = this.endX;
-            this.actor.scaleY = this.endY;
+            this.actor.scale.x = this.endX;
+            this.actor.scale.y = this.endY;
             this.actor.sx = 0;
             this.actor.sy = 0;
          }
       }
 
       public isComplete(actor: Actor): boolean {
-         return this._stopped || ((Math.abs(this.actor.scaleX - this.startX) >= this.distanceX) && (Math.abs(this.actor.scaleY - this.startY) >= this.distanceY));
+         return this._stopped || ((Math.abs(this.actor.scale.y - this.startX) >= this.distanceX) && (Math.abs(this.actor.scale.y - this.startY) >= this.distanceY));
       }
 
       public stop(): void {
@@ -457,15 +457,15 @@ module ex.Internal.Actions {
          this.endX = scaleX;
          this.endY = scaleY;
          this.time = time;
-         this.speedX = (this.endX - this.actor.scaleX) / time * 1000;
-         this.speedY = (this.endY - this.actor.scaleY) / time * 1000;
+         this.speedX = (this.endX - this.actor.scale.x) / time * 1000;
+         this.speedY = (this.endY - this.actor.scale.y) / time * 1000;
       }
 
       public update(delta: number): void {
          if (!this._started) {
             this._started = true;
-            this.startX = this.actor.scaleX;
-            this.startY = this.actor.scaleY;
+            this.startX = this.actor.scale.x;
+            this.startY = this.actor.scale.y;
             this.distanceX = Math.abs(this.endX - this.startX);
             this.distanceY = Math.abs(this.endY - this.startY);
          }
@@ -476,15 +476,15 @@ module ex.Internal.Actions {
 
          //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
          if (this.isComplete(this.actor)) {
-            this.actor.scaleX = this.endX;
-            this.actor.scaleY = this.endY;
+            this.actor.scale.x = this.endX;
+            this.actor.scale.y = this.endY;
             this.actor.sx = 0;
             this.actor.sy = 0;
          }
       }
 
       public isComplete(actor: Actor): boolean {
-         return this._stopped || ((Math.abs(this.actor.scaleX - this.startX) >= this.distanceX) && (Math.abs(this.actor.scaleY - this.startY) >= this.distanceY));
+         return this._stopped || ((Math.abs(this.actor.scale.x - this.startX) >= this.distanceX) && (Math.abs(this.actor.scale.y - this.startY) >= this.distanceY));
       }
 
       public stop(): void {

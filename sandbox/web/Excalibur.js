@@ -1,3 +1,314 @@
+/*! excalibur - v0.2.5 - 2014-12-05
+* https://github.com/excaliburjs/Excalibur
+* Copyright (c) 2014 ; Licensed BSD*/
+if (typeof window == 'undefined') {
+    window = { audioContext: function () {
+    } };
+}
+if (typeof window != 'undefined' && !window.requestAnimationFrame) {
+    window.requestAnimationFrame = window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (callback) {
+        window.setInterval(callback, 1000 / 60);
+    };
+}
+if (typeof window != 'undefined' && !window.AudioContext) {
+    window.AudioContext = window.webkitAudioContext || window.mozAudioContext;
+}
+// Polyfill from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
+if (!Array.prototype.some) {
+    Array.prototype.some = function (fun /*, thisArg */) {
+        'use strict';
+        if (this === void 0 || this === null)
+            throw new TypeError();
+        var t = Object(this);
+        var len = t.length >>> 0;
+        if (typeof fun !== 'function')
+            throw new TypeError();
+        var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
+        for (var i = 0; i < len; i++) {
+            if (i in t && fun.call(thisArg, t[i], i, t))
+                return true;
+        }
+        return false;
+    };
+}
+var ex;
+(function (ex) {
+    var Effects;
+    (function (Effects) {
+        /**
+         * Applies the "Grayscale" effect to a sprite, removing color information.
+         * @class Effects.Grayscale
+         * @constructor
+         * @extends ISpriteEffect
+         */
+        var Grayscale = (function () {
+            function Grayscale() {
+            }
+            Grayscale.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                var avg = (pixel[firstPixel + 0] + pixel[firstPixel + 1] + pixel[firstPixel + 2]) / 3;
+                pixel[firstPixel + 0] = avg;
+                pixel[firstPixel + 1] = avg;
+                pixel[firstPixel + 2] = avg;
+            };
+            return Grayscale;
+        })();
+        Effects.Grayscale = Grayscale;
+        /**
+         * Applies the "Invert" effect to a sprite, inverting the pixel colors.
+         * @class Effects.Invert
+         * @constructor
+         * @extends ISpriteEffect
+         */
+        var Invert = (function () {
+            function Invert() {
+            }
+            Invert.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                pixel[firstPixel + 0] = 255 - pixel[firstPixel + 0];
+                pixel[firstPixel + 1] = 255 - pixel[firstPixel + 1];
+                pixel[firstPixel + 2] = 255 - pixel[firstPixel + 2];
+            };
+            return Invert;
+        })();
+        Effects.Invert = Invert;
+        /**
+         * Applies the "Opacity" effect to a sprite, setting the alpha of all pixels to a given value.
+         * @class Effects.Opacity
+         * @extends ISpriteEffect
+         * @constructor
+         * @param opacity {number} The new opacity of the sprite from 0-1.0
+         */
+        var Opacity = (function () {
+            function Opacity(opacity) {
+                this.opacity = opacity;
+            }
+            Opacity.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                if (pixel[firstPixel + 3] !== 0) {
+                    pixel[firstPixel + 3] = Math.round(this.opacity * 255);
+                }
+            };
+            return Opacity;
+        })();
+        Effects.Opacity = Opacity;
+        /**
+         * Applies the "Colorize" effect to a sprite, changing the color channels of all the pixels to an
+         * average of the original color and the provided color
+         * @class Effects.Colorize
+         * @extends ISpriteEffect
+         * @constructor
+         * @param color {Color} The color to apply to the sprite
+         */
+        var Colorize = (function () {
+            function Colorize(color) {
+                this.color = color;
+            }
+            Colorize.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                if (pixel[firstPixel + 3] !== 0) {
+                    pixel[firstPixel + 0] = (pixel[firstPixel + 0] + this.color.r) / 2;
+                    pixel[firstPixel + 1] = (pixel[firstPixel + 1] + this.color.g) / 2;
+                    pixel[firstPixel + 2] = (pixel[firstPixel + 2] + this.color.b) / 2;
+                }
+            };
+            return Colorize;
+        })();
+        Effects.Colorize = Colorize;
+        /**
+         * Applies the "Fill" effect to a sprite, changing the color channels of all non-transparent pixels to match
+         * a given color
+         * @class Effects.Fill
+         * @extends ISpriteEffect
+         * @constructor
+         * @param color {Color} The color to apply to the sprite
+         */
+        var Fill = (function () {
+            function Fill(color) {
+                this.color = color;
+            }
+            Fill.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                if (pixel[firstPixel + 3] !== 0) {
+                    pixel[firstPixel + 0] = this.color.r;
+                    pixel[firstPixel + 1] = this.color.g;
+                    pixel[firstPixel + 2] = this.color.b;
+                }
+            };
+            return Fill;
+        })();
+        Effects.Fill = Fill;
+    })(Effects = ex.Effects || (ex.Effects = {}));
+})(ex || (ex = {}));
+/// <reference path="../SpriteEffects.ts" />
+/// <reference path="../Interfaces/IPipelineModule.ts" />
+var ex;
+(function (ex) {
+    var MovementModule = (function () {
+        function MovementModule() {
+        }
+        MovementModule.prototype.update = function (actor, engine, delta) {
+            // Update placements based on linear algebra
+            actor.x += actor.dx * delta / 1000;
+            actor.y += actor.dy * delta / 1000;
+            actor.dx += actor.ax * delta / 1000;
+            actor.dy += actor.ay * delta / 1000;
+            actor.rotation += actor.rx * delta / 1000;
+            actor.scale.x += actor.sx * delta / 1000;
+            actor.scale.y += actor.sy * delta / 1000;
+        };
+        return MovementModule;
+    })();
+    ex.MovementModule = MovementModule;
+})(ex || (ex = {}));
+/// <reference path="../Interfaces/IPipelineModule.ts" />
+var ex;
+(function (ex) {
+    var OffscreenCullingModule = (function () {
+        function OffscreenCullingModule() {
+        }
+        OffscreenCullingModule.prototype.update = function (actor, engine, delta) {
+            var eventDispatcher = actor.eventDispatcher;
+            var anchor = actor.anchor;
+            var globalScale = actor.getGlobalScale();
+            var width = globalScale.x * actor.getWidth() / actor.scale.x;
+            var height = globalScale.y * actor.getHeight() / actor.scale.y;
+            var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Point(actor.getGlobalX() - anchor.x * width, actor.getGlobalY() - anchor.y * height));
+            var zoom = 1.0;
+            if (actor.scene && actor.scene.camera) {
+                zoom = actor.scene.camera.getZoom();
+            }
+            if (!actor.isOffScreen) {
+                if (actorScreenCoords.x + width * zoom < 0 || actorScreenCoords.y + height * zoom < 0 || actorScreenCoords.x > engine.width || actorScreenCoords.y > engine.height) {
+                    eventDispatcher.publish('exitviewport', new ex.ExitViewPortEvent());
+                    actor.isOffScreen = true;
+                }
+            }
+            else {
+                if (actorScreenCoords.x + width * zoom > 0 && actorScreenCoords.y + height * zoom > 0 && actorScreenCoords.x < engine.width && actorScreenCoords.y < engine.height) {
+                    eventDispatcher.publish('enterviewport', new ex.EnterViewPortEvent());
+                    actor.isOffScreen = false;
+                }
+            }
+        };
+        return OffscreenCullingModule;
+    })();
+    ex.OffscreenCullingModule = OffscreenCullingModule;
+})(ex || (ex = {}));
+/// <reference path="../Interfaces/IPipelineModule.ts" />
+var ex;
+(function (ex) {
+    /**
+     * Propogates pointer events to the actor
+     */
+    var CapturePointerModule = (function () {
+        function CapturePointerModule() {
+        }
+        CapturePointerModule.prototype.update = function (actor, engine, delta) {
+            if (!actor.enableCapturePointer)
+                return;
+            if (actor.isKilled())
+                return;
+            engine.input.pointers.propogate(actor);
+        };
+        return CapturePointerModule;
+    })();
+    ex.CapturePointerModule = CapturePointerModule;
+})(ex || (ex = {}));
+/// <reference path="../Interfaces/IPipelineModule.ts" />
+var ex;
+(function (ex) {
+    var CollisionDetectionModule = (function () {
+        function CollisionDetectionModule() {
+        }
+        CollisionDetectionModule.prototype.update = function (actor, engine, delta) {
+            var eventDispatcher = actor.eventDispatcher;
+            if (actor.collisionType !== 0 /* PreventCollision */) {
+                for (var j = 0; j < engine.currentScene.tileMaps.length; j++) {
+                    var map = engine.currentScene.tileMaps[j];
+                    var intersectMap;
+                    var side = 0 /* None */;
+                    var max = 2;
+                    var hasBounced = false;
+                    while (intersectMap = map.collides(actor)) {
+                        if (max-- < 0) {
+                            break;
+                        }
+                        side = actor.getSideFromIntersect(intersectMap);
+                        eventDispatcher.publish('collision', new ex.CollisionEvent(actor, null, side, intersectMap));
+                        if ((actor.collisionType === 2 /* Active */ || actor.collisionType === 3 /* Elastic */)) {
+                            actor.y += intersectMap.y;
+                            actor.x += intersectMap.x;
+                            // Naive elastic bounce
+                            if (actor.collisionType === 3 /* Elastic */ && !hasBounced) {
+                                hasBounced = true;
+                                if (side === 3 /* Left */) {
+                                    actor.dx = Math.abs(actor.dx);
+                                }
+                                else if (side === 4 /* Right */) {
+                                    actor.dx = -Math.abs(actor.dx);
+                                }
+                                else if (side === 1 /* Top */) {
+                                    actor.dy = Math.abs(actor.dy);
+                                }
+                                else if (side === 2 /* Bottom */) {
+                                    actor.dy = -Math.abs(actor.dy);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        return CollisionDetectionModule;
+    })();
+    ex.CollisionDetectionModule = CollisionDetectionModule;
+})(ex || (ex = {}));
+var ex;
+(function (ex) {
+    /**
+     * An enum that describes the sides of an Actor for collision
+     * @class Side
+     */
+    (function (Side) {
+        /**
+        @property None {Side}
+        @static
+        @final
+        */
+        Side[Side["None"] = 0] = "None";
+        /**
+        @property Top {Side}
+        @static
+        @final
+        */
+        Side[Side["Top"] = 1] = "Top";
+        /**
+        @property Bottom {Side}
+        @static
+        @final
+        */
+        Side[Side["Bottom"] = 2] = "Bottom";
+        /**
+        @property Left {Side}
+        @static
+        @final
+        */
+        Side[Side["Left"] = 3] = "Left";
+        /**
+        @property Right {Side}
+        @static
+        @final
+        */
+        Side[Side["Right"] = 4] = "Right";
+    })(ex.Side || (ex.Side = {}));
+    var Side = ex.Side;
+})(ex || (ex = {}));
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -329,314 +640,6 @@ var ex;
         return Projection;
     })();
     ex.Projection = Projection;
-})(ex || (ex = {}));
-if (typeof window == 'undefined') {
-    window = { audioContext: function () {
-    } };
-}
-if (typeof window != 'undefined' && !window.requestAnimationFrame) {
-    window.requestAnimationFrame = window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (callback) {
-        window.setInterval(callback, 1000 / 60);
-    };
-}
-if (typeof window != 'undefined' && !window.AudioContext) {
-    window.AudioContext = window.webkitAudioContext || window.mozAudioContext;
-}
-// Polyfill from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
-if (!Array.prototype.some) {
-    Array.prototype.some = function (fun /*, thisArg */) {
-        'use strict';
-        if (this === void 0 || this === null)
-            throw new TypeError();
-        var t = Object(this);
-        var len = t.length >>> 0;
-        if (typeof fun !== 'function')
-            throw new TypeError();
-        var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
-        for (var i = 0; i < len; i++) {
-            if (i in t && fun.call(thisArg, t[i], i, t))
-                return true;
-        }
-        return false;
-    };
-}
-var ex;
-(function (ex) {
-    var Effects;
-    (function (Effects) {
-        /**
-         * Applies the "Grayscale" effect to a sprite, removing color information.
-         * @class Effects.Grayscale
-         * @constructor
-         * @extends ISpriteEffect
-         */
-        var Grayscale = (function () {
-            function Grayscale() {
-            }
-            Grayscale.prototype.updatePixel = function (x, y, imageData) {
-                var firstPixel = (x + y * imageData.width) * 4;
-                var pixel = imageData.data;
-                var avg = (pixel[firstPixel + 0] + pixel[firstPixel + 1] + pixel[firstPixel + 2]) / 3;
-                pixel[firstPixel + 0] = avg;
-                pixel[firstPixel + 1] = avg;
-                pixel[firstPixel + 2] = avg;
-            };
-            return Grayscale;
-        })();
-        Effects.Grayscale = Grayscale;
-        /**
-         * Applies the "Invert" effect to a sprite, inverting the pixel colors.
-         * @class Effects.Invert
-         * @constructor
-         * @extends ISpriteEffect
-         */
-        var Invert = (function () {
-            function Invert() {
-            }
-            Invert.prototype.updatePixel = function (x, y, imageData) {
-                var firstPixel = (x + y * imageData.width) * 4;
-                var pixel = imageData.data;
-                pixel[firstPixel + 0] = 255 - pixel[firstPixel + 0];
-                pixel[firstPixel + 1] = 255 - pixel[firstPixel + 1];
-                pixel[firstPixel + 2] = 255 - pixel[firstPixel + 2];
-            };
-            return Invert;
-        })();
-        Effects.Invert = Invert;
-        /**
-         * Applies the "Opacity" effect to a sprite, setting the alpha of all pixels to a given value.
-         * @class Effects.Opacity
-         * @extends ISpriteEffect
-         * @constructor
-         * @param opacity {number} The new opacity of the sprite from 0-1.0
-         */
-        var Opacity = (function () {
-            function Opacity(opacity) {
-                this.opacity = opacity;
-            }
-            Opacity.prototype.updatePixel = function (x, y, imageData) {
-                var firstPixel = (x + y * imageData.width) * 4;
-                var pixel = imageData.data;
-                if (pixel[firstPixel + 3] !== 0) {
-                    pixel[firstPixel + 3] = Math.round(this.opacity * 255);
-                }
-            };
-            return Opacity;
-        })();
-        Effects.Opacity = Opacity;
-        /**
-         * Applies the "Colorize" effect to a sprite, changing the color channels of all the pixels to an
-         * average of the original color and the provided color
-         * @class Effects.Colorize
-         * @extends ISpriteEffect
-         * @constructor
-         * @param color {Color} The color to apply to the sprite
-         */
-        var Colorize = (function () {
-            function Colorize(color) {
-                this.color = color;
-            }
-            Colorize.prototype.updatePixel = function (x, y, imageData) {
-                var firstPixel = (x + y * imageData.width) * 4;
-                var pixel = imageData.data;
-                if (pixel[firstPixel + 3] !== 0) {
-                    pixel[firstPixel + 0] = (pixel[firstPixel + 0] + this.color.r) / 2;
-                    pixel[firstPixel + 1] = (pixel[firstPixel + 1] + this.color.g) / 2;
-                    pixel[firstPixel + 2] = (pixel[firstPixel + 2] + this.color.b) / 2;
-                }
-            };
-            return Colorize;
-        })();
-        Effects.Colorize = Colorize;
-        /**
-         * Applies the "Fill" effect to a sprite, changing the color channels of all non-transparent pixels to match
-         * a given color
-         * @class Effects.Fill
-         * @extends ISpriteEffect
-         * @constructor
-         * @param color {Color} The color to apply to the sprite
-         */
-        var Fill = (function () {
-            function Fill(color) {
-                this.color = color;
-            }
-            Fill.prototype.updatePixel = function (x, y, imageData) {
-                var firstPixel = (x + y * imageData.width) * 4;
-                var pixel = imageData.data;
-                if (pixel[firstPixel + 3] !== 0) {
-                    pixel[firstPixel + 0] = this.color.r;
-                    pixel[firstPixel + 1] = this.color.g;
-                    pixel[firstPixel + 2] = this.color.b;
-                }
-            };
-            return Fill;
-        })();
-        Effects.Fill = Fill;
-    })(Effects = ex.Effects || (ex.Effects = {}));
-})(ex || (ex = {}));
-/// <reference path="../SpriteEffects.ts" />
-/// <reference path="../Interfaces/IPipelineModule.ts" />
-var ex;
-(function (ex) {
-    var MovementModule = (function () {
-        function MovementModule() {
-        }
-        MovementModule.prototype.update = function (actor, engine, delta) {
-            // Update placements based on linear algebra
-            actor.x += actor.dx * delta / 1000;
-            actor.y += actor.dy * delta / 1000;
-            actor.dx += actor.ax * delta / 1000;
-            actor.dy += actor.ay * delta / 1000;
-            actor.rotation += actor.rx * delta / 1000;
-            actor.scaleX += actor.sx * delta / 1000;
-            actor.scaleY += actor.sy * delta / 1000;
-        };
-        return MovementModule;
-    })();
-    ex.MovementModule = MovementModule;
-})(ex || (ex = {}));
-/// <reference path="../Interfaces/IPipelineModule.ts" />
-var ex;
-(function (ex) {
-    var OffscreenCullingModule = (function () {
-        function OffscreenCullingModule() {
-        }
-        OffscreenCullingModule.prototype.update = function (actor, engine, delta) {
-            var eventDispatcher = actor.eventDispatcher;
-            var anchor = actor.anchor;
-            var globalScale = actor.getGlobalScale();
-            var width = globalScale.x * actor.getWidth() / actor.scaleX;
-            var height = globalScale.y * actor.getHeight() / actor.scaleY;
-            var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Point(actor.getGlobalX() - anchor.x * width, actor.getGlobalY() - anchor.y * height));
-            var zoom = 1.0;
-            if (engine.camera) {
-                zoom = engine.camera.getZoom();
-            }
-            if (!actor.isOffScreen) {
-                if (actorScreenCoords.x + width * zoom < 0 || actorScreenCoords.y + height * zoom < 0 || actorScreenCoords.x > engine.width || actorScreenCoords.y > engine.height) {
-                    eventDispatcher.publish('exitviewport', new ex.ExitViewPortEvent());
-                    actor.isOffScreen = true;
-                }
-            }
-            else {
-                if (actorScreenCoords.x + width * zoom > 0 && actorScreenCoords.y + height * zoom > 0 && actorScreenCoords.x < engine.width && actorScreenCoords.y < engine.height) {
-                    eventDispatcher.publish('enterviewport', new ex.EnterViewPortEvent());
-                    actor.isOffScreen = false;
-                }
-            }
-        };
-        return OffscreenCullingModule;
-    })();
-    ex.OffscreenCullingModule = OffscreenCullingModule;
-})(ex || (ex = {}));
-/// <reference path="../Interfaces/IPipelineModule.ts" />
-var ex;
-(function (ex) {
-    /**
-     * Propogates pointer events to the actor
-     */
-    var CapturePointerModule = (function () {
-        function CapturePointerModule() {
-        }
-        CapturePointerModule.prototype.update = function (actor, engine, delta) {
-            if (!actor.enableCapturePointer)
-                return;
-            if (actor.isKilled())
-                return;
-            engine.input.pointers.propogate(actor);
-        };
-        return CapturePointerModule;
-    })();
-    ex.CapturePointerModule = CapturePointerModule;
-})(ex || (ex = {}));
-/// <reference path="../Interfaces/IPipelineModule.ts" />
-var ex;
-(function (ex) {
-    var CollisionDetectionModule = (function () {
-        function CollisionDetectionModule() {
-        }
-        CollisionDetectionModule.prototype.update = function (actor, engine, delta) {
-            var eventDispatcher = actor.eventDispatcher;
-            if (actor.collisionType !== 0 /* PreventCollision */) {
-                for (var j = 0; j < engine.currentScene.tileMaps.length; j++) {
-                    var map = engine.currentScene.tileMaps[j];
-                    var intersectMap;
-                    var side = 0 /* None */;
-                    var max = 2;
-                    var hasBounced = false;
-                    while (intersectMap = map.collides(actor)) {
-                        if (max-- < 0) {
-                            break;
-                        }
-                        side = actor.getSideFromIntersect(intersectMap);
-                        eventDispatcher.publish('collision', new ex.CollisionEvent(actor, null, side, intersectMap));
-                        if ((actor.collisionType === 2 /* Active */ || actor.collisionType === 3 /* Elastic */)) {
-                            actor.y += intersectMap.y;
-                            actor.x += intersectMap.x;
-                            // Naive elastic bounce
-                            if (actor.collisionType === 3 /* Elastic */ && !hasBounced) {
-                                hasBounced = true;
-                                if (side === 3 /* Left */) {
-                                    actor.dx = Math.abs(actor.dx);
-                                }
-                                else if (side === 4 /* Right */) {
-                                    actor.dx = -Math.abs(actor.dx);
-                                }
-                                else if (side === 1 /* Top */) {
-                                    actor.dy = Math.abs(actor.dy);
-                                }
-                                else if (side === 2 /* Bottom */) {
-                                    actor.dy = -Math.abs(actor.dy);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        };
-        return CollisionDetectionModule;
-    })();
-    ex.CollisionDetectionModule = CollisionDetectionModule;
-})(ex || (ex = {}));
-var ex;
-(function (ex) {
-    /**
-     * An enum that describes the sides of an Actor for collision
-     * @class Side
-     */
-    (function (Side) {
-        /**
-        @property None {Side}
-        @static
-        @final
-        */
-        Side[Side["None"] = 0] = "None";
-        /**
-        @property Top {Side}
-        @static
-        @final
-        */
-        Side[Side["Top"] = 1] = "Top";
-        /**
-        @property Bottom {Side}
-        @static
-        @final
-        */
-        Side[Side["Bottom"] = 2] = "Bottom";
-        /**
-        @property Left {Side}
-        @static
-        @final
-        */
-        Side[Side["Left"] = 3] = "Left";
-        /**
-        @property Right {Side}
-        @static
-        @final
-        */
-        Side[Side["Right"] = 4] = "Right";
-    })(ex.Side || (ex.Side = {}));
-    var Side = ex.Side;
 })(ex || (ex = {}));
 /// <reference path="Algebra.ts"/>
 /// <reference path="Events.ts"/>
@@ -2630,11 +2633,277 @@ var ex;
     })();
     ex.CollisionPair = CollisionPair;
 })(ex || (ex = {}));
+/// <reference path="Engine.ts" />
+/// <reference path="Algebra.ts" />
+var ex;
+(function (ex) {
+    /**
+    * A base implementation of a camera. This class is meant to be extended.
+    * @class Camera
+    * @constructor
+    * @param engine {Engine} Reference to the current engine
+    */
+    var BaseCamera = (function () {
+        function BaseCamera() {
+            this.focus = new ex.Point(0, 0);
+            this.lerp = false;
+            this._cameraMoving = false;
+            this._currentLerpTime = 0;
+            this._lerpDuration = 1 * 1000; // 5 seconds
+            this._totalLerpTime = 0;
+            this._lerpStart = null;
+            this._lerpEnd = null;
+            //camera effects
+            this.isShaking = false;
+            this.shakeMagnitudeX = 0;
+            this.shakeMagnitudeY = 0;
+            this.shakeDuration = 0;
+            this.elapsedShakeTime = 0;
+            this.isZooming = false;
+            this.currentZoomScale = 1;
+            this.maxZoomScale = 1;
+            this.zoomDuration = 0;
+            this.elapsedZoomTime = 0;
+            this.zoomIncrement = 0.01;
+        }
+        BaseCamera.prototype.easeInOutCubic = function (currentTime, startValue, endValue, duration) {
+            endValue = (endValue - startValue);
+            currentTime /= duration / 2;
+            if (currentTime < 1)
+                return endValue / 2 * currentTime * currentTime * currentTime + startValue;
+            currentTime -= 2;
+            return endValue / 2 * (currentTime * currentTime * currentTime + 2) + startValue;
+        };
+        /**
+        * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
+        * @method setActorToFollow
+        * @param actor {Actor} The actor to follow
+        */
+        BaseCamera.prototype.setActorToFollow = function (actor) {
+            this.follow = actor;
+        };
+        /**
+        * Returns the focal point of the camera
+        * @method getFocus
+        * @returns Point
+        */
+        BaseCamera.prototype.getFocus = function () {
+            return this.focus;
+        };
+        /**
+        * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
+        * @method setFocus
+        * @param x {number} The x coordinate of the focal point
+        * @param y {number} The y coordinate of the focal point
+        */
+        BaseCamera.prototype.setFocus = function (x, y) {
+            if (!this.follow && !this.lerp) {
+                this.focus.x = x;
+                this.focus.y = y;
+            }
+            if (this.lerp) {
+                this._lerpStart = this.focus.clone();
+                this._lerpEnd = new ex.Point(x, y);
+                this._currentLerpTime = 0;
+                this._cameraMoving = true;
+            }
+        };
+        /**
+        * Sets the camera to shake at the specified magnitudes for the specified duration
+        * @method shake
+        * @param magnitudeX {number} the x magnitude of the shake
+        * @param magnitudeY {number} the y magnitude of the shake
+        * @param duration {number} the duration of the shake
+        */
+        BaseCamera.prototype.shake = function (magnitudeX, magnitudeY, duration) {
+            this.isShaking = true;
+            this.shakeMagnitudeX = magnitudeX;
+            this.shakeMagnitudeY = magnitudeY;
+            this.shakeDuration = duration;
+        };
+        /**
+        * Zooms the camera in or out by the specified scale over the specified duration.
+        * If no duration is specified, it will zoom by a set amount until the scale is reached.
+        * @method zoom
+        * @param scale {number} the scale of the zoom
+        * @param [duration] {number} the duration of the zoom
+        */
+        BaseCamera.prototype.zoom = function (scale, duration) {
+            this.isZooming = true;
+            this.maxZoomScale = scale;
+            this.zoomDuration = duration | 0;
+            if (duration) {
+                this.zoomIncrement = Math.abs(this.maxZoomScale - this.currentZoomScale) / duration * 1000;
+            }
+            if (this.maxZoomScale < 1) {
+                if (duration) {
+                    this.zoomIncrement = -1 * this.zoomIncrement;
+                }
+                else {
+                    this.isZooming = false;
+                    this.setCurrentZoomScale(this.maxZoomScale);
+                }
+            }
+            else {
+                if (!duration) {
+                    this.isZooming = false;
+                    this.setCurrentZoomScale(this.maxZoomScale);
+                }
+            }
+            // console.log("zoom increment: " + this.zoomIncrement);
+        };
+        /**
+        * gets the current zoom scale
+        * @method getZoom
+        * @returns {Number} the current zoom scale
+        */
+        BaseCamera.prototype.getZoom = function () {
+            return this.currentZoomScale;
+        };
+        BaseCamera.prototype.setCurrentZoomScale = function (zoomScale) {
+            this.currentZoomScale = zoomScale;
+        };
+        /**
+        * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
+        * @method update
+        * @param delta {number} The number of milliseconds since the last update
+        */
+        BaseCamera.prototype.update = function (ctx, delta) {
+            var focus = this.getFocus();
+            var xShake = 0;
+            var yShake = 0;
+            var canvasWidth = ctx.canvas.width;
+            var canvasHeight = ctx.canvas.height;
+            var newCanvasWidth = canvasWidth * this.getZoom();
+            var newCanvasHeight = canvasHeight * this.getZoom();
+            if (this.lerp) {
+                if (this._currentLerpTime < this._lerpDuration && this._cameraMoving) {
+                    if (this._lerpEnd.x < this._lerpStart.x) {
+                        this.focus.x = this._lerpStart.x - (this.easeInOutCubic(this._currentLerpTime, this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
+                    }
+                    else {
+                        this.focus.x = this.easeInOutCubic(this._currentLerpTime, this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
+                    }
+                    if (this._lerpEnd.y < this._lerpStart.y) {
+                        this.focus.y = this._lerpStart.y - (this.easeInOutCubic(this._currentLerpTime, this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
+                    }
+                    else {
+                        this.focus.y = this.easeInOutCubic(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
+                    }
+                    this._currentLerpTime += delta;
+                }
+                else {
+                    this._lerpStart = null;
+                    this._lerpEnd = null;
+                    this._currentLerpTime = 0;
+                    this._cameraMoving = false;
+                }
+            }
+            if (this.isDoneShaking()) {
+                this.isShaking = false;
+                this.elapsedShakeTime = 0;
+                this.shakeMagnitudeX = 0;
+                this.shakeMagnitudeY = 0;
+                this.shakeDuration = 0;
+            }
+            else {
+                this.elapsedShakeTime += delta;
+                xShake = (Math.random() * this.shakeMagnitudeX | 0) + 1;
+                yShake = (Math.random() * this.shakeMagnitudeY | 0) + 1;
+            }
+            ctx.translate(-focus.x + xShake + (newCanvasWidth / 2), -focus.y + yShake + (newCanvasHeight / 2));
+            if (this.isDoneZooming()) {
+                this.isZooming = false;
+                this.elapsedZoomTime = 0;
+                this.zoomDuration = 0;
+                this.setCurrentZoomScale(this.maxZoomScale);
+            }
+            else {
+                this.elapsedZoomTime += delta;
+                this.setCurrentZoomScale(this.getZoom() + this.zoomIncrement * delta / 1000);
+            }
+            ctx.scale(this.getZoom(), this.getZoom());
+        };
+        BaseCamera.prototype.debugDraw = function (ctx) {
+            var focus = this.getFocus();
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(focus.x, focus.y, 15, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fill();
+        };
+        BaseCamera.prototype.isDoneShaking = function () {
+            return !(this.isShaking) || (this.elapsedShakeTime >= this.shakeDuration);
+        };
+        BaseCamera.prototype.isDoneZooming = function () {
+            if (this.zoomDuration != 0) {
+                return (this.elapsedZoomTime >= this.zoomDuration);
+            }
+            else {
+                if (this.maxZoomScale < 1) {
+                    return (this.currentZoomScale <= this.maxZoomScale);
+                }
+                else {
+                    return (this.currentZoomScale >= this.maxZoomScale);
+                }
+            }
+        };
+        return BaseCamera;
+    })();
+    ex.BaseCamera = BaseCamera;
+    /**
+    * An extension of BaseCamera that is locked vertically; it will only move side to side.
+    * @class SideCamera
+    * @extends BaseCamera
+    * @constructor
+    * @param engine {Engine} Reference to the current engine
+    */
+    var SideCamera = (function (_super) {
+        __extends(SideCamera, _super);
+        function SideCamera() {
+            _super.apply(this, arguments);
+        }
+        SideCamera.prototype.getFocus = function () {
+            if (this.follow) {
+                return new ex.Point(this.follow.x + this.follow.getWidth() / 2, this.focus.y);
+            }
+            else {
+                return this.focus;
+            }
+        };
+        return SideCamera;
+    })(BaseCamera);
+    ex.SideCamera = SideCamera;
+    /**
+    * An extension of BaseCamera that is locked to an actor or focal point; the actor will appear in the center of the screen.
+    * @class TopCamera
+    * @extends BaseCamera
+    * @constructor
+    * @param engine {Engine} Reference to the current engine
+    */
+    var TopCamera = (function (_super) {
+        __extends(TopCamera, _super);
+        function TopCamera() {
+            _super.apply(this, arguments);
+        }
+        TopCamera.prototype.getFocus = function () {
+            if (this.follow) {
+                return new ex.Point(this.follow.x + this.follow.getWidth() / 2, this.follow.y + this.follow.getHeight() / 2);
+            }
+            else {
+                return this.focus;
+            }
+        };
+        return TopCamera;
+    })(BaseCamera);
+    ex.TopCamera = TopCamera;
+})(ex || (ex = {}));
 /// <reference path="Class.ts" />
 /// <reference path="Timer.ts" />
 /// <reference path="Collision/NaiveCollisionResolver.ts"/>
 /// <reference path="Collision/DynamicTreeCollisionResolver.ts"/>
 /// <reference path="CollisionPair.ts" />
+/// <reference path="Camera.ts" />
 var ex;
 (function (ex) {
     /**
@@ -2646,7 +2915,7 @@ var ex;
      */
     var Scene = (function (_super) {
         __extends(Scene, _super);
-        function Scene() {
+        function Scene(engine) {
             _super.call(this);
             /**
              * The actors in the current scene
@@ -2654,11 +2923,16 @@ var ex;
              */
             this.children = [];
             this.tileMaps = [];
+            this.uiActors = [];
             this._collisionResolver = new ex.DynamicTreeCollisionResolver();
             this._killQueue = [];
             this._timers = [];
             this._cancelQueue = [];
             this._isInitialized = false;
+            this.camera = new ex.BaseCamera();
+            if (engine) {
+                this.camera.setFocus(engine.width / 2, engine.height / 2);
+            }
         }
         /**
          * This is called when the scene is made active and started. It is meant to be overriden,
@@ -2708,6 +2982,9 @@ var ex;
                 this.eventDispatcher.publish('initialize', new ex.InitializeEvent(engine));
                 this._isInitialized = true;
             }
+            this.uiActors.forEach(function (ui) {
+                ui.update(engine, delta);
+            });
             this.tileMaps.forEach(function (cm) {
                 cm.update(engine, delta);
             });
@@ -2749,6 +3026,10 @@ var ex;
          * @param delta {number} The number of milliseconds since the last draw
          */
         Scene.prototype.draw = function (ctx, delta) {
+            ctx.save();
+            if (this.camera) {
+                this.camera.update(ctx, delta);
+            }
             this.tileMaps.forEach(function (cm) {
                 cm.draw(ctx, delta);
             });
@@ -2763,6 +3044,20 @@ var ex;
                     this.children[i].draw(ctx, delta);
                 }
             }
+            if (this.engine && this.engine.isDebug) {
+                ctx.strokeStyle = 'yellow';
+                this.debugDraw(ctx);
+            }
+            ctx.restore();
+            // todo unlocked drawing here
+            this.uiActors.forEach(function (ui) {
+                ui.draw(ctx, delta);
+            });
+            if (this.engine && this.engine.isDebug) {
+                this.uiActors.forEach(function (ui) {
+                    ui.debugDraw(ctx);
+                });
+            }
         };
         /**
          * Draws all the actors' debug information in the Scene. Called by the Engine.
@@ -2776,9 +3071,15 @@ var ex;
             this.children.forEach(function (actor) {
                 actor.debugDraw(ctx);
             });
-            this._collisionResolver.debugDraw(ctx, 20);
+            // todo possibly enable this with excalibur flags features?
+            //this._collisionResolver.debugDraw(ctx, 20);
+            //this.camera.debugDraw(ctx);
         };
         Scene.prototype.add = function (entity) {
+            if (entity instanceof ex.UIActor) {
+                this.addUIActor(entity);
+                return;
+            }
             if (entity instanceof ex.Actor) {
                 this.addChild(entity);
             }
@@ -2790,6 +3091,10 @@ var ex;
             }
         };
         Scene.prototype.remove = function (entity) {
+            if (entity instanceof ex.UIActor) {
+                this.removeUIActor(entity);
+                return;
+            }
             if (entity instanceof ex.Actor) {
                 this._collisionResolver.remove(entity);
                 this.removeChild(entity);
@@ -2799,6 +3104,26 @@ var ex;
             }
             if (entity instanceof ex.TileMap) {
                 this.removeTileMap(entity);
+            }
+        };
+        /**
+         * Adds an actor to act as a piece of UI, meaning it is always positioned
+         * in screen coordinates. UI actors do not participate in collisions
+         * @method addUIActor
+         * @param actor {Actor}
+         */
+        Scene.prototype.addUIActor = function (actor) {
+            this.uiActors.push(actor);
+        };
+        /**
+         * Removes an actor as a piec of UI
+         * @method removeUIActor
+         * @param actor {Actor}
+         */
+        Scene.prototype.removeUIActor = function (actor) {
+            var index = this.uiActors.indexOf(actor);
+            if (index > -1) {
+                this.uiActors.splice(index, 1);
             }
         };
         /**
@@ -2888,6 +3213,655 @@ var ex;
         return Scene;
     })(ex.Class);
     ex.Scene = Scene;
+})(ex || (ex = {}));
+/// <reference path="Algebra.ts" />
+/// <reference path="Engine.ts" />
+/// <reference path="Actor.ts" />
+var ex;
+(function (ex) {
+    var Internal;
+    (function (Internal) {
+        var Actions;
+        (function (Actions) {
+            var MoveTo = (function () {
+                function MoveTo(actor, destx, desty, speed) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.end = new ex.Vector(destx, desty);
+                    this.speed = speed;
+                }
+                MoveTo.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.start = new ex.Vector(this.actor.x, this.actor.y);
+                        this.distance = this.start.distance(this.end);
+                        this.dir = this.end.minus(this.start).normalize();
+                    }
+                    var m = this.dir.scale(this.speed);
+                    this.actor.dx = m.x;
+                    this.actor.dy = m.y;
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.x = this.end.x;
+                        this.actor.y = this.end.y;
+                        this.actor.dy = 0;
+                        this.actor.dx = 0;
+                    }
+                };
+                MoveTo.prototype.isComplete = function (actor) {
+                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this.start) >= this.distance;
+                };
+                MoveTo.prototype.stop = function () {
+                    this.actor.dy = 0;
+                    this.actor.dx = 0;
+                    this._stopped = true;
+                };
+                MoveTo.prototype.reset = function () {
+                    this._started = false;
+                };
+                return MoveTo;
+            })();
+            Actions.MoveTo = MoveTo;
+            var MoveBy = (function () {
+                function MoveBy(actor, destx, desty, time) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.end = new ex.Vector(destx, desty);
+                    if (time <= 0) {
+                        ex.Logger.getInstance().error("Attempted to moveBy time less than or equal to zero : " + time);
+                        throw new Error("Cannot move in time <= 0");
+                    }
+                    this.time = time;
+                }
+                MoveBy.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.start = new ex.Vector(this.actor.x, this.actor.y);
+                        this.distance = this.start.distance(this.end);
+                        this.dir = this.end.minus(this.start).normalize();
+                        this.speed = this.distance / (this.time / 1000);
+                    }
+                    var m = this.dir.scale(this.speed);
+                    this.actor.dx = m.x;
+                    this.actor.dy = m.y;
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.x = this.end.x;
+                        this.actor.y = this.end.y;
+                        this.actor.dy = 0;
+                        this.actor.dx = 0;
+                    }
+                };
+                MoveBy.prototype.isComplete = function (actor) {
+                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this.start) >= this.distance;
+                };
+                MoveBy.prototype.stop = function () {
+                    this.actor.dy = 0;
+                    this.actor.dx = 0;
+                    this._stopped = true;
+                };
+                MoveBy.prototype.reset = function () {
+                    this._started = false;
+                };
+                return MoveBy;
+            })();
+            Actions.MoveBy = MoveBy;
+            var Follow = (function () {
+                function Follow(actor, actorToFollow, followDistance) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.actorToFollow = actorToFollow;
+                    this.current = new ex.Vector(this.actor.x, this.actor.y);
+                    this.end = new ex.Vector(actorToFollow.x, actorToFollow.y);
+                    this.maximumDistance = (followDistance != undefined) ? followDistance : this.current.distance(this.end);
+                    this.speed = 0;
+                }
+                Follow.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.distanceBetween = this.current.distance(this.end);
+                        this.dir = this.end.minus(this.current).normalize();
+                    }
+                    var actorToFollowSpeed = Math.sqrt(Math.pow(this.actorToFollow.dx, 2) + Math.pow(this.actorToFollow.dy, 2));
+                    if (actorToFollowSpeed != 0) {
+                        this.speed = actorToFollowSpeed;
+                    }
+                    this.current.x = this.actor.x;
+                    this.current.y = this.actor.y;
+                    this.end.x = this.actorToFollow.x;
+                    this.end.y = this.actorToFollow.y;
+                    this.distanceBetween = this.current.distance(this.end);
+                    this.dir = this.end.minus(this.current).normalize();
+                    if (this.distanceBetween >= this.maximumDistance) {
+                        var m = this.dir.scale(this.speed);
+                        this.actor.dx = m.x;
+                        this.actor.dy = m.y;
+                    }
+                    else {
+                        this.actor.dx = 0;
+                        this.actor.dy = 0;
+                    }
+                    if (this.isComplete(this.actor)) {
+                        // TODO this should never occur
+                        this.actor.x = this.end.x;
+                        this.actor.y = this.end.y;
+                        this.actor.dy = 0;
+                        this.actor.dx = 0;
+                    }
+                };
+                Follow.prototype.stop = function () {
+                    this.actor.dy = 0;
+                    this.actor.dx = 0;
+                    this._stopped = true;
+                };
+                Follow.prototype.isComplete = function (actor) {
+                    // the actor following should never stop unless specified to do so
+                    return this._stopped;
+                };
+                Follow.prototype.reset = function () {
+                    this._started = false;
+                };
+                return Follow;
+            })();
+            Actions.Follow = Follow;
+            var Meet = (function () {
+                function Meet(actor, actorToMeet, speed) {
+                    this._started = false;
+                    this._stopped = false;
+                    this._speedWasSpecified = false;
+                    this.actor = actor;
+                    this.actorToMeet = actorToMeet;
+                    this.current = new ex.Vector(this.actor.x, this.actor.y);
+                    this.end = new ex.Vector(actorToMeet.x, actorToMeet.y);
+                    this.speed = speed || 0;
+                    if (speed != undefined) {
+                        this._speedWasSpecified = true;
+                    }
+                }
+                Meet.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.distanceBetween = this.current.distance(this.end);
+                        this.dir = this.end.minus(this.current).normalize();
+                    }
+                    var actorToMeetSpeed = Math.sqrt(Math.pow(this.actorToMeet.dx, 2) + Math.pow(this.actorToMeet.dy, 2));
+                    if ((actorToMeetSpeed != 0) && (!this._speedWasSpecified)) {
+                        this.speed = actorToMeetSpeed;
+                    }
+                    this.current.x = this.actor.x;
+                    this.current.y = this.actor.y;
+                    this.end.x = this.actorToMeet.x;
+                    this.end.y = this.actorToMeet.y;
+                    this.distanceBetween = this.current.distance(this.end);
+                    this.dir = this.end.minus(this.current).normalize();
+                    var m = this.dir.scale(this.speed);
+                    this.actor.dx = m.x;
+                    this.actor.dy = m.y;
+                    if (this.isComplete(this.actor)) {
+                        // console.log("meeting is complete")
+                        this.actor.x = this.end.x;
+                        this.actor.y = this.end.y;
+                        this.actor.dy = 0;
+                        this.actor.dx = 0;
+                    }
+                };
+                Meet.prototype.isComplete = function (actor) {
+                    return this._stopped || (this.distanceBetween <= 1);
+                };
+                Meet.prototype.stop = function () {
+                    this.actor.dy = 0;
+                    this.actor.dx = 0;
+                    this._stopped = true;
+                };
+                Meet.prototype.reset = function () {
+                    this._started = false;
+                };
+                return Meet;
+            })();
+            Actions.Meet = Meet;
+            var RotateTo = (function () {
+                function RotateTo(actor, angleRadians, speed) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.end = angleRadians;
+                    this.speed = speed;
+                }
+                RotateTo.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.start = this.actor.rotation;
+                        this.distance = Math.abs(this.end - this.start);
+                    }
+                    this.actor.rx = this.speed;
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.rotation = this.end;
+                        this.actor.rx = 0;
+                    }
+                };
+                RotateTo.prototype.isComplete = function (actor) {
+                    return this._stopped || (Math.abs(this.actor.rotation - this.start) >= this.distance);
+                };
+                RotateTo.prototype.stop = function () {
+                    this.actor.rx = 0;
+                    this._stopped = true;
+                };
+                RotateTo.prototype.reset = function () {
+                    this._started = false;
+                };
+                return RotateTo;
+            })();
+            Actions.RotateTo = RotateTo;
+            var RotateBy = (function () {
+                function RotateBy(actor, angleRadians, time) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.end = angleRadians;
+                    this.time = time;
+                    this.speed = (this.end - this.actor.rotation) / time * 1000;
+                }
+                RotateBy.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.start = this.actor.rotation;
+                        this.distance = Math.abs(this.end - this.start);
+                    }
+                    this.actor.rx = this.speed;
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.rotation = this.end;
+                        this.actor.rx = 0;
+                    }
+                };
+                RotateBy.prototype.isComplete = function (actor) {
+                    return this._stopped || (Math.abs(this.actor.rotation - this.start) >= this.distance);
+                };
+                RotateBy.prototype.stop = function () {
+                    this.actor.rx = 0;
+                    this._stopped = true;
+                };
+                RotateBy.prototype.reset = function () {
+                    this._started = false;
+                };
+                return RotateBy;
+            })();
+            Actions.RotateBy = RotateBy;
+            var ScaleTo = (function () {
+                function ScaleTo(actor, scaleX, scaleY, speedX, speedY) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.endX = scaleX;
+                    this.endY = scaleY;
+                    this.speedX = speedX;
+                    this.speedY = speedY;
+                }
+                ScaleTo.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.startX = this.actor.scale.x;
+                        this.startY = this.actor.scale.y;
+                        this.distanceX = Math.abs(this.endX - this.startX);
+                        this.distanceY = Math.abs(this.endY - this.startY);
+                    }
+                    if (!(Math.abs(this.actor.scale.x - this.startX) >= this.distanceX)) {
+                        var directionX = this.endY < this.startY ? -1 : 1;
+                        this.actor.sx = this.speedX * directionX;
+                    }
+                    else {
+                        this.actor.sx = 0;
+                    }
+                    if (!(Math.abs(this.actor.scale.y - this.startY) >= this.distanceY)) {
+                        var directionY = this.endY < this.startY ? -1 : 1;
+                        this.actor.sy = this.speedY * directionY;
+                    }
+                    else {
+                        this.actor.sy = 0;
+                    }
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.scale.x = this.endX;
+                        this.actor.scale.y = this.endY;
+                        this.actor.sx = 0;
+                        this.actor.sy = 0;
+                    }
+                };
+                ScaleTo.prototype.isComplete = function (actor) {
+                    return this._stopped || ((Math.abs(this.actor.scale.y - this.startX) >= this.distanceX) && (Math.abs(this.actor.scale.y - this.startY) >= this.distanceY));
+                };
+                ScaleTo.prototype.stop = function () {
+                    this.actor.sx = 0;
+                    this.actor.sy = 0;
+                    this._stopped = true;
+                };
+                ScaleTo.prototype.reset = function () {
+                    this._started = false;
+                };
+                return ScaleTo;
+            })();
+            Actions.ScaleTo = ScaleTo;
+            var ScaleBy = (function () {
+                function ScaleBy(actor, scaleX, scaleY, time) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.endX = scaleX;
+                    this.endY = scaleY;
+                    this.time = time;
+                    this.speedX = (this.endX - this.actor.scale.x) / time * 1000;
+                    this.speedY = (this.endY - this.actor.scale.y) / time * 1000;
+                }
+                ScaleBy.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this.startX = this.actor.scale.x;
+                        this.startY = this.actor.scale.y;
+                        this.distanceX = Math.abs(this.endX - this.startX);
+                        this.distanceY = Math.abs(this.endY - this.startY);
+                    }
+                    var directionX = this.endX < this.startX ? -1 : 1;
+                    var directionY = this.endY < this.startY ? -1 : 1;
+                    this.actor.sx = this.speedX * directionX;
+                    this.actor.sy = this.speedY * directionY;
+                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.scale.x = this.endX;
+                        this.actor.scale.y = this.endY;
+                        this.actor.sx = 0;
+                        this.actor.sy = 0;
+                    }
+                };
+                ScaleBy.prototype.isComplete = function (actor) {
+                    return this._stopped || ((Math.abs(this.actor.scale.x - this.startX) >= this.distanceX) && (Math.abs(this.actor.scale.y - this.startY) >= this.distanceY));
+                };
+                ScaleBy.prototype.stop = function () {
+                    this.actor.sx = 0;
+                    this.actor.sy = 0;
+                    this._stopped = true;
+                };
+                ScaleBy.prototype.reset = function () {
+                    this._started = false;
+                };
+                return ScaleBy;
+            })();
+            Actions.ScaleBy = ScaleBy;
+            var Delay = (function () {
+                function Delay(actor, delay) {
+                    this.elapsedTime = 0;
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.delay = delay;
+                }
+                Delay.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                    }
+                    this.x = this.actor.x;
+                    this.y = this.actor.y;
+                    this.elapsedTime += delta;
+                };
+                Delay.prototype.isComplete = function (actor) {
+                    return this._stopped || (this.elapsedTime >= this.delay);
+                };
+                Delay.prototype.stop = function () {
+                    this._stopped = true;
+                };
+                Delay.prototype.reset = function () {
+                    this.elapsedTime = 0;
+                    this._started = false;
+                };
+                return Delay;
+            })();
+            Actions.Delay = Delay;
+            var Blink = (function () {
+                function Blink(actor, timeVisible, timeNotVisible, numBlinks) {
+                    if (numBlinks === void 0) { numBlinks = 1; }
+                    this.timeVisible = 0;
+                    this.timeNotVisible = 0;
+                    this.elapsedTime = 0;
+                    this.totalTime = 0;
+                    this._stopped = false;
+                    this._started = false;
+                    this.actor = actor;
+                    this.timeVisible = timeVisible;
+                    this.timeNotVisible = timeNotVisible;
+                    this.duration = (timeVisible + timeNotVisible) * numBlinks;
+                }
+                Blink.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                    }
+                    this.elapsedTime += delta;
+                    this.totalTime += delta;
+                    if (this.actor.visible && this.elapsedTime >= this.timeVisible) {
+                        this.actor.visible = false;
+                        this.elapsedTime = 0;
+                    }
+                    if (!this.actor.visible && this.elapsedTime >= this.timeNotVisible) {
+                        this.actor.visible = true;
+                        this.elapsedTime = 0;
+                    }
+                    if (this.isComplete(this.actor)) {
+                        this.actor.visible = true;
+                    }
+                };
+                Blink.prototype.isComplete = function (actor) {
+                    return this._stopped || (this.totalTime >= this.duration);
+                };
+                Blink.prototype.stop = function () {
+                    this.actor.visible = true;
+                    this._stopped = true;
+                };
+                Blink.prototype.reset = function () {
+                    this._started = false;
+                    this.elapsedTime = 0;
+                    this.totalTime = 0;
+                };
+                return Blink;
+            })();
+            Actions.Blink = Blink;
+            var Fade = (function () {
+                function Fade(actor, endOpacity, speed) {
+                    this.multiplyer = 1;
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.endOpacity = endOpacity;
+                    this.speed = speed;
+                    if (endOpacity < actor.opacity) {
+                        this.multiplyer = -1;
+                    }
+                }
+                Fade.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                    }
+                    if (this.speed > 0) {
+                        this.actor.opacity += this.multiplyer * (Math.abs(this.actor.opacity - this.endOpacity) * delta) / this.speed;
+                    }
+                    this.speed -= delta;
+                    ex.Logger.getInstance().debug("actor opacity: " + this.actor.opacity);
+                    if (this.isComplete(this.actor)) {
+                        this.actor.opacity = this.endOpacity;
+                    }
+                };
+                Fade.prototype.isComplete = function (actor) {
+                    return this._stopped || (Math.abs(this.actor.opacity - this.endOpacity) < 0.05);
+                };
+                Fade.prototype.stop = function () {
+                    this._stopped = true;
+                };
+                Fade.prototype.reset = function () {
+                    this._started = false;
+                };
+                return Fade;
+            })();
+            Actions.Fade = Fade;
+            var Die = (function () {
+                function Die(actor) {
+                    this._started = false;
+                    this._stopped = false;
+                    this.actor = actor;
+                }
+                Die.prototype.update = function (delta) {
+                    this.actor.actionQueue.clearActions();
+                    this.actor.kill();
+                    this._stopped = true;
+                };
+                Die.prototype.isComplete = function () {
+                    return this._stopped;
+                };
+                Die.prototype.stop = function () {
+                };
+                Die.prototype.reset = function () {
+                };
+                return Die;
+            })();
+            Actions.Die = Die;
+            var CallMethod = (function () {
+                function CallMethod(actor, method) {
+                    this._method = null;
+                    this._actor = null;
+                    this._hasBeenCalled = false;
+                    this._actor = actor;
+                    this._method = method;
+                }
+                CallMethod.prototype.update = function (delta) {
+                    this._method.call(this._actor);
+                    this._hasBeenCalled = true;
+                };
+                CallMethod.prototype.isComplete = function (actor) {
+                    return this._hasBeenCalled;
+                };
+                CallMethod.prototype.reset = function () {
+                    this._hasBeenCalled = false;
+                };
+                CallMethod.prototype.stop = function () {
+                    this._hasBeenCalled = true;
+                };
+                return CallMethod;
+            })();
+            Actions.CallMethod = CallMethod;
+            var Repeat = (function () {
+                function Repeat(actor, repeat, actions) {
+                    var _this = this;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.actionQueue = new ActionQueue(actor);
+                    this.repeat = repeat;
+                    this.originalRepeat = repeat;
+                    actions.forEach(function (action) {
+                        action.reset();
+                        _this.actionQueue.add(action);
+                    });
+                }
+                Repeat.prototype.update = function (delta) {
+                    this.x = this.actor.x;
+                    this.y = this.actor.y;
+                    if (!this.actionQueue.hasNext()) {
+                        this.actionQueue.reset();
+                        this.repeat--;
+                    }
+                    this.actionQueue.update(delta);
+                };
+                Repeat.prototype.isComplete = function () {
+                    return this._stopped || (this.repeat <= 0);
+                };
+                Repeat.prototype.stop = function () {
+                    this._stopped = true;
+                };
+                Repeat.prototype.reset = function () {
+                    this.repeat = this.originalRepeat;
+                };
+                return Repeat;
+            })();
+            Actions.Repeat = Repeat;
+            var RepeatForever = (function () {
+                function RepeatForever(actor, actions) {
+                    var _this = this;
+                    this._stopped = false;
+                    this.actor = actor;
+                    this.actionQueue = new ActionQueue(actor);
+                    actions.forEach(function (action) {
+                        action.reset();
+                        _this.actionQueue.add(action);
+                    });
+                }
+                RepeatForever.prototype.update = function (delta) {
+                    this.x = this.actor.x;
+                    this.y = this.actor.y;
+                    if (this._stopped) {
+                        return;
+                    }
+                    if (!this.actionQueue.hasNext()) {
+                        this.actionQueue.reset();
+                    }
+                    this.actionQueue.update(delta);
+                };
+                RepeatForever.prototype.isComplete = function () {
+                    return this._stopped;
+                };
+                RepeatForever.prototype.stop = function () {
+                    this._stopped = true;
+                    this.actionQueue.clearActions();
+                };
+                RepeatForever.prototype.reset = function () {
+                };
+                return RepeatForever;
+            })();
+            Actions.RepeatForever = RepeatForever;
+            var ActionQueue = (function () {
+                function ActionQueue(actor) {
+                    this._actions = [];
+                    this._completedActions = [];
+                    this.actor = actor;
+                }
+                ActionQueue.prototype.add = function (action) {
+                    this._actions.push(action);
+                };
+                ActionQueue.prototype.remove = function (action) {
+                    var index = this._actions.indexOf(action);
+                    this._actions.splice(index, 1);
+                };
+                ActionQueue.prototype.clearActions = function () {
+                    this._actions.length = 0;
+                    this._completedActions.length = 0;
+                    this._currentAction.stop();
+                };
+                ActionQueue.prototype.getActions = function () {
+                    return this._actions.concat(this._completedActions);
+                };
+                ActionQueue.prototype.hasNext = function () {
+                    return this._actions.length > 0;
+                };
+                ActionQueue.prototype.reset = function () {
+                    this._actions = this.getActions();
+                    this._actions.forEach(function (action) {
+                        action.reset();
+                    });
+                    this._completedActions = [];
+                };
+                ActionQueue.prototype.update = function (delta) {
+                    if (this._actions.length > 0) {
+                        this._currentAction = this._actions[0];
+                        this._currentAction.update(delta);
+                        if (this._currentAction.isComplete(this.actor)) {
+                            //Logger.getInstance().log("Action complete!", Log.DEBUG);
+                            this._completedActions.push(this._actions.shift());
+                        }
+                    }
+                };
+                return ActionQueue;
+            })();
+            Actions.ActionQueue = ActionQueue;
+        })(Actions = Internal.Actions || (Internal.Actions = {}));
+    })(Internal = ex.Internal || (ex.Internal = {}));
 })(ex || (ex = {}));
 /// <reference path="Interfaces/IDrawable.ts" />
 /// <reference path="Modules/MovementModule.ts" />
@@ -3001,15 +3975,10 @@ var ex;
              */
             this.rx = 0; //radions/sec
             /**
-             * The x scale of the actor
-             * @property scaleX {number}
+             * The scale vector of the actor
+             * @property scale
              */
-            this.scaleX = 1;
-            /**
-             * The y scale of the actor
-             * @property scaleY {number}
-             */
-            this.scaleY = 1;
+            this.scale = new ex.Vector(1, 1);
             /**
              * The x scalar velocity of the actor in scale/second
              * @property sx {number}
@@ -3189,17 +4158,20 @@ var ex;
             }
             this.currentDrawing = this.frames[key];
         };
-        /**
-         * Adds a drawing to the list of available drawings for an actor.
-         * @method addDrawing
-         * @param key {string} The key to associate with a drawing for this actor
-         * @param drawing {IDrawable} this can be an {{#crossLink "Animation"}}{{/crossLink}},
-         * {{#crossLink "Sprite"}}{{/crossLink}}, or {{#crossLink "Polygon"}}{{/crossLink}}.
-         */
-        Actor.prototype.addDrawing = function (key, drawing) {
-            this.frames[key] = drawing;
-            if (!this.currentDrawing) {
-                this.currentDrawing = drawing;
+        Actor.prototype.addDrawing = function (args) {
+            if (arguments.length === 2) {
+                this.frames[arguments[0]] = arguments[1];
+                if (!this.currentDrawing) {
+                    this.currentDrawing = arguments[1];
+                }
+            }
+            else {
+                if (arguments[0] instanceof ex.Sprite) {
+                    this.addDrawing("default", arguments[0]);
+                }
+                if (arguments[0] instanceof ex.Texture) {
+                    this.addDrawing("default", arguments[0].asSprite());
+                }
             }
         };
         /**
@@ -3250,14 +4222,14 @@ var ex;
          * @returns number
          */
         Actor.prototype.getWidth = function () {
-            return this.width * this.scaleX;
+            return this.width * this.scale.x;
         };
         /**
          * Sets the width of an actor, factoring in the current scale
          * @method setWidth
          */
         Actor.prototype.setWidth = function (width) {
-            this.width = width / this.scaleX;
+            this.width = width / this.scale.x;
         };
         /**
          * Gets the calculated height of an actor
@@ -3265,14 +4237,14 @@ var ex;
          * @returns number
          */
         Actor.prototype.getHeight = function () {
-            return this.height * this.scaleY;
+            return this.height * this.scale.y;
         };
         /**
          * Sets the height of an actor, factoring in the current scale
          * @method setHeight
          */
         Actor.prototype.setHeight = function (height) {
-            this.height = height / this.scaleY;
+            this.height = height / this.scale.y;
         };
         /**
          * Centers the actor's drawing around the center of the actor's bounding box
@@ -3323,7 +4295,7 @@ var ex;
         Actor.prototype.getGlobalX = function () {
             if (!this.parent)
                 return this.x;
-            return this.x * this.parent.scaleX + this.parent.getGlobalX();
+            return this.x * this.parent.scale.y + this.parent.getGlobalX();
         };
         /**
         * Gets the y value of the Actor in global coordinates
@@ -3333,7 +4305,7 @@ var ex;
         Actor.prototype.getGlobalY = function () {
             if (!this.parent)
                 return this.y;
-            return this.y * this.parent.scaleY + this.parent.getGlobalY();
+            return this.y * this.parent.scale.y + this.parent.getGlobalY();
         };
         /**
          * Gets the global scale of the Actor
@@ -3342,9 +4314,9 @@ var ex;
          */
         Actor.prototype.getGlobalScale = function () {
             if (!this.parent)
-                return new ex.Point(this.scaleX, this.scaleY);
+                return new ex.Point(this.scale.x, this.scale.y);
             var parentScale = this.parent.getGlobalScale();
-            return new ex.Point(this.scaleX * parentScale.x, this.scaleY * parentScale.y);
+            return new ex.Point(this.scale.x * parentScale.x, this.scale.y * parentScale.y);
         };
         /**
          * Returns the actor's bounding box calculated for this instant.
@@ -3723,7 +4695,7 @@ var ex;
             ctx.save();
             ctx.translate(this.x, this.y);
             ctx.rotate(this.rotation);
-            ctx.scale(this.scaleX, this.scaleY);
+            ctx.scale(this.scale.x, this.scale.y);
             // calculate changing opacity
             if (this.previousOpacity != this.opacity) {
                 for (var drawing in this.frames) {
@@ -3757,25 +4729,13 @@ var ex;
          * @param ctx {CanvasRenderingContext2D} The rendering context
          */
         Actor.prototype.debugDraw = function (ctx) {
-            var anchorPoint = this.calculatedAnchor;
-            // Meant to draw debug information about actors
-            ctx.save();
-            ctx.translate(this.x, this.y);
-            ctx.rotate(this.rotation);
-            ctx.scale(this.scaleX, this.scaleY);
-            this.sceneNode.debugDraw(ctx);
             var bb = this.getBounds();
-            bb.left = bb.left - this.getGlobalX();
-            bb.right = bb.right - this.getGlobalX();
-            bb.top = bb.top - this.getGlobalY();
-            bb.bottom = bb.bottom - this.getGlobalY();
             bb.debugDraw(ctx);
             ctx.fillStyle = ex.Color.Yellow.toString();
             ctx.beginPath();
-            ctx.arc(0, 0, 3, 0, Math.PI * 2);
+            ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fill();
-            ctx.restore();
         };
         /**
          * Indicates the next id to be set
@@ -4450,6 +5410,27 @@ var ex;
         Color.White = Color.fromHex('#FFFFFF');
         /**
          * Color constant
+         * @property Gray {ex.Color}
+         * @static
+         * @final
+         */
+        Color.Gray = Color.fromHex('#808080');
+        /**
+         * Color constant
+         * @property LightGray {ex.Color}
+         * @static
+         * @final
+         */
+        Color.LightGray = Color.fromHex('#D3D3D3');
+        /**
+         * Color constant
+         * @property DarkGray {ex.Color}
+         * @static
+         * @final
+         */
+        Color.DarkGray = Color.fromHex('#A9A9A9');
+        /**
+         * Color constant
          * @property Yellow {ex.Color}
          * @static
          * @final
@@ -4551,6 +5532,35 @@ var ex;
     ex.Color = Color;
 })(ex || (ex = {}));
 /// <reference path="Actor.ts" />
+var ex;
+(function (ex) {
+    /**
+     * Helper Actor primitive for drawing UI's, optimized for UI drawing. Does
+     * not participate in collisions.
+     * @class UIActor
+     * @extends Actor
+     * @constructor
+     * @param [x=0.0] {number} The starting x coordinate of the actor
+     * @param [y=0.0] {number} The starting y coordinate of the actor
+     * @param [width=0.0] {number} The starting width of the actor
+     * @param [height=0.0] {number} The starting height of the actor
+     */
+    var UIActor = (function (_super) {
+        __extends(UIActor, _super);
+        function UIActor(x, y, width, height) {
+            _super.call(this, x, y, width, height);
+            this.pipeline = [];
+            this.pipeline.push(new ex.MovementModule());
+            this.pipeline.push(new ex.CapturePointerModule());
+            this.anchor.setTo(0, 0);
+            this.collisionType = 0 /* PreventCollision */;
+            this.enableCapturePointer = true;
+        }
+        return UIActor;
+    })(ex.Actor);
+    ex.UIActor = UIActor;
+})(ex || (ex = {}));
+/// <reference path="Actor.ts" />
 /// <reference path="Engine.ts" />
 var ex;
 (function (ex) {
@@ -4591,8 +5601,8 @@ var ex;
             this.x += this.dx * delta / 1000;
             this.y += this.dy * delta / 1000;
             this.rotation += this.rx * delta / 1000;
-            this.scaleX += this.sx * delta / 1000;
-            this.scaleY += this.sy * delta / 1000;
+            this.scale.x += this.sx * delta / 1000;
+            this.scale.y += this.sy * delta / 1000;
             // check for trigger collisions
             if (this.target) {
                 if (this.collides(this.target)) {
@@ -5148,272 +6158,6 @@ var ex;
         return Animation;
     })();
     ex.Animation = Animation;
-})(ex || (ex = {}));
-/// <reference path="Engine.ts" />
-/// <reference path="Algebra.ts" />
-var ex;
-(function (ex) {
-    /**
-    * A base implementation of a camera. This class is meant to be extended.
-    * @class Camera
-    * @constructor
-    * @param engine {Engine} Reference to the current engine
-    */
-    var BaseCamera = (function () {
-        function BaseCamera(engine) {
-            this.focus = new ex.Point(0, 0);
-            this.lerp = false;
-            this._cameraMoving = false;
-            this._currentLerpTime = 0;
-            this._lerpDuration = 1 * 1000; // 5 seconds
-            this._totalLerpTime = 0;
-            this._lerpStart = null;
-            this._lerpEnd = null;
-            //camera effects
-            this.isShaking = false;
-            this.shakeMagnitudeX = 0;
-            this.shakeMagnitudeY = 0;
-            this.shakeDuration = 0;
-            this.elapsedShakeTime = 0;
-            this.isZooming = false;
-            this.currentZoomScale = 1;
-            this.maxZoomScale = 1;
-            this.zoomDuration = 0;
-            this.elapsedZoomTime = 0;
-            this.zoomIncrement = 0.01;
-            this.engine = engine;
-        }
-        BaseCamera.prototype.easeInOutCubic = function (currentTime, startValue, endValue, duration) {
-            endValue = (endValue - startValue);
-            currentTime /= duration / 2;
-            if (currentTime < 1)
-                return endValue / 2 * currentTime * currentTime * currentTime + startValue;
-            currentTime -= 2;
-            return endValue / 2 * (currentTime * currentTime * currentTime + 2) + startValue;
-        };
-        /**
-        * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
-        * @method setActorToFollow
-        * @param actor {Actor} The actor to follow
-        */
-        BaseCamera.prototype.setActorToFollow = function (actor) {
-            this.follow = actor;
-        };
-        /**
-        * Returns the focal point of the camera
-        * @method getFocus
-        * @returns Point
-        */
-        BaseCamera.prototype.getFocus = function () {
-            return this.focus;
-        };
-        /**
-        * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
-        * @method setFocus
-        * @param x {number} The x coordinate of the focal point
-        * @param y {number} The y coordinate of the focal point
-        */
-        BaseCamera.prototype.setFocus = function (x, y) {
-            if (!this.follow && !this.lerp) {
-                this.focus.x = x;
-                this.focus.y = y;
-            }
-            if (this.lerp) {
-                this._lerpStart = this.focus.clone();
-                this._lerpEnd = new ex.Point(x, y);
-                this._currentLerpTime = 0;
-                this._cameraMoving = true;
-            }
-        };
-        /**
-        * Sets the camera to shake at the specified magnitudes for the specified duration
-        * @method shake
-        * @param magnitudeX {number} the x magnitude of the shake
-        * @param magnitudeY {number} the y magnitude of the shake
-        * @param duration {number} the duration of the shake
-        */
-        BaseCamera.prototype.shake = function (magnitudeX, magnitudeY, duration) {
-            this.isShaking = true;
-            this.shakeMagnitudeX = magnitudeX;
-            this.shakeMagnitudeY = magnitudeY;
-            this.shakeDuration = duration;
-        };
-        /**
-        * Zooms the camera in or out by the specified scale over the specified duration.
-        * If no duration is specified, it will zoom by a set amount until the scale is reached.
-        * @method zoom
-        * @param scale {number} the scale of the zoom
-        * @param [duration] {number} the duration of the zoom
-        */
-        BaseCamera.prototype.zoom = function (scale, duration) {
-            this.isZooming = true;
-            this.maxZoomScale = scale;
-            this.zoomDuration = duration | 0;
-            if (duration) {
-                this.zoomIncrement = Math.abs(this.maxZoomScale - this.currentZoomScale) / duration * 1000;
-            }
-            if (this.maxZoomScale < 1) {
-                if (duration) {
-                    this.zoomIncrement = -1 * this.zoomIncrement;
-                }
-                else {
-                    this.isZooming = false;
-                    this.setCurrentZoomScale(this.maxZoomScale);
-                }
-            }
-            else {
-                if (!duration) {
-                    this.isZooming = false;
-                    this.setCurrentZoomScale(this.maxZoomScale);
-                }
-            }
-            // console.log("zoom increment: " + this.zoomIncrement);
-        };
-        /**
-        * gets the current zoom scale
-        * @method getZoom
-        * @returns {Number} the current zoom scale
-        */
-        BaseCamera.prototype.getZoom = function () {
-            return this.currentZoomScale;
-        };
-        BaseCamera.prototype.setCurrentZoomScale = function (zoomScale) {
-            this.currentZoomScale = zoomScale;
-        };
-        /**
-        * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
-        * @method update
-        * @param delta {number} The number of milliseconds since the last update
-        */
-        BaseCamera.prototype.update = function (delta) {
-            var focus = this.getFocus();
-            var xShake = 0;
-            var yShake = 0;
-            var canvasWidth = this.engine.ctx.canvas.width;
-            var canvasHeight = this.engine.ctx.canvas.height;
-            var newCanvasWidth = canvasWidth * this.getZoom();
-            var newCanvasHeight = canvasHeight * this.getZoom();
-            if (this.lerp) {
-                if (this._currentLerpTime < this._lerpDuration && this._cameraMoving) {
-                    if (this._lerpEnd.x < this._lerpStart.x) {
-                        this.focus.x = this._lerpStart.x - (this.easeInOutCubic(this._currentLerpTime, this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
-                    }
-                    else {
-                        this.focus.x = this.easeInOutCubic(this._currentLerpTime, this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
-                    }
-                    if (this._lerpEnd.y < this._lerpStart.y) {
-                        this.focus.y = this._lerpStart.y - (this.easeInOutCubic(this._currentLerpTime, this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
-                    }
-                    else {
-                        this.focus.y = this.easeInOutCubic(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
-                    }
-                    this._currentLerpTime += delta;
-                }
-                else {
-                    this._lerpStart = null;
-                    this._lerpEnd = null;
-                    this._currentLerpTime = 0;
-                    this._cameraMoving = false;
-                }
-            }
-            if (this.isDoneShaking()) {
-                this.isShaking = false;
-                this.elapsedShakeTime = 0;
-                this.shakeMagnitudeX = 0;
-                this.shakeMagnitudeY = 0;
-                this.shakeDuration = 0;
-            }
-            else {
-                this.elapsedShakeTime += delta;
-                xShake = (Math.random() * this.shakeMagnitudeX | 0) + 1;
-                yShake = (Math.random() * this.shakeMagnitudeY | 0) + 1;
-            }
-            this.engine.ctx.translate(-focus.x + xShake + (newCanvasWidth / 2), -focus.y + yShake + (newCanvasHeight / 2));
-            if (this.isDoneZooming()) {
-                this.isZooming = false;
-                this.elapsedZoomTime = 0;
-                this.zoomDuration = 0;
-                this.setCurrentZoomScale(this.maxZoomScale);
-            }
-            else {
-                this.elapsedZoomTime += delta;
-                this.setCurrentZoomScale(this.getZoom() + this.zoomIncrement * delta / 1000);
-            }
-            this.engine.ctx.scale(this.getZoom(), this.getZoom());
-        };
-        BaseCamera.prototype.debugDraw = function (ctx) {
-            var focus = this.getFocus();
-            ctx.fillStyle = 'red';
-            ctx.beginPath();
-            ctx.arc(focus.x, focus.y, 15, 0, Math.PI * 2);
-            ctx.closePath();
-            ctx.fill();
-        };
-        BaseCamera.prototype.isDoneShaking = function () {
-            return !(this.isShaking) || (this.elapsedShakeTime >= this.shakeDuration);
-        };
-        BaseCamera.prototype.isDoneZooming = function () {
-            if (this.zoomDuration != 0) {
-                return (this.elapsedZoomTime >= this.zoomDuration);
-            }
-            else {
-                if (this.maxZoomScale < 1) {
-                    return (this.currentZoomScale <= this.maxZoomScale);
-                }
-                else {
-                    return (this.currentZoomScale >= this.maxZoomScale);
-                }
-            }
-        };
-        return BaseCamera;
-    })();
-    ex.BaseCamera = BaseCamera;
-    /**
-    * An extension of BaseCamera that is locked vertically; it will only move side to side.
-    * @class SideCamera
-    * @extends BaseCamera
-    * @constructor
-    * @param engine {Engine} Reference to the current engine
-    */
-    var SideCamera = (function (_super) {
-        __extends(SideCamera, _super);
-        function SideCamera() {
-            _super.apply(this, arguments);
-        }
-        SideCamera.prototype.getFocus = function () {
-            if (this.follow) {
-                return new ex.Point(this.follow.x + this.follow.getWidth() / 2, this.focus.y);
-            }
-            else {
-                return this.focus;
-            }
-        };
-        return SideCamera;
-    })(BaseCamera);
-    ex.SideCamera = SideCamera;
-    /**
-    * An extension of BaseCamera that is locked to an actor or focal point; the actor will appear in the center of the screen.
-    * @class TopCamera
-    * @extends BaseCamera
-    * @constructor
-    * @param engine {Engine} Reference to the current engine
-    */
-    var TopCamera = (function (_super) {
-        __extends(TopCamera, _super);
-        function TopCamera() {
-            _super.apply(this, arguments);
-        }
-        TopCamera.prototype.getFocus = function () {
-            if (this.follow) {
-                return new ex.Point(this.follow.x + this.follow.getWidth() / 2, this.follow.y + this.follow.getHeight() / 2);
-            }
-            else {
-                return this.focus;
-            }
-        };
-        return TopCamera;
-    })(BaseCamera);
-    ex.TopCamera = TopCamera;
 })(ex || (ex = {}));
 /// <reference path="MonkeyPatch.ts" />
 /// <reference path="Util.ts" />
@@ -6649,7 +7393,7 @@ var ex;
         Label.prototype.draw = function (ctx, delta) {
             ctx.save();
             ctx.translate(this.x, this.y);
-            ctx.scale(this.scaleX, this.scaleY);
+            ctx.scale(this.scale.x, this.scale.y);
             ctx.rotate(this.rotation);
             if (this._textShadowOn) {
                 ctx.save();
@@ -7630,6 +8374,7 @@ var ex;
 /// <reference path="Collision/Side.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actor.ts" />
+/// <reference path="UIActor.ts" />
 /// <reference path="Trigger.ts" />
 /// <reference path="Particles.ts" />
 /// <reference path="Animation.ts" />
@@ -7731,8 +8476,7 @@ var ex;
             this.logger = ex.Logger.getInstance();
             this.logger.debug("Building engine...");
             this.canvasElementId = canvasElementId;
-            this.camera = new ex.BaseCamera(this);
-            this.rootScene = this.currentScene = new ex.Scene();
+            this.rootScene = this.currentScene = new ex.Scene(this);
             this.addScene('root', this.rootScene);
             if (canvasElementId) {
                 this.logger.debug("Using Canvas element specified: " + canvasElementId);
@@ -7756,7 +8500,6 @@ var ex;
                 this.logger.debug("Engine viewport is fullscreen");
                 this.displayMode = 0 /* FullScreen */;
             }
-            this.camera.setFocus(this.width / 2, this.height / 2);
             this.loader = new ex.Loader();
             this.initialize();
         }
@@ -7859,6 +8602,10 @@ var ex;
             }
         };
         Engine.prototype.add = function (entity) {
+            if (entity instanceof ex.UIActor) {
+                this.currentScene.addUIActor(entity);
+                return;
+            }
             if (entity instanceof ex.Actor) {
                 this.addChild(entity);
             }
@@ -7873,6 +8620,10 @@ var ex;
             }
         };
         Engine.prototype.remove = function (entity) {
+            if (entity instanceof ex.UIActor) {
+                this.currentScene.removeUIActor(entity);
+                return;
+            }
             if (entity instanceof ex.Actor) {
                 this.removeChild(entity);
             }
@@ -7914,8 +8665,8 @@ var ex;
          * @returns number The width of the drawing surface in pixels.
          */
         Engine.prototype.getWidth = function () {
-            if (this.camera) {
-                return this.width / this.camera.getZoom();
+            if (this.currentScene && this.currentScene.camera) {
+                return this.width / this.currentScene.camera.getZoom();
             }
             return this.width;
         };
@@ -7925,8 +8676,8 @@ var ex;
          * @returns number The height of the drawing surface in pixels.
          */
         Engine.prototype.getHeight = function () {
-            if (this.camera) {
-                return this.height / this.camera.getZoom();
+            if (this.currentScene && this.currentScene.camera) {
+                return this.height / this.currentScene.camera.getZoom();
             }
             return this.height;
         };
@@ -7939,8 +8690,8 @@ var ex;
             // todo set these back this.canvas.clientWidth
             var newX = point.x;
             var newY = point.y;
-            if (this.camera) {
-                var focus = this.camera.getFocus();
+            if (this.currentScene && this.currentScene.camera) {
+                var focus = this.currentScene.camera.getFocus();
                 newX = focus.x + (point.x - (this.getWidth() / 2));
                 newY = focus.y + (point.y - (this.getHeight() / 2));
             }
@@ -7959,8 +8710,8 @@ var ex;
             // this isn't correct on zoom
             var screenX = point.x;
             var screenY = point.y;
-            if (this.camera) {
-                var focus = this.camera.getFocus();
+            if (this.currentScene && this.currentScene.camera) {
+                var focus = this.currentScene.camera.getFocus();
                 screenX = (point.x - focus.x) + (this.getWidth() / 2); //(this.getWidth() / this.canvas.clientWidth);
                 screenY = (point.y - focus.y) + (this.getHeight() / 2); // (this.getHeight() / this.canvas.clientHeight);
             }
@@ -8097,20 +8848,10 @@ var ex;
                 var fps = 1.0 / (delta / 1000);
                 this.ctx.fillText("FPS:" + fps.toFixed(2).toString(), 10, 10);
             }
-            this.ctx.save();
-            if (this.camera) {
-                this.camera.update(delta);
-            }
             this.currentScene.draw(this.ctx, delta);
             this.animations.forEach(function (a) {
                 a.animation.draw(ctx, a.x, a.y);
             });
-            if (this.isDebug) {
-                this.ctx.strokeStyle = 'yellow';
-                this.currentScene.debugDraw(this.ctx);
-                this.camera.debugDraw(this.ctx);
-            }
-            this.ctx.restore();
         };
         /**
          * Starts the internal game loop for Excalibur after loading
@@ -8244,773 +8985,9 @@ var ex;
     ex.Engine = Engine;
     ;
 })(ex || (ex = {}));
-/// <reference path="Algebra.ts" />
-/// <reference path="Engine.ts" />
-/// <reference path="Actor.ts" />
-var ex;
-(function (ex) {
-    var Internal;
-    (function (Internal) {
-        var Actions;
-        (function (Actions) {
-            var MoveTo = (function () {
-                function MoveTo(actor, destx, desty, speed) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.end = new ex.Vector(destx, desty);
-                    this.speed = speed;
-                }
-                MoveTo.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.start = new ex.Vector(this.actor.x, this.actor.y);
-                        this.distance = this.start.distance(this.end);
-                        this.dir = this.end.minus(this.start).normalize();
-                    }
-                    var m = this.dir.scale(this.speed);
-                    this.actor.dx = m.x;
-                    this.actor.dy = m.y;
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.x = this.end.x;
-                        this.actor.y = this.end.y;
-                        this.actor.dy = 0;
-                        this.actor.dx = 0;
-                    }
-                };
-                MoveTo.prototype.isComplete = function (actor) {
-                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this.start) >= this.distance;
-                };
-                MoveTo.prototype.stop = function () {
-                    this.actor.dy = 0;
-                    this.actor.dx = 0;
-                    this._stopped = true;
-                };
-                MoveTo.prototype.reset = function () {
-                    this._started = false;
-                };
-                return MoveTo;
-            })();
-            Actions.MoveTo = MoveTo;
-            var MoveBy = (function () {
-                function MoveBy(actor, destx, desty, time) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.end = new ex.Vector(destx, desty);
-                    if (time <= 0) {
-                        ex.Logger.getInstance().error("Attempted to moveBy time less than or equal to zero : " + time);
-                        throw new Error("Cannot move in time <= 0");
-                    }
-                    this.time = time;
-                }
-                MoveBy.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.start = new ex.Vector(this.actor.x, this.actor.y);
-                        this.distance = this.start.distance(this.end);
-                        this.dir = this.end.minus(this.start).normalize();
-                        this.speed = this.distance / (this.time / 1000);
-                    }
-                    var m = this.dir.scale(this.speed);
-                    this.actor.dx = m.x;
-                    this.actor.dy = m.y;
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.x = this.end.x;
-                        this.actor.y = this.end.y;
-                        this.actor.dy = 0;
-                        this.actor.dx = 0;
-                    }
-                };
-                MoveBy.prototype.isComplete = function (actor) {
-                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this.start) >= this.distance;
-                };
-                MoveBy.prototype.stop = function () {
-                    this.actor.dy = 0;
-                    this.actor.dx = 0;
-                    this._stopped = true;
-                };
-                MoveBy.prototype.reset = function () {
-                    this._started = false;
-                };
-                return MoveBy;
-            })();
-            Actions.MoveBy = MoveBy;
-            var Follow = (function () {
-                function Follow(actor, actorToFollow, followDistance) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.actorToFollow = actorToFollow;
-                    this.current = new ex.Vector(this.actor.x, this.actor.y);
-                    this.end = new ex.Vector(actorToFollow.x, actorToFollow.y);
-                    this.maximumDistance = (followDistance != undefined) ? followDistance : this.current.distance(this.end);
-                    this.speed = 0;
-                }
-                Follow.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.distanceBetween = this.current.distance(this.end);
-                        this.dir = this.end.minus(this.current).normalize();
-                    }
-                    var actorToFollowSpeed = Math.sqrt(Math.pow(this.actorToFollow.dx, 2) + Math.pow(this.actorToFollow.dy, 2));
-                    if (actorToFollowSpeed != 0) {
-                        this.speed = actorToFollowSpeed;
-                    }
-                    this.current.x = this.actor.x;
-                    this.current.y = this.actor.y;
-                    this.end.x = this.actorToFollow.x;
-                    this.end.y = this.actorToFollow.y;
-                    this.distanceBetween = this.current.distance(this.end);
-                    this.dir = this.end.minus(this.current).normalize();
-                    if (this.distanceBetween >= this.maximumDistance) {
-                        var m = this.dir.scale(this.speed);
-                        this.actor.dx = m.x;
-                        this.actor.dy = m.y;
-                    }
-                    else {
-                        this.actor.dx = 0;
-                        this.actor.dy = 0;
-                    }
-                    if (this.isComplete(this.actor)) {
-                        // TODO this should never occur
-                        this.actor.x = this.end.x;
-                        this.actor.y = this.end.y;
-                        this.actor.dy = 0;
-                        this.actor.dx = 0;
-                    }
-                };
-                Follow.prototype.stop = function () {
-                    this.actor.dy = 0;
-                    this.actor.dx = 0;
-                    this._stopped = true;
-                };
-                Follow.prototype.isComplete = function (actor) {
-                    // the actor following should never stop unless specified to do so
-                    return this._stopped;
-                };
-                Follow.prototype.reset = function () {
-                    this._started = false;
-                };
-                return Follow;
-            })();
-            Actions.Follow = Follow;
-            var Meet = (function () {
-                function Meet(actor, actorToMeet, speed) {
-                    this._started = false;
-                    this._stopped = false;
-                    this._speedWasSpecified = false;
-                    this.actor = actor;
-                    this.actorToMeet = actorToMeet;
-                    this.current = new ex.Vector(this.actor.x, this.actor.y);
-                    this.end = new ex.Vector(actorToMeet.x, actorToMeet.y);
-                    this.speed = speed || 0;
-                    if (speed != undefined) {
-                        this._speedWasSpecified = true;
-                    }
-                }
-                Meet.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.distanceBetween = this.current.distance(this.end);
-                        this.dir = this.end.minus(this.current).normalize();
-                    }
-                    var actorToMeetSpeed = Math.sqrt(Math.pow(this.actorToMeet.dx, 2) + Math.pow(this.actorToMeet.dy, 2));
-                    if ((actorToMeetSpeed != 0) && (!this._speedWasSpecified)) {
-                        this.speed = actorToMeetSpeed;
-                    }
-                    this.current.x = this.actor.x;
-                    this.current.y = this.actor.y;
-                    this.end.x = this.actorToMeet.x;
-                    this.end.y = this.actorToMeet.y;
-                    this.distanceBetween = this.current.distance(this.end);
-                    this.dir = this.end.minus(this.current).normalize();
-                    var m = this.dir.scale(this.speed);
-                    this.actor.dx = m.x;
-                    this.actor.dy = m.y;
-                    if (this.isComplete(this.actor)) {
-                        // console.log("meeting is complete")
-                        this.actor.x = this.end.x;
-                        this.actor.y = this.end.y;
-                        this.actor.dy = 0;
-                        this.actor.dx = 0;
-                    }
-                };
-                Meet.prototype.isComplete = function (actor) {
-                    return this._stopped || (this.distanceBetween <= 1);
-                };
-                Meet.prototype.stop = function () {
-                    this.actor.dy = 0;
-                    this.actor.dx = 0;
-                    this._stopped = true;
-                };
-                Meet.prototype.reset = function () {
-                    this._started = false;
-                };
-                return Meet;
-            })();
-            Actions.Meet = Meet;
-            var RotateTo = (function () {
-                function RotateTo(actor, angleRadians, speed) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.end = angleRadians;
-                    this.speed = speed;
-                }
-                RotateTo.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.start = this.actor.rotation;
-                        this.distance = Math.abs(this.end - this.start);
-                    }
-                    this.actor.rx = this.speed;
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.rotation = this.end;
-                        this.actor.rx = 0;
-                    }
-                };
-                RotateTo.prototype.isComplete = function (actor) {
-                    return this._stopped || (Math.abs(this.actor.rotation - this.start) >= this.distance);
-                };
-                RotateTo.prototype.stop = function () {
-                    this.actor.rx = 0;
-                    this._stopped = true;
-                };
-                RotateTo.prototype.reset = function () {
-                    this._started = false;
-                };
-                return RotateTo;
-            })();
-            Actions.RotateTo = RotateTo;
-            var RotateBy = (function () {
-                function RotateBy(actor, angleRadians, time) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.end = angleRadians;
-                    this.time = time;
-                    this.speed = (this.end - this.actor.rotation) / time * 1000;
-                }
-                RotateBy.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.start = this.actor.rotation;
-                        this.distance = Math.abs(this.end - this.start);
-                    }
-                    this.actor.rx = this.speed;
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.rotation = this.end;
-                        this.actor.rx = 0;
-                    }
-                };
-                RotateBy.prototype.isComplete = function (actor) {
-                    return this._stopped || (Math.abs(this.actor.rotation - this.start) >= this.distance);
-                };
-                RotateBy.prototype.stop = function () {
-                    this.actor.rx = 0;
-                    this._stopped = true;
-                };
-                RotateBy.prototype.reset = function () {
-                    this._started = false;
-                };
-                return RotateBy;
-            })();
-            Actions.RotateBy = RotateBy;
-            var ScaleTo = (function () {
-                function ScaleTo(actor, scaleX, scaleY, speedX, speedY) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.endX = scaleX;
-                    this.endY = scaleY;
-                    this.speedX = speedX;
-                    this.speedY = speedY;
-                }
-                ScaleTo.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.startX = this.actor.scaleX;
-                        this.startY = this.actor.scaleY;
-                        this.distanceX = Math.abs(this.endX - this.startX);
-                        this.distanceY = Math.abs(this.endY - this.startY);
-                    }
-                    if (!(Math.abs(this.actor.scaleX - this.startX) >= this.distanceX)) {
-                        var directionX = this.endY < this.startY ? -1 : 1;
-                        this.actor.sx = this.speedX * directionX;
-                    }
-                    else {
-                        this.actor.sx = 0;
-                    }
-                    if (!(Math.abs(this.actor.scaleY - this.startY) >= this.distanceY)) {
-                        var directionY = this.endY < this.startY ? -1 : 1;
-                        this.actor.sy = this.speedY * directionY;
-                    }
-                    else {
-                        this.actor.sy = 0;
-                    }
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.scaleX = this.endX;
-                        this.actor.scaleY = this.endY;
-                        this.actor.sx = 0;
-                        this.actor.sy = 0;
-                    }
-                };
-                ScaleTo.prototype.isComplete = function (actor) {
-                    return this._stopped || ((Math.abs(this.actor.scaleX - this.startX) >= this.distanceX) && (Math.abs(this.actor.scaleY - this.startY) >= this.distanceY));
-                };
-                ScaleTo.prototype.stop = function () {
-                    this.actor.sx = 0;
-                    this.actor.sy = 0;
-                    this._stopped = true;
-                };
-                ScaleTo.prototype.reset = function () {
-                    this._started = false;
-                };
-                return ScaleTo;
-            })();
-            Actions.ScaleTo = ScaleTo;
-            var ScaleBy = (function () {
-                function ScaleBy(actor, scaleX, scaleY, time) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.endX = scaleX;
-                    this.endY = scaleY;
-                    this.time = time;
-                    this.speedX = (this.endX - this.actor.scaleX) / time * 1000;
-                    this.speedY = (this.endY - this.actor.scaleY) / time * 1000;
-                }
-                ScaleBy.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this.startX = this.actor.scaleX;
-                        this.startY = this.actor.scaleY;
-                        this.distanceX = Math.abs(this.endX - this.startX);
-                        this.distanceY = Math.abs(this.endY - this.startY);
-                    }
-                    var directionX = this.endX < this.startX ? -1 : 1;
-                    var directionY = this.endY < this.startY ? -1 : 1;
-                    this.actor.sx = this.speedX * directionX;
-                    this.actor.sy = this.speedY * directionY;
-                    //Logger.getInstance().log("Pos x: " + this.actor.x +"  y:" + this.actor.y, Log.DEBUG);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.scaleX = this.endX;
-                        this.actor.scaleY = this.endY;
-                        this.actor.sx = 0;
-                        this.actor.sy = 0;
-                    }
-                };
-                ScaleBy.prototype.isComplete = function (actor) {
-                    return this._stopped || ((Math.abs(this.actor.scaleX - this.startX) >= this.distanceX) && (Math.abs(this.actor.scaleY - this.startY) >= this.distanceY));
-                };
-                ScaleBy.prototype.stop = function () {
-                    this.actor.sx = 0;
-                    this.actor.sy = 0;
-                    this._stopped = true;
-                };
-                ScaleBy.prototype.reset = function () {
-                    this._started = false;
-                };
-                return ScaleBy;
-            })();
-            Actions.ScaleBy = ScaleBy;
-            var Delay = (function () {
-                function Delay(actor, delay) {
-                    this.elapsedTime = 0;
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.delay = delay;
-                }
-                Delay.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                    }
-                    this.x = this.actor.x;
-                    this.y = this.actor.y;
-                    this.elapsedTime += delta;
-                };
-                Delay.prototype.isComplete = function (actor) {
-                    return this._stopped || (this.elapsedTime >= this.delay);
-                };
-                Delay.prototype.stop = function () {
-                    this._stopped = true;
-                };
-                Delay.prototype.reset = function () {
-                    this.elapsedTime = 0;
-                    this._started = false;
-                };
-                return Delay;
-            })();
-            Actions.Delay = Delay;
-            var Blink = (function () {
-                function Blink(actor, timeVisible, timeNotVisible, numBlinks) {
-                    if (numBlinks === void 0) { numBlinks = 1; }
-                    this.timeVisible = 0;
-                    this.timeNotVisible = 0;
-                    this.elapsedTime = 0;
-                    this.totalTime = 0;
-                    this._stopped = false;
-                    this._started = false;
-                    this.actor = actor;
-                    this.timeVisible = timeVisible;
-                    this.timeNotVisible = timeNotVisible;
-                    this.duration = (timeVisible + timeNotVisible) * numBlinks;
-                }
-                Blink.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                    }
-                    this.elapsedTime += delta;
-                    this.totalTime += delta;
-                    if (this.actor.visible && this.elapsedTime >= this.timeVisible) {
-                        this.actor.visible = false;
-                        this.elapsedTime = 0;
-                    }
-                    if (!this.actor.visible && this.elapsedTime >= this.timeNotVisible) {
-                        this.actor.visible = true;
-                        this.elapsedTime = 0;
-                    }
-                    if (this.isComplete(this.actor)) {
-                        this.actor.visible = true;
-                    }
-                };
-                Blink.prototype.isComplete = function (actor) {
-                    return this._stopped || (this.totalTime >= this.duration);
-                };
-                Blink.prototype.stop = function () {
-                    this.actor.visible = true;
-                    this._stopped = true;
-                };
-                Blink.prototype.reset = function () {
-                    this._started = false;
-                    this.elapsedTime = 0;
-                    this.totalTime = 0;
-                };
-                return Blink;
-            })();
-            Actions.Blink = Blink;
-            var Fade = (function () {
-                function Fade(actor, endOpacity, speed) {
-                    this.multiplyer = 1;
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.endOpacity = endOpacity;
-                    this.speed = speed;
-                    if (endOpacity < actor.opacity) {
-                        this.multiplyer = -1;
-                    }
-                }
-                Fade.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                    }
-                    if (this.speed > 0) {
-                        this.actor.opacity += this.multiplyer * (Math.abs(this.actor.opacity - this.endOpacity) * delta) / this.speed;
-                    }
-                    this.speed -= delta;
-                    ex.Logger.getInstance().debug("actor opacity: " + this.actor.opacity);
-                    if (this.isComplete(this.actor)) {
-                        this.actor.opacity = this.endOpacity;
-                    }
-                };
-                Fade.prototype.isComplete = function (actor) {
-                    return this._stopped || (Math.abs(this.actor.opacity - this.endOpacity) < 0.05);
-                };
-                Fade.prototype.stop = function () {
-                    this._stopped = true;
-                };
-                Fade.prototype.reset = function () {
-                    this._started = false;
-                };
-                return Fade;
-            })();
-            Actions.Fade = Fade;
-            var Die = (function () {
-                function Die(actor) {
-                    this._started = false;
-                    this._stopped = false;
-                    this.actor = actor;
-                }
-                Die.prototype.update = function (delta) {
-                    this.actor.actionQueue.clearActions();
-                    this.actor.kill();
-                    this._stopped = true;
-                };
-                Die.prototype.isComplete = function () {
-                    return this._stopped;
-                };
-                Die.prototype.stop = function () {
-                };
-                Die.prototype.reset = function () {
-                };
-                return Die;
-            })();
-            Actions.Die = Die;
-            var CallMethod = (function () {
-                function CallMethod(actor, method) {
-                    this._method = null;
-                    this._actor = null;
-                    this._hasBeenCalled = false;
-                    this._actor = actor;
-                    this._method = method;
-                }
-                CallMethod.prototype.update = function (delta) {
-                    this._method.call(this._actor);
-                    this._hasBeenCalled = true;
-                };
-                CallMethod.prototype.isComplete = function (actor) {
-                    return this._hasBeenCalled;
-                };
-                CallMethod.prototype.reset = function () {
-                    this._hasBeenCalled = false;
-                };
-                CallMethod.prototype.stop = function () {
-                    this._hasBeenCalled = true;
-                };
-                return CallMethod;
-            })();
-            Actions.CallMethod = CallMethod;
-            var Repeat = (function () {
-                function Repeat(actor, repeat, actions) {
-                    var _this = this;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.actionQueue = new ActionQueue(actor);
-                    this.repeat = repeat;
-                    this.originalRepeat = repeat;
-                    actions.forEach(function (action) {
-                        action.reset();
-                        _this.actionQueue.add(action);
-                    });
-                }
-                Repeat.prototype.update = function (delta) {
-                    this.x = this.actor.x;
-                    this.y = this.actor.y;
-                    if (!this.actionQueue.hasNext()) {
-                        this.actionQueue.reset();
-                        this.repeat--;
-                    }
-                    this.actionQueue.update(delta);
-                };
-                Repeat.prototype.isComplete = function () {
-                    return this._stopped || (this.repeat <= 0);
-                };
-                Repeat.prototype.stop = function () {
-                    this._stopped = true;
-                };
-                Repeat.prototype.reset = function () {
-                    this.repeat = this.originalRepeat;
-                };
-                return Repeat;
-            })();
-            Actions.Repeat = Repeat;
-            var RepeatForever = (function () {
-                function RepeatForever(actor, actions) {
-                    var _this = this;
-                    this._stopped = false;
-                    this.actor = actor;
-                    this.actionQueue = new ActionQueue(actor);
-                    actions.forEach(function (action) {
-                        action.reset();
-                        _this.actionQueue.add(action);
-                    });
-                }
-                RepeatForever.prototype.update = function (delta) {
-                    this.x = this.actor.x;
-                    this.y = this.actor.y;
-                    if (this._stopped) {
-                        return;
-                    }
-                    if (!this.actionQueue.hasNext()) {
-                        this.actionQueue.reset();
-                    }
-                    this.actionQueue.update(delta);
-                };
-                RepeatForever.prototype.isComplete = function () {
-                    return this._stopped;
-                };
-                RepeatForever.prototype.stop = function () {
-                    this._stopped = true;
-                    this.actionQueue.clearActions();
-                };
-                RepeatForever.prototype.reset = function () {
-                };
-                return RepeatForever;
-            })();
-            Actions.RepeatForever = RepeatForever;
-            var ActionQueue = (function () {
-                function ActionQueue(actor) {
-                    this._actions = [];
-                    this._completedActions = [];
-                    this.actor = actor;
-                }
-                ActionQueue.prototype.add = function (action) {
-                    this._actions.push(action);
-                };
-                ActionQueue.prototype.remove = function (action) {
-                    var index = this._actions.indexOf(action);
-                    this._actions.splice(index, 1);
-                };
-                ActionQueue.prototype.clearActions = function () {
-                    this._actions.length = 0;
-                    this._completedActions.length = 0;
-                    this._currentAction.stop();
-                };
-                ActionQueue.prototype.getActions = function () {
-                    return this._actions.concat(this._completedActions);
-                };
-                ActionQueue.prototype.hasNext = function () {
-                    return this._actions.length > 0;
-                };
-                ActionQueue.prototype.reset = function () {
-                    this._actions = this.getActions();
-                    this._actions.forEach(function (action) {
-                        action.reset();
-                    });
-                    this._completedActions = [];
-                };
-                ActionQueue.prototype.update = function (delta) {
-                    if (this._actions.length > 0) {
-                        this._currentAction = this._actions[0];
-                        this._currentAction.update(delta);
-                        if (this._currentAction.isComplete(this.actor)) {
-                            //Logger.getInstance().log("Action complete!", Log.DEBUG);
-                            this._completedActions.push(this._actions.shift());
-                        }
-                    }
-                };
-                return ActionQueue;
-            })();
-            Actions.ActionQueue = ActionQueue;
-        })(Actions = Internal.Actions || (Internal.Actions = {}));
-    })(Internal = ex.Internal || (ex.Internal = {}));
-})(ex || (ex = {}));
-/// <reference path="Interfaces/IDrawable.ts" />
-var ex;
-(function (ex) {
-    /**
-     * Creates a closed polygon drawing given a list a of points. Polygons should be
-     * used sparingly as there is a <b>performance</b> impact for using them.
-     * @class Polygon
-     * @extends IDrawable
-     * @constructor
-     * @param points {Point[]} The points to use to build the polygon in order
-     */
-    var Polygon = (function () {
-        function Polygon(points) {
-            /**
-             * The width of the lines of the polygon
-             * @property [lineWidth=5] {number} The width of the lines in pixels
-             */
-            this.lineWidth = 5;
-            /**
-             * Indicates whether the polygon is filled or not.
-             * @property [filled=false] {boolean}
-             */
-            this.filled = false;
-            this.points = [];
-            this.transformationPoint = new ex.Point(0, 0);
-            this.rotation = 0;
-            this.scaleX = 1;
-            this.scaleY = 1;
-            this.points = points;
-            var minX = this.points.reduce(function (prev, curr) {
-                return Math.min(prev, curr.x);
-            }, 0);
-            var maxX = this.points.reduce(function (prev, curr) {
-                return Math.max(prev, curr.x);
-            }, 0);
-            this.width = maxX - minX;
-            var minY = this.points.reduce(function (prev, curr) {
-                return Math.min(prev, curr.y);
-            }, 0);
-            var maxY = this.points.reduce(function (prev, curr) {
-                return Math.max(prev, curr.y);
-            }, 0);
-            this.height = maxY - minY;
-        }
-        /**
-         * Effects are <b>not supported</b> on polygons
-         * @method addEffect
-         */
-        Polygon.prototype.addEffect = function (effect) {
-            // not supported on polygons
-        };
-        Polygon.prototype.removeEffect = function (param) {
-            // not supported on polygons
-        };
-        /**
-         * Effects are <b>not supported</b> on polygons
-         * @method clearEffects
-         */
-        Polygon.prototype.clearEffects = function () {
-            // not supported on polygons
-        };
-        Polygon.prototype.transformAboutPoint = function (point) {
-            this.transformationPoint = point;
-        };
-        Polygon.prototype.setScaleX = function (scaleX) {
-            this.scaleX = scaleX;
-        };
-        Polygon.prototype.setScaleY = function (scaleY) {
-            this.scaleY = scaleY;
-        };
-        Polygon.prototype.getScaleX = function () {
-            return this.scaleX;
-        };
-        Polygon.prototype.getScaleY = function () {
-            return this.scaleY;
-        };
-        Polygon.prototype.setRotation = function (radians) {
-            this.rotation = radians;
-        };
-        Polygon.prototype.getRotation = function () {
-            return this.rotation;
-        };
-        Polygon.prototype.reset = function () {
-            //pass
-        };
-        Polygon.prototype.draw = function (ctx, x, y) {
-            ctx.save();
-            ctx.translate(x + this.transformationPoint.x, y + this.transformationPoint.y);
-            ctx.scale(this.scaleX, this.scaleY);
-            ctx.rotate(this.rotation);
-            ctx.beginPath();
-            ctx.lineWidth = this.lineWidth;
-            // Iterate through the supplied points and contruct a 'polygon'
-            var firstPoint = this.points[0];
-            ctx.moveTo(firstPoint.x, firstPoint.y);
-            this.points.forEach(function (point) {
-                ctx.lineTo(point.x, point.y);
-            });
-            ctx.lineTo(firstPoint.x, firstPoint.y);
-            ctx.closePath();
-            if (this.filled) {
-                ctx.fillStyle = this.fillColor.toString();
-                ctx.fill();
-            }
-            ctx.strokeStyle = this.lineColor.toString();
-            if (this.flipHorizontal) {
-                ctx.translate(this.width, 0);
-                ctx.scale(-1, 1);
-            }
-            if (this.flipVertical) {
-                ctx.translate(0, this.height);
-                ctx.scale(1, -1);
-            }
-            ctx.stroke();
-            ctx.restore();
-        };
-        return Polygon;
-    })();
-    ex.Polygon = Polygon;
-})(ex || (ex = {}));
-//# sourceMappingURL=excalibur.js.map
+//# sourceMappingURL=excalibur-0.2.5.js.map
+;
+// Concatenated onto excalibur after build
+// Exports the excalibur module so it can be used with browserify
+// https://github.com/excaliburjs/Excalibur/issues/312
+if (typeof module !== 'undefined') {module.exports = ex;}

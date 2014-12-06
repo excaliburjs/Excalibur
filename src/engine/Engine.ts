@@ -7,6 +7,7 @@
 /// <reference path="Collision/Side.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actor.ts" />
+/// <reference path="UIActor.ts" />
 /// <reference path="Trigger.ts" />
 /// <reference path="Particles.ts" />
 /// <reference path="Animation.ts" />
@@ -108,11 +109,6 @@ module ex {
 
       private hasStarted: boolean = false;
       
-      /** 
-       * Gets or sets the camera to be used in the game.
-       * @property camera {BaseCamera}
-       */
-      public camera: BaseCamera;
       public currentScene: Scene;
       /**
        * The default scene of the game, use {{#crossLink "Engine/goToScene"}}{{/crossLink}} to transition to different scenes.
@@ -165,10 +161,9 @@ module ex {
          this.logger.debug("Building engine...");
 
          this.canvasElementId = canvasElementId;
-
-         this.camera = new BaseCamera(this);
-
-         this.rootScene = this.currentScene = new Scene();
+         
+         this.rootScene = this.currentScene = new Scene(this);
+         
          this.addScene('root', this.rootScene);
 
          if (canvasElementId) {
@@ -193,7 +188,7 @@ module ex {
             this.displayMode = DisplayMode.FullScreen;
          }
 
-         this.camera.setFocus(this.width/2, this.height/2);
+         
          this.loader = new Loader();
 
          this.initialize();
@@ -350,7 +345,18 @@ module ex {
       * @param actor {Actor} The actor to add to the current scene
       */
       public add(actor: Actor): void;
+
+      /**
+       * Adds a UIActor to the current scene of the game, UIActors do not participate in collisions, instead the remain in the same place on the screen.
+       * @method add
+       * @param uiActor {UIActor} The UIActor to add to the current scene
+       */
+      public add(uiActor: UIActor): void;
       public add(entity: any): void {
+         if (entity instanceof UIActor) {
+            this.currentScene.addUIActor(entity);
+            return;
+         } 
          if (entity instanceof Actor) {
             this.addChild(entity);
          }
@@ -400,7 +406,17 @@ module ex {
        * @param actor {Actor} The actor to remove from the current scene.      
        */
       public remove(actor: Actor): void;
+      /**
+      * Removes a UIActor to the scene, it will no longer be drawn or updated
+      * @method remove
+      * @param uiActor {UIActor} The UIActor to remove from the current scene
+      */
+      public remove(uiActor: UIActor): void;
       public remove(entity: any): void {
+         if (entity instanceof UIActor) {
+            this.currentScene.removeUIActor(entity);
+            return;
+         } 
          if (entity instanceof Actor) {
             this.removeChild(entity);
          }
@@ -452,8 +468,8 @@ module ex {
        * @returns number The width of the drawing surface in pixels.
        */
       getWidth(): number {
-         if(this.camera){
-            return this.width/this.camera.getZoom();
+         if(this.currentScene && this.currentScene.camera){
+            return this.width/this.currentScene.camera.getZoom();
          }
          return this.width;
       }
@@ -463,8 +479,8 @@ module ex {
        * @returns number The height of the drawing surface in pixels.
        */
       getHeight(): number {
-         if(this.camera){
-            return this.height/this.camera.getZoom();
+         if(this.currentScene && this.currentScene.camera){
+            return this.height/this.currentScene.camera.getZoom();
          }
          return this.height;
       }
@@ -479,8 +495,8 @@ module ex {
          var newX = point.x;
          var newY = point.y;
 
-         if (this.camera) {
-            var focus = this.camera.getFocus();
+         if(this.currentScene && this.currentScene.camera){
+            var focus = this.currentScene.camera.getFocus();
             newX = focus.x + (point.x - (this.getWidth()/2));
             newY = focus.y + (point.y - (this.getHeight()/2));
          }
@@ -502,8 +518,8 @@ module ex {
          var screenX = point.x;
          var screenY = point.y;
 
-         if(this.camera){
-            var focus = this.camera.getFocus();
+         if(this.currentScene && this.currentScene.camera){
+            var focus = this.currentScene.camera.getFocus();
 
             screenX = (point.x - focus.x) + (this.getWidth()/2);//(this.getWidth() / this.canvas.clientWidth);
             screenY = (point.y - focus.y) + (this.getHeight()/2);// (this.getHeight() / this.canvas.clientHeight);
@@ -666,31 +682,15 @@ module ex {
 
             var fps = 1.0 / (delta / 1000);
             this.ctx.fillText("FPS:" + fps.toFixed(2).toString(), 10, 10);
-
-
          }
-
-         this.ctx.save();
-
-         if (this.camera) {
-            this.camera.update(delta);
-         }
-
-
+         
          this.currentScene.draw(this.ctx, delta);
 
          this.animations.forEach(function (a) {
             a.animation.draw(ctx, a.x, a.y);
          });
 
-         if (this.isDebug) {
-            this.ctx.strokeStyle = 'yellow'
-            this.currentScene.debugDraw(this.ctx);
-            this.camera.debugDraw(this.ctx);
-         }
-
-
-         this.ctx.restore();
+         
       }
 
       /**

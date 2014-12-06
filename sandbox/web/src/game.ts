@@ -39,6 +39,7 @@ logger.defaultLevel = ex.LogLevel.Debug;
 var game = new ex.Engine(800, 600, 'game');
 game.setAntialiasing(false);
 
+var heartTex = new ex.Texture('../images/heart.png');
 var imageRun = new ex.Texture('../images/PlayerRun.png');
 var imageJump = new ex.Texture('../images/PlayerJump.png');
 var imageBlocks = new ex.Texture('../images/BlockA0.png');
@@ -48,6 +49,7 @@ var template = new ex.Template('healthbar.tmpl');
 jump.setVolume(.3);
 
 var loader = new ex.Loader();
+loader.addResource(heartTex);
 loader.addResource(imageRun);
 loader.addResource(imageJump);
 loader.addResource(imageBlocks);
@@ -56,6 +58,13 @@ loader.addResource(jump);
 
 // Set background color
 game.backgroundColor = new ex.Color(114, 213, 224);
+
+
+// Add some UI
+var heart = new ex.UIActor(0, 0, 20, 20);
+heart.scale.setTo(2, 2);
+heart.addDrawing(heartTex.asSprite());
+game.add(heart);
 
 // Turn on debug diagnostics
 game.isDebug = false;
@@ -148,8 +157,7 @@ follower.meet(player, 60).asPromise().then(() => {
 
 // follow player
 
-player.scaleX = 1;
-player.scaleY = 1;
+player.scale.setTo(1, 1);
 player.rotation = 0;
 
 // Health bar example
@@ -377,7 +385,7 @@ game.addEventListener('p', () => {
 });
 
 // Create a camera to track the player
-var camera = new ex.TopCamera(game);
+var camera = new ex.TopCamera();
 camera.setActorToFollow(player);
 // camera.shake(5, 5, 1000);
 // camera.zoom(0.5);
@@ -462,7 +470,7 @@ game.input.keyboard.on('up', (evt?: ex.Input.KeyEvent) => {
 });
 
 // Add camera to game
-game.camera = camera;
+game.currentScene.camera = camera;
 
 // Run the mainloop
 var binding: ex.Binding;

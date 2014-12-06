@@ -3,6 +3,7 @@
 /// <reference path="Collision/NaiveCollisionResolver.ts"/>
 /// <reference path="Collision/DynamicTreeCollisionResolver.ts"/>
 /// <reference path="CollisionPair.ts" />
+/// <reference path="Camera.ts" />
 module ex {
 
    /**
@@ -18,6 +19,12 @@ module ex {
       public actor: Actor;
 
       /**
+       * Gets or sets the current camera for the scene
+       * @property camera {Camera}
+       */
+      public camera: BaseCamera;
+
+      /**
        * The actors in the current scene
        * @property children {Actor[]}
        */
@@ -25,7 +32,8 @@ module ex {
       public tileMaps: TileMap[] = [];
       public engine: Engine;
 
-      
+      public uiActors: Actor[] = [];
+
       private _collisionResolver: ICollisionResolver = new DynamicTreeCollisionResolver();
 
       private _killQueue: Actor[] = [];
@@ -34,8 +42,12 @@ module ex {
       private _isInitialized: boolean = false;
       
 
-      constructor() {
+      constructor(engine?: Engine) {
          super();
+         this.camera = new BaseCamera()
+         if(engine){
+            this.camera.setFocus(engine.width/2, engine.height/2);
+         }
       }
 
       /**
@@ -92,6 +104,10 @@ module ex {
             this._isInitialized = true;
          }
 
+         this.uiActors.forEach(function(ui){
+            ui.update(engine, delta);
+         });
+
          this.tileMaps.forEach(function (cm) {
             cm.update(engine, delta);
          });
@@ -143,6 +159,12 @@ module ex {
        * @param delta {number} The number of milliseconds since the last draw
        */
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
+         ctx.save();
+
+         if (this.camera) {
+            this.camera.update(ctx, delta);
+         }
+
          this.tileMaps.forEach(function (cm) {
             cm.draw(ctx, delta);
          });
@@ -158,6 +180,25 @@ module ex {
                this.children[i].draw(ctx, delta);
             }
          }
+
+         if (this.engine && this.engine.isDebug) {
+            ctx.strokeStyle = 'yellow'
+            this.debugDraw(ctx);            
+         }
+
+         ctx.restore();
+
+         // todo unlocked drawing here
+         this.uiActors.forEach(function(ui){
+            ui.draw(ctx, delta);
+         });
+
+         if (this.engine && this.engine.isDebug) {
+            this.uiActors.forEach(function(ui){
+               ui.debugDraw(ctx);
+            });
+         }
+
       }
 
       /**
@@ -166,6 +207,8 @@ module ex {
        * @param ctx {CanvasRenderingContext2D} The current rendering context
        */
       public debugDraw(ctx: CanvasRenderingContext2D) {
+
+
          this.tileMaps.forEach(map => {
             map.debugDraw(ctx);
          });
@@ -174,7 +217,10 @@ module ex {
             actor.debugDraw(ctx);
          });
 
-         this._collisionResolver.debugDraw(ctx, 20);
+         // todo possibly enable this with excalibur flags features?
+         //this._collisionResolver.debugDraw(ctx, 20);
+
+         //this.camera.debugDraw(ctx);
       }
 
       /**
@@ -183,22 +229,36 @@ module ex {
        * @method add
        */
       public add(timer: Timer): void;
+
       /**
        * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
        * @method add
        * @param tileMap {TileMap} 
        */
       public add(tileMap: TileMap): void;
+
       /**
-      * Adds an actor to the Scene, once this is done the Actor will be drawn and updated.
-      * @method add
-      * @param actor {Actor} The actor to add to the current scene
-      */
+       * Adds an actor to the Scene, once this is done the Actor will be drawn and updated.
+       * @method add
+       * @param actor {Actor} The actor to add to the current scene
+       */
       public add(actor: Actor): void;
+
+      /**
+       * Adds a UIActor to the scene, UIActors do not participate in collisions, instead the remain in the same place on the screen.
+       * @method add
+       * @param uiActor {UIActor} The UIActor to add to the current scene
+       */
+      public add(uiActor: UIActor): void;
       public add(entity: any): void {
+         if (entity instanceof UIActor) {
+            this.addUIActor(entity);
+            return;
+         }
          if (entity instanceof Actor) {
             this.addChild(entity);
          }
+         
          if (entity instanceof Timer) {
             this.addTimer(entity);
          }
@@ -214,19 +274,32 @@ module ex {
        * @param timer {Timer} The timer to remove to the current scene.       
        */
       public remove(timer: Timer): void;
+
       /**
        * Removes a TileMap from the Scene, it will no longer be drawn or updated.
        * @method remove
        * @param tileMap {TileMap}
        */
       public remove(tileMap: TileMap): void;
+
       /**
        * Removes an actor from the Scene, it will no longer be drawn or updated.
        * @method remove       
        * @param actor {Actor} The actor to remove from the current scene.      
        */
       public remove(actor: Actor): void;
+
+      /**
+       * Removes a UIActor to the scene, it will no longer be drawn or updated
+       * @method remove
+       * @param uiActor {UIActor} The UIActor to remove from the current scene
+       */
+      public remove(uiActor: UIActor): void;
       public remove(entity: any): void {
+         if (entity instanceof UIActor) {
+            this.removeUIActor(entity);
+            return;
+         }
          if (entity instanceof Actor) {
             this._collisionResolver.remove(entity);
             this.removeChild(entity);
@@ -239,6 +312,28 @@ module ex {
             this.removeTileMap(entity);
          }
 
+      }
+
+      /**
+       * Adds an actor to act as a piece of UI, meaning it is always positioned
+       * in screen coordinates. UI actors do not participate in collisions
+       * @method addUIActor
+       * @param actor {Actor}
+       */
+      public addUIActor(actor: Actor){
+         this.uiActors.push(actor);
+      }
+
+      /**
+       * Removes an actor as a piec of UI
+       * @method removeUIActor
+       * @param actor {Actor}
+       */
+      public removeUIActor(actor: Actor){
+         var index = this.uiActors.indexOf(actor);
+         if(index > -1){
+            this.uiActors.splice(index, 1);
+         }
       }
 
 

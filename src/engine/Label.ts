@@ -266,7 +266,7 @@ module ex {
 
          ctx.save();
          ctx.translate(this.x, this.y);
-         ctx.scale(this.scaleX, this.scaleY);
+         ctx.scale(this.scale.x, this.scale.y);
          ctx.rotate(this.rotation);
 
          if (this._textShadowOn) {

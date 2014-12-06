@@ -37,6 +37,7 @@ logger.defaultLevel = 0 /* Debug */;
 // Create an the game container
 var game = new ex.Engine(800, 600, 'game');
 game.setAntialiasing(false);
+var heartTex = new ex.Texture('../images/heart.png');
 var imageRun = new ex.Texture('../images/PlayerRun.png');
 var imageJump = new ex.Texture('../images/PlayerJump.png');
 var imageBlocks = new ex.Texture('../images/BlockA0.png');
@@ -45,6 +46,7 @@ var jump = new ex.Sound('../sounds/jump.wav', '../sounds/jump.mp3');
 var template = new ex.Template('healthbar.tmpl');
 jump.setVolume(.3);
 var loader = new ex.Loader();
+loader.addResource(heartTex);
 loader.addResource(imageRun);
 loader.addResource(imageJump);
 loader.addResource(imageBlocks);
@@ -52,6 +54,11 @@ loader.addResource(spriteFontImage);
 loader.addResource(jump);
 // Set background color
 game.backgroundColor = new ex.Color(114, 213, 224);
+// Add some UI
+var heart = new ex.UIActor(0, 0, 20, 20);
+heart.scale.setTo(2, 2);
+heart.addDrawing(heartTex.asSprite());
+game.add(heart);
 // Turn on debug diagnostics
 game.isDebug = false;
 var blockSprite = new ex.Sprite(imageBlocks, 0, 0, 65, 49);
@@ -123,8 +130,7 @@ follower.meet(player, 60).asPromise().then(function () {
     console.log("Player met!!");
 });
 // follow player
-player.scaleX = 1;
-player.scaleY = 1;
+player.scale.setTo(1, 1);
 player.rotation = 0;
 // Health bar example
 var healthbar = new ex.Actor(0, -70, 140, 5, new ex.Color(0, 255, 0));
@@ -318,7 +324,7 @@ game.addEventListener('p', function () {
     paused != paused;
 });
 // Create a camera to track the player
-var camera = new ex.TopCamera(game);
+var camera = new ex.TopCamera();
 camera.setActorToFollow(player);
 // camera.shake(5, 5, 1000);
 // camera.zoom(0.5);
@@ -391,7 +397,7 @@ game.input.keyboard.on('up', function (evt) {
     }
 });
 // Add camera to game
-game.camera = camera;
+game.currentScene.camera = camera;
 // Run the mainloop
 var binding;
 game.start(loader).then(function () {
@@ -399,4 +405,3 @@ game.start(loader).then(function () {
     //binding = new ex.Binding("container", template, emitter);
     //binding.listen(emitter, ["update"]);
 });
-//# sourceMappingURL=game.js.map

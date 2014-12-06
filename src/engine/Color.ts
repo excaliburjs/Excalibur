@@ -14,6 +14,31 @@ module ex {
        * @final
        */
       public static White: Color = Color.fromHex('#FFFFFF');
+
+      /**
+       * Color constant
+       * @property Gray {ex.Color}
+       * @static
+       * @final
+       */
+      public static Gray: Color = Color.fromHex('#808080');
+
+      /**
+       * Color constant
+       * @property LightGray {ex.Color}
+       * @static
+       * @final
+       */
+      public static LightGray: Color = Color.fromHex('#D3D3D3');
+
+      /**
+       * Color constant
+       * @property DarkGray {ex.Color}
+       * @static
+       * @final
+       */
+      public static DarkGray: Color = Color.fromHex('#A9A9A9');
+
       /**
        * Color constant
        * @property Yellow {ex.Color} 

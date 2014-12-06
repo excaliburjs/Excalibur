@@ -42,8 +42,8 @@ module ex {
 
          this.rotation += this.rx * delta / 1000;
 
-         this.scaleX += this.sx * delta / 1000;
-         this.scaleY += this.sy * delta / 1000;
+         this.scale.x += this.sx * delta / 1000;
+         this.scale.y += this.sy * delta / 1000;
 
          // check for trigger collisions
          if(this.target){

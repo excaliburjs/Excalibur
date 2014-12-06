@@ -130,16 +130,13 @@ module ex {
        * @property rx {number} 
        */
       public rx: number = 0; //radions/sec
-      /** 
-       * The x scale of the actor
-       * @property scaleX {number} 
-       */
-      public scaleX: number = 1;
+
       /**
-       * The y scale of the actor
-       * @property scaleY {number}
+       * The scale vector of the actor
+       * @property scale
        */
-      public scaleY: number = 1;
+      public scale: ex.Vector = new ex.Vector(1,1);
+
       /** 
        * The x scalar velocity of the actor in scale/second
        * @property sx {number} 
@@ -289,8 +286,10 @@ module ex {
          this.pipeline.push(new ex.CapturePointerModule());
 
          this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
+         
          this.sceneNode = new Scene();
          this.sceneNode.actor = this;
+
          this.anchor = new Point(.5, .5);
       }
 
@@ -363,16 +362,40 @@ module ex {
       }
 
       /**
+       * Adds a whole texture as the "default" drawing. 
+       * @method addDrawing
+       * @param texture {Texture} 
+       */
+      public addDrawing(texture: Texture);
+
+      /**
+       * Adds a whole sprite as the "default" drawing. 
+       * @method addDrawing
+       * @param sprite {Texture} 
+       */
+      public addDrawing(sprite: Sprite);
+
+      /**
        * Adds a drawing to the list of available drawings for an actor.
        * @method addDrawing
        * @param key {string} The key to associate with a drawing for this actor
        * @param drawing {IDrawable} this can be an {{#crossLink "Animation"}}{{/crossLink}}, 
        * {{#crossLink "Sprite"}}{{/crossLink}}, or {{#crossLink "Polygon"}}{{/crossLink}}. 
        */
-      public addDrawing(key: any, drawing: IDrawable) {
-         this.frames[<string>key] = drawing;
-         if (!this.currentDrawing) {
-            this.currentDrawing = drawing;
+      public addDrawing(key: any, drawing: IDrawable);
+      public addDrawing(args: any) {
+         if (arguments.length === 2) {
+            this.frames[<string>arguments[0]] = arguments[1];
+            if (!this.currentDrawing) {
+               this.currentDrawing = arguments[1];
+            }
+         } else {
+            if (arguments[0] instanceof Sprite) {
+               this.addDrawing("default", arguments[0]);   
+            }
+            if (arguments[0] instanceof Texture) {
+               this.addDrawing("default", arguments[0].asSprite());
+            }
          }
       }
 
@@ -428,7 +451,7 @@ module ex {
        * @returns number
        */
       public getWidth() {
-         return this.width * this.scaleX;
+         return this.width * this.scale.x;
       }
 
       /**
@@ -436,7 +459,7 @@ module ex {
        * @method setWidth
        */
       public setWidth(width) {
-         this.width = width / this.scaleX;
+         this.width = width / this.scale.x;
       }
 
       /**
@@ -445,7 +468,7 @@ module ex {
        * @returns number
        */
       public getHeight() {
-         return this.height * this.scaleY;
+         return this.height * this.scale.y;
       }
 
       /**
@@ -453,7 +476,7 @@ module ex {
        * @method setHeight
        */
       public setHeight(height) {
-         this.height = height / this.scaleY;
+         this.height = height / this.scale.y;
       }
 
       /**
@@ -509,7 +532,7 @@ module ex {
       */
       public getGlobalX() {
          if(!this.parent) return this.x;
-         return this.x * this.parent.scaleX + this.parent.getGlobalX();
+         return this.x * this.parent.scale.y + this.parent.getGlobalX();
       }
 
       /**
@@ -519,7 +542,7 @@ module ex {
       */
       public getGlobalY() {
         if(!this.parent) return this.y;
-         return this.y * this.parent.scaleY + this.parent.getGlobalY();
+         return this.y * this.parent.scale.y + this.parent.getGlobalY();
       }
 
       /**
@@ -528,9 +551,9 @@ module ex {
        * @returns Point
        */
        public getGlobalScale() {
-         if(!this.parent) return new Point(this.scaleX, this.scaleY);
+         if(!this.parent) return new Point(this.scale.x, this.scale.y);
          var parentScale = this.parent.getGlobalScale();
-         return new Point(this.scaleX * parentScale.x, this.scaleY * parentScale.y);
+         return new Point(this.scale.x * parentScale.x, this.scale.y * parentScale.y);
        }
 
       /**
@@ -945,7 +968,7 @@ module ex {
          ctx.save();
          ctx.translate(this.x, this.y);
          ctx.rotate(this.rotation);     
-         ctx.scale(this.scaleX, this.scaleY);
+         ctx.scale(this.scale.x, this.scale.y);
          
          // calculate changing opacity
          if (this.previousOpacity != this.opacity) {
@@ -989,29 +1012,15 @@ module ex {
        * @param ctx {CanvasRenderingContext2D} The rendering context
        */
       public debugDraw(ctx: CanvasRenderingContext2D) {
-         var anchorPoint = this.calculatedAnchor;
-         // Meant to draw debug information about actors
          
-         ctx.save();
-         ctx.translate(this.x, this.y);
-         ctx.rotate(this.rotation);
-         ctx.scale(this.scaleX, this.scaleY);
-
-         this.sceneNode.debugDraw(ctx);
          var bb = this.getBounds();
-         bb.left = bb.left - this.getGlobalX();
-         bb.right = bb.right - this.getGlobalX();
-         bb.top = bb.top - this.getGlobalY();
-         bb.bottom = bb.bottom - this.getGlobalY();
          bb.debugDraw(ctx);
 
          ctx.fillStyle = Color.Yellow.toString();
          ctx.beginPath();
-         ctx.arc(0, 0, 3, 0, Math.PI * 2);
+         ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
          ctx.closePath();
          ctx.fill();
-
-         ctx.restore();
       }
    }
 }
