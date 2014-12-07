@@ -1,4 +1,216 @@
 declare module ex {
+    /**
+     * A simple 2D point on a plane
+     * @class Point
+     * @constructor
+     * @param x {number} X coordinate of the point
+     * @param y {number} Y coordinate of the point
+     *
+     */
+    class Point {
+        x: number;
+        y: number;
+        constructor(x: number, y: number);
+        /**
+         * X Coordinate of the point
+         * @property x {number}
+         */
+        /**
+         * Y Coordinate of the point
+         * @property y {number}
+         */
+        /**
+         * Convert this point to a vector
+         * @method toVector
+         * @returns Vector
+         */
+        toVector(): Vector;
+        /**
+         * Rotates the current point around another by a certain number of
+         * degrees in radians
+         * @method rotate
+         * @returns Point
+         */
+        rotate(angle: number, anchor?: Point): Point;
+        /**
+         * Translates the current point by a vector
+         * @method add
+         * @returns Point
+         */
+        add(vector: Vector): Point;
+        /**
+         * Sets the x and y components at once
+         * @method setTo
+         * @param x {number}
+         * @param y {number}
+         */
+        setTo(x: number, y: number): void;
+        /**
+         * Clones a new point that is a copy of this one.
+         * @method clone
+         * @returns Point
+         */
+        clone(): Point;
+    }
+    /**
+     * A 2D vector on a plane.
+     * @class Vector
+     * @extends Point
+     * @constructor
+     * @param x {number} X component of the Vector
+     * @param y {number} Y component of the Vector
+     */
+    class Vector extends Point {
+        x: number;
+        y: number;
+        /**
+         * Returns a vector of unit length in the direction of the specified angle.
+         * @method fromAngle
+         * @static
+         * @param angle {number} The angle to generate the vector
+         * @returns Vector
+         */
+        static fromAngle(angle: number): Vector;
+        constructor(x: number, y: number);
+        /**
+         * The distance to another vector
+         * @method distance
+         * @param v {Vector} The other vector
+         * @returns number
+         */
+        distance(v?: Vector): number;
+        /**
+         * Normalizes a vector to have a magnitude of 1.
+         * @method normalize
+         * @return Vector
+         */
+        normalize(): Vector;
+        /**
+         * Scales a vector's by a factor of size
+         * @method scale
+         * @param size {number} The factor to scale the magnitude by
+         * @returns Vector
+         */
+        scale(size: any): Vector;
+        /**
+         * Adds one vector to another
+         * @method add
+         * @param v {Vector} The vector to add
+         * @returns Vector
+         */
+        add(v: Vector): Vector;
+        /**
+         * Subtracts a vector from the current vector
+         * @method minus
+         * @param v {Vector} The vector to subtract
+         * @returns Vector
+         */
+        minus(v: Vector): Vector;
+        /**
+         * Performs a dot product with another vector
+         * @method dot
+         * @param v {Vector} The vector to dot
+         * @returns number
+         */
+        dot(v: Vector): number;
+        /**
+         * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
+         * @method cross
+         * @param v {Vector} The vector to cross
+         * @returns number
+         */
+        cross(v: Vector): number;
+        /**
+         * Returns the perpendicular vector to this one
+         * @method perpendicular
+         * @return Vector
+         */
+        perpendicular(): Vector;
+        /**
+         * Returns the normal vector to this one
+         * @method normal
+         * @return Vector
+         */
+        normal(): Vector;
+        /**
+         * Returns the angle of this vector.
+         * @method toAngle
+         * @returns number
+         */
+        toAngle(): number;
+        /**
+         * Returns the point represention of this vector
+         * @method toPoint
+         * @returns Point
+         */
+        toPoint(): Point;
+        /**
+         * Rotates the current vector around a point by a certain number of
+         * degrees in radians
+         * @method rotate
+         * @returns Vector
+         */
+        rotate(angle: number, anchor: Point): Vector;
+    }
+    /**
+     * A 2D ray that can be cast into the scene to do collision detection
+     * @class Ray
+     * @constructor
+     * @param pos {Point} The starting position for the ray
+     * @param dir {Vector} The vector indicating the direction of the ray
+     */
+    class Ray {
+        pos: Point;
+        dir: Vector;
+        constructor(pos: Point, dir: Vector);
+        /**
+         * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
+         * This number indicates the mathematical intersection time.
+         * @method intersect
+         * @param line {Line} The line to test
+         * @returns number
+         */
+        intersect(line: Line): number;
+        /**
+         * Returns the point of intersection given the intersection time
+         * @method getPoint
+         * @returns Point
+         */
+        getPoint(time: number): Point;
+    }
+    /**
+     * A 2D line segment
+     * @class Line
+     * @constructor
+     * @param begin {Point} The starting point of the line segment
+     * @param end {Point} The ending point of the line segment
+     */
+    class Line {
+        begin: Point;
+        end: Point;
+        constructor(begin: Point, end: Point);
+        /**
+         * Returns the slope of the line in the form of a vector
+         * @method getSlope
+         * @returns Vector
+         */
+        getSlope(): Vector;
+        /**
+         * Returns the length of the line segment in pixels
+         * @method getLength
+         * @returns number
+         */
+        getLength(): number;
+    }
+    class Projection {
+        min: number;
+        max: number;
+        constructor(min: number, max: number);
+        overlaps(projection: Projection): boolean;
+        getOverlap(projection: Projection): number;
+    }
+}
+declare module ex {
     module Effects {
         /**
          * The interface that all sprite effects must implement
@@ -259,321 +471,485 @@ declare module ex {
 }
 declare module ex {
     /**
-     * A simple 2D point on a plane
-     * @class Point
+     * Excalibur's internal event dispatcher implementation. Callbacks are fired immediately after an event is published
+     * @class EventDispatcher
      * @constructor
-     * @param x {number} X coordinate of the point
-     * @param y {number} Y coordinate of the point
-     *
+     * @param target {any} The object that will be the recipient of events from this event dispatcher
      */
-    class Point {
-        x: number;
-        y: number;
-        constructor(x: number, y: number);
+    class EventDispatcher {
+        private _handlers;
+        private target;
+        private log;
+        constructor(target: any);
         /**
-         * X Coordinate of the point
-         * @property x {number}
+         * Publish an event for target
+         * @method publish
+         * @param eventName {string} The name of the event to publish
+         * @param [event=undefined] {GameEvent} Optionally pass an event data object to the handler
          */
+        publish(eventName: string, event?: GameEvent): void;
         /**
-         * Y Coordinate of the point
-         * @property y {number}
+         * Subscribe an event handler to a particular event name, multiple handlers per event name are allowed.
+         * @method subscribe
+         * @param eventName {string} The name of the event to subscribe to
+         * @param handler {GameEvent=>void} The handler callback to fire on this event
          */
+        subscribe(eventName: string, handler: (event?: GameEvent) => void): void;
         /**
-         * Convert this point to a vector
-         * @method toVector
-         * @returns Vector
+         * Unsubscribe a event handler(s) from an event. If a specific handler
+         * is specified for an event, only that handler will be unsubscribed.
+         * Otherwise all handlers will be unsubscribed for that event.
+         * @method unsubscribe
+         * @param eventName {string} The name of the event to unsubscribe
+         * @param [handler=undefined] Optionally the specific handler to unsubscribe
+         *
          */
-        toVector(): Vector;
-        /**
-         * Rotates the current point around another by a certain number of
-         * degrees in radians
-         * @method rotate
-         * @returns Point
-         */
-        rotate(angle: number, anchor?: Point): Point;
-        /**
-         * Translates the current point by a vector
-         * @method add
-         * @returns Point
-         */
-        add(vector: Vector): Point;
-        /**
-         * Sets the x and y components at once
-         * @method setTo
-         * @param x {number}
-         * @param y {number}
-         */
-        setTo(x: number, y: number): void;
-        /**
-         * Clones a new point that is a copy of this one.
-         * @method clone
-         * @returns Point
-         */
-        clone(): Point;
-    }
-    /**
-     * A 2D vector on a plane.
-     * @class Vector
-     * @extends Point
-     * @constructor
-     * @param x {number} X component of the Vector
-     * @param y {number} Y component of the Vector
-     */
-    class Vector extends Point {
-        x: number;
-        y: number;
-        /**
-         * Returns a vector of unit length in the direction of the specified angle.
-         * @method fromAngle
-         * @static
-         * @param angle {number} The angle to generate the vector
-         * @returns Vector
-         */
-        static fromAngle(angle: number): Vector;
-        constructor(x: number, y: number);
-        /**
-         * The distance to another vector
-         * @method distance
-         * @param v {Vector} The other vector
-         * @returns number
-         */
-        distance(v?: Vector): number;
-        /**
-         * Normalizes a vector to have a magnitude of 1.
-         * @method normalize
-         * @return Vector
-         */
-        normalize(): Vector;
-        /**
-         * Scales a vector's by a factor of size
-         * @method scale
-         * @param size {number} The factor to scale the magnitude by
-         * @returns Vector
-         */
-        scale(size: any): Vector;
-        /**
-         * Adds one vector to another
-         * @method add
-         * @param v {Vector} The vector to add
-         * @returns Vector
-         */
-        add(v: Vector): Vector;
-        /**
-         * Subtracts a vector from the current vector
-         * @method minus
-         * @param v {Vector} The vector to subtract
-         * @returns Vector
-         */
-        minus(v: Vector): Vector;
-        /**
-         * Performs a dot product with another vector
-         * @method dot
-         * @param v {Vector} The vector to dot
-         * @returns number
-         */
-        dot(v: Vector): number;
-        /**
-         * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
-         * @method cross
-         * @param v {Vector} The vector to cross
-         * @returns number
-         */
-        cross(v: Vector): number;
-        /**
-         * Returns the perpendicular vector to this one
-         * @method perpendicular
-         * @return Vector
-         */
-        perpendicular(): Vector;
-        /**
-         * Returns the normal vector to this one
-         * @method normal
-         * @return Vector
-         */
-        normal(): Vector;
-        /**
-         * Returns the angle of this vector.
-         * @method toAngle
-         * @returns number
-         */
-        toAngle(): number;
-        /**
-         * Returns the point represention of this vector
-         * @method toPoint
-         * @returns Point
-         */
-        toPoint(): Point;
-        /**
-         * Rotates the current vector around a point by a certain number of
-         * degrees in radians
-         * @method rotate
-         * @returns Vector
-         */
-        rotate(angle: number, anchor: Point): Vector;
-    }
-    /**
-     * A 2D ray that can be cast into the scene to do collision detection
-     * @class Ray
-     * @constructor
-     * @param pos {Point} The starting position for the ray
-     * @param dir {Vector} The vector indicating the direction of the ray
-     */
-    class Ray {
-        pos: Point;
-        dir: Vector;
-        constructor(pos: Point, dir: Vector);
-        /**
-         * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
-         * This number indicates the mathematical intersection time.
-         * @method intersect
-         * @param line {Line} The line to test
-         * @returns number
-         */
-        intersect(line: Line): number;
-        /**
-         * Returns the point of intersection given the intersection time
-         * @method getPoint
-         * @returns Point
-         */
-        getPoint(time: number): Point;
-    }
-    /**
-     * A 2D line segment
-     * @class Line
-     * @constructor
-     * @param begin {Point} The starting point of the line segment
-     * @param end {Point} The ending point of the line segment
-     */
-    class Line {
-        begin: Point;
-        end: Point;
-        constructor(begin: Point, end: Point);
-        /**
-         * Returns the slope of the line in the form of a vector
-         * @method getSlope
-         * @returns Vector
-         */
-        getSlope(): Vector;
-        /**
-         * Returns the length of the line segment in pixels
-         * @method getLength
-         * @returns number
-         */
-        getLength(): number;
-    }
-    class Projection {
-        min: number;
-        max: number;
-        constructor(min: number, max: number);
-        overlaps(projection: Projection): boolean;
-        getOverlap(projection: Projection): number;
+        unsubscribe(eventName: string, handler?: (event?: GameEvent) => void): void;
     }
 }
-declare module ex.Util {
-    var TwoPI: number;
-    function base64Encode(inputStr: string): string;
-    function clamp(val: any, min: any, max: any): any;
-    function drawLine(ctx: CanvasRenderingContext2D, color: string, startx: any, starty: any, endx: any, endy: any): void;
-    function randomInRange(min: number, max: number): number;
-    function randomIntInRange(min: number, max: number): number;
-    function canonicalizeAngle(angle: number): number;
-    function toDegrees(radians: number): number;
-    function toRadians(degrees: number): number;
-    function getPosition(el: HTMLElement): Point;
-    function getOppositeSide(side: Side): Side;
+declare module ex {
     /**
-     * Excaliburs dynamically resizing collection
-     * @class Collection
+     * Excalibur base class
+     * @class Class
      * @constructor
-     * @param [initialSize=200] {number} Initial size of the internal backing array
      */
-    class Collection<T> {
+    class Class {
         /**
-         * Default collection size
-         * @property DefaultSize {number}
+         * Direct access to the game object event dispatcher.
+         * @property eventDispatcher {EventDispatcher}
+         */
+        eventDispatcher: EventDispatcher;
+        constructor();
+        /**
+         * Add an event listener. You can listen for a variety of
+         * events off of the engine; see the events section below for a complete list.
+         * @method addEventListener
+         * @param eventName {string} Name of the event to listen for
+         * @param handler {event=>void} Event handler for the thrown event
+         */
+        addEventListener(eventName: string, handler: (event?: GameEvent) => void): void;
+        /**
+         * Removes an event listener. If only the eventName is specified
+         * it will remove all handlers registered for that specific event. If the eventName
+         * and the handler instance are specified just that handler will be removed.
+         *
+         * @method removeEventListener
+         * @param eventName {string} Name of the event to listen for
+         * @param [handler=undefined] {event=>void} Event handler for the thrown event
+         */
+        removeEventListener(eventName: string, handler?: (event?: GameEvent) => void): void;
+        /**
+         * Alias for "addEventListener". You can listen for a variety of
+         * events off of the engine; see the events section below for a complete list.
+         * @method on
+         * @param eventName {string} Name of the event to listen for
+         * @param handler {event=>void} Event handler for the thrown event
+         */
+        on(eventName: string, handler: (event?: GameEvent) => void): void;
+        /**
+         * Alias for "removeEventListener". If only the eventName is specified
+         * it will remove all handlers registered for that specific event. If the eventName
+         * and the handler instance are specified only that handler will be removed.
+         *
+         * @method off
+         * @param eventName {string} Name of the event to listen for
+         * @param [handler=undefined] {event=>void} Event handler for the thrown event
+         */
+        off(eventName: string, handler?: (event?: GameEvent) => void): void;
+        /**
+         * You may wish to extend native Excalibur functionality. Any method on
+         * actor may be extended to support additional functionaliy. In the
+         * example below we create a new type called "MyActor"
+         * <br/><b>Example</b><pre>var MyActor = Actor.extend({
+     constructor : function(){
+        this.newprop = 'something';
+        Actor.apply(this, arguments);
+     },
+     update : function(engine, delta){
+        // Implement custom update
+  
+           // Call super constructor update
+           Actor.prototype.update.call(this, engine, delta);
+           console.log("Something cool!");
+     }
+  });
+  var myActor = new MyActor(100, 100, 100, 100, Color.Azure);</pre>
+         * @method extend
+         * @static
+         * @param methods {any}
+         */
+        static extend(methods: any): any;
+    }
+}
+declare module ex {
+    class Color {
+        r: number;
+        g: number;
+        b: number;
+        a: number;
+        /**
+         * Color constant
+         * @property Black {ex.Color}
          * @static
          * @final
          */
-        static DefaultSize: number;
-        private internalArray;
-        private endPointer;
-        constructor(initialSize?: number);
-        private resize();
+        static Black: Color;
         /**
-         * Push elements to the end of the collection
-         * @method push
-         * @param element {T}
-         * @returns T
+         * Color constant
+         * @property White {ex.Color}
+         * @static
+         * @final
          */
-        push(element: T): T;
+        static White: Color;
         /**
-         * Removes elements from the end of the collection
-         * @method pop
-         * @returns T
+         * Color constant
+         * @property Gray {ex.Color}
+         * @static
+         * @final
          */
-        pop(): T;
+        static Gray: Color;
         /**
-         * Returns the count of the collection
-         * @method count
-         * @returns number
+         * Color constant
+         * @property LightGray {ex.Color}
+         * @static
+         * @final
          */
-        count(): number;
+        static LightGray: Color;
         /**
-         * Empties the collection
-         * @method clear
+         * Color constant
+         * @property DarkGray {ex.Color}
+         * @static
+         * @final
          */
-        clear(): void;
+        static DarkGray: Color;
         /**
-         * Returns the size of the internal backing array
-         * @method internalSize
-         * @returns number
+         * Color constant
+         * @property Yellow {ex.Color}
+         * @static
+         * @final
          */
-        internalSize(): number;
+        static Yellow: Color;
         /**
-         * Returns an element at a specific index
-         * @method elementAt
-         * @param index {number} Index of element to retreive
-         * @returns T
+         * Color constant
+         * @property Orange {ex.Color}
+         * @static
+         * @final
          */
-        elementAt(index: number): T;
+        static Orange: Color;
         /**
-         * Inserts an element at a specific index
-         * @method insert
-         * @param index {number} Index to insert the element
-         * @returns T
+         * Color constant
+         * @property Red {ex.Color}
+         * @static
+         * @final
          */
-        insert(index: number, value: T): T;
+        static Red: Color;
         /**
-         * Removes an element at a specific index
-         * @method remove
-         * @param index {number} Index of element to remove
-         * @returns T
+         * Color constant
+         * @property Vermillion {ex.Color}
+         * @static
+         * @final
          */
-        remove(index: number): T;
+        static Vermillion: Color;
         /**
-         * Removes an element by reference
-         * @method removeElement
-         * @param element {T} Index of element to retreive
+         * Color constant
+         * @property Rose {ex.Color}
+         * @static
+         * @final
          */
-        removeElement(element: T): void;
+        static Rose: Color;
         /**
-         * Returns a array representing the collection
-         * @method toArray
-         * @returns T[]
+         * Color constant
+         * @property Magenta {ex.Color}
+         * @static
+         * @final
          */
-        toArray(): T[];
+        static Magenta: Color;
         /**
-         * Iterate over every element in the collection
-         * @method forEach
-         * @param func {(T,number)=>any} Callback to call for each element passing a reference to the element and its index, returned values are ignored
+         * Color constant
+         * @property Violet {ex.Color}
+         * @static
+         * @final
          */
-        forEach(func: (element: T, index: number) => any): void;
+        static Violet: Color;
         /**
-         * Mutate every element in the collection
-         * @method map
-         * @param func {(T,number)=>any} Callback to call for each element passing a reference to the element and its index, any values returned mutate the collection
+         * Color constant
+         * @property Blue {ex.Color}
+         * @static
+         * @final
          */
-        map(func: (element: T, index: number) => any): void;
+        static Blue: Color;
+        /**
+         * Color constant
+         * @property Azure {ex.Color}
+         * @static
+         * @final
+         */
+        static Azure: Color;
+        /**
+         * Color constant
+         * @property Cyan {ex.Color}
+         * @static
+         * @final
+         */
+        static Cyan: Color;
+        /**
+         * Color constant
+         * @property Viridian {ex.Color}
+         * @static
+         * @final
+         */
+        static Viridian: Color;
+        /**
+         * Color constant
+         * @property Green {ex.Color}
+         * @static
+         * @final
+         */
+        static Green: Color;
+        /**
+         * Color constant
+         * @property Chartreuse {ex.Color}
+         * @static
+         * @final
+         */
+        static Chartreuse: Color;
+        /**
+         * Color constant
+         * @property Transparent {ex.Color}
+         * @static
+         * @final
+         */
+        static Transparent: Color;
+        /**
+         * Creates a new instance of Color from an r, g, b, a
+         *
+         * @class Color
+         * @constructor
+         * @param r {number} The red component of color (0-255)
+         * @param g {number} The green component of color (0-255)
+         * @param b {number} The blue component of color (0-255)
+         * @param [a=1] {number} The alpha component of color (0-1.0)
+         */
+        constructor(r: number, g: number, b: number, a?: number);
+        /**
+         * Creates a new instance of Color from an r, g, b, a
+         *
+         * @method fromRGB
+         * @static
+         * @param r {number} The red component of color (0-255)
+         * @param g {number} The green component of color (0-255)
+         * @param b {number} The blue component of color (0-255)
+         * @param [a=1] {number} The alpha component of color (0-1.0)
+         */
+        static fromRGB(r: number, g: number, b: number, a?: number): Color;
+        /**
+         * Creates a new inscance of Color from a hex string
+         *
+         * @method fromHex
+         * @static
+         * @param hex {string} CSS color string of the form #ffffff, the alpha component is optional
+         */
+        static fromHex(hex: string): Color;
+        /**
+         * Returns a CSS string representation of a color.
+         * @method toString
+         * @returns string
+         */
+        toString(): string;
+        /**
+         * Returns a CSS string representation of a color.
+         * @method fillStyle
+         * @returns string
+         */
+        fillStyle(): string;
+        /**
+         * Returns a clone of the current color.
+         * @method clone
+         * @returns Color
+         */
+        clone(): Color;
+    }
+}
+declare module ex {
+    /**
+     * Logging level that Excalibur will tag
+     * @class LogLevel
+     */
+    enum LogLevel {
+        /**
+         @property Debug {LogLevel}
+         @static
+         @final
+         */
+        /**
+        @property Info {LogLevel}
+        @static
+        @final
+        */
+        /**
+        @property Warn {LogLevel}
+        @static
+        @final
+        */
+        /**
+        @property Error {LogLevel}
+        @static
+        @final
+        */
+        /**
+        @property Fatal {LogLevel}
+        @static
+        @final
+        */
+        Debug = 0,
+        Info = 1,
+        Warn = 2,
+        Error = 3,
+        Fatal = 4,
+    }
+    /**
+     * Static singleton that represents the logging facility for Excalibur.
+     * Excalibur comes built-in with a ConsoleAppender and ScreenAppender.
+     * Derive from IAppender to create your own logging appenders.
+     * @class Logger
+     * @static
+     */
+    class Logger {
+        private static _instance;
+        private appenders;
+        constructor();
+        /**
+         * Gets or sets the default logging level. Excalibur will only log
+         * messages if equal to or above this level.
+         * @property defaultLevel {LogLevel}
+         */
+        defaultLevel: LogLevel;
+        /**
+         * Gets the current static instance of Logger
+         * @method getInstance
+         * @static
+         * @returns Logger
+         */
+        static getInstance(): Logger;
+        /**
+         * Adds a new IAppender to the list of appenders to write to
+         * @method addAppender
+         * @param appender {IAppender} Appender to add
+         */
+        addAppender(appender: IAppender): void;
+        /**
+         * Clears all appenders from the logger
+         * @method clearAppenders
+         */
+        clearAppenders(): void;
+        /**
+         * Logs a message at a given LogLevel
+         * @method _log
+         * @private
+         * @param level {LogLevel}The LogLevel`to log the message at
+         * @param args An array of arguments to write to an appender
+         */
+        private _log(level, args);
+        /**
+         * Writes a log message at the LogLevel.Debug level
+         * @method debug
+         * @param ...args Accepts any number of arguments
+         */
+        debug(...args: any[]): void;
+        /**
+         * Writes a log message at the LogLevel.Info level
+         * @method info
+         * @param ...args Accepts any number of arguments
+         */
+        info(...args: any[]): void;
+        /**
+         * Writes a log message at the LogLevel.Warn level
+         * @method warn
+         * @param ...args Accepts any number of arguments
+         */
+        warn(...args: any[]): void;
+        /**
+         * Writes a log message at the LogLevel.Error level
+         * @method error
+         * @param ...args Accepts any number of arguments
+         */
+        error(...args: any[]): void;
+        /**
+         * Writes a log message at the LogLevel.Fatal level
+         * @method fatal
+         * @param ...args Accepts any number of arguments
+         */
+        fatal(...args: any[]): void;
+    }
+    /**
+     * Contract for any log appender (such as console/screen)
+     * @class IAppender
+     */
+    interface IAppender {
+        /**
+         * Logs a message at the given LogLevel
+         * @method log
+         * @param level {LogLevel} Level to log at
+         * @param args {any[]} Arguments to log
+         */
+        log(level: LogLevel, args: any[]): void;
+    }
+    /**
+     * Console appender for browsers (i.e. console.log)
+     * @class ConsoleAppender
+     * @constructor
+     * @extends IAppender
+     */
+    class ConsoleAppender implements IAppender {
+        log(level: LogLevel, args: any[]): void;
+    }
+    /**
+     * On-screen (canvas) appender
+     * @todo Clean this up
+     * @class ScreenAppender
+     * @extends IAppender
+     * @constructor
+     * @param width {number} Width of the screen appender in pixels
+     * @param height {number} Height of the screen appender in pixels
+     */
+    class ScreenAppender implements IAppender {
+        private _messages;
+        private canvas;
+        private ctx;
+        constructor(width?: number, height?: number);
+        log(level: LogLevel, args: any[]): void;
+    }
+}
+declare module ex {
+    class Timer {
+        static id: number;
+        id: number;
+        interval: number;
+        fcn: () => void;
+        repeats: boolean;
+        private elapsedTime;
+        complete: boolean;
+        scene: Scene;
+        /**
+         * The Excalibur timer hooks into the internal timer and fires callbacks, after a certain interval, optionally repeating.
+         *
+         * @class Timer
+         * @constructor
+         * @param callback {callback} The callback to be fired after the interval is complete.
+         * @param [repeats=false] {boolean} Indicates whether this call back should be fired only once, or repeat after every interval as completed.
+         */
+        constructor(fcn: () => void, interval: number, repeats?: boolean);
+        /**
+         * Updates the timer after a certain number of milliseconds have elapsed. This is used internally by the engine.
+         * @method update
+         * @param delta {number} Number of elapsed milliseconds since the last update.
+         */
+        update(delta: number): void;
+        /**
+         * Cancels the timer, preventing any further executions.
+         * @method cancel
+         */
+        cancel(): void;
     }
 }
 declare module ex {
@@ -1095,496 +1471,6 @@ declare module ex {
         contains(p: Point): boolean;
         collides(collidable: ICollidable): Vector;
         debugDraw(ctx: CanvasRenderingContext2D): void;
-    }
-}
-declare module ex {
-    /**
-     * Excalibur base class
-     * @class Class
-     * @constructor
-     */
-    class Class {
-        /**
-         * Direct access to the game object event dispatcher.
-         * @property eventDispatcher {EventDispatcher}
-         */
-        eventDispatcher: EventDispatcher;
-        constructor();
-        /**
-         * Add an event listener. You can listen for a variety of
-         * events off of the engine; see the events section below for a complete list.
-         * @method addEventListener
-         * @param eventName {string} Name of the event to listen for
-         * @param handler {event=>void} Event handler for the thrown event
-         */
-        addEventListener(eventName: string, handler: (event?: GameEvent) => void): void;
-        /**
-         * Removes an event listener. If only the eventName is specified
-         * it will remove all handlers registered for that specific event. If the eventName
-         * and the handler instance are specified just that handler will be removed.
-         *
-         * @method removeEventListener
-         * @param eventName {string} Name of the event to listen for
-         * @param [handler=undefined] {event=>void} Event handler for the thrown event
-         */
-        removeEventListener(eventName: string, handler?: (event?: GameEvent) => void): void;
-        /**
-         * Alias for "addEventListener". You can listen for a variety of
-         * events off of the engine; see the events section below for a complete list.
-         * @method on
-         * @param eventName {string} Name of the event to listen for
-         * @param handler {event=>void} Event handler for the thrown event
-         */
-        on(eventName: string, handler: (event?: GameEvent) => void): void;
-        /**
-         * Alias for "removeEventListener". If only the eventName is specified
-         * it will remove all handlers registered for that specific event. If the eventName
-         * and the handler instance are specified only that handler will be removed.
-         *
-         * @method off
-         * @param eventName {string} Name of the event to listen for
-         * @param [handler=undefined] {event=>void} Event handler for the thrown event
-         */
-        off(eventName: string, handler?: (event?: GameEvent) => void): void;
-        /**
-         * You may wish to extend native Excalibur functionality. Any method on
-         * actor may be extended to support additional functionaliy. In the
-         * example below we create a new type called "MyActor"
-         * <br/><b>Example</b><pre>var MyActor = Actor.extend({
-     constructor : function(){
-        this.newprop = 'something';
-        Actor.apply(this, arguments);
-     },
-     update : function(engine, delta){
-        // Implement custom update
-  
-           // Call super constructor update
-           Actor.prototype.update.call(this, engine, delta);
-           console.log("Something cool!");
-     }
-  });
-  var myActor = new MyActor(100, 100, 100, 100, Color.Azure);</pre>
-         * @method extend
-         * @static
-         * @param methods {any}
-         */
-        static extend(methods: any): any;
-    }
-}
-declare module ex {
-    class Timer {
-        static id: number;
-        id: number;
-        interval: number;
-        fcn: () => void;
-        repeats: boolean;
-        private elapsedTime;
-        complete: boolean;
-        scene: Scene;
-        /**
-         * The Excalibur timer hooks into the internal timer and fires callbacks, after a certain interval, optionally repeating.
-         *
-         * @class Timer
-         * @constructor
-         * @param callback {callback} The callback to be fired after the interval is complete.
-         * @param [repeats=false] {boolean} Indicates whether this call back should be fired only once, or repeat after every interval as completed.
-         */
-        constructor(fcn: () => void, interval: number, repeats?: boolean);
-        /**
-         * Updates the timer after a certain number of milliseconds have elapsed. This is used internally by the engine.
-         * @method update
-         * @param delta {number} Number of elapsed milliseconds since the last update.
-         */
-        update(delta: number): void;
-        /**
-         * Cancels the timer, preventing any further executions.
-         * @method cancel
-         */
-        cancel(): void;
-    }
-}
-declare module ex {
-    interface ICollisionResolver {
-        register(target: Actor): any;
-        remove(tartet: Actor): any;
-        evaluate(targets: Actor[]): CollisionPair[];
-        update(targets: Actor[]): number;
-        debugDraw(ctx: any, delta: any): void;
-    }
-}
-declare module ex {
-    class NaiveCollisionResolver implements ICollisionResolver {
-        constructor();
-        register(target: Actor): void;
-        remove(tartet: Actor): void;
-        evaluate(targets: Actor[]): CollisionPair[];
-        update(targets: Actor[]): number;
-        debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
-    }
-}
-declare module ex {
-    class TreeNode {
-        parent: any;
-        left: TreeNode;
-        right: TreeNode;
-        bounds: BoundingBox;
-        height: number;
-        actor: Actor;
-        constructor(parent?: any);
-        isLeaf(): boolean;
-    }
-    class DynamicTree {
-        root: TreeNode;
-        nodes: {
-            [x: number]: TreeNode;
-        };
-        constructor();
-        insert(leaf: TreeNode): void;
-        remove(leaf: TreeNode): void;
-        registerActor(actor: Actor): void;
-        updateActor(actor: Actor): boolean;
-        removeActor(actor: Actor): void;
-        balance(node: TreeNode): TreeNode;
-        getHeight(): number;
-        query(actor: Actor, callback: (other: Actor) => boolean): void;
-        rayCast(ray: Ray, max: any): Actor;
-        getNodes(): TreeNode[];
-        debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
-    }
-}
-declare module ex {
-    class DynamicTreeCollisionResolver implements ICollisionResolver {
-        private _dynamicCollisionTree;
-        constructor();
-        register(target: Actor): void;
-        remove(target: Actor): void;
-        evaluate(targets: Actor[]): CollisionPair[];
-        update(targets: Actor[]): number;
-        debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
-    }
-}
-declare module ex {
-    /**
-     * Collision pairs are used internally by Excalibur to resolve collision between actors. The
-     * Pair prevents collisions from being evaluated more than one time
-     * @class CollisionPair
-     * @constructor
-     * @param left {Actor} The first actor in the collision pair
-     * @param right {Actor} The second actor in the collision pair
-     * @param intersect {Vector} The minimum translation vector to separate the actors from the perspective of the left actor
-     * @param side {Side} The side on which the collision occured from the perspective of the left actor
-     */
-    class CollisionPair {
-        left: Actor;
-        right: Actor;
-        intersect: Vector;
-        side: Side;
-        constructor(left: Actor, right: Actor, intersect: Vector, side: Side);
-        /**
-         * Determines if this collision pair and another are equivalent.
-         * @method equals
-         * @param collisionPair {CollisionPair}
-         * @returns boolean
-         */
-        equals(collisionPair: CollisionPair): boolean;
-        /**
-         * Evaluates the collision pair, performing collision resolution and event publishing appropriate to each collision type.
-         * @method evaluate
-         */
-        evaluate(): void;
-    }
-}
-declare module ex {
-    /**
-    * A base implementation of a camera. This class is meant to be extended.
-    * @class Camera
-    * @constructor
-    * @param engine {Engine} Reference to the current engine
-    */
-    class BaseCamera {
-        follow: Actor;
-        focus: Point;
-        lerp: boolean;
-        private _cameraMoving;
-        private _currentLerpTime;
-        private _lerpDuration;
-        private _totalLerpTime;
-        private _lerpStart;
-        private _lerpEnd;
-        isShaking: boolean;
-        private shakeMagnitudeX;
-        private shakeMagnitudeY;
-        private shakeDuration;
-        private elapsedShakeTime;
-        isZooming: boolean;
-        private currentZoomScale;
-        private maxZoomScale;
-        private zoomDuration;
-        private elapsedZoomTime;
-        private zoomIncrement;
-        private easeInOutCubic(currentTime, startValue, endValue, duration);
-        /**
-        * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
-        * @method setActorToFollow
-        * @param actor {Actor} The actor to follow
-        */
-        setActorToFollow(actor: Actor): void;
-        /**
-        * Returns the focal point of the camera
-        * @method getFocus
-        * @returns Point
-        */
-        getFocus(): Point;
-        /**
-        * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
-        * @method setFocus
-        * @param x {number} The x coordinate of the focal point
-        * @param y {number} The y coordinate of the focal point
-        */
-        setFocus(x: number, y: number): void;
-        /**
-        * Sets the camera to shake at the specified magnitudes for the specified duration
-        * @method shake
-        * @param magnitudeX {number} the x magnitude of the shake
-        * @param magnitudeY {number} the y magnitude of the shake
-        * @param duration {number} the duration of the shake
-        */
-        shake(magnitudeX: number, magnitudeY: number, duration: number): void;
-        /**
-        * Zooms the camera in or out by the specified scale over the specified duration.
-        * If no duration is specified, it will zoom by a set amount until the scale is reached.
-        * @method zoom
-        * @param scale {number} the scale of the zoom
-        * @param [duration] {number} the duration of the zoom
-        */
-        zoom(scale: number, duration?: number): void;
-        /**
-        * gets the current zoom scale
-        * @method getZoom
-        * @returns {Number} the current zoom scale
-        */
-        getZoom(): number;
-        private setCurrentZoomScale(zoomScale);
-        /**
-        * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
-        * @method update
-        * @param delta {number} The number of milliseconds since the last update
-        */
-        update(ctx: CanvasRenderingContext2D, delta: number): void;
-        debugDraw(ctx: CanvasRenderingContext2D): void;
-        private isDoneShaking();
-        private isDoneZooming();
-    }
-    /**
-    * An extension of BaseCamera that is locked vertically; it will only move side to side.
-    * @class SideCamera
-    * @extends BaseCamera
-    * @constructor
-    * @param engine {Engine} Reference to the current engine
-    */
-    class SideCamera extends BaseCamera {
-        getFocus(): Point;
-    }
-    /**
-    * An extension of BaseCamera that is locked to an actor or focal point; the actor will appear in the center of the screen.
-    * @class TopCamera
-    * @extends BaseCamera
-    * @constructor
-    * @param engine {Engine} Reference to the current engine
-    */
-    class TopCamera extends BaseCamera {
-        getFocus(): Point;
-    }
-}
-declare module ex {
-    /**
-     * Actors are composed together into groupings called Scenes in
-     * Excalibur. The metaphor models the same idea behind real world
-     * actors in a scene. Only actors in scenes will be updated and drawn.
-     * @class Scene
-     * @constructor
-     */
-    class Scene extends Class {
-        actor: Actor;
-        /**
-         * Gets or sets the current camera for the scene
-         * @property camera {Camera}
-         */
-        camera: BaseCamera;
-        /**
-         * The actors in the current scene
-         * @property children {Actor[]}
-         */
-        children: Actor[];
-        tileMaps: TileMap[];
-        engine: Engine;
-        uiActors: Actor[];
-        private _collisionResolver;
-        private _killQueue;
-        private _timers;
-        private _cancelQueue;
-        private _isInitialized;
-        constructor(engine?: Engine);
-        /**
-         * This is called when the scene is made active and started. It is meant to be overriden,
-         * this is where you should setup any DOM UI or event handlers needed for the scene.
-         * @method onActivate
-         */
-        onActivate(): void;
-        /**
-         * This is called when the scene is made transitioned away from and stopped. It is meant to be overriden,
-         * this is where you should cleanup any DOM UI or event handlers needed for the scene.
-         * @method onDeactivate
-         */
-        onDeactivate(): void;
-        /**
-         * This is called before the first update of the actor. This method is meant to be
-         * overridden. This is where initialization of child actors should take place.
-         * @method onInitialize
-         * @param engine {Engine}
-         */
-        onInitialize(engine: Engine): void;
-        /**
-         * Publish an event to all actors in the scene
-         * @method publish
-         * @param eventType {string} The name of the event to publish
-         * @param event {GameEvent} The event object to send
-         */
-        publish(eventType: string, event: GameEvent): void;
-        /**
-         * Updates all the actors and timers in the Scene. Called by the Engine.
-         * @method update
-         * @param engine {Engine} Reference to the current Engine
-         * @param delta {number} The number of milliseconds since the last update
-         */
-        update(engine: Engine, delta: number): void;
-        /**
-         * Draws all the actors in the Scene. Called by the Engine.
-         * @method draw
-         * @param ctx {CanvasRenderingContext2D} The current rendering context
-         * @param delta {number} The number of milliseconds since the last draw
-         */
-        draw(ctx: CanvasRenderingContext2D, delta: number): void;
-        /**
-         * Draws all the actors' debug information in the Scene. Called by the Engine.
-         * @method draw
-         * @param ctx {CanvasRenderingContext2D} The current rendering context
-         */
-        debugDraw(ctx: CanvasRenderingContext2D): void;
-        /**
-         * Adds an excalibur Timer to the current scene.
-         * @param timer {Timer} The timer to add to the current scene.
-         * @method add
-         */
-        add(timer: Timer): void;
-        /**
-         * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
-         * @method add
-         * @param tileMap {TileMap}
-         */
-        add(tileMap: TileMap): void;
-        /**
-         * Adds an actor to the Scene, once this is done the Actor will be drawn and updated.
-         * @method add
-         * @param actor {Actor} The actor to add to the current scene
-         */
-        add(actor: Actor): void;
-        /**
-         * Adds a UIActor to the scene, UIActors do not participate in collisions, instead the remain in the same place on the screen.
-         * @method add
-         * @param uiActor {UIActor} The UIActor to add to the current scene
-         */
-        add(uiActor: UIActor): void;
-        /**
-          * Removes an excalibur Timer from the current scene.
-          * @method remove
-          * @param timer {Timer} The timer to remove to the current scene.
-          */
-        remove(timer: Timer): void;
-        /**
-         * Removes a TileMap from the Scene, it will no longer be drawn or updated.
-         * @method remove
-         * @param tileMap {TileMap}
-         */
-        remove(tileMap: TileMap): void;
-        /**
-         * Removes an actor from the Scene, it will no longer be drawn or updated.
-         * @method remove
-         * @param actor {Actor} The actor to remove from the current scene.
-         */
-        remove(actor: Actor): void;
-        /**
-         * Removes a UIActor to the scene, it will no longer be drawn or updated
-         * @method remove
-         * @param uiActor {UIActor} The UIActor to remove from the current scene
-         */
-        remove(uiActor: UIActor): void;
-        /**
-         * Adds an actor to act as a piece of UI, meaning it is always positioned
-         * in screen coordinates. UI actors do not participate in collisions
-         * @method addUIActor
-         * @param actor {Actor}
-         */
-        addUIActor(actor: Actor): void;
-        /**
-         * Removes an actor as a piec of UI
-         * @method removeUIActor
-         * @param actor {Actor}
-         */
-        removeUIActor(actor: Actor): void;
-        /**
-         * Adds an actor to the Scene, once this is done the actor will be drawn and updated.
-         * @method addChild
-         * @param actor {Actor}
-         */
-        addChild(actor: Actor): void;
-        /**
-         * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
-         * @method addTileMap
-         * @param tileMap {TileMap}
-         */
-        addTileMap(tileMap: TileMap): void;
-        /**
-         * Removes a TileMap from the Scene, it willno longer be drawn or updated.
-         * @method removeTileMap
-         * @param tileMap {TileMap}
-         */
-        removeTileMap(tileMap: TileMap): void;
-        /**
-         * Removes an actor from the Scene, it will no longer be drawn or updated.
-         * @method removeChild
-         * @param actor {Actor} The actor to remove
-         */
-        removeChild(actor: Actor): void;
-        /**
-         * Adds a timer to the Scene
-         * @method addTimer
-         * @param timer {Timer} The timer to add
-         * @returns Timer
-         */
-        addTimer(timer: Timer): Timer;
-        /**
-         * Removes a timer to the Scene, can be dangerous
-         * @method removeTimer
-         * @private
-         * @param timer {Timer} The timer to remove
-         * @returns Timer
-         */
-        removeTimer(timer: Timer): Timer;
-        /**
-         * Cancels a timer, removing it from the scene nicely
-         * @method cancelTimer
-         * @param timer {Timer} The timer to cancel
-         * @returns Timer
-         */
-        cancelTimer(timer: Timer): Timer;
-        /**
-         * Tests whether a timer is active in the scene
-         * @method isTimerActive
-         * @param timer {Timer}
-         * @returns boolean
-         */
-        isTimerActive(timer: Timer): boolean;
     }
 }
 declare module ex.Internal.Actions {
@@ -2472,579 +2358,387 @@ declare module ex {
     }
 }
 declare module ex {
-    /**
-     * Logging level that Excalibur will tag
-     * @class LogLevel
-     */
-    enum LogLevel {
-        /**
-         @property Debug {LogLevel}
-         @static
-         @final
-         */
-        /**
-        @property Info {LogLevel}
-        @static
-        @final
-        */
-        /**
-        @property Warn {LogLevel}
-        @static
-        @final
-        */
-        /**
-        @property Error {LogLevel}
-        @static
-        @final
-        */
-        /**
-        @property Fatal {LogLevel}
-        @static
-        @final
-        */
-        Debug = 0,
-        Info = 1,
-        Warn = 2,
-        Error = 3,
-        Fatal = 4,
-    }
-    /**
-     * Static singleton that represents the logging facility for Excalibur.
-     * Excalibur comes built-in with a ConsoleAppender and ScreenAppender.
-     * Derive from IAppender to create your own logging appenders.
-     * @class Logger
-     * @static
-     */
-    class Logger {
-        private static _instance;
-        private appenders;
-        constructor();
-        /**
-         * Gets or sets the default logging level. Excalibur will only log
-         * messages if equal to or above this level.
-         * @property defaultLevel {LogLevel}
-         */
-        defaultLevel: LogLevel;
-        /**
-         * Gets the current static instance of Logger
-         * @method getInstance
-         * @static
-         * @returns Logger
-         */
-        static getInstance(): Logger;
-        /**
-         * Adds a new IAppender to the list of appenders to write to
-         * @method addAppender
-         * @param appender {IAppender} Appender to add
-         */
-        addAppender(appender: IAppender): void;
-        /**
-         * Clears all appenders from the logger
-         * @method clearAppenders
-         */
-        clearAppenders(): void;
-        /**
-         * Logs a message at a given LogLevel
-         * @method _log
-         * @private
-         * @param level {LogLevel}The LogLevel`to log the message at
-         * @param args An array of arguments to write to an appender
-         */
-        private _log(level, args);
-        /**
-         * Writes a log message at the LogLevel.Debug level
-         * @method debug
-         * @param ...args Accepts any number of arguments
-         */
-        debug(...args: any[]): void;
-        /**
-         * Writes a log message at the LogLevel.Info level
-         * @method info
-         * @param ...args Accepts any number of arguments
-         */
-        info(...args: any[]): void;
-        /**
-         * Writes a log message at the LogLevel.Warn level
-         * @method warn
-         * @param ...args Accepts any number of arguments
-         */
-        warn(...args: any[]): void;
-        /**
-         * Writes a log message at the LogLevel.Error level
-         * @method error
-         * @param ...args Accepts any number of arguments
-         */
-        error(...args: any[]): void;
-        /**
-         * Writes a log message at the LogLevel.Fatal level
-         * @method fatal
-         * @param ...args Accepts any number of arguments
-         */
-        fatal(...args: any[]): void;
-    }
-    /**
-     * Contract for any log appender (such as console/screen)
-     * @class IAppender
-     */
-    interface IAppender {
-        /**
-         * Logs a message at the given LogLevel
-         * @method log
-         * @param level {LogLevel} Level to log at
-         * @param args {any[]} Arguments to log
-         */
-        log(level: LogLevel, args: any[]): void;
-    }
-    /**
-     * Console appender for browsers (i.e. console.log)
-     * @class ConsoleAppender
-     * @constructor
-     * @extends IAppender
-     */
-    class ConsoleAppender implements IAppender {
-        log(level: LogLevel, args: any[]): void;
-    }
-    /**
-     * On-screen (canvas) appender
-     * @todo Clean this up
-     * @class ScreenAppender
-     * @extends IAppender
-     * @constructor
-     * @param width {number} Width of the screen appender in pixels
-     * @param height {number} Height of the screen appender in pixels
-     */
-    class ScreenAppender implements IAppender {
-        private _messages;
-        private canvas;
-        private ctx;
-        constructor(width?: number, height?: number);
-        log(level: LogLevel, args: any[]): void;
+    interface ICollisionResolver {
+        register(target: Actor): any;
+        remove(tartet: Actor): any;
+        evaluate(targets: Actor[]): CollisionPair[];
+        update(targets: Actor[]): number;
+        debugDraw(ctx: any, delta: any): void;
     }
 }
 declare module ex {
-    /**
-     * An enum representing all of the built in event types for Excalibur
-     * @class EventType
-     */
-    enum EventType {
-        /**
-        @property UserEvent {EventType}
-        @static
-        @final
-        */
-        /**
-        @property Blur {EventType}
-        @static
-        @final
-        */
-        /**
-        @property Focus {EventType}
-        @static
-        @final
-        */
-        /**
-        @property Update {EventType}
-        @static
-        @final
-        */
-        /**
-        @property EnterViewPort {EventType}
-        @static
-        @final
-        */
-        /**
-        @property ExitViewPort {EventType}
-        @static
-        @final
-        */
-        /**
-        @property Activate {EventType}
-        @static
-        @final
-        */
-        /**
-        @property Deactivate {EventType}
-        @static
-        @final
-        */
-        /**
-        @property Initialize {EventType}
-        @static
-        @final
-        */
-        Collision = 0,
-        EnterViewPort = 1,
-        ExitViewPort = 2,
-        Blur = 3,
-        Focus = 4,
-        Update = 5,
-        Activate = 6,
-        Deactivate = 7,
-        Initialize = 8,
-    }
-    /**
-     * Base event type in Excalibur that all other event types derive from.
-     *
-     * @class GameEvent
-     * @constructor
-     * @param target {any} Events can have target game object, like the Engine, or an Actor.
-     */
-    class GameEvent {
-        /**
-         * Target object for this event.
-         * @property target {any}
-         */
-        target: any;
+    class NaiveCollisionResolver implements ICollisionResolver {
         constructor();
+        register(target: Actor): void;
+        remove(tartet: Actor): void;
+        evaluate(targets: Actor[]): CollisionPair[];
+        update(targets: Actor[]): number;
+        debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
     }
-    /**
-     * Event received by the Engine when the browser window receives focus
-     *
-     * @class FocusEvent
-     * @extends GameEvent
-     * @constructor
-     */
-    class FocusEvent extends GameEvent {
-        constructor();
-    }
-    /**
-     * Event received by the Engine when the browser window is blurred
-     *
-     * @class BlurEvent
-     * @extends GameEvent
-     * @constructor
-     */
-    class BlurEvent extends GameEvent {
-        constructor();
-    }
-    /**
-     * Event thrown on an actor when a collision has occured
-     *
-     * @class CollisionEvent
-     * @extends GameEvent
-     * @constructor
-     * @param actor {Actor} The actor the event was thrown on
-     * @param other {Actor} The actor that was collided with
-     * @param side {Side} The side that was collided with
-     */
-    class CollisionEvent extends GameEvent {
+}
+declare module ex {
+    class TreeNode {
+        parent: any;
+        left: TreeNode;
+        right: TreeNode;
+        bounds: BoundingBox;
+        height: number;
         actor: Actor;
-        other: Actor;
+        constructor(parent?: any);
+        isLeaf(): boolean;
+    }
+    class DynamicTree {
+        root: TreeNode;
+        nodes: {
+            [x: number]: TreeNode;
+        };
+        constructor();
+        insert(leaf: TreeNode): void;
+        remove(leaf: TreeNode): void;
+        registerActor(actor: Actor): void;
+        updateActor(actor: Actor): boolean;
+        removeActor(actor: Actor): void;
+        balance(node: TreeNode): TreeNode;
+        getHeight(): number;
+        query(actor: Actor, callback: (other: Actor) => boolean): void;
+        rayCast(ray: Ray, max: any): Actor;
+        getNodes(): TreeNode[];
+        debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
+    }
+}
+declare module ex {
+    class DynamicTreeCollisionResolver implements ICollisionResolver {
+        private _dynamicCollisionTree;
+        constructor();
+        register(target: Actor): void;
+        remove(target: Actor): void;
+        evaluate(targets: Actor[]): CollisionPair[];
+        update(targets: Actor[]): number;
+        debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
+    }
+}
+declare module ex {
+    /**
+     * Collision pairs are used internally by Excalibur to resolve collision between actors. The
+     * Pair prevents collisions from being evaluated more than one time
+     * @class CollisionPair
+     * @constructor
+     * @param left {Actor} The first actor in the collision pair
+     * @param right {Actor} The second actor in the collision pair
+     * @param intersect {Vector} The minimum translation vector to separate the actors from the perspective of the left actor
+     * @param side {Side} The side on which the collision occured from the perspective of the left actor
+     */
+    class CollisionPair {
+        left: Actor;
+        right: Actor;
+        intersect: Vector;
         side: Side;
-        intersection: Vector;
-        constructor(actor: Actor, other: Actor, side: Side, intersection: Vector);
+        constructor(left: Actor, right: Actor, intersect: Vector, side: Side);
+        /**
+         * Determines if this collision pair and another are equivalent.
+         * @method equals
+         * @param collisionPair {CollisionPair}
+         * @returns boolean
+         */
+        equals(collisionPair: CollisionPair): boolean;
+        /**
+         * Evaluates the collision pair, performing collision resolution and event publishing appropriate to each collision type.
+         * @method evaluate
+         */
+        evaluate(): void;
+    }
+}
+declare module ex {
+    /**
+    * A base implementation of a camera. This class is meant to be extended.
+    * @class Camera
+    * @constructor
+    * @param engine {Engine} Reference to the current engine
+    */
+    class BaseCamera {
+        follow: Actor;
+        focus: Point;
+        lerp: boolean;
+        private _cameraMoving;
+        private _currentLerpTime;
+        private _lerpDuration;
+        private _totalLerpTime;
+        private _lerpStart;
+        private _lerpEnd;
+        isShaking: boolean;
+        private shakeMagnitudeX;
+        private shakeMagnitudeY;
+        private shakeDuration;
+        private elapsedShakeTime;
+        isZooming: boolean;
+        private currentZoomScale;
+        private maxZoomScale;
+        private zoomDuration;
+        private elapsedZoomTime;
+        private zoomIncrement;
+        private easeInOutCubic(currentTime, startValue, endValue, duration);
+        /**
+        * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
+        * @method setActorToFollow
+        * @param actor {Actor} The actor to follow
+        */
+        setActorToFollow(actor: Actor): void;
+        /**
+        * Returns the focal point of the camera
+        * @method getFocus
+        * @returns Point
+        */
+        getFocus(): Point;
+        /**
+        * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
+        * @method setFocus
+        * @param x {number} The x coordinate of the focal point
+        * @param y {number} The y coordinate of the focal point
+        */
+        setFocus(x: number, y: number): void;
+        /**
+        * Sets the camera to shake at the specified magnitudes for the specified duration
+        * @method shake
+        * @param magnitudeX {number} the x magnitude of the shake
+        * @param magnitudeY {number} the y magnitude of the shake
+        * @param duration {number} the duration of the shake
+        */
+        shake(magnitudeX: number, magnitudeY: number, duration: number): void;
+        /**
+        * Zooms the camera in or out by the specified scale over the specified duration.
+        * If no duration is specified, it will zoom by a set amount until the scale is reached.
+        * @method zoom
+        * @param scale {number} the scale of the zoom
+        * @param [duration] {number} the duration of the zoom
+        */
+        zoom(scale: number, duration?: number): void;
+        /**
+        * gets the current zoom scale
+        * @method getZoom
+        * @returns {Number} the current zoom scale
+        */
+        getZoom(): number;
+        private setCurrentZoomScale(zoomScale);
+        /**
+        * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
+        * @method update
+        * @param delta {number} The number of milliseconds since the last update
+        */
+        update(ctx: CanvasRenderingContext2D, delta: number): void;
+        debugDraw(ctx: CanvasRenderingContext2D): void;
+        private isDoneShaking();
+        private isDoneZooming();
     }
     /**
-     * Event thrown on a game object on Excalibur update
-     *
-     * @class UpdateEvent
-     * @extends GameEvent
-     * @constructor
-     * @param delta {number} The number of milliseconds since the last update
-     */
-    class UpdateEvent extends GameEvent {
-        delta: number;
-        constructor(delta: number);
+    * An extension of BaseCamera that is locked vertically; it will only move side to side.
+    * @class SideCamera
+    * @extends BaseCamera
+    * @constructor
+    * @param engine {Engine} Reference to the current engine
+    */
+    class SideCamera extends BaseCamera {
+        getFocus(): Point;
     }
     /**
-     * Event thrown on an Actor only once before the first update call
-     *
-     * @class InitializeEvent
-     * @extends GameEvent
+    * An extension of BaseCamera that is locked to an actor or focal point; the actor will appear in the center of the screen.
+    * @class TopCamera
+    * @extends BaseCamera
+    * @constructor
+    * @param engine {Engine} Reference to the current engine
+    */
+    class TopCamera extends BaseCamera {
+        getFocus(): Point;
+    }
+}
+declare module ex {
+    /**
+     * Actors are composed together into groupings called Scenes in
+     * Excalibur. The metaphor models the same idea behind real world
+     * actors in a scene. Only actors in scenes will be updated and drawn.
+     * @class Scene
      * @constructor
-     * @param engine {Engine} The reference to the current engine
      */
-    class InitializeEvent extends GameEvent {
+    class Scene extends Class {
+        actor: Actor;
+        /**
+         * Gets or sets the current camera for the scene
+         * @property camera {Camera}
+         */
+        camera: BaseCamera;
+        /**
+         * The actors in the current scene
+         * @property children {Actor[]}
+         */
+        children: Actor[];
+        tileMaps: TileMap[];
         engine: Engine;
-        constructor(engine: Engine);
-    }
-    /**
-     * Event thrown on a Scene on activation
-     *
-     * @class ActivateEvent
-     * @extends GameEvent
-     * @constructor
-     * @param oldScene {Scene} The reference to the old scene
-     */
-    class ActivateEvent extends GameEvent {
-        oldScene: Scene;
-        constructor(oldScene: Scene);
-    }
-    /**
-     * Event thrown on a Scene on deactivation
-     *
-     * @class DeactivateEvent
-     * @extends GameEvent
-     * @constructor
-     * @param newScene {Scene} The reference to the new scene
-     */
-    class DeactivateEvent extends GameEvent {
-        newScene: Scene;
-        constructor(newScene: Scene);
-    }
-    /**
-     * Event thrown on an Actor when it completely leaves the screen.
-     * @class ExitViewPortEvent
-     * @constructor
-     */
-    class ExitViewPortEvent extends GameEvent {
-        constructor();
-    }
-    /**
-     * Event thrown on an Actor when it completely leaves the screen.
-     * @class EnterViewPortEvent
-     * @constructor
-     */
-    class EnterViewPortEvent extends GameEvent {
-        constructor();
-    }
-    /**
-     * Enum representing the different mouse buttons
-     * @class MouseButton
-     */
-    enum MouseButton {
+        uiActors: Actor[];
+        private _collisionResolver;
+        private _killQueue;
+        private _timers;
+        private _cancelQueue;
+        private _isInitialized;
+        constructor(engine?: Engine);
         /**
-         * @property Left
-         * @static
+         * This is called when the scene is made active and started. It is meant to be overriden,
+         * this is where you should setup any DOM UI or event handlers needed for the scene.
+         * @method onActivate
          */
-        Left = 0,
+        onActivate(): void;
         /**
-         * @property Left
-         * @static
+         * This is called when the scene is made transitioned away from and stopped. It is meant to be overriden,
+         * this is where you should cleanup any DOM UI or event handlers needed for the scene.
+         * @method onDeactivate
          */
-        Middle = 1,
+        onDeactivate(): void;
         /**
-         * @property Left
-         * @static
+         * This is called before the first update of the actor. This method is meant to be
+         * overridden. This is where initialization of child actors should take place.
+         * @method onInitialize
+         * @param engine {Engine}
          */
-        Right = 2,
-    }
-}
-declare module ex {
-    /**
-     * Excalibur's internal event dispatcher implementation. Callbacks are fired immediately after an event is published
-     * @class EventDispatcher
-     * @constructor
-     * @param target {any} The object that will be the recipient of events from this event dispatcher
-     */
-    class EventDispatcher {
-        private _handlers;
-        private target;
-        private log;
-        constructor(target: any);
+        onInitialize(engine: Engine): void;
         /**
-         * Publish an event for target
+         * Publish an event to all actors in the scene
          * @method publish
-         * @param eventName {string} The name of the event to publish
-         * @param [event=undefined] {GameEvent} Optionally pass an event data object to the handler
+         * @param eventType {string} The name of the event to publish
+         * @param event {GameEvent} The event object to send
          */
-        publish(eventName: string, event?: GameEvent): void;
+        publish(eventType: string, event: GameEvent): void;
         /**
-         * Subscribe an event handler to a particular event name, multiple handlers per event name are allowed.
-         * @method subscribe
-         * @param eventName {string} The name of the event to subscribe to
-         * @param handler {GameEvent=>void} The handler callback to fire on this event
+         * Updates all the actors and timers in the Scene. Called by the Engine.
+         * @method update
+         * @param engine {Engine} Reference to the current Engine
+         * @param delta {number} The number of milliseconds since the last update
          */
-        subscribe(eventName: string, handler: (event?: GameEvent) => void): void;
+        update(engine: Engine, delta: number): void;
         /**
-         * Unsubscribe a event handler(s) from an event. If a specific handler
-         * is specified for an event, only that handler will be unsubscribed.
-         * Otherwise all handlers will be unsubscribed for that event.
-         * @method unsubscribe
-         * @param eventName {string} The name of the event to unsubscribe
-         * @param [handler=undefined] Optionally the specific handler to unsubscribe
-         *
+         * Draws all the actors in the Scene. Called by the Engine.
+         * @method draw
+         * @param ctx {CanvasRenderingContext2D} The current rendering context
+         * @param delta {number} The number of milliseconds since the last draw
          */
-        unsubscribe(eventName: string, handler?: (event?: GameEvent) => void): void;
-    }
-}
-declare module ex {
-    class Color {
-        r: number;
-        g: number;
-        b: number;
-        a: number;
+        draw(ctx: CanvasRenderingContext2D, delta: number): void;
         /**
-         * Color constant
-         * @property Black {ex.Color}
-         * @static
-         * @final
+         * Draws all the actors' debug information in the Scene. Called by the Engine.
+         * @method draw
+         * @param ctx {CanvasRenderingContext2D} The current rendering context
          */
-        static Black: Color;
+        debugDraw(ctx: CanvasRenderingContext2D): void;
         /**
-         * Color constant
-         * @property White {ex.Color}
-         * @static
-         * @final
+         * Adds an excalibur Timer to the current scene.
+         * @param timer {Timer} The timer to add to the current scene.
+         * @method add
          */
-        static White: Color;
+        add(timer: Timer): void;
         /**
-         * Color constant
-         * @property Gray {ex.Color}
-         * @static
-         * @final
+         * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+         * @method add
+         * @param tileMap {TileMap}
          */
-        static Gray: Color;
+        add(tileMap: TileMap): void;
         /**
-         * Color constant
-         * @property LightGray {ex.Color}
-         * @static
-         * @final
+         * Adds an actor to the Scene, once this is done the Actor will be drawn and updated.
+         * @method add
+         * @param actor {Actor} The actor to add to the current scene
          */
-        static LightGray: Color;
+        add(actor: Actor): void;
         /**
-         * Color constant
-         * @property DarkGray {ex.Color}
-         * @static
-         * @final
+         * Adds a UIActor to the scene, UIActors do not participate in collisions, instead the remain in the same place on the screen.
+         * @method add
+         * @param uiActor {UIActor} The UIActor to add to the current scene
          */
-        static DarkGray: Color;
+        add(uiActor: UIActor): void;
         /**
-         * Color constant
-         * @property Yellow {ex.Color}
-         * @static
-         * @final
-         */
-        static Yellow: Color;
+          * Removes an excalibur Timer from the current scene.
+          * @method remove
+          * @param timer {Timer} The timer to remove to the current scene.
+          */
+        remove(timer: Timer): void;
         /**
-         * Color constant
-         * @property Orange {ex.Color}
-         * @static
-         * @final
+         * Removes a TileMap from the Scene, it will no longer be drawn or updated.
+         * @method remove
+         * @param tileMap {TileMap}
          */
-        static Orange: Color;
+        remove(tileMap: TileMap): void;
         /**
-         * Color constant
-         * @property Red {ex.Color}
-         * @static
-         * @final
+         * Removes an actor from the Scene, it will no longer be drawn or updated.
+         * @method remove
+         * @param actor {Actor} The actor to remove from the current scene.
          */
-        static Red: Color;
+        remove(actor: Actor): void;
         /**
-         * Color constant
-         * @property Vermillion {ex.Color}
-         * @static
-         * @final
+         * Removes a UIActor to the scene, it will no longer be drawn or updated
+         * @method remove
+         * @param uiActor {UIActor} The UIActor to remove from the current scene
          */
-        static Vermillion: Color;
+        remove(uiActor: UIActor): void;
         /**
-         * Color constant
-         * @property Rose {ex.Color}
-         * @static
-         * @final
+         * Adds an actor to act as a piece of UI, meaning it is always positioned
+         * in screen coordinates. UI actors do not participate in collisions
+         * @method addUIActor
+         * @param actor {Actor}
          */
-        static Rose: Color;
+        addUIActor(actor: Actor): void;
         /**
-         * Color constant
-         * @property Magenta {ex.Color}
-         * @static
-         * @final
+         * Removes an actor as a piec of UI
+         * @method removeUIActor
+         * @param actor {Actor}
          */
-        static Magenta: Color;
+        removeUIActor(actor: Actor): void;
         /**
-         * Color constant
-         * @property Violet {ex.Color}
-         * @static
-         * @final
+         * Adds an actor to the Scene, once this is done the actor will be drawn and updated.
+         * @method addChild
+         * @param actor {Actor}
          */
-        static Violet: Color;
+        addChild(actor: Actor): void;
         /**
-         * Color constant
-         * @property Blue {ex.Color}
-         * @static
-         * @final
+         * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+         * @method addTileMap
+         * @param tileMap {TileMap}
          */
-        static Blue: Color;
+        addTileMap(tileMap: TileMap): void;
         /**
-         * Color constant
-         * @property Azure {ex.Color}
-         * @static
-         * @final
+         * Removes a TileMap from the Scene, it willno longer be drawn or updated.
+         * @method removeTileMap
+         * @param tileMap {TileMap}
          */
-        static Azure: Color;
+        removeTileMap(tileMap: TileMap): void;
         /**
-         * Color constant
-         * @property Cyan {ex.Color}
-         * @static
-         * @final
+         * Removes an actor from the Scene, it will no longer be drawn or updated.
+         * @method removeChild
+         * @param actor {Actor} The actor to remove
          */
-        static Cyan: Color;
+        removeChild(actor: Actor): void;
         /**
-         * Color constant
-         * @property Viridian {ex.Color}
-         * @static
-         * @final
+         * Adds a timer to the Scene
+         * @method addTimer
+         * @param timer {Timer} The timer to add
+         * @returns Timer
          */
-        static Viridian: Color;
+        addTimer(timer: Timer): Timer;
         /**
-         * Color constant
-         * @property Green {ex.Color}
-         * @static
-         * @final
+         * Removes a timer to the Scene, can be dangerous
+         * @method removeTimer
+         * @private
+         * @param timer {Timer} The timer to remove
+         * @returns Timer
          */
-        static Green: Color;
+        removeTimer(timer: Timer): Timer;
         /**
-         * Color constant
-         * @property Chartreuse {ex.Color}
-         * @static
-         * @final
+         * Cancels a timer, removing it from the scene nicely
+         * @method cancelTimer
+         * @param timer {Timer} The timer to cancel
+         * @returns Timer
          */
-        static Chartreuse: Color;
+        cancelTimer(timer: Timer): Timer;
         /**
-         * Color constant
-         * @property Transparent {ex.Color}
-         * @static
-         * @final
+         * Tests whether a timer is active in the scene
+         * @method isTimerActive
+         * @param timer {Timer}
+         * @returns boolean
          */
-        static Transparent: Color;
-        /**
-         * Creates a new instance of Color from an r, g, b, a
-         *
-         * @class Color
-         * @constructor
-         * @param r {number} The red component of color (0-255)
-         * @param g {number} The green component of color (0-255)
-         * @param b {number} The blue component of color (0-255)
-         * @param [a=1] {number} The alpha component of color (0-1.0)
-         */
-        constructor(r: number, g: number, b: number, a?: number);
-        /**
-         * Creates a new instance of Color from an r, g, b, a
-         *
-         * @method fromRGB
-         * @static
-         * @param r {number} The red component of color (0-255)
-         * @param g {number} The green component of color (0-255)
-         * @param b {number} The blue component of color (0-255)
-         * @param [a=1] {number} The alpha component of color (0-1.0)
-         */
-        static fromRGB(r: number, g: number, b: number, a?: number): Color;
-        /**
-         * Creates a new inscance of Color from a hex string
-         *
-         * @method fromHex
-         * @static
-         * @param hex {string} CSS color string of the form #ffffff, the alpha component is optional
-         */
-        static fromHex(hex: string): Color;
-        /**
-         * Returns a CSS string representation of a color.
-         * @method toString
-         * @returns string
-         */
-        toString(): string;
-        /**
-         * Returns a CSS string representation of a color.
-         * @method fillStyle
-         * @returns string
-         */
-        fillStyle(): string;
-        /**
-         * Returns a clone of the current color.
-         * @method clone
-         * @returns Color
-         */
-        clone(): Color;
+        isTimerActive(timer: Timer): boolean;
     }
 }
 declare module ex {
@@ -4937,5 +4631,374 @@ declare module ex {
          * @param loader {ILoadable} Some loadable such as a Loader collection, Sound, or Texture.
          */
         load(loader: ILoadable): Promise<any>;
+    }
+}
+declare module ex {
+    /**
+     * An enum representing all of the built in event types for Excalibur
+     * @class EventType
+     */
+    enum EventType {
+        /**
+        @property UserEvent {EventType}
+        @static
+        @final
+        */
+        /**
+        @property Blur {EventType}
+        @static
+        @final
+        */
+        /**
+        @property Focus {EventType}
+        @static
+        @final
+        */
+        /**
+        @property Update {EventType}
+        @static
+        @final
+        */
+        /**
+        @property EnterViewPort {EventType}
+        @static
+        @final
+        */
+        /**
+        @property ExitViewPort {EventType}
+        @static
+        @final
+        */
+        /**
+        @property Activate {EventType}
+        @static
+        @final
+        */
+        /**
+        @property Deactivate {EventType}
+        @static
+        @final
+        */
+        /**
+        @property Initialize {EventType}
+        @static
+        @final
+        */
+        Collision = 0,
+        EnterViewPort = 1,
+        ExitViewPort = 2,
+        Blur = 3,
+        Focus = 4,
+        Update = 5,
+        Activate = 6,
+        Deactivate = 7,
+        Initialize = 8,
+    }
+    /**
+     * Base event type in Excalibur that all other event types derive from.
+     *
+     * @class GameEvent
+     * @constructor
+     * @param target {any} Events can have target game object, like the Engine, or an Actor.
+     */
+    class GameEvent {
+        /**
+         * Target object for this event.
+         * @property target {any}
+         */
+        target: any;
+        constructor();
+    }
+    /**
+     * Event received by the Engine when the browser window receives focus
+     *
+     * @class FocusEvent
+     * @extends GameEvent
+     * @constructor
+     */
+    class FocusEvent extends GameEvent {
+        constructor();
+    }
+    /**
+     * Event received by the Engine when the browser window is blurred
+     *
+     * @class BlurEvent
+     * @extends GameEvent
+     * @constructor
+     */
+    class BlurEvent extends GameEvent {
+        constructor();
+    }
+    /**
+     * Event thrown on an actor when a collision has occured
+     *
+     * @class CollisionEvent
+     * @extends GameEvent
+     * @constructor
+     * @param actor {Actor} The actor the event was thrown on
+     * @param other {Actor} The actor that was collided with
+     * @param side {Side} The side that was collided with
+     */
+    class CollisionEvent extends GameEvent {
+        actor: Actor;
+        other: Actor;
+        side: Side;
+        intersection: Vector;
+        constructor(actor: Actor, other: Actor, side: Side, intersection: Vector);
+    }
+    /**
+     * Event thrown on a game object on Excalibur update
+     *
+     * @class UpdateEvent
+     * @extends GameEvent
+     * @constructor
+     * @param delta {number} The number of milliseconds since the last update
+     */
+    class UpdateEvent extends GameEvent {
+        delta: number;
+        constructor(delta: number);
+    }
+    /**
+     * Event thrown on an Actor only once before the first update call
+     *
+     * @class InitializeEvent
+     * @extends GameEvent
+     * @constructor
+     * @param engine {Engine} The reference to the current engine
+     */
+    class InitializeEvent extends GameEvent {
+        engine: Engine;
+        constructor(engine: Engine);
+    }
+    /**
+     * Event thrown on a Scene on activation
+     *
+     * @class ActivateEvent
+     * @extends GameEvent
+     * @constructor
+     * @param oldScene {Scene} The reference to the old scene
+     */
+    class ActivateEvent extends GameEvent {
+        oldScene: Scene;
+        constructor(oldScene: Scene);
+    }
+    /**
+     * Event thrown on a Scene on deactivation
+     *
+     * @class DeactivateEvent
+     * @extends GameEvent
+     * @constructor
+     * @param newScene {Scene} The reference to the new scene
+     */
+    class DeactivateEvent extends GameEvent {
+        newScene: Scene;
+        constructor(newScene: Scene);
+    }
+    /**
+     * Event thrown on an Actor when it completely leaves the screen.
+     * @class ExitViewPortEvent
+     * @constructor
+     */
+    class ExitViewPortEvent extends GameEvent {
+        constructor();
+    }
+    /**
+     * Event thrown on an Actor when it completely leaves the screen.
+     * @class EnterViewPortEvent
+     * @constructor
+     */
+    class EnterViewPortEvent extends GameEvent {
+        constructor();
+    }
+    /**
+     * Enum representing the different mouse buttons
+     * @class MouseButton
+     */
+    enum MouseButton {
+        /**
+         * @property Left
+         * @static
+         */
+        Left = 0,
+        /**
+         * @property Left
+         * @static
+         */
+        Middle = 1,
+        /**
+         * @property Left
+         * @static
+         */
+        Right = 2,
+    }
+}
+declare module ex.Util {
+    var TwoPI: number;
+    function base64Encode(inputStr: string): string;
+    function clamp(val: any, min: any, max: any): any;
+    function drawLine(ctx: CanvasRenderingContext2D, color: string, startx: any, starty: any, endx: any, endy: any): void;
+    function randomInRange(min: number, max: number): number;
+    function randomIntInRange(min: number, max: number): number;
+    function canonicalizeAngle(angle: number): number;
+    function toDegrees(radians: number): number;
+    function toRadians(degrees: number): number;
+    function getPosition(el: HTMLElement): Point;
+    function getOppositeSide(side: Side): Side;
+    /**
+     * Excaliburs dynamically resizing collection
+     * @class Collection
+     * @constructor
+     * @param [initialSize=200] {number} Initial size of the internal backing array
+     */
+    class Collection<T> {
+        /**
+         * Default collection size
+         * @property DefaultSize {number}
+         * @static
+         * @final
+         */
+        static DefaultSize: number;
+        private internalArray;
+        private endPointer;
+        constructor(initialSize?: number);
+        private resize();
+        /**
+         * Push elements to the end of the collection
+         * @method push
+         * @param element {T}
+         * @returns T
+         */
+        push(element: T): T;
+        /**
+         * Removes elements from the end of the collection
+         * @method pop
+         * @returns T
+         */
+        pop(): T;
+        /**
+         * Returns the count of the collection
+         * @method count
+         * @returns number
+         */
+        count(): number;
+        /**
+         * Empties the collection
+         * @method clear
+         */
+        clear(): void;
+        /**
+         * Returns the size of the internal backing array
+         * @method internalSize
+         * @returns number
+         */
+        internalSize(): number;
+        /**
+         * Returns an element at a specific index
+         * @method elementAt
+         * @param index {number} Index of element to retreive
+         * @returns T
+         */
+        elementAt(index: number): T;
+        /**
+         * Inserts an element at a specific index
+         * @method insert
+         * @param index {number} Index to insert the element
+         * @returns T
+         */
+        insert(index: number, value: T): T;
+        /**
+         * Removes an element at a specific index
+         * @method remove
+         * @param index {number} Index of element to remove
+         * @returns T
+         */
+        remove(index: number): T;
+        /**
+         * Removes an element by reference
+         * @method removeElement
+         * @param element {T} Index of element to retreive
+         */
+        removeElement(element: T): void;
+        /**
+         * Returns a array representing the collection
+         * @method toArray
+         * @returns T[]
+         */
+        toArray(): T[];
+        /**
+         * Iterate over every element in the collection
+         * @method forEach
+         * @param func {(T,number)=>any} Callback to call for each element passing a reference to the element and its index, returned values are ignored
+         */
+        forEach(func: (element: T, index: number) => any): void;
+        /**
+         * Mutate every element in the collection
+         * @method map
+         * @param func {(T,number)=>any} Callback to call for each element passing a reference to the element and its index, any values returned mutate the collection
+         */
+        map(func: (element: T, index: number) => any): void;
+    }
+}
+declare module ex {
+    /**
+     * Creates a closed polygon drawing given a list a of points. Polygons should be
+     * used sparingly as there is a <b>performance</b> impact for using them.
+     * @class Polygon
+     * @extends IDrawable
+     * @constructor
+     * @param points {Point[]} The points to use to build the polygon in order
+     */
+    class Polygon implements IDrawable {
+        flipVertical: boolean;
+        flipHorizontal: boolean;
+        width: number;
+        height: number;
+        /**
+         * The color to use for the lines of the polygon
+         * @property lineColor {Color}
+         */
+        lineColor: Color;
+        /**
+         * The color to use for the interior of the polygon
+         * @property fillColor {Color}
+         */
+        fillColor: Color;
+        /**
+         * The width of the lines of the polygon
+         * @property [lineWidth=5] {number} The width of the lines in pixels
+         */
+        lineWidth: number;
+        /**
+         * Indicates whether the polygon is filled or not.
+         * @property [filled=false] {boolean}
+         */
+        filled: boolean;
+        private points;
+        private transformationPoint;
+        private rotation;
+        private scaleX;
+        private scaleY;
+        constructor(points: Point[]);
+        /**
+         * Effects are <b>not supported</b> on polygons
+         * @method addEffect
+         */
+        addEffect(effect: Effects.ISpriteEffect): void;
+        removeEffect(index: number): any;
+        removeEffect(effect: Effects.ISpriteEffect): any;
+        /**
+         * Effects are <b>not supported</b> on polygons
+         * @method clearEffects
+         */
+        clearEffects(): void;
+        transformAboutPoint(point: Point): void;
+        setScaleX(scaleX: number): void;
+        setScaleY(scaleY: number): void;
+        getScaleX(): number;
+        getScaleY(): number;
+        setRotation(radians: number): void;
+        getRotation(): number;
+        reset(): void;
+        draw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
     }
 }

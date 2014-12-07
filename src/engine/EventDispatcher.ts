@@ -72,7 +72,8 @@ module ex {
                this._handlers[eventName].length = 0;
             }else {               
                var index = eventHandlers.indexOf(handler);
-               this._handlers[eventName].splice(index, 1);               
+               if (index < 0) return;
+               this._handlers[eventName].splice(index, 1);
             }
          }
       }
