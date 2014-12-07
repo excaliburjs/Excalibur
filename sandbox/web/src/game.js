@@ -405,4 +405,3 @@ game.start(loader).then(function () {
     //binding = new ex.Binding("container", template, emitter);
     //binding.listen(emitter, ["update"]);
 });
-//# sourceMappingURL=game.js.map

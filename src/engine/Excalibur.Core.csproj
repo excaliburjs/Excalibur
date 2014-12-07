@@ -65,11 +65,13 @@
     <TypeScriptCompile Include="Binding.ts" />
     <TypeScriptCompile Include="Camera.ts" />
     <TypeScriptCompile Include="Class.ts" />
+    <TypeScriptCompile Include="CollisionPair.ts" />
     <TypeScriptCompile Include="Collision\BoundingBox.ts" />
     <TypeScriptCompile Include="Collision\DynamicTreeCollisionResolver.ts" />
     <TypeScriptCompile Include="Collision\NaiveCollisionResolver.ts" />
     <TypeScriptCompile Include="Color.ts" />
     <TypeScriptCompile Include="Collision\DynamicTree.ts" />
+    <TypeScriptCompile Include="EasingFunctions.ts" />
     <TypeScriptCompile Include="Engine.ts" />
     <TypeScriptCompile Include="EventDispatcher.ts" />
     <TypeScriptCompile Include="Events.ts" />
@@ -102,6 +104,7 @@
     <TypeScriptCompile Include="TileMap.ts" />
     <TypeScriptCompile Include="Timer.ts" />
     <TypeScriptCompile Include="Trigger.ts" />
+    <TypeScriptCompile Include="UIActor.ts" />
     <TypeScriptCompile Include="Util.ts" />
   </ItemGroup>
   <ItemGroup>

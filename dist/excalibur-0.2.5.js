@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-12-06
+/*! excalibur - v0.2.5 - 2014-12-07
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -3223,6 +3223,66 @@ var ex;
     (function (Internal) {
         var Actions;
         (function (Actions) {
+            var EaseTo = (function () {
+                function EaseTo(actor, x, y, duration, easingFcn) {
+                    this.actor = actor;
+                    this.easingFcn = easingFcn;
+                    this._currentLerpTime = 0;
+                    this._lerpDuration = 1 * 1000; // 5 seconds
+                    this._lerpStart = new ex.Point(0, 0);
+                    this._lerpEnd = new ex.Point(0, 0);
+                    this._initialized = false;
+                    this._stopped = false;
+                    this._distance = 0;
+                    this._lerpDuration = duration;
+                    this._lerpEnd = new ex.Point(x, y);
+                }
+                EaseTo.prototype._initialize = function () {
+                    this._lerpStart = new ex.Point(this.actor.x, this.actor.y);
+                    this._currentLerpTime = 0;
+                    this._distance = this._lerpStart.toVector().distance(this._lerpEnd.toVector());
+                };
+                EaseTo.prototype.update = function (delta) {
+                    if (!this._initialized) {
+                        this._initialize();
+                        this._initialized = true;
+                    }
+                    var newX = this.actor.x;
+                    var newY = this.actor.y;
+                    if (this._currentLerpTime < this._lerpDuration) {
+                        if (this._lerpEnd.x < this._lerpStart.x) {
+                            newX = this._lerpStart.x - (this.easingFcn(this._currentLerpTime, this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
+                        }
+                        else {
+                            newX = this.easingFcn(this._currentLerpTime, this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
+                        }
+                        if (this._lerpEnd.y < this._lerpStart.y) {
+                            newY = this._lerpStart.y - (this.easingFcn(this._currentLerpTime, this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
+                        }
+                        else {
+                            newY = this.easingFcn(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
+                        }
+                        this.actor.x = newX;
+                        this.actor.y = newY;
+                        this._currentLerpTime += delta;
+                    }
+                    else {
+                        this.actor.x = this._lerpEnd.x;
+                        this.actor.y = this._lerpEnd.y;
+                    }
+                };
+                EaseTo.prototype.isComplete = function (actor) {
+                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this._lerpStart.toVector()) >= this._distance;
+                };
+                EaseTo.prototype.reset = function () {
+                    this._initialized = false;
+                };
+                EaseTo.prototype.stop = function () {
+                    this._stopped = true;
+                };
+                return EaseTo;
+            })();
+            Actions.EaseTo = EaseTo;
             var MoveTo = (function () {
                 function MoveTo(actor, destx, desty, speed) {
                     this._started = false;
@@ -3863,6 +3923,80 @@ var ex;
         })(Actions = Internal.Actions || (Internal.Actions = {}));
     })(Internal = ex.Internal || (ex.Internal = {}));
 })(ex || (ex = {}));
+var ex;
+(function (ex) {
+    var EasingFunctions = (function () {
+        function EasingFunctions() {
+        }
+        /*
+       easeInQuad: function (t) { return t * t },
+       // decelerating to zero velocity
+       easeOutQuad: function (t) { return t * (2 - t) },
+       // acceleration until halfway, then deceleration
+       easeInOutQuad: function (t) { return t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t },
+       // accelerating from zero velocity
+       easeInCubic: function (t) { return t * t * t },
+       // decelerating to zero velocity
+       easeOutCubic: function (t) { return (--t) * t * t + 1 },
+       // acceleration until halfway, then deceleration
+       easeInOutCubic: function (t) { return t < .5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1 },
+       // accelerating from zero velocity
+       easeInQuart: function (t) { return t * t * t * t },
+       // decelerating to zero velocity
+       easeOutQuart: function (t) { return 1 - (--t) * t * t * t },
+       // acceleration until halfway, then deceleration
+       easeInOutQuart: function (t) { return t < .5 ? 8 * t * t * t * t : 1 - 8 * (--t) * t * t * t },
+       // accelerating from zero velocity
+       easeInQuint: function (t) { return t * t * t * t * t },
+       // decelerating to zero velocity
+       easeOutQuint: function (t) { return 1 + (--t) * t * t * t * t },
+       // acceleration until halfway, then deceleration
+       easeInOutQuint: function (t) { return t < .5 ? 16 * t * t * t * t * t : 1 + 16 * (--t) * t * t * t * t }
+        */
+        EasingFunctions.Linear = function (currentTime, startValue, endValue, duration) {
+            endValue = (endValue - startValue);
+            return endValue * currentTime / duration + startValue;
+        };
+        EasingFunctions.EaseInQuad = function (currentTime, startValue, endValue, duration) {
+            //endValue = (endValue - startValue);
+            currentTime /= duration;
+            return endValue * currentTime * currentTime + startValue;
+        };
+        EasingFunctions.EaseOutQuad = function (currentTime, startValue, endValue, duration) {
+            //endValue = (endValue - startValue);
+            currentTime /= duration;
+            return -endValue * currentTime * (currentTime - 2) + startValue;
+        };
+        EasingFunctions.EaseInOutQuad = function (currentTime, startValue, endValue, duration) {
+            endValue = (endValue - startValue);
+            currentTime /= duration / 2;
+            if (currentTime < 1)
+                return endValue / 2 * currentTime * currentTime + startValue;
+            currentTime--;
+            return -endValue / 2 * (currentTime * (currentTime - 2) - 1) + startValue;
+        };
+        EasingFunctions.EaseInCubic = function (currentTime, startValue, endValue, duration) {
+            endValue = (endValue - startValue);
+            currentTime /= duration;
+            return endValue * currentTime * currentTime * currentTime + startValue;
+        };
+        EasingFunctions.EaseOutCubic = function (currentTime, startValue, endValue, duration) {
+            endValue = (endValue - startValue);
+            currentTime /= duration;
+            return endValue * (currentTime * currentTime * currentTime + 1) + startValue;
+        };
+        EasingFunctions.EaseInOutCubic = function (currentTime, startValue, endValue, duration) {
+            endValue = (endValue - startValue);
+            currentTime /= duration / 2;
+            if (currentTime < 1)
+                return endValue / 2 * currentTime * currentTime * currentTime + startValue;
+            currentTime -= 2;
+            return endValue / 2 * (currentTime * currentTime * currentTime + 2) + startValue;
+        };
+        return EasingFunctions;
+    })();
+    ex.EasingFunctions = EasingFunctions;
+})(ex || (ex = {}));
 /// <reference path="Interfaces/IDrawable.ts" />
 /// <reference path="Modules/MovementModule.ts" />
 /// <reference path="Modules/OffscreenCullingModule.ts" />
@@ -3875,6 +4009,7 @@ var ex;
 /// <reference path="Collision/BoundingBox.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Action.ts" />
+/// <reference path="EasingFunctions.ts"/>
 var ex;
 (function (ex) {
     /**
@@ -4440,6 +4575,11 @@ var ex;
          */
         Actor.prototype.clearActions = function () {
             this.actionQueue.clearActions();
+        };
+        Actor.prototype.easeTo = function (x, y, duration, easingFcn) {
+            if (easingFcn === void 0) { easingFcn = ex.EasingFunctions.Linear; }
+            this.actionQueue.add(new ex.Internal.Actions.EaseTo(this, x, y, duration, easingFcn));
+            return this;
         };
         /**
          * This method will move an actor to the specified x and y position at the
@@ -5301,6 +5441,8 @@ var ex;
                 }
                 else {
                     var index = eventHandlers.indexOf(handler);
+                    if (index < 0)
+                        return;
                     this._handlers[eventName].splice(index, 1);
                 }
             }
