@@ -3091,7 +3091,10 @@ declare module ex {
      * @param [height=0.0] {number} The starting height of the actor
      */
     class UIActor extends Actor {
+        protected _engine: Engine;
         constructor(x?: number, y?: number, width?: number, height?: number);
+        onInitialize(engine: Engine): void;
+        contains(x: number, y: number, useWorld?: boolean): boolean;
     }
 }
 declare module ex {
@@ -4089,7 +4092,7 @@ declare module ex.Input {
         /**
          * Propogates events to actor if necessary
          */
-        propogate(actor: Actor): void;
+        propogate(actor: any): void;
         private _handleMouseEvent(eventName, eventArr);
         private _handleTouchEvent(eventName, eventArr);
         private _handlePointerEvent(eventName, eventArr);

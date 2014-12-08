@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-12-07
+/*! excalibur - v0.2.5 - 2014-12-08
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -3054,9 +3054,10 @@ var ex;
                 this.debugDraw(ctx);
             }
             ctx.restore();
-            // todo unlocked drawing here
             this.uiActors.forEach(function (ui) {
-                ui.draw(ctx, delta);
+                if (ui.visible) {
+                    ui.draw(ctx, delta);
+                }
             });
             if (this.engine && this.engine.isDebug) {
                 this.uiActors.forEach(function (ui) {
@@ -5703,6 +5704,16 @@ var ex;
             this.collisionType = 0 /* PreventCollision */;
             this.enableCapturePointer = true;
         }
+        UIActor.prototype.onInitialize = function (engine) {
+            this._engine = engine;
+        };
+        UIActor.prototype.contains = function (x, y, useWorld) {
+            if (useWorld === void 0) { useWorld = true; }
+            if (useWorld)
+                return _super.prototype.contains.call(this, x, y);
+            var coords = this._engine.screenToWorldCoordinates(new ex.Point(x, y));
+            return _super.prototype.contains.call(this, coords.x, coords.y);
+        };
         return UIActor;
     })(ex.Actor);
     ex.UIActor = UIActor;
@@ -7724,25 +7735,26 @@ var ex;
              * Propogates events to actor if necessary
              */
             Pointers.prototype.propogate = function (actor) {
+                var isUIActor = actor instanceof ex.UIActor;
                 this._pointerUp.forEach(function (e) {
-                    if (actor.contains(e.x, e.y)) {
+                    if (actor.contains(e.x, e.y, !isUIActor)) {
                         actor.eventDispatcher.publish("pointerup", e);
                     }
                 });
                 this._pointerDown.forEach(function (e) {
-                    if (actor.contains(e.x, e.y)) {
+                    if (actor.contains(e.x, e.y, !isUIActor)) {
                         actor.eventDispatcher.publish("pointerdown", e);
                     }
                 });
                 if (actor.capturePointer.captureMoveEvents) {
                     this._pointerMove.forEach(function (e) {
-                        if (actor.contains(e.x, e.y)) {
+                        if (actor.contains(e.x, e.y, !isUIActor)) {
                             actor.eventDispatcher.publish("pointermove", e);
                         }
                     });
                 }
                 this._pointerCancel.forEach(function (e) {
-                    if (actor.contains(e.x, e.y)) {
+                    if (actor.contains(e.x, e.y, !isUIActor)) {
                         actor.eventDispatcher.publish("pointercancel", e);
                     }
                 });
@@ -8623,8 +8635,6 @@ var ex;
             this.logger = ex.Logger.getInstance();
             this.logger.debug("Building engine...");
             this.canvasElementId = canvasElementId;
-            this.rootScene = this.currentScene = new ex.Scene(this);
-            this.addScene('root', this.rootScene);
             if (canvasElementId) {
                 this.logger.debug("Using Canvas element specified: " + canvasElementId);
                 this.canvas = document.getElementById(canvasElementId);
@@ -8649,6 +8659,8 @@ var ex;
             }
             this.loader = new ex.Loader();
             this.initialize();
+            this.rootScene = this.currentScene = new ex.Scene(this);
+            this.addScene('root', this.rootScene);
         }
         /**
          * Plays a sprite animation on the screen at the specified x and y

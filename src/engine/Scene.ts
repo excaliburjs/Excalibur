@@ -187,10 +187,11 @@ module ex {
          }
 
          ctx.restore();
-
-         // todo unlocked drawing here
-         this.uiActors.forEach(function(ui){
-            ui.draw(ctx, delta);
+         
+         this.uiActors.forEach(function (ui) {
+            if (ui.visible) {
+               ui.draw(ctx, delta);
+            }
          });
 
          if (this.engine && this.engine.isDebug) {
