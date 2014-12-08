@@ -1,11 +1,12 @@
 module ex {
-    export class Timer {
+   export class Timer {
       public static id: number = 0;
       public id: number = 0;
       public interval: number = 10;
       public fcn: ()=>void = ()=>{};
       public repeats: boolean = false;
       private elapsedTime: number = 0;
+      private _totalTimeAlive: number = 0;
       public complete: boolean = false;
       public scene: Scene = null;
 
@@ -29,7 +30,8 @@ module ex {
        * @method update
        * @param delta {number} Number of elapsed milliseconds since the last update.
        */
-      public update(delta: number){
+      public update(delta: number) {
+         this._totalTimeAlive += delta;
          this.elapsedTime += delta;
          if(this.elapsedTime > this.interval){
             this.fcn.call(this);
@@ -39,6 +41,10 @@ module ex {
                this.complete = true;
             }
          }
+      }
+
+      public getTimeRunning(): number {
+         return this._totalTimeAlive;
       }
 
       /**

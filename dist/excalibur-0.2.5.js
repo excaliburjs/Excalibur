@@ -2032,6 +2032,7 @@ var ex;
             };
             this.repeats = false;
             this.elapsedTime = 0;
+            this._totalTimeAlive = 0;
             this.complete = false;
             this.scene = null;
             this.id = Timer.id++;
@@ -2045,6 +2046,7 @@ var ex;
          * @param delta {number} Number of elapsed milliseconds since the last update.
          */
         Timer.prototype.update = function (delta) {
+            this._totalTimeAlive += delta;
             this.elapsedTime += delta;
             if (this.elapsedTime > this.interval) {
                 this.fcn.call(this);
@@ -2055,6 +2057,9 @@ var ex;
                     this.complete = true;
                 }
             }
+        };
+        Timer.prototype.getTimeRunning = function () {
+            return this._totalTimeAlive;
         };
         /**
          * Cancels the timer, preventing any further executions.

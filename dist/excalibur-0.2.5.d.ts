@@ -1179,6 +1179,7 @@ declare module ex {
         fcn: () => void;
         repeats: boolean;
         private elapsedTime;
+        private _totalTimeAlive;
         complete: boolean;
         scene: Scene;
         /**
@@ -1196,6 +1197,7 @@ declare module ex {
          * @param delta {number} Number of elapsed milliseconds since the last update.
          */
         update(delta: number): void;
+        getTimeRunning(): number;
         /**
          * Cancels the timer, preventing any further executions.
          * @method cancel
