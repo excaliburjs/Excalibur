@@ -32,7 +32,7 @@ module ex {
       public contains(x: number, y: number, useWorld: boolean = true) {
          if (useWorld) return super.contains(x, y);
 
-         var coords = this._engine.screenToWorldCoordinates(new ex.Point(x, y));
+         var coords = this._engine.worldToScreenCoordinates(new ex.Point(x, y));
          return super.contains(coords.x, coords.y);
       }
    }

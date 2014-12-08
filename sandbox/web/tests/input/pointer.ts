@@ -84,6 +84,8 @@ game.on("update", (ue: ex.UpdateEvent) => {
 
 });
 
+game.currentScene.camera.setFocus(0, 0);
+
 game.add(box);
 game.add(cursor);
 game.add(uiElement);

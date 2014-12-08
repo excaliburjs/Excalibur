@@ -5711,7 +5711,7 @@ var ex;
             if (useWorld === void 0) { useWorld = true; }
             if (useWorld)
                 return _super.prototype.contains.call(this, x, y);
-            var coords = this._engine.screenToWorldCoordinates(new ex.Point(x, y));
+            var coords = this._engine.worldToScreenCoordinates(new ex.Point(x, y));
             return _super.prototype.contains.call(this, coords.x, coords.y);
         };
         return UIActor;
