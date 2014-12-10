@@ -1179,6 +1179,7 @@ declare module ex {
         fcn: () => void;
         repeats: boolean;
         private elapsedTime;
+        private _totalTimeAlive;
         complete: boolean;
         scene: Scene;
         /**
@@ -1196,6 +1197,7 @@ declare module ex {
          * @param delta {number} Number of elapsed milliseconds since the last update.
          */
         update(delta: number): void;
+        getTimeRunning(): number;
         /**
          * Cancels the timer, preventing any further executions.
          * @method cancel
@@ -1594,6 +1596,23 @@ declare module ex.Internal.Actions {
         reset(): void;
         stop(): void;
     }
+    class EaseTo implements IAction {
+        actor: Actor;
+        easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+        private _currentLerpTime;
+        private _lerpDuration;
+        private _lerpStart;
+        private _lerpEnd;
+        private _initialized;
+        private _stopped;
+        private _distance;
+        constructor(actor: Actor, x: number, y: number, duration: number, easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number);
+        private _initialize();
+        update(delta: number): void;
+        isComplete(actor: Actor): boolean;
+        reset(): void;
+        stop(): void;
+    }
     class MoveTo implements IAction {
         private actor;
         x: number;
@@ -1848,6 +1867,17 @@ declare module ex.Internal.Actions {
         hasNext(): boolean;
         reset(): void;
         update(delta: number): void;
+    }
+}
+declare module ex {
+    class EasingFunctions {
+        static Linear: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+        static EaseInQuad: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+        static EaseOutQuad: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+        static EaseInOutQuad: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+        static EaseInCubic: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+        static EaseOutCubic: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+        static EaseInOutCubic: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
     }
 }
 declare module ex {
@@ -2297,6 +2327,7 @@ declare module ex {
          * @method clearActions
          */
         clearActions(): void;
+        easeTo(x: number, y: number, duration: number, easingFcn?: (currentTime: number, startValue: number, endValue: number, duration: number) => number): Actor;
         /**
          * This method will move an actor to the specified x and y position at the
          * speed specified (in pixels per second) and return back the actor. This
@@ -3060,7 +3091,10 @@ declare module ex {
      * @param [height=0.0] {number} The starting height of the actor
      */
     class UIActor extends Actor {
+        protected _engine: Engine;
         constructor(x?: number, y?: number, width?: number, height?: number);
+        onInitialize(engine: Engine): void;
+        contains(x: number, y: number, useWorld?: boolean): boolean;
     }
 }
 declare module ex {
@@ -4058,7 +4092,7 @@ declare module ex.Input {
         /**
          * Propogates events to actor if necessary
          */
-        propogate(actor: Actor): void;
+        propogate(actor: any): void;
         private _handleMouseEvent(eventName, eventArr);
         private _handleTouchEvent(eventName, eventArr);
         private _handlePointerEvent(eventName, eventArr);

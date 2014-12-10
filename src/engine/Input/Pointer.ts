@@ -127,26 +127,27 @@ module ex.Input {
       /**
        * Propogates events to actor if necessary
        */
-      public propogate(actor: Actor) {
+      public propogate(actor: any) {
+         var isUIActor = actor instanceof UIActor;
          this._pointerUp.forEach((e) => {
-            if (actor.contains(e.x, e.y)) {
+            if (actor.contains(e.x, e.y, !isUIActor)) {
                actor.eventDispatcher.publish("pointerup", e);
             }
          });
          this._pointerDown.forEach((e) => {
-            if (actor.contains(e.x, e.y)) {
+            if (actor.contains(e.x, e.y, !isUIActor)) {
                actor.eventDispatcher.publish("pointerdown", e);
             }
          });
          if (actor.capturePointer.captureMoveEvents) {
             this._pointerMove.forEach((e) => {
-               if (actor.contains(e.x, e.y)) {
+               if (actor.contains(e.x, e.y, !isUIActor)) {
                   actor.eventDispatcher.publish("pointermove", e);
                }
             });
          }
          this._pointerCancel.forEach((e) => {
-            if (actor.contains(e.x, e.y)) {
+            if (actor.contains(e.x, e.y, !isUIActor)) {
                actor.eventDispatcher.publish("pointercancel", e);
             }
          });

@@ -3,6 +3,12 @@ var game = new ex.Engine(800, 600, "game");
 var box = new ex.Actor(200, 200, 100, 100, ex.Color.Red);
 var cursor = new ex.Actor(0, 0, 10, 10, ex.Color.Chartreuse);
 var boxPointerDown = false;
+var uiElement = new ex.UIActor(200, 0, 200, 200);
+uiElement.color = ex.Color.Azure.clone();
+uiElement.on('pointerdown', function (p) {
+    console.log(p);
+    uiElement.color = ex.Color.Red.clone();
+});
 // Enable pointer input for box
 box.enableCapturePointer = true;
 // Enable tracking mouse movement for box
@@ -60,7 +66,9 @@ game.input.pointers.at(2).on("move", handleTouch(ex.Color.Magenta));
 game.on("update", function (ue) {
     document.getElementById('pointer-num').innerHTML = game.input.pointers.count().toString();
 });
+game.currentScene.camera.setFocus(0, 0);
 game.add(box);
 game.add(cursor);
+game.add(uiElement);
 game.start();
 //# sourceMappingURL=pointer.js.map

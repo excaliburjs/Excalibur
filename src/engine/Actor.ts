@@ -10,6 +10,7 @@
 /// <reference path="Collision/BoundingBox.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Action.ts" />
+/// <reference path="EasingFunctions.ts"/>
 
 
 
@@ -688,6 +689,11 @@ module ex {
        */
       public clearActions(): void {
          this.actionQueue.clearActions();
+      }
+
+      public easeTo(x: number, y: number, duration: number, easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number = ex.EasingFunctions.Linear) {
+         this.actionQueue.add(new ex.Internal.Actions.EaseTo(this, x, y, duration, easingFcn));
+         return this;
       }
 
       /**

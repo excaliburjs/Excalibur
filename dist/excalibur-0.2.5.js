@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-12-06
+/*! excalibur - v0.2.5 - 2014-12-08
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -2032,6 +2032,7 @@ var ex;
             };
             this.repeats = false;
             this.elapsedTime = 0;
+            this._totalTimeAlive = 0;
             this.complete = false;
             this.scene = null;
             this.id = Timer.id++;
@@ -2045,6 +2046,7 @@ var ex;
          * @param delta {number} Number of elapsed milliseconds since the last update.
          */
         Timer.prototype.update = function (delta) {
+            this._totalTimeAlive += delta;
             this.elapsedTime += delta;
             if (this.elapsedTime > this.interval) {
                 this.fcn.call(this);
@@ -2055,6 +2057,9 @@ var ex;
                     this.complete = true;
                 }
             }
+        };
+        Timer.prototype.getTimeRunning = function () {
+            return this._totalTimeAlive;
         };
         /**
          * Cancels the timer, preventing any further executions.
@@ -3049,9 +3054,10 @@ var ex;
                 this.debugDraw(ctx);
             }
             ctx.restore();
-            // todo unlocked drawing here
             this.uiActors.forEach(function (ui) {
-                ui.draw(ctx, delta);
+                if (ui.visible) {
+                    ui.draw(ctx, delta);
+                }
             });
             if (this.engine && this.engine.isDebug) {
                 this.uiActors.forEach(function (ui) {
@@ -3223,6 +3229,66 @@ var ex;
     (function (Internal) {
         var Actions;
         (function (Actions) {
+            var EaseTo = (function () {
+                function EaseTo(actor, x, y, duration, easingFcn) {
+                    this.actor = actor;
+                    this.easingFcn = easingFcn;
+                    this._currentLerpTime = 0;
+                    this._lerpDuration = 1 * 1000; // 5 seconds
+                    this._lerpStart = new ex.Point(0, 0);
+                    this._lerpEnd = new ex.Point(0, 0);
+                    this._initialized = false;
+                    this._stopped = false;
+                    this._distance = 0;
+                    this._lerpDuration = duration;
+                    this._lerpEnd = new ex.Point(x, y);
+                }
+                EaseTo.prototype._initialize = function () {
+                    this._lerpStart = new ex.Point(this.actor.x, this.actor.y);
+                    this._currentLerpTime = 0;
+                    this._distance = this._lerpStart.toVector().distance(this._lerpEnd.toVector());
+                };
+                EaseTo.prototype.update = function (delta) {
+                    if (!this._initialized) {
+                        this._initialize();
+                        this._initialized = true;
+                    }
+                    var newX = this.actor.x;
+                    var newY = this.actor.y;
+                    if (this._currentLerpTime < this._lerpDuration) {
+                        if (this._lerpEnd.x < this._lerpStart.x) {
+                            newX = this._lerpStart.x - (this.easingFcn(this._currentLerpTime, this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
+                        }
+                        else {
+                            newX = this.easingFcn(this._currentLerpTime, this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
+                        }
+                        if (this._lerpEnd.y < this._lerpStart.y) {
+                            newY = this._lerpStart.y - (this.easingFcn(this._currentLerpTime, this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
+                        }
+                        else {
+                            newY = this.easingFcn(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
+                        }
+                        this.actor.x = newX;
+                        this.actor.y = newY;
+                        this._currentLerpTime += delta;
+                    }
+                    else {
+                        this.actor.x = this._lerpEnd.x;
+                        this.actor.y = this._lerpEnd.y;
+                    }
+                };
+                EaseTo.prototype.isComplete = function (actor) {
+                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this._lerpStart.toVector()) >= this._distance;
+                };
+                EaseTo.prototype.reset = function () {
+                    this._initialized = false;
+                };
+                EaseTo.prototype.stop = function () {
+                    this._stopped = true;
+                };
+                return EaseTo;
+            })();
+            Actions.EaseTo = EaseTo;
             var MoveTo = (function () {
                 function MoveTo(actor, destx, desty, speed) {
                     this._started = false;
@@ -3863,6 +3929,80 @@ var ex;
         })(Actions = Internal.Actions || (Internal.Actions = {}));
     })(Internal = ex.Internal || (ex.Internal = {}));
 })(ex || (ex = {}));
+var ex;
+(function (ex) {
+    var EasingFunctions = (function () {
+        function EasingFunctions() {
+        }
+        /*
+       easeInQuad: function (t) { return t * t },
+       // decelerating to zero velocity
+       easeOutQuad: function (t) { return t * (2 - t) },
+       // acceleration until halfway, then deceleration
+       easeInOutQuad: function (t) { return t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t },
+       // accelerating from zero velocity
+       easeInCubic: function (t) { return t * t * t },
+       // decelerating to zero velocity
+       easeOutCubic: function (t) { return (--t) * t * t + 1 },
+       // acceleration until halfway, then deceleration
+       easeInOutCubic: function (t) { return t < .5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1 },
+       // accelerating from zero velocity
+       easeInQuart: function (t) { return t * t * t * t },
+       // decelerating to zero velocity
+       easeOutQuart: function (t) { return 1 - (--t) * t * t * t },
+       // acceleration until halfway, then deceleration
+       easeInOutQuart: function (t) { return t < .5 ? 8 * t * t * t * t : 1 - 8 * (--t) * t * t * t },
+       // accelerating from zero velocity
+       easeInQuint: function (t) { return t * t * t * t * t },
+       // decelerating to zero velocity
+       easeOutQuint: function (t) { return 1 + (--t) * t * t * t * t },
+       // acceleration until halfway, then deceleration
+       easeInOutQuint: function (t) { return t < .5 ? 16 * t * t * t * t * t : 1 + 16 * (--t) * t * t * t * t }
+        */
+        EasingFunctions.Linear = function (currentTime, startValue, endValue, duration) {
+            endValue = (endValue - startValue);
+            return endValue * currentTime / duration + startValue;
+        };
+        EasingFunctions.EaseInQuad = function (currentTime, startValue, endValue, duration) {
+            //endValue = (endValue - startValue);
+            currentTime /= duration;
+            return endValue * currentTime * currentTime + startValue;
+        };
+        EasingFunctions.EaseOutQuad = function (currentTime, startValue, endValue, duration) {
+            //endValue = (endValue - startValue);
+            currentTime /= duration;
+            return -endValue * currentTime * (currentTime - 2) + startValue;
+        };
+        EasingFunctions.EaseInOutQuad = function (currentTime, startValue, endValue, duration) {
+            endValue = (endValue - startValue);
+            currentTime /= duration / 2;
+            if (currentTime < 1)
+                return endValue / 2 * currentTime * currentTime + startValue;
+            currentTime--;
+            return -endValue / 2 * (currentTime * (currentTime - 2) - 1) + startValue;
+        };
+        EasingFunctions.EaseInCubic = function (currentTime, startValue, endValue, duration) {
+            endValue = (endValue - startValue);
+            currentTime /= duration;
+            return endValue * currentTime * currentTime * currentTime + startValue;
+        };
+        EasingFunctions.EaseOutCubic = function (currentTime, startValue, endValue, duration) {
+            endValue = (endValue - startValue);
+            currentTime /= duration;
+            return endValue * (currentTime * currentTime * currentTime + 1) + startValue;
+        };
+        EasingFunctions.EaseInOutCubic = function (currentTime, startValue, endValue, duration) {
+            endValue = (endValue - startValue);
+            currentTime /= duration / 2;
+            if (currentTime < 1)
+                return endValue / 2 * currentTime * currentTime * currentTime + startValue;
+            currentTime -= 2;
+            return endValue / 2 * (currentTime * currentTime * currentTime + 2) + startValue;
+        };
+        return EasingFunctions;
+    })();
+    ex.EasingFunctions = EasingFunctions;
+})(ex || (ex = {}));
 /// <reference path="Interfaces/IDrawable.ts" />
 /// <reference path="Modules/MovementModule.ts" />
 /// <reference path="Modules/OffscreenCullingModule.ts" />
@@ -3875,6 +4015,7 @@ var ex;
 /// <reference path="Collision/BoundingBox.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Action.ts" />
+/// <reference path="EasingFunctions.ts"/>
 var ex;
 (function (ex) {
     /**
@@ -4440,6 +4581,11 @@ var ex;
          */
         Actor.prototype.clearActions = function () {
             this.actionQueue.clearActions();
+        };
+        Actor.prototype.easeTo = function (x, y, duration, easingFcn) {
+            if (easingFcn === void 0) { easingFcn = ex.EasingFunctions.Linear; }
+            this.actionQueue.add(new ex.Internal.Actions.EaseTo(this, x, y, duration, easingFcn));
+            return this;
         };
         /**
          * This method will move an actor to the specified x and y position at the
@@ -5301,6 +5447,8 @@ var ex;
                 }
                 else {
                     var index = eventHandlers.indexOf(handler);
+                    if (index < 0)
+                        return;
                     this._handlers[eventName].splice(index, 1);
                 }
             }
@@ -5556,6 +5704,16 @@ var ex;
             this.collisionType = 0 /* PreventCollision */;
             this.enableCapturePointer = true;
         }
+        UIActor.prototype.onInitialize = function (engine) {
+            this._engine = engine;
+        };
+        UIActor.prototype.contains = function (x, y, useWorld) {
+            if (useWorld === void 0) { useWorld = true; }
+            if (useWorld)
+                return _super.prototype.contains.call(this, x, y);
+            var coords = this._engine.worldToScreenCoordinates(new ex.Point(x, y));
+            return _super.prototype.contains.call(this, coords.x, coords.y);
+        };
         return UIActor;
     })(ex.Actor);
     ex.UIActor = UIActor;
@@ -7577,25 +7735,26 @@ var ex;
              * Propogates events to actor if necessary
              */
             Pointers.prototype.propogate = function (actor) {
+                var isUIActor = actor instanceof ex.UIActor;
                 this._pointerUp.forEach(function (e) {
-                    if (actor.contains(e.x, e.y)) {
+                    if (actor.contains(e.x, e.y, !isUIActor)) {
                         actor.eventDispatcher.publish("pointerup", e);
                     }
                 });
                 this._pointerDown.forEach(function (e) {
-                    if (actor.contains(e.x, e.y)) {
+                    if (actor.contains(e.x, e.y, !isUIActor)) {
                         actor.eventDispatcher.publish("pointerdown", e);
                     }
                 });
                 if (actor.capturePointer.captureMoveEvents) {
                     this._pointerMove.forEach(function (e) {
-                        if (actor.contains(e.x, e.y)) {
+                        if (actor.contains(e.x, e.y, !isUIActor)) {
                             actor.eventDispatcher.publish("pointermove", e);
                         }
                     });
                 }
                 this._pointerCancel.forEach(function (e) {
-                    if (actor.contains(e.x, e.y)) {
+                    if (actor.contains(e.x, e.y, !isUIActor)) {
                         actor.eventDispatcher.publish("pointercancel", e);
                     }
                 });
@@ -8476,8 +8635,6 @@ var ex;
             this.logger = ex.Logger.getInstance();
             this.logger.debug("Building engine...");
             this.canvasElementId = canvasElementId;
-            this.rootScene = this.currentScene = new ex.Scene(this);
-            this.addScene('root', this.rootScene);
             if (canvasElementId) {
                 this.logger.debug("Using Canvas element specified: " + canvasElementId);
                 this.canvas = document.getElementById(canvasElementId);
@@ -8502,6 +8659,8 @@ var ex;
             }
             this.loader = new ex.Loader();
             this.initialize();
+            this.rootScene = this.currentScene = new ex.Scene(this);
+            this.addScene('root', this.rootScene);
         }
         /**
          * Plays a sprite animation on the screen at the specified x and y

@@ -161,10 +161,6 @@ module ex {
          this.logger.debug("Building engine...");
 
          this.canvasElementId = canvasElementId;
-         
-         this.rootScene = this.currentScene = new Scene(this);
-         
-         this.addScene('root', this.rootScene);
 
          if (canvasElementId) {
             this.logger.debug("Using Canvas element specified: " + canvasElementId);
@@ -188,10 +184,14 @@ module ex {
             this.displayMode = DisplayMode.FullScreen;
          }
 
-         
+       
          this.loader = new Loader();
 
          this.initialize();
+
+         this.rootScene = this.currentScene = new Scene(this);
+
+         this.addScene('root', this.rootScene);
 
       }
 
