@@ -6967,13 +6967,26 @@ var ex;
                 return function (e) {
                     e.preventDefault();
                     for (var i = 0, len = e.changedTouches.length; i < len; i++) {
-                        var index = e.changedTouches[i].identifier;
+                        var index = _this._pointers.length > 1 ? _this._getPointerIndex(e.changedTouches[i].identifier) : 0;
+                        if (index === -1)
+                            continue;
                         var x = e.changedTouches[i].pageX - ex.Util.getPosition(_this._engine.canvas).x;
                         var y = e.changedTouches[i].pageY - ex.Util.getPosition(_this._engine.canvas).y;
                         var transformedPoint = _this._engine.screenToWorldCoordinates(new ex.Point(x, y));
-                        var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, 0 /* Touch */, 3 /* Unknown */, e);
+                        var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, 0 /* Touch */, 0 /* Left */, e);
                         eventArr.push(pe);
                         _this.at(index).eventDispatcher.publish(eventName, pe);
+                        // only with multi-pointer
+                        if (_this._pointers.length > 1) {
+                            if (eventName === "up") {
+                                // remove pointer ID from pool when pointer is lifted
+                                _this._activePointers[index] = -1;
+                            }
+                            else if (eventName === "down") {
+                                // set pointer ID to given index
+                                _this._activePointers[index] = e.changedTouches[i].identifier;
+                            }
+                        }
                     }
                 };
             };

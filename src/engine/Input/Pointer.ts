@@ -168,13 +168,26 @@ module ex.Input {
          return (e: TouchEvent) => {
             e.preventDefault();
             for (var i = 0, len = e.changedTouches.length; i < len; i++) {
-               var index = e.changedTouches[i].identifier;
+               var index = this._pointers.length > 1 ? this._getPointerIndex(e.changedTouches[i].identifier) : 0;
+               if (index === -1) continue;
                var x: number = e.changedTouches[i].pageX - Util.getPosition(this._engine.canvas).x;
                var y: number = e.changedTouches[i].pageY - Util.getPosition(this._engine.canvas).y;
                var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
                var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, PointerType.Touch, PointerButton.Unknown, e);
                eventArr.push(pe);
                this.at(index).eventDispatcher.publish(eventName, pe);
+               // only with multi-pointer
+               if (this._pointers.length > 1) {
+                  if (eventName === "up") {
+
+                     // remove pointer ID from pool when pointer is lifted
+                     this._activePointers[index] = -1;
+                  } else if (eventName === "down") {
+
+                     // set pointer ID to given index
+                     this._activePointers[index] = e.changedTouches[i].identifier;
+                  }
+               }
             }
          };
       }
