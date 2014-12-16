@@ -191,11 +191,12 @@ module ex {
       }
 
       /**
-       * Play the sound
+       * Play the sound, returns a promise that resolves when the sound is done playing
        * @method play
+       * @return ex.Promise
        */
-      public play() {
-         if (this.sound) this.sound.play();
+      public play(): ex.Promise<any> {
+         if (this.sound) return this.sound.play();
       }
 
       /**

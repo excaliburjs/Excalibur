@@ -52,8 +52,8 @@ module ex.Internal {
          return this.soundImpl.isPlaying();
       }
 
-      public play() {
-         this.soundImpl.play();
+      public play(): ex.Promise<any> {
+         return this.soundImpl.play();
       }
 
       public stop() {

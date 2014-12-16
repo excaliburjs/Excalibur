@@ -67,8 +67,7 @@
     <Content Include="Excalibur.js" />
     <Content Include="html\healthbar.tmpl" />
     <Content Include="tests\audio\index.html" />
-    <Content Include="tests\audio\jump.mp3" />
-    <Content Include="tests\audio\jump.wav" />
+    <Content Include="tests\audio\loop.mp3" />
     <Content Include="tests\input\keyboard.html" />
     <Content Include="tests\input\pointer.html" />
     <Content Include="tests\input\gamepad.html" />
