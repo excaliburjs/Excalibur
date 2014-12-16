@@ -82,26 +82,26 @@ module ex {
    }
 
    /**
-    * Event received by the Engine when the browser window receives focus
+    * Event received by the Engine when the browser window is visible
     *
-    * @class FocusEvent
+    * @class VisibleEvent
     * @extends GameEvent
     * @constructor 
     */
-   export class FocusEvent extends GameEvent {
+   export class VisibleEvent extends GameEvent {
       constructor(){
          super();
       }
    }
 
    /**
-    * Event received by the Engine when the browser window is blurred
+    * Event received by the Engine when the browser window is hidden
     *
-    * @class BlurEvent
+    * @class HiddenEvent
     * @extends GameEvent
     * @constructor 
     */
-   export class BlurEvent extends GameEvent {
+   export class HiddenEvent extends GameEvent {
       constructor(){
          super();
       }

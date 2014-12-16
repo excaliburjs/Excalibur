@@ -103,6 +103,10 @@ module ex.Internal {
          });         
       }
 
+      public getLoop() {
+         this.audioElements.some((a) => a.loop);
+      }
+
       public onload: (e: any) => void = () => { };
       public onprogress: (e: any) => void = () => { };
       public onerror: (e: any) => void = () => { };
@@ -137,12 +141,14 @@ module ex.Internal {
 
          var done = new ex.Promise();
          this._isPlaying = true;
-         this._playingTimer = setTimeout((() => {
-            this._isPlaying = false;
-            done.resolve(true);
+         if (!this.getLoop()) {
+            this._playingTimer = setTimeout((() => {
+               this._isPlaying = false;
+               done.resolve(true);
 
-         }).bind(this), this.audioElements[this.index].duration * 1000);
-         
+            }).bind(this), this.audioElements[this.index].duration * 1000);
+         }
+
 
          this.index = (this.index + 1) % this.audioElements.length;
          return done;
@@ -152,6 +158,7 @@ module ex.Internal {
          this.audioElements.forEach((a)=>{
             a.pause();
          });
+         this._isPlaying = false;
       }
 
    }
@@ -253,11 +260,13 @@ module ex.Internal {
 
             var done = new ex.Promise();
             this._isPlaying = true;
-            this._playingTimer = setTimeout((() => {
-               this._isPlaying = false;
-               done.resolve(true);
+            if (!this.loop) {
+               this._playingTimer = setTimeout((() => {
+                  this._isPlaying = false;
+                  done.resolve(true);
 
-            }).bind(this), this.buffer.duration * 1000);
+               }).bind(this), this.buffer.duration * 1000);
+            }
 
             return done;
          } else {
@@ -269,6 +278,7 @@ module ex.Internal {
          if (this.sound) {
             try {
                this.sound.stop(0);
+               this._isPlaying = false;
             } catch(e) {
                this.logger.warn("The sound clip", this.path, "has already been stopped!");
             }

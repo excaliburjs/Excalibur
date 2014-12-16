@@ -5224,35 +5224,35 @@ var ex;
     })();
     ex.GameEvent = GameEvent;
     /**
-     * Event received by the Engine when the browser window receives focus
+     * Event received by the Engine when the browser window is visible
      *
-     * @class FocusEvent
+     * @class VisibleEvent
      * @extends GameEvent
      * @constructor
      */
-    var FocusEvent = (function (_super) {
-        __extends(FocusEvent, _super);
-        function FocusEvent() {
+    var VisibleEvent = (function (_super) {
+        __extends(VisibleEvent, _super);
+        function VisibleEvent() {
             _super.call(this);
         }
-        return FocusEvent;
+        return VisibleEvent;
     })(GameEvent);
-    ex.FocusEvent = FocusEvent;
+    ex.VisibleEvent = VisibleEvent;
     /**
-     * Event received by the Engine when the browser window is blurred
+     * Event received by the Engine when the browser window is hidden
      *
-     * @class BlurEvent
+     * @class HiddenEvent
      * @extends GameEvent
      * @constructor
      */
-    var BlurEvent = (function (_super) {
-        __extends(BlurEvent, _super);
-        function BlurEvent() {
+    var HiddenEvent = (function (_super) {
+        __extends(HiddenEvent, _super);
+        function HiddenEvent() {
             _super.call(this);
         }
-        return BlurEvent;
+        return HiddenEvent;
     })(GameEvent);
-    ex.BlurEvent = BlurEvent;
+    ex.HiddenEvent = HiddenEvent;
     /**
      * Event thrown on an actor when a collision has occured
      *
@@ -6425,6 +6425,9 @@ var ex;
                     a.loop = loop;
                 });
             };
+            AudioTag.prototype.getLoop = function () {
+                this.audioElements.some(function (a) { return a.loop; });
+            };
             AudioTag.prototype.load = function () {
                 var _this = this;
                 var request = new XMLHttpRequest();
@@ -6453,10 +6456,12 @@ var ex;
                 this.audioElements[this.index].play();
                 var done = new ex.Promise();
                 this._isPlaying = true;
-                this._playingTimer = setTimeout((function () {
-                    _this._isPlaying = false;
-                    done.resolve(true);
-                }).bind(this), this.audioElements[this.index].duration * 1000);
+                if (!this.getLoop()) {
+                    this._playingTimer = setTimeout((function () {
+                        _this._isPlaying = false;
+                        done.resolve(true);
+                    }).bind(this), this.audioElements[this.index].duration * 1000);
+                }
                 this.index = (this.index + 1) % this.audioElements.length;
                 return done;
             };
@@ -6464,6 +6469,7 @@ var ex;
                 this.audioElements.forEach(function (a) {
                     a.pause();
                 });
+                this._isPlaying = false;
             };
             return AudioTag;
         })();
@@ -6551,10 +6557,12 @@ var ex;
                     // http://updates.html5rocks.com/2012/01/Web-Audio-FAQ
                     var done = new ex.Promise();
                     this._isPlaying = true;
-                    this._playingTimer = setTimeout((function () {
-                        _this._isPlaying = false;
-                        done.resolve(true);
-                    }).bind(this), this.buffer.duration * 1000);
+                    if (!this.loop) {
+                        this._playingTimer = setTimeout((function () {
+                            _this._isPlaying = false;
+                            done.resolve(true);
+                        }).bind(this), this.buffer.duration * 1000);
+                    }
                     return done;
                 }
                 else {
@@ -6565,6 +6573,7 @@ var ex;
                 if (this.sound) {
                     try {
                         this.sound.stop(0);
+                        this._isPlaying = false;
                     }
                     catch (e) {
                         this.logger.warn("The sound clip", this.path, "has already been stopped!");
@@ -7005,17 +7014,15 @@ var ex;
             var _this = this;
             if (engine) {
                 this._engine = engine;
-                this._engine.on('blur', function () {
+                this._engine.on('hidden', function () {
                     if (engine.pauseAudioWhenHidden && _this.isPlaying()) {
                         _this._wasPlayingOnHidden = true;
                         _this.stop();
                     }
                 });
-                this._engine.on('focus', function () {
+                this._engine.on('visible', function () {
                     if (engine.pauseAudioWhenHidden && _this._wasPlayingOnHidden) {
-                        if (_this.isPlaying()) {
-                            _this.stop();
-                        }
+                        _this._wasPlayingOnHidden = false;
                         _this.play();
                     }
                 });
@@ -9036,12 +9043,27 @@ var ex;
             this.input.keyboard.init();
             this.input.pointers.init();
             this.input.gamepads.init();
-            window.addEventListener('blur', function () {
-                _this.eventDispatcher.publish(ex.EventType[3 /* Blur */], new ex.BlurEvent());
+            // Issue #385 make use of the visibility api
+            // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
+            document.addEventListener("visibilitychange", function () {
+                if (document.hidden || document.msHidden) {
+                    _this.eventDispatcher.publish('hidden', new ex.HiddenEvent());
+                    _this.logger.debug("Window hidden");
+                }
+                else {
+                    _this.eventDispatcher.publish('visible', new ex.VisibleEvent());
+                    _this.logger.debug("Window visible");
+                }
             });
-            window.addEventListener('focus', function () {
-                _this.eventDispatcher.publish(ex.EventType[4 /* Focus */], new ex.FocusEvent());
+            /*
+            // DEPRECATED in favor of visibility api
+            window.addEventListener('blur', () => {
+               this.eventDispatcher.publish(EventType[EventType.Blur], new BlurEvent());
             });
+   
+            window.addEventListener('focus', () => {
+               this.eventDispatcher.publish(EventType[EventType.Focus], new FocusEvent());
+            });*/
             this.ctx = this.canvas.getContext('2d');
             if (!this.canvasElementId) {
                 document.body.appendChild(this.canvas);

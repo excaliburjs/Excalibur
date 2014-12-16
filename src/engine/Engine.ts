@@ -588,13 +588,28 @@ module ex {
          this.input.pointers.init();
          this.input.gamepads.init();
          
+
+         // Issue #385 make use of the visibility api
+         // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
+         document.addEventListener("visibilitychange", () => {
+            if (document.hidden || document.msHidden) {
+               this.eventDispatcher.publish('hidden', new HiddenEvent());
+               this.logger.debug("Window hidden");
+            } else {
+               this.eventDispatcher.publish('visible', new VisibleEvent());
+               this.logger.debug("Window visible");
+            }
+         });
+
+         /*
+         // DEPRECATED in favor of visibility api
          window.addEventListener('blur', () => {
             this.eventDispatcher.publish(EventType[EventType.Blur], new BlurEvent());
          });
 
          window.addEventListener('focus', () => {
             this.eventDispatcher.publish(EventType[EventType.Focus], new FocusEvent());
-         });
+         });*/
          
          this.ctx = this.canvas.getContext('2d');
          if (!this.canvasElementId) {

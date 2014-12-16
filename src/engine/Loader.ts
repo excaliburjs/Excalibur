@@ -152,18 +152,16 @@ module ex {
       public wireEngine(engine: Engine) {
          if (engine) {
             this._engine = engine;
-            this._engine.on('blur', () => {
+            this._engine.on('hidden', () => {
                if (engine.pauseAudioWhenHidden && this.isPlaying()) {
                   this._wasPlayingOnHidden = true;
                   this.stop();
                }
             });
 
-            this._engine.on('focus', () => {
+            this._engine.on('visible', () => {
                if (engine.pauseAudioWhenHidden && this._wasPlayingOnHidden) {
-                  if (this.isPlaying()) {
-                     this.stop();
-                  }
+                  this._wasPlayingOnHidden = false;
                   this.play();
                }
             });

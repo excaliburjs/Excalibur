@@ -2729,23 +2729,23 @@ declare module ex {
         constructor();
     }
     /**
-     * Event received by the Engine when the browser window receives focus
+     * Event received by the Engine when the browser window is visible
      *
-     * @class FocusEvent
+     * @class VisibleEvent
      * @extends GameEvent
      * @constructor
      */
-    class FocusEvent extends GameEvent {
+    class VisibleEvent extends GameEvent {
         constructor();
     }
     /**
-     * Event received by the Engine when the browser window is blurred
+     * Event received by the Engine when the browser window is hidden
      *
-     * @class BlurEvent
+     * @class HiddenEvent
      * @extends GameEvent
      * @constructor
      */
-    class BlurEvent extends GameEvent {
+    class HiddenEvent extends GameEvent {
         constructor();
     }
     /**
@@ -3441,6 +3441,7 @@ declare module ex.Internal {
         private audioLoaded();
         setVolume(volume: number): void;
         setLoop(loop: boolean): void;
+        getLoop(): void;
         onload: (e: any) => void;
         onprogress: (e: any) => void;
         onerror: (e: any) => void;
