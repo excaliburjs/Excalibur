@@ -129,6 +129,13 @@ module ex {
        * @property [displayMode=FullScreen] {DisplayMode}
        */
       public displayMode: DisplayMode = DisplayMode.FullScreen;
+
+      /**
+       * Indicates whether audio should be paused when the game is no longer visible.
+       * @property [pauseAudioWhenHidden=true] {boolean}
+       */
+      public pauseAudioWhenHidden: boolean = true;
+
       /**
        * Indicates whether the engine should draw with debug information
        * @property [isDebug=false] {boolean}
@@ -703,7 +710,8 @@ module ex {
        */
       public start(loader?: ILoadable) : Promise<any> {
          var loadingComplete: Promise<any>;
-         if(loader){
+         if (loader) {
+            loader.wireEngine(this);
             loadingComplete = this.load(loader);
          }else{
             loadingComplete = Promise.wrap();

@@ -20,11 +20,16 @@ module ex {
       private _textElements: NodeList;
       private _innerElement: HTMLElement;
       private _isLoaded: boolean = false;
+      private _engine: Engine;
       public logger: Logger = Logger.getInstance();
 
       constructor(public path: string){
          this._innerElement = document.createElement('div');
          this._innerElement.className = "excalibur-template";
+      }
+
+      public wireEngine(engine: Engine) {
+         this._engine = engine;
       }
 
       /**

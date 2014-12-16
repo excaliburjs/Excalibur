@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-12-08
+/*! excalibur - v0.2.5 - 2014-12-15
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -29,6 +29,21 @@ if (!Array.prototype.some) {
                 return true;
         }
         return false;
+    };
+}
+// Polyfill from  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Polyfill
+if (!Function.prototype.bind) {
+    Function.prototype.bind = function (oThis) {
+        if (typeof this !== 'function') {
+            throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+        }
+        var aArgs = Array.prototype.slice.call(arguments, 1), fToBind = this, fNOP = function () {
+        }, fBound = function () {
+            return fToBind.apply(this instanceof fNOP && oThis ? this : oThis, aArgs.concat(Array.prototype.slice.call(arguments)));
+        };
+        fNOP.prototype = this.prototype;
+        fBound.prototype = new fNOP();
+        return fBound;
     };
 }
 var ex;
@@ -6354,6 +6369,9 @@ var ex;
                 this.soundImpl.onerror = this.onerror;
                 this.soundImpl.load();
             };
+            FallbackAudio.prototype.isPlaying = function () {
+                return this.soundImpl.isPlaying();
+            };
             FallbackAudio.prototype.play = function () {
                 this.soundImpl.play();
             };
@@ -6372,6 +6390,7 @@ var ex;
                 this.isLoaded = false;
                 this.index = 0;
                 this.log = ex.Logger.getInstance();
+                this._isPlaying = false;
                 this.onload = function () {
                 };
                 this.onprogress = function () {
@@ -6383,8 +6402,16 @@ var ex;
                         _this.audioElements[i] = new Audio();
                     })(i);
                 }
-                this.setVolume(volume || 1.0);
+                if (volume) {
+                    this.setVolume(ex.Util.clamp(volume, 0, 1.0));
+                }
+                else {
+                    this.setVolume(1.0);
+                }
             }
+            AudioTag.prototype.isPlaying = function () {
+                return this._isPlaying;
+            };
             AudioTag.prototype.audioLoaded = function () {
                 this.isLoaded = true;
             };
@@ -6421,9 +6448,17 @@ var ex;
                 request.send();
             };
             AudioTag.prototype.play = function () {
+                var _this = this;
                 this.audioElements[this.index].load();
                 this.audioElements[this.index].play();
+                var done = new ex.Promise();
+                this._isPlaying = true;
+                this._playingTimer = setTimeout((function () {
+                    _this._isPlaying = false;
+                    done.resolve(true);
+                }).bind(this), this.audioElements[this.index].duration * 1000);
                 this.index = (this.index + 1) % this.audioElements.length;
+                return done;
             };
             AudioTag.prototype.stop = function () {
                 this.audioElements.forEach(function (a) {
@@ -6445,6 +6480,7 @@ var ex;
                 this.path = "";
                 this.isLoaded = false;
                 this.loop = false;
+                this._isPlaying = false;
                 this.logger = ex.Logger.getInstance();
                 this.onload = function () {
                 };
@@ -6454,10 +6490,10 @@ var ex;
                 };
                 this.path = soundPath;
                 if (volume) {
-                    this.volume.gain.value = volume;
+                    this.volume.gain.value = ex.Util.clamp(volume, 0, 1.0);
                 }
                 else {
-                    this.volume.gain.value = 1; // max volume
+                    this.volume.gain.value = 1.0; // max volume
                 }
             }
             WebAudio.prototype.setVolume = function (volume) {
@@ -6497,7 +6533,11 @@ var ex;
             WebAudio.prototype.setLoop = function (loop) {
                 this.loop = loop;
             };
+            WebAudio.prototype.isPlaying = function () {
+                return this._isPlaying;
+            };
             WebAudio.prototype.play = function () {
+                var _this = this;
                 if (this.isLoaded) {
                     this.sound = this.context.createBufferSource();
                     this.sound.buffer = this.buffer;
@@ -6505,6 +6545,20 @@ var ex;
                     this.sound.connect(this.volume);
                     this.volume.connect(this.context.destination);
                     this.sound.start(0);
+                    // unfortunately there is not a more precise way to determine 
+                    // whether a sound is playing in the web audio api :( There is 
+                    // an issue open in bugzilla that hasn't been addressed in 2 years.
+                    // http://updates.html5rocks.com/2012/01/Web-Audio-FAQ
+                    var done = new ex.Promise();
+                    this._isPlaying = true;
+                    this._playingTimer = setTimeout((function () {
+                        _this._isPlaying = false;
+                        done.resolve(true);
+                    }).bind(this), this.buffer.duration * 1000);
+                    return done;
+                }
+                else {
+                    return ex.Promise.wrap(true);
                 }
             };
             WebAudio.prototype.stop = function () {
@@ -6733,9 +6787,11 @@ var ex;
      * @param path {string} Path to the remote resource
      */
     var Resource = (function () {
-        function Resource(path, responseType) {
+        function Resource(path, responseType, bustCache) {
+            if (bustCache === void 0) { bustCache = true; }
             this.path = path;
             this.responseType = responseType;
+            this.bustCache = bustCache;
             this.data = null;
             this.logger = ex.Logger.getInstance();
             this.onprogress = function () {
@@ -6753,6 +6809,9 @@ var ex;
          */
         Resource.prototype.isLoaded = function () {
             return !!this.data;
+        };
+        Resource.prototype.wireEngine = function (engine) {
+            this._engine = engine;
         };
         Resource.prototype.cacheBust = function (uri) {
             var query = /\?\w*=\w*/;
@@ -6776,7 +6835,7 @@ var ex;
             var _this = this;
             var complete = new ex.Promise();
             var request = new XMLHttpRequest();
-            request.open("GET", this.cacheBust(this.path), true);
+            request.open("GET", this.bustCache ? this.cacheBust(this.path) : this.path, true);
             request.responseType = this.responseType;
             request.onloadstart = function (e) {
                 _this._start(e);
@@ -6833,12 +6892,15 @@ var ex;
      * @extend Resource
      * @constructor
      * @param path {string} Path to the image resource
+     * @param [bustCache=true] {boolean} Optionally load texture with cache busting
      */
     var Texture = (function (_super) {
         __extends(Texture, _super);
-        function Texture(path) {
-            _super.call(this, path, 'blob');
+        function Texture(path, bustCache) {
+            if (bustCache === void 0) { bustCache = true; }
+            _super.call(this, path, 'blob', bustCache);
             this.path = path;
+            this.bustCache = bustCache;
             this.loaded = new ex.Promise();
             this._isLoaded = false;
             this._sprite = null;
@@ -6909,9 +6971,10 @@ var ex;
             };
             this._isLoaded = false;
             this._selectedFile = "";
+            this._wasPlayingOnHidden = false;
             /* Chrome : MP3, WAV, Ogg
              * Firefox : WAV, Ogg,
-             * IE : MP3,
+             * IE : MP3, WAV coming soon
              * Safari MP3, WAV, Ogg
              */
             this._selectedFile = "";
@@ -6938,6 +7001,26 @@ var ex;
                 return false;
             }
         };
+        Sound.prototype.wireEngine = function (engine) {
+            var _this = this;
+            if (engine) {
+                this._engine = engine;
+                this._engine.on('blur', function () {
+                    if (engine.pauseAudioWhenHidden && _this.isPlaying()) {
+                        _this._wasPlayingOnHidden = true;
+                        _this.stop();
+                    }
+                });
+                this._engine.on('focus', function () {
+                    if (engine.pauseAudioWhenHidden && _this._wasPlayingOnHidden) {
+                        if (_this.isPlaying()) {
+                            _this.stop();
+                        }
+                        _this.play();
+                    }
+                });
+            }
+        };
         /**
          * Sets the volume of the sound clip
          * @method setVolume
@@ -6955,6 +7038,10 @@ var ex;
         Sound.prototype.setLoop = function (loop) {
             if (this.sound)
                 this.sound.setLoop(loop);
+        };
+        Sound.prototype.isPlaying = function () {
+            if (this.sound)
+                return this.sound.isPlaying();
         };
         /**
          * Play the sound
@@ -7032,6 +7119,9 @@ var ex;
                 this.addResources(loadables);
             }
         }
+        Loader.prototype.wireEngine = function (engine) {
+            this._engine = engine;
+        };
         /**
          * Add a resource to the loader to load
          * @method addResource
@@ -7076,6 +7166,7 @@ var ex;
          * @returns Promsie&lt;any&gt;
          */
         Loader.prototype.load = function () {
+            var _this = this;
             var complete = new ex.Promise();
             var me = this;
             if (this.resourceList.length === 0) {
@@ -7085,6 +7176,9 @@ var ex;
             var progressArray = new Array(this.resourceList.length);
             var progressChunks = this.resourceList.length;
             this.resourceList.forEach(function (r, i) {
+                if (_this._engine) {
+                    r.wireEngine(_this._engine);
+                }
                 r.onprogress = function (e) {
                     var total = e.total;
                     var loaded = e.loaded;
@@ -7147,6 +7241,9 @@ var ex;
             this._innerElement = document.createElement('div');
             this._innerElement.className = "excalibur-template";
         }
+        Template.prototype.wireEngine = function (engine) {
+            this._engine = engine;
+        };
         /**
          * Returns the full html template string once loaded.
          * @method getTemplateString
@@ -7776,13 +7873,26 @@ var ex;
                 return function (e) {
                     e.preventDefault();
                     for (var i = 0, len = e.changedTouches.length; i < len; i++) {
-                        var index = e.changedTouches[i].identifier;
+                        var index = _this._pointers.length > 1 ? _this._getPointerIndex(e.changedTouches[i].identifier) : 0;
+                        if (index === -1)
+                            continue;
                         var x = e.changedTouches[i].pageX - ex.Util.getPosition(_this._engine.canvas).x;
                         var y = e.changedTouches[i].pageY - ex.Util.getPosition(_this._engine.canvas).y;
                         var transformedPoint = _this._engine.screenToWorldCoordinates(new ex.Point(x, y));
                         var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, 0 /* Touch */, 3 /* Unknown */, e);
                         eventArr.push(pe);
                         _this.at(index).eventDispatcher.publish(eventName, pe);
+                        // only with multi-pointer
+                        if (_this._pointers.length > 1) {
+                            if (eventName === "up") {
+                                // remove pointer ID from pool when pointer is lifted
+                                _this._activePointers[index] = -1;
+                            }
+                            else if (eventName === "down") {
+                                // set pointer ID to given index
+                                _this._activePointers[index] = e.changedTouches[i].identifier;
+                            }
+                        }
                     }
                 };
             };
@@ -8617,6 +8727,11 @@ var ex;
              */
             this.displayMode = 0 /* FullScreen */;
             /**
+             * Indicates whether audio should be paused when the game is no longer visible.
+             * @property [pauseAudioWhenHidden=true] {boolean}
+             */
+            this.pauseAudioWhenHidden = true;
+            /**
              * Indicates whether the engine should draw with debug information
              * @property [isDebug=false] {boolean}
              */
@@ -9023,6 +9138,7 @@ var ex;
         Engine.prototype.start = function (loader) {
             var loadingComplete;
             if (loader) {
+                loader.wireEngine(this);
                 loadingComplete = this.load(loader);
             }
             else {

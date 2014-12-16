@@ -3405,6 +3405,7 @@ declare module ex.Internal {
     interface ISound {
         setVolume(volume: number): any;
         setLoop(loop: boolean): any;
+        isPlaying(): boolean;
         play(): any;
         stop(): any;
         load(): any;
@@ -3422,6 +3423,7 @@ declare module ex.Internal {
         onprogress: (e: any) => void;
         onerror: (e: any) => void;
         load(): void;
+        isPlaying(): boolean;
         play(): void;
         stop(): void;
     }
@@ -3432,7 +3434,10 @@ declare module ex.Internal {
         private isLoaded;
         private index;
         private log;
+        private _isPlaying;
+        private _playingTimer;
         constructor(path: string, volume?: number);
+        isPlaying(): boolean;
         private audioLoaded();
         setVolume(volume: number): void;
         setLoop(loop: boolean): void;
@@ -3440,7 +3445,7 @@ declare module ex.Internal {
         onprogress: (e: any) => void;
         onerror: (e: any) => void;
         load(): void;
-        play(): void;
+        play(): Promise<any>;
         stop(): void;
     }
     class WebAudio implements ISound {
@@ -3451,6 +3456,8 @@ declare module ex.Internal {
         private path;
         private isLoaded;
         private loop;
+        private _isPlaying;
+        private _playingTimer;
         private logger;
         constructor(soundPath: string, volume?: number);
         setVolume(volume: number): void;
@@ -3459,7 +3466,8 @@ declare module ex.Internal {
         onerror: (e: any) => void;
         load(): void;
         setLoop(loop: boolean): void;
-        play(): void;
+        isPlaying(): boolean;
+        play(): Promise<any>;
         stop(): void;
     }
 }
@@ -3565,6 +3573,11 @@ declare module ex {
          */
         load(): Promise<any>;
         /**
+         * Wires engine into loadable to receive game level events
+         * @method wireEngine
+         */
+        wireEngine(engine: Engine): void;
+        /**
          * onprogress handler
          * @property onprogress {any=>void}
          */
@@ -3599,9 +3612,11 @@ declare module ex {
     class Resource<T> implements ILoadable {
         path: string;
         responseType: string;
+        bustCache: boolean;
         data: T;
         logger: Logger;
-        constructor(path: string, responseType: string);
+        private _engine;
+        constructor(path: string, responseType: string, bustCache?: boolean);
         /**
          * Returns true if the Resource is completely loaded and is ready
          * to be drawn.
@@ -3609,6 +3624,7 @@ declare module ex {
          * @returns boolean
          */
         isLoaded(): boolean;
+        wireEngine(engine: Engine): void;
         private cacheBust(uri);
         private _start(e);
         /**
@@ -3642,9 +3658,11 @@ declare module ex {
      * @extend Resource
      * @constructor
      * @param path {string} Path to the image resource
+     * @param [bustCache=true] {boolean} Optionally load texture with cache busting
      */
     class Texture extends Resource<HTMLImageElement> {
         path: string;
+        bustCache: boolean;
         width: number;
         height: number;
         loaded: Promise<any>;
@@ -3658,7 +3676,7 @@ declare module ex {
         private progressCallback;
         private doneCallback;
         private errorCallback;
-        constructor(path: string);
+        constructor(path: string, bustCache?: boolean);
         /**
          * Returns true if the Texture is completely loaded and is ready
          * to be drawn.
@@ -3691,6 +3709,8 @@ declare module ex {
         onload: (e: any) => void;
         private _isLoaded;
         private _selectedFile;
+        private _engine;
+        private _wasPlayingOnHidden;
         /**
          * Populated once loading is complete
          * @property sound {Sound}
@@ -3698,6 +3718,7 @@ declare module ex {
         sound: Internal.FallbackAudio;
         static canPlayFile(file: string): boolean;
         constructor(...paths: string[]);
+        wireEngine(engine: Engine): void;
         /**
          * Sets the volume of the sound clip
          * @method setVolume
@@ -3710,6 +3731,7 @@ declare module ex {
          * @param loop {boolean} Set the looping flag
          */
         setLoop(loop: boolean): void;
+        isPlaying(): boolean;
         /**
          * Play the sound
          * @method play
@@ -3748,7 +3770,9 @@ declare module ex {
         private numLoaded;
         private progressCounts;
         private totalCounts;
+        private _engine;
         constructor(loadables?: ILoadable[]);
+        wireEngine(engine: Engine): void;
         /**
          * Add a resource to the loader to load
          * @method addResource
@@ -3797,8 +3821,10 @@ declare module ex {
         private _textElements;
         private _innerElement;
         private _isLoaded;
+        private _engine;
         logger: Logger;
         constructor(path: string);
+        wireEngine(engine: Engine): void;
         /**
          * Returns the full html template string once loaded.
          * @method getTemplateString
@@ -4692,6 +4718,11 @@ declare module ex {
          * @property [displayMode=FullScreen] {DisplayMode}
          */
         displayMode: DisplayMode;
+        /**
+         * Indicates whether audio should be paused when the game is no longer visible.
+         * @property [pauseAudioWhenHidden=true] {boolean}
+         */
+        pauseAudioWhenHidden: boolean;
         /**
          * Indicates whether the engine should draw with debug information
          * @property [isDebug=false] {boolean}

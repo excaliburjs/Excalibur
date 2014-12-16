@@ -14,6 +14,7 @@ module ex {
     * @extend Resource
     * @constructor
     * @param path {string} Path to the image resource
+    * @param [bustCache=true] {boolean} Optionally load texture with cache busting
     */
    export class Texture extends Resource<HTMLImageElement> {
       public width: number;
@@ -32,8 +33,8 @@ module ex {
       private doneCallback: () => void;
       private errorCallback: (e: string) => void;
 
-      constructor(public path: string) {
-         super(path, 'blob');
+      constructor(public path: string, public bustCache = true) {
+         super(path, 'blob', bustCache);
          this._sprite = new Sprite(this, 0, 0, 0, 0);
       }
       
@@ -105,6 +106,9 @@ module ex {
 
       private _selectedFile: string = "";
 
+      private _engine: Engine;
+      private _wasPlayingOnHidden: boolean = false;
+
       /**
        * Populated once loading is complete
        * @property sound {Sound}
@@ -126,7 +130,7 @@ module ex {
       constructor(...paths: string[]) {
          /* Chrome : MP3, WAV, Ogg
           * Firefox : WAV, Ogg, 
-          * IE : MP3, 
+          * IE : MP3, WAV coming soon
           * Safari MP3, WAV, Ogg           
           */
          this._selectedFile = "";
@@ -145,6 +149,27 @@ module ex {
          this.sound = new ex.Internal.FallbackAudio(this._selectedFile, 1.0);
       }
 
+      public wireEngine(engine: Engine) {
+         if (engine) {
+            this._engine = engine;
+            this._engine.on('blur', () => {
+               if (engine.pauseAudioWhenHidden && this.isPlaying()) {
+                  this._wasPlayingOnHidden = true;
+                  this.stop();
+               }
+            });
+
+            this._engine.on('focus', () => {
+               if (engine.pauseAudioWhenHidden && this._wasPlayingOnHidden) {
+                  if (this.isPlaying()) {
+                     this.stop();
+                  }
+                  this.play();
+               }
+            });
+         }
+      }
+
       /**
        * Sets the volume of the sound clip
        * @method setVolume
@@ -161,6 +186,10 @@ module ex {
        */
       public setLoop(loop: boolean) {
          if (this.sound) this.sound.setLoop(loop);
+      }
+
+      public isPlaying(): boolean {
+         if (this.sound) return this.sound.isPlaying();
       }
 
       /**
@@ -228,11 +257,16 @@ module ex {
       private numLoaded: number = 0;
       private progressCounts: { [key: string]: number; } = {};
       private totalCounts: { [key: string]: number; } = {};
+      private _engine: Engine;
 
       constructor(loadables?: ILoadable[]) {
          if (loadables) {
             this.addResources(loadables);
          }
+      }
+
+      public wireEngine(engine: Engine) {
+         this._engine = engine;
       }
 
       /**
@@ -294,6 +328,9 @@ module ex {
          var progressChunks = this.resourceList.length;
 
          this.resourceList.forEach((r, i) => {
+            if (this._engine) {
+               r.wireEngine(this._engine);
+            }
             r.onprogress = function (e) {
                var total = <number>e.total;
                var loaded = <number>e.loaded;

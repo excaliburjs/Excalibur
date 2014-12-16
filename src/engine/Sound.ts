@@ -6,6 +6,7 @@ module ex.Internal {
    export interface ISound {
       setVolume(volume: number);
       setLoop(loop: boolean);
+      isPlaying():boolean;
       play();
       stop();
       load();
@@ -47,6 +48,10 @@ module ex.Internal {
          this.soundImpl.load();
       }
 
+      public isPlaying(): boolean {
+         return this.soundImpl.isPlaying();
+      }
+
       public play() {
          this.soundImpl.play();
       }
@@ -62,14 +67,24 @@ module ex.Internal {
       private isLoaded = false;
       private index = 0;
       private log: Logger = Logger.getInstance();
+      private _isPlaying = false;
+      private _playingTimer: number;
+
       constructor(public path: string, volume?: number) {
          for(var i = 0; i < this.audioElements.length; i++){
             ((i)=>{
                this.audioElements[i] = new Audio();
             })(i);
          }
-         
-         this.setVolume(volume || 1.0);
+         if (volume) {
+            this.setVolume(Util.clamp(volume, 0, 1.0));
+         } else {
+            this.setVolume(1.0);
+         }
+      }
+
+      public isPlaying(): boolean {
+         return this._isPlaying;
       }
 
       private audioLoaded() {
@@ -110,15 +125,27 @@ module ex.Internal {
             this.audioElements.forEach((a)=>{
                a.src = this._loadedAudio;
             });
-            this.onload(e) 
+            this.onload(e);
          };
          request.send();
       }
 
-      public play() {
+      public play(): Promise<any> {
          this.audioElements[this.index].load();
          this.audioElements[this.index].play();
+
+
+         var done = new ex.Promise();
+         this._isPlaying = true;
+         this._playingTimer = setTimeout((() => {
+            this._isPlaying = false;
+            done.resolve(true);
+
+         }).bind(this), this.audioElements[this.index].duration * 1000);
+         
+
          this.index = (this.index + 1) % this.audioElements.length;
+         return done;
       }
 
       public stop() {
@@ -141,13 +168,19 @@ module ex.Internal {
       private path = "";
       private isLoaded = false;
       private loop = false;
+      private _isPlaying = false;
+      private _playingTimer: number;
+
       private logger: Logger = Logger.getInstance();
+
+
+
       constructor(soundPath: string, volume?: number) {
          this.path = soundPath;
          if (volume) {
-            this.volume.gain.value = volume;
+            this.volume.gain.value = Util.clamp(volume, 0, 1.0);
          } else {
-            this.volume.gain.value = 1; // max volume
+            this.volume.gain.value = 1.0; // max volume
          }
 
       }
@@ -199,9 +232,12 @@ module ex.Internal {
          this.loop = loop;
       }
 
+      public isPlaying(): boolean {
+         return this._isPlaying;
+      }
 
+      public play(): Promise<any> {
 
-      public play() {
          if (this.isLoaded) {
             this.sound = this.context.createBufferSource();
             this.sound.buffer = this.buffer;
@@ -209,6 +245,23 @@ module ex.Internal {
             this.sound.connect(this.volume);
             this.volume.connect(this.context.destination);
             this.sound.start(0);
+
+            // unfortunately there is not a more precise way to determine 
+            // whether a sound is playing in the web audio api :( There is 
+            // an issue open in bugzilla that hasn't been addressed in 2 years.
+            // http://updates.html5rocks.com/2012/01/Web-Audio-FAQ
+
+            var done = new ex.Promise();
+            this._isPlaying = true;
+            this._playingTimer = setTimeout((() => {
+               this._isPlaying = false;
+               done.resolve(true);
+
+            }).bind(this), this.buffer.duration * 1000);
+
+            return done;
+         } else {
+            return Promise.wrap(true);
          }
       }
 
