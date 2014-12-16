@@ -5663,6 +5663,9 @@ var ex;
             FallbackAudio.prototype.play = function () {
                 return this.soundImpl.play();
             };
+            FallbackAudio.prototype.pause = function () {
+                this.soundImpl.pause();
+            };
             FallbackAudio.prototype.stop = function () {
                 this.soundImpl.stop();
             };
@@ -5679,6 +5682,7 @@ var ex;
                 this.index = 0;
                 this.log = ex.Logger.getInstance();
                 this._isPlaying = false;
+                this._currentOffset = 0;
                 this.onload = function () {
                 };
                 this.onprogress = function () {
@@ -5741,21 +5745,32 @@ var ex;
             AudioTag.prototype.play = function () {
                 var _this = this;
                 this.audioElements[this.index].load();
+                this.audioElements[this.index].currentTime = this._currentOffset;
                 this.audioElements[this.index].play();
+                this._currentOffset = 0;
                 var done = new ex.Promise();
                 this._isPlaying = true;
                 if (!this.getLoop()) {
-                    this._playingTimer = setTimeout((function () {
+                    this.audioElements[this.index].addEventListener('ended', function () {
                         _this._isPlaying = false;
                         done.resolve(true);
-                    }).bind(this), this.audioElements[this.index].duration * 1000);
+                    });
                 }
                 this.index = (this.index + 1) % this.audioElements.length;
                 return done;
             };
+            AudioTag.prototype.pause = function () {
+                this.index = (this.index - 1 + this.audioElements.length) % this.audioElements.length;
+                this._currentOffset = this.audioElements[this.index].currentTime;
+                this.audioElements.forEach(function (a) {
+                    a.pause();
+                });
+                this._isPlaying = false;
+            };
             AudioTag.prototype.stop = function () {
                 this.audioElements.forEach(function (a) {
                     a.pause();
+                    a.currentTime = 0;
                 });
                 this._isPlaying = false;
             };
@@ -5775,6 +5790,8 @@ var ex;
                 this.isLoaded = false;
                 this.loop = false;
                 this._isPlaying = false;
+                this._isPaused = false;
+                this._currentOffset = 0;
                 this.logger = ex.Logger.getInstance();
                 this.onload = function () {
                 };
@@ -5838,30 +5855,54 @@ var ex;
                     this.sound.loop = this.loop;
                     this.sound.connect(this.volume);
                     this.volume.connect(this.context.destination);
-                    this.sound.start(0);
-                    // unfortunately there is not a more precise way to determine 
-                    // whether a sound is playing in the web audio api :( There is 
-                    // an issue open in bugzilla that hasn't been addressed in 2 years.
-                    // http://updates.html5rocks.com/2012/01/Web-Audio-FAQ
-                    var done = new ex.Promise();
+                    this.sound.start(0, this._currentOffset % this.buffer.duration);
+                    this._currentOffset = 0;
+                    var done;
+                    if (!this._isPaused || !this._playPromise) {
+                        done = new ex.Promise();
+                    }
+                    else {
+                        done = this._playPromise;
+                    }
+                    this._isPaused = false;
                     this._isPlaying = true;
                     if (!this.loop) {
-                        this._playingTimer = setTimeout((function () {
+                        this.sound.onended = (function () {
                             _this._isPlaying = false;
-                            done.resolve(true);
-                        }).bind(this), this.buffer.duration * 1000);
+                            if (!_this._isPaused) {
+                                done.resolve(true);
+                            }
+                        }).bind(this);
                     }
+                    this._playPromise = done;
                     return done;
                 }
                 else {
                     return ex.Promise.wrap(true);
                 }
             };
+            WebAudio.prototype.pause = function () {
+                if (this._isPlaying) {
+                    try {
+                        window.clearTimeout(this._playingTimer);
+                        this.sound.stop(0);
+                        this._currentOffset = this.context.currentTime;
+                        this._isPlaying = false;
+                        this._isPaused = true;
+                    }
+                    catch (e) {
+                        this.logger.warn("The sound clip", this.path, "has already been paused!");
+                    }
+                }
+            };
             WebAudio.prototype.stop = function () {
                 if (this.sound) {
                     try {
+                        window.clearTimeout(this._playingTimer);
+                        this._currentOffset = 0;
                         this.sound.stop(0);
                         this._isPlaying = false;
+                        this._isPaused = false;
                     }
                     catch (e) {
                         this.logger.warn("The sound clip", this.path, "has already been stopped!");
@@ -6305,13 +6346,13 @@ var ex;
                 this._engine.on('hidden', function () {
                     if (engine.pauseAudioWhenHidden && _this.isPlaying()) {
                         _this._wasPlayingOnHidden = true;
-                        _this.stop();
+                        _this.pause();
                     }
                 });
                 this._engine.on('visible', function () {
                     if (engine.pauseAudioWhenHidden && _this._wasPlayingOnHidden) {
-                        _this._wasPlayingOnHidden = false;
                         _this.play();
+                        _this._wasPlayingOnHidden = false;
                     }
                 });
             }
@@ -6346,6 +6387,14 @@ var ex;
         Sound.prototype.play = function () {
             if (this.sound)
                 return this.sound.play();
+        };
+        /**
+         * Stop the sound, and do not rewind
+         * @method pause
+         */
+        Sound.prototype.pause = function () {
+            if (this.sound)
+                this.sound.pause();
         };
         /**
          * Stop the sound and rewind

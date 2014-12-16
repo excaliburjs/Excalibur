@@ -3126,7 +3126,8 @@ declare module ex.Internal {
         setVolume(volume: number): any;
         setLoop(loop: boolean): any;
         isPlaying(): boolean;
-        play(): any;
+        play(): Promise<any>;
+        pause(): any;
         stop(): any;
         load(): any;
         onload: (e: any) => void;
@@ -3145,6 +3146,7 @@ declare module ex.Internal {
         load(): void;
         isPlaying(): boolean;
         play(): Promise<any>;
+        pause(): void;
         stop(): void;
     }
     class AudioTag implements ISound {
@@ -3156,6 +3158,7 @@ declare module ex.Internal {
         private log;
         private _isPlaying;
         private _playingTimer;
+        private _currentOffset;
         constructor(path: string, volume?: number);
         isPlaying(): boolean;
         private audioLoaded();
@@ -3167,6 +3170,7 @@ declare module ex.Internal {
         onerror: (e: any) => void;
         load(): void;
         play(): Promise<any>;
+        pause(): void;
         stop(): void;
     }
     class WebAudio implements ISound {
@@ -3178,7 +3182,10 @@ declare module ex.Internal {
         private isLoaded;
         private loop;
         private _isPlaying;
+        private _isPaused;
         private _playingTimer;
+        private _currentOffset;
+        private _playPromise;
         private logger;
         constructor(soundPath: string, volume?: number);
         setVolume(volume: number): void;
@@ -3189,6 +3196,7 @@ declare module ex.Internal {
         setLoop(loop: boolean): void;
         isPlaying(): boolean;
         play(): Promise<any>;
+        pause(): void;
         stop(): void;
     }
 }
@@ -3459,6 +3467,11 @@ declare module ex {
          * @return ex.Promise
          */
         play(): Promise<any>;
+        /**
+         * Stop the sound, and do not rewind
+         * @method pause
+         */
+        pause(): void;
         /**
          * Stop the sound and rewind
          * @method stop

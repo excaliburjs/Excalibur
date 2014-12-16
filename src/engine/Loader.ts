@@ -155,14 +155,14 @@ module ex {
             this._engine.on('hidden', () => {
                if (engine.pauseAudioWhenHidden && this.isPlaying()) {
                   this._wasPlayingOnHidden = true;
-                  this.stop();
+                  this.pause();
                }
             });
 
             this._engine.on('visible', () => {
                if (engine.pauseAudioWhenHidden && this._wasPlayingOnHidden) {
-                  this._wasPlayingOnHidden = false;
                   this.play();
+                  this._wasPlayingOnHidden = false;
                }
             });
          }
@@ -197,6 +197,14 @@ module ex {
        */
       public play(): ex.Promise<any> {
          if (this.sound) return this.sound.play();
+      }
+
+      /**
+       * Stop the sound, and do not rewind
+       * @method pause
+       */
+      public pause() {
+         if (this.sound) this.sound.pause();
       }
 
       /**

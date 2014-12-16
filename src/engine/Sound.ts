@@ -7,7 +7,8 @@ module ex.Internal {
       setVolume(volume: number);
       setLoop(loop: boolean);
       isPlaying():boolean;
-      play();
+      play(): ex.Promise<any>;
+      pause();
       stop();
       load();
       onload: (e: any) => void;
@@ -56,6 +57,10 @@ module ex.Internal {
          return this.soundImpl.play();
       }
 
+      public pause() {
+         this.soundImpl.pause();
+      }
+
       public stop() {
          this.soundImpl.stop();
       }
@@ -69,6 +74,7 @@ module ex.Internal {
       private log: Logger = Logger.getInstance();
       private _isPlaying = false;
       private _playingTimer: number;
+      private _currentOffset: number = 0;
 
       constructor(public path: string, volume?: number) {
          for(var i = 0; i < this.audioElements.length; i++){
@@ -136,17 +142,19 @@ module ex.Internal {
 
       public play(): Promise<any> {
          this.audioElements[this.index].load();
+         this.audioElements[this.index].currentTime = this._currentOffset;
          this.audioElements[this.index].play();
+         this._currentOffset = 0;
 
 
          var done = new ex.Promise();
          this._isPlaying = true;
          if (!this.getLoop()) {
-            this._playingTimer = setTimeout((() => {
+            this.audioElements[this.index].addEventListener('ended', () => {
                this._isPlaying = false;
                done.resolve(true);
+            });
 
-            }).bind(this), this.audioElements[this.index].duration * 1000);
          }
 
 
@@ -154,9 +162,19 @@ module ex.Internal {
          return done;
       }
 
+      public pause() {
+         this.index = (this.index - 1 + this.audioElements.length) % this.audioElements.length;
+         this._currentOffset = this.audioElements[this.index].currentTime;
+         this.audioElements.forEach((a) => {
+            a.pause();
+         });
+         this._isPlaying = false;
+      }
+
       public stop() {
          this.audioElements.forEach((a)=>{
             a.pause();
+            a.currentTime = 0;
          });
          this._isPlaying = false;
       }
@@ -176,7 +194,10 @@ module ex.Internal {
       private isLoaded = false;
       private loop = false;
       private _isPlaying = false;
+      private _isPaused = false;
       private _playingTimer: number;
+      private _currentOffset: number = 0;
+      private _playPromise: ex.Promise<any>;
 
       private logger: Logger = Logger.getInstance();
 
@@ -251,34 +272,57 @@ module ex.Internal {
             this.sound.loop = this.loop;
             this.sound.connect(this.volume);
             this.volume.connect(this.context.destination);
-            this.sound.start(0);
-
-            // unfortunately there is not a more precise way to determine 
-            // whether a sound is playing in the web audio api :( There is 
-            // an issue open in bugzilla that hasn't been addressed in 2 years.
-            // http://updates.html5rocks.com/2012/01/Web-Audio-FAQ
-
-            var done = new ex.Promise();
+            this.sound.start(0, this._currentOffset % this.buffer.duration);
+            
+            this._currentOffset = 0;
+            var done;
+            if (!this._isPaused || !this._playPromise) {
+               done = new ex.Promise();
+            } else {
+               done = this._playPromise;
+            }
+            this._isPaused = false;
+            
             this._isPlaying = true;
             if (!this.loop) {
-               this._playingTimer = setTimeout((() => {
-                  this._isPlaying = false;
-                  done.resolve(true);
 
-               }).bind(this), this.buffer.duration * 1000);
+               this.sound.onended = (() => {
+                  this._isPlaying = false;
+                  if (!this._isPaused) {
+                     done.resolve(true);
+                  }
+               }).bind(this);
             }
 
+            this._playPromise = done;
             return done;
          } else {
             return Promise.wrap(true);
          }
       }
 
+      public pause() {
+         if (this._isPlaying) {
+            try {
+               window.clearTimeout(this._playingTimer);
+               this.sound.stop(0);
+               this._currentOffset = this.context.currentTime;
+               this._isPlaying = false;
+               this._isPaused = true;
+            } catch (e) {
+               this.logger.warn("The sound clip", this.path, "has already been paused!");
+            }
+         }
+      }
+
       public stop() {
          if (this.sound) {
             try {
+               window.clearTimeout(this._playingTimer);
+               this._currentOffset = 0;
                this.sound.stop(0);
                this._isPlaying = false;
+               this._isPaused = false;
             } catch(e) {
                this.logger.warn("The sound clip", this.path, "has already been stopped!");
             }

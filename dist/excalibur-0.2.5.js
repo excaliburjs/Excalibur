@@ -6373,7 +6373,10 @@ var ex;
                 return this.soundImpl.isPlaying();
             };
             FallbackAudio.prototype.play = function () {
-                this.soundImpl.play();
+                return this.soundImpl.play();
+            };
+            FallbackAudio.prototype.pause = function () {
+                this.soundImpl.pause();
             };
             FallbackAudio.prototype.stop = function () {
                 this.soundImpl.stop();
@@ -6465,9 +6468,16 @@ var ex;
                 this.index = (this.index + 1) % this.audioElements.length;
                 return done;
             };
+            AudioTag.prototype.pause = function () {
+                this.audioElements.forEach(function (a) {
+                    a.pause();
+                });
+                this._isPlaying = false;
+            };
             AudioTag.prototype.stop = function () {
                 this.audioElements.forEach(function (a) {
                     a.pause();
+                    a.currentTime = 0;
                 });
                 this._isPlaying = false;
             };
@@ -6487,6 +6497,7 @@ var ex;
                 this.isLoaded = false;
                 this.loop = false;
                 this._isPlaying = false;
+                this._currentOffset = 0;
                 this.logger = ex.Logger.getInstance();
                 this.onload = function () {
                 };
@@ -6550,7 +6561,7 @@ var ex;
                     this.sound.loop = this.loop;
                     this.sound.connect(this.volume);
                     this.volume.connect(this.context.destination);
-                    this.sound.start(0);
+                    this.sound.start(0, this._currentOffset % this.context.duration);
                     // unfortunately there is not a more precise way to determine 
                     // whether a sound is playing in the web audio api :( There is 
                     // an issue open in bugzilla that hasn't been addressed in 2 years.
@@ -6569,9 +6580,22 @@ var ex;
                     return ex.Promise.wrap(true);
                 }
             };
+            WebAudio.prototype.pause = function () {
+                if (this._isPlaying) {
+                    try {
+                        this.sound.stop(0);
+                        this._currentOffset = this.context.duration;
+                        this._isPlaying = false;
+                    }
+                    catch (e) {
+                        this.logger.warn("The sound clip", this.path, "has already been paused!");
+                    }
+                }
+            };
             WebAudio.prototype.stop = function () {
                 if (this.sound) {
                     try {
+                        this._currentOffset = 0;
                         this.sound.stop(0);
                         this._isPlaying = false;
                     }
@@ -7017,7 +7041,7 @@ var ex;
                 this._engine.on('hidden', function () {
                     if (engine.pauseAudioWhenHidden && _this.isPlaying()) {
                         _this._wasPlayingOnHidden = true;
-                        _this.stop();
+                        _this.pause();
                     }
                 });
                 this._engine.on('visible', function () {
@@ -7051,12 +7075,21 @@ var ex;
                 return this.sound.isPlaying();
         };
         /**
-         * Play the sound
+         * Play the sound, returns a promise that resolves when the sound is done playing
          * @method play
+         * @return ex.Promise
          */
         Sound.prototype.play = function () {
             if (this.sound)
-                this.sound.play();
+                return this.sound.play();
+        };
+        /**
+         * Stop the sound, and do not rewind
+         * @method pause
+         */
+        Sound.prototype.pause = function () {
+            if (this.sound)
+                this.sound.pause();
         };
         /**
          * Stop the sound and rewind
