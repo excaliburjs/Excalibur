@@ -142,7 +142,7 @@ module ex.Internal {
 
       public play(): Promise<any> {
          this.audioElements[this.index].load();
-         this.audioElements[this.index].currentTime = this._currentOffset;
+         //this.audioElements[this.index].currentTime = this._currentOffset;
          this.audioElements[this.index].play();
          this._currentOffset = 0;
 
@@ -174,7 +174,7 @@ module ex.Internal {
       public stop() {
          this.audioElements.forEach((a)=>{
             a.pause();
-            a.currentTime = 0;
+            //a.currentTime = 0;
          });
          this._isPlaying = false;
       }

@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-12-15
+/*! excalibur - v0.2.5 - 2014-12-16
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -6457,7 +6457,7 @@ var ex;
             AudioTag.prototype.play = function () {
                 var _this = this;
                 this.audioElements[this.index].load();
-                this.audioElements[this.index].currentTime = this._currentOffset;
+                //this.audioElements[this.index].currentTime = this._currentOffset;
                 this.audioElements[this.index].play();
                 this._currentOffset = 0;
                 var done = new ex.Promise();
@@ -6482,7 +6482,7 @@ var ex;
             AudioTag.prototype.stop = function () {
                 this.audioElements.forEach(function (a) {
                     a.pause();
-                    a.currentTime = 0;
+                    //a.currentTime = 0;
                 });
                 this._isPlaying = false;
             };
