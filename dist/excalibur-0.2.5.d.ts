@@ -3438,6 +3438,7 @@ declare module ex.Internal {
         private log;
         private _isPlaying;
         private _playingTimer;
+        private _currentOffset;
         constructor(path: string, volume?: number);
         isPlaying(): boolean;
         private audioLoaded();
@@ -3461,8 +3462,10 @@ declare module ex.Internal {
         private isLoaded;
         private loop;
         private _isPlaying;
+        private _isPaused;
         private _playingTimer;
         private _currentOffset;
+        private _playPromise;
         private logger;
         constructor(soundPath: string, volume?: number);
         setVolume(volume: number): void;
