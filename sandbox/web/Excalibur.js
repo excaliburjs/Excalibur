@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2014-12-16
+/*! excalibur - v0.2.5 - 2014-12-25
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2014 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -8803,8 +8803,8 @@ var ex;
             this.isLoading = false;
             this.progress = 0;
             this.total = 1;
-            console.log("Powered by Excalibur.js visit", "http://excaliburjs.com", "for more information.");
             this.logger = ex.Logger.getInstance();
+            this.logger.info("Powered by Excalibur.js visit", "http://excaliburjs.com", "for more information.");
             this.logger.debug("Building engine...");
             this.canvasElementId = canvasElementId;
             if (canvasElementId) {
