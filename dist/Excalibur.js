@@ -4453,8 +4453,8 @@ var ex;
          * @param center {boolean} Indicates to center the drawing around the actor
          */
         Actor.prototype.setCenterDrawing = function (center) {
-            this.centerDrawingY = true;
-            this.centerDrawingX = true;
+            this.centerDrawingY = center;
+            this.centerDrawingX = center;
         };
         /**
          * Gets the left edge of the actor
