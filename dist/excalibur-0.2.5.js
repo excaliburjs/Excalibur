@@ -7903,33 +7903,33 @@ var ex;
              */
             Pointers.prototype.init = function () {
                 // Touch Events
-                this._engine.canvas.addEventListener('touchstart', this._handleTouchEvent("down", this._pointerDown));
-                this._engine.canvas.addEventListener('touchend', this._handleTouchEvent("up", this._pointerUp));
-                this._engine.canvas.addEventListener('touchmove', this._handleTouchEvent("move", this._pointerMove));
-                this._engine.canvas.addEventListener('touchcancel', this._handleTouchEvent("cancel", this._pointerCancel));
+                document.addEventListener('touchstart', this._handleTouchEvent("down", this._pointerDown));
+                document.addEventListener('touchend', this._handleTouchEvent("up", this._pointerUp));
+                document.addEventListener('touchmove', this._handleTouchEvent("move", this._pointerMove));
+                document.addEventListener('touchcancel', this._handleTouchEvent("cancel", this._pointerCancel));
                 // W3C Pointer Events
                 // Current: IE11, IE10
                 if (window.PointerEvent) {
                     // IE11
                     this._engine.canvas.style.touchAction = "none";
-                    this._engine.canvas.addEventListener('pointerdown', this._handlePointerEvent("down", this._pointerDown));
-                    this._engine.canvas.addEventListener('pointerup', this._handlePointerEvent("up", this._pointerUp));
-                    this._engine.canvas.addEventListener('pointermove', this._handlePointerEvent("move", this._pointerMove));
-                    this._engine.canvas.addEventListener('pointercancel', this._handlePointerEvent("cancel", this._pointerMove));
+                    document.addEventListener('pointerdown', this._handlePointerEvent("down", this._pointerDown));
+                    document.addEventListener('pointerup', this._handlePointerEvent("up", this._pointerUp));
+                    document.addEventListener('pointermove', this._handlePointerEvent("move", this._pointerMove));
+                    document.addEventListener('pointercancel', this._handlePointerEvent("cancel", this._pointerMove));
                 }
                 else if (window.MSPointerEvent) {
                     // IE10
                     this._engine.canvas.style.msTouchAction = "none";
-                    this._engine.canvas.addEventListener('MSPointerDown', this._handlePointerEvent("down", this._pointerDown));
-                    this._engine.canvas.addEventListener('MSPointerUp', this._handlePointerEvent("up", this._pointerUp));
-                    this._engine.canvas.addEventListener('MSPointerMove', this._handlePointerEvent("move", this._pointerMove));
-                    this._engine.canvas.addEventListener('MSPointerCancel', this._handlePointerEvent("cancel", this._pointerMove));
+                    document.addEventListener('MSPointerDown', this._handlePointerEvent("down", this._pointerDown));
+                    document.addEventListener('MSPointerUp', this._handlePointerEvent("up", this._pointerUp));
+                    document.addEventListener('MSPointerMove', this._handlePointerEvent("move", this._pointerMove));
+                    document.addEventListener('MSPointerCancel', this._handlePointerEvent("cancel", this._pointerMove));
                 }
                 else {
                     // Mouse Events
-                    this._engine.canvas.addEventListener('mousedown', this._handleMouseEvent("down", this._pointerDown));
-                    this._engine.canvas.addEventListener('mouseup', this._handleMouseEvent("up", this._pointerUp));
-                    this._engine.canvas.addEventListener('mousemove', this._handleMouseEvent("move", this._pointerMove));
+                    document.addEventListener('mousedown', this._handleMouseEvent("down", this._pointerDown));
+                    document.addEventListener('mouseup', this._handleMouseEvent("up", this._pointerUp));
+                    document.addEventListener('mousemove', this._handleMouseEvent("move", this._pointerMove));
                 }
             };
             Pointers.prototype.update = function (delta) {
