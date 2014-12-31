@@ -173,7 +173,7 @@ module ex {
                this.handleError(e);
             }
          } else {
-            //throw new Error('Cannot resolve a promise that is not in a pending state!');
+            throw new Error('Cannot resolve a promise that is not in a pending state!');
          }
          return this;
       }
@@ -193,7 +193,7 @@ module ex {
                this.handleError(e);
             }
          } else {
-            //throw new Error('Cannot reject a promise that is not in a pending state!');
+            throw new Error('Cannot reject a promise that is not in a pending state!');
          }
          return this;
       }
