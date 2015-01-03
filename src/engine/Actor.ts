@@ -111,13 +111,7 @@ module ex {
        * @property anchor {Point}
        */
       public anchor: Point;
-
-      /**
-       * Gets the calculated anchor point, should not be set.
-       * @property calculatedAnchor {Point}
-       */
-      public calculatedAnchor: Point = new Point(0,0);
-
+      
       private height: number = 0;
       private width: number = 0;
 
@@ -442,7 +436,7 @@ module ex {
        * @returns Vector
        */
       public getCenter(): Vector {
-         var anchor = this.calculatedAnchor;
+         var anchor = this._getCalculatedAnchor();
          return new Vector(this.x + this.getWidth() / 2 - anchor.x, this.y + this.getHeight() / 2 - anchor.y);
       }
 
@@ -563,7 +557,7 @@ module ex {
        * @returns BoundingBox
        */
       public getBounds() {
-         var anchor = this.calculatedAnchor;
+         var anchor = this._getCalculatedAnchor();
          return new BoundingBox(this.getGlobalX()-anchor.x, this.getGlobalY() - anchor.y, this.getGlobalX() + this.getWidth() - anchor.x, this.getGlobalY() + this.getHeight() - anchor.y);
       }
 
@@ -929,6 +923,10 @@ module ex {
          return complete;
       }
 
+      private _getCalculatedAnchor(): Point {
+         return new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);  
+      }
+
       /**
        * Called by the Engine, updates the state of the actor
        * @method update 
@@ -941,10 +939,6 @@ module ex {
             this.eventDispatcher.publish('initialize', new InitializeEvent(engine));
             this._isInitialized = true;
          }
-
-         // Recalcuate the anchor point
-         this.calculatedAnchor = new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
-
          
          var eventDispatcher = this.eventDispatcher;
 
@@ -969,7 +963,7 @@ module ex {
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
          if (this.isOffScreen){return;}
 
-         var anchorPoint = this.calculatedAnchor;
+         var anchorPoint = this._getCalculatedAnchor();
 
          ctx.save();
          ctx.translate(this.x, this.y);
