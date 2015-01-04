@@ -135,7 +135,12 @@ describe("A game actor", () => {
 		expect(actor.x).toBe(0);
 		expect(actor.y).toBe(0);
 		actor.setWidth(20);
-		actor.setHeight(20);
+      actor.setHeight(20);
+
+      expect(actor.anchor.x).toBe(.5);
+      expect(actor.anchor.y).toBe(.5);
+
+	   actor.anchor = new ex.Point(0, 0);
 
 		expect(actor.contains(10,10)).toBe(true);
 

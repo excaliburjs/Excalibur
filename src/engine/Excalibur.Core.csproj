@@ -93,6 +93,8 @@
     <TypeScriptCompile Include="MonkeyPatch.ts" />
     <TypeScriptCompile Include="Particles.ts" />
     <TypeScriptCompile Include="Polygon.ts" />
+    <TypeScriptCompile Include="PostProcessing\ColorBlindCorrector.ts" />
+    <TypeScriptCompile Include="PostProcessing\IPostProcessor.ts" />
     <TypeScriptCompile Include="Promises.ts" />
     <TypeScriptCompile Include="Resource.ts" />
     <TypeScriptCompile Include="Scene.ts" />

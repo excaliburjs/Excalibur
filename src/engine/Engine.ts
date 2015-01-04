@@ -19,6 +19,7 @@
 /// <reference path="Binding.ts" />
 /// <reference path="TileMap.ts" />
 /// <reference path="Label.ts" />
+/// <reference path="PostProcessing/IPostProcessor.ts"/>
 /// <reference path="Input/IEngineInput.ts"/>
 /// <reference path="Input/Pointer.ts"/>
 /// <reference path="Input/Keyboard.ts"/>
@@ -108,7 +109,11 @@ module ex {
       public collisionStrategy: CollisionStrategy = CollisionStrategy.DynamicAABBTree;
 
       private hasStarted: boolean = false;
+
+      public fps: number = 0;
       
+      public postProcessors: IPostProcessor[] = [];
+
       public currentScene: Scene;
       /**
        * The default scene of the game, use {{#crossLink "Engine/goToScene"}}{{/crossLink}} to transition to different scenes.
@@ -690,7 +695,15 @@ module ex {
          ctx.clearRect(0, 0, this.width, this.height);
          ctx.fillStyle = this.backgroundColor.toString();
          ctx.fillRect(0, 0, this.width, this.height);
+         
+         this.currentScene.draw(this.ctx, delta);
 
+         // todo needs to be a better way of doing this
+         this.animations.forEach(function (a) {
+            a.animation.draw(ctx, a.x, a.y);
+         });
+
+         this.fps = 1.0 / (delta / 1000);
 
          // Draw debug information
          if (this.isDebug) {
@@ -701,18 +714,17 @@ module ex {
             for (var j = 0; j < keys.length; j++) {
                this.ctx.fillText(keys[j].toString() + " : " + (Input.Keys[keys[j]] ? Input.Keys[keys[j]] : "Not Mapped"), 100, 10 * j + 10);
             }
-
-            var fps = 1.0 / (delta / 1000);
-            this.ctx.fillText("FPS:" + fps.toFixed(2).toString(), 10, 10);
+            
+            this.ctx.fillText("FPS:" + this.fps.toFixed(2).toString(), 10, 10);
          }
-         
-         this.currentScene.draw(this.ctx, delta);
 
-         this.animations.forEach(function (a) {
-            a.animation.draw(ctx, a.x, a.y);
-         });
+         // Post processing
+         for (var i = 0; i < this.postProcessors.length; i++) {
+            this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.width, this.height), this.ctx);
+         }
 
-         
+         //ctx.drawImage(currentImage, 0, 0, this.width, this.height);
+
       }
 
       /**
@@ -781,6 +793,19 @@ module ex {
             this.hasStarted = false;
             this.logger.debug("Game stopped");
          }
+      }
+      
+      /**
+       * Takes a screen shot of the current viewport and returns it as an
+       * HTML Image Element.
+       * @method screenshot
+       * @returns HTMLImageElement
+       */
+      public screenshot(): HTMLImageElement {
+         var result = new Image();
+         var raw = this.canvas.toDataURL("image/png");
+         result.src = raw;
+         return result;
       }
 
       /**

@@ -25,7 +25,7 @@ module ex {
       public height: number = 0;
       public effects: Effects.ISpriteEffect[] = [];
 
-      private internalImage: HTMLImageElement = new Image();
+      public internalImage: HTMLImageElement = new Image();
       private spriteCanvas: HTMLCanvasElement = null;
       private spriteCtx: CanvasRenderingContext2D = null;
       private pixelData: ImageData = null;

@@ -1,6 +1,6 @@
-/*! excalibur - v0.2.5 - 2014-12-16
+/*! excalibur - v0.2.5 - 2015-01-04
 * https://github.com/excaliburjs/Excalibur
-* Copyright (c) 2014 ; Licensed BSD*/
+* Copyright (c) 2015 ; Licensed BSD*/
 if (typeof window == 'undefined') {
     window = { audioContext: function () {
     } };
@@ -4113,11 +4113,6 @@ var ex;
              * @property y {number}
              */
             this.y = 0;
-            /**
-             * Gets the calculated anchor point, should not be set.
-             * @property calculatedAnchor {Point}
-             */
-            this.calculatedAnchor = new ex.Point(0, 0);
             this.height = 0;
             this.width = 0;
             /**
@@ -4369,8 +4364,7 @@ var ex;
          * @returns Vector
          */
         Actor.prototype.getCenter = function () {
-            var anchor = this.calculatedAnchor;
-            return new ex.Vector(this.x + this.getWidth() / 2 - anchor.x, this.y + this.getHeight() / 2 - anchor.y);
+            return new ex.Vector(this.x + this.getWidth() / 2, this.y + this.getHeight() / 2);
         };
         /**
          * Gets the calculated width of an actor
@@ -4480,7 +4474,7 @@ var ex;
          * @returns BoundingBox
          */
         Actor.prototype.getBounds = function () {
-            var anchor = this.calculatedAnchor;
+            var anchor = this._getCalculatedAnchor();
             return new ex.BoundingBox(this.getGlobalX() - anchor.x, this.getGlobalY() - anchor.y, this.getGlobalX() + this.getWidth() - anchor.x, this.getGlobalY() + this.getHeight() - anchor.y);
         };
         /**
@@ -4820,6 +4814,9 @@ var ex;
             });
             return complete;
         };
+        Actor.prototype._getCalculatedAnchor = function () {
+            return new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
+        };
         /**
          * Called by the Engine, updates the state of the actor
          * @method update
@@ -4832,8 +4829,6 @@ var ex;
                 this.eventDispatcher.publish('initialize', new ex.InitializeEvent(engine));
                 this._isInitialized = true;
             }
-            // Recalcuate the anchor point
-            this.calculatedAnchor = new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
             var eventDispatcher = this.eventDispatcher;
             // Update action queue
             this.actionQueue.update(delta);
@@ -4852,7 +4847,7 @@ var ex;
             if (this.isOffScreen) {
                 return;
             }
-            var anchorPoint = this.calculatedAnchor;
+            var anchorPoint = this._getCalculatedAnchor();
             ctx.save();
             ctx.translate(this.x, this.y);
             ctx.rotate(this.rotation);
@@ -5765,9 +5760,6 @@ var ex;
             this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
         }
         Trigger.prototype.update = function (engine, delta) {
-            // Recalcuate the anchor point
-            this.calculatedAnchor = new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
-            var eventDispatcher = this.eventDispatcher;
             // Update action queue
             this.actionQueue.update(delta);
             // Update placements based on linear algebra
@@ -8712,6 +8704,7 @@ var ex;
 /// <reference path="Binding.ts" />
 /// <reference path="TileMap.ts" />
 /// <reference path="Label.ts" />
+/// <reference path="PostProcessing/IPostProcessor.ts"/>
 /// <reference path="Input/IEngineInput.ts"/>
 /// <reference path="Input/Pointer.ts"/>
 /// <reference path="Input/Keyboard.ts"/>
@@ -8771,6 +8764,8 @@ var ex;
              */
             this.collisionStrategy = 1 /* DynamicAABBTree */;
             this.hasStarted = false;
+            this.fps = 0;
+            this.postProcessors = [];
             this.sceneHash = {};
             this.animations = [];
             /**
@@ -9183,6 +9178,12 @@ var ex;
             ctx.clearRect(0, 0, this.width, this.height);
             ctx.fillStyle = this.backgroundColor.toString();
             ctx.fillRect(0, 0, this.width, this.height);
+            this.currentScene.draw(this.ctx, delta);
+            // todo needs to be a better way of doing this
+            this.animations.forEach(function (a) {
+                a.animation.draw(ctx, a.x, a.y);
+            });
+            this.fps = 1.0 / (delta / 1000);
             // Draw debug information
             if (this.isDebug) {
                 this.ctx.font = "Consolas";
@@ -9191,13 +9192,12 @@ var ex;
                 for (var j = 0; j < keys.length; j++) {
                     this.ctx.fillText(keys[j].toString() + " : " + (ex.Input.Keys[keys[j]] ? ex.Input.Keys[keys[j]] : "Not Mapped"), 100, 10 * j + 10);
                 }
-                var fps = 1.0 / (delta / 1000);
-                this.ctx.fillText("FPS:" + fps.toFixed(2).toString(), 10, 10);
+                this.ctx.fillText("FPS:" + this.fps.toFixed(2).toString(), 10, 10);
             }
-            this.currentScene.draw(this.ctx, delta);
-            this.animations.forEach(function (a) {
-                a.animation.draw(ctx, a.x, a.y);
-            });
+            for (var i = 0; i < this.postProcessors.length; i++) {
+                this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.width, this.height), this.ctx);
+            }
+            //ctx.drawImage(currentImage, 0, 0, this.width, this.height);
         };
         /**
          * Starts the internal game loop for Excalibur after loading
@@ -9256,6 +9256,18 @@ var ex;
                 this.hasStarted = false;
                 this.logger.debug("Game stopped");
             }
+        };
+        /**
+         * Takes a screen shot of the current viewport and returns it as an
+         * HTML Image Element.
+         * @method screenshot
+         * @returns HTMLImageElement
+         */
+        Engine.prototype.screenshot = function () {
+            var result = new Image();
+            var raw = this.canvas.toDataURL("image/png");
+            result.src = raw;
+            return result;
         };
         /**
          * Draws the Excalibur loading bar

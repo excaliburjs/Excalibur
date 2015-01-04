@@ -28,11 +28,7 @@ module ex {
       }
 
       public update(engine: Engine, delta: number) {
-         // Recalcuate the anchor point
-         this.calculatedAnchor = new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
-
-         var eventDispatcher = this.eventDispatcher;
-
+      
          // Update action queue
          this.actionQueue.update(delta);
 

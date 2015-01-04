@@ -604,7 +604,7 @@ declare module ex {
         width: number;
         height: number;
         effects: Effects.ISpriteEffect[];
-        private internalImage;
+        internalImage: HTMLImageElement;
         private spriteCanvas;
         private spriteCtx;
         private pixelData;
@@ -1968,11 +1968,6 @@ declare module ex {
          * @property anchor {Point}
          */
         anchor: Point;
-        /**
-         * Gets the calculated anchor point, should not be set.
-         * @property calculatedAnchor {Point}
-         */
-        calculatedAnchor: Point;
         private height;
         private width;
         /**
@@ -2480,6 +2475,7 @@ declare module ex {
          * @returns Promise
          */
         asPromise<T>(): Promise<T>;
+        private _getCalculatedAnchor();
         /**
          * Called by the Engine, updates the state of the actor
          * @method update
@@ -4065,6 +4061,11 @@ declare module ex {
         debugDraw(ctx: CanvasRenderingContext2D): void;
     }
 }
+declare module ex {
+    interface IPostProcessor {
+        process(image: ImageData, out: CanvasRenderingContext2D): void;
+    }
+}
 declare module ex.Input {
     interface IEngineInput {
         keyboard: Keyboard;
@@ -4715,6 +4716,8 @@ declare module ex {
          */
         collisionStrategy: CollisionStrategy;
         private hasStarted;
+        fps: number;
+        postProcessors: IPostProcessor[];
         currentScene: Scene;
         /**
          * The default scene of the game, use {{#crossLink "Engine/goToScene"}}{{/crossLink}} to transition to different scenes.
@@ -4993,6 +4996,13 @@ declare module ex {
          * @method stop
          */
         stop(): void;
+        /**
+         * Takes a screen shot of the current viewport and returns it as an
+         * HTML Image Element.
+         * @method screenshot
+         * @returns HTMLImageElement
+         */
+        screenshot(): HTMLImageElement;
         /**
          * Draws the Excalibur loading bar
          * @method drawLoadingBar
