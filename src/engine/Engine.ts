@@ -166,9 +166,10 @@ module ex {
       constructor(width?: number, height?: number, canvasElementId?: string, displayMode?: DisplayMode) {
 
          super();
-         console.log("Powered by Excalibur.js visit","http://excaliburjs.com","for more information.");
          
          this.logger = Logger.getInstance();
+
+         this.logger.info("Powered by Excalibur.js visit", "http://excaliburjs.com", "for more information.");
          
          this.logger.debug("Building engine...");
 

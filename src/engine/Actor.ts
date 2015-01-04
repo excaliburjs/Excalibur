@@ -479,8 +479,8 @@ module ex {
        * @param center {boolean} Indicates to center the drawing around the actor
        */       
       public setCenterDrawing(center: boolean) {
-         this.centerDrawingY = true;
-         this.centerDrawingX = true;
+         this.centerDrawingY = center;
+         this.centerDrawingX = center;
       }
 
       /**

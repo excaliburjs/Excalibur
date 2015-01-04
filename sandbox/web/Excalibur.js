@@ -11,7 +11,52 @@ if (typeof window != 'undefined' && !window.requestAnimationFrame) {
     };
 }
 if (typeof window != 'undefined' && !window.AudioContext) {
-    window.AudioContext = window.webkitAudioContext || window.mozAudioContext;
+    window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.msAudioContext || window.oAudioContext;
+}
+// Polyfill from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+// Production steps of ECMA-262, Edition 5, 15.4.4.18
+// Reference: http://es5.github.io/#x15.4.4.18
+if (!Array.prototype.forEach) {
+    Array.prototype.forEach = function (callback, thisArg) {
+        var T, k;
+        if (this == null) {
+            throw new TypeError(' this is null or not defined');
+        }
+        // 1. Let O be the result of calling ToObject passing the |this| value as the argument.
+        var O = Object(this);
+        // 2. Let lenValue be the result of calling the Get internal method of O with the argument "length".
+        // 3. Let len be ToUint32(lenValue).
+        var len = O.length >>> 0;
+        // 4. If IsCallable(callback) is false, throw a TypeError exception.
+        // See: http://es5.github.com/#x9.11
+        if (typeof callback !== "function") {
+            throw new TypeError(callback + ' is not a function');
+        }
+        // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
+        if (arguments.length > 1) {
+            T = thisArg;
+        }
+        // 6. Let k be 0
+        k = 0;
+        while (k < len) {
+            var kValue;
+            // a. Let Pk be ToString(k).
+            //   This is implicit for LHS operands of the in operator
+            // b. Let kPresent be the result of calling the HasProperty internal method of O with argument Pk.
+            //   This step can be combined with c
+            // c. If kPresent is true, then
+            if (k in O) {
+                // i. Let kValue be the result of calling the Get internal method of O with argument Pk.
+                kValue = O[k];
+                // ii. Call the Call internal method of callback with T as the this value and
+                // argument list containing kValue, k, and O.
+                callback.call(T, kValue, k, O);
+            }
+            // d. Increase k by 1.
+            k++;
+        }
+        // 8. return undefined
+    };
 }
 // Polyfill from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
 if (!Array.prototype.some) {
@@ -4402,8 +4447,8 @@ var ex;
          * @param center {boolean} Indicates to center the drawing around the actor
          */
         Actor.prototype.setCenterDrawing = function (center) {
-            this.centerDrawingY = true;
-            this.centerDrawingX = true;
+            this.centerDrawingY = center;
+            this.centerDrawingX = center;
         };
         /**
          * Gets the left edge of the actor
@@ -5083,21 +5128,42 @@ var ex;
         function ConsoleAppender() {
         }
         ConsoleAppender.prototype.log = function (level, args) {
+            // Check for console support
+            if (!console && !console.log && console.warn && console.error) {
+                // todo maybe do something better than nothing
+                return;
+            }
             // Create a new console args array
             var consoleArgs = [];
             consoleArgs.unshift.apply(consoleArgs, args);
             consoleArgs.unshift("[" + LogLevel[level] + "] : ");
             if (level < 2 /* Warn */) {
                 // Call .log for Debug/Info
-                console.log.apply(console, consoleArgs);
+                if (console.log.apply) {
+                    // this is required on some older browsers that don't support apply on console.log :(
+                    console.log.apply(console, consoleArgs);
+                }
+                else {
+                    console.log(consoleArgs.join(' '));
+                }
             }
             else if (level < 3 /* Error */) {
                 // Call .warn for Warn
-                console.warn.apply(console, consoleArgs);
+                if (console.warn.apply) {
+                    console.warn.apply(console, consoleArgs);
+                }
+                else {
+                    console.warn(consoleArgs.join(' '));
+                }
             }
             else {
                 // Call .error for Error/Fatal
-                console.error.apply(console, consoleArgs);
+                if (console.error.apply) {
+                    console.error.apply(console, consoleArgs);
+                }
+                else {
+                    console.error(consoleArgs.join(' '));
+                }
             }
         };
         return ConsoleAppender;
@@ -7033,13 +7099,19 @@ var ex;
             this.sound = new ex.Internal.FallbackAudio(this._selectedFile, 1.0);
         }
         Sound.canPlayFile = function (file) {
-            var a = new Audio();
-            var filetype = /.*\.([A-Za-z0-9]+)$/;
-            var type = file.match(filetype)[1];
-            if (a.canPlayType('audio/' + type)) {
-                return true;
+            try {
+                var a = new Audio();
+                var filetype = /.*\.([A-Za-z0-9]+)$/;
+                var type = file.match(filetype)[1];
+                if (a.canPlayType('audio/' + type)) {
+                    return true;
+                }
+                {
+                    return false;
+                }
             }
-            {
+            catch (e) {
+                ex.Logger.getInstance().warn("Cannot determine audio support, assuming no support for the Audio Tag", e);
                 return false;
             }
         };
@@ -7823,33 +7895,33 @@ var ex;
              */
             Pointers.prototype.init = function () {
                 // Touch Events
-                this._engine.canvas.addEventListener('touchstart', this._handleTouchEvent("down", this._pointerDown));
-                this._engine.canvas.addEventListener('touchend', this._handleTouchEvent("up", this._pointerUp));
-                this._engine.canvas.addEventListener('touchmove', this._handleTouchEvent("move", this._pointerMove));
-                this._engine.canvas.addEventListener('touchcancel', this._handleTouchEvent("cancel", this._pointerCancel));
+                document.addEventListener('touchstart', this._handleTouchEvent("down", this._pointerDown));
+                document.addEventListener('touchend', this._handleTouchEvent("up", this._pointerUp));
+                document.addEventListener('touchmove', this._handleTouchEvent("move", this._pointerMove));
+                document.addEventListener('touchcancel', this._handleTouchEvent("cancel", this._pointerCancel));
                 // W3C Pointer Events
                 // Current: IE11, IE10
                 if (window.PointerEvent) {
                     // IE11
                     this._engine.canvas.style.touchAction = "none";
-                    this._engine.canvas.addEventListener('pointerdown', this._handlePointerEvent("down", this._pointerDown));
-                    this._engine.canvas.addEventListener('pointerup', this._handlePointerEvent("up", this._pointerUp));
-                    this._engine.canvas.addEventListener('pointermove', this._handlePointerEvent("move", this._pointerMove));
-                    this._engine.canvas.addEventListener('pointercancel', this._handlePointerEvent("cancel", this._pointerMove));
+                    document.addEventListener('pointerdown', this._handlePointerEvent("down", this._pointerDown));
+                    document.addEventListener('pointerup', this._handlePointerEvent("up", this._pointerUp));
+                    document.addEventListener('pointermove', this._handlePointerEvent("move", this._pointerMove));
+                    document.addEventListener('pointercancel', this._handlePointerEvent("cancel", this._pointerMove));
                 }
                 else if (window.MSPointerEvent) {
                     // IE10
                     this._engine.canvas.style.msTouchAction = "none";
-                    this._engine.canvas.addEventListener('MSPointerDown', this._handlePointerEvent("down", this._pointerDown));
-                    this._engine.canvas.addEventListener('MSPointerUp', this._handlePointerEvent("up", this._pointerUp));
-                    this._engine.canvas.addEventListener('MSPointerMove', this._handlePointerEvent("move", this._pointerMove));
-                    this._engine.canvas.addEventListener('MSPointerCancel', this._handlePointerEvent("cancel", this._pointerMove));
+                    document.addEventListener('MSPointerDown', this._handlePointerEvent("down", this._pointerDown));
+                    document.addEventListener('MSPointerUp', this._handlePointerEvent("up", this._pointerUp));
+                    document.addEventListener('MSPointerMove', this._handlePointerEvent("move", this._pointerMove));
+                    document.addEventListener('MSPointerCancel', this._handlePointerEvent("cancel", this._pointerMove));
                 }
                 else {
                     // Mouse Events
-                    this._engine.canvas.addEventListener('mousedown', this._handleMouseEvent("down", this._pointerDown));
-                    this._engine.canvas.addEventListener('mouseup', this._handleMouseEvent("up", this._pointerUp));
-                    this._engine.canvas.addEventListener('mousemove', this._handleMouseEvent("move", this._pointerMove));
+                    document.addEventListener('mousedown', this._handleMouseEvent("down", this._pointerDown));
+                    document.addEventListener('mouseup', this._handleMouseEvent("up", this._pointerUp));
+                    document.addEventListener('mousemove', this._handleMouseEvent("move", this._pointerMove));
                 }
             };
             Pointers.prototype.update = function (delta) {
@@ -8798,8 +8870,8 @@ var ex;
             this.isLoading = false;
             this.progress = 0;
             this.total = 1;
-            console.log("Powered by Excalibur.js visit", "http://excaliburjs.com", "for more information.");
             this.logger = ex.Logger.getInstance();
+            this.logger.info("Powered by Excalibur.js visit", "http://excaliburjs.com", "for more information.");
             this.logger.debug("Building engine...");
             this.canvasElementId = canvasElementId;
             if (canvasElementId) {
