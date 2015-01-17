@@ -436,7 +436,8 @@ module ex {
        * @returns Vector
        */
       public getCenter(): Vector {
-         return new Vector(this.x + this.getWidth() / 2, this.y + this.getHeight() / 2);
+         var anchor = this._getCalculatedAnchor();
+         return new Vector(this.x + this.getWidth() / 2 - anchor.x , this.y + this.getHeight() / 2 - anchor.y);
       }
 
       /**
