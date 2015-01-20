@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2015-01-04
+/*! excalibur - v0.2.5 - 2015-01-19
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2015 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -4409,6 +4409,7 @@ var ex;
          * @returns Vector
          */
         Actor.prototype.getCenter = function () {
+            var anchor = this._getCalculatedAnchor();
             return new ex.Vector(this.x + this.getWidth() / 2, this.y + this.getHeight() / 2);
         };
         /**
