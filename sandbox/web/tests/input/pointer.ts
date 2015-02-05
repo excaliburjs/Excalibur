@@ -13,10 +13,10 @@ uiElement.on('pointerdown', (p: ex.Input.PointerEvent) => {
 });
 
 // Enable pointer input for box
-box.enableCapturePointer = true;
+//box.enableCapturePointer = true;
 
 // Enable tracking mouse movement for box
-box.capturePointer.captureMoveEvents = true;
+//box.capturePointer.captureMoveEvents = true;
 
 // Change color of box when clicked
 box.on("pointerup", (pe: ex.Input.PointerEvent) => {

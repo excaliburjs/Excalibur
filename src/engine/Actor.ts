@@ -299,7 +299,7 @@ module ex {
       }
 
       private _checkForPointerOptIn(eventName: string) {
-         if (eventName && (eventName.toLowerCase() === 'pointerdown' || eventName.toLowerCase() === 'pointerdown')) {
+         if (eventName && (eventName.toLowerCase() === 'pointerdown' || eventName.toLowerCase() === 'pointerdown' || eventName.toLowerCase() === 'pointermove')) {
             this.enableCapturePointer = true;
             if (eventName.toLowerCase() === 'pointermove') {
                this.capturePointer.captureMoveEvents = true;

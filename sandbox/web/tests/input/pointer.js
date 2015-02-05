@@ -10,9 +10,9 @@ uiElement.on('pointerdown', function (p) {
     uiElement.color = ex.Color.Red.clone();
 });
 // Enable pointer input for box
-box.enableCapturePointer = true;
+//box.enableCapturePointer = true;
 // Enable tracking mouse movement for box
-box.capturePointer.captureMoveEvents = true;
+//box.capturePointer.captureMoveEvents = true;
 // Change color of box when clicked
 box.on("pointerup", function (pe) {
     boxPointerDown = false;
