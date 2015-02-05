@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2015-01-19
+/*! excalibur - v0.2.5 - 2015-02-04
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2015 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -4300,6 +4300,36 @@ var ex;
          * @param engine {Engine}
          */
         Actor.prototype.onInitialize = function (engine) {
+        };
+        Actor.prototype._checkForPointerOptIn = function (eventName) {
+            if (eventName && (eventName.toLowerCase() === 'pointerdown' || eventName.toLowerCase() === 'pointerdown' || eventName.toLowerCase() === 'pointermove')) {
+                this.enableCapturePointer = true;
+                if (eventName.toLowerCase() === 'pointermove') {
+                    this.capturePointer.captureMoveEvents = true;
+                }
+            }
+        };
+        /**
+        * Add an event listener. You can listen for a variety of
+        * events off of the engine; see the events section below for a complete list.
+        * @method addEventListener
+        * @param eventName {string} Name of the event to listen for
+        * @param handler {event=>void} Event handler for the thrown event
+        */
+        Actor.prototype.addEventListener = function (eventName, handler) {
+            this._checkForPointerOptIn(eventName);
+            _super.prototype.addEventListener.call(this, eventName, handler);
+        };
+        /**
+         * Alias for "addEventListener". You can listen for a variety of
+         * events off of the engine; see the events section below for a complete list.
+         * @method on
+         * @param eventName {string} Name of the event to listen for
+         * @param handler {event=>void} Event handler for the thrown event
+         */
+        Actor.prototype.on = function (eventName, handler) {
+            this._checkForPointerOptIn(eventName);
+            this.eventDispatcher.subscribe(eventName, handler);
         };
         /**
          * If the current actors is a member of the scene. This will remove

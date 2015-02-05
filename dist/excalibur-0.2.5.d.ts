@@ -2103,6 +2103,23 @@ declare module ex {
          * @param engine {Engine}
          */
         onInitialize(engine: Engine): void;
+        private _checkForPointerOptIn(eventName);
+        /**
+        * Add an event listener. You can listen for a variety of
+        * events off of the engine; see the events section below for a complete list.
+        * @method addEventListener
+        * @param eventName {string} Name of the event to listen for
+        * @param handler {event=>void} Event handler for the thrown event
+        */
+        addEventListener(eventName: string, handler: (event?: GameEvent) => void): void;
+        /**
+         * Alias for "addEventListener". You can listen for a variety of
+         * events off of the engine; see the events section below for a complete list.
+         * @method on
+         * @param eventName {string} Name of the event to listen for
+         * @param handler {event=>void} Event handler for the thrown event
+         */
+        on(eventName: string, handler: (event?: GameEvent) => void): void;
         /**
          * If the current actors is a member of the scene. This will remove
          * it from the scene graph. It will no longer be drawn or updated.
