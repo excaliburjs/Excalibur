@@ -298,6 +298,39 @@ module ex {
 
       }
 
+      private _checkForPointerOptIn(eventName: string) {
+         if (eventName && (eventName.toLowerCase() === 'pointerdown' || eventName.toLowerCase() === 'pointerdown')) {
+            this.enableCapturePointer = true;
+            if (eventName.toLowerCase() === 'pointermove') {
+               this.capturePointer.captureMoveEvents = true;
+            }
+         }
+      }
+
+      /**
+      * Add an event listener. You can listen for a variety of
+      * events off of the engine; see the events section below for a complete list.
+      * @method addEventListener
+      * @param eventName {string} Name of the event to listen for
+      * @param handler {event=>void} Event handler for the thrown event
+      */
+      public addEventListener(eventName: string, handler: (event?: GameEvent) => void) {
+         this._checkForPointerOptIn(eventName);
+         super.addEventListener(eventName, handler);
+      }
+     
+      /**
+       * Alias for "addEventListener". You can listen for a variety of
+       * events off of the engine; see the events section below for a complete list.
+       * @method on
+       * @param eventName {string} Name of the event to listen for
+       * @param handler {event=>void} Event handler for the thrown event
+       */
+      public on(eventName: string, handler: (event?: GameEvent) => void) {
+         this._checkForPointerOptIn(eventName);
+         this.eventDispatcher.subscribe(eventName, handler);
+      }
+     
       /**
        * If the current actors is a member of the scene. This will remove
        * it from the scene graph. It will no longer be drawn or updated.
