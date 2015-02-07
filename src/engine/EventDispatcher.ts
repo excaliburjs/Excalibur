@@ -30,7 +30,7 @@ module ex {
          }
          eventName = eventName.toLowerCase();
          var target = this._target;
-         if(!event){
+         if (!event) {
             event = new GameEvent();
          }
          event.target = target;
@@ -39,6 +39,7 @@ module ex {
                callback.call(target, event);
             });
          }
+         this._wiredEventDispatchers.forEach(d => d.publish(eventName, event));
       }
 
       /**

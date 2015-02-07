@@ -78,7 +78,9 @@ describe("An Actor Group",() => {
 
    it("can return the containing bounding box of all members",() => {
       var a1 = new ex.Actor(0, 0, 100, 100);
+      a1.anchor.setTo(0, 0);
       var a2 = new ex.Actor(100, 100, 200, 190);
+      a2.anchor.setTo(0, 0);
 
       group.add([a1, a2]);
 

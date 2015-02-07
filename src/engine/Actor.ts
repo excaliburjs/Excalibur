@@ -596,7 +596,11 @@ module ex {
        */
       public getBounds() {
          var anchor = this._getCalculatedAnchor();
-         return new BoundingBox(this.getGlobalX()-anchor.x, this.getGlobalY() - anchor.y, this.getGlobalX() + this.getWidth() - anchor.x, this.getGlobalY() + this.getHeight() - anchor.y);
+
+         return new BoundingBox(this.getGlobalX() - anchor.x,
+            this.getGlobalY() - anchor.y,
+            this.getGlobalX() + this.getWidth() - anchor.x,
+            this.getGlobalY() + this.getHeight() - anchor.y);
       }
 
       /**

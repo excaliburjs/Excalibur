@@ -46,9 +46,45 @@ describe("An Event Dispatcher",() => {
 
    });
    it("can be subscribed to",() => { });
-   it("has an on alias",() => { });
    it("can be unsubscribed from",() => { });
-   it("has an off alias",() => { });
-   it("can wire to other event dispatchers",() => { });
-   it("can unwire from other event dispatchers",() => { });
+   it("can wire to other event dispatchers",() => {
+      var newPubSub = new ex.EventDispatcher(null);
+      pubsub.wire(newPubSub);
+
+      var eventFired = false;
+      pubsub.subscribe("someevent", () => {
+         eventFired = true;
+      });
+      
+      newPubSub.emit("someevent", null);
+
+      expect(eventFired).toBeTruthy();
+
+   });
+   it("can unwire from other event dispatchers",() => {
+      var newPubSub = new ex.EventDispatcher(null);
+      pubsub.wire(newPubSub);
+
+      var eventFired = false;
+      pubsub.subscribe("someevent",() => {
+         eventFired = true;
+      });
+
+      newPubSub.emit("someevent", null);
+
+      expect(eventFired).toBeTruthy();
+
+      var otherEvent = false;
+      pubsub.subscribe("otherevent",() => {
+         otherEvent = true;
+      });
+
+      pubsub.unwire(newPubSub);
+
+      newPubSub.emit("otherevent", null);
+
+      expect(otherEvent).toBeFalsy();
+
+
+   });
 }); 
