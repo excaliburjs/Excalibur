@@ -80,10 +80,10 @@ module ex {
          ctx.translate(this.x, this.y);
 
          var bb = this.getBounds();
-         bb.left = bb.left - this.getGlobalX();
-         bb.right = bb.right - this.getGlobalX();
-         bb.top = bb.top - this.getGlobalY();
-         bb.bottom = bb.bottom - this.getGlobalY();
+         bb.left = bb.left - this.getWorldX();
+         bb.right = bb.right - this.getWorldX();
+         bb.top = bb.top - this.getWorldY();
+         bb.bottom = bb.bottom - this.getWorldY();
 
          // Currently collision primitives cannot rotate 
          // ctx.rotate(this.rotation);

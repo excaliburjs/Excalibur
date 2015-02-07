@@ -194,7 +194,6 @@ module ex {
 
       public actions: ActionContext = new ActionContext(this);
 
-      private sceneNode: Scene; //the scene that the actor contains
 
       /**
        * Convenience reference to the global logger
@@ -203,16 +202,23 @@ module ex {
       public logger: Logger = Logger.getInstance();
 
       /**
-      * The scene that the actor is in
-      * @property scene {Scene}
-      */
-      public scene: Scene = null; //formerly "parent"
+       * The scene that the actor is in
+       * @property scene {Scene}
+       */
+      public scene: Scene = null;
 
       /**
-      * The parent of this actor
-      * @property parent {Actor}
-      */
+       * The parent of this actor
+       * @property parent {Actor}
+       */
       public parent: Actor = null;
+
+      // TODO: Replace this with the new actor collection once z-indexing is built
+      /**
+       * The children of this actor
+       * @property children {Actor[]}
+       */
+      public children: Actor[] = [];
 
       /**
        * Gets or sets the current collision type of this actor. By 
@@ -224,6 +230,7 @@ module ex {
 
       private _collisionHandlers: {[key: string]: {(actor: Actor):void}[];} = {};
       private _isInitialized : boolean = false;
+
 
       public frames: { [key: string]: IDrawable; } = {}
       
@@ -287,9 +294,6 @@ module ex {
 
          this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
          
-         this.sceneNode = new Scene();
-         this.sceneNode.actor = this;
-
          this.anchor = new Point(.5, .5);
       }
 
@@ -368,7 +372,7 @@ module ex {
        */
       public addChild(actor: Actor) {
          actor.collisionType = CollisionType.PreventCollision;
-         this.sceneNode.addChild(actor);
+         ex.Util.addItemToArray(actor, this.children);
       }
 
       /**
@@ -377,7 +381,7 @@ module ex {
        * @param actor {Actor} The child actor to remove
        */
       public removeChild(actor: Actor) {
-         this.sceneNode.removeChild(actor);
+         ex.Util.removeItemToArray(actor, this.children);
       }
 
       /**
@@ -560,22 +564,26 @@ module ex {
 
       /**
       * Gets the x value of the Actor in global coordinates
-      * @method getGlobalX
+      * @method getWorldX
       * @returns number
       */
-      public getGlobalX() {
-         if(!this.parent) return this.x;
-         return this.x * this.parent.scale.y + this.parent.getGlobalX();
+      public getWorldX() {
+         if (!this.parent) {
+             return this.x;
+         }
+         return this.x * this.parent.scale.y + this.parent.getWorldX();
       }
 
       /**
       * Gets the y value of the Actor in global coordinates
-      * @method getGlobalY
+      * @method getWorldY
       * @returns number
       */
-      public getGlobalY() {
-        if(!this.parent) return this.y;
-         return this.y * this.parent.scale.y + this.parent.getGlobalY();
+      public getWorldY() {
+        if (!this.parent) {
+            return this.y;
+        }
+         return this.y * this.parent.scale.y + this.parent.getWorldY();
       }
 
       /**
@@ -597,10 +605,10 @@ module ex {
       public getBounds() {
          var anchor = this._getCalculatedAnchor();
 
-         return new BoundingBox(this.getGlobalX() - anchor.x,
-            this.getGlobalY() - anchor.y,
-            this.getGlobalX() + this.getWidth() - anchor.x,
-            this.getGlobalY() + this.getHeight() - anchor.y);
+         return new BoundingBox(this.getWorldX() - anchor.x,
+            this.getWorldY() - anchor.y,
+            this.getWorldX() + this.getWidth() - anchor.x,
+            this.getWorldY() + this.getHeight() - anchor.y);
       }
 
       /**
@@ -1039,11 +1047,12 @@ module ex {
                ctx.fillStyle = this.color.toString();
                ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this.width, this.height);
             } 
-            
          }
-         
-         
-         this.sceneNode.draw(ctx, delta);
+
+
+         for (var i = 0; i < this.children.length; i++) {
+            this.children[i].draw(ctx, delta);
+         }
 
          ctx.restore();
       }

@@ -676,8 +676,8 @@ describe("A game actor", () => {
          actor.moveBy(10, 15, 1000);
          actor.update(engine, 1000);
 
-         expect(childActor.getGlobalX()).toBe(60);
-         expect(childActor.getGlobalY()).toBe(65);
+         expect(childActor.getWorldX()).toBe(60);
+         expect(childActor.getWorldY()).toBe(65);
    });
 
    it('can find its global coordinates if it doesn\'t have a parent', ()=>{
@@ -687,8 +687,8 @@ describe("A game actor", () => {
          actor.moveBy(10,15, 1000);
          actor.update(engine, 1000);
 
-         expect(actor.getGlobalX()).toBe(10);
-         expect(actor.getGlobalY()).toBe(15);
+         expect(actor.getWorldX()).toBe(10);
+         expect(actor.getWorldY()).toBe(15);
    });
 
    it('can be removed from the scene', ()=>{

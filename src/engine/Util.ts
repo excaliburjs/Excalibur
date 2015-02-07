@@ -109,6 +109,19 @@ module ex.Util {
       return new Point(oLeft, oTop);
    }
 
+   export function addItemToArray<T>(item: T, array: T[]) {
+      if (array.indexOf(item) === -1) {
+         array.push(item);
+      }
+   }
+
+   export function removeItemToArray<T>(item: T, array: T[]) {
+      var index = -1;
+      if ((index = array.indexOf(item)) > -1) {
+         array.splice(index, 1);
+      }
+   }
+
    export function getOppositeSide(side: ex.Side){
       if(side === ex.Side.Top) return ex.Side.Bottom;
       if(side === ex.Side.Bottom) return ex.Side.Top;
