@@ -699,4 +699,15 @@ describe("A game actor", () => {
       expect(scene.children.length).toBe(0);
    });
 
+   it('does not incure pointer overhead until an event is registered',() => {
+      expect(actor.enableCapturePointer).toBeFalsy();
+      expect(actor.capturePointer.captureMoveEvents).toBeFalsy();
+      actor.on('pointerdown',() => { });
+      expect(actor.capturePointer.captureMoveEvents).toBeFalsy();
+      expect(actor.enableCapturePointer).toBeTruthy();
+      actor.on('pointermove',() => { });
+      expect(actor.capturePointer.captureMoveEvents).toBeTruthy();
+      expect(actor.enableCapturePointer).toBeTruthy();
+   });
+
 });
