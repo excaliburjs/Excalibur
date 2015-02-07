@@ -9,7 +9,9 @@
 /// <reference path="TileMap.ts" />
 /// <reference path="Collision/BoundingBox.ts" />
 /// <reference path="Scene.ts" />
-/// <reference path="Action.ts" />
+/// <reference path="Actions/IActionable.ts"/>
+/// <reference path="Actions/Action.ts" />
+/// <reference path="Actions/ActionContext.ts"/>
 /// <reference path="EasingFunctions.ts"/>
 
 
@@ -81,7 +83,7 @@ module ex {
     * @param [height=0.0] {number} The starting height of the actor
     * @param [color=undefined] {Color} The starting color of the actor
     */     
-   export class Actor extends ex.Class {
+    export class Actor extends ex.Class implements IActionable {
       /**
        * Indicates the next id to be set
        */
@@ -188,6 +190,9 @@ module ex {
        * @property actionQueue {ActionQueue} 
        */
       public actionQueue: ex.Internal.Actions.ActionQueue;
+
+
+      public actions: ActionContext = new ActionContext(this);
 
       private sceneNode: Scene; //the scene that the actor contains
 
