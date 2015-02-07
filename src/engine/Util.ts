@@ -109,17 +109,22 @@ module ex.Util {
       return new Point(oLeft, oTop);
    }
 
-   export function addItemToArray<T>(item: T, array: T[]) {
+   export function addItemToArray<T>(item: T, array: T[]): boolean {
       if (array.indexOf(item) === -1) {
          array.push(item);
+         return true;
       }
+      return false;
    }
 
-   export function removeItemToArray<T>(item: T, array: T[]) {
+   export function removeItemToArray<T>(item: T, array: T[]): boolean {
       var index = -1;
       if ((index = array.indexOf(item)) > -1) {
          array.splice(index, 1);
+         return true;
       }
+
+      return false;
    }
 
    export function getOppositeSide(side: ex.Side){

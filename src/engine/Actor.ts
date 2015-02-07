@@ -372,7 +372,9 @@ module ex {
        */
       public addChild(actor: Actor) {
          actor.collisionType = CollisionType.PreventCollision;
-         ex.Util.addItemToArray(actor, this.children);
+         if (ex.Util.addItemToArray(actor, this.children)) {
+            actor.parent = this;
+         }
       }
 
       /**
@@ -381,7 +383,9 @@ module ex {
        * @param actor {Actor} The child actor to remove
        */
       public removeChild(actor: Actor) {
-         ex.Util.removeItemToArray(actor, this.children);
+         if (ex.Util.removeItemToArray(actor, this.children)) {
+            actor.parent = null;
+         }
       }
 
       /**
