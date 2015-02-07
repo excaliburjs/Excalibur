@@ -58,7 +58,9 @@
     <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
   </PropertyGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="Action.ts" />
+    <TypeScriptCompile Include="Actions\Action.ts" />
+    <TypeScriptCompile Include="Actions\ActionContext.ts" />
+    <TypeScriptCompile Include="Actions\IActionable.ts" />
     <TypeScriptCompile Include="Actor.ts" />
     <TypeScriptCompile Include="Algebra.ts" />
     <TypeScriptCompile Include="Animation.ts" />
@@ -76,6 +78,7 @@
     <TypeScriptCompile Include="EventDispatcher.ts" />
     <TypeScriptCompile Include="Events.ts" />
     <TypeScriptCompile Include="Collision\ICollisionResolver.ts" />
+    <TypeScriptCompile Include="Group.ts" />
     <TypeScriptCompile Include="Input\Gamepad.ts" />
     <TypeScriptCompile Include="Input\IEngineInput.ts" />
     <TypeScriptCompile Include="Input\Keyboard.ts" />

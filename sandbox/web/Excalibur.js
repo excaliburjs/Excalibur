@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2015-02-04
+/*! excalibur - v0.2.5 - 2015-02-07
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2015 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -512,6 +512,15 @@ var ex;
             return new Vector(this.x * size, this.y * size);
         };
         /**
+         * Adds one vector to another, alias for add
+         * @method plus
+         * @param v {Vector} The vector to add
+         * @return Vector
+         */
+        Vector.prototype.plus = function (v) {
+            return this.add(v);
+        };
+        /**
          * Adds one vector to another
          * @method add
          * @param v {Vector} The vector to add
@@ -519,6 +528,15 @@ var ex;
          */
         Vector.prototype.add = function (v) {
             return new Vector(this.x + v.x, this.y + v.y);
+        };
+        /**
+         * Subtracts a vector from another, alias for minus
+         * @method subtract
+         * @param v {Vector} The vector to subtract
+         * @returns Vector
+         */
+        Vector.prototype.subtract = function (v) {
+            return this.minus(v);
         };
         /**
          * Subtracts a vector from the current vector
@@ -588,6 +606,15 @@ var ex;
         Vector.prototype.rotate = function (angle, anchor) {
             return _super.prototype.rotate.call(this, angle, anchor).toVector();
         };
+        /**
+         * Creates new vector that has the same values as the previous.
+         * @method clone
+         * @returns Vector
+         */
+        Vector.prototype.clone = function () {
+            return new Vector(this.x, this.y);
+        };
+        Vector.Zero = new Vector(0, 0);
         return Vector;
     })(Point);
     ex.Vector = Vector;
@@ -2963,326 +2990,9 @@ var ex;
     })(BaseCamera);
     ex.TopCamera = TopCamera;
 })(ex || (ex = {}));
-/// <reference path="Class.ts" />
-/// <reference path="Timer.ts" />
-/// <reference path="Collision/NaiveCollisionResolver.ts"/>
-/// <reference path="Collision/DynamicTreeCollisionResolver.ts"/>
-/// <reference path="CollisionPair.ts" />
-/// <reference path="Camera.ts" />
-var ex;
-(function (ex) {
-    /**
-     * Actors are composed together into groupings called Scenes in
-     * Excalibur. The metaphor models the same idea behind real world
-     * actors in a scene. Only actors in scenes will be updated and drawn.
-     * @class Scene
-     * @constructor
-     */
-    var Scene = (function (_super) {
-        __extends(Scene, _super);
-        function Scene(engine) {
-            _super.call(this);
-            /**
-             * The actors in the current scene
-             * @property children {Actor[]}
-             */
-            this.children = [];
-            this.tileMaps = [];
-            this.uiActors = [];
-            this._collisionResolver = new ex.DynamicTreeCollisionResolver();
-            this._killQueue = [];
-            this._timers = [];
-            this._cancelQueue = [];
-            this._isInitialized = false;
-            this.camera = new ex.BaseCamera();
-            if (engine) {
-                this.camera.setFocus(engine.width / 2, engine.height / 2);
-            }
-        }
-        /**
-         * This is called when the scene is made active and started. It is meant to be overriden,
-         * this is where you should setup any DOM UI or event handlers needed for the scene.
-         * @method onActivate
-         */
-        Scene.prototype.onActivate = function () {
-            // will be overridden
-        };
-        /**
-         * This is called when the scene is made transitioned away from and stopped. It is meant to be overriden,
-         * this is where you should cleanup any DOM UI or event handlers needed for the scene.
-         * @method onDeactivate
-         */
-        Scene.prototype.onDeactivate = function () {
-            // will be overridden
-        };
-        /**
-         * This is called before the first update of the actor. This method is meant to be
-         * overridden. This is where initialization of child actors should take place.
-         * @method onInitialize
-         * @param engine {Engine}
-         */
-        Scene.prototype.onInitialize = function (engine) {
-            // will be overridden
-        };
-        /**
-         * Publish an event to all actors in the scene
-         * @method publish
-         * @param eventType {string} The name of the event to publish
-         * @param event {GameEvent} The event object to send
-         */
-        Scene.prototype.publish = function (eventType, event) {
-            this.children.forEach(function (actor) {
-                actor.triggerEvent(eventType, event);
-            });
-        };
-        /**
-         * Updates all the actors and timers in the Scene. Called by the Engine.
-         * @method update
-         * @param engine {Engine} Reference to the current Engine
-         * @param delta {number} The number of milliseconds since the last update
-         */
-        Scene.prototype.update = function (engine, delta) {
-            if (!this._isInitialized) {
-                this.onInitialize(engine);
-                this.eventDispatcher.publish('initialize', new ex.InitializeEvent(engine));
-                this._isInitialized = true;
-            }
-            this.uiActors.forEach(function (ui) {
-                ui.update(engine, delta);
-            });
-            this.tileMaps.forEach(function (cm) {
-                cm.update(engine, delta);
-            });
-            var len = 0;
-            for (var i = 0, len = this.children.length; i < len; i++) {
-                this.children[i].update(engine, delta);
-            }
-            // Run collision resolution strategy
-            if (this._collisionResolver) {
-                this._collisionResolver.update(this.children);
-                this._collisionResolver.evaluate(this.children);
-            }
-            // Remove actors from scene graph after being killed
-            var actorIndex = 0;
-            for (var i = 0, len = this._killQueue.length; i < len; i++) {
-                actorIndex = this.children.indexOf(this._killQueue[i]);
-                if (actorIndex > -1) {
-                    this.children.splice(actorIndex, 1);
-                }
-            }
-            this._killQueue.length = 0;
-            // Remove timers in the cancel queue before updating them
-            var timerIndex = 0;
-            for (var i = 0, len = this._cancelQueue.length; i < len; i++) {
-                this.removeTimer(this._cancelQueue[i]);
-            }
-            this._cancelQueue.length = 0;
-            // Cycle through timers updating timers
-            var that = this;
-            this._timers = this._timers.filter(function (timer) {
-                timer.update(delta);
-                return !timer.complete;
-            });
-        };
-        /**
-         * Draws all the actors in the Scene. Called by the Engine.
-         * @method draw
-         * @param ctx {CanvasRenderingContext2D} The current rendering context
-         * @param delta {number} The number of milliseconds since the last draw
-         */
-        Scene.prototype.draw = function (ctx, delta) {
-            ctx.save();
-            if (this.camera) {
-                this.camera.update(ctx, delta);
-            }
-            this.tileMaps.forEach(function (cm) {
-                cm.draw(ctx, delta);
-            });
-            var len = 0;
-            var start = 0;
-            var end = 0;
-            var actor;
-            for (var i = 0, len = this.children.length; i < len; i++) {
-                actor = this.children[i];
-                // only draw actors that are visible
-                if (actor.visible) {
-                    this.children[i].draw(ctx, delta);
-                }
-            }
-            if (this.engine && this.engine.isDebug) {
-                ctx.strokeStyle = 'yellow';
-                this.debugDraw(ctx);
-            }
-            ctx.restore();
-            this.uiActors.forEach(function (ui) {
-                if (ui.visible) {
-                    ui.draw(ctx, delta);
-                }
-            });
-            if (this.engine && this.engine.isDebug) {
-                this.uiActors.forEach(function (ui) {
-                    ui.debugDraw(ctx);
-                });
-            }
-        };
-        /**
-         * Draws all the actors' debug information in the Scene. Called by the Engine.
-         * @method draw
-         * @param ctx {CanvasRenderingContext2D} The current rendering context
-         */
-        Scene.prototype.debugDraw = function (ctx) {
-            this.tileMaps.forEach(function (map) {
-                map.debugDraw(ctx);
-            });
-            this.children.forEach(function (actor) {
-                actor.debugDraw(ctx);
-            });
-            // todo possibly enable this with excalibur flags features?
-            //this._collisionResolver.debugDraw(ctx, 20);
-            //this.camera.debugDraw(ctx);
-        };
-        Scene.prototype.add = function (entity) {
-            if (entity instanceof ex.UIActor) {
-                this.addUIActor(entity);
-                return;
-            }
-            if (entity instanceof ex.Actor) {
-                this.addChild(entity);
-            }
-            if (entity instanceof ex.Timer) {
-                this.addTimer(entity);
-            }
-            if (entity instanceof ex.TileMap) {
-                this.addTileMap(entity);
-            }
-        };
-        Scene.prototype.remove = function (entity) {
-            if (entity instanceof ex.UIActor) {
-                this.removeUIActor(entity);
-                return;
-            }
-            if (entity instanceof ex.Actor) {
-                this._collisionResolver.remove(entity);
-                this.removeChild(entity);
-            }
-            if (entity instanceof ex.Timer) {
-                this.removeTimer(entity);
-            }
-            if (entity instanceof ex.TileMap) {
-                this.removeTileMap(entity);
-            }
-        };
-        /**
-         * Adds an actor to act as a piece of UI, meaning it is always positioned
-         * in screen coordinates. UI actors do not participate in collisions
-         * @method addUIActor
-         * @param actor {Actor}
-         */
-        Scene.prototype.addUIActor = function (actor) {
-            this.uiActors.push(actor);
-        };
-        /**
-         * Removes an actor as a piec of UI
-         * @method removeUIActor
-         * @param actor {Actor}
-         */
-        Scene.prototype.removeUIActor = function (actor) {
-            var index = this.uiActors.indexOf(actor);
-            if (index > -1) {
-                this.uiActors.splice(index, 1);
-            }
-        };
-        /**
-         * Adds an actor to the Scene, once this is done the actor will be drawn and updated.
-         * @method addChild
-         * @param actor {Actor}
-         */
-        Scene.prototype.addChild = function (actor) {
-            this._collisionResolver.register(actor);
-            actor.scene = this;
-            this.children.push(actor);
-            actor.parent = this.actor;
-        };
-        /**
-         * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
-         * @method addTileMap
-         * @param tileMap {TileMap}
-         */
-        Scene.prototype.addTileMap = function (tileMap) {
-            this.tileMaps.push(tileMap);
-        };
-        /**
-         * Removes a TileMap from the Scene, it willno longer be drawn or updated.
-         * @method removeTileMap
-         * @param tileMap {TileMap}
-         */
-        Scene.prototype.removeTileMap = function (tileMap) {
-            var index = this.tileMaps.indexOf(tileMap);
-            if (index > -1) {
-                this.tileMaps.splice(index, 1);
-            }
-        };
-        /**
-         * Removes an actor from the Scene, it will no longer be drawn or updated.
-         * @method removeChild
-         * @param actor {Actor} The actor to remove
-         */
-        Scene.prototype.removeChild = function (actor) {
-            this._collisionResolver.remove(actor);
-            this._killQueue.push(actor);
-            actor.parent = null;
-        };
-        /**
-         * Adds a timer to the Scene
-         * @method addTimer
-         * @param timer {Timer} The timer to add
-         * @returns Timer
-         */
-        Scene.prototype.addTimer = function (timer) {
-            this._timers.push(timer);
-            timer.scene = this;
-            return timer;
-        };
-        /**
-         * Removes a timer to the Scene, can be dangerous
-         * @method removeTimer
-         * @private
-         * @param timer {Timer} The timer to remove
-         * @returns Timer
-         */
-        Scene.prototype.removeTimer = function (timer) {
-            var i = this._timers.indexOf(timer);
-            if (i !== -1) {
-                this._timers.splice(i, 1);
-            }
-            return timer;
-        };
-        /**
-         * Cancels a timer, removing it from the scene nicely
-         * @method cancelTimer
-         * @param timer {Timer} The timer to cancel
-         * @returns Timer
-         */
-        Scene.prototype.cancelTimer = function (timer) {
-            this._cancelQueue.push(timer);
-            return timer;
-        };
-        /**
-         * Tests whether a timer is active in the scene
-         * @method isTimerActive
-         * @param timer {Timer}
-         * @returns boolean
-         */
-        Scene.prototype.isTimerActive = function (timer) {
-            return (this._timers.indexOf(timer) > -1);
-        };
-        return Scene;
-    })(ex.Class);
-    ex.Scene = Scene;
-})(ex || (ex = {}));
-/// <reference path="Algebra.ts" />
-/// <reference path="Engine.ts" />
-/// <reference path="Actor.ts" />
+/// <reference path="../Algebra.ts" />
+/// <reference path="../Engine.ts" />
+/// <reference path="../Actor.ts" />
 var ex;
 (function (ex) {
     var Internal;
@@ -3989,6 +3699,770 @@ var ex;
         })(Actions = Internal.Actions || (Internal.Actions = {}));
     })(Internal = ex.Internal || (ex.Internal = {}));
 })(ex || (ex = {}));
+/// <reference path="Action.ts"/>
+var ex;
+(function (ex) {
+    var ActionContext = (function () {
+        function ActionContext() {
+            this._actors = [];
+            this._queues = [];
+            if (arguments !== null) {
+                this._actors = Array.prototype.slice.call(arguments, 0);
+                this._queues = this._actors.map(function (a) {
+                    return a.actionQueue;
+                });
+            }
+        }
+        /**
+        * Clears all queued actions from the Actor
+        * @method clearActions
+         */
+        ActionContext.prototype.clearActions = function () {
+            this._queues.forEach(function (q) { return q.clearActions(); });
+        };
+        ActionContext.prototype.addActorToContext = function (actor) {
+            this._actors.push(actor);
+            // if we run into problems replace the line below with:
+            this._queues.push(actor.actionQueue);
+        };
+        ActionContext.prototype.removeActorFromContext = function (actor) {
+            var index = this._actors.indexOf(actor);
+            if (index > -1) {
+                this._actors.splice(index, 1);
+                this._queues.splice(index, 1);
+            }
+        };
+        /**
+         * This method will move an actor to the specified x and y position at the
+         * speed specified (in pixels per second) and return back the actor. This
+         * method is part of the actor 'Action' fluent API allowing action chaining.
+         * @method moveTo
+         * @param x {number} The x location to move the actor to
+         * @param y {number} The y location to move the actor to
+         * @param speed {number} The speed in pixels per second to move
+         * @returns Actor
+          */
+        ActionContext.prototype.moveTo = function (x, y, speed) {
+            var _this = this;
+            this._queues.forEach(function (q, i) {
+                q.add(new ex.Internal.Actions.MoveTo(_this._actors[i], x, y, speed));
+            });
+            return this;
+        };
+        /**
+         * This method will move an actor to the specified x and y position by a
+         * certain time (in milliseconds). This method is part of the actor
+         * 'Action' fluent API allowing action chaining.
+         * @method moveBy
+         * @param x {number} The x location to move the actor to
+         * @param y {number} The y location to move the actor to
+         * @param time {number} The time it should take the actor to move to the new location in milliseconds
+         * @returns Actor
+          */
+        ActionContext.prototype.moveBy = function (x, y, time) {
+            var _this = this;
+            this._queues.forEach(function (q, i) {
+                q.add(new ex.Internal.Actions.MoveBy(_this._actors[i], x, y, time));
+            });
+            return this;
+        };
+        /**
+         * This method will rotate an actor to the specified angle at the speed
+         * specified (in radians per second) and return back the actor. This
+         * method is part of the actor 'Action' fluent API allowing action chaining.
+         * @method rotateTo
+         * @param angleRadians {number} The angle to rotate to in radians
+         * @param speed {number} The angular velocity of the rotation specified in radians per second
+         * @returns Actor
+          */
+        ActionContext.prototype.rotateTo = function (angleRadians, speed) {
+            var _this = this;
+            this._queues.forEach(function (q, i) {
+                q.add(new ex.Internal.Actions.RotateTo(_this._actors[i], angleRadians, speed));
+            });
+            return this;
+        };
+        /**
+         * This method will rotate an actor to the specified angle by a certain
+         * time (in milliseconds) and return back the actor. This method is part
+         * of the actor 'Action' fluent API allowing action chaining.
+         * @method rotateBy
+         * @param angleRadians {number} The angle to rotate to in radians
+         * @param time {number} The time it should take the actor to complete the rotation in milliseconds
+         * @returns Actor
+          */
+        ActionContext.prototype.rotateBy = function (angleRadians, time) {
+            var _this = this;
+            this._queues.forEach(function (q, i) {
+                q.add(new ex.Internal.Actions.RotateBy(_this._actors[i], angleRadians, time));
+            });
+            return this;
+        };
+        /**
+         * This method will scale an actor to the specified size at the speed
+         * specified (in magnitude increase per second) and return back the
+         * actor. This method is part of the actor 'Action' fluent API allowing
+         * action chaining.
+         * @method scaleTo
+         * @param size {number} The scaling factor to apply
+         * @param speed {number} The speed of scaling specified in magnitude increase per second
+         * @returns Actor
+          */
+        ActionContext.prototype.scaleTo = function (sizeX, sizeY, speedX, speedY) {
+            var _this = this;
+            this._queues.forEach(function (q, i) {
+                q.add(new ex.Internal.Actions.ScaleTo(_this._actors[i], sizeX, sizeY, speedX, speedY));
+            });
+            return this;
+        };
+        /**
+         * This method will scale an actor to the specified size by a certain time
+         * (in milliseconds) and return back the actor. This method is part of the
+         * actor 'Action' fluent API allowing action chaining.
+         * @method scaleBy
+         * @param size {number} The scaling factor to apply
+         * @param time {number} The time it should take to complete the scaling in milliseconds
+         * @returns Actor
+          */
+        ActionContext.prototype.scaleBy = function (sizeX, sizeY, time) {
+            var _this = this;
+            this._queues.forEach(function (q, i) {
+                q.add(new ex.Internal.Actions.ScaleBy(_this._actors[i], sizeX, sizeY, time));
+            });
+            return this;
+        };
+        /**
+         * This method will cause an actor to blink (become visible and not
+         * visible). Optionally, you may specify the number of blinks. Specify the amount of time
+         * the actor should be visible per blink, and the amount of time not visible.
+         * This method is part of the actor 'Action' fluent API allowing action chaining.
+         * @method blink
+         * @param timeVisible {number} The amount of time to stay visible per blink in milliseconds
+         * @param timeNotVisible {number} The amount of time to stay not visible per blink in milliseconds
+         * @param [numBlinks] {number} The number of times to blink
+         * @returns Actor
+          */
+        ActionContext.prototype.blink = function (timeVisible, timeNotVisible, numBlinks) {
+            var _this = this;
+            if (numBlinks === void 0) { numBlinks = 1; }
+            this._queues.forEach(function (q, i) {
+                q.add(new ex.Internal.Actions.Blink(_this._actors[i], timeVisible, timeNotVisible, numBlinks));
+            });
+            return this;
+        };
+        /**
+         * This method will cause an actor's opacity to change from its current value
+         * to the provided value by a specified time (in milliseconds). This method is
+         * part of the actor 'Action' fluent API allowing action chaining.
+         * @method fade
+         * @param opacity {number} The ending opacity
+         * @param time {number} The time it should take to fade the actor (in milliseconds)
+         * @returns Actor
+          */
+        ActionContext.prototype.fade = function (opacity, time) {
+            var _this = this;
+            this._queues.forEach(function (q, i) {
+                q.add(new ex.Internal.Actions.Fade(_this._actors[i], opacity, time));
+            });
+            return this;
+        };
+        /**
+         * This method will delay the next action from executing for a certain
+         * amount of time (in milliseconds). This method is part of the actor
+         * 'Action' fluent API allowing action chaining.
+         * @method delay
+         * @param time {number} The amount of time to delay the next action in the queue from executing in milliseconds
+         * @returns Actor
+          */
+        ActionContext.prototype.delay = function (time) {
+            var _this = this;
+            this._queues.forEach(function (q, i) {
+                q.add(new ex.Internal.Actions.Delay(_this._actors[i], time));
+            });
+            return this;
+        };
+        /**
+         * This method will add an action to the queue that will remove the actor from the
+         * scene once it has completed its previous actions. Any actions on the
+         * action queue after this action will not be executed.
+         * @method die
+         * @returns Actor
+          */
+        ActionContext.prototype.die = function () {
+            var _this = this;
+            this._queues.forEach(function (q, i) {
+                q.add(new ex.Internal.Actions.Die(_this._actors[i]));
+            });
+            return this;
+        };
+        /**
+         * This method allows you to call an arbitrary method as the next action in the
+         * action queue. This is useful if you want to execute code in after a specific
+         * action, i.e An actor arrives at a destinatino after traversing a path
+         * @method callMethod
+         * @returns Actor
+          */
+        ActionContext.prototype.callMethod = function (method) {
+            var _this = this;
+            this._queues.forEach(function (q, i) {
+                q.add(new ex.Internal.Actions.CallMethod(_this._actors[i], method));
+            });
+            return this;
+        };
+        /**
+         * This method will cause the actor to repeat all of the previously
+         * called actions a certain number of times. If the number of repeats
+         * is not specified it will repeat forever. This method is part of
+         * the actor 'Action' fluent API allowing action chaining
+         * @method repeat
+         * @param [times=undefined] {number} The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will repeat forever
+         * @returns Actor
+          */
+        ActionContext.prototype.repeat = function (times) {
+            var _this = this;
+            if (!times) {
+                this.repeatForever();
+                return this;
+            }
+            this._queues.forEach(function (q, i) {
+                q.add(new ex.Internal.Actions.Repeat(_this._actors[i], times, _this._actors[i].actionQueue.getActions()));
+            });
+            return this;
+        };
+        /**
+         * This method will cause the actor to repeat all of the previously
+         * called actions forever. This method is part of the actor 'Action'
+         * fluent API allowing action chaining.
+         * @method repeatForever
+         * @returns Actor
+          */
+        ActionContext.prototype.repeatForever = function () {
+            var _this = this;
+            this._queues.forEach(function (q, i) {
+                q.add(new ex.Internal.Actions.RepeatForever(_this._actors[i], _this._actors[i].actionQueue.getActions()));
+            });
+            return this;
+        };
+        /**
+         * This method will cause the actor to follow another at a specified distance
+         * @method follow
+         * @param actor {Actor} The actor to follow
+         * @param [followDistance=currentDistance] {number} The distance to maintain when following, if not specified the actor will follow at the current distance.
+         * @returns Actor
+         */
+        ActionContext.prototype.follow = function (actor, followDistance) {
+            var _this = this;
+            this._queues.forEach(function (q, i) {
+                if (followDistance == undefined) {
+                    q.add(new ex.Internal.Actions.Follow(_this._actors[i], actor));
+                }
+                else {
+                    q.add(new ex.Internal.Actions.Follow(_this._actors[i], actor, followDistance));
+                }
+            });
+            return this;
+        };
+        /**
+         * This method will cause the actor to move towards another until they
+         * collide "meet" at a specified speed.
+         * @method meet
+         * @param actor {Actor} The actor to meet
+         * @param [speed=0] {number} The speed in pixels per second to move, if not specified it will match the speed of the other actor
+         * @returns Actor
+         */
+        ActionContext.prototype.meet = function (actor, speed) {
+            var _this = this;
+            this._queues.forEach(function (q, i) {
+                if (speed == undefined) {
+                    q.add(new ex.Internal.Actions.Meet(_this._actors[i], actor));
+                }
+                else {
+                    q.add(new ex.Internal.Actions.Meet(_this._actors[i], actor, speed));
+                }
+            });
+            return this;
+        };
+        /**
+         * Returns a promise that resolves when the current action queue up to now
+         * is finished.
+         * @method asPromise
+         * @returns Promise
+         */
+        ActionContext.prototype.asPromise = function () {
+            var _this = this;
+            var promises = this._queues.map(function (q, i) {
+                var temp = new ex.Promise();
+                q.add(new ex.Internal.Actions.CallMethod(_this._actors[i], function () {
+                    temp.resolve();
+                }));
+                return temp;
+            });
+            return ex.Promise.join.apply(this, promises);
+        };
+        return ActionContext;
+    })();
+    ex.ActionContext = ActionContext;
+})(ex || (ex = {}));
+/// <reference path="Actions/IActionable.ts"/>
+/// <reference path="Actions/ActionContext.ts"/>
+/// <reference path="Collision/BoundingBox.ts"/>
+var ex;
+(function (ex) {
+    var Group = (function (_super) {
+        __extends(Group, _super);
+        function Group(name, scene) {
+            _super.call(this);
+            this.name = name;
+            this.scene = scene;
+            this._logger = ex.Logger.getInstance();
+            this._members = [];
+            this.actions = new ex.ActionContext();
+            if (scene == null) {
+                this._logger.error("Invalid constructor arguments passed to Group: ", name, ", scene must not be null!");
+            }
+            else {
+                var existingGroup = scene.groups[name];
+                if (existingGroup) {
+                    this._logger.warn("Group with name", name, "already exists. This new group will replace it.");
+                }
+                scene.groups[name] = this;
+            }
+        }
+        Group.prototype.add = function (actorOrActors) {
+            var _this = this;
+            if (actorOrActors instanceof ex.Actor) {
+                actorOrActors = [].concat(actorOrActors);
+            }
+            actorOrActors.forEach(function (a) {
+                var index = _this.getMembers().indexOf(a);
+                if (index === -1) {
+                    _this._members.push(a);
+                    _this.scene.add(a);
+                    _this.actions.addActorToContext(a);
+                    _this.eventDispatcher.wire(a.eventDispatcher);
+                }
+            });
+        };
+        Group.prototype.remove = function (actor) {
+            var index = this._members.indexOf(actor);
+            if (index > -1) {
+                this._members.splice(index, 1);
+                this.actions.removeActorFromContext(actor);
+                this.eventDispatcher.unwire(actor.eventDispatcher);
+            }
+        };
+        Group.prototype.move = function (args) {
+            if (arguments.length === 1 && args instanceof ex.Vector) {
+                this.getMembers().forEach(function (a) {
+                    a.x += args.x;
+                    a.y += args.y;
+                });
+            }
+            else if (typeof arguments[0] === 'number' && typeof arguments[1] === 'number') {
+                var x = arguments[0];
+                var y = arguments[1];
+                this.getMembers().forEach(function (a) {
+                    a.x += x;
+                    a.y += y;
+                });
+            }
+            else {
+                this._logger.error("Invalid arguments passed to group move", this.name, "args:", arguments);
+            }
+        };
+        Group.prototype.rotate = function (angle) {
+            if (typeof arguments[0] === 'number') {
+                var r = arguments[0];
+                this.getMembers().forEach(function (a) {
+                    a.rotation += r;
+                });
+            }
+            else {
+                this._logger.error("Invalid arguments passed to group rotate", this.name, "args:", arguments);
+            }
+        };
+        Group.prototype.on = function (eventName, handler) {
+            this.eventDispatcher.subscribe(eventName, handler);
+        };
+        Group.prototype.off = function (eventName, handler) {
+            this.eventDispatcher.unsubscribe(eventName, handler);
+        };
+        Group.prototype.emit = function (topic, event) {
+            this.eventDispatcher.emit(topic, event);
+        };
+        Group.prototype.contains = function (actor) {
+            return this.getMembers().indexOf(actor) > -1;
+        };
+        Group.prototype.getMembers = function () {
+            return this._members;
+        };
+        Group.prototype.getRandomMember = function () {
+            return this._members[Math.round(Math.random() * this._members.length)];
+        };
+        Group.prototype.getBounds = function () {
+            return this.getMembers().map(function (a) { return a.getBounds(); }).reduce(function (prev, curr) {
+                return prev.combine(curr);
+            });
+        };
+        return Group;
+    })(ex.Class);
+    ex.Group = Group;
+})(ex || (ex = {}));
+/// <reference path="Class.ts" />
+/// <reference path="Timer.ts" />
+/// <reference path="Collision/NaiveCollisionResolver.ts"/>
+/// <reference path="Collision/DynamicTreeCollisionResolver.ts"/>
+/// <reference path="CollisionPair.ts" />
+/// <reference path="Camera.ts" />
+/// <reference path="Group.ts"/>
+var ex;
+(function (ex) {
+    /**
+     * Actors are composed together into groupings called Scenes in
+     * Excalibur. The metaphor models the same idea behind real world
+     * actors in a scene. Only actors in scenes will be updated and drawn.
+     * @class Scene
+     * @constructor
+     */
+    var Scene = (function (_super) {
+        __extends(Scene, _super);
+        function Scene(engine) {
+            _super.call(this);
+            /**
+             * The actors in the current scene
+             * @property children {Actor[]}
+             */
+            this.children = [];
+            this.tileMaps = [];
+            this.groups = {};
+            this.uiActors = [];
+            this._collisionResolver = new ex.DynamicTreeCollisionResolver();
+            this._killQueue = [];
+            this._timers = [];
+            this._cancelQueue = [];
+            this._isInitialized = false;
+            this._logger = ex.Logger.getInstance();
+            this.camera = new ex.BaseCamera();
+            if (engine) {
+                this.camera.setFocus(engine.width / 2, engine.height / 2);
+            }
+        }
+        /**
+         * This is called when the scene is made active and started. It is meant to be overriden,
+         * this is where you should setup any DOM UI or event handlers needed for the scene.
+         * @method onActivate
+         */
+        Scene.prototype.onActivate = function () {
+            // will be overridden
+        };
+        /**
+         * This is called when the scene is made transitioned away from and stopped. It is meant to be overriden,
+         * this is where you should cleanup any DOM UI or event handlers needed for the scene.
+         * @method onDeactivate
+         */
+        Scene.prototype.onDeactivate = function () {
+            // will be overridden
+        };
+        /**
+         * This is called before the first update of the actor. This method is meant to be
+         * overridden. This is where initialization of child actors should take place.
+         * @method onInitialize
+         * @param engine {Engine}
+         */
+        Scene.prototype.onInitialize = function (engine) {
+            // will be overridden
+        };
+        /**
+         * Publish an event to all actors in the scene
+         * @method publish
+         * @param eventType {string} The name of the event to publish
+         * @param event {GameEvent} The event object to send
+         */
+        Scene.prototype.publish = function (eventType, event) {
+            this.children.forEach(function (actor) {
+                actor.triggerEvent(eventType, event);
+            });
+        };
+        /**
+         * Updates all the actors and timers in the Scene. Called by the Engine.
+         * @method update
+         * @param engine {Engine} Reference to the current Engine
+         * @param delta {number} The number of milliseconds since the last update
+         */
+        Scene.prototype.update = function (engine, delta) {
+            if (!this._isInitialized) {
+                this.onInitialize(engine);
+                this.eventDispatcher.publish('initialize', new ex.InitializeEvent(engine));
+                this._isInitialized = true;
+            }
+            this.uiActors.forEach(function (ui) {
+                ui.update(engine, delta);
+            });
+            this.tileMaps.forEach(function (cm) {
+                cm.update(engine, delta);
+            });
+            var len = 0;
+            for (var i = 0, len = this.children.length; i < len; i++) {
+                this.children[i].update(engine, delta);
+            }
+            // Run collision resolution strategy
+            if (this._collisionResolver) {
+                this._collisionResolver.update(this.children);
+                this._collisionResolver.evaluate(this.children);
+            }
+            // Remove actors from scene graph after being killed
+            var actorIndex = 0;
+            for (var i = 0, len = this._killQueue.length; i < len; i++) {
+                actorIndex = this.children.indexOf(this._killQueue[i]);
+                if (actorIndex > -1) {
+                    this.children.splice(actorIndex, 1);
+                }
+            }
+            this._killQueue.length = 0;
+            // Remove timers in the cancel queue before updating them
+            var timerIndex = 0;
+            for (var i = 0, len = this._cancelQueue.length; i < len; i++) {
+                this.removeTimer(this._cancelQueue[i]);
+            }
+            this._cancelQueue.length = 0;
+            // Cycle through timers updating timers
+            var that = this;
+            this._timers = this._timers.filter(function (timer) {
+                timer.update(delta);
+                return !timer.complete;
+            });
+        };
+        /**
+         * Draws all the actors in the Scene. Called by the Engine.
+         * @method draw
+         * @param ctx {CanvasRenderingContext2D} The current rendering context
+         * @param delta {number} The number of milliseconds since the last draw
+         */
+        Scene.prototype.draw = function (ctx, delta) {
+            ctx.save();
+            if (this.camera) {
+                this.camera.update(ctx, delta);
+            }
+            this.tileMaps.forEach(function (cm) {
+                cm.draw(ctx, delta);
+            });
+            var len = 0;
+            var start = 0;
+            var end = 0;
+            var actor;
+            for (var i = 0, len = this.children.length; i < len; i++) {
+                actor = this.children[i];
+                // only draw actors that are visible
+                if (actor.visible) {
+                    this.children[i].draw(ctx, delta);
+                }
+            }
+            if (this.engine && this.engine.isDebug) {
+                ctx.strokeStyle = 'yellow';
+                this.debugDraw(ctx);
+            }
+            ctx.restore();
+            this.uiActors.forEach(function (ui) {
+                if (ui.visible) {
+                    ui.draw(ctx, delta);
+                }
+            });
+            if (this.engine && this.engine.isDebug) {
+                this.uiActors.forEach(function (ui) {
+                    ui.debugDraw(ctx);
+                });
+            }
+        };
+        /**
+         * Draws all the actors' debug information in the Scene. Called by the Engine.
+         * @method draw
+         * @param ctx {CanvasRenderingContext2D} The current rendering context
+         */
+        Scene.prototype.debugDraw = function (ctx) {
+            this.tileMaps.forEach(function (map) {
+                map.debugDraw(ctx);
+            });
+            this.children.forEach(function (actor) {
+                actor.debugDraw(ctx);
+            });
+            // todo possibly enable this with excalibur flags features?
+            //this._collisionResolver.debugDraw(ctx, 20);
+            //this.camera.debugDraw(ctx);
+        };
+        /**
+         * Checks whether an actor is contained in this scene or not
+         */
+        Scene.prototype.contains = function (actor) {
+            return this.children.indexOf(actor) > -1;
+        };
+        Scene.prototype.add = function (entity) {
+            if (entity instanceof ex.UIActor) {
+                this.addUIActor(entity);
+                return;
+            }
+            if (entity instanceof ex.Actor) {
+                this.addChild(entity);
+            }
+            if (entity instanceof ex.Timer) {
+                this.addTimer(entity);
+            }
+            if (entity instanceof ex.TileMap) {
+                this.addTileMap(entity);
+            }
+        };
+        Scene.prototype.remove = function (entity) {
+            if (entity instanceof ex.UIActor) {
+                this.removeUIActor(entity);
+                return;
+            }
+            if (entity instanceof ex.Actor) {
+                this._collisionResolver.remove(entity);
+                this.removeChild(entity);
+            }
+            if (entity instanceof ex.Timer) {
+                this.removeTimer(entity);
+            }
+            if (entity instanceof ex.TileMap) {
+                this.removeTileMap(entity);
+            }
+        };
+        /**
+         * Adds an actor to act as a piece of UI, meaning it is always positioned
+         * in screen coordinates. UI actors do not participate in collisions
+         * @method addUIActor
+         * @param actor {Actor}
+         */
+        Scene.prototype.addUIActor = function (actor) {
+            this.uiActors.push(actor);
+        };
+        /**
+         * Removes an actor as a piec of UI
+         * @method removeUIActor
+         * @param actor {Actor}
+         */
+        Scene.prototype.removeUIActor = function (actor) {
+            var index = this.uiActors.indexOf(actor);
+            if (index > -1) {
+                this.uiActors.splice(index, 1);
+            }
+        };
+        /**
+         * Adds an actor to the Scene, once this is done the actor will be drawn and updated.
+         * @method addChild
+         * @param actor {Actor}
+         */
+        Scene.prototype.addChild = function (actor) {
+            this._collisionResolver.register(actor);
+            actor.scene = this;
+            this.children.push(actor);
+            actor.parent = this.actor;
+        };
+        /**
+         * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+         * @method addTileMap
+         * @param tileMap {TileMap}
+         */
+        Scene.prototype.addTileMap = function (tileMap) {
+            this.tileMaps.push(tileMap);
+        };
+        /**
+         * Removes a TileMap from the Scene, it willno longer be drawn or updated.
+         * @method removeTileMap
+         * @param tileMap {TileMap}
+         */
+        Scene.prototype.removeTileMap = function (tileMap) {
+            var index = this.tileMaps.indexOf(tileMap);
+            if (index > -1) {
+                this.tileMaps.splice(index, 1);
+            }
+        };
+        /**
+         * Removes an actor from the Scene, it will no longer be drawn or updated.
+         * @method removeChild
+         * @param actor {Actor} The actor to remove
+         */
+        Scene.prototype.removeChild = function (actor) {
+            this._collisionResolver.remove(actor);
+            this._killQueue.push(actor);
+            actor.parent = null;
+        };
+        /**
+         * Adds a timer to the Scene
+         * @method addTimer
+         * @param timer {Timer} The timer to add
+         * @returns Timer
+         */
+        Scene.prototype.addTimer = function (timer) {
+            this._timers.push(timer);
+            timer.scene = this;
+            return timer;
+        };
+        /**
+         * Removes a timer to the Scene, can be dangerous
+         * @method removeTimer
+         * @private
+         * @param timer {Timer} The timer to remove
+         * @returns Timer
+         */
+        Scene.prototype.removeTimer = function (timer) {
+            var i = this._timers.indexOf(timer);
+            if (i !== -1) {
+                this._timers.splice(i, 1);
+            }
+            return timer;
+        };
+        /**
+         * Cancels a timer, removing it from the scene nicely
+         * @method cancelTimer
+         * @param timer {Timer} The timer to cancel
+         * @returns Timer
+         */
+        Scene.prototype.cancelTimer = function (timer) {
+            this._cancelQueue.push(timer);
+            return timer;
+        };
+        /**
+         * Tests whether a timer is active in the scene
+         * @method isTimerActive
+         * @param timer {Timer}
+         * @returns boolean
+         */
+        Scene.prototype.isTimerActive = function (timer) {
+            return (this._timers.indexOf(timer) > -1);
+        };
+        /**
+         * Creates and adds a group to the scene with a name
+         * @method createGroup
+         * @param name {String}
+         * @returns Group
+         */
+        Scene.prototype.createGroup = function (name) {
+            return new ex.Group(name, this);
+        };
+        /**
+         * Returns a group by name
+         * @method getGroup
+         * @param name {string}
+         * @returns Group
+         */
+        Scene.prototype.getGroup = function (name) {
+            return this.groups[name];
+        };
+        Scene.prototype.removeGroup = function (group) {
+            if (typeof group === 'string') {
+                delete this.groups[group];
+            }
+            else if (group instanceof ex.Group) {
+                delete this.groups[group.name];
+            }
+            else {
+                this._logger.error("Invalid arguments to removeGroup", group);
+            }
+        };
+        return Scene;
+    })(ex.Class);
+    ex.Scene = Scene;
+})(ex || (ex = {}));
 var ex;
 (function (ex) {
     var EasingFunctions = (function () {
@@ -4074,7 +4548,9 @@ var ex;
 /// <reference path="TileMap.ts" />
 /// <reference path="Collision/BoundingBox.ts" />
 /// <reference path="Scene.ts" />
-/// <reference path="Action.ts" />
+/// <reference path="Actions/IActionable.ts"/>
+/// <reference path="Actions/Action.ts" />
+/// <reference path="Actions/ActionContext.ts"/>
 /// <reference path="EasingFunctions.ts"/>
 var ex;
 (function (ex) {
@@ -4221,6 +4697,7 @@ var ex;
              */
             this.opacity = 1;
             this.previousOpacity = 1;
+            this.actions = new ex.ActionContext(this);
             /**
              * Convenience reference to the global logger
              * @property logger {Logger}
@@ -5316,6 +5793,40 @@ var ex;
     })();
     ex.GameEvent = GameEvent;
     /**
+     * Subscribe event thrown when handlers for events other than subscribe are added
+     * @class SubscribeEvent
+     * @constructor
+     * @param topic {string}
+     * @param handler {callback}
+     */
+    var SubscribeEvent = (function (_super) {
+        __extends(SubscribeEvent, _super);
+        function SubscribeEvent(topic, handler) {
+            _super.call(this);
+            this.topic = topic;
+            this.handler = handler;
+        }
+        return SubscribeEvent;
+    })(GameEvent);
+    ex.SubscribeEvent = SubscribeEvent;
+    /**
+     * Unsubscribe event thrown when handlers for events other than unsubscribe are removed
+     * @class SubscribeEvent
+     * @constructor
+     * @param topic {string}
+     * @param handler {callback}
+     */
+    var UnsubscribeEvent = (function (_super) {
+        __extends(UnsubscribeEvent, _super);
+        function UnsubscribeEvent(topic, handler) {
+            _super.call(this);
+            this.topic = topic;
+            this.handler = handler;
+        }
+        return UnsubscribeEvent;
+    })(GameEvent);
+    ex.UnsubscribeEvent = UnsubscribeEvent;
+    /**
      * Event received by the Engine when the browser window is visible
      *
      * @class VisibleEvent
@@ -5496,8 +6007,9 @@ var ex;
     var EventDispatcher = (function () {
         function EventDispatcher(target) {
             this._handlers = {};
-            this.log = ex.Logger.getInstance();
-            this.target = target;
+            this._wiredEventDispatchers = [];
+            this._log = ex.Logger.getInstance();
+            this._target = target;
         }
         /**
          * Publish an event for target
@@ -5511,7 +6023,7 @@ var ex;
                 return;
             }
             eventName = eventName.toLowerCase();
-            var target = this.target;
+            var target = this._target;
             if (!event) {
                 event = new ex.GameEvent();
             }
@@ -5521,6 +6033,16 @@ var ex;
                     callback.call(target, event);
                 });
             }
+            this._wiredEventDispatchers.forEach(function (d) { return d.publish(eventName, event); });
+        };
+        /**
+         * Alias for publish, publishs an event for target
+         * @method emit
+         * @param eventName {string} The name of the event to publish
+         * @param [event=undefined] {GameEvent} Optionally pass an event data object to the handler
+         */
+        EventDispatcher.prototype.emit = function (eventName, event) {
+            this.publish(eventName, event);
         };
         /**
          * Subscribe an event handler to a particular event name, multiple handlers per event name are allowed.
@@ -5534,6 +6056,10 @@ var ex;
                 this._handlers[eventName] = [];
             }
             this._handlers[eventName].push(handler);
+            // meta event handlers
+            if (eventName !== 'unsubscribe' && eventName !== 'subscribe') {
+                this.emit('subscribe', new ex.SubscribeEvent(eventName, handler));
+            }
         };
         /**
          * Unsubscribe a event handler(s) from an event. If a specific handler
@@ -5554,10 +6080,31 @@ var ex;
                 }
                 else {
                     var index = eventHandlers.indexOf(handler);
-                    if (index < 0)
-                        return;
                     this._handlers[eventName].splice(index, 1);
                 }
+            }
+            // meta event handlers
+            if (eventName !== 'unsubscribe' && eventName !== 'subscribe') {
+                this.emit('unsubscribe', new ex.UnsubscribeEvent(eventName, handler));
+            }
+        };
+        /**
+         * Wires this event dispatcher to also recieve events from another
+         * @method wire
+         * @param eventDispatcher {EventDispatcher}
+         */
+        EventDispatcher.prototype.wire = function (eventDispatcher) {
+            eventDispatcher._wiredEventDispatchers.push(this);
+        };
+        /**
+         * Unwires this event dispatcher from another
+         * @method unwire
+         * @param eventDispatcher {EventDispatcher}
+         */
+        EventDispatcher.prototype.unwire = function (eventDispatcher) {
+            var index = eventDispatcher._wiredEventDispatchers.indexOf(this);
+            if (index > -1) {
+                eventDispatcher._wiredEventDispatchers.splice(index, 1);
             }
         };
         return EventDispatcher;

@@ -11,12 +11,12 @@ var blockSprite = blockTexture.asSprite();
 blockSprite.setScaleX(.2);
 blockSprite.setScaleY(.2);
 var player = new ex.Actor(width / 2, height / 2, 30, 30, ex.Color.Cyan);
-player.collisionType = ex.CollisionType.Fixed;
+player.collisionType = 4 /* Fixed */;
 engine.currentScene.add(player);
 for (var i = 0; i < numActors; i++) {
     var actor = new ex.Actor(Math.random() * width, Math.random() * height, .2 * 64, .2 * 48);
     actor.addDrawing("default", blockSprite);
-    actor.collisionType = ex.CollisionType.Elastic;
+    actor.collisionType = 3 /* Elastic */;
     actor.on('update', function (e) {
         if (this.x < 0) {
             this.dx = Math.abs(this.dx);
