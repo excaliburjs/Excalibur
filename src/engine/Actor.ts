@@ -1049,7 +1049,7 @@ module ex {
             } 
          }
 
-
+         // Draw child actors
          for (var i = 0; i < this.children.length; i++) {
             this.children[i].draw(ctx, delta);
          }
@@ -1063,15 +1063,28 @@ module ex {
        * @param ctx {CanvasRenderingContext2D} The rendering context
        */
       public debugDraw(ctx: CanvasRenderingContext2D) {
-         
+        
          var bb = this.getBounds();
          bb.debugDraw(ctx);
+         ctx.fillText("id: " + this.id, bb.left + 3, bb.top + 10);
+         
 
          ctx.fillStyle = Color.Yellow.toString();
          ctx.beginPath();
-         ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+         ctx.arc(this.getWorldX(), this.getWorldY(), 3, 0, Math.PI * 2);
          ctx.closePath();
          ctx.fill();
+
+         ctx.save();
+         ctx.translate(this.x, this.y);
+         ctx.rotate(this.rotation);     
+
+         // Draw child actors
+         for (var i = 0; i < this.children.length; i++) {
+            this.children[i].debugDraw(ctx);
+         }
+
+         ctx.restore();
       }
    }
 }

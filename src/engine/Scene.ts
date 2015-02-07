@@ -185,7 +185,7 @@ module ex {
          }
 
          if (this.engine && this.engine.isDebug) {
-            ctx.strokeStyle = 'yellow'
+            ctx.strokeStyle = 'yellow';
             this.debugDraw(ctx);            
          }
 

@@ -686,7 +686,7 @@ module ex {
          var ctx = this.ctx;
 
          if (this.isLoading) {
-            ctx.fillStyle = 'black'
+            ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, this.width, this.height);
             this.drawLoadingBar(ctx, this.progress, this.total);
             // Drawing nothing else while loading
