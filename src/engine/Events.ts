@@ -82,26 +82,52 @@ module ex {
    }
 
    /**
-    * Event received by the Engine when the browser window receives focus
+    * Subscribe event thrown when handlers for events other than subscribe are added
+    * @class SubscribeEvent
+    * @constructor
+    * @param topic {string}
+    * @param handler {callback}
+    */
+   export class SubscribeEvent extends GameEvent {
+      constructor(public topic: string, public handler: (event?: GameEvent) => void) {
+         super();
+      }
+   }
+
+   /**
+    * Unsubscribe event thrown when handlers for events other than unsubscribe are removed
+    * @class SubscribeEvent
+    * @constructor
+    * @param topic {string}
+    * @param handler {callback}
+    */
+   export class UnsubscribeEvent extends GameEvent {
+      constructor(public topic: string, public handler: (event?: GameEvent) => void) {
+         super();
+      }
+   }
+
+   /**
+    * Event received by the Engine when the browser window is visible
     *
-    * @class FocusEvent
+    * @class VisibleEvent
     * @extends GameEvent
     * @constructor 
     */
-   export class FocusEvent extends GameEvent {
+   export class VisibleEvent extends GameEvent {
       constructor(){
          super();
       }
    }
 
    /**
-    * Event received by the Engine when the browser window is blurred
+    * Event received by the Engine when the browser window is hidden
     *
-    * @class BlurEvent
+    * @class HiddenEvent
     * @extends GameEvent
     * @constructor 
     */
-   export class BlurEvent extends GameEvent {
+   export class HiddenEvent extends GameEvent {
       constructor(){
          super();
       }

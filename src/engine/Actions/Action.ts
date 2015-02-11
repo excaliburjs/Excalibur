@@ -1,6 +1,6 @@
-/// <reference path="Algebra.ts" />
-/// <reference path="Engine.ts" />
-/// <reference path="Actor.ts" />
+/// <reference path="../Algebra.ts" />
+/// <reference path="../Engine.ts" />
+/// <reference path="../Actor.ts" />
 
 module ex.Internal.Actions {
    export interface IAction {
@@ -8,6 +8,71 @@ module ex.Internal.Actions {
       isComplete(actor: Actor): boolean
       reset(): void
       stop(): void
+   }
+   
+   export class EaseTo implements IAction {
+      private _currentLerpTime: number = 0;
+      private _lerpDuration: number = 1 * 1000; // 5 seconds
+      private _lerpStart: Point = new ex.Point(0, 0);
+      private _lerpEnd: Point = new ex.Point(0, 0);
+      private _initialized: boolean = false;
+      private _stopped: boolean = false;
+      private _distance: number = 0;
+      constructor(public actor: Actor, x: number, y: number, duration: number, public easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number) {
+         this._lerpDuration = duration;
+         this._lerpEnd = new ex.Point(x, y);
+      }
+      private _initialize() {
+         this._lerpStart = new ex.Point(this.actor.x, this.actor.y);
+         this._currentLerpTime = 0;
+         this._distance = this._lerpStart.toVector().distance(this._lerpEnd.toVector());
+      }
+
+      public update(delta: number): void {
+         if (!this._initialized) {
+            this._initialize();
+            this._initialized = true;
+         }
+
+         var newX = this.actor.x;
+         var newY = this.actor.y;
+         if (this._currentLerpTime < this._lerpDuration) {
+
+            if (this._lerpEnd.x < this._lerpStart.x) {
+               newX = this._lerpStart.x - (this.easingFcn(this._currentLerpTime, this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
+            } else {
+               newX = this.easingFcn(this._currentLerpTime, this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
+            }
+
+            if (this._lerpEnd.y < this._lerpStart.y) {
+               newY = this._lerpStart.y - (this.easingFcn(this._currentLerpTime, this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
+            } else {
+               newY = this.easingFcn(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
+            }
+            this.actor.x = newX;
+            this.actor.y = newY;
+
+            this._currentLerpTime += delta;
+
+         } else {
+            this.actor.x = this._lerpEnd.x;
+            this.actor.y = this._lerpEnd.y;
+            //this._lerpStart = null;
+            //this._lerpEnd = null;
+            //this._currentLerpTime = 0;
+         }
+
+      }
+      public isComplete(actor: Actor): boolean {
+         return this._stopped || (new Vector(actor.x, actor.y)).distance(this._lerpStart.toVector()) >= this._distance;
+      }
+
+      public reset(): void {
+         this._initialized = false;
+      }
+      public stop(): void {
+         this._stopped = true;
+      }
    }
 
    export class MoveTo implements IAction {

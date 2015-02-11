@@ -184,6 +184,11 @@ module ex {
    export class ConsoleAppender implements IAppender {
       
       public log(level: LogLevel, args: any[]): void {
+         // Check for console support
+         if (!console && !console.log && console.warn && console.error) {
+            // todo maybe do something better than nothing
+            return;
+         }
 
          // Create a new console args array
          var consoleArgs = [];
@@ -193,15 +198,28 @@ module ex {
          if (level < LogLevel.Warn) {
 
             // Call .log for Debug/Info
-            console.log.apply(console, consoleArgs);
+            if (console.log.apply) {
+               // this is required on some older browsers that don't support apply on console.log :(
+               console.log.apply(console, consoleArgs);
+            } else {
+               console.log(consoleArgs.join(' '));
+            }
          } else if (level < LogLevel.Error) {
 
             // Call .warn for Warn
-            console.warn.apply(console, consoleArgs);
+            if (console.warn.apply) {
+               console.warn.apply(console, consoleArgs);
+            } else {
+               console.warn(consoleArgs.join(' '));
+            }
          } else {
 
             // Call .error for Error/Fatal
-            console.error.apply(console, consoleArgs);
+            if (console.error.apply) {
+               console.error.apply(console, consoleArgs);
+            } else {
+               console.error(consoleArgs.join(' '));
+            }
          }
       }
    }

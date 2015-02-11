@@ -12,7 +12,9 @@ module ex {
    export class Resource<T> implements ILoadable {
       public data: T = null;
       public logger: Logger = Logger.getInstance();
-      constructor(public path: string, public responseType: string) {}
+      private _engine: Engine;
+
+      constructor(public path: string, public responseType: string, public bustCache: boolean = true) {}
 
       /**
        * Returns true if the Resource is completely loaded and is ready
@@ -22,6 +24,10 @@ module ex {
        */
       public isLoaded(): boolean {
          return !!this.data;
+      }
+
+      public wireEngine(engine: Engine) {
+         this._engine = engine;
       }
 
       private cacheBust(uri: string): string{
@@ -47,7 +53,7 @@ module ex {
          var complete = new Promise<T>();
 
          var request = new XMLHttpRequest();
-         request.open("GET", this.cacheBust(this.path), true);
+         request.open("GET", this.bustCache? this.cacheBust(this.path):this.path, true);
          request.responseType = this.responseType;
          request.onloadstart = (e) => { this._start(e); };
          request.onprogress = this.onprogress;

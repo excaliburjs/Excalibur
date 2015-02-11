@@ -10,6 +10,14 @@ module ex {
        * @returns Promise&lt;any&gt;
        */
       load(): Promise<any>;
+
+      /**
+       * Wires engine into loadable to receive game level events
+       * @method wireEngine
+       */
+      wireEngine(engine: Engine): void;
+      
+
       /**
        * onprogress handler
        * @property onprogress {any=>void}

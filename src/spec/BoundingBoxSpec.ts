@@ -71,4 +71,18 @@ describe("A Bounding Box", ()=>{
       expect(bb.collides(b2).x).toBe(-4);
 
    });
+
+   it('can combine with other bounding boxes',() => {
+      var b2 = new ex.BoundingBox(2, 0, 20, 10);
+      var b3 = new ex.BoundingBox(12, 0, 28, 10);
+      var newBB = b2.combine(b3);
+      
+      expect(newBB.getWidth()).toBe(26);
+      expect(newBB.getHeight()).toBe(10);
+     
+      expect(newBB.left).toBe(2);
+      expect(newBB.right).toBe(28);
+      expect(newBB.top).toBe(0);
+      expect(newBB.bottom).toBe(10);
+   });
 });

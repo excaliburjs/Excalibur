@@ -14,6 +14,7 @@ module ex {
     * @extend Resource
     * @constructor
     * @param path {string} Path to the image resource
+    * @param [bustCache=true] {boolean} Optionally load texture with cache busting
     */
    export class Texture extends Resource<HTMLImageElement> {
       public width: number;
@@ -32,8 +33,8 @@ module ex {
       private doneCallback: () => void;
       private errorCallback: (e: string) => void;
 
-      constructor(public path: string) {
-         super(path, 'blob');
+      constructor(public path: string, public bustCache = true) {
+         super(path, 'blob', bustCache);
          this._sprite = new Sprite(this, 0, 0, 0, 0);
       }
       
@@ -105,6 +106,9 @@ module ex {
 
       private _selectedFile: string = "";
 
+      private _engine: Engine;
+      private _wasPlayingOnHidden: boolean = false;
+
       /**
        * Populated once loading is complete
        * @property sound {Sound}
@@ -113,12 +117,18 @@ module ex {
 
 
       public static canPlayFile(file: string): boolean {
-         var a = new Audio();
-         var filetype = /.*\.([A-Za-z0-9]+)$/;
-         var type = file.match(filetype)[1];
-         if(a.canPlayType('audio/'+type)){
-            return true;
-         }{
+         try {
+            var a = new Audio();
+            var filetype = /.*\.([A-Za-z0-9]+)$/;
+            var type = file.match(filetype)[1];
+            if (a.canPlayType('audio/' + type)) {
+               return true;
+            }
+            {
+               return false;
+            }
+         } catch (e) {
+            ex.Logger.getInstance().warn("Cannot determine audio support, assuming no support for the Audio Tag", e);
             return false;
          }
       }
@@ -126,7 +136,7 @@ module ex {
       constructor(...paths: string[]) {
          /* Chrome : MP3, WAV, Ogg
           * Firefox : WAV, Ogg, 
-          * IE : MP3, 
+          * IE : MP3, WAV coming soon
           * Safari MP3, WAV, Ogg           
           */
          this._selectedFile = "";
@@ -143,6 +153,25 @@ module ex {
          }
 
          this.sound = new ex.Internal.FallbackAudio(this._selectedFile, 1.0);
+      }
+
+      public wireEngine(engine: Engine) {
+         if (engine) {
+            this._engine = engine;
+            this._engine.on('hidden', () => {
+               if (engine.pauseAudioWhenHidden && this.isPlaying()) {
+                  this._wasPlayingOnHidden = true;
+                  this.pause();
+               }
+            });
+
+            this._engine.on('visible', () => {
+               if (engine.pauseAudioWhenHidden && this._wasPlayingOnHidden) {
+                  this.play();
+                  this._wasPlayingOnHidden = false;
+               }
+            });
+         }
       }
 
       /**
@@ -163,12 +192,25 @@ module ex {
          if (this.sound) this.sound.setLoop(loop);
       }
 
+      public isPlaying(): boolean {
+         if (this.sound) return this.sound.isPlaying();
+      }
+
       /**
-       * Play the sound
+       * Play the sound, returns a promise that resolves when the sound is done playing
        * @method play
+       * @return ex.Promise
        */
-      public play() {
-         if (this.sound) this.sound.play();
+      public play(): ex.Promise<any> {
+         if (this.sound) return this.sound.play();
+      }
+
+      /**
+       * Stop the sound, and do not rewind
+       * @method pause
+       */
+      public pause() {
+         if (this.sound) this.sound.pause();
       }
 
       /**
@@ -228,11 +270,16 @@ module ex {
       private numLoaded: number = 0;
       private progressCounts: { [key: string]: number; } = {};
       private totalCounts: { [key: string]: number; } = {};
+      private _engine: Engine;
 
       constructor(loadables?: ILoadable[]) {
          if (loadables) {
             this.addResources(loadables);
          }
+      }
+
+      public wireEngine(engine: Engine) {
+         this._engine = engine;
       }
 
       /**
@@ -294,6 +341,9 @@ module ex {
          var progressChunks = this.resourceList.length;
 
          this.resourceList.forEach((r, i) => {
+            if (this._engine) {
+               r.wireEngine(this._engine);
+            }
             r.onprogress = function (e) {
                var total = <number>e.total;
                var loaded = <number>e.loaded;

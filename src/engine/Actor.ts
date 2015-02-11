@@ -9,7 +9,10 @@
 /// <reference path="TileMap.ts" />
 /// <reference path="Collision/BoundingBox.ts" />
 /// <reference path="Scene.ts" />
-/// <reference path="Action.ts" />
+/// <reference path="Actions/IActionable.ts"/>
+/// <reference path="Actions/Action.ts" />
+/// <reference path="Actions/ActionContext.ts"/>
+/// <reference path="EasingFunctions.ts"/>
 
 
 
@@ -80,7 +83,7 @@ module ex {
     * @param [height=0.0] {number} The starting height of the actor
     * @param [color=undefined] {Color} The starting color of the actor
     */     
-   export class Actor extends ex.Class {
+    export class Actor extends ex.Class implements IActionable {
       /**
        * Indicates the next id to be set
        */
@@ -110,13 +113,7 @@ module ex {
        * @property anchor {Point}
        */
       public anchor: Point;
-
-      /**
-       * Gets the calculated anchor point, should not be set.
-       * @property calculatedAnchor {Point}
-       */
-      public calculatedAnchor: Point = new Point(0,0);
-
+      
       private height: number = 0;
       private width: number = 0;
 
@@ -194,7 +191,9 @@ module ex {
        */
       public actionQueue: ex.Internal.Actions.ActionQueue;
 
-      private sceneNode: Scene; //the scene that the actor contains
+
+      public actions: ActionContext = new ActionContext(this);
+
 
       /**
        * Convenience reference to the global logger
@@ -203,16 +202,23 @@ module ex {
       public logger: Logger = Logger.getInstance();
 
       /**
-      * The scene that the actor is in
-      * @property scene {Scene}
-      */
-      public scene: Scene = null; //formerly "parent"
+       * The scene that the actor is in
+       * @property scene {Scene}
+       */
+      public scene: Scene = null;
 
       /**
-      * The parent of this actor
-      * @property parent {Actor}
-      */
+       * The parent of this actor
+       * @property parent {Actor}
+       */
       public parent: Actor = null;
+
+      // TODO: Replace this with the new actor collection once z-indexing is built
+      /**
+       * The children of this actor
+       * @property children {Actor[]}
+       */
+      public children: Actor[] = [];
 
       /**
        * Gets or sets the current collision type of this actor. By 
@@ -224,6 +230,7 @@ module ex {
 
       private _collisionHandlers: {[key: string]: {(actor: Actor):void}[];} = {};
       private _isInitialized : boolean = false;
+
 
       public frames: { [key: string]: IDrawable; } = {}
       
@@ -287,9 +294,6 @@ module ex {
 
          this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
          
-         this.sceneNode = new Scene();
-         this.sceneNode.actor = this;
-
          this.anchor = new Point(.5, .5);
       }
 
@@ -303,6 +307,39 @@ module ex {
 
       }
 
+      private _checkForPointerOptIn(eventName: string) {
+         if (eventName && (eventName.toLowerCase() === 'pointerdown' || eventName.toLowerCase() === 'pointerdown' || eventName.toLowerCase() === 'pointermove')) {
+            this.enableCapturePointer = true;
+            if (eventName.toLowerCase() === 'pointermove') {
+               this.capturePointer.captureMoveEvents = true;
+            }
+         }
+      }
+
+      /**
+      * Add an event listener. You can listen for a variety of
+      * events off of the engine; see the events section below for a complete list.
+      * @method addEventListener
+      * @param eventName {string} Name of the event to listen for
+      * @param handler {event=>void} Event handler for the thrown event
+      */
+      public addEventListener(eventName: string, handler: (event?: GameEvent) => void) {
+         this._checkForPointerOptIn(eventName);
+         super.addEventListener(eventName, handler);
+      }
+     
+      /**
+       * Alias for "addEventListener". You can listen for a variety of
+       * events off of the engine; see the events section below for a complete list.
+       * @method on
+       * @param eventName {string} Name of the event to listen for
+       * @param handler {event=>void} Event handler for the thrown event
+       */
+      public on(eventName: string, handler: (event?: GameEvent) => void) {
+         this._checkForPointerOptIn(eventName);
+         this.eventDispatcher.subscribe(eventName, handler);
+      }
+     
       /**
        * If the current actors is a member of the scene. This will remove
        * it from the scene graph. It will no longer be drawn or updated.
@@ -335,7 +372,9 @@ module ex {
        */
       public addChild(actor: Actor) {
          actor.collisionType = CollisionType.PreventCollision;
-         this.sceneNode.addChild(actor);
+         if (ex.Util.addItemToArray(actor, this.children)) {
+            actor.parent = this;
+         }
       }
 
       /**
@@ -344,7 +383,9 @@ module ex {
        * @param actor {Actor} The child actor to remove
        */
       public removeChild(actor: Actor) {
-         this.sceneNode.removeChild(actor);
+         if (ex.Util.removeItemToArray(actor, this.children)) {
+            actor.parent = null;
+         }
       }
 
       /**
@@ -441,8 +482,8 @@ module ex {
        * @returns Vector
        */
       public getCenter(): Vector {
-         var anchor = this.calculatedAnchor;
-         return new Vector(this.x + this.getWidth() / 2 - anchor.x, this.y + this.getHeight() / 2 - anchor.y);
+         var anchor = this._getCalculatedAnchor();
+         return new Vector(this.x + this.getWidth() / 2 , this.y + this.getHeight() / 2);
       }
 
       /**
@@ -485,8 +526,8 @@ module ex {
        * @param center {boolean} Indicates to center the drawing around the actor
        */       
       public setCenterDrawing(center: boolean) {
-         this.centerDrawingY = true;
-         this.centerDrawingX = true;
+         this.centerDrawingY = center;
+         this.centerDrawingX = center;
       }
 
       /**
@@ -527,22 +568,26 @@ module ex {
 
       /**
       * Gets the x value of the Actor in global coordinates
-      * @method getGlobalX
+      * @method getWorldX
       * @returns number
       */
-      public getGlobalX() {
-         if(!this.parent) return this.x;
-         return this.x * this.parent.scale.y + this.parent.getGlobalX();
+      public getWorldX() {
+         if (!this.parent) {
+             return this.x;
+         }
+         return this.x * this.parent.scale.y + this.parent.getWorldX();
       }
 
       /**
       * Gets the y value of the Actor in global coordinates
-      * @method getGlobalY
+      * @method getWorldY
       * @returns number
       */
-      public getGlobalY() {
-        if(!this.parent) return this.y;
-         return this.y * this.parent.scale.y + this.parent.getGlobalY();
+      public getWorldY() {
+        if (!this.parent) {
+            return this.y;
+        }
+         return this.y * this.parent.scale.y + this.parent.getWorldY();
       }
 
       /**
@@ -562,8 +607,12 @@ module ex {
        * @returns BoundingBox
        */
       public getBounds() {
-         var anchor = this.calculatedAnchor;
-         return new BoundingBox(this.getGlobalX()-anchor.x, this.getGlobalY() - anchor.y, this.getGlobalX() + this.getWidth() - anchor.x, this.getGlobalY() + this.getHeight() - anchor.y);
+         var anchor = this._getCalculatedAnchor();
+
+         return new BoundingBox(this.getWorldX() - anchor.x,
+            this.getWorldY() - anchor.y,
+            this.getWorldX() + this.getWidth() - anchor.x,
+            this.getWorldY() + this.getHeight() - anchor.y);
       }
 
       /**
@@ -688,6 +737,11 @@ module ex {
        */
       public clearActions(): void {
          this.actionQueue.clearActions();
+      }
+
+      public easeTo(x: number, y: number, duration: number, easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number = ex.EasingFunctions.Linear) {
+         this.actionQueue.add(new ex.Internal.Actions.EaseTo(this, x, y, duration, easingFcn));
+         return this;
       }
 
       /**
@@ -923,6 +977,10 @@ module ex {
          return complete;
       }
 
+      private _getCalculatedAnchor(): Point {
+         return new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);  
+      }
+
       /**
        * Called by the Engine, updates the state of the actor
        * @method update 
@@ -935,10 +993,6 @@ module ex {
             this.eventDispatcher.publish('initialize', new InitializeEvent(engine));
             this._isInitialized = true;
          }
-
-         // Recalcuate the anchor point
-         this.calculatedAnchor = new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
-
          
          var eventDispatcher = this.eventDispatcher;
 
@@ -963,7 +1017,7 @@ module ex {
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
          if (this.isOffScreen){return;}
 
-         var anchorPoint = this.calculatedAnchor;
+         var anchorPoint = this._getCalculatedAnchor();
 
          ctx.save();
          ctx.translate(this.x, this.y);
@@ -997,11 +1051,12 @@ module ex {
                ctx.fillStyle = this.color.toString();
                ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this.width, this.height);
             } 
-            
          }
-         
-         
-         this.sceneNode.draw(ctx, delta);
+
+         // Draw child actors
+         for (var i = 0; i < this.children.length; i++) {
+            this.children[i].draw(ctx, delta);
+         }
 
          ctx.restore();
       }
@@ -1012,15 +1067,28 @@ module ex {
        * @param ctx {CanvasRenderingContext2D} The rendering context
        */
       public debugDraw(ctx: CanvasRenderingContext2D) {
-         
+        
          var bb = this.getBounds();
          bb.debugDraw(ctx);
+         ctx.fillText("id: " + this.id, bb.left + 3, bb.top + 10);
+         
 
          ctx.fillStyle = Color.Yellow.toString();
          ctx.beginPath();
-         ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+         ctx.arc(this.getWorldX(), this.getWorldY(), 3, 0, Math.PI * 2);
          ctx.closePath();
          ctx.fill();
+
+         ctx.save();
+         ctx.translate(this.x, this.y);
+         ctx.rotate(this.rotation);     
+
+         // Draw child actors
+         for (var i = 0; i < this.children.length; i++) {
+            this.children[i].debugDraw(ctx);
+         }
+
+         ctx.restore();
       }
    }
 }

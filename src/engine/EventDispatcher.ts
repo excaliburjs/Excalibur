@@ -9,10 +9,12 @@ module ex {
     */
    export class EventDispatcher {
       private _handlers: { [key: string]: { (event?: GameEvent): void }[]; } = {};
-      private target: any;
-      private log: Logger = Logger.getInstance();
+      private _wiredEventDispatchers: EventDispatcher[] = [];
+
+      private _target: any;
+      private _log: Logger = Logger.getInstance();
       constructor(target) {
-         this.target = target;
+         this._target = target;
       }
 
       /**
@@ -27,8 +29,8 @@ module ex {
             return;
          }
          eventName = eventName.toLowerCase();
-         var target = this.target;
-         if(!event){
+         var target = this._target;
+         if (!event) {
             event = new GameEvent();
          }
          event.target = target;
@@ -37,6 +39,17 @@ module ex {
                callback.call(target, event);
             });
          }
+         this._wiredEventDispatchers.forEach(d => d.publish(eventName, event));
+      }
+
+      /**
+       * Alias for publish, publishs an event for target
+       * @method emit
+       * @param eventName {string} The name of the event to publish
+       * @param [event=undefined] {GameEvent} Optionally pass an event data object to the handler
+       */
+      public emit(eventName: string, event?: GameEvent) {
+         this.publish(eventName, event);
       }
 
       /**
@@ -51,6 +64,11 @@ module ex {
             this._handlers[eventName] = [];
          }
          this._handlers[eventName].push(handler);
+
+         // meta event handlers
+         if (eventName !== 'unsubscribe' && eventName !== 'subscribe') {
+            this.emit('subscribe', new SubscribeEvent(eventName, handler));
+         }
       }
 
       /**
@@ -65,16 +83,43 @@ module ex {
       public unsubscribe(eventName: string, handler?: (event?: GameEvent) => void){
          eventName = eventName.toLowerCase();
          var eventHandlers = this._handlers[eventName];
-         
-         if(eventHandlers){
+
+         if (eventHandlers) {
             // if no explicit handler is give with the event name clear all handlers
-            if(!handler){
+            if (!handler) {
                this._handlers[eventName].length = 0;
-            }else {               
+            } else {
                var index = eventHandlers.indexOf(handler);
-               this._handlers[eventName].splice(index, 1);               
+               this._handlers[eventName].splice(index, 1);
             }
          }
+         // meta event handlers
+         if (eventName !== 'unsubscribe' && eventName !== 'subscribe') {
+            this.emit('unsubscribe', new UnsubscribeEvent(eventName, handler));
+         }
       }
+
+      /**
+       * Wires this event dispatcher to also recieve events from another
+       * @method wire
+       * @param eventDispatcher {EventDispatcher}
+       */
+      public wire(eventDispatcher: EventDispatcher): void {
+         eventDispatcher._wiredEventDispatchers.push(this);
+      }
+
+      /**
+       * Unwires this event dispatcher from another
+       * @method unwire
+       * @param eventDispatcher {EventDispatcher}
+       */
+      public unwire(eventDispatcher: EventDispatcher): void {
+         var index = eventDispatcher._wiredEventDispatchers.indexOf(this);
+         if (index > -1) {
+            eventDispatcher._wiredEventDispatchers.splice(index, 1);
+         }
+
+      }
+
    }
 }

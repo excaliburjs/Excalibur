@@ -85,6 +85,8 @@ module ex {
     */
    export class Vector extends Point {
 
+      public static Zero = new Vector(0, 0);
+
       /**
        * Returns a vector of unit length in the direction of the specified angle.
        * @method fromAngle
@@ -138,6 +140,16 @@ module ex {
       }
 
       /**
+       * Adds one vector to another, alias for add
+       * @method plus
+       * @param v {Vector} The vector to add
+       * @return Vector
+       */
+      public plus(v: Vector): Vector {
+         return this.add(v);
+      }
+
+      /**
        * Adds one vector to another
        * @method add
        * @param v {Vector} The vector to add
@@ -145,6 +157,16 @@ module ex {
        */
       public add(v: Vector): Vector {
          return new Vector(this.x + v.x, this.y + v.y);
+      }
+
+      /**
+       * Subtracts a vector from another, alias for minus
+       * @method subtract
+       * @param v {Vector} The vector to subtract
+       * @returns Vector
+       */
+      public subtract(v: Vector): Vector {
+         return this.minus(v);
       }
 
       /**
@@ -221,6 +243,15 @@ module ex {
        */
       public rotate(angle: number, anchor: Point): Vector{
          return super.rotate(angle, anchor).toVector();
+      }
+
+      /**
+       * Creates new vector that has the same values as the previous.
+       * @method clone
+       * @returns Vector
+       */
+      public clone(): Vector {
+         return new Vector(this.x, this.y);
       }
 
    }

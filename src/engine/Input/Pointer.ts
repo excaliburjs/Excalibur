@@ -61,35 +61,35 @@ module ex.Input {
       public init(): void {
 
          // Touch Events
-         this._engine.canvas.addEventListener('touchstart', this._handleTouchEvent("down", this._pointerDown));
-         this._engine.canvas.addEventListener('touchend', this._handleTouchEvent("up", this._pointerUp));
-         this._engine.canvas.addEventListener('touchmove', this._handleTouchEvent("move", this._pointerMove));
-         this._engine.canvas.addEventListener('touchcancel', this._handleTouchEvent("cancel", this._pointerCancel));
+         document.addEventListener('touchstart', this._handleTouchEvent("down", this._pointerDown));
+         document.addEventListener('touchend', this._handleTouchEvent("up", this._pointerUp));
+         document.addEventListener('touchmove', this._handleTouchEvent("move", this._pointerMove));
+         document.addEventListener('touchcancel', this._handleTouchEvent("cancel", this._pointerCancel));
 
          // W3C Pointer Events
          // Current: IE11, IE10
          if ((<any>window).PointerEvent) {
             // IE11
             this._engine.canvas.style.touchAction = "none";
-            this._engine.canvas.addEventListener('pointerdown', this._handlePointerEvent("down", this._pointerDown));
-            this._engine.canvas.addEventListener('pointerup', this._handlePointerEvent("up", this._pointerUp));
-            this._engine.canvas.addEventListener('pointermove', this._handlePointerEvent("move", this._pointerMove));
-            this._engine.canvas.addEventListener('pointercancel', this._handlePointerEvent("cancel", this._pointerMove));
+            document.addEventListener('pointerdown', this._handlePointerEvent("down", this._pointerDown));
+            document.addEventListener('pointerup', this._handlePointerEvent("up", this._pointerUp));
+            document.addEventListener('pointermove', this._handlePointerEvent("move", this._pointerMove));
+            document.addEventListener('pointercancel', this._handlePointerEvent("cancel", this._pointerMove));
 
          } else if ((<any>window).MSPointerEvent) {
             // IE10
             this._engine.canvas.style.msTouchAction = "none";
-            this._engine.canvas.addEventListener('MSPointerDown', this._handlePointerEvent("down", this._pointerDown));
-            this._engine.canvas.addEventListener('MSPointerUp', this._handlePointerEvent("up", this._pointerUp));
-            this._engine.canvas.addEventListener('MSPointerMove', this._handlePointerEvent("move", this._pointerMove));
-            this._engine.canvas.addEventListener('MSPointerCancel', this._handlePointerEvent("cancel", this._pointerMove));
+            document.addEventListener('MSPointerDown', this._handlePointerEvent("down", this._pointerDown));
+            document.addEventListener('MSPointerUp', this._handlePointerEvent("up", this._pointerUp));
+            document.addEventListener('MSPointerMove', this._handlePointerEvent("move", this._pointerMove));
+            document.addEventListener('MSPointerCancel', this._handlePointerEvent("cancel", this._pointerMove));
 
          } else {
 
             // Mouse Events
-            this._engine.canvas.addEventListener('mousedown', this._handleMouseEvent("down", this._pointerDown));
-            this._engine.canvas.addEventListener('mouseup', this._handleMouseEvent("up", this._pointerUp));
-            this._engine.canvas.addEventListener('mousemove', this._handleMouseEvent("move", this._pointerMove));
+            document.addEventListener('mousedown', this._handleMouseEvent("down", this._pointerDown));
+            document.addEventListener('mouseup', this._handleMouseEvent("up", this._pointerUp));
+            document.addEventListener('mousemove', this._handleMouseEvent("move", this._pointerMove));
          }
       }
 
@@ -127,26 +127,27 @@ module ex.Input {
       /**
        * Propogates events to actor if necessary
        */
-      public propogate(actor: Actor) {
+      public propogate(actor: any) {
+         var isUIActor = actor instanceof UIActor;
          this._pointerUp.forEach((e) => {
-            if (actor.contains(e.x, e.y)) {
+            if (actor.contains(e.x, e.y, !isUIActor)) {
                actor.eventDispatcher.publish("pointerup", e);
             }
          });
          this._pointerDown.forEach((e) => {
-            if (actor.contains(e.x, e.y)) {
+            if (actor.contains(e.x, e.y, !isUIActor)) {
                actor.eventDispatcher.publish("pointerdown", e);
             }
          });
          if (actor.capturePointer.captureMoveEvents) {
             this._pointerMove.forEach((e) => {
-               if (actor.contains(e.x, e.y)) {
+               if (actor.contains(e.x, e.y, !isUIActor)) {
                   actor.eventDispatcher.publish("pointermove", e);
                }
             });
          }
          this._pointerCancel.forEach((e) => {
-            if (actor.contains(e.x, e.y)) {
+            if (actor.contains(e.x, e.y, !isUIActor)) {
                actor.eventDispatcher.publish("pointercancel", e);
             }
          });
@@ -168,13 +169,26 @@ module ex.Input {
          return (e: TouchEvent) => {
             e.preventDefault();
             for (var i = 0, len = e.changedTouches.length; i < len; i++) {
-               var index = e.changedTouches[i].identifier;
+               var index = this._pointers.length > 1 ? this._getPointerIndex(e.changedTouches[i].identifier) : 0;
+               if (index === -1) continue;
                var x: number = e.changedTouches[i].pageX - Util.getPosition(this._engine.canvas).x;
                var y: number = e.changedTouches[i].pageY - Util.getPosition(this._engine.canvas).y;
                var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
                var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, PointerType.Touch, PointerButton.Unknown, e);
                eventArr.push(pe);
                this.at(index).eventDispatcher.publish(eventName, pe);
+               // only with multi-pointer
+               if (this._pointers.length > 1) {
+                  if (eventName === "up") {
+
+                     // remove pointer ID from pool when pointer is lifted
+                     this._activePointers[index] = -1;
+                  } else if (eventName === "down") {
+
+                     // set pointer ID to given index
+                     this._activePointers[index] = e.changedTouches[i].identifier;
+                  }
+               }
             }
          };
       }

@@ -604,7 +604,7 @@ declare module ex {
         width: number;
         height: number;
         effects: Effects.ISpriteEffect[];
-        private internalImage;
+        internalImage: HTMLImageElement;
         private spriteCanvas;
         private spriteCtx;
         private pixelData;
@@ -1179,6 +1179,7 @@ declare module ex {
         fcn: () => void;
         repeats: boolean;
         private elapsedTime;
+        private _totalTimeAlive;
         complete: boolean;
         scene: Scene;
         /**
@@ -1196,6 +1197,7 @@ declare module ex {
          * @param delta {number} Number of elapsed milliseconds since the last update.
          */
         update(delta: number): void;
+        getTimeRunning(): number;
         /**
          * Cancels the timer, preventing any further executions.
          * @method cancel
@@ -1594,6 +1596,23 @@ declare module ex.Internal.Actions {
         reset(): void;
         stop(): void;
     }
+    class EaseTo implements IAction {
+        actor: Actor;
+        easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+        private _currentLerpTime;
+        private _lerpDuration;
+        private _lerpStart;
+        private _lerpEnd;
+        private _initialized;
+        private _stopped;
+        private _distance;
+        constructor(actor: Actor, x: number, y: number, duration: number, easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number);
+        private _initialize();
+        update(delta: number): void;
+        isComplete(actor: Actor): boolean;
+        reset(): void;
+        stop(): void;
+    }
     class MoveTo implements IAction {
         private actor;
         x: number;
@@ -1851,6 +1870,17 @@ declare module ex.Internal.Actions {
     }
 }
 declare module ex {
+    class EasingFunctions {
+        static Linear: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+        static EaseInQuad: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+        static EaseOutQuad: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+        static EaseInOutQuad: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+        static EaseInCubic: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+        static EaseOutCubic: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+        static EaseInOutCubic: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+    }
+}
+declare module ex {
     /**
      * An enum that describes the types of collisions actors can participate in
      * @class CollisionType
@@ -1938,11 +1968,6 @@ declare module ex {
          * @property anchor {Point}
          */
         anchor: Point;
-        /**
-         * Gets the calculated anchor point, should not be set.
-         * @property calculatedAnchor {Point}
-         */
-        calculatedAnchor: Point;
         private height;
         private width;
         /**
@@ -2078,6 +2103,23 @@ declare module ex {
          * @param engine {Engine}
          */
         onInitialize(engine: Engine): void;
+        private _checkForPointerOptIn(eventName);
+        /**
+        * Add an event listener. You can listen for a variety of
+        * events off of the engine; see the events section below for a complete list.
+        * @method addEventListener
+        * @param eventName {string} Name of the event to listen for
+        * @param handler {event=>void} Event handler for the thrown event
+        */
+        addEventListener(eventName: string, handler: (event?: GameEvent) => void): void;
+        /**
+         * Alias for "addEventListener". You can listen for a variety of
+         * events off of the engine; see the events section below for a complete list.
+         * @method on
+         * @param eventName {string} Name of the event to listen for
+         * @param handler {event=>void} Event handler for the thrown event
+         */
+        on(eventName: string, handler: (event?: GameEvent) => void): void;
         /**
          * If the current actors is a member of the scene. This will remove
          * it from the scene graph. It will no longer be drawn or updated.
@@ -2297,6 +2339,7 @@ declare module ex {
          * @method clearActions
          */
         clearActions(): void;
+        easeTo(x: number, y: number, duration: number, easingFcn?: (currentTime: number, startValue: number, endValue: number, duration: number) => number): Actor;
         /**
          * This method will move an actor to the specified x and y position at the
          * speed specified (in pixels per second) and return back the actor. This
@@ -2449,6 +2492,7 @@ declare module ex {
          * @returns Promise
          */
         asPromise<T>(): Promise<T>;
+        private _getCalculatedAnchor();
         /**
          * Called by the Engine, updates the state of the actor
          * @method update
@@ -2698,23 +2742,23 @@ declare module ex {
         constructor();
     }
     /**
-     * Event received by the Engine when the browser window receives focus
+     * Event received by the Engine when the browser window is visible
      *
-     * @class FocusEvent
+     * @class VisibleEvent
      * @extends GameEvent
      * @constructor
      */
-    class FocusEvent extends GameEvent {
+    class VisibleEvent extends GameEvent {
         constructor();
     }
     /**
-     * Event received by the Engine when the browser window is blurred
+     * Event received by the Engine when the browser window is hidden
      *
-     * @class BlurEvent
+     * @class HiddenEvent
      * @extends GameEvent
      * @constructor
      */
-    class BlurEvent extends GameEvent {
+    class HiddenEvent extends GameEvent {
         constructor();
     }
     /**
@@ -3060,7 +3104,10 @@ declare module ex {
      * @param [height=0.0] {number} The starting height of the actor
      */
     class UIActor extends Actor {
+        protected _engine: Engine;
         constructor(x?: number, y?: number, width?: number, height?: number);
+        onInitialize(engine: Engine): void;
+        contains(x: number, y: number, useWorld?: boolean): boolean;
     }
 }
 declare module ex {
@@ -3371,7 +3418,9 @@ declare module ex.Internal {
     interface ISound {
         setVolume(volume: number): any;
         setLoop(loop: boolean): any;
-        play(): any;
+        isPlaying(): boolean;
+        play(): Promise<any>;
+        pause(): any;
         stop(): any;
         load(): any;
         onload: (e: any) => void;
@@ -3388,7 +3437,9 @@ declare module ex.Internal {
         onprogress: (e: any) => void;
         onerror: (e: any) => void;
         load(): void;
-        play(): void;
+        isPlaying(): boolean;
+        play(): Promise<any>;
+        pause(): void;
         stop(): void;
     }
     class AudioTag implements ISound {
@@ -3398,15 +3449,21 @@ declare module ex.Internal {
         private isLoaded;
         private index;
         private log;
+        private _isPlaying;
+        private _playingTimer;
+        private _currentOffset;
         constructor(path: string, volume?: number);
+        isPlaying(): boolean;
         private audioLoaded();
         setVolume(volume: number): void;
         setLoop(loop: boolean): void;
+        getLoop(): void;
         onload: (e: any) => void;
         onprogress: (e: any) => void;
         onerror: (e: any) => void;
         load(): void;
-        play(): void;
+        play(): Promise<any>;
+        pause(): void;
         stop(): void;
     }
     class WebAudio implements ISound {
@@ -3417,6 +3474,11 @@ declare module ex.Internal {
         private path;
         private isLoaded;
         private loop;
+        private _isPlaying;
+        private _isPaused;
+        private _playingTimer;
+        private _currentOffset;
+        private _playPromise;
         private logger;
         constructor(soundPath: string, volume?: number);
         setVolume(volume: number): void;
@@ -3425,7 +3487,9 @@ declare module ex.Internal {
         onerror: (e: any) => void;
         load(): void;
         setLoop(loop: boolean): void;
-        play(): void;
+        isPlaying(): boolean;
+        play(): Promise<any>;
+        pause(): void;
         stop(): void;
     }
 }
@@ -3531,6 +3595,11 @@ declare module ex {
          */
         load(): Promise<any>;
         /**
+         * Wires engine into loadable to receive game level events
+         * @method wireEngine
+         */
+        wireEngine(engine: Engine): void;
+        /**
          * onprogress handler
          * @property onprogress {any=>void}
          */
@@ -3565,9 +3634,11 @@ declare module ex {
     class Resource<T> implements ILoadable {
         path: string;
         responseType: string;
+        bustCache: boolean;
         data: T;
         logger: Logger;
-        constructor(path: string, responseType: string);
+        private _engine;
+        constructor(path: string, responseType: string, bustCache?: boolean);
         /**
          * Returns true if the Resource is completely loaded and is ready
          * to be drawn.
@@ -3575,6 +3646,7 @@ declare module ex {
          * @returns boolean
          */
         isLoaded(): boolean;
+        wireEngine(engine: Engine): void;
         private cacheBust(uri);
         private _start(e);
         /**
@@ -3608,9 +3680,11 @@ declare module ex {
      * @extend Resource
      * @constructor
      * @param path {string} Path to the image resource
+     * @param [bustCache=true] {boolean} Optionally load texture with cache busting
      */
     class Texture extends Resource<HTMLImageElement> {
         path: string;
+        bustCache: boolean;
         width: number;
         height: number;
         loaded: Promise<any>;
@@ -3624,7 +3698,7 @@ declare module ex {
         private progressCallback;
         private doneCallback;
         private errorCallback;
-        constructor(path: string);
+        constructor(path: string, bustCache?: boolean);
         /**
          * Returns true if the Texture is completely loaded and is ready
          * to be drawn.
@@ -3657,6 +3731,8 @@ declare module ex {
         onload: (e: any) => void;
         private _isLoaded;
         private _selectedFile;
+        private _engine;
+        private _wasPlayingOnHidden;
         /**
          * Populated once loading is complete
          * @property sound {Sound}
@@ -3664,6 +3740,7 @@ declare module ex {
         sound: Internal.FallbackAudio;
         static canPlayFile(file: string): boolean;
         constructor(...paths: string[]);
+        wireEngine(engine: Engine): void;
         /**
          * Sets the volume of the sound clip
          * @method setVolume
@@ -3676,11 +3753,18 @@ declare module ex {
          * @param loop {boolean} Set the looping flag
          */
         setLoop(loop: boolean): void;
+        isPlaying(): boolean;
         /**
-         * Play the sound
+         * Play the sound, returns a promise that resolves when the sound is done playing
          * @method play
+         * @return ex.Promise
          */
-        play(): void;
+        play(): Promise<any>;
+        /**
+         * Stop the sound, and do not rewind
+         * @method pause
+         */
+        pause(): void;
         /**
          * Stop the sound and rewind
          * @method stop
@@ -3714,7 +3798,9 @@ declare module ex {
         private numLoaded;
         private progressCounts;
         private totalCounts;
+        private _engine;
         constructor(loadables?: ILoadable[]);
+        wireEngine(engine: Engine): void;
         /**
          * Add a resource to the loader to load
          * @method addResource
@@ -3763,8 +3849,10 @@ declare module ex {
         private _textElements;
         private _innerElement;
         private _isLoaded;
+        private _engine;
         logger: Logger;
         constructor(path: string);
+        wireEngine(engine: Engine): void;
         /**
          * Returns the full html template string once loaded.
          * @method getTemplateString
@@ -3990,6 +4078,11 @@ declare module ex {
         debugDraw(ctx: CanvasRenderingContext2D): void;
     }
 }
+declare module ex {
+    interface IPostProcessor {
+        process(image: ImageData, out: CanvasRenderingContext2D): void;
+    }
+}
 declare module ex.Input {
     interface IEngineInput {
         keyboard: Keyboard;
@@ -4058,7 +4151,7 @@ declare module ex.Input {
         /**
          * Propogates events to actor if necessary
          */
-        propogate(actor: Actor): void;
+        propogate(actor: any): void;
         private _handleMouseEvent(eventName, eventArr);
         private _handleTouchEvent(eventName, eventArr);
         private _handlePointerEvent(eventName, eventArr);
@@ -4640,6 +4733,8 @@ declare module ex {
          */
         collisionStrategy: CollisionStrategy;
         private hasStarted;
+        fps: number;
+        postProcessors: IPostProcessor[];
         currentScene: Scene;
         /**
          * The default scene of the game, use {{#crossLink "Engine/goToScene"}}{{/crossLink}} to transition to different scenes.
@@ -4658,6 +4753,11 @@ declare module ex {
          * @property [displayMode=FullScreen] {DisplayMode}
          */
         displayMode: DisplayMode;
+        /**
+         * Indicates whether audio should be paused when the game is no longer visible.
+         * @property [pauseAudioWhenHidden=true] {boolean}
+         */
+        pauseAudioWhenHidden: boolean;
         /**
          * Indicates whether the engine should draw with debug information
          * @property [isDebug=false] {boolean}
@@ -4913,6 +5013,13 @@ declare module ex {
          * @method stop
          */
         stop(): void;
+        /**
+         * Takes a screen shot of the current viewport and returns it as an
+         * HTML Image Element.
+         * @method screenshot
+         * @returns HTMLImageElement
+         */
+        screenshot(): HTMLImageElement;
         /**
          * Draws the Excalibur loading bar
          * @method drawLoadingBar

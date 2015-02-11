@@ -75,6 +75,8 @@
     <TypeScriptCompile Include="CollisionGroupSpec.ts" />
     <TypeScriptCompile Include="CollisionSpec.ts" />
     <TypeScriptCompile Include="ColorSpec.ts" />
+    <TypeScriptCompile Include="EventSpec.ts" />
+    <TypeScriptCompile Include="GroupSpec.ts" />
     <TypeScriptCompile Include="jasmine.d.ts" />
     <TypeScriptCompile Include="LogSpec.ts" />
     <TypeScriptCompile Include="MathSpec.ts" />

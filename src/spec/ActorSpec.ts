@@ -135,7 +135,12 @@ describe("A game actor", () => {
 		expect(actor.x).toBe(0);
 		expect(actor.y).toBe(0);
 		actor.setWidth(20);
-		actor.setHeight(20);
+      actor.setHeight(20);
+
+      expect(actor.anchor.x).toBe(.5);
+      expect(actor.anchor.y).toBe(.5);
+
+	   actor.anchor = new ex.Point(0, 0);
 
 		expect(actor.contains(10,10)).toBe(true);
 
@@ -671,8 +676,8 @@ describe("A game actor", () => {
          actor.moveBy(10, 15, 1000);
          actor.update(engine, 1000);
 
-         expect(childActor.getGlobalX()).toBe(60);
-         expect(childActor.getGlobalY()).toBe(65);
+         expect(childActor.getWorldX()).toBe(60);
+         expect(childActor.getWorldY()).toBe(65);
    });
 
    it('can find its global coordinates if it doesn\'t have a parent', ()=>{
@@ -682,8 +687,8 @@ describe("A game actor", () => {
          actor.moveBy(10,15, 1000);
          actor.update(engine, 1000);
 
-         expect(actor.getGlobalX()).toBe(10);
-         expect(actor.getGlobalY()).toBe(15);
+         expect(actor.getWorldX()).toBe(10);
+         expect(actor.getWorldY()).toBe(15);
    });
 
    it('can be removed from the scene', ()=>{
@@ -692,6 +697,17 @@ describe("A game actor", () => {
       actor.kill();
       scene.update(engine, 100);
       expect(scene.children.length).toBe(0);
+   });
+
+   it('does not incure pointer overhead until an event is registered',() => {
+      expect(actor.enableCapturePointer).toBeFalsy();
+      expect(actor.capturePointer.captureMoveEvents).toBeFalsy();
+      actor.on('pointerdown',() => { });
+      expect(actor.capturePointer.captureMoveEvents).toBeFalsy();
+      expect(actor.enableCapturePointer).toBeTruthy();
+      actor.on('pointermove',() => { });
+      expect(actor.capturePointer.captureMoveEvents).toBeTruthy();
+      expect(actor.enableCapturePointer).toBeTruthy();
    });
 
 });

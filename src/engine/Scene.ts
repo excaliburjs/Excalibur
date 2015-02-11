@@ -4,6 +4,7 @@
 /// <reference path="Collision/DynamicTreeCollisionResolver.ts"/>
 /// <reference path="CollisionPair.ts" />
 /// <reference path="Camera.ts" />
+/// <reference path="Group.ts"/>
 module ex {
 
    /**
@@ -30,6 +31,7 @@ module ex {
        */
       public children: Actor[] = [];
       public tileMaps: TileMap[] = [];
+      public groups: { [key: string]: Group } = {};
       public engine: Engine;
 
       public uiActors: Actor[] = [];
@@ -40,6 +42,7 @@ module ex {
       private _timers: Timer[] = [];
       private _cancelQueue: Timer[] = [];
       private _isInitialized: boolean = false;
+      private _logger: Logger = Logger.getInstance();
       
 
       constructor(engine?: Engine) {
@@ -182,15 +185,16 @@ module ex {
          }
 
          if (this.engine && this.engine.isDebug) {
-            ctx.strokeStyle = 'yellow'
+            ctx.strokeStyle = 'yellow';
             this.debugDraw(ctx);            
          }
 
          ctx.restore();
-
-         // todo unlocked drawing here
-         this.uiActors.forEach(function(ui){
-            ui.draw(ctx, delta);
+         
+         this.uiActors.forEach(function (ui) {
+            if (ui.visible) {
+               ui.draw(ctx, delta);
+            }
          });
 
          if (this.engine && this.engine.isDebug) {
@@ -221,6 +225,13 @@ module ex {
          //this._collisionResolver.debugDraw(ctx, 20);
 
          //this.camera.debugDraw(ctx);
+      }
+
+      /**
+       * Checks whether an actor is contained in this scene or not
+       */
+      public contains(actor: Actor): boolean {
+         return this.children.indexOf(actor) > -1;
       }
 
       /**
@@ -429,6 +440,49 @@ module ex {
        */
       public isTimerActive(timer: Timer): boolean {
          return (this._timers.indexOf(timer) > -1);
+      }
+
+      /**
+       * Creates and adds a group to the scene with a name
+       * @method createGroup
+       * @param name {String}
+       * @returns Group
+       */
+      public createGroup(name: string): Group {
+         return new Group(name, this);
+      }
+
+      /**
+       * Returns a group by name
+       * @method getGroup
+       * @param name {string}
+       * @returns Group
+       */
+      public getGroup(name: string): Group {
+         return this.groups[name];
+      }
+
+      /**
+       * Removes a group by name
+       * @method removeGroup
+       * @param name {string}
+       */
+      public removeGroup(name: string): void;
+
+      /**
+       * Removes a group by reference
+       * @method removeGroup
+       * @param group {Group}
+       */
+      public removeGroup(group: Group): void;
+      public removeGroup(group: any): void {
+         if (typeof group === 'string') {
+            delete this.groups[group];
+         } else if (group instanceof Group) {
+            delete this.groups[group.name];
+         } else {
+            this._logger.error("Invalid arguments to removeGroup", group);
+         }
       }
 
    }

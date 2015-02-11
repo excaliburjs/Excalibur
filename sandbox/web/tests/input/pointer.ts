@@ -5,11 +5,18 @@ var box = new ex.Actor(200, 200, 100, 100, ex.Color.Red);
 var cursor = new ex.Actor(0, 0, 10, 10, ex.Color.Chartreuse);
 var boxPointerDown = false;
 
+var uiElement = new ex.UIActor(200, 0, 200, 200);
+uiElement.color = ex.Color.Azure.clone();
+uiElement.on('pointerdown', (p: ex.Input.PointerEvent) => {
+   console.log(p);
+   uiElement.color = ex.Color.Red.clone();
+});
+
 // Enable pointer input for box
-box.enableCapturePointer = true;
+//box.enableCapturePointer = true;
 
 // Enable tracking mouse movement for box
-box.capturePointer.captureMoveEvents = true;
+//box.capturePointer.captureMoveEvents = true;
 
 // Change color of box when clicked
 box.on("pointerup", (pe: ex.Input.PointerEvent) => {
@@ -77,6 +84,9 @@ game.on("update", (ue: ex.UpdateEvent) => {
 
 });
 
+game.currentScene.camera.setFocus(0, 0);
+
 game.add(box);
 game.add(cursor);
+game.add(uiElement);
 game.start();

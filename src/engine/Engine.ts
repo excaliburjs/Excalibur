@@ -19,6 +19,7 @@
 /// <reference path="Binding.ts" />
 /// <reference path="TileMap.ts" />
 /// <reference path="Label.ts" />
+/// <reference path="PostProcessing/IPostProcessor.ts"/>
 /// <reference path="Input/IEngineInput.ts"/>
 /// <reference path="Input/Pointer.ts"/>
 /// <reference path="Input/Keyboard.ts"/>
@@ -108,7 +109,11 @@ module ex {
       public collisionStrategy: CollisionStrategy = CollisionStrategy.DynamicAABBTree;
 
       private hasStarted: boolean = false;
+
+      public fps: number = 0;
       
+      public postProcessors: IPostProcessor[] = [];
+
       public currentScene: Scene;
       /**
        * The default scene of the game, use {{#crossLink "Engine/goToScene"}}{{/crossLink}} to transition to different scenes.
@@ -129,6 +134,13 @@ module ex {
        * @property [displayMode=FullScreen] {DisplayMode}
        */
       public displayMode: DisplayMode = DisplayMode.FullScreen;
+
+      /**
+       * Indicates whether audio should be paused when the game is no longer visible.
+       * @property [pauseAudioWhenHidden=true] {boolean}
+       */
+      public pauseAudioWhenHidden: boolean = true;
+
       /**
        * Indicates whether the engine should draw with debug information
        * @property [isDebug=false] {boolean}
@@ -154,17 +166,14 @@ module ex {
       constructor(width?: number, height?: number, canvasElementId?: string, displayMode?: DisplayMode) {
 
          super();
-         console.log("Powered by Excalibur.js visit","http://excaliburjs.com","for more information.");
          
          this.logger = Logger.getInstance();
+
+         this.logger.info("Powered by Excalibur.js visit", "http://excaliburjs.com", "for more information.");
          
          this.logger.debug("Building engine...");
 
          this.canvasElementId = canvasElementId;
-         
-         this.rootScene = this.currentScene = new Scene(this);
-         
-         this.addScene('root', this.rootScene);
 
          if (canvasElementId) {
             this.logger.debug("Using Canvas element specified: " + canvasElementId);
@@ -188,10 +197,14 @@ module ex {
             this.displayMode = DisplayMode.FullScreen;
          }
 
-         
+       
          this.loader = new Loader();
 
          this.initialize();
+
+         this.rootScene = this.currentScene = new Scene(this);
+
+         this.addScene('root', this.rootScene);
 
       }
 
@@ -581,13 +594,28 @@ module ex {
          this.input.pointers.init();
          this.input.gamepads.init();
          
+
+         // Issue #385 make use of the visibility api
+         // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
+         document.addEventListener("visibilitychange", () => {
+            if (document.hidden || document.msHidden) {
+               this.eventDispatcher.publish('hidden', new HiddenEvent());
+               this.logger.debug("Window hidden");
+            } else {
+               this.eventDispatcher.publish('visible', new VisibleEvent());
+               this.logger.debug("Window visible");
+            }
+         });
+
+         /*
+         // DEPRECATED in favor of visibility api
          window.addEventListener('blur', () => {
             this.eventDispatcher.publish(EventType[EventType.Blur], new BlurEvent());
          });
 
          window.addEventListener('focus', () => {
             this.eventDispatcher.publish(EventType[EventType.Focus], new FocusEvent());
-         });
+         });*/
          
          this.ctx = this.canvas.getContext('2d');
          if (!this.canvasElementId) {
@@ -658,7 +686,7 @@ module ex {
          var ctx = this.ctx;
 
          if (this.isLoading) {
-            ctx.fillStyle = 'black'
+            ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, this.width, this.height);
             this.drawLoadingBar(ctx, this.progress, this.total);
             // Drawing nothing else while loading
@@ -668,7 +696,15 @@ module ex {
          ctx.clearRect(0, 0, this.width, this.height);
          ctx.fillStyle = this.backgroundColor.toString();
          ctx.fillRect(0, 0, this.width, this.height);
+         
+         this.currentScene.draw(this.ctx, delta);
 
+         // todo needs to be a better way of doing this
+         this.animations.forEach(function (a) {
+            a.animation.draw(ctx, a.x, a.y);
+         });
+
+         this.fps = 1.0 / (delta / 1000);
 
          // Draw debug information
          if (this.isDebug) {
@@ -679,18 +715,17 @@ module ex {
             for (var j = 0; j < keys.length; j++) {
                this.ctx.fillText(keys[j].toString() + " : " + (Input.Keys[keys[j]] ? Input.Keys[keys[j]] : "Not Mapped"), 100, 10 * j + 10);
             }
-
-            var fps = 1.0 / (delta / 1000);
-            this.ctx.fillText("FPS:" + fps.toFixed(2).toString(), 10, 10);
+            
+            this.ctx.fillText("FPS:" + this.fps.toFixed(2).toString(), 10, 10);
          }
-         
-         this.currentScene.draw(this.ctx, delta);
 
-         this.animations.forEach(function (a) {
-            a.animation.draw(ctx, a.x, a.y);
-         });
+         // Post processing
+         for (var i = 0; i < this.postProcessors.length; i++) {
+            this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.width, this.height), this.ctx);
+         }
 
-         
+         //ctx.drawImage(currentImage, 0, 0, this.width, this.height);
+
       }
 
       /**
@@ -703,7 +738,8 @@ module ex {
        */
       public start(loader?: ILoadable) : Promise<any> {
          var loadingComplete: Promise<any>;
-         if(loader){
+         if (loader) {
+            loader.wireEngine(this);
             loadingComplete = this.load(loader);
          }else{
             loadingComplete = Promise.wrap();
@@ -758,6 +794,19 @@ module ex {
             this.hasStarted = false;
             this.logger.debug("Game stopped");
          }
+      }
+      
+      /**
+       * Takes a screen shot of the current viewport and returns it as an
+       * HTML Image Element.
+       * @method screenshot
+       * @returns HTMLImageElement
+       */
+      public screenshot(): HTMLImageElement {
+         var result = new Image();
+         var raw = this.canvas.toDataURL("image/png");
+         result.src = raw;
+         return result;
       }
 
       /**
