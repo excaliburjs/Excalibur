@@ -87,6 +87,98 @@ module ex {
          }
       }
 
+
+      /**
+       * Applies the "Lighten" effect to a sprite
+       * @class Effects.Lighten
+       * @extends ISpriteEffect
+       * @constructor
+       * @param number {number} 
+       */
+      export class Lighten implements ISpriteEffect {
+         constructor(public factor: number = 0.1) { }
+         updatePixel(x: number, y: number, imageData: ImageData): void {
+            var firstPixel = (x + y * imageData.width) * 4;
+            var pixel = imageData.data;
+            var color = Color.fromRGB(pixel[firstPixel + 0], pixel[firstPixel + 1], pixel[firstPixel + 2], pixel[firstPixel + 3]).lighten(this.factor);
+
+            pixel[firstPixel + 0] = color.r;
+            pixel[firstPixel + 1] = color.g;
+            pixel[firstPixel + 2] = color.b;
+            pixel[firstPixel + 3] = color.a;
+
+         }
+      }
+
+      /**
+       * Applies the "Darken" effect to a sprite
+       * @class Effects.Darken
+       * @extends ISpriteEffect
+       * @constructor
+       * @param factor {number}
+       */
+      export class Darken implements ISpriteEffect {
+         constructor(public factor: number = 0.1) { }
+         updatePixel(x: number, y: number, imageData: ImageData): void {
+            var firstPixel = (x + y * imageData.width) * 4;
+            var pixel = imageData.data;
+            var color = Color.fromRGB(pixel[firstPixel + 0], pixel[firstPixel + 1], pixel[firstPixel + 2], pixel[firstPixel + 3]).darken(this.factor);
+
+            pixel[firstPixel + 0] = color.r;
+            pixel[firstPixel + 1] = color.g;
+            pixel[firstPixel + 2] = color.b;
+            pixel[firstPixel + 3] = color.a;
+
+         }
+      }
+
+
+      /**
+       * Applies the "Saturate" effect to a sprite
+       * @class Effects.Saturate
+       * @extends ISpriteEffect
+       * @constructor
+       * @param factor {number}
+       */
+      export class Saturate implements ISpriteEffect {
+         constructor(public factor: number = 0.1) { }
+         updatePixel(x: number, y: number, imageData: ImageData): void {
+            var firstPixel = (x + y * imageData.width) * 4;
+            var pixel = imageData.data;
+            var color = Color.fromRGB(pixel[firstPixel + 0], pixel[firstPixel + 1], pixel[firstPixel + 2], pixel[firstPixel + 3]).saturate(this.factor);
+
+            pixel[firstPixel + 0] = color.r;
+            pixel[firstPixel + 1] = color.g;
+            pixel[firstPixel + 2] = color.b;
+            pixel[firstPixel + 3] = color.a;
+
+         }
+      }
+
+      /**
+       * Applies the "Desaturate" effect to a sprite
+       * @class Effects.Desaturate
+       * @extends ISpriteEffect
+       * @constructor
+       * @param factor {number}
+       */
+      export class Desaturate implements ISpriteEffect {
+         constructor(public factor: number = 0.1) { }
+         updatePixel(x: number, y: number, imageData: ImageData): void {
+            var firstPixel = (x + y * imageData.width) * 4;
+            var pixel = imageData.data;
+            var color = Color.fromRGB(pixel[firstPixel + 0], pixel[firstPixel + 1], pixel[firstPixel + 2], pixel[firstPixel + 3]).desaturate(this.factor);
+
+            pixel[firstPixel + 0] = color.r;
+            pixel[firstPixel + 1] = color.g;
+            pixel[firstPixel + 2] = color.b;
+            pixel[firstPixel + 3] = color.a;
+
+         }
+      }
+
+
+
       /**
        * Applies the "Fill" effect to a sprite, changing the color channels of all non-transparent pixels to match
        * a given color
