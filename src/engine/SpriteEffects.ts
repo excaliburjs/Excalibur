@@ -132,7 +132,6 @@ module ex {
          }
       }
 
-
       /**
        * Applies the "Saturate" effect to a sprite
        * @class Effects.Saturate
@@ -176,8 +175,6 @@ module ex {
 
          }
       }
-
-
 
       /**
        * Applies the "Fill" effect to a sprite, changing the color channels of all non-transparent pixels to match
