@@ -58,6 +58,54 @@ declare module ex {
             updatePixel(x: number, y: number, imageData: ImageData): void;
         }
         /**
+         * Applies the "Lighten" effect to a sprite
+         * @class Effects.Lighten
+         * @extends ISpriteEffect
+         * @constructor
+         * @param number {number}
+         */
+        class Lighten implements ISpriteEffect {
+            factor: number;
+            constructor(factor?: number);
+            updatePixel(x: number, y: number, imageData: ImageData): void;
+        }
+        /**
+         * Applies the "Darken" effect to a sprite
+         * @class Effects.Darken
+         * @extends ISpriteEffect
+         * @constructor
+         * @param factor {number}
+         */
+        class Darken implements ISpriteEffect {
+            factor: number;
+            constructor(factor?: number);
+            updatePixel(x: number, y: number, imageData: ImageData): void;
+        }
+        /**
+         * Applies the "Saturate" effect to a sprite
+         * @class Effects.Saturate
+         * @extends ISpriteEffect
+         * @constructor
+         * @param factor {number}
+         */
+        class Saturate implements ISpriteEffect {
+            factor: number;
+            constructor(factor?: number);
+            updatePixel(x: number, y: number, imageData: ImageData): void;
+        }
+        /**
+         * Applies the "Desaturate" effect to a sprite
+         * @class Effects.Desaturate
+         * @extends ISpriteEffect
+         * @constructor
+         * @param factor {number}
+         */
+        class Desaturate implements ISpriteEffect {
+            factor: number;
+            constructor(factor?: number);
+            updatePixel(x: number, y: number, imageData: ImageData): void;
+        }
+        /**
          * Applies the "Fill" effect to a sprite, changing the color channels of all non-transparent pixels to match
          * a given color
          * @class Effects.Fill
@@ -322,6 +370,7 @@ declare module ex {
     class Vector extends Point {
         x: number;
         y: number;
+        static Zero: Vector;
         /**
          * Returns a vector of unit length in the direction of the specified angle.
          * @method fromAngle
@@ -352,12 +401,26 @@ declare module ex {
          */
         scale(size: any): Vector;
         /**
+         * Adds one vector to another, alias for add
+         * @method plus
+         * @param v {Vector} The vector to add
+         * @return Vector
+         */
+        plus(v: Vector): Vector;
+        /**
          * Adds one vector to another
          * @method add
          * @param v {Vector} The vector to add
          * @returns Vector
          */
         add(v: Vector): Vector;
+        /**
+         * Subtracts a vector from another, alias for minus
+         * @method subtract
+         * @param v {Vector} The vector to subtract
+         * @returns Vector
+         */
+        subtract(v: Vector): Vector;
         /**
          * Subtracts a vector from the current vector
          * @method minus
@@ -410,6 +473,12 @@ declare module ex {
          * @returns Vector
          */
         rotate(angle: number, anchor: Point): Vector;
+        /**
+         * Creates new vector that has the same values as the previous.
+         * @method clone
+         * @returns Vector
+         */
+        clone(): Vector;
     }
     /**
      * A 2D ray that can be cast into the scene to do collision detection
@@ -480,6 +549,8 @@ declare module ex.Util {
     function toDegrees(radians: number): number;
     function toRadians(degrees: number): number;
     function getPosition(el: HTMLElement): Point;
+    function addItemToArray<T>(item: T, array: T[]): boolean;
+    function removeItemToArray<T>(item: T, array: T[]): boolean;
     function getOppositeSide(side: Side): Side;
     /**
      * Excaliburs dynamically resizing collection
@@ -1399,194 +1470,8 @@ declare module ex {
     }
 }
 declare module ex {
-    /**
-     * Actors are composed together into groupings called Scenes in
-     * Excalibur. The metaphor models the same idea behind real world
-     * actors in a scene. Only actors in scenes will be updated and drawn.
-     * @class Scene
-     * @constructor
-     */
-    class Scene extends Class {
-        actor: Actor;
-        /**
-         * Gets or sets the current camera for the scene
-         * @property camera {Camera}
-         */
-        camera: BaseCamera;
-        /**
-         * The actors in the current scene
-         * @property children {Actor[]}
-         */
-        children: Actor[];
-        tileMaps: TileMap[];
-        engine: Engine;
-        uiActors: Actor[];
-        private _collisionResolver;
-        private _killQueue;
-        private _timers;
-        private _cancelQueue;
-        private _isInitialized;
-        constructor(engine?: Engine);
-        /**
-         * This is called when the scene is made active and started. It is meant to be overriden,
-         * this is where you should setup any DOM UI or event handlers needed for the scene.
-         * @method onActivate
-         */
-        onActivate(): void;
-        /**
-         * This is called when the scene is made transitioned away from and stopped. It is meant to be overriden,
-         * this is where you should cleanup any DOM UI or event handlers needed for the scene.
-         * @method onDeactivate
-         */
-        onDeactivate(): void;
-        /**
-         * This is called before the first update of the actor. This method is meant to be
-         * overridden. This is where initialization of child actors should take place.
-         * @method onInitialize
-         * @param engine {Engine}
-         */
-        onInitialize(engine: Engine): void;
-        /**
-         * Publish an event to all actors in the scene
-         * @method publish
-         * @param eventType {string} The name of the event to publish
-         * @param event {GameEvent} The event object to send
-         */
-        publish(eventType: string, event: GameEvent): void;
-        /**
-         * Updates all the actors and timers in the Scene. Called by the Engine.
-         * @method update
-         * @param engine {Engine} Reference to the current Engine
-         * @param delta {number} The number of milliseconds since the last update
-         */
-        update(engine: Engine, delta: number): void;
-        /**
-         * Draws all the actors in the Scene. Called by the Engine.
-         * @method draw
-         * @param ctx {CanvasRenderingContext2D} The current rendering context
-         * @param delta {number} The number of milliseconds since the last draw
-         */
-        draw(ctx: CanvasRenderingContext2D, delta: number): void;
-        /**
-         * Draws all the actors' debug information in the Scene. Called by the Engine.
-         * @method draw
-         * @param ctx {CanvasRenderingContext2D} The current rendering context
-         */
-        debugDraw(ctx: CanvasRenderingContext2D): void;
-        /**
-         * Adds an excalibur Timer to the current scene.
-         * @param timer {Timer} The timer to add to the current scene.
-         * @method add
-         */
-        add(timer: Timer): void;
-        /**
-         * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
-         * @method add
-         * @param tileMap {TileMap}
-         */
-        add(tileMap: TileMap): void;
-        /**
-         * Adds an actor to the Scene, once this is done the Actor will be drawn and updated.
-         * @method add
-         * @param actor {Actor} The actor to add to the current scene
-         */
-        add(actor: Actor): void;
-        /**
-         * Adds a UIActor to the scene, UIActors do not participate in collisions, instead the remain in the same place on the screen.
-         * @method add
-         * @param uiActor {UIActor} The UIActor to add to the current scene
-         */
-        add(uiActor: UIActor): void;
-        /**
-          * Removes an excalibur Timer from the current scene.
-          * @method remove
-          * @param timer {Timer} The timer to remove to the current scene.
-          */
-        remove(timer: Timer): void;
-        /**
-         * Removes a TileMap from the Scene, it will no longer be drawn or updated.
-         * @method remove
-         * @param tileMap {TileMap}
-         */
-        remove(tileMap: TileMap): void;
-        /**
-         * Removes an actor from the Scene, it will no longer be drawn or updated.
-         * @method remove
-         * @param actor {Actor} The actor to remove from the current scene.
-         */
-        remove(actor: Actor): void;
-        /**
-         * Removes a UIActor to the scene, it will no longer be drawn or updated
-         * @method remove
-         * @param uiActor {UIActor} The UIActor to remove from the current scene
-         */
-        remove(uiActor: UIActor): void;
-        /**
-         * Adds an actor to act as a piece of UI, meaning it is always positioned
-         * in screen coordinates. UI actors do not participate in collisions
-         * @method addUIActor
-         * @param actor {Actor}
-         */
-        addUIActor(actor: Actor): void;
-        /**
-         * Removes an actor as a piec of UI
-         * @method removeUIActor
-         * @param actor {Actor}
-         */
-        removeUIActor(actor: Actor): void;
-        /**
-         * Adds an actor to the Scene, once this is done the actor will be drawn and updated.
-         * @method addChild
-         * @param actor {Actor}
-         */
-        addChild(actor: Actor): void;
-        /**
-         * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
-         * @method addTileMap
-         * @param tileMap {TileMap}
-         */
-        addTileMap(tileMap: TileMap): void;
-        /**
-         * Removes a TileMap from the Scene, it willno longer be drawn or updated.
-         * @method removeTileMap
-         * @param tileMap {TileMap}
-         */
-        removeTileMap(tileMap: TileMap): void;
-        /**
-         * Removes an actor from the Scene, it will no longer be drawn or updated.
-         * @method removeChild
-         * @param actor {Actor} The actor to remove
-         */
-        removeChild(actor: Actor): void;
-        /**
-         * Adds a timer to the Scene
-         * @method addTimer
-         * @param timer {Timer} The timer to add
-         * @returns Timer
-         */
-        addTimer(timer: Timer): Timer;
-        /**
-         * Removes a timer to the Scene, can be dangerous
-         * @method removeTimer
-         * @private
-         * @param timer {Timer} The timer to remove
-         * @returns Timer
-         */
-        removeTimer(timer: Timer): Timer;
-        /**
-         * Cancels a timer, removing it from the scene nicely
-         * @method cancelTimer
-         * @param timer {Timer} The timer to cancel
-         * @returns Timer
-         */
-        cancelTimer(timer: Timer): Timer;
-        /**
-         * Tests whether a timer is active in the scene
-         * @method isTimerActive
-         * @param timer {Timer}
-         * @returns boolean
-         */
-        isTimerActive(timer: Timer): boolean;
+    interface IActionable {
+        actions: ActionContext;
     }
 }
 declare module ex.Internal.Actions {
@@ -1870,6 +1755,422 @@ declare module ex.Internal.Actions {
     }
 }
 declare module ex {
+    class ActionContext {
+        private _actors;
+        private _queues;
+        constructor();
+        constructor(actor: Actor);
+        constructor(actors: Actor[]);
+        /**
+        * Clears all queued actions from the Actor
+        * @method clearActions
+         */
+        clearActions(): void;
+        addActorToContext(actor: Actor): void;
+        removeActorFromContext(actor: Actor): void;
+        /**
+         * This method will move an actor to the specified x and y position at the
+         * speed specified (in pixels per second) and return back the actor. This
+         * method is part of the actor 'Action' fluent API allowing action chaining.
+         * @method moveTo
+         * @param x {number} The x location to move the actor to
+         * @param y {number} The y location to move the actor to
+         * @param speed {number} The speed in pixels per second to move
+         * @returns Actor
+          */
+        moveTo(x: number, y: number, speed: number): ActionContext;
+        /**
+         * This method will move an actor to the specified x and y position by a
+         * certain time (in milliseconds). This method is part of the actor
+         * 'Action' fluent API allowing action chaining.
+         * @method moveBy
+         * @param x {number} The x location to move the actor to
+         * @param y {number} The y location to move the actor to
+         * @param time {number} The time it should take the actor to move to the new location in milliseconds
+         * @returns Actor
+          */
+        moveBy(x: number, y: number, time: number): ActionContext;
+        /**
+         * This method will rotate an actor to the specified angle at the speed
+         * specified (in radians per second) and return back the actor. This
+         * method is part of the actor 'Action' fluent API allowing action chaining.
+         * @method rotateTo
+         * @param angleRadians {number} The angle to rotate to in radians
+         * @param speed {number} The angular velocity of the rotation specified in radians per second
+         * @returns Actor
+          */
+        rotateTo(angleRadians: number, speed: number): ActionContext;
+        /**
+         * This method will rotate an actor to the specified angle by a certain
+         * time (in milliseconds) and return back the actor. This method is part
+         * of the actor 'Action' fluent API allowing action chaining.
+         * @method rotateBy
+         * @param angleRadians {number} The angle to rotate to in radians
+         * @param time {number} The time it should take the actor to complete the rotation in milliseconds
+         * @returns Actor
+          */
+        rotateBy(angleRadians: number, time: number): ActionContext;
+        /**
+         * This method will scale an actor to the specified size at the speed
+         * specified (in magnitude increase per second) and return back the
+         * actor. This method is part of the actor 'Action' fluent API allowing
+         * action chaining.
+         * @method scaleTo
+         * @param size {number} The scaling factor to apply
+         * @param speed {number} The speed of scaling specified in magnitude increase per second
+         * @returns Actor
+          */
+        scaleTo(sizeX: number, sizeY: number, speedX: number, speedY: number): ActionContext;
+        /**
+         * This method will scale an actor to the specified size by a certain time
+         * (in milliseconds) and return back the actor. This method is part of the
+         * actor 'Action' fluent API allowing action chaining.
+         * @method scaleBy
+         * @param size {number} The scaling factor to apply
+         * @param time {number} The time it should take to complete the scaling in milliseconds
+         * @returns Actor
+          */
+        scaleBy(sizeX: number, sizeY: number, time: number): ActionContext;
+        /**
+         * This method will cause an actor to blink (become visible and not
+         * visible). Optionally, you may specify the number of blinks. Specify the amount of time
+         * the actor should be visible per blink, and the amount of time not visible.
+         * This method is part of the actor 'Action' fluent API allowing action chaining.
+         * @method blink
+         * @param timeVisible {number} The amount of time to stay visible per blink in milliseconds
+         * @param timeNotVisible {number} The amount of time to stay not visible per blink in milliseconds
+         * @param [numBlinks] {number} The number of times to blink
+         * @returns Actor
+          */
+        blink(timeVisible: number, timeNotVisible: number, numBlinks?: number): ActionContext;
+        /**
+         * This method will cause an actor's opacity to change from its current value
+         * to the provided value by a specified time (in milliseconds). This method is
+         * part of the actor 'Action' fluent API allowing action chaining.
+         * @method fade
+         * @param opacity {number} The ending opacity
+         * @param time {number} The time it should take to fade the actor (in milliseconds)
+         * @returns Actor
+          */
+        fade(opacity: number, time: number): ActionContext;
+        /**
+         * This method will delay the next action from executing for a certain
+         * amount of time (in milliseconds). This method is part of the actor
+         * 'Action' fluent API allowing action chaining.
+         * @method delay
+         * @param time {number} The amount of time to delay the next action in the queue from executing in milliseconds
+         * @returns Actor
+          */
+        delay(time: number): ActionContext;
+        /**
+         * This method will add an action to the queue that will remove the actor from the
+         * scene once it has completed its previous actions. Any actions on the
+         * action queue after this action will not be executed.
+         * @method die
+         * @returns Actor
+          */
+        die(): ActionContext;
+        /**
+         * This method allows you to call an arbitrary method as the next action in the
+         * action queue. This is useful if you want to execute code in after a specific
+         * action, i.e An actor arrives at a destinatino after traversing a path
+         * @method callMethod
+         * @returns Actor
+          */
+        callMethod(method: () => any): ActionContext;
+        /**
+         * This method will cause the actor to repeat all of the previously
+         * called actions a certain number of times. If the number of repeats
+         * is not specified it will repeat forever. This method is part of
+         * the actor 'Action' fluent API allowing action chaining
+         * @method repeat
+         * @param [times=undefined] {number} The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will repeat forever
+         * @returns Actor
+          */
+        repeat(times?: number): ActionContext;
+        /**
+         * This method will cause the actor to repeat all of the previously
+         * called actions forever. This method is part of the actor 'Action'
+         * fluent API allowing action chaining.
+         * @method repeatForever
+         * @returns Actor
+          */
+        repeatForever(): ActionContext;
+        /**
+         * This method will cause the actor to follow another at a specified distance
+         * @method follow
+         * @param actor {Actor} The actor to follow
+         * @param [followDistance=currentDistance] {number} The distance to maintain when following, if not specified the actor will follow at the current distance.
+         * @returns Actor
+         */
+        follow(actor: Actor, followDistance?: number): ActionContext;
+        /**
+         * This method will cause the actor to move towards another until they
+         * collide "meet" at a specified speed.
+         * @method meet
+         * @param actor {Actor} The actor to meet
+         * @param [speed=0] {number} The speed in pixels per second to move, if not specified it will match the speed of the other actor
+         * @returns Actor
+         */
+        meet(actor: Actor, speed?: number): ActionContext;
+        /**
+         * Returns a promise that resolves when the current action queue up to now
+         * is finished.
+         * @method asPromise
+         * @returns Promise
+         */
+        asPromise<T>(): Promise<T>;
+    }
+}
+declare module ex {
+    class Group extends Class implements IActionable {
+        name: string;
+        scene: Scene;
+        private _logger;
+        private _members;
+        actions: ActionContext;
+        constructor(name: string, scene: Scene);
+        add(actor: Actor): any;
+        add(actors: Actor[]): any;
+        remove(actor: Actor): void;
+        move(vector: Vector): void;
+        move(dx: number, dy: number): void;
+        rotate(angle: number): void;
+        on(eventName: string, handler: (event?: GameEvent) => void): void;
+        off(eventName: string, handler?: (event?: GameEvent) => void): void;
+        emit(topic: string, event?: GameEvent): void;
+        contains(actor: Actor): boolean;
+        getMembers(): Actor[];
+        getRandomMember(): Actor;
+        getBounds(): BoundingBox;
+    }
+}
+declare module ex {
+    /**
+     * Actors are composed together into groupings called Scenes in
+     * Excalibur. The metaphor models the same idea behind real world
+     * actors in a scene. Only actors in scenes will be updated and drawn.
+     * @class Scene
+     * @constructor
+     */
+    class Scene extends Class {
+        actor: Actor;
+        /**
+         * Gets or sets the current camera for the scene
+         * @property camera {Camera}
+         */
+        camera: BaseCamera;
+        /**
+         * The actors in the current scene
+         * @property children {Actor[]}
+         */
+        children: Actor[];
+        tileMaps: TileMap[];
+        groups: {
+            [x: string]: Group;
+        };
+        engine: Engine;
+        uiActors: Actor[];
+        private _collisionResolver;
+        private _killQueue;
+        private _timers;
+        private _cancelQueue;
+        private _isInitialized;
+        private _logger;
+        constructor(engine?: Engine);
+        /**
+         * This is called when the scene is made active and started. It is meant to be overriden,
+         * this is where you should setup any DOM UI or event handlers needed for the scene.
+         * @method onActivate
+         */
+        onActivate(): void;
+        /**
+         * This is called when the scene is made transitioned away from and stopped. It is meant to be overriden,
+         * this is where you should cleanup any DOM UI or event handlers needed for the scene.
+         * @method onDeactivate
+         */
+        onDeactivate(): void;
+        /**
+         * This is called before the first update of the actor. This method is meant to be
+         * overridden. This is where initialization of child actors should take place.
+         * @method onInitialize
+         * @param engine {Engine}
+         */
+        onInitialize(engine: Engine): void;
+        /**
+         * Publish an event to all actors in the scene
+         * @method publish
+         * @param eventType {string} The name of the event to publish
+         * @param event {GameEvent} The event object to send
+         */
+        publish(eventType: string, event: GameEvent): void;
+        /**
+         * Updates all the actors and timers in the Scene. Called by the Engine.
+         * @method update
+         * @param engine {Engine} Reference to the current Engine
+         * @param delta {number} The number of milliseconds since the last update
+         */
+        update(engine: Engine, delta: number): void;
+        /**
+         * Draws all the actors in the Scene. Called by the Engine.
+         * @method draw
+         * @param ctx {CanvasRenderingContext2D} The current rendering context
+         * @param delta {number} The number of milliseconds since the last draw
+         */
+        draw(ctx: CanvasRenderingContext2D, delta: number): void;
+        /**
+         * Draws all the actors' debug information in the Scene. Called by the Engine.
+         * @method draw
+         * @param ctx {CanvasRenderingContext2D} The current rendering context
+         */
+        debugDraw(ctx: CanvasRenderingContext2D): void;
+        /**
+         * Checks whether an actor is contained in this scene or not
+         */
+        contains(actor: Actor): boolean;
+        /**
+         * Adds an excalibur Timer to the current scene.
+         * @param timer {Timer} The timer to add to the current scene.
+         * @method add
+         */
+        add(timer: Timer): void;
+        /**
+         * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+         * @method add
+         * @param tileMap {TileMap}
+         */
+        add(tileMap: TileMap): void;
+        /**
+         * Adds an actor to the Scene, once this is done the Actor will be drawn and updated.
+         * @method add
+         * @param actor {Actor} The actor to add to the current scene
+         */
+        add(actor: Actor): void;
+        /**
+         * Adds a UIActor to the scene, UIActors do not participate in collisions, instead the remain in the same place on the screen.
+         * @method add
+         * @param uiActor {UIActor} The UIActor to add to the current scene
+         */
+        add(uiActor: UIActor): void;
+        /**
+          * Removes an excalibur Timer from the current scene.
+          * @method remove
+          * @param timer {Timer} The timer to remove to the current scene.
+          */
+        remove(timer: Timer): void;
+        /**
+         * Removes a TileMap from the Scene, it will no longer be drawn or updated.
+         * @method remove
+         * @param tileMap {TileMap}
+         */
+        remove(tileMap: TileMap): void;
+        /**
+         * Removes an actor from the Scene, it will no longer be drawn or updated.
+         * @method remove
+         * @param actor {Actor} The actor to remove from the current scene.
+         */
+        remove(actor: Actor): void;
+        /**
+         * Removes a UIActor to the scene, it will no longer be drawn or updated
+         * @method remove
+         * @param uiActor {UIActor} The UIActor to remove from the current scene
+         */
+        remove(uiActor: UIActor): void;
+        /**
+         * Adds an actor to act as a piece of UI, meaning it is always positioned
+         * in screen coordinates. UI actors do not participate in collisions
+         * @method addUIActor
+         * @param actor {Actor}
+         */
+        addUIActor(actor: Actor): void;
+        /**
+         * Removes an actor as a piec of UI
+         * @method removeUIActor
+         * @param actor {Actor}
+         */
+        removeUIActor(actor: Actor): void;
+        /**
+         * Adds an actor to the Scene, once this is done the actor will be drawn and updated.
+         * @method addChild
+         * @param actor {Actor}
+         */
+        addChild(actor: Actor): void;
+        /**
+         * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
+         * @method addTileMap
+         * @param tileMap {TileMap}
+         */
+        addTileMap(tileMap: TileMap): void;
+        /**
+         * Removes a TileMap from the Scene, it willno longer be drawn or updated.
+         * @method removeTileMap
+         * @param tileMap {TileMap}
+         */
+        removeTileMap(tileMap: TileMap): void;
+        /**
+         * Removes an actor from the Scene, it will no longer be drawn or updated.
+         * @method removeChild
+         * @param actor {Actor} The actor to remove
+         */
+        removeChild(actor: Actor): void;
+        /**
+         * Adds a timer to the Scene
+         * @method addTimer
+         * @param timer {Timer} The timer to add
+         * @returns Timer
+         */
+        addTimer(timer: Timer): Timer;
+        /**
+         * Removes a timer to the Scene, can be dangerous
+         * @method removeTimer
+         * @private
+         * @param timer {Timer} The timer to remove
+         * @returns Timer
+         */
+        removeTimer(timer: Timer): Timer;
+        /**
+         * Cancels a timer, removing it from the scene nicely
+         * @method cancelTimer
+         * @param timer {Timer} The timer to cancel
+         * @returns Timer
+         */
+        cancelTimer(timer: Timer): Timer;
+        /**
+         * Tests whether a timer is active in the scene
+         * @method isTimerActive
+         * @param timer {Timer}
+         * @returns boolean
+         */
+        isTimerActive(timer: Timer): boolean;
+        /**
+         * Creates and adds a group to the scene with a name
+         * @method createGroup
+         * @param name {String}
+         * @returns Group
+         */
+        createGroup(name: string): Group;
+        /**
+         * Returns a group by name
+         * @method getGroup
+         * @param name {string}
+         * @returns Group
+         */
+        getGroup(name: string): Group;
+        /**
+         * Removes a group by name
+         * @method removeGroup
+         * @param name {string}
+         */
+        removeGroup(name: string): void;
+        /**
+         * Removes a group by reference
+         * @method removeGroup
+         * @param group {Group}
+         */
+        removeGroup(group: Group): void;
+    }
+}
+declare module ex {
     class EasingFunctions {
         static Linear: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
         static EaseInQuad: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
@@ -1942,7 +2243,7 @@ declare module ex {
      * @param [height=0.0] {number} The starting height of the actor
      * @param [color=undefined] {Color} The starting color of the actor
      */
-    class Actor extends Class {
+    class Actor extends Class implements IActionable {
         /**
          * Indicates the next id to be set
          */
@@ -2036,22 +2337,27 @@ declare module ex {
          * @property actionQueue {ActionQueue}
          */
         actionQueue: Internal.Actions.ActionQueue;
-        private sceneNode;
+        actions: ActionContext;
         /**
          * Convenience reference to the global logger
          * @property logger {Logger}
          */
         logger: Logger;
         /**
-        * The scene that the actor is in
-        * @property scene {Scene}
-        */
+         * The scene that the actor is in
+         * @property scene {Scene}
+         */
         scene: Scene;
         /**
-        * The parent of this actor
-        * @property parent {Actor}
-        */
+         * The parent of this actor
+         * @property parent {Actor}
+         */
         parent: Actor;
+        /**
+         * The children of this actor
+         * @property children {Actor[]}
+         */
+        children: Actor[];
         /**
          * Gets or sets the current collision type of this actor. By
          * default all actors participate in Active collisions.
@@ -2257,16 +2563,16 @@ declare module ex {
         getBottom(): number;
         /**
         * Gets the x value of the Actor in global coordinates
-        * @method getGlobalX
+        * @method getWorldX
         * @returns number
         */
-        getGlobalX(): any;
+        getWorldX(): any;
         /**
         * Gets the y value of the Actor in global coordinates
-        * @method getGlobalY
+        * @method getWorldY
         * @returns number
         */
-        getGlobalY(): any;
+        getWorldY(): any;
         /**
          * Gets the global scale of the Actor
          * @method getGlobalScale
@@ -2742,6 +3048,30 @@ declare module ex {
         constructor();
     }
     /**
+     * Subscribe event thrown when handlers for events other than subscribe are added
+     * @class SubscribeEvent
+     * @constructor
+     * @param topic {string}
+     * @param handler {callback}
+     */
+    class SubscribeEvent extends GameEvent {
+        topic: string;
+        handler: (event?: GameEvent) => void;
+        constructor(topic: string, handler: (event?: GameEvent) => void);
+    }
+    /**
+     * Unsubscribe event thrown when handlers for events other than unsubscribe are removed
+     * @class SubscribeEvent
+     * @constructor
+     * @param topic {string}
+     * @param handler {callback}
+     */
+    class UnsubscribeEvent extends GameEvent {
+        topic: string;
+        handler: (event?: GameEvent) => void;
+        constructor(topic: string, handler: (event?: GameEvent) => void);
+    }
+    /**
      * Event received by the Engine when the browser window is visible
      *
      * @class VisibleEvent
@@ -2873,8 +3203,9 @@ declare module ex {
      */
     class EventDispatcher {
         private _handlers;
-        private target;
-        private log;
+        private _wiredEventDispatchers;
+        private _target;
+        private _log;
         constructor(target: any);
         /**
          * Publish an event for target
@@ -2883,6 +3214,13 @@ declare module ex {
          * @param [event=undefined] {GameEvent} Optionally pass an event data object to the handler
          */
         publish(eventName: string, event?: GameEvent): void;
+        /**
+         * Alias for publish, publishs an event for target
+         * @method emit
+         * @param eventName {string} The name of the event to publish
+         * @param [event=undefined] {GameEvent} Optionally pass an event data object to the handler
+         */
+        emit(eventName: string, event?: GameEvent): void;
         /**
          * Subscribe an event handler to a particular event name, multiple handlers per event name are allowed.
          * @method subscribe
@@ -2900,14 +3238,22 @@ declare module ex {
          *
          */
         unsubscribe(eventName: string, handler?: (event?: GameEvent) => void): void;
+        /**
+         * Wires this event dispatcher to also recieve events from another
+         * @method wire
+         * @param eventDispatcher {EventDispatcher}
+         */
+        wire(eventDispatcher: EventDispatcher): void;
+        /**
+         * Unwires this event dispatcher from another
+         * @method unwire
+         * @param eventDispatcher {EventDispatcher}
+         */
+        unwire(eventDispatcher: EventDispatcher): void;
     }
 }
 declare module ex {
     class Color {
-        r: number;
-        g: number;
-        b: number;
-        a: number;
         /**
          * Color constant
          * @property Black {ex.Color}
@@ -3041,6 +3387,13 @@ declare module ex {
          * @final
          */
         static Transparent: Color;
+        r: number;
+        g: number;
+        b: number;
+        a: number;
+        h: number;
+        s: number;
+        l: number;
         /**
          * Creates a new instance of Color from an r, g, b, a
          *
@@ -3061,6 +3414,7 @@ declare module ex {
          * @param g {number} The green component of color (0-255)
          * @param b {number} The blue component of color (0-255)
          * @param [a=1] {number} The alpha component of color (0-1.0)
+         * @returns Color
          */
         static fromRGB(r: number, g: number, b: number, a?: number): Color;
         /**
@@ -3069,8 +3423,84 @@ declare module ex {
          * @method fromHex
          * @static
          * @param hex {string} CSS color string of the form #ffffff, the alpha component is optional
+         * @returns Color
          */
         static fromHex(hex: string): Color;
+        /**
+         * Creats a new instance of Color from hsla values
+         *
+         * @method fromHSL
+         * @static
+         * @param h {number} Hue is represented [0-1]
+         * @param s {number} Saturation is represented [0-1]
+         * @param l {number} Luminance is represented [0-1]
+         * @param [a=1] {number} Alpha is represented [0-1]
+         * @returns Color
+         */
+        static fromHSL(h: number, s: number, l: number, a?: number): Color;
+        /**
+         * Lightens the current color by a specified amount
+         *
+         * @method lighten
+         * @param [factor=.1] {number}
+         * @returns Color
+         */
+        lighten(factor?: number): Color;
+        /**
+         * Darkens the current color by a specified amount
+         *
+         * @method darken
+         * @param [factor=.1] {number}
+         * @returns Color
+         */
+        darken(factor?: number): Color;
+        /**
+         * Saturates the current color by a specified amount
+         *
+         * @method saturate
+         * @param [factor=.1] {number}
+         * @returns Color
+         */
+        saturate(factor?: number): Color;
+        /**
+         * Desaturates the current color by a specified amount
+         *
+         * @method desaturate
+         * @param [factor=.1] {number}
+         * @returns Color
+         */
+        desaturate(factor?: number): Color;
+        /**
+         * Multiplies a color by another, results in a darker color
+         *
+         * @method mulitiply
+         * @param color {Color}
+         * @returns Color
+         */
+        mulitiply(color: Color): Color;
+        /**
+         * Screens a color by another, results in a lighter color
+         *
+         * @method screen
+         * @param color {Color}
+         * @returns Color
+         */
+        screen(color: Color): Color;
+        /**
+         * Inverts the current color
+         *
+         * @method invert
+         * @returns Color
+         */
+        invert(): Color;
+        /**
+         * Averages the current color with another
+         *
+         * @method average
+         * @param color {Color}
+         * @returns Color
+         */
+        average(color: Color): Color;
         /**
          * Returns a CSS string representation of a color.
          * @method toString

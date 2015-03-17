@@ -1,4 +1,4 @@
-/*! excalibur - v0.2.5 - 2015-02-07
+/*! excalibur - v0.3.0 - 2015-03-16
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2015 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -180,6 +180,102 @@ var ex;
         })();
         Effects.Colorize = Colorize;
         /**
+         * Applies the "Lighten" effect to a sprite
+         * @class Effects.Lighten
+         * @extends ISpriteEffect
+         * @constructor
+         * @param number {number}
+         */
+        var Lighten = (function () {
+            function Lighten(factor) {
+                if (factor === void 0) { factor = 0.1; }
+                this.factor = factor;
+            }
+            Lighten.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                var color = ex.Color.fromRGB(pixel[firstPixel + 0], pixel[firstPixel + 1], pixel[firstPixel + 2], pixel[firstPixel + 3]).lighten(this.factor);
+                pixel[firstPixel + 0] = color.r;
+                pixel[firstPixel + 1] = color.g;
+                pixel[firstPixel + 2] = color.b;
+                pixel[firstPixel + 3] = color.a;
+            };
+            return Lighten;
+        })();
+        Effects.Lighten = Lighten;
+        /**
+         * Applies the "Darken" effect to a sprite
+         * @class Effects.Darken
+         * @extends ISpriteEffect
+         * @constructor
+         * @param factor {number}
+         */
+        var Darken = (function () {
+            function Darken(factor) {
+                if (factor === void 0) { factor = 0.1; }
+                this.factor = factor;
+            }
+            Darken.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                var color = ex.Color.fromRGB(pixel[firstPixel + 0], pixel[firstPixel + 1], pixel[firstPixel + 2], pixel[firstPixel + 3]).darken(this.factor);
+                pixel[firstPixel + 0] = color.r;
+                pixel[firstPixel + 1] = color.g;
+                pixel[firstPixel + 2] = color.b;
+                pixel[firstPixel + 3] = color.a;
+            };
+            return Darken;
+        })();
+        Effects.Darken = Darken;
+        /**
+         * Applies the "Saturate" effect to a sprite
+         * @class Effects.Saturate
+         * @extends ISpriteEffect
+         * @constructor
+         * @param factor {number}
+         */
+        var Saturate = (function () {
+            function Saturate(factor) {
+                if (factor === void 0) { factor = 0.1; }
+                this.factor = factor;
+            }
+            Saturate.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                var color = ex.Color.fromRGB(pixel[firstPixel + 0], pixel[firstPixel + 1], pixel[firstPixel + 2], pixel[firstPixel + 3]).saturate(this.factor);
+                pixel[firstPixel + 0] = color.r;
+                pixel[firstPixel + 1] = color.g;
+                pixel[firstPixel + 2] = color.b;
+                pixel[firstPixel + 3] = color.a;
+            };
+            return Saturate;
+        })();
+        Effects.Saturate = Saturate;
+        /**
+         * Applies the "Desaturate" effect to a sprite
+         * @class Effects.Desaturate
+         * @extends ISpriteEffect
+         * @constructor
+         * @param factor {number}
+         */
+        var Desaturate = (function () {
+            function Desaturate(factor) {
+                if (factor === void 0) { factor = 0.1; }
+                this.factor = factor;
+            }
+            Desaturate.prototype.updatePixel = function (x, y, imageData) {
+                var firstPixel = (x + y * imageData.width) * 4;
+                var pixel = imageData.data;
+                var color = ex.Color.fromRGB(pixel[firstPixel + 0], pixel[firstPixel + 1], pixel[firstPixel + 2], pixel[firstPixel + 3]).desaturate(this.factor);
+                pixel[firstPixel + 0] = color.r;
+                pixel[firstPixel + 1] = color.g;
+                pixel[firstPixel + 2] = color.b;
+                pixel[firstPixel + 3] = color.a;
+            };
+            return Desaturate;
+        })();
+        Effects.Desaturate = Desaturate;
+        /**
          * Applies the "Fill" effect to a sprite, changing the color channels of all non-transparent pixels to match
          * a given color
          * @class Effects.Fill
@@ -238,7 +334,7 @@ var ex;
             var globalScale = actor.getGlobalScale();
             var width = globalScale.x * actor.getWidth() / actor.scale.x;
             var height = globalScale.y * actor.getHeight() / actor.scale.y;
-            var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Point(actor.getGlobalX() - anchor.x * width, actor.getGlobalY() - anchor.y * height));
+            var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Point(actor.getWorldX() - anchor.x * width, actor.getWorldY() - anchor.y * height));
             var zoom = 1.0;
             if (actor.scene && actor.scene.camera) {
                 zoom = actor.scene.camera.getZoom();
@@ -828,6 +924,23 @@ var ex;
             return new ex.Point(oLeft, oTop);
         }
         Util.getPosition = getPosition;
+        function addItemToArray(item, array) {
+            if (array.indexOf(item) === -1) {
+                array.push(item);
+                return true;
+            }
+            return false;
+        }
+        Util.addItemToArray = addItemToArray;
+        function removeItemToArray(item, array) {
+            var index = -1;
+            if ((index = array.indexOf(item)) > -1) {
+                array.splice(index, 1);
+                return true;
+            }
+            return false;
+        }
+        Util.removeItemToArray = removeItemToArray;
         function getOppositeSide(side) {
             if (side === 1 /* Top */)
                 return 2 /* Bottom */;
@@ -4097,7 +4210,7 @@ var ex;
             return this._members;
         };
         Group.prototype.getRandomMember = function () {
-            return this._members[Math.round(Math.random() * this._members.length)];
+            return this._members[Math.floor(Math.random() * this._members.length)];
         };
         Group.prototype.getBounds = function () {
             return this.getMembers().map(function (a) { return a.getBounds(); }).reduce(function (prev, curr) {
@@ -4704,15 +4817,21 @@ var ex;
              */
             this.logger = ex.Logger.getInstance();
             /**
-            * The scene that the actor is in
-            * @property scene {Scene}
-            */
-            this.scene = null; //formerly "parent"
+             * The scene that the actor is in
+             * @property scene {Scene}
+             */
+            this.scene = null;
             /**
-            * The parent of this actor
-            * @property parent {Actor}
-            */
+             * The parent of this actor
+             * @property parent {Actor}
+             */
             this.parent = null;
+            // TODO: Replace this with the new actor collection once z-indexing is built
+            /**
+             * The children of this actor
+             * @property children {Actor[]}
+             */
+            this.children = [];
             /**
              * Gets or sets the current collision type of this actor. By
              * default all actors participate in Active collisions.
@@ -4766,8 +4885,6 @@ var ex;
             this.pipeline.push(new ex.OffscreenCullingModule());
             this.pipeline.push(new ex.CapturePointerModule());
             this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
-            this.sceneNode = new ex.Scene();
-            this.sceneNode.actor = this;
             this.anchor = new ex.Point(.5, .5);
         }
         /**
@@ -4839,7 +4956,9 @@ var ex;
          */
         Actor.prototype.addChild = function (actor) {
             actor.collisionType = 0 /* PreventCollision */;
-            this.sceneNode.addChild(actor);
+            if (ex.Util.addItemToArray(actor, this.children)) {
+                actor.parent = this;
+            }
         };
         /**
          * Removes a child actor from this actor.
@@ -4847,7 +4966,9 @@ var ex;
          * @param actor {Actor} The child actor to remove
          */
         Actor.prototype.removeChild = function (actor) {
-            this.sceneNode.removeChild(actor);
+            if (ex.Util.removeItemToArray(actor, this.children)) {
+                actor.parent = null;
+            }
         };
         /**
          * Sets the current drawing of the actor to the drawing correspoding to
@@ -4992,23 +5113,25 @@ var ex;
         };
         /**
         * Gets the x value of the Actor in global coordinates
-        * @method getGlobalX
+        * @method getWorldX
         * @returns number
         */
-        Actor.prototype.getGlobalX = function () {
-            if (!this.parent)
+        Actor.prototype.getWorldX = function () {
+            if (!this.parent) {
                 return this.x;
-            return this.x * this.parent.scale.y + this.parent.getGlobalX();
+            }
+            return this.x * this.parent.scale.y + this.parent.getWorldX();
         };
         /**
         * Gets the y value of the Actor in global coordinates
-        * @method getGlobalY
+        * @method getWorldY
         * @returns number
         */
-        Actor.prototype.getGlobalY = function () {
-            if (!this.parent)
+        Actor.prototype.getWorldY = function () {
+            if (!this.parent) {
                 return this.y;
-            return this.y * this.parent.scale.y + this.parent.getGlobalY();
+            }
+            return this.y * this.parent.scale.y + this.parent.getWorldY();
         };
         /**
          * Gets the global scale of the Actor
@@ -5028,7 +5151,7 @@ var ex;
          */
         Actor.prototype.getBounds = function () {
             var anchor = this._getCalculatedAnchor();
-            return new ex.BoundingBox(this.getGlobalX() - anchor.x, this.getGlobalY() - anchor.y, this.getGlobalX() + this.getWidth() - anchor.x, this.getGlobalY() + this.getHeight() - anchor.y);
+            return new ex.BoundingBox(this.getWorldX() - anchor.x, this.getWorldY() - anchor.y, this.getWorldX() + this.getWidth() - anchor.x, this.getWorldY() + this.getHeight() - anchor.y);
         };
         /**
          * Tests whether the x/y specified are contained in the actor
@@ -5429,7 +5552,9 @@ var ex;
                     ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this.width, this.height);
                 }
             }
-            this.sceneNode.draw(ctx, delta);
+            for (var i = 0; i < this.children.length; i++) {
+                this.children[i].draw(ctx, delta);
+            }
             ctx.restore();
         };
         /**
@@ -5440,11 +5565,19 @@ var ex;
         Actor.prototype.debugDraw = function (ctx) {
             var bb = this.getBounds();
             bb.debugDraw(ctx);
+            ctx.fillText("id: " + this.id, bb.left + 3, bb.top + 10);
             ctx.fillStyle = ex.Color.Yellow.toString();
             ctx.beginPath();
-            ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+            ctx.arc(this.getWorldX(), this.getWorldY(), 3, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fill();
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.rotation);
+            for (var i = 0; i < this.children.length; i++) {
+                this.children[i].debugDraw(ctx);
+            }
+            ctx.restore();
         };
         /**
          * Indicates the next id to be set
@@ -6113,6 +6246,70 @@ var ex;
 })(ex || (ex = {}));
 var ex;
 (function (ex) {
+    // Internal HSL Color representation
+    // http://en.wikipedia.org/wiki/HSL_and_HSV
+    // http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c
+    var HSLColor = (function () {
+        function HSLColor(h, s, l, a) {
+            this.h = h;
+            this.s = s;
+            this.l = l;
+            this.a = a;
+        }
+        HSLColor.fromRGBA = function (r, g, b, a) {
+            r /= 255, g /= 255, b /= 255;
+            var max = Math.max(r, g, b), min = Math.min(r, g, b);
+            var h, s, l = (max + min) / 2;
+            if (max === min) {
+                h = s = 0; // achromatic
+            }
+            else {
+                var d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r:
+                        h = (g - b) / d + (g < b ? 6 : 0);
+                        break;
+                    case g:
+                        h = (b - r) / d + 2;
+                        break;
+                    case b:
+                        h = (r - g) / d + 4;
+                        break;
+                }
+                h /= 6;
+            }
+            return new HSLColor(h, s, l, a);
+        };
+        HSLColor.prototype.toRGBA = function () {
+            var r, g, b;
+            if (this.s == 0) {
+                r = g = b = this.l; // achromatic
+            }
+            else {
+                function hue2rgb(p, q, t) {
+                    if (t < 0)
+                        t += 1;
+                    if (t > 1)
+                        t -= 1;
+                    if (t < 1 / 6)
+                        return p + (q - p) * 6 * t;
+                    if (t < 1 / 2)
+                        return q;
+                    if (t < 2 / 3)
+                        return p + (q - p) * (2 / 3 - t) * 6;
+                    return p;
+                }
+                var q = this.l < 0.5 ? this.l * (1 + this.s) : this.l + this.s - this.l * this.s;
+                var p = 2 * this.l - q;
+                r = hue2rgb(p, q, this.h + 1 / 3);
+                g = hue2rgb(p, q, this.h);
+                b = hue2rgb(p, q, this.h - 1 / 3);
+            }
+            return new Color(r * 255, g * 255, b * 255, this.a);
+        };
+        return HSLColor;
+    })();
     var Color = (function () {
         /**
          * Creates a new instance of Color from an r, g, b, a
@@ -6128,7 +6325,6 @@ var ex;
             this.r = r;
             this.g = g;
             this.b = b;
-            this.a = a;
             this.a = (a != null ? a : 1);
         }
         /**
@@ -6140,6 +6336,7 @@ var ex;
          * @param g {number} The green component of color (0-255)
          * @param b {number} The blue component of color (0-255)
          * @param [a=1] {number} The alpha component of color (0-1.0)
+         * @returns Color
          */
         Color.fromRGB = function (r, g, b, a) {
             return new Color(r, g, b, a);
@@ -6150,6 +6347,7 @@ var ex;
          * @method fromHex
          * @static
          * @param hex {string} CSS color string of the form #ffffff, the alpha component is optional
+         * @returns Color
          */
         Color.fromHex = function (hex) {
             var hexRegEx = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})?$/i;
@@ -6167,6 +6365,123 @@ var ex;
             else {
                 throw new Error("Invalid hex string: " + hex);
             }
+        };
+        /**
+         * Creats a new instance of Color from hsla values
+         *
+         * @method fromHSL
+         * @static
+         * @param h {number} Hue is represented [0-1]
+         * @param s {number} Saturation is represented [0-1]
+         * @param l {number} Luminance is represented [0-1]
+         * @param [a=1] {number} Alpha is represented [0-1]
+         * @returns Color
+         */
+        Color.fromHSL = function (h, s, l, a) {
+            if (a === void 0) { a = 1.0; }
+            var temp = new HSLColor(h, s, l, a);
+            return temp.toRGBA();
+        };
+        /**
+         * Lightens the current color by a specified amount
+         *
+         * @method lighten
+         * @param [factor=.1] {number}
+         * @returns Color
+         */
+        Color.prototype.lighten = function (factor) {
+            if (factor === void 0) { factor = 0.1; }
+            var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+            temp.l += (temp.l * factor);
+            return temp.toRGBA();
+        };
+        /**
+         * Darkens the current color by a specified amount
+         *
+         * @method darken
+         * @param [factor=.1] {number}
+         * @returns Color
+         */
+        Color.prototype.darken = function (factor) {
+            if (factor === void 0) { factor = 0.1; }
+            var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+            temp.l -= (temp.l * factor);
+            return temp.toRGBA();
+        };
+        /**
+         * Saturates the current color by a specified amount
+         *
+         * @method saturate
+         * @param [factor=.1] {number}
+         * @returns Color
+         */
+        Color.prototype.saturate = function (factor) {
+            if (factor === void 0) { factor = 0.1; }
+            var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+            temp.s += (temp.s * factor);
+            return temp.toRGBA();
+        };
+        /**
+         * Desaturates the current color by a specified amount
+         *
+         * @method desaturate
+         * @param [factor=.1] {number}
+         * @returns Color
+         */
+        Color.prototype.desaturate = function (factor) {
+            if (factor === void 0) { factor = 0.1; }
+            var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+            temp.s -= (temp.s * factor);
+            return temp.toRGBA();
+        };
+        /**
+         * Multiplies a color by another, results in a darker color
+         *
+         * @method mulitiply
+         * @param color {Color}
+         * @returns Color
+         */
+        Color.prototype.mulitiply = function (color) {
+            var newR = ((color.r / 255 * this.r / 255) * 255);
+            var newG = ((color.g / 255 * this.g / 255) * 255);
+            var newB = ((color.b / 255 * this.b / 255) * 255);
+            var newA = (color.a * this.a);
+            return new Color(newR, newG, newB, newA);
+        };
+        /**
+         * Screens a color by another, results in a lighter color
+         *
+         * @method screen
+         * @param color {Color}
+         * @returns Color
+         */
+        Color.prototype.screen = function (color) {
+            var color1 = color.invert();
+            var color2 = color.invert();
+            return color1.mulitiply(color2).invert();
+        };
+        /**
+         * Inverts the current color
+         *
+         * @method invert
+         * @returns Color
+         */
+        Color.prototype.invert = function () {
+            return new Color(255 - this.r, 255 - this.g, 255 - this.b, 1.0 - this.a);
+        };
+        /**
+         * Averages the current color with another
+         *
+         * @method average
+         * @param color {Color}
+         * @returns Color
+         */
+        Color.prototype.average = function (color) {
+            var newR = (color.r + this.r) / 2;
+            var newG = (color.g + this.g) / 2;
+            var newB = (color.b + this.b) / 2;
+            var newA = (color.a + this.a) / 2;
+            return new Color(newR, newG, newB, newA);
         };
         /**
          * Returns a CSS string representation of a color.
@@ -6445,10 +6760,10 @@ var ex;
             ctx.save();
             ctx.translate(this.x, this.y);
             var bb = this.getBounds();
-            bb.left = bb.left - this.getGlobalX();
-            bb.right = bb.right - this.getGlobalX();
-            bb.top = bb.top - this.getGlobalY();
-            bb.bottom = bb.bottom - this.getGlobalY();
+            bb.left = bb.left - this.getWorldX();
+            bb.right = bb.right - this.getWorldX();
+            bb.top = bb.top - this.getWorldY();
+            bb.bottom = bb.bottom - this.getWorldY();
             // Currently collision primitives cannot rotate 
             // ctx.rotate(this.rotation);
             ctx.fillStyle = ex.Color.Violet.toString();
@@ -9994,7 +10309,7 @@ var ex;
     ex.Engine = Engine;
     ;
 })(ex || (ex = {}));
-//# sourceMappingURL=excalibur-0.2.5.js.map
+//# sourceMappingURL=excalibur-0.3.0.js.map
 ;
 // Concatenated onto excalibur after build
 // Exports the excalibur module so it can be used with browserify

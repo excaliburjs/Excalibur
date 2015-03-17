@@ -105,7 +105,7 @@ module ex {
       }
 
       public getRandomMember(): Actor {
-         return this._members[Math.round(Math.random() * this._members.length)];
+         return this._members[Math.floor(Math.random() * this._members.length)];
       }
 
       public getBounds(): BoundingBox {

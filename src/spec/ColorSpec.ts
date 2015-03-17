@@ -23,7 +23,7 @@ describe('A color', ()=>{
       expect(color.toString()).toBe('rgba(255, 255, 255, 0)');
    });
 
-   it('can be parsed from hex', ()=>{
+   it('can be parsed from hex', () => {
       color = ex.Color.fromHex('ffffff');
       expect(color.r).toBe(255);
       expect(color.g).toBe(255);
@@ -41,7 +41,34 @@ describe('A color', ()=>{
 
       color = ex.Color.fromHex('#00bbaa00');
       expect(color.a).toBe(0);
-   })
+   });
+
+   it('can be parsed from hsl', () => {
+      color = ex.Color.fromHSL(0, 0, 1.0);
+      expect(color.r).toBe(255);
+      expect(color.g).toBe(255);
+      expect(color.b).toBe(255);
+      expect(color.a).toBe(1);
+
+      color = ex.Color.fromHSL(80/240, 240/240, 120/240, 1.0);
+      expect(color.r).toBe(0);
+      expect(color.g).toBe(255);
+      expect(color.b).toBe(0);
+      expect(color.a).toBe(1);
+
+      color = ex.Color.fromHSL(1, 1, .5, .5);
+      expect(color.r).toBe(255);
+      expect(color.g).toBe(0);
+      expect(color.b).toBe(0);
+      expect(color.a).toBe(.5);
+
+      color = ex.Color.fromHSL(240/360, 1, .5, 0.0);
+      expect(color.r).toBe(0);
+      expect(color.g).toBe(0);
+      expect(color.b).toBe(255);
+      expect(color.a).toBe(0);
+
+   });
 
    it('should have a default alpha of 255 if not specified', ()=>{
       color = ex.Color.fromHex('#000000');
