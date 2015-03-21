@@ -10,8 +10,7 @@ var engine = new ex.Engine(width, height, 'game');
 
 var blockGroup = engine.currentScene.createGroup("blocks");
 var blockSprite = blockTexture.asSprite();
-blockSprite.setScaleX(.2);
-blockSprite.setScaleY(.2);
+blockSprite.scale.setTo(.2, .2);
 
 var player = new ex.Actor(width / 2, height / 2, 30, 30, ex.Color.Cyan);
 player.collisionType = ex.CollisionType.Fixed;

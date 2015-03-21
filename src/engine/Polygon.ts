@@ -36,10 +36,9 @@ module ex {
       public filled: boolean = false;
       
       private points: Point[] = [];
-      private transformationPoint = new Point(0, 0);
-      private rotation: number = 0;
-      private scaleX: number = 1;
-      private scaleY: number = 1;
+      public anchor = new Point(0, 0);
+      public rotation: number = 0;
+      public scale = new Point(1, 1);
 
       
       constructor(points : Point[]) {
@@ -85,43 +84,15 @@ module ex {
       public clearEffects(){
          // not supported on polygons
       }
-
-      public transformAboutPoint(point: Point) {
-         this.transformationPoint = point;
-      }
-
-      public setScaleX(scaleX: number) {
-         this.scaleX = scaleX;
-      }
-
-      public setScaleY(scaleY: number) {
-         this.scaleY = scaleY;
-      }
-
-      public getScaleX() {
-         return this.scaleX;
-      }
-
-      public getScaleY() {
-         return this.scaleY;
-      }
-
-      public setRotation(radians: number) {
-         this.rotation = radians;
-      }
-
-      public getRotation() {
-         return this.rotation;
-      }
-
+      
       public reset() {
          //pass
       }
 
       public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
          ctx.save();
-         ctx.translate(x + this.transformationPoint.x, y + this.transformationPoint.y);
-         ctx.scale(this.scaleX, this.scaleY);
+         ctx.translate(x + this.anchor.x, y + this.anchor.y);
+         ctx.scale(this.scale.x, this.scale.y);
          ctx.rotate(this.rotation);
          ctx.beginPath();
          ctx.lineWidth = this.lineWidth;

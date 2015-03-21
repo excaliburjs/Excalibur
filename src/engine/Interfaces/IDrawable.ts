@@ -57,54 +57,24 @@ module ex {
       clearEffects();
 
       /**
-       * Sets the point about which to apply transformations to the drawing relative to the 
+       * Gets or sets the point about which to apply transformations to the drawing relative to the 
        * top left corner of the drawing.
-       * @method transformAbotPoint
-       * @param point {Point} The point about which to apply transformations
+       * @property anchor
        */
-      transformAboutPoint(point: ex.Point);
+      anchor: ex.Point;
+
 
       /**
-       * Sets the scale trasformation
-       * @method setScale
-       * @param scale {number} The magnitude to scale the drawing in the x direction
+       * Gets or sets the scale trasformation
+       * @property scale
        */
-      setScaleX(scale: number);
-
-      /**
-       * Sets the scale trasformation
-       * @method setScale
-       * @param scale {number} The magnitude to scale the drawing in the y direction
-       */
-      setScaleY(scale: number);
-
-      /**
-       * Returns the current magnitude of the drawing's scale in the x direction.
-       * @method getScaleX
-       * @returns number
-       */
-      getScaleX(): number;
-
-      /**
-       * Returns the current magnitude of the drawing's scale in the y direction.
-       * @method getScaleY
-       * @returns number
-       */
-      getScaleY(): number;
+      scale: ex.Point;
 
       /**
        * Sets the current rotation transformation for the drawing.
-       * @method setRotation
-       * @param radians {number} The rotation to apply to the drawing.
+       * @property rotation
        */
-      setRotation(radians: number);
-
-      /**
-       * Returns the current rotation for the drawing.
-       * @method getRotation
-       * @returns number
-       */
-      getRotation(): number;
+      rotation: number;
 
       /**
        * Resets the internal state of the drawing (if any)

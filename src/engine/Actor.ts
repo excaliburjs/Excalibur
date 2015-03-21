@@ -575,7 +575,7 @@ module ex {
          if (!this.parent) {
              return this.x;
          }
-         return this.x * this.parent.scale.y + this.parent.getWorldX();
+         return this.x * this.parent.scale.x + this.parent.getWorldX();
       }
 
       /**
@@ -1020,9 +1020,10 @@ module ex {
          var anchorPoint = this._getCalculatedAnchor();
 
          ctx.save();
+         ctx.scale(this.scale.x, this.scale.y);
          ctx.translate(this.x, this.y);
          ctx.rotate(this.rotation);     
-         ctx.scale(this.scale.x, this.scale.y);
+         
          
          // calculate changing opacity
          if (this.previousOpacity != this.opacity) {
@@ -1037,14 +1038,14 @@ module ex {
             var xDiff = 0;
             var yDiff = 0;
             if (this.centerDrawingX) {
-               xDiff = (this.currentDrawing.width * this.currentDrawing.getScaleX() - this.getWidth()) / 2;
+               xDiff = (this.currentDrawing.width * this.currentDrawing.scale.x  - this.getWidth()) / 2;
             }
 
             if (this.centerDrawingY) {
-               yDiff = (this.currentDrawing.height * this.currentDrawing.getScaleY() - this.getHeight()) / 2;
+               yDiff = (this.currentDrawing.height * this.currentDrawing.scale.y - this.getHeight()) / 2;
             }
 
-            this.currentDrawing.draw(ctx, -xDiff - anchorPoint.x, -yDiff - anchorPoint.y);
+            this.currentDrawing.draw(ctx, -anchorPoint.x - xDiff, -anchorPoint.y - yDiff);
 
          } else {
             if(this.color) {

@@ -73,6 +73,15 @@ module ex {
       public clone(){
          return new Point(this.x, this.y);
       }
+
+      /**
+      * Compares this point against another and tests for equality
+      * @method equals
+      * @returns boolean
+      */
+      public equals(point: Point): boolean {
+         return this.x === point.x && this.y === point.y;
+      }
    }
 
    /**

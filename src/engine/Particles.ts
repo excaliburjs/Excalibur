@@ -122,10 +122,9 @@ module ex {
 
       public draw(ctx: CanvasRenderingContext2D) {
          
-         if(this.particleSprite){
-            this.particleSprite.setRotation(this.currentRotation);
-            this.particleSprite.setScaleX(this.particleSize);
-            this.particleSprite.setScaleY(this.particleSize);
+         if(this.particleSprite) {
+            this.particleSprite.rotation = this.currentRotation;
+            this.particleSprite.scale.setTo(this.particleSize, this.particleSize);
             this.particleSprite.draw(ctx, this.position.x, this.position.y);
             return;
          }
