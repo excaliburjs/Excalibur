@@ -333,6 +333,7 @@ module ex {
        */
       public addUIActor(actor: Actor){
          this.uiActors.push(actor);
+         actor.scene = this;
       }
 
       /**
