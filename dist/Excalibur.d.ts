@@ -690,7 +690,7 @@ declare module ex {
          * @method reset
          */
         reset(): void;
-        debugDraw(ctx: CanvasRenderingContext2D): void;
+        debugDraw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
         /**
          * Draws the sprite appropriately to the 2D rendering context, at an x and y coordinate.
          * @method draw
@@ -2033,8 +2033,8 @@ declare module ex {
          * @property currentDrawing {IDrawable}
          */
         currentDrawing: IDrawable;
-        private centerDrawingX;
-        private centerDrawingY;
+        centerDrawingX: boolean;
+        centerDrawingY: boolean;
         /**
          * Modify the current actor update pipeline.
          *

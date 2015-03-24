@@ -1257,8 +1257,15 @@ var ex;
         Sprite.prototype.reset = function () {
             // do nothing
         };
-        Sprite.prototype.debugDraw = function (ctx) {
-            // todo implement debug draw
+        Sprite.prototype.debugDraw = function (ctx, x, y) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(this.rotation);
+            var xpoint = (this.width * this.scale.x) * this.anchor.x;
+            var ypoint = (this.height * this.scale.y) * this.anchor.y;
+            ctx.strokeStyle = ex.Color.Black;
+            ctx.strokeRect(-xpoint, -ypoint, this.width * this.scale.x, this.height * this.scale.y);
+            ctx.restore();
         };
         /**
          * Draws the sprite appropriately to the 2D rendering context, at an x and y coordinate.
@@ -4092,8 +4099,8 @@ var ex;
              * @property currentDrawing {IDrawable}
              */
             this.currentDrawing = null;
-            this.centerDrawingX = false;
-            this.centerDrawingY = false;
+            this.centerDrawingX = true;
+            this.centerDrawingY = true;
             /**
              * Modify the current actor update pipeline.
              *
@@ -4782,10 +4789,10 @@ var ex;
                 var xDiff = 0;
                 var yDiff = 0;
                 if (this.centerDrawingX) {
-                    xDiff = (this.currentDrawing.width * this.currentDrawing.scale.x - this.getWidth()) / 2;
+                    xDiff = (this.currentDrawing.width * this.currentDrawing.scale.x - this.getWidth()) / 2 - this.currentDrawing.width * this.currentDrawing.scale.x * this.currentDrawing.anchor.x;
                 }
                 if (this.centerDrawingY) {
-                    yDiff = (this.currentDrawing.height * this.currentDrawing.scale.y - this.getHeight()) / 2;
+                    yDiff = (this.currentDrawing.height * this.currentDrawing.scale.y - this.getHeight()) / 2 - this.currentDrawing.height * this.currentDrawing.scale.y * this.currentDrawing.anchor.y;
                 }
                 this.currentDrawing.draw(ctx, -anchorPoint.x - xDiff, -anchorPoint.y - yDiff);
             }

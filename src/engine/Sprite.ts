@@ -171,9 +171,16 @@ module ex {
          // do nothing
       }
 
-      public debugDraw(ctx: CanvasRenderingContext2D) {
-         // todo implement debug draw
+      public debugDraw(ctx: CanvasRenderingContext2D, x: number, y: number) {
+         ctx.save();
+         ctx.translate(x, y);
+         ctx.rotate(this.rotation);
+         var xpoint = (this.width * this.scale.x) * this.anchor.x;
+         var ypoint = (this.height * this.scale.y) * this.anchor.y;
 
+         ctx.strokeStyle = Color.Black;
+         ctx.strokeRect(-xpoint, -ypoint, this.width * this.scale.x, this.height * this.scale.y);
+         ctx.restore();
       }
 
       /**
@@ -188,6 +195,7 @@ module ex {
             this.applyEffects();
             this.dirtyEffect = false;
          }
+         
 
          ctx.save();
          var xpoint = (this.width * this.scale.x) * this.anchor.x;
@@ -205,6 +213,7 @@ module ex {
             ctx.translate(0, this.sheight * this.scale.y);
             ctx.scale(1, -1);
          }
+
          if (this.internalImage) {
             
             ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, 

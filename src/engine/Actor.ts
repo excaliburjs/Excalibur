@@ -242,8 +242,8 @@ module ex {
        */
       public currentDrawing: IDrawable = null;
 
-      private centerDrawingX = false;
-      private centerDrawingY = false;
+      public  centerDrawingX = true;
+      public  centerDrawingY = true;
 
       /**
        * Modify the current actor update pipeline. 
@@ -1037,16 +1037,18 @@ module ex {
          if (this.currentDrawing) {
             var xDiff = 0;
             var yDiff = 0;
+            
             if (this.centerDrawingX) {
-               xDiff = (this.currentDrawing.width * this.currentDrawing.scale.x  - this.getWidth()) / 2;
+               xDiff = (this.currentDrawing.width * this.currentDrawing.scale.x - this.getWidth()) / 2 -
+               this.currentDrawing.width * this.currentDrawing.scale.x * this.currentDrawing.anchor.x;
             }
 
             if (this.centerDrawingY) {
-               yDiff = (this.currentDrawing.height * this.currentDrawing.scale.y - this.getHeight()) / 2;
+               yDiff = (this.currentDrawing.height * this.currentDrawing.scale.y - this.getHeight()) / 2 -
+               this.currentDrawing.height * this.currentDrawing.scale.y * this.currentDrawing.anchor.y;
             }
 
-            this.currentDrawing.draw(ctx, -anchorPoint.x - xDiff, -anchorPoint.y - yDiff);
-
+            this.currentDrawing.draw(ctx, -anchorPoint.x -xDiff, -anchorPoint.y - yDiff);
          } else {
             if(this.color) {
                ctx.fillStyle = this.color.toString();
