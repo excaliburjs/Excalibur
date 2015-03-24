@@ -662,6 +662,58 @@ declare module ex {
         constructor(image: Texture, sx: number, sy: number, swidth: number, sheight: number);
         private loadPixels();
         /**
+         * Applies the opacity effect to a sprite, setting the alpha of all pixels to a given value
+         * @method opacity
+         * @param value {number}
+         */
+        opacity(value: number): void;
+        /**
+         * Applies the grayscale effect to a sprite, removing color information.
+         * @method grayscale
+         */
+        grayscale(): void;
+        /**
+         * Applies the invert effect to a sprite, inverting the pixel colors.
+         * @method invert
+         */
+        invert(): void;
+        /**
+         * Applies the fill effect to a sprite, changing the color channels of all non-transparent pixels to match a given color
+         * @method fill
+         * @param color {Color}
+         */
+        fill(color: Color): void;
+        /**
+         * Applies the colorize effect to a sprite, changing the color channels of all pixesl to be the average of the original color and the provided color.
+         * @method fill
+         * @param color {Color}
+         */
+        colorize(color: Color): void;
+        /**
+         * Applies the lighten effect to a sprite, changes the lightness of the color according to hsl
+         * @method lighten
+         * @param [factor=0.1] {number}
+         */
+        lighten(factor?: number): void;
+        /**
+         * Applies the darken effect to a sprite, changes the darkness of the color according to hsl
+         * @method darken
+         * @param [factor=0.1] {number}
+         */
+        darken(factor?: number): void;
+        /**
+         * Applies the saturate effect to a sprite, saturates the color acccording to hsl
+         * @method saturate
+         * @param [factor=0.1] {number}
+         */
+        saturate(factor?: number): void;
+        /**
+         * Applies the desaturate effect to a sprite, desaturates the color acccording to hsl
+         * @method desaturate
+         * @param [factor=0.1] {number}
+         */
+        desaturate(factor?: number): void;
+        /**
          * Adds a new {{#crossLink Effects.ISpriteEffect}}{{/crossLink}} to this drawing.
          * @method addEffect
          * @param effect {Effects.ISpriteEffect} Effect to add to the this drawing
@@ -3446,6 +3498,58 @@ declare module ex {
         width: number;
         height: number;
         constructor(engine: Engine, images: Sprite[], speed: number, loop?: boolean);
+        /**
+         * Applies the opacity effect to a sprite, setting the alpha of all pixels to a given value
+         * @method opacity
+         * @param value {number}
+         */
+        opacity(value: number): void;
+        /**
+         * Applies the grayscale effect to a sprite, removing color information.
+         * @method grayscale
+         */
+        grayscale(): void;
+        /**
+         * Applies the invert effect to a sprite, inverting the pixel colors.
+         * @method invert
+         */
+        invert(): void;
+        /**
+         * Applies the fill effect to a sprite, changing the color channels of all non-transparent pixels to match a given color
+         * @method fill
+         * @param color {Color}
+         */
+        fill(color: Color): void;
+        /**
+         * Applies the colorize effect to a sprite, changing the color channels of all pixesl to be the average of the original color and the provided color.
+         * @method fill
+         * @param color {Color}
+         */
+        colorize(color: Color): void;
+        /**
+         * Applies the lighten effect to a sprite, changes the lightness of the color according to hsl
+         * @method lighten
+         * @param [factor=0.1] {number}
+         */
+        lighten(factor?: number): void;
+        /**
+         * Applies the darken effect to a sprite, changes the darkness of the color according to hsl
+         * @method darken
+         * @param [factor=0.1] {number}
+         */
+        darken(factor?: number): void;
+        /**
+         * Applies the saturate effect to a sprite, saturates the color acccording to hsl
+         * @method saturate
+         * @param [factor=0.1] {number}
+         */
+        saturate(factor?: number): void;
+        /**
+         * Applies the desaturate effect to a sprite, desaturates the color acccording to hsl
+         * @method desaturate
+         * @param [factor=0.1] {number}
+         */
+        desaturate(factor?: number): void;
         addEffect(effect: Effects.ISpriteEffect): void;
         /**
          * Removes a {{#crossLink Effects.ISpriteEffect}}{{/crossLink}} from this animation.

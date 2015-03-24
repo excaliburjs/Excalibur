@@ -46,6 +46,85 @@ module ex {
          this.width = images[0] ? images[0].width : 0;
       }
 
+      /**
+       * Applies the opacity effect to a sprite, setting the alpha of all pixels to a given value
+       * @method opacity 
+       * @param value {number}
+       */
+      public opacity(value: number) {
+         this.addEffect(new Effects.Opacity(value));
+      }
+
+      /**
+       * Applies the grayscale effect to a sprite, removing color information.
+       * @method grayscale 
+       */
+      public grayscale() {
+         this.addEffect(new Effects.Grayscale());
+      }
+
+      /**
+       * Applies the invert effect to a sprite, inverting the pixel colors.
+       * @method invert
+       */
+      public invert() {
+         this.addEffect(new Effects.Invert());
+      }
+
+      /**
+       * Applies the fill effect to a sprite, changing the color channels of all non-transparent pixels to match a given color
+       * @method fill
+       * @param color {Color}
+       */
+      public fill(color: Color) {
+         this.addEffect(new Effects.Fill(color));
+      }
+
+      /**
+       * Applies the colorize effect to a sprite, changing the color channels of all pixesl to be the average of the original color and the provided color.
+       * @method fill
+       * @param color {Color}
+       */
+      public colorize(color: Color) {
+         this.addEffect(new Effects.Colorize(color));
+      }
+
+      /**
+       * Applies the lighten effect to a sprite, changes the lightness of the color according to hsl
+       * @method lighten
+       * @param [factor=0.1] {number}
+       */
+      public lighten(factor: number = 0.1) {
+         this.addEffect(new Effects.Lighten(factor));
+      }
+
+      /**
+       * Applies the darken effect to a sprite, changes the darkness of the color according to hsl
+       * @method darken
+       * @param [factor=0.1] {number}
+       */
+      public darken(factor: number = 0.1) {
+         this.addEffect(new Effects.Darken(factor));
+      }
+
+      /**
+       * Applies the saturate effect to a sprite, saturates the color acccording to hsl
+       * @method saturate
+       * @param [factor=0.1] {number}
+       */
+      public saturate(factor: number = 0.1) {
+         this.addEffect(new Effects.Saturate(factor));
+      }
+
+      /**
+       * Applies the desaturate effect to a sprite, desaturates the color acccording to hsl
+       * @method desaturate
+       * @param [factor=0.1] {number}
+       */
+      public desaturate(factor: number = 0.1) {
+         this.addEffect(new Effects.Desaturate(factor));
+      }
+
       public addEffect(effect: Effects.ISpriteEffect){
          for(var i in this.sprites){
             this.sprites[i].addEffect(effect);

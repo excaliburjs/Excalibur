@@ -1190,6 +1190,80 @@ var ex;
             }
         };
         /**
+         * Applies the opacity effect to a sprite, setting the alpha of all pixels to a given value
+         * @method opacity
+         * @param value {number}
+         */
+        Sprite.prototype.opacity = function (value) {
+            this.addEffect(new ex.Effects.Opacity(value));
+        };
+        /**
+         * Applies the grayscale effect to a sprite, removing color information.
+         * @method grayscale
+         */
+        Sprite.prototype.grayscale = function () {
+            this.addEffect(new ex.Effects.Grayscale());
+        };
+        /**
+         * Applies the invert effect to a sprite, inverting the pixel colors.
+         * @method invert
+         */
+        Sprite.prototype.invert = function () {
+            this.addEffect(new ex.Effects.Invert());
+        };
+        /**
+         * Applies the fill effect to a sprite, changing the color channels of all non-transparent pixels to match a given color
+         * @method fill
+         * @param color {Color}
+         */
+        Sprite.prototype.fill = function (color) {
+            this.addEffect(new ex.Effects.Fill(color));
+        };
+        /**
+         * Applies the colorize effect to a sprite, changing the color channels of all pixesl to be the average of the original color and the provided color.
+         * @method fill
+         * @param color {Color}
+         */
+        Sprite.prototype.colorize = function (color) {
+            this.addEffect(new ex.Effects.Colorize(color));
+        };
+        /**
+         * Applies the lighten effect to a sprite, changes the lightness of the color according to hsl
+         * @method lighten
+         * @param [factor=0.1] {number}
+         */
+        Sprite.prototype.lighten = function (factor) {
+            if (factor === void 0) { factor = 0.1; }
+            this.addEffect(new ex.Effects.Lighten(factor));
+        };
+        /**
+         * Applies the darken effect to a sprite, changes the darkness of the color according to hsl
+         * @method darken
+         * @param [factor=0.1] {number}
+         */
+        Sprite.prototype.darken = function (factor) {
+            if (factor === void 0) { factor = 0.1; }
+            this.addEffect(new ex.Effects.Darken(factor));
+        };
+        /**
+         * Applies the saturate effect to a sprite, saturates the color acccording to hsl
+         * @method saturate
+         * @param [factor=0.1] {number}
+         */
+        Sprite.prototype.saturate = function (factor) {
+            if (factor === void 0) { factor = 0.1; }
+            this.addEffect(new ex.Effects.Saturate(factor));
+        };
+        /**
+         * Applies the desaturate effect to a sprite, desaturates the color acccording to hsl
+         * @method desaturate
+         * @param [factor=0.1] {number}
+         */
+        Sprite.prototype.desaturate = function (factor) {
+            if (factor === void 0) { factor = 0.1; }
+            this.addEffect(new ex.Effects.Desaturate(factor));
+        };
+        /**
          * Adds a new {{#crossLink Effects.ISpriteEffect}}{{/crossLink}} to this drawing.
          * @method addEffect
          * @param effect {Effects.ISpriteEffect} Effect to add to the this drawing
@@ -6419,6 +6493,80 @@ var ex;
             this.height = images[0] ? images[0].height : 0;
             this.width = images[0] ? images[0].width : 0;
         }
+        /**
+         * Applies the opacity effect to a sprite, setting the alpha of all pixels to a given value
+         * @method opacity
+         * @param value {number}
+         */
+        Animation.prototype.opacity = function (value) {
+            this.addEffect(new ex.Effects.Opacity(value));
+        };
+        /**
+         * Applies the grayscale effect to a sprite, removing color information.
+         * @method grayscale
+         */
+        Animation.prototype.grayscale = function () {
+            this.addEffect(new ex.Effects.Grayscale());
+        };
+        /**
+         * Applies the invert effect to a sprite, inverting the pixel colors.
+         * @method invert
+         */
+        Animation.prototype.invert = function () {
+            this.addEffect(new ex.Effects.Invert());
+        };
+        /**
+         * Applies the fill effect to a sprite, changing the color channels of all non-transparent pixels to match a given color
+         * @method fill
+         * @param color {Color}
+         */
+        Animation.prototype.fill = function (color) {
+            this.addEffect(new ex.Effects.Fill(color));
+        };
+        /**
+         * Applies the colorize effect to a sprite, changing the color channels of all pixesl to be the average of the original color and the provided color.
+         * @method fill
+         * @param color {Color}
+         */
+        Animation.prototype.colorize = function (color) {
+            this.addEffect(new ex.Effects.Colorize(color));
+        };
+        /**
+         * Applies the lighten effect to a sprite, changes the lightness of the color according to hsl
+         * @method lighten
+         * @param [factor=0.1] {number}
+         */
+        Animation.prototype.lighten = function (factor) {
+            if (factor === void 0) { factor = 0.1; }
+            this.addEffect(new ex.Effects.Lighten(factor));
+        };
+        /**
+         * Applies the darken effect to a sprite, changes the darkness of the color according to hsl
+         * @method darken
+         * @param [factor=0.1] {number}
+         */
+        Animation.prototype.darken = function (factor) {
+            if (factor === void 0) { factor = 0.1; }
+            this.addEffect(new ex.Effects.Darken(factor));
+        };
+        /**
+         * Applies the saturate effect to a sprite, saturates the color acccording to hsl
+         * @method saturate
+         * @param [factor=0.1] {number}
+         */
+        Animation.prototype.saturate = function (factor) {
+            if (factor === void 0) { factor = 0.1; }
+            this.addEffect(new ex.Effects.Saturate(factor));
+        };
+        /**
+         * Applies the desaturate effect to a sprite, desaturates the color acccording to hsl
+         * @method desaturate
+         * @param [factor=0.1] {number}
+         */
+        Animation.prototype.desaturate = function (factor) {
+            if (factor === void 0) { factor = 0.1; }
+            this.addEffect(new ex.Effects.Desaturate(factor));
+        };
         Animation.prototype.addEffect = function (effect) {
             for (var i in this.sprites) {
                 this.sprites[i].addEffect(effect);
