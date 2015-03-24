@@ -12,18 +12,22 @@ module ex {
     */
    export class Animation implements IDrawable {
       public sprites: Sprite[];
-      private speed: number;
-      private currIndex: number = 0;
+      public speed: number;
+
+      public currentFrame: number = 0;
       private oldTime: number = Date.now();
-      private rotation: number = 0.0;
-      private scaleX: number = 1.0;
-      private scaleY: number = 1.0;
+      
+      public anchor = new Point(0.0, 0.0);
+      public rotation: number = 0.0;
+      public scale = new Point(1, 1);
+
       /**
        * Indicates whether the animation should loop after it is completed
        * @property [loop=false] {boolean} 
        */
       public loop: boolean = false;
       public freezeFrame: number = -1;
+
       private engine: Engine;
 
       public flipVertical: boolean = false;
@@ -40,6 +44,85 @@ module ex {
          }
          this.height = images[0] ? images[0].height : 0;
          this.width = images[0] ? images[0].width : 0;
+      }
+
+      /**
+       * Applies the opacity effect to a sprite, setting the alpha of all pixels to a given value
+       * @method opacity 
+       * @param value {number}
+       */
+      public opacity(value: number) {
+         this.addEffect(new Effects.Opacity(value));
+      }
+
+      /**
+       * Applies the grayscale effect to a sprite, removing color information.
+       * @method grayscale 
+       */
+      public grayscale() {
+         this.addEffect(new Effects.Grayscale());
+      }
+
+      /**
+       * Applies the invert effect to a sprite, inverting the pixel colors.
+       * @method invert
+       */
+      public invert() {
+         this.addEffect(new Effects.Invert());
+      }
+
+      /**
+       * Applies the fill effect to a sprite, changing the color channels of all non-transparent pixels to match a given color
+       * @method fill
+       * @param color {Color}
+       */
+      public fill(color: Color) {
+         this.addEffect(new Effects.Fill(color));
+      }
+
+      /**
+       * Applies the colorize effect to a sprite, changing the color channels of all pixesl to be the average of the original color and the provided color.
+       * @method fill
+       * @param color {Color}
+       */
+      public colorize(color: Color) {
+         this.addEffect(new Effects.Colorize(color));
+      }
+
+      /**
+       * Applies the lighten effect to a sprite, changes the lightness of the color according to hsl
+       * @method lighten
+       * @param [factor=0.1] {number}
+       */
+      public lighten(factor: number = 0.1) {
+         this.addEffect(new Effects.Lighten(factor));
+      }
+
+      /**
+       * Applies the darken effect to a sprite, changes the darkness of the color according to hsl
+       * @method darken
+       * @param [factor=0.1] {number}
+       */
+      public darken(factor: number = 0.1) {
+         this.addEffect(new Effects.Darken(factor));
+      }
+
+      /**
+       * Applies the saturate effect to a sprite, saturates the color acccording to hsl
+       * @method saturate
+       * @param [factor=0.1] {number}
+       */
+      public saturate(factor: number = 0.1) {
+         this.addEffect(new Effects.Saturate(factor));
+      }
+
+      /**
+       * Applies the desaturate effect to a sprite, desaturates the color acccording to hsl
+       * @method desaturate
+       * @param [factor=0.1] {number}
+       */
+      public desaturate(factor: number = 0.1) {
+         this.addEffect(new Effects.Desaturate(factor));
       }
 
       public addEffect(effect: Effects.ISpriteEffect){
@@ -73,51 +156,36 @@ module ex {
          }  
       }
 
-      public transformAboutPoint(point: Point) {
-         for (var i in this.sprites) {
-            this.sprites[i].transformAboutPoint(point);
-         }
+      private _setAnchor(point: Point) {
+         //if (!this.anchor.equals(point)) {
+            for (var i in this.sprites) {
+               this.sprites[i].anchor.setTo(point.x, point.y);
+            }
+         //}
       }
 
-      public setRotation(radians: number) {
-         this.rotation = radians;
-         for (var i in this.sprites) {
-            this.sprites[i].setRotation(radians);
-         }
+      private _setRotation(radians: number) {
+         //if (this.rotation !== radians) {
+            for (var i in this.sprites) {
+               this.sprites[i].rotation = radians;
+            }
+         //}
       }
-
-      public getRotation(): number {
-         return this.rotation;
+      
+      private _setScale(scale: Point) {
+         //if (!this.scale.equals(scale)) {
+            for (var i in this.sprites) {
+               this.sprites[i].scale = scale;
+            }
+         //}
       }
-
-      public setScaleX(scaleX: number) {
-         this.scaleX = scaleX;
-         for (var i in this.sprites) {
-            this.sprites[i].setScaleX(scaleX);
-         }
-      }
-
-      public setScaleY(scaleY: number) {
-         this.scaleY = scaleY;
-         for (var i in this.sprites) {
-            this.sprites[i].setScaleY(scaleY);
-         }
-      }
-
-      public getScaleX(): number {
-         return this.scaleX;
-      }
-
-      public getScaleY(): number {
-         return this.scaleY;
-      }
-
+      
       /**
        * Resets the animation to first frame.
        * @method reset
        */
       public reset() {
-         this.currIndex = 0;
+         this.currentFrame = 0;
       }
 
       /**
@@ -126,7 +194,7 @@ module ex {
        * @returns boolean
        */
       public isDone() {
-         return (!this.loop && this.currIndex >= this.sprites.length);
+         return (!this.loop && this.currentFrame >= this.sprites.length);
       }
 
       /**
@@ -137,9 +205,15 @@ module ex {
       public tick() {
          var time = Date.now();
          if ((time - this.oldTime) > this.speed) {
-            this.currIndex = (this.loop ? (this.currIndex + 1) % this.sprites.length : this.currIndex + 1);
+            this.currentFrame = (this.loop ? (this.currentFrame + 1) % this.sprites.length : this.currentFrame + 1);
             this.oldTime = time;
          }
+      }
+
+      private _updateValues(): void {
+         this._setAnchor(this.anchor);
+         this._setRotation(this.rotation);
+         this._setScale(this.scale);
       }
 
       /**
@@ -148,13 +222,14 @@ module ex {
        * @param frames {number} Frames to skip ahead
        */
       public skip(frames: number) {
-         this.currIndex = (this.currIndex + frames) % this.sprites.length;
+         this.currentFrame = (this.currentFrame + frames) % this.sprites.length;
       }
 
       public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
          this.tick();
-         if (this.currIndex < this.sprites.length) {
-            var currSprite = this.sprites[this.currIndex];
+         this._updateValues();
+         if (this.currentFrame < this.sprites.length) {
+            var currSprite = this.sprites[this.currentFrame];
             if (this.flipVertical) {
                currSprite.flipVertical = this.flipVertical;
             }
@@ -164,7 +239,7 @@ module ex {
             currSprite.draw(ctx, x, y);
          }
 
-         if (this.freezeFrame !== -1 && this.currIndex >= this.sprites.length) {
+         if (this.freezeFrame !== -1 && this.currentFrame >= this.sprites.length) {
             var currSprite = this.sprites[Util.clamp(this.freezeFrame, 0, this.sprites.length - 1)];
             currSprite.draw(ctx, x, y);
          }

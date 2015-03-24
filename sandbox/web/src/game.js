@@ -348,7 +348,7 @@ emitter.acceleration = new ex.Vector(0, 460);
 emitter.beginColor = ex.Color.Red;
 emitter.endColor = ex.Color.Yellow;
 emitter.particleSprite = blockSprite.clone();
-emitter.particleSprite.transformAboutPoint(new ex.Point(.5, .5));
+emitter.particleSprite.anchor = new ex.Point(.5, .5);
 emitter.particleRotationalVelocity = Math.PI / 10;
 emitter.randomRotation = true;
 emitter.particleSprite.addEffect(new ex.Effects.Grayscale());
@@ -405,3 +405,4 @@ game.start(loader).then(function () {
     //binding = new ex.Binding("container", template, emitter);
     //binding.listen(emitter, ["update"]);
 });
+//# sourceMappingURL=game.js.map

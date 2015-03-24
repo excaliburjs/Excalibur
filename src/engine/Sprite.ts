@@ -11,16 +11,17 @@ module ex {
     * @param sheight {number} The height of the sprite in pixels
     */
    export class Sprite implements IDrawable {
-      private texture: Texture;
-      private scaleX: number = 1.0;
-      private scaleY: number = 1.0;
-      private rotation: number = 0.0;
-      private transformPoint: Point = new Point(0, 0);
+      private _texture: Texture;
+
+      public rotation: number = 0.0;
+      public anchor: Point = new Point(0.0, 0.0);
+      public scale: Point = new ex.Point(1, 1);
 
       public logger: Logger = Logger.getInstance();
 
       public flipVertical: boolean = false;
       public flipHorizontal: boolean = false;
+
       public width: number = 0;
       public height: number = 0;
       public effects: Effects.ISpriteEffect[] = [];
@@ -38,18 +39,18 @@ module ex {
             this.logger.error("Sprite cannot have any negative dimensions x:",sx,"y:",sy,"width:",swidth,"height:",sheight);            
          }
 
-         this.texture = image;
+         this._texture = image;
          this.spriteCanvas = document.createElement('canvas');
          this.spriteCanvas.width = swidth;
          this.spriteCanvas.height = sheight;
          this.spriteCtx = this.spriteCanvas.getContext('2d');
-         this.texture.loaded.then(()=>{
-            this.spriteCanvas.width = this.spriteCanvas.width || this.texture.image.naturalWidth;
-            this.spriteCanvas.height = this.spriteCanvas.height || this.texture.image.naturalHeight;
+         this._texture.loaded.then(()=>{
+            this.spriteCanvas.width = this.spriteCanvas.width || this._texture.image.naturalWidth;
+            this.spriteCanvas.height = this.spriteCanvas.height || this._texture.image.naturalHeight;
             this.loadPixels();            
             this.dirtyEffect = true;
          }).error((e)=>{
-            this.logger.error("Error loading texture ", this.texture.path, e);
+            this.logger.error("Error loading texture ", this._texture.path, e);
          });
          
 
@@ -58,18 +59,18 @@ module ex {
       }
 
       private loadPixels(){
-         if(this.texture.isLoaded() && !this.pixelsLoaded){
+         if(this._texture.isLoaded() && !this.pixelsLoaded){
             var clamp = ex.Util.clamp;
-            var naturalWidth = this.texture.image.naturalWidth || 0;
-            var naturalHeight = this.texture.image.naturalHeight || 0;
+            var naturalWidth = this._texture.image.naturalWidth || 0;
+            var naturalHeight = this._texture.image.naturalHeight || 0;
 
             if(this.swidth > naturalWidth){
-               this.logger.warn("The sprite width",this.swidth,"exceeds the width", naturalWidth, "of the backing texture", this.texture.path);
+               this.logger.warn("The sprite width",this.swidth,"exceeds the width", naturalWidth, "of the backing texture", this._texture.path);
             }            
             if(this.sheight > naturalHeight){
-               this.logger.warn("The sprite height",this.sheight,"exceeds the height", naturalHeight, "of the backing texture", this.texture.path);
+               this.logger.warn("The sprite height",this.sheight,"exceeds the height", naturalHeight, "of the backing texture", this._texture.path);
             }
-            this.spriteCtx.drawImage(this.texture.image, 
+            this.spriteCtx.drawImage(this._texture.image, 
                clamp(this.sx, 0, naturalWidth), 
                clamp(this.sy, 0, naturalHeight),
                clamp(this.swidth, 0, naturalWidth),
@@ -81,6 +82,86 @@ module ex {
             this.pixelsLoaded = true;
          }
       }
+
+      /**
+       * Applies the opacity effect to a sprite, setting the alpha of all pixels to a given value
+       * @method opacity 
+       * @param value {number}
+       */
+      public opacity(value: number) {
+         this.addEffect(new Effects.Opacity(value));
+      }
+
+      /**
+       * Applies the grayscale effect to a sprite, removing color information.
+       * @method grayscale 
+       */
+      public grayscale() {
+         this.addEffect(new Effects.Grayscale());
+      }
+
+      /**
+       * Applies the invert effect to a sprite, inverting the pixel colors.
+       * @method invert
+       */
+      public invert() {
+         this.addEffect(new Effects.Invert());
+      }
+
+      /**
+       * Applies the fill effect to a sprite, changing the color channels of all non-transparent pixels to match a given color
+       * @method fill
+       * @param color {Color}
+       */
+      public fill(color: Color) {
+         this.addEffect(new Effects.Fill(color));
+      }
+
+      /**
+       * Applies the colorize effect to a sprite, changing the color channels of all pixesl to be the average of the original color and the provided color.
+       * @method fill
+       * @param color {Color}
+       */
+      public colorize(color: Color) {
+         this.addEffect(new Effects.Colorize(color));
+      }
+
+      /**
+       * Applies the lighten effect to a sprite, changes the lightness of the color according to hsl
+       * @method lighten
+       * @param [factor=0.1] {number}
+       */
+      public lighten(factor: number = 0.1) {
+         this.addEffect(new Effects.Lighten(factor));
+      }
+
+      /**
+       * Applies the darken effect to a sprite, changes the darkness of the color according to hsl
+       * @method darken
+       * @param [factor=0.1] {number}
+       */
+      public darken(factor: number = 0.1) {
+         this.addEffect(new Effects.Darken(factor));
+      }
+
+      /**
+       * Applies the saturate effect to a sprite, saturates the color acccording to hsl
+       * @method saturate
+       * @param [factor=0.1] {number}
+       */
+      public saturate(factor: number = 0.1) {
+         this.addEffect(new Effects.Saturate(factor));
+      }
+
+      /**
+       * Applies the desaturate effect to a sprite, desaturates the color acccording to hsl
+       * @method desaturate
+       * @param [factor=0.1] {number}
+       */
+      public desaturate(factor: number = 0.1) {
+         this.addEffect(new Effects.Desaturate(factor));
+      }
+
       /**
        * Adds a new {{#crossLink Effects.ISpriteEffect}}{{/crossLink}} to this drawing.
        * @method addEffect
@@ -90,7 +171,7 @@ module ex {
          this.effects.push(effect);
          // We must check if the texture and the backing sprite pixels are loaded as well before 
          // an effect can be applied
-         if(!this.texture.isLoaded() || !this.pixelsLoaded){
+         if(!this._texture.isLoaded() || !this.pixelsLoaded){
             this.dirtyEffect = true;
          }else{
             this.applyEffects();
@@ -121,7 +202,7 @@ module ex {
          this.effects.splice(indexToRemove, 1);
          // We must check if the texture and the backing sprite pixels are loaded as well before 
          // an effect can be applied
-         if(!this.texture.isLoaded() || !this.pixelsLoaded){
+         if(!this._texture.isLoaded() || !this.pixelsLoaded){
             this.dirtyEffect = true;
          }else{
             this.applyEffects();
@@ -130,11 +211,11 @@ module ex {
 
       private applyEffects() {
          var clamp = ex.Util.clamp;
-         var naturalWidth = this.texture.image.naturalWidth || 0;
-         var naturalHeight = this.texture.image.naturalHeight || 0;
+         var naturalWidth = this._texture.image.naturalWidth || 0;
+         var naturalHeight = this._texture.image.naturalHeight || 0;
 
          this.spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
-         this.spriteCtx.drawImage(this.texture.image, clamp(this.sx, 0, naturalWidth),
+         this.spriteCtx.drawImage(this._texture.image, clamp(this.sx, 0, naturalWidth),
             clamp(this.sy, 0, naturalHeight),
             clamp(this.swidth, 0, naturalWidth),
             clamp(this.sheight, 0, naturalHeight),
@@ -161,77 +242,25 @@ module ex {
          this.effects.length = 0;
          this.applyEffects();
       }
-
-      /**
-       * Sets the point about which to apply transformations to the drawing relative to the 
-       * top left corner of the drawing.
-       * @method transformAbotPoint
-       * @param point {Point} The point about which to apply transformations
-       */
-      public transformAboutPoint(point: Point) {
-         this.transformPoint = point;
-      }
-
-      /**
-       * Sets the current rotation transformation for the drawing.
-       * @method setRotation
-       * @param radians {number} The rotation to apply to the drawing.
-       */
-      public setRotation(radians: number) {
-         this.rotation = radians;
-      }
-
-      /**
-       * Returns the current rotation for the drawing in radians.
-       * @method getRotation
-       * @returns number
-       */
-      public getRotation(): number {
-         return this.rotation;
-      }
-
-      /**
-       * Sets the scale trasformation in the x direction
-       * @method setScale
-       * @param scale {number} The magnitude to scale the drawing in the x direction
-       */
-      public setScaleX(scaleX: number) {
-         this.scaleX = scaleX;
-      }
-
-      /**
-       * Sets the scale trasformation in the x direction
-       * @method setScale
-       * @param scale {number} The magnitude to scale the drawing in the x direction
-       */
-      public setScaleY(scaleY: number) {
-         this.scaleY = scaleY;
-      }
-
-      /**
-       * Returns the current magnitude of the drawing's scale in the x direction
-       * @method getScale
-       * @returns number
-       */
-      public getScaleX(): number {
-         return this.scaleX;
-      }
-
-      /**
-       * Returns the current magnitude of the drawing's scale in the y direction
-       * @method getScale
-       * @returns number
-       */
-      public getScaleY(): number {
-         return this.scaleY;
-      }
-
+      
       /**
        * Resets the internal state of the drawing (if any)
        * @method reset
        */
       public reset() {
          // do nothing
+      }
+
+      public debugDraw(ctx: CanvasRenderingContext2D, x: number, y: number) {
+         ctx.save();
+         ctx.translate(x, y);
+         ctx.rotate(this.rotation);
+         var xpoint = (this.width * this.scale.x) * this.anchor.x;
+         var ypoint = (this.height * this.scale.y) * this.anchor.y;
+
+         ctx.strokeStyle = Color.Black;
+         ctx.strokeRect(-xpoint, -ypoint, this.width * this.scale.x, this.height * this.scale.y);
+         ctx.restore();
       }
 
       /**
@@ -246,28 +275,32 @@ module ex {
             this.applyEffects();
             this.dirtyEffect = false;
          }
+         
 
          ctx.save();
-
+         var xpoint = (this.width * this.scale.x) * this.anchor.x;
+         var ypoint = (this.height * this.scale.y) * this.anchor.y;
          ctx.translate(x, y);
          ctx.rotate(this.rotation);
          
-
+         // todo cache flipped sprites
          if (this.flipHorizontal) {
-            ctx.translate(this.swidth, 0);
+            ctx.translate(this.swidth * this.scale.x, 0);
             ctx.scale(-1, 1);
          }
 
          if (this.flipVertical) {
-            ctx.translate(0, this.sheight);
+            ctx.translate(0, this.sheight * this.scale.y);
             ctx.scale(1, -1);
          }
-         if(this.internalImage){
+
+         if (this.internalImage) {
+            
             ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, 
-               -(this.transformPoint.x*this.swidth)*this.scaleX, 
-               -(this.transformPoint.y*this.sheight)*this.scaleY, 
-               this.swidth * this.scaleX, 
-               this.sheight * this.scaleY);
+               -xpoint, 
+               -ypoint, 
+               this.swidth * this.scale.x, 
+               this.sheight * this.scale.y);
          }
          ctx.restore();
       }
@@ -278,9 +311,8 @@ module ex {
        * @returns Sprite
        */
       public clone(): Sprite {
-         var result = new Sprite(this.texture, this.sx, this.sy, this.swidth, this.sheight);
-         result.scaleX = this.scaleX;
-         result.scaleY = this.scaleY;
+         var result = new Sprite(this._texture, this.sx, this.sy, this.swidth, this.sheight);
+         result.scale = this.scale.clone();
          result.rotation = this.rotation;
          result.flipHorizontal = this.flipHorizontal;
          result.flipVertical = this.flipVertical;
