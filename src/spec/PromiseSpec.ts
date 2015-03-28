@@ -206,6 +206,14 @@ describe('A promise', ()=>{
       expect(composite.state()).toBe(ex.PromiseState.Rejected);
    });
 
+   it('can join an empty array and the result will resolve', () => {
+      var result = ex.Promise.join.apply(null, []);
+      expect(result.state()).toBe(ex.PromiseState.Resolved);
+
+      var result2 = ex.Promise.join();
+      expect(result2.state()).toBe(ex.PromiseState.Resolved);
+   });
+
    it('does not swallow errors if no error callback is supplied', ()=>{
       var promise = new ex.Promise();
       promise.then(()=>{
