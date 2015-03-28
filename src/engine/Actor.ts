@@ -347,7 +347,7 @@ module ex {
        */
       public kill() {
          if (this.scene) {
-            this.scene.removeChild(this);
+            this.scene.remove(this);
             this._isKilled = true;
          } else {
             this.logger.warn("Cannot kill actor, it was never added to the Scene");

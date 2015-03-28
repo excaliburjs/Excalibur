@@ -3771,6 +3771,7 @@ var ex;
          */
         Scene.prototype.addUIActor = function (actor) {
             this.uiActors.push(actor);
+            actor.scene = this;
         };
         /**
          * Removes an actor as a piec of UI
@@ -4256,7 +4257,7 @@ var ex;
          */
         Actor.prototype.kill = function () {
             if (this.scene) {
-                this.scene.removeChild(this);
+                this.scene.remove(this);
                 this._isKilled = true;
             }
             else {
