@@ -67,7 +67,7 @@ module ex {
        */
       public static join<T>(...promises: Promise<T>[]){
          var joinedPromise = new Promise<T>();
-         if(!promises){
+         if(!promises || !promises.length){
             return joinedPromise.resolve();
          }
 
