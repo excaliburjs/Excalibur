@@ -53,6 +53,38 @@ module ex {
    class AnimationNode {
       constructor(public animation: Animation, public x: number, public y: number) { }
    }
+
+
+   /**
+    * Defines the available options to configure the Excalibur engine at constructor time.
+    */
+   export interface IEngineOptions {
+      /**
+       * Configures the width of the game optionlaly.
+       */
+      width?: number;
+
+      /**
+       * Configures the height of the game optionally.
+       */
+      height?: number;
+
+      /**
+       * Configures the canvas element Id to use optionally.
+       */
+      canvasElementId?: string;
+
+      /**
+       * Configures the display mode.
+       */
+      displayMode?: ex.DisplayMode;
+      /**
+       * Configures the pointer scope. Pointers scoped to the 'Canvas' can only fire events within the canvas viewport; whereas, 'Document' (default) scoped will fire anywhere on the page.
+       */
+      pointerScope?: ex.Input.PointerScope;
+   }
+
+   
   
 
    /**
@@ -120,7 +152,12 @@ module ex {
        * @property rootScene {Scene}
        */
       public rootScene: Scene;
-      private sceneHash: {[key:string]: Scene;} = {};
+
+      /**
+       * Contains all the scenes currently registered with Excalibur
+       *
+       */
+      public scenes: {[key:string]: Scene;} = {};
       
       private animations: AnimationNode[] = [];
       
@@ -162,10 +199,29 @@ module ex {
       private total: number = 1;
       private loadingDraw: (ctx: CanvasRenderingContext2D, loaded: number, total: number) => void;
 
-      
-      constructor(width?: number, height?: number, canvasElementId?: string, displayMode?: DisplayMode) {
+      constructor(options: IEngineOptions);
+      constructor(width?: number, height?: number, canvasElementId?: string, displayMode?: DisplayMode);
+      constructor(args: any){
 
          super();
+         var width: number;
+         var height: number;
+         var canvasElementId: string;
+         var displayMode: DisplayMode;
+         var options: IEngineOptions = null;
+
+         if (typeof arguments[0] === "number") {
+            width = <number>arguments[0];
+            height = <number>arguments[1];
+            canvasElementId = <string>arguments[2];
+            displayMode = <DisplayMode>arguments[3];
+         } else {
+            options = <IEngineOptions>arguments[0];
+            width = options.width;
+            height = options.height;
+            canvasElementId = options.canvasElementId;
+            displayMode = options.displayMode;
+         }
          
          this.logger = Logger.getInstance();
 
@@ -200,7 +256,7 @@ module ex {
        
          this.loader = new Loader();
 
-         this.initialize();
+         this.initialize(options);
 
          this.rootScene = this.currentScene = new Scene(this);
 
@@ -291,10 +347,10 @@ module ex {
        * @param scene {Scene} The scene to add to the engine       
        */
       public addScene(name: string, scene: Scene){
-         if(this.sceneHash[name]){
+         if(this.scenes[name]){
             this.logger.warn("Scene", name, "already exists overwriting");
          }
-         this.sceneHash[name] = scene;
+         this.scenes[name] = scene;
          scene.engine = this;
       }
 
@@ -313,10 +369,10 @@ module ex {
       public removeScene(entity: any): void {
          if (entity instanceof Scene) {
             // remove scene
-            for (var key in this.sceneHash) {
-               if (this.sceneHash.hasOwnProperty(key)) {
-                  if (this.sceneHash[key] === entity) {
-                     delete this.sceneHash[key];
+            for (var key in this.scenes) {
+               if (this.scenes.hasOwnProperty(key)) {
+                  if (this.scenes[key] === entity) {
+                     delete this.scenes[key];
                   }
                }
             }
@@ -324,7 +380,7 @@ module ex {
 
          if (typeof entity === "string") {
             // remove scene
-            delete this.sceneHash[entity];
+            delete this.scenes[entity];
          }
       }
 
@@ -458,11 +514,11 @@ module ex {
        * @param name {string} The name of the scene to trasition to.       
        */
       public goToScene(name: string){
-         if(this.sceneHash[name]){
+         if(this.scenes[name]){
             this.currentScene.onDeactivate.call(this.currentScene);
             
             var oldScene = this.currentScene;
-            this.currentScene = this.sceneHash[name];
+            this.currentScene = this.scenes[name];
 
             oldScene.eventDispatcher.publish('deactivate', new DeactivateEvent(this.currentScene));
             
@@ -568,7 +624,7 @@ module ex {
        * @method initialize
        * @private
        */
-      private initialize() {
+      private initialize(options?: IEngineOptions) {
          if (this.displayMode === DisplayMode.FullScreen || this.displayMode === DisplayMode.Container) {
 
 
@@ -591,7 +647,7 @@ module ex {
             gamepads: new ex.Input.Gamepads(this)
          };
          this.input.keyboard.init();
-         this.input.pointers.init();
+         this.input.pointers.init(options ? options.pointerScope : ex.Input.PointerScope.Document);
          this.input.gamepads.init();
          
 

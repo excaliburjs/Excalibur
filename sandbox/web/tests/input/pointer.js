@@ -1,5 +1,10 @@
 /// <reference path="../../../../dist/Excalibur.d.ts"/>
-var game = new ex.Engine(800, 600, "game");
+var game = new ex.Engine({
+    width: 800,
+    height: 600,
+    canvasElementId: "game",
+    pointerScope: 1 /* Document */
+});
 var box = new ex.Actor(200, 200, 100, 100, ex.Color.Red);
 var cursor = new ex.Actor(0, 0, 10, 10, ex.Color.Chartreuse);
 var boxPointerDown = false;
