@@ -1,9 +1,12 @@
 language: node_js
 node_js:
-   - "0.10"
+   - "0.12"
 before_script:
 install: true
 script: 
-   - "npm install grunt-cli -g"
-   - "npm install"
-   - "grunt travis"
+   - npm install grunt-cli -g
+   - npm install
+   - npm install travis-ping
+   - grunt travis
+after_success:
+   - node deploy-docs.js
