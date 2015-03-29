@@ -1,4 +1,4 @@
-/*! excalibur - v0.3.0 - 2015-03-28
+/*! excalibur - v0.3.0 - 2015-03-29
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2015 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -8847,6 +8847,11 @@ var ex;
             PointerButton[PointerButton["Unknown"] = 3] = "Unknown";
         })(Input.PointerButton || (Input.PointerButton = {}));
         var PointerButton = Input.PointerButton;
+        (function (PointerScope) {
+            PointerScope[PointerScope["Canvas"] = 0] = "Canvas";
+            PointerScope[PointerScope["Document"] = 1] = "Document";
+        })(Input.PointerScope || (Input.PointerScope = {}));
+        var PointerScope = Input.PointerScope;
         var PointerEvent = (function (_super) {
             __extends(PointerEvent, _super);
             function PointerEvent(x, y, index, pointerType, button, ev) {
@@ -8886,37 +8891,50 @@ var ex;
                 this.primary = this._pointers[0];
             }
             /**
+             * Sets the current pointer scope. Pointers scoped to the 'Canvas' can only fire events within the canvas viewport; whereas, 'Document' (default) scoped will fire anywhere on the page.
+             */
+            Pointers.prototype.setPointerScope = function (scope) {
+            };
+            /**
              * Initializes pointer event listeners
              */
-            Pointers.prototype.init = function () {
+            Pointers.prototype.init = function (scope) {
+                if (scope === void 0) { scope = 1 /* Document */; }
+                var target = document;
+                if (scope === 1 /* Document */) {
+                    target = document;
+                }
+                else {
+                    target = this._engine.canvas;
+                }
                 // Touch Events
-                document.addEventListener('touchstart', this._handleTouchEvent("down", this._pointerDown));
-                document.addEventListener('touchend', this._handleTouchEvent("up", this._pointerUp));
-                document.addEventListener('touchmove', this._handleTouchEvent("move", this._pointerMove));
-                document.addEventListener('touchcancel', this._handleTouchEvent("cancel", this._pointerCancel));
+                target.addEventListener('touchstart', this._handleTouchEvent("down", this._pointerDown));
+                target.addEventListener('touchend', this._handleTouchEvent("up", this._pointerUp));
+                target.addEventListener('touchmove', this._handleTouchEvent("move", this._pointerMove));
+                target.addEventListener('touchcancel', this._handleTouchEvent("cancel", this._pointerCancel));
                 // W3C Pointer Events
                 // Current: IE11, IE10
                 if (window.PointerEvent) {
                     // IE11
                     this._engine.canvas.style.touchAction = "none";
-                    document.addEventListener('pointerdown', this._handlePointerEvent("down", this._pointerDown));
-                    document.addEventListener('pointerup', this._handlePointerEvent("up", this._pointerUp));
-                    document.addEventListener('pointermove', this._handlePointerEvent("move", this._pointerMove));
-                    document.addEventListener('pointercancel', this._handlePointerEvent("cancel", this._pointerMove));
+                    target.addEventListener('pointerdown', this._handlePointerEvent("down", this._pointerDown));
+                    target.addEventListener('pointerup', this._handlePointerEvent("up", this._pointerUp));
+                    target.addEventListener('pointermove', this._handlePointerEvent("move", this._pointerMove));
+                    target.addEventListener('pointercancel', this._handlePointerEvent("cancel", this._pointerMove));
                 }
                 else if (window.MSPointerEvent) {
                     // IE10
                     this._engine.canvas.style.msTouchAction = "none";
-                    document.addEventListener('MSPointerDown', this._handlePointerEvent("down", this._pointerDown));
-                    document.addEventListener('MSPointerUp', this._handlePointerEvent("up", this._pointerUp));
-                    document.addEventListener('MSPointerMove', this._handlePointerEvent("move", this._pointerMove));
-                    document.addEventListener('MSPointerCancel', this._handlePointerEvent("cancel", this._pointerMove));
+                    target.addEventListener('MSPointerDown', this._handlePointerEvent("down", this._pointerDown));
+                    target.addEventListener('MSPointerUp', this._handlePointerEvent("up", this._pointerUp));
+                    target.addEventListener('MSPointerMove', this._handlePointerEvent("move", this._pointerMove));
+                    target.addEventListener('MSPointerCancel', this._handlePointerEvent("cancel", this._pointerMove));
                 }
                 else {
                     // Mouse Events
-                    document.addEventListener('mousedown', this._handleMouseEvent("down", this._pointerDown));
-                    document.addEventListener('mouseup', this._handleMouseEvent("up", this._pointerUp));
-                    document.addEventListener('mousemove', this._handleMouseEvent("move", this._pointerMove));
+                    target.addEventListener('mousedown', this._handleMouseEvent("down", this._pointerDown));
+                    target.addEventListener('mouseup', this._handleMouseEvent("up", this._pointerUp));
+                    target.addEventListener('mousemove', this._handleMouseEvent("move", this._pointerMove));
                 }
             };
             Pointers.prototype.update = function (delta) {
@@ -8924,6 +8942,37 @@ var ex;
                 this._pointerDown.length = 0;
                 this._pointerMove.length = 0;
                 this._pointerCancel.length = 0;
+            };
+            Pointers.prototype.clean = function () {
+                // Touch Events
+                document.removeEventListener('touchstart', this._handleTouchEvent("down", this._pointerDown));
+                document.removeEventListener('touchend', this._handleTouchEvent("up", this._pointerUp));
+                document.removeEventListener('touchmove', this._handleTouchEvent("move", this._pointerMove));
+                document.removeEventListener('touchcancel', this._handleTouchEvent("cancel", this._pointerCancel));
+                // W3C Pointer Events
+                // Current: IE11, IE10
+                if (window.PointerEvent) {
+                    // IE11
+                    this._engine.canvas.style.touchAction = "none";
+                    document.removeEventListener('pointerdown', this._handlePointerEvent("down", this._pointerDown));
+                    document.removeEventListener('pointerup', this._handlePointerEvent("up", this._pointerUp));
+                    document.removeEventListener('pointermove', this._handlePointerEvent("move", this._pointerMove));
+                    document.removeEventListener('pointercancel', this._handlePointerEvent("cancel", this._pointerMove));
+                }
+                else if (window.MSPointerEvent) {
+                    // IE10
+                    this._engine.canvas.style.msTouchAction = "none";
+                    document.removeEventListener('MSPointerDown', this._handlePointerEvent("down", this._pointerDown));
+                    document.removeEventListener('MSPointerUp', this._handlePointerEvent("up", this._pointerUp));
+                    document.removeEventListener('MSPointerMove', this._handlePointerEvent("move", this._pointerMove));
+                    document.removeEventListener('MSPointerCancel', this._handlePointerEvent("cancel", this._pointerMove));
+                }
+                else {
+                    // Mouse Events
+                    document.removeEventListener('mousedown', this._handleMouseEvent("down", this._pointerDown));
+                    document.removeEventListener('mouseup', this._handleMouseEvent("up", this._pointerUp));
+                    document.removeEventListener('mousemove', this._handleMouseEvent("move", this._pointerMove));
+                }
             };
             /**
              * Safely gets a Pointer at a specific index and initializes one if it doesn't yet exist
@@ -9823,7 +9872,7 @@ var ex;
      */
     var Engine = (function (_super) {
         __extends(Engine, _super);
-        function Engine(width, height, canvasElementId, displayMode) {
+        function Engine(args) {
             _super.call(this);
             /**
              * Sets or gets the collision strategy for Excalibur
@@ -9833,7 +9882,11 @@ var ex;
             this.hasStarted = false;
             this.fps = 0;
             this.postProcessors = [];
-            this.sceneHash = {};
+            /**
+             * Contains all the scenes currently registered with Excalibur
+             *
+             */
+            this.scenes = {};
             this.animations = [];
             /**
              * Indicates whether the engine is set to fullscreen or not
@@ -9865,6 +9918,24 @@ var ex;
             this.isLoading = false;
             this.progress = 0;
             this.total = 1;
+            var width;
+            var height;
+            var canvasElementId;
+            var displayMode;
+            var options = null;
+            if (typeof arguments[0] === "number") {
+                width = arguments[0];
+                height = arguments[1];
+                canvasElementId = arguments[2];
+                displayMode = arguments[3];
+            }
+            else {
+                options = arguments[0];
+                width = options.width;
+                height = options.height;
+                canvasElementId = options.canvasElementId;
+                displayMode = options.displayMode;
+            }
             this.logger = ex.Logger.getInstance();
             this.logger.info("Powered by Excalibur.js visit", "http://excaliburjs.com", "for more information.");
             this.logger.debug("Building engine...");
@@ -9892,7 +9963,7 @@ var ex;
                 this.displayMode = 0 /* FullScreen */;
             }
             this.loader = new ex.Loader();
-            this.initialize();
+            this.initialize(options);
             this.rootScene = this.currentScene = new ex.Scene(this);
             this.addScene('root', this.rootScene);
         }
@@ -9973,25 +10044,25 @@ var ex;
          * @param scene {Scene} The scene to add to the engine
          */
         Engine.prototype.addScene = function (name, scene) {
-            if (this.sceneHash[name]) {
+            if (this.scenes[name]) {
                 this.logger.warn("Scene", name, "already exists overwriting");
             }
-            this.sceneHash[name] = scene;
+            this.scenes[name] = scene;
             scene.engine = this;
         };
         Engine.prototype.removeScene = function (entity) {
             if (entity instanceof ex.Scene) {
-                for (var key in this.sceneHash) {
-                    if (this.sceneHash.hasOwnProperty(key)) {
-                        if (this.sceneHash[key] === entity) {
-                            delete this.sceneHash[key];
+                for (var key in this.scenes) {
+                    if (this.scenes.hasOwnProperty(key)) {
+                        if (this.scenes[key] === entity) {
+                            delete this.scenes[key];
                         }
                     }
                 }
             }
             if (typeof entity === "string") {
                 // remove scene
-                delete this.sceneHash[entity];
+                delete this.scenes[entity];
             }
         };
         Engine.prototype.add = function (entity) {
@@ -10040,10 +10111,10 @@ var ex;
          * @param name {string} The name of the scene to trasition to.
          */
         Engine.prototype.goToScene = function (name) {
-            if (this.sceneHash[name]) {
+            if (this.scenes[name]) {
                 this.currentScene.onDeactivate.call(this.currentScene);
                 var oldScene = this.currentScene;
-                this.currentScene = this.sceneHash[name];
+                this.currentScene = this.scenes[name];
                 oldScene.eventDispatcher.publish('deactivate', new ex.DeactivateEvent(this.currentScene));
                 this.currentScene.onActivate.call(this.currentScene);
                 this.currentScene.eventDispatcher.publish('activate', new ex.ActivateEvent(oldScene));
@@ -10134,7 +10205,7 @@ var ex;
          * @method initialize
          * @private
          */
-        Engine.prototype.initialize = function () {
+        Engine.prototype.initialize = function (options) {
             var _this = this;
             if (this.displayMode === 0 /* FullScreen */ || this.displayMode === 1 /* Container */) {
                 var parent = (this.displayMode === 1 /* Container */ ? (this.canvas.parentElement || document.body) : window);
@@ -10153,7 +10224,7 @@ var ex;
                 gamepads: new ex.Input.Gamepads(this)
             };
             this.input.keyboard.init();
-            this.input.pointers.init();
+            this.input.pointers.init(options ? options.pointerScope : 1 /* Document */);
             this.input.gamepads.init();
             // Issue #385 make use of the visibility api
             // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API

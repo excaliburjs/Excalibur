@@ -4570,6 +4570,10 @@ declare module ex.Input {
         Right = 2,
         Unknown = 3,
     }
+    enum PointerScope {
+        Canvas = 0,
+        Document = 1,
+    }
     class PointerEvent extends GameEvent {
         x: number;
         y: number;
@@ -4602,10 +4606,15 @@ declare module ex.Input {
          */
         primary: Pointer;
         /**
+         * Sets the current pointer scope. Pointers scoped to the 'Canvas' can only fire events within the canvas viewport; whereas, 'Document' (default) scoped will fire anywhere on the page.
+         */
+        setPointerScope(scope: PointerScope): void;
+        /**
          * Initializes pointer event listeners
          */
-        init(): void;
+        init(scope?: PointerScope): void;
         update(delta: number): void;
+        clean(): void;
         /**
          * Safely gets a Pointer at a specific index and initializes one if it doesn't yet exist
          * @param index {number} The pointer index to retrieve
@@ -5152,6 +5161,31 @@ declare module ex {
         Fixed = 2,
     }
     /**
+     * Defines the available options to configure the Excalibur engine at constructor time.
+     */
+    interface IEngineOptions {
+        /**
+         * Configures the width of the game optionlaly.
+         */
+        width?: number;
+        /**
+         * Configures the height of the game optionally.
+         */
+        height?: number;
+        /**
+         * Configures the canvas element Id to use optionally.
+         */
+        canvasElementId?: string;
+        /**
+         * Configures the display mode.
+         */
+        displayMode?: DisplayMode;
+        /**
+         * Configures the pointer scope. Pointers scoped to the 'Canvas' can only fire events within the canvas viewport; whereas, 'Document' (default) scoped will fire anywhere on the page.
+         */
+        pointerScope?: Input.PointerScope;
+    }
+    /**
      * The 'Engine' is the main driver for a game. It is responsible for
      * starting/stopping the game, maintaining state, transmitting events,
      * loading resources, and managing the scene.
@@ -5208,7 +5242,13 @@ declare module ex {
          * @property rootScene {Scene}
          */
         rootScene: Scene;
-        private sceneHash;
+        /**
+         * Contains all the scenes currently registered with Excalibur
+         *
+         */
+        scenes: {
+            [x: string]: Scene;
+        };
         private animations;
         /**
          * Indicates whether the engine is set to fullscreen or not
@@ -5243,6 +5283,7 @@ declare module ex {
         private progress;
         private total;
         private loadingDraw;
+        constructor(options: IEngineOptions);
         constructor(width?: number, height?: number, canvasElementId?: string, displayMode?: DisplayMode);
         /**
          * Plays a sprite animation on the screen at the specified x and y
@@ -5437,7 +5478,7 @@ declare module ex {
          * @method initialize
          * @private
          */
-        private initialize();
+        private initialize(options?);
         /**
          * If supported by the browser, this will set the antialiasing flag on the
          * canvas. Set this to false if you want a 'jagged' pixel art look to your
