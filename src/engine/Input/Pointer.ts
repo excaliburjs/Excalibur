@@ -110,41 +110,7 @@ module ex.Input {
          this._pointerMove.length = 0;
          this._pointerCancel.length = 0;
       }
-
-      public clean(): void {
-         // Touch Events
-         document.removeEventListener('touchstart', this._handleTouchEvent("down", this._pointerDown));
-         document.removeEventListener('touchend', this._handleTouchEvent("up", this._pointerUp));
-         document.removeEventListener('touchmove', this._handleTouchEvent("move", this._pointerMove));
-         document.removeEventListener('touchcancel', this._handleTouchEvent("cancel", this._pointerCancel));
-
-         // W3C Pointer Events
-         // Current: IE11, IE10
-         if ((<any>window).PointerEvent) {
-            // IE11
-            this._engine.canvas.style.touchAction = "none";
-            document.removeEventListener('pointerdown', this._handlePointerEvent("down", this._pointerDown));
-            document.removeEventListener('pointerup', this._handlePointerEvent("up", this._pointerUp));
-            document.removeEventListener('pointermove', this._handlePointerEvent("move", this._pointerMove));
-            document.removeEventListener('pointercancel', this._handlePointerEvent("cancel", this._pointerMove));
-
-         } else if ((<any>window).MSPointerEvent) {
-            // IE10
-            this._engine.canvas.style.msTouchAction = "none";
-            document.removeEventListener('MSPointerDown', this._handlePointerEvent("down", this._pointerDown));
-            document.removeEventListener('MSPointerUp', this._handlePointerEvent("up", this._pointerUp));
-            document.removeEventListener('MSPointerMove', this._handlePointerEvent("move", this._pointerMove));
-            document.removeEventListener('MSPointerCancel', this._handlePointerEvent("cancel", this._pointerMove));
-
-         } else {
-
-            // Mouse Events
-            document.removeEventListener('mousedown', this._handleMouseEvent("down", this._pointerDown));
-            document.removeEventListener('mouseup', this._handleMouseEvent("up", this._pointerUp));
-            document.removeEventListener('mousemove', this._handleMouseEvent("move", this._pointerMove));
-         }
-      }
-
+      
       /**
        * Safely gets a Pointer at a specific index and initializes one if it doesn't yet exist
        * @param index {number} The pointer index to retrieve
