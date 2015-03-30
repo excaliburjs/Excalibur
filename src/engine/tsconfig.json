@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "out": "../dist/Excalibur.js", 
+        "sourceMap": true, 
+        "target": "es5"
+    }, 
+    "files": [
+        "Engine.ts"
+    ]
+}
