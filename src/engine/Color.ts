@@ -1,8 +1,343 @@
 module ex {
 
-   // Internal HSL Color representation
-   // http://en.wikipedia.org/wiki/HSL_and_HSV
-   // http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c
+   /**
+    * Provides standard colors (e.g. [[Color.Black]])
+    * but you can also create custom colors using RGB, HSL, or Hex. Also provides
+    * useful color operations like [[Color.lighten]], [[Color.darken]], and more.
+    *
+    * ## Creating colors
+    *
+    * ```js
+    * // RGBA
+    * new ex.Color(r, g, b, a);
+    * ex.Color.fromRGB(r, g, b, a);
+    * 
+    * // HSLA
+    * ex.Color.fromHSL(h, s, l, a);
+    *
+    * // Hex, alpha optional
+    * ex.Color.fromHex("#000000");
+    * ex.Color.fromHex("#000000FF");
+    * ```
+    *
+    * ## Working with colors
+    *
+    * Since Javascript does not support structs, if you change a color "constant" like [[Color.Black]]
+    * it will change it across the entire game. You can safely use the color operations
+    * like [[Color.lighten]] and [[Color.darken]] because they `clone` the color to
+    * return a new color. However, be aware that this can use up memory if used excessively.
+    *
+    * Just be aware that if you directly alter properties (i.e. [[Color.r]], etc.) , this will change it
+    * for all the code that uses that instance of Color.
+    */
+   export class Color {
+      /**
+       * Black (#000000)
+       */
+      public static Black: Color = Color.fromHex('#000000');
+
+      /**
+       * White (#FFFFFF)
+       */
+      public static White: Color = Color.fromHex('#FFFFFF');
+
+      /**
+       * Gray (#808080)
+       */
+      public static Gray: Color = Color.fromHex('#808080');
+
+      /**
+       * Light gray (#D3D3D3)
+       */
+      public static LightGray: Color = Color.fromHex('#D3D3D3');
+
+      /**
+       * Dark gray (#A9A9A9)
+       */
+      public static DarkGray: Color = Color.fromHex('#A9A9A9');
+
+      /**
+       * Yellow (#FFFF00)
+       */
+      public static Yellow: Color = Color.fromHex('#FFFF00');
+
+      /**
+       * Orange (#FFA500)
+       */
+      public static Orange: Color = Color.fromHex('#FFA500');
+
+      /**
+       * Red (#FF0000)
+       */
+      public static Red: Color = Color.fromHex('#FF0000');
+
+      /**
+       * Vermillion (#FF5B31)
+       */
+      public static Vermillion: Color = Color.fromHex('#FF5B31');
+
+      /**
+       * Rose (#FF007F)
+       */
+      public static Rose: Color = Color.fromHex('#FF007F');
+
+      /**
+       * Magenta (#FF00FF)
+       */
+      public static Magenta: Color = Color.fromHex('#FF00FF');
+
+      /**
+       * Violet (#7F00FF)
+       */
+      public static Violet: Color = Color.fromHex('#7F00FF');
+
+      /**
+       * Blue (#0000FF)
+       */
+      public static Blue: Color = Color.fromHex('#0000FF');
+
+      /**
+       * Azure (#007FFF)
+       */
+      public static Azure: Color = Color.fromHex('#007FFF');
+
+      /**
+       * Cyan (#00FFFF)
+       */
+      public static Cyan: Color = Color.fromHex('#00FFFF');
+
+      /**
+       * Viridian (#59978F)
+       */
+      public static Viridian: Color = Color.fromHex('#59978F');
+
+      /**
+       * Green (#00FF00)
+       */
+      public static Green: Color = Color.fromHex('#00FF00');
+
+      /**
+       * Chartreuse (#7FFF00)
+       */
+      public static Chartreuse: Color = Color.fromHex('#7FFF00');
+
+      /**
+       * Transparent (#FFFFFF00)
+       */
+      public static Transparent: Color = Color.fromHex('#FFFFFF00');
+
+      /**
+       * Red channel
+       */
+      public r: number;
+      /**
+       * Green channel
+       */
+      public g: number;
+      /**
+       * Blue channel
+       */
+      public b: number;
+      /**
+       * Alpha channel (between 0 and 1)
+       */
+      public a: number;
+
+      /**
+       * Hue
+       */
+      public h: number;
+      /**
+       * Saturation
+       */
+      public s: number;
+      /**
+       * Lightness
+       */
+      public l: number;
+
+      /**
+       * Creates a new instance of Color from an r, g, b, a
+       *
+       * @param r  The red component of color (0-255)
+       * @param g  The green component of color (0-255)
+       * @param b  The blue component of color (0-255)
+       * @param a  The alpha component of color (0-1.0)
+       */
+      constructor(r: number, g: number, b: number, a?: number) {
+         this.r = r;
+         this.g = g;
+         this.b = b;
+         this.a = (a != null ? a : 1);
+      }
+
+      /**
+       * Creates a new instance of Color from an r, g, b, a
+       *
+       * @param r  The red component of color (0-255)
+       * @param g  The green component of color (0-255)
+       * @param b  The blue component of color (0-255)
+       * @param a  The alpha component of color (0-1.0)
+       */
+      public static fromRGB(r: number, g: number, b: number, a?: number): Color {
+         return new Color(r, g, b, a);
+      }
+
+      /**
+       * Creates a new inscance of Color from a hex string
+       * 
+       * @param hex  CSS color string of the form #ffffff, the alpha component is optional
+       */
+      public static fromHex(hex: string): Color {
+         var hexRegEx: RegExp = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})?$/i;
+         var match = null;
+         if (match = hex.match(hexRegEx)) {
+            var r = parseInt(match[1], 16);
+            var g = parseInt(match[2], 16);
+            var b = parseInt(match[3], 16);
+            var a = 1;
+            if (match[4]) {
+               a = parseInt(match[4], 16) / 255;
+            }
+            return new Color(r, g, b, a);
+         } else {
+            throw new Error("Invalid hex string: " + hex);
+         }
+      }
+
+      /**
+       * Creats a new instance of Color from hsla values
+       *
+       * @param h  Hue is represented [0-1]
+       * @param s  Saturation is represented [0-1]
+       * @param l  Luminance is represented [0-1]
+       * @param a  Alpha is represented [0-1]
+       */
+      public static fromHSL(h: number, s: number, l: number, a: number = 1.0): Color {
+         var temp = new HSLColor(h, s, l, a);
+         return temp.toRGBA();
+      }
+
+      /**
+       * Lightens the current color by a specified amount 
+       *
+       * @param factor  The amount to lighten by [0-1]
+       */
+      public lighten(factor: number = 0.1): Color {
+         var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+         temp.l += (temp.l * factor);
+         return temp.toRGBA();
+      }
+
+      /**
+       * Darkens the current color by a specified amount 
+       *
+       * @param factor  The amount to darken by [0-1]
+       */
+      public darken(factor: number = 0.1): Color {
+         var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+         temp.l -= (temp.l * factor);
+         return temp.toRGBA();
+      }
+
+      /**
+       * Saturates the current color by a specified amount 
+       *
+       * @param factor  The amount to saturate by [0-1]
+       */
+      public saturate(factor: number = 0.1): Color {
+         var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+         temp.s += (temp.s * factor);
+         return temp.toRGBA();
+      }
+
+      /**
+       * Desaturates the current color by a specified amount 
+       *
+       * @param factor  The amount to desaturate by [0-1]
+       */
+      public desaturate(factor: number = 0.1): Color {
+         var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+         temp.s -= (temp.s * factor);
+         return temp.toRGBA();
+      }
+
+      /**
+       * Multiplies a color by another, results in a darker color
+       *
+       * @param color  The other color
+       */
+      public mulitiply(color: Color): Color {
+         var newR = ((color.r / 255 * this.r / 255) * 255);
+         var newG = ((color.g / 255 * this.g / 255) * 255);
+         var newB = ((color.b / 255 * this.b / 255) * 255);
+         var newA = (color.a * this.a);
+         return new Color(newR, newG, newB, newA);
+      }
+
+      /**
+       * Screens a color by another, results in a lighter color
+       *
+       * @param color  The other color
+       */
+      public screen(color: Color): Color {
+         var color1 = color.invert();
+         var color2 = color.invert();
+         return color1.mulitiply(color2).invert();
+      }
+
+      /**
+       * Inverts the current color
+       */
+      public invert(): Color {
+         return new Color(255 - this.r, 255 - this.g, 255 - this.b, 1.0 - this.a);
+      }
+
+      /**
+       * Averages the current color with another
+       *
+       * @param color  The other color
+       */
+      public average(color: Color): Color {
+         var newR = (color.r + this.r) / 2;
+         var newG = (color.g + this.g) / 2;
+         var newB = (color.b + this.b) / 2;
+         var newA = (color.a + this.a) / 2;
+         return new Color(newR, newG, newB, newA);
+      }
+
+      /**
+       * Returns a CSS string representation of a color. 
+       */
+      public toString() {
+         var result = String(this.r.toFixed(0)) + ", " + String(this.g.toFixed(0)) + ", " + String(this.b.toFixed(0));
+         if (this.a !== undefined || this.a !== null) {
+            return "rgba(" + result + ", " + String(this.a) + ")";
+         }
+         return "rgb(" + result + ")";
+      }
+
+      /**
+       * Returns a CSS string representation of a color.
+       */
+      public fillStyle() {
+         return this.toString();
+      }
+
+      /**
+       * Returns a clone of the current color.
+       */
+      public clone(): Color {
+         return new Color(this.r, this.g, this.b, this.a);
+      }
+   }
+
+   /**
+    * Internal HSL Color representation
+    *
+    * http://en.wikipedia.org/wiki/HSL_and_HSV
+    * http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c
+    */
    class HSLColor {
       constructor(public h: number, public s: number, public l: number, public a: number) { }
 
@@ -51,366 +386,5 @@ module ex {
 
          return new Color(r * 255, g * 255, b * 255, this.a);
       }
-   }
-
-   export class Color {
-      /**
-       * Color constant
-       * @property Black {ex.Color} 
-       * @static 
-       * @final
-       */
-      public static Black: Color = Color.fromHex('#000000');
-      /**
-       * Color constant
-       * @property White {ex.Color} 
-       * @static 
-       * @final
-       */
-      public static White: Color = Color.fromHex('#FFFFFF');
-
-      /**
-       * Color constant
-       * @property Gray {ex.Color}
-       * @static
-       * @final
-       */
-      public static Gray: Color = Color.fromHex('#808080');
-
-      /**
-       * Color constant
-       * @property LightGray {ex.Color}
-       * @static
-       * @final
-       */
-      public static LightGray: Color = Color.fromHex('#D3D3D3');
-
-      /**
-       * Color constant
-       * @property DarkGray {ex.Color}
-       * @static
-       * @final
-       */
-      public static DarkGray: Color = Color.fromHex('#A9A9A9');
-
-      /**
-       * Color constant
-       * @property Yellow {ex.Color} 
-       * @static 
-       * @final
-       */
-      public static Yellow: Color = Color.fromHex('#FFFF00');
-      /**
-       * Color constant
-       * @property Orange {ex.Color} 
-       * @static 
-       * @final
-       */
-      public static Orange: Color = Color.fromHex('#FFA500');
-      /**
-       * Color constant
-       * @property Red {ex.Color} 
-       * @static 
-       * @final
-       */
-      public static Red: Color = Color.fromHex('#FF0000');
-      /**
-       * Color constant
-       * @property Vermillion {ex.Color} 
-       * @static 
-       * @final
-       */
-      public static Vermillion: Color = Color.fromHex('#FF5B31');
-      /**
-       * Color constant
-       * @property Rose {ex.Color} 
-       * @static 
-       * @final
-       */
-      public static Rose: Color = Color.fromHex('#FF007F');
-      /**
-       * Color constant
-       * @property Magenta {ex.Color} 
-       * @static 
-       * @final
-       */
-      public static Magenta: Color = Color.fromHex('#FF00FF');
-      /**
-       * Color constant
-       * @property Violet {ex.Color} 
-       * @static 
-       * @final
-       */
-      public static Violet: Color = Color.fromHex('#7F00FF');
-      /**
-       * Color constant
-       * @property Blue {ex.Color} 
-       * @static 
-       * @final
-       */
-      public static Blue: Color = Color.fromHex('#0000FF');
-      /**
-       * Color constant
-       * @property Azure {ex.Color} 
-       * @static 
-       * @final
-       */
-      public static Azure: Color = Color.fromHex('#007FFF');
-      /**
-       * Color constant
-       * @property Cyan {ex.Color} 
-       * @static 
-       * @final
-       */
-      public static Cyan: Color = Color.fromHex('#00FFFF');
-      /**
-       * Color constant
-       * @property Viridian {ex.Color} 
-       * @static 
-       * @final
-       */
-      public static Viridian: Color = Color.fromHex('#59978F');
-      /**
-       * Color constant
-       * @property Green {ex.Color} 
-       * @static 
-       * @final
-       */
-      public static Green: Color = Color.fromHex('#00FF00');
-      /**
-       * Color constant
-       * @property Chartreuse {ex.Color} 
-       * @static 
-       * @final
-       */
-      public static Chartreuse: Color = Color.fromHex('#7FFF00');
-      /**
-       * Color constant
-       * @property Transparent {ex.Color} 
-       * @static 
-       * @final
-       */
-      public static Transparent: Color = Color.fromHex('#FFFFFF00');
-
-
-      public r: number;
-      public g: number;
-      public b: number;
-
-      public a: number;
-
-      public h: number;
-      public s: number;
-      public l: number;
-
-      /**
-       * Creates a new instance of Color from an r, g, b, a
-       *
-       * @class Color
-       * @constructor
-       * @param r {number} The red component of color (0-255)
-       * @param g {number} The green component of color (0-255)
-       * @param b {number} The blue component of color (0-255)
-       * @param [a=1] {number} The alpha component of color (0-1.0)    
-       */
-      constructor(r: number, g: number, b: number, a?: number) {
-         this.r = r;
-         this.g = g;
-         this.b = b;
-         this.a = (a != null ? a : 1);
-      }
-
-      /**
-       * Creates a new instance of Color from an r, g, b, a
-       *
-       * @method fromRGB
-       * @static
-       * @param r {number} The red component of color (0-255)
-       * @param g {number} The green component of color (0-255)
-       * @param b {number} The blue component of color (0-255)
-       * @param [a=1] {number} The alpha component of color (0-1.0)
-       * @returns Color
-       */
-      public static fromRGB(r: number, g: number, b: number, a?: number): Color {
-         return new Color(r, g, b, a);
-      }
-
-      /**
-       * Creates a new inscance of Color from a hex string
-       * 
-       * @method fromHex
-       * @static
-       * @param hex {string} CSS color string of the form #ffffff, the alpha component is optional
-       * @returns Color
-       */
-      public static fromHex(hex: string): Color {
-         var hexRegEx: RegExp = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})?$/i;
-         var match = null;
-         if (match = hex.match(hexRegEx)) {
-            var r = parseInt(match[1], 16);
-            var g = parseInt(match[2], 16);
-            var b = parseInt(match[3], 16);
-            var a = 1;
-            if (match[4]) {
-               a = parseInt(match[4], 16) / 255;
-            }
-            return new Color(r, g, b, a);
-         } else {
-            throw new Error("Invalid hex string: " + hex);
-         }
-      }
-
-      /**
-       * Creats a new instance of Color from hsla values
-       *
-       * @method fromHSL
-       * @static
-       * @param h {number} Hue is represented [0-1]
-       * @param s {number} Saturation is represented [0-1]
-       * @param l {number} Luminance is represented [0-1]
-       * @param [a=1] {number} Alpha is represented [0-1]
-       * @returns Color
-       */
-      public static fromHSL(h: number, s: number, l: number, a: number = 1.0): Color {
-         var temp = new HSLColor(h, s, l, a);
-         return temp.toRGBA();
-      }
-
-      /**
-       * Lightens the current color by a specified amount 
-       *
-       * @method lighten
-       * @param [factor=.1] {number} 
-       * @returns Color
-       */
-      public lighten(factor: number = 0.1): Color {
-         var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
-         temp.l += (temp.l * factor);
-         return temp.toRGBA();
-      }
-
-      /**
-       * Darkens the current color by a specified amount 
-       *
-       * @method darken
-       * @param [factor=.1] {number} 
-       * @returns Color
-       */
-      public darken(factor: number = 0.1): Color {
-         var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
-         temp.l -= (temp.l * factor);
-         return temp.toRGBA();
-      }
-
-      /**
-       * Saturates the current color by a specified amount 
-       *
-       * @method saturate
-       * @param [factor=.1] {number} 
-       * @returns Color
-       */
-      public saturate(factor: number = 0.1): Color {
-         var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
-         temp.s += (temp.s * factor);
-         return temp.toRGBA();
-      }
-
-      /**
-       * Desaturates the current color by a specified amount 
-       *
-       * @method desaturate
-       * @param [factor=.1] {number} 
-       * @returns Color
-       */
-      public desaturate(factor: number = 0.1): Color {
-         var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
-         temp.s -= (temp.s * factor);
-         return temp.toRGBA();
-      }
-
-      /**
-       * Multiplies a color by another, results in a darker color
-       *
-       * @method mulitiply
-       * @param color {Color}
-       * @returns Color
-       */
-      public mulitiply(color: Color): Color {
-         var newR = ((color.r / 255 * this.r / 255) * 255);
-         var newG = ((color.g / 255 * this.g / 255) * 255);
-         var newB = ((color.b / 255 * this.b / 255) * 255);
-         var newA = (color.a * this.a);
-         return new Color(newR, newG, newB, newA);
-      }
-
-      /**
-       * Screens a color by another, results in a lighter color
-       *
-       * @method screen
-       * @param color {Color}
-       * @returns Color
-       */
-      public screen(color: Color): Color {
-         var color1 = color.invert();
-         var color2 = color.invert();
-         return color1.mulitiply(color2).invert();
-      }
-
-      /**
-       * Inverts the current color
-       *
-       * @method invert
-       * @returns Color
-       */
-      public invert(): Color {
-         return new Color(255 - this.r, 255 - this.g, 255 - this.b, 1.0 - this.a);
-      }
-
-      /**
-       * Averages the current color with another
-       *
-       * @method average
-       * @param color {Color} 
-       * @returns Color
-       */
-      public average(color: Color): Color {
-         var newR = (color.r + this.r) / 2;
-         var newG = (color.g + this.g) / 2;
-         var newB = (color.b + this.b) / 2;
-         var newA = (color.a + this.a) / 2;
-         return new Color(newR, newG, newB, newA);
-      }
-
-
-      /**
-       * Returns a CSS string representation of a color. 
-       * @method toString
-       * @returns string
-       */
-      public toString() {
-         var result = String(this.r.toFixed(0)) + ", " + String(this.g.toFixed(0)) + ", " + String(this.b.toFixed(0));
-         if (this.a !== undefined || this.a !== null) {
-            return "rgba(" + result + ", " + String(this.a) + ")";
-         }
-         return "rgb(" + result + ")";
-      }
-
-      /**
-       * Returns a CSS string representation of a color.
-       * @method fillStyle
-       * @returns string
-       */
-      public fillStyle(){
-         return this.toString();
-      }
-
-      /**
-       * Returns a clone of the current color.
-       * @method clone
-       * @returns Color
-       */
-      public clone(): Color {
-         return new Color(this.r, this.g, this.b, this.a);
-      }
-   }
+   }   
 }
