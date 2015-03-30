@@ -5,35 +5,53 @@
 /// <reference path="CollisionPair.ts" />
 /// <reference path="Camera.ts" />
 /// <reference path="Group.ts"/>
+
 module ex {
 
    /**
-    * Actors are composed together into groupings called Scenes in 
+    * Scenes
+    *
+    * [[Actor]]s are composed together into groupings called Scenes in 
     * Excalibur. The metaphor models the same idea behind real world 
     * actors in a scene. Only actors in scenes will be updated and drawn.
-    * @class Scene
-    * @constructor
+    *
+    * Typical usages of a scene include: levels, menus, loading screens, etc.
     */
    export class Scene extends ex.Class {
 
-      //The actor this scene is attached to , if any
+      /**
+       * The actor this scene is attached to, if any
+       */
       public actor: Actor;
 
       /**
        * Gets or sets the current camera for the scene
-       * @property camera {Camera}
        */
       public camera: BaseCamera;
 
       /**
        * The actors in the current scene
-       * @property children {Actor[]}
        */
       public children: Actor[] = [];
+
+      /**
+       * The [[TileMap]]s in the scene, if any
+       */
       public tileMaps: TileMap[] = [];
+
+      /**
+       * The [[Group]]s in the scene, if any
+       */
       public groups: { [key: string]: Group } = {};
+
+      /**
+       * Access to the Excalibur engine
+       */
       public engine: Engine;
 
+      /**
+       * The [[UIActor]]s in a scene, if any; these are drawn last
+       */
       public uiActors: Actor[] = [];
 
       private _collisionResolver: ICollisionResolver = new DynamicTreeCollisionResolver();
@@ -44,7 +62,6 @@ module ex {
       private _isInitialized: boolean = false;
       private _logger: Logger = Logger.getInstance();
       
-
       constructor(engine?: Engine) {
          super();
          this.camera = new BaseCamera()
@@ -56,7 +73,6 @@ module ex {
       /**
        * This is called when the scene is made active and started. It is meant to be overriden,
        * this is where you should setup any DOM UI or event handlers needed for the scene.
-       * @method onActivate
        */
       public onActivate(): void {
          // will be overridden
@@ -65,7 +81,6 @@ module ex {
       /**
        * This is called when the scene is made transitioned away from and stopped. It is meant to be overriden,
        * this is where you should cleanup any DOM UI or event handlers needed for the scene.
-       * @method onDeactivate
        */
       public onDeactivate(): void {
          // will be overridden
@@ -74,8 +89,6 @@ module ex {
       /**
        * This is called before the first update of the actor. This method is meant to be
        * overridden. This is where initialization of child actors should take place.
-       * @method onInitialize
-       * @param engine {Engine}
        */
       public onInitialize(engine: Engine): void {
          // will be overridden
@@ -84,9 +97,8 @@ module ex {
 
       /**
        * Publish an event to all actors in the scene
-       * @method publish
-       * @param eventType {string} The name of the event to publish
-       * @param event {GameEvent} The event object to send 
+       * @param eventType  The name of the event to publish
+       * @param event      The event object to send 
        */
       public publish(eventType: string, event: GameEvent) {
          this.children.forEach((actor) => {
@@ -95,10 +107,9 @@ module ex {
       }
 
       /**
-       * Updates all the actors and timers in the Scene. Called by the Engine.
-       * @method update
-       * @param engine {Engine} Reference to the current Engine
-       * @param delta {number} The number of milliseconds since the last update
+       * Updates all the actors and timers in the scene. Called by the [[Engine]].
+       * @param engine  Reference to the current Engine
+       * @param delta   The number of milliseconds since the last update
        */
       public update(engine: Engine, delta: number) {
          if (!this._isInitialized) {
@@ -156,10 +167,9 @@ module ex {
       }
 
       /**
-       * Draws all the actors in the Scene. Called by the Engine.
-       * @method draw
-       * @param ctx {CanvasRenderingContext2D} The current rendering context
-       * @param delta {number} The number of milliseconds since the last draw
+       * Draws all the actors in the Scene. Called by the [[Engine]].
+       * @param ctx    The current rendering context
+       * @param delta  The number of milliseconds since the last draw
        */
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
          ctx.save();
@@ -206,9 +216,8 @@ module ex {
       }
 
       /**
-       * Draws all the actors' debug information in the Scene. Called by the Engine.
-       * @method draw
-       * @param ctx {CanvasRenderingContext2D} The current rendering context
+       * Draws all the actors' debug information in the Scene. Called by the [[Engine]].
+       * @param ctx  The current rendering context
        */
       public debugDraw(ctx: CanvasRenderingContext2D) {
 
@@ -235,30 +244,25 @@ module ex {
       }
 
       /**
-       * Adds an excalibur Timer to the current scene.
-       * @param timer {Timer} The timer to add to the current scene.
-       * @method add
+       * Adds a [[Timer]] to the current scene.
+       * @param timer  The timer to add to the current scene.
        */
       public add(timer: Timer): void;
 
       /**
-       * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
-       * @method add
-       * @param tileMap {TileMap} 
+       * Adds a [[TileMap]] to the Scene, once this is done the TileMap will be drawn and updated.
        */
       public add(tileMap: TileMap): void;
 
       /**
-       * Adds an actor to the Scene, once this is done the Actor will be drawn and updated.
-       * @method add
-       * @param actor {Actor} The actor to add to the current scene
+       * Adds an actor to the scene, once this is done the [[Actor]] will be drawn and updated.
+       * @param actor  The actor to add to the current scene
        */
       public add(actor: Actor): void;
 
       /**
-       * Adds a UIActor to the scene, UIActors do not participate in collisions, instead the remain in the same place on the screen.
-       * @method add
-       * @param uiActor {UIActor} The UIActor to add to the current scene
+       * Adds a [[UIActor]] to the scene.
+       * @param uiActor  The UIActor to add to the current scene
        */
       public add(uiActor: UIActor): void;
       public add(entity: any): void {
@@ -280,30 +284,26 @@ module ex {
       }
       
      /**
-       * Removes an excalibur Timer from the current scene.
-       * @method remove
-       * @param timer {Timer} The timer to remove to the current scene.       
+       * Removes a [[Timer]] from the current scene, it will no longer be updated.
+       * @param timer  The timer to remove to the current scene.       
        */
       public remove(timer: Timer): void;
 
       /**
-       * Removes a TileMap from the Scene, it will no longer be drawn or updated.
-       * @method remove
+       * Removes a [[TileMap]] from the scene, it will no longer be drawn or updated.
        * @param tileMap {TileMap}
        */
       public remove(tileMap: TileMap): void;
 
       /**
-       * Removes an actor from the Scene, it will no longer be drawn or updated.
-       * @method remove       
-       * @param actor {Actor} The actor to remove from the current scene.      
+       * Removes an actor from the scene, it will no longer be drawn or updated.
+       * @param actor  The actor to remove from the current scene.      
        */
       public remove(actor: Actor): void;
 
       /**
-       * Removes a UIActor to the scene, it will no longer be drawn or updated
-       * @method remove
-       * @param uiActor {UIActor} The UIActor to remove from the current scene
+       * Removes a [[UIActor]] to the scene, it will no longer be drawn or updated
+       * @param uiActor  The UIActor to remove from the current scene
        */
       public remove(uiActor: UIActor): void;
       public remove(entity: any): void {
@@ -326,10 +326,9 @@ module ex {
       }
 
       /**
-       * Adds an actor to act as a piece of UI, meaning it is always positioned
-       * in screen coordinates. UI actors do not participate in collisions
-       * @method addUIActor
-       * @param actor {Actor}
+       * Adds (any) actor to act as a piece of UI, meaning it is always positioned
+       * in screen coordinates. UI actors do not participate in collisions.
+       * @todo Should this be `UIActor` only?
        */
       public addUIActor(actor: Actor){
          this.uiActors.push(actor);
@@ -337,9 +336,7 @@ module ex {
       }
 
       /**
-       * Removes an actor as a piec of UI
-       * @method removeUIActor
-       * @param actor {Actor}
+       * Removes an actor as a piece of UI
        */
       public removeUIActor(actor: Actor){
          var index = this.uiActors.indexOf(actor);
@@ -348,11 +345,8 @@ module ex {
          }
       }
 
-
       /**
-       * Adds an actor to the Scene, once this is done the actor will be drawn and updated.
-       * @method addChild
-       * @param actor {Actor} 
+       * Adds an actor to the scene, once this is done the actor will be drawn and updated.
        */
       public addChild(actor: Actor) {
          this._collisionResolver.register(actor);
@@ -363,18 +357,14 @@ module ex {
 
 
       /**
-       * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
-       * @method addTileMap
-       * @param tileMap {TileMap} 
+       * Adds a [[TileMap]] to the scene, once this is done the TileMap will be drawn and updated.
        */
       public addTileMap(tileMap: TileMap) {
          this.tileMaps.push(tileMap);
       }
 
       /**
-       * Removes a TileMap from the Scene, it willno longer be drawn or updated.
-       * @method removeTileMap
-       * @param tileMap {TileMap}
+       * Removes a [[TileMap]] from the scene, it will no longer be drawn or updated.
        */
       public removeTileMap(tileMap: TileMap) {
          var index = this.tileMaps.indexOf(tileMap);
@@ -383,11 +373,8 @@ module ex {
          }
       }
 
-
       /**
-       * Removes an actor from the Scene, it will no longer be drawn or updated.
-       * @method removeChild
-       * @param actor {Actor} The actor to remove
+       * Removes an actor from the scene, it will no longer be drawn or updated.
        */
       public removeChild(actor: Actor) {
          this._collisionResolver.remove(actor);
@@ -396,10 +383,8 @@ module ex {
       }
 
       /**
-       * Adds a timer to the Scene
-       * @method addTimer
-       * @param timer {Timer} The timer to add
-       * @returns Timer
+       * Adds a [[Timer]] to the scene
+       * @param timer  The timer to add
        */
       public addTimer(timer: Timer): Timer {
          this._timers.push(timer);
@@ -408,11 +393,9 @@ module ex {
       }
 
       /**
-       * Removes a timer to the Scene, can be dangerous
-       * @method removeTimer
-       * @private
-       * @param timer {Timer} The timer to remove
-       * @returns Timer
+       * Removes a [[Timer]] from the scene. 
+       * @warning Can be dangerous, use [[cancelTimer]] instead
+       * @param timer  The timer to remove
        */
       public removeTimer(timer: Timer): Timer {
          var i = this._timers.indexOf(timer);
@@ -423,10 +406,8 @@ module ex {
       }
 
       /**
-       * Cancels a timer, removing it from the scene nicely
-       * @method cancelTimer
-       * @param timer {Timer} The timer to cancel
-       * @returns Timer
+       * Cancels a [[Timer]], removing it from the scene nicely
+       * @param timer  The timer to cancel
        */
       public cancelTimer(timer: Timer): Timer {
          this._cancelQueue.push(timer);
@@ -434,46 +415,33 @@ module ex {
       }
 
       /**
-       * Tests whether a timer is active in the scene
-       * @method isTimerActive
-       * @param timer {Timer}
-       * @returns boolean
+       * Tests whether a [[Timer]] is active in the scene
        */
       public isTimerActive(timer: Timer): boolean {
          return (this._timers.indexOf(timer) > -1);
       }
 
       /**
-       * Creates and adds a group to the scene with a name
-       * @method createGroup
-       * @param name {String}
-       * @returns Group
+       * Creates and adds a [[Group]] to the scene with a name
        */
       public createGroup(name: string): Group {
          return new Group(name, this);
       }
 
       /**
-       * Returns a group by name
-       * @method getGroup
-       * @param name {string}
-       * @returns Group
+       * Returns a [[Group]] by name
        */
       public getGroup(name: string): Group {
          return this.groups[name];
       }
 
       /**
-       * Removes a group by name
-       * @method removeGroup
-       * @param name {string}
+       * Removes a [[Group]] by name
        */
       public removeGroup(name: string): void;
 
       /**
-       * Removes a group by reference
-       * @method removeGroup
-       * @param group {Group}
+       * Removes a [[Group]] by reference
        */
       public removeGroup(group: Group): void;
       public removeGroup(group: any): void {
