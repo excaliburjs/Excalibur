@@ -1,28 +1,18 @@
 module ex {
    /**
     * A simple 2D point on a plane
-    * @class Point
-    * @constructor
-    * @param x {number} X coordinate of the point
-    * @param y {number} Y coordinate of the point
-    *
     */
    export class Point {
+
+      /**
+       * @param x  X coordinate of the point
+       * @param y  Y coordinate of the point
+       */
       constructor(public x: number, public y: number) {
       }
-      /**
-       * X Coordinate of the point
-       * @property x {number}
-       */
-      /**
-       * Y Coordinate of the point
-       * @property y {number}
-       */
 
       /**
        * Convert this point to a vector
-       * @method toVector
-       * @returns Vector
        */
       public toVector(): Vector {
          return new Vector(this.x, this.y);
@@ -31,8 +21,8 @@ module ex {
       /**
        * Rotates the current point around another by a certain number of
        * degrees in radians
-       * @method rotate
-       * @returns Point
+       * @param angle  The angle in radians
+       * @param anchor The point to rotate around
        */
       public rotate(angle: number, anchor?: Point): Point{
          if(!anchor){
@@ -47,8 +37,7 @@ module ex {
 
       /**
        * Translates the current point by a vector
-       * @method add
-       * @returns Point
+       * @param vector  The other vector to add to
        */
       public add(vector: Vector): Point {
          return new Point(this.x + vector.x, this.y + vector.y);
@@ -56,9 +45,6 @@ module ex {
 
       /**
        * Sets the x and y components at once
-       * @method setTo
-       * @param x {number}
-       * @param y {number}
        */
       public setTo(x: number, y: number){
          this.x = x;
@@ -67,18 +53,15 @@ module ex {
 
       /**
        * Clones a new point that is a copy of this one.
-       * @method clone
-       * @returns Point
        */
       public clone(){
          return new Point(this.x, this.y);
       }
 
       /**
-      * Compares this point against another and tests for equality
-      * @method equals
-      * @returns boolean
-      */
+       * Compares this point against another and tests for equality
+       * @param point  The other point to compare to
+       */
       public equals(point: Point): boolean {
          return this.x === point.x && this.y === point.y;
       }
@@ -86,36 +69,33 @@ module ex {
 
    /**
     * A 2D vector on a plane. 
-    * @class Vector
-    * @extends Point
-    * @constructor
-    * @param x {number} X component of the Vector
-    * @param y {number} Y component of the Vector
     */
    export class Vector extends Point {
 
+      /**
+       * A (0, 0) vector
+       */
       public static Zero = new Vector(0, 0);
 
       /**
        * Returns a vector of unit length in the direction of the specified angle.
-       * @method fromAngle
-       * @static
-       * @param angle {number} The angle to generate the vector
-       * @returns Vector
+       * @param angle The angle to generate the vector
        */
       public static fromAngle(angle: number){
          return new Vector(Math.cos(angle), Math.sin(angle));
       }
 
+      /**
+       * @param x  X component of the Vector
+       * @param y  Y component of the Vector
+       */
       constructor(public x: number, public y: number) {
          super(x, y);
       }
 
       /**
        * The distance to another vector
-       * @method distance
-       * @param v {Vector} The other vector
-       * @returns number
+       * @param v  The other vector
        */
       public distance(v?: Vector): number {
          if (!v) {
@@ -126,8 +106,6 @@ module ex {
 
       /**
        * Normalizes a vector to have a magnitude of 1.
-       * @method normalize
-       * @return Vector
        */
       public normalize(): Vector {
          var d = this.distance();
@@ -140,9 +118,7 @@ module ex {
 
       /**
        * Scales a vector's by a factor of size
-       * @method scale
-       * @param size {number} The factor to scale the magnitude by
-       * @returns Vector
+       * @param size  The factor to scale the magnitude by
        */
       public scale(size): Vector {
          return new Vector(this.x * size, this.y * size);
@@ -150,9 +126,7 @@ module ex {
 
       /**
        * Adds one vector to another, alias for add
-       * @method plus
-       * @param v {Vector} The vector to add
-       * @return Vector
+       * @param v  The vector to add
        */
       public plus(v: Vector): Vector {
          return this.add(v);
@@ -160,9 +134,7 @@ module ex {
 
       /**
        * Adds one vector to another
-       * @method add
-       * @param v {Vector} The vector to add
-       * @returns Vector
+       * @param v The vector to add
        */
       public add(v: Vector): Vector {
          return new Vector(this.x + v.x, this.y + v.y);
@@ -170,9 +142,7 @@ module ex {
 
       /**
        * Subtracts a vector from another, alias for minus
-       * @method subtract
-       * @param v {Vector} The vector to subtract
-       * @returns Vector
+       * @param v The vector to subtract
        */
       public subtract(v: Vector): Vector {
          return this.minus(v);
@@ -180,9 +150,7 @@ module ex {
 
       /**
        * Subtracts a vector from the current vector
-       * @method minus
-       * @param v {Vector} The vector to subtract
-       * @returns Vector
+       * @param v The vector to subtract
        */
       public minus(v: Vector): Vector {
          return new Vector(this.x - v.x, this.y - v.y);
@@ -190,9 +158,7 @@ module ex {
 
       /**
        * Performs a dot product with another vector
-       * @method dot
-       * @param v {Vector} The vector to dot
-       * @returns number
+       * @param v  The vector to dot
        */
       public dot(v: Vector): number {
          return this.x * v.x + this.y * v.y;
@@ -200,9 +166,7 @@ module ex {
 
       /**
        * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
-       * @method cross
-       * @param v {Vector} The vector to cross
-       * @returns number
+       * @param v  The vector to cross
        */
       public cross(v: Vector): number {
          return this.x * v.y - this.y * v.x;
@@ -210,8 +174,6 @@ module ex {
 
       /**
        * Returns the perpendicular vector to this one
-       * @method perpendicular
-       * @return Vector
        */
       public perpendicular(): Vector{
          return new Vector(this.y, -this.x);
@@ -219,8 +181,6 @@ module ex {
 
       /**
        * Returns the normal vector to this one 
-       * @method normal
-       * @return Vector
        */
       public normal(): Vector{
          return this.perpendicular().normalize();
@@ -228,8 +188,6 @@ module ex {
 
       /**
        * Returns the angle of this vector.
-       * @method toAngle
-       * @returns number
        */
       public toAngle(): number {
          return Math.atan2(this.y, this.x);
@@ -237,8 +195,6 @@ module ex {
 
       /**
        * Returns the point represention of this vector
-       * @method toPoint
-       * @returns Point
        */
       public toPoint(): Point {
          return new Point(this.x, this.y);
@@ -247,8 +203,6 @@ module ex {
       /**
        * Rotates the current vector around a point by a certain number of
        * degrees in radians
-       * @method rotate
-       * @returns Vector
        */
       public rotate(angle: number, anchor: Point): Vector{
          return super.rotate(angle, anchor).toVector();
@@ -256,8 +210,6 @@ module ex {
 
       /**
        * Creates new vector that has the same values as the previous.
-       * @method clone
-       * @returns Vector
        */
       public clone(): Vector {
          return new Vector(this.x, this.y);
@@ -268,14 +220,15 @@ module ex {
 
    /**
     * A 2D ray that can be cast into the scene to do collision detection
-    * @class Ray
-    * @constructor
-    * @param pos {Point} The starting position for the ray
-    * @param dir {Vector} The vector indicating the direction of the ray
     */
    export class Ray {
       public pos: Point;
       public dir: Vector;
+
+      /**
+       * @param pos The starting position for the ray
+       * @param dir The vector indicating the direction of the ray
+       */
       constructor(pos: Point, dir: Vector){
          this.pos = pos;
          this.dir = dir.normalize();
@@ -284,9 +237,7 @@ module ex {
       /**
        * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success. 
        * This number indicates the mathematical intersection time.
-       * @method intersect
-       * @param line {Line} The line to test
-       * @returns number
+       * @param line  The line to test
        */
        public intersect(line: Line): number{
          var numerator = line.begin.toVector().minus(this.pos.toVector());
@@ -315,8 +266,6 @@ module ex {
 
       /**
        * Returns the point of intersection given the intersection time
-       * @method getPoint
-       * @returns Point
        */
       public getPoint(time: number): Point{
          return this.pos.toVector().add(this.dir.scale(time)).toPoint();
@@ -325,23 +274,19 @@ module ex {
 
    /**
     * A 2D line segment 
-    * @class Line
-    * @constructor
-    * @param begin {Point} The starting point of the line segment
-    * @param end {Point} The ending point of the line segment
     */
    export class Line {
-      public begin: Point;
-      public end: Point;
-      constructor(begin: Point, end: Point){
-         this.begin = begin;
-         this.end = end;
+
+      /**
+       * @param begin  The starting point of the line segment
+       * @param end  The ending point of the line segment
+       */
+      constructor(public begin: Point, public end: Point){
+
       }
 
       /** 
        * Returns the slope of the line in the form of a vector
-       * @method getSlope
-       * @returns Vector
        */
       public getSlope(): Vector{
          var begin = this.begin.toVector();
@@ -352,8 +297,6 @@ module ex {
 
       /**
        * Returns the length of the line segment in pixels
-       * @method getLength
-       * @returns number
        */
       public getLength(): number{
          var begin = this.begin.toVector();
@@ -364,6 +307,10 @@ module ex {
 
    }
 
+   /**
+    * A projection
+    * @todo
+    */
    export class Projection {
       constructor(public min: number, public max: number){}
       public overlaps(projection: Projection): boolean {
