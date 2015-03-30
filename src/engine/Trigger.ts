@@ -1,23 +1,26 @@
 /// <reference path="Actor.ts" />
 /// <reference path="Engine.ts" />
+
 module ex {
+
    /**
-    * Triggers a method of firing arbitrary code on collision. These are useful
+    * Triggers are a method of firing arbitrary code on collision. These are useful
     * as 'buttons', 'switches', or to trigger effects in a game. By defualt triggers
-    * are invisible, and can only be seen with debug mode enabled on the Engine.
-    * @class Trigger
-    * @constructor
-    * @param [x=0] {number} The x position of the trigger
-    * @param [y=0] {number} The y position of the trigger
-    * @param [width=0] {number} The width of the trigger
-    * @param [height=0] {number} The height of the trigger
-    * @param [action=null] {()=>void} Callback to fire when trigger is activated
-    * @param [repeats=1] {number} The number of times that this trigger should fire, by default it is 1, if -1 is supplied it will fire indefinitely
+    * are invisible, and can only be seen with debug mode enabled on the [[Engine]].
     */
    export class Trigger extends Actor {
       private action : ()=>void = ()=>{};
       public repeats : number = 1;
       public target : Actor = null;
+
+      /**
+       * @param x       The x position of the trigger
+       * @param y       The y position of the trigger
+       * @param width   The width of the trigger
+       * @param height  The height of the trigger
+       * @param action  Callback to fire when trigger is activated
+       * @param repeats The number of times that this trigger should fire, by default it is 1, if -1 is supplied it will fire indefinitely
+       */
       constructor(x?: number, y?: number, width?: number, height?: number, action?: ()=>void, repeats?: number){
          super(x, y, width, height);
          this.repeats = repeats || this.repeats;
