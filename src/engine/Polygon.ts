@@ -1,12 +1,11 @@
 /// <reference path="Interfaces/IDrawable.ts" />
+
 module ex {
+
    /**
-    * Creates a closed polygon drawing given a list a of points. Polygons should be 
-    * used sparingly as there is a <b>performance</b> impact for using them.
-    * @class Polygon
-    * @extends IDrawable
-    * @constructor
-    * @param points {Point[]} The points to use to build the polygon in order
+    * Creates a closed polygon drawing given a list of [[Point]]s.
+    *
+    * @warning Use sparingly as Polygons are performance intensive
     */
    export class Polygon implements IDrawable {
       public flipVertical: boolean;
@@ -16,22 +15,18 @@ module ex {
 
       /**
        * The color to use for the lines of the polygon
-       * @property lineColor {Color}
        */
       public lineColor: Color;
       /**
        * The color to use for the interior of the polygon
-       * @property fillColor {Color}
        */
       public fillColor: Color;
       /**
        * The width of the lines of the polygon
-       * @property [lineWidth=5] {number} The width of the lines in pixels
        */
       public lineWidth: number = 5;
       /**
        * Indicates whether the polygon is filled or not.
-       * @property [filled=false] {boolean}
        */
       public filled: boolean = false;
       
@@ -40,8 +35,10 @@ module ex {
       public rotation: number = 0;
       public scale = new Point(1, 1);
 
-      
-      constructor(points : Point[]) {
+      /**
+       * @param points  The points to use to build the polygon in order
+       */
+      constructor(points: Point[]) {
          this.points = points;
 
          var minX = this.points.reduce((prev: number, curr: Point) => {
@@ -64,22 +61,28 @@ module ex {
       }
 
       /**
-       * Effects are <b>not supported</b> on polygons
-       * @method addEffect
+       * @notimplemented Effects are not supported on `Polygon`
        */
       public addEffect(effect: Effects.ISpriteEffect){
          // not supported on polygons
       }
-
+      /**
+       * @notimplemented Effects are not supported on `Polygon`
+       */
       public removeEffect(index: number);
+      /**
+       * @notimplemented Effects are not supported on `Polygon`
+       */
       public removeEffect(effect: Effects.ISpriteEffect);
+      /**
+       * @notimplemented Effects are not supported on `Polygon`
+       */
       public removeEffect(param: any){
          // not supported on polygons
       }
 
       /**
-       * Effects are <b>not supported</b> on polygons
-       * @method clearEffects
+       * @notimplemented Effects are not supported on `Polygon`
        */
       public clearEffects(){
          // not supported on polygons
