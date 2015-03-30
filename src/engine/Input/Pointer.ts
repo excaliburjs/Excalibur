@@ -30,10 +30,6 @@ module ex.Input {
    /**
     * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to W3C Pointer Events. 
     * There is always at least one pointer available (primary).
-    * 
-    * @class Pointers
-    * @extends Class
-    * @constructor
     */
    export class Pointers extends ex.Class {
       private _engine: ex.Engine;
@@ -56,7 +52,6 @@ module ex.Input {
 
       /**
        * Primary pointer (mouse, 1 finger, stylus, etc.)
-       * @property primary {Pointer}
        */
       public primary: Pointer;
       
@@ -113,7 +108,7 @@ module ex.Input {
       
       /**
        * Safely gets a Pointer at a specific index and initializes one if it doesn't yet exist
-       * @param index {number} The pointer index to retrieve
+       * @param index  The pointer index to retrieve
        */
       public at(index: number): Pointer {
          if (index >= this._pointers.length) {
@@ -236,7 +231,6 @@ module ex.Input {
       /**
        * Gets the index of the pointer specified for the given pointer ID or finds the next empty pointer slot available.
        * This is required because IE10/11 uses incrementing pointer IDs so we need to store a mapping of ID => idx
-       * @private
        */
       private _getPointerIndex(pointerId: number) {
          var idx;
@@ -268,9 +262,6 @@ module ex.Input {
 
    /**
     * Captures and dispatches PointerEvents
-    * @class Pointer
-    * @constructor
-    * @extends Class
     */
    export class Pointer extends Class {
       

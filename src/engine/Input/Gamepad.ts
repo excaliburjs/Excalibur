@@ -3,29 +3,21 @@
    /**
     * Manages Gamepad API input. You can query the gamepads that are connected
     * or listen to events ("button" and "axis").
-    * @class Gamepads
-    * @extends Class
-    * @param pads {Gamepad[]} The connected gamepads. 
-    * @param supported {boolean} Whether or not the Gamepad API is present
     */
    export class Gamepads extends ex.Class {
       
       /**
        * Whether or not to poll for Gamepad input (default: false)
-       * @property enabled {boolean}
        */
       public enabled = false;
 
       /**
        * Whether or not Gamepad API is supported
-       * @property supported {boolean}
        */
       public supported = !!(<any>navigator).getGamepads;
 
       /**
        * The minimum value an axis has to move before considering it a change
-       * @property MinAxisMoveThreshold {number}
-       * @static
        */
       public static MinAxisMoveThreshold = 0.05;
 
@@ -170,8 +162,6 @@
 
    /**
     * Individual state for a Gamepad
-    * @class Gamepad
-    * @extends Class
     */
    export class Gamepad extends ex.Class {
       public connected = false;
@@ -193,8 +183,7 @@
 
       /**
        * Whether or not the given button is pressed
-       * @param button {Buttons}
-       * @param [threshold=1] {number} The threshold over which the button is considered to be pressed
+       * @param threshold  The threshold over which the button is considered to be pressed
        */
       public isButtonPressed(button: Buttons, threshold: number = 1) {
          return this._buttons[button] >= threshold;
@@ -202,7 +191,6 @@
 
       /**
        * Gets the given button value
-       * @param button {Buttons}
        */
       public getButton(button: Buttons) {
          return this._buttons[button];
@@ -210,7 +198,6 @@
 
       /**
        * Gets the given axis value
-       * @param axes {Axes}
        */
       public getAxes(axes: Axes) {
          var value = this._axes[axes];
@@ -233,135 +220,93 @@
 
    /**
     * Gamepad Buttons enumeration
-    * @class Buttons
     */
    export enum Buttons {
       /**
        * Face 1 button (e.g. A)
-       * @property Face1 {Buttons}
-       * @static
-       */
-      /**
-       * Face 2 button (e.g. B)
-       * @property Face2 {Buttons}
-       * @static
-       */
-      /**
-       * Face 3 button (e.g. X)
-       * @property Face3 {Buttons}
-       * @static
-       */
-      /**
-       * Face 4 button (e.g. Y)
-       * @property Face4 {Buttons}
-       * @static
        */
       Face1 = 0,
+      /**
+       * Face 2 button (e.g. B)
+       */
       Face2 = 1,
+      /**
+       * Face 3 button (e.g. X)
+       */
       Face3 = 2,
+      /**
+       * Face 4 button (e.g. Y)
+       */
       Face4 = 3,
       /**
        * Left bumper button
-       * @property LeftBumper {Buttons}
-       * @static
-       */
-      /**
-       * Right bumper button
-       * @property RightBumper {Buttons}
-       * @static
        */
       LeftBumper = 4,
+      /**
+       * Right bumper button
+       */
       RightBumper = 5,
       /**
        * Left trigger button
-       * @property LeftTrigger {Buttons}
-       * @static
-       */
-      /**
-       * Right trigger button
-       * @property RightTrigger {Buttons}
-       * @static
        */
       LeftTrigger = 6,
+      /**
+       * Right trigger button
+       */
       RightTrigger = 7,
       /**
        * Select button
-       * @property Select {Buttons}
-       * @static
-       */
-      /**
-       * Start button
-       * @property Start {Buttons}
-       * @static
        */
       Select = 8,
+      /**
+       * Start button
+       */
       Start = 9,
       /**
        * Left analog stick press (e.g. L3)
-       * @property LeftStick {Buttons}
-       * @static
-       */
-      /**
-       * Right analog stick press (e.g. R3)
-       * @property Start {Buttons}
-       * @static
        */
       LeftStick = 10,
+      /**
+       * Right analog stick press (e.g. R3)
+       */
       RightStick = 11,
       /**
        * D-pad up
-       * @property DpadUp {Buttons}
-       * @static
-       */
-      /**
-       * D-pad down
-       * @property DpadDown {Buttons}
-       * @static
-       */
-      /**
-       * D-pad left
-       * @property DpadLeft {Buttons}
-       * @static
-       */
-      /**
-       * D-pad right
-       * @property DpadRight {Buttons}
-       * @static
        */
       DpadUp = 12,
+      /**
+       * D-pad down
+       */
       DpadDown = 13,
+      /**
+       * D-pad left
+       */
       DpadLeft = 14,
+      /**
+       * D-pad right
+       */
       DpadRight = 15
    }
 
    /**
     * Gamepad Axes enumeration
-    * @class Axes
     */
    export enum Axes {
       /**
        * Left analogue stick X direction
-       * @property LeftStickX {Axes}
-       * @static
-       */
-      /**
-       * Left analogue stick Y direction
-       * @property LeftStickY {Axes}
-       * @static
-       */
-      /**
-       * Right analogue stick X direction
-       * @property RightStickX {Axes}
-       * @static
-       */
-      /**
-       * Right analogue stick Y direction
-       * @property RightStickY {Axes}
-       * @static
        */
       LeftStickX = 0,
+      /**
+       * Left analogue stick Y direction
+       */
       LeftStickY = 1,
+      /**
+       * Right analogue stick X direction
+       */
       RightStickX = 2,
+      /**
+       * Right analogue stick Y direction
+       */
       RightStickY = 3
    }
 
