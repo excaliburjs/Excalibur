@@ -94,7 +94,7 @@ module ex {
 
 
       /**
-       * Applies the "Lighten" effect to a sprite
+       * Applies the "Lighten" effect to a sprite, changes the lightness of the color according to HSL
        */
       export class Lighten implements ISpriteEffect {
         /**
@@ -113,7 +113,7 @@ module ex {
       }
 
       /**
-       * Applies the "Darken" effect to a sprite
+       * Applies the "Darken" effect to a sprite, changes the darkness of the color according to HSL
        */
       export class Darken implements ISpriteEffect {
         /**
@@ -132,7 +132,7 @@ module ex {
       }
 
       /**
-       * Applies the "Saturate" effect to a sprite
+       * Applies the "Saturate" effect to a sprite, saturates the color acccording to HSL
        */
       export class Saturate implements ISpriteEffect {
         /**
@@ -151,7 +151,7 @@ module ex {
       }
 
       /**
-       * Applies the "Desaturate" effect to a sprite
+       * Applies the "Desaturate" effect to a sprite, desaturates the color acccording to HSL
        */
       export class Desaturate implements ISpriteEffect {
         /**
