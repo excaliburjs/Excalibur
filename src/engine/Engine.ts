@@ -25,31 +25,41 @@
 /// <reference path="Input/Keyboard.ts"/>
 /// <reference path="Input/Gamepad.ts"/>
 
+/**
+ * # Welcome to the Excalibur API
+ *
+ * This documentation is automatically generated from the Excalibur
+ * source code on GitHub.
+ *
+ * If you're just starting out, we recommend reading the tutorials and guides
+ * on Excaliburjs.com.
+ *
+ * If you're looking for something specific, you can search the documentation
+ * using the search icon at the top.
+ */
 module ex {
 
    /**
     * Enum representing the different display modes available to Excalibur
-    * @class DisplayMode
     */
    export enum DisplayMode {
       /** 
        * Show the game as full screen 
-       * @property FullScreen {DisplayMode}
        */
       FullScreen,
       /** 
        * Scale the game to the parent DOM container 
-       * @property Container {DisplayMode}
        */
       Container,
       /** 
        * Show the game as a fixed size 
-       * @Property Fixed {DisplayMode}
        */
       Fixed
    }
 
-   // internal
+   /**
+    * @internal
+    */
    class AnimationNode {
       constructor(public animation: Animation, public x: number, public y: number) { }
    }
@@ -78,84 +88,78 @@ module ex {
        * Configures the display mode.
        */
       displayMode?: ex.DisplayMode;
+
       /**
        * Configures the pointer scope. Pointers scoped to the 'Canvas' can only fire events within the canvas viewport; whereas, 'Document' (default) scoped will fire anywhere on the page.
        */
       pointerScope?: ex.Input.PointerScope;
    }
 
-   
-  
-
    /**
-    * The 'Engine' is the main driver for a game. It is responsible for 
+    * The `Engine` is the main driver for a game. It is responsible for 
     * starting/stopping the game, maintaining state, transmitting events, 
     * loading resources, and managing the scene.
-    * 
-    * @class Engine
-    * @constructor
-    * @param [width] {number} The width in pixels of the Excalibur game viewport
-    * @param [height] {number} The height in pixels of the Excalibur game viewport
-    * @param [canvasElementId] {string} If this is not specified, then a new canvas will be created and inserted into the body.
-    * @param [displayMode] {DisplayMode} If this is not specified, then it will fall back to fixed if a height and width are specified, else the display mode will be FullScreen.
     */
    export class Engine extends ex.Class {
 
       /**
        * Direct access to the engine's canvas element
-       * @property canvas {HTMLCanvasElement}
        */
       public canvas: HTMLCanvasElement;
+
       /**
        * Direct access to the engine's 2D rendering context
-       * @property ctx {CanvasRenderingContext2D}
        */
       public ctx: CanvasRenderingContext2D;
+
       /**
-       * Direct access to the canvas element id, if an id exists
-       * @property canvasElementId {string}
+       * Direct access to the canvas element ID, if an ID exists
        */
       public canvasElementId: string;
 
       /**
        * The width of the game canvas in pixels
-       * @property width {number}
        */
       public width: number;
       /**
        * The height of the game canvas in pixels
-       * @property height {number}
        */
       public height: number;
 
       /**
        * Access engine input like pointer, keyboard, or gamepad
-       * @property input {IEngineInput}
        */
       public input: ex.Input.IEngineInput;
 
       /**
-       * Sets or gets the collision strategy for Excalibur
-       * @property collisionStrategy {CollisionStrategy}
+       * Gets or sets the [[CollisionStrategy]] for Excalibur actors
        */
       public collisionStrategy: CollisionStrategy = CollisionStrategy.DynamicAABBTree;
 
       private hasStarted: boolean = false;
 
+      /**
+       * Current FPS
+       */
       public fps: number = 0;
       
+      /**
+       * Gets or sets the list of post processors to apply at the end of drawing a frame (such as [[ColorBlindCorrector]])
+       */
       public postProcessors: IPostProcessor[] = [];
 
-      public currentScene: Scene;
       /**
-       * The default scene of the game, use {{#crossLink "Engine/goToScene"}}{{/crossLink}} to transition to different scenes.
-       * @property rootScene {Scene}
+       * The current [[Scene]] being drawn and updated on screen
+       */
+      public currentScene: Scene;
+
+      /**
+       * The default [[Scene]] of the game, use [[Engine.goToScene]] to transition to different scenes.
        */
       public rootScene: Scene;
 
       /**
        * Contains all the scenes currently registered with Excalibur
-       *
        */
       public scenes: {[key:string]: Scene;} = {};
       
@@ -163,32 +167,29 @@ module ex {
       
       /**
        * Indicates whether the engine is set to fullscreen or not
-       * @property isFullscreen {boolean} 
        */
       public isFullscreen: boolean = false;
+
       /**
-       * Indicates the current DisplayMode of the engine.
-       * @property [displayMode=FullScreen] {DisplayMode}
+       * Indicates the current [[DisplayMode]] of the engine.
        */
       public displayMode: DisplayMode = DisplayMode.FullScreen;
 
       /**
        * Indicates whether audio should be paused when the game is no longer visible.
-       * @property [pauseAudioWhenHidden=true] {boolean}
        */
       public pauseAudioWhenHidden: boolean = true;
 
       /**
        * Indicates whether the engine should draw with debug information
-       * @property [isDebug=false] {boolean}
        */
       public isDebug: boolean = false;
       public debugColor: Color = new Color(255, 255, 255);
       /**
        * Sets the background color for the engine.
-       * @property [backgroundColor=new Color(0, 0, 100)] {Color}
        */
       public backgroundColor: Color = new Color(0, 0, 100);
+
       private logger: Logger;
       private isSmoothingEnabled: boolean = true;
 
@@ -199,8 +200,22 @@ module ex {
       private total: number = 1;
       private loadingDraw: (ctx: CanvasRenderingContext2D, loaded: number, total: number) => void;
 
+      /**
+       * Creates a new game using the given [[IEngineOptions]]
+       */
       constructor(options: IEngineOptions);
+      /**
+       * Creates a new game with the given options
+       * @param width            The width in pixels of the Excalibur game viewport
+       * @param height           The height in pixels of the Excalibur game viewport
+       * @param canvasElementId  If this is not specified, then a new canvas will be created and inserted into the body.
+       * @param displayMode      If this is not specified, then it will fall back to fixed if a height and width are specified, else the display mode will be FullScreen.
+       * @obsolete Use [[Engine.constructor]] with [[IEngineOptions]]
+       */
       constructor(width?: number, height?: number, canvasElementId?: string, displayMode?: DisplayMode);
+      /**
+       * @internal
+       */
       constructor(args: any){
 
          super();
@@ -264,108 +279,104 @@ module ex {
 
       }
 
-     /**
-      * Plays a sprite animation on the screen at the specified x and y
-      * (in game coordinates, not screen pixels). These animations play
-      * independent of actors, and will be cleaned up internally as soon
-      * as they are complete. Note animations that loop will never be
-      * cleaned up.
-      * @method playAnimation
-      * @param animation {Animation} Animation to play
-      * @param x {number} x game coordinate to play the animation
-      * @param y {number} y game coordinate to play the animation
-      */
+      /**
+       * Plays a sprite animation on the screen at the specified `x` and `y`
+       * (in game coordinates, not screen pixels). These animations play
+       * independent of actors, and will be cleaned up internally as soon
+       * as they are complete. Note animations that loop will never be
+       * cleaned up.
+       *
+       * @param animation  Animation to play
+       * @param x          x game coordinate to play the animation
+       * @param y          y game coordinate to play the animation
+       */
       public playAnimation(animation: Animation, x: number, y: number) {
          this.animations.push(new AnimationNode(animation, x, y));
       }
-     /**
-      * Adds an actor to the current scene of the game. This is synonymous
-      * to calling engine.currentScene.addChild(actor : Actor).
-      *
-      * Actors can only be drawn if they are a member of a scene, and only
-      * the 'currentScene' may be drawn or updated.
-      * @method addChild
-      * @param actor {Actor} The actor to add to the current scene
-      */
+
+      /**
+       * Adds an actor to the [[currentScene]] of the game. This is synonymous
+       * to calling `engine.currentScene.addChild(actor)`.
+       *
+       * Actors can only be drawn if they are a member of a scene, and only
+       * the [[currentScene]] may be drawn or updated.
+       *
+       * @param actor  The actor to add to the [[currentScene]]
+       */
       public addChild(actor: Actor) {
          this.currentScene.addChild(actor);
       }
+
       /**
-       * Removes an actor from the currentScene of the game. This is synonymous
-       * to calling engine.currentScene.removeChild(actor : Actor).
+       * Removes an actor from the [[currentScene]] of the game. This is synonymous
+       * to calling `engine.currentScene.removeChild(actor)`.
        * Actors that are removed from a scene will no longer be drawn or updated.
        *
-       * @method removeChild       
-       * @param actor {Actor} The actor to remove from the current scene.      
+       * @param actor  The actor to remove from the [[currentScene]].      
        */
       public removeChild(actor: Actor) {
          this.currentScene.removeChild(actor);
       }
 
       /**
-       * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
-       * @method addTileMap
-       * @param tileMap {TileMap} 
+       * Adds a [[TileMap]] to the [[currentScene]], once this is done the TileMap 
+       * will be drawn and updated.
        */
       public addTileMap(tileMap: TileMap){
          this.currentScene.addTileMap(tileMap);
       }
 
       /**
-       * Removes a TileMap from the Scene, it willno longer be drawn or updated.
-       * @method removeTileMap
-       * @param tileMap {TileMap}
+       * Removes a [[TileMap]] from the [[currentScene]], it will no longer be drawn or updated.
        */
       public removeTileMap(tileMap: TileMap){
          this.currentScene.removeTileMap(tileMap);
       }
       
       /**
-       * Adds an excalibur timer to the current scene.
-       * @param timer {Timer} The timer to add to the current scene.
-       * @method addTimer
+       * Adds a [[Timer]] to the [[currentScene]].
+       * @param timer  The timer to add to the [[currentScene]].
        */
       public addTimer(timer: Timer): Timer{
          return this.currentScene.addTimer(timer);
       }
 
       /**
-       * Removes an excalibur timer from the current scene.
-       * @method removeTimer
-       * @param timer {Timer} The timer to remove to the current scene.       
+       * Removes a [[Timer]] from the [[currentScene]].
+       * @param timer  The timer to remove to the [[currentScene]].       
        */
       public removeTimer(timer: Timer): Timer{
          return this.currentScene.removeTimer(timer);
       }
 
-
       /**
-       * Adds a scene to the engine, think of scenes in excalibur as you
-       * would scenes in a play.
-       * @method addScene
-       * @param name {string} The name of the scene, must be unique
-       * @param scene {Scene} The scene to add to the engine       
+       * Adds a [[Scene]] to the engine, think of scenes in Excalibur as you
+       * would levels or menus.
+       *
+       * @param key  The name of the scene, must be unique
+       * @param scene The scene to add to the engine       
        */
-      public addScene(name: string, scene: Scene){
-         if(this.scenes[name]){
-            this.logger.warn("Scene", name, "already exists overwriting");
+      public addScene(key: string, scene: Scene){
+         if(this.scenes[key]){
+            this.logger.warn("Scene", key, "already exists overwriting");
          }
-         this.scenes[name] = scene;
+         this.scenes[key] = scene;
          scene.engine = this;
       }
 
       /**
-       * Removes a scene from the engine
-       * @method removeScene
-       * @param scene {Scene} The scene to remove
+       * Removes a [[Scene]] instance from the engine
+       * @param scene  The scene to remove
        */
       public removeScene(scene: Scene): void;
       /**
-       * Removes a scene from the engine
-       * @method removeScene
-       * @param sceneName {string} The scene to remove
+       * Removes a scene from the engine by key
+       * @param key  The scene key to remove
        */
-      public removeScene(sceneName: string): void;
+      public removeScene(key: string): void;
+      /**
+       * @internal
+       */
       public removeScene(entity: any): void {
          if (entity instanceof Scene) {
             // remove scene
@@ -385,40 +396,38 @@ module ex {
       }
 
       /**
-       * Adds a scene to the engine, think of scenes in excalibur as you
-       * would scenes in a play.
-       * @method add
-       * @param name {string} The name of the scene, must be unique
-       * @param scene {Scene} The scene to add to the engine       
+       * Adds a [[Scene]] to the engine, think of scenes in Excalibur as you
+       * would levels or menus.
+       * @param sceneKey  The key of the scene, must be unique
+       * @param scene     The scene to add to the engine       
        */
-      public add(sceneName: string, scene: Scene): void;
+      public add(sceneKey: string, scene: Scene): void;
       /**
-       * Adds an excalibur timer to the current scene.
-       * @param timer {Timer} The timer to add to the current scene.
-       * @method add
+       * Adds a [[Timer]] to the [[currentScene]].
+       * @param timer  The timer to add to the [[currentScene]].
        */
       public add(timer: Timer): void;
       /**
-       * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
-       * @method add
-       * @param tileMap {TileMap} 
+       * Adds a [[TileMap]] to the [[currentScene]], once this is done the TileMap 
+       * will be drawn and updated.
        */
       public add(tileMap: TileMap): void;
       /**
-      * Adds an actor to the current scene of the game. This is synonymous
-      * to calling engine.currentScene.addChild(actor : Actor).
-      *
-      * Actors can only be drawn if they are a member of a scene, and only
-      * the 'currentScene' may be drawn or updated.
-      * @method add
-      * @param actor {Actor} The actor to add to the current scene
-      */
+       * Adds an actor to the [[currentScene]] of the game. This is synonymous
+       * to calling `engine.currentScene.addChild(actor)`.
+       *
+       * Actors can only be drawn if they are a member of a scene, and only
+       * the [[currentScene]] may be drawn or updated.
+       *
+       * @param actor  The actor to add to the [[currentScene]]
+       */
       public add(actor: Actor): void;
 
       /**
-       * Adds a UIActor to the current scene of the game, UIActors do not participate in collisions, instead the remain in the same place on the screen.
-       * @method add
-       * @param uiActor {UIActor} The UIActor to add to the current scene
+       * Adds a [[UIActor]] to the [[currentScene]] of the game, 
+       * UIActors do not participate in collisions, instead the 
+       * remain in the same place on the screen.
+       * @param uiActor  The UIActor to add to the [[currentScene]]
        */
       public add(uiActor: UIActor): void;
       public add(entity: any): void {
@@ -443,43 +452,36 @@ module ex {
       }
 
       /**
-       * Removes a scene from the engine
-       * @method removeScene
-       * @param scene {Scene} The scene to remove
+       * Removes a scene instance from the engine
+       * @param scene  The scene to remove
        */
       public remove(scene: Scene): void;
       /**
-       * Removes a scene from the engine
-       * @method removeScene
-       * @param sceneName {string} The scene to remove
+       * Removes a scene from the engine by key
+       * @param sceneKey  The scene to remove
        */
-      public remove(sceneName: string): void;
+      public remove(sceneKey: string): void;
       /**
-       * Removes an excalibur timer from the current scene.
-       * @method remove
-       * @param timer {Timer} The timer to remove to the current scene.       
+       * Removes a [[Timer]] from the [[currentScene]].
+       * @param timer  The timer to remove to the [[currentScene]].       
        */
       public remove(timer: Timer): void;
       /**
-       * Removes a TileMap from the Scene, it willno longer be drawn or updated.
-       * @method remove
-       * @param tileMap {TileMap}
+       * Removes a [[TileMap]] from the [[currentScene]], it will no longer be drawn or updated.
        */
       public remove(tileMap: TileMap): void;
       /**
-       * Removes an actor from the currentScene of the game. This is synonymous
-       * to calling engine.currentScene.removeChild(actor : Actor).
+       * Removes an actor from the [[currentScene]] of the game. This is synonymous
+       * to calling `engine.currentScene.removeChild(actor)`.
        * Actors that are removed from a scene will no longer be drawn or updated.
        *
-       * @method remove       
-       * @param actor {Actor} The actor to remove from the current scene.      
+       * @param actor  The actor to remove from the [[currentScene]].      
        */
       public remove(actor: Actor): void;
       /**
-      * Removes a UIActor to the scene, it will no longer be drawn or updated
-      * @method remove
-      * @param uiActor {UIActor} The UIActor to remove from the current scene
-      */
+       * Removes a [[UIActor]] to the scene, it will no longer be drawn or updated
+       * @param uiActor  The UIActor to remove from the [[currentScene]]
+       */
       public remove(uiActor: UIActor): void;
       public remove(entity: any): void {
          if (entity instanceof UIActor) {
@@ -510,10 +512,9 @@ module ex {
       /**
        * Changes the currently updating and drawing scene to a different,
        * named scene.
-       * @method goToScene
-       * @param name {string} The name of the scene to trasition to.       
+       * @param key  The key of the scene to trasition to.       
        */
-      public goToScene(name: string){
+      public goToScene(key: string){
          if(this.scenes[name]){
             this.currentScene.onDeactivate.call(this.currentScene);
             
@@ -531,23 +532,21 @@ module ex {
             this.logger.error("Scene", name, "does not exist!");
          }
       }
+
       /**
-       * Returns the width of the engines drawing surface in pixels.
-       * @method getWidth
-       * @returns number The width of the drawing surface in pixels.
+       * Returns the width of the engine's drawing surface in pixels.
        */
-      getWidth(): number {
+      public getWidth(): number {
          if(this.currentScene && this.currentScene.camera){
             return this.width/this.currentScene.camera.getZoom();
          }
          return this.width;
       }
+
       /**
-       * Returns the height of the engines drawing surface in pixels.
-       * @method getHeight
-       * @returns number The height of the drawing surface in pixels.
+       * Returns the height of the engine's drawing surface in pixels.
        */
-      getHeight(): number {
+      public getHeight(): number {
          if(this.currentScene && this.currentScene.camera){
             return this.height/this.currentScene.camera.getZoom();
          }
@@ -556,8 +555,7 @@ module ex {
 
       /**
        * Transforms the current x, y from screen coordinates to world coordinates
-       * @method screenToWorldCoordinates
-       * @param point {Point} screen coordinate to convert
+       * @param point  Screen coordinate to convert
        */
       public screenToWorldCoordinates(point: Point): Point {
          // todo set these back this.canvas.clientWidth
@@ -577,9 +575,7 @@ module ex {
 
       /**
        * Transforms a world coordinate, to a screen coordinate
-       * @method worldToScreenCoordinates
-       * @param point {Point} world coordinate to convert
-       *
+       * @param point  World coordinate to convert
        */
       public worldToScreenCoordinates(point: Point): Point {
          // todo set these back this.canvas.clientWidth
@@ -602,8 +598,6 @@ module ex {
 
       /**
        * Sets the internal canvas height based on the selected display mode.
-       * @method setHeightByDisplayMode
-       * @private
        */
       private setHeightByDisplayMode(parent: any) {
          if (this.displayMode === DisplayMode.Container) {
@@ -621,8 +615,6 @@ module ex {
 
       /**
        * Initializes the internal canvas, rendering context, displaymode, and native event listeners
-       * @method initialize
-       * @private
        */
       private initialize(options?: IEngineOptions) {
          if (this.displayMode === DisplayMode.FullScreen || this.displayMode === DisplayMode.Container) {
@@ -682,10 +674,9 @@ module ex {
 
       /**
        * If supported by the browser, this will set the antialiasing flag on the
-       * canvas. Set this to false if you want a 'jagged' pixel art look to your
+       * canvas. Set this to `false` if you want a 'jagged' pixel art look to your
        * image resources.
-       * @method setAntialiasing
-       * @param isSmooth {boolean} Set smoothing to true or false       
+       * @param isSmooth  Set smoothing to true or false       
        */
       public setAntialiasing(isSmooth: boolean) {
          this.isSmoothingEnabled = isSmooth;
@@ -696,9 +687,7 @@ module ex {
       }
 
       /**
-       *  Return the current smoothing status of the canvas
-       * @method getAntialiasing
-       * @returns boolean
+       * Return the current smoothing status of the canvas
        */
       public getAntialiasing(): boolean {
          return (<any>this.ctx).imageSmoothingEnabled || (<any>this.ctx).webkitImageSmoothingEnabled || (<any>this.ctx).mozImageSmoothingEnabled || (<any>this.ctx).msImageSmoothingEnabled;
@@ -707,9 +696,7 @@ module ex {
       
       /**
        * Updates the entire state of the game
-       * @method update
-       * @private
-       * @param delta {number} Number of milliseconds elapsed since the last update.
+       * @param delta  Number of milliseconds elapsed since the last update.
        */
       private update(delta: number) {
          if (this.isLoading) {
@@ -732,11 +719,10 @@ module ex {
          // Publish update event
          this.eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
       }
+
       /**
        * Draws the entire game
-       * @method draw
-       * @private
-       * @param draw {number} Number of milliseconds elapsed since the last draw.
+       * @param draw  Number of milliseconds elapsed since the last draw.
        */
       private draw(delta: number) {
          var ctx = this.ctx;
@@ -787,10 +773,7 @@ module ex {
       /**
        * Starts the internal game loop for Excalibur after loading
        * any provided assets. 
-       * @method start
-       * @param [loader=undefined] {ILoadable} Optional resources to load before 
-       * starting the mainloop. Some loadable such as a Loader collection, Sound, or Texture.
-       * @returns Promise
+       * @param loader  Optional resources to load before starting the main loop. Some [[ILoadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
        */
       public start(loader?: ILoadable) : Promise<any> {
          var loadingComplete: Promise<any>;
@@ -842,8 +825,7 @@ module ex {
       }
 
       /**
-       * Stops Excalibur's mainloop, useful for pausing the game.
-       * @method stop
+       * Stops Excalibur's main loop, useful for pausing the game.
        */
       public stop() {
          if (this.hasStarted) {
@@ -855,8 +837,6 @@ module ex {
       /**
        * Takes a screen shot of the current viewport and returns it as an
        * HTML Image Element.
-       * @method screenshot
-       * @returns HTMLImageElement
        */
       public screenshot(): HTMLImageElement {
          var result = new Image();
@@ -867,11 +847,9 @@ module ex {
 
       /**
        * Draws the Excalibur loading bar
-       * @method drawLoadingBar
-       * @private
-       * @param ctx {CanvasRenderingContext2D} The canvas rendering context
-       * @param loaded {number} Number of bytes loaded
-       * @param total {number} Total number of bytes to load
+       * @param ctx     The canvas rendering context
+       * @param loaded  Number of bytes loaded
+       * @param total   Total number of bytes to load
        */
       private drawLoadingBar(ctx: CanvasRenderingContext2D, loaded: number, total: number) {
          if (this.loadingDraw) {
@@ -909,9 +887,7 @@ module ex {
 
       /**
        * Sets the loading screen draw function if you want to customize the draw
-       * @method setLoadingDrawFunction
-       * @param fcn {ctx: CanvasRenderingContext2D, loaded: number, total: number) => void} 
-       * Callback to draw the loading screen which is passed a rendering context, the number of bytes loaded, and the total number of bytes to load.
+       * @param fcn  Callback to draw the loading screen which is passed a rendering context, the number of bytes loaded, and the total number of bytes to load.
        */
       public setLoadingDrawFunction(fcn: (ctx: CanvasRenderingContext2D, loaded: number, total: number) => void) {
          this.loadingDraw = fcn;
@@ -921,8 +897,7 @@ module ex {
        * Another option available to you to load resources into the game. 
        * Immediately after calling this the game will pause and the loading screen
        * will appear.
-       * @method load
-       * @param loader {ILoadable} Some loadable such as a Loader collection, Sound, or Texture.
+       * @param loader  Some [[ILoadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
        */
       public load(loader: ILoadable): Promise<any> {
          var complete = new Promise<any>();
