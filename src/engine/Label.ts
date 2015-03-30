@@ -3,68 +3,48 @@
 module ex {
    /**
     * Enum representing the different horizontal text alignments
-    * @class TextAlign
     */
    export enum TextAlign {
       /**
        * The text is left-aligned.
-       * @property Left
-       * @static 
        */
       Left,
       /**
        * The text is right-aligned.
-       * @property Right
-       * @static 
        */
       Right,
       /**
        * The text is centered.
-       * @property Center
-       * @static 
        */
       Center,
       /**
        * The text is aligned at the normal start of the line (left-aligned for left-to-right locales, right-aligned for right-to-left locales).
-       * @property Start
-       * @static 
        */
       Start,
       /**
        * The text is aligned at the normal end of the line (right-aligned for left-to-right locales, left-aligned for right-to-left locales).
-       * @property End
-       * @static 
        */
       End
    }
 
    /**
     * Enum representing the different baseline text alignments
-    * @class BaseAlign
     */
    export enum BaseAlign {
       /**
        * The text baseline is the top of the em square.
-       * @property Top
-       * @static 
        */
       Top,
       /**
        * The text baseline is the hanging baseline.  Currently unsupported; this will act like alphabetic.
-       * @property Hanging
-       * @static 
        */
       Hanging,
       /**
        * The text baseline is the middle of the em square.
-       * @property Middle
-       * @static 
        */
       Middle,
       /**
        * The text baseline is the normal alphabetic baseline.
-       * @property Alphabetic
-       * @static 
        */
       Alphabetic,
       /**
@@ -72,16 +52,12 @@ module ex {
        * the body of the characters, if the main body of characters protrudes 
        * beneath the alphabetic baseline.  Currently unsupported; this will 
        * act like alphabetic.
-       * @property Ideographic
-       * @static 
        */
       Ideographic,
       /**
        * The text baseline is the bottom of the bounding box.  This differs
        * from the ideographic baseline in that the ideographic baseline 
        * doesn't consider descenders.
-       * @property Bottom
-       * @static 
        */
       Bottom
    }
@@ -89,42 +65,51 @@ module ex {
    /**
     * Labels are the way to draw small amounts of text to the screen in Excalibur. They are
     * actors and inherit all of the benifits and capabilities.
-    * @class Label
-    * @extends Actor
-    * @constructor
-    * @param [text=empty] {string} The text of the label
-    * @param [x=0] {number} The x position of the label
-    * @param [y=0] {number} The y position of the label
-    * @param [font=sans-serif] {string} Use any valid css font string for the label's font. Default is "10px sans-serif".
-    * @param [spriteFont=undefined] {SpriteFont} Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precendence over a css font.
     *
+    * It is recommended to use a [[SpriteFont]] for labels as the raw Canvas
+    * API for drawing text is slow (`fillText`).
     */
    export class Label extends Actor {
 
+      /**
+       * The text to draw.
+       */
       public text: string;
+
+      /**
+       * The [[SpriteFont]] to use, if any. Overrides [[font]] if present.
+       */
       public spriteFont: SpriteFont;
+
+      /**
+       * The CSS font string (e.g. `10px sans-serif`, `10px Droid Sans Pro`). Web fonts
+       * are supported, same as in CSS.
+       */
       public font: string;
+
       /**
        * Gets or sets the horizontal text alignment property for the label. 
-       * @property textAlign {TextAlign}
        */
       public textAlign: TextAlign;
+
       /**
        * Gets or sets the baseline alignment property for the label.
-       * @property textBaseline {BaseAlign}
        */
       public baseAlign: BaseAlign;
+
       /**
        * Gets or sets the maximum width (in pixels) that the label should occupy
-       * @property maxWidth {number}
        */
       public maxWidth: number;
+      
       /**
        * Gets or sets the letter spacing on a Label. Only supported with Sprite Fonts.
-       * @property [letterSpacing=0] {number}
        */
-      public letterSpacing: number = 0;//px
+      public letterSpacing: number = 0; //px
 
+      /**
+       * Whether or not the [[SpriteFont]] will be case-sensitive when matching characters.
+       */
       public caseInsensitive: boolean = true;
 
       private _textShadowOn: boolean = false;
@@ -137,6 +122,14 @@ module ex {
       private _shadowSprites: { [key: string]: Sprite; } = {};
 
       private _color: Color = Color.Black.clone();
+
+      /**
+       * @param text        The text of the label
+       * @param x           The x position of the label
+       * @param y           The y position of the label
+       * @param font        Use any valid CSS font string for the label's font. Web fonts are supported. Default is `10px sans-serif`.
+       * @param spriteFont  Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precendence over a css font.
+       */
       constructor(text?: string, x?: number, y?: number, font?: string, spriteFont?: SpriteFont) {
          super(x, y);
          this.text = text || "";
@@ -152,8 +145,7 @@ module ex {
 
       /**
        * Returns the width of the text in the label (in pixels);
-       * @method getTextWidth {number}
-       * @param ctx {CanvasRenderingContext2D} Rending context to measure the string with
+       * @param ctx  Rending context to measure the string with
        */
       public getTextWidth(ctx: CanvasRenderingContext2D): number {
          var oldFont = ctx.font;
@@ -215,10 +207,9 @@ module ex {
 
       /**
        * Sets the text shadow for sprite fonts
-       * @method setTextShadow
-       * @param offsetX {number} The x offset in pixels to place the shadow
-       * @param offsetY {number} The y offset in pixles to place the shadow
-       * @param shadowColor {Color} The color of the text shadow
+       * @param offsetX      The x offset in pixels to place the shadow
+       * @param offsetY      The y offset in pixles to place the shadow
+       * @param shadowColor  The color of the text shadow
        */
       public setTextShadow(offsetX: number, offsetY: number, shadowColor: Color) {
          this._textShadowOn = true;
@@ -233,7 +224,6 @@ module ex {
 
       /**
        * Clears the current text shadow
-       * @method clearTextShadow
        */
       public clearTextShadow() {
          this._textShadowOn = false;

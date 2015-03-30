@@ -4,6 +4,9 @@
 
 module ex {
 
+   /**
+    * @todo Document this
+    */
    export class Group extends Class implements IActionable {
 
       private _logger: Logger = Logger.getInstance();
