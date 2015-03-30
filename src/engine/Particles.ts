@@ -8,22 +8,21 @@ module ex {
 
    /**
     * An enum that represents the types of emitter nozzles
-    * @class EmitterType
     */ 
    export enum EmitterType {
       /**
        * Constant for the circular emitter type
-       * @property Circle {EmitterType}
        */
       Circle,
       /**
        * Constant for the rectangular emitter type
-       * @property Rectangle {EmitterType}
        */
       Rectangle
    }
 
-   
+   /**
+    * Particle is used in a [[ParticleEmitter]]
+    */
    export class Particle {
       public position: Vector = new Vector(0, 0);
       public velocity: Vector = new Vector(0, 0);
@@ -141,14 +140,27 @@ module ex {
 
    /**
     * Using a particle emitter is a great way to create interesting effects 
-    * in your game, like smoke, fire, water, explosions, etc. Particle Emitters
-    * extend Actor allowing you to use all of the features that come with Actor
-    * @class ParticleEmitter
-    * @constructor
-    * @param [x=0] {number} The x position of the emitter
-    * @param [y=0] {number} The y position of the emitter
-    * @param [width=0] {number} The width of the emitter
-    * @param [height=0] {number} The height of the emitter
+    * in your game, like smoke, fire, water, explosions, etc. `ParticleEmitter`
+    * extend [[Actor]] allowing you to use all of the features that come with.
+    *
+    * The easiest way to create a `ParticleEmitter` is to use the 
+    * [Particle Tester](http://erikonarheim.com/labs/particle-tester/).
+    *
+    * ## Example: Adding an emitter
+    *
+    * ```js
+    * var actor = new ex.Actor(...);
+    * var emitter = new ex.ParticleEmitter(...);
+    *
+    * // set emitter settings
+    * emitter.isEmitting = true;
+    *
+    * // add the emitter as a child actor, it will draw on top of the parent actor
+    * // and move with the parent
+    * actor.addChild(emitter);
+    *
+    * // or, alternatively, add it to the current scene
+    * engine.add(emitter);
     */
    export class ParticleEmitter extends Actor {
 
@@ -158,143 +170,125 @@ module ex {
 
       /**
        * Gets or sets the isEmitting flag
-       * @property isEmitting {boolean}
        */
       public isEmitting: boolean = true;
       /**
        * Gets or sets the backing particle collection
-       * @property particles {Util.Collection&lt;Particle&gt;}
        */
       public particles: Util.Collection<Particle> = null;
 
       /**
        * Gets or sets the backing deadParticle collection
-       * @property particles {Util.Collection&lt;Particle&gt;}
        */
       public deadParticles: Util.Collection<Particle> = null;
 
       /**
        * Gets or sets the minimum partical velocity
-       * @property [minVel=0] {number} 
        */
       public minVel: number = 0;
       /**
        * Gets or sets the maximum partical velocity
-       * @property [maxVel=0] {number} 
        */
       public maxVel: number = 0;
 
       /**
        * Gets or sets the acceleration vector for all particles
-       * @property [acceleration=new Vector(0,0)] {Vector} 
        */
       public acceleration: Vector = new Vector(0, 0);
 
       /**
        * Gets or sets the minimum angle in radians
-       * @property [minAngle=0] {number} 
        */
       public minAngle: number = 0;
       /**
        * Gets or sets the maximum angle in radians
-       * @property [maxAngle=0] {number} 
        */
       public maxAngle: number = 0;
 
       /**
        * Gets or sets the emission rate for particles (particles/sec)
-       * @property [emitRate=1] {number}
        */
       public emitRate: number = 1; //particles/sec
       /**
        * Gets or sets the life of each particle in milliseconds
-       * @property [particleLife=2000] {number}
        */
       public particleLife: number = 2000;
       /**
        * Gets or sets the opacity of each particle from 0 to 1.0
-       * @property [opacity=1.0] {number}
        */
       public opacity: number = 1;
       /**
        * Gets or sets the fade flag which causes particles to gradually fade out over the course of their life.
-       * @property [fade=false] {boolean}
        */
       public fadeFlag: boolean = false;
 
       /**
        * Gets or sets the optional focus where all particles should accelerate towards
-       * @property [focus=null] {Vector}
        */
       public focus: Vector = null;
       /**
        * Gets or sets the acceleration for focusing particles if a focus has been specified
-       * @property [focusAccel=1] {number}
        */
       public focusAccel: number = 1;
       /*
        * Gets or sets the optional starting size for the particles
-       * @property [startSize=null] {number}
        */
       public startSize: number = null;
       /*
        * Gets or sets the optional ending size for the particles
-       * @property [endSize=null] {number}
        */
       public endSize: number = null;
 
       /**
        * Gets or sets the minimum size of all particles
-       * @property [minSize=5] {number}
        */
       public minSize: number = 5;
       /**
        * Gets or sets the maximum size of all particles
-       * @property [maxSize=5] {number}
        */
       public maxSize: number = 5;
 
       /**
        * Gets or sets the beginning color of all particles
-       * @property [beginColor=Color.White] {Color}
        */
       public beginColor: Color = Color.White;
       /**
        * Gets or sets the ending color of all particles
-       * @property [endColor=Color.White] {Color}
        */
       public endColor: Color = Color.White;
 
       /**
        * Gets or sets the sprite that a particle should use
-       * @property [particleSprite=null] {Sprite}
+       * @warning Performance intensive
        */
       public particleSprite: ex.Sprite = null;
 
       /**
        * Gets or sets the emitter type for the particle emitter
-       * @property [emitterType=EmitterType.Rectangle] {EmitterType}
        */
       public emitterType: ex.EmitterType = EmitterType.Rectangle;
 
       /**
-       * Gets or sets the emitter radius, only takes effect when the emitterType is Circle
-       * @property [radius=0] {number}
+       * Gets or sets the emitter radius, only takes effect when the [[emitterType]] is [[EmitterType.Circle]]
        */
       public radius: number = 0;
 
       /**
        * Gets or sets the particle rotational speed velocity 
-       * @property [particleRotationalVelocity=0] {number}
        */
       public particleRotationalVelocity: number = 0;
 
-       /**
-        * Indicates whether particles should start with a random rotation
-        * @property [randomRotation=false] {boolean}
-        */
+      /**
+       * Indicates whether particles should start with a random rotation
+       */
       public randomRotation: boolean = false;
 
+      /**
+       * @param x       The x position of the emitter
+       * @param y       The y position of the emitter
+       * @param width   The width of the emitter
+       * @param height  The height of the emitter
+       */
       constructor(x?: number, y?: number, width?: number, height?: number) {    
          super(x, y, width, height, Color.White);
          this.collisionType = CollisionType.PreventCollision;
@@ -308,8 +302,7 @@ module ex {
 
       /**
        * Causes the emitter to emit particles
-       * @method emit
-       * @param particleCount {number} Number of particles to emit right now
+       * @param particleCount  Number of particles to emit right now
        */
       public emit(particleCount: number) {
          for (var i = 0; i < particleCount; i++) {
