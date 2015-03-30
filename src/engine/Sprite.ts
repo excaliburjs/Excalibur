@@ -1,14 +1,19 @@
 module ex {
+
    /**
-    * A Sprite is one of the main drawing primitives. It is responsible for drawing
-    * images or parts of images known as Textures to the screen.
-    * @class Sprite
-    * @constructor
-    * @param image {Texture} The backing image texture to build the Sprite
-    * @param sx {number} The x position of the sprite
-    * @param sy {number} The y position of the sprite
-    * @param swidth {number} The width of the sprite in pixels
-    * @param sheight {number} The height of the sprite in pixels
+    * Sprites
+    *
+    * A `Sprite` is one of the main drawing primitives. It is responsible for drawing
+    * images or parts of images known as [[Texture]]s to the screen.
+    *
+    * ## Sprite Effects
+    *
+    * Excalibur offers many sprite effects such as [[Effects.Colorize]] to let you manipulate
+    * sprites. Keep in mind, more effects requires more power and can lead to memory or CPU
+    * constraints and hurt performance.
+    * 
+    * It's still recommended to create an [[Animation]] or build in your effects to the sprites
+    * for optimal performance.
     */
    export class Sprite implements IDrawable {
       private _texture: Texture;
@@ -33,7 +38,13 @@ module ex {
       private pixelsLoaded: boolean = false;
       private dirtyEffect: boolean = false;
 
-      
+      /**
+       * @param image   The backing image texture to build the Sprite
+       * @param sx      The x position of the sprite
+       * @param sy      The y position of the sprite
+       * @param swidth  The width of the sprite in pixels
+       * @param sheight The height of the sprite in pixels
+       */
       constructor(image: Texture, public sx: number, public sy: number, public swidth: number, public sheight: number) {
          if(sx < 0 || sy < 0 || swidth < 0 || sheight < 0){
             this.logger.error("Sprite cannot have any negative dimensions x:",sx,"y:",sy,"width:",swidth,"height:",sheight);            
@@ -84,88 +95,71 @@ module ex {
       }
 
       /**
-       * Applies the opacity effect to a sprite, setting the alpha of all pixels to a given value
-       * @method opacity 
-       * @param value {number}
+       * Applies the [[Effects.Opacity]] to a sprite, setting the alpha of all pixels to a given value
        */
       public opacity(value: number) {
          this.addEffect(new Effects.Opacity(value));
       }
 
       /**
-       * Applies the grayscale effect to a sprite, removing color information.
-       * @method grayscale 
+       * Applies the [[Effects.Grayscale]] to a sprite, removing color information.
        */
       public grayscale() {
          this.addEffect(new Effects.Grayscale());
       }
 
       /**
-       * Applies the invert effect to a sprite, inverting the pixel colors.
-       * @method invert
+       * Applies the [[Effects.Invert]] to a sprite, inverting the pixel colors.
        */
       public invert() {
          this.addEffect(new Effects.Invert());
       }
 
       /**
-       * Applies the fill effect to a sprite, changing the color channels of all non-transparent pixels to match a given color
-       * @method fill
-       * @param color {Color}
+       * Applies the [[Effects.Fill]] to a sprite, changing the color channels of all non-transparent pixels to match a given color
        */
       public fill(color: Color) {
          this.addEffect(new Effects.Fill(color));
       }
 
       /**
-       * Applies the colorize effect to a sprite, changing the color channels of all pixesl to be the average of the original color and the provided color.
-       * @method fill
-       * @param color {Color}
+       * Applies the [[Effects.Colorize]] to a sprite, changing the color channels of all pixesl to be the average of the original color and the provided color.
        */
       public colorize(color: Color) {
          this.addEffect(new Effects.Colorize(color));
       }
 
       /**
-       * Applies the lighten effect to a sprite, changes the lightness of the color according to hsl
-       * @method lighten
-       * @param [factor=0.1] {number}
+       * Applies the [[Effects.Lighten]] to a sprite, changes the lightness of the color according to HSL
        */
       public lighten(factor: number = 0.1) {
          this.addEffect(new Effects.Lighten(factor));
       }
 
       /**
-       * Applies the darken effect to a sprite, changes the darkness of the color according to hsl
-       * @method darken
-       * @param [factor=0.1] {number}
+       * Applies the [[Effects.Darken]] to a sprite, changes the darkness of the color according to HSL
        */
       public darken(factor: number = 0.1) {
          this.addEffect(new Effects.Darken(factor));
       }
 
       /**
-       * Applies the saturate effect to a sprite, saturates the color acccording to hsl
-       * @method saturate
-       * @param [factor=0.1] {number}
+       * Applies the [[Effects.Saturate]] to a sprite, saturates the color acccording to HSL
        */
       public saturate(factor: number = 0.1) {
          this.addEffect(new Effects.Saturate(factor));
       }
 
       /**
-       * Applies the desaturate effect to a sprite, desaturates the color acccording to hsl
-       * @method desaturate
-       * @param [factor=0.1] {number}
+       * Applies the [[Effects.Desaturate]] to a sprite, desaturates the color acccording to HSL
        */
       public desaturate(factor: number = 0.1) {
          this.addEffect(new Effects.Desaturate(factor));
       }
 
       /**
-       * Adds a new {{#crossLink Effects.ISpriteEffect}}{{/crossLink}} to this drawing.
-       * @method addEffect
-       * @param effect {Effects.ISpriteEffect} Effect to add to the this drawing
+       * Adds a new [[Effects.ISpriteEffect]] to this drawing.
+       * @param effect  Effect to add to the this drawing
        */
       public addEffect(effect: Effects.ISpriteEffect){
          this.effects.push(effect);
@@ -179,16 +173,14 @@ module ex {
       }
 
       /**
-       * Removes a {{#crossLink Effects.ISpriteEffect}}{{/crossLink}} from this sprite.
-       * @method removeEffect
-       * @param effect {Effects.ISpriteEffect} Effect to remove from this sprite
+       * Removes a [[Effects.ISpriteEffect]] from this sprite.
+       * @param effect  Effect to remove from this sprite
        */
       public removeEffect(effect: Effects.ISpriteEffect): void;
       
       /**
        * Removes an effect given the index from this sprite.
-       * @method removeEffect
-       * @param index {number} Index of the effect to remove from this sprite
+       * @param index  Index of the effect to remove from this sprite
        */
       public removeEffect(index: number): void;
       public removeEffect(param: any) {
@@ -236,7 +228,6 @@ module ex {
 
       /**
        * Clears all effects from the drawing and return it to its original state.
-       * @method clearEffects
        */
       public clearEffects(){
          this.effects.length = 0;
@@ -245,7 +236,6 @@ module ex {
       
       /**
        * Resets the internal state of the drawing (if any)
-       * @method reset
        */
       public reset() {
          // do nothing
@@ -265,10 +255,9 @@ module ex {
 
       /**
        * Draws the sprite appropriately to the 2D rendering context, at an x and y coordinate.
-       * @method draw
-       * @param ctx {CanvasRenderingContext2D} The 2D rendering context
-       * @param x {number} The x coordinate of where to draw
-       * @param y {number} The y coordinate of where to draw
+       * @param ctx  The 2D rendering context
+       * @param x    The x coordinate of where to draw
+       * @param y    The y coordinate of where to draw
        */
       public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
          if(this.dirtyEffect){
@@ -307,8 +296,6 @@ module ex {
 
       /**
        * Produces a copy of the current sprite
-       * @method clone
-       * @returns Sprite
        */
       public clone(): Sprite {
          var result = new Sprite(this._texture, this.sx, this.sy, this.swidth, this.sheight);

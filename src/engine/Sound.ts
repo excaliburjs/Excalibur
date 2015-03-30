@@ -3,6 +3,7 @@
 /// <reference path="Log.ts" />
 
 module ex.Internal {
+   
    export interface ISound {
       setVolume(volume: number);
       setLoop(loop: boolean);
