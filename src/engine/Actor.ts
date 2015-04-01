@@ -342,12 +342,21 @@ module ex {
        * the key.
        * @param key The key of the drawing
        */
-      public setDrawing(key: string) {
+      public setDrawing(key: string);
 
-         if (this.currentDrawing != this.frames[key]) {
-            this.frames[key].reset();
-         }
-         this.currentDrawing = this.frames[key];
+      /**
+       * Sets the current drawing of the actor to the drawing corresponding to
+       * an `enum` key (e.g. `Animations.Left`)
+       * @param key The `enum` key of the drawing
+       */
+      public setDrawing(key: number);
+      public setDrawing(key: any) {
+        key = key.toString();
+
+        if (this.currentDrawing != this.frames[<string>key]) {
+           this.frames[key].reset();
+        }
+        this.currentDrawing = this.frames[key];
       }
 
       /**
