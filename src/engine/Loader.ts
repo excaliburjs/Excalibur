@@ -8,24 +8,31 @@ module ex {
    
 
    /**
-    * The Texture object allows games built in Excalibur to load image resources.
-    * It is generally recommended to preload images using the "Texture" object.
-    * @class Texture
-    * @extend Resource
-    * @constructor
-    * @param path {string} Path to the image resource
-    * @param [bustCache=true] {boolean} Optionally load texture with cache busting
+    * The `Texture` object allows games built in Excalibur to load image resources.
+    * It is generally recommended to preload images using the `Texture` object.
     */
    export class Texture extends Resource<HTMLImageElement> {
+
+      /**
+       * The width of the texture in pixels
+       */
       public width: number;
+
+      /**
+       * The height of the texture in pixels
+       */
       public height: number;
+
+      /**
+       * A [[Promise]] that resolves when the Texture is loaded.
+       */
       public loaded: Promise<any> = new Promise<any>();
+
       private _isLoaded: boolean = false;
       private _sprite: Sprite = null;
 
       /**
        * Populated once loading is complete
-       * @property image {HTMLImageElement}
        */
       public image: HTMLImageElement;
 
@@ -33,6 +40,10 @@ module ex {
       private doneCallback: () => void;
       private errorCallback: (e: string) => void;
 
+      /**
+       * @param path       Path to the image resource
+       * @param bustCache  Optionally load texture with cache busting
+       */
       constructor(public path: string, public bustCache = true) {
          super(path, 'blob', bustCache);
          this._sprite = new Sprite(this, 0, 0, 0, 0);
@@ -42,8 +53,6 @@ module ex {
       /**
        * Returns true if the Texture is completely loaded and is ready
        * to be drawn.
-       * @method isLoaded 
-       * @returns boolean
        */
       public isLoaded(): boolean {
          return this._isLoaded;
@@ -51,8 +60,6 @@ module ex {
 
       /**
        * Begins loading the texture and returns a promise to be resolved on completion
-       * @method load
-       * @returns Promise&lt;HTMLImageElement&gt;
        */
       public load(): Promise<HTMLImageElement> {
          var complete = new Promise<HTMLImageElement>();
@@ -83,13 +90,9 @@ module ex {
    }
 
    /**
-    * The Sound object allows games built in Excalibur to load audio 
+    * The `Sound` object allows games built in Excalibur to load audio 
     * components, from soundtracks to sound effects. It is generally 
-    * recommended to load sound resources when using Excalibur
-    * @class Sound
-    * @extend Resource
-    * @constructor
-    * @param ...paths {string[]} A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
+    * recommended to preload sound resources using `Sound` when using Excalibur.    
     */
    export class Sound implements ILoadable, ex.Internal.ISound {
       private logger: Logger = Logger.getInstance();
@@ -111,11 +114,12 @@ module ex {
 
       /**
        * Populated once loading is complete
-       * @property sound {Sound}
        */
       public sound: ex.Internal.FallbackAudio;
 
-
+      /**
+       * Whether or not the browser can play this file as HTML5 Audio
+       */
       public static canPlayFile(file: string): boolean {
          try {
             var a = new Audio();
@@ -133,6 +137,9 @@ module ex {
          }
       }
 
+      /**
+       * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
+       */
       constructor(...paths: string[]) {
          /* Chrome : MP3, WAV, Ogg
           * Firefox : WAV, Ogg, 
@@ -176,8 +183,7 @@ module ex {
 
       /**
        * Sets the volume of the sound clip
-       * @method setVolume
-       * @param volume {number} A volume value between 0-1.0
+       * @param volume  A volume value between 0-1.0
        */
       public setVolume(volume: number) {
          if (this.sound) this.sound.setVolume(volume);
@@ -185,21 +191,21 @@ module ex {
 
       /**
        * Indicates whether the clip should loop when complete
-       * @method setLoop 
-       * @param loop {boolean} Set the looping flag
+       * @param loop  Set the looping flag
        */
       public setLoop(loop: boolean) {
          if (this.sound) this.sound.setLoop(loop);
       }
 
+      /**
+       * Whether or not the sound is playing right now
+       */
       public isPlaying(): boolean {
          if (this.sound) return this.sound.isPlaying();
       }
 
       /**
        * Play the sound, returns a promise that resolves when the sound is done playing
-       * @method play
-       * @return ex.Promise
        */
       public play(): ex.Promise<any> {
          if (this.sound) return this.sound.play();
@@ -207,7 +213,6 @@ module ex {
 
       /**
        * Stop the sound, and do not rewind
-       * @method pause
        */
       public pause() {
          if (this.sound) this.sound.pause();
@@ -215,7 +220,6 @@ module ex {
 
       /**
        * Stop the sound and rewind
-       * @method stop
        */
       public stop() {
          if (this.sound) this.sound.stop();
@@ -223,7 +227,6 @@ module ex {
 
       /**
        * Returns true if the sound is loaded
-       * @method isLoaded
        */
       public isLoaded(){
          return this._isLoaded;
@@ -231,8 +234,6 @@ module ex {
 
       /**
        * Begins loading the sound and returns a promise to be resolved on completion
-       * @method load
-       * @returns Promise&lt;Sound&gt;
        */
       public load(): Promise<ex.Internal.FallbackAudio> {
          var complete = new Promise<ex.Internal.FallbackAudio>();
@@ -256,11 +257,32 @@ module ex {
    /**
     * The loader provides a mechanism to preload multiple resources at 
     * one time. The loader must be passed to the engine in order to 
-    * trigger the loading progress bar
-    * @class Loader
-    * @extend ILoadable
-    * @constructor
-    * @param [loadables=undefined] {ILoadable[]} Optionally provide the list of resources you want to load at constructor time
+    * trigger the loading progress bar.
+    *
+    * ## Example: Pre-loading resources for a game
+    *
+    * ```js
+    * // create a loader
+    * var loader = new ex.Loader();
+    *
+    * // create a resource dictionary (best practice is to keep a separate file)
+    * var resources = {
+    *   TextureGround: new ex.Texture("/images/textures/ground.png"),
+    *   SoundDeath: new ex.Sound("/sound/death.wav", "/sound/death.mp3")
+    * };
+    *
+    * // loop through dictionary and add to loader
+    * for (var loadable in resources) {
+    *   if (resources.hasOwnProperty(loadable)) {
+    *     loader.addResource(loadable);
+    *   }
+    * }
+    *
+    * // start game
+    * game.start(loader).then(function () {
+    *   console.log("Game started!");
+    * });
+    * ```
     */
    export class Loader implements ILoadable {
       private resourceList: ILoadable[] = [];
@@ -272,6 +294,9 @@ module ex {
       private totalCounts: { [key: string]: number; } = {};
       private _engine: Engine;
 
+      /**
+       * @param loadables  Optionally provide the list of resources you want to load at constructor time
+       */
       constructor(loadables?: ILoadable[]) {
          if (loadables) {
             this.addResources(loadables);
@@ -284,8 +309,7 @@ module ex {
 
       /**
        * Add a resource to the loader to load
-       * @method addResource
-       * @param loadable {ILoadable} Resource to add
+       * @param loadable  Resource to add
        */
       public addResource(loadable: ILoadable) {
          var key = this.index++;
@@ -297,8 +321,7 @@ module ex {
 
       /**
        * Add a list of resources to the loader to load
-       * @method addResources
-       * @param loadables {ILoadable[]} The list of resources to load
+       * @param loadables  The list of resources to load
        */
       public addResources(loadables: ILoadable[]) {
          loadables.forEach((l) => {
@@ -317,17 +340,15 @@ module ex {
 
       /**
        * Returns true if the loader has completely loaded all resources
-       * @method isLoaded
        */
-      public isLoaded(){
+      public isLoaded() {
          return this.numLoaded === this.resourceCount;
       }
 
 
       /**
-       * Begin loading all of the supplied resources, returning a promise that resolves when loading of all is complete
-       * @method load
-       * @returns Promsie&lt;any&gt;
+       * Begin loading all of the supplied resources, returning a promise 
+       * that resolves when loading of all is complete
        */
       public load(): Promise<any> {
          var complete = new Promise<any>();

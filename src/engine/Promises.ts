@@ -4,20 +4,10 @@
 module ex {
    /**
     * Valid states for a promise to be in
-    * @class PromiseState
     */
    export enum PromiseState {
-      /**
-      @property Resolved {PromiseState}
-      */
       Resolved,
-      /**
-      @property Rejected {PromiseState}
-      */
       Rejected,
-      /**
-      @property Pending {PromiseState}
-      */
       Pending,
    }
 
@@ -36,8 +26,10 @@ module ex {
 
    /**
     * Promises/A+ spec implementation of promises
-    * @class Promise
-    * @constructor
+    *
+    * Promises are used to do asynchronous work and they are useful for
+    * creating a chain of actions. In Excalibur they are used for loading,
+    * sounds, animation, actions, and more.
     */
    export class Promise<T> implements IPromise<T> {
       private _state: PromiseState = PromiseState.Pending;
@@ -49,9 +41,7 @@ module ex {
 
       /**
        * Wrap a value in a resolved promise
-       * @method wrap<T>
-       * @param [value=undefined] {T} An optional value to wrap in a resolved promise
-       * @returns Promise&lt;T&gt;
+       * @param value  An optional value to wrap in a resolved promise
        */
       public static wrap<T>(value?: T): Promise<T> {
          var promise = (new Promise<T>()).resolve(value);
@@ -62,8 +52,6 @@ module ex {
       /**
        * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
        * when at least 1 promise rejects.
-       * @param promises {Promise[]}
-       * @returns Promise
        */
       public static join<T>(...promises: Promise<T>[]){
          var joinedPromise = new Promise<T>();
@@ -108,10 +96,8 @@ module ex {
 
       /**
        * Chain success and reject callbacks after the promise is resovled
-       * @method then
-       * @param successCallback {T=>any} Call on resolution of promise
-       * @param rejectCallback {any=>any} Call on rejection of promise
-       * @returns Promise&lt;T&gt;
+       * @param successCallback  Call on resolution of promise
+       * @param rejectCallback   Call on rejection of promise
        */
       public then(successCallback?: (value?: T) => any, rejectCallback?: (value?: any) => any) {
          if (successCallback) {
@@ -144,9 +130,7 @@ module ex {
 
       /**
        * Add an error callback to the promise 
-       * @method error
-       * @param errorCallback {any=>any} Call if there was an error in a callback
-       * @returns Promise&lt;T&gt;
+       * @param errorCallback  Call if there was an error in a callback
        */
       public error(errorCallback?: (value?: any) => any) {
          if (errorCallback) {
@@ -157,8 +141,7 @@ module ex {
 
       /**
        * Resolve the promise and pass an option value to the success callbacks
-       * @method resolve
-       * @param [value=undefined] {T} Value to pass to the success callbacks
+       * @param value  Value to pass to the success callbacks
        */
       public resolve(value?: T) : Promise<T>{
          if (this._state === PromiseState.Pending) {
@@ -180,8 +163,7 @@ module ex {
 
       /**
        * Reject the promise and pass an option value to the reject callbacks
-       * @method reject
-       * @param [value=undefined] {T} Value to pass to the reject callbacks
+       * @param value  Value to pass to the reject callbacks
        */
       public reject(value?: any) {
          if (this._state === PromiseState.Pending) {
@@ -200,8 +182,6 @@ module ex {
 
       /**
        * Inpect the current state of a promise
-       * @method state
-       * @returns PromiseState
        */
       public state(): PromiseState {
          return this._state;

@@ -10,23 +10,18 @@ module ex {
 
    /**
     * Interface all collidable objects must implement
-    * @class ICollidable
     */
    export interface ICollidable {
       /** 
        * Test wether this collidable with another returning,
        * the intersection vector that can be used to resovle the collision. If there
        * is no collision null is returned.
-       * @method collides
-       * @param collidable {ICollidable} Other collidable to test
-       * @returns Vector
+       * @param collidable  Other collidable to test
        */
       collides(collidable: ICollidable): Vector;
       /**
        * Tests wether a point is contained within the collidable
-       * @method contains
-       * @param p {Point} The point to test
-       * @returns boolean
+       * @param point  The point to test
        */
       contains(point: Point): boolean;
 
@@ -36,19 +31,18 @@ module ex {
 
    /**
     * Axis Aligned collision primitive for Excalibur. 
-    * @class BoundingBox
-    * @constructor
-    * @param left {number} x coordinate of the left edge
-    * @param top {number} y coordinate of the top edge
-    * @param right {number} x coordinate of the right edge
-    * @param bottom {number} y coordinate of the bottom edge
     */
    export class BoundingBox implements ICollidable {
+
+      /**
+       * @param left    x coordinate of the left edge
+       * @param top     y coordinate of the top edge
+       * @param right   x coordinate of the right edge
+       * @param bottom  y coordinate of the bottom edge
+       */
       constructor(public left: number = 0, public top: number = 0, public right: number = 0, public bottom: number = 0) { }
       /**
        * Returns the calculated width of the bounding box
-       * @method getWidth
-       * @returns number
        */
       public getWidth() {
          return this.right - this.left;
@@ -56,8 +50,6 @@ module ex {
 
       /**
        * Returns the calculated height of the bounding box
-       * @method getHeight
-       * @returns number
        */
       public getHeight() {
          return this.bottom - this.top;
@@ -65,8 +57,6 @@ module ex {
 
       /**
        * Returns the perimeter of the bounding box
-       * @method getPerimeter
-       * @returns number
        */
       public getPerimeter(): number {
          var wx = this.getWidth();
@@ -76,17 +66,13 @@ module ex {
 
       /**
        * Tests wether a point is contained within the bounding box
-       * @method contains
-       * @param p {Point} The point to test
-       * @returns boolean
+       * @param p  The point to test
        */
       public contains(p: Point): boolean;
 
       /**
        * Tests whether another bounding box is totally contained in this one
-       * @method contains
-       * @param other {BoundingBox} The bounding box to test
-       * @returns boolean
+       * @param bb  The bounding box to test
        */
       public contains(bb: BoundingBox):boolean;
       public contains(val: any): boolean {
@@ -106,9 +92,7 @@ module ex {
 
       /**
        * Combines this bounding box and another together returning a new bounding box
-       * @method combine
-       * @param other {BoundingBox} The bounding box to combine
-       * @returns BoundingBox
+       * @param other  The bounding box to combine
        */
       public combine(other: BoundingBox): BoundingBox {
          var compositeBB = new BoundingBox(Math.min(this.left, other.left),
@@ -122,9 +106,7 @@ module ex {
        * Test wether this bounding box collides with another returning,
        * the intersection vector that can be used to resovle the collision. If there
        * is no collision null is returned.
-       * @method collides
-       * @param collidable {ICollidable} Other collidable to test
-       * @returns Vector
+       * @param collidable  Other collidable to test
        */
       public collides(collidable: ICollidable): Vector {
          if (collidable instanceof BoundingBox) {
@@ -207,8 +189,6 @@ module ex {
 
       /**
        * Returns the calculated width of the bounding box, by generating an axis aligned box around the current
-       * @method getWidth
-       * @returns number
        */
       public getWidth() {
          var left = this._points.reduce<number>((accum: number, p: Point, i, arr) => {
@@ -224,8 +204,6 @@ module ex {
 
       /**
        * Returns the calculated height of the bounding box, by generating an axis aligned box around the current
-       * @method getHeight
-       * @returns number
        */
       public getHeight() {
          var top = this._points.reduce<number>((accum: number, p: Point, i, arr) => {
@@ -241,11 +219,10 @@ module ex {
       }
 
       /**
-       * Tests wether a point is contained within the bounding box, using the PIP algorithm
-       * http://en.wikipedia.org/wiki/Point_in_polygon
-       * @method contains
-       * @param p {Point} The point to test
-       * @returns boolean
+       * Tests wether a point is contained within the bounding box, 
+       * using the [PIP algorithm](http://en.wikipedia.org/wiki/Point_in_polygon)
+       * 
+       * @param p  The point to test
        */
       public contains(p: Point): boolean {
          // Always cast to the right, as long as we cast in a consitent fixed direction we

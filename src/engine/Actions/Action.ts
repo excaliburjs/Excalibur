@@ -3,6 +3,7 @@
 /// <reference path="../Actor.ts" />
 
 module ex.Internal.Actions {
+   
    export interface IAction {
       update(delta: number): void
       isComplete(actor: Actor): boolean

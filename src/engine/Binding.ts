@@ -3,16 +3,13 @@
 /// <reference path="Log.ts" />
 
 module ex {
+  
    /**
     * Excalibur's built in templating class, it is a loadable that will load
     * and html fragment from a url. Excalibur templating is very basic only
-    * allowing bindings of the type data-text="this.obj.someprop", 
-    * data-style="color:this.obj.color.toString()". Bindings allow all valid
-    * javascript expressions.
-    * @class Template
-    * @extends ILoadable
-    * @constructor
-    * @param path {string} Location of the html template
+    * allowing bindings of the type `data-text="this.obj.someprop"`, 
+    * `data-style="color:this.obj.color.toString()"`. Bindings allow all valid
+    * Javascript expressions.
     */
    export class Template implements ILoadable {
       private _htmlString:string;
@@ -23,6 +20,9 @@ module ex {
       private _engine: Engine;
       public logger: Logger = Logger.getInstance();
 
+      /**
+       * @param path  Location of the html template
+       */
       constructor(public path: string){
          this._innerElement = document.createElement('div');
          this._innerElement.className = "excalibur-template";
@@ -34,8 +34,6 @@ module ex {
 
       /**
        * Returns the full html template string once loaded.
-       * @method getTemplateString
-       * @returns string
        */
       public getTemplateString(){
          if(!this._isLoaded) return "";
@@ -57,9 +55,7 @@ module ex {
        * Applies any ctx object you wish and evaluates the template.
        * Overload this method to include your favorite template library.
        * You may return either an HTML string or a Dom node.
-       * @method apply
-       * @param ctx {any} Any object you wish to apply to the template
-       * @returns any 
+       * @param ctx Any object you wish to apply to the template
        */
       public apply(ctx: any): any {
          for(var j = 0; j < this._styleElements.length; j++){
@@ -101,8 +97,6 @@ module ex {
 
       /**
        * Begins loading the template. Returns a promise that resolves with the template string when loaded.
-       * @method load
-       * @returns {Promise} 
        */
       public load(): ex.Promise<string>{
          var complete = new ex.Promise<string>();
@@ -137,8 +131,6 @@ module ex {
 
       /**
        * Indicates whether the template has been loaded
-       * @method isLoaded
-       * @returns {boolean}
        */
       public isLoaded(): boolean {
          return this._isLoaded;
@@ -158,11 +150,6 @@ module ex {
     * Excalibur's binding library that allows you to bind an html
     * template to the dom given a certain context. Excalibur bindings are only updated
     * when the update() method is called
-    * @class Binding
-    * @constructor
-    * @param parentElementId {string} The id of the element in the dom to attach the template binding
-    * @param template {Template} The template you wish to bind
-    * @param ctx {any} The context of the binding, which can be any object
     */
    export class Binding {
       public parent: HTMLElement;
@@ -170,6 +157,11 @@ module ex {
       private _renderedTemplate: string;
       private _ctx: any;
 
+      /**
+       * @param parentElementId  The id of the element in the dom to attach the template binding
+       * @param template         The template you wish to bind
+       * @param ctx              The context of the binding, which can be any object
+       */
       constructor(parentElementId: string, template: Template, ctx: any){
          this.parent = document.getElementById(parentElementId);
          this.template = template;
@@ -179,10 +171,9 @@ module ex {
 
       /**
        * Listen to any arbitrary object's events to update this binding
-       * @method listen 
-       * @param obj {any} Any object that supports addEventListener
-       * @param events {string[]} A list of events to listen for
-       * @param [hander=defaultHandler] {callback} A optional handler to fire on any event
+       * @param obj     Any object that supports addEventListener
+       * @param events  A list of events to listen for
+       * @param handler A optional handler to fire on any event
        */
       public listen(obj: {addEventListener: any}, events: string[], handler?:(evt?:GameEvent)=>void){
          // todo
@@ -200,8 +191,8 @@ module ex {
       }
 
       /**
-       * Update this template binding with the latest values from the ctx reference passed to the constructor
-       * @method update
+       * Update this template binding with the latest values from 
+       * the ctx reference passed to the constructor
        */
       public update(){
          var html = this._applyTemplate(this.template, this._ctx);

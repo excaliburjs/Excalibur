@@ -6,7 +6,6 @@ module ex {
       
       /**
        * Capture PointerMove events (may be expensive!)
-       * @property
        */
       captureMoveEvents: boolean;
 

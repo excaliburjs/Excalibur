@@ -1,14 +1,8 @@
 module ex {
+
    /**
     * Animations allow you to display a series of images one after another,
     * creating the illusion of change. Generally these images will come from a sprite sheet source.
-    * @class Animation
-    * @extends IDrawable
-    * @constructor
-    * @param engine {Engine} Reference to the current game engine
-    * @param images {Sprite[]} An array of sprites to create the frames for the animation
-    * @param speed {number} The number in milliseconds to display each frame in the animation
-    * @param [loop=false] {boolean} Indicates whether the animation should loop after it is completed
     */
    export class Animation implements IDrawable {
       public sprites: Sprite[];
@@ -23,7 +17,6 @@ module ex {
 
       /**
        * Indicates whether the animation should loop after it is completed
-       * @property [loop=false] {boolean} 
        */
       public loop: boolean = false;
       public freezeFrame: number = -1;
@@ -35,6 +28,12 @@ module ex {
       public width: number = 0;
       public height: number = 0;
 
+      /**
+       * @param engine  Reference to the current game engine
+       * @param images  An array of sprites to create the frames for the animation
+       * @param speed   The number in milliseconds to display each frame in the animation
+       * @param loop    Indicates whether the animation should loop after it is completed
+       */
       constructor(engine: Engine, images: Sprite[], speed: number, loop?: boolean) {
          this.sprites = images;
          this.speed = speed;
@@ -48,8 +47,6 @@ module ex {
 
       /**
        * Applies the opacity effect to a sprite, setting the alpha of all pixels to a given value
-       * @method opacity 
-       * @param value {number}
        */
       public opacity(value: number) {
          this.addEffect(new Effects.Opacity(value));
@@ -57,7 +54,6 @@ module ex {
 
       /**
        * Applies the grayscale effect to a sprite, removing color information.
-       * @method grayscale 
        */
       public grayscale() {
          this.addEffect(new Effects.Grayscale());
@@ -65,7 +61,6 @@ module ex {
 
       /**
        * Applies the invert effect to a sprite, inverting the pixel colors.
-       * @method invert
        */
       public invert() {
          this.addEffect(new Effects.Invert());
@@ -73,8 +68,6 @@ module ex {
 
       /**
        * Applies the fill effect to a sprite, changing the color channels of all non-transparent pixels to match a given color
-       * @method fill
-       * @param color {Color}
        */
       public fill(color: Color) {
          this.addEffect(new Effects.Fill(color));
@@ -82,8 +75,6 @@ module ex {
 
       /**
        * Applies the colorize effect to a sprite, changing the color channels of all pixesl to be the average of the original color and the provided color.
-       * @method fill
-       * @param color {Color}
        */
       public colorize(color: Color) {
          this.addEffect(new Effects.Colorize(color));
@@ -91,8 +82,6 @@ module ex {
 
       /**
        * Applies the lighten effect to a sprite, changes the lightness of the color according to hsl
-       * @method lighten
-       * @param [factor=0.1] {number}
        */
       public lighten(factor: number = 0.1) {
          this.addEffect(new Effects.Lighten(factor));
@@ -100,8 +89,6 @@ module ex {
 
       /**
        * Applies the darken effect to a sprite, changes the darkness of the color according to hsl
-       * @method darken
-       * @param [factor=0.1] {number}
        */
       public darken(factor: number = 0.1) {
          this.addEffect(new Effects.Darken(factor));
@@ -109,8 +96,6 @@ module ex {
 
       /**
        * Applies the saturate effect to a sprite, saturates the color acccording to hsl
-       * @method saturate
-       * @param [factor=0.1] {number}
        */
       public saturate(factor: number = 0.1) {
          this.addEffect(new Effects.Saturate(factor));
@@ -118,13 +103,14 @@ module ex {
 
       /**
        * Applies the desaturate effect to a sprite, desaturates the color acccording to hsl
-       * @method desaturate
-       * @param [factor=0.1] {number}
        */
       public desaturate(factor: number = 0.1) {
          this.addEffect(new Effects.Desaturate(factor));
       }
 
+      /**
+       * Add a [[ISpriteEffect]] manually
+       */
       public addEffect(effect: Effects.ISpriteEffect){
          for(var i in this.sprites){
             this.sprites[i].addEffect(effect);
@@ -132,16 +118,14 @@ module ex {
       }
 
       /**
-       * Removes a {{#crossLink Effects.ISpriteEffect}}{{/crossLink}} from this animation.
-       * @method removeEffect
-       * @param effect {Effects.ISpriteEffect} Effect to remove from this animation
+       * Removes an [[ISpriteEffect]] from this animation.
+       * @param effect Effect to remove from this animation
        */
       public removeEffect(effect: Effects.ISpriteEffect): void;
       
       /**
        * Removes an effect given the index from this animation.
-       * @method removeEffect
-       * @param index {number} Index of the effect to remove from this animation
+       * @param index  Index of the effect to remove from this animation
        */
       public removeEffect(index: number): void;
       public removeEffect(param: any) {
@@ -150,6 +134,9 @@ module ex {
          }
       }
 
+      /**
+       * Clear all sprite effects
+       */
       public clearEffects(){
          for(var i in this.sprites){
             this.sprites[i].clearEffects();
@@ -182,7 +169,6 @@ module ex {
       
       /**
        * Resets the animation to first frame.
-       * @method reset
        */
       public reset() {
          this.currentFrame = 0;
@@ -190,17 +176,15 @@ module ex {
 
       /**
        * Indicates whether the animation is complete, animations that loop are never complete.
-       * @method isDone
-       * @returns boolean
        */
       public isDone() {
          return (!this.loop && this.currentFrame >= this.sprites.length);
       }
 
       /**
-       * Not meant to be called by game developers. Ticks the animation forward internally an
-       * calculates whether to change to teh frame.
-       * @method tick
+       * Not meant to be called by game developers. Ticks the animation forward internally and
+       * calculates whether to change to the frame.
+       * @internal
        */
       public tick() {
          var time = Date.now();
@@ -218,8 +202,7 @@ module ex {
 
       /**
        * Skips ahead a specified number of frames in the animation
-       * @method skip
-       * @param frames {number} Frames to skip ahead
+       * @param frames  Frames to skip ahead
        */
       public skip(frames: number) {
          this.currentFrame = (this.currentFrame + frames) % this.sprites.length;
@@ -247,9 +230,8 @@ module ex {
 
       /**
        * Plays an animation at an arbitrary location in the game.
-       * @method play
-       * @param x {number} The x position in the game to play
-       * @param y {number} The y position in the game to play
+       * @param x  The x position in the game to play
+       * @param y  The y position in the game to play
        */
       public play(x: number, y: number) {
          this.reset();

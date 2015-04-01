@@ -1,26 +1,30 @@
 /// <reference path="Interfaces/ILoadable.ts" />
 
 module ex {
+
    /**
+    * Generic Resources
+    *
     * The Resource type allows games built in Excalibur to load generic resources.
-    * For any type of remote resource it is recome
-    * @class Resource
-    * @extend ILoadable
-    * @constructor
-    * @param path {string} Path to the remote resource
+    * For any type of remote resource it is recommended to use `Resource` for preloading.
+    *
+    * Example usages: maps, levels, config, compressed files, blobs.
     */
    export class Resource<T> implements ILoadable {
       public data: T = null;
       public logger: Logger = Logger.getInstance();
       private _engine: Engine;
 
+      /**
+       * @param path          Path to the remote resource
+       * @param responseType  The Content-Type to expect (e.g. `application/json`)
+       * @param bustCache     Whether or not to cache-bust requests
+       */
       constructor(public path: string, public responseType: string, public bustCache: boolean = true) {}
 
       /**
        * Returns true if the Resource is completely loaded and is ready
        * to be drawn.
-       * @method isLoaded 
-       * @returns boolean
        */
       public isLoaded(): boolean {
          return !!this.data;
@@ -46,8 +50,6 @@ module ex {
 
       /**
        * Begin loading the resource and returns a promise to be resolved on completion
-       * @method load
-       * @returns Promise&lt;any&gt;
        */
       public load(): Promise<T> {
          var complete = new Promise<T>();
@@ -80,8 +82,6 @@ module ex {
 
       /**
        * Returns the loaded data once the resource is loaded
-       * @method GetData
-       * @returns any
        */
       public getData(): any {
          return this.data;
@@ -90,7 +90,6 @@ module ex {
       /**
        * This method is meant to be overriden to handle any additional
        * processing. Such as decoding downloaded audio bits.
-       * @method ProcessDownload
        */
       public processDownload(data: T): any{
          // Handle any additional loading after the xhr has completed.

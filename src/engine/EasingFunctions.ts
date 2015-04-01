@@ -1,5 +1,8 @@
 ﻿module ex {
    
+   /**
+    * Standard easing functions for motion in Excalibur
+    */
    export class EasingFunctions {
 
       /*

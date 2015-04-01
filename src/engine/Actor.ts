@@ -14,36 +14,26 @@
 /// <reference path="Actions/ActionContext.ts"/>
 /// <reference path="EasingFunctions.ts"/>
 
-
-
-
 module ex {
  
    /**
     * An enum that describes the types of collisions actors can participate in
-    * @class CollisionType
     */
     export enum CollisionType {
       /**
        * Actors with the PreventCollision setting do not participate in any
        * collisions and do not raise collision events.
-       * @property PreventCollision {CollisionType}
-       * @static
        */
       PreventCollision,
       /**
        * Actors with the Passive setting only raise collision events, but are not
        * influenced or moved by other actors and do not influence or move other actors.
-       * @property Passive {CollisionType}
-       * @static
        */
       Passive,
       /**
        * Actors with the Active setting raise collision events and participate
        * in collisions with other actors and will be push or moved by actors sharing
        * the Active or Fixed setting.
-       * @property Active {CollisionType}
-       * @static
        */
       Active,
 
@@ -51,8 +41,6 @@ module ex {
        * Actors with the Elastic setting will behave the same as Active, except that they will
        * "bounce" in the opposite direction given their velocity dx/dy. This is a naive implementation meant for
        * prototyping, for a more robust elastic collision listen to the "collision" event and perform your custom logic.
-       * @property Elastic {CollisionType}
-       * @static
        */
       Elastic,
       /**
@@ -62,8 +50,6 @@ module ex {
        * actors as "immovable/onstoppable" objects. If two Fixed actors meet they will
        * not be pushed or moved by each other, they will not interact except to throw
        * collision events.
-       * @property Fixed {CollisionType}
-       * @static
        */
       Fixed
     }
@@ -72,16 +58,8 @@ module ex {
    /**
     * The most important primitive in Excalibur is an "Actor." Anything that
     * can move on the screen, collide with another Actor, respond to events, 
-    * or interact with the current scene, must be an actor. An Actor <b>must</b>
-    * be part of a {{#crossLink "Scene"}}{{/crossLink}} for it to be drawn to the screen.
-    * @class Actor
-    * @extends Class
-    * @constructor
-    * @param [x=0.0] {number} The starting x coordinate of the actor
-    * @param [y=0.0] {number} The starting y coordinate of the actor
-    * @param [width=0.0] {number} The starting width of the actor
-    * @param [height=0.0] {number} The starting height of the actor
-    * @param [color=undefined] {Color} The starting color of the actor
+    * or interact with the current scene, must be an actor. An Actor **must**
+    * be part of a [[Scene]] for it to be drawn to the screen.
     */     
     export class Actor extends ex.Class implements IActionable {
       /**
@@ -97,12 +75,10 @@ module ex {
 
       /** 
        * The x coordinate of the actor (left edge)
-       * @property x {number} 
        */ 
       public x: number = 0;
       /** 
        * The y coordinate of the actor (top edge)
-       * @property y {number} 
        */
       public y: number = 0;
 
@@ -110,7 +86,6 @@ module ex {
        * The anchor to apply all actor related transformations like rotation,
        * translation, and rotation. By default the anchor is in the center of
        * the actor.
-       * @property anchor {Point}
        */
       public anchor: Point;
       
@@ -119,75 +94,62 @@ module ex {
 
       /** 
        * The rotation of the actor in radians
-       * @property rotation {number} 
        */
       public rotation: number = 0; // radians
       /** 
        * The rotational velocity of the actor in radians/second
-       * @property rx {number} 
        */
       public rx: number = 0; //radions/sec
 
       /**
        * The scale vector of the actor
-       * @property scale
        */
       public scale: ex.Vector = new ex.Vector(1,1);
 
       /** 
        * The x scalar velocity of the actor in scale/second
-       * @property sx {number} 
        */
       public sx: number = 0; //scale/sec
       /** 
        * The y scalar velocity of the actor in scale/second
-       * @property sy {number} 
        */
       public sy: number = 0; //scale/sec
       /** 
        * The x velocity of the actor in pixels/second
-       * @property dx {number} 
        */
       public dx: number = 0; // pixels/sec
       /** 
        * The x velocity of the actor in pixels/second
-       * @property dx {number} 
        */
       public dy: number = 0;
 
       /**
        * The x acceleration of the actor in pixels/second^2
-       * @property ax {number}
        */
       public ax: number = 0; // pixels/sec/sec
       /**
        * The y acceleration of the actor in pixels/second^2
-       * @property ay {number}
        */
       public ay: number = 0;
 
       /**
        * Indicates wether the actor is physically in the viewport
-       * @property isOffScreen {boolean}
        */
       public isOffScreen = false;
 
       /** 
        * The visibility of an actor
-       * @property visible {boolean} 
        */
       public visible: boolean = true;
 
       /**
        * The opacity of an actor
-       * @property opacity {number}
        */
       public opacity: number = 1;
       public previousOpacity: number = 1;
 
       /** 
        * Direct access to the actor's action queue. Useful if you are building custom actions.
-       * @property actionQueue {ActionQueue} 
        */
       public actionQueue: ex.Internal.Actions.ActionQueue;
 
@@ -197,33 +159,28 @@ module ex {
 
       /**
        * Convenience reference to the global logger
-       * @property logger {Logger}
        */
       public logger: Logger = Logger.getInstance();
 
       /**
        * The scene that the actor is in
-       * @property scene {Scene}
        */
       public scene: Scene = null;
 
       /**
        * The parent of this actor
-       * @property parent {Actor}
        */
       public parent: Actor = null;
 
       // TODO: Replace this with the new actor collection once z-indexing is built
       /**
        * The children of this actor
-       * @property children {Actor[]}
        */
       public children: Actor[] = [];
 
       /**
        * Gets or sets the current collision type of this actor. By 
        * default all actors participate in Active collisions.
-       * @property collisionType {CollisionType}
        */
       public collisionType : CollisionType = CollisionType.PreventCollision;
       public collisionGroups : string[] = [];
@@ -235,10 +192,9 @@ module ex {
       public frames: { [key: string]: IDrawable; } = {}
       
       /**
-       * Access to the current drawing on for the actor, this can be an {{#crossLink "Animation"}}{{/crossLink}}, 
-       * {{#crossLink "Sprite"}}{{/crossLink}}, or {{#crossLink "Polygon"}}{{/crossLink}}. 
-       * Set drawings with the {{#crossLink "Actor/setDrawing:method"}}{{/crossLink}}.
-       * @property currentDrawing {IDrawable}
+       * Access to the current drawing on for the actor, this can be 
+       * an [[Animation]], [[Sprite]], or [[Polygon]]. 
+       * Set drawings with [[Actor.setDrawing]].
        */
       public currentDrawing: IDrawable = null;
 
@@ -247,33 +203,35 @@ module ex {
 
       /**
        * Modify the current actor update pipeline. 
-       *
-       *
        */
       public pipeline: IPipelineModule[] = [];
       
       /**
-       * Sets the color of the actor. A rectangle of this color will be drawn if now IDrawable is specified as the actors drawing.
-       * @property color {Color}
+       * Sets the color of the actor. A rectangle of this color will be drawn if no [[IDrawable]] is specified as the actors drawing.
        */
       public color: Color;
 
       /**
-       * Whether or not to enable the CapturePointer trait that propogates pointer events to this actor
-       * @property [enableCapturePointer=false] {boolean}
+       * Whether or not to enable the [[CapturePointerModule]] trait that propogates pointer events to this actor
        */
       public enableCapturePointer: boolean = false;
 
       /**
-       * Configuration for CapturePointer trait
-       * @property capturePointer {ICapturePointerConfig}
+       * Configuration for [[CapturePointerModule]] trait
        */
       public capturePointer: ex.ICapturePointerConfig = {
          captureMoveEvents: false
       };
 
       private _isKilled: boolean = false;
-       
+      
+      /**
+       * @param x       The starting x coordinate of the actor
+       * @param y       The starting y coordinate of the actor
+       * @param width   The starting width of the actor
+       * @param height  The starting height of the actor
+       * @param color   The starting color of the actor
+       */
       constructor(x?: number, y?: number, width?: number, height?: number, color?: Color) {
          super();
          this.x = x || 0;
@@ -300,8 +258,6 @@ module ex {
       /**
        * This is called before the first update of the actor. This method is meant to be
        * overridden. This is where initialization of child actors should take place.
-       * @method onInitialize
-       * @param engine {Engine}
        */
       public onInitialize(engine: Engine): void {
 
@@ -318,10 +274,9 @@ module ex {
 
       /**
       * Add an event listener. You can listen for a variety of
-      * events off of the engine; see the events section below for a complete list.
-      * @method addEventListener
-      * @param eventName {string} Name of the event to listen for
-      * @param handler {event=>void} Event handler for the thrown event
+      * events off of the engine; see [[GameEvent]]
+      * @param eventName  Name of the event to listen for
+      * @param handler    Event handler for the thrown event
       */
       public addEventListener(eventName: string, handler: (event?: GameEvent) => void) {
          this._checkForPointerOptIn(eventName);
@@ -329,11 +284,10 @@ module ex {
       }
      
       /**
-       * Alias for "addEventListener". You can listen for a variety of
-       * events off of the engine; see the events section below for a complete list.
-       * @method on
-       * @param eventName {string} Name of the event to listen for
-       * @param handler {event=>void} Event handler for the thrown event
+       * Alias for `addEventListener`. You can listen for a variety of
+       * events off of the engine; see [[GameEvent]]
+       * @param eventName   Name of the event to listen for
+       * @param handler     Event handler for the thrown event
        */
       public on(eventName: string, handler: (event?: GameEvent) => void) {
          this._checkForPointerOptIn(eventName);
@@ -341,9 +295,8 @@ module ex {
       }
      
       /**
-       * If the current actors is a member of the scene. This will remove
+       * If the current actor is a member of the scene, this will remove
        * it from the scene graph. It will no longer be drawn or updated.
-       * @method kill
        */
       public kill() {
          if (this.scene) {
@@ -356,19 +309,16 @@ module ex {
 
       /**
        * Indicates wether the actor has been killed.
-       * @method isKilled
-       * @returns boolean
        */
-      public isKilled() { 
+      public isKilled(): boolean { 
          return this._isKilled;
       }
 
       /**
        * Adds a child actor to this actor. All movement of the child actor will be
        * relative to the parent actor. Meaning if the parent moves the child will
-       * move with
-       * @method addChild
-       * @param actor {Actor} The child actor to add
+       * move with it.
+       * @param actor The child actor to add
        */
       public addChild(actor: Actor) {
          actor.collisionType = CollisionType.PreventCollision;
@@ -379,8 +329,7 @@ module ex {
 
       /**
        * Removes a child actor from this actor. 
-       * @method removeChild
-       * @param actor {Actor} The child actor to remove
+       * @param actor The child actor to remove
        */
       public removeChild(actor: Actor) {
          if (ex.Util.removeItemToArray(actor, this.children)) {
@@ -389,39 +338,41 @@ module ex {
       }
 
       /**
-       * Sets the current drawing of the actor to the drawing correspoding to
+       * Sets the current drawing of the actor to the drawing corresponding to
        * the key.
-       * @method setDrawing 
-       * @param key {string} The key of the drawing
+       * @param key The key of the drawing
        */
-      public setDrawing(key) {
+      public setDrawing(key: string);
 
-         if (this.currentDrawing != this.frames[<string>key]) {
-            this.frames[<string>key].reset();
-         }
-         this.currentDrawing = this.frames[<string>key];
+      /**
+       * Sets the current drawing of the actor to the drawing corresponding to
+       * an `enum` key (e.g. `Animations.Left`)
+       * @param key The `enum` key of the drawing
+       */
+      public setDrawing(key: number);
+      public setDrawing(key: any) {
+        key = key.toString();
+
+        if (this.currentDrawing != this.frames[<string>key]) {
+           this.frames[key].reset();
+        }
+        this.currentDrawing = this.frames[key];
       }
 
       /**
        * Adds a whole texture as the "default" drawing. 
-       * @method addDrawing
-       * @param texture {Texture} 
        */
       public addDrawing(texture: Texture);
 
       /**
        * Adds a whole sprite as the "default" drawing. 
-       * @method addDrawing
-       * @param sprite {Texture} 
        */
       public addDrawing(sprite: Sprite);
 
       /**
        * Adds a drawing to the list of available drawings for an actor.
-       * @method addDrawing
-       * @param key {string} The key to associate with a drawing for this actor
-       * @param drawing {IDrawable} this can be an {{#crossLink "Animation"}}{{/crossLink}}, 
-       * {{#crossLink "Sprite"}}{{/crossLink}}, or {{#crossLink "Polygon"}}{{/crossLink}}. 
+       * @param key     The key to associate with a drawing for this actor
+       * @param drawing This can be an [[Animation]], [[Sprite]], or [[Polygon]]. 
        */
       public addDrawing(key: any, drawing: IDrawable);
       public addDrawing(args: any) {
@@ -442,32 +393,29 @@ module ex {
 
       /**
        * Artificially trigger an event on an actor, useful when creating custom events.
-       * @method triggerEvent
-       * @param eventName {string} The name of the event to trigger
-       * @param [event=undefined] {GameEvent} The event object to pass to the callback
+       * @param eventName   The name of the event to trigger
+       * @param event       The event object to pass to the callback
        */
       public triggerEvent(eventName: string, event?: GameEvent) {
          this.eventDispatcher.publish(eventName, event);
       }
 
       /** 
-       * Adds an actor to a collision group. Actors with no named collision group are
+       * Adds an actor to a collision group. Actors with no named collision groups are
        * considered to be in every collision group.
        *
        * Once in a collision group(s) actors will only collide with other actors in 
        * that group.
        *
-       * @method addCollisionGroup
-       * @param name {string} The name of the collision group
+       * @param name The name of the collision group
        */
       public addCollisionGroup(name: string){
          this.collisionGroups.push(name);
       }
 
       /**
-       * Remove an actor from a collision group.
-       * @method removeCollisionGroup
-       * @param name {string} The name of the collision group
+       * Removes an actor from a collision group.
+       * @param name The name of the collision group
        */
       public removeCollisionGroup(name: string){
          var index = this.collisionGroups.indexOf(name);
@@ -477,9 +425,7 @@ module ex {
       }
  
       /**
-       * Get the center point of an actor
-       * @method getCenter
-       * @returns Vector
+       * Get the center point of an actor, factoring in `anchor`
        */
       public getCenter(): Vector {
          var anchor = this._getCalculatedAnchor();
@@ -487,9 +433,7 @@ module ex {
       }
 
       /**
-       * Gets the calculated width of an actor
-       * @method getWidth
-       * @returns number
+       * Gets the calculated width of an actor, factoring in scale
        */
       public getWidth() {
          return this.width * this.scale.x;
@@ -497,16 +441,13 @@ module ex {
 
       /**
        * Sets the width of an actor, factoring in the current scale
-       * @method setWidth
        */
       public setWidth(width) {
          this.width = width / this.scale.x;
       }
 
       /**
-       * Gets the calculated height of an actor
-       * @method getHeight
-       * @returns number
+       * Gets the calculated height of an actor, factoring in scale
        */
       public getHeight() {
          return this.height * this.scale.y;
@@ -514,7 +455,6 @@ module ex {
 
       /**
        * Sets the height of an actor, factoring in the current scale
-       * @method setHeight
        */
       public setHeight(height) {
          this.height = height / this.scale.y;
@@ -522,8 +462,7 @@ module ex {
 
       /**
        * Centers the actor's drawing around the center of the actor's bounding box
-       * @method setCenterDrawing
-       * @param center {boolean} Indicates to center the drawing around the actor
+       * @param center Indicates to center the drawing around the actor
        */       
       public setCenterDrawing(center: boolean) {
          this.centerDrawingY = center;
@@ -532,8 +471,6 @@ module ex {
 
       /**
        * Gets the left edge of the actor
-       * @method getLeft
-       * @returns number
        */
       public getLeft() {
          return this.x;
@@ -541,8 +478,6 @@ module ex {
 
       /**
        * Gets the right edge of the actor
-       * @method getRight
-       * @returns number
        */
       public getRight() {
          return this.x + this.getWidth();
@@ -550,8 +485,6 @@ module ex {
 
       /**
        * Gets the top edge of the actor
-       * @method getTop
-       * @returns number
        */
       public getTop() {
          return this.y;
@@ -559,8 +492,6 @@ module ex {
 
       /**
        * Gets the bottom edge of the actor
-       * @method getBottom
-       * @returns number
        */
       public getBottom() {
          return this.y + this.getHeight();
@@ -568,8 +499,6 @@ module ex {
 
       /**
       * Gets the x value of the Actor in global coordinates
-      * @method getWorldX
-      * @returns number
       */
       public getWorldX() {
          if (!this.parent) {
@@ -580,8 +509,6 @@ module ex {
 
       /**
       * Gets the y value of the Actor in global coordinates
-      * @method getWorldY
-      * @returns number
       */
       public getWorldY() {
         if (!this.parent) {
@@ -592,8 +519,6 @@ module ex {
 
       /**
        * Gets the global scale of the Actor
-       * @method getGlobalScale
-       * @returns Point
        */
        public getGlobalScale() {
          if(!this.parent) return new Point(this.scale.x, this.scale.y);
@@ -602,9 +527,7 @@ module ex {
        }
 
       /**
-       * Returns the actor's bounding box calculated for this instant.
-       * @method getBounds
-       * @returns BoundingBox
+       * Returns the actor's [[BoundingBox]] calculated for this instant.
        */
       public getBounds() {
          var anchor = this._getCalculatedAnchor();
@@ -617,9 +540,8 @@ module ex {
 
       /**
        * Tests whether the x/y specified are contained in the actor
-       * @method contains
-       * @param x {number} X coordinate to test (in world coordinates)
-       * @param y {number} Y coordinate to test (in world coordinates)
+       * @param x  X coordinate to test (in world coordinates)
+       * @param y  Y coordinate to test (in world coordinates)
        */
       public contains(x: number, y: number): boolean {
          return this.getBounds().contains(new Point(x, y));
@@ -627,9 +549,7 @@ module ex {
 
       /**
        * Returns the side of the collision based on the intersection 
-       * @method getSideFromIntersect
-       * @param intersect {Vector} The displacement vector returned by a collision
-       * @returns Side
+       * @param intersect The displacement vector returned by a collision
       */
       public getSideFromIntersect(intersect: Vector){
          if(intersect){
@@ -650,9 +570,7 @@ module ex {
 
       /**
        * Test whether the actor has collided with another actor, returns the side of the current actor that collided.
-       * @method collides
-       * @param actor {Actor} The other actor to test
-       * @returns Side
+       * @param actor The other actor to test
        */
      public collidesWithSide(actor: Actor): Side {
          var separationVector = this.collides(actor);
@@ -680,10 +598,8 @@ module ex {
 
       /**
        * Test whether the actor has collided with another actor, returns the intersection vector on collision. Returns
-       * null when there is no collision;
-       * @method collides
-       * @param actor {Actor} The other actor to test
-       * @returns Vector
+       * `null` when there is no collision;
+       * @param actor The other actor to test
        */
       public collides(actor: Actor): Vector {   
          var bounds = this.getBounds();
@@ -695,9 +611,8 @@ module ex {
 
       /**
        * Register a handler to fire when this actor collides with another in a specified group
-       * @method onCollidesWith
-       * @param group {string} The group name to listen for
-       * @param func {callback} The callback to fire on collision with another actor from the group. The callback is passed the other actor.
+       * @param group The group name to listen for
+       * @param func The callback to fire on collision with another actor from the group. The callback is passed the other actor.
        */
       public onCollidesWith(group: string, func: (actor: Actor)=>void){
          if(!this._collisionHandlers[group]){
@@ -712,8 +627,7 @@ module ex {
 
       /**
        * Removes all collision handlers for this group on this actor
-       * @method removeCollidesWith
-       * @param group {string} Group to remove all handlers for on this actor.
+       * @param group Group to remove all handlers for on this actor.
        */
       public removeCollidesWith(group: string){
          this._collisionHandlers[group] = [];         
@@ -722,10 +636,8 @@ module ex {
 
       /**
        * Returns true if the two actors are less than or equal to the distance specified from each other
-       * @method within
-       * @param actor {Actor} Actor to test
-       * @param distance {number} Distance in pixels to test
-       * @returns boolean
+       * @param actor     Actor to test
+       * @param distance  Distance in pixels to test
        */
       public within(actor: Actor, distance: number): boolean {
          return Math.sqrt(Math.pow(this.x - actor.x, 2) + Math.pow(this.y - actor.y, 2)) <= distance;
@@ -733,26 +645,32 @@ module ex {
 
       /**
        * Clears all queued actions from the Actor
-       * @method clearActions
        */
       public clearActions(): void {
          this.actionQueue.clearActions();
       }
 
+      /**
+       * This method will move an actor to the specified `x` and `y` position over the 
+       * specified duration using a given [[EasingFunctions]] and return back the actor. This 
+       * method is part of the actor 'Action' fluent API allowing action chaining.
+       * @param x         The x location to move the actor to
+       * @param y         The y location to move the actor to
+       * @param duration  The time it should take the actor to move to the new location in milliseconds
+       * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
+       */
       public easeTo(x: number, y: number, duration: number, easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number = ex.EasingFunctions.Linear) {
          this.actionQueue.add(new ex.Internal.Actions.EaseTo(this, x, y, duration, easingFcn));
          return this;
       }
 
       /**
-       * This method will move an actor to the specified x and y position at the 
-       * speed specified (in pixels per second) and return back the actor. This 
+       * This method will move an actor to the specified `x` and `y` position at the 
+       * `speed` specified (in pixels per second) and return back the actor. This 
        * method is part of the actor 'Action' fluent API allowing action chaining.
-       * @method moveTo
-       * @param x {number} The x location to move the actor to
-       * @param y {number} The y location to move the actor to
-       * @param speed {number} The speed in pixels per second to move
-       * @returns Actor
+       * @param x       The x location to move the actor to
+       * @param y       The y location to move the actor to
+       * @param speed   The speed in pixels per second to move
        */
       public moveTo(x: number, y: number, speed: number): Actor {
          this.actionQueue.add(new ex.Internal.Actions.MoveTo(this, x, y, speed));
@@ -760,28 +678,24 @@ module ex {
       }
 
       /**
-       * This method will move an actor to the specified x and y position by a 
-       * certain time (in milliseconds). This method is part of the actor 
+       * This method will move an actor to the specified `x` and `y` position by a 
+       * certain `duration` (in milliseconds). This method is part of the actor 
        * 'Action' fluent API allowing action chaining.
-       * @method moveBy
-       * @param x {number} The x location to move the actor to
-       * @param y {number} The y location to move the actor to
-       * @param time {number} The time it should take the actor to move to the new location in milliseconds
-       * @returns Actor
+       * @param x         The x location to move the actor to
+       * @param y         The y location to move the actor to
+       * @param duration  The time it should take the actor to move to the new location in milliseconds
        */
-      public moveBy(x: number, y: number, time: number): Actor {
-         this.actionQueue.add(new ex.Internal.Actions.MoveBy(this, x, y, time));
+      public moveBy(x: number, y: number, duration: number): Actor {
+         this.actionQueue.add(new ex.Internal.Actions.MoveBy(this, x, y, duration));
          return this;
       }
 
       /**
-       * This method will rotate an actor to the specified angle at the speed
+       * This method will rotate an actor to the specified angle (in radians) at the `speed`
        * specified (in radians per second) and return back the actor. This 
        * method is part of the actor 'Action' fluent API allowing action chaining.
-       * @method rotateTo
-       * @param angleRadians {number} The angle to rotate to in radians
-       * @param speed {number} The angular velocity of the rotation specified in radians per second
-       * @returns Actor
+       * @param angleRadians  The angle to rotate to in radians
+       * @param speed         The angular velocity of the rotation specified in radians per second
        */
       public rotateTo(angleRadians: number, speed: number): Actor {
          this.actionQueue.add(new ex.Internal.Actions.RotateTo(this, angleRadians, speed));
@@ -790,15 +704,13 @@ module ex {
 
       /**
        * This method will rotate an actor to the specified angle by a certain
-       * time (in milliseconds) and return back the actor. This method is part
+       * `duration` (in milliseconds) and return back the actor. This method is part
        * of the actor 'Action' fluent API allowing action chaining.
-       * @method rotateBy
-       * @param angleRadians {number} The angle to rotate to in radians
-       * @param time {number} The time it should take the actor to complete the rotation in milliseconds
-       * @returns Actor
+       * @param angleRadians  The angle to rotate to in radians
+       * @param duration          The time it should take the actor to complete the rotation in milliseconds
        */
-      public rotateBy(angleRadians: number, time: number): Actor {
-         this.actionQueue.add(new ex.Internal.Actions.RotateBy(this, angleRadians, time));
+      public rotateBy(angleRadians: number, duration: number): Actor {
+         this.actionQueue.add(new ex.Internal.Actions.RotateBy(this, angleRadians, duration));
          return this;
       }
 
@@ -807,10 +719,10 @@ module ex {
        * specified (in magnitude increase per second) and return back the 
        * actor. This method is part of the actor 'Action' fluent API allowing 
        * action chaining.
-       * @method scaleTo
-       * @param size {number} The scaling factor to apply
-       * @param speed {number} The speed of scaling specified in magnitude increase per second
-       * @returns Actor
+       * @param sizeX  The scaling factor in the x direction to apply
+       * @param sizeY  The scaling factor in the y direction to apply
+       * @param speedX The speed of scaling in the x direction specified in magnitude increase per second
+       * @param speedY The speed of scaling in the y direction specified in magnitude increase per second
        */
       public scaleTo(sizeX: number, sizeY: number, speedX: number, speedY: number): Actor {
          this.actionQueue.add(new ex.Internal.Actions.ScaleTo(this, sizeX, sizeY, speedX, speedY));
@@ -818,16 +730,15 @@ module ex {
       }
 
       /**
-       * This method will scale an actor to the specified size by a certain time
+       * This method will scale an actor to the specified size by a certain duration
        * (in milliseconds) and return back the actor. This method is part of the
        * actor 'Action' fluent API allowing action chaining.
-       * @method scaleBy
-       * @param size {number} The scaling factor to apply
-       * @param time {number} The time it should take to complete the scaling in milliseconds
-       * @returns Actor
+       * @param sizeX     The scaling factor in the x direction to apply
+       * @param sizeY     The scaling factor in the y direction to apply
+       * @param duration  The time it should take to complete the scaling in milliseconds
        */
-      public scaleBy(sizeX: number, sizeY: number, time: number): Actor {
-         this.actionQueue.add(new ex.Internal.Actions.ScaleBy(this, sizeX, sizeY, time));
+      public scaleBy(sizeX: number, sizeY: number, duration: number): Actor {
+         this.actionQueue.add(new ex.Internal.Actions.ScaleBy(this, sizeX, sizeY, duration));
          return this;
       }
 
@@ -836,11 +747,9 @@ module ex {
        * visible). Optionally, you may specify the number of blinks. Specify the amount of time 
        * the actor should be visible per blink, and the amount of time not visible.
        * This method is part of the actor 'Action' fluent API allowing action chaining.
-       * @method blink
-       * @param timeVisible {number} The amount of time to stay visible per blink in milliseconds
-       * @param timeNotVisible {number} The amount of time to stay not visible per blink in milliseconds
-       * @param [numBlinks] {number} The number of times to blink
-       * @returns Actor
+       * @param timeVisible     The amount of time to stay visible per blink in milliseconds
+       * @param timeNotVisible  The amount of time to stay not visible per blink in milliseconds
+       * @param numBlinks       The number of times to blink
        */
       public blink(timeVisible: number, timeNotVisible: number, numBlinks: number = 1): Actor {
          this.actionQueue.add(new ex.Internal.Actions.Blink(this, timeVisible, timeNotVisible, numBlinks));
@@ -849,28 +758,24 @@ module ex {
 
       /**
        * This method will cause an actor's opacity to change from its current value
-       * to the provided value by a specified time (in milliseconds). This method is
+       * to the provided value by a specified `duration` (in milliseconds). This method is
        * part of the actor 'Action' fluent API allowing action chaining.
-       * @method fade
-       * @param opacity {number} The ending opacity
-       * @param time {number} The time it should take to fade the actor (in milliseconds)
-       * @returns Actor
+       * @param opacity   The ending opacity
+       * @param duration  The time it should take to fade the actor (in milliseconds)
        */
-      public fade(opacity: number, time: number): Actor {
-         this.actionQueue.add(new ex.Internal.Actions.Fade(this, opacity, time));
+      public fade(opacity: number, duration: number): Actor {
+         this.actionQueue.add(new ex.Internal.Actions.Fade(this, opacity, duration));
          return this;
       }
 
       /**
-       * This method will delay the next action from executing for a certain 
-       * amount of time (in milliseconds). This method is part of the actor 
+       * This method will delay the next action from executing for the specified
+       * `duration` (in milliseconds). This method is part of the actor 
        * 'Action' fluent API allowing action chaining.
-       * @method delay
-       * @param time {number} The amount of time to delay the next action in the queue from executing in milliseconds
-       * @returns Actor
+       * @param duration The amount of time to delay the next action in the queue from executing in milliseconds
        */
-      public delay(time: number): Actor {
-         this.actionQueue.add(new ex.Internal.Actions.Delay(this, time));
+      public delay(duration: number): Actor {
+         this.actionQueue.add(new ex.Internal.Actions.Delay(this, duration));
          return this;
       }
 
@@ -878,8 +783,6 @@ module ex {
        * This method will add an action to the queue that will remove the actor from the 
        * scene once it has completed its previous actions. Any actions on the
        * action queue after this action will not be executed.
-       * @method die
-       * @returns Actor
        */
       public die(): Actor {
          this.actionQueue.add(new ex.Internal.Actions.Die(this));
@@ -889,9 +792,7 @@ module ex {
       /**
        * This method allows you to call an arbitrary method as the next action in the
        * action queue. This is useful if you want to execute code in after a specific
-       * action, i.e An actor arrives at a destinatino after traversing a path
-       * @method callMethod
-       * @returns Actor
+       * action, i.e An actor arrives at a destination after traversing a path
        */
       public callMethod(method: ()=>any): Actor {
          this.actionQueue.add(new ex.Internal.Actions.CallMethod(this, method));
@@ -903,9 +804,7 @@ module ex {
        * called actions a certain number of times. If the number of repeats 
        * is not specified it will repeat forever. This method is part of 
        * the actor 'Action' fluent API allowing action chaining
-       * @method repeat
-       * @param [times=undefined] {number} The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will repeat forever
-       * @returns Actor
+       * @param times The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will repeat forever
        */
       public repeat(times?: number): Actor {
          if (!times) {
@@ -921,8 +820,6 @@ module ex {
        * This method will cause the actor to repeat all of the previously 
        * called actions forever. This method is part of the actor 'Action'
        * fluent API allowing action chaining.
-       * @method repeatForever
-       * @returns Actor
        */
       public repeatForever(): Actor {
          this.actionQueue.add(new ex.Internal.Actions.RepeatForever(this, this.actionQueue.getActions()));
@@ -931,27 +828,23 @@ module ex {
 
       /**
        * This method will cause the actor to follow another at a specified distance
-       * @method follow
-       * @param actor {Actor} The actor to follow
-       * @param [followDistance=currentDistance] {number} The distance to maintain when following, if not specified the actor will follow at the current distance.
-       * @returns Actor
+       * @param actor           The actor to follow
+       * @param followDistance  The distance to maintain when following, if not specified the actor will follow at the current distance.
        */
       public follow(actor : Actor, followDistance? : number) : Actor {
-      if (followDistance == undefined){
-            this.actionQueue.add(new ex.Internal.Actions.Follow(this, actor));
-         } else {
-            this.actionQueue.add(new ex.Internal.Actions.Follow(this, actor, followDistance));
-         }
-      return this;
+        if (followDistance == undefined){
+              this.actionQueue.add(new ex.Internal.Actions.Follow(this, actor));
+           } else {
+              this.actionQueue.add(new ex.Internal.Actions.Follow(this, actor, followDistance));
+           }
+        return this;
       }
 
       /**
-       * This method will cause the actor to move towards another until they 
-       * collide "meet" at a specified speed.
-       * @method meet
-       * @param actor {Actor} The actor to meet
-       * @param [speed=0] {number} The speed in pixels per second to move, if not specified it will match the speed of the other actor
-       * @returns Actor
+       * This method will cause the actor to move towards another Actor until they 
+       * collide ("meet") at a specified speed.
+       * @param actor  The actor to meet
+       * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
        */
       public meet(actor: Actor, speed? : number) : Actor {
          if(speed == undefined){
@@ -966,8 +859,6 @@ module ex {
       /**
        * Returns a promise that resolves when the current action queue up to now
        * is finished.
-       * @method asPromise
-       * @returns Promise
        */
       public asPromise<T>() : Promise<T> {
          var complete = new Promise<T>();
@@ -983,9 +874,8 @@ module ex {
 
       /**
        * Called by the Engine, updates the state of the actor
-       * @method update 
-       * @param engine {Engine} The reference to the current game engine
-       * @param delta {number} The time elapsed since the last update in milliseconds
+       * @param engine The reference to the current game engine
+       * @param delta  The time elapsed since the last update in milliseconds
        */
       public update(engine: Engine, delta: number) {
          if(!this._isInitialized){
@@ -1010,9 +900,8 @@ module ex {
 
       /**
        * Called by the Engine, draws the actor to the screen
-       * @method draw
-       * @param ctx {CanvasRenderingContext2D} The rendering context
-       * @param delta {number} The time since the last draw in milliseconds
+       * @param ctx   The rendering context
+       * @param delta The time since the last draw in milliseconds
        */
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
          if (this.isOffScreen){return;}
@@ -1066,8 +955,7 @@ module ex {
 
       /**
        * Called by the Engine, draws the actors debugging to the screen
-       * @method debugDraw
-       * @param ctx {CanvasRenderingContext2D} The rendering context
+       * @param ctx The rendering context
        */
       public debugDraw(ctx: CanvasRenderingContext2D) {
         

@@ -2,21 +2,19 @@ module ex {
    /**
     * Collision pairs are used internally by Excalibur to resolve collision between actors. The
     * Pair prevents collisions from being evaluated more than one time
-    * @class CollisionPair
-    * @constructor
-    * @param left {Actor} The first actor in the collision pair
-    * @param right {Actor} The second actor in the collision pair
-    * @param intersect {Vector} The minimum translation vector to separate the actors from the perspective of the left actor
-    * @param side {Side} The side on which the collision occured from the perspective of the left actor
     */
    export class CollisionPair {
-      constructor(public left: Actor, public right: Actor, public intersect: Vector, public side: Side){}
+
+      /**
+       * @param left       The first actor in the collision pair
+       * @param right      The second actor in the collision pair
+       * @param intersect  The minimum translation vector to separate the actors from the perspective of the left actor
+       * @param side       The side on which the collision occured from the perspective of the left actor
+       */
+      constructor(public left: Actor, public right: Actor, public intersect: Vector, public side: Side) {}
 
       /**
        * Determines if this collision pair and another are equivalent.
-       * @method equals
-       * @param collisionPair {CollisionPair}
-       * @returns boolean
        */
       public equals(collisionPair: CollisionPair): boolean{
          return (collisionPair.left === this.left && collisionPair.right === this.right) || (collisionPair.right === this.left && collisionPair.left === this.right);
@@ -24,7 +22,6 @@ module ex {
 
       /**
        * Evaluates the collision pair, performing collision resolution and event publishing appropriate to each collision type.
-       * @method evaluate
        */
       public evaluate(){
          // todo fire collision events on left and right actor

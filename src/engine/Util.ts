@@ -1,6 +1,11 @@
 /// <reference path="Algebra.ts"/>
 /// <reference path="Events.ts"/>
 
+/**
+ * Utilities
+ *
+ * Excalibur utilities for math, string manipulation, etc.
+ */
 module ex.Util {
    
    export var TwoPI: number = Math.PI * 2;
@@ -138,25 +143,20 @@ module ex.Util {
 
    /**
     * Excaliburs dynamically resizing collection
-    * @class Collection
-    * @constructor
-    * @param [initialSize=200] {number} Initial size of the internal backing array
     */
    export class Collection<T> {
       /**
        * Default collection size
-       * @property DefaultSize {number}
-       * @static
-       * @final
        */
       public static DefaultSize = 200;
       private internalArray: T[] = null;
       private endPointer: number = 0;
 
-
-      constructor(initialSize?: number) {
-         var size = initialSize || Collection.DefaultSize;
-         this.internalArray = new Array<T>(size);
+      /**
+       * @param initialSize  Initial size of the internal backing array
+       */
+      constructor(initialSize: number = Collection.DefaultSize) {
+         this.internalArray = new Array<T>(initialSize);
       } 
 
       private resize() {
@@ -173,9 +173,6 @@ module ex.Util {
 
       /**
        * Push elements to the end of the collection
-       * @method push
-       * @param element {T}
-       * @returns T
        */
       public push(element: T): T {
          if (this.endPointer === this.internalArray.length) {
@@ -186,8 +183,6 @@ module ex.Util {
 
       /**
        * Removes elements from the end of the collection
-       * @method pop
-       * @returns T
        */
       public pop(): T {
          this.endPointer = this.endPointer - 1 < 0 ? 0 : this.endPointer - 1;
@@ -196,8 +191,6 @@ module ex.Util {
 
       /**
        * Returns the count of the collection
-       * @method count
-       * @returns number
        */
       public count(): number {
          return this.endPointer;
@@ -205,7 +198,6 @@ module ex.Util {
 
       /**
        * Empties the collection
-       * @method clear
        */
       public clear() {
          this.endPointer = 0;
@@ -213,8 +205,6 @@ module ex.Util {
 
       /**
        * Returns the size of the internal backing array
-       * @method internalSize
-       * @returns number
        */
       public internalSize(): number {
          return this.internalArray.length;   
@@ -222,9 +212,7 @@ module ex.Util {
 
       /**
        * Returns an element at a specific index
-       * @method elementAt
-       * @param index {number} Index of element to retreive
-       * @returns T
+       * @param index  Index of element to retreive
        */
       public elementAt(index: number): T {
          if (index >= this.count()) {
@@ -235,9 +223,7 @@ module ex.Util {
 
       /**
        * Inserts an element at a specific index
-       * @method insert
-       * @param index {number} Index to insert the element
-       * @returns T
+       * @param index  Index to insert the element
        */
       public insert(index: number, value: T): T {
          if (index >= this.count()) {
@@ -248,9 +234,7 @@ module ex.Util {
 
       /**
        * Removes an element at a specific index
-       * @method remove
-       * @param index {number} Index of element to remove
-       * @returns T
+       * @param index  Index of element to remove
        */
       public remove(index: number): T {
          var count = this.count();
@@ -266,8 +250,7 @@ module ex.Util {
 
       /**
        * Removes an element by reference
-       * @method removeElement
-       * @param element {T} Index of element to retreive
+       * @param element  Element to retreive
        */
       public removeElement(element: T) {
          var index = this.internalArray.indexOf(element);
@@ -276,8 +259,6 @@ module ex.Util {
 
       /**
        * Returns a array representing the collection
-       * @method toArray
-       * @returns T[]
        */
       public toArray(): T[] {
          return this.internalArray.slice(0, this.endPointer);
@@ -285,8 +266,7 @@ module ex.Util {
 
       /**
        * Iterate over every element in the collection
-       * @method forEach
-       * @param func {(T,number)=>any} Callback to call for each element passing a reference to the element and its index, returned values are ignored
+       * @param func  Callback to call for each element passing a reference to the element and its index, returned values are ignored
        */
       public forEach(func: (element: T, index: number) => any) {
          var count = this.count();
@@ -297,8 +277,7 @@ module ex.Util {
 
       /**
        * Mutate every element in the collection
-       * @method map
-       * @param func {(T,number)=>any} Callback to call for each element passing a reference to the element and its index, any values returned mutate the collection
+       * @param func  Callback to call for each element passing a reference to the element and its index, any values returned mutate the collection
        */
       public map(func: (element: T, index: number) => any) {
          var count = this.count();

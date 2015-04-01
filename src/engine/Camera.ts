@@ -5,14 +5,12 @@ module ex {
 
    /**
    * A base implementation of a camera. This class is meant to be extended.
-   * @class Camera
-   * @constructor
-   * @param engine {Engine} Reference to the current engine
+   * @abstract
    */
    export class BaseCamera {
-      follow: Actor;
-      focus: Point = new Point(0, 0);
-      lerp: boolean = false;
+      protected follow: Actor;
+      protected focus: Point = new Point(0, 0);
+      protected lerp: boolean = false;
       private _cameraMoving: boolean = false;
       private _currentLerpTime: number = 0;
       private _lerpDuration: number = 1* 1000; // 5 seconds
@@ -21,13 +19,13 @@ module ex {
       private _lerpEnd: Point = null;
 
       //camera effects
-      isShaking: boolean = false;
+      protected isShaking: boolean = false;
       private shakeMagnitudeX: number = 0;
       private shakeMagnitudeY: number = 0;
       private shakeDuration: number = 0;
       private elapsedShakeTime: number = 0;
 
-      isZooming: boolean = false;
+      protected isZooming: boolean = false;
       private currentZoomScale: number = 1;
       private maxZoomScale: number = 1;
       private zoomDuration: number = 0;
@@ -46,9 +44,8 @@ module ex {
       }
 
       /**
-      * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
-      * @method setActorToFollow
-      * @param actor {Actor} The actor to follow
+      * Sets the [[Actor]] to follow with the camera
+      * @param actor  The actor to follow
       */
       public setActorToFollow(actor: Actor) {
          this.follow = actor;
@@ -56,8 +53,6 @@ module ex {
 
       /**
       * Returns the focal point of the camera
-      * @method getFocus
-      * @returns Point
       */
       public getFocus() {
          return this.focus;
@@ -65,9 +60,8 @@ module ex {
 
       /**
       * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
-      * @method setFocus
-      * @param x {number} The x coordinate of the focal point
-      * @param y {number} The y coordinate of the focal point
+      * @param x The x coordinate of the focal point
+      * @param y The y coordinate of the focal point
       */
       public setFocus(x: number, y: number) {
          if (!this.follow && !this.lerp) {
@@ -86,10 +80,9 @@ module ex {
 
       /**
       * Sets the camera to shake at the specified magnitudes for the specified duration
-      * @method shake
-      * @param magnitudeX {number} the x magnitude of the shake
-      * @param magnitudeY {number} the y magnitude of the shake
-      * @param duration {number} the duration of the shake
+      * @param magnitudeX  The x magnitude of the shake
+      * @param magnitudeY  The y magnitude of the shake
+      * @param duration    The duration of the shake in milliseconds
       */
       public shake(magnitudeX: number, magnitudeY: number, duration: number) {
          this.isShaking = true;
@@ -101,9 +94,8 @@ module ex {
       /**
       * Zooms the camera in or out by the specified scale over the specified duration. 
       * If no duration is specified, it will zoom by a set amount until the scale is reached.
-      * @method zoom
-      * @param scale {number} the scale of the zoom
-      * @param [duration] {number} the duration of the zoom
+      * @param scale    The scale of the zoom
+      * @param duration The duration of the zoom in milliseconds
       */
       public zoom(scale: number, duration?: number) {
          this.isZooming = true;
@@ -131,9 +123,7 @@ module ex {
       }
 
       /**
-      * gets the current zoom scale
-      * @method getZoom
-      * @returns {Number} the current zoom scale
+      * Gets the current zoom scale
       */
       public getZoom() {
          return this.currentZoomScale;
@@ -145,8 +135,7 @@ module ex {
 
       /**
       * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
-      * @method update
-      * @param delta {number} The number of milliseconds since the last update
+      * @param delta  The number of milliseconds since the last update
       */
       public update(ctx: CanvasRenderingContext2D, delta: number) {
          var focus = this.getFocus();
@@ -240,10 +229,6 @@ module ex {
 
    /**
    * An extension of BaseCamera that is locked vertically; it will only move side to side.
-   * @class SideCamera
-   * @extends BaseCamera
-   * @constructor
-   * @param engine {Engine} Reference to the current engine
    */
    export class SideCamera extends BaseCamera {
             
@@ -258,10 +243,6 @@ module ex {
 
    /**
    * An extension of BaseCamera that is locked to an actor or focal point; the actor will appear in the center of the screen.
-   * @class TopCamera
-   * @extends BaseCamera
-   * @constructor
-   * @param engine {Engine} Reference to the current engine
    */
    export class TopCamera extends BaseCamera {
       

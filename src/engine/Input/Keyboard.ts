@@ -2,40 +2,8 @@
     
    /**
    * Enum representing input key codes 
-   * @class Keys
-   * 
    */
    export enum Keys {
-      /** 
-      @property Num1 {Keys}
-      */
-      /** 
-      @property Num2 {Keys}
-      */
-      /** 
-      @property Num3 {Keys}
-      */
-      /** 
-      @property Num4 {Keys}
-      */
-      /** 
-      @property Num5 {Keys}
-      */
-      /** 
-      @property Num6 {Keys}
-      */
-      /** 
-      @property Num7 {Keys}
-      */
-      /** 
-      @property Num8 {Keys}
-      */
-      /** 
-      @property Num9 {Keys}
-      */
-      /** 
-      @property Num0 {Keys}
-      */
       Num1 = 97,
       Num2 = 98,
       Num3 = 99,
@@ -46,92 +14,11 @@
       Num8 = 104,
       Num9 = 105,
       Num0 = 96,
-      /** 
-      @property Numlock {Keys}
-      */
+      
       Numlock = 144,
-      /** 
-      @property Semicolon {Keys}
-      */
+      
       Semicolon = 186,
-      /** 
-      @property A {Keys}
-      */
-      /** 
-      @property B {Keys}
-      */
-      /** 
-      @property C {Keys}
-      */
-      /** 
-      @property D {Keys}
-      */
-      /** 
-      @property E {Keys}
-      */
-      /** 
-      @property F {Keys}
-      */
-      /** 
-      @property G {Keys}
-      */
-      /** 
-      @property H {Keys}
-      */
-      /** 
-      @property I {Keys}
-      */
-      /** 
-      @property J {Keys}
-      */
-      /** 
-      @property K {Keys}
-      */
-      /** 
-      @property L {Keys}
-      */
-      /** 
-      @property M {Keys}
-      */
-      /** 
-      @property N {Keys}
-      */
-      /** 
-      @property O {Keys}
-      */
-      /** 
-      @property P {Keys}
-      */
-      /** 
-      @property Q {Keys}
-      */
-      /** 
-      @property R {Keys}
-      */
-      /** 
-      @property S {Keys}
-      */
-      /** 
-      @property T {Keys}
-      */
-      /** 
-      @property U {Keys}
-      */
-      /** 
-      @property V {Keys}
-      */
-      /** 
-      @property W {Keys}
-      */
-      /** 
-      @property X {Keys}
-      */
-      /** 
-      @property Y {Keys}
-      */
-      /** 
-      @property Z {Keys}
-      */
+      
       A = 65,
       B = 66,
       C = 67,
@@ -158,30 +45,7 @@
       X = 88,
       Y = 89,
       Z = 90,
-      /** 
-      @property Shift {Keys}
-      */
-      /** 
-      @property Alt {Keys}
-      */
-      /** 
-      @property Up {Keys}
-      */
-      /** 
-      @property Down {Keys}
-      */
-      /** 
-      @property Left {Keys}
-      */
-      /** 
-      @property Right {Keys}
-      */
-      /** 
-      @property Space {Keys}
-      */
-      /** 
-      @property Esc {Keys}
-      */
+      
       Shift = 16,
       Alt = 18,
       Up = 38,
@@ -194,13 +58,12 @@
 
    /**
     * Event thrown on a game object for a key event
-    *
-    * @class KeyEvent
-    * @extends GameEvent
-    * @constructor 
-    * @param key {InputKey} The key responsible for throwing the event
     */
    export class KeyEvent extends GameEvent {
+
+      /**
+       * @param key  The key responsible for throwing the event
+       */
       constructor(public key: Keys) {
          super();
       }
@@ -208,11 +71,6 @@
    
    /**
     * Manages Keyboard input events that you can query or listen for events on
-    * 
-    * @class Keyboard
-    * @extends Class
-    * @constructor
-    * 
     */
    export class Keyboard extends ex.Class {
 
@@ -270,30 +128,24 @@
       }
 
       /**
-       *  Tests if a certain key is down.
-       * @method isKeyDown
-       * @param key {Keys} Test wether a key is down
-       * @returns boolean
+       * Tests if a certain key is down.
+       * @param key  Test wether a key is down
        */
       public isKeyDown(key: Keys): boolean {
          return this._keysDown.indexOf(key) > -1;
       }
 
       /**
-       *  Tests if a certain key is pressed.
-       * @method isKeyPressed
-       * @param key {Keys} Test wether a key is pressed
-       * @returns boolean
+       * Tests if a certain key is pressed.
+       * @param key  Test wether a key is pressed
        */
       public isKeyPressed(key: Keys): boolean {
          return this._keys.indexOf(key) > -1;
       }
 
       /**
-       *  Tests if a certain key is up.
-       * @method isKeyUp
-       * @param key {Keys} Test wether a key is up
-       * @returns boolean
+       * Tests if a certain key is up.
+       * @param key  Test wether a key is up
        */
       public isKeyUp(key: Keys): boolean {
          return this._keysUp.indexOf(key) > -1;

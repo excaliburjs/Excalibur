@@ -19,8 +19,7 @@ module ex {
       }
 
       /**
-      * Clears all queued actions from the Actor
-      * @method clearActions
+       * Clears all queued actions from the Actor
        */
       public clearActions(): void {
          this._queues.forEach(q => q.clearActions());
@@ -44,11 +43,9 @@ module ex {
        * This method will move an actor to the specified x and y position at the 
        * speed specified (in pixels per second) and return back the actor. This 
        * method is part of the actor 'Action' fluent API allowing action chaining.
-       * @method moveTo
-       * @param x {number} The x location to move the actor to
-       * @param y {number} The y location to move the actor to
-       * @param speed {number} The speed in pixels per second to move
-       * @returns Actor
+       * @param x      The x location to move the actor to
+       * @param y      The y location to move the actor to
+       * @param speed  The speed in pixels per second to move
         */
       public moveTo(x: number, y: number, speed: number): ActionContext {
          this._queues.forEach((q, i) => {
@@ -62,11 +59,9 @@ module ex {
        * This method will move an actor to the specified x and y position by a 
        * certain time (in milliseconds). This method is part of the actor 
        * 'Action' fluent API allowing action chaining.
-       * @method moveBy
-       * @param x {number} The x location to move the actor to
-       * @param y {number} The y location to move the actor to
-       * @param time {number} The time it should take the actor to move to the new location in milliseconds
-       * @returns Actor
+       * @param x     The x location to move the actor to
+       * @param y     The y location to move the actor to
+       * @param time  The time it should take the actor to move to the new location in milliseconds
         */
       public moveBy(x: number, y: number, time: number): ActionContext {
          this._queues.forEach((q, i) => {
@@ -79,10 +74,8 @@ module ex {
        * This method will rotate an actor to the specified angle at the speed
        * specified (in radians per second) and return back the actor. This 
        * method is part of the actor 'Action' fluent API allowing action chaining.
-       * @method rotateTo
-       * @param angleRadians {number} The angle to rotate to in radians
-       * @param speed {number} The angular velocity of the rotation specified in radians per second
-       * @returns Actor
+       * @param angleRadians  The angle to rotate to in radians
+       * @param speed         The angular velocity of the rotation specified in radians per second
         */
       public rotateTo(angleRadians: number, speed: number): ActionContext {
          this._queues.forEach((q, i) => {
@@ -95,10 +88,8 @@ module ex {
        * This method will rotate an actor to the specified angle by a certain
        * time (in milliseconds) and return back the actor. This method is part
        * of the actor 'Action' fluent API allowing action chaining.
-       * @method rotateBy
-       * @param angleRadians {number} The angle to rotate to in radians
-       * @param time {number} The time it should take the actor to complete the rotation in milliseconds
-       * @returns Actor
+       * @param angleRadians  The angle to rotate to in radians
+       * @param time          The time it should take the actor to complete the rotation in milliseconds
         */
       public rotateBy(angleRadians: number, time: number): ActionContext {
          this._queues.forEach((q, i) => {
@@ -112,10 +103,8 @@ module ex {
        * specified (in magnitude increase per second) and return back the 
        * actor. This method is part of the actor 'Action' fluent API allowing 
        * action chaining.
-       * @method scaleTo
-       * @param size {number} The scaling factor to apply
-       * @param speed {number} The speed of scaling specified in magnitude increase per second
-       * @returns Actor
+       * @param size   The scaling factor to apply
+       * @param speed  The speed of scaling specified in magnitude increase per second
         */
       public scaleTo(sizeX: number, sizeY: number, speedX: number, speedY: number): ActionContext {
          this._queues.forEach((q, i) => {
@@ -128,10 +117,8 @@ module ex {
        * This method will scale an actor to the specified size by a certain time
        * (in milliseconds) and return back the actor. This method is part of the
        * actor 'Action' fluent API allowing action chaining.
-       * @method scaleBy
-       * @param size {number} The scaling factor to apply
-       * @param time {number} The time it should take to complete the scaling in milliseconds
-       * @returns Actor
+       * @param size   The scaling factor to apply
+       * @param time   The time it should take to complete the scaling in milliseconds
         */
       public scaleBy(sizeX: number, sizeY: number, time: number): ActionContext {
          this._queues.forEach((q, i) => {
@@ -145,11 +132,9 @@ module ex {
        * visible). Optionally, you may specify the number of blinks. Specify the amount of time 
        * the actor should be visible per blink, and the amount of time not visible.
        * This method is part of the actor 'Action' fluent API allowing action chaining.
-       * @method blink
-       * @param timeVisible {number} The amount of time to stay visible per blink in milliseconds
-       * @param timeNotVisible {number} The amount of time to stay not visible per blink in milliseconds
-       * @param [numBlinks] {number} The number of times to blink
-       * @returns Actor
+       * @param timeVisible     The amount of time to stay visible per blink in milliseconds
+       * @param timeNotVisible  The amount of time to stay not visible per blink in milliseconds
+       * @param numBlinks       The number of times to blink
         */
       public blink(timeVisible: number, timeNotVisible: number, numBlinks: number = 1): ActionContext {
          this._queues.forEach((q, i) => {
@@ -162,10 +147,8 @@ module ex {
        * This method will cause an actor's opacity to change from its current value
        * to the provided value by a specified time (in milliseconds). This method is
        * part of the actor 'Action' fluent API allowing action chaining.
-       * @method fade
-       * @param opacity {number} The ending opacity
-       * @param time {number} The time it should take to fade the actor (in milliseconds)
-       * @returns Actor
+       * @param opacity  The ending opacity
+       * @param time     The time it should take to fade the actor (in milliseconds)
         */
       public fade(opacity: number, time: number): ActionContext {
          this._queues.forEach((q, i) => {
@@ -178,9 +161,7 @@ module ex {
        * This method will delay the next action from executing for a certain 
        * amount of time (in milliseconds). This method is part of the actor 
        * 'Action' fluent API allowing action chaining.
-       * @method delay
-       * @param time {number} The amount of time to delay the next action in the queue from executing in milliseconds
-       * @returns Actor
+       * @param time  The amount of time to delay the next action in the queue from executing in milliseconds
         */
       public delay(time: number): ActionContext {
          this._queues.forEach((q, i) => {
@@ -193,8 +174,6 @@ module ex {
        * This method will add an action to the queue that will remove the actor from the 
        * scene once it has completed its previous actions. Any actions on the
        * action queue after this action will not be executed.
-       * @method die
-       * @returns Actor
         */
       public die(): ActionContext {
          this._queues.forEach((q, i) => {
@@ -207,8 +186,6 @@ module ex {
        * This method allows you to call an arbitrary method as the next action in the
        * action queue. This is useful if you want to execute code in after a specific
        * action, i.e An actor arrives at a destinatino after traversing a path
-       * @method callMethod
-       * @returns Actor
         */
       public callMethod(method: () => any): ActionContext {
          this._queues.forEach((q, i) => {
@@ -222,9 +199,7 @@ module ex {
        * called actions a certain number of times. If the number of repeats 
        * is not specified it will repeat forever. This method is part of 
        * the actor 'Action' fluent API allowing action chaining
-       * @method repeat
-       * @param [times=undefined] {number} The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will repeat forever
-       * @returns Actor
+       * @param times  The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will repeat forever
         */
       public repeat(times?: number): ActionContext {
          if (!times) {
@@ -242,8 +217,6 @@ module ex {
        * This method will cause the actor to repeat all of the previously 
        * called actions forever. This method is part of the actor 'Action'
        * fluent API allowing action chaining.
-       * @method repeatForever
-       * @returns Actor
         */
       public repeatForever(): ActionContext {
          this._queues.forEach((q, i) => {
@@ -254,10 +227,8 @@ module ex {
 
       /**
        * This method will cause the actor to follow another at a specified distance
-       * @method follow
-       * @param actor {Actor} The actor to follow
-       * @param [followDistance=currentDistance] {number} The distance to maintain when following, if not specified the actor will follow at the current distance.
-       * @returns Actor
+       * @param actor           The actor to follow
+       * @param followDistance  The distance to maintain when following, if not specified the actor will follow at the current distance.
        */
       public follow(actor: Actor, followDistance?: number): ActionContext {
          this._queues.forEach((q, i) => {
@@ -273,10 +244,8 @@ module ex {
       /**
        * This method will cause the actor to move towards another until they 
        * collide "meet" at a specified speed.
-       * @method meet
-       * @param actor {Actor} The actor to meet
-       * @param [speed=0] {number} The speed in pixels per second to move, if not specified it will match the speed of the other actor
-       * @returns Actor
+       * @param actor  The actor to meet
+       * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
        */
       public meet(actor: Actor, speed?: number): ActionContext {
          this._queues.forEach((q, i) => {
@@ -293,8 +262,6 @@ module ex {
       /**
        * Returns a promise that resolves when the current action queue up to now
        * is finished.
-       * @method asPromise
-       * @returns Promise
        */
       public asPromise<T>(): Promise<T> {
          var promises = this._queues.map((q, i) => {
