@@ -24,7 +24,14 @@ module ex {
 
       public logger: Logger = Logger.getInstance();
 
+      /**
+       * Draws the sprite flipped vertically
+       */
       public flipVertical: boolean = false;
+
+      /**
+       * Draws the sprite flipped horizontally
+       */
       public flipHorizontal: boolean = false;
 
       public width: number = 0;

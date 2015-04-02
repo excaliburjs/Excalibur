@@ -1,14 +1,66 @@
 module ex {
 
    /**
+    * Animations
+    *
     * Animations allow you to display a series of images one after another,
-    * creating the illusion of change. Generally these images will come from a sprite sheet source.
+    * creating the illusion of change. Generally these images will come from a [[SpriteSheet]] source.
+    *
+    * ## Creating an animation
+    *
+    * Create a [[Texture]] that contains the frames of your animation. Once the texture
+    * is [[Loader|loaded]], you can then generate an [[Animation]] by creating a [[SpriteSheet]]
+    * and using [[SpriteSheet.getAnimationForAll]].
+    *
+    * ```js
+    * var game = new ex.Engine();
+    * var txAnimPlayerIdle = new ex.Texture("/assets/tx/anim-player-idle.png");
+    *
+    * // load assets
+    * var loader = new ex.Loader(txAnimPlayerIdle);
+    * 
+    * // start game
+    * game.start(loader).then(function () {
+    *   var player = new ex.Actor();
+    *  
+    *   // create sprite sheet with 5 columns, 1 row, 80x80 frames
+    *   var playerIdleSheet = new ex.SpriteSheet(txAnimPlayerIdle, 5, 1, 80, 80);
+    *   
+    *   // create animation (125ms frame speed)
+    *   var playerIdleAnimation = playerIdleSheet.getAnimationForAll(game, 125);
+    *  
+    *   // add drawing to player as "idle"
+    *   player.addDrawing("idle", playerIdleAnimation);
+    *
+    *   // add player to game
+    *   game.add(player);
+    * });
+    * ```
+    * 
+    * ## Sprite effects
+    *
+    * You can add [[SpriteEffect|sprite effects]] to an animation through methods
+    * like [[Animation.invert]] or [[Animation.lighten]]. Keep in mind, since this
+    * manipulates the raw pixel values of a [[Sprite]], it can have a performance impact.
     */
    export class Animation implements IDrawable {
+
+      /**
+       * The sprite frames to play, in order. See [[SpriteSheet.getAnimationForAll]] to quickly
+       * generate an [[Animation]].
+       */
       public sprites: Sprite[];
+
+      /**
+       * Duration to show each frame (in milliseconds)
+       */
       public speed: number;
 
+      /**
+       * Current frame index being shown
+       */
       public currentFrame: number = 0;
+
       private oldTime: number = Date.now();
       
       public anchor = new Point(0.0, 0.0);
@@ -19,16 +71,30 @@ module ex {
        * Indicates whether the animation should loop after it is completed
        */
       public loop: boolean = false;
+
+      /**
+       * Indicates the frame index the animation should freeze on for a non-looping
+       * animation. By default it is the last frame.
+       */
       public freezeFrame: number = -1;
 
       private engine: Engine;
 
+      /**
+       * Flip each frame vertically. Sets [[Sprite.flipVertical]].
+       */
       public flipVertical: boolean = false;
+
+      /**
+       * Flip each frame horizontally. Sets [[Sprite.flipHorizontal]].
+       */
       public flipHorizontal: boolean = false;
       public width: number = 0;
       public height: number = 0;
 
       /**
+       * Typically you will use [[SpriteSheet]] to generate an [[Animation]].
+       *
        * @param engine  Reference to the current game engine
        * @param images  An array of sprites to create the frames for the animation
        * @param speed   The number in milliseconds to display each frame in the animation
