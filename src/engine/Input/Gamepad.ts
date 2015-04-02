@@ -1,13 +1,89 @@
 ﻿module ex.Input {
 
    /**
-    * Manages Gamepad API input. You can query the gamepads that are connected
-    * or listen to events ("button" and "axis").
+    * Controller Support (Gamepads)
+    *
+    * Excalibur leverages the HTML5 Gamepad API [where it is supported](http://caniuse.com/#feat=gamepad)
+    * to provide controller support for your games.
+    *
+    * You can query any [[Gamepad|Gamepads]] that are connected or listen to events ("button" and "axis").
+    *
+    * You must opt-in to controller support ([[Gamepads.enabled]]) because it is a polling-based
+    * API, so we have to check it each update frame.
+    *
+    * Any number of gamepads are supported using the [[Gamepads.at]] method. If a [[Gamepad]] is
+    * not connected, it will simply not throw events.
+    *
+    * ## Responding to button input
+    *
+    * [[Buttons|Gamepad buttons]] typically have values between 0 and 1, however depending on
+    * the sensitivity of the controller, even if a button is idle it could have a
+    * very tiny value. For this reason, you can pass in a threshold to several
+    * methods to customize how sensitive you want to be in detecting button presses.
+    *
+    * You can inspect any connected [[Gamepad]] using [[Gamepad.isButtonPressed]], [[Gamepad.getButton]],
+    * or you can subscribe to the `button` event published on the [[Gamepad]] which passes
+    * a [[GamepadButtonEvent]] to your handler.
+    *
+    * ```js
+    * // enable gamepad support
+    * engine.input.gamepads.enabled = true;
+    *
+    * // query gamepad on update
+    * engine.on("update", function (ev) {
+    *
+    *   // access any gamepad by index
+    *   if (engine.input.gamepads.at(0).isButtonPressed(ex.Input.Buttons.Face1)) {
+    *     ex.Logger.getInstance().info("Controller A button pressed");
+    *   }
+    *
+    *   // query individual button
+    *   if (engine.input.gamepads.at(0).getButton(ex.Input.Buttons.DpadLeft) > 0.2) {
+    *     ex.Logger.getInstance().info("Controller D-pad left value is > 0.2")
+    *   }
+    * });
+    *
+    * // subscribe to button events
+    * engine.input.gamepads.at(0).on("button", function (ev) {
+    *   ex.Logger.getInstance().info(ev.button, ev.value);
+    * });
+    * ```
+    *
+    * ## Responding to axis input
+    *
+    * [[Axes|Gamepad axes]] typically have values between -1 and 1, but even idle
+    * sticks can still propogate very small values depending on the quality and age
+    * of a controller. For this reason, you can set [[Gamepads.MinAxisMoveThreshold]]
+    * to set the (absolute) threshold after which Excalibur will start publishing `axis` events. 
+    * By default it is set to a value that normally will not throw events if a stick is idle.
+    *
+    * You can query axes via [[Gamepad.getAxes]] or by subscribing to the `axis` event on [[Gamepad]]
+    * which passes a [[GamepadAxisEvent]] to your handler.    
+    * 
+    * ```js
+    * // enable gamepad support
+    * engine.input.gamepads.enabled = true;
+    *
+    * // query gamepad on update
+    * engine.on("update", function (ev) {
+    *
+    *   // access any gamepad by index
+    *   var axisValue;
+    *   if ((axisValue = engine.input.gamepads.at(0).getAxes(ex.Input.Axes.LeftStickX)) > 0.5) {
+    *     ex.Logger.getInstance().info("Move right", axisValue);
+    *   }
+    * });
+    *
+    * // subscribe to axis events
+    * engine.input.gamepads.at(0).on("axis", function (ev) {
+    *   ex.Logger.getInstance().info(ev.axis, ev.value);
+    * });
+    * ```
     */
    export class Gamepads extends ex.Class {
       
       /**
-       * Whether or not to poll for Gamepad input (default: false)
+       * Whether or not to poll for Gamepad input (default: `false`)
        */
       public enabled = false;
 
@@ -161,7 +237,8 @@
    }
 
    /**
-    * Individual state for a Gamepad
+    * Gamepad holds state information for a connected controller. See [[Gamepads]]
+    * for more information on handling controller input.
     */
    export class Gamepad extends ex.Class {
       public connected = false;
@@ -183,6 +260,7 @@
 
       /**
        * Whether or not the given button is pressed
+       * @param button     The button to query
        * @param threshold  The threshold over which the button is considered to be pressed
        */
       public isButtonPressed(button: Buttons, threshold: number = 1) {
@@ -190,14 +268,15 @@
       }
 
       /**
-       * Gets the given button value
+       * Gets the given button value between 0 and 1
        */
       public getButton(button: Buttons) {
          return this._buttons[button];
       }
 
       /**
-       * Gets the given axis value
+       * Gets the given axis value between -1 and 1. Values below
+       * [[MinAxisMoveThreshold]] are considered 0.
        */
       public getAxes(axes: Axes) {
          var value = this._axes[axes];
@@ -310,22 +389,44 @@
       RightStickY = 3
    }
 
+   /**
+    * Gamepad button event. See [[Gamepads]] for information on responding to controller input.
+    */
    export class GamepadButtonEvent extends ex.GameEvent {
+
+      /**
+       * @param button  The Gamepad button
+       * @param value   A numeric value between 0 and 1
+       */
       constructor(public button: Buttons, public value: number) {
          super();
       }
    }
 
+   /**
+    * Gamepad axis event. See [[Gamepads]] for information on responding to controller input.
+    */
    export class GamepadAxisEvent extends ex.GameEvent {
+
+      /**
+       * @param axis  The Gamepad axis
+       * @param value A numeric value between -1 and 1
+       */
       constructor(public axis: Axes, public value: number) {
          super();
       }
    }
 
+   /**
+    * @internal
+    */
    interface INavigatorGamepads {
       getGamepads(): INavigatorGamepad[];
    }
 
+   /**
+    * @internal
+    */
    export interface INavigatorGamepad {
       axes: number[];
       buttons: INavigatorGamepadButton[];
@@ -336,11 +437,17 @@
       timestamp: number;
    }
 
+   /**
+    * @internal
+    */
    export interface INavigatorGamepadButton {
       pressed: boolean;
       value: number;
    }
 
+   /**
+    * @internal
+    */
    export interface INavigatorGamepadEvent {
       gamepad: INavigatorGamepad;
    }

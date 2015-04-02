@@ -344,16 +344,19 @@ module ex {
      * The default is `null` which prevents a rectangle from being drawn.
      */
     public color: Color;
+
     /**
      * Whether or not to enable the [[CapturePointerModule]] trait that propogates pointer events to this actor
      */
     public enableCapturePointer: boolean = false;
+
     /**
      * Configuration for [[CapturePointerModule]] trait
      */
-    public capturePointer: ex.ICapturePointerConfig = {
+    public capturePointer: ICapturePointerConfig = {
        captureMoveEvents: false
     };
+
     private _isKilled: boolean = false;
     
     /**
