@@ -8,8 +8,35 @@ module ex {
    
 
    /**
-    * The `Texture` object allows games built in Excalibur to load image resources.
-    * It is generally recommended to preload images using the `Texture` object.
+    * Textures
+    *
+    * The [[Texture]] object allows games built in Excalibur to load image resources.
+    * [[Texture]] is an [[ILoadable]] which means it can be passed to a [[Loader]]
+    * to pre-load before starting a level or game.
+    *
+    * Textures are the raw image so to add a drawing to a game, you must create
+    * a [[Sprite]]. You can use [[Texture.asSprite]] to quickly generate a Sprite
+    * instance.
+    *
+    * ## Pre-loading textures
+    *
+    * Pass the [[Texture]] to a [[Loader]] to pre-load the asset. Once a [[Texture]]
+    * is loaded, you can generate a [[Sprite]] with it.
+    *
+    * ```js
+    * var txPlayer = new ex.Texture("/assets/tx/player.png");
+    *
+    * var loader = new ex.Loader(txPlayer);
+    *
+    * game.start(loader).then(function () {
+    *
+    *   var player = new ex.Actor();
+    *
+    *   player.addDrawing(txPlayer);
+    *
+    *   game.add(player);
+    * });
+    * ```
     */
    export class Texture extends Resource<HTMLImageElement> {
 
@@ -90,9 +117,27 @@ module ex {
    }
 
    /**
-    * The `Sound` object allows games built in Excalibur to load audio 
-    * components, from soundtracks to sound effects. It is generally 
-    * recommended to preload sound resources using `Sound` when using Excalibur.    
+    * Sounds
+    *
+    * The [[Sound]] object allows games built in Excalibur to load audio 
+    * components, from soundtracks to sound effects. [[Sound]] is an [[ILoadable]]
+    * which means it can be passed to a [[Loader]] to pre-load before a game or level.
+    *
+    * ## Pre-loading sounds
+    *
+    * Pass the [[Sound]] to a [[Loader]] to pre-load the asset. Once a [[Sound]]
+    * is loaded, you can [[Sound.play|play]] it.
+    *
+    * ```js
+    * var sndPlayerDeath = new ex.Sound("/assets/snd/player-death.mp3", "/assets/snd/player-wav.mp3");
+    *
+    * var loader = new ex.Loader(sndPlayerDeath);
+    *
+    * game.start(loader).then(function () {
+    *
+    *   sndPlayerDeath.play();
+    * });
+    * ```  
     */
    export class Sound implements ILoadable, ex.Internal.ISound {
       private logger: Logger = Logger.getInstance();
@@ -255,9 +300,13 @@ module ex {
    }
 
    /**
+    * Pre-loading assets
+    *
     * The loader provides a mechanism to preload multiple resources at 
     * one time. The loader must be passed to the engine in order to 
     * trigger the loading progress bar.
+    *
+    * The [[Loader]] itself implements [[ILoadable]] so you can load loaders.
     *
     * ## Example: Pre-loading resources for a game
     *
