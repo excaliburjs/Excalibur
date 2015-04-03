@@ -110,6 +110,14 @@ module ex {
     * game.add("mainmenu", new MainMenu());
     * game.goToScene("mainmenu");
     * ```
+    *
+    * ## Scene camera
+    *
+    * By default, a [[Scene]] is initialized with a [[BaseCamera]] which
+    * does not move and centers the game world.
+    *
+    * Learn more about [[BaseCamera|Cameras]] and how to modify them to suit
+    * your game.
     */
    export class Scene extends ex.Class {
 

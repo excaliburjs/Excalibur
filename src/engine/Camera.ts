@@ -4,8 +4,57 @@
 module ex {
 
    /**
-   * A base implementation of a camera. This class is meant to be extended.
-   * @abstract
+   * Cameras
+   *
+   * [[BaseCamera]] is the base class for all Excalibur cameras. Cameras are used
+   * to move around your game and set focus. They are used to determine
+   * what is "off screen" and can be used to scale the game.
+   *
+   * Excalibur comes with a [[TopCamera]] and a [[SideCamera]], depending on
+   * your game needs.
+   *
+   * Cameras are attached to [[Scene|Scenes]] and can be changed by 
+   * setting [[Scene.camera]]. By default, a [[Scene]] is initialized with a
+   * [[BaseCamera]] that doesn't move and is centered on the screen.
+   *
+   * ## Focus
+   *
+   * Cameras have a [[BaseCamera.focus|focus]] which means they center around a specific
+   * [[Point]]. This can be an [[Actor]] ([[BaseCamera.setActorToFollow]]) or a specific
+   * [[Point]] ([[BaseCamera.setFocus]]).
+   *
+   * If a camera is following an [[Actor]], it will ensure the [[Actor]] is always at the
+   * center of the screen. You can use [[BaseCamera.setFocus]] instead if you wish to
+   * offset the focal point.
+   *
+   * ## Camera Shake
+   *
+   * To add some fun effects to your game, the [[BaseCamera.shake]] method
+   * will do a random shake. This is great for explosions, damage, and other
+   * in-game effects.
+   *
+   * ## Camera Lerp
+   *
+   * "Lerp" is short for [Linear Interpolation](http://en.wikipedia.org/wiki/Linear_interpolation) 
+   * and it enables the camera focus to move smoothly between two points using timing functions. 
+   * Set [[BaseCamera.lerp]] to `true` to enable "lerping".
+   *
+   * ## Camera Zooming
+   *
+   * To adjust the zoom for your game, use [[BaseCamera.zoom]] which will scale the
+   * game accordingly. You can pass a duration to transition between zoom levels.
+   *
+   * ## Known Issues
+   *
+   * **Cameras do not support [[EasingFunctions]]**
+   * [Issue #320](https://github.com/excaliburjs/Excalibur/issues/320)
+   *
+   * Currently [[BaseCamera.lerp]] only supports `easeInOutCubic` but will support
+   * [[EasingFunctions|easing functions]] soon.
+   *
+   * **Actors following a path will wobble when camera is moving**
+   * [Issue #276](https://github.com/excaliburjs/Excalibur/issues/276)
+   *
    */
    export class BaseCamera {
       protected follow: Actor;
@@ -93,14 +142,14 @@ module ex {
 
       /**
       * Zooms the camera in or out by the specified scale over the specified duration. 
-      * If no duration is specified, it will zoom by a set amount until the scale is reached.
+      * If no duration is specified, it take effect immediately.
       * @param scale    The scale of the zoom
       * @param duration The duration of the zoom in milliseconds
       */
-      public zoom(scale: number, duration?: number) {
+      public zoom(scale: number, duration: number = 0) {
          this.isZooming = true;
          this.maxZoomScale = scale;
-         this.zoomDuration = duration | 0;
+         this.zoomDuration = duration;
          if (duration) {
             this.zoomIncrement = Math.abs(this.maxZoomScale - this.currentZoomScale) / duration * 1000;
          }
@@ -228,7 +277,9 @@ module ex {
    }
 
    /**
-   * An extension of BaseCamera that is locked vertically; it will only move side to side.
+   * An extension of [[BaseCamera]] that is locked vertically; it will only move side to side.
+   * 
+   * Common usages: platformers.
    */
    export class SideCamera extends BaseCamera {
             
@@ -242,7 +293,11 @@ module ex {
    }
 
    /**
-   * An extension of BaseCamera that is locked to an actor or focal point; the actor will appear in the center of the screen.
+   * An extension of [[BaseCamera]] that is locked to an [[Actor]] or 
+   * [[TopCamera.focus|focal point]]; the actor will appear in the 
+   * center of the screen.
+   *
+   * Common usages: RPGs, adventure games, top-down games.
    */
    export class TopCamera extends BaseCamera {
       
