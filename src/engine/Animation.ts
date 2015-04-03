@@ -93,7 +93,7 @@ module ex {
       public height: number = 0;
 
       /**
-       * Typically you will use [[SpriteSheet]] to generate an [[Animation]].
+       * Typically you will use a [[SpriteSheet]] to generate an [[Animation]].
        *
        * @param engine  Reference to the current game engine
        * @param images  An array of sprites to create the frames for the animation
