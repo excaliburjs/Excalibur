@@ -210,6 +210,19 @@ module ex {
    *   ctx.lineTo(...);
    * }
    * ```
+   *
+   * ## Actions
+   *
+   * You can use the [[ActionContext|Action API]] to create chains of
+   * actions and script actors into doing your bidding for your game.
+   *
+   * Actions can be simple or can be chained together to create complex
+   * AI routines. In the future, it will be easier to create timelines or
+   * scripts to run depending on the state of your actor, such as an
+   * enemy ship that is Guarding a path and then is Alerted when a Player
+   * draws near.
+   *
+   * Learn more about the [[ActionContext|Action API]].
    */     
   export class Actor extends ex.Class implements IActionable {
     /**
