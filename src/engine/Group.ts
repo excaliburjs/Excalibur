@@ -5,6 +5,11 @@
 module ex {
 
    /**
+    * Grouping
+    *
+    * Groups are used for logically grouping Actors so they can be acted upon
+    * in bulk.
+    *
     * @todo Document this
     */
    export class Group extends Class implements IActionable {

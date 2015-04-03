@@ -69,7 +69,7 @@
  *
  * ## Effects and Particles
  *
- * - [[SpriteEffect|Sprite Effects]]
+ * - [[Effects|Sprite Effects]]
  * - [[ParticleEmitter|Particle Emitters]]
  *
  * ## Utilities
