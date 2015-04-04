@@ -4,9 +4,38 @@
 module ex {
 
    /**
+    * Triggers
+    *
     * Triggers are a method of firing arbitrary code on collision. These are useful
-    * as 'buttons', 'switches', or to trigger effects in a game. By defualt triggers
-    * are invisible, and can only be seen with debug mode enabled on the [[Engine]].
+    * as 'buttons', 'switches', or to trigger effects in a game. By default triggers
+    * are invisible, and can only be seen when [[Engine.isDebug]] is set to `true`.
+    *
+    * ## Creating a trigger
+    *
+    * ```js
+    * var game = new ex.Game();
+    *
+    * // create a handler
+    * function onTrigger() {
+    *
+    *   // `this` will be the Trigger instance
+    *   ex.Logger.getInstance().info("Trigger was triggered!", this);
+    * }
+    *
+    * // set a trigger at (100, 100) that is 40x40px
+    * var trigger = new ex.Trigger(100, 100, 40, 40, onTrigger, 1);
+    *
+    * // create an actor across from the trigger
+    * var actor = new ex.Actor(100, 0, 40, 40, ex.Color.Red);
+    *
+    * // tell the actor to move towards the trigger over 3 seconds
+    * actor.moveTo(100, 200, 3000);
+    *
+    * game.add(trigger);
+    * game.add(actor);
+    *
+    * game.start();
+    * ```
     */
    export class Trigger extends Actor {
       private action : ()=>void = ()=>{};
@@ -18,7 +47,7 @@ module ex {
        * @param y       The y position of the trigger
        * @param width   The width of the trigger
        * @param height  The height of the trigger
-       * @param action  Callback to fire when trigger is activated
+       * @param action  Callback to fire when trigger is activated, `this` will be bound to the Trigger instance
        * @param repeats The number of times that this trigger should fire, by default it is 1, if -1 is supplied it will fire indefinitely
        */
       constructor(x?: number, y?: number, width?: number, height?: number, action?: ()=>void, repeats?: number){
