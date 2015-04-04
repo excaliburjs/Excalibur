@@ -223,6 +223,29 @@ module ex {
    * draws near.
    *
    * Learn more about the [[ActionContext|Action API]].
+   *
+   * ## Collision Detection
+   *
+   * By default Actors do not participate in collisions. If you wish to make
+   * an actor participate, you need to enable the [[CollisionDetectionModule]]
+   *
+   * ```ts
+   * public Player extends ex.Actor {
+   *   constructor() {
+   *     super();
+   *
+   *     // enable the pipeline
+   *     this.pipelines.push(new ex.CollisionDetectionModule());
+   *
+   *     // set preferred CollisionType
+   *     this.collisionType = ex.CollisionType.Active;
+   *   }
+   * }
+   * ```
+   *
+   * ### Collision Groups
+   *
+   * TODO, needs more information.
    */     
   export class Actor extends ex.Class implements IActionable {
     /**
@@ -246,7 +269,7 @@ module ex {
      * translation, and rotation. By default the anchor is in the center of
      * the actor.
      *
-     * Use [[anchor.setTo]] to set the anchor to a different point using
+     * Use `anchor.setTo` to set the anchor to a different point using
      * values between 0 and 1. For example, anchoring to the top-left would be
      * `Actor.anchor.setTo(0, 0)` and top-right would be `Actor.anchor.setTo(0, 1)`.
      */
@@ -291,7 +314,7 @@ module ex {
      */
     public ay: number = 0;
     /**
-     * Indicates wether the actor is physically in the viewport
+     * Indicates whether the actor is physically in the viewport
      */
     public isOffScreen = false;
     /** 
@@ -305,7 +328,7 @@ module ex {
     public opacity: number = 1;
     public previousOpacity: number = 1;
     /** 
-     * Direct access to the actor's action queue. Useful if you are building custom actions.
+     * Direct access to the actor's [[ActionQueue]]. Useful if you are building custom actions.
      */
     public actionQueue: ex.Internal.Actions.ActionQueue;
     public actions: ActionContext = new ActionContext(this);
@@ -337,9 +360,9 @@ module ex {
     public frames: { [key: string]: IDrawable; } = {}
     
     /**
-     * Access to the current drawing on for the actor, this can be 
+     * Access to the current drawing for the actor, this can be 
      * an [[Animation]], [[Sprite]], or [[Polygon]]. 
-     * Set drawings with [[Actor.setDrawing]].
+     * Set drawings with [[setDrawing]].
      */
     public currentDrawing: IDrawable = null;
     public centerDrawingX = true;
@@ -359,7 +382,8 @@ module ex {
     public color: Color;
 
     /**
-     * Whether or not to enable the [[CapturePointerModule]] trait that propogates pointer events to this actor
+     * Whether or not to enable the [[CapturePointerModule]] trait that propogates 
+     * pointer events to this actor
      */
     public enableCapturePointer: boolean = false;
 
@@ -529,6 +553,8 @@ module ex {
      * Artificially trigger an event on an actor, useful when creating custom events.
      * @param eventName   The name of the event to trigger
      * @param event       The event object to pass to the callback
+     *
+     * @obsolete  Will be replaced with `emit`
      */
     public triggerEvent(eventName: string, event?: GameEvent) {
        this.eventDispatcher.publish(eventName, event);
