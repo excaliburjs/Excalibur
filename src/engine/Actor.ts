@@ -246,6 +246,20 @@ module ex {
    * ### Collision Groups
    *
    * TODO, needs more information.
+   *
+   * ## Known Issues
+   *
+   * **Actor bounding boxes do not rotate**
+   * [Issue #68](https://github.com/excaliburjs/Excalibur/issues/68)
+   *
+   * **Setting opacity when using a color doesn't do anything**
+   * [Issue #364](https://github.com/excaliburjs/Excalibur/issues/364)
+   *
+   * **Spawning an Actor next to another sometimes causes unexpected placement**
+   * [Issue #319](https://github.com/excaliburjs/Excalibur/issues/319)
+   *
+   * **[[Actor.contains]] doesn't work with child actors and relative coordinates**
+   * [Issue #147](https://github.com/excaliburjs/Excalibur/issues/147)
    */     
   export class Actor extends ex.Class implements IActionable {
     /**

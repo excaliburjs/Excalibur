@@ -107,7 +107,12 @@ module ex {
     * The Excalibur team is working on extending and rebuilding the Action API
     * in future versions to support multiple timelines/scripts, better eventing,
     * and a more robust API to allow for complex and customized actions.
-    * 
+    *
+    * ## Known Issues
+    *
+    * **Rotation actions do not use shortest angle**
+    * [Issue #282](https://github.com/excaliburjs/Excalibur/issues/282)
+    *
     */
    export class ActionContext {
       private _actors: Actor[] = [];
