@@ -128,29 +128,8 @@ module.exports = function (grunt) {
                stdout: true,
                failOnError: true
             }
-         },
-
-         //
-         // Build documentation site
-         //
-         docs: {
-            command: 'yuidoc --helpers ./docs/strip.js --themedir ./docs/excalibur --norecurse --extension .ts --outdir ./docs/out ./src/engine',
-            options: {
-               stdout: true,
-               failOnError: true
-            }
-         },
-
-         //
-         // Build docs data
-         //
-         docsData: {
-            command: 'yuidoc --helpers ./docs/strip.js --norecurse --extension .ts --outdir ./docs/out --parse-only ./src/engine',
-            options: {
-               stdout: true,
-               failOnError: true
-            }
          }
+
       },
 
       //
@@ -200,8 +179,4 @@ module.exports = function (grunt) {
 
    // Travis task - for Travis CI
    grunt.registerTask('travis', 'default');
-
-   // Generate documentation site
-   grunt.registerTask('docs', 'shell:docs');
-
 };

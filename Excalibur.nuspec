@@ -4,10 +4,10 @@
     <id>Excalibur</id>
     <title>Excalibur.js</title>
     <version>$version$</version>
-    <authors>Erik Onarheim</authors>
-    <projectUrl>https://github.com/eonarheim/Excalibur</projectUrl>
-    <licenseUrl>https://github.com/eonarheim/Excalibur/master/blob/LICENSE.md</licenseUrl>
-    <iconUrl>https://raw.github.com/eonarheim/Excalibur/master/assets/icon.png</iconUrl>
+    <authors>Excalibur.js</authors>
+    <projectUrl>https://github.com/excaliburjs/Excalibur</projectUrl>
+    <licenseUrl>https://github.com/excaliburjs/Excalibur/master/blob/LICENSE.md</licenseUrl>
+    <iconUrl>https://raw.github.com/excaliburjs/Excalibur/master/assets/icon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Excalibur.js is a simple JavaScript game engine with TypeScript bindings for making 2D games in HTML5 Canvas. Our mission is to make web game development as simple as possible.</description>
   </metadata>

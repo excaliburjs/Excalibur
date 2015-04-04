@@ -34,7 +34,6 @@
   },
   "devDependencies": {    
     "jasmine-node": "1.10.2",
-    "yuidocjs": "0.3.48",
     "grunt": "0.4.2",
     "grunt-shell": "0.6.1",
     "grunt-minified": "0.0.6",

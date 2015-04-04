@@ -14,8 +14,8 @@ Thank you for any contributions!
 
 ## Requirements
 
-- Typescript 9.x
-- Sublime Text 2+
+- Typescript 1.4+
+- Sublime Text 2/3+
 - Node.js
 
 You will need to have the TypeScript compiler installed on your platform to build from source.
@@ -24,9 +24,8 @@ The compiler is available here:
 
 - [Official Typescript Page](http://www.typescriptlang.org/)
 - [Node Package Manager](https://npmjs.org/package/typescript)
-- [Codeplex Source](http://typescript.codeplex.com/)
 
-**Note: Excalibur only supports the newest TypeScript 9.x compiler**
+**Note: Excalibur only supports the newest TypeScript 1.4 compiler**
 
 ### To build the engine and run the sample game on these platforms:
 
@@ -43,5 +42,3 @@ Windows:
 Unix/Linux:
 	
 	grunt
-
-
