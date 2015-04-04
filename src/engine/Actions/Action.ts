@@ -867,7 +867,6 @@ module ex.Internal.Actions {
          this._completedActions.length = 0;
          if (this._currentAction) {
             this._currentAction.stop();
-            this._currentAction = null;
          }
       }
 
