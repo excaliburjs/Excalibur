@@ -2,8 +2,14 @@
 /// <reference path="../Engine.ts" />
 /// <reference path="../Actor.ts" />
 
+/**
+ * See [[ActionContext|Action API]] for more information about Actions.
+ */
 module ex.Internal.Actions {
    
+   /**
+    * Used for implementing actions for the [[ActionContext|Action API]].
+    */
    export interface IAction {
       update(delta: number): void
       isComplete(actor: Actor): boolean
@@ -844,6 +850,16 @@ module ex.Internal.Actions {
       public reset(): void { }
    }
 
+   /**
+    * Action Queues
+    *
+    * Action queues are part of the [[ActionContext|Action API]] and
+    * store the list of actions to be executed for an [[Actor]].
+    *
+    * Actors implement [[Action.actionQueue]] which can be manipulated by
+    * advanced users to adjust the actions currently being executed in the
+    * queue.
+    */
    export class ActionQueue {
       private actor;
       private _actions: IAction[] = [];
@@ -865,7 +881,9 @@ module ex.Internal.Actions {
       public clearActions(): void {
          this._actions.length = 0;
          this._completedActions.length = 0;
-         this._currentAction.stop();
+         if (this._currentAction) {
+            this._currentAction.stop();
+         }
       }
 
       public getActions(): IAction[] {

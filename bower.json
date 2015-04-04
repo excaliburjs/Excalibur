@@ -1,7 +1,7 @@
 {
   "name": "excalibur",
   "version": "0.2.5",
-  "homepage": "https://github.com/eonarheim/Excalibur",
+  "homepage": "https://github.com/excaliburjs/Excalibur",
   "authors": [
     "https://github.com/excaliburjs/Excalibur/graphs/contributors"
   ],
@@ -22,7 +22,6 @@
     "bower_components",
     "assets",
     "bin",
-    "docs",
     "Excalibur.Samples.Win8",
     "particle-tester",
     "sample-game",

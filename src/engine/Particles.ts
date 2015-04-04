@@ -139,6 +139,8 @@ module ex {
    }
 
    /**
+    * Particle Emitters
+    *
     * Using a particle emitter is a great way to create interesting effects 
     * in your game, like smoke, fire, water, explosions, etc. `ParticleEmitter`
     * extend [[Actor]] allowing you to use all of the features that come with.
@@ -161,6 +163,7 @@ module ex {
     *
     * // or, alternatively, add it to the current scene
     * engine.add(emitter);
+    * ```
     */
    export class ParticleEmitter extends Actor {
 

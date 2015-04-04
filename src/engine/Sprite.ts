@@ -3,8 +3,37 @@ module ex {
    /**
     * Sprites
     *
-    * A `Sprite` is one of the main drawing primitives. It is responsible for drawing
-    * images or parts of images known as [[Texture]]s to the screen.
+    * A [[Sprite]] is one of the main drawing primitives. It is responsible for drawing
+    * images or parts of images from a [[Texture]] resource to the screen.
+    *
+    * ## Creating a sprite
+    *
+    * To create a [[Sprite]] you need to have a loaded [[Texture]] resource. You can
+    * then use [[Texture.asSprite]] to quickly create a [[Sprite]] or you can create
+    * a new instance of [[Sprite]] using the constructor. This is useful if you
+    * want to "slice" out a portion of an image or if you want to change the dimensions.
+    *
+    * ```js
+    * var game = new ex.Engine();
+    * var txPlayer = new ex.Texture("/assets/tx/player.png");
+    *
+    * // load assets
+    * var loader = new ex.Loader(txPlayer);
+    * 
+    * // start game
+    * game.start(loader).then(function () {
+    * 
+    *   // create a sprite (quick)
+    *   var playerSprite = txPlayer.asSprite();
+    *
+    *   // create a sprite (custom)
+    *   var playerSprite = new ex.Sprite(txPlayer, 0, 0, 80, 80);
+    *
+    * });
+    * ```
+    *
+    * You can then assign an [[Actor]] a sprite through [[Actor.addDrawing]] and
+    * [[Actor.setDrawing]].
     *
     * ## Sprite Effects
     *
@@ -24,7 +53,14 @@ module ex {
 
       public logger: Logger = Logger.getInstance();
 
+      /**
+       * Draws the sprite flipped vertically
+       */
       public flipVertical: boolean = false;
+
+      /**
+       * Draws the sprite flipped horizontally
+       */
       public flipHorizontal: boolean = false;
 
       public width: number = 0;

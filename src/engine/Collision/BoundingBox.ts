@@ -13,10 +13,10 @@ module ex {
     */
    export interface ICollidable {
       /** 
-       * Test wether this collidable with another returning,
-       * the intersection vector that can be used to resovle the collision. If there
-       * is no collision null is returned.
+       * Test whether this bounding box collides with another one.
+       *
        * @param collidable  Other collidable to test
+       * @returns           The intersection vector that can be used to resolve the collision. If there is no collision, `null` is returned.
        */
       collides(collidable: ICollidable): Vector;
       /**

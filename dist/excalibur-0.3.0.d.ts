@@ -1711,21 +1711,13 @@ declare module ex {
          * The [[UIActor]]s in a scene, if any; these are drawn last
          */
         uiActors: Actor[];
-        /**
-         * Whether or the [[Scene]] has been initialized
-         */
-        isInitialized: boolean;
         private _collisionResolver;
         private _killQueue;
         private _timers;
         private _cancelQueue;
+        private _isInitialized;
         private _logger;
         constructor(engine?: Engine);
-        /**
-         * This is called before the first update of the [[Scene]]. This method is meant to be
-         * overridden. This is where initialization of child actors should take place.
-         */
-        onInitialize(engine: Engine): void;
         /**
          * This is called when the scene is made active and started. It is meant to be overriden,
          * this is where you should setup any DOM UI or event handlers needed for the scene.
@@ -1736,6 +1728,11 @@ declare module ex {
          * this is where you should cleanup any DOM UI or event handlers needed for the scene.
          */
         onDeactivate(): void;
+        /**
+         * This is called before the first update of the actor. This method is meant to be
+         * overridden. This is where initialization of child actors should take place.
+         */
+        onInitialize(engine: Engine): void;
         /**
          * Publish an event to all actors in the scene
          * @param eventType  The name of the event to publish
@@ -4636,7 +4633,7 @@ declare module ex {
         remove(uiActor: UIActor): void;
         /**
          * Changes the currently updating and drawing scene to a different,
-         * named scene. Calls the [[Scene]] lifecycle events.
+         * named scene.
          * @param key  The key of the scene to trasition to.
          */
         goToScene(key: string): void;

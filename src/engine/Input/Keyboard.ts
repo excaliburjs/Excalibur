@@ -70,7 +70,36 @@
    }
    
    /**
-    * Manages Keyboard input events that you can query or listen for events on
+    * Keyboard input
+    *
+    * Working with the keyboard is easy in Excalibur. You can inspect
+    * whether a button is [[Keyboard.isKeyDown|down]], [[Keyboard.isKeyUp|up]], or 
+    * [[Keyboard.isKeyPressed|pressed]]. Common keys are held in the [[Input.Keys]]
+    * enumeration but you can pass any character code to the methods.
+    *
+    * Excalibur subscribes to the browser events and keeps track of
+    * what keys are currently down, up, or pressed. A key can be pressed
+    * for multiple frames, but a key cannot be down or up for more than one
+    * update frame.
+    *
+    * ## Inspecting the keyboard
+    *
+    * You can inspect [[Engine.input]] to see what the state of the keyboard
+    * is during an update.
+    *
+    * ```ts
+    * class Player extends ex.Actor {
+    *   public update(engine, delta) {
+    *     
+    *     if (engine.input.keyboard.isKeyPressed(ex.Input.Keys.W) ||
+    *         engine.input.keyboard.isKeyPressed(ex.Input.Keys.Up)) {
+    *       
+    *       player._moveForward();
+    *     }
+    *
+    *   }
+    * }
+    * ```
     */
    export class Keyboard extends ex.Class {
 
@@ -128,7 +157,7 @@
       }
 
       /**
-       * Tests if a certain key is down.
+       * Tests if a certain key is down. This is cleared at the end of the update frame.
        * @param key  Test wether a key is down
        */
       public isKeyDown(key: Keys): boolean {
@@ -136,7 +165,7 @@
       }
 
       /**
-       * Tests if a certain key is pressed.
+       * Tests if a certain key is pressed. This is persisted between frames.
        * @param key  Test wether a key is pressed
        */
       public isKeyPressed(key: Keys): boolean {
@@ -144,7 +173,7 @@
       }
 
       /**
-       * Tests if a certain key is up.
+       * Tests if a certain key is up. This is cleared at the end of the update frame.
        * @param key  Test wether a key is up
        */
       public isKeyUp(key: Keys): boolean {

@@ -4082,14 +4082,11 @@ var ex;
              * The [[UIActor]]s in a scene, if any; these are drawn last
              */
             this.uiActors = [];
-            /**
-             * Whether or the [[Scene]] has been initialized
-             */
-            this.isInitialized = false;
             this._collisionResolver = new ex.DynamicTreeCollisionResolver();
             this._killQueue = [];
             this._timers = [];
             this._cancelQueue = [];
+            this._isInitialized = false;
             this._logger = ex.Logger.getInstance();
             this.camera = new ex.BaseCamera();
             if (engine) {
@@ -4097,20 +4094,11 @@ var ex;
             }
         }
         /**
-         * This is called before the first update of the [[Scene]]. This method is meant to be
-         * overridden. This is where initialization of child actors should take place.
-         */
-        Scene.prototype.onInitialize = function (engine) {
-            // will be overridden
-            this._logger.debug("Scene.onInitialize", this, engine);
-        };
-        /**
          * This is called when the scene is made active and started. It is meant to be overriden,
          * this is where you should setup any DOM UI or event handlers needed for the scene.
          */
         Scene.prototype.onActivate = function () {
             // will be overridden
-            this._logger.debug("Scene.onActivate", this);
         };
         /**
          * This is called when the scene is made transitioned away from and stopped. It is meant to be overriden,
@@ -4118,7 +4106,13 @@ var ex;
          */
         Scene.prototype.onDeactivate = function () {
             // will be overridden
-            this._logger.debug("Scene.onDeactivate", this);
+        };
+        /**
+         * This is called before the first update of the actor. This method is meant to be
+         * overridden. This is where initialization of child actors should take place.
+         */
+        Scene.prototype.onInitialize = function (engine) {
+            // will be overridden
         };
         /**
          * Publish an event to all actors in the scene
@@ -4136,6 +4130,11 @@ var ex;
          * @param delta   The number of milliseconds since the last update
          */
         Scene.prototype.update = function (engine, delta) {
+            if (!this._isInitialized) {
+                this.onInitialize(engine);
+                this.eventDispatcher.publish('initialize', new ex.InitializeEvent(engine));
+                this._isInitialized = true;
+            }
             this.uiActors.forEach(function (ui) {
                 ui.update(engine, delta);
             });
@@ -9187,8 +9186,7 @@ var ex;
             this.loader = new ex.Loader();
             this.initialize(options);
             this.rootScene = this.currentScene = new ex.Scene(this);
-            this.addScene("root", this.rootScene);
-            this.goToScene("root");
+            this.addScene('root', this.rootScene);
         }
         /**
          * Plays a sprite animation on the screen at the specified `x` and `y`
@@ -9326,31 +9324,20 @@ var ex;
         };
         /**
          * Changes the currently updating and drawing scene to a different,
-         * named scene. Calls the [[Scene]] lifecycle events.
+         * named scene.
          * @param key  The key of the scene to trasition to.
          */
         Engine.prototype.goToScene = function (key) {
-            if (this.scenes[key]) {
+            if (this.scenes[name]) {
+                this.currentScene.onDeactivate.call(this.currentScene);
                 var oldScene = this.currentScene;
-                var newScene = this.scenes[key];
-                this.logger.debug("Going to scene:", key);
-                // only deactivate when initialized
-                if (this.currentScene.isInitialized) {
-                    this.currentScene.onDeactivate.call(this.currentScene);
-                    this.currentScene.eventDispatcher.publish('deactivate', new ex.DeactivateEvent(newScene));
-                }
-                // set current scene to new one
-                this.currentScene = newScene;
-                if (!this.currentScene.isInitialized) {
-                    this.currentScene.onInitialize.call(this.currentScene, this);
-                    this.currentScene.eventDispatcher.publish('initialize', new ex.InitializeEvent(this));
-                    this.currentScene.isInitialized = true;
-                }
+                this.currentScene = this.scenes[name];
+                oldScene.eventDispatcher.publish('deactivate', new ex.DeactivateEvent(this.currentScene));
                 this.currentScene.onActivate.call(this.currentScene);
                 this.currentScene.eventDispatcher.publish('activate', new ex.ActivateEvent(oldScene));
             }
             else {
-                this.logger.error("Scene", key, "does not exist!");
+                this.logger.error("Scene", name, "does not exist!");
             }
         };
         /**
