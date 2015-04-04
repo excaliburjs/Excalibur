@@ -156,20 +156,33 @@ module ex {
        */
       public uiActors: Actor[] = [];
 
+      /**
+       * Whether or the [[Scene]] has been initialized
+       */
+      public isInitialized: boolean = false;
+
       private _collisionResolver: ICollisionResolver = new DynamicTreeCollisionResolver();
 
       private _killQueue: Actor[] = [];
       private _timers: Timer[] = [];
       private _cancelQueue: Timer[] = [];
-      private _isInitialized: boolean = false;
       private _logger: Logger = Logger.getInstance();
       
       constructor(engine?: Engine) {
          super();
-         this.camera = new BaseCamera()
+         this.camera = new BaseCamera();
          if(engine){
             this.camera.setFocus(engine.width/2, engine.height/2);
          }
+      }
+
+      /**
+       * This is called before the first update of the [[Scene]]. This method is meant to be
+       * overridden. This is where initialization of child actors should take place.
+       */
+      public onInitialize(engine: Engine): void {
+         // will be overridden
+         this._logger.debug("Scene.onInitialize", this, engine);
       }
 
       /**
@@ -178,6 +191,7 @@ module ex {
        */
       public onActivate(): void {
          // will be overridden
+         this._logger.debug("Scene.onActivate", this);
       }
 
       /**
@@ -186,15 +200,7 @@ module ex {
        */
       public onDeactivate(): void {
          // will be overridden
-      }
-
-      /**
-       * This is called before the first update of the actor. This method is meant to be
-       * overridden. This is where initialization of child actors should take place.
-       */
-      public onInitialize(engine: Engine): void {
-         // will be overridden
-         
+         this._logger.debug("Scene.onDeactivate", this);
       }
 
       /**
@@ -214,11 +220,6 @@ module ex {
        * @param delta   The number of milliseconds since the last update
        */
       public update(engine: Engine, delta: number) {
-         if (!this._isInitialized) {
-            this.onInitialize(engine);
-            this.eventDispatcher.publish('initialize', new InitializeEvent(engine));
-            this._isInitialized = true;
-         }
 
          this.uiActors.forEach(function(ui){
             ui.update(engine, delta);

@@ -1,4 +1,8 @@
 ﻿{
- "Mode": "External",
- "FrameworkVersion": "1"
+    "FrameworkVersion": "1",
+    "Compile": {
+        "Extensions": [ ".ts" ],
+        "ExtensionsWithNoOutput": [".d.ts"],
+        "Mode": "External"
+    }
 }
