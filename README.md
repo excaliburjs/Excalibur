@@ -8,23 +8,15 @@ Excalibur is an open source project licensed under the 2-clause BSD license (thi
 
 # Installation
 
-We've made it easy to install Excalibur on a wide variety of package managers:
+Follow our [Installation](http://excaliburjs.com/docs/install.html) guide.
 
-### npm
+# Getting Started
 
-    npm install Excalibur
-    
-### bower
-
-    bower install excalibur
-    
-### Nuget
-
-    PM> Install-Package Excalibur
+Follow our [Getting Started](http://excaliburjs.com/docs/quickstart.html) guide.
 
 # Features and Documentation
 
-Please visit [excaliburjs.com](http://excaliburjs.com) for full API documentation, features, tutorials, and guides.
+Visit the [Documentation](http://excaliburjs.com/docs) section for full API documentation, features, tutorials, and guides.
 
 # Samples
 

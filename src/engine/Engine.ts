@@ -32,35 +32,47 @@
  * source code on [GitHub](http://github.com/excaliburjs/Excalibur).
  *
  * If you're just starting out, we recommend reading the tutorials and guides
- * on [Excaliburjs.com](http://excaliburjs.com/docs).
+ * on [Excaliburjs.com](http://excaliburjs.com/docs). If you have questions,
+ * feel free to get help on the [Excalibur.js mailing list](https://groups.google.com/forum/#!forum/excaliburjs).
  *
  * If you're looking for a specific method or property, you can search the documentation
  * using the search icon at the top or just start typing.
  *
- * ## Where to start
+ * ## Where to Start
+ *
+ * These are the core concepts of Excalibur that you should be
+ * familiar with.
  *
  * - [[Engine|Intro to the Engine]]
  * - [[Scene|Working with Scenes]]
  *   - [[Camera|Working with Cameras]]
  * - [[Actor|Working with Actors]]
  *   - [[Label|Labels]]
+ *   - [[Trigger|Triggers]]
  *   - [[UIActor|UI Actors (HUD)]]
  *   - [[ActionContext|Action API]]
+ *   - [[Group|Groups]]
  *
  * ## Working with Resources
+ *
+ * Excalibur provides easy ways of loading assets, from images to JSON files.
  *
  * - [[Loader|Working with the Loader]]
  * - [[Texture|Loading Textures]]
  * - [[Sound|Loading Sounds]]
- * - [[Resource|Loading generic resources]]
+ * - [[Resource|Loading Generic Resources]]
  *
  * ## Working with Input
  *
+ * Excalibur comes built-in with support for mouse, keyboard, touch, and controllers.
+ *
  * - [[Pointers|Mouse and Touch]]
  * - [[Keyboard]]
- * - [[Gamepads|Gamepad and Controllers]]
+ * - [[Gamepads|Controller Support]]
  * 
  * ## Working with Media
+ *
+ * Add sounds, images, and animations to your game.
  *
  * - [[Sprite|Working with Sprites]]
  * - [[Sound|Working with Sounds]]
@@ -69,12 +81,25 @@
  *
  * ## Effects and Particles
  *
+ * Every game needs an explosion or two. Add sprite effects such as lighten,
+ * darken, and colorize.
+ *
  * - [[Effects|Sprite Effects]]
  * - [[ParticleEmitter|Particle Emitters]]
  *
+ * ## Math
+ *
+ * These classes provide the basics for math & algebra operations.
+ *
+ * - [[Point]]
+ * - [[Vector]]
+ * - [[Ray]]
+ * - [[Line]]
+ * - [[Projection]]
+ *
  * ## Utilities
  *
- * - [[Group|Groups]]
+ * - [[Util|Utility Functions]] 
  * - [[Promise|Promises and Async]]
  * - [[Logger|Logging]]
  * - [[Color|Colors]]
