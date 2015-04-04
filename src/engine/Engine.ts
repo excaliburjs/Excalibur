@@ -275,8 +275,8 @@ module ex {
 
          this.rootScene = this.currentScene = new Scene(this);
 
-         this.addScene('root', this.rootScene);
-
+         this.addScene("root", this.rootScene);
+         this.goToScene("root");
       }
 
       /**
@@ -511,25 +511,35 @@ module ex {
 
       /**
        * Changes the currently updating and drawing scene to a different,
-       * named scene.
+       * named scene. Calls the [[Scene]] lifecycle events.
        * @param key  The key of the scene to trasition to.       
        */
       public goToScene(key: string){
-         if(this.scenes[name]){
-            this.currentScene.onDeactivate.call(this.currentScene);
-            
+         if (this.scenes[key]) {
             var oldScene = this.currentScene;
-            this.currentScene = this.scenes[name];
+            var newScene = this.scenes[key];
 
-            oldScene.eventDispatcher.publish('deactivate', new DeactivateEvent(this.currentScene));
-            
+            this.logger.debug("Going to scene:", key);
+
+            // only deactivate when initialized
+            if (this.currentScene.isInitialized) {
+               this.currentScene.onDeactivate.call(this.currentScene);
+               this.currentScene.eventDispatcher.publish('deactivate', new DeactivateEvent(newScene));
+            }
+
+            // set current scene to new one
+            this.currentScene = newScene;
+
+            if (!this.currentScene.isInitialized) {
+               this.currentScene.onInitialize.call(this.currentScene, this);
+               this.currentScene.eventDispatcher.publish('initialize', new InitializeEvent(this));
+               this.currentScene.isInitialized = true;
+            }
 
             this.currentScene.onActivate.call(this.currentScene);
-
             this.currentScene.eventDispatcher.publish('activate', new ActivateEvent(oldScene));
-            
-         }else{
-            this.logger.error("Scene", name, "does not exist!");
+         } else {
+            this.logger.error("Scene", key, "does not exist!");
          }
       }
 
