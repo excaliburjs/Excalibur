@@ -146,7 +146,7 @@ module ex {
     * extend [[Actor]] allowing you to use all of the features that come with.
     *
     * The easiest way to create a `ParticleEmitter` is to use the 
-    * [Particle Tester](http://erikonarheim.com/labs/particle-tester/).
+    * [Particle Tester](http://excaliburjs.com/particle-tester/).
     *
     * ## Example: Adding an emitter
     *
