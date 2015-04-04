@@ -122,7 +122,7 @@ module ex {
    *   
    *     // check if player died
    *     if (this.health <= 0) {
-   *       this.publish("death");
+   *       this.triggerEvent("death");
    *       this.onDeath();
    *       return;
    *     }
@@ -139,7 +139,7 @@ module ex {
    *
    *     // check if player died
    *     if (this.health <= 0) {
-   *       this.publish("death");
+   *       this.triggerEvent("death");
    *       this.onDeath();
    *       return;
    *     }

@@ -62,10 +62,13 @@ module ex {
     *   var playerIdleAnimation = playerIdleSheet.getAnimationForAll(game, 125);
     *
     *   // create animation for a range of frames (2-4) (125ms frame speed)
-    *   var playerIdleAnimation = playerIdleSheet.getAnimationForAll(game, 1, 3, 125);
+    *   var playerIdleAnimation = playerIdleSheet.getAnimationBetween(game, 1, 3, 125);
     *
     *   // create animation for specific frames 2, 4, 5 (125ms frame speed)
-    *   var playerIdleAnimation = playerIdleSheet.getAnimationForAll(game, [1, 3, 4], 125);
+    *   var playerIdleAnimation = playerIdleSheet.getAnimationByIndices(game, [1, 3, 4], 125);
+    *
+    *   // create a repeating animation (ping-pong)
+    *   var playerIdleAnimation = playerIdleSheet.getAnimationByIndices(game, [1, 3, 4, 3, 1], 125);
     * ```
     *
     * ## Multiple rows
