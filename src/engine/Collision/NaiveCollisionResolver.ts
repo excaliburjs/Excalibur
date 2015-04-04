@@ -47,7 +47,10 @@ module ex {
 
          }
 
-         collisionPairs.forEach(p => p.evaluate());
+         var k = 0, len = collisionPairs.length;
+         for (k; k < len; k++) {
+            collisionPairs[k].evaluate();
+         }
          
          return collisionPairs;
       }

@@ -134,7 +134,10 @@ module ex {
        * Clears all queued actions from the Actor
        */
       public clearActions(): void {
-         this._queues.forEach(q => q.clearActions());
+         var i = 0, len = this._queues.length;
+         for (i; i < len; i++) {
+            this._queues[i].clearActions();
+         }
       }
 
       public addActorToContext(actor: Actor) {
@@ -160,9 +163,10 @@ module ex {
        * @param speed  The speed in pixels per second to move
         */
       public moveTo(x: number, y: number, speed: number): ActionContext {
-         this._queues.forEach((q, i) => {
-            q.add(new ex.Internal.Actions.MoveTo(this._actors[i], x, y, speed));
-         });
+         var i = 0, len = this._queues.length;
+         for (i; i < len; i++) {
+            this._queues[i].add(new ex.Internal.Actions.MoveTo(this._actors[i], x, y, speed));
+         }
 
          return this;
       }
@@ -176,9 +180,10 @@ module ex {
        * @param time  The time it should take the actor to move to the new location in milliseconds
         */
       public moveBy(x: number, y: number, time: number): ActionContext {
-         this._queues.forEach((q, i) => {
-            q.add(new ex.Internal.Actions.MoveBy(this._actors[i], x, y, time));
-         });
+         var i = 0, len = this._queues.length;
+         for (i; i < len; i++) {
+            this._queues[i].add(new ex.Internal.Actions.MoveBy(this._actors[i], x, y, time));
+         }
          return this;
       }
 
@@ -190,9 +195,10 @@ module ex {
        * @param speed         The angular velocity of the rotation specified in radians per second
         */
       public rotateTo(angleRadians: number, speed: number): ActionContext {
-         this._queues.forEach((q, i) => {
-            q.add(new ex.Internal.Actions.RotateTo(this._actors[i], angleRadians, speed));
-         });
+         var i = 0, len = this._queues.length;
+         for (i; i < len; i++) {
+            this._queues[i].add(new ex.Internal.Actions.RotateTo(this._actors[i], angleRadians, speed));
+         }
          return this;
       }
 
@@ -204,9 +210,10 @@ module ex {
        * @param time          The time it should take the actor to complete the rotation in milliseconds
         */
       public rotateBy(angleRadians: number, time: number): ActionContext {
-         this._queues.forEach((q, i) => {
-            q.add(new ex.Internal.Actions.RotateBy(this._actors[i], angleRadians, time));
-         });
+         var i = 0, len = this._queues.length;
+         for (i; i < len; i++) {
+            this._queues[i].add(new ex.Internal.Actions.RotateBy(this._actors[i], angleRadians, time));
+         }
          return this;
       }
 
@@ -219,9 +226,10 @@ module ex {
        * @param speed  The speed of scaling specified in magnitude increase per second
         */
       public scaleTo(sizeX: number, sizeY: number, speedX: number, speedY: number): ActionContext {
-         this._queues.forEach((q, i) => {
-            q.add(new ex.Internal.Actions.ScaleTo(this._actors[i], sizeX, sizeY, speedX, speedY));
-         });
+         var i = 0, len = this._queues.length;
+         for (i; i < len; i++) {
+            this._queues[i].add(new ex.Internal.Actions.ScaleTo(this._actors[i], sizeX, sizeY, speedX, speedY));
+         }
          return this;
       }
 
@@ -233,9 +241,10 @@ module ex {
        * @param time   The time it should take to complete the scaling in milliseconds
         */
       public scaleBy(sizeX: number, sizeY: number, time: number): ActionContext {
-         this._queues.forEach((q, i) => {
-            q.add(new ex.Internal.Actions.ScaleBy(this._actors[i], sizeX, sizeY, time));
-         });
+         var i = 0, len = this._queues.length;
+         for (i; i < len; i++) {
+            this._queues[i].add(new ex.Internal.Actions.ScaleBy(this._actors[i], sizeX, sizeY, time));
+         }
          return this;
       }
 
@@ -249,9 +258,10 @@ module ex {
        * @param numBlinks       The number of times to blink
         */
       public blink(timeVisible: number, timeNotVisible: number, numBlinks: number = 1): ActionContext {
-         this._queues.forEach((q, i) => {
-            q.add(new ex.Internal.Actions.Blink(this._actors[i], timeVisible, timeNotVisible, numBlinks));
-         });
+         var i = 0, len = this._queues.length;
+         for (i; i < len; i++) {
+            this._queues[i].add(new ex.Internal.Actions.Blink(this._actors[i], timeVisible, timeNotVisible, numBlinks));
+         }
          return this;
       }
 
@@ -263,9 +273,10 @@ module ex {
        * @param time     The time it should take to fade the actor (in milliseconds)
         */
       public fade(opacity: number, time: number): ActionContext {
-         this._queues.forEach((q, i) => {
-            q.add(new ex.Internal.Actions.Fade(this._actors[i], opacity, time));
-         });
+         var i = 0, len = this._queues.length;
+         for (i; i < len; i++) {
+            this._queues[i].add(new ex.Internal.Actions.Fade(this._actors[i], opacity, time));
+         }
          return this;
       }
 
@@ -276,9 +287,10 @@ module ex {
        * @param time  The amount of time to delay the next action in the queue from executing in milliseconds
         */
       public delay(time: number): ActionContext {
-         this._queues.forEach((q, i) => {
-            q.add(new ex.Internal.Actions.Delay(this._actors[i], time));
-         });
+         var i = 0, len = this._queues.length;
+         for (i; i < len; i++) {
+            this._queues[i].add(new ex.Internal.Actions.Delay(this._actors[i], time));
+         }
          return this;
       }
 
@@ -288,9 +300,10 @@ module ex {
        * action queue after this action will not be executed.
         */
       public die(): ActionContext {
-         this._queues.forEach((q, i) => {
-            q.add(new ex.Internal.Actions.Die(this._actors[i]));
-         });
+         var i = 0, len = this._queues.length;
+         for (i; i < len; i++) {
+            this._queues[i].add(new ex.Internal.Actions.Die(this._actors[i]));
+         }
          return this;
       }
 
@@ -300,9 +313,10 @@ module ex {
        * action, i.e An actor arrives at a destinatino after traversing a path
         */
       public callMethod(method: () => any): ActionContext {
-         this._queues.forEach((q, i) => {
-            q.add(new ex.Internal.Actions.CallMethod(this._actors[i], method));
-         });
+         var i = 0, len = this._queues.length;
+         for (i; i < len; i++) {
+            this._queues[i].add(new ex.Internal.Actions.CallMethod(this._actors[i], method));
+         }
          return this;
       }
 
@@ -318,9 +332,10 @@ module ex {
             this.repeatForever();
             return this;
          }
-         this._queues.forEach((q, i) => {
-            q.add(new ex.Internal.Actions.Repeat(this._actors[i], times, this._actors[i].actionQueue.getActions()));
-         });
+         var i = 0, len = this._queues.length;
+         for (i; i < len; i++) {
+            this._queues[i].add(new ex.Internal.Actions.Repeat(this._actors[i], times, this._actors[i].actionQueue.getActions()));
+         }
 
          return this;
       }
@@ -331,9 +346,10 @@ module ex {
        * fluent API allowing action chaining.
         */
       public repeatForever(): ActionContext {
-         this._queues.forEach((q, i) => {
-            q.add(new ex.Internal.Actions.RepeatForever(this._actors[i], this._actors[i].actionQueue.getActions()));
-         });
+         var i = 0, len = this._queues.length;
+         for (i; i < len; i++) {
+            this._queues[i].add(new ex.Internal.Actions.RepeatForever(this._actors[i], this._actors[i].actionQueue.getActions()));
+         }
          return this;
       }
 
@@ -343,13 +359,14 @@ module ex {
        * @param followDistance  The distance to maintain when following, if not specified the actor will follow at the current distance.
        */
       public follow(actor: Actor, followDistance?: number): ActionContext {
-         this._queues.forEach((q, i) => {
+         var i = 0, len = this._queues.length;
+         for (i; i < len; i++) {
             if (followDistance == undefined) {
-               q.add(new ex.Internal.Actions.Follow(this._actors[i], actor));
+               this._queues[i].add(new ex.Internal.Actions.Follow(this._actors[i], actor));
             } else {
-               q.add(new ex.Internal.Actions.Follow(this._actors[i], actor, followDistance));
+               this._queues[i].add(new ex.Internal.Actions.Follow(this._actors[i], actor, followDistance));
             }
-         });
+         }
          return this;
       }
 
@@ -360,13 +377,14 @@ module ex {
        * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
        */
       public meet(actor: Actor, speed?: number): ActionContext {
-         this._queues.forEach((q, i) => {
+         var i = 0, len = this._queues.length;
+         for (i; i < len; i++) {
             if (speed == undefined) {
-               q.add(new ex.Internal.Actions.Meet(this._actors[i], actor));
+               this._queues[i].add(new ex.Internal.Actions.Meet(this._actors[i], actor));
             } else {
-               q.add(new ex.Internal.Actions.Meet(this._actors[i], actor, speed));
+               this._queues[i].add(new ex.Internal.Actions.Meet(this._actors[i], actor, speed));
             }
-         });
+         }
          return this;
       }
 

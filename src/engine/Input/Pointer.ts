@@ -295,28 +295,42 @@ module ex.Input {
        */
       public propogate(actor: any) {
          var isUIActor = actor instanceof UIActor;
-         this._pointerUp.forEach((e) => {
-            if (actor.contains(e.x, e.y, !isUIActor)) {
-               actor.eventDispatcher.publish("pointerup", e);
+         var i: number, len: number;
+
+         i = 0, len = this._pointerUp.length;
+
+         for (i; i < len; i++) {
+            if (actor.contains(this._pointerUp[i].x, this._pointerUp[i].y, !isUIActor)) {
+               actor.eventDispatcher.publish("pointerup", this._pointerUp[i]);
             }
-         });
-         this._pointerDown.forEach((e) => {
-            if (actor.contains(e.x, e.y, !isUIActor)) {
-               actor.eventDispatcher.publish("pointerdown", e);
-            }
-         });
-         if (actor.capturePointer.captureMoveEvents) {
-            this._pointerMove.forEach((e) => {
-               if (actor.contains(e.x, e.y, !isUIActor)) {
-                  actor.eventDispatcher.publish("pointermove", e);
-               }
-            });
          }
-         this._pointerCancel.forEach((e) => {
-            if (actor.contains(e.x, e.y, !isUIActor)) {
-               actor.eventDispatcher.publish("pointercancel", e);
+
+         i = 0, len = this._pointerDown.length;
+
+         for (i; i < len; i++) {
+            if (actor.contains(this._pointerDown[i].x, this._pointerDown[i].y, !isUIActor)) {
+               actor.eventDispatcher.publish("pointerdown", this._pointerDown[i]);
             }
-         });
+         }
+
+         if (actor.capturePointer.captureMoveEvents) {
+
+            i = 0, len = this._pointerMove.length;
+
+            for (i; i < len; i++) {
+               if (actor.contains(this._pointerMove[i].x, this._pointerMove[i].y, !isUIActor)) {
+                  actor.eventDispatcher.publish("pointermove", this._pointerMove[i]);
+               }
+            }
+         }
+
+         i = 0, len = this._pointerCancel.length;
+
+         for (i; i < len; i++) {
+            if (actor.contains(this._pointerCancel[i].x, this._pointerCancel[i].y, !isUIActor)) {
+               actor.eventDispatcher.publish("pointercancel", this._pointerCancel[i]);
+            }
+         }
       }
 
       private _handleMouseEvent(eventName: string, eventArr: PointerEvent[]) {

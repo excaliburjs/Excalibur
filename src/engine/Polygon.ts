@@ -103,9 +103,13 @@ module ex {
          // Iterate through the supplied points and contruct a 'polygon'
          var firstPoint = this.points[0];
          ctx.moveTo(firstPoint.x, firstPoint.y);
-         this.points.forEach((point)=> {
-            ctx.lineTo(point.x, point.y);
-         });
+
+         var i = 0, len = this.points.length;
+
+         for (i; i < len; i++) {
+            ctx.lineTo(this.points[i].x, this.points[i].y);
+         }
+
          ctx.lineTo(firstPoint.x, firstPoint.y);
          ctx.closePath();
 

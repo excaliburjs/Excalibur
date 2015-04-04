@@ -209,9 +209,11 @@ module ex {
        * @param event      The event object to send 
        */
       public publish(eventType: string, event: GameEvent) {
-         this.children.forEach((actor) => {
-            actor.triggerEvent(eventType, event);
-         });
+         var i = 0, len = this.children.length;
+
+         for (i; i < len; i++) {
+            this.children[i].triggerEvent(eventType, event);
+         }
       }
 
       /**
@@ -221,18 +223,20 @@ module ex {
        */
       public update(engine: Engine, delta: number) {
 
-         this.uiActors.forEach(function(ui){
-            ui.update(engine, delta);
-         });
+         var i: number, len: number;
 
-         this.tileMaps.forEach(function (cm) {
-            cm.update(engine, delta);
-         });
+         // Cycle through actors updating UI actors
+         for (i = 0, len = this.uiActors.length; i < len; i++) {
+            this.uiActors[i].update(engine, delta);
+         }
 
+         // Cycle through actors updating tile maps
+         for (i = 0, len = this.tileMaps.length; i < len; i++) {
+            this.tileMaps[i].update(engine, delta);
+         }
 
-         var len = 0;
          // Cycle through actors updating actors
-         for (var i = 0, len = this.children.length; i < len; i++) {
+         for (i = 0, len = this.children.length; i < len; i++) {
             this.children[i].update(engine, delta);
          }
 
@@ -242,10 +246,10 @@ module ex {
             this._collisionResolver.evaluate(this.children);
          }
 
-
          // Remove actors from scene graph after being killed
-         var actorIndex = 0;
-         for (var i = 0, len = this._killQueue.length; i < len; i++) {
+         var actorIndex: number;
+
+         for (i = 0, len = this._killQueue.length; i < len; i++) {
             actorIndex = this.children.indexOf(this._killQueue[i]);
             if (actorIndex > -1) {
                this.children.splice(actorIndex, 1);
@@ -253,17 +257,14 @@ module ex {
          }
          this._killQueue.length = 0;
 
-
          // Remove timers in the cancel queue before updating them
-         var timerIndex = 0;
-         for (var i = 0, len = this._cancelQueue.length; i < len; i++) {
+         for (i = 0, len = this._cancelQueue.length; i < len; i++) {
             this.removeTimer(this._cancelQueue[i]);
          }
          this._cancelQueue.length = 0;
 
          // Cycle through timers updating timers
-         var that = this;
-         this._timers = this._timers.filter(function (timer) {
+         this._timers = this._timers.filter(timer => {
             timer.update(delta);
             return !timer.complete;
          });
@@ -281,18 +282,16 @@ module ex {
             this.camera.update(ctx, delta);
          }
 
-         this.tileMaps.forEach(function (cm) {
-            cm.draw(ctx, delta);
-         });
+         var i: number, len: number;
 
-         var len = 0;
-         var start = 0;
-         var end = 0;
-         var actor;
-         for (var i = 0, len = this.children.length; i < len; i++) {
-            actor = this.children[i];
+         for (i = 0, len = this.tileMaps.length; i < len; i++) {
+            this.tileMaps[i].draw(ctx, delta);
+         }
+
+         for (i = 0, len = this.children.length; i < len; i++) {
+
             // only draw actors that are visible
-            if (actor.visible) {
+            if (this.children[i].visible) {
                this.children[i].draw(ctx, delta);
             }
          }
@@ -304,16 +303,16 @@ module ex {
 
          ctx.restore();
          
-         this.uiActors.forEach(function (ui) {
-            if (ui.visible) {
-               ui.draw(ctx, delta);
+         for (i = 0, len = this.uiActors.length; i < len; i++) {
+            if (this.uiActors[i].visible) {
+               this.uiActors[i].draw(ctx, delta);
             }
-         });
+         }
 
          if (this.engine && this.engine.isDebug) {
-            this.uiActors.forEach(function(ui){
-               ui.debugDraw(ctx);
-            });
+            for (i = 0, len = this.uiActors.length; i < len; i++) {
+               this.uiActors[i].debugDraw(ctx);
+            }
          }
 
       }
@@ -324,14 +323,15 @@ module ex {
        */
       public debugDraw(ctx: CanvasRenderingContext2D) {
 
+         var i: number, len: number;
 
-         this.tileMaps.forEach(map => {
-            map.debugDraw(ctx);
-         });
+         for (i = 0, len = this.tileMaps.length; i < len; i++) {
+            this.tileMaps[i].debugDraw(ctx);
+         }
 
-         this.children.forEach((actor) => {
-            actor.debugDraw(ctx);
-         });
+         for (i = 0, len = this.children.length; i < len; i++) {
+            this.children[i].debugDraw(ctx);
+         }
 
          // todo possibly enable this with excalibur flags features?
          //this._collisionResolver.debugDraw(ctx, 20);

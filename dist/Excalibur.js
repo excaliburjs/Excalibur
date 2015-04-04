@@ -998,8 +998,8 @@ var ex;
              * @param func  Callback to call for each element passing a reference to the element and its index, returned values are ignored
              */
             Collection.prototype.forEach = function (func) {
-                var count = this.count();
-                for (var i = 0; i < count; i++) {
+                var i = 0, count = this.count();
+                for (i; i < count; i++) {
                     func.call(this, this.internalArray[i], i);
                 }
             };
@@ -1231,20 +1231,20 @@ var ex;
             }
         };
         Sprite.prototype.applyEffects = function () {
-            var _this = this;
             var clamp = ex.Util.clamp;
             var naturalWidth = this._texture.image.naturalWidth || 0;
             var naturalHeight = this._texture.image.naturalHeight || 0;
             this.spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
             this.spriteCtx.drawImage(this._texture.image, clamp(this.sx, 0, naturalWidth), clamp(this.sy, 0, naturalHeight), clamp(this.swidth, 0, naturalWidth), clamp(this.sheight, 0, naturalHeight), 0, 0, this.swidth, this.sheight);
             this.pixelData = this.spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
-            this.effects.forEach(function (effect) {
-                for (var y = 0; y < _this.sheight; y++) {
-                    for (var x = 0; x < _this.swidth; x++) {
-                        effect.updatePixel(x, y, _this.pixelData);
+            var i = 0, x = 0, y = 0, len = this.effects.length;
+            for (i; i < len; i++) {
+                for (y; y < this.sheight; y++) {
+                    for (x; x < this.swidth; x++) {
+                        this.effects[i].updatePixel(x, y, this.pixelData);
                     }
                 }
-            });
+            }
             this.spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
             this.spriteCtx.putImageData(this.pixelData, 0, 0);
             this.internalImage.src = this.spriteCanvas.toDataURL("image/png");
@@ -1311,9 +1311,10 @@ var ex;
             result.rotation = this.rotation;
             result.flipHorizontal = this.flipHorizontal;
             result.flipVertical = this.flipVertical;
-            this.effects.forEach(function (e) {
-                result.addEffect(e);
-            });
+            var i = 0, len = this.effects.length;
+            for (i; i < len; i++) {
+                result.addEffect(this.effects[i]);
+            }
             return result;
         };
         return Sprite;
@@ -1912,28 +1913,33 @@ var ex;
          * @param delta  The number of milliseconds since the last draw
          */
         TileMap.prototype.draw = function (ctx, delta) {
-            var _this = this;
             ctx.save();
             ctx.translate(this.x, this.y);
-            for (var x = this._onScreenXStart; x < Math.min(this._onScreenXEnd, this.cols); x++) {
-                for (var y = this._onScreenYStart; y < Math.min(this._onScreenYEnd, this.rows); y++) {
-                    this.getCell(x, y).sprites.filter(function (s) {
+            var x = this._onScreenXStart, xEnd = Math.min(this._onScreenXEnd, this.cols);
+            var y = this._onScreenYStart, yEnd = Math.min(this._onScreenYEnd, this.rows);
+            var cs, csi, cslen;
+            for (x; x < xEnd; x++) {
+                for (y; y < yEnd; y++) {
+                    // get non-negative tile sprites
+                    cs = this.getCell(x, y).sprites.filter(function (s) {
                         return s.spriteId > -1;
-                    }).forEach(function (ts) {
-                        var ss = _this._spriteSheets[ts.spriteSheetKey];
+                    });
+                    for (csi = 0, cslen = cs.length; csi < cslen; csi++) {
+                        var ss = this._spriteSheets[cs[csi].spriteSheetKey];
+                        // draw sprite, warning if sprite doesn't exist
                         if (ss) {
-                            var sprite = ss.getSprite(ts.spriteId);
+                            var sprite = ss.getSprite(cs[csi].spriteId);
                             if (sprite) {
-                                sprite.draw(ctx, x * _this.cellWidth, y * _this.cellHeight);
+                                sprite.draw(ctx, x * this.cellWidth, y * this.cellHeight);
                             }
                             else {
-                                _this.logger.warn("Sprite does not exist for id", ts.spriteId, "in sprite sheet", ts.spriteSheetKey, sprite, ss);
+                                this.logger.warn("Sprite does not exist for id", cs[csi].spriteId, "in sprite sheet", cs[csi].spriteSheetKey, sprite, ss);
                             }
                         }
                         else {
-                            _this.logger.warn("Sprite sheet", ts.spriteSheetKey, "does not exist", ss);
+                            this.logger.warn("Sprite sheet", cs[csi].spriteSheetKey, "does not exist", ss);
                         }
-                    });
+                    }
                 }
             }
             ctx.restore();
@@ -2285,9 +2291,10 @@ var ex;
             // Iterate through the supplied points and contruct a 'polygon'
             var firstPoint = this._points[0];
             ctx.moveTo(firstPoint.x, firstPoint.y);
-            this._points.forEach(function (point) {
-                ctx.lineTo(point.x, point.y);
-            });
+            var i = 0, len = this._points.length;
+            for (i; i < len; i++) {
+                ctx.lineTo(this._points[i].x, this._points[i].y);
+            }
             ctx.lineTo(firstPoint.x, firstPoint.y);
             ctx.closePath();
             ctx.strokeStyle = ex.Color.Blue.toString();
@@ -2510,7 +2517,10 @@ var ex;
                     }
                 }
             }
-            collisionPairs.forEach(function (p) { return p.evaluate(); });
+            var k = 0, len = collisionPairs.length;
+            for (k; k < len; k++) {
+                collisionPairs[k].evaluate();
+            }
             return collisionPairs;
         };
         NaiveCollisionResolver.prototype.update = function (targets) {
@@ -2930,17 +2940,19 @@ var ex;
                     return false;
                 });
             }
-            collisionPairs.forEach(function (p) { return p.evaluate(); });
+            var i = 0, len = collisionPairs.length;
+            for (i; i < len; i++) {
+                collisionPairs[i].evaluate();
+            }
             return collisionPairs;
         };
         DynamicTreeCollisionResolver.prototype.update = function (targets) {
-            var _this = this;
-            var updated = 0;
-            targets.forEach(function (a) {
-                if (_this._dynamicCollisionTree.updateActor(a)) {
+            var updated = 0, i = 0, len = targets.length;
+            for (i; i < len; i++) {
+                if (this._dynamicCollisionTree.updateActor(targets[i])) {
                     updated++;
                 }
-            });
+            }
             return updated;
         };
         DynamicTreeCollisionResolver.prototype.debugDraw = function (ctx, delta) {
@@ -3932,16 +3944,17 @@ var ex;
             Actions.CallMethod = CallMethod;
             var Repeat = (function () {
                 function Repeat(actor, repeat, actions) {
-                    var _this = this;
                     this._stopped = false;
                     this.actor = actor;
                     this.actionQueue = new ActionQueue(actor);
                     this.repeat = repeat;
                     this.originalRepeat = repeat;
-                    actions.forEach(function (action) {
-                        action.reset();
-                        _this.actionQueue.add(action);
-                    });
+                    var i = 0, len = actions.length;
+                    for (i; i < len; i++) {
+                        actions[i].reset();
+                        this.actionQueue.add(actions[i]);
+                    }
+                    ;
                 }
                 Repeat.prototype.update = function (delta) {
                     this.x = this.actor.x;
@@ -3966,14 +3979,15 @@ var ex;
             Actions.Repeat = Repeat;
             var RepeatForever = (function () {
                 function RepeatForever(actor, actions) {
-                    var _this = this;
                     this._stopped = false;
                     this.actor = actor;
                     this.actionQueue = new ActionQueue(actor);
-                    actions.forEach(function (action) {
-                        action.reset();
-                        _this.actionQueue.add(action);
-                    });
+                    var i = 0, len = actions.length;
+                    for (i; i < len; i++) {
+                        actions[i].reset();
+                        this.actionQueue.add(actions[i]);
+                    }
+                    ;
                 }
                 RepeatForever.prototype.update = function (delta) {
                     this.x = this.actor.x;
@@ -4036,9 +4050,10 @@ var ex;
                 };
                 ActionQueue.prototype.reset = function () {
                     this._actions = this.getActions();
-                    this._actions.forEach(function (action) {
-                        action.reset();
-                    });
+                    var i = 0, len = this._actions.length;
+                    for (i; i < len; i++) {
+                        this._actions[i].reset();
+                    }
                     this._completedActions = [];
                 };
                 ActionQueue.prototype.update = function (delta) {
@@ -4187,7 +4202,10 @@ var ex;
          * Clears all queued actions from the Actor
          */
         ActionContext.prototype.clearActions = function () {
-            this._queues.forEach(function (q) { return q.clearActions(); });
+            var i = 0, len = this._queues.length;
+            for (i; i < len; i++) {
+                this._queues[i].clearActions();
+            }
         };
         ActionContext.prototype.addActorToContext = function (actor) {
             this._actors.push(actor);
@@ -4210,10 +4228,10 @@ var ex;
          * @param speed  The speed in pixels per second to move
           */
         ActionContext.prototype.moveTo = function (x, y, speed) {
-            var _this = this;
-            this._queues.forEach(function (q, i) {
-                q.add(new ex.Internal.Actions.MoveTo(_this._actors[i], x, y, speed));
-            });
+            var i = 0, len = this._queues.length;
+            for (i; i < len; i++) {
+                this._queues[i].add(new ex.Internal.Actions.MoveTo(this._actors[i], x, y, speed));
+            }
             return this;
         };
         /**
@@ -4225,10 +4243,10 @@ var ex;
          * @param time  The time it should take the actor to move to the new location in milliseconds
           */
         ActionContext.prototype.moveBy = function (x, y, time) {
-            var _this = this;
-            this._queues.forEach(function (q, i) {
-                q.add(new ex.Internal.Actions.MoveBy(_this._actors[i], x, y, time));
-            });
+            var i = 0, len = this._queues.length;
+            for (i; i < len; i++) {
+                this._queues[i].add(new ex.Internal.Actions.MoveBy(this._actors[i], x, y, time));
+            }
             return this;
         };
         /**
@@ -4239,10 +4257,10 @@ var ex;
          * @param speed         The angular velocity of the rotation specified in radians per second
           */
         ActionContext.prototype.rotateTo = function (angleRadians, speed) {
-            var _this = this;
-            this._queues.forEach(function (q, i) {
-                q.add(new ex.Internal.Actions.RotateTo(_this._actors[i], angleRadians, speed));
-            });
+            var i = 0, len = this._queues.length;
+            for (i; i < len; i++) {
+                this._queues[i].add(new ex.Internal.Actions.RotateTo(this._actors[i], angleRadians, speed));
+            }
             return this;
         };
         /**
@@ -4253,10 +4271,10 @@ var ex;
          * @param time          The time it should take the actor to complete the rotation in milliseconds
           */
         ActionContext.prototype.rotateBy = function (angleRadians, time) {
-            var _this = this;
-            this._queues.forEach(function (q, i) {
-                q.add(new ex.Internal.Actions.RotateBy(_this._actors[i], angleRadians, time));
-            });
+            var i = 0, len = this._queues.length;
+            for (i; i < len; i++) {
+                this._queues[i].add(new ex.Internal.Actions.RotateBy(this._actors[i], angleRadians, time));
+            }
             return this;
         };
         /**
@@ -4268,10 +4286,10 @@ var ex;
          * @param speed  The speed of scaling specified in magnitude increase per second
           */
         ActionContext.prototype.scaleTo = function (sizeX, sizeY, speedX, speedY) {
-            var _this = this;
-            this._queues.forEach(function (q, i) {
-                q.add(new ex.Internal.Actions.ScaleTo(_this._actors[i], sizeX, sizeY, speedX, speedY));
-            });
+            var i = 0, len = this._queues.length;
+            for (i; i < len; i++) {
+                this._queues[i].add(new ex.Internal.Actions.ScaleTo(this._actors[i], sizeX, sizeY, speedX, speedY));
+            }
             return this;
         };
         /**
@@ -4282,10 +4300,10 @@ var ex;
          * @param time   The time it should take to complete the scaling in milliseconds
           */
         ActionContext.prototype.scaleBy = function (sizeX, sizeY, time) {
-            var _this = this;
-            this._queues.forEach(function (q, i) {
-                q.add(new ex.Internal.Actions.ScaleBy(_this._actors[i], sizeX, sizeY, time));
-            });
+            var i = 0, len = this._queues.length;
+            for (i; i < len; i++) {
+                this._queues[i].add(new ex.Internal.Actions.ScaleBy(this._actors[i], sizeX, sizeY, time));
+            }
             return this;
         };
         /**
@@ -4298,11 +4316,11 @@ var ex;
          * @param numBlinks       The number of times to blink
           */
         ActionContext.prototype.blink = function (timeVisible, timeNotVisible, numBlinks) {
-            var _this = this;
             if (numBlinks === void 0) { numBlinks = 1; }
-            this._queues.forEach(function (q, i) {
-                q.add(new ex.Internal.Actions.Blink(_this._actors[i], timeVisible, timeNotVisible, numBlinks));
-            });
+            var i = 0, len = this._queues.length;
+            for (i; i < len; i++) {
+                this._queues[i].add(new ex.Internal.Actions.Blink(this._actors[i], timeVisible, timeNotVisible, numBlinks));
+            }
             return this;
         };
         /**
@@ -4313,10 +4331,10 @@ var ex;
          * @param time     The time it should take to fade the actor (in milliseconds)
           */
         ActionContext.prototype.fade = function (opacity, time) {
-            var _this = this;
-            this._queues.forEach(function (q, i) {
-                q.add(new ex.Internal.Actions.Fade(_this._actors[i], opacity, time));
-            });
+            var i = 0, len = this._queues.length;
+            for (i; i < len; i++) {
+                this._queues[i].add(new ex.Internal.Actions.Fade(this._actors[i], opacity, time));
+            }
             return this;
         };
         /**
@@ -4326,10 +4344,10 @@ var ex;
          * @param time  The amount of time to delay the next action in the queue from executing in milliseconds
           */
         ActionContext.prototype.delay = function (time) {
-            var _this = this;
-            this._queues.forEach(function (q, i) {
-                q.add(new ex.Internal.Actions.Delay(_this._actors[i], time));
-            });
+            var i = 0, len = this._queues.length;
+            for (i; i < len; i++) {
+                this._queues[i].add(new ex.Internal.Actions.Delay(this._actors[i], time));
+            }
             return this;
         };
         /**
@@ -4338,10 +4356,10 @@ var ex;
          * action queue after this action will not be executed.
           */
         ActionContext.prototype.die = function () {
-            var _this = this;
-            this._queues.forEach(function (q, i) {
-                q.add(new ex.Internal.Actions.Die(_this._actors[i]));
-            });
+            var i = 0, len = this._queues.length;
+            for (i; i < len; i++) {
+                this._queues[i].add(new ex.Internal.Actions.Die(this._actors[i]));
+            }
             return this;
         };
         /**
@@ -4350,10 +4368,10 @@ var ex;
          * action, i.e An actor arrives at a destinatino after traversing a path
           */
         ActionContext.prototype.callMethod = function (method) {
-            var _this = this;
-            this._queues.forEach(function (q, i) {
-                q.add(new ex.Internal.Actions.CallMethod(_this._actors[i], method));
-            });
+            var i = 0, len = this._queues.length;
+            for (i; i < len; i++) {
+                this._queues[i].add(new ex.Internal.Actions.CallMethod(this._actors[i], method));
+            }
             return this;
         };
         /**
@@ -4364,14 +4382,14 @@ var ex;
          * @param times  The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will repeat forever
           */
         ActionContext.prototype.repeat = function (times) {
-            var _this = this;
             if (!times) {
                 this.repeatForever();
                 return this;
             }
-            this._queues.forEach(function (q, i) {
-                q.add(new ex.Internal.Actions.Repeat(_this._actors[i], times, _this._actors[i].actionQueue.getActions()));
-            });
+            var i = 0, len = this._queues.length;
+            for (i; i < len; i++) {
+                this._queues[i].add(new ex.Internal.Actions.Repeat(this._actors[i], times, this._actors[i].actionQueue.getActions()));
+            }
             return this;
         };
         /**
@@ -4380,10 +4398,10 @@ var ex;
          * fluent API allowing action chaining.
           */
         ActionContext.prototype.repeatForever = function () {
-            var _this = this;
-            this._queues.forEach(function (q, i) {
-                q.add(new ex.Internal.Actions.RepeatForever(_this._actors[i], _this._actors[i].actionQueue.getActions()));
-            });
+            var i = 0, len = this._queues.length;
+            for (i; i < len; i++) {
+                this._queues[i].add(new ex.Internal.Actions.RepeatForever(this._actors[i], this._actors[i].actionQueue.getActions()));
+            }
             return this;
         };
         /**
@@ -4392,15 +4410,15 @@ var ex;
          * @param followDistance  The distance to maintain when following, if not specified the actor will follow at the current distance.
          */
         ActionContext.prototype.follow = function (actor, followDistance) {
-            var _this = this;
-            this._queues.forEach(function (q, i) {
+            var i = 0, len = this._queues.length;
+            for (i; i < len; i++) {
                 if (followDistance == undefined) {
-                    q.add(new ex.Internal.Actions.Follow(_this._actors[i], actor));
+                    this._queues[i].add(new ex.Internal.Actions.Follow(this._actors[i], actor));
                 }
                 else {
-                    q.add(new ex.Internal.Actions.Follow(_this._actors[i], actor, followDistance));
+                    this._queues[i].add(new ex.Internal.Actions.Follow(this._actors[i], actor, followDistance));
                 }
-            });
+            }
             return this;
         };
         /**
@@ -4410,15 +4428,15 @@ var ex;
          * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
          */
         ActionContext.prototype.meet = function (actor, speed) {
-            var _this = this;
-            this._queues.forEach(function (q, i) {
+            var i = 0, len = this._queues.length;
+            for (i; i < len; i++) {
                 if (speed == undefined) {
-                    q.add(new ex.Internal.Actions.Meet(_this._actors[i], actor));
+                    this._queues[i].add(new ex.Internal.Actions.Meet(this._actors[i], actor));
                 }
                 else {
-                    q.add(new ex.Internal.Actions.Meet(_this._actors[i], actor, speed));
+                    this._queues[i].add(new ex.Internal.Actions.Meet(this._actors[i], actor, speed));
                 }
-            });
+            }
             return this;
         };
         /**
@@ -4474,19 +4492,19 @@ var ex;
             }
         }
         Group.prototype.add = function (actorOrActors) {
-            var _this = this;
             if (actorOrActors instanceof ex.Actor) {
                 actorOrActors = [].concat(actorOrActors);
             }
-            actorOrActors.forEach(function (a) {
-                var index = _this.getMembers().indexOf(a);
-                if (index === -1) {
-                    _this._members.push(a);
-                    _this.scene.add(a);
-                    _this.actions.addActorToContext(a);
-                    _this.eventDispatcher.wire(a.eventDispatcher);
+            var i = 0, len = actorOrActors.length, groupIdx;
+            for (i; i < len; i++) {
+                groupIdx = this.getMembers().indexOf(actorOrActors[i]);
+                if (groupIdx === -1) {
+                    this._members.push(actorOrActors[i]);
+                    this.scene.add(actorOrActors[i]);
+                    this.actions.addActorToContext(actorOrActors[i]);
+                    this.eventDispatcher.wire(actorOrActors[i].eventDispatcher);
                 }
-            });
+            }
         };
         Group.prototype.remove = function (actor) {
             var index = this._members.indexOf(actor);
@@ -4497,19 +4515,20 @@ var ex;
             }
         };
         Group.prototype.move = function (args) {
+            var i = 0, members = this.getMembers(), len = members.length;
             if (arguments.length === 1 && args instanceof ex.Vector) {
-                this.getMembers().forEach(function (a) {
-                    a.x += args.x;
-                    a.y += args.y;
-                });
+                for (i; i < len; i++) {
+                    members[i].x += args.x;
+                    members[i].y += args.y;
+                }
             }
             else if (typeof arguments[0] === 'number' && typeof arguments[1] === 'number') {
                 var x = arguments[0];
                 var y = arguments[1];
-                this.getMembers().forEach(function (a) {
-                    a.x += x;
-                    a.y += y;
-                });
+                for (i; i < len; i++) {
+                    members[i].x += x;
+                    members[i].y += y;
+                }
             }
             else {
                 this._logger.error("Invalid arguments passed to group move", this.name, "args:", arguments);
@@ -4517,10 +4536,10 @@ var ex;
         };
         Group.prototype.rotate = function (angle) {
             if (typeof arguments[0] === 'number') {
-                var r = arguments[0];
-                this.getMembers().forEach(function (a) {
-                    a.rotation += r;
-                });
+                var r = arguments[0], i = 0, members = this.getMembers(), len = members.length;
+                for (i; i < len; i++) {
+                    members[i].rotation += r;
+                }
             }
             else {
                 this._logger.error("Invalid arguments passed to group rotate", this.name, "args:", arguments);
@@ -4737,9 +4756,10 @@ var ex;
          * @param event      The event object to send
          */
         Scene.prototype.publish = function (eventType, event) {
-            this.children.forEach(function (actor) {
-                actor.triggerEvent(eventType, event);
-            });
+            var i = 0, len = this.children.length;
+            for (i; i < len; i++) {
+                this.children[i].triggerEvent(eventType, event);
+            }
         };
         /**
          * Updates all the actors and timers in the scene. Called by the [[Engine]].
@@ -4747,14 +4767,14 @@ var ex;
          * @param delta   The number of milliseconds since the last update
          */
         Scene.prototype.update = function (engine, delta) {
-            this.uiActors.forEach(function (ui) {
-                ui.update(engine, delta);
-            });
-            this.tileMaps.forEach(function (cm) {
-                cm.update(engine, delta);
-            });
-            var len = 0;
-            for (var i = 0, len = this.children.length; i < len; i++) {
+            var i, len;
+            for (i = 0, len = this.uiActors.length; i < len; i++) {
+                this.uiActors[i].update(engine, delta);
+            }
+            for (i = 0, len = this.tileMaps.length; i < len; i++) {
+                this.tileMaps[i].update(engine, delta);
+            }
+            for (i = 0, len = this.children.length; i < len; i++) {
                 this.children[i].update(engine, delta);
             }
             // Run collision resolution strategy
@@ -4763,22 +4783,19 @@ var ex;
                 this._collisionResolver.evaluate(this.children);
             }
             // Remove actors from scene graph after being killed
-            var actorIndex = 0;
-            for (var i = 0, len = this._killQueue.length; i < len; i++) {
+            var actorIndex;
+            for (i = 0, len = this._killQueue.length; i < len; i++) {
                 actorIndex = this.children.indexOf(this._killQueue[i]);
                 if (actorIndex > -1) {
                     this.children.splice(actorIndex, 1);
                 }
             }
             this._killQueue.length = 0;
-            // Remove timers in the cancel queue before updating them
-            var timerIndex = 0;
-            for (var i = 0, len = this._cancelQueue.length; i < len; i++) {
+            for (i = 0, len = this._cancelQueue.length; i < len; i++) {
                 this.removeTimer(this._cancelQueue[i]);
             }
             this._cancelQueue.length = 0;
             // Cycle through timers updating timers
-            var that = this;
             this._timers = this._timers.filter(function (timer) {
                 timer.update(delta);
                 return !timer.complete;
@@ -4794,17 +4811,13 @@ var ex;
             if (this.camera) {
                 this.camera.update(ctx, delta);
             }
-            this.tileMaps.forEach(function (cm) {
-                cm.draw(ctx, delta);
-            });
-            var len = 0;
-            var start = 0;
-            var end = 0;
-            var actor;
-            for (var i = 0, len = this.children.length; i < len; i++) {
-                actor = this.children[i];
+            var i, len;
+            for (i = 0, len = this.tileMaps.length; i < len; i++) {
+                this.tileMaps[i].draw(ctx, delta);
+            }
+            for (i = 0, len = this.children.length; i < len; i++) {
                 // only draw actors that are visible
-                if (actor.visible) {
+                if (this.children[i].visible) {
                     this.children[i].draw(ctx, delta);
                 }
             }
@@ -4813,15 +4826,15 @@ var ex;
                 this.debugDraw(ctx);
             }
             ctx.restore();
-            this.uiActors.forEach(function (ui) {
-                if (ui.visible) {
-                    ui.draw(ctx, delta);
+            for (i = 0, len = this.uiActors.length; i < len; i++) {
+                if (this.uiActors[i].visible) {
+                    this.uiActors[i].draw(ctx, delta);
                 }
-            });
+            }
             if (this.engine && this.engine.isDebug) {
-                this.uiActors.forEach(function (ui) {
-                    ui.debugDraw(ctx);
-                });
+                for (i = 0, len = this.uiActors.length; i < len; i++) {
+                    this.uiActors[i].debugDraw(ctx);
+                }
             }
         };
         /**
@@ -4829,12 +4842,13 @@ var ex;
          * @param ctx  The current rendering context
          */
         Scene.prototype.debugDraw = function (ctx) {
-            this.tileMaps.forEach(function (map) {
-                map.debugDraw(ctx);
-            });
-            this.children.forEach(function (actor) {
-                actor.debugDraw(ctx);
-            });
+            var i, len;
+            for (i = 0, len = this.tileMaps.length; i < len; i++) {
+                this.tileMaps[i].debugDraw(ctx);
+            }
+            for (i = 0, len = this.children.length; i < len; i++) {
+                this.children[i].debugDraw(ctx);
+            }
             // todo possibly enable this with excalibur flags features?
             //this._collisionResolver.debugDraw(ctx, 20);
             //this.camera.debugDraw(ctx);
@@ -6210,15 +6224,15 @@ var ex;
          * @param args   An array of arguments to write to an appender
          */
         Logger.prototype._log = function (level, args) {
-            var _this = this;
             if (level == null) {
                 level = this.defaultLevel;
             }
-            this.appenders.forEach(function (appender) {
-                if (level >= _this.defaultLevel) {
-                    appender.log(level, args);
+            var i = 0, len = this.appenders.length;
+            for (i; i < len; i++) {
+                if (level >= this.defaultLevel) {
+                    this.appenders[i].log(level, args);
                 }
-            });
+            }
         };
         /**
          * Writes a log message at the [[LogLevel.Debug]] level
@@ -6652,12 +6666,19 @@ var ex;
                 event = new ex.GameEvent();
             }
             event.target = target;
+            var i, len;
             if (this._handlers[eventName]) {
-                this._handlers[eventName].forEach(function (callback) {
-                    callback.call(target, event);
-                });
+                i = 0;
+                len = this._handlers[eventName].length;
+                for (i; i < len; i++) {
+                    this._handlers[eventName][i].call(target, event);
+                }
             }
-            this._wiredEventDispatchers.forEach(function (d) { return d.publish(eventName, event); });
+            i = 0;
+            len = this._wiredEventDispatchers.length;
+            for (i; i < len; i++) {
+                this._wiredEventDispatchers[i].publish(eventName, event);
+            }
         };
         /**
          * Alias for [[publish]], publishes an event for target
@@ -7356,7 +7377,7 @@ var ex;
      * extend [[Actor]] allowing you to use all of the features that come with.
      *
      * The easiest way to create a `ParticleEmitter` is to use the
-     * [Particle Tester](http://erikonarheim.com/labs/particle-tester/).
+     * [Particle Tester](http://excaliburjs.com/particle-tester/).
      *
      * ## Example: Adding an emitter
      *
@@ -7547,26 +7568,20 @@ var ex;
             _super.prototype.update.call(this, engine, delta);
             if (this.isEmitting) {
                 this._particlesToEmit += this.emitRate * (delta / 1000);
-                var numParticles = Math.ceil(this.emitRate * delta / 1000);
+                //var numParticles = Math.ceil(this.emitRate * delta / 1000);
                 if (this._particlesToEmit > 1.0) {
                     this.emit(Math.floor(this._particlesToEmit));
                     this._particlesToEmit = this._particlesToEmit - Math.floor(this._particlesToEmit);
                 }
             }
-            this.particles.forEach(function (particle, index) {
-                particle.update(delta);
-            });
-            this.deadParticles.forEach(function (particle, index) {
-                _this.particles.removeElement(particle);
-            });
+            this.particles.forEach(function (p) { return p.update(delta); });
+            this.deadParticles.forEach(function (p) { return _this.particles.removeElement(p); });
             this.deadParticles.clear();
         };
         ParticleEmitter.prototype.draw = function (ctx, delta) {
-            this.particles.forEach(function (particle, index) {
-                // todo is there a more efficient to draw 
-                // possibly use a webgl offscreen canvas and shaders to do particles?
-                particle.draw(ctx);
-            });
+            // todo is there a more efficient to draw 
+            // possibly use a webgl offscreen canvas and shaders to do particles?
+            this.particles.forEach(function (p) { return p.draw(ctx); });
         };
         ParticleEmitter.prototype.debugDraw = function (ctx) {
             _super.prototype.debugDraw.call(this, ctx);
@@ -7925,14 +7940,16 @@ var ex;
                 this.isLoaded = true;
             };
             AudioTag.prototype.setVolume = function (volume) {
-                this.audioElements.forEach(function (a) {
-                    a.volume = volume;
-                });
+                var i = 0, len = this.audioElements.length;
+                for (i; i < len; i++) {
+                    this.audioElements[i].volume = volume;
+                }
             };
             AudioTag.prototype.setLoop = function (loop) {
-                this.audioElements.forEach(function (a) {
-                    a.loop = loop;
-                });
+                var i = 0, len = this.audioElements.length;
+                for (i; i < len; i++) {
+                    this.audioElements[i].loop = loop;
+                }
             };
             AudioTag.prototype.getLoop = function () {
                 this.audioElements.some(function (a) { return a.loop; });
@@ -8816,10 +8833,10 @@ var ex;
          * @param loadables  The list of resources to load
          */
         Loader.prototype.addResources = function (loadables) {
-            var _this = this;
-            loadables.forEach(function (l) {
-                _this.addResource(l);
-            });
+            var i = 0, len = loadables.length;
+            for (i; i < len; i++) {
+                this.addResource(loadables[i]);
+            }
         };
         Loader.prototype.sumCounts = function (obj) {
             var sum = 0;
@@ -9715,28 +9732,33 @@ var ex;
              */
             Pointers.prototype.propogate = function (actor) {
                 var isUIActor = actor instanceof ex.UIActor;
-                this._pointerUp.forEach(function (e) {
-                    if (actor.contains(e.x, e.y, !isUIActor)) {
-                        actor.eventDispatcher.publish("pointerup", e);
+                var i, len;
+                i = 0, len = this._pointerUp.length;
+                for (i; i < len; i++) {
+                    if (actor.contains(this._pointerUp[i].x, this._pointerUp[i].y, !isUIActor)) {
+                        actor.eventDispatcher.publish("pointerup", this._pointerUp[i]);
                     }
-                });
-                this._pointerDown.forEach(function (e) {
-                    if (actor.contains(e.x, e.y, !isUIActor)) {
-                        actor.eventDispatcher.publish("pointerdown", e);
-                    }
-                });
-                if (actor.capturePointer.captureMoveEvents) {
-                    this._pointerMove.forEach(function (e) {
-                        if (actor.contains(e.x, e.y, !isUIActor)) {
-                            actor.eventDispatcher.publish("pointermove", e);
-                        }
-                    });
                 }
-                this._pointerCancel.forEach(function (e) {
-                    if (actor.contains(e.x, e.y, !isUIActor)) {
-                        actor.eventDispatcher.publish("pointercancel", e);
+                i = 0, len = this._pointerDown.length;
+                for (i; i < len; i++) {
+                    if (actor.contains(this._pointerDown[i].x, this._pointerDown[i].y, !isUIActor)) {
+                        actor.eventDispatcher.publish("pointerdown", this._pointerDown[i]);
                     }
-                });
+                }
+                if (actor.capturePointer.captureMoveEvents) {
+                    i = 0, len = this._pointerMove.length;
+                    for (i; i < len; i++) {
+                        if (actor.contains(this._pointerMove[i].x, this._pointerMove[i].y, !isUIActor)) {
+                            actor.eventDispatcher.publish("pointermove", this._pointerMove[i]);
+                        }
+                    }
+                }
+                i = 0, len = this._pointerCancel.length;
+                for (i; i < len; i++) {
+                    if (actor.contains(this._pointerCancel[i].x, this._pointerCancel[i].y, !isUIActor)) {
+                        actor.eventDispatcher.publish("pointercancel", this._pointerCancel[i]);
+                    }
+                }
             };
             Pointers.prototype._handleMouseEvent = function (eventName, eventArr) {
                 var _this = this;
@@ -11137,9 +11159,10 @@ var ex;
             ctx.fillRect(0, 0, this.width, this.height);
             this.currentScene.draw(this.ctx, delta);
             // todo needs to be a better way of doing this
-            this.animations.forEach(function (a) {
-                a.animation.draw(ctx, a.x, a.y);
-            });
+            var a = 0, len = this.animations.length;
+            for (a; a < len; a++) {
+                this.animations[a].animation.draw(ctx, this.animations[a].x, this.animations[a].y);
+            }
             this.fps = 1.0 / (delta / 1000);
             // Draw debug information
             if (this.isDebug) {

@@ -46,18 +46,22 @@ module ex {
             });
          }
 
-         collisionPairs.forEach(p => p.evaluate());
+         var i = 0, len = collisionPairs.length;
+         for (i; i < len; i++) {
+            collisionPairs[i].evaluate();
+         }
 
          return collisionPairs;
       }
 
       public update(targets: Actor[]): number {
-         var updated = 0;
-         targets.forEach(a => { 
-            if (this._dynamicCollisionTree.updateActor(a)) {
+         var updated = 0, i = 0, len = targets.length;
+
+         for (i; i < len; i++) {
+            if (this._dynamicCollisionTree.updateActor(targets[i])) {
                updated++;
             }
-         });
+         }
          
          return updated;
       }

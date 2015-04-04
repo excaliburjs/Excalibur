@@ -99,15 +99,20 @@ module ex.Internal {
       }
 
       public setVolume(volume: number) {
-         this.audioElements.forEach((a)=>{
-            a.volume = volume;
-         });
+
+         var i = 0, len = this.audioElements.length;
+
+         for (i; i < len; i++) {
+            this.audioElements[i].volume = volume;
+         }
       }
 
       public setLoop(loop: boolean) {
-         this.audioElements.forEach((a)=>{
-            a.loop = loop;
-         });         
+         var i = 0, len = this.audioElements.length;
+
+         for (i; i < len; i++) {
+            this.audioElements[i].loop = loop;
+         }      
       }
 
       public getLoop() {
