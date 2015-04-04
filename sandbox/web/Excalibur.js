@@ -1,4 +1,4 @@
-/*! excalibur - v0.3.0 - 2015-03-29
+/*! excalibur - v0.3.0 - 2015-04-04
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2015 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -93,13 +93,22 @@ if (!Function.prototype.bind) {
 }
 var ex;
 (function (ex) {
+    /**
+     * Effects
+     *
+     * These effects can be applied to any bitmap image but are mainly used
+     * for [[Sprite]] effects or [[Animation]] effects.
+     *
+     * Because these manipulate raw pixels, there is a performance impact to applying
+     * too many effects. Excalibur tries its best to by using caching to mitigate
+     * performance issues.
+     *
+     * Create your own effects by implementing [[ISpriteEffect]].
+     */
     var Effects;
     (function (Effects) {
         /**
          * Applies the "Grayscale" effect to a sprite, removing color information.
-         * @class Effects.Grayscale
-         * @constructor
-         * @extends ISpriteEffect
          */
         var Grayscale = (function () {
             function Grayscale() {
@@ -117,9 +126,6 @@ var ex;
         Effects.Grayscale = Grayscale;
         /**
          * Applies the "Invert" effect to a sprite, inverting the pixel colors.
-         * @class Effects.Invert
-         * @constructor
-         * @extends ISpriteEffect
          */
         var Invert = (function () {
             function Invert() {
@@ -136,12 +142,11 @@ var ex;
         Effects.Invert = Invert;
         /**
          * Applies the "Opacity" effect to a sprite, setting the alpha of all pixels to a given value.
-         * @class Effects.Opacity
-         * @extends ISpriteEffect
-         * @constructor
-         * @param opacity {number} The new opacity of the sprite from 0-1.0
          */
         var Opacity = (function () {
+            /**
+             * @param opacity  The new opacity of the sprite from 0-1.0
+             */
             function Opacity(opacity) {
                 this.opacity = opacity;
             }
@@ -158,12 +163,11 @@ var ex;
         /**
          * Applies the "Colorize" effect to a sprite, changing the color channels of all the pixels to an
          * average of the original color and the provided color
-         * @class Effects.Colorize
-         * @extends ISpriteEffect
-         * @constructor
-         * @param color {Color} The color to apply to the sprite
          */
         var Colorize = (function () {
+            /**
+             * @param color  The color to apply to the sprite
+             */
             function Colorize(color) {
                 this.color = color;
             }
@@ -180,13 +184,12 @@ var ex;
         })();
         Effects.Colorize = Colorize;
         /**
-         * Applies the "Lighten" effect to a sprite
-         * @class Effects.Lighten
-         * @extends ISpriteEffect
-         * @constructor
-         * @param number {number}
+         * Applies the "Lighten" effect to a sprite, changes the lightness of the color according to HSL
          */
         var Lighten = (function () {
+            /**
+             * @param factor  The factor of the effect between 0-1
+             */
             function Lighten(factor) {
                 if (factor === void 0) { factor = 0.1; }
                 this.factor = factor;
@@ -204,13 +207,12 @@ var ex;
         })();
         Effects.Lighten = Lighten;
         /**
-         * Applies the "Darken" effect to a sprite
-         * @class Effects.Darken
-         * @extends ISpriteEffect
-         * @constructor
-         * @param factor {number}
+         * Applies the "Darken" effect to a sprite, changes the darkness of the color according to HSL
          */
         var Darken = (function () {
+            /**
+             * @param factor  The factor of the effect between 0-1
+             */
             function Darken(factor) {
                 if (factor === void 0) { factor = 0.1; }
                 this.factor = factor;
@@ -228,13 +230,12 @@ var ex;
         })();
         Effects.Darken = Darken;
         /**
-         * Applies the "Saturate" effect to a sprite
-         * @class Effects.Saturate
-         * @extends ISpriteEffect
-         * @constructor
-         * @param factor {number}
+         * Applies the "Saturate" effect to a sprite, saturates the color acccording to HSL
          */
         var Saturate = (function () {
+            /**
+             * @param factor  The factor of the effect between 0-1
+             */
             function Saturate(factor) {
                 if (factor === void 0) { factor = 0.1; }
                 this.factor = factor;
@@ -252,13 +253,12 @@ var ex;
         })();
         Effects.Saturate = Saturate;
         /**
-         * Applies the "Desaturate" effect to a sprite
-         * @class Effects.Desaturate
-         * @extends ISpriteEffect
-         * @constructor
-         * @param factor {number}
+         * Applies the "Desaturate" effect to a sprite, desaturates the color acccording to HSL
          */
         var Desaturate = (function () {
+            /**
+             * @param factor  The factor of the effect between 0-1
+             */
             function Desaturate(factor) {
                 if (factor === void 0) { factor = 0.1; }
                 this.factor = factor;
@@ -278,12 +278,11 @@ var ex;
         /**
          * Applies the "Fill" effect to a sprite, changing the color channels of all non-transparent pixels to match
          * a given color
-         * @class Effects.Fill
-         * @extends ISpriteEffect
-         * @constructor
-         * @param color {Color} The color to apply to the sprite
          */
         var Fill = (function () {
+            /**
+             * @param color  The color to apply to the sprite
+             */
             function Fill(color) {
                 this.color = color;
             }
@@ -429,38 +428,12 @@ var ex;
 (function (ex) {
     /**
      * An enum that describes the sides of an Actor for collision
-     * @class Side
      */
     (function (Side) {
-        /**
-        @property None {Side}
-        @static
-        @final
-        */
         Side[Side["None"] = 0] = "None";
-        /**
-        @property Top {Side}
-        @static
-        @final
-        */
         Side[Side["Top"] = 1] = "Top";
-        /**
-        @property Bottom {Side}
-        @static
-        @final
-        */
         Side[Side["Bottom"] = 2] = "Bottom";
-        /**
-        @property Left {Side}
-        @static
-        @final
-        */
         Side[Side["Left"] = 3] = "Left";
-        /**
-        @property Right {Side}
-        @static
-        @final
-        */
         Side[Side["Right"] = 4] = "Right";
     })(ex.Side || (ex.Side = {}));
     var Side = ex.Side;
@@ -475,29 +448,18 @@ var ex;
 (function (ex) {
     /**
      * A simple 2D point on a plane
-     * @class Point
-     * @constructor
-     * @param x {number} X coordinate of the point
-     * @param y {number} Y coordinate of the point
-     *
      */
     var Point = (function () {
+        /**
+         * @param x  X coordinate of the point
+         * @param y  Y coordinate of the point
+         */
         function Point(x, y) {
             this.x = x;
             this.y = y;
         }
         /**
-         * X Coordinate of the point
-         * @property x {number}
-         */
-        /**
-         * Y Coordinate of the point
-         * @property y {number}
-         */
-        /**
          * Convert this point to a vector
-         * @method toVector
-         * @returns Vector
          */
         Point.prototype.toVector = function () {
             return new Vector(this.x, this.y);
@@ -505,8 +467,8 @@ var ex;
         /**
          * Rotates the current point around another by a certain number of
          * degrees in radians
-         * @method rotate
-         * @returns Point
+         * @param angle  The angle in radians
+         * @param anchor The point to rotate around
          */
         Point.prototype.rotate = function (angle, anchor) {
             if (!anchor) {
@@ -520,17 +482,13 @@ var ex;
         };
         /**
          * Translates the current point by a vector
-         * @method add
-         * @returns Point
+         * @param vector  The other vector to add to
          */
         Point.prototype.add = function (vector) {
             return new Point(this.x + vector.x, this.y + vector.y);
         };
         /**
          * Sets the x and y components at once
-         * @method setTo
-         * @param x {number}
-         * @param y {number}
          */
         Point.prototype.setTo = function (x, y) {
             this.x = x;
@@ -538,17 +496,14 @@ var ex;
         };
         /**
          * Clones a new point that is a copy of this one.
-         * @method clone
-         * @returns Point
          */
         Point.prototype.clone = function () {
             return new Point(this.x, this.y);
         };
         /**
-        * Compares this point against another and tests for equality
-        * @method equals
-        * @returns boolean
-        */
+         * Compares this point against another and tests for equality
+         * @param point  The other point to compare to
+         */
         Point.prototype.equals = function (point) {
             return this.x === point.x && this.y === point.y;
         };
@@ -557,14 +512,13 @@ var ex;
     ex.Point = Point;
     /**
      * A 2D vector on a plane.
-     * @class Vector
-     * @extends Point
-     * @constructor
-     * @param x {number} X component of the Vector
-     * @param y {number} Y component of the Vector
      */
     var Vector = (function (_super) {
         __extends(Vector, _super);
+        /**
+         * @param x  X component of the Vector
+         * @param y  Y component of the Vector
+         */
         function Vector(x, y) {
             _super.call(this, x, y);
             this.x = x;
@@ -572,19 +526,14 @@ var ex;
         }
         /**
          * Returns a vector of unit length in the direction of the specified angle.
-         * @method fromAngle
-         * @static
-         * @param angle {number} The angle to generate the vector
-         * @returns Vector
+         * @param angle The angle to generate the vector
          */
         Vector.fromAngle = function (angle) {
             return new Vector(Math.cos(angle), Math.sin(angle));
         };
         /**
          * The distance to another vector
-         * @method distance
-         * @param v {Vector} The other vector
-         * @returns number
+         * @param v  The other vector
          */
         Vector.prototype.distance = function (v) {
             if (!v) {
@@ -594,8 +543,6 @@ var ex;
         };
         /**
          * Normalizes a vector to have a magnitude of 1.
-         * @method normalize
-         * @return Vector
          */
         Vector.prototype.normalize = function () {
             var d = this.distance();
@@ -608,95 +555,73 @@ var ex;
         };
         /**
          * Scales a vector's by a factor of size
-         * @method scale
-         * @param size {number} The factor to scale the magnitude by
-         * @returns Vector
+         * @param size  The factor to scale the magnitude by
          */
         Vector.prototype.scale = function (size) {
             return new Vector(this.x * size, this.y * size);
         };
         /**
          * Adds one vector to another, alias for add
-         * @method plus
-         * @param v {Vector} The vector to add
-         * @return Vector
+         * @param v  The vector to add
          */
         Vector.prototype.plus = function (v) {
             return this.add(v);
         };
         /**
          * Adds one vector to another
-         * @method add
-         * @param v {Vector} The vector to add
-         * @returns Vector
+         * @param v The vector to add
          */
         Vector.prototype.add = function (v) {
             return new Vector(this.x + v.x, this.y + v.y);
         };
         /**
          * Subtracts a vector from another, alias for minus
-         * @method subtract
-         * @param v {Vector} The vector to subtract
-         * @returns Vector
+         * @param v The vector to subtract
          */
         Vector.prototype.subtract = function (v) {
             return this.minus(v);
         };
         /**
          * Subtracts a vector from the current vector
-         * @method minus
-         * @param v {Vector} The vector to subtract
-         * @returns Vector
+         * @param v The vector to subtract
          */
         Vector.prototype.minus = function (v) {
             return new Vector(this.x - v.x, this.y - v.y);
         };
         /**
          * Performs a dot product with another vector
-         * @method dot
-         * @param v {Vector} The vector to dot
-         * @returns number
+         * @param v  The vector to dot
          */
         Vector.prototype.dot = function (v) {
             return this.x * v.x + this.y * v.y;
         };
         /**
          * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
-         * @method cross
-         * @param v {Vector} The vector to cross
-         * @returns number
+         * @param v  The vector to cross
          */
         Vector.prototype.cross = function (v) {
             return this.x * v.y - this.y * v.x;
         };
         /**
          * Returns the perpendicular vector to this one
-         * @method perpendicular
-         * @return Vector
          */
         Vector.prototype.perpendicular = function () {
             return new Vector(this.y, -this.x);
         };
         /**
          * Returns the normal vector to this one
-         * @method normal
-         * @return Vector
          */
         Vector.prototype.normal = function () {
             return this.perpendicular().normalize();
         };
         /**
          * Returns the angle of this vector.
-         * @method toAngle
-         * @returns number
          */
         Vector.prototype.toAngle = function () {
             return Math.atan2(this.y, this.x);
         };
         /**
          * Returns the point represention of this vector
-         * @method toPoint
-         * @returns Point
          */
         Vector.prototype.toPoint = function () {
             return new Point(this.x, this.y);
@@ -704,32 +629,31 @@ var ex;
         /**
          * Rotates the current vector around a point by a certain number of
          * degrees in radians
-         * @method rotate
-         * @returns Vector
          */
         Vector.prototype.rotate = function (angle, anchor) {
             return _super.prototype.rotate.call(this, angle, anchor).toVector();
         };
         /**
          * Creates new vector that has the same values as the previous.
-         * @method clone
-         * @returns Vector
          */
         Vector.prototype.clone = function () {
             return new Vector(this.x, this.y);
         };
+        /**
+         * A (0, 0) vector
+         */
         Vector.Zero = new Vector(0, 0);
         return Vector;
     })(Point);
     ex.Vector = Vector;
     /**
      * A 2D ray that can be cast into the scene to do collision detection
-     * @class Ray
-     * @constructor
-     * @param pos {Point} The starting position for the ray
-     * @param dir {Vector} The vector indicating the direction of the ray
      */
     var Ray = (function () {
+        /**
+         * @param pos The starting position for the ray
+         * @param dir The vector indicating the direction of the ray
+         */
         function Ray(pos, dir) {
             this.pos = pos;
             this.dir = dir.normalize();
@@ -737,9 +661,7 @@ var ex;
         /**
          * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
          * This number indicates the mathematical intersection time.
-         * @method intersect
-         * @param line {Line} The line to test
-         * @returns number
+         * @param line  The line to test
          */
         Ray.prototype.intersect = function (line) {
             var numerator = line.begin.toVector().minus(this.pos.toVector());
@@ -763,8 +685,6 @@ var ex;
         };
         /**
          * Returns the point of intersection given the intersection time
-         * @method getPoint
-         * @returns Point
          */
         Ray.prototype.getPoint = function (time) {
             return this.pos.toVector().add(this.dir.scale(time)).toPoint();
@@ -774,20 +694,18 @@ var ex;
     ex.Ray = Ray;
     /**
      * A 2D line segment
-     * @class Line
-     * @constructor
-     * @param begin {Point} The starting point of the line segment
-     * @param end {Point} The ending point of the line segment
      */
     var Line = (function () {
+        /**
+         * @param begin  The starting point of the line segment
+         * @param end  The ending point of the line segment
+         */
         function Line(begin, end) {
             this.begin = begin;
             this.end = end;
         }
         /**
          * Returns the slope of the line in the form of a vector
-         * @method getSlope
-         * @returns Vector
          */
         Line.prototype.getSlope = function () {
             var begin = this.begin.toVector();
@@ -797,8 +715,6 @@ var ex;
         };
         /**
          * Returns the length of the line segment in pixels
-         * @method getLength
-         * @returns number
          */
         Line.prototype.getLength = function () {
             var begin = this.begin.toVector();
@@ -809,6 +725,10 @@ var ex;
         return Line;
     })();
     ex.Line = Line;
+    /**
+     * A projection
+     * @todo
+     */
     var Projection = (function () {
         function Projection(min, max) {
             this.min = min;
@@ -834,6 +754,11 @@ var ex;
 })(ex || (ex = {}));
 /// <reference path="Algebra.ts"/>
 /// <reference path="Events.ts"/>
+/**
+ * Utilities
+ *
+ * Excalibur utilities for math, string manipulation, etc.
+ */
 var ex;
 (function (ex) {
     var Util;
@@ -963,16 +888,16 @@ var ex;
         Util.getOppositeSide = getOppositeSide;
         /**
          * Excaliburs dynamically resizing collection
-         * @class Collection
-         * @constructor
-         * @param [initialSize=200] {number} Initial size of the internal backing array
          */
         var Collection = (function () {
+            /**
+             * @param initialSize  Initial size of the internal backing array
+             */
             function Collection(initialSize) {
+                if (initialSize === void 0) { initialSize = Collection.DefaultSize; }
                 this.internalArray = null;
                 this.endPointer = 0;
-                var size = initialSize || Collection.DefaultSize;
-                this.internalArray = new Array(size);
+                this.internalArray = new Array(initialSize);
             }
             Collection.prototype.resize = function () {
                 var newSize = this.internalArray.length * 2;
@@ -986,9 +911,6 @@ var ex;
             };
             /**
              * Push elements to the end of the collection
-             * @method push
-             * @param element {T}
-             * @returns T
              */
             Collection.prototype.push = function (element) {
                 if (this.endPointer === this.internalArray.length) {
@@ -998,8 +920,6 @@ var ex;
             };
             /**
              * Removes elements from the end of the collection
-             * @method pop
-             * @returns T
              */
             Collection.prototype.pop = function () {
                 this.endPointer = this.endPointer - 1 < 0 ? 0 : this.endPointer - 1;
@@ -1007,32 +927,25 @@ var ex;
             };
             /**
              * Returns the count of the collection
-             * @method count
-             * @returns number
              */
             Collection.prototype.count = function () {
                 return this.endPointer;
             };
             /**
              * Empties the collection
-             * @method clear
              */
             Collection.prototype.clear = function () {
                 this.endPointer = 0;
             };
             /**
              * Returns the size of the internal backing array
-             * @method internalSize
-             * @returns number
              */
             Collection.prototype.internalSize = function () {
                 return this.internalArray.length;
             };
             /**
              * Returns an element at a specific index
-             * @method elementAt
-             * @param index {number} Index of element to retreive
-             * @returns T
+             * @param index  Index of element to retreive
              */
             Collection.prototype.elementAt = function (index) {
                 if (index >= this.count()) {
@@ -1042,9 +955,7 @@ var ex;
             };
             /**
              * Inserts an element at a specific index
-             * @method insert
-             * @param index {number} Index to insert the element
-             * @returns T
+             * @param index  Index to insert the element
              */
             Collection.prototype.insert = function (index, value) {
                 if (index >= this.count()) {
@@ -1054,9 +965,7 @@ var ex;
             };
             /**
              * Removes an element at a specific index
-             * @method remove
-             * @param index {number} Index of element to remove
-             * @returns T
+             * @param index  Index of element to remove
              */
             Collection.prototype.remove = function (index) {
                 var count = this.count();
@@ -1072,8 +981,7 @@ var ex;
             };
             /**
              * Removes an element by reference
-             * @method removeElement
-             * @param element {T} Index of element to retreive
+             * @param element  Element to retreive
              */
             Collection.prototype.removeElement = function (element) {
                 var index = this.internalArray.indexOf(element);
@@ -1081,16 +989,13 @@ var ex;
             };
             /**
              * Returns a array representing the collection
-             * @method toArray
-             * @returns T[]
              */
             Collection.prototype.toArray = function () {
                 return this.internalArray.slice(0, this.endPointer);
             };
             /**
              * Iterate over every element in the collection
-             * @method forEach
-             * @param func {(T,number)=>any} Callback to call for each element passing a reference to the element and its index, returned values are ignored
+             * @param func  Callback to call for each element passing a reference to the element and its index, returned values are ignored
              */
             Collection.prototype.forEach = function (func) {
                 var count = this.count();
@@ -1100,8 +1005,7 @@ var ex;
             };
             /**
              * Mutate every element in the collection
-             * @method map
-             * @param func {(T,number)=>any} Callback to call for each element passing a reference to the element and its index, any values returned mutate the collection
+             * @param func  Callback to call for each element passing a reference to the element and its index, any values returned mutate the collection
              */
             Collection.prototype.map = function (func) {
                 var count = this.count();
@@ -1111,9 +1015,6 @@ var ex;
             };
             /**
              * Default collection size
-             * @property DefaultSize {number}
-             * @static
-             * @final
              */
             Collection.DefaultSize = 200;
             return Collection;
@@ -1124,17 +1025,28 @@ var ex;
 var ex;
 (function (ex) {
     /**
-     * A Sprite is one of the main drawing primitives. It is responsible for drawing
-     * images or parts of images known as Textures to the screen.
-     * @class Sprite
-     * @constructor
-     * @param image {Texture} The backing image texture to build the Sprite
-     * @param sx {number} The x position of the sprite
-     * @param sy {number} The y position of the sprite
-     * @param swidth {number} The width of the sprite in pixels
-     * @param sheight {number} The height of the sprite in pixels
+     * Sprites
+     *
+     * A `Sprite` is one of the main drawing primitives. It is responsible for drawing
+     * images or parts of images known as [[Texture]]s to the screen.
+     *
+     * ## Sprite Effects
+     *
+     * Excalibur offers many sprite effects such as [[Effects.Colorize]] to let you manipulate
+     * sprites. Keep in mind, more effects requires more power and can lead to memory or CPU
+     * constraints and hurt performance.
+     *
+     * It's still recommended to create an [[Animation]] or build in your effects to the sprites
+     * for optimal performance.
      */
     var Sprite = (function () {
+        /**
+         * @param image   The backing image texture to build the Sprite
+         * @param sx      The x position of the sprite
+         * @param sy      The y position of the sprite
+         * @param swidth  The width of the sprite in pixels
+         * @param sheight The height of the sprite in pixels
+         */
         function Sprite(image, sx, sy, swidth, sheight) {
             var _this = this;
             this.sx = sx;
@@ -1193,83 +1105,66 @@ var ex;
             }
         };
         /**
-         * Applies the opacity effect to a sprite, setting the alpha of all pixels to a given value
-         * @method opacity
-         * @param value {number}
+         * Applies the [[Effects.Opacity]] to a sprite, setting the alpha of all pixels to a given value
          */
         Sprite.prototype.opacity = function (value) {
             this.addEffect(new ex.Effects.Opacity(value));
         };
         /**
-         * Applies the grayscale effect to a sprite, removing color information.
-         * @method grayscale
+         * Applies the [[Effects.Grayscale]] to a sprite, removing color information.
          */
         Sprite.prototype.grayscale = function () {
             this.addEffect(new ex.Effects.Grayscale());
         };
         /**
-         * Applies the invert effect to a sprite, inverting the pixel colors.
-         * @method invert
+         * Applies the [[Effects.Invert]] to a sprite, inverting the pixel colors.
          */
         Sprite.prototype.invert = function () {
             this.addEffect(new ex.Effects.Invert());
         };
         /**
-         * Applies the fill effect to a sprite, changing the color channels of all non-transparent pixels to match a given color
-         * @method fill
-         * @param color {Color}
+         * Applies the [[Effects.Fill]] to a sprite, changing the color channels of all non-transparent pixels to match a given color
          */
         Sprite.prototype.fill = function (color) {
             this.addEffect(new ex.Effects.Fill(color));
         };
         /**
-         * Applies the colorize effect to a sprite, changing the color channels of all pixesl to be the average of the original color and the provided color.
-         * @method fill
-         * @param color {Color}
+         * Applies the [[Effects.Colorize]] to a sprite, changing the color channels of all pixesl to be the average of the original color and the provided color.
          */
         Sprite.prototype.colorize = function (color) {
             this.addEffect(new ex.Effects.Colorize(color));
         };
         /**
-         * Applies the lighten effect to a sprite, changes the lightness of the color according to hsl
-         * @method lighten
-         * @param [factor=0.1] {number}
+         * Applies the [[Effects.Lighten]] to a sprite, changes the lightness of the color according to HSL
          */
         Sprite.prototype.lighten = function (factor) {
             if (factor === void 0) { factor = 0.1; }
             this.addEffect(new ex.Effects.Lighten(factor));
         };
         /**
-         * Applies the darken effect to a sprite, changes the darkness of the color according to hsl
-         * @method darken
-         * @param [factor=0.1] {number}
+         * Applies the [[Effects.Darken]] to a sprite, changes the darkness of the color according to HSL
          */
         Sprite.prototype.darken = function (factor) {
             if (factor === void 0) { factor = 0.1; }
             this.addEffect(new ex.Effects.Darken(factor));
         };
         /**
-         * Applies the saturate effect to a sprite, saturates the color acccording to hsl
-         * @method saturate
-         * @param [factor=0.1] {number}
+         * Applies the [[Effects.Saturate]] to a sprite, saturates the color acccording to HSL
          */
         Sprite.prototype.saturate = function (factor) {
             if (factor === void 0) { factor = 0.1; }
             this.addEffect(new ex.Effects.Saturate(factor));
         };
         /**
-         * Applies the desaturate effect to a sprite, desaturates the color acccording to hsl
-         * @method desaturate
-         * @param [factor=0.1] {number}
+         * Applies the [[Effects.Desaturate]] to a sprite, desaturates the color acccording to HSL
          */
         Sprite.prototype.desaturate = function (factor) {
             if (factor === void 0) { factor = 0.1; }
             this.addEffect(new ex.Effects.Desaturate(factor));
         };
         /**
-         * Adds a new {{#crossLink Effects.ISpriteEffect}}{{/crossLink}} to this drawing.
-         * @method addEffect
-         * @param effect {Effects.ISpriteEffect} Effect to add to the this drawing
+         * Adds a new [[Effects.ISpriteEffect]] to this drawing.
+         * @param effect  Effect to add to the this drawing
          */
         Sprite.prototype.addEffect = function (effect) {
             this.effects.push(effect);
@@ -1321,7 +1216,6 @@ var ex;
         };
         /**
          * Clears all effects from the drawing and return it to its original state.
-         * @method clearEffects
          */
         Sprite.prototype.clearEffects = function () {
             this.effects.length = 0;
@@ -1329,7 +1223,6 @@ var ex;
         };
         /**
          * Resets the internal state of the drawing (if any)
-         * @method reset
          */
         Sprite.prototype.reset = function () {
             // do nothing
@@ -1346,10 +1239,9 @@ var ex;
         };
         /**
          * Draws the sprite appropriately to the 2D rendering context, at an x and y coordinate.
-         * @method draw
-         * @param ctx {CanvasRenderingContext2D} The 2D rendering context
-         * @param x {number} The x coordinate of where to draw
-         * @param y {number} The y coordinate of where to draw
+         * @param ctx  The 2D rendering context
+         * @param x    The x coordinate of where to draw
+         * @param y    The y coordinate of where to draw
          */
         Sprite.prototype.draw = function (ctx, x, y) {
             if (this.dirtyEffect) {
@@ -1377,8 +1269,6 @@ var ex;
         };
         /**
          * Produces a copy of the current sprite
-         * @method clone
-         * @returns Sprite
          */
         Sprite.prototype.clone = function () {
             var result = new Sprite(this._texture, this.sx, this.sy, this.swidth, this.sheight);
@@ -1399,18 +1289,20 @@ var ex;
 var ex;
 (function (ex) {
     /**
-     * SpriteSheets are a useful mechanism for slicing up image resources into
-     * separate sprites or for generating in game animations. Sprites are organized
-     * in row major order in the SpriteSheet.
-     * @class SpriteSheet
-     * @constructor
-     * @param image {Texture} The backing image texture to build the SpriteSheet
-     * @param columns {number} The number of columns in the image texture
-     * @param rows {number} The number of rows in the image texture
-     * @param spWidth {number} The width of each individual sprite in pixels
-     * @param spHeight {number} The height of each individual sprite in pixels
+     * Sprite Sheets
+     *
+     * Sprite sheets are a useful mechanism for slicing up image resources into
+     * separate sprites or for generating in game animations. [[Sprite]]s are organized
+     * in row major order in the `SpriteSheet`.
      */
     var SpriteSheet = (function () {
+        /**
+         * @param image     The backing image texture to build the SpriteSheet
+         * @param columns   The number of columns in the image texture
+         * @param rows      The number of rows in the image texture
+         * @param spWidth   The width of each individual sprite in pixels
+         * @param spHeight  The height of each individual sprite in pixels
+         */
         function SpriteSheet(image, columns, rows, spWidth, spHeight) {
             this.image = image;
             this.columns = columns;
@@ -1437,11 +1329,9 @@ var ex;
         /**
          * Create an animation from the this SpriteSheet by listing out the
          * sprite indices. Sprites are organized in row major order in the SpriteSheet.
-         * @method getAnimationByIndices
-         * @param engine {Engine} Reference to the current game Engine
-         * @param indices {number[]} An array of sprite indices to use in the animation
-         * @param speed {number} The number in milliseconds to display each frame in the animation
-         * @returns Animation
+         * @param engine   Reference to the current game [[Engine]]
+         * @param indices  An array of sprite indices to use in the animation
+         * @param speed    The number in milliseconds to display each frame in the animation
          */
         SpriteSheet.prototype.getAnimationByIndices = function (engine, indices, speed) {
             var _this = this;
@@ -1456,12 +1346,10 @@ var ex;
         /**
          * Create an animation from the this SpriteSheet by specifing the range of
          * images with the beginning and ending index
-         * @method getAnimationBetween
-         * @param engine {Engine} Reference to the current game Engine
-         * @param beginIndex {number} The index to start taking frames
-         * @param endIndex {number} The index to stop taking frames
-         * @param speed {number} The number in milliseconds to display each frame in the animation
-         * @returns Animation
+         * @param engine      Reference to the current game Engine
+         * @param beginIndex  The index to start taking frames
+         * @param endIndex    The index to stop taking frames
+         * @param speed       The number in milliseconds to display each frame in the animation
          */
         SpriteSheet.prototype.getAnimationBetween = function (engine, beginIndex, endIndex, speed) {
             var images = this.sprites.slice(beginIndex, endIndex);
@@ -1473,10 +1361,8 @@ var ex;
         /**
          * Treat the entire SpriteSheet as one animation, organizing the frames in
          * row major order.
-         * @method getAnimationForAll
-         * @param engine {Engine} Reference to the current game Engine
-         * @param speed {number} The number in milliseconds to display each frame the animation
-         * @returns Animation
+         * @param engine  Reference to the current game [[Engine]]
+         * @param speed   The number in milliseconds to display each frame the animation
          */
         SpriteSheet.prototype.getAnimationForAll = function (engine, speed) {
             var sprites = this.sprites.map(function (i) {
@@ -1487,9 +1373,7 @@ var ex;
         /**
          * Retreive a specific sprite from the SpriteSheet by its index. Sprites are organized
          * in row major order in the SpriteSheet.
-         * @method getSprite
-         * @param index {number} The index of the sprite
-         * @returns Sprite
+         * @param index  The index of the sprite
          */
         SpriteSheet.prototype.getSprite = function (index) {
             if (index >= 0 && index < this.sprites.length) {
@@ -1500,21 +1384,20 @@ var ex;
     })();
     ex.SpriteSheet = SpriteSheet;
     /**
-     * SpriteFonts are a used in conjunction with a {{#crossLink Label}}{{/crossLink}} to specify
+     * SpriteFonts are a used in conjunction with a [[Label]] to specify
      * a particular bitmap as a font.
-     * @class SpriteFont
-     * @extends SpriteSheet
-     * @constructor
-     * @param image {Texture} The backing image texture to build the SpriteFont
-     * @param alphabet {string} A string representing all the charaters in the image, in row major order.
-     * @param caseInsensitve {boolean} Indicate whether this font takes case into account
-     * @param columns {number} The number of columns of characters in the image
-     * @param rows {number} The number of rows of characters in the image
-     * @param spWdith {number} The width of each character in pixels
-     * @param spHeight {number} The height of each character in pixels
      */
     var SpriteFont = (function (_super) {
         __extends(SpriteFont, _super);
+        /**
+         * @param image           The backing image texture to build the SpriteFont
+         * @param alphabet        A string representing all the characters in the image, in row major order.
+         * @param caseInsensitve  Indicate whether this font takes case into account
+         * @param columns         The number of columns of characters in the image
+         * @param rows            The number of rows of characters in the image
+         * @param spWdith         The width of each character in pixels
+         * @param spHeight        The height of each character in pixels
+         */
         function SpriteFont(image, alphabet, caseInsensitive, columns, rows, spWidth, spHeight) {
             _super.call(this, image, columns, rows, spWidth, spHeight);
             this.image = image;
@@ -1525,9 +1408,7 @@ var ex;
             this._currentColor = ex.Color.Black;
         }
         /**
-         * Returns a dictionary that maps each character in the alphabet to the appropriate Sprite.
-         * @method getTextSprites
-         * @returns {Object}
+         * Returns a dictionary that maps each character in the alphabet to the appropriate [[Sprite]].
          */
         SpriteFont.prototype.getTextSprites = function () {
             var lookup = {};
@@ -1548,7 +1429,14 @@ var ex;
 /// <reference path="SpriteSheet.ts" />
 var ex;
 (function (ex) {
+    /**
+     * Tile sprites are used to render a specific sprite from a [[TileMap]]'s spritesheet(s)
+     */
     var TileSprite = (function () {
+        /**
+         * @param spriteSheetKey  The key of the spritesheet to use
+         * @param spriteId        The index of the sprite in the [[SpriteSheet]]
+         */
         function TileSprite(spriteSheetKey, spriteId) {
             this.spriteSheetKey = spriteSheetKey;
             this.spriteId = spriteId;
@@ -1557,55 +1445,26 @@ var ex;
     })();
     ex.TileSprite = TileSprite;
     /**
+     * TileMap Cell
+     *
      * A light-weight object that occupies a space in a collision map. Generally
-     * created by a CollisionMap.
-     * @class Cell
-     * @constructor
-     * @param x {number}
-     * @param y {number}
-     * @param width {number}
-     * @param height {number}
-     * @param index {number}
-     * @param [solid=false] {boolean}
-     * @param [spriteId=-1] {number}
+     * created by a [[TileMap]].
+     *
+     * Cells can draw multiple sprites. Note that the order of drawing is the order
+     * of the sprites in the array so the last one will be drawn on top. You can
+     * use transparency to create layers this way.
      */
     var Cell = (function () {
-        function Cell(
-            /**
-             * Gets or sets x coordinate of the cell in world coordinates
-             * @property x {number}
-             */
-            x, 
-            /**
-             * Gets or sets y coordinate of the cell in world coordinates
-             * @property y {number}
-             */
-            y, 
-            /**
-             * Gets or sets the width of the cell
-             * @property width {number}
-             */
-            width, 
-            /**
-             * Gets or sets the height of the cell
-             * @property height {number}
-             */
-            height, 
-            /**
-             * The index of the cell in row major order
-             * @property index {number}
-             */
-            index, 
-            /**
-             * Gets or sets whether this cell is solid
-             * @property solid {boolean}
-             */
-            solid, 
-            /**
-             * The index of the sprite to use from the CollisionMap SpriteSheet, if -1 is specified nothing is drawn.
-             * @property number {number}
-             */
-            sprites) {
+        /**
+         * @param x       Gets or sets x coordinate of the cell in world coordinates
+         * @param y       Gets or sets y coordinate of the cell in world coordinates
+         * @param width   Gets or sets the width of the cell
+         * @param height  Gets or sets the height of the cell
+         * @param index   The index of the cell in row major order
+         * @param solid   Gets or sets whether this cell is solid
+         * @param sprites The list of tile sprites to use to draw in this cell (in order)
+         */
+        function Cell(x, y, width, height, index, solid, sprites) {
             if (solid === void 0) { solid = false; }
             if (sprites === void 0) { sprites = []; }
             this.x = x;
@@ -1619,24 +1478,34 @@ var ex;
         }
         /**
          * Returns the bounding box for this cell
-         * @method getBounds
-         * @returns BoundingBox
          */
         Cell.prototype.getBounds = function () {
             return this._bounds;
         };
+        /**
+         * Gets the center coordinate of this cell
+         */
         Cell.prototype.getCenter = function () {
             return new ex.Vector(this.x + this.width / 2, this.y + this.height / 2);
         };
+        /**
+         * Add another [[TileSprite]] to this cell
+         */
         Cell.prototype.pushSprite = function (tileSprite) {
             this.sprites.push(tileSprite);
         };
+        /**
+         * Remove an instance of [[TileSprite]] from this cell
+         */
         Cell.prototype.removeSprite = function (tileSprite) {
             var index = -1;
             if ((index = this.sprites.indexOf(tileSprite)) > -1) {
                 this.sprites.splice(index, 1);
             }
         };
+        /**
+         * Clear all sprites from this cell
+         */
         Cell.prototype.clearSprites = function () {
             this.sprites.length = 0;
         };
@@ -1644,19 +1513,25 @@ var ex;
     })();
     ex.Cell = Cell;
     /**
-     * The CollisionMap object provides a lightweight way to do large complex scenes with collision
+     * Tile Maps
+     *
+     * The `TileMap` object provides a lightweight way to do large complex scenes with collision
      * without the overhead of actors.
-     * @class CollisionMap
-     * @constructor
-     * @param x {number} The x coordinate to anchor the collision map's upper left corner (should not be changed once set)
-     * @param y {number} The y coordinate to anchor the collision map's upper left corner (should not be changed once set)
-     * @param cellWidth {number} The individual width of each cell (in pixels) (should not be changed once set)
-     * @param cellHeight {number} The individual height of each cell (in pixels) (should not be changed once set)
-     * @param rows {number} The number of rows in the collision map (should not be changed once set)
-     * @param cols {number} The number of cols in the collision map (should not be changed once set)
-     * @param spriteSheet {SpriteSheet} The spriteSheet to use for drawing
+     *
+     * Tile maps are made up of [[Cell]]s which can draw [[TileSprite]]s.
+     *
+     * Example usage: Load pre-built maps using the [Tiled map editor](http://www.mapeditor.org/).
      */
     var TileMap = (function () {
+        /**
+         * @param x             The x coordinate to anchor the TileMap's upper left corner (should not be changed once set)
+         * @param y             The y coordinate to anchor the TileMap's upper left corner (should not be changed once set)
+         * @param cellWidth     The individual width of each cell (in pixels) (should not be changed once set)
+         * @param cellHeight    The individual height of each cell (in pixels) (should not be changed once set)
+         * @param rows          The number of rows in the TileMap (should not be changed once set)
+         * @param cols          The number of cols in the TileMap (should not be changed once set)
+         * @param spriteSheet   The spriteSheet to use for drawing
+         */
         function TileMap(x, y, cellWidth, cellHeight, rows, cols) {
             var _this = this;
             this.x = x;
@@ -1688,11 +1563,8 @@ var ex;
             this._spriteSheets[key] = spriteSheet;
         };
         /**
-         * Returns the intesection vector that can be used to resolve collisions with actors. If there
+         * Returns the intersection vector that can be used to resolve collisions with actors. If there
          * is no collision null is returned.
-         * @method collides
-         * @param actor {Actor}
-         * @returns Vector
          */
         TileMap.prototype.collides = function (actor) {
             var points = [];
@@ -1740,20 +1612,15 @@ var ex;
                  points.push(new Point(x,y))
               }
            }
-  
            var result = points.some((p) => {
               return this.collidesPoint(p.x, p.y);
            });
-  
            return result;
-  
         }*/
         /*
         public collidesPoint(x: number, y: number): boolean{
            var x = Math.floor(x/this.cellWidth);// - Math.floor(this.x/this.cellWidth);
            var y = Math.floor(y/this.cellHeight);
-  
-  
            var cell = this.getCell(x, y);
            if(x >= 0 && y >= 0 && x < this.cols && y < this.rows && cell){
               if(cell.solid){
@@ -1762,27 +1629,17 @@ var ex;
               }
               return cell.solid;
            }
-  
-  
-  
            
            return false;
         }*/
         /**
-         * Returns the cell by index (row major order)
-         * @method getCellByIndex
-         * @param index {number}
-         * @returns Cell
+         * Returns the [[Cell]] by index (row major order)
          */
         TileMap.prototype.getCellByIndex = function (index) {
             return this.data[index];
         };
         /**
-         * Returns the cell by it's x and y coordinates
-         * @method getCell
-         * @param x {number}
-         * @param y {number}
-         * @returns Cell
+         * Returns the [[Cell]] by its x and y coordinates
          */
         TileMap.prototype.getCell = function (x, y) {
             if (x < 0 || y < 0 || x >= this.cols || y >= this.rows) {
@@ -1791,12 +1648,8 @@ var ex;
             return this.data[x + y * this.cols];
         };
         /**
-         * Returns the cell by testing a point in global coordinates,
-         * returns null if no cell was found.
-         * @method getCellByPoint
-         * @param x {number}
-         * @param y {number}
-         * @returns Cell
+         * Returns the [[Cell]] by testing a point in global coordinates,
+         * returns `null` if no cell was found.
          */
         TileMap.prototype.getCellByPoint = function (x, y) {
             var x = Math.floor((x - this.x) / this.cellWidth); // - Math.floor(this.x/this.cellWidth);
@@ -1816,10 +1669,9 @@ var ex;
             this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0);
         };
         /**
-         * Draws the collision map to the screen. Called by the Scene.
-         * @method draw
-         * @param ctx {CanvasRenderingContext2D} The current rendering context
-         * @param delta {number} The number of milliseconds since the last draw
+         * Draws the tile map to the screen. Called by the [[Scene]].
+         * @param ctx    The current rendering context
+         * @param delta  The number of milliseconds since the last draw
          */
         TileMap.prototype.draw = function (ctx, delta) {
             var _this = this;
@@ -1849,9 +1701,8 @@ var ex;
             ctx.restore();
         };
         /**
-         * Draws all the collision map's debug info. Called by the Scene.
-         * @method draw
-         * @param ctx {CanvasRenderingContext2D} The current rendering context
+         * Draws all the tile map's debug info. Called by the [[Scene]].
+         * @param ctx  The current rendering context
          */
         TileMap.prototype.debugDraw = function (ctx) {
             var width = this.cols * this.cellWidth;
@@ -1899,14 +1750,14 @@ var ex;
     var CollisionStrategy = ex.CollisionStrategy;
     /**
      * Axis Aligned collision primitive for Excalibur.
-     * @class BoundingBox
-     * @constructor
-     * @param left {number} x coordinate of the left edge
-     * @param top {number} y coordinate of the top edge
-     * @param right {number} x coordinate of the right edge
-     * @param bottom {number} y coordinate of the bottom edge
      */
     var BoundingBox = (function () {
+        /**
+         * @param left    x coordinate of the left edge
+         * @param top     y coordinate of the top edge
+         * @param right   x coordinate of the right edge
+         * @param bottom  y coordinate of the bottom edge
+         */
         function BoundingBox(left, top, right, bottom) {
             if (left === void 0) { left = 0; }
             if (top === void 0) { top = 0; }
@@ -1919,24 +1770,18 @@ var ex;
         }
         /**
          * Returns the calculated width of the bounding box
-         * @method getWidth
-         * @returns number
          */
         BoundingBox.prototype.getWidth = function () {
             return this.right - this.left;
         };
         /**
          * Returns the calculated height of the bounding box
-         * @method getHeight
-         * @returns number
          */
         BoundingBox.prototype.getHeight = function () {
             return this.bottom - this.top;
         };
         /**
          * Returns the perimeter of the bounding box
-         * @method getPerimeter
-         * @returns number
          */
         BoundingBox.prototype.getPerimeter = function () {
             var wx = this.getWidth();
@@ -1957,9 +1802,7 @@ var ex;
         };
         /**
          * Combines this bounding box and another together returning a new bounding box
-         * @method combine
-         * @param other {BoundingBox} The bounding box to combine
-         * @returns BoundingBox
+         * @param other  The bounding box to combine
          */
         BoundingBox.prototype.combine = function (other) {
             var compositeBB = new BoundingBox(Math.min(this.left, other.left), Math.min(this.top, other.top), Math.max(this.right, other.right), Math.max(this.bottom, other.bottom));
@@ -1969,9 +1812,7 @@ var ex;
          * Test wether this bounding box collides with another returning,
          * the intersection vector that can be used to resovle the collision. If there
          * is no collision null is returned.
-         * @method collides
-         * @param collidable {ICollidable} Other collidable to test
-         * @returns Vector
+         * @param collidable  Other collidable to test
          */
         BoundingBox.prototype.collides = function (collidable) {
             if (collidable instanceof BoundingBox) {
@@ -2044,8 +1885,6 @@ var ex;
         };
         /**
          * Returns the calculated width of the bounding box, by generating an axis aligned box around the current
-         * @method getWidth
-         * @returns number
          */
         SATBoundingBox.prototype.getWidth = function () {
             var left = this._points.reduce(function (accum, p, i, arr) {
@@ -2058,8 +1897,6 @@ var ex;
         };
         /**
          * Returns the calculated height of the bounding box, by generating an axis aligned box around the current
-         * @method getHeight
-         * @returns number
          */
         SATBoundingBox.prototype.getHeight = function () {
             var top = this._points.reduce(function (accum, p, i, arr) {
@@ -2071,11 +1908,10 @@ var ex;
             return top - bottom;
         };
         /**
-         * Tests wether a point is contained within the bounding box, using the PIP algorithm
-         * http://en.wikipedia.org/wiki/Point_in_polygon
-         * @method contains
-         * @param p {Point} The point to test
-         * @returns boolean
+         * Tests wether a point is contained within the bounding box,
+         * using the [PIP algorithm](http://en.wikipedia.org/wiki/Point_in_polygon)
+         *
+         * @param p  The point to test
          */
         SATBoundingBox.prototype.contains = function (p) {
             // Always cast to the right, as long as we cast in a consitent fixed direction we
@@ -2144,9 +1980,8 @@ var ex;
 var ex;
 (function (ex) {
     /**
-     * Excalibur base class
-     * @class Class
-     * @constructor
+     * Excalibur base class that provides basic functionality such as [[EventDispatcher]]
+     * and extending abilities for vanilla Javascript projects
      */
     var Class = (function () {
         function Class() {
@@ -2155,9 +1990,9 @@ var ex;
         /**
          * Add an event listener. You can listen for a variety of
          * events off of the engine; see the events section below for a complete list.
-         * @method addEventListener
-         * @param eventName {string} Name of the event to listen for
-         * @param handler {event=>void} Event handler for the thrown event
+         * @param eventName  Name of the event to listen for
+         * @param handler    Event handler for the thrown event
+         * @obsolete Use [[Class.on]] instead
          */
         Class.prototype.addEventListener = function (eventName, handler) {
             this.eventDispatcher.subscribe(eventName, handler);
@@ -2167,56 +2002,63 @@ var ex;
          * it will remove all handlers registered for that specific event. If the eventName
          * and the handler instance are specified just that handler will be removed.
          *
-         * @method removeEventListener
-         * @param eventName {string} Name of the event to listen for
-         * @param [handler=undefined] {event=>void} Event handler for the thrown event
+         * @param eventName  Name of the event to listen for
+         * @param handler    Event handler for the thrown event
+         * @obsolete Use [[Class.off]] instead
          */
         Class.prototype.removeEventListener = function (eventName, handler) {
             this.eventDispatcher.unsubscribe(eventName, handler);
         };
         /**
-         * Alias for "addEventListener". You can listen for a variety of
+         * Alias for `addEventListener`. You can listen for a variety of
          * events off of the engine; see the events section below for a complete list.
-         * @method on
-         * @param eventName {string} Name of the event to listen for
-         * @param handler {event=>void} Event handler for the thrown event
+         * @param eventName  Name of the event to listen for
+         * @param handler    Event handler for the thrown event
          */
         Class.prototype.on = function (eventName, handler) {
             this.eventDispatcher.subscribe(eventName, handler);
         };
         /**
-         * Alias for "removeEventListener". If only the eventName is specified
+         * Alias for `removeEventListener`. If only the eventName is specified
          * it will remove all handlers registered for that specific event. If the eventName
          * and the handler instance are specified only that handler will be removed.
          *
-         * @method off
-         * @param eventName {string} Name of the event to listen for
-         * @param [handler=undefined] {event=>void} Event handler for the thrown event
+         * @param eventName  Name of the event to listen for
+         * @param handler    Event handler for the thrown event
          */
         Class.prototype.off = function (eventName, handler) {
             this.eventDispatcher.unsubscribe(eventName, handler);
         };
         /**
-         * You may wish to extend native Excalibur functionality. Any method on
-         * actor may be extended to support additional functionaliy. In the
-         * example below we create a new type called "MyActor"
-         * <br/><b>Example</b><pre>var MyActor = Actor.extend({
-     constructor : function(){
-        this.newprop = 'something';
-        Actor.apply(this, arguments);
-     },
-     update : function(engine, delta){
-        // Implement custom update
-  
-           // Call super constructor update
-           Actor.prototype.update.call(this, engine, delta);
-           console.log("Something cool!");
-     }
-  });
-  var myActor = new MyActor(100, 100, 100, 100, Color.Azure);</pre>
-         * @method extend
-         * @static
-         * @param methods {any}
+         * You may wish to extend native Excalibur functionality in vanilla Javascript.
+         * Any method on a class inheriting [[Class]] may be extended to support
+         * additional functionaliy. In the example below we create a new type called `MyActor`.
+         *
+         *
+         * ```js
+         * var MyActor = Actor.extend({
+         *
+         *    constructor: function() {
+         *       this.newprop = 'something';
+         *       Actor.apply(this, arguments);
+         *    },
+         *
+         *    update: function(engine, delta) {
+         *       // Implement custom update
+         *       // Call super constructor update
+         *       Actor.prototype.update.call(this, engine, delta);
+         *
+         *       console.log("Something cool!");
+         *    }
+         * });
+         *
+         * var myActor = new MyActor(100, 100, 100, 100, Color.Azure);
+         * ```
+         *
+         * In TypeScript, you only need to use the `extends` syntax, you do not need
+         * to use this method of extension.
+         *
+         * @param methods A JSON object contain any methods/properties you want to extend
          */
         Class.extend = function (methods) {
             var parent = this;
@@ -2252,14 +2094,14 @@ var ex;
 })(ex || (ex = {}));
 var ex;
 (function (ex) {
+    /**
+     * The Excalibur timer hooks into the internal timer and fires callbacks,
+     * after a certain interval, optionally repeating.
+     */
     var Timer = (function () {
         /**
-         * The Excalibur timer hooks into the internal timer and fires callbacks, after a certain interval, optionally repeating.
-         *
-         * @class Timer
-         * @constructor
-         * @param callback {callback} The callback to be fired after the interval is complete.
-         * @param [repeats=false] {boolean} Indicates whether this call back should be fired only once, or repeat after every interval as completed.
+         * @param callback   The callback to be fired after the interval is complete.
+         * @param repeats    Indicates whether this call back should be fired only once, or repeat after every interval as completed.
          */
         function Timer(fcn, interval, repeats) {
             this.id = 0;
@@ -2278,8 +2120,7 @@ var ex;
         }
         /**
          * Updates the timer after a certain number of milliseconds have elapsed. This is used internally by the engine.
-         * @method update
-         * @param delta {number} Number of elapsed milliseconds since the last update.
+         * @param delta  Number of elapsed milliseconds since the last update.
          */
         Timer.prototype.update = function (delta) {
             this._totalTimeAlive += delta;
@@ -2299,7 +2140,6 @@ var ex;
         };
         /**
          * Cancels the timer, preventing any further executions.
-         * @method cancel
          */
         Timer.prototype.cancel = function () {
             if (this.scene) {
@@ -2794,14 +2634,14 @@ var ex;
     /**
      * Collision pairs are used internally by Excalibur to resolve collision between actors. The
      * Pair prevents collisions from being evaluated more than one time
-     * @class CollisionPair
-     * @constructor
-     * @param left {Actor} The first actor in the collision pair
-     * @param right {Actor} The second actor in the collision pair
-     * @param intersect {Vector} The minimum translation vector to separate the actors from the perspective of the left actor
-     * @param side {Side} The side on which the collision occured from the perspective of the left actor
      */
     var CollisionPair = (function () {
+        /**
+         * @param left       The first actor in the collision pair
+         * @param right      The second actor in the collision pair
+         * @param intersect  The minimum translation vector to separate the actors from the perspective of the left actor
+         * @param side       The side on which the collision occured from the perspective of the left actor
+         */
         function CollisionPair(left, right, intersect, side) {
             this.left = left;
             this.right = right;
@@ -2810,16 +2650,12 @@ var ex;
         }
         /**
          * Determines if this collision pair and another are equivalent.
-         * @method equals
-         * @param collisionPair {CollisionPair}
-         * @returns boolean
          */
         CollisionPair.prototype.equals = function (collisionPair) {
             return (collisionPair.left === this.left && collisionPair.right === this.right) || (collisionPair.right === this.left && collisionPair.left === this.right);
         };
         /**
          * Evaluates the collision pair, performing collision resolution and event publishing appropriate to each collision type.
-         * @method evaluate
          */
         CollisionPair.prototype.evaluate = function () {
             // todo fire collision events on left and right actor
@@ -2880,9 +2716,7 @@ var ex;
 (function (ex) {
     /**
     * A base implementation of a camera. This class is meant to be extended.
-    * @class Camera
-    * @constructor
-    * @param engine {Engine} Reference to the current engine
+    * @abstract
     */
     var BaseCamera = (function () {
         function BaseCamera() {
@@ -2916,26 +2750,22 @@ var ex;
             return endValue / 2 * (currentTime * currentTime * currentTime + 2) + startValue;
         };
         /**
-        * Sets the {{#crossLink Actor}}{{/crossLink}} to follow with the camera
-        * @method setActorToFollow
-        * @param actor {Actor} The actor to follow
+        * Sets the [[Actor]] to follow with the camera
+        * @param actor  The actor to follow
         */
         BaseCamera.prototype.setActorToFollow = function (actor) {
             this.follow = actor;
         };
         /**
         * Returns the focal point of the camera
-        * @method getFocus
-        * @returns Point
         */
         BaseCamera.prototype.getFocus = function () {
             return this.focus;
         };
         /**
         * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
-        * @method setFocus
-        * @param x {number} The x coordinate of the focal point
-        * @param y {number} The y coordinate of the focal point
+        * @param x The x coordinate of the focal point
+        * @param y The y coordinate of the focal point
         */
         BaseCamera.prototype.setFocus = function (x, y) {
             if (!this.follow && !this.lerp) {
@@ -2951,10 +2781,9 @@ var ex;
         };
         /**
         * Sets the camera to shake at the specified magnitudes for the specified duration
-        * @method shake
-        * @param magnitudeX {number} the x magnitude of the shake
-        * @param magnitudeY {number} the y magnitude of the shake
-        * @param duration {number} the duration of the shake
+        * @param magnitudeX  The x magnitude of the shake
+        * @param magnitudeY  The y magnitude of the shake
+        * @param duration    The duration of the shake in milliseconds
         */
         BaseCamera.prototype.shake = function (magnitudeX, magnitudeY, duration) {
             this.isShaking = true;
@@ -2965,9 +2794,8 @@ var ex;
         /**
         * Zooms the camera in or out by the specified scale over the specified duration.
         * If no duration is specified, it will zoom by a set amount until the scale is reached.
-        * @method zoom
-        * @param scale {number} the scale of the zoom
-        * @param [duration] {number} the duration of the zoom
+        * @param scale    The scale of the zoom
+        * @param duration The duration of the zoom in milliseconds
         */
         BaseCamera.prototype.zoom = function (scale, duration) {
             this.isZooming = true;
@@ -2994,9 +2822,7 @@ var ex;
             // console.log("zoom increment: " + this.zoomIncrement);
         };
         /**
-        * gets the current zoom scale
-        * @method getZoom
-        * @returns {Number} the current zoom scale
+        * Gets the current zoom scale
         */
         BaseCamera.prototype.getZoom = function () {
             return this.currentZoomScale;
@@ -3006,8 +2832,7 @@ var ex;
         };
         /**
         * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
-        * @method update
-        * @param delta {number} The number of milliseconds since the last update
+        * @param delta  The number of milliseconds since the last update
         */
         BaseCamera.prototype.update = function (ctx, delta) {
             var focus = this.getFocus();
@@ -3094,10 +2919,6 @@ var ex;
     ex.BaseCamera = BaseCamera;
     /**
     * An extension of BaseCamera that is locked vertically; it will only move side to side.
-    * @class SideCamera
-    * @extends BaseCamera
-    * @constructor
-    * @param engine {Engine} Reference to the current engine
     */
     var SideCamera = (function (_super) {
         __extends(SideCamera, _super);
@@ -3117,10 +2938,6 @@ var ex;
     ex.SideCamera = SideCamera;
     /**
     * An extension of BaseCamera that is locked to an actor or focal point; the actor will appear in the center of the screen.
-    * @class TopCamera
-    * @extends BaseCamera
-    * @constructor
-    * @param engine {Engine} Reference to the current engine
     */
     var TopCamera = (function (_super) {
         __extends(TopCamera, _super);
@@ -3863,8 +3680,7 @@ var ex;
             }
         }
         /**
-        * Clears all queued actions from the Actor
-        * @method clearActions
+         * Clears all queued actions from the Actor
          */
         ActionContext.prototype.clearActions = function () {
             this._queues.forEach(function (q) { return q.clearActions(); });
@@ -3885,11 +3701,9 @@ var ex;
          * This method will move an actor to the specified x and y position at the
          * speed specified (in pixels per second) and return back the actor. This
          * method is part of the actor 'Action' fluent API allowing action chaining.
-         * @method moveTo
-         * @param x {number} The x location to move the actor to
-         * @param y {number} The y location to move the actor to
-         * @param speed {number} The speed in pixels per second to move
-         * @returns Actor
+         * @param x      The x location to move the actor to
+         * @param y      The y location to move the actor to
+         * @param speed  The speed in pixels per second to move
           */
         ActionContext.prototype.moveTo = function (x, y, speed) {
             var _this = this;
@@ -3902,11 +3716,9 @@ var ex;
          * This method will move an actor to the specified x and y position by a
          * certain time (in milliseconds). This method is part of the actor
          * 'Action' fluent API allowing action chaining.
-         * @method moveBy
-         * @param x {number} The x location to move the actor to
-         * @param y {number} The y location to move the actor to
-         * @param time {number} The time it should take the actor to move to the new location in milliseconds
-         * @returns Actor
+         * @param x     The x location to move the actor to
+         * @param y     The y location to move the actor to
+         * @param time  The time it should take the actor to move to the new location in milliseconds
           */
         ActionContext.prototype.moveBy = function (x, y, time) {
             var _this = this;
@@ -3919,10 +3731,8 @@ var ex;
          * This method will rotate an actor to the specified angle at the speed
          * specified (in radians per second) and return back the actor. This
          * method is part of the actor 'Action' fluent API allowing action chaining.
-         * @method rotateTo
-         * @param angleRadians {number} The angle to rotate to in radians
-         * @param speed {number} The angular velocity of the rotation specified in radians per second
-         * @returns Actor
+         * @param angleRadians  The angle to rotate to in radians
+         * @param speed         The angular velocity of the rotation specified in radians per second
           */
         ActionContext.prototype.rotateTo = function (angleRadians, speed) {
             var _this = this;
@@ -3935,10 +3745,8 @@ var ex;
          * This method will rotate an actor to the specified angle by a certain
          * time (in milliseconds) and return back the actor. This method is part
          * of the actor 'Action' fluent API allowing action chaining.
-         * @method rotateBy
-         * @param angleRadians {number} The angle to rotate to in radians
-         * @param time {number} The time it should take the actor to complete the rotation in milliseconds
-         * @returns Actor
+         * @param angleRadians  The angle to rotate to in radians
+         * @param time          The time it should take the actor to complete the rotation in milliseconds
           */
         ActionContext.prototype.rotateBy = function (angleRadians, time) {
             var _this = this;
@@ -3952,10 +3760,8 @@ var ex;
          * specified (in magnitude increase per second) and return back the
          * actor. This method is part of the actor 'Action' fluent API allowing
          * action chaining.
-         * @method scaleTo
-         * @param size {number} The scaling factor to apply
-         * @param speed {number} The speed of scaling specified in magnitude increase per second
-         * @returns Actor
+         * @param size   The scaling factor to apply
+         * @param speed  The speed of scaling specified in magnitude increase per second
           */
         ActionContext.prototype.scaleTo = function (sizeX, sizeY, speedX, speedY) {
             var _this = this;
@@ -3968,10 +3774,8 @@ var ex;
          * This method will scale an actor to the specified size by a certain time
          * (in milliseconds) and return back the actor. This method is part of the
          * actor 'Action' fluent API allowing action chaining.
-         * @method scaleBy
-         * @param size {number} The scaling factor to apply
-         * @param time {number} The time it should take to complete the scaling in milliseconds
-         * @returns Actor
+         * @param size   The scaling factor to apply
+         * @param time   The time it should take to complete the scaling in milliseconds
           */
         ActionContext.prototype.scaleBy = function (sizeX, sizeY, time) {
             var _this = this;
@@ -3985,11 +3789,9 @@ var ex;
          * visible). Optionally, you may specify the number of blinks. Specify the amount of time
          * the actor should be visible per blink, and the amount of time not visible.
          * This method is part of the actor 'Action' fluent API allowing action chaining.
-         * @method blink
-         * @param timeVisible {number} The amount of time to stay visible per blink in milliseconds
-         * @param timeNotVisible {number} The amount of time to stay not visible per blink in milliseconds
-         * @param [numBlinks] {number} The number of times to blink
-         * @returns Actor
+         * @param timeVisible     The amount of time to stay visible per blink in milliseconds
+         * @param timeNotVisible  The amount of time to stay not visible per blink in milliseconds
+         * @param numBlinks       The number of times to blink
           */
         ActionContext.prototype.blink = function (timeVisible, timeNotVisible, numBlinks) {
             var _this = this;
@@ -4003,10 +3805,8 @@ var ex;
          * This method will cause an actor's opacity to change from its current value
          * to the provided value by a specified time (in milliseconds). This method is
          * part of the actor 'Action' fluent API allowing action chaining.
-         * @method fade
-         * @param opacity {number} The ending opacity
-         * @param time {number} The time it should take to fade the actor (in milliseconds)
-         * @returns Actor
+         * @param opacity  The ending opacity
+         * @param time     The time it should take to fade the actor (in milliseconds)
           */
         ActionContext.prototype.fade = function (opacity, time) {
             var _this = this;
@@ -4019,9 +3819,7 @@ var ex;
          * This method will delay the next action from executing for a certain
          * amount of time (in milliseconds). This method is part of the actor
          * 'Action' fluent API allowing action chaining.
-         * @method delay
-         * @param time {number} The amount of time to delay the next action in the queue from executing in milliseconds
-         * @returns Actor
+         * @param time  The amount of time to delay the next action in the queue from executing in milliseconds
           */
         ActionContext.prototype.delay = function (time) {
             var _this = this;
@@ -4034,8 +3832,6 @@ var ex;
          * This method will add an action to the queue that will remove the actor from the
          * scene once it has completed its previous actions. Any actions on the
          * action queue after this action will not be executed.
-         * @method die
-         * @returns Actor
           */
         ActionContext.prototype.die = function () {
             var _this = this;
@@ -4048,8 +3844,6 @@ var ex;
          * This method allows you to call an arbitrary method as the next action in the
          * action queue. This is useful if you want to execute code in after a specific
          * action, i.e An actor arrives at a destinatino after traversing a path
-         * @method callMethod
-         * @returns Actor
           */
         ActionContext.prototype.callMethod = function (method) {
             var _this = this;
@@ -4063,9 +3857,7 @@ var ex;
          * called actions a certain number of times. If the number of repeats
          * is not specified it will repeat forever. This method is part of
          * the actor 'Action' fluent API allowing action chaining
-         * @method repeat
-         * @param [times=undefined] {number} The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will repeat forever
-         * @returns Actor
+         * @param times  The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will repeat forever
           */
         ActionContext.prototype.repeat = function (times) {
             var _this = this;
@@ -4082,8 +3874,6 @@ var ex;
          * This method will cause the actor to repeat all of the previously
          * called actions forever. This method is part of the actor 'Action'
          * fluent API allowing action chaining.
-         * @method repeatForever
-         * @returns Actor
           */
         ActionContext.prototype.repeatForever = function () {
             var _this = this;
@@ -4094,10 +3884,8 @@ var ex;
         };
         /**
          * This method will cause the actor to follow another at a specified distance
-         * @method follow
-         * @param actor {Actor} The actor to follow
-         * @param [followDistance=currentDistance] {number} The distance to maintain when following, if not specified the actor will follow at the current distance.
-         * @returns Actor
+         * @param actor           The actor to follow
+         * @param followDistance  The distance to maintain when following, if not specified the actor will follow at the current distance.
          */
         ActionContext.prototype.follow = function (actor, followDistance) {
             var _this = this;
@@ -4114,10 +3902,8 @@ var ex;
         /**
          * This method will cause the actor to move towards another until they
          * collide "meet" at a specified speed.
-         * @method meet
-         * @param actor {Actor} The actor to meet
-         * @param [speed=0] {number} The speed in pixels per second to move, if not specified it will match the speed of the other actor
-         * @returns Actor
+         * @param actor  The actor to meet
+         * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
          */
         ActionContext.prototype.meet = function (actor, speed) {
             var _this = this;
@@ -4134,8 +3920,6 @@ var ex;
         /**
          * Returns a promise that resolves when the current action queue up to now
          * is finished.
-         * @method asPromise
-         * @returns Promise
          */
         ActionContext.prototype.asPromise = function () {
             var _this = this;
@@ -4157,6 +3941,9 @@ var ex;
 /// <reference path="Collision/BoundingBox.ts"/>
 var ex;
 (function (ex) {
+    /**
+     * @todo Document this
+     */
     var Group = (function (_super) {
         __extends(Group, _super);
         function Group(name, scene) {
@@ -4267,11 +4054,13 @@ var ex;
 var ex;
 (function (ex) {
     /**
-     * Actors are composed together into groupings called Scenes in
+     * Scenes
+     *
+     * [[Actor]]s are composed together into groupings called Scenes in
      * Excalibur. The metaphor models the same idea behind real world
      * actors in a scene. Only actors in scenes will be updated and drawn.
-     * @class Scene
-     * @constructor
+     *
+     * Typical usages of a scene include: levels, menus, loading screens, etc.
      */
     var Scene = (function (_super) {
         __extends(Scene, _super);
@@ -4279,11 +4068,19 @@ var ex;
             _super.call(this);
             /**
              * The actors in the current scene
-             * @property children {Actor[]}
              */
             this.children = [];
+            /**
+             * The [[TileMap]]s in the scene, if any
+             */
             this.tileMaps = [];
+            /**
+             * The [[Group]]s in the scene, if any
+             */
             this.groups = {};
+            /**
+             * The [[UIActor]]s in a scene, if any; these are drawn last
+             */
             this.uiActors = [];
             this._collisionResolver = new ex.DynamicTreeCollisionResolver();
             this._killQueue = [];
@@ -4299,7 +4096,6 @@ var ex;
         /**
          * This is called when the scene is made active and started. It is meant to be overriden,
          * this is where you should setup any DOM UI or event handlers needed for the scene.
-         * @method onActivate
          */
         Scene.prototype.onActivate = function () {
             // will be overridden
@@ -4307,7 +4103,6 @@ var ex;
         /**
          * This is called when the scene is made transitioned away from and stopped. It is meant to be overriden,
          * this is where you should cleanup any DOM UI or event handlers needed for the scene.
-         * @method onDeactivate
          */
         Scene.prototype.onDeactivate = function () {
             // will be overridden
@@ -4315,17 +4110,14 @@ var ex;
         /**
          * This is called before the first update of the actor. This method is meant to be
          * overridden. This is where initialization of child actors should take place.
-         * @method onInitialize
-         * @param engine {Engine}
          */
         Scene.prototype.onInitialize = function (engine) {
             // will be overridden
         };
         /**
          * Publish an event to all actors in the scene
-         * @method publish
-         * @param eventType {string} The name of the event to publish
-         * @param event {GameEvent} The event object to send
+         * @param eventType  The name of the event to publish
+         * @param event      The event object to send
          */
         Scene.prototype.publish = function (eventType, event) {
             this.children.forEach(function (actor) {
@@ -4333,10 +4125,9 @@ var ex;
             });
         };
         /**
-         * Updates all the actors and timers in the Scene. Called by the Engine.
-         * @method update
-         * @param engine {Engine} Reference to the current Engine
-         * @param delta {number} The number of milliseconds since the last update
+         * Updates all the actors and timers in the scene. Called by the [[Engine]].
+         * @param engine  Reference to the current Engine
+         * @param delta   The number of milliseconds since the last update
          */
         Scene.prototype.update = function (engine, delta) {
             if (!this._isInitialized) {
@@ -4382,10 +4173,9 @@ var ex;
             });
         };
         /**
-         * Draws all the actors in the Scene. Called by the Engine.
-         * @method draw
-         * @param ctx {CanvasRenderingContext2D} The current rendering context
-         * @param delta {number} The number of milliseconds since the last draw
+         * Draws all the actors in the Scene. Called by the [[Engine]].
+         * @param ctx    The current rendering context
+         * @param delta  The number of milliseconds since the last draw
          */
         Scene.prototype.draw = function (ctx, delta) {
             ctx.save();
@@ -4423,9 +4213,8 @@ var ex;
             }
         };
         /**
-         * Draws all the actors' debug information in the Scene. Called by the Engine.
-         * @method draw
-         * @param ctx {CanvasRenderingContext2D} The current rendering context
+         * Draws all the actors' debug information in the Scene. Called by the [[Engine]].
+         * @param ctx  The current rendering context
          */
         Scene.prototype.debugDraw = function (ctx) {
             this.tileMaps.forEach(function (map) {
@@ -4476,19 +4265,16 @@ var ex;
             }
         };
         /**
-         * Adds an actor to act as a piece of UI, meaning it is always positioned
-         * in screen coordinates. UI actors do not participate in collisions
-         * @method addUIActor
-         * @param actor {Actor}
+         * Adds (any) actor to act as a piece of UI, meaning it is always positioned
+         * in screen coordinates. UI actors do not participate in collisions.
+         * @todo Should this be `UIActor` only?
          */
         Scene.prototype.addUIActor = function (actor) {
             this.uiActors.push(actor);
             actor.scene = this;
         };
         /**
-         * Removes an actor as a piec of UI
-         * @method removeUIActor
-         * @param actor {Actor}
+         * Removes an actor as a piece of UI
          */
         Scene.prototype.removeUIActor = function (actor) {
             var index = this.uiActors.indexOf(actor);
@@ -4497,9 +4283,7 @@ var ex;
             }
         };
         /**
-         * Adds an actor to the Scene, once this is done the actor will be drawn and updated.
-         * @method addChild
-         * @param actor {Actor}
+         * Adds an actor to the scene, once this is done the actor will be drawn and updated.
          */
         Scene.prototype.addChild = function (actor) {
             this._collisionResolver.register(actor);
@@ -4508,17 +4292,13 @@ var ex;
             actor.parent = this.actor;
         };
         /**
-         * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
-         * @method addTileMap
-         * @param tileMap {TileMap}
+         * Adds a [[TileMap]] to the scene, once this is done the TileMap will be drawn and updated.
          */
         Scene.prototype.addTileMap = function (tileMap) {
             this.tileMaps.push(tileMap);
         };
         /**
-         * Removes a TileMap from the Scene, it willno longer be drawn or updated.
-         * @method removeTileMap
-         * @param tileMap {TileMap}
+         * Removes a [[TileMap]] from the scene, it will no longer be drawn or updated.
          */
         Scene.prototype.removeTileMap = function (tileMap) {
             var index = this.tileMaps.indexOf(tileMap);
@@ -4527,9 +4307,7 @@ var ex;
             }
         };
         /**
-         * Removes an actor from the Scene, it will no longer be drawn or updated.
-         * @method removeChild
-         * @param actor {Actor} The actor to remove
+         * Removes an actor from the scene, it will no longer be drawn or updated.
          */
         Scene.prototype.removeChild = function (actor) {
             this._collisionResolver.remove(actor);
@@ -4537,10 +4315,8 @@ var ex;
             actor.parent = null;
         };
         /**
-         * Adds a timer to the Scene
-         * @method addTimer
-         * @param timer {Timer} The timer to add
-         * @returns Timer
+         * Adds a [[Timer]] to the scene
+         * @param timer  The timer to add
          */
         Scene.prototype.addTimer = function (timer) {
             this._timers.push(timer);
@@ -4548,11 +4324,9 @@ var ex;
             return timer;
         };
         /**
-         * Removes a timer to the Scene, can be dangerous
-         * @method removeTimer
-         * @private
-         * @param timer {Timer} The timer to remove
-         * @returns Timer
+         * Removes a [[Timer]] from the scene.
+         * @warning Can be dangerous, use [[cancelTimer]] instead
+         * @param timer  The timer to remove
          */
         Scene.prototype.removeTimer = function (timer) {
             var i = this._timers.indexOf(timer);
@@ -4562,38 +4336,27 @@ var ex;
             return timer;
         };
         /**
-         * Cancels a timer, removing it from the scene nicely
-         * @method cancelTimer
-         * @param timer {Timer} The timer to cancel
-         * @returns Timer
+         * Cancels a [[Timer]], removing it from the scene nicely
+         * @param timer  The timer to cancel
          */
         Scene.prototype.cancelTimer = function (timer) {
             this._cancelQueue.push(timer);
             return timer;
         };
         /**
-         * Tests whether a timer is active in the scene
-         * @method isTimerActive
-         * @param timer {Timer}
-         * @returns boolean
+         * Tests whether a [[Timer]] is active in the scene
          */
         Scene.prototype.isTimerActive = function (timer) {
             return (this._timers.indexOf(timer) > -1);
         };
         /**
-         * Creates and adds a group to the scene with a name
-         * @method createGroup
-         * @param name {String}
-         * @returns Group
+         * Creates and adds a [[Group]] to the scene with a name
          */
         Scene.prototype.createGroup = function (name) {
             return new ex.Group(name, this);
         };
         /**
-         * Returns a group by name
-         * @method getGroup
-         * @param name {string}
-         * @returns Group
+         * Returns a [[Group]] by name
          */
         Scene.prototype.getGroup = function (name) {
             return this.groups[name];
@@ -4615,6 +4378,9 @@ var ex;
 })(ex || (ex = {}));
 var ex;
 (function (ex) {
+    /**
+     * Standard easing functions for motion in Excalibur
+     */
     var EasingFunctions = (function () {
         function EasingFunctions() {
         }
@@ -4706,37 +4472,28 @@ var ex;
 (function (ex) {
     /**
      * An enum that describes the types of collisions actors can participate in
-     * @class CollisionType
      */
     (function (CollisionType) {
         /**
          * Actors with the PreventCollision setting do not participate in any
          * collisions and do not raise collision events.
-         * @property PreventCollision {CollisionType}
-         * @static
          */
         CollisionType[CollisionType["PreventCollision"] = 0] = "PreventCollision";
         /**
          * Actors with the Passive setting only raise collision events, but are not
          * influenced or moved by other actors and do not influence or move other actors.
-         * @property Passive {CollisionType}
-         * @static
          */
         CollisionType[CollisionType["Passive"] = 1] = "Passive";
         /**
          * Actors with the Active setting raise collision events and participate
          * in collisions with other actors and will be push or moved by actors sharing
          * the Active or Fixed setting.
-         * @property Active {CollisionType}
-         * @static
          */
         CollisionType[CollisionType["Active"] = 2] = "Active";
         /**
          * Actors with the Elastic setting will behave the same as Active, except that they will
          * "bounce" in the opposite direction given their velocity dx/dy. This is a naive implementation meant for
          * prototyping, for a more robust elastic collision listen to the "collision" event and perform your custom logic.
-         * @property Elastic {CollisionType}
-         * @static
          */
         CollisionType[CollisionType["Elastic"] = 3] = "Elastic";
         /**
@@ -4746,8 +4503,6 @@ var ex;
          * actors as "immovable/onstoppable" objects. If two Fixed actors meet they will
          * not be pushed or moved by each other, they will not interact except to throw
          * collision events.
-         * @property Fixed {CollisionType}
-         * @static
          */
         CollisionType[CollisionType["Fixed"] = 4] = "Fixed";
     })(ex.CollisionType || (ex.CollisionType = {}));
@@ -4755,19 +4510,18 @@ var ex;
     /**
      * The most important primitive in Excalibur is an "Actor." Anything that
      * can move on the screen, collide with another Actor, respond to events,
-     * or interact with the current scene, must be an actor. An Actor <b>must</b>
-     * be part of a {{#crossLink "Scene"}}{{/crossLink}} for it to be drawn to the screen.
-     * @class Actor
-     * @extends Class
-     * @constructor
-     * @param [x=0.0] {number} The starting x coordinate of the actor
-     * @param [y=0.0] {number} The starting y coordinate of the actor
-     * @param [width=0.0] {number} The starting width of the actor
-     * @param [height=0.0] {number} The starting height of the actor
-     * @param [color=undefined] {Color} The starting color of the actor
+     * or interact with the current scene, must be an actor. An Actor **must**
+     * be part of a [[Scene]] for it to be drawn to the screen.
      */
     var Actor = (function (_super) {
         __extends(Actor, _super);
+        /**
+         * @param x       The starting x coordinate of the actor
+         * @param y       The starting y coordinate of the actor
+         * @param width   The starting width of the actor
+         * @param height  The starting height of the actor
+         * @param color   The starting color of the actor
+         */
         function Actor(x, y, width, height, color) {
             _super.call(this);
             /**
@@ -4776,103 +4530,84 @@ var ex;
             this.id = Actor.maxId++;
             /**
              * The x coordinate of the actor (left edge)
-             * @property x {number}
              */
             this.x = 0;
             /**
              * The y coordinate of the actor (top edge)
-             * @property y {number}
              */
             this.y = 0;
             this.height = 0;
             this.width = 0;
             /**
              * The rotation of the actor in radians
-             * @property rotation {number}
              */
             this.rotation = 0; // radians
             /**
              * The rotational velocity of the actor in radians/second
-             * @property rx {number}
              */
             this.rx = 0; //radions/sec
             /**
              * The scale vector of the actor
-             * @property scale
              */
             this.scale = new ex.Vector(1, 1);
             /**
              * The x scalar velocity of the actor in scale/second
-             * @property sx {number}
              */
             this.sx = 0; //scale/sec
             /**
              * The y scalar velocity of the actor in scale/second
-             * @property sy {number}
              */
             this.sy = 0; //scale/sec
             /**
              * The x velocity of the actor in pixels/second
-             * @property dx {number}
              */
             this.dx = 0; // pixels/sec
             /**
              * The x velocity of the actor in pixels/second
-             * @property dx {number}
              */
             this.dy = 0;
             /**
              * The x acceleration of the actor in pixels/second^2
-             * @property ax {number}
              */
             this.ax = 0; // pixels/sec/sec
             /**
              * The y acceleration of the actor in pixels/second^2
-             * @property ay {number}
              */
             this.ay = 0;
             /**
              * Indicates wether the actor is physically in the viewport
-             * @property isOffScreen {boolean}
              */
             this.isOffScreen = false;
             /**
              * The visibility of an actor
-             * @property visible {boolean}
              */
             this.visible = true;
             /**
              * The opacity of an actor
-             * @property opacity {number}
              */
             this.opacity = 1;
             this.previousOpacity = 1;
             this.actions = new ex.ActionContext(this);
             /**
              * Convenience reference to the global logger
-             * @property logger {Logger}
              */
             this.logger = ex.Logger.getInstance();
             /**
              * The scene that the actor is in
-             * @property scene {Scene}
              */
             this.scene = null;
             /**
              * The parent of this actor
-             * @property parent {Actor}
              */
             this.parent = null;
             // TODO: Replace this with the new actor collection once z-indexing is built
             /**
              * The children of this actor
-             * @property children {Actor[]}
              */
             this.children = [];
             /**
              * Gets or sets the current collision type of this actor. By
              * default all actors participate in Active collisions.
-             * @property collisionType {CollisionType}
              */
             this.collisionType = 0 /* PreventCollision */;
             this.collisionGroups = [];
@@ -4880,28 +4615,23 @@ var ex;
             this._isInitialized = false;
             this.frames = {};
             /**
-             * Access to the current drawing on for the actor, this can be an {{#crossLink "Animation"}}{{/crossLink}},
-             * {{#crossLink "Sprite"}}{{/crossLink}}, or {{#crossLink "Polygon"}}{{/crossLink}}.
-             * Set drawings with the {{#crossLink "Actor/setDrawing:method"}}{{/crossLink}}.
-             * @property currentDrawing {IDrawable}
+             * Access to the current drawing on for the actor, this can be
+             * an [[Animation]], [[Sprite]], or [[Polygon]].
+             * Set drawings with [[Actor.setDrawing]].
              */
             this.currentDrawing = null;
             this.centerDrawingX = true;
             this.centerDrawingY = true;
             /**
              * Modify the current actor update pipeline.
-             *
-             *
              */
             this.pipeline = [];
             /**
-             * Whether or not to enable the CapturePointer trait that propogates pointer events to this actor
-             * @property [enableCapturePointer=false] {boolean}
+             * Whether or not to enable the [[CapturePointerModule]] trait that propogates pointer events to this actor
              */
             this.enableCapturePointer = false;
             /**
-             * Configuration for CapturePointer trait
-             * @property capturePointer {ICapturePointerConfig}
+             * Configuration for [[CapturePointerModule]] trait
              */
             this.capturePointer = {
                 captureMoveEvents: false
@@ -4927,8 +4657,6 @@ var ex;
         /**
          * This is called before the first update of the actor. This method is meant to be
          * overridden. This is where initialization of child actors should take place.
-         * @method onInitialize
-         * @param engine {Engine}
          */
         Actor.prototype.onInitialize = function (engine) {
         };
@@ -4942,30 +4670,27 @@ var ex;
         };
         /**
         * Add an event listener. You can listen for a variety of
-        * events off of the engine; see the events section below for a complete list.
-        * @method addEventListener
-        * @param eventName {string} Name of the event to listen for
-        * @param handler {event=>void} Event handler for the thrown event
+        * events off of the engine; see [[GameEvent]]
+        * @param eventName  Name of the event to listen for
+        * @param handler    Event handler for the thrown event
         */
         Actor.prototype.addEventListener = function (eventName, handler) {
             this._checkForPointerOptIn(eventName);
             _super.prototype.addEventListener.call(this, eventName, handler);
         };
         /**
-         * Alias for "addEventListener". You can listen for a variety of
-         * events off of the engine; see the events section below for a complete list.
-         * @method on
-         * @param eventName {string} Name of the event to listen for
-         * @param handler {event=>void} Event handler for the thrown event
+         * Alias for `addEventListener`. You can listen for a variety of
+         * events off of the engine; see [[GameEvent]]
+         * @param eventName   Name of the event to listen for
+         * @param handler     Event handler for the thrown event
          */
         Actor.prototype.on = function (eventName, handler) {
             this._checkForPointerOptIn(eventName);
             this.eventDispatcher.subscribe(eventName, handler);
         };
         /**
-         * If the current actors is a member of the scene. This will remove
+         * If the current actor is a member of the scene, this will remove
          * it from the scene graph. It will no longer be drawn or updated.
-         * @method kill
          */
         Actor.prototype.kill = function () {
             if (this.scene) {
@@ -4978,8 +4703,6 @@ var ex;
         };
         /**
          * Indicates wether the actor has been killed.
-         * @method isKilled
-         * @returns boolean
          */
         Actor.prototype.isKilled = function () {
             return this._isKilled;
@@ -4987,9 +4710,8 @@ var ex;
         /**
          * Adds a child actor to this actor. All movement of the child actor will be
          * relative to the parent actor. Meaning if the parent moves the child will
-         * move with
-         * @method addChild
-         * @param actor {Actor} The child actor to add
+         * move with it.
+         * @param actor The child actor to add
          */
         Actor.prototype.addChild = function (actor) {
             actor.collisionType = 0 /* PreventCollision */;
@@ -4999,21 +4721,15 @@ var ex;
         };
         /**
          * Removes a child actor from this actor.
-         * @method removeChild
-         * @param actor {Actor} The child actor to remove
+         * @param actor The child actor to remove
          */
         Actor.prototype.removeChild = function (actor) {
             if (ex.Util.removeItemToArray(actor, this.children)) {
                 actor.parent = null;
             }
         };
-        /**
-         * Sets the current drawing of the actor to the drawing correspoding to
-         * the key.
-         * @method setDrawing
-         * @param key {string} The key of the drawing
-         */
         Actor.prototype.setDrawing = function (key) {
+            key = key.toString();
             if (this.currentDrawing != this.frames[key]) {
                 this.frames[key].reset();
             }
@@ -5037,30 +4753,27 @@ var ex;
         };
         /**
          * Artificially trigger an event on an actor, useful when creating custom events.
-         * @method triggerEvent
-         * @param eventName {string} The name of the event to trigger
-         * @param [event=undefined] {GameEvent} The event object to pass to the callback
+         * @param eventName   The name of the event to trigger
+         * @param event       The event object to pass to the callback
          */
         Actor.prototype.triggerEvent = function (eventName, event) {
             this.eventDispatcher.publish(eventName, event);
         };
         /**
-         * Adds an actor to a collision group. Actors with no named collision group are
+         * Adds an actor to a collision group. Actors with no named collision groups are
          * considered to be in every collision group.
          *
          * Once in a collision group(s) actors will only collide with other actors in
          * that group.
          *
-         * @method addCollisionGroup
-         * @param name {string} The name of the collision group
+         * @param name The name of the collision group
          */
         Actor.prototype.addCollisionGroup = function (name) {
             this.collisionGroups.push(name);
         };
         /**
-         * Remove an actor from a collision group.
-         * @method removeCollisionGroup
-         * @param name {string} The name of the collision group
+         * Removes an actor from a collision group.
+         * @param name The name of the collision group
          */
         Actor.prototype.removeCollisionGroup = function (name) {
             var index = this.collisionGroups.indexOf(name);
@@ -5069,48 +4782,39 @@ var ex;
             }
         };
         /**
-         * Get the center point of an actor
-         * @method getCenter
-         * @returns Vector
+         * Get the center point of an actor, factoring in `anchor`
          */
         Actor.prototype.getCenter = function () {
             var anchor = this._getCalculatedAnchor();
             return new ex.Vector(this.x + this.getWidth() / 2, this.y + this.getHeight() / 2);
         };
         /**
-         * Gets the calculated width of an actor
-         * @method getWidth
-         * @returns number
+         * Gets the calculated width of an actor, factoring in scale
          */
         Actor.prototype.getWidth = function () {
             return this.width * this.scale.x;
         };
         /**
          * Sets the width of an actor, factoring in the current scale
-         * @method setWidth
          */
         Actor.prototype.setWidth = function (width) {
             this.width = width / this.scale.x;
         };
         /**
-         * Gets the calculated height of an actor
-         * @method getHeight
-         * @returns number
+         * Gets the calculated height of an actor, factoring in scale
          */
         Actor.prototype.getHeight = function () {
             return this.height * this.scale.y;
         };
         /**
          * Sets the height of an actor, factoring in the current scale
-         * @method setHeight
          */
         Actor.prototype.setHeight = function (height) {
             this.height = height / this.scale.y;
         };
         /**
          * Centers the actor's drawing around the center of the actor's bounding box
-         * @method setCenterDrawing
-         * @param center {boolean} Indicates to center the drawing around the actor
+         * @param center Indicates to center the drawing around the actor
          */
         Actor.prototype.setCenterDrawing = function (center) {
             this.centerDrawingY = center;
@@ -5118,40 +4822,30 @@ var ex;
         };
         /**
          * Gets the left edge of the actor
-         * @method getLeft
-         * @returns number
          */
         Actor.prototype.getLeft = function () {
             return this.x;
         };
         /**
          * Gets the right edge of the actor
-         * @method getRight
-         * @returns number
          */
         Actor.prototype.getRight = function () {
             return this.x + this.getWidth();
         };
         /**
          * Gets the top edge of the actor
-         * @method getTop
-         * @returns number
          */
         Actor.prototype.getTop = function () {
             return this.y;
         };
         /**
          * Gets the bottom edge of the actor
-         * @method getBottom
-         * @returns number
          */
         Actor.prototype.getBottom = function () {
             return this.y + this.getHeight();
         };
         /**
         * Gets the x value of the Actor in global coordinates
-        * @method getWorldX
-        * @returns number
         */
         Actor.prototype.getWorldX = function () {
             if (!this.parent) {
@@ -5161,8 +4855,6 @@ var ex;
         };
         /**
         * Gets the y value of the Actor in global coordinates
-        * @method getWorldY
-        * @returns number
         */
         Actor.prototype.getWorldY = function () {
             if (!this.parent) {
@@ -5172,8 +4864,6 @@ var ex;
         };
         /**
          * Gets the global scale of the Actor
-         * @method getGlobalScale
-         * @returns Point
          */
         Actor.prototype.getGlobalScale = function () {
             if (!this.parent)
@@ -5182,9 +4872,7 @@ var ex;
             return new ex.Point(this.scale.x * parentScale.x, this.scale.y * parentScale.y);
         };
         /**
-         * Returns the actor's bounding box calculated for this instant.
-         * @method getBounds
-         * @returns BoundingBox
+         * Returns the actor's [[BoundingBox]] calculated for this instant.
          */
         Actor.prototype.getBounds = function () {
             var anchor = this._getCalculatedAnchor();
@@ -5192,18 +4880,15 @@ var ex;
         };
         /**
          * Tests whether the x/y specified are contained in the actor
-         * @method contains
-         * @param x {number} X coordinate to test (in world coordinates)
-         * @param y {number} Y coordinate to test (in world coordinates)
+         * @param x  X coordinate to test (in world coordinates)
+         * @param y  Y coordinate to test (in world coordinates)
          */
         Actor.prototype.contains = function (x, y) {
             return this.getBounds().contains(new ex.Point(x, y));
         };
         /**
          * Returns the side of the collision based on the intersection
-         * @method getSideFromIntersect
-         * @param intersect {Vector} The displacement vector returned by a collision
-         * @returns Side
+         * @param intersect The displacement vector returned by a collision
         */
         Actor.prototype.getSideFromIntersect = function (intersect) {
             if (intersect) {
@@ -5224,9 +4909,7 @@ var ex;
         };
         /**
          * Test whether the actor has collided with another actor, returns the side of the current actor that collided.
-         * @method collides
-         * @param actor {Actor} The other actor to test
-         * @returns Side
+         * @param actor The other actor to test
          */
         Actor.prototype.collidesWithSide = function (actor) {
             var separationVector = this.collides(actor);
@@ -5253,10 +4936,8 @@ var ex;
         };
         /**
          * Test whether the actor has collided with another actor, returns the intersection vector on collision. Returns
-         * null when there is no collision;
-         * @method collides
-         * @param actor {Actor} The other actor to test
-         * @returns Vector
+         * `null` when there is no collision;
+         * @param actor The other actor to test
          */
         Actor.prototype.collides = function (actor) {
             var bounds = this.getBounds();
@@ -5266,9 +4947,8 @@ var ex;
         };
         /**
          * Register a handler to fire when this actor collides with another in a specified group
-         * @method onCollidesWith
-         * @param group {string} The group name to listen for
-         * @param func {callback} The callback to fire on collision with another actor from the group. The callback is passed the other actor.
+         * @param group The group name to listen for
+         * @param func The callback to fire on collision with another actor from the group. The callback is passed the other actor.
          */
         Actor.prototype.onCollidesWith = function (group, func) {
             if (!this._collisionHandlers[group]) {
@@ -5281,70 +4961,69 @@ var ex;
         };
         /**
          * Removes all collision handlers for this group on this actor
-         * @method removeCollidesWith
-         * @param group {string} Group to remove all handlers for on this actor.
+         * @param group Group to remove all handlers for on this actor.
          */
         Actor.prototype.removeCollidesWith = function (group) {
             this._collisionHandlers[group] = [];
         };
         /**
          * Returns true if the two actors are less than or equal to the distance specified from each other
-         * @method within
-         * @param actor {Actor} Actor to test
-         * @param distance {number} Distance in pixels to test
-         * @returns boolean
+         * @param actor     Actor to test
+         * @param distance  Distance in pixels to test
          */
         Actor.prototype.within = function (actor, distance) {
             return Math.sqrt(Math.pow(this.x - actor.x, 2) + Math.pow(this.y - actor.y, 2)) <= distance;
         };
         /**
          * Clears all queued actions from the Actor
-         * @method clearActions
          */
         Actor.prototype.clearActions = function () {
             this.actionQueue.clearActions();
         };
+        /**
+         * This method will move an actor to the specified `x` and `y` position over the
+         * specified duration using a given [[EasingFunctions]] and return back the actor. This
+         * method is part of the actor 'Action' fluent API allowing action chaining.
+         * @param x         The x location to move the actor to
+         * @param y         The y location to move the actor to
+         * @param duration  The time it should take the actor to move to the new location in milliseconds
+         * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
+         */
         Actor.prototype.easeTo = function (x, y, duration, easingFcn) {
             if (easingFcn === void 0) { easingFcn = ex.EasingFunctions.Linear; }
             this.actionQueue.add(new ex.Internal.Actions.EaseTo(this, x, y, duration, easingFcn));
             return this;
         };
         /**
-         * This method will move an actor to the specified x and y position at the
-         * speed specified (in pixels per second) and return back the actor. This
+         * This method will move an actor to the specified `x` and `y` position at the
+         * `speed` specified (in pixels per second) and return back the actor. This
          * method is part of the actor 'Action' fluent API allowing action chaining.
-         * @method moveTo
-         * @param x {number} The x location to move the actor to
-         * @param y {number} The y location to move the actor to
-         * @param speed {number} The speed in pixels per second to move
-         * @returns Actor
+         * @param x       The x location to move the actor to
+         * @param y       The y location to move the actor to
+         * @param speed   The speed in pixels per second to move
          */
         Actor.prototype.moveTo = function (x, y, speed) {
             this.actionQueue.add(new ex.Internal.Actions.MoveTo(this, x, y, speed));
             return this;
         };
         /**
-         * This method will move an actor to the specified x and y position by a
-         * certain time (in milliseconds). This method is part of the actor
+         * This method will move an actor to the specified `x` and `y` position by a
+         * certain `duration` (in milliseconds). This method is part of the actor
          * 'Action' fluent API allowing action chaining.
-         * @method moveBy
-         * @param x {number} The x location to move the actor to
-         * @param y {number} The y location to move the actor to
-         * @param time {number} The time it should take the actor to move to the new location in milliseconds
-         * @returns Actor
+         * @param x         The x location to move the actor to
+         * @param y         The y location to move the actor to
+         * @param duration  The time it should take the actor to move to the new location in milliseconds
          */
-        Actor.prototype.moveBy = function (x, y, time) {
-            this.actionQueue.add(new ex.Internal.Actions.MoveBy(this, x, y, time));
+        Actor.prototype.moveBy = function (x, y, duration) {
+            this.actionQueue.add(new ex.Internal.Actions.MoveBy(this, x, y, duration));
             return this;
         };
         /**
-         * This method will rotate an actor to the specified angle at the speed
+         * This method will rotate an actor to the specified angle (in radians) at the `speed`
          * specified (in radians per second) and return back the actor. This
          * method is part of the actor 'Action' fluent API allowing action chaining.
-         * @method rotateTo
-         * @param angleRadians {number} The angle to rotate to in radians
-         * @param speed {number} The angular velocity of the rotation specified in radians per second
-         * @returns Actor
+         * @param angleRadians  The angle to rotate to in radians
+         * @param speed         The angular velocity of the rotation specified in radians per second
          */
         Actor.prototype.rotateTo = function (angleRadians, speed) {
             this.actionQueue.add(new ex.Internal.Actions.RotateTo(this, angleRadians, speed));
@@ -5352,15 +5031,13 @@ var ex;
         };
         /**
          * This method will rotate an actor to the specified angle by a certain
-         * time (in milliseconds) and return back the actor. This method is part
+         * `duration` (in milliseconds) and return back the actor. This method is part
          * of the actor 'Action' fluent API allowing action chaining.
-         * @method rotateBy
-         * @param angleRadians {number} The angle to rotate to in radians
-         * @param time {number} The time it should take the actor to complete the rotation in milliseconds
-         * @returns Actor
+         * @param angleRadians  The angle to rotate to in radians
+         * @param duration          The time it should take the actor to complete the rotation in milliseconds
          */
-        Actor.prototype.rotateBy = function (angleRadians, time) {
-            this.actionQueue.add(new ex.Internal.Actions.RotateBy(this, angleRadians, time));
+        Actor.prototype.rotateBy = function (angleRadians, duration) {
+            this.actionQueue.add(new ex.Internal.Actions.RotateBy(this, angleRadians, duration));
             return this;
         };
         /**
@@ -5368,26 +5045,25 @@ var ex;
          * specified (in magnitude increase per second) and return back the
          * actor. This method is part of the actor 'Action' fluent API allowing
          * action chaining.
-         * @method scaleTo
-         * @param size {number} The scaling factor to apply
-         * @param speed {number} The speed of scaling specified in magnitude increase per second
-         * @returns Actor
+         * @param sizeX  The scaling factor in the x direction to apply
+         * @param sizeY  The scaling factor in the y direction to apply
+         * @param speedX The speed of scaling in the x direction specified in magnitude increase per second
+         * @param speedY The speed of scaling in the y direction specified in magnitude increase per second
          */
         Actor.prototype.scaleTo = function (sizeX, sizeY, speedX, speedY) {
             this.actionQueue.add(new ex.Internal.Actions.ScaleTo(this, sizeX, sizeY, speedX, speedY));
             return this;
         };
         /**
-         * This method will scale an actor to the specified size by a certain time
+         * This method will scale an actor to the specified size by a certain duration
          * (in milliseconds) and return back the actor. This method is part of the
          * actor 'Action' fluent API allowing action chaining.
-         * @method scaleBy
-         * @param size {number} The scaling factor to apply
-         * @param time {number} The time it should take to complete the scaling in milliseconds
-         * @returns Actor
+         * @param sizeX     The scaling factor in the x direction to apply
+         * @param sizeY     The scaling factor in the y direction to apply
+         * @param duration  The time it should take to complete the scaling in milliseconds
          */
-        Actor.prototype.scaleBy = function (sizeX, sizeY, time) {
-            this.actionQueue.add(new ex.Internal.Actions.ScaleBy(this, sizeX, sizeY, time));
+        Actor.prototype.scaleBy = function (sizeX, sizeY, duration) {
+            this.actionQueue.add(new ex.Internal.Actions.ScaleBy(this, sizeX, sizeY, duration));
             return this;
         };
         /**
@@ -5395,11 +5071,9 @@ var ex;
          * visible). Optionally, you may specify the number of blinks. Specify the amount of time
          * the actor should be visible per blink, and the amount of time not visible.
          * This method is part of the actor 'Action' fluent API allowing action chaining.
-         * @method blink
-         * @param timeVisible {number} The amount of time to stay visible per blink in milliseconds
-         * @param timeNotVisible {number} The amount of time to stay not visible per blink in milliseconds
-         * @param [numBlinks] {number} The number of times to blink
-         * @returns Actor
+         * @param timeVisible     The amount of time to stay visible per blink in milliseconds
+         * @param timeNotVisible  The amount of time to stay not visible per blink in milliseconds
+         * @param numBlinks       The number of times to blink
          */
         Actor.prototype.blink = function (timeVisible, timeNotVisible, numBlinks) {
             if (numBlinks === void 0) { numBlinks = 1; }
@@ -5408,35 +5082,29 @@ var ex;
         };
         /**
          * This method will cause an actor's opacity to change from its current value
-         * to the provided value by a specified time (in milliseconds). This method is
+         * to the provided value by a specified `duration` (in milliseconds). This method is
          * part of the actor 'Action' fluent API allowing action chaining.
-         * @method fade
-         * @param opacity {number} The ending opacity
-         * @param time {number} The time it should take to fade the actor (in milliseconds)
-         * @returns Actor
+         * @param opacity   The ending opacity
+         * @param duration  The time it should take to fade the actor (in milliseconds)
          */
-        Actor.prototype.fade = function (opacity, time) {
-            this.actionQueue.add(new ex.Internal.Actions.Fade(this, opacity, time));
+        Actor.prototype.fade = function (opacity, duration) {
+            this.actionQueue.add(new ex.Internal.Actions.Fade(this, opacity, duration));
             return this;
         };
         /**
-         * This method will delay the next action from executing for a certain
-         * amount of time (in milliseconds). This method is part of the actor
+         * This method will delay the next action from executing for the specified
+         * `duration` (in milliseconds). This method is part of the actor
          * 'Action' fluent API allowing action chaining.
-         * @method delay
-         * @param time {number} The amount of time to delay the next action in the queue from executing in milliseconds
-         * @returns Actor
+         * @param duration The amount of time to delay the next action in the queue from executing in milliseconds
          */
-        Actor.prototype.delay = function (time) {
-            this.actionQueue.add(new ex.Internal.Actions.Delay(this, time));
+        Actor.prototype.delay = function (duration) {
+            this.actionQueue.add(new ex.Internal.Actions.Delay(this, duration));
             return this;
         };
         /**
          * This method will add an action to the queue that will remove the actor from the
          * scene once it has completed its previous actions. Any actions on the
          * action queue after this action will not be executed.
-         * @method die
-         * @returns Actor
          */
         Actor.prototype.die = function () {
             this.actionQueue.add(new ex.Internal.Actions.Die(this));
@@ -5445,9 +5113,7 @@ var ex;
         /**
          * This method allows you to call an arbitrary method as the next action in the
          * action queue. This is useful if you want to execute code in after a specific
-         * action, i.e An actor arrives at a destinatino after traversing a path
-         * @method callMethod
-         * @returns Actor
+         * action, i.e An actor arrives at a destination after traversing a path
          */
         Actor.prototype.callMethod = function (method) {
             this.actionQueue.add(new ex.Internal.Actions.CallMethod(this, method));
@@ -5458,9 +5124,7 @@ var ex;
          * called actions a certain number of times. If the number of repeats
          * is not specified it will repeat forever. This method is part of
          * the actor 'Action' fluent API allowing action chaining
-         * @method repeat
-         * @param [times=undefined] {number} The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will repeat forever
-         * @returns Actor
+         * @param times The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will repeat forever
          */
         Actor.prototype.repeat = function (times) {
             if (!times) {
@@ -5474,8 +5138,6 @@ var ex;
          * This method will cause the actor to repeat all of the previously
          * called actions forever. This method is part of the actor 'Action'
          * fluent API allowing action chaining.
-         * @method repeatForever
-         * @returns Actor
          */
         Actor.prototype.repeatForever = function () {
             this.actionQueue.add(new ex.Internal.Actions.RepeatForever(this, this.actionQueue.getActions()));
@@ -5483,10 +5145,8 @@ var ex;
         };
         /**
          * This method will cause the actor to follow another at a specified distance
-         * @method follow
-         * @param actor {Actor} The actor to follow
-         * @param [followDistance=currentDistance] {number} The distance to maintain when following, if not specified the actor will follow at the current distance.
-         * @returns Actor
+         * @param actor           The actor to follow
+         * @param followDistance  The distance to maintain when following, if not specified the actor will follow at the current distance.
          */
         Actor.prototype.follow = function (actor, followDistance) {
             if (followDistance == undefined) {
@@ -5498,12 +5158,10 @@ var ex;
             return this;
         };
         /**
-         * This method will cause the actor to move towards another until they
-         * collide "meet" at a specified speed.
-         * @method meet
-         * @param actor {Actor} The actor to meet
-         * @param [speed=0] {number} The speed in pixels per second to move, if not specified it will match the speed of the other actor
-         * @returns Actor
+         * This method will cause the actor to move towards another Actor until they
+         * collide ("meet") at a specified speed.
+         * @param actor  The actor to meet
+         * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
          */
         Actor.prototype.meet = function (actor, speed) {
             if (speed == undefined) {
@@ -5517,8 +5175,6 @@ var ex;
         /**
          * Returns a promise that resolves when the current action queue up to now
          * is finished.
-         * @method asPromise
-         * @returns Promise
          */
         Actor.prototype.asPromise = function () {
             var complete = new ex.Promise();
@@ -5532,9 +5188,8 @@ var ex;
         };
         /**
          * Called by the Engine, updates the state of the actor
-         * @method update
-         * @param engine {Engine} The reference to the current game engine
-         * @param delta {number} The time elapsed since the last update in milliseconds
+         * @param engine The reference to the current game engine
+         * @param delta  The time elapsed since the last update in milliseconds
          */
         Actor.prototype.update = function (engine, delta) {
             if (!this._isInitialized) {
@@ -5552,9 +5207,8 @@ var ex;
         };
         /**
          * Called by the Engine, draws the actor to the screen
-         * @method draw
-         * @param ctx {CanvasRenderingContext2D} The rendering context
-         * @param delta {number} The time since the last draw in milliseconds
+         * @param ctx   The rendering context
+         * @param delta The time since the last draw in milliseconds
          */
         Actor.prototype.draw = function (ctx, delta) {
             if (this.isOffScreen) {
@@ -5596,8 +5250,7 @@ var ex;
         };
         /**
          * Called by the Engine, draws the actors debugging to the screen
-         * @method debugDraw
-         * @param ctx {CanvasRenderingContext2D} The rendering context
+         * @param ctx The rendering context
          */
         Actor.prototype.debugDraw = function (ctx) {
             var bb = this.getBounds();
@@ -5628,34 +5281,8 @@ var ex;
 (function (ex) {
     /**
      * Logging level that Excalibur will tag
-     * @class LogLevel
      */
     (function (LogLevel) {
-        /**
-         @property Debug {LogLevel}
-         @static
-         @final
-         */
-        /**
-        @property Info {LogLevel}
-        @static
-        @final
-        */
-        /**
-        @property Warn {LogLevel}
-        @static
-        @final
-        */
-        /**
-        @property Error {LogLevel}
-        @static
-        @final
-        */
-        /**
-        @property Fatal {LogLevel}
-        @static
-        @final
-        */
         LogLevel[LogLevel["Debug"] = 0] = "Debug";
         LogLevel[LogLevel["Info"] = 1] = "Info";
         LogLevel[LogLevel["Warn"] = 2] = "Warn";
@@ -5665,18 +5292,31 @@ var ex;
     var LogLevel = ex.LogLevel;
     /**
      * Static singleton that represents the logging facility for Excalibur.
-     * Excalibur comes built-in with a ConsoleAppender and ScreenAppender.
-     * Derive from IAppender to create your own logging appenders.
-     * @class Logger
-     * @static
+     * Excalibur comes built-in with a [[ConsoleAppender]] and [[ScreenAppender]].
+     * Derive from [[IAppender]] to create your own logging appenders.
+     *
+     * ## Example: Logging
+     *
+     * ```js
+     * // set default log level (default: Info)
+     * ex.Logger.getInstance().defaultLevel = ex.LogLevel.Warn;
+     *
+     * // this will not be shown because it is below Warn
+     * ex.Logger.getInstance().info("This will be logged as Info");
+     * // this will show because it is Warn
+     * ex.Logger.getInstance().warn("This will be logged as Warn");
+     * // this will show because it is above Warn
+     * ex.Logger.getInstance().error("This will be logged as Error");
+     * // this will show because it is above Warn
+     * ex.Logger.getInstance().fatal("This will be logged as Fatal");
+     * ```
      */
     var Logger = (function () {
         function Logger() {
             this.appenders = [];
             /**
              * Gets or sets the default logging level. Excalibur will only log
-             * messages if equal to or above this level.
-             * @property defaultLevel {LogLevel}
+             * messages if equal to or above this level. Default: [[LogLevel.Info]]
              */
             this.defaultLevel = 1 /* Info */;
             if (Logger._instance) {
@@ -5689,9 +5329,6 @@ var ex;
         }
         /**
          * Gets the current static instance of Logger
-         * @method getInstance
-         * @static
-         * @returns Logger
          */
         Logger.getInstance = function () {
             if (Logger._instance == null) {
@@ -5700,26 +5337,21 @@ var ex;
             return Logger._instance;
         };
         /**
-         * Adds a new IAppender to the list of appenders to write to
-         * @method addAppender
-         * @param appender {IAppender} Appender to add
+         * Adds a new [[IAppender]] to the list of appenders to write to
          */
         Logger.prototype.addAppender = function (appender) {
             this.appenders.push(appender);
         };
         /**
          * Clears all appenders from the logger
-         * @method clearAppenders
          */
         Logger.prototype.clearAppenders = function () {
             this.appenders.length = 0;
         };
         /**
          * Logs a message at a given LogLevel
-         * @method _log
-         * @private
-         * @param level {LogLevel}The LogLevel`to log the message at
-         * @param args An array of arguments to write to an appender
+         * @param level  The LogLevel`to log the message at
+         * @param args   An array of arguments to write to an appender
          */
         Logger.prototype._log = function (level, args) {
             var _this = this;
@@ -5733,9 +5365,8 @@ var ex;
             });
         };
         /**
-         * Writes a log message at the LogLevel.Debug level
-         * @method debug
-         * @param ...args Accepts any number of arguments
+         * Writes a log message at the [[LogLevel.Debug]] level
+         * @param args  Accepts any number of arguments
          */
         Logger.prototype.debug = function () {
             var args = [];
@@ -5745,9 +5376,8 @@ var ex;
             this._log(0 /* Debug */, args);
         };
         /**
-         * Writes a log message at the LogLevel.Info level
-         * @method info
-         * @param ...args Accepts any number of arguments
+         * Writes a log message at the [[LogLevel.Info]] level
+         * @param args  Accepts any number of arguments
          */
         Logger.prototype.info = function () {
             var args = [];
@@ -5757,9 +5387,8 @@ var ex;
             this._log(1 /* Info */, args);
         };
         /**
-         * Writes a log message at the LogLevel.Warn level
-         * @method warn
-         * @param ...args Accepts any number of arguments
+         * Writes a log message at the [[LogLevel.Warn]] level
+         * @param args  Accepts any number of arguments
          */
         Logger.prototype.warn = function () {
             var args = [];
@@ -5769,9 +5398,8 @@ var ex;
             this._log(2 /* Warn */, args);
         };
         /**
-         * Writes a log message at the LogLevel.Error level
-         * @method error
-         * @param ...args Accepts any number of arguments
+         * Writes a log message at the [[LogLevel.Error]] level
+         * @param args  Accepts any number of arguments
          */
         Logger.prototype.error = function () {
             var args = [];
@@ -5781,9 +5409,8 @@ var ex;
             this._log(3 /* Error */, args);
         };
         /**
-         * Writes a log message at the LogLevel.Fatal level
-         * @method fatal
-         * @param ...args Accepts any number of arguments
+         * Writes a log message at the [[LogLevel.Fatal]] level
+         * @param args  Accepts any number of arguments
          */
         Logger.prototype.fatal = function () {
             var args = [];
@@ -5797,14 +5424,16 @@ var ex;
     })();
     ex.Logger = Logger;
     /**
-     * Console appender for browsers (i.e. console.log)
-     * @class ConsoleAppender
-     * @constructor
-     * @extends IAppender
+     * Console appender for browsers (i.e. `console.log`)
      */
     var ConsoleAppender = (function () {
         function ConsoleAppender() {
         }
+        /**
+         * Logs a message at the given [[LogLevel]]
+         * @param level  Level to log at
+         * @param args   Arguments to log
+         */
         ConsoleAppender.prototype.log = function (level, args) {
             // Check for console support
             if (!console && !console.log && console.warn && console.error) {
@@ -5849,15 +5478,14 @@ var ex;
     ex.ConsoleAppender = ConsoleAppender;
     /**
      * On-screen (canvas) appender
-     * @todo Clean this up
-     * @class ScreenAppender
-     * @extends IAppender
-     * @constructor
-     * @param width {number} Width of the screen appender in pixels
-     * @param height {number} Height of the screen appender in pixels
      */
     var ScreenAppender = (function () {
+        /**
+         * @param width   Width of the screen appender in pixels
+         * @param height  Height of the screen appender in pixels
+         */
         function ScreenAppender(width, height) {
+            // @todo Clean this up
             this._messages = [];
             this.canvas = document.createElement('canvas');
             this.canvas.width = width || window.innerWidth;
@@ -5866,6 +5494,11 @@ var ex;
             this.ctx = this.canvas.getContext('2d');
             document.body.appendChild(this.canvas);
         }
+        /**
+         * Logs a message at the given [[LogLevel]]
+         * @param level  Level to log at
+         * @param args   Arguments to log
+         */
         ScreenAppender.prototype.log = function (level, args) {
             var message = args.join(",");
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -5890,54 +5523,9 @@ var ex;
 (function (ex) {
     /**
      * An enum representing all of the built in event types for Excalibur
-     * @class EventType
+     * @obsolete Phasing this out in favor of classes
      */
     (function (EventType) {
-        /**
-        @property UserEvent {EventType}
-        @static
-        @final
-        */
-        /**
-        @property Blur {EventType}
-        @static
-        @final
-        */
-        /**
-        @property Focus {EventType}
-        @static
-        @final
-        */
-        /**
-        @property Update {EventType}
-        @static
-        @final
-        */
-        /**
-        @property EnterViewPort {EventType}
-        @static
-        @final
-        */
-        /**
-        @property ExitViewPort {EventType}
-        @static
-        @final
-        */
-        /**
-        @property Activate {EventType}
-        @static
-        @final
-        */
-        /**
-        @property Deactivate {EventType}
-        @static
-        @final
-        */
-        /**
-        @property Initialize {EventType}
-        @static
-        @final
-        */
         EventType[EventType["Collision"] = 0] = "Collision";
         EventType[EventType["EnterViewPort"] = 1] = "EnterViewPort";
         EventType[EventType["ExitViewPort"] = 2] = "ExitViewPort";
@@ -5951,10 +5539,6 @@ var ex;
     var EventType = ex.EventType;
     /**
      * Base event type in Excalibur that all other event types derive from.
-     *
-     * @class GameEvent
-     * @constructor
-     * @param target {any} Events can have target game object, like the Engine, or an Actor.
      */
     var GameEvent = (function () {
         function GameEvent() {
@@ -5964,10 +5548,6 @@ var ex;
     ex.GameEvent = GameEvent;
     /**
      * Subscribe event thrown when handlers for events other than subscribe are added
-     * @class SubscribeEvent
-     * @constructor
-     * @param topic {string}
-     * @param handler {callback}
      */
     var SubscribeEvent = (function (_super) {
         __extends(SubscribeEvent, _super);
@@ -5981,10 +5561,6 @@ var ex;
     ex.SubscribeEvent = SubscribeEvent;
     /**
      * Unsubscribe event thrown when handlers for events other than unsubscribe are removed
-     * @class SubscribeEvent
-     * @constructor
-     * @param topic {string}
-     * @param handler {callback}
      */
     var UnsubscribeEvent = (function (_super) {
         __extends(UnsubscribeEvent, _super);
@@ -5998,10 +5574,6 @@ var ex;
     ex.UnsubscribeEvent = UnsubscribeEvent;
     /**
      * Event received by the Engine when the browser window is visible
-     *
-     * @class VisibleEvent
-     * @extends GameEvent
-     * @constructor
      */
     var VisibleEvent = (function (_super) {
         __extends(VisibleEvent, _super);
@@ -6013,10 +5585,6 @@ var ex;
     ex.VisibleEvent = VisibleEvent;
     /**
      * Event received by the Engine when the browser window is hidden
-     *
-     * @class HiddenEvent
-     * @extends GameEvent
-     * @constructor
      */
     var HiddenEvent = (function (_super) {
         __extends(HiddenEvent, _super);
@@ -6028,16 +5596,14 @@ var ex;
     ex.HiddenEvent = HiddenEvent;
     /**
      * Event thrown on an actor when a collision has occured
-     *
-     * @class CollisionEvent
-     * @extends GameEvent
-     * @constructor
-     * @param actor {Actor} The actor the event was thrown on
-     * @param other {Actor} The actor that was collided with
-     * @param side {Side} The side that was collided with
      */
     var CollisionEvent = (function (_super) {
         __extends(CollisionEvent, _super);
+        /**
+         * @param actor  The actor the event was thrown on
+         * @param other  The actor that was collided with
+         * @param side   The side that was collided with
+         */
         function CollisionEvent(actor, other, side, intersection) {
             _super.call(this);
             this.actor = actor;
@@ -6050,14 +5616,12 @@ var ex;
     ex.CollisionEvent = CollisionEvent;
     /**
      * Event thrown on a game object on Excalibur update
-     *
-     * @class UpdateEvent
-     * @extends GameEvent
-     * @constructor
-     * @param delta {number} The number of milliseconds since the last update
      */
     var UpdateEvent = (function (_super) {
         __extends(UpdateEvent, _super);
+        /**
+         * @param delta  The number of milliseconds since the last update
+         */
         function UpdateEvent(delta) {
             _super.call(this);
             this.delta = delta;
@@ -6067,14 +5631,12 @@ var ex;
     ex.UpdateEvent = UpdateEvent;
     /**
      * Event thrown on an Actor only once before the first update call
-     *
-     * @class InitializeEvent
-     * @extends GameEvent
-     * @constructor
-     * @param engine {Engine} The reference to the current engine
      */
     var InitializeEvent = (function (_super) {
         __extends(InitializeEvent, _super);
+        /**
+         * @param engine  The reference to the current engine
+         */
         function InitializeEvent(engine) {
             _super.call(this);
             this.engine = engine;
@@ -6084,14 +5646,12 @@ var ex;
     ex.InitializeEvent = InitializeEvent;
     /**
      * Event thrown on a Scene on activation
-     *
-     * @class ActivateEvent
-     * @extends GameEvent
-     * @constructor
-     * @param oldScene {Scene} The reference to the old scene
      */
     var ActivateEvent = (function (_super) {
         __extends(ActivateEvent, _super);
+        /**
+         * @param oldScene  The reference to the old scene
+         */
         function ActivateEvent(oldScene) {
             _super.call(this);
             this.oldScene = oldScene;
@@ -6101,14 +5661,12 @@ var ex;
     ex.ActivateEvent = ActivateEvent;
     /**
      * Event thrown on a Scene on deactivation
-     *
-     * @class DeactivateEvent
-     * @extends GameEvent
-     * @constructor
-     * @param newScene {Scene} The reference to the new scene
      */
     var DeactivateEvent = (function (_super) {
         __extends(DeactivateEvent, _super);
+        /**
+         * @param newScene  The reference to the new scene
+         */
         function DeactivateEvent(newScene) {
             _super.call(this);
             this.newScene = newScene;
@@ -6118,8 +5676,6 @@ var ex;
     ex.DeactivateEvent = DeactivateEvent;
     /**
      * Event thrown on an Actor when it completely leaves the screen.
-     * @class ExitViewPortEvent
-     * @constructor
      */
     var ExitViewPortEvent = (function (_super) {
         __extends(ExitViewPortEvent, _super);
@@ -6131,8 +5687,6 @@ var ex;
     ex.ExitViewPortEvent = ExitViewPortEvent;
     /**
      * Event thrown on an Actor when it completely leaves the screen.
-     * @class EnterViewPortEvent
-     * @constructor
      */
     var EnterViewPortEvent = (function (_super) {
         __extends(EnterViewPortEvent, _super);
@@ -6142,39 +5696,84 @@ var ex;
         return EnterViewPortEvent;
     })(GameEvent);
     ex.EnterViewPortEvent = EnterViewPortEvent;
-    /**
-     * Enum representing the different mouse buttons
-     * @class MouseButton
-     */
-    (function (MouseButton) {
-        /**
-         * @property Left
-         * @static
-         */
-        MouseButton[MouseButton["Left"] = 0] = "Left";
-        /**
-         * @property Left
-         * @static
-         */
-        MouseButton[MouseButton["Middle"] = 1] = "Middle";
-        /**
-         * @property Left
-         * @static
-         */
-        MouseButton[MouseButton["Right"] = 2] = "Right";
-    })(ex.MouseButton || (ex.MouseButton = {}));
-    var MouseButton = ex.MouseButton;
 })(ex || (ex = {}));
 /// <reference path="Events.ts" />
 var ex;
 (function (ex) {
     /**
-     * Excalibur's internal event dispatcher implementation. Callbacks are fired immediately after an event is published
-     * @class EventDispatcher
-     * @constructor
-     * @param target {any} The object that will be the recipient of events from this event dispatcher
+     * Excalibur's internal event dispatcher implementation.
+     * Callbacks are fired immediately after an event is published.
+     * Typically you'd use [[Class.eventDispatcher]] since most classes in
+     * Excalibur inherit from [[Class]]. You'd rarely create an `EventDispatcher`
+     * yourself.
+     *
+     * When working with events, be sure to keep in mind the order of subscriptions
+     * and try not to create a situation that requires specific things to happen in
+     * order. Events are best used for input events, tying together disparate objects,
+     * or for UI updates.
+     *
+     * ## Example: Actor events
+     *
+     * Actors implement an EventDispatcher ([[Actor.eventDispatcher]]) so they can
+     * send and receive events. For example, they can enable Pointer events (mouse/touch)
+     * and you can respond to them by subscribing to the event names.
+     *
+     * You can also emit any other kind of event for your game just by using a custom
+     * `string` value and implementing a class that inherits from [[GameEvent]].
+     *
+     * ```js
+     * var player = new ex.Actor(...);
+     *
+     * // Enable pointer events for this actor
+     * player.enableCapturePointer = true;
+     *
+     * // subscribe to pointerdown event
+     * player.on("pointerdown", function (evt: ex.Input.PointerEvent) {
+     *   console.log("Player was clicked!");
+     * });
+     *
+     * // turn off subscription
+     * player.off("pointerdown");
+     *
+     * // subscribe to custom event
+     * player.on("death", function (evt) {
+     *   console.log("Player died:", evt);
+     * });
+     *
+     * // trigger custom event
+     * player.triggerEvent("death", new DeathEvent());
+     *
+     * ```
+     *
+     * ## Example: Pub/Sub with Excalibur
+     *
+     * You can also create an EventDispatcher for any arbitrary object, for example
+     * a global game event aggregator (`vent`). Anything in your game can subscribe to
+     * it, if the event aggregator is in the global scope.
+     *
+     * *Warning:* This can easily get out of hand. Avoid this usage, it just serves as
+     * an example.
+     *
+     * ```js
+     * // create a publisher on an empty object
+     * var vent = new ex.EventDispatcher({});
+     *
+     * // handler for an event
+     * var subscription = function (event) {
+     *   console.log(event);
+     * }
+     *
+     * // add a subscription
+     * vent.subscribe("someevent", subscription);
+     *
+     * // publish an event somewhere in the game
+     * vent.publish("someevent", new ex.GameEvent());
+     * ```
      */
     var EventDispatcher = (function () {
+        /**
+         * @param target  The object that will be the recipient of events from this event dispatcher
+         */
         function EventDispatcher(target) {
             this._handlers = {};
             this._wiredEventDispatchers = [];
@@ -6183,9 +5782,8 @@ var ex;
         }
         /**
          * Publish an event for target
-         * @method publish
-         * @param eventName {string} The name of the event to publish
-         * @param [event=undefined] {GameEvent} Optionally pass an event data object to the handler
+         * @param eventName  The name of the event to publish
+         * @param event      Optionally pass an event data object to the handler
          */
         EventDispatcher.prototype.publish = function (eventName, event) {
             if (!eventName) {
@@ -6206,19 +5804,17 @@ var ex;
             this._wiredEventDispatchers.forEach(function (d) { return d.publish(eventName, event); });
         };
         /**
-         * Alias for publish, publishs an event for target
-         * @method emit
-         * @param eventName {string} The name of the event to publish
-         * @param [event=undefined] {GameEvent} Optionally pass an event data object to the handler
+         * Alias for [[publish]], publishes an event for target
+         * @param eventName  The name of the event to publish
+         * @param event      Optionally pass an event data object to the handler
          */
         EventDispatcher.prototype.emit = function (eventName, event) {
             this.publish(eventName, event);
         };
         /**
          * Subscribe an event handler to a particular event name, multiple handlers per event name are allowed.
-         * @method subscribe
-         * @param eventName {string} The name of the event to subscribe to
-         * @param handler {GameEvent=>void} The handler callback to fire on this event
+         * @param eventName  The name of the event to subscribe to
+         * @param handler    The handler callback to fire on this event
          */
         EventDispatcher.prototype.subscribe = function (eventName, handler) {
             eventName = eventName.toLowerCase();
@@ -6232,12 +5828,12 @@ var ex;
             }
         };
         /**
-         * Unsubscribe a event handler(s) from an event. If a specific handler
+         * Unsubscribe an event handler(s) from an event. If a specific handler
          * is specified for an event, only that handler will be unsubscribed.
          * Otherwise all handlers will be unsubscribed for that event.
-         * @method unsubscribe
-         * @param eventName {string} The name of the event to unsubscribe
-         * @param [handler=undefined] Optionally the specific handler to unsubscribe
+         *
+         * @param eventName  The name of the event to unsubscribe
+         * @param handler    Optionally the specific handler to unsubscribe
          *
          */
         EventDispatcher.prototype.unsubscribe = function (eventName, handler) {
@@ -6260,16 +5856,12 @@ var ex;
         };
         /**
          * Wires this event dispatcher to also recieve events from another
-         * @method wire
-         * @param eventDispatcher {EventDispatcher}
          */
         EventDispatcher.prototype.wire = function (eventDispatcher) {
             eventDispatcher._wiredEventDispatchers.push(this);
         };
         /**
          * Unwires this event dispatcher from another
-         * @method unwire
-         * @param eventDispatcher {EventDispatcher}
          */
         EventDispatcher.prototype.unwire = function (eventDispatcher) {
             var index = eventDispatcher._wiredEventDispatchers.indexOf(this);
@@ -6283,9 +5875,288 @@ var ex;
 })(ex || (ex = {}));
 var ex;
 (function (ex) {
-    // Internal HSL Color representation
-    // http://en.wikipedia.org/wiki/HSL_and_HSV
-    // http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c
+    /**
+     * Provides standard colors (e.g. [[Color.Black]])
+     * but you can also create custom colors using RGB, HSL, or Hex. Also provides
+     * useful color operations like [[Color.lighten]], [[Color.darken]], and more.
+     *
+     * ## Creating colors
+     *
+     * ```js
+     * // RGBA
+     * new ex.Color(r, g, b, a);
+     * ex.Color.fromRGB(r, g, b, a);
+     *
+     * // HSLA
+     * ex.Color.fromHSL(h, s, l, a);
+     *
+     * // Hex, alpha optional
+     * ex.Color.fromHex("#000000");
+     * ex.Color.fromHex("#000000FF");
+     * ```
+     *
+     * ## Working with colors
+     *
+     * Since Javascript does not support structs, if you change a color "constant" like [[Color.Black]]
+     * it will change it across the entire game. You can safely use the color operations
+     * like [[Color.lighten]] and [[Color.darken]] because they `clone` the color to
+     * return a new color. However, be aware that this can use up memory if used excessively.
+     *
+     * Just be aware that if you directly alter properties (i.e. [[Color.r]], etc.) , this will change it
+     * for all the code that uses that instance of Color.
+     */
+    var Color = (function () {
+        /**
+         * Creates a new instance of Color from an r, g, b, a
+         *
+         * @param r  The red component of color (0-255)
+         * @param g  The green component of color (0-255)
+         * @param b  The blue component of color (0-255)
+         * @param a  The alpha component of color (0-1.0)
+         */
+        function Color(r, g, b, a) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.a = (a != null ? a : 1);
+        }
+        /**
+         * Creates a new instance of Color from an r, g, b, a
+         *
+         * @param r  The red component of color (0-255)
+         * @param g  The green component of color (0-255)
+         * @param b  The blue component of color (0-255)
+         * @param a  The alpha component of color (0-1.0)
+         */
+        Color.fromRGB = function (r, g, b, a) {
+            return new Color(r, g, b, a);
+        };
+        /**
+         * Creates a new inscance of Color from a hex string
+         *
+         * @param hex  CSS color string of the form #ffffff, the alpha component is optional
+         */
+        Color.fromHex = function (hex) {
+            var hexRegEx = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})?$/i;
+            var match = null;
+            if (match = hex.match(hexRegEx)) {
+                var r = parseInt(match[1], 16);
+                var g = parseInt(match[2], 16);
+                var b = parseInt(match[3], 16);
+                var a = 1;
+                if (match[4]) {
+                    a = parseInt(match[4], 16) / 255;
+                }
+                return new Color(r, g, b, a);
+            }
+            else {
+                throw new Error("Invalid hex string: " + hex);
+            }
+        };
+        /**
+         * Creats a new instance of Color from hsla values
+         *
+         * @param h  Hue is represented [0-1]
+         * @param s  Saturation is represented [0-1]
+         * @param l  Luminance is represented [0-1]
+         * @param a  Alpha is represented [0-1]
+         */
+        Color.fromHSL = function (h, s, l, a) {
+            if (a === void 0) { a = 1.0; }
+            var temp = new HSLColor(h, s, l, a);
+            return temp.toRGBA();
+        };
+        /**
+         * Lightens the current color by a specified amount
+         *
+         * @param factor  The amount to lighten by [0-1]
+         */
+        Color.prototype.lighten = function (factor) {
+            if (factor === void 0) { factor = 0.1; }
+            var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+            temp.l += (temp.l * factor);
+            return temp.toRGBA();
+        };
+        /**
+         * Darkens the current color by a specified amount
+         *
+         * @param factor  The amount to darken by [0-1]
+         */
+        Color.prototype.darken = function (factor) {
+            if (factor === void 0) { factor = 0.1; }
+            var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+            temp.l -= (temp.l * factor);
+            return temp.toRGBA();
+        };
+        /**
+         * Saturates the current color by a specified amount
+         *
+         * @param factor  The amount to saturate by [0-1]
+         */
+        Color.prototype.saturate = function (factor) {
+            if (factor === void 0) { factor = 0.1; }
+            var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+            temp.s += (temp.s * factor);
+            return temp.toRGBA();
+        };
+        /**
+         * Desaturates the current color by a specified amount
+         *
+         * @param factor  The amount to desaturate by [0-1]
+         */
+        Color.prototype.desaturate = function (factor) {
+            if (factor === void 0) { factor = 0.1; }
+            var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+            temp.s -= (temp.s * factor);
+            return temp.toRGBA();
+        };
+        /**
+         * Multiplies a color by another, results in a darker color
+         *
+         * @param color  The other color
+         */
+        Color.prototype.mulitiply = function (color) {
+            var newR = ((color.r / 255 * this.r / 255) * 255);
+            var newG = ((color.g / 255 * this.g / 255) * 255);
+            var newB = ((color.b / 255 * this.b / 255) * 255);
+            var newA = (color.a * this.a);
+            return new Color(newR, newG, newB, newA);
+        };
+        /**
+         * Screens a color by another, results in a lighter color
+         *
+         * @param color  The other color
+         */
+        Color.prototype.screen = function (color) {
+            var color1 = color.invert();
+            var color2 = color.invert();
+            return color1.mulitiply(color2).invert();
+        };
+        /**
+         * Inverts the current color
+         */
+        Color.prototype.invert = function () {
+            return new Color(255 - this.r, 255 - this.g, 255 - this.b, 1.0 - this.a);
+        };
+        /**
+         * Averages the current color with another
+         *
+         * @param color  The other color
+         */
+        Color.prototype.average = function (color) {
+            var newR = (color.r + this.r) / 2;
+            var newG = (color.g + this.g) / 2;
+            var newB = (color.b + this.b) / 2;
+            var newA = (color.a + this.a) / 2;
+            return new Color(newR, newG, newB, newA);
+        };
+        /**
+         * Returns a CSS string representation of a color.
+         */
+        Color.prototype.toString = function () {
+            var result = String(this.r.toFixed(0)) + ", " + String(this.g.toFixed(0)) + ", " + String(this.b.toFixed(0));
+            if (this.a !== undefined || this.a !== null) {
+                return "rgba(" + result + ", " + String(this.a) + ")";
+            }
+            return "rgb(" + result + ")";
+        };
+        /**
+         * Returns a CSS string representation of a color.
+         */
+        Color.prototype.fillStyle = function () {
+            return this.toString();
+        };
+        /**
+         * Returns a clone of the current color.
+         */
+        Color.prototype.clone = function () {
+            return new Color(this.r, this.g, this.b, this.a);
+        };
+        /**
+         * Black (#000000)
+         */
+        Color.Black = Color.fromHex('#000000');
+        /**
+         * White (#FFFFFF)
+         */
+        Color.White = Color.fromHex('#FFFFFF');
+        /**
+         * Gray (#808080)
+         */
+        Color.Gray = Color.fromHex('#808080');
+        /**
+         * Light gray (#D3D3D3)
+         */
+        Color.LightGray = Color.fromHex('#D3D3D3');
+        /**
+         * Dark gray (#A9A9A9)
+         */
+        Color.DarkGray = Color.fromHex('#A9A9A9');
+        /**
+         * Yellow (#FFFF00)
+         */
+        Color.Yellow = Color.fromHex('#FFFF00');
+        /**
+         * Orange (#FFA500)
+         */
+        Color.Orange = Color.fromHex('#FFA500');
+        /**
+         * Red (#FF0000)
+         */
+        Color.Red = Color.fromHex('#FF0000');
+        /**
+         * Vermillion (#FF5B31)
+         */
+        Color.Vermillion = Color.fromHex('#FF5B31');
+        /**
+         * Rose (#FF007F)
+         */
+        Color.Rose = Color.fromHex('#FF007F');
+        /**
+         * Magenta (#FF00FF)
+         */
+        Color.Magenta = Color.fromHex('#FF00FF');
+        /**
+         * Violet (#7F00FF)
+         */
+        Color.Violet = Color.fromHex('#7F00FF');
+        /**
+         * Blue (#0000FF)
+         */
+        Color.Blue = Color.fromHex('#0000FF');
+        /**
+         * Azure (#007FFF)
+         */
+        Color.Azure = Color.fromHex('#007FFF');
+        /**
+         * Cyan (#00FFFF)
+         */
+        Color.Cyan = Color.fromHex('#00FFFF');
+        /**
+         * Viridian (#59978F)
+         */
+        Color.Viridian = Color.fromHex('#59978F');
+        /**
+         * Green (#00FF00)
+         */
+        Color.Green = Color.fromHex('#00FF00');
+        /**
+         * Chartreuse (#7FFF00)
+         */
+        Color.Chartreuse = Color.fromHex('#7FFF00');
+        /**
+         * Transparent (#FFFFFF00)
+         */
+        Color.Transparent = Color.fromHex('#FFFFFF00');
+        return Color;
+    })();
+    ex.Color = Color;
+    /**
+     * Internal HSL Color representation
+     *
+     * http://en.wikipedia.org/wiki/HSL_and_HSV
+     * http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c
+     */
     var HSLColor = (function () {
         function HSLColor(h, s, l, a) {
             this.h = h;
@@ -6347,360 +6218,22 @@ var ex;
         };
         return HSLColor;
     })();
-    var Color = (function () {
-        /**
-         * Creates a new instance of Color from an r, g, b, a
-         *
-         * @class Color
-         * @constructor
-         * @param r {number} The red component of color (0-255)
-         * @param g {number} The green component of color (0-255)
-         * @param b {number} The blue component of color (0-255)
-         * @param [a=1] {number} The alpha component of color (0-1.0)
-         */
-        function Color(r, g, b, a) {
-            this.r = r;
-            this.g = g;
-            this.b = b;
-            this.a = (a != null ? a : 1);
-        }
-        /**
-         * Creates a new instance of Color from an r, g, b, a
-         *
-         * @method fromRGB
-         * @static
-         * @param r {number} The red component of color (0-255)
-         * @param g {number} The green component of color (0-255)
-         * @param b {number} The blue component of color (0-255)
-         * @param [a=1] {number} The alpha component of color (0-1.0)
-         * @returns Color
-         */
-        Color.fromRGB = function (r, g, b, a) {
-            return new Color(r, g, b, a);
-        };
-        /**
-         * Creates a new inscance of Color from a hex string
-         *
-         * @method fromHex
-         * @static
-         * @param hex {string} CSS color string of the form #ffffff, the alpha component is optional
-         * @returns Color
-         */
-        Color.fromHex = function (hex) {
-            var hexRegEx = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})?$/i;
-            var match = null;
-            if (match = hex.match(hexRegEx)) {
-                var r = parseInt(match[1], 16);
-                var g = parseInt(match[2], 16);
-                var b = parseInt(match[3], 16);
-                var a = 1;
-                if (match[4]) {
-                    a = parseInt(match[4], 16) / 255;
-                }
-                return new Color(r, g, b, a);
-            }
-            else {
-                throw new Error("Invalid hex string: " + hex);
-            }
-        };
-        /**
-         * Creats a new instance of Color from hsla values
-         *
-         * @method fromHSL
-         * @static
-         * @param h {number} Hue is represented [0-1]
-         * @param s {number} Saturation is represented [0-1]
-         * @param l {number} Luminance is represented [0-1]
-         * @param [a=1] {number} Alpha is represented [0-1]
-         * @returns Color
-         */
-        Color.fromHSL = function (h, s, l, a) {
-            if (a === void 0) { a = 1.0; }
-            var temp = new HSLColor(h, s, l, a);
-            return temp.toRGBA();
-        };
-        /**
-         * Lightens the current color by a specified amount
-         *
-         * @method lighten
-         * @param [factor=.1] {number}
-         * @returns Color
-         */
-        Color.prototype.lighten = function (factor) {
-            if (factor === void 0) { factor = 0.1; }
-            var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
-            temp.l += (temp.l * factor);
-            return temp.toRGBA();
-        };
-        /**
-         * Darkens the current color by a specified amount
-         *
-         * @method darken
-         * @param [factor=.1] {number}
-         * @returns Color
-         */
-        Color.prototype.darken = function (factor) {
-            if (factor === void 0) { factor = 0.1; }
-            var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
-            temp.l -= (temp.l * factor);
-            return temp.toRGBA();
-        };
-        /**
-         * Saturates the current color by a specified amount
-         *
-         * @method saturate
-         * @param [factor=.1] {number}
-         * @returns Color
-         */
-        Color.prototype.saturate = function (factor) {
-            if (factor === void 0) { factor = 0.1; }
-            var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
-            temp.s += (temp.s * factor);
-            return temp.toRGBA();
-        };
-        /**
-         * Desaturates the current color by a specified amount
-         *
-         * @method desaturate
-         * @param [factor=.1] {number}
-         * @returns Color
-         */
-        Color.prototype.desaturate = function (factor) {
-            if (factor === void 0) { factor = 0.1; }
-            var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
-            temp.s -= (temp.s * factor);
-            return temp.toRGBA();
-        };
-        /**
-         * Multiplies a color by another, results in a darker color
-         *
-         * @method mulitiply
-         * @param color {Color}
-         * @returns Color
-         */
-        Color.prototype.mulitiply = function (color) {
-            var newR = ((color.r / 255 * this.r / 255) * 255);
-            var newG = ((color.g / 255 * this.g / 255) * 255);
-            var newB = ((color.b / 255 * this.b / 255) * 255);
-            var newA = (color.a * this.a);
-            return new Color(newR, newG, newB, newA);
-        };
-        /**
-         * Screens a color by another, results in a lighter color
-         *
-         * @method screen
-         * @param color {Color}
-         * @returns Color
-         */
-        Color.prototype.screen = function (color) {
-            var color1 = color.invert();
-            var color2 = color.invert();
-            return color1.mulitiply(color2).invert();
-        };
-        /**
-         * Inverts the current color
-         *
-         * @method invert
-         * @returns Color
-         */
-        Color.prototype.invert = function () {
-            return new Color(255 - this.r, 255 - this.g, 255 - this.b, 1.0 - this.a);
-        };
-        /**
-         * Averages the current color with another
-         *
-         * @method average
-         * @param color {Color}
-         * @returns Color
-         */
-        Color.prototype.average = function (color) {
-            var newR = (color.r + this.r) / 2;
-            var newG = (color.g + this.g) / 2;
-            var newB = (color.b + this.b) / 2;
-            var newA = (color.a + this.a) / 2;
-            return new Color(newR, newG, newB, newA);
-        };
-        /**
-         * Returns a CSS string representation of a color.
-         * @method toString
-         * @returns string
-         */
-        Color.prototype.toString = function () {
-            var result = String(this.r.toFixed(0)) + ", " + String(this.g.toFixed(0)) + ", " + String(this.b.toFixed(0));
-            if (this.a !== undefined || this.a !== null) {
-                return "rgba(" + result + ", " + String(this.a) + ")";
-            }
-            return "rgb(" + result + ")";
-        };
-        /**
-         * Returns a CSS string representation of a color.
-         * @method fillStyle
-         * @returns string
-         */
-        Color.prototype.fillStyle = function () {
-            return this.toString();
-        };
-        /**
-         * Returns a clone of the current color.
-         * @method clone
-         * @returns Color
-         */
-        Color.prototype.clone = function () {
-            return new Color(this.r, this.g, this.b, this.a);
-        };
-        /**
-         * Color constant
-         * @property Black {ex.Color}
-         * @static
-         * @final
-         */
-        Color.Black = Color.fromHex('#000000');
-        /**
-         * Color constant
-         * @property White {ex.Color}
-         * @static
-         * @final
-         */
-        Color.White = Color.fromHex('#FFFFFF');
-        /**
-         * Color constant
-         * @property Gray {ex.Color}
-         * @static
-         * @final
-         */
-        Color.Gray = Color.fromHex('#808080');
-        /**
-         * Color constant
-         * @property LightGray {ex.Color}
-         * @static
-         * @final
-         */
-        Color.LightGray = Color.fromHex('#D3D3D3');
-        /**
-         * Color constant
-         * @property DarkGray {ex.Color}
-         * @static
-         * @final
-         */
-        Color.DarkGray = Color.fromHex('#A9A9A9');
-        /**
-         * Color constant
-         * @property Yellow {ex.Color}
-         * @static
-         * @final
-         */
-        Color.Yellow = Color.fromHex('#FFFF00');
-        /**
-         * Color constant
-         * @property Orange {ex.Color}
-         * @static
-         * @final
-         */
-        Color.Orange = Color.fromHex('#FFA500');
-        /**
-         * Color constant
-         * @property Red {ex.Color}
-         * @static
-         * @final
-         */
-        Color.Red = Color.fromHex('#FF0000');
-        /**
-         * Color constant
-         * @property Vermillion {ex.Color}
-         * @static
-         * @final
-         */
-        Color.Vermillion = Color.fromHex('#FF5B31');
-        /**
-         * Color constant
-         * @property Rose {ex.Color}
-         * @static
-         * @final
-         */
-        Color.Rose = Color.fromHex('#FF007F');
-        /**
-         * Color constant
-         * @property Magenta {ex.Color}
-         * @static
-         * @final
-         */
-        Color.Magenta = Color.fromHex('#FF00FF');
-        /**
-         * Color constant
-         * @property Violet {ex.Color}
-         * @static
-         * @final
-         */
-        Color.Violet = Color.fromHex('#7F00FF');
-        /**
-         * Color constant
-         * @property Blue {ex.Color}
-         * @static
-         * @final
-         */
-        Color.Blue = Color.fromHex('#0000FF');
-        /**
-         * Color constant
-         * @property Azure {ex.Color}
-         * @static
-         * @final
-         */
-        Color.Azure = Color.fromHex('#007FFF');
-        /**
-         * Color constant
-         * @property Cyan {ex.Color}
-         * @static
-         * @final
-         */
-        Color.Cyan = Color.fromHex('#00FFFF');
-        /**
-         * Color constant
-         * @property Viridian {ex.Color}
-         * @static
-         * @final
-         */
-        Color.Viridian = Color.fromHex('#59978F');
-        /**
-         * Color constant
-         * @property Green {ex.Color}
-         * @static
-         * @final
-         */
-        Color.Green = Color.fromHex('#00FF00');
-        /**
-         * Color constant
-         * @property Chartreuse {ex.Color}
-         * @static
-         * @final
-         */
-        Color.Chartreuse = Color.fromHex('#7FFF00');
-        /**
-         * Color constant
-         * @property Transparent {ex.Color}
-         * @static
-         * @final
-         */
-        Color.Transparent = Color.fromHex('#FFFFFF00');
-        return Color;
-    })();
-    ex.Color = Color;
 })(ex || (ex = {}));
 /// <reference path="Actor.ts" />
 var ex;
 (function (ex) {
     /**
-     * Helper Actor primitive for drawing UI's, optimized for UI drawing. Does
-     * not participate in collisions.
-     * @class UIActor
-     * @extends Actor
-     * @constructor
-     * @param [x=0.0] {number} The starting x coordinate of the actor
-     * @param [y=0.0] {number} The starting y coordinate of the actor
-     * @param [width=0.0] {number} The starting width of the actor
-     * @param [height=0.0] {number} The starting height of the actor
+     * Helper [[Actor]] primitive for drawing UI's, optimized for UI drawing. Does
+     * not participate in collisions. Drawn on top of all other actors.
      */
     var UIActor = (function (_super) {
         __extends(UIActor, _super);
+        /**
+         * @param x       The starting x coordinate of the actor
+         * @param y       The starting y coordinate of the actor
+         * @param width   The starting width of the actor
+         * @param height  The starting height of the actor
+         */
         function UIActor(x, y, width, height) {
             _super.call(this, x, y, width, height);
             this.pipeline = [];
@@ -6729,20 +6262,20 @@ var ex;
 var ex;
 (function (ex) {
     /**
-     * Triggers a method of firing arbitrary code on collision. These are useful
+     * Triggers are a method of firing arbitrary code on collision. These are useful
      * as 'buttons', 'switches', or to trigger effects in a game. By defualt triggers
-     * are invisible, and can only be seen with debug mode enabled on the Engine.
-     * @class Trigger
-     * @constructor
-     * @param [x=0] {number} The x position of the trigger
-     * @param [y=0] {number} The y position of the trigger
-     * @param [width=0] {number} The width of the trigger
-     * @param [height=0] {number} The height of the trigger
-     * @param [action=null] {()=>void} Callback to fire when trigger is activated
-     * @param [repeats=1] {number} The number of times that this trigger should fire, by default it is 1, if -1 is supplied it will fire indefinitely
+     * are invisible, and can only be seen with debug mode enabled on the [[Engine]].
      */
     var Trigger = (function (_super) {
         __extends(Trigger, _super);
+        /**
+         * @param x       The x position of the trigger
+         * @param y       The y position of the trigger
+         * @param width   The width of the trigger
+         * @param height  The height of the trigger
+         * @param action  Callback to fire when trigger is activated
+         * @param repeats The number of times that this trigger should fire, by default it is 1, if -1 is supplied it will fire indefinitely
+         */
         function Trigger(x, y, width, height, action, repeats) {
             _super.call(this, x, y, width, height);
             this.action = function () {
@@ -6821,21 +6354,21 @@ var ex;
 (function (ex) {
     /**
      * An enum that represents the types of emitter nozzles
-     * @class EmitterType
      */
     (function (EmitterType) {
         /**
          * Constant for the circular emitter type
-         * @property Circle {EmitterType}
          */
         EmitterType[EmitterType["Circle"] = 0] = "Circle";
         /**
          * Constant for the rectangular emitter type
-         * @property Rectangle {EmitterType}
          */
         EmitterType[EmitterType["Rectangle"] = 1] = "Rectangle";
     })(ex.EmitterType || (ex.EmitterType = {}));
     var EmitterType = ex.EmitterType;
+    /**
+     * Particle is used in a [[ParticleEmitter]]
+     */
     var Particle = (function () {
         function Particle(emitter, life, opacity, beginColor, endColor, position, velocity, acceleration, startSize, endSize) {
             this.position = new ex.Vector(0, 0);
@@ -6932,144 +6465,139 @@ var ex;
     ex.Particle = Particle;
     /**
      * Using a particle emitter is a great way to create interesting effects
-     * in your game, like smoke, fire, water, explosions, etc. Particle Emitters
-     * extend Actor allowing you to use all of the features that come with Actor
-     * @class ParticleEmitter
-     * @constructor
-     * @param [x=0] {number} The x position of the emitter
-     * @param [y=0] {number} The y position of the emitter
-     * @param [width=0] {number} The width of the emitter
-     * @param [height=0] {number} The height of the emitter
+     * in your game, like smoke, fire, water, explosions, etc. `ParticleEmitter`
+     * extend [[Actor]] allowing you to use all of the features that come with.
+     *
+     * The easiest way to create a `ParticleEmitter` is to use the
+     * [Particle Tester](http://erikonarheim.com/labs/particle-tester/).
+     *
+     * ## Example: Adding an emitter
+     *
+     * ```js
+     * var actor = new ex.Actor(...);
+     * var emitter = new ex.ParticleEmitter(...);
+     *
+     * // set emitter settings
+     * emitter.isEmitting = true;
+     *
+     * // add the emitter as a child actor, it will draw on top of the parent actor
+     * // and move with the parent
+     * actor.addChild(emitter);
+     *
+     * // or, alternatively, add it to the current scene
+     * engine.add(emitter);
      */
     var ParticleEmitter = (function (_super) {
         __extends(ParticleEmitter, _super);
+        /**
+         * @param x       The x position of the emitter
+         * @param y       The y position of the emitter
+         * @param width   The width of the emitter
+         * @param height  The height of the emitter
+         */
         function ParticleEmitter(x, y, width, height) {
             _super.call(this, x, y, width, height, ex.Color.White);
             this._particlesToEmit = 0;
             this.numParticles = 0;
             /**
              * Gets or sets the isEmitting flag
-             * @property isEmitting {boolean}
              */
             this.isEmitting = true;
             /**
              * Gets or sets the backing particle collection
-             * @property particles {Util.Collection&lt;Particle&gt;}
              */
             this.particles = null;
             /**
              * Gets or sets the backing deadParticle collection
-             * @property particles {Util.Collection&lt;Particle&gt;}
              */
             this.deadParticles = null;
             /**
              * Gets or sets the minimum partical velocity
-             * @property [minVel=0] {number}
              */
             this.minVel = 0;
             /**
              * Gets or sets the maximum partical velocity
-             * @property [maxVel=0] {number}
              */
             this.maxVel = 0;
             /**
              * Gets or sets the acceleration vector for all particles
-             * @property [acceleration=new Vector(0,0)] {Vector}
              */
             this.acceleration = new ex.Vector(0, 0);
             /**
              * Gets or sets the minimum angle in radians
-             * @property [minAngle=0] {number}
              */
             this.minAngle = 0;
             /**
              * Gets or sets the maximum angle in radians
-             * @property [maxAngle=0] {number}
              */
             this.maxAngle = 0;
             /**
              * Gets or sets the emission rate for particles (particles/sec)
-             * @property [emitRate=1] {number}
              */
             this.emitRate = 1; //particles/sec
             /**
              * Gets or sets the life of each particle in milliseconds
-             * @property [particleLife=2000] {number}
              */
             this.particleLife = 2000;
             /**
              * Gets or sets the opacity of each particle from 0 to 1.0
-             * @property [opacity=1.0] {number}
              */
             this.opacity = 1;
             /**
              * Gets or sets the fade flag which causes particles to gradually fade out over the course of their life.
-             * @property [fade=false] {boolean}
              */
             this.fadeFlag = false;
             /**
              * Gets or sets the optional focus where all particles should accelerate towards
-             * @property [focus=null] {Vector}
              */
             this.focus = null;
             /**
              * Gets or sets the acceleration for focusing particles if a focus has been specified
-             * @property [focusAccel=1] {number}
              */
             this.focusAccel = 1;
             /*
              * Gets or sets the optional starting size for the particles
-             * @property [startSize=null] {number}
              */
             this.startSize = null;
             /*
              * Gets or sets the optional ending size for the particles
-             * @property [endSize=null] {number}
              */
             this.endSize = null;
             /**
              * Gets or sets the minimum size of all particles
-             * @property [minSize=5] {number}
              */
             this.minSize = 5;
             /**
              * Gets or sets the maximum size of all particles
-             * @property [maxSize=5] {number}
              */
             this.maxSize = 5;
             /**
              * Gets or sets the beginning color of all particles
-             * @property [beginColor=Color.White] {Color}
              */
             this.beginColor = ex.Color.White;
             /**
              * Gets or sets the ending color of all particles
-             * @property [endColor=Color.White] {Color}
              */
             this.endColor = ex.Color.White;
             /**
              * Gets or sets the sprite that a particle should use
-             * @property [particleSprite=null] {Sprite}
+             * @warning Performance intensive
              */
             this.particleSprite = null;
             /**
              * Gets or sets the emitter type for the particle emitter
-             * @property [emitterType=EmitterType.Rectangle] {EmitterType}
              */
             this.emitterType = 1 /* Rectangle */;
             /**
-             * Gets or sets the emitter radius, only takes effect when the emitterType is Circle
-             * @property [radius=0] {number}
+             * Gets or sets the emitter radius, only takes effect when the [[emitterType]] is [[EmitterType.Circle]]
              */
             this.radius = 0;
             /**
              * Gets or sets the particle rotational speed velocity
-             * @property [particleRotationalVelocity=0] {number}
              */
             this.particleRotationalVelocity = 0;
             /**
              * Indicates whether particles should start with a random rotation
-             * @property [randomRotation=false] {boolean}
              */
             this.randomRotation = false;
             this.collisionType = 0 /* PreventCollision */;
@@ -7081,8 +6609,7 @@ var ex;
         };
         /**
          * Causes the emitter to emit particles
-         * @method emit
-         * @param particleCount {number} Number of particles to emit right now
+         * @param particleCount  Number of particles to emit right now
          */
         ParticleEmitter.prototype.emit = function (particleCount) {
             for (var i = 0; i < particleCount; i++) {
@@ -7172,15 +6699,14 @@ var ex;
     /**
      * Animations allow you to display a series of images one after another,
      * creating the illusion of change. Generally these images will come from a sprite sheet source.
-     * @class Animation
-     * @extends IDrawable
-     * @constructor
-     * @param engine {Engine} Reference to the current game engine
-     * @param images {Sprite[]} An array of sprites to create the frames for the animation
-     * @param speed {number} The number in milliseconds to display each frame in the animation
-     * @param [loop=false] {boolean} Indicates whether the animation should loop after it is completed
      */
     var Animation = (function () {
+        /**
+         * @param engine  Reference to the current game engine
+         * @param images  An array of sprites to create the frames for the animation
+         * @param speed   The number in milliseconds to display each frame in the animation
+         * @param loop    Indicates whether the animation should loop after it is completed
+         */
         function Animation(engine, images, speed, loop) {
             this.currentFrame = 0;
             this.oldTime = Date.now();
@@ -7189,7 +6715,6 @@ var ex;
             this.scale = new ex.Point(1, 1);
             /**
              * Indicates whether the animation should loop after it is completed
-             * @property [loop=false] {boolean}
              */
             this.loop = false;
             this.freezeFrame = -1;
@@ -7208,46 +6733,36 @@ var ex;
         }
         /**
          * Applies the opacity effect to a sprite, setting the alpha of all pixels to a given value
-         * @method opacity
-         * @param value {number}
          */
         Animation.prototype.opacity = function (value) {
             this.addEffect(new ex.Effects.Opacity(value));
         };
         /**
          * Applies the grayscale effect to a sprite, removing color information.
-         * @method grayscale
          */
         Animation.prototype.grayscale = function () {
             this.addEffect(new ex.Effects.Grayscale());
         };
         /**
          * Applies the invert effect to a sprite, inverting the pixel colors.
-         * @method invert
          */
         Animation.prototype.invert = function () {
             this.addEffect(new ex.Effects.Invert());
         };
         /**
          * Applies the fill effect to a sprite, changing the color channels of all non-transparent pixels to match a given color
-         * @method fill
-         * @param color {Color}
          */
         Animation.prototype.fill = function (color) {
             this.addEffect(new ex.Effects.Fill(color));
         };
         /**
          * Applies the colorize effect to a sprite, changing the color channels of all pixesl to be the average of the original color and the provided color.
-         * @method fill
-         * @param color {Color}
          */
         Animation.prototype.colorize = function (color) {
             this.addEffect(new ex.Effects.Colorize(color));
         };
         /**
          * Applies the lighten effect to a sprite, changes the lightness of the color according to hsl
-         * @method lighten
-         * @param [factor=0.1] {number}
          */
         Animation.prototype.lighten = function (factor) {
             if (factor === void 0) { factor = 0.1; }
@@ -7255,8 +6770,6 @@ var ex;
         };
         /**
          * Applies the darken effect to a sprite, changes the darkness of the color according to hsl
-         * @method darken
-         * @param [factor=0.1] {number}
          */
         Animation.prototype.darken = function (factor) {
             if (factor === void 0) { factor = 0.1; }
@@ -7264,8 +6777,6 @@ var ex;
         };
         /**
          * Applies the saturate effect to a sprite, saturates the color acccording to hsl
-         * @method saturate
-         * @param [factor=0.1] {number}
          */
         Animation.prototype.saturate = function (factor) {
             if (factor === void 0) { factor = 0.1; }
@@ -7273,13 +6784,14 @@ var ex;
         };
         /**
          * Applies the desaturate effect to a sprite, desaturates the color acccording to hsl
-         * @method desaturate
-         * @param [factor=0.1] {number}
          */
         Animation.prototype.desaturate = function (factor) {
             if (factor === void 0) { factor = 0.1; }
             this.addEffect(new ex.Effects.Desaturate(factor));
         };
+        /**
+         * Add a [[ISpriteEffect]] manually
+         */
         Animation.prototype.addEffect = function (effect) {
             for (var i in this.sprites) {
                 this.sprites[i].addEffect(effect);
@@ -7290,6 +6802,9 @@ var ex;
                 this.sprites[i].removeEffect(param);
             }
         };
+        /**
+         * Clear all sprite effects
+         */
         Animation.prototype.clearEffects = function () {
             for (var i in this.sprites) {
                 this.sprites[i].clearEffects();
@@ -7315,23 +6830,20 @@ var ex;
         };
         /**
          * Resets the animation to first frame.
-         * @method reset
          */
         Animation.prototype.reset = function () {
             this.currentFrame = 0;
         };
         /**
          * Indicates whether the animation is complete, animations that loop are never complete.
-         * @method isDone
-         * @returns boolean
          */
         Animation.prototype.isDone = function () {
             return (!this.loop && this.currentFrame >= this.sprites.length);
         };
         /**
-         * Not meant to be called by game developers. Ticks the animation forward internally an
-         * calculates whether to change to teh frame.
-         * @method tick
+         * Not meant to be called by game developers. Ticks the animation forward internally and
+         * calculates whether to change to the frame.
+         * @internal
          */
         Animation.prototype.tick = function () {
             var time = Date.now();
@@ -7347,8 +6859,7 @@ var ex;
         };
         /**
          * Skips ahead a specified number of frames in the animation
-         * @method skip
-         * @param frames {number} Frames to skip ahead
+         * @param frames  Frames to skip ahead
          */
         Animation.prototype.skip = function (frames) {
             this.currentFrame = (this.currentFrame + frames) % this.sprites.length;
@@ -7373,9 +6884,8 @@ var ex;
         };
         /**
          * Plays an animation at an arbitrary location in the game.
-         * @method play
-         * @param x {number} The x position in the game to play
-         * @param y {number} The y position in the game to play
+         * @param x  The x position in the game to play
+         * @param y  The y position in the game to play
          */
         Animation.prototype.play = function (x, y) {
             this.reset();
@@ -7685,27 +7195,19 @@ var ex;
 (function (ex) {
     /**
      * Valid states for a promise to be in
-     * @class PromiseState
      */
     (function (PromiseState) {
-        /**
-        @property Resolved {PromiseState}
-        */
         PromiseState[PromiseState["Resolved"] = 0] = "Resolved";
-        /**
-        @property Rejected {PromiseState}
-        */
         PromiseState[PromiseState["Rejected"] = 1] = "Rejected";
-        /**
-        @property Pending {PromiseState}
-        */
         PromiseState[PromiseState["Pending"] = 2] = "Pending";
     })(ex.PromiseState || (ex.PromiseState = {}));
     var PromiseState = ex.PromiseState;
     /**
      * Promises/A+ spec implementation of promises
-     * @class Promise
-     * @constructor
+     *
+     * Promises are used to do asynchronous work and they are useful for
+     * creating a chain of actions. In Excalibur they are used for loading,
+     * sounds, animation, actions, and more.
      */
     var Promise = (function () {
         function Promise() {
@@ -7717,9 +7219,7 @@ var ex;
         }
         /**
          * Wrap a value in a resolved promise
-         * @method wrap<T>
-         * @param [value=undefined] {T} An optional value to wrap in a resolved promise
-         * @returns Promise&lt;T&gt;
+         * @param value  An optional value to wrap in a resolved promise
          */
         Promise.wrap = function (value) {
             var promise = (new Promise()).resolve(value);
@@ -7728,8 +7228,6 @@ var ex;
         /**
          * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
          * when at least 1 promise rejects.
-         * @param promises {Promise[]}
-         * @returns Promise
          */
         Promise.join = function () {
             var promises = [];
@@ -7769,10 +7267,8 @@ var ex;
         };
         /**
          * Chain success and reject callbacks after the promise is resovled
-         * @method then
-         * @param successCallback {T=>any} Call on resolution of promise
-         * @param rejectCallback {any=>any} Call on rejection of promise
-         * @returns Promise&lt;T&gt;
+         * @param successCallback  Call on resolution of promise
+         * @param rejectCallback   Call on rejection of promise
          */
         Promise.prototype.then = function (successCallback, rejectCallback) {
             if (successCallback) {
@@ -7803,9 +7299,7 @@ var ex;
         };
         /**
          * Add an error callback to the promise
-         * @method error
-         * @param errorCallback {any=>any} Call if there was an error in a callback
-         * @returns Promise&lt;T&gt;
+         * @param errorCallback  Call if there was an error in a callback
          */
         Promise.prototype.error = function (errorCallback) {
             if (errorCallback) {
@@ -7815,8 +7309,7 @@ var ex;
         };
         /**
          * Resolve the promise and pass an option value to the success callbacks
-         * @method resolve
-         * @param [value=undefined] {T} Value to pass to the success callbacks
+         * @param value  Value to pass to the success callbacks
          */
         Promise.prototype.resolve = function (value) {
             var _this = this;
@@ -7839,8 +7332,7 @@ var ex;
         };
         /**
          * Reject the promise and pass an option value to the reject callbacks
-         * @method reject
-         * @param [value=undefined] {T} Value to pass to the reject callbacks
+         * @param value  Value to pass to the reject callbacks
          */
         Promise.prototype.reject = function (value) {
             if (this._state === 2 /* Pending */) {
@@ -7860,8 +7352,6 @@ var ex;
         };
         /**
          * Inpect the current state of a promise
-         * @method state
-         * @returns PromiseState
          */
         Promise.prototype.state = function () {
             return this._state;
@@ -7882,14 +7372,19 @@ var ex;
 var ex;
 (function (ex) {
     /**
+     * Generic Resources
+     *
      * The Resource type allows games built in Excalibur to load generic resources.
-     * For any type of remote resource it is recome
-     * @class Resource
-     * @extend ILoadable
-     * @constructor
-     * @param path {string} Path to the remote resource
+     * For any type of remote resource it is recommended to use `Resource` for preloading.
+     *
+     * Example usages: maps, levels, config, compressed files, blobs.
      */
     var Resource = (function () {
+        /**
+         * @param path          Path to the remote resource
+         * @param responseType  The Content-Type to expect (e.g. `application/json`)
+         * @param bustCache     Whether or not to cache-bust requests
+         */
         function Resource(path, responseType, bustCache) {
             if (bustCache === void 0) { bustCache = true; }
             this.path = path;
@@ -7907,8 +7402,6 @@ var ex;
         /**
          * Returns true if the Resource is completely loaded and is ready
          * to be drawn.
-         * @method isLoaded
-         * @returns boolean
          */
         Resource.prototype.isLoaded = function () {
             return !!this.data;
@@ -7931,8 +7424,6 @@ var ex;
         };
         /**
          * Begin loading the resource and returns a promise to be resolved on completion
-         * @method load
-         * @returns Promise&lt;any&gt;
          */
         Resource.prototype.load = function () {
             var _this = this;
@@ -7962,8 +7453,6 @@ var ex;
         };
         /**
          * Returns the loaded data once the resource is loaded
-         * @method GetData
-         * @returns any
          */
         Resource.prototype.getData = function () {
             return this.data;
@@ -7971,7 +7460,6 @@ var ex;
         /**
          * This method is meant to be overriden to handle any additional
          * processing. Such as decoding downloaded audio bits.
-         * @method ProcessDownload
          */
         Resource.prototype.processDownload = function (data) {
             // Handle any additional loading after the xhr has completed.
@@ -7989,21 +7477,23 @@ var ex;
 var ex;
 (function (ex) {
     /**
-     * The Texture object allows games built in Excalibur to load image resources.
-     * It is generally recommended to preload images using the "Texture" object.
-     * @class Texture
-     * @extend Resource
-     * @constructor
-     * @param path {string} Path to the image resource
-     * @param [bustCache=true] {boolean} Optionally load texture with cache busting
+     * The `Texture` object allows games built in Excalibur to load image resources.
+     * It is generally recommended to preload images using the `Texture` object.
      */
     var Texture = (function (_super) {
         __extends(Texture, _super);
+        /**
+         * @param path       Path to the image resource
+         * @param bustCache  Optionally load texture with cache busting
+         */
         function Texture(path, bustCache) {
             if (bustCache === void 0) { bustCache = true; }
             _super.call(this, path, 'blob', bustCache);
             this.path = path;
             this.bustCache = bustCache;
+            /**
+             * A [[Promise]] that resolves when the Texture is loaded.
+             */
             this.loaded = new ex.Promise();
             this._isLoaded = false;
             this._sprite = null;
@@ -8012,16 +7502,12 @@ var ex;
         /**
          * Returns true if the Texture is completely loaded and is ready
          * to be drawn.
-         * @method isLoaded
-         * @returns boolean
          */
         Texture.prototype.isLoaded = function () {
             return this._isLoaded;
         };
         /**
          * Begins loading the texture and returns a promise to be resolved on completion
-         * @method load
-         * @returns Promise&lt;HTMLImageElement&gt;
          */
         Texture.prototype.load = function () {
             var _this = this;
@@ -8049,15 +7535,14 @@ var ex;
     })(ex.Resource);
     ex.Texture = Texture;
     /**
-     * The Sound object allows games built in Excalibur to load audio
+     * The `Sound` object allows games built in Excalibur to load audio
      * components, from soundtracks to sound effects. It is generally
-     * recommended to load sound resources when using Excalibur
-     * @class Sound
-     * @extend Resource
-     * @constructor
-     * @param ...paths {string[]} A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
+     * recommended to preload sound resources using `Sound` when using Excalibur.
      */
     var Sound = (function () {
+        /**
+         * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
+         */
         function Sound() {
             var paths = [];
             for (var _i = 0; _i < arguments.length; _i++) {
@@ -8093,6 +7578,9 @@ var ex;
             }
             this.sound = new ex.Internal.FallbackAudio(this._selectedFile, 1.0);
         }
+        /**
+         * Whether or not the browser can play this file as HTML5 Audio
+         */
         Sound.canPlayFile = function (file) {
             try {
                 var a = new Audio();
@@ -8130,8 +7618,7 @@ var ex;
         };
         /**
          * Sets the volume of the sound clip
-         * @method setVolume
-         * @param volume {number} A volume value between 0-1.0
+         * @param volume  A volume value between 0-1.0
          */
         Sound.prototype.setVolume = function (volume) {
             if (this.sound)
@@ -8139,21 +7626,21 @@ var ex;
         };
         /**
          * Indicates whether the clip should loop when complete
-         * @method setLoop
-         * @param loop {boolean} Set the looping flag
+         * @param loop  Set the looping flag
          */
         Sound.prototype.setLoop = function (loop) {
             if (this.sound)
                 this.sound.setLoop(loop);
         };
+        /**
+         * Whether or not the sound is playing right now
+         */
         Sound.prototype.isPlaying = function () {
             if (this.sound)
                 return this.sound.isPlaying();
         };
         /**
          * Play the sound, returns a promise that resolves when the sound is done playing
-         * @method play
-         * @return ex.Promise
          */
         Sound.prototype.play = function () {
             if (this.sound)
@@ -8161,7 +7648,6 @@ var ex;
         };
         /**
          * Stop the sound, and do not rewind
-         * @method pause
          */
         Sound.prototype.pause = function () {
             if (this.sound)
@@ -8169,7 +7655,6 @@ var ex;
         };
         /**
          * Stop the sound and rewind
-         * @method stop
          */
         Sound.prototype.stop = function () {
             if (this.sound)
@@ -8177,15 +7662,12 @@ var ex;
         };
         /**
          * Returns true if the sound is loaded
-         * @method isLoaded
          */
         Sound.prototype.isLoaded = function () {
             return this._isLoaded;
         };
         /**
          * Begins loading the sound and returns a promise to be resolved on completion
-         * @method load
-         * @returns Promise&lt;Sound&gt;
          */
         Sound.prototype.load = function () {
             var _this = this;
@@ -8211,13 +7693,37 @@ var ex;
     /**
      * The loader provides a mechanism to preload multiple resources at
      * one time. The loader must be passed to the engine in order to
-     * trigger the loading progress bar
-     * @class Loader
-     * @extend ILoadable
-     * @constructor
-     * @param [loadables=undefined] {ILoadable[]} Optionally provide the list of resources you want to load at constructor time
+     * trigger the loading progress bar.
+     *
+     * ## Example: Pre-loading resources for a game
+     *
+     * ```js
+     * // create a loader
+     * var loader = new ex.Loader();
+     *
+     * // create a resource dictionary (best practice is to keep a separate file)
+     * var resources = {
+     *   TextureGround: new ex.Texture("/images/textures/ground.png"),
+     *   SoundDeath: new ex.Sound("/sound/death.wav", "/sound/death.mp3")
+     * };
+     *
+     * // loop through dictionary and add to loader
+     * for (var loadable in resources) {
+     *   if (resources.hasOwnProperty(loadable)) {
+     *     loader.addResource(loadable);
+     *   }
+     * }
+     *
+     * // start game
+     * game.start(loader).then(function () {
+     *   console.log("Game started!");
+     * });
+     * ```
      */
     var Loader = (function () {
+        /**
+         * @param loadables  Optionally provide the list of resources you want to load at constructor time
+         */
         function Loader(loadables) {
             this.resourceList = [];
             this.index = 0;
@@ -8240,8 +7746,7 @@ var ex;
         };
         /**
          * Add a resource to the loader to load
-         * @method addResource
-         * @param loadable {ILoadable} Resource to add
+         * @param loadable  Resource to add
          */
         Loader.prototype.addResource = function (loadable) {
             var key = this.index++;
@@ -8252,8 +7757,7 @@ var ex;
         };
         /**
          * Add a list of resources to the loader to load
-         * @method addResources
-         * @param loadables {ILoadable[]} The list of resources to load
+         * @param loadables  The list of resources to load
          */
         Loader.prototype.addResources = function (loadables) {
             var _this = this;
@@ -8271,15 +7775,13 @@ var ex;
         };
         /**
          * Returns true if the loader has completely loaded all resources
-         * @method isLoaded
          */
         Loader.prototype.isLoaded = function () {
             return this.numLoaded === this.resourceCount;
         };
         /**
-         * Begin loading all of the supplied resources, returning a promise that resolves when loading of all is complete
-         * @method load
-         * @returns Promsie&lt;any&gt;
+         * Begin loading all of the supplied resources, returning a promise
+         * that resolves when loading of all is complete
          */
         Loader.prototype.load = function () {
             var _this = this;
@@ -8335,15 +7837,14 @@ var ex;
     /**
      * Excalibur's built in templating class, it is a loadable that will load
      * and html fragment from a url. Excalibur templating is very basic only
-     * allowing bindings of the type data-text="this.obj.someprop",
-     * data-style="color:this.obj.color.toString()". Bindings allow all valid
-     * javascript expressions.
-     * @class Template
-     * @extends ILoadable
-     * @constructor
-     * @param path {string} Location of the html template
+     * allowing bindings of the type `data-text="this.obj.someprop"`,
+     * `data-style="color:this.obj.color.toString()"`. Bindings allow all valid
+     * Javascript expressions.
      */
     var Template = (function () {
+        /**
+         * @param path  Location of the html template
+         */
         function Template(path) {
             this.path = path;
             this._isLoaded = false;
@@ -8362,8 +7863,6 @@ var ex;
         };
         /**
          * Returns the full html template string once loaded.
-         * @method getTemplateString
-         * @returns string
          */
         Template.prototype.getTemplateString = function () {
             if (!this._isLoaded)
@@ -8384,9 +7883,7 @@ var ex;
          * Applies any ctx object you wish and evaluates the template.
          * Overload this method to include your favorite template library.
          * You may return either an HTML string or a Dom node.
-         * @method apply
-         * @param ctx {any} Any object you wish to apply to the template
-         * @returns any
+         * @param ctx Any object you wish to apply to the template
          */
         Template.prototype.apply = function (ctx) {
             var _this = this;
@@ -8424,8 +7921,6 @@ var ex;
         };
         /**
          * Begins loading the template. Returns a promise that resolves with the template string when loaded.
-         * @method load
-         * @returns {Promise}
          */
         Template.prototype.load = function () {
             var _this = this;
@@ -8458,8 +7953,6 @@ var ex;
         };
         /**
          * Indicates whether the template has been loaded
-         * @method isLoaded
-         * @returns {boolean}
          */
         Template.prototype.isLoaded = function () {
             return this._isLoaded;
@@ -8471,13 +7964,13 @@ var ex;
      * Excalibur's binding library that allows you to bind an html
      * template to the dom given a certain context. Excalibur bindings are only updated
      * when the update() method is called
-     * @class Binding
-     * @constructor
-     * @param parentElementId {string} The id of the element in the dom to attach the template binding
-     * @param template {Template} The template you wish to bind
-     * @param ctx {any} The context of the binding, which can be any object
      */
     var Binding = (function () {
+        /**
+         * @param parentElementId  The id of the element in the dom to attach the template binding
+         * @param template         The template you wish to bind
+         * @param ctx              The context of the binding, which can be any object
+         */
         function Binding(parentElementId, template, ctx) {
             this.parent = document.getElementById(parentElementId);
             this.template = template;
@@ -8486,10 +7979,9 @@ var ex;
         }
         /**
          * Listen to any arbitrary object's events to update this binding
-         * @method listen
-         * @param obj {any} Any object that supports addEventListener
-         * @param events {string[]} A list of events to listen for
-         * @param [hander=defaultHandler] {callback} A optional handler to fire on any event
+         * @param obj     Any object that supports addEventListener
+         * @param events  A list of events to listen for
+         * @param handler A optional handler to fire on any event
          */
         Binding.prototype.listen = function (obj, events, handler) {
             var _this = this;
@@ -8506,8 +7998,8 @@ var ex;
             }
         };
         /**
-         * Update this template binding with the latest values from the ctx reference passed to the constructor
-         * @method update
+         * Update this template binding with the latest values from
+         * the ctx reference passed to the constructor
          */
         Binding.prototype.update = function () {
             var html = this._applyTemplate(this.template, this._ctx);
@@ -8534,68 +8026,48 @@ var ex;
 (function (ex) {
     /**
      * Enum representing the different horizontal text alignments
-     * @class TextAlign
      */
     (function (TextAlign) {
         /**
          * The text is left-aligned.
-         * @property Left
-         * @static
          */
         TextAlign[TextAlign["Left"] = 0] = "Left";
         /**
          * The text is right-aligned.
-         * @property Right
-         * @static
          */
         TextAlign[TextAlign["Right"] = 1] = "Right";
         /**
          * The text is centered.
-         * @property Center
-         * @static
          */
         TextAlign[TextAlign["Center"] = 2] = "Center";
         /**
          * The text is aligned at the normal start of the line (left-aligned for left-to-right locales, right-aligned for right-to-left locales).
-         * @property Start
-         * @static
          */
         TextAlign[TextAlign["Start"] = 3] = "Start";
         /**
          * The text is aligned at the normal end of the line (right-aligned for left-to-right locales, left-aligned for right-to-left locales).
-         * @property End
-         * @static
          */
         TextAlign[TextAlign["End"] = 4] = "End";
     })(ex.TextAlign || (ex.TextAlign = {}));
     var TextAlign = ex.TextAlign;
     /**
      * Enum representing the different baseline text alignments
-     * @class BaseAlign
      */
     (function (BaseAlign) {
         /**
          * The text baseline is the top of the em square.
-         * @property Top
-         * @static
          */
         BaseAlign[BaseAlign["Top"] = 0] = "Top";
         /**
          * The text baseline is the hanging baseline.  Currently unsupported; this will act like alphabetic.
-         * @property Hanging
-         * @static
          */
         BaseAlign[BaseAlign["Hanging"] = 1] = "Hanging";
         /**
          * The text baseline is the middle of the em square.
-         * @property Middle
-         * @static
          */
         BaseAlign[BaseAlign["Middle"] = 2] = "Middle";
         /**
          * The text baseline is the normal alphabetic baseline.
-         * @property Alphabetic
-         * @static
          */
         BaseAlign[BaseAlign["Alphabetic"] = 3] = "Alphabetic";
         /**
@@ -8603,16 +8075,12 @@ var ex;
          * the body of the characters, if the main body of characters protrudes
          * beneath the alphabetic baseline.  Currently unsupported; this will
          * act like alphabetic.
-         * @property Ideographic
-         * @static
          */
         BaseAlign[BaseAlign["Ideographic"] = 4] = "Ideographic";
         /**
          * The text baseline is the bottom of the bounding box.  This differs
          * from the ideographic baseline in that the ideographic baseline
          * doesn't consider descenders.
-         * @property Bottom
-         * @static
          */
         BaseAlign[BaseAlign["Bottom"] = 5] = "Bottom";
     })(ex.BaseAlign || (ex.BaseAlign = {}));
@@ -8620,25 +8088,28 @@ var ex;
     /**
      * Labels are the way to draw small amounts of text to the screen in Excalibur. They are
      * actors and inherit all of the benifits and capabilities.
-     * @class Label
-     * @extends Actor
-     * @constructor
-     * @param [text=empty] {string} The text of the label
-     * @param [x=0] {number} The x position of the label
-     * @param [y=0] {number} The y position of the label
-     * @param [font=sans-serif] {string} Use any valid css font string for the label's font. Default is "10px sans-serif".
-     * @param [spriteFont=undefined] {SpriteFont} Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precendence over a css font.
      *
+     * It is recommended to use a [[SpriteFont]] for labels as the raw Canvas
+     * API for drawing text is slow (`fillText`).
      */
     var Label = (function (_super) {
         __extends(Label, _super);
+        /**
+         * @param text        The text of the label
+         * @param x           The x position of the label
+         * @param y           The y position of the label
+         * @param font        Use any valid CSS font string for the label's font. Web fonts are supported. Default is `10px sans-serif`.
+         * @param spriteFont  Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precendence over a css font.
+         */
         function Label(text, x, y, font, spriteFont) {
             _super.call(this, x, y);
             /**
              * Gets or sets the letter spacing on a Label. Only supported with Sprite Fonts.
-             * @property [letterSpacing=0] {number}
              */
             this.letterSpacing = 0; //px
+            /**
+             * Whether or not the [[SpriteFont]] will be case-sensitive when matching characters.
+             */
             this.caseInsensitive = true;
             this._textShadowOn = false;
             this._shadowOffsetX = 0;
@@ -8659,8 +8130,7 @@ var ex;
         }
         /**
          * Returns the width of the text in the label (in pixels);
-         * @method getTextWidth {number}
-         * @param ctx {CanvasRenderingContext2D} Rending context to measure the string with
+         * @param ctx  Rending context to measure the string with
          */
         Label.prototype.getTextWidth = function (ctx) {
             var oldFont = ctx.font;
@@ -8719,10 +8189,9 @@ var ex;
         };
         /**
          * Sets the text shadow for sprite fonts
-         * @method setTextShadow
-         * @param offsetX {number} The x offset in pixels to place the shadow
-         * @param offsetY {number} The y offset in pixles to place the shadow
-         * @param shadowColor {Color} The color of the text shadow
+         * @param offsetX      The x offset in pixels to place the shadow
+         * @param offsetY      The y offset in pixles to place the shadow
+         * @param shadowColor  The color of the text shadow
          */
         Label.prototype.setTextShadow = function (offsetX, offsetY, shadowColor) {
             this._textShadowOn = true;
@@ -8736,7 +8205,6 @@ var ex;
         };
         /**
          * Clears the current text shadow
-         * @method clearTextShadow
          */
         Label.prototype.clearTextShadow = function () {
             this._textShadowOn = false;
@@ -8870,10 +8338,6 @@ var ex;
         /**
          * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to W3C Pointer Events.
          * There is always at least one pointer available (primary).
-         *
-         * @class Pointers
-         * @extends Class
-         * @constructor
          */
         var Pointers = (function (_super) {
             __extends(Pointers, _super);
@@ -8940,7 +8404,7 @@ var ex;
             };
             /**
              * Safely gets a Pointer at a specific index and initializes one if it doesn't yet exist
-             * @param index {number} The pointer index to retrieve
+             * @param index  The pointer index to retrieve
              */
             Pointers.prototype.at = function (index) {
                 if (index >= this._pointers.length) {
@@ -9055,7 +8519,6 @@ var ex;
             /**
              * Gets the index of the pointer specified for the given pointer ID or finds the next empty pointer slot available.
              * This is required because IE10/11 uses incrementing pointer IDs so we need to store a mapping of ID => idx
-             * @private
              */
             Pointers.prototype._getPointerIndex = function (pointerId) {
                 var idx;
@@ -9086,9 +8549,6 @@ var ex;
         Input.Pointers = Pointers;
         /**
          * Captures and dispatches PointerEvents
-         * @class Pointer
-         * @constructor
-         * @extends Class
          */
         var Pointer = (function (_super) {
             __extends(Pointer, _super);
@@ -9106,40 +8566,8 @@ var ex;
     (function (Input) {
         /**
         * Enum representing input key codes
-        * @class Keys
-        *
         */
         (function (Keys) {
-            /**
-            @property Num1 {Keys}
-            */
-            /**
-            @property Num2 {Keys}
-            */
-            /**
-            @property Num3 {Keys}
-            */
-            /**
-            @property Num4 {Keys}
-            */
-            /**
-            @property Num5 {Keys}
-            */
-            /**
-            @property Num6 {Keys}
-            */
-            /**
-            @property Num7 {Keys}
-            */
-            /**
-            @property Num8 {Keys}
-            */
-            /**
-            @property Num9 {Keys}
-            */
-            /**
-            @property Num0 {Keys}
-            */
             Keys[Keys["Num1"] = 97] = "Num1";
             Keys[Keys["Num2"] = 98] = "Num2";
             Keys[Keys["Num3"] = 99] = "Num3";
@@ -9150,92 +8578,8 @@ var ex;
             Keys[Keys["Num8"] = 104] = "Num8";
             Keys[Keys["Num9"] = 105] = "Num9";
             Keys[Keys["Num0"] = 96] = "Num0";
-            /**
-            @property Numlock {Keys}
-            */
             Keys[Keys["Numlock"] = 144] = "Numlock";
-            /**
-            @property Semicolon {Keys}
-            */
             Keys[Keys["Semicolon"] = 186] = "Semicolon";
-            /**
-            @property A {Keys}
-            */
-            /**
-            @property B {Keys}
-            */
-            /**
-            @property C {Keys}
-            */
-            /**
-            @property D {Keys}
-            */
-            /**
-            @property E {Keys}
-            */
-            /**
-            @property F {Keys}
-            */
-            /**
-            @property G {Keys}
-            */
-            /**
-            @property H {Keys}
-            */
-            /**
-            @property I {Keys}
-            */
-            /**
-            @property J {Keys}
-            */
-            /**
-            @property K {Keys}
-            */
-            /**
-            @property L {Keys}
-            */
-            /**
-            @property M {Keys}
-            */
-            /**
-            @property N {Keys}
-            */
-            /**
-            @property O {Keys}
-            */
-            /**
-            @property P {Keys}
-            */
-            /**
-            @property Q {Keys}
-            */
-            /**
-            @property R {Keys}
-            */
-            /**
-            @property S {Keys}
-            */
-            /**
-            @property T {Keys}
-            */
-            /**
-            @property U {Keys}
-            */
-            /**
-            @property V {Keys}
-            */
-            /**
-            @property W {Keys}
-            */
-            /**
-            @property X {Keys}
-            */
-            /**
-            @property Y {Keys}
-            */
-            /**
-            @property Z {Keys}
-            */
             Keys[Keys["A"] = 65] = "A";
             Keys[Keys["B"] = 66] = "B";
             Keys[Keys["C"] = 67] = "C";
@@ -9262,30 +8606,6 @@ var ex;
             Keys[Keys["X"] = 88] = "X";
             Keys[Keys["Y"] = 89] = "Y";
             Keys[Keys["Z"] = 90] = "Z";
-            /**
-            @property Shift {Keys}
-            */
-            /**
-            @property Alt {Keys}
-            */
-            /**
-            @property Up {Keys}
-            */
-            /**
-            @property Down {Keys}
-            */
-            /**
-            @property Left {Keys}
-            */
-            /**
-            @property Right {Keys}
-            */
-            /**
-            @property Space {Keys}
-            */
-            /**
-            @property Esc {Keys}
-            */
             Keys[Keys["Shift"] = 16] = "Shift";
             Keys[Keys["Alt"] = 18] = "Alt";
             Keys[Keys["Up"] = 38] = "Up";
@@ -9299,14 +8619,12 @@ var ex;
         ;
         /**
          * Event thrown on a game object for a key event
-         *
-         * @class KeyEvent
-         * @extends GameEvent
-         * @constructor
-         * @param key {InputKey} The key responsible for throwing the event
          */
         var KeyEvent = (function (_super) {
             __extends(KeyEvent, _super);
+            /**
+             * @param key  The key responsible for throwing the event
+             */
             function KeyEvent(key) {
                 _super.call(this);
                 this.key = key;
@@ -9316,11 +8634,6 @@ var ex;
         Input.KeyEvent = KeyEvent;
         /**
          * Manages Keyboard input events that you can query or listen for events on
-         *
-         * @class Keyboard
-         * @extends Class
-         * @constructor
-         *
          */
         var Keyboard = (function (_super) {
             __extends(Keyboard, _super);
@@ -9369,28 +8682,22 @@ var ex;
                 return this._keys;
             };
             /**
-             *  Tests if a certain key is down.
-             * @method isKeyDown
-             * @param key {Keys} Test wether a key is down
-             * @returns boolean
+             * Tests if a certain key is down.
+             * @param key  Test wether a key is down
              */
             Keyboard.prototype.isKeyDown = function (key) {
                 return this._keysDown.indexOf(key) > -1;
             };
             /**
-             *  Tests if a certain key is pressed.
-             * @method isKeyPressed
-             * @param key {Keys} Test wether a key is pressed
-             * @returns boolean
+             * Tests if a certain key is pressed.
+             * @param key  Test wether a key is pressed
              */
             Keyboard.prototype.isKeyPressed = function (key) {
                 return this._keys.indexOf(key) > -1;
             };
             /**
-             *  Tests if a certain key is up.
-             * @method isKeyUp
-             * @param key {Keys} Test wether a key is up
-             * @returns boolean
+             * Tests if a certain key is up.
+             * @param key  Test wether a key is up
              */
             Keyboard.prototype.isKeyUp = function (key) {
                 return this._keysUp.indexOf(key) > -1;
@@ -9407,10 +8714,6 @@ var ex;
         /**
          * Manages Gamepad API input. You can query the gamepads that are connected
          * or listen to events ("button" and "axis").
-         * @class Gamepads
-         * @extends Class
-         * @param pads {Gamepad[]} The connected gamepads.
-         * @param supported {boolean} Whether or not the Gamepad API is present
          */
         var Gamepads = (function (_super) {
             __extends(Gamepads, _super);
@@ -9418,12 +8721,10 @@ var ex;
                 _super.call(this);
                 /**
                  * Whether or not to poll for Gamepad input (default: false)
-                 * @property enabled {boolean}
                  */
                 this.enabled = false;
                 /**
                  * Whether or not Gamepad API is supported
-                 * @property supported {boolean}
                  */
                 this.supported = !!navigator.getGamepads;
                 this._gamePadTimeStamps = [0, 0, 0, 0];
@@ -9542,8 +8843,6 @@ var ex;
             };
             /**
              * The minimum value an axis has to move before considering it a change
-             * @property MinAxisMoveThreshold {number}
-             * @static
              */
             Gamepads.MinAxisMoveThreshold = 0.05;
             return Gamepads;
@@ -9551,8 +8850,6 @@ var ex;
         Input.Gamepads = Gamepads;
         /**
          * Individual state for a Gamepad
-         * @class Gamepad
-         * @extends Class
          */
         var Gamepad = (function (_super) {
             __extends(Gamepad, _super);
@@ -9571,8 +8868,7 @@ var ex;
             }
             /**
              * Whether or not the given button is pressed
-             * @param button {Buttons}
-             * @param [threshold=1] {number} The threshold over which the button is considered to be pressed
+             * @param threshold  The threshold over which the button is considered to be pressed
              */
             Gamepad.prototype.isButtonPressed = function (button, threshold) {
                 if (threshold === void 0) { threshold = 1; }
@@ -9580,14 +8876,12 @@ var ex;
             };
             /**
              * Gets the given button value
-             * @param button {Buttons}
              */
             Gamepad.prototype.getButton = function (button) {
                 return this._buttons[button];
             };
             /**
              * Gets the given axis value
-             * @param axes {Axes}
              */
             Gamepad.prototype.getAxes = function (axes) {
                 var value = this._axes[axes];
@@ -9609,135 +8903,93 @@ var ex;
         Input.Gamepad = Gamepad;
         /**
          * Gamepad Buttons enumeration
-         * @class Buttons
          */
         (function (Buttons) {
             /**
              * Face 1 button (e.g. A)
-             * @property Face1 {Buttons}
-             * @static
-             */
-            /**
-             * Face 2 button (e.g. B)
-             * @property Face2 {Buttons}
-             * @static
-             */
-            /**
-             * Face 3 button (e.g. X)
-             * @property Face3 {Buttons}
-             * @static
-             */
-            /**
-             * Face 4 button (e.g. Y)
-             * @property Face4 {Buttons}
-             * @static
              */
             Buttons[Buttons["Face1"] = 0] = "Face1";
+            /**
+             * Face 2 button (e.g. B)
+             */
             Buttons[Buttons["Face2"] = 1] = "Face2";
+            /**
+             * Face 3 button (e.g. X)
+             */
             Buttons[Buttons["Face3"] = 2] = "Face3";
+            /**
+             * Face 4 button (e.g. Y)
+             */
             Buttons[Buttons["Face4"] = 3] = "Face4";
             /**
              * Left bumper button
-             * @property LeftBumper {Buttons}
-             * @static
-             */
-            /**
-             * Right bumper button
-             * @property RightBumper {Buttons}
-             * @static
              */
             Buttons[Buttons["LeftBumper"] = 4] = "LeftBumper";
+            /**
+             * Right bumper button
+             */
             Buttons[Buttons["RightBumper"] = 5] = "RightBumper";
             /**
              * Left trigger button
-             * @property LeftTrigger {Buttons}
-             * @static
-             */
-            /**
-             * Right trigger button
-             * @property RightTrigger {Buttons}
-             * @static
              */
             Buttons[Buttons["LeftTrigger"] = 6] = "LeftTrigger";
+            /**
+             * Right trigger button
+             */
             Buttons[Buttons["RightTrigger"] = 7] = "RightTrigger";
             /**
              * Select button
-             * @property Select {Buttons}
-             * @static
-             */
-            /**
-             * Start button
-             * @property Start {Buttons}
-             * @static
              */
             Buttons[Buttons["Select"] = 8] = "Select";
+            /**
+             * Start button
+             */
             Buttons[Buttons["Start"] = 9] = "Start";
             /**
              * Left analog stick press (e.g. L3)
-             * @property LeftStick {Buttons}
-             * @static
-             */
-            /**
-             * Right analog stick press (e.g. R3)
-             * @property Start {Buttons}
-             * @static
              */
             Buttons[Buttons["LeftStick"] = 10] = "LeftStick";
+            /**
+             * Right analog stick press (e.g. R3)
+             */
             Buttons[Buttons["RightStick"] = 11] = "RightStick";
             /**
              * D-pad up
-             * @property DpadUp {Buttons}
-             * @static
-             */
-            /**
-             * D-pad down
-             * @property DpadDown {Buttons}
-             * @static
-             */
-            /**
-             * D-pad left
-             * @property DpadLeft {Buttons}
-             * @static
-             */
-            /**
-             * D-pad right
-             * @property DpadRight {Buttons}
-             * @static
              */
             Buttons[Buttons["DpadUp"] = 12] = "DpadUp";
+            /**
+             * D-pad down
+             */
             Buttons[Buttons["DpadDown"] = 13] = "DpadDown";
+            /**
+             * D-pad left
+             */
             Buttons[Buttons["DpadLeft"] = 14] = "DpadLeft";
+            /**
+             * D-pad right
+             */
             Buttons[Buttons["DpadRight"] = 15] = "DpadRight";
         })(Input.Buttons || (Input.Buttons = {}));
         var Buttons = Input.Buttons;
         /**
          * Gamepad Axes enumeration
-         * @class Axes
          */
         (function (Axes) {
             /**
              * Left analogue stick X direction
-             * @property LeftStickX {Axes}
-             * @static
-             */
-            /**
-             * Left analogue stick Y direction
-             * @property LeftStickY {Axes}
-             * @static
-             */
-            /**
-             * Right analogue stick X direction
-             * @property RightStickX {Axes}
-             * @static
-             */
-            /**
-             * Right analogue stick Y direction
-             * @property RightStickY {Axes}
-             * @static
              */
             Axes[Axes["LeftStickX"] = 0] = "LeftStickX";
+            /**
+             * Left analogue stick Y direction
+             */
             Axes[Axes["LeftStickY"] = 1] = "LeftStickY";
+            /**
+             * Right analogue stick X direction
+             */
             Axes[Axes["RightStickX"] = 2] = "RightStickX";
+            /**
+             * Right analogue stick Y direction
+             */
             Axes[Axes["RightStickY"] = 3] = "RightStickY";
         })(Input.Axes || (Input.Axes = {}));
         var Axes = Input.Axes;
@@ -9789,31 +9041,41 @@ var ex;
 /// <reference path="Input/Pointer.ts"/>
 /// <reference path="Input/Keyboard.ts"/>
 /// <reference path="Input/Gamepad.ts"/>
+/**
+ * # Welcome to the Excalibur API
+ *
+ * This documentation is automatically generated from the Excalibur
+ * source code on GitHub.
+ *
+ * If you're just starting out, we recommend reading the tutorials and guides
+ * on Excaliburjs.com.
+ *
+ * If you're looking for something specific, you can search the documentation
+ * using the search icon at the top.
+ */
 var ex;
 (function (ex) {
     /**
      * Enum representing the different display modes available to Excalibur
-     * @class DisplayMode
      */
     (function (DisplayMode) {
         /**
          * Show the game as full screen
-         * @property FullScreen {DisplayMode}
          */
         DisplayMode[DisplayMode["FullScreen"] = 0] = "FullScreen";
         /**
          * Scale the game to the parent DOM container
-         * @property Container {DisplayMode}
          */
         DisplayMode[DisplayMode["Container"] = 1] = "Container";
         /**
          * Show the game as a fixed size
-         * @Property Fixed {DisplayMode}
          */
         DisplayMode[DisplayMode["Fixed"] = 2] = "Fixed";
     })(ex.DisplayMode || (ex.DisplayMode = {}));
     var DisplayMode = ex.DisplayMode;
-    // internal
+    /**
+     * @internal
+     */
     var AnimationNode = (function () {
         function AnimationNode(animation, x, y) {
             this.animation = animation;
@@ -9823,59 +9085,54 @@ var ex;
         return AnimationNode;
     })();
     /**
-     * The 'Engine' is the main driver for a game. It is responsible for
+     * The `Engine` is the main driver for a game. It is responsible for
      * starting/stopping the game, maintaining state, transmitting events,
      * loading resources, and managing the scene.
-     *
-     * @class Engine
-     * @constructor
-     * @param [width] {number} The width in pixels of the Excalibur game viewport
-     * @param [height] {number} The height in pixels of the Excalibur game viewport
-     * @param [canvasElementId] {string} If this is not specified, then a new canvas will be created and inserted into the body.
-     * @param [displayMode] {DisplayMode} If this is not specified, then it will fall back to fixed if a height and width are specified, else the display mode will be FullScreen.
      */
     var Engine = (function (_super) {
         __extends(Engine, _super);
+        /**
+         * @internal
+         */
         function Engine(args) {
             _super.call(this);
             /**
-             * Sets or gets the collision strategy for Excalibur
-             * @property collisionStrategy {CollisionStrategy}
+             * Gets or sets the [[CollisionStrategy]] for Excalibur actors
              */
             this.collisionStrategy = 1 /* DynamicAABBTree */;
             this.hasStarted = false;
+            /**
+             * Current FPS
+             */
             this.fps = 0;
+            /**
+             * Gets or sets the list of post processors to apply at the end of drawing a frame (such as [[ColorBlindCorrector]])
+             */
             this.postProcessors = [];
             /**
              * Contains all the scenes currently registered with Excalibur
-             *
              */
             this.scenes = {};
             this.animations = [];
             /**
              * Indicates whether the engine is set to fullscreen or not
-             * @property isFullscreen {boolean}
              */
             this.isFullscreen = false;
             /**
-             * Indicates the current DisplayMode of the engine.
-             * @property [displayMode=FullScreen] {DisplayMode}
+             * Indicates the current [[DisplayMode]] of the engine.
              */
             this.displayMode = 0 /* FullScreen */;
             /**
              * Indicates whether audio should be paused when the game is no longer visible.
-             * @property [pauseAudioWhenHidden=true] {boolean}
              */
             this.pauseAudioWhenHidden = true;
             /**
              * Indicates whether the engine should draw with debug information
-             * @property [isDebug=false] {boolean}
              */
             this.isDebug = false;
             this.debugColor = new ex.Color(255, 255, 255);
             /**
              * Sets the background color for the engine.
-             * @property [backgroundColor=new Color(0, 0, 100)] {Color}
              */
             this.backgroundColor = new ex.Color(0, 0, 100);
             this.isSmoothingEnabled = true;
@@ -9932,88 +9189,85 @@ var ex;
             this.addScene('root', this.rootScene);
         }
         /**
-         * Plays a sprite animation on the screen at the specified x and y
+         * Plays a sprite animation on the screen at the specified `x` and `y`
          * (in game coordinates, not screen pixels). These animations play
          * independent of actors, and will be cleaned up internally as soon
          * as they are complete. Note animations that loop will never be
          * cleaned up.
-         * @method playAnimation
-         * @param animation {Animation} Animation to play
-         * @param x {number} x game coordinate to play the animation
-         * @param y {number} y game coordinate to play the animation
+         *
+         * @param animation  Animation to play
+         * @param x          x game coordinate to play the animation
+         * @param y          y game coordinate to play the animation
          */
         Engine.prototype.playAnimation = function (animation, x, y) {
             this.animations.push(new AnimationNode(animation, x, y));
         };
         /**
-         * Adds an actor to the current scene of the game. This is synonymous
-         * to calling engine.currentScene.addChild(actor : Actor).
+         * Adds an actor to the [[currentScene]] of the game. This is synonymous
+         * to calling `engine.currentScene.addChild(actor)`.
          *
          * Actors can only be drawn if they are a member of a scene, and only
-         * the 'currentScene' may be drawn or updated.
-         * @method addChild
-         * @param actor {Actor} The actor to add to the current scene
+         * the [[currentScene]] may be drawn or updated.
+         *
+         * @param actor  The actor to add to the [[currentScene]]
          */
         Engine.prototype.addChild = function (actor) {
             this.currentScene.addChild(actor);
         };
         /**
-         * Removes an actor from the currentScene of the game. This is synonymous
-         * to calling engine.currentScene.removeChild(actor : Actor).
+         * Removes an actor from the [[currentScene]] of the game. This is synonymous
+         * to calling `engine.currentScene.removeChild(actor)`.
          * Actors that are removed from a scene will no longer be drawn or updated.
          *
-         * @method removeChild
-         * @param actor {Actor} The actor to remove from the current scene.
+         * @param actor  The actor to remove from the [[currentScene]].
          */
         Engine.prototype.removeChild = function (actor) {
             this.currentScene.removeChild(actor);
         };
         /**
-         * Adds a TileMap to the Scene, once this is done the TileMap will be drawn and updated.
-         * @method addTileMap
-         * @param tileMap {TileMap}
+         * Adds a [[TileMap]] to the [[currentScene]], once this is done the TileMap
+         * will be drawn and updated.
          */
         Engine.prototype.addTileMap = function (tileMap) {
             this.currentScene.addTileMap(tileMap);
         };
         /**
-         * Removes a TileMap from the Scene, it willno longer be drawn or updated.
-         * @method removeTileMap
-         * @param tileMap {TileMap}
+         * Removes a [[TileMap]] from the [[currentScene]], it will no longer be drawn or updated.
          */
         Engine.prototype.removeTileMap = function (tileMap) {
             this.currentScene.removeTileMap(tileMap);
         };
         /**
-         * Adds an excalibur timer to the current scene.
-         * @param timer {Timer} The timer to add to the current scene.
-         * @method addTimer
+         * Adds a [[Timer]] to the [[currentScene]].
+         * @param timer  The timer to add to the [[currentScene]].
          */
         Engine.prototype.addTimer = function (timer) {
             return this.currentScene.addTimer(timer);
         };
         /**
-         * Removes an excalibur timer from the current scene.
-         * @method removeTimer
-         * @param timer {Timer} The timer to remove to the current scene.
+         * Removes a [[Timer]] from the [[currentScene]].
+         * @param timer  The timer to remove to the [[currentScene]].
          */
         Engine.prototype.removeTimer = function (timer) {
             return this.currentScene.removeTimer(timer);
         };
         /**
-         * Adds a scene to the engine, think of scenes in excalibur as you
-         * would scenes in a play.
-         * @method addScene
-         * @param name {string} The name of the scene, must be unique
-         * @param scene {Scene} The scene to add to the engine
+         * Adds a [[Scene]] to the engine, think of scenes in Excalibur as you
+         * would levels or menus.
+         *
+         * @param key  The name of the scene, must be unique
+         * @param scene The scene to add to the engine
          */
-        Engine.prototype.addScene = function (name, scene) {
-            if (this.scenes[name]) {
-                this.logger.warn("Scene", name, "already exists overwriting");
+        Engine.prototype.addScene = function (key, scene) {
+            if (this.scenes[key]) {
+                this.logger.warn("Scene", key, "already exists overwriting");
             }
-            this.scenes[name] = scene;
+            this.scenes[key] = scene;
             scene.engine = this;
         };
+        /**
+         * @internal
+         */
         Engine.prototype.removeScene = function (entity) {
             if (entity instanceof ex.Scene) {
                 for (var key in this.scenes) {
@@ -10071,10 +9325,9 @@ var ex;
         /**
          * Changes the currently updating and drawing scene to a different,
          * named scene.
-         * @method goToScene
-         * @param name {string} The name of the scene to trasition to.
+         * @param key  The key of the scene to trasition to.
          */
-        Engine.prototype.goToScene = function (name) {
+        Engine.prototype.goToScene = function (key) {
             if (this.scenes[name]) {
                 this.currentScene.onDeactivate.call(this.currentScene);
                 var oldScene = this.currentScene;
@@ -10088,9 +9341,7 @@ var ex;
             }
         };
         /**
-         * Returns the width of the engines drawing surface in pixels.
-         * @method getWidth
-         * @returns number The width of the drawing surface in pixels.
+         * Returns the width of the engine's drawing surface in pixels.
          */
         Engine.prototype.getWidth = function () {
             if (this.currentScene && this.currentScene.camera) {
@@ -10099,9 +9350,7 @@ var ex;
             return this.width;
         };
         /**
-         * Returns the height of the engines drawing surface in pixels.
-         * @method getHeight
-         * @returns number The height of the drawing surface in pixels.
+         * Returns the height of the engine's drawing surface in pixels.
          */
         Engine.prototype.getHeight = function () {
             if (this.currentScene && this.currentScene.camera) {
@@ -10111,8 +9360,7 @@ var ex;
         };
         /**
          * Transforms the current x, y from screen coordinates to world coordinates
-         * @method screenToWorldCoordinates
-         * @param point {Point} screen coordinate to convert
+         * @param point  Screen coordinate to convert
          */
         Engine.prototype.screenToWorldCoordinates = function (point) {
             // todo set these back this.canvas.clientWidth
@@ -10129,9 +9377,7 @@ var ex;
         };
         /**
          * Transforms a world coordinate, to a screen coordinate
-         * @method worldToScreenCoordinates
-         * @param point {Point} world coordinate to convert
-         *
+         * @param point  World coordinate to convert
          */
         Engine.prototype.worldToScreenCoordinates = function (point) {
             // todo set these back this.canvas.clientWidth
@@ -10149,8 +9395,6 @@ var ex;
         };
         /**
          * Sets the internal canvas height based on the selected display mode.
-         * @method setHeightByDisplayMode
-         * @private
          */
         Engine.prototype.setHeightByDisplayMode = function (parent) {
             if (this.displayMode === 1 /* Container */) {
@@ -10166,8 +9410,6 @@ var ex;
         };
         /**
          * Initializes the internal canvas, rendering context, displaymode, and native event listeners
-         * @method initialize
-         * @private
          */
         Engine.prototype.initialize = function (options) {
             var _this = this;
@@ -10218,10 +9460,9 @@ var ex;
         };
         /**
          * If supported by the browser, this will set the antialiasing flag on the
-         * canvas. Set this to false if you want a 'jagged' pixel art look to your
+         * canvas. Set this to `false` if you want a 'jagged' pixel art look to your
          * image resources.
-         * @method setAntialiasing
-         * @param isSmooth {boolean} Set smoothing to true or false
+         * @param isSmooth  Set smoothing to true or false
          */
         Engine.prototype.setAntialiasing = function (isSmooth) {
             this.isSmoothingEnabled = isSmooth;
@@ -10231,18 +9472,14 @@ var ex;
             this.ctx.msImageSmoothingEnabled = isSmooth;
         };
         /**
-         *  Return the current smoothing status of the canvas
-         * @method getAntialiasing
-         * @returns boolean
+         * Return the current smoothing status of the canvas
          */
         Engine.prototype.getAntialiasing = function () {
             return this.ctx.imageSmoothingEnabled || this.ctx.webkitImageSmoothingEnabled || this.ctx.mozImageSmoothingEnabled || this.ctx.msImageSmoothingEnabled;
         };
         /**
          * Updates the entire state of the game
-         * @method update
-         * @private
-         * @param delta {number} Number of milliseconds elapsed since the last update.
+         * @param delta  Number of milliseconds elapsed since the last update.
          */
         Engine.prototype.update = function (delta) {
             if (this.isLoading) {
@@ -10264,9 +9501,7 @@ var ex;
         };
         /**
          * Draws the entire game
-         * @method draw
-         * @private
-         * @param draw {number} Number of milliseconds elapsed since the last draw.
+         * @param draw  Number of milliseconds elapsed since the last draw.
          */
         Engine.prototype.draw = function (delta) {
             var ctx = this.ctx;
@@ -10304,10 +9539,7 @@ var ex;
         /**
          * Starts the internal game loop for Excalibur after loading
          * any provided assets.
-         * @method start
-         * @param [loader=undefined] {ILoadable} Optional resources to load before
-         * starting the mainloop. Some loadable such as a Loader collection, Sound, or Texture.
-         * @returns Promise
+         * @param loader  Optional resources to load before starting the main loop. Some [[ILoadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
          */
         Engine.prototype.start = function (loader) {
             var loadingComplete;
@@ -10350,8 +9582,7 @@ var ex;
             return loadingComplete;
         };
         /**
-         * Stops Excalibur's mainloop, useful for pausing the game.
-         * @method stop
+         * Stops Excalibur's main loop, useful for pausing the game.
          */
         Engine.prototype.stop = function () {
             if (this.hasStarted) {
@@ -10362,8 +9593,6 @@ var ex;
         /**
          * Takes a screen shot of the current viewport and returns it as an
          * HTML Image Element.
-         * @method screenshot
-         * @returns HTMLImageElement
          */
         Engine.prototype.screenshot = function () {
             var result = new Image();
@@ -10373,11 +9602,9 @@ var ex;
         };
         /**
          * Draws the Excalibur loading bar
-         * @method drawLoadingBar
-         * @private
-         * @param ctx {CanvasRenderingContext2D} The canvas rendering context
-         * @param loaded {number} Number of bytes loaded
-         * @param total {number} Total number of bytes to load
+         * @param ctx     The canvas rendering context
+         * @param loaded  Number of bytes loaded
+         * @param total   Total number of bytes to load
          */
         Engine.prototype.drawLoadingBar = function (ctx, loaded, total) {
             if (this.loadingDraw) {
@@ -10409,9 +9636,7 @@ var ex;
         };
         /**
          * Sets the loading screen draw function if you want to customize the draw
-         * @method setLoadingDrawFunction
-         * @param fcn {ctx: CanvasRenderingContext2D, loaded: number, total: number) => void}
-         * Callback to draw the loading screen which is passed a rendering context, the number of bytes loaded, and the total number of bytes to load.
+         * @param fcn  Callback to draw the loading screen which is passed a rendering context, the number of bytes loaded, and the total number of bytes to load.
          */
         Engine.prototype.setLoadingDrawFunction = function (fcn) {
             this.loadingDraw = fcn;
@@ -10420,8 +9645,7 @@ var ex;
          * Another option available to you to load resources into the game.
          * Immediately after calling this the game will pause and the loading screen
          * will appear.
-         * @method load
-         * @param loader {ILoadable} Some loadable such as a Loader collection, Sound, or Texture.
+         * @param loader  Some [[ILoadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
          */
         Engine.prototype.load = function (loader) {
             var _this = this;
