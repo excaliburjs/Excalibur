@@ -373,9 +373,11 @@ module ex {
        * @param loadables  The list of resources to load
        */
       public addResources(loadables: ILoadable[]) {
-         loadables.forEach((l) => {
-            this.addResource(l);
-         });
+         var i = 0, len = loadables.length;
+
+         for (i; i < len; i++) {
+            this.addResource(loadables[i]);
+         }
       }
 
       private sumCounts(obj): number {

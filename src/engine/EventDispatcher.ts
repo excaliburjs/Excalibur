@@ -102,12 +102,25 @@ module ex {
             event = new GameEvent();
          }
          event.target = target;
+
+         var i: number, len: number;
+
          if (this._handlers[eventName]) {
-            this._handlers[eventName].forEach(function (callback) {
-               callback.call(target, event);
-            });
+            i = 0;
+            len = this._handlers[eventName].length;
+
+            for (i; i < len; i++) {
+               this._handlers[eventName][i].call(target, event);
+            }
          }
-         this._wiredEventDispatchers.forEach(d => d.publish(eventName, event));
+
+         i = 0;
+         len = this._wiredEventDispatchers.length;
+
+         for (i; i < len; i++) {
+            this._wiredEventDispatchers[i].publish(eventName, event);
+         }
+
       }
 
       /**

@@ -85,12 +85,14 @@ module ex {
          if (level == null) {
             level = this.defaultLevel;
          }
-         
-         this.appenders.forEach(appender=> {
+
+         var i = 0, len = this.appenders.length;
+
+         for (i; i < len; i++) {
             if (level >= this.defaultLevel) {
-               appender.log(level, args);
+               this.appenders[i].log(level, args);
             }
-         });
+         }
       }
 
       /**

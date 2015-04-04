@@ -778,10 +778,12 @@ module ex.Internal.Actions {
          this.actionQueue = new ActionQueue(actor);
          this.repeat = repeat;
          this.originalRepeat = repeat;
-         actions.forEach((action) => {
-            action.reset();
-            this.actionQueue.add(action);
-         });
+
+         var i = 0, len = actions.length;
+         for (i; i < len; i++) {
+            actions[i].reset();
+            this.actionQueue.add(actions[i]);
+         };
       }
 
       public update(delta): void {
@@ -816,10 +818,12 @@ module ex.Internal.Actions {
       constructor(actor: Actor, actions: IAction[]) {
          this.actor = actor;
          this.actionQueue = new ActionQueue(actor);
-         actions.forEach((action) => {
-            action.reset();
-            this.actionQueue.add(action);
-         });
+
+         var i = 0, len = actions.length;
+         for (i; i < len; i++) {
+            actions[i].reset();
+            this.actionQueue.add(actions[i]);
+         };
       }
 
       public update(delta): void {
@@ -896,10 +900,12 @@ module ex.Internal.Actions {
 
       public reset(): void {
          this._actions = this.getActions();
-         this._actions.forEach((action) => {
-            action.reset();
-         });
-      this._completedActions = [];
+
+         var i = 0, len = this._actions.length;
+         for (i; i < len; i++) {
+            this._actions[i].reset();
+         }
+         this._completedActions = [];
       }
 
       public update(delta: number) {

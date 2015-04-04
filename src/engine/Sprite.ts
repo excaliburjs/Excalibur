@@ -250,13 +250,14 @@ module ex {
             0, 0, this.swidth, this.sheight);
          this.pixelData = this.spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
 
-         this.effects.forEach((effect)=>{
-            for(var y = 0; y < this.sheight; y++){            
-               for(var x = 0; x < this.swidth; x++){
-                  effect.updatePixel(x, y, this.pixelData);
+         var i = 0, x = 0, y = 0, len = this.effects.length;
+         for (i; i < len; i++) {
+            for(y; y < this.sheight; y++){            
+               for(x; x < this.swidth; x++){
+                  this.effects[i].updatePixel(x, y, this.pixelData);
                }
             }
-         });
+         }
          this.spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
          this.spriteCtx.putImageData(this.pixelData, 0, 0);
          this.internalImage.src = this.spriteCanvas.toDataURL("image/png");
@@ -340,9 +341,10 @@ module ex {
          result.flipHorizontal = this.flipHorizontal;
          result.flipVertical = this.flipVertical;
 
-         this.effects.forEach((e)=>{
-            result.addEffect(e);
-         });
+         var i = 0, len = this.effects.length;
+         for (i; i < len; i++) {
+            result.addEffect(this.effects[i]);
+         }
          return result;
       }
    }

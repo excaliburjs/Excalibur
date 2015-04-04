@@ -269,8 +269,8 @@ module ex.Util {
        * @param func  Callback to call for each element passing a reference to the element and its index, returned values are ignored
        */
       public forEach(func: (element: T, index: number) => any) {
-         var count = this.count();
-         for (var i = 0; i < count; i++) {
+         var i = 0, count = this.count();
+         for (i; i < count; i++) {
             func.call(this, this.internalArray[i], i);
          }
       }

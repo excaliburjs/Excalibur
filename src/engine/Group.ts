@@ -39,15 +39,18 @@ module ex {
          if (actorOrActors instanceof Actor) {
             actorOrActors = [].concat(actorOrActors);
          }
-         actorOrActors.forEach(a => {
-            var index = this.getMembers().indexOf(a);
-            if (index === -1) {
-               this._members.push(a);
-               this.scene.add(a);
-               this.actions.addActorToContext(a);
-               this.eventDispatcher.wire(a.eventDispatcher);
+
+         var i = 0, len = actorOrActors.length, groupIdx: number;
+
+         for (i; i < len; i++) {
+            groupIdx = this.getMembers().indexOf(actorOrActors[i]);
+            if (groupIdx === -1) {
+               this._members.push(actorOrActors[i]);
+               this.scene.add(actorOrActors[i]);
+               this.actions.addActorToContext(actorOrActors[i]);
+               this.eventDispatcher.wire(actorOrActors[i].eventDispatcher);
             }
-         });
+         }
       }
 
       public remove(actor: Actor): void {
@@ -62,18 +65,21 @@ module ex {
       public move(vector: Vector): void;
       public move(dx: number, dy: number): void;
       public move(args): void {
+         var i = 0, members = this.getMembers(), len = members.length;
+
          if (arguments.length === 1 && args instanceof Vector) {
-            this.getMembers().forEach((a: Actor) => {
-               a.x += args.x;
-               a.y += args.y;
-            });
+            for (i; i < len; i++) {
+               members[i].x += args.x;
+               members[i].y += args.y;
+            }
          } else if (typeof arguments[0] === 'number' && typeof arguments[1] === 'number') {
             var x = arguments[0];
             var y = arguments[1];
-            this.getMembers().forEach((a: Actor) => {
-               a.x += x;
-               a.y += y;
-            });
+
+            for (i; i < len; i++) {
+               members[i].x += x;
+               members[i].y += y;
+            }
          } else {
             this._logger.error("Invalid arguments passed to group move", this.name, "args:", arguments);
          }
@@ -82,10 +88,10 @@ module ex {
 
       public rotate(angle: number): void {
          if (typeof arguments[0] === 'number') {
-            var r = arguments[0];
-            this.getMembers().forEach((a: Actor) => {
-               a.rotation += r;
-            });
+            var r = arguments[0], i = 0, members = this.getMembers(), len = members.length;
+            for (i; i < len; i++) {
+               members[i].rotation += r;
+            }
          } else {
             this._logger.error("Invalid arguments passed to group rotate", this.name, "args:", arguments);
          }

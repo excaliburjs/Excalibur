@@ -952,9 +952,10 @@ module ex {
          this.currentScene.draw(this.ctx, delta);
 
          // todo needs to be a better way of doing this
-         this.animations.forEach(function (a) {
-            a.animation.draw(ctx, a.x, a.y);
-         });
+         var a = 0, len = this.animations.length;
+         for (a; a < len; a++) {
+            this.animations[a].animation.draw(ctx, this.animations[a].x, this.animations[a].y);
+         }
 
          this.fps = 1.0 / (delta / 1000);
 

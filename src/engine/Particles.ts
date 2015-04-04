@@ -357,31 +357,26 @@ module ex {
       
       public update(engine: Engine, delta: number) {
          super.update(engine, delta);
+
          if (this.isEmitting) {
             this._particlesToEmit += this.emitRate * (delta / 1000);
-            var numParticles = Math.ceil(this.emitRate * delta / 1000);
+            //var numParticles = Math.ceil(this.emitRate * delta / 1000);
             if (this._particlesToEmit > 1.0) {
                this.emit(Math.floor(this._particlesToEmit));
                this._particlesToEmit = this._particlesToEmit - Math.floor(this._particlesToEmit);
             }
          }
 
-         this.particles.forEach((particle: Particle, index: number) => {
-            particle.update(delta);
-         });
-
-         this.deadParticles.forEach((particle: Particle, index: number) => {
-            this.particles.removeElement(particle);
-         });
+         this.particles.forEach(p => p.update(delta));
+         this.deadParticles.forEach(p => this.particles.removeElement(p));
          this.deadParticles.clear();
       }
 
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
-         this.particles.forEach((particle: Particle, index: number) => {
-            // todo is there a more efficient to draw 
-            // possibly use a webgl offscreen canvas and shaders to do particles?
-            particle.draw(ctx);
-         });
+
+         // todo is there a more efficient to draw 
+         // possibly use a webgl offscreen canvas and shaders to do particles?
+         this.particles.forEach(p => p.draw(ctx));
       }
 
       public debugDraw(ctx: CanvasRenderingContext2D) {

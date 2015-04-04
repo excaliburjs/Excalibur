@@ -103,6 +103,7 @@ module ex {
          var successes = 0;
          var rejects = 0;
          var errors = [];
+
          promises.forEach((p)=>{
             p.then(
                ()=>{

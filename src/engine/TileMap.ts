@@ -306,23 +306,35 @@ module ex {
     public draw(ctx: CanvasRenderingContext2D, delta: number){
        ctx.save();
        ctx.translate(this.x, this.y);
-       for(var x = this._onScreenXStart; x < Math.min(this._onScreenXEnd, this.cols); x++){
-          for(var y = this._onScreenYStart; y < Math.min(this._onScreenYEnd, this.rows); y++){
-             this.getCell(x,y).sprites.filter((s)=>{
+
+       var x = this._onScreenXStart, xEnd = Math.min(this._onScreenXEnd, this.cols);
+       var y = this._onScreenYStart, yEnd = Math.min(this._onScreenYEnd, this.rows);
+
+       var cs: TileSprite[], csi: number, cslen: number;
+
+       for (x; x < xEnd; x++) {
+          for (y; y < yEnd; y++) {
+
+             // get non-negative tile sprites
+             cs = this.getCell(x, y).sprites.filter((s) => {
                 return s.spriteId > -1;
-             }).forEach((ts)=>{
-                var ss = this._spriteSheets[ts.spriteSheetKey];
-                if(ss){
-                   var sprite = ss.getSprite(ts.spriteId);
-                   if(sprite){
-                      sprite.draw(ctx, x * this.cellWidth, y * this.cellHeight);                        
-                   }else{
-                      this.logger.warn("Sprite does not exist for id", ts.spriteId, "in sprite sheet", ts.spriteSheetKey, sprite, ss);
-                   }
-                }else{
-                   this.logger.warn("Sprite sheet", ts.spriteSheetKey, "does not exist", ss)
-                }
              });
+
+             for (csi = 0, cslen = cs.length; csi < cslen; csi++) {
+                var ss = this._spriteSheets[cs[csi].spriteSheetKey];
+
+                // draw sprite, warning if sprite doesn't exist
+                if (ss) {
+                   var sprite = ss.getSprite(cs[csi].spriteId);
+                   if (sprite) {
+                      sprite.draw(ctx, x * this.cellWidth, y * this.cellHeight);                        
+                   } else {
+                      this.logger.warn("Sprite does not exist for id", cs[csi].spriteId, "in sprite sheet", cs[csi].spriteSheetKey, sprite, ss);
+                   }
+                } else {
+                   this.logger.warn("Sprite sheet", cs[csi].spriteSheetKey, "does not exist", ss);
+                }
+             }
           }
        }
        ctx.restore();
@@ -347,7 +359,7 @@ module ex {
           ctx.beginPath();
           ctx.moveTo(this.x, this.y + y*this.cellHeight);
           ctx.lineTo(this.x + width, this.y + y*this.cellHeight);
-          ctx.stroke()
+          ctx.stroke();
        }
        var solid = ex.Color.Red.clone();
        solid.a = .3;
