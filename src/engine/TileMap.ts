@@ -4,94 +4,141 @@
 module ex {
 
   /**
-   * Tile sprites are used to render a specific sprite from a [[TileMap]]'s spritesheet(s)
-   */
-  export class TileSprite {
-    /**
-     * @param spriteSheetKey  The key of the spritesheet to use
-     * @param spriteId        The index of the sprite in the [[SpriteSheet]]
-     */
-    constructor(public spriteSheetKey: string, public spriteId : number) { }
-  }
-
-  /**
-   * TileMap Cell
-   *
-   * A light-weight object that occupies a space in a collision map. Generally
-   * created by a [[TileMap]].
-   *
-   * Cells can draw multiple sprites. Note that the order of drawing is the order
-   * of the sprites in the array so the last one will be drawn on top. You can
-   * use transparency to create layers this way.
-   */
-  export class Cell {      
-    private _bounds: BoundingBox;
-
-    /**
-     * @param x       Gets or sets x coordinate of the cell in world coordinates
-     * @param y       Gets or sets y coordinate of the cell in world coordinates
-     * @param width   Gets or sets the width of the cell 
-     * @param height  Gets or sets the height of the cell 
-     * @param index   The index of the cell in row major order
-     * @param solid   Gets or sets whether this cell is solid
-     * @param sprites The list of tile sprites to use to draw in this cell (in order)
-     */
-    constructor(
-       public x: number, 
-       public y: number, 
-       public width: number,
-       public height: number,
-       public index: number,
-       public solid: boolean = false,
-       public sprites: TileSprite[] = []){
-       this._bounds = new BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
-    }
-  
-    /**
-     * Returns the bounding box for this cell
-     */
-    public getBounds(){
-       return this._bounds;
-    }
-    /**
-     * Gets the center coordinate of this cell
-     */
-    public getCenter(): Vector {
-        return new Vector(this.x+ this.width / 2, this.y + this.height / 2);
-    }
-    /**
-     * Add another [[TileSprite]] to this cell
-     */
-    public pushSprite(tileSprite: TileSprite){
-       this.sprites.push(tileSprite);
-    }
-    /**
-     * Remove an instance of [[TileSprite]] from this cell
-     */
-    public removeSprite(tileSprite: TileSprite) {
-       var index = -1;
-       if((index = this.sprites.indexOf(tileSprite)) > -1)
-       {
-          this.sprites.splice(index, 1);
-       }
-    }
-    /**
-     * Clear all sprites from this cell
-     */
-    public clearSprites() {
-       this.sprites.length = 0;
-    }
-  }
-
-  /**
    * Tile Maps
    *
-   * The `TileMap` object provides a lightweight way to do large complex scenes with collision
+   * The [[TileMap]] class provides a lightweight way to do large complex scenes with collision
    * without the overhead of actors.
    *
-   * Tile maps are made up of [[Cell]]s which can draw [[TileSprite]]s.
+   * Tile maps are made up of [[Cell|Cells]] which can draw [[TileSprite|TileSprites]]. Tile
+   * maps support multiple layers and work well for building tile-based games such as RPGs,
+   * adventure games, strategy games, and others. Cells can be [[Cell.solid|solid]] so 
+   * that Actors can't pass through them.
    *
-   * Example usage: Load pre-built maps using the [Tiled map editor](http://www.mapeditor.org/).
+   * We recommend using the [Tiled map editor](http://www.mapeditor.org/) to build your maps
+   * and export them to JSON. You can then load them using a [[Resource|Generic Resource]]
+   * and process them to create your levels. A [[TileMap]] can then be used as part of a 
+   * level or map class that adds enemies and builds game objects from the Tiled map.
+   *
+   *
+   * ## Creating a tile map
+   *
+   * A [[TileMap]] is meant to be used in conjuction with a map editor. Creating
+   * a tile map is fairly straightforward.
+   *
+   * You need a tile sheet (see [[SpriteSheet]]) that holds all the available tiles to
+   * draw. [[TileMap]] supports multiple sprite sheets, letting you organize tile sheets
+   * to your liking.
+   *
+   * Next, you need to populate each [[Cell]] with one or more [[TileSprite|TileSprites]]
+   * using [[Cell.pushSprite]].
+   * Once the [[TileMap]] is added to a [[Scene]], it will be drawn and updated.
+   *
+   * You can then add [[Actor|Actors]] to the [[Scene]] and interact with the [[TileMap]].
+   *
+   * In this example, we take in a map configuration that we designed (for example,
+   * based on the exported structure of a JSON file).
+   *
+   * ```ts
+   *
+   * // define TypeScript interfaces to make our life easier
+   *
+   * public interface IMapDefinition {
+   *   cells: IMapCellDefinition[];
+   *   tileSheets: IMapTileSheet[];
+   *   width: number;
+   *   height: number;
+   *   tileWidth: number;
+   *   tileHeight: number;
+   * }
+   *
+   * public interface IMapCellDefinition {
+   *   x: number;
+   *   y: number;
+   *   tileId: number;
+   *   sheetId: number;
+   * }
+   *
+   * public interface IMapTileSheet {
+   *   id: number;
+   *   path: string;
+   *   columns: number;
+   *   rows: number;
+   * }
+   *
+   * // create a Map class that creates a game map
+   * // based on JSON configuration
+   *
+   * public class Map extends ex.Scene {
+   *
+   *   private _mapDefinition: IMapDefinition;
+   *   private _tileMap: ex.TileMap;
+   *
+   *   constructor(mapDef: IMapDefinition) {
+   *
+   *     // store reference to definition
+   *     this._mapDefinition = mapDef;
+   *
+   *     // create a tile map
+   *     this._tileMap = new ex.TileMap(0, 0, mapDef.tileWidth, mapDef.tileHeight, 
+   *       mapDef.width / mapDef.tileWidth, mapDef.height / mapDef.tileHeight);
+   *   }
+   *
+   *   public onInitialize() {
+   *     // build our map based on JSON config
+   *
+   *     // build sprite sheets
+   *     this._mapDefinition.tileSheets.forEach(sheet => {
+   *     
+   *       // register sprite sheet with the tile map
+   *       // normally, you will want to ensure you load the Texture before
+   *       // creating the SpriteSheet
+   *       // this can be done outside the Map class, in a Loader
+   *       this._tileMap.registerSpriteSheet(sheet.id.toString(), 
+   *         new ex.SpriteSheet(new ex.Texture(sheet.path), sheet.columns, sheet.rows, 
+   *           this._mapDefinition.tileWidth, this._mapDefinition.tileHeight));
+   *
+   *     });
+   *
+   *     // fill cells with sprites
+   *     this._mapDefinition.cells.forEach(cell => {
+   *
+   *       // create a TileSprite
+   *       // assume tileId is the index of the frame in the sprite sheet
+   *       var ts = new ex.TileSprite(cell.sheetId.toString(), cell.spriteId);
+   *
+   *       // add to cell
+   *       this._tileMap.getCell(cell.x, cell.y).pushSprite(ts);
+   *     }
+   *   }
+   * }
+   *
+   * // create a game
+   * var game = new ex.Engine();
+   *
+   * // add our level (JSON from external source)
+   * var map1 = new Map({ ... });
+   *
+   * game.add("map1", map1);
+   *
+   * game.start();
+   * ```
+   *
+   * In a real game, you will want to ensure all the textures for the sprite sheets
+   * have been loaded. You could do this in the [[Resource.processDownload]] function
+   * of the generic resource when loading your JSON, before creating your `Map` object.
+   *
+   * ## Off-screen culling
+   *
+   * The [[TileMap]] takes care of only drawing the portion of the map that is on-screen.
+   * This significantly improves performance and essentially means Excalibur can support
+   * huge maps. Since Actors off-screen are not drawn, this also means maps can support
+   * many actors.
+   *
+   * ## Collision checks
+   *
+   * You can use [[TileMap.collides]] to check if a given [[Actor]] is colliding with a 
+   * solid [[Cell]]. This method returns an intersection [[Vector]] that represents
+   * the smallest overlap with colliding cells.
    */
   export class TileMap {
     private _collidingX: number = -1;
@@ -315,6 +362,86 @@ module ex {
           ctx.fillRect(this.x + this._collidingX * this.cellWidth, this.y + this._collidingY * this.cellHeight, this.cellWidth, this.cellHeight);
        }
        ctx.restore();
+    }
+  }
+
+  /**
+   * Tile sprites are used to render a specific sprite from a [[TileMap]]'s spritesheet(s)
+   */
+  export class TileSprite {
+    /**
+     * @param spriteSheetKey  The key of the spritesheet to use
+     * @param spriteId        The index of the sprite in the [[SpriteSheet]]
+     */
+    constructor(public spriteSheetKey: string, public spriteId : number) { }
+  }
+
+  /**
+   * TileMap Cell
+   *
+   * A light-weight object that occupies a space in a collision map. Generally
+   * created by a [[TileMap]].
+   *
+   * Cells can draw multiple sprites. Note that the order of drawing is the order
+   * of the sprites in the array so the last one will be drawn on top. You can
+   * use transparency to create layers this way.
+   */
+  export class Cell {      
+    private _bounds: BoundingBox;
+
+    /**
+     * @param x       Gets or sets x coordinate of the cell in world coordinates
+     * @param y       Gets or sets y coordinate of the cell in world coordinates
+     * @param width   Gets or sets the width of the cell 
+     * @param height  Gets or sets the height of the cell 
+     * @param index   The index of the cell in row major order
+     * @param solid   Gets or sets whether this cell is solid
+     * @param sprites The list of tile sprites to use to draw in this cell (in order)
+     */
+    constructor(
+       public x: number, 
+       public y: number, 
+       public width: number,
+       public height: number,
+       public index: number,
+       public solid: boolean = false,
+       public sprites: TileSprite[] = []){
+       this._bounds = new BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
+    }
+  
+    /**
+     * Returns the bounding box for this cell
+     */
+    public getBounds(){
+       return this._bounds;
+    }
+    /**
+     * Gets the center coordinate of this cell
+     */
+    public getCenter(): Vector {
+        return new Vector(this.x+ this.width / 2, this.y + this.height / 2);
+    }
+    /**
+     * Add another [[TileSprite]] to this cell
+     */
+    public pushSprite(tileSprite: TileSprite){
+       this.sprites.push(tileSprite);
+    }
+    /**
+     * Remove an instance of [[TileSprite]] from this cell
+     */
+    public removeSprite(tileSprite: TileSprite) {
+       var index = -1;
+       if((index = this.sprites.indexOf(tileSprite)) > -1)
+       {
+          this.sprites.splice(index, 1);
+       }
+    }
+    /**
+     * Clear all sprites from this cell
+     */
+    public clearSprites() {
+       this.sprites.length = 0;
     }
   }
 }
