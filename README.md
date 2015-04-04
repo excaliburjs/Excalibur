@@ -14,9 +14,15 @@ Follow our [Installation](http://excaliburjs.com/docs/install.html) guide.
 
 Follow our [Getting Started](http://excaliburjs.com/docs/quickstart.html) guide.
 
-# Features and Documentation
+# Documentation
 
-Visit the [Documentation](http://excaliburjs.com/docs) section for full API documentation, features, tutorials, and guides.
+Visit the [Documentation](http://excaliburjs.com/docs) section for full API documentation, tutorials, and guides.
+
+The `master` branch documentation is always available and up-to-date on our [Edge documentation site](http://excaliburjs.com/docs/api/edge).
+
+# Questions
+
+Ask us anything in the [Excalibur.js mailing list](https://groups.google.com/forum/#!forum/excaliburjs). If you find a bug, report it on the [GitHub issues page](https://github.com/excaliburjs/Excalibur/issues).
 
 # Samples
 
