@@ -7,23 +7,34 @@ describe('A SortedList', () => {
 
    var sortedList;
 
+   beforeEach(() => {
+      sortedList = new ex.SortedList(ex.MockedElement.prototype.getTheKey);
+   });
+
    it('should be loaded', () => {
       expect(ex.SortedList).toBeTruthy();
    });
 
    it('can have an element added to it at a non-existant node', () => {
-      //TODO
-      expect(true).toBe(false);
+      var element = new ex.MockedElement(0);
+      expect(sortedList.add(element)).toBe(true);
+      expect(sortedList.find(element)).toBe(true);
    });
 
    it('can have an element added to it at an existing node', () => {
-      //TODO
-      expect(true).toBe(false);
+      var element1 = new ex.MockedElement(4);
+      var element2 = new ex.MockedElement(4);
+      expect(sortedList.add(element1)).toBe(true);
+      expect(sortedList.add(element2)).toBe(true);
+      expect(sortedList.find(element2)).toBe(true);
    });
 
    it('will indicate when an element is not present', () => {
-      //TODO
-      expect(true).toBe(false);
+      var element1 = new ex.MockedElement(0);
+      expect(sortedList.find(element1)).toBe(false);
+      sortedList.add(element1);
+      var element2 = new ex.MockedElement(0);
+      expect(sortedList.find(element2)).toBe(false);
    });
 
    it('can have an element removed from it', () => {

@@ -65,6 +65,7 @@
     <TypeScriptCompile Include="Algebra.ts" />
     <TypeScriptCompile Include="Animation.ts" />
     <TypeScriptCompile Include="Binding.ts" />
+    <TypeScriptCompile Include="Util\SortedList.ts" />
     <TypeScriptCompile Include="Camera.ts" />
     <TypeScriptCompile Include="Class.ts" />
     <TypeScriptCompile Include="CollisionPair.ts" />

@@ -68,6 +68,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="ActorSpec.ts" />
     <TypeScriptCompile Include="BoundingBoxSpec.ts" />
+    <TypeScriptCompile Include="SortedListSpec.ts" />
     <TypeScriptCompile Include="CameraSpec.ts" />
     <None Include="chutzpah.json" />
     <TypeScriptCompile Include="ClassSpec.ts" />
