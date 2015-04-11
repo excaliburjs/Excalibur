@@ -49,7 +49,7 @@ module ex {
       }
 
       private _insert(node: BinaryTreeNode, element: any): boolean {
-         console.log("preparing to add element: " + this._getComparable.call(element));
+         //console.log("preparing to add element: " + this._getComparable.call(element));
          if (node != null) {
             if (this._getComparable.call(element) == node.getKey()) {
                if (node.getData().indexOf(element) > -1) {
@@ -83,7 +83,51 @@ module ex {
       }
 
       public remove(element: any): void {
-         //TODO
+         this._root = this._remove(this._root, element);
+      }
+
+      private _remove(node: BinaryTreeNode, element: any): BinaryTreeNode {
+         if (node == null) {
+            return null;
+         } else if (this._getComparable.call(element) == node.getKey()) {
+            var elementIndex = node.getData().indexOf(element);
+            if (elementIndex > -1) {
+               node.getData().splice(elementIndex, 1);
+               // if we have removed the last element at this node, remove the node
+               if (node.getData().length == 0) {
+                  // if the node is a leaf
+                  if (node.getLeft() == null && node.getRight() == null) {
+                     return null;
+                  } else if (node.getLeft() == null) {
+                     return node.getRight();
+                  } else if (node.getRight() == null) {
+                     return node.getLeft();
+                  }
+                  // if node has 2 children
+                  var temp = this._findMinNode(node.getRight());
+                  node.setKey(temp.getKey());
+                  node.setRight(this._remove(node.getRight(), temp.getKey()));
+                  return node;
+               } else {
+                  // this prevents the node from being removed since it still contains elements
+                  return node;
+               }
+            }
+         } else if (this._getComparable.call(element) < node.getKey()) {
+            node.setLeft(this._remove(node.getLeft(), element));
+            return node;
+         } else {
+            node.setRight(this._remove(node.getRight(), element));
+            return node;
+         }
+      }
+
+      private _findMinNode(node: BinaryTreeNode): BinaryTreeNode {
+         var current = node;
+         while (current.getLeft() != null) {
+            current = current.getLeft();
+         }
+         return current;
       }
 
       public list(): Array<any> {

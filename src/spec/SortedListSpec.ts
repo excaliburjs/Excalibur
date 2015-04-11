@@ -9,6 +9,7 @@ describe('A SortedList', () => {
 
    beforeEach(() => {
       sortedList = new ex.SortedList(ex.MockedElement.prototype.getTheKey);
+      console.log('=============');
    });
 
    it('should be loaded', () => {
@@ -32,24 +33,18 @@ describe('A SortedList', () => {
    it('will indicate when an element is not present', () => {
       var element1 = new ex.MockedElement(0);
       expect(sortedList.find(element1)).toBe(false);
+
       sortedList.add(element1);
       var element2 = new ex.MockedElement(0);
       expect(sortedList.find(element2)).toBe(false);
    });
 
    it('can have an element removed from it', () => {
-      //TODO
-      expect(true).toBe(false);
-   });
-
-   it('will not remove a node when removing an element, if that node contains other elements', () => {
-      //TODO
-      expect(true).toBe(false);
-   });
-
-   it('will remove a node when removing an element, when that node is empty', () => {
-      //TODO
-      expect(true).toBe(false);
+      var element = new ex.MockedElement(0);
+      sortedList.add(element);
+      expect(sortedList.find(element)).toBe(true);
+      sortedList.remove(element);
+      expect(sortedList.find(element)).toBe(false);
    });
 
    it('will maintain the tree when removing an intermediate node', () => {
