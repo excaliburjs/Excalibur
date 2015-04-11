@@ -58,8 +58,27 @@ describe('A SortedList', () => {
    });
 
    it('can return an ordered list of the elements it contains', () => {
-      //TODO
-      expect(true).toBe(false);
+      var element4 = new ex.MockedElement(4);
+      var element5 = new ex.MockedElement(5);
+      var element23 = new ex.MockedElement(23);
+      var element7 = new ex.MockedElement(7);
+      var element2 = new ex.MockedElement(2);
+
+      expect(sortedList.add(element4)).toBe(true);
+      expect(sortedList.add(element5)).toBe(true);
+      expect(sortedList.add(element23)).toBe(true);
+      expect(sortedList.add(element7)).toBe(true);
+      expect(sortedList.add(element2)).toBe(true);
+
+      var stuff = sortedList.list();
+
+      expect(stuff.length).toBe(5);
+
+      expect(stuff[0]).toBe(element2);
+      expect(stuff[1]).toBe(element4);
+      expect(stuff[2]).toBe(element5);
+      expect(stuff[3]).toBe(element7);
+      expect(stuff[4]).toBe(element23);
    });
 
    it('can return all of the elements at a specified key value', () => {

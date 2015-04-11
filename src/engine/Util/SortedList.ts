@@ -4,8 +4,6 @@ module ex {
    // NOTE: this implementation is not self-balancing
    export class SortedList<T> {
 
-      private _sortedList = [];
-
       private _getComparable: Function;
       private _root: BinaryTreeNode;
 
@@ -131,7 +129,20 @@ module ex {
       }
 
       public list(): Array<any> {
-         return this._sortedList;
+         var results = new Array<any>();
+         this._list(this._root, results);
+         return results;
+      }
+
+      private _list(treeNode: BinaryTreeNode, results: Array<any>): void {
+         if (treeNode != null) {
+            this._list(treeNode.getLeft(), results);
+            //console.log("adding " + treeNode.getKey() + " to the list");
+            treeNode.getData().forEach(function (element) {
+               results.push(element);
+            });
+            this._list(treeNode.getRight(), results);
+         }
       }
 
    }
