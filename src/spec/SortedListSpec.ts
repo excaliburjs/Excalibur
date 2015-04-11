@@ -48,13 +48,32 @@ describe('A SortedList', () => {
    });
 
    it('will maintain the tree when removing an intermediate node', () => {
-      //TODO
-      expect(true).toBe(false);
-   });
+      var element1 = new ex.MockedElement(1);
+      var element2 = new ex.MockedElement(2);
+      var element3 = new ex.MockedElement(3);
+      var element4 = new ex.MockedElement(4);
 
-   it('will update its internal list every time an element is added or removed', () => {
-      //TODO
-      expect(true).toBe(false);
+      //scenario 1
+      sortedList.add(element1);
+      sortedList.add(element2);
+      sortedList.add(element3);
+
+      sortedList.remove(element2);
+      expect(sortedList.find(element1)).toBe(true);
+      expect(sortedList.find(element3)).toBe(true);
+
+      //scenario 2
+      sortedList = new ex.SortedList(ex.MockedElement.prototype.getTheKey);
+      sortedList.add(element1);
+      sortedList.add(element3);
+      sortedList.add(element2);
+      sortedList.add(element4);
+      console.log('------');
+      sortedList.remove(element3);
+      expect(sortedList.find(element2)).toBe(true);
+      //sortedList.list();
+      expect(sortedList.find(element3)).toBe(false);
+      expect(sortedList.find(element4)).toBe(true); //TODO fails
    });
 
    it('can return an ordered list of the elements it contains', () => {
@@ -70,20 +89,33 @@ describe('A SortedList', () => {
       expect(sortedList.add(element7)).toBe(true);
       expect(sortedList.add(element2)).toBe(true);
 
-      var stuff = sortedList.list();
+      var results = sortedList.list();
 
-      expect(stuff.length).toBe(5);
+      expect(results.length).toBe(5);
 
-      expect(stuff[0]).toBe(element2);
-      expect(stuff[1]).toBe(element4);
-      expect(stuff[2]).toBe(element5);
-      expect(stuff[3]).toBe(element7);
-      expect(stuff[4]).toBe(element23);
+      expect(results[0]).toBe(element2);
+      expect(results[1]).toBe(element4);
+      expect(results[2]).toBe(element5);
+      expect(results[3]).toBe(element7);
+      expect(results[4]).toBe(element23);
    });
 
    it('can return all of the elements at a specified key value', () => {
-      //TODO
-      expect(true).toBe(false);
+      var element1 = new ex.MockedElement(1);
+      var element2 = new ex.MockedElement(2);
+      var element3 = new ex.MockedElement(2);
+
+      sortedList.add(element1);
+      sortedList.add(element2);
+      sortedList.add(element3);
+
+      var results = sortedList.get(2);
+      expect(results.length).toBe(2);
+      expect(results[0]).toBe(element2);
+      expect(results[1]).toBe(element3);
+
+      var results = sortedList.get(1);
+      expect(results[0]).toBe(element1);
    });
 
 });

@@ -32,9 +32,21 @@ module ex {
       }
 
       // returns the array of elements at a specific key value
-      //public get(key: number): any[] {
-      //   //TODO
-      //}
+      public get(key: number): any[] {
+         return this._get(this._root, key);
+      }
+
+      private _get(node: BinaryTreeNode, key: number) {
+         if (node == null) {
+            return [];
+         } else if (key == node.getKey()) {
+            return node.getData();
+         } else if (key < node.getKey()) {
+            return this._get(node.getLeft(), key);
+         } else {
+            return this._get(node.getRight(), key);
+         }
+      }
 
       public add(element: any): boolean {
          if (this._root == null) {
@@ -89,25 +101,32 @@ module ex {
             return null;
          } else if (this._getComparable.call(element) == node.getKey()) {
             var elementIndex = node.getData().indexOf(element);
+            // if the node contains the element, remove the element
             if (elementIndex > -1) {
+               console.log('removing element ' + elementIndex + ' from node ' + node.getKey());
                node.getData().splice(elementIndex, 1);
                // if we have removed the last element at this node, remove the node
                if (node.getData().length == 0) {
-                  // if the node is a leaf
-                  if (node.getLeft() == null && node.getRight() == null) {
-                     return null;
-                  } else if (node.getLeft() == null) {
-                     return node.getRight();
-                  } else if (node.getRight() == null) {
-                     return node.getLeft();
-                  }
-                  // if node has 2 children
-                  var temp = this._findMinNode(node.getRight());
-                  node.setKey(temp.getKey());
-                  node.setRight(this._remove(node.getRight(), temp.getKey()));
+                  //console.log('we have removed the last element, so remove the node');
+                  //// if the node is a leaf
+                  //if (node.getLeft() == null && node.getRight() == null) {
+                  //   console.log('node ' + node.getKey() + ' is a leaf');
+                  //   return null;
+                  //} else if (node.getLeft() == null) {
+                  //   return node.getRight();
+                  //} else if (node.getRight() == null) {
+                  //   return node.getLeft();
+                  //}
+                  //// if node has 2 children
+                  //console.log('node has 2 children');
+                  //var temp = this._findMinNode(node.getRight());
+                  //node.setKey(temp.getKey());
+                  //console.log('preparing to remove ' + temp.getKey() + ' from ' + node.getRight().getKey());
+                  //node.setRight(this._remove(node.getRight(), temp.getKey()));
                   return node;
                } else {
                   // this prevents the node from being removed since it still contains elements
+                  console.log('node still contains elements');
                   return node;
                }
             }
@@ -125,6 +144,7 @@ module ex {
          while (current.getLeft() != null) {
             current = current.getLeft();
          }
+         console.log('smallest right node is ' + current.getKey());
          return current;
       }
 
@@ -137,7 +157,9 @@ module ex {
       private _list(treeNode: BinaryTreeNode, results: Array<any>): void {
          if (treeNode != null) {
             this._list(treeNode.getLeft(), results);
-            //console.log("adding " + treeNode.getKey() + " to the list");
+            if (treeNode.getData().length > 0) {
+               console.log("adding " + treeNode.getKey() + " to the list");
+            }
             treeNode.getData().forEach(function (element) {
                results.push(element);
             });
