@@ -9,7 +9,6 @@ describe('A SortedList', () => {
 
    beforeEach(() => {
       sortedList = new ex.SortedList(ex.MockedElement.prototype.getTheKey);
-      console.log('=============');
    });
 
    it('should be loaded', () => {
@@ -49,9 +48,18 @@ describe('A SortedList', () => {
 
    it('will maintain the tree when removing an intermediate node', () => {
       var element1 = new ex.MockedElement(1);
+
       var element2 = new ex.MockedElement(2);
+      var element2a = new ex.MockedElement(2);
+
       var element3 = new ex.MockedElement(3);
+
       var element4 = new ex.MockedElement(4);
+      var element4a = new ex.MockedElement(4);
+      var element4b = new ex.MockedElement(4);
+      var element4c = new ex.MockedElement(4);
+
+      var element5 = new ex.MockedElement(5);
 
       //scenario 1
       sortedList.add(element1);
@@ -68,12 +76,20 @@ describe('A SortedList', () => {
       sortedList.add(element3);
       sortedList.add(element2);
       sortedList.add(element4);
-      console.log('------');
+
+      sortedList.add(element2a);
+      sortedList.add(element4a);
+      sortedList.add(element4b);
+      sortedList.add(element4c);
+
+      sortedList.add(element5);
+
       sortedList.remove(element3);
       expect(sortedList.find(element2)).toBe(true);
-      //sortedList.list();
+      sortedList.list();
       expect(sortedList.find(element3)).toBe(false);
-      expect(sortedList.find(element4)).toBe(true); //TODO fails
+      expect(sortedList.find(element4)).toBe(true);
+      expect(sortedList.find(element5)).toBe(true);
    });
 
    it('can return an ordered list of the elements it contains', () => {

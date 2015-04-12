@@ -59,32 +59,26 @@ module ex {
       }
 
       private _insert(node: BinaryTreeNode, element: any): boolean {
-         //console.log("preparing to add element: " + this._getComparable.call(element));
          if (node != null) {
             if (this._getComparable.call(element) == node.getKey()) {
                if (node.getData().indexOf(element) > -1) {
                   return false; // duplicate element
                } else {
-                  console.log("adding element: " + this._getComparable.call(element));
                   node.getData().push(element);
                   return true;
                }
             } else if (this._getComparable.call(element) < node.getKey()) {
                if (node.getLeft() == null) {
-                  console.log("adding element " + this._getComparable.call(element) + " as left child of " + node.getKey());
                   node.setLeft(new BinaryTreeNode(this._getComparable.call(element), [element], null, null));
                   return true;
                } else {
-                  console.log("traversing left");
                   return this._insert(node.getLeft(), element);
                }
             } else {
                if (node.getRight() == null) {
-                  console.log("adding element " + this._getComparable.call(element) + " as right child of " + node.getKey());
                   node.setRight(new BinaryTreeNode(this._getComparable.call(element), [element], null, null));
                   return true;
                } else {
-                  console.log("traversing right");
                   return this._insert(node.getRight(), element);
                }
             }
@@ -103,30 +97,26 @@ module ex {
             var elementIndex = node.getData().indexOf(element);
             // if the node contains the element, remove the element
             if (elementIndex > -1) {
-               console.log('removing element ' + elementIndex + ' from node ' + node.getKey());
                node.getData().splice(elementIndex, 1);
                // if we have removed the last element at this node, remove the node
                if (node.getData().length == 0) {
-                  //console.log('we have removed the last element, so remove the node');
-                  //// if the node is a leaf
-                  //if (node.getLeft() == null && node.getRight() == null) {
-                  //   console.log('node ' + node.getKey() + ' is a leaf');
-                  //   return null;
-                  //} else if (node.getLeft() == null) {
-                  //   return node.getRight();
-                  //} else if (node.getRight() == null) {
-                  //   return node.getLeft();
-                  //}
-                  //// if node has 2 children
-                  //console.log('node has 2 children');
-                  //var temp = this._findMinNode(node.getRight());
-                  //node.setKey(temp.getKey());
-                  //console.log('preparing to remove ' + temp.getKey() + ' from ' + node.getRight().getKey());
-                  //node.setRight(this._remove(node.getRight(), temp.getKey()));
+                  // if the node is a leaf
+                  if (node.getLeft() == null && node.getRight() == null) {
+                     return null;
+                  } else if (node.getLeft() == null) {
+                     return node.getRight();
+                  } else if (node.getRight() == null) {
+                     return node.getLeft();
+                  }
+                  // if node has 2 children
+                  var temp = this._findMinNode(node.getRight());
+                  node.setKey(temp.getKey());
+                  node.setData(temp.getData());
+                  node.setRight(this._cleanup(node.getRight(), temp)); //"cleanup nodes" (move them up recursively)
                   return node;
+
                } else {
                   // this prevents the node from being removed since it still contains elements
-                  console.log('node still contains elements');
                   return node;
                }
             }
@@ -139,12 +129,41 @@ module ex {
          }
       }
 
+      // called once we have successfully removed the element we wanted, recursively corrects the part of the tree below the removed node
+      private _cleanup(node: BinaryTreeNode, element: BinaryTreeNode): BinaryTreeNode {
+         var comparable = element.getKey();
+         if (node == null) {
+            return null;
+         } else if (comparable == node.getKey()) {
+            // if the node is a leaf
+            if (node.getLeft() == null && node.getRight() == null) {
+               return null;
+            } else if (node.getLeft() == null) {
+               return node.getRight();
+            } else if (node.getRight() == null) {
+               return node.getLeft();
+            }
+            // if node has 2 children
+            var temp = this._findMinNode(node.getRight());
+            node.setKey(temp.getKey());
+            node.setData(temp.getData());
+
+            node.setRight(this._cleanup(node.getRight(), temp));
+            return node;
+         } else if (this._getComparable.call(element) < node.getKey()) {
+            node.setLeft(this._cleanup(node.getLeft(), element));
+            return node;
+         } else {
+            node.setRight(this._cleanup(node.getRight(), element));
+            return node;
+         }
+      }
+
       private _findMinNode(node: BinaryTreeNode): BinaryTreeNode {
          var current = node;
          while (current.getLeft() != null) {
             current = current.getLeft();
          }
-         console.log('smallest right node is ' + current.getKey());
          return current;
       }
 
@@ -157,9 +176,6 @@ module ex {
       private _list(treeNode: BinaryTreeNode, results: Array<any>): void {
          if (treeNode != null) {
             this._list(treeNode.getLeft(), results);
-            if (treeNode.getData().length > 0) {
-               console.log("adding " + treeNode.getKey() + " to the list");
-            }
             treeNode.getData().forEach(function (element) {
                results.push(element);
             });
