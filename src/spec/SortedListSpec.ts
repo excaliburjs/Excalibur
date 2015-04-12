@@ -97,7 +97,7 @@ describe('A SortedList', () => {
       var element5 = new ex.MockedElement(5);
       var element23 = new ex.MockedElement(23);
       var element7 = new ex.MockedElement(7);
-      var element2 = new ex.MockedElement(2);
+      var element2 = new ex.MockedElement(-1);
 
       expect(sortedList.add(element4)).toBe(true);
       expect(sortedList.add(element5)).toBe(true);

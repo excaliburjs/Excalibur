@@ -341,6 +341,7 @@ module ex {
      */
     public opacity: number = 1;
     public previousOpacity: number = 1;
+
     /** 
      * Direct access to the actor's [[ActionQueue]]. Useful if you are building custom actions.
      */
@@ -408,6 +409,7 @@ module ex {
        captureMoveEvents: false
     };
 
+    private _zIndex: number = 0;
     private _isKilled: boolean = false;
     
     /**
@@ -561,6 +563,16 @@ module ex {
              this.addDrawing("default", arguments[0].asSprite());
           }
        }
+    }
+
+    public getZIndex(): number {
+       return this._zIndex;
+    }
+
+    public setZIndex(newIndex: number) {
+       this.scene._sortedDrawingTree.remove(this);
+       this._zIndex = newIndex;
+       this.scene._sortedDrawingTree.add(this);
     }
 
     /**

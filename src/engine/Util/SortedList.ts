@@ -62,7 +62,7 @@ module ex {
          if (node != null) {
             if (this._getComparable.call(element) == node.getKey()) {
                if (node.getData().indexOf(element) > -1) {
-                  return false; // duplicate element
+                  return false; // the element we're trying to insert already exists
                } else {
                   node.getData().push(element);
                   return true;
@@ -167,13 +167,13 @@ module ex {
          return current;
       }
 
-      public list(): Array<any> {
+      public list(): Array<T> {
          var results = new Array<any>();
          this._list(this._root, results);
          return results;
       }
 
-      private _list(treeNode: BinaryTreeNode, results: Array<any>): void {
+      private _list(treeNode: BinaryTreeNode, results: Array<T>): void {
          if (treeNode != null) {
             this._list(treeNode.getLeft(), results);
             treeNode.getData().forEach(function (element) {
