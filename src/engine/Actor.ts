@@ -564,11 +564,20 @@ module ex {
           }
        }
     }
-
+    /**
+     * Gets the z-index of an actor. The z-index determines the relative order an actor is drawn in.
+     * Actors with a higher z-index are drawn on top of actors with a lower z-index
+     */
     public getZIndex(): number {
        return this._zIndex;
     }
 
+    /**
+     * Sets the z-index of an actor and updates it in the drawing list for the scene. 
+     * The z-index determines the relative order an actor is drawn in.
+     * Actors with a higher z-index are drawn on top of actors with a lower z-index
+     * @param actor The child actor to remove
+     */
     public setZIndex(newIndex: number) {
        this.scene._sortedDrawingTree.remove(this);
        this._zIndex = newIndex;
