@@ -1,4 +1,4 @@
-/*! excalibur - v0.3.0 - 2015-04-04
+/*! excalibur - v0.3.0 - 2015-04-14
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2015 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -4572,6 +4572,247 @@ var ex;
     })(ex.Class);
     ex.Group = Group;
 })(ex || (ex = {}));
+var ex;
+(function (ex) {
+    // NOTE: this implementation is not self-balancing
+    var SortedList = (function () {
+        function SortedList(getComparable) {
+            this._getComparable = getComparable;
+        }
+        SortedList.prototype.find = function (element) {
+            return this._find(this._root, element);
+        };
+        SortedList.prototype._find = function (node, element) {
+            if (node == null) {
+                return false;
+            }
+            else if (this._getComparable.call(element) == node.getKey()) {
+                if (node.getData().indexOf(element) > -1) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            else if (this._getComparable.call(element) < node.getKey()) {
+                return this._find(node.getLeft(), element);
+            }
+            else {
+                return this._find(node.getRight(), element);
+            }
+        };
+        // returns the array of elements at a specific key value
+        SortedList.prototype.get = function (key) {
+            return this._get(this._root, key);
+        };
+        SortedList.prototype._get = function (node, key) {
+            if (node == null) {
+                return [];
+            }
+            else if (key == node.getKey()) {
+                return node.getData();
+            }
+            else if (key < node.getKey()) {
+                return this._get(node.getLeft(), key);
+            }
+            else {
+                return this._get(node.getRight(), key);
+            }
+        };
+        SortedList.prototype.add = function (element) {
+            if (this._root == null) {
+                this._root = new BinaryTreeNode(this._getComparable.call(element), [element], null, null);
+                return true;
+            }
+            else {
+                return this._insert(this._root, element);
+            }
+            return false;
+        };
+        SortedList.prototype._insert = function (node, element) {
+            if (node != null) {
+                if (this._getComparable.call(element) == node.getKey()) {
+                    if (node.getData().indexOf(element) > -1) {
+                        return false; // the element we're trying to insert already exists
+                    }
+                    else {
+                        node.getData().push(element);
+                        return true;
+                    }
+                }
+                else if (this._getComparable.call(element) < node.getKey()) {
+                    if (node.getLeft() == null) {
+                        node.setLeft(new BinaryTreeNode(this._getComparable.call(element), [element], null, null));
+                        return true;
+                    }
+                    else {
+                        return this._insert(node.getLeft(), element);
+                    }
+                }
+                else {
+                    if (node.getRight() == null) {
+                        node.setRight(new BinaryTreeNode(this._getComparable.call(element), [element], null, null));
+                        return true;
+                    }
+                    else {
+                        return this._insert(node.getRight(), element);
+                    }
+                }
+            }
+            return false;
+        };
+        SortedList.prototype.remove = function (element) {
+            this._root = this._remove(this._root, element);
+        };
+        SortedList.prototype._remove = function (node, element) {
+            if (node == null) {
+                return null;
+            }
+            else if (this._getComparable.call(element) == node.getKey()) {
+                var elementIndex = node.getData().indexOf(element);
+                // if the node contains the element, remove the element
+                if (elementIndex > -1) {
+                    node.getData().splice(elementIndex, 1);
+                    // if we have removed the last element at this node, remove the node
+                    if (node.getData().length == 0) {
+                        // if the node is a leaf
+                        if (node.getLeft() == null && node.getRight() == null) {
+                            return null;
+                        }
+                        else if (node.getLeft() == null) {
+                            return node.getRight();
+                        }
+                        else if (node.getRight() == null) {
+                            return node.getLeft();
+                        }
+                        // if node has 2 children
+                        var temp = this._findMinNode(node.getRight());
+                        node.setKey(temp.getKey());
+                        node.setData(temp.getData());
+                        node.setRight(this._cleanup(node.getRight(), temp)); //"cleanup nodes" (move them up recursively)
+                        return node;
+                    }
+                    else {
+                        // this prevents the node from being removed since it still contains elements
+                        return node;
+                    }
+                }
+            }
+            else if (this._getComparable.call(element) < node.getKey()) {
+                node.setLeft(this._remove(node.getLeft(), element));
+                return node;
+            }
+            else {
+                node.setRight(this._remove(node.getRight(), element));
+                return node;
+            }
+        };
+        // called once we have successfully removed the element we wanted, recursively corrects the part of the tree below the removed node
+        SortedList.prototype._cleanup = function (node, element) {
+            var comparable = element.getKey();
+            if (node == null) {
+                return null;
+            }
+            else if (comparable == node.getKey()) {
+                // if the node is a leaf
+                if (node.getLeft() == null && node.getRight() == null) {
+                    return null;
+                }
+                else if (node.getLeft() == null) {
+                    return node.getRight();
+                }
+                else if (node.getRight() == null) {
+                    return node.getLeft();
+                }
+                // if node has 2 children
+                var temp = this._findMinNode(node.getRight());
+                node.setKey(temp.getKey());
+                node.setData(temp.getData());
+                node.setRight(this._cleanup(node.getRight(), temp));
+                return node;
+            }
+            else if (this._getComparable.call(element) < node.getKey()) {
+                node.setLeft(this._cleanup(node.getLeft(), element));
+                return node;
+            }
+            else {
+                node.setRight(this._cleanup(node.getRight(), element));
+                return node;
+            }
+        };
+        SortedList.prototype._findMinNode = function (node) {
+            var current = node;
+            while (current.getLeft() != null) {
+                current = current.getLeft();
+            }
+            return current;
+        };
+        SortedList.prototype.list = function () {
+            var results = new Array();
+            this._list(this._root, results);
+            return results;
+        };
+        SortedList.prototype._list = function (treeNode, results) {
+            if (treeNode != null) {
+                this._list(treeNode.getLeft(), results);
+                treeNode.getData().forEach(function (element) {
+                    results.push(element);
+                });
+                this._list(treeNode.getRight(), results);
+            }
+        };
+        return SortedList;
+    })();
+    ex.SortedList = SortedList;
+    var BinaryTreeNode = (function () {
+        function BinaryTreeNode(key, data, left, right) {
+            this._key = key;
+            this._data = data;
+            this._left = left;
+            this._right = right;
+        }
+        BinaryTreeNode.prototype.getKey = function () {
+            return this._key;
+        };
+        BinaryTreeNode.prototype.setKey = function (key) {
+            this._key = key;
+        };
+        BinaryTreeNode.prototype.getData = function () {
+            return this._data;
+        };
+        BinaryTreeNode.prototype.setData = function (data) {
+            this._data = data;
+        };
+        BinaryTreeNode.prototype.getLeft = function () {
+            return this._left;
+        };
+        BinaryTreeNode.prototype.setLeft = function (left) {
+            this._left = left;
+        };
+        BinaryTreeNode.prototype.getRight = function () {
+            return this._right;
+        };
+        BinaryTreeNode.prototype.setRight = function (right) {
+            this._right = right;
+        };
+        return BinaryTreeNode;
+    })();
+    ex.BinaryTreeNode = BinaryTreeNode;
+    var MockedElement = (function () {
+        function MockedElement(key) {
+            this._key = 0;
+            this._key = key;
+        }
+        MockedElement.prototype.getTheKey = function () {
+            return this._key;
+        };
+        MockedElement.prototype.setKey = function (key) {
+            this._key = key;
+        };
+        return MockedElement;
+    })();
+    ex.MockedElement = MockedElement;
+})(ex || (ex = {}));
 /// <reference path="Class.ts" />
 /// <reference path="Timer.ts" />
 /// <reference path="Collision/NaiveCollisionResolver.ts"/>
@@ -4579,6 +4820,7 @@ var ex;
 /// <reference path="CollisionPair.ts" />
 /// <reference path="Camera.ts" />
 /// <reference path="Group.ts"/>
+/// <reference path="Util/SortedList.ts"/>
 var ex;
 (function (ex) {
     /**
@@ -4716,6 +4958,7 @@ var ex;
              * Whether or the [[Scene]] has been initialized
              */
             this.isInitialized = false;
+            this._sortedDrawingTree = new ex.SortedList(ex.Actor.prototype.getZIndex);
             this._collisionResolver = new ex.DynamicTreeCollisionResolver();
             this._killQueue = [];
             this._timers = [];
@@ -4815,10 +5058,11 @@ var ex;
             for (i = 0, len = this.tileMaps.length; i < len; i++) {
                 this.tileMaps[i].draw(ctx, delta);
             }
-            for (i = 0, len = this.children.length; i < len; i++) {
+            var sortedChildren = this._sortedDrawingTree.list();
+            for (i = 0, len = sortedChildren.length; i < len; i++) {
                 // only draw actors that are visible
-                if (this.children[i].visible) {
-                    this.children[i].draw(ctx, delta);
+                if (sortedChildren[i].visible) {
+                    sortedChildren[i].draw(ctx, delta);
                 }
             }
             if (this.engine && this.engine.isDebug) {
@@ -4866,6 +5110,7 @@ var ex;
             }
             if (entity instanceof ex.Actor) {
                 this.addChild(entity);
+                this._sortedDrawingTree.add(entity);
             }
             if (entity instanceof ex.Timer) {
                 this.addTimer(entity);
@@ -4915,6 +5160,7 @@ var ex;
             this._collisionResolver.register(actor);
             actor.scene = this;
             this.children.push(actor);
+            this._sortedDrawingTree.add(actor);
             actor.parent = this.actor;
         };
         /**
@@ -5466,6 +5712,7 @@ var ex;
             this.capturePointer = {
                 captureMoveEvents: false
             };
+            this._zIndex = 0;
             this._isKilled = false;
             this.x = x || 0;
             this.y = y || 0;
@@ -5581,6 +5828,24 @@ var ex;
                     this.addDrawing("default", arguments[0].asSprite());
                 }
             }
+        };
+        /**
+         * Gets the z-index of an actor. The z-index determines the relative order an actor is drawn in.
+         * Actors with a higher z-index are drawn on top of actors with a lower z-index
+         */
+        Actor.prototype.getZIndex = function () {
+            return this._zIndex;
+        };
+        /**
+         * Sets the z-index of an actor and updates it in the drawing list for the scene.
+         * The z-index determines the relative order an actor is drawn in.
+         * Actors with a higher z-index are drawn on top of actors with a lower z-index
+         * @param actor The child actor to remove
+         */
+        Actor.prototype.setZIndex = function (newIndex) {
+            this.scene._sortedDrawingTree.remove(this);
+            this._zIndex = newIndex;
+            this.scene._sortedDrawingTree.add(this);
         };
         /**
          * Artificially trigger an event on an actor, useful when creating custom events.
@@ -10493,6 +10758,7 @@ var ex;
  * familiar with.
  *
  * - [[Engine|Intro to the Engine]]
+ *   - [[EventDispatcher|Eventing]]
  * - [[Scene|Working with Scenes]]
  *   - [[Camera|Working with Cameras]]
  * - [[Actor|Working with Actors]]
