@@ -579,9 +579,8 @@ module ex {
      * @param actor The child actor to remove
      */
     public setZIndex(newIndex: number) {
-       this.scene._sortedDrawingTree.remove(this);
        this._zIndex = newIndex;
-       this.scene._sortedDrawingTree.add(this);
+       this.scene.updateDrawTree(this);
     }
 
     /**

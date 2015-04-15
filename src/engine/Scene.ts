@@ -162,7 +162,7 @@ module ex {
        */
       public isInitialized: boolean = false;
 
-      public _sortedDrawingTree: SortedList<Actor> = new SortedList<Actor>(Actor.prototype.getZIndex);
+      private _sortedDrawingTree: SortedList<Actor> = new SortedList<Actor>(Actor.prototype.getZIndex);
 
       private _collisionResolver: ICollisionResolver = new DynamicTreeCollisionResolver();
 
@@ -561,6 +561,14 @@ module ex {
          } else {
             this._logger.error("Invalid arguments to removeGroup", group);
          }
+      }
+
+      /**
+       * Updates the given actor's position in the sorted drawing tree
+       */
+      public updateDrawTree(actor: ex.Actor) {
+         this._sortedDrawingTree.remove(actor);
+         this._sortedDrawingTree.add(actor);
       }
 
    }
