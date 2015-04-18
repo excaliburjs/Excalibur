@@ -341,6 +341,7 @@ module ex {
      */
     public opacity: number = 1;
     public previousOpacity: number = 1;
+
     /** 
      * Direct access to the actor's [[ActionQueue]]. Useful if you are building custom actions.
      */
@@ -408,6 +409,7 @@ module ex {
        captureMoveEvents: false
     };
 
+    private _zIndex: number = 0;
     private _isKilled: boolean = false;
     
     /**
@@ -561,6 +563,24 @@ module ex {
              this.addDrawing("default", arguments[0].asSprite());
           }
        }
+    }
+    /**
+     * Gets the z-index of an actor. The z-index determines the relative order an actor is drawn in.
+     * Actors with a higher z-index are drawn on top of actors with a lower z-index
+     */
+    public getZIndex(): number {
+       return this._zIndex;
+    }
+
+    /**
+     * Sets the z-index of an actor and updates it in the drawing list for the scene. 
+     * The z-index determines the relative order an actor is drawn in.
+     * Actors with a higher z-index are drawn on top of actors with a lower z-index
+     * @param actor The child actor to remove
+     */
+    public setZIndex(newIndex: number) {
+       this._zIndex = newIndex;
+       this.scene.updateDrawTree(this);
     }
 
     /**

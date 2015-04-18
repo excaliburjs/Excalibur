@@ -5,6 +5,7 @@
 /// <reference path="CollisionPair.ts" />
 /// <reference path="Camera.ts" />
 /// <reference path="Group.ts"/>
+/// <reference path="Util/SortedList.ts"/>
 
 module ex {
 
@@ -161,6 +162,8 @@ module ex {
        */
       public isInitialized: boolean = false;
 
+      private _sortedDrawingTree: SortedList<Actor> = new SortedList<Actor>(Actor.prototype.getZIndex);
+
       private _collisionResolver: ICollisionResolver = new DynamicTreeCollisionResolver();
 
       private _killQueue: Actor[] = [];
@@ -288,11 +291,12 @@ module ex {
             this.tileMaps[i].draw(ctx, delta);
          }
 
-         for (i = 0, len = this.children.length; i < len; i++) {
+         var sortedChildren = this._sortedDrawingTree.list()
+         for (i = 0, len = sortedChildren.length; i < len; i++) {
 
             // only draw actors that are visible
-            if (this.children[i].visible) {
-               this.children[i].draw(ctx, delta);
+            if (sortedChildren[i].visible) {
+               sortedChildren[i].draw(ctx, delta);
             }
          }
 
@@ -375,6 +379,7 @@ module ex {
          }
          if (entity instanceof Actor) {
             this.addChild(entity);
+            this._sortedDrawingTree.add(entity);
          }
          
          if (entity instanceof Timer) {
@@ -455,6 +460,7 @@ module ex {
          this._collisionResolver.register(actor);
          actor.scene = this;
          this.children.push(actor);
+         this._sortedDrawingTree.add(actor);
          actor.parent = this.actor;
       }
 
@@ -555,6 +561,14 @@ module ex {
          } else {
             this._logger.error("Invalid arguments to removeGroup", group);
          }
+      }
+
+      /**
+       * Updates the given actor's position in the sorted drawing tree
+       */
+      public updateDrawTree(actor: ex.Actor) {
+         this._sortedDrawingTree.remove(actor);
+         this._sortedDrawingTree.add(actor);
       }
 
    }
