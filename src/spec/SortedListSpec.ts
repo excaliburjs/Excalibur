@@ -42,7 +42,7 @@ describe('A SortedList', () => {
       var element = new Mocks.MockedElement(0);
       sortedList.add(element);
       expect(sortedList.find(element)).toBe(true);
-      sortedList.remove(element);
+      sortedList.removeByComparable(element);
       expect(sortedList.find(element)).toBe(false);
    });
 
@@ -66,7 +66,7 @@ describe('A SortedList', () => {
       sortedList.add(element2);
       sortedList.add(element3);
 
-      sortedList.remove(element2);
+      sortedList.removeByComparable(element2);
       expect(sortedList.find(element1)).toBe(true);
       expect(sortedList.find(element3)).toBe(true);
 
@@ -84,7 +84,7 @@ describe('A SortedList', () => {
 
       sortedList.add(element5);
 
-      sortedList.remove(element3);
+      sortedList.removeByComparable(element3);
       expect(sortedList.find(element2)).toBe(true);
       sortedList.list();
       expect(sortedList.find(element3)).toBe(false);

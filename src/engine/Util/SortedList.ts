@@ -86,7 +86,7 @@ module ex {
          return false;
       }
 
-      public remove(element: any): void {
+      public removeByComparable(element: any): void {
          this._root = this._remove(this._root, element);
       }
 
