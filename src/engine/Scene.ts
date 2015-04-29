@@ -564,10 +564,16 @@ module ex {
       }
 
       /**
+       * Removes the given actor from the sorted drawing tree
+       */
+      public cleanupDrawTree(actor: ex.Actor) {
+         this._sortedDrawingTree.remove(actor);
+      }
+
+      /**
        * Updates the given actor's position in the sorted drawing tree
        */
       public updateDrawTree(actor: ex.Actor) {
-         this._sortedDrawingTree.remove(actor);
          this._sortedDrawingTree.add(actor);
       }
 
