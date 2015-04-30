@@ -578,7 +578,8 @@ module ex {
      * Actors with a higher z-index are drawn on top of actors with a lower z-index
      * @param actor The child actor to remove
      */
-    public setZIndex(newIndex: number) {
+     public setZIndex(newIndex: number) {
+       this.scene.cleanupDrawTree(this);
        this._zIndex = newIndex;
        this.scene.updateDrawTree(this);
     }
