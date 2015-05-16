@@ -10,7 +10,7 @@ module ex {
    * to move around your game and set focus. They are used to determine
    * what is "off screen" and can be used to scale the game.
    *
-   * Excalibur comes with a [[TopCamera]] and a [[SideCamera]], depending on
+   * Excalibur comes with a [[LockedCamera]] and a [[SideCamera]], depending on
    * your game needs.
    *
    * Cameras are attached to [[Scene|Scenes]] and can be changed by 
@@ -294,12 +294,12 @@ module ex {
 
    /**
    * An extension of [[BaseCamera]] that is locked to an [[Actor]] or 
-   * [[TopCamera.focus|focal point]]; the actor will appear in the 
+   * [[LockedCamera.focus|focal point]]; the actor will appear in the 
    * center of the screen.
    *
    * Common usages: RPGs, adventure games, top-down games.
    */
-   export class TopCamera extends BaseCamera {
+   export class LockedCamera extends BaseCamera {
       
       public getFocus(){
          if(this.follow){

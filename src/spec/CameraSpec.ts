@@ -5,7 +5,7 @@
 describe("A camera", () => {
    
    var sideCamera;
-   var topCamera;
+   var lockedCamera;
    var actor;
    var engine;
    var scene;
@@ -52,23 +52,23 @@ describe("A camera", () => {
       scene = new ex.Scene(engine);
 
       sideCamera = new ex.SideCamera();
-      topCamera = new ex.TopCamera();
+      lockedCamera = new ex.LockedCamera();
    });
 
-   it("can follow an actor if it is a TopCamera", () => {
-      engine.camera = topCamera;
-      topCamera.setActorToFollow(actor);
+   it("can follow an actor if it is a lockedCamera", () => {
+      engine.camera = lockedCamera;
+      lockedCamera.setActorToFollow(actor);
 
-      expect(topCamera.getFocus().x).toBe(255);
-      expect(topCamera.getFocus().y).toBe(255);
+      expect(lockedCamera.getFocus().x).toBe(255);
+      expect(lockedCamera.getFocus().y).toBe(255);
 
       actor.dx = 10;
       actor.dy = 15;
 
       actor.update(engine, 1000);
 
-      expect(topCamera.getFocus().x).toBe(265);
-      expect(topCamera.getFocus().y).toBe(270);
+      expect(lockedCamera.getFocus().x).toBe(265);
+      expect(lockedCamera.getFocus().y).toBe(270);
    });
 
    it("can follow an actor if it is a SideCamera", () => {
@@ -103,23 +103,23 @@ describe("A camera", () => {
    });
 
    it("can focus on a point", () => {
-      engine.camera = topCamera;
-      topCamera.setFocus(10, 20);
+      engine.camera = lockedCamera;
+      lockedCamera.setFocus(10, 20);
 
-      expect(topCamera.getFocus().x).toBe(10);
-      expect(topCamera.getFocus().y).toBe(20);
+      expect(lockedCamera.getFocus().x).toBe(10);
+      expect(lockedCamera.getFocus().y).toBe(20);
 
       });
 
    it("cannot focus on a point if it has an actor to follow", () => {
       //TODO
       // expect(true).toBe(false);
-      engine.camera = topCamera;
-      topCamera.setActorToFollow(actor);
-      topCamera.setFocus(100, 150);
+      engine.camera = lockedCamera;
+      lockedCamera.setActorToFollow(actor);
+      lockedCamera.setFocus(100, 150);
 
-      expect(topCamera.getFocus().x).toBe(255);
-      expect(topCamera.getFocus().y).toBe(255);
+      expect(lockedCamera.getFocus().x).toBe(255);
+      expect(lockedCamera.getFocus().y).toBe(255);
       });
 
    it("can shake", () => {
