@@ -1,6 +1,317 @@
-/*! excalibur - v0.3.0 - 2015-04-04
-* https://github.com/excaliburjs/Excalibur
-* Copyright (c) 2015 ; Licensed BSD*/
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var ex;
+(function (ex) {
+    /**
+     * A simple 2D point on a plane
+     */
+    var Point = (function () {
+        /**
+         * @param x  X coordinate of the point
+         * @param y  Y coordinate of the point
+         */
+        function Point(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+        /**
+         * Convert this point to a vector
+         */
+        Point.prototype.toVector = function () {
+            return new Vector(this.x, this.y);
+        };
+        /**
+         * Rotates the current point around another by a certain number of
+         * degrees in radians
+         * @param angle  The angle in radians
+         * @param anchor The point to rotate around
+         */
+        Point.prototype.rotate = function (angle, anchor) {
+            if (!anchor) {
+                anchor = new ex.Point(0, 0);
+            }
+            var sinAngle = Math.sin(angle);
+            var cosAngle = Math.cos(angle);
+            var x = cosAngle * (this.x - anchor.x) - sinAngle * (this.y - anchor.y) + anchor.x;
+            var y = sinAngle * (this.x - anchor.x) + cosAngle * (this.y - anchor.y) + anchor.y;
+            return new Point(x, y);
+        };
+        /**
+         * Translates the current point by a vector
+         * @param vector  The other vector to add to
+         */
+        Point.prototype.add = function (vector) {
+            return new Point(this.x + vector.x, this.y + vector.y);
+        };
+        /**
+         * Sets the x and y components at once
+         */
+        Point.prototype.setTo = function (x, y) {
+            this.x = x;
+            this.y = y;
+        };
+        /**
+         * Clones a new point that is a copy of this one.
+         */
+        Point.prototype.clone = function () {
+            return new Point(this.x, this.y);
+        };
+        /**
+         * Compares this point against another and tests for equality
+         * @param point  The other point to compare to
+         */
+        Point.prototype.equals = function (point) {
+            return this.x === point.x && this.y === point.y;
+        };
+        return Point;
+    })();
+    ex.Point = Point;
+    /**
+     * A 2D vector on a plane.
+     */
+    var Vector = (function (_super) {
+        __extends(Vector, _super);
+        /**
+         * @param x  X component of the Vector
+         * @param y  Y component of the Vector
+         */
+        function Vector(x, y) {
+            _super.call(this, x, y);
+            this.x = x;
+            this.y = y;
+        }
+        /**
+         * Returns a vector of unit length in the direction of the specified angle.
+         * @param angle The angle to generate the vector
+         */
+        Vector.fromAngle = function (angle) {
+            return new Vector(Math.cos(angle), Math.sin(angle));
+        };
+        /**
+         * The distance to another vector
+         * @param v  The other vector
+         */
+        Vector.prototype.distance = function (v) {
+            if (!v) {
+                v = new Vector(0.0, 0.0);
+            }
+            return Math.sqrt(Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2));
+        };
+        /**
+         * Normalizes a vector to have a magnitude of 1.
+         */
+        Vector.prototype.normalize = function () {
+            var d = this.distance();
+            if (d > 0) {
+                return new Vector(this.x / d, this.y / d);
+            }
+            else {
+                return new Vector(0, 1);
+            }
+        };
+        /**
+         * Scales a vector's by a factor of size
+         * @param size  The factor to scale the magnitude by
+         */
+        Vector.prototype.scale = function (size) {
+            return new Vector(this.x * size, this.y * size);
+        };
+        /**
+         * Adds one vector to another, alias for add
+         * @param v  The vector to add
+         */
+        Vector.prototype.plus = function (v) {
+            return this.add(v);
+        };
+        /**
+         * Adds one vector to another
+         * @param v The vector to add
+         */
+        Vector.prototype.add = function (v) {
+            return new Vector(this.x + v.x, this.y + v.y);
+        };
+        /**
+         * Subtracts a vector from another, alias for minus
+         * @param v The vector to subtract
+         */
+        Vector.prototype.subtract = function (v) {
+            return this.minus(v);
+        };
+        /**
+         * Subtracts a vector from the current vector
+         * @param v The vector to subtract
+         */
+        Vector.prototype.minus = function (v) {
+            return new Vector(this.x - v.x, this.y - v.y);
+        };
+        /**
+         * Performs a dot product with another vector
+         * @param v  The vector to dot
+         */
+        Vector.prototype.dot = function (v) {
+            return this.x * v.x + this.y * v.y;
+        };
+        /**
+         * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
+         * @param v  The vector to cross
+         */
+        Vector.prototype.cross = function (v) {
+            return this.x * v.y - this.y * v.x;
+        };
+        /**
+         * Returns the perpendicular vector to this one
+         */
+        Vector.prototype.perpendicular = function () {
+            return new Vector(this.y, -this.x);
+        };
+        /**
+         * Returns the normal vector to this one
+         */
+        Vector.prototype.normal = function () {
+            return this.perpendicular().normalize();
+        };
+        /**
+         * Returns the angle of this vector.
+         */
+        Vector.prototype.toAngle = function () {
+            return Math.atan2(this.y, this.x);
+        };
+        /**
+         * Returns the point represention of this vector
+         */
+        Vector.prototype.toPoint = function () {
+            return new Point(this.x, this.y);
+        };
+        /**
+         * Rotates the current vector around a point by a certain number of
+         * degrees in radians
+         */
+        Vector.prototype.rotate = function (angle, anchor) {
+            return _super.prototype.rotate.call(this, angle, anchor).toVector();
+        };
+        /**
+         * Creates new vector that has the same values as the previous.
+         */
+        Vector.prototype.clone = function () {
+            return new Vector(this.x, this.y);
+        };
+        /**
+         * A (0, 0) vector
+         */
+        Vector.Zero = new Vector(0, 0);
+        return Vector;
+    })(Point);
+    ex.Vector = Vector;
+    /**
+     * A 2D ray that can be cast into the scene to do collision detection
+     */
+    var Ray = (function () {
+        /**
+         * @param pos The starting position for the ray
+         * @param dir The vector indicating the direction of the ray
+         */
+        function Ray(pos, dir) {
+            this.pos = pos;
+            this.dir = dir.normalize();
+        }
+        /**
+         * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
+         * This number indicates the mathematical intersection time.
+         * @param line  The line to test
+         */
+        Ray.prototype.intersect = function (line) {
+            var numerator = line.begin.toVector().minus(this.pos.toVector());
+            // Test is line and ray are parallel and non intersecting
+            if (this.dir.cross(line.getSlope()) === 0 && numerator.cross(this.dir) !== 0) {
+                return -1;
+            }
+            // Lines are parallel
+            var divisor = (this.dir.cross(line.getSlope()));
+            if (divisor === 0) {
+                return -1;
+            }
+            var t = numerator.cross(line.getSlope()) / divisor;
+            if (t >= 0) {
+                var u = (numerator.cross(this.dir) / divisor) / line.getLength();
+                if (u >= 0 && u <= 1) {
+                    return t;
+                }
+            }
+            return -1;
+        };
+        /**
+         * Returns the point of intersection given the intersection time
+         */
+        Ray.prototype.getPoint = function (time) {
+            return this.pos.toVector().add(this.dir.scale(time)).toPoint();
+        };
+        return Ray;
+    })();
+    ex.Ray = Ray;
+    /**
+     * A 2D line segment
+     */
+    var Line = (function () {
+        /**
+         * @param begin  The starting point of the line segment
+         * @param end  The ending point of the line segment
+         */
+        function Line(begin, end) {
+            this.begin = begin;
+            this.end = end;
+        }
+        /**
+         * Returns the slope of the line in the form of a vector
+         */
+        Line.prototype.getSlope = function () {
+            var begin = this.begin.toVector();
+            var end = this.end.toVector();
+            var distance = begin.distance(end);
+            return end.minus(begin).scale(1 / distance);
+        };
+        /**
+         * Returns the length of the line segment in pixels
+         */
+        Line.prototype.getLength = function () {
+            var begin = this.begin.toVector();
+            var end = this.end.toVector();
+            var distance = begin.distance(end);
+            return distance;
+        };
+        return Line;
+    })();
+    ex.Line = Line;
+    /**
+     * A projection
+     * @todo
+     */
+    var Projection = (function () {
+        function Projection(min, max) {
+            this.min = min;
+            this.max = max;
+        }
+        Projection.prototype.overlaps = function (projection) {
+            return this.max > projection.min && projection.max > this.min;
+        };
+        Projection.prototype.getOverlap = function (projection) {
+            if (this.overlaps(projection)) {
+                if (this.max > projection.max) {
+                    return projection.max - this.min;
+                }
+                else {
+                    return this.max - projection.min;
+                }
+            }
+            return 0;
+        };
+        return Projection;
+    })();
+    ex.Projection = Projection;
+})(ex || (ex = {}));
 if (typeof window == 'undefined') {
     window = { audioContext: function () {
     } };
@@ -438,589 +749,948 @@ var ex;
     })(ex.Side || (ex.Side = {}));
     var Side = ex.Side;
 })(ex || (ex = {}));
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
+/// <reference path="Events.ts" />
 var ex;
 (function (ex) {
     /**
-     * A simple 2D point on a plane
+     * Excalibur's internal event dispatcher implementation.
+     * Callbacks are fired immediately after an event is published.
+     * Typically you'd use [[Class.eventDispatcher]] since most classes in
+     * Excalibur inherit from [[Class]]. You'd rarely create an `EventDispatcher`
+     * yourself.
+     *
+     * When working with events, be sure to keep in mind the order of subscriptions
+     * and try not to create a situation that requires specific things to happen in
+     * order. Events are best used for input events, tying together disparate objects,
+     * or for UI updates.
+     *
+     * ## Example: Actor events
+     *
+     * Actors implement an EventDispatcher ([[Actor.eventDispatcher]]) so they can
+     * send and receive events. For example, they can enable Pointer events (mouse/touch)
+     * and you can respond to them by subscribing to the event names.
+     *
+     * You can also emit any other kind of event for your game just by using a custom
+     * `string` value and implementing a class that inherits from [[GameEvent]].
+     *
+     * ```js
+     * var player = new ex.Actor(...);
+     *
+     * // Enable pointer events for this actor
+     * player.enableCapturePointer = true;
+     *
+     * // subscribe to pointerdown event
+     * player.on("pointerdown", function (evt: ex.Input.PointerEvent) {
+     *   console.log("Player was clicked!");
+     * });
+     *
+     * // turn off subscription
+     * player.off("pointerdown");
+     *
+     * // subscribe to custom event
+     * player.on("death", function (evt) {
+     *   console.log("Player died:", evt);
+     * });
+     *
+     * // trigger custom event
+     * player.triggerEvent("death", new DeathEvent());
+     *
+     * ```
+     *
+     * ## Example: Pub/Sub with Excalibur
+     *
+     * You can also create an EventDispatcher for any arbitrary object, for example
+     * a global game event aggregator (`vent`). Anything in your game can subscribe to
+     * it, if the event aggregator is in the global scope.
+     *
+     * *Warning:* This can easily get out of hand. Avoid this usage, it just serves as
+     * an example.
+     *
+     * ```js
+     * // create a publisher on an empty object
+     * var vent = new ex.EventDispatcher({});
+     *
+     * // handler for an event
+     * var subscription = function (event) {
+     *   console.log(event);
+     * }
+     *
+     * // add a subscription
+     * vent.subscribe("someevent", subscription);
+     *
+     * // publish an event somewhere in the game
+     * vent.publish("someevent", new ex.GameEvent());
+     * ```
      */
-    var Point = (function () {
+    var EventDispatcher = (function () {
         /**
-         * @param x  X coordinate of the point
-         * @param y  Y coordinate of the point
+         * @param target  The object that will be the recipient of events from this event dispatcher
          */
-        function Point(x, y) {
-            this.x = x;
-            this.y = y;
+        function EventDispatcher(target) {
+            this._handlers = {};
+            this._wiredEventDispatchers = [];
+            this._log = ex.Logger.getInstance();
+            this._target = target;
         }
         /**
-         * Convert this point to a vector
+         * Publish an event for target
+         * @param eventName  The name of the event to publish
+         * @param event      Optionally pass an event data object to the handler
          */
-        Point.prototype.toVector = function () {
-            return new Vector(this.x, this.y);
-        };
-        /**
-         * Rotates the current point around another by a certain number of
-         * degrees in radians
-         * @param angle  The angle in radians
-         * @param anchor The point to rotate around
-         */
-        Point.prototype.rotate = function (angle, anchor) {
-            if (!anchor) {
-                anchor = new ex.Point(0, 0);
+        EventDispatcher.prototype.publish = function (eventName, event) {
+            if (!eventName) {
+                // key not mapped
+                return;
             }
-            var sinAngle = Math.sin(angle);
-            var cosAngle = Math.cos(angle);
-            var x = cosAngle * (this.x - anchor.x) - sinAngle * (this.y - anchor.y) + anchor.x;
-            var y = sinAngle * (this.x - anchor.x) + cosAngle * (this.y - anchor.y) + anchor.y;
-            return new Point(x, y);
+            eventName = eventName.toLowerCase();
+            var target = this._target;
+            if (!event) {
+                event = new ex.GameEvent();
+            }
+            event.target = target;
+            var i, len;
+            if (this._handlers[eventName]) {
+                i = 0;
+                len = this._handlers[eventName].length;
+                for (i; i < len; i++) {
+                    this._handlers[eventName][i].call(target, event);
+                }
+            }
+            i = 0;
+            len = this._wiredEventDispatchers.length;
+            for (i; i < len; i++) {
+                this._wiredEventDispatchers[i].publish(eventName, event);
+            }
         };
         /**
-         * Translates the current point by a vector
-         * @param vector  The other vector to add to
+         * Alias for [[publish]], publishes an event for target
+         * @param eventName  The name of the event to publish
+         * @param event      Optionally pass an event data object to the handler
          */
-        Point.prototype.add = function (vector) {
-            return new Point(this.x + vector.x, this.y + vector.y);
+        EventDispatcher.prototype.emit = function (eventName, event) {
+            this.publish(eventName, event);
         };
         /**
-         * Sets the x and y components at once
+         * Subscribe an event handler to a particular event name, multiple handlers per event name are allowed.
+         * @param eventName  The name of the event to subscribe to
+         * @param handler    The handler callback to fire on this event
          */
-        Point.prototype.setTo = function (x, y) {
-            this.x = x;
-            this.y = y;
+        EventDispatcher.prototype.subscribe = function (eventName, handler) {
+            eventName = eventName.toLowerCase();
+            if (!this._handlers[eventName]) {
+                this._handlers[eventName] = [];
+            }
+            this._handlers[eventName].push(handler);
+            // meta event handlers
+            if (eventName !== 'unsubscribe' && eventName !== 'subscribe') {
+                this.emit('subscribe', new ex.SubscribeEvent(eventName, handler));
+            }
         };
         /**
-         * Clones a new point that is a copy of this one.
+         * Unsubscribe an event handler(s) from an event. If a specific handler
+         * is specified for an event, only that handler will be unsubscribed.
+         * Otherwise all handlers will be unsubscribed for that event.
+         *
+         * @param eventName  The name of the event to unsubscribe
+         * @param handler    Optionally the specific handler to unsubscribe
+         *
          */
-        Point.prototype.clone = function () {
-            return new Point(this.x, this.y);
+        EventDispatcher.prototype.unsubscribe = function (eventName, handler) {
+            eventName = eventName.toLowerCase();
+            var eventHandlers = this._handlers[eventName];
+            if (eventHandlers) {
+                // if no explicit handler is give with the event name clear all handlers
+                if (!handler) {
+                    this._handlers[eventName].length = 0;
+                }
+                else {
+                    var index = eventHandlers.indexOf(handler);
+                    this._handlers[eventName].splice(index, 1);
+                }
+            }
+            // meta event handlers
+            if (eventName !== 'unsubscribe' && eventName !== 'subscribe') {
+                this.emit('unsubscribe', new ex.UnsubscribeEvent(eventName, handler));
+            }
         };
         /**
-         * Compares this point against another and tests for equality
-         * @param point  The other point to compare to
+         * Wires this event dispatcher to also recieve events from another
          */
-        Point.prototype.equals = function (point) {
-            return this.x === point.x && this.y === point.y;
+        EventDispatcher.prototype.wire = function (eventDispatcher) {
+            eventDispatcher._wiredEventDispatchers.push(this);
         };
-        return Point;
+        /**
+         * Unwires this event dispatcher from another
+         */
+        EventDispatcher.prototype.unwire = function (eventDispatcher) {
+            var index = eventDispatcher._wiredEventDispatchers.indexOf(this);
+            if (index > -1) {
+                eventDispatcher._wiredEventDispatchers.splice(index, 1);
+            }
+        };
+        return EventDispatcher;
     })();
-    ex.Point = Point;
+    ex.EventDispatcher = EventDispatcher;
+})(ex || (ex = {}));
+/// <reference path="Events.ts" />
+var ex;
+(function (ex) {
     /**
-     * A 2D vector on a plane.
+     * Excalibur base class that provides basic functionality such as [[EventDispatcher]]
+     * and extending abilities for vanilla Javascript projects
      */
-    var Vector = (function (_super) {
-        __extends(Vector, _super);
-        /**
-         * @param x  X component of the Vector
-         * @param y  Y component of the Vector
-         */
-        function Vector(x, y) {
-            _super.call(this, x, y);
-            this.x = x;
-            this.y = y;
+    var Class = (function () {
+        function Class() {
+            this.eventDispatcher = new ex.EventDispatcher(this);
         }
         /**
-         * Returns a vector of unit length in the direction of the specified angle.
-         * @param angle The angle to generate the vector
+         * Add an event listener. You can listen for a variety of
+         * events off of the engine; see the events section below for a complete list.
+         * @param eventName  Name of the event to listen for
+         * @param handler    Event handler for the thrown event
+         * @obsolete Use [[Class.on]] instead
          */
-        Vector.fromAngle = function (angle) {
-            return new Vector(Math.cos(angle), Math.sin(angle));
+        Class.prototype.addEventListener = function (eventName, handler) {
+            this.eventDispatcher.subscribe(eventName, handler);
         };
         /**
-         * The distance to another vector
-         * @param v  The other vector
+         * Removes an event listener. If only the eventName is specified
+         * it will remove all handlers registered for that specific event. If the eventName
+         * and the handler instance are specified just that handler will be removed.
+         *
+         * @param eventName  Name of the event to listen for
+         * @param handler    Event handler for the thrown event
+         * @obsolete Use [[Class.off]] instead
          */
-        Vector.prototype.distance = function (v) {
-            if (!v) {
-                v = new Vector(0.0, 0.0);
-            }
-            return Math.sqrt(Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2));
+        Class.prototype.removeEventListener = function (eventName, handler) {
+            this.eventDispatcher.unsubscribe(eventName, handler);
         };
         /**
-         * Normalizes a vector to have a magnitude of 1.
+         * Alias for `addEventListener`. You can listen for a variety of
+         * events off of the engine; see the events section below for a complete list.
+         * @param eventName  Name of the event to listen for
+         * @param handler    Event handler for the thrown event
          */
-        Vector.prototype.normalize = function () {
-            var d = this.distance();
-            if (d > 0) {
-                return new Vector(this.x / d, this.y / d);
+        Class.prototype.on = function (eventName, handler) {
+            this.eventDispatcher.subscribe(eventName, handler);
+        };
+        /**
+         * Alias for `removeEventListener`. If only the eventName is specified
+         * it will remove all handlers registered for that specific event. If the eventName
+         * and the handler instance are specified only that handler will be removed.
+         *
+         * @param eventName  Name of the event to listen for
+         * @param handler    Event handler for the thrown event
+         */
+        Class.prototype.off = function (eventName, handler) {
+            this.eventDispatcher.unsubscribe(eventName, handler);
+        };
+        /**
+         * You may wish to extend native Excalibur functionality in vanilla Javascript.
+         * Any method on a class inheriting [[Class]] may be extended to support
+         * additional functionaliy. In the example below we create a new type called `MyActor`.
+         *
+         *
+         * ```js
+         * var MyActor = Actor.extend({
+         *
+         *    constructor: function() {
+         *       this.newprop = 'something';
+         *       Actor.apply(this, arguments);
+         *    },
+         *
+         *    update: function(engine, delta) {
+         *       // Implement custom update
+         *       // Call super constructor update
+         *       Actor.prototype.update.call(this, engine, delta);
+         *
+         *       console.log("Something cool!");
+         *    }
+         * });
+         *
+         * var myActor = new MyActor(100, 100, 100, 100, Color.Azure);
+         * ```
+         *
+         * In TypeScript, you only need to use the `extends` syntax, you do not need
+         * to use this method of extension.
+         *
+         * @param methods A JSON object contain any methods/properties you want to extend
+         */
+        Class.extend = function (methods) {
+            var parent = this;
+            var child;
+            if (methods && methods.hasOwnProperty('constructor')) {
+                child = methods.constructor;
             }
             else {
-                return new Vector(0, 1);
+                child = function () {
+                    return parent.apply(this, arguments);
+                };
             }
-        };
-        /**
-         * Scales a vector's by a factor of size
-         * @param size  The factor to scale the magnitude by
-         */
-        Vector.prototype.scale = function (size) {
-            return new Vector(this.x * size, this.y * size);
-        };
-        /**
-         * Adds one vector to another, alias for add
-         * @param v  The vector to add
-         */
-        Vector.prototype.plus = function (v) {
-            return this.add(v);
-        };
-        /**
-         * Adds one vector to another
-         * @param v The vector to add
-         */
-        Vector.prototype.add = function (v) {
-            return new Vector(this.x + v.x, this.y + v.y);
-        };
-        /**
-         * Subtracts a vector from another, alias for minus
-         * @param v The vector to subtract
-         */
-        Vector.prototype.subtract = function (v) {
-            return this.minus(v);
-        };
-        /**
-         * Subtracts a vector from the current vector
-         * @param v The vector to subtract
-         */
-        Vector.prototype.minus = function (v) {
-            return new Vector(this.x - v.x, this.y - v.y);
-        };
-        /**
-         * Performs a dot product with another vector
-         * @param v  The vector to dot
-         */
-        Vector.prototype.dot = function (v) {
-            return this.x * v.x + this.y * v.y;
-        };
-        /**
-         * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
-         * @param v  The vector to cross
-         */
-        Vector.prototype.cross = function (v) {
-            return this.x * v.y - this.y * v.x;
-        };
-        /**
-         * Returns the perpendicular vector to this one
-         */
-        Vector.prototype.perpendicular = function () {
-            return new Vector(this.y, -this.x);
-        };
-        /**
-         * Returns the normal vector to this one
-         */
-        Vector.prototype.normal = function () {
-            return this.perpendicular().normalize();
-        };
-        /**
-         * Returns the angle of this vector.
-         */
-        Vector.prototype.toAngle = function () {
-            return Math.atan2(this.y, this.x);
-        };
-        /**
-         * Returns the point represention of this vector
-         */
-        Vector.prototype.toPoint = function () {
-            return new Point(this.x, this.y);
-        };
-        /**
-         * Rotates the current vector around a point by a certain number of
-         * degrees in radians
-         */
-        Vector.prototype.rotate = function (angle, anchor) {
-            return _super.prototype.rotate.call(this, angle, anchor).toVector();
-        };
-        /**
-         * Creates new vector that has the same values as the previous.
-         */
-        Vector.prototype.clone = function () {
-            return new Vector(this.x, this.y);
-        };
-        /**
-         * A (0, 0) vector
-         */
-        Vector.Zero = new Vector(0, 0);
-        return Vector;
-    })(Point);
-    ex.Vector = Vector;
-    /**
-     * A 2D ray that can be cast into the scene to do collision detection
-     */
-    var Ray = (function () {
-        /**
-         * @param pos The starting position for the ray
-         * @param dir The vector indicating the direction of the ray
-         */
-        function Ray(pos, dir) {
-            this.pos = pos;
-            this.dir = dir.normalize();
-        }
-        /**
-         * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
-         * This number indicates the mathematical intersection time.
-         * @param line  The line to test
-         */
-        Ray.prototype.intersect = function (line) {
-            var numerator = line.begin.toVector().minus(this.pos.toVector());
-            // Test is line and ray are parallel and non intersecting
-            if (this.dir.cross(line.getSlope()) === 0 && numerator.cross(this.dir) !== 0) {
-                return -1;
-            }
-            // Lines are parallel
-            var divisor = (this.dir.cross(line.getSlope()));
-            if (divisor === 0) {
-                return -1;
-            }
-            var t = numerator.cross(line.getSlope()) / divisor;
-            if (t >= 0) {
-                var u = (numerator.cross(this.dir) / divisor) / line.getLength();
-                if (u >= 0 && u <= 1) {
-                    return t;
+            // Using constructor allows JS to lazily instantiate super classes
+            var Super = function () {
+                this.constructor = child;
+            };
+            Super.prototype = parent.prototype;
+            child.prototype = new Super;
+            if (methods) {
+                for (var prop in methods) {
+                    if (methods.hasOwnProperty(prop)) {
+                        child.prototype[prop] = methods[prop];
+                    }
                 }
             }
-            return -1;
+            // Make subclasses extendable
+            child.extend = Class.extend;
+            return child;
         };
-        /**
-         * Returns the point of intersection given the intersection time
-         */
-        Ray.prototype.getPoint = function (time) {
-            return this.pos.toVector().add(this.dir.scale(time)).toPoint();
-        };
-        return Ray;
+        return Class;
     })();
-    ex.Ray = Ray;
-    /**
-     * A 2D line segment
-     */
-    var Line = (function () {
-        /**
-         * @param begin  The starting point of the line segment
-         * @param end  The ending point of the line segment
-         */
-        function Line(begin, end) {
-            this.begin = begin;
-            this.end = end;
-        }
-        /**
-         * Returns the slope of the line in the form of a vector
-         */
-        Line.prototype.getSlope = function () {
-            var begin = this.begin.toVector();
-            var end = this.end.toVector();
-            var distance = begin.distance(end);
-            return end.minus(begin).scale(1 / distance);
-        };
-        /**
-         * Returns the length of the line segment in pixels
-         */
-        Line.prototype.getLength = function () {
-            var begin = this.begin.toVector();
-            var end = this.end.toVector();
-            var distance = begin.distance(end);
-            return distance;
-        };
-        return Line;
-    })();
-    ex.Line = Line;
-    /**
-     * A projection
-     * @todo
-     */
-    var Projection = (function () {
-        function Projection(min, max) {
-            this.min = min;
-            this.max = max;
-        }
-        Projection.prototype.overlaps = function (projection) {
-            return this.max > projection.min && projection.max > this.min;
-        };
-        Projection.prototype.getOverlap = function (projection) {
-            if (this.overlaps(projection)) {
-                if (this.max > projection.max) {
-                    return projection.max - this.min;
-                }
-                else {
-                    return this.max - projection.min;
-                }
-            }
-            return 0;
-        };
-        return Projection;
-    })();
-    ex.Projection = Projection;
+    ex.Class = Class;
 })(ex || (ex = {}));
-/// <reference path="Algebra.ts"/>
-/// <reference path="Events.ts"/>
-/**
- * Utilities
- *
- * Excalibur utilities for math, string manipulation, etc.
- */
 var ex;
 (function (ex) {
-    var Util;
-    (function (Util) {
-        Util.TwoPI = Math.PI * 2;
-        function base64Encode(inputStr) {
-            var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-            var outputStr = "";
-            var i = 0;
-            while (i < inputStr.length) {
-                //all three "& 0xff" added below are there to fix a known bug 
-                //with bytes returned by xhr.responseText
-                var byte1 = inputStr.charCodeAt(i++) & 0xff;
-                var byte2 = inputStr.charCodeAt(i++) & 0xff;
-                var byte3 = inputStr.charCodeAt(i++) & 0xff;
-                var enc1 = byte1 >> 2;
-                var enc2 = ((byte1 & 3) << 4) | (byte2 >> 4);
-                var enc3, enc4;
-                if (isNaN(byte2)) {
-                    enc3 = enc4 = 64;
+    /**
+     * Provides standard colors (e.g. [[Color.Black]])
+     * but you can also create custom colors using RGB, HSL, or Hex. Also provides
+     * useful color operations like [[Color.lighten]], [[Color.darken]], and more.
+     *
+     * ## Creating colors
+     *
+     * ```js
+     * // RGBA
+     * new ex.Color(r, g, b, a);
+     * ex.Color.fromRGB(r, g, b, a);
+     *
+     * // HSLA
+     * ex.Color.fromHSL(h, s, l, a);
+     *
+     * // Hex, alpha optional
+     * ex.Color.fromHex("#000000");
+     * ex.Color.fromHex("#000000FF");
+     * ```
+     *
+     * ## Working with colors
+     *
+     * Since Javascript does not support structs, if you change a color "constant" like [[Color.Black]]
+     * it will change it across the entire game. You can safely use the color operations
+     * like [[Color.lighten]] and [[Color.darken]] because they `clone` the color to
+     * return a new color. However, be aware that this can use up memory if used excessively.
+     *
+     * Just be aware that if you directly alter properties (i.e. [[Color.r]], etc.) , this will change it
+     * for all the code that uses that instance of Color.
+     */
+    var Color = (function () {
+        /**
+         * Creates a new instance of Color from an r, g, b, a
+         *
+         * @param r  The red component of color (0-255)
+         * @param g  The green component of color (0-255)
+         * @param b  The blue component of color (0-255)
+         * @param a  The alpha component of color (0-1.0)
+         */
+        function Color(r, g, b, a) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.a = (a != null ? a : 1);
+        }
+        /**
+         * Creates a new instance of Color from an r, g, b, a
+         *
+         * @param r  The red component of color (0-255)
+         * @param g  The green component of color (0-255)
+         * @param b  The blue component of color (0-255)
+         * @param a  The alpha component of color (0-1.0)
+         */
+        Color.fromRGB = function (r, g, b, a) {
+            return new Color(r, g, b, a);
+        };
+        /**
+         * Creates a new inscance of Color from a hex string
+         *
+         * @param hex  CSS color string of the form #ffffff, the alpha component is optional
+         */
+        Color.fromHex = function (hex) {
+            var hexRegEx = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})?$/i;
+            var match = null;
+            if (match = hex.match(hexRegEx)) {
+                var r = parseInt(match[1], 16);
+                var g = parseInt(match[2], 16);
+                var b = parseInt(match[3], 16);
+                var a = 1;
+                if (match[4]) {
+                    a = parseInt(match[4], 16) / 255;
+                }
+                return new Color(r, g, b, a);
+            }
+            else {
+                throw new Error("Invalid hex string: " + hex);
+            }
+        };
+        /**
+         * Creats a new instance of Color from hsla values
+         *
+         * @param h  Hue is represented [0-1]
+         * @param s  Saturation is represented [0-1]
+         * @param l  Luminance is represented [0-1]
+         * @param a  Alpha is represented [0-1]
+         */
+        Color.fromHSL = function (h, s, l, a) {
+            if (a === void 0) { a = 1.0; }
+            var temp = new HSLColor(h, s, l, a);
+            return temp.toRGBA();
+        };
+        /**
+         * Lightens the current color by a specified amount
+         *
+         * @param factor  The amount to lighten by [0-1]
+         */
+        Color.prototype.lighten = function (factor) {
+            if (factor === void 0) { factor = 0.1; }
+            var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+            temp.l += (temp.l * factor);
+            return temp.toRGBA();
+        };
+        /**
+         * Darkens the current color by a specified amount
+         *
+         * @param factor  The amount to darken by [0-1]
+         */
+        Color.prototype.darken = function (factor) {
+            if (factor === void 0) { factor = 0.1; }
+            var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+            temp.l -= (temp.l * factor);
+            return temp.toRGBA();
+        };
+        /**
+         * Saturates the current color by a specified amount
+         *
+         * @param factor  The amount to saturate by [0-1]
+         */
+        Color.prototype.saturate = function (factor) {
+            if (factor === void 0) { factor = 0.1; }
+            var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+            temp.s += (temp.s * factor);
+            return temp.toRGBA();
+        };
+        /**
+         * Desaturates the current color by a specified amount
+         *
+         * @param factor  The amount to desaturate by [0-1]
+         */
+        Color.prototype.desaturate = function (factor) {
+            if (factor === void 0) { factor = 0.1; }
+            var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+            temp.s -= (temp.s * factor);
+            return temp.toRGBA();
+        };
+        /**
+         * Multiplies a color by another, results in a darker color
+         *
+         * @param color  The other color
+         */
+        Color.prototype.mulitiply = function (color) {
+            var newR = ((color.r / 255 * this.r / 255) * 255);
+            var newG = ((color.g / 255 * this.g / 255) * 255);
+            var newB = ((color.b / 255 * this.b / 255) * 255);
+            var newA = (color.a * this.a);
+            return new Color(newR, newG, newB, newA);
+        };
+        /**
+         * Screens a color by another, results in a lighter color
+         *
+         * @param color  The other color
+         */
+        Color.prototype.screen = function (color) {
+            var color1 = color.invert();
+            var color2 = color.invert();
+            return color1.mulitiply(color2).invert();
+        };
+        /**
+         * Inverts the current color
+         */
+        Color.prototype.invert = function () {
+            return new Color(255 - this.r, 255 - this.g, 255 - this.b, 1.0 - this.a);
+        };
+        /**
+         * Averages the current color with another
+         *
+         * @param color  The other color
+         */
+        Color.prototype.average = function (color) {
+            var newR = (color.r + this.r) / 2;
+            var newG = (color.g + this.g) / 2;
+            var newB = (color.b + this.b) / 2;
+            var newA = (color.a + this.a) / 2;
+            return new Color(newR, newG, newB, newA);
+        };
+        /**
+         * Returns a CSS string representation of a color.
+         */
+        Color.prototype.toString = function () {
+            var result = String(this.r.toFixed(0)) + ", " + String(this.g.toFixed(0)) + ", " + String(this.b.toFixed(0));
+            if (this.a !== undefined || this.a !== null) {
+                return "rgba(" + result + ", " + String(this.a) + ")";
+            }
+            return "rgb(" + result + ")";
+        };
+        /**
+         * Returns a CSS string representation of a color.
+         */
+        Color.prototype.fillStyle = function () {
+            return this.toString();
+        };
+        /**
+         * Returns a clone of the current color.
+         */
+        Color.prototype.clone = function () {
+            return new Color(this.r, this.g, this.b, this.a);
+        };
+        /**
+         * Black (#000000)
+         */
+        Color.Black = Color.fromHex('#000000');
+        /**
+         * White (#FFFFFF)
+         */
+        Color.White = Color.fromHex('#FFFFFF');
+        /**
+         * Gray (#808080)
+         */
+        Color.Gray = Color.fromHex('#808080');
+        /**
+         * Light gray (#D3D3D3)
+         */
+        Color.LightGray = Color.fromHex('#D3D3D3');
+        /**
+         * Dark gray (#A9A9A9)
+         */
+        Color.DarkGray = Color.fromHex('#A9A9A9');
+        /**
+         * Yellow (#FFFF00)
+         */
+        Color.Yellow = Color.fromHex('#FFFF00');
+        /**
+         * Orange (#FFA500)
+         */
+        Color.Orange = Color.fromHex('#FFA500');
+        /**
+         * Red (#FF0000)
+         */
+        Color.Red = Color.fromHex('#FF0000');
+        /**
+         * Vermillion (#FF5B31)
+         */
+        Color.Vermillion = Color.fromHex('#FF5B31');
+        /**
+         * Rose (#FF007F)
+         */
+        Color.Rose = Color.fromHex('#FF007F');
+        /**
+         * Magenta (#FF00FF)
+         */
+        Color.Magenta = Color.fromHex('#FF00FF');
+        /**
+         * Violet (#7F00FF)
+         */
+        Color.Violet = Color.fromHex('#7F00FF');
+        /**
+         * Blue (#0000FF)
+         */
+        Color.Blue = Color.fromHex('#0000FF');
+        /**
+         * Azure (#007FFF)
+         */
+        Color.Azure = Color.fromHex('#007FFF');
+        /**
+         * Cyan (#00FFFF)
+         */
+        Color.Cyan = Color.fromHex('#00FFFF');
+        /**
+         * Viridian (#59978F)
+         */
+        Color.Viridian = Color.fromHex('#59978F');
+        /**
+         * Green (#00FF00)
+         */
+        Color.Green = Color.fromHex('#00FF00');
+        /**
+         * Chartreuse (#7FFF00)
+         */
+        Color.Chartreuse = Color.fromHex('#7FFF00');
+        /**
+         * Transparent (#FFFFFF00)
+         */
+        Color.Transparent = Color.fromHex('#FFFFFF00');
+        return Color;
+    })();
+    ex.Color = Color;
+    /**
+     * Internal HSL Color representation
+     *
+     * http://en.wikipedia.org/wiki/HSL_and_HSV
+     * http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c
+     */
+    var HSLColor = (function () {
+        function HSLColor(h, s, l, a) {
+            this.h = h;
+            this.s = s;
+            this.l = l;
+            this.a = a;
+        }
+        HSLColor.fromRGBA = function (r, g, b, a) {
+            r /= 255, g /= 255, b /= 255;
+            var max = Math.max(r, g, b), min = Math.min(r, g, b);
+            var h, s, l = (max + min) / 2;
+            if (max === min) {
+                h = s = 0; // achromatic
+            }
+            else {
+                var d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r:
+                        h = (g - b) / d + (g < b ? 6 : 0);
+                        break;
+                    case g:
+                        h = (b - r) / d + 2;
+                        break;
+                    case b:
+                        h = (r - g) / d + 4;
+                        break;
+                }
+                h /= 6;
+            }
+            return new HSLColor(h, s, l, a);
+        };
+        HSLColor.prototype.toRGBA = function () {
+            var r, g, b;
+            if (this.s == 0) {
+                r = g = b = this.l; // achromatic
+            }
+            else {
+                function hue2rgb(p, q, t) {
+                    if (t < 0)
+                        t += 1;
+                    if (t > 1)
+                        t -= 1;
+                    if (t < 1 / 6)
+                        return p + (q - p) * 6 * t;
+                    if (t < 1 / 2)
+                        return q;
+                    if (t < 2 / 3)
+                        return p + (q - p) * (2 / 3 - t) * 6;
+                    return p;
+                }
+                var q = this.l < 0.5 ? this.l * (1 + this.s) : this.l + this.s - this.l * this.s;
+                var p = 2 * this.l - q;
+                r = hue2rgb(p, q, this.h + 1 / 3);
+                g = hue2rgb(p, q, this.h);
+                b = hue2rgb(p, q, this.h - 1 / 3);
+            }
+            return new Color(r * 255, g * 255, b * 255, this.a);
+        };
+        return HSLColor;
+    })();
+})(ex || (ex = {}));
+var ex;
+(function (ex) {
+    /**
+     * Logging level that Excalibur will tag
+     */
+    (function (LogLevel) {
+        LogLevel[LogLevel["Debug"] = 0] = "Debug";
+        LogLevel[LogLevel["Info"] = 1] = "Info";
+        LogLevel[LogLevel["Warn"] = 2] = "Warn";
+        LogLevel[LogLevel["Error"] = 3] = "Error";
+        LogLevel[LogLevel["Fatal"] = 4] = "Fatal";
+    })(ex.LogLevel || (ex.LogLevel = {}));
+    var LogLevel = ex.LogLevel;
+    /**
+     * Static singleton that represents the logging facility for Excalibur.
+     * Excalibur comes built-in with a [[ConsoleAppender]] and [[ScreenAppender]].
+     * Derive from [[IAppender]] to create your own logging appenders.
+     *
+     * ## Example: Logging
+     *
+     * ```js
+     * // set default log level (default: Info)
+     * ex.Logger.getInstance().defaultLevel = ex.LogLevel.Warn;
+     *
+     * // this will not be shown because it is below Warn
+     * ex.Logger.getInstance().info("This will be logged as Info");
+     * // this will show because it is Warn
+     * ex.Logger.getInstance().warn("This will be logged as Warn");
+     * // this will show because it is above Warn
+     * ex.Logger.getInstance().error("This will be logged as Error");
+     * // this will show because it is above Warn
+     * ex.Logger.getInstance().fatal("This will be logged as Fatal");
+     * ```
+     */
+    var Logger = (function () {
+        function Logger() {
+            this.appenders = [];
+            /**
+             * Gets or sets the default logging level. Excalibur will only log
+             * messages if equal to or above this level. Default: [[LogLevel.Info]]
+             */
+            this.defaultLevel = 1 /* Info */;
+            if (Logger._instance) {
+                throw new Error("Logger is a singleton");
+            }
+            Logger._instance = this;
+            // Default console appender
+            Logger._instance.addAppender(new ConsoleAppender());
+            return Logger._instance;
+        }
+        /**
+         * Gets the current static instance of Logger
+         */
+        Logger.getInstance = function () {
+            if (Logger._instance == null) {
+                Logger._instance = new Logger();
+            }
+            return Logger._instance;
+        };
+        /**
+         * Adds a new [[IAppender]] to the list of appenders to write to
+         */
+        Logger.prototype.addAppender = function (appender) {
+            this.appenders.push(appender);
+        };
+        /**
+         * Clears all appenders from the logger
+         */
+        Logger.prototype.clearAppenders = function () {
+            this.appenders.length = 0;
+        };
+        /**
+         * Logs a message at a given LogLevel
+         * @param level  The LogLevel`to log the message at
+         * @param args   An array of arguments to write to an appender
+         */
+        Logger.prototype._log = function (level, args) {
+            if (level == null) {
+                level = this.defaultLevel;
+            }
+            var i = 0, len = this.appenders.length;
+            for (i; i < len; i++) {
+                if (level >= this.defaultLevel) {
+                    this.appenders[i].log(level, args);
+                }
+            }
+        };
+        /**
+         * Writes a log message at the [[LogLevel.Debug]] level
+         * @param args  Accepts any number of arguments
+         */
+        Logger.prototype.debug = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i - 0] = arguments[_i];
+            }
+            this._log(0 /* Debug */, args);
+        };
+        /**
+         * Writes a log message at the [[LogLevel.Info]] level
+         * @param args  Accepts any number of arguments
+         */
+        Logger.prototype.info = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i - 0] = arguments[_i];
+            }
+            this._log(1 /* Info */, args);
+        };
+        /**
+         * Writes a log message at the [[LogLevel.Warn]] level
+         * @param args  Accepts any number of arguments
+         */
+        Logger.prototype.warn = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i - 0] = arguments[_i];
+            }
+            this._log(2 /* Warn */, args);
+        };
+        /**
+         * Writes a log message at the [[LogLevel.Error]] level
+         * @param args  Accepts any number of arguments
+         */
+        Logger.prototype.error = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i - 0] = arguments[_i];
+            }
+            this._log(3 /* Error */, args);
+        };
+        /**
+         * Writes a log message at the [[LogLevel.Fatal]] level
+         * @param args  Accepts any number of arguments
+         */
+        Logger.prototype.fatal = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i - 0] = arguments[_i];
+            }
+            this._log(4 /* Fatal */, args);
+        };
+        Logger._instance = null;
+        return Logger;
+    })();
+    ex.Logger = Logger;
+    /**
+     * Console appender for browsers (i.e. `console.log`)
+     */
+    var ConsoleAppender = (function () {
+        function ConsoleAppender() {
+        }
+        /**
+         * Logs a message at the given [[LogLevel]]
+         * @param level  Level to log at
+         * @param args   Arguments to log
+         */
+        ConsoleAppender.prototype.log = function (level, args) {
+            // Check for console support
+            if (!console && !console.log && console.warn && console.error) {
+                // todo maybe do something better than nothing
+                return;
+            }
+            // Create a new console args array
+            var consoleArgs = [];
+            consoleArgs.unshift.apply(consoleArgs, args);
+            consoleArgs.unshift("[" + LogLevel[level] + "] : ");
+            if (level < 2 /* Warn */) {
+                // Call .log for Debug/Info
+                if (console.log.apply) {
+                    // this is required on some older browsers that don't support apply on console.log :(
+                    console.log.apply(console, consoleArgs);
                 }
                 else {
-                    enc3 = ((byte2 & 15) << 2) | (byte3 >> 6);
-                    if (isNaN(byte3)) {
-                        enc4 = 64;
-                    }
-                    else {
-                        enc4 = byte3 & 63;
-                    }
-                }
-                outputStr += b64.charAt(enc1) + b64.charAt(enc2) + b64.charAt(enc3) + b64.charAt(enc4);
-            }
-            return outputStr;
-        }
-        Util.base64Encode = base64Encode;
-        function clamp(val, min, max) {
-            return val <= min ? min : (val >= max ? max : val);
-        }
-        Util.clamp = clamp;
-        function drawLine(ctx, color, startx, starty, endx, endy) {
-            ctx.beginPath();
-            ctx.strokeStyle = color;
-            ctx.moveTo(startx, starty);
-            ctx.lineTo(endx, endy);
-            ctx.closePath();
-            ctx.stroke();
-        }
-        Util.drawLine = drawLine;
-        function randomInRange(min, max) {
-            return min + Math.random() * (max - min);
-        }
-        Util.randomInRange = randomInRange;
-        function randomIntInRange(min, max) {
-            return Math.round(randomInRange(min, max));
-        }
-        Util.randomIntInRange = randomIntInRange;
-        function canonicalizeAngle(angle) {
-            var tmpAngle = angle;
-            if (angle > this.TwoPI) {
-                while (tmpAngle > this.TwoPI) {
-                    tmpAngle -= this.TwoPI;
+                    console.log(consoleArgs.join(' '));
                 }
             }
-            if (angle < 0) {
-                while (tmpAngle < 0) {
-                    tmpAngle += this.TwoPI;
+            else if (level < 3 /* Error */) {
+                // Call .warn for Warn
+                if (console.warn.apply) {
+                    console.warn.apply(console, consoleArgs);
+                }
+                else {
+                    console.warn(consoleArgs.join(' '));
                 }
             }
-            return tmpAngle;
-        }
-        Util.canonicalizeAngle = canonicalizeAngle;
-        function toDegrees(radians) {
-            return 180 / Math.PI * radians;
-        }
-        Util.toDegrees = toDegrees;
-        function toRadians(degrees) {
-            return degrees / 180 * Math.PI;
-        }
-        Util.toRadians = toRadians;
-        function getPosition(el) {
-            var oLeft = 0, oTop = 0;
-            var calcOffsetLeft = function (parent) {
-                oLeft += parent.offsetLeft;
-                if (parent.offsetParent) {
-                    calcOffsetLeft(parent.offsetParent);
+            else {
+                // Call .error for Error/Fatal
+                if (console.error.apply) {
+                    console.error.apply(console, consoleArgs);
                 }
-            };
-            var calcOffsetTop = function (parent) {
-                oTop += parent.offsetTop;
-                if (parent.offsetParent) {
-                    calcOffsetTop(parent.offsetParent);
+                else {
+                    console.error(consoleArgs.join(' '));
                 }
-            };
-            calcOffsetLeft(el);
-            calcOffsetTop(el);
-            return new ex.Point(oLeft, oTop);
-        }
-        Util.getPosition = getPosition;
-        function addItemToArray(item, array) {
-            if (array.indexOf(item) === -1) {
-                array.push(item);
-                return true;
             }
-            return false;
-        }
-        Util.addItemToArray = addItemToArray;
-        function removeItemToArray(item, array) {
-            var index = -1;
-            if ((index = array.indexOf(item)) > -1) {
-                array.splice(index, 1);
-                return true;
-            }
-            return false;
-        }
-        Util.removeItemToArray = removeItemToArray;
-        function getOppositeSide(side) {
-            if (side === 1 /* Top */)
-                return 2 /* Bottom */;
-            if (side === 2 /* Bottom */)
-                return 1 /* Top */;
-            if (side === 3 /* Left */)
-                return 4 /* Right */;
-            if (side === 4 /* Right */)
-                return 3 /* Left */;
-            return 0 /* None */;
-        }
-        Util.getOppositeSide = getOppositeSide;
+        };
+        return ConsoleAppender;
+    })();
+    ex.ConsoleAppender = ConsoleAppender;
+    /**
+     * On-screen (canvas) appender
+     */
+    var ScreenAppender = (function () {
         /**
-         * Excaliburs dynamically resizing collection
+         * @param width   Width of the screen appender in pixels
+         * @param height  Height of the screen appender in pixels
          */
-        var Collection = (function () {
-            /**
-             * @param initialSize  Initial size of the internal backing array
-             */
-            function Collection(initialSize) {
-                if (initialSize === void 0) { initialSize = Collection.DefaultSize; }
-                this.internalArray = null;
-                this.endPointer = 0;
-                this.internalArray = new Array(initialSize);
+        function ScreenAppender(width, height) {
+            // @todo Clean this up
+            this._messages = [];
+            this.canvas = document.createElement('canvas');
+            this.canvas.width = width || window.innerWidth;
+            this.canvas.height = height || window.innerHeight;
+            this.canvas.style.position = 'absolute';
+            this.ctx = this.canvas.getContext('2d');
+            document.body.appendChild(this.canvas);
+        }
+        /**
+         * Logs a message at the given [[LogLevel]]
+         * @param level  Level to log at
+         * @param args   Arguments to log
+         */
+        ScreenAppender.prototype.log = function (level, args) {
+            var message = args.join(",");
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this._messages.unshift("[" + LogLevel[level] + "] : " + message);
+            var pos = 10;
+            var opacity = 1.0;
+            for (var i = 0; i < this._messages.length; i++) {
+                this.ctx.fillStyle = 'rgba(255,255,255,' + opacity.toFixed(2) + ')';
+                this.ctx.fillText(this._messages[i], 200, pos);
+                pos += 10;
+                opacity = opacity > 0 ? opacity - .05 : 0;
             }
-            Collection.prototype.resize = function () {
-                var newSize = this.internalArray.length * 2;
-                var newArray = new Array(newSize);
-                var count = this.count();
-                for (var i = 0; i < count; i++) {
-                    newArray[i] = this.internalArray[i];
+        };
+        return ScreenAppender;
+    })();
+    ex.ScreenAppender = ScreenAppender;
+})(ex || (ex = {}));
+var ex;
+(function (ex) {
+    /**
+     * The Excalibur timer hooks into the internal timer and fires callbacks,
+     * after a certain interval, optionally repeating.
+     */
+    var Timer = (function () {
+        /**
+         * @param callback   The callback to be fired after the interval is complete.
+         * @param repeats    Indicates whether this call back should be fired only once, or repeat after every interval as completed.
+         */
+        function Timer(fcn, interval, repeats) {
+            this.id = 0;
+            this.interval = 10;
+            this.fcn = function () {
+            };
+            this.repeats = false;
+            this.elapsedTime = 0;
+            this._totalTimeAlive = 0;
+            this.complete = false;
+            this.scene = null;
+            this.id = Timer.id++;
+            this.interval = interval || this.interval;
+            this.fcn = fcn || this.fcn;
+            this.repeats = repeats || this.repeats;
+        }
+        /**
+         * Updates the timer after a certain number of milliseconds have elapsed. This is used internally by the engine.
+         * @param delta  Number of elapsed milliseconds since the last update.
+         */
+        Timer.prototype.update = function (delta) {
+            this._totalTimeAlive += delta;
+            this.elapsedTime += delta;
+            if (this.elapsedTime > this.interval) {
+                this.fcn.call(this);
+                if (this.repeats) {
+                    this.elapsedTime = 0;
                 }
-                delete this.internalArray;
-                this.internalArray = newArray;
-            };
-            /**
-             * Push elements to the end of the collection
-             */
-            Collection.prototype.push = function (element) {
-                if (this.endPointer === this.internalArray.length) {
-                    this.resize();
+                else {
+                    this.complete = true;
                 }
-                return this.internalArray[this.endPointer++] = element;
-            };
-            /**
-             * Removes elements from the end of the collection
-             */
-            Collection.prototype.pop = function () {
-                this.endPointer = this.endPointer - 1 < 0 ? 0 : this.endPointer - 1;
-                return this.internalArray[this.endPointer];
-            };
-            /**
-             * Returns the count of the collection
-             */
-            Collection.prototype.count = function () {
-                return this.endPointer;
-            };
-            /**
-             * Empties the collection
-             */
-            Collection.prototype.clear = function () {
-                this.endPointer = 0;
-            };
-            /**
-             * Returns the size of the internal backing array
-             */
-            Collection.prototype.internalSize = function () {
-                return this.internalArray.length;
-            };
-            /**
-             * Returns an element at a specific index
-             * @param index  Index of element to retreive
-             */
-            Collection.prototype.elementAt = function (index) {
-                if (index >= this.count()) {
-                    return;
-                }
-                return this.internalArray[index];
-            };
-            /**
-             * Inserts an element at a specific index
-             * @param index  Index to insert the element
-             */
-            Collection.prototype.insert = function (index, value) {
-                if (index >= this.count()) {
-                    this.resize();
-                }
-                return this.internalArray[index] = value;
-            };
-            /**
-             * Removes an element at a specific index
-             * @param index  Index of element to remove
-             */
-            Collection.prototype.remove = function (index) {
-                var count = this.count();
-                if (count === 0)
-                    return;
-                // O(n) Shift 
-                var removed = this.internalArray[index];
-                for (var i = index; i < count; i++) {
-                    this.internalArray[i] = this.internalArray[i + 1];
-                }
-                this.endPointer--;
-                return removed;
-            };
-            /**
-             * Removes an element by reference
-             * @param element  Element to retreive
-             */
-            Collection.prototype.removeElement = function (element) {
-                var index = this.internalArray.indexOf(element);
-                this.remove(index);
-            };
-            /**
-             * Returns a array representing the collection
-             */
-            Collection.prototype.toArray = function () {
-                return this.internalArray.slice(0, this.endPointer);
-            };
-            /**
-             * Iterate over every element in the collection
-             * @param func  Callback to call for each element passing a reference to the element and its index, returned values are ignored
-             */
-            Collection.prototype.forEach = function (func) {
-                var i = 0, count = this.count();
-                for (i; i < count; i++) {
-                    func.call(this, this.internalArray[i], i);
-                }
-            };
-            /**
-             * Mutate every element in the collection
-             * @param func  Callback to call for each element passing a reference to the element and its index, any values returned mutate the collection
-             */
-            Collection.prototype.map = function (func) {
-                var count = this.count();
-                for (var i = 0; i < count; i++) {
-                    this.internalArray[i] = func.call(this, this.internalArray[i], i);
-                }
-            };
-            /**
-             * Default collection size
-             */
-            Collection.DefaultSize = 200;
-            return Collection;
-        })();
-        Util.Collection = Collection;
-    })(Util = ex.Util || (ex.Util = {}));
+            }
+        };
+        Timer.prototype.getTimeRunning = function () {
+            return this._totalTimeAlive;
+        };
+        /**
+         * Cancels the timer, preventing any further executions.
+         */
+        Timer.prototype.cancel = function () {
+            if (this.scene) {
+                this.scene.cancelTimer(this);
+            }
+        };
+        Timer.id = 0;
+        return Timer;
+    })();
+    ex.Timer = Timer;
 })(ex || (ex = {}));
 var ex;
 (function (ex) {
@@ -2304,1047 +2974,6 @@ var ex;
     })();
     ex.SATBoundingBox = SATBoundingBox;
 })(ex || (ex = {}));
-/// <reference path="Events.ts" />
-var ex;
-(function (ex) {
-    /**
-     * Excalibur base class that provides basic functionality such as [[EventDispatcher]]
-     * and extending abilities for vanilla Javascript projects
-     */
-    var Class = (function () {
-        function Class() {
-            this.eventDispatcher = new ex.EventDispatcher(this);
-        }
-        /**
-         * Add an event listener. You can listen for a variety of
-         * events off of the engine; see the events section below for a complete list.
-         * @param eventName  Name of the event to listen for
-         * @param handler    Event handler for the thrown event
-         * @obsolete Use [[Class.on]] instead
-         */
-        Class.prototype.addEventListener = function (eventName, handler) {
-            this.eventDispatcher.subscribe(eventName, handler);
-        };
-        /**
-         * Removes an event listener. If only the eventName is specified
-         * it will remove all handlers registered for that specific event. If the eventName
-         * and the handler instance are specified just that handler will be removed.
-         *
-         * @param eventName  Name of the event to listen for
-         * @param handler    Event handler for the thrown event
-         * @obsolete Use [[Class.off]] instead
-         */
-        Class.prototype.removeEventListener = function (eventName, handler) {
-            this.eventDispatcher.unsubscribe(eventName, handler);
-        };
-        /**
-         * Alias for `addEventListener`. You can listen for a variety of
-         * events off of the engine; see the events section below for a complete list.
-         * @param eventName  Name of the event to listen for
-         * @param handler    Event handler for the thrown event
-         */
-        Class.prototype.on = function (eventName, handler) {
-            this.eventDispatcher.subscribe(eventName, handler);
-        };
-        /**
-         * Alias for `removeEventListener`. If only the eventName is specified
-         * it will remove all handlers registered for that specific event. If the eventName
-         * and the handler instance are specified only that handler will be removed.
-         *
-         * @param eventName  Name of the event to listen for
-         * @param handler    Event handler for the thrown event
-         */
-        Class.prototype.off = function (eventName, handler) {
-            this.eventDispatcher.unsubscribe(eventName, handler);
-        };
-        /**
-         * You may wish to extend native Excalibur functionality in vanilla Javascript.
-         * Any method on a class inheriting [[Class]] may be extended to support
-         * additional functionaliy. In the example below we create a new type called `MyActor`.
-         *
-         *
-         * ```js
-         * var MyActor = Actor.extend({
-         *
-         *    constructor: function() {
-         *       this.newprop = 'something';
-         *       Actor.apply(this, arguments);
-         *    },
-         *
-         *    update: function(engine, delta) {
-         *       // Implement custom update
-         *       // Call super constructor update
-         *       Actor.prototype.update.call(this, engine, delta);
-         *
-         *       console.log("Something cool!");
-         *    }
-         * });
-         *
-         * var myActor = new MyActor(100, 100, 100, 100, Color.Azure);
-         * ```
-         *
-         * In TypeScript, you only need to use the `extends` syntax, you do not need
-         * to use this method of extension.
-         *
-         * @param methods A JSON object contain any methods/properties you want to extend
-         */
-        Class.extend = function (methods) {
-            var parent = this;
-            var child;
-            if (methods && methods.hasOwnProperty('constructor')) {
-                child = methods.constructor;
-            }
-            else {
-                child = function () {
-                    return parent.apply(this, arguments);
-                };
-            }
-            // Using constructor allows JS to lazily instantiate super classes
-            var Super = function () {
-                this.constructor = child;
-            };
-            Super.prototype = parent.prototype;
-            child.prototype = new Super;
-            if (methods) {
-                for (var prop in methods) {
-                    if (methods.hasOwnProperty(prop)) {
-                        child.prototype[prop] = methods[prop];
-                    }
-                }
-            }
-            // Make subclasses extendable
-            child.extend = Class.extend;
-            return child;
-        };
-        return Class;
-    })();
-    ex.Class = Class;
-})(ex || (ex = {}));
-var ex;
-(function (ex) {
-    /**
-     * The Excalibur timer hooks into the internal timer and fires callbacks,
-     * after a certain interval, optionally repeating.
-     */
-    var Timer = (function () {
-        /**
-         * @param callback   The callback to be fired after the interval is complete.
-         * @param repeats    Indicates whether this call back should be fired only once, or repeat after every interval as completed.
-         */
-        function Timer(fcn, interval, repeats) {
-            this.id = 0;
-            this.interval = 10;
-            this.fcn = function () {
-            };
-            this.repeats = false;
-            this.elapsedTime = 0;
-            this._totalTimeAlive = 0;
-            this.complete = false;
-            this.scene = null;
-            this.id = Timer.id++;
-            this.interval = interval || this.interval;
-            this.fcn = fcn || this.fcn;
-            this.repeats = repeats || this.repeats;
-        }
-        /**
-         * Updates the timer after a certain number of milliseconds have elapsed. This is used internally by the engine.
-         * @param delta  Number of elapsed milliseconds since the last update.
-         */
-        Timer.prototype.update = function (delta) {
-            this._totalTimeAlive += delta;
-            this.elapsedTime += delta;
-            if (this.elapsedTime > this.interval) {
-                this.fcn.call(this);
-                if (this.repeats) {
-                    this.elapsedTime = 0;
-                }
-                else {
-                    this.complete = true;
-                }
-            }
-        };
-        Timer.prototype.getTimeRunning = function () {
-            return this._totalTimeAlive;
-        };
-        /**
-         * Cancels the timer, preventing any further executions.
-         */
-        Timer.prototype.cancel = function () {
-            if (this.scene) {
-                this.scene.cancelTimer(this);
-            }
-        };
-        Timer.id = 0;
-        return Timer;
-    })();
-    ex.Timer = Timer;
-})(ex || (ex = {}));
-/// <reference path="../Actor.ts"/>
-/// <reference path="Side.ts"/>
-/// <reference path="ICollisionResolver.ts"/> 
-var ex;
-(function (ex) {
-    var NaiveCollisionResolver = (function () {
-        function NaiveCollisionResolver() {
-        }
-        NaiveCollisionResolver.prototype.register = function (target) {
-            // pass
-        };
-        NaiveCollisionResolver.prototype.remove = function (tartet) {
-            // pass
-        };
-        NaiveCollisionResolver.prototype.evaluate = function (targets) {
-            // Retrieve the list of potential colliders, exclude killed, prevented, and self
-            var potentialColliders = targets.filter(function (other) {
-                return !other.isKilled() && other.collisionType !== 0 /* PreventCollision */;
-            });
-            var actor1;
-            var actor2;
-            var collisionPairs = [];
-            for (var j = 0, l = potentialColliders.length; j < l; j++) {
-                actor1 = potentialColliders[j];
-                for (var i = j + 1; i < l; i++) {
-                    actor2 = potentialColliders[i];
-                    var minimumTranslationVector;
-                    if (minimumTranslationVector = actor1.collides(actor2)) {
-                        var side = actor1.getSideFromIntersect(minimumTranslationVector);
-                        var collisionPair = new ex.CollisionPair(actor1, actor2, minimumTranslationVector, side);
-                        if (!collisionPairs.some(function (cp) {
-                            return cp.equals(collisionPair);
-                        })) {
-                            collisionPairs.push(collisionPair);
-                        }
-                    }
-                }
-            }
-            var k = 0, len = collisionPairs.length;
-            for (k; k < len; k++) {
-                collisionPairs[k].evaluate();
-            }
-            return collisionPairs;
-        };
-        NaiveCollisionResolver.prototype.update = function (targets) {
-            return 0;
-        };
-        NaiveCollisionResolver.prototype.debugDraw = function (ctx, delta) {
-        };
-        return NaiveCollisionResolver;
-    })();
-    ex.NaiveCollisionResolver = NaiveCollisionResolver;
-})(ex || (ex = {}));
-/// <reference path="BoundingBox.ts"/>
-var ex;
-(function (ex) {
-    var TreeNode = (function () {
-        function TreeNode(parent) {
-            this.parent = parent;
-            this.parent = parent || null;
-            this.actor = null;
-            this.bounds = new ex.BoundingBox();
-            this.left = null;
-            this.right = null;
-            this.height = 0;
-        }
-        TreeNode.prototype.isLeaf = function () {
-            return (!this.left && !this.right);
-        };
-        return TreeNode;
-    })();
-    ex.TreeNode = TreeNode;
-    var DynamicTree = (function () {
-        function DynamicTree() {
-            this.root = null;
-            this.nodes = {};
-        }
-        DynamicTree.prototype.insert = function (leaf) {
-            // If there are no nodes in the tree, make this the root leaf
-            if (this.root === null) {
-                this.root = leaf;
-                this.root.parent = null;
-                return;
-            }
-            // Search the tree for a node that is not a leaf and find the best place to insert
-            var leafAABB = leaf.bounds;
-            var currentRoot = this.root;
-            while (!currentRoot.isLeaf()) {
-                var left = currentRoot.left;
-                var right = currentRoot.right;
-                var area = currentRoot.bounds.getPerimeter();
-                var combinedAABB = currentRoot.bounds.combine(leafAABB);
-                var combinedArea = combinedAABB.getPerimeter();
-                // Calculate cost heuristic for creating a new parent and leaf
-                var cost = 2 * combinedArea;
-                // Minimum cost of pushing the leaf down the tree
-                var inheritanceCost = 2 * (combinedArea - area);
-                // Cost of descending
-                var leftCost = 0;
-                var leftCombined = leafAABB.combine(left.bounds);
-                var newArea;
-                var oldArea;
-                if (left.isLeaf()) {
-                    leftCost = leftCombined.getPerimeter() + inheritanceCost;
-                }
-                else {
-                    oldArea = left.bounds.getPerimeter();
-                    newArea = leftCombined.getPerimeter();
-                    leftCost = (newArea - oldArea) + inheritanceCost;
-                }
-                var rightCost = 0;
-                var rightCombined = leafAABB.combine(right.bounds);
-                if (right.isLeaf()) {
-                    rightCost = rightCombined.getPerimeter() + inheritanceCost;
-                }
-                else {
-                    oldArea = right.bounds.getPerimeter();
-                    newArea = rightCombined.getPerimeter();
-                    rightCost = (newArea - oldArea) + inheritanceCost;
-                }
-                // cost is acceptable
-                if (cost < leftCost && cost < rightCost) {
-                    break;
-                }
-                // Descend to the depths
-                if (leftCost < rightCost) {
-                    currentRoot = left;
-                }
-                else {
-                    currentRoot = right;
-                }
-            }
-            // Create the new parent node and insert into the tree
-            var oldParent = currentRoot.parent;
-            var newParent = new TreeNode(oldParent);
-            newParent.bounds = leafAABB.combine(currentRoot.bounds);
-            newParent.height = currentRoot.height + 1;
-            if (oldParent !== null) {
-                // The sibling node was not the root
-                if (oldParent.left === currentRoot) {
-                    oldParent.left = newParent;
-                }
-                else {
-                    oldParent.right = newParent;
-                }
-                newParent.left = currentRoot;
-                newParent.right = leaf;
-                currentRoot.parent = newParent;
-                leaf.parent = newParent;
-            }
-            else {
-                // The sibling node was the root
-                newParent.left = currentRoot;
-                newParent.right = leaf;
-                currentRoot.parent = newParent;
-                leaf.parent = newParent;
-                this.root = newParent;
-            }
-            // Walk up the tree fixing heights and AABBs
-            var currentNode = leaf.parent;
-            while (currentNode) {
-                currentNode = this.balance(currentNode);
-                if (!currentNode.left) {
-                    throw new Error("Parent of current leaf cannot have a null left child" + currentNode);
-                }
-                if (!currentNode.right) {
-                    throw new Error("Parent of current leaf cannot have a null right child" + currentNode);
-                }
-                currentNode.height = 1 + Math.max(currentNode.left.height, currentNode.right.height);
-                currentNode.bounds = currentNode.left.bounds.combine(currentNode.right.bounds);
-                currentNode = currentNode.parent;
-            }
-        };
-        DynamicTree.prototype.remove = function (leaf) {
-            if (leaf === this.root) {
-                this.root = null;
-                return;
-            }
-            var parent = leaf.parent;
-            var grandParent = parent.parent;
-            var sibling;
-            if (parent.left === leaf) {
-                sibling = parent.right;
-            }
-            else {
-                sibling = parent.left;
-            }
-            if (grandParent) {
-                if (grandParent.left === parent) {
-                    grandParent.left = sibling;
-                }
-                else {
-                    grandParent.right = sibling;
-                }
-                sibling.parent = grandParent;
-                var currentNode = grandParent;
-                while (currentNode) {
-                    currentNode = this.balance(currentNode);
-                    currentNode.bounds = currentNode.left.bounds.combine(currentNode.right.bounds);
-                    currentNode.height = 1 + Math.max(currentNode.left.height, currentNode.right.height);
-                    currentNode = currentNode.parent;
-                }
-            }
-            else {
-                this.root = sibling;
-                sibling.parent = null;
-            }
-        };
-        DynamicTree.prototype.registerActor = function (actor) {
-            var node = new TreeNode();
-            node.actor = actor;
-            node.bounds = actor.getBounds();
-            node.bounds.left -= 2;
-            node.bounds.top -= 2;
-            node.bounds.right += 2;
-            node.bounds.bottom += 2;
-            this.nodes[actor.id] = node;
-            this.insert(node);
-        };
-        DynamicTree.prototype.updateActor = function (actor) {
-            var node = this.nodes[actor.id];
-            if (!node)
-                return;
-            var b = actor.getBounds();
-            if (node.bounds.contains(b)) {
-                return false;
-            }
-            this.remove(node);
-            b.left -= 5;
-            b.top -= 5;
-            b.right += 5;
-            b.bottom += 5;
-            var multdx = actor.dx * 2;
-            var multdy = actor.dy * 2;
-            if (multdx < 0) {
-                b.left += multdx;
-            }
-            else {
-                b.right += multdx;
-            }
-            if (multdy < 0) {
-                b.top += multdy;
-            }
-            else {
-                b.bottom += multdy;
-            }
-            node.bounds = b;
-            this.insert(node);
-            return true;
-        };
-        DynamicTree.prototype.removeActor = function (actor) {
-            var node = this.nodes[actor.id];
-            if (!node)
-                return;
-            this.remove(node);
-            this.nodes[actor.id] = null;
-            delete this.nodes[actor.id];
-        };
-        DynamicTree.prototype.balance = function (node) {
-            if (node === null) {
-                throw new Error("Cannot balance at null node");
-            }
-            if (node.isLeaf() || node.height < 2) {
-                return node;
-            }
-            var left = node.left;
-            var right = node.right;
-            var a = node;
-            var b = left;
-            var c = right;
-            var d = left.left;
-            var e = left.right;
-            var f = right.left;
-            var g = right.right;
-            var balance = c.height - b.height;
-            // Rotate c node up
-            if (balance > 1) {
-                // Swap the right node with it's parent
-                c.left = a;
-                c.parent = a.parent;
-                a.parent = c;
-                // The original node's old parent should point to the right node
-                // this is mega confusing
-                if (c.parent) {
-                    if (c.parent.left === a) {
-                        c.parent.left = c;
-                    }
-                    else {
-                        c.parent.right = c;
-                    }
-                }
-                else {
-                    this.root = c;
-                }
-                // Rotate
-                if (f.height > g.height) {
-                    c.right = f;
-                    a.right = g;
-                    g.parent = a;
-                    a.bounds = b.bounds.combine(g.bounds);
-                    c.bounds = a.bounds.combine(f.bounds);
-                    a.height = 1 + Math.max(b.height, g.height);
-                    c.height = 1 + Math.max(a.height, f.height);
-                }
-                else {
-                    c.right = g;
-                    a.right = f;
-                    f.parent = a;
-                    a.bounds = b.bounds.combine(f.bounds);
-                    c.bounds = a.bounds.combine(g.bounds);
-                    a.height = 1 + Math.max(b.height, f.height);
-                    c.height = 1 + Math.max(a.height, g.height);
-                }
-                return c;
-            }
-            // Rotate left node up
-            if (balance < -1) {
-                // swap
-                b.left = a;
-                b.parent = a.parent;
-                a.parent = b;
-                // node's old parent should point to b
-                if (b.parent) {
-                    if (b.parent.left === a) {
-                        b.parent.left = b;
-                    }
-                    else {
-                        if (b.parent.right !== a)
-                            throw "Error rotating Dynamic Tree";
-                        b.parent.right = b;
-                    }
-                }
-                else {
-                    this.root = b;
-                }
-                // rotate
-                if (d.height > e.height) {
-                    b.right = d;
-                    a.left = e;
-                    e.parent = a;
-                    a.bounds = c.bounds.combine(e.bounds);
-                    b.bounds = a.bounds.combine(d.bounds);
-                    a.height = 1 + Math.max(c.height, e.height);
-                    b.height = 1 + Math.max(a.height, d.height);
-                }
-                else {
-                    b.right = e;
-                    a.left = d;
-                    d.parent = a;
-                    a.bounds = c.bounds.combine(d.bounds);
-                    b.bounds = a.bounds.combine(e.bounds);
-                    a.height = 1 + Math.max(c.height, d.height);
-                    b.height = 1 + Math.max(a.height, e.height);
-                }
-                return b;
-            }
-            return node;
-        };
-        DynamicTree.prototype.getHeight = function () {
-            if (this.root === null) {
-                return 0;
-            }
-            return this.root.height;
-        };
-        DynamicTree.prototype.query = function (actor, callback) {
-            var bounds = actor.getBounds();
-            var helper = function (currentNode) {
-                if (currentNode && currentNode.bounds.collides(bounds)) {
-                    if (currentNode.isLeaf() && currentNode.actor !== actor) {
-                        if (callback.call(actor, currentNode.actor)) {
-                            return true;
-                        }
-                    }
-                    else {
-                        return helper(currentNode.left) || helper(currentNode.right);
-                    }
-                }
-                else {
-                    return null;
-                }
-            };
-            return helper(this.root);
-        };
-        DynamicTree.prototype.rayCast = function (ray, max) {
-            // todo implement
-            return null;
-        };
-        DynamicTree.prototype.getNodes = function () {
-            var helper = function (currentNode) {
-                if (currentNode) {
-                    return [currentNode].concat(helper(currentNode.left), helper(currentNode.right));
-                }
-                else {
-                    return [];
-                }
-            };
-            return helper(this.root);
-        };
-        DynamicTree.prototype.debugDraw = function (ctx, delta) {
-            // draw all the nodes in the Dynamic Tree
-            var helper = function (currentNode) {
-                if (currentNode) {
-                    if (currentNode.isLeaf()) {
-                        ctx.strokeStyle = 'green';
-                    }
-                    else {
-                        ctx.strokeStyle = 'white';
-                    }
-                    currentNode.bounds.debugDraw(ctx);
-                    if (currentNode.left)
-                        helper(currentNode.left);
-                    if (currentNode.right)
-                        helper(currentNode.right);
-                }
-            };
-            helper(this.root);
-        };
-        return DynamicTree;
-    })();
-    ex.DynamicTree = DynamicTree;
-})(ex || (ex = {}));
-/// <reference path="ICollisionResolver.ts"/>
-/// <reference path="DynamicTree.ts"/>
-var ex;
-(function (ex) {
-    var DynamicTreeCollisionResolver = (function () {
-        function DynamicTreeCollisionResolver() {
-            this._dynamicCollisionTree = new ex.DynamicTree();
-        }
-        DynamicTreeCollisionResolver.prototype.register = function (target) {
-            this._dynamicCollisionTree.registerActor(target);
-        };
-        DynamicTreeCollisionResolver.prototype.remove = function (target) {
-            this._dynamicCollisionTree.removeActor(target);
-        };
-        DynamicTreeCollisionResolver.prototype.evaluate = function (targets) {
-            // Retrieve the list of potential colliders, exclude killed, prevented, and self
-            var potentialColliders = targets.filter(function (other) {
-                return !other.isKilled() && other.collisionType !== 0 /* PreventCollision */;
-            });
-            var actor;
-            var collisionPairs = [];
-            for (var j = 0, l = potentialColliders.length; j < l; j++) {
-                actor = potentialColliders[j];
-                this._dynamicCollisionTree.query(actor, function (other) {
-                    if (other.collisionType === 0 /* PreventCollision */ || other.isKilled())
-                        return false;
-                    var minimumTranslationVector;
-                    if (minimumTranslationVector = actor.collides(other)) {
-                        var side = actor.getSideFromIntersect(minimumTranslationVector);
-                        var collisionPair = new ex.CollisionPair(actor, other, minimumTranslationVector, side);
-                        if (!collisionPairs.some(function (cp) {
-                            return cp.equals(collisionPair);
-                        })) {
-                            collisionPairs.push(collisionPair);
-                        }
-                        return true;
-                    }
-                    return false;
-                });
-            }
-            var i = 0, len = collisionPairs.length;
-            for (i; i < len; i++) {
-                collisionPairs[i].evaluate();
-            }
-            return collisionPairs;
-        };
-        DynamicTreeCollisionResolver.prototype.update = function (targets) {
-            var updated = 0, i = 0, len = targets.length;
-            for (i; i < len; i++) {
-                if (this._dynamicCollisionTree.updateActor(targets[i])) {
-                    updated++;
-                }
-            }
-            return updated;
-        };
-        DynamicTreeCollisionResolver.prototype.debugDraw = function (ctx, delta) {
-            this._dynamicCollisionTree.debugDraw(ctx, delta);
-        };
-        return DynamicTreeCollisionResolver;
-    })();
-    ex.DynamicTreeCollisionResolver = DynamicTreeCollisionResolver;
-})(ex || (ex = {}));
-var ex;
-(function (ex) {
-    /**
-     * Collision pairs are used internally by Excalibur to resolve collision between actors. The
-     * Pair prevents collisions from being evaluated more than one time
-     */
-    var CollisionPair = (function () {
-        /**
-         * @param left       The first actor in the collision pair
-         * @param right      The second actor in the collision pair
-         * @param intersect  The minimum translation vector to separate the actors from the perspective of the left actor
-         * @param side       The side on which the collision occured from the perspective of the left actor
-         */
-        function CollisionPair(left, right, intersect, side) {
-            this.left = left;
-            this.right = right;
-            this.intersect = intersect;
-            this.side = side;
-        }
-        /**
-         * Determines if this collision pair and another are equivalent.
-         */
-        CollisionPair.prototype.equals = function (collisionPair) {
-            return (collisionPair.left === this.left && collisionPair.right === this.right) || (collisionPair.right === this.left && collisionPair.left === this.right);
-        };
-        /**
-         * Evaluates the collision pair, performing collision resolution and event publishing appropriate to each collision type.
-         */
-        CollisionPair.prototype.evaluate = function () {
-            // todo fire collision events on left and right actor
-            // todo resolve collisions                  
-            // Publish collision events on both participants
-            this.left.eventDispatcher.publish('collision', new ex.CollisionEvent(this.left, this.right, this.side, this.intersect));
-            this.right.eventDispatcher.publish('collision', new ex.CollisionEvent(this.right, this.left, ex.Util.getOppositeSide(this.side), this.intersect.scale(-1.0)));
-            // If the actor is active push the actor out if its not passive
-            var leftSide = this.side;
-            if ((this.left.collisionType === 2 /* Active */ || this.left.collisionType === 3 /* Elastic */) && this.right.collisionType !== 1 /* Passive */) {
-                this.left.y += this.intersect.y;
-                this.left.x += this.intersect.x;
-                // Naive elastic bounce
-                if (this.left.collisionType === 3 /* Elastic */) {
-                    if (leftSide === 3 /* Left */) {
-                        this.left.dx = Math.abs(this.left.dx);
-                    }
-                    else if (leftSide === 4 /* Right */) {
-                        this.left.dx = -Math.abs(this.left.dx);
-                    }
-                    else if (leftSide === 1 /* Top */) {
-                        this.left.dy = Math.abs(this.left.dy);
-                    }
-                    else if (leftSide === 2 /* Bottom */) {
-                        this.left.dy = -Math.abs(this.left.dy);
-                    }
-                }
-            }
-            var rightSide = ex.Util.getOppositeSide(this.side);
-            var rightIntersect = this.intersect.scale(-1.0);
-            if ((this.right.collisionType === 2 /* Active */ || this.right.collisionType === 3 /* Elastic */) && this.left.collisionType !== 1 /* Passive */) {
-                this.right.y += rightIntersect.y;
-                this.right.x += rightIntersect.x;
-                // Naive elastic bounce
-                if (this.right.collisionType === 3 /* Elastic */) {
-                    if (rightSide === 3 /* Left */) {
-                        this.right.dx = Math.abs(this.right.dx);
-                    }
-                    else if (rightSide === 4 /* Right */) {
-                        this.right.dx = -Math.abs(this.right.dx);
-                    }
-                    else if (rightSide === 1 /* Top */) {
-                        this.right.dy = Math.abs(this.right.dy);
-                    }
-                    else if (rightSide === 2 /* Bottom */) {
-                        this.right.dy = -Math.abs(this.right.dy);
-                    }
-                }
-            }
-        };
-        return CollisionPair;
-    })();
-    ex.CollisionPair = CollisionPair;
-})(ex || (ex = {}));
-/// <reference path="Engine.ts" />
-/// <reference path="Algebra.ts" />
-var ex;
-(function (ex) {
-    /**
-    * Cameras
-    *
-    * [[BaseCamera]] is the base class for all Excalibur cameras. Cameras are used
-    * to move around your game and set focus. They are used to determine
-    * what is "off screen" and can be used to scale the game.
-    *
-    * Excalibur comes with a [[TopCamera]] and a [[SideCamera]], depending on
-    * your game needs.
-    *
-    * Cameras are attached to [[Scene|Scenes]] and can be changed by
-    * setting [[Scene.camera]]. By default, a [[Scene]] is initialized with a
-    * [[BaseCamera]] that doesn't move and is centered on the screen.
-    *
-    * ## Focus
-    *
-    * Cameras have a [[BaseCamera.focus|focus]] which means they center around a specific
-    * [[Point]]. This can be an [[Actor]] ([[BaseCamera.setActorToFollow]]) or a specific
-    * [[Point]] ([[BaseCamera.setFocus]]).
-    *
-    * If a camera is following an [[Actor]], it will ensure the [[Actor]] is always at the
-    * center of the screen. You can use [[BaseCamera.setFocus]] instead if you wish to
-    * offset the focal point.
-    *
-    * ## Camera Shake
-    *
-    * To add some fun effects to your game, the [[BaseCamera.shake]] method
-    * will do a random shake. This is great for explosions, damage, and other
-    * in-game effects.
-    *
-    * ## Camera Lerp
-    *
-    * "Lerp" is short for [Linear Interpolation](http://en.wikipedia.org/wiki/Linear_interpolation)
-    * and it enables the camera focus to move smoothly between two points using timing functions.
-    * Set [[BaseCamera.lerp]] to `true` to enable "lerping".
-    *
-    * ## Camera Zooming
-    *
-    * To adjust the zoom for your game, use [[BaseCamera.zoom]] which will scale the
-    * game accordingly. You can pass a duration to transition between zoom levels.
-    *
-    * ## Known Issues
-    *
-    * **Cameras do not support [[EasingFunctions]]**
-    * [Issue #320](https://github.com/excaliburjs/Excalibur/issues/320)
-    *
-    * Currently [[BaseCamera.lerp]] only supports `easeInOutCubic` but will support
-    * [[EasingFunctions|easing functions]] soon.
-    *
-    * **Actors following a path will wobble when camera is moving**
-    * [Issue #276](https://github.com/excaliburjs/Excalibur/issues/276)
-    *
-    */
-    var BaseCamera = (function () {
-        function BaseCamera() {
-            this.focus = new ex.Point(0, 0);
-            this.lerp = false;
-            this._cameraMoving = false;
-            this._currentLerpTime = 0;
-            this._lerpDuration = 1 * 1000; // 5 seconds
-            this._totalLerpTime = 0;
-            this._lerpStart = null;
-            this._lerpEnd = null;
-            //camera effects
-            this.isShaking = false;
-            this.shakeMagnitudeX = 0;
-            this.shakeMagnitudeY = 0;
-            this.shakeDuration = 0;
-            this.elapsedShakeTime = 0;
-            this.isZooming = false;
-            this.currentZoomScale = 1;
-            this.maxZoomScale = 1;
-            this.zoomDuration = 0;
-            this.elapsedZoomTime = 0;
-            this.zoomIncrement = 0.01;
-        }
-        BaseCamera.prototype.easeInOutCubic = function (currentTime, startValue, endValue, duration) {
-            endValue = (endValue - startValue);
-            currentTime /= duration / 2;
-            if (currentTime < 1)
-                return endValue / 2 * currentTime * currentTime * currentTime + startValue;
-            currentTime -= 2;
-            return endValue / 2 * (currentTime * currentTime * currentTime + 2) + startValue;
-        };
-        /**
-        * Sets the [[Actor]] to follow with the camera
-        * @param actor  The actor to follow
-        */
-        BaseCamera.prototype.setActorToFollow = function (actor) {
-            this.follow = actor;
-        };
-        /**
-        * Returns the focal point of the camera
-        */
-        BaseCamera.prototype.getFocus = function () {
-            return this.focus;
-        };
-        /**
-        * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
-        * @param x The x coordinate of the focal point
-        * @param y The y coordinate of the focal point
-        */
-        BaseCamera.prototype.setFocus = function (x, y) {
-            if (!this.follow && !this.lerp) {
-                this.focus.x = x;
-                this.focus.y = y;
-            }
-            if (this.lerp) {
-                this._lerpStart = this.focus.clone();
-                this._lerpEnd = new ex.Point(x, y);
-                this._currentLerpTime = 0;
-                this._cameraMoving = true;
-            }
-        };
-        /**
-        * Sets the camera to shake at the specified magnitudes for the specified duration
-        * @param magnitudeX  The x magnitude of the shake
-        * @param magnitudeY  The y magnitude of the shake
-        * @param duration    The duration of the shake in milliseconds
-        */
-        BaseCamera.prototype.shake = function (magnitudeX, magnitudeY, duration) {
-            this.isShaking = true;
-            this.shakeMagnitudeX = magnitudeX;
-            this.shakeMagnitudeY = magnitudeY;
-            this.shakeDuration = duration;
-        };
-        /**
-        * Zooms the camera in or out by the specified scale over the specified duration.
-        * If no duration is specified, it take effect immediately.
-        * @param scale    The scale of the zoom
-        * @param duration The duration of the zoom in milliseconds
-        */
-        BaseCamera.prototype.zoom = function (scale, duration) {
-            if (duration === void 0) { duration = 0; }
-            this.isZooming = true;
-            this.maxZoomScale = scale;
-            this.zoomDuration = duration;
-            if (duration) {
-                this.zoomIncrement = Math.abs(this.maxZoomScale - this.currentZoomScale) / duration * 1000;
-            }
-            if (this.maxZoomScale < 1) {
-                if (duration) {
-                    this.zoomIncrement = -1 * this.zoomIncrement;
-                }
-                else {
-                    this.isZooming = false;
-                    this.setCurrentZoomScale(this.maxZoomScale);
-                }
-            }
-            else {
-                if (!duration) {
-                    this.isZooming = false;
-                    this.setCurrentZoomScale(this.maxZoomScale);
-                }
-            }
-            // console.log("zoom increment: " + this.zoomIncrement);
-        };
-        /**
-        * Gets the current zoom scale
-        */
-        BaseCamera.prototype.getZoom = function () {
-            return this.currentZoomScale;
-        };
-        BaseCamera.prototype.setCurrentZoomScale = function (zoomScale) {
-            this.currentZoomScale = zoomScale;
-        };
-        /**
-        * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
-        * @param delta  The number of milliseconds since the last update
-        */
-        BaseCamera.prototype.update = function (ctx, delta) {
-            var focus = this.getFocus();
-            var xShake = 0;
-            var yShake = 0;
-            var canvasWidth = ctx.canvas.width;
-            var canvasHeight = ctx.canvas.height;
-            var newCanvasWidth = canvasWidth * this.getZoom();
-            var newCanvasHeight = canvasHeight * this.getZoom();
-            if (this.lerp) {
-                if (this._currentLerpTime < this._lerpDuration && this._cameraMoving) {
-                    if (this._lerpEnd.x < this._lerpStart.x) {
-                        this.focus.x = this._lerpStart.x - (this.easeInOutCubic(this._currentLerpTime, this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
-                    }
-                    else {
-                        this.focus.x = this.easeInOutCubic(this._currentLerpTime, this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
-                    }
-                    if (this._lerpEnd.y < this._lerpStart.y) {
-                        this.focus.y = this._lerpStart.y - (this.easeInOutCubic(this._currentLerpTime, this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
-                    }
-                    else {
-                        this.focus.y = this.easeInOutCubic(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
-                    }
-                    this._currentLerpTime += delta;
-                }
-                else {
-                    this._lerpStart = null;
-                    this._lerpEnd = null;
-                    this._currentLerpTime = 0;
-                    this._cameraMoving = false;
-                }
-            }
-            if (this.isDoneShaking()) {
-                this.isShaking = false;
-                this.elapsedShakeTime = 0;
-                this.shakeMagnitudeX = 0;
-                this.shakeMagnitudeY = 0;
-                this.shakeDuration = 0;
-            }
-            else {
-                this.elapsedShakeTime += delta;
-                xShake = (Math.random() * this.shakeMagnitudeX | 0) + 1;
-                yShake = (Math.random() * this.shakeMagnitudeY | 0) + 1;
-            }
-            ctx.translate(-focus.x + xShake + (newCanvasWidth / 2), -focus.y + yShake + (newCanvasHeight / 2));
-            if (this.isDoneZooming()) {
-                this.isZooming = false;
-                this.elapsedZoomTime = 0;
-                this.zoomDuration = 0;
-                this.setCurrentZoomScale(this.maxZoomScale);
-            }
-            else {
-                this.elapsedZoomTime += delta;
-                this.setCurrentZoomScale(this.getZoom() + this.zoomIncrement * delta / 1000);
-            }
-            ctx.scale(this.getZoom(), this.getZoom());
-        };
-        BaseCamera.prototype.debugDraw = function (ctx) {
-            var focus = this.getFocus();
-            ctx.fillStyle = 'red';
-            ctx.beginPath();
-            ctx.arc(focus.x, focus.y, 15, 0, Math.PI * 2);
-            ctx.closePath();
-            ctx.fill();
-        };
-        BaseCamera.prototype.isDoneShaking = function () {
-            return !(this.isShaking) || (this.elapsedShakeTime >= this.shakeDuration);
-        };
-        BaseCamera.prototype.isDoneZooming = function () {
-            if (this.zoomDuration != 0) {
-                return (this.elapsedZoomTime >= this.zoomDuration);
-            }
-            else {
-                if (this.maxZoomScale < 1) {
-                    return (this.currentZoomScale <= this.maxZoomScale);
-                }
-                else {
-                    return (this.currentZoomScale >= this.maxZoomScale);
-                }
-            }
-        };
-        return BaseCamera;
-    })();
-    ex.BaseCamera = BaseCamera;
-    /**
-    * An extension of [[BaseCamera]] that is locked vertically; it will only move side to side.
-    *
-    * Common usages: platformers.
-    */
-    var SideCamera = (function (_super) {
-        __extends(SideCamera, _super);
-        function SideCamera() {
-            _super.apply(this, arguments);
-        }
-        SideCamera.prototype.getFocus = function () {
-            if (this.follow) {
-                return new ex.Point(this.follow.x + this.follow.getWidth() / 2, this.focus.y);
-            }
-            else {
-                return this.focus;
-            }
-        };
-        return SideCamera;
-    })(BaseCamera);
-    ex.SideCamera = SideCamera;
-    /**
-    * An extension of [[BaseCamera]] that is locked to an [[Actor]] or
-    * [[TopCamera.focus|focal point]]; the actor will appear in the
-    * center of the screen.
-    *
-    * Common usages: RPGs, adventure games, top-down games.
-    */
-    var TopCamera = (function (_super) {
-        __extends(TopCamera, _super);
-        function TopCamera() {
-            _super.apply(this, arguments);
-        }
-        TopCamera.prototype.getFocus = function () {
-            if (this.follow) {
-                return new ex.Point(this.follow.x + this.follow.getWidth() / 2, this.follow.y + this.follow.getHeight() / 2);
-            }
-            else {
-                return this.focus;
-            }
-        };
-        return TopCamera;
-    })(BaseCamera);
-    ex.TopCamera = TopCamera;
-})(ex || (ex = {}));
 /// <reference path="../Algebra.ts" />
 /// <reference path="../Engine.ts" />
 /// <reference path="../Actor.ts" />
@@ -4458,550 +4087,6 @@ var ex;
     })();
     ex.ActionContext = ActionContext;
 })(ex || (ex = {}));
-/// <reference path="Actions/IActionable.ts"/>
-/// <reference path="Actions/ActionContext.ts"/>
-/// <reference path="Collision/BoundingBox.ts"/>
-var ex;
-(function (ex) {
-    /**
-     * Grouping
-     *
-     * Groups are used for logically grouping Actors so they can be acted upon
-     * in bulk.
-     *
-     * @todo Document this
-     */
-    var Group = (function (_super) {
-        __extends(Group, _super);
-        function Group(name, scene) {
-            _super.call(this);
-            this.name = name;
-            this.scene = scene;
-            this._logger = ex.Logger.getInstance();
-            this._members = [];
-            this.actions = new ex.ActionContext();
-            if (scene == null) {
-                this._logger.error("Invalid constructor arguments passed to Group: ", name, ", scene must not be null!");
-            }
-            else {
-                var existingGroup = scene.groups[name];
-                if (existingGroup) {
-                    this._logger.warn("Group with name", name, "already exists. This new group will replace it.");
-                }
-                scene.groups[name] = this;
-            }
-        }
-        Group.prototype.add = function (actorOrActors) {
-            if (actorOrActors instanceof ex.Actor) {
-                actorOrActors = [].concat(actorOrActors);
-            }
-            var i = 0, len = actorOrActors.length, groupIdx;
-            for (i; i < len; i++) {
-                groupIdx = this.getMembers().indexOf(actorOrActors[i]);
-                if (groupIdx === -1) {
-                    this._members.push(actorOrActors[i]);
-                    this.scene.add(actorOrActors[i]);
-                    this.actions.addActorToContext(actorOrActors[i]);
-                    this.eventDispatcher.wire(actorOrActors[i].eventDispatcher);
-                }
-            }
-        };
-        Group.prototype.remove = function (actor) {
-            var index = this._members.indexOf(actor);
-            if (index > -1) {
-                this._members.splice(index, 1);
-                this.actions.removeActorFromContext(actor);
-                this.eventDispatcher.unwire(actor.eventDispatcher);
-            }
-        };
-        Group.prototype.move = function (args) {
-            var i = 0, members = this.getMembers(), len = members.length;
-            if (arguments.length === 1 && args instanceof ex.Vector) {
-                for (i; i < len; i++) {
-                    members[i].x += args.x;
-                    members[i].y += args.y;
-                }
-            }
-            else if (typeof arguments[0] === 'number' && typeof arguments[1] === 'number') {
-                var x = arguments[0];
-                var y = arguments[1];
-                for (i; i < len; i++) {
-                    members[i].x += x;
-                    members[i].y += y;
-                }
-            }
-            else {
-                this._logger.error("Invalid arguments passed to group move", this.name, "args:", arguments);
-            }
-        };
-        Group.prototype.rotate = function (angle) {
-            if (typeof arguments[0] === 'number') {
-                var r = arguments[0], i = 0, members = this.getMembers(), len = members.length;
-                for (i; i < len; i++) {
-                    members[i].rotation += r;
-                }
-            }
-            else {
-                this._logger.error("Invalid arguments passed to group rotate", this.name, "args:", arguments);
-            }
-        };
-        Group.prototype.on = function (eventName, handler) {
-            this.eventDispatcher.subscribe(eventName, handler);
-        };
-        Group.prototype.off = function (eventName, handler) {
-            this.eventDispatcher.unsubscribe(eventName, handler);
-        };
-        Group.prototype.emit = function (topic, event) {
-            this.eventDispatcher.emit(topic, event);
-        };
-        Group.prototype.contains = function (actor) {
-            return this.getMembers().indexOf(actor) > -1;
-        };
-        Group.prototype.getMembers = function () {
-            return this._members;
-        };
-        Group.prototype.getRandomMember = function () {
-            return this._members[Math.floor(Math.random() * this._members.length)];
-        };
-        Group.prototype.getBounds = function () {
-            return this.getMembers().map(function (a) { return a.getBounds(); }).reduce(function (prev, curr) {
-                return prev.combine(curr);
-            });
-        };
-        return Group;
-    })(ex.Class);
-    ex.Group = Group;
-})(ex || (ex = {}));
-/// <reference path="Class.ts" />
-/// <reference path="Timer.ts" />
-/// <reference path="Collision/NaiveCollisionResolver.ts"/>
-/// <reference path="Collision/DynamicTreeCollisionResolver.ts"/>
-/// <reference path="CollisionPair.ts" />
-/// <reference path="Camera.ts" />
-/// <reference path="Group.ts"/>
-var ex;
-(function (ex) {
-    /**
-     * Scenes
-     *
-     * [[Actor|Actors]] are composed together into groupings called Scenes in
-     * Excalibur. The metaphor models the same idea behind real world
-     * actors in a scene. Only actors in scenes will be updated and drawn.
-     *
-     * Typical usages of a scene include: levels, menus, loading screens, etc.
-     *
-     * ## Adding actors to the scene
-     *
-     * For an [[Actor]] to be drawn and updated, it needs to be part of the "scene graph".
-     * The [[Engine]] provides several easy ways to quickly add/remove actors from the
-     * current scene.
-     *
-     * ```js
-     * var game   = new ex.Engine(...);
-     *
-     * var player = new ex.Actor();
-     * var enemy  = new ex.Actor();
-     *
-     * // add them to the "root" scene
-     *
-     * game.add(player);
-     * game.add(enemy);
-     *
-     * // start game
-     * game.start();
-     * ```
-     *
-     * You can also add actors to a [[Scene]] instance specifically.
-     *
-     * ```js
-     * var game   = new ex.Engine();
-     * var level1 = new ex.Scene();
-     *
-     * var player = new ex.Actor();
-     * var enemy  = new ex.Actor();
-     *
-     * // add actors to level1
-     * level1.add(player);
-     * level1.add(enemy);
-     *
-     * // add level1 to the game
-     * game.add("level1", level1);
-     *
-     * // start the game
-     * game.start();
-     *
-     * // after player clicks start game, for example
-     * game.goToScene("level1");
-     *
-     * ```
-     *
-     * ## Extending scenes
-     *
-     * For more complex games, you might want more control over a scene in which
-     * case you can extend [[Scene]]. This is useful for menus, custom loaders,
-     * and levels.
-     *
-     * Just use [[Engine.add]] to add a new scene to the game. You can then use
-     * [[Engine.goToScene]] to switch scenes which calls [[Scene.onActivate]] for the
-     * new scene and [[Scene.onDeactivate]] for the old scene. Use [[Scene.onInitialize]]
-     * to perform any start-up logic, which is called once.
-     *
-     * **TypeScript**
-     *
-     * ```ts
-     * class MainMenu extends ex.Scene {
-     *
-     *   // start-up logic, called once
-     *   public onInitialize(engine: ex.Engine) { }
-     *
-     *   // each time the scene is entered (Engine.goToScene)
-     *   public onActivate() { }
-     *
-     *   // each time the scene is exited (Engine.goToScene)
-     *   public onDeactivate() { }
-     * }
-     *
-     * // add to game and activate it
-     * game.add("mainmenu", new MainMenu());
-     * game.goToScene("mainmenu");
-     * ```
-     *
-     * **Javascript**
-     *
-     * ```js
-     * var MainMenu = ex.Scene.extend({
-     *   // start-up logic, called once
-     *   onInitialize: function (engine) { },
-     *
-     *   // each time the scene is activated by Engine.goToScene
-     *   onActivate: function () { },
-     *
-     *   // each time the scene is deactivated by Engine.goToScene
-     *   onDeactivate: function () { }
-     * });
-     *
-     * game.add("mainmenu", new MainMenu());
-     * game.goToScene("mainmenu");
-     * ```
-     *
-     * ## Scene camera
-     *
-     * By default, a [[Scene]] is initialized with a [[BaseCamera]] which
-     * does not move and centers the game world.
-     *
-     * Learn more about [[BaseCamera|Cameras]] and how to modify them to suit
-     * your game.
-     */
-    var Scene = (function (_super) {
-        __extends(Scene, _super);
-        function Scene(engine) {
-            _super.call(this);
-            /**
-             * The actors in the current scene
-             */
-            this.children = [];
-            /**
-             * The [[TileMap]]s in the scene, if any
-             */
-            this.tileMaps = [];
-            /**
-             * The [[Group]]s in the scene, if any
-             */
-            this.groups = {};
-            /**
-             * The [[UIActor]]s in a scene, if any; these are drawn last
-             */
-            this.uiActors = [];
-            /**
-             * Whether or the [[Scene]] has been initialized
-             */
-            this.isInitialized = false;
-            this._collisionResolver = new ex.DynamicTreeCollisionResolver();
-            this._killQueue = [];
-            this._timers = [];
-            this._cancelQueue = [];
-            this._logger = ex.Logger.getInstance();
-            this.camera = new ex.BaseCamera();
-            if (engine) {
-                this.camera.setFocus(engine.width / 2, engine.height / 2);
-            }
-        }
-        /**
-         * This is called before the first update of the [[Scene]]. This method is meant to be
-         * overridden. This is where initialization of child actors should take place.
-         */
-        Scene.prototype.onInitialize = function (engine) {
-            // will be overridden
-            this._logger.debug("Scene.onInitialize", this, engine);
-        };
-        /**
-         * This is called when the scene is made active and started. It is meant to be overriden,
-         * this is where you should setup any DOM UI or event handlers needed for the scene.
-         */
-        Scene.prototype.onActivate = function () {
-            // will be overridden
-            this._logger.debug("Scene.onActivate", this);
-        };
-        /**
-         * This is called when the scene is made transitioned away from and stopped. It is meant to be overriden,
-         * this is where you should cleanup any DOM UI or event handlers needed for the scene.
-         */
-        Scene.prototype.onDeactivate = function () {
-            // will be overridden
-            this._logger.debug("Scene.onDeactivate", this);
-        };
-        /**
-         * Publish an event to all actors in the scene
-         * @param eventType  The name of the event to publish
-         * @param event      The event object to send
-         */
-        Scene.prototype.publish = function (eventType, event) {
-            var i = 0, len = this.children.length;
-            for (i; i < len; i++) {
-                this.children[i].triggerEvent(eventType, event);
-            }
-        };
-        /**
-         * Updates all the actors and timers in the scene. Called by the [[Engine]].
-         * @param engine  Reference to the current Engine
-         * @param delta   The number of milliseconds since the last update
-         */
-        Scene.prototype.update = function (engine, delta) {
-            var i, len;
-            for (i = 0, len = this.uiActors.length; i < len; i++) {
-                this.uiActors[i].update(engine, delta);
-            }
-            for (i = 0, len = this.tileMaps.length; i < len; i++) {
-                this.tileMaps[i].update(engine, delta);
-            }
-            for (i = 0, len = this.children.length; i < len; i++) {
-                this.children[i].update(engine, delta);
-            }
-            // Run collision resolution strategy
-            if (this._collisionResolver) {
-                this._collisionResolver.update(this.children);
-                this._collisionResolver.evaluate(this.children);
-            }
-            // Remove actors from scene graph after being killed
-            var actorIndex;
-            for (i = 0, len = this._killQueue.length; i < len; i++) {
-                actorIndex = this.children.indexOf(this._killQueue[i]);
-                if (actorIndex > -1) {
-                    this.children.splice(actorIndex, 1);
-                }
-            }
-            this._killQueue.length = 0;
-            for (i = 0, len = this._cancelQueue.length; i < len; i++) {
-                this.removeTimer(this._cancelQueue[i]);
-            }
-            this._cancelQueue.length = 0;
-            // Cycle through timers updating timers
-            this._timers = this._timers.filter(function (timer) {
-                timer.update(delta);
-                return !timer.complete;
-            });
-        };
-        /**
-         * Draws all the actors in the Scene. Called by the [[Engine]].
-         * @param ctx    The current rendering context
-         * @param delta  The number of milliseconds since the last draw
-         */
-        Scene.prototype.draw = function (ctx, delta) {
-            ctx.save();
-            if (this.camera) {
-                this.camera.update(ctx, delta);
-            }
-            var i, len;
-            for (i = 0, len = this.tileMaps.length; i < len; i++) {
-                this.tileMaps[i].draw(ctx, delta);
-            }
-            for (i = 0, len = this.children.length; i < len; i++) {
-                // only draw actors that are visible
-                if (this.children[i].visible) {
-                    this.children[i].draw(ctx, delta);
-                }
-            }
-            if (this.engine && this.engine.isDebug) {
-                ctx.strokeStyle = 'yellow';
-                this.debugDraw(ctx);
-            }
-            ctx.restore();
-            for (i = 0, len = this.uiActors.length; i < len; i++) {
-                if (this.uiActors[i].visible) {
-                    this.uiActors[i].draw(ctx, delta);
-                }
-            }
-            if (this.engine && this.engine.isDebug) {
-                for (i = 0, len = this.uiActors.length; i < len; i++) {
-                    this.uiActors[i].debugDraw(ctx);
-                }
-            }
-        };
-        /**
-         * Draws all the actors' debug information in the Scene. Called by the [[Engine]].
-         * @param ctx  The current rendering context
-         */
-        Scene.prototype.debugDraw = function (ctx) {
-            var i, len;
-            for (i = 0, len = this.tileMaps.length; i < len; i++) {
-                this.tileMaps[i].debugDraw(ctx);
-            }
-            for (i = 0, len = this.children.length; i < len; i++) {
-                this.children[i].debugDraw(ctx);
-            }
-            // todo possibly enable this with excalibur flags features?
-            //this._collisionResolver.debugDraw(ctx, 20);
-            //this.camera.debugDraw(ctx);
-        };
-        /**
-         * Checks whether an actor is contained in this scene or not
-         */
-        Scene.prototype.contains = function (actor) {
-            return this.children.indexOf(actor) > -1;
-        };
-        Scene.prototype.add = function (entity) {
-            if (entity instanceof ex.UIActor) {
-                this.addUIActor(entity);
-                return;
-            }
-            if (entity instanceof ex.Actor) {
-                this.addChild(entity);
-            }
-            if (entity instanceof ex.Timer) {
-                this.addTimer(entity);
-            }
-            if (entity instanceof ex.TileMap) {
-                this.addTileMap(entity);
-            }
-        };
-        Scene.prototype.remove = function (entity) {
-            if (entity instanceof ex.UIActor) {
-                this.removeUIActor(entity);
-                return;
-            }
-            if (entity instanceof ex.Actor) {
-                this._collisionResolver.remove(entity);
-                this.removeChild(entity);
-            }
-            if (entity instanceof ex.Timer) {
-                this.removeTimer(entity);
-            }
-            if (entity instanceof ex.TileMap) {
-                this.removeTileMap(entity);
-            }
-        };
-        /**
-         * Adds (any) actor to act as a piece of UI, meaning it is always positioned
-         * in screen coordinates. UI actors do not participate in collisions.
-         * @todo Should this be `UIActor` only?
-         */
-        Scene.prototype.addUIActor = function (actor) {
-            this.uiActors.push(actor);
-            actor.scene = this;
-        };
-        /**
-         * Removes an actor as a piece of UI
-         */
-        Scene.prototype.removeUIActor = function (actor) {
-            var index = this.uiActors.indexOf(actor);
-            if (index > -1) {
-                this.uiActors.splice(index, 1);
-            }
-        };
-        /**
-         * Adds an actor to the scene, once this is done the actor will be drawn and updated.
-         */
-        Scene.prototype.addChild = function (actor) {
-            this._collisionResolver.register(actor);
-            actor.scene = this;
-            this.children.push(actor);
-            actor.parent = this.actor;
-        };
-        /**
-         * Adds a [[TileMap]] to the scene, once this is done the TileMap will be drawn and updated.
-         */
-        Scene.prototype.addTileMap = function (tileMap) {
-            this.tileMaps.push(tileMap);
-        };
-        /**
-         * Removes a [[TileMap]] from the scene, it will no longer be drawn or updated.
-         */
-        Scene.prototype.removeTileMap = function (tileMap) {
-            var index = this.tileMaps.indexOf(tileMap);
-            if (index > -1) {
-                this.tileMaps.splice(index, 1);
-            }
-        };
-        /**
-         * Removes an actor from the scene, it will no longer be drawn or updated.
-         */
-        Scene.prototype.removeChild = function (actor) {
-            this._collisionResolver.remove(actor);
-            this._killQueue.push(actor);
-            actor.parent = null;
-        };
-        /**
-         * Adds a [[Timer]] to the scene
-         * @param timer  The timer to add
-         */
-        Scene.prototype.addTimer = function (timer) {
-            this._timers.push(timer);
-            timer.scene = this;
-            return timer;
-        };
-        /**
-         * Removes a [[Timer]] from the scene.
-         * @warning Can be dangerous, use [[cancelTimer]] instead
-         * @param timer  The timer to remove
-         */
-        Scene.prototype.removeTimer = function (timer) {
-            var i = this._timers.indexOf(timer);
-            if (i !== -1) {
-                this._timers.splice(i, 1);
-            }
-            return timer;
-        };
-        /**
-         * Cancels a [[Timer]], removing it from the scene nicely
-         * @param timer  The timer to cancel
-         */
-        Scene.prototype.cancelTimer = function (timer) {
-            this._cancelQueue.push(timer);
-            return timer;
-        };
-        /**
-         * Tests whether a [[Timer]] is active in the scene
-         */
-        Scene.prototype.isTimerActive = function (timer) {
-            return (this._timers.indexOf(timer) > -1);
-        };
-        /**
-         * Creates and adds a [[Group]] to the scene with a name
-         */
-        Scene.prototype.createGroup = function (name) {
-            return new ex.Group(name, this);
-        };
-        /**
-         * Returns a [[Group]] by name
-         */
-        Scene.prototype.getGroup = function (name) {
-            return this.groups[name];
-        };
-        Scene.prototype.removeGroup = function (group) {
-            if (typeof group === 'string') {
-                delete this.groups[group];
-            }
-            else if (group instanceof ex.Group) {
-                delete this.groups[group.name];
-            }
-            else {
-                this._logger.error("Invalid arguments to removeGroup", group);
-            }
-        };
-        return Scene;
-    })(ex.Class);
-    ex.Scene = Scene;
-})(ex || (ex = {}));
 var ex;
 (function (ex) {
     /**
@@ -5466,6 +4551,7 @@ var ex;
             this.capturePointer = {
                 captureMoveEvents: false
             };
+            this._zIndex = 0;
             this._isKilled = false;
             this.x = x || 0;
             this.y = y || 0;
@@ -5581,6 +4667,24 @@ var ex;
                     this.addDrawing("default", arguments[0].asSprite());
                 }
             }
+        };
+        /**
+         * Gets the z-index of an actor. The z-index determines the relative order an actor is drawn in.
+         * Actors with a higher z-index are drawn on top of actors with a lower z-index
+         */
+        Actor.prototype.getZIndex = function () {
+            return this._zIndex;
+        };
+        /**
+         * Sets the z-index of an actor and updates it in the drawing list for the scene.
+         * The z-index determines the relative order an actor is drawn in.
+         * Actors with a higher z-index are drawn on top of actors with a lower z-index
+         * @param actor The child actor to remove
+         */
+        Actor.prototype.setZIndex = function (newIndex) {
+            this.scene.cleanupDrawTree(this);
+            this._zIndex = newIndex;
+            this.scene.updateDrawTree(this);
         };
         /**
          * Artificially trigger an event on an actor, useful when creating custom events.
@@ -6147,954 +5251,1673 @@ var ex;
     })(ex.CollisionType || (ex.CollisionType = {}));
     var CollisionType = ex.CollisionType;
 })(ex || (ex = {}));
+/// <reference path="../Actor.ts"/>
+/// <reference path="Side.ts"/>
+/// <reference path="ICollisionResolver.ts"/> 
 var ex;
 (function (ex) {
-    /**
-     * Logging level that Excalibur will tag
-     */
-    (function (LogLevel) {
-        LogLevel[LogLevel["Debug"] = 0] = "Debug";
-        LogLevel[LogLevel["Info"] = 1] = "Info";
-        LogLevel[LogLevel["Warn"] = 2] = "Warn";
-        LogLevel[LogLevel["Error"] = 3] = "Error";
-        LogLevel[LogLevel["Fatal"] = 4] = "Fatal";
-    })(ex.LogLevel || (ex.LogLevel = {}));
-    var LogLevel = ex.LogLevel;
-    /**
-     * Static singleton that represents the logging facility for Excalibur.
-     * Excalibur comes built-in with a [[ConsoleAppender]] and [[ScreenAppender]].
-     * Derive from [[IAppender]] to create your own logging appenders.
-     *
-     * ## Example: Logging
-     *
-     * ```js
-     * // set default log level (default: Info)
-     * ex.Logger.getInstance().defaultLevel = ex.LogLevel.Warn;
-     *
-     * // this will not be shown because it is below Warn
-     * ex.Logger.getInstance().info("This will be logged as Info");
-     * // this will show because it is Warn
-     * ex.Logger.getInstance().warn("This will be logged as Warn");
-     * // this will show because it is above Warn
-     * ex.Logger.getInstance().error("This will be logged as Error");
-     * // this will show because it is above Warn
-     * ex.Logger.getInstance().fatal("This will be logged as Fatal");
-     * ```
-     */
-    var Logger = (function () {
-        function Logger() {
-            this.appenders = [];
-            /**
-             * Gets or sets the default logging level. Excalibur will only log
-             * messages if equal to or above this level. Default: [[LogLevel.Info]]
-             */
-            this.defaultLevel = 1 /* Info */;
-            if (Logger._instance) {
-                throw new Error("Logger is a singleton");
-            }
-            Logger._instance = this;
-            // Default console appender
-            Logger._instance.addAppender(new ConsoleAppender());
-            return Logger._instance;
+    var NaiveCollisionResolver = (function () {
+        function NaiveCollisionResolver() {
         }
-        /**
-         * Gets the current static instance of Logger
-         */
-        Logger.getInstance = function () {
-            if (Logger._instance == null) {
-                Logger._instance = new Logger();
-            }
-            return Logger._instance;
+        NaiveCollisionResolver.prototype.register = function (target) {
+            // pass
         };
-        /**
-         * Adds a new [[IAppender]] to the list of appenders to write to
-         */
-        Logger.prototype.addAppender = function (appender) {
-            this.appenders.push(appender);
+        NaiveCollisionResolver.prototype.remove = function (tartet) {
+            // pass
         };
-        /**
-         * Clears all appenders from the logger
-         */
-        Logger.prototype.clearAppenders = function () {
-            this.appenders.length = 0;
-        };
-        /**
-         * Logs a message at a given LogLevel
-         * @param level  The LogLevel`to log the message at
-         * @param args   An array of arguments to write to an appender
-         */
-        Logger.prototype._log = function (level, args) {
-            if (level == null) {
-                level = this.defaultLevel;
-            }
-            var i = 0, len = this.appenders.length;
-            for (i; i < len; i++) {
-                if (level >= this.defaultLevel) {
-                    this.appenders[i].log(level, args);
+        NaiveCollisionResolver.prototype.evaluate = function (targets) {
+            // Retrieve the list of potential colliders, exclude killed, prevented, and self
+            var potentialColliders = targets.filter(function (other) {
+                return !other.isKilled() && other.collisionType !== 0 /* PreventCollision */;
+            });
+            var actor1;
+            var actor2;
+            var collisionPairs = [];
+            for (var j = 0, l = potentialColliders.length; j < l; j++) {
+                actor1 = potentialColliders[j];
+                for (var i = j + 1; i < l; i++) {
+                    actor2 = potentialColliders[i];
+                    var minimumTranslationVector;
+                    if (minimumTranslationVector = actor1.collides(actor2)) {
+                        var side = actor1.getSideFromIntersect(minimumTranslationVector);
+                        var collisionPair = new ex.CollisionPair(actor1, actor2, minimumTranslationVector, side);
+                        if (!collisionPairs.some(function (cp) {
+                            return cp.equals(collisionPair);
+                        })) {
+                            collisionPairs.push(collisionPair);
+                        }
+                    }
                 }
             }
-        };
-        /**
-         * Writes a log message at the [[LogLevel.Debug]] level
-         * @param args  Accepts any number of arguments
-         */
-        Logger.prototype.debug = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i - 0] = arguments[_i];
+            var k = 0, len = collisionPairs.length;
+            for (k; k < len; k++) {
+                collisionPairs[k].evaluate();
             }
-            this._log(0 /* Debug */, args);
+            return collisionPairs;
         };
-        /**
-         * Writes a log message at the [[LogLevel.Info]] level
-         * @param args  Accepts any number of arguments
-         */
-        Logger.prototype.info = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i - 0] = arguments[_i];
-            }
-            this._log(1 /* Info */, args);
+        NaiveCollisionResolver.prototype.update = function (targets) {
+            return 0;
         };
-        /**
-         * Writes a log message at the [[LogLevel.Warn]] level
-         * @param args  Accepts any number of arguments
-         */
-        Logger.prototype.warn = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i - 0] = arguments[_i];
-            }
-            this._log(2 /* Warn */, args);
+        NaiveCollisionResolver.prototype.debugDraw = function (ctx, delta) {
         };
-        /**
-         * Writes a log message at the [[LogLevel.Error]] level
-         * @param args  Accepts any number of arguments
-         */
-        Logger.prototype.error = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i - 0] = arguments[_i];
-            }
-            this._log(3 /* Error */, args);
-        };
-        /**
-         * Writes a log message at the [[LogLevel.Fatal]] level
-         * @param args  Accepts any number of arguments
-         */
-        Logger.prototype.fatal = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i - 0] = arguments[_i];
-            }
-            this._log(4 /* Fatal */, args);
-        };
-        Logger._instance = null;
-        return Logger;
+        return NaiveCollisionResolver;
     })();
-    ex.Logger = Logger;
-    /**
-     * Console appender for browsers (i.e. `console.log`)
-     */
-    var ConsoleAppender = (function () {
-        function ConsoleAppender() {
+    ex.NaiveCollisionResolver = NaiveCollisionResolver;
+})(ex || (ex = {}));
+/// <reference path="BoundingBox.ts"/>
+var ex;
+(function (ex) {
+    var TreeNode = (function () {
+        function TreeNode(parent) {
+            this.parent = parent;
+            this.parent = parent || null;
+            this.actor = null;
+            this.bounds = new ex.BoundingBox();
+            this.left = null;
+            this.right = null;
+            this.height = 0;
         }
-        /**
-         * Logs a message at the given [[LogLevel]]
-         * @param level  Level to log at
-         * @param args   Arguments to log
-         */
-        ConsoleAppender.prototype.log = function (level, args) {
-            // Check for console support
-            if (!console && !console.log && console.warn && console.error) {
-                // todo maybe do something better than nothing
+        TreeNode.prototype.isLeaf = function () {
+            return (!this.left && !this.right);
+        };
+        return TreeNode;
+    })();
+    ex.TreeNode = TreeNode;
+    var DynamicTree = (function () {
+        function DynamicTree() {
+            this.root = null;
+            this.nodes = {};
+        }
+        DynamicTree.prototype.insert = function (leaf) {
+            // If there are no nodes in the tree, make this the root leaf
+            if (this.root === null) {
+                this.root = leaf;
+                this.root.parent = null;
                 return;
             }
-            // Create a new console args array
-            var consoleArgs = [];
-            consoleArgs.unshift.apply(consoleArgs, args);
-            consoleArgs.unshift("[" + LogLevel[level] + "] : ");
-            if (level < 2 /* Warn */) {
-                // Call .log for Debug/Info
-                if (console.log.apply) {
-                    // this is required on some older browsers that don't support apply on console.log :(
-                    console.log.apply(console, consoleArgs);
+            // Search the tree for a node that is not a leaf and find the best place to insert
+            var leafAABB = leaf.bounds;
+            var currentRoot = this.root;
+            while (!currentRoot.isLeaf()) {
+                var left = currentRoot.left;
+                var right = currentRoot.right;
+                var area = currentRoot.bounds.getPerimeter();
+                var combinedAABB = currentRoot.bounds.combine(leafAABB);
+                var combinedArea = combinedAABB.getPerimeter();
+                // Calculate cost heuristic for creating a new parent and leaf
+                var cost = 2 * combinedArea;
+                // Minimum cost of pushing the leaf down the tree
+                var inheritanceCost = 2 * (combinedArea - area);
+                // Cost of descending
+                var leftCost = 0;
+                var leftCombined = leafAABB.combine(left.bounds);
+                var newArea;
+                var oldArea;
+                if (left.isLeaf()) {
+                    leftCost = leftCombined.getPerimeter() + inheritanceCost;
                 }
                 else {
-                    console.log(consoleArgs.join(' '));
+                    oldArea = left.bounds.getPerimeter();
+                    newArea = leftCombined.getPerimeter();
+                    leftCost = (newArea - oldArea) + inheritanceCost;
+                }
+                var rightCost = 0;
+                var rightCombined = leafAABB.combine(right.bounds);
+                if (right.isLeaf()) {
+                    rightCost = rightCombined.getPerimeter() + inheritanceCost;
+                }
+                else {
+                    oldArea = right.bounds.getPerimeter();
+                    newArea = rightCombined.getPerimeter();
+                    rightCost = (newArea - oldArea) + inheritanceCost;
+                }
+                // cost is acceptable
+                if (cost < leftCost && cost < rightCost) {
+                    break;
+                }
+                // Descend to the depths
+                if (leftCost < rightCost) {
+                    currentRoot = left;
+                }
+                else {
+                    currentRoot = right;
                 }
             }
-            else if (level < 3 /* Error */) {
-                // Call .warn for Warn
-                if (console.warn.apply) {
-                    console.warn.apply(console, consoleArgs);
+            // Create the new parent node and insert into the tree
+            var oldParent = currentRoot.parent;
+            var newParent = new TreeNode(oldParent);
+            newParent.bounds = leafAABB.combine(currentRoot.bounds);
+            newParent.height = currentRoot.height + 1;
+            if (oldParent !== null) {
+                // The sibling node was not the root
+                if (oldParent.left === currentRoot) {
+                    oldParent.left = newParent;
                 }
                 else {
-                    console.warn(consoleArgs.join(' '));
+                    oldParent.right = newParent;
+                }
+                newParent.left = currentRoot;
+                newParent.right = leaf;
+                currentRoot.parent = newParent;
+                leaf.parent = newParent;
+            }
+            else {
+                // The sibling node was the root
+                newParent.left = currentRoot;
+                newParent.right = leaf;
+                currentRoot.parent = newParent;
+                leaf.parent = newParent;
+                this.root = newParent;
+            }
+            // Walk up the tree fixing heights and AABBs
+            var currentNode = leaf.parent;
+            while (currentNode) {
+                currentNode = this.balance(currentNode);
+                if (!currentNode.left) {
+                    throw new Error("Parent of current leaf cannot have a null left child" + currentNode);
+                }
+                if (!currentNode.right) {
+                    throw new Error("Parent of current leaf cannot have a null right child" + currentNode);
+                }
+                currentNode.height = 1 + Math.max(currentNode.left.height, currentNode.right.height);
+                currentNode.bounds = currentNode.left.bounds.combine(currentNode.right.bounds);
+                currentNode = currentNode.parent;
+            }
+        };
+        DynamicTree.prototype.remove = function (leaf) {
+            if (leaf === this.root) {
+                this.root = null;
+                return;
+            }
+            var parent = leaf.parent;
+            var grandParent = parent.parent;
+            var sibling;
+            if (parent.left === leaf) {
+                sibling = parent.right;
+            }
+            else {
+                sibling = parent.left;
+            }
+            if (grandParent) {
+                if (grandParent.left === parent) {
+                    grandParent.left = sibling;
+                }
+                else {
+                    grandParent.right = sibling;
+                }
+                sibling.parent = grandParent;
+                var currentNode = grandParent;
+                while (currentNode) {
+                    currentNode = this.balance(currentNode);
+                    currentNode.bounds = currentNode.left.bounds.combine(currentNode.right.bounds);
+                    currentNode.height = 1 + Math.max(currentNode.left.height, currentNode.right.height);
+                    currentNode = currentNode.parent;
                 }
             }
             else {
-                // Call .error for Error/Fatal
-                if (console.error.apply) {
-                    console.error.apply(console, consoleArgs);
+                this.root = sibling;
+                sibling.parent = null;
+            }
+        };
+        DynamicTree.prototype.registerActor = function (actor) {
+            var node = new TreeNode();
+            node.actor = actor;
+            node.bounds = actor.getBounds();
+            node.bounds.left -= 2;
+            node.bounds.top -= 2;
+            node.bounds.right += 2;
+            node.bounds.bottom += 2;
+            this.nodes[actor.id] = node;
+            this.insert(node);
+        };
+        DynamicTree.prototype.updateActor = function (actor) {
+            var node = this.nodes[actor.id];
+            if (!node)
+                return;
+            var b = actor.getBounds();
+            if (node.bounds.contains(b)) {
+                return false;
+            }
+            this.remove(node);
+            b.left -= 5;
+            b.top -= 5;
+            b.right += 5;
+            b.bottom += 5;
+            var multdx = actor.dx * 2;
+            var multdy = actor.dy * 2;
+            if (multdx < 0) {
+                b.left += multdx;
+            }
+            else {
+                b.right += multdx;
+            }
+            if (multdy < 0) {
+                b.top += multdy;
+            }
+            else {
+                b.bottom += multdy;
+            }
+            node.bounds = b;
+            this.insert(node);
+            return true;
+        };
+        DynamicTree.prototype.removeActor = function (actor) {
+            var node = this.nodes[actor.id];
+            if (!node)
+                return;
+            this.remove(node);
+            this.nodes[actor.id] = null;
+            delete this.nodes[actor.id];
+        };
+        DynamicTree.prototype.balance = function (node) {
+            if (node === null) {
+                throw new Error("Cannot balance at null node");
+            }
+            if (node.isLeaf() || node.height < 2) {
+                return node;
+            }
+            var left = node.left;
+            var right = node.right;
+            var a = node;
+            var b = left;
+            var c = right;
+            var d = left.left;
+            var e = left.right;
+            var f = right.left;
+            var g = right.right;
+            var balance = c.height - b.height;
+            // Rotate c node up
+            if (balance > 1) {
+                // Swap the right node with it's parent
+                c.left = a;
+                c.parent = a.parent;
+                a.parent = c;
+                // The original node's old parent should point to the right node
+                // this is mega confusing
+                if (c.parent) {
+                    if (c.parent.left === a) {
+                        c.parent.left = c;
+                    }
+                    else {
+                        c.parent.right = c;
+                    }
                 }
                 else {
-                    console.error(consoleArgs.join(' '));
+                    this.root = c;
+                }
+                // Rotate
+                if (f.height > g.height) {
+                    c.right = f;
+                    a.right = g;
+                    g.parent = a;
+                    a.bounds = b.bounds.combine(g.bounds);
+                    c.bounds = a.bounds.combine(f.bounds);
+                    a.height = 1 + Math.max(b.height, g.height);
+                    c.height = 1 + Math.max(a.height, f.height);
+                }
+                else {
+                    c.right = g;
+                    a.right = f;
+                    f.parent = a;
+                    a.bounds = b.bounds.combine(f.bounds);
+                    c.bounds = a.bounds.combine(g.bounds);
+                    a.height = 1 + Math.max(b.height, f.height);
+                    c.height = 1 + Math.max(a.height, g.height);
+                }
+                return c;
+            }
+            // Rotate left node up
+            if (balance < -1) {
+                // swap
+                b.left = a;
+                b.parent = a.parent;
+                a.parent = b;
+                // node's old parent should point to b
+                if (b.parent) {
+                    if (b.parent.left === a) {
+                        b.parent.left = b;
+                    }
+                    else {
+                        if (b.parent.right !== a)
+                            throw "Error rotating Dynamic Tree";
+                        b.parent.right = b;
+                    }
+                }
+                else {
+                    this.root = b;
+                }
+                // rotate
+                if (d.height > e.height) {
+                    b.right = d;
+                    a.left = e;
+                    e.parent = a;
+                    a.bounds = c.bounds.combine(e.bounds);
+                    b.bounds = a.bounds.combine(d.bounds);
+                    a.height = 1 + Math.max(c.height, e.height);
+                    b.height = 1 + Math.max(a.height, d.height);
+                }
+                else {
+                    b.right = e;
+                    a.left = d;
+                    d.parent = a;
+                    a.bounds = c.bounds.combine(d.bounds);
+                    b.bounds = a.bounds.combine(e.bounds);
+                    a.height = 1 + Math.max(c.height, d.height);
+                    b.height = 1 + Math.max(a.height, e.height);
+                }
+                return b;
+            }
+            return node;
+        };
+        DynamicTree.prototype.getHeight = function () {
+            if (this.root === null) {
+                return 0;
+            }
+            return this.root.height;
+        };
+        DynamicTree.prototype.query = function (actor, callback) {
+            var bounds = actor.getBounds();
+            var helper = function (currentNode) {
+                if (currentNode && currentNode.bounds.collides(bounds)) {
+                    if (currentNode.isLeaf() && currentNode.actor !== actor) {
+                        if (callback.call(actor, currentNode.actor)) {
+                            return true;
+                        }
+                    }
+                    else {
+                        return helper(currentNode.left) || helper(currentNode.right);
+                    }
+                }
+                else {
+                    return null;
+                }
+            };
+            return helper(this.root);
+        };
+        DynamicTree.prototype.rayCast = function (ray, max) {
+            // todo implement
+            return null;
+        };
+        DynamicTree.prototype.getNodes = function () {
+            var helper = function (currentNode) {
+                if (currentNode) {
+                    return [currentNode].concat(helper(currentNode.left), helper(currentNode.right));
+                }
+                else {
+                    return [];
+                }
+            };
+            return helper(this.root);
+        };
+        DynamicTree.prototype.debugDraw = function (ctx, delta) {
+            // draw all the nodes in the Dynamic Tree
+            var helper = function (currentNode) {
+                if (currentNode) {
+                    if (currentNode.isLeaf()) {
+                        ctx.strokeStyle = 'green';
+                    }
+                    else {
+                        ctx.strokeStyle = 'white';
+                    }
+                    currentNode.bounds.debugDraw(ctx);
+                    if (currentNode.left)
+                        helper(currentNode.left);
+                    if (currentNode.right)
+                        helper(currentNode.right);
+                }
+            };
+            helper(this.root);
+        };
+        return DynamicTree;
+    })();
+    ex.DynamicTree = DynamicTree;
+})(ex || (ex = {}));
+/// <reference path="ICollisionResolver.ts"/>
+/// <reference path="DynamicTree.ts"/>
+var ex;
+(function (ex) {
+    var DynamicTreeCollisionResolver = (function () {
+        function DynamicTreeCollisionResolver() {
+            this._dynamicCollisionTree = new ex.DynamicTree();
+        }
+        DynamicTreeCollisionResolver.prototype.register = function (target) {
+            this._dynamicCollisionTree.registerActor(target);
+        };
+        DynamicTreeCollisionResolver.prototype.remove = function (target) {
+            this._dynamicCollisionTree.removeActor(target);
+        };
+        DynamicTreeCollisionResolver.prototype.evaluate = function (targets) {
+            // Retrieve the list of potential colliders, exclude killed, prevented, and self
+            var potentialColliders = targets.filter(function (other) {
+                return !other.isKilled() && other.collisionType !== 0 /* PreventCollision */;
+            });
+            var actor;
+            var collisionPairs = [];
+            for (var j = 0, l = potentialColliders.length; j < l; j++) {
+                actor = potentialColliders[j];
+                this._dynamicCollisionTree.query(actor, function (other) {
+                    if (other.collisionType === 0 /* PreventCollision */ || other.isKilled())
+                        return false;
+                    var minimumTranslationVector;
+                    if (minimumTranslationVector = actor.collides(other)) {
+                        var side = actor.getSideFromIntersect(minimumTranslationVector);
+                        var collisionPair = new ex.CollisionPair(actor, other, minimumTranslationVector, side);
+                        if (!collisionPairs.some(function (cp) {
+                            return cp.equals(collisionPair);
+                        })) {
+                            collisionPairs.push(collisionPair);
+                        }
+                        return true;
+                    }
+                    return false;
+                });
+            }
+            var i = 0, len = collisionPairs.length;
+            for (i; i < len; i++) {
+                collisionPairs[i].evaluate();
+            }
+            return collisionPairs;
+        };
+        DynamicTreeCollisionResolver.prototype.update = function (targets) {
+            var updated = 0, i = 0, len = targets.length;
+            for (i; i < len; i++) {
+                if (this._dynamicCollisionTree.updateActor(targets[i])) {
+                    updated++;
+                }
+            }
+            return updated;
+        };
+        DynamicTreeCollisionResolver.prototype.debugDraw = function (ctx, delta) {
+            this._dynamicCollisionTree.debugDraw(ctx, delta);
+        };
+        return DynamicTreeCollisionResolver;
+    })();
+    ex.DynamicTreeCollisionResolver = DynamicTreeCollisionResolver;
+})(ex || (ex = {}));
+var ex;
+(function (ex) {
+    /**
+     * Collision pairs are used internally by Excalibur to resolve collision between actors. The
+     * Pair prevents collisions from being evaluated more than one time
+     */
+    var CollisionPair = (function () {
+        /**
+         * @param left       The first actor in the collision pair
+         * @param right      The second actor in the collision pair
+         * @param intersect  The minimum translation vector to separate the actors from the perspective of the left actor
+         * @param side       The side on which the collision occured from the perspective of the left actor
+         */
+        function CollisionPair(left, right, intersect, side) {
+            this.left = left;
+            this.right = right;
+            this.intersect = intersect;
+            this.side = side;
+        }
+        /**
+         * Determines if this collision pair and another are equivalent.
+         */
+        CollisionPair.prototype.equals = function (collisionPair) {
+            return (collisionPair.left === this.left && collisionPair.right === this.right) || (collisionPair.right === this.left && collisionPair.left === this.right);
+        };
+        /**
+         * Evaluates the collision pair, performing collision resolution and event publishing appropriate to each collision type.
+         */
+        CollisionPair.prototype.evaluate = function () {
+            // todo fire collision events on left and right actor
+            // todo resolve collisions                  
+            // Publish collision events on both participants
+            this.left.eventDispatcher.publish('collision', new ex.CollisionEvent(this.left, this.right, this.side, this.intersect));
+            this.right.eventDispatcher.publish('collision', new ex.CollisionEvent(this.right, this.left, ex.Util.getOppositeSide(this.side), this.intersect.scale(-1.0)));
+            // If the actor is active push the actor out if its not passive
+            var leftSide = this.side;
+            if ((this.left.collisionType === 2 /* Active */ || this.left.collisionType === 3 /* Elastic */) && this.right.collisionType !== 1 /* Passive */) {
+                this.left.y += this.intersect.y;
+                this.left.x += this.intersect.x;
+                // Naive elastic bounce
+                if (this.left.collisionType === 3 /* Elastic */) {
+                    if (leftSide === 3 /* Left */) {
+                        this.left.dx = Math.abs(this.left.dx);
+                    }
+                    else if (leftSide === 4 /* Right */) {
+                        this.left.dx = -Math.abs(this.left.dx);
+                    }
+                    else if (leftSide === 1 /* Top */) {
+                        this.left.dy = Math.abs(this.left.dy);
+                    }
+                    else if (leftSide === 2 /* Bottom */) {
+                        this.left.dy = -Math.abs(this.left.dy);
+                    }
+                }
+            }
+            var rightSide = ex.Util.getOppositeSide(this.side);
+            var rightIntersect = this.intersect.scale(-1.0);
+            if ((this.right.collisionType === 2 /* Active */ || this.right.collisionType === 3 /* Elastic */) && this.left.collisionType !== 1 /* Passive */) {
+                this.right.y += rightIntersect.y;
+                this.right.x += rightIntersect.x;
+                // Naive elastic bounce
+                if (this.right.collisionType === 3 /* Elastic */) {
+                    if (rightSide === 3 /* Left */) {
+                        this.right.dx = Math.abs(this.right.dx);
+                    }
+                    else if (rightSide === 4 /* Right */) {
+                        this.right.dx = -Math.abs(this.right.dx);
+                    }
+                    else if (rightSide === 1 /* Top */) {
+                        this.right.dy = Math.abs(this.right.dy);
+                    }
+                    else if (rightSide === 2 /* Bottom */) {
+                        this.right.dy = -Math.abs(this.right.dy);
+                    }
                 }
             }
         };
-        return ConsoleAppender;
+        return CollisionPair;
     })();
-    ex.ConsoleAppender = ConsoleAppender;
-    /**
-     * On-screen (canvas) appender
-     */
-    var ScreenAppender = (function () {
-        /**
-         * @param width   Width of the screen appender in pixels
-         * @param height  Height of the screen appender in pixels
-         */
-        function ScreenAppender(width, height) {
-            // @todo Clean this up
-            this._messages = [];
-            this.canvas = document.createElement('canvas');
-            this.canvas.width = width || window.innerWidth;
-            this.canvas.height = height || window.innerHeight;
-            this.canvas.style.position = 'absolute';
-            this.ctx = this.canvas.getContext('2d');
-            document.body.appendChild(this.canvas);
-        }
-        /**
-         * Logs a message at the given [[LogLevel]]
-         * @param level  Level to log at
-         * @param args   Arguments to log
-         */
-        ScreenAppender.prototype.log = function (level, args) {
-            var message = args.join(",");
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this._messages.unshift("[" + LogLevel[level] + "] : " + message);
-            var pos = 10;
-            var opacity = 1.0;
-            for (var i = 0; i < this._messages.length; i++) {
-                this.ctx.fillStyle = 'rgba(255,255,255,' + opacity.toFixed(2) + ')';
-                this.ctx.fillText(this._messages[i], 200, pos);
-                pos += 10;
-                opacity = opacity > 0 ? opacity - .05 : 0;
-            }
-        };
-        return ScreenAppender;
-    })();
-    ex.ScreenAppender = ScreenAppender;
+    ex.CollisionPair = CollisionPair;
 })(ex || (ex = {}));
 /// <reference path="Engine.ts" />
-/// <reference path="Actor.ts" />
-/// <reference path="Log.ts" />
+/// <reference path="Algebra.ts" />
 var ex;
 (function (ex) {
     /**
-     * An enum representing all of the built in event types for Excalibur
-     * @obsolete Phasing this out in favor of classes
-     */
-    (function (EventType) {
-        EventType[EventType["Collision"] = 0] = "Collision";
-        EventType[EventType["EnterViewPort"] = 1] = "EnterViewPort";
-        EventType[EventType["ExitViewPort"] = 2] = "ExitViewPort";
-        EventType[EventType["Blur"] = 3] = "Blur";
-        EventType[EventType["Focus"] = 4] = "Focus";
-        EventType[EventType["Update"] = 5] = "Update";
-        EventType[EventType["Activate"] = 6] = "Activate";
-        EventType[EventType["Deactivate"] = 7] = "Deactivate";
-        EventType[EventType["Initialize"] = 8] = "Initialize";
-    })(ex.EventType || (ex.EventType = {}));
-    var EventType = ex.EventType;
-    /**
-     * Base event type in Excalibur that all other event types derive from.
-     */
-    var GameEvent = (function () {
-        function GameEvent() {
+    * Cameras
+    *
+    * [[BaseCamera]] is the base class for all Excalibur cameras. Cameras are used
+    * to move around your game and set focus. They are used to determine
+    * what is "off screen" and can be used to scale the game.
+    *
+    * Excalibur comes with a [[LockedCamera]] and a [[SideCamera]], depending on
+    * your game needs.
+    *
+    * Cameras are attached to [[Scene|Scenes]] and can be changed by
+    * setting [[Scene.camera]]. By default, a [[Scene]] is initialized with a
+    * [[BaseCamera]] that doesn't move and is centered on the screen.
+    *
+    * ## Focus
+    *
+    * Cameras have a [[BaseCamera.focus|focus]] which means they center around a specific
+    * [[Point]]. This can be an [[Actor]] ([[BaseCamera.setActorToFollow]]) or a specific
+    * [[Point]] ([[BaseCamera.setFocus]]).
+    *
+    * If a camera is following an [[Actor]], it will ensure the [[Actor]] is always at the
+    * center of the screen. You can use [[BaseCamera.setFocus]] instead if you wish to
+    * offset the focal point.
+    *
+    * ## Camera Shake
+    *
+    * To add some fun effects to your game, the [[BaseCamera.shake]] method
+    * will do a random shake. This is great for explosions, damage, and other
+    * in-game effects.
+    *
+    * ## Camera Lerp
+    *
+    * "Lerp" is short for [Linear Interpolation](http://en.wikipedia.org/wiki/Linear_interpolation)
+    * and it enables the camera focus to move smoothly between two points using timing functions.
+    * Set [[BaseCamera.lerp]] to `true` to enable "lerping".
+    *
+    * ## Camera Zooming
+    *
+    * To adjust the zoom for your game, use [[BaseCamera.zoom]] which will scale the
+    * game accordingly. You can pass a duration to transition between zoom levels.
+    *
+    * ## Known Issues
+    *
+    * **Cameras do not support [[EasingFunctions]]**
+    * [Issue #320](https://github.com/excaliburjs/Excalibur/issues/320)
+    *
+    * Currently [[BaseCamera.lerp]] only supports `easeInOutCubic` but will support
+    * [[EasingFunctions|easing functions]] soon.
+    *
+    * **Actors following a path will wobble when camera is moving**
+    * [Issue #276](https://github.com/excaliburjs/Excalibur/issues/276)
+    *
+    */
+    var BaseCamera = (function () {
+        function BaseCamera() {
+            this.focus = new ex.Point(0, 0);
+            this.lerp = false;
+            this._cameraMoving = false;
+            this._currentLerpTime = 0;
+            this._lerpDuration = 1 * 1000; // 5 seconds
+            this._totalLerpTime = 0;
+            this._lerpStart = null;
+            this._lerpEnd = null;
+            //camera effects
+            this.isShaking = false;
+            this.shakeMagnitudeX = 0;
+            this.shakeMagnitudeY = 0;
+            this.shakeDuration = 0;
+            this.elapsedShakeTime = 0;
+            this.isZooming = false;
+            this.currentZoomScale = 1;
+            this.maxZoomScale = 1;
+            this.zoomDuration = 0;
+            this.elapsedZoomTime = 0;
+            this.zoomIncrement = 0.01;
         }
-        return GameEvent;
-    })();
-    ex.GameEvent = GameEvent;
-    /**
-     * Subscribe event thrown when handlers for events other than subscribe are added
-     */
-    var SubscribeEvent = (function (_super) {
-        __extends(SubscribeEvent, _super);
-        function SubscribeEvent(topic, handler) {
-            _super.call(this);
-            this.topic = topic;
-            this.handler = handler;
-        }
-        return SubscribeEvent;
-    })(GameEvent);
-    ex.SubscribeEvent = SubscribeEvent;
-    /**
-     * Unsubscribe event thrown when handlers for events other than unsubscribe are removed
-     */
-    var UnsubscribeEvent = (function (_super) {
-        __extends(UnsubscribeEvent, _super);
-        function UnsubscribeEvent(topic, handler) {
-            _super.call(this);
-            this.topic = topic;
-            this.handler = handler;
-        }
-        return UnsubscribeEvent;
-    })(GameEvent);
-    ex.UnsubscribeEvent = UnsubscribeEvent;
-    /**
-     * Event received by the Engine when the browser window is visible
-     */
-    var VisibleEvent = (function (_super) {
-        __extends(VisibleEvent, _super);
-        function VisibleEvent() {
-            _super.call(this);
-        }
-        return VisibleEvent;
-    })(GameEvent);
-    ex.VisibleEvent = VisibleEvent;
-    /**
-     * Event received by the Engine when the browser window is hidden
-     */
-    var HiddenEvent = (function (_super) {
-        __extends(HiddenEvent, _super);
-        function HiddenEvent() {
-            _super.call(this);
-        }
-        return HiddenEvent;
-    })(GameEvent);
-    ex.HiddenEvent = HiddenEvent;
-    /**
-     * Event thrown on an actor when a collision has occured
-     */
-    var CollisionEvent = (function (_super) {
-        __extends(CollisionEvent, _super);
+        BaseCamera.prototype.easeInOutCubic = function (currentTime, startValue, endValue, duration) {
+            endValue = (endValue - startValue);
+            currentTime /= duration / 2;
+            if (currentTime < 1)
+                return endValue / 2 * currentTime * currentTime * currentTime + startValue;
+            currentTime -= 2;
+            return endValue / 2 * (currentTime * currentTime * currentTime + 2) + startValue;
+        };
         /**
-         * @param actor  The actor the event was thrown on
-         * @param other  The actor that was collided with
-         * @param side   The side that was collided with
-         */
-        function CollisionEvent(actor, other, side, intersection) {
-            _super.call(this);
-            this.actor = actor;
-            this.other = other;
-            this.side = side;
-            this.intersection = intersection;
-        }
-        return CollisionEvent;
-    })(GameEvent);
-    ex.CollisionEvent = CollisionEvent;
-    /**
-     * Event thrown on a game object on Excalibur update
-     */
-    var UpdateEvent = (function (_super) {
-        __extends(UpdateEvent, _super);
+        * Sets the [[Actor]] to follow with the camera
+        * @param actor  The actor to follow
+        */
+        BaseCamera.prototype.setActorToFollow = function (actor) {
+            this.follow = actor;
+        };
         /**
-         * @param delta  The number of milliseconds since the last update
-         */
-        function UpdateEvent(delta) {
-            _super.call(this);
-            this.delta = delta;
-        }
-        return UpdateEvent;
-    })(GameEvent);
-    ex.UpdateEvent = UpdateEvent;
-    /**
-     * Event thrown on an Actor only once before the first update call
-     */
-    var InitializeEvent = (function (_super) {
-        __extends(InitializeEvent, _super);
+        * Returns the focal point of the camera
+        */
+        BaseCamera.prototype.getFocus = function () {
+            return this.focus;
+        };
         /**
-         * @param engine  The reference to the current engine
-         */
-        function InitializeEvent(engine) {
-            _super.call(this);
-            this.engine = engine;
-        }
-        return InitializeEvent;
-    })(GameEvent);
-    ex.InitializeEvent = InitializeEvent;
-    /**
-     * Event thrown on a Scene on activation
-     */
-    var ActivateEvent = (function (_super) {
-        __extends(ActivateEvent, _super);
-        /**
-         * @param oldScene  The reference to the old scene
-         */
-        function ActivateEvent(oldScene) {
-            _super.call(this);
-            this.oldScene = oldScene;
-        }
-        return ActivateEvent;
-    })(GameEvent);
-    ex.ActivateEvent = ActivateEvent;
-    /**
-     * Event thrown on a Scene on deactivation
-     */
-    var DeactivateEvent = (function (_super) {
-        __extends(DeactivateEvent, _super);
-        /**
-         * @param newScene  The reference to the new scene
-         */
-        function DeactivateEvent(newScene) {
-            _super.call(this);
-            this.newScene = newScene;
-        }
-        return DeactivateEvent;
-    })(GameEvent);
-    ex.DeactivateEvent = DeactivateEvent;
-    /**
-     * Event thrown on an Actor when it completely leaves the screen.
-     */
-    var ExitViewPortEvent = (function (_super) {
-        __extends(ExitViewPortEvent, _super);
-        function ExitViewPortEvent() {
-            _super.call(this);
-        }
-        return ExitViewPortEvent;
-    })(GameEvent);
-    ex.ExitViewPortEvent = ExitViewPortEvent;
-    /**
-     * Event thrown on an Actor when it completely leaves the screen.
-     */
-    var EnterViewPortEvent = (function (_super) {
-        __extends(EnterViewPortEvent, _super);
-        function EnterViewPortEvent() {
-            _super.call(this);
-        }
-        return EnterViewPortEvent;
-    })(GameEvent);
-    ex.EnterViewPortEvent = EnterViewPortEvent;
-})(ex || (ex = {}));
-/// <reference path="Events.ts" />
-var ex;
-(function (ex) {
-    /**
-     * Excalibur's internal event dispatcher implementation.
-     * Callbacks are fired immediately after an event is published.
-     * Typically you'd use [[Class.eventDispatcher]] since most classes in
-     * Excalibur inherit from [[Class]]. You'd rarely create an `EventDispatcher`
-     * yourself.
-     *
-     * When working with events, be sure to keep in mind the order of subscriptions
-     * and try not to create a situation that requires specific things to happen in
-     * order. Events are best used for input events, tying together disparate objects,
-     * or for UI updates.
-     *
-     * ## Example: Actor events
-     *
-     * Actors implement an EventDispatcher ([[Actor.eventDispatcher]]) so they can
-     * send and receive events. For example, they can enable Pointer events (mouse/touch)
-     * and you can respond to them by subscribing to the event names.
-     *
-     * You can also emit any other kind of event for your game just by using a custom
-     * `string` value and implementing a class that inherits from [[GameEvent]].
-     *
-     * ```js
-     * var player = new ex.Actor(...);
-     *
-     * // Enable pointer events for this actor
-     * player.enableCapturePointer = true;
-     *
-     * // subscribe to pointerdown event
-     * player.on("pointerdown", function (evt: ex.Input.PointerEvent) {
-     *   console.log("Player was clicked!");
-     * });
-     *
-     * // turn off subscription
-     * player.off("pointerdown");
-     *
-     * // subscribe to custom event
-     * player.on("death", function (evt) {
-     *   console.log("Player died:", evt);
-     * });
-     *
-     * // trigger custom event
-     * player.triggerEvent("death", new DeathEvent());
-     *
-     * ```
-     *
-     * ## Example: Pub/Sub with Excalibur
-     *
-     * You can also create an EventDispatcher for any arbitrary object, for example
-     * a global game event aggregator (`vent`). Anything in your game can subscribe to
-     * it, if the event aggregator is in the global scope.
-     *
-     * *Warning:* This can easily get out of hand. Avoid this usage, it just serves as
-     * an example.
-     *
-     * ```js
-     * // create a publisher on an empty object
-     * var vent = new ex.EventDispatcher({});
-     *
-     * // handler for an event
-     * var subscription = function (event) {
-     *   console.log(event);
-     * }
-     *
-     * // add a subscription
-     * vent.subscribe("someevent", subscription);
-     *
-     * // publish an event somewhere in the game
-     * vent.publish("someevent", new ex.GameEvent());
-     * ```
-     */
-    var EventDispatcher = (function () {
-        /**
-         * @param target  The object that will be the recipient of events from this event dispatcher
-         */
-        function EventDispatcher(target) {
-            this._handlers = {};
-            this._wiredEventDispatchers = [];
-            this._log = ex.Logger.getInstance();
-            this._target = target;
-        }
-        /**
-         * Publish an event for target
-         * @param eventName  The name of the event to publish
-         * @param event      Optionally pass an event data object to the handler
-         */
-        EventDispatcher.prototype.publish = function (eventName, event) {
-            if (!eventName) {
-                // key not mapped
-                return;
+        * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
+        * @param x The x coordinate of the focal point
+        * @param y The y coordinate of the focal point
+        */
+        BaseCamera.prototype.setFocus = function (x, y) {
+            if (!this.follow && !this.lerp) {
+                this.focus.x = x;
+                this.focus.y = y;
             }
-            eventName = eventName.toLowerCase();
-            var target = this._target;
-            if (!event) {
-                event = new ex.GameEvent();
-            }
-            event.target = target;
-            var i, len;
-            if (this._handlers[eventName]) {
-                i = 0;
-                len = this._handlers[eventName].length;
-                for (i; i < len; i++) {
-                    this._handlers[eventName][i].call(target, event);
-                }
-            }
-            i = 0;
-            len = this._wiredEventDispatchers.length;
-            for (i; i < len; i++) {
-                this._wiredEventDispatchers[i].publish(eventName, event);
+            if (this.lerp) {
+                this._lerpStart = this.focus.clone();
+                this._lerpEnd = new ex.Point(x, y);
+                this._currentLerpTime = 0;
+                this._cameraMoving = true;
             }
         };
         /**
-         * Alias for [[publish]], publishes an event for target
-         * @param eventName  The name of the event to publish
-         * @param event      Optionally pass an event data object to the handler
-         */
-        EventDispatcher.prototype.emit = function (eventName, event) {
-            this.publish(eventName, event);
+        * Sets the camera to shake at the specified magnitudes for the specified duration
+        * @param magnitudeX  The x magnitude of the shake
+        * @param magnitudeY  The y magnitude of the shake
+        * @param duration    The duration of the shake in milliseconds
+        */
+        BaseCamera.prototype.shake = function (magnitudeX, magnitudeY, duration) {
+            this.isShaking = true;
+            this.shakeMagnitudeX = magnitudeX;
+            this.shakeMagnitudeY = magnitudeY;
+            this.shakeDuration = duration;
         };
         /**
-         * Subscribe an event handler to a particular event name, multiple handlers per event name are allowed.
-         * @param eventName  The name of the event to subscribe to
-         * @param handler    The handler callback to fire on this event
-         */
-        EventDispatcher.prototype.subscribe = function (eventName, handler) {
-            eventName = eventName.toLowerCase();
-            if (!this._handlers[eventName]) {
-                this._handlers[eventName] = [];
+        * Zooms the camera in or out by the specified scale over the specified duration.
+        * If no duration is specified, it take effect immediately.
+        * @param scale    The scale of the zoom
+        * @param duration The duration of the zoom in milliseconds
+        */
+        BaseCamera.prototype.zoom = function (scale, duration) {
+            if (duration === void 0) { duration = 0; }
+            this.isZooming = true;
+            this.maxZoomScale = scale;
+            this.zoomDuration = duration;
+            if (duration) {
+                this.zoomIncrement = Math.abs(this.maxZoomScale - this.currentZoomScale) / duration * 1000;
             }
-            this._handlers[eventName].push(handler);
-            // meta event handlers
-            if (eventName !== 'unsubscribe' && eventName !== 'subscribe') {
-                this.emit('subscribe', new ex.SubscribeEvent(eventName, handler));
-            }
-        };
-        /**
-         * Unsubscribe an event handler(s) from an event. If a specific handler
-         * is specified for an event, only that handler will be unsubscribed.
-         * Otherwise all handlers will be unsubscribed for that event.
-         *
-         * @param eventName  The name of the event to unsubscribe
-         * @param handler    Optionally the specific handler to unsubscribe
-         *
-         */
-        EventDispatcher.prototype.unsubscribe = function (eventName, handler) {
-            eventName = eventName.toLowerCase();
-            var eventHandlers = this._handlers[eventName];
-            if (eventHandlers) {
-                // if no explicit handler is give with the event name clear all handlers
-                if (!handler) {
-                    this._handlers[eventName].length = 0;
+            if (this.maxZoomScale < 1) {
+                if (duration) {
+                    this.zoomIncrement = -1 * this.zoomIncrement;
                 }
                 else {
-                    var index = eventHandlers.indexOf(handler);
-                    this._handlers[eventName].splice(index, 1);
+                    this.isZooming = false;
+                    this.setCurrentZoomScale(this.maxZoomScale);
                 }
             }
-            // meta event handlers
-            if (eventName !== 'unsubscribe' && eventName !== 'subscribe') {
-                this.emit('unsubscribe', new ex.UnsubscribeEvent(eventName, handler));
+            else {
+                if (!duration) {
+                    this.isZooming = false;
+                    this.setCurrentZoomScale(this.maxZoomScale);
+                }
             }
+            // console.log("zoom increment: " + this.zoomIncrement);
         };
         /**
-         * Wires this event dispatcher to also recieve events from another
-         */
-        EventDispatcher.prototype.wire = function (eventDispatcher) {
-            eventDispatcher._wiredEventDispatchers.push(this);
+        * Gets the current zoom scale
+        */
+        BaseCamera.prototype.getZoom = function () {
+            return this.currentZoomScale;
+        };
+        BaseCamera.prototype.setCurrentZoomScale = function (zoomScale) {
+            this.currentZoomScale = zoomScale;
         };
         /**
-         * Unwires this event dispatcher from another
-         */
-        EventDispatcher.prototype.unwire = function (eventDispatcher) {
-            var index = eventDispatcher._wiredEventDispatchers.indexOf(this);
-            if (index > -1) {
-                eventDispatcher._wiredEventDispatchers.splice(index, 1);
+        * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
+        * @param delta  The number of milliseconds since the last update
+        */
+        BaseCamera.prototype.update = function (ctx, delta) {
+            var focus = this.getFocus();
+            var xShake = 0;
+            var yShake = 0;
+            var canvasWidth = ctx.canvas.width;
+            var canvasHeight = ctx.canvas.height;
+            var newCanvasWidth = canvasWidth * this.getZoom();
+            var newCanvasHeight = canvasHeight * this.getZoom();
+            if (this.lerp) {
+                if (this._currentLerpTime < this._lerpDuration && this._cameraMoving) {
+                    if (this._lerpEnd.x < this._lerpStart.x) {
+                        this.focus.x = this._lerpStart.x - (this.easeInOutCubic(this._currentLerpTime, this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
+                    }
+                    else {
+                        this.focus.x = this.easeInOutCubic(this._currentLerpTime, this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
+                    }
+                    if (this._lerpEnd.y < this._lerpStart.y) {
+                        this.focus.y = this._lerpStart.y - (this.easeInOutCubic(this._currentLerpTime, this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
+                    }
+                    else {
+                        this.focus.y = this.easeInOutCubic(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
+                    }
+                    this._currentLerpTime += delta;
+                }
+                else {
+                    this._lerpStart = null;
+                    this._lerpEnd = null;
+                    this._currentLerpTime = 0;
+                    this._cameraMoving = false;
+                }
+            }
+            if (this.isDoneShaking()) {
+                this.isShaking = false;
+                this.elapsedShakeTime = 0;
+                this.shakeMagnitudeX = 0;
+                this.shakeMagnitudeY = 0;
+                this.shakeDuration = 0;
+            }
+            else {
+                this.elapsedShakeTime += delta;
+                xShake = (Math.random() * this.shakeMagnitudeX | 0) + 1;
+                yShake = (Math.random() * this.shakeMagnitudeY | 0) + 1;
+            }
+            ctx.translate(-focus.x + xShake + (newCanvasWidth / 2), -focus.y + yShake + (newCanvasHeight / 2));
+            if (this.isDoneZooming()) {
+                this.isZooming = false;
+                this.elapsedZoomTime = 0;
+                this.zoomDuration = 0;
+                this.setCurrentZoomScale(this.maxZoomScale);
+            }
+            else {
+                this.elapsedZoomTime += delta;
+                this.setCurrentZoomScale(this.getZoom() + this.zoomIncrement * delta / 1000);
+            }
+            ctx.scale(this.getZoom(), this.getZoom());
+        };
+        BaseCamera.prototype.debugDraw = function (ctx) {
+            var focus = this.getFocus();
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(focus.x, focus.y, 15, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fill();
+        };
+        BaseCamera.prototype.isDoneShaking = function () {
+            return !(this.isShaking) || (this.elapsedShakeTime >= this.shakeDuration);
+        };
+        BaseCamera.prototype.isDoneZooming = function () {
+            if (this.zoomDuration != 0) {
+                return (this.elapsedZoomTime >= this.zoomDuration);
+            }
+            else {
+                if (this.maxZoomScale < 1) {
+                    return (this.currentZoomScale <= this.maxZoomScale);
+                }
+                else {
+                    return (this.currentZoomScale >= this.maxZoomScale);
+                }
             }
         };
-        return EventDispatcher;
+        return BaseCamera;
     })();
-    ex.EventDispatcher = EventDispatcher;
+    ex.BaseCamera = BaseCamera;
+    /**
+    * An extension of [[BaseCamera]] that is locked vertically; it will only move side to side.
+    *
+    * Common usages: platformers.
+    */
+    var SideCamera = (function (_super) {
+        __extends(SideCamera, _super);
+        function SideCamera() {
+            _super.apply(this, arguments);
+        }
+        SideCamera.prototype.getFocus = function () {
+            if (this.follow) {
+                return new ex.Point(this.follow.x + this.follow.getWidth() / 2, this.focus.y);
+            }
+            else {
+                return this.focus;
+            }
+        };
+        return SideCamera;
+    })(BaseCamera);
+    ex.SideCamera = SideCamera;
+    /**
+    * An extension of [[BaseCamera]] that is locked to an [[Actor]] or
+    * [[LockedCamera.focus|focal point]]; the actor will appear in the
+    * center of the screen.
+    *
+    * Common usages: RPGs, adventure games, top-down games.
+    */
+    var LockedCamera = (function (_super) {
+        __extends(LockedCamera, _super);
+        function LockedCamera() {
+            _super.apply(this, arguments);
+        }
+        LockedCamera.prototype.getFocus = function () {
+            if (this.follow) {
+                return new ex.Point(this.follow.x + this.follow.getWidth() / 2, this.follow.y + this.follow.getHeight() / 2);
+            }
+            else {
+                return this.focus;
+            }
+        };
+        return LockedCamera;
+    })(BaseCamera);
+    ex.LockedCamera = LockedCamera;
 })(ex || (ex = {}));
+/// <reference path="Actions/IActionable.ts"/>
+/// <reference path="Actions/ActionContext.ts"/>
+/// <reference path="Collision/BoundingBox.ts"/>
 var ex;
 (function (ex) {
     /**
-     * Provides standard colors (e.g. [[Color.Black]])
-     * but you can also create custom colors using RGB, HSL, or Hex. Also provides
-     * useful color operations like [[Color.lighten]], [[Color.darken]], and more.
+     * Grouping
      *
-     * ## Creating colors
+     * Groups are used for logically grouping Actors so they can be acted upon
+     * in bulk.
+     *
+     * @todo Document this
+     */
+    var Group = (function (_super) {
+        __extends(Group, _super);
+        function Group(name, scene) {
+            _super.call(this);
+            this.name = name;
+            this.scene = scene;
+            this._logger = ex.Logger.getInstance();
+            this._members = [];
+            this.actions = new ex.ActionContext();
+            if (scene == null) {
+                this._logger.error("Invalid constructor arguments passed to Group: ", name, ", scene must not be null!");
+            }
+            else {
+                var existingGroup = scene.groups[name];
+                if (existingGroup) {
+                    this._logger.warn("Group with name", name, "already exists. This new group will replace it.");
+                }
+                scene.groups[name] = this;
+            }
+        }
+        Group.prototype.add = function (actorOrActors) {
+            if (actorOrActors instanceof ex.Actor) {
+                actorOrActors = [].concat(actorOrActors);
+            }
+            var i = 0, len = actorOrActors.length, groupIdx;
+            for (i; i < len; i++) {
+                groupIdx = this.getMembers().indexOf(actorOrActors[i]);
+                if (groupIdx === -1) {
+                    this._members.push(actorOrActors[i]);
+                    this.scene.add(actorOrActors[i]);
+                    this.actions.addActorToContext(actorOrActors[i]);
+                    this.eventDispatcher.wire(actorOrActors[i].eventDispatcher);
+                }
+            }
+        };
+        Group.prototype.remove = function (actor) {
+            var index = this._members.indexOf(actor);
+            if (index > -1) {
+                this._members.splice(index, 1);
+                this.actions.removeActorFromContext(actor);
+                this.eventDispatcher.unwire(actor.eventDispatcher);
+            }
+        };
+        Group.prototype.move = function (args) {
+            var i = 0, members = this.getMembers(), len = members.length;
+            if (arguments.length === 1 && args instanceof ex.Vector) {
+                for (i; i < len; i++) {
+                    members[i].x += args.x;
+                    members[i].y += args.y;
+                }
+            }
+            else if (typeof arguments[0] === 'number' && typeof arguments[1] === 'number') {
+                var x = arguments[0];
+                var y = arguments[1];
+                for (i; i < len; i++) {
+                    members[i].x += x;
+                    members[i].y += y;
+                }
+            }
+            else {
+                this._logger.error("Invalid arguments passed to group move", this.name, "args:", arguments);
+            }
+        };
+        Group.prototype.rotate = function (angle) {
+            if (typeof arguments[0] === 'number') {
+                var r = arguments[0], i = 0, members = this.getMembers(), len = members.length;
+                for (i; i < len; i++) {
+                    members[i].rotation += r;
+                }
+            }
+            else {
+                this._logger.error("Invalid arguments passed to group rotate", this.name, "args:", arguments);
+            }
+        };
+        Group.prototype.on = function (eventName, handler) {
+            this.eventDispatcher.subscribe(eventName, handler);
+        };
+        Group.prototype.off = function (eventName, handler) {
+            this.eventDispatcher.unsubscribe(eventName, handler);
+        };
+        Group.prototype.emit = function (topic, event) {
+            this.eventDispatcher.emit(topic, event);
+        };
+        Group.prototype.contains = function (actor) {
+            return this.getMembers().indexOf(actor) > -1;
+        };
+        Group.prototype.getMembers = function () {
+            return this._members;
+        };
+        Group.prototype.getRandomMember = function () {
+            return this._members[Math.floor(Math.random() * this._members.length)];
+        };
+        Group.prototype.getBounds = function () {
+            return this.getMembers().map(function (a) { return a.getBounds(); }).reduce(function (prev, curr) {
+                return prev.combine(curr);
+            });
+        };
+        return Group;
+    })(ex.Class);
+    ex.Group = Group;
+})(ex || (ex = {}));
+var ex;
+(function (ex) {
+    // NOTE: this implementation is not self-balancing
+    var SortedList = (function () {
+        function SortedList(getComparable) {
+            this._getComparable = getComparable;
+        }
+        SortedList.prototype.find = function (element) {
+            return this._find(this._root, element);
+        };
+        SortedList.prototype._find = function (node, element) {
+            if (node == null) {
+                return false;
+            }
+            else if (this._getComparable.call(element) == node.getKey()) {
+                if (node.getData().indexOf(element) > -1) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            else if (this._getComparable.call(element) < node.getKey()) {
+                return this._find(node.getLeft(), element);
+            }
+            else {
+                return this._find(node.getRight(), element);
+            }
+        };
+        // returns the array of elements at a specific key value
+        SortedList.prototype.get = function (key) {
+            return this._get(this._root, key);
+        };
+        SortedList.prototype._get = function (node, key) {
+            if (node == null) {
+                return [];
+            }
+            else if (key == node.getKey()) {
+                return node.getData();
+            }
+            else if (key < node.getKey()) {
+                return this._get(node.getLeft(), key);
+            }
+            else {
+                return this._get(node.getRight(), key);
+            }
+        };
+        SortedList.prototype.add = function (element) {
+            if (this._root == null) {
+                this._root = new BinaryTreeNode(this._getComparable.call(element), [element], null, null);
+                return true;
+            }
+            else {
+                return this._insert(this._root, element);
+            }
+            return false;
+        };
+        SortedList.prototype._insert = function (node, element) {
+            if (node != null) {
+                if (this._getComparable.call(element) == node.getKey()) {
+                    if (node.getData().indexOf(element) > -1) {
+                        return false; // the element we're trying to insert already exists
+                    }
+                    else {
+                        node.getData().push(element);
+                        return true;
+                    }
+                }
+                else if (this._getComparable.call(element) < node.getKey()) {
+                    if (node.getLeft() == null) {
+                        node.setLeft(new BinaryTreeNode(this._getComparable.call(element), [element], null, null));
+                        return true;
+                    }
+                    else {
+                        return this._insert(node.getLeft(), element);
+                    }
+                }
+                else {
+                    if (node.getRight() == null) {
+                        node.setRight(new BinaryTreeNode(this._getComparable.call(element), [element], null, null));
+                        return true;
+                    }
+                    else {
+                        return this._insert(node.getRight(), element);
+                    }
+                }
+            }
+            return false;
+        };
+        SortedList.prototype.removeByComparable = function (element) {
+            this._root = this._remove(this._root, element);
+        };
+        SortedList.prototype._remove = function (node, element) {
+            if (node == null) {
+                return null;
+            }
+            else if (this._getComparable.call(element) == node.getKey()) {
+                var elementIndex = node.getData().indexOf(element);
+                // if the node contains the element, remove the element
+                if (elementIndex > -1) {
+                    node.getData().splice(elementIndex, 1);
+                    // if we have removed the last element at this node, remove the node
+                    if (node.getData().length == 0) {
+                        // if the node is a leaf
+                        if (node.getLeft() == null && node.getRight() == null) {
+                            return null;
+                        }
+                        else if (node.getLeft() == null) {
+                            return node.getRight();
+                        }
+                        else if (node.getRight() == null) {
+                            return node.getLeft();
+                        }
+                        // if node has 2 children
+                        var temp = this._findMinNode(node.getRight());
+                        node.setKey(temp.getKey());
+                        node.setData(temp.getData());
+                        node.setRight(this._cleanup(node.getRight(), temp)); //"cleanup nodes" (move them up recursively)
+                        return node;
+                    }
+                    else {
+                        // this prevents the node from being removed since it still contains elements
+                        return node;
+                    }
+                }
+            }
+            else if (this._getComparable.call(element) < node.getKey()) {
+                node.setLeft(this._remove(node.getLeft(), element));
+                return node;
+            }
+            else {
+                node.setRight(this._remove(node.getRight(), element));
+                return node;
+            }
+        };
+        // called once we have successfully removed the element we wanted, recursively corrects the part of the tree below the removed node
+        SortedList.prototype._cleanup = function (node, element) {
+            var comparable = element.getKey();
+            if (node == null) {
+                return null;
+            }
+            else if (comparable == node.getKey()) {
+                // if the node is a leaf
+                if (node.getLeft() == null && node.getRight() == null) {
+                    return null;
+                }
+                else if (node.getLeft() == null) {
+                    return node.getRight();
+                }
+                else if (node.getRight() == null) {
+                    return node.getLeft();
+                }
+                // if node has 2 children
+                var temp = this._findMinNode(node.getRight());
+                node.setKey(temp.getKey());
+                node.setData(temp.getData());
+                node.setRight(this._cleanup(node.getRight(), temp));
+                return node;
+            }
+            else if (this._getComparable.call(element) < node.getKey()) {
+                node.setLeft(this._cleanup(node.getLeft(), element));
+                return node;
+            }
+            else {
+                node.setRight(this._cleanup(node.getRight(), element));
+                return node;
+            }
+        };
+        SortedList.prototype._findMinNode = function (node) {
+            var current = node;
+            while (current.getLeft() != null) {
+                current = current.getLeft();
+            }
+            return current;
+        };
+        SortedList.prototype.list = function () {
+            var results = new Array();
+            this._list(this._root, results);
+            return results;
+        };
+        SortedList.prototype._list = function (treeNode, results) {
+            if (treeNode != null) {
+                this._list(treeNode.getLeft(), results);
+                treeNode.getData().forEach(function (element) {
+                    results.push(element);
+                });
+                this._list(treeNode.getRight(), results);
+            }
+        };
+        return SortedList;
+    })();
+    ex.SortedList = SortedList;
+    var BinaryTreeNode = (function () {
+        function BinaryTreeNode(key, data, left, right) {
+            this._key = key;
+            this._data = data;
+            this._left = left;
+            this._right = right;
+        }
+        BinaryTreeNode.prototype.getKey = function () {
+            return this._key;
+        };
+        BinaryTreeNode.prototype.setKey = function (key) {
+            this._key = key;
+        };
+        BinaryTreeNode.prototype.getData = function () {
+            return this._data;
+        };
+        BinaryTreeNode.prototype.setData = function (data) {
+            this._data = data;
+        };
+        BinaryTreeNode.prototype.getLeft = function () {
+            return this._left;
+        };
+        BinaryTreeNode.prototype.setLeft = function (left) {
+            this._left = left;
+        };
+        BinaryTreeNode.prototype.getRight = function () {
+            return this._right;
+        };
+        BinaryTreeNode.prototype.setRight = function (right) {
+            this._right = right;
+        };
+        return BinaryTreeNode;
+    })();
+    ex.BinaryTreeNode = BinaryTreeNode;
+    var MockedElement = (function () {
+        function MockedElement(key) {
+            this._key = 0;
+            this._key = key;
+        }
+        MockedElement.prototype.getTheKey = function () {
+            return this._key;
+        };
+        MockedElement.prototype.setKey = function (key) {
+            this._key = key;
+        };
+        return MockedElement;
+    })();
+    ex.MockedElement = MockedElement;
+})(ex || (ex = {}));
+/// <reference path="Class.ts" />
+/// <reference path="Timer.ts" />
+/// <reference path="Collision/NaiveCollisionResolver.ts"/>
+/// <reference path="Collision/DynamicTreeCollisionResolver.ts"/>
+/// <reference path="CollisionPair.ts" />
+/// <reference path="Camera.ts" />
+/// <reference path="Group.ts"/>
+/// <reference path="Util/SortedList.ts"/>
+var ex;
+(function (ex) {
+    /**
+     * Scenes
+     *
+     * [[Actor|Actors]] are composed together into groupings called Scenes in
+     * Excalibur. The metaphor models the same idea behind real world
+     * actors in a scene. Only actors in scenes will be updated and drawn.
+     *
+     * Typical usages of a scene include: levels, menus, loading screens, etc.
+     *
+     * ## Adding actors to the scene
+     *
+     * For an [[Actor]] to be drawn and updated, it needs to be part of the "scene graph".
+     * The [[Engine]] provides several easy ways to quickly add/remove actors from the
+     * current scene.
      *
      * ```js
-     * // RGBA
-     * new ex.Color(r, g, b, a);
-     * ex.Color.fromRGB(r, g, b, a);
+     * var game   = new ex.Engine(...);
      *
-     * // HSLA
-     * ex.Color.fromHSL(h, s, l, a);
+     * var player = new ex.Actor();
+     * var enemy  = new ex.Actor();
      *
-     * // Hex, alpha optional
-     * ex.Color.fromHex("#000000");
-     * ex.Color.fromHex("#000000FF");
+     * // add them to the "root" scene
+     *
+     * game.add(player);
+     * game.add(enemy);
+     *
+     * // start game
+     * game.start();
      * ```
      *
-     * ## Working with colors
+     * You can also add actors to a [[Scene]] instance specifically.
      *
-     * Since Javascript does not support structs, if you change a color "constant" like [[Color.Black]]
-     * it will change it across the entire game. You can safely use the color operations
-     * like [[Color.lighten]] and [[Color.darken]] because they `clone` the color to
-     * return a new color. However, be aware that this can use up memory if used excessively.
+     * ```js
+     * var game   = new ex.Engine();
+     * var level1 = new ex.Scene();
      *
-     * Just be aware that if you directly alter properties (i.e. [[Color.r]], etc.) , this will change it
-     * for all the code that uses that instance of Color.
+     * var player = new ex.Actor();
+     * var enemy  = new ex.Actor();
+     *
+     * // add actors to level1
+     * level1.add(player);
+     * level1.add(enemy);
+     *
+     * // add level1 to the game
+     * game.add("level1", level1);
+     *
+     * // start the game
+     * game.start();
+     *
+     * // after player clicks start game, for example
+     * game.goToScene("level1");
+     *
+     * ```
+     *
+     * ## Extending scenes
+     *
+     * For more complex games, you might want more control over a scene in which
+     * case you can extend [[Scene]]. This is useful for menus, custom loaders,
+     * and levels.
+     *
+     * Just use [[Engine.add]] to add a new scene to the game. You can then use
+     * [[Engine.goToScene]] to switch scenes which calls [[Scene.onActivate]] for the
+     * new scene and [[Scene.onDeactivate]] for the old scene. Use [[Scene.onInitialize]]
+     * to perform any start-up logic, which is called once.
+     *
+     * **TypeScript**
+     *
+     * ```ts
+     * class MainMenu extends ex.Scene {
+     *
+     *   // start-up logic, called once
+     *   public onInitialize(engine: ex.Engine) { }
+     *
+     *   // each time the scene is entered (Engine.goToScene)
+     *   public onActivate() { }
+     *
+     *   // each time the scene is exited (Engine.goToScene)
+     *   public onDeactivate() { }
+     * }
+     *
+     * // add to game and activate it
+     * game.add("mainmenu", new MainMenu());
+     * game.goToScene("mainmenu");
+     * ```
+     *
+     * **Javascript**
+     *
+     * ```js
+     * var MainMenu = ex.Scene.extend({
+     *   // start-up logic, called once
+     *   onInitialize: function (engine) { },
+     *
+     *   // each time the scene is activated by Engine.goToScene
+     *   onActivate: function () { },
+     *
+     *   // each time the scene is deactivated by Engine.goToScene
+     *   onDeactivate: function () { }
+     * });
+     *
+     * game.add("mainmenu", new MainMenu());
+     * game.goToScene("mainmenu");
+     * ```
+     *
+     * ## Scene camera
+     *
+     * By default, a [[Scene]] is initialized with a [[BaseCamera]] which
+     * does not move and centers the game world.
+     *
+     * Learn more about [[BaseCamera|Cameras]] and how to modify them to suit
+     * your game.
      */
-    var Color = (function () {
-        /**
-         * Creates a new instance of Color from an r, g, b, a
-         *
-         * @param r  The red component of color (0-255)
-         * @param g  The green component of color (0-255)
-         * @param b  The blue component of color (0-255)
-         * @param a  The alpha component of color (0-1.0)
-         */
-        function Color(r, g, b, a) {
-            this.r = r;
-            this.g = g;
-            this.b = b;
-            this.a = (a != null ? a : 1);
+    var Scene = (function (_super) {
+        __extends(Scene, _super);
+        function Scene(engine) {
+            _super.call(this);
+            /**
+             * The actors in the current scene
+             */
+            this.children = [];
+            /**
+             * The [[TileMap]]s in the scene, if any
+             */
+            this.tileMaps = [];
+            /**
+             * The [[Group]]s in the scene, if any
+             */
+            this.groups = {};
+            /**
+             * The [[UIActor]]s in a scene, if any; these are drawn last
+             */
+            this.uiActors = [];
+            /**
+             * Whether or the [[Scene]] has been initialized
+             */
+            this.isInitialized = false;
+            this._sortedDrawingTree = new ex.SortedList(ex.Actor.prototype.getZIndex);
+            this._collisionResolver = new ex.DynamicTreeCollisionResolver();
+            this._killQueue = [];
+            this._timers = [];
+            this._cancelQueue = [];
+            this._logger = ex.Logger.getInstance();
+            this.camera = new ex.BaseCamera();
+            if (engine) {
+                this.camera.setFocus(engine.width / 2, engine.height / 2);
+            }
         }
         /**
-         * Creates a new instance of Color from an r, g, b, a
-         *
-         * @param r  The red component of color (0-255)
-         * @param g  The green component of color (0-255)
-         * @param b  The blue component of color (0-255)
-         * @param a  The alpha component of color (0-1.0)
+         * This is called before the first update of the [[Scene]]. This method is meant to be
+         * overridden. This is where initialization of child actors should take place.
          */
-        Color.fromRGB = function (r, g, b, a) {
-            return new Color(r, g, b, a);
+        Scene.prototype.onInitialize = function (engine) {
+            // will be overridden
+            this._logger.debug("Scene.onInitialize", this, engine);
         };
         /**
-         * Creates a new inscance of Color from a hex string
-         *
-         * @param hex  CSS color string of the form #ffffff, the alpha component is optional
+         * This is called when the scene is made active and started. It is meant to be overriden,
+         * this is where you should setup any DOM UI or event handlers needed for the scene.
          */
-        Color.fromHex = function (hex) {
-            var hexRegEx = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})?$/i;
-            var match = null;
-            if (match = hex.match(hexRegEx)) {
-                var r = parseInt(match[1], 16);
-                var g = parseInt(match[2], 16);
-                var b = parseInt(match[3], 16);
-                var a = 1;
-                if (match[4]) {
-                    a = parseInt(match[4], 16) / 255;
+        Scene.prototype.onActivate = function () {
+            // will be overridden
+            this._logger.debug("Scene.onActivate", this);
+        };
+        /**
+         * This is called when the scene is made transitioned away from and stopped. It is meant to be overriden,
+         * this is where you should cleanup any DOM UI or event handlers needed for the scene.
+         */
+        Scene.prototype.onDeactivate = function () {
+            // will be overridden
+            this._logger.debug("Scene.onDeactivate", this);
+        };
+        /**
+         * Publish an event to all actors in the scene
+         * @param eventType  The name of the event to publish
+         * @param event      The event object to send
+         */
+        Scene.prototype.publish = function (eventType, event) {
+            var i = 0, len = this.children.length;
+            for (i; i < len; i++) {
+                this.children[i].triggerEvent(eventType, event);
+            }
+        };
+        /**
+         * Updates all the actors and timers in the scene. Called by the [[Engine]].
+         * @param engine  Reference to the current Engine
+         * @param delta   The number of milliseconds since the last update
+         */
+        Scene.prototype.update = function (engine, delta) {
+            var i, len;
+            for (i = 0, len = this.uiActors.length; i < len; i++) {
+                this.uiActors[i].update(engine, delta);
+            }
+            for (i = 0, len = this.tileMaps.length; i < len; i++) {
+                this.tileMaps[i].update(engine, delta);
+            }
+            for (i = 0, len = this.children.length; i < len; i++) {
+                this.children[i].update(engine, delta);
+            }
+            // Run collision resolution strategy
+            if (this._collisionResolver) {
+                this._collisionResolver.update(this.children);
+                this._collisionResolver.evaluate(this.children);
+            }
+            // Remove actors from scene graph after being killed
+            var actorIndex;
+            for (i = 0, len = this._killQueue.length; i < len; i++) {
+                actorIndex = this.children.indexOf(this._killQueue[i]);
+                if (actorIndex > -1) {
+                    this.children.splice(actorIndex, 1);
                 }
-                return new Color(r, g, b, a);
+            }
+            this._killQueue.length = 0;
+            for (i = 0, len = this._cancelQueue.length; i < len; i++) {
+                this.removeTimer(this._cancelQueue[i]);
+            }
+            this._cancelQueue.length = 0;
+            // Cycle through timers updating timers
+            this._timers = this._timers.filter(function (timer) {
+                timer.update(delta);
+                return !timer.complete;
+            });
+        };
+        /**
+         * Draws all the actors in the Scene. Called by the [[Engine]].
+         * @param ctx    The current rendering context
+         * @param delta  The number of milliseconds since the last draw
+         */
+        Scene.prototype.draw = function (ctx, delta) {
+            ctx.save();
+            if (this.camera) {
+                this.camera.update(ctx, delta);
+            }
+            var i, len;
+            for (i = 0, len = this.tileMaps.length; i < len; i++) {
+                this.tileMaps[i].draw(ctx, delta);
+            }
+            var sortedChildren = this._sortedDrawingTree.list();
+            for (i = 0, len = sortedChildren.length; i < len; i++) {
+                // only draw actors that are visible
+                if (sortedChildren[i].visible) {
+                    sortedChildren[i].draw(ctx, delta);
+                }
+            }
+            if (this.engine && this.engine.isDebug) {
+                ctx.strokeStyle = 'yellow';
+                this.debugDraw(ctx);
+            }
+            ctx.restore();
+            for (i = 0, len = this.uiActors.length; i < len; i++) {
+                if (this.uiActors[i].visible) {
+                    this.uiActors[i].draw(ctx, delta);
+                }
+            }
+            if (this.engine && this.engine.isDebug) {
+                for (i = 0, len = this.uiActors.length; i < len; i++) {
+                    this.uiActors[i].debugDraw(ctx);
+                }
+            }
+        };
+        /**
+         * Draws all the actors' debug information in the Scene. Called by the [[Engine]].
+         * @param ctx  The current rendering context
+         */
+        Scene.prototype.debugDraw = function (ctx) {
+            var i, len;
+            for (i = 0, len = this.tileMaps.length; i < len; i++) {
+                this.tileMaps[i].debugDraw(ctx);
+            }
+            for (i = 0, len = this.children.length; i < len; i++) {
+                this.children[i].debugDraw(ctx);
+            }
+            // todo possibly enable this with excalibur flags features?
+            //this._collisionResolver.debugDraw(ctx, 20);
+            //this.camera.debugDraw(ctx);
+        };
+        /**
+         * Checks whether an actor is contained in this scene or not
+         */
+        Scene.prototype.contains = function (actor) {
+            return this.children.indexOf(actor) > -1;
+        };
+        Scene.prototype.add = function (entity) {
+            if (entity instanceof ex.UIActor) {
+                this.addUIActor(entity);
+                return;
+            }
+            if (entity instanceof ex.Actor) {
+                this.addChild(entity);
+                this._sortedDrawingTree.add(entity);
+            }
+            if (entity instanceof ex.Timer) {
+                this.addTimer(entity);
+            }
+            if (entity instanceof ex.TileMap) {
+                this.addTileMap(entity);
+            }
+        };
+        Scene.prototype.remove = function (entity) {
+            if (entity instanceof ex.UIActor) {
+                this.removeUIActor(entity);
+                return;
+            }
+            if (entity instanceof ex.Actor) {
+                this._collisionResolver.remove(entity);
+                this.removeChild(entity);
+            }
+            if (entity instanceof ex.Timer) {
+                this.removeTimer(entity);
+            }
+            if (entity instanceof ex.TileMap) {
+                this.removeTileMap(entity);
+            }
+        };
+        /**
+         * Adds (any) actor to act as a piece of UI, meaning it is always positioned
+         * in screen coordinates. UI actors do not participate in collisions.
+         * @todo Should this be `UIActor` only?
+         */
+        Scene.prototype.addUIActor = function (actor) {
+            this.uiActors.push(actor);
+            actor.scene = this;
+        };
+        /**
+         * Removes an actor as a piece of UI
+         */
+        Scene.prototype.removeUIActor = function (actor) {
+            var index = this.uiActors.indexOf(actor);
+            if (index > -1) {
+                this.uiActors.splice(index, 1);
+            }
+        };
+        /**
+         * Adds an actor to the scene, once this is done the actor will be drawn and updated.
+         */
+        Scene.prototype.addChild = function (actor) {
+            this._collisionResolver.register(actor);
+            actor.scene = this;
+            this.children.push(actor);
+            this._sortedDrawingTree.add(actor);
+            actor.parent = this.actor;
+        };
+        /**
+         * Adds a [[TileMap]] to the scene, once this is done the TileMap will be drawn and updated.
+         */
+        Scene.prototype.addTileMap = function (tileMap) {
+            this.tileMaps.push(tileMap);
+        };
+        /**
+         * Removes a [[TileMap]] from the scene, it will no longer be drawn or updated.
+         */
+        Scene.prototype.removeTileMap = function (tileMap) {
+            var index = this.tileMaps.indexOf(tileMap);
+            if (index > -1) {
+                this.tileMaps.splice(index, 1);
+            }
+        };
+        /**
+         * Removes an actor from the scene, it will no longer be drawn or updated.
+         */
+        Scene.prototype.removeChild = function (actor) {
+            this._collisionResolver.remove(actor);
+            this._killQueue.push(actor);
+            actor.parent = null;
+        };
+        /**
+         * Adds a [[Timer]] to the scene
+         * @param timer  The timer to add
+         */
+        Scene.prototype.addTimer = function (timer) {
+            this._timers.push(timer);
+            timer.scene = this;
+            return timer;
+        };
+        /**
+         * Removes a [[Timer]] from the scene.
+         * @warning Can be dangerous, use [[cancelTimer]] instead
+         * @param timer  The timer to remove
+         */
+        Scene.prototype.removeTimer = function (timer) {
+            var i = this._timers.indexOf(timer);
+            if (i !== -1) {
+                this._timers.splice(i, 1);
+            }
+            return timer;
+        };
+        /**
+         * Cancels a [[Timer]], removing it from the scene nicely
+         * @param timer  The timer to cancel
+         */
+        Scene.prototype.cancelTimer = function (timer) {
+            this._cancelQueue.push(timer);
+            return timer;
+        };
+        /**
+         * Tests whether a [[Timer]] is active in the scene
+         */
+        Scene.prototype.isTimerActive = function (timer) {
+            return (this._timers.indexOf(timer) > -1);
+        };
+        /**
+         * Creates and adds a [[Group]] to the scene with a name
+         */
+        Scene.prototype.createGroup = function (name) {
+            return new ex.Group(name, this);
+        };
+        /**
+         * Returns a [[Group]] by name
+         */
+        Scene.prototype.getGroup = function (name) {
+            return this.groups[name];
+        };
+        Scene.prototype.removeGroup = function (group) {
+            if (typeof group === 'string') {
+                delete this.groups[group];
+            }
+            else if (group instanceof ex.Group) {
+                delete this.groups[group.name];
             }
             else {
-                throw new Error("Invalid hex string: " + hex);
+                this._logger.error("Invalid arguments to removeGroup", group);
             }
         };
         /**
-         * Creats a new instance of Color from hsla values
-         *
-         * @param h  Hue is represented [0-1]
-         * @param s  Saturation is represented [0-1]
-         * @param l  Luminance is represented [0-1]
-         * @param a  Alpha is represented [0-1]
+         * Removes the given actor from the sorted drawing tree
          */
-        Color.fromHSL = function (h, s, l, a) {
-            if (a === void 0) { a = 1.0; }
-            var temp = new HSLColor(h, s, l, a);
-            return temp.toRGBA();
+        Scene.prototype.cleanupDrawTree = function (actor) {
+            this._sortedDrawingTree.removeByComparable(actor);
         };
         /**
-         * Lightens the current color by a specified amount
-         *
-         * @param factor  The amount to lighten by [0-1]
+         * Updates the given actor's position in the sorted drawing tree
          */
-        Color.prototype.lighten = function (factor) {
-            if (factor === void 0) { factor = 0.1; }
-            var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
-            temp.l += (temp.l * factor);
-            return temp.toRGBA();
+        Scene.prototype.updateDrawTree = function (actor) {
+            this._sortedDrawingTree.add(actor);
         };
-        /**
-         * Darkens the current color by a specified amount
-         *
-         * @param factor  The amount to darken by [0-1]
-         */
-        Color.prototype.darken = function (factor) {
-            if (factor === void 0) { factor = 0.1; }
-            var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
-            temp.l -= (temp.l * factor);
-            return temp.toRGBA();
-        };
-        /**
-         * Saturates the current color by a specified amount
-         *
-         * @param factor  The amount to saturate by [0-1]
-         */
-        Color.prototype.saturate = function (factor) {
-            if (factor === void 0) { factor = 0.1; }
-            var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
-            temp.s += (temp.s * factor);
-            return temp.toRGBA();
-        };
-        /**
-         * Desaturates the current color by a specified amount
-         *
-         * @param factor  The amount to desaturate by [0-1]
-         */
-        Color.prototype.desaturate = function (factor) {
-            if (factor === void 0) { factor = 0.1; }
-            var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
-            temp.s -= (temp.s * factor);
-            return temp.toRGBA();
-        };
-        /**
-         * Multiplies a color by another, results in a darker color
-         *
-         * @param color  The other color
-         */
-        Color.prototype.mulitiply = function (color) {
-            var newR = ((color.r / 255 * this.r / 255) * 255);
-            var newG = ((color.g / 255 * this.g / 255) * 255);
-            var newB = ((color.b / 255 * this.b / 255) * 255);
-            var newA = (color.a * this.a);
-            return new Color(newR, newG, newB, newA);
-        };
-        /**
-         * Screens a color by another, results in a lighter color
-         *
-         * @param color  The other color
-         */
-        Color.prototype.screen = function (color) {
-            var color1 = color.invert();
-            var color2 = color.invert();
-            return color1.mulitiply(color2).invert();
-        };
-        /**
-         * Inverts the current color
-         */
-        Color.prototype.invert = function () {
-            return new Color(255 - this.r, 255 - this.g, 255 - this.b, 1.0 - this.a);
-        };
-        /**
-         * Averages the current color with another
-         *
-         * @param color  The other color
-         */
-        Color.prototype.average = function (color) {
-            var newR = (color.r + this.r) / 2;
-            var newG = (color.g + this.g) / 2;
-            var newB = (color.b + this.b) / 2;
-            var newA = (color.a + this.a) / 2;
-            return new Color(newR, newG, newB, newA);
-        };
-        /**
-         * Returns a CSS string representation of a color.
-         */
-        Color.prototype.toString = function () {
-            var result = String(this.r.toFixed(0)) + ", " + String(this.g.toFixed(0)) + ", " + String(this.b.toFixed(0));
-            if (this.a !== undefined || this.a !== null) {
-                return "rgba(" + result + ", " + String(this.a) + ")";
-            }
-            return "rgb(" + result + ")";
-        };
-        /**
-         * Returns a CSS string representation of a color.
-         */
-        Color.prototype.fillStyle = function () {
-            return this.toString();
-        };
-        /**
-         * Returns a clone of the current color.
-         */
-        Color.prototype.clone = function () {
-            return new Color(this.r, this.g, this.b, this.a);
-        };
-        /**
-         * Black (#000000)
-         */
-        Color.Black = Color.fromHex('#000000');
-        /**
-         * White (#FFFFFF)
-         */
-        Color.White = Color.fromHex('#FFFFFF');
-        /**
-         * Gray (#808080)
-         */
-        Color.Gray = Color.fromHex('#808080');
-        /**
-         * Light gray (#D3D3D3)
-         */
-        Color.LightGray = Color.fromHex('#D3D3D3');
-        /**
-         * Dark gray (#A9A9A9)
-         */
-        Color.DarkGray = Color.fromHex('#A9A9A9');
-        /**
-         * Yellow (#FFFF00)
-         */
-        Color.Yellow = Color.fromHex('#FFFF00');
-        /**
-         * Orange (#FFA500)
-         */
-        Color.Orange = Color.fromHex('#FFA500');
-        /**
-         * Red (#FF0000)
-         */
-        Color.Red = Color.fromHex('#FF0000');
-        /**
-         * Vermillion (#FF5B31)
-         */
-        Color.Vermillion = Color.fromHex('#FF5B31');
-        /**
-         * Rose (#FF007F)
-         */
-        Color.Rose = Color.fromHex('#FF007F');
-        /**
-         * Magenta (#FF00FF)
-         */
-        Color.Magenta = Color.fromHex('#FF00FF');
-        /**
-         * Violet (#7F00FF)
-         */
-        Color.Violet = Color.fromHex('#7F00FF');
-        /**
-         * Blue (#0000FF)
-         */
-        Color.Blue = Color.fromHex('#0000FF');
-        /**
-         * Azure (#007FFF)
-         */
-        Color.Azure = Color.fromHex('#007FFF');
-        /**
-         * Cyan (#00FFFF)
-         */
-        Color.Cyan = Color.fromHex('#00FFFF');
-        /**
-         * Viridian (#59978F)
-         */
-        Color.Viridian = Color.fromHex('#59978F');
-        /**
-         * Green (#00FF00)
-         */
-        Color.Green = Color.fromHex('#00FF00');
-        /**
-         * Chartreuse (#7FFF00)
-         */
-        Color.Chartreuse = Color.fromHex('#7FFF00');
-        /**
-         * Transparent (#FFFFFF00)
-         */
-        Color.Transparent = Color.fromHex('#FFFFFF00');
-        return Color;
-    })();
-    ex.Color = Color;
-    /**
-     * Internal HSL Color representation
-     *
-     * http://en.wikipedia.org/wiki/HSL_and_HSV
-     * http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c
-     */
-    var HSLColor = (function () {
-        function HSLColor(h, s, l, a) {
-            this.h = h;
-            this.s = s;
-            this.l = l;
-            this.a = a;
-        }
-        HSLColor.fromRGBA = function (r, g, b, a) {
-            r /= 255, g /= 255, b /= 255;
-            var max = Math.max(r, g, b), min = Math.min(r, g, b);
-            var h, s, l = (max + min) / 2;
-            if (max === min) {
-                h = s = 0; // achromatic
-            }
-            else {
-                var d = max - min;
-                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-                switch (max) {
-                    case r:
-                        h = (g - b) / d + (g < b ? 6 : 0);
-                        break;
-                    case g:
-                        h = (b - r) / d + 2;
-                        break;
-                    case b:
-                        h = (r - g) / d + 4;
-                        break;
-                }
-                h /= 6;
-            }
-            return new HSLColor(h, s, l, a);
-        };
-        HSLColor.prototype.toRGBA = function () {
-            var r, g, b;
-            if (this.s == 0) {
-                r = g = b = this.l; // achromatic
-            }
-            else {
-                function hue2rgb(p, q, t) {
-                    if (t < 0)
-                        t += 1;
-                    if (t > 1)
-                        t -= 1;
-                    if (t < 1 / 6)
-                        return p + (q - p) * 6 * t;
-                    if (t < 1 / 2)
-                        return q;
-                    if (t < 2 / 3)
-                        return p + (q - p) * (2 / 3 - t) * 6;
-                    return p;
-                }
-                var q = this.l < 0.5 ? this.l * (1 + this.s) : this.l + this.s - this.l * this.s;
-                var p = 2 * this.l - q;
-                r = hue2rgb(p, q, this.h + 1 / 3);
-                g = hue2rgb(p, q, this.h);
-                b = hue2rgb(p, q, this.h - 1 / 3);
-            }
-            return new Color(r * 255, g * 255, b * 255, this.a);
-        };
-        return HSLColor;
-    })();
+        return Scene;
+    })(ex.Class);
+    ex.Scene = Scene;
 })(ex || (ex = {}));
 /// <reference path="Actor.ts" />
 var ex;
@@ -10493,6 +10316,7 @@ var ex;
  * familiar with.
  *
  * - [[Engine|Intro to the Engine]]
+ *   - [[EventDispatcher|Eventing]]
  * - [[Scene|Working with Scenes]]
  *   - [[Camera|Working with Cameras]]
  * - [[Actor|Working with Actors]]
@@ -11341,9 +11165,702 @@ var ex;
         return AnimationNode;
     })();
 })(ex || (ex = {}));
-//# sourceMappingURL=excalibur-0.3.0.js.map
-;
-// Concatenated onto excalibur after build
-// Exports the excalibur module so it can be used with browserify
-// https://github.com/excaliburjs/Excalibur/issues/312
-if (typeof module !== 'undefined') {module.exports = ex;}
+/// <reference path="Engine.ts" />
+/// <reference path="Actor.ts" />
+/// <reference path="Log.ts" />
+var ex;
+(function (ex) {
+    /**
+     * An enum representing all of the built in event types for Excalibur
+     * @obsolete Phasing this out in favor of classes
+     */
+    (function (EventType) {
+        EventType[EventType["Collision"] = 0] = "Collision";
+        EventType[EventType["EnterViewPort"] = 1] = "EnterViewPort";
+        EventType[EventType["ExitViewPort"] = 2] = "ExitViewPort";
+        EventType[EventType["Blur"] = 3] = "Blur";
+        EventType[EventType["Focus"] = 4] = "Focus";
+        EventType[EventType["Update"] = 5] = "Update";
+        EventType[EventType["Activate"] = 6] = "Activate";
+        EventType[EventType["Deactivate"] = 7] = "Deactivate";
+        EventType[EventType["Initialize"] = 8] = "Initialize";
+    })(ex.EventType || (ex.EventType = {}));
+    var EventType = ex.EventType;
+    /**
+     * Base event type in Excalibur that all other event types derive from.
+     */
+    var GameEvent = (function () {
+        function GameEvent() {
+        }
+        return GameEvent;
+    })();
+    ex.GameEvent = GameEvent;
+    /**
+     * Subscribe event thrown when handlers for events other than subscribe are added
+     */
+    var SubscribeEvent = (function (_super) {
+        __extends(SubscribeEvent, _super);
+        function SubscribeEvent(topic, handler) {
+            _super.call(this);
+            this.topic = topic;
+            this.handler = handler;
+        }
+        return SubscribeEvent;
+    })(GameEvent);
+    ex.SubscribeEvent = SubscribeEvent;
+    /**
+     * Unsubscribe event thrown when handlers for events other than unsubscribe are removed
+     */
+    var UnsubscribeEvent = (function (_super) {
+        __extends(UnsubscribeEvent, _super);
+        function UnsubscribeEvent(topic, handler) {
+            _super.call(this);
+            this.topic = topic;
+            this.handler = handler;
+        }
+        return UnsubscribeEvent;
+    })(GameEvent);
+    ex.UnsubscribeEvent = UnsubscribeEvent;
+    /**
+     * Event received by the Engine when the browser window is visible
+     */
+    var VisibleEvent = (function (_super) {
+        __extends(VisibleEvent, _super);
+        function VisibleEvent() {
+            _super.call(this);
+        }
+        return VisibleEvent;
+    })(GameEvent);
+    ex.VisibleEvent = VisibleEvent;
+    /**
+     * Event received by the Engine when the browser window is hidden
+     */
+    var HiddenEvent = (function (_super) {
+        __extends(HiddenEvent, _super);
+        function HiddenEvent() {
+            _super.call(this);
+        }
+        return HiddenEvent;
+    })(GameEvent);
+    ex.HiddenEvent = HiddenEvent;
+    /**
+     * Event thrown on an actor when a collision has occured
+     */
+    var CollisionEvent = (function (_super) {
+        __extends(CollisionEvent, _super);
+        /**
+         * @param actor  The actor the event was thrown on
+         * @param other  The actor that was collided with
+         * @param side   The side that was collided with
+         */
+        function CollisionEvent(actor, other, side, intersection) {
+            _super.call(this);
+            this.actor = actor;
+            this.other = other;
+            this.side = side;
+            this.intersection = intersection;
+        }
+        return CollisionEvent;
+    })(GameEvent);
+    ex.CollisionEvent = CollisionEvent;
+    /**
+     * Event thrown on a game object on Excalibur update
+     */
+    var UpdateEvent = (function (_super) {
+        __extends(UpdateEvent, _super);
+        /**
+         * @param delta  The number of milliseconds since the last update
+         */
+        function UpdateEvent(delta) {
+            _super.call(this);
+            this.delta = delta;
+        }
+        return UpdateEvent;
+    })(GameEvent);
+    ex.UpdateEvent = UpdateEvent;
+    /**
+     * Event thrown on an Actor only once before the first update call
+     */
+    var InitializeEvent = (function (_super) {
+        __extends(InitializeEvent, _super);
+        /**
+         * @param engine  The reference to the current engine
+         */
+        function InitializeEvent(engine) {
+            _super.call(this);
+            this.engine = engine;
+        }
+        return InitializeEvent;
+    })(GameEvent);
+    ex.InitializeEvent = InitializeEvent;
+    /**
+     * Event thrown on a Scene on activation
+     */
+    var ActivateEvent = (function (_super) {
+        __extends(ActivateEvent, _super);
+        /**
+         * @param oldScene  The reference to the old scene
+         */
+        function ActivateEvent(oldScene) {
+            _super.call(this);
+            this.oldScene = oldScene;
+        }
+        return ActivateEvent;
+    })(GameEvent);
+    ex.ActivateEvent = ActivateEvent;
+    /**
+     * Event thrown on a Scene on deactivation
+     */
+    var DeactivateEvent = (function (_super) {
+        __extends(DeactivateEvent, _super);
+        /**
+         * @param newScene  The reference to the new scene
+         */
+        function DeactivateEvent(newScene) {
+            _super.call(this);
+            this.newScene = newScene;
+        }
+        return DeactivateEvent;
+    })(GameEvent);
+    ex.DeactivateEvent = DeactivateEvent;
+    /**
+     * Event thrown on an Actor when it completely leaves the screen.
+     */
+    var ExitViewPortEvent = (function (_super) {
+        __extends(ExitViewPortEvent, _super);
+        function ExitViewPortEvent() {
+            _super.call(this);
+        }
+        return ExitViewPortEvent;
+    })(GameEvent);
+    ex.ExitViewPortEvent = ExitViewPortEvent;
+    /**
+     * Event thrown on an Actor when it completely leaves the screen.
+     */
+    var EnterViewPortEvent = (function (_super) {
+        __extends(EnterViewPortEvent, _super);
+        function EnterViewPortEvent() {
+            _super.call(this);
+        }
+        return EnterViewPortEvent;
+    })(GameEvent);
+    ex.EnterViewPortEvent = EnterViewPortEvent;
+})(ex || (ex = {}));
+/// <reference path="Algebra.ts"/>
+/// <reference path="Events.ts"/>
+/**
+ * Utilities
+ *
+ * Excalibur utilities for math, string manipulation, etc.
+ */
+var ex;
+(function (ex) {
+    var Util;
+    (function (Util) {
+        Util.TwoPI = Math.PI * 2;
+        function base64Encode(inputStr) {
+            var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+            var outputStr = "";
+            var i = 0;
+            while (i < inputStr.length) {
+                //all three "& 0xff" added below are there to fix a known bug 
+                //with bytes returned by xhr.responseText
+                var byte1 = inputStr.charCodeAt(i++) & 0xff;
+                var byte2 = inputStr.charCodeAt(i++) & 0xff;
+                var byte3 = inputStr.charCodeAt(i++) & 0xff;
+                var enc1 = byte1 >> 2;
+                var enc2 = ((byte1 & 3) << 4) | (byte2 >> 4);
+                var enc3, enc4;
+                if (isNaN(byte2)) {
+                    enc3 = enc4 = 64;
+                }
+                else {
+                    enc3 = ((byte2 & 15) << 2) | (byte3 >> 6);
+                    if (isNaN(byte3)) {
+                        enc4 = 64;
+                    }
+                    else {
+                        enc4 = byte3 & 63;
+                    }
+                }
+                outputStr += b64.charAt(enc1) + b64.charAt(enc2) + b64.charAt(enc3) + b64.charAt(enc4);
+            }
+            return outputStr;
+        }
+        Util.base64Encode = base64Encode;
+        function clamp(val, min, max) {
+            return val <= min ? min : (val >= max ? max : val);
+        }
+        Util.clamp = clamp;
+        function drawLine(ctx, color, startx, starty, endx, endy) {
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.moveTo(startx, starty);
+            ctx.lineTo(endx, endy);
+            ctx.closePath();
+            ctx.stroke();
+        }
+        Util.drawLine = drawLine;
+        function randomInRange(min, max) {
+            return min + Math.random() * (max - min);
+        }
+        Util.randomInRange = randomInRange;
+        function randomIntInRange(min, max) {
+            return Math.round(randomInRange(min, max));
+        }
+        Util.randomIntInRange = randomIntInRange;
+        function canonicalizeAngle(angle) {
+            var tmpAngle = angle;
+            if (angle > this.TwoPI) {
+                while (tmpAngle > this.TwoPI) {
+                    tmpAngle -= this.TwoPI;
+                }
+            }
+            if (angle < 0) {
+                while (tmpAngle < 0) {
+                    tmpAngle += this.TwoPI;
+                }
+            }
+            return tmpAngle;
+        }
+        Util.canonicalizeAngle = canonicalizeAngle;
+        function toDegrees(radians) {
+            return 180 / Math.PI * radians;
+        }
+        Util.toDegrees = toDegrees;
+        function toRadians(degrees) {
+            return degrees / 180 * Math.PI;
+        }
+        Util.toRadians = toRadians;
+        function getPosition(el) {
+            var oLeft = 0, oTop = 0;
+            var calcOffsetLeft = function (parent) {
+                oLeft += parent.offsetLeft;
+                if (parent.offsetParent) {
+                    calcOffsetLeft(parent.offsetParent);
+                }
+            };
+            var calcOffsetTop = function (parent) {
+                oTop += parent.offsetTop;
+                if (parent.offsetParent) {
+                    calcOffsetTop(parent.offsetParent);
+                }
+            };
+            calcOffsetLeft(el);
+            calcOffsetTop(el);
+            return new ex.Point(oLeft, oTop);
+        }
+        Util.getPosition = getPosition;
+        function addItemToArray(item, array) {
+            if (array.indexOf(item) === -1) {
+                array.push(item);
+                return true;
+            }
+            return false;
+        }
+        Util.addItemToArray = addItemToArray;
+        function removeItemToArray(item, array) {
+            var index = -1;
+            if ((index = array.indexOf(item)) > -1) {
+                array.splice(index, 1);
+                return true;
+            }
+            return false;
+        }
+        Util.removeItemToArray = removeItemToArray;
+        function getOppositeSide(side) {
+            if (side === 1 /* Top */)
+                return 2 /* Bottom */;
+            if (side === 2 /* Bottom */)
+                return 1 /* Top */;
+            if (side === 3 /* Left */)
+                return 4 /* Right */;
+            if (side === 4 /* Right */)
+                return 3 /* Left */;
+            return 0 /* None */;
+        }
+        Util.getOppositeSide = getOppositeSide;
+        /**
+         * Excaliburs dynamically resizing collection
+         */
+        var Collection = (function () {
+            /**
+             * @param initialSize  Initial size of the internal backing array
+             */
+            function Collection(initialSize) {
+                if (initialSize === void 0) { initialSize = Collection.DefaultSize; }
+                this.internalArray = null;
+                this.endPointer = 0;
+                this.internalArray = new Array(initialSize);
+            }
+            Collection.prototype.resize = function () {
+                var newSize = this.internalArray.length * 2;
+                var newArray = new Array(newSize);
+                var count = this.count();
+                for (var i = 0; i < count; i++) {
+                    newArray[i] = this.internalArray[i];
+                }
+                delete this.internalArray;
+                this.internalArray = newArray;
+            };
+            /**
+             * Push elements to the end of the collection
+             */
+            Collection.prototype.push = function (element) {
+                if (this.endPointer === this.internalArray.length) {
+                    this.resize();
+                }
+                return this.internalArray[this.endPointer++] = element;
+            };
+            /**
+             * Removes elements from the end of the collection
+             */
+            Collection.prototype.pop = function () {
+                this.endPointer = this.endPointer - 1 < 0 ? 0 : this.endPointer - 1;
+                return this.internalArray[this.endPointer];
+            };
+            /**
+             * Returns the count of the collection
+             */
+            Collection.prototype.count = function () {
+                return this.endPointer;
+            };
+            /**
+             * Empties the collection
+             */
+            Collection.prototype.clear = function () {
+                this.endPointer = 0;
+            };
+            /**
+             * Returns the size of the internal backing array
+             */
+            Collection.prototype.internalSize = function () {
+                return this.internalArray.length;
+            };
+            /**
+             * Returns an element at a specific index
+             * @param index  Index of element to retreive
+             */
+            Collection.prototype.elementAt = function (index) {
+                if (index >= this.count()) {
+                    return;
+                }
+                return this.internalArray[index];
+            };
+            /**
+             * Inserts an element at a specific index
+             * @param index  Index to insert the element
+             */
+            Collection.prototype.insert = function (index, value) {
+                if (index >= this.count()) {
+                    this.resize();
+                }
+                return this.internalArray[index] = value;
+            };
+            /**
+             * Removes an element at a specific index
+             * @param index  Index of element to remove
+             */
+            Collection.prototype.remove = function (index) {
+                var count = this.count();
+                if (count === 0)
+                    return;
+                // O(n) Shift 
+                var removed = this.internalArray[index];
+                for (var i = index; i < count; i++) {
+                    this.internalArray[i] = this.internalArray[i + 1];
+                }
+                this.endPointer--;
+                return removed;
+            };
+            /**
+             * Removes an element by reference
+             * @param element  Element to retreive
+             */
+            Collection.prototype.removeElement = function (element) {
+                var index = this.internalArray.indexOf(element);
+                this.remove(index);
+            };
+            /**
+             * Returns a array representing the collection
+             */
+            Collection.prototype.toArray = function () {
+                return this.internalArray.slice(0, this.endPointer);
+            };
+            /**
+             * Iterate over every element in the collection
+             * @param func  Callback to call for each element passing a reference to the element and its index, returned values are ignored
+             */
+            Collection.prototype.forEach = function (func) {
+                var i = 0, count = this.count();
+                for (i; i < count; i++) {
+                    func.call(this, this.internalArray[i], i);
+                }
+            };
+            /**
+             * Mutate every element in the collection
+             * @param func  Callback to call for each element passing a reference to the element and its index, any values returned mutate the collection
+             */
+            Collection.prototype.map = function (func) {
+                var count = this.count();
+                for (var i = 0; i < count; i++) {
+                    this.internalArray[i] = func.call(this, this.internalArray[i], i);
+                }
+            };
+            /**
+             * Default collection size
+             */
+            Collection.DefaultSize = 200;
+            return Collection;
+        })();
+        Util.Collection = Collection;
+    })(Util = ex.Util || (ex.Util = {}));
+})(ex || (ex = {}));
+/// <reference path="Interfaces/IDrawable.ts" />
+var ex;
+(function (ex) {
+    /**
+     * Creates a closed polygon drawing given a list of [[Point]]s.
+     *
+     * @warning Use sparingly as Polygons are performance intensive
+     */
+    var Polygon = (function () {
+        /**
+         * @param points  The points to use to build the polygon in order
+         */
+        function Polygon(points) {
+            /**
+             * The width of the lines of the polygon
+             */
+            this.lineWidth = 5;
+            /**
+             * Indicates whether the polygon is filled or not.
+             */
+            this.filled = false;
+            this.points = [];
+            this.anchor = new ex.Point(0, 0);
+            this.rotation = 0;
+            this.scale = new ex.Point(1, 1);
+            this.points = points;
+            var minX = this.points.reduce(function (prev, curr) {
+                return Math.min(prev, curr.x);
+            }, 0);
+            var maxX = this.points.reduce(function (prev, curr) {
+                return Math.max(prev, curr.x);
+            }, 0);
+            this.width = maxX - minX;
+            var minY = this.points.reduce(function (prev, curr) {
+                return Math.min(prev, curr.y);
+            }, 0);
+            var maxY = this.points.reduce(function (prev, curr) {
+                return Math.max(prev, curr.y);
+            }, 0);
+            this.height = maxY - minY;
+        }
+        /**
+         * @notimplemented Effects are not supported on `Polygon`
+         */
+        Polygon.prototype.addEffect = function (effect) {
+            // not supported on polygons
+        };
+        /**
+         * @notimplemented Effects are not supported on `Polygon`
+         */
+        Polygon.prototype.removeEffect = function (param) {
+            // not supported on polygons
+        };
+        /**
+         * @notimplemented Effects are not supported on `Polygon`
+         */
+        Polygon.prototype.clearEffects = function () {
+            // not supported on polygons
+        };
+        Polygon.prototype.reset = function () {
+            //pass
+        };
+        Polygon.prototype.draw = function (ctx, x, y) {
+            ctx.save();
+            ctx.translate(x + this.anchor.x, y + this.anchor.y);
+            ctx.scale(this.scale.x, this.scale.y);
+            ctx.rotate(this.rotation);
+            ctx.beginPath();
+            ctx.lineWidth = this.lineWidth;
+            // Iterate through the supplied points and contruct a 'polygon'
+            var firstPoint = this.points[0];
+            ctx.moveTo(firstPoint.x, firstPoint.y);
+            var i = 0, len = this.points.length;
+            for (i; i < len; i++) {
+                ctx.lineTo(this.points[i].x, this.points[i].y);
+            }
+            ctx.lineTo(firstPoint.x, firstPoint.y);
+            ctx.closePath();
+            if (this.filled) {
+                ctx.fillStyle = this.fillColor.toString();
+                ctx.fill();
+            }
+            ctx.strokeStyle = this.lineColor.toString();
+            if (this.flipHorizontal) {
+                ctx.translate(this.width, 0);
+                ctx.scale(-1, 1);
+            }
+            if (this.flipVertical) {
+                ctx.translate(0, this.height);
+                ctx.scale(1, -1);
+            }
+            ctx.stroke();
+            ctx.restore();
+        };
+        return Polygon;
+    })();
+    ex.Polygon = Polygon;
+})(ex || (ex = {}));
+/// <reference path="IPostProcessor.ts"/>
+var ex;
+(function (ex) {
+    (function (ColorBlindness) {
+        ColorBlindness[ColorBlindness["Protanope"] = 0] = "Protanope";
+        ColorBlindness[ColorBlindness["Deuteranope"] = 1] = "Deuteranope";
+        ColorBlindness[ColorBlindness["Tritanope"] = 2] = "Tritanope";
+    })(ex.ColorBlindness || (ex.ColorBlindness = {}));
+    var ColorBlindness = ex.ColorBlindness;
+    // Color correction algorithm originally sourced from http://www.daltonize.org/
+    var ColorBlindCorrector = (function () {
+        function ColorBlindCorrector(engine, simulate, colorMode) {
+            if (simulate === void 0) { simulate = false; }
+            if (colorMode === void 0) { colorMode = 0 /* Protanope */; }
+            this.engine = engine;
+            this.simulate = simulate;
+            this.colorMode = colorMode;
+            this._vertexShader = "attribute vec2 a_position;" + "attribute vec2 a_texCoord;" + "uniform vec2 u_resolution;" + "varying vec2 v_texCoord;" + "void main() {" + "vec2 zeroToOne = a_position / u_resolution;" + "vec2 zeroToTwo = zeroToOne * 2.0;" + "vec2 clipSpace = zeroToTwo - 1.0;" + "gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);" + "v_texCoord = a_texCoord;" + "}";
+            this._fragmentShader = "precision mediump float;" + "uniform sampler2D u_image;" + "varying vec2 v_texCoord;" + "void main() {" + "vec4 o =  texture2D(u_image, v_texCoord);" + "float L = (17.8824 * o.r) + (43.5161 * o.g) + (4.11935 * o.b);" + "float M = (3.45565 * o.r) + (27.1554 * o.g) + (3.86714 * o.b);" + "float S = (0.0299566 * o.r) + (0.184309 * o.g) + (1.46709 * o.b);" + "//MODE CODE//" + "vec4 error;" + "error.r = (0.0809444479 * l) + (-0.130504409 * m) + (0.116721066 * s);" + "error.g = (-0.0102485335 * l) + (0.0540193266 * m) + (-0.113614708 * s);" + "error.b = (-0.000365296938 * l) + (-0.00412161469 * m) + (0.693511405 * s);" + "error.a = 1.0;" + "vec4 diff = o - error;" + "vec4 correction;" + "correction.r = 0.0;" + "correction.g =  (diff.r * 0.7) + (diff.g * 1.0);" + "correction.b =  (diff.r * 0.7) + (diff.b * 1.0);" + "correction = o + correction;" + "correction.a = o.a;" + "//SIMULATE//" + "}";
+            this._internalCanvas = document.createElement('canvas');
+            this._internalCanvas.width = engine.getWidth();
+            this._internalCanvas.height = engine.getHeight();
+            this._gl = this._internalCanvas.getContext('webgl', { preserveDrawingBuffer: true });
+            this._program = this._gl.createProgram();
+            var fragmentShader = this._getShader('Fragment', this._getFragmentShaderByMode(colorMode));
+            var vertextShader = this._getShader('Vertex', this._vertexShader);
+            this._gl.attachShader(this._program, vertextShader);
+            this._gl.attachShader(this._program, fragmentShader);
+            this._gl.linkProgram(this._program);
+            if (!this._gl.getProgramParameter(this._program, this._gl.LINK_STATUS)) {
+                ex.Logger.getInstance().error("Unable to link shader program!");
+            }
+            this._gl.useProgram(this._program);
+        }
+        ColorBlindCorrector.prototype._getFragmentShaderByMode = function (colorMode) {
+            var code = "";
+            if (colorMode === 0 /* Protanope */) {
+                code = "float l = 0.0 * L + 2.02344 * M + -2.52581 * S;" + "float m = 0.0 * L + 1.0 * M + 0.0 * S;" + "float s = 0.0 * L + 0.0 * M + 1.0 * S;";
+            }
+            else if (colorMode === 1 /* Deuteranope */) {
+                code = "float l = 1.0 * L + 0.0 * M + 0.0 * S;" + "float m = 0.494207 * L + 0.0 * M + 1.24827 * S;" + "float s = 0.0 * L + 0.0 * M + 1.0 * S;";
+            }
+            else if (colorMode === 2 /* Tritanope */) {
+                code = "float l = 1.0 * L + 0.0 * M + 0.0 * S;" + "float m = 0.0 * L + 1.0 * M + 0.0 * S;" + "float s = -0.395913 * L + 0.801109 * M + 0.0 * S;";
+            }
+            if (this.simulate) {
+                this._fragmentShader = this._fragmentShader.replace("//SIMULATE//", "gl_FragColor = error.rgba;");
+            }
+            else {
+                this._fragmentShader = this._fragmentShader.replace("//SIMULATE//", "gl_FragColor = correction.rgba;");
+            }
+            return this._fragmentShader.replace("//MODE CODE//", code);
+        };
+        ColorBlindCorrector.prototype._setRectangle = function (gl, x, y, width, height) {
+            var x1 = x;
+            var x2 = x + width;
+            var y1 = y;
+            var y2 = y + height;
+            this._gl.bufferData(this._gl.ARRAY_BUFFER, new Float32Array([
+                x1,
+                y1,
+                x2,
+                y1,
+                x1,
+                y2,
+                x1,
+                y2,
+                x2,
+                y1,
+                x2,
+                y2
+            ]), this._gl.STATIC_DRAW);
+        };
+        ColorBlindCorrector.prototype._getShader = function (type, program) {
+            var shader;
+            if (type === 'Fragment') {
+                shader = this._gl.createShader(this._gl.FRAGMENT_SHADER);
+            }
+            else if (type === 'Vertex') {
+                shader = this._gl.createShader(this._gl.VERTEX_SHADER);
+            }
+            else {
+                ex.Logger.getInstance().error("Error unknown shader type", type);
+            }
+            this._gl.shaderSource(shader, program);
+            this._gl.compileShader(shader);
+            if (!this._gl.getShaderParameter(shader, this._gl.COMPILE_STATUS)) {
+                ex.Logger.getInstance().error("Unable to compile shader!", this._gl.getShaderInfoLog(shader));
+                return null;
+            }
+            return shader;
+        };
+        ColorBlindCorrector.prototype.process = function (image, out) {
+            // look up where the vertex data needs to go.
+            var positionLocation = this._gl.getAttribLocation(this._program, "a_position");
+            var texCoordLocation = this._gl.getAttribLocation(this._program, "a_texCoord");
+            var texCoordBuffer = this._gl.createBuffer();
+            this._gl.bindBuffer(this._gl.ARRAY_BUFFER, texCoordBuffer);
+            this._gl.bufferData(this._gl.ARRAY_BUFFER, new Float32Array([
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                1.0,
+                1.0,
+                0.0,
+                1.0,
+                1.0
+            ]), this._gl.STATIC_DRAW);
+            this._gl.enableVertexAttribArray(texCoordLocation);
+            this._gl.vertexAttribPointer(texCoordLocation, 2, this._gl.FLOAT, false, 0, 0);
+            // Create a texture.
+            var texture = this._gl.createTexture();
+            this._gl.bindTexture(this._gl.TEXTURE_2D, texture);
+            // Set the parameters so we can render any size image.
+            this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_S, this._gl.CLAMP_TO_EDGE);
+            this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_T, this._gl.CLAMP_TO_EDGE);
+            this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.NEAREST);
+            this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, this._gl.NEAREST);
+            // Flip the texture when unpacking into the gl context, gl reads textures in the opposite order as everything else :/
+            this._gl.pixelStorei(this._gl.UNPACK_FLIP_Y_WEBGL, 1);
+            // Upload the image into the texture.
+            this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, image);
+            // lookup uniforms
+            var resolutionLocation = this._gl.getUniformLocation(this._program, "u_resolution");
+            // set the resolution
+            this._gl.uniform2f(resolutionLocation, this._internalCanvas.width, this._internalCanvas.height);
+            // Create a buffer for the position of the rectangle corners.
+            var positionBuffer = this._gl.createBuffer();
+            this._gl.bindBuffer(this._gl.ARRAY_BUFFER, positionBuffer);
+            this._gl.enableVertexAttribArray(positionLocation);
+            this._gl.vertexAttribPointer(positionLocation, 2, this._gl.FLOAT, false, 0, 0);
+            // Set a rectangle the same size as the image.
+            this._setRectangle(this._gl, 0, 0, image.width, image.height);
+            // Draw the rectangle.
+            this._gl.drawArrays(this._gl.TRIANGLES, 0, 6);
+            // Grab tranformed image from internal canvas
+            var pixelData = new Uint8Array(image.width * image.height * 4);
+            this._gl.readPixels(0, 0, image.width, image.height, this._gl.RGBA, this._gl.UNSIGNED_BYTE, pixelData);
+            image.data.set(pixelData);
+            out.putImageData(image, 0, 0);
+        };
+        return ColorBlindCorrector;
+    })();
+    ex.ColorBlindCorrector = ColorBlindCorrector;
+})(ex || (ex = {}));
+//# sourceMappingURL=excalibur.js.map
