@@ -385,7 +385,7 @@ game.addEventListener('p', () => {
 });
 
 // Create a camera to track the player
-var camera = new ex.TopCamera();
+var camera = new ex.LockedCamera();
 camera.setActorToFollow(player);
 // camera.shake(5, 5, 1000);
 // camera.zoom(0.5);
