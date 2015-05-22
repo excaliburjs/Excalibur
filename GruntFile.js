@@ -156,7 +156,8 @@ module.exports = function (grunt) {
             rulesDirectory: './tslint/rules'
          },
          src: [
-            "src/engine/Actor.ts"
+            "src/engine/Actor.ts",
+            "src/engine/Algebra.ts",
          ]
       }
    });
