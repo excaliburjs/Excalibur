@@ -159,6 +159,7 @@ module.exports = function (grunt) {
             "src/engine/Actor.ts",
             "src/engine/Algebra.ts",
             "src/engine/Animation.ts",
+            "src/engine/Binding.ts"
          ]
       }
    });
