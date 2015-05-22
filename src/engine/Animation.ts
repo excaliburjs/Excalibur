@@ -18,7 +18,7 @@ module ex {
     *
     * // load assets
     * var loader = new ex.Loader(txAnimPlayerIdle);
-    * 
+    *
     * // start game
     * game.start(loader).then(function () {
     *   var player = new ex.Actor();
@@ -61,7 +61,7 @@ module ex {
        */
       public currentFrame: number = 0;
 
-      private oldTime: number = Date.now();
+      private _oldTime: number = Date.now();
       
       public anchor = new Point(0.0, 0.0);
       public rotation: number = 0.0;
@@ -78,7 +78,7 @@ module ex {
        */
       public freezeFrame: number = -1;
 
-      private engine: Engine;
+      private _engine: Engine;
 
       /**
        * Flip each frame vertically. Sets [[Sprite.flipVertical]].
@@ -103,7 +103,7 @@ module ex {
       constructor(engine: Engine, images: Sprite[], speed: number, loop?: boolean) {
          this.sprites = images;
          this.speed = speed;
-         this.engine = engine;
+         this._engine = engine;
          if (loop != null) {
             this.loop = loop;
          }
@@ -140,7 +140,8 @@ module ex {
       }
 
       /**
-       * Applies the colorize effect to a sprite, changing the color channels of all pixesl to be the average of the original color and the provided color.
+       * Applies the colorize effect to a sprite, changing the color channels of all pixesl to be the average of the original color and the
+       * provided color.
        */
       public colorize(color: Color) {
          this.addEffect(new Effects.Colorize(color));
@@ -177,8 +178,8 @@ module ex {
       /**
        * Add a [[ISpriteEffect]] manually
        */
-      public addEffect(effect: Effects.ISpriteEffect){
-         for(var i in this.sprites){
+      public addEffect(effect: Effects.ISpriteEffect) {
+         for(var i in this.sprites) {
             this.sprites[i].addEffect(effect);
          }
       }
@@ -195,7 +196,7 @@ module ex {
        */
       public removeEffect(index: number): void;
       public removeEffect(param: any) {
-         for(var i in this.sprites){
+         for(var i in this.sprites) {
             this.sprites[i].removeEffect(param);
          }
       }
@@ -203,8 +204,8 @@ module ex {
       /**
        * Clear all sprite effects
        */
-      public clearEffects(){
-         for(var i in this.sprites){
+      public clearEffects() {
+         for(var i in this.sprites) {
             this.sprites[i].clearEffects();
          }  
       }
@@ -254,9 +255,9 @@ module ex {
        */
       public tick() {
          var time = Date.now();
-         if ((time - this.oldTime) > this.speed) {
+         if ((time - this._oldTime) > this.speed) {
             this.currentFrame = (this.loop ? (this.currentFrame + 1) % this.sprites.length : this.currentFrame + 1);
-            this.oldTime = time;
+            this._oldTime = time;
          }
       }
 
@@ -277,8 +278,9 @@ module ex {
       public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
          this.tick();
          this._updateValues();
+         var currSprite: Sprite;
          if (this.currentFrame < this.sprites.length) {
-            var currSprite = this.sprites[this.currentFrame];
+            currSprite = this.sprites[this.currentFrame];
             if (this.flipVertical) {
                currSprite.flipVertical = this.flipVertical;
             }
@@ -289,7 +291,7 @@ module ex {
          }
 
          if (this.freezeFrame !== -1 && this.currentFrame >= this.sprites.length) {
-            var currSprite = this.sprites[Util.clamp(this.freezeFrame, 0, this.sprites.length - 1)];
+            currSprite = this.sprites[Util.clamp(this.freezeFrame, 0, this.sprites.length - 1)];
             currSprite.draw(ctx, x, y);
          }
       }
@@ -301,7 +303,7 @@ module ex {
        */
       public play(x: number, y: number) {
          this.reset();
-         this.engine.playAnimation(this, x, y);
+         this._engine.playAnimation(this, x, y);
       }
     }
 }

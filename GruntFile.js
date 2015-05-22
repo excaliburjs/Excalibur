@@ -71,7 +71,7 @@ module.exports = function (grunt) {
       watch: {
          scripts: {
             files: ['src/engine/*.ts', 'src/spec/*.ts'],
-            tasks: ['shell:specs', 'jasmine_node'],
+            tasks: ['tslint:src', 'shell:specs', 'jasmine_node'],
             options: {
                interrupt: true
             }
@@ -158,6 +158,7 @@ module.exports = function (grunt) {
          src: [
             "src/engine/Actor.ts",
             "src/engine/Algebra.ts",
+            "src/engine/Animation.ts",
          ]
       }
    });
