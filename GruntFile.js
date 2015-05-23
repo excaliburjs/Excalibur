@@ -160,7 +160,8 @@ module.exports = function (grunt) {
             "src/engine/Algebra.ts",
             "src/engine/Animation.ts",
             "src/engine/Binding.ts",
-            "src/engine/Camera.ts"
+            "src/engine/Camera.ts",
+            "src/engine/Class.ts"
          ]
       }
    });
