@@ -23,11 +23,11 @@ module ex {
       constructor(public name: string, public scene: Scene) {
          super();
          if (scene == null) {
-            this._logger.error("Invalid constructor arguments passed to Group: ", name, ", scene must not be null!");
+            this._logger.error('Invalid constructor arguments passed to Group: ', name, ', scene must not be null!');
          } else {
             var existingGroup = scene.groups[name];
             if (existingGroup) {
-               this._logger.warn("Group with name", name, "already exists. This new group will replace it.");
+               this._logger.warn('Group with name', name, 'already exists. This new group will replace it.');
             }
             scene.groups[name] = this;
          }
@@ -81,7 +81,7 @@ module ex {
                members[i].y += y;
             }
          } else {
-            this._logger.error("Invalid arguments passed to group move", this.name, "args:", arguments);
+            this._logger.error('Invalid arguments passed to group move', this.name, 'args:', arguments);
          }
 
       }
@@ -93,7 +93,7 @@ module ex {
                members[i].rotation += r;
             }
          } else {
-            this._logger.error("Invalid arguments passed to group rotate", this.name, "args:", arguments);
+            this._logger.error('Invalid arguments passed to group rotate', this.name, 'args:', arguments);
          }
       }
 

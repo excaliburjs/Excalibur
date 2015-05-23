@@ -167,7 +167,8 @@ module.exports = function (grunt) {
             "src/engine/EasingFunctions.ts",
             "src/engine/Engine.ts",
             "src/engine/EventDispatcher.ts",
-            "src/engine/Events.ts"
+            "src/engine/Events.ts",
+            "src/engine/Group.ts"
          ]
       }
    });
