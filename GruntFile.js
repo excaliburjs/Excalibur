@@ -181,7 +181,8 @@ module.exports = function (grunt) {
             "src/engine/Sound.ts",
             "src/engine/Sprite.ts",
             "src/engine/SpriteEffects.ts",
-            "src/engine/SpriteSheet.ts"
+            "src/engine/SpriteSheet.ts",
+            "src/engine/TileMap.ts"
          ]
       }
    });
