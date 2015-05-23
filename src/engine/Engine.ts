@@ -46,7 +46,7 @@
  * - [[Engine|Intro to the Engine]]
  *   - [[EventDispatcher|Eventing]]
  * - [[Scene|Working with Scenes]]
- *   - [[Camera|Working with Cameras]]
+ *   - [[BaseCamera|Working with Cameras]]
  * - [[Actor|Working with Actors]]
  *   - [[Label|Labels]]
  *   - [[Trigger|Triggers]]
