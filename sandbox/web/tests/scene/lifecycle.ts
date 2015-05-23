@@ -2,7 +2,7 @@
 
 var game = new ex.Engine(300, 300, "game");
 
-var scene2 = new ex.Scene(game);
+var scene2 = new ex.Scene();
 
 game.add("scene2", scene2);
 

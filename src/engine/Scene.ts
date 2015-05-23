@@ -180,11 +180,14 @@ module ex {
       }
 
       /**
-       * This is called before the first update of the [[Scene]]. This method is meant to be
+       * This is called before the first update of the [[Scene]]. Initializes scene members like the camera. This method is meant to be
        * overridden. This is where initialization of child actors should take place.
        */
       public onInitialize(engine: Engine): void {
          // will be overridden
+         if (this.camera) {
+            this.camera.setFocus(engine.width / 2, engine.height / 2);
+         }
          this._logger.debug("Scene.onInitialize", this, engine);
       }
 
