@@ -170,7 +170,8 @@ module.exports = function (grunt) {
             "src/engine/Events.ts",
             "src/engine/Group.ts",
             "src/engine/Label.ts",
-            "src/engine/Loader.ts"
+            "src/engine/Loader.ts",
+            "src/engine/Log.tx"
          ]
       }
    });
