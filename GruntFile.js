@@ -171,7 +171,7 @@ module.exports = function (grunt) {
             "src/engine/Group.ts",
             "src/engine/Label.ts",
             "src/engine/Loader.ts",
-            "src/engine/Log.tx"
+            "src/engine/Log.ts"
          ]
       }
    });
