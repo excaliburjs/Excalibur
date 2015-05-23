@@ -183,7 +183,8 @@ module.exports = function (grunt) {
             "src/engine/SpriteEffects.ts",
             "src/engine/SpriteSheet.ts",
             "src/engine/TileMap.ts",
-            "src/engine/Timer.ts"
+            "src/engine/Timer.ts",
+            "src/engine/Trigger.ts"
          ]
       }
    });
