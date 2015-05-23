@@ -25,19 +25,21 @@ module ex {
          }
          
          if(!actor.isOffScreen){
-            if(actorScreenCoords.x + width * zoom < 0 || 
+            if((actorScreenCoords.x + width * zoom < 0 || 
                actorScreenCoords.y + height * zoom < 0 ||
                actorScreenCoords.x > engine.width ||
-               actorScreenCoords.y > engine.height ){
+               actorScreenCoords.y > engine.height) &&
+               isSpriteOffScreen ) {
                
                eventDispatcher.publish('exitviewport', new ExitViewPortEvent());
                actor.isOffScreen = true;
             }
          }else{
-            if(actorScreenCoords.x + width * zoom > 0 &&
+            if((actorScreenCoords.x + width * zoom > 0 &&
                actorScreenCoords.y + height * zoom > 0 &&
                actorScreenCoords.x < engine.width &&
-               actorScreenCoords.y < engine.height) {
+               actorScreenCoords.y < engine.height) ||
+               !isSpriteOffScreen) {
                
                eventDispatcher.publish('enterviewport', new EnterViewPortEvent());               
                actor.isOffScreen = false;
