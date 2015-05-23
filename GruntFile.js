@@ -184,7 +184,8 @@ module.exports = function (grunt) {
             "src/engine/SpriteSheet.ts",
             "src/engine/TileMap.ts",
             "src/engine/Timer.ts",
-            "src/engine/Trigger.ts"
+            "src/engine/Trigger.ts",
+            "src/engine/UIActor.ts"
          ]
       }
    });
