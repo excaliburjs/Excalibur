@@ -1,191 +1,5 @@
 declare module ex {
     /**
-     * A simple 2D point on a plane
-     */
-    class Point {
-        x: number;
-        y: number;
-        /**
-         * @param x  X coordinate of the point
-         * @param y  Y coordinate of the point
-         */
-        constructor(x: number, y: number);
-        /**
-         * Convert this point to a vector
-         */
-        toVector(): Vector;
-        /**
-         * Rotates the current point around another by a certain number of
-         * degrees in radians
-         * @param angle  The angle in radians
-         * @param anchor The point to rotate around
-         */
-        rotate(angle: number, anchor?: Point): Point;
-        /**
-         * Translates the current point by a vector
-         * @param vector  The other vector to add to
-         */
-        add(vector: Vector): Point;
-        /**
-         * Sets the x and y components at once
-         */
-        setTo(x: number, y: number): void;
-        /**
-         * Clones a new point that is a copy of this one.
-         */
-        clone(): Point;
-        /**
-         * Compares this point against another and tests for equality
-         * @param point  The other point to compare to
-         */
-        equals(point: Point): boolean;
-    }
-    /**
-     * A 2D vector on a plane.
-     */
-    class Vector extends Point {
-        x: number;
-        y: number;
-        /**
-         * A (0, 0) vector
-         */
-        static Zero: Vector;
-        /**
-         * Returns a vector of unit length in the direction of the specified angle.
-         * @param angle The angle to generate the vector
-         */
-        static fromAngle(angle: number): Vector;
-        /**
-         * @param x  X component of the Vector
-         * @param y  Y component of the Vector
-         */
-        constructor(x: number, y: number);
-        /**
-         * The distance to another vector
-         * @param v  The other vector
-         */
-        distance(v?: Vector): number;
-        /**
-         * Normalizes a vector to have a magnitude of 1.
-         */
-        normalize(): Vector;
-        /**
-         * Scales a vector's by a factor of size
-         * @param size  The factor to scale the magnitude by
-         */
-        scale(size: any): Vector;
-        /**
-         * Adds one vector to another, alias for add
-         * @param v  The vector to add
-         */
-        plus(v: Vector): Vector;
-        /**
-         * Adds one vector to another
-         * @param v The vector to add
-         */
-        add(v: Vector): Vector;
-        /**
-         * Subtracts a vector from another, alias for minus
-         * @param v The vector to subtract
-         */
-        subtract(v: Vector): Vector;
-        /**
-         * Subtracts a vector from the current vector
-         * @param v The vector to subtract
-         */
-        minus(v: Vector): Vector;
-        /**
-         * Performs a dot product with another vector
-         * @param v  The vector to dot
-         */
-        dot(v: Vector): number;
-        /**
-         * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
-         * @param v  The vector to cross
-         */
-        cross(v: Vector): number;
-        /**
-         * Returns the perpendicular vector to this one
-         */
-        perpendicular(): Vector;
-        /**
-         * Returns the normal vector to this one
-         */
-        normal(): Vector;
-        /**
-         * Returns the angle of this vector.
-         */
-        toAngle(): number;
-        /**
-         * Returns the point represention of this vector
-         */
-        toPoint(): Point;
-        /**
-         * Rotates the current vector around a point by a certain number of
-         * degrees in radians
-         */
-        rotate(angle: number, anchor: Point): Vector;
-        /**
-         * Creates new vector that has the same values as the previous.
-         */
-        clone(): Vector;
-    }
-    /**
-     * A 2D ray that can be cast into the scene to do collision detection
-     */
-    class Ray {
-        pos: Point;
-        dir: Vector;
-        /**
-         * @param pos The starting position for the ray
-         * @param dir The vector indicating the direction of the ray
-         */
-        constructor(pos: Point, dir: Vector);
-        /**
-         * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
-         * This number indicates the mathematical intersection time.
-         * @param line  The line to test
-         */
-        intersect(line: Line): number;
-        /**
-         * Returns the point of intersection given the intersection time
-         */
-        getPoint(time: number): Point;
-    }
-    /**
-     * A 2D line segment
-     */
-    class Line {
-        begin: Point;
-        end: Point;
-        /**
-         * @param begin  The starting point of the line segment
-         * @param end  The ending point of the line segment
-         */
-        constructor(begin: Point, end: Point);
-        /**
-         * Returns the slope of the line in the form of a vector
-         */
-        getSlope(): Vector;
-        /**
-         * Returns the length of the line segment in pixels
-         */
-        getLength(): number;
-    }
-    /**
-     * A projection
-     * @todo
-     */
-    class Projection {
-        min: number;
-        max: number;
-        constructor(min: number, max: number);
-        overlaps(projection: Projection): boolean;
-        getOverlap(projection: Projection): number;
-    }
-}
-declare module ex {
-    /**
      * Effects
      *
      * These effects can be applied to any bitmap image but are mainly used
@@ -421,587 +235,278 @@ declare module ex {
 }
 declare module ex {
     /**
-     * Excalibur's internal event dispatcher implementation.
-     * Callbacks are fired immediately after an event is published.
-     * Typically you'd use [[Class.eventDispatcher]] since most classes in
-     * Excalibur inherit from [[Class]]. You'd rarely create an `EventDispatcher`
-     * yourself.
-     *
-     * When working with events, be sure to keep in mind the order of subscriptions
-     * and try not to create a situation that requires specific things to happen in
-     * order. Events are best used for input events, tying together disparate objects,
-     * or for UI updates.
-     *
-     * ## Example: Actor events
-     *
-     * Actors implement an EventDispatcher ([[Actor.eventDispatcher]]) so they can
-     * send and receive events. For example, they can enable Pointer events (mouse/touch)
-     * and you can respond to them by subscribing to the event names.
-     *
-     * You can also emit any other kind of event for your game just by using a custom
-     * `string` value and implementing a class that inherits from [[GameEvent]].
-     *
-     * ```js
-     * var player = new ex.Actor(...);
-     *
-     * // Enable pointer events for this actor
-     * player.enableCapturePointer = true;
-     *
-     * // subscribe to pointerdown event
-     * player.on("pointerdown", function (evt: ex.Input.PointerEvent) {
-     *   console.log("Player was clicked!");
-     * });
-     *
-     * // turn off subscription
-     * player.off("pointerdown");
-     *
-     * // subscribe to custom event
-     * player.on("death", function (evt) {
-     *   console.log("Player died:", evt);
-     * });
-     *
-     * // trigger custom event
-     * player.triggerEvent("death", new DeathEvent());
-     *
-     * ```
-     *
-     * ## Example: Pub/Sub with Excalibur
-     *
-     * You can also create an EventDispatcher for any arbitrary object, for example
-     * a global game event aggregator (`vent`). Anything in your game can subscribe to
-     * it, if the event aggregator is in the global scope.
-     *
-     * *Warning:* This can easily get out of hand. Avoid this usage, it just serves as
-     * an example.
-     *
-     * ```js
-     * // create a publisher on an empty object
-     * var vent = new ex.EventDispatcher({});
-     *
-     * // handler for an event
-     * var subscription = function (event) {
-     *   console.log(event);
-     * }
-     *
-     * // add a subscription
-     * vent.subscribe("someevent", subscription);
-     *
-     * // publish an event somewhere in the game
-     * vent.publish("someevent", new ex.GameEvent());
-     * ```
+     * A simple 2D point on a plane
      */
-    class EventDispatcher {
-        private _handlers;
-        private _wiredEventDispatchers;
-        private _target;
-        private _log;
+    class Point {
+        x: number;
+        y: number;
         /**
-         * @param target  The object that will be the recipient of events from this event dispatcher
+         * @param x  X coordinate of the point
+         * @param y  Y coordinate of the point
          */
-        constructor(target: any);
+        constructor(x: number, y: number);
         /**
-         * Publish an event for target
-         * @param eventName  The name of the event to publish
-         * @param event      Optionally pass an event data object to the handler
+         * Convert this point to a vector
          */
-        publish(eventName: string, event?: GameEvent): void;
+        toVector(): Vector;
         /**
-         * Alias for [[publish]], publishes an event for target
-         * @param eventName  The name of the event to publish
-         * @param event      Optionally pass an event data object to the handler
+         * Rotates the current point around another by a certain number of
+         * degrees in radians
+         * @param angle  The angle in radians
+         * @param anchor The point to rotate around
          */
-        emit(eventName: string, event?: GameEvent): void;
+        rotate(angle: number, anchor?: Point): Point;
         /**
-         * Subscribe an event handler to a particular event name, multiple handlers per event name are allowed.
-         * @param eventName  The name of the event to subscribe to
-         * @param handler    The handler callback to fire on this event
+         * Translates the current point by a vector
+         * @param vector  The other vector to add to
          */
-        subscribe(eventName: string, handler: (event?: GameEvent) => void): void;
+        add(vector: Vector): Point;
         /**
-         * Unsubscribe an event handler(s) from an event. If a specific handler
-         * is specified for an event, only that handler will be unsubscribed.
-         * Otherwise all handlers will be unsubscribed for that event.
-         *
-         * @param eventName  The name of the event to unsubscribe
-         * @param handler    Optionally the specific handler to unsubscribe
-         *
+         * Sets the x and y components at once
          */
-        unsubscribe(eventName: string, handler?: (event?: GameEvent) => void): void;
+        setTo(x: number, y: number): void;
         /**
-         * Wires this event dispatcher to also recieve events from another
+         * Clones a new point that is a copy of this one.
          */
-        wire(eventDispatcher: EventDispatcher): void;
+        clone(): Point;
         /**
-         * Unwires this event dispatcher from another
+         * Compares this point against another and tests for equality
+         * @param point  The other point to compare to
          */
-        unwire(eventDispatcher: EventDispatcher): void;
+        equals(point: Point): boolean;
+    }
+    /**
+     * A 2D vector on a plane.
+     */
+    class Vector extends Point {
+        x: number;
+        y: number;
+        /**
+         * A (0, 0) vector
+         */
+        static Zero: Vector;
+        /**
+         * Returns a vector of unit length in the direction of the specified angle.
+         * @param angle The angle to generate the vector
+         */
+        static fromAngle(angle: number): Vector;
+        /**
+         * @param x  X component of the Vector
+         * @param y  Y component of the Vector
+         */
+        constructor(x: number, y: number);
+        /**
+         * The distance to another vector
+         * @param v  The other vector
+         */
+        distance(v?: Vector): number;
+        /**
+         * Normalizes a vector to have a magnitude of 1.
+         */
+        normalize(): Vector;
+        /**
+         * Scales a vector's by a factor of size
+         * @param size  The factor to scale the magnitude by
+         */
+        scale(size: any): Vector;
+        /**
+         * Adds one vector to another, alias for add
+         * @param v  The vector to add
+         */
+        plus(v: Vector): Vector;
+        /**
+         * Adds one vector to another
+         * @param v The vector to add
+         */
+        add(v: Vector): Vector;
+        /**
+         * Subtracts a vector from another, alias for minus
+         * @param v The vector to subtract
+         */
+        subtract(v: Vector): Vector;
+        /**
+         * Subtracts a vector from the current vector
+         * @param v The vector to subtract
+         */
+        minus(v: Vector): Vector;
+        /**
+         * Performs a dot product with another vector
+         * @param v  The vector to dot
+         */
+        dot(v: Vector): number;
+        /**
+         * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
+         * @param v  The vector to cross
+         */
+        cross(v: Vector): number;
+        /**
+         * Returns the perpendicular vector to this one
+         */
+        perpendicular(): Vector;
+        /**
+         * Returns the normal vector to this one
+         */
+        normal(): Vector;
+        /**
+         * Returns the angle of this vector.
+         */
+        toAngle(): number;
+        /**
+         * Returns the point represention of this vector
+         */
+        toPoint(): Point;
+        /**
+         * Rotates the current vector around a point by a certain number of
+         * degrees in radians
+         */
+        rotate(angle: number, anchor: Point): Vector;
+        /**
+         * Creates new vector that has the same values as the previous.
+         */
+        clone(): Vector;
+    }
+    /**
+     * A 2D ray that can be cast into the scene to do collision detection
+     */
+    class Ray {
+        pos: Point;
+        dir: Vector;
+        /**
+         * @param pos The starting position for the ray
+         * @param dir The vector indicating the direction of the ray
+         */
+        constructor(pos: Point, dir: Vector);
+        /**
+         * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
+         * This number indicates the mathematical intersection time.
+         * @param line  The line to test
+         */
+        intersect(line: Line): number;
+        /**
+         * Returns the point of intersection given the intersection time
+         */
+        getPoint(time: number): Point;
+    }
+    /**
+     * A 2D line segment
+     */
+    class Line {
+        begin: Point;
+        end: Point;
+        /**
+         * @param begin  The starting point of the line segment
+         * @param end  The ending point of the line segment
+         */
+        constructor(begin: Point, end: Point);
+        /**
+         * Returns the slope of the line in the form of a vector
+         */
+        getSlope(): Vector;
+        /**
+         * Returns the length of the line segment in pixels
+         */
+        getLength(): number;
+    }
+    /**
+     * A projection
+     * @todo
+     */
+    class Projection {
+        min: number;
+        max: number;
+        constructor(min: number, max: number);
+        overlaps(projection: Projection): boolean;
+        getOverlap(projection: Projection): number;
     }
 }
-declare module ex {
+/**
+ * Utilities
+ *
+ * Excalibur utilities for math, string manipulation, etc.
+ */
+declare module ex.Util {
+    var TwoPI: number;
+    function base64Encode(inputStr: string): string;
+    function clamp(val: any, min: any, max: any): any;
+    function drawLine(ctx: CanvasRenderingContext2D, color: string, startx: any, starty: any, endx: any, endy: any): void;
+    function randomInRange(min: number, max: number): number;
+    function randomIntInRange(min: number, max: number): number;
+    function canonicalizeAngle(angle: number): number;
+    function toDegrees(radians: number): number;
+    function toRadians(degrees: number): number;
+    function getPosition(el: HTMLElement): Point;
+    function addItemToArray<T>(item: T, array: T[]): boolean;
+    function removeItemToArray<T>(item: T, array: T[]): boolean;
+    function getOppositeSide(side: ex.Side): Side;
     /**
-     * Excalibur base class that provides basic functionality such as [[EventDispatcher]]
-     * and extending abilities for vanilla Javascript projects
+     * Excaliburs dynamically resizing collection
      */
-    class Class {
+    class Collection<T> {
         /**
-         * Direct access to the game object event dispatcher.
+         * Default collection size
          */
-        eventDispatcher: EventDispatcher;
-        constructor();
+        static DefaultSize: number;
+        private internalArray;
+        private endPointer;
         /**
-         * Add an event listener. You can listen for a variety of
-         * events off of the engine; see the events section below for a complete list.
-         * @param eventName  Name of the event to listen for
-         * @param handler    Event handler for the thrown event
-         * @obsolete Use [[Class.on]] instead
+         * @param initialSize  Initial size of the internal backing array
          */
-        addEventListener(eventName: string, handler: (event?: GameEvent) => void): void;
+        constructor(initialSize?: number);
+        private resize();
         /**
-         * Removes an event listener. If only the eventName is specified
-         * it will remove all handlers registered for that specific event. If the eventName
-         * and the handler instance are specified just that handler will be removed.
-         *
-         * @param eventName  Name of the event to listen for
-         * @param handler    Event handler for the thrown event
-         * @obsolete Use [[Class.off]] instead
+         * Push elements to the end of the collection
          */
-        removeEventListener(eventName: string, handler?: (event?: GameEvent) => void): void;
+        push(element: T): T;
         /**
-         * Alias for `addEventListener`. You can listen for a variety of
-         * events off of the engine; see the events section below for a complete list.
-         * @param eventName  Name of the event to listen for
-         * @param handler    Event handler for the thrown event
+         * Removes elements from the end of the collection
          */
-        on(eventName: string, handler: (event?: GameEvent) => void): void;
+        pop(): T;
         /**
-         * Alias for `removeEventListener`. If only the eventName is specified
-         * it will remove all handlers registered for that specific event. If the eventName
-         * and the handler instance are specified only that handler will be removed.
-         *
-         * @param eventName  Name of the event to listen for
-         * @param handler    Event handler for the thrown event
+         * Returns the count of the collection
          */
-        off(eventName: string, handler?: (event?: GameEvent) => void): void;
+        count(): number;
         /**
-         * You may wish to extend native Excalibur functionality in vanilla Javascript.
-         * Any method on a class inheriting [[Class]] may be extended to support
-         * additional functionaliy. In the example below we create a new type called `MyActor`.
-         *
-         *
-         * ```js
-         * var MyActor = Actor.extend({
-         *
-         *    constructor: function() {
-         *       this.newprop = 'something';
-         *       Actor.apply(this, arguments);
-         *    },
-         *
-         *    update: function(engine, delta) {
-         *       // Implement custom update
-         *       // Call super constructor update
-         *       Actor.prototype.update.call(this, engine, delta);
-         *
-         *       console.log("Something cool!");
-         *    }
-         * });
-         *
-         * var myActor = new MyActor(100, 100, 100, 100, Color.Azure);
-         * ```
-         *
-         * In TypeScript, you only need to use the `extends` syntax, you do not need
-         * to use this method of extension.
-         *
-         * @param methods A JSON object contain any methods/properties you want to extend
+         * Empties the collection
          */
-        static extend(methods: any): any;
-    }
-}
-declare module ex {
-    /**
-     * Provides standard colors (e.g. [[Color.Black]])
-     * but you can also create custom colors using RGB, HSL, or Hex. Also provides
-     * useful color operations like [[Color.lighten]], [[Color.darken]], and more.
-     *
-     * ## Creating colors
-     *
-     * ```js
-     * // RGBA
-     * new ex.Color(r, g, b, a);
-     * ex.Color.fromRGB(r, g, b, a);
-     *
-     * // HSLA
-     * ex.Color.fromHSL(h, s, l, a);
-     *
-     * // Hex, alpha optional
-     * ex.Color.fromHex("#000000");
-     * ex.Color.fromHex("#000000FF");
-     * ```
-     *
-     * ## Working with colors
-     *
-     * Since Javascript does not support structs, if you change a color "constant" like [[Color.Black]]
-     * it will change it across the entire game. You can safely use the color operations
-     * like [[Color.lighten]] and [[Color.darken]] because they `clone` the color to
-     * return a new color. However, be aware that this can use up memory if used excessively.
-     *
-     * Just be aware that if you directly alter properties (i.e. [[Color.r]], etc.) , this will change it
-     * for all the code that uses that instance of Color.
-     */
-    class Color {
+        clear(): void;
         /**
-         * Black (#000000)
+         * Returns the size of the internal backing array
          */
-        static Black: Color;
+        internalSize(): number;
         /**
-         * White (#FFFFFF)
+         * Returns an element at a specific index
+         * @param index  Index of element to retreive
          */
-        static White: Color;
+        elementAt(index: number): T;
         /**
-         * Gray (#808080)
+         * Inserts an element at a specific index
+         * @param index  Index to insert the element
          */
-        static Gray: Color;
+        insert(index: number, value: T): T;
         /**
-         * Light gray (#D3D3D3)
+         * Removes an element at a specific index
+         * @param index  Index of element to remove
          */
-        static LightGray: Color;
+        remove(index: number): T;
         /**
-         * Dark gray (#A9A9A9)
+         * Removes an element by reference
+         * @param element  Element to retreive
          */
-        static DarkGray: Color;
+        removeElement(element: T): void;
         /**
-         * Yellow (#FFFF00)
+         * Returns a array representing the collection
          */
-        static Yellow: Color;
+        toArray(): T[];
         /**
-         * Orange (#FFA500)
+         * Iterate over every element in the collection
+         * @param func  Callback to call for each element passing a reference to the element and its index, returned values are ignored
          */
-        static Orange: Color;
+        forEach(func: (element: T, index: number) => any): void;
         /**
-         * Red (#FF0000)
+         * Mutate every element in the collection
+         * @param func  Callback to call for each element passing a reference to the element and its index, any values returned mutate the collection
          */
-        static Red: Color;
-        /**
-         * Vermillion (#FF5B31)
-         */
-        static Vermillion: Color;
-        /**
-         * Rose (#FF007F)
-         */
-        static Rose: Color;
-        /**
-         * Magenta (#FF00FF)
-         */
-        static Magenta: Color;
-        /**
-         * Violet (#7F00FF)
-         */
-        static Violet: Color;
-        /**
-         * Blue (#0000FF)
-         */
-        static Blue: Color;
-        /**
-         * Azure (#007FFF)
-         */
-        static Azure: Color;
-        /**
-         * Cyan (#00FFFF)
-         */
-        static Cyan: Color;
-        /**
-         * Viridian (#59978F)
-         */
-        static Viridian: Color;
-        /**
-         * Green (#00FF00)
-         */
-        static Green: Color;
-        /**
-         * Chartreuse (#7FFF00)
-         */
-        static Chartreuse: Color;
-        /**
-         * Transparent (#FFFFFF00)
-         */
-        static Transparent: Color;
-        /**
-         * Red channel
-         */
-        r: number;
-        /**
-         * Green channel
-         */
-        g: number;
-        /**
-         * Blue channel
-         */
-        b: number;
-        /**
-         * Alpha channel (between 0 and 1)
-         */
-        a: number;
-        /**
-         * Hue
-         */
-        h: number;
-        /**
-         * Saturation
-         */
-        s: number;
-        /**
-         * Lightness
-         */
-        l: number;
-        /**
-         * Creates a new instance of Color from an r, g, b, a
-         *
-         * @param r  The red component of color (0-255)
-         * @param g  The green component of color (0-255)
-         * @param b  The blue component of color (0-255)
-         * @param a  The alpha component of color (0-1.0)
-         */
-        constructor(r: number, g: number, b: number, a?: number);
-        /**
-         * Creates a new instance of Color from an r, g, b, a
-         *
-         * @param r  The red component of color (0-255)
-         * @param g  The green component of color (0-255)
-         * @param b  The blue component of color (0-255)
-         * @param a  The alpha component of color (0-1.0)
-         */
-        static fromRGB(r: number, g: number, b: number, a?: number): Color;
-        /**
-         * Creates a new inscance of Color from a hex string
-         *
-         * @param hex  CSS color string of the form #ffffff, the alpha component is optional
-         */
-        static fromHex(hex: string): Color;
-        /**
-         * Creats a new instance of Color from hsla values
-         *
-         * @param h  Hue is represented [0-1]
-         * @param s  Saturation is represented [0-1]
-         * @param l  Luminance is represented [0-1]
-         * @param a  Alpha is represented [0-1]
-         */
-        static fromHSL(h: number, s: number, l: number, a?: number): Color;
-        /**
-         * Lightens the current color by a specified amount
-         *
-         * @param factor  The amount to lighten by [0-1]
-         */
-        lighten(factor?: number): Color;
-        /**
-         * Darkens the current color by a specified amount
-         *
-         * @param factor  The amount to darken by [0-1]
-         */
-        darken(factor?: number): Color;
-        /**
-         * Saturates the current color by a specified amount
-         *
-         * @param factor  The amount to saturate by [0-1]
-         */
-        saturate(factor?: number): Color;
-        /**
-         * Desaturates the current color by a specified amount
-         *
-         * @param factor  The amount to desaturate by [0-1]
-         */
-        desaturate(factor?: number): Color;
-        /**
-         * Multiplies a color by another, results in a darker color
-         *
-         * @param color  The other color
-         */
-        mulitiply(color: Color): Color;
-        /**
-         * Screens a color by another, results in a lighter color
-         *
-         * @param color  The other color
-         */
-        screen(color: Color): Color;
-        /**
-         * Inverts the current color
-         */
-        invert(): Color;
-        /**
-         * Averages the current color with another
-         *
-         * @param color  The other color
-         */
-        average(color: Color): Color;
-        /**
-         * Returns a CSS string representation of a color.
-         */
-        toString(): string;
-        /**
-         * Returns a CSS string representation of a color.
-         */
-        fillStyle(): string;
-        /**
-         * Returns a clone of the current color.
-         */
-        clone(): Color;
-    }
-}
-declare module ex {
-    /**
-     * Logging level that Excalibur will tag
-     */
-    enum LogLevel {
-        Debug = 0,
-        Info = 1,
-        Warn = 2,
-        Error = 3,
-        Fatal = 4,
-    }
-    /**
-     * Static singleton that represents the logging facility for Excalibur.
-     * Excalibur comes built-in with a [[ConsoleAppender]] and [[ScreenAppender]].
-     * Derive from [[IAppender]] to create your own logging appenders.
-     *
-     * ## Example: Logging
-     *
-     * ```js
-     * // set default log level (default: Info)
-     * ex.Logger.getInstance().defaultLevel = ex.LogLevel.Warn;
-     *
-     * // this will not be shown because it is below Warn
-     * ex.Logger.getInstance().info("This will be logged as Info");
-     * // this will show because it is Warn
-     * ex.Logger.getInstance().warn("This will be logged as Warn");
-     * // this will show because it is above Warn
-     * ex.Logger.getInstance().error("This will be logged as Error");
-     * // this will show because it is above Warn
-     * ex.Logger.getInstance().fatal("This will be logged as Fatal");
-     * ```
-     */
-    class Logger {
-        private static _instance;
-        private appenders;
-        constructor();
-        /**
-         * Gets or sets the default logging level. Excalibur will only log
-         * messages if equal to or above this level. Default: [[LogLevel.Info]]
-         */
-        defaultLevel: LogLevel;
-        /**
-         * Gets the current static instance of Logger
-         */
-        static getInstance(): Logger;
-        /**
-         * Adds a new [[IAppender]] to the list of appenders to write to
-         */
-        addAppender(appender: IAppender): void;
-        /**
-         * Clears all appenders from the logger
-         */
-        clearAppenders(): void;
-        /**
-         * Logs a message at a given LogLevel
-         * @param level  The LogLevel`to log the message at
-         * @param args   An array of arguments to write to an appender
-         */
-        private _log(level, args);
-        /**
-         * Writes a log message at the [[LogLevel.Debug]] level
-         * @param args  Accepts any number of arguments
-         */
-        debug(...args: any[]): void;
-        /**
-         * Writes a log message at the [[LogLevel.Info]] level
-         * @param args  Accepts any number of arguments
-         */
-        info(...args: any[]): void;
-        /**
-         * Writes a log message at the [[LogLevel.Warn]] level
-         * @param args  Accepts any number of arguments
-         */
-        warn(...args: any[]): void;
-        /**
-         * Writes a log message at the [[LogLevel.Error]] level
-         * @param args  Accepts any number of arguments
-         */
-        error(...args: any[]): void;
-        /**
-         * Writes a log message at the [[LogLevel.Fatal]] level
-         * @param args  Accepts any number of arguments
-         */
-        fatal(...args: any[]): void;
-    }
-    /**
-     * Contract for any log appender (such as console/screen)
-     */
-    interface IAppender {
-        /**
-         * Logs a message at the given [[LogLevel]]
-         * @param level  Level to log at
-         * @param args   Arguments to log
-         */
-        log(level: LogLevel, args: any[]): void;
-    }
-    /**
-     * Console appender for browsers (i.e. `console.log`)
-     */
-    class ConsoleAppender implements IAppender {
-        /**
-         * Logs a message at the given [[LogLevel]]
-         * @param level  Level to log at
-         * @param args   Arguments to log
-         */
-        log(level: LogLevel, args: any[]): void;
-    }
-    /**
-     * On-screen (canvas) appender
-     */
-    class ScreenAppender implements IAppender {
-        private _messages;
-        private canvas;
-        private ctx;
-        /**
-         * @param width   Width of the screen appender in pixels
-         * @param height  Height of the screen appender in pixels
-         */
-        constructor(width?: number, height?: number);
-        /**
-         * Logs a message at the given [[LogLevel]]
-         * @param level  Level to log at
-         * @param args   Arguments to log
-         */
-        log(level: LogLevel, args: any[]): void;
-    }
-}
-declare module ex {
-    /**
-     * The Excalibur timer hooks into the internal timer and fires callbacks,
-     * after a certain interval, optionally repeating.
-     */
-    class Timer {
-        static id: number;
-        id: number;
-        interval: number;
-        fcn: () => void;
-        repeats: boolean;
-        private elapsedTime;
-        private _totalTimeAlive;
-        complete: boolean;
-        scene: Scene;
-        /**
-         * @param callback   The callback to be fired after the interval is complete.
-         * @param repeats    Indicates whether this call back should be fired only once, or repeat after every interval as completed.
-         */
-        constructor(fcn: () => void, interval: number, repeats?: boolean);
-        /**
-         * Updates the timer after a certain number of milliseconds have elapsed. This is used internally by the engine.
-         * @param delta  Number of elapsed milliseconds since the last update.
-         */
-        update(delta: number): void;
-        getTimeRunning(): number;
-        /**
-         * Cancels the timer, preventing any further executions.
-         */
-        cancel(): void;
+        map(func: (element: T, index: number) => any): void;
     }
 }
 declare module ex {
@@ -1760,6 +1265,342 @@ declare module ex {
     }
 }
 declare module ex {
+    /**
+     * Excalibur base class that provides basic functionality such as [[EventDispatcher]]
+     * and extending abilities for vanilla Javascript projects
+     */
+    class Class {
+        /**
+         * Direct access to the game object event dispatcher.
+         */
+        eventDispatcher: EventDispatcher;
+        constructor();
+        /**
+         * Add an event listener. You can listen for a variety of
+         * events off of the engine; see the events section below for a complete list.
+         * @param eventName  Name of the event to listen for
+         * @param handler    Event handler for the thrown event
+         * @obsolete Use [[Class.on]] instead
+         */
+        addEventListener(eventName: string, handler: (event?: GameEvent) => void): void;
+        /**
+         * Removes an event listener. If only the eventName is specified
+         * it will remove all handlers registered for that specific event. If the eventName
+         * and the handler instance are specified just that handler will be removed.
+         *
+         * @param eventName  Name of the event to listen for
+         * @param handler    Event handler for the thrown event
+         * @obsolete Use [[Class.off]] instead
+         */
+        removeEventListener(eventName: string, handler?: (event?: GameEvent) => void): void;
+        /**
+         * Alias for `addEventListener`. You can listen for a variety of
+         * events off of the engine; see the events section below for a complete list.
+         * @param eventName  Name of the event to listen for
+         * @param handler    Event handler for the thrown event
+         */
+        on(eventName: string, handler: (event?: GameEvent) => void): void;
+        /**
+         * Alias for `removeEventListener`. If only the eventName is specified
+         * it will remove all handlers registered for that specific event. If the eventName
+         * and the handler instance are specified only that handler will be removed.
+         *
+         * @param eventName  Name of the event to listen for
+         * @param handler    Event handler for the thrown event
+         */
+        off(eventName: string, handler?: (event?: GameEvent) => void): void;
+        /**
+         * You may wish to extend native Excalibur functionality in vanilla Javascript.
+         * Any method on a class inheriting [[Class]] may be extended to support
+         * additional functionaliy. In the example below we create a new type called `MyActor`.
+         *
+         *
+         * ```js
+         * var MyActor = Actor.extend({
+         *
+         *    constructor: function() {
+         *       this.newprop = 'something';
+         *       Actor.apply(this, arguments);
+         *    },
+         *
+         *    update: function(engine, delta) {
+         *       // Implement custom update
+         *       // Call super constructor update
+         *       Actor.prototype.update.call(this, engine, delta);
+         *
+         *       console.log("Something cool!");
+         *    }
+         * });
+         *
+         * var myActor = new MyActor(100, 100, 100, 100, Color.Azure);
+         * ```
+         *
+         * In TypeScript, you only need to use the `extends` syntax, you do not need
+         * to use this method of extension.
+         *
+         * @param methods A JSON object contain any methods/properties you want to extend
+         */
+        static extend(methods: any): any;
+    }
+}
+declare module ex {
+    /**
+     * The Excalibur timer hooks into the internal timer and fires callbacks,
+     * after a certain interval, optionally repeating.
+     */
+    class Timer {
+        static id: number;
+        id: number;
+        interval: number;
+        fcn: () => void;
+        repeats: boolean;
+        private elapsedTime;
+        private _totalTimeAlive;
+        complete: boolean;
+        scene: Scene;
+        /**
+         * @param callback   The callback to be fired after the interval is complete.
+         * @param repeats    Indicates whether this call back should be fired only once, or repeat after every interval as completed.
+         */
+        constructor(fcn: () => void, interval: number, repeats?: boolean);
+        /**
+         * Updates the timer after a certain number of milliseconds have elapsed. This is used internally by the engine.
+         * @param delta  Number of elapsed milliseconds since the last update.
+         */
+        update(delta: number): void;
+        getTimeRunning(): number;
+        /**
+         * Cancels the timer, preventing any further executions.
+         */
+        cancel(): void;
+    }
+}
+declare module ex {
+    interface ICollisionResolver {
+        register(target: Actor): any;
+        remove(tartet: Actor): any;
+        evaluate(targets: Actor[]): CollisionPair[];
+        update(targets: Actor[]): number;
+        debugDraw(ctx: any, delta: any): void;
+    }
+}
+declare module ex {
+    class NaiveCollisionResolver implements ICollisionResolver {
+        constructor();
+        register(target: Actor): void;
+        remove(tartet: Actor): void;
+        evaluate(targets: Actor[]): CollisionPair[];
+        update(targets: Actor[]): number;
+        debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
+    }
+}
+declare module ex {
+    class TreeNode {
+        parent: any;
+        left: TreeNode;
+        right: TreeNode;
+        bounds: BoundingBox;
+        height: number;
+        actor: Actor;
+        constructor(parent?: any);
+        isLeaf(): boolean;
+    }
+    class DynamicTree {
+        root: TreeNode;
+        nodes: {
+            [key: number]: TreeNode;
+        };
+        constructor();
+        insert(leaf: TreeNode): void;
+        remove(leaf: TreeNode): void;
+        registerActor(actor: Actor): void;
+        updateActor(actor: Actor): boolean;
+        removeActor(actor: Actor): void;
+        balance(node: TreeNode): TreeNode;
+        getHeight(): number;
+        query(actor: Actor, callback: (other: Actor) => boolean): void;
+        rayCast(ray: Ray, max: any): Actor;
+        getNodes(): TreeNode[];
+        debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
+    }
+}
+declare module ex {
+    class DynamicTreeCollisionResolver implements ICollisionResolver {
+        private _dynamicCollisionTree;
+        constructor();
+        register(target: Actor): void;
+        remove(target: Actor): void;
+        evaluate(targets: Actor[]): CollisionPair[];
+        update(targets: Actor[]): number;
+        debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
+    }
+}
+declare module ex {
+    /**
+     * Collision pairs are used internally by Excalibur to resolve collision between actors. The
+     * Pair prevents collisions from being evaluated more than one time
+     */
+    class CollisionPair {
+        left: Actor;
+        right: Actor;
+        intersect: Vector;
+        side: Side;
+        /**
+         * @param left       The first actor in the collision pair
+         * @param right      The second actor in the collision pair
+         * @param intersect  The minimum translation vector to separate the actors from the perspective of the left actor
+         * @param side       The side on which the collision occured from the perspective of the left actor
+         */
+        constructor(left: Actor, right: Actor, intersect: Vector, side: Side);
+        /**
+         * Determines if this collision pair and another are equivalent.
+         */
+        equals(collisionPair: CollisionPair): boolean;
+        /**
+         * Evaluates the collision pair, performing collision resolution and event publishing appropriate to each collision type.
+         */
+        evaluate(): void;
+    }
+}
+declare module ex {
+    /**
+    * Cameras
+    *
+    * [[BaseCamera]] is the base class for all Excalibur cameras. Cameras are used
+    * to move around your game and set focus. They are used to determine
+    * what is "off screen" and can be used to scale the game.
+    *
+    * Excalibur comes with a [[LockedCamera]] and a [[SideCamera]], depending on
+    * your game needs.
+    *
+    * Cameras are attached to [[Scene|Scenes]] and can be changed by
+    * setting [[Scene.camera]]. By default, a [[Scene]] is initialized with a
+    * [[BaseCamera]] that doesn't move and is centered on the screen.
+    *
+    * ## Focus
+    *
+    * Cameras have a [[BaseCamera.focus|focus]] which means they center around a specific
+    * [[Point]]. This can be an [[Actor]] ([[BaseCamera.setActorToFollow]]) or a specific
+    * [[Point]] ([[BaseCamera.setFocus]]).
+    *
+    * If a camera is following an [[Actor]], it will ensure the [[Actor]] is always at the
+    * center of the screen. You can use [[BaseCamera.setFocus]] instead if you wish to
+    * offset the focal point.
+    *
+    * ## Camera Shake
+    *
+    * To add some fun effects to your game, the [[BaseCamera.shake]] method
+    * will do a random shake. This is great for explosions, damage, and other
+    * in-game effects.
+    *
+    * ## Camera Lerp
+    *
+    * "Lerp" is short for [Linear Interpolation](http://en.wikipedia.org/wiki/Linear_interpolation)
+    * and it enables the camera focus to move smoothly between two points using timing functions.
+    * Set [[BaseCamera.lerp]] to `true` to enable "lerping".
+    *
+    * ## Camera Zooming
+    *
+    * To adjust the zoom for your game, use [[BaseCamera.zoom]] which will scale the
+    * game accordingly. You can pass a duration to transition between zoom levels.
+    *
+    * ## Known Issues
+    *
+    * **Cameras do not support [[EasingFunctions]]**
+    * [Issue #320](https://github.com/excaliburjs/Excalibur/issues/320)
+    *
+    * Currently [[BaseCamera.lerp]] only supports `easeInOutCubic` but will support
+    * [[EasingFunctions|easing functions]] soon.
+    *
+    * **Actors following a path will wobble when camera is moving**
+    * [Issue #276](https://github.com/excaliburjs/Excalibur/issues/276)
+    *
+    */
+    class BaseCamera {
+        protected follow: Actor;
+        protected focus: Point;
+        protected lerp: boolean;
+        private _cameraMoving;
+        private _currentLerpTime;
+        private _lerpDuration;
+        private _totalLerpTime;
+        private _lerpStart;
+        private _lerpEnd;
+        protected isShaking: boolean;
+        private shakeMagnitudeX;
+        private shakeMagnitudeY;
+        private shakeDuration;
+        private elapsedShakeTime;
+        protected isZooming: boolean;
+        private currentZoomScale;
+        private maxZoomScale;
+        private zoomDuration;
+        private elapsedZoomTime;
+        private zoomIncrement;
+        private easeInOutCubic(currentTime, startValue, endValue, duration);
+        /**
+        * Sets the [[Actor]] to follow with the camera
+        * @param actor  The actor to follow
+        */
+        setActorToFollow(actor: Actor): void;
+        /**
+        * Returns the focal point of the camera
+        */
+        getFocus(): Point;
+        /**
+        * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
+        * @param x The x coordinate of the focal point
+        * @param y The y coordinate of the focal point
+        */
+        setFocus(x: number, y: number): void;
+        /**
+        * Sets the camera to shake at the specified magnitudes for the specified duration
+        * @param magnitudeX  The x magnitude of the shake
+        * @param magnitudeY  The y magnitude of the shake
+        * @param duration    The duration of the shake in milliseconds
+        */
+        shake(magnitudeX: number, magnitudeY: number, duration: number): void;
+        /**
+        * Zooms the camera in or out by the specified scale over the specified duration.
+        * If no duration is specified, it take effect immediately.
+        * @param scale    The scale of the zoom
+        * @param duration The duration of the zoom in milliseconds
+        */
+        zoom(scale: number, duration?: number): void;
+        /**
+        * Gets the current zoom scale
+        */
+        getZoom(): number;
+        private setCurrentZoomScale(zoomScale);
+        /**
+        * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
+        * @param delta  The number of milliseconds since the last update
+        */
+        update(ctx: CanvasRenderingContext2D, delta: number): void;
+        debugDraw(ctx: CanvasRenderingContext2D): void;
+        private isDoneShaking();
+        private isDoneZooming();
+    }
+    /**
+    * An extension of [[BaseCamera]] that is locked vertically; it will only move side to side.
+    *
+    * Common usages: platformers.
+    */
+    class SideCamera extends BaseCamera {
+        getFocus(): Point;
+    }
+    /**
+    * An extension of [[BaseCamera]] that is locked to an [[Actor]] or
+    * [[LockedCamera.focus|focal point]]; the actor will appear in the
+    * center of the screen.
+    *
+    * Common usages: RPGs, adventure games, top-down games.
+    */
+    class LockedCamera extends BaseCamera {
+        getFocus(): Point;
+    }
+}
+declare module ex {
     interface IActionable {
         actions: ActionContext;
     }
@@ -2305,6 +2146,384 @@ declare module ex {
          * is finished.
          */
         asPromise<T>(): Promise<T>;
+    }
+}
+declare module ex {
+    /**
+     * Grouping
+     *
+     * Groups are used for logically grouping Actors so they can be acted upon
+     * in bulk.
+     *
+     * @todo Document this
+     */
+    class Group extends Class implements IActionable {
+        name: string;
+        scene: Scene;
+        private _logger;
+        private _members;
+        actions: ActionContext;
+        constructor(name: string, scene: Scene);
+        add(actor: Actor): any;
+        add(actors: Actor[]): any;
+        remove(actor: Actor): void;
+        move(vector: Vector): void;
+        move(dx: number, dy: number): void;
+        rotate(angle: number): void;
+        on(eventName: string, handler: (event?: GameEvent) => void): void;
+        off(eventName: string, handler?: (event?: GameEvent) => void): void;
+        emit(topic: string, event?: GameEvent): void;
+        contains(actor: Actor): boolean;
+        getMembers(): Actor[];
+        getRandomMember(): Actor;
+        getBounds(): BoundingBox;
+    }
+}
+declare module ex {
+    class SortedList<T> {
+        private _getComparable;
+        private _root;
+        constructor(getComparable: () => any);
+        find(element: any): boolean;
+        private _find(node, element);
+        get(key: number): any[];
+        private _get(node, key);
+        add(element: any): boolean;
+        private _insert(node, element);
+        removeByComparable(element: any): void;
+        private _remove(node, element);
+        private _cleanup(node, element);
+        private _findMinNode(node);
+        list(): Array<T>;
+        private _list(treeNode, results);
+    }
+    class BinaryTreeNode {
+        private _key;
+        private _data;
+        private _left;
+        private _right;
+        constructor(key: number, data: Array<any>, left: BinaryTreeNode, right: BinaryTreeNode);
+        getKey(): number;
+        setKey(key: number): void;
+        getData(): Array<any>;
+        setData(data: any): void;
+        getLeft(): BinaryTreeNode;
+        setLeft(left: BinaryTreeNode): void;
+        getRight(): BinaryTreeNode;
+        setRight(right: BinaryTreeNode): void;
+    }
+    class MockedElement {
+        private _key;
+        constructor(key: number);
+        getTheKey(): number;
+        setKey(key: number): void;
+    }
+}
+declare module ex {
+    /**
+     * Scenes
+     *
+     * [[Actor|Actors]] are composed together into groupings called Scenes in
+     * Excalibur. The metaphor models the same idea behind real world
+     * actors in a scene. Only actors in scenes will be updated and drawn.
+     *
+     * Typical usages of a scene include: levels, menus, loading screens, etc.
+     *
+     * ## Adding actors to the scene
+     *
+     * For an [[Actor]] to be drawn and updated, it needs to be part of the "scene graph".
+     * The [[Engine]] provides several easy ways to quickly add/remove actors from the
+     * current scene.
+     *
+     * ```js
+     * var game   = new ex.Engine(...);
+     *
+     * var player = new ex.Actor();
+     * var enemy  = new ex.Actor();
+     *
+     * // add them to the "root" scene
+     *
+     * game.add(player);
+     * game.add(enemy);
+     *
+     * // start game
+     * game.start();
+     * ```
+     *
+     * You can also add actors to a [[Scene]] instance specifically.
+     *
+     * ```js
+     * var game   = new ex.Engine();
+     * var level1 = new ex.Scene();
+     *
+     * var player = new ex.Actor();
+     * var enemy  = new ex.Actor();
+     *
+     * // add actors to level1
+     * level1.add(player);
+     * level1.add(enemy);
+     *
+     * // add level1 to the game
+     * game.add("level1", level1);
+     *
+     * // start the game
+     * game.start();
+     *
+     * // after player clicks start game, for example
+     * game.goToScene("level1");
+     *
+     * ```
+     *
+     * ## Extending scenes
+     *
+     * For more complex games, you might want more control over a scene in which
+     * case you can extend [[Scene]]. This is useful for menus, custom loaders,
+     * and levels.
+     *
+     * Just use [[Engine.add]] to add a new scene to the game. You can then use
+     * [[Engine.goToScene]] to switch scenes which calls [[Scene.onActivate]] for the
+     * new scene and [[Scene.onDeactivate]] for the old scene. Use [[Scene.onInitialize]]
+     * to perform any start-up logic, which is called once.
+     *
+     * **TypeScript**
+     *
+     * ```ts
+     * class MainMenu extends ex.Scene {
+     *
+     *   // start-up logic, called once
+     *   public onInitialize(engine: ex.Engine) { }
+     *
+     *   // each time the scene is entered (Engine.goToScene)
+     *   public onActivate() { }
+     *
+     *   // each time the scene is exited (Engine.goToScene)
+     *   public onDeactivate() { }
+     * }
+     *
+     * // add to game and activate it
+     * game.add("mainmenu", new MainMenu());
+     * game.goToScene("mainmenu");
+     * ```
+     *
+     * **Javascript**
+     *
+     * ```js
+     * var MainMenu = ex.Scene.extend({
+     *   // start-up logic, called once
+     *   onInitialize: function (engine) { },
+     *
+     *   // each time the scene is activated by Engine.goToScene
+     *   onActivate: function () { },
+     *
+     *   // each time the scene is deactivated by Engine.goToScene
+     *   onDeactivate: function () { }
+     * });
+     *
+     * game.add("mainmenu", new MainMenu());
+     * game.goToScene("mainmenu");
+     * ```
+     *
+     * ## Scene camera
+     *
+     * By default, a [[Scene]] is initialized with a [[BaseCamera]] which
+     * does not move and centers the game world.
+     *
+     * Learn more about [[BaseCamera|Cameras]] and how to modify them to suit
+     * your game.
+     */
+    class Scene extends ex.Class {
+        /**
+         * The actor this scene is attached to, if any
+         */
+        actor: Actor;
+        /**
+         * Gets or sets the current camera for the scene
+         */
+        camera: BaseCamera;
+        /**
+         * The actors in the current scene
+         */
+        children: Actor[];
+        /**
+         * The [[TileMap]]s in the scene, if any
+         */
+        tileMaps: TileMap[];
+        /**
+         * The [[Group]]s in the scene, if any
+         */
+        groups: {
+            [key: string]: Group;
+        };
+        /**
+         * Access to the Excalibur engine
+         */
+        engine: Engine;
+        /**
+         * The [[UIActor]]s in a scene, if any; these are drawn last
+         */
+        uiActors: Actor[];
+        /**
+         * Whether or the [[Scene]] has been initialized
+         */
+        isInitialized: boolean;
+        private _sortedDrawingTree;
+        private _collisionResolver;
+        private _killQueue;
+        private _timers;
+        private _cancelQueue;
+        private _logger;
+        constructor(engine?: Engine);
+        /**
+         * This is called before the first update of the [[Scene]]. Initializes scene members like the camera. This method is meant to be
+         * overridden. This is where initialization of child actors should take place.
+         */
+        onInitialize(engine: Engine): void;
+        /**
+         * This is called when the scene is made active and started. It is meant to be overriden,
+         * this is where you should setup any DOM UI or event handlers needed for the scene.
+         */
+        onActivate(): void;
+        /**
+         * This is called when the scene is made transitioned away from and stopped. It is meant to be overriden,
+         * this is where you should cleanup any DOM UI or event handlers needed for the scene.
+         */
+        onDeactivate(): void;
+        /**
+         * Publish an event to all actors in the scene
+         * @param eventType  The name of the event to publish
+         * @param event      The event object to send
+         */
+        publish(eventType: string, event: GameEvent): void;
+        /**
+         * Updates all the actors and timers in the scene. Called by the [[Engine]].
+         * @param engine  Reference to the current Engine
+         * @param delta   The number of milliseconds since the last update
+         */
+        update(engine: Engine, delta: number): void;
+        /**
+         * Draws all the actors in the Scene. Called by the [[Engine]].
+         * @param ctx    The current rendering context
+         * @param delta  The number of milliseconds since the last draw
+         */
+        draw(ctx: CanvasRenderingContext2D, delta: number): void;
+        /**
+         * Draws all the actors' debug information in the Scene. Called by the [[Engine]].
+         * @param ctx  The current rendering context
+         */
+        debugDraw(ctx: CanvasRenderingContext2D): void;
+        /**
+         * Checks whether an actor is contained in this scene or not
+         */
+        contains(actor: Actor): boolean;
+        /**
+         * Adds a [[Timer]] to the current scene.
+         * @param timer  The timer to add to the current scene.
+         */
+        add(timer: Timer): void;
+        /**
+         * Adds a [[TileMap]] to the Scene, once this is done the TileMap will be drawn and updated.
+         */
+        add(tileMap: TileMap): void;
+        /**
+         * Adds an actor to the scene, once this is done the [[Actor]] will be drawn and updated.
+         * @param actor  The actor to add to the current scene
+         */
+        add(actor: Actor): void;
+        /**
+         * Adds a [[UIActor]] to the scene.
+         * @param uiActor  The UIActor to add to the current scene
+         */
+        add(uiActor: UIActor): void;
+        /**
+          * Removes a [[Timer]] from the current scene, it will no longer be updated.
+          * @param timer  The timer to remove to the current scene.
+          */
+        remove(timer: Timer): void;
+        /**
+         * Removes a [[TileMap]] from the scene, it will no longer be drawn or updated.
+         * @param tileMap {TileMap}
+         */
+        remove(tileMap: TileMap): void;
+        /**
+         * Removes an actor from the scene, it will no longer be drawn or updated.
+         * @param actor  The actor to remove from the current scene.
+         */
+        remove(actor: Actor): void;
+        /**
+         * Removes a [[UIActor]] to the scene, it will no longer be drawn or updated
+         * @param uiActor  The UIActor to remove from the current scene
+         */
+        remove(uiActor: UIActor): void;
+        /**
+         * Adds (any) actor to act as a piece of UI, meaning it is always positioned
+         * in screen coordinates. UI actors do not participate in collisions.
+         * @todo Should this be `UIActor` only?
+         */
+        addUIActor(actor: Actor): void;
+        /**
+         * Removes an actor as a piece of UI
+         */
+        removeUIActor(actor: Actor): void;
+        /**
+         * Adds an actor to the scene, once this is done the actor will be drawn and updated.
+         */
+        addChild(actor: Actor): void;
+        /**
+         * Adds a [[TileMap]] to the scene, once this is done the TileMap will be drawn and updated.
+         */
+        addTileMap(tileMap: TileMap): void;
+        /**
+         * Removes a [[TileMap]] from the scene, it will no longer be drawn or updated.
+         */
+        removeTileMap(tileMap: TileMap): void;
+        /**
+         * Removes an actor from the scene, it will no longer be drawn or updated.
+         */
+        removeChild(actor: Actor): void;
+        /**
+         * Adds a [[Timer]] to the scene
+         * @param timer  The timer to add
+         */
+        addTimer(timer: Timer): Timer;
+        /**
+         * Removes a [[Timer]] from the scene.
+         * @warning Can be dangerous, use [[cancelTimer]] instead
+         * @param timer  The timer to remove
+         */
+        removeTimer(timer: Timer): Timer;
+        /**
+         * Cancels a [[Timer]], removing it from the scene nicely
+         * @param timer  The timer to cancel
+         */
+        cancelTimer(timer: Timer): Timer;
+        /**
+         * Tests whether a [[Timer]] is active in the scene
+         */
+        isTimerActive(timer: Timer): boolean;
+        /**
+         * Creates and adds a [[Group]] to the scene with a name
+         */
+        createGroup(name: string): Group;
+        /**
+         * Returns a [[Group]] by name
+         */
+        getGroup(name: string): Group;
+        /**
+         * Removes a [[Group]] by name
+         */
+        removeGroup(name: string): void;
+        /**
+         * Removes a [[Group]] by reference
+         */
+        removeGroup(group: Group): void;
+        /**
+         * Removes the given actor from the sorted drawing tree
+         */
+        cleanupDrawTree(actor: ex.Actor): void;
+        /**
+         * Updates the given actor's position in the sorted drawing tree
+         */
+        updateDrawTree(actor: ex.Actor): void;
     }
 }
 declare module ex {
@@ -3114,606 +3333,599 @@ declare module ex {
     }
 }
 declare module ex {
-    interface ICollisionResolver {
-        register(target: Actor): any;
-        remove(tartet: Actor): any;
-        evaluate(targets: Actor[]): CollisionPair[];
-        update(targets: Actor[]): number;
-        debugDraw(ctx: any, delta: any): void;
+    /**
+     * Logging level that Excalibur will tag
+     */
+    enum LogLevel {
+        Debug = 0,
+        Info = 1,
+        Warn = 2,
+        Error = 3,
+        Fatal = 4,
     }
-}
-declare module ex {
-    class NaiveCollisionResolver implements ICollisionResolver {
+    /**
+     * Static singleton that represents the logging facility for Excalibur.
+     * Excalibur comes built-in with a [[ConsoleAppender]] and [[ScreenAppender]].
+     * Derive from [[IAppender]] to create your own logging appenders.
+     *
+     * ## Example: Logging
+     *
+     * ```js
+     * // set default log level (default: Info)
+     * ex.Logger.getInstance().defaultLevel = ex.LogLevel.Warn;
+     *
+     * // this will not be shown because it is below Warn
+     * ex.Logger.getInstance().info("This will be logged as Info");
+     * // this will show because it is Warn
+     * ex.Logger.getInstance().warn("This will be logged as Warn");
+     * // this will show because it is above Warn
+     * ex.Logger.getInstance().error("This will be logged as Error");
+     * // this will show because it is above Warn
+     * ex.Logger.getInstance().fatal("This will be logged as Fatal");
+     * ```
+     */
+    class Logger {
+        private static _instance;
+        private appenders;
         constructor();
-        register(target: Actor): void;
-        remove(tartet: Actor): void;
-        evaluate(targets: Actor[]): CollisionPair[];
-        update(targets: Actor[]): number;
-        debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
+        /**
+         * Gets or sets the default logging level. Excalibur will only log
+         * messages if equal to or above this level. Default: [[LogLevel.Info]]
+         */
+        defaultLevel: LogLevel;
+        /**
+         * Gets the current static instance of Logger
+         */
+        static getInstance(): Logger;
+        /**
+         * Adds a new [[IAppender]] to the list of appenders to write to
+         */
+        addAppender(appender: IAppender): void;
+        /**
+         * Clears all appenders from the logger
+         */
+        clearAppenders(): void;
+        /**
+         * Logs a message at a given LogLevel
+         * @param level  The LogLevel`to log the message at
+         * @param args   An array of arguments to write to an appender
+         */
+        private _log(level, args);
+        /**
+         * Writes a log message at the [[LogLevel.Debug]] level
+         * @param args  Accepts any number of arguments
+         */
+        debug(...args: any[]): void;
+        /**
+         * Writes a log message at the [[LogLevel.Info]] level
+         * @param args  Accepts any number of arguments
+         */
+        info(...args: any[]): void;
+        /**
+         * Writes a log message at the [[LogLevel.Warn]] level
+         * @param args  Accepts any number of arguments
+         */
+        warn(...args: any[]): void;
+        /**
+         * Writes a log message at the [[LogLevel.Error]] level
+         * @param args  Accepts any number of arguments
+         */
+        error(...args: any[]): void;
+        /**
+         * Writes a log message at the [[LogLevel.Fatal]] level
+         * @param args  Accepts any number of arguments
+         */
+        fatal(...args: any[]): void;
     }
-}
-declare module ex {
-    class TreeNode {
-        parent: any;
-        left: TreeNode;
-        right: TreeNode;
-        bounds: BoundingBox;
-        height: number;
-        actor: Actor;
-        constructor(parent?: any);
-        isLeaf(): boolean;
+    /**
+     * Contract for any log appender (such as console/screen)
+     */
+    interface IAppender {
+        /**
+         * Logs a message at the given [[LogLevel]]
+         * @param level  Level to log at
+         * @param args   Arguments to log
+         */
+        log(level: LogLevel, args: any[]): void;
     }
-    class DynamicTree {
-        root: TreeNode;
-        nodes: {
-            [key: number]: TreeNode;
-        };
-        constructor();
-        insert(leaf: TreeNode): void;
-        remove(leaf: TreeNode): void;
-        registerActor(actor: Actor): void;
-        updateActor(actor: Actor): boolean;
-        removeActor(actor: Actor): void;
-        balance(node: TreeNode): TreeNode;
-        getHeight(): number;
-        query(actor: Actor, callback: (other: Actor) => boolean): void;
-        rayCast(ray: Ray, max: any): Actor;
-        getNodes(): TreeNode[];
-        debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
+    /**
+     * Console appender for browsers (i.e. `console.log`)
+     */
+    class ConsoleAppender implements IAppender {
+        /**
+         * Logs a message at the given [[LogLevel]]
+         * @param level  Level to log at
+         * @param args   Arguments to log
+         */
+        log(level: LogLevel, args: any[]): void;
     }
-}
-declare module ex {
-    class DynamicTreeCollisionResolver implements ICollisionResolver {
-        private _dynamicCollisionTree;
-        constructor();
-        register(target: Actor): void;
-        remove(target: Actor): void;
-        evaluate(targets: Actor[]): CollisionPair[];
-        update(targets: Actor[]): number;
-        debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
+    /**
+     * On-screen (canvas) appender
+     */
+    class ScreenAppender implements IAppender {
+        private _messages;
+        private canvas;
+        private ctx;
+        /**
+         * @param width   Width of the screen appender in pixels
+         * @param height  Height of the screen appender in pixels
+         */
+        constructor(width?: number, height?: number);
+        /**
+         * Logs a message at the given [[LogLevel]]
+         * @param level  Level to log at
+         * @param args   Arguments to log
+         */
+        log(level: LogLevel, args: any[]): void;
     }
 }
 declare module ex {
     /**
-     * Collision pairs are used internally by Excalibur to resolve collision between actors. The
-     * Pair prevents collisions from being evaluated more than one time
+     * An enum representing all of the built in event types for Excalibur
+     * @obsolete Phasing this out in favor of classes
      */
-    class CollisionPair {
-        left: Actor;
-        right: Actor;
-        intersect: Vector;
+    enum EventType {
+        Collision = 0,
+        EnterViewPort = 1,
+        ExitViewPort = 2,
+        Blur = 3,
+        Focus = 4,
+        Update = 5,
+        Activate = 6,
+        Deactivate = 7,
+        Initialize = 8,
+    }
+    /**
+     * Base event type in Excalibur that all other event types derive from.
+     */
+    class GameEvent {
+        /**
+         * Target object for this event.
+         */
+        target: any;
+        constructor();
+    }
+    /**
+     * Subscribe event thrown when handlers for events other than subscribe are added
+     */
+    class SubscribeEvent extends GameEvent {
+        topic: string;
+        handler: (event?: GameEvent) => void;
+        constructor(topic: string, handler: (event?: GameEvent) => void);
+    }
+    /**
+     * Unsubscribe event thrown when handlers for events other than unsubscribe are removed
+     */
+    class UnsubscribeEvent extends GameEvent {
+        topic: string;
+        handler: (event?: GameEvent) => void;
+        constructor(topic: string, handler: (event?: GameEvent) => void);
+    }
+    /**
+     * Event received by the Engine when the browser window is visible
+     */
+    class VisibleEvent extends GameEvent {
+        constructor();
+    }
+    /**
+     * Event received by the Engine when the browser window is hidden
+     */
+    class HiddenEvent extends GameEvent {
+        constructor();
+    }
+    /**
+     * Event thrown on an actor when a collision has occured
+     */
+    class CollisionEvent extends GameEvent {
+        actor: Actor;
+        other: Actor;
         side: Side;
+        intersection: Vector;
         /**
-         * @param left       The first actor in the collision pair
-         * @param right      The second actor in the collision pair
-         * @param intersect  The minimum translation vector to separate the actors from the perspective of the left actor
-         * @param side       The side on which the collision occured from the perspective of the left actor
+         * @param actor  The actor the event was thrown on
+         * @param other  The actor that was collided with
+         * @param side   The side that was collided with
          */
-        constructor(left: Actor, right: Actor, intersect: Vector, side: Side);
-        /**
-         * Determines if this collision pair and another are equivalent.
-         */
-        equals(collisionPair: CollisionPair): boolean;
-        /**
-         * Evaluates the collision pair, performing collision resolution and event publishing appropriate to each collision type.
-         */
-        evaluate(): void;
-    }
-}
-declare module ex {
-    /**
-    * Cameras
-    *
-    * [[BaseCamera]] is the base class for all Excalibur cameras. Cameras are used
-    * to move around your game and set focus. They are used to determine
-    * what is "off screen" and can be used to scale the game.
-    *
-    * Excalibur comes with a [[LockedCamera]] and a [[SideCamera]], depending on
-    * your game needs.
-    *
-    * Cameras are attached to [[Scene|Scenes]] and can be changed by
-    * setting [[Scene.camera]]. By default, a [[Scene]] is initialized with a
-    * [[BaseCamera]] that doesn't move and is centered on the screen.
-    *
-    * ## Focus
-    *
-    * Cameras have a [[BaseCamera.focus|focus]] which means they center around a specific
-    * [[Point]]. This can be an [[Actor]] ([[BaseCamera.setActorToFollow]]) or a specific
-    * [[Point]] ([[BaseCamera.setFocus]]).
-    *
-    * If a camera is following an [[Actor]], it will ensure the [[Actor]] is always at the
-    * center of the screen. You can use [[BaseCamera.setFocus]] instead if you wish to
-    * offset the focal point.
-    *
-    * ## Camera Shake
-    *
-    * To add some fun effects to your game, the [[BaseCamera.shake]] method
-    * will do a random shake. This is great for explosions, damage, and other
-    * in-game effects.
-    *
-    * ## Camera Lerp
-    *
-    * "Lerp" is short for [Linear Interpolation](http://en.wikipedia.org/wiki/Linear_interpolation)
-    * and it enables the camera focus to move smoothly between two points using timing functions.
-    * Set [[BaseCamera.lerp]] to `true` to enable "lerping".
-    *
-    * ## Camera Zooming
-    *
-    * To adjust the zoom for your game, use [[BaseCamera.zoom]] which will scale the
-    * game accordingly. You can pass a duration to transition between zoom levels.
-    *
-    * ## Known Issues
-    *
-    * **Cameras do not support [[EasingFunctions]]**
-    * [Issue #320](https://github.com/excaliburjs/Excalibur/issues/320)
-    *
-    * Currently [[BaseCamera.lerp]] only supports `easeInOutCubic` but will support
-    * [[EasingFunctions|easing functions]] soon.
-    *
-    * **Actors following a path will wobble when camera is moving**
-    * [Issue #276](https://github.com/excaliburjs/Excalibur/issues/276)
-    *
-    */
-    class BaseCamera {
-        protected follow: Actor;
-        protected focus: Point;
-        protected lerp: boolean;
-        private _cameraMoving;
-        private _currentLerpTime;
-        private _lerpDuration;
-        private _totalLerpTime;
-        private _lerpStart;
-        private _lerpEnd;
-        protected isShaking: boolean;
-        private shakeMagnitudeX;
-        private shakeMagnitudeY;
-        private shakeDuration;
-        private elapsedShakeTime;
-        protected isZooming: boolean;
-        private currentZoomScale;
-        private maxZoomScale;
-        private zoomDuration;
-        private elapsedZoomTime;
-        private zoomIncrement;
-        private easeInOutCubic(currentTime, startValue, endValue, duration);
-        /**
-        * Sets the [[Actor]] to follow with the camera
-        * @param actor  The actor to follow
-        */
-        setActorToFollow(actor: Actor): void;
-        /**
-        * Returns the focal point of the camera
-        */
-        getFocus(): Point;
-        /**
-        * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
-        * @param x The x coordinate of the focal point
-        * @param y The y coordinate of the focal point
-        */
-        setFocus(x: number, y: number): void;
-        /**
-        * Sets the camera to shake at the specified magnitudes for the specified duration
-        * @param magnitudeX  The x magnitude of the shake
-        * @param magnitudeY  The y magnitude of the shake
-        * @param duration    The duration of the shake in milliseconds
-        */
-        shake(magnitudeX: number, magnitudeY: number, duration: number): void;
-        /**
-        * Zooms the camera in or out by the specified scale over the specified duration.
-        * If no duration is specified, it take effect immediately.
-        * @param scale    The scale of the zoom
-        * @param duration The duration of the zoom in milliseconds
-        */
-        zoom(scale: number, duration?: number): void;
-        /**
-        * Gets the current zoom scale
-        */
-        getZoom(): number;
-        private setCurrentZoomScale(zoomScale);
-        /**
-        * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
-        * @param delta  The number of milliseconds since the last update
-        */
-        update(ctx: CanvasRenderingContext2D, delta: number): void;
-        debugDraw(ctx: CanvasRenderingContext2D): void;
-        private isDoneShaking();
-        private isDoneZooming();
+        constructor(actor: Actor, other: Actor, side: Side, intersection: Vector);
     }
     /**
-    * An extension of [[BaseCamera]] that is locked vertically; it will only move side to side.
-    *
-    * Common usages: platformers.
-    */
-    class SideCamera extends BaseCamera {
-        getFocus(): Point;
-    }
-    /**
-    * An extension of [[BaseCamera]] that is locked to an [[Actor]] or
-    * [[LockedCamera.focus|focal point]]; the actor will appear in the
-    * center of the screen.
-    *
-    * Common usages: RPGs, adventure games, top-down games.
-    */
-    class LockedCamera extends BaseCamera {
-        getFocus(): Point;
-    }
-}
-declare module ex {
-    /**
-     * Grouping
-     *
-     * Groups are used for logically grouping Actors so they can be acted upon
-     * in bulk.
-     *
-     * @todo Document this
+     * Event thrown on a game object on Excalibur update
      */
-    class Group extends Class implements IActionable {
-        name: string;
-        scene: Scene;
-        private _logger;
-        private _members;
-        actions: ActionContext;
-        constructor(name: string, scene: Scene);
-        add(actor: Actor): any;
-        add(actors: Actor[]): any;
-        remove(actor: Actor): void;
-        move(vector: Vector): void;
-        move(dx: number, dy: number): void;
-        rotate(angle: number): void;
-        on(eventName: string, handler: (event?: GameEvent) => void): void;
-        off(eventName: string, handler?: (event?: GameEvent) => void): void;
-        emit(topic: string, event?: GameEvent): void;
-        contains(actor: Actor): boolean;
-        getMembers(): Actor[];
-        getRandomMember(): Actor;
-        getBounds(): BoundingBox;
+    class UpdateEvent extends GameEvent {
+        delta: number;
+        /**
+         * @param delta  The number of milliseconds since the last update
+         */
+        constructor(delta: number);
     }
-}
-declare module ex {
-    class SortedList<T> {
-        private _getComparable;
-        private _root;
-        constructor(getComparable: () => any);
-        find(element: any): boolean;
-        private _find(node, element);
-        get(key: number): any[];
-        private _get(node, key);
-        add(element: any): boolean;
-        private _insert(node, element);
-        removeByComparable(element: any): void;
-        private _remove(node, element);
-        private _cleanup(node, element);
-        private _findMinNode(node);
-        list(): Array<T>;
-        private _list(treeNode, results);
-    }
-    class BinaryTreeNode {
-        private _key;
-        private _data;
-        private _left;
-        private _right;
-        constructor(key: number, data: Array<any>, left: BinaryTreeNode, right: BinaryTreeNode);
-        getKey(): number;
-        setKey(key: number): void;
-        getData(): Array<any>;
-        setData(data: any): void;
-        getLeft(): BinaryTreeNode;
-        setLeft(left: BinaryTreeNode): void;
-        getRight(): BinaryTreeNode;
-        setRight(right: BinaryTreeNode): void;
-    }
-    class MockedElement {
-        private _key;
-        constructor(key: number);
-        getTheKey(): number;
-        setKey(key: number): void;
-    }
-}
-declare module ex {
     /**
-     * Scenes
-     *
-     * [[Actor|Actors]] are composed together into groupings called Scenes in
-     * Excalibur. The metaphor models the same idea behind real world
-     * actors in a scene. Only actors in scenes will be updated and drawn.
-     *
-     * Typical usages of a scene include: levels, menus, loading screens, etc.
-     *
-     * ## Adding actors to the scene
-     *
-     * For an [[Actor]] to be drawn and updated, it needs to be part of the "scene graph".
-     * The [[Engine]] provides several easy ways to quickly add/remove actors from the
-     * current scene.
-     *
-     * ```js
-     * var game   = new ex.Engine(...);
-     *
-     * var player = new ex.Actor();
-     * var enemy  = new ex.Actor();
-     *
-     * // add them to the "root" scene
-     *
-     * game.add(player);
-     * game.add(enemy);
-     *
-     * // start game
-     * game.start();
-     * ```
-     *
-     * You can also add actors to a [[Scene]] instance specifically.
-     *
-     * ```js
-     * var game   = new ex.Engine();
-     * var level1 = new ex.Scene();
-     *
-     * var player = new ex.Actor();
-     * var enemy  = new ex.Actor();
-     *
-     * // add actors to level1
-     * level1.add(player);
-     * level1.add(enemy);
-     *
-     * // add level1 to the game
-     * game.add("level1", level1);
-     *
-     * // start the game
-     * game.start();
-     *
-     * // after player clicks start game, for example
-     * game.goToScene("level1");
-     *
-     * ```
-     *
-     * ## Extending scenes
-     *
-     * For more complex games, you might want more control over a scene in which
-     * case you can extend [[Scene]]. This is useful for menus, custom loaders,
-     * and levels.
-     *
-     * Just use [[Engine.add]] to add a new scene to the game. You can then use
-     * [[Engine.goToScene]] to switch scenes which calls [[Scene.onActivate]] for the
-     * new scene and [[Scene.onDeactivate]] for the old scene. Use [[Scene.onInitialize]]
-     * to perform any start-up logic, which is called once.
-     *
-     * **TypeScript**
-     *
-     * ```ts
-     * class MainMenu extends ex.Scene {
-     *
-     *   // start-up logic, called once
-     *   public onInitialize(engine: ex.Engine) { }
-     *
-     *   // each time the scene is entered (Engine.goToScene)
-     *   public onActivate() { }
-     *
-     *   // each time the scene is exited (Engine.goToScene)
-     *   public onDeactivate() { }
-     * }
-     *
-     * // add to game and activate it
-     * game.add("mainmenu", new MainMenu());
-     * game.goToScene("mainmenu");
-     * ```
-     *
-     * **Javascript**
-     *
-     * ```js
-     * var MainMenu = ex.Scene.extend({
-     *   // start-up logic, called once
-     *   onInitialize: function (engine) { },
-     *
-     *   // each time the scene is activated by Engine.goToScene
-     *   onActivate: function () { },
-     *
-     *   // each time the scene is deactivated by Engine.goToScene
-     *   onDeactivate: function () { }
-     * });
-     *
-     * game.add("mainmenu", new MainMenu());
-     * game.goToScene("mainmenu");
-     * ```
-     *
-     * ## Scene camera
-     *
-     * By default, a [[Scene]] is initialized with a [[BaseCamera]] which
-     * does not move and centers the game world.
-     *
-     * Learn more about [[BaseCamera|Cameras]] and how to modify them to suit
-     * your game.
+     * Event thrown on an Actor only once before the first update call
      */
-    class Scene extends ex.Class {
-        /**
-         * The actor this scene is attached to, if any
-         */
-        actor: Actor;
-        /**
-         * Gets or sets the current camera for the scene
-         */
-        camera: BaseCamera;
-        /**
-         * The actors in the current scene
-         */
-        children: Actor[];
-        /**
-         * The [[TileMap]]s in the scene, if any
-         */
-        tileMaps: TileMap[];
-        /**
-         * The [[Group]]s in the scene, if any
-         */
-        groups: {
-            [key: string]: Group;
-        };
-        /**
-         * Access to the Excalibur engine
-         */
+    class InitializeEvent extends GameEvent {
         engine: Engine;
         /**
-         * The [[UIActor]]s in a scene, if any; these are drawn last
+         * @param engine  The reference to the current engine
          */
-        uiActors: Actor[];
+        constructor(engine: Engine);
+    }
+    /**
+     * Event thrown on a Scene on activation
+     */
+    class ActivateEvent extends GameEvent {
+        oldScene: Scene;
         /**
-         * Whether or the [[Scene]] has been initialized
+         * @param oldScene  The reference to the old scene
          */
-        isInitialized: boolean;
-        private _sortedDrawingTree;
-        private _collisionResolver;
-        private _killQueue;
-        private _timers;
-        private _cancelQueue;
-        private _logger;
-        constructor(engine?: Engine);
+        constructor(oldScene: Scene);
+    }
+    /**
+     * Event thrown on a Scene on deactivation
+     */
+    class DeactivateEvent extends GameEvent {
+        newScene: Scene;
         /**
-         * This is called before the first update of the [[Scene]]. This method is meant to be
-         * overridden. This is where initialization of child actors should take place.
+         * @param newScene  The reference to the new scene
          */
-        onInitialize(engine: Engine): void;
+        constructor(newScene: Scene);
+    }
+    /**
+     * Event thrown on an Actor when it completely leaves the screen.
+     */
+    class ExitViewPortEvent extends GameEvent {
+        constructor();
+    }
+    /**
+     * Event thrown on an Actor when it completely leaves the screen.
+     */
+    class EnterViewPortEvent extends GameEvent {
+        constructor();
+    }
+}
+declare module ex {
+    /**
+     * Excalibur's internal event dispatcher implementation.
+     * Callbacks are fired immediately after an event is published.
+     * Typically you'd use [[Class.eventDispatcher]] since most classes in
+     * Excalibur inherit from [[Class]]. You'd rarely create an `EventDispatcher`
+     * yourself.
+     *
+     * When working with events, be sure to keep in mind the order of subscriptions
+     * and try not to create a situation that requires specific things to happen in
+     * order. Events are best used for input events, tying together disparate objects,
+     * or for UI updates.
+     *
+     * ## Example: Actor events
+     *
+     * Actors implement an EventDispatcher ([[Actor.eventDispatcher]]) so they can
+     * send and receive events. For example, they can enable Pointer events (mouse/touch)
+     * and you can respond to them by subscribing to the event names.
+     *
+     * You can also emit any other kind of event for your game just by using a custom
+     * `string` value and implementing a class that inherits from [[GameEvent]].
+     *
+     * ```js
+     * var player = new ex.Actor(...);
+     *
+     * // Enable pointer events for this actor
+     * player.enableCapturePointer = true;
+     *
+     * // subscribe to pointerdown event
+     * player.on("pointerdown", function (evt: ex.Input.PointerEvent) {
+     *   console.log("Player was clicked!");
+     * });
+     *
+     * // turn off subscription
+     * player.off("pointerdown");
+     *
+     * // subscribe to custom event
+     * player.on("death", function (evt) {
+     *   console.log("Player died:", evt);
+     * });
+     *
+     * // trigger custom event
+     * player.triggerEvent("death", new DeathEvent());
+     *
+     * ```
+     *
+     * ## Example: Pub/Sub with Excalibur
+     *
+     * You can also create an EventDispatcher for any arbitrary object, for example
+     * a global game event aggregator (`vent`). Anything in your game can subscribe to
+     * it, if the event aggregator is in the global scope.
+     *
+     * *Warning:* This can easily get out of hand. Avoid this usage, it just serves as
+     * an example.
+     *
+     * ```js
+     * // create a publisher on an empty object
+     * var vent = new ex.EventDispatcher({});
+     *
+     * // handler for an event
+     * var subscription = function (event) {
+     *   console.log(event);
+     * }
+     *
+     * // add a subscription
+     * vent.subscribe("someevent", subscription);
+     *
+     * // publish an event somewhere in the game
+     * vent.publish("someevent", new ex.GameEvent());
+     * ```
+     */
+    class EventDispatcher {
+        private _handlers;
+        private _wiredEventDispatchers;
+        private _target;
+        private _log;
         /**
-         * This is called when the scene is made active and started. It is meant to be overriden,
-         * this is where you should setup any DOM UI or event handlers needed for the scene.
+         * @param target  The object that will be the recipient of events from this event dispatcher
          */
-        onActivate(): void;
+        constructor(target: any);
         /**
-         * This is called when the scene is made transitioned away from and stopped. It is meant to be overriden,
-         * this is where you should cleanup any DOM UI or event handlers needed for the scene.
+         * Publish an event for target
+         * @param eventName  The name of the event to publish
+         * @param event      Optionally pass an event data object to the handler
          */
-        onDeactivate(): void;
+        publish(eventName: string, event?: GameEvent): void;
         /**
-         * Publish an event to all actors in the scene
-         * @param eventType  The name of the event to publish
-         * @param event      The event object to send
+         * Alias for [[publish]], publishes an event for target
+         * @param eventName  The name of the event to publish
+         * @param event      Optionally pass an event data object to the handler
          */
-        publish(eventType: string, event: GameEvent): void;
+        emit(eventName: string, event?: GameEvent): void;
         /**
-         * Updates all the actors and timers in the scene. Called by the [[Engine]].
-         * @param engine  Reference to the current Engine
-         * @param delta   The number of milliseconds since the last update
+         * Subscribe an event handler to a particular event name, multiple handlers per event name are allowed.
+         * @param eventName  The name of the event to subscribe to
+         * @param handler    The handler callback to fire on this event
          */
-        update(engine: Engine, delta: number): void;
+        subscribe(eventName: string, handler: (event?: GameEvent) => void): void;
         /**
-         * Draws all the actors in the Scene. Called by the [[Engine]].
-         * @param ctx    The current rendering context
-         * @param delta  The number of milliseconds since the last draw
+         * Unsubscribe an event handler(s) from an event. If a specific handler
+         * is specified for an event, only that handler will be unsubscribed.
+         * Otherwise all handlers will be unsubscribed for that event.
+         *
+         * @param eventName  The name of the event to unsubscribe
+         * @param handler    Optionally the specific handler to unsubscribe
+         *
          */
-        draw(ctx: CanvasRenderingContext2D, delta: number): void;
+        unsubscribe(eventName: string, handler?: (event?: GameEvent) => void): void;
         /**
-         * Draws all the actors' debug information in the Scene. Called by the [[Engine]].
-         * @param ctx  The current rendering context
+         * Wires this event dispatcher to also recieve events from another
          */
-        debugDraw(ctx: CanvasRenderingContext2D): void;
+        wire(eventDispatcher: EventDispatcher): void;
         /**
-         * Checks whether an actor is contained in this scene or not
+         * Unwires this event dispatcher from another
          */
-        contains(actor: Actor): boolean;
+        unwire(eventDispatcher: EventDispatcher): void;
+    }
+}
+declare module ex {
+    /**
+     * Provides standard colors (e.g. [[Color.Black]])
+     * but you can also create custom colors using RGB, HSL, or Hex. Also provides
+     * useful color operations like [[Color.lighten]], [[Color.darken]], and more.
+     *
+     * ## Creating colors
+     *
+     * ```js
+     * // RGBA
+     * new ex.Color(r, g, b, a);
+     * ex.Color.fromRGB(r, g, b, a);
+     *
+     * // HSLA
+     * ex.Color.fromHSL(h, s, l, a);
+     *
+     * // Hex, alpha optional
+     * ex.Color.fromHex("#000000");
+     * ex.Color.fromHex("#000000FF");
+     * ```
+     *
+     * ## Working with colors
+     *
+     * Since Javascript does not support structs, if you change a color "constant" like [[Color.Black]]
+     * it will change it across the entire game. You can safely use the color operations
+     * like [[Color.lighten]] and [[Color.darken]] because they `clone` the color to
+     * return a new color. However, be aware that this can use up memory if used excessively.
+     *
+     * Just be aware that if you directly alter properties (i.e. [[Color.r]], etc.) , this will change it
+     * for all the code that uses that instance of Color.
+     */
+    class Color {
         /**
-         * Adds a [[Timer]] to the current scene.
-         * @param timer  The timer to add to the current scene.
+         * Black (#000000)
          */
-        add(timer: Timer): void;
+        static Black: Color;
         /**
-         * Adds a [[TileMap]] to the Scene, once this is done the TileMap will be drawn and updated.
+         * White (#FFFFFF)
          */
-        add(tileMap: TileMap): void;
+        static White: Color;
         /**
-         * Adds an actor to the scene, once this is done the [[Actor]] will be drawn and updated.
-         * @param actor  The actor to add to the current scene
+         * Gray (#808080)
          */
-        add(actor: Actor): void;
+        static Gray: Color;
         /**
-         * Adds a [[UIActor]] to the scene.
-         * @param uiActor  The UIActor to add to the current scene
+         * Light gray (#D3D3D3)
          */
-        add(uiActor: UIActor): void;
+        static LightGray: Color;
         /**
-          * Removes a [[Timer]] from the current scene, it will no longer be updated.
-          * @param timer  The timer to remove to the current scene.
-          */
-        remove(timer: Timer): void;
-        /**
-         * Removes a [[TileMap]] from the scene, it will no longer be drawn or updated.
-         * @param tileMap {TileMap}
+         * Dark gray (#A9A9A9)
          */
-        remove(tileMap: TileMap): void;
+        static DarkGray: Color;
         /**
-         * Removes an actor from the scene, it will no longer be drawn or updated.
-         * @param actor  The actor to remove from the current scene.
+         * Yellow (#FFFF00)
          */
-        remove(actor: Actor): void;
+        static Yellow: Color;
         /**
-         * Removes a [[UIActor]] to the scene, it will no longer be drawn or updated
-         * @param uiActor  The UIActor to remove from the current scene
+         * Orange (#FFA500)
          */
-        remove(uiActor: UIActor): void;
+        static Orange: Color;
         /**
-         * Adds (any) actor to act as a piece of UI, meaning it is always positioned
-         * in screen coordinates. UI actors do not participate in collisions.
-         * @todo Should this be `UIActor` only?
+         * Red (#FF0000)
          */
-        addUIActor(actor: Actor): void;
+        static Red: Color;
         /**
-         * Removes an actor as a piece of UI
+         * Vermillion (#FF5B31)
          */
-        removeUIActor(actor: Actor): void;
+        static Vermillion: Color;
         /**
-         * Adds an actor to the scene, once this is done the actor will be drawn and updated.
+         * Rose (#FF007F)
          */
-        addChild(actor: Actor): void;
+        static Rose: Color;
         /**
-         * Adds a [[TileMap]] to the scene, once this is done the TileMap will be drawn and updated.
+         * Magenta (#FF00FF)
          */
-        addTileMap(tileMap: TileMap): void;
+        static Magenta: Color;
         /**
-         * Removes a [[TileMap]] from the scene, it will no longer be drawn or updated.
+         * Violet (#7F00FF)
          */
-        removeTileMap(tileMap: TileMap): void;
+        static Violet: Color;
         /**
-         * Removes an actor from the scene, it will no longer be drawn or updated.
+         * Blue (#0000FF)
          */
-        removeChild(actor: Actor): void;
+        static Blue: Color;
         /**
-         * Adds a [[Timer]] to the scene
-         * @param timer  The timer to add
+         * Azure (#007FFF)
          */
-        addTimer(timer: Timer): Timer;
+        static Azure: Color;
         /**
-         * Removes a [[Timer]] from the scene.
-         * @warning Can be dangerous, use [[cancelTimer]] instead
-         * @param timer  The timer to remove
+         * Cyan (#00FFFF)
          */
-        removeTimer(timer: Timer): Timer;
+        static Cyan: Color;
         /**
-         * Cancels a [[Timer]], removing it from the scene nicely
-         * @param timer  The timer to cancel
+         * Viridian (#59978F)
          */
-        cancelTimer(timer: Timer): Timer;
+        static Viridian: Color;
         /**
-         * Tests whether a [[Timer]] is active in the scene
+         * Green (#00FF00)
          */
-        isTimerActive(timer: Timer): boolean;
+        static Green: Color;
         /**
-         * Creates and adds a [[Group]] to the scene with a name
+         * Chartreuse (#7FFF00)
          */
-        createGroup(name: string): Group;
+        static Chartreuse: Color;
         /**
-         * Returns a [[Group]] by name
+         * Transparent (#FFFFFF00)
          */
-        getGroup(name: string): Group;
+        static Transparent: Color;
         /**
-         * Removes a [[Group]] by name
+         * Red channel
          */
-        removeGroup(name: string): void;
+        r: number;
         /**
-         * Removes a [[Group]] by reference
+         * Green channel
          */
-        removeGroup(group: Group): void;
+        g: number;
         /**
-         * Removes the given actor from the sorted drawing tree
+         * Blue channel
          */
-        cleanupDrawTree(actor: ex.Actor): void;
+        b: number;
         /**
-         * Updates the given actor's position in the sorted drawing tree
+         * Alpha channel (between 0 and 1)
          */
-        updateDrawTree(actor: ex.Actor): void;
+        a: number;
+        /**
+         * Hue
+         */
+        h: number;
+        /**
+         * Saturation
+         */
+        s: number;
+        /**
+         * Lightness
+         */
+        l: number;
+        /**
+         * Creates a new instance of Color from an r, g, b, a
+         *
+         * @param r  The red component of color (0-255)
+         * @param g  The green component of color (0-255)
+         * @param b  The blue component of color (0-255)
+         * @param a  The alpha component of color (0-1.0)
+         */
+        constructor(r: number, g: number, b: number, a?: number);
+        /**
+         * Creates a new instance of Color from an r, g, b, a
+         *
+         * @param r  The red component of color (0-255)
+         * @param g  The green component of color (0-255)
+         * @param b  The blue component of color (0-255)
+         * @param a  The alpha component of color (0-1.0)
+         */
+        static fromRGB(r: number, g: number, b: number, a?: number): Color;
+        /**
+         * Creates a new inscance of Color from a hex string
+         *
+         * @param hex  CSS color string of the form #ffffff, the alpha component is optional
+         */
+        static fromHex(hex: string): Color;
+        /**
+         * Creats a new instance of Color from hsla values
+         *
+         * @param h  Hue is represented [0-1]
+         * @param s  Saturation is represented [0-1]
+         * @param l  Luminance is represented [0-1]
+         * @param a  Alpha is represented [0-1]
+         */
+        static fromHSL(h: number, s: number, l: number, a?: number): Color;
+        /**
+         * Lightens the current color by a specified amount
+         *
+         * @param factor  The amount to lighten by [0-1]
+         */
+        lighten(factor?: number): Color;
+        /**
+         * Darkens the current color by a specified amount
+         *
+         * @param factor  The amount to darken by [0-1]
+         */
+        darken(factor?: number): Color;
+        /**
+         * Saturates the current color by a specified amount
+         *
+         * @param factor  The amount to saturate by [0-1]
+         */
+        saturate(factor?: number): Color;
+        /**
+         * Desaturates the current color by a specified amount
+         *
+         * @param factor  The amount to desaturate by [0-1]
+         */
+        desaturate(factor?: number): Color;
+        /**
+         * Multiplies a color by another, results in a darker color
+         *
+         * @param color  The other color
+         */
+        mulitiply(color: Color): Color;
+        /**
+         * Screens a color by another, results in a lighter color
+         *
+         * @param color  The other color
+         */
+        screen(color: Color): Color;
+        /**
+         * Inverts the current color
+         */
+        invert(): Color;
+        /**
+         * Averages the current color with another
+         *
+         * @param color  The other color
+         */
+        average(color: Color): Color;
+        /**
+         * Returns a CSS string representation of a color.
+         */
+        toString(): string;
+        /**
+         * Returns a CSS string representation of a color.
+         */
+        fillStyle(): string;
+        /**
+         * Returns a clone of the current color.
+         */
+        clone(): Color;
     }
 }
 declare module ex {
@@ -6243,294 +6455,5 @@ declare module ex {
          * Show the game as a fixed size
          */
         Fixed = 2,
-    }
-}
-declare module ex {
-    /**
-     * An enum representing all of the built in event types for Excalibur
-     * @obsolete Phasing this out in favor of classes
-     */
-    enum EventType {
-        Collision = 0,
-        EnterViewPort = 1,
-        ExitViewPort = 2,
-        Blur = 3,
-        Focus = 4,
-        Update = 5,
-        Activate = 6,
-        Deactivate = 7,
-        Initialize = 8,
-    }
-    /**
-     * Base event type in Excalibur that all other event types derive from.
-     */
-    class GameEvent {
-        /**
-         * Target object for this event.
-         */
-        target: any;
-        constructor();
-    }
-    /**
-     * Subscribe event thrown when handlers for events other than subscribe are added
-     */
-    class SubscribeEvent extends GameEvent {
-        topic: string;
-        handler: (event?: GameEvent) => void;
-        constructor(topic: string, handler: (event?: GameEvent) => void);
-    }
-    /**
-     * Unsubscribe event thrown when handlers for events other than unsubscribe are removed
-     */
-    class UnsubscribeEvent extends GameEvent {
-        topic: string;
-        handler: (event?: GameEvent) => void;
-        constructor(topic: string, handler: (event?: GameEvent) => void);
-    }
-    /**
-     * Event received by the Engine when the browser window is visible
-     */
-    class VisibleEvent extends GameEvent {
-        constructor();
-    }
-    /**
-     * Event received by the Engine when the browser window is hidden
-     */
-    class HiddenEvent extends GameEvent {
-        constructor();
-    }
-    /**
-     * Event thrown on an actor when a collision has occured
-     */
-    class CollisionEvent extends GameEvent {
-        actor: Actor;
-        other: Actor;
-        side: Side;
-        intersection: Vector;
-        /**
-         * @param actor  The actor the event was thrown on
-         * @param other  The actor that was collided with
-         * @param side   The side that was collided with
-         */
-        constructor(actor: Actor, other: Actor, side: Side, intersection: Vector);
-    }
-    /**
-     * Event thrown on a game object on Excalibur update
-     */
-    class UpdateEvent extends GameEvent {
-        delta: number;
-        /**
-         * @param delta  The number of milliseconds since the last update
-         */
-        constructor(delta: number);
-    }
-    /**
-     * Event thrown on an Actor only once before the first update call
-     */
-    class InitializeEvent extends GameEvent {
-        engine: Engine;
-        /**
-         * @param engine  The reference to the current engine
-         */
-        constructor(engine: Engine);
-    }
-    /**
-     * Event thrown on a Scene on activation
-     */
-    class ActivateEvent extends GameEvent {
-        oldScene: Scene;
-        /**
-         * @param oldScene  The reference to the old scene
-         */
-        constructor(oldScene: Scene);
-    }
-    /**
-     * Event thrown on a Scene on deactivation
-     */
-    class DeactivateEvent extends GameEvent {
-        newScene: Scene;
-        /**
-         * @param newScene  The reference to the new scene
-         */
-        constructor(newScene: Scene);
-    }
-    /**
-     * Event thrown on an Actor when it completely leaves the screen.
-     */
-    class ExitViewPortEvent extends GameEvent {
-        constructor();
-    }
-    /**
-     * Event thrown on an Actor when it completely leaves the screen.
-     */
-    class EnterViewPortEvent extends GameEvent {
-        constructor();
-    }
-}
-/**
- * Utilities
- *
- * Excalibur utilities for math, string manipulation, etc.
- */
-declare module ex.Util {
-    var TwoPI: number;
-    function base64Encode(inputStr: string): string;
-    function clamp(val: any, min: any, max: any): any;
-    function drawLine(ctx: CanvasRenderingContext2D, color: string, startx: any, starty: any, endx: any, endy: any): void;
-    function randomInRange(min: number, max: number): number;
-    function randomIntInRange(min: number, max: number): number;
-    function canonicalizeAngle(angle: number): number;
-    function toDegrees(radians: number): number;
-    function toRadians(degrees: number): number;
-    function getPosition(el: HTMLElement): Point;
-    function addItemToArray<T>(item: T, array: T[]): boolean;
-    function removeItemToArray<T>(item: T, array: T[]): boolean;
-    function getOppositeSide(side: ex.Side): Side;
-    /**
-     * Excaliburs dynamically resizing collection
-     */
-    class Collection<T> {
-        /**
-         * Default collection size
-         */
-        static DefaultSize: number;
-        private internalArray;
-        private endPointer;
-        /**
-         * @param initialSize  Initial size of the internal backing array
-         */
-        constructor(initialSize?: number);
-        private resize();
-        /**
-         * Push elements to the end of the collection
-         */
-        push(element: T): T;
-        /**
-         * Removes elements from the end of the collection
-         */
-        pop(): T;
-        /**
-         * Returns the count of the collection
-         */
-        count(): number;
-        /**
-         * Empties the collection
-         */
-        clear(): void;
-        /**
-         * Returns the size of the internal backing array
-         */
-        internalSize(): number;
-        /**
-         * Returns an element at a specific index
-         * @param index  Index of element to retreive
-         */
-        elementAt(index: number): T;
-        /**
-         * Inserts an element at a specific index
-         * @param index  Index to insert the element
-         */
-        insert(index: number, value: T): T;
-        /**
-         * Removes an element at a specific index
-         * @param index  Index of element to remove
-         */
-        remove(index: number): T;
-        /**
-         * Removes an element by reference
-         * @param element  Element to retreive
-         */
-        removeElement(element: T): void;
-        /**
-         * Returns a array representing the collection
-         */
-        toArray(): T[];
-        /**
-         * Iterate over every element in the collection
-         * @param func  Callback to call for each element passing a reference to the element and its index, returned values are ignored
-         */
-        forEach(func: (element: T, index: number) => any): void;
-        /**
-         * Mutate every element in the collection
-         * @param func  Callback to call for each element passing a reference to the element and its index, any values returned mutate the collection
-         */
-        map(func: (element: T, index: number) => any): void;
-    }
-}
-declare module ex {
-    /**
-     * Creates a closed polygon drawing given a list of [[Point]]s.
-     *
-     * @warning Use sparingly as Polygons are performance intensive
-     */
-    class Polygon implements IDrawable {
-        flipVertical: boolean;
-        flipHorizontal: boolean;
-        width: number;
-        height: number;
-        /**
-         * The color to use for the lines of the polygon
-         */
-        lineColor: Color;
-        /**
-         * The color to use for the interior of the polygon
-         */
-        fillColor: Color;
-        /**
-         * The width of the lines of the polygon
-         */
-        lineWidth: number;
-        /**
-         * Indicates whether the polygon is filled or not.
-         */
-        filled: boolean;
-        private points;
-        anchor: Point;
-        rotation: number;
-        scale: Point;
-        /**
-         * @param points  The points to use to build the polygon in order
-         */
-        constructor(points: Point[]);
-        /**
-         * @notimplemented Effects are not supported on `Polygon`
-         */
-        addEffect(effect: Effects.ISpriteEffect): void;
-        /**
-         * @notimplemented Effects are not supported on `Polygon`
-         */
-        removeEffect(index: number): any;
-        /**
-         * @notimplemented Effects are not supported on `Polygon`
-         */
-        removeEffect(effect: Effects.ISpriteEffect): any;
-        /**
-         * @notimplemented Effects are not supported on `Polygon`
-         */
-        clearEffects(): void;
-        reset(): void;
-        draw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
-    }
-}
-declare module ex {
-    enum ColorBlindness {
-        Protanope = 0,
-        Deuteranope = 1,
-        Tritanope = 2,
-    }
-    class ColorBlindCorrector implements IPostProcessor {
-        engine: Engine;
-        simulate: boolean;
-        colorMode: ColorBlindness;
-        private _vertexShader;
-        private _fragmentShader;
-        private _internalCanvas;
-        private _gl;
-        private _program;
-        constructor(engine: Engine, simulate?: boolean, colorMode?: ColorBlindness);
-        private _getFragmentShaderByMode(colorMode);
-        private _setRectangle(gl, x, y, width, height);
-        private _getShader(type, program);
-        process(image: ImageData, out: CanvasRenderingContext2D): void;
     }
 }

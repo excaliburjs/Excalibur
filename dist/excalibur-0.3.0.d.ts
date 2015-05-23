@@ -1470,7 +1470,7 @@ declare module ex {
     * to move around your game and set focus. They are used to determine
     * what is "off screen" and can be used to scale the game.
     *
-    * Excalibur comes with a [[TopCamera]] and a [[SideCamera]], depending on
+    * Excalibur comes with a [[LockedCamera]] and a [[SideCamera]], depending on
     * your game needs.
     *
     * Cameras are attached to [[Scene|Scenes]] and can be changed by
@@ -1591,12 +1591,12 @@ declare module ex {
     }
     /**
     * An extension of [[BaseCamera]] that is locked to an [[Actor]] or
-    * [[TopCamera.focus|focal point]]; the actor will appear in the
+    * [[LockedCamera.focus|focal point]]; the actor will appear in the
     * center of the screen.
     *
     * Common usages: RPGs, adventure games, top-down games.
     */
-    class TopCamera extends BaseCamera {
+    class LockedCamera extends BaseCamera {
         getFocus(): Point;
     }
 }
@@ -2180,6 +2180,46 @@ declare module ex {
     }
 }
 declare module ex {
+    class SortedList<T> {
+        private _getComparable;
+        private _root;
+        constructor(getComparable: () => any);
+        find(element: any): boolean;
+        private _find(node, element);
+        get(key: number): any[];
+        private _get(node, key);
+        add(element: any): boolean;
+        private _insert(node, element);
+        removeByComparable(element: any): void;
+        private _remove(node, element);
+        private _cleanup(node, element);
+        private _findMinNode(node);
+        list(): Array<T>;
+        private _list(treeNode, results);
+    }
+    class BinaryTreeNode {
+        private _key;
+        private _data;
+        private _left;
+        private _right;
+        constructor(key: number, data: Array<any>, left: BinaryTreeNode, right: BinaryTreeNode);
+        getKey(): number;
+        setKey(key: number): void;
+        getData(): Array<any>;
+        setData(data: any): void;
+        getLeft(): BinaryTreeNode;
+        setLeft(left: BinaryTreeNode): void;
+        getRight(): BinaryTreeNode;
+        setRight(right: BinaryTreeNode): void;
+    }
+    class MockedElement {
+        private _key;
+        constructor(key: number);
+        getTheKey(): number;
+        setKey(key: number): void;
+    }
+}
+declare module ex {
     /**
      * Scenes
      *
@@ -2326,6 +2366,7 @@ declare module ex {
          * Whether or the [[Scene]] has been initialized
          */
         isInitialized: boolean;
+        private _sortedDrawingTree;
         private _collisionResolver;
         private _killQueue;
         private _timers;
@@ -2333,7 +2374,7 @@ declare module ex {
         private _logger;
         constructor(engine?: Engine);
         /**
-         * This is called before the first update of the [[Scene]]. This method is meant to be
+         * This is called before the first update of the [[Scene]]. Initializes scene members like the camera. This method is meant to be
          * overridden. This is where initialization of child actors should take place.
          */
         onInitialize(engine: Engine): void;
@@ -2475,6 +2516,14 @@ declare module ex {
          * Removes a [[Group]] by reference
          */
         removeGroup(group: Group): void;
+        /**
+         * Removes the given actor from the sorted drawing tree
+         */
+        cleanupDrawTree(actor: ex.Actor): void;
+        /**
+         * Updates the given actor's position in the sorted drawing tree
+         */
+        updateDrawTree(actor: ex.Actor): void;
     }
 }
 declare module ex {
@@ -2876,6 +2925,7 @@ declare module ex {
          * Configuration for [[CapturePointerModule]] trait
          */
         capturePointer: ICapturePointerConfig;
+        private _zIndex;
         private _isKilled;
         /**
          * @param x       The starting x coordinate of the actor
@@ -2953,6 +3003,18 @@ declare module ex {
          * @param drawing This can be an [[Animation]], [[Sprite]], or [[Polygon]].
          */
         addDrawing(key: any, drawing: IDrawable): any;
+        /**
+         * Gets the z-index of an actor. The z-index determines the relative order an actor is drawn in.
+         * Actors with a higher z-index are drawn on top of actors with a lower z-index
+         */
+        getZIndex(): number;
+        /**
+         * Sets the z-index of an actor and updates it in the drawing list for the scene.
+         * The z-index determines the relative order an actor is drawn in.
+         * Actors with a higher z-index are drawn on top of actors with a lower z-index
+         * @param actor The child actor to remove
+         */
+        setZIndex(newIndex: number): void;
         /**
          * Artificially trigger an event on an actor, useful when creating custom events.
          * @param eventName   The name of the event to trigger
@@ -5811,6 +5873,7 @@ declare module ex.Input {
  * familiar with.
  *
  * - [[Engine|Intro to the Engine]]
+ *   - [[EventDispatcher|Eventing]]
  * - [[Scene|Working with Scenes]]
  *   - [[Camera|Working with Cameras]]
  * - [[Actor|Working with Actors]]

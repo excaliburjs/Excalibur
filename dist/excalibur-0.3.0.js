@@ -1,4 +1,4 @@
-/*! excalibur - v0.3.0 - 2015-04-14
+/*! excalibur - v0.3.0 - 2015-05-17
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2015 ; Licensed BSD*/
 if (typeof window == 'undefined') {
@@ -3054,7 +3054,7 @@ var ex;
     * to move around your game and set focus. They are used to determine
     * what is "off screen" and can be used to scale the game.
     *
-    * Excalibur comes with a [[TopCamera]] and a [[SideCamera]], depending on
+    * Excalibur comes with a [[LockedCamera]] and a [[SideCamera]], depending on
     * your game needs.
     *
     * Cameras are attached to [[Scene|Scenes]] and can be changed by
@@ -3323,17 +3323,17 @@ var ex;
     ex.SideCamera = SideCamera;
     /**
     * An extension of [[BaseCamera]] that is locked to an [[Actor]] or
-    * [[TopCamera.focus|focal point]]; the actor will appear in the
+    * [[LockedCamera.focus|focal point]]; the actor will appear in the
     * center of the screen.
     *
     * Common usages: RPGs, adventure games, top-down games.
     */
-    var TopCamera = (function (_super) {
-        __extends(TopCamera, _super);
-        function TopCamera() {
+    var LockedCamera = (function (_super) {
+        __extends(LockedCamera, _super);
+        function LockedCamera() {
             _super.apply(this, arguments);
         }
-        TopCamera.prototype.getFocus = function () {
+        LockedCamera.prototype.getFocus = function () {
             if (this.follow) {
                 return new ex.Point(this.follow.x + this.follow.getWidth() / 2, this.follow.y + this.follow.getHeight() / 2);
             }
@@ -3341,9 +3341,9 @@ var ex;
                 return this.focus;
             }
         };
-        return TopCamera;
+        return LockedCamera;
     })(BaseCamera);
-    ex.TopCamera = TopCamera;
+    ex.LockedCamera = LockedCamera;
 })(ex || (ex = {}));
 /// <reference path="../Algebra.ts" />
 /// <reference path="../Engine.ts" />
@@ -4661,7 +4661,7 @@ var ex;
             }
             return false;
         };
-        SortedList.prototype.remove = function (element) {
+        SortedList.prototype.removeByComparable = function (element) {
             this._root = this._remove(this._root, element);
         };
         SortedList.prototype._remove = function (node, element) {
@@ -4970,11 +4970,14 @@ var ex;
             }
         }
         /**
-         * This is called before the first update of the [[Scene]]. This method is meant to be
+         * This is called before the first update of the [[Scene]]. Initializes scene members like the camera. This method is meant to be
          * overridden. This is where initialization of child actors should take place.
          */
         Scene.prototype.onInitialize = function (engine) {
             // will be overridden
+            if (this.camera) {
+                this.camera.setFocus(engine.width / 2, engine.height / 2);
+            }
             this._logger.debug("Scene.onInitialize", this, engine);
         };
         /**
@@ -5243,6 +5246,18 @@ var ex;
             else {
                 this._logger.error("Invalid arguments to removeGroup", group);
             }
+        };
+        /**
+         * Removes the given actor from the sorted drawing tree
+         */
+        Scene.prototype.cleanupDrawTree = function (actor) {
+            this._sortedDrawingTree.removeByComparable(actor);
+        };
+        /**
+         * Updates the given actor's position in the sorted drawing tree
+         */
+        Scene.prototype.updateDrawTree = function (actor) {
+            this._sortedDrawingTree.add(actor);
         };
         return Scene;
     })(ex.Class);
@@ -5843,9 +5858,9 @@ var ex;
          * @param actor The child actor to remove
          */
         Actor.prototype.setZIndex = function (newIndex) {
-            this.scene._sortedDrawingTree.remove(this);
+            this.scene.cleanupDrawTree(this);
             this._zIndex = newIndex;
-            this.scene._sortedDrawingTree.add(this);
+            this.scene.updateDrawTree(this);
         };
         /**
          * Artificially trigger an event on an actor, useful when creating custom events.

@@ -627,8 +627,8 @@ module ex {
      * Get the center point of an actor
      */
     public getCenter(): Vector {
-       var anchor = this._getCalculatedAnchor();
-       return new Vector(this.x + this.getWidth() / 2 , this.y + this.getHeight() / 2);
+       return new Vector(this.x + this.getWidth() / 2 - this.anchor.x * this.getWidth(), 
+                         this.y + this.getHeight() / 2 - this.anchor.y * this.getHeight());
     }
     /**
      * Gets the calculated width of an actor, factoring in scale
@@ -1115,7 +1115,7 @@ module ex {
        ctx.fill();
        ctx.save();
        ctx.translate(this.x, this.y);
-       ctx.rotate(this.rotation);     
+       ctx.rotate(this.rotation);
        // Draw child actors
        for (var i = 0; i < this.children.length; i++) {
           this.children[i].debugDraw(ctx);
