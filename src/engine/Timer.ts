@@ -8,9 +8,9 @@ module ex {
     public static id: number = 0;
     public id: number = 0;
     public interval: number = 10;
-    public fcn: ()=>void = ()=>{};
+    public fcn: () => void = () => { return; };
     public repeats: boolean = false;
-    private elapsedTime: number = 0;
+    private _elapsedTime: number = 0;
     private _totalTimeAlive: number = 0;
     public complete: boolean = false;
     public scene: Scene = null;
@@ -19,7 +19,7 @@ module ex {
      * @param callback   The callback to be fired after the interval is complete.
      * @param repeats    Indicates whether this call back should be fired only once, or repeat after every interval as completed.    
      */      
-    constructor(fcn:()=>void, interval: number, repeats?: boolean){
+    constructor(fcn: () => void, interval: number, repeats?: boolean) {
        this.id = Timer.id++;
        this.interval = interval || this.interval;
        this.fcn = fcn || this.fcn;
@@ -32,12 +32,12 @@ module ex {
      */
     public update(delta: number) {
        this._totalTimeAlive += delta;
-       this.elapsedTime += delta;
-       if(this.elapsedTime > this.interval){
+       this._elapsedTime += delta;
+       if(this._elapsedTime > this.interval) {
           this.fcn.call(this);
-          if(this.repeats){
-             this.elapsedTime = 0;
-          }else{
+          if (this.repeats) {
+             this._elapsedTime = 0;
+          } else {
              this.complete = true;
           }
        }
@@ -50,8 +50,8 @@ module ex {
     /**
      * Cancels the timer, preventing any further executions.
      */
-    public cancel(){
-       if(this.scene){
+    public cancel() {
+       if(this.scene) {
           this.scene.cancelTimer(this);
        }
     }
