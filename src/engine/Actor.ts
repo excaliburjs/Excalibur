@@ -1098,6 +1098,14 @@ module ex {
        ctx.arc(this.getWorldX(), this.getWorldY(), 3, 0, Math.PI * 2);
        ctx.closePath();
        ctx.fill();
+
+       // Culling Box debug draw
+       for (var i = 0; i < this.pipeline.length; i++) {
+          if (this.pipeline[i] instanceof OffscreenCullingModule) {
+             (<OffscreenCullingModule>this.pipeline[i]).cullingBox.debugDraw(ctx);
+          }
+       }
+
        ctx.save();
        ctx.translate(this.x, this.y);
        ctx.rotate(this.rotation);

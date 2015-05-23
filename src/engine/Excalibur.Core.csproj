@@ -65,6 +65,7 @@
     <TypeScriptCompile Include="Algebra.ts" />
     <TypeScriptCompile Include="Animation.ts" />
     <TypeScriptCompile Include="Binding.ts" />
+    <TypeScriptCompile Include="Util\CullingBox.ts" />
     <TypeScriptCompile Include="Util\SortedList.ts" />
     <TypeScriptCompile Include="Camera.ts" />
     <TypeScriptCompile Include="Class.ts" />
@@ -116,6 +117,14 @@
   <ItemGroup>
     <Content Include="Exports.js" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="web.config" />
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+  </ItemGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets')" />
 </Project>
