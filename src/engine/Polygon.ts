@@ -1,4 +1,6 @@
 /// <reference path="Interfaces/IDrawable.ts" />
+/// <reference path="Algebra.ts" />
+/// <reference path="Color.ts" />
 
 module ex {
 
@@ -30,7 +32,7 @@ module ex {
        */
       public filled: boolean = false;
       
-      private points: Point[] = [];
+      private _points: Point[] = [];
       public anchor = new Point(0, 0);
       public rotation: number = 0;
       public scale = new Point(1, 1);
@@ -39,21 +41,21 @@ module ex {
        * @param points  The points to use to build the polygon in order
        */
       constructor(points: Point[]) {
-         this.points = points;
+         this._points = points;
 
-         var minX = this.points.reduce((prev: number, curr: Point) => {
+         var minX = this._points.reduce((prev: number, curr: Point) => {
             return Math.min(prev, curr.x);
          }, 0);
-         var maxX = this.points.reduce((prev: number, curr: Point) => {
+         var maxX = this._points.reduce((prev: number, curr: Point) => {
             return Math.max(prev, curr.x);
          }, 0);
 
          this.width = maxX - minX;
 
-         var minY = this.points.reduce((prev: number, curr: Point) => {
+         var minY = this._points.reduce((prev: number, curr: Point) => {
             return Math.min(prev, curr.y);
          }, 0);
-         var maxY = this.points.reduce((prev: number, curr: Point) => {
+         var maxY = this._points.reduce((prev: number, curr: Point) => {
             return Math.max(prev, curr.y);
          }, 0);
 
@@ -63,7 +65,7 @@ module ex {
       /**
        * @notimplemented Effects are not supported on `Polygon`
        */
-      public addEffect(effect: Effects.ISpriteEffect){
+      public addEffect(effect: Effects.ISpriteEffect) {
          // not supported on polygons
       }
       /**
@@ -77,14 +79,14 @@ module ex {
       /**
        * @notimplemented Effects are not supported on `Polygon`
        */
-      public removeEffect(param: any){
+      public removeEffect(param: any) {
          // not supported on polygons
       }
 
       /**
        * @notimplemented Effects are not supported on `Polygon`
        */
-      public clearEffects(){
+      public clearEffects() {
          // not supported on polygons
       }
       
@@ -101,13 +103,13 @@ module ex {
          ctx.lineWidth = this.lineWidth;
 
          // Iterate through the supplied points and contruct a 'polygon'
-         var firstPoint = this.points[0];
+         var firstPoint = this._points[0];
          ctx.moveTo(firstPoint.x, firstPoint.y);
 
-         var i = 0, len = this.points.length;
+         var i = 0, len = this._points.length;
 
          for (i; i < len; i++) {
-            ctx.lineTo(this.points[i].x, this.points[i].y);
+            ctx.lineTo(this._points[i].x, this._points[i].y);
          }
 
          ctx.lineTo(firstPoint.x, firstPoint.y);

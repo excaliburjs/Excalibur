@@ -173,7 +173,8 @@ module.exports = function (grunt) {
             "src/engine/Loader.ts",
             "src/engine/Log.ts",
             "src/engine/MonkeyPatch.ts",
-            "src/engine/Particles.ts"
+            "src/engine/Particles.ts",
+            "src/engine/Polygon.ts"
          ]
       }
    });
