@@ -21,9 +21,12 @@ UnderscorePrefixWalker.prototype.visitMethodDeclaration = function (node) {
    var propertyName = node.name;
    var variableName = propertyName.text;
    
-   var modifiers = node.modifiers.map(function(x){
-      return x.getText();
-   });
+   var modifiers = [];
+   if(node.modifiers){
+      modifiers = node.modifiers.map(function(x){
+         return x.getText();
+      });
+   }
 
    if(variableName[0] !== '_' && (modifiers.indexOf('private') !== -1 || modifiers.indexOf('protected') !== -1)){
       // create a failure at the current position
@@ -39,9 +42,12 @@ UnderscorePrefixWalker.prototype.visitPropertyDeclaration = function (node) {
    var variableName = propertyName.text;
    var position = this.position + node.getLeadingTriviaWidth();
    
-   var modifiers = node.modifiers.map(function(x){
-      return x.getText();
-   });
+   var modifiers = [];
+   if(node.modifiers){
+      modifiers = node.modifiers.map(function(x){
+         return x.getText();
+      });
+   }
 
    if(variableName[0] !== '_' && (modifiers.indexOf('private') !== -1 || modifiers.indexOf('protected') !== -1)){
       // create a failure at the current position
