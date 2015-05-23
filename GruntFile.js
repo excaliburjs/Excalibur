@@ -185,7 +185,8 @@ module.exports = function (grunt) {
             "src/engine/TileMap.ts",
             "src/engine/Timer.ts",
             "src/engine/Trigger.ts",
-            "src/engine/UIActor.ts"
+            "src/engine/UIActor.ts",
+            "src/engine/Util.ts"
          ]
       }
    });
