@@ -46,9 +46,9 @@ describe("A camera", () => {
       engine.height = 500;
 
       actor.x = 250;
-      actor.width = 10;
+      actor._width = 10;
       actor.y = 250;
-      actor.height = 10;
+      actor._height = 10;
       scene = new ex.Scene(engine);
 
       sideCamera = new ex.SideCamera();
@@ -127,7 +127,7 @@ describe("A camera", () => {
       sideCamera.setActorToFollow(actor);
       sideCamera.shake(5, 5, 5000);
 
-      expect(sideCamera.isShaking).toBe(true);
+      expect(sideCamera._isShaking).toBe(true);
 
    });
 
@@ -135,7 +135,7 @@ describe("A camera", () => {
       engine.camera = sideCamera;
       sideCamera.zoom(2, .1);
 
-      expect(sideCamera.isZooming).toBe(true);
+      expect(sideCamera._isZooming).toBe(true);
    
    });
 

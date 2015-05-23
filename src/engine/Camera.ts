@@ -57,9 +57,9 @@ module ex {
     *
     */
    export class BaseCamera {
-      protected follow: Actor;
-      protected focus: Point = new Point(0, 0);
-      protected lerp: boolean = false;
+      protected _follow: Actor;
+      protected _focus: Point = new Point(0, 0);
+      protected _lerp: boolean = false;
       private _cameraMoving: boolean = false;
       private _currentLerpTime: number = 0;
       private _lerpDuration: number = 1 * 1000; // 5 seconds
@@ -68,22 +68,22 @@ module ex {
       private _lerpEnd: Point = null;
 
       //camera effects
-      protected isShaking: boolean = false;
-      private shakeMagnitudeX: number = 0;
-      private shakeMagnitudeY: number = 0;
-      private shakeDuration: number = 0;
-      private elapsedShakeTime: number = 0;
+      protected _isShaking: boolean = false;
+      private _shakeMagnitudeX: number = 0;
+      private _shakeMagnitudeY: number = 0;
+      private _shakeDuration: number = 0;
+      private _elapsedShakeTime: number = 0;
 
-      protected isZooming: boolean = false;
-      private currentZoomScale: number = 1;
-      private maxZoomScale: number = 1;
-      private zoomDuration: number = 0;
-      private elapsedZoomTime: number = 0;
-      private zoomIncrement: number = 0.01;
+      protected _isZooming: boolean = false;
+      private _currentZoomScale: number = 1;
+      private _maxZoomScale: number = 1;
+      private _zoomDuration: number = 0;
+      private _elapsedZoomTime: number = 0;
+      private _zoomIncrement: number = 0.01;
 
       
 
-      private easeInOutCubic(currentTime: number, startValue: number, endValue: number, duration: number) {
+      private _easeInOutCubic(currentTime: number, startValue: number, endValue: number, duration: number) {
          
          endValue = (endValue - startValue);
          currentTime /= duration / 2;
@@ -97,14 +97,14 @@ module ex {
        * @param actor  The actor to follow
        */
       public setActorToFollow(actor: Actor) {
-         this.follow = actor;
+         this._follow = actor;
       }
 
       /**
        * Returns the focal point of the camera
        */
       public getFocus() {
-         return this.focus;
+         return this._focus;
       }
 
       /**
@@ -113,13 +113,13 @@ module ex {
        * @param y The y coordinate of the focal point
        */
       public setFocus(x: number, y: number) {
-         if (!this.follow && !this.lerp) {
-            this.focus.x = x;
-            this.focus.y = y;
+         if (!this._follow && !this._lerp) {
+            this._focus.x = x;
+            this._focus.y = y;
          }
 
-         if (this.lerp) {
-            this._lerpStart = this.focus.clone();
+         if (this._lerp) {
+            this._lerpStart = this._focus.clone();
             this._lerpEnd = new Point(x, y);
             this._currentLerpTime = 0;
             this._cameraMoving = true;
@@ -133,10 +133,10 @@ module ex {
        * @param duration    The duration of the shake in milliseconds
        */
       public shake(magnitudeX: number, magnitudeY: number, duration: number) {
-         this.isShaking = true;
-         this.shakeMagnitudeX = magnitudeX;
-         this.shakeMagnitudeY = magnitudeY;
-         this.shakeDuration = duration;
+         this._isShaking = true;
+         this._shakeMagnitudeX = magnitudeX;
+         this._shakeMagnitudeY = magnitudeY;
+         this._shakeDuration = duration;
       }
 
       /**
@@ -146,24 +146,24 @@ module ex {
        * @param duration The duration of the zoom in milliseconds
        */
       public zoom(scale: number, duration: number = 0) {
-         this.isZooming = true;
-         this.maxZoomScale = scale;
-         this.zoomDuration = duration;
+         this._isZooming = true;
+         this._maxZoomScale = scale;
+         this._zoomDuration = duration;
          if (duration) {
-            this.zoomIncrement = Math.abs(this.maxZoomScale - this.currentZoomScale) / duration * 1000;
+            this._zoomIncrement = Math.abs(this._maxZoomScale - this._currentZoomScale) / duration * 1000;
          }
 
-         if (this.maxZoomScale < 1) {
+         if (this._maxZoomScale < 1) {
             if (duration) {
-               this.zoomIncrement = -1 * this.zoomIncrement;
+               this._zoomIncrement = -1 * this._zoomIncrement;
             } else {
-               this.isZooming = false;
-               this._setCurrentZoomScale(this.maxZoomScale);
+               this._isZooming = false;
+               this._setCurrentZoomScale(this._maxZoomScale);
             }
          } else {
             if(!duration) {
-               this.isZooming = false;
-               this._setCurrentZoomScale(this.maxZoomScale);
+               this._isZooming = false;
+               this._setCurrentZoomScale(this._maxZoomScale);
             }
          }
       }
@@ -172,11 +172,11 @@ module ex {
        * Gets the current zoom scale
        */
       public getZoom() {
-         return this.currentZoomScale;
+         return this._currentZoomScale;
       }
 
       private _setCurrentZoomScale(zoomScale: number) {
-         this.currentZoomScale = zoomScale;
+         this._currentZoomScale = zoomScale;
       }
 
       /**
@@ -194,23 +194,23 @@ module ex {
          var newCanvasWidth = canvasWidth * this.getZoom();
          var newCanvasHeight = canvasHeight * this.getZoom();
 
-         if (this.lerp) {
+         if (this._lerp) {
             if (this._currentLerpTime < this._lerpDuration && this._cameraMoving) {
                
                if (this._lerpEnd.x < this._lerpStart.x) {
-                  this.focus.x = this._lerpStart.x - 
-                  (this.easeInOutCubic(this._currentLerpTime, this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x); 
+                  this._focus.x = this._lerpStart.x - (this._easeInOutCubic(this._currentLerpTime,
+                   this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x); 
                } else {
-                  this.focus.x = 
-                  this.easeInOutCubic(this._currentLerpTime, this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
+                  this._focus.x = this._easeInOutCubic(this._currentLerpTime, 
+                  this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
                }
 
                if (this._lerpEnd.y < this._lerpStart.y) {
-                  this.focus.y = this._lerpStart.y - 
-                  (this.easeInOutCubic(this._currentLerpTime, this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
+                  this._focus.y = this._lerpStart.y - (this._easeInOutCubic(this._currentLerpTime, 
+                  this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
                } else {
-                  this.focus.y = 
-                  this.easeInOutCubic(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);                  
+                  this._focus.y = this._easeInOutCubic(this._currentLerpTime, 
+                  this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);                  
                }
                this._currentLerpTime += delta;
             } else {               
@@ -221,30 +221,30 @@ module ex {
             }
          }
 
-         if (this.isDoneShaking()) {
-               this.isShaking = false;
-               this.elapsedShakeTime = 0;
-               this.shakeMagnitudeX = 0;
-               this.shakeMagnitudeY = 0;
-               this.shakeDuration = 0;
+         if (this._isDoneShaking()) {
+               this._isShaking = false;
+               this._elapsedShakeTime = 0;
+               this._shakeMagnitudeX = 0;
+               this._shakeMagnitudeY = 0;
+               this._shakeDuration = 0;
             } else {
-               this.elapsedShakeTime += delta;
-               xShake = (Math.random() * this.shakeMagnitudeX | 0) + 1;
-               yShake = (Math.random() * this.shakeMagnitudeY | 0) + 1;
+               this._elapsedShakeTime += delta;
+               xShake = (Math.random() * this._shakeMagnitudeX | 0) + 1;
+               yShake = (Math.random() * this._shakeMagnitudeY | 0) + 1;
             }
 
          ctx.translate(-focus.x + xShake + (newCanvasWidth / 2), -focus.y + yShake + (newCanvasHeight / 2));
 
-         if (this.isDoneZooming()) {
-            this.isZooming = false;
-            this.elapsedZoomTime = 0;
-            this.zoomDuration = 0;
-            this._setCurrentZoomScale(this.maxZoomScale);
+         if (this._isDoneZooming()) {
+            this._isZooming = false;
+            this._elapsedZoomTime = 0;
+            this._zoomDuration = 0;
+            this._setCurrentZoomScale(this._maxZoomScale);
 
          } else {
-            this.elapsedZoomTime += delta;
+            this._elapsedZoomTime += delta;
 
-            this._setCurrentZoomScale(this.getZoom() + this.zoomIncrement * delta / 1000);
+            this._setCurrentZoomScale(this.getZoom() + this._zoomIncrement * delta / 1000);
          }
 
          ctx.scale(this.getZoom(), this.getZoom());
@@ -259,18 +259,18 @@ module ex {
          ctx.fill();
       }
 
-      private isDoneShaking(): boolean {
-         return !(this.isShaking) || (this.elapsedShakeTime >= this.shakeDuration);
+      private _isDoneShaking(): boolean {
+         return !(this._isShaking) || (this._elapsedShakeTime >= this._shakeDuration);
       }
 
-      private isDoneZooming(): boolean {
-         if (this.zoomDuration !== 0) {
-            return (this.elapsedZoomTime >= this.zoomDuration);
+      private _isDoneZooming(): boolean {
+         if (this._zoomDuration !== 0) {
+            return (this._elapsedZoomTime >= this._zoomDuration);
          } else {
-            if (this.maxZoomScale < 1) {
-               return (this.currentZoomScale <= this.maxZoomScale);
+            if (this._maxZoomScale < 1) {
+               return (this._currentZoomScale <= this._maxZoomScale);
             } else {
-               return (this.currentZoomScale >= this.maxZoomScale);
+               return (this._currentZoomScale >= this._maxZoomScale);
             }
          }
       }
@@ -284,10 +284,10 @@ module ex {
    export class SideCamera extends BaseCamera {
             
       public getFocus() {
-         if (this.follow) {
-            return new Point(this.follow.x + this.follow.getWidth() / 2, this.focus.y);
+         if (this._follow) {
+            return new Point(this._follow.x + this._follow.getWidth() / 2, this._focus.y);
          } else {
-            return this.focus;
+            return this._focus;
          }
       }
    }
@@ -302,10 +302,10 @@ module ex {
    export class LockedCamera extends BaseCamera {
       
       public getFocus() {
-         if (this.follow) {
-            return new Point(this.follow.x + this.follow.getWidth() / 2, this.follow.y + this.follow.getHeight() / 2);
+         if (this._follow) {
+            return new Point(this._follow.x + this._follow.getWidth() / 2, this._follow.y + this._follow.getHeight() / 2);
          } else {
-            return this.focus;
+            return this._focus;
          }
       }
    }

@@ -2,7 +2,7 @@
 /// <reference path="Loader.ts" />
 /// <reference path="Log.ts" />
 
-/* tslint:disable:no-string-literal */
+
 module ex {
   
    /**
@@ -59,6 +59,7 @@ module ex {
        * @param ctx Any object you wish to apply to the template
        */
       public apply(ctx: any): any {
+         /* tslint:disable:no-string-literal */
          for(var j = 0; j < this._styleElements.length; j++) {
             (() => {
                // poor man's json parse for things that aren't exactly json :(
@@ -92,7 +93,7 @@ module ex {
          if(this._innerElement.children.length === 1) {
             this._innerElement = (<HTMLElement>this._innerElement.firstChild);
          }
-
+         /* tslint:enable:no-string-literal */
          return this._innerElement;
       }
 

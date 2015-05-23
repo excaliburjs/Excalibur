@@ -16,41 +16,40 @@ UnderscorePrefixWalker.prototype.visitClassDeclaration = function (node) {
    Lint.RuleWalker.prototype.visitClassDeclaration.call(this, node);
 }
 
-UnderscorePrefixWalker.prototype.visitMemberFunctionDeclaration = function (node) {
+UnderscorePrefixWalker.prototype.visitMethodDeclaration = function (node) {
    // get the current position and skip over any leading whitespace
-   var propertyName = node.propertyName;
-   var variableName = propertyName.text();
-   var position = this.getPosition() + TypeScript.leadingTriviaWidth(node);
+   var propertyName = node.name;
+   var variableName = propertyName.text;
+   
    var modifiers = node.modifiers.map(function(x){
-      return x.text();
+      return x.getText();
    });
-   //console.log(modifiers);
 
    if(variableName[0] !== '_' && (modifiers.indexOf('private') !== -1 || modifiers.indexOf('protected') !== -1)){
       // create a failure at the current position
-      this.addFailure(this.createFailure(position, TypeScript.width(node), "'"+variableName + "' private and protected methods must have an '_' prefix"));
+      this.addFailure(this.createFailure(node.getStart(), node.getWidth(), "'"+variableName + "' private/protected methods need a '_' prefix"));
    }
-   Lint.RuleWalker.prototype.visitMemberFunctionDeclaration.call(this, node);
+   Lint.RuleWalker.prototype.visitMethodDeclaration.call(this, node);
 }
-UnderscorePrefixWalker.prototype.visitMemberVariableDeclaration = function (node) {
 
-   var propertyName = node.variableDeclarator.propertyName;
-   var variableName = propertyName.text();
-   var position = this.getPosition() + TypeScript.leadingTriviaWidth(node);
-   //console.log(variableName);
 
+UnderscorePrefixWalker.prototype.visitPropertyDeclaration = function (node) {
+
+   var propertyName = node.name;   
+   var variableName = propertyName.text;
+   var position = this.position + node.getLeadingTriviaWidth();
+   
    var modifiers = node.modifiers.map(function(x){
-      return x.text();
+      return x.getText();
    });
-   //console.log(modifiers);   
 
    if(variableName[0] !== '_' && (modifiers.indexOf('private') !== -1 || modifiers.indexOf('protected') !== -1)){
       // create a failure at the current position
-      this.addFailure(this.createFailure(position, TypeScript.width(node), "'"+variableName + "' private and protected members must have an '_' prefix"));
+      this.addFailure(this.createFailure(node.getStart(), node.getWidth(), "'"+variableName + "' private/protected properties need a '_' prefix"));
    }
 
     // call the base version of this visitor to actually parse this node
-    Lint.RuleWalker.prototype.visitMemberVariableDeclaration.call(this, node);
+    Lint.RuleWalker.prototype.visitPropertyDeclaration.call(this, node);
 };
 
 exports.Rule = Rule;

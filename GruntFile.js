@@ -152,8 +152,8 @@ module.exports = function (grunt) {
       tslint: {
          options: {
             formatter: 'prose',
-            configuration: grunt.file.readJSON('./tslint/tslint.json'),
-            rulesDirectory: './tslint/rules'
+            rulesDirectory: './tslint/rules/',
+            configuration: grunt.file.readJSON('./tslint/tslint.json')            
          },
          src: [
             "src/engine/Actor.ts",
@@ -164,7 +164,8 @@ module.exports = function (grunt) {
             "src/engine/Class.ts",
             "src/engine/CollisionPair.ts",
             "src/engine/Color.ts",
-            "src/engine/EasingFunctions.ts"
+            "src/engine/EasingFunctions.ts",
+            "src/engine/Engine.ts"
          ]
       }
    });

@@ -1,6 +1,6 @@
 {
   "rules": {
-    "private-protected-underscore-prefix": true,
+    "underscore-prefix": true,
     "class-name": true,
     "curly": true,
     "indent": [true, "spaces"],

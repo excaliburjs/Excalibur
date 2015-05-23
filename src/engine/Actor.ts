@@ -289,8 +289,8 @@ module ex {
      */
     public anchor: Point;
     
-    private height: number = 0;
-    private width: number = 0;
+    private _height: number = 0;
+    private _width: number = 0;
     /** 
      * The rotation of the actor in radians
      */
@@ -424,8 +424,8 @@ module ex {
        super();
        this.x = x || 0;
        this.y = y || 0;
-       this.width = width || 0;
-       this.height = height || 0;         
+       this._width = width || 0;
+       this._height = height || 0;         
        if (color) {
           this.color = color.clone();
           // set default opacity of an actor to the color
@@ -634,25 +634,25 @@ module ex {
      * Gets the calculated width of an actor, factoring in scale
      */
     public getWidth() {
-       return this.width * this.scale.x;
+       return this._width * this.scale.x;
     }
     /**
      * Sets the width of an actor, factoring in the current scale
      */
     public setWidth(width) {
-       this.width = width / this.scale.x;
+       this._width = width / this.scale.x;
     }
     /**
      * Gets the calculated height of an actor, factoring in scale
      */
     public getHeight() {
-       return this.height * this.scale.y;
+       return this._height * this.scale.y;
     }
     /**
      * Sets the height of an actor, factoring in the current scale
      */
     public setHeight(height) {
-       this.height = height / this.scale.y;
+       this._height = height / this.scale.y;
     }
     /**
      * Centers the actor's drawing around the center of the actor's bounding box
@@ -1089,7 +1089,7 @@ module ex {
        } else {
           if (this.color) {
              ctx.fillStyle = this.color.toString();
-             ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this.width, this.height);
+             ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this._width, this._height);
           } 
        }
        // Draw child actors
