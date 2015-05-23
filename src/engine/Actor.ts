@@ -1014,7 +1014,7 @@ module ex {
        return complete;
     }
     private _getCalculatedAnchor(): Point {
-       return new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);  
+       return new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
     }
     /**
      * Called by the Engine, updates the state of the actor
