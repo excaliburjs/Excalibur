@@ -41,11 +41,11 @@ module ex {
       public fadeFlag: boolean = false;
 
       // Color transitions
-      private rRate: number = 1;
-      private gRate: number = 1;
-      private bRate: number = 1;
-      private aRate: number = 0;
-      private currentColor: Color = Color.White.clone();
+      private _rRate: number = 1;
+      private _gRate: number = 1;
+      private _bRate: number = 1;
+      private _aRate: number = 0;
+      private _currentColor: Color = Color.White.clone();
 
 
       public emitter: ParticleEmitter = null;
@@ -57,20 +57,29 @@ module ex {
       public sizeRate: number = 0;
       public elapsedMultiplier: number = 0;
 
-      constructor(emitter: ParticleEmitter, life?: number, opacity?: number, beginColor?: Color, endColor?: Color, position?: Vector, velocity?: Vector, acceleration?: Vector, startSize?: number, endSize?: number) {
+      constructor(emitter: ParticleEmitter, 
+                  life?: number, 
+                  opacity?: number, 
+                  beginColor?: Color, 
+                  endColor?: Color, 
+                  position?: Vector, 
+                  velocity?: Vector, 
+                  acceleration?: Vector, 
+                  startSize?: number, 
+                  endSize?: number) {
          this.emitter = emitter;
          this.life = life || this.life;
          this.opacity = opacity || this.opacity;
          this.endColor = endColor || this.endColor.clone();
          this.beginColor = beginColor || this.beginColor.clone();
-         this.currentColor = this.beginColor.clone();
+         this._currentColor = this.beginColor.clone();
          this.position = position || this.position;
          this.velocity = velocity || this.velocity;
          this.acceleration = acceleration || this.acceleration;
-         this.rRate = (this.endColor.r - this.beginColor.r) / this.life;
-         this.gRate = (this.endColor.g - this.beginColor.g) / this.life;
-         this.bRate = (this.endColor.b - this.beginColor.b) / this.life;
-         this.aRate = this.opacity / this.life;         
+         this._rRate = (this.endColor.r - this.beginColor.r) / this.life;
+         this._gRate = (this.endColor.g - this.beginColor.g) / this.life;
+         this._bRate = (this.endColor.b - this.beginColor.b) / this.life;
+         this._aRate = this.opacity / this.life;         
 
          this.startSize = startSize || 0;
          this.endSize = endSize || 0;
@@ -94,17 +103,18 @@ module ex {
          }
 
          if (this.fadeFlag) {
-            this.opacity = ex.Util.clamp(this.aRate * this.life, 0.0001, 1);
+            this.opacity = ex.Util.clamp(this._aRate * this.life, 0.0001, 1);
          }
 
          if ((this.startSize > 0) && (this.endSize > 0)) {
-               this.particleSize = ex.Util.clamp(this.sizeRate * delta + this.particleSize , Math.min(this.startSize, this.endSize), Math.max(this.startSize, this.endSize));
+               this.particleSize = ex.Util.clamp(this.sizeRate * delta + this.particleSize, 
+               Math.min(this.startSize, this.endSize), Math.max(this.startSize, this.endSize));
          }
 
-         this.currentColor.r = ex.Util.clamp(this.currentColor.r + this.rRate * delta, 0, 255);
-         this.currentColor.g = ex.Util.clamp(this.currentColor.g + this.gRate * delta, 0, 255);
-         this.currentColor.b = ex.Util.clamp(this.currentColor.b + this.bRate * delta, 0, 255);
-         this.currentColor.a = ex.Util.clamp(this.opacity, 0.0001, 1);
+         this._currentColor.r = ex.Util.clamp(this._currentColor.r + this._rRate * delta, 0, 255);
+         this._currentColor.g = ex.Util.clamp(this._currentColor.g + this._gRate * delta, 0, 255);
+         this._currentColor.b = ex.Util.clamp(this._currentColor.b + this._bRate * delta, 0, 255);
+         this._currentColor.a = ex.Util.clamp(this.opacity, 0.0001, 1);
 
          if (this.focus) {
             var accel = this.focus.minus(this.position).normalize().scale(this.focusAccel).scale(delta / 1000);
@@ -112,10 +122,10 @@ module ex {
          } else {
             this.velocity = this.velocity.add(this.acceleration.scale(delta / 1000));
          }
-         this.position = this.position.add(this.velocity.scale(delta/1000));
+         this.position = this.position.add(this.velocity.scale(delta / 1000));
 
-         if(this.particleRotationalVelocity){
-            this.currentRotation = (this.currentRotation + this.particleRotationalVelocity*delta/1000) % (2*Math.PI);
+         if(this.particleRotationalVelocity) {
+            this.currentRotation = (this.currentRotation + this.particleRotationalVelocity * delta / 1000) % (2 * Math.PI);
          }
       }
 
@@ -128,8 +138,8 @@ module ex {
             return;
          }
 
-         this.currentColor.a = ex.Util.clamp(this.opacity, 0.0001, 1);
-         ctx.fillStyle = this.currentColor.toString();
+         this._currentColor.a = ex.Util.clamp(this.opacity, 0.0001, 1);
+         ctx.fillStyle = this._currentColor.toString();
          ctx.beginPath();
          ctx.arc(this.position.x, this.position.y, this.particleSize, 0, Math.PI * 2);
          ctx.fill();
@@ -309,7 +319,7 @@ module ex {
        */
       public emit(particleCount: number) {
          for (var i = 0; i < particleCount; i++) {
-            this.particles.push(this.createParticle());
+            this.particles.push(this._createParticle());
          }
       }
 
@@ -318,7 +328,7 @@ module ex {
       }
 
       // Creates a new particle given the contraints of the emitter
-      private createParticle(): Particle {
+      private _createParticle(): Particle {
          // todo implement emitter contraints;
          var ranX = 0;
          var ranY = 0;
@@ -329,24 +339,33 @@ module ex {
          var dx = vel * Math.cos(angle);
          var dy = vel * Math.sin(angle);
 
-         if(this.emitterType === EmitterType.Rectangle){
+         if (this.emitterType === EmitterType.Rectangle) {
             ranX = Util.randomInRange(this.x, this.x + this.getWidth());
             ranY = Util.randomInRange(this.y, this.y + this.getHeight());
-         }else if(this.emitterType === EmitterType.Circle){
+         } else if (this.emitterType === EmitterType.Circle) {
             var radius = Util.randomInRange(0, this.radius);
             ranX = radius * Math.cos(angle) + this.x;
             ranY = radius * Math.sin(angle) + this.y;
          }         
          
-         var p = new Particle(this, this.particleLife, this.opacity, this.beginColor, this.endColor, new Vector(ranX, ranY), new Vector(dx, dy), this.acceleration, this.startSize, this.endSize);
+         var p = new Particle(this, 
+                              this.particleLife, 
+                              this.opacity, 
+                              this.beginColor, 
+                              this.endColor, 
+                              new Vector(ranX, ranY), 
+                              new Vector(dx, dy), 
+                              this.acceleration, 
+                              this.startSize, 
+                              this.endSize);
          p.fadeFlag = this.fadeFlag;
          p.particleSize = size;
-         if(this.particleSprite){
+         if (this.particleSprite) {
             p.particleSprite = this.particleSprite;            
          }
          p.particleRotationalVelocity = this.particleRotationalVelocity;
-         if(this.randomRotation){
-            p.currentRotation = Util.randomInRange(0, Math.PI*2);
+         if (this.randomRotation) {
+            p.currentRotation = Util.randomInRange(0, Math.PI * 2);
          }
          if (this.focus) {
             p.focus = this.focus.add(new ex.Vector(this.x, this.y));
@@ -382,12 +401,12 @@ module ex {
       public debugDraw(ctx: CanvasRenderingContext2D) {
          super.debugDraw(ctx);
          ctx.fillStyle = Color.Black.toString();
-         ctx.fillText("Particles: " + this.particles.count(), this.x, this.y + 20);
+         ctx.fillText('Particles: ' + this.particles.count(), this.x, this.y + 20);
 
          if (this.focus) {
             ctx.fillRect(this.focus.x + this.x, this.focus.y + this.y, 3, 3);
-            Util.drawLine(ctx, "yellow", this.focus.x + this.x, this.focus.y + this.y, super.getCenter().x, super.getCenter().y);
-            ctx.fillText("Focus", this.focus.x + this.x, this.focus.y + this.y);
+            Util.drawLine(ctx, 'yellow', this.focus.x + this.x, this.focus.y + this.y, super.getCenter().x, super.getCenter().y);
+            ctx.fillText('Focus', this.focus.x + this.x, this.focus.y + this.y);
          }
       }
 
