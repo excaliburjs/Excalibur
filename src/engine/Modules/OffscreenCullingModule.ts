@@ -14,13 +14,14 @@ module ex {
          var height = globalScale.y * actor.getHeight() / actor.scale.y;
          var actorScreenCoords = engine.worldToScreenCoordinates(new Point(actor.getWorldX() - anchor.x * width, actor.getWorldY() - anchor.y * height));
 
-         if (actor.currentDrawing != null) {
-            this.cullingBox.isSpriteOffScreen(actor);
-         }
-
          var zoom = 1.0;
          if(actor.scene && actor.scene.camera){
             zoom = actor.scene.camera.getZoom();   
+         }
+         
+         var isSpriteOffScreen = false;
+         if (actor.currentDrawing != null) {
+            isSpriteOffScreen = this.cullingBox.isSpriteOffScreen(actor, engine);
          }
          
          if(!actor.isOffScreen){
@@ -36,7 +37,7 @@ module ex {
             if(actorScreenCoords.x + width * zoom > 0 &&
                actorScreenCoords.y + height * zoom > 0 &&
                actorScreenCoords.x < engine.width &&
-               actorScreenCoords.y < engine.height){
+               actorScreenCoords.y < engine.height) {
                
                eventDispatcher.publish('enterviewport', new EnterViewPortEvent());               
                actor.isOffScreen = false;

@@ -7,7 +7,9 @@ module ex {
       private _bottomLeft: Point = new Point(0, 0);
       private _bottomRight: Point = new Point(0, 0);
 
-      public isSpriteOffScreen(actor: Actor): void {
+      private _screenCoords: Array<Point>;
+
+      public isSpriteOffScreen(actor: Actor, engine: Engine): boolean {
          var drawingWidth = actor.currentDrawing.width * actor.currentDrawing.scale.x;
          var drawingHeight = actor.currentDrawing.height * actor.currentDrawing.scale.y;
          var rotation = actor.rotation;
@@ -28,6 +30,27 @@ module ex {
          this._bottomRight.x = actor.getWorldX() + (drawingWidth / 2)
          this._bottomRight.y = actor.getWorldY() + (drawingHeight / 2);
          this._bottomRight = this._bottomRight.rotate(rotation, anchor);
+
+         ///
+
+         this._screenCoords = new Array<Point>();
+
+         var topLeftScreen = engine.worldToScreenCoordinates(this._topLeft);
+         var topRightScreen = engine.worldToScreenCoordinates(this._topRight);
+         var bottomLeftScreen = engine.worldToScreenCoordinates(this._bottomLeft);
+         var bottomRightScreen = engine.worldToScreenCoordinates(this._bottomRight);
+
+         this._screenCoords.push(topLeftScreen, topRightScreen, bottomLeftScreen, bottomRightScreen);
+
+         for (var i = 0; i < this._screenCoords.length; i++) {
+            if (this._screenCoords[i].x > 0 &&
+               this._screenCoords[i].y > 0 &&
+               this._screenCoords[i].x < engine.width &&
+               this._screenCoords[i].y < engine.height) {
+               return false;
+            }
+         }
+         return true;
       }
 
       public debugDraw(ctx: CanvasRenderingContext2D) {
