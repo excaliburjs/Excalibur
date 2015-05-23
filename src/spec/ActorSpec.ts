@@ -108,15 +108,31 @@ describe("A game actor", () => {
 		actor.setWidth(50);
 
 		var center = actor.getCenter();
-		expect(center.x).toBe(25);
-		expect(center.y).toBe(50);
+		expect(center.x).toBe(0);
+		expect(center.y).toBe(0);
 
 		actor.x = 100;
 		actor.y = 100;
 
 		center = actor.getCenter();
-		expect(center.x).toBe(125);
-		expect(center.y).toBe(150);
+		expect(center.x).toBe(100);
+      expect(center.y).toBe(100);
+
+      // changing the anchor
+      actor.anchor = new ex.Point(0, 0);
+      actor.x = 0;
+      actor.y = 0;
+
+      var center = actor.getCenter();
+      expect(center.x).toBe(25);
+      expect(center.y).toBe(50);
+
+      actor.x = 100;
+      actor.y = 100;
+
+      center = actor.getCenter();
+      expect(center.x).toBe(125);
+      expect(center.y).toBe(150);
 
 	});
 
