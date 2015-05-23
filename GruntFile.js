@@ -176,7 +176,8 @@ module.exports = function (grunt) {
             "src/engine/Particles.ts",
             "src/engine/Polygon.ts",
             "src/engine/Promises.ts",
-            "src/engine/Resource.ts"
+            "src/engine/Resource.ts",
+            "src/engine/Scene.ts"
          ]
       }
    });
