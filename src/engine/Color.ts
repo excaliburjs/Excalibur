@@ -201,7 +201,7 @@ module ex {
             }
             return new Color(r, g, b, a);
          } else {
-            throw new Error("Invalid hex string: " + hex);
+            throw new Error('Invalid hex string: ' + hex);
          }
       }
 
@@ -310,11 +310,11 @@ module ex {
        * Returns a CSS string representation of a color. 
        */
       public toString() {
-         var result = String(this.r.toFixed(0)) + ", " + String(this.g.toFixed(0)) + ", " + String(this.b.toFixed(0));
+         var result = String(this.r.toFixed(0)) + ', ' + String(this.g.toFixed(0)) + ', ' + String(this.b.toFixed(0));
          if (this.a !== undefined || this.a !== null) {
-            return "rgba(" + result + ", " + String(this.a) + ")";
+            return 'rgba(' + result + ', ' + String(this.a) + ')';
          }
-         return "rgb(" + result + ")";
+         return 'rgb(' + result + ')';
       }
 
       /**
@@ -342,7 +342,9 @@ module ex {
       constructor(public h: number, public s: number, public l: number, public a: number) { }
 
       public static fromRGBA(r: number, g: number, b: number, a: number): HSLColor {
-         r /= 255, g /= 255, b /= 255;
+         r /= 255;
+         g /= 255;
+         b /= 255;
          var max = Math.max(r, g, b), min = Math.min(r, g, b);
          var h, s, l = (max + min) / 2;
 
@@ -365,15 +367,15 @@ module ex {
       public toRGBA(): Color {
          var r: number, g: number, b: number;
 
-         if (this.s == 0) {
+         if (this.s === 0) {
             r = g = b = this.l; // achromatic
          } else {
             function hue2rgb(p: number, q: number, t: number): number {
-               if (t < 0) t += 1;
-               if (t > 1) t -= 1;
-               if (t < 1 / 6) return p + (q - p) * 6 * t;
-               if (t < 1 / 2) return q;
-               if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+               if (t < 0) { t += 1; }
+               if (t > 1) { t -= 1; }
+               if (t < 1 / 6) { return p + (q - p) * 6 * t; }
+               if (t < 1 / 2) { return q; }
+               if (t < 2 / 3) { return p + (q - p) * (2 / 3 - t) * 6; }
                return p;
             }
 

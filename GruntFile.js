@@ -162,7 +162,8 @@ module.exports = function (grunt) {
             "src/engine/Binding.ts",
             "src/engine/Camera.ts",
             "src/engine/Class.ts",
-            "src/engine/CollisionPair.ts"
+            "src/engine/CollisionPair.ts",
+            "src/engine/Color.ts"
          ]
       }
    });
