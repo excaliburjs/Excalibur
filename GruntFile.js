@@ -171,7 +171,8 @@ module.exports = function (grunt) {
             "src/engine/Group.ts",
             "src/engine/Label.ts",
             "src/engine/Loader.ts",
-            "src/engine/Log.ts"
+            "src/engine/Log.ts",
+            "src/engine/MonkeyPatch.ts"
          ]
       }
    });

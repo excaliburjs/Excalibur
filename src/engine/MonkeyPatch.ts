@@ -1,16 +1,20 @@
-if (typeof window == 'undefined') {
-   window = (<any>{ audioContext: function () { } });
+if (typeof window === 'undefined') {
+   window = (<any>{ audioContext: function () { return; } });
 }
 
-if (typeof window != 'undefined' && !window.requestAnimationFrame) {
+if (typeof window !== 'undefined' && !window.requestAnimationFrame) {
    (<any>window).requestAnimationFrame =
    (<any>window).webkitRequestAnimationFrame ||
    (<any>window).mozRequestAnimationFrame ||
    function (callback) { window.setInterval(callback, 1000 / 60); };
 }
 
-if (typeof window != 'undefined' && !(<any>window).AudioContext) {
-   (<any>window).AudioContext = (<any>window).AudioContext || (<any>window).webkitAudioContext || (<any>window).mozAudioContext || (<any>window).msAudioContext || (<any>window).oAudioContext;
+if (typeof window !== 'undefined' && !(<any>window).AudioContext) {
+   (<any>window).AudioContext = (<any>window).AudioContext || 
+                                (<any>window).webkitAudioContext || 
+                                (<any>window).mozAudioContext || 
+                                (<any>window).msAudioContext || 
+                                (<any>window).oAudioContext;
 }
 
 // Polyfill from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
@@ -26,7 +30,7 @@ if (!Array.prototype.forEach) {
          throw new TypeError(' this is null or not defined');
       }
 
-      // 1. Let O be the result of calling ToObject passing the |this| value as the argument.
+      // 1. Let O be the result of calling ToObject passing the |this| value as the argument. 
       var O = Object(this);
 
       // 2. Let lenValue be the result of calling the Get internal method of O with the argument "length".
@@ -35,7 +39,7 @@ if (!Array.prototype.forEach) {
 
       // 4. If IsCallable(callback) is false, throw a TypeError exception.
       // See: http://es5.github.com/#x9.11
-      if (typeof callback !== "function") {
+      if (typeof callback !== 'function') {
          throw new TypeError(callback + ' is not a function');
       }
 
@@ -74,22 +78,25 @@ if (!Array.prototype.forEach) {
 }
 
 // Polyfill from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
-if (!Array.prototype.some){
+if (!Array.prototype.some) {
   Array.prototype.some = function(fun /*, thisArg */){
     'use strict';
 
-    if (this === void 0 || this === null)
+    if (this === void 0 || this === null) {
       throw new TypeError();
+    }
 
     var t = Object(this);
     var len = t.length >>> 0;
-    if (typeof fun !== 'function')
+    if (typeof fun !== 'function') {
       throw new TypeError();
+    }
 
     var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
-    for (var i = 0; i < len; i++){
-      if (i in t && fun.call(thisArg, t[i], i, t))
+    for (var i = 0; i < len; i++) {
+      if (i in t && fun.call(thisArg, t[i], i, t)) {
         return true;
+      }
     }
 
     return false;
@@ -108,7 +115,7 @@ if (!Function.prototype.bind) {
 
       var aArgs = Array.prototype.slice.call(arguments, 1),
          fToBind = this,
-         fNOP = function () { },
+         fNOP = function () { return; },
          fBound = function () {
             return fToBind.apply(this instanceof fNOP && oThis
                ? this
