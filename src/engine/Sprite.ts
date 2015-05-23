@@ -40,7 +40,7 @@ module ex {
     * Excalibur offers many sprite effects such as [[Effects.Colorize]] to let you manipulate
     * sprites. Keep in mind, more effects requires more power and can lead to memory or CPU
     * constraints and hurt performance.
-    * 
+    *
     * It's still recommended to create an [[Animation]] or build in your effects to the sprites
     * for optimal performance.
     */
@@ -68,11 +68,11 @@ module ex {
       public effects: Effects.ISpriteEffect[] = [];
 
       public internalImage: HTMLImageElement = new Image();
-      private spriteCanvas: HTMLCanvasElement = null;
-      private spriteCtx: CanvasRenderingContext2D = null;
-      private pixelData: ImageData = null;
-      private pixelsLoaded: boolean = false;
-      private dirtyEffect: boolean = false;
+      private _spriteCanvas: HTMLCanvasElement = null;
+      private _spriteCtx: CanvasRenderingContext2D = null;
+      private _pixelData: ImageData = null;
+      private _pixelsLoaded: boolean = false;
+      private _dirtyEffect: boolean = false;
 
       /**
        * @param image   The backing image texture to build the Sprite
@@ -82,42 +82,44 @@ module ex {
        * @param sheight The height of the sprite in pixels
        */
       constructor(image: Texture, public sx: number, public sy: number, public swidth: number, public sheight: number) {
-         if(sx < 0 || sy < 0 || swidth < 0 || sheight < 0){
-            this.logger.error("Sprite cannot have any negative dimensions x:",sx,"y:",sy,"width:",swidth,"height:",sheight);            
+         if(sx < 0 || sy < 0 || swidth < 0 || sheight < 0) {
+            this.logger.error('Sprite cannot have any negative dimensions x:', 
+                               sx, 'y:', sy, 'width:', swidth, 'height:', sheight);            
          }
 
          this._texture = image;
-         this.spriteCanvas = document.createElement('canvas');
-         this.spriteCanvas.width = swidth;
-         this.spriteCanvas.height = sheight;
-         this.spriteCtx = this.spriteCanvas.getContext('2d');
-         this._texture.loaded.then(()=>{
-            this.spriteCanvas.width = this.spriteCanvas.width || this._texture.image.naturalWidth;
-            this.spriteCanvas.height = this.spriteCanvas.height || this._texture.image.naturalHeight;
-            this.loadPixels();            
-            this.dirtyEffect = true;
-         }).error((e)=>{
-            this.logger.error("Error loading texture ", this._texture.path, e);
+         this._spriteCanvas = document.createElement('canvas');
+         this._spriteCanvas.width = swidth;
+         this._spriteCanvas.height = sheight;
+         this._spriteCtx = <CanvasRenderingContext2D>this._spriteCanvas.getContext('2d');
+         this._texture.loaded.then(() => {
+            this._spriteCanvas.width = this._spriteCanvas.width || this._texture.image.naturalWidth;
+            this._spriteCanvas.height = this._spriteCanvas.height || this._texture.image.naturalHeight;
+            this._loadPixels();            
+            this._dirtyEffect = true;
+         }).error((e) => {
+            this.logger.error('Error loading texture ', this._texture.path, e);
          });
          
-
          this.width = swidth;
          this.height = sheight;
       }
 
-      private loadPixels(){
-         if(this._texture.isLoaded() && !this.pixelsLoaded){
+      private _loadPixels() {
+         if(this._texture.isLoaded() && !this._pixelsLoaded) {
             var clamp = ex.Util.clamp;
             var naturalWidth = this._texture.image.naturalWidth || 0;
             var naturalHeight = this._texture.image.naturalHeight || 0;
 
-            if(this.swidth > naturalWidth){
-               this.logger.warn("The sprite width",this.swidth,"exceeds the width", naturalWidth, "of the backing texture", this._texture.path);
+            if(this.swidth > naturalWidth) {
+               this.logger.warn('The sprite width', this.swidth, 'exceeds the width', 
+                                naturalWidth, 'of the backing texture', this._texture.path);
             }            
-            if(this.sheight > naturalHeight){
-               this.logger.warn("The sprite height",this.sheight,"exceeds the height", naturalHeight, "of the backing texture", this._texture.path);
+            if(this.sheight > naturalHeight) {
+               this.logger.warn('The sprite height', this.sheight, 'exceeds the height', 
+                                naturalHeight, 'of the backing texture', this._texture.path);
             }
-            this.spriteCtx.drawImage(this._texture.image, 
+            this._spriteCtx.drawImage(this._texture.image, 
                clamp(this.sx, 0, naturalWidth), 
                clamp(this.sy, 0, naturalHeight),
                clamp(this.swidth, 0, naturalWidth),
@@ -125,8 +127,8 @@ module ex {
                0, 0, this.swidth, this.sheight);
             //this.pixelData = this.spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
             
-            this.internalImage.src = this.spriteCanvas.toDataURL("image/png");
-            this.pixelsLoaded = true;
+            this.internalImage.src = this._spriteCanvas.toDataURL('image/png');
+            this._pixelsLoaded = true;
          }
       }
 
@@ -159,7 +161,8 @@ module ex {
       }
 
       /**
-       * Applies the [[Effects.Colorize]] to a sprite, changing the color channels of all pixesl to be the average of the original color and the provided color.
+       * Applies the [[Effects.Colorize]] to a sprite, changing the color channels of all pixesl to be the average of the original color
+       * and the provided color.
        */
       public colorize(color: Color) {
          this.addEffect(new Effects.Colorize(color));
@@ -197,14 +200,14 @@ module ex {
        * Adds a new [[Effects.ISpriteEffect]] to this drawing.
        * @param effect  Effect to add to the this drawing
        */
-      public addEffect(effect: Effects.ISpriteEffect){
+      public addEffect(effect: Effects.ISpriteEffect) {
          this.effects.push(effect);
          // We must check if the texture and the backing sprite pixels are loaded as well before 
          // an effect can be applied
-         if(!this._texture.isLoaded() || !this.pixelsLoaded){
-            this.dirtyEffect = true;
-         }else{
-            this.applyEffects();
+         if (!this._texture.isLoaded() || !this._pixelsLoaded) {
+            this._dirtyEffect = true;
+         } else {
+            this._applyEffects();
          }
       }
 
@@ -221,54 +224,54 @@ module ex {
       public removeEffect(index: number): void;
       public removeEffect(param: any) {
          var indexToRemove = null;
-         if(typeof param === 'number'){
+         if (typeof param === 'number') {
             indexToRemove = param;
-         }else{
+         } else {
             indexToRemove = this.effects.indexOf(param);
          }
 
          this.effects.splice(indexToRemove, 1);
          // We must check if the texture and the backing sprite pixels are loaded as well before 
          // an effect can be applied
-         if(!this._texture.isLoaded() || !this.pixelsLoaded){
-            this.dirtyEffect = true;
-         }else{
-            this.applyEffects();
+         if (!this._texture.isLoaded() || !this._pixelsLoaded) {
+            this._dirtyEffect = true;
+         } else {
+            this._applyEffects();
          }
       }
 
-      private applyEffects() {
+      private _applyEffects() {
          var clamp = ex.Util.clamp;
          var naturalWidth = this._texture.image.naturalWidth || 0;
          var naturalHeight = this._texture.image.naturalHeight || 0;
 
-         this.spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
-         this.spriteCtx.drawImage(this._texture.image, clamp(this.sx, 0, naturalWidth),
+         this._spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
+         this._spriteCtx.drawImage(this._texture.image, clamp(this.sx, 0, naturalWidth),
             clamp(this.sy, 0, naturalHeight),
             clamp(this.swidth, 0, naturalWidth),
             clamp(this.sheight, 0, naturalHeight),
             0, 0, this.swidth, this.sheight);
-         this.pixelData = this.spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
+         this._pixelData = this._spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
 
          var i = 0, x = 0, y = 0, len = this.effects.length;
          for (i; i < len; i++) {
-            for(y; y < this.sheight; y++){            
-               for(x; x < this.swidth; x++){
-                  this.effects[i].updatePixel(x, y, this.pixelData);
+            for(y; y < this.sheight; y++) {            
+               for(x; x < this.swidth; x++) {
+                  this.effects[i].updatePixel(x, y, this._pixelData);
                }
             }
          }
-         this.spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
-         this.spriteCtx.putImageData(this.pixelData, 0, 0);
-         this.internalImage.src = this.spriteCanvas.toDataURL("image/png");
+         this._spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
+         this._spriteCtx.putImageData(this._pixelData, 0, 0);
+         this.internalImage.src = this._spriteCanvas.toDataURL('image/png');
       }
 
       /**
        * Clears all effects from the drawing and return it to its original state.
        */
-      public clearEffects(){
+      public clearEffects() {
          this.effects.length = 0;
-         this.applyEffects();
+         this._applyEffects();
       }
       
       /**
@@ -297,9 +300,9 @@ module ex {
        * @param y    The y coordinate of where to draw
        */
       public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
-         if(this.dirtyEffect){
-            this.applyEffects();
-            this.dirtyEffect = false;
+         if (this._dirtyEffect) {
+            this._applyEffects();
+            this._dirtyEffect = false;
          }
          
 
