@@ -165,7 +165,8 @@ module.exports = function (grunt) {
             "src/engine/CollisionPair.ts",
             "src/engine/Color.ts",
             "src/engine/EasingFunctions.ts",
-            "src/engine/Engine.ts"
+            "src/engine/Engine.ts",
+            "src/engine/EventDispatcher.ts"
          ]
       }
    });

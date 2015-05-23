@@ -159,7 +159,7 @@ module ex {
        * @param handler    Optionally the specific handler to unsubscribe
        *
        */
-      public unsubscribe(eventName: string, handler?: (event?: GameEvent) => void){
+      public unsubscribe(eventName: string, handler?: (event?: GameEvent) => void) {
          eventName = eventName.toLowerCase();
          var eventHandlers = this._handlers[eventName];
 
