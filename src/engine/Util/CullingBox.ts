@@ -7,7 +7,7 @@ module ex {
       private _bottomLeft: Point = new Point(0, 0);
       private _bottomRight: Point = new Point(0, 0);
 
-      public processCurrentDrawing(actor: Actor): void {
+      public isSpriteOffScreen(actor: Actor): void {
          var drawingWidth = actor.currentDrawing.width * actor.currentDrawing.scale.x;
          var drawingHeight = actor.currentDrawing.height * actor.currentDrawing.scale.y;
          var rotation = actor.rotation;

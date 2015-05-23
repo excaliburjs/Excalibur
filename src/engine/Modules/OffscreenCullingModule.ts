@@ -15,7 +15,7 @@ module ex {
          var actorScreenCoords = engine.worldToScreenCoordinates(new Point(actor.getWorldX() - anchor.x * width, actor.getWorldY() - anchor.y * height));
 
          if (actor.currentDrawing != null) {
-            this.cullingBox.processCurrentDrawing(actor);
+            this.cullingBox.isSpriteOffScreen(actor);
          }
 
          var zoom = 1.0;
