@@ -73,11 +73,11 @@ module ex {
     */
    export class Promise<T> implements IPromise<T> {
       private _state: PromiseState = PromiseState.Pending;
-      private value: T;
-      private successCallbacks: { (value?: T): any }[] = [];
-      private rejectCallback: (value?: any) => any = () => { };
-      private errorCallback: (value?: any) => any;// = () => { };
-      private logger : Logger = Logger.getInstance();
+      private _value: T;
+      private _successCallbacks: { (value?: T): any }[] = [];
+      private _rejectCallback: (value?: any) => any = () => { return; };
+      private _errorCallback: (value?: any) => any;
+      private _logger : Logger = Logger.getInstance();
 
       /**
        * Wrap a value in a resolved promise
@@ -93,9 +93,9 @@ module ex {
        * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
        * when at least 1 promise rejects.
        */
-      public static join<T>(...promises: Promise<T>[]){
+      public static join<T>(...promises: Promise<T>[]) {
          var joinedPromise = new Promise<T>();
-         if(!promises || !promises.length){
+         if(!promises || !promises.length) {
             return joinedPromise.resolve();
          }
 
@@ -104,25 +104,25 @@ module ex {
          var rejects = 0;
          var errors = [];
 
-         promises.forEach((p)=>{
+         promises.forEach((p) => {
             p.then(
-               ()=>{
+               () => {
                   successes += 1;
-                  if(successes === total){
+                  if(successes === total) {
                      joinedPromise.resolve();
-                  }else if(successes + rejects + errors.length === total){
+                  } else if (successes + rejects + errors.length === total) {
                      joinedPromise.reject(errors);
                   }
                },
-               ()=>{
+               () => {
                   rejects += 1;
-                  if(successes + rejects + errors.length === total){
+                  if (successes + rejects + errors.length === total) {
                      joinedPromise.reject(errors);
                   }
                }
             ).error((e) => {
                errors.push(e);
-               if((errors.length + successes + rejects) === total){
+               if ((errors.length + successes + rejects) === total) {
                   joinedPromise.reject(errors);
                }
             });
@@ -132,9 +132,6 @@ module ex {
          return joinedPromise;
       }
 
-      constructor() { }
-
-
       /**
        * Chain success and reject callbacks after the promise is resovled
        * @param successCallback  Call on resolution of promise
@@ -142,26 +139,26 @@ module ex {
        */
       public then(successCallback?: (value?: T) => any, rejectCallback?: (value?: any) => any) {
          if (successCallback) {
-            this.successCallbacks.push(successCallback);
+            this._successCallbacks.push(successCallback);
 
             // If the promise is already resovled call immediately
             if (this.state() === PromiseState.Resolved) {
                try {
-                  successCallback.call(this, this.value);
+                  successCallback.call(this, this._value);
                } catch (e) {
-                  this.handleError(e);
+                  this._handleError(e);
                }
             }
          }
          if (rejectCallback) {
-            this.rejectCallback = rejectCallback;
+            this._rejectCallback = rejectCallback;
 
             // If the promise is already rejected call immediately
             if (this.state() === PromiseState.Rejected) {
                try {
-                  rejectCallback.call(this, this.value);
+                  rejectCallback.call(this, this._value);
                } catch (e) {
-                  this.handleError(e);
+                  this._handleError(e);
                }
             }
          }
@@ -175,7 +172,7 @@ module ex {
        */
       public error(errorCallback?: (value?: any) => any) {
          if (errorCallback) {
-            this.errorCallback = errorCallback;
+            this._errorCallback = errorCallback;
          }
          return this;
       }
@@ -184,17 +181,17 @@ module ex {
        * Resolve the promise and pass an option value to the success callbacks
        * @param value  Value to pass to the success callbacks
        */
-      public resolve(value?: T) : Promise<T>{
+      public resolve(value?: T) : Promise<T> {
          if (this._state === PromiseState.Pending) {
-            this.value = value;
+            this._value = value;
             try {
                this._state = PromiseState.Resolved;
-               this.successCallbacks.forEach((cb) => {
-                  cb.call(this, this.value);
+               this._successCallbacks.forEach((cb) => {
+                  cb.call(this, this._value);
                });
 
             } catch (e) {
-               this.handleError(e);
+               this._handleError(e);
             }
          } else {
             throw new Error('Cannot resolve a promise that is not in a pending state!');
@@ -208,12 +205,12 @@ module ex {
        */
       public reject(value?: any) {
          if (this._state === PromiseState.Pending) {
-            this.value = value;
+            this._value = value;
             try {
                this._state = PromiseState.Rejected;
-               this.rejectCallback.call(this, this.value);
+               this._rejectCallback.call(this, this._value);
             } catch (e) {
-               this.handleError(e);
+               this._handleError(e);
             }
          } else {
             throw new Error('Cannot reject a promise that is not in a pending state!');
@@ -228,10 +225,10 @@ module ex {
          return this._state;
       }
 
-      private handleError(e: any) {
-         if (this.errorCallback) {
-            this.errorCallback.call(this, e);
-         }else{
+      private _handleError(e: any) {
+         if (this._errorCallback) {
+            this._errorCallback.call(this, e);
+         } else {
             // rethrow error
             throw e;
          }
