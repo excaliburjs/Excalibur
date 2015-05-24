@@ -188,7 +188,8 @@ module.exports = function (grunt) {
             "src/engine/Actions/IActionable.ts",
             "src/engine/Collision/BoundingBox.ts",
             "src/engine/Collision/DynamicTree.ts",
-            "src/engine/Collision/DynamicTreeCollisionResolver.ts"
+            "src/engine/Collision/DynamicTreeCollisionResolver.ts",
+            "src/engine/Collision/ICollisionResolver.ts"
          ]
       }
    });
