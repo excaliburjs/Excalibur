@@ -15,8 +15,8 @@ module ex {
        * @param width   The starting width of the actor
        * @param height  The starting height of the actor
        */
-      constructor(x?: number, y?: number, width?: number, height?: number){
-         super(x,y,width,height);
+      constructor(x?: number, y?: number, width?: number, height?: number) {
+         super(x, y, width, height);
          this.pipeline = [];
          this.pipeline.push(new ex.MovementModule());
          this.pipeline.push(new ex.CapturePointerModule());
@@ -30,7 +30,7 @@ module ex {
       }
 
       public contains(x: number, y: number, useWorld: boolean = true) {
-         if (useWorld) return super.contains(x, y);
+         if (useWorld) { return super.contains(x, y); }
 
          var coords = this._engine.worldToScreenCoordinates(new ex.Point(x, y));
          return super.contains(coords.x, coords.y);

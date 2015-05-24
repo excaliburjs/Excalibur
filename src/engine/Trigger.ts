@@ -38,7 +38,7 @@ module ex {
     * ```
     */
    export class Trigger extends Actor {
-      private action : ()=>void = ()=>{};
+      private _action : () => void = () => { return; };
       public repeats : number = 1;
       public target : Actor = null;
 
@@ -50,10 +50,10 @@ module ex {
        * @param action  Callback to fire when trigger is activated, `this` will be bound to the Trigger instance
        * @param repeats The number of times that this trigger should fire, by default it is 1, if -1 is supplied it will fire indefinitely
        */
-      constructor(x?: number, y?: number, width?: number, height?: number, action?: ()=>void, repeats?: number){
+      constructor(x?: number, y?: number, width?: number, height?: number, action?: () => void, repeats?: number) {
          super(x, y, width, height);
          this.repeats = repeats || this.repeats;
-         this.action = action || this.action;
+         this._action = action || this._action;
          this.collisionType = CollisionType.PreventCollision;
          this.eventDispatcher = new EventDispatcher(this);
          this.actionQueue = new Internal.Actions.ActionQueue(this);
@@ -74,38 +74,38 @@ module ex {
          this.scale.y += this.sy * delta / 1000;
 
          // check for trigger collisions
-         if(this.target){
-            if(this.collides(this.target)){
-               this.dispatchAction();
+         if (this.target) {
+            if (this.collides(this.target)) {
+               this._dispatchAction();
             }
-         }else{
+         } else {
             for (var i = 0; i < engine.currentScene.children.length; i++) {
                var other = engine.currentScene.children[i];
                if(other !== this && 
                   other.collisionType !== CollisionType.PreventCollision && 
-                  this.collides(other)){
-                  this.dispatchAction();
+                  this.collides(other)) {
+                  this._dispatchAction();
                }
             }
          }         
 
          // remove trigger if its done, -1 repeat forever
-         if(this.repeats === 0){
+         if (this.repeats === 0) {
             this.kill();
          }
       }
 
-      private dispatchAction(){
-         this.action.call(this);
+      private _dispatchAction() {
+         this._action.call(this);
          this.repeats--;
       }
 
-      public draw(ctx: CanvasRenderingContext2D, delta: number){
+      public draw(ctx: CanvasRenderingContext2D, delta: number) {
          // does not draw
          return;
       }
 
-      public debugDraw(ctx: CanvasRenderingContext2D){
+      public debugDraw(ctx: CanvasRenderingContext2D) {
          super.debugDraw(ctx);
           // Meant to draw debug information about actors
          ctx.save();
