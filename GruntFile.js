@@ -192,7 +192,8 @@ module.exports = function (grunt) {
             "src/engine/Collision/ICollisionResolver.ts",
             "src/engine/Collision/NaiveCollisionResolver.ts",
             "src/engine/Collision/Side.ts",
-            "src/engine/Input/Gamepad.ts"
+            "src/engine/Input/Gamepad.ts",
+            "src/engine/Input/IEngineInpute.ts"
          ]
       }
    });
