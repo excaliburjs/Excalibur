@@ -1,8 +1,8 @@
 ﻿module ex.Input {
     
    /**
-   * Enum representing input key codes 
-   */
+    * Enum representing input key codes 
+    */
    export enum Keys {
       Num1 = 97,
       Num2 = 98,
@@ -129,7 +129,7 @@
             this._keys.splice(key, 1);
             this._keysUp.push(ev.keyCode);
             var keyEvent = new KeyEvent(ev.keyCode);
-            this.eventDispatcher.publish("up", keyEvent);            
+            this.eventDispatcher.publish('up', keyEvent);            
          });
 
          // key down is on window because canvas cannot have focus
@@ -138,7 +138,7 @@
                this._keys.push(ev.keyCode);
                this._keysDown.push(ev.keyCode);
                var keyEvent = new KeyEvent(ev.keyCode);
-               this.eventDispatcher.publish("down", keyEvent);               
+               this.eventDispatcher.publish('down', keyEvent);               
             }
          });
       }
