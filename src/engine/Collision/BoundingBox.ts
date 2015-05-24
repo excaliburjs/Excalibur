@@ -74,7 +74,7 @@ module ex {
        * Tests whether another bounding box is totally contained in this one
        * @param bb  The bounding box to test
        */
-      public contains(bb: BoundingBox):boolean;
+      public contains(bb: BoundingBox): boolean;
       public contains(val: any): boolean {
          if (val instanceof Point) {
             return (this.left <= val.x && this.top <= val.y && this.bottom >= val.y && this.right >= val.x);

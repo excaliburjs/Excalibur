@@ -185,7 +185,8 @@ module.exports = function (grunt) {
             "src/engine/TileMap.ts",
             "src/engine/Actions/Action.ts",
             "src/engine/Actions/ActionContext.ts",
-            "src/engine/Actions/IActionable.ts"
+            "src/engine/Actions/IActionable.ts",
+            "src/engine/Collision/BoundingBox.ts"
          ]
       }
    });
