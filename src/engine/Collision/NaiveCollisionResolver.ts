@@ -4,8 +4,7 @@
 
 module ex {
    export class NaiveCollisionResolver implements ICollisionResolver {
-      constructor() { }
-
+      
       public register(target: Actor) {
          // pass
       }
@@ -14,7 +13,7 @@ module ex {
          // pass
       }
 
-      public evaluate(targets: Actor[]): CollisionPair[]{
+      public evaluate(targets: Actor[]): CollisionPair[] {
 
          // Retrieve the list of potential colliders, exclude killed, prevented, and self
          var potentialColliders = targets.filter((other) => {
@@ -60,7 +59,7 @@ module ex {
       }
 
       public debugDraw(ctx: CanvasRenderingContext2D, delta: number) {
-
+         return;
       }
    }
 }
