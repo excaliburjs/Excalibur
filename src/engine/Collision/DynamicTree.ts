@@ -24,7 +24,7 @@ module ex {
    export class DynamicTree {
 
       public root: TreeNode;
-      public nodes: {[key:number]:TreeNode};
+      public nodes: {[key: number]: TreeNode};
       constructor() {
          this.root = null;
          this.nodes = {};
@@ -127,10 +127,10 @@ module ex {
             currentNode = this.balance(currentNode);
 
             if (!currentNode.left) {
-               throw new Error("Parent of current leaf cannot have a null left child" + currentNode);
+               throw new Error('Parent of current leaf cannot have a null left child' + currentNode);
             }
             if (!currentNode.right) {
-               throw new Error("Parent of current leaf cannot have a null right child"+ currentNode);
+               throw new Error('Parent of current leaf cannot have a null right child' + currentNode);
             }
 
             currentNode.height = 1 + Math.max(currentNode.left.height, currentNode.right.height);
@@ -138,10 +138,9 @@ module ex {
 
             currentNode = currentNode.parent;
          }
-
       }
 
-      public remove(leaf:TreeNode) {
+      public remove(leaf: TreeNode) {
          if (leaf === this.root) {
             this.root = null;
             return;
@@ -194,7 +193,7 @@ module ex {
 
       public updateActor(actor: Actor) {
          var node = this.nodes[actor.id];
-         if (!node) return;
+         if (!node) { return; }
          var b = actor.getBounds();
          if (node.bounds.contains(b)) {
             return false;
@@ -228,7 +227,7 @@ module ex {
 
       public removeActor(actor: Actor) {
          var node = this.nodes[actor.id];
-         if (!node) return;
+         if (!node) { return; }
          this.remove(node);
          this.nodes[actor.id] = null;
          delete this.nodes[actor.id];
@@ -236,7 +235,7 @@ module ex {
 
       public balance(node: TreeNode) {
          if (node === null) {
-            throw new Error("Cannot balance at null node");
+            throw new Error('Cannot balance at null node');
          }
 
          if (node.isLeaf() || node.height < 2) {
@@ -315,7 +314,7 @@ module ex {
                if (b.parent.left === a) {
                   b.parent.left = b;
                } else {
-                  if (b.parent.right !== a) throw "Error rotating Dynamic Tree";
+                  if (b.parent.right !== a) { throw 'Error rotating Dynamic Tree'; }
                   b.parent.right = b;
                }
             } else {
@@ -358,7 +357,7 @@ module ex {
          return this.root.height;
       }
 
-      public query(actor: Actor, callback:(other: Actor)=>boolean): void {
+      public query(actor: Actor, callback: (other: Actor) => boolean): void {
          var bounds = actor.getBounds();
          var helper = currentNode => {
             if (currentNode && currentNode.bounds.collides(bounds)) {
@@ -372,7 +371,7 @@ module ex {
             } else {
                return null;
             }
-         }
+         };
          return helper(this.root);
       }
 
@@ -382,14 +381,14 @@ module ex {
       }
 
       
-      public getNodes():TreeNode[] {
+      public getNodes(): TreeNode[] {
          var helper = currentNode => {
             if (currentNode) {
                return [currentNode].concat(helper(currentNode.left), helper(currentNode.right));
             } else {
                return [];
             }
-         }
+         };
          return helper(this.root);
 
       }
@@ -405,11 +404,10 @@ module ex {
                }
                currentNode.bounds.debugDraw(ctx);
 
-               if (currentNode.left) helper(currentNode.left);
-               if (currentNode.right) helper(currentNode.right);
+               if (currentNode.left) { helper(currentNode.left); }
+               if (currentNode.right) { helper(currentNode.right); }
             }
-
-         }
+         };
 
          helper(this.root);
       }
