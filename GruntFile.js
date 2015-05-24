@@ -182,7 +182,8 @@ module.exports = function (grunt) {
             "src/engine/Sprite.ts",
             "src/engine/SpriteEffects.ts",
             "src/engine/SpriteSheet.ts",
-            "src/engine/TileMap.ts"
+            "src/engine/TileMap.ts",
+            "src/engine/Actions/Action.ts"
          ]
       }
    });
