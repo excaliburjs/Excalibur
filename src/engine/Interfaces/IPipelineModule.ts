@@ -1,5 +1,5 @@
 module ex {
-    /**
+   /**
     * An interface describing actor update pipeline modules
     */
    export interface IPipelineModule {
