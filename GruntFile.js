@@ -160,7 +160,8 @@ module.exports = function (grunt) {
             "src/engine/Actions/*.ts",
             "src/engine/Collision/*.ts",
             "src/engine/Input/*.ts",
-            "src/engine/Interfaces/*.ts"
+            "src/engine/Interfaces/*.ts",
+            "src/engine/Modules/*.ts"
          ]
       }
    });
