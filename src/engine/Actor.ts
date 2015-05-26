@@ -1027,7 +1027,7 @@ module ex {
        return complete;
     }
     private _getCalculatedAnchor(): Point {
-       return new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);  
+       return new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
     }
     /**
      * Called by the Engine, updates the state of the actor
@@ -1113,6 +1113,14 @@ module ex {
        ctx.arc(this.getWorldX(), this.getWorldY(), 3, 0, Math.PI * 2);
        ctx.closePath();
        ctx.fill();
+
+       // Culling Box debug draw
+       for (var i = 0; i < this.pipeline.length; i++) {
+          if (this.pipeline[i] instanceof OffscreenCullingModule) {
+             (<OffscreenCullingModule>this.pipeline[i]).cullingBox.debugDraw(ctx);
+          }
+       }
+
        ctx.save();
        ctx.translate(this.x, this.y);
        ctx.rotate(this.rotation);
