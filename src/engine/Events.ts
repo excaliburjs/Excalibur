@@ -28,9 +28,6 @@ module ex {
        * Target object for this event.
        */
       public target: any;
-
-      constructor() { 
-      }
    }
 
    /**
@@ -55,7 +52,7 @@ module ex {
     * Event received by the Engine when the browser window is visible
     */
    export class VisibleEvent extends GameEvent {
-      constructor(){
+      constructor() {
          super();
       }
    }
@@ -64,7 +61,7 @@ module ex {
     * Event received by the Engine when the browser window is hidden
     */
    export class HiddenEvent extends GameEvent {
-      constructor(){
+      constructor() {
          super();
       }
    }
@@ -141,7 +138,7 @@ module ex {
     * Event thrown on an Actor when it completely leaves the screen.
     */
    export class ExitViewPortEvent extends GameEvent {
-      constructor(){
+      constructor() {
          super();
       }
    }
@@ -150,7 +147,7 @@ module ex {
     * Event thrown on an Actor when it completely leaves the screen.
     */
    export class EnterViewPortEvent extends GameEvent {
-      constructor(){
+      constructor() {
          super();
       }
    }

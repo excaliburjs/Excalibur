@@ -18,11 +18,13 @@ module ex {
        */
       Center,
       /**
-       * The text is aligned at the normal start of the line (left-aligned for left-to-right locales, right-aligned for right-to-left locales).
+       * The text is aligned at the normal start of the line (left-aligned for left-to-right locales, 
+       * right-aligned for right-to-left locales).
        */
       Start,
       /**
-       * The text is aligned at the normal end of the line (right-aligned for left-to-right locales, left-aligned for right-to-left locales).
+       * The text is aligned at the normal end of the line (right-aligned for left-to-right locales, 
+       * left-aligned for right-to-left locales).
        */
       End
    }
@@ -36,7 +38,8 @@ module ex {
        */
       Top,
       /**
-       * The text baseline is the hanging baseline.  Currently unsupported; this will act like alphabetic.
+       * The text baseline is the hanging baseline.  Currently unsupported; this will act like 
+       * alphabetic.
        */
       Hanging,
       /**
@@ -204,15 +207,16 @@ module ex {
        * @param x           The x position of the label
        * @param y           The y position of the label
        * @param font        Use any valid CSS font string for the label's font. Web fonts are supported. Default is `10px sans-serif`.
-       * @param spriteFont  Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precendence over a css font.
+       * @param spriteFont  Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precendence 
+       * over a css font.
        */
       constructor(text?: string, x?: number, y?: number, font?: string, spriteFont?: SpriteFont) {
          super(x, y);
-         this.text = text || "";
+         this.text = text || '';
          this.color = Color.Black.clone();
          this.spriteFont = spriteFont;
          this.collisionType = CollisionType.PreventCollision;
-         this.font = font || "10px sans-serif"; // coallesce to default canvas font
+         this.font = font || '10px sans-serif'; // coallesce to default canvas font
          if (spriteFont) {
             this._textSprites = spriteFont.getTextSprites();
          }
@@ -235,49 +239,36 @@ module ex {
       private _lookupTextAlign(textAlign: TextAlign): string {
          switch (textAlign) {
             case TextAlign.Left:
-               return "left";
-               break;
+               return 'left';
             case TextAlign.Right:
-               return "right";
-               break;
+               return 'right';
             case TextAlign.Center:
-               return "center";
-               break;
+               return 'center';
             case TextAlign.End:
-               return "end";
-               break;
+               return 'end';
             case TextAlign.Start:
-               return "start";
-               break;
+               return 'start';
             default:
-               return "start";
-               break;
+               return 'start';
          }
       }
 
       private _lookupBaseAlign(baseAlign: BaseAlign): string {
          switch (baseAlign) {
             case BaseAlign.Alphabetic:
-               return "alphabetic";
-               break;
+               return 'alphabetic';
             case BaseAlign.Bottom:
-               return "bottom";
-               break;
+               return 'bottom';
             case BaseAlign.Hanging:
-               return "hangin";
-               break;
+               return 'hangin';
             case BaseAlign.Ideographic:
-               return "ideographic";
-               break;
+               return 'ideographic';
             case BaseAlign.Middle:
-               return "middle";
-               break;
+               return 'middle';
             case BaseAlign.Top:
-               return "top";
-               break;
+               return 'top';
             default:
-               return "alphabetic";
-               break;
+               return 'alphabetic';
          }
       }
 
@@ -320,9 +311,9 @@ module ex {
          }
 
          if (this.spriteFont && this._textShadowOn && this._shadowColorDirty && this._shadowColor) {
-            for (var character in this._shadowSprites) {
-               this._shadowSprites[character].clearEffects();
-               this._shadowSprites[character].addEffect(new Effects.Fill(this._shadowColor.clone()));
+            for (var characterShadow in this._shadowSprites) {
+               this._shadowSprites[characterShadow].clearEffects();
+               this._shadowSprites[characterShadow].addEffect(new Effects.Fill(this._shadowColor.clone()));
             }
             this._shadowColorDirty = false;
          }
@@ -367,7 +358,7 @@ module ex {
                   charSprite.draw(ctx, currX, 0);
                   currX += (charSprite.swidth + this.letterSpacing);
                } catch (e) {
-                  Logger.getInstance().error("SpriteFont Error drawing char " + character);
+                  Logger.getInstance().error('SpriteFont Error drawing char ' + character);
                }
             }
             if (this.previousOpacity !== this.opacity) {

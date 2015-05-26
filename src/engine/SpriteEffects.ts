@@ -31,13 +31,13 @@ module ex {
        * Applies the "Grayscale" effect to a sprite, removing color information.
        */
       export class Grayscale implements ISpriteEffect {
-        updatePixel(x: number, y: number, imageData: ImageData): void{
-           var firstPixel = (x+y*imageData.width)*4;
+        updatePixel(x: number, y: number, imageData: ImageData): void {
+           var firstPixel = (x + y * imageData.width) * 4;
            var pixel = imageData.data;
-           var avg = (pixel[firstPixel+0] + pixel[firstPixel+1] + pixel[firstPixel+2])/3;
-           pixel[firstPixel+0] = avg;
-           pixel[firstPixel+1] = avg;
-           pixel[firstPixel+2] = avg;
+           var avg = (pixel[firstPixel + 0] + pixel[firstPixel + 1] + pixel[firstPixel + 2]) / 3;
+           pixel[firstPixel + 0] = avg;
+           pixel[firstPixel + 1] = avg;
+           pixel[firstPixel + 2] = avg;
         }
       }
 
@@ -45,12 +45,12 @@ module ex {
        * Applies the "Invert" effect to a sprite, inverting the pixel colors.
        */
       export class Invert implements ISpriteEffect {
-        updatePixel(x: number, y: number, imageData: ImageData): void{
-          var firstPixel = (x+y*imageData.width)*4;
+        updatePixel(x: number, y: number, imageData: ImageData): void {
+          var firstPixel = (x + y * imageData.width) * 4;
           var pixel = imageData.data;
-          pixel[firstPixel+0] = 255 - pixel[firstPixel+0];
-          pixel[firstPixel+1] = 255 - pixel[firstPixel+1];
-          pixel[firstPixel+2] = 255 - pixel[firstPixel+2];
+          pixel[firstPixel + 0] = 255 - pixel[firstPixel + 0];
+          pixel[firstPixel + 1] = 255 - pixel[firstPixel + 1];
+          pixel[firstPixel + 2] = 255 - pixel[firstPixel + 2];
         }
       }
 
@@ -62,12 +62,12 @@ module ex {
         /**
          * @param opacity  The new opacity of the sprite from 0-1.0 
          */
-        constructor(public opacity: number){}
-        updatePixel(x: number, y: number, imageData: ImageData): void{
-           var firstPixel = (x+y*imageData.width)*4;
+        constructor(public opacity: number) {}
+        updatePixel(x: number, y: number, imageData: ImageData): void {
+           var firstPixel = (x + y * imageData.width) * 4;
            var pixel = imageData.data;
-           if(pixel[firstPixel+3] !== 0){
-              pixel[firstPixel+3] = Math.round(this.opacity*255);
+           if(pixel[firstPixel + 3] !== 0) {
+              pixel[firstPixel + 3] = Math.round(this.opacity * 255);
            }
         }
       }
@@ -80,14 +80,14 @@ module ex {
         /**
          * @param color  The color to apply to the sprite
          */
-        constructor(public color: Color){}
+        constructor(public color: Color) {}
         updatePixel(x: number, y: number, imageData: ImageData): void {
-           var firstPixel = (x+y*imageData.width)*4;
+           var firstPixel = (x + y * imageData.width) * 4;
            var pixel = imageData.data;
-           if(pixel[firstPixel+3] !== 0){
-              pixel[firstPixel+0] = (pixel[firstPixel+0] + this.color.r)/2;
-              pixel[firstPixel+1] = (pixel[firstPixel+1] + this.color.g)/2;
-              pixel[firstPixel+2] = (pixel[firstPixel+2] + this.color.b)/2;
+           if(pixel[firstPixel + 3] !== 0) {
+              pixel[firstPixel + 0] = (pixel[firstPixel + 0] + this.color.r) / 2;
+              pixel[firstPixel + 1] = (pixel[firstPixel + 1] + this.color.g) / 2;
+              pixel[firstPixel + 2] = (pixel[firstPixel + 2] + this.color.b) / 2;
            }
         }
       }
@@ -104,7 +104,10 @@ module ex {
         updatePixel(x: number, y: number, imageData: ImageData): void {
            var firstPixel = (x + y * imageData.width) * 4;
            var pixel = imageData.data;
-           var color = Color.fromRGB(pixel[firstPixel + 0], pixel[firstPixel + 1], pixel[firstPixel + 2], pixel[firstPixel + 3]).lighten(this.factor);
+           var color = Color.fromRGB(pixel[firstPixel + 0], 
+                                     pixel[firstPixel + 1], 
+                                     pixel[firstPixel + 2], 
+                                     pixel[firstPixel + 3]).lighten(this.factor);
            pixel[firstPixel + 0] = color.r;
            pixel[firstPixel + 1] = color.g;
            pixel[firstPixel + 2] = color.b;
@@ -123,7 +126,10 @@ module ex {
         updatePixel(x: number, y: number, imageData: ImageData): void {
            var firstPixel = (x + y * imageData.width) * 4;
            var pixel = imageData.data;
-           var color = Color.fromRGB(pixel[firstPixel + 0], pixel[firstPixel + 1], pixel[firstPixel + 2], pixel[firstPixel + 3]).darken(this.factor);
+           var color = Color.fromRGB(pixel[firstPixel + 0], 
+                                     pixel[firstPixel + 1], 
+                                     pixel[firstPixel + 2], 
+                                     pixel[firstPixel + 3]).darken(this.factor);
            pixel[firstPixel + 0] = color.r;
            pixel[firstPixel + 1] = color.g;
            pixel[firstPixel + 2] = color.b;
@@ -142,7 +148,10 @@ module ex {
         updatePixel(x: number, y: number, imageData: ImageData): void {
            var firstPixel = (x + y * imageData.width) * 4;
            var pixel = imageData.data;
-           var color = Color.fromRGB(pixel[firstPixel + 0], pixel[firstPixel + 1], pixel[firstPixel + 2], pixel[firstPixel + 3]).saturate(this.factor);
+           var color = Color.fromRGB(pixel[firstPixel + 0], 
+                                     pixel[firstPixel + 1], 
+                                     pixel[firstPixel + 2], 
+                                     pixel[firstPixel + 3]).saturate(this.factor);
            pixel[firstPixel + 0] = color.r;
            pixel[firstPixel + 1] = color.g;
            pixel[firstPixel + 2] = color.b;
@@ -161,7 +170,10 @@ module ex {
         updatePixel(x: number, y: number, imageData: ImageData): void {
            var firstPixel = (x + y * imageData.width) * 4;
            var pixel = imageData.data;
-           var color = Color.fromRGB(pixel[firstPixel + 0], pixel[firstPixel + 1], pixel[firstPixel + 2], pixel[firstPixel + 3]).desaturate(this.factor);
+           var color = Color.fromRGB(pixel[firstPixel + 0], 
+                                     pixel[firstPixel + 1], 
+                                     pixel[firstPixel + 2],
+                                     pixel[firstPixel + 3]).desaturate(this.factor);
            pixel[firstPixel + 0] = color.r;
            pixel[firstPixel + 1] = color.g;
            pixel[firstPixel + 2] = color.b;
@@ -178,14 +190,14 @@ module ex {
         /**
          * @param color  The color to apply to the sprite
          */
-        constructor(public color: Color){}
+        constructor(public color: Color) {}
         updatePixel(x: number, y: number, imageData: ImageData): void {
-           var firstPixel = (x+y*imageData.width)*4;
+           var firstPixel = (x + y * imageData.width) * 4;
            var pixel = imageData.data;
-           if(pixel[firstPixel+3] !== 0){
-              pixel[firstPixel+0] = this.color.r;
-              pixel[firstPixel+1] = this.color.g;
-              pixel[firstPixel+2] = this.color.b;
+           if(pixel[firstPixel + 3] !== 0) {
+              pixel[firstPixel + 0] = this.color.r;
+              pixel[firstPixel + 1] = this.color.g;
+              pixel[firstPixel + 2] = this.color.b;
            }
         }
       }

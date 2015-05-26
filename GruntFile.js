@@ -71,7 +71,7 @@ module.exports = function (grunt) {
       watch: {
          scripts: {
             files: ['src/engine/*.ts', 'src/spec/*.ts'],
-            tasks: ['shell:specs', 'jasmine_node'],
+            tasks: ['tslint:src', 'shell:specs', 'jasmine_node'],
             options: {
                interrupt: true
             }
@@ -147,9 +147,24 @@ module.exports = function (grunt) {
       },
 
       //
-      // UglifyJS configuration
+      // TS Lint configuration
       //
-      uglify: {}
+      tslint: {
+         options: {
+            formatter: 'prose',
+            rulesDirectory: './tslint/rules/',
+            configuration: grunt.file.readJSON('./tslint/tslint.json')            
+         },
+         src: [
+            "src/engine/*.ts",
+            "src/engine/Actions/*.ts",
+            "src/engine/Collision/*.ts",
+            "src/engine/Input/*.ts",
+            "src/engine/Interfaces/*.ts",
+            "src/engine/Modules/*.ts",
+            "src/engine/Util/*.ts"
+         ]
+      }
    });
 
    //
@@ -160,6 +175,7 @@ module.exports = function (grunt) {
    grunt.loadNpmTasks('grunt-contrib-concat');
    grunt.loadNpmTasks('grunt-contrib-copy');
    grunt.loadNpmTasks('grunt-jasmine-node');
+   grunt.loadNpmTasks('grunt-tslint');
    grunt.loadNpmTasks('grunt-contrib-watch');
 
    //
@@ -173,7 +189,7 @@ module.exports = function (grunt) {
    grunt.registerTask('sample', ['shell:sample']);
 
    // Default task - compile, test, build dists
-   grunt.registerTask('default', ['tests', 'shell:tsc', 'minified', 'concat', 'copy', 'sample', 'shell:nuget']);
+   grunt.registerTask('default', ['tslint:src', 'tests', 'shell:tsc', 'minified', 'concat', 'copy', 'sample', 'shell:nuget']);
 
    grunt.registerTask('compile', ['shell:tsc', 'minified', 'concat', 'copy', 'shell:nuget'])
 

@@ -63,9 +63,9 @@ module ex {
        */
       public image: HTMLImageElement;
 
-      private progressCallback: (progress: number, total: number) => void
-      private doneCallback: () => void;
-      private errorCallback: (e: string) => void;
+      private _progressCallback: (progress: number, total: number) => void;
+      private _doneCallback: () => void;
+      private _errorCallback: (e: string) => void;
 
       /**
        * @param path       Path to the image resource
@@ -94,7 +94,7 @@ module ex {
          var loaded = super.load();
          loaded.then(() => {
             this.image = new Image();
-            this.image.addEventListener("load", ()=>{
+            this.image.addEventListener('load', () => {
                this._isLoaded = true;
                this.width = this._sprite.swidth = this._sprite.width = this.image.naturalWidth;
                this.height = this._sprite.sheight = this._sprite.height = this.image.naturalHeight;
@@ -105,7 +105,7 @@ module ex {
             
 
          }, () => {
-            complete.reject("Error loading texture.");
+            complete.reject('Error loading texture.');
          });
          return complete;
       }
@@ -140,19 +140,19 @@ module ex {
     * ```  
     */
    export class Sound implements ILoadable, ex.Internal.ISound {
-      private logger: Logger = Logger.getInstance();
+      private _logger: Logger = Logger.getInstance();
 
-      public onprogress: (e: any) => void = () => { };
+      public onprogress: (e: any) => void = () => { return; };
 
-      public oncomplete: () => void = () => { };
+      public oncomplete: () => void = () => { return; };
 
-      public onerror: (e: any) => void = () => { };
+      public onerror: (e: any) => void = () => { return; };
 
-      public onload: (e: any) => void = () => { };
+      public onload: (e: any) => void = () => { return; };
 
       private _isLoaded: boolean = false;
 
-      private _selectedFile: string = "";
+      private _selectedFile: string = '';
 
       private _engine: Engine;
       private _wasPlayingOnHidden: boolean = false;
@@ -177,7 +177,7 @@ module ex {
                return false;
             }
          } catch (e) {
-            ex.Logger.getInstance().warn("Cannot determine audio support, assuming no support for the Audio Tag", e);
+            ex.Logger.getInstance().warn('Cannot determine audio support, assuming no support for the Audio Tag', e);
             return false;
          }
       }
@@ -191,16 +191,16 @@ module ex {
           * IE : MP3, WAV coming soon
           * Safari MP3, WAV, Ogg           
           */
-         this._selectedFile = "";
-         for(var i = 0; i < paths.length; i++){
-            if(Sound.canPlayFile(paths[i])){
+         this._selectedFile = '';
+         for(var i = 0; i < paths.length; i++) {
+            if(Sound.canPlayFile(paths[i])) {
                this._selectedFile = paths[i];
                break;
             }               
          }
 
-         if(!this._selectedFile){
-            this.logger.warn("This browser does not support any of the files specified");
+         if(!this._selectedFile) {
+            this._logger.warn('This browser does not support any of the files specified');
             this._selectedFile = paths[0]; // select the first specified
          }
 
@@ -231,7 +231,7 @@ module ex {
        * @param volume  A volume value between 0-1.0
        */
       public setVolume(volume: number) {
-         if (this.sound) this.sound.setVolume(volume);
+         if (this.sound) { this.sound.setVolume(volume); }
       }
 
       /**
@@ -239,41 +239,41 @@ module ex {
        * @param loop  Set the looping flag
        */
       public setLoop(loop: boolean) {
-         if (this.sound) this.sound.setLoop(loop);
+         if (this.sound) { this.sound.setLoop(loop); }
       }
 
       /**
        * Whether or not the sound is playing right now
        */
       public isPlaying(): boolean {
-         if (this.sound) return this.sound.isPlaying();
+         if (this.sound) { return this.sound.isPlaying(); }
       }
 
       /**
        * Play the sound, returns a promise that resolves when the sound is done playing
        */
       public play(): ex.Promise<any> {
-         if (this.sound) return this.sound.play();
+         if (this.sound) { return this.sound.play(); }
       }
 
       /**
        * Stop the sound, and do not rewind
        */
       public pause() {
-         if (this.sound) this.sound.pause();
+         if (this.sound) { this.sound.pause(); }
       }
 
       /**
        * Stop the sound and rewind
        */
       public stop() {
-         if (this.sound) this.sound.stop();
+         if (this.sound) { this.sound.stop(); }
       }
 
       /**
        * Returns true if the sound is loaded
        */
-      public isLoaded(){
+      public isLoaded() {
          return this._isLoaded;
       }
 
@@ -282,18 +282,18 @@ module ex {
        */
       public load(): Promise<ex.Internal.FallbackAudio> {
          var complete = new Promise<ex.Internal.FallbackAudio>();
-         this.logger.debug("Started loading sound", this._selectedFile);
+         this._logger.debug('Started loading sound', this._selectedFile);
          this.sound.onprogress = this.onprogress;
          this.sound.onload = () => {
             this.oncomplete();
             this._isLoaded = true;
-            this.logger.debug("Completed loading sound", this._selectedFile);
+            this._logger.debug('Completed loading sound', this._selectedFile);
             complete.resolve(this.sound);
-         }
+         };
          this.sound.onerror = (e) => {
-               this.onerror(e);
-               complete.resolve(e);
-            }
+            this.onerror(e);
+            complete.resolve(e);
+         };
          this.sound.load();
          return complete;
       }
@@ -334,13 +334,13 @@ module ex {
     * ```
     */
    export class Loader implements ILoadable {
-      private resourceList: ILoadable[] = [];
-      private index = 0;
+      private _resourceList: ILoadable[] = [];
+      private _index = 0;
 
-      private resourceCount: number = 0;
-      private numLoaded: number = 0;
-      private progressCounts: { [key: string]: number; } = {};
-      private totalCounts: { [key: string]: number; } = {};
+      private _resourceCount: number = 0;
+      private _numLoaded: number = 0;
+      private _progressCounts: { [key: string]: number; } = {};
+      private _totalCounts: { [key: string]: number; } = {};
       private _engine: Engine;
 
       /**
@@ -361,11 +361,11 @@ module ex {
        * @param loadable  Resource to add
        */
       public addResource(loadable: ILoadable) {
-         var key = this.index++;
-         this.resourceList.push(loadable);
-         this.progressCounts[key] = 0;
-         this.totalCounts[key] = 1;
-         this.resourceCount++;
+         var key = this._index++;
+         this._resourceList.push(loadable);
+         this._progressCounts[key] = 0;
+         this._totalCounts[key] = 1;
+         this._resourceCount++;
       }
 
       /**
@@ -380,7 +380,7 @@ module ex {
          }
       }
 
-      private sumCounts(obj): number {
+      private _sumCounts(obj): number {
          var sum = 0;
          var prev = 0;
          for (var i in obj) {
@@ -393,7 +393,7 @@ module ex {
        * Returns true if the loader has completely loaded all resources
        */
       public isLoaded() {
-         return this.numLoaded === this.resourceCount;
+         return this._numLoaded === this._resourceCount;
       }
 
 
@@ -404,22 +404,22 @@ module ex {
       public load(): Promise<any> {
          var complete = new Promise<any>();
          var me = this;
-         if (this.resourceList.length === 0) {
+         if (this._resourceList.length === 0) {
             me.oncomplete.call(me);
             return complete;
          }
 
-         var progressArray = new Array<any>(this.resourceList.length);
-         var progressChunks = this.resourceList.length;
+         var progressArray = new Array<any>(this._resourceList.length);
+         var progressChunks = this._resourceList.length;
 
-         this.resourceList.forEach((r, i) => {
+         this._resourceList.forEach((r, i) => {
             if (this._engine) {
                r.wireEngine(this._engine);
             }
             r.onprogress = function (e) {
                var total = <number>e.total;
                var loaded = <number>e.loaded;
-               progressArray[i] = {loaded: ((loaded/total)*(100/progressChunks)), total: 100};
+               progressArray[i] = {loaded: ((loaded / total) * (100 / progressChunks)), total: 100};
 
                var progressResult: any = progressArray.reduce(function(accum, next){
                   return {loaded: (accum.loaded + next.loaded), total: 100};
@@ -428,8 +428,8 @@ module ex {
                me.onprogress.call(me, progressResult);
             };
             r.oncomplete = r.onerror = function () {
-               me.numLoaded++;
-               if (me.numLoaded === me.resourceCount) {
+               me._numLoaded++;
+               if (me._numLoaded === me._resourceCount) {
                   me.onprogress.call(me, {loaded: 100, total: 100});
                   me.oncomplete.call(me);
                   complete.resolve();
@@ -437,22 +437,22 @@ module ex {
             };
          });
 
-         function loadNext(list, index){
-            if(!list[index]) return;
-            list[index].load().then(function(){
-               loadNext(list, index+1);
+         function loadNext(list, index) {
+            if(!list[index]) { return; }
+            list[index].load().then(function() {
+               loadNext(list, index + 1);
             });
          }
-         loadNext(this.resourceList, 0);         
+         loadNext(this._resourceList, 0);         
 
          return complete;
       }
 
-      public onprogress: (e: any) => void = () => { };
+      public onprogress: (e: any) => void = () => { return; };
 
-      public oncomplete: () => void = () => { };
+      public oncomplete: () => void = () => { return; };
 
-      public onerror: () => void = () => { };
+      public onerror: () => void = () => { return; };
 
    }
 }

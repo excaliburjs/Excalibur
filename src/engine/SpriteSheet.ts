@@ -94,7 +94,7 @@ module ex {
     */
    export class SpriteSheet {
       public sprites: Sprite[] = [];
-      private internalImage: HTMLImageElement;
+      private _internalImage: HTMLImageElement;
 
       /**
        * @param image     The backing image texture to build the SpriteSheet
@@ -104,7 +104,7 @@ module ex {
        * @param spHeight  The height of each individual sprite in pixels
        */
       constructor(public image: Texture, private columns: number, private rows: number, spWidth: number, spHeight: number) {
-         this.internalImage = image.image;
+         this._internalImage = image.image;
          this.sprites = new Array(columns * rows);
 
          // TODO: Inspect actual image dimensions with preloading
@@ -265,8 +265,8 @@ module ex {
     *
     */
    export class SpriteFont extends SpriteSheet {
-      private spriteLookup: { [key: string]: number; } = {};
-      private colorLookup: {[key: string]: Sprite[];} = {};
+      private _spriteLookup: { [key: string]: number; } = {};
+      private _colorLookup: {[key: string]: Sprite[]; } = {};
       private _currentColor: Color = Color.Black;
 
       /**
@@ -278,14 +278,20 @@ module ex {
        * @param spWdith         The width of each character in pixels
        * @param spHeight        The height of each character in pixels
        */
-      constructor(public image: Texture, private alphabet: string, private caseInsensitive: boolean, columns: number, rows: number, spWidth: number, spHeight: number) {
+      constructor(public image: Texture, 
+                  private alphabet: string, 
+                  private caseInsensitive: boolean, 
+                  columns: number, 
+                  rows: number, 
+                  spWidth: number, 
+                  spHeight: number) {
          super(image, columns, rows, spWidth, spHeight);
       }
 
       /**
        * Returns a dictionary that maps each character in the alphabet to the appropriate [[Sprite]].
        */
-      public getTextSprites(): { [key: string]: Sprite; }{
+      public getTextSprites(): { [key: string]: Sprite; } {
          var lookup: { [key: string]: Sprite; } = {};
          for (var i = 0; i < this.alphabet.length; i++) {
             var char = this.alphabet[i];

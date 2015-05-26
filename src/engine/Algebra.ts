@@ -24,9 +24,9 @@ module ex {
        * @param angle  The angle in radians
        * @param anchor The point to rotate around
        */
-      public rotate(angle: number, anchor?: Point): Point{
-         if(!anchor){
-            anchor = new ex.Point(0,0);
+      public rotate(angle: number, anchor?: Point): Point {
+         if (!anchor) {
+            anchor = new ex.Point(0, 0);
          }
          var sinAngle = Math.sin(angle);
          var cosAngle = Math.cos(angle);
@@ -46,7 +46,7 @@ module ex {
       /**
        * Sets the x and y components at once
        */
-      public setTo(x: number, y: number){
+      public setTo(x: number, y: number) {
          this.x = x;
          this.y = y;
       }
@@ -54,7 +54,7 @@ module ex {
       /**
        * Clones a new point that is a copy of this one.
        */
-      public clone(){
+      public clone() {
          return new Point(this.x, this.y);
       }
 
@@ -81,7 +81,7 @@ module ex {
        * Returns a vector of unit length in the direction of the specified angle.
        * @param angle The angle to generate the vector
        */
-      public static fromAngle(angle: number){
+      public static fromAngle(angle: number) {
          return new Vector(Math.cos(angle), Math.sin(angle));
       }
 
@@ -175,14 +175,14 @@ module ex {
       /**
        * Returns the perpendicular vector to this one
        */
-      public perpendicular(): Vector{
+      public perpendicular(): Vector {
          return new Vector(this.y, -this.x);
       }
 
       /**
        * Returns the normal vector to this one 
        */
-      public normal(): Vector{
+      public normal(): Vector {
          return this.perpendicular().normalize();
       }
 
@@ -204,7 +204,7 @@ module ex {
        * Rotates the current vector around a point by a certain number of
        * degrees in radians
        */
-      public rotate(angle: number, anchor: Point): Vector{
+      public rotate(angle: number, anchor: Point): Vector {
          return super.rotate(angle, anchor).toVector();
       }
 
@@ -229,7 +229,7 @@ module ex {
        * @param pos The starting position for the ray
        * @param dir The vector indicating the direction of the ray
        */
-      constructor(pos: Point, dir: Vector){
+      constructor(pos: Point, dir: Vector) {
          this.pos = pos;
          this.dir = dir.normalize();
       }
@@ -239,11 +239,11 @@ module ex {
        * This number indicates the mathematical intersection time.
        * @param line  The line to test
        */
-       public intersect(line: Line): number{
+       public intersect(line: Line): number {
          var numerator = line.begin.toVector().minus(this.pos.toVector());
 
          // Test is line and ray are parallel and non intersecting
-         if(this.dir.cross(line.getSlope()) === 0 && numerator.cross(this.dir) !== 0){ 
+         if(this.dir.cross(line.getSlope()) === 0 && numerator.cross(this.dir) !== 0) { 
             return -1;
          }
           
@@ -253,11 +253,11 @@ module ex {
              return -1;
          }
 
-         var t = numerator.cross(line.getSlope())/divisor;
+         var t = numerator.cross(line.getSlope()) / divisor;
 
-         if(t >= 0){
-            var u = (numerator.cross(this.dir)/divisor)/line.getLength();
-            if(u >= 0 && u <= 1){
+         if (t >= 0) {
+            var u = (numerator.cross(this.dir) / divisor) / line.getLength();
+            if (u >= 0 && u <= 1) {
                return t;
             }
          }         
@@ -267,7 +267,7 @@ module ex {
       /**
        * Returns the point of intersection given the intersection time
        */
-      public getPoint(time: number): Point{
+      public getPoint(time: number): Point {
          return this.pos.toVector().add(this.dir.scale(time)).toPoint();
       }
    }
@@ -281,24 +281,23 @@ module ex {
        * @param begin  The starting point of the line segment
        * @param end  The ending point of the line segment
        */
-      constructor(public begin: Point, public end: Point){
-
+      constructor(public begin: Point, public end: Point) {
       }
 
       /** 
        * Returns the slope of the line in the form of a vector
        */
-      public getSlope(): Vector{
+      public getSlope(): Vector {
          var begin = this.begin.toVector();
          var end = this.end.toVector();
          var distance = begin.distance(end);
-         return end.minus(begin).scale(1/distance);
+         return end.minus(begin).scale(1 / distance);
       }
 
       /**
        * Returns the length of the line segment in pixels
        */
-      public getLength(): number{
+      public getLength(): number {
          var begin = this.begin.toVector();
          var end = this.end.toVector();
          var distance = begin.distance(end);
@@ -312,17 +311,16 @@ module ex {
     * @todo
     */
    export class Projection {
-      constructor(public min: number, public max: number){}
+      constructor(public min: number, public max: number) {}
       public overlaps(projection: Projection): boolean {
          return this.max > projection.min && projection.max > this.min;      
       }
 
       public getOverlap(projection: Projection): number {
-         if(this.overlaps(projection)){
+         if(this.overlaps(projection)) {
             if (this.max > projection.max) {
                return projection.max - this.min;
-            }
-            else {
+            } else {
                return this.max - projection.min;
             }
          }

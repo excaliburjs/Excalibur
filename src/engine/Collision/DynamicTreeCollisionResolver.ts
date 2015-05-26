@@ -5,7 +5,7 @@ module ex {
     
    export class DynamicTreeCollisionResolver implements ICollisionResolver {
       private _dynamicCollisionTree = new DynamicTree();
-      constructor() { }
+      
 
       public register(target: Actor): void {
          this._dynamicCollisionTree.registerActor(target);
@@ -29,7 +29,7 @@ module ex {
             actor = potentialColliders[j];
 
             this._dynamicCollisionTree.query(actor, (other: Actor) => {
-               if (other.collisionType === CollisionType.PreventCollision || other.isKilled()) return false;
+               if (other.collisionType === CollisionType.PreventCollision || other.isKilled()) { return false; }
 
                var minimumTranslationVector;
                if (minimumTranslationVector = actor.collides(other)) {

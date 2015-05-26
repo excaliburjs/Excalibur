@@ -174,8 +174,8 @@ module ex {
       constructor(engine?: Engine) {
          super();
          this.camera = new BaseCamera();
-         if(engine){
-            this.camera.setFocus(engine.width/2, engine.height/2);
+         if(engine) {
+            this.camera.setFocus(engine.width / 2, engine.height / 2);
          }
       }
 
@@ -188,7 +188,7 @@ module ex {
          if (this.camera) {
             this.camera.setFocus(engine.width / 2, engine.height / 2);
          }
-         this._logger.debug("Scene.onInitialize", this, engine);
+         this._logger.debug('Scene.onInitialize', this, engine);
       }
 
       /**
@@ -197,7 +197,7 @@ module ex {
        */
       public onActivate(): void {
          // will be overridden
-         this._logger.debug("Scene.onActivate", this);
+         this._logger.debug('Scene.onActivate', this);
       }
 
       /**
@@ -206,7 +206,7 @@ module ex {
        */
       public onDeactivate(): void {
          // will be overridden
-         this._logger.debug("Scene.onDeactivate", this);
+         this._logger.debug('Scene.onDeactivate', this);
       }
 
       /**
@@ -294,7 +294,7 @@ module ex {
             this.tileMaps[i].draw(ctx, delta);
          }
 
-         var sortedChildren = this._sortedDrawingTree.list()
+         var sortedChildren = this._sortedDrawingTree.list();
          for (i = 0, len = sortedChildren.length; i < len; i++) {
 
             // only draw actors that are visible
@@ -394,7 +394,7 @@ module ex {
          }
       }
       
-     /**
+      /**
        * Removes a [[Timer]] from the current scene, it will no longer be updated.
        * @param timer  The timer to remove to the current scene.       
        */
@@ -441,7 +441,7 @@ module ex {
        * in screen coordinates. UI actors do not participate in collisions.
        * @todo Should this be `UIActor` only?
        */
-      public addUIActor(actor: Actor){
+      public addUIActor(actor: Actor) {
          this.uiActors.push(actor);
          actor.scene = this;
       }
@@ -449,9 +449,9 @@ module ex {
       /**
        * Removes an actor as a piece of UI
        */
-      public removeUIActor(actor: Actor){
+      public removeUIActor(actor: Actor) {
          var index = this.uiActors.indexOf(actor);
-         if(index > -1){
+         if(index > -1) {
             this.uiActors.splice(index, 1);
          }
       }
@@ -562,7 +562,7 @@ module ex {
          } else if (group instanceof Group) {
             delete this.groups[group.name];
          } else {
-            this._logger.error("Invalid arguments to removeGroup", group);
+            this._logger.error('Invalid arguments to removeGroup', group);
          }
       }
 

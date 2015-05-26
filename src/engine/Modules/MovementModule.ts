@@ -2,7 +2,7 @@
 
 module ex {
    export class MovementModule implements IPipelineModule { 
-      public update(actor: Actor, engine: Engine, delta: number){
+      public update(actor: Actor, engine: Engine, delta: number) {
          // Update placements based on linear algebra
          actor.x += actor.dx * delta / 1000;
          actor.y += actor.dy * delta / 1000;

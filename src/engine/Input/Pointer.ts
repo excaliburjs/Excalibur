@@ -57,7 +57,12 @@ module ex.Input {
        * @param button       The button pressed (if [[PointerType.Mouse]])
        * @param ev           The raw DOM event being handled
        */
-      constructor(public x: number, public y: number, public index: number, public pointerType: PointerType, public button: PointerButton, public ev) {
+      constructor(public x: number, 
+                  public y: number, 
+                  public index: number, 
+                  public pointerType: PointerType, 
+                  public button: PointerButton, 
+                  public ev) {
          super();
       }
    };
@@ -227,35 +232,35 @@ module ex.Input {
          }
 
          // Touch Events
-         target.addEventListener('touchstart', this._handleTouchEvent("down", this._pointerDown));
-         target.addEventListener('touchend', this._handleTouchEvent("up", this._pointerUp));
-         target.addEventListener('touchmove', this._handleTouchEvent("move", this._pointerMove));
-         target.addEventListener('touchcancel', this._handleTouchEvent("cancel", this._pointerCancel));
+         target.addEventListener('touchstart', this._handleTouchEvent('down', this._pointerDown));
+         target.addEventListener('touchend', this._handleTouchEvent('up', this._pointerUp));
+         target.addEventListener('touchmove', this._handleTouchEvent('move', this._pointerMove));
+         target.addEventListener('touchcancel', this._handleTouchEvent('cancel', this._pointerCancel));
 
          // W3C Pointer Events
          // Current: IE11, IE10
          if ((<any>window).PointerEvent) {
             // IE11
-            this._engine.canvas.style.touchAction = "none";
-            target.addEventListener('pointerdown', this._handlePointerEvent("down", this._pointerDown));
-            target.addEventListener('pointerup', this._handlePointerEvent("up", this._pointerUp));
-            target.addEventListener('pointermove', this._handlePointerEvent("move", this._pointerMove));
-            target.addEventListener('pointercancel', this._handlePointerEvent("cancel", this._pointerMove));
+            this._engine.canvas.style.touchAction = 'none';
+            target.addEventListener('pointerdown', this._handlePointerEvent('down', this._pointerDown));
+            target.addEventListener('pointerup', this._handlePointerEvent('up', this._pointerUp));
+            target.addEventListener('pointermove', this._handlePointerEvent('move', this._pointerMove));
+            target.addEventListener('pointercancel', this._handlePointerEvent('cancel', this._pointerMove));
 
          } else if ((<any>window).MSPointerEvent) {
             // IE10
-            this._engine.canvas.style.msTouchAction = "none";
-            target.addEventListener('MSPointerDown', this._handlePointerEvent("down", this._pointerDown));
-            target.addEventListener('MSPointerUp', this._handlePointerEvent("up", this._pointerUp));
-            target.addEventListener('MSPointerMove', this._handlePointerEvent("move", this._pointerMove));
-            target.addEventListener('MSPointerCancel', this._handlePointerEvent("cancel", this._pointerMove));
+            this._engine.canvas.style.msTouchAction = 'none';
+            target.addEventListener('MSPointerDown', this._handlePointerEvent('down', this._pointerDown));
+            target.addEventListener('MSPointerUp', this._handlePointerEvent('up', this._pointerUp));
+            target.addEventListener('MSPointerMove', this._handlePointerEvent('move', this._pointerMove));
+            target.addEventListener('MSPointerCancel', this._handlePointerEvent('cancel', this._pointerMove));
 
          } else {
 
             // Mouse Events
-            target.addEventListener('mousedown', this._handleMouseEvent("down", this._pointerDown));
-            target.addEventListener('mouseup', this._handleMouseEvent("up", this._pointerUp));
-            target.addEventListener('mousemove', this._handleMouseEvent("move", this._pointerMove));
+            target.addEventListener('mousedown', this._handleMouseEvent('down', this._pointerDown));
+            target.addEventListener('mouseup', this._handleMouseEvent('up', this._pointerUp));
+            target.addEventListener('mousemove', this._handleMouseEvent('move', this._pointerMove));
          }
       }
 
@@ -295,40 +300,42 @@ module ex.Input {
        */
       public propogate(actor: any) {
          var isUIActor = actor instanceof UIActor;
-         var i: number, len: number;
-
-         i = 0, len = this._pointerUp.length;
+         var i: number = 0, 
+             len: number = this._pointerUp.length;
 
          for (i; i < len; i++) {
             if (actor.contains(this._pointerUp[i].x, this._pointerUp[i].y, !isUIActor)) {
-               actor.eventDispatcher.publish("pointerup", this._pointerUp[i]);
+               actor.eventDispatcher.publish('pointerup', this._pointerUp[i]);
             }
          }
 
-         i = 0, len = this._pointerDown.length;
+         i = 0;
+         len = this._pointerDown.length;
 
          for (i; i < len; i++) {
             if (actor.contains(this._pointerDown[i].x, this._pointerDown[i].y, !isUIActor)) {
-               actor.eventDispatcher.publish("pointerdown", this._pointerDown[i]);
+               actor.eventDispatcher.publish('pointerdown', this._pointerDown[i]);
             }
          }
 
          if (actor.capturePointer.captureMoveEvents) {
 
-            i = 0, len = this._pointerMove.length;
+            i = 0;
+            len = this._pointerMove.length;
 
             for (i; i < len; i++) {
                if (actor.contains(this._pointerMove[i].x, this._pointerMove[i].y, !isUIActor)) {
-                  actor.eventDispatcher.publish("pointermove", this._pointerMove[i]);
+                  actor.eventDispatcher.publish('pointermove', this._pointerMove[i]);
                }
             }
          }
 
-         i = 0, len = this._pointerCancel.length;
+         i = 0;
+         len = this._pointerCancel.length;
 
          for (i; i < len; i++) {
             if (actor.contains(this._pointerCancel[i].x, this._pointerCancel[i].y, !isUIActor)) {
-               actor.eventDispatcher.publish("pointercancel", this._pointerCancel[i]);
+               actor.eventDispatcher.publish('pointercancel', this._pointerCancel[i]);
             }
          }
       }
@@ -346,11 +353,11 @@ module ex.Input {
       }
 
       private _handleTouchEvent(eventName: string, eventArr: PointerEvent[]) {
-         return (e: TouchEvent) => {
+         return (e: ITouchEvent) => {
             e.preventDefault();
             for (var i = 0, len = e.changedTouches.length; i < len; i++) {
                var index = this._pointers.length > 1 ? this._getPointerIndex(e.changedTouches[i].identifier) : 0;
-               if (index === -1) continue;
+               if (index === -1) { continue; }
                var x: number = e.changedTouches[i].pageX - Util.getPosition(this._engine.canvas).x;
                var y: number = e.changedTouches[i].pageY - Util.getPosition(this._engine.canvas).y;
                var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
@@ -359,11 +366,11 @@ module ex.Input {
                this.at(index).eventDispatcher.publish(eventName, pe);
                // only with multi-pointer
                if (this._pointers.length > 1) {
-                  if (eventName === "up") {
+                  if (eventName === 'up') {
 
                      // remove pointer ID from pool when pointer is lifted
                      this._activePointers[index] = -1;
-                  } else if (eventName === "down") {
+                  } else if (eventName === 'down') {
 
                      // set pointer ID to given index
                      this._activePointers[index] = e.changedTouches[i].identifier;
@@ -379,7 +386,7 @@ module ex.Input {
             
             // get the index for this pointer ID if multi-pointer is asked for
             var index = this._pointers.length > 1 ? this._getPointerIndex(e.pointerId) : 0;
-            if (index === -1) return;
+            if (index === -1) { return; }
             var x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
             var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
             var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
@@ -389,11 +396,11 @@ module ex.Input {
 
             // only with multi-pointer
             if (this._pointers.length > 1) {
-               if (eventName === "up") {
+               if (eventName === 'up') {
 
                   // remove pointer ID from pool when pointer is lifted
                   this._activePointers[index] = -1;
-               } else if (eventName === "down") {
+               } else if (eventName === 'down') {
 
                   // set pointer ID to given index
                   this._activePointers[index] = e.pointerId;
@@ -413,7 +420,7 @@ module ex.Input {
          }
 
          for (var i = 0; i < this._activePointers.length; i++) {
-            if (this._activePointers[i] === -1) return i;
+            if (this._activePointers[i] === -1) { return i; }
          }
 
          // ignore pointer because game isn't watching
@@ -422,11 +429,11 @@ module ex.Input {
 
       private _stringToPointerType(s) {
          switch (s) {
-            case "touch":
+            case 'touch':
                return PointerType.Touch;
-            case "mouse":
+            case 'mouse':
                return PointerType.Mouse;
-            case "pen":
+            case 'pen':
                return PointerType.Pen;
             default:
                return PointerType.Unknown;
@@ -441,19 +448,19 @@ module ex.Input {
       
    }
 
-   interface TouchEvent extends Event {
+   interface ITouchEvent extends Event {
       altKey: boolean;
-      changedTouches: Touch[];
+      changedTouches: ITouch[];
       ctrlKey: boolean;
       metaKey: boolean;
       shiftKey: boolean;
-      targetTouches: Touch[];
-      touches: Touch[];
+      targetTouches: ITouch[];
+      touches: ITouch[];
       type: string;
       target: Element;
    }
 
-   interface Touch {
+   interface ITouch {
       identifier: number;
       screenX: number;
       screenY: number;

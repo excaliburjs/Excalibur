@@ -13,7 +13,7 @@ module ex {
        */
       public eventDispatcher: EventDispatcher;
 
-      constructor(){
+      constructor() {
          this.eventDispatcher = new EventDispatcher(this);
       }
 
@@ -37,7 +37,7 @@ module ex {
        * @param handler    Event handler for the thrown event
        * @obsolete Use [[Class.off]] instead
        */
-      public removeEventListener(eventName: string, handler?:(event?: GameEvent)=> void){
+      public removeEventListener(eventName: string, handler?: (event?: GameEvent) => void) {
          this.eventDispatcher.unsubscribe(eventName, handler);
       }
 
@@ -59,7 +59,7 @@ module ex {
        * @param eventName  Name of the event to listen for
        * @param handler    Event handler for the thrown event
        */
-      public off(eventName: string, handler?:(event?: GameEvent)=> void){
+      public off(eventName: string, handler?: (event?: GameEvent) => void) {
          this.eventDispatcher.unsubscribe(eventName, handler);
       }
 
@@ -109,9 +109,9 @@ module ex {
           Super.prototype = parent.prototype;
           child.prototype = new Super;
 
-          if (methods){
-            for(var prop in methods){
-               if(methods.hasOwnProperty(prop)){
+          if (methods) {
+            for(var prop in methods) {
+               if(methods.hasOwnProperty(prop)) {
                   child.prototype[prop] = methods[prop];
                }
             }

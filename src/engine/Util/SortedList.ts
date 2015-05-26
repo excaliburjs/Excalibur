@@ -18,7 +18,7 @@ module ex {
       private _find(node: BinaryTreeNode, element: any): boolean {
          if (node == null) {
             return false;
-         } else if (this._getComparable.call(element) == node.getKey()) {
+         } else if (this._getComparable.call(element) === node.getKey()) {
             if (node.getData().indexOf(element) > -1) {
                return true;
             } else {
@@ -39,7 +39,7 @@ module ex {
       private _get(node: BinaryTreeNode, key: number) {
          if (node == null) {
             return [];
-         } else if (key == node.getKey()) {
+         } else if (key === node.getKey()) {
             return node.getData();
          } else if (key < node.getKey()) {
             return this._get(node.getLeft(), key);
@@ -60,7 +60,7 @@ module ex {
 
       private _insert(node: BinaryTreeNode, element: any): boolean {
          if (node != null) {
-            if (this._getComparable.call(element) == node.getKey()) {
+            if (this._getComparable.call(element) === node.getKey()) {
                if (node.getData().indexOf(element) > -1) {
                   return false; // the element we're trying to insert already exists
                } else {
@@ -93,13 +93,13 @@ module ex {
       private _remove(node: BinaryTreeNode, element: any): BinaryTreeNode {
          if (node == null) {
             return null;
-         } else if (this._getComparable.call(element) == node.getKey()) {
+         } else if (this._getComparable.call(element) === node.getKey()) {
             var elementIndex = node.getData().indexOf(element);
             // if the node contains the element, remove the element
             if (elementIndex > -1) {
                node.getData().splice(elementIndex, 1);
                // if we have removed the last element at this node, remove the node
-               if (node.getData().length == 0) {
+               if (node.getData().length === 0) {
                   // if the node is a leaf
                   if (node.getLeft() == null && node.getRight() == null) {
                      return null;
@@ -134,7 +134,7 @@ module ex {
          var comparable = element.getKey();
          if (node == null) {
             return null;
-         } else if (comparable == node.getKey()) {
+         } else if (comparable === node.getKey()) {
             // if the node is a leaf
             if (node.getLeft() == null && node.getRight() == null) {
                return null;
@@ -199,7 +199,7 @@ module ex {
       }
 
       public getKey(): number {
-         return this._key
+         return this._key;
       }
 
       public setKey(key: number) {
@@ -215,7 +215,7 @@ module ex {
       }
 
       public getLeft(): BinaryTreeNode {
-         return this._left
+         return this._left;
       }
 
       public setLeft(left: BinaryTreeNode) {

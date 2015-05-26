@@ -289,8 +289,8 @@ module ex {
      */
     public anchor: Point;
     
-    private height: number = 0;
-    private width: number = 0;
+    private _height: number = 0;
+    private _width: number = 0;
     /** 
      * The rotation of the actor in radians
      */
@@ -302,7 +302,7 @@ module ex {
     /**
      * The scale vector of the actor
      */
-    public scale: ex.Vector = new ex.Vector(1,1);
+    public scale: ex.Vector = new ex.Vector(1, 1);
     /** 
      * The x scalar velocity of the actor in scale/second
      */
@@ -370,9 +370,9 @@ module ex {
      */
     public collisionType: CollisionType = CollisionType.PreventCollision;
     public collisionGroups: string[] = [];
-    private _collisionHandlers: {[key: string]: {(actor: Actor):void}[];} = {};
+    private _collisionHandlers: {[key: string]: {(actor: Actor): void}[]; } = {};
     private _isInitialized: boolean = false;
-    public frames: { [key: string]: IDrawable; } = {}
+    public frames: { [key: string]: IDrawable; } = {};
     
     /**
      * Access to the current drawing for the actor, this can be 
@@ -417,15 +417,16 @@ module ex {
      * @param y       The starting y coordinate of the actor
      * @param width   The starting width of the actor
      * @param height  The starting height of the actor
-     * @param color   The starting color of the actor. Leave null to draw a transparent actor. The opacity of the color will be used as the initial [[opacity]].
+     * @param color   The starting color of the actor. Leave null to draw a transparent actor. The opacity of the color will be used as the
+     * initial [[opacity]].
      */
     constructor(x?: number, y?: number, width?: number, height?: number, color?: Color) {
        super();
        this.x = x || 0;
        this.y = y || 0;
-       this.width = width || 0;
-       this.height = height || 0;         
-       if(color){
+       this._width = width || 0;
+       this._height = height || 0;         
+       if (color) {
           this.color = color.clone();
           // set default opacity of an actor to the color
           this.opacity = color.a;  
@@ -444,9 +445,13 @@ module ex {
      * overridden. This is where initialization of child actors should take place.
      */
     public onInitialize(engine: Engine): void {
+       // Override me
     }
+
     private _checkForPointerOptIn(eventName: string) {
-       if (eventName && (eventName.toLowerCase() === 'pointerdown' || eventName.toLowerCase() === 'pointerdown' || eventName.toLowerCase() === 'pointermove')) {
+       if (eventName && (eventName.toLowerCase() === 'pointerdown' ||
+          eventName.toLowerCase() === 'pointerdown' ||
+          eventName.toLowerCase() === 'pointermove')) {
           this.enableCapturePointer = true;
           if (eventName.toLowerCase() === 'pointermove') {
              this.capturePointer.captureMoveEvents = true;
@@ -454,12 +459,12 @@ module ex {
        }
     }
     /**
-    * Add an event listener. You can listen for a variety of
-    * events off of the engine; see [[GameEvent]]
-    * @param eventName  Name of the event to listen for
-    * @param handler    Event handler for the thrown event
-    * @obsolete Use [[on]] instead.
-    */
+     * Add an event listener. You can listen for a variety of
+     * events off of the engine; see [[GameEvent]]
+     * @param eventName  Name of the event to listen for
+     * @param handler    Event handler for the thrown event
+     * @obsolete Use [[on]] instead.
+     */
     public addEventListener(eventName: string, handler: (event?: GameEvent) => void) {
        this._checkForPointerOptIn(eventName);
        super.addEventListener(eventName, handler);
@@ -485,7 +490,7 @@ module ex {
           this.scene.remove(this);
           this._isKilled = true;
        } else {
-          this.logger.warn("Cannot kill actor, it was never added to the Scene");
+          this.logger.warn('Cannot kill actor, it was never added to the Scene');
        }
     }
     /**
@@ -529,7 +534,7 @@ module ex {
     public setDrawing(key: number);
     public setDrawing(key: any) {
       key = key.toString();
-      if (this.currentDrawing != this.frames[<string>key]) {
+      if (this.currentDrawing !== this.frames[<string>key]) {
          this.frames[key].reset();
       }
       this.currentDrawing = this.frames[key];
@@ -557,10 +562,10 @@ module ex {
           }
        } else {
           if (arguments[0] instanceof Sprite) {
-             this.addDrawing("default", arguments[0]);   
+             this.addDrawing('default', arguments[0]);   
           }
           if (arguments[0] instanceof Texture) {
-             this.addDrawing("default", arguments[0].asSprite());
+             this.addDrawing('default', arguments[0].asSprite());
           }
        }
     }
@@ -604,16 +609,16 @@ module ex {
      *
      * @param name The name of the collision group
      */
-    public addCollisionGroup(name: string){
+    public addCollisionGroup(name: string) {
        this.collisionGroups.push(name);
     }
     /**
      * Removes an actor from a collision group.
      * @param name The name of the collision group
      */
-    public removeCollisionGroup(name: string){
+    public removeCollisionGroup(name: string) {
        var index = this.collisionGroups.indexOf(name);
-       if(index !== -1){
+       if (index !== -1) {
           this.collisionGroups.splice(index, 1);
        }
     }
@@ -622,31 +627,32 @@ module ex {
      * Get the center point of an actor
      */
     public getCenter(): Vector {
-       return new Vector(this.x + this.getWidth() / 2 - this.anchor.x * this.getWidth() , this.y + this.getHeight() / 2 - this.anchor.y * this.getHeight());
+       return new Vector(this.x + this.getWidth() / 2 - this.anchor.x * this.getWidth(), 
+                         this.y + this.getHeight() / 2 - this.anchor.y * this.getHeight());
     }
     /**
      * Gets the calculated width of an actor, factoring in scale
      */
     public getWidth() {
-       return this.width * this.scale.x;
+       return this._width * this.scale.x;
     }
     /**
      * Sets the width of an actor, factoring in the current scale
      */
     public setWidth(width) {
-       this.width = width / this.scale.x;
+       this._width = width / this.scale.x;
     }
     /**
      * Gets the calculated height of an actor, factoring in scale
      */
     public getHeight() {
-       return this.height * this.scale.y;
+       return this._height * this.scale.y;
     }
     /**
      * Sets the height of an actor, factoring in the current scale
      */
     public setHeight(height) {
-       this.height = height / this.scale.y;
+       this._height = height / this.scale.y;
     }
     /**
      * Centers the actor's drawing around the center of the actor's bounding box
@@ -681,8 +687,8 @@ module ex {
        return this.y + this.getHeight();
     }
     /**
-    * Gets the x value of the Actor in global coordinates
-    */
+     * Gets the x value of the Actor in global coordinates
+     */
     public getWorldX() {
        if (!this.parent) {
            return this.x;
@@ -690,19 +696,22 @@ module ex {
        return this.x * this.parent.scale.x + this.parent.getWorldX();
     }
     /**
-    * Gets the y value of the Actor in global coordinates
-    */
+     * Gets the y value of the Actor in global coordinates
+     */
     public getWorldY() {
       if (!this.parent) {
           return this.y;
       }
-       return this.y * this.parent.scale.y + this.parent.getWorldY();
+      return this.y * this.parent.scale.y + this.parent.getWorldY();
     }
     /**
      * Gets the global scale of the Actor
      */
      public getGlobalScale() {
-       if(!this.parent) return new Point(this.scale.x, this.scale.y);
+       if (!this.parent) {
+          return new Point(this.scale.x, this.scale.y);
+       }
+
        var parentScale = this.parent.getGlobalScale();
        return new Point(this.scale.x * parentScale.x, this.scale.y * parentScale.y);
      }
@@ -727,15 +736,15 @@ module ex {
     /**
      * Returns the side of the collision based on the intersection 
      * @param intersect The displacement vector returned by a collision
-    */
-    public getSideFromIntersect(intersect: Vector){
-       if(intersect){
-          if(Math.abs(intersect.x) > Math.abs(intersect.y)){
+     */
+    public getSideFromIntersect(intersect: Vector) {
+       if (intersect) {
+          if (Math.abs(intersect.x) > Math.abs(intersect.y)) {
               if (intersect.x < 0) {
                   return Side.Right;
               }
               return Side.Left;
-          }else{
+          } else {
               if (intersect.y < 0) {
                   return Side.Bottom;
               }
@@ -750,19 +759,19 @@ module ex {
      */
    public collidesWithSide(actor: Actor): Side {
        var separationVector = this.collides(actor);
-       if(!separationVector){
+       if (!separationVector) {
           return ex.Side.None;
        }
-       if(Math.abs(separationVector.x) > Math.abs(separationVector.y)){
-          if(this.x < actor.x){
+       if (Math.abs(separationVector.x) > Math.abs(separationVector.y)) {
+          if (this.x < actor.x) {
              return ex.Side.Right;
-          }else{
+          } else {
              return ex.Side.Left;
           }
-       }else{
-          if(this.y < actor.y){
+       } else {
+          if (this.y < actor.y) {
              return ex.Side.Bottom;
-          }else{
+          } else {
              return ex.Side.Top;
           }
        }
@@ -784,20 +793,20 @@ module ex {
      * @param group The group name to listen for
      * @param func The callback to fire on collision with another actor from the group. The callback is passed the other actor.
      */
-    public onCollidesWith(group: string, func: (actor: Actor)=>void){
-       if(!this._collisionHandlers[group]){
+    public onCollidesWith(group: string, func: (actor: Actor) => void) {
+       if (!this._collisionHandlers[group]) {
           this._collisionHandlers[group] = [];
        }
        this._collisionHandlers[group].push(func);
     }
-    public getCollisionHandlers() : {[key: string]: {(actor: Actor):void}[];} {
+    public getCollisionHandlers() : {[key: string]: {(actor: Actor): void}[]; } {
        return this._collisionHandlers;
     }
     /**
      * Removes all collision handlers for this group on this actor
      * @param group Group to remove all handlers for on this actor.
      */
-    public removeCollidesWith(group: string){
+    public removeCollidesWith(group: string) {
        this._collisionHandlers[group] = [];         
     }
     /**
@@ -823,7 +832,10 @@ module ex {
      * @param duration  The time it should take the actor to move to the new location in milliseconds
      * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
      */
-    public easeTo(x: number, y: number, duration: number, easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number = ex.EasingFunctions.Linear) {
+    public easeTo(x: number,
+       y: number,
+       duration: number,
+       easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number = ex.EasingFunctions.Linear) {
        this.actionQueue.add(new ex.Internal.Actions.EaseTo(this, x, y, duration, easingFcn));
        return this;
     }
@@ -947,7 +959,7 @@ module ex {
      * action queue. This is useful if you want to execute code in after a specific
      * action, i.e An actor arrives at a destination after traversing a path
      */
-    public callMethod(method: ()=>any): Actor {
+    public callMethod(method: () => any): Actor {
        this.actionQueue.add(new ex.Internal.Actions.CallMethod(this, method));
        return this;
     }
@@ -956,7 +968,8 @@ module ex {
      * called actions a certain number of times. If the number of repeats 
      * is not specified it will repeat forever. This method is part of 
      * the actor 'Action' fluent API allowing action chaining
-     * @param times The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will repeat forever
+     * @param times The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will 
+     * repeat forever
      */
     public repeat(times?: number): Actor {
        if (!times) {
@@ -981,7 +994,7 @@ module ex {
      * @param followDistance  The distance to maintain when following, if not specified the actor will follow at the current distance.
      */
     public follow(actor : Actor, followDistance? : number) : Actor {
-      if (followDistance == undefined){
+      if (typeof followDistance === 'undefined') {
             this.actionQueue.add(new ex.Internal.Actions.Follow(this, actor));
          } else {
             this.actionQueue.add(new ex.Internal.Actions.Follow(this, actor, followDistance));
@@ -995,7 +1008,7 @@ module ex {
      * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
      */
     public meet(actor: Actor, speed? : number) : Actor {
-       if(speed == undefined){
+       if (typeof speed === 'undefined') {
              this.actionQueue.add(new ex.Internal.Actions.Meet(this, actor));
           } else {
              this.actionQueue.add(new ex.Internal.Actions.Meet(this, actor, speed));
@@ -1008,7 +1021,7 @@ module ex {
      */
     public asPromise<T>() : Promise<T> {
        var complete = new Promise<T>();
-       this.callMethod(()=>{
+       this.callMethod(() => {
           complete.resolve();
        });
        return complete;
@@ -1022,7 +1035,7 @@ module ex {
      * @param delta  The time elapsed since the last update in milliseconds
      */
     public update(engine: Engine, delta: number) {
-       if(!this._isInitialized){
+       if (!this._isInitialized) {
           this.onInitialize(engine);
           this.eventDispatcher.publish('initialize', new InitializeEvent(engine));
           this._isInitialized = true;
@@ -1032,7 +1045,7 @@ module ex {
        // Update action queue
        this.actionQueue.update(delta);
        // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
-       for(var i = 0; i< this.pipeline.length; i++){
+       for(var i = 0; i < this.pipeline.length; i++) {
           this.pipeline[i].update(this, engine, delta);
        }
        eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
@@ -1043,7 +1056,9 @@ module ex {
      * @param delta The time since the last draw in milliseconds
      */
     public draw(ctx: CanvasRenderingContext2D, delta: number) {
-       if (this.isOffScreen){return;}
+       if (this.isOffScreen) {
+          return;
+       }
        var anchorPoint = this._getCalculatedAnchor();
        ctx.save();
        ctx.scale(this.scale.x, this.scale.y);
@@ -1052,7 +1067,7 @@ module ex {
        
        
        // calculate changing opacity
-       if (this.previousOpacity != this.opacity) {
+       if (this.previousOpacity !== this.opacity) {
           for (var drawing in this.frames) {
              this.frames[drawing].addEffect(new ex.Effects.Opacity(this.opacity));
           }
@@ -1070,11 +1085,11 @@ module ex {
              yDiff = (this.currentDrawing.height * this.currentDrawing.scale.y - this.getHeight()) / 2 -
              this.currentDrawing.height * this.currentDrawing.scale.y * this.currentDrawing.anchor.y;
           }
-          this.currentDrawing.draw(ctx, -anchorPoint.x -xDiff, -anchorPoint.y - yDiff);
+          this.currentDrawing.draw(ctx, -anchorPoint.x - xDiff, -anchorPoint.y - yDiff);
        } else {
-          if(this.color) {
+          if (this.color) {
              ctx.fillStyle = this.color.toString();
-             ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this.width, this.height);
+             ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this._width, this._height);
           } 
        }
        // Draw child actors
@@ -1091,7 +1106,7 @@ module ex {
       
        var bb = this.getBounds();
        bb.debugDraw(ctx);
-       ctx.fillText("id: " + this.id, bb.left + 3, bb.top + 10);
+       ctx.fillText('id: ' + this.id, bb.left + 3, bb.top + 10);
        
        ctx.fillStyle = Color.Yellow.toString();
        ctx.beginPath();
@@ -1100,9 +1115,9 @@ module ex {
        ctx.fill();
 
        // Culling Box debug draw
-       for (var i = 0; i < this.pipeline.length; i++) {
-          if (this.pipeline[i] instanceof OffscreenCullingModule) {
-             (<OffscreenCullingModule>this.pipeline[i]).cullingBox.debugDraw(ctx);
+       for (var j = 0; j < this.pipeline.length; j++) {
+          if (this.pipeline[j] instanceof OffscreenCullingModule) {
+             (<OffscreenCullingModule>this.pipeline[j]).cullingBox.debugDraw(ctx);
           }
        }
 
