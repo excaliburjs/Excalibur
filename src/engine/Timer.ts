@@ -33,7 +33,7 @@ module ex {
     public update(delta: number) {
        this._totalTimeAlive += delta;
        this._elapsedTime += delta;
-       if(this._elapsedTime > this.interval) {
+       if (this._elapsedTime > this.interval) {
           this.fcn.call(this);
           if (this.repeats) {
              this._elapsedTime = 0;
@@ -51,7 +51,7 @@ module ex {
      * Cancels the timer, preventing any further executions.
      */
     public cancel() {
-       if(this.scene) {
+       if (this.scene) {
           this.scene.cancelTimer(this);
        }
     }

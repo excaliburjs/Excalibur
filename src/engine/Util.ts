@@ -130,7 +130,7 @@ module ex.Util {
       return false;
    }
 
-   export function getOppositeSide(side: ex.Side): ex.Side {
+   export function getOppositeSide(side: ex.Side) {
       if(side === ex.Side.Top) { return ex.Side.Bottom; }
       if(side === ex.Side.Bottom) { return ex.Side.Top; }
       if(side === ex.Side.Left) { return ex.Side.Right; }

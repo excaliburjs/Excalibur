@@ -111,13 +111,13 @@
       }
 
       public init() {
-         if (!this.supported) return;
-         if (this._initSuccess) return;
+         if (!this.supported) { return; }
+         if (this._initSuccess) { return; }
 
          // In Chrome, this will return 4 undefined items until a button is pressed
          // In FF, this will not return any items until a button is pressed
          this._oldPads = this._clonePads(this._navigator.getGamepads());
-         if(this._oldPads.length && this._oldPads[0]){
+         if(this._oldPads.length && this._oldPads[0]) {
             this._initSuccess = true;
          }
       }
@@ -126,7 +126,7 @@
        * Updates Gamepad state and publishes Gamepad events
        */
       public update(delta: number) {
-         if (!this.enabled || !this.supported) return;
+         if (!this.enabled || !this.supported) { return; }
          this.init();
 
          var gamepads = this._navigator.getGamepads();
@@ -155,14 +155,14 @@
             // Buttons
             var b: string, a: string, value: number, buttonIndex: number, axesIndex: number;
             for (b in Buttons) {
-               if (typeof Buttons[b] !== "number") continue;
+               if (typeof Buttons[b] !== 'number') { continue; }
 
                buttonIndex = Buttons[b];
                value = gamepads[i].buttons[buttonIndex].value;
                if (value !== this._oldPads[i].getButton(buttonIndex)) {
                   if (gamepads[i].buttons[buttonIndex].pressed) {
                      this.at(i).updateButton(buttonIndex, value);
-                     this.at(i).eventDispatcher.publish("button", new GamepadButtonEvent(buttonIndex, value));
+                     this.at(i).eventDispatcher.publish('button', new GamepadButtonEvent(buttonIndex, value));
                   } else {
                      this.at(i).updateButton(buttonIndex, 0);
                   }
@@ -171,13 +171,13 @@
 
             // Axes
             for (a in Axes) {
-               if (typeof Axes[a] !== "number") continue;
+               if (typeof Axes[a] !== 'number') { continue; }
 
                axesIndex = Axes[a];
                value = gamepads[i].axes[axesIndex];
                if (value !== this._oldPads[i].getAxes(axesIndex)) {
                   this.at(i).updateAxes(axesIndex, value);
-                  this.at(i).eventDispatcher.publish("axis", new GamepadAxisEvent(axesIndex, value));
+                  this.at(i).eventDispatcher.publish('axis', new GamepadAxisEvent(axesIndex, value));
                }
             }                      
 
@@ -223,7 +223,7 @@
          var i, len;
          var clonedPad = new Gamepad();
 
-         if (!pad) return clonedPad;
+         if (!pad) { return clonedPad; }
 
          for (i = 0, len = pad.buttons.length; i < len; i++) {
             clonedPad.updateButton(i, pad.buttons[i].value);
