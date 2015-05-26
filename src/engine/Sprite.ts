@@ -255,7 +255,9 @@ module ex {
 
          var i = 0, x = 0, y = 0, len = this.effects.length;
          for (i; i < len; i++) {
-            for(y; y < this.sheight; y++) {            
+            y = 0;
+            for(y; y < this.sheight; y++) {
+               x = 0;
                for(x; x < this.swidth; x++) {
                   this.effects[i].updatePixel(x, y, this._pixelData);
                }
