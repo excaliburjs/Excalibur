@@ -20,7 +20,7 @@ module ex {
          var rotation = actor.rotation;
          var anchor = actor.getCenter().toPoint();
 
-         this._topLeft.x = actor.getWorldX() - (drawingWidth / 2)
+         this._topLeft.x = actor.getWorldX() - (drawingWidth / 2);
          this._topLeft.y = actor.getWorldY() - (drawingHeight / 2);
          this._topLeft = this._topLeft.rotate(rotation, anchor);
 
@@ -28,11 +28,11 @@ module ex {
          this._topRight.y = actor.getWorldY() - (drawingHeight / 2);
          this._topRight = this._topRight.rotate(rotation, anchor);
 
-         this._bottomLeft.x = actor.getWorldX() - (drawingWidth / 2)
+         this._bottomLeft.x = actor.getWorldX() - (drawingWidth / 2);
          this._bottomLeft.y = actor.getWorldY() + (drawingHeight / 2);
          this._bottomLeft = this._bottomLeft.rotate(rotation, anchor);
 
-         this._bottomRight.x = actor.getWorldX() + (drawingWidth / 2)
+         this._bottomRight.x = actor.getWorldX() + (drawingWidth / 2);
          this._bottomRight.y = actor.getWorldY() + (drawingHeight / 2);
          this._bottomRight = this._bottomRight.rotate(rotation, anchor);
 
@@ -54,7 +54,10 @@ module ex {
          this._yMax = Math.max.apply(null, this._yCoords);
 
          var boundingPoints = new Array<Point>();
-         boundingPoints.push(new Point(this._xMin, this._yMin), new Point(this._xMax, this._yMin), new Point(this._xMin, this._yMax), new Point(this._xMax, this._yMax));
+         boundingPoints.push(new Point(this._xMin, this._yMin), 
+                             new Point(this._xMax, this._yMin), 
+                             new Point(this._xMin, this._yMax), 
+                             new Point(this._xMax, this._yMax));
 
          for (var i = 0; i < boundingPoints.length; i++) {
             if (boundingPoints[i].x > 0 &&

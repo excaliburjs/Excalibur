@@ -1115,9 +1115,9 @@ module ex {
        ctx.fill();
 
        // Culling Box debug draw
-       for (var i = 0; i < this.pipeline.length; i++) {
-          if (this.pipeline[i] instanceof OffscreenCullingModule) {
-             (<OffscreenCullingModule>this.pipeline[i]).cullingBox.debugDraw(ctx);
+       for (var j = 0; j < this.pipeline.length; j++) {
+          if (this.pipeline[j] instanceof OffscreenCullingModule) {
+             (<OffscreenCullingModule>this.pipeline[j]).cullingBox.debugDraw(ctx);
           }
        }
 
