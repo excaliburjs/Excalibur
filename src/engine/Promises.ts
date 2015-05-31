@@ -1,4 +1,4 @@
-/// <reference path="Log.ts" />
+/// <reference path="Util/Log.ts" />
 // Promises/A+ Spec http://promises-aplus.github.io/promises-spec/
 
 module ex {

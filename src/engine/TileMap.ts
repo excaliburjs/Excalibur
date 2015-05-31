@@ -1,5 +1,5 @@
 /// <reference path="Engine.ts" />
-/// <reference path="SpriteSheet.ts" />
+/// <reference path="Drawing/SpriteSheet.ts" />
 
 module ex {
 

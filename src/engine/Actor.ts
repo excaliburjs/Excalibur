@@ -5,14 +5,14 @@
 /// <reference path="Traits/CollisionDetection.ts" />
 /// <reference path="Collision/Side.ts" />
 /// <reference path="Algebra.ts" />
-/// <reference path="Util.ts" />
+/// <reference path="Util/Util.ts" />
 /// <reference path="TileMap.ts" />
 /// <reference path="Collision/BoundingBox.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actions/IActionable.ts"/>
 /// <reference path="Actions/Action.ts" />
 /// <reference path="Actions/ActionContext.ts"/>
-/// <reference path="EasingFunctions.ts"/>
+/// <reference path="Util/EasingFunctions.ts"/>
 
 module ex {
  

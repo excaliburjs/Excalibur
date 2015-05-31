@@ -63,19 +63,19 @@
     <TypeScriptCompile Include="Actions\IActionable.ts" />
     <TypeScriptCompile Include="Actor.ts" />
     <TypeScriptCompile Include="Algebra.ts" />
-    <TypeScriptCompile Include="Animation.ts" />
+    <TypeScriptCompile Include="Drawing\Animation.ts" />
     <TypeScriptCompile Include="Binding.ts" />
     <TypeScriptCompile Include="Util\CullingBox.ts" />
     <TypeScriptCompile Include="Util\SortedList.ts" />
     <TypeScriptCompile Include="Camera.ts" />
     <TypeScriptCompile Include="Class.ts" />
-    <TypeScriptCompile Include="CollisionPair.ts" />
+    <TypeScriptCompile Include="Collision\CollisionPair.ts" />
     <TypeScriptCompile Include="Collision\BoundingBox.ts" />
     <TypeScriptCompile Include="Collision\DynamicTreeCollisionResolver.ts" />
     <TypeScriptCompile Include="Collision\NaiveCollisionResolver.ts" />
-    <TypeScriptCompile Include="Color.ts" />
+    <TypeScriptCompile Include="Drawing\Color.ts" />
     <TypeScriptCompile Include="Collision\DynamicTree.ts" />
-    <TypeScriptCompile Include="EasingFunctions.ts" />
+    <TypeScriptCompile Include="Util\EasingFunctions.ts" />
     <TypeScriptCompile Include="Engine.ts" />
     <TypeScriptCompile Include="EventDispatcher.ts" />
     <TypeScriptCompile Include="Events.ts" />
@@ -87,17 +87,17 @@
     <TypeScriptCompile Include="Input\Pointer.ts" />
     <TypeScriptCompile Include="Interfaces\IDrawable.ts" />
     <TypeScriptCompile Include="Interfaces\ILoadable.ts" />
-    <TypeScriptCompile Include="Interfaces\IPipelineModule.ts" />
+    <TypeScriptCompile Include="Interfaces\IActorTrait.ts" />
     <TypeScriptCompile Include="Label.ts" />
     <TypeScriptCompile Include="Loader.ts" />
-    <TypeScriptCompile Include="Log.ts" />
-    <TypeScriptCompile Include="Modules\CollisionDetectionModule.ts" />
-    <TypeScriptCompile Include="Modules\CapturePointerModule.ts" />
-    <TypeScriptCompile Include="Modules\MovementModule.ts" />
-    <TypeScriptCompile Include="Modules\OffscreenCullingModule.ts" />
+    <TypeScriptCompile Include="Util\Log.ts" />
+    <TypeScriptCompile Include="Traits\CollisionDetection.ts" />
+    <TypeScriptCompile Include="Traits\CapturePointer.ts" />
+    <TypeScriptCompile Include="Traits\Movement.ts" />
+    <TypeScriptCompile Include="Traits\OffscreenCulling.ts" />
     <TypeScriptCompile Include="MonkeyPatch.ts" />
     <TypeScriptCompile Include="Particles.ts" />
-    <TypeScriptCompile Include="Polygon.ts" />
+    <TypeScriptCompile Include="Drawing\Polygon.ts" />
     <TypeScriptCompile Include="PostProcessing\ColorBlindCorrector.ts" />
     <TypeScriptCompile Include="PostProcessing\IPostProcessor.ts" />
     <TypeScriptCompile Include="Promises.ts" />
@@ -105,17 +105,18 @@
     <TypeScriptCompile Include="Scene.ts" />
     <TypeScriptCompile Include="Collision\Side.ts" />
     <TypeScriptCompile Include="Sound.ts" />
-    <TypeScriptCompile Include="Sprite.ts" />
-    <TypeScriptCompile Include="SpriteEffects.ts" />
-    <TypeScriptCompile Include="SpriteSheet.ts" />
+    <TypeScriptCompile Include="Drawing\Sprite.ts" />
+    <TypeScriptCompile Include="Drawing\SpriteEffects.ts" />
+    <TypeScriptCompile Include="Drawing\SpriteSheet.ts" />
     <TypeScriptCompile Include="TileMap.ts" />
     <TypeScriptCompile Include="Timer.ts" />
     <TypeScriptCompile Include="Trigger.ts" />
     <TypeScriptCompile Include="UIActor.ts" />
-    <TypeScriptCompile Include="Util.ts" />
+    <TypeScriptCompile Include="Util\Util.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Exports.js" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets')" />
 </Project>

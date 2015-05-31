@@ -159,9 +159,10 @@ module.exports = function (grunt) {
             "src/engine/*.ts",
             "src/engine/Actions/*.ts",
             "src/engine/Collision/*.ts",
+            "src/engine/Drawing/*.ts",
             "src/engine/Input/*.ts",
             "src/engine/Interfaces/*.ts",
-            "src/engine/Modules/*.ts",
+            "src/engine/Traits/*.ts",
             "src/engine/Util/*.ts"
          ]
       }

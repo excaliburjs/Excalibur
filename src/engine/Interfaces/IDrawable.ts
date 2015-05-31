@@ -1,4 +1,4 @@
-/// <reference path="../SpriteEffects.ts" />
+/// <reference path="../Drawing/SpriteEffects.ts" />
 
 module ex {
    /**
