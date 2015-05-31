@@ -1,8 +1,8 @@
-/// <reference path="../Interfaces/IPipelineModule.ts" />
+/// <reference path="../Interfaces/IActorTrait.ts" />
 /// <reference path="../Util/CullingBox.ts" />
 
 module ex.Traits {
-   export class OffscreenCulling implements IPipelineModule {
+   export class OffscreenCulling implements IActorTrait {
 
       public cullingBox: ex.CullingBox = new ex.CullingBox();
 

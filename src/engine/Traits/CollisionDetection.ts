@@ -1,7 +1,7 @@
-/// <reference path="../Interfaces/IPipelineModule.ts" />
+/// <reference path="../Interfaces/IActorTrait.ts" />
 
 module ex.Traits {
-   export class CollisionDetection implements IPipelineModule { 
+   export class CollisionDetection implements IActorTrait { 
       public update(actor: Actor, engine: Engine, delta: number) {
          var eventDispatcher = actor.eventDispatcher;
          if (actor.collisionType !== CollisionType.PreventCollision) {            

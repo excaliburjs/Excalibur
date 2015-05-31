@@ -1,4 +1,4 @@
-/// <reference path="../Interfaces/IPipelineModule.ts" />
+/// <reference path="../Interfaces/IActorTrait.ts" />
 
 module ex.Traits {
 
@@ -14,7 +14,7 @@ module ex.Traits {
    /**
     * Propogates pointer events to the actor
     */
-   export class CapturePointer implements IPipelineModule {
+   export class CapturePointer implements IActorTrait {
 
       public update(actor: Actor, engine: Engine, delta: number) {
          if (!actor.enableCapturePointer) { return; }

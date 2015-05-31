@@ -386,7 +386,7 @@ module ex {
     /**
      * Modify the current actor update pipeline. 
      */
-    public traits: IPipelineModule[] = [];
+    public traits: IActorTrait[] = [];
     
     /**
      * Sets the color of the actor. A rectangle of this color will be 
