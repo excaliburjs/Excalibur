@@ -1,8 +1,8 @@
 /// <reference path="Interfaces/IDrawable.ts" />
-/// <reference path="Modules/MovementModule.ts" />
-/// <reference path="Modules/OffscreenCullingModule.ts" />
-/// <reference path="Modules/CapturePointerModule.ts" />
-/// <reference path="Modules/CollisionDetectionModule.ts" />
+/// <reference path="Traits/Movement.ts" />
+/// <reference path="Traits/OffscreenCulling.ts" />
+/// <reference path="Traits/CapturePointer.ts" />
+/// <reference path="Traits/CollisionDetection.ts" />
 /// <reference path="Collision/Side.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util.ts" />
@@ -386,7 +386,7 @@ module ex {
     /**
      * Modify the current actor update pipeline. 
      */
-    public pipeline: IPipelineModule[] = [];
+    public traits: IActorTrait[] = [];
     
     /**
      * Sets the color of the actor. A rectangle of this color will be 
@@ -405,7 +405,7 @@ module ex {
     /**
      * Configuration for [[CapturePointerModule]] trait
      */
-    public capturePointer: ICapturePointerConfig = {
+    public capturePointer: Traits.ICapturePointerConfig = {
        captureMoveEvents: false
     };
 
@@ -432,10 +432,10 @@ module ex {
           this.opacity = color.a;  
        }         
        // Build default pipeline
-       this.pipeline.push(new ex.MovementModule());
+       this.traits.push(new ex.Traits.Movement());
        //this.pipeline.push(new ex.CollisionDetectionModule());
-       this.pipeline.push(new ex.OffscreenCullingModule());         
-       this.pipeline.push(new ex.CapturePointerModule());
+       this.traits.push(new ex.Traits.OffscreenCulling());         
+       this.traits.push(new ex.Traits.CapturePointer());
        this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
        
        this.anchor = new Point(.5, .5);
@@ -1045,8 +1045,8 @@ module ex {
        // Update action queue
        this.actionQueue.update(delta);
        // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
-       for(var i = 0; i < this.pipeline.length; i++) {
-          this.pipeline[i].update(this, engine, delta);
+       for (var i = 0; i < this.traits.length; i++) {
+          this.traits[i].update(this, engine, delta);
        }
        eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
     }
@@ -1115,9 +1115,9 @@ module ex {
        ctx.fill();
 
        // Culling Box debug draw
-       for (var j = 0; j < this.pipeline.length; j++) {
-          if (this.pipeline[j] instanceof OffscreenCullingModule) {
-             (<OffscreenCullingModule>this.pipeline[j]).cullingBox.debugDraw(ctx);
+       for (var j = 0; j < this.traits.length; j++) {
+          if (this.traits[j] instanceof Traits.OffscreenCulling) {
+             (<Traits.OffscreenCulling>this.traits[j]).cullingBox.debugDraw(ctx);
           }
        }
 
