@@ -1,6 +1,6 @@
 /// <reference path="Promises.ts" />
 /// <reference path="Loader.ts" />
-/// <reference path="Log.ts" />
+/// <reference path="Util/Log.ts" />
 
 
 module ex {

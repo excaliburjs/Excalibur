@@ -12,7 +12,7 @@
 /// <reference path="Actions/IActionable.ts"/>
 /// <reference path="Actions/Action.ts" />
 /// <reference path="Actions/ActionContext.ts"/>
-/// <reference path="EasingFunctions.ts"/>
+/// <reference path="Util/EasingFunctions.ts"/>
 
 module ex {
  

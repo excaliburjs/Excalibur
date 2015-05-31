@@ -1,6 +1,6 @@
 /// <reference path="Engine.ts" />
 /// <reference path="Actor.ts" />
-/// <reference path="Log.ts" />
+/// <reference path="Util/Log.ts" />
 
 module ex {
   
