@@ -1,6 +1,6 @@
 /// <reference path="../Interfaces/IPipelineModule.ts" />
 
-module ex {
+module ex.Traits {
    export class MovementModule implements IPipelineModule { 
       public update(actor: Actor, engine: Engine, delta: number) {
          // Update placements based on linear algebra

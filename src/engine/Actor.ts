@@ -405,7 +405,7 @@ module ex {
     /**
      * Configuration for [[CapturePointerModule]] trait
      */
-    public capturePointer: ICapturePointerConfig = {
+    public capturePointer: Traits.ICapturePointerConfig = {
        captureMoveEvents: false
     };
 
@@ -432,10 +432,10 @@ module ex {
           this.opacity = color.a;  
        }         
        // Build default pipeline
-       this.traits.push(new ex.MovementModule());
+       this.traits.push(new ex.Traits.MovementModule());
        //this.pipeline.push(new ex.CollisionDetectionModule());
-       this.traits.push(new ex.OffscreenCullingModule());         
-       this.traits.push(new ex.CapturePointerModule());
+       this.traits.push(new ex.Traits.OffscreenCullingModule());         
+       this.traits.push(new ex.Traits.CapturePointerModule());
        this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
        
        this.anchor = new Point(.5, .5);
@@ -1116,8 +1116,8 @@ module ex {
 
        // Culling Box debug draw
        for (var j = 0; j < this.traits.length; j++) {
-          if (this.traits[j] instanceof OffscreenCullingModule) {
-             (<OffscreenCullingModule>this.traits[j]).cullingBox.debugDraw(ctx);
+          if (this.traits[j] instanceof Traits.OffscreenCullingModule) {
+             (<Traits.OffscreenCullingModule>this.traits[j]).cullingBox.debugDraw(ctx);
           }
        }
 

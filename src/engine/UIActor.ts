@@ -18,8 +18,8 @@ module ex {
       constructor(x?: number, y?: number, width?: number, height?: number) {
          super(x, y, width, height);
          this.traits = [];
-         this.traits.push(new ex.MovementModule());
-         this.traits.push(new ex.CapturePointerModule());
+         this.traits.push(new Traits.MovementModule());
+         this.traits.push(new Traits.CapturePointerModule());
          this.anchor.setTo(0, 0);
          this.collisionType = ex.CollisionType.PreventCollision;
          this.enableCapturePointer = true;

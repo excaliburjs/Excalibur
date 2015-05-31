@@ -1,6 +1,6 @@
 /// <reference path="../Interfaces/IPipelineModule.ts" />
 
-module ex {
+module ex.Traits {
 
    export interface ICapturePointerConfig {
       
