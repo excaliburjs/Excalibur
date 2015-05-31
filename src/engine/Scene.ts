@@ -2,7 +2,7 @@
 /// <reference path="Timer.ts" />
 /// <reference path="Collision/NaiveCollisionResolver.ts"/>
 /// <reference path="Collision/DynamicTreeCollisionResolver.ts"/>
-/// <reference path="CollisionPair.ts" />
+/// <reference path="Collision/CollisionPair.ts" />
 /// <reference path="Camera.ts" />
 /// <reference path="Group.ts"/>
 /// <reference path="Util/SortedList.ts"/>
