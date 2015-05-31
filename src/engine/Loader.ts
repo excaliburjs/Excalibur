@@ -1,5 +1,5 @@
 /// <reference path="Sound.ts" />
-/// <reference path="Util.ts" />
+/// <reference path="Util/Util.ts" />
 /// <reference path="Promises.ts" />
 /// <reference path="Resource.ts" />
 /// <reference path="Interfaces/ILoadable.ts" />

@@ -1,5 +1,5 @@
 /// <reference path="MonkeyPatch.ts" />
-/// <reference path="Util.ts" />
+/// <reference path="Util/Util.ts" />
 /// <reference path="Log.ts" />
 
 module ex.Internal {

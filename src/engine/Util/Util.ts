@@ -1,5 +1,5 @@
-/// <reference path="Algebra.ts"/>
-/// <reference path="Events.ts"/>
+/// <reference path="../Algebra.ts"/>
+/// <reference path="../Events.ts"/>
 
 /**
  * Utilities
