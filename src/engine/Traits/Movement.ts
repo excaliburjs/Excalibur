@@ -1,7 +1,7 @@
 /// <reference path="../Interfaces/IPipelineModule.ts" />
 
 module ex.Traits {
-   export class MovementModule implements IPipelineModule { 
+   export class Movement implements IPipelineModule { 
       public update(actor: Actor, engine: Engine, delta: number) {
          // Update placements based on linear algebra
          actor.x += actor.dx * delta / 1000;

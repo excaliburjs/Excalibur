@@ -14,7 +14,7 @@ module ex.Traits {
    /**
     * Propogates pointer events to the actor
     */
-   export class CapturePointerModule implements IPipelineModule {
+   export class CapturePointer implements IPipelineModule {
 
       public update(actor: Actor, engine: Engine, delta: number) {
          if (!actor.enableCapturePointer) { return; }

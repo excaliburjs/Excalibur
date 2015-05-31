@@ -2,7 +2,7 @@
 /// <reference path="../Util/CullingBox.ts" />
 
 module ex.Traits {
-   export class OffscreenCullingModule implements IPipelineModule {
+   export class OffscreenCulling implements IPipelineModule {
 
       public cullingBox: ex.CullingBox = new ex.CullingBox();
 
