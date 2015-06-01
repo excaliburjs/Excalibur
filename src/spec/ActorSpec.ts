@@ -7,38 +7,56 @@ describe("A game actor", () => {
 	var actor: ex.Actor;
 	var engine;
    var scene;
+   
 	beforeEach(()=>{
-		actor = new ex.Actor();
+      actor = new ex.Actor();
+      
+
       actor.collisionType = ex.CollisionType.Active;
       scene = new ex.Scene(engine);
+
+      spyOn(scene, 'draw').andCallThrough();
+      spyOn(actor, 'draw');
+
 		// mock engine		
-      engine = {
-         collisionStrategy: 0,
-	      currentScene : scene,
+	   engine = {
+	      collisionStrategy: 0,
+	      currentScene: scene,
 	      keys: [],
 	      clicks: [],
 	      mouseDown: [],
 	      mouseMove: [],
-         mouseUp: [],
-         touchStart: [],
-         touchMove: [],
-         touchEnd: [],
-         touchCancel: [],
-         canvas: {
-            width: 0,
-            height: 0,
-         },
-         getWidth: function(){return 0},
-         getHeight: function(){return 0},
-         camera: {
-            getZoom: function(){return 1}
-         },
-         worldToScreenCoordinates: function(){
-            return new ex.Point(0,0);
-         },
-         screenToWorldCoordinates: function(){
-            return new ex.Point(0,0);
-         }
+	      mouseUp: [],
+	      touchStart: [],
+	      touchMove: [],
+	      touchEnd: [],
+	      touchCancel: [],
+	      width: 100,
+	      height: 100,
+	      canvas: {
+	         width: 100,
+	         clientWidth: 100,
+	         height: 100,
+	         clientHeight: 100
+	      },
+	      ctx: {
+	         canvas: {
+	            width: 100,
+	            height: 100
+	         },
+	         save: function() {},
+	         restore: function() {},
+	         translate: function() {},
+	         rotate: function() {},
+	         scale: function() {}
+	      },
+	      getWidth: function() { return 100; },
+	      getHeight: function() { return 100; },
+	      camera: {
+	         getZoom: function() { return 1; }
+	      },
+	      worldToScreenCoordinates: ex.Engine.prototype.worldToScreenCoordinates,
+         screenToWorldCoordinates: ex.Engine.prototype.screenToWorldCoordinates
 	   };
 	});
 
@@ -724,6 +742,53 @@ describe("A game actor", () => {
       actor.on('pointermove',() => { });
       expect(actor.capturePointer.captureMoveEvents).toBeTruthy();
       expect(actor.enableCapturePointer).toBeTruthy();
+   });
+
+   it('is drawn when onscreen',() => {
+      actor.traits.length = 0;
+      actor.traits.push(new ex.Traits.OffscreenCulling());
+      actor.x = 0;
+      actor.y = 0;
+      actor.setWidth(10);
+      actor.setHeight(10);
+
+      scene.add(actor);
+      scene.update(engine, 100);
+      scene.draw(engine.ctx, 100);
+
+      expect(actor.isOffScreen).toBeFalsy();
+      expect(actor.draw).toHaveBeenCalled();
+
+      
+   });
+
+   it('is not drawn when offscreen',() => {
+      actor.x = 1000;
+      actor.y = 1000;
+      scene.update(engine, 100);
+      expect(actor.isOffScreen).toBeFalsy();
+
+      
+      actor.x = 1010;
+      actor.y = 1010;
+      actor.setWidth(5);
+      actor.setHeight(5);
+
+      scene.add(actor);
+      scene.update(engine, 100);
+      scene.draw(engine.ctx, 100);
+      
+      expect(scene.camera.getFocus().x).toBe(50);
+      expect(scene.camera.getFocus().y).toBe(50);
+      expect(engine.worldToScreenCoordinates(new ex.Point(50, 50)).x).toBe(50);
+      expect(engine.worldToScreenCoordinates(new ex.Point(50, 50)).y).toBe(50);
+      expect(engine.getWidth()).toBe(100);
+      expect(engine.getHeight()).toBe(100);
+
+
+      expect(actor.isOffScreen).toBeTruthy();
+      expect(actor.draw).not.toHaveBeenCalled();
+
    });
 
 });

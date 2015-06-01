@@ -297,8 +297,8 @@ module ex {
          var sortedChildren = this._sortedDrawingTree.list();
          for (i = 0, len = sortedChildren.length; i < len; i++) {
 
-            // only draw actors that are visible
-            if (sortedChildren[i].visible) {
+            // only draw actors that are visible and on screen
+            if (sortedChildren[i].visible && !sortedChildren[i].isOffScreen) {
                sortedChildren[i].draw(ctx, delta);
             }
          }
@@ -311,7 +311,8 @@ module ex {
          ctx.restore();
          
          for (i = 0, len = this.uiActors.length; i < len; i++) {
-            if (this.uiActors[i].visible) {
+            // only draw ui actors that are visible and on screen
+            if (this.uiActors[i].visible && !sortedChildren[i].isOffScreen) {
                this.uiActors[i].draw(ctx, delta);
             }
          }

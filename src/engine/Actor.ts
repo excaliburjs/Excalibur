@@ -397,13 +397,13 @@ module ex {
     public color: Color;
 
     /**
-     * Whether or not to enable the [[CapturePointerModule]] trait that propogates 
+     * Whether or not to enable the [[CapturePointer]] trait that propogates 
      * pointer events to this actor
      */
     public enableCapturePointer: boolean = false;
 
     /**
-     * Configuration for [[CapturePointerModule]] trait
+     * Configuration for [[CapturePointer]] trait
      */
     public capturePointer: Traits.ICapturePointerConfig = {
        captureMoveEvents: false
@@ -1056,9 +1056,6 @@ module ex {
      * @param delta The time since the last draw in milliseconds
      */
     public draw(ctx: CanvasRenderingContext2D, delta: number) {
-       if (this.isOffScreen) {
-          return;
-       }
        var anchorPoint = this._getCalculatedAnchor();
        ctx.save();
        ctx.scale(this.scale.x, this.scale.y);
