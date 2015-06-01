@@ -307,6 +307,14 @@ module ex {
          this.collisionType = CollisionType.PreventCollision;
          this.particles = new Util.Collection<Particle>();
          this.deadParticles = new Util.Collection<Particle>();
+
+         // Remove offscreen culling from particle emitters
+         for (var trait in this.traits) {
+            if (this.traits[trait] instanceof ex.Traits.OffscreenCulling) {
+               this.traits.splice(trait, 1);
+            }
+         }
+
       }
 
       public removeParticle(particle: Particle) {

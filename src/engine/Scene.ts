@@ -312,7 +312,7 @@ module ex {
          
          for (i = 0, len = this.uiActors.length; i < len; i++) {
             // only draw ui actors that are visible and on screen
-            if (this.uiActors[i].visible && !sortedChildren[i].isOffScreen) {
+            if (this.uiActors[i].visible) {
                this.uiActors[i].draw(ctx, delta);
             }
          }
