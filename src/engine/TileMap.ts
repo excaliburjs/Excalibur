@@ -307,6 +307,7 @@ module ex {
                 }
              }
           }
+          y = this._onScreenYStart;
        }
        ctx.restore();
     }
