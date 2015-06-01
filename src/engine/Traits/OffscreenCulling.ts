@@ -20,7 +20,7 @@ module ex.Traits {
             zoom = actor.scene.camera.getZoom();   
          }
          
-         var isSpriteOffScreen = false;
+         var isSpriteOffScreen = true;
          if (actor.currentDrawing != null) {
             isSpriteOffScreen = this.cullingBox.isSpriteOffScreen(actor, engine);
          }

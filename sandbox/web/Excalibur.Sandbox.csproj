@@ -66,8 +66,11 @@
   <ItemGroup>
     <Content Include="Excalibur.js" />
     <Content Include="html\healthbar.tmpl" />
+    <Content Include="index.html" />
     <Content Include="tests\audio\index.html" />
     <Content Include="tests\audio\loop.mp3" />
+    <Content Include="tests\culling\culling-sprite.png" />
+    <Content Include="tests\culling\culling.html" />
     <Content Include="tests\group\block.png" />
     <Content Include="tests\group\index.html" />
     <Content Include="tests\input\keyboard.html" />
@@ -93,6 +96,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="src\game.ts" />
     <TypeScriptCompile Include="tests\audio\index.ts" />
+    <TypeScriptCompile Include="tests\culling\culling.ts" />
     <TypeScriptCompile Include="tests\group\group.ts" />
     <TypeScriptCompile Include="tests\input\keyboard.ts" />
     <TypeScriptCompile Include="tests\input\pointer.ts" />

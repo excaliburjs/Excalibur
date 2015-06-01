@@ -1,5 +1,5 @@
-/// <reference path="Interfaces/IDrawable.ts" />
-/// <reference path="Algebra.ts" />
+/// <reference path="../Interfaces/IDrawable.ts" />
+/// <reference path="../Algebra.ts" />
 /// <reference path="Color.ts" />
 
 module ex {
