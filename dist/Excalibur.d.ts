@@ -186,23 +186,40 @@ declare module ex {
 }
 declare module ex {
     /**
-    * An interface describing actor update pipeline modules
-    */
-    interface IPipelineModule {
+     * An interface describing actor update pipeline traits
+     */
+    interface IActorTrait {
+        update(actor: Actor, engine: Engine, delta: number): void;
+    }
+}
+declare module ex.Traits {
+    class Movement implements IActorTrait {
         update(actor: Actor, engine: Engine, delta: number): void;
     }
 }
 declare module ex {
-    class MovementModule implements IPipelineModule {
+    class CullingBox {
+        private _topLeft;
+        private _topRight;
+        private _bottomLeft;
+        private _bottomRight;
+        private _xCoords;
+        private _yCoords;
+        private _xMin;
+        private _yMin;
+        private _xMax;
+        private _yMax;
+        isSpriteOffScreen(actor: Actor, engine: Engine): boolean;
+        debugDraw(ctx: CanvasRenderingContext2D): void;
+    }
+}
+declare module ex.Traits {
+    class OffscreenCulling implements IActorTrait {
+        cullingBox: ex.CullingBox;
         update(actor: Actor, engine: Engine, delta: number): void;
     }
 }
-declare module ex {
-    class OffscreenCullingModule implements IPipelineModule {
-        update(actor: Actor, engine: Engine, delta: number): void;
-    }
-}
-declare module ex {
+declare module ex.Traits {
     interface ICapturePointerConfig {
         /**
          * Capture PointerMove events (may be expensive!)
@@ -212,12 +229,12 @@ declare module ex {
     /**
      * Propogates pointer events to the actor
      */
-    class CapturePointerModule implements IPipelineModule {
+    class CapturePointer implements IActorTrait {
         update(actor: Actor, engine: Engine, delta: number): void;
     }
 }
-declare module ex {
-    class CollisionDetectionModule implements IPipelineModule {
+declare module ex.Traits {
+    class CollisionDetection implements IActorTrait {
         update(actor: Actor, engine: Engine, delta: number): void;
     }
 }
@@ -446,13 +463,13 @@ declare module ex.Util {
          * Default collection size
          */
         static DefaultSize: number;
-        private internalArray;
-        private endPointer;
+        private _internalArray;
+        private _endPointer;
         /**
          * @param initialSize  Initial size of the internal backing array
          */
         constructor(initialSize?: number);
-        private resize();
+        private _resize();
         /**
          * Push elements to the end of the collection
          */
@@ -504,7 +521,8 @@ declare module ex.Util {
         forEach(func: (element: T, index: number) => any): void;
         /**
          * Mutate every element in the collection
-         * @param func  Callback to call for each element passing a reference to the element and its index, any values returned mutate the collection
+         * @param func  Callback to call for each element passing a reference to the element and its index, any values returned mutate
+         * the collection
          */
         map(func: (element: T, index: number) => any): void;
     }
@@ -576,11 +594,11 @@ declare module ex {
         height: number;
         effects: Effects.ISpriteEffect[];
         internalImage: HTMLImageElement;
-        private spriteCanvas;
-        private spriteCtx;
-        private pixelData;
-        private pixelsLoaded;
-        private dirtyEffect;
+        private _spriteCanvas;
+        private _spriteCtx;
+        private _pixelData;
+        private _pixelsLoaded;
+        private _dirtyEffect;
         /**
          * @param image   The backing image texture to build the Sprite
          * @param sx      The x position of the sprite
@@ -589,7 +607,7 @@ declare module ex {
          * @param sheight The height of the sprite in pixels
          */
         constructor(image: Texture, sx: number, sy: number, swidth: number, sheight: number);
-        private loadPixels();
+        private _loadPixels();
         /**
          * Applies the [[Effects.Opacity]] to a sprite, setting the alpha of all pixels to a given value
          */
@@ -607,7 +625,8 @@ declare module ex {
          */
         fill(color: Color): void;
         /**
-         * Applies the [[Effects.Colorize]] to a sprite, changing the color channels of all pixesl to be the average of the original color and the provided color.
+         * Applies the [[Effects.Colorize]] to a sprite, changing the color channels of all pixesl to be the average of the original color
+         * and the provided color.
          */
         colorize(color: Color): void;
         /**
@@ -641,7 +660,7 @@ declare module ex {
          * @param index  Index of the effect to remove from this sprite
          */
         removeEffect(index: number): void;
-        private applyEffects();
+        private _applyEffects();
         /**
          * Clears all effects from the drawing and return it to its original state.
          */
@@ -760,7 +779,7 @@ declare module ex {
         private columns;
         private rows;
         sprites: Sprite[];
-        private internalImage;
+        private _internalImage;
         /**
          * @param image     The backing image texture to build the SpriteSheet
          * @param columns   The number of columns in the image texture
@@ -884,8 +903,8 @@ declare module ex {
         image: Texture;
         private alphabet;
         private caseInsensitive;
-        private spriteLookup;
-        private colorLookup;
+        private _spriteLookup;
+        private _colorLookup;
         private _currentColor;
         /**
          * @param image           The backing image texture to build the SpriteFont
@@ -1354,7 +1373,7 @@ declare module ex {
         interval: number;
         fcn: () => void;
         repeats: boolean;
-        private elapsedTime;
+        private _elapsedTime;
         private _totalTimeAlive;
         complete: boolean;
         scene: Scene;
@@ -1386,7 +1405,6 @@ declare module ex {
 }
 declare module ex {
     class NaiveCollisionResolver implements ICollisionResolver {
-        constructor();
         register(target: Actor): void;
         remove(tartet: Actor): void;
         evaluate(targets: Actor[]): CollisionPair[];
@@ -1427,7 +1445,6 @@ declare module ex {
 declare module ex {
     class DynamicTreeCollisionResolver implements ICollisionResolver {
         private _dynamicCollisionTree;
-        constructor();
         register(target: Actor): void;
         remove(target: Actor): void;
         evaluate(targets: Actor[]): CollisionPair[];
@@ -1464,138 +1481,138 @@ declare module ex {
 }
 declare module ex {
     /**
-    * Cameras
-    *
-    * [[BaseCamera]] is the base class for all Excalibur cameras. Cameras are used
-    * to move around your game and set focus. They are used to determine
-    * what is "off screen" and can be used to scale the game.
-    *
-    * Excalibur comes with a [[LockedCamera]] and a [[SideCamera]], depending on
-    * your game needs.
-    *
-    * Cameras are attached to [[Scene|Scenes]] and can be changed by
-    * setting [[Scene.camera]]. By default, a [[Scene]] is initialized with a
-    * [[BaseCamera]] that doesn't move and is centered on the screen.
-    *
-    * ## Focus
-    *
-    * Cameras have a [[BaseCamera.focus|focus]] which means they center around a specific
-    * [[Point]]. This can be an [[Actor]] ([[BaseCamera.setActorToFollow]]) or a specific
-    * [[Point]] ([[BaseCamera.setFocus]]).
-    *
-    * If a camera is following an [[Actor]], it will ensure the [[Actor]] is always at the
-    * center of the screen. You can use [[BaseCamera.setFocus]] instead if you wish to
-    * offset the focal point.
-    *
-    * ## Camera Shake
-    *
-    * To add some fun effects to your game, the [[BaseCamera.shake]] method
-    * will do a random shake. This is great for explosions, damage, and other
-    * in-game effects.
-    *
-    * ## Camera Lerp
-    *
-    * "Lerp" is short for [Linear Interpolation](http://en.wikipedia.org/wiki/Linear_interpolation)
-    * and it enables the camera focus to move smoothly between two points using timing functions.
-    * Set [[BaseCamera.lerp]] to `true` to enable "lerping".
-    *
-    * ## Camera Zooming
-    *
-    * To adjust the zoom for your game, use [[BaseCamera.zoom]] which will scale the
-    * game accordingly. You can pass a duration to transition between zoom levels.
-    *
-    * ## Known Issues
-    *
-    * **Cameras do not support [[EasingFunctions]]**
-    * [Issue #320](https://github.com/excaliburjs/Excalibur/issues/320)
-    *
-    * Currently [[BaseCamera.lerp]] only supports `easeInOutCubic` but will support
-    * [[EasingFunctions|easing functions]] soon.
-    *
-    * **Actors following a path will wobble when camera is moving**
-    * [Issue #276](https://github.com/excaliburjs/Excalibur/issues/276)
-    *
-    */
+     * Cameras
+     *
+     * [[BaseCamera]] is the base class for all Excalibur cameras. Cameras are used
+     * to move around your game and set focus. They are used to determine
+     * what is "off screen" and can be used to scale the game.
+     *
+     * Excalibur comes with a [[LockedCamera]] and a [[SideCamera]], depending on
+     * your game needs.
+     *
+     * Cameras are attached to [[Scene|Scenes]] and can be changed by
+     * setting [[Scene.camera]]. By default, a [[Scene]] is initialized with a
+     * [[BaseCamera]] that doesn't move and is centered on the screen.
+     *
+     * ## Focus
+     *
+     * Cameras have a [[BaseCamera.focus|focus]] which means they center around a specific
+     * [[Point]]. This can be an [[Actor]] ([[BaseCamera.setActorToFollow]]) or a specific
+     * [[Point]] ([[BaseCamera.setFocus]]).
+     *
+     * If a camera is following an [[Actor]], it will ensure the [[Actor]] is always at the
+     * center of the screen. You can use [[BaseCamera.setFocus]] instead if you wish to
+     * offset the focal point.
+     *
+     * ## Camera Shake
+     *
+     * To add some fun effects to your game, the [[BaseCamera.shake]] method
+     * will do a random shake. This is great for explosions, damage, and other
+     * in-game effects.
+     *
+     * ## Camera Lerp
+     *
+     * "Lerp" is short for [Linear Interpolation](http://en.wikipedia.org/wiki/Linear_interpolation)
+     * and it enables the camera focus to move smoothly between two points using timing functions.
+     * Set [[BaseCamera.lerp]] to `true` to enable "lerping".
+     *
+     * ## Camera Zooming
+     *
+     * To adjust the zoom for your game, use [[BaseCamera.zoom]] which will scale the
+     * game accordingly. You can pass a duration to transition between zoom levels.
+     *
+     * ## Known Issues
+     *
+     * **Cameras do not support [[EasingFunctions]]**
+     * [Issue #320](https://github.com/excaliburjs/Excalibur/issues/320)
+     *
+     * Currently [[BaseCamera.lerp]] only supports `easeInOutCubic` but will support
+     * [[EasingFunctions|easing functions]] soon.
+     *
+     * **Actors following a path will wobble when camera is moving**
+     * [Issue #276](https://github.com/excaliburjs/Excalibur/issues/276)
+     *
+     */
     class BaseCamera {
-        protected follow: Actor;
-        protected focus: Point;
-        protected lerp: boolean;
+        protected _follow: Actor;
+        protected _focus: Point;
+        protected _lerp: boolean;
         private _cameraMoving;
         private _currentLerpTime;
         private _lerpDuration;
         private _totalLerpTime;
         private _lerpStart;
         private _lerpEnd;
-        protected isShaking: boolean;
-        private shakeMagnitudeX;
-        private shakeMagnitudeY;
-        private shakeDuration;
-        private elapsedShakeTime;
-        protected isZooming: boolean;
-        private currentZoomScale;
-        private maxZoomScale;
-        private zoomDuration;
-        private elapsedZoomTime;
-        private zoomIncrement;
-        private easeInOutCubic(currentTime, startValue, endValue, duration);
+        protected _isShaking: boolean;
+        private _shakeMagnitudeX;
+        private _shakeMagnitudeY;
+        private _shakeDuration;
+        private _elapsedShakeTime;
+        protected _isZooming: boolean;
+        private _currentZoomScale;
+        private _maxZoomScale;
+        private _zoomDuration;
+        private _elapsedZoomTime;
+        private _zoomIncrement;
+        private _easeInOutCubic(currentTime, startValue, endValue, duration);
         /**
-        * Sets the [[Actor]] to follow with the camera
-        * @param actor  The actor to follow
-        */
+         * Sets the [[Actor]] to follow with the camera
+         * @param actor  The actor to follow
+         */
         setActorToFollow(actor: Actor): void;
         /**
-        * Returns the focal point of the camera
-        */
+         * Returns the focal point of the camera
+         */
         getFocus(): Point;
         /**
-        * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
-        * @param x The x coordinate of the focal point
-        * @param y The y coordinate of the focal point
-        */
+         * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
+         * @param x The x coordinate of the focal point
+         * @param y The y coordinate of the focal point
+         */
         setFocus(x: number, y: number): void;
         /**
-        * Sets the camera to shake at the specified magnitudes for the specified duration
-        * @param magnitudeX  The x magnitude of the shake
-        * @param magnitudeY  The y magnitude of the shake
-        * @param duration    The duration of the shake in milliseconds
-        */
+         * Sets the camera to shake at the specified magnitudes for the specified duration
+         * @param magnitudeX  The x magnitude of the shake
+         * @param magnitudeY  The y magnitude of the shake
+         * @param duration    The duration of the shake in milliseconds
+         */
         shake(magnitudeX: number, magnitudeY: number, duration: number): void;
         /**
-        * Zooms the camera in or out by the specified scale over the specified duration.
-        * If no duration is specified, it take effect immediately.
-        * @param scale    The scale of the zoom
-        * @param duration The duration of the zoom in milliseconds
-        */
+         * Zooms the camera in or out by the specified scale over the specified duration.
+         * If no duration is specified, it take effect immediately.
+         * @param scale    The scale of the zoom
+         * @param duration The duration of the zoom in milliseconds
+         */
         zoom(scale: number, duration?: number): void;
         /**
-        * Gets the current zoom scale
-        */
+         * Gets the current zoom scale
+         */
         getZoom(): number;
-        private setCurrentZoomScale(zoomScale);
+        private _setCurrentZoomScale(zoomScale);
         /**
-        * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
-        * @param delta  The number of milliseconds since the last update
-        */
+         * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
+         * @param delta  The number of milliseconds since the last update
+         */
         update(ctx: CanvasRenderingContext2D, delta: number): void;
         debugDraw(ctx: CanvasRenderingContext2D): void;
-        private isDoneShaking();
-        private isDoneZooming();
+        private _isDoneShaking();
+        private _isDoneZooming();
     }
     /**
-    * An extension of [[BaseCamera]] that is locked vertically; it will only move side to side.
-    *
-    * Common usages: platformers.
-    */
+     * An extension of [[BaseCamera]] that is locked vertically; it will only move side to side.
+     *
+     * Common usages: platformers.
+     */
     class SideCamera extends BaseCamera {
         getFocus(): Point;
     }
     /**
-    * An extension of [[BaseCamera]] that is locked to an [[Actor]] or
-    * [[LockedCamera.focus|focal point]]; the actor will appear in the
-    * center of the screen.
-    *
-    * Common usages: RPGs, adventure games, top-down games.
-    */
+     * An extension of [[BaseCamera]] that is locked to an [[Actor]] or
+     * [[LockedCamera.focus|focal point]]; the actor will appear in the
+     * center of the screen.
+     *
+     * Common usages: RPGs, adventure games, top-down games.
+     */
     class LockedCamera extends BaseCamera {
         getFocus(): Point;
     }
@@ -1636,14 +1653,14 @@ declare module ex.Internal.Actions {
         stop(): void;
     }
     class MoveTo implements IAction {
-        private actor;
+        private _actor;
         x: number;
         y: number;
-        private start;
-        private end;
-        private dir;
-        private speed;
-        private distance;
+        private _start;
+        private _end;
+        private _dir;
+        private _speed;
+        private _distance;
         private _started;
         private _stopped;
         constructor(actor: Actor, destx: number, desty: number, speed: number);
@@ -1653,15 +1670,15 @@ declare module ex.Internal.Actions {
         reset(): void;
     }
     class MoveBy implements IAction {
-        private actor;
+        private _actor;
         x: number;
         y: number;
-        private distance;
-        private speed;
-        private time;
-        private start;
-        private end;
-        private dir;
+        private _distance;
+        private _speed;
+        private _time;
+        private _start;
+        private _end;
+        private _dir;
         private _started;
         private _stopped;
         constructor(actor: Actor, destx: number, desty: number, time: number);
@@ -1671,16 +1688,16 @@ declare module ex.Internal.Actions {
         reset(): void;
     }
     class Follow implements IAction {
-        private actor;
-        private actorToFollow;
+        private _actor;
+        private _actorToFollow;
         x: number;
         y: number;
-        private current;
-        private end;
-        private dir;
-        private speed;
-        private maximumDistance;
-        private distanceBetween;
+        private _current;
+        private _end;
+        private _dir;
+        private _speed;
+        private _maximumDistance;
+        private _distanceBetween;
         private _started;
         private _stopped;
         constructor(actor: Actor, actorToFollow: Actor, followDistance?: number);
@@ -1690,15 +1707,15 @@ declare module ex.Internal.Actions {
         reset(): void;
     }
     class Meet implements IAction {
-        private actor;
-        private actorToMeet;
+        private _actor;
+        private _actorToMeet;
         x: number;
         y: number;
-        private current;
-        private end;
-        private dir;
-        private speed;
-        private distanceBetween;
+        private _current;
+        private _end;
+        private _dir;
+        private _speed;
+        private _distanceBetween;
         private _started;
         private _stopped;
         private _speedWasSpecified;
@@ -1709,13 +1726,13 @@ declare module ex.Internal.Actions {
         reset(): void;
     }
     class RotateTo implements IAction {
-        private actor;
+        private _actor;
         x: number;
         y: number;
-        private start;
-        private end;
-        private speed;
-        private distance;
+        private _start;
+        private _end;
+        private _speed;
+        private _distance;
         private _started;
         private _stopped;
         constructor(actor: Actor, angleRadians: number, speed: number);
@@ -1725,16 +1742,16 @@ declare module ex.Internal.Actions {
         reset(): void;
     }
     class RotateBy implements IAction {
-        private actor;
+        private _actor;
         x: number;
         y: number;
-        private start;
-        private end;
-        private time;
-        private distance;
+        private _start;
+        private _end;
+        private _time;
+        private _distance;
         private _started;
         private _stopped;
-        private speed;
+        private _speed;
         constructor(actor: Actor, angleRadians: number, time: number);
         update(delta: number): void;
         isComplete(actor: Actor): boolean;
@@ -1742,17 +1759,17 @@ declare module ex.Internal.Actions {
         reset(): void;
     }
     class ScaleTo implements IAction {
-        private actor;
+        private _actor;
         x: number;
         y: number;
-        private startX;
-        private startY;
-        private endX;
-        private endY;
-        private speedX;
-        private speedY;
-        private distanceX;
-        private distanceY;
+        private _startX;
+        private _startY;
+        private _endX;
+        private _endY;
+        private _speedX;
+        private _speedY;
+        private _distanceX;
+        private _distanceY;
         private _started;
         private _stopped;
         constructor(actor: Actor, scaleX: number, scaleY: number, speedX: number, speedY: number);
@@ -1762,20 +1779,20 @@ declare module ex.Internal.Actions {
         reset(): void;
     }
     class ScaleBy implements IAction {
-        private actor;
+        private _actor;
         x: number;
         y: number;
-        private startX;
-        private startY;
-        private endX;
-        private endY;
-        private time;
-        private distanceX;
-        private distanceY;
+        private _startX;
+        private _startY;
+        private _endX;
+        private _endY;
+        private _time;
+        private _distanceX;
+        private _distanceY;
         private _started;
         private _stopped;
-        private speedX;
-        private speedY;
+        private _speedX;
+        private _speedY;
         constructor(actor: Actor, scaleX: number, scaleY: number, time: number);
         update(delta: number): void;
         isComplete(actor: Actor): boolean;
@@ -1785,9 +1802,9 @@ declare module ex.Internal.Actions {
     class Delay implements IAction {
         x: number;
         y: number;
-        private actor;
-        private elapsedTime;
-        private delay;
+        private _actor;
+        private _elapsedTime;
+        private _delay;
         private _started;
         private _stopped;
         constructor(actor: Actor, delay: number);
@@ -1797,12 +1814,12 @@ declare module ex.Internal.Actions {
         reset(): void;
     }
     class Blink implements IAction {
-        private timeVisible;
-        private timeNotVisible;
-        private elapsedTime;
-        private totalTime;
-        private actor;
-        private duration;
+        private _timeVisible;
+        private _timeNotVisible;
+        private _elapsedTime;
+        private _totalTime;
+        private _actor;
+        private _duration;
         private _stopped;
         private _started;
         constructor(actor: Actor, timeVisible: number, timeNotVisible: number, numBlinks?: number);
@@ -1814,10 +1831,10 @@ declare module ex.Internal.Actions {
     class Fade implements IAction {
         x: number;
         y: number;
-        private actor;
-        private endOpacity;
-        private speed;
-        private multiplyer;
+        private _actor;
+        private _endOpacity;
+        private _speed;
+        private _multiplyer;
         private _started;
         private _stopped;
         constructor(actor: Actor, endOpacity: number, speed: number);
@@ -1829,7 +1846,7 @@ declare module ex.Internal.Actions {
     class Die implements IAction {
         x: number;
         y: number;
-        private actor;
+        private _actor;
         private _started;
         private _stopped;
         constructor(actor: Actor);
@@ -1853,10 +1870,10 @@ declare module ex.Internal.Actions {
     class Repeat implements IAction {
         x: number;
         y: number;
-        private actor;
-        private actionQueue;
-        private repeat;
-        private originalRepeat;
+        private _actor;
+        private _actionQueue;
+        private _repeat;
+        private _originalRepeat;
         private _stopped;
         constructor(actor: Actor, repeat: number, actions: IAction[]);
         update(delta: any): void;
@@ -1867,8 +1884,8 @@ declare module ex.Internal.Actions {
     class RepeatForever implements IAction {
         x: number;
         y: number;
-        private actor;
-        private actionQueue;
+        private _actor;
+        private _actionQueue;
         private _stopped;
         constructor(actor: Actor, actions: IAction[]);
         update(delta: any): void;
@@ -1887,7 +1904,7 @@ declare module ex.Internal.Actions {
      * queue.
      */
     class ActionQueue {
-        private actor;
+        private _actor;
         private _actions;
         private _currentAction;
         private _completedActions;
@@ -2033,7 +2050,7 @@ declare module ex {
          * @param x      The x location to move the actor to
          * @param y      The y location to move the actor to
          * @param speed  The speed in pixels per second to move
-          */
+         */
         moveTo(x: number, y: number, speed: number): ActionContext;
         /**
          * This method will move an actor to the specified x and y position by a
@@ -2042,7 +2059,7 @@ declare module ex {
          * @param x     The x location to move the actor to
          * @param y     The y location to move the actor to
          * @param time  The time it should take the actor to move to the new location in milliseconds
-          */
+         */
         moveBy(x: number, y: number, time: number): ActionContext;
         /**
          * This method will rotate an actor to the specified angle at the speed
@@ -2050,7 +2067,7 @@ declare module ex {
          * method is part of the actor 'Action' fluent API allowing action chaining.
          * @param angleRadians  The angle to rotate to in radians
          * @param speed         The angular velocity of the rotation specified in radians per second
-          */
+         */
         rotateTo(angleRadians: number, speed: number): ActionContext;
         /**
          * This method will rotate an actor to the specified angle by a certain
@@ -2058,7 +2075,7 @@ declare module ex {
          * of the actor 'Action' fluent API allowing action chaining.
          * @param angleRadians  The angle to rotate to in radians
          * @param time          The time it should take the actor to complete the rotation in milliseconds
-          */
+         */
         rotateBy(angleRadians: number, time: number): ActionContext;
         /**
          * This method will scale an actor to the specified size at the speed
@@ -2067,7 +2084,7 @@ declare module ex {
          * action chaining.
          * @param size   The scaling factor to apply
          * @param speed  The speed of scaling specified in magnitude increase per second
-          */
+         */
         scaleTo(sizeX: number, sizeY: number, speedX: number, speedY: number): ActionContext;
         /**
          * This method will scale an actor to the specified size by a certain time
@@ -2075,7 +2092,7 @@ declare module ex {
          * actor 'Action' fluent API allowing action chaining.
          * @param size   The scaling factor to apply
          * @param time   The time it should take to complete the scaling in milliseconds
-          */
+         */
         scaleBy(sizeX: number, sizeY: number, time: number): ActionContext;
         /**
          * This method will cause an actor to blink (become visible and not
@@ -2085,7 +2102,7 @@ declare module ex {
          * @param timeVisible     The amount of time to stay visible per blink in milliseconds
          * @param timeNotVisible  The amount of time to stay not visible per blink in milliseconds
          * @param numBlinks       The number of times to blink
-          */
+         */
         blink(timeVisible: number, timeNotVisible: number, numBlinks?: number): ActionContext;
         /**
          * This method will cause an actor's opacity to change from its current value
@@ -2093,40 +2110,41 @@ declare module ex {
          * part of the actor 'Action' fluent API allowing action chaining.
          * @param opacity  The ending opacity
          * @param time     The time it should take to fade the actor (in milliseconds)
-          */
+         */
         fade(opacity: number, time: number): ActionContext;
         /**
          * This method will delay the next action from executing for a certain
          * amount of time (in milliseconds). This method is part of the actor
          * 'Action' fluent API allowing action chaining.
          * @param time  The amount of time to delay the next action in the queue from executing in milliseconds
-          */
+         */
         delay(time: number): ActionContext;
         /**
          * This method will add an action to the queue that will remove the actor from the
          * scene once it has completed its previous actions. Any actions on the
          * action queue after this action will not be executed.
-          */
+         */
         die(): ActionContext;
         /**
          * This method allows you to call an arbitrary method as the next action in the
          * action queue. This is useful if you want to execute code in after a specific
          * action, i.e An actor arrives at a destinatino after traversing a path
-          */
+         */
         callMethod(method: () => any): ActionContext;
         /**
          * This method will cause the actor to repeat all of the previously
          * called actions a certain number of times. If the number of repeats
          * is not specified it will repeat forever. This method is part of
          * the actor 'Action' fluent API allowing action chaining
-         * @param times  The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will repeat forever
-          */
+         * @param times  The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions
+         * will repeat forever
+         */
         repeat(times?: number): ActionContext;
         /**
          * This method will cause the actor to repeat all of the previously
          * called actions forever. This method is part of the actor 'Action'
          * fluent API allowing action chaining.
-          */
+         */
         repeatForever(): ActionContext;
         /**
          * This method will cause the actor to follow another at a specified distance
@@ -2435,9 +2453,9 @@ declare module ex {
          */
         add(uiActor: UIActor): void;
         /**
-          * Removes a [[Timer]] from the current scene, it will no longer be updated.
-          * @param timer  The timer to remove to the current scene.
-          */
+         * Removes a [[Timer]] from the current scene, it will no longer be updated.
+         * @param timer  The timer to remove to the current scene.
+         */
         remove(timer: Timer): void;
         /**
          * Removes a [[TileMap]] from the scene, it will no longer be drawn or updated.
@@ -2529,10 +2547,35 @@ declare module ex {
 declare module ex {
     /**
      * Standard easing functions for motion in Excalibur
+     *
+     * easeInQuad: function (t) { return t * t },
+     * // decelerating to zero velocity
+     * easeOutQuad: function (t) { return t * (2 - t) },
+     * // acceleration until halfway, then deceleration
+     * easeInOutQuad: function (t) { return t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t },
+     * // accelerating from zero velocity
+     * easeInCubic: function (t) { return t * t * t },
+     * // decelerating to zero velocity
+     * easeOutCubic: function (t) { return (--t) * t * t + 1 },
+     * // acceleration until halfway, then deceleration
+     * easeInOutCubic: function (t) { return t < .5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1 },
+     * // accelerating from zero velocity
+     * easeInQuart: function (t) { return t * t * t * t },
+     * // decelerating to zero velocity
+     * easeOutQuart: function (t) { return 1 - (--t) * t * t * t },
+     * // acceleration until halfway, then deceleration
+     * easeInOutQuart: function (t) { return t < .5 ? 8 * t * t * t * t : 1 - 8 * (--t) * t * t * t },
+     * // accelerating from zero velocity
+     * easeInQuint: function (t) { return t * t * t * t * t },
+     * // decelerating to zero velocity
+     * easeOutQuint: function (t) { return 1 + (--t) * t * t * t * t },
+     * // acceleration until halfway, then deceleration
+     * easeInOutQuint: function (t) { return t < .5 ? 16 * t * t * t * t * t : 1 + 16 * (--t) * t * t * t * t }
+     *
      */
     class EasingFunctions {
         static Linear: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
-        static EaseInQuad: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+        static EaseInQuad: (currentTime: number, startValue: number, endValue: number, duration: number) => void;
         static EaseOutQuad: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
         static EaseInOutQuad: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
         static EaseInCubic: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
@@ -2813,8 +2856,8 @@ declare module ex {
          * `Actor.anchor.setTo(0, 0)` and top-right would be `Actor.anchor.setTo(0, 1)`.
          */
         anchor: Point;
-        private height;
-        private width;
+        private _height;
+        private _width;
         /**
          * The rotation of the actor in radians
          */
@@ -2908,7 +2951,7 @@ declare module ex {
         /**
          * Modify the current actor update pipeline.
          */
-        pipeline: IPipelineModule[];
+        traits: IActorTrait[];
         /**
          * Sets the color of the actor. A rectangle of this color will be
          * drawn if no [[IDrawable]] is specified as the actors drawing.
@@ -2917,14 +2960,14 @@ declare module ex {
          */
         color: Color;
         /**
-         * Whether or not to enable the [[CapturePointerModule]] trait that propogates
+         * Whether or not to enable the [[CapturePointer]] trait that propogates
          * pointer events to this actor
          */
         enableCapturePointer: boolean;
         /**
-         * Configuration for [[CapturePointerModule]] trait
+         * Configuration for [[CapturePointer]] trait
          */
-        capturePointer: ICapturePointerConfig;
+        capturePointer: Traits.ICapturePointerConfig;
         private _zIndex;
         private _isKilled;
         /**
@@ -2932,7 +2975,8 @@ declare module ex {
          * @param y       The starting y coordinate of the actor
          * @param width   The starting width of the actor
          * @param height  The starting height of the actor
-         * @param color   The starting color of the actor. Leave null to draw a transparent actor. The opacity of the color will be used as the initial [[opacity]].
+         * @param color   The starting color of the actor. Leave null to draw a transparent actor. The opacity of the color will be used as the
+         * initial [[opacity]].
          */
         constructor(x?: number, y?: number, width?: number, height?: number, color?: Color);
         /**
@@ -2942,12 +2986,12 @@ declare module ex {
         onInitialize(engine: Engine): void;
         private _checkForPointerOptIn(eventName);
         /**
-        * Add an event listener. You can listen for a variety of
-        * events off of the engine; see [[GameEvent]]
-        * @param eventName  Name of the event to listen for
-        * @param handler    Event handler for the thrown event
-        * @obsolete Use [[on]] instead.
-        */
+         * Add an event listener. You can listen for a variety of
+         * events off of the engine; see [[GameEvent]]
+         * @param eventName  Name of the event to listen for
+         * @param handler    Event handler for the thrown event
+         * @obsolete Use [[on]] instead.
+         */
         addEventListener(eventName: string, handler: (event?: GameEvent) => void): void;
         /**
          * Alias for `addEventListener`. You can listen for a variety of
@@ -3080,12 +3124,12 @@ declare module ex {
          */
         getBottom(): number;
         /**
-        * Gets the x value of the Actor in global coordinates
-        */
+         * Gets the x value of the Actor in global coordinates
+         */
         getWorldX(): any;
         /**
-        * Gets the y value of the Actor in global coordinates
-        */
+         * Gets the y value of the Actor in global coordinates
+         */
         getWorldY(): any;
         /**
          * Gets the global scale of the Actor
@@ -3104,7 +3148,7 @@ declare module ex {
         /**
          * Returns the side of the collision based on the intersection
          * @param intersect The displacement vector returned by a collision
-        */
+         */
         getSideFromIntersect(intersect: Vector): Side;
         /**
          * Test whether the actor has collided with another actor, returns the side of the current actor that collided.
@@ -3249,7 +3293,8 @@ declare module ex {
          * called actions a certain number of times. If the number of repeats
          * is not specified it will repeat forever. This method is part of
          * the actor 'Action' fluent API allowing action chaining
-         * @param times The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will repeat forever
+         * @param times The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will
+         * repeat forever
          */
         repeat(times?: number): Actor;
         /**
@@ -3366,7 +3411,7 @@ declare module ex {
      */
     class Logger {
         private static _instance;
-        private appenders;
+        private _appenders;
         constructor();
         /**
          * Gets or sets the default logging level. Excalibur will only log
@@ -3444,8 +3489,8 @@ declare module ex {
      */
     class ScreenAppender implements IAppender {
         private _messages;
-        private canvas;
-        private ctx;
+        private _canvas;
+        private _ctx;
         /**
          * @param width   Width of the screen appender in pixels
          * @param height  Height of the screen appender in pixels
@@ -3483,7 +3528,6 @@ declare module ex {
          * Target object for this event.
          */
         target: any;
-        constructor();
     }
     /**
      * Subscribe event thrown when handlers for events other than subscribe are added
@@ -3982,7 +4026,7 @@ declare module ex {
      * ```
      */
     class Trigger extends Actor {
-        private action;
+        private _action;
         repeats: number;
         target: Actor;
         /**
@@ -3995,7 +4039,7 @@ declare module ex {
          */
         constructor(x?: number, y?: number, width?: number, height?: number, action?: () => void, repeats?: number);
         update(engine: Engine, delta: number): void;
-        private dispatchAction();
+        private _dispatchAction();
         draw(ctx: CanvasRenderingContext2D, delta: number): void;
         debugDraw(ctx: CanvasRenderingContext2D): void;
     }
@@ -4030,11 +4074,11 @@ declare module ex {
         endColor: Color;
         life: number;
         fadeFlag: boolean;
-        private rRate;
-        private gRate;
-        private bRate;
-        private aRate;
-        private currentColor;
+        private _rRate;
+        private _gRate;
+        private _bRate;
+        private _aRate;
+        private _currentColor;
         emitter: ParticleEmitter;
         particleSize: number;
         particleSprite: Sprite;
@@ -4186,7 +4230,7 @@ declare module ex {
          */
         emit(particleCount: number): void;
         clearParticles(): void;
-        private createParticle();
+        private _createParticle();
         update(engine: Engine, delta: number): void;
         draw(ctx: CanvasRenderingContext2D, delta: number): void;
         debugDraw(ctx: CanvasRenderingContext2D): void;
@@ -4250,7 +4294,7 @@ declare module ex {
          * Current frame index being shown
          */
         currentFrame: number;
-        private oldTime;
+        private _oldTime;
         anchor: Point;
         rotation: number;
         scale: Point;
@@ -4263,7 +4307,7 @@ declare module ex {
          * animation. By default it is the last frame.
          */
         freezeFrame: number;
-        private engine;
+        private _engine;
         /**
          * Flip each frame vertically. Sets [[Sprite.flipVertical]].
          */
@@ -4300,7 +4344,8 @@ declare module ex {
          */
         fill(color: Color): void;
         /**
-         * Applies the colorize effect to a sprite, changing the color channels of all pixesl to be the average of the original color and the provided color.
+         * Applies the colorize effect to a sprite, changing the color channels of all pixesl to be the average of the original color and the
+         * provided color.
          */
         colorize(color: Color): void;
         /**
@@ -4383,8 +4428,8 @@ declare module ex.Internal {
         onerror: (e: any) => void;
     }
     class FallbackAudio implements ISound {
-        private soundImpl;
-        private log;
+        private _soundImpl;
+        private _log;
         constructor(path: string, volume?: number);
         setVolume(volume: number): void;
         setLoop(loop: boolean): void;
@@ -4399,17 +4444,17 @@ declare module ex.Internal {
     }
     class AudioTag implements ISound {
         path: string;
-        private audioElements;
+        private _audioElements;
         private _loadedAudio;
-        private isLoaded;
-        private index;
-        private log;
+        private _isLoaded;
+        private _index;
+        private _log;
         private _isPlaying;
         private _playingTimer;
         private _currentOffset;
         constructor(path: string, volume?: number);
         isPlaying(): boolean;
-        private audioLoaded();
+        private _audioLoaded();
         setVolume(volume: number): void;
         setLoop(loop: boolean): void;
         getLoop(): void;
@@ -4422,19 +4467,19 @@ declare module ex.Internal {
         stop(): void;
     }
     class WebAudio implements ISound {
-        private context;
-        private volume;
-        private buffer;
-        private sound;
-        private path;
-        private isLoaded;
-        private loop;
+        private _context;
+        private _volume;
+        private _buffer;
+        private _sound;
+        private _path;
+        private _isLoaded;
+        private _loop;
         private _isPlaying;
         private _isPaused;
         private _playingTimer;
         private _currentOffset;
         private _playPromise;
-        private logger;
+        private _logger;
         constructor(soundPath: string, volume?: number);
         setVolume(volume: number): void;
         onload: (e: any) => void;
@@ -4513,11 +4558,11 @@ declare module ex {
      */
     class Promise<T> implements IPromise<T> {
         private _state;
-        private value;
-        private successCallbacks;
-        private rejectCallback;
-        private errorCallback;
-        private logger;
+        private _value;
+        private _successCallbacks;
+        private _rejectCallback;
+        private _errorCallback;
+        private _logger;
         /**
          * Wrap a value in a resolved promise
          * @param value  An optional value to wrap in a resolved promise
@@ -4528,7 +4573,6 @@ declare module ex {
          * when at least 1 promise rejects.
          */
         static join<T>(...promises: Promise<T>[]): Promise<T>;
-        constructor();
         /**
          * Chain success and reject callbacks after the promise is resovled
          * @param successCallback  Call on resolution of promise
@@ -4554,7 +4598,7 @@ declare module ex {
          * Inpect the current state of a promise
          */
         state(): PromiseState;
-        private handleError(e);
+        private _handleError(e);
     }
 }
 declare module ex {
@@ -4653,7 +4697,7 @@ declare module ex {
          */
         isLoaded(): boolean;
         wireEngine(engine: Engine): void;
-        private cacheBust(uri);
+        private _cacheBust(uri);
         private _start(e);
         /**
          * Begin loading the resource and returns a promise to be resolved on completion
@@ -4726,9 +4770,9 @@ declare module ex {
          * Populated once loading is complete
          */
         image: HTMLImageElement;
-        private progressCallback;
-        private doneCallback;
-        private errorCallback;
+        private _progressCallback;
+        private _doneCallback;
+        private _errorCallback;
         /**
          * @param path       Path to the image resource
          * @param bustCache  Optionally load texture with cache busting
@@ -4769,7 +4813,7 @@ declare module ex {
      * ```
      */
     class Sound implements ILoadable, ex.Internal.ISound {
-        private logger;
+        private _logger;
         onprogress: (e: any) => void;
         oncomplete: () => void;
         onerror: (e: any) => void;
@@ -4861,12 +4905,12 @@ declare module ex {
      * ```
      */
     class Loader implements ILoadable {
-        private resourceList;
-        private index;
-        private resourceCount;
-        private numLoaded;
-        private progressCounts;
-        private totalCounts;
+        private _resourceList;
+        private _index;
+        private _resourceCount;
+        private _numLoaded;
+        private _progressCounts;
+        private _totalCounts;
         private _engine;
         /**
          * @param loadables  Optionally provide the list of resources you want to load at constructor time
@@ -4883,7 +4927,7 @@ declare module ex {
          * @param loadables  The list of resources to load
          */
         addResources(loadables: ILoadable[]): void;
-        private sumCounts(obj);
+        private _sumCounts(obj);
         /**
          * Returns true if the loader has completely loaded all resources
          */
@@ -4996,11 +5040,13 @@ declare module ex {
          */
         Center = 2,
         /**
-         * The text is aligned at the normal start of the line (left-aligned for left-to-right locales, right-aligned for right-to-left locales).
+         * The text is aligned at the normal start of the line (left-aligned for left-to-right locales,
+         * right-aligned for right-to-left locales).
          */
         Start = 3,
         /**
-         * The text is aligned at the normal end of the line (right-aligned for left-to-right locales, left-aligned for right-to-left locales).
+         * The text is aligned at the normal end of the line (right-aligned for left-to-right locales,
+         * left-aligned for right-to-left locales).
          */
         End = 4,
     }
@@ -5013,7 +5059,8 @@ declare module ex {
          */
         Top = 0,
         /**
-         * The text baseline is the hanging baseline.  Currently unsupported; this will act like alphabetic.
+         * The text baseline is the hanging baseline.  Currently unsupported; this will act like
+         * alphabetic.
          */
         Hanging = 1,
         /**
@@ -5168,7 +5215,8 @@ declare module ex {
          * @param x           The x position of the label
          * @param y           The y position of the label
          * @param font        Use any valid CSS font string for the label's font. Web fonts are supported. Default is `10px sans-serif`.
-         * @param spriteFont  Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precendence over a css font.
+         * @param spriteFont  Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precendence
+         * over a css font.
          */
         constructor(text?: string, x?: number, y?: number, font?: string, spriteFont?: SpriteFont);
         /**
@@ -5443,8 +5491,8 @@ declare module ex.Input {
 }
 declare module ex.Input {
     /**
-    * Enum representing input key codes
-    */
+     * Enum representing input key codes
+     */
     enum Keys {
         Num1 = 97,
         Num2 = 98,
@@ -5875,7 +5923,7 @@ declare module ex.Input {
  * - [[Engine|Intro to the Engine]]
  *   - [[EventDispatcher|Eventing]]
  * - [[Scene|Working with Scenes]]
- *   - [[Camera|Working with Cameras]]
+ *   - [[BaseCamera|Working with Cameras]]
  * - [[Actor|Working with Actors]]
  *   - [[Label|Labels]]
  *   - [[Trigger|Triggers]]
@@ -5957,7 +6005,8 @@ declare module ex {
          */
         displayMode?: ex.DisplayMode;
         /**
-         * Configures the pointer scope. Pointers scoped to the 'Canvas' can only fire events within the canvas viewport; whereas, 'Document' (default) scoped will fire anywhere on the page.
+         * Configures the pointer scope. Pointers scoped to the 'Canvas' can only fire events within the canvas viewport; whereas, 'Document'
+         * (default) scoped will fire anywhere on the page.
          */
         pointerScope?: ex.Input.PointerScope;
     }
@@ -6153,7 +6202,7 @@ declare module ex {
          * Gets or sets the [[CollisionStrategy]] for Excalibur actors
          */
         collisionStrategy: CollisionStrategy;
-        private hasStarted;
+        private _hasStarted;
         /**
          * Current FPS
          */
@@ -6176,7 +6225,7 @@ declare module ex {
         scenes: {
             [key: string]: Scene;
         };
-        private animations;
+        private _animations;
         /**
          * Indicates whether the engine is set to fullscreen or not
          */
@@ -6198,13 +6247,13 @@ declare module ex {
          * Sets the background color for the engine.
          */
         backgroundColor: Color;
-        private logger;
-        private isSmoothingEnabled;
-        private loader;
-        private isLoading;
-        private progress;
-        private total;
-        private loadingDraw;
+        private _logger;
+        private _isSmoothingEnabled;
+        private _loader;
+        private _isLoading;
+        private _progress;
+        private _total;
+        private _loadingDraw;
         /**
          * Creates a new game using the given [[IEngineOptions]]
          */
@@ -6214,7 +6263,8 @@ declare module ex {
          * @param width            The width in pixels of the Excalibur game viewport
          * @param height           The height in pixels of the Excalibur game viewport
          * @param canvasElementId  If this is not specified, then a new canvas will be created and inserted into the body.
-         * @param displayMode      If this is not specified, then it will fall back to fixed if a height and width are specified, else the display mode will be FullScreen.
+         * @param displayMode      If this is not specified, then it will fall back to fixed if a height and width are specified, else the
+         * display mode will be FullScreen.
          * @obsolete Use [[Engine.constructor]] with [[IEngineOptions]]
          */
         constructor(width?: number, height?: number, canvasElementId?: string, displayMode?: DisplayMode);
@@ -6378,11 +6428,11 @@ declare module ex {
         /**
          * Sets the internal canvas height based on the selected display mode.
          */
-        private setHeightByDisplayMode(parent);
+        private _setHeightByDisplayMode(parent);
         /**
          * Initializes the internal canvas, rendering context, displaymode, and native event listeners
          */
-        private initialize(options?);
+        private _initialize(options?);
         /**
          * If supported by the browser, this will set the antialiasing flag on the
          * canvas. Set this to `false` if you want a 'jagged' pixel art look to your
@@ -6398,16 +6448,17 @@ declare module ex {
          * Updates the entire state of the game
          * @param delta  Number of milliseconds elapsed since the last update.
          */
-        private update(delta);
+        private _update(delta);
         /**
          * Draws the entire game
          * @param draw  Number of milliseconds elapsed since the last draw.
          */
-        private draw(delta);
+        private _draw(delta);
         /**
          * Starts the internal game loop for Excalibur after loading
          * any provided assets.
-         * @param loader  Optional resources to load before starting the main loop. Some [[ILoadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
+         * @param loader  Optional resources to load before starting the main loop. Some [[ILoadable]] such as a [[Loader]] collection,
+         * [[Sound]], or [[Texture]].
          */
         start(loader?: ILoadable): Promise<any>;
         /**
@@ -6425,10 +6476,11 @@ declare module ex {
          * @param loaded  Number of bytes loaded
          * @param total   Total number of bytes to load
          */
-        private drawLoadingBar(ctx, loaded, total);
+        private _drawLoadingBar(ctx, loaded, total);
         /**
          * Sets the loading screen draw function if you want to customize the draw
-         * @param fcn  Callback to draw the loading screen which is passed a rendering context, the number of bytes loaded, and the total number of bytes to load.
+         * @param fcn  Callback to draw the loading screen which is passed a rendering context, the number of bytes loaded, and the total
+         * number of bytes to load.
          */
         setLoadingDrawFunction(fcn: (ctx: CanvasRenderingContext2D, loaded: number, total: number) => void): void;
         /**
