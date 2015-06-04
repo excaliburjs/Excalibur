@@ -434,7 +434,7 @@ module ex {
             canvasElementId = <string>arguments[2];
             displayMode = <DisplayMode>arguments[3];
          } else {
-            options = <IEngineOptions>arguments[0];
+            options = <IEngineOptions>arguments[0] || {width: 0, height: 0, canvasElementId: '', displayMode: DisplayMode.FullScreen};
             width = options.width;
             height = options.height;
             canvasElementId = options.canvasElementId;
