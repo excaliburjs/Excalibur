@@ -790,5 +790,47 @@ describe("A game actor", () => {
       expect(actor.draw).not.toHaveBeenCalled();
 
    });
+   
+   it('can detect containment off of child actors', () => {
+	  var parent = new ex.Actor(600, 100, 100, 100);
+	  var child = new ex.Actor(0, 0, 100, 100);
+	  var child2 = new ex.Actor(-600, -100, 100, 100);
+	  
+	  parent.addChild(child);
+	  child.addChild(child2);
+	  
+	  // check reality
+	  expect(parent.contains(550, 50)).toBeTruthy();
+	  expect(parent.contains(650, 150)).toBeTruthy();
+	  
+	  
+	  
+	  // in world coordinates this should be false 
+	  expect(child.contains(50, 50)).toBeFalsy();
+	  
+	  // in world coordinates this should be true
+	  expect(child.contains(550, 50)).toBeTruthy();
+	  expect(child.contains(650, 150)).toBeTruthy();
+	  
+	  // second order child shifted to the origin
+	  expect(child2.contains(-50, -50)).toBeTruthy();
+	  expect(child2.contains(50, 50)).toBeTruthy();	   
+   });
+   
+   it('can recursively check containment', () => {
+	  var parent = new ex.Actor(0, 0, 100, 100); 
+	  var child = new ex.Actor(100, 100, 100, 100);
+	  var child2 = new ex.Actor(100, 100, 100, 100);
+	  parent.addChild(child);
+	  
+	  expect(parent.contains(150, 150)).toBeFalsy();
+	  expect(child.contains(150, 150)).toBeTruthy();
+	  expect(parent.contains(150, 150, true)).toBeTruthy();
+	  expect(parent.contains(200, 200, true)).toBeFalsy();
+	  
+	  child.addChild(child2);
+	  expect(parent.contains(250, 250, true)).toBeTruthy();	  
+	  
+   });
 
 });
