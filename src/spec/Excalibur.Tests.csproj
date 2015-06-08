@@ -66,6 +66,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="ActionSpec.ts" />
     <TypeScriptCompile Include="ActorSpec.ts" />
     <TypeScriptCompile Include="BoundingBoxSpec.ts" />
     <TypeScriptCompile Include="SortedListSpec.ts" />
