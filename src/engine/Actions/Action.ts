@@ -374,10 +374,15 @@ module ex.Internal.Actions {
          if (!this._started) {
             this._started = true;
             this._start = this._actor.rotation;
-            this._distance = Math.abs(this._end - this._start);
+            this._distance = this._end - this._start;
          }
-         this._actor.rx = this._speed;
 
+         var direction = 1;
+         if (this._distance < 0) {
+            direction = -1;
+         }
+
+         this._actor.rx = direction * this._speed;
          
          if (this.isComplete(this._actor)) {
             this._actor.rotation = this._end;
@@ -386,7 +391,7 @@ module ex.Internal.Actions {
       }
 
       public isComplete(actor: Actor): boolean {
-         return this._stopped || (Math.abs(this._actor.rotation - this._start) >= this._distance);
+         return this._stopped || (Math.abs(this._actor.rotation - this._start) >= Math.abs(this._distance));
       }
 
       public stop(): void {
