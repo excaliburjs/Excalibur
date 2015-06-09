@@ -429,8 +429,6 @@ module ex.Internal.Actions {
 
       public isComplete(actor: Actor): boolean {
          var distanceTravelled = Math.abs(this._actor.rotation - this._start);
-         if (distanceTravelled >= Math.abs(this._distance)) {
-         }
          return this._stopped || (distanceTravelled >= Math.abs(this._distance));
       }
 
