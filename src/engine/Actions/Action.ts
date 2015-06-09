@@ -360,38 +360,78 @@ module ex.Internal.Actions {
       private _start: number;
       private _end: number;
       private _speed: number;
+      private _rotationType: RotationType;
+      private _direction: number;
       private _distance: number;
+      private _shortDistance: number;
+      private _longDistance: number;
       private _started = false;
       private _stopped = false;
-      constructor(actor: Actor, angleRadians: number, speed: number) {
+      constructor(actor: Actor, angleRadians: number, speed: number, rotationType?: RotationType) {
          this._actor = actor;
          this._end = angleRadians;
          this._speed = speed;
-
+         this._rotationType = rotationType || RotationType.ShortestPath;
       }
 
       public update(delta: number): void {
          if (!this._started) {
             this._started = true;
             this._start = this._actor.rotation;
-            this._distance = this._end - this._start;
+            //this._distance = this._end - this._start;
+            this._shortDistance = this._end - this._start;
+            this._longDistance = ex.Util.TwoPI - Math.abs(this._shortDistance);
+
+            switch (this._rotationType) {
+               case RotationType.ShortestPath:
+                  this._distance = this._shortDistance;
+                  if (this._distance < 0) {
+                     this._direction = -1;
+                  } else {
+                     this._direction = 1;
+                  }
+                  break;
+               case RotationType.Clockwise:
+                  this._direction = 1;
+                  if (this._shortDistance >= 0) {
+                     this._distance = this._shortDistance;
+                  } else {
+                     this._distance = this._longDistance;
+                  }
+                  break;
+               case RotationType.CounterClockwise:
+                  this._direction = -1;
+                  if (this._shortDistance <= 0) {
+                     this._distance = this._shortDistance;
+                  } else {
+                     this._distance = this._longDistance;
+                  }
+                  break;
+               case RotationType.LongestPath:
+                  this._distance = this._longDistance;
+                  if (this._distance < 0) {
+                     this._direction = -1;
+                  } else {
+                     this._direction = 1;
+                  }
+                  break;
+            }
          }
 
-         var direction = 1;
-         if (this._distance < 0) {
-            direction = -1;
-         }
-
-         this._actor.rx = direction * this._speed;
+         this._actor.rx = this._direction * this._speed;
          
          if (this.isComplete(this._actor)) {
             this._actor.rotation = this._end;
             this._actor.rx = 0;
+            this._stopped = true;
          }
       }
 
       public isComplete(actor: Actor): boolean {
-         return this._stopped || (Math.abs(this._actor.rotation - this._start) >= Math.abs(this._distance));
+         var distanceTravelled = Math.abs(this._actor.rotation - this._start);
+         if (distanceTravelled >= Math.abs(this._distance)) {
+         }
+         return this._stopped || (distanceTravelled >= Math.abs(this._distance));
       }
 
       public stop(): void {
