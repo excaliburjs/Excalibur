@@ -733,6 +733,14 @@ describe("A game actor", () => {
       expect(scene.children.length).toBe(0);
    });
 
+   it('once killed is not drawn', () => {
+      scene.add(actor);
+      actor.kill();
+      scene.update(engine, 100);
+      scene.draw(engine.ctx, 100);
+      expect(actor.draw).not.toHaveBeenCalled();
+   });
+
    it('does not incure pointer overhead until an event is registered',() => {
       expect(actor.enableCapturePointer).toBeFalsy();
       expect(actor.capturePointer.captureMoveEvents).toBeFalsy();
