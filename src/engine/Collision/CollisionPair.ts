@@ -112,12 +112,12 @@ module ex {
                }
                
                if(rightIntersect.y !== 0) {
-                  if (this.right.dx <= 0 && this.left.dx <= 0) {
-                     this.left.dx = Math.max(this.left.dx, this.right.dx);
-                  } else if (this.left.dx >= 0 && this.right.dx >= 0) {
-                     this.left.dx = Math.min(this.left.dx, this.right.dx);
+                  if (this.right.dy <= 0 && this.left.dy <= 0) {
+                     this.right.dy = Math.max(this.left.dy, this.right.dy);
+                  } else if (this.left.dy >= 0 && this.right.dy >= 0) {
+                     this.right.dy = Math.min(this.left.dy, this.right.dy);
                   }else {
-                     this.left.dx = 0;
+                     this.right.dy = 0;
                   }
                }
             }
