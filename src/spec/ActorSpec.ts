@@ -791,4 +791,38 @@ describe("A game actor", () => {
 
    });
 
+   it('with an active collision type can be placed on a fixed type', () => {
+	  var scene = new ex.Scene(engine); 
+	  
+	  var active = new ex.Actor(0, -50, 100, 100);
+	  active.collisionType = ex.CollisionType.Active;
+	  active.dy = 10;
+	  active.ay = 1000;
+	  
+	  var fixed = new ex.Actor(0, 50, 100, 100);
+	  fixed.collisionType = ex.CollisionType.Fixed;
+	  
+	  scene.add(active);
+	  scene.add(fixed);
+	  
+	  
+	  expect(active.x).toBe(0);
+	  expect(active.y).toBe(-50);
+	  
+	  expect(fixed.x).toBe(0);
+	  expect(fixed.y).toBe(50);
+	  
+	  // update many times for safety
+	  for(var i = 0; i < 40; i++){
+		  scene.update(engine, 100);
+	  }
+	 	  
+	  expect(active.x).toBe(0);
+	  expect(active.y).toBe(-50);
+	  
+	  expect(fixed.x).toBe(0);
+	  expect(fixed.y).toBe(50);
+	  
+   });
+
 });
