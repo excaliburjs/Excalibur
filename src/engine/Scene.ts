@@ -258,7 +258,9 @@ module ex {
          for (i = 0, len = this._killQueue.length; i < len; i++) {
             actorIndex = this.children.indexOf(this._killQueue[i]);
             if (actorIndex > -1) {
+               this._sortedDrawingTree.removeByComparable(this._killQueue[i]);
                this.children.splice(actorIndex, 1);
+               
             }
          }
          this._killQueue.length = 0;
