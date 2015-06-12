@@ -892,7 +892,7 @@ module ex {
      * @param angleRadians  The angle to rotate to in radians
      * @param duration          The time it should take the actor to complete the rotation in milliseconds
      */
-    public rotateBy(angleRadians: number, duration: number): Actor {
+    public rotateBy(angleRadians: number, duration: number, rotationType?): Actor {
        this.actionQueue.add(new ex.Internal.Actions.RotateBy(this, angleRadians, duration));
        return this;
     }
