@@ -851,6 +851,14 @@ describe("A game actor", () => {
       expect(scene.children.length).toBe(0);
    });
 
+   it('once killed is not drawn', () => {
+      scene.add(actor);
+      actor.kill();
+      scene.update(engine, 100);
+      scene.draw(engine.ctx, 100);
+      expect(actor.draw).not.toHaveBeenCalled();
+   });
+
    it('does not incure pointer overhead until an event is registered',() => {
       expect(actor.enableCapturePointer).toBeFalsy();
       expect(actor.capturePointer.captureMoveEvents).toBeFalsy();
@@ -948,6 +956,40 @@ describe("A game actor", () => {
 	  
 	  child.addChild(child2);
 	  expect(parent.contains(250, 250, true)).toBeTruthy();	  
+	  
+   });
+
+   it('with an active collision type can be placed on a fixed type', () => {
+	  var scene = new ex.Scene(engine); 
+	  
+	  var active = new ex.Actor(0, -50, 100, 100);
+	  active.collisionType = ex.CollisionType.Active;
+	  active.dy = 10;
+	  active.ay = 1000;
+	  
+	  var fixed = new ex.Actor(0, 50, 100, 100);
+	  fixed.collisionType = ex.CollisionType.Fixed;
+	  
+	  scene.add(active);
+	  scene.add(fixed);
+	  
+	  
+	  expect(active.x).toBe(0);
+	  expect(active.y).toBe(-50);
+	  
+	  expect(fixed.x).toBe(0);
+	  expect(fixed.y).toBe(50);
+	  
+	  // update many times for safety
+	  for(var i = 0; i < 40; i++){
+		  scene.update(engine, 100);
+	  }
+	 	  
+	  expect(active.x).toBe(0);
+	  expect(active.y).toBe(-50);
+	  
+	  expect(fixed.x).toBe(0);
+	  expect(fixed.y).toBe(50);
 	  
    });
 

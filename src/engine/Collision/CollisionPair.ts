@@ -40,7 +40,7 @@ module ex {
             this.right.collisionType !== CollisionType.Passive) {
             this.left.y += this.intersect.y;
             this.left.x += this.intersect.x;
-
+            
             // Naive elastic bounce
             if (this.left.collisionType === CollisionType.Elastic) {
                if (leftSide === Side.Left) {
@@ -52,6 +52,31 @@ module ex {
                } else if(leftSide === Side.Bottom) {
                   this.left.dy = -Math.abs(this.left.dy);
                }
+            } else {
+               // Cancel velocities along intersection
+               if (this.intersect.x !== 0) {
+                  
+                  if (this.left.dx <= 0 && this.right.dx <= 0) {
+                     this.left.dx = Math.max(this.left.dx, this.right.dx);
+                  } else if (this.left.dx >= 0 && this.right.dx >= 0) {
+                     this.left.dx = Math.min(this.left.dx, this.right.dx);
+                  }else {
+                     this.left.dx = 0;
+                  }
+                  
+               }
+               
+               if (this.intersect.y !== 0) {
+                  
+                  if (this.left.dy <= 0 && this.right.dy <= 0) {
+                     this.left.dy = Math.max(this.left.dy, this.right.dy);
+                  } else if (this.left.dy >= 0 && this.right.dy >= 0) {
+                     this.left.dy = Math.min(this.left.dy, this.right.dy);
+                  } else {
+                     this.left.dy = 0;
+                  }
+                  
+               }
             }                 
          }
 
@@ -62,7 +87,7 @@ module ex {
             this.left.collisionType !== CollisionType.Passive) {
             this.right.y += rightIntersect.y;
             this.right.x += rightIntersect.x;
-
+           
             // Naive elastic bounce
             if (this.right.collisionType === CollisionType.Elastic) {
                if (rightSide === Side.Left) {
@@ -74,7 +99,28 @@ module ex {
                } else if(rightSide === Side.Bottom) {
                   this.right.dy = -Math.abs(this.right.dy);
                }
-            }                 
+            } else {
+                // Cancel velocities along intersection
+               if(rightIntersect.x !== 0) {
+                  if (this.right.dx <= 0 && this.left.dx <= 0) {
+                     this.right.dx = Math.max(this.left.dx, this.right.dx);
+                  } else if (this.left.dx >= 0 && this.right.dx >= 0) {
+                     this.right.dx = Math.min(this.left.dx, this.right.dx);
+                  }else {
+                     this.right.dx = 0;
+                  }
+               }
+               
+               if(rightIntersect.y !== 0) {
+                  if (this.right.dy <= 0 && this.left.dy <= 0) {
+                     this.right.dy = Math.max(this.left.dy, this.right.dy);
+                  } else if (this.left.dy >= 0 && this.right.dy >= 0) {
+                     this.right.dy = Math.min(this.left.dy, this.right.dy);
+                  }else {
+                     this.right.dy = 0;
+                  }
+               }
+            }
          }
       }
    }
