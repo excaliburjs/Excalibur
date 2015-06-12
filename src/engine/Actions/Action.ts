@@ -365,6 +365,7 @@ module ex.Internal.Actions {
       private _distance: number;
       private _shortDistance: number;
       private _longDistance: number;
+      private _shortestPathIsPositive: boolean;
       private _started = false;
       private _stopped = false;
       constructor(actor: Actor, angleRadians: number, speed: number, rotationType?: RotationType) {
@@ -378,13 +379,34 @@ module ex.Internal.Actions {
          if (!this._started) {
             this._started = true;
             this._start = this._actor.rotation;
-            this._shortDistance = this._end - this._start;
-            this._longDistance = ex.Util.TwoPI - Math.abs(this._shortDistance);
+            var distance1 = this._end - this._start;
+            var distance2 = ex.Util.TwoPI - Math.abs(distance1);
+            if (distance1 > distance2) {
+               this._shortDistance = distance2;
+               this._longDistance = distance1;
+            } else {
+               this._shortDistance = distance1;
+               this._longDistance = distance2;
+            }
+
+            this._shortestPathIsPositive = (this._start - this._end + ex.Util.TwoPI) % ex.Util.TwoPI >= Math.PI;
+
+            //console.log('short distance: ' + this._shortDistance);
+            //console.log('long distance: ' + this._longDistance);
+            console.log('shortestPathisPositive: ' + this._shortestPathIsPositive);
 
             switch (this._rotationType) {
                case RotationType.ShortestPath:
                   this._distance = this._shortDistance;
-                  if (this._distance < 0) {
+                  if (this._shortestPathIsPositive) {
+                     this._direction = 1;
+                  } else {
+                     this._direction = -1;
+                  }
+                  break;
+               case RotationType.LongestPath:
+                  this._distance = this._longDistance;
+                  if (this._shortestPathIsPositive) {
                      this._direction = -1;
                   } else {
                      this._direction = 1;
@@ -404,14 +426,6 @@ module ex.Internal.Actions {
                      this._distance = this._shortDistance;
                   } else {
                      this._distance = this._longDistance;
-                  }
-                  break;
-               case RotationType.LongestPath:
-                  this._distance = this._longDistance;
-                  if (this._distance < 0) {
-                     this._direction = -1;
-                  } else {
-                     this._direction = 1;
                   }
                   break;
             }
@@ -454,6 +468,7 @@ module ex.Internal.Actions {
       private _distance: number;
       private _shortDistance: number;
       private _longDistance: number;
+      private _shortestPathIsPositive: boolean;
       private _started = false;
       private _stopped = false;
       constructor(actor: Actor, angleRadians: number, time: number, rotationType?: RotationType) {
@@ -467,13 +482,30 @@ module ex.Internal.Actions {
          if (!this._started) {
             this._started = true;
             this._start = this._actor.rotation;
-            this._shortDistance = this._end - this._start;
-            this._longDistance = ex.Util.TwoPI - Math.abs(this._shortDistance);
+            var distance1 = this._end - this._start;
+            var distance2 = ex.Util.TwoPI - Math.abs(distance1);
+            if (distance1 > distance2) {
+               this._shortDistance = distance2;
+               this._longDistance = distance1;
+            } else {
+               this._shortDistance = distance1;
+               this._longDistance = distance2;
+            }
+
+            this._shortestPathIsPositive = (this._start - this._end + ex.Util.TwoPI) % ex.Util.TwoPI >= Math.PI;
 
             switch (this._rotationType) {
                case RotationType.ShortestPath:
                   this._distance = this._shortDistance;
-                  if (this._distance < 0) {
+                  if (this._shortestPathIsPositive) {
+                     this._direction = 1;
+                  } else {
+                     this._direction = -1;
+                  }
+                  break;
+               case RotationType.LongestPath:
+                  this._distance = this._longDistance;
+                  if (this._shortestPathIsPositive) {
                      this._direction = -1;
                   } else {
                      this._direction = 1;
@@ -493,14 +525,6 @@ module ex.Internal.Actions {
                      this._distance = this._shortDistance;
                   } else {
                      this._distance = this._longDistance;
-                  }
-                  break;
-               case RotationType.LongestPath:
-                  this._distance = this._longDistance;
-                  if (this._distance < 0) {
-                     this._direction = -1;
-                  } else {
-                     this._direction = 1;
                   }
                   break;
             }
