@@ -274,7 +274,7 @@ describe("A game actor", () => {
 
 	});
 
-	it('can be rotated to an angle at a speed', ()=>{
+	it('can be rotated to an angle at a speed via ShortestPath (default)', ()=>{
 		expect(actor.rotation).toBe(0);
 
 		actor.rotateTo(Math.PI/2, Math.PI/2);
@@ -283,8 +283,60 @@ describe("A game actor", () => {
 		expect(actor.rotation).toBe(Math.PI/4);
 
 		actor.update(engine, 500);
-		expect(actor.rotation).toBe(Math.PI/2);
-	});
+      expect(actor.rotation).toBe(Math.PI / 2);
+
+      actor.update(engine, 500);
+      expect(actor.rx).toBe(0);
+   });
+
+   it('can be rotated to an angle at a speed via LongestPath', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.rotateTo(Math.PI / 2, Math.PI / 2, ex.Internal.Actions.RotationType.LongestPath);
+      actor.update(engine, 1000);
+
+      //rotation is currently incremented by rx delta ,so will be negative while moving counterclockwise
+      expect(actor.rotation).toBe(-1 * Math.PI / 2);
+
+      actor.update(engine, 2000);
+      expect(actor.rotation).toBe(-3 * Math.PI / 2);
+
+      actor.update(engine, 500);
+      expect(actor.rotation).toBe(Math.PI / 2);
+      expect(actor.rx).toBe(0);
+   });
+
+   it('can be rotated to an angle at a speed via Clockwise', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.rotateTo(3 * Math.PI / 2, Math.PI / 2, ex.Internal.Actions.RotationType.Clockwise);
+      actor.update(engine, 2000);
+
+      expect(actor.rotation).toBe(Math.PI);
+
+      actor.update(engine, 1000);
+      expect(actor.rotation).toBe(3 * Math.PI / 2);
+
+      actor.update(engine, 500);
+      expect(actor.rotation).toBe(3 * Math.PI / 2);
+      expect(actor.rx).toBe(0);
+   });
+
+   it('can be rotated to an angle at a speed via CounterClockwise', () => {
+      expect(actor.rotation).toBe(0);
+
+      actor.rotateTo(Math.PI / 2, Math.PI / 2, ex.Internal.Actions.RotationType.Clockwise);
+      actor.update(engine, 2000);
+
+      expect(actor.rotation).toBe(Math.PI);
+
+      actor.update(engine, 1000);
+      expect(actor.rotation).toBe(Math.PI / 2);
+
+      actor.update(engine, 500);
+      expect(actor.rotation).toBe(Math.PI / 2);
+      expect(actor.rx).toBe(0);
+   });
 
 	it('can be rotated to an angle by a certain time', ()=>{
 		expect(actor.rotation).toBe(0);
