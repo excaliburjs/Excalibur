@@ -478,8 +478,8 @@ module ex.Internal.Actions {
          if (!this._started) {
             this._started = true;
             this._start = this._actor.rotation;
-            var distance1 = this._end - this._start;
-            var distance2 = ex.Util.TwoPI - Math.abs(distance1);
+            var distance1 = Math.abs(this._end - this._start);
+            var distance2 = ex.Util.TwoPI - distance1;
             if (distance1 > distance2) {
                this._shortDistance = distance2;
                this._longDistance = distance1;
