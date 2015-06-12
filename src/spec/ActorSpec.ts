@@ -369,30 +369,51 @@ describe("A game actor", () => {
    it('can be rotated to an angle by a certain time via LongestPath', () => {
       expect(actor.rotation).toBe(0);
 
-      //actor.rotateBy(Math.PI / 2, 3000, ex.Internal.Actions.RotationType.LongestPath);
-      //actor.update(engine, 1000);
+      actor.rotateBy(Math.PI / 2, 3000, ex.Internal.Actions.RotationType.LongestPath);
+      actor.update(engine, 1000);
 
-      //expect(actor.rotation).toBe(-1 * Math.PI / 2);
+      expect(actor.rotation).toBe(-1 * Math.PI / 2);
 
-      //actor.update(engine, 2000);
+      actor.update(engine, 2000);
 
-      //expect(actor.rotation).toBe(-3 * Math.PI / 2);
+      expect(actor.rotation).toBe(-3 * Math.PI / 2);
 
-      //actor.update(engine, 500);
-      //expect(actor.rx).toBe(0);
+      actor.update(engine, 500);
+      expect(actor.rotation).toBe(Math.PI / 2);
+      expect(actor.rx).toBe(0);
    });
 
    it('can be rotated to an angle by a certain time via Clockwise', () => {
       expect(actor.rotation).toBe(0);
 
+      actor.rotateBy(Math.PI / 2, 1000, ex.Internal.Actions.RotationType.Clockwise);
       actor.update(engine, 500);
+
+      expect(actor.rotation).toBe(Math.PI / 4);
+
+      actor.update(engine, 500);
+
+      expect(actor.rotation).toBe(Math.PI / 2);
+
+      actor.update(engine, 500);
+      expect(actor.rotation).toBe(Math.PI / 2);
       expect(actor.rx).toBe(0);
    });
 
    it('can be rotated to an angle by a certain time via CounterClockwise', () => {
       expect(actor.rotation).toBe(0);
 
+      actor.rotateBy(Math.PI / 2, 3000, ex.Internal.Actions.RotationType.LongestPath);
+      actor.update(engine, 1000);
+
+      expect(actor.rotation).toBe(-1 * Math.PI / 2);
+
+      actor.update(engine, 2000);
+
+      expect(actor.rotation).toBe(-3 * Math.PI / 2);
+
       actor.update(engine, 500);
+      expect(actor.rotation).toBe(Math.PI / 2);
       expect(actor.rx).toBe(0);
    });
 
