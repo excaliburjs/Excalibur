@@ -68,6 +68,8 @@ module ex {
       public effects: Effects.ISpriteEffect[] = [];
 
       public internalImage: HTMLImageElement = new Image();
+      private _naturalWidth: number = 0;
+      private _naturalHeight: number = 0;
       private _spriteCanvas: HTMLCanvasElement = null;
       private _spriteCtx: CanvasRenderingContext2D = null;
       private _pixelData: ImageData = null;
@@ -103,6 +105,9 @@ module ex {
          
          this.width = swidth;
          this.height = sheight;
+
+         this._naturalWidth = swidth;
+         this._naturalHeight = sheight;
       }
 
       private _loadPixels() {
@@ -352,5 +357,14 @@ module ex {
          }
          return result;
       }
+
+      public getNaturalWidth(): number {
+         return this._naturalWidth;
+      }
+
+      public getNaturalHeight(): number {
+         return this._naturalHeight;
+      }
+
    }
 }
