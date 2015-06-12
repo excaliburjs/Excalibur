@@ -391,10 +391,6 @@ module ex.Internal.Actions {
 
             this._shortestPathIsPositive = (this._start - this._end + ex.Util.TwoPI) % ex.Util.TwoPI >= Math.PI;
 
-            //console.log('short distance: ' + this._shortDistance);
-            //console.log('long distance: ' + this._longDistance);
-            console.log('shortestPathisPositive: ' + this._shortestPathIsPositive);
-
             switch (this._rotationType) {
                case RotationType.ShortestPath:
                   this._distance = this._shortDistance;
