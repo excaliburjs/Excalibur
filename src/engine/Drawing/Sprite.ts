@@ -105,7 +105,6 @@ module ex {
          
          this.width = swidth;
          this.height = sheight;
-
          this._naturalWidth = swidth;
          this._naturalHeight = sheight;
       }
@@ -311,7 +310,6 @@ module ex {
             this._applyEffects();
             this._dirtyEffect = false;
          }
-         
 
          ctx.save();
          var xpoint = (this.width * this.scale.x) * this.anchor.x;
@@ -339,6 +337,11 @@ module ex {
                this.sheight * this.scale.y);
          }
          ctx.restore();
+
+         // calculating current dimensions
+         this.width = this._naturalWidth * this.scale.x;
+         this.height = this._naturalHeight * this.scale.y;
+
       }
 
       /**
