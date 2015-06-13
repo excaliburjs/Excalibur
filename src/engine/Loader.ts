@@ -97,7 +97,9 @@ module ex {
             this.image.addEventListener('load', () => {
                this._isLoaded = true;
                this.width = this._sprite.swidth = this._sprite.width = this.image.naturalWidth;
+               this._sprite.setNaturalWidth(this.width);
                this.height = this._sprite.sheight = this._sprite.height = this.image.naturalHeight;
+               this._sprite.setNaturalHeight(this.height);
                this.loaded.resolve(this.image);
                complete.resolve(this.image);
             });
