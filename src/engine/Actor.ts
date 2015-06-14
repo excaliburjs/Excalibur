@@ -534,10 +534,14 @@ module ex {
     public setDrawing(key: number);
     public setDrawing(key: any) {
       key = key.toString();
-      if (this.currentDrawing !== this.frames[<string>key]) {
-         this.frames[key].reset();
+       if (this.currentDrawing !== this.frames[<string>key]) {
+          if (this.frames[key] != null) {
+             this.frames[key].reset();
+             this.currentDrawing = this.frames[key];
+          } else {
+             ex.Logger.getInstance().error('the specified drawing key \'' + key + '\' does not exist');
+          }
       }
-      this.currentDrawing = this.frames[key];
     }
 
     /**
