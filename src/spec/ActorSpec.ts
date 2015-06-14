@@ -733,6 +733,14 @@ describe("A game actor", () => {
       expect(scene.children.length).toBe(0);
    });
 
+   it('once killed is not drawn', () => {
+      scene.add(actor);
+      actor.kill();
+      scene.update(engine, 100);
+      scene.draw(engine.ctx, 100);
+      expect(actor.draw).not.toHaveBeenCalled();
+   });
+
    it('does not incure pointer overhead until an event is registered',() => {
       expect(actor.enableCapturePointer).toBeFalsy();
       expect(actor.capturePointer.captureMoveEvents).toBeFalsy();
@@ -789,6 +797,82 @@ describe("A game actor", () => {
       expect(actor.isOffScreen).toBeTruthy();
       expect(actor.draw).not.toHaveBeenCalled();
 
+   });
+   
+   it('can detect containment off of child actors', () => {
+	  var parent = new ex.Actor(600, 100, 100, 100);
+	  var child = new ex.Actor(0, 0, 100, 100);
+	  var child2 = new ex.Actor(-600, -100, 100, 100);
+	  
+	  parent.addChild(child);
+	  child.addChild(child2);
+	  
+	  // check reality
+	  expect(parent.contains(550, 50)).toBeTruthy();
+	  expect(parent.contains(650, 150)).toBeTruthy();
+	  
+	  
+	  
+	  // in world coordinates this should be false 
+	  expect(child.contains(50, 50)).toBeFalsy();
+	  
+	  // in world coordinates this should be true
+	  expect(child.contains(550, 50)).toBeTruthy();
+	  expect(child.contains(650, 150)).toBeTruthy();
+	  
+	  // second order child shifted to the origin
+	  expect(child2.contains(-50, -50)).toBeTruthy();
+	  expect(child2.contains(50, 50)).toBeTruthy();	   
+   });
+   
+   it('can recursively check containment', () => {
+	  var parent = new ex.Actor(0, 0, 100, 100); 
+	  var child = new ex.Actor(100, 100, 100, 100);
+	  var child2 = new ex.Actor(100, 100, 100, 100);
+	  parent.addChild(child);
+	  
+	  expect(parent.contains(150, 150)).toBeFalsy();
+	  expect(child.contains(150, 150)).toBeTruthy();
+	  expect(parent.contains(150, 150, true)).toBeTruthy();
+	  expect(parent.contains(200, 200, true)).toBeFalsy();
+	  
+	  child.addChild(child2);
+	  expect(parent.contains(250, 250, true)).toBeTruthy();	  
+	  
+   });
+
+   it('with an active collision type can be placed on a fixed type', () => {
+	  var scene = new ex.Scene(engine); 
+	  
+	  var active = new ex.Actor(0, -50, 100, 100);
+	  active.collisionType = ex.CollisionType.Active;
+	  active.dy = 10;
+	  active.ay = 1000;
+	  
+	  var fixed = new ex.Actor(0, 50, 100, 100);
+	  fixed.collisionType = ex.CollisionType.Fixed;
+	  
+	  scene.add(active);
+	  scene.add(fixed);
+	  
+	  
+	  expect(active.x).toBe(0);
+	  expect(active.y).toBe(-50);
+	  
+	  expect(fixed.x).toBe(0);
+	  expect(fixed.y).toBe(50);
+	  
+	  // update many times for safety
+	  for(var i = 0; i < 40; i++){
+		  scene.update(engine, 100);
+	  }
+	 	  
+	  expect(active.x).toBe(0);
+	  expect(active.y).toBe(-50);
+	  
+	  expect(fixed.x).toBe(0);
+	  expect(fixed.y).toBe(50);
+	  
    });
 
 });

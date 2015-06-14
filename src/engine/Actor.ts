@@ -733,10 +733,21 @@ module ex {
      * Tests whether the x/y specified are contained in the actor
      * @param x  X coordinate to test (in world coordinates)
      * @param y  Y coordinate to test (in world coordinates)
+     * @param recurse checks whether the x/y are contained in any child actors (if they exist).
      */
-    public contains(x: number, y: number): boolean {
-       return this.getBounds().contains(new Point(x, y));
+    public contains(x: number, y: number, recurse: boolean = false): boolean {
+       var containment = this.getBounds().contains(new Point(x, y));
+       
+       if (recurse) {
+          
+          return containment || this.children.some((child: Actor) => {
+             return child.contains(x, y, true);
+          });
+       }
+       
+       return containment;
     }
+    
     /**
      * Returns the side of the collision based on the intersection 
      * @param intersect The displacement vector returned by a collision
