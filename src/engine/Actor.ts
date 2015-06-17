@@ -881,8 +881,8 @@ module ex {
      * @param angleRadians  The angle to rotate to in radians
      * @param speed         The angular velocity of the rotation specified in radians per second
      */
-    public rotateTo(angleRadians: number, speed: number): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.RotateTo(this, angleRadians, speed));
+    public rotateTo(angleRadians: number, speed: number, rotationType?): Actor {
+       this.actionQueue.add(new ex.Internal.Actions.RotateTo(this, angleRadians, speed, rotationType));
        return this;
     }
     /**
@@ -892,8 +892,8 @@ module ex {
      * @param angleRadians  The angle to rotate to in radians
      * @param duration          The time it should take the actor to complete the rotation in milliseconds
      */
-    public rotateBy(angleRadians: number, duration: number): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.RotateBy(this, angleRadians, duration));
+    public rotateBy(angleRadians: number, duration: number, rotationType?): Actor {
+       this.actionQueue.add(new ex.Internal.Actions.RotateBy(this, angleRadians, duration, rotationType));
        return this;
     }
     /**

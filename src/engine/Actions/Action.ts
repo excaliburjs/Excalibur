@@ -360,33 +360,85 @@ module ex.Internal.Actions {
       private _start: number;
       private _end: number;
       private _speed: number;
+      private _rotationType: RotationType;
+      private _direction: number;
       private _distance: number;
+      private _shortDistance: number;
+      private _longDistance: number;
+      private _shortestPathIsPositive: boolean;
       private _started = false;
       private _stopped = false;
-      constructor(actor: Actor, angleRadians: number, speed: number) {
+      constructor(actor: Actor, angleRadians: number, speed: number, rotationType?: RotationType) {
          this._actor = actor;
          this._end = angleRadians;
          this._speed = speed;
-
+         this._rotationType = rotationType || RotationType.ShortestPath;
       }
 
       public update(delta: number): void {
          if (!this._started) {
             this._started = true;
             this._start = this._actor.rotation;
-            this._distance = Math.abs(this._end - this._start);
-         }
-         this._actor.rx = this._speed;
+            var distance1 = Math.abs(this._end - this._start);
+            var distance2 = ex.Util.TwoPI - distance1;
+            if (distance1 > distance2) {
+               this._shortDistance = distance2;
+               this._longDistance = distance1;
+            } else {
+               this._shortDistance = distance1;
+               this._longDistance = distance2;
+            }
 
+            this._shortestPathIsPositive = (this._start - this._end + ex.Util.TwoPI) % ex.Util.TwoPI >= Math.PI;
+
+            switch (this._rotationType) {
+               case RotationType.ShortestPath:
+                  this._distance = this._shortDistance;
+                  if (this._shortestPathIsPositive) {
+                     this._direction = 1;
+                  } else {
+                     this._direction = -1;
+                  }
+                  break;
+               case RotationType.LongestPath:
+                  this._distance = this._longDistance;
+                  if (this._shortestPathIsPositive) {
+                     this._direction = -1;
+                  } else {
+                     this._direction = 1;
+                  }
+                  break;
+               case RotationType.Clockwise:
+                  this._direction = 1;
+                  if (this._shortDistance >= 0) {
+                     this._distance = this._shortDistance;
+                  } else {
+                     this._distance = this._longDistance;
+                  }
+                  break;
+               case RotationType.CounterClockwise:
+                  this._direction = -1;
+                  if (this._shortDistance <= 0) {
+                     this._distance = this._shortDistance;
+                  } else {
+                     this._distance = this._longDistance;
+                  }
+                  break;
+            }
+         }
+
+         this._actor.rx = this._direction * this._speed;
          
          if (this.isComplete(this._actor)) {
             this._actor.rotation = this._end;
             this._actor.rx = 0;
+            this._stopped = true;
          }
       }
 
       public isComplete(actor: Actor): boolean {
-         return this._stopped || (Math.abs(this._actor.rotation - this._start) >= this._distance);
+         var distanceTravelled = Math.abs(this._actor.rotation - this._start);
+         return this._stopped || (distanceTravelled >= Math.abs(this._distance));
       }
 
       public stop(): void {
@@ -405,36 +457,89 @@ module ex.Internal.Actions {
       public y: number;
       private _start: number;
       private _end: number;
+      private _speed: number;
       private _time: number;
+      private _rotationType: RotationType;
+      private _direction: number;
       private _distance: number;
+      private _shortDistance: number;
+      private _longDistance: number;
+      private _shortestPathIsPositive: boolean;
       private _started = false;
       private _stopped = false;
-      private _speed: number;
-      constructor(actor: Actor, angleRadians: number, time: number) {
+      constructor(actor: Actor, angleRadians: number, time: number, rotationType?: RotationType) {
          this._actor = actor;
          this._end = angleRadians;
          this._time = time;
-         this._speed = (this._end - this._actor.rotation) / time * 1000;
-
+         this._rotationType = rotationType || RotationType.ShortestPath;
       }
 
       public update(delta: number): void {
          if (!this._started) {
             this._started = true;
             this._start = this._actor.rotation;
-            this._distance = Math.abs(this._end - this._start);
+            var distance1 = Math.abs(this._end - this._start);
+            var distance2 = ex.Util.TwoPI - distance1;
+            if (distance1 > distance2) {
+               this._shortDistance = distance2;
+               this._longDistance = distance1;
+            } else {
+               this._shortDistance = distance1;
+               this._longDistance = distance2;
+            }
+
+            this._shortestPathIsPositive = (this._start - this._end + ex.Util.TwoPI) % ex.Util.TwoPI >= Math.PI;
+
+            switch (this._rotationType) {
+               case RotationType.ShortestPath:
+                  this._distance = this._shortDistance;
+                  if (this._shortestPathIsPositive) {
+                     this._direction = 1;
+                  } else {
+                     this._direction = -1;
+                  }
+                  break;
+               case RotationType.LongestPath:
+                  this._distance = this._longDistance;
+                  if (this._shortestPathIsPositive) {
+                     this._direction = -1;
+                  } else {
+                     this._direction = 1;
+                  }
+                  break;
+               case RotationType.Clockwise:
+                  this._direction = 1;
+                  if (this._shortDistance >= 0) {
+                     this._distance = this._shortDistance;
+                  } else {
+                     this._distance = this._longDistance;
+                  }
+                  break;
+               case RotationType.CounterClockwise:
+                  this._direction = -1;
+                  if (this._shortDistance <= 0) {
+                     this._distance = this._shortDistance;
+                  } else {
+                     this._distance = this._longDistance;
+                  }
+                  break;
+            }
+            this._speed = Math.abs(this._distance / this._time * 1000);
          }
-         this._actor.rx = this._speed;
+
+         this._actor.rx = this._direction * this._speed;
 
          
          if (this.isComplete(this._actor)) {
             this._actor.rotation = this._end;
             this._actor.rx = 0;
+            this._stopped = true;
          }
       }
 
       public isComplete(actor: Actor): boolean {
-         return this._stopped || (Math.abs(this._actor.rotation - this._start) >= this._distance);
+         var distanceTravelled = Math.abs(this._actor.rotation - this._start);
+         return this._stopped || (distanceTravelled >= Math.abs(this._distance));
       }
 
       public stop(): void {
@@ -928,5 +1033,31 @@ module ex.Internal.Actions {
             }
          }
       }
+   }
+
+   /**
+    * An enum that describes the strategies that rotation actions can use
+    */
+   export enum RotationType {
+      /**
+       * Rotation via `ShortestPath` will use the smallest angle
+       * between the starting and ending points. This strategy is the default behavior.
+       */
+      ShortestPath = 0,
+      /**
+       * Rotation via `LongestPath` will use the largest angle
+       * between the starting and ending points.
+       */
+      LongestPath = 1,
+      /**
+       * Rotation via `Clockwise` will travel in a clockwise direction,
+       * regardless of the starting and ending points.
+       */
+      Clockwise = 2,
+      /**
+       * Rotation via `CounterClockwise` will travel in a counterclockwise direction,
+       * regardless of the starting and ending points.
+       */
+      CounterClockwise = 3
    }
 }

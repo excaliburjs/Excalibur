@@ -79,6 +79,7 @@
     <Content Include="tests\input\gamepad.html" />
     <Content Include="tests\input\gamepad.png" />
     <Content Include="tests\input\index.html" />
+    <Content Include="tests\rotation\rotation.html" />
     <Content Include="tests\scene\lifecycle.html" />
   </ItemGroup>
   <ItemGroup>
@@ -104,6 +105,7 @@
     <TypeScriptCompile Include="tests\input\pointer.ts" />
     <TypeScriptCompile Include="tests\input\gamepad.ts" />
     <TypeScriptCompile Include="tests\input\index.ts" />
+    <TypeScriptCompile Include="tests\rotation\rotation.ts" />
     <TypeScriptCompile Include="tests\scene\lifecycle.ts" />
   </ItemGroup>
   <ItemGroup>
