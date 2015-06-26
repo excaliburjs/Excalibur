@@ -1,6 +1,6 @@
 /*! excalibur - v0.5.1 - 2015-06-26
 * https://github.com/excaliburjs/Excalibur
-* Copyright (c) 2015 ; Licensed BSD*/
+* Copyright (c) 2015 ; Licensed BSD-2-Clause*/
 if (typeof window === 'undefined') {
     window = { audioContext: function () {
         return;

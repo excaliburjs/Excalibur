@@ -13,7 +13,7 @@
     "url": "https://github.com/excaliburjs/Excalibur/issues"
   },
   "license": {
-      "type": "BSD",
+      "type": "BSD-2-Clause",
       "url": "https://github.com/excaliburjs/Excalibur/blob/master/LICENSE.md"
   },
   "keywords": [
