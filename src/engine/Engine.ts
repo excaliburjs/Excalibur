@@ -391,6 +391,11 @@ module ex {
        * Sets the background color for the engine.
        */
       public backgroundColor: Color = new Color(0, 0, 100);
+      
+      /**
+       * The action to take when a fatal exception is thrown
+       */
+      public onFatalException = (e) => { Logger.getInstance().fatal(e); };
 
       private _logger: Logger; 
       private _isSmoothingEnabled: boolean = true;
@@ -1039,7 +1044,7 @@ module ex {
                
             } catch (e) {
                window.cancelAnimationFrame(game._requestId);
-               throw e;
+               game.onFatalException(e);
             }
          })();
             this._logger.debug('Game started');
