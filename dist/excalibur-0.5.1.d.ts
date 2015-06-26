@@ -594,6 +594,8 @@ declare module ex {
         height: number;
         effects: Effects.ISpriteEffect[];
         internalImage: HTMLImageElement;
+        naturalWidth: number;
+        naturalHeight: number;
         private _spriteCanvas;
         private _spriteCtx;
         private _pixelData;
@@ -1622,6 +1624,33 @@ declare module ex {
         actions: ActionContext;
     }
 }
+declare module ex {
+    /**
+     * An enum that describes the strategies that rotation actions can use
+     */
+    enum RotationType {
+        /**
+         * Rotation via `ShortestPath` will use the smallest angle
+         * between the starting and ending points. This strategy is the default behavior.
+         */
+        ShortestPath = 0,
+        /**
+         * Rotation via `LongestPath` will use the largest angle
+         * between the starting and ending points.
+         */
+        LongestPath = 1,
+        /**
+         * Rotation via `Clockwise` will travel in a clockwise direction,
+         * regardless of the starting and ending points.
+         */
+        Clockwise = 2,
+        /**
+         * Rotation via `CounterClockwise` will travel in a counterclockwise direction,
+         * regardless of the starting and ending points.
+         */
+        CounterClockwise = 3,
+    }
+}
 /**
  * See [[ActionContext|Action API]] for more information about Actions.
  */
@@ -1926,31 +1955,6 @@ declare module ex.Internal.Actions {
         hasNext(): boolean;
         reset(): void;
         update(delta: number): void;
-    }
-    /**
-     * An enum that describes the strategies that rotation actions can use
-     */
-    enum RotationType {
-        /**
-         * Rotation via `ShortestPath` will use the smallest angle
-         * between the starting and ending points. This strategy is the default behavior.
-         */
-        ShortestPath = 0,
-        /**
-         * Rotation via `LongestPath` will use the largest angle
-         * between the starting and ending points.
-         */
-        LongestPath = 1,
-        /**
-         * Rotation via `Clockwise` will travel in a clockwise direction,
-         * regardless of the starting and ending points.
-         */
-        Clockwise = 2,
-        /**
-         * Rotation via `CounterClockwise` will travel in a counterclockwise direction,
-         * regardless of the starting and ending points.
-         */
-        CounterClockwise = 3,
     }
 }
 declare module ex {
@@ -2857,12 +2861,6 @@ declare module ex {
      *
      * **Setting opacity when using a color doesn't do anything**
      * [Issue #364](https://github.com/excaliburjs/Excalibur/issues/364)
-     *
-     * **Spawning an Actor next to another sometimes causes unexpected placement**
-     * [Issue #319](https://github.com/excaliburjs/Excalibur/issues/319)
-     *
-     * **[[Actor.contains]] doesn't work with child actors and relative coordinates**
-     * [Issue #147](https://github.com/excaliburjs/Excalibur/issues/147)
      */
     class Actor extends ex.Class implements IActionable {
         /**
@@ -3258,7 +3256,7 @@ declare module ex {
          * @param angleRadians  The angle to rotate to in radians
          * @param speed         The angular velocity of the rotation specified in radians per second
          */
-        rotateTo(angleRadians: number, speed: number, rotationType?: any): Actor;
+        rotateTo(angleRadians: number, speed: number, rotationType?: RotationType): Actor;
         /**
          * This method will rotate an actor to the specified angle by a certain
          * `duration` (in milliseconds) and return back the actor. This method is part
@@ -3266,7 +3264,7 @@ declare module ex {
          * @param angleRadians  The angle to rotate to in radians
          * @param duration          The time it should take the actor to complete the rotation in milliseconds
          */
-        rotateBy(angleRadians: number, duration: number, rotationType?: any): Actor;
+        rotateBy(angleRadians: number, duration: number, rotationType?: RotationType): Actor;
         /**
          * This method will scale an actor to the specified size at the speed
          * specified (in magnitude increase per second) and return back the

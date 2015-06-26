@@ -46,7 +46,7 @@ module.exports = function (grunt) {
                     '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
                     '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
                     '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
-                    ' Licensed <%= pkg.licenses[0].type%>*/\n'
+                    ' Licensed <%= pkg.license.type%>*/\n'
          }
       },
 

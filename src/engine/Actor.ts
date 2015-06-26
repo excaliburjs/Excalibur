@@ -254,12 +254,6 @@ module ex {
    *
    * **Setting opacity when using a color doesn't do anything**
    * [Issue #364](https://github.com/excaliburjs/Excalibur/issues/364)
-   *
-   * **Spawning an Actor next to another sometimes causes unexpected placement**
-   * [Issue #319](https://github.com/excaliburjs/Excalibur/issues/319)
-   *
-   * **[[Actor.contains]] doesn't work with child actors and relative coordinates**
-   * [Issue #147](https://github.com/excaliburjs/Excalibur/issues/147)
    */     
   export class Actor extends ex.Class implements IActionable {
     /**
@@ -885,7 +879,7 @@ module ex {
      * @param angleRadians  The angle to rotate to in radians
      * @param speed         The angular velocity of the rotation specified in radians per second
      */
-    public rotateTo(angleRadians: number, speed: number, rotationType?): Actor {
+    public rotateTo(angleRadians: number, speed: number, rotationType?: RotationType): Actor {
        this.actionQueue.add(new ex.Internal.Actions.RotateTo(this, angleRadians, speed, rotationType));
        return this;
     }
@@ -896,7 +890,7 @@ module ex {
      * @param angleRadians  The angle to rotate to in radians
      * @param duration          The time it should take the actor to complete the rotation in milliseconds
      */
-    public rotateBy(angleRadians: number, duration: number, rotationType?): Actor {
+    public rotateBy(angleRadians: number, duration: number, rotationType?: RotationType): Actor {
        this.actionQueue.add(new ex.Internal.Actions.RotateBy(this, angleRadians, duration, rotationType));
        return this;
     }
