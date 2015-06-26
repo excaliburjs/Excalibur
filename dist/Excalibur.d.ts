@@ -1732,10 +1732,15 @@ declare module ex.Internal.Actions {
         private _start;
         private _end;
         private _speed;
+        private _rotationType;
+        private _direction;
         private _distance;
+        private _shortDistance;
+        private _longDistance;
+        private _shortestPathIsPositive;
         private _started;
         private _stopped;
-        constructor(actor: Actor, angleRadians: number, speed: number);
+        constructor(actor: Actor, angleRadians: number, speed: number, rotationType?: RotationType);
         update(delta: number): void;
         isComplete(actor: Actor): boolean;
         stop(): void;
@@ -1747,12 +1752,17 @@ declare module ex.Internal.Actions {
         y: number;
         private _start;
         private _end;
+        private _speed;
         private _time;
+        private _rotationType;
+        private _direction;
         private _distance;
+        private _shortDistance;
+        private _longDistance;
+        private _shortestPathIsPositive;
         private _started;
         private _stopped;
-        private _speed;
-        constructor(actor: Actor, angleRadians: number, time: number);
+        constructor(actor: Actor, angleRadians: number, time: number, rotationType?: RotationType);
         update(delta: number): void;
         isComplete(actor: Actor): boolean;
         stop(): void;
@@ -1916,6 +1926,31 @@ declare module ex.Internal.Actions {
         hasNext(): boolean;
         reset(): void;
         update(delta: number): void;
+    }
+    /**
+     * An enum that describes the strategies that rotation actions can use
+     */
+    enum RotationType {
+        /**
+         * Rotation via `ShortestPath` will use the smallest angle
+         * between the starting and ending points. This strategy is the default behavior.
+         */
+        ShortestPath = 0,
+        /**
+         * Rotation via `LongestPath` will use the largest angle
+         * between the starting and ending points.
+         */
+        LongestPath = 1,
+        /**
+         * Rotation via `Clockwise` will travel in a clockwise direction,
+         * regardless of the starting and ending points.
+         */
+        Clockwise = 2,
+        /**
+         * Rotation via `CounterClockwise` will travel in a counterclockwise direction,
+         * regardless of the starting and ending points.
+         */
+        CounterClockwise = 3,
     }
 }
 declare module ex {
@@ -3143,8 +3178,9 @@ declare module ex {
          * Tests whether the x/y specified are contained in the actor
          * @param x  X coordinate to test (in world coordinates)
          * @param y  Y coordinate to test (in world coordinates)
+         * @param recurse checks whether the x/y are contained in any child actors (if they exist).
          */
-        contains(x: number, y: number): boolean;
+        contains(x: number, y: number, recurse?: boolean): boolean;
         /**
          * Returns the side of the collision based on the intersection
          * @param intersect The displacement vector returned by a collision
@@ -3222,7 +3258,7 @@ declare module ex {
          * @param angleRadians  The angle to rotate to in radians
          * @param speed         The angular velocity of the rotation specified in radians per second
          */
-        rotateTo(angleRadians: number, speed: number): Actor;
+        rotateTo(angleRadians: number, speed: number, rotationType?: any): Actor;
         /**
          * This method will rotate an actor to the specified angle by a certain
          * `duration` (in milliseconds) and return back the actor. This method is part
@@ -3230,7 +3266,7 @@ declare module ex {
          * @param angleRadians  The angle to rotate to in radians
          * @param duration          The time it should take the actor to complete the rotation in milliseconds
          */
-        rotateBy(angleRadians: number, duration: number): Actor;
+        rotateBy(angleRadians: number, duration: number, rotationType?: any): Actor;
         /**
          * This method will scale an actor to the specified size at the speed
          * specified (in magnitude increase per second) and return back the

@@ -142,12 +142,12 @@ declare module ex {
          * Adds a new [[ISpriteEffect]] to this drawing.
          * @param effect  Effect to add to the this drawing
          */
-        addEffect(effect: Effects.ISpriteEffect): any;
+        addEffect(effect: ex.Effects.ISpriteEffect): any;
         /**
          * Removes an effect [[ISpriteEffect]] from this drawing.
          * @param effect  Effect to remove from this drawing
          */
-        removeEffect(effect: Effects.ISpriteEffect): any;
+        removeEffect(effect: ex.Effects.ISpriteEffect): any;
         /**
          * Removes an effect by index from this drawing.
          * @param index  Index of the effect to remove from this drawing
@@ -162,11 +162,11 @@ declare module ex {
          * Gets or sets the point about which to apply transformations to the drawing relative to the
          * top left corner of the drawing.
          */
-        anchor: Point;
+        anchor: ex.Point;
         /**
          * Gets or sets the scale trasformation
          */
-        scale: Point;
+        scale: ex.Point;
         /**
          * Sets the current rotation transformation for the drawing.
          */
@@ -215,7 +215,7 @@ declare module ex {
 }
 declare module ex.Traits {
     class OffscreenCulling implements IActorTrait {
-        cullingBox: CullingBox;
+        cullingBox: ex.CullingBox;
         update(actor: Actor, engine: Engine, delta: number): void;
     }
 }
@@ -454,7 +454,7 @@ declare module ex.Util {
     function getPosition(el: HTMLElement): Point;
     function addItemToArray<T>(item: T, array: T[]): boolean;
     function removeItemToArray<T>(item: T, array: T[]): boolean;
-    function getOppositeSide(side: Side): Side;
+    function getOppositeSide(side: ex.Side): Side;
     /**
      * Excaliburs dynamically resizing collection
      */
@@ -920,7 +920,7 @@ declare module ex {
          * Returns a dictionary that maps each character in the alphabet to the appropriate [[Sprite]].
          */
         getTextSprites(): {
-            [x: string]: Sprite;
+            [key: string]: Sprite;
         };
     }
 }
@@ -1426,7 +1426,7 @@ declare module ex {
     class DynamicTree {
         root: TreeNode;
         nodes: {
-            [x: number]: TreeNode;
+            [key: number]: TreeNode;
         };
         constructor();
         insert(leaf: TreeNode): void;
@@ -2247,7 +2247,7 @@ declare module ex {
         private _remove(node, element);
         private _cleanup(node, element);
         private _findMinNode(node);
-        list(): T[];
+        list(): Array<T>;
         private _list(treeNode, results);
     }
     class BinaryTreeNode {
@@ -2255,10 +2255,10 @@ declare module ex {
         private _data;
         private _left;
         private _right;
-        constructor(key: number, data: any[], left: BinaryTreeNode, right: BinaryTreeNode);
+        constructor(key: number, data: Array<any>, left: BinaryTreeNode, right: BinaryTreeNode);
         getKey(): number;
         setKey(key: number): void;
-        getData(): any[];
+        getData(): Array<any>;
         setData(data: any): void;
         getLeft(): BinaryTreeNode;
         setLeft(left: BinaryTreeNode): void;
@@ -2384,7 +2384,7 @@ declare module ex {
      * Learn more about [[BaseCamera|Cameras]] and how to modify them to suit
      * your game.
      */
-    class Scene extends Class {
+    class Scene extends ex.Class {
         /**
          * The actor this scene is attached to, if any
          */
@@ -2405,7 +2405,7 @@ declare module ex {
          * The [[Group]]s in the scene, if any
          */
         groups: {
-            [x: string]: Group;
+            [key: string]: Group;
         };
         /**
          * Access to the Excalibur engine
@@ -2572,11 +2572,11 @@ declare module ex {
         /**
          * Removes the given actor from the sorted drawing tree
          */
-        cleanupDrawTree(actor: Actor): void;
+        cleanupDrawTree(actor: ex.Actor): void;
         /**
          * Updates the given actor's position in the sorted drawing tree
          */
-        updateDrawTree(actor: Actor): void;
+        updateDrawTree(actor: ex.Actor): void;
     }
 }
 declare module ex {
@@ -2864,7 +2864,7 @@ declare module ex {
      * **[[Actor.contains]] doesn't work with child actors and relative coordinates**
      * [Issue #147](https://github.com/excaliburjs/Excalibur/issues/147)
      */
-    class Actor extends Class implements IActionable {
+    class Actor extends ex.Class implements IActionable {
         /**
          * Indicates the next id to be set
          */
@@ -2904,7 +2904,7 @@ declare module ex {
         /**
          * The scale vector of the actor
          */
-        scale: Vector;
+        scale: ex.Vector;
         /**
          * The x scalar velocity of the actor in scale/second
          */
@@ -2946,7 +2946,7 @@ declare module ex {
         /**
          * Direct access to the actor's [[ActionQueue]]. Useful if you are building custom actions.
          */
-        actionQueue: Internal.Actions.ActionQueue;
+        actionQueue: ex.Internal.Actions.ActionQueue;
         actions: ActionContext;
         /**
          * Convenience reference to the global logger
@@ -2973,7 +2973,7 @@ declare module ex {
         private _collisionHandlers;
         private _isInitialized;
         frames: {
-            [x: string]: IDrawable;
+            [key: string]: IDrawable;
         };
         /**
          * Access to the current drawing for the actor, this can be
@@ -3204,7 +3204,7 @@ declare module ex {
          */
         onCollidesWith(group: string, func: (actor: Actor) => void): void;
         getCollisionHandlers(): {
-            [x: string]: {
+            [key: string]: {
                 (actor: Actor): void;
             }[];
         };
@@ -3266,7 +3266,7 @@ declare module ex {
          * @param angleRadians  The angle to rotate to in radians
          * @param duration          The time it should take the actor to complete the rotation in milliseconds
          */
-        rotateBy(angleRadians: number, duration: number): Actor;
+        rotateBy(angleRadians: number, duration: number, rotationType?: any): Actor;
         /**
          * This method will scale an actor to the specified size at the speed
          * specified (in magnitude increase per second) and return back the
@@ -4235,11 +4235,11 @@ declare module ex {
          * Gets or sets the sprite that a particle should use
          * @warning Performance intensive
          */
-        particleSprite: Sprite;
+        particleSprite: ex.Sprite;
         /**
          * Gets or sets the emitter type for the particle emitter
          */
-        emitterType: EmitterType;
+        emitterType: ex.EmitterType;
         /**
          * Gets or sets the emitter radius, only takes effect when the [[emitterType]] is [[EmitterType.Circle]]
          */
@@ -4455,7 +4455,7 @@ declare module ex.Internal {
         setVolume(volume: number): any;
         setLoop(loop: boolean): any;
         isPlaying(): boolean;
-        play(): Promise<any>;
+        play(): ex.Promise<any>;
         pause(): any;
         stop(): any;
         load(): any;
@@ -4474,7 +4474,7 @@ declare module ex.Internal {
         onerror: (e: any) => void;
         load(): void;
         isPlaying(): boolean;
-        play(): Promise<any>;
+        play(): ex.Promise<any>;
         pause(): void;
         stop(): void;
     }
@@ -4848,7 +4848,7 @@ declare module ex {
      * });
      * ```
      */
-    class Sound implements ILoadable, Internal.ISound {
+    class Sound implements ILoadable, ex.Internal.ISound {
         private _logger;
         onprogress: (e: any) => void;
         oncomplete: () => void;
@@ -4861,7 +4861,7 @@ declare module ex {
         /**
          * Populated once loading is complete
          */
-        sound: Internal.FallbackAudio;
+        sound: ex.Internal.FallbackAudio;
         /**
          * Whether or not the browser can play this file as HTML5 Audio
          */
@@ -4888,7 +4888,7 @@ declare module ex {
         /**
          * Play the sound, returns a promise that resolves when the sound is done playing
          */
-        play(): Promise<any>;
+        play(): ex.Promise<any>;
         /**
          * Stop the sound, and do not rewind
          */
@@ -4904,7 +4904,7 @@ declare module ex {
         /**
          * Begins loading the sound and returns a promise to be resolved on completion
          */
-        load(): Promise<Internal.FallbackAudio>;
+        load(): Promise<ex.Internal.FallbackAudio>;
     }
     /**
      * Pre-loading assets
@@ -5016,7 +5016,7 @@ declare module ex {
         /**
          * Begins loading the template. Returns a promise that resolves with the template string when loaded.
          */
-        load(): Promise<string>;
+        load(): ex.Promise<string>;
         /**
          * Indicates whether the template has been loaded
          */
@@ -5332,7 +5332,7 @@ declare module ex.Input {
      *
      * For mouse-based events, you can inspect [[PointerEvent.button]] to see what button was pressed.
      */
-    class PointerEvent extends GameEvent {
+    class PointerEvent extends ex.GameEvent {
         x: number;
         y: number;
         index: number;
@@ -5478,7 +5478,7 @@ declare module ex.Input {
      * });
      * ```
      */
-    class Pointers extends Class {
+    class Pointers extends ex.Class {
         private _engine;
         private _pointerDown;
         private _pointerUp;
@@ -5486,7 +5486,7 @@ declare module ex.Input {
         private _pointerCancel;
         private _pointers;
         private _activePointers;
-        constructor(engine: Engine);
+        constructor(engine: ex.Engine);
         /**
          * Primary pointer (mouse, 1 finger, stylus, etc.)
          */
@@ -5619,12 +5619,12 @@ declare module ex.Input {
      * }
      * ```
      */
-    class Keyboard extends Class {
+    class Keyboard extends ex.Class {
         private _keys;
         private _keysUp;
         private _keysDown;
         private _engine;
-        constructor(engine: Engine);
+        constructor(engine: ex.Engine);
         /**
          * Initialize Keyboard event listeners
          */
@@ -5732,7 +5732,7 @@ declare module ex.Input {
      * });
      * ```
      */
-    class Gamepads extends Class {
+    class Gamepads extends ex.Class {
         /**
          * Whether or not to poll for Gamepad input (default: `false`)
          */
@@ -5751,7 +5751,7 @@ declare module ex.Input {
         private _initSuccess;
         private _engine;
         private _navigator;
-        constructor(engine: Engine);
+        constructor(engine: ex.Engine);
         init(): void;
         /**
          * Updates Gamepad state and publishes Gamepad events
@@ -5775,7 +5775,7 @@ declare module ex.Input {
      * Gamepad holds state information for a connected controller. See [[Gamepads]]
      * for more information on handling controller input.
      */
-    class Gamepad extends Class {
+    class Gamepad extends ex.Class {
         connected: boolean;
         private _buttons;
         private _axes;
@@ -5891,7 +5891,7 @@ declare module ex.Input {
     /**
      * Gamepad button event. See [[Gamepads]] for information on responding to controller input.
      */
-    class GamepadButtonEvent extends GameEvent {
+    class GamepadButtonEvent extends ex.GameEvent {
         button: Buttons;
         value: number;
         /**
@@ -5903,7 +5903,7 @@ declare module ex.Input {
     /**
      * Gamepad axis event. See [[Gamepads]] for information on responding to controller input.
      */
-    class GamepadAxisEvent extends GameEvent {
+    class GamepadAxisEvent extends ex.GameEvent {
         axis: Axes;
         value: number;
         /**
@@ -6039,12 +6039,12 @@ declare module ex {
         /**
          * Configures the display mode.
          */
-        displayMode?: DisplayMode;
+        displayMode?: ex.DisplayMode;
         /**
          * Configures the pointer scope. Pointers scoped to the 'Canvas' can only fire events within the canvas viewport; whereas, 'Document'
          * (default) scoped will fire anywhere on the page.
          */
-        pointerScope?: Input.PointerScope;
+        pointerScope?: ex.Input.PointerScope;
     }
     /**
      * The Excalibur Engine
@@ -6209,7 +6209,7 @@ declare module ex {
      * game.start();
      * ```
      */
-    class Engine extends Class {
+    class Engine extends ex.Class {
         /**
          * Direct access to the engine's canvas element
          */
@@ -6233,7 +6233,7 @@ declare module ex {
         /**
          * Access engine input like pointer, keyboard, or gamepad
          */
-        input: Input.IEngineInput;
+        input: ex.Input.IEngineInput;
         /**
          * Gets or sets the [[CollisionStrategy]] for Excalibur actors
          */
@@ -6259,7 +6259,7 @@ declare module ex {
          * Contains all the scenes currently registered with Excalibur
          */
         scenes: {
-            [x: string]: Scene;
+            [key: string]: Scene;
         };
         private _animations;
         /**

@@ -1,4 +1,4 @@
-/*! excalibur - v0.5.0 - 2015-06-11
+/*! excalibur - v0.5.0 - 2015-06-26
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2015 ; Licensed BSD*/
 if (typeof window === 'undefined') {
@@ -3107,6 +3107,31 @@ var ex;
                         this.left.dy = -Math.abs(this.left.dy);
                     }
                 }
+                else {
+                    // Cancel velocities along intersection
+                    if (this.intersect.x !== 0) {
+                        if (this.left.dx <= 0 && this.right.dx <= 0) {
+                            this.left.dx = Math.max(this.left.dx, this.right.dx);
+                        }
+                        else if (this.left.dx >= 0 && this.right.dx >= 0) {
+                            this.left.dx = Math.min(this.left.dx, this.right.dx);
+                        }
+                        else {
+                            this.left.dx = 0;
+                        }
+                    }
+                    if (this.intersect.y !== 0) {
+                        if (this.left.dy <= 0 && this.right.dy <= 0) {
+                            this.left.dy = Math.max(this.left.dy, this.right.dy);
+                        }
+                        else if (this.left.dy >= 0 && this.right.dy >= 0) {
+                            this.left.dy = Math.min(this.left.dy, this.right.dy);
+                        }
+                        else {
+                            this.left.dy = 0;
+                        }
+                    }
+                }
             }
             var rightSide = ex.Util.getOppositeSide(this.side);
             var rightIntersect = this.intersect.scale(-1.0);
@@ -3126,6 +3151,31 @@ var ex;
                     }
                     else if (rightSide === 2 /* Bottom */) {
                         this.right.dy = -Math.abs(this.right.dy);
+                    }
+                }
+                else {
+                    // Cancel velocities along intersection
+                    if (rightIntersect.x !== 0) {
+                        if (this.right.dx <= 0 && this.left.dx <= 0) {
+                            this.right.dx = Math.max(this.left.dx, this.right.dx);
+                        }
+                        else if (this.left.dx >= 0 && this.right.dx >= 0) {
+                            this.right.dx = Math.min(this.left.dx, this.right.dx);
+                        }
+                        else {
+                            this.right.dx = 0;
+                        }
+                    }
+                    if (rightIntersect.y !== 0) {
+                        if (this.right.dy <= 0 && this.left.dy <= 0) {
+                            this.right.dy = Math.max(this.left.dy, this.right.dy);
+                        }
+                        else if (this.left.dy >= 0 && this.right.dy >= 0) {
+                            this.right.dy = Math.min(this.left.dy, this.right.dy);
+                        }
+                        else {
+                            this.right.dy = 0;
+                        }
                     }
                 }
             }
@@ -3801,8 +3851,8 @@ var ex;
                     if (!this._started) {
                         this._started = true;
                         this._start = this._actor.rotation;
-                        var distance1 = this._end - this._start;
-                        var distance2 = ex.Util.TwoPI - Math.abs(distance1);
+                        var distance1 = Math.abs(this._end - this._start);
+                        var distance2 = ex.Util.TwoPI - distance1;
                         if (distance1 > distance2) {
                             this._shortDistance = distance2;
                             this._longDistance = distance1;
@@ -5248,6 +5298,7 @@ var ex;
             for (i = 0, len = this._killQueue.length; i < len; i++) {
                 actorIndex = this.children.indexOf(this._killQueue[i]);
                 if (actorIndex > -1) {
+                    this._sortedDrawingTree.removeByComparable(this._killQueue[i]);
                     this.children.splice(actorIndex, 1);
                 }
             }
@@ -6376,8 +6427,8 @@ var ex;
          * @param angleRadians  The angle to rotate to in radians
          * @param duration          The time it should take the actor to complete the rotation in milliseconds
          */
-        Actor.prototype.rotateBy = function (angleRadians, duration) {
-            this.actionQueue.add(new ex.Internal.Actions.RotateBy(this, angleRadians, duration));
+        Actor.prototype.rotateBy = function (angleRadians, duration, rotationType) {
+            this.actionQueue.add(new ex.Internal.Actions.RotateBy(this, angleRadians, duration, rotationType));
             return this;
         };
         /**
