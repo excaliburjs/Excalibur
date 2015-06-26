@@ -594,6 +594,8 @@ declare module ex {
         height: number;
         effects: Effects.ISpriteEffect[];
         internalImage: HTMLImageElement;
+        naturalWidth: number;
+        naturalHeight: number;
         private _spriteCanvas;
         private _spriteCtx;
         private _pixelData;

@@ -1208,6 +1208,8 @@ var ex;
             this.height = 0;
             this.effects = [];
             this.internalImage = new Image();
+            this.naturalWidth = 0;
+            this.naturalHeight = 0;
             this._spriteCanvas = null;
             this._spriteCtx = null;
             this._pixelData = null;
@@ -1231,6 +1233,8 @@ var ex;
             });
             this.width = swidth;
             this.height = sheight;
+            this.naturalWidth = swidth;
+            this.naturalHeight = sheight;
         }
         Sprite.prototype._loadPixels = function () {
             if (this._texture.isLoaded() && !this._pixelsLoaded) {
@@ -1414,6 +1418,9 @@ var ex;
                 ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, -xpoint, -ypoint, this.swidth * this.scale.x, this.sheight * this.scale.y);
             }
             ctx.restore();
+            // calculating current dimensions
+            this.width = this.naturalWidth * this.scale.x;
+            this.height = this.naturalHeight * this.scale.y;
         };
         /**
          * Produces a copy of the current sprite
@@ -6094,9 +6101,14 @@ var ex;
         Actor.prototype.setDrawing = function (key) {
             key = key.toString();
             if (this.currentDrawing !== this.frames[key]) {
-                this.frames[key].reset();
+                if (this.frames[key] != null) {
+                    this.frames[key].reset();
+                    this.currentDrawing = this.frames[key];
+                }
+                else {
+                    ex.Logger.getInstance().error('the specified drawing key \'' + key + '\' does not exist');
+                }
             }
-            this.currentDrawing = this.frames[key];
         };
         Actor.prototype.addDrawing = function (args) {
             if (arguments.length === 2) {
@@ -9158,8 +9170,8 @@ var ex;
                 _this.image = new Image();
                 _this.image.addEventListener('load', function () {
                     _this._isLoaded = true;
-                    _this.width = _this._sprite.swidth = _this._sprite.width = _this.image.naturalWidth;
-                    _this.height = _this._sprite.sheight = _this._sprite.height = _this.image.naturalHeight;
+                    _this.width = _this._sprite.swidth = _this._sprite.naturalWidth = _this._sprite.width = _this.image.naturalWidth;
+                    _this.height = _this._sprite.sheight = _this._sprite.naturalHeight = _this._sprite.height = _this.image.naturalHeight;
                     _this.loaded.resolve(_this.image);
                     complete.resolve(_this.image);
                 });
