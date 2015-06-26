@@ -68,6 +68,9 @@ module ex {
       public effects: Effects.ISpriteEffect[] = [];
 
       public internalImage: HTMLImageElement = new Image();
+      public naturalWidth: number = 0;
+      public naturalHeight: number = 0;
+
       private _spriteCanvas: HTMLCanvasElement = null;
       private _spriteCtx: CanvasRenderingContext2D = null;
       private _pixelData: ImageData = null;
@@ -103,6 +106,8 @@ module ex {
          
          this.width = swidth;
          this.height = sheight;
+         this.naturalWidth = swidth;
+         this.naturalHeight = sheight;
       }
 
       private _loadPixels() {
@@ -306,7 +311,6 @@ module ex {
             this._applyEffects();
             this._dirtyEffect = false;
          }
-         
 
          ctx.save();
          var xpoint = (this.width * this.scale.x) * this.anchor.x;
@@ -334,6 +338,11 @@ module ex {
                this.sheight * this.scale.y);
          }
          ctx.restore();
+
+         // calculating current dimensions
+         this.width = this.naturalWidth * this.scale.x;
+         this.height = this.naturalHeight * this.scale.y;
+
       }
 
       /**
@@ -352,5 +361,6 @@ module ex {
          }
          return result;
       }
+
    }
 }
