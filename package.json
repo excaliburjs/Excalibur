@@ -32,6 +32,7 @@
     "grunt-contrib-concat": "0.1.2",
     "grunt-contrib-copy": "0.5.0",
     "grunt-contrib-watch": "0.6.1",
+    "grunt-coveralls": "^1.0.0",
     "grunt-jasmine-node-coverage": "^0.4.1",
     "grunt-minified": "0.0.6",
     "grunt-shell": "0.6.1",
