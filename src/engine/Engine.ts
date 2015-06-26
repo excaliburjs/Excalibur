@@ -394,6 +394,9 @@ module ex {
 
       private _logger: Logger; 
       private _isSmoothingEnabled: boolean = true;
+      
+      // this is a reference to the current requestAnimationFrame return value
+      private _requestId: number;
 
       // loading
       private _loader: ILoadable;
@@ -1016,24 +1019,29 @@ module ex {
                if (!game._hasStarted) {
                   return;
                }
-
-               window.requestAnimationFrame(mainloop);
-
-               // Get the time to calculate time-elapsed
-               var now = Date.now();
-               var elapsed = Math.floor(now - lastTime) || 1;
-               // Resolves issue #138 if the game has been paused, or blurred for 
-               // more than a 200 milliseconds, reset elapsed time to 1. This improves reliability 
-               // and provides more expected behavior when the engine comes back
-               // into focus
-               if(elapsed > 200) {
-                  elapsed = 1;
-               }
-               game._update(elapsed);
-               game._draw(elapsed);
-
-               lastTime = now;
-            })();
+               try {
+                  game._requestId = window.requestAnimationFrame(mainloop);
+   
+                  // Get the time to calculate time-elapsed
+                  var now = Date.now();
+                  var elapsed = Math.floor(now - lastTime) || 1;
+                  // Resolves issue #138 if the game has been paused, or blurred for 
+                  // more than a 200 milliseconds, reset elapsed time to 1. This improves reliability 
+                  // and provides more expected behavior when the engine comes back
+                  // into focus
+                  if(elapsed > 200) {
+                     elapsed = 1;
+                  }
+                  game._update(elapsed);
+                  game._draw(elapsed);
+   
+                  lastTime = now;
+               
+            } catch (e) {
+               window.cancelAnimationFrame(game._requestId);
+               throw e;
+            }
+         })();
             this._logger.debug('Game started');
             
          } else {
