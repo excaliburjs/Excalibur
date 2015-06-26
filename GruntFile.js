@@ -15,16 +15,18 @@ module.exports = function (grunt) {
       // Configure jasmine-node to run Jasmine specs
       //
       jasmine_node: {
-         specNameMatcher: "Spec", // load only specs containing specNameMatcher
-         projectRoot: "./src/spec",
-         requirejs: false,
-         forceExit: true,
-         jUnit: {
-            report: false,
-            savePath: "./dist/reports/jasmine/",
-            useDotNotation: true,
-            consolidate: true
-         }
+         options: {
+            specNameMatcher: "Spec", // load only specs containing specNameMatcher
+            specFolders: ["./src/spec"],
+            forceExit: true,
+            junitreport: {
+               report: false,
+               savePath: "./dist/reports/jasmine/",
+               useDotNotation: true,
+               consolidate: true
+            }
+         },
+         src: ["**/*.js"]
       },
 
       //
@@ -165,6 +167,15 @@ module.exports = function (grunt) {
             "src/engine/Traits/*.ts",
             "src/engine/Util/*.ts"
          ]
+      },
+      
+      coveralls: {
+         main: {
+            src: './coverage/lcov.info',
+            options: {
+               force: true
+            }
+         }
       }
    });
 
@@ -175,10 +186,11 @@ module.exports = function (grunt) {
    grunt.loadNpmTasks('grunt-minified');
    grunt.loadNpmTasks('grunt-contrib-concat');
    grunt.loadNpmTasks('grunt-contrib-copy');
-   grunt.loadNpmTasks('grunt-jasmine-node');
+   grunt.loadNpmTasks('grunt-jasmine-node-coverage');
    grunt.loadNpmTasks('grunt-tslint');
    grunt.loadNpmTasks('grunt-contrib-watch');
-
+   grunt.loadNpmTasks('grunt-coveralls');
+   
    //
    // Register available Grunt tasks
    //
@@ -190,7 +202,7 @@ module.exports = function (grunt) {
    grunt.registerTask('sample', ['shell:sample']);
 
    // Default task - compile, test, build dists
-   grunt.registerTask('default', ['tslint:src', 'tests', 'shell:tsc', 'minified', 'concat', 'copy', 'sample', 'shell:nuget']);
+   grunt.registerTask('default', ['tslint:src', 'tests', 'coveralls', 'shell:tsc', 'minified', 'concat', 'copy', 'sample', 'shell:nuget']);
 
    grunt.registerTask('compile', ['shell:tsc', 'minified', 'concat', 'copy', 'shell:nuget'])
 

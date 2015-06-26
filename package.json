@@ -13,8 +13,8 @@
     "url": "https://github.com/excaliburjs/Excalibur/issues"
   },
   "license": {
-      "type": "BSD-2-Clause",
-      "url": "https://github.com/excaliburjs/Excalibur/blob/master/LICENSE.md"
+    "type": "BSD-2-Clause",
+    "url": "https://github.com/excaliburjs/Excalibur/blob/master/LICENSE.md"
   },
   "keywords": [
     "excalibur",
@@ -24,19 +24,19 @@
     "javascript",
     "simple"
   ],
-  "scripts":{
+  "scripts": {
     "preinstall": "npm install -g typescript@1.4.1"
   },
-  "devDependencies": {    
-    "jasmine-node": "1.10.2",
-    "grunt": "0.4.2",
-    "grunt-shell": "0.6.1",
-    "grunt-minified": "0.0.6",
+  "devDependencies": {
+    "grunt": "0.4.5",
     "grunt-contrib-concat": "0.1.2",
-    "grunt-contrib-watch":"0.6.1",
     "grunt-contrib-copy": "0.5.0",
+    "grunt-contrib-watch": "0.6.1",
+    "grunt-jasmine-node-coverage": "^0.4.1",
+    "grunt-minified": "0.0.6",
+    "grunt-shell": "0.6.1",
     "grunt-tslint": "~2.3.0-beta",
-    "grunt-jasmine-node": "0.1.0",
+    "jasmine-node": "1.10.2",
     "travis-ci": "2.0.3"
   }
 }
