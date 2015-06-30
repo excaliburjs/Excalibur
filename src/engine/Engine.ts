@@ -1044,6 +1044,7 @@ module ex {
                
             } catch (e) {
                window.cancelAnimationFrame(game._requestId);
+               game.stop();
                game.onFatalException(e);
             }
          })();
