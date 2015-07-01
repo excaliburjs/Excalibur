@@ -919,11 +919,19 @@ describe("A game actor", () => {
 	
 	it('changes opacity on color', () => {
 		actor.color = ex.Color.Black.clone();
+		expect(actor.color.a).toBe(1);
+		expect(actor.color.r).toBe(0);
+		expect(actor.color.g).toBe(0);
+		expect(actor.color.b).toBe(0);
+		
 		expect(actor.opacity).toBe(1.0);
 		actor.opacity = .5;
 		
 		actor.update(engine, 100);
 		expect(actor.color.a).toBe(.5);
+		expect(actor.color.r).toBe(0);
+		expect(actor.color.g).toBe(0);
+		expect(actor.color.b).toBe(0);
 	});
    
    it('can detect containment off of child actors', () => {
