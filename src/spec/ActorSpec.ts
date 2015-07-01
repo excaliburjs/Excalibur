@@ -916,6 +916,15 @@ describe("A game actor", () => {
       expect(actor.draw).not.toHaveBeenCalled();
 
    });
+	
+	it('changes opacity on color', () => {
+		actor.color = ex.Color.Black.clone();
+		expect(actor.opacity).toBe(1.0);
+		actor.opacity = .5;
+		
+		actor.update(engine, 100);
+		expect(actor.color.a).toBe(.5);
+	});
    
    it('can detect containment off of child actors', () => {
 	  var parent = new ex.Actor(600, 100, 100, 100);
