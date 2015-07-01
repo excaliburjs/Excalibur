@@ -992,5 +992,23 @@ describe("A game actor", () => {
 	  expect(fixed.y).toBe(50);
 	  
    });
+	
+	it('is drawn when visible', () => {
+		actor.visible = true;
+		
+		scene.add(actor);
+		scene.draw(engine.ctx, 100);
+		
+		expect(actor.draw).toHaveBeenCalled();				
+	});
+	
+	it('is not drawn when not visible', () => {
+		actor.visible = false;
+		
+		scene.add(actor);
+		scene.draw(engine.ctx, 100);
+		
+		expect(actor.draw).not.toHaveBeenCalled();				
+	});
 
 });
