@@ -9,6 +9,13 @@ if (typeof window !== 'undefined' && !window.requestAnimationFrame) {
    function (callback) { window.setInterval(callback, 1000 / 60); };
 }
 
+if (typeof window !== 'undefined' && !window.cancelAnimationFrame) {
+   (<any>window).cancelAnimationFrame =
+   (<any>window).webkitCancelAnimationFrame ||
+   (<any>window).mozCancelAnimationFrame ||
+   function (callback) { return; };
+}
+
 if (typeof window !== 'undefined' && !(<any>window).AudioContext) {
    (<any>window).AudioContext = (<any>window).AudioContext || 
                                 (<any>window).webkitAudioContext || 
