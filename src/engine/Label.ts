@@ -201,7 +201,7 @@ module ex {
       private _shadowSprites: { [key: string]: Sprite; } = {};
 
       private _color: Color = Color.Black.clone();
-
+      
       /**
        * @param text        The text of the label
        * @param x           The x position of the label
@@ -302,12 +302,15 @@ module ex {
       public update(engine: Engine, delta: number) {
          super.update(engine, delta);
 
-         if (this.spriteFont && this._color !== this.color) {
+         if (this.spriteFont && (this._color !== this.color || this.previousOpacity !== this.opacity)) {
             for (var character in this._textSprites) {
                this._textSprites[character].clearEffects();
-               this._textSprites[character].addEffect(new Effects.Fill(this.color.clone()));
-               this._color = this.color;
+               this._textSprites[character].fill(this.color.clone());
+               this._textSprites[character].opacity(this.opacity);
+               
             }
+            this._color = this.color;
+            this.previousOpacity = this.opacity;
          }
 
          if (this.spriteFont && this._textShadowOn && this._shadowColorDirty && this._shadowColor) {
@@ -351,20 +354,12 @@ module ex {
                }
                try {
                   var charSprite = sprites[character];
-                  if (this.previousOpacity !== this.opacity) {
-                     charSprite.clearEffects();
-                     charSprite.addEffect(new ex.Effects.Opacity(this.opacity));
-                  }
                   charSprite.draw(ctx, currX, 0);
                   currX += (charSprite.swidth + this.letterSpacing);
                } catch (e) {
                   Logger.getInstance().error('SpriteFont Error drawing char ' + character);
                }
             }
-            if (this.previousOpacity !== this.opacity) {
-               this.previousOpacity = this.opacity;
-            }
-            //this.spriteFont.draw(ctx, 0, 0, this.text, color, this.letterSpacing);
          } else {
             var oldAlign = ctx.textAlign;
             var oldTextBaseline = ctx.textBaseline;
