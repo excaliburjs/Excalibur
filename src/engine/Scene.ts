@@ -346,7 +346,7 @@ module ex {
          // todo possibly enable this with excalibur flags features?
          //this._collisionResolver.debugDraw(ctx, 20);
 
-         //this.camera.debugDraw(ctx);
+         this.camera.debugDraw(ctx);
       }
 
       /**

@@ -81,10 +81,10 @@ module ex {
       private _elapsedZoomTime: number = 0;
       private _zoomIncrement: number = 0.01;
 
-      
+
 
       private _easeInOutCubic(currentTime: number, startValue: number, endValue: number, duration: number) {
-         
+
          endValue = (endValue - startValue);
          currentTime /= duration / 2;
          if (currentTime < 1) { return endValue / 2 * currentTime * currentTime * currentTime + startValue; }
@@ -161,7 +161,7 @@ module ex {
                this._setCurrentZoomScale(this._maxZoomScale);
             }
          } else {
-            if(!duration) {
+            if (!duration) {
                this._isZooming = false;
                this._setCurrentZoomScale(this._maxZoomScale);
             }
@@ -191,29 +191,32 @@ module ex {
 
          var canvasWidth = ctx.canvas.width;
          var canvasHeight = ctx.canvas.height;
-         var newCanvasWidth = canvasWidth * this.getZoom();
-         var newCanvasHeight = canvasHeight * this.getZoom();
+
+         // if zoom is 2x then canvas is 1/2 as high
+         // if zoom is .5x then canvas is 2x as high
+         var newCanvasWidth = canvasWidth / this.getZoom();
+         var newCanvasHeight = canvasHeight / this.getZoom();
 
          if (this._lerp) {
             if (this._currentLerpTime < this._lerpDuration && this._cameraMoving) {
-               
+
                if (this._lerpEnd.x < this._lerpStart.x) {
                   this._focus.x = this._lerpStart.x - (this._easeInOutCubic(this._currentLerpTime,
-                   this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x); 
+                     this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
                } else {
-                  this._focus.x = this._easeInOutCubic(this._currentLerpTime, 
-                  this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
+                  this._focus.x = this._easeInOutCubic(this._currentLerpTime,
+                     this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
                }
 
                if (this._lerpEnd.y < this._lerpStart.y) {
-                  this._focus.y = this._lerpStart.y - (this._easeInOutCubic(this._currentLerpTime, 
-                  this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
+                  this._focus.y = this._lerpStart.y - (this._easeInOutCubic(this._currentLerpTime,
+                     this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
                } else {
-                  this._focus.y = this._easeInOutCubic(this._currentLerpTime, 
-                  this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);                  
+                  this._focus.y = this._easeInOutCubic(this._currentLerpTime,
+                     this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
                }
                this._currentLerpTime += delta;
-            } else {               
+            } else {
                this._lerpStart = null;
                this._lerpEnd = null;
                this._currentLerpTime = 0;
@@ -222,18 +225,16 @@ module ex {
          }
 
          if (this._isDoneShaking()) {
-               this._isShaking = false;
-               this._elapsedShakeTime = 0;
-               this._shakeMagnitudeX = 0;
-               this._shakeMagnitudeY = 0;
-               this._shakeDuration = 0;
-            } else {
-               this._elapsedShakeTime += delta;
-               xShake = (Math.random() * this._shakeMagnitudeX | 0) + 1;
-               yShake = (Math.random() * this._shakeMagnitudeY | 0) + 1;
-            }
-
-         ctx.translate(-focus.x + xShake + (newCanvasWidth / 2), -focus.y + yShake + (newCanvasHeight / 2));
+            this._isShaking = false;
+            this._elapsedShakeTime = 0;
+            this._shakeMagnitudeX = 0;
+            this._shakeMagnitudeY = 0;
+            this._shakeDuration = 0;
+         } else {
+            this._elapsedShakeTime += delta;
+            xShake = (Math.random() * this._shakeMagnitudeX | 0) + 1;
+            yShake = (Math.random() * this._shakeMagnitudeY | 0) + 1;
+         }
 
          if (this._isDoneZooming()) {
             this._isZooming = false;
@@ -248,15 +249,24 @@ module ex {
          }
 
          ctx.scale(this.getZoom(), this.getZoom());
+         ctx.translate(-focus.x + newCanvasWidth / 2 + xShake, -focus.y + newCanvasHeight / 2 + yShake);
+
       }
 
       public debugDraw(ctx: CanvasRenderingContext2D) {
          var focus = this.getFocus();
          ctx.fillStyle = 'red';
+         ctx.strokeStyle = 'white';
+         ctx.lineWidth = 3;
          ctx.beginPath();
          ctx.arc(focus.x, focus.y, 15, 0, Math.PI * 2);
          ctx.closePath();
-         ctx.fill();
+         ctx.stroke();
+
+         ctx.beginPath();
+         ctx.arc(focus.x, focus.y, 5, 0, Math.PI * 2);
+         ctx.closePath();
+         ctx.stroke();
       }
 
       private _isDoneShaking(): boolean {
@@ -282,7 +292,7 @@ module ex {
     * Common usages: platformers.
     */
    export class SideCamera extends BaseCamera {
-            
+
       public getFocus() {
          if (this._follow) {
             return new Point(this._follow.x + this._follow.getWidth() / 2, this._focus.y);
@@ -300,7 +310,7 @@ module ex {
     * Common usages: RPGs, adventure games, top-down games.
     */
    export class LockedCamera extends BaseCamera {
-      
+
       public getFocus() {
          if (this._follow) {
             return new Point(this._follow.x + this._follow.getWidth() / 2, this._follow.y + this._follow.getHeight() / 2);
