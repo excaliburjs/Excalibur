@@ -5,10 +5,19 @@ var game = new ex.Engine({
    height: 400,
    canvasElementId: 'game'
 });
+game.setAntialiasing(false);
+
+var raptorTex = new ex.Texture('raptor.png');
+var raptorSheet = new ex.SpriteSheet(raptorTex, 8, 1, 64, 64);
+var raptorAnim = raptorSheet.getAnimationForAll(game, 100);
+raptorAnim.scale.setTo(2, 2);
+raptorAnim.loop = true;
+
 
 game.isDebug = true;
 
-var target = new ex.Actor(game.width / 2, game.height / 2, 100, 100, ex.Color.Red.clone());
+var target = new ex.Actor(game.width / 2, game.height / 2, 64*2, 64*2, ex.Color.Red.clone());
+target.addDrawing("default", raptorAnim);
 
 var currentZoom = 1.0;
 
@@ -52,4 +61,4 @@ game.input.keyboard.on('down', (ev: ex.Input.KeyEvent) => {
 });
 
 
-game.start();
+game.start(raptorTex);

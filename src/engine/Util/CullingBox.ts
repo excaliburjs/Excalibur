@@ -14,6 +14,11 @@ module ex {
       private _xMax: number;
       private _yMax: number;
 
+      private _xMinWorld: number;
+      private _yMinWorld: number;
+      private _xMaxWorld: number;
+      private _yMaxWorld: number;
+
       public isSpriteOffScreen(actor: Actor, engine: Engine): boolean {
          var drawingWidth = actor.currentDrawing.width * actor.currentDrawing.scale.x;
          var drawingHeight = actor.currentDrawing.height * actor.currentDrawing.scale.y;
@@ -53,6 +58,13 @@ module ex {
          this._xMax = Math.max.apply(null, this._xCoords);
          this._yMax = Math.max.apply(null, this._yCoords);
 
+         var minWorld = engine.screenToWorldCoordinates(new ex.Point(this._xMin, this._yMin));
+         var maxWorld = engine.screenToWorldCoordinates(new ex.Point(this._xMax, this._yMax));
+         this._xMinWorld = minWorld.x;
+         this._yMinWorld = minWorld.y;
+         this._xMaxWorld = maxWorld.x;
+         this._yMaxWorld = maxWorld.y;
+
          var boundingPoints = new Array<Point>();
          boundingPoints.push(new Point(this._xMin, this._yMin), 
                              new Point(this._xMax, this._yMin), 
@@ -62,8 +74,8 @@ module ex {
          for (var i = 0; i < boundingPoints.length; i++) {
             if (boundingPoints[i].x > 0 &&
                boundingPoints[i].y > 0 &&
-               boundingPoints[i].x < engine.width &&
-               boundingPoints[i].y < engine.height) {
+               boundingPoints[i].x < engine.canvas.clientWidth &&
+               boundingPoints[i].y < engine.canvas.clientHeight) {
                return false;
             }
          }
@@ -75,7 +87,7 @@ module ex {
          // bounding rectangle
          ctx.beginPath();
          ctx.strokeStyle = Color.White.toString();
-         ctx.rect(this._xMin, this._yMin, this._xMax - this._xMin, this._yMax - this._yMin);
+         ctx.rect(this._xMinWorld, this._yMinWorld, this._xMaxWorld - this._xMinWorld, this._yMaxWorld - this._yMinWorld);
          ctx.stroke();
 
          ctx.fillStyle = Color.Red.toString();

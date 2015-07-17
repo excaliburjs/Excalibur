@@ -3,8 +3,15 @@ var game = new ex.Engine({
     height: 400,
     canvasElementId: 'game'
 });
+game.setAntialiasing(false);
+var raptorTex = new ex.Texture('raptor.png');
+var raptorSheet = new ex.SpriteSheet(raptorTex, 8, 1, 64, 64);
+var raptorAnim = raptorSheet.getAnimationForAll(game, 100);
+raptorAnim.scale.setTo(2, 2);
+raptorAnim.loop = true;
 game.isDebug = true;
-var target = new ex.Actor(game.width / 2, game.height / 2, 100, 100, ex.Color.Red.clone());
+var target = new ex.Actor(game.width / 2, game.height / 2, 64 * 2, 64 * 2, ex.Color.Red.clone());
+target.addDrawing("default", raptorAnim);
 var currentZoom = 1.0;
 document.addEventListener('mousedown', function (ev) {
     console.log(game.screenToWorldCoordinates(new ex.Point(ev.offsetX, ev.offsetY)));
@@ -24,18 +31,18 @@ game.input.keyboard.on('down', function (ev) {
         game.currentScene.camera.zoom(currentZoom -= .03);
     }
     var currentFocus = game.currentScene.camera.getFocus();
-    if (ev.key == ex.Input.Keys.Left) {
+    if (ev.key == 37 /* Left */) {
         game.currentScene.camera.setFocus(currentFocus.x - 10, currentFocus.y);
     }
-    if (ev.key == ex.Input.Keys.Right) {
+    if (ev.key == 39 /* Right */) {
         game.currentScene.camera.setFocus(currentFocus.x + 10, currentFocus.y);
     }
-    if (ev.key == ex.Input.Keys.Up) {
+    if (ev.key == 38 /* Up */) {
         game.currentScene.camera.setFocus(currentFocus.x, currentFocus.y - 10);
     }
-    if (ev.key == ex.Input.Keys.Down) {
+    if (ev.key == 40 /* Down */) {
         game.currentScene.camera.setFocus(currentFocus.x, currentFocus.y + 10);
     }
 });
-game.start();
+game.start(raptorTex);
 //# sourceMappingURL=zoom.js.map
