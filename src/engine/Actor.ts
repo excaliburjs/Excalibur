@@ -1053,10 +1053,15 @@ module ex {
        var eventDispatcher = this.eventDispatcher;
        // Update action queue
        this.actionQueue.update(delta);
+       // Update color only opacity
+       if (this.color) {
+          this.color.a = this.opacity;
+       }       
        // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
        for (var i = 0; i < this.traits.length; i++) {
           this.traits[i].update(this, engine, delta);
        }
+       
        eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
     }
     /**

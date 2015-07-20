@@ -19,6 +19,7 @@ module.exports = function (grunt) {
             specNameMatcher: "Spec", // load only specs containing specNameMatcher
             specFolders: ["./src/spec"],
             forceExit: true,
+            showColors: true,
             junitreport: {
                report: false,
                savePath: "./dist/reports/jasmine/",
