@@ -1,4 +1,4 @@
-/*! excalibur - v0.5.1 - 2015-06-26
+/*! excalibur - v0.5.1 - 2015-07-13
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2015 ; Licensed BSD-2-Clause*/
 if (typeof window === 'undefined') {
@@ -6602,6 +6602,10 @@ var ex;
             var eventDispatcher = this.eventDispatcher;
             // Update action queue
             this.actionQueue.update(delta);
+            // Update color only opacity
+            if (this.color) {
+                this.color.a = this.opacity;
+            }
             for (var i = 0; i < this.traits.length; i++) {
                 this.traits[i].update(this, engine, delta);
             }
