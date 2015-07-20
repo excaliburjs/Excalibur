@@ -66,15 +66,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="web.config" />
-    <None Include="web.Debug.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
-    <None Include="web.Release.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
     <TypeScriptCompile Include="ActorSpec.ts" />
     <TypeScriptCompile Include="BoundingBoxSpec.ts" />
+    <TypeScriptCompile Include="LabelSpec.ts" />
     <TypeScriptCompile Include="SortedListSpec.ts" />
     <TypeScriptCompile Include="CameraSpec.ts" />
     <None Include="chutzpah.json" />
@@ -91,6 +85,7 @@
     <TypeScriptCompile Include="PromiseSpec.ts" />
     <TypeScriptCompile Include="require.d.ts" />
     <TypeScriptCompile Include="TimerSpec.ts" />
+    <TypeScriptCompile Include="UIActorSpec.ts" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptOutFile>TestsSpec.js</TypeScriptOutFile>
