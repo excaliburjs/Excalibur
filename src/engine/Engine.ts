@@ -779,19 +779,27 @@ module ex {
        * @param point  Screen coordinate to convert
        */
       public screenToWorldCoordinates(point: Point): Point {
-         // todo set these back this.canvas.clientWidth
+         
          var newX = point.x;
          var newY = point.y;
 
-         if(this.currentScene && this.currentScene.camera) {
+         // transform back to world space
+         newX = (newX / this.canvas.clientWidth) * this.getWidth();
+         newY = (newY / this.canvas.clientHeight) * this.getHeight();
+         
+         
+         // transform based on zoom
+         newX = newX - this.getWidth() / 2;
+         newY = newY - this.getHeight() / 2;
+
+         // shift by focus
+         if (this.currentScene && this.currentScene.camera) {
             var focus = this.currentScene.camera.getFocus();
-            newX = focus.x + (point.x - (this.getWidth() / 2));
-            newY = focus.y + (point.y - (this.getHeight() / 2));
+            newX += focus.x;
+            newY += focus.y;
          }
 
-         newX = Math.floor((newX / this.canvas.clientWidth) * this.getWidth());
-         newY = Math.floor((newY / this.canvas.clientHeight) * this.getHeight());
-         return new Point(newX, newY);
+         return new Point(Math.floor(newX), Math.floor(newY));
       }
 
       /**
@@ -799,22 +807,26 @@ module ex {
        * @param point  World coordinate to convert
        */
       public worldToScreenCoordinates(point: Point): Point {
-         // todo set these back this.canvas.clientWidth
-         // this isn't correct on zoom
+         
          var screenX = point.x;
          var screenY = point.y;
 
-         if(this.currentScene && this.currentScene.camera) {
+         // shift by focus
+         if (this.currentScene && this.currentScene.camera) {
             var focus = this.currentScene.camera.getFocus();
-            
-            screenX = (point.x - focus.x) + (this.getWidth() / 2);
-            screenY = (point.y - focus.y) + (this.getHeight() / 2);
+            screenX -= focus.x;
+            screenY -= focus.y;
          }
 
-         screenX = Math.floor((screenX / this.getWidth()) * this.canvas.clientWidth);
-         screenY = Math.floor((screenY / this.getHeight()) * this.canvas.clientHeight);
+         // transfrom back on zoom
+         screenX = screenX + this.getWidth() / 2;
+         screenY = screenY + this.getHeight() / 2;
 
-         return new Point(screenX, screenY);
+         // transform back to screen space
+         screenX = (screenX * this.canvas.clientWidth) / this.getWidth();
+         screenY = (screenY * this.canvas.clientHeight) / this.getHeight();
+
+         return new Point(Math.floor(screenX), Math.floor(screenY));
       }
 
       /**

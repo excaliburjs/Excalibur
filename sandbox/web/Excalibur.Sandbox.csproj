@@ -82,6 +82,8 @@
     <Content Include="tests\input\index.html" />
     <Content Include="tests\rotation\rotation.html" />
     <Content Include="tests\scene\lifecycle.html" />
+    <Content Include="tests\zoom\raptor.png" />
+    <Content Include="tests\zoom\zoom.html" />
     <Content Include="tests\spritefont\spritefont.html" />
     <Content Include="tests\spritefont\spritefont.png" />
   </ItemGroup>
@@ -110,6 +112,7 @@
     <TypeScriptCompile Include="tests\input\index.ts" />
     <TypeScriptCompile Include="tests\rotation\rotation.ts" />
     <TypeScriptCompile Include="tests\scene\lifecycle.ts" />
+    <TypeScriptCompile Include="tests\zoom\zoom.ts" />
     <TypeScriptCompile Include="tests\spritefont\spritefont.ts" />
   </ItemGroup>
   <ItemGroup>
