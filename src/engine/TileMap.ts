@@ -258,7 +258,7 @@ module ex {
 
     public update(engine: Engine, delta: number) {
        var worldCoordsUpperLeft = engine.screenToWorldCoordinates(new Point(0, 0));
-       var worldCoordsLowerRight = engine.screenToWorldCoordinates(new Point(engine.width, engine.height));
+       var worldCoordsLowerRight = engine.screenToWorldCoordinates(new Point(engine.canvas.clientWidth, engine.canvas.clientHeight));
        
        this._onScreenXStart = Math.max(Math.floor(worldCoordsUpperLeft.x / this.cellWidth) - 2, 0);
        this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);
