@@ -66,6 +66,7 @@
   <ItemGroup>
     <Content Include="Excalibur.js" />
     <Content Include="html\healthbar.tmpl" />
+    <Content Include="images\heart.png" />
     <Content Include="index.html" />
     <Content Include="tests\audio\index.html" />
     <Content Include="tests\audio\loop.mp3" />
@@ -83,6 +84,8 @@
     <Content Include="tests\scene\lifecycle.html" />
     <Content Include="tests\zoom\raptor.png" />
     <Content Include="tests\zoom\zoom.html" />
+    <Content Include="tests\spritefont\spritefont.html" />
+    <Content Include="tests\spritefont\spritefont.png" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="html\index.html" />
@@ -110,6 +113,7 @@
     <TypeScriptCompile Include="tests\rotation\rotation.ts" />
     <TypeScriptCompile Include="tests\scene\lifecycle.ts" />
     <TypeScriptCompile Include="tests\zoom\zoom.ts" />
+    <TypeScriptCompile Include="tests\spritefont\spritefont.ts" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
