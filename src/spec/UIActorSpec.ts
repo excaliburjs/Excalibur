@@ -41,7 +41,7 @@ describe('A UIActor', () => {
                width: 100,
                height: 100
             },
-            save: function() { /*do nothing*/},
+            save: function() { /*do nothing*/ },
             restore: function() { /*do nothing*/ },
             translate: function() { /*do nothing*/ },
             rotate: function() { /*do nothing*/ },
