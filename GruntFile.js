@@ -171,7 +171,8 @@ module.exports = function (grunt) {
             "src/spec/UIActorSpec.ts",
             "src/spec/TimerSpec.ts", 
             "src/spec/PromiseSpec.ts", 
-            "src/spec/MathSpec.ts"
+            "src/spec/MathSpec.ts", 
+            "src/spec/LabelSpec.ts"
          ]
       },
       
