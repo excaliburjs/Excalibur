@@ -177,7 +177,8 @@ module.exports = function (grunt) {
             "src/spec/EventSpec.ts",
             "src/spec/ColorSpec.ts", 
             "src/spec/GroupSpec.ts", 
-            "src/spec/CollectionSpec.ts"
+            "src/spec/CollectionSpec.ts", 
+            "src/spec/BoundingBoxSpec.ts"
          ]
       },
       
