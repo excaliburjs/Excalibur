@@ -175,7 +175,8 @@ module.exports = function (grunt) {
             "src/spec/LabelSpec.ts", 
             "src/spec/LogSpec.ts", 
             "src/spec/EventSpec.ts",
-            "src/spec/ColorSpec.ts"
+            "src/spec/ColorSpec.ts", 
+            "src/spec/GroupSpec.ts"
          ]
       },
       
