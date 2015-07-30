@@ -174,7 +174,8 @@ module.exports = function (grunt) {
             "src/spec/MathSpec.ts", 
             "src/spec/LabelSpec.ts", 
             "src/spec/LogSpec.ts", 
-            "src/spec/EventSpec.ts"
+            "src/spec/EventSpec.ts",
+            "src/spec/ColorSpec.ts"
          ]
       },
       
