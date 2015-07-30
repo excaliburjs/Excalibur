@@ -178,7 +178,8 @@ module.exports = function (grunt) {
             "src/spec/ColorSpec.ts", 
             "src/spec/GroupSpec.ts", 
             "src/spec/CollectionSpec.ts", 
-            "src/spec/BoundingBoxSpec.ts"
+            "src/spec/BoundingBoxSpec.ts", 
+            "src/spec/CameraSpec.ts"
          ]
       },
       
