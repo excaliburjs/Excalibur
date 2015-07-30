@@ -172,7 +172,8 @@ module.exports = function (grunt) {
             "src/spec/TimerSpec.ts", 
             "src/spec/PromiseSpec.ts", 
             "src/spec/MathSpec.ts", 
-            "src/spec/LabelSpec.ts"
+            "src/spec/LabelSpec.ts", 
+            "src/spec/LogSpec.ts"
          ]
       },
       
