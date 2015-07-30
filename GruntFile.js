@@ -167,7 +167,8 @@ module.exports = function (grunt) {
             "src/engine/Interfaces/*.ts",
             "src/engine/PostProcessing/*.ts",
             "src/engine/Traits/*.ts",
-            "src/engine/Util/*.ts"
+            "src/engine/Util/*.ts",
+            "src/spec/*.ts"
          ]
       },
       
