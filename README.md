@@ -28,7 +28,7 @@ Ask us anything in the [Excalibur.js mailing list](https://groups.google.com/for
 
 # Samples
 
-Compiled examples can be found [in the Excalibur Gallery](http://excaliburjs.com/gallery/home/).
+Compiled examples can be found [in the Excalibur Showcase](http://excaliburjs.com/showcase/).
 
 # Contributing
 
