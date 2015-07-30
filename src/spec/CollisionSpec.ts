@@ -2,12 +2,12 @@
 /// <reference path="../engine/Engine.ts" />
 
 
-describe('A Collision', ()=>{
+describe('A Collision', () => {
    var actor1 = null;
    var actor2 = null;
    var scene = null;
    var engine = null;
-   beforeEach(()=>{
+   beforeEach(() => {
 
       
       // mock engine    
@@ -24,18 +24,18 @@ describe('A Collision', ()=>{
          touchCancel: [],
          canvas: {
             width: 0,
-            height: 0,
+            height: 0
          },
-         getWidth: function(){return 0},
-         getHeight: function(){return 0},
+         getWidth: function () { return 0; },
+         getHeight: function () { return 0; },
          camera: {
-            getZoom: function(){return 1}
+            getZoom: function () { return 1; }
          },
          worldToScreenCoordinates: function(){
-            return new ex.Point(0,0);
+            return new ex.Point(0, 0);
          },
          screenToWorldCoordinates: function(){
-            return new ex.Point(0,0);
+            return new ex.Point(0, 0);
          }
       };
       scene = new ex.Scene(engine);
@@ -47,23 +47,21 @@ describe('A Collision', ()=>{
       scene.add(actor2);
    });
 
-   it('should throw one event for each actor participating', ()=>{
+   it('should throw one event for each actor participating', () => {
       var numCollisions = 0;
-      actor1.on('collision', (e: ex.CollisionEvent)=>{
+      actor1.on('collision', (e: ex.CollisionEvent) => {
          e.other.kill();
          numCollisions++;
       });
 
-      actor2.on('collision', (e: ex.CollisionEvent)=>{         
+      actor2.on('collision', (e: ex.CollisionEvent) => {         
          numCollisions++;
       });
-      scene.update(engine, 20)
-      scene.update(engine, 20)
-      scene.update(engine, 20)
-      scene.update(engine, 20)
-
+      scene.update(engine, 20);
+      scene.update(engine, 20);
+      scene.update(engine, 20);
+      scene.update(engine, 20);
       expect(numCollisions).toBe(2);
-
    });
 
 });
