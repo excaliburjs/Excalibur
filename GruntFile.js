@@ -182,7 +182,8 @@ module.exports = function (grunt) {
             "src/spec/CameraSpec.ts", 
             "src/spec/ClassSpec.ts", 
             "src/spec/CollisionGroupSpec.ts", 
-            "src/spec/CollisionSpec.ts"
+            "src/spec/CollisionSpec.ts", 
+            "src/spec/SortedListSpec.ts"
          ]
       },
       
