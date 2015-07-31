@@ -184,7 +184,11 @@ module.exports = function (grunt) {
             "src/spec/CollisionGroupSpec.ts", 
             "src/spec/CollisionSpec.ts", 
             "src/spec/SortedListSpec.ts", 
-            "src/spec/ActorSpec.ts"
+            "src/spec/ActorSpec.ts",
+            
+            // exclusions
+            "!src/spec/jasmine.d.ts"
+            "!src/spec/require.d.ts"
          ]
       },
       
