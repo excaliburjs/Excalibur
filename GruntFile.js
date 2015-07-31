@@ -168,26 +168,10 @@ module.exports = function (grunt) {
             "src/engine/PostProcessing/*.ts",
             "src/engine/Traits/*.ts",
             "src/engine/Util/*.ts",
-            "src/spec/UIActorSpec.ts",
-            "src/spec/TimerSpec.ts", 
-            "src/spec/PromiseSpec.ts", 
-            "src/spec/MathSpec.ts", 
-            "src/spec/LabelSpec.ts", 
-            "src/spec/LogSpec.ts", 
-            "src/spec/EventSpec.ts",
-            "src/spec/ColorSpec.ts", 
-            "src/spec/GroupSpec.ts", 
-            "src/spec/CollectionSpec.ts", 
-            "src/spec/BoundingBoxSpec.ts", 
-            "src/spec/CameraSpec.ts", 
-            "src/spec/ClassSpec.ts", 
-            "src/spec/CollisionGroupSpec.ts", 
-            "src/spec/CollisionSpec.ts", 
-            "src/spec/SortedListSpec.ts", 
-            "src/spec/ActorSpec.ts",
+            "src/spec/*.ts",
             
             // exclusions
-            "!src/spec/jasmine.d.ts"
+            "!src/spec/jasmine.d.ts",
             "!src/spec/require.d.ts"
          ]
       },
