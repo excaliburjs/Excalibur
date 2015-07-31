@@ -18,6 +18,7 @@ module ex.Tests {
          beforeEach(() => {
             appender = new ConsoleAppender();
 
+            //TODO
             //if (Logger['_instance']) {
             //   Logger['_instance'] = null;
             //}
