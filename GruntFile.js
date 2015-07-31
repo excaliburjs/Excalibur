@@ -183,7 +183,8 @@ module.exports = function (grunt) {
             "src/spec/ClassSpec.ts", 
             "src/spec/CollisionGroupSpec.ts", 
             "src/spec/CollisionSpec.ts", 
-            "src/spec/SortedListSpec.ts"
+            "src/spec/SortedListSpec.ts", 
+            "src/spec/ActorSpec.ts"
          ]
       },
       
