@@ -168,6 +168,7 @@ module.exports = function (grunt) {
             "src/engine/PostProcessing/*.ts",
             "src/engine/Traits/*.ts",
             "src/engine/Util/*.ts",
+            "src/sandbox/web/*.ts",
             "src/spec/*.ts",
             
             // exclusions
