@@ -310,17 +310,25 @@ describe('A game actor', () => {
    it('can be rotated to an angle at a speed via CounterClockwise', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateTo(Math.PI / 2, Math.PI / 2, ex.RotationType.Clockwise);
-
+      actor.rotateTo(Math.PI / 2, Math.PI / 2, ex.RotationType.CounterClockwise);
       actor.update(engine, 2000);
-      expect(actor.rotation).toBe(Math.PI);
+      expect(actor.rotation).toBe(-Math.PI);
 
       actor.update(engine, 1000);
-      expect(actor.rotation).toBe(Math.PI / 2);
+      expect(actor.rotation).toBe(-3 * Math.PI / 2);
 
       actor.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 2);
       expect(actor.rx).toBe(0);
+
+      // rotating back to 0, starting at PI / 2
+      actor.rotateTo(0, Math.PI / 2, ex.RotationType.CounterClockwise);
+      actor.update(engine, 1000);
+      expect(actor.rotation).toBe(0);
+
+      actor.update(engine, 1);
+      expect(actor.rx).toBe(0);
+
    });
 
    // it('can be rotated to an angle by a certain time', () => {

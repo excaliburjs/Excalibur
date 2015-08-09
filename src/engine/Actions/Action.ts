@@ -411,7 +411,7 @@ module ex.Internal.Actions {
                   break;
                case RotationType.Clockwise:
                   this._direction = 1;
-                  if (this._shortDistance >= 0) {
+                  if (this._shortestPathIsPositive) {
                      this._distance = this._shortDistance;
                   } else {
                      this._distance = this._longDistance;
@@ -419,7 +419,7 @@ module ex.Internal.Actions {
                   break;
                case RotationType.CounterClockwise:
                   this._direction = -1;
-                  if (this._shortDistance <= 0) {
+                  if (!this._shortestPathIsPositive) {
                      this._distance = this._shortDistance;
                   } else {
                      this._distance = this._longDistance;
