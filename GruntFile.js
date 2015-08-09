@@ -165,8 +165,15 @@ module.exports = function (grunt) {
             "src/engine/Drawing/*.ts",
             "src/engine/Input/*.ts",
             "src/engine/Interfaces/*.ts",
+            "src/engine/PostProcessing/*.ts",
             "src/engine/Traits/*.ts",
-            "src/engine/Util/*.ts"
+            "src/engine/Util/*.ts",
+            "src/sandbox/web/*.ts",
+            "src/spec/*.ts",
+            
+            // exclusions
+            "!src/spec/jasmine.d.ts",
+            "!src/spec/require.d.ts"
          ]
       },
       

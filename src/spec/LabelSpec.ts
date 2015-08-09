@@ -2,13 +2,13 @@
 /// <reference path="require.d.ts" />
 /// <reference path="../engine/Engine.ts" />
 
-describe("A label",() => {
+describe('A label', () => {
    var label: ex.Label;
    var engine;
    var scene; 
 
    beforeEach(() => {
-      label = new ex.Label("Test string", 10, 10);
+      label = new ex.Label('Test string', 10, 10);
       scene = new ex.Scene(engine);
 
       scene.add(label);
@@ -41,11 +41,11 @@ describe("A label",() => {
                width: 100,
                height: 100
             },
-            save: function () { },
-            restore: function () { },
-            translate: function () { },
-            rotate: function () { },
-            scale: function () { }
+            save: function () { /*do nothing*/ },
+            restore: function () { /*do nothing*/ },
+            translate: function () { /*do nothing*/ },
+            rotate: function () { /*do nothing*/ },
+            scale: function () { /*do nothing*/ }
          },
          getWidth: function () { return 100; },
          getHeight: function () { return 100; },
@@ -57,23 +57,23 @@ describe("A label",() => {
       };
    });
 
-   it("should be loaded", () => {
+   it('should be loaded', () => {
       expect(ex.Label).toBeTruthy();
    });
 
-   it("should be loaded", () => {
+   it('should be loaded', () => {
       expect(ex.Label).toBeTruthy();
    });
 
-   it("should have text", () => {
-      expect(label.text).toBe("Test string");
+   it('should have text', () => {
+      expect(label.text).toBe('Test string');
    });
 
-   it("should default to black", () => {
+   it('should default to black', () => {
       expect(label.color.toString()).toBe(ex.Color.Black.toString());
    });
 
-   it("can change color", () => {
+   it('can change color', () => {
       label.color = ex.Color.Blue.clone();
 
       expect(label.color.toString()).toBe(ex.Color.Blue.toString());

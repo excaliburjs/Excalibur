@@ -1,25 +1,25 @@
 ﻿/// <reference path="jasmine.d.ts" />
 /// <reference path="../engine/Engine.ts" /> 
 
-describe("An Actor Group",() => {
+describe('An Actor Group', () => {
    var group: ex.Group;
    var scene: ex.Scene;
    beforeEach(() => {
       scene = new ex.Scene();
-      group = new ex.Group("name", scene);
+      group = new ex.Group('name', scene);
    });
 
-   it("exists",() => {
+   it('exists', () => {
       expect(ex.Group).toBeDefined();
    });
 
-   it("can be created",() => {
+   it('can be created', () => {
       expect(group).toBeTruthy();
-      group = scene.createGroup("newname");
+      group = scene.createGroup('newname');
       expect(group).toBeTruthy();
    });
 
-   it("has members",() => {
+   it('has members', () => {
       group.add(new ex.Actor());
       expect(group.getMembers().length).toBe(1);
 
@@ -34,7 +34,7 @@ describe("An Actor Group",() => {
 
    });
 
-   it("members ares automatically add to the scene",() => {
+   it('members ares automatically add to the scene', () => {
       var actor = new ex.Actor();
 
       group.add(actor);
@@ -43,7 +43,7 @@ describe("An Actor Group",() => {
       expect(scene.contains(actor)).toBeTruthy();
    });
 
-   it("can remove members",() => {
+   it('can remove members', () => {
       var actor = new ex.Actor();
       group.add(actor);
       expect(group.contains(actor)).toBeTruthy();
@@ -53,7 +53,7 @@ describe("An Actor Group",() => {
       expect(scene.contains(actor)).toBeTruthy();
    });
 
-   it("can aggregate events across multiple actors",() => {
+   it('can aggregate events across multiple actors', () => {
       var eventCount = 0;
       // arrange
       var a1 = new ex.Actor();
@@ -63,7 +63,7 @@ describe("An Actor Group",() => {
       // act
       group.add([a1, a2, a3]);
 
-      group.on('someevent',() => {
+      group.on('someevent', () => {
          eventCount++;
       });
 
@@ -76,7 +76,7 @@ describe("An Actor Group",() => {
       expect(eventCount).toBe(3);
    });
 
-   it("can return the containing bounding box of all members",() => {
+   it('can return the containing bounding box of all members', () => {
       var a1 = new ex.Actor(0, 0, 100, 100);
       a1.anchor.setTo(0, 0);
       var a2 = new ex.Actor(100, 100, 200, 190);
@@ -89,7 +89,7 @@ describe("An Actor Group",() => {
 
    });
 
-   it("can get a random member",() => {
+   it('can get a random member', () => {
       // arrange
       var a1 = new ex.Actor();
       var a2 = new ex.Actor();
@@ -103,7 +103,7 @@ describe("An Actor Group",() => {
 
    });
 
-   it("can move many actors at once by a delta",() => {
+   it('can move many actors at once by a delta', () => {
       var a1 = new ex.Actor(0, 0, 100, 100);
       var a2 = new ex.Actor(100, 100, 200, 190);
 
@@ -117,7 +117,7 @@ describe("An Actor Group",() => {
       expect(a2.y).toBe(110);
    });
 
-   it("can rotate many actors at once by an angle",() => {
+   it('can rotate many actors at once by an angle', () => {
       var a1 = new ex.Actor(0, 0, 100, 100);
       a1.rotation = Math.PI / 3;
       var a2 = new ex.Actor(100, 100, 200, 190);

@@ -1,14 +1,14 @@
 /// <reference path="jasmine.d.ts" />
 /// <reference path="../engine/Collision/BoundingBox.ts" />
 
-describe("A Bounding Box", ()=>{
+describe('A Bounding Box', () => {
    // left, top, right, bottom
    var bb: ex.BoundingBox;
-   beforeEach(()=>{
+   beforeEach(() => {
       bb = new ex.BoundingBox(0, 0, 10, 10);
    });
 
-   it("has a width", ()=>{
+   it('has a width', () => {
       expect(bb.getWidth()).toBe(10);
       bb.right = 20;
       expect(bb.getWidth()).toBe(20);
@@ -18,7 +18,7 @@ describe("A Bounding Box", ()=>{
       expect(bb.getWidth()).toBe(40);
    });
 
-   it("has a height", ()=>{
+   it('has a height', () => {
       expect(bb.getHeight()).toBe(10);
       bb.right = 20;
       expect(bb.getHeight()).toBe(10);
@@ -28,13 +28,13 @@ describe("A Bounding Box", ()=>{
       expect(bb.getHeight()).toBe(40);
    });
 
-   it('can contain points', ()=>{
+   it('can contain points', () => {
       expect(bb.left).toBe(0);
       expect(bb.right).toBe(10);
       bb.right = 20;
       bb.bottom = 20;
 
-      expect(bb.contains(new ex.Point(10,10))).toBe(true);
+      expect(bb.contains(new ex.Point(10, 10))).toBe(true);
 
       expect(bb.contains(new ex.Point(0, 0))).toBe(true);
 
@@ -49,7 +49,7 @@ describe("A Bounding Box", ()=>{
       expect(bb.contains(new ex.Point(10, 20))).toBe(true);
    });
 
-   it('can collide with other bounding boxes', ()=>{
+   it('can collide with other bounding boxes', () => {
       var b2 = new ex.BoundingBox(2, 0, 20, 10);
       var b3 = new ex.BoundingBox(12, 0, 28, 10);
 
@@ -72,7 +72,7 @@ describe("A Bounding Box", ()=>{
 
    });
 
-   it('can combine with other bounding boxes',() => {
+   it('can combine with other bounding boxes', () => {
       var b2 = new ex.BoundingBox(2, 0, 20, 10);
       var b3 = new ex.BoundingBox(12, 0, 28, 10);
       var newBB = b2.combine(b3);

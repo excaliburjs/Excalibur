@@ -2,15 +2,14 @@
 /// <reference path="require.d.ts" />
 /// <reference path="../engine/Engine.ts" />
 
-describe("A Collision Group", ()=>{
+describe('A Collision Group', () => {
 
    var scene;
    var actor1;
    var actor2;
    var engine;
 
-   beforeEach(()=>{
-      
+   beforeEach(() => {
       actor1 = new ex.Actor(100, 100, 100, 100);
       actor2 = new ex.Actor(100, 100, 100, 100);
       // Setting actor collision types to passive otherwise they push each other around
@@ -34,18 +33,18 @@ describe("A Collision Group", ()=>{
          touchCancel: [],
          canvas: {
             width: 0,
-            height: 0,
+            height: 0
          },
          camera: {
-            getZoom: function(){return 1}
+            getZoom: function () { return 1; }
          },
-         getWidth: function(){return 0},
-         getHeight: function(){return 0},
+         getWidth: function () { return 0; },
+         getHeight: function () { return 0; },
          worldToScreenCoordinates: function(){
-            return new ex.Point(0,0);
+            return new ex.Point(0, 0);
          },
          screenToWorldCoordinates: function(){
-            return new ex.Point(0,0);
+            return new ex.Point(0, 0);
          }
       };
       scene = new ex.Scene(engine);

@@ -130,7 +130,7 @@ describe('A SortedList', () => {
       expect(results[0]).toBe(element2);
       expect(results[1]).toBe(element3);
 
-      var results = sortedList.get(1);
+      results = sortedList.get(1);
       expect(results[0]).toBe(element1);
    });
 
