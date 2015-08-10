@@ -1115,10 +1115,14 @@ module ex {
      */
     public debugDraw(ctx: CanvasRenderingContext2D) {
       
+       // Draw actor bounding box
        var bb = this.getBounds();
        bb.debugDraw(ctx);
+       
+       // Draw actor Id
        ctx.fillText('id: ' + this.id, bb.left + 3, bb.top + 10);
        
+       // Draw actor anchor point
        ctx.fillStyle = Color.Yellow.toString();
        ctx.beginPath();
        ctx.arc(this.getWorldX(), this.getWorldY(), 3, 0, Math.PI * 2);
@@ -1131,7 +1135,29 @@ module ex {
              (<Traits.OffscreenCulling>this.traits[j]).cullingBox.debugDraw(ctx);
           }
        }
-
+       
+       // Unit Circle debug draw
+       ctx.strokeStyle = Color.Yellow.toString();
+       ctx.beginPath();
+       var radius = Math.min(this.getWidth(), this.getHeight());
+       ctx.arc(this.getWorldX(), this.getWorldY(), radius, 0, Math.PI * 2);
+       ctx.closePath();
+       ctx.stroke();
+       var ticks = { '0 Pi': 0,
+                     'Pi/2': Math.PI / 2,
+                     'Pi': Math.PI,
+                     '3/2 Pi': 3 * Math.PI / 2 };
+       
+       var oldFont = ctx.font;
+       for (var tick in ticks) {
+          ctx.fillStyle = Color.Yellow.toString();
+          ctx.font = '14px';
+          ctx.textAlign = 'center';
+          ctx.fillText(tick, this.getWorldX() + Math.cos(ticks[tick]) * (radius + 10), 
+                             this.getWorldY() + Math.sin(ticks[tick]) * (radius + 10));
+       }
+       ctx.font = oldFont;
+       // Draw child actors
        ctx.save();
        ctx.translate(this.x, this.y);
        ctx.rotate(this.rotation);
