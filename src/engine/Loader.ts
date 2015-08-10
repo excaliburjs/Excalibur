@@ -200,7 +200,8 @@ module ex {
          }
 
          if(!this._selectedFile) {
-            this._logger.warn('This browser does not support any of the files specified');
+            this._logger.warn('This browser does not support any of the audio files specified:', paths.join(', '));
+            this._logger.warn('Attempting to use', paths[0]);
             this._selectedFile = paths[0]; // select the first specified
          }
 
