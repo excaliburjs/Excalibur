@@ -1,7 +1,5 @@
 /// <reference path="jasmine.d.ts" />
 /// <reference path="require.d.ts" />
-/// <reference path="../engine/Engine.ts" />
-
 
 describe('Excalibur Math', () => {
    it('can convert radians to degrees', () => {

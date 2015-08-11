@@ -1,5 +1,4 @@
 ﻿/// <reference path="jasmine.d.ts" />
-/// <reference path="../engine/Engine.ts" /> 
 
 describe('An Actor Group', () => {
    var group: ex.Group;

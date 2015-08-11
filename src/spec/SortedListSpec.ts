@@ -1,6 +1,5 @@
 ﻿/// <reference path="jasmine.d.ts" />
 /// <reference path="require.d.ts" />
-/// <reference path="../engine/Engine.ts" />
 /// <reference path="../engine/Util/SortedList.ts" />
 
 describe('A SortedList', () => {

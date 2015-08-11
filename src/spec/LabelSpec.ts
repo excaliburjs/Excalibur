@@ -1,6 +1,6 @@
 ﻿/// <reference path="jasmine.d.ts" />
 /// <reference path="require.d.ts" />
-/// <reference path="../engine/Engine.ts" />
+/// <reference path="Mocks.ts" />
 
 describe('A label', () => {
    var label: ex.Label;
