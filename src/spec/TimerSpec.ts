@@ -1,40 +1,15 @@
 /// <reference path="jasmine.d.ts" />
 /// <reference path="require.d.ts" />
-/// <reference path="../engine/Engine.ts" />
+/// <reference path="Mocks.ts" />
 
 describe('A Timer', () => {
    var timer;
    var scene;
    var engine;
+   var mock = new Mocks.Mocker();
+
    beforeEach(() => {
-      // mock engine    
-      engine = {
-         currentScene : scene,
-         keys: [],
-         clicks: [],
-         mouseDown: [],
-         mouseMove: [],
-         mouseUp: [],
-         touchStart: [],
-         touchMove: [],
-         touchEnd: [],
-         touchCancel: [],
-         canvas: {
-            width: 0,
-            height: 0
-         },
-         getWidth: function() { return 0; },
-         getHeight: function() { return 0; },
-         camera: {
-            getZoom: function() { return 1; }
-         },
-         worldToScreenCoordinates: function(){
-            return new ex.Point(0, 0);
-         },
-         screenToWorldCoordinates: function(){
-            return new ex.Point(0, 0);
-         }
-      };
+      engine = mock.engine(0, 0, scene);
       timer = new ex.Timer(function() { /*do nothing*/ }, 500);     
       scene = new ex.Scene(engine);
    });
