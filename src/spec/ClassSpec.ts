@@ -1,6 +1,5 @@
 /// <reference path="jasmine.d.ts" />
 /// <reference path="require.d.ts" />
-/// <reference path="../engine/Engine.ts" />
 
 describe('A Class', () => {
    it('can be extended indefinitely', () => {

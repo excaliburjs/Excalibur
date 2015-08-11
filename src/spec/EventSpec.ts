@@ -1,5 +1,4 @@
 ﻿/// <reference path="jasmine.d.ts" />
-/// <reference path="../engine/Engine.ts" />
 
 describe('An Event Dispatcher', () => {
    var pubsub: ex.EventDispatcher;
