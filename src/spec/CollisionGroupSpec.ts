@@ -1,6 +1,6 @@
 /// <reference path="jasmine.d.ts" />
 /// <reference path="require.d.ts" />
-/// <reference path="../engine/Engine.ts" />
+/// <reference path="Mocks.ts" />
 
 describe('A Collision Group', () => {
 
@@ -8,6 +8,7 @@ describe('A Collision Group', () => {
    var actor1;
    var actor2;
    var engine;
+   var mock = new Mocks.Mocker();
 
    beforeEach(() => {
       actor1 = new ex.Actor(100, 100, 100, 100);
@@ -18,35 +19,7 @@ describe('A Collision Group', () => {
       
       scene.addChild(actor1);
       scene.addChild(actor2);
-      // mock engine    
-      engine = {
-         collisionStrategy: 0,
-         currentScene : scene,
-         keys: [],
-         clicks: [],
-         mouseDown: [],
-         mouseMove: [],
-         mouseUp: [],
-         touchStart: [],
-         touchMove: [],
-         touchEnd: [],
-         touchCancel: [],
-         canvas: {
-            width: 0,
-            height: 0
-         },
-         camera: {
-            getZoom: function () { return 1; }
-         },
-         getWidth: function () { return 0; },
-         getHeight: function () { return 0; },
-         worldToScreenCoordinates: function(){
-            return new ex.Point(0, 0);
-         },
-         screenToWorldCoordinates: function(){
-            return new ex.Point(0, 0);
-         }
-      };
+      engine = mock.engine(0, 0, scene);
       scene = new ex.Scene(engine);
    });
 /*
