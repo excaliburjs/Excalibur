@@ -9,41 +9,13 @@ describe('A camera', () => {
    var actor;
    var engine;
    var scene;
+   var mock = new Mocks.Mocker();
 
    beforeEach(() => {
       actor = new ex.Actor();
-      
+
       // mock engine    
-      engine = {
-         collisionStrategy: 0,
-         currentScene : scene,
-         keys: [],
-         clicks: [],
-         mouseDown: [],
-         mouseMove: [],
-         mouseUp: [],
-         touchStart: [],
-         touchMove: [],
-         touchEnd: [],
-         touchCancel: [],
-         canvas: {
-            width: 0,
-            height: 0
-         },
-         getWidth: function () { return 0; },
-         getHeight: function () { return 0; },
-         camera: {
-            getZoom: function () { return 1; }
-         },
-         worldToScreenCoordinates: function(){
-            return new ex.Point(0, 0);
-         },
-         screenToWorldCoordinates: function(){
-            return new ex.Point(0, 0);
-         }
-      };
-      engine.width = 500;
-      engine.height = 500;
+      engine = mock.engine(500, 500, scene);
 
       actor.x = 250;
       actor._width = 10;
