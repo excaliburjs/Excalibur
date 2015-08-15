@@ -16,6 +16,7 @@
 /// <reference path="Loader.ts" />
 /// <reference path="Promises.ts" />
 /// <reference path="Util/Util.ts" />
+/// <reference path="Util/Detector.ts" />
 /// <reference path="Binding.ts" />
 /// <reference path="TileMap.ts" />
 /// <reference path="Label.ts" />
@@ -402,6 +403,9 @@ module ex {
       
       // this is a reference to the current requestAnimationFrame return value
       private _requestId: number;
+      
+      // this determines whether excalibur is compatible with your browser
+      private _compatible: boolean;
 
       // loading
       private _loader: ILoadable;
@@ -449,8 +453,24 @@ module ex {
             displayMode = options.displayMode;
          }
          
+         // Check compatibility 
+         if(!(this._compatible = (new ex.Detector()).compatible())) {
+            var message = document.createElement('div');
+            message.innerText = 'Sorry, your browser does not support all the features needed for Excalibur';
+            document.body.appendChild(message);
+            
+            if(canvasElementId) {
+               var canvas = document.getElementById(canvasElementId);
+               if(canvas) {
+                  canvas.parentElement.removeChild(canvas);
+               }
+            }
+            
+            return;
+         }
+         
          this._logger = Logger.getInstance();
-
+         
          this._logger.info('Powered by Excalibur.js visit", "http://excaliburjs.com", "for more information.');
          
          this._logger.debug('Building engine...');
@@ -478,7 +498,7 @@ module ex {
             this._logger.debug('Engine viewport is fullscreen');
             this.displayMode = DisplayMode.FullScreen;
          }
-
+                  
        
          this._loader = new Loader();
 
@@ -1015,6 +1035,11 @@ module ex {
        * [[Sound]], or [[Texture]].
        */
       public start(loader?: ILoadable) : Promise<any> {
+         if(!this._compatible) {
+            var promise = new Promise();
+            return promise.reject('Excalibur is incompatible with your browser');
+         }
+         
          var loadingComplete: Promise<any>;
          if (loader) {
             loader.wireEngine(this);

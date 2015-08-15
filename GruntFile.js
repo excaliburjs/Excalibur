@@ -85,6 +85,13 @@ module.exports = function (grunt) {
       // Shell Commands
       //
       shell: {
+         
+         //
+         // Execute a small server
+         //
+         server: {
+            command: 'python -m SimpleHTTPServer 8089'
+         },
 
          //
          // Execute TypeScript compiler against Excalibur core
@@ -213,6 +220,8 @@ module.exports = function (grunt) {
    grunt.registerTask('default', ['tslint:src', 'tests', 'coveralls', 'shell:tsc', 'minified', 'concat', 'copy', 'sample', 'shell:nuget']);
 
    grunt.registerTask('compile', ['shell:tsc', 'minified', 'concat', 'copy', 'shell:nuget'])
+
+   grunt.registerTask('server', [])
 
    // Travis task - for Travis CI
    grunt.registerTask('travis', 'default');
