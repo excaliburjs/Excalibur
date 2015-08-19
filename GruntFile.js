@@ -85,13 +85,6 @@ module.exports = function (grunt) {
       // Shell Commands
       //
       shell: {
-         
-         //
-         // Execute a small server
-         //
-         server: {
-            command: 'python -m SimpleHTTPServer 8089'
-         },
 
          //
          // Execute TypeScript compiler against Excalibur core
