@@ -214,6 +214,8 @@ module.exports = function (grunt) {
 
    grunt.registerTask('compile', ['shell:tsc', 'minified', 'concat', 'copy', 'shell:nuget'])
 
+   grunt.registerTask('server', [])
+
    // Travis task - for Travis CI
    grunt.registerTask('travis', 'default');
 };
