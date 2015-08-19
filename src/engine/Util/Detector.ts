@@ -3,6 +3,8 @@ module ex {
 
    export class Detector {
       
+      public failedTests: string[] = [];
+      
       // critical browser features required for ex to run
       private _criticalTests = {
          // Test canvas/2d context support
@@ -38,7 +40,6 @@ module ex {
          rgbaSupport: function() {
             var style = document.createElement('a').style;
             style.cssText = 'background-color:rgba(150,255,150,.5)';
-            
             return ('' + style.backgroundColor).indexOf('rgba') > -1;
          }
       };
@@ -58,13 +59,14 @@ module ex {
          }
       };
       
-      public compatible(): boolean {			
+      public test(): boolean {			
          // Critical test will for ex not to run
          var failedCritical = false;
          for(var test in this._criticalTests) {
             if(!this._criticalTests[test]()) {
-               ex.Logger.getInstance().error('Critical browser feature test for Excalibur failed:', 
-                  test, 'Excalibur cannot run!');
+               this.failedTests.push(test);
+               ex.Logger.getInstance().error('Critical browser feature missing, Excalibur requires:', 
+                  test);
                failedCritical = true;
             }
          }
@@ -75,8 +77,8 @@ module ex {
          // Warning tests do not for ex to return false to compatibility
          for(var warning in this._warningTest) {
             if(!this._warningTest[warning]()) {
-               ex.Logger.getInstance().warn('Warning browser feature test for Excalibur failed:', 
-                  warning, 'Excalibur performance will be degraded');
+               ex.Logger.getInstance().warn('Warning browser feature missing, Excalibur will have reduced performance:', 
+                  warning);
             }
          }
          

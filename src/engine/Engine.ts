@@ -454,10 +454,17 @@ module ex {
          }
          
          // Check compatibility 
-         if(!(this._compatible = (new ex.Detector()).compatible())) {
+         var detector = new ex.Detector();
+         if(!(this._compatible = detector.test())) {
             var message = document.createElement('div');
             message.innerText = 'Sorry, your browser does not support all the features needed for Excalibur';
             document.body.appendChild(message);
+            
+            detector.failedTests.forEach(function(test){
+               var testMessage = document.createElement('div');
+               testMessage.innerText = 'Browser feature missing ' + test;
+               document.body.appendChild(testMessage);
+            });
             
             if(canvasElementId) {
                var canvas = document.getElementById(canvasElementId);
