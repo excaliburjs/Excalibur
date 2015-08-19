@@ -60,12 +60,16 @@ module ex {
       
       public compatible(): boolean {			
          // Critical test will for ex not to run
+         var failedCritical = false;
          for(var test in this._criticalTests) {
             if(!this._criticalTests[test]()) {
                ex.Logger.getInstance().error('Critical browser feature test for Excalibur failed:', 
                   test, 'Excalibur cannot run!');
-               return false;
+               failedCritical = true;
             }
+         }
+         if(failedCritical) {
+            return false;
          }
          
          // Warning tests do not for ex to return false to compatibility
