@@ -294,6 +294,12 @@ module ex {
             currSprite = this.sprites[Util.clamp(this.freezeFrame, 0, this.sprites.length - 1)];
             currSprite.draw(ctx, x, y);
          }
+         
+         // add the calculated width
+         if(currSprite) {
+            this.width = currSprite.width;
+            this.height = currSprite.height;
+         }
       }
 
       /**
