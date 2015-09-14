@@ -89,8 +89,11 @@ module ex {
        * Flip each frame horizontally. Sets [[Sprite.flipHorizontal]].
        */
       public flipHorizontal: boolean = false;
+      
       public width: number = 0;
       public height: number = 0;
+      public naturalWidth: number = 0;
+      public naturalHeight: number = 0;
 
       /**
        * Typically you will use a [[SpriteSheet]] to generate an [[Animation]].
@@ -104,11 +107,18 @@ module ex {
          this.sprites = images;
          this.speed = speed;
          this._engine = engine;
+         
          if (loop != null) {
             this.loop = loop;
          }
-         this.height = images[0] ? images[0].height : 0;
-         this.width = images[0] ? images[0].width : 0;
+         
+         if(images && images[0]) {
+            this.height = images[0] ? images[0].height : 0;
+            this.width = images[0] ? images[0].width : 0;
+            
+            this.naturalWidth = images[0] ? images[0].naturalWidth : 0;
+            this.naturalHeight = images[0] ? images[0].naturalHeight : 0;
+         }
       }
 
       /**

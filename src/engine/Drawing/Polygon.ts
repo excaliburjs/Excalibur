@@ -14,6 +14,9 @@ module ex {
       public flipHorizontal: boolean;
       public width: number;
       public height: number;
+      
+      public naturalWidth: number;
+      public naturalHeight: number;
 
       /**
        * The color to use for the lines of the polygon
@@ -60,6 +63,9 @@ module ex {
          }, 0);
 
          this.height = maxY - minY;
+         
+         this.naturalHeight = this.height;
+         this.naturalWidth = this.width;
       }
 
       /**

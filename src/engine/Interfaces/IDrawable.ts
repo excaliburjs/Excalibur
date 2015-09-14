@@ -14,13 +14,22 @@ module ex {
        */
       flipHorizontal: boolean;
       /**
-       * Indicates the width of the drawing in pixels
+       * Indicates the current width of the drawing in pixels, factoring in the scale
        */
       width: number;
       /**
-       * Indicates the height of the drawing in pixels
+       * Indicates the current height of the drawing in pixels, factoring in the scale
        */
       height: number;
+      
+      /**
+       * Indicates the natural width of the drawing in pixels, this is the original width of the source image
+       */
+      naturalWidth: number;
+      /**
+       * Indicates the natural height of the drawing in pixels, this is the original height of the source image
+       */
+      naturalHeight: number;
 
       /**
        * Adds a new [[ISpriteEffect]] to this drawing.
