@@ -384,8 +384,10 @@ module ex {
             return;
          }
          if (entity instanceof Actor) {
-            this.addChild(entity);
-            this._sortedDrawingTree.add(entity);
+            if (!this._isAlreadyPresent(entity, this.children)) {
+               this.addChild(entity);
+               this._sortedDrawingTree.add(entity);
+            }
          }
          
          if (entity instanceof Timer) {
@@ -395,6 +397,16 @@ module ex {
          if (entity instanceof TileMap) {
             this.addTileMap(entity);
          }
+      }
+
+      private _isAlreadyPresent(entity: any, array: Array<any>): boolean {
+         var alreadyInScene = false;
+         for (var i = 0; i < array.length; i++) {
+            if (entity === array[i]) {
+               alreadyInScene = true;
+            }
+         }
+         return alreadyInScene;
       }
       
       /**

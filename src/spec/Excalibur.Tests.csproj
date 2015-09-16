@@ -69,6 +69,7 @@
     <TypeScriptCompile Include="ActorSpec.ts" />
     <TypeScriptCompile Include="BoundingBoxSpec.ts" />
     <TypeScriptCompile Include="LabelSpec.ts" />
+    <TypeScriptCompile Include="SceneSpec.ts" />
     <TypeScriptCompile Include="SortedListSpec.ts" />
     <TypeScriptCompile Include="CameraSpec.ts" />
     <None Include="chutzpah.json" />
