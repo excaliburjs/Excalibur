@@ -390,12 +390,14 @@ module ex {
                this.addChild(entity);
                this._sortedDrawingTree.add(entity);
             }
+            return;
          }
-         
          if (entity instanceof Timer) {
-            this.addTimer(entity);
+            if (!Util.contains(this._timers, entity)) {
+               this.addTimer(entity);
+            }
+            return;
          }
-
          if (entity instanceof TileMap) {
             if (!Util.contains(this.tileMaps, entity)) {
                this.addTileMap(entity);
