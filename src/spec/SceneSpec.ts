@@ -23,7 +23,6 @@ describe('A scene', () => {
       expect(ex.Scene).toBeTruthy();
    });
 
-
    it('cannot have the same UIActor added to it more than once', () => {
       var uiActor = new ex.UIActor();
       scene.add(uiActor);
@@ -69,7 +68,6 @@ describe('A scene', () => {
       scene.update(engine, 100);
       expect(actor.isOffScreen).toBeFalsy();
 
-
       actor.x = 1010;
       actor.y = 1010;
       actor.setWidth(5);
@@ -85,7 +83,6 @@ describe('A scene', () => {
       expect(engine.worldToScreenCoordinates(new ex.Point(50, 50)).y).toBe(50);
       expect(engine.getWidth()).toBe(100);
       expect(engine.getHeight()).toBe(100);
-
 
       expect(actor.isOffScreen).toBeTruthy();
       expect(actor.draw).not.toHaveBeenCalled();

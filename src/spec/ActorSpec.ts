@@ -24,7 +24,6 @@ describe('A game actor', () => {
       expect(ex.Actor).toBeTruthy();
    });
 
-
    //it('can have animation', () => {
    //   expect(actor.frames).toEqual({});
 
@@ -49,7 +48,6 @@ describe('A game actor', () => {
       actor.update(engine, 1000);
       expect(actor.x).toBe(-20);
       expect(actor.y).toBe(20);
-
    });
 
    it('can have its height and width scaled', () => {
