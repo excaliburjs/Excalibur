@@ -380,13 +380,13 @@ module ex {
       public add(uiActor: UIActor): void;
       public add(entity: any): void {
          if (entity instanceof UIActor) {
-            if (!this._isAlreadyPresent(entity, this.uiActors)) {
+            if (!Util.contains(this.uiActors, entity)) {
                this.addUIActor(entity);
             }
             return;
          }
          if (entity instanceof Actor) {
-            if (!this._isAlreadyPresent(entity, this.children)) {
+            if (!Util.contains(this.children, entity)) {
                this.addChild(entity);
                this._sortedDrawingTree.add(entity);
             }
@@ -397,18 +397,10 @@ module ex {
          }
 
          if (entity instanceof TileMap) {
-            this.addTileMap(entity);
-         }
-      }
-
-      private _isAlreadyPresent(entity: any, array: Array<any>): boolean {
-         var alreadyInScene = false;
-         for (var i = 0; i < array.length; i++) {
-            if (entity === array[i]) {
-               alreadyInScene = true;
+            if (!Util.contains(this.tileMaps, entity)) {
+               this.addTileMap(entity);
             }
          }
-         return alreadyInScene;
       }
       
       /**

@@ -38,4 +38,12 @@ describe('A scene', () => {
       expect(scene.children.length).toBe(1);
    });
 
+   it('cannot have the same TileMap added to it more than once', () => {
+      var tileMap = new ex.TileMap(1, 1, 1, 1, 1, 1);
+      scene.add(tileMap);
+      expect(scene.tileMaps.length).toBe(1);
+      scene.add(tileMap);
+      expect(scene.tileMaps.length).toBe(1);
+   });
+
 });
