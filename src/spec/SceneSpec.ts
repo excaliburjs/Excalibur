@@ -38,6 +38,10 @@ describe('A scene', () => {
       expect(scene.children.length).toBe(1);
    });
 
+   it('cannot have the same Timer added to it more than once', () => {
+      //TODO
+   });
+
    it('cannot have the same TileMap added to it more than once', () => {
       var tileMap = new ex.TileMap(1, 1, 1, 1, 1, 1);
       scene.add(tileMap);
@@ -97,7 +101,7 @@ describe('A scene', () => {
       expect(actor.draw).toHaveBeenCalled();
    });
    
-   it('does not draw non-visible actors', () => {
+   it('does not draw invisible actors', () => {
       actor.visible = false;
 
       scene.add(actor);
