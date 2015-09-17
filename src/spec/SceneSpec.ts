@@ -23,6 +23,14 @@ describe('A scene', () => {
       expect(ex.Scene).toBeTruthy();
    });
 
+   it('cannot have the same UIActor added to it more than once', () => {
+      var uiActor = new ex.UIActor();
+      scene.add(uiActor);
+      expect(scene.uiActors.length).toBe(1);
+      scene.add(uiActor);
+      expect(scene.uiActors.length).toBe(1);
+   });
+
    it('cannot have the same Actor added to it more than once', () => {
       scene.add(actor);
       expect(scene.children.length).toBe(1);

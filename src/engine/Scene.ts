@@ -380,7 +380,9 @@ module ex {
       public add(uiActor: UIActor): void;
       public add(entity: any): void {
          if (entity instanceof UIActor) {
-            this.addUIActor(entity);
+            if (!this._isAlreadyPresent(entity, this.uiActors)) {
+               this.addUIActor(entity);
+            }
             return;
          }
          if (entity instanceof Actor) {
