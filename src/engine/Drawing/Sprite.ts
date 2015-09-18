@@ -311,10 +311,14 @@ module ex {
             this._applyEffects();
             this._dirtyEffect = false;
          }
-
+         
+         // calculating current dimensions
+         this.width = this.naturalWidth * this.scale.x;
+         this.height = this.naturalHeight * this.scale.y;
+         
          ctx.save();
-         var xpoint = (this.width * this.scale.x) * this.anchor.x;
-         var ypoint = (this.height * this.scale.y) * this.anchor.y;
+         var xpoint = this.width * this.anchor.x;
+         var ypoint = this.height * this.anchor.y;
          ctx.translate(x, y);
          ctx.rotate(this.rotation);
          
@@ -339,9 +343,7 @@ module ex {
          }
          ctx.restore();
 
-         // calculating current dimensions
-         this.width = this.naturalWidth * this.scale.x;
-         this.height = this.naturalHeight * this.scale.y;
+         
 
       }
 
