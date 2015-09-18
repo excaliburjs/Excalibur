@@ -51,20 +51,19 @@ describe('A keyboard', () => {
       // push key down
       (<any>window).emit('keydown', {keyCode: ex.Input.Keys.Up});
       
-      expect(keyboard.isKeyDown(ex.Input.Keys.Up)).toBeTruthy();
-      expect(keyboard.isKeyUp(ex.Input.Keys.Up)).toBeFalsy();
-      expect(keyboard.isKeyPressed(ex.Input.Keys.Up)).toBeTruthy();
-      expect(keyboard.isKeyUp(ex.Input.Keys.Up)).toBeFalsy();
-            
+      expect(keyboard.isHeld(ex.Input.Keys.Up)).toBeTruthy();
+      expect(keyboard.wasReleased(ex.Input.Keys.Up)).toBeFalsy();
+      expect(keyboard.wasPressed(ex.Input.Keys.Up)).toBeTruthy();
+                  
       // release key
       (<any>window).emit('keyup', {keyCode: ex.Input.Keys.Up});
       
       expect(keyboard.getKeys().length).toBe(0);
-      expect(keyboard.isKeyUp(ex.Input.Keys.Up)).toBeTruthy();
-      expect(keyboard.isKeyPressed(ex.Input.Keys.Up)).toBeFalsy();
+      expect(keyboard.isHeld(ex.Input.Keys.Up)).toBeFalsy();
+      expect(keyboard.wasReleased(ex.Input.Keys.Up)).toBeTruthy();
    });
       
-   it('should have keys stay pressed until released', () => {
+   it('should have keys stay held until released', () => {
        // push key down
       (<any>window).emit('keydown', {keyCode: ex.Input.Keys.Up});
       (<any>window).emit('keydown', {keyCode: ex.Input.Keys.Down});
@@ -74,15 +73,15 @@ describe('A keyboard', () => {
       // release key
       (<any>window).emit('keyup', {keyCode: ex.Input.Keys.Up});
       
-      expect(keyboard.isKeyPressed(ex.Input.Keys.Down)).toBeTruthy();
-      expect(keyboard.isKeyUp(ex.Input.Keys.Up)).toBeTruthy();
+      expect(keyboard.wasReleased(ex.Input.Keys.Down)).toBeFalsy();
+      expect(keyboard.isHeld(ex.Input.Keys.Up)).toBeFalsy();
       
       keyboard.update(200);
       
       // release key
       (<any>window).emit('keyup', {keyCode: ex.Input.Keys.Down});
       
-      expect(keyboard.isKeyPressed(ex.Input.Keys.Down)).toBeFalsy();
+      expect(keyboard.wasReleased(ex.Input.Keys.Down)).toBeTruthy();
       
    });
 
