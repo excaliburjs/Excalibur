@@ -5,6 +5,7 @@
 describe('A game actor', () => {
 	
    var actor: ex.Actor;
+   
    var engine;
    var scene;
    var mock = new Mocks.Mocker();
@@ -958,6 +959,32 @@ describe('A game actor', () => {
       scene.draw(engine.ctx, 100);
 		
       expect(actor.draw).not.toHaveBeenCalled();				
+   });
+   
+   it('draws visible child actors', () => {
+      var parentActor = new ex.Actor();
+      var childActor = new ex.Actor();
+      scene.add(parentActor);
+      parentActor.addChild(childActor);
+      
+      spyOn(childActor, 'draw');
+      
+      childActor.visible = true;
+      scene.draw(engine.ctx, 100);
+      expect(childActor.draw).toHaveBeenCalled();
+   });
+   
+   it('does not draw invisible child actors', () => {
+      var parentActor = new ex.Actor();
+      var childActor = new ex.Actor();
+      scene.add(parentActor);
+      parentActor.addChild(childActor);
+      
+      spyOn(childActor, 'draw');
+      
+      childActor.visible = false;
+      scene.draw(engine.ctx, 100);
+      expect(childActor.draw).not.toHaveBeenCalled();
    });
 
 });
