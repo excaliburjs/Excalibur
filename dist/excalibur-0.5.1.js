@@ -1,18 +1,27 @@
-/*! excalibur - v0.5.1 - 2015-07-13
+/*! excalibur - v0.5.1 - 2015-09-14
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2015 ; Licensed BSD-2-Clause*/
 if (typeof window === 'undefined') {
-    window = { audioContext: function () {
-        return;
-    } };
+    window = { audioContext: function () { return; } };
 }
 if (typeof window !== 'undefined' && !window.requestAnimationFrame) {
-    window.requestAnimationFrame = window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (callback) {
-        window.setInterval(callback, 1000 / 60);
-    };
+    window.requestAnimationFrame =
+        window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            function (callback) { window.setInterval(callback, 1000 / 60); };
+}
+if (typeof window !== 'undefined' && !window.cancelAnimationFrame) {
+    window.cancelAnimationFrame =
+        window.webkitCancelAnimationFrame ||
+            window.mozCancelAnimationFrame ||
+            function (callback) { return; };
 }
 if (typeof window !== 'undefined' && !window.AudioContext) {
-    window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.msAudioContext || window.oAudioContext;
+    window.AudioContext = window.AudioContext ||
+        window.webkitAudioContext ||
+        window.mozAudioContext ||
+        window.msAudioContext ||
+        window.oAudioContext;
 }
 // Polyfill from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
 // Production steps of ECMA-262, Edition 5, 15.4.4.18
@@ -39,6 +48,7 @@ if (!Array.prototype.forEach) {
         }
         // 6. Let k be 0
         k = 0;
+        // 7. Repeat, while k < len
         while (k < len) {
             var kValue;
             // a. Let Pk be ToString(k).
@@ -84,12 +94,14 @@ if (!Array.prototype.some) {
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
         if (typeof this !== 'function') {
+            // closest thing possible to the ECMAScript 5
+            // internal IsCallable function
             throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
         }
-        var aArgs = Array.prototype.slice.call(arguments, 1), fToBind = this, fNOP = function () {
-            return;
-        }, fBound = function () {
-            return fToBind.apply(this instanceof fNOP && oThis ? this : oThis, aArgs.concat(Array.prototype.slice.call(arguments)));
+        var aArgs = Array.prototype.slice.call(arguments, 1), fToBind = this, fNOP = function () { return; }, fBound = function () {
+            return fToBind.apply(this instanceof fNOP && oThis
+                ? this
+                : oThis, aArgs.concat(Array.prototype.slice.call(arguments)));
         };
         fNOP.prototype = this.prototype;
         fBound.prototype = new fNOP();
@@ -368,10 +380,19 @@ var ex;
             this._yMin = Math.min.apply(null, this._yCoords);
             this._xMax = Math.max.apply(null, this._xCoords);
             this._yMax = Math.max.apply(null, this._yCoords);
+            var minWorld = engine.screenToWorldCoordinates(new ex.Point(this._xMin, this._yMin));
+            var maxWorld = engine.screenToWorldCoordinates(new ex.Point(this._xMax, this._yMax));
+            this._xMinWorld = minWorld.x;
+            this._yMinWorld = minWorld.y;
+            this._xMaxWorld = maxWorld.x;
+            this._yMaxWorld = maxWorld.y;
             var boundingPoints = new Array();
             boundingPoints.push(new ex.Point(this._xMin, this._yMin), new ex.Point(this._xMax, this._yMin), new ex.Point(this._xMin, this._yMax), new ex.Point(this._xMax, this._yMax));
             for (var i = 0; i < boundingPoints.length; i++) {
-                if (boundingPoints[i].x > 0 && boundingPoints[i].y > 0 && boundingPoints[i].x < engine.width && boundingPoints[i].y < engine.height) {
+                if (boundingPoints[i].x > 0 &&
+                    boundingPoints[i].y > 0 &&
+                    boundingPoints[i].x < engine.canvas.clientWidth &&
+                    boundingPoints[i].y < engine.canvas.clientHeight) {
                     return false;
                 }
             }
@@ -381,7 +402,7 @@ var ex;
             // bounding rectangle
             ctx.beginPath();
             ctx.strokeStyle = ex.Color.White.toString();
-            ctx.rect(this._xMin, this._yMin, this._xMax - this._xMin, this._yMax - this._yMin);
+            ctx.rect(this._xMinWorld, this._yMinWorld, this._xMaxWorld - this._xMinWorld, this._yMaxWorld - this._yMinWorld);
             ctx.stroke();
             ctx.fillStyle = ex.Color.Red.toString();
             ctx.beginPath();
@@ -434,13 +455,21 @@ var ex;
                     isSpriteOffScreen = this.cullingBox.isSpriteOffScreen(actor, engine);
                 }
                 if (!actor.isOffScreen) {
-                    if ((actorScreenCoords.x + width * zoom < 0 || actorScreenCoords.y + height * zoom < 0 || actorScreenCoords.x > engine.width || actorScreenCoords.y > engine.height) && isSpriteOffScreen) {
+                    if ((actorScreenCoords.x + width * zoom < 0 ||
+                        actorScreenCoords.y + height * zoom < 0 ||
+                        actorScreenCoords.x > engine.width ||
+                        actorScreenCoords.y > engine.height) &&
+                        isSpriteOffScreen) {
                         eventDispatcher.publish('exitviewport', new ex.ExitViewPortEvent());
                         actor.isOffScreen = true;
                     }
                 }
                 else {
-                    if ((actorScreenCoords.x + width * zoom > 0 && actorScreenCoords.y + height * zoom > 0 && actorScreenCoords.x < engine.width && actorScreenCoords.y < engine.height) || !isSpriteOffScreen) {
+                    if ((actorScreenCoords.x + width * zoom > 0 &&
+                        actorScreenCoords.y + height * zoom > 0 &&
+                        actorScreenCoords.x < engine.width &&
+                        actorScreenCoords.y < engine.height) ||
+                        !isSpriteOffScreen) {
                         eventDispatcher.publish('enterviewport', new ex.EnterViewPortEvent());
                         actor.isOffScreen = false;
                     }
@@ -486,11 +515,11 @@ var ex;
             }
             CollisionDetection.prototype.update = function (actor, engine, delta) {
                 var eventDispatcher = actor.eventDispatcher;
-                if (actor.collisionType !== 0 /* PreventCollision */) {
+                if (actor.collisionType !== ex.CollisionType.PreventCollision) {
                     for (var j = 0; j < engine.currentScene.tileMaps.length; j++) {
                         var map = engine.currentScene.tileMaps[j];
                         var intersectMap;
-                        var side = 0 /* None */;
+                        var side = ex.Side.None;
                         var max = 2;
                         var hasBounced = false;
                         while (intersectMap = map.collides(actor)) {
@@ -499,22 +528,22 @@ var ex;
                             }
                             side = actor.getSideFromIntersect(intersectMap);
                             eventDispatcher.publish('collision', new ex.CollisionEvent(actor, null, side, intersectMap));
-                            if ((actor.collisionType === 2 /* Active */ || actor.collisionType === 3 /* Elastic */)) {
+                            if ((actor.collisionType === ex.CollisionType.Active || actor.collisionType === ex.CollisionType.Elastic)) {
                                 actor.y += intersectMap.y;
                                 actor.x += intersectMap.x;
                                 // Naive elastic bounce
-                                if (actor.collisionType === 3 /* Elastic */ && !hasBounced) {
+                                if (actor.collisionType === ex.CollisionType.Elastic && !hasBounced) {
                                     hasBounced = true;
-                                    if (side === 3 /* Left */) {
+                                    if (side === ex.Side.Left) {
                                         actor.dx = Math.abs(actor.dx);
                                     }
-                                    else if (side === 4 /* Right */) {
+                                    else if (side === ex.Side.Right) {
                                         actor.dx = -Math.abs(actor.dx);
                                     }
-                                    else if (side === 1 /* Top */) {
+                                    else if (side === ex.Side.Top) {
                                         actor.dy = Math.abs(actor.dy);
                                     }
-                                    else if (side === 2 /* Bottom */) {
+                                    else if (side === ex.Side.Bottom) {
                                         actor.dy = -Math.abs(actor.dy);
                                     }
                                 }
@@ -542,7 +571,7 @@ var ex;
     })(ex.Side || (ex.Side = {}));
     var Side = ex.Side;
 })(ex || (ex = {}));
-var __extends = this.__extends || function (d, b) {
+var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
@@ -979,19 +1008,19 @@ var ex;
         }
         Util.removeItemToArray = removeItemToArray;
         function getOppositeSide(side) {
-            if (side === 1 /* Top */) {
-                return 2 /* Bottom */;
+            if (side === ex.Side.Top) {
+                return ex.Side.Bottom;
             }
-            if (side === 2 /* Bottom */) {
-                return 1 /* Top */;
+            if (side === ex.Side.Bottom) {
+                return ex.Side.Top;
             }
-            if (side === 3 /* Left */) {
-                return 4 /* Right */;
+            if (side === ex.Side.Left) {
+                return ex.Side.Right;
             }
-            if (side === 4 /* Right */) {
-                return 3 /* Left */;
+            if (side === ex.Side.Right) {
+                return ex.Side.Left;
             }
-            return 0 /* None */;
+            return ex.Side.None;
         }
         Util.getOppositeSide = getOppositeSide;
         /**
@@ -1400,9 +1429,12 @@ var ex;
                 this._applyEffects();
                 this._dirtyEffect = false;
             }
+            // calculating current dimensions
+            this.width = this.naturalWidth * this.scale.x;
+            this.height = this.naturalHeight * this.scale.y;
             ctx.save();
-            var xpoint = (this.width * this.scale.x) * this.anchor.x;
-            var ypoint = (this.height * this.scale.y) * this.anchor.y;
+            var xpoint = this.width * this.anchor.x;
+            var ypoint = this.height * this.anchor.y;
             ctx.translate(x, y);
             ctx.rotate(this.rotation);
             // todo cache flipped sprites
@@ -1418,9 +1450,6 @@ var ex;
                 ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, -xpoint, -ypoint, this.swidth * this.scale.x, this.sheight * this.scale.y);
             }
             ctx.restore();
-            // calculating current dimensions
-            this.width = this.naturalWidth * this.scale.x;
-            this.height = this.naturalHeight * this.scale.y;
         };
         /**
          * Produces a copy of the current sprite
@@ -1931,6 +1960,7 @@ var ex;
             var height = actor.y + actor.getHeight();
             var actorBounds = actor.getBounds();
             var overlaps = [];
+            // trace points for overlap
             for (var x = actorBounds.left; x <= width; x += Math.min(actor.getWidth() / 2, this.cellWidth / 2)) {
                 for (var y = actorBounds.top; y <= height; y += Math.min(actor.getHeight() / 2, this.cellHeight / 2)) {
                     var cell = this.getCellByPoint(x, y);
@@ -1990,7 +2020,7 @@ var ex;
         };
         TileMap.prototype.update = function (engine, delta) {
             var worldCoordsUpperLeft = engine.screenToWorldCoordinates(new ex.Point(0, 0));
-            var worldCoordsLowerRight = engine.screenToWorldCoordinates(new ex.Point(engine.width, engine.height));
+            var worldCoordsLowerRight = engine.screenToWorldCoordinates(new ex.Point(engine.canvas.clientWidth, engine.canvas.clientHeight));
             this._onScreenXStart = Math.max(Math.floor(worldCoordsUpperLeft.x / this.cellWidth) - 2, 0);
             this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);
             this._onScreenXEnd = Math.max(Math.floor(worldCoordsLowerRight.x / this.cellWidth) + 2, 0);
@@ -2210,7 +2240,10 @@ var ex;
                 return (this.left <= val.x && this.top <= val.y && this.bottom >= val.y && this.right >= val.x);
             }
             else if (val instanceof BoundingBox) {
-                if (this.left < val.left && this.top < val.top && val.bottom < this.bottom && val.right < this.right) {
+                if (this.left < val.left &&
+                    this.top < val.top &&
+                    val.bottom < this.bottom &&
+                    val.right < this.right) {
                     return true;
                 }
                 return false;
@@ -2236,7 +2269,8 @@ var ex;
                 var other = collidable;
                 var totalBoundingBox = this.combine(other);
                 // If the total bounding box is less than the sum of the 2 bounds then there is collision
-                if (totalBoundingBox.getWidth() < other.getWidth() + this.getWidth() && totalBoundingBox.getHeight() < other.getHeight() + this.getHeight()) {
+                if (totalBoundingBox.getWidth() < other.getWidth() + this.getWidth() &&
+                    totalBoundingBox.getHeight() < other.getHeight() + this.getHeight()) {
                     // collision
                     var overlapX = 0;
                     if (this.right >= other.left && this.right <= other.right) {
@@ -2485,14 +2519,10 @@ var ex;
                 child = methods.constructor;
             }
             else {
-                child = function () {
-                    return parent.apply(this, arguments);
-                };
+                child = function () { return parent.apply(this, arguments); };
             }
             // Using constructor allows JS to lazily instantiate super classes
-            var Super = function () {
-                this.constructor = child;
-            };
+            var Super = function () { this.constructor = child; };
             Super.prototype = parent.prototype;
             child.prototype = new Super;
             if (methods) {
@@ -2524,9 +2554,7 @@ var ex;
         function Timer(fcn, interval, repeats) {
             this.id = 0;
             this.interval = 10;
-            this.fcn = function () {
-                return;
-            };
+            this.fcn = function () { return; };
             this.repeats = false;
             this._elapsedTime = 0;
             this._totalTimeAlive = 0;
@@ -2587,7 +2615,7 @@ var ex;
         NaiveCollisionResolver.prototype.evaluate = function (targets) {
             // Retrieve the list of potential colliders, exclude killed, prevented, and self
             var potentialColliders = targets.filter(function (other) {
-                return !other.isKilled() && other.collisionType !== 0 /* PreventCollision */;
+                return !other.isKilled() && other.collisionType !== ex.CollisionType.PreventCollision;
             });
             var actor1;
             var actor2;
@@ -3014,14 +3042,14 @@ var ex;
         DynamicTreeCollisionResolver.prototype.evaluate = function (targets) {
             // Retrieve the list of potential colliders, exclude killed, prevented, and self
             var potentialColliders = targets.filter(function (other) {
-                return !other.isKilled() && other.collisionType !== 0 /* PreventCollision */;
+                return !other.isKilled() && other.collisionType !== ex.CollisionType.PreventCollision;
             });
             var actor;
             var collisionPairs = [];
             for (var j = 0, l = potentialColliders.length; j < l; j++) {
                 actor = potentialColliders[j];
                 this._dynamicCollisionTree.query(actor, function (other) {
-                    if (other.collisionType === 0 /* PreventCollision */ || other.isKilled()) {
+                    if (other.collisionType === ex.CollisionType.PreventCollision || other.isKilled()) {
                         return false;
                     }
                     var minimumTranslationVector;
@@ -3083,7 +3111,8 @@ var ex;
          * Determines if this collision pair and another are equivalent.
          */
         CollisionPair.prototype.equals = function (collisionPair) {
-            return (collisionPair.left === this.left && collisionPair.right === this.right) || (collisionPair.right === this.left && collisionPair.left === this.right);
+            return (collisionPair.left === this.left && collisionPair.right === this.right) ||
+                (collisionPair.right === this.left && collisionPair.left === this.right);
         };
         /**
          * Evaluates the collision pair, performing collision resolution and event publishing appropriate to each collision type.
@@ -3096,21 +3125,23 @@ var ex;
             this.right.eventDispatcher.publish('collision', new ex.CollisionEvent(this.right, this.left, ex.Util.getOppositeSide(this.side), this.intersect.scale(-1.0)));
             // If the actor is active push the actor out if its not passive
             var leftSide = this.side;
-            if ((this.left.collisionType === 2 /* Active */ || this.left.collisionType === 3 /* Elastic */) && this.right.collisionType !== 1 /* Passive */) {
+            if ((this.left.collisionType === ex.CollisionType.Active ||
+                this.left.collisionType === ex.CollisionType.Elastic) &&
+                this.right.collisionType !== ex.CollisionType.Passive) {
                 this.left.y += this.intersect.y;
                 this.left.x += this.intersect.x;
                 // Naive elastic bounce
-                if (this.left.collisionType === 3 /* Elastic */) {
-                    if (leftSide === 3 /* Left */) {
+                if (this.left.collisionType === ex.CollisionType.Elastic) {
+                    if (leftSide === ex.Side.Left) {
                         this.left.dx = Math.abs(this.left.dx);
                     }
-                    else if (leftSide === 4 /* Right */) {
+                    else if (leftSide === ex.Side.Right) {
                         this.left.dx = -Math.abs(this.left.dx);
                     }
-                    else if (leftSide === 1 /* Top */) {
+                    else if (leftSide === ex.Side.Top) {
                         this.left.dy = Math.abs(this.left.dy);
                     }
-                    else if (leftSide === 2 /* Bottom */) {
+                    else if (leftSide === ex.Side.Bottom) {
                         this.left.dy = -Math.abs(this.left.dy);
                     }
                 }
@@ -3142,21 +3173,23 @@ var ex;
             }
             var rightSide = ex.Util.getOppositeSide(this.side);
             var rightIntersect = this.intersect.scale(-1.0);
-            if ((this.right.collisionType === 2 /* Active */ || this.right.collisionType === 3 /* Elastic */) && this.left.collisionType !== 1 /* Passive */) {
+            if ((this.right.collisionType === ex.CollisionType.Active ||
+                this.right.collisionType === ex.CollisionType.Elastic) &&
+                this.left.collisionType !== ex.CollisionType.Passive) {
                 this.right.y += rightIntersect.y;
                 this.right.x += rightIntersect.x;
                 // Naive elastic bounce
-                if (this.right.collisionType === 3 /* Elastic */) {
-                    if (rightSide === 3 /* Left */) {
+                if (this.right.collisionType === ex.CollisionType.Elastic) {
+                    if (rightSide === ex.Side.Left) {
                         this.right.dx = Math.abs(this.right.dx);
                     }
-                    else if (rightSide === 4 /* Right */) {
+                    else if (rightSide === ex.Side.Right) {
                         this.right.dx = -Math.abs(this.right.dx);
                     }
-                    else if (rightSide === 1 /* Top */) {
+                    else if (rightSide === ex.Side.Top) {
                         this.right.dy = Math.abs(this.right.dy);
                     }
-                    else if (rightSide === 2 /* Bottom */) {
+                    else if (rightSide === ex.Side.Bottom) {
                         this.right.dy = -Math.abs(this.right.dy);
                     }
                 }
@@ -3371,8 +3404,10 @@ var ex;
             var yShake = 0;
             var canvasWidth = ctx.canvas.width;
             var canvasHeight = ctx.canvas.height;
-            var newCanvasWidth = canvasWidth * this.getZoom();
-            var newCanvasHeight = canvasHeight * this.getZoom();
+            // if zoom is 2x then canvas is 1/2 as high
+            // if zoom is .5x then canvas is 2x as high
+            var newCanvasWidth = canvasWidth / this.getZoom();
+            var newCanvasHeight = canvasHeight / this.getZoom();
             if (this._lerp) {
                 if (this._currentLerpTime < this._lerpDuration && this._cameraMoving) {
                     if (this._lerpEnd.x < this._lerpStart.x) {
@@ -3408,7 +3443,6 @@ var ex;
                 xShake = (Math.random() * this._shakeMagnitudeX | 0) + 1;
                 yShake = (Math.random() * this._shakeMagnitudeY | 0) + 1;
             }
-            ctx.translate(-focus.x + xShake + (newCanvasWidth / 2), -focus.y + yShake + (newCanvasHeight / 2));
             if (this._isDoneZooming()) {
                 this._isZooming = false;
                 this._elapsedZoomTime = 0;
@@ -3420,14 +3454,21 @@ var ex;
                 this._setCurrentZoomScale(this.getZoom() + this._zoomIncrement * delta / 1000);
             }
             ctx.scale(this.getZoom(), this.getZoom());
+            ctx.translate(-focus.x + newCanvasWidth / 2 + xShake, -focus.y + newCanvasHeight / 2 + yShake);
         };
         BaseCamera.prototype.debugDraw = function (ctx) {
             var focus = this.getFocus();
             ctx.fillStyle = 'red';
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.arc(focus.x, focus.y, 15, 0, Math.PI * 2);
             ctx.closePath();
-            ctx.fill();
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(focus.x, focus.y, 5, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.stroke();
         };
         BaseCamera.prototype._isDoneShaking = function () {
             return !(this._isShaking) || (this._elapsedShakeTime >= this._shakeDuration);
@@ -3798,7 +3839,7 @@ var ex;
                     this._actor = actor;
                     this._end = angleRadians;
                     this._speed = speed;
-                    this._rotationType = rotationType || 0 /* ShortestPath */;
+                    this._rotationType = rotationType || ex.RotationType.ShortestPath;
                 }
                 RotateTo.prototype.update = function (delta) {
                     if (!this._started) {
@@ -3816,7 +3857,7 @@ var ex;
                         }
                         this._shortestPathIsPositive = (this._start - this._end + ex.Util.TwoPI) % ex.Util.TwoPI >= Math.PI;
                         switch (this._rotationType) {
-                            case 0 /* ShortestPath */:
+                            case ex.RotationType.ShortestPath:
                                 this._distance = this._shortDistance;
                                 if (this._shortestPathIsPositive) {
                                     this._direction = 1;
@@ -3825,7 +3866,7 @@ var ex;
                                     this._direction = -1;
                                 }
                                 break;
-                            case 1 /* LongestPath */:
+                            case ex.RotationType.LongestPath:
                                 this._distance = this._longDistance;
                                 if (this._shortestPathIsPositive) {
                                     this._direction = -1;
@@ -3834,18 +3875,18 @@ var ex;
                                     this._direction = 1;
                                 }
                                 break;
-                            case 2 /* Clockwise */:
+                            case ex.RotationType.Clockwise:
                                 this._direction = 1;
-                                if (this._shortDistance >= 0) {
+                                if (this._shortestPathIsPositive) {
                                     this._distance = this._shortDistance;
                                 }
                                 else {
                                     this._distance = this._longDistance;
                                 }
                                 break;
-                            case 3 /* CounterClockwise */:
+                            case ex.RotationType.CounterClockwise:
                                 this._direction = -1;
-                                if (this._shortDistance <= 0) {
+                                if (!this._shortestPathIsPositive) {
                                     this._distance = this._shortDistance;
                                 }
                                 else {
@@ -3882,7 +3923,7 @@ var ex;
                     this._actor = actor;
                     this._end = angleRadians;
                     this._time = time;
-                    this._rotationType = rotationType || 0 /* ShortestPath */;
+                    this._rotationType = rotationType || ex.RotationType.ShortestPath;
                 }
                 RotateBy.prototype.update = function (delta) {
                     if (!this._started) {
@@ -3900,7 +3941,7 @@ var ex;
                         }
                         this._shortestPathIsPositive = (this._start - this._end + ex.Util.TwoPI) % ex.Util.TwoPI >= Math.PI;
                         switch (this._rotationType) {
-                            case 0 /* ShortestPath */:
+                            case ex.RotationType.ShortestPath:
                                 this._distance = this._shortDistance;
                                 if (this._shortestPathIsPositive) {
                                     this._direction = 1;
@@ -3909,7 +3950,7 @@ var ex;
                                     this._direction = -1;
                                 }
                                 break;
-                            case 1 /* LongestPath */:
+                            case ex.RotationType.LongestPath:
                                 this._distance = this._longDistance;
                                 if (this._shortestPathIsPositive) {
                                     this._direction = -1;
@@ -3918,7 +3959,7 @@ var ex;
                                     this._direction = 1;
                                 }
                                 break;
-                            case 2 /* Clockwise */:
+                            case ex.RotationType.Clockwise:
                                 this._direction = 1;
                                 if (this._shortDistance >= 0) {
                                     this._distance = this._shortDistance;
@@ -3927,7 +3968,7 @@ var ex;
                                     this._distance = this._longDistance;
                                 }
                                 break;
-                            case 3 /* CounterClockwise */:
+                            case ex.RotationType.CounterClockwise:
                                 this._direction = -1;
                                 if (this._shortDistance <= 0) {
                                     this._distance = this._shortDistance;
@@ -4000,7 +4041,8 @@ var ex;
                     }
                 };
                 ScaleTo.prototype.isComplete = function (actor) {
-                    return this._stopped || ((Math.abs(this._actor.scale.y - this._startX) >= this._distanceX) && (Math.abs(this._actor.scale.y - this._startY) >= this._distanceY));
+                    return this._stopped || ((Math.abs(this._actor.scale.y - this._startX) >= this._distanceX) &&
+                        (Math.abs(this._actor.scale.y - this._startY) >= this._distanceY));
                 };
                 ScaleTo.prototype.stop = function () {
                     this._actor.sx = 0;
@@ -4044,7 +4086,8 @@ var ex;
                     }
                 };
                 ScaleBy.prototype.isComplete = function (actor) {
-                    return this._stopped || ((Math.abs(this._actor.scale.x - this._startX) >= this._distanceX) && (Math.abs(this._actor.scale.y - this._startY) >= this._distanceY));
+                    return this._stopped || ((Math.abs(this._actor.scale.x - this._startX) >= this._distanceX) &&
+                        (Math.abs(this._actor.scale.y - this._startY) >= this._distanceY));
                 };
                 ScaleBy.prototype.stop = function () {
                     this._actor.sx = 0;
@@ -4184,12 +4227,8 @@ var ex;
                 Die.prototype.isComplete = function () {
                     return this._stopped;
                 };
-                Die.prototype.stop = function () {
-                    return;
-                };
-                Die.prototype.reset = function () {
-                    return;
-                };
+                Die.prototype.stop = function () { return; };
+                Die.prototype.reset = function () { return; };
                 return Die;
             })();
             Actions.Die = Die;
@@ -4282,9 +4321,7 @@ var ex;
                     this._stopped = true;
                     this._actionQueue.clearActions();
                 };
-                RepeatForever.prototype.reset = function () {
-                    return;
-                };
+                RepeatForever.prototype.reset = function () { return; };
                 return RepeatForever;
             })();
             Actions.RepeatForever = RepeatForever;
@@ -5290,12 +5327,15 @@ var ex;
          */
         Scene.prototype.update = function (engine, delta) {
             var i, len;
+            // Cycle through actors updating UI actors
             for (i = 0, len = this.uiActors.length; i < len; i++) {
                 this.uiActors[i].update(engine, delta);
             }
+            // Cycle through actors updating tile maps
             for (i = 0, len = this.tileMaps.length; i < len; i++) {
                 this.tileMaps[i].update(engine, delta);
             }
+            // Cycle through actors updating actors
             for (i = 0, len = this.children.length; i < len; i++) {
                 this.children[i].update(engine, delta);
             }
@@ -5314,6 +5354,7 @@ var ex;
                 }
             }
             this._killQueue.length = 0;
+            // Remove timers in the cancel queue before updating them
             for (i = 0, len = this._cancelQueue.length; i < len; i++) {
                 this.removeTimer(this._cancelQueue[i]);
             }
@@ -5376,7 +5417,7 @@ var ex;
             }
             // todo possibly enable this with excalibur flags features?
             //this._collisionResolver.debugDraw(ctx, 20);
-            //this.camera.debugDraw(ctx);
+            this.camera.debugDraw(ctx);
         };
         /**
          * Checks whether an actor is contained in this scene or not
@@ -5973,7 +6014,7 @@ var ex;
              * Gets or sets the current collision type of this actor. By
              * default it is ([[CollisionType.PreventCollision]]).
              */
-            this.collisionType = 0 /* PreventCollision */;
+            this.collisionType = CollisionType.PreventCollision;
             this.collisionGroups = [];
             this._collisionHandlers = {};
             this._isInitialized = false;
@@ -6028,7 +6069,9 @@ var ex;
             // Override me
         };
         Actor.prototype._checkForPointerOptIn = function (eventName) {
-            if (eventName && (eventName.toLowerCase() === 'pointerdown' || eventName.toLowerCase() === 'pointerdown' || eventName.toLowerCase() === 'pointermove')) {
+            if (eventName && (eventName.toLowerCase() === 'pointerdown' ||
+                eventName.toLowerCase() === 'pointerdown' ||
+                eventName.toLowerCase() === 'pointermove')) {
                 this.enableCapturePointer = true;
                 if (eventName.toLowerCase() === 'pointermove') {
                     this.capturePointer.captureMoveEvents = true;
@@ -6082,7 +6125,7 @@ var ex;
          * @param actor The child actor to add
          */
         Actor.prototype.addChild = function (actor) {
-            actor.collisionType = 0 /* PreventCollision */;
+            actor.collisionType = CollisionType.PreventCollision;
             if (ex.Util.addItemToArray(actor, this.children)) {
                 actor.parent = this;
             }
@@ -6295,18 +6338,18 @@ var ex;
             if (intersect) {
                 if (Math.abs(intersect.x) > Math.abs(intersect.y)) {
                     if (intersect.x < 0) {
-                        return 4 /* Right */;
+                        return ex.Side.Right;
                     }
-                    return 3 /* Left */;
+                    return ex.Side.Left;
                 }
                 else {
                     if (intersect.y < 0) {
-                        return 2 /* Bottom */;
+                        return ex.Side.Bottom;
                     }
-                    return 1 /* Top */;
+                    return ex.Side.Top;
                 }
             }
-            return 0 /* None */;
+            return ex.Side.None;
         };
         /**
          * Test whether the actor has collided with another actor, returns the side of the current actor that collided.
@@ -6315,25 +6358,25 @@ var ex;
         Actor.prototype.collidesWithSide = function (actor) {
             var separationVector = this.collides(actor);
             if (!separationVector) {
-                return 0 /* None */;
+                return ex.Side.None;
             }
             if (Math.abs(separationVector.x) > Math.abs(separationVector.y)) {
                 if (this.x < actor.x) {
-                    return 4 /* Right */;
+                    return ex.Side.Right;
                 }
                 else {
-                    return 3 /* Left */;
+                    return ex.Side.Left;
                 }
             }
             else {
                 if (this.y < actor.y) {
-                    return 2 /* Bottom */;
+                    return ex.Side.Bottom;
                 }
                 else {
-                    return 1 /* Top */;
+                    return ex.Side.Top;
                 }
             }
-            return 0 /* None */;
+            return ex.Side.None;
         };
         /**
          * Test whether the actor has collided with another actor, returns the intersection vector on collision. Returns
@@ -6606,10 +6649,11 @@ var ex;
             if (this.color) {
                 this.color.a = this.opacity;
             }
+            // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
             for (var i = 0; i < this.traits.length; i++) {
                 this.traits[i].update(this, engine, delta);
             }
-            eventDispatcher.publish(ex.EventType[5 /* Update */], new ex.UpdateEvent(delta));
+            eventDispatcher.publish(ex.EventType[ex.EventType.Update], new ex.UpdateEvent(delta));
         };
         /**
          * Called by the Engine, draws the actor to the screen
@@ -6633,10 +6677,12 @@ var ex;
                 var xDiff = 0;
                 var yDiff = 0;
                 if (this.centerDrawingX) {
-                    xDiff = (this.currentDrawing.width * this.currentDrawing.scale.x - this.getWidth()) / 2 - this.currentDrawing.width * this.currentDrawing.scale.x * this.currentDrawing.anchor.x;
+                    xDiff = (this.currentDrawing.naturalWidth * this.currentDrawing.scale.x - this.getWidth()) / 2 -
+                        this.currentDrawing.naturalWidth * this.currentDrawing.scale.x * this.currentDrawing.anchor.x;
                 }
                 if (this.centerDrawingY) {
-                    yDiff = (this.currentDrawing.height * this.currentDrawing.scale.y - this.getHeight()) / 2 - this.currentDrawing.height * this.currentDrawing.scale.y * this.currentDrawing.anchor.y;
+                    yDiff = (this.currentDrawing.naturalHeight * this.currentDrawing.scale.y - this.getHeight()) / 2 -
+                        this.currentDrawing.naturalHeight * this.currentDrawing.scale.y * this.currentDrawing.anchor.y;
                 }
                 this.currentDrawing.draw(ctx, -anchorPoint.x - xDiff, -anchorPoint.y - yDiff);
             }
@@ -6646,6 +6692,7 @@ var ex;
                     ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this._width, this._height);
                 }
             }
+            // Draw child actors
             for (var i = 0; i < this.children.length; i++) {
                 this.children[i].draw(ctx, delta);
             }
@@ -6656,22 +6703,47 @@ var ex;
          * @param ctx The rendering context
          */
         Actor.prototype.debugDraw = function (ctx) {
+            // Draw actor bounding box
             var bb = this.getBounds();
             bb.debugDraw(ctx);
+            // Draw actor Id
             ctx.fillText('id: ' + this.id, bb.left + 3, bb.top + 10);
+            // Draw actor anchor point
             ctx.fillStyle = ex.Color.Yellow.toString();
             ctx.beginPath();
             ctx.arc(this.getWorldX(), this.getWorldY(), 3, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fill();
+            // Culling Box debug draw
             for (var j = 0; j < this.traits.length; j++) {
                 if (this.traits[j] instanceof ex.Traits.OffscreenCulling) {
                     this.traits[j].cullingBox.debugDraw(ctx);
                 }
             }
+            // Unit Circle debug draw
+            ctx.strokeStyle = ex.Color.Yellow.toString();
+            ctx.beginPath();
+            var radius = Math.min(this.getWidth(), this.getHeight());
+            ctx.arc(this.getWorldX(), this.getWorldY(), radius, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.stroke();
+            var ticks = { '0 Pi': 0,
+                'Pi/2': Math.PI / 2,
+                'Pi': Math.PI,
+                '3/2 Pi': 3 * Math.PI / 2 };
+            var oldFont = ctx.font;
+            for (var tick in ticks) {
+                ctx.fillStyle = ex.Color.Yellow.toString();
+                ctx.font = '14px';
+                ctx.textAlign = 'center';
+                ctx.fillText(tick, this.getWorldX() + Math.cos(ticks[tick]) * (radius + 10), this.getWorldY() + Math.sin(ticks[tick]) * (radius + 10));
+            }
+            ctx.font = oldFont;
+            // Draw child actors
             ctx.save();
             ctx.translate(this.x, this.y);
             ctx.rotate(this.rotation);
+            // Draw child actors
             for (var i = 0; i < this.children.length; i++) {
                 this.children[i].debugDraw(ctx);
             }
@@ -6763,7 +6835,7 @@ var ex;
              * Gets or sets the default logging level. Excalibur will only log
              * messages if equal to or above this level. Default: [[LogLevel.Info]]
              */
-            this.defaultLevel = 1 /* Info */;
+            this.defaultLevel = LogLevel.Info;
             if (Logger._instance) {
                 throw new Error('Logger is a singleton');
             }
@@ -6818,7 +6890,7 @@ var ex;
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i - 0] = arguments[_i];
             }
-            this._log(0 /* Debug */, args);
+            this._log(LogLevel.Debug, args);
         };
         /**
          * Writes a log message at the [[LogLevel.Info]] level
@@ -6829,7 +6901,7 @@ var ex;
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i - 0] = arguments[_i];
             }
-            this._log(1 /* Info */, args);
+            this._log(LogLevel.Info, args);
         };
         /**
          * Writes a log message at the [[LogLevel.Warn]] level
@@ -6840,7 +6912,7 @@ var ex;
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i - 0] = arguments[_i];
             }
-            this._log(2 /* Warn */, args);
+            this._log(LogLevel.Warn, args);
         };
         /**
          * Writes a log message at the [[LogLevel.Error]] level
@@ -6851,7 +6923,7 @@ var ex;
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i - 0] = arguments[_i];
             }
-            this._log(3 /* Error */, args);
+            this._log(LogLevel.Error, args);
         };
         /**
          * Writes a log message at the [[LogLevel.Fatal]] level
@@ -6862,7 +6934,7 @@ var ex;
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i - 0] = arguments[_i];
             }
-            this._log(4 /* Fatal */, args);
+            this._log(LogLevel.Fatal, args);
         };
         Logger._instance = null;
         return Logger;
@@ -6889,7 +6961,7 @@ var ex;
             var consoleArgs = [];
             consoleArgs.unshift.apply(consoleArgs, args);
             consoleArgs.unshift('[' + LogLevel[level] + '] : ');
-            if (level < 2 /* Warn */) {
+            if (level < LogLevel.Warn) {
                 // Call .log for Debug/Info
                 if (console.log.apply) {
                     // this is required on some older browsers that don't support apply on console.log :(
@@ -6899,7 +6971,7 @@ var ex;
                     console.log(consoleArgs.join(' '));
                 }
             }
-            else if (level < 3 /* Error */) {
+            else if (level < LogLevel.Error) {
                 // Call .warn for Warn
                 if (console.warn.apply) {
                     console.warn.apply(console, consoleArgs);
@@ -7699,7 +7771,7 @@ var ex;
             this.traits.push(new ex.Traits.Movement());
             this.traits.push(new ex.Traits.CapturePointer());
             this.anchor.setTo(0, 0);
-            this.collisionType = 0 /* PreventCollision */;
+            this.collisionType = ex.CollisionType.PreventCollision;
             this.enableCapturePointer = true;
         }
         UIActor.prototype.onInitialize = function (engine) {
@@ -7767,14 +7839,12 @@ var ex;
          */
         function Trigger(x, y, width, height, action, repeats) {
             _super.call(this, x, y, width, height);
-            this._action = function () {
-                return;
-            };
+            this._action = function () { return; };
             this.repeats = 1;
             this.target = null;
             this.repeats = repeats || this.repeats;
             this._action = action || this._action;
-            this.collisionType = 0 /* PreventCollision */;
+            this.collisionType = ex.CollisionType.PreventCollision;
             this.eventDispatcher = new ex.EventDispatcher(this);
             this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
         }
@@ -7796,7 +7866,9 @@ var ex;
             else {
                 for (var i = 0; i < engine.currentScene.children.length; i++) {
                     var other = engine.currentScene.children[i];
-                    if (other !== this && other.collisionType !== 0 /* PreventCollision */ && this.collides(other)) {
+                    if (other !== this &&
+                        other.collisionType !== ex.CollisionType.PreventCollision &&
+                        this.collides(other)) {
                         this._dispatchAction();
                     }
                 }
@@ -8080,7 +8152,7 @@ var ex;
             /**
              * Gets or sets the emitter type for the particle emitter
              */
-            this.emitterType = 1 /* Rectangle */;
+            this.emitterType = EmitterType.Rectangle;
             /**
              * Gets or sets the emitter radius, only takes effect when the [[emitterType]] is [[EmitterType.Circle]]
              */
@@ -8093,9 +8165,10 @@ var ex;
              * Indicates whether particles should start with a random rotation
              */
             this.randomRotation = false;
-            this.collisionType = 0 /* PreventCollision */;
+            this.collisionType = ex.CollisionType.PreventCollision;
             this.particles = new ex.Util.Collection();
             this.deadParticles = new ex.Util.Collection();
+            // Remove offscreen culling from particle emitters
             for (var trait in this.traits) {
                 if (this.traits[trait] instanceof ex.Traits.OffscreenCulling) {
                     this.traits.splice(trait, 1);
@@ -8127,11 +8200,11 @@ var ex;
             var size = this.startSize || ex.Util.randomInRange(this.minSize, this.maxSize);
             var dx = vel * Math.cos(angle);
             var dy = vel * Math.sin(angle);
-            if (this.emitterType === 1 /* Rectangle */) {
+            if (this.emitterType === EmitterType.Rectangle) {
                 ranX = ex.Util.randomInRange(this.x, this.x + this.getWidth());
                 ranY = ex.Util.randomInRange(this.y, this.y + this.getHeight());
             }
-            else if (this.emitterType === 0 /* Circle */) {
+            else if (this.emitterType === EmitterType.Circle) {
                 var radius = ex.Util.randomInRange(0, this.radius);
                 ranX = radius * Math.cos(angle) + this.x;
                 ranY = radius * Math.sin(angle) + this.y;
@@ -8268,14 +8341,20 @@ var ex;
             this.flipHorizontal = false;
             this.width = 0;
             this.height = 0;
+            this.naturalWidth = 0;
+            this.naturalHeight = 0;
             this.sprites = images;
             this.speed = speed;
             this._engine = engine;
             if (loop != null) {
                 this.loop = loop;
             }
-            this.height = images[0] ? images[0].height : 0;
-            this.width = images[0] ? images[0].width : 0;
+            if (images && images[0]) {
+                this.height = images[0] ? images[0].height : 0;
+                this.width = images[0] ? images[0].width : 0;
+                this.naturalWidth = images[0] ? images[0].naturalWidth : 0;
+                this.naturalHeight = images[0] ? images[0].naturalHeight : 0;
+            }
         }
         /**
          * Applies the opacity effect to a sprite, setting the alpha of all pixels to a given value
@@ -8358,18 +8437,21 @@ var ex;
             }
         };
         Animation.prototype._setAnchor = function (point) {
+            //if (!this.anchor.equals(point)) {
             for (var i in this.sprites) {
                 this.sprites[i].anchor.setTo(point.x, point.y);
             }
             //}
         };
         Animation.prototype._setRotation = function (radians) {
+            //if (this.rotation !== radians) {
             for (var i in this.sprites) {
                 this.sprites[i].rotation = radians;
             }
             //}
         };
         Animation.prototype._setScale = function (scale) {
+            //if (!this.scale.equals(scale)) {
             for (var i in this.sprites) {
                 this.sprites[i].scale = scale;
             }
@@ -8429,6 +8511,11 @@ var ex;
                 currSprite = this.sprites[ex.Util.clamp(this.freezeFrame, 0, this.sprites.length - 1)];
                 currSprite.draw(ctx, x, y);
             }
+            // add the calculated width
+            if (currSprite) {
+                this.width = currSprite.width;
+                this.height = currSprite.height;
+            }
         };
         /**
          * Plays an animation at an arbitrary location in the game.
@@ -8453,15 +8540,9 @@ var ex;
         var FallbackAudio = (function () {
             function FallbackAudio(path, volume) {
                 this._log = ex.Logger.getInstance();
-                this.onload = function () {
-                    return;
-                };
-                this.onprogress = function () {
-                    return;
-                };
-                this.onerror = function () {
-                    return;
-                };
+                this.onload = function () { return; };
+                this.onprogress = function () { return; };
+                this.onerror = function () { return; };
                 if (window.AudioContext) {
                     this._log.debug('Using new Web Audio Api for ' + path);
                     this._soundImpl = new WebAudio(path, volume);
@@ -8509,15 +8590,9 @@ var ex;
                 this._log = ex.Logger.getInstance();
                 this._isPlaying = false;
                 this._currentOffset = 0;
-                this.onload = function () {
-                    return;
-                };
-                this.onprogress = function () {
-                    return;
-                };
-                this.onerror = function () {
-                    return;
-                };
+                this.onload = function () { return; };
+                this.onprogress = function () { return; };
+                this.onerror = function () { return; };
                 for (var i = 0; i < this._audioElements.length; i++) {
                     (function (i) {
                         _this._audioElements[i] = new Audio();
@@ -8624,15 +8699,9 @@ var ex;
                 this._isPaused = false;
                 this._currentOffset = 0;
                 this._logger = ex.Logger.getInstance();
-                this.onload = function () {
-                    return;
-                };
-                this.onprogress = function () {
-                    return;
-                };
-                this.onerror = function () {
-                    return;
-                };
+                this.onload = function () { return; };
+                this.onprogress = function () { return; };
+                this.onerror = function () { return; };
                 this._path = soundPath;
                 if (volume) {
                     this._volume.gain.value = ex.Util.clamp(volume, 0, 1.0);
@@ -8663,7 +8732,9 @@ var ex;
                         _this._isLoaded = true;
                         _this.onload(_this);
                     }, function (e) {
-                        _this._logger.error('Unable to decode ' + _this._path + ' this browser may not fully support this format, or the file may be corrupt, ' + 'if this is an mp3 try removing id3 tags and album art from the file.');
+                        _this._logger.error('Unable to decode ' + _this._path +
+                            ' this browser may not fully support this format, or the file may be corrupt, ' +
+                            'if this is an mp3 try removing id3 tags and album art from the file.');
                         _this._isLoaded = false;
                         _this.onload(_this);
                     });
@@ -8810,11 +8881,9 @@ var ex;
      */
     var Promise = (function () {
         function Promise() {
-            this._state = 2 /* Pending */;
+            this._state = PromiseState.Pending;
             this._successCallbacks = [];
-            this._rejectCallback = function () {
-                return;
-            };
+            this._rejectCallback = function () { return; };
             this._logger = ex.Logger.getInstance();
         }
         /**
@@ -8874,7 +8943,7 @@ var ex;
             if (successCallback) {
                 this._successCallbacks.push(successCallback);
                 // If the promise is already resovled call immediately
-                if (this.state() === 0 /* Resolved */) {
+                if (this.state() === PromiseState.Resolved) {
                     try {
                         successCallback.call(this, this._value);
                     }
@@ -8886,7 +8955,7 @@ var ex;
             if (rejectCallback) {
                 this._rejectCallback = rejectCallback;
                 // If the promise is already rejected call immediately
-                if (this.state() === 1 /* Rejected */) {
+                if (this.state() === PromiseState.Rejected) {
                     try {
                         rejectCallback.call(this, this._value);
                     }
@@ -8913,10 +8982,10 @@ var ex;
          */
         Promise.prototype.resolve = function (value) {
             var _this = this;
-            if (this._state === 2 /* Pending */) {
+            if (this._state === PromiseState.Pending) {
                 this._value = value;
                 try {
-                    this._state = 0 /* Resolved */;
+                    this._state = PromiseState.Resolved;
                     this._successCallbacks.forEach(function (cb) {
                         cb.call(_this, _this._value);
                     });
@@ -8935,10 +9004,10 @@ var ex;
          * @param value  Value to pass to the reject callbacks
          */
         Promise.prototype.reject = function (value) {
-            if (this._state === 2 /* Pending */) {
+            if (this._state === PromiseState.Pending) {
                 this._value = value;
                 try {
-                    this._state = 1 /* Rejected */;
+                    this._state = PromiseState.Rejected;
                     this._rejectCallback.call(this, this._value);
                 }
                 catch (e) {
@@ -8961,6 +9030,7 @@ var ex;
                 this._errorCallback.call(this, e);
             }
             else {
+                // rethrow error
                 throw e;
             }
         };
@@ -9017,15 +9087,9 @@ var ex;
             this.bustCache = bustCache;
             this.data = null;
             this.logger = ex.Logger.getInstance();
-            this.onprogress = function () {
-                return;
-            };
-            this.oncomplete = function () {
-                return;
-            };
-            this.onerror = function () {
-                return;
-            };
+            this.onprogress = function () { return; };
+            this.oncomplete = function () { return; };
+            this.onerror = function () { return; };
         }
         /**
          * Returns true if the Resource is completely loaded and is ready
@@ -9059,9 +9123,7 @@ var ex;
             var request = new XMLHttpRequest();
             request.open('GET', this.bustCache ? this._cacheBust(this.path) : this.path, true);
             request.responseType = this.responseType;
-            request.onloadstart = function (e) {
-                _this._start(e);
-            };
+            request.onloadstart = function (e) { _this._start(e); };
             request.onprogress = this.onprogress;
             request.onerror = this.onerror;
             request.onload = function (e) {
@@ -9222,18 +9284,10 @@ var ex;
                 paths[_i - 0] = arguments[_i];
             }
             this._logger = ex.Logger.getInstance();
-            this.onprogress = function () {
-                return;
-            };
-            this.oncomplete = function () {
-                return;
-            };
-            this.onerror = function () {
-                return;
-            };
-            this.onload = function () {
-                return;
-            };
+            this.onprogress = function () { return; };
+            this.oncomplete = function () { return; };
+            this.onerror = function () { return; };
+            this.onload = function () { return; };
             this._isLoaded = false;
             this._selectedFile = '';
             this._wasPlayingOnHidden = false;
@@ -9250,7 +9304,8 @@ var ex;
                 }
             }
             if (!this._selectedFile) {
-                this._logger.warn('This browser does not support any of the files specified');
+                this._logger.warn('This browser does not support any of the audio files specified:', paths.join(', '));
+                this._logger.warn('Attempting to use', paths[0]);
                 this._selectedFile = paths[0]; // select the first specified
             }
             this.sound = new ex.Internal.FallbackAudio(this._selectedFile, 1.0);
@@ -9418,15 +9473,9 @@ var ex;
             this._numLoaded = 0;
             this._progressCounts = {};
             this._totalCounts = {};
-            this.onprogress = function () {
-                return;
-            };
-            this.oncomplete = function () {
-                return;
-            };
-            this.onerror = function () {
-                return;
-            };
+            this.onprogress = function () { return; };
+            this.oncomplete = function () { return; };
+            this.onerror = function () { return; };
             if (loadables) {
                 this.addResources(loadables);
             }
@@ -9520,6 +9569,87 @@ var ex;
     })();
     ex.Loader = Loader;
 })(ex || (ex = {}));
+/// <reference path="Log.ts" />
+var ex;
+(function (ex) {
+    var Detector = (function () {
+        function Detector() {
+            this.failedTests = [];
+            // critical browser features required for ex to run
+            this._criticalTests = {
+                // Test canvas/2d context support
+                canvasSupport: function () {
+                    var elem = document.createElement('canvas');
+                    return !!(elem.getContext && elem.getContext('2d'));
+                },
+                // Test array buffer support ex uses for downloading binary data
+                arrayBufferSupport: function () {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', '/');
+                    try {
+                        xhr.responseType = 'arraybuffer';
+                    }
+                    catch (e) {
+                        return false;
+                    }
+                    return xhr.responseType === 'arraybuffer';
+                },
+                // Test data urls ex uses for sprites
+                dataUrlSupport: function () {
+                    var canvas = document.createElement('canvas');
+                    return canvas.toDataURL('image/png').indexOf('data:image/png') === 0;
+                },
+                // Test object url support for loading
+                objectUrlSupport: function () {
+                    return 'URL' in window && 'revokeObjectURL' in URL && 'createObjectURL' in URL;
+                },
+                // RGBA support for colors
+                rgbaSupport: function () {
+                    var style = document.createElement('a').style;
+                    style.cssText = 'background-color:rgba(150,255,150,.5)';
+                    return ('' + style.backgroundColor).indexOf('rgba') > -1;
+                }
+            };
+            // warnings excalibur performance will be degraded
+            this._warningTest = {
+                webAudioSupport: function () {
+                    return !!(window.AudioContext ||
+                        window.webkitAudioContext ||
+                        window.mozAudioContext ||
+                        window.msAudioContext ||
+                        window.oAudioContext);
+                },
+                webglSupport: function () {
+                    var elem = document.createElement('canvas');
+                    return !!(elem.getContext && elem.getContext('webgl'));
+                }
+            };
+        }
+        Detector.prototype.test = function () {
+            // Critical test will for ex not to run
+            var failedCritical = false;
+            for (var test in this._criticalTests) {
+                if (!this._criticalTests[test]()) {
+                    this.failedTests.push(test);
+                    ex.Logger.getInstance().error('Critical browser feature missing, Excalibur requires:', test);
+                    failedCritical = true;
+                }
+            }
+            if (failedCritical) {
+                return false;
+            }
+            // Warning tests do not for ex to return false to compatibility
+            for (var warning in this._warningTest) {
+                if (!this._warningTest[warning]()) {
+                    ex.Logger.getInstance().warn('Warning browser feature missing, Excalibur will have reduced performance:', warning);
+                }
+            }
+            return true;
+        };
+        return Detector;
+    })();
+    ex.Detector = Detector;
+})(ex || (ex = {}));
 /// <reference path="Promises.ts" />
 /// <reference path="Loader.ts" />
 /// <reference path="Util/Log.ts" />
@@ -9540,15 +9670,9 @@ var ex;
             this.path = path;
             this._isLoaded = false;
             this.logger = ex.Logger.getInstance();
-            this.onprogress = function () {
-                return;
-            };
-            this.oncomplete = function () {
-                return;
-            };
-            this.onerror = function () {
-                return;
-            };
+            this.onprogress = function () { return; };
+            this.oncomplete = function () { return; };
+            this.onerror = function () { return; };
             this._innerElement = document.createElement('div');
             this._innerElement.className = 'excalibur-template';
         }
@@ -9582,6 +9706,7 @@ var ex;
          */
         Template.prototype.apply = function (ctx) {
             var _this = this;
+            /* tslint:disable:no-string-literal */
             for (var j = 0; j < this._styleElements.length; j++) {
                 (function () {
                     // poor man's json parse for things that aren't exactly json :(
@@ -9593,6 +9718,7 @@ var ex;
                             styles[vals[0].trim()] = vals[1].trim();
                         }
                     });
+                    // Evaluate parsed style expressions
                     for (var style in styles) {
                         (function () {
                             var expression = styles[style];
@@ -9898,7 +10024,7 @@ var ex;
             this.text = text || '';
             this.color = ex.Color.Black.clone();
             this.spriteFont = spriteFont;
-            this.collisionType = 0 /* PreventCollision */;
+            this.collisionType = ex.CollisionType.PreventCollision;
             this.font = font || '10px sans-serif'; // coallesce to default canvas font
             if (spriteFont) {
                 this._textSprites = spriteFont.getTextSprites();
@@ -9918,15 +10044,15 @@ var ex;
         // TypeScript doesn't support string enums :(
         Label.prototype._lookupTextAlign = function (textAlign) {
             switch (textAlign) {
-                case 0 /* Left */:
+                case TextAlign.Left:
                     return 'left';
-                case 1 /* Right */:
+                case TextAlign.Right:
                     return 'right';
-                case 2 /* Center */:
+                case TextAlign.Center:
                     return 'center';
-                case 4 /* End */:
+                case TextAlign.End:
                     return 'end';
-                case 3 /* Start */:
+                case TextAlign.Start:
                     return 'start';
                 default:
                     return 'start';
@@ -9934,17 +10060,17 @@ var ex;
         };
         Label.prototype._lookupBaseAlign = function (baseAlign) {
             switch (baseAlign) {
-                case 3 /* Alphabetic */:
+                case BaseAlign.Alphabetic:
                     return 'alphabetic';
-                case 5 /* Bottom */:
+                case BaseAlign.Bottom:
                     return 'bottom';
-                case 1 /* Hanging */:
+                case BaseAlign.Hanging:
                     return 'hangin';
-                case 4 /* Ideographic */:
+                case BaseAlign.Ideographic:
                     return 'ideographic';
-                case 2 /* Middle */:
+                case BaseAlign.Middle:
                     return 'middle';
-                case 0 /* Top */:
+                case BaseAlign.Top:
                     return 'top';
                 default:
                     return 'alphabetic';
@@ -9977,12 +10103,14 @@ var ex;
         };
         Label.prototype.update = function (engine, delta) {
             _super.prototype.update.call(this, engine, delta);
-            if (this.spriteFont && this._color !== this.color) {
+            if (this.spriteFont && (this._color !== this.color || this.previousOpacity !== this.opacity)) {
                 for (var character in this._textSprites) {
                     this._textSprites[character].clearEffects();
-                    this._textSprites[character].addEffect(new ex.Effects.Fill(this.color.clone()));
-                    this._color = this.color;
+                    this._textSprites[character].fill(this.color.clone());
+                    this._textSprites[character].opacity(this.opacity);
                 }
+                this._color = this.color;
+                this.previousOpacity = this.opacity;
             }
             if (this.spriteFont && this._textShadowOn && this._shadowColorDirty && this._shadowColor) {
                 for (var characterShadow in this._shadowSprites) {
@@ -10017,19 +10145,12 @@ var ex;
                     }
                     try {
                         var charSprite = sprites[character];
-                        if (this.previousOpacity !== this.opacity) {
-                            charSprite.clearEffects();
-                            charSprite.addEffect(new ex.Effects.Opacity(this.opacity));
-                        }
                         charSprite.draw(ctx, currX, 0);
                         currX += (charSprite.swidth + this.letterSpacing);
                     }
                     catch (e) {
                         ex.Logger.getInstance().error('SpriteFont Error drawing char ' + character);
                     }
-                }
-                if (this.previousOpacity !== this.opacity) {
-                    this.previousOpacity = this.opacity;
                 }
             }
             else {
@@ -10278,9 +10399,9 @@ var ex;
              * Initializes pointer event listeners
              */
             Pointers.prototype.init = function (scope) {
-                if (scope === void 0) { scope = 1 /* Document */; }
+                if (scope === void 0) { scope = PointerScope.Document; }
                 var target = document;
-                if (scope === 1 /* Document */) {
+                if (scope === PointerScope.Document) {
                     target = document;
                 }
                 else {
@@ -10328,6 +10449,7 @@ var ex;
              */
             Pointers.prototype.at = function (index) {
                 if (index >= this._pointers.length) {
+                    // Ensure there is a pointer to retrieve
                     for (var i = this._pointers.length - 1, max = index; i < max; i++) {
                         this._pointers.push(new Pointer());
                         this._activePointers.push(-1);
@@ -10383,7 +10505,7 @@ var ex;
                     var x = e.pageX - ex.Util.getPosition(_this._engine.canvas).x;
                     var y = e.pageY - ex.Util.getPosition(_this._engine.canvas).y;
                     var transformedPoint = _this._engine.screenToWorldCoordinates(new ex.Point(x, y));
-                    var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, 0, 1 /* Mouse */, e.button, e);
+                    var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, 0, PointerType.Mouse, e.button, e);
                     eventArr.push(pe);
                     _this.at(0).eventDispatcher.publish(eventName, pe);
                 };
@@ -10400,7 +10522,7 @@ var ex;
                         var x = e.changedTouches[i].pageX - ex.Util.getPosition(_this._engine.canvas).x;
                         var y = e.changedTouches[i].pageY - ex.Util.getPosition(_this._engine.canvas).y;
                         var transformedPoint = _this._engine.screenToWorldCoordinates(new ex.Point(x, y));
-                        var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, 0 /* Touch */, 3 /* Unknown */, e);
+                        var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, PointerType.Touch, PointerButton.Unknown, e);
                         eventArr.push(pe);
                         _this.at(index).eventDispatcher.publish(eventName, pe);
                         // only with multi-pointer
@@ -10465,13 +10587,13 @@ var ex;
             Pointers.prototype._stringToPointerType = function (s) {
                 switch (s) {
                     case 'touch':
-                        return 0 /* Touch */;
+                        return PointerType.Touch;
                     case 'mouse':
-                        return 1 /* Mouse */;
+                        return PointerType.Mouse;
                     case 'pen':
-                        return 2 /* Pen */;
+                        return PointerType.Pen;
                     default:
-                        return 3 /* Unknown */;
+                        return PointerType.Unknown;
                 }
             };
             return Pointers;
@@ -10826,6 +10948,7 @@ var ex;
                             }
                         }
                     }
+                    // Axes
                     for (a in Axes) {
                         if (typeof Axes[a] !== 'number') {
                             continue;
@@ -10845,6 +10968,7 @@ var ex;
              */
             Gamepads.prototype.at = function (index) {
                 if (index >= this._pads.length) {
+                    // Ensure there is a pad to retrieve
                     for (var i = this._pads.length - 1, max = index; i < max; i++) {
                         this._pads.push(new Gamepad());
                         this._oldPads.push(new Gamepad());
@@ -11091,6 +11215,7 @@ var ex;
 /// <reference path="Loader.ts" />
 /// <reference path="Promises.ts" />
 /// <reference path="Util/Util.ts" />
+/// <reference path="Util/Detector.ts" />
 /// <reference path="Binding.ts" />
 /// <reference path="TileMap.ts" />
 /// <reference path="Label.ts" />
@@ -11355,7 +11480,7 @@ var ex;
             /**
              * Gets or sets the [[CollisionStrategy]] for Excalibur actors
              */
-            this.collisionStrategy = 1 /* DynamicAABBTree */;
+            this.collisionStrategy = ex.CollisionStrategy.DynamicAABBTree;
             this._hasStarted = false;
             /**
              * Current FPS
@@ -11377,7 +11502,7 @@ var ex;
             /**
              * Indicates the current [[DisplayMode]] of the engine.
              */
-            this.displayMode = 0 /* FullScreen */;
+            this.displayMode = DisplayMode.FullScreen;
             /**
              * Indicates whether audio should be paused when the game is no longer visible.
              */
@@ -11391,6 +11516,10 @@ var ex;
              * Sets the background color for the engine.
              */
             this.backgroundColor = new ex.Color(0, 0, 100);
+            /**
+             * The action to take when a fatal exception is thrown
+             */
+            this.onFatalException = function (e) { ex.Logger.getInstance().fatal(e); };
             this._isSmoothingEnabled = true;
             this._isLoading = false;
             this._progress = 0;
@@ -11407,11 +11536,30 @@ var ex;
                 displayMode = arguments[3];
             }
             else {
-                options = arguments[0] || { width: 0, height: 0, canvasElementId: '', displayMode: 0 /* FullScreen */ };
+                options = arguments[0] || { width: 0, height: 0, canvasElementId: '', displayMode: DisplayMode.FullScreen };
                 width = options.width;
                 height = options.height;
                 canvasElementId = options.canvasElementId;
                 displayMode = options.displayMode;
+            }
+            // Check compatibility 
+            var detector = new ex.Detector();
+            if (!(this._compatible = detector.test())) {
+                var message = document.createElement('div');
+                message.innerText = 'Sorry, your browser does not support all the features needed for Excalibur';
+                document.body.appendChild(message);
+                detector.failedTests.forEach(function (test) {
+                    var testMessage = document.createElement('div');
+                    testMessage.innerText = 'Browser feature missing ' + test;
+                    document.body.appendChild(testMessage);
+                });
+                if (canvasElementId) {
+                    var canvas = document.getElementById(canvasElementId);
+                    if (canvas) {
+                        canvas.parentElement.removeChild(canvas);
+                    }
+                }
+                return;
             }
             this._logger = ex.Logger.getInstance();
             this._logger.info('Powered by Excalibur.js visit", "http://excaliburjs.com", "for more information.');
@@ -11427,7 +11575,7 @@ var ex;
             }
             if (width && height) {
                 if (displayMode === undefined) {
-                    this.displayMode = 2 /* Fixed */;
+                    this.displayMode = DisplayMode.Fixed;
                 }
                 this._logger.debug('Engine viewport is size ' + width + ' x ' + height);
                 this.width = width;
@@ -11437,7 +11585,7 @@ var ex;
             }
             else if (!displayMode) {
                 this._logger.debug('Engine viewport is fullscreen');
-                this.displayMode = 0 /* FullScreen */;
+                this.displayMode = DisplayMode.FullScreen;
             }
             this._loader = new ex.Loader();
             this._initialize(options);
@@ -11527,6 +11675,7 @@ var ex;
          */
         Engine.prototype.removeScene = function (entity) {
             if (entity instanceof ex.Scene) {
+                // remove scene
                 for (var key in this.scenes) {
                     if (this.scenes.hasOwnProperty(key)) {
                         if (this.scenes[key] === entity) {
@@ -11631,45 +11780,52 @@ var ex;
          * @param point  Screen coordinate to convert
          */
         Engine.prototype.screenToWorldCoordinates = function (point) {
-            // todo set these back this.canvas.clientWidth
             var newX = point.x;
             var newY = point.y;
+            // transform back to world space
+            newX = (newX / this.canvas.clientWidth) * this.getWidth();
+            newY = (newY / this.canvas.clientHeight) * this.getHeight();
+            // transform based on zoom
+            newX = newX - this.getWidth() / 2;
+            newY = newY - this.getHeight() / 2;
+            // shift by focus
             if (this.currentScene && this.currentScene.camera) {
                 var focus = this.currentScene.camera.getFocus();
-                newX = focus.x + (point.x - (this.getWidth() / 2));
-                newY = focus.y + (point.y - (this.getHeight() / 2));
+                newX += focus.x;
+                newY += focus.y;
             }
-            newX = Math.floor((newX / this.canvas.clientWidth) * this.getWidth());
-            newY = Math.floor((newY / this.canvas.clientHeight) * this.getHeight());
-            return new ex.Point(newX, newY);
+            return new ex.Point(Math.floor(newX), Math.floor(newY));
         };
         /**
          * Transforms a world coordinate, to a screen coordinate
          * @param point  World coordinate to convert
          */
         Engine.prototype.worldToScreenCoordinates = function (point) {
-            // todo set these back this.canvas.clientWidth
-            // this isn't correct on zoom
             var screenX = point.x;
             var screenY = point.y;
+            // shift by focus
             if (this.currentScene && this.currentScene.camera) {
                 var focus = this.currentScene.camera.getFocus();
-                screenX = (point.x - focus.x) + (this.getWidth() / 2);
-                screenY = (point.y - focus.y) + (this.getHeight() / 2);
+                screenX -= focus.x;
+                screenY -= focus.y;
             }
-            screenX = Math.floor((screenX / this.getWidth()) * this.canvas.clientWidth);
-            screenY = Math.floor((screenY / this.getHeight()) * this.canvas.clientHeight);
-            return new ex.Point(screenX, screenY);
+            // transfrom back on zoom
+            screenX = screenX + this.getWidth() / 2;
+            screenY = screenY + this.getHeight() / 2;
+            // transform back to screen space
+            screenX = (screenX * this.canvas.clientWidth) / this.getWidth();
+            screenY = (screenY * this.canvas.clientHeight) / this.getHeight();
+            return new ex.Point(Math.floor(screenX), Math.floor(screenY));
         };
         /**
          * Sets the internal canvas height based on the selected display mode.
          */
         Engine.prototype._setHeightByDisplayMode = function (parent) {
-            if (this.displayMode === 1 /* Container */) {
+            if (this.displayMode === DisplayMode.Container) {
                 this.width = this.canvas.width = parent.clientWidth;
                 this.height = this.canvas.height = parent.clientHeight;
             }
-            if (this.displayMode === 0 /* FullScreen */) {
+            if (this.displayMode === DisplayMode.FullScreen) {
                 document.body.style.margin = '0px';
                 document.body.style.overflow = 'hidden';
                 this.width = this.canvas.width = parent.innerWidth;
@@ -11681,8 +11837,9 @@ var ex;
          */
         Engine.prototype._initialize = function (options) {
             var _this = this;
-            if (this.displayMode === 0 /* FullScreen */ || this.displayMode === 1 /* Container */) {
-                var parent = (this.displayMode === 1 /* Container */ ? (this.canvas.parentElement || document.body) : window);
+            if (this.displayMode === DisplayMode.FullScreen || this.displayMode === DisplayMode.Container) {
+                var parent = (this.displayMode === DisplayMode.Container ?
+                    (this.canvas.parentElement || document.body) : window);
                 this._setHeightByDisplayMode(parent);
                 window.addEventListener('resize', function (ev) {
                     _this._logger.debug('View port resized');
@@ -11698,7 +11855,7 @@ var ex;
                 gamepads: new ex.Input.Gamepads(this)
             };
             this.input.keyboard.init();
-            this.input.pointers.init(options ? options.pointerScope : 1 /* Document */);
+            this.input.pointers.init(options ? options.pointerScope : ex.Input.PointerScope.Document);
             this.input.gamepads.init();
             // Issue #385 make use of the visibility api
             // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
@@ -11743,7 +11900,10 @@ var ex;
          * Return the current smoothing status of the canvas
          */
         Engine.prototype.getAntialiasing = function () {
-            return this.ctx.imageSmoothingEnabled || this.ctx.webkitImageSmoothingEnabled || this.ctx.mozImageSmoothingEnabled || this.ctx.msImageSmoothingEnabled;
+            return this.ctx.imageSmoothingEnabled ||
+                this.ctx.webkitImageSmoothingEnabled ||
+                this.ctx.mozImageSmoothingEnabled ||
+                this.ctx.msImageSmoothingEnabled;
         };
         /**
          * Updates the entire state of the game
@@ -11765,7 +11925,7 @@ var ex;
             this.input.pointers.update(delta);
             this.input.gamepads.update(delta);
             // Publish update event
-            this.eventDispatcher.publish(ex.EventType[5 /* Update */], new ex.UpdateEvent(delta));
+            this.eventDispatcher.publish(ex.EventType[ex.EventType.Update], new ex.UpdateEvent(delta));
         };
         /**
          * Draws the entire game
@@ -11800,6 +11960,7 @@ var ex;
                 }
                 this.ctx.fillText('FPS:' + this.fps.toFixed(2).toString(), 10, 10);
             }
+            // Post processing
             for (var i = 0; i < this.postProcessors.length; i++) {
                 this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.width, this.height), this.ctx);
             }
@@ -11812,6 +11973,10 @@ var ex;
          * [[Sound]], or [[Texture]].
          */
         Engine.prototype.start = function (loader) {
+            if (!this._compatible) {
+                var promise = new ex.Promise();
+                return promise.reject('Excalibur is incompatible with your browser');
+            }
             var loadingComplete;
             if (loader) {
                 loader.wireEngine(this);
@@ -11830,20 +11995,27 @@ var ex;
                     if (!game._hasStarted) {
                         return;
                     }
-                    window.requestAnimationFrame(mainloop);
-                    // Get the time to calculate time-elapsed
-                    var now = Date.now();
-                    var elapsed = Math.floor(now - lastTime) || 1;
-                    // Resolves issue #138 if the game has been paused, or blurred for 
-                    // more than a 200 milliseconds, reset elapsed time to 1. This improves reliability 
-                    // and provides more expected behavior when the engine comes back
-                    // into focus
-                    if (elapsed > 200) {
-                        elapsed = 1;
+                    try {
+                        game._requestId = window.requestAnimationFrame(mainloop);
+                        // Get the time to calculate time-elapsed
+                        var now = Date.now();
+                        var elapsed = Math.floor(now - lastTime) || 1;
+                        // Resolves issue #138 if the game has been paused, or blurred for 
+                        // more than a 200 milliseconds, reset elapsed time to 1. This improves reliability 
+                        // and provides more expected behavior when the engine comes back
+                        // into focus
+                        if (elapsed > 200) {
+                            elapsed = 1;
+                        }
+                        game._update(elapsed);
+                        game._draw(elapsed);
+                        lastTime = now;
                     }
-                    game._update(elapsed);
-                    game._draw(elapsed);
-                    lastTime = now;
+                    catch (e) {
+                        window.cancelAnimationFrame(game._requestId);
+                        game.stop();
+                        game.onFatalException(e);
+                    }
                 })();
                 this._logger.debug('Game started');
             }

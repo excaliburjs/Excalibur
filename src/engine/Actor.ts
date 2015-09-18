@@ -1089,12 +1089,12 @@ module ex {
           var yDiff = 0;
           
           if (this.centerDrawingX) {
-             xDiff = (this.currentDrawing.width * this.currentDrawing.scale.x - this.getWidth()) / 2 -
-             this.currentDrawing.width * this.currentDrawing.scale.x * this.currentDrawing.anchor.x;
+             xDiff = (this.currentDrawing.naturalWidth * this.currentDrawing.scale.x - this.getWidth()) / 2 -
+             this.currentDrawing.naturalWidth * this.currentDrawing.scale.x * this.currentDrawing.anchor.x;
           }
           if (this.centerDrawingY) {
-             yDiff = (this.currentDrawing.height * this.currentDrawing.scale.y - this.getHeight()) / 2 -
-             this.currentDrawing.height * this.currentDrawing.scale.y * this.currentDrawing.anchor.y;
+             yDiff = (this.currentDrawing.naturalHeight * this.currentDrawing.scale.y - this.getHeight()) / 2 -
+             this.currentDrawing.naturalHeight * this.currentDrawing.scale.y * this.currentDrawing.anchor.y;
           }
           this.currentDrawing.draw(ctx, -anchorPoint.x - xDiff, -anchorPoint.y - yDiff);
        } else {

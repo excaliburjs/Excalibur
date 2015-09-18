@@ -131,13 +131,21 @@ declare module ex {
          */
         flipHorizontal: boolean;
         /**
-         * Indicates the width of the drawing in pixels
+         * Indicates the current width of the drawing in pixels, factoring in the scale
          */
         width: number;
         /**
-         * Indicates the height of the drawing in pixels
+         * Indicates the current height of the drawing in pixels, factoring in the scale
          */
         height: number;
+        /**
+         * Indicates the natural width of the drawing in pixels, this is the original width of the source image
+         */
+        naturalWidth: number;
+        /**
+         * Indicates the natural height of the drawing in pixels, this is the original height of the source image
+         */
+        naturalHeight: number;
         /**
          * Adds a new [[ISpriteEffect]] to this drawing.
          * @param effect  Effect to add to the this drawing
@@ -209,6 +217,10 @@ declare module ex {
         private _yMin;
         private _xMax;
         private _yMax;
+        private _xMinWorld;
+        private _yMinWorld;
+        private _xMaxWorld;
+        private _yMaxWorld;
         isSpriteOffScreen(actor: Actor, engine: Engine): boolean;
         debugDraw(ctx: CanvasRenderingContext2D): void;
     }
@@ -4352,6 +4364,8 @@ declare module ex {
         flipHorizontal: boolean;
         width: number;
         height: number;
+        naturalWidth: number;
+        naturalHeight: number;
         /**
          * Typically you will use a [[SpriteSheet]] to generate an [[Animation]].
          *
@@ -4974,6 +4988,14 @@ declare module ex {
         onprogress: (e: any) => void;
         oncomplete: () => void;
         onerror: () => void;
+    }
+}
+declare module ex {
+    class Detector {
+        failedTests: string[];
+        private _criticalTests;
+        private _warningTest;
+        test(): boolean;
     }
 }
 declare module ex {
@@ -6281,8 +6303,14 @@ declare module ex {
          * Sets the background color for the engine.
          */
         backgroundColor: Color;
+        /**
+         * The action to take when a fatal exception is thrown
+         */
+        onFatalException: (e: any) => void;
         private _logger;
         private _isSmoothingEnabled;
+        private _requestId;
+        private _compatible;
         private _loader;
         private _isLoading;
         private _progress;
