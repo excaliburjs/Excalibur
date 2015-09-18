@@ -130,6 +130,15 @@ module ex.Util {
       return false;
    }
 
+   export function contains(array: Array<any>, obj: any): boolean {
+      for (var i = 0; i < array.length; i++) {
+         if (array[i] === obj) {
+            return true;
+         }
+      }
+      return false;
+   }
+
    export function getOppositeSide(side: ex.Side) {
       if(side === ex.Side.Top) { return ex.Side.Bottom; }
       if(side === ex.Side.Bottom) { return ex.Side.Top; }

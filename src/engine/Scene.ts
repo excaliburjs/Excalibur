@@ -380,20 +380,28 @@ module ex {
       public add(uiActor: UIActor): void;
       public add(entity: any): void {
          if (entity instanceof UIActor) {
-            this.addUIActor(entity);
+            if (!Util.contains(this.uiActors, entity)) {
+               this.addUIActor(entity);
+            }
             return;
          }
          if (entity instanceof Actor) {
-            this.addChild(entity);
-            this._sortedDrawingTree.add(entity);
+            if (!Util.contains(this.children, entity)) {
+               this.addChild(entity);
+               this._sortedDrawingTree.add(entity);
+            }
+            return;
          }
-         
          if (entity instanceof Timer) {
-            this.addTimer(entity);
+            if (!Util.contains(this._timers, entity)) {
+               this.addTimer(entity);
+            }
+            return;
          }
-
          if (entity instanceof TileMap) {
-            this.addTileMap(entity);
+            if (!Util.contains(this.tileMaps, entity)) {
+               this.addTileMap(entity);
+            }
          }
       }
       

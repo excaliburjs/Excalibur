@@ -25,7 +25,6 @@ describe('A game actor', () => {
       expect(ex.Actor).toBeTruthy();
    });
 
-
    //it('can have animation', () => {
    //   expect(actor.frames).toEqual({});
 
@@ -50,7 +49,6 @@ describe('A game actor', () => {
       actor.update(engine, 1000);
       expect(actor.x).toBe(-20);
       expect(actor.y).toBe(20);
-
    });
 
    it('can have its height and width scaled', () => {
@@ -810,50 +808,6 @@ describe('A game actor', () => {
       expect(actor.capturePointer.captureMoveEvents).toBeTruthy();
       expect(actor.enableCapturePointer).toBeTruthy();
    });
-
-   it('is drawn when onscreen', () => {
-      actor.traits.length = 0;
-      actor.traits.push(new ex.Traits.OffscreenCulling());
-      actor.x = 0;
-      actor.y = 0;
-      actor.setWidth(10);
-      actor.setHeight(10);
-
-      scene.add(actor);
-      scene.update(engine, 100);
-      scene.draw(engine.ctx, 100);
-
-      expect(actor.isOffScreen).toBeFalsy();
-      expect(actor.draw).toHaveBeenCalled();
-   });
-
-   it('is not drawn when offscreen', () => {
-      actor.x = 1000;
-      actor.y = 1000;
-      scene.update(engine, 100);
-      expect(actor.isOffScreen).toBeFalsy();
-
-      
-      actor.x = 1010;
-      actor.y = 1010;
-      actor.setWidth(5);
-      actor.setHeight(5);
-
-      scene.add(actor);
-      scene.update(engine, 100);
-      scene.draw(engine.ctx, 100);
-      
-      expect(scene.camera.getFocus().x).toBe(50);
-      expect(scene.camera.getFocus().y).toBe(50);
-      expect(engine.worldToScreenCoordinates(new ex.Point(50, 50)).x).toBe(50);
-      expect(engine.worldToScreenCoordinates(new ex.Point(50, 50)).y).toBe(50);
-      expect(engine.getWidth()).toBe(100);
-      expect(engine.getHeight()).toBe(100);
-
-
-      expect(actor.isOffScreen).toBeTruthy();
-      expect(actor.draw).not.toHaveBeenCalled();
-   });
 	
    it('changes opacity on color', () => {
       actor.color = ex.Color.Black.clone();
@@ -942,24 +896,6 @@ describe('A game actor', () => {
       expect(fixed.x).toBe(0);
       expect(fixed.y).toBe(50);
    });
-	
-   it('is drawn when visible', () => {
-      actor.visible = true;
-		
-      scene.add(actor);
-      scene.draw(engine.ctx, 100);
-		
-      expect(actor.draw).toHaveBeenCalled();				
-   });
-	
-   it('is not drawn when not visible', () => {
-      actor.visible = false;
-		
-      scene.add(actor);
-      scene.draw(engine.ctx, 100);
-		
-      expect(actor.draw).not.toHaveBeenCalled();				
-   });
    
    it('draws visible child actors', () => {
       var parentActor = new ex.Actor();
@@ -986,5 +922,5 @@ describe('A game actor', () => {
       scene.draw(engine.ctx, 100);
       expect(childActor.draw).not.toHaveBeenCalled();
    });
-
+   
 });
