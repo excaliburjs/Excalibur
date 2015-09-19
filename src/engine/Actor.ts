@@ -1105,7 +1105,9 @@ module ex {
        }
        // Draw child actors
        for (var i = 0; i < this.children.length; i++) {
-          this.children[i].draw(ctx, delta);
+          if (this.children[i].visible) {
+             this.children[i].draw(ctx, delta);
+          }
        }
        ctx.restore();
     }
