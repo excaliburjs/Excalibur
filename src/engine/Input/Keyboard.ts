@@ -129,7 +129,10 @@
             this._keys.splice(key, 1);
             this._keysUp.push(ev.keyCode);
             var keyEvent = new KeyEvent(ev.keyCode);
-            this.eventDispatcher.publish('up', keyEvent);            
+            
+            // alias the old api, we may want to deprecate this in the future
+            this.eventDispatcher.publish('up', keyEvent);
+            this.eventDispatcher.publish('release', keyEvent);            
          });
 
          // key down is on window because canvas cannot have focus
@@ -138,7 +141,8 @@
                this._keys.push(ev.keyCode);
                this._keysDown.push(ev.keyCode);
                var keyEvent = new KeyEvent(ev.keyCode);
-               this.eventDispatcher.publish('down', keyEvent);               
+               this.eventDispatcher.publish('down', keyEvent);
+               this.eventDispatcher.publish('press', keyEvent);                 
             }
          });
       }
@@ -147,6 +151,11 @@
          // Reset keysDown and keysUp after update is complete
          this._keysDown.length = 0;
          this._keysUp.length = 0;
+         
+         // Emit synthetic "hold" event
+         for(var i = 0; i < this._keys.length; i++) {
+            this.eventDispatcher.publish('hold', new KeyEvent(this._keys[i]));
+         }
       }      
 
       /**
@@ -157,26 +166,26 @@
       }
 
       /**
-       * Tests if a certain key is down. This is cleared at the end of the update frame.
-       * @param key  Test wether a key is down
+       * Tests if a certain key was just pressed this frame. This is cleared at the end of the update frame.
+       * @param key Test wether a key was just pressed
        */
-      public isKeyDown(key: Keys): boolean {
+      public wasPressed(key: Keys): boolean {
          return this._keysDown.indexOf(key) > -1;
       }
 
       /**
-       * Tests if a certain key is pressed. This is persisted between frames.
-       * @param key  Test wether a key is pressed
+       * Tests if a certain key is held down. This is persisted between frames.
+       * @param key  Test wether a key is held down
        */
-      public isKeyPressed(key: Keys): boolean {
+      public isHeld(key: Keys): boolean {
          return this._keys.indexOf(key) > -1;
       }
 
       /**
-       * Tests if a certain key is up. This is cleared at the end of the update frame.
-       * @param key  Test wether a key is up
+       * Tests if a certain key was just released this frame. This is cleared at the end of the update frame.
+       * @param key  Test wether a key was just released
        */
-      public isKeyUp(key: Keys): boolean {
+      public wasReleased(key: Keys): boolean {
          return this._keysUp.indexOf(key) > -1;
       }
    }

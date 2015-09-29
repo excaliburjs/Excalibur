@@ -205,7 +205,7 @@ var jumpSpeed = 500;
 var direction = 1;
 player.on('update', () => {
 
-   if (game.input.keyboard.isKeyPressed(ex.Input.Keys.Left)) {
+   if (game.input.keyboard.isHeld(ex.Input.Keys.Left)) {
       direction = -1;
       if (!inAir) {
          player.setDrawing(Animations.Left);
@@ -218,7 +218,7 @@ player.on('update', () => {
 
       // TODO: When platform is moving in same direction, add its dx
 
-   } else if (game.input.keyboard.isKeyPressed(ex.Input.Keys.Right)) {
+   } else if (game.input.keyboard.isHeld(ex.Input.Keys.Right)) {
       direction = 1;
       if (!inAir) {
          player.setDrawing(Animations.Right);
@@ -232,7 +232,7 @@ player.on('update', () => {
       // TODO: When platform is moving in same direction, add its dx
    }
 
-   if (game.input.keyboard.isKeyPressed(ex.Input.Keys.Up)) {
+   if (game.input.keyboard.isHeld(ex.Input.Keys.Up)) {
       if (!inAir) {
          player.dy = -jumpSpeed;
          inAir = true;
@@ -320,7 +320,7 @@ player.addEventListener('collision', (data?: ex.CollisionEvent) => {
          player.setDrawing(Animations.Idle);
       }
       inAir = false;
-      if (data.other && !(game.input.keyboard.isKeyPressed(ex.Input.Keys.Left) || game.input.keyboard.isKeyPressed(ex.Input.Keys.Right) || game.input.keyboard.isKeyPressed(ex.Input.Keys.Up) || game.input.keyboard.isKeyPressed(ex.Input.Keys.Down))) {
+      if (data.other && !(game.input.keyboard.isHeld(ex.Input.Keys.Left) || game.input.keyboard.isHeld(ex.Input.Keys.Right) || game.input.keyboard.isHeld(ex.Input.Keys.Up) || game.input.keyboard.isHeld(ex.Input.Keys.Down))) {
          player.dx = data.other.dx;
          player.dy = data.other.dy;
       }

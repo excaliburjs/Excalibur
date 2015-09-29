@@ -48,5 +48,20 @@ module Mocks {
          };
          return mockEngine;
       }
+      
+      window() {         
+         var _handlers = {};
+         
+         var mockWindow = {
+            addEventListener: function(name, handler) {
+               _handlers[name] = handler;
+            },            
+            emit: function(name, eventObject) {
+               _handlers[name](eventObject);
+            }
+         };
+         
+         return mockWindow;
+      }
    }
 }
