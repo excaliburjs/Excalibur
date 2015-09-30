@@ -68,6 +68,8 @@
     <Content Include="html\healthbar.tmpl" />
     <Content Include="images\heart.png" />
     <Content Include="index.html" />
+    <Content Include="tests\animation\animation.html" />
+    <Content Include="tests\animation\animation.png" />
     <Content Include="tests\audio\index.html" />
     <Content Include="tests\audio\loop.mp3" />
     <Content Include="tests\collision\index.html" />
@@ -103,6 +105,7 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="src\game.ts" />
+    <TypeScriptCompile Include="tests\animation\animation.ts" />
     <TypeScriptCompile Include="tests\audio\index.ts" />
     <TypeScriptCompile Include="tests\collision\index.ts" />
     <TypeScriptCompile Include="tests\culling\culling.ts" />
