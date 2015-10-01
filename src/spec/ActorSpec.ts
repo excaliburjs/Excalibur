@@ -762,7 +762,7 @@ describe('A game actor', () => {
       expect(childActor.x).toBe(50);
       expect(childActor.y).toBe(50);
 
-      actor.addChild(childActor);
+      actor.add(childActor);
 
       actor.moveBy(10, 15, 1000);
       actor.update(engine, 1000);
@@ -831,8 +831,8 @@ describe('A game actor', () => {
       var child = new ex.Actor(0, 0, 100, 100);
       var child2 = new ex.Actor(-600, -100, 100, 100);
 	  
-      parent.addChild(child);
-      child.addChild(child2);
+      parent.add(child);
+      child.add(child2);
 	  
       // check reality
       expect(parent.contains(550, 50)).toBeTruthy();
@@ -854,14 +854,14 @@ describe('A game actor', () => {
       var parent = new ex.Actor(0, 0, 100, 100); 
       var child = new ex.Actor(100, 100, 100, 100);
       var child2 = new ex.Actor(100, 100, 100, 100);
-      parent.addChild(child);
+      parent.add(child);
 	  
       expect(parent.contains(150, 150)).toBeFalsy();
       expect(child.contains(150, 150)).toBeTruthy();
       expect(parent.contains(150, 150, true)).toBeTruthy();
       expect(parent.contains(200, 200, true)).toBeFalsy();
 	  
-      child.addChild(child2);
+      child.add(child2);
       expect(parent.contains(250, 250, true)).toBeTruthy();	  
    });
 
@@ -901,7 +901,7 @@ describe('A game actor', () => {
       var parentActor = new ex.Actor();
       var childActor = new ex.Actor();
       scene.add(parentActor);
-      parentActor.addChild(childActor);
+      parentActor.add(childActor);
       
       spyOn(childActor, 'draw');
       
@@ -914,7 +914,7 @@ describe('A game actor', () => {
       var parentActor = new ex.Actor();
       var childActor = new ex.Actor();
       scene.add(parentActor);
-      parentActor.addChild(childActor);
+      parentActor.add(childActor);
       
       spyOn(childActor, 'draw');
       
