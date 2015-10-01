@@ -162,12 +162,12 @@ player.rotation = 0;
 
 // Health bar example
 var healthbar = new ex.Actor(0, -70, 140, 5, new ex.Color(0, 255, 0));
-player.addChild(healthbar);
+player.add(healthbar);
 
 // Add Title above player
 var playerLabel = new ex.Label('My Player', -70, -69, null, spriteFont);
 
-player.addChild(playerLabel);
+player.add(playerLabel);
 
 // Retrieve animations for player from sprite sheet
 var left = spriteSheetRun.getAnimationBetween(game, 1, 11, 50);

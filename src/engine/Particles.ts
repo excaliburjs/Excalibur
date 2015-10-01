@@ -169,7 +169,7 @@ module ex {
     *
     * // add the emitter as a child actor, it will draw on top of the parent actor
     * // and move with the parent
-    * actor.addChild(emitter);
+    * actor.add(emitter);
     *
     * // or, alternatively, add it to the current scene
     * engine.add(emitter);

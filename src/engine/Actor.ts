@@ -499,7 +499,7 @@ module ex {
      * move with it.
      * @param actor The child actor to add
      */
-    public addChild(actor: Actor) {
+    public add(actor: Actor) {
        actor.collisionType = CollisionType.PreventCollision;
        if (ex.Util.addItemToArray(actor, this.children)) {
           actor.parent = this;
@@ -509,7 +509,7 @@ module ex {
      * Removes a child actor from this actor. 
      * @param actor The child actor to remove
      */
-    public removeChild(actor: Actor) {
+    public remove(actor: Actor) {
        if (ex.Util.removeItemToArray(actor, this.children)) {
           actor.parent = null;
        }
