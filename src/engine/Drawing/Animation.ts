@@ -118,7 +118,10 @@ module ex {
             
             this.naturalWidth = images[0] ? images[0].naturalWidth : 0;
             this.naturalHeight = images[0] ? images[0].naturalHeight : 0;
+
+            this.freezeFrame = images.length - 1;
          }
+
       }
 
       /**
