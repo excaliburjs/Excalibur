@@ -134,12 +134,12 @@
 
             if (!gamepads[i]) {
 
-               // Reset connection status
-               this.at(i).connected = false;
-               if(this._oldPads[i]) {
+               // If was connected, but now isn't emit the disconnect event
+               if (this.at(i).connected) {
                   this.eventDispatcher.emit('disconnect', new GamepadDisconnectEvent(i));
                }
-
+               // Reset connection status
+               this.at(i).connected = false;
                continue;
             } else {
 
