@@ -103,6 +103,7 @@
       private _initSuccess: boolean = false;
       private _engine: ex.Engine;
       private _navigator: INavigatorGamepads = <any>navigator;
+      private _minimumConfiguration: IGamepadConfiguration = null;
 
       constructor(engine: ex.Engine) {
          super();
@@ -119,6 +120,47 @@
          if(this._oldPads.length && this._oldPads[0]) {
             this._initSuccess = true;
          }
+      }
+      
+      /**
+       * Sets the minimum gamepad configuration, for example {axis: 4, buttons: 4} means
+       * this game requires at minimum 4 axis inputs and 4 buttons, this is not restrictive
+       * all other controllers with more axis or buttons are valid as well. If no minimum 
+       * configuration is set all pads are valid.
+       */
+      public setMinimumGamepadConfiguration(config: IGamepadConfiguration) : void {
+         this._enableAndUpdate(); // if config is used, implicitely enable
+         this._minimumConfiguration = config;
+      }
+      
+      /** 
+       * When implicitely enabled, set the enabled flag and run an update so information is updated
+       */
+      private _enableAndUpdate() {
+         if (!this.enabled) {
+            this.enabled = true;
+            this.update(100);
+         }
+      }
+      
+      /**
+       * Checks a navigator gamepad against the minimum configuration if present.
+       */
+      private _isGamepadValid(pad: INavigatorGamepad) : boolean {
+         if(!this._minimumConfiguration) { return true; };
+         if(!pad) { return false; };
+         return pad.axes.length >= this._minimumConfiguration.axis && 
+                pad.buttons.length >= this._minimumConfiguration.buttons;
+      }
+      
+      public on(eventName: string, handler: (event?: GameEvent) => void) {
+         this._enableAndUpdate(); // implicitly enable
+         super.on(eventName, handler);  
+      }
+      
+      public off(eventName: string, handler?: (event?: GameEvent) => void) {
+         this._enableAndUpdate(); // implicitly enable
+         super.off(eventName, handler);  
       }
       
       /**
@@ -154,6 +196,9 @@
             }
 
             this._gamePadTimeStamps[i] = gamepads[i].timestamp;
+            
+            // Add reference to navigator gamepad
+            this.at(i).navigatorGamepad = gamepads[i];
 
             // Buttons
             var b: string, a: string, value: number, buttonIndex: number, axesIndex: number;
@@ -194,6 +239,7 @@
        * Safely retrieves a Gamepad at a specific index and creates one if it doesn't yet exist
        */
       public at(index: number): Gamepad {
+         this._enableAndUpdate(); // implicitly enable gamepads when at() is called         
          if (index >= this._pads.length) {
 
             // Ensure there is a pad to retrieve
@@ -204,6 +250,20 @@
          }
 
          return this._pads[index];
+      }
+      
+      /**
+       * Returns a list of all valid gamepads that meet the minimum configuration requirment.
+       */
+      public getValidGamepads(): Gamepad[] {
+         this._enableAndUpdate();
+         var result : Gamepad[] = [];
+         for (var i = 0; i < this._pads.length; i++) {
+            if (this._isGamepadValid(this.at(i).navigatorGamepad)) {
+               result.push(this.at(i));
+            }
+         }         
+         return result;
       }
 
       /**
@@ -249,7 +309,7 @@
     */
    export class Gamepad extends ex.Class {
       public connected = false;
-
+      public navigatorGamepad: INavigatorGamepad;
       private _buttons: number[] = new Array(16);
       private _axes: number[] = new Array(4);
 
@@ -457,5 +517,13 @@
     */
    export interface INavigatorGamepadEvent {
       gamepad: INavigatorGamepad;
+   }
+   
+   /**
+    * @internal
+    */
+   export interface IGamepadConfiguration {
+      axis: number;
+      buttons: number;
    }
 }  

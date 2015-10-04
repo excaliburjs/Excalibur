@@ -27,6 +27,14 @@ module Mocks {
                _internalGamePads[index] = undefined;
             },
             
+            setGamepadAxis: function(gamepadIndex: number, axisIndex: number, value: number) {
+               _internalGamePads[gamepadIndex].axes[axisIndex] = value;
+            },
+            
+            setGamepadButton: function(gamepadIndex: number, buttonIndex: number, value: number){
+               _internalGamePads[gamepadIndex].buttons[buttonIndex] = { pressed: value > 0 ? true : false, value: value };
+            },
+            
             getGamepads: function() {
                return _internalGamePads;
             }
