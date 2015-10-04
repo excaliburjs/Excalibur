@@ -106,7 +106,6 @@
 
       constructor(engine: ex.Engine) {
          super();
-
          this._engine = engine;
       }
 
@@ -121,7 +120,7 @@
             this._initSuccess = true;
          }
       }
-
+      
       /**
        * Updates Gamepad state and publishes Gamepad events
        */
@@ -137,12 +136,16 @@
 
                // Reset connection status
                this.at(i).connected = false;
+               if(this._oldPads[i]) {
+                  this.eventDispatcher.emit('disconnect', new GamepadDisconnectEvent(i));
+               }
 
                continue;
             } else {
 
                // Set connection status
                this.at(i).connected = true;
+               this.eventDispatcher.emit('connect', new GamepadConnectEvent(i, this.at(i)));
             };
 
             // Only supported in Chrome
@@ -158,13 +161,15 @@
                if (typeof Buttons[b] !== 'number') { continue; }
 
                buttonIndex = Buttons[b];
-               value = gamepads[i].buttons[buttonIndex].value;
-               if (value !== this._oldPads[i].getButton(buttonIndex)) {
-                  if (gamepads[i].buttons[buttonIndex].pressed) {
-                     this.at(i).updateButton(buttonIndex, value);
-                     this.at(i).eventDispatcher.publish('button', new GamepadButtonEvent(buttonIndex, value));
-                  } else {
-                     this.at(i).updateButton(buttonIndex, 0);
+               if(gamepads[i].buttons[buttonIndex]) {
+                  value = gamepads[i].buttons[buttonIndex].value;
+                  if (value !== this._oldPads[i].getButton(buttonIndex)) {
+                     if (gamepads[i].buttons[buttonIndex].pressed) {
+                        this.at(i).updateButton(buttonIndex, value);
+                        this.at(i).eventDispatcher.publish('button', new GamepadButtonEvent(buttonIndex, value));
+                     } else {
+                        this.at(i).updateButton(buttonIndex, 0);
+                     }
                   }
                }
             }
@@ -226,7 +231,9 @@
          if (!pad) { return clonedPad; }
 
          for (i = 0, len = pad.buttons.length; i < len; i++) {
-            clonedPad.updateButton(i, pad.buttons[i].value);
+            if(pad.buttons[i]) {
+               clonedPad.updateButton(i, pad.buttons[i].value);
+            }
          }
          for (i = 0, len = pad.axes.length; i < len; i++) {
             clonedPad.updateAxes(i, pad.axes[i]);
