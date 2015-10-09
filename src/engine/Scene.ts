@@ -218,7 +218,7 @@ module ex {
          var i = 0, len = this.children.length;
 
          for (i; i < len; i++) {
-            this.children[i].triggerEvent(eventType, event);
+            this.children[i].emit(eventType, event);
          }
       }
 

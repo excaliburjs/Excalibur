@@ -43,7 +43,7 @@ module ex {
     * });
     *
     * // trigger custom event
-    * player.triggerEvent("death", new DeathEvent());
+    * player.emit("death", new DeathEvent());
     *
     * ```
     *
