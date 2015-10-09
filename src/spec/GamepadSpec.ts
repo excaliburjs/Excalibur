@@ -90,4 +90,77 @@ describe('A gamepad', () => {
       expect(validGamepads.length).toBe(2);      
       
    });
+   
+   it('should fire events on all predefined buttons', () => {
+      (<any>navigator).setGamepads(0, 4, 16); // valid 4 axis > 2 and 16 buttons > 4
+      
+      var gamepad = engine.input.gamepads.at(0);
+      
+      var currentButton = null;
+      var currentValue = null;
+      
+      gamepad.on('button', (buttonEvent: ex.Input.GamepadButtonEvent) => {
+         currentButton = buttonEvent.button;
+         currentValue = buttonEvent.value;
+      });
+      
+      expect(currentButton).toBeNull();
+      expect(currentValue).toBeNull();
+                  
+      for(var button in ex.Input.Buttons) {
+         if(typeof button === 'number') {
+            
+            engine.input.gamepads.update(100);
+            (<any>navigator).setGamepadButton(0, button, 1.0);
+            engine.input.gamepads.update(100);
+            expect(currentButton).toBe(button);
+            expect(currentValue).toBe(1.0);
+         }
+      }
+   });
+   
+   it('should fire events on all predefined axis', () => {
+      (<any>navigator).setGamepads(0, 4, 16); // valid 4 axis > 2 and 16 buttons > 4
+      
+      var gamepad = engine.input.gamepads.at(0);
+      
+      var currentAxis = null;
+      var currentValue = null;
+      gamepad.on('axis', (axisEvent: ex.Input.GamepadAxisEvent) => {
+         currentAxis = axisEvent.axis;
+         currentValue = axisEvent.value;
+      });
+      
+      expect(currentAxis).toBeNull();
+      expect(currentValue).toBeNull();
+      
+      engine.input.gamepads.update(100);
+      (<any>navigator).setGamepadAxis(0, 0,  .5);
+      engine.input.gamepads.update(100);
+      
+      expect(currentAxis).toBe(0);
+      expect(currentValue).toBe(.5);
+      
+      engine.input.gamepads.update(100);
+      (<any>navigator).setGamepadAxis(0, 1,  -.5);
+      engine.input.gamepads.update(100);
+      
+      expect(currentAxis).toBe(1);
+      expect(currentValue).toBe(-.5);
+      
+      engine.input.gamepads.update(100);
+      (<any>navigator).setGamepadAxis(0, 2,  .5);
+      engine.input.gamepads.update(100);
+      
+      expect(currentAxis).toBe(2);
+      expect(currentValue).toBe(.5);
+      
+      engine.input.gamepads.update(100);
+      (<any>navigator).setGamepadAxis(0, 3,  -.5);
+      engine.input.gamepads.update(100);
+      
+      expect(currentAxis).toBe(3);
+      expect(currentValue).toBe(-.5);
+      
+   });
 });
