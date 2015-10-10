@@ -12,6 +12,19 @@ function start() {
 
    // Enable Gamepad support
    game.input.gamepads.enabled = true;
+   game.input.gamepads.setMinimumGamepadConfiguration({
+      axis: 0,
+      buttons: 8
+   });
+
+   // Log when pads disconnect and connect
+   game.input.gamepads.on("connect", (evet: ex.Input.GamepadConnectEvent) => {
+      console.log("Gamepad connect");
+   });
+
+   game.input.gamepads.on("disconnect", (evet: ex.Input.GamepadDisconnectEvent) => {
+      console.log("Gamepad disconnect");
+   });
    
    // Draw gamepad
    var gamepad = new ex.Actor(0, 0, padSprite.width, padSprite.height);
@@ -54,35 +67,40 @@ function start() {
    game.add(leftStick);
    game.add(rightStick);
 
+   
+
    // Update global state on engine update
    game.on("update", (ue: ex.UpdateEvent) => {
 
-      document.getElementById("gamepad-num").innerHTML = game.input.gamepads.count().toString();
+      document.getElementById("gamepad-num").innerHTML = game.input.gamepads.getValidGamepads().length.toString();
 
-      var pad1 = game.input.gamepads.at(0);
+      var pad1 = game.input.gamepads.getValidGamepads()[0];
 
-      // sticks
-      var leftAxisX = pad1.getAxes(ex.Input.Axes.LeftStickX);
-      var leftAxisY = pad1.getAxes(ex.Input.Axes.LeftStickY);
-      var rightAxisX = pad1.getAxes(ex.Input.Axes.RightStickX);
-      var rightAxisY = pad1.getAxes(ex.Input.Axes.RightStickY);
+      if (pad1) {
+         // sticks
+         var leftAxisX = pad1.getAxes(ex.Input.Axes.LeftStickX);
+         var leftAxisY = pad1.getAxes(ex.Input.Axes.LeftStickY);
+         var rightAxisX = pad1.getAxes(ex.Input.Axes.RightStickX);
+         var rightAxisY = pad1.getAxes(ex.Input.Axes.RightStickY);
 
-      leftStick.x = 330 + (leftAxisX * 20);
-      leftStick.y = 272 + (leftAxisY * 20);      
-      rightStick.x = 470 + (rightAxisX * 20);
-      rightStick.y = 272 + (rightAxisY * 20);
 
-      // buttons
-      var btnIndex: number;
-      for (var btn in buttons) {
-         if (!buttons.hasOwnProperty(btn)) continue;
-         btnIndex = parseInt(btn, 10);
-         if (pad1.isButtonPressed(btnIndex, 0.1)) {
-            buttons[btn].color = new ex.Color(255, 0, 0, 0.8);
-            buttons[btn].value = pad1.getButton(btnIndex);
-         } else {
-            buttons[btn].color = new ex.Color(0, 0, 0, 0.7);
-            buttons[btn].value = 0;
+         leftStick.x = 330 + (leftAxisX * 20);
+         leftStick.y = 272 + (leftAxisY * 20);
+         rightStick.x = 470 + (rightAxisX * 20);
+         rightStick.y = 272 + (rightAxisY * 20);
+
+         // buttons
+         var btnIndex: number;
+         for (var btn in buttons) {
+            if (!buttons.hasOwnProperty(btn)) continue;
+            btnIndex = parseInt(btn, 10);
+            if (pad1.isButtonPressed(btnIndex, 0.1)) {
+               buttons[btn].color = new ex.Color(255, 0, 0, 0.8);
+               buttons[btn].value = pad1.getButton(btnIndex);
+            } else {
+               buttons[btn].color = new ex.Color(0, 0, 0, 0.7);
+               buttons[btn].value = 0;
+            }
          }
       }
    });

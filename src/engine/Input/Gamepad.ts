@@ -103,10 +103,10 @@
       private _initSuccess: boolean = false;
       private _engine: ex.Engine;
       private _navigator: INavigatorGamepads = <any>navigator;
+      private _minimumConfiguration: IGamepadConfiguration = null;
 
       constructor(engine: ex.Engine) {
          super();
-
          this._engine = engine;
       }
 
@@ -121,7 +121,56 @@
             this._initSuccess = true;
          }
       }
-
+      
+      /**
+       * Sets the minimum gamepad configuration, for example {axis: 4, buttons: 4} means
+       * this game requires at minimum 4 axis inputs and 4 buttons, this is not restrictive
+       * all other controllers with more axis or buttons are valid as well. If no minimum 
+       * configuration is set all pads are valid.
+       */
+      public setMinimumGamepadConfiguration(config: IGamepadConfiguration) : void {
+         this._enableAndUpdate(); // if config is used, implicitely enable
+         this._minimumConfiguration = config;
+      }
+      
+      /** 
+       * When implicitely enabled, set the enabled flag and run an update so information is updated
+       */
+      private _enableAndUpdate() {
+         if (!this.enabled) {
+            this.enabled = true;
+            this.update(100);
+         }
+      }
+      
+      /**
+       * Checks a navigator gamepad against the minimum configuration if present.
+       */
+      private _isGamepadValid(pad: INavigatorGamepad) : boolean {
+         if(!this._minimumConfiguration) { return true; };
+         if(!pad) { return false; };
+         var axesLength = pad.axes.filter((value, index, array) => {
+            return (typeof value !== undefined);
+         }).length;
+         
+         var buttonLength = pad.buttons.filter((value, index, array) => {
+            return (typeof value !== undefined);
+         }).length;
+         return axesLength >= this._minimumConfiguration.axis && 
+                buttonLength >= this._minimumConfiguration.buttons &&
+                pad.connected;
+      }
+      
+      public on(eventName: string, handler: (event?: GameEvent) => void) {
+         this._enableAndUpdate(); // implicitly enable
+         super.on(eventName, handler);  
+      }
+      
+      public off(eventName: string, handler?: (event?: GameEvent) => void) {
+         this._enableAndUpdate(); // implicitly enable
+         super.off(eventName, handler);  
+      }
+      
       /**
        * Updates Gamepad state and publishes Gamepad events
        */
@@ -135,14 +184,20 @@
 
             if (!gamepads[i]) {
 
+               // If was connected, but now isn't emit the disconnect event
+               if (this.at(i).connected) {
+                  this.eventDispatcher.emit('disconnect', new GamepadDisconnectEvent(i));
+               }
                // Reset connection status
                this.at(i).connected = false;
-
                continue;
             } else {
 
+               if(!this.at(i).connected && this._isGamepadValid(gamepads[i])) {
+                  this.eventDispatcher.emit('connect', new GamepadConnectEvent(i, this.at(i)));   
+               } 
                // Set connection status
-               this.at(i).connected = true;
+               this.at(i).connected = true;               
             };
 
             // Only supported in Chrome
@@ -151,6 +206,9 @@
             }
 
             this._gamePadTimeStamps[i] = gamepads[i].timestamp;
+            
+            // Add reference to navigator gamepad
+            this.at(i).navigatorGamepad = gamepads[i];
 
             // Buttons
             var b: string, a: string, value: number, buttonIndex: number, axesIndex: number;
@@ -158,13 +216,15 @@
                if (typeof Buttons[b] !== 'number') { continue; }
 
                buttonIndex = Buttons[b];
-               value = gamepads[i].buttons[buttonIndex].value;
-               if (value !== this._oldPads[i].getButton(buttonIndex)) {
-                  if (gamepads[i].buttons[buttonIndex].pressed) {
-                     this.at(i).updateButton(buttonIndex, value);
-                     this.at(i).eventDispatcher.publish('button', new GamepadButtonEvent(buttonIndex, value));
-                  } else {
-                     this.at(i).updateButton(buttonIndex, 0);
+               if(gamepads[i].buttons[buttonIndex]) {
+                  value = gamepads[i].buttons[buttonIndex].value;
+                  if (value !== this._oldPads[i].getButton(buttonIndex)) {
+                     if (gamepads[i].buttons[buttonIndex].pressed) {
+                        this.at(i).updateButton(buttonIndex, value);
+                        this.at(i).eventDispatcher.publish('button', new GamepadButtonEvent(buttonIndex, value));
+                     } else {
+                        this.at(i).updateButton(buttonIndex, 0);
+                     }
                   }
                }
             }
@@ -189,6 +249,7 @@
        * Safely retrieves a Gamepad at a specific index and creates one if it doesn't yet exist
        */
       public at(index: number): Gamepad {
+         this._enableAndUpdate(); // implicitly enable gamepads when at() is called         
          if (index >= this._pads.length) {
 
             // Ensure there is a pad to retrieve
@@ -199,6 +260,20 @@
          }
 
          return this._pads[index];
+      }
+      
+      /**
+       * Returns a list of all valid gamepads that meet the minimum configuration requirment.
+       */
+      public getValidGamepads(): Gamepad[] {
+         this._enableAndUpdate();
+         var result : Gamepad[] = [];
+         for (var i = 0; i < this._pads.length; i++) {
+            if (this._isGamepadValid(this.at(i).navigatorGamepad) && this.at(i).connected) {
+               result.push(this.at(i));
+            }
+         }         
+         return result;
       }
 
       /**
@@ -226,7 +301,9 @@
          if (!pad) { return clonedPad; }
 
          for (i = 0, len = pad.buttons.length; i < len; i++) {
-            clonedPad.updateButton(i, pad.buttons[i].value);
+            if(pad.buttons[i]) {
+               clonedPad.updateButton(i, pad.buttons[i].value);
+            }
          }
          for (i = 0, len = pad.axes.length; i < len; i++) {
             clonedPad.updateAxes(i, pad.axes[i]);
@@ -242,7 +319,7 @@
     */
    export class Gamepad extends ex.Class {
       public connected = false;
-
+      public navigatorGamepad: INavigatorGamepad;
       private _buttons: number[] = new Array(16);
       private _axes: number[] = new Array(4);
 
@@ -388,6 +465,24 @@
        */
       RightStickY = 3
    }
+   
+   /**
+    * Event recieved when a gamepad is connected to excalibur
+    */
+   export class GamepadConnectEvent extends GameEvent {
+      constructor(public index: number, public gamepad: ex.Input.Gamepad) {
+         super();
+      }
+   }
+   
+   /**
+    * Event recieved when a gamepad is disconnected from excalibur
+    */
+   export class GamepadDisconnectEvent extends GameEvent {
+      constructor(public index: number) {
+         super();
+      }
+   }
 
    /**
     * Gamepad button event. See [[Gamepads]] for information on responding to controller input.
@@ -450,5 +545,13 @@
     */
    export interface INavigatorGamepadEvent {
       gamepad: INavigatorGamepad;
+   }
+   
+   /**
+    * @internal
+    */
+   export interface IGamepadConfiguration {
+      axis: number;
+      buttons: number;
    }
 }  
