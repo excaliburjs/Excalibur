@@ -480,6 +480,8 @@ module ex {
 
       /**
        * Adds an actor to the scene, once this is done the actor will be drawn and updated.
+       * 
+       * @obsolete Use [[add]] instead.
        */
       public addChild(actor: Actor) {
          this._collisionResolver.register(actor);

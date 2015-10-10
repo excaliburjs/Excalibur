@@ -540,6 +540,8 @@ module ex {
        * the [[currentScene]] may be drawn or updated.
        *
        * @param actor  The actor to add to the [[currentScene]]
+       * 
+       * @obsolete Use [[add]] instead.
        */
       public addChild(actor: Actor) {
          this.currentScene.addChild(actor);
@@ -652,7 +654,7 @@ module ex {
       public add(tileMap: TileMap): void;
       /**
        * Adds an actor to the [[currentScene]] of the game. This is synonymous
-       * to calling `engine.currentScene.addChild(actor)`.
+       * to calling `engine.currentScene.add(actor)`.
        *
        * Actors can only be drawn if they are a member of a scene, and only
        * the [[currentScene]] may be drawn or updated.

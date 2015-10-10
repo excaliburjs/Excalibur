@@ -17,8 +17,8 @@ describe('A Collision Group', () => {
       actor1.collisionType = ex.CollisionType.Passive;
       actor2.collisionType = ex.CollisionType.Passive;
       
-      scene.addChild(actor1);
-      scene.addChild(actor2);
+      scene.add(actor1);
+      scene.add(actor2);
       engine = mock.engine(0, 0, scene);
       scene = new ex.Scene(engine);
    });
