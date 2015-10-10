@@ -3,7 +3,47 @@
 module Mocks {
 
    export class Mocker {
-
+      navigator() {
+         var _internalGamePads = { 0: undefined, 
+                                   1: undefined, 
+                                   2: undefined, 
+                                   3: undefined,
+                                   length: 4 };
+         var mockNavigator = {
+            
+            setGamepads: function(index: number, numAxis: number, numButtons: number) {
+               _internalGamePads[index] = {
+                  axes: Array.apply(null, Array(numAxis).map(function() { return undefined; })),
+                  buttons: Array.apply(null, Array(numButtons).map(function() { return { pressed: false, value: 0 }; })),
+                  connected: true,
+                  index: index,
+                  id: 'Mock Gamepad',
+                  mapping: 'standard',
+                  timing: 15335
+               };
+            },
+            
+            deleteGamepad: function(index: number) {
+               _internalGamePads[index] = undefined;
+            },
+            
+            setGamepadAxis: function(gamepadIndex: number, axisIndex: number, value: number) {
+               _internalGamePads[gamepadIndex].axes[axisIndex] = value;
+            },
+            
+            setGamepadButton: function(gamepadIndex: number, buttonIndex: number, value: number){
+               _internalGamePads[gamepadIndex].buttons[buttonIndex] = { pressed: value > 0 ? true : false, value: value };
+            },
+            
+            getGamepads: function() {
+               return _internalGamePads;
+            }
+            
+         };
+         
+         return mockNavigator;
+      };
+      
       engine(width: number, height: number, scene: ex.Scene) {
          var mockEngine;
 
@@ -47,7 +87,7 @@ module Mocks {
             screenToWorldCoordinates: ex.Engine.prototype.screenToWorldCoordinates
          };
          return mockEngine;
-      }
+      };
       
       window() {         
          var _handlers = {};
@@ -62,6 +102,7 @@ module Mocks {
          };
          
          return mockWindow;
-      }
+      };
+      
    }
 }

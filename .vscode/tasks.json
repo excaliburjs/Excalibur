@@ -1,0 +1,19 @@
+// Available variables which can be used inside of strings.
+// ${workspaceRoot}: the root folder of the team
+// ${file}: the current opened file
+// ${fileBasename}: the current opened file's basename
+// ${fileDirname}: the current opened file's dirname
+// ${fileExtname}: the current opened file's extension
+// ${cwd}: the current working directory of the spawned process
+
+// A task runner that calls grunt
+{
+	"version": "0.1.0",
+	
+	// The command is grunt. Assumes that grunt-cli has been installed using npm install -g grunt-cli
+	"command": "grunt",
+	"isShellCommand": true,
+	"showOutput": "silent",
+	"args": [],
+	"problemMatcher": "$tsc"
+}
