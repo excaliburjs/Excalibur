@@ -13,7 +13,7 @@ module Mocks {
             
             setGamepads: function(index: number, numAxis: number, numButtons: number) {
                _internalGamePads[index] = {
-                  axes: Array.apply(null, Array(numAxis).map(function() { return 0; })),
+                  axes: Array.apply(null, Array(numAxis).map(function() { return undefined; })),
                   buttons: Array.apply(null, Array(numButtons).map(function() { return { pressed: false, value: 0 }; })),
                   connected: true,
                   index: index,

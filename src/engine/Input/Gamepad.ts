@@ -149,8 +149,16 @@
       private _isGamepadValid(pad: INavigatorGamepad) : boolean {
          if(!this._minimumConfiguration) { return true; };
          if(!pad) { return false; };
-         return pad.axes.length >= this._minimumConfiguration.axis && 
-                pad.buttons.length >= this._minimumConfiguration.buttons;
+         var axesLength = pad.axes.filter((value, index, array) => {
+            return (typeof value !== undefined);
+         }).length;
+         
+         var buttonLength = pad.buttons.filter((value, index, array) => {
+            return (typeof value !== undefined);
+         }).length;
+         return axesLength >= this._minimumConfiguration.axis && 
+                buttonLength >= this._minimumConfiguration.buttons &&
+                pad.connected;
       }
       
       public on(eventName: string, handler: (event?: GameEvent) => void) {
@@ -185,9 +193,11 @@
                continue;
             } else {
 
+               if(!this.at(i).connected && this._isGamepadValid(gamepads[i])) {
+                  this.eventDispatcher.emit('connect', new GamepadConnectEvent(i, this.at(i)));   
+               } 
                // Set connection status
-               this.at(i).connected = true;
-               this.eventDispatcher.emit('connect', new GamepadConnectEvent(i, this.at(i)));
+               this.at(i).connected = true;               
             };
 
             // Only supported in Chrome
@@ -259,7 +269,7 @@
          this._enableAndUpdate();
          var result : Gamepad[] = [];
          for (var i = 0; i < this._pads.length; i++) {
-            if (this._isGamepadValid(this.at(i).navigatorGamepad)) {
+            if (this._isGamepadValid(this.at(i).navigatorGamepad) && this.at(i).connected) {
                result.push(this.at(i));
             }
          }         
@@ -454,6 +464,24 @@
        * Right analogue stick Y direction
        */
       RightStickY = 3
+   }
+   
+   /**
+    * Event recieved when a gamepad is connected to excalibur
+    */
+   export class GamepadConnectEvent extends GameEvent {
+      constructor(public index: number, public gamepad: ex.Input.Gamepad) {
+         super();
+      }
+   }
+   
+   /**
+    * Event recieved when a gamepad is disconnected from excalibur
+    */
+   export class GamepadDisconnectEvent extends GameEvent {
+      constructor(public index: number) {
+         super();
+      }
    }
 
    /**

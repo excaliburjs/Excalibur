@@ -31,24 +31,6 @@ module ex {
    }
    
    /**
-    * Event recieved when a gamepad is connected to excalibur
-    */
-   export class GamepadConnectEvent extends GameEvent {
-      constructor(public index: number, public gamepad: ex.Input.Gamepad) {
-         super();
-      }
-   }
-   
-   /**
-    * Event recieved when a gamepad is disconnected from excalibur
-    */
-   export class GamepadDisconnectEvent extends GameEvent {
-      constructor(public index: number) {
-         super();
-      }
-   }
-
-   /**
     * Subscribe event thrown when handlers for events other than subscribe are added
     */
    export class SubscribeEvent extends GameEvent {

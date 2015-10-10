@@ -17,7 +17,7 @@ describe('A gamepad', () => {
       var fired = false;
       
       engine.input.gamepads.enabled = true;
-      engine.input.gamepads.on('connect', (padEvent: ex.GamepadConnectEvent) => {
+      engine.input.gamepads.on('connect', (padEvent: ex.Input.GamepadConnectEvent) => {
          fired = true;
       });
       
@@ -29,14 +29,19 @@ describe('A gamepad', () => {
       
       engine.input.gamepads.update(100);
       
-      expect(fired).toBe(true);      
+      expect(fired).toBe(true); 
+      
+      // should happen only once per connect
+      fired = false;
+      engine.input.gamepads.update(100);
+      expect(fired).toBe(false);     
       
    });
    
    it('should fire an event on disconnect', () => {
       var fired = false;
       engine.input.gamepads.enabled = true;
-      engine.input.gamepads.on('disconnect', (padEvent: ex.GamepadConnectEvent) => {
+      engine.input.gamepads.on('disconnect', (padEvent: ex.Input.GamepadConnectEvent) => {
          fired = true;
       });
       
@@ -51,11 +56,16 @@ describe('A gamepad', () => {
       engine.input.gamepads.update(100);
       
       expect(fired).toBe(true);
+      
+      // should happen only once per disconnect
+      fired = false;
+      engine.input.gamepads.update(100);
+      expect(fired).toBe(false);
    });
    
    it('should be implicitly enabled when an event is added', () => {
       expect(engine.input.gamepads.enabled).toBe(false);
-      engine.input.gamepads.on('disconnect', (padEvent: ex.GamepadConnectEvent) => {
+      engine.input.gamepads.on('disconnect', (padEvent: ex.Input.GamepadConnectEvent) => {
          // do something awesome
       });
       expect(engine.input.gamepads.enabled).toBe(true);
