@@ -267,11 +267,11 @@ newScene.add(new ex.Label("MAH LABEL!", 200, 100));
 //newScene.onDeactivate = function(){
 //   console.log('deactivated newScene');
 //};
-newScene.addEventListener('activate', (evt?: ex.ActivateEvent) => {
+newScene.on('activate', (evt?: ex.ActivateEvent) => {
    console.log('activate newScene');
 });
 
-newScene.addEventListener('deactivate', (evt?: ex.ActivateEvent) => {
+newScene.on('deactivate', (evt?: ex.ActivateEvent) => {
    console.log('deactivate newScene');
 });
 
@@ -287,13 +287,13 @@ game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
       a.dy = 0;
       a.collisionType = ex.CollisionType.Elastic;
       var inAir = true;
-      a.addEventListener('collision', (data?: ex.CollisionEvent) => {
+      a.on('collision', (data?: ex.CollisionEvent) => {
          inAir = false;
          //a.dx = data.other.dx;
          //a.dy = data.other.dy;
          //a.kill();
       });
-      a.addEventListener('update', (data?: ex.UpdateEvent) => {
+      a.on('update', (data?: ex.UpdateEvent) => {
          if (inAir) {
             a.ay = 400;// * data.delta/1000;
          } else {
@@ -310,7 +310,7 @@ game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
 });
 
 var isColliding = false;
-player.addEventListener('collision', (data?: ex.CollisionEvent) => {
+player.on('collision', (data?: ex.CollisionEvent) => {
 
    if (data.side === ex.Side.Bottom) {
       isColliding = true;
@@ -342,7 +342,7 @@ player.addEventListener('collision', (data?: ex.CollisionEvent) => {
    }
 });
 
-player.addEventListener('update', (data?: ex.UpdateEvent) => {
+player.on('update', (data?: ex.UpdateEvent) => {
    // apply gravity if player is in the air
    // only apply gravity when not colliding
    if (!isColliding) {
@@ -358,7 +358,7 @@ player.addEventListener('update', (data?: ex.UpdateEvent) => {
    //console.log("Player Pos", player.x, player.y, player.getWidth(), player.getHeight());
 });
 
-player.addEventListener('initialize', (evt?: ex.InitializeEvent) => {
+player.on('initialize', (evt?: ex.InitializeEvent) => {
    console.log("Player initialized", evt.engine);
 });
 
@@ -375,7 +375,7 @@ game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
 });
 
 var paused = false;
-game.addEventListener('p', () => {
+game.on('p', () => {
    if (!paused) {
       game.stop();
    } else {

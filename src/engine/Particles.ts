@@ -325,7 +325,7 @@ module ex {
        * Causes the emitter to emit particles
        * @param particleCount  Number of particles to emit right now
        */
-      public emit(particleCount: number) {
+      public emitParticles(particleCount: number) {
          for (var i = 0; i < particleCount; i++) {
             this.particles.push(this._createParticle());
          }
@@ -389,7 +389,7 @@ module ex {
             this._particlesToEmit += this.emitRate * (delta / 1000);
             //var numParticles = Math.ceil(this.emitRate * delta / 1000);
             if (this._particlesToEmit > 1.0) {
-               this.emit(Math.floor(this._particlesToEmit));
+               this.emitParticles(Math.floor(this._particlesToEmit));
                this._particlesToEmit = this._particlesToEmit - Math.floor(this._particlesToEmit);
             }
          }

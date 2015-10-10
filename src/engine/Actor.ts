@@ -122,7 +122,7 @@ module ex {
    *   
    *     // check if player died
    *     if (this.health <= 0) {
-   *       this.triggerEvent("death");
+   *       this.emit("death");
    *       this.onDeath();
    *       return;
    *     }
@@ -139,7 +139,7 @@ module ex {
    *
    *     // check if player died
    *     if (this.health <= 0) {
-   *       this.triggerEvent("death");
+   *       this.emit("death");
    *       this.onDeath();
    *       return;
    *     }
@@ -592,10 +592,19 @@ module ex {
      * @param eventName   The name of the event to trigger
      * @param event       The event object to pass to the callback
      *
-     * @obsolete  Will be replaced with `emit`
+     * @obsolete  Use [[emit]] instead.
      */
     public triggerEvent(eventName: string, event?: GameEvent) {
-       this.eventDispatcher.publish(eventName, event);
+       this.eventDispatcher.emit(eventName, event);
+    }
+    
+    /**
+     * Alias for `emit`. Artificially trigger an event on an actor, useful when creating custom events.
+     * @param eventName   The name of the event to trigger
+     * @param event       The event object to pass to the callback
+     */
+    public emit(eventName: string, event?: GameEvent) {
+       this.eventDispatcher.emit(eventName, event);
     }
 
     /** 
@@ -1046,7 +1055,7 @@ module ex {
     public update(engine: Engine, delta: number) {
        if (!this._isInitialized) {
           this.onInitialize(engine);
-          this.eventDispatcher.publish('initialize', new InitializeEvent(engine));
+          this.eventDispatcher.emit('initialize', new InitializeEvent(engine));
           this._isInitialized = true;
        }
        
@@ -1062,7 +1071,7 @@ module ex {
           this.traits[i].update(this, engine, delta);
        }
        
-       eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
+       eventDispatcher.emit(EventType[EventType.Update], new UpdateEvent(delta));
     }
     /**
      * Called by the Engine, draws the actor to the screen

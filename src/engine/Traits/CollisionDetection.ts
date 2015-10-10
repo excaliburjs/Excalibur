@@ -17,7 +17,7 @@ module ex.Traits {
                      break;
                   } 
                   side = actor.getSideFromIntersect(intersectMap);
-                  eventDispatcher.publish('collision', new CollisionEvent(actor, null, side, intersectMap));
+                  eventDispatcher.emit('collision', new CollisionEvent(actor, null, side, intersectMap));
                   if((actor.collisionType === CollisionType.Active || actor.collisionType === CollisionType.Elastic)) {
                      actor.y += intersectMap.y;
                      actor.x += intersectMap.x;

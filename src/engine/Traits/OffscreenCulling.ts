@@ -32,7 +32,7 @@ module ex.Traits {
                actorScreenCoords.y > engine.height) &&
                isSpriteOffScreen ) {
                
-               eventDispatcher.publish('exitviewport', new ExitViewPortEvent());
+               eventDispatcher.emit('exitviewport', new ExitViewPortEvent());
                actor.isOffScreen = true;
             }
          } else {
@@ -42,7 +42,7 @@ module ex.Traits {
                actorScreenCoords.y < engine.height) ||
                !isSpriteOffScreen) {
                
-               eventDispatcher.publish('enterviewport', new EnterViewPortEvent());               
+               eventDispatcher.emit('enterviewport', new EnterViewPortEvent());               
                actor.isOffScreen = false;
             }
          }

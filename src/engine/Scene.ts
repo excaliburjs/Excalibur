@@ -213,13 +213,24 @@ module ex {
        * Publish an event to all actors in the scene
        * @param eventType  The name of the event to publish
        * @param event      The event object to send 
+       * 
+       * @obsolete Use [[emit]] instead.
        */
       public publish(eventType: string, event: GameEvent) {
          var i = 0, len = this.children.length;
 
          for (i; i < len; i++) {
-            this.children[i].triggerEvent(eventType, event);
+            this.children[i].emit(eventType, event);
          }
+      }
+      
+      /**
+       * Alias for `emit`. Publish an event to all actors in the scene
+       * @param eventType  The name of the event to publish
+       * @param event      The event object to send 
+       */
+      public emit(eventType: string, event: GameEvent) {
+         this.publish(eventType, event);
       }
 
       /**
@@ -469,6 +480,8 @@ module ex {
 
       /**
        * Adds an actor to the scene, once this is done the actor will be drawn and updated.
+       * 
+       * @obsolete Use [[add]] instead.
        */
       public addChild(actor: Actor) {
          this._collisionResolver.register(actor);

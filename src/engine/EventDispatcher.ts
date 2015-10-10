@@ -43,7 +43,7 @@ module ex {
     * });
     *
     * // trigger custom event
-    * player.triggerEvent("death", new DeathEvent());
+    * player.emit("death", new DeathEvent());
     *
     * ```
     *
@@ -69,7 +69,7 @@ module ex {
     * vent.subscribe("someevent", subscription);
     *
     * // publish an event somewhere in the game
-    * vent.publish("someevent", new ex.GameEvent());
+    * vent.emit("someevent", new ex.GameEvent());
     * ```
     */
    export class EventDispatcher {
@@ -90,6 +90,8 @@ module ex {
        * Publish an event for target
        * @param eventName  The name of the event to publish
        * @param event      Optionally pass an event data object to the handler
+       * 
+       * @obsolete Use [[emit]] instead.
        */
       public publish(eventName: string, event?: GameEvent) {
          if (!eventName) {
@@ -118,7 +120,7 @@ module ex {
          len = this._wiredEventDispatchers.length;
 
          for (i; i < len; i++) {
-            this._wiredEventDispatchers[i].publish(eventName, event);
+            this._wiredEventDispatchers[i].emit(eventName, event);
          }
 
       }
