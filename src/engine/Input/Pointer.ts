@@ -305,7 +305,7 @@ module ex.Input {
 
          for (i; i < len; i++) {
             if (actor.contains(this._pointerUp[i].x, this._pointerUp[i].y, !isUIActor)) {
-               actor.eventDispatcher.publish('pointerup', this._pointerUp[i]);
+               actor.eventDispatcher.emit('pointerup', this._pointerUp[i]);
             }
          }
 
@@ -314,7 +314,7 @@ module ex.Input {
 
          for (i; i < len; i++) {
             if (actor.contains(this._pointerDown[i].x, this._pointerDown[i].y, !isUIActor)) {
-               actor.eventDispatcher.publish('pointerdown', this._pointerDown[i]);
+               actor.eventDispatcher.emit('pointerdown', this._pointerDown[i]);
             }
          }
 
@@ -325,7 +325,7 @@ module ex.Input {
 
             for (i; i < len; i++) {
                if (actor.contains(this._pointerMove[i].x, this._pointerMove[i].y, !isUIActor)) {
-                  actor.eventDispatcher.publish('pointermove', this._pointerMove[i]);
+                  actor.eventDispatcher.emit('pointermove', this._pointerMove[i]);
                }
             }
          }
@@ -335,7 +335,7 @@ module ex.Input {
 
          for (i; i < len; i++) {
             if (actor.contains(this._pointerCancel[i].x, this._pointerCancel[i].y, !isUIActor)) {
-               actor.eventDispatcher.publish('pointercancel', this._pointerCancel[i]);
+               actor.eventDispatcher.emit('pointercancel', this._pointerCancel[i]);
             }
          }
       }
@@ -348,7 +348,7 @@ module ex.Input {
             var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
             var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, 0, PointerType.Mouse, e.button, e);
             eventArr.push(pe);
-            this.at(0).eventDispatcher.publish(eventName, pe);
+            this.at(0).eventDispatcher.emit(eventName, pe);
          };
       }
 
@@ -363,7 +363,7 @@ module ex.Input {
                var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
                var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, PointerType.Touch, PointerButton.Unknown, e);
                eventArr.push(pe);
-               this.at(index).eventDispatcher.publish(eventName, pe);
+               this.at(index).eventDispatcher.emit(eventName, pe);
                // only with multi-pointer
                if (this._pointers.length > 1) {
                   if (eventName === 'up') {
@@ -392,7 +392,7 @@ module ex.Input {
             var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
             var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, this._stringToPointerType(e.pointerType), e.button, e);
             eventArr.push(pe);
-            this.at(index).eventDispatcher.publish(eventName, pe);
+            this.at(index).eventDispatcher.emit(eventName, pe);
 
             // only with multi-pointer
             if (this._pointers.length > 1) {

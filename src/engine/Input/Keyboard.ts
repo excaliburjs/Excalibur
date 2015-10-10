@@ -131,8 +131,8 @@
             var keyEvent = new KeyEvent(ev.keyCode);
             
             // alias the old api, we may want to deprecate this in the future
-            this.eventDispatcher.publish('up', keyEvent);
-            this.eventDispatcher.publish('release', keyEvent);            
+            this.eventDispatcher.emit('up', keyEvent);
+            this.eventDispatcher.emit('release', keyEvent);            
          });
 
          // key down is on window because canvas cannot have focus
@@ -141,8 +141,8 @@
                this._keys.push(ev.keyCode);
                this._keysDown.push(ev.keyCode);
                var keyEvent = new KeyEvent(ev.keyCode);
-               this.eventDispatcher.publish('down', keyEvent);
-               this.eventDispatcher.publish('press', keyEvent);                 
+               this.eventDispatcher.emit('down', keyEvent);
+               this.eventDispatcher.emit('press', keyEvent);                 
             }
          });
       }
@@ -154,7 +154,7 @@
          
          // Emit synthetic "hold" event
          for(var i = 0; i < this._keys.length; i++) {
-            this.eventDispatcher.publish('hold', new KeyEvent(this._keys[i]));
+            this.eventDispatcher.emit('hold', new KeyEvent(this._keys[i]));
          }
       }      
 

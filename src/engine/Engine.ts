@@ -762,7 +762,7 @@ module ex {
             // only deactivate when initialized
             if (this.currentScene.isInitialized) {
                this.currentScene.onDeactivate.call(this.currentScene);
-               this.currentScene.eventDispatcher.publish('deactivate', new DeactivateEvent(newScene));
+               this.currentScene.eventDispatcher.emit('deactivate', new DeactivateEvent(newScene));
             }
 
             // set current scene to new one
@@ -770,12 +770,12 @@ module ex {
 
             if (!this.currentScene.isInitialized) {
                this.currentScene.onInitialize.call(this.currentScene, this);
-               this.currentScene.eventDispatcher.publish('initialize', new InitializeEvent(this));
+               this.currentScene.eventDispatcher.emit('initialize', new InitializeEvent(this));
                this.currentScene.isInitialized = true;
             }
 
             this.currentScene.onActivate.call(this.currentScene);
-            this.currentScene.eventDispatcher.publish('activate', new ActivateEvent(oldScene));
+            this.currentScene.eventDispatcher.emit('activate', new ActivateEvent(oldScene));
          } else {
             this._logger.error('Scene', key, 'does not exist!');
          }
@@ -908,10 +908,10 @@ module ex {
          // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
          document.addEventListener('visibilitychange', () => {
             if (document.hidden || document.msHidden) {
-               this.eventDispatcher.publish('hidden', new HiddenEvent());
+               this.eventDispatcher.emit('hidden', new HiddenEvent());
                this._logger.debug('Window hidden');
             } else {
-               this.eventDispatcher.publish('visible', new VisibleEvent());
+               this.eventDispatcher.emit('visible', new VisibleEvent());
                this._logger.debug('Window visible');
             }
          });
@@ -981,7 +981,7 @@ module ex {
          this.input.gamepads.update(delta);
 
          // Publish update event
-         this.eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
+         this.eventDispatcher.emit(EventType[EventType.Update], new UpdateEvent(delta));
       }
 
       /**

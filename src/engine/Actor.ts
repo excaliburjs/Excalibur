@@ -595,7 +595,7 @@ module ex {
      * @obsolete  Use [[emit]] instead.
      */
     public triggerEvent(eventName: string, event?: GameEvent) {
-       this.eventDispatcher.publish(eventName, event);
+       this.eventDispatcher.emit(eventName, event);
     }
     
     /**
@@ -604,7 +604,7 @@ module ex {
      * @param event       The event object to pass to the callback
      */
     public emit(eventName: string, event?: GameEvent) {
-       this.eventDispatcher.publish(eventName, event);
+       this.eventDispatcher.emit(eventName, event);
     }
 
     /** 
@@ -1055,7 +1055,7 @@ module ex {
     public update(engine: Engine, delta: number) {
        if (!this._isInitialized) {
           this.onInitialize(engine);
-          this.eventDispatcher.publish('initialize', new InitializeEvent(engine));
+          this.eventDispatcher.emit('initialize', new InitializeEvent(engine));
           this._isInitialized = true;
        }
        
@@ -1071,7 +1071,7 @@ module ex {
           this.traits[i].update(this, engine, delta);
        }
        
-       eventDispatcher.publish(EventType[EventType.Update], new UpdateEvent(delta));
+       eventDispatcher.emit(EventType[EventType.Update], new UpdateEvent(delta));
     }
     /**
      * Called by the Engine, draws the actor to the screen

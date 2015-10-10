@@ -29,8 +29,8 @@ module ex {
          // todo resolve collisions                  
                   
          // Publish collision events on both participants
-         this.left.eventDispatcher.publish('collision', new CollisionEvent(this.left, this.right, this.side, this.intersect));
-         this.right.eventDispatcher.publish('collision', 
+         this.left.eventDispatcher.emit('collision', new CollisionEvent(this.left, this.right, this.side, this.intersect));
+         this.right.eventDispatcher.emit('collision', 
             new CollisionEvent(this.right, this.left, ex.Util.getOppositeSide(this.side), this.intersect.scale(-1.0)));
 
          // If the actor is active push the actor out if its not passive

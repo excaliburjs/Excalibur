@@ -19,7 +19,7 @@ describe('An Event Dispatcher', () => {
       pubsub.subscribe('event', function () {
          eventFired = true;
       });
-      pubsub.publish('event');
+      pubsub.emit('event');
       expect(eventFired).toBeTruthy();
    });
 
