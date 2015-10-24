@@ -8,9 +8,9 @@ var travis = new Travis({
 var branch = child_process.execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
 
 if (branch !== "master") {
-   process.stdout.write("Current branch is `" + branch + "`, skipping docs deployment...");
+   console.log("Current branch is `" + branch + "`, skipping docs deployment...");
 } else {
-   process.stdout.write("Current branch is `" + branch + "`, triggering remote build of edge docs...");
+   console.log("Current branch is `" + branch + "`, triggering remote build of edge docs...");
    
    travis.authenticate({
       github_token: process.env.GH_TOKEN
