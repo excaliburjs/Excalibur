@@ -161,10 +161,15 @@ module ex {
       public spriteFont: SpriteFont;
 
       /**
-       * The CSS font string (e.g. `10px sans-serif`, `10px Droid Sans Pro`). Web fonts
+       * The CSS font string (e.g. `sans-serif`, `Droid Sans Pro`). Web fonts
        * are supported, same as in CSS.
        */
       public font: string;
+      
+      /**
+       * The font size in pixels, default is 10px
+       */
+      public fontSize: number = 10;
 
       /**
        * Gets or sets the horizontal text alignment property for the label. 
@@ -344,22 +349,12 @@ module ex {
       private _fontDraw(ctx: CanvasRenderingContext2D, delta: number, sprites: { [key: string]: Sprite; }) {
 
          if (this.spriteFont) {
-
-            var currX = 0;
-
-            for (var i = 0; i < this.text.length; i++) {
-               var character = this.text[i];
-               if (this.caseInsensitive) {
-                  character = character.toLowerCase();
-               }
-               try {
-                  var charSprite = sprites[character];
-                  charSprite.draw(ctx, currX, 0);
-                  currX += (charSprite.swidth + this.letterSpacing);
-               } catch (e) {
-                  Logger.getInstance().error('SpriteFont Error drawing char ' + character);
-               }
-            }
+            this.spriteFont.draw(ctx, this.text, 0, 0, {
+               color: this.color,
+               baseAlign: this.baseAlign,
+               textAlign: this.textAlign,
+               fontSize: this.fontSize
+            });
          } else {
             var oldAlign = ctx.textAlign;
             var oldTextBaseline = ctx.textBaseline;
@@ -370,7 +365,7 @@ module ex {
                this.color.a = this.opacity;
             }
             ctx.fillStyle = this.color.toString();
-            ctx.font = this.font;
+            ctx.font = `${this.fontSize} ${this.font}`;
             if (this.maxWidth) {
                ctx.fillText(this.text, 0, 0, this.maxWidth);
             } else {

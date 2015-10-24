@@ -137,7 +137,7 @@ module ex {
             return this.sprites[index];
          });
 
-         images = images.map(function (i) {
+         images = images.map(function(i) {
             return i.clone();
          });
          return new Animation(engine, images, speed);
@@ -153,7 +153,7 @@ module ex {
        */
       public getAnimationBetween(engine: Engine, beginIndex: number, endIndex: number, speed: number) {
          var images = this.sprites.slice(beginIndex, endIndex);
-         images = images.map(function (i) {
+         images = images.map(function(i) {
             return i.clone();
          });
          return new Animation(engine, images, speed);
@@ -166,7 +166,7 @@ module ex {
        * @param speed   The number in milliseconds to display each frame the animation
        */
       public getAnimationForAll(engine: Engine, speed: number) {
-         var sprites = this.sprites.map(function (i) {
+         var sprites = this.sprites.map(function(i) {
             return i.clone();
          });
          return new Animation(engine, sprites, speed);
@@ -188,7 +188,8 @@ module ex {
     * Sprite Fonts
     *
     * Sprite fonts are a used in conjunction with a [[Label]] to specify
-    * a particular bitmap as a font.
+    * a particular bitmap as a font. Note that some font features are not 
+    * supported by Sprite fonts.
     *
     * ## Generating the font sheet
     *
@@ -266,8 +267,9 @@ module ex {
     */
    export class SpriteFont extends SpriteSheet {
       private _spriteLookup: { [key: string]: number; } = {};
-      private _colorLookup: {[key: string]: Sprite[]; } = {};
+      private _colorLookup: { [key: string]: Sprite[]; } = {};
       private _currentColor: Color = Color.Black;
+      private _sprites: { [key: string]: Sprite; } = {};
 
       /**
        * @param image           The backing image texture to build the SpriteFont
@@ -278,13 +280,13 @@ module ex {
        * @param spWdith         The width of each character in pixels
        * @param spHeight        The height of each character in pixels
        */
-      constructor(public image: Texture, 
-                  private alphabet: string, 
-                  private caseInsensitive: boolean, 
-                  columns: number, 
-                  rows: number, 
-                  spWidth: number, 
-                  spHeight: number) {
+      constructor(public image: Texture,
+         private alphabet: string,
+         private caseInsensitive: boolean,
+         columns: number,
+         rows: number,
+         public spWidth: number,
+         public spHeight: number) {
          super(image, columns, rows, spWidth, spHeight);
       }
 
@@ -302,5 +304,74 @@ module ex {
          }
          return lookup;
       }
+      
+      /**
+       * Draws the current sprite font 
+       */
+      public draw(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, options: ISpriteFontOptions) {
+         options = this._parseOptions(options);
+                  
+         // find the current length of text in pixels
+         var length = text.length * this.spWidth;
+
+         var currX = x;
+         if (options.textAlign === TextAlign.Left) {
+            currX = x;
+         } else if (options.textAlign === TextAlign.Right) {
+            currX = x - length;
+         } else if (options.textAlign === TextAlign.Center) {
+            currX = x - length / 2;
+         }
+         
+         // find the current height fo the text in pixels
+         var height = this.spHeight;
+
+         var currY = y;
+         if (options.baseAlign === BaseAlign.Top || options.baseAlign === BaseAlign.Hanging) {
+            currY = y + height;
+         } else if (options.baseAlign === BaseAlign.Ideographic || options.baseAlign === BaseAlign.Bottom) {
+            currY = y;
+         } else if (options.baseAlign === BaseAlign.Middle) {
+            currY = y + height / 2;
+         }
+         
+         for (var i = 0; i < text.length; i++) {
+            var character = text[i];
+            if (this.caseInsensitive) {
+               character = character.toLowerCase();
+            }
+            try {
+               var charSprite = this._sprites[character];
+               charSprite.draw(ctx, currX, currY);
+               currX += (charSprite.swidth + options.letterSpacing);
+            } catch (e) {
+               Logger.getInstance().error(`SpriteFont Error drawing char ${character}`);
+            }
+         }
+         
+      }
+
+      private _parseOptions(options: ISpriteFontOptions): ISpriteFontOptions {
+         return {
+            fontSize: options.fontSize || 10,
+            letterSpacing: options.letterSpacing || 0,
+            color: options.color || ex.Color.Black.clone(),
+            textAlign: options.textAlign || TextAlign.Left,
+            baseAlign: options.baseAlign || BaseAlign.Alphabetic,
+            maxWidth: options.maxWidth || -1
+         };
+      }
+   }
+   
+   /**
+    * Specify various font attributes for sprite fonts 
+    */
+   export interface ISpriteFontOptions {
+      color?: Color;
+      fontSize?: number;
+      letterSpacing?: number;
+      textAlign?: TextAlign;
+      baseAlign?: BaseAlign;
+      maxWidth?: number;
    }
 }
