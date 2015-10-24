@@ -5,7 +5,7 @@ var travis = new Travis({
 	version: '2.0.0'
 });
 
-var branch = child_process.execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
+var branch = process.env.TRAVIS_BRANCH;
 
 if (branch !== "master") {
    console.log("Current branch is `" + branch + "`, skipping docs deployment...");
