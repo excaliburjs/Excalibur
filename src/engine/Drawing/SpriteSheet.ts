@@ -288,6 +288,7 @@ module ex {
          public spWidth: number,
          public spHeight: number) {
          super(image, columns, rows, spWidth, spHeight);
+         this._sprites = this.getTextSprites();
       }
 
       /**
@@ -310,30 +311,45 @@ module ex {
        */
       public draw(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, options: ISpriteFontOptions) {
          options = this._parseOptions(options);
-                  
+                
+         for(var char of this.sprites) {
+             char.clearEffects();
+             char.fill(options.color);
+             char.opacity(options.opacity);
+         }          
+         
          // find the current length of text in pixels
-         var length = text.length * this.spWidth;
+         var sprite = this.sprites[0];
+         
+         // find the current height fo the text in pixels
+         var height = sprite.sheight;
+         
+         // calculate appropriate scale for font size
+         var scale = options.fontSize / height;
+         
+         var length = (text.length * sprite.swidth * scale) + (text.length * options.letterSpacing);
 
          var currX = x;
-         if (options.textAlign === TextAlign.Left) {
+         if (options.textAlign === TextAlign.Left || options.textAlign === TextAlign.Start) {
             currX = x;
-         } else if (options.textAlign === TextAlign.Right) {
+         } else if (options.textAlign === TextAlign.Right || options.textAlign === TextAlign.End) {
             currX = x - length;
          } else if (options.textAlign === TextAlign.Center) {
             currX = x - length / 2;
          }
-         
-         // find the current height fo the text in pixels
-         var height = this.spHeight;
+                 
 
-         var currY = y;
+         var currY = y - height * scale;
          if (options.baseAlign === BaseAlign.Top || options.baseAlign === BaseAlign.Hanging) {
-            currY = y + height;
-         } else if (options.baseAlign === BaseAlign.Ideographic || options.baseAlign === BaseAlign.Bottom) {
             currY = y;
+         } else if (options.baseAlign === BaseAlign.Ideographic || 
+                    options.baseAlign === BaseAlign.Bottom || 
+                    options.baseAlign === BaseAlign.Alphabetic) {
+            currY = y - height * scale;
          } else if (options.baseAlign === BaseAlign.Middle) {
-            currY = y + height / 2;
+            currY = y - (height * scale) / 2;
          }
+         
          
          for (var i = 0; i < text.length; i++) {
             var character = text[i];
@@ -342,8 +358,10 @@ module ex {
             }
             try {
                var charSprite = this._sprites[character];
+               charSprite.scale.x = scale;
+               charSprite.scale.y = scale;
                charSprite.draw(ctx, currX, currY);
-               currX += (charSprite.swidth + options.letterSpacing);
+               currX += (charSprite.width + options.letterSpacing);
             } catch (e) {
                Logger.getInstance().error(`SpriteFont Error drawing char ${character}`);
             }
@@ -356,9 +374,10 @@ module ex {
             fontSize: options.fontSize || 10,
             letterSpacing: options.letterSpacing || 0,
             color: options.color || ex.Color.Black.clone(),
-            textAlign: options.textAlign || TextAlign.Left,
-            baseAlign: options.baseAlign || BaseAlign.Alphabetic,
-            maxWidth: options.maxWidth || -1
+            textAlign: typeof options.textAlign === undefined ? TextAlign.Left : options.textAlign,
+            baseAlign: typeof options.baseAlign === undefined ?  BaseAlign.Bottom : options.baseAlign,
+            maxWidth: options.maxWidth || -1,
+            opacity: options.opacity || 0
          };
       }
    }
@@ -368,6 +387,7 @@ module ex {
     */
    export interface ISpriteFontOptions {
       color?: Color;
+      opacity?: number;
       fontSize?: number;
       letterSpacing?: number;
       textAlign?: TextAlign;

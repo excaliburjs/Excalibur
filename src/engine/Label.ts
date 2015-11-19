@@ -174,12 +174,12 @@ module ex {
       /**
        * Gets or sets the horizontal text alignment property for the label. 
        */
-      public textAlign: TextAlign;
+      public textAlign: TextAlign = TextAlign.Left;
 
       /**
        * Gets or sets the baseline alignment property for the label.
        */
-      public baseAlign: BaseAlign;
+      public baseAlign: BaseAlign = BaseAlign.Bottom;
 
       /**
        * Gets or sets the maximum width (in pixels) that the label should occupy
@@ -353,7 +353,9 @@ module ex {
                color: this.color,
                baseAlign: this.baseAlign,
                textAlign: this.textAlign,
-               fontSize: this.fontSize
+               fontSize: this.fontSize,
+               letterSpacing: this.letterSpacing,
+               opacity: this.opacity
             });
          } else {
             var oldAlign = ctx.textAlign;
