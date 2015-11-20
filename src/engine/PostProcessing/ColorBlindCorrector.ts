@@ -111,7 +111,7 @@ module ex {
          this._internalCanvas.width = engine.getWidth();
          this._internalCanvas.height = engine.getHeight();
 
-         this._gl = this._internalCanvas.getContext('webgl', { preserveDrawingBuffer: true });
+         this._gl = <WebGLRenderingContext>this._internalCanvas.getContext('webgl', { preserveDrawingBuffer: true });
 
          this._program = this._gl.createProgram();
          var fragmentShader = this._getShader('Fragment', this._getFragmentShaderByMode(colorMode));
