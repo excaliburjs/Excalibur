@@ -60,6 +60,24 @@ module ex {
       protected _follow: Actor;
       protected _focus: Point = new Point(0, 0);
       protected _lerp: boolean = false;
+
+      // camera physical quantities
+      public x: number = 0;
+      public y: number = 0;
+      public z: number = 1;
+
+      public dx: number = 0;
+      public dy: number = 0;
+      public dz: number = 0;
+
+      public ax: number = 0;
+      public ay: number = 0;
+      public az: number = 0;
+
+      public rotation: number = 0;
+      public rx: number = 0;
+
+
       private _cameraMoving: boolean = false;
       private _currentLerpTime: number = 0;
       private _lerpDuration: number = 1 * 1000; // 5 seconds
@@ -101,25 +119,26 @@ module ex {
       }
 
       /**
-       * Returns the focal point of the camera
+       * Returns the focal point of the camera, a new point giving the x and y position of the camera
        */
       public getFocus() {
-         return this._focus;
+         return new ex.Point(this.x, this.y);
       }
 
       /**
        * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
        * @param x The x coordinate of the focal point
        * @param y The y coordinate of the focal point
+       * @deprecated
        */
       public setFocus(x: number, y: number) {
          if (!this._follow && !this._lerp) {
-            this._focus.x = x;
-            this._focus.y = y;
+            this.x = x;
+            this.y = y;
          }
 
          if (this._lerp) {
-            this._lerpStart = this._focus.clone();
+            this._lerpStart = this.getFocus().clone();
             this._lerpEnd = new Point(x, y);
             this._currentLerpTime = 0;
             this._cameraMoving = true;
@@ -172,11 +191,11 @@ module ex {
        * Gets the current zoom scale
        */
       public getZoom() {
-         return this._currentZoomScale;
+         return this.z;
       }
 
       private _setCurrentZoomScale(zoomScale: number) {
-         this._currentZoomScale = zoomScale;
+         this.z = zoomScale;
       }
 
       /**
@@ -184,6 +203,18 @@ module ex {
        * @param delta  The number of milliseconds since the last update
        */
       public update(ctx: CanvasRenderingContext2D, delta: number) {
+         // Update placements based on linear algebra
+         this.x += this.dx * delta / 1000;
+         this.y += this.dy * delta / 1000;
+         this.z += this.dz * delta / 1000;
+
+         this.dx += this.ax * delta / 1000;
+         this.dy += this.ay * delta / 1000;
+         this.dz += this.az * delta / 1000;
+
+         this.rotation += this.rx * delta / 1000;
+         
+
          var focus = this.getFocus();
 
          var xShake = 0;
@@ -236,7 +267,7 @@ module ex {
             yShake = (Math.random() * this._shakeMagnitudeY | 0) + 1;
          }
 
-         if (this._isDoneZooming()) {
+         /*if (this._isDoneZooming()) {
             this._isZooming = false;
             this._elapsedZoomTime = 0;
             this._zoomDuration = 0;
@@ -246,7 +277,7 @@ module ex {
             this._elapsedZoomTime += delta;
 
             this._setCurrentZoomScale(this.getZoom() + this._zoomIncrement * delta / 1000);
-         }
+         }*/
 
          ctx.scale(this.getZoom(), this.getZoom());
          ctx.translate(-focus.x + newCanvasWidth / 2 + xShake, -focus.y + newCanvasHeight / 2 + yShake);
