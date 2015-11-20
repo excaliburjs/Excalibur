@@ -15,10 +15,10 @@ box.on("update", (ue: ex.UpdateEvent) => {
    var axesLeftY = pad1.getAxes(ex.Input.Axes.LeftStickY);
 
    // Right/Left
-   if (game.input.keyboard.isKeyPressed(ex.Input.Keys.Right) ||
+   if (game.input.keyboard.isHeld(ex.Input.Keys.Right) ||
        pad1.isButtonPressed(ex.Input.Buttons.DpadRight)) {
       box.dx = 20;
-   } else if (game.input.keyboard.isKeyPressed(ex.Input.Keys.Left) ||
+   } else if (game.input.keyboard.isHeld(ex.Input.Keys.Left) ||
       pad1.isButtonPressed(ex.Input.Buttons.DpadLeft)) {
       box.dx = -20;
    } else if (!axesLeftX && !axesLeftY) {
@@ -26,10 +26,10 @@ box.on("update", (ue: ex.UpdateEvent) => {
    }
 
    // Up/Down
-   if (game.input.keyboard.isKeyPressed(ex.Input.Keys.Up) ||
+   if (game.input.keyboard.isHeld(ex.Input.Keys.Up) ||
        pad1.isButtonPressed(ex.Input.Buttons.DpadUp)) {
       box.dy = -20;
-   } else if (game.input.keyboard.isKeyPressed(ex.Input.Keys.Down) ||
+   } else if (game.input.keyboard.isHeld(ex.Input.Keys.Down) ||
       pad1.isButtonPressed(ex.Input.Buttons.DpadDown)) {
       box.dy = 20;
    } else if (!axesLeftY && !axesLeftX) {
