@@ -41,4 +41,11 @@ document.getElementById('fontsize').addEventListener('change', function (evt) {
 document.getElementById('letterspacing').addEventListener('keyup', function (evt) {
     label.letterSpacing = parseFloat(evt.currentTarget.value);
 });
-//# sourceMappingURL=spritefont.js.map
+document.getElementById('textshadow').addEventListener('change', function (evt) {
+    var val = (evt.currentTarget.checked);
+    label.useTextShadow(val);
+});
+document.getElementById('setshadowcolor').addEventListener('click', function () {
+    var text = document.getElementById('textshadowcolor').value;
+    label.setTextShadow(5, 5, ex.Color.fromHex(text));
+});

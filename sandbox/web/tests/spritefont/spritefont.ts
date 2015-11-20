@@ -56,3 +56,13 @@ document.getElementById('fontsize').addEventListener('change', function (evt) {
 document.getElementById('letterspacing').addEventListener('keyup', function (evt) {
    label.letterSpacing = parseFloat((<any>evt.currentTarget).value);
 });
+
+document.getElementById('textshadow').addEventListener('change', function (evt) {
+   var val = <boolean>((<any>evt.currentTarget).checked);
+   label.useTextShadow(val);
+});
+
+document.getElementById('setshadowcolor').addEventListener('click', function () {
+   var text = (<any>document.getElementById('textshadowcolor')).value;
+   label.setTextShadow(5, 5, ex.Color.fromHex(text));
+});

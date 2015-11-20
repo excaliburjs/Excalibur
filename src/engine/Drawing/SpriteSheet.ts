@@ -268,8 +268,19 @@ module ex {
    export class SpriteFont extends SpriteSheet {
       private _spriteLookup: { [key: string]: number; } = {};
       private _colorLookup: { [key: string]: Sprite[]; } = {};
-      private _currentColor: Color = Color.Black;
+      private _currentColor: Color = Color.Black.clone();
+      private _currentOpacity: Number = 1.0;
       private _sprites: { [key: string]: Sprite; } = {};
+
+      // text shadow
+      private _textShadowOn: boolean = false;
+      private _textShadowDirty: boolean = true;
+      private _textShadowColor: Color = Color.Black.clone();
+      private _textShadowSprites: { [key: string]: Sprite; } = {};
+      private _shadowOffsetX: number = 5;
+      private _shadowOffsetY: number = 5;
+
+      
 
       /**
        * @param image           The backing image texture to build the SpriteFont
@@ -305,18 +316,58 @@ module ex {
          }
          return lookup;
       }
+
+      /**
+       * Sets the text shadow for sprite fonts
+       * @param offsetX      The x offset in pixels to place the shadow
+       * @param offsetY      The y offset in pixles to place the shadow
+       * @param shadowColor  The color of the text shadow
+       */
+      public setTextShadow(offsetX: number, offsetY: number, shadowColor: Color) {
+         this._textShadowOn = true;
+         this._shadowOffsetX = offsetX;
+         this._shadowOffsetY = offsetY;
+         this._textShadowColor = shadowColor.clone();
+         this._textShadowDirty = true;
+         for (var character in this._sprites) {
+            this._textShadowSprites[character] = this._sprites[character].clone();
+         }
+      }
+
+      /**
+       * Toggles text shadows on or off
+       */
+      public useTextShadow(on: boolean) {
+         this._textShadowOn = on;
+         if (on) {
+            this.setTextShadow(5, 5, this._textShadowColor);
+         }
+      }
       
       /**
        * Draws the current sprite font 
        */
       public draw(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, options: ISpriteFontOptions) {
          options = this._parseOptions(options);
-                
-         for(var char of this.sprites) {
-             char.clearEffects();
-             char.fill(options.color);
-             char.opacity(options.opacity);
-         }          
+         
+         if (this._currentColor.toString() !== options.color.toString() || this._currentOpacity !== options.opacity) {
+            this._currentOpacity = options.opacity;
+            this._currentColor = options.color;
+            for (var char in this._sprites) {
+               this._sprites[char].clearEffects();
+               this._sprites[char].fill(options.color);
+               this._sprites[char].opacity(options.opacity);
+            }
+         }
+
+         if (this._textShadowOn && this._textShadowDirty && this._textShadowColor) {
+            for (var characterShadow in this._textShadowSprites) {
+               this._textShadowSprites[characterShadow].clearEffects();
+               this._textShadowSprites[characterShadow].addEffect(new Effects.Fill(this._textShadowColor.clone()));
+            }
+            this._textShadowDirty = false;
+         }
+         
          
          // find the current length of text in pixels
          var sprite = this.sprites[0];
@@ -357,6 +408,13 @@ module ex {
                character = character.toLowerCase();
             }
             try {
+               // if text shadow
+               if (this._textShadowOn) {
+                  this._textShadowSprites[character].scale.x = scale;
+                  this._textShadowSprites[character].scale.y = scale;
+                  this._textShadowSprites[character].draw(ctx, currX + this._shadowOffsetX, currY + this._shadowOffsetY);
+               }
+               
                var charSprite = this._sprites[character];
                charSprite.scale.x = scale;
                charSprite.scale.y = scale;

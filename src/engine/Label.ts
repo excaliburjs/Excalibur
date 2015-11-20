@@ -223,7 +223,7 @@ module ex {
          this.collisionType = CollisionType.PreventCollision;
          this.font = font || '10px sans-serif'; // coallesce to default canvas font
          if (spriteFont) {
-            this._textSprites = spriteFont.getTextSprites();
+            //this._textSprites = spriteFont.getTextSprites();
          }
       }
 
@@ -284,14 +284,14 @@ module ex {
        * @param shadowColor  The color of the text shadow
        */
       public setTextShadow(offsetX: number, offsetY: number, shadowColor: Color) {
-         this._textShadowOn = true;
-         this._shadowOffsetX = offsetX;
-         this._shadowOffsetY = offsetY;
-         this._shadowColor = shadowColor.clone();
-         this._shadowColorDirty = true;
-         for (var character in this._textSprites) {
-            this._shadowSprites[character] = this._textSprites[character].clone();
-         }
+         this.spriteFont.setTextShadow(offsetX, offsetY, shadowColor);
+      }
+
+      /**
+       * Toggles text shadows on or off, only applies when using sprite fonts
+       */
+      public useTextShadow(on: boolean) {
+         this.spriteFont.useTextShadow(on);
       }
 
       /**
@@ -307,6 +307,7 @@ module ex {
       public update(engine: Engine, delta: number) {
          super.update(engine, delta);
 
+          /*
          if (this.spriteFont && (this._color !== this.color || this.previousOpacity !== this.opacity)) {
             for (var character in this._textSprites) {
                this._textSprites[character].clearEffects();
@@ -324,7 +325,7 @@ module ex {
                this._shadowSprites[characterShadow].addEffect(new Effects.Fill(this._shadowColor.clone()));
             }
             this._shadowColorDirty = false;
-         }
+         }*/
       }
 
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
@@ -350,7 +351,7 @@ module ex {
 
          if (this.spriteFont) {
             this.spriteFont.draw(ctx, this.text, 0, 0, {
-               color: this.color,
+               color: this.color.clone(),
                baseAlign: this.baseAlign,
                textAlign: this.textAlign,
                fontSize: this.fontSize,
