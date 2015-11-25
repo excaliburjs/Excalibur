@@ -6,6 +6,7 @@ describe('A camera', () => {
    
    var sideCamera;
    var lockedCamera;
+   var baseCamera;
    var actor;
    var engine;
    var scene;
@@ -25,6 +26,7 @@ describe('A camera', () => {
 
       sideCamera = new ex.SideCamera();
       lockedCamera = new ex.LockedCamera();
+      baseCamera = new ex.BaseCamera();
    });
 
    it('can follow an actor if it is a lockedCamera', () => {
@@ -75,13 +77,20 @@ describe('A camera', () => {
    });
 
    it('can focus on a point', () => {
-      engine.camera = lockedCamera;
-      lockedCamera.setFocus(10, 20);
+      // set the focus with positional attributes
+      baseCamera.x = 10;
+      baseCamera.y = 20;
 
-      expect(lockedCamera.getFocus().x).toBe(10);
-      expect(lockedCamera.getFocus().y).toBe(20);
+      expect(baseCamera.getFocus().x).toBe(10);
+      expect(baseCamera.getFocus().y).toBe(20);
 
-      });
+      // set the focus with the legacy api
+      baseCamera.setFocus(20, 10);
+
+      expect(baseCamera.getFocus().x).toBe(20);
+      expect(baseCamera.getFocus().y).toBe(10);
+
+   });
 
    it('cannot focus on a point if it has an actor to follow', () => {
       //TODO
