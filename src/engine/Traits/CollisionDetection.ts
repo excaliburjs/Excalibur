@@ -4,7 +4,7 @@ module ex.Traits {
    export class CollisionDetection implements IActorTrait { 
       public update(actor: Actor, engine: Engine, delta: number) {
          var eventDispatcher = actor.eventDispatcher;
-         if (actor.collisionType !== CollisionType.PreventCollision) {            
+         if (actor.collisionType !== CollisionType.PreventCollision && engine.currentScene && engine.currentScene.tileMaps) {            
 
             for(var j = 0; j < engine.currentScene.tileMaps.length; j++) {
                var map = engine.currentScene.tileMaps[j];

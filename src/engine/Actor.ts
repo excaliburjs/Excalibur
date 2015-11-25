@@ -427,7 +427,7 @@ module ex {
        }         
        // Build default pipeline
        this.traits.push(new ex.Traits.Movement());
-       //this.pipeline.push(new ex.CollisionDetectionModule());
+       this.traits.push(new ex.Traits.CollisionDetection());
        this.traits.push(new ex.Traits.OffscreenCulling());         
        this.traits.push(new ex.Traits.CapturePointer());
        this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
