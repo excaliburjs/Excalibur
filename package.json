@@ -25,7 +25,7 @@
     "simple"
   ],
   "scripts": {
-    "preinstall": "npm install -g typescript@1.5.3&&npm install -g istanbul"
+    "preinstall": "npm install -g typescript@1.6.2&&npm install -g istanbul"
   },
   "devDependencies": {
     "grunt": "0.4.5",

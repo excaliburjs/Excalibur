@@ -9,13 +9,58 @@
     <br/>
     <button id="lighten">Less Opaque</button>
     <button id="darken">More Opaque</button>
+    <br/>
 
     <label for="text">Text:</label>
-    <input id="text" type="text" />
+    <input id="text" type="text" value="This is a sprite Font test" />
 
     <label for="color">Color:</label>
     <input id="color" type="text"/>
     <button id="setcolor">Set Color</button>
+    
+    <br/>
+    
+    <label for="textalign">Text Align:</label>
+    <select id="textalign">
+       <option value="Left">Left</option>
+       <option value="Right">Right</option>
+       <option value="Center">Center</option>
+       <option value="Start">Start</option>
+       <option value="End">End</option>
+    </select>
+    
+    <label for="basealign">Base Align:</label>
+    <select id="basealign">
+       <option value="Bottom">Bottom</option>
+       <option value="Top">Top</option>
+       <option value="Middle">Middle</option>
+       <option value="Hanging">Hanging</option>
+       <option value="Alphabetic">Alphabetic</option>
+       <option value="Ideographic">Ideographic</option>
+    </select>
+    
+    <br/>
+    <label for="fontsize">Font Size</label>
+    <select id="fontsize">
+       <option value="10">10</option>
+       <option value="18">18</option>
+       <option value="26">26</option>
+       <option value="34">34</option>
+       <option value="42">42</option>
+       <option value="50">50</option>
+    </select>
+    
+    <label for="letterspacing">Letter Spacing:</label>
+    <input id="letterspacing" type="text" value="-20"/>
+    
+    <br/>
+    <label for="textshadow">Text Shadow</label>
+    <input type="checkbox" id="textshadow" />
+
+    <br/>
+    <label for="textshadowcolor">Text Shadow Color:</label>
+    <input id="textshadowcolor" type="text" />
+    <button id="setshadowcolor">Set Color</button>
 
     <script src="../../Excalibur.js"></script>
     <script src="spritefont.js"></script>

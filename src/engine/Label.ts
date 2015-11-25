@@ -161,20 +161,25 @@ module ex {
       public spriteFont: SpriteFont;
 
       /**
-       * The CSS font string (e.g. `10px sans-serif`, `10px Droid Sans Pro`). Web fonts
+       * The CSS font string (e.g. `sans-serif`, `Droid Sans Pro`). Web fonts
        * are supported, same as in CSS.
        */
       public font: string;
+      
+      /**
+       * The font size in pixels, default is 10px
+       */
+      public fontSize: number = 10;
 
       /**
        * Gets or sets the horizontal text alignment property for the label. 
        */
-      public textAlign: TextAlign;
+      public textAlign: TextAlign = TextAlign.Left;
 
       /**
        * Gets or sets the baseline alignment property for the label.
        */
-      public baseAlign: BaseAlign;
+      public baseAlign: BaseAlign = BaseAlign.Bottom;
 
       /**
        * Gets or sets the maximum width (in pixels) that the label should occupy
@@ -218,7 +223,7 @@ module ex {
          this.collisionType = CollisionType.PreventCollision;
          this.font = font || '10px sans-serif'; // coallesce to default canvas font
          if (spriteFont) {
-            this._textSprites = spriteFont.getTextSprites();
+            //this._textSprites = spriteFont.getTextSprites();
          }
       }
 
@@ -279,14 +284,14 @@ module ex {
        * @param shadowColor  The color of the text shadow
        */
       public setTextShadow(offsetX: number, offsetY: number, shadowColor: Color) {
-         this._textShadowOn = true;
-         this._shadowOffsetX = offsetX;
-         this._shadowOffsetY = offsetY;
-         this._shadowColor = shadowColor.clone();
-         this._shadowColorDirty = true;
-         for (var character in this._textSprites) {
-            this._shadowSprites[character] = this._textSprites[character].clone();
-         }
+         this.spriteFont.setTextShadow(offsetX, offsetY, shadowColor);
+      }
+
+      /**
+       * Toggles text shadows on or off, only applies when using sprite fonts
+       */
+      public useTextShadow(on: boolean) {
+         this.spriteFont.useTextShadow(on);
       }
 
       /**
@@ -302,6 +307,7 @@ module ex {
       public update(engine: Engine, delta: number) {
          super.update(engine, delta);
 
+          /*
          if (this.spriteFont && (this._color !== this.color || this.previousOpacity !== this.opacity)) {
             for (var character in this._textSprites) {
                this._textSprites[character].clearEffects();
@@ -319,7 +325,7 @@ module ex {
                this._shadowSprites[characterShadow].addEffect(new Effects.Fill(this._shadowColor.clone()));
             }
             this._shadowColorDirty = false;
-         }
+         }*/
       }
 
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
@@ -344,22 +350,14 @@ module ex {
       private _fontDraw(ctx: CanvasRenderingContext2D, delta: number, sprites: { [key: string]: Sprite; }) {
 
          if (this.spriteFont) {
-
-            var currX = 0;
-
-            for (var i = 0; i < this.text.length; i++) {
-               var character = this.text[i];
-               if (this.caseInsensitive) {
-                  character = character.toLowerCase();
-               }
-               try {
-                  var charSprite = sprites[character];
-                  charSprite.draw(ctx, currX, 0);
-                  currX += (charSprite.swidth + this.letterSpacing);
-               } catch (e) {
-                  Logger.getInstance().error('SpriteFont Error drawing char ' + character);
-               }
-            }
+            this.spriteFont.draw(ctx, this.text, 0, 0, {
+               color: this.color.clone(),
+               baseAlign: this.baseAlign,
+               textAlign: this.textAlign,
+               fontSize: this.fontSize,
+               letterSpacing: this.letterSpacing,
+               opacity: this.opacity
+            });
          } else {
             var oldAlign = ctx.textAlign;
             var oldTextBaseline = ctx.textBaseline;
@@ -370,7 +368,7 @@ module ex {
                this.color.a = this.opacity;
             }
             ctx.fillStyle = this.color.toString();
-            ctx.font = this.font;
+            ctx.font = `${this.fontSize} ${this.font}`;
             if (this.maxWidth) {
                ctx.fillText(this.text, 0, 0, this.maxWidth);
             } else {
