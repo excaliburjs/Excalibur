@@ -1081,8 +1081,8 @@ module ex {
     public draw(ctx: CanvasRenderingContext2D, delta: number) {
        var anchorPoint = this._getCalculatedAnchor();
        ctx.save();
-       ctx.scale(this.scale.x, this.scale.y);
        ctx.translate(this.x, this.y);
+       ctx.scale(this.scale.x, this.scale.y);
        ctx.rotate(this.rotation);     
        
        
