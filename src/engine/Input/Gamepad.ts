@@ -18,7 +18,8 @@
     * ## Gamepad Filtering
     * 
     * Different browsers/devices are sometimes loose about the devices they consider Gamepads, you can set minimum device requirements with
-    * `engine.inpute.gamepads.setMinimumGamepadConfiguration` so that undesired devices are not reported to you (Touchpads, Mice, Web Cameras, etc.).
+    * `engine.inpute.gamepads.setMinimumGamepadConfiguration` so that undesired devices are not reported to you (Touchpads, Mice, Web 
+    * Cameras, etc.).
     * ```js
     * // ensures that only gamepads with at least 4 axis and 8 buttons are reported for events
     * engine.input.gamepads.setMinimumGamepadConfiguration({
@@ -35,7 +36,8 @@
     * - `connect` - When a gamepad connects it will fire this event and pass a [[GamepadConnectEvent]] with a reference to the gamepad.
     * - `disconnect` - When a gamepad disconnects it will fire this event and pass a [[GamepadDisconnectEvent]]
     * 
-    * Once you have a reference to a gamepad you may listen to changes on that gamepad with `.on`. A [[GamepadButtonEvent]] or [[GamepadAxisEvent]] will be passed to you.   
+    * Once you have a reference to a gamepad you may listen to changes on that gamepad with `.on`. A [[GamepadButtonEvent]] or 
+    * [[GamepadAxisEvent]] will be passed to you.   
     * - `button` - Whenever a button is pressed on the game
     * - `axis` - Whenever an axis  
     *

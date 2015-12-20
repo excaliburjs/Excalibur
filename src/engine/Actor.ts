@@ -201,7 +201,8 @@ module ex {
    * ### Custom drawing
    *
    * You can always override the default drawing logic for an actor in the [[draw]] method, 
-   * for example, to draw complex shapes or to use the raw [[https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D|Canvas API]].
+   * for example, to draw complex shapes or to use the raw 
+   * [[https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D|Canvas API]].
    * 
    * Usually you should call `super.draw` to perform the base drawing logic, but other times
    * you may want to take over the drawing completely.
@@ -232,14 +233,13 @@ module ex {
    * ## Collision Detection
    *
    * By default Actors do not participate in collisions. If you wish to make
-   * an actor participate, you need to switch from the default [[CollisionType.PreventCollision|prevent collision]] to [[CollisionType.Active|active]],
-   * [[CollisionType.Fixed|fixed]], or [[CollisionType.Passive|passive]] collision type. 
+   * an actor participate, you need to switch from the default [[CollisionType.PreventCollision|prevent collision]]
+   * to [[CollisionType.Active|active]], [[CollisionType.Fixed|fixed]], or [[CollisionType.Passive|passive]] collision type. 
    *
    * ```ts
    * public Player extends ex.Actor {
    *   constructor() {
    *     super();
-   
    *     // set preferred CollisionType
    *     this.collisionType = ex.CollisionType.Active;
    *   }

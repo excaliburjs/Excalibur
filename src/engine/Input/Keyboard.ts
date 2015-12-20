@@ -88,7 +88,6 @@
     * is during an update.
     *
     * It is recommended that keyboard actions that directly effect actors be handled like so to improve code quality:
-    
     * ```ts
     * class Player extends ex.Actor {
     *   public update(engine, delta) {
@@ -105,7 +104,6 @@
     *   }
     * }
     * ```
-    
     * ## Events
     * You can subscribe to keyboard events through `engine.input.keyboard.on`. A [[KeyEvent]] object is
     * passed to your handler which offers information about the key that was part of the event.
