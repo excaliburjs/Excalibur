@@ -40,7 +40,9 @@ module ex {
    *
    * // add player to the current scene
    * game.add(player);
+   *
    * ```
+   * `game.add` is a convenience method for adding an `Actor` to the current scene. The equivalent verbose call is `game.currentScene.add`.
    *
    * ## Extending actors
    *
@@ -110,7 +112,7 @@ module ex {
    *
    * The [[update]] method is passed an instance of the Excalibur engine, which
    * can be used to perform coordinate math or access global state. It is also
-   * passed `delta` which is the time since the last frame, which can be used
+   * passed `delta` which is the time in milliseconds since the last frame, which can be used
    * to perform time-based movement or time-based math (such as a timer).
    *
    * **TypeScript**
@@ -151,13 +153,16 @@ module ex {
    *
    * Override the [[draw]] method to perform any custom drawing. For simple games,
    * you don't need to override `draw`, instead you can use [[addDrawing]] and [[setDrawing]]
-   * to manipulate the textures/animations that the actor is using.
+   * to manipulate the [[Sprite|sprites]]/[[Animation|animations]] that the actor is using.
    *
    * ### Working with Textures & Sprites
    *
-   * A common usage is to use a [[Texture]] or [[Sprite]] for an actor. If you are using the [[Loader]] to
-   * pre-load assets, you can simply assign an actor a [[Texture]] to draw. You can
-   * also create a [[Texture.asSprite|sprite from a Texture]] to quickly create a [[Sprite]] instance.
+   * Think of a [[Texture|texture]] as the raw image file that will be loaded into Excalibur. In order for it to be drawn
+   * it must be converted to a [[Sprite.sprite]].
+   * 
+   * A common usage is to load a [[Texture]] and convert it to a [[Sprite]] for an actor. If you are using the [[Loader]] to
+   * pre-load assets, you can simply assign an actor a [[Sprite]] to draw. You can also create a 
+   * [[Texture.asSprite|sprite from a Texture]] to quickly create a [[Sprite]] instance.
    *
    * ```ts
    * // assume Resources.TxPlayer is a 80x80 png image
@@ -196,7 +201,7 @@ module ex {
    * ### Custom drawing
    *
    * You can always override the default drawing logic for an actor in the [[draw]] method, 
-   * for example, to draw complex shapes or to use the raw Canvas API.
+   * for example, to draw complex shapes or to use the raw [[https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D|Canvas API]].
    * 
    * Usually you should call `super.draw` to perform the base drawing logic, but other times
    * you may want to take over the drawing completely.
@@ -227,33 +232,46 @@ module ex {
    * ## Collision Detection
    *
    * By default Actors do not participate in collisions. If you wish to make
-   * an actor participate, you need to enable the [[CollisionDetectionModule]]
+   * an actor participate, you need to switch from the default [[CollisionType.PreventCollision|prevent collision]] to [[CollisionType.Active|active]],
+   * [[CollisionType.Fixed|fixed]], or [[CollisionType.Passive|passive]] collision type. 
    *
    * ```ts
    * public Player extends ex.Actor {
    *   constructor() {
    *     super();
-   *
-   *     // enable the pipeline
-   *     this.pipelines.push(new ex.CollisionDetectionModule());
-   *
+   
    *     // set preferred CollisionType
    *     this.collisionType = ex.CollisionType.Active;
    *   }
    * }
+   * 
+   * // or set the collisionType 
+   * 
+   * var actor = new ex.Actor();
+   * actor.collisionType = ex.CollisionType.Active;
+   * 
    * ```
-   *
    * ### Collision Groups
-   *
    * TODO, needs more information.
+   *
+   * ## Traits
+   *    
+   * Traits describe actor behavior that occurs every update. If you wish to build a generic behavior 
+   * without needing to extend every actor you can do it with a trait, a good example of this may be 
+   * plugging in an external collision detection library like [[https://github.com/kripken/box2d.js/|Box2D]] or 
+   * [[http://wellcaffeinated.net/PhysicsJS/|PhysicsJS]] by wrapping it in a trait. Removing traits can also make your 
+   * actors more efficient.
+   * 
+   * Default traits provided by Excalibur are [[Traits.CapturePointer|pointer capture]], 
+   * [[Traits.CollisionDetection|tile map collision]], [[Traits.Movement|Euler style movement]], 
+   * and [[Traits.OffscreenCulling|offscreen culling]].
+   * 
    *
    * ## Known Issues
    *
-   * **Actor bounding boxes do not rotate**
+   * **Actor bounding boxes do not rotate, part of the 0.7.0 milestone**
    * [Issue #68](https://github.com/excaliburjs/Excalibur/issues/68)
    *
-   * **Setting opacity when using a color doesn't do anything**
-   * [Issue #364](https://github.com/excaliburjs/Excalibur/issues/364)
    */     
   export class Actor extends ex.Class implements IActionable {
     /**
@@ -265,11 +283,11 @@ module ex {
      */
     public id: number = Actor.maxId++;
     /** 
-     * The x coordinate of the actor (left edge)
+     * The x coordinate of the actor (middle if anchor is (0.5, 0.5) left edge if anchor is (0, 0))
      */ 
     public x: number = 0;
     /** 
-     * The y coordinate of the actor (top edge)
+     * The y coordinate of the actor (middle if anchor is (0.5, 0.5) and top edge if anchor is (0, 0))
      */
     public y: number = 0;
     /**

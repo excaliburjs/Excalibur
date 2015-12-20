@@ -195,13 +195,13 @@ module ex {
     *
     * ### Update Loop
     *
-    * The first operation run is the [[Engine.update|update]] loop. [[Actor]] and [[Scene]] both implement
+    * The first operation run is the [[Engine._update|update]] loop. [[Actor]] and [[Scene]] both implement
     * an overridable/extendable `update` method. Use it to perform any logic-based operations
     * in your game for a particular class.
     *
     * ### Draw Loop
     *
-    * The next step is the [[Engine.draw|draw]] loop. A [[Scene]] loops through its child [[Actor|actors]] and
+    * The next step is the [[Engine._draw|draw]] loop. A [[Scene]] loops through its child [[Actor|actors]] and
     * draws each one. You can override the `draw` method on an actor to customize its drawing.
     * You should **not** perform any logic in a draw call, it should only relate to drawing.
     *

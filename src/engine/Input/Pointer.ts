@@ -86,7 +86,7 @@ module ex.Input {
     *
     * ## Events
     *
-    * You can subscribe to pointer events through `engine.input.pointers`. A [[PointerEvent]] object is
+    * You can subscribe to pointer events through `engine.input.pointers.on`. A [[PointerEvent]] object is
     * passed to your handler which offers information about the pointer input being received.
     *
     * - `down` - When a pointer is pressed down (any mouse button or finger press)
@@ -171,9 +171,10 @@ module ex.Input {
     * By default, [[Actor|Actors]] do not participate in pointer events. In other
     * words, when you "click" an Actor, it will not throw an event **for that Actor**,
     * only a generic pointer event for the game. This is to keep performance 
-    * high and allow actors to "opt-in" to handling pointer events.
+    * high and allow actors to "opt-in" to handling pointer events. Actors will automatically
+    * opt-in if a pointer related event handler is set on them `actor.on("pointerdown", () => {})` for example.
     *
-    * To opt-in, set [[Actor.enableCapturePointer]] to `true` and the [[Actor]] will
+    * To opt-in manually, set [[Actor.enableCapturePointer]] to `true` and the [[Actor]] will
     * start publishing `pointerup` and `pointerdown` events. `pointermove` events
     * will not be published by default due to performance implications. If you want
     * an actor to receive move events, set [[ICapturePointerConfig.captureMoveEvents]] to

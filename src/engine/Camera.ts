@@ -58,8 +58,8 @@ module ex {
     */
    export class BaseCamera {
       protected _follow: Actor;
-      protected _focus: Point = new Point(0, 0);
-      protected _lerp: boolean = false;
+      public focus: Point = new Point(0, 0);
+      public lerp: boolean = false;
       private _cameraMoving: boolean = false;
       private _currentLerpTime: number = 0;
       private _lerpDuration: number = 1 * 1000; // 5 seconds
@@ -104,7 +104,7 @@ module ex {
        * Returns the focal point of the camera
        */
       public getFocus() {
-         return this._focus;
+         return this.focus;
       }
 
       /**
@@ -113,13 +113,13 @@ module ex {
        * @param y The y coordinate of the focal point
        */
       public setFocus(x: number, y: number) {
-         if (!this._follow && !this._lerp) {
-            this._focus.x = x;
-            this._focus.y = y;
+         if (!this._follow && !this.lerp) {
+            this.focus.x = x;
+            this.focus.y = y;
          }
 
-         if (this._lerp) {
-            this._lerpStart = this._focus.clone();
+         if (this.lerp) {
+            this._lerpStart = this.focus.clone();
             this._lerpEnd = new Point(x, y);
             this._currentLerpTime = 0;
             this._cameraMoving = true;
@@ -197,22 +197,22 @@ module ex {
          var newCanvasWidth = canvasWidth / this.getZoom();
          var newCanvasHeight = canvasHeight / this.getZoom();
 
-         if (this._lerp) {
+         if (this.lerp) {
             if (this._currentLerpTime < this._lerpDuration && this._cameraMoving) {
 
                if (this._lerpEnd.x < this._lerpStart.x) {
-                  this._focus.x = this._lerpStart.x - (this._easeInOutCubic(this._currentLerpTime,
+                  this.focus.x = this._lerpStart.x - (this._easeInOutCubic(this._currentLerpTime,
                      this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
                } else {
-                  this._focus.x = this._easeInOutCubic(this._currentLerpTime,
+                  this.focus.x = this._easeInOutCubic(this._currentLerpTime,
                      this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
                }
 
                if (this._lerpEnd.y < this._lerpStart.y) {
-                  this._focus.y = this._lerpStart.y - (this._easeInOutCubic(this._currentLerpTime,
+                  this.focus.y = this._lerpStart.y - (this._easeInOutCubic(this._currentLerpTime,
                      this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
                } else {
-                  this._focus.y = this._easeInOutCubic(this._currentLerpTime,
+                  this.focus.y = this._easeInOutCubic(this._currentLerpTime,
                      this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
                }
                this._currentLerpTime += delta;
@@ -295,9 +295,9 @@ module ex {
 
       public getFocus() {
          if (this._follow) {
-            return new Point(this._follow.x + this._follow.getWidth() / 2, this._focus.y);
+            return new Point(this._follow.x + this._follow.getWidth() / 2, this.focus.y);
          } else {
-            return this._focus;
+            return this.focus;
          }
       }
    }
@@ -315,7 +315,7 @@ module ex {
          if (this._follow) {
             return new Point(this._follow.x + this._follow.getWidth() / 2, this._follow.y + this._follow.getHeight() / 2);
          } else {
-            return this._focus;
+            return this.focus;
          }
       }
    }
