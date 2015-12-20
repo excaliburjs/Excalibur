@@ -46,13 +46,13 @@
     * engine.input.gamepads.on('connect', (ce: ex.Input.GamepadConnectEvent) => {
     *    var newPlayer = CreateNewPlayer(); // pseudo-code for new player logic on gamepad connection
     *    console.log("Gamepad connected", ce);
-    *    ce.gamepad.on('button', (be: ex.Input.GamepadButtonEvent) => {
+    *    ce.gamepad.on('button', (be: ex.GamepadButtonEvent) => {
     *       if(be.button === ex.Input.Buttons.Face1) {
     *          newPlayer.jump();
     *       }
     *    });
     *    
-    *    ce.gamepad.on('axis', (ae: ex.Input.GamepadAxisEvent) => {
+    *    ce.gamepad.on('axis', (ae: ex.GamepadAxisEvent) => {
     *      if(ae.axis === ex.Input.Axis.LeftStickX && ae.value > .5){
     *         newPlayer.moveRight();
     *      }
@@ -513,52 +513,6 @@
        * Right analogue stick Y direction
        */
       RightStickY = 3
-   }
-   
-   /**
-    * Event recieved when a gamepad is connected to excalibur
-    */
-   export class GamepadConnectEvent extends GameEvent {
-      constructor(public index: number, public gamepad: ex.Input.Gamepad) {
-         super();
-      }
-   }
-   
-   /**
-    * Event recieved when a gamepad is disconnected from excalibur
-    */
-   export class GamepadDisconnectEvent extends GameEvent {
-      constructor(public index: number) {
-         super();
-      }
-   }
-
-   /**
-    * Gamepad button event. See [[Gamepads]] for information on responding to controller input.
-    */
-   export class GamepadButtonEvent extends ex.GameEvent {
-
-      /**
-       * @param button  The Gamepad button
-       * @param value   A numeric value between 0 and 1
-       */
-      constructor(public button: Buttons, public value: number) {
-         super();
-      }
-   }
-
-   /**
-    * Gamepad axis event. See [[Gamepads]] for information on responding to controller input.
-    */
-   export class GamepadAxisEvent extends ex.GameEvent {
-
-      /**
-       * @param axis  The Gamepad axis
-       * @param value A numeric value between -1 and 1
-       */
-      constructor(public axis: Axes, public value: number) {
-         super();
-      }
    }
 
    /**

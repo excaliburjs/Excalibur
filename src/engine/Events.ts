@@ -31,6 +31,52 @@ module ex {
    }
    
    /**
+    * Event recieved when a gamepad is connected to excalibur
+    */
+   export class GamepadConnectEvent extends GameEvent {
+      constructor(public index: number, public gamepad: ex.Input.Gamepad) {
+         super();
+      }
+   }
+   
+   /**
+    * Event recieved when a gamepad is disconnected from excalibur
+    */
+   export class GamepadDisconnectEvent extends GameEvent {
+      constructor(public index: number) {
+         super();
+      }
+   }
+
+   /**
+    * Gamepad button event. See [[Gamepads]] for information on responding to controller input.
+    */
+   export class GamepadButtonEvent extends ex.GameEvent {
+
+      /**
+       * @param button  The Gamepad button
+       * @param value   A numeric value between 0 and 1
+       */
+      constructor(public button: ex.Input.Buttons, public value: number) {
+         super();
+      }
+   }
+
+   /**
+    * Gamepad axis event. See [[Gamepads]] for information on responding to controller input.
+    */
+   export class GamepadAxisEvent extends ex.GameEvent {
+
+      /**
+       * @param axis  The Gamepad axis
+       * @param value A numeric value between -1 and 1
+       */
+      constructor(public axis: ex.Input.Axes, public value: number) {
+         super();
+      }
+   }
+   
+   /**
     * Subscribe event thrown when handlers for events other than subscribe are added
     */
    export class SubscribeEvent extends GameEvent {
