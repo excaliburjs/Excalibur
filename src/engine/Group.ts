@@ -10,6 +10,8 @@ module ex {
     * Groups are used for logically grouping Actors so they can be acted upon
     * in bulk.
     *
+    * ## Using Groups
+    *
     * Groups can be used to detect collisions across a large nubmer of actors. For example 
     * perhaps a large group of "enemy" actors.
     *
