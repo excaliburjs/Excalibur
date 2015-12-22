@@ -208,38 +208,14 @@ module ex {
          // will be overridden
          this._logger.debug('Scene.onDeactivate', this);
       }
-
-      /**
-       * Publish an event to all actors in the scene
-       * @param eventType  The name of the event to publish
-       * @param event      The event object to send 
-       * 
-       * @obsolete Use [[emit]] instead.
-       */
-      public publish(eventType: string, event: GameEvent) {
-         var i = 0, len = this.children.length;
-
-         for (i; i < len; i++) {
-            this.children[i].emit(eventType, event);
-         }
-      }
-      
-      /**
-       * Alias for `emit`. Publish an event to all actors in the scene
-       * @param eventType  The name of the event to publish
-       * @param event      The event object to send 
-       */
-      public emit(eventType: string, event: GameEvent) {
-         this.publish(eventType, event);
-      }
-
+     
       /**
        * Updates all the actors and timers in the scene. Called by the [[Engine]].
        * @param engine  Reference to the current Engine
        * @param delta   The number of milliseconds since the last update
        */
       public update(engine: Engine, delta: number) {
-
+         this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
          var i: number, len: number;
 
          // Cycle through actors updating UI actors
@@ -287,6 +263,8 @@ module ex {
             timer.update(delta);
             return !timer.complete;
          });
+         
+         this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
       }
 
       /**
@@ -295,8 +273,9 @@ module ex {
        * @param delta  The number of milliseconds since the last draw
        */
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
-         ctx.save();
-
+         this.emit('predraw', new PreDrawEvent(ctx, delta, this));
+         ctx.save();         
+         
          if (this.camera) {
             this.camera.update(ctx, delta);
          }
@@ -335,7 +314,7 @@ module ex {
                this.uiActors[i].debugDraw(ctx);
             }
          }
-
+         this.emit('postdraw', new PreDrawEvent(ctx, delta, this));
       }
 
       /**
@@ -343,6 +322,7 @@ module ex {
        * @param ctx  The current rendering context
        */
       public debugDraw(ctx: CanvasRenderingContext2D) {
+         this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
 
          var i: number, len: number;
 
@@ -358,6 +338,7 @@ module ex {
          //this._collisionResolver.debugDraw(ctx, 20);
 
          this.camera.debugDraw(ctx);
+         this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));
       }
 
       /**

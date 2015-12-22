@@ -1,6 +1,7 @@
 module ex {
    /**
     * A simple 2D point on a plane
+    * @obsolete Use [[Vector|vector]]s instead of [[Point|points]]
     */
    export class Point {
 

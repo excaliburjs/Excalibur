@@ -62,6 +62,16 @@ module ex {
       public off(eventName: string, handler?: (event?: GameEvent) => void) {
          this.eventDispatcher.unsubscribe(eventName, handler);
       }
+      
+      /**
+       * Emits a new event
+       * @param eventName   Name of the event to emit
+       * @param eventObject Data associated with this event
+       */
+      public emit(eventName: string, eventObject?: GameEvent){
+         this.eventDispatcher.emit(eventName, eventObject)
+      }
+
 
       /**
        * You may wish to extend native Excalibur functionality in vanilla Javascript. 

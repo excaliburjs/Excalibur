@@ -148,6 +148,30 @@ module ex {
             this._queues.splice(index, 1);
          }
       }
+      
+       /**
+        * This method will move an actor to the specified `x` and `y` position over the 
+        * specified duration using a given [[EasingFunctions]] and return back the actor. This 
+        * method is part of the actor 'Action' fluent API allowing action chaining.
+        * @param x         The x location to move the actor to
+        * @param y         The y location to move the actor to
+        * @param duration  The time it should take the actor to move to the new location in milliseconds
+        * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
+        */
+      public easeTo(x: number,
+                    y: number,
+                    duration: number,
+                    easingFcn: (currentTime: number, 
+                                startValue: number, 
+                                endValue: number, 
+                                duration: number) => number = ex.EasingFunctions.Linear) {
+       var i = 0, len = this._queues.length;
+       for(i; i < len; i++){
+            this._queues[i].add(new ex.Internal.Actions.EaseTo(this._actors[i], x, y, duration, easingFcn));
+       }
+       return this;
+       
+      }
 
       /**
        * This method will move an actor to the specified x and y position at the 

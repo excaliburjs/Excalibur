@@ -969,6 +969,7 @@ module ex {
             // suspend updates untill loading is finished
             return;
          }
+         this.emit('preupdate', new PreUpdateEvent(this, delta, this));
          // process engine level events
          this.currentScene.update(this, delta);
 
@@ -983,7 +984,8 @@ module ex {
          this.input.gamepads.update(delta);
 
          // Publish update event
-         this.eventDispatcher.emit(EventType[EventType.Update], new UpdateEvent(delta));
+         this.eventDispatcher.emit('update', new UpdateEvent(delta));
+         this.emit('postupdate', new PreUpdateEvent(this, delta, this));
       }
 
       /**
@@ -992,7 +994,7 @@ module ex {
        */
       private _draw(delta: number) {
          var ctx = this.ctx;
-
+         this.emit('predraw', new PreDrawEvent(ctx, delta, this));
          if (this._isLoading) {
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, this.width, this.height);
@@ -1033,8 +1035,7 @@ module ex {
             this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.width, this.height), this.ctx);
          }
 
-         //ctx.drawImage(currentImage, 0, 0, this.width, this.height);
-
+         this.emit('postdraw', new PreDrawEvent(ctx, delta, this));
       }
 
       /**
