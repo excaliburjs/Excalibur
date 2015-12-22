@@ -49,7 +49,7 @@ module ex {
    * An [[Actor|actor]] has a basic lifecycle that dictacts how it is initialized, updated, and drawn. Once an actor is part of a 
    * [[Scene|scene]], it will follow this lifecycle.
    * 
-   * ![Actor Lifecycle](../../assets/images/docs/ActorLifeCycle.png)
+   * ![Actor Lifecycle](/assets/images/docs/ActorLifeCycle.png)
    *
    * ## Extending actors
    *

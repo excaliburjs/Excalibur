@@ -177,7 +177,7 @@ module ex {
     * scene. Only one [[Scene]] can be active at once, the engine does not update/draw any other
     * scene, which means any actors will not be updated/drawn if they are part of a deactivated scene.
     *
-    * ![Engine Lifecycle](../../assets/images/docs/EngineLifeCycle.png)
+    * ![Engine Lifecycle](/assets/images/docs/EngineLifeCycle.png)
     *
     * **Scene Graph**
     *
