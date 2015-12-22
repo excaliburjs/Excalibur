@@ -62,6 +62,13 @@ module ex {
     * game.goToScene("level1");
     * 
     * ```
+    * 
+    * ## Scene Lifecycle
+    *
+    * A [[Scene|scene]] has a basic lifecycle that dictacts how it is initialized, updated, and drawn. Once a [[Scene|scene]] is added to 
+    * the [[Engine|engine]] it will follow this lifecycle.
+    * 
+    * ![Scene Lifecycle](../../assets/images/docs/SceneLifeCycle.png)
     *
     * ## Extending scenes
     *

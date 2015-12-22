@@ -43,6 +43,13 @@ module ex {
    *
    * ```
    * `game.add` is a convenience method for adding an `Actor` to the current scene. The equivalent verbose call is `game.currentScene.add`.
+   * 
+   * ## Actor Lifecycle
+   * 
+   * An [[Actor|actor]] has a basic lifecycle that dictacts how it is initialized, updated, and drawn. Once an actor is part of a 
+   * [[Scene|scene]], it will follow this lifecycle.
+   * 
+   * ![Actor Lifecycle](../../assets/images/docs/ActorLifeCycle.png)
    *
    * ## Extending actors
    *

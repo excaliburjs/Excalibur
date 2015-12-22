@@ -10,7 +10,24 @@ module ex {
     * Groups are used for logically grouping Actors so they can be acted upon
     * in bulk.
     *
-    * @todo Document this
+    * Groups can be used to detect collisions across a large nubmer of actors. For example 
+    * perhaps a large group of "enemy" actors.
+    *
+    * ```typescript
+    * var enemyShips = engine.currentScene.createGroup("enemy");
+    * var enemies = [...]; // Large array of enemies;
+    * enemyShips.add(enemies);
+    *
+    * var player = new Actor();
+    * engine.currentScene.add(player);
+    *
+    * enemyShips.on('collision', function(ev: CollisionEvent){
+    *   if (e.other === player) {
+    *       //console.log("collision with player!");
+    *   }       
+    * });
+    *
+    * ```
     */
    export class Group extends Class implements IActionable {
 
