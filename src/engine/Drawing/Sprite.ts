@@ -39,10 +39,38 @@ module ex {
     *
     * Excalibur offers many sprite effects such as [[Effects.Colorize]] to let you manipulate
     * sprites. Keep in mind, more effects requires more power and can lead to memory or CPU
-    * constraints and hurt performance.
+    * constraints and hurt performance. Each effect must be reprocessed every frame for each sprite.
     *
     * It's still recommended to create an [[Animation]] or build in your effects to the sprites
     * for optimal performance.
+    *
+    * There are a number of convenience methods available to perform sprite effects. Sprite effects are
+    * side-effecting.
+    * 
+    * ```typescript
+    *
+    * var playerSprite = new ex.Sprite(txPlayer, 0, 0, 80, 80);
+    * 
+    * // darken a sprite by a percentage   
+    * playerSprite.darken(.2); // 20%
+    * 
+    * // lighten a sprite by a percentage
+    * playerSprite.lighten(.2); // 20%
+    *
+    * // saturate a sprite by a percentage
+    * playerSprite.saturate(.2); // 20%
+    *
+    * // implement a custom effect
+    * class CustomEffect implements ex.EffectsISpriteEffect {
+    *
+    *   updatePixel(x: number, y: number, imageData: ImageData) {
+    *       // modify ImageData  
+    *   }  
+    * }
+    *
+    * playerSprite.addEffect(new CustomEffect());
+    * 
+    * ```   
     */
    export class Sprite implements IDrawable {
       private _texture: Texture;

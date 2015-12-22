@@ -40,7 +40,16 @@ module ex {
    *
    * // add player to the current scene
    * game.add(player);
+   *
    * ```
+   * `game.add` is a convenience method for adding an `Actor` to the current scene. The equivalent verbose call is `game.currentScene.add`.
+   * 
+   * ## Actor Lifecycle
+   * 
+   * An [[Actor|actor]] has a basic lifecycle that dictacts how it is initialized, updated, and drawn. Once an actor is part of a 
+   * [[Scene|scene]], it will follow this lifecycle.
+   * 
+   * ![Actor Lifecycle](../../assets/images/docs/ActorLifeCycle.png)
    *
    * ## Extending actors
    *
@@ -110,7 +119,7 @@ module ex {
    *
    * The [[update]] method is passed an instance of the Excalibur engine, which
    * can be used to perform coordinate math or access global state. It is also
-   * passed `delta` which is the time since the last frame, which can be used
+   * passed `delta` which is the time in milliseconds since the last frame, which can be used
    * to perform time-based movement or time-based math (such as a timer).
    *
    * **TypeScript**
@@ -151,13 +160,16 @@ module ex {
    *
    * Override the [[draw]] method to perform any custom drawing. For simple games,
    * you don't need to override `draw`, instead you can use [[addDrawing]] and [[setDrawing]]
-   * to manipulate the textures/animations that the actor is using.
+   * to manipulate the [[Sprite|sprites]]/[[Animation|animations]] that the actor is using.
    *
    * ### Working with Textures & Sprites
    *
-   * A common usage is to use a [[Texture]] or [[Sprite]] for an actor. If you are using the [[Loader]] to
-   * pre-load assets, you can simply assign an actor a [[Texture]] to draw. You can
-   * also create a [[Texture.asSprite|sprite from a Texture]] to quickly create a [[Sprite]] instance.
+   * Think of a [[Texture|texture]] as the raw image file that will be loaded into Excalibur. In order for it to be drawn
+   * it must be converted to a [[Sprite.sprite]].
+   * 
+   * A common usage is to load a [[Texture]] and convert it to a [[Sprite]] for an actor. If you are using the [[Loader]] to
+   * pre-load assets, you can simply assign an actor a [[Sprite]] to draw. You can also create a 
+   * [[Texture.asSprite|sprite from a Texture]] to quickly create a [[Sprite]] instance.
    *
    * ```ts
    * // assume Resources.TxPlayer is a 80x80 png image
@@ -196,7 +208,8 @@ module ex {
    * ### Custom drawing
    *
    * You can always override the default drawing logic for an actor in the [[draw]] method, 
-   * for example, to draw complex shapes or to use the raw Canvas API.
+   * for example, to draw complex shapes or to use the raw 
+   * [[https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D|Canvas API]].
    * 
    * Usually you should call `super.draw` to perform the base drawing logic, but other times
    * you may want to take over the drawing completely.
@@ -227,33 +240,45 @@ module ex {
    * ## Collision Detection
    *
    * By default Actors do not participate in collisions. If you wish to make
-   * an actor participate, you need to enable the [[CollisionDetectionModule]]
+   * an actor participate, you need to switch from the default [[CollisionType.PreventCollision|prevent collision]]
+   * to [[CollisionType.Active|active]], [[CollisionType.Fixed|fixed]], or [[CollisionType.Passive|passive]] collision type. 
    *
    * ```ts
    * public Player extends ex.Actor {
    *   constructor() {
    *     super();
-   *
-   *     // enable the pipeline
-   *     this.pipelines.push(new ex.CollisionDetectionModule());
-   *
    *     // set preferred CollisionType
    *     this.collisionType = ex.CollisionType.Active;
    *   }
    * }
+   * 
+   * // or set the collisionType 
+   * 
+   * var actor = new ex.Actor();
+   * actor.collisionType = ex.CollisionType.Active;
+   * 
    * ```
-   *
    * ### Collision Groups
-   *
    * TODO, needs more information.
+   *
+   * ## Traits
+   *    
+   * Traits describe actor behavior that occurs every update. If you wish to build a generic behavior 
+   * without needing to extend every actor you can do it with a trait, a good example of this may be 
+   * plugging in an external collision detection library like [[https://github.com/kripken/box2d.js/|Box2D]] or 
+   * [[http://wellcaffeinated.net/PhysicsJS/|PhysicsJS]] by wrapping it in a trait. Removing traits can also make your 
+   * actors more efficient.
+   * 
+   * Default traits provided by Excalibur are [[Traits.CapturePointer|pointer capture]], 
+   * [[Traits.CollisionDetection|tile map collision]], [[Traits.Movement|Euler style movement]], 
+   * and [[Traits.OffscreenCulling|offscreen culling]].
+   * 
    *
    * ## Known Issues
    *
-   * **Actor bounding boxes do not rotate**
+   * **Actor bounding boxes do not rotate, part of the 0.7.0 milestone**
    * [Issue #68](https://github.com/excaliburjs/Excalibur/issues/68)
    *
-   * **Setting opacity when using a color doesn't do anything**
-   * [Issue #364](https://github.com/excaliburjs/Excalibur/issues/364)
    */     
   export class Actor extends ex.Class implements IActionable {
     /**
@@ -265,11 +290,11 @@ module ex {
      */
     public id: number = Actor.maxId++;
     /** 
-     * The x coordinate of the actor (left edge)
+     * The x coordinate of the actor (middle if anchor is (0.5, 0.5) left edge if anchor is (0, 0))
      */ 
     public x: number = 0;
     /** 
-     * The y coordinate of the actor (top edge)
+     * The y coordinate of the actor (middle if anchor is (0.5, 0.5) and top edge if anchor is (0, 0))
      */
     public y: number = 0;
     /**
@@ -587,26 +612,6 @@ module ex {
        this.scene.updateDrawTree(this);
     }
 
-    /**
-     * Artificially trigger an event on an actor, useful when creating custom events.
-     * @param eventName   The name of the event to trigger
-     * @param event       The event object to pass to the callback
-     *
-     * @obsolete  Use [[emit]] instead.
-     */
-    public triggerEvent(eventName: string, event?: GameEvent) {
-       this.eventDispatcher.emit(eventName, event);
-    }
-    
-    /**
-     * Alias for `emit`. Artificially trigger an event on an actor, useful when creating custom events.
-     * @param eventName   The name of the event to trigger
-     * @param event       The event object to pass to the callback
-     */
-    public emit(eventName: string, event?: GameEvent) {
-       this.eventDispatcher.emit(eventName, event);
-    }
-
     /** 
      * Adds an actor to a collision group. Actors with no named collision groups are
      * considered to be in every collision group.
@@ -837,6 +842,7 @@ module ex {
     }      
     /**
      * Clears all queued actions from the Actor
+     * @obsolete Use [[ActionContext.clearActions|Actor.actions.clearActions]]
      */
     public clearActions(): void {
        this.actionQueue.clearActions();
@@ -849,6 +855,7 @@ module ex {
      * @param y         The y location to move the actor to
      * @param duration  The time it should take the actor to move to the new location in milliseconds
      * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
+     * @obsolete Use [[ActionContext.easeTo|Actor.actions.easeTo]]
      */
     public easeTo(x: number,
        y: number,
@@ -864,6 +871,7 @@ module ex {
      * @param x       The x location to move the actor to
      * @param y       The y location to move the actor to
      * @param speed   The speed in pixels per second to move
+     * @obsolete Use [[ActionContext.moveTo|Actor.actions.moveTo]]
      */
     public moveTo(x: number, y: number, speed: number): Actor {
        this.actionQueue.add(new ex.Internal.Actions.MoveTo(this, x, y, speed));
@@ -876,6 +884,7 @@ module ex {
      * @param x         The x location to move the actor to
      * @param y         The y location to move the actor to
      * @param duration  The time it should take the actor to move to the new location in milliseconds
+     * @obsolete Use [[ActionContext.moveBy|Actor.actions.moveBy]]
      */
     public moveBy(x: number, y: number, duration: number): Actor {
        this.actionQueue.add(new ex.Internal.Actions.MoveBy(this, x, y, duration));
@@ -887,6 +896,7 @@ module ex {
      * method is part of the actor 'Action' fluent API allowing action chaining.
      * @param angleRadians  The angle to rotate to in radians
      * @param speed         The angular velocity of the rotation specified in radians per second
+     * @obsolete Use [[ActionContext.rotateTo|Actor.actions.rotateTo]]
      */
     public rotateTo(angleRadians: number, speed: number, rotationType?: RotationType): Actor {
        this.actionQueue.add(new ex.Internal.Actions.RotateTo(this, angleRadians, speed, rotationType));
@@ -898,6 +908,7 @@ module ex {
      * of the actor 'Action' fluent API allowing action chaining.
      * @param angleRadians  The angle to rotate to in radians
      * @param duration          The time it should take the actor to complete the rotation in milliseconds
+     * @obsolete Use [[ActionContext.rotateBy|ex.Actor.actions.rotateBy]]
      */
     public rotateBy(angleRadians: number, duration: number, rotationType?: RotationType): Actor {
        this.actionQueue.add(new ex.Internal.Actions.RotateBy(this, angleRadians, duration, rotationType));
@@ -912,6 +923,7 @@ module ex {
      * @param sizeY  The scaling factor in the y direction to apply
      * @param speedX The speed of scaling in the x direction specified in magnitude increase per second
      * @param speedY The speed of scaling in the y direction specified in magnitude increase per second
+     * @obsolete Use [[ActionContext.scaleTo|Actor.actions.scaleTo]]
      */
     public scaleTo(sizeX: number, sizeY: number, speedX: number, speedY: number): Actor {
        this.actionQueue.add(new ex.Internal.Actions.ScaleTo(this, sizeX, sizeY, speedX, speedY));
@@ -924,6 +936,7 @@ module ex {
      * @param sizeX     The scaling factor in the x direction to apply
      * @param sizeY     The scaling factor in the y direction to apply
      * @param duration  The time it should take to complete the scaling in milliseconds
+     * @obsolete Use [[ActionContext.scaleBy|Actor.actions.scaleBy]]
      */
     public scaleBy(sizeX: number, sizeY: number, duration: number): Actor {
        this.actionQueue.add(new ex.Internal.Actions.ScaleBy(this, sizeX, sizeY, duration));
@@ -937,6 +950,7 @@ module ex {
      * @param timeVisible     The amount of time to stay visible per blink in milliseconds
      * @param timeNotVisible  The amount of time to stay not visible per blink in milliseconds
      * @param numBlinks       The number of times to blink
+     * @obsolete Use [[ActionContext.blink|Actor.actions.blink]]
      */
     public blink(timeVisible: number, timeNotVisible: number, numBlinks: number = 1): Actor {
        this.actionQueue.add(new ex.Internal.Actions.Blink(this, timeVisible, timeNotVisible, numBlinks));
@@ -948,6 +962,7 @@ module ex {
      * part of the actor 'Action' fluent API allowing action chaining.
      * @param opacity   The ending opacity
      * @param duration  The time it should take to fade the actor (in milliseconds)
+     * @obsolete Use [[ActionContext.fade|Actor.actions.fade]]
      */
     public fade(opacity: number, duration: number): Actor {
        this.actionQueue.add(new ex.Internal.Actions.Fade(this, opacity, duration));
@@ -958,6 +973,7 @@ module ex {
      * `duration` (in milliseconds). This method is part of the actor 
      * 'Action' fluent API allowing action chaining.
      * @param duration The amount of time to delay the next action in the queue from executing in milliseconds
+     * @obsolete Use [[ActionContext.delay|Actor.actions.delay]]
      */
     public delay(duration: number): Actor {
        this.actionQueue.add(new ex.Internal.Actions.Delay(this, duration));
@@ -967,6 +983,7 @@ module ex {
      * This method will add an action to the queue that will remove the actor from the 
      * scene once it has completed its previous actions. Any actions on the
      * action queue after this action will not be executed.
+     * @obsolete Use [[ActionContext.die|Actor.actions.die]]
      */
     public die(): Actor {
        this.actionQueue.add(new ex.Internal.Actions.Die(this));
@@ -976,6 +993,7 @@ module ex {
      * This method allows you to call an arbitrary method as the next action in the
      * action queue. This is useful if you want to execute code in after a specific
      * action, i.e An actor arrives at a destination after traversing a path
+     * @obsolete Use [[ActionContext.callMethod|Actor.actions.callMethod]]
      */
     public callMethod(method: () => any): Actor {
        this.actionQueue.add(new ex.Internal.Actions.CallMethod(this, method));
@@ -988,6 +1006,7 @@ module ex {
      * the actor 'Action' fluent API allowing action chaining
      * @param times The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will 
      * repeat forever
+     * @obsolete Use [[ActionContext.repeat|Actor.actions.repeat]]
      */
     public repeat(times?: number): Actor {
        if (!times) {
@@ -1001,6 +1020,7 @@ module ex {
      * This method will cause the actor to repeat all of the previously 
      * called actions forever. This method is part of the actor 'Action'
      * fluent API allowing action chaining.
+     * @obsolete Use [[ActionContext.repeatForever|Actor.actions.repeatForever]]
      */
     public repeatForever(): Actor {
        this.actionQueue.add(new ex.Internal.Actions.RepeatForever(this, this.actionQueue.getActions()));
@@ -1010,6 +1030,7 @@ module ex {
      * This method will cause the actor to follow another at a specified distance
      * @param actor           The actor to follow
      * @param followDistance  The distance to maintain when following, if not specified the actor will follow at the current distance.
+     * @obsolete Use [[ActionContext.follow|Actor.actions.follow]]
      */
     public follow(actor : Actor, followDistance? : number) : Actor {
       if (typeof followDistance === 'undefined') {
@@ -1024,6 +1045,7 @@ module ex {
      * collide ("meet") at a specified speed.
      * @param actor  The actor to meet
      * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
+     * @obsolete Use [[ActionContext.meet|Actor.actions.meet]]
      */
     public meet(actor: Actor, speed? : number) : Actor {
        if (typeof speed === 'undefined') {
@@ -1036,6 +1058,7 @@ module ex {
     /**
      * Returns a promise that resolves when the current action queue up to now
      * is finished.
+     * @obsolete Use [[ActionContext.asPromise|Actor.actions.asPromise]]
      */
     public asPromise<T>() : Promise<T> {
        var complete = new Promise<T>();
@@ -1058,6 +1081,7 @@ module ex {
           this.eventDispatcher.emit('initialize', new InitializeEvent(engine));
           this._isInitialized = true;
        }
+       this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
        
        var eventDispatcher = this.eventDispatcher;
        // Update action queue
@@ -1071,7 +1095,8 @@ module ex {
           this.traits[i].update(this, engine, delta);
        }
        
-       eventDispatcher.emit(EventType[EventType.Update], new UpdateEvent(delta));
+       eventDispatcher.emit('update', new UpdateEvent(delta));
+       this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
     }
     /**
      * Called by the Engine, draws the actor to the screen
@@ -1083,7 +1108,8 @@ module ex {
        ctx.save();
        ctx.translate(this.x, this.y);
        ctx.scale(this.scale.x, this.scale.y);
-       ctx.rotate(this.rotation);     
+       ctx.rotate(this.rotation);
+       this.emit('predraw', new PreDrawEvent(ctx, delta, this));
        
        
        // calculate changing opacity
@@ -1118,6 +1144,8 @@ module ex {
              this.children[i].draw(ctx, delta);
           }
        }
+       
+       this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
        ctx.restore();
     }
     /**
@@ -1125,7 +1153,7 @@ module ex {
      * @param ctx The rendering context
      */
     public debugDraw(ctx: CanvasRenderingContext2D) {
-      
+       this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
        // Draw actor bounding box
        var bb = this.getBounds();
        bb.debugDraw(ctx);
@@ -1177,6 +1205,7 @@ module ex {
           this.children[i].debugDraw(ctx);
        }
        ctx.restore();
+       this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));
     }
   }
 
@@ -1204,6 +1233,7 @@ module ex {
      * Actors with the `Elastic` setting will behave the same as `Active`, except that they will
      * "bounce" in the opposite direction given their velocity dx/dy. This is a naive implementation meant for
      * prototyping, for a more robust elastic collision listen to the "collision" event and perform your custom logic.
+     * @obsolete This behavior will be handled by a future physics system
      */
     Elastic,
     /**

@@ -17,7 +17,7 @@ describe('A gamepad', () => {
       var fired = false;
       
       engine.input.gamepads.enabled = true;
-      engine.input.gamepads.on('connect', (padEvent: ex.Input.GamepadConnectEvent) => {
+      engine.input.gamepads.on('connect', (padEvent: ex.GamepadConnectEvent) => {
          fired = true;
       });
       
@@ -41,7 +41,7 @@ describe('A gamepad', () => {
    it('should fire an event on disconnect', () => {
       var fired = false;
       engine.input.gamepads.enabled = true;
-      engine.input.gamepads.on('disconnect', (padEvent: ex.Input.GamepadConnectEvent) => {
+      engine.input.gamepads.on('disconnect', (padEvent: ex.GamepadConnectEvent) => {
          fired = true;
       });
       
@@ -65,7 +65,7 @@ describe('A gamepad', () => {
    
    it('should be implicitly enabled when an event is added', () => {
       expect(engine.input.gamepads.enabled).toBe(false);
-      engine.input.gamepads.on('disconnect', (padEvent: ex.Input.GamepadConnectEvent) => {
+      engine.input.gamepads.on('disconnect', (padEvent: ex.GamepadConnectEvent) => {
          // do something awesome
       });
       expect(engine.input.gamepads.enabled).toBe(true);
@@ -109,7 +109,7 @@ describe('A gamepad', () => {
       var currentButton = null;
       var currentValue = null;
       
-      gamepad.on('button', (buttonEvent: ex.Input.GamepadButtonEvent) => {
+      gamepad.on('button', (buttonEvent: ex.GamepadButtonEvent) => {
          currentButton = buttonEvent.button;
          currentValue = buttonEvent.value;
       });
@@ -136,7 +136,7 @@ describe('A gamepad', () => {
       
       var currentAxis = null;
       var currentValue = null;
-      gamepad.on('axis', (axisEvent: ex.Input.GamepadAxisEvent) => {
+      gamepad.on('axis', (axisEvent: ex.GamepadAxisEvent) => {
          currentAxis = axisEvent.axis;
          currentValue = axisEvent.value;
       });

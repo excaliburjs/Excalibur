@@ -9,10 +9,59 @@
     * You can query any [[Gamepad|Gamepads]] that are connected or listen to events ("button" and "axis").
     *
     * You must opt-in to controller support ([[Gamepads.enabled]]) because it is a polling-based
-    * API, so we have to check it each update frame.
+    * API, so we have to check it each update frame. If an gamepad related event handler is set, you will
+    * automatically opt-in to controller polling.
     *
-    * Any number of gamepads are supported using the [[Gamepads.at]] method. If a [[Gamepad]] is
+    * HTML5 Gamepad API only supports a maximum of 4 gamepads. You can access them using the [[Gamepads.at]] method. If a [[Gamepad]] is
     * not connected, it will simply not throw events.
+    *
+    * ## Gamepad Filtering
+    * 
+    * Different browsers/devices are sometimes loose about the devices they consider Gamepads, you can set minimum device requirements with
+    * `engine.inpute.gamepads.setMinimumGamepadConfiguration` so that undesired devices are not reported to you (Touchpads, Mice, Web 
+    * Cameras, etc.).
+    * ```js
+    * // ensures that only gamepads with at least 4 axis and 8 buttons are reported for events
+    * engine.input.gamepads.setMinimumGamepadConfiguration({
+    *    axis: 4,
+    *    buttons: 8
+    * });
+    * ```
+    *
+    * ## Events
+    *
+    * You can subscribe to gamepad connect and disconnect events through `engine.input.gamepads.on`. 
+    * A [[GamepadConnectEvent]] or [[GamepadDisconnectEvent]] will be passed to you.
+    *
+    * - `connect` - When a gamepad connects it will fire this event and pass a [[GamepadConnectEvent]] with a reference to the gamepad.
+    * - `disconnect` - When a gamepad disconnects it will fire this event and pass a [[GamepadDisconnectEvent]]
+    * 
+    * Once you have a reference to a gamepad you may listen to changes on that gamepad with `.on`. A [[GamepadButtonEvent]] or 
+    * [[GamepadAxisEvent]] will be passed to you.   
+    * - `button` - Whenever a button is pressed on the game
+    * - `axis` - Whenever an axis  
+    *
+    * ```ts
+    * 
+    * engine.input.gamepads.on('connect', (ce: ex.Input.GamepadConnectEvent) => {
+    *    var newPlayer = CreateNewPlayer(); // pseudo-code for new player logic on gamepad connection
+    *    console.log("Gamepad connected", ce);
+    *    ce.gamepad.on('button', (be: ex.GamepadButtonEvent) => {
+    *       if(be.button === ex.Input.Buttons.Face1) {
+    *          newPlayer.jump();
+    *       }
+    *    });
+    *    
+    *    ce.gamepad.on('axis', (ae: ex.GamepadAxisEvent) => {
+    *      if(ae.axis === ex.Input.Axis.LeftStickX && ae.value > .5){
+    *         newPlayer.moveRight();
+    *      }
+    *    })
+    *
+    *  });
+    *
+    *
+    * ```
     *
     * ## Responding to button input
     *
@@ -464,52 +513,6 @@
        * Right analogue stick Y direction
        */
       RightStickY = 3
-   }
-   
-   /**
-    * Event recieved when a gamepad is connected to excalibur
-    */
-   export class GamepadConnectEvent extends GameEvent {
-      constructor(public index: number, public gamepad: ex.Input.Gamepad) {
-         super();
-      }
-   }
-   
-   /**
-    * Event recieved when a gamepad is disconnected from excalibur
-    */
-   export class GamepadDisconnectEvent extends GameEvent {
-      constructor(public index: number) {
-         super();
-      }
-   }
-
-   /**
-    * Gamepad button event. See [[Gamepads]] for information on responding to controller input.
-    */
-   export class GamepadButtonEvent extends ex.GameEvent {
-
-      /**
-       * @param button  The Gamepad button
-       * @param value   A numeric value between 0 and 1
-       */
-      constructor(public button: Buttons, public value: number) {
-         super();
-      }
-   }
-
-   /**
-    * Gamepad axis event. See [[Gamepads]] for information on responding to controller input.
-    */
-   export class GamepadAxisEvent extends ex.GameEvent {
-
-      /**
-       * @param axis  The Gamepad axis
-       * @param value A numeric value between -1 and 1
-       */
-      constructor(public axis: Axes, public value: number) {
-         super();
-      }
    }
 
    /**

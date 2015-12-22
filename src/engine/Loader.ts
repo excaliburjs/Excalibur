@@ -129,7 +129,8 @@ module ex {
     * is loaded, you can [[Sound.play|play]] it.
     *
     * ```js
-    * var sndPlayerDeath = new ex.Sound("/assets/snd/player-death.mp3", "/assets/snd/player-wav.mp3");
+    * // define multiple sources (such as mp3/wav/ogg) as a browser fallback
+    * var sndPlayerDeath = new ex.Sound("/assets/snd/player-death.mp3", "/assets/snd/player-death.wav");
     *
     * var loader = new ex.Loader(sndPlayerDeath);
     *

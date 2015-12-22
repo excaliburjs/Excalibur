@@ -1,32 +1,44 @@
 ﻿module ex {
    
    /**
-    * Standard easing functions for motion in Excalibur
-    * 
-    * easeInQuad: function (t) { return t * t },
-    * // decelerating to zero velocity
-    * easeOutQuad: function (t) { return t * (2 - t) },
-    * // acceleration until halfway, then deceleration
-    * easeInOutQuad: function (t) { return t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t },
-    * // accelerating from zero velocity 
-    * easeInCubic: function (t) { return t * t * t },
-    * // decelerating to zero velocity 
-    * easeOutCubic: function (t) { return (--t) * t * t + 1 },
-    * // acceleration until halfway, then deceleration 
-    * easeInOutCubic: function (t) { return t < .5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1 },
-    * // accelerating from zero velocity 
-    * easeInQuart: function (t) { return t * t * t * t },
-    * // decelerating to zero velocity 
-    * easeOutQuart: function (t) { return 1 - (--t) * t * t * t },
-    * // acceleration until halfway, then deceleration
-    * easeInOutQuart: function (t) { return t < .5 ? 8 * t * t * t * t : 1 - 8 * (--t) * t * t * t },
+    * Standard easing functions for motion in Excalibur, defined on a domain of [0, duration] and a range from [+startValue,+endValue]
+    * Given a time, the function will return a value from postive startValue to postive endValue.
+    *
+    * ```js
+    * function Linear (t) {
+    *    return t * t;
+    * }
+    *
     * // accelerating from zero velocity
-    * easeInQuint: function (t) { return t * t * t * t * t },
+    * function EaseInQuad (t) { 
+    *    return t * t; 
+    * }
+    *
     * // decelerating to zero velocity
-    * easeOutQuint: function (t) { return 1 + (--t) * t * t * t * t },
-    * // acceleration until halfway, then deceleration 
-    * easeInOutQuint: function (t) { return t < .5 ? 16 * t * t * t * t * t : 1 + 16 * (--t) * t * t * t * t }
+    * function EaseOutQuad (t) {
+    *    return t * (2 - t); 
+    * }
     * 
+    * // acceleration until halfway, then deceleration
+    * function EaseInOutQuad (t) { 
+    *    return t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t; 
+    * }
+    *
+    * // accelerating from zero velocity 
+    * function EaseInCubic (t) { 
+    *    return t * t * t; 
+    * }
+    *
+    * // decelerating to zero velocity 
+    * function EaseOutCubic (t) { 
+    *    return (--t) * t * t + 1; 
+    * }
+    *
+    * // acceleration until halfway, then deceleration 
+    * function EaseInOutCubic (t) { 
+    *    return t < .5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1; 
+    * }
+    * ```
     */
    export class EasingFunctions {
 

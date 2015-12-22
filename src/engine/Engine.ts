@@ -177,6 +177,8 @@ module ex {
     * scene. Only one [[Scene]] can be active at once, the engine does not update/draw any other
     * scene, which means any actors will not be updated/drawn if they are part of a deactivated scene.
     *
+    * ![Engine Lifecycle](../../assets/images/docs/EngineLifeCycle.png)
+    *
     * **Scene Graph**
     *
     * ```
@@ -195,13 +197,13 @@ module ex {
     *
     * ### Update Loop
     *
-    * The first operation run is the [[Engine.update|update]] loop. [[Actor]] and [[Scene]] both implement
+    * The first operation run is the [[Engine._update|update]] loop. [[Actor]] and [[Scene]] both implement
     * an overridable/extendable `update` method. Use it to perform any logic-based operations
     * in your game for a particular class.
     *
     * ### Draw Loop
     *
-    * The next step is the [[Engine.draw|draw]] loop. A [[Scene]] loops through its child [[Actor|actors]] and
+    * The next step is the [[Engine._draw|draw]] loop. A [[Scene]] loops through its child [[Actor|actors]] and
     * draws each one. You can override the `draw` method on an actor to customize its drawing.
     * You should **not** perform any logic in a draw call, it should only relate to drawing.
     *
@@ -969,6 +971,7 @@ module ex {
             // suspend updates untill loading is finished
             return;
          }
+         this.emit('preupdate', new PreUpdateEvent(this, delta, this));
          // process engine level events
          this.currentScene.update(this, delta);
 
@@ -983,7 +986,8 @@ module ex {
          this.input.gamepads.update(delta);
 
          // Publish update event
-         this.eventDispatcher.emit(EventType[EventType.Update], new UpdateEvent(delta));
+         this.eventDispatcher.emit('update', new UpdateEvent(delta));
+         this.emit('postupdate', new PreUpdateEvent(this, delta, this));
       }
 
       /**
@@ -992,7 +996,7 @@ module ex {
        */
       private _draw(delta: number) {
          var ctx = this.ctx;
-
+         this.emit('predraw', new PreDrawEvent(ctx, delta, this));
          if (this._isLoading) {
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, this.width, this.height);
@@ -1033,8 +1037,7 @@ module ex {
             this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.width, this.height), this.ctx);
          }
 
-         //ctx.drawImage(currentImage, 0, 0, this.width, this.height);
-
+         this.emit('postdraw', new PreDrawEvent(ctx, delta, this));
       }
 
       /**
