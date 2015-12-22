@@ -166,9 +166,10 @@ module ex {
                                 endValue: number, 
                                 duration: number) => number = ex.EasingFunctions.Linear) {
        var i = 0, len = this._queues.length;
-       for(i; i < len; i++){
+       for(i; i < len; i++) {
             this._queues[i].add(new ex.Internal.Actions.EaseTo(this._actors[i], x, y, duration, easingFcn));
        }
+       
        return this;
        
       }

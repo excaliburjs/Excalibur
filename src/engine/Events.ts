@@ -74,16 +74,17 @@ module ex {
     * The 'preupdate' event is emitted on actors, scenes, and engine before the update starts.
     */
    export class PreUpdateEvent extends GameEvent {
-      constructor(public engine: Engine, public delta, public target){
+      constructor(public engine: Engine, public delta, public target) {
          super();
       }
    }
    
    /**
-    * The 'postupdate' event is emitted on actors, scenes, and engine after the update ends. This is equivalent to the obsolete 'update' event.
+    * The 'postupdate' event is emitted on actors, scenes, and engine after the update ends. This is equivalent to the obsolete 'update'
+    * event.
     */
    export class PostUpdateEvent extends GameEvent {
-      constructor(public engine: Engine, public delta, public target){
+      constructor(public engine: Engine, public delta, public target) {
          super();
       }
    }
@@ -135,7 +136,8 @@ module ex {
    }
    
    /**
-    * Subscribe event thrown when handlers for events other than subscribe are added. Meta event that is received by [[EventDispatcher|event dispatchers]].
+    * Subscribe event thrown when handlers for events other than subscribe are added. Meta event that is received by 
+    * [[EventDispatcher|event dispatchers]].
     */
    export class SubscribeEvent extends GameEvent {
       constructor(public topic: string, public handler: (event?: GameEvent) => void) {
@@ -144,7 +146,8 @@ module ex {
    }
 
    /**
-    * Unsubscribe event thrown when handlers for events other than unsubscribe are removed. . Meta event that is received by [[EventDispatcher|event dispatchers]].
+    * Unsubscribe event thrown when handlers for events other than unsubscribe are removed. Meta event that is received by 
+    * [[EventDispatcher|event dispatchers]].
     */
    export class UnsubscribeEvent extends GameEvent {
       constructor(public topic: string, public handler: (event?: GameEvent) => void) {

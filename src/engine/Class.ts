@@ -68,8 +68,8 @@ module ex {
        * @param eventName   Name of the event to emit
        * @param eventObject Data associated with this event
        */
-      public emit(eventName: string, eventObject?: GameEvent){
-         this.eventDispatcher.emit(eventName, eventObject)
+      public emit(eventName: string, eventObject?: GameEvent) {
+         this.eventDispatcher.emit(eventName, eventObject);
       }
 
 
