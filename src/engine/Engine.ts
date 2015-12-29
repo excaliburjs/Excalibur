@@ -41,7 +41,7 @@
  *
  * ## Where to Start
  *
- * These are the core concepts of Excalibur that you should be
+ * These are the core concepts of Excalibur that you should become
  * familiar with.
  *
  * - [[Engine|Intro to the Engine]]
@@ -174,7 +174,7 @@ module ex {
     *
     * The Excalibur engine uses a simple main loop. The engine updates and renders
     * the "scene graph" which is the [[Scene|scenes]] and the tree of [[Actor|actors]] within that
-    * scene. Only one [[Scene]] can be active at once, the engine does not update/draw any other
+    * scene. Only one [[Scene]] can be active at a time. The engine does not update/draw any other
     * scene, which means any actors will not be updated/drawn if they are part of a deactivated scene.
     *
     * ![Engine Lifecycle](/assets/images/docs/EngineLifeCycle.png)
