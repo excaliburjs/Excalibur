@@ -109,7 +109,7 @@ module ex.Input {
     * complex input and having control over every interaction.
     *
     * You can also use [[PointerScope.Canvas]] to only scope event handling to the game
-    * canvas. This is useful if you don't care about events that occur outside.
+    * canvas. This is useful if you don't care about events that occur outside the game.
     *
     * One real-world example is dragging and gestures. Sometimes a player will drag their
     * finger outside your game and then into it, expecting it to work. If [[PointerScope]]
@@ -118,8 +118,8 @@ module ex.Input {
     *
     * ## Responding to input
     * 
-    * The primary pointer can be a mouse, stylus, or 1 finger touch event. You
-    * can inspect what it is from the [[PointerEvent]] handled.
+    * The primary pointer can be a mouse, stylus, or single finger touch event. You
+    * can inspect what type of pointer it is from the [[PointerEvent]] handled.
     *
     * ```js
     * engine.input.pointers.primary.on("down", function (pe) {

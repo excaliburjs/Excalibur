@@ -276,7 +276,7 @@ module ex {
    *
    * ## Known Issues
    *
-   * **Actor bounding boxes do not rotate, part of the 0.7.0 milestone**
+   * **Actor bounding boxes do not rotate**
    * [Issue #68](https://github.com/excaliburjs/Excalibur/issues/68)
    *
    */     

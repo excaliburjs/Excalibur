@@ -5,8 +5,8 @@ module ex {
    /**
     * Excalibur's internal event dispatcher implementation. 
     * Callbacks are fired immediately after an event is published.
-    * Typically you'd use [[Class.eventDispatcher]] since most classes in
-    * Excalibur inherit from [[Class]]. You'd rarely create an `EventDispatcher`
+    * Typically you will use [[Class.eventDispatcher]] since most classes in
+    * Excalibur inherit from [[Class]]. You will rarely create an `EventDispatcher`
     * yourself.
     *
     * When working with events, be sure to keep in mind the order of subscriptions
@@ -50,7 +50,7 @@ module ex {
     * ## Example: Pub/Sub with Excalibur
     *
     * You can also create an EventDispatcher for any arbitrary object, for example
-    * a global game event aggregator (`vent`). Anything in your game can subscribe to
+    * a global game event aggregator (shown below as `vent`). Anything in your game can subscribe to
     * it, if the event aggregator is in the global scope.
     *
     * *Warning:* This can easily get out of hand. Avoid this usage, it just serves as
