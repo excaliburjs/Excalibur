@@ -15,8 +15,9 @@ module ex {
 
    
    /**
-    * This post processor can correct colors, and simulate color blindness. It is possible to use this on every game, but you will take a
-    * performance hit, remember it is best practice to design with color blindness in mind.
+    * This post processor can correct colors and simulate color blindness. It is possible to use this on every game, but the game's performance
+    * will suffer measurably. It's better to use it as a helpful tool while developing your game. 
+    * Remember, the best practice is to design with color blindness in mind.
     *
     * Color correction algorithm originally sourced from http://www.daltonize.org/ 
     * 
