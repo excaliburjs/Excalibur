@@ -40,11 +40,12 @@
      * 
      * One common thing to look out for when building games is that the colors you choose are color blind friendly. There is a significant
      * portion of the population that has some form of color blindness and choosing bad colors can make your game unplayable. We have built
-     * a post procesors that can shift your colors into as more visible range for the 3 most common types of color blindness. 
+     * a post procesors that can shift your colors into as more visible range for the 3 most common types of 
+     * [[https://en.wikipedia.org/wiki/Color_blindness|color blindness]]. 
      * 
      *  - [[ColorBlindness.Protanope|Protanope]]
-     *  - [[ColorBlindness.Deuteranope|Protanope]]
-     *  - [[ColorBlindess.Tritanope|Protanope]]
+     *  - [[ColorBlindness.Deuteranope|Deuteranope]]
+     *  - [[ColorBlindness.Tritanope|Tritanope]]
      * 
      * This post processor can correct colors, and simulate color blindness. It is possible to use this on every game, but you will take a
      * performance hit, remember it is best practice to design with color blindness in mind. 
@@ -52,9 +53,9 @@
      * Example:
      * ```typescript
      * 
-     * var game = new Engine();
+     * var game = new ex.Engine();
      * 
-     * var colorBlindPostProcessor = new ColorBlindCorrector(game, false, ColorBlindness.Protanope);
+     * var colorBlindPostProcessor = new ex.ColorBlindCorrector(game, false, ColorBlindness.Protanope);
      *  
      * // post processors evaluate left to right
      * game.postProcessors.push(colorBlindPostProcessor);
