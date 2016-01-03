@@ -80,6 +80,7 @@
  * - [[Sound|Working with Sounds]]
  * - [[SpriteSheet|Working with SpriteSheets]]
  * - [[Animation|Working with Animations]]
+ * - [[TileMap|Working with TileMaps]]
  *
  * ## Effects and Particles
  *
@@ -88,6 +89,7 @@
  *
  * - [[Effects|Sprite Effects]]
  * - [[ParticleEmitter|Particle Emitters]]
+ * - [[IPostProcessor|Post Processors]]
  *
  * ## Math
  *
