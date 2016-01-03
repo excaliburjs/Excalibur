@@ -11,36 +11,35 @@ player.currentDrawing.anchor = new ex.Point(0.5, 0.5); //TODO what if we don't d
 //player.currentDrawing.scale = new ex.Point(0.5, 0.5);
 engine.currentScene.add(player);
 engine.input.keyboard.on('down', function (keyDown) {
-    if (keyDown.key === 68 /* D */) {
+    if (keyDown.key === ex.Input.Keys.D) {
         engine.isDebug = !engine.isDebug;
     }
-    else if (keyDown.key === 38 /* Up */) {
+    else if (keyDown.key === ex.Input.Keys.Up) {
         player.dy = -speed;
     }
-    else if (keyDown.key === 40 /* Down */) {
+    else if (keyDown.key === ex.Input.Keys.Down) {
         player.dy = speed;
     }
-    else if (keyDown.key === 37 /* Left */) {
+    else if (keyDown.key === ex.Input.Keys.Left) {
         player.dx = -speed;
     }
-    else if (keyDown.key === 39 /* Right */) {
+    else if (keyDown.key === ex.Input.Keys.Right) {
         player.dx = speed;
     }
 });
 engine.input.keyboard.on('up', function (keyUp) {
-    if (keyUp.key === 38 /* Up */) {
+    if (keyUp.key === ex.Input.Keys.Up) {
         player.dy = 0;
     }
-    else if (keyUp.key === 40 /* Down */) {
+    else if (keyUp.key === ex.Input.Keys.Down) {
         player.dy = 0;
     }
-    else if (keyUp.key === 37 /* Left */) {
+    else if (keyUp.key === ex.Input.Keys.Left) {
         player.dx = 0;
     }
-    else if (keyUp.key === 39 /* Right */) {
+    else if (keyUp.key === ex.Input.Keys.Right) {
         player.dx = 0;
     }
 });
 engine.start(new ex.Loader([playerTexture])).then(function () {
 });
-//# sourceMappingURL=culling.js.map

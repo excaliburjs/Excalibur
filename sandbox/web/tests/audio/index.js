@@ -1,7 +1,7 @@
 /// <reference path="../../../../dist/Excalibur.d.ts"/>
 // uncomment to hint fallback implementation
 //(<any>window).AudioContext = null;
-ex.Logger.getInstance().defaultLevel = 0 /* Debug */;
+ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
 var game = new ex.Engine();
 var loader = new ex.Loader();
 var testSound = new ex.Sound("loop.mp3");
@@ -25,4 +25,3 @@ game.add(button);
    }
 });*/
 game.start(loader);
-//# sourceMappingURL=index.js.map

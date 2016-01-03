@@ -33,7 +33,7 @@
  * Excalibur.js team
  */
 var logger = ex.Logger.getInstance();
-logger.defaultLevel = 0 /* Debug */;
+logger.defaultLevel = ex.LogLevel.Debug;
 // Create an the game container
 var game = new ex.Engine(800, 600, 'game');
 game.setAntialiasing(false);
@@ -93,39 +93,40 @@ var Animations;
     Animations[Animations["JumpLeft"] = 5] = "JumpLeft";
 })(Animations || (Animations = {}));
 var currentX = 0;
+// Create the level
 for (var i = 0; i < 36; i++) {
     currentX = tileBlockWidth * i + 10;
     var color = new ex.Color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
     var block = new ex.Actor(currentX, 350 + Math.random() * 100, tileBlockWidth, tileBlockHeight, color);
-    block.collisionType = 4 /* Fixed */;
+    block.collisionType = ex.CollisionType.Fixed;
     block.addCollisionGroup('ground');
-    block.addDrawing(0 /* Block */, blockAnimation);
+    block.addDrawing(Animations.Block, blockAnimation);
     game.add(block);
 }
 var platform = new ex.Actor(400, 300, 200, 50, new ex.Color(0, 200, 0));
-platform.collisionType = 4 /* Fixed */;
+platform.collisionType = ex.CollisionType.Fixed;
 platform.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100).repeatForever();
 game.add(platform);
 var platform2 = new ex.Actor(800, 300, 200, 20, new ex.Color(0, 0, 140));
-platform2.collisionType = 4 /* Fixed */;
+platform2.collisionType = ex.CollisionType.Fixed;
 platform2.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).moveTo(800, 300, 100).repeatForever();
 game.add(platform2);
 var platform3 = new ex.Actor(-200, 400, 200, 20, new ex.Color(50, 0, 100));
-platform3.collisionType = 4 /* Fixed */;
+platform3.collisionType = ex.CollisionType.Fixed;
 platform3.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3000).moveTo(-200, 300, 800).moveTo(-200, 400, 800).repeatForever();
 game.add(platform3);
 var platform4 = new ex.Actor(200, 200, 100, 50, ex.Color.Azure);
-platform4.collisionType = 4 /* Fixed */;
+platform4.collisionType = ex.CollisionType.Fixed;
 platform4.moveBy(75, 300, .20);
 game.add(platform4);
 // Test follow api
 var follower = new ex.Actor(50, 100, 20, 20, ex.Color.Black);
-follower.collisionType = 0 /* PreventCollision */;
+follower.collisionType = ex.CollisionType.PreventCollision;
 game.add(follower);
 // Create the player
 var player = new ex.Actor(100, -200, 32, 96);
 player.enableCapturePointer = true;
-player.collisionType = 2 /* Active */;
+player.collisionType = ex.CollisionType.Active;
 follower.meet(player, 60).asPromise().then(function () {
     console.log("Player met!!");
 });
@@ -134,10 +135,10 @@ player.scale.setTo(1, 1);
 player.rotation = 0;
 // Health bar example
 var healthbar = new ex.Actor(0, -70, 140, 5, new ex.Color(0, 255, 0));
-player.addChild(healthbar);
+player.add(healthbar);
 // Add Title above player
 var playerLabel = new ex.Label('My Player', -70, -69, null, spriteFont);
-player.addChild(playerLabel);
+player.add(playerLabel);
 // Retrieve animations for player from sprite sheet
 var left = spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
 var right = spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
@@ -151,13 +152,13 @@ idle.loop = true;
 jumpRight.freezeFrame = 0;
 jumpLeft.freezeFrame = 11;
 // Add animations to player
-player.addDrawing(2 /* Left */, left);
-player.addDrawing(3 /* Right */, right);
-player.addDrawing(1 /* Idle */, idle);
-player.addDrawing(4 /* JumpRight */, jumpRight);
-player.addDrawing(5 /* JumpLeft */, jumpLeft);
+player.addDrawing(Animations.Left, left);
+player.addDrawing(Animations.Right, right);
+player.addDrawing(Animations.Idle, idle);
+player.addDrawing(Animations.JumpRight, jumpRight);
+player.addDrawing(Animations.JumpLeft, jumpLeft);
 // Set default animation
-player.setDrawing(1 /* Idle */);
+player.setDrawing(Animations.Idle);
 player.setCenterDrawing(true);
 var jumpSound = jump.sound;
 var inAir = true;
@@ -166,10 +167,10 @@ var airSpeed = 130;
 var jumpSpeed = 500;
 var direction = 1;
 player.on('update', function () {
-    if (game.input.keyboard.isKeyPressed(37 /* Left */)) {
+    if (game.input.keyboard.isHeld(ex.Input.Keys.Left)) {
         direction = -1;
         if (!inAir) {
-            player.setDrawing(2 /* Left */);
+            player.setDrawing(Animations.Left);
         }
         if (inAir) {
             player.dx = -airSpeed;
@@ -177,10 +178,10 @@ player.on('update', function () {
         }
         player.dx = -groundSpeed;
     }
-    else if (game.input.keyboard.isKeyPressed(39 /* Right */)) {
+    else if (game.input.keyboard.isHeld(ex.Input.Keys.Right)) {
         direction = 1;
         if (!inAir) {
-            player.setDrawing(3 /* Right */);
+            player.setDrawing(Animations.Right);
         }
         if (inAir) {
             player.dx = airSpeed;
@@ -188,15 +189,15 @@ player.on('update', function () {
         }
         player.dx = groundSpeed;
     }
-    if (game.input.keyboard.isKeyPressed(38 /* Up */)) {
+    if (game.input.keyboard.isHeld(ex.Input.Keys.Up)) {
         if (!inAir) {
             player.dy = -jumpSpeed;
             inAir = true;
             if (direction === 1) {
-                player.setDrawing(4 /* JumpRight */);
+                player.setDrawing(Animations.JumpRight);
             }
             else {
-                player.setDrawing(5 /* JumpLeft */);
+                player.setDrawing(Animations.JumpLeft);
             }
             jumpSound.play();
         }
@@ -205,8 +206,9 @@ player.on('update', function () {
 game.input.keyboard.on('up', function (e) {
     if (inAir)
         return;
-    if (e.key === 37 /* Left */ || e.key === 39 /* Right */) {
-        player.setDrawing(1 /* Idle */);
+    if (e.key === ex.Input.Keys.Left ||
+        e.key === ex.Input.Keys.Right) {
+        player.setDrawing(Animations.Idle);
     }
 });
 player.on('pointerdown', function (e) {
@@ -220,27 +222,27 @@ newScene.add(new ex.Label("MAH LABEL!", 200, 100));
 //newScene.onDeactivate = function(){
 //   console.log('deactivated newScene');
 //};
-newScene.addEventListener('activate', function (evt) {
+newScene.on('activate', function (evt) {
     console.log('activate newScene');
 });
-newScene.addEventListener('deactivate', function (evt) {
+newScene.on('deactivate', function (evt) {
     console.log('deactivate newScene');
 });
 game.addScene('label', newScene);
 game.input.keyboard.on('down', function (keyDown) {
-    if (keyDown.key === 70 /* F */) {
+    if (keyDown.key === ex.Input.Keys.F) {
         var a = new ex.Actor(player.x + 10, player.y - 50, 10, 10, new ex.Color(222, 222, 222));
         a.dx = 200 * direction;
         a.dy = 0;
-        a.collisionType = 3 /* Elastic */;
+        a.collisionType = ex.CollisionType.Elastic;
         var inAir = true;
-        a.addEventListener('collision', function (data) {
+        a.on('collision', function (data) {
             inAir = false;
             //a.dx = data.other.dx;
             //a.dy = data.other.dy;
             //a.kill();
         });
-        a.addEventListener('update', function (data) {
+        a.on('update', function (data) {
             if (inAir) {
                 a.ay = 400; // * data.delta/1000;
             }
@@ -251,23 +253,23 @@ game.input.keyboard.on('down', function (keyDown) {
         });
         game.addChild(a);
     }
-    else if (keyDown.key === 85 /* U */) {
+    else if (keyDown.key === ex.Input.Keys.U) {
         game.goToScene('label');
     }
-    else if (keyDown.key === 73 /* I */) {
+    else if (keyDown.key === ex.Input.Keys.I) {
         game.goToScene('root');
     }
 });
 var isColliding = false;
-player.addEventListener('collision', function (data) {
-    if (data.side === 2 /* Bottom */) {
+player.on('collision', function (data) {
+    if (data.side === ex.Side.Bottom) {
         isColliding = true;
         if (inAir) {
             //console.log("Collided on bottom with inAir", inAir);
-            player.setDrawing(1 /* Idle */);
+            player.setDrawing(Animations.Idle);
         }
         inAir = false;
-        if (data.other && !(game.input.keyboard.isKeyPressed(37 /* Left */) || game.input.keyboard.isKeyPressed(39 /* Right */) || game.input.keyboard.isKeyPressed(38 /* Up */) || game.input.keyboard.isKeyPressed(40 /* Down */))) {
+        if (data.other && !(game.input.keyboard.isHeld(ex.Input.Keys.Left) || game.input.keyboard.isHeld(ex.Input.Keys.Right) || game.input.keyboard.isHeld(ex.Input.Keys.Up) || game.input.keyboard.isHeld(ex.Input.Keys.Down))) {
             player.dx = data.other.dx;
             player.dy = data.other.dy;
         }
@@ -276,7 +278,7 @@ player.addEventListener('collision', function (data) {
             player.dy = 0;
         }
     }
-    if (data.side === 1 /* Top */) {
+    if (data.side === ex.Side.Top) {
         if (data.other) {
             player.dy = data.other.dy - player.dy;
         }
@@ -285,7 +287,7 @@ player.addEventListener('collision', function (data) {
         }
     }
 });
-player.addEventListener('update', function (data) {
+player.on('update', function (data) {
     // apply gravity if player is in the air
     // only apply gravity when not colliding
     if (!isColliding) {
@@ -299,22 +301,22 @@ player.addEventListener('update', function (data) {
     isColliding = false;
     //console.log("Player Pos", player.x, player.y, player.getWidth(), player.getHeight());
 });
-player.addEventListener('initialize', function (evt) {
+player.on('initialize', function (evt) {
     console.log("Player initialized", evt.engine);
 });
 game.input.keyboard.on('down', function (keyDown) {
-    if (keyDown.key === 66 /* B */) {
+    if (keyDown.key === ex.Input.Keys.B) {
         var block = new ex.Actor(currentX, 350, 44, 50, color);
         currentX += 46;
-        block.addDrawing(0 /* Block */, blockAnimation);
+        block.addDrawing(Animations.Block, blockAnimation);
         game.addChild(block);
     }
-    if (keyDown.key === 68 /* D */) {
+    if (keyDown.key === ex.Input.Keys.D) {
         game.isDebug = !game.isDebug;
     }
 });
 var paused = false;
-game.addEventListener('p', function () {
+game.on('p', function () {
     if (!paused) {
         game.stop();
     }
@@ -389,10 +391,10 @@ game.input.pointers.primary.on('down', function (evt) {
     //emitter.focus = new ex.Vector(evt.x - emitter.x, evt.y - emitter.y);
 });
 game.input.keyboard.on('up', function (evt) {
-    if (evt.key == 70 /* F */) {
+    if (evt.key == ex.Input.Keys.F) {
         jump.play();
     }
-    if (evt.key == 83 /* S */) {
+    if (evt.key == ex.Input.Keys.S) {
         jump.stop();
     }
 });

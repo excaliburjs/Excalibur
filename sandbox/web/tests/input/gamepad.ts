@@ -18,11 +18,11 @@ function start() {
    });
 
    // Log when pads disconnect and connect
-   game.input.gamepads.on("connect", (evet: ex.Input.GamepadConnectEvent) => {
+   game.input.gamepads.on("connect", (evet: ex.GamepadConnectEvent) => {
       console.log("Gamepad connect");
    });
 
-   game.input.gamepads.on("disconnect", (evet: ex.Input.GamepadDisconnectEvent) => {
+   game.input.gamepads.on("disconnect", (evet: ex.GamepadDisconnectEvent) => {
       console.log("Gamepad disconnect");
    });
    

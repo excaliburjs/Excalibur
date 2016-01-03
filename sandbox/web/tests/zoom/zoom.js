@@ -24,25 +24,24 @@ target.on('pointerup', function (ev) {
 });
 game.add(target);
 game.input.keyboard.on('down', function (ev) {
-    if (ev.key == 107) {
+    if (ev.key == 107 /* + */) {
         game.currentScene.camera.zoom(currentZoom += .03);
     }
-    if (ev.key == 109) {
+    if (ev.key == 109 /* - */) {
         game.currentScene.camera.zoom(currentZoom -= .03);
     }
     var currentFocus = game.currentScene.camera.getFocus();
-    if (ev.key == 37 /* Left */) {
+    if (ev.key == ex.Input.Keys.Left) {
         game.currentScene.camera.setFocus(currentFocus.x - 10, currentFocus.y);
     }
-    if (ev.key == 39 /* Right */) {
+    if (ev.key == ex.Input.Keys.Right) {
         game.currentScene.camera.setFocus(currentFocus.x + 10, currentFocus.y);
     }
-    if (ev.key == 38 /* Up */) {
+    if (ev.key == ex.Input.Keys.Up) {
         game.currentScene.camera.setFocus(currentFocus.x, currentFocus.y - 10);
     }
-    if (ev.key == 40 /* Down */) {
+    if (ev.key == ex.Input.Keys.Down) {
         game.currentScene.camera.setFocus(currentFocus.x, currentFocus.y + 10);
     }
 });
 game.start(raptorTex);
-//# sourceMappingURL=zoom.js.map

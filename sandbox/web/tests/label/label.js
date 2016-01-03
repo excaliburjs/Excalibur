@@ -11,4 +11,3 @@ label.color = ex.Color.White;
 label.font = '20pt Consolas';
 engine.add(label);
 engine.start();
-//# sourceMappingURL=label.js.map

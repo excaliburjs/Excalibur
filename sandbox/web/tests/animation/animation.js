@@ -22,4 +22,3 @@ engine.input.keyboard.on('down', function (keyDown) {
 });
 engine.start(new ex.Loader([playerTexture])).then(function () {
 });
-//# sourceMappingURL=animation.js.map

@@ -10,12 +10,12 @@ var blockGroup = engine.currentScene.createGroup("blocks");
 var blockSprite = blockTexture.asSprite();
 blockSprite.scale.setTo(.2, .2);
 var player = new ex.Actor(width / 2, height / 2, 30, 30, ex.Color.Cyan);
-player.collisionType = 4 /* Fixed */;
+player.collisionType = ex.CollisionType.Fixed;
 engine.currentScene.add(player);
 for (var i = 0; i < numActors; i++) {
     var actor = new ex.Actor(Math.random() * width, Math.random() * height, .2 * 64, .2 * 48);
     actor.addDrawing("default", blockSprite);
-    actor.collisionType = 3 /* Elastic */;
+    actor.collisionType = ex.CollisionType.Elastic;
     actor.on('update', function (e) {
         if (this.x < 0) {
             this.dx = Math.abs(this.dx);
@@ -48,4 +48,3 @@ blockGroup.on('collision', function (e) {
 engine.start(new ex.Loader([blockTexture])).then(function () {
     // do stuff
 });
-//# sourceMappingURL=group.js.map

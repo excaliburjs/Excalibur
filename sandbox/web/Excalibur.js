@@ -1,316 +1,6 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var ex;
-(function (ex) {
-    /**
-     * A simple 2D point on a plane
-     */
-    var Point = (function () {
-        /**
-         * @param x  X coordinate of the point
-         * @param y  Y coordinate of the point
-         */
-        function Point(x, y) {
-            this.x = x;
-            this.y = y;
-        }
-        /**
-         * Convert this point to a vector
-         */
-        Point.prototype.toVector = function () {
-            return new Vector(this.x, this.y);
-        };
-        /**
-         * Rotates the current point around another by a certain number of
-         * degrees in radians
-         * @param angle  The angle in radians
-         * @param anchor The point to rotate around
-         */
-        Point.prototype.rotate = function (angle, anchor) {
-            if (!anchor) {
-                anchor = new ex.Point(0, 0);
-            }
-            var sinAngle = Math.sin(angle);
-            var cosAngle = Math.cos(angle);
-            var x = cosAngle * (this.x - anchor.x) - sinAngle * (this.y - anchor.y) + anchor.x;
-            var y = sinAngle * (this.x - anchor.x) + cosAngle * (this.y - anchor.y) + anchor.y;
-            return new Point(x, y);
-        };
-        /**
-         * Translates the current point by a vector
-         * @param vector  The other vector to add to
-         */
-        Point.prototype.add = function (vector) {
-            return new Point(this.x + vector.x, this.y + vector.y);
-        };
-        /**
-         * Sets the x and y components at once
-         */
-        Point.prototype.setTo = function (x, y) {
-            this.x = x;
-            this.y = y;
-        };
-        /**
-         * Clones a new point that is a copy of this one.
-         */
-        Point.prototype.clone = function () {
-            return new Point(this.x, this.y);
-        };
-        /**
-         * Compares this point against another and tests for equality
-         * @param point  The other point to compare to
-         */
-        Point.prototype.equals = function (point) {
-            return this.x === point.x && this.y === point.y;
-        };
-        return Point;
-    })();
-    ex.Point = Point;
-    /**
-     * A 2D vector on a plane.
-     */
-    var Vector = (function (_super) {
-        __extends(Vector, _super);
-        /**
-         * @param x  X component of the Vector
-         * @param y  Y component of the Vector
-         */
-        function Vector(x, y) {
-            _super.call(this, x, y);
-            this.x = x;
-            this.y = y;
-        }
-        /**
-         * Returns a vector of unit length in the direction of the specified angle.
-         * @param angle The angle to generate the vector
-         */
-        Vector.fromAngle = function (angle) {
-            return new Vector(Math.cos(angle), Math.sin(angle));
-        };
-        /**
-         * The distance to another vector
-         * @param v  The other vector
-         */
-        Vector.prototype.distance = function (v) {
-            if (!v) {
-                v = new Vector(0.0, 0.0);
-            }
-            return Math.sqrt(Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2));
-        };
-        /**
-         * Normalizes a vector to have a magnitude of 1.
-         */
-        Vector.prototype.normalize = function () {
-            var d = this.distance();
-            if (d > 0) {
-                return new Vector(this.x / d, this.y / d);
-            }
-            else {
-                return new Vector(0, 1);
-            }
-        };
-        /**
-         * Scales a vector's by a factor of size
-         * @param size  The factor to scale the magnitude by
-         */
-        Vector.prototype.scale = function (size) {
-            return new Vector(this.x * size, this.y * size);
-        };
-        /**
-         * Adds one vector to another, alias for add
-         * @param v  The vector to add
-         */
-        Vector.prototype.plus = function (v) {
-            return this.add(v);
-        };
-        /**
-         * Adds one vector to another
-         * @param v The vector to add
-         */
-        Vector.prototype.add = function (v) {
-            return new Vector(this.x + v.x, this.y + v.y);
-        };
-        /**
-         * Subtracts a vector from another, alias for minus
-         * @param v The vector to subtract
-         */
-        Vector.prototype.subtract = function (v) {
-            return this.minus(v);
-        };
-        /**
-         * Subtracts a vector from the current vector
-         * @param v The vector to subtract
-         */
-        Vector.prototype.minus = function (v) {
-            return new Vector(this.x - v.x, this.y - v.y);
-        };
-        /**
-         * Performs a dot product with another vector
-         * @param v  The vector to dot
-         */
-        Vector.prototype.dot = function (v) {
-            return this.x * v.x + this.y * v.y;
-        };
-        /**
-         * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
-         * @param v  The vector to cross
-         */
-        Vector.prototype.cross = function (v) {
-            return this.x * v.y - this.y * v.x;
-        };
-        /**
-         * Returns the perpendicular vector to this one
-         */
-        Vector.prototype.perpendicular = function () {
-            return new Vector(this.y, -this.x);
-        };
-        /**
-         * Returns the normal vector to this one
-         */
-        Vector.prototype.normal = function () {
-            return this.perpendicular().normalize();
-        };
-        /**
-         * Returns the angle of this vector.
-         */
-        Vector.prototype.toAngle = function () {
-            return Math.atan2(this.y, this.x);
-        };
-        /**
-         * Returns the point represention of this vector
-         */
-        Vector.prototype.toPoint = function () {
-            return new Point(this.x, this.y);
-        };
-        /**
-         * Rotates the current vector around a point by a certain number of
-         * degrees in radians
-         */
-        Vector.prototype.rotate = function (angle, anchor) {
-            return _super.prototype.rotate.call(this, angle, anchor).toVector();
-        };
-        /**
-         * Creates new vector that has the same values as the previous.
-         */
-        Vector.prototype.clone = function () {
-            return new Vector(this.x, this.y);
-        };
-        /**
-         * A (0, 0) vector
-         */
-        Vector.Zero = new Vector(0, 0);
-        return Vector;
-    })(Point);
-    ex.Vector = Vector;
-    /**
-     * A 2D ray that can be cast into the scene to do collision detection
-     */
-    var Ray = (function () {
-        /**
-         * @param pos The starting position for the ray
-         * @param dir The vector indicating the direction of the ray
-         */
-        function Ray(pos, dir) {
-            this.pos = pos;
-            this.dir = dir.normalize();
-        }
-        /**
-         * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
-         * This number indicates the mathematical intersection time.
-         * @param line  The line to test
-         */
-        Ray.prototype.intersect = function (line) {
-            var numerator = line.begin.toVector().minus(this.pos.toVector());
-            // Test is line and ray are parallel and non intersecting
-            if (this.dir.cross(line.getSlope()) === 0 && numerator.cross(this.dir) !== 0) {
-                return -1;
-            }
-            // Lines are parallel
-            var divisor = (this.dir.cross(line.getSlope()));
-            if (divisor === 0) {
-                return -1;
-            }
-            var t = numerator.cross(line.getSlope()) / divisor;
-            if (t >= 0) {
-                var u = (numerator.cross(this.dir) / divisor) / line.getLength();
-                if (u >= 0 && u <= 1) {
-                    return t;
-                }
-            }
-            return -1;
-        };
-        /**
-         * Returns the point of intersection given the intersection time
-         */
-        Ray.prototype.getPoint = function (time) {
-            return this.pos.toVector().add(this.dir.scale(time)).toPoint();
-        };
-        return Ray;
-    })();
-    ex.Ray = Ray;
-    /**
-     * A 2D line segment
-     */
-    var Line = (function () {
-        /**
-         * @param begin  The starting point of the line segment
-         * @param end  The ending point of the line segment
-         */
-        function Line(begin, end) {
-            this.begin = begin;
-            this.end = end;
-        }
-        /**
-         * Returns the slope of the line in the form of a vector
-         */
-        Line.prototype.getSlope = function () {
-            var begin = this.begin.toVector();
-            var end = this.end.toVector();
-            var distance = begin.distance(end);
-            return end.minus(begin).scale(1 / distance);
-        };
-        /**
-         * Returns the length of the line segment in pixels
-         */
-        Line.prototype.getLength = function () {
-            var begin = this.begin.toVector();
-            var end = this.end.toVector();
-            var distance = begin.distance(end);
-            return distance;
-        };
-        return Line;
-    })();
-    ex.Line = Line;
-    /**
-     * A projection
-     * @todo
-     */
-    var Projection = (function () {
-        function Projection(min, max) {
-            this.min = min;
-            this.max = max;
-        }
-        Projection.prototype.overlaps = function (projection) {
-            return this.max > projection.min && projection.max > this.min;
-        };
-        Projection.prototype.getOverlap = function (projection) {
-            if (this.overlaps(projection)) {
-                if (this.max > projection.max) {
-                    return projection.max - this.min;
-                }
-                else {
-                    return this.max - projection.min;
-                }
-            }
-            return 0;
-        };
-        return Projection;
-    })();
-    ex.Projection = Projection;
-})(ex || (ex = {}));
+/*! excalibur - v0.6.0 - 2016-01-03
+* https://github.com/excaliburjs/Excalibur
+* Copyright (c) 2016 ; Licensed BSD-2-Clause*/
 if (typeof window === 'undefined') {
     window = { audioContext: function () { return; } };
 }
@@ -825,7 +515,7 @@ var ex;
             }
             CollisionDetection.prototype.update = function (actor, engine, delta) {
                 var eventDispatcher = actor.eventDispatcher;
-                if (actor.collisionType !== ex.CollisionType.PreventCollision) {
+                if (actor.collisionType !== ex.CollisionType.PreventCollision && engine.currentScene && engine.currentScene.tileMaps) {
                     for (var j = 0; j < engine.currentScene.tileMaps.length; j++) {
                         var map = engine.currentScene.tileMaps[j];
                         var intersectMap;
@@ -880,6 +570,320 @@ var ex;
         Side[Side["Right"] = 4] = "Right";
     })(ex.Side || (ex.Side = {}));
     var Side = ex.Side;
+})(ex || (ex = {}));
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var ex;
+(function (ex) {
+    /**
+     * A simple 2D point on a plane
+     * @obsolete Use [[Vector|vector]]s instead of [[Point|points]]
+     */
+    var Point = (function () {
+        /**
+         * @param x  X coordinate of the point
+         * @param y  Y coordinate of the point
+         */
+        function Point(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+        /**
+         * Convert this point to a vector
+         */
+        Point.prototype.toVector = function () {
+            return new Vector(this.x, this.y);
+        };
+        /**
+         * Rotates the current point around another by a certain number of
+         * degrees in radians
+         * @param angle  The angle in radians
+         * @param anchor The point to rotate around
+         */
+        Point.prototype.rotate = function (angle, anchor) {
+            if (!anchor) {
+                anchor = new ex.Point(0, 0);
+            }
+            var sinAngle = Math.sin(angle);
+            var cosAngle = Math.cos(angle);
+            var x = cosAngle * (this.x - anchor.x) - sinAngle * (this.y - anchor.y) + anchor.x;
+            var y = sinAngle * (this.x - anchor.x) + cosAngle * (this.y - anchor.y) + anchor.y;
+            return new Point(x, y);
+        };
+        /**
+         * Translates the current point by a vector
+         * @param vector  The other vector to add to
+         */
+        Point.prototype.add = function (vector) {
+            return new Point(this.x + vector.x, this.y + vector.y);
+        };
+        /**
+         * Sets the x and y components at once
+         */
+        Point.prototype.setTo = function (x, y) {
+            this.x = x;
+            this.y = y;
+        };
+        /**
+         * Clones a new point that is a copy of this one.
+         */
+        Point.prototype.clone = function () {
+            return new Point(this.x, this.y);
+        };
+        /**
+         * Compares this point against another and tests for equality
+         * @param point  The other point to compare to
+         */
+        Point.prototype.equals = function (point) {
+            return this.x === point.x && this.y === point.y;
+        };
+        return Point;
+    })();
+    ex.Point = Point;
+    /**
+     * A 2D vector on a plane.
+     */
+    var Vector = (function (_super) {
+        __extends(Vector, _super);
+        /**
+         * @param x  X component of the Vector
+         * @param y  Y component of the Vector
+         */
+        function Vector(x, y) {
+            _super.call(this, x, y);
+            this.x = x;
+            this.y = y;
+        }
+        /**
+         * Returns a vector of unit length in the direction of the specified angle.
+         * @param angle The angle to generate the vector
+         */
+        Vector.fromAngle = function (angle) {
+            return new Vector(Math.cos(angle), Math.sin(angle));
+        };
+        /**
+         * The distance to another vector
+         * @param v  The other vector
+         */
+        Vector.prototype.distance = function (v) {
+            if (!v) {
+                v = new Vector(0.0, 0.0);
+            }
+            return Math.sqrt(Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2));
+        };
+        /**
+         * Normalizes a vector to have a magnitude of 1.
+         */
+        Vector.prototype.normalize = function () {
+            var d = this.distance();
+            if (d > 0) {
+                return new Vector(this.x / d, this.y / d);
+            }
+            else {
+                return new Vector(0, 1);
+            }
+        };
+        /**
+         * Scales a vector's by a factor of size
+         * @param size  The factor to scale the magnitude by
+         */
+        Vector.prototype.scale = function (size) {
+            return new Vector(this.x * size, this.y * size);
+        };
+        /**
+         * Adds one vector to another, alias for add
+         * @param v  The vector to add
+         */
+        Vector.prototype.plus = function (v) {
+            return this.add(v);
+        };
+        /**
+         * Adds one vector to another
+         * @param v The vector to add
+         */
+        Vector.prototype.add = function (v) {
+            return new Vector(this.x + v.x, this.y + v.y);
+        };
+        /**
+         * Subtracts a vector from another, alias for minus
+         * @param v The vector to subtract
+         */
+        Vector.prototype.subtract = function (v) {
+            return this.minus(v);
+        };
+        /**
+         * Subtracts a vector from the current vector
+         * @param v The vector to subtract
+         */
+        Vector.prototype.minus = function (v) {
+            return new Vector(this.x - v.x, this.y - v.y);
+        };
+        /**
+         * Performs a dot product with another vector
+         * @param v  The vector to dot
+         */
+        Vector.prototype.dot = function (v) {
+            return this.x * v.x + this.y * v.y;
+        };
+        /**
+         * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
+         * @param v  The vector to cross
+         */
+        Vector.prototype.cross = function (v) {
+            return this.x * v.y - this.y * v.x;
+        };
+        /**
+         * Returns the perpendicular vector to this one
+         */
+        Vector.prototype.perpendicular = function () {
+            return new Vector(this.y, -this.x);
+        };
+        /**
+         * Returns the normal vector to this one
+         */
+        Vector.prototype.normal = function () {
+            return this.perpendicular().normalize();
+        };
+        /**
+         * Returns the angle of this vector.
+         */
+        Vector.prototype.toAngle = function () {
+            return Math.atan2(this.y, this.x);
+        };
+        /**
+         * Returns the point represention of this vector
+         */
+        Vector.prototype.toPoint = function () {
+            return new Point(this.x, this.y);
+        };
+        /**
+         * Rotates the current vector around a point by a certain number of
+         * degrees in radians
+         */
+        Vector.prototype.rotate = function (angle, anchor) {
+            return _super.prototype.rotate.call(this, angle, anchor).toVector();
+        };
+        /**
+         * Creates new vector that has the same values as the previous.
+         */
+        Vector.prototype.clone = function () {
+            return new Vector(this.x, this.y);
+        };
+        /**
+         * A (0, 0) vector
+         */
+        Vector.Zero = new Vector(0, 0);
+        return Vector;
+    })(Point);
+    ex.Vector = Vector;
+    /**
+     * A 2D ray that can be cast into the scene to do collision detection
+     */
+    var Ray = (function () {
+        /**
+         * @param pos The starting position for the ray
+         * @param dir The vector indicating the direction of the ray
+         */
+        function Ray(pos, dir) {
+            this.pos = pos;
+            this.dir = dir.normalize();
+        }
+        /**
+         * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
+         * This number indicates the mathematical intersection time.
+         * @param line  The line to test
+         */
+        Ray.prototype.intersect = function (line) {
+            var numerator = line.begin.toVector().minus(this.pos.toVector());
+            // Test is line and ray are parallel and non intersecting
+            if (this.dir.cross(line.getSlope()) === 0 && numerator.cross(this.dir) !== 0) {
+                return -1;
+            }
+            // Lines are parallel
+            var divisor = (this.dir.cross(line.getSlope()));
+            if (divisor === 0) {
+                return -1;
+            }
+            var t = numerator.cross(line.getSlope()) / divisor;
+            if (t >= 0) {
+                var u = (numerator.cross(this.dir) / divisor) / line.getLength();
+                if (u >= 0 && u <= 1) {
+                    return t;
+                }
+            }
+            return -1;
+        };
+        /**
+         * Returns the point of intersection given the intersection time
+         */
+        Ray.prototype.getPoint = function (time) {
+            return this.pos.toVector().add(this.dir.scale(time)).toPoint();
+        };
+        return Ray;
+    })();
+    ex.Ray = Ray;
+    /**
+     * A 2D line segment
+     */
+    var Line = (function () {
+        /**
+         * @param begin  The starting point of the line segment
+         * @param end  The ending point of the line segment
+         */
+        function Line(begin, end) {
+            this.begin = begin;
+            this.end = end;
+        }
+        /**
+         * Returns the slope of the line in the form of a vector
+         */
+        Line.prototype.getSlope = function () {
+            var begin = this.begin.toVector();
+            var end = this.end.toVector();
+            var distance = begin.distance(end);
+            return end.minus(begin).scale(1 / distance);
+        };
+        /**
+         * Returns the length of the line segment in pixels
+         */
+        Line.prototype.getLength = function () {
+            var begin = this.begin.toVector();
+            var end = this.end.toVector();
+            var distance = begin.distance(end);
+            return distance;
+        };
+        return Line;
+    })();
+    ex.Line = Line;
+    /**
+     * A projection
+     * @todo
+     */
+    var Projection = (function () {
+        function Projection(min, max) {
+            this.min = min;
+            this.max = max;
+        }
+        Projection.prototype.overlaps = function (projection) {
+            return this.max > projection.min && projection.max > this.min;
+        };
+        Projection.prototype.getOverlap = function (projection) {
+            if (this.overlaps(projection)) {
+                if (this.max > projection.max) {
+                    return projection.max - this.min;
+                }
+                else {
+                    return this.max - projection.min;
+                }
+            }
+            return 0;
+        };
+        return Projection;
+    })();
+    ex.Projection = Projection;
 })(ex || (ex = {}));
 /// <reference path="../Algebra.ts"/>
 /// <reference path="../Events.ts"/>
@@ -1207,10 +1211,38 @@ var ex;
      *
      * Excalibur offers many sprite effects such as [[Effects.Colorize]] to let you manipulate
      * sprites. Keep in mind, more effects requires more power and can lead to memory or CPU
-     * constraints and hurt performance.
+     * constraints and hurt performance. Each effect must be reprocessed every frame for each sprite.
      *
      * It's still recommended to create an [[Animation]] or build in your effects to the sprites
      * for optimal performance.
+     *
+     * There are a number of convenience methods available to perform sprite effects. Sprite effects are
+     * side-effecting.
+     *
+     * ```typescript
+     *
+     * var playerSprite = new ex.Sprite(txPlayer, 0, 0, 80, 80);
+     *
+     * // darken a sprite by a percentage
+     * playerSprite.darken(.2); // 20%
+     *
+     * // lighten a sprite by a percentage
+     * playerSprite.lighten(.2); // 20%
+     *
+     * // saturate a sprite by a percentage
+     * playerSprite.saturate(.2); // 20%
+     *
+     * // implement a custom effect
+     * class CustomEffect implements ex.EffectsISpriteEffect {
+     *
+     *   updatePixel(x: number, y: number, imageData: ImageData) {
+     *       // modify ImageData
+     *   }
+     * }
+     *
+     * playerSprite.addEffect(new CustomEffect());
+     *
+     * ```
      */
     var Sprite = (function () {
         /**
@@ -2609,6 +2641,14 @@ var ex;
             this.eventDispatcher.unsubscribe(eventName, handler);
         };
         /**
+         * Emits a new event
+         * @param eventName   Name of the event to emit
+         * @param eventObject Data associated with this event
+         */
+        Class.prototype.emit = function (eventName, eventObject) {
+            this.eventDispatcher.emit(eventName, eventObject);
+        };
+        /**
          * You may wish to extend native Excalibur functionality in vanilla Javascript.
          * Any method on a class inheriting [[Class]] may be extended to support
          * additional functionaliy. In the example below we create a new type called `MyActor`.
@@ -3410,8 +3450,20 @@ var ex;
      */
     var BaseCamera = (function () {
         function BaseCamera() {
-            this._focus = new ex.Point(0, 0);
-            this._lerp = false;
+            this.focus = new ex.Point(0, 0);
+            this.lerp = false;
+            // camera physical quantities
+            this.x = 0;
+            this.y = 0;
+            this.z = 1;
+            this.dx = 0;
+            this.dy = 0;
+            this.dz = 0;
+            this.ax = 0;
+            this.ay = 0;
+            this.az = 0;
+            this.rotation = 0;
+            this.rx = 0;
             this._cameraMoving = false;
             this._currentLerpTime = 0;
             this._lerpDuration = 1 * 1000; // 5 seconds
@@ -3448,23 +3500,24 @@ var ex;
             this._follow = actor;
         };
         /**
-         * Returns the focal point of the camera
+         * Returns the focal point of the camera, a new point giving the x and y position of the camera
          */
         BaseCamera.prototype.getFocus = function () {
-            return this._focus;
+            return new ex.Point(this.x, this.y);
         };
         /**
          * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
          * @param x The x coordinate of the focal point
          * @param y The y coordinate of the focal point
+         * @deprecated
          */
         BaseCamera.prototype.setFocus = function (x, y) {
-            if (!this._follow && !this._lerp) {
-                this._focus.x = x;
-                this._focus.y = y;
+            if (!this._follow && !this.lerp) {
+                this.x = x;
+                this.y = y;
             }
-            if (this._lerp) {
-                this._lerpStart = this._focus.clone();
+            if (this.lerp) {
+                this._lerpStart = this.getFocus().clone();
                 this._lerpEnd = new ex.Point(x, y);
                 this._currentLerpTime = 0;
                 this._cameraMoving = true;
@@ -3516,16 +3569,24 @@ var ex;
          * Gets the current zoom scale
          */
         BaseCamera.prototype.getZoom = function () {
-            return this._currentZoomScale;
+            return this.z;
         };
         BaseCamera.prototype._setCurrentZoomScale = function (zoomScale) {
-            this._currentZoomScale = zoomScale;
+            this.z = zoomScale;
         };
         /**
          * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
          * @param delta  The number of milliseconds since the last update
          */
         BaseCamera.prototype.update = function (ctx, delta) {
+            // Update placements based on linear algebra
+            this.x += this.dx * delta / 1000;
+            this.y += this.dy * delta / 1000;
+            this.z += this.dz * delta / 1000;
+            this.dx += this.ax * delta / 1000;
+            this.dy += this.ay * delta / 1000;
+            this.dz += this.az * delta / 1000;
+            this.rotation += this.rx * delta / 1000;
             var focus = this.getFocus();
             var xShake = 0;
             var yShake = 0;
@@ -3535,19 +3596,19 @@ var ex;
             // if zoom is .5x then canvas is 2x as high
             var newCanvasWidth = canvasWidth / this.getZoom();
             var newCanvasHeight = canvasHeight / this.getZoom();
-            if (this._lerp) {
+            if (this.lerp) {
                 if (this._currentLerpTime < this._lerpDuration && this._cameraMoving) {
                     if (this._lerpEnd.x < this._lerpStart.x) {
-                        this._focus.x = this._lerpStart.x - (this._easeInOutCubic(this._currentLerpTime, this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
+                        this.x = this._lerpStart.x - (this._easeInOutCubic(this._currentLerpTime, this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
                     }
                     else {
-                        this._focus.x = this._easeInOutCubic(this._currentLerpTime, this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
+                        this.x = this._easeInOutCubic(this._currentLerpTime, this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
                     }
                     if (this._lerpEnd.y < this._lerpStart.y) {
-                        this._focus.y = this._lerpStart.y - (this._easeInOutCubic(this._currentLerpTime, this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
+                        this.y = this._lerpStart.y - (this._easeInOutCubic(this._currentLerpTime, this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
                     }
                     else {
-                        this._focus.y = this._easeInOutCubic(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
+                        this.y = this._easeInOutCubic(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
                     }
                     this._currentLerpTime += delta;
                 }
@@ -3570,16 +3631,17 @@ var ex;
                 xShake = (Math.random() * this._shakeMagnitudeX | 0) + 1;
                 yShake = (Math.random() * this._shakeMagnitudeY | 0) + 1;
             }
-            if (this._isDoneZooming()) {
-                this._isZooming = false;
-                this._elapsedZoomTime = 0;
-                this._zoomDuration = 0;
-                this._setCurrentZoomScale(this._maxZoomScale);
-            }
-            else {
-                this._elapsedZoomTime += delta;
-                this._setCurrentZoomScale(this.getZoom() + this._zoomIncrement * delta / 1000);
-            }
+            /*if (this._isDoneZooming()) {
+               this._isZooming = false;
+               this._elapsedZoomTime = 0;
+               this._zoomDuration = 0;
+               this._setCurrentZoomScale(this._maxZoomScale);
+   
+            } else {
+               this._elapsedZoomTime += delta;
+   
+               this._setCurrentZoomScale(this.getZoom() + this._zoomIncrement * delta / 1000);
+            }*/
             ctx.scale(this.getZoom(), this.getZoom());
             ctx.translate(-focus.x + newCanvasWidth / 2 + xShake, -focus.y + newCanvasHeight / 2 + yShake);
         };
@@ -3628,10 +3690,10 @@ var ex;
         }
         SideCamera.prototype.getFocus = function () {
             if (this._follow) {
-                return new ex.Point(this._follow.x + this._follow.getWidth() / 2, this._focus.y);
+                return new ex.Point(this._follow.x + this._follow.getWidth() / 2, this.focus.y);
             }
             else {
-                return this._focus;
+                return this.focus;
             }
         };
         return SideCamera;
@@ -3654,12 +3716,862 @@ var ex;
                 return new ex.Point(this._follow.x + this._follow.getWidth() / 2, this._follow.y + this._follow.getHeight() / 2);
             }
             else {
-                return this._focus;
+                return this.focus;
             }
         };
         return LockedCamera;
     })(BaseCamera);
     ex.LockedCamera = LockedCamera;
+})(ex || (ex = {}));
+var ex;
+(function (ex) {
+    /**
+     * An enum that describes the strategies that rotation actions can use
+     */
+    (function (RotationType) {
+        /**
+         * Rotation via `ShortestPath` will use the smallest angle
+         * between the starting and ending points. This strategy is the default behavior.
+         */
+        RotationType[RotationType["ShortestPath"] = 0] = "ShortestPath";
+        /**
+         * Rotation via `LongestPath` will use the largest angle
+         * between the starting and ending points.
+         */
+        RotationType[RotationType["LongestPath"] = 1] = "LongestPath";
+        /**
+         * Rotation via `Clockwise` will travel in a clockwise direction,
+         * regardless of the starting and ending points.
+         */
+        RotationType[RotationType["Clockwise"] = 2] = "Clockwise";
+        /**
+         * Rotation via `CounterClockwise` will travel in a counterclockwise direction,
+         * regardless of the starting and ending points.
+         */
+        RotationType[RotationType["CounterClockwise"] = 3] = "CounterClockwise";
+    })(ex.RotationType || (ex.RotationType = {}));
+    var RotationType = ex.RotationType;
+})(ex || (ex = {}));
+/// <reference path="../Algebra.ts" />
+/// <reference path="../Engine.ts" />
+/// <reference path="../Actor.ts" />
+/// <reference path="RotationType.ts" />
+/**
+ * See [[ActionContext|Action API]] for more information about Actions.
+ */
+var ex;
+(function (ex) {
+    var Internal;
+    (function (Internal) {
+        var Actions;
+        (function (Actions) {
+            var EaseTo = (function () {
+                function EaseTo(actor, x, y, duration, easingFcn) {
+                    this.actor = actor;
+                    this.easingFcn = easingFcn;
+                    this._currentLerpTime = 0;
+                    this._lerpDuration = 1 * 1000; // 5 seconds
+                    this._lerpStart = new ex.Point(0, 0);
+                    this._lerpEnd = new ex.Point(0, 0);
+                    this._initialized = false;
+                    this._stopped = false;
+                    this._distance = 0;
+                    this._lerpDuration = duration;
+                    this._lerpEnd = new ex.Point(x, y);
+                }
+                EaseTo.prototype._initialize = function () {
+                    this._lerpStart = new ex.Point(this.actor.x, this.actor.y);
+                    this._currentLerpTime = 0;
+                    this._distance = this._lerpStart.toVector().distance(this._lerpEnd.toVector());
+                };
+                EaseTo.prototype.update = function (delta) {
+                    if (!this._initialized) {
+                        this._initialize();
+                        this._initialized = true;
+                    }
+                    var newX = this.actor.x;
+                    var newY = this.actor.y;
+                    if (this._currentLerpTime < this._lerpDuration) {
+                        if (this._lerpEnd.x < this._lerpStart.x) {
+                            newX = this._lerpStart.x - (this.easingFcn(this._currentLerpTime, this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
+                        }
+                        else {
+                            newX = this.easingFcn(this._currentLerpTime, this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
+                        }
+                        if (this._lerpEnd.y < this._lerpStart.y) {
+                            newY = this._lerpStart.y - (this.easingFcn(this._currentLerpTime, this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
+                        }
+                        else {
+                            newY = this.easingFcn(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
+                        }
+                        this.actor.x = newX;
+                        this.actor.y = newY;
+                        this._currentLerpTime += delta;
+                    }
+                    else {
+                        this.actor.x = this._lerpEnd.x;
+                        this.actor.y = this._lerpEnd.y;
+                    }
+                };
+                EaseTo.prototype.isComplete = function (actor) {
+                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this._lerpStart.toVector()) >= this._distance;
+                };
+                EaseTo.prototype.reset = function () {
+                    this._initialized = false;
+                };
+                EaseTo.prototype.stop = function () {
+                    this._stopped = true;
+                };
+                return EaseTo;
+            })();
+            Actions.EaseTo = EaseTo;
+            var MoveTo = (function () {
+                function MoveTo(actor, destx, desty, speed) {
+                    this._started = false;
+                    this._stopped = false;
+                    this._actor = actor;
+                    this._end = new ex.Vector(destx, desty);
+                    this._speed = speed;
+                }
+                MoveTo.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this._start = new ex.Vector(this._actor.x, this._actor.y);
+                        this._distance = this._start.distance(this._end);
+                        this._dir = this._end.minus(this._start).normalize();
+                    }
+                    var m = this._dir.scale(this._speed);
+                    this._actor.dx = m.x;
+                    this._actor.dy = m.y;
+                    if (this.isComplete(this._actor)) {
+                        this._actor.x = this._end.x;
+                        this._actor.y = this._end.y;
+                        this._actor.dy = 0;
+                        this._actor.dx = 0;
+                    }
+                };
+                MoveTo.prototype.isComplete = function (actor) {
+                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this._start) >= this._distance;
+                };
+                MoveTo.prototype.stop = function () {
+                    this._actor.dy = 0;
+                    this._actor.dx = 0;
+                    this._stopped = true;
+                };
+                MoveTo.prototype.reset = function () {
+                    this._started = false;
+                };
+                return MoveTo;
+            })();
+            Actions.MoveTo = MoveTo;
+            var MoveBy = (function () {
+                function MoveBy(actor, destx, desty, time) {
+                    this._started = false;
+                    this._stopped = false;
+                    this._actor = actor;
+                    this._end = new ex.Vector(destx, desty);
+                    if (time <= 0) {
+                        ex.Logger.getInstance().error('Attempted to moveBy time less than or equal to zero : ' + time);
+                        throw new Error('Cannot move in time <= 0');
+                    }
+                    this._time = time;
+                }
+                MoveBy.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this._start = new ex.Vector(this._actor.x, this._actor.y);
+                        this._distance = this._start.distance(this._end);
+                        this._dir = this._end.minus(this._start).normalize();
+                        this._speed = this._distance / (this._time / 1000);
+                    }
+                    var m = this._dir.scale(this._speed);
+                    this._actor.dx = m.x;
+                    this._actor.dy = m.y;
+                    if (this.isComplete(this._actor)) {
+                        this._actor.x = this._end.x;
+                        this._actor.y = this._end.y;
+                        this._actor.dy = 0;
+                        this._actor.dx = 0;
+                    }
+                };
+                MoveBy.prototype.isComplete = function (actor) {
+                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this._start) >= this._distance;
+                };
+                MoveBy.prototype.stop = function () {
+                    this._actor.dy = 0;
+                    this._actor.dx = 0;
+                    this._stopped = true;
+                };
+                MoveBy.prototype.reset = function () {
+                    this._started = false;
+                };
+                return MoveBy;
+            })();
+            Actions.MoveBy = MoveBy;
+            var Follow = (function () {
+                function Follow(actor, actorToFollow, followDistance) {
+                    this._started = false;
+                    this._stopped = false;
+                    this._actor = actor;
+                    this._actorToFollow = actorToFollow;
+                    this._current = new ex.Vector(this._actor.x, this._actor.y);
+                    this._end = new ex.Vector(actorToFollow.x, actorToFollow.y);
+                    this._maximumDistance = (followDistance !== undefined) ? followDistance : this._current.distance(this._end);
+                    this._speed = 0;
+                }
+                Follow.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this._distanceBetween = this._current.distance(this._end);
+                        this._dir = this._end.minus(this._current).normalize();
+                    }
+                    var actorToFollowSpeed = Math.sqrt(Math.pow(this._actorToFollow.dx, 2) + Math.pow(this._actorToFollow.dy, 2));
+                    if (actorToFollowSpeed !== 0) {
+                        this._speed = actorToFollowSpeed;
+                    }
+                    this._current.x = this._actor.x;
+                    this._current.y = this._actor.y;
+                    this._end.x = this._actorToFollow.x;
+                    this._end.y = this._actorToFollow.y;
+                    this._distanceBetween = this._current.distance(this._end);
+                    this._dir = this._end.minus(this._current).normalize();
+                    if (this._distanceBetween >= this._maximumDistance) {
+                        var m = this._dir.scale(this._speed);
+                        this._actor.dx = m.x;
+                        this._actor.dy = m.y;
+                    }
+                    else {
+                        this._actor.dx = 0;
+                        this._actor.dy = 0;
+                    }
+                    if (this.isComplete(this._actor)) {
+                        // TODO this should never occur
+                        this._actor.x = this._end.x;
+                        this._actor.y = this._end.y;
+                        this._actor.dy = 0;
+                        this._actor.dx = 0;
+                    }
+                };
+                Follow.prototype.stop = function () {
+                    this._actor.dy = 0;
+                    this._actor.dx = 0;
+                    this._stopped = true;
+                };
+                Follow.prototype.isComplete = function (actor) {
+                    // the actor following should never stop unless specified to do so
+                    return this._stopped;
+                };
+                Follow.prototype.reset = function () {
+                    this._started = false;
+                };
+                return Follow;
+            })();
+            Actions.Follow = Follow;
+            var Meet = (function () {
+                function Meet(actor, actorToMeet, speed) {
+                    this._started = false;
+                    this._stopped = false;
+                    this._speedWasSpecified = false;
+                    this._actor = actor;
+                    this._actorToMeet = actorToMeet;
+                    this._current = new ex.Vector(this._actor.x, this._actor.y);
+                    this._end = new ex.Vector(actorToMeet.x, actorToMeet.y);
+                    this._speed = speed || 0;
+                    if (speed !== undefined) {
+                        this._speedWasSpecified = true;
+                    }
+                }
+                Meet.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this._distanceBetween = this._current.distance(this._end);
+                        this._dir = this._end.minus(this._current).normalize();
+                    }
+                    var actorToMeetSpeed = Math.sqrt(Math.pow(this._actorToMeet.dx, 2) + Math.pow(this._actorToMeet.dy, 2));
+                    if ((actorToMeetSpeed !== 0) && (!this._speedWasSpecified)) {
+                        this._speed = actorToMeetSpeed;
+                    }
+                    this._current.x = this._actor.x;
+                    this._current.y = this._actor.y;
+                    this._end.x = this._actorToMeet.x;
+                    this._end.y = this._actorToMeet.y;
+                    this._distanceBetween = this._current.distance(this._end);
+                    this._dir = this._end.minus(this._current).normalize();
+                    var m = this._dir.scale(this._speed);
+                    this._actor.dx = m.x;
+                    this._actor.dy = m.y;
+                    if (this.isComplete(this._actor)) {
+                        this._actor.x = this._end.x;
+                        this._actor.y = this._end.y;
+                        this._actor.dy = 0;
+                        this._actor.dx = 0;
+                    }
+                };
+                Meet.prototype.isComplete = function (actor) {
+                    return this._stopped || (this._distanceBetween <= 1);
+                };
+                Meet.prototype.stop = function () {
+                    this._actor.dy = 0;
+                    this._actor.dx = 0;
+                    this._stopped = true;
+                };
+                Meet.prototype.reset = function () {
+                    this._started = false;
+                };
+                return Meet;
+            })();
+            Actions.Meet = Meet;
+            var RotateTo = (function () {
+                function RotateTo(actor, angleRadians, speed, rotationType) {
+                    this._started = false;
+                    this._stopped = false;
+                    this._actor = actor;
+                    this._end = angleRadians;
+                    this._speed = speed;
+                    this._rotationType = rotationType || ex.RotationType.ShortestPath;
+                }
+                RotateTo.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this._start = this._actor.rotation;
+                        var distance1 = Math.abs(this._end - this._start);
+                        var distance2 = ex.Util.TwoPI - distance1;
+                        if (distance1 > distance2) {
+                            this._shortDistance = distance2;
+                            this._longDistance = distance1;
+                        }
+                        else {
+                            this._shortDistance = distance1;
+                            this._longDistance = distance2;
+                        }
+                        this._shortestPathIsPositive = (this._start - this._end + ex.Util.TwoPI) % ex.Util.TwoPI >= Math.PI;
+                        switch (this._rotationType) {
+                            case ex.RotationType.ShortestPath:
+                                this._distance = this._shortDistance;
+                                if (this._shortestPathIsPositive) {
+                                    this._direction = 1;
+                                }
+                                else {
+                                    this._direction = -1;
+                                }
+                                break;
+                            case ex.RotationType.LongestPath:
+                                this._distance = this._longDistance;
+                                if (this._shortestPathIsPositive) {
+                                    this._direction = -1;
+                                }
+                                else {
+                                    this._direction = 1;
+                                }
+                                break;
+                            case ex.RotationType.Clockwise:
+                                this._direction = 1;
+                                if (this._shortestPathIsPositive) {
+                                    this._distance = this._shortDistance;
+                                }
+                                else {
+                                    this._distance = this._longDistance;
+                                }
+                                break;
+                            case ex.RotationType.CounterClockwise:
+                                this._direction = -1;
+                                if (!this._shortestPathIsPositive) {
+                                    this._distance = this._shortDistance;
+                                }
+                                else {
+                                    this._distance = this._longDistance;
+                                }
+                                break;
+                        }
+                    }
+                    this._actor.rx = this._direction * this._speed;
+                    if (this.isComplete(this._actor)) {
+                        this._actor.rotation = this._end;
+                        this._actor.rx = 0;
+                        this._stopped = true;
+                    }
+                };
+                RotateTo.prototype.isComplete = function (actor) {
+                    var distanceTravelled = Math.abs(this._actor.rotation - this._start);
+                    return this._stopped || (distanceTravelled >= Math.abs(this._distance));
+                };
+                RotateTo.prototype.stop = function () {
+                    this._actor.rx = 0;
+                    this._stopped = true;
+                };
+                RotateTo.prototype.reset = function () {
+                    this._started = false;
+                };
+                return RotateTo;
+            })();
+            Actions.RotateTo = RotateTo;
+            var RotateBy = (function () {
+                function RotateBy(actor, angleRadians, time, rotationType) {
+                    this._started = false;
+                    this._stopped = false;
+                    this._actor = actor;
+                    this._end = angleRadians;
+                    this._time = time;
+                    this._rotationType = rotationType || ex.RotationType.ShortestPath;
+                }
+                RotateBy.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this._start = this._actor.rotation;
+                        var distance1 = Math.abs(this._end - this._start);
+                        var distance2 = ex.Util.TwoPI - distance1;
+                        if (distance1 > distance2) {
+                            this._shortDistance = distance2;
+                            this._longDistance = distance1;
+                        }
+                        else {
+                            this._shortDistance = distance1;
+                            this._longDistance = distance2;
+                        }
+                        this._shortestPathIsPositive = (this._start - this._end + ex.Util.TwoPI) % ex.Util.TwoPI >= Math.PI;
+                        switch (this._rotationType) {
+                            case ex.RotationType.ShortestPath:
+                                this._distance = this._shortDistance;
+                                if (this._shortestPathIsPositive) {
+                                    this._direction = 1;
+                                }
+                                else {
+                                    this._direction = -1;
+                                }
+                                break;
+                            case ex.RotationType.LongestPath:
+                                this._distance = this._longDistance;
+                                if (this._shortestPathIsPositive) {
+                                    this._direction = -1;
+                                }
+                                else {
+                                    this._direction = 1;
+                                }
+                                break;
+                            case ex.RotationType.Clockwise:
+                                this._direction = 1;
+                                if (this._shortDistance >= 0) {
+                                    this._distance = this._shortDistance;
+                                }
+                                else {
+                                    this._distance = this._longDistance;
+                                }
+                                break;
+                            case ex.RotationType.CounterClockwise:
+                                this._direction = -1;
+                                if (this._shortDistance <= 0) {
+                                    this._distance = this._shortDistance;
+                                }
+                                else {
+                                    this._distance = this._longDistance;
+                                }
+                                break;
+                        }
+                        this._speed = Math.abs(this._distance / this._time * 1000);
+                    }
+                    this._actor.rx = this._direction * this._speed;
+                    if (this.isComplete(this._actor)) {
+                        this._actor.rotation = this._end;
+                        this._actor.rx = 0;
+                        this._stopped = true;
+                    }
+                };
+                RotateBy.prototype.isComplete = function (actor) {
+                    var distanceTravelled = Math.abs(this._actor.rotation - this._start);
+                    return this._stopped || (distanceTravelled >= Math.abs(this._distance));
+                };
+                RotateBy.prototype.stop = function () {
+                    this._actor.rx = 0;
+                    this._stopped = true;
+                };
+                RotateBy.prototype.reset = function () {
+                    this._started = false;
+                };
+                return RotateBy;
+            })();
+            Actions.RotateBy = RotateBy;
+            var ScaleTo = (function () {
+                function ScaleTo(actor, scaleX, scaleY, speedX, speedY) {
+                    this._started = false;
+                    this._stopped = false;
+                    this._actor = actor;
+                    this._endX = scaleX;
+                    this._endY = scaleY;
+                    this._speedX = speedX;
+                    this._speedY = speedY;
+                }
+                ScaleTo.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this._startX = this._actor.scale.x;
+                        this._startY = this._actor.scale.y;
+                        this._distanceX = Math.abs(this._endX - this._startX);
+                        this._distanceY = Math.abs(this._endY - this._startY);
+                    }
+                    if (!(Math.abs(this._actor.scale.x - this._startX) >= this._distanceX)) {
+                        var directionX = this._endY < this._startY ? -1 : 1;
+                        this._actor.sx = this._speedX * directionX;
+                    }
+                    else {
+                        this._actor.sx = 0;
+                    }
+                    if (!(Math.abs(this._actor.scale.y - this._startY) >= this._distanceY)) {
+                        var directionY = this._endY < this._startY ? -1 : 1;
+                        this._actor.sy = this._speedY * directionY;
+                    }
+                    else {
+                        this._actor.sy = 0;
+                    }
+                    if (this.isComplete(this._actor)) {
+                        this._actor.scale.x = this._endX;
+                        this._actor.scale.y = this._endY;
+                        this._actor.sx = 0;
+                        this._actor.sy = 0;
+                    }
+                };
+                ScaleTo.prototype.isComplete = function (actor) {
+                    return this._stopped || ((Math.abs(this._actor.scale.y - this._startX) >= this._distanceX) &&
+                        (Math.abs(this._actor.scale.y - this._startY) >= this._distanceY));
+                };
+                ScaleTo.prototype.stop = function () {
+                    this._actor.sx = 0;
+                    this._actor.sy = 0;
+                    this._stopped = true;
+                };
+                ScaleTo.prototype.reset = function () {
+                    this._started = false;
+                };
+                return ScaleTo;
+            })();
+            Actions.ScaleTo = ScaleTo;
+            var ScaleBy = (function () {
+                function ScaleBy(actor, scaleX, scaleY, time) {
+                    this._started = false;
+                    this._stopped = false;
+                    this._actor = actor;
+                    this._endX = scaleX;
+                    this._endY = scaleY;
+                    this._time = time;
+                    this._speedX = (this._endX - this._actor.scale.x) / time * 1000;
+                    this._speedY = (this._endY - this._actor.scale.y) / time * 1000;
+                }
+                ScaleBy.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                        this._startX = this._actor.scale.x;
+                        this._startY = this._actor.scale.y;
+                        this._distanceX = Math.abs(this._endX - this._startX);
+                        this._distanceY = Math.abs(this._endY - this._startY);
+                    }
+                    var directionX = this._endX < this._startX ? -1 : 1;
+                    var directionY = this._endY < this._startY ? -1 : 1;
+                    this._actor.sx = this._speedX * directionX;
+                    this._actor.sy = this._speedY * directionY;
+                    if (this.isComplete(this._actor)) {
+                        this._actor.scale.x = this._endX;
+                        this._actor.scale.y = this._endY;
+                        this._actor.sx = 0;
+                        this._actor.sy = 0;
+                    }
+                };
+                ScaleBy.prototype.isComplete = function (actor) {
+                    return this._stopped || ((Math.abs(this._actor.scale.x - this._startX) >= this._distanceX) &&
+                        (Math.abs(this._actor.scale.y - this._startY) >= this._distanceY));
+                };
+                ScaleBy.prototype.stop = function () {
+                    this._actor.sx = 0;
+                    this._actor.sy = 0;
+                    this._stopped = true;
+                };
+                ScaleBy.prototype.reset = function () {
+                    this._started = false;
+                };
+                return ScaleBy;
+            })();
+            Actions.ScaleBy = ScaleBy;
+            var Delay = (function () {
+                function Delay(actor, delay) {
+                    this._elapsedTime = 0;
+                    this._started = false;
+                    this._stopped = false;
+                    this._actor = actor;
+                    this._delay = delay;
+                }
+                Delay.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                    }
+                    this.x = this._actor.x;
+                    this.y = this._actor.y;
+                    this._elapsedTime += delta;
+                };
+                Delay.prototype.isComplete = function (actor) {
+                    return this._stopped || (this._elapsedTime >= this._delay);
+                };
+                Delay.prototype.stop = function () {
+                    this._stopped = true;
+                };
+                Delay.prototype.reset = function () {
+                    this._elapsedTime = 0;
+                    this._started = false;
+                };
+                return Delay;
+            })();
+            Actions.Delay = Delay;
+            var Blink = (function () {
+                function Blink(actor, timeVisible, timeNotVisible, numBlinks) {
+                    if (numBlinks === void 0) { numBlinks = 1; }
+                    this._timeVisible = 0;
+                    this._timeNotVisible = 0;
+                    this._elapsedTime = 0;
+                    this._totalTime = 0;
+                    this._stopped = false;
+                    this._started = false;
+                    this._actor = actor;
+                    this._timeVisible = timeVisible;
+                    this._timeNotVisible = timeNotVisible;
+                    this._duration = (timeVisible + timeNotVisible) * numBlinks;
+                }
+                Blink.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                    }
+                    this._elapsedTime += delta;
+                    this._totalTime += delta;
+                    if (this._actor.visible && this._elapsedTime >= this._timeVisible) {
+                        this._actor.visible = false;
+                        this._elapsedTime = 0;
+                    }
+                    if (!this._actor.visible && this._elapsedTime >= this._timeNotVisible) {
+                        this._actor.visible = true;
+                        this._elapsedTime = 0;
+                    }
+                    if (this.isComplete(this._actor)) {
+                        this._actor.visible = true;
+                    }
+                };
+                Blink.prototype.isComplete = function (actor) {
+                    return this._stopped || (this._totalTime >= this._duration);
+                };
+                Blink.prototype.stop = function () {
+                    this._actor.visible = true;
+                    this._stopped = true;
+                };
+                Blink.prototype.reset = function () {
+                    this._started = false;
+                    this._elapsedTime = 0;
+                    this._totalTime = 0;
+                };
+                return Blink;
+            })();
+            Actions.Blink = Blink;
+            var Fade = (function () {
+                function Fade(actor, endOpacity, speed) {
+                    this._multiplyer = 1;
+                    this._started = false;
+                    this._stopped = false;
+                    this._actor = actor;
+                    this._endOpacity = endOpacity;
+                    this._speed = speed;
+                    if (endOpacity < actor.opacity) {
+                        this._multiplyer = -1;
+                    }
+                }
+                Fade.prototype.update = function (delta) {
+                    if (!this._started) {
+                        this._started = true;
+                    }
+                    if (this._speed > 0) {
+                        this._actor.opacity += this._multiplyer * (Math.abs(this._actor.opacity - this._endOpacity) * delta) / this._speed;
+                    }
+                    this._speed -= delta;
+                    ex.Logger.getInstance().debug('actor opacity: ' + this._actor.opacity);
+                    if (this.isComplete(this._actor)) {
+                        this._actor.opacity = this._endOpacity;
+                    }
+                };
+                Fade.prototype.isComplete = function (actor) {
+                    return this._stopped || (Math.abs(this._actor.opacity - this._endOpacity) < 0.05);
+                };
+                Fade.prototype.stop = function () {
+                    this._stopped = true;
+                };
+                Fade.prototype.reset = function () {
+                    this._started = false;
+                };
+                return Fade;
+            })();
+            Actions.Fade = Fade;
+            var Die = (function () {
+                function Die(actor) {
+                    this._started = false;
+                    this._stopped = false;
+                    this._actor = actor;
+                }
+                Die.prototype.update = function (delta) {
+                    this._actor.actionQueue.clearActions();
+                    this._actor.kill();
+                    this._stopped = true;
+                };
+                Die.prototype.isComplete = function () {
+                    return this._stopped;
+                };
+                Die.prototype.stop = function () { return; };
+                Die.prototype.reset = function () { return; };
+                return Die;
+            })();
+            Actions.Die = Die;
+            var CallMethod = (function () {
+                function CallMethod(actor, method) {
+                    this._method = null;
+                    this._actor = null;
+                    this._hasBeenCalled = false;
+                    this._actor = actor;
+                    this._method = method;
+                }
+                CallMethod.prototype.update = function (delta) {
+                    this._method.call(this._actor);
+                    this._hasBeenCalled = true;
+                };
+                CallMethod.prototype.isComplete = function (actor) {
+                    return this._hasBeenCalled;
+                };
+                CallMethod.prototype.reset = function () {
+                    this._hasBeenCalled = false;
+                };
+                CallMethod.prototype.stop = function () {
+                    this._hasBeenCalled = true;
+                };
+                return CallMethod;
+            })();
+            Actions.CallMethod = CallMethod;
+            var Repeat = (function () {
+                function Repeat(actor, repeat, actions) {
+                    this._stopped = false;
+                    this._actor = actor;
+                    this._actionQueue = new ActionQueue(actor);
+                    this._repeat = repeat;
+                    this._originalRepeat = repeat;
+                    var i = 0, len = actions.length;
+                    for (i; i < len; i++) {
+                        actions[i].reset();
+                        this._actionQueue.add(actions[i]);
+                    }
+                    ;
+                }
+                Repeat.prototype.update = function (delta) {
+                    this.x = this._actor.x;
+                    this.y = this._actor.y;
+                    if (!this._actionQueue.hasNext()) {
+                        this._actionQueue.reset();
+                        this._repeat--;
+                    }
+                    this._actionQueue.update(delta);
+                };
+                Repeat.prototype.isComplete = function () {
+                    return this._stopped || (this._repeat <= 0);
+                };
+                Repeat.prototype.stop = function () {
+                    this._stopped = true;
+                };
+                Repeat.prototype.reset = function () {
+                    this._repeat = this._originalRepeat;
+                };
+                return Repeat;
+            })();
+            Actions.Repeat = Repeat;
+            var RepeatForever = (function () {
+                function RepeatForever(actor, actions) {
+                    this._stopped = false;
+                    this._actor = actor;
+                    this._actionQueue = new ActionQueue(actor);
+                    var i = 0, len = actions.length;
+                    for (i; i < len; i++) {
+                        actions[i].reset();
+                        this._actionQueue.add(actions[i]);
+                    }
+                    ;
+                }
+                RepeatForever.prototype.update = function (delta) {
+                    this.x = this._actor.x;
+                    this.y = this._actor.y;
+                    if (this._stopped) {
+                        return;
+                    }
+                    if (!this._actionQueue.hasNext()) {
+                        this._actionQueue.reset();
+                    }
+                    this._actionQueue.update(delta);
+                };
+                RepeatForever.prototype.isComplete = function () {
+                    return this._stopped;
+                };
+                RepeatForever.prototype.stop = function () {
+                    this._stopped = true;
+                    this._actionQueue.clearActions();
+                };
+                RepeatForever.prototype.reset = function () { return; };
+                return RepeatForever;
+            })();
+            Actions.RepeatForever = RepeatForever;
+            /**
+             * Action Queues
+             *
+             * Action queues are part of the [[ActionContext|Action API]] and
+             * store the list of actions to be executed for an [[Actor]].
+             *
+             * Actors implement [[Action.actionQueue]] which can be manipulated by
+             * advanced users to adjust the actions currently being executed in the
+             * queue.
+             */
+            var ActionQueue = (function () {
+                function ActionQueue(actor) {
+                    this._actions = [];
+                    this._completedActions = [];
+                    this._actor = actor;
+                }
+                ActionQueue.prototype.add = function (action) {
+                    this._actions.push(action);
+                };
+                ActionQueue.prototype.remove = function (action) {
+                    var index = this._actions.indexOf(action);
+                    this._actions.splice(index, 1);
+                };
+                ActionQueue.prototype.clearActions = function () {
+                    this._actions.length = 0;
+                    this._completedActions.length = 0;
+                    if (this._currentAction) {
+                        this._currentAction.stop();
+                    }
+                };
+                ActionQueue.prototype.getActions = function () {
+                    return this._actions.concat(this._completedActions);
+                };
+                ActionQueue.prototype.hasNext = function () {
+                    return this._actions.length > 0;
+                };
+                ActionQueue.prototype.reset = function () {
+                    this._actions = this.getActions();
+                    var i = 0, len = this._actions.length;
+                    for (i; i < len; i++) {
+                        this._actions[i].reset();
+                    }
+                    this._completedActions = [];
+                };
+                ActionQueue.prototype.update = function (delta) {
+                    if (this._actions.length > 0) {
+                        this._currentAction = this._actions[0];
+                        this._currentAction.update(delta);
+                        if (this._currentAction.isComplete(this._actor)) {
+                            this._completedActions.push(this._actions.shift());
+                        }
+                    }
+                };
+                return ActionQueue;
+            })();
+            Actions.ActionQueue = ActionQueue;
+        })(Actions = Internal.Actions || (Internal.Actions = {}));
+    })(Internal = ex.Internal || (ex.Internal = {}));
 })(ex || (ex = {}));
 /// <reference path="Action.ts"/>
 var ex;
@@ -3770,11 +4682,6 @@ var ex;
      * in future versions to support multiple timelines/scripts, better eventing,
      * and a more robust API to allow for complex and customized actions.
      *
-     * ## Known Issues
-     *
-     * **Rotation actions do not use shortest angle**
-     * [Issue #282](https://github.com/excaliburjs/Excalibur/issues/282)
-     *
      */
     var ActionContext = (function () {
         function ActionContext() {
@@ -3807,6 +4714,23 @@ var ex;
                 this._actors.splice(index, 1);
                 this._queues.splice(index, 1);
             }
+        };
+        /**
+         * This method will move an actor to the specified `x` and `y` position over the
+         * specified duration using a given [[EasingFunctions]] and return back the actor. This
+         * method is part of the actor 'Action' fluent API allowing action chaining.
+         * @param x         The x location to move the actor to
+         * @param y         The y location to move the actor to
+         * @param duration  The time it should take the actor to move to the new location in milliseconds
+         * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
+         */
+        ActionContext.prototype.easeTo = function (x, y, duration, easingFcn) {
+            if (easingFcn === void 0) { easingFcn = ex.EasingFunctions.Linear; }
+            var i = 0, len = this._queues.length;
+            for (i; i < len; i++) {
+                this._queues[i].add(new ex.Internal.Actions.EaseTo(this._actors[i], x, y, duration, easingFcn));
+            }
+            return this;
         };
         /**
          * This method will move an actor to the specified x and y position at the
@@ -4059,7 +4983,26 @@ var ex;
      * Groups are used for logically grouping Actors so they can be acted upon
      * in bulk.
      *
-     * @todo Document this
+     * ## Using Groups
+     *
+     * Groups can be used to detect collisions across a large nubmer of actors. For example
+     * perhaps a large group of "enemy" actors.
+     *
+     * ```typescript
+     * var enemyShips = engine.currentScene.createGroup("enemy");
+     * var enemies = [...]; // Large array of enemies;
+     * enemyShips.add(enemies);
+     *
+     * var player = new Actor();
+     * engine.currentScene.add(player);
+     *
+     * enemyShips.on('collision', function(ev: CollisionEvent){
+     *   if (e.other === player) {
+     *       //console.log("collision with player!");
+     *   }
+     * });
+     *
+     * ```
      */
     var Group = (function (_super) {
         __extends(Group, _super);
@@ -4467,6 +5410,13 @@ var ex;
      *
      * ```
      *
+     * ## Scene Lifecycle
+     *
+     * A [[Scene|scene]] has a basic lifecycle that dictacts how it is initialized, updated, and drawn. Once a [[Scene|scene]] is added to
+     * the [[Engine|engine]] it will follow this lifecycle.
+     *
+     * ![Scene Lifecycle](/assets/images/docs/SceneLifeCycle.png)
+     *
      * ## Extending scenes
      *
      * For more complex games, you might want more control over a scene in which
@@ -4587,32 +5537,12 @@ var ex;
             this._logger.debug('Scene.onDeactivate', this);
         };
         /**
-         * Publish an event to all actors in the scene
-         * @param eventType  The name of the event to publish
-         * @param event      The event object to send
-         *
-         * @obsolete Use [[emit]] instead.
-         */
-        Scene.prototype.publish = function (eventType, event) {
-            var i = 0, len = this.children.length;
-            for (i; i < len; i++) {
-                this.children[i].emit(eventType, event);
-            }
-        };
-        /**
-         * Alias for `emit`. Publish an event to all actors in the scene
-         * @param eventType  The name of the event to publish
-         * @param event      The event object to send
-         */
-        Scene.prototype.emit = function (eventType, event) {
-            this.publish(eventType, event);
-        };
-        /**
          * Updates all the actors and timers in the scene. Called by the [[Engine]].
          * @param engine  Reference to the current Engine
          * @param delta   The number of milliseconds since the last update
          */
         Scene.prototype.update = function (engine, delta) {
+            this.emit('preupdate', new ex.PreUpdateEvent(engine, delta, this));
             var i, len;
             // Cycle through actors updating UI actors
             for (i = 0, len = this.uiActors.length; i < len; i++) {
@@ -4651,6 +5581,7 @@ var ex;
                 timer.update(delta);
                 return !timer.complete;
             });
+            this.emit('postupdate', new ex.PostUpdateEvent(engine, delta, this));
         };
         /**
          * Draws all the actors in the Scene. Called by the [[Engine]].
@@ -4658,6 +5589,7 @@ var ex;
          * @param delta  The number of milliseconds since the last draw
          */
         Scene.prototype.draw = function (ctx, delta) {
+            this.emit('predraw', new ex.PreDrawEvent(ctx, delta, this));
             ctx.save();
             if (this.camera) {
                 this.camera.update(ctx, delta);
@@ -4689,12 +5621,14 @@ var ex;
                     this.uiActors[i].debugDraw(ctx);
                 }
             }
+            this.emit('postdraw', new ex.PreDrawEvent(ctx, delta, this));
         };
         /**
          * Draws all the actors' debug information in the Scene. Called by the [[Engine]].
          * @param ctx  The current rendering context
          */
         Scene.prototype.debugDraw = function (ctx) {
+            this.emit('predebugdraw', new ex.PreDebugDrawEvent(ctx, this));
             var i, len;
             for (i = 0, len = this.tileMaps.length; i < len; i++) {
                 this.tileMaps[i].debugDraw(ctx);
@@ -4705,6 +5639,7 @@ var ex;
             // todo possibly enable this with excalibur flags features?
             //this._collisionResolver.debugDraw(ctx, 20);
             this.camera.debugDraw(ctx);
+            this.emit('postdebugdraw', new ex.PostDebugDrawEvent(ctx, this));
         };
         /**
          * Checks whether an actor is contained in this scene or not
@@ -4884,32 +5819,44 @@ var ex;
 var ex;
 (function (ex) {
     /**
-     * Standard easing functions for motion in Excalibur
+     * Standard easing functions for motion in Excalibur, defined on a domain of [0, duration] and a range from [+startValue,+endValue]
+     * Given a time, the function will return a value from postive startValue to postive endValue.
      *
-     * easeInQuad: function (t) { return t * t },
-     * // decelerating to zero velocity
-     * easeOutQuad: function (t) { return t * (2 - t) },
-     * // acceleration until halfway, then deceleration
-     * easeInOutQuad: function (t) { return t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t },
-     * // accelerating from zero velocity
-     * easeInCubic: function (t) { return t * t * t },
-     * // decelerating to zero velocity
-     * easeOutCubic: function (t) { return (--t) * t * t + 1 },
-     * // acceleration until halfway, then deceleration
-     * easeInOutCubic: function (t) { return t < .5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1 },
-     * // accelerating from zero velocity
-     * easeInQuart: function (t) { return t * t * t * t },
-     * // decelerating to zero velocity
-     * easeOutQuart: function (t) { return 1 - (--t) * t * t * t },
-     * // acceleration until halfway, then deceleration
-     * easeInOutQuart: function (t) { return t < .5 ? 8 * t * t * t * t : 1 - 8 * (--t) * t * t * t },
-     * // accelerating from zero velocity
-     * easeInQuint: function (t) { return t * t * t * t * t },
-     * // decelerating to zero velocity
-     * easeOutQuint: function (t) { return 1 + (--t) * t * t * t * t },
-     * // acceleration until halfway, then deceleration
-     * easeInOutQuint: function (t) { return t < .5 ? 16 * t * t * t * t * t : 1 + 16 * (--t) * t * t * t * t }
+     * ```js
+     * function Linear (t) {
+     *    return t * t;
+     * }
      *
+     * // accelerating from zero velocity
+     * function EaseInQuad (t) {
+     *    return t * t;
+     * }
+     *
+     * // decelerating to zero velocity
+     * function EaseOutQuad (t) {
+     *    return t * (2 - t);
+     * }
+     *
+     * // acceleration until halfway, then deceleration
+     * function EaseInOutQuad (t) {
+     *    return t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+     * }
+     *
+     * // accelerating from zero velocity
+     * function EaseInCubic (t) {
+     *    return t * t * t;
+     * }
+     *
+     * // decelerating to zero velocity
+     * function EaseOutCubic (t) {
+     *    return (--t) * t * t + 1;
+     * }
+     *
+     * // acceleration until halfway, then deceleration
+     * function EaseInOutCubic (t) {
+     *    return t < .5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+     * }
+     * ```
      */
     var EasingFunctions = (function () {
         function EasingFunctions() {
@@ -5000,7 +5947,16 @@ var ex;
      *
      * // add player to the current scene
      * game.add(player);
+     *
      * ```
+     * `game.add` is a convenience method for adding an `Actor` to the current scene. The equivalent verbose call is `game.currentScene.add`.
+     *
+     * ## Actor Lifecycle
+     *
+     * An [[Actor|actor]] has a basic lifecycle that dictacts how it is initialized, updated, and drawn. Once an actor is part of a
+     * [[Scene|scene]], it will follow this lifecycle.
+     *
+     * ![Actor Lifecycle](/assets/images/docs/ActorLifeCycle.png)
      *
      * ## Extending actors
      *
@@ -5070,7 +6026,7 @@ var ex;
      *
      * The [[update]] method is passed an instance of the Excalibur engine, which
      * can be used to perform coordinate math or access global state. It is also
-     * passed `delta` which is the time since the last frame, which can be used
+     * passed `delta` which is the time in milliseconds since the last frame, which can be used
      * to perform time-based movement or time-based math (such as a timer).
      *
      * **TypeScript**
@@ -5111,13 +6067,16 @@ var ex;
      *
      * Override the [[draw]] method to perform any custom drawing. For simple games,
      * you don't need to override `draw`, instead you can use [[addDrawing]] and [[setDrawing]]
-     * to manipulate the textures/animations that the actor is using.
+     * to manipulate the [[Sprite|sprites]]/[[Animation|animations]] that the actor is using.
      *
      * ### Working with Textures & Sprites
      *
-     * A common usage is to use a [[Texture]] or [[Sprite]] for an actor. If you are using the [[Loader]] to
-     * pre-load assets, you can simply assign an actor a [[Texture]] to draw. You can
-     * also create a [[Texture.asSprite|sprite from a Texture]] to quickly create a [[Sprite]] instance.
+     * Think of a [[Texture|texture]] as the raw image file that will be loaded into Excalibur. In order for it to be drawn
+     * it must be converted to a [[Sprite.sprite]].
+     *
+     * A common usage is to load a [[Texture]] and convert it to a [[Sprite]] for an actor. If you are using the [[Loader]] to
+     * pre-load assets, you can simply assign an actor a [[Sprite]] to draw. You can also create a
+     * [[Texture.asSprite|sprite from a Texture]] to quickly create a [[Sprite]] instance.
      *
      * ```ts
      * // assume Resources.TxPlayer is a 80x80 png image
@@ -5156,7 +6115,8 @@ var ex;
      * ### Custom drawing
      *
      * You can always override the default drawing logic for an actor in the [[draw]] method,
-     * for example, to draw complex shapes or to use the raw Canvas API.
+     * for example, to draw complex shapes or to use the raw
+     * [[https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D|Canvas API]].
      *
      * Usually you should call `super.draw` to perform the base drawing logic, but other times
      * you may want to take over the drawing completely.
@@ -5187,33 +6147,45 @@ var ex;
      * ## Collision Detection
      *
      * By default Actors do not participate in collisions. If you wish to make
-     * an actor participate, you need to enable the [[CollisionDetectionModule]]
+     * an actor participate, you need to switch from the default [[CollisionType.PreventCollision|prevent collision]]
+     * to [[CollisionType.Active|active]], [[CollisionType.Fixed|fixed]], or [[CollisionType.Passive|passive]] collision type.
      *
      * ```ts
      * public Player extends ex.Actor {
      *   constructor() {
      *     super();
-     *
-     *     // enable the pipeline
-     *     this.pipelines.push(new ex.CollisionDetectionModule());
-     *
      *     // set preferred CollisionType
      *     this.collisionType = ex.CollisionType.Active;
      *   }
      * }
+     *
+     * // or set the collisionType
+     *
+     * var actor = new ex.Actor();
+     * actor.collisionType = ex.CollisionType.Active;
+     *
      * ```
-     *
      * ### Collision Groups
-     *
      * TODO, needs more information.
+     *
+     * ## Traits
+     *
+     * Traits describe actor behavior that occurs every update. If you wish to build a generic behavior
+     * without needing to extend every actor you can do it with a trait, a good example of this may be
+     * plugging in an external collision detection library like [[https://github.com/kripken/box2d.js/|Box2D]] or
+     * [[http://wellcaffeinated.net/PhysicsJS/|PhysicsJS]] by wrapping it in a trait. Removing traits can also make your
+     * actors more efficient.
+     *
+     * Default traits provided by Excalibur are [[Traits.CapturePointer|pointer capture]],
+     * [[Traits.CollisionDetection|tile map collision]], [[Traits.Movement|Euler style movement]],
+     * and [[Traits.OffscreenCulling|offscreen culling]].
+     *
      *
      * ## Known Issues
      *
      * **Actor bounding boxes do not rotate**
      * [Issue #68](https://github.com/excaliburjs/Excalibur/issues/68)
      *
-     * **Setting opacity when using a color doesn't do anything**
-     * [Issue #364](https://github.com/excaliburjs/Excalibur/issues/364)
      */
     var Actor = (function (_super) {
         __extends(Actor, _super);
@@ -5232,11 +6204,11 @@ var ex;
              */
             this.id = Actor.maxId++;
             /**
-             * The x coordinate of the actor (left edge)
+             * The x coordinate of the actor (middle if anchor is (0.5, 0.5) left edge if anchor is (0, 0))
              */
             this.x = 0;
             /**
-             * The y coordinate of the actor (top edge)
+             * The y coordinate of the actor (middle if anchor is (0.5, 0.5) and top edge if anchor is (0, 0))
              */
             this.y = 0;
             this._height = 0;
@@ -5354,7 +6326,7 @@ var ex;
             }
             // Build default pipeline
             this.traits.push(new ex.Traits.Movement());
-            //this.pipeline.push(new ex.CollisionDetectionModule());
+            this.traits.push(new ex.Traits.CollisionDetection());
             this.traits.push(new ex.Traits.OffscreenCulling());
             this.traits.push(new ex.Traits.CapturePointer());
             this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
@@ -5483,24 +6455,6 @@ var ex;
             this.scene.cleanupDrawTree(this);
             this._zIndex = newIndex;
             this.scene.updateDrawTree(this);
-        };
-        /**
-         * Artificially trigger an event on an actor, useful when creating custom events.
-         * @param eventName   The name of the event to trigger
-         * @param event       The event object to pass to the callback
-         *
-         * @obsolete  Use [[emit]] instead.
-         */
-        Actor.prototype.triggerEvent = function (eventName, event) {
-            this.eventDispatcher.emit(eventName, event);
-        };
-        /**
-         * Alias for `emit`. Artificially trigger an event on an actor, useful when creating custom events.
-         * @param eventName   The name of the event to trigger
-         * @param event       The event object to pass to the callback
-         */
-        Actor.prototype.emit = function (eventName, event) {
-            this.eventDispatcher.emit(eventName, event);
         };
         /**
          * Adds an actor to a collision group. Actors with no named collision groups are
@@ -5727,6 +6681,7 @@ var ex;
         };
         /**
          * Clears all queued actions from the Actor
+         * @obsolete Use [[ActionContext.clearActions|Actor.actions.clearActions]]
          */
         Actor.prototype.clearActions = function () {
             this.actionQueue.clearActions();
@@ -5739,6 +6694,7 @@ var ex;
          * @param y         The y location to move the actor to
          * @param duration  The time it should take the actor to move to the new location in milliseconds
          * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
+         * @obsolete Use [[ActionContext.easeTo|Actor.actions.easeTo]]
          */
         Actor.prototype.easeTo = function (x, y, duration, easingFcn) {
             if (easingFcn === void 0) { easingFcn = ex.EasingFunctions.Linear; }
@@ -5752,6 +6708,7 @@ var ex;
          * @param x       The x location to move the actor to
          * @param y       The y location to move the actor to
          * @param speed   The speed in pixels per second to move
+         * @obsolete Use [[ActionContext.moveTo|Actor.actions.moveTo]]
          */
         Actor.prototype.moveTo = function (x, y, speed) {
             this.actionQueue.add(new ex.Internal.Actions.MoveTo(this, x, y, speed));
@@ -5764,6 +6721,7 @@ var ex;
          * @param x         The x location to move the actor to
          * @param y         The y location to move the actor to
          * @param duration  The time it should take the actor to move to the new location in milliseconds
+         * @obsolete Use [[ActionContext.moveBy|Actor.actions.moveBy]]
          */
         Actor.prototype.moveBy = function (x, y, duration) {
             this.actionQueue.add(new ex.Internal.Actions.MoveBy(this, x, y, duration));
@@ -5775,6 +6733,7 @@ var ex;
          * method is part of the actor 'Action' fluent API allowing action chaining.
          * @param angleRadians  The angle to rotate to in radians
          * @param speed         The angular velocity of the rotation specified in radians per second
+         * @obsolete Use [[ActionContext.rotateTo|Actor.actions.rotateTo]]
          */
         Actor.prototype.rotateTo = function (angleRadians, speed, rotationType) {
             this.actionQueue.add(new ex.Internal.Actions.RotateTo(this, angleRadians, speed, rotationType));
@@ -5786,6 +6745,7 @@ var ex;
          * of the actor 'Action' fluent API allowing action chaining.
          * @param angleRadians  The angle to rotate to in radians
          * @param duration          The time it should take the actor to complete the rotation in milliseconds
+         * @obsolete Use [[ActionContext.rotateBy|ex.Actor.actions.rotateBy]]
          */
         Actor.prototype.rotateBy = function (angleRadians, duration, rotationType) {
             this.actionQueue.add(new ex.Internal.Actions.RotateBy(this, angleRadians, duration, rotationType));
@@ -5800,6 +6760,7 @@ var ex;
          * @param sizeY  The scaling factor in the y direction to apply
          * @param speedX The speed of scaling in the x direction specified in magnitude increase per second
          * @param speedY The speed of scaling in the y direction specified in magnitude increase per second
+         * @obsolete Use [[ActionContext.scaleTo|Actor.actions.scaleTo]]
          */
         Actor.prototype.scaleTo = function (sizeX, sizeY, speedX, speedY) {
             this.actionQueue.add(new ex.Internal.Actions.ScaleTo(this, sizeX, sizeY, speedX, speedY));
@@ -5812,6 +6773,7 @@ var ex;
          * @param sizeX     The scaling factor in the x direction to apply
          * @param sizeY     The scaling factor in the y direction to apply
          * @param duration  The time it should take to complete the scaling in milliseconds
+         * @obsolete Use [[ActionContext.scaleBy|Actor.actions.scaleBy]]
          */
         Actor.prototype.scaleBy = function (sizeX, sizeY, duration) {
             this.actionQueue.add(new ex.Internal.Actions.ScaleBy(this, sizeX, sizeY, duration));
@@ -5825,6 +6787,7 @@ var ex;
          * @param timeVisible     The amount of time to stay visible per blink in milliseconds
          * @param timeNotVisible  The amount of time to stay not visible per blink in milliseconds
          * @param numBlinks       The number of times to blink
+         * @obsolete Use [[ActionContext.blink|Actor.actions.blink]]
          */
         Actor.prototype.blink = function (timeVisible, timeNotVisible, numBlinks) {
             if (numBlinks === void 0) { numBlinks = 1; }
@@ -5837,6 +6800,7 @@ var ex;
          * part of the actor 'Action' fluent API allowing action chaining.
          * @param opacity   The ending opacity
          * @param duration  The time it should take to fade the actor (in milliseconds)
+         * @obsolete Use [[ActionContext.fade|Actor.actions.fade]]
          */
         Actor.prototype.fade = function (opacity, duration) {
             this.actionQueue.add(new ex.Internal.Actions.Fade(this, opacity, duration));
@@ -5847,6 +6811,7 @@ var ex;
          * `duration` (in milliseconds). This method is part of the actor
          * 'Action' fluent API allowing action chaining.
          * @param duration The amount of time to delay the next action in the queue from executing in milliseconds
+         * @obsolete Use [[ActionContext.delay|Actor.actions.delay]]
          */
         Actor.prototype.delay = function (duration) {
             this.actionQueue.add(new ex.Internal.Actions.Delay(this, duration));
@@ -5856,6 +6821,7 @@ var ex;
          * This method will add an action to the queue that will remove the actor from the
          * scene once it has completed its previous actions. Any actions on the
          * action queue after this action will not be executed.
+         * @obsolete Use [[ActionContext.die|Actor.actions.die]]
          */
         Actor.prototype.die = function () {
             this.actionQueue.add(new ex.Internal.Actions.Die(this));
@@ -5865,6 +6831,7 @@ var ex;
          * This method allows you to call an arbitrary method as the next action in the
          * action queue. This is useful if you want to execute code in after a specific
          * action, i.e An actor arrives at a destination after traversing a path
+         * @obsolete Use [[ActionContext.callMethod|Actor.actions.callMethod]]
          */
         Actor.prototype.callMethod = function (method) {
             this.actionQueue.add(new ex.Internal.Actions.CallMethod(this, method));
@@ -5877,6 +6844,7 @@ var ex;
          * the actor 'Action' fluent API allowing action chaining
          * @param times The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will
          * repeat forever
+         * @obsolete Use [[ActionContext.repeat|Actor.actions.repeat]]
          */
         Actor.prototype.repeat = function (times) {
             if (!times) {
@@ -5890,6 +6858,7 @@ var ex;
          * This method will cause the actor to repeat all of the previously
          * called actions forever. This method is part of the actor 'Action'
          * fluent API allowing action chaining.
+         * @obsolete Use [[ActionContext.repeatForever|Actor.actions.repeatForever]]
          */
         Actor.prototype.repeatForever = function () {
             this.actionQueue.add(new ex.Internal.Actions.RepeatForever(this, this.actionQueue.getActions()));
@@ -5899,6 +6868,7 @@ var ex;
          * This method will cause the actor to follow another at a specified distance
          * @param actor           The actor to follow
          * @param followDistance  The distance to maintain when following, if not specified the actor will follow at the current distance.
+         * @obsolete Use [[ActionContext.follow|Actor.actions.follow]]
          */
         Actor.prototype.follow = function (actor, followDistance) {
             if (typeof followDistance === 'undefined') {
@@ -5914,6 +6884,7 @@ var ex;
          * collide ("meet") at a specified speed.
          * @param actor  The actor to meet
          * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
+         * @obsolete Use [[ActionContext.meet|Actor.actions.meet]]
          */
         Actor.prototype.meet = function (actor, speed) {
             if (typeof speed === 'undefined') {
@@ -5927,6 +6898,7 @@ var ex;
         /**
          * Returns a promise that resolves when the current action queue up to now
          * is finished.
+         * @obsolete Use [[ActionContext.asPromise|Actor.actions.asPromise]]
          */
         Actor.prototype.asPromise = function () {
             var complete = new ex.Promise();
@@ -5949,6 +6921,7 @@ var ex;
                 this.eventDispatcher.emit('initialize', new ex.InitializeEvent(engine));
                 this._isInitialized = true;
             }
+            this.emit('preupdate', new ex.PreUpdateEvent(engine, delta, this));
             var eventDispatcher = this.eventDispatcher;
             // Update action queue
             this.actionQueue.update(delta);
@@ -5960,7 +6933,8 @@ var ex;
             for (var i = 0; i < this.traits.length; i++) {
                 this.traits[i].update(this, engine, delta);
             }
-            eventDispatcher.emit(ex.EventType[ex.EventType.Update], new ex.UpdateEvent(delta));
+            eventDispatcher.emit('update', new ex.UpdateEvent(delta));
+            this.emit('postupdate', new ex.PostUpdateEvent(engine, delta, this));
         };
         /**
          * Called by the Engine, draws the actor to the screen
@@ -5970,9 +6944,10 @@ var ex;
         Actor.prototype.draw = function (ctx, delta) {
             var anchorPoint = this._getCalculatedAnchor();
             ctx.save();
-            ctx.scale(this.scale.x, this.scale.y);
             ctx.translate(this.x, this.y);
+            ctx.scale(this.scale.x, this.scale.y);
             ctx.rotate(this.rotation);
+            this.emit('predraw', new ex.PreDrawEvent(ctx, delta, this));
             // calculate changing opacity
             if (this.previousOpacity !== this.opacity) {
                 for (var drawing in this.frames) {
@@ -6005,6 +6980,7 @@ var ex;
                     this.children[i].draw(ctx, delta);
                 }
             }
+            this.emit('postdraw', new ex.PostDrawEvent(ctx, delta, this));
             ctx.restore();
         };
         /**
@@ -6012,6 +6988,7 @@ var ex;
          * @param ctx The rendering context
          */
         Actor.prototype.debugDraw = function (ctx) {
+            this.emit('predebugdraw', new ex.PreDebugDrawEvent(ctx, this));
             // Draw actor bounding box
             var bb = this.getBounds();
             bb.debugDraw(ctx);
@@ -6057,6 +7034,7 @@ var ex;
                 this.children[i].debugDraw(ctx);
             }
             ctx.restore();
+            this.emit('postdebugdraw', new ex.PostDebugDrawEvent(ctx, this));
         };
         /**
          * Indicates the next id to be set
@@ -6089,6 +7067,7 @@ var ex;
          * Actors with the `Elastic` setting will behave the same as `Active`, except that they will
          * "bounce" in the opposite direction given their velocity dx/dy. This is a naive implementation meant for
          * prototyping, for a more robust elastic collision listen to the "collision" event and perform your custom logic.
+         * @obsolete This behavior will be handled by a future physics system
          */
         CollisionType[CollisionType["Elastic"] = 3] = "Elastic";
         /**
@@ -6348,23 +7327,23 @@ var ex;
 var ex;
 (function (ex) {
     /**
-     * An enum representing all of the built in event types for Excalibur
-     * @obsolete Phasing this out in favor of classes
-     */
-    (function (EventType) {
-        EventType[EventType["Collision"] = 0] = "Collision";
-        EventType[EventType["EnterViewPort"] = 1] = "EnterViewPort";
-        EventType[EventType["ExitViewPort"] = 2] = "ExitViewPort";
-        EventType[EventType["Blur"] = 3] = "Blur";
-        EventType[EventType["Focus"] = 4] = "Focus";
-        EventType[EventType["Update"] = 5] = "Update";
-        EventType[EventType["Activate"] = 6] = "Activate";
-        EventType[EventType["Deactivate"] = 7] = "Deactivate";
-        EventType[EventType["Initialize"] = 8] = "Initialize";
-    })(ex.EventType || (ex.EventType = {}));
-    var EventType = ex.EventType;
-    /**
-     * Base event type in Excalibur that all other event types derive from.
+     * Base event type in Excalibur that all other event types derive from. Not all event types are thrown on all Excalibur game objects,
+     * some events are unique to a type, others are not.
+     *
+     * Excalibur events follow the convention that the name of the thrown event for listening will be the same as the Event object in all
+     * lower case with the 'Event' suffix removed.
+     *
+     * For example:
+     * - PreDrawEvent event object and "predraw" as the event name
+     *
+     * ```typescript
+     *
+     * actor.on('predraw', (evtObj: PreDrawEvent) => {
+     *    // do some pre drawing
+     * })
+     *
+     * ```
+     *
      */
     var GameEvent = (function () {
         function GameEvent() {
@@ -6373,7 +7352,154 @@ var ex;
     })();
     ex.GameEvent = GameEvent;
     /**
-     * Subscribe event thrown when handlers for events other than subscribe are added
+     * The 'predraw' event is emitted on actors, scenes, and engine before drawing starts. Actors' predraw happens inside their graphics
+     * transform so that all drawing takes place with the actor as the origin.
+     *
+     */
+    var PreDrawEvent = (function (_super) {
+        __extends(PreDrawEvent, _super);
+        function PreDrawEvent(ctx, delta, target) {
+            _super.call(this);
+            this.ctx = ctx;
+            this.delta = delta;
+            this.target = target;
+        }
+        return PreDrawEvent;
+    })(GameEvent);
+    ex.PreDrawEvent = PreDrawEvent;
+    /**
+     * The 'postdraw' event is emitted on actors, scenes, and engine after drawing finishes. Actors' postdraw happens inside their graphics
+     * transform so that all drawing takes place with the actor as the origin.
+     *
+     */
+    var PostDrawEvent = (function (_super) {
+        __extends(PostDrawEvent, _super);
+        function PostDrawEvent(ctx, delta, target) {
+            _super.call(this);
+            this.ctx = ctx;
+            this.delta = delta;
+            this.target = target;
+        }
+        return PostDrawEvent;
+    })(GameEvent);
+    ex.PostDrawEvent = PostDrawEvent;
+    /**
+     * The 'predebugdraw' event is emitted on actors, scenes, and engine before debug drawing starts.
+     */
+    var PreDebugDrawEvent = (function (_super) {
+        __extends(PreDebugDrawEvent, _super);
+        function PreDebugDrawEvent(ctx, target) {
+            _super.call(this);
+            this.ctx = ctx;
+            this.target = target;
+        }
+        return PreDebugDrawEvent;
+    })(GameEvent);
+    ex.PreDebugDrawEvent = PreDebugDrawEvent;
+    /**
+     * The 'postdebugdraw' event is emitted on actors, scenes, and engine after debug drawing starts.
+     */
+    var PostDebugDrawEvent = (function (_super) {
+        __extends(PostDebugDrawEvent, _super);
+        function PostDebugDrawEvent(ctx, target) {
+            _super.call(this);
+            this.ctx = ctx;
+            this.target = target;
+        }
+        return PostDebugDrawEvent;
+    })(GameEvent);
+    ex.PostDebugDrawEvent = PostDebugDrawEvent;
+    /**
+     * The 'preupdate' event is emitted on actors, scenes, and engine before the update starts.
+     */
+    var PreUpdateEvent = (function (_super) {
+        __extends(PreUpdateEvent, _super);
+        function PreUpdateEvent(engine, delta, target) {
+            _super.call(this);
+            this.engine = engine;
+            this.delta = delta;
+            this.target = target;
+        }
+        return PreUpdateEvent;
+    })(GameEvent);
+    ex.PreUpdateEvent = PreUpdateEvent;
+    /**
+     * The 'postupdate' event is emitted on actors, scenes, and engine after the update ends. This is equivalent to the obsolete 'update'
+     * event.
+     */
+    var PostUpdateEvent = (function (_super) {
+        __extends(PostUpdateEvent, _super);
+        function PostUpdateEvent(engine, delta, target) {
+            _super.call(this);
+            this.engine = engine;
+            this.delta = delta;
+            this.target = target;
+        }
+        return PostUpdateEvent;
+    })(GameEvent);
+    ex.PostUpdateEvent = PostUpdateEvent;
+    /**
+     * Event received when a gamepad is connected to Excalibur. [[Input.Gamepads|engine.input.gamepads]] receives this event.
+     */
+    var GamepadConnectEvent = (function (_super) {
+        __extends(GamepadConnectEvent, _super);
+        function GamepadConnectEvent(index, gamepad) {
+            _super.call(this);
+            this.index = index;
+            this.gamepad = gamepad;
+        }
+        return GamepadConnectEvent;
+    })(GameEvent);
+    ex.GamepadConnectEvent = GamepadConnectEvent;
+    /**
+     * Event received when a gamepad is disconnected from Excalibur. [[Input.Gamepads|engine.input.gamepads]] receives this event.
+     */
+    var GamepadDisconnectEvent = (function (_super) {
+        __extends(GamepadDisconnectEvent, _super);
+        function GamepadDisconnectEvent(index) {
+            _super.call(this);
+            this.index = index;
+        }
+        return GamepadDisconnectEvent;
+    })(GameEvent);
+    ex.GamepadDisconnectEvent = GamepadDisconnectEvent;
+    /**
+     * Gamepad button event. See [[Gamepads]] for information on responding to controller input. [[Gamepad]] instances receive this event;
+     */
+    var GamepadButtonEvent = (function (_super) {
+        __extends(GamepadButtonEvent, _super);
+        /**
+         * @param button  The Gamepad button
+         * @param value   A numeric value between 0 and 1
+         */
+        function GamepadButtonEvent(button, value) {
+            _super.call(this);
+            this.button = button;
+            this.value = value;
+        }
+        return GamepadButtonEvent;
+    })(ex.GameEvent);
+    ex.GamepadButtonEvent = GamepadButtonEvent;
+    /**
+     * Gamepad axis event. See [[Gamepads]] for information on responding to controller input. [[Gamepad]] instances receive this event;
+     */
+    var GamepadAxisEvent = (function (_super) {
+        __extends(GamepadAxisEvent, _super);
+        /**
+         * @param axis  The Gamepad axis
+         * @param value A numeric value between -1 and 1
+         */
+        function GamepadAxisEvent(axis, value) {
+            _super.call(this);
+            this.axis = axis;
+            this.value = value;
+        }
+        return GamepadAxisEvent;
+    })(ex.GameEvent);
+    ex.GamepadAxisEvent = GamepadAxisEvent;
+    /**
+     * Subscribe event thrown when handlers for events other than subscribe are added. Meta event that is received by
+     * [[EventDispatcher|event dispatchers]].
      */
     var SubscribeEvent = (function (_super) {
         __extends(SubscribeEvent, _super);
@@ -6386,7 +7512,8 @@ var ex;
     })(GameEvent);
     ex.SubscribeEvent = SubscribeEvent;
     /**
-     * Unsubscribe event thrown when handlers for events other than unsubscribe are removed
+     * Unsubscribe event thrown when handlers for events other than unsubscribe are removed. Meta event that is received by
+     * [[EventDispatcher|event dispatchers]].
      */
     var UnsubscribeEvent = (function (_super) {
         __extends(UnsubscribeEvent, _super);
@@ -6399,7 +7526,7 @@ var ex;
     })(GameEvent);
     ex.UnsubscribeEvent = UnsubscribeEvent;
     /**
-     * Event received by the Engine when the browser window is visible
+     * Event received by the [[Engine]] when the browser window is visible on a screen.
      */
     var VisibleEvent = (function (_super) {
         __extends(VisibleEvent, _super);
@@ -6410,7 +7537,7 @@ var ex;
     })(GameEvent);
     ex.VisibleEvent = VisibleEvent;
     /**
-     * Event received by the Engine when the browser window is hidden
+     * Event received by the [[Engine]] when the browser window is hidden from all screens.
      */
     var HiddenEvent = (function (_super) {
         __extends(HiddenEvent, _super);
@@ -6421,7 +7548,7 @@ var ex;
     })(GameEvent);
     ex.HiddenEvent = HiddenEvent;
     /**
-     * Event thrown on an actor when a collision has occured
+     * Event thrown on an [[Actor|actor]] when a collision has occured
      */
     var CollisionEvent = (function (_super) {
         __extends(CollisionEvent, _super);
@@ -6441,7 +7568,8 @@ var ex;
     })(GameEvent);
     ex.CollisionEvent = CollisionEvent;
     /**
-     * Event thrown on a game object on Excalibur update
+     * Event thrown on a game object on Excalibur update, this is equivalent to postupdate.
+     * @obsolete Please use [[PostUpdateEvent|postupdate]], or [[PreUpdateEvent|preupdate]].
      */
     var UpdateEvent = (function (_super) {
         __extends(UpdateEvent, _super);
@@ -6456,7 +7584,7 @@ var ex;
     })(GameEvent);
     ex.UpdateEvent = UpdateEvent;
     /**
-     * Event thrown on an Actor only once before the first update call
+     * Event thrown on an [[Actor]] only once before the first update call
      */
     var InitializeEvent = (function (_super) {
         __extends(InitializeEvent, _super);
@@ -6471,7 +7599,7 @@ var ex;
     })(GameEvent);
     ex.InitializeEvent = InitializeEvent;
     /**
-     * Event thrown on a Scene on activation
+     * Event thrown on a [[Scene]] on activation
      */
     var ActivateEvent = (function (_super) {
         __extends(ActivateEvent, _super);
@@ -6486,7 +7614,7 @@ var ex;
     })(GameEvent);
     ex.ActivateEvent = ActivateEvent;
     /**
-     * Event thrown on a Scene on deactivation
+     * Event thrown on a [[Scene]] on deactivation
      */
     var DeactivateEvent = (function (_super) {
         __extends(DeactivateEvent, _super);
@@ -6501,7 +7629,7 @@ var ex;
     })(GameEvent);
     ex.DeactivateEvent = DeactivateEvent;
     /**
-     * Event thrown on an Actor when it completely leaves the screen.
+     * Event thrown on an [[Actor]] when it completely leaves the screen.
      */
     var ExitViewPortEvent = (function (_super) {
         __extends(ExitViewPortEvent, _super);
@@ -6512,7 +7640,7 @@ var ex;
     })(GameEvent);
     ex.ExitViewPortEvent = ExitViewPortEvent;
     /**
-     * Event thrown on an Actor when it completely leaves the screen.
+     * Event thrown on an [[Actor]] when it completely leaves the screen.
      */
     var EnterViewPortEvent = (function (_super) {
         __extends(EnterViewPortEvent, _super);
@@ -6529,8 +7657,8 @@ var ex;
     /**
      * Excalibur's internal event dispatcher implementation.
      * Callbacks are fired immediately after an event is published.
-     * Typically you'd use [[Class.eventDispatcher]] since most classes in
-     * Excalibur inherit from [[Class]]. You'd rarely create an `EventDispatcher`
+     * Typically you will use [[Class.eventDispatcher]] since most classes in
+     * Excalibur inherit from [[Class]]. You will rarely create an `EventDispatcher`
      * yourself.
      *
      * When working with events, be sure to keep in mind the order of subscriptions
@@ -6574,7 +7702,7 @@ var ex;
      * ## Example: Pub/Sub with Excalibur
      *
      * You can also create an EventDispatcher for any arbitrary object, for example
-     * a global game event aggregator (`vent`). Anything in your game can subscribe to
+     * a global game event aggregator (shown below as `vent`). Anything in your game can subscribe to
      * it, if the event aggregator is in the global scope.
      *
      * *Warning:* This can easily get out of hand. Avoid this usage, it just serves as
@@ -7344,7 +8472,7 @@ var ex;
      * extend [[Actor]] allowing you to use all of the features that come with.
      *
      * The easiest way to create a `ParticleEmitter` is to use the
-     * [Particle Tester](http://excaliburjs.com/particle-tester/).
+     * [Particle Tester](http://excaliburjs.com/particle-tester/) to generate code for emitters.
      *
      * ## Example: Adding an emitter
      *
@@ -7352,8 +8480,22 @@ var ex;
      * var actor = new ex.Actor(...);
      * var emitter = new ex.ParticleEmitter(...);
      *
+     * emitter.emitterType = ex.EmitterType.Circle; // Shape of emitter nozzle
+     * emitter.radius = 5;
+     * emitter.minVel = 100;
+     * emitter.maxVel = 200;
+     * emitter.minAngle = 0;
+     * emitter.maxAngle = Math.PI * 2;
+     * emitter.emitRate = 300; // 300 particles/second
+     * emitter.opacity = 0.5;
+     * emitter.fadeFlag = true; // fade particles overtime
+     * emitter.particleLife = 1000; // in milliseconds = 1 sec
+     * emitter.maxSize = 10; // in pixels
+     * emitter.minSize = 1;
+     * emitter.particleColor = ex.Color.Rose;
+     *
      * // set emitter settings
-     * emitter.isEmitting = true;
+     * emitter.isEmitting = true;  // should the emitter be emitting
      *
      * // add the emitter as a child actor, it will draw on top of the parent actor
      * // and move with the parent
@@ -8576,7 +9718,8 @@ var ex;
      * is loaded, you can [[Sound.play|play]] it.
      *
      * ```js
-     * var sndPlayerDeath = new ex.Sound("/assets/snd/player-death.mp3", "/assets/snd/player-wav.mp3");
+     * // define multiple sources (such as mp3/wav/ogg) as a browser fallback
+     * var sndPlayerDeath = new ex.Sound("/assets/snd/player-death.mp3", "/assets/snd/player-death.wav");
      *
      * var loader = new ex.Loader(sndPlayerDeath);
      *
@@ -9588,7 +10731,7 @@ var ex;
          *
          * ## Events
          *
-         * You can subscribe to pointer events through `engine.input.pointers`. A [[PointerEvent]] object is
+         * You can subscribe to pointer events through `engine.input.pointers.on`. A [[PointerEvent]] object is
          * passed to your handler which offers information about the pointer input being received.
          *
          * - `down` - When a pointer is pressed down (any mouse button or finger press)
@@ -9611,7 +10754,7 @@ var ex;
          * complex input and having control over every interaction.
          *
          * You can also use [[PointerScope.Canvas]] to only scope event handling to the game
-         * canvas. This is useful if you don't care about events that occur outside.
+         * canvas. This is useful if you don't care about events that occur outside the game.
          *
          * One real-world example is dragging and gestures. Sometimes a player will drag their
          * finger outside your game and then into it, expecting it to work. If [[PointerScope]]
@@ -9620,8 +10763,8 @@ var ex;
          *
          * ## Responding to input
          *
-         * The primary pointer can be a mouse, stylus, or 1 finger touch event. You
-         * can inspect what it is from the [[PointerEvent]] handled.
+         * The primary pointer can be a mouse, stylus, or single finger touch event. You
+         * can inspect what type of pointer it is from the [[PointerEvent]] handled.
          *
          * ```js
          * engine.input.pointers.primary.on("down", function (pe) {
@@ -9673,9 +10816,10 @@ var ex;
          * By default, [[Actor|Actors]] do not participate in pointer events. In other
          * words, when you "click" an Actor, it will not throw an event **for that Actor**,
          * only a generic pointer event for the game. This is to keep performance
-         * high and allow actors to "opt-in" to handling pointer events.
+         * high and allow actors to "opt-in" to handling pointer events. Actors will automatically
+         * opt-in if a pointer related event handler is set on them `actor.on("pointerdown", () => {})` for example.
          *
-         * To opt-in, set [[Actor.enableCapturePointer]] to `true` and the [[Actor]] will
+         * To opt-in manually, set [[Actor.enableCapturePointer]] to `true` and the [[Actor]] will
          * start publishing `pointerup` and `pointerdown` events. `pointermove` events
          * will not be published by default due to performance implications. If you want
          * an actor to receive move events, set [[ICapturePointerConfig.captureMoveEvents]] to
@@ -10006,13 +11150,13 @@ var ex;
          * Keyboard input
          *
          * Working with the keyboard is easy in Excalibur. You can inspect
-         * whether a button is [[Keyboard.isKeyDown|down]], [[Keyboard.isKeyUp|up]], or
-         * [[Keyboard.isKeyPressed|pressed]]. Common keys are held in the [[Input.Keys]]
+         * whether a button was just [[Keyboard.wasPressed|pressed]] or [[Keyboard.wasReleased|released]] this frame, or
+         * if the key is currently being [[Keyboard.isHeld|held]] down. Common keys are held in the [[Input.Keys]]
          * enumeration but you can pass any character code to the methods.
          *
          * Excalibur subscribes to the browser events and keeps track of
-         * what keys are currently down, up, or pressed. A key can be pressed
-         * for multiple frames, but a key cannot be down or up for more than one
+         * what keys are currently held, released, or pressed. A key can be held
+         * for multiple frames, but a key cannot be pressed or released for more than one subsequent
          * update frame.
          *
          * ## Inspecting the keyboard
@@ -10020,18 +11164,35 @@ var ex;
          * You can inspect [[Engine.input]] to see what the state of the keyboard
          * is during an update.
          *
+         * It is recommended that keyboard actions that directly effect actors be handled like so to improve code quality:
          * ```ts
          * class Player extends ex.Actor {
          *   public update(engine, delta) {
          *
-         *     if (engine.input.keyboard.isKeyPressed(ex.Input.Keys.W) ||
-         *         engine.input.keyboard.isKeyPressed(ex.Input.Keys.Up)) {
+         *     if (engine.input.keyboard.isHeld(ex.Input.Keys.W) ||
+         *         engine.input.keyboard.isHeld(ex.Input.Keys.Up)) {
          *
          *       player._moveForward();
          *     }
          *
+         *     if (engine.input.keyboard.wasPressed(ex.Input.Keys.Right)) {
+         *       player._fire();
+         *     }
          *   }
          * }
+         * ```
+         * ## Events
+         * You can subscribe to keyboard events through `engine.input.keyboard.on`. A [[KeyEvent]] object is
+         * passed to your handler which offers information about the key that was part of the event.
+         *
+         * - `press` - When a key was just pressed this frame
+         * - `release` - When a key was just released this frame
+         * - `hold` - Whenever a key is in the down position
+         *
+         * ```ts
+         * engine.input.pointers.primary.on("press", (evt: KeyEvent) => {...});
+         * engine.input.pointers.primary.on("release", (evt: KeyEvent) => {...});
+         * engine.input.pointers.primary.on("hold", (evt: KeyEvent) => {...});
          * ```
          */
         var Keyboard = (function (_super) {
@@ -10126,10 +11287,59 @@ var ex;
          * You can query any [[Gamepad|Gamepads]] that are connected or listen to events ("button" and "axis").
          *
          * You must opt-in to controller support ([[Gamepads.enabled]]) because it is a polling-based
-         * API, so we have to check it each update frame.
+         * API, so we have to check it each update frame. If an gamepad related event handler is set, you will
+         * automatically opt-in to controller polling.
          *
-         * Any number of gamepads are supported using the [[Gamepads.at]] method. If a [[Gamepad]] is
+         * HTML5 Gamepad API only supports a maximum of 4 gamepads. You can access them using the [[Gamepads.at]] method. If a [[Gamepad]] is
          * not connected, it will simply not throw events.
+         *
+         * ## Gamepad Filtering
+         *
+         * Different browsers/devices are sometimes loose about the devices they consider Gamepads, you can set minimum device requirements with
+         * `engine.inpute.gamepads.setMinimumGamepadConfiguration` so that undesired devices are not reported to you (Touchpads, Mice, Web
+         * Cameras, etc.).
+         * ```js
+         * // ensures that only gamepads with at least 4 axis and 8 buttons are reported for events
+         * engine.input.gamepads.setMinimumGamepadConfiguration({
+         *    axis: 4,
+         *    buttons: 8
+         * });
+         * ```
+         *
+         * ## Events
+         *
+         * You can subscribe to gamepad connect and disconnect events through `engine.input.gamepads.on`.
+         * A [[GamepadConnectEvent]] or [[GamepadDisconnectEvent]] will be passed to you.
+         *
+         * - `connect` - When a gamepad connects it will fire this event and pass a [[GamepadConnectEvent]] with a reference to the gamepad.
+         * - `disconnect` - When a gamepad disconnects it will fire this event and pass a [[GamepadDisconnectEvent]]
+         *
+         * Once you have a reference to a gamepad you may listen to changes on that gamepad with `.on`. A [[GamepadButtonEvent]] or
+         * [[GamepadAxisEvent]] will be passed to you.
+         * - `button` - Whenever a button is pressed on the game
+         * - `axis` - Whenever an axis
+         *
+         * ```ts
+         *
+         * engine.input.gamepads.on('connect', (ce: ex.Input.GamepadConnectEvent) => {
+         *    var newPlayer = CreateNewPlayer(); // pseudo-code for new player logic on gamepad connection
+         *    console.log("Gamepad connected", ce);
+         *    ce.gamepad.on('button', (be: ex.GamepadButtonEvent) => {
+         *       if(be.button === ex.Input.Buttons.Face1) {
+         *          newPlayer.jump();
+         *       }
+         *    });
+         *
+         *    ce.gamepad.on('axis', (ae: ex.GamepadAxisEvent) => {
+         *      if(ae.axis === ex.Input.Axis.LeftStickX && ae.value > .5){
+         *         newPlayer.moveRight();
+         *      }
+         *    })
+         *
+         *  });
+         *
+         *
+         * ```
          *
          * ## Responding to button input
          *
@@ -10293,7 +11503,7 @@ var ex;
                     if (!gamepads[i]) {
                         // If was connected, but now isn't emit the disconnect event
                         if (this.at(i).connected) {
-                            this.eventDispatcher.emit('disconnect', new GamepadDisconnectEvent(i));
+                            this.eventDispatcher.emit('disconnect', new ex.GamepadDisconnectEvent(i));
                         }
                         // Reset connection status
                         this.at(i).connected = false;
@@ -10301,7 +11511,7 @@ var ex;
                     }
                     else {
                         if (!this.at(i).connected && this._isGamepadValid(gamepads[i])) {
-                            this.eventDispatcher.emit('connect', new GamepadConnectEvent(i, this.at(i)));
+                            this.eventDispatcher.emit('connect', new ex.GamepadConnectEvent(i, this.at(i)));
                         }
                         // Set connection status
                         this.at(i).connected = true;
@@ -10326,7 +11536,7 @@ var ex;
                             if (value !== this._oldPads[i].getButton(buttonIndex)) {
                                 if (gamepads[i].buttons[buttonIndex].pressed) {
                                     this.at(i).updateButton(buttonIndex, value);
-                                    this.at(i).eventDispatcher.publish('button', new GamepadButtonEvent(buttonIndex, value));
+                                    this.at(i).eventDispatcher.publish('button', new ex.GamepadButtonEvent(buttonIndex, value));
                                 }
                                 else {
                                     this.at(i).updateButton(buttonIndex, 0);
@@ -10343,7 +11553,7 @@ var ex;
                         value = gamepads[i].axes[axesIndex];
                         if (value !== this._oldPads[i].getAxes(axesIndex)) {
                             this.at(i).updateAxes(axesIndex, value);
-                            this.at(i).eventDispatcher.emit('axis', new GamepadAxisEvent(axesIndex, value));
+                            this.at(i).eventDispatcher.emit('axis', new ex.GamepadAxisEvent(axesIndex, value));
                         }
                     }
                     this._oldPads[i] = this._clonePad(gamepads[i]);
@@ -10563,65 +11773,6 @@ var ex;
             Axes[Axes["RightStickY"] = 3] = "RightStickY";
         })(Input.Axes || (Input.Axes = {}));
         var Axes = Input.Axes;
-        /**
-         * Event recieved when a gamepad is connected to excalibur
-         */
-        var GamepadConnectEvent = (function (_super) {
-            __extends(GamepadConnectEvent, _super);
-            function GamepadConnectEvent(index, gamepad) {
-                _super.call(this);
-                this.index = index;
-                this.gamepad = gamepad;
-            }
-            return GamepadConnectEvent;
-        })(ex.GameEvent);
-        Input.GamepadConnectEvent = GamepadConnectEvent;
-        /**
-         * Event recieved when a gamepad is disconnected from excalibur
-         */
-        var GamepadDisconnectEvent = (function (_super) {
-            __extends(GamepadDisconnectEvent, _super);
-            function GamepadDisconnectEvent(index) {
-                _super.call(this);
-                this.index = index;
-            }
-            return GamepadDisconnectEvent;
-        })(ex.GameEvent);
-        Input.GamepadDisconnectEvent = GamepadDisconnectEvent;
-        /**
-         * Gamepad button event. See [[Gamepads]] for information on responding to controller input.
-         */
-        var GamepadButtonEvent = (function (_super) {
-            __extends(GamepadButtonEvent, _super);
-            /**
-             * @param button  The Gamepad button
-             * @param value   A numeric value between 0 and 1
-             */
-            function GamepadButtonEvent(button, value) {
-                _super.call(this);
-                this.button = button;
-                this.value = value;
-            }
-            return GamepadButtonEvent;
-        })(ex.GameEvent);
-        Input.GamepadButtonEvent = GamepadButtonEvent;
-        /**
-         * Gamepad axis event. See [[Gamepads]] for information on responding to controller input.
-         */
-        var GamepadAxisEvent = (function (_super) {
-            __extends(GamepadAxisEvent, _super);
-            /**
-             * @param axis  The Gamepad axis
-             * @param value A numeric value between -1 and 1
-             */
-            function GamepadAxisEvent(axis, value) {
-                _super.call(this);
-                this.axis = axis;
-                this.value = value;
-            }
-            return GamepadAxisEvent;
-        })(ex.GameEvent);
-        Input.GamepadAxisEvent = GamepadAxisEvent;
     })(Input = ex.Input || (ex.Input = {}));
 })(ex || (ex = {}));
 /// <reference path="MonkeyPatch.ts" />
@@ -10666,7 +11817,7 @@ var ex;
  *
  * ## Where to Start
  *
- * These are the core concepts of Excalibur that you should be
+ * These are the core concepts of Excalibur that you should become
  * familiar with.
  *
  * - [[Engine|Intro to the Engine]]
@@ -10705,6 +11856,7 @@ var ex;
  * - [[Sound|Working with Sounds]]
  * - [[SpriteSheet|Working with SpriteSheets]]
  * - [[Animation|Working with Animations]]
+ * - [[TileMap|Working with TileMaps]]
  *
  * ## Effects and Particles
  *
@@ -10713,6 +11865,7 @@ var ex;
  *
  * - [[Effects|Sprite Effects]]
  * - [[ParticleEmitter|Particle Emitters]]
+ * - [[IPostProcessor|Post Processors]]
  *
  * ## Math
  *
@@ -10768,8 +11921,10 @@ var ex;
      *
      * The Excalibur engine uses a simple main loop. The engine updates and renders
      * the "scene graph" which is the [[Scene|scenes]] and the tree of [[Actor|actors]] within that
-     * scene. Only one [[Scene]] can be active at once, the engine does not update/draw any other
+     * scene. Only one [[Scene]] can be active at a time. The engine does not update/draw any other
      * scene, which means any actors will not be updated/drawn if they are part of a deactivated scene.
+     *
+     * ![Engine Lifecycle](/assets/images/docs/EngineLifeCycle.png)
      *
      * **Scene Graph**
      *
@@ -10789,13 +11944,13 @@ var ex;
      *
      * ### Update Loop
      *
-     * The first operation run is the [[Engine.update|update]] loop. [[Actor]] and [[Scene]] both implement
+     * The first operation run is the [[Engine._update|update]] loop. [[Actor]] and [[Scene]] both implement
      * an overridable/extendable `update` method. Use it to perform any logic-based operations
      * in your game for a particular class.
      *
      * ### Draw Loop
      *
-     * The next step is the [[Engine.draw|draw]] loop. A [[Scene]] loops through its child [[Actor|actors]] and
+     * The next step is the [[Engine._draw|draw]] loop. A [[Scene]] loops through its child [[Actor|actors]] and
      * draws each one. You can override the `draw` method on an actor to customize its drawing.
      * You should **not** perform any logic in a draw call, it should only relate to drawing.
      *
@@ -11343,6 +12498,7 @@ var ex;
                 // suspend updates untill loading is finished
                 return;
             }
+            this.emit('preupdate', new ex.PreUpdateEvent(this, delta, this));
             // process engine level events
             this.currentScene.update(this, delta);
             // update animations
@@ -11354,7 +12510,8 @@ var ex;
             this.input.pointers.update(delta);
             this.input.gamepads.update(delta);
             // Publish update event
-            this.eventDispatcher.emit(ex.EventType[ex.EventType.Update], new ex.UpdateEvent(delta));
+            this.eventDispatcher.emit('update', new ex.UpdateEvent(delta));
+            this.emit('postupdate', new ex.PreUpdateEvent(this, delta, this));
         };
         /**
          * Draws the entire game
@@ -11362,6 +12519,7 @@ var ex;
          */
         Engine.prototype._draw = function (delta) {
             var ctx = this.ctx;
+            this.emit('predraw', new ex.PreDrawEvent(ctx, delta, this));
             if (this._isLoading) {
                 ctx.fillStyle = 'black';
                 ctx.fillRect(0, 0, this.width, this.height);
@@ -11393,7 +12551,7 @@ var ex;
             for (var i = 0; i < this.postProcessors.length; i++) {
                 this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.width, this.height), this.ctx);
             }
-            //ctx.drawImage(currentImage, 0, 0, this.width, this.height);
+            this.emit('postdraw', new ex.PreDrawEvent(ctx, delta, this));
         };
         /**
          * Starts the internal game loop for Excalibur after loading
@@ -11572,1159 +12730,9 @@ var ex;
         return AnimationNode;
     })();
 })(ex || (ex = {}));
-var ex;
-(function (ex) {
-    /**
-     * An enum that describes the strategies that rotation actions can use
-     */
-    (function (RotationType) {
-        /**
-         * Rotation via `ShortestPath` will use the smallest angle
-         * between the starting and ending points. This strategy is the default behavior.
-         */
-        RotationType[RotationType["ShortestPath"] = 0] = "ShortestPath";
-        /**
-         * Rotation via `LongestPath` will use the largest angle
-         * between the starting and ending points.
-         */
-        RotationType[RotationType["LongestPath"] = 1] = "LongestPath";
-        /**
-         * Rotation via `Clockwise` will travel in a clockwise direction,
-         * regardless of the starting and ending points.
-         */
-        RotationType[RotationType["Clockwise"] = 2] = "Clockwise";
-        /**
-         * Rotation via `CounterClockwise` will travel in a counterclockwise direction,
-         * regardless of the starting and ending points.
-         */
-        RotationType[RotationType["CounterClockwise"] = 3] = "CounterClockwise";
-    })(ex.RotationType || (ex.RotationType = {}));
-    var RotationType = ex.RotationType;
-})(ex || (ex = {}));
-/// <reference path="../Algebra.ts" />
-/// <reference path="../Engine.ts" />
-/// <reference path="../Actor.ts" />
-/// <reference path="RotationType.ts" />
-/**
- * See [[ActionContext|Action API]] for more information about Actions.
- */
-var ex;
-(function (ex) {
-    var Internal;
-    (function (Internal) {
-        var Actions;
-        (function (Actions) {
-            var EaseTo = (function () {
-                function EaseTo(actor, x, y, duration, easingFcn) {
-                    this.actor = actor;
-                    this.easingFcn = easingFcn;
-                    this._currentLerpTime = 0;
-                    this._lerpDuration = 1 * 1000; // 5 seconds
-                    this._lerpStart = new ex.Point(0, 0);
-                    this._lerpEnd = new ex.Point(0, 0);
-                    this._initialized = false;
-                    this._stopped = false;
-                    this._distance = 0;
-                    this._lerpDuration = duration;
-                    this._lerpEnd = new ex.Point(x, y);
-                }
-                EaseTo.prototype._initialize = function () {
-                    this._lerpStart = new ex.Point(this.actor.x, this.actor.y);
-                    this._currentLerpTime = 0;
-                    this._distance = this._lerpStart.toVector().distance(this._lerpEnd.toVector());
-                };
-                EaseTo.prototype.update = function (delta) {
-                    if (!this._initialized) {
-                        this._initialize();
-                        this._initialized = true;
-                    }
-                    var newX = this.actor.x;
-                    var newY = this.actor.y;
-                    if (this._currentLerpTime < this._lerpDuration) {
-                        if (this._lerpEnd.x < this._lerpStart.x) {
-                            newX = this._lerpStart.x - (this.easingFcn(this._currentLerpTime, this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
-                        }
-                        else {
-                            newX = this.easingFcn(this._currentLerpTime, this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
-                        }
-                        if (this._lerpEnd.y < this._lerpStart.y) {
-                            newY = this._lerpStart.y - (this.easingFcn(this._currentLerpTime, this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
-                        }
-                        else {
-                            newY = this.easingFcn(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
-                        }
-                        this.actor.x = newX;
-                        this.actor.y = newY;
-                        this._currentLerpTime += delta;
-                    }
-                    else {
-                        this.actor.x = this._lerpEnd.x;
-                        this.actor.y = this._lerpEnd.y;
-                    }
-                };
-                EaseTo.prototype.isComplete = function (actor) {
-                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this._lerpStart.toVector()) >= this._distance;
-                };
-                EaseTo.prototype.reset = function () {
-                    this._initialized = false;
-                };
-                EaseTo.prototype.stop = function () {
-                    this._stopped = true;
-                };
-                return EaseTo;
-            })();
-            Actions.EaseTo = EaseTo;
-            var MoveTo = (function () {
-                function MoveTo(actor, destx, desty, speed) {
-                    this._started = false;
-                    this._stopped = false;
-                    this._actor = actor;
-                    this._end = new ex.Vector(destx, desty);
-                    this._speed = speed;
-                }
-                MoveTo.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this._start = new ex.Vector(this._actor.x, this._actor.y);
-                        this._distance = this._start.distance(this._end);
-                        this._dir = this._end.minus(this._start).normalize();
-                    }
-                    var m = this._dir.scale(this._speed);
-                    this._actor.dx = m.x;
-                    this._actor.dy = m.y;
-                    if (this.isComplete(this._actor)) {
-                        this._actor.x = this._end.x;
-                        this._actor.y = this._end.y;
-                        this._actor.dy = 0;
-                        this._actor.dx = 0;
-                    }
-                };
-                MoveTo.prototype.isComplete = function (actor) {
-                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this._start) >= this._distance;
-                };
-                MoveTo.prototype.stop = function () {
-                    this._actor.dy = 0;
-                    this._actor.dx = 0;
-                    this._stopped = true;
-                };
-                MoveTo.prototype.reset = function () {
-                    this._started = false;
-                };
-                return MoveTo;
-            })();
-            Actions.MoveTo = MoveTo;
-            var MoveBy = (function () {
-                function MoveBy(actor, destx, desty, time) {
-                    this._started = false;
-                    this._stopped = false;
-                    this._actor = actor;
-                    this._end = new ex.Vector(destx, desty);
-                    if (time <= 0) {
-                        ex.Logger.getInstance().error('Attempted to moveBy time less than or equal to zero : ' + time);
-                        throw new Error('Cannot move in time <= 0');
-                    }
-                    this._time = time;
-                }
-                MoveBy.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this._start = new ex.Vector(this._actor.x, this._actor.y);
-                        this._distance = this._start.distance(this._end);
-                        this._dir = this._end.minus(this._start).normalize();
-                        this._speed = this._distance / (this._time / 1000);
-                    }
-                    var m = this._dir.scale(this._speed);
-                    this._actor.dx = m.x;
-                    this._actor.dy = m.y;
-                    if (this.isComplete(this._actor)) {
-                        this._actor.x = this._end.x;
-                        this._actor.y = this._end.y;
-                        this._actor.dy = 0;
-                        this._actor.dx = 0;
-                    }
-                };
-                MoveBy.prototype.isComplete = function (actor) {
-                    return this._stopped || (new ex.Vector(actor.x, actor.y)).distance(this._start) >= this._distance;
-                };
-                MoveBy.prototype.stop = function () {
-                    this._actor.dy = 0;
-                    this._actor.dx = 0;
-                    this._stopped = true;
-                };
-                MoveBy.prototype.reset = function () {
-                    this._started = false;
-                };
-                return MoveBy;
-            })();
-            Actions.MoveBy = MoveBy;
-            var Follow = (function () {
-                function Follow(actor, actorToFollow, followDistance) {
-                    this._started = false;
-                    this._stopped = false;
-                    this._actor = actor;
-                    this._actorToFollow = actorToFollow;
-                    this._current = new ex.Vector(this._actor.x, this._actor.y);
-                    this._end = new ex.Vector(actorToFollow.x, actorToFollow.y);
-                    this._maximumDistance = (followDistance !== undefined) ? followDistance : this._current.distance(this._end);
-                    this._speed = 0;
-                }
-                Follow.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this._distanceBetween = this._current.distance(this._end);
-                        this._dir = this._end.minus(this._current).normalize();
-                    }
-                    var actorToFollowSpeed = Math.sqrt(Math.pow(this._actorToFollow.dx, 2) + Math.pow(this._actorToFollow.dy, 2));
-                    if (actorToFollowSpeed !== 0) {
-                        this._speed = actorToFollowSpeed;
-                    }
-                    this._current.x = this._actor.x;
-                    this._current.y = this._actor.y;
-                    this._end.x = this._actorToFollow.x;
-                    this._end.y = this._actorToFollow.y;
-                    this._distanceBetween = this._current.distance(this._end);
-                    this._dir = this._end.minus(this._current).normalize();
-                    if (this._distanceBetween >= this._maximumDistance) {
-                        var m = this._dir.scale(this._speed);
-                        this._actor.dx = m.x;
-                        this._actor.dy = m.y;
-                    }
-                    else {
-                        this._actor.dx = 0;
-                        this._actor.dy = 0;
-                    }
-                    if (this.isComplete(this._actor)) {
-                        // TODO this should never occur
-                        this._actor.x = this._end.x;
-                        this._actor.y = this._end.y;
-                        this._actor.dy = 0;
-                        this._actor.dx = 0;
-                    }
-                };
-                Follow.prototype.stop = function () {
-                    this._actor.dy = 0;
-                    this._actor.dx = 0;
-                    this._stopped = true;
-                };
-                Follow.prototype.isComplete = function (actor) {
-                    // the actor following should never stop unless specified to do so
-                    return this._stopped;
-                };
-                Follow.prototype.reset = function () {
-                    this._started = false;
-                };
-                return Follow;
-            })();
-            Actions.Follow = Follow;
-            var Meet = (function () {
-                function Meet(actor, actorToMeet, speed) {
-                    this._started = false;
-                    this._stopped = false;
-                    this._speedWasSpecified = false;
-                    this._actor = actor;
-                    this._actorToMeet = actorToMeet;
-                    this._current = new ex.Vector(this._actor.x, this._actor.y);
-                    this._end = new ex.Vector(actorToMeet.x, actorToMeet.y);
-                    this._speed = speed || 0;
-                    if (speed !== undefined) {
-                        this._speedWasSpecified = true;
-                    }
-                }
-                Meet.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this._distanceBetween = this._current.distance(this._end);
-                        this._dir = this._end.minus(this._current).normalize();
-                    }
-                    var actorToMeetSpeed = Math.sqrt(Math.pow(this._actorToMeet.dx, 2) + Math.pow(this._actorToMeet.dy, 2));
-                    if ((actorToMeetSpeed !== 0) && (!this._speedWasSpecified)) {
-                        this._speed = actorToMeetSpeed;
-                    }
-                    this._current.x = this._actor.x;
-                    this._current.y = this._actor.y;
-                    this._end.x = this._actorToMeet.x;
-                    this._end.y = this._actorToMeet.y;
-                    this._distanceBetween = this._current.distance(this._end);
-                    this._dir = this._end.minus(this._current).normalize();
-                    var m = this._dir.scale(this._speed);
-                    this._actor.dx = m.x;
-                    this._actor.dy = m.y;
-                    if (this.isComplete(this._actor)) {
-                        this._actor.x = this._end.x;
-                        this._actor.y = this._end.y;
-                        this._actor.dy = 0;
-                        this._actor.dx = 0;
-                    }
-                };
-                Meet.prototype.isComplete = function (actor) {
-                    return this._stopped || (this._distanceBetween <= 1);
-                };
-                Meet.prototype.stop = function () {
-                    this._actor.dy = 0;
-                    this._actor.dx = 0;
-                    this._stopped = true;
-                };
-                Meet.prototype.reset = function () {
-                    this._started = false;
-                };
-                return Meet;
-            })();
-            Actions.Meet = Meet;
-            var RotateTo = (function () {
-                function RotateTo(actor, angleRadians, speed, rotationType) {
-                    this._started = false;
-                    this._stopped = false;
-                    this._actor = actor;
-                    this._end = angleRadians;
-                    this._speed = speed;
-                    this._rotationType = rotationType || ex.RotationType.ShortestPath;
-                }
-                RotateTo.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this._start = this._actor.rotation;
-                        var distance1 = Math.abs(this._end - this._start);
-                        var distance2 = ex.Util.TwoPI - distance1;
-                        if (distance1 > distance2) {
-                            this._shortDistance = distance2;
-                            this._longDistance = distance1;
-                        }
-                        else {
-                            this._shortDistance = distance1;
-                            this._longDistance = distance2;
-                        }
-                        this._shortestPathIsPositive = (this._start - this._end + ex.Util.TwoPI) % ex.Util.TwoPI >= Math.PI;
-                        switch (this._rotationType) {
-                            case ex.RotationType.ShortestPath:
-                                this._distance = this._shortDistance;
-                                if (this._shortestPathIsPositive) {
-                                    this._direction = 1;
-                                }
-                                else {
-                                    this._direction = -1;
-                                }
-                                break;
-                            case ex.RotationType.LongestPath:
-                                this._distance = this._longDistance;
-                                if (this._shortestPathIsPositive) {
-                                    this._direction = -1;
-                                }
-                                else {
-                                    this._direction = 1;
-                                }
-                                break;
-                            case ex.RotationType.Clockwise:
-                                this._direction = 1;
-                                if (this._shortestPathIsPositive) {
-                                    this._distance = this._shortDistance;
-                                }
-                                else {
-                                    this._distance = this._longDistance;
-                                }
-                                break;
-                            case ex.RotationType.CounterClockwise:
-                                this._direction = -1;
-                                if (!this._shortestPathIsPositive) {
-                                    this._distance = this._shortDistance;
-                                }
-                                else {
-                                    this._distance = this._longDistance;
-                                }
-                                break;
-                        }
-                    }
-                    this._actor.rx = this._direction * this._speed;
-                    if (this.isComplete(this._actor)) {
-                        this._actor.rotation = this._end;
-                        this._actor.rx = 0;
-                        this._stopped = true;
-                    }
-                };
-                RotateTo.prototype.isComplete = function (actor) {
-                    var distanceTravelled = Math.abs(this._actor.rotation - this._start);
-                    return this._stopped || (distanceTravelled >= Math.abs(this._distance));
-                };
-                RotateTo.prototype.stop = function () {
-                    this._actor.rx = 0;
-                    this._stopped = true;
-                };
-                RotateTo.prototype.reset = function () {
-                    this._started = false;
-                };
-                return RotateTo;
-            })();
-            Actions.RotateTo = RotateTo;
-            var RotateBy = (function () {
-                function RotateBy(actor, angleRadians, time, rotationType) {
-                    this._started = false;
-                    this._stopped = false;
-                    this._actor = actor;
-                    this._end = angleRadians;
-                    this._time = time;
-                    this._rotationType = rotationType || ex.RotationType.ShortestPath;
-                }
-                RotateBy.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this._start = this._actor.rotation;
-                        var distance1 = Math.abs(this._end - this._start);
-                        var distance2 = ex.Util.TwoPI - distance1;
-                        if (distance1 > distance2) {
-                            this._shortDistance = distance2;
-                            this._longDistance = distance1;
-                        }
-                        else {
-                            this._shortDistance = distance1;
-                            this._longDistance = distance2;
-                        }
-                        this._shortestPathIsPositive = (this._start - this._end + ex.Util.TwoPI) % ex.Util.TwoPI >= Math.PI;
-                        switch (this._rotationType) {
-                            case ex.RotationType.ShortestPath:
-                                this._distance = this._shortDistance;
-                                if (this._shortestPathIsPositive) {
-                                    this._direction = 1;
-                                }
-                                else {
-                                    this._direction = -1;
-                                }
-                                break;
-                            case ex.RotationType.LongestPath:
-                                this._distance = this._longDistance;
-                                if (this._shortestPathIsPositive) {
-                                    this._direction = -1;
-                                }
-                                else {
-                                    this._direction = 1;
-                                }
-                                break;
-                            case ex.RotationType.Clockwise:
-                                this._direction = 1;
-                                if (this._shortDistance >= 0) {
-                                    this._distance = this._shortDistance;
-                                }
-                                else {
-                                    this._distance = this._longDistance;
-                                }
-                                break;
-                            case ex.RotationType.CounterClockwise:
-                                this._direction = -1;
-                                if (this._shortDistance <= 0) {
-                                    this._distance = this._shortDistance;
-                                }
-                                else {
-                                    this._distance = this._longDistance;
-                                }
-                                break;
-                        }
-                        this._speed = Math.abs(this._distance / this._time * 1000);
-                    }
-                    this._actor.rx = this._direction * this._speed;
-                    if (this.isComplete(this._actor)) {
-                        this._actor.rotation = this._end;
-                        this._actor.rx = 0;
-                        this._stopped = true;
-                    }
-                };
-                RotateBy.prototype.isComplete = function (actor) {
-                    var distanceTravelled = Math.abs(this._actor.rotation - this._start);
-                    return this._stopped || (distanceTravelled >= Math.abs(this._distance));
-                };
-                RotateBy.prototype.stop = function () {
-                    this._actor.rx = 0;
-                    this._stopped = true;
-                };
-                RotateBy.prototype.reset = function () {
-                    this._started = false;
-                };
-                return RotateBy;
-            })();
-            Actions.RotateBy = RotateBy;
-            var ScaleTo = (function () {
-                function ScaleTo(actor, scaleX, scaleY, speedX, speedY) {
-                    this._started = false;
-                    this._stopped = false;
-                    this._actor = actor;
-                    this._endX = scaleX;
-                    this._endY = scaleY;
-                    this._speedX = speedX;
-                    this._speedY = speedY;
-                }
-                ScaleTo.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this._startX = this._actor.scale.x;
-                        this._startY = this._actor.scale.y;
-                        this._distanceX = Math.abs(this._endX - this._startX);
-                        this._distanceY = Math.abs(this._endY - this._startY);
-                    }
-                    if (!(Math.abs(this._actor.scale.x - this._startX) >= this._distanceX)) {
-                        var directionX = this._endY < this._startY ? -1 : 1;
-                        this._actor.sx = this._speedX * directionX;
-                    }
-                    else {
-                        this._actor.sx = 0;
-                    }
-                    if (!(Math.abs(this._actor.scale.y - this._startY) >= this._distanceY)) {
-                        var directionY = this._endY < this._startY ? -1 : 1;
-                        this._actor.sy = this._speedY * directionY;
-                    }
-                    else {
-                        this._actor.sy = 0;
-                    }
-                    if (this.isComplete(this._actor)) {
-                        this._actor.scale.x = this._endX;
-                        this._actor.scale.y = this._endY;
-                        this._actor.sx = 0;
-                        this._actor.sy = 0;
-                    }
-                };
-                ScaleTo.prototype.isComplete = function (actor) {
-                    return this._stopped || ((Math.abs(this._actor.scale.y - this._startX) >= this._distanceX) &&
-                        (Math.abs(this._actor.scale.y - this._startY) >= this._distanceY));
-                };
-                ScaleTo.prototype.stop = function () {
-                    this._actor.sx = 0;
-                    this._actor.sy = 0;
-                    this._stopped = true;
-                };
-                ScaleTo.prototype.reset = function () {
-                    this._started = false;
-                };
-                return ScaleTo;
-            })();
-            Actions.ScaleTo = ScaleTo;
-            var ScaleBy = (function () {
-                function ScaleBy(actor, scaleX, scaleY, time) {
-                    this._started = false;
-                    this._stopped = false;
-                    this._actor = actor;
-                    this._endX = scaleX;
-                    this._endY = scaleY;
-                    this._time = time;
-                    this._speedX = (this._endX - this._actor.scale.x) / time * 1000;
-                    this._speedY = (this._endY - this._actor.scale.y) / time * 1000;
-                }
-                ScaleBy.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                        this._startX = this._actor.scale.x;
-                        this._startY = this._actor.scale.y;
-                        this._distanceX = Math.abs(this._endX - this._startX);
-                        this._distanceY = Math.abs(this._endY - this._startY);
-                    }
-                    var directionX = this._endX < this._startX ? -1 : 1;
-                    var directionY = this._endY < this._startY ? -1 : 1;
-                    this._actor.sx = this._speedX * directionX;
-                    this._actor.sy = this._speedY * directionY;
-                    if (this.isComplete(this._actor)) {
-                        this._actor.scale.x = this._endX;
-                        this._actor.scale.y = this._endY;
-                        this._actor.sx = 0;
-                        this._actor.sy = 0;
-                    }
-                };
-                ScaleBy.prototype.isComplete = function (actor) {
-                    return this._stopped || ((Math.abs(this._actor.scale.x - this._startX) >= this._distanceX) &&
-                        (Math.abs(this._actor.scale.y - this._startY) >= this._distanceY));
-                };
-                ScaleBy.prototype.stop = function () {
-                    this._actor.sx = 0;
-                    this._actor.sy = 0;
-                    this._stopped = true;
-                };
-                ScaleBy.prototype.reset = function () {
-                    this._started = false;
-                };
-                return ScaleBy;
-            })();
-            Actions.ScaleBy = ScaleBy;
-            var Delay = (function () {
-                function Delay(actor, delay) {
-                    this._elapsedTime = 0;
-                    this._started = false;
-                    this._stopped = false;
-                    this._actor = actor;
-                    this._delay = delay;
-                }
-                Delay.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                    }
-                    this.x = this._actor.x;
-                    this.y = this._actor.y;
-                    this._elapsedTime += delta;
-                };
-                Delay.prototype.isComplete = function (actor) {
-                    return this._stopped || (this._elapsedTime >= this._delay);
-                };
-                Delay.prototype.stop = function () {
-                    this._stopped = true;
-                };
-                Delay.prototype.reset = function () {
-                    this._elapsedTime = 0;
-                    this._started = false;
-                };
-                return Delay;
-            })();
-            Actions.Delay = Delay;
-            var Blink = (function () {
-                function Blink(actor, timeVisible, timeNotVisible, numBlinks) {
-                    if (numBlinks === void 0) { numBlinks = 1; }
-                    this._timeVisible = 0;
-                    this._timeNotVisible = 0;
-                    this._elapsedTime = 0;
-                    this._totalTime = 0;
-                    this._stopped = false;
-                    this._started = false;
-                    this._actor = actor;
-                    this._timeVisible = timeVisible;
-                    this._timeNotVisible = timeNotVisible;
-                    this._duration = (timeVisible + timeNotVisible) * numBlinks;
-                }
-                Blink.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                    }
-                    this._elapsedTime += delta;
-                    this._totalTime += delta;
-                    if (this._actor.visible && this._elapsedTime >= this._timeVisible) {
-                        this._actor.visible = false;
-                        this._elapsedTime = 0;
-                    }
-                    if (!this._actor.visible && this._elapsedTime >= this._timeNotVisible) {
-                        this._actor.visible = true;
-                        this._elapsedTime = 0;
-                    }
-                    if (this.isComplete(this._actor)) {
-                        this._actor.visible = true;
-                    }
-                };
-                Blink.prototype.isComplete = function (actor) {
-                    return this._stopped || (this._totalTime >= this._duration);
-                };
-                Blink.prototype.stop = function () {
-                    this._actor.visible = true;
-                    this._stopped = true;
-                };
-                Blink.prototype.reset = function () {
-                    this._started = false;
-                    this._elapsedTime = 0;
-                    this._totalTime = 0;
-                };
-                return Blink;
-            })();
-            Actions.Blink = Blink;
-            var Fade = (function () {
-                function Fade(actor, endOpacity, speed) {
-                    this._multiplyer = 1;
-                    this._started = false;
-                    this._stopped = false;
-                    this._actor = actor;
-                    this._endOpacity = endOpacity;
-                    this._speed = speed;
-                    if (endOpacity < actor.opacity) {
-                        this._multiplyer = -1;
-                    }
-                }
-                Fade.prototype.update = function (delta) {
-                    if (!this._started) {
-                        this._started = true;
-                    }
-                    if (this._speed > 0) {
-                        this._actor.opacity += this._multiplyer * (Math.abs(this._actor.opacity - this._endOpacity) * delta) / this._speed;
-                    }
-                    this._speed -= delta;
-                    ex.Logger.getInstance().debug('actor opacity: ' + this._actor.opacity);
-                    if (this.isComplete(this._actor)) {
-                        this._actor.opacity = this._endOpacity;
-                    }
-                };
-                Fade.prototype.isComplete = function (actor) {
-                    return this._stopped || (Math.abs(this._actor.opacity - this._endOpacity) < 0.05);
-                };
-                Fade.prototype.stop = function () {
-                    this._stopped = true;
-                };
-                Fade.prototype.reset = function () {
-                    this._started = false;
-                };
-                return Fade;
-            })();
-            Actions.Fade = Fade;
-            var Die = (function () {
-                function Die(actor) {
-                    this._started = false;
-                    this._stopped = false;
-                    this._actor = actor;
-                }
-                Die.prototype.update = function (delta) {
-                    this._actor.actionQueue.clearActions();
-                    this._actor.kill();
-                    this._stopped = true;
-                };
-                Die.prototype.isComplete = function () {
-                    return this._stopped;
-                };
-                Die.prototype.stop = function () { return; };
-                Die.prototype.reset = function () { return; };
-                return Die;
-            })();
-            Actions.Die = Die;
-            var CallMethod = (function () {
-                function CallMethod(actor, method) {
-                    this._method = null;
-                    this._actor = null;
-                    this._hasBeenCalled = false;
-                    this._actor = actor;
-                    this._method = method;
-                }
-                CallMethod.prototype.update = function (delta) {
-                    this._method.call(this._actor);
-                    this._hasBeenCalled = true;
-                };
-                CallMethod.prototype.isComplete = function (actor) {
-                    return this._hasBeenCalled;
-                };
-                CallMethod.prototype.reset = function () {
-                    this._hasBeenCalled = false;
-                };
-                CallMethod.prototype.stop = function () {
-                    this._hasBeenCalled = true;
-                };
-                return CallMethod;
-            })();
-            Actions.CallMethod = CallMethod;
-            var Repeat = (function () {
-                function Repeat(actor, repeat, actions) {
-                    this._stopped = false;
-                    this._actor = actor;
-                    this._actionQueue = new ActionQueue(actor);
-                    this._repeat = repeat;
-                    this._originalRepeat = repeat;
-                    var i = 0, len = actions.length;
-                    for (i; i < len; i++) {
-                        actions[i].reset();
-                        this._actionQueue.add(actions[i]);
-                    }
-                    ;
-                }
-                Repeat.prototype.update = function (delta) {
-                    this.x = this._actor.x;
-                    this.y = this._actor.y;
-                    if (!this._actionQueue.hasNext()) {
-                        this._actionQueue.reset();
-                        this._repeat--;
-                    }
-                    this._actionQueue.update(delta);
-                };
-                Repeat.prototype.isComplete = function () {
-                    return this._stopped || (this._repeat <= 0);
-                };
-                Repeat.prototype.stop = function () {
-                    this._stopped = true;
-                };
-                Repeat.prototype.reset = function () {
-                    this._repeat = this._originalRepeat;
-                };
-                return Repeat;
-            })();
-            Actions.Repeat = Repeat;
-            var RepeatForever = (function () {
-                function RepeatForever(actor, actions) {
-                    this._stopped = false;
-                    this._actor = actor;
-                    this._actionQueue = new ActionQueue(actor);
-                    var i = 0, len = actions.length;
-                    for (i; i < len; i++) {
-                        actions[i].reset();
-                        this._actionQueue.add(actions[i]);
-                    }
-                    ;
-                }
-                RepeatForever.prototype.update = function (delta) {
-                    this.x = this._actor.x;
-                    this.y = this._actor.y;
-                    if (this._stopped) {
-                        return;
-                    }
-                    if (!this._actionQueue.hasNext()) {
-                        this._actionQueue.reset();
-                    }
-                    this._actionQueue.update(delta);
-                };
-                RepeatForever.prototype.isComplete = function () {
-                    return this._stopped;
-                };
-                RepeatForever.prototype.stop = function () {
-                    this._stopped = true;
-                    this._actionQueue.clearActions();
-                };
-                RepeatForever.prototype.reset = function () { return; };
-                return RepeatForever;
-            })();
-            Actions.RepeatForever = RepeatForever;
-            /**
-             * Action Queues
-             *
-             * Action queues are part of the [[ActionContext|Action API]] and
-             * store the list of actions to be executed for an [[Actor]].
-             *
-             * Actors implement [[Action.actionQueue]] which can be manipulated by
-             * advanced users to adjust the actions currently being executed in the
-             * queue.
-             */
-            var ActionQueue = (function () {
-                function ActionQueue(actor) {
-                    this._actions = [];
-                    this._completedActions = [];
-                    this._actor = actor;
-                }
-                ActionQueue.prototype.add = function (action) {
-                    this._actions.push(action);
-                };
-                ActionQueue.prototype.remove = function (action) {
-                    var index = this._actions.indexOf(action);
-                    this._actions.splice(index, 1);
-                };
-                ActionQueue.prototype.clearActions = function () {
-                    this._actions.length = 0;
-                    this._completedActions.length = 0;
-                    if (this._currentAction) {
-                        this._currentAction.stop();
-                    }
-                };
-                ActionQueue.prototype.getActions = function () {
-                    return this._actions.concat(this._completedActions);
-                };
-                ActionQueue.prototype.hasNext = function () {
-                    return this._actions.length > 0;
-                };
-                ActionQueue.prototype.reset = function () {
-                    this._actions = this.getActions();
-                    var i = 0, len = this._actions.length;
-                    for (i; i < len; i++) {
-                        this._actions[i].reset();
-                    }
-                    this._completedActions = [];
-                };
-                ActionQueue.prototype.update = function (delta) {
-                    if (this._actions.length > 0) {
-                        this._currentAction = this._actions[0];
-                        this._currentAction.update(delta);
-                        if (this._currentAction.isComplete(this._actor)) {
-                            this._completedActions.push(this._actions.shift());
-                        }
-                    }
-                };
-                return ActionQueue;
-            })();
-            Actions.ActionQueue = ActionQueue;
-        })(Actions = Internal.Actions || (Internal.Actions = {}));
-    })(Internal = ex.Internal || (ex.Internal = {}));
-})(ex || (ex = {}));
-/// <reference path="../Interfaces/IDrawable.ts" />
-/// <reference path="../Algebra.ts" />
-/// <reference path="Color.ts" />
-var ex;
-(function (ex) {
-    /**
-     * Creates a closed polygon drawing given a list of [[Point]]s.
-     *
-     * @warning Use sparingly as Polygons are performance intensive
-     */
-    var Polygon = (function () {
-        /**
-         * @param points  The points to use to build the polygon in order
-         */
-        function Polygon(points) {
-            /**
-             * The width of the lines of the polygon
-             */
-            this.lineWidth = 5;
-            /**
-             * Indicates whether the polygon is filled or not.
-             */
-            this.filled = false;
-            this._points = [];
-            this.anchor = new ex.Point(0, 0);
-            this.rotation = 0;
-            this.scale = new ex.Point(1, 1);
-            this._points = points;
-            var minX = this._points.reduce(function (prev, curr) {
-                return Math.min(prev, curr.x);
-            }, 0);
-            var maxX = this._points.reduce(function (prev, curr) {
-                return Math.max(prev, curr.x);
-            }, 0);
-            this.width = maxX - minX;
-            var minY = this._points.reduce(function (prev, curr) {
-                return Math.min(prev, curr.y);
-            }, 0);
-            var maxY = this._points.reduce(function (prev, curr) {
-                return Math.max(prev, curr.y);
-            }, 0);
-            this.height = maxY - minY;
-            this.naturalHeight = this.height;
-            this.naturalWidth = this.width;
-        }
-        /**
-         * @notimplemented Effects are not supported on `Polygon`
-         */
-        Polygon.prototype.addEffect = function (effect) {
-            // not supported on polygons
-        };
-        /**
-         * @notimplemented Effects are not supported on `Polygon`
-         */
-        Polygon.prototype.removeEffect = function (param) {
-            // not supported on polygons
-        };
-        /**
-         * @notimplemented Effects are not supported on `Polygon`
-         */
-        Polygon.prototype.clearEffects = function () {
-            // not supported on polygons
-        };
-        Polygon.prototype.reset = function () {
-            //pass
-        };
-        Polygon.prototype.draw = function (ctx, x, y) {
-            ctx.save();
-            ctx.translate(x + this.anchor.x, y + this.anchor.y);
-            ctx.scale(this.scale.x, this.scale.y);
-            ctx.rotate(this.rotation);
-            ctx.beginPath();
-            ctx.lineWidth = this.lineWidth;
-            // Iterate through the supplied points and contruct a 'polygon'
-            var firstPoint = this._points[0];
-            ctx.moveTo(firstPoint.x, firstPoint.y);
-            var i = 0, len = this._points.length;
-            for (i; i < len; i++) {
-                ctx.lineTo(this._points[i].x, this._points[i].y);
-            }
-            ctx.lineTo(firstPoint.x, firstPoint.y);
-            ctx.closePath();
-            if (this.filled) {
-                ctx.fillStyle = this.fillColor.toString();
-                ctx.fill();
-            }
-            ctx.strokeStyle = this.lineColor.toString();
-            if (this.flipHorizontal) {
-                ctx.translate(this.width, 0);
-                ctx.scale(-1, 1);
-            }
-            if (this.flipVertical) {
-                ctx.translate(0, this.height);
-                ctx.scale(1, -1);
-            }
-            ctx.stroke();
-            ctx.restore();
-        };
-        return Polygon;
-    })();
-    ex.Polygon = Polygon;
-})(ex || (ex = {}));
-/// <reference path="IPostProcessor.ts"/>
-var ex;
-(function (ex) {
-    (function (ColorBlindness) {
-        ColorBlindness[ColorBlindness["Protanope"] = 0] = "Protanope";
-        ColorBlindness[ColorBlindness["Deuteranope"] = 1] = "Deuteranope";
-        ColorBlindness[ColorBlindness["Tritanope"] = 2] = "Tritanope";
-    })(ex.ColorBlindness || (ex.ColorBlindness = {}));
-    var ColorBlindness = ex.ColorBlindness;
-    // Color correction algorithm originally sourced from http://www.daltonize.org/
-    var ColorBlindCorrector = (function () {
-        function ColorBlindCorrector(engine, simulate, colorMode) {
-            if (simulate === void 0) { simulate = false; }
-            if (colorMode === void 0) { colorMode = ColorBlindness.Protanope; }
-            this.engine = engine;
-            this.simulate = simulate;
-            this.colorMode = colorMode;
-            this._vertexShader = 'attribute vec2 a_position;' +
-                'attribute vec2 a_texCoord;' +
-                'uniform vec2 u_resolution;' +
-                'varying vec2 v_texCoord;' +
-                'void main() {' +
-                // convert the rectangle from pixels to 0.0 to 1.0
-                'vec2 zeroToOne = a_position / u_resolution;' +
-                // convert from 0->1 to 0->2
-                'vec2 zeroToTwo = zeroToOne * 2.0;' +
-                // convert from 0->2 to -1->+1 (clipspace)
-                'vec2 clipSpace = zeroToTwo - 1.0;' +
-                'gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);' +
-                // pass the texCoord to the fragment shader
-                // The GPU will interpolate this value between points.
-                'v_texCoord = a_texCoord;' +
-                '}';
-            this._fragmentShader = 'precision mediump float;' +
-                // our texture
-                'uniform sampler2D u_image;' +
-                // the texCoords passed in from the vertex shader.
-                'varying vec2 v_texCoord;' +
-                // Color blind conversions
-                /*'mat3 m[9] =' +
-                '{' +
-                   'mat3(1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0  ),' + // normal
-                   'mat3(0.567, 0.433, 0.0,  0.558, 0.442, 0.0,  0.0, 0.242, 0.758),' + // protanopia
-                   'mat3(0.817, 0.183, 0.0,  0.333, 0.667, 0.0,  0.0, 0.125,0.875),' + // protanomaly
-                   'mat3(0.625, 0.375, 0.0,  0.7, 0.3, 0.0,  0.0, 0.3,0.7  ),' + // deuteranopia
-                   'mat3(0.8, 0.2, 0.0,  0.258, 0.742, 0.0,  0.0, 0.142,0.858),' + // deuteranomaly
-                   'mat3(0.95, 0.05, 0.0,  0.0, 0.433, 0.567,  0.0, 0.475,0.525),' + // tritanopia
-                   'mat3(0.967, 0.033, 0.0,  0.0, 0.733, 0.267,  0.0, 0.183,0.817),' + // tritanomaly
-                   'mat3(0.299, 0.587, 0.114,  0.299, 0.587, 0.114,  0.299, 0.587,0.114),' + // achromatopsia
-                   'mat3(0.618, 0.320, 0.062,  0.163, 0.775, 0.062,  0.163, 0.320,0.516)' +  // achromatomaly
-                '};' +*/
-                'void main() {' +
-                'vec4 o =  texture2D(u_image, v_texCoord);' +
-                // RGB to LMS matrix conversion
-                'float L = (17.8824 * o.r) + (43.5161 * o.g) + (4.11935 * o.b);' +
-                'float M = (3.45565 * o.r) + (27.1554 * o.g) + (3.86714 * o.b);' +
-                'float S = (0.0299566 * o.r) + (0.184309 * o.g) + (1.46709 * o.b);' +
-                // Simulate color blindness
-                '//MODE CODE//' +
-                /* Deuteranope for testing
-               'float l = 1.0 * L + 0.0 * M + 0.0 * S;' +
-                   'float m = 0.494207 * L + 0.0 * M + 1.24827 * S;' +
-                   'float s = 0.0 * L + 0.0 * M + 1.0 * S;' +*/
-                // LMS to RGB matrix conversion
-                'vec4 error;' +
-                'error.r = (0.0809444479 * l) + (-0.130504409 * m) + (0.116721066 * s);' +
-                'error.g = (-0.0102485335 * l) + (0.0540193266 * m) + (-0.113614708 * s);' +
-                'error.b = (-0.000365296938 * l) + (-0.00412161469 * m) + (0.693511405 * s);' +
-                'error.a = 1.0;' +
-                'vec4 diff = o - error;' +
-                'vec4 correction;' +
-                'correction.r = 0.0;' +
-                'correction.g =  (diff.r * 0.7) + (diff.g * 1.0);' +
-                'correction.b =  (diff.r * 0.7) + (diff.b * 1.0);' +
-                'correction = o + correction;' +
-                'correction.a = o.a;' +
-                '//SIMULATE//' +
-                '}';
-            this._internalCanvas = document.createElement('canvas');
-            this._internalCanvas.width = engine.getWidth();
-            this._internalCanvas.height = engine.getHeight();
-            this._gl = this._internalCanvas.getContext('webgl', { preserveDrawingBuffer: true });
-            this._program = this._gl.createProgram();
-            var fragmentShader = this._getShader('Fragment', this._getFragmentShaderByMode(colorMode));
-            var vertextShader = this._getShader('Vertex', this._vertexShader);
-            this._gl.attachShader(this._program, vertextShader);
-            this._gl.attachShader(this._program, fragmentShader);
-            this._gl.linkProgram(this._program);
-            if (!this._gl.getProgramParameter(this._program, this._gl.LINK_STATUS)) {
-                ex.Logger.getInstance().error('Unable to link shader program!');
-            }
-            this._gl.useProgram(this._program);
-        }
-        ColorBlindCorrector.prototype._getFragmentShaderByMode = function (colorMode) {
-            var code = '';
-            if (colorMode === ColorBlindness.Protanope) {
-                code =
-                    'float l = 0.0 * L + 2.02344 * M + -2.52581 * S;' +
-                        'float m = 0.0 * L + 1.0 * M + 0.0 * S;' +
-                        'float s = 0.0 * L + 0.0 * M + 1.0 * S;';
-            }
-            else if (colorMode === ColorBlindness.Deuteranope) {
-                code =
-                    'float l = 1.0 * L + 0.0 * M + 0.0 * S;' +
-                        'float m = 0.494207 * L + 0.0 * M + 1.24827 * S;' +
-                        'float s = 0.0 * L + 0.0 * M + 1.0 * S;';
-            }
-            else if (colorMode === ColorBlindness.Tritanope) {
-                code =
-                    'float l = 1.0 * L + 0.0 * M + 0.0 * S;' +
-                        'float m = 0.0 * L + 1.0 * M + 0.0 * S;' +
-                        'float s = -0.395913 * L + 0.801109 * M + 0.0 * S;';
-            }
-            if (this.simulate) {
-                this._fragmentShader = this._fragmentShader.replace('//SIMULATE//', 'gl_FragColor = error.rgba;');
-            }
-            else {
-                this._fragmentShader = this._fragmentShader.replace('//SIMULATE//', 'gl_FragColor = correction.rgba;');
-            }
-            return this._fragmentShader.replace('//MODE CODE//', code);
-        };
-        ColorBlindCorrector.prototype._setRectangle = function (gl, x, y, width, height) {
-            var x1 = x;
-            var x2 = x + width;
-            var y1 = y;
-            var y2 = y + height;
-            this._gl.bufferData(this._gl.ARRAY_BUFFER, new Float32Array([
-                x1, y1,
-                x2, y1,
-                x1, y2,
-                x1, y2,
-                x2, y1,
-                x2, y2]), this._gl.STATIC_DRAW);
-        };
-        ColorBlindCorrector.prototype._getShader = function (type, program) {
-            var shader;
-            if (type === 'Fragment') {
-                shader = this._gl.createShader(this._gl.FRAGMENT_SHADER);
-            }
-            else if (type === 'Vertex') {
-                shader = this._gl.createShader(this._gl.VERTEX_SHADER);
-            }
-            else {
-                ex.Logger.getInstance().error('Error unknown shader type', type);
-            }
-            this._gl.shaderSource(shader, program);
-            this._gl.compileShader(shader);
-            if (!this._gl.getShaderParameter(shader, this._gl.COMPILE_STATUS)) {
-                ex.Logger.getInstance().error('Unable to compile shader!', this._gl.getShaderInfoLog(shader));
-                return null;
-            }
-            return shader;
-        };
-        ColorBlindCorrector.prototype.process = function (image, out) {
-            // look up where the vertex data needs to go.
-            var positionLocation = this._gl.getAttribLocation(this._program, 'a_position');
-            var texCoordLocation = this._gl.getAttribLocation(this._program, 'a_texCoord');
-            var texCoordBuffer = this._gl.createBuffer();
-            this._gl.bindBuffer(this._gl.ARRAY_BUFFER, texCoordBuffer);
-            this._gl.bufferData(this._gl.ARRAY_BUFFER, new Float32Array([
-                0.0, 0.0,
-                1.0, 0.0,
-                0.0, 1.0,
-                0.0, 1.0,
-                1.0, 0.0,
-                1.0, 1.0]), this._gl.STATIC_DRAW);
-            this._gl.enableVertexAttribArray(texCoordLocation);
-            this._gl.vertexAttribPointer(texCoordLocation, 2, this._gl.FLOAT, false, 0, 0);
-            // Create a texture.
-            var texture = this._gl.createTexture();
-            this._gl.bindTexture(this._gl.TEXTURE_2D, texture);
-            // Set the parameters so we can render any size image.
-            this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_S, this._gl.CLAMP_TO_EDGE);
-            this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_WRAP_T, this._gl.CLAMP_TO_EDGE);
-            this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MIN_FILTER, this._gl.NEAREST);
-            this._gl.texParameteri(this._gl.TEXTURE_2D, this._gl.TEXTURE_MAG_FILTER, this._gl.NEAREST);
-            // Flip the texture when unpacking into the gl context, gl reads textures in the opposite order as everything else :/
-            this._gl.pixelStorei(this._gl.UNPACK_FLIP_Y_WEBGL, 1);
-            // Upload the image into the texture.
-            this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, image);
-            // lookup uniforms
-            var resolutionLocation = this._gl.getUniformLocation(this._program, 'u_resolution');
-            // set the resolution
-            this._gl.uniform2f(resolutionLocation, this._internalCanvas.width, this._internalCanvas.height);
-            // Create a buffer for the position of the rectangle corners.
-            var positionBuffer = this._gl.createBuffer();
-            this._gl.bindBuffer(this._gl.ARRAY_BUFFER, positionBuffer);
-            this._gl.enableVertexAttribArray(positionLocation);
-            this._gl.vertexAttribPointer(positionLocation, 2, this._gl.FLOAT, false, 0, 0);
-            // Set a rectangle the same size as the image.
-            this._setRectangle(this._gl, 0, 0, image.width, image.height);
-            // Draw the rectangle.
-            this._gl.drawArrays(this._gl.TRIANGLES, 0, 6);
-            // Grab tranformed image from internal canvas
-            var pixelData = new Uint8Array(image.width * image.height * 4);
-            this._gl.readPixels(0, 0, image.width, image.height, this._gl.RGBA, this._gl.UNSIGNED_BYTE, pixelData);
-            image.data.set(pixelData);
-            out.putImageData(image, 0, 0);
-        };
-        return ColorBlindCorrector;
-    })();
-    ex.ColorBlindCorrector = ColorBlindCorrector;
-})(ex || (ex = {}));
-//# sourceMappingURL=excalibur.js.map
+//# sourceMappingURL=excalibur-0.6.0.js.map
+;
+// Concatenated onto excalibur after build
+// Exports the excalibur module so it can be used with browserify
+// https://github.com/excaliburjs/Excalibur/issues/312
+if (typeof module !== 'undefined') {module.exports = ex;}
