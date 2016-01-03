@@ -13,7 +13,29 @@ module ex {
       Tritanope
    }
 
-   // Color correction algorithm originally sourced from http://www.daltonize.org/
+   
+   /**
+    * This post processor can correct colors and simulate color blindness. 
+    * It is possible to use this on every game, but the game's performance
+    * will suffer measurably. It's better to use it as a helpful tool while developing your game. 
+    * Remember, the best practice is to design with color blindness in mind.
+    *
+    * Color correction algorithm originally sourced from http://www.daltonize.org/ 
+    * 
+    * Example:
+    * ```typescript
+    * 
+    * var game = new ex.Engine();
+    * 
+    * var colorBlindPostProcessor = new ex.ColorBlindCorrector(game, false, ColorBlindness.Protanope);
+    *  
+    * // post processors evaluate left to right
+    * game.postProcessors.push(colorBlindPostProcessor);
+    * game.start();
+    * 
+    * ```
+    * 
+    */
    export class ColorBlindCorrector implements IPostProcessor {
     
       private _vertexShader =
