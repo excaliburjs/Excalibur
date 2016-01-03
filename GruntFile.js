@@ -131,6 +131,20 @@ module.exports = function (grunt) {
                stdout: true,
                failOnError: true
             }
+         },
+         
+         //
+         // Compile visual tests
+         //
+         visual: {
+             command: function() {
+                 var files = grunt.file.expand("./sandbox/web/tests/*/*.ts");
+                 return 'tsc ' + files.join(' ');
+             },
+             options: {
+               stdout: true,
+               failOnError: true
+            }            
          }
 
       },
@@ -208,9 +222,11 @@ module.exports = function (grunt) {
 
    // Compile sample game
    grunt.registerTask('sample', ['shell:sample']);
+   
+   grunt.registerTask('visual', ['shell:visual']);
 
    // Default task - compile, test, build dists
-   grunt.registerTask('default', ['tslint:src', 'tests', 'coveralls', 'shell:tsc', 'minified', 'concat', 'copy', 'sample', 'shell:nuget']);
+   grunt.registerTask('default', ['tslint:src', 'tests', 'coveralls', 'shell:tsc', 'minified', 'concat', 'copy', 'sample', 'visual', 'shell:nuget']);
 
    grunt.registerTask('compile', ['shell:tsc', 'minified', 'concat', 'copy', 'shell:nuget'])
 
