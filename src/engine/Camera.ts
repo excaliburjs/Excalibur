@@ -232,18 +232,18 @@ module ex {
             if (this._currentLerpTime < this._lerpDuration && this._cameraMoving) {
 
                if (this._lerpEnd.x < this._lerpStart.x) {
-                  this.focus.x = this._lerpStart.x - (this._easeInOutCubic(this._currentLerpTime,
+                  this.x = this._lerpStart.x - (this._easeInOutCubic(this._currentLerpTime,
                      this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
                } else {
-                  this.focus.x = this._easeInOutCubic(this._currentLerpTime,
+                  this.x = this._easeInOutCubic(this._currentLerpTime,
                      this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
                }
 
                if (this._lerpEnd.y < this._lerpStart.y) {
-                  this.focus.y = this._lerpStart.y - (this._easeInOutCubic(this._currentLerpTime,
+                  this.y = this._lerpStart.y - (this._easeInOutCubic(this._currentLerpTime,
                      this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
                } else {
-                  this.focus.y = this._easeInOutCubic(this._currentLerpTime,
+                  this.y = this._easeInOutCubic(this._currentLerpTime,
                      this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
                }
                this._currentLerpTime += delta;
