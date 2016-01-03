@@ -29,6 +29,7 @@ ehthumbs.db
 Thumbs.db
 
 # Build
+.vs/
 build/
 bld/
 bin/
