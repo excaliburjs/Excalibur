@@ -38,8 +38,9 @@
      * 
      * ## Color Blind Corrector Post Processor
      * 
-     * Choosing colors that are friendly to players with color blindness is an important consideration when making a game. There is a significant
-     * portion of the population that has some form of color blindness, and choosing bad colors can make your game unplayable. We have built
+     * Choosing colors that are friendly to players with color blindness is an important consideration when making a game. 
+     * There is a significant portion of the population that has some form of color blindness, 
+     * and choosing bad colors can make your game unplayable. We have built
      * a post procesors that can shift your colors into as more visible range for the 3 most common types of 
      * [[https://en.wikipedia.org/wiki/Color_blindness|color blindness]]. 
      * 
@@ -47,7 +48,8 @@
      *  - [[ColorBlindness.Deuteranope|Deuteranope]]
      *  - [[ColorBlindness.Tritanope|Tritanope]]
      * 
-     * This post processor can correct colors, and simulate color blindness. It is possible to use this on every game, but the game's performance
+     * This post processor can correct colors, and simulate color blindness. 
+     * It is possible to use this on every game, but the game's performance
      * will suffer measurably. It's better to use it as a helpful tool while developing your game. 
      * Remember, the best practice is to design with color blindness in mind.
      * 
