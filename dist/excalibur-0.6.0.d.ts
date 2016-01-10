@@ -5513,14 +5513,18 @@ declare module ex {
          */
         spriteFont: SpriteFont;
         /**
-         * The CSS font string (e.g. `sans-serif`, `Droid Sans Pro`). Web fonts
+         * The CSS font family string (e.g. `sans-serif`, `Droid Sans Pro`). Web fonts
          * are supported, same as in CSS.
          */
         font: string;
         /**
-         * The font size in pixels, default is 10px
+         * The font size in the selected units, default is 10 (default units is pixel)
          */
         fontSize: number;
+        /**
+         * The css units for a font size such as px, pt, em (SpriteFont only support px), by default is 'px';
+         */
+        fontUnit: string;
         /**
          * Gets or sets the horizontal text alignment property for the label.
          */

@@ -161,15 +161,20 @@ module ex {
       public spriteFont: SpriteFont;
 
       /**
-       * The CSS font string (e.g. `sans-serif`, `Droid Sans Pro`). Web fonts
+       * The CSS font family string (e.g. `sans-serif`, `Droid Sans Pro`). Web fonts
        * are supported, same as in CSS.
        */
       public font: string;
       
       /**
-       * The font size in pixels, default is 10px
+       * The font size in the selected units, default is 10 (default units is pixel)
        */
       public fontSize: number = 10;
+
+      /**
+       * The css units for a font size such as px, pt, em (SpriteFont only support px), by default is 'px';
+       */ 
+      public fontUnit: string = 'px';
 
       /**
        * Gets or sets the horizontal text alignment property for the label. 
@@ -368,7 +373,7 @@ module ex {
                this.color.a = this.opacity;
             }
             ctx.fillStyle = this.color.toString();
-            ctx.font = `${this.fontSize} ${this.font}`;
+            ctx.font = `${this.fontSize}${this.fontUnit} ${this.font}`;
             if (this.maxWidth) {
                ctx.fillText(this.text, 0, 0, this.maxWidth);
             } else {
