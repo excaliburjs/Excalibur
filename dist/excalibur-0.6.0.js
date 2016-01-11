@@ -10302,6 +10302,33 @@ var ex;
 var ex;
 (function (ex) {
     /**
+     * Enum representing the different font size units
+     * https://developer.mozilla.org/en-US/docs/Web/CSS/font-size
+     */
+    (function (FontUnit) {
+        /**
+         * Em is a scalable unit, 1 em is equal to the current font size of the current element, parent elements can effect em values
+         */
+        FontUnit[FontUnit["Em"] = 0] = "Em";
+        /**
+         * Rem is similar to the Em, it is a scalable unit. 1 rem is eqaul to the font size of the root element
+         */
+        FontUnit[FontUnit["Rem"] = 1] = "Rem";
+        /**
+         * Pixel is a unit of length in screen pixels
+         */
+        FontUnit[FontUnit["Px"] = 2] = "Px";
+        /**
+         * Point is a physical unit length (1/72 of an inch)
+         */
+        FontUnit[FontUnit["Pt"] = 3] = "Pt";
+        /**
+         * Percent is a scalable unit similar to Em, the only difference is the Em units scale faster when Text-Size stuff
+         */
+        FontUnit[FontUnit["Percent"] = 4] = "Percent";
+    })(ex.FontUnit || (ex.FontUnit = {}));
+    var FontUnit = ex.FontUnit;
+    /**
      * Enum representing the different horizontal text alignments
      */
     (function (TextAlign) {
@@ -10458,7 +10485,7 @@ var ex;
          * @param spriteFont  Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precendence
          * over a css font.
          */
-        function Label(text, x, y, font, spriteFont) {
+        function Label(text, x, y, fontFamily, spriteFont) {
             _super.call(this, x, y);
             /**
              * The font size in the selected units, default is 10 (default units is pixel)
@@ -10467,7 +10494,7 @@ var ex;
             /**
              * The css units for a font size such as px, pt, em (SpriteFont only support px), by default is 'px';
              */
-            this.fontUnit = 'px';
+            this.fontUnit = FontUnit.Px;
             /**
              * Gets or sets the horizontal text alignment property for the label.
              */
@@ -10496,7 +10523,7 @@ var ex;
             this.color = ex.Color.Black.clone();
             this.spriteFont = spriteFont;
             this.collisionType = ex.CollisionType.PreventCollision;
-            this.font = font || '10px sans-serif'; // coallesce to default canvas font
+            this.fontFamily = fontFamily || '10px sans-serif'; // coallesce to default canvas font
             if (spriteFont) {
             }
         }
@@ -10506,12 +10533,28 @@ var ex;
          */
         Label.prototype.getTextWidth = function (ctx) {
             var oldFont = ctx.font;
-            ctx.font = this.font;
+            ctx.font = this.fontFamily;
             var width = ctx.measureText(this.text).width;
             ctx.font = oldFont;
             return width;
         };
         // TypeScript doesn't support string enums :(
+        Label.prototype._lookupFontUnit = function (fontUnit) {
+            switch (fontUnit) {
+                case FontUnit.Em:
+                    return 'em';
+                case FontUnit.Rem:
+                    return 'rem';
+                case FontUnit.Pt:
+                    return 'pt';
+                case FontUnit.Px:
+                    return 'px';
+                case FontUnit.Percent:
+                    return '%';
+                default:
+                    return 'px';
+            }
+        };
         Label.prototype._lookupTextAlign = function (textAlign) {
             switch (textAlign) {
                 case TextAlign.Left:
@@ -10627,7 +10670,7 @@ var ex;
                     this.color.a = this.opacity;
                 }
                 ctx.fillStyle = this.color.toString();
-                ctx.font = "" + this.fontSize + this.fontUnit + " " + this.font;
+                ctx.font = "" + this.fontSize + this._lookupFontUnit(this.fontUnit) + " " + this.fontFamily;
                 if (this.maxWidth) {
                     ctx.fillText(this.text, 0, 0, this.maxWidth);
                 }

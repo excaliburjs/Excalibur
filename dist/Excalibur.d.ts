@@ -1,192 +1,5 @@
 declare module ex {
     /**
-     * A simple 2D point on a plane
-     * @obsolete Use [[Vector|vector]]s instead of [[Point|points]]
-     */
-    class Point {
-        x: number;
-        y: number;
-        /**
-         * @param x  X coordinate of the point
-         * @param y  Y coordinate of the point
-         */
-        constructor(x: number, y: number);
-        /**
-         * Convert this point to a vector
-         */
-        toVector(): Vector;
-        /**
-         * Rotates the current point around another by a certain number of
-         * degrees in radians
-         * @param angle  The angle in radians
-         * @param anchor The point to rotate around
-         */
-        rotate(angle: number, anchor?: Point): Point;
-        /**
-         * Translates the current point by a vector
-         * @param vector  The other vector to add to
-         */
-        add(vector: Vector): Point;
-        /**
-         * Sets the x and y components at once
-         */
-        setTo(x: number, y: number): void;
-        /**
-         * Clones a new point that is a copy of this one.
-         */
-        clone(): Point;
-        /**
-         * Compares this point against another and tests for equality
-         * @param point  The other point to compare to
-         */
-        equals(point: Point): boolean;
-    }
-    /**
-     * A 2D vector on a plane.
-     */
-    class Vector extends Point {
-        x: number;
-        y: number;
-        /**
-         * A (0, 0) vector
-         */
-        static Zero: Vector;
-        /**
-         * Returns a vector of unit length in the direction of the specified angle.
-         * @param angle The angle to generate the vector
-         */
-        static fromAngle(angle: number): Vector;
-        /**
-         * @param x  X component of the Vector
-         * @param y  Y component of the Vector
-         */
-        constructor(x: number, y: number);
-        /**
-         * The distance to another vector
-         * @param v  The other vector
-         */
-        distance(v?: Vector): number;
-        /**
-         * Normalizes a vector to have a magnitude of 1.
-         */
-        normalize(): Vector;
-        /**
-         * Scales a vector's by a factor of size
-         * @param size  The factor to scale the magnitude by
-         */
-        scale(size: any): Vector;
-        /**
-         * Adds one vector to another, alias for add
-         * @param v  The vector to add
-         */
-        plus(v: Vector): Vector;
-        /**
-         * Adds one vector to another
-         * @param v The vector to add
-         */
-        add(v: Vector): Vector;
-        /**
-         * Subtracts a vector from another, alias for minus
-         * @param v The vector to subtract
-         */
-        subtract(v: Vector): Vector;
-        /**
-         * Subtracts a vector from the current vector
-         * @param v The vector to subtract
-         */
-        minus(v: Vector): Vector;
-        /**
-         * Performs a dot product with another vector
-         * @param v  The vector to dot
-         */
-        dot(v: Vector): number;
-        /**
-         * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
-         * @param v  The vector to cross
-         */
-        cross(v: Vector): number;
-        /**
-         * Returns the perpendicular vector to this one
-         */
-        perpendicular(): Vector;
-        /**
-         * Returns the normal vector to this one
-         */
-        normal(): Vector;
-        /**
-         * Returns the angle of this vector.
-         */
-        toAngle(): number;
-        /**
-         * Returns the point represention of this vector
-         */
-        toPoint(): Point;
-        /**
-         * Rotates the current vector around a point by a certain number of
-         * degrees in radians
-         */
-        rotate(angle: number, anchor: Point): Vector;
-        /**
-         * Creates new vector that has the same values as the previous.
-         */
-        clone(): Vector;
-    }
-    /**
-     * A 2D ray that can be cast into the scene to do collision detection
-     */
-    class Ray {
-        pos: Point;
-        dir: Vector;
-        /**
-         * @param pos The starting position for the ray
-         * @param dir The vector indicating the direction of the ray
-         */
-        constructor(pos: Point, dir: Vector);
-        /**
-         * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
-         * This number indicates the mathematical intersection time.
-         * @param line  The line to test
-         */
-        intersect(line: Line): number;
-        /**
-         * Returns the point of intersection given the intersection time
-         */
-        getPoint(time: number): Point;
-    }
-    /**
-     * A 2D line segment
-     */
-    class Line {
-        begin: Point;
-        end: Point;
-        /**
-         * @param begin  The starting point of the line segment
-         * @param end  The ending point of the line segment
-         */
-        constructor(begin: Point, end: Point);
-        /**
-         * Returns the slope of the line in the form of a vector
-         */
-        getSlope(): Vector;
-        /**
-         * Returns the length of the line segment in pixels
-         */
-        getLength(): number;
-    }
-    /**
-     * A projection
-     * @todo
-     */
-    class Projection {
-        min: number;
-        max: number;
-        constructor(min: number, max: number);
-        overlaps(projection: Projection): boolean;
-        getOverlap(projection: Projection): number;
-    }
-}
-declare module ex {
-    /**
      * Effects
      *
      * These effects can be applied to any bitmap image but are mainly used
@@ -447,6 +260,193 @@ declare module ex {
         Bottom = 2,
         Left = 3,
         Right = 4,
+    }
+}
+declare module ex {
+    /**
+     * A simple 2D point on a plane
+     * @obsolete Use [[Vector|vector]]s instead of [[Point|points]]
+     */
+    class Point {
+        x: number;
+        y: number;
+        /**
+         * @param x  X coordinate of the point
+         * @param y  Y coordinate of the point
+         */
+        constructor(x: number, y: number);
+        /**
+         * Convert this point to a vector
+         */
+        toVector(): Vector;
+        /**
+         * Rotates the current point around another by a certain number of
+         * degrees in radians
+         * @param angle  The angle in radians
+         * @param anchor The point to rotate around
+         */
+        rotate(angle: number, anchor?: Point): Point;
+        /**
+         * Translates the current point by a vector
+         * @param vector  The other vector to add to
+         */
+        add(vector: Vector): Point;
+        /**
+         * Sets the x and y components at once
+         */
+        setTo(x: number, y: number): void;
+        /**
+         * Clones a new point that is a copy of this one.
+         */
+        clone(): Point;
+        /**
+         * Compares this point against another and tests for equality
+         * @param point  The other point to compare to
+         */
+        equals(point: Point): boolean;
+    }
+    /**
+     * A 2D vector on a plane.
+     */
+    class Vector extends Point {
+        x: number;
+        y: number;
+        /**
+         * A (0, 0) vector
+         */
+        static Zero: Vector;
+        /**
+         * Returns a vector of unit length in the direction of the specified angle.
+         * @param angle The angle to generate the vector
+         */
+        static fromAngle(angle: number): Vector;
+        /**
+         * @param x  X component of the Vector
+         * @param y  Y component of the Vector
+         */
+        constructor(x: number, y: number);
+        /**
+         * The distance to another vector
+         * @param v  The other vector
+         */
+        distance(v?: Vector): number;
+        /**
+         * Normalizes a vector to have a magnitude of 1.
+         */
+        normalize(): Vector;
+        /**
+         * Scales a vector's by a factor of size
+         * @param size  The factor to scale the magnitude by
+         */
+        scale(size: any): Vector;
+        /**
+         * Adds one vector to another, alias for add
+         * @param v  The vector to add
+         */
+        plus(v: Vector): Vector;
+        /**
+         * Adds one vector to another
+         * @param v The vector to add
+         */
+        add(v: Vector): Vector;
+        /**
+         * Subtracts a vector from another, alias for minus
+         * @param v The vector to subtract
+         */
+        subtract(v: Vector): Vector;
+        /**
+         * Subtracts a vector from the current vector
+         * @param v The vector to subtract
+         */
+        minus(v: Vector): Vector;
+        /**
+         * Performs a dot product with another vector
+         * @param v  The vector to dot
+         */
+        dot(v: Vector): number;
+        /**
+         * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
+         * @param v  The vector to cross
+         */
+        cross(v: Vector): number;
+        /**
+         * Returns the perpendicular vector to this one
+         */
+        perpendicular(): Vector;
+        /**
+         * Returns the normal vector to this one
+         */
+        normal(): Vector;
+        /**
+         * Returns the angle of this vector.
+         */
+        toAngle(): number;
+        /**
+         * Returns the point represention of this vector
+         */
+        toPoint(): Point;
+        /**
+         * Rotates the current vector around a point by a certain number of
+         * degrees in radians
+         */
+        rotate(angle: number, anchor: Point): Vector;
+        /**
+         * Creates new vector that has the same values as the previous.
+         */
+        clone(): Vector;
+    }
+    /**
+     * A 2D ray that can be cast into the scene to do collision detection
+     */
+    class Ray {
+        pos: Point;
+        dir: Vector;
+        /**
+         * @param pos The starting position for the ray
+         * @param dir The vector indicating the direction of the ray
+         */
+        constructor(pos: Point, dir: Vector);
+        /**
+         * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
+         * This number indicates the mathematical intersection time.
+         * @param line  The line to test
+         */
+        intersect(line: Line): number;
+        /**
+         * Returns the point of intersection given the intersection time
+         */
+        getPoint(time: number): Point;
+    }
+    /**
+     * A 2D line segment
+     */
+    class Line {
+        begin: Point;
+        end: Point;
+        /**
+         * @param begin  The starting point of the line segment
+         * @param end  The ending point of the line segment
+         */
+        constructor(begin: Point, end: Point);
+        /**
+         * Returns the slope of the line in the form of a vector
+         */
+        getSlope(): Vector;
+        /**
+         * Returns the length of the line segment in pixels
+         */
+        getLength(): number;
+    }
+    /**
+     * A projection
+     * @todo
+     */
+    class Projection {
+        min: number;
+        max: number;
+        constructor(min: number, max: number);
+        overlaps(projection: Projection): boolean;
+        getOverlap(projection: Projection): number;
     }
 }
 /**
@@ -1725,6 +1725,339 @@ declare module ex {
 }
 declare module ex {
     /**
+     * An enum that describes the strategies that rotation actions can use
+     */
+    enum RotationType {
+        /**
+         * Rotation via `ShortestPath` will use the smallest angle
+         * between the starting and ending points. This strategy is the default behavior.
+         */
+        ShortestPath = 0,
+        /**
+         * Rotation via `LongestPath` will use the largest angle
+         * between the starting and ending points.
+         */
+        LongestPath = 1,
+        /**
+         * Rotation via `Clockwise` will travel in a clockwise direction,
+         * regardless of the starting and ending points.
+         */
+        Clockwise = 2,
+        /**
+         * Rotation via `CounterClockwise` will travel in a counterclockwise direction,
+         * regardless of the starting and ending points.
+         */
+        CounterClockwise = 3,
+    }
+}
+/**
+ * See [[ActionContext|Action API]] for more information about Actions.
+ */
+declare module ex.Internal.Actions {
+    /**
+     * Used for implementing actions for the [[ActionContext|Action API]].
+     */
+    interface IAction {
+        update(delta: number): void;
+        isComplete(actor: Actor): boolean;
+        reset(): void;
+        stop(): void;
+    }
+    class EaseTo implements IAction {
+        actor: Actor;
+        easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+        private _currentLerpTime;
+        private _lerpDuration;
+        private _lerpStart;
+        private _lerpEnd;
+        private _initialized;
+        private _stopped;
+        private _distance;
+        constructor(actor: Actor, x: number, y: number, duration: number, easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number);
+        private _initialize();
+        update(delta: number): void;
+        isComplete(actor: Actor): boolean;
+        reset(): void;
+        stop(): void;
+    }
+    class MoveTo implements IAction {
+        private _actor;
+        x: number;
+        y: number;
+        private _start;
+        private _end;
+        private _dir;
+        private _speed;
+        private _distance;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, destx: number, desty: number, speed: number);
+        update(delta: number): void;
+        isComplete(actor: Actor): boolean;
+        stop(): void;
+        reset(): void;
+    }
+    class MoveBy implements IAction {
+        private _actor;
+        x: number;
+        y: number;
+        private _distance;
+        private _speed;
+        private _time;
+        private _start;
+        private _end;
+        private _dir;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, destx: number, desty: number, time: number);
+        update(delta: Number): void;
+        isComplete(actor: Actor): boolean;
+        stop(): void;
+        reset(): void;
+    }
+    class Follow implements IAction {
+        private _actor;
+        private _actorToFollow;
+        x: number;
+        y: number;
+        private _current;
+        private _end;
+        private _dir;
+        private _speed;
+        private _maximumDistance;
+        private _distanceBetween;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, actorToFollow: Actor, followDistance?: number);
+        update(delta: number): void;
+        stop(): void;
+        isComplete(actor: Actor): boolean;
+        reset(): void;
+    }
+    class Meet implements IAction {
+        private _actor;
+        private _actorToMeet;
+        x: number;
+        y: number;
+        private _current;
+        private _end;
+        private _dir;
+        private _speed;
+        private _distanceBetween;
+        private _started;
+        private _stopped;
+        private _speedWasSpecified;
+        constructor(actor: Actor, actorToMeet: Actor, speed?: number);
+        update(delta: number): void;
+        isComplete(actor: Actor): boolean;
+        stop(): void;
+        reset(): void;
+    }
+    class RotateTo implements IAction {
+        private _actor;
+        x: number;
+        y: number;
+        private _start;
+        private _end;
+        private _speed;
+        private _rotationType;
+        private _direction;
+        private _distance;
+        private _shortDistance;
+        private _longDistance;
+        private _shortestPathIsPositive;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, angleRadians: number, speed: number, rotationType?: RotationType);
+        update(delta: number): void;
+        isComplete(actor: Actor): boolean;
+        stop(): void;
+        reset(): void;
+    }
+    class RotateBy implements IAction {
+        private _actor;
+        x: number;
+        y: number;
+        private _start;
+        private _end;
+        private _speed;
+        private _time;
+        private _rotationType;
+        private _direction;
+        private _distance;
+        private _shortDistance;
+        private _longDistance;
+        private _shortestPathIsPositive;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, angleRadians: number, time: number, rotationType?: RotationType);
+        update(delta: number): void;
+        isComplete(actor: Actor): boolean;
+        stop(): void;
+        reset(): void;
+    }
+    class ScaleTo implements IAction {
+        private _actor;
+        x: number;
+        y: number;
+        private _startX;
+        private _startY;
+        private _endX;
+        private _endY;
+        private _speedX;
+        private _speedY;
+        private _distanceX;
+        private _distanceY;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, scaleX: number, scaleY: number, speedX: number, speedY: number);
+        update(delta: number): void;
+        isComplete(actor: Actor): boolean;
+        stop(): void;
+        reset(): void;
+    }
+    class ScaleBy implements IAction {
+        private _actor;
+        x: number;
+        y: number;
+        private _startX;
+        private _startY;
+        private _endX;
+        private _endY;
+        private _time;
+        private _distanceX;
+        private _distanceY;
+        private _started;
+        private _stopped;
+        private _speedX;
+        private _speedY;
+        constructor(actor: Actor, scaleX: number, scaleY: number, time: number);
+        update(delta: number): void;
+        isComplete(actor: Actor): boolean;
+        stop(): void;
+        reset(): void;
+    }
+    class Delay implements IAction {
+        x: number;
+        y: number;
+        private _actor;
+        private _elapsedTime;
+        private _delay;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, delay: number);
+        update(delta: number): void;
+        isComplete(actor: Actor): boolean;
+        stop(): void;
+        reset(): void;
+    }
+    class Blink implements IAction {
+        private _timeVisible;
+        private _timeNotVisible;
+        private _elapsedTime;
+        private _totalTime;
+        private _actor;
+        private _duration;
+        private _stopped;
+        private _started;
+        constructor(actor: Actor, timeVisible: number, timeNotVisible: number, numBlinks?: number);
+        update(delta: any): void;
+        isComplete(actor: Actor): boolean;
+        stop(): void;
+        reset(): void;
+    }
+    class Fade implements IAction {
+        x: number;
+        y: number;
+        private _actor;
+        private _endOpacity;
+        private _speed;
+        private _multiplyer;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor, endOpacity: number, speed: number);
+        update(delta: number): void;
+        isComplete(actor: Actor): boolean;
+        stop(): void;
+        reset(): void;
+    }
+    class Die implements IAction {
+        x: number;
+        y: number;
+        private _actor;
+        private _started;
+        private _stopped;
+        constructor(actor: Actor);
+        update(delta: number): void;
+        isComplete(): boolean;
+        stop(): void;
+        reset(): void;
+    }
+    class CallMethod implements IAction {
+        x: number;
+        y: number;
+        private _method;
+        private _actor;
+        private _hasBeenCalled;
+        constructor(actor: Actor, method: () => any);
+        update(delta: number): void;
+        isComplete(actor: Actor): boolean;
+        reset(): void;
+        stop(): void;
+    }
+    class Repeat implements IAction {
+        x: number;
+        y: number;
+        private _actor;
+        private _actionQueue;
+        private _repeat;
+        private _originalRepeat;
+        private _stopped;
+        constructor(actor: Actor, repeat: number, actions: IAction[]);
+        update(delta: any): void;
+        isComplete(): boolean;
+        stop(): void;
+        reset(): void;
+    }
+    class RepeatForever implements IAction {
+        x: number;
+        y: number;
+        private _actor;
+        private _actionQueue;
+        private _stopped;
+        constructor(actor: Actor, actions: IAction[]);
+        update(delta: any): void;
+        isComplete(): boolean;
+        stop(): void;
+        reset(): void;
+    }
+    /**
+     * Action Queues
+     *
+     * Action queues are part of the [[ActionContext|Action API]] and
+     * store the list of actions to be executed for an [[Actor]].
+     *
+     * Actors implement [[Action.actionQueue]] which can be manipulated by
+     * advanced users to adjust the actions currently being executed in the
+     * queue.
+     */
+    class ActionQueue {
+        private _actor;
+        private _actions;
+        private _currentAction;
+        private _completedActions;
+        constructor(actor: Actor);
+        add(action: IAction): void;
+        remove(action: IAction): void;
+        clearActions(): void;
+        getActions(): IAction[];
+        hasNext(): boolean;
+        reset(): void;
+        update(delta: number): void;
+    }
+}
+declare module ex {
+    /**
      * Action API
      *
      * The fluent Action API allows you to perform "actions" on
@@ -1852,7 +2185,7 @@ declare module ex {
          * @param duration  The time it should take the actor to move to the new location in milliseconds
          * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
          */
-        easeTo(x: number, y: number, duration: number, easingFcn?: (currentTime: number, startValue: number, endValue: number, duration: number) => number): this;
+        easeTo(x: number, y: number, duration: number, easingFcn?: (currentTime: number, startValue: number, endValue: number, duration: number) => number): ActionContext;
         /**
          * This method will move an actor to the specified x and y position at the
          * speed specified (in pixels per second) and return back the actor. This
@@ -3054,7 +3387,7 @@ declare module ex {
          * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
          * @obsolete Use [[ActionContext.easeTo|Actor.actions.easeTo]]
          */
-        easeTo(x: number, y: number, duration: number, easingFcn?: (currentTime: number, startValue: number, endValue: number, duration: number) => number): this;
+        easeTo(x: number, y: number, duration: number, easingFcn?: (currentTime: number, startValue: number, endValue: number, duration: number) => number): Actor;
         /**
          * This method will move an actor to the specified `x` and `y` position at the
          * `speed` specified (in pixels per second) and return back the actor. This
@@ -4571,12 +4904,12 @@ declare module ex {
          * @param successCallback  Call on resolution of promise
          * @param rejectCallback   Call on rejection of promise
          */
-        then(successCallback?: (value?: T) => any, rejectCallback?: (value?: any) => any): this;
+        then(successCallback?: (value?: T) => any, rejectCallback?: (value?: any) => any): Promise<T>;
         /**
          * Add an error callback to the promise
          * @param errorCallback  Call if there was an error in a callback
          */
-        error(errorCallback?: (value?: any) => any): this;
+        error(errorCallback?: (value?: any) => any): Promise<T>;
         /**
          * Resolve the promise and pass an option value to the success callbacks
          * @param value  Value to pass to the success callbacks
@@ -4586,7 +4919,7 @@ declare module ex {
          * Reject the promise and pass an option value to the reject callbacks
          * @param value  Value to pass to the reject callbacks
          */
-        reject(value?: any): this;
+        reject(value?: any): Promise<T>;
         /**
          * Inpect the current state of a promise
          */
@@ -5026,6 +5359,32 @@ declare module ex {
 }
 declare module ex {
     /**
+     * Enum representing the different font size units
+     * https://developer.mozilla.org/en-US/docs/Web/CSS/font-size
+     */
+    enum FontUnit {
+        /**
+         * Em is a scalable unit, 1 em is equal to the current font size of the current element, parent elements can effect em values
+         */
+        Em = 0,
+        /**
+         * Rem is similar to the Em, it is a scalable unit. 1 rem is eqaul to the font size of the root element
+         */
+        Rem = 1,
+        /**
+         * Pixel is a unit of length in screen pixels
+         */
+        Px = 2,
+        /**
+         * Point is a physical unit length (1/72 of an inch)
+         */
+        Pt = 3,
+        /**
+         * Percent is a scalable unit similar to Em, the only difference is the Em units scale faster when Text-Size stuff
+         */
+        Percent = 4,
+    }
+    /**
      * Enum representing the different horizontal text alignments
      */
     enum TextAlign {
@@ -5183,7 +5542,7 @@ declare module ex {
          * The CSS font family string (e.g. `sans-serif`, `Droid Sans Pro`). Web fonts
          * are supported, same as in CSS.
          */
-        font: string;
+        fontFamily: string;
         /**
          * The font size in the selected units, default is 10 (default units is pixel)
          */
@@ -5191,7 +5550,7 @@ declare module ex {
         /**
          * The css units for a font size such as px, pt, em (SpriteFont only support px), by default is 'px';
          */
-        fontUnit: string;
+        fontUnit: FontUnit;
         /**
          * Gets or sets the horizontal text alignment property for the label.
          */
@@ -5228,12 +5587,13 @@ declare module ex {
          * @param spriteFont  Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precendence
          * over a css font.
          */
-        constructor(text?: string, x?: number, y?: number, font?: string, spriteFont?: SpriteFont);
+        constructor(text?: string, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont);
         /**
          * Returns the width of the text in the label (in pixels);
          * @param ctx  Rending context to measure the string with
          */
         getTextWidth(ctx: CanvasRenderingContext2D): number;
+        private _lookupFontUnit(fontUnit);
         private _lookupTextAlign(textAlign);
         private _lookupBaseAlign(baseAlign);
         /**
@@ -6673,439 +7033,5 @@ declare module ex {
          * Show the game as a fixed size
          */
         Fixed = 2,
-    }
-}
-declare module ex {
-    /**
-     * An enum that describes the strategies that rotation actions can use
-     */
-    enum RotationType {
-        /**
-         * Rotation via `ShortestPath` will use the smallest angle
-         * between the starting and ending points. This strategy is the default behavior.
-         */
-        ShortestPath = 0,
-        /**
-         * Rotation via `LongestPath` will use the largest angle
-         * between the starting and ending points.
-         */
-        LongestPath = 1,
-        /**
-         * Rotation via `Clockwise` will travel in a clockwise direction,
-         * regardless of the starting and ending points.
-         */
-        Clockwise = 2,
-        /**
-         * Rotation via `CounterClockwise` will travel in a counterclockwise direction,
-         * regardless of the starting and ending points.
-         */
-        CounterClockwise = 3,
-    }
-}
-/**
- * See [[ActionContext|Action API]] for more information about Actions.
- */
-declare module ex.Internal.Actions {
-    /**
-     * Used for implementing actions for the [[ActionContext|Action API]].
-     */
-    interface IAction {
-        update(delta: number): void;
-        isComplete(actor: Actor): boolean;
-        reset(): void;
-        stop(): void;
-    }
-    class EaseTo implements IAction {
-        actor: Actor;
-        easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
-        private _currentLerpTime;
-        private _lerpDuration;
-        private _lerpStart;
-        private _lerpEnd;
-        private _initialized;
-        private _stopped;
-        private _distance;
-        constructor(actor: Actor, x: number, y: number, duration: number, easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number);
-        private _initialize();
-        update(delta: number): void;
-        isComplete(actor: Actor): boolean;
-        reset(): void;
-        stop(): void;
-    }
-    class MoveTo implements IAction {
-        private _actor;
-        x: number;
-        y: number;
-        private _start;
-        private _end;
-        private _dir;
-        private _speed;
-        private _distance;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, destx: number, desty: number, speed: number);
-        update(delta: number): void;
-        isComplete(actor: Actor): boolean;
-        stop(): void;
-        reset(): void;
-    }
-    class MoveBy implements IAction {
-        private _actor;
-        x: number;
-        y: number;
-        private _distance;
-        private _speed;
-        private _time;
-        private _start;
-        private _end;
-        private _dir;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, destx: number, desty: number, time: number);
-        update(delta: Number): void;
-        isComplete(actor: Actor): boolean;
-        stop(): void;
-        reset(): void;
-    }
-    class Follow implements IAction {
-        private _actor;
-        private _actorToFollow;
-        x: number;
-        y: number;
-        private _current;
-        private _end;
-        private _dir;
-        private _speed;
-        private _maximumDistance;
-        private _distanceBetween;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, actorToFollow: Actor, followDistance?: number);
-        update(delta: number): void;
-        stop(): void;
-        isComplete(actor: Actor): boolean;
-        reset(): void;
-    }
-    class Meet implements IAction {
-        private _actor;
-        private _actorToMeet;
-        x: number;
-        y: number;
-        private _current;
-        private _end;
-        private _dir;
-        private _speed;
-        private _distanceBetween;
-        private _started;
-        private _stopped;
-        private _speedWasSpecified;
-        constructor(actor: Actor, actorToMeet: Actor, speed?: number);
-        update(delta: number): void;
-        isComplete(actor: Actor): boolean;
-        stop(): void;
-        reset(): void;
-    }
-    class RotateTo implements IAction {
-        private _actor;
-        x: number;
-        y: number;
-        private _start;
-        private _end;
-        private _speed;
-        private _rotationType;
-        private _direction;
-        private _distance;
-        private _shortDistance;
-        private _longDistance;
-        private _shortestPathIsPositive;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, angleRadians: number, speed: number, rotationType?: RotationType);
-        update(delta: number): void;
-        isComplete(actor: Actor): boolean;
-        stop(): void;
-        reset(): void;
-    }
-    class RotateBy implements IAction {
-        private _actor;
-        x: number;
-        y: number;
-        private _start;
-        private _end;
-        private _speed;
-        private _time;
-        private _rotationType;
-        private _direction;
-        private _distance;
-        private _shortDistance;
-        private _longDistance;
-        private _shortestPathIsPositive;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, angleRadians: number, time: number, rotationType?: RotationType);
-        update(delta: number): void;
-        isComplete(actor: Actor): boolean;
-        stop(): void;
-        reset(): void;
-    }
-    class ScaleTo implements IAction {
-        private _actor;
-        x: number;
-        y: number;
-        private _startX;
-        private _startY;
-        private _endX;
-        private _endY;
-        private _speedX;
-        private _speedY;
-        private _distanceX;
-        private _distanceY;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, scaleX: number, scaleY: number, speedX: number, speedY: number);
-        update(delta: number): void;
-        isComplete(actor: Actor): boolean;
-        stop(): void;
-        reset(): void;
-    }
-    class ScaleBy implements IAction {
-        private _actor;
-        x: number;
-        y: number;
-        private _startX;
-        private _startY;
-        private _endX;
-        private _endY;
-        private _time;
-        private _distanceX;
-        private _distanceY;
-        private _started;
-        private _stopped;
-        private _speedX;
-        private _speedY;
-        constructor(actor: Actor, scaleX: number, scaleY: number, time: number);
-        update(delta: number): void;
-        isComplete(actor: Actor): boolean;
-        stop(): void;
-        reset(): void;
-    }
-    class Delay implements IAction {
-        x: number;
-        y: number;
-        private _actor;
-        private _elapsedTime;
-        private _delay;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, delay: number);
-        update(delta: number): void;
-        isComplete(actor: Actor): boolean;
-        stop(): void;
-        reset(): void;
-    }
-    class Blink implements IAction {
-        private _timeVisible;
-        private _timeNotVisible;
-        private _elapsedTime;
-        private _totalTime;
-        private _actor;
-        private _duration;
-        private _stopped;
-        private _started;
-        constructor(actor: Actor, timeVisible: number, timeNotVisible: number, numBlinks?: number);
-        update(delta: any): void;
-        isComplete(actor: Actor): boolean;
-        stop(): void;
-        reset(): void;
-    }
-    class Fade implements IAction {
-        x: number;
-        y: number;
-        private _actor;
-        private _endOpacity;
-        private _speed;
-        private _multiplyer;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor, endOpacity: number, speed: number);
-        update(delta: number): void;
-        isComplete(actor: Actor): boolean;
-        stop(): void;
-        reset(): void;
-    }
-    class Die implements IAction {
-        x: number;
-        y: number;
-        private _actor;
-        private _started;
-        private _stopped;
-        constructor(actor: Actor);
-        update(delta: number): void;
-        isComplete(): boolean;
-        stop(): void;
-        reset(): void;
-    }
-    class CallMethod implements IAction {
-        x: number;
-        y: number;
-        private _method;
-        private _actor;
-        private _hasBeenCalled;
-        constructor(actor: Actor, method: () => any);
-        update(delta: number): void;
-        isComplete(actor: Actor): boolean;
-        reset(): void;
-        stop(): void;
-    }
-    class Repeat implements IAction {
-        x: number;
-        y: number;
-        private _actor;
-        private _actionQueue;
-        private _repeat;
-        private _originalRepeat;
-        private _stopped;
-        constructor(actor: Actor, repeat: number, actions: IAction[]);
-        update(delta: any): void;
-        isComplete(): boolean;
-        stop(): void;
-        reset(): void;
-    }
-    class RepeatForever implements IAction {
-        x: number;
-        y: number;
-        private _actor;
-        private _actionQueue;
-        private _stopped;
-        constructor(actor: Actor, actions: IAction[]);
-        update(delta: any): void;
-        isComplete(): boolean;
-        stop(): void;
-        reset(): void;
-    }
-    /**
-     * Action Queues
-     *
-     * Action queues are part of the [[ActionContext|Action API]] and
-     * store the list of actions to be executed for an [[Actor]].
-     *
-     * Actors implement [[Action.actionQueue]] which can be manipulated by
-     * advanced users to adjust the actions currently being executed in the
-     * queue.
-     */
-    class ActionQueue {
-        private _actor;
-        private _actions;
-        private _currentAction;
-        private _completedActions;
-        constructor(actor: Actor);
-        add(action: IAction): void;
-        remove(action: IAction): void;
-        clearActions(): void;
-        getActions(): IAction[];
-        hasNext(): boolean;
-        reset(): void;
-        update(delta: number): void;
-    }
-}
-declare module ex {
-    /**
-     * Creates a closed polygon drawing given a list of [[Point]]s.
-     *
-     * @warning Use sparingly as Polygons are performance intensive
-     */
-    class Polygon implements IDrawable {
-        flipVertical: boolean;
-        flipHorizontal: boolean;
-        width: number;
-        height: number;
-        naturalWidth: number;
-        naturalHeight: number;
-        /**
-         * The color to use for the lines of the polygon
-         */
-        lineColor: Color;
-        /**
-         * The color to use for the interior of the polygon
-         */
-        fillColor: Color;
-        /**
-         * The width of the lines of the polygon
-         */
-        lineWidth: number;
-        /**
-         * Indicates whether the polygon is filled or not.
-         */
-        filled: boolean;
-        private _points;
-        anchor: Point;
-        rotation: number;
-        scale: Point;
-        /**
-         * @param points  The points to use to build the polygon in order
-         */
-        constructor(points: Point[]);
-        /**
-         * @notimplemented Effects are not supported on `Polygon`
-         */
-        addEffect(effect: Effects.ISpriteEffect): void;
-        /**
-         * @notimplemented Effects are not supported on `Polygon`
-         */
-        removeEffect(index: number): any;
-        /**
-         * @notimplemented Effects are not supported on `Polygon`
-         */
-        removeEffect(effect: Effects.ISpriteEffect): any;
-        /**
-         * @notimplemented Effects are not supported on `Polygon`
-         */
-        clearEffects(): void;
-        reset(): void;
-        draw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
-    }
-}
-declare module ex {
-    enum ColorBlindness {
-        Protanope = 0,
-        Deuteranope = 1,
-        Tritanope = 2,
-    }
-    /**
-     * This post processor can correct colors and simulate color blindness.
-     * It is possible to use this on every game, but the game's performance
-     * will suffer measurably. It's better to use it as a helpful tool while developing your game.
-     * Remember, the best practice is to design with color blindness in mind.
-     *
-     * Color correction algorithm originally sourced from http://www.daltonize.org/
-     *
-     * Example:
-     * ```typescript
-     *
-     * var game = new ex.Engine();
-     *
-     * var colorBlindPostProcessor = new ex.ColorBlindCorrector(game, false, ColorBlindness.Protanope);
-     *
-     * // post processors evaluate left to right
-     * game.postProcessors.push(colorBlindPostProcessor);
-     * game.start();
-     *
-     * ```
-     *
-     */
-    class ColorBlindCorrector implements IPostProcessor {
-        engine: Engine;
-        simulate: boolean;
-        colorMode: ColorBlindness;
-        private _vertexShader;
-        private _fragmentShader;
-        private _internalCanvas;
-        private _gl;
-        private _program;
-        constructor(engine: Engine, simulate?: boolean, colorMode?: ColorBlindness);
-        private _getFragmentShaderByMode(colorMode);
-        private _setRectangle(gl, x, y, width, height);
-        private _getShader(type, program);
-        process(image: ImageData, out: CanvasRenderingContext2D): void;
     }
 }

@@ -5359,6 +5359,32 @@ declare module ex {
 }
 declare module ex {
     /**
+     * Enum representing the different font size units
+     * https://developer.mozilla.org/en-US/docs/Web/CSS/font-size
+     */
+    enum FontUnit {
+        /**
+         * Em is a scalable unit, 1 em is equal to the current font size of the current element, parent elements can effect em values
+         */
+        Em = 0,
+        /**
+         * Rem is similar to the Em, it is a scalable unit. 1 rem is eqaul to the font size of the root element
+         */
+        Rem = 1,
+        /**
+         * Pixel is a unit of length in screen pixels
+         */
+        Px = 2,
+        /**
+         * Point is a physical unit length (1/72 of an inch)
+         */
+        Pt = 3,
+        /**
+         * Percent is a scalable unit similar to Em, the only difference is the Em units scale faster when Text-Size stuff
+         */
+        Percent = 4,
+    }
+    /**
      * Enum representing the different horizontal text alignments
      */
     enum TextAlign {
@@ -5516,7 +5542,7 @@ declare module ex {
          * The CSS font family string (e.g. `sans-serif`, `Droid Sans Pro`). Web fonts
          * are supported, same as in CSS.
          */
-        font: string;
+        fontFamily: string;
         /**
          * The font size in the selected units, default is 10 (default units is pixel)
          */
@@ -5524,7 +5550,7 @@ declare module ex {
         /**
          * The css units for a font size such as px, pt, em (SpriteFont only support px), by default is 'px';
          */
-        fontUnit: string;
+        fontUnit: FontUnit;
         /**
          * Gets or sets the horizontal text alignment property for the label.
          */
@@ -5561,12 +5587,13 @@ declare module ex {
          * @param spriteFont  Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precendence
          * over a css font.
          */
-        constructor(text?: string, x?: number, y?: number, font?: string, spriteFont?: SpriteFont);
+        constructor(text?: string, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont);
         /**
          * Returns the width of the text in the label (in pixels);
          * @param ctx  Rending context to measure the string with
          */
         getTextWidth(ctx: CanvasRenderingContext2D): number;
+        private _lookupFontUnit(fontUnit);
         private _lookupTextAlign(textAlign);
         private _lookupBaseAlign(baseAlign);
         /**
