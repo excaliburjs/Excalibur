@@ -116,7 +116,9 @@ module ex {
     * var label = new ex.Label();
     * label.x = 50;
     * label.y = 50;
-    * label.font = "10px Arial";
+    * label.fontFamily = "Arial";
+    * label.fontSize = 10;
+    * lable.fontUnit = ex.FontUnit.Px // pixels are the default
     * label.text = "Foo";
     * label.color = ex.Color.White;
     * label.textAlign = ex.TextAlign.Center;
@@ -157,7 +159,8 @@ module ex {
     * var game = new ex.Engine();
     *
     * var label = new ex.Label();
-    * label.font = "12px Foobar, Arial, Sans-Serif";
+    * label.fontFamily = "Foobar, Arial, Sans-Serif";
+    * label.fontSize = 10;
     * label.text = "Hello World";
     *
     * game.add(label);
