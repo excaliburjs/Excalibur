@@ -3,7 +3,7 @@ var game = new ex.Engine({
     width: 800,
     height: 600,
     canvasElementId: "game",
-    pointerScope: 1 /* Document */
+    pointerScope: ex.Input.PointerScope.Document
 });
 var box = new ex.Actor(200, 200, 100, 100, ex.Color.Red);
 var cursor = new ex.Actor(0, 0, 10, 10, ex.Color.Chartreuse);
@@ -59,7 +59,7 @@ var paintBrush = {
 };
 function handleTouch(color) {
     return function (pe) {
-        if (pe.pointerType !== 0 /* Touch */)
+        if (pe.pointerType !== ex.Input.PointerType.Touch)
             return;
         paintBrush.paint(pe.x, pe.y, color);
     };
@@ -76,4 +76,3 @@ game.add(box);
 game.add(cursor);
 game.add(uiElement);
 game.start();
-//# sourceMappingURL=pointer.js.map

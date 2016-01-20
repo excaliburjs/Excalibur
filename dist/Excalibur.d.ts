@@ -265,6 +265,7 @@ declare module ex {
 declare module ex {
     /**
      * A simple 2D point on a plane
+     * @obsolete Use [[Vector|vector]]s instead of [[Point|points]]
      */
     class Point {
         x: number;
@@ -466,6 +467,7 @@ declare module ex.Util {
     function getPosition(el: HTMLElement): Point;
     function addItemToArray<T>(item: T, array: T[]): boolean;
     function removeItemToArray<T>(item: T, array: T[]): boolean;
+    function contains(array: Array<any>, obj: any): boolean;
     function getOppositeSide(side: ex.Side): Side;
     /**
      * Excaliburs dynamically resizing collection
@@ -579,10 +581,38 @@ declare module ex {
      *
      * Excalibur offers many sprite effects such as [[Effects.Colorize]] to let you manipulate
      * sprites. Keep in mind, more effects requires more power and can lead to memory or CPU
-     * constraints and hurt performance.
+     * constraints and hurt performance. Each effect must be reprocessed every frame for each sprite.
      *
      * It's still recommended to create an [[Animation]] or build in your effects to the sprites
      * for optimal performance.
+     *
+     * There are a number of convenience methods available to perform sprite effects. Sprite effects are
+     * side-effecting.
+     *
+     * ```typescript
+     *
+     * var playerSprite = new ex.Sprite(txPlayer, 0, 0, 80, 80);
+     *
+     * // darken a sprite by a percentage
+     * playerSprite.darken(.2); // 20%
+     *
+     * // lighten a sprite by a percentage
+     * playerSprite.lighten(.2); // 20%
+     *
+     * // saturate a sprite by a percentage
+     * playerSprite.saturate(.2); // 20%
+     *
+     * // implement a custom effect
+     * class CustomEffect implements ex.EffectsISpriteEffect {
+     *
+     *   updatePixel(x: number, y: number, imageData: ImageData) {
+     *       // modify ImageData
+     *   }
+     * }
+     *
+     * playerSprite.addEffect(new CustomEffect());
+     *
+     * ```
      */
     class Sprite implements IDrawable {
         sx: number;
@@ -837,7 +867,8 @@ declare module ex {
      * Sprite Fonts
      *
      * Sprite fonts are a used in conjunction with a [[Label]] to specify
-     * a particular bitmap as a font.
+     * a particular bitmap as a font. Note that some font features are not
+     * supported by Sprite fonts.
      *
      * ## Generating the font sheet
      *
@@ -917,9 +948,19 @@ declare module ex {
         image: Texture;
         private alphabet;
         private caseInsensitive;
+        spWidth: number;
+        spHeight: number;
         private _spriteLookup;
         private _colorLookup;
         private _currentColor;
+        private _currentOpacity;
+        private _sprites;
+        private _textShadowOn;
+        private _textShadowDirty;
+        private _textShadowColor;
+        private _textShadowSprites;
+        private _shadowOffsetX;
+        private _shadowOffsetY;
         /**
          * @param image           The backing image texture to build the SpriteFont
          * @param alphabet        A string representing all the characters in the image, in row major order.
@@ -936,6 +977,34 @@ declare module ex {
         getTextSprites(): {
             [key: string]: Sprite;
         };
+        /**
+         * Sets the text shadow for sprite fonts
+         * @param offsetX      The x offset in pixels to place the shadow
+         * @param offsetY      The y offset in pixles to place the shadow
+         * @param shadowColor  The color of the text shadow
+         */
+        setTextShadow(offsetX: number, offsetY: number, shadowColor: Color): void;
+        /**
+         * Toggles text shadows on or off
+         */
+        useTextShadow(on: boolean): void;
+        /**
+         * Draws the current sprite font
+         */
+        draw(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, options: ISpriteFontOptions): void;
+        private _parseOptions(options);
+    }
+    /**
+     * Specify various font attributes for sprite fonts
+     */
+    interface ISpriteFontOptions {
+        color?: Color;
+        opacity?: number;
+        fontSize?: number;
+        letterSpacing?: number;
+        textAlign?: TextAlign;
+        baseAlign?: BaseAlign;
+        maxWidth?: number;
     }
 }
 declare module ex {
@@ -1343,6 +1412,12 @@ declare module ex {
          */
         off(eventName: string, handler?: (event?: GameEvent) => void): void;
         /**
+         * Emits a new event
+         * @param eventName   Name of the event to emit
+         * @param eventObject Data associated with this event
+         */
+        emit(eventName: string, eventObject?: GameEvent): void;
+        /**
          * You may wish to extend native Excalibur functionality in vanilla Javascript.
          * Any method on a class inheriting [[Class]] may be extended to support
          * additional functionaliy. In the example below we create a new type called `MyActor`.
@@ -1549,8 +1624,19 @@ declare module ex {
      */
     class BaseCamera {
         protected _follow: Actor;
-        protected _focus: Point;
-        protected _lerp: boolean;
+        focus: Point;
+        lerp: boolean;
+        x: number;
+        y: number;
+        z: number;
+        dx: number;
+        dy: number;
+        dz: number;
+        ax: number;
+        ay: number;
+        az: number;
+        rotation: number;
+        rx: number;
         private _cameraMoving;
         private _currentLerpTime;
         private _lerpDuration;
@@ -1575,13 +1661,14 @@ declare module ex {
          */
         setActorToFollow(actor: Actor): void;
         /**
-         * Returns the focal point of the camera
+         * Returns the focal point of the camera, a new point giving the x and y position of the camera
          */
         getFocus(): Point;
         /**
          * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
          * @param x The x coordinate of the focal point
          * @param y The y coordinate of the focal point
+         * @deprecated
          */
         setFocus(x: number, y: number): void;
         /**
@@ -2076,11 +2163,6 @@ declare module ex {
      * in future versions to support multiple timelines/scripts, better eventing,
      * and a more robust API to allow for complex and customized actions.
      *
-     * ## Known Issues
-     *
-     * **Rotation actions do not use shortest angle**
-     * [Issue #282](https://github.com/excaliburjs/Excalibur/issues/282)
-     *
      */
     class ActionContext {
         private _actors;
@@ -2094,6 +2176,16 @@ declare module ex {
         clearActions(): void;
         addActorToContext(actor: Actor): void;
         removeActorFromContext(actor: Actor): void;
+        /**
+         * This method will move an actor to the specified `x` and `y` position over the
+         * specified duration using a given [[EasingFunctions]] and return back the actor. This
+         * method is part of the actor 'Action' fluent API allowing action chaining.
+         * @param x         The x location to move the actor to
+         * @param y         The y location to move the actor to
+         * @param duration  The time it should take the actor to move to the new location in milliseconds
+         * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
+         */
+        easeTo(x: number, y: number, duration: number, easingFcn?: (currentTime: number, startValue: number, endValue: number, duration: number) => number): ActionContext;
         /**
          * This method will move an actor to the specified x and y position at the
          * speed specified (in pixels per second) and return back the actor. This
@@ -2224,7 +2316,26 @@ declare module ex {
      * Groups are used for logically grouping Actors so they can be acted upon
      * in bulk.
      *
-     * @todo Document this
+     * ## Using Groups
+     *
+     * Groups can be used to detect collisions across a large nubmer of actors. For example
+     * perhaps a large group of "enemy" actors.
+     *
+     * ```typescript
+     * var enemyShips = engine.currentScene.createGroup("enemy");
+     * var enemies = [...]; // Large array of enemies;
+     * enemyShips.add(enemies);
+     *
+     * var player = new Actor();
+     * engine.currentScene.add(player);
+     *
+     * enemyShips.on('collision', function(ev: CollisionEvent){
+     *   if (e.other === player) {
+     *       //console.log("collision with player!");
+     *   }
+     * });
+     *
+     * ```
      */
     class Group extends Class implements IActionable {
         name: string;
@@ -2343,6 +2454,13 @@ declare module ex {
      *
      * ```
      *
+     * ## Scene Lifecycle
+     *
+     * A [[Scene|scene]] has a basic lifecycle that dictacts how it is initialized, updated, and drawn. Once a [[Scene|scene]] is added to
+     * the [[Engine|engine]] it will follow this lifecycle.
+     *
+     * ![Scene Lifecycle](/assets/images/docs/SceneLifeCycle.png)
+     *
      * ## Extending scenes
      *
      * For more complex games, you might want more control over a scene in which
@@ -2458,12 +2576,6 @@ declare module ex {
          */
         onDeactivate(): void;
         /**
-         * Publish an event to all actors in the scene
-         * @param eventType  The name of the event to publish
-         * @param event      The event object to send
-         */
-        publish(eventType: string, event: GameEvent): void;
-        /**
          * Updates all the actors and timers in the scene. Called by the [[Engine]].
          * @param engine  Reference to the current Engine
          * @param delta   The number of milliseconds since the last update
@@ -2535,6 +2647,8 @@ declare module ex {
         removeUIActor(actor: Actor): void;
         /**
          * Adds an actor to the scene, once this is done the actor will be drawn and updated.
+         *
+         * @obsolete Use [[add]] instead.
          */
         addChild(actor: Actor): void;
         /**
@@ -2597,32 +2711,44 @@ declare module ex {
 }
 declare module ex {
     /**
-     * Standard easing functions for motion in Excalibur
+     * Standard easing functions for motion in Excalibur, defined on a domain of [0, duration] and a range from [+startValue,+endValue]
+     * Given a time, the function will return a value from postive startValue to postive endValue.
      *
-     * easeInQuad: function (t) { return t * t },
-     * // decelerating to zero velocity
-     * easeOutQuad: function (t) { return t * (2 - t) },
-     * // acceleration until halfway, then deceleration
-     * easeInOutQuad: function (t) { return t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t },
-     * // accelerating from zero velocity
-     * easeInCubic: function (t) { return t * t * t },
-     * // decelerating to zero velocity
-     * easeOutCubic: function (t) { return (--t) * t * t + 1 },
-     * // acceleration until halfway, then deceleration
-     * easeInOutCubic: function (t) { return t < .5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1 },
-     * // accelerating from zero velocity
-     * easeInQuart: function (t) { return t * t * t * t },
-     * // decelerating to zero velocity
-     * easeOutQuart: function (t) { return 1 - (--t) * t * t * t },
-     * // acceleration until halfway, then deceleration
-     * easeInOutQuart: function (t) { return t < .5 ? 8 * t * t * t * t : 1 - 8 * (--t) * t * t * t },
-     * // accelerating from zero velocity
-     * easeInQuint: function (t) { return t * t * t * t * t },
-     * // decelerating to zero velocity
-     * easeOutQuint: function (t) { return 1 + (--t) * t * t * t * t },
-     * // acceleration until halfway, then deceleration
-     * easeInOutQuint: function (t) { return t < .5 ? 16 * t * t * t * t * t : 1 + 16 * (--t) * t * t * t * t }
+     * ```js
+     * function Linear (t) {
+     *    return t * t;
+     * }
      *
+     * // accelerating from zero velocity
+     * function EaseInQuad (t) {
+     *    return t * t;
+     * }
+     *
+     * // decelerating to zero velocity
+     * function EaseOutQuad (t) {
+     *    return t * (2 - t);
+     * }
+     *
+     * // acceleration until halfway, then deceleration
+     * function EaseInOutQuad (t) {
+     *    return t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+     * }
+     *
+     * // accelerating from zero velocity
+     * function EaseInCubic (t) {
+     *    return t * t * t;
+     * }
+     *
+     * // decelerating to zero velocity
+     * function EaseOutCubic (t) {
+     *    return (--t) * t * t + 1;
+     * }
+     *
+     * // acceleration until halfway, then deceleration
+     * function EaseInOutCubic (t) {
+     *    return t < .5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+     * }
+     * ```
      */
     class EasingFunctions {
         static Linear: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
@@ -2659,7 +2785,16 @@ declare module ex {
      *
      * // add player to the current scene
      * game.add(player);
+     *
      * ```
+     * `game.add` is a convenience method for adding an `Actor` to the current scene. The equivalent verbose call is `game.currentScene.add`.
+     *
+     * ## Actor Lifecycle
+     *
+     * An [[Actor|actor]] has a basic lifecycle that dictacts how it is initialized, updated, and drawn. Once an actor is part of a
+     * [[Scene|scene]], it will follow this lifecycle.
+     *
+     * ![Actor Lifecycle](/assets/images/docs/ActorLifeCycle.png)
      *
      * ## Extending actors
      *
@@ -2729,7 +2864,7 @@ declare module ex {
      *
      * The [[update]] method is passed an instance of the Excalibur engine, which
      * can be used to perform coordinate math or access global state. It is also
-     * passed `delta` which is the time since the last frame, which can be used
+     * passed `delta` which is the time in milliseconds since the last frame, which can be used
      * to perform time-based movement or time-based math (such as a timer).
      *
      * **TypeScript**
@@ -2741,7 +2876,7 @@ declare module ex {
      *
      *     // check if player died
      *     if (this.health <= 0) {
-     *       this.triggerEvent("death");
+     *       this.emit("death");
      *       this.onDeath();
      *       return;
      *     }
@@ -2758,7 +2893,7 @@ declare module ex {
      *
      *     // check if player died
      *     if (this.health <= 0) {
-     *       this.triggerEvent("death");
+     *       this.emit("death");
      *       this.onDeath();
      *       return;
      *     }
@@ -2770,13 +2905,16 @@ declare module ex {
      *
      * Override the [[draw]] method to perform any custom drawing. For simple games,
      * you don't need to override `draw`, instead you can use [[addDrawing]] and [[setDrawing]]
-     * to manipulate the textures/animations that the actor is using.
+     * to manipulate the [[Sprite|sprites]]/[[Animation|animations]] that the actor is using.
      *
      * ### Working with Textures & Sprites
      *
-     * A common usage is to use a [[Texture]] or [[Sprite]] for an actor. If you are using the [[Loader]] to
-     * pre-load assets, you can simply assign an actor a [[Texture]] to draw. You can
-     * also create a [[Texture.asSprite|sprite from a Texture]] to quickly create a [[Sprite]] instance.
+     * Think of a [[Texture|texture]] as the raw image file that will be loaded into Excalibur. In order for it to be drawn
+     * it must be converted to a [[Sprite.sprite]].
+     *
+     * A common usage is to load a [[Texture]] and convert it to a [[Sprite]] for an actor. If you are using the [[Loader]] to
+     * pre-load assets, you can simply assign an actor a [[Sprite]] to draw. You can also create a
+     * [[Texture.asSprite|sprite from a Texture]] to quickly create a [[Sprite]] instance.
      *
      * ```ts
      * // assume Resources.TxPlayer is a 80x80 png image
@@ -2815,7 +2953,8 @@ declare module ex {
      * ### Custom drawing
      *
      * You can always override the default drawing logic for an actor in the [[draw]] method,
-     * for example, to draw complex shapes or to use the raw Canvas API.
+     * for example, to draw complex shapes or to use the raw
+     * [[https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D|Canvas API]].
      *
      * Usually you should call `super.draw` to perform the base drawing logic, but other times
      * you may want to take over the drawing completely.
@@ -2846,33 +2985,45 @@ declare module ex {
      * ## Collision Detection
      *
      * By default Actors do not participate in collisions. If you wish to make
-     * an actor participate, you need to enable the [[CollisionDetectionModule]]
+     * an actor participate, you need to switch from the default [[CollisionType.PreventCollision|prevent collision]]
+     * to [[CollisionType.Active|active]], [[CollisionType.Fixed|fixed]], or [[CollisionType.Passive|passive]] collision type.
      *
      * ```ts
      * public Player extends ex.Actor {
      *   constructor() {
      *     super();
-     *
-     *     // enable the pipeline
-     *     this.pipelines.push(new ex.CollisionDetectionModule());
-     *
      *     // set preferred CollisionType
      *     this.collisionType = ex.CollisionType.Active;
      *   }
      * }
+     *
+     * // or set the collisionType
+     *
+     * var actor = new ex.Actor();
+     * actor.collisionType = ex.CollisionType.Active;
+     *
      * ```
-     *
      * ### Collision Groups
-     *
      * TODO, needs more information.
+     *
+     * ## Traits
+     *
+     * Traits describe actor behavior that occurs every update. If you wish to build a generic behavior
+     * without needing to extend every actor you can do it with a trait, a good example of this may be
+     * plugging in an external collision detection library like [[https://github.com/kripken/box2d.js/|Box2D]] or
+     * [[http://wellcaffeinated.net/PhysicsJS/|PhysicsJS]] by wrapping it in a trait. Removing traits can also make your
+     * actors more efficient.
+     *
+     * Default traits provided by Excalibur are [[Traits.CapturePointer|pointer capture]],
+     * [[Traits.CollisionDetection|tile map collision]], [[Traits.Movement|Euler style movement]],
+     * and [[Traits.OffscreenCulling|offscreen culling]].
+     *
      *
      * ## Known Issues
      *
      * **Actor bounding boxes do not rotate**
      * [Issue #68](https://github.com/excaliburjs/Excalibur/issues/68)
      *
-     * **Setting opacity when using a color doesn't do anything**
-     * [Issue #364](https://github.com/excaliburjs/Excalibur/issues/364)
      */
     class Actor extends ex.Class implements IActionable {
         /**
@@ -2884,11 +3035,11 @@ declare module ex {
          */
         id: number;
         /**
-         * The x coordinate of the actor (left edge)
+         * The x coordinate of the actor (middle if anchor is (0.5, 0.5) left edge if anchor is (0, 0))
          */
         x: number;
         /**
-         * The y coordinate of the actor (top edge)
+         * The y coordinate of the actor (middle if anchor is (0.5, 0.5) and top edge if anchor is (0, 0))
          */
         y: number;
         /**
@@ -3060,12 +3211,12 @@ declare module ex {
          * move with it.
          * @param actor The child actor to add
          */
-        addChild(actor: Actor): void;
+        add(actor: Actor): void;
         /**
          * Removes a child actor from this actor.
          * @param actor The child actor to remove
          */
-        removeChild(actor: Actor): void;
+        remove(actor: Actor): void;
         /**
          * Sets the current drawing of the actor to the drawing corresponding to
          * the key.
@@ -3104,14 +3255,6 @@ declare module ex {
          * @param actor The child actor to remove
          */
         setZIndex(newIndex: number): void;
-        /**
-         * Artificially trigger an event on an actor, useful when creating custom events.
-         * @param eventName   The name of the event to trigger
-         * @param event       The event object to pass to the callback
-         *
-         * @obsolete  Will be replaced with `emit`
-         */
-        triggerEvent(eventName: string, event?: GameEvent): void;
         /**
          * Adds an actor to a collision group. Actors with no named collision groups are
          * considered to be in every collision group.
@@ -3231,6 +3374,7 @@ declare module ex {
         within(actor: Actor, distance: number): boolean;
         /**
          * Clears all queued actions from the Actor
+         * @obsolete Use [[ActionContext.clearActions|Actor.actions.clearActions]]
          */
         clearActions(): void;
         /**
@@ -3241,6 +3385,7 @@ declare module ex {
          * @param y         The y location to move the actor to
          * @param duration  The time it should take the actor to move to the new location in milliseconds
          * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
+         * @obsolete Use [[ActionContext.easeTo|Actor.actions.easeTo]]
          */
         easeTo(x: number, y: number, duration: number, easingFcn?: (currentTime: number, startValue: number, endValue: number, duration: number) => number): Actor;
         /**
@@ -3250,6 +3395,7 @@ declare module ex {
          * @param x       The x location to move the actor to
          * @param y       The y location to move the actor to
          * @param speed   The speed in pixels per second to move
+         * @obsolete Use [[ActionContext.moveTo|Actor.actions.moveTo]]
          */
         moveTo(x: number, y: number, speed: number): Actor;
         /**
@@ -3259,6 +3405,7 @@ declare module ex {
          * @param x         The x location to move the actor to
          * @param y         The y location to move the actor to
          * @param duration  The time it should take the actor to move to the new location in milliseconds
+         * @obsolete Use [[ActionContext.moveBy|Actor.actions.moveBy]]
          */
         moveBy(x: number, y: number, duration: number): Actor;
         /**
@@ -3267,6 +3414,7 @@ declare module ex {
          * method is part of the actor 'Action' fluent API allowing action chaining.
          * @param angleRadians  The angle to rotate to in radians
          * @param speed         The angular velocity of the rotation specified in radians per second
+         * @obsolete Use [[ActionContext.rotateTo|Actor.actions.rotateTo]]
          */
         rotateTo(angleRadians: number, speed: number, rotationType?: RotationType): Actor;
         /**
@@ -3275,6 +3423,7 @@ declare module ex {
          * of the actor 'Action' fluent API allowing action chaining.
          * @param angleRadians  The angle to rotate to in radians
          * @param duration          The time it should take the actor to complete the rotation in milliseconds
+         * @obsolete Use [[ActionContext.rotateBy|ex.Actor.actions.rotateBy]]
          */
         rotateBy(angleRadians: number, duration: number, rotationType?: RotationType): Actor;
         /**
@@ -3286,6 +3435,7 @@ declare module ex {
          * @param sizeY  The scaling factor in the y direction to apply
          * @param speedX The speed of scaling in the x direction specified in magnitude increase per second
          * @param speedY The speed of scaling in the y direction specified in magnitude increase per second
+         * @obsolete Use [[ActionContext.scaleTo|Actor.actions.scaleTo]]
          */
         scaleTo(sizeX: number, sizeY: number, speedX: number, speedY: number): Actor;
         /**
@@ -3295,6 +3445,7 @@ declare module ex {
          * @param sizeX     The scaling factor in the x direction to apply
          * @param sizeY     The scaling factor in the y direction to apply
          * @param duration  The time it should take to complete the scaling in milliseconds
+         * @obsolete Use [[ActionContext.scaleBy|Actor.actions.scaleBy]]
          */
         scaleBy(sizeX: number, sizeY: number, duration: number): Actor;
         /**
@@ -3305,6 +3456,7 @@ declare module ex {
          * @param timeVisible     The amount of time to stay visible per blink in milliseconds
          * @param timeNotVisible  The amount of time to stay not visible per blink in milliseconds
          * @param numBlinks       The number of times to blink
+         * @obsolete Use [[ActionContext.blink|Actor.actions.blink]]
          */
         blink(timeVisible: number, timeNotVisible: number, numBlinks?: number): Actor;
         /**
@@ -3313,6 +3465,7 @@ declare module ex {
          * part of the actor 'Action' fluent API allowing action chaining.
          * @param opacity   The ending opacity
          * @param duration  The time it should take to fade the actor (in milliseconds)
+         * @obsolete Use [[ActionContext.fade|Actor.actions.fade]]
          */
         fade(opacity: number, duration: number): Actor;
         /**
@@ -3320,18 +3473,21 @@ declare module ex {
          * `duration` (in milliseconds). This method is part of the actor
          * 'Action' fluent API allowing action chaining.
          * @param duration The amount of time to delay the next action in the queue from executing in milliseconds
+         * @obsolete Use [[ActionContext.delay|Actor.actions.delay]]
          */
         delay(duration: number): Actor;
         /**
          * This method will add an action to the queue that will remove the actor from the
          * scene once it has completed its previous actions. Any actions on the
          * action queue after this action will not be executed.
+         * @obsolete Use [[ActionContext.die|Actor.actions.die]]
          */
         die(): Actor;
         /**
          * This method allows you to call an arbitrary method as the next action in the
          * action queue. This is useful if you want to execute code in after a specific
          * action, i.e An actor arrives at a destination after traversing a path
+         * @obsolete Use [[ActionContext.callMethod|Actor.actions.callMethod]]
          */
         callMethod(method: () => any): Actor;
         /**
@@ -3341,18 +3497,21 @@ declare module ex {
          * the actor 'Action' fluent API allowing action chaining
          * @param times The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will
          * repeat forever
+         * @obsolete Use [[ActionContext.repeat|Actor.actions.repeat]]
          */
         repeat(times?: number): Actor;
         /**
          * This method will cause the actor to repeat all of the previously
          * called actions forever. This method is part of the actor 'Action'
          * fluent API allowing action chaining.
+         * @obsolete Use [[ActionContext.repeatForever|Actor.actions.repeatForever]]
          */
         repeatForever(): Actor;
         /**
          * This method will cause the actor to follow another at a specified distance
          * @param actor           The actor to follow
          * @param followDistance  The distance to maintain when following, if not specified the actor will follow at the current distance.
+         * @obsolete Use [[ActionContext.follow|Actor.actions.follow]]
          */
         follow(actor: Actor, followDistance?: number): Actor;
         /**
@@ -3360,11 +3519,13 @@ declare module ex {
          * collide ("meet") at a specified speed.
          * @param actor  The actor to meet
          * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
+         * @obsolete Use [[ActionContext.meet|Actor.actions.meet]]
          */
         meet(actor: Actor, speed?: number): Actor;
         /**
          * Returns a promise that resolves when the current action queue up to now
          * is finished.
+         * @obsolete Use [[ActionContext.asPromise|Actor.actions.asPromise]]
          */
         asPromise<T>(): Promise<T>;
         private _getCalculatedAnchor();
@@ -3410,6 +3571,7 @@ declare module ex {
          * Actors with the `Elastic` setting will behave the same as `Active`, except that they will
          * "bounce" in the opposite direction given their velocity dx/dy. This is a naive implementation meant for
          * prototyping, for a more robust elastic collision listen to the "collision" event and perform your custom logic.
+         * @obsolete This behavior will be handled by a future physics system
          */
         Elastic = 3,
         /**
@@ -3552,22 +3714,23 @@ declare module ex {
 }
 declare module ex {
     /**
-     * An enum representing all of the built in event types for Excalibur
-     * @obsolete Phasing this out in favor of classes
-     */
-    enum EventType {
-        Collision = 0,
-        EnterViewPort = 1,
-        ExitViewPort = 2,
-        Blur = 3,
-        Focus = 4,
-        Update = 5,
-        Activate = 6,
-        Deactivate = 7,
-        Initialize = 8,
-    }
-    /**
-     * Base event type in Excalibur that all other event types derive from.
+     * Base event type in Excalibur that all other event types derive from. Not all event types are thrown on all Excalibur game objects,
+     * some events are unique to a type, others are not.
+     *
+     * Excalibur events follow the convention that the name of the thrown event for listening will be the same as the Event object in all
+     * lower case with the 'Event' suffix removed.
+     *
+     * For example:
+     * - PreDrawEvent event object and "predraw" as the event name
+     *
+     * ```typescript
+     *
+     * actor.on('predraw', (evtObj: PreDrawEvent) => {
+     *    // do some pre drawing
+     * })
+     *
+     * ```
+     *
      */
     class GameEvent {
         /**
@@ -3576,7 +3739,104 @@ declare module ex {
         target: any;
     }
     /**
-     * Subscribe event thrown when handlers for events other than subscribe are added
+     * The 'predraw' event is emitted on actors, scenes, and engine before drawing starts. Actors' predraw happens inside their graphics
+     * transform so that all drawing takes place with the actor as the origin.
+     *
+     */
+    class PreDrawEvent extends GameEvent {
+        ctx: CanvasRenderingContext2D;
+        delta: any;
+        target: any;
+        constructor(ctx: CanvasRenderingContext2D, delta: any, target: any);
+    }
+    /**
+     * The 'postdraw' event is emitted on actors, scenes, and engine after drawing finishes. Actors' postdraw happens inside their graphics
+     * transform so that all drawing takes place with the actor as the origin.
+     *
+     */
+    class PostDrawEvent extends GameEvent {
+        ctx: CanvasRenderingContext2D;
+        delta: any;
+        target: any;
+        constructor(ctx: CanvasRenderingContext2D, delta: any, target: any);
+    }
+    /**
+     * The 'predebugdraw' event is emitted on actors, scenes, and engine before debug drawing starts.
+     */
+    class PreDebugDrawEvent extends GameEvent {
+        ctx: CanvasRenderingContext2D;
+        target: any;
+        constructor(ctx: CanvasRenderingContext2D, target: any);
+    }
+    /**
+     * The 'postdebugdraw' event is emitted on actors, scenes, and engine after debug drawing starts.
+     */
+    class PostDebugDrawEvent extends GameEvent {
+        ctx: CanvasRenderingContext2D;
+        target: any;
+        constructor(ctx: CanvasRenderingContext2D, target: any);
+    }
+    /**
+     * The 'preupdate' event is emitted on actors, scenes, and engine before the update starts.
+     */
+    class PreUpdateEvent extends GameEvent {
+        engine: Engine;
+        delta: any;
+        target: any;
+        constructor(engine: Engine, delta: any, target: any);
+    }
+    /**
+     * The 'postupdate' event is emitted on actors, scenes, and engine after the update ends. This is equivalent to the obsolete 'update'
+     * event.
+     */
+    class PostUpdateEvent extends GameEvent {
+        engine: Engine;
+        delta: any;
+        target: any;
+        constructor(engine: Engine, delta: any, target: any);
+    }
+    /**
+     * Event received when a gamepad is connected to Excalibur. [[Input.Gamepads|engine.input.gamepads]] receives this event.
+     */
+    class GamepadConnectEvent extends GameEvent {
+        index: number;
+        gamepad: ex.Input.Gamepad;
+        constructor(index: number, gamepad: ex.Input.Gamepad);
+    }
+    /**
+     * Event received when a gamepad is disconnected from Excalibur. [[Input.Gamepads|engine.input.gamepads]] receives this event.
+     */
+    class GamepadDisconnectEvent extends GameEvent {
+        index: number;
+        constructor(index: number);
+    }
+    /**
+     * Gamepad button event. See [[Gamepads]] for information on responding to controller input. [[Gamepad]] instances receive this event;
+     */
+    class GamepadButtonEvent extends ex.GameEvent {
+        button: ex.Input.Buttons;
+        value: number;
+        /**
+         * @param button  The Gamepad button
+         * @param value   A numeric value between 0 and 1
+         */
+        constructor(button: ex.Input.Buttons, value: number);
+    }
+    /**
+     * Gamepad axis event. See [[Gamepads]] for information on responding to controller input. [[Gamepad]] instances receive this event;
+     */
+    class GamepadAxisEvent extends ex.GameEvent {
+        axis: ex.Input.Axes;
+        value: number;
+        /**
+         * @param axis  The Gamepad axis
+         * @param value A numeric value between -1 and 1
+         */
+        constructor(axis: ex.Input.Axes, value: number);
+    }
+    /**
+     * Subscribe event thrown when handlers for events other than subscribe are added. Meta event that is received by
+     * [[EventDispatcher|event dispatchers]].
      */
     class SubscribeEvent extends GameEvent {
         topic: string;
@@ -3584,7 +3844,8 @@ declare module ex {
         constructor(topic: string, handler: (event?: GameEvent) => void);
     }
     /**
-     * Unsubscribe event thrown when handlers for events other than unsubscribe are removed
+     * Unsubscribe event thrown when handlers for events other than unsubscribe are removed. Meta event that is received by
+     * [[EventDispatcher|event dispatchers]].
      */
     class UnsubscribeEvent extends GameEvent {
         topic: string;
@@ -3592,19 +3853,19 @@ declare module ex {
         constructor(topic: string, handler: (event?: GameEvent) => void);
     }
     /**
-     * Event received by the Engine when the browser window is visible
+     * Event received by the [[Engine]] when the browser window is visible on a screen.
      */
     class VisibleEvent extends GameEvent {
         constructor();
     }
     /**
-     * Event received by the Engine when the browser window is hidden
+     * Event received by the [[Engine]] when the browser window is hidden from all screens.
      */
     class HiddenEvent extends GameEvent {
         constructor();
     }
     /**
-     * Event thrown on an actor when a collision has occured
+     * Event thrown on an [[Actor|actor]] when a collision has occured
      */
     class CollisionEvent extends GameEvent {
         actor: Actor;
@@ -3619,7 +3880,8 @@ declare module ex {
         constructor(actor: Actor, other: Actor, side: Side, intersection: Vector);
     }
     /**
-     * Event thrown on a game object on Excalibur update
+     * Event thrown on a game object on Excalibur update, this is equivalent to postupdate.
+     * @obsolete Please use [[PostUpdateEvent|postupdate]], or [[PreUpdateEvent|preupdate]].
      */
     class UpdateEvent extends GameEvent {
         delta: number;
@@ -3629,7 +3891,7 @@ declare module ex {
         constructor(delta: number);
     }
     /**
-     * Event thrown on an Actor only once before the first update call
+     * Event thrown on an [[Actor]] only once before the first update call
      */
     class InitializeEvent extends GameEvent {
         engine: Engine;
@@ -3639,7 +3901,7 @@ declare module ex {
         constructor(engine: Engine);
     }
     /**
-     * Event thrown on a Scene on activation
+     * Event thrown on a [[Scene]] on activation
      */
     class ActivateEvent extends GameEvent {
         oldScene: Scene;
@@ -3649,7 +3911,7 @@ declare module ex {
         constructor(oldScene: Scene);
     }
     /**
-     * Event thrown on a Scene on deactivation
+     * Event thrown on a [[Scene]] on deactivation
      */
     class DeactivateEvent extends GameEvent {
         newScene: Scene;
@@ -3659,13 +3921,13 @@ declare module ex {
         constructor(newScene: Scene);
     }
     /**
-     * Event thrown on an Actor when it completely leaves the screen.
+     * Event thrown on an [[Actor]] when it completely leaves the screen.
      */
     class ExitViewPortEvent extends GameEvent {
         constructor();
     }
     /**
-     * Event thrown on an Actor when it completely leaves the screen.
+     * Event thrown on an [[Actor]] when it completely leaves the screen.
      */
     class EnterViewPortEvent extends GameEvent {
         constructor();
@@ -3675,8 +3937,8 @@ declare module ex {
     /**
      * Excalibur's internal event dispatcher implementation.
      * Callbacks are fired immediately after an event is published.
-     * Typically you'd use [[Class.eventDispatcher]] since most classes in
-     * Excalibur inherit from [[Class]]. You'd rarely create an `EventDispatcher`
+     * Typically you will use [[Class.eventDispatcher]] since most classes in
+     * Excalibur inherit from [[Class]]. You will rarely create an `EventDispatcher`
      * yourself.
      *
      * When working with events, be sure to keep in mind the order of subscriptions
@@ -3713,14 +3975,14 @@ declare module ex {
      * });
      *
      * // trigger custom event
-     * player.triggerEvent("death", new DeathEvent());
+     * player.emit("death", new DeathEvent());
      *
      * ```
      *
      * ## Example: Pub/Sub with Excalibur
      *
      * You can also create an EventDispatcher for any arbitrary object, for example
-     * a global game event aggregator (`vent`). Anything in your game can subscribe to
+     * a global game event aggregator (shown below as `vent`). Anything in your game can subscribe to
      * it, if the event aggregator is in the global scope.
      *
      * *Warning:* This can easily get out of hand. Avoid this usage, it just serves as
@@ -3739,7 +4001,7 @@ declare module ex {
      * vent.subscribe("someevent", subscription);
      *
      * // publish an event somewhere in the game
-     * vent.publish("someevent", new ex.GameEvent());
+     * vent.emit("someevent", new ex.GameEvent());
      * ```
      */
     class EventDispatcher {
@@ -3755,6 +4017,8 @@ declare module ex {
          * Publish an event for target
          * @param eventName  The name of the event to publish
          * @param event      Optionally pass an event data object to the handler
+         *
+         * @obsolete Use [[emit]] instead.
          */
         publish(eventName: string, event?: GameEvent): void;
         /**
@@ -4145,7 +4409,7 @@ declare module ex {
      * extend [[Actor]] allowing you to use all of the features that come with.
      *
      * The easiest way to create a `ParticleEmitter` is to use the
-     * [Particle Tester](http://excaliburjs.com/particle-tester/).
+     * [Particle Tester](http://excaliburjs.com/particle-tester/) to generate code for emitters.
      *
      * ## Example: Adding an emitter
      *
@@ -4153,12 +4417,26 @@ declare module ex {
      * var actor = new ex.Actor(...);
      * var emitter = new ex.ParticleEmitter(...);
      *
+     * emitter.emitterType = ex.EmitterType.Circle; // Shape of emitter nozzle
+     * emitter.radius = 5;
+     * emitter.minVel = 100;
+     * emitter.maxVel = 200;
+     * emitter.minAngle = 0;
+     * emitter.maxAngle = Math.PI * 2;
+     * emitter.emitRate = 300; // 300 particles/second
+     * emitter.opacity = 0.5;
+     * emitter.fadeFlag = true; // fade particles overtime
+     * emitter.particleLife = 1000; // in milliseconds = 1 sec
+     * emitter.maxSize = 10; // in pixels
+     * emitter.minSize = 1;
+     * emitter.particleColor = ex.Color.Rose;
+     *
      * // set emitter settings
-     * emitter.isEmitting = true;
+     * emitter.isEmitting = true;  // should the emitter be emitting
      *
      * // add the emitter as a child actor, it will draw on top of the parent actor
      * // and move with the parent
-     * actor.addChild(emitter);
+     * actor.add(emitter);
      *
      * // or, alternatively, add it to the current scene
      * engine.add(emitter);
@@ -4274,7 +4552,7 @@ declare module ex {
          * Causes the emitter to emit particles
          * @param particleCount  Number of particles to emit right now
          */
-        emit(particleCount: number): void;
+        emitParticles(particleCount: number): void;
         clearParticles(): void;
         private _createParticle();
         update(engine: Engine, delta: number): void;
@@ -4850,7 +5128,8 @@ declare module ex {
      * is loaded, you can [[Sound.play|play]] it.
      *
      * ```js
-     * var sndPlayerDeath = new ex.Sound("/assets/snd/player-death.mp3", "/assets/snd/player-wav.mp3");
+     * // define multiple sources (such as mp3/wav/ogg) as a browser fallback
+     * var sndPlayerDeath = new ex.Sound("/assets/snd/player-death.mp3", "/assets/snd/player-death.wav");
      *
      * var loader = new ex.Loader(sndPlayerDeath);
      *
@@ -5080,6 +5359,32 @@ declare module ex {
 }
 declare module ex {
     /**
+     * Enum representing the different font size units
+     * https://developer.mozilla.org/en-US/docs/Web/CSS/font-size
+     */
+    enum FontUnit {
+        /**
+         * Em is a scalable unit, 1 em is equal to the current font size of the current element, parent elements can effect em values
+         */
+        Em = 0,
+        /**
+         * Rem is similar to the Em, it is a scalable unit. 1 rem is eqaul to the font size of the root element
+         */
+        Rem = 1,
+        /**
+         * Pixel is a unit of length in screen pixels
+         */
+        Px = 2,
+        /**
+         * Point is a physical unit length (1/72 of an inch)
+         */
+        Pt = 3,
+        /**
+         * Percent is a scalable unit similar to Em, the only difference is the Em units scale faster when Text-Size stuff
+         */
+        Percent = 4,
+    }
+    /**
      * Enum representing the different horizontal text alignments
      */
     enum TextAlign {
@@ -5234,10 +5539,18 @@ declare module ex {
          */
         spriteFont: SpriteFont;
         /**
-         * The CSS font string (e.g. `10px sans-serif`, `10px Droid Sans Pro`). Web fonts
+         * The CSS font family string (e.g. `sans-serif`, `Droid Sans Pro`). Web fonts
          * are supported, same as in CSS.
          */
-        font: string;
+        fontFamily: string;
+        /**
+         * The font size in the selected units, default is 10 (default units is pixel)
+         */
+        fontSize: number;
+        /**
+         * The css units for a font size such as px, pt, em (SpriteFont only support px), by default is 'px';
+         */
+        fontUnit: FontUnit;
         /**
          * Gets or sets the horizontal text alignment property for the label.
          */
@@ -5274,12 +5587,13 @@ declare module ex {
          * @param spriteFont  Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precendence
          * over a css font.
          */
-        constructor(text?: string, x?: number, y?: number, font?: string, spriteFont?: SpriteFont);
+        constructor(text?: string, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont);
         /**
          * Returns the width of the text in the label (in pixels);
          * @param ctx  Rending context to measure the string with
          */
         getTextWidth(ctx: CanvasRenderingContext2D): number;
+        private _lookupFontUnit(fontUnit);
         private _lookupTextAlign(textAlign);
         private _lookupBaseAlign(baseAlign);
         /**
@@ -5289,6 +5603,10 @@ declare module ex {
          * @param shadowColor  The color of the text shadow
          */
         setTextShadow(offsetX: number, offsetY: number, shadowColor: Color): void;
+        /**
+         * Toggles text shadows on or off, only applies when using sprite fonts
+         */
+        useTextShadow(on: boolean): void;
         /**
          * Clears the current text shadow
          */
@@ -5300,6 +5618,73 @@ declare module ex {
     }
 }
 declare module ex {
+    /**
+     * Post Processors
+     *
+     * Sometimes it is necessary to apply an effect to the canvas after the engine has completed its drawing pass. A few reasons to do
+     * this might be creating a blur effect, adding a lighting effect, or changing how colors and pixels look.
+     *
+     * ## Basic post procesors
+     *
+     * To create and use a post processor you just need to implement a class that implements [[IPostProcessor]], which has one method
+     * [[IPostProcessor.process]]. Set the `out` canvas parameter to the final result, using the `image` pixel data.
+     *
+     * Click to read more about [[https://developer.mozilla.org/en-US/docs/Web/API/ImageData|ImageData]] on MDN.
+     *
+     * For example:
+     * ```typescript
+     * // simple way to grayscale, a faster way would be to implement using a webgl fragment shader
+     * class GrayscalePostProcessor implements IPostProcessor {
+     *   process(image: ImageData, out: CanvasRenderingContext2D) {
+     *      for(var i = 0; i < (image.height * image.width), i+=4){
+     *         // for pixel "i""
+     *         var r = image.data[i+0]; //0-255
+     *         var g = image.data[i+1]; //g
+     *         var b = image.data[i+2]; //b
+     *         image.data[i+3]; //a
+     *         var result = Math.floor((r + g + b) / 3.0) | 0; // only valid on 0-255 integers `| 0` forces int
+     *         image.data[i+0] = result;
+     *         image.data[i+1] = result;
+     *         image.data[i+2] = result;
+     *      }
+     *      // finish processing and write result
+     *      out.putImageData(image, 0, 0);
+     *   }
+     * }
+     *
+     * ```
+     *
+     * ## Color Blind Corrector Post Processor
+     *
+     * Choosing colors that are friendly to players with color blindness is an important consideration when making a game.
+     * There is a significant portion of the population that has some form of color blindness,
+     * and choosing bad colors can make your game unplayable. We have built
+     * a post procesors that can shift your colors into as more visible range for the 3 most common types of
+     * [[https://en.wikipedia.org/wiki/Color_blindness|color blindness]].
+     *
+     *  - [[ColorBlindness.Protanope|Protanope]]
+     *  - [[ColorBlindness.Deuteranope|Deuteranope]]
+     *  - [[ColorBlindness.Tritanope|Tritanope]]
+     *
+     * This post processor can correct colors, and simulate color blindness.
+     * It is possible to use this on every game, but the game's performance
+     * will suffer measurably. It's better to use it as a helpful tool while developing your game.
+     * Remember, the best practice is to design with color blindness in mind.
+     *
+     * Example:
+     * ```typescript
+     *
+     * var game = new ex.Engine();
+     *
+     * var colorBlindPostProcessor = new ex.ColorBlindCorrector(game, false, ColorBlindness.Protanope);
+     *
+     * // post processors evaluate left to right
+     * game.postProcessors.push(colorBlindPostProcessor);
+     * game.start();
+     *
+     * ```
+     *
+     */
     interface IPostProcessor {
         process(image: ImageData, out: CanvasRenderingContext2D): void;
     }
@@ -5388,7 +5773,7 @@ declare module ex.Input {
      *
      * ## Events
      *
-     * You can subscribe to pointer events through `engine.input.pointers`. A [[PointerEvent]] object is
+     * You can subscribe to pointer events through `engine.input.pointers.on`. A [[PointerEvent]] object is
      * passed to your handler which offers information about the pointer input being received.
      *
      * - `down` - When a pointer is pressed down (any mouse button or finger press)
@@ -5411,7 +5796,7 @@ declare module ex.Input {
      * complex input and having control over every interaction.
      *
      * You can also use [[PointerScope.Canvas]] to only scope event handling to the game
-     * canvas. This is useful if you don't care about events that occur outside.
+     * canvas. This is useful if you don't care about events that occur outside the game.
      *
      * One real-world example is dragging and gestures. Sometimes a player will drag their
      * finger outside your game and then into it, expecting it to work. If [[PointerScope]]
@@ -5420,8 +5805,8 @@ declare module ex.Input {
      *
      * ## Responding to input
      *
-     * The primary pointer can be a mouse, stylus, or 1 finger touch event. You
-     * can inspect what it is from the [[PointerEvent]] handled.
+     * The primary pointer can be a mouse, stylus, or single finger touch event. You
+     * can inspect what type of pointer it is from the [[PointerEvent]] handled.
      *
      * ```js
      * engine.input.pointers.primary.on("down", function (pe) {
@@ -5473,9 +5858,10 @@ declare module ex.Input {
      * By default, [[Actor|Actors]] do not participate in pointer events. In other
      * words, when you "click" an Actor, it will not throw an event **for that Actor**,
      * only a generic pointer event for the game. This is to keep performance
-     * high and allow actors to "opt-in" to handling pointer events.
+     * high and allow actors to "opt-in" to handling pointer events. Actors will automatically
+     * opt-in if a pointer related event handler is set on them `actor.on("pointerdown", () => {})` for example.
      *
-     * To opt-in, set [[Actor.enableCapturePointer]] to `true` and the [[Actor]] will
+     * To opt-in manually, set [[Actor.enableCapturePointer]] to `true` and the [[Actor]] will
      * start publishing `pointerup` and `pointerdown` events. `pointermove` events
      * will not be published by default due to performance implications. If you want
      * an actor to receive move events, set [[ICapturePointerConfig.captureMoveEvents]] to
@@ -5611,13 +5997,13 @@ declare module ex.Input {
      * Keyboard input
      *
      * Working with the keyboard is easy in Excalibur. You can inspect
-     * whether a button is [[Keyboard.isKeyDown|down]], [[Keyboard.isKeyUp|up]], or
-     * [[Keyboard.isKeyPressed|pressed]]. Common keys are held in the [[Input.Keys]]
+     * whether a button was just [[Keyboard.wasPressed|pressed]] or [[Keyboard.wasReleased|released]] this frame, or
+     * if the key is currently being [[Keyboard.isHeld|held]] down. Common keys are held in the [[Input.Keys]]
      * enumeration but you can pass any character code to the methods.
      *
      * Excalibur subscribes to the browser events and keeps track of
-     * what keys are currently down, up, or pressed. A key can be pressed
-     * for multiple frames, but a key cannot be down or up for more than one
+     * what keys are currently held, released, or pressed. A key can be held
+     * for multiple frames, but a key cannot be pressed or released for more than one subsequent
      * update frame.
      *
      * ## Inspecting the keyboard
@@ -5625,18 +6011,35 @@ declare module ex.Input {
      * You can inspect [[Engine.input]] to see what the state of the keyboard
      * is during an update.
      *
+     * It is recommended that keyboard actions that directly effect actors be handled like so to improve code quality:
      * ```ts
      * class Player extends ex.Actor {
      *   public update(engine, delta) {
      *
-     *     if (engine.input.keyboard.isKeyPressed(ex.Input.Keys.W) ||
-     *         engine.input.keyboard.isKeyPressed(ex.Input.Keys.Up)) {
+     *     if (engine.input.keyboard.isHeld(ex.Input.Keys.W) ||
+     *         engine.input.keyboard.isHeld(ex.Input.Keys.Up)) {
      *
      *       player._moveForward();
      *     }
      *
+     *     if (engine.input.keyboard.wasPressed(ex.Input.Keys.Right)) {
+     *       player._fire();
+     *     }
      *   }
      * }
+     * ```
+     * ## Events
+     * You can subscribe to keyboard events through `engine.input.keyboard.on`. A [[KeyEvent]] object is
+     * passed to your handler which offers information about the key that was part of the event.
+     *
+     * - `press` - When a key was just pressed this frame
+     * - `release` - When a key was just released this frame
+     * - `hold` - Whenever a key is in the down position
+     *
+     * ```ts
+     * engine.input.pointers.primary.on("press", (evt: KeyEvent) => {...});
+     * engine.input.pointers.primary.on("release", (evt: KeyEvent) => {...});
+     * engine.input.pointers.primary.on("hold", (evt: KeyEvent) => {...});
      * ```
      */
     class Keyboard extends ex.Class {
@@ -5655,20 +6058,20 @@ declare module ex.Input {
          */
         getKeys(): Keys[];
         /**
-         * Tests if a certain key is down. This is cleared at the end of the update frame.
-         * @param key  Test wether a key is down
+         * Tests if a certain key was just pressed this frame. This is cleared at the end of the update frame.
+         * @param key Test wether a key was just pressed
          */
-        isKeyDown(key: Keys): boolean;
+        wasPressed(key: Keys): boolean;
         /**
-         * Tests if a certain key is pressed. This is persisted between frames.
-         * @param key  Test wether a key is pressed
+         * Tests if a certain key is held down. This is persisted between frames.
+         * @param key  Test wether a key is held down
          */
-        isKeyPressed(key: Keys): boolean;
+        isHeld(key: Keys): boolean;
         /**
-         * Tests if a certain key is up. This is cleared at the end of the update frame.
-         * @param key  Test wether a key is up
+         * Tests if a certain key was just released this frame. This is cleared at the end of the update frame.
+         * @param key  Test wether a key was just released
          */
-        isKeyUp(key: Keys): boolean;
+        wasReleased(key: Keys): boolean;
     }
 }
 declare module ex.Input {
@@ -5681,10 +6084,59 @@ declare module ex.Input {
      * You can query any [[Gamepad|Gamepads]] that are connected or listen to events ("button" and "axis").
      *
      * You must opt-in to controller support ([[Gamepads.enabled]]) because it is a polling-based
-     * API, so we have to check it each update frame.
+     * API, so we have to check it each update frame. If an gamepad related event handler is set, you will
+     * automatically opt-in to controller polling.
      *
-     * Any number of gamepads are supported using the [[Gamepads.at]] method. If a [[Gamepad]] is
+     * HTML5 Gamepad API only supports a maximum of 4 gamepads. You can access them using the [[Gamepads.at]] method. If a [[Gamepad]] is
      * not connected, it will simply not throw events.
+     *
+     * ## Gamepad Filtering
+     *
+     * Different browsers/devices are sometimes loose about the devices they consider Gamepads, you can set minimum device requirements with
+     * `engine.inpute.gamepads.setMinimumGamepadConfiguration` so that undesired devices are not reported to you (Touchpads, Mice, Web
+     * Cameras, etc.).
+     * ```js
+     * // ensures that only gamepads with at least 4 axis and 8 buttons are reported for events
+     * engine.input.gamepads.setMinimumGamepadConfiguration({
+     *    axis: 4,
+     *    buttons: 8
+     * });
+     * ```
+     *
+     * ## Events
+     *
+     * You can subscribe to gamepad connect and disconnect events through `engine.input.gamepads.on`.
+     * A [[GamepadConnectEvent]] or [[GamepadDisconnectEvent]] will be passed to you.
+     *
+     * - `connect` - When a gamepad connects it will fire this event and pass a [[GamepadConnectEvent]] with a reference to the gamepad.
+     * - `disconnect` - When a gamepad disconnects it will fire this event and pass a [[GamepadDisconnectEvent]]
+     *
+     * Once you have a reference to a gamepad you may listen to changes on that gamepad with `.on`. A [[GamepadButtonEvent]] or
+     * [[GamepadAxisEvent]] will be passed to you.
+     * - `button` - Whenever a button is pressed on the game
+     * - `axis` - Whenever an axis
+     *
+     * ```ts
+     *
+     * engine.input.gamepads.on('connect', (ce: ex.Input.GamepadConnectEvent) => {
+     *    var newPlayer = CreateNewPlayer(); // pseudo-code for new player logic on gamepad connection
+     *    console.log("Gamepad connected", ce);
+     *    ce.gamepad.on('button', (be: ex.GamepadButtonEvent) => {
+     *       if(be.button === ex.Input.Buttons.Face1) {
+     *          newPlayer.jump();
+     *       }
+     *    });
+     *
+     *    ce.gamepad.on('axis', (ae: ex.GamepadAxisEvent) => {
+     *      if(ae.axis === ex.Input.Axis.LeftStickX && ae.value > .5){
+     *         newPlayer.moveRight();
+     *      }
+     *    })
+     *
+     *  });
+     *
+     *
+     * ```
      *
      * ## Responding to button input
      *
@@ -5771,8 +6223,26 @@ declare module ex.Input {
         private _initSuccess;
         private _engine;
         private _navigator;
+        private _minimumConfiguration;
         constructor(engine: ex.Engine);
         init(): void;
+        /**
+         * Sets the minimum gamepad configuration, for example {axis: 4, buttons: 4} means
+         * this game requires at minimum 4 axis inputs and 4 buttons, this is not restrictive
+         * all other controllers with more axis or buttons are valid as well. If no minimum
+         * configuration is set all pads are valid.
+         */
+        setMinimumGamepadConfiguration(config: IGamepadConfiguration): void;
+        /**
+         * When implicitely enabled, set the enabled flag and run an update so information is updated
+         */
+        private _enableAndUpdate();
+        /**
+         * Checks a navigator gamepad against the minimum configuration if present.
+         */
+        private _isGamepadValid(pad);
+        on(eventName: string, handler: (event?: GameEvent) => void): void;
+        off(eventName: string, handler?: (event?: GameEvent) => void): void;
         /**
          * Updates Gamepad state and publishes Gamepad events
          */
@@ -5781,6 +6251,10 @@ declare module ex.Input {
          * Safely retrieves a Gamepad at a specific index and creates one if it doesn't yet exist
          */
         at(index: number): Gamepad;
+        /**
+         * Returns a list of all valid gamepads that meet the minimum configuration requirment.
+         */
+        getValidGamepads(): Gamepad[];
         /**
          * Gets the number of connected gamepads
          */
@@ -5797,6 +6271,7 @@ declare module ex.Input {
      */
     class Gamepad extends ex.Class {
         connected: boolean;
+        navigatorGamepad: INavigatorGamepad;
         private _buttons;
         private _axes;
         constructor();
@@ -5909,30 +6384,6 @@ declare module ex.Input {
         RightStickY = 3,
     }
     /**
-     * Gamepad button event. See [[Gamepads]] for information on responding to controller input.
-     */
-    class GamepadButtonEvent extends ex.GameEvent {
-        button: Buttons;
-        value: number;
-        /**
-         * @param button  The Gamepad button
-         * @param value   A numeric value between 0 and 1
-         */
-        constructor(button: Buttons, value: number);
-    }
-    /**
-     * Gamepad axis event. See [[Gamepads]] for information on responding to controller input.
-     */
-    class GamepadAxisEvent extends ex.GameEvent {
-        axis: Axes;
-        value: number;
-        /**
-         * @param axis  The Gamepad axis
-         * @param value A numeric value between -1 and 1
-         */
-        constructor(axis: Axes, value: number);
-    }
-    /**
      * @internal
      */
     interface INavigatorGamepad {
@@ -5957,6 +6408,13 @@ declare module ex.Input {
     interface INavigatorGamepadEvent {
         gamepad: INavigatorGamepad;
     }
+    /**
+     * @internal
+     */
+    interface IGamepadConfiguration {
+        axis: number;
+        buttons: number;
+    }
 }
 /**
  * # Welcome to the Excalibur API
@@ -5973,7 +6431,7 @@ declare module ex.Input {
  *
  * ## Where to Start
  *
- * These are the core concepts of Excalibur that you should be
+ * These are the core concepts of Excalibur that you should become
  * familiar with.
  *
  * - [[Engine|Intro to the Engine]]
@@ -6012,6 +6470,7 @@ declare module ex.Input {
  * - [[Sound|Working with Sounds]]
  * - [[SpriteSheet|Working with SpriteSheets]]
  * - [[Animation|Working with Animations]]
+ * - [[TileMap|Working with TileMaps]]
  *
  * ## Effects and Particles
  *
@@ -6020,6 +6479,7 @@ declare module ex.Input {
  *
  * - [[Effects|Sprite Effects]]
  * - [[ParticleEmitter|Particle Emitters]]
+ * - [[IPostProcessor|Post Processors]]
  *
  * ## Math
  *
@@ -6100,8 +6560,10 @@ declare module ex {
      *
      * The Excalibur engine uses a simple main loop. The engine updates and renders
      * the "scene graph" which is the [[Scene|scenes]] and the tree of [[Actor|actors]] within that
-     * scene. Only one [[Scene]] can be active at once, the engine does not update/draw any other
+     * scene. Only one [[Scene]] can be active at a time. The engine does not update/draw any other
      * scene, which means any actors will not be updated/drawn if they are part of a deactivated scene.
+     *
+     * ![Engine Lifecycle](/assets/images/docs/EngineLifeCycle.png)
      *
      * **Scene Graph**
      *
@@ -6121,13 +6583,13 @@ declare module ex {
      *
      * ### Update Loop
      *
-     * The first operation run is the [[Engine.update|update]] loop. [[Actor]] and [[Scene]] both implement
+     * The first operation run is the [[Engine._update|update]] loop. [[Actor]] and [[Scene]] both implement
      * an overridable/extendable `update` method. Use it to perform any logic-based operations
      * in your game for a particular class.
      *
      * ### Draw Loop
      *
-     * The next step is the [[Engine.draw|draw]] loop. A [[Scene]] loops through its child [[Actor|actors]] and
+     * The next step is the [[Engine._draw|draw]] loop. A [[Scene]] loops through its child [[Actor|actors]] and
      * draws each one. You can override the `draw` method on an actor to customize its drawing.
      * You should **not** perform any logic in a draw call, it should only relate to drawing.
      *
@@ -6350,6 +6812,8 @@ declare module ex {
          * the [[currentScene]] may be drawn or updated.
          *
          * @param actor  The actor to add to the [[currentScene]]
+         *
+         * @obsolete Use [[add]] instead.
          */
         addChild(actor: Actor): void;
         /**
@@ -6416,7 +6880,7 @@ declare module ex {
         add(tileMap: TileMap): void;
         /**
          * Adds an actor to the [[currentScene]] of the game. This is synonymous
-         * to calling `engine.currentScene.addChild(actor)`.
+         * to calling `engine.currentScene.add(actor)`.
          *
          * Actors can only be drawn if they are a member of a scene, and only
          * the [[currentScene]] may be drawn or updated.

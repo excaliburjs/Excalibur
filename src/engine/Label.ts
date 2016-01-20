@@ -2,6 +2,33 @@
 
 module ex {
    /**
+    * Enum representing the different font size units
+    * https://developer.mozilla.org/en-US/docs/Web/CSS/font-size
+    */ 
+   export enum FontUnit {
+      /**
+       * Em is a scalable unit, 1 em is equal to the current font size of the current element, parent elements can effect em values
+       */
+      Em,
+      /**
+       * Rem is similar to the Em, it is a scalable unit. 1 rem is eqaul to the font size of the root element
+       */
+      Rem,
+      /**
+       * Pixel is a unit of length in screen pixels
+       */
+      Px,
+      /**
+       * Point is a physical unit length (1/72 of an inch)
+       */
+      Pt,
+      /**
+       * Percent is a scalable unit similar to Em, the only difference is the Em units scale faster when Text-Size stuff
+       */
+      Percent
+   }
+
+   /**
     * Enum representing the different horizontal text alignments
     */
    export enum TextAlign {
@@ -89,7 +116,9 @@ module ex {
     * var label = new ex.Label();
     * label.x = 50;
     * label.y = 50;
-    * label.font = "10px Arial";
+    * label.fontFamily = "Arial";
+    * label.fontSize = 10;
+    * lable.fontUnit = ex.FontUnit.Px // pixels are the default
     * label.text = "Foo";
     * label.color = ex.Color.White;
     * label.textAlign = ex.TextAlign.Center;
@@ -130,7 +159,8 @@ module ex {
     * var game = new ex.Engine();
     *
     * var label = new ex.Label();
-    * label.font = "12px Foobar, Arial, Sans-Serif";
+    * label.fontFamily = "Foobar, Arial, Sans-Serif";
+    * label.fontSize = 10;
     * label.text = "Hello World";
     *
     * game.add(label);
@@ -161,15 +191,20 @@ module ex {
       public spriteFont: SpriteFont;
 
       /**
-       * The CSS font string (e.g. `sans-serif`, `Droid Sans Pro`). Web fonts
+       * The CSS font family string (e.g. `sans-serif`, `Droid Sans Pro`). Web fonts
        * are supported, same as in CSS.
        */
-      public font: string;
+      public fontFamily: string;
       
       /**
-       * The font size in pixels, default is 10px
+       * The font size in the selected units, default is 10 (default units is pixel)
        */
       public fontSize: number = 10;
+
+      /**
+       * The css units for a font size such as px, pt, em (SpriteFont only support px), by default is 'px';
+       */ 
+      public fontUnit: FontUnit = FontUnit.Px;
 
       /**
        * Gets or sets the horizontal text alignment property for the label. 
@@ -215,13 +250,13 @@ module ex {
        * @param spriteFont  Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precendence 
        * over a css font.
        */
-      constructor(text?: string, x?: number, y?: number, font?: string, spriteFont?: SpriteFont) {
+      constructor(text?: string, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
          super(x, y);
          this.text = text || '';
          this.color = Color.Black.clone();
          this.spriteFont = spriteFont;
          this.collisionType = CollisionType.PreventCollision;
-         this.font = font || '10px sans-serif'; // coallesce to default canvas font
+         this.fontFamily = fontFamily || '10px sans-serif'; // coallesce to default canvas font
          if (spriteFont) {
             //this._textSprites = spriteFont.getTextSprites();
          }
@@ -234,13 +269,30 @@ module ex {
        */
       public getTextWidth(ctx: CanvasRenderingContext2D): number {
          var oldFont = ctx.font;
-         ctx.font = this.font;
+         ctx.font = this.fontFamily;
          var width = ctx.measureText(this.text).width;
          ctx.font = oldFont;
          return width;
       }
 
       // TypeScript doesn't support string enums :(
+      private _lookupFontUnit(fontUnit: FontUnit): string {
+         switch (fontUnit) {
+            case FontUnit.Em:
+               return 'em';
+            case FontUnit.Rem:
+               return 'rem';
+            case FontUnit.Pt:
+               return 'pt';
+            case FontUnit.Px:
+               return 'px';
+            case FontUnit.Percent:
+               return '%';
+            default:
+               return 'px';
+         }
+      }
+
       private _lookupTextAlign(textAlign: TextAlign): string {
          switch (textAlign) {
             case TextAlign.Left:
@@ -368,7 +420,7 @@ module ex {
                this.color.a = this.opacity;
             }
             ctx.fillStyle = this.color.toString();
-            ctx.font = `${this.fontSize} ${this.font}`;
+            ctx.font = `${this.fontSize}${this._lookupFontUnit(this.fontUnit)} ${this.fontFamily}`;
             if (this.maxWidth) {
                ctx.fillText(this.text, 0, 0, this.maxWidth);
             } else {
