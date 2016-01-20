@@ -12,10 +12,7 @@
   "bugs": {
     "url": "https://github.com/excaliburjs/Excalibur/issues"
   },
-  "license": {
-    "type": "BSD-2-Clause",
-    "url": "https://github.com/excaliburjs/Excalibur/blob/master/LICENSE.md"
-  },
+  "license": "BSD-2-Clause",
   "keywords": [
     "excalibur",
     "game",
@@ -37,6 +34,7 @@
     "grunt-minified": "0.0.6",
     "grunt-shell": "0.6.1",
     "grunt-tslint": "~2.3.0-beta",
+    "tslint": "~2.3.0-beta",
     "jasmine-node": "1.10.2",
     "travis-ci": "2.0.3"
   }
