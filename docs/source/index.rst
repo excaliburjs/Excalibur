@@ -30,6 +30,7 @@ so we can feature you in our online gallery.
    :maxdepth: 2
    :caption: User Documentation
    
+   features
    installation
    quickstart
    
@@ -37,8 +38,8 @@ so we can feature you in our online gallery.
    :maxdepth: 1
    :caption: API Documentation
    
-   edge (master) <http://excaliburjs.com/docs/api/edge>
-   v0.6.0 (stable) <http://excaliburjs.com/docs/api/v0.6.0>
+   edge (master) <http://excaliburjs.com/docs/api/edge/modules/ex.html>
+   v0.6.0 (stable) <http://excaliburjs.com/docs/api/v0.6.0/modules/ex.html>
 
 ============
 Installation
