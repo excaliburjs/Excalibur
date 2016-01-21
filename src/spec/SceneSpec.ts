@@ -83,8 +83,8 @@ describe('A scene', () => {
 
       expect(scene.camera.getFocus().x).toBe(50);
       expect(scene.camera.getFocus().y).toBe(50);
-      expect(engine.worldToScreenCoordinates(new ex.Point(50, 50)).x).toBe(50);
-      expect(engine.worldToScreenCoordinates(new ex.Point(50, 50)).y).toBe(50);
+      expect(engine.worldToScreenCoordinates(new ex.Vector(50, 50)).x).toBe(50);
+      expect(engine.worldToScreenCoordinates(new ex.Vector(50, 50)).y).toBe(50);
       expect(engine.getWidth()).toBe(100);
       expect(engine.getHeight()).toBe(100);
 

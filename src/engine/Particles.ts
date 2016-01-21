@@ -117,7 +117,7 @@ module ex {
          this._currentColor.a = ex.Util.clamp(this.opacity, 0.0001, 1);
 
          if (this.focus) {
-            var accel = this.focus.minus(this.position).normalize().scale(this.focusAccel).scale(delta / 1000);
+            var accel = this.focus.sub(this.position).normalize().scale(this.focusAccel).scale(delta / 1000);
             this.velocity = this.velocity.add(accel);
          } else {
             this.velocity = this.velocity.add(this.acceleration.scale(delta / 1000));

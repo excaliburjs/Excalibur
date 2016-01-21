@@ -306,7 +306,7 @@ module ex {
      * values between 0 and 1. For example, anchoring to the top-left would be
      * `Actor.anchor.setTo(0, 0)` and top-right would be `Actor.anchor.setTo(0, 1)`.
      */
-    public anchor: Point;
+    public anchor: Vector;
     
     private _height: number = 0;
     private _width: number = 0;
@@ -462,7 +462,7 @@ module ex {
        this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
        this.actions = new ActionContext(this);
        
-       this.anchor = new Point(.5, .5);
+       this.anchor = new Vector(.5, .5);
     }
     /**
      * This is called before the first update of the actor. This method is meant to be
@@ -735,11 +735,11 @@ module ex {
      */
      public getGlobalScale() {
        if (!this.parent) {
-          return new Point(this.scale.x, this.scale.y);
+          return new Vector(this.scale.x, this.scale.y);
        }
 
        var parentScale = this.parent.getGlobalScale();
-       return new Point(this.scale.x * parentScale.x, this.scale.y * parentScale.y);
+       return new Vector(this.scale.x * parentScale.x, this.scale.y * parentScale.y);
      }
     /**
      * Returns the actor's [[BoundingBox]] calculated for this instant.
@@ -758,7 +758,7 @@ module ex {
      * @param recurse checks whether the x/y are contained in any child actors (if they exist).
      */
     public contains(x: number, y: number, recurse: boolean = false): boolean {
-       var containment = this.getBounds().contains(new Point(x, y));
+       var containment = this.getBounds().contains(new Vector(x, y));
        
        if (recurse) {
           
@@ -1081,8 +1081,8 @@ module ex {
        });
        return complete;
     }
-    private _getCalculatedAnchor(): Point {
-       return new ex.Point(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
+    private _getCalculatedAnchor(): Vector {
+       return new ex.Vector(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
     }
     /**
      * Called by the Engine, updates the state of the actor
@@ -1175,7 +1175,7 @@ module ex {
        // Draw actor Id
        ctx.fillText('id: ' + this.id, bb.left + 3, bb.top + 10);
        
-       // Draw actor anchor point
+       // Draw actor anchor Vector
        ctx.fillStyle = Color.Yellow.toString();
        ctx.beginPath();
        ctx.arc(this.getWorldX(), this.getWorldY(), 3, 0, Math.PI * 2);
