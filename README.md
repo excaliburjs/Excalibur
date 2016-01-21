@@ -3,22 +3,22 @@
 [![Build Status](https://travis-ci.org/excaliburjs/Excalibur.png?branch=master)](https://travis-ci.org/excaliburjs/Excalibur)
 [![Bower version](https://badge.fury.io/bo/excalibur.png)](http://badge.fury.io/bo/excalibur)
 [![NuGet version](https://badge.fury.io/nu/Excalibur.png)](http://badge.fury.io/nu/Excalibur)
+[![Docs status](https://readthedocs.org/projects/excaliburjs/badge/?version=latest)](http://excaliburjs.readthedocs.org/en/latest/?badge=latest)
 
 Excalibur is a simple, **free** game engine written in TypeScript for making 2D games in HTML5 canvas. Our goal with Excalibur is to make it *incredibly simple* to create and write 2D HTML/JS games aimed at folks new to game development all the way up to more experienced game developers. We take care of all the boilerplate engine code, cross-platform targeting, and more so you don't have to. Use as much or as little as you need!
 
 Excalibur is an open source project licensed under the 2-clause BSD license (this means you can use it in commercial projects!). It's free and always will be. We welcome any feedback or contributions! If you make something with Excalbur, please [let us know](https://groups.google.com/forum/#!forum/excaliburjs) so we can feature you in our online gallery.
 
-# Installation
+# Get Started
 
-Follow our [Installation](http://excaliburjs.com/docs/install.html) guide.
+Our documentation is at http://docs.excaliburjs.com.
 
-# Getting Started
+- Follow our [Installation](http://docs.excaliburjs.com/en/latest/installation.html) guide to learn how to install Excalibur
+- Follow our [Getting Started](http://docs.excaliburjs.com/en/latest/quickstart.html) guide if you're looking to get started.
 
-Follow our [Getting Started](http://excaliburjs.com/docs/quickstart.html) guide.
+# API Documentation
 
-# Documentation
-
-Visit the [Documentation](http://excaliburjs.com/docs) section for full API documentation, tutorials, and guides.
+Visit the [API Documentation](http://excaliburjs.com/docs) section for full annotated API documentation.
 
 The `master` branch documentation is always available and up-to-date on our [Edge documentation site](http://excaliburjs.com/docs/api/edge).
 
