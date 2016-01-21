@@ -12,7 +12,7 @@ module ex.Traits {
          var globalScale = actor.getGlobalScale();
          var width = globalScale.x * actor.getWidth() / actor.scale.x;
          var height = globalScale.y * actor.getHeight() / actor.scale.y;
-         var actorScreenCoords = engine.worldToScreenCoordinates(new Point(actor.getWorldX() - anchor.x * width, 
+         var actorScreenCoords = engine.worldToScreenCoordinates(new Vector(actor.getWorldX() - anchor.x * width, 
                                                                            actor.getWorldY() - anchor.y * height));
 
          var zoom = 1.0;

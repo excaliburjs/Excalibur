@@ -90,7 +90,7 @@ describe('A game actor', () => {
       expect(center.y).toBe(100);
 
       // changing the anchor
-      actor.anchor = new ex.Point(0, 0);
+      actor.anchor = new ex.Vector(0, 0);
       actor.x = 0;
       actor.y = 0;
 
@@ -125,7 +125,7 @@ describe('A game actor', () => {
       expect(actor.anchor.x).toBe(.5);
       expect(actor.anchor.y).toBe(.5);
 
-      actor.anchor = new ex.Point(0, 0);
+      actor.anchor = new ex.Vector(0, 0);
 
       expect(actor.contains(10, 10)).toBe(true);
 

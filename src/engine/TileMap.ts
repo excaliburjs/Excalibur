@@ -191,7 +191,7 @@ module ex {
      * is no collision null is returned.
      */
     public collides(actor: Actor): Vector {
-       var points: Point[] = [];
+       var points: Vector[] = [];
        var width = actor.x + actor.getWidth();
        var height = actor.y + actor.getHeight();
        var actorBounds = actor.getBounds();
@@ -202,7 +202,7 @@ module ex {
              var cell = this.getCellByPoint(x, y);
              if (cell && cell.solid) {
                  var overlap = actorBounds.collides(cell.getBounds());
-                 var dir = actor.getCenter().minus(cell.getCenter());
+                 var dir = actor.getCenter().sub(cell.getCenter());
                 if (overlap && overlap.dot(dir) > 0) {
                    overlaps.push(overlap);                  
                 }
@@ -257,8 +257,8 @@ module ex {
     }
 
     public update(engine: Engine, delta: number) {
-       var worldCoordsUpperLeft = engine.screenToWorldCoordinates(new Point(0, 0));
-       var worldCoordsLowerRight = engine.screenToWorldCoordinates(new Point(engine.canvas.clientWidth, engine.canvas.clientHeight));
+       var worldCoordsUpperLeft = engine.screenToWorldCoordinates(new Vector(0, 0));
+       var worldCoordsLowerRight = engine.screenToWorldCoordinates(new Vector(engine.canvas.clientWidth, engine.canvas.clientHeight));
        
        this._onScreenXStart = Math.max(Math.floor(worldCoordsUpperLeft.x / this.cellWidth) - 2, 0);
        this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);

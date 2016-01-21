@@ -23,7 +23,7 @@ module ex {
        * Tests wether a point is contained within the collidable
        * @param point  The point to test
        */
-      contains(point: Point): boolean;
+      contains(point: Vector): boolean;
 
       debugDraw(ctx: CanvasRenderingContext2D): void;
 
@@ -68,7 +68,7 @@ module ex {
        * Tests wether a point is contained within the bounding box
        * @param p  The point to test
        */
-      public contains(p: Point): boolean;
+      public contains(p: Vector): boolean;
 
       /**
        * Tests whether another bounding box is totally contained in this one
@@ -76,7 +76,7 @@ module ex {
        */
       public contains(bb: BoundingBox): boolean;
       public contains(val: any): boolean {
-         if (val instanceof Point) {
+         if (val instanceof Vector) {
             return (this.left <= val.x && this.top <= val.y && this.bottom >= val.y && this.right >= val.x);
          }else if (val instanceof BoundingBox) {
             if (this.left < val.left &&
@@ -154,8 +154,8 @@ module ex {
 
    export class SATBoundingBox implements ICollidable {
       private _points: Vector[];
-      constructor(points: Point[]) {
-         this._points = points.map((p) => p.toVector());
+      constructor(points: Vector[]) {
+         this._points = points;
       }
 
       public getSides(): Line[] {
@@ -171,7 +171,7 @@ module ex {
          var axes = [];
          var len = this._points.length;
          for (var i = 0; i < len; i++) {
-            axes.push(this._points[i].minus(this._points[(i + 1) % len]).normal());
+            axes.push(this._points[i].sub(this._points[(i + 1) % len]).normal());
          }
          return axes;
       }
@@ -191,11 +191,11 @@ module ex {
        * Returns the calculated width of the bounding box, by generating an axis aligned box around the current
        */
       public getWidth() {
-         var left = this._points.reduce<number>((accum: number, p: Point, i, arr) => {
+         var left = this._points.reduce<number>((accum: number, p: Vector, i, arr) => {
             return Math.min(accum, p.x);
          }, Infinity);
 
-         var right = this._points.reduce<number>((accum: number, p: Point, i, arr) => {
+         var right = this._points.reduce<number>((accum: number, p: Vector, i, arr) => {
             return Math.max(accum, p.x);
          }, -Infinity);
 
@@ -206,11 +206,11 @@ module ex {
        * Returns the calculated height of the bounding box, by generating an axis aligned box around the current
        */
       public getHeight() {
-         var top = this._points.reduce<number>((accum: number, p: Point, i, arr) => {
+         var top = this._points.reduce<number>((accum: number, p: Vector, i, arr) => {
             return Math.min(accum, p.y);
          }, Infinity);
 
-         var bottom = this._points.reduce<number>((accum: number, p: Point, i, arr) => {
+         var bottom = this._points.reduce<number>((accum: number, p: Vector, i, arr) => {
             return Math.max(accum, p.y);
          }, -Infinity);
 
@@ -224,7 +224,7 @@ module ex {
        * 
        * @param p  The point to test
        */
-      public contains(p: Point): boolean {
+      public contains(p: Vector): boolean {
          // Always cast to the right, as long as we cast in a consitent fixed direction we
          // will be fine
          var testRay = new Ray(p, new Vector(1, 0));

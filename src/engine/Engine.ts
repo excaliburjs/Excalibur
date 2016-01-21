@@ -95,7 +95,6 @@
  *
  * These classes provide the basics for math & algebra operations.
  *
- * - [[Point]]
  * - [[Vector]]
  * - [[Ray]]
  * - [[Line]]
@@ -811,7 +810,7 @@ module ex {
        * Transforms the current x, y from screen coordinates to world coordinates
        * @param point  Screen coordinate to convert
        */
-      public screenToWorldCoordinates(point: Point): Point {
+      public screenToWorldCoordinates(point: Vector): Vector {
          
          var newX = point.x;
          var newY = point.y;
@@ -832,14 +831,14 @@ module ex {
             newY += focus.y;
          }
 
-         return new Point(Math.floor(newX), Math.floor(newY));
+         return new Vector(Math.floor(newX), Math.floor(newY));
       }
 
       /**
        * Transforms a world coordinate, to a screen coordinate
        * @param point  World coordinate to convert
        */
-      public worldToScreenCoordinates(point: Point): Point {
+      public worldToScreenCoordinates(point: Vector): Vector {
          
          var screenX = point.x;
          var screenY = point.y;
@@ -859,7 +858,7 @@ module ex {
          screenX = (screenX * this.canvas.clientWidth) / this.getWidth();
          screenY = (screenY * this.canvas.clientHeight) / this.getHeight();
 
-         return new Point(Math.floor(screenX), Math.floor(screenY));
+         return new Vector(Math.floor(screenX), Math.floor(screenY));
       }
 
       /**

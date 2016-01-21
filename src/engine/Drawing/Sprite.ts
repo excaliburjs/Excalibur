@@ -76,8 +76,8 @@ module ex {
       private _texture: Texture;
 
       public rotation: number = 0.0;
-      public anchor: Point = new Point(0.0, 0.0);
-      public scale: Point = new ex.Point(1, 1);
+      public anchor: Vector = new Vector(0.0, 0.0);
+      public scale: Vector = new ex.Vector(1, 1);
 
       public logger: Logger = Logger.getInstance();
 
