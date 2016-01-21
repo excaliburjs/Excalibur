@@ -73,7 +73,7 @@ Compiled examples can be found `in the Excalibur Showcase <http://excaliburjs.co
 Contributing
 ------------
 
-Please view the `Contributing guidelines <http://github.com/excaliburjs/Excalibur/master/CONTRIBUTING.md>`_. If you spot a bug, 
+Please view the `Contributing guidelines <https://github.com/excaliburjs/Excalibur/blob/master/CONTRIBUTING.md>`_. If you spot a bug, 
 have a question, or want to contribute, please open a GitHub issue!
 
 License
