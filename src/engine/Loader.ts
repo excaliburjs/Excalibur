@@ -325,7 +325,7 @@ module ex {
     * // loop through dictionary and add to loader
     * for (var loadable in resources) {
     *   if (resources.hasOwnProperty(loadable)) {
-    *     loader.addResource(loadable);
+    *     loader.addResource(resources[loadable]);
     *   }
     * }
     *
