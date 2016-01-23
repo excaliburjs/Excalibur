@@ -40,6 +40,12 @@ so we can feature you in our online gallery.
    
    edge (master) <http://excaliburjs.com/docs/api/edge/modules/ex.html>
    v0.6.0 (stable) <http://excaliburjs.com/docs/api/v0.6.0/modules/ex.html>
+   
+.. toctree::
+   :maxdepth: 1
+   :caption: Extensions
+   
+   Tiled map editor integration <https://github.com/excaliburjs/excalibur-tiled>
 
 ============
 Installation
