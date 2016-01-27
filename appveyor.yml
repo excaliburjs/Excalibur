@@ -17,6 +17,9 @@ install:
 build_script:
   - grunt travis
   - grunt appveyor
+artifacts:
+  - path: dist\Excalibur.%APPVEYOR_BUILD_VERSION%.nupkg
+    name: Nuget Package
 #build: off
 matrix:
   fast_finish: true
