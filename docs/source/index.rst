@@ -29,7 +29,7 @@ so we can feature you in our online gallery.
 .. toctree::
    :maxdepth: 2
    :caption: User Documentation
-   
+      
    features
    installation
    quickstart
