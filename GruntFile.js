@@ -105,7 +105,15 @@ module.exports = function (grunt) {
             options: {
                stdout: true
             }
-         },         
+         },
+         
+         nugetci: {
+            command: 'src\\tools\\nuget pack Excalibur.nuspec -version ' + process.env.APPVEYOR_BUILD_VERSION + ' -OutputDirectory ./dist',
+            options: {
+               stdout: true
+            }
+            
+         },
 
          //
          // TypeScript Compile Jasmine specs
@@ -234,4 +242,6 @@ module.exports = function (grunt) {
 
    // Travis task - for Travis CI
    grunt.registerTask('travis', 'default');
+   
+   grunt.registerTask('appveyor', 'shell:nugetci');
 };

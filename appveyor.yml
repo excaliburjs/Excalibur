@@ -12,17 +12,12 @@ install:
   - ps: Install-Product node $env:nodejs_version
   - npm install grunt-cli -g
   - npm install
-  - tsc -v
   - SET PATH=C:\Users\appveyor\AppData\Roaming\npm\;%PATH%
   - tsc -v
 build_script:
-  - tsc -v
-  - grunt travis  
+  - grunt travis
+  - grunt appveyor
 #build: off
-test_script:
-  # Output useful info for debugging.
-  - node --version && npm --version
-  - tsc -v
 matrix:
   fast_finish: true
 cache:
