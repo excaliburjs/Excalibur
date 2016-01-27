@@ -108,7 +108,7 @@ describe('A game actor', () => {
 
    it('has a left, right, top, and bottom', () => {
       actor.x = 0;
-      actor.y - 0;
+      actor.y = 0;
       actor.anchor = new ex.Vector(0.5, 0.5);
       actor.setWidth(100);
       actor.setHeight(100);
