@@ -1,6 +1,7 @@
 ![Logo](/assets/excalibur-title-dark.png?raw=true)
 
 [![Build Status](https://travis-ci.org/excaliburjs/Excalibur.png?branch=master)](https://travis-ci.org/excaliburjs/Excalibur)
+[![Build status](https://ci.appveyor.com/api/projects/status/9i7s7dokx0uygu34?svg=true)](https://ci.appveyor.com/project/eonarheim/excalibur)
 [![Bower version](https://badge.fury.io/bo/excalibur.png)](http://badge.fury.io/bo/excalibur)
 [![NuGet version](https://badge.fury.io/nu/Excalibur.png)](http://badge.fury.io/nu/Excalibur)
 [![Docs status](https://readthedocs.org/projects/excaliburjs/badge/?version=latest)](http://excaliburjs.readthedocs.org/en/latest/?badge=latest)
