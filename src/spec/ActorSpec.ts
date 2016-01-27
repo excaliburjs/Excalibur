@@ -107,13 +107,29 @@ describe('A game actor', () => {
    });
 
    it('has a left, right, top, and bottom', () => {
+      actor.x = 0;
+      actor.y = 0;
+      actor.anchor = new ex.Vector(0.5, 0.5);
       actor.setWidth(100);
       actor.setHeight(100);
 
-      expect(actor.getLeft()).toBe(0);
-      expect(actor.getRight()).toBe(100);
-      expect(actor.getTop()).toBe(0);
-      expect(actor.getBottom()).toBe(100);
+      expect(actor.getLeft()).toBe(-50);
+      expect(actor.getRight()).toBe(50);
+      expect(actor.getTop()).toBe(-50);
+      expect(actor.getBottom()).toBe(50);
+   });
+   
+   it('has a left, right, top, and bottom when the anchor is (0, 0)', () => {
+      actor.x = 100;
+      actor.y = 100;
+      actor.anchor = new ex.Vector(0.0, 0.0);
+      actor.setWidth(100);
+      actor.setHeight(100);
+
+      expect(actor.getLeft()).toBe(100);
+      expect(actor.getRight()).toBe(200);
+      expect(actor.getTop()).toBe(100);
+      expect(actor.getBottom()).toBe(200);
    });
 
    it('can contain points', () => {

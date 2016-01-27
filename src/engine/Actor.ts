@@ -683,25 +683,25 @@ module ex {
      * Gets the left edge of the actor
      */
     public getLeft() {
-       return this.x;
+       return this.getBounds().left;
     }
     /**
      * Gets the right edge of the actor
      */
     public getRight() {
-       return this.x + this.getWidth();
+       return this.getBounds().right;
     }
     /**
      * Gets the top edge of the actor
      */
     public getTop() {
-       return this.y;
+       return this.getBounds().top;
     }
     /**
      * Gets the bottom edge of the actor
      */
     public getBottom() {
-       return this.y + this.getHeight();
+       return this.getBounds().bottom;
     }
     /**
      * Gets the x value of the Actor in global coordinates
