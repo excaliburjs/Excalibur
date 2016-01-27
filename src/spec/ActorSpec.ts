@@ -537,10 +537,10 @@ describe('A game actor', () => {
       expect(actor.x).toBe(0);
       expect(actor.y).toBe(0);
 
-      actor.moveTo(20, 0, 10);
+      actor.actions.moveTo(20, 0, 10);
       actor.update(engine, 500);
 
-      actor.clearActions();
+      actor.actions.clearActions();
       expect(actor.x).toBe(5);
       expect(actor.y).toBe(0);
 
@@ -554,10 +554,10 @@ describe('A game actor', () => {
       expect(actor.x).toBe(0);
       expect(actor.y).toBe(0);
 
-      actor.moveBy(20, 0, 1000);
+      actor.actions.moveBy(20, 0, 1000);
       actor.update(engine, 500);
 
-      actor.clearActions();
+      actor.actions.clearActions();
       expect(actor.x).toBe(10);
       expect(actor.y).toBe(0);
 
@@ -570,7 +570,7 @@ describe('A game actor', () => {
    it('can have its rotateTo action stopped', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateTo(Math.PI / 2, Math.PI / 2);
+      actor.actions.rotateTo(Math.PI / 2, Math.PI / 2);
 
       actor.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 4);
@@ -584,7 +584,7 @@ describe('A game actor', () => {
    it('can have its rotateBy action stopped', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateBy(Math.PI / 2, 2000);
+      actor.actions.rotateBy(Math.PI / 2, 2000);
 		
       actor.update(engine, 1000);
       actor.clearActions();
@@ -598,7 +598,7 @@ describe('A game actor', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
 
-      actor.scaleTo(2, 2, .5, .5);
+      actor.actions.scaleTo(2, 2, .5, .5);
       actor.update(engine, 1000);
 
       actor.clearActions();
@@ -614,7 +614,7 @@ describe('A game actor', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
 
-      actor.scaleBy(4, 4, 1000);
+      actor.actions.scaleBy(4, 4, 1000);
 
       actor.update(engine, 500);
 
@@ -629,7 +629,7 @@ describe('A game actor', () => {
 
    it('can have its blink action stopped', () => {
       expect(actor.visible).toBe(true);
-      actor.blink(1, 3000);
+      actor.actions.blink(1, 3000);
 
       actor.update(engine, 500);
       expect(actor.visible).toBe(false);
@@ -645,7 +645,7 @@ describe('A game actor', () => {
       expect(actor.x).toBe(0);
       expect(actor.y).toBe(0);
 
-      actor.delay(1000).moveTo(20, 0, 20);
+      actor.actions.delay(1000).moveTo(20, 0, 20);
       actor.update(engine, 1000);
       expect(actor.x).toBe(0);
 
@@ -658,7 +658,7 @@ describe('A game actor', () => {
       expect(actor.x).toBe(0);
       expect(actor.y).toBe(0);
 
-      actor.moveTo(20, 0, 10).moveTo(0, 0, 10).repeat();
+      actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeat();
 
       actor.update(engine, 1000);
       expect(actor.x).toBe(10);
@@ -696,7 +696,7 @@ describe('A game actor', () => {
       expect(actor.x).toBe(0);
       expect(actor.y).toBe(0);
 
-      actor.moveTo(20, 0, 10).moveTo(0, 0, 10).repeatForever();
+      actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeatForever();
 
       actor.update(engine, 1000);
       expect(actor.x).toBe(10);
@@ -716,8 +716,8 @@ describe('A game actor', () => {
       expect(actor.y).toBe(0);
 
       var actorToFollow = new ex.Actor(10, 0);
-      actorToFollow.moveTo(100, 0, 10);
-      actor.follow(actorToFollow);
+      actorToFollow.actions.moveTo(100, 0, 10);
+      actor.actions.follow(actorToFollow);
       // actor.update(engine, 1000);
       // expect(actor.x).toBe(actorToFollow.x);
 
@@ -736,8 +736,8 @@ describe('A game actor', () => {
 
       // testing basic meet
       var actorToMeet = new ex.Actor(10, 0);
-      actorToMeet.moveTo(100, 0, 10);
-      actor.meet(actorToMeet);
+      actorToMeet.actions.moveTo(100, 0, 10);
+      actor.actions.meet(actorToMeet);
 
       for(var i = 0; i < 9; i++) {
          actorToMeet.update(engine, 1000);
