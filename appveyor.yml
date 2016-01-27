@@ -16,7 +16,6 @@ install:
   - tsc -v
 build_script:
   - grunt travis
-  - grunt appveyor
 artifacts:
   - path: dist\Excalibur.%APPVEYOR_BUILD_VERSION%.nupkg
     name: Nuget Package
