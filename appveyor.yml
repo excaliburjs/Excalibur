@@ -12,8 +12,6 @@ install:
   - ps: Install-Product node $env:nodejs_version
   - npm install grunt-cli -g
   - npm install
-  - SET PATH=C:\Users\appveyor\AppData\Roaming\npm\;%PATH%
-  - tsc -v
 build_script:
   - grunt travis
 artifacts:
