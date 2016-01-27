@@ -12,6 +12,7 @@ install:
   - ps: Install-Product node $env:nodejs_version
   - npm install grunt-cli -g
   - npm install
+  - tsc -v
   - grunt travis
 #build: off
 test_script:
