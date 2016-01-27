@@ -13,7 +13,11 @@ install:
   - npm install grunt-cli -g
   - npm install
   - tsc -v
-  - grunt travis
+  - SET PATH=C:\Users\appveyor\AppData\Roaming\npm\;%PATH%
+  - tsc -v
+build_script:
+  - tsc -v
+  - grunt travis  
 #build: off
 test_script:
   # Output useful info for debugging.
