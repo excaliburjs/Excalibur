@@ -1,11 +1,16 @@
 ﻿/// <reference path="jasmine.d.ts" />
 
 describe('An Actor Group', () => {
-   var group: ex.Group;
-   var scene: ex.Scene;
+   
+   var engine;
+   var scene;
+   var group;
+   var mock = new Mocks.Mocker();
+
    beforeEach(() => {
       scene = new ex.Scene();
       group = new ex.Group('name', scene);
+      engine = mock.engine(100, 100, scene);
    });
 
    it('exists', () => {
@@ -128,5 +133,21 @@ describe('An Actor Group', () => {
       expect(a1.rotation).toBeCloseTo(Math.PI * 2 / 3, .001);
       expect(a2.rotation).toBeCloseTo(Math.PI * 5 / 6, .001);
    });
+   
+   it('can call actions off of actors', () => {
+      var a1 = new ex.Actor(0, 0, 100, 100);
+      
+      group.add(a1);
+      
+      group.actions.moveTo(100, 0, 100);
+      a1.update(engine, 500);
 
+      expect(a1.x).toBe(50);
+      expect(a1.y).toBe(0);
+
+      a1.update(engine, 500);
+      expect(a1.x).toBe(100);
+      expect(a1.y).toBe(0);
+      
+   });
 }); 
