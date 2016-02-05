@@ -4,6 +4,9 @@ node_js:
 - '0.12'
 before_script: 
 install: true
+cache:
+  directories:
+  - $HOME/.npm
 script:
 - npm install grunt-cli -g
 - npm install
