@@ -289,6 +289,7 @@ module ex {
      * The unique identifier for the actor
      */
     public id: number = Actor.maxId++;
+    
     /** 
      * The x coordinate of the actor (middle if anchor is (0.5, 0.5) left edge if anchor is (0, 0))
      */ 
@@ -297,6 +298,24 @@ module ex {
      * The y coordinate of the actor (middle if anchor is (0.5, 0.5) and top edge if anchor is (0, 0))
      */
     public y: number = 0;
+    
+    /**
+     * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default. If
+     * you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0). 
+     */
+    public pos: Vector = new ex.Vector(0, 0);
+    
+    /**
+     * The current velocity vector (vx, vy) of the actor in pixels/second
+     */
+    public vel: Vector = new ex.Vector(0, 0);
+    
+    /**
+     * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be 
+     * useful to simulate a gravitational effect.  
+     */
+    public acc: Vector = new ex.Vector(0, 0);
+    
     /**
      * The anchor to apply all actor related transformations like rotation,
      * translation, and rotation. By default the anchor is in the center of
