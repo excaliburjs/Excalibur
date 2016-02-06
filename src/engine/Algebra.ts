@@ -11,7 +11,7 @@ module ex {
       public static Zero = new Vector(0, 0);
 
       /**
-       * Returns a vector of unit length in the direction of the specified angle.
+       * Returns a vector of unit length in the direction of the specified angle in Radians.
        * @param angle The angle to generate the vector
        */
       public static fromAngle(angle: number) {
@@ -36,8 +36,8 @@ module ex {
        * Compares this point against another and tests for equality
        * @param point  The other point to compare to
        */
-      public equals(vector: Vector): boolean {
-         return this.x === vector.x && this.y === vector.y;
+      public equals(vector: Vector, tolerance: number = .001): boolean {
+         return Math.abs(this.x - vector.x) <= tolerance && Math.abs(this.y - vector.y) <= tolerance;
       }
 
       /**
@@ -86,6 +86,35 @@ module ex {
       public sub(v: Vector): Vector {
          return new Vector(this.x - v.x, this.y - v.y);
       }
+      
+      /**
+       * Adds one vector to this one modifying the original
+       * @param v The vector to add
+       */
+      public addEqual(v: Vector): Vector {
+         this.x += v.x;
+         this.y += v.y;
+         return this;
+      }
+      
+      /**
+       * Subtracts a vector from this one modifying the original
+       * @parallel v The vector to subtract
+       */
+      public subEqual(v: Vector): Vector {
+         this.x -= v.x;
+         this.y -= v.y;
+         return this;
+      }
+      
+      /**
+       * Scales this vector by a factor of size and modifies the original
+       */
+      public scaleEqual(size: number): Vector {
+         this.x *= size;
+         this.y *= size;
+         return this;
+      }
 
       /**
        * Performs a dot product with another vector
@@ -116,6 +145,13 @@ module ex {
       public normal(): Vector {
          return this.perpendicular().normalize();
       }
+      
+      /**
+       * Negate the current vector
+       */
+      public negate(): Vector {
+         return this.scale(-1);
+      }
 
       /**
        * Returns the angle of this vector.
@@ -128,7 +164,7 @@ module ex {
        * Rotates the current vector around a point by a certain number of
        * degrees in radians
        */
-      public rotate(angle: number, anchor: Vector): Vector {
+      public rotate(angle: number, anchor?: Vector): Vector {
           if (!anchor) {
             anchor = new ex.Vector(0, 0);
          }
@@ -238,8 +274,7 @@ module ex {
    }
 
    /**
-    * A projection
-    * @todo
+    * A 1 dimensional projection on an axis, used to test overlaps
     */
    export class Projection {
       constructor(public min: number, public max: number) {}
