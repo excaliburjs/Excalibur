@@ -14,7 +14,7 @@ var target = new ex.Actor(game.width / 2, game.height / 2, 64 * 2, 64 * 2, ex.Co
 target.addDrawing("default", raptorAnim);
 var currentZoom = 1.0;
 document.addEventListener('mousedown', function (ev) {
-    console.log(game.screenToWorldCoordinates(new ex.Point(ev.offsetX, ev.offsetY)));
+    console.log(game.screenToWorldCoordinates(new ex.Vector(ev.offsetX, ev.offsetY)));
 });
 target.on('pointerdown', function (ev) {
     target.color = ex.Color.Green.clone();

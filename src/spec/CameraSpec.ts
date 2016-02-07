@@ -7,7 +7,7 @@ describe('A camera', () => {
    var sideCamera;
    var lockedCamera;
    var baseCamera;
-   var actor;
+   var actor: ex.Actor;
    var engine;
    var scene;
    var mock = new Mocks.Mocker();
@@ -18,10 +18,10 @@ describe('A camera', () => {
       // mock engine    
       engine = mock.engine(500, 500, scene);
 
-      actor.x = 250;
-      actor._width = 10;
-      actor.y = 250;
-      actor._height = 10;
+      actor.pos.x = 250;
+      actor.setWidth(10);
+      actor.pos.y = 250;
+      actor.setHeight(10);
       scene = new ex.Scene(engine);
 
       sideCamera = new ex.SideCamera();
@@ -36,8 +36,8 @@ describe('A camera', () => {
       expect(lockedCamera.getFocus().x).toBe(255);
       expect(lockedCamera.getFocus().y).toBe(255);
 
-      actor.dx = 10;
-      actor.dy = 15;
+      actor.vel.x = 10;
+      actor.vel.y = 15;
 
       actor.update(engine, 1000);
 
@@ -52,8 +52,8 @@ describe('A camera', () => {
       expect(sideCamera.getFocus().x).toBe(255);
       expect(sideCamera.getFocus().y).toBe(0);
 
-      actor.dx = 10;
-      actor.dy = 15;
+      actor.vel.x = 10;
+      actor.vel.y = 15;
 
       actor.update(engine, 1000);
 
@@ -66,8 +66,8 @@ describe('A camera', () => {
       engine.camera = sideCamera;
       sideCamera.setActorToFollow(actor);
    
-      actor.dx = 10;
-      actor.dy = 10;
+      actor.vel.x = 10;
+      actor.vel.y = 10;
 
       actor.update(engine, 1000);
 

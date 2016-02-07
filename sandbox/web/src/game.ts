@@ -211,10 +211,10 @@ player.on('update', () => {
          player.setDrawing(Animations.Left);
       }
       if (inAir) {
-         player.dx = -airSpeed;
+         player.vel.x = -airSpeed;
          return;
       }
-      player.dx = -groundSpeed;
+      player.vel.x = -groundSpeed;
 
       // TODO: When platform is moving in same direction, add its dx
 
@@ -224,17 +224,17 @@ player.on('update', () => {
          player.setDrawing(Animations.Right);
       }
       if (inAir) {
-         player.dx = airSpeed;
+         player.vel.x = airSpeed;
          return;
       }
-      player.dx = groundSpeed;
+      player.vel.x = groundSpeed;
 
       // TODO: When platform is moving in same direction, add its dx
    }
 
    if (game.input.keyboard.isHeld(ex.Input.Keys.Up)) {
       if (!inAir) {
-         player.dy = -jumpSpeed;
+         player.vel.y = -jumpSpeed;
          inAir = true;
          if (direction === 1) {
             player.setDrawing(Animations.JumpRight);
@@ -282,9 +282,9 @@ game.addScene('label', newScene);
 
 game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
    if (keyDown.key === ex.Input.Keys.F) {
-      var a = new ex.Actor(player.x + 10, player.y - 50, 10, 10, new ex.Color(222, 222, 222));
-      a.dx = 200 * direction;
-      a.dy = 0;
+      var a = new ex.Actor(player.pos.x + 10, player.pos.y - 50, 10, 10, new ex.Color(222, 222, 222));
+      a.vel.x = 200 * direction;
+      a.vel.y = 0;
       a.collisionType = ex.CollisionType.Elastic;
       var inAir = true;
       a.on('collision', (data?: ex.CollisionEvent) => {
@@ -295,9 +295,9 @@ game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
       });
       a.on('update', (data?: ex.UpdateEvent) => {
          if (inAir) {
-            a.ay = 400;// * data.delta/1000;
+            a.acc.y = 400;// * data.delta/1000;
          } else {
-            a.ay = 0;
+            a.acc.y = 0;
          }
          inAir = true;
       });
@@ -321,22 +321,22 @@ player.on('collision', (data?: ex.CollisionEvent) => {
       }
       inAir = false;
       if (data.other && !(game.input.keyboard.isHeld(ex.Input.Keys.Left) || game.input.keyboard.isHeld(ex.Input.Keys.Right) || game.input.keyboard.isHeld(ex.Input.Keys.Up) || game.input.keyboard.isHeld(ex.Input.Keys.Down))) {
-         player.dx = data.other.dx;
-         player.dy = data.other.dy;
+         player.vel.x = data.other.vel.x;
+         player.vel.y = data.other.vel.y;
       }
 
       if (!data.other) {
-         player.dx = 0;
-         player.dy = 0;
+         player.vel.x = 0;
+         player.vel.y = 0;
       }
 
    }
 
    if (data.side === ex.Side.Top) {
       if (data.other) {
-         player.dy = data.other.dy - player.dy;
+         player.vel.y = data.other.vel.y - player.vel.y;
       } else {
-         player.dy = 0;
+         player.vel.y = 0;
       }
 
    }
@@ -411,7 +411,7 @@ emitter.acceleration = new ex.Vector(0, 460);
 emitter.beginColor = ex.Color.Red;
 emitter.endColor = ex.Color.Yellow;
 emitter.particleSprite = blockSprite.clone();
-emitter.particleSprite.anchor = new ex.Point(.5, .5);
+emitter.particleSprite.anchor = new ex.Vector(.5, .5);
 emitter.particleRotationalVelocity = Math.PI / 10;
 emitter.randomRotation = true;
 emitter.particleSprite.addEffect(new ex.Effects.Grayscale());

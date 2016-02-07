@@ -35,7 +35,7 @@ module ex.Internal.Actions {
          this._lerpEnd = new ex.Vector(x, y);
       }
       private _initialize() {
-         this._lerpStart = new ex.Vector(this.actor.x, this.actor.y);
+         this._lerpStart = new ex.Vector(this.actor.pos.x, this.actor.pos.y);
          this._currentLerpTime = 0;
          this._distance = this._lerpStart.distance(this._lerpEnd);
       }
@@ -46,8 +46,8 @@ module ex.Internal.Actions {
             this._initialized = true;
          }
 
-         var newX = this.actor.x;
-         var newY = this.actor.y;
+         var newX = this.actor.pos.x;
+         var newY = this.actor.pos.y;
          if (this._currentLerpTime < this._lerpDuration) {
 
             if (this._lerpEnd.x < this._lerpStart.x) {
@@ -67,14 +67,14 @@ module ex.Internal.Actions {
             } else {
                newY = this.easingFcn(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
             }
-            this.actor.x = newX;
-            this.actor.y = newY;
+            this.actor.pos.x = newX;
+            this.actor.pos.y = newY;
 
             this._currentLerpTime += delta;
 
          } else {
-            this.actor.x = this._lerpEnd.x;
-            this.actor.y = this._lerpEnd.y;
+            this.actor.pos.x = this._lerpEnd.x;
+            this.actor.pos.y = this._lerpEnd.y;
             //this._lerpStart = null;
             //this._lerpEnd = null;
             //this._currentLerpTime = 0;
@@ -82,7 +82,7 @@ module ex.Internal.Actions {
 
       }
       public isComplete(actor: Actor): boolean {
-         return this._stopped || (new Vector(actor.x, actor.y)).distance(this._lerpStart) >= this._distance;
+         return this._stopped || (new Vector(actor.pos.x, actor.pos.y)).distance(this._lerpStart) >= this._distance;
       }
 
       public reset(): void {
@@ -113,29 +113,29 @@ module ex.Internal.Actions {
       public update(delta: number): void {
          if (!this._started) {
             this._started = true;
-            this._start = new Vector(this._actor.x, this._actor.y);
+            this._start = new Vector(this._actor.pos.x, this._actor.pos.y);
             this._distance = this._start.distance(this._end);
             this._dir = this._end.sub(this._start).normalize();
          }
          var m = this._dir.scale(this._speed);
-         this._actor.dx = m.x;
-         this._actor.dy = m.y;
+         this._actor.vel.x = m.x;
+         this._actor.vel.y = m.y;
          
          if (this.isComplete(this._actor)) {
-            this._actor.x = this._end.x;
-            this._actor.y = this._end.y;
-            this._actor.dy = 0;
-            this._actor.dx = 0;
+            this._actor.pos.x = this._end.x;
+            this._actor.pos.y = this._end.y;
+            this._actor.vel.y = 0;
+            this._actor.vel.x = 0;
          }
       }
 
       public isComplete(actor: Actor): boolean {
-         return this._stopped || (new Vector(actor.x, actor.y)).distance(this._start) >= this._distance;
+         return this._stopped || (new Vector(actor.pos.x, actor.pos.y)).distance(this._start) >= this._distance;
       }
 
       public stop(): void {
-         this._actor.dy = 0;
-         this._actor.dx = 0;
+         this._actor.vel.y = 0;
+         this._actor.vel.x = 0;
          this._stopped = true;
       }
 
@@ -171,32 +171,32 @@ module ex.Internal.Actions {
       public update(delta: Number) {
          if (!this._started) {
             this._started = true;
-            this._start = new Vector(this._actor.x, this._actor.y);
+            this._start = new Vector(this._actor.pos.x, this._actor.pos.y);
             this._distance = this._start.distance(this._end);
             this._dir = this._end.sub(this._start).normalize();
             this._speed = this._distance / (this._time / 1000);
          }
 
          var m = this._dir.scale(this._speed);
-         this._actor.dx = m.x;
-         this._actor.dy = m.y;
+         this._actor.vel.x = m.x;
+         this._actor.vel.y = m.y;
 
          
          if (this.isComplete(this._actor)) {
-            this._actor.x = this._end.x;
-            this._actor.y = this._end.y;
-            this._actor.dy = 0;
-            this._actor.dx = 0;
+            this._actor.pos.x = this._end.x;
+            this._actor.pos.y = this._end.y;
+            this._actor.vel.y = 0;
+            this._actor.vel.x = 0;
          }
       }
 
       public isComplete(actor: Actor): boolean {
-         return this._stopped || (new Vector(actor.x, actor.y)).distance(this._start) >= this._distance;
+         return this._stopped || (new Vector(actor.pos.x, actor.pos.y)).distance(this._start) >= this._distance;
       }
 
       public stop(): void {
-         this._actor.dy = 0;
-         this._actor.dx = 0;
+         this._actor.vel.y = 0;
+         this._actor.vel.x = 0;
          this._stopped = true;
       }
 
@@ -222,8 +222,8 @@ module ex.Internal.Actions {
       constructor(actor: Actor, actorToFollow : Actor, followDistance? : number) {
          this._actor = actor;
          this._actorToFollow = actorToFollow;
-         this._current = new Vector(this._actor.x, this._actor.y);
-         this._end = new Vector(actorToFollow.x, actorToFollow.y);
+         this._current = new Vector(this._actor.pos.x, this._actor.pos.y);
+         this._end = new Vector(actorToFollow.pos.x, actorToFollow.pos.y);
          this._maximumDistance = (followDistance !== undefined) ? followDistance : this._current.distance(this._end);
          this._speed = 0;
       }
@@ -235,39 +235,39 @@ module ex.Internal.Actions {
             this._dir = this._end.sub(this._current).normalize();
          }
             
-            var actorToFollowSpeed = Math.sqrt(Math.pow(this._actorToFollow.dx, 2) + Math.pow(this._actorToFollow.dy, 2));
+            var actorToFollowSpeed = Math.sqrt(Math.pow(this._actorToFollow.vel.x, 2) + Math.pow(this._actorToFollow.vel.y, 2));
             if (actorToFollowSpeed !== 0) {
                this._speed = actorToFollowSpeed;
             }
-            this._current.x = this._actor.x;
-            this._current.y = this._actor.y;
+            this._current.x = this._actor.pos.x;
+            this._current.y = this._actor.pos.y;
 
-            this._end.x = this._actorToFollow.x;
-            this._end.y = this._actorToFollow.y;
+            this._end.x = this._actorToFollow.pos.x;
+            this._end.y = this._actorToFollow.pos.y;
             this._distanceBetween = this._current.distance(this._end);
             this._dir = this._end.sub(this._current).normalize();
 
          if (this._distanceBetween >= this._maximumDistance) {
             var m = this._dir.scale(this._speed);
-            this._actor.dx = m.x;
-            this._actor.dy = m.y;
+            this._actor.vel.x = m.x;
+            this._actor.vel.y = m.y;
          } else {
-            this._actor.dx = 0;
-            this._actor.dy = 0;
+            this._actor.vel.x = 0;
+            this._actor.vel.y = 0;
          }
 
          if (this.isComplete(this._actor)) {
             // TODO this should never occur
-            this._actor.x = this._end.x;
-            this._actor.y = this._end.y;
-            this._actor.dy = 0;
-            this._actor.dx = 0;
+            this._actor.pos.x = this._end.x;
+            this._actor.pos.y = this._end.y;
+            this._actor.vel.y = 0;
+            this._actor.vel.x = 0;
          }
       }
 
       public stop(): void {
-            this._actor.dy = 0;
-            this._actor.dx = 0;
+            this._actor.vel.y = 0;
+            this._actor.vel.x = 0;
             this._stopped = true;
       }
 
@@ -298,8 +298,8 @@ module ex.Internal.Actions {
       constructor(actor: Actor, actorToMeet : Actor, speed? : number) {
          this._actor = actor;
          this._actorToMeet = actorToMeet;
-         this._current = new Vector(this._actor.x, this._actor.y);
-         this._end = new Vector(actorToMeet.x, actorToMeet.y);
+         this._current = new Vector(this._actor.pos.x, this._actor.pos.y);
+         this._end = new Vector(actorToMeet.pos.x, actorToMeet.pos.y);
          this._speed = speed || 0;
 
          if (speed !== undefined) {
@@ -314,28 +314,28 @@ module ex.Internal.Actions {
             this._dir = this._end.sub(this._current).normalize();
          }
 
-         var actorToMeetSpeed = Math.sqrt(Math.pow(this._actorToMeet.dx, 2) + Math.pow(this._actorToMeet.dy, 2));
+         var actorToMeetSpeed = Math.sqrt(Math.pow(this._actorToMeet.vel.x, 2) + Math.pow(this._actorToMeet.vel.y, 2));
          if ((actorToMeetSpeed !== 0) && (!this._speedWasSpecified)) {
             this._speed = actorToMeetSpeed;
          }
-         this._current.x = this._actor.x;
-         this._current.y = this._actor.y;
+         this._current.x = this._actor.pos.x;
+         this._current.y = this._actor.pos.y;
 
-         this._end.x = this._actorToMeet.x;
-         this._end.y = this._actorToMeet.y;
+         this._end.x = this._actorToMeet.pos.x;
+         this._end.y = this._actorToMeet.pos.y;
          this._distanceBetween = this._current.distance(this._end);
          this._dir = this._end.sub(this._current).normalize();
 
          var m = this._dir.scale(this._speed);
-         this._actor.dx = m.x;
-         this._actor.dy = m.y;
+         this._actor.vel.x = m.x;
+         this._actor.vel.y = m.y;
 
          if (this.isComplete(this._actor)) {
             
-            this._actor.x = this._end.x;
-            this._actor.y = this._end.y;
-            this._actor.dy = 0;
-            this._actor.dx = 0;
+            this._actor.pos.x = this._end.x;
+            this._actor.pos.y = this._end.y;
+            this._actor.vel.y = 0;
+            this._actor.vel.x = 0;
          }
       }
 
@@ -344,8 +344,8 @@ module ex.Internal.Actions {
       }
 
       public stop(): void {
-         this._actor.dy = 0;
-         this._actor.dx = 0;
+         this._actor.vel.y = 0;
+         this._actor.vel.x = 0;
          this._stopped = true;
       }
 
@@ -704,8 +704,8 @@ module ex.Internal.Actions {
             this._started = true;
          }
 
-         this.x = this._actor.x;
-         this.y = this._actor.y;
+         this.x = this._actor.pos.x;
+         this.y = this._actor.pos.y;
 
          this._elapsedTime += delta;
       }
@@ -903,8 +903,8 @@ module ex.Internal.Actions {
       }
 
       public update(delta): void {
-         this.x = this._actor.x;
-         this.y = this._actor.y;
+         this.x = this._actor.pos.x;
+         this.y = this._actor.pos.y;
          if (!this._actionQueue.hasNext()) {
             this._actionQueue.reset();
             this._repeat--;
@@ -943,8 +943,8 @@ module ex.Internal.Actions {
       }
 
       public update(delta): void {
-         this.x = this._actor.x;
-         this.y = this._actor.y;
+         this.x = this._actor.pos.x;
+         this.y = this._actor.pos.y;
          if (this._stopped) {
             return;
          }

@@ -12,33 +12,33 @@ box.on("update", function (ue) {
     // Right/Left
     if (game.input.keyboard.isHeld(ex.Input.Keys.Right) ||
         pad1.isButtonPressed(ex.Input.Buttons.DpadRight)) {
-        box.dx = 20;
+        box.vel.x = 20;
     }
     else if (game.input.keyboard.isHeld(ex.Input.Keys.Left) ||
         pad1.isButtonPressed(ex.Input.Buttons.DpadLeft)) {
-        box.dx = -20;
+        box.vel.x = -20;
     }
     else if (!axesLeftX && !axesLeftY) {
-        box.dx = 0;
+        box.vel.x = 0;
     }
     // Up/Down
     if (game.input.keyboard.isHeld(ex.Input.Keys.Up) ||
         pad1.isButtonPressed(ex.Input.Buttons.DpadUp)) {
-        box.dy = -20;
+        box.vel.y = -20;
     }
     else if (game.input.keyboard.isHeld(ex.Input.Keys.Down) ||
         pad1.isButtonPressed(ex.Input.Buttons.DpadDown)) {
-        box.dy = 20;
+        box.vel.y = 20;
     }
     else if (!axesLeftY && !axesLeftX) {
-        box.dy = 0;
+        box.vel.y = 0;
     }
     // Axes movement
     if (Math.abs(axesLeftX) > 0) {
-        box.dx = axesLeftX * 120;
+        box.vel.x = axesLeftX * 120;
     }
     if (Math.abs(axesLeftY) > 0) {
-        box.dy = axesLeftY * 120;
+        box.vel.y = axesLeftY * 120;
     }
 });
 game.add(box);

@@ -362,12 +362,12 @@ module ex {
          var dy = vel * Math.sin(angle);
 
          if (this.emitterType === EmitterType.Rectangle) {
-            ranX = Util.randomInRange(this.x, this.x + this.getWidth());
-            ranY = Util.randomInRange(this.y, this.y + this.getHeight());
+            ranX = Util.randomInRange(this.pos.x, this.pos.x + this.getWidth());
+            ranY = Util.randomInRange(this.pos.y, this.pos.y + this.getHeight());
          } else if (this.emitterType === EmitterType.Circle) {
             var radius = Util.randomInRange(0, this.radius);
-            ranX = radius * Math.cos(angle) + this.x;
-            ranY = radius * Math.sin(angle) + this.y;
+            ranX = radius * Math.cos(angle) + this.pos.x;
+            ranY = radius * Math.sin(angle) + this.pos.y;
          }         
          
          var p = new Particle(this, 
@@ -390,7 +390,7 @@ module ex {
             p.currentRotation = Util.randomInRange(0, Math.PI * 2);
          }
          if (this.focus) {
-            p.focus = this.focus.add(new ex.Vector(this.x, this.y));
+            p.focus = this.focus.add(new ex.Vector(this.pos.x, this.pos.y));
             p.focusAccel = this.focusAccel;
          }
          return p;
@@ -423,12 +423,12 @@ module ex {
       public debugDraw(ctx: CanvasRenderingContext2D) {
          super.debugDraw(ctx);
          ctx.fillStyle = Color.Black.toString();
-         ctx.fillText('Particles: ' + this.particles.count(), this.x, this.y + 20);
+         ctx.fillText('Particles: ' + this.particles.count(), this.pos.x, this.pos.y + 20);
 
          if (this.focus) {
-            ctx.fillRect(this.focus.x + this.x, this.focus.y + this.y, 3, 3);
-            Util.drawLine(ctx, 'yellow', this.focus.x + this.x, this.focus.y + this.y, super.getCenter().x, super.getCenter().y);
-            ctx.fillText('Focus', this.focus.x + this.x, this.focus.y + this.y);
+            ctx.fillRect(this.focus.x + this.pos.x, this.focus.y + this.pos.y, 3, 3);
+            Util.drawLine(ctx, 'yellow', this.focus.x + this.pos.x, this.focus.y + this.pos.y, super.getCenter().x, super.getCenter().y);
+            ctx.fillText('Focus', this.focus.x + this.pos.x, this.focus.y + this.pos.y);
          }
       }
 

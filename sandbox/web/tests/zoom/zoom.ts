@@ -22,7 +22,7 @@ target.addDrawing("default", raptorAnim);
 var currentZoom = 1.0;
 
 document.addEventListener('mousedown', (ev: MouseEvent) => {
-   console.log(game.screenToWorldCoordinates(new ex.Point(ev.offsetX, ev.offsetY)));
+   console.log(game.screenToWorldCoordinates(new ex.Vector(ev.offsetX, ev.offsetY)));
 });
 
 target.on('pointerdown',(ev: ex.Input.PointerEvent) => {
