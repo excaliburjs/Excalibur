@@ -1,8 +1,8 @@
 /// <reference path="Interfaces/IDrawable.ts" />
-/// <reference path="Traits/Movement.ts" />
+/// <reference path="Traits/EulerMovement.ts" />
 /// <reference path="Traits/OffscreenCulling.ts" />
 /// <reference path="Traits/CapturePointer.ts" />
-/// <reference path="Traits/CollisionDetection.ts" />
+/// <reference path="Traits/TileMapCollisionDetection.ts" />
 /// <reference path="Collision/Side.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util/Util.ts" />
@@ -289,16 +289,7 @@ module ex {
      * The unique identifier for the actor
      */
     public id: number = Actor.maxId++;
-    
-    /** 
-     * The x coordinate of the actor (middle if anchor is (0.5, 0.5) left edge if anchor is (0, 0))
-     */ 
-    public x: number = 0;
-    /** 
-     * The y coordinate of the actor (middle if anchor is (0.5, 0.5) and top edge if anchor is (0, 0))
-     */
-    public y: number = 0;
-    
+        
     /**
      * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default. If
      * you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0). 
@@ -306,15 +297,56 @@ module ex {
     public pos: Vector = new ex.Vector(0, 0);
     
     /**
+     * The position of the actor last frame (x, y) in pixels
+     */
+    public oldPos: Vector = new ex.Vector(0, 0);    
+    
+    /**
      * The current velocity vector (vx, vy) of the actor in pixels/second
      */
     public vel: Vector = new ex.Vector(0, 0);
+    
+    /**
+     * The velocity of the actor last frame (vx, vy) in pixels/second
+     */
+    public oldVel: Vector = new ex.Vector(0, 0);
     
     /**
      * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be 
      * useful to simulate a gravitational effect.  
      */
     public acc: Vector = new ex.Vector(0, 0);
+    
+    
+    /**
+     * The current torque applied to the actor
+     */
+    public torque: number = 0;
+    
+    /**
+     * The current mass of the actor, mass can be thought of as the resistance to acceleration.
+     */
+    public mass: number = 1.0;
+    
+    /**
+     * The current momemnt of inertia, moi can be thought of as the resistance to rotation.
+     */
+    public moi: number = 10;
+    
+    /**
+     * The current "motion" of the actor, used to calculated sleep in the physics simulation
+     */
+    public motion: number = 10;
+    
+    /**
+     * The coefficient of friction on this actor
+     */
+    public friction: number = .99;
+    
+    /**
+     * The coefficient of restitution of this actor, represents the amount of energy preserved after collision
+     */
+    public restitution: number = .2;
     
     /**
      * The anchor to apply all actor related transformations like rotation,
@@ -349,22 +381,7 @@ module ex {
      * The y scalar velocity of the actor in scale/second
      */
     public sy: number = 0; //scale/sec
-    /** 
-     * The x velocity of the actor in pixels/second
-     */
-    public dx: number = 0; // pixels/sec
-    /** 
-     * The x velocity of the actor in pixels/second
-     */
-    public dy: number = 0;
-    /**
-     * The x acceleration of the actor in pixels/second^2
-     */
-    public ax: number = 0; // pixels/sec/sec
-    /**
-     * The y acceleration of the actor in pixels/second^2
-     */
-    public ay: number = 0;
+    
     /**
      * Indicates whether the actor is physically in the viewport
      */
@@ -464,8 +481,8 @@ module ex {
      */
     constructor(x?: number, y?: number, width?: number, height?: number, color?: Color) {
        super();
-       this.x = x || 0;
-       this.y = y || 0;
+       this.pos.x = x || 0;
+       this.pos.y = y || 0;
        this._width = width || 0;
        this._height = height || 0;         
        if (color) {
@@ -474,8 +491,8 @@ module ex {
           this.opacity = color.a;  
        }         
        // Build default pipeline
-       this.traits.push(new ex.Traits.Movement());
-       this.traits.push(new ex.Traits.CollisionDetection());
+       this.traits.push(new ex.Traits.EulerMovement());
+       this.traits.push(new ex.Traits.TileMapCollisionDetection());
        this.traits.push(new ex.Traits.OffscreenCulling());         
        this.traits.push(new ex.Traits.CapturePointer());
        this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
@@ -672,8 +689,8 @@ module ex {
      * Get the center point of an actor
      */
     public getCenter(): Vector {
-       return new Vector(this.x + this.getWidth() / 2 - this.anchor.x * this.getWidth(), 
-                         this.y + this.getHeight() / 2 - this.anchor.y * this.getHeight());
+       return new Vector(this.pos.x + this.getWidth() / 2 - this.anchor.x * this.getWidth(), 
+                         this.pos.y + this.getHeight() / 2 - this.anchor.y * this.getHeight());
     }
     /**
      * Gets the calculated width of an actor, factoring in scale
@@ -736,18 +753,18 @@ module ex {
      */
     public getWorldX() {
        if (!this.parent) {
-           return this.x;
+           return this.pos.x;
        }
-       return this.x * this.parent.scale.x + this.parent.getWorldX();
+       return this.pos.x * this.parent.scale.x + this.parent.getWorldX();
     }
     /**
      * Gets the y value of the Actor in global coordinates
      */
     public getWorldY() {
       if (!this.parent) {
-          return this.y;
+          return this.pos.y;
       }
-      return this.y * this.parent.scale.y + this.parent.getWorldY();
+      return this.pos.y * this.parent.scale.y + this.parent.getWorldY();
     }
     /**
      * Gets the global scale of the Actor
@@ -819,13 +836,13 @@ module ex {
           return ex.Side.None;
        }
        if (Math.abs(separationVector.x) > Math.abs(separationVector.y)) {
-          if (this.x < actor.x) {
+          if (this.pos.x < actor.pos.x) {
              return ex.Side.Right;
           } else {
              return ex.Side.Left;
           }
        } else {
-          if (this.y < actor.y) {
+          if (this.pos.y < actor.pos.y) {
              return ex.Side.Bottom;
           } else {
              return ex.Side.Top;
@@ -871,7 +888,7 @@ module ex {
      * @param distance  Distance in pixels to test
      */
     public within(actor: Actor, distance: number): boolean {
-       return Math.sqrt(Math.pow(this.x - actor.x, 2) + Math.pow(this.y - actor.y, 2)) <= distance;
+       return Math.sqrt(Math.pow(this.pos.x - actor.pos.x, 2) + Math.pow(this.pos.y - actor.pos.y, 2)) <= distance;
     }      
     /**
      * Clears all queued actions from the Actor
@@ -1139,7 +1156,7 @@ module ex {
     public draw(ctx: CanvasRenderingContext2D, delta: number) {
        var anchorPoint = this._getCalculatedAnchor();
        ctx.save();
-       ctx.translate(this.x, this.y);
+       ctx.translate(this.pos.x, this.pos.y);
        ctx.scale(this.scale.x, this.scale.y);
        ctx.rotate(this.rotation);
        this.emit('predraw', new PreDrawEvent(ctx, delta, this));
@@ -1231,7 +1248,7 @@ module ex {
        ctx.font = oldFont;
        // Draw child actors
        ctx.save();
-       ctx.translate(this.x, this.y);
+       ctx.translate(this.pos.x, this.pos.y);
        ctx.rotate(this.rotation);
        // Draw child actors
        for (var i = 0; i < this.children.length; i++) {

@@ -192,8 +192,8 @@ module ex {
      */
     public collides(actor: Actor): Vector {
        var points: Vector[] = [];
-       var width = actor.x + actor.getWidth();
-       var height = actor.y + actor.getHeight();
+       var width = actor.pos.x + actor.getWidth();
+       var height = actor.pos.y + actor.getHeight();
        var actorBounds = actor.getBounds();
        var overlaps: Vector[] = [];
        // trace points for overlap

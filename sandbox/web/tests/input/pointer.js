@@ -31,8 +31,8 @@ box.on("pointerup", function (pe) {
 // Drag box around
 box.on("pointermove", function (pe) {
     if (boxPointerDown) {
-        box.x = pe.x;
-        box.y = pe.y;
+        box.pos.x = pe.x;
+        box.pos.y = pe.y;
     }
 });
 // Set pointer down flag
@@ -41,8 +41,8 @@ box.on("pointerdown", function (pe) {
 });
 // Follow cursor
 game.input.pointers.primary.on("move", function (pe) {
-    cursor.x = pe.x;
-    cursor.y = pe.y;
+    cursor.pos.x = pe.x;
+    cursor.pos.y = pe.y;
 });
 // Button type
 game.input.pointers.primary.on("down", function (pe) {

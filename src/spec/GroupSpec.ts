@@ -114,11 +114,11 @@ describe('An Actor Group', () => {
       group.add([a1, a2]);
       group.move(-10, 10);
 
-      expect(a1.x).toBe(-10);
-      expect(a2.x).toBe(90);
+      expect(a1.pos.x).toBe(-10);
+      expect(a2.pos.x).toBe(90);
 
-      expect(a1.y).toBe(10);
-      expect(a2.y).toBe(110);
+      expect(a1.pos.y).toBe(10);
+      expect(a2.pos.y).toBe(110);
    });
 
    it('can rotate many actors at once by an angle', () => {
@@ -142,12 +142,12 @@ describe('An Actor Group', () => {
       group.actions.moveTo(100, 0, 100);
       a1.update(engine, 500);
 
-      expect(a1.x).toBe(50);
-      expect(a1.y).toBe(0);
+      expect(a1.pos.x).toBe(50);
+      expect(a1.pos.y).toBe(0);
 
       a1.update(engine, 500);
-      expect(a1.x).toBe(100);
-      expect(a1.y).toBe(0);
+      expect(a1.pos.x).toBe(100);
+      expect(a1.pos.y).toBe(0);
       
    });
 }); 

@@ -88,16 +88,16 @@ module ex {
 
          if (arguments.length === 1 && args instanceof Vector) {
             for (i; i < len; i++) {
-               members[i].x += args.x;
-               members[i].y += args.y;
+               members[i].pos.x += args.x;
+               members[i].pos.y += args.y;
             }
          } else if (typeof arguments[0] === 'number' && typeof arguments[1] === 'number') {
             var x = arguments[0];
             var y = arguments[1];
 
             for (i; i < len; i++) {
-               members[i].x += x;
-               members[i].y += y;
+               members[i].pos.x += x;
+               members[i].pos.y += y;
             }
          } else {
             this._logger.error('Invalid arguments passed to group move', this.name, 'args:', arguments);

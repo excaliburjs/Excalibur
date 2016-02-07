@@ -170,11 +170,11 @@ declare module ex {
          * Gets or sets the point about which to apply transformations to the drawing relative to the
          * top left corner of the drawing.
          */
-        anchor: ex.Point;
+        anchor: ex.Vector;
         /**
          * Gets or sets the scale trasformation
          */
-        scale: ex.Point;
+        scale: ex.Vector;
         /**
          * Sets the current rotation transformation for the drawing.
          */
@@ -201,7 +201,7 @@ declare module ex {
     }
 }
 declare module ex.Traits {
-    class Movement implements IActorTrait {
+    class EulerMovement implements IActorTrait {
         update(actor: Actor, engine: Engine, delta: number): void;
     }
 }
@@ -246,7 +246,7 @@ declare module ex.Traits {
     }
 }
 declare module ex.Traits {
-    class CollisionDetection implements IActorTrait {
+    class TileMapCollisionDetection implements IActorTrait {
         update(actor: Actor, engine: Engine, delta: number): void;
     }
 }
@@ -264,51 +264,9 @@ declare module ex {
 }
 declare module ex {
     /**
-     * A simple 2D point on a plane
-     * @obsolete Use [[Vector|vector]]s instead of [[Point|points]]
-     */
-    class Point {
-        x: number;
-        y: number;
-        /**
-         * @param x  X coordinate of the point
-         * @param y  Y coordinate of the point
-         */
-        constructor(x: number, y: number);
-        /**
-         * Convert this point to a vector
-         */
-        toVector(): Vector;
-        /**
-         * Rotates the current point around another by a certain number of
-         * degrees in radians
-         * @param angle  The angle in radians
-         * @param anchor The point to rotate around
-         */
-        rotate(angle: number, anchor?: Point): Point;
-        /**
-         * Translates the current point by a vector
-         * @param vector  The other vector to add to
-         */
-        add(vector: Vector): Point;
-        /**
-         * Sets the x and y components at once
-         */
-        setTo(x: number, y: number): void;
-        /**
-         * Clones a new point that is a copy of this one.
-         */
-        clone(): Point;
-        /**
-         * Compares this point against another and tests for equality
-         * @param point  The other point to compare to
-         */
-        equals(point: Point): boolean;
-    }
-    /**
      * A 2D vector on a plane.
      */
-    class Vector extends Point {
+    class Vector {
         x: number;
         y: number;
         /**
@@ -316,7 +274,7 @@ declare module ex {
          */
         static Zero: Vector;
         /**
-         * Returns a vector of unit length in the direction of the specified angle.
+         * Returns a vector of unit length in the direction of the specified angle in Radians.
          * @param angle The angle to generate the vector
          */
         static fromAngle(angle: number): Vector;
@@ -325,6 +283,15 @@ declare module ex {
          * @param y  Y component of the Vector
          */
         constructor(x: number, y: number);
+        /**
+         * Sets the x and y components at once
+         */
+        setTo(x: number, y: number): void;
+        /**
+         * Compares this point against another and tests for equality
+         * @param point  The other point to compare to
+         */
+        equals(vector: Vector, tolerance?: number): boolean;
         /**
          * The distance to another vector
          * @param v  The other vector
@@ -340,11 +307,6 @@ declare module ex {
          */
         scale(size: any): Vector;
         /**
-         * Adds one vector to another, alias for add
-         * @param v  The vector to add
-         */
-        plus(v: Vector): Vector;
-        /**
          * Adds one vector to another
          * @param v The vector to add
          */
@@ -353,12 +315,21 @@ declare module ex {
          * Subtracts a vector from another, alias for minus
          * @param v The vector to subtract
          */
-        subtract(v: Vector): Vector;
+        sub(v: Vector): Vector;
         /**
-         * Subtracts a vector from the current vector
-         * @param v The vector to subtract
+         * Adds one vector to this one modifying the original
+         * @param v The vector to add
          */
-        minus(v: Vector): Vector;
+        addEqual(v: Vector): Vector;
+        /**
+         * Subtracts a vector from this one modifying the original
+         * @parallel v The vector to subtract
+         */
+        subEqual(v: Vector): Vector;
+        /**
+         * Scales this vector by a factor of size and modifies the original
+         */
+        scaleEqual(size: number): Vector;
         /**
          * Performs a dot product with another vector
          * @param v  The vector to dot
@@ -378,18 +349,18 @@ declare module ex {
          */
         normal(): Vector;
         /**
+         * Negate the current vector
+         */
+        negate(): Vector;
+        /**
          * Returns the angle of this vector.
          */
         toAngle(): number;
         /**
-         * Returns the point represention of this vector
-         */
-        toPoint(): Point;
-        /**
          * Rotates the current vector around a point by a certain number of
          * degrees in radians
          */
-        rotate(angle: number, anchor: Point): Vector;
+        rotate(angle: number, anchor?: Vector): Vector;
         /**
          * Creates new vector that has the same values as the previous.
          */
@@ -399,13 +370,13 @@ declare module ex {
      * A 2D ray that can be cast into the scene to do collision detection
      */
     class Ray {
-        pos: Point;
+        pos: Vector;
         dir: Vector;
         /**
          * @param pos The starting position for the ray
          * @param dir The vector indicating the direction of the ray
          */
-        constructor(pos: Point, dir: Vector);
+        constructor(pos: Vector, dir: Vector);
         /**
          * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
          * This number indicates the mathematical intersection time.
@@ -415,19 +386,19 @@ declare module ex {
         /**
          * Returns the point of intersection given the intersection time
          */
-        getPoint(time: number): Point;
+        getPoint(time: number): Vector;
     }
     /**
      * A 2D line segment
      */
     class Line {
-        begin: Point;
-        end: Point;
+        begin: Vector;
+        end: Vector;
         /**
          * @param begin  The starting point of the line segment
          * @param end  The ending point of the line segment
          */
-        constructor(begin: Point, end: Point);
+        constructor(begin: Vector, end: Vector);
         /**
          * Returns the slope of the line in the form of a vector
          */
@@ -438,8 +409,7 @@ declare module ex {
         getLength(): number;
     }
     /**
-     * A projection
-     * @todo
+     * A 1 dimensional projection on an axis, used to test overlaps
      */
     class Projection {
         min: number;
@@ -464,7 +434,7 @@ declare module ex.Util {
     function canonicalizeAngle(angle: number): number;
     function toDegrees(radians: number): number;
     function toRadians(degrees: number): number;
-    function getPosition(el: HTMLElement): Point;
+    function getPosition(el: HTMLElement): Vector;
     function addItemToArray<T>(item: T, array: T[]): boolean;
     function removeItemToArray<T>(item: T, array: T[]): boolean;
     function contains(array: Array<any>, obj: any): boolean;
@@ -621,8 +591,8 @@ declare module ex {
         sheight: number;
         private _texture;
         rotation: number;
-        anchor: Point;
-        scale: Point;
+        anchor: Vector;
+        scale: Vector;
         logger: Logger;
         /**
          * Draws the sprite flipped vertically
@@ -1287,7 +1257,7 @@ declare module ex {
          * Tests wether a point is contained within the collidable
          * @param point  The point to test
          */
-        contains(point: Point): boolean;
+        contains(point: Vector): boolean;
         debugDraw(ctx: CanvasRenderingContext2D): void;
     }
     /**
@@ -1321,7 +1291,7 @@ declare module ex {
          * Tests wether a point is contained within the bounding box
          * @param p  The point to test
          */
-        contains(p: Point): boolean;
+        contains(p: Vector): boolean;
         /**
          * Tests whether another bounding box is totally contained in this one
          * @param bb  The bounding box to test
@@ -1343,7 +1313,7 @@ declare module ex {
     }
     class SATBoundingBox implements ICollidable {
         private _points;
-        constructor(points: Point[]);
+        constructor(points: Vector[]);
         getSides(): Line[];
         getAxes(): Vector[];
         project(axis: Vector): Projection;
@@ -1361,7 +1331,7 @@ declare module ex {
          *
          * @param p  The point to test
          */
-        contains(p: Point): boolean;
+        contains(p: Vector): boolean;
         collides(collidable: ICollidable): Vector;
         debugDraw(ctx: CanvasRenderingContext2D): void;
     }
@@ -1586,8 +1556,8 @@ declare module ex {
      * ## Focus
      *
      * Cameras have a [[BaseCamera.focus|focus]] which means they center around a specific
-     * [[Point]]. This can be an [[Actor]] ([[BaseCamera.setActorToFollow]]) or a specific
-     * [[Point]] ([[BaseCamera.setFocus]]).
+     * [[Vector|point]]. This can be an [[Actor]] ([[BaseCamera.setActorToFollow]]) or a specific
+     * [[Vector|point]] ([[BaseCamera.setFocus]]).
      *
      * If a camera is following an [[Actor]], it will ensure the [[Actor]] is always at the
      * center of the screen. You can use [[BaseCamera.setFocus]] instead if you wish to
@@ -1624,7 +1594,7 @@ declare module ex {
      */
     class BaseCamera {
         protected _follow: Actor;
-        focus: Point;
+        focus: Vector;
         lerp: boolean;
         x: number;
         y: number;
@@ -1663,7 +1633,7 @@ declare module ex {
         /**
          * Returns the focal point of the camera, a new point giving the x and y position of the camera
          */
-        getFocus(): Point;
+        getFocus(): Vector;
         /**
          * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
          * @param x The x coordinate of the focal point
@@ -1705,7 +1675,7 @@ declare module ex {
      * Common usages: platformers.
      */
     class SideCamera extends BaseCamera {
-        getFocus(): Point;
+        getFocus(): Vector;
     }
     /**
      * An extension of [[BaseCamera]] that is locked to an [[Actor]] or
@@ -1715,7 +1685,7 @@ declare module ex {
      * Common usages: RPGs, adventure games, top-down games.
      */
     class LockedCamera extends BaseCamera {
-        getFocus(): Point;
+        getFocus(): Vector;
     }
 }
 declare module ex {
@@ -3037,13 +3007,51 @@ declare module ex {
          */
         id: number;
         /**
-         * The x coordinate of the actor (middle if anchor is (0.5, 0.5) left edge if anchor is (0, 0))
+         * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default. If
+         * you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0).
          */
-        x: number;
+        pos: Vector;
         /**
-         * The y coordinate of the actor (middle if anchor is (0.5, 0.5) and top edge if anchor is (0, 0))
+         * The position of the actor last frame (x, y) in pixels
          */
-        y: number;
+        oldPos: Vector;
+        /**
+         * The current velocity vector (vx, vy) of the actor in pixels/second
+         */
+        vel: Vector;
+        /**
+         * The velocity of the actor last frame (vx, vy) in pixels/second
+         */
+        oldVel: Vector;
+        /**
+         * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be
+         * useful to simulate a gravitational effect.
+         */
+        acc: Vector;
+        /**
+         * The current torque applied to the actor
+         */
+        torque: number;
+        /**
+         * The current mass of the actor, mass can be thought of as the resistance to acceleration.
+         */
+        mass: number;
+        /**
+         * The current momemnt of inertia, moi can be thought of as the resistance to rotation.
+         */
+        moi: number;
+        /**
+         * The current "motion" of the actor, used to calculated sleep in the physics simulation
+         */
+        motion: number;
+        /**
+         * The coefficient of friction on this actor
+         */
+        friction: number;
+        /**
+         * The coefficient of restitution of this actor, represents the amount of energy preserved after collision
+         */
+        restitution: number;
         /**
          * The anchor to apply all actor related transformations like rotation,
          * translation, and rotation. By default the anchor is in the center of
@@ -3053,7 +3061,7 @@ declare module ex {
          * values between 0 and 1. For example, anchoring to the top-left would be
          * `Actor.anchor.setTo(0, 0)` and top-right would be `Actor.anchor.setTo(0, 1)`.
          */
-        anchor: Point;
+        anchor: Vector;
         private _height;
         private _width;
         /**
@@ -3076,22 +3084,6 @@ declare module ex {
          * The y scalar velocity of the actor in scale/second
          */
         sy: number;
-        /**
-         * The x velocity of the actor in pixels/second
-         */
-        dx: number;
-        /**
-         * The x velocity of the actor in pixels/second
-         */
-        dy: number;
-        /**
-         * The x acceleration of the actor in pixels/second^2
-         */
-        ax: number;
-        /**
-         * The y acceleration of the actor in pixels/second^2
-         */
-        ay: number;
         /**
          * Indicates whether the actor is physically in the viewport
          */
@@ -5029,9 +5021,9 @@ declare module ex {
          */
         currentFrame: number;
         private _oldTime;
-        anchor: Point;
+        anchor: Vector;
         rotation: number;
-        scale: Point;
+        scale: Vector;
         /**
          * Indicates whether the animation should loop after it is completed
          */
@@ -6650,7 +6642,6 @@ declare module ex.Input {
  *
  * These classes provide the basics for math & algebra operations.
  *
- * - [[Point]]
  * - [[Vector]]
  * - [[Ray]]
  * - [[Line]]
@@ -7107,12 +7098,12 @@ declare module ex {
          * Transforms the current x, y from screen coordinates to world coordinates
          * @param point  Screen coordinate to convert
          */
-        screenToWorldCoordinates(point: Point): Point;
+        screenToWorldCoordinates(point: Vector): Vector;
         /**
          * Transforms a world coordinate, to a screen coordinate
          * @param point  World coordinate to convert
          */
-        worldToScreenCoordinates(point: Point): Point;
+        worldToScreenCoordinates(point: Vector): Vector;
         /**
          * Sets the internal canvas height based on the selected display mode.
          */

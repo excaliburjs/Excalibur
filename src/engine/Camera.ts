@@ -326,9 +326,9 @@ module ex {
 
       public getFocus() {
          if (this._follow) {
-            return new Vector(this._follow.x + this._follow.getWidth() / 2, this.focus.y);
+            return new Vector(this._follow.pos.x + this._follow.getWidth() / 2, super.getFocus().y);
          } else {
-            return this.focus;
+            return super.getFocus();
          }
       }
    }
@@ -344,9 +344,9 @@ module ex {
 
       public getFocus() {
          if (this._follow) {
-            return new Vector(this._follow.x + this._follow.getWidth() / 2, this._follow.y + this._follow.getHeight() / 2);
+            return new Vector(this._follow.pos.x + this._follow.getWidth() / 2, this._follow.pos.y + this._follow.getHeight() / 2);
          } else {
-            return this.focus;
+            return super.getFocus();
          }
       }
    }
