@@ -91,7 +91,7 @@ module ex {
        * Adds one vector to this one modifying the original
        * @param v The vector to add
        */
-      public addEqual(v: Vector): Vector {
+      public addEquals(v: Vector): Vector {
          this.x += v.x;
          this.y += v.y;
          return this;
@@ -101,7 +101,7 @@ module ex {
        * Subtracts a vector from this one modifying the original
        * @parallel v The vector to subtract
        */
-      public subEqual(v: Vector): Vector {
+      public subEquals(v: Vector): Vector {
          this.x -= v.x;
          this.y -= v.y;
          return this;
@@ -110,7 +110,7 @@ module ex {
       /**
        * Scales this vector by a factor of size and modifies the original
        */
-      public scaleEqual(size: number): Vector {
+      public scaleEquals(size: number): Vector {
          this.x *= size;
          this.y *= size;
          return this;
@@ -125,12 +125,24 @@ module ex {
       }
 
       /**
+       * Performs a 2D cross product with scalar. 2D cross products with a scalar return a vector.
+       * @param v  The vector to cross
+       */
+      public cross(v: number): Vector;
+      /**
        * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
        * @param v  The vector to cross
        */
-      public cross(v: Vector): number {
-         return this.x * v.y - this.y * v.x;
+      public cross(v: Vector): number;
+      public cross(v: any): any {
+         if(v instanceof Vector) {
+            return this.x * v.y - this.y * v.x;
+         } else if (typeof v === 'number') {
+            return new Vector(v * this.y, -v * this.x);
+         }
       }
+      
+      
 
       /**
        * Returns the perpendicular vector to this one

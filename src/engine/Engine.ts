@@ -5,6 +5,7 @@
 /// <reference path="Drawing/Color.ts" />
 /// <reference path="Util/Log.ts" />
 /// <reference path="Collision/Side.ts" />
+/// <reference path="Collision/IPhysics.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actor.ts" />
 /// <reference path="UIActor.ts" />
@@ -336,6 +337,19 @@ module ex {
        * Access engine input like pointer, keyboard, or gamepad
        */
       public input: ex.Input.IEngineInput;
+      
+      /**
+       * Static access engine global physics settings
+       */
+      public static physics: ex.IEnginePhysics = {
+          acc: new ex.Vector(0, 0),
+          collisionPasses: 10,
+          integrator: 'euler',
+          integrationSteps: 1,
+          allowRotation: true,
+          sleepEpsilon: 1,
+          motionBias: .95
+      };
 
       /**
        * Gets or sets the [[CollisionStrategy]] for Excalibur actors
@@ -907,8 +921,7 @@ module ex {
          this.input.keyboard.init();
          this.input.pointers.init(options ? options.pointerScope : ex.Input.PointerScope.Document);
          this.input.gamepads.init();
-         
-
+                  
          // Issue #385 make use of the visibility api
          // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
          document.addEventListener('visibilitychange', () => {
@@ -920,17 +933,7 @@ module ex {
                this._logger.debug('Window visible');
             }
          });
-
-         /*
-         // DEPRECATED in favor of visibility api
-         window.addEventListener('blur', () => {
-            this.eventDispatcher.publish(EventType[EventType.Blur], new BlurEvent());
-         });
-
-         window.addEventListener('focus', () => {
-            this.eventDispatcher.publish(EventType[EventType.Focus], new FocusEvent());
-         });*/
-         
+                  
          this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d');
          if (!this.canvasElementId) {
             document.body.appendChild(this.canvas);

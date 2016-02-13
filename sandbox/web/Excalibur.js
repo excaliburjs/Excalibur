@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-02-06
+/*! excalibur - v0.6.0 - 2016-02-13
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 ; Licensed */
 if (typeof window === 'undefined') {
@@ -330,8 +330,8 @@ var ex;
                 // Update placements based on linear algebra
                 var seconds = delta / 1000;
                 actor.oldVel = actor.vel;
-                actor.vel.addEqual(actor.acc.scale(seconds));
-                actor.pos.addEqual(actor.vel.scale(seconds)).addEqual(actor.acc.scale(0.5 * seconds * seconds));
+                actor.vel.addEquals(actor.acc.scale(seconds));
+                actor.pos.addEquals(actor.vel.scale(seconds)).addEquals(actor.acc.scale(0.5 * seconds * seconds));
                 actor.rx += actor.torque * (1.0 / actor.moi) * seconds;
                 actor.rotation += actor.rx * seconds;
                 /*
@@ -664,7 +664,7 @@ var ex;
          * Adds one vector to this one modifying the original
          * @param v The vector to add
          */
-        Vector.prototype.addEqual = function (v) {
+        Vector.prototype.addEquals = function (v) {
             this.x += v.x;
             this.y += v.y;
             return this;
@@ -673,7 +673,7 @@ var ex;
          * Subtracts a vector from this one modifying the original
          * @parallel v The vector to subtract
          */
-        Vector.prototype.subEqual = function (v) {
+        Vector.prototype.subEquals = function (v) {
             this.x -= v.x;
             this.y -= v.y;
             return this;
@@ -681,7 +681,7 @@ var ex;
         /**
          * Scales this vector by a factor of size and modifies the original
          */
-        Vector.prototype.scaleEqual = function (size) {
+        Vector.prototype.scaleEquals = function (size) {
             this.x *= size;
             this.y *= size;
             return this;
@@ -693,12 +693,13 @@ var ex;
         Vector.prototype.dot = function (v) {
             return this.x * v.x + this.y * v.y;
         };
-        /**
-         * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
-         * @param v  The vector to cross
-         */
         Vector.prototype.cross = function (v) {
-            return this.x * v.y - this.y * v.x;
+            if (v instanceof Vector) {
+                return this.x * v.y - this.y * v.x;
+            }
+            else if (typeof v === 'number') {
+                return new Vector(v * this.y, -v * this.x);
+            }
         };
         /**
          * Returns the perpendicular vector to this one
@@ -2441,127 +2442,6 @@ var ex;
         return BoundingBox;
     })();
     ex.BoundingBox = BoundingBox;
-    var SATBoundingBox = (function () {
-        function SATBoundingBox(points) {
-            this._points = points;
-        }
-        SATBoundingBox.prototype.getSides = function () {
-            var lines = [];
-            var len = this._points.length;
-            for (var i = 0; i < len; i++) {
-                lines.push(new ex.Line(this._points[i], this._points[(i + 1) % len]));
-            }
-            return lines;
-        };
-        SATBoundingBox.prototype.getAxes = function () {
-            var axes = [];
-            var len = this._points.length;
-            for (var i = 0; i < len; i++) {
-                axes.push(this._points[i].sub(this._points[(i + 1) % len]).normal());
-            }
-            return axes;
-        };
-        SATBoundingBox.prototype.project = function (axis) {
-            var scalars = [];
-            var len = this._points.length;
-            for (var i = 0; i < len; i++) {
-                scalars.push(this._points[i].dot(axis));
-            }
-            return new ex.Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
-        };
-        /**
-         * Returns the calculated width of the bounding box, by generating an axis aligned box around the current
-         */
-        SATBoundingBox.prototype.getWidth = function () {
-            var left = this._points.reduce(function (accum, p, i, arr) {
-                return Math.min(accum, p.x);
-            }, Infinity);
-            var right = this._points.reduce(function (accum, p, i, arr) {
-                return Math.max(accum, p.x);
-            }, -Infinity);
-            return right - left;
-        };
-        /**
-         * Returns the calculated height of the bounding box, by generating an axis aligned box around the current
-         */
-        SATBoundingBox.prototype.getHeight = function () {
-            var top = this._points.reduce(function (accum, p, i, arr) {
-                return Math.min(accum, p.y);
-            }, Infinity);
-            var bottom = this._points.reduce(function (accum, p, i, arr) {
-                return Math.max(accum, p.y);
-            }, -Infinity);
-            return top - bottom;
-        };
-        /**
-         * Tests wether a point is contained within the bounding box,
-         * using the [PIP algorithm](http://en.wikipedia.org/wiki/Point_in_polygon)
-         *
-         * @param p  The point to test
-         */
-        SATBoundingBox.prototype.contains = function (p) {
-            // Always cast to the right, as long as we cast in a consitent fixed direction we
-            // will be fine
-            var testRay = new ex.Ray(p, new ex.Vector(1, 0));
-            var intersectCount = this.getSides().reduce(function (accum, side, i, arr) {
-                if (testRay.intersect(side) >= 0) {
-                    return accum + 1;
-                }
-                return accum;
-            }, 0);
-            if (intersectCount % 2 === 0) {
-                return false;
-            }
-            return true;
-        };
-        SATBoundingBox.prototype.collides = function (collidable) {
-            if (collidable instanceof SATBoundingBox) {
-                var other = collidable;
-                var axes = this.getAxes();
-                axes = other.getAxes().concat(axes);
-                var minOverlap = 99999;
-                var minAxis = null;
-                for (var i = 0; i < axes.length; i++) {
-                    var proj1 = this.project(axes[i]);
-                    var proj2 = other.project(axes[i]);
-                    var overlap = proj1.getOverlap(proj2);
-                    if (overlap === 0) {
-                        return null;
-                    }
-                    else {
-                        if (overlap <= minOverlap) {
-                            minOverlap = overlap;
-                            minAxis = axes[i];
-                        }
-                    }
-                }
-                if (minAxis) {
-                    return minAxis.normalize().scale(minOverlap);
-                }
-                else {
-                    return null;
-                }
-            }
-            return null;
-        };
-        SATBoundingBox.prototype.debugDraw = function (ctx) {
-            ctx.beginPath();
-            ctx.lineWidth = 2;
-            // Iterate through the supplied points and contruct a 'polygon'
-            var firstPoint = this._points[0];
-            ctx.moveTo(firstPoint.x, firstPoint.y);
-            var i = 0, len = this._points.length;
-            for (i; i < len; i++) {
-                ctx.lineTo(this._points[i].x, this._points[i].y);
-            }
-            ctx.lineTo(firstPoint.x, firstPoint.y);
-            ctx.closePath();
-            ctx.strokeStyle = ex.Color.Blue.toString();
-            ctx.stroke();
-        };
-        return SATBoundingBox;
-    })();
-    ex.SATBoundingBox = SATBoundingBox;
 })(ex || (ex = {}));
 /// <reference path="Events.ts" />
 var ex;
@@ -6218,6 +6098,10 @@ var ex;
              */
             this.motion = 10;
             /**
+             * This idicates whether the current actor is asleep in the physics simulation
+             */
+            this.sleeping = false;
+            /**
              * The coefficient of friction on this actor
              */
             this.friction = .99;
@@ -6227,6 +6111,7 @@ var ex;
             this.restitution = .2;
             this._height = 0;
             this._width = 0;
+            this._totalMtv = ex.Vector.Zero.clone();
             /**
              * The rotation of the actor in radians
              */
@@ -6419,6 +6304,37 @@ var ex;
                     ex.Logger.getInstance().error('the specified drawing key \'' + key + '\' does not exist');
                 }
             }
+        };
+        /**
+         * Set whether the actor is awake
+         */
+        Actor.prototype.setAwake = function (wake) {
+            // todo add some "motion" to the actor so it doesn't fall back asleep
+            // multiple of the sleep epsilon
+            if (wake) {
+                this.sleeping = false;
+                this.motion += ex.Engine.physics.sleepEpsilon * 10; // maybe this is reasonable
+            }
+            else {
+                this.sleeping = true;
+                this.rx = 0;
+                this.vel = ex.Vector.Zero.clone();
+            }
+        };
+        /**
+         * Add minimum translation vectors accumulated during the current frame to resolve collisons.
+         */
+        Actor.prototype.addMtv = function (mtv) {
+            this._totalMtv.addEquals(mtv);
+        };
+        /**
+         * Check if the current actor can go to sleep.
+         */
+        Actor.prototype.sleepCheck = function (delta) {
+            if (this.motion < ex.Engine.physics.sleepEpsilon) {
+                this.setAwake(false);
+            }
+            return this.sleeping;
         };
         Actor.prototype.addDrawing = function (args) {
             if (arguments.length === 2) {
@@ -11830,6 +11746,7 @@ var ex;
 /// <reference path="Drawing/Color.ts" />
 /// <reference path="Util/Log.ts" />
 /// <reference path="Collision/Side.ts" />
+/// <reference path="Collision/IPhysics.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actor.ts" />
 /// <reference path="UIActor.ts" />
@@ -12500,15 +12417,6 @@ var ex;
                     _this._logger.debug('Window visible');
                 }
             });
-            /*
-            // DEPRECATED in favor of visibility api
-            window.addEventListener('blur', () => {
-               this.eventDispatcher.publish(EventType[EventType.Blur], new BlurEvent());
-            });
-   
-            window.addEventListener('focus', () => {
-               this.eventDispatcher.publish(EventType[EventType.Focus], new FocusEvent());
-            });*/
             this.ctx = this.canvas.getContext('2d');
             if (!this.canvasElementId) {
                 document.body.appendChild(this.canvas);
@@ -12743,6 +12651,18 @@ var ex;
             };
             loader.load();
             return complete;
+        };
+        /**
+         * Static access engine global physics settings
+         */
+        Engine.physics = {
+            acc: new ex.Vector(0, 0),
+            collisionPasses: 10,
+            integrator: 'euler',
+            integrationSteps: 1,
+            allowRotation: true,
+            sleepEpsilon: 1,
+            motionBias: .95
         };
         return Engine;
     })(ex.Class);

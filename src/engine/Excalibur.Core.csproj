@@ -14,6 +14,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -63,8 +64,16 @@
     <TypeScriptCompile Include="Actions\IActionable.ts" />
     <TypeScriptCompile Include="Actor.ts" />
     <TypeScriptCompile Include="Algebra.ts" />
+    <TypeScriptCompile Include="Collision\CircleArea.ts" />
+    <TypeScriptCompile Include="Collision\CollisionContact.ts" />
+    <TypeScriptCompile Include="Collision\EdgeArea.ts" />
+    <TypeScriptCompile Include="Collision\ICollisionArea.ts" />
+    <TypeScriptCompile Include="Collision\IPhysics.ts" />
+    <TypeScriptCompile Include="Collision\PolygonArea.ts" />
     <TypeScriptCompile Include="Drawing\Animation.ts" />
     <TypeScriptCompile Include="Binding.ts" />
+    <TypeScriptCompile Include="Traits\EulerMovement.ts" />
+    <TypeScriptCompile Include="Traits\TileMapCollisionDetection.ts" />
     <TypeScriptCompile Include="Util\CullingBox.ts" />
     <TypeScriptCompile Include="Util\SortedList.ts" />
     <TypeScriptCompile Include="Camera.ts" />
@@ -91,9 +100,7 @@
     <TypeScriptCompile Include="Label.ts" />
     <TypeScriptCompile Include="Loader.ts" />
     <TypeScriptCompile Include="Util\Log.ts" />
-    <TypeScriptCompile Include="Traits\CollisionDetection.ts" />
     <TypeScriptCompile Include="Traits\CapturePointer.ts" />
-    <TypeScriptCompile Include="Traits\Movement.ts" />
     <TypeScriptCompile Include="Traits\OffscreenCulling.ts" />
     <TypeScriptCompile Include="MonkeyPatch.ts" />
     <TypeScriptCompile Include="Particles.ts" />

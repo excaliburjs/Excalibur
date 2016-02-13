@@ -315,8 +315,7 @@ module ex {
      * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be 
      * useful to simulate a gravitational effect.  
      */
-    public acc: Vector = new ex.Vector(0, 0);
-    
+    public acc: Vector = new ex.Vector(0, 0);    
     
     /**
      * The current torque applied to the actor
@@ -337,6 +336,11 @@ module ex {
      * The current "motion" of the actor, used to calculated sleep in the physics simulation
      */
     public motion: number = 10;
+
+    /**
+     * This idicates whether the current actor is asleep in the physics simulation
+     */
+    public sleeping: boolean = false;
     
     /**
      * The coefficient of friction on this actor
@@ -361,6 +365,9 @@ module ex {
     
     private _height: number = 0;
     private _width: number = 0;
+    
+    private _totalMtv: Vector = Vector.Zero.clone();
+
     /** 
      * The rotation of the actor in radians
      */
@@ -597,6 +604,40 @@ module ex {
              ex.Logger.getInstance().error('the specified drawing key \'' + key + '\' does not exist');
           }
       }
+    }
+
+    /**
+     * Set whether the actor is awake
+     */
+    public setAwake(wake: boolean): void {
+        // todo add some "motion" to the actor so it doesn't fall back asleep
+        // multiple of the sleep epsilon
+        if (wake) {
+            this.sleeping = false;
+            this.motion += ex.Engine.physics.sleepEpsilon * 10; // maybe this is reasonable
+        } else {
+            this.sleeping = true;
+            this.rx = 0;
+            this.vel = Vector.Zero.clone();
+        }
+    }
+     
+    /**
+     * Add minimum translation vectors accumulated during the current frame to resolve collisons.
+     */ 
+    public addMtv(mtv: Vector) {
+        this._totalMtv.addEquals(mtv);
+    }
+
+    /**
+     * Check if the current actor can go to sleep.
+     */
+    public sleepCheck(delta: number): boolean {
+        if (this.motion < ex.Engine.physics.sleepEpsilon) {
+            this.setAwake(false);
+        }
+
+        return this.sleeping;
     }
 
     /**

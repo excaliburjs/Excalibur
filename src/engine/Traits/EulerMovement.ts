@@ -8,9 +8,9 @@ module ex.Traits {
          
          
          actor.oldVel = actor.vel;
-         actor.vel.addEqual(actor.acc.scale(seconds));
+         actor.vel.addEquals(actor.acc.scale(seconds));
          
-         actor.pos.addEqual(actor.vel.scale(seconds)).addEqual(actor.acc.scale(0.5 * seconds * seconds));
+         actor.pos.addEquals(actor.vel.scale(seconds)).addEquals(actor.acc.scale(0.5 * seconds * seconds));
          
          actor.rx += actor.torque * (1.0 / actor.moi) * seconds;
          actor.rotation += actor.rx * seconds;
