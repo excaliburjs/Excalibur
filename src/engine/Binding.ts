@@ -116,11 +116,9 @@ module ex {
                complete.resolve('error');
                return;
             }
-            this._htmlString = request.response;
+            this.processData(request.response);
             this.oncomplete();
-            this.logger.debug('Completed loading template', this.path);
-            this._compile();
-            this._isLoaded = true;
+            this.logger.debug('Completed loading template', this.path);                        
             complete.resolve(this._htmlString);
          };
          if(request.overrideMimeType) {
@@ -129,6 +127,12 @@ module ex {
          request.send();
 
          return complete;
+      }
+      
+      public processData(data: any): any {
+         this._htmlString = data;
+         this._compile();
+         this._isLoaded = true;
       }
 
       /**

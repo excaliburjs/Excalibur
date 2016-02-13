@@ -143,6 +143,8 @@ module ex {
    export class Sound implements ILoadable, ex.Internal.ISound {
       private _logger: Logger = Logger.getInstance();
 
+      public path: string;
+
       public onprogress: (e: any) => void = () => { return; };
 
       public oncomplete: () => void = () => { return; };
@@ -152,8 +154,6 @@ module ex {
       public onload: (e: any) => void = () => { return; };
 
       private _isLoaded: boolean = false;
-
-      private _selectedFile: string = '';
 
       private _engine: Engine;
       private _wasPlayingOnHidden: boolean = false;
@@ -192,21 +192,21 @@ module ex {
           * IE : MP3, WAV coming soon
           * Safari MP3, WAV, Ogg           
           */
-         this._selectedFile = '';
+         this.path = '';
          for(var i = 0; i < paths.length; i++) {
             if(Sound.canPlayFile(paths[i])) {
-               this._selectedFile = paths[i];
+               this.path = paths[i];
                break;
             }               
          }
 
-         if(!this._selectedFile) {
+         if(!this.path) {
             this._logger.warn('This browser does not support any of the audio files specified:', paths.join(', '));
             this._logger.warn('Attempting to use', paths[0]);
-            this._selectedFile = paths[0]; // select the first specified
+            this.path = paths[0]; // select the first specified
          }
 
-         this.sound = new ex.Internal.FallbackAudio(this._selectedFile, 1.0);
+         this.sound = new ex.Internal.FallbackAudio(this.path, 1.0);
       }
 
       public wireEngine(engine: Engine) {
@@ -284,12 +284,12 @@ module ex {
        */
       public load(): Promise<ex.Internal.FallbackAudio> {
          var complete = new Promise<ex.Internal.FallbackAudio>();
-         this._logger.debug('Started loading sound', this._selectedFile);
+         this._logger.debug('Started loading sound', this.path);
          this.sound.onprogress = this.onprogress;
          this.sound.onload = () => {
             this.oncomplete();
             this._isLoaded = true;
-            this._logger.debug('Completed loading sound', this._selectedFile);
+            this._logger.debug('Completed loading sound', this.path);
             complete.resolve(this.sound);
          };
          this.sound.onerror = (e) => {
@@ -298,6 +298,10 @@ module ex {
          };
          this.sound.load();
          return complete;
+      }
+      
+      public processData(data: any): any {
+         return this.sound.processData(data);
       }
    }
 
@@ -449,6 +453,8 @@ module ex {
 
          return complete;
       }
+      
+      public processData: (data: any) => any = (data) => { return; };
 
       public onprogress: (e: any) => void = () => { return; };
 

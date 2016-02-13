@@ -93,7 +93,7 @@ module ex {
                return;
             }
 
-            this.data = this.processDownload(request.response);
+            this.data = this.processData(request.response);
 
             this.oncomplete();
             this.logger.debug('Completed loading resource', this.path);
@@ -116,7 +116,7 @@ module ex {
        * This method is meant to be overriden to handle any additional
        * processing. Such as decoding downloaded audio bits.
        */
-      public processDownload(data: T): any {
+      public processData(data: T): any {
          // Handle any additional loading after the xhr has completed.
          return URL.createObjectURL(data);
       }

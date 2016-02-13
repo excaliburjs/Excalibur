@@ -12,16 +12,17 @@ module ex.Internal {
       pause();
       stop();
       load();
+      processData(data: any): any;
       onload: (e: any) => void;
       onprogress: (e: any) => void;
       onerror: (e: any) => void;
-
+      path: string;
    }
 
    export class FallbackAudio implements ISound {
       private _soundImpl: ISound;
       private _log: Logger = Logger.getInstance();
-      constructor(path: string, volume?: number) {
+      constructor(public path: string, volume?: number) {
          if ((<any>window).AudioContext) {
             this._log.debug('Using new Web Audio Api for ' + path);
             this._soundImpl = new WebAudio(path, volume);
@@ -48,6 +49,10 @@ module ex.Internal {
          this._soundImpl.onprogress = this.onprogress;
          this._soundImpl.onerror = this.onerror;
          this._soundImpl.load();
+      }
+      
+      public processData(data: any): any {
+         return this._soundImpl.processData(data);
       }
 
       public isPlaying(): boolean {
@@ -137,13 +142,18 @@ module ex.Internal {
                return;
             }
 
-            this._loadedAudio = URL.createObjectURL(request.response);
-            this._audioElements.forEach((a) => {
-               a.src = this._loadedAudio;
-            });
+            this.processData(request.response);            
             this.onload(e);
          };
          request.send();
+      }
+      
+      public processData(data: any): any {
+         this._loadedAudio = URL.createObjectURL(data);
+         this._audioElements.forEach((a) => {
+            a.src = this._loadedAudio;
+         });
+         this._audioLoaded();
       }
 
       public play(): Promise<any> {
@@ -208,8 +218,8 @@ module ex.Internal {
 
 
 
-      constructor(soundPath: string, volume?: number) {
-         this._path = soundPath;
+      constructor(public path: string, volume?: number) {
+         this._path = path;
          if (volume) {
             this._volume.gain.value = Util.clamp(volume, 0, 1.0);
          } else {
@@ -240,25 +250,29 @@ module ex.Internal {
                return;
             }
 
-            this._context.decodeAudioData(request.response,
-               (buffer) => {
-                  this._buffer = buffer;
-                  this._isLoaded = true;
-                  this.onload(this);
-               },
-               (e) => {
-                  this._logger.error('Unable to decode ' + this._path +
-                     ' this browser may not fully support this format, or the file may be corrupt, ' +
-                     'if this is an mp3 try removing id3 tags and album art from the file.');
-                  this._isLoaded = false;
-                  this.onload(this);
-               });
+            this.processData(request.response);
          };
          try {
             request.send();
          } catch (e) {
             console.error('Error loading sound! If this is a cross origin error, you must host your sound with your html and javascript.');
          }
+      }
+      
+      public processData(data: any): any {
+         this._context.decodeAudioData(data,
+            (buffer) => {
+               this._buffer = buffer;
+               this._isLoaded = true;
+               this.onload(this);
+            },
+            (e) => {
+               this._logger.error('Unable to decode ' + this._path +
+                  ' this browser may not fully support this format, or the file may be corrupt, ' +
+                  'if this is an mp3 try removing id3 tags and album art from the file.');
+               this._isLoaded = false;
+               this.onload(this);
+            });
       }
 
       public setLoop(loop: boolean) {
