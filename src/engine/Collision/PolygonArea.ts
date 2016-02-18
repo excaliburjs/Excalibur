@@ -6,16 +6,24 @@
         actor?: Actor;
     }
 
+    /**
+     * Polygon collision area for detecting collisions for actors, or independently
+     */
     export class PolygonArea implements ICollisionArea {
         public pos: Vector;
         public points: Vector[];
         public actor: Actor;
+
+        private _transformedPoints: Vector[] = [];
         
         constructor(options: IPolygonAreaOptions) {
             this.pos = options.pos || Vector.Zero.clone();
             var winding = !!options.clockwiseWinding;
             this.points = (winding ? options.points.reverse() : options.points) || [];
             this.actor = options.actor || null;
+
+            // calculate initial transformation
+            this._calculateTransformation();
         }
 
         /**
@@ -29,16 +37,31 @@
         }
 
         /**
-         * Gets the points that make up the polygon in world space
+         * Calculates the underlying transformation from actor relative space to world space
          */
-        public getTransformedPoints(): Vector[] {
-            return this.points.map((p: Vector) => {
-                return (this.actor ? p.add(this.actor.pos) : p);
-            });
+        private _calculateTransformation() {
+            if (this.actor) {
+                var len = this.points.length;
+                this._transformedPoints.length = 0; // clear out old transform
+                var pos = this.actor.pos;
+                var angle = this.actor.rotation;
+                for (var i = 0; i < len; i++) {
+                    this._transformedPoints[i] = this.points[i].rotate(angle).add(pos);
+                }
+            } else {
+                this._transformedPoints = this.points.concat([]);
+            }
         }
 
         /**
-         * Gets the sides of the polygon
+         * Gets the points that make up the polygon in world space, from actor relative space (if specified)
+         */
+        public getTransformedPoints(): Vector[] {
+            return this._transformedPoints;
+        }
+
+        /**
+         * Gets the sides of the polygon in world space
          */
         public getSides(): Line[] {
             var lines = [];
@@ -51,7 +74,7 @@
         }
 
         /**
-         * Tests if a point is contained in this collision area
+         * Tests if a point is contained in this collision area in world space
          */
         public contains(point: Vector): boolean {
             // Always cast to the right, as long as we cast in a consitent fixed direction we
@@ -92,6 +115,7 @@
          * Get the axis aligned bounding box for the circle area
          */
         public getBounds(): BoundingBox {
+            // todo there is a faster way to do this
             var points = this.getTransformedPoints();
 
             var minX = points.reduce(function (prev, curr) {
@@ -112,9 +136,36 @@
         }
 
         /**
+         * Casts a ray into the polygon and returns a vector representing the point of contact (in world space) or null if no collision.
+         */
+        public castRay(ray: Ray) {
+            // find the minimum contact time greater than 0
+            // contact times less than 0 are behind the ray and we don't want those
+            var sides = this.getSides()
+            var len = sides.length;
+            var minContactTime = Number.MAX_VALUE;
+            var contactIndex = -1;
+            for (var i = 0; i < len; i++) {
+                var contactTime = ray.intersect(sides[i]);
+                if (contactTime >= 0 && contactTime < minContactTime) {
+                    minContactTime = contactTime;
+                    contactIndex = i;
+                }
+            }
+
+            // contact was found
+            if (i >= 0) {
+                return ray.getPoint(minContactTime);
+            }
+
+            // no contact found
+            return null;
+        }
+
+        /**
          * Get the axis associated with the edge
          */
-        public getAxis(): Vector[] {
+        public getAxes(): Vector[] {
             var axes = [];
             var points = this.getTransformedPoints();
             var len = points.length;
@@ -125,7 +176,42 @@
         }
 
         /**
-         * Project the edge along a specified axis
+         * Perform Separating Axis test against another polygon, returns null if no overlap in polys
+         * Reference http://www.dyn4j.org/2010/01/sat/
+         */
+        public testSeparatingAxisTheorem(other: PolygonArea): Vector {
+            var poly1 = this;
+            var poly2 = other;
+            var axes = poly1.getAxes().concat(poly2.getAxes());
+
+            var minOverlap = Number.MAX_VALUE;
+            var minAxis = null;
+            var minIndex = -1;
+            for (var i = 0; i < axes.length; i++) {
+                var proj1 = poly1.project(axes[i]);
+                var proj2 = poly2.project(axes[i]);
+                var overlap = proj1.overlap(proj2);
+                if (overlap <= 0) {
+                    return null;
+                } else {
+                    if (overlap < minOverlap) {
+                        minOverlap = overlap;
+                        minAxis = axes[i];
+                        minIndex = i;
+                    }
+                }
+            }
+
+            // Sanity check
+            if (minIndex === -1) {
+                return null;
+            }
+
+            return minAxis.normalize().scale(minOverlap);
+        }
+
+        /**
+         * Project the edges of the polygon along a specified axis
          */
         public project(axis: Vector): Projection {
             var scalars = [];

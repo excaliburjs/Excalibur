@@ -70,8 +70,39 @@
         /**
          * Get axis not implemented on circles, since their are infinite axis
          */
-        public getAxis(): Vector[] {
+        public getAxes(): Vector[] {
             return null;
+        }
+
+        public testSeparatingAxisTheorem(polygon: PolygonArea): Vector {
+
+            var axes = polygon.getAxes();
+            var pc = polygon.getCenter();
+            // Special SAT with circles
+            var closestPointOnPoly = polygon.getFurthestPoint(this.pos.sub(pc));
+            axes.push(this.pos.sub(closestPointOnPoly).normalize());
+            
+            var minOverlap = Number.MAX_VALUE;
+            var minAxis = null;
+            var minIndex = -1;
+            for (var i = 0; i < axes.length; i++) {
+                var proj1 = polygon.project(axes[i]);
+                var proj2 = this.project(axes[i]);
+                var overlap = proj1.overlap(proj2);
+                if (overlap <= 0) {
+                    return null;
+                } else {
+                    if (overlap < minOverlap) {
+                        minOverlap = overlap;
+                        minAxis = axes[i];
+                        minIndex = i;
+                    }
+                }
+            }
+            if (minIndex < 0) {
+                return null;
+            }
+            return minAxis.normalize().scale(minOverlap);
         }
 
         /**

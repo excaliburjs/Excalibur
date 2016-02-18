@@ -80,7 +80,7 @@ module ex {
       }
 
       /**
-       * Subtracts a vector from another, alias for minus
+       * Subtracts a vector from another, if you subract vector `B.sub(A)` the resulting vector points from A -> B
        * @param v The vector to subtract
        */
       public sub(v: Vector): Vector {
@@ -152,7 +152,7 @@ module ex {
       }
 
       /**
-       * Returns the normal vector to this one 
+       * Returns the normal vector to this one, same as the perpendicular of length 1
        */
       public normal(): Vector {
          return this.perpendicular().normalize();
@@ -294,7 +294,7 @@ module ex {
          return this.max > projection.min && projection.max > this.min;      
       }
 
-      public getOverlap(projection: Projection): number {
+      public overlap(projection: Projection): number {
          if(this.overlaps(projection)) {
             if (this.max > projection.max) {
                return projection.max - this.min;

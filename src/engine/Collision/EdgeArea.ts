@@ -62,7 +62,7 @@
         /**
          * Get the axis associated with the edge
          */
-        public getAxis(): Vector[] {
+        public getAxes(): Vector[] {
             var e = this.end.sub(this.begin);
             var edgeNormal = e.normal();
 
