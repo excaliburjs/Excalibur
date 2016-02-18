@@ -2,7 +2,7 @@
     export var CollisionJumpTable = {
 
         CollideCircleCircle(circleA: CircleArea, circleB: CircleArea): CollisionContact {
-           
+
             var radius = circleA.radius + circleB.radius;
             if (circleA.pos.distance(circleB.pos) > radius) {
                 return null;
@@ -10,14 +10,14 @@
 
             var axisOfCollision = circleB.pos.sub(circleA.pos).normalize();
             var mvt = axisOfCollision.scale(radius - circleB.pos.distance(circleA.pos));
-            
+
             var pointOfCollision = circleA.getFurthestPoint(axisOfCollision);
 
-            return new CollisionContact(circleA, circleB, mvt, pointOfCollision, axisOfCollision);	
+            return new CollisionContact(circleA, circleB, mvt, pointOfCollision, axisOfCollision);
         },
 
         CollideCirclePolygon(circle: CircleArea, polygon: PolygonArea): CollisionContact {
-            
+
             var axes = polygon.getAxes();
             var cc = circle.getCenter();
 
@@ -37,7 +37,7 @@
             var point1 = polygon.getFurthestPoint(minAxis.negate());
             var point2 = circle.getFurthestPoint(minAxis);
             if (circle.contains(point1)) {
-                verts.push(point1)
+                verts.push(point1);
             }
             if (polygon.contains(point2)) {
                 verts.push(point2);
@@ -46,8 +46,8 @@
                 verts.push(point2);
             }
 
-
-            return new CollisionContact(circle, polygon, minAxis, verts.length === 2 ? verts[0].average(verts[1]) : verts[0], minAxis.normalize());   
+            return new CollisionContact(circle, polygon, minAxis,
+                verts.length === 2 ? verts[0].average(verts[1]) : verts[0], minAxis.normalize());
         },
 
         CollideCircleEdge(circle: CircleArea, edge: EdgeArea): CollisionContact {
@@ -62,23 +62,23 @@
 
             // Potential region A collision (circle is on the left side of the edge, before the beginning)
             if (v <= 0) {
-                var d = cc.sub(edge.begin);
-                var dd = d.dot(d); // quick and dirty way of calc'n distance in r^2 terms saves some sqrts
+                var da = cc.sub(edge.begin);
+                var dda = da.dot(da); // quick and dirty way of calc'n distance in r^2 terms saves some sqrts
                 // save some sqrts
-                if (dd > circle.radius * circle.radius) {
+                if (dda > circle.radius * circle.radius) {
                     return null; // no collision
                 }
-                return new CollisionContact(circle, edge, d.normalize().scale(circle.radius - Math.sqrt(dd)), edge.begin, d.normalize());
+                return new CollisionContact(circle, edge, da.normalize().scale(circle.radius - Math.sqrt(dda)), edge.begin, da.normalize());
             }
 
             // Potential region B collision (circle is on the right side of the edge, after the end)
             if (u <= 0) {
-                var d = cc.sub(edge.end);
-                var dd = d.dot(d);
-                if (dd > circle.radius * circle.radius) {
+                var db = cc.sub(edge.end);
+                var ddb = db.dot(db);
+                if (ddb > circle.radius * circle.radius) {
                     return null;
                 }
-                return new CollisionContact(circle, edge, d.normalize().scale(circle.radius - Math.sqrt(dd)), edge.begin, d.normalize());
+                return new CollisionContact(circle, edge, db.normalize().scale(circle.radius - Math.sqrt(ddb)), edge.begin, db.normalize());
             }
 
             // Otherwise potential region AB collision (circle is in the middle of the edge between the beginning and end)
@@ -104,7 +104,7 @@
             return new CollisionContact(circle, edge, mvt.negate(), pointOnEdge, n.negate());
 
         },
-                
+
         CollideEdgeEdge(edgeA: EdgeArea, edgeB: EdgeArea): CollisionContact {
             // Edge-edge collision doesn't make sense
             return null;
@@ -138,7 +138,7 @@
             if (!minAxis) {
                 return null;
             }
-            
+
             return new CollisionContact(polygon, edge, minAxis, polygon.getFurthestPoint(edgeNormal.negate()), edgeNormal.negate());
         },
 
@@ -153,7 +153,7 @@
 
             // no overlap, no collision return null
             if (!minAxis) {
-                return null
+                return null;
             }
 
             // make sure that minAxis is pointing from A -> B
@@ -181,6 +181,6 @@
             var contact = verts.length === 2 ? verts[0].add(verts[1]).scale(.5) : verts[0];
 
             return new CollisionContact(polyA, polyB, minAxis, contact, minAxis.normalize());
-        },
-    }
+        }
+    };
 }

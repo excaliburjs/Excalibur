@@ -50,6 +50,24 @@
             return false;
         }
 
+        public castRay(ray: Ray): Vector {
+            // todo 
+            throw new Error('not implemented');
+        }
+                
+        public collide(area: ICollisionArea): CollisionContact {
+            if (area instanceof CircleArea) {
+                return CollisionJumpTable.CollideCircleCircle(this, area);
+            } else if (area instanceof PolygonArea) {
+                return CollisionJumpTable.CollideCirclePolygon(this, area);
+            } else if (area instanceof EdgeArea) {
+                return CollisionJumpTable.CollideCircleEdge(this, area);
+            } else {
+                throw new Error(`Circle could not collide with unknown ICollisionArea ${typeof area}`);
+            }
+        }
+
+
         /**
          * Find the point on the shape furthest in the direction specified
          */

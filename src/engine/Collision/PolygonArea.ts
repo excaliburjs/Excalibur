@@ -93,6 +93,18 @@
             }
             return true;
         }
+                
+        public collide(area: ICollisionArea): CollisionContact {
+            if (area instanceof CircleArea) {
+                return CollisionJumpTable.CollideCirclePolygon(area, this);
+            } else if (area instanceof PolygonArea) {
+                return CollisionJumpTable.CollidePolygonPolygon(this, area);
+            } else if (area instanceof EdgeArea) {
+                return CollisionJumpTable.CollidePolygonEdge(this, area);
+            } else {
+                throw new Error(`Polygon could not collide with unknown ICollisionArea ${typeof area}`);
+            }
+        }
 
         /**
          * Find the point on the shape furthest in the direction specified
@@ -141,7 +153,7 @@
         public castRay(ray: Ray) {
             // find the minimum contact time greater than 0
             // contact times less than 0 are behind the ray and we don't want those
-            var sides = this.getSides()
+            var sides = this.getSides();
             var len = sides.length;
             var minContactTime = Number.MAX_VALUE;
             var contactIndex = -1;
