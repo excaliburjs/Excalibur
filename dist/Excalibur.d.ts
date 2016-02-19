@@ -4752,6 +4752,8 @@ declare module ex.Internal {
         pause(): any;
         stop(): any;
         load(): any;
+        setData(data: any): any;
+        getData(): any;
         processData(data: any): any;
         onload: (e: any) => void;
         onprogress: (e: any) => void;
@@ -4770,6 +4772,8 @@ declare module ex.Internal {
         onerror: (e: any) => void;
         load(): void;
         processData(data: any): any;
+        getData(): any;
+        setData(data: any): void;
         isPlaying(): boolean;
         play(): ex.Promise<any>;
         pause(): void;
@@ -4795,6 +4799,8 @@ declare module ex.Internal {
         onprogress: (e: any) => void;
         onerror: (e: any) => void;
         load(): void;
+        getData(): any;
+        setData(data: any): void;
         processData(data: any): any;
         play(): Promise<any>;
         pause(): void;
@@ -4815,12 +4821,15 @@ declare module ex.Internal {
         private _currentOffset;
         private _playPromise;
         private _logger;
+        private _data;
         constructor(path: string, volume?: number);
         setVolume(volume: number): void;
         onload: (e: any) => void;
         onprogress: (e: any) => void;
         onerror: (e: any) => void;
         load(): void;
+        getData(): any;
+        setData(data: any): void;
         processData(data: any): any;
         setLoop(loop: boolean): void;
         isPlaying(): boolean;
@@ -4958,6 +4967,8 @@ declare module ex {
          * Begins loading the resource and returns a promise to be resolved on completion
          */
         load(): Promise<any>;
+        getData(): any;
+        setData(data: any): void;
         /**
          * Processes the downloaded data. Meant to be overridden.
          */
@@ -5214,6 +5225,8 @@ declare module ex {
          * Begins loading the sound and returns a promise to be resolved on completion
          */
         load(): Promise<ex.Internal.FallbackAudio>;
+        getData(): any;
+        setData(data: any): void;
         processData(data: any): any;
     }
     /**
@@ -5283,6 +5296,8 @@ declare module ex {
          * that resolves when loading of all is complete
          */
         load(): Promise<any>;
+        getData: () => any;
+        setData: (data: any) => any;
         processData: (data: any) => any;
         onprogress: (e: any) => void;
         oncomplete: () => void;
@@ -5336,6 +5351,8 @@ declare module ex {
          * Begins loading the template. Returns a promise that resolves with the template string when loaded.
          */
         load(): ex.Promise<string>;
+        getData(): string;
+        setData(data: any): void;
         processData(data: any): any;
         /**
          * Indicates whether the template has been loaded

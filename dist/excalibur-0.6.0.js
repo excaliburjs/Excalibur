@@ -1,3 +1,6 @@
+/*! excalibur - v0.6.0 - 2016-02-18
+* https://github.com/excaliburjs/Excalibur
+* Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 if (typeof window === 'undefined') {
     window = { audioContext: function () { return; } };
 }
@@ -9611,7 +9614,7 @@ var ex;
             var _this = this;
             var complete = new ex.Promise();
             // Exit early if we already have data
-            if (this.isLoaded()) {
+            if (!!this.data) {
                 complete.resolve(this.data);
                 this.oncomplete();
                 return complete;
@@ -10274,7 +10277,7 @@ var ex;
                     complete.resolve('error');
                     return;
                 }
-                _this.processData(request.response);
+                _this.setData(request.response);
                 _this.oncomplete();
                 _this.logger.debug('Completed loading template', _this.path);
                 complete.resolve(_this._htmlString);
@@ -10285,10 +10288,16 @@ var ex;
             request.send();
             return complete;
         };
-        Template.prototype.processData = function (data) {
-            this._htmlString = data;
+        Template.prototype.getData = function () {
+            return this._htmlString;
+        };
+        Template.prototype.setData = function (data) {
+            this._htmlString = this.processData(data);
             this._compile();
             this._isLoaded = true;
+        };
+        Template.prototype.processData = function (data) {
+            return data;
         };
         /**
          * Indicates whether the template has been loaded
@@ -12843,3 +12852,8 @@ var ex;
     })();
 })(ex || (ex = {}));
 //# sourceMappingURL=excalibur-0.6.0.js.map
+;
+// Concatenated onto excalibur after build
+// Exports the excalibur module so it can be used with browserify
+// https://github.com/excaliburjs/Excalibur/issues/312
+if (typeof module !== 'undefined') {module.exports = ex;}

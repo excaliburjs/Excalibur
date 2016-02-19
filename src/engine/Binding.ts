@@ -116,7 +116,7 @@ module ex {
                complete.resolve('error');
                return;
             }
-            this.processData(request.response);
+            this.setData(request.response);
             this.oncomplete();
             this.logger.debug('Completed loading template', this.path);                        
             complete.resolve(this._htmlString);
@@ -129,10 +129,18 @@ module ex {
          return complete;
       }
       
-      public processData(data: any): any {
-         this._htmlString = data;
+      public getData() {
+         return this._htmlString;
+      }
+      
+      public setData(data: any) {
+         this._htmlString = this.processData(data);
          this._compile();
          this._isLoaded = true;
+      }
+      
+      public processData(data: any): any {
+         return data;
       }
 
       /**

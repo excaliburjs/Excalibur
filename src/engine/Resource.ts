@@ -80,7 +80,7 @@ module ex {
          var complete = new Promise<T>();
          
          // Exit early if we already have data
-         if (this.isLoaded()) {
+         if (!!this.data) {
              complete.resolve(this.data);
              this.oncomplete();
              return complete;

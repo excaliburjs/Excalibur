@@ -9022,6 +9022,12 @@ var ex;
             FallbackAudio.prototype.processData = function (data) {
                 return this._soundImpl.processData(data);
             };
+            FallbackAudio.prototype.getData = function () {
+                return this._soundImpl.getData();
+            };
+            FallbackAudio.prototype.setData = function (data) {
+                this._soundImpl.setData(data);
+            };
             FallbackAudio.prototype.isPlaying = function () {
                 return this._soundImpl.isPlaying();
             };
@@ -9086,6 +9092,10 @@ var ex;
             };
             AudioTag.prototype.load = function () {
                 var _this = this;
+                if (this._isLoaded) {
+                    this.onload(null);
+                    return;
+                }
                 var request = new XMLHttpRequest();
                 request.open('GET', this.path, true);
                 request.responseType = 'blob';
@@ -9098,18 +9108,26 @@ var ex;
                         _this._isLoaded = false;
                         return;
                     }
-                    _this.processData(request.response);
+                    _this._isLoaded = true;
+                    _this.setData(request.response);
                     _this.onload(e);
                 };
                 request.send();
             };
+            AudioTag.prototype.getData = function () {
+                return this._loadedAudio;
+            };
+            AudioTag.prototype.setData = function (data) {
+                this._isLoaded = true;
+                this._loadedAudio = this.processData(data);
+            };
             AudioTag.prototype.processData = function (data) {
-                var _this = this;
-                this._loadedAudio = URL.createObjectURL(data);
+                var blobUrl = URL.createObjectURL(data);
                 this._audioElements.forEach(function (a) {
-                    a.src = _this._loadedAudio;
+                    a.src = blobUrl;
                 });
                 this._audioLoaded();
+                return blobUrl;
             };
             AudioTag.prototype.play = function () {
                 var _this = this;
@@ -9191,7 +9209,7 @@ var ex;
                         _this._isLoaded = false;
                         return;
                     }
-                    _this.processData(request.response);
+                    _this.setData(request.response);
                 };
                 try {
                     request.send();
@@ -9199,6 +9217,12 @@ var ex;
                 catch (e) {
                     console.error('Error loading sound! If this is a cross origin error, you must host your sound with your html and javascript.');
                 }
+            };
+            WebAudio.prototype.getData = function () {
+                return this._data;
+            };
+            WebAudio.prototype.setData = function (data) {
+                this._data = this.processData(data);
             };
             WebAudio.prototype.processData = function (data) {
                 var _this = this;
@@ -9213,6 +9237,7 @@ var ex;
                     _this._isLoaded = false;
                     _this.onload(_this);
                 });
+                return data;
             };
             WebAudio.prototype.setLoop = function (loop) {
                 this._loop = loop;
@@ -9589,7 +9614,7 @@ var ex;
             var _this = this;
             var complete = new ex.Promise();
             // Exit early if we already have data
-            if (this.isLoaded()) {
+            if (!!this.data) {
                 complete.resolve(this.data);
                 this.oncomplete();
                 return complete;
@@ -9905,6 +9930,12 @@ var ex;
             this.sound.load();
             return complete;
         };
+        Sound.prototype.getData = function () {
+            return this.sound.getData();
+        };
+        Sound.prototype.setData = function (data) {
+            this.sound.setData(data);
+        };
         Sound.prototype.processData = function (data) {
             return this.sound.processData(data);
         };
@@ -9956,6 +9987,8 @@ var ex;
             this._numLoaded = 0;
             this._progressCounts = {};
             this._totalCounts = {};
+            this.getData = function () { return; };
+            this.setData = function (data) { return; };
             this.processData = function (data) { return; };
             this.onprogress = function () { return; };
             this.oncomplete = function () { return; };
@@ -10244,7 +10277,7 @@ var ex;
                     complete.resolve('error');
                     return;
                 }
-                _this.processData(request.response);
+                _this.setData(request.response);
                 _this.oncomplete();
                 _this.logger.debug('Completed loading template', _this.path);
                 complete.resolve(_this._htmlString);
@@ -10255,10 +10288,16 @@ var ex;
             request.send();
             return complete;
         };
-        Template.prototype.processData = function (data) {
-            this._htmlString = data;
+        Template.prototype.getData = function () {
+            return this._htmlString;
+        };
+        Template.prototype.setData = function (data) {
+            this._htmlString = this.processData(data);
             this._compile();
             this._isLoaded = true;
+        };
+        Template.prototype.processData = function (data) {
+            return data;
         };
         /**
          * Indicates whether the template has been loaded

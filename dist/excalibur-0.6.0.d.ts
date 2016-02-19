@@ -5351,6 +5351,8 @@ declare module ex {
          * Begins loading the template. Returns a promise that resolves with the template string when loaded.
          */
         load(): ex.Promise<string>;
+        getData(): string;
+        setData(data: any): void;
         processData(data: any): any;
         /**
          * Indicates whether the template has been loaded
