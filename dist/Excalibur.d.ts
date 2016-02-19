@@ -2459,7 +2459,7 @@ declare module ex {
      * A [[Scene|scene]] has a basic lifecycle that dictacts how it is initialized, updated, and drawn. Once a [[Scene|scene]] is added to
      * the [[Engine|engine]] it will follow this lifecycle.
      *
-     * ![Scene Lifecycle](/assets/images/docs/SceneLifeCycle.png)
+     * ![Scene Lifecycle](/assets/images/docs/SceneLifecycle.png)
      *
      * ## Extending scenes
      *
@@ -2794,7 +2794,7 @@ declare module ex {
      * An [[Actor|actor]] has a basic lifecycle that dictacts how it is initialized, updated, and drawn. Once an actor is part of a
      * [[Scene|scene]], it will follow this lifecycle.
      *
-     * ![Actor Lifecycle](/assets/images/docs/ActorLifeCycle.png)
+     * ![Actor Lifecycle](/assets/images/docs/ActorLifecycle.png)
      *
      * ## Extending actors
      *
@@ -3108,6 +3108,9 @@ declare module ex {
          * Direct access to the actor's [[ActionQueue]]. Useful if you are building custom actions.
          */
         actionQueue: ex.Internal.Actions.ActionQueue;
+        /**
+         * [[ActionContext|Action context]] of the actor. Useful for scripting actor behavior.
+         */
         actions: ActionContext;
         /**
          * Convenience reference to the global logger
@@ -4749,11 +4752,14 @@ declare module ex.Internal {
         pause(): any;
         stop(): any;
         load(): any;
+        processData(data: any): any;
         onload: (e: any) => void;
         onprogress: (e: any) => void;
         onerror: (e: any) => void;
+        path: string;
     }
     class FallbackAudio implements ISound {
+        path: string;
         private _soundImpl;
         private _log;
         constructor(path: string, volume?: number);
@@ -4763,6 +4769,7 @@ declare module ex.Internal {
         onprogress: (e: any) => void;
         onerror: (e: any) => void;
         load(): void;
+        processData(data: any): any;
         isPlaying(): boolean;
         play(): ex.Promise<any>;
         pause(): void;
@@ -4788,11 +4795,13 @@ declare module ex.Internal {
         onprogress: (e: any) => void;
         onerror: (e: any) => void;
         load(): void;
+        processData(data: any): any;
         play(): Promise<any>;
         pause(): void;
         stop(): void;
     }
     class WebAudio implements ISound {
+        path: string;
         private _context;
         private _volume;
         private _buffer;
@@ -4806,12 +4815,13 @@ declare module ex.Internal {
         private _currentOffset;
         private _playPromise;
         private _logger;
-        constructor(soundPath: string, volume?: number);
+        constructor(path: string, volume?: number);
         setVolume(volume: number): void;
         onload: (e: any) => void;
         onprogress: (e: any) => void;
         onerror: (e: any) => void;
         load(): void;
+        processData(data: any): any;
         setLoop(loop: boolean): void;
         isPlaying(): boolean;
         play(): Promise<any>;
@@ -4949,6 +4959,10 @@ declare module ex {
          */
         load(): Promise<any>;
         /**
+         * Processes the downloaded data. Meant to be overridden.
+         */
+        processData(data: any): any;
+        /**
          * Wires engine into loadable to receive game level events
          */
         wireEngine(engine: Engine): void;
@@ -5034,10 +5048,14 @@ declare module ex {
          */
         getData(): any;
         /**
+         * Sets the data for this resource directly
+         */
+        setData(data: any): void;
+        /**
          * This method is meant to be overriden to handle any additional
          * processing. Such as decoding downloaded audio bits.
          */
-        processDownload(data: T): any;
+        processData(data: T): any;
         onprogress: (e: any) => void;
         oncomplete: () => void;
         onerror: (e: any) => void;
@@ -5141,12 +5159,12 @@ declare module ex {
      */
     class Sound implements ILoadable, ex.Internal.ISound {
         private _logger;
+        path: string;
         onprogress: (e: any) => void;
         oncomplete: () => void;
         onerror: (e: any) => void;
         onload: (e: any) => void;
         private _isLoaded;
-        private _selectedFile;
         private _engine;
         private _wasPlayingOnHidden;
         /**
@@ -5196,6 +5214,7 @@ declare module ex {
          * Begins loading the sound and returns a promise to be resolved on completion
          */
         load(): Promise<ex.Internal.FallbackAudio>;
+        processData(data: any): any;
     }
     /**
      * Pre-loading assets
@@ -5221,7 +5240,7 @@ declare module ex {
      * // loop through dictionary and add to loader
      * for (var loadable in resources) {
      *   if (resources.hasOwnProperty(loadable)) {
-     *     loader.addResource(loadable);
+     *     loader.addResource(resources[loadable]);
      *   }
      * }
      *
@@ -5264,6 +5283,7 @@ declare module ex {
          * that resolves when loading of all is complete
          */
         load(): Promise<any>;
+        processData: (data: any) => any;
         onprogress: (e: any) => void;
         oncomplete: () => void;
         onerror: () => void;
@@ -5316,6 +5336,7 @@ declare module ex {
          * Begins loading the template. Returns a promise that resolves with the template string when loaded.
          */
         load(): ex.Promise<string>;
+        processData(data: any): any;
         /**
          * Indicates whether the template has been loaded
          */
@@ -5470,7 +5491,9 @@ declare module ex {
      * var label = new ex.Label();
      * label.x = 50;
      * label.y = 50;
-     * label.font = "10px Arial";
+     * label.fontFamily = "Arial";
+     * label.fontSize = 10;
+     * lable.fontUnit = ex.FontUnit.Px // pixels are the default
      * label.text = "Foo";
      * label.color = ex.Color.White;
      * label.textAlign = ex.TextAlign.Center;
@@ -5511,7 +5534,8 @@ declare module ex {
      * var game = new ex.Engine();
      *
      * var label = new ex.Label();
-     * label.font = "12px Foobar, Arial, Sans-Serif";
+     * label.fontFamily = "Foobar, Arial, Sans-Serif";
+     * label.fontSize = 10;
      * label.text = "Hello World";
      *
      * game.add(label);
@@ -6563,7 +6587,7 @@ declare module ex {
      * scene. Only one [[Scene]] can be active at a time. The engine does not update/draw any other
      * scene, which means any actors will not be updated/drawn if they are part of a deactivated scene.
      *
-     * ![Engine Lifecycle](/assets/images/docs/EngineLifeCycle.png)
+     * ![Engine Lifecycle](/assets/images/docs/EngineLifecycle.png)
      *
      * **Scene Graph**
      *

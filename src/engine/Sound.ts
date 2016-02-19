@@ -12,6 +12,8 @@ module ex.Internal {
       pause();
       stop();
       load();
+      setData(data: any);
+      getData(): any;
       processData(data: any): any;
       onload: (e: any) => void;
       onprogress: (e: any) => void;
@@ -53,6 +55,14 @@ module ex.Internal {
       
       public processData(data: any): any {
          return this._soundImpl.processData(data);
+      }
+      
+      public getData(): any {
+         return this._soundImpl.getData();
+      }
+      
+      public setData(data: any) {
+         this._soundImpl.setData(data);
       }
 
       public isPlaying(): boolean {
@@ -129,6 +139,12 @@ module ex.Internal {
       public onerror: (e: any) => void = () => { return; };
 
       public load() {
+         
+         if (this._isLoaded) {
+            this.onload(null);
+            return;
+         }
+         
          var request = new XMLHttpRequest();
          request.open('GET', this.path, true);
          request.responseType = 'blob';
@@ -141,19 +157,31 @@ module ex.Internal {
                this._isLoaded = false;
                return;
             }
-
-            this.processData(request.response);            
+            
+            this._isLoaded = true;
+            this.setData(request.response);            
             this.onload(e);
          };
          request.send();
       }
       
+      public getData(): any {
+         return this._loadedAudio;
+      }
+      
+      public setData(data: any) {
+         this._isLoaded = true;
+         this._loadedAudio = this.processData(data);
+      }
+      
       public processData(data: any): any {
-         this._loadedAudio = URL.createObjectURL(data);
+         var blobUrl = URL.createObjectURL(data);
+         
          this._audioElements.forEach((a) => {
-            a.src = this._loadedAudio;
+            a.src = blobUrl;
          });
          this._audioLoaded();
+         return blobUrl;
       }
 
       public play(): Promise<any> {
@@ -215,8 +243,7 @@ module ex.Internal {
       private _playPromise: ex.Promise<any>;
 
       private _logger: Logger = Logger.getInstance();
-
-
+      private _data: any;
 
       constructor(public path: string, volume?: number) {
          this._path = path;
@@ -250,13 +277,21 @@ module ex.Internal {
                return;
             }
 
-            this.processData(request.response);
+            this.setData(request.response);
          };
          try {
             request.send();
          } catch (e) {
             console.error('Error loading sound! If this is a cross origin error, you must host your sound with your html and javascript.');
          }
+      }
+      
+      public getData() {
+         return this._data;
+      }
+      
+      public setData(data: any) {
+         this._data = this.processData(data);
       }
       
       public processData(data: any): any {
@@ -273,6 +308,7 @@ module ex.Internal {
                this._isLoaded = false;
                this.onload(this);
             });
+         return data;
       }
 
       public setLoop(loop: boolean) {

@@ -1,6 +1,6 @@
-/*! excalibur - v0.6.0 - 2016-01-19
+/*! excalibur - v0.6.0 - 2016-02-18
 * https://github.com/excaliburjs/Excalibur
-* Copyright (c) 2016 ; Licensed BSD-2-Clause*/
+* Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 if (typeof window === 'undefined') {
     window = { audioContext: function () { return; } };
 }
@@ -5415,7 +5415,7 @@ var ex;
      * A [[Scene|scene]] has a basic lifecycle that dictacts how it is initialized, updated, and drawn. Once a [[Scene|scene]] is added to
      * the [[Engine|engine]] it will follow this lifecycle.
      *
-     * ![Scene Lifecycle](/assets/images/docs/SceneLifeCycle.png)
+     * ![Scene Lifecycle](/assets/images/docs/SceneLifecycle.png)
      *
      * ## Extending scenes
      *
@@ -5956,7 +5956,7 @@ var ex;
      * An [[Actor|actor]] has a basic lifecycle that dictacts how it is initialized, updated, and drawn. Once an actor is part of a
      * [[Scene|scene]], it will follow this lifecycle.
      *
-     * ![Actor Lifecycle](/assets/images/docs/ActorLifeCycle.png)
+     * ![Actor Lifecycle](/assets/images/docs/ActorLifecycle.png)
      *
      * ## Extending actors
      *
@@ -6263,7 +6263,6 @@ var ex;
              */
             this.opacity = 1;
             this.previousOpacity = 1;
-            this.actions = new ex.ActionContext(this);
             /**
              * Convenience reference to the global logger
              */
@@ -6330,6 +6329,7 @@ var ex;
             this.traits.push(new ex.Traits.OffscreenCulling());
             this.traits.push(new ex.Traits.CapturePointer());
             this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
+            this.actions = new ex.ActionContext(this);
             this.anchor = new ex.Point(.5, .5);
         }
         /**
@@ -6520,25 +6520,25 @@ var ex;
          * Gets the left edge of the actor
          */
         Actor.prototype.getLeft = function () {
-            return this.x;
+            return this.getBounds().left;
         };
         /**
          * Gets the right edge of the actor
          */
         Actor.prototype.getRight = function () {
-            return this.x + this.getWidth();
+            return this.getBounds().right;
         };
         /**
          * Gets the top edge of the actor
          */
         Actor.prototype.getTop = function () {
-            return this.y;
+            return this.getBounds().top;
         };
         /**
          * Gets the bottom edge of the actor
          */
         Actor.prototype.getBottom = function () {
-            return this.y + this.getHeight();
+            return this.getBounds().bottom;
         };
         /**
          * Gets the x value of the Actor in global coordinates
@@ -8993,6 +8993,7 @@ var ex;
     (function (Internal) {
         var FallbackAudio = (function () {
             function FallbackAudio(path, volume) {
+                this.path = path;
                 this._log = ex.Logger.getInstance();
                 this.onload = function () { return; };
                 this.onprogress = function () { return; };
@@ -9017,6 +9018,9 @@ var ex;
                 this._soundImpl.onprogress = this.onprogress;
                 this._soundImpl.onerror = this.onerror;
                 this._soundImpl.load();
+            };
+            FallbackAudio.prototype.processData = function (data) {
+                return this._soundImpl.processData(data);
             };
             FallbackAudio.prototype.isPlaying = function () {
                 return this._soundImpl.isPlaying();
@@ -9094,13 +9098,18 @@ var ex;
                         _this._isLoaded = false;
                         return;
                     }
-                    _this._loadedAudio = URL.createObjectURL(request.response);
-                    _this._audioElements.forEach(function (a) {
-                        a.src = _this._loadedAudio;
-                    });
+                    _this.processData(request.response);
                     _this.onload(e);
                 };
                 request.send();
+            };
+            AudioTag.prototype.processData = function (data) {
+                var _this = this;
+                this._loadedAudio = URL.createObjectURL(data);
+                this._audioElements.forEach(function (a) {
+                    a.src = _this._loadedAudio;
+                });
+                this._audioLoaded();
             };
             AudioTag.prototype.play = function () {
                 var _this = this;
@@ -9141,7 +9150,8 @@ var ex;
             var audioContext = new window.AudioContext();
         }
         var WebAudio = (function () {
-            function WebAudio(soundPath, volume) {
+            function WebAudio(path, volume) {
+                this.path = path;
                 this._context = audioContext;
                 this._volume = this._context.createGain();
                 this._buffer = null;
@@ -9156,7 +9166,7 @@ var ex;
                 this.onload = function () { return; };
                 this.onprogress = function () { return; };
                 this.onerror = function () { return; };
-                this._path = soundPath;
+                this._path = path;
                 if (volume) {
                     this._volume.gain.value = ex.Util.clamp(volume, 0, 1.0);
                 }
@@ -9181,17 +9191,7 @@ var ex;
                         _this._isLoaded = false;
                         return;
                     }
-                    _this._context.decodeAudioData(request.response, function (buffer) {
-                        _this._buffer = buffer;
-                        _this._isLoaded = true;
-                        _this.onload(_this);
-                    }, function (e) {
-                        _this._logger.error('Unable to decode ' + _this._path +
-                            ' this browser may not fully support this format, or the file may be corrupt, ' +
-                            'if this is an mp3 try removing id3 tags and album art from the file.');
-                        _this._isLoaded = false;
-                        _this.onload(_this);
-                    });
+                    _this.processData(request.response);
                 };
                 try {
                     request.send();
@@ -9199,6 +9199,20 @@ var ex;
                 catch (e) {
                     console.error('Error loading sound! If this is a cross origin error, you must host your sound with your html and javascript.');
                 }
+            };
+            WebAudio.prototype.processData = function (data) {
+                var _this = this;
+                this._context.decodeAudioData(data, function (buffer) {
+                    _this._buffer = buffer;
+                    _this._isLoaded = true;
+                    _this.onload(_this);
+                }, function (e) {
+                    _this._logger.error('Unable to decode ' + _this._path +
+                        ' this browser may not fully support this format, or the file may be corrupt, ' +
+                        'if this is an mp3 try removing id3 tags and album art from the file.');
+                    _this._isLoaded = false;
+                    _this.onload(_this);
+                });
             };
             WebAudio.prototype.setLoop = function (loop) {
                 this._loop = loop;
@@ -9574,6 +9588,12 @@ var ex;
         Resource.prototype.load = function () {
             var _this = this;
             var complete = new ex.Promise();
+            // Exit early if we already have data
+            if (this.isLoaded()) {
+                complete.resolve(this.data);
+                this.oncomplete();
+                return complete;
+            }
             var request = new XMLHttpRequest();
             request.open('GET', this.bustCache ? this._cacheBust(this.path) : this.path, true);
             request.responseType = this.responseType;
@@ -9587,7 +9607,7 @@ var ex;
                     complete.resolve(request.response);
                     return;
                 }
-                _this.data = _this.processDownload(request.response);
+                _this.data = _this.processData(request.response);
                 _this.oncomplete();
                 _this.logger.debug('Completed loading resource', _this.path);
                 complete.resolve(_this.data);
@@ -9602,10 +9622,16 @@ var ex;
             return this.data;
         };
         /**
+         * Sets the data for this resource directly
+         */
+        Resource.prototype.setData = function (data) {
+            this.data = this.processData(data);
+        };
+        /**
          * This method is meant to be overriden to handle any additional
          * processing. Such as decoding downloaded audio bits.
          */
-        Resource.prototype.processDownload = function (data) {
+        Resource.prototype.processData = function (data) {
             // Handle any additional loading after the xhr has completed.
             return URL.createObjectURL(data);
         };
@@ -9744,26 +9770,25 @@ var ex;
             this.onerror = function () { return; };
             this.onload = function () { return; };
             this._isLoaded = false;
-            this._selectedFile = '';
             this._wasPlayingOnHidden = false;
             /* Chrome : MP3, WAV, Ogg
              * Firefox : WAV, Ogg,
              * IE : MP3, WAV coming soon
              * Safari MP3, WAV, Ogg
              */
-            this._selectedFile = '';
+            this.path = '';
             for (var i = 0; i < paths.length; i++) {
                 if (Sound.canPlayFile(paths[i])) {
-                    this._selectedFile = paths[i];
+                    this.path = paths[i];
                     break;
                 }
             }
-            if (!this._selectedFile) {
+            if (!this.path) {
                 this._logger.warn('This browser does not support any of the audio files specified:', paths.join(', '));
                 this._logger.warn('Attempting to use', paths[0]);
-                this._selectedFile = paths[0]; // select the first specified
+                this.path = paths[0]; // select the first specified
             }
-            this.sound = new ex.Internal.FallbackAudio(this._selectedFile, 1.0);
+            this.sound = new ex.Internal.FallbackAudio(this.path, 1.0);
         }
         /**
          * Whether or not the browser can play this file as HTML5 Audio
@@ -9865,12 +9890,12 @@ var ex;
         Sound.prototype.load = function () {
             var _this = this;
             var complete = new ex.Promise();
-            this._logger.debug('Started loading sound', this._selectedFile);
+            this._logger.debug('Started loading sound', this.path);
             this.sound.onprogress = this.onprogress;
             this.sound.onload = function () {
                 _this.oncomplete();
                 _this._isLoaded = true;
-                _this._logger.debug('Completed loading sound', _this._selectedFile);
+                _this._logger.debug('Completed loading sound', _this.path);
                 complete.resolve(_this.sound);
             };
             this.sound.onerror = function (e) {
@@ -9879,6 +9904,9 @@ var ex;
             };
             this.sound.load();
             return complete;
+        };
+        Sound.prototype.processData = function (data) {
+            return this.sound.processData(data);
         };
         return Sound;
     })();
@@ -9907,7 +9935,7 @@ var ex;
      * // loop through dictionary and add to loader
      * for (var loadable in resources) {
      *   if (resources.hasOwnProperty(loadable)) {
-     *     loader.addResource(loadable);
+     *     loader.addResource(resources[loadable]);
      *   }
      * }
      *
@@ -9928,6 +9956,7 @@ var ex;
             this._numLoaded = 0;
             this._progressCounts = {};
             this._totalCounts = {};
+            this.processData = function (data) { return; };
             this.onprogress = function () { return; };
             this.oncomplete = function () { return; };
             this.onerror = function () { return; };
@@ -10215,11 +10244,9 @@ var ex;
                     complete.resolve('error');
                     return;
                 }
-                _this._htmlString = request.response;
+                _this.processData(request.response);
                 _this.oncomplete();
                 _this.logger.debug('Completed loading template', _this.path);
-                _this._compile();
-                _this._isLoaded = true;
                 complete.resolve(_this._htmlString);
             };
             if (request.overrideMimeType) {
@@ -10227,6 +10254,11 @@ var ex;
             }
             request.send();
             return complete;
+        };
+        Template.prototype.processData = function (data) {
+            this._htmlString = data;
+            this._compile();
+            this._isLoaded = true;
         };
         /**
          * Indicates whether the template has been loaded
@@ -10416,7 +10448,9 @@ var ex;
      * var label = new ex.Label();
      * label.x = 50;
      * label.y = 50;
-     * label.font = "10px Arial";
+     * label.fontFamily = "Arial";
+     * label.fontSize = 10;
+     * lable.fontUnit = ex.FontUnit.Px // pixels are the default
      * label.text = "Foo";
      * label.color = ex.Color.White;
      * label.textAlign = ex.TextAlign.Center;
@@ -10457,7 +10491,8 @@ var ex;
      * var game = new ex.Engine();
      *
      * var label = new ex.Label();
-     * label.font = "12px Foobar, Arial, Sans-Serif";
+     * label.fontFamily = "Foobar, Arial, Sans-Serif";
+     * label.fontSize = 10;
      * label.text = "Hello World";
      *
      * game.add(label);
@@ -11971,7 +12006,7 @@ var ex;
      * scene. Only one [[Scene]] can be active at a time. The engine does not update/draw any other
      * scene, which means any actors will not be updated/drawn if they are part of a deactivated scene.
      *
-     * ![Engine Lifecycle](/assets/images/docs/EngineLifeCycle.png)
+     * ![Engine Lifecycle](/assets/images/docs/EngineLifecycle.png)
      *
      * **Scene Graph**
      *

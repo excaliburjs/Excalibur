@@ -78,7 +78,14 @@ module ex {
        */
       public load(): Promise<T> {
          var complete = new Promise<T>();
-
+         
+         // Exit early if we already have data
+         if (this.isLoaded()) {
+             complete.resolve(this.data);
+             this.oncomplete();
+             return complete;
+         }
+         
          var request = new XMLHttpRequest();
          request.open('GET', this.bustCache ? this._cacheBust(this.path) : this.path, true);
          request.responseType = this.responseType;
@@ -110,6 +117,13 @@ module ex {
        */
       public getData(): any {
          return this.data;
+      }
+      
+      /**
+       * Sets the data for this resource directly
+       */
+      public setData(data: any) {
+         this.data = this.processData(data);         
       }
 
       /**

@@ -21,6 +21,9 @@ module ex {
        */
       load(): Promise<any>;
       
+      getData(): any;
+      setData(data: any): void;
+      
       /**
        * Processes the downloaded data. Meant to be overridden.
        */

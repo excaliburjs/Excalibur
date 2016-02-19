@@ -156,8 +156,8 @@ module ex {
       private _isLoaded: boolean = false;
 
       private _engine: Engine;
-      private _wasPlayingOnHidden: boolean = false;
-
+      private _wasPlayingOnHidden: boolean = false;      
+      
       /**
        * Populated once loading is complete
        */
@@ -298,6 +298,14 @@ module ex {
          };
          this.sound.load();
          return complete;
+      }
+      
+      public getData(): any {
+         return this.sound.getData();
+      }
+      
+      public setData(data: any) {
+         this.sound.setData(data);
       }
       
       public processData(data: any): any {
@@ -453,6 +461,10 @@ module ex {
 
          return complete;
       }
+      
+      public getData: () => any = () => { return; };
+      
+      public setData: (data: any) => any = (data) => { return; };
       
       public processData: (data: any) => any = (data) => { return; };
 
