@@ -1,6 +1,13 @@
+/// <reference path="CollisionContact.ts" />
+/// <reference path="../DebugFlags.ts" />
 module ex {
-   export interface ICollisionArea {
+    export interface ICollisionArea {
+
+      /**
+       * Position of the collision area relative to the actor if it exists
+       */
       pos: Vector;
+      actor: Actor;
 
       getCenter(): Vector;      
       getFurthestPoint(direction: Vector): Vector;
@@ -15,7 +22,8 @@ module ex {
       contains(point: Vector): boolean;
       castRay(ray: Ray): Vector;
       project(axis: Vector): Projection;
-      actor: Actor;
+
+      debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags);
       
    } 
 }

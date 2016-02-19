@@ -50,8 +50,11 @@
             return false;
         }
 
+        /**
+         * Casts a ray at the CircleArea and returns the nearest point of collision
+         * @param ray 
+         */
         public castRay(ray: Ray): Vector {
-            // todo 
             throw new Error('not implemented');
         }
                 
@@ -134,6 +137,21 @@
             scalars.push(dotProduct + this.radius);
             scalars.push(dotProduct - this.radius);
             return new Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
+        }
+
+        public debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags) {
+           var pos = this.actor ? this.actor.pos.add(this.pos) : this.pos;
+           var rotation = this.actor ? this.actor.rotation : 0;
+           ctx.strokeStyle = 'lime';
+           ctx.beginPath();
+           ctx.arc(pos.x, pos.y, this.radius, 0, Math.PI * 2);
+           ctx.closePath();
+           ctx.stroke();
+           ctx.beginPath();
+           ctx.moveTo(pos.x, pos.y);
+           ctx.lineTo(Math.cos(rotation) * this.radius + pos.x, Math.sin(rotation) * this.radius + pos.y);
+           ctx.closePath();
+           ctx.stroke();
         }
     }
 }

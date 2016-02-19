@@ -3,7 +3,7 @@
 /// <reference path="ICollisionResolver.ts"/> 
 
 module ex {
-   export class NaiveCollisionResolver implements ICollisionResolver {
+   export class NaiveCollisionResolver {
       
       public register(target: Actor) {
          // pass

@@ -66,10 +66,12 @@
     <TypeScriptCompile Include="Algebra.ts" />
     <TypeScriptCompile Include="Collision\CircleArea.ts" />
     <TypeScriptCompile Include="Collision\CollisionContact.ts" />
+    <TypeScriptCompile Include="Collision\CollisionJumpTable.ts" />
     <TypeScriptCompile Include="Collision\EdgeArea.ts" />
     <TypeScriptCompile Include="Collision\ICollisionArea.ts" />
     <TypeScriptCompile Include="Collision\IPhysics.ts" />
     <TypeScriptCompile Include="Collision\PolygonArea.ts" />
+    <TypeScriptCompile Include="DebugFlags.ts" />
     <TypeScriptCompile Include="Drawing\Animation.ts" />
     <TypeScriptCompile Include="Binding.ts" />
     <TypeScriptCompile Include="Traits\EulerMovement.ts" />

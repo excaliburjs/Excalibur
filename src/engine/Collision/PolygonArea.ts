@@ -1,4 +1,8 @@
-﻿module ex {
+﻿/// <reference path="CollisionJumpTable.ts" />
+/// <reference path="CircleArea.ts" />
+/// <reference path="EdgeArea.ts" />
+
+module ex {
     export interface IPolygonAreaOptions {
         pos?: Vector;
         points?: Vector[];
@@ -15,7 +19,7 @@
         public actor: Actor;
 
         private _transformedPoints: Vector[] = [];
-        
+                
         constructor(options: IPolygonAreaOptions) {
             this.pos = options.pos || Vector.Zero.clone();
             var winding = !!options.clockwiseWinding;
@@ -235,6 +239,21 @@
             }
 
             return new Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
+        }
+
+        public debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags) {
+           ctx.beginPath();
+           ctx.lineWidth = 3;
+           ctx.strokeStyle = 'lime';
+           // Iterate through the supplied points and contruct a 'polygon'
+           var firstPoint = this.getTransformedPoints()[0];
+           ctx.moveTo(firstPoint.x, firstPoint.y);
+           this.getTransformedPoints().forEach(function (point, i) {
+              ctx.lineTo(point.x, point.y);
+           });
+           ctx.lineTo(firstPoint.x, firstPoint.y);
+           ctx.closePath();
+           ctx.stroke();
         }
     }
 }

@@ -106,5 +106,17 @@
 
             return new Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
         }
+
+        public debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags) {
+           ctx.strokeStyle = 'red';
+           var old = ctx.lineWidth;
+           ctx.lineWidth = 5;
+           ctx.beginPath();
+           ctx.moveTo(this.begin.x, this.begin.y);
+           ctx.lineTo(this.end.x, this.end.y);
+           ctx.closePath();
+           ctx.stroke();
+           ctx.lineWidth = old;
+        }
     }
 }

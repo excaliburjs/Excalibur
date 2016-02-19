@@ -64,6 +64,15 @@ module ex {
          return 2 * (wx + wy);
       }
 
+      public getPoints(): Vector[] {
+         var results = [];
+         results.push(new Vector(this.left, this.top));
+         results.push(new Vector(this.right, this.top));
+         results.push(new Vector(this.right, this.bottom));
+         results.push(new Vector(this.left, this.bottom));
+         return results;
+      }
+
       /**
        * Tests wether a point is contained within the bounding box
        * @param p  The point to test

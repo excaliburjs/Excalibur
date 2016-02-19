@@ -1,4 +1,6 @@
 /// <reference path="Interfaces/IDrawable.ts" />
+/// <reference path="Collision/ICollisionArea.ts" />
+/// <reference path="Collision/PolygonArea.ts" />
 /// <reference path="Traits/EulerMovement.ts" />
 /// <reference path="Traits/OffscreenCulling.ts" />
 /// <reference path="Traits/CapturePointer.ts" />
@@ -432,6 +434,8 @@ module ex {
      */
     public collisionType: CollisionType = CollisionType.PreventCollision;
     public collisionGroups: string[] = [];
+    public collisionAreas: ICollisionArea[] = [];
+
     private _collisionHandlers: {[key: string]: {(actor: Actor): void}[]; } = {};
     private _isInitialized: boolean = false;
     public frames: { [key: string]: IDrawable; } = {};
@@ -500,7 +504,15 @@ module ex {
        this.traits.push(new ex.Traits.CapturePointer());
        this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
        
+       // default anchor is in the middle
        this.anchor = new Vector(.5, .5);
+       
+       // Initialize default collision area
+       this.collisionAreas.push(new PolygonArea({
+           actor: this,
+           points: this.getBounds().getPoints(),
+           pos: Vector.Zero.clone() // position relative to actor
+       }));
     }
     /**
      * This is called before the first update of the actor. This method is meant to be
@@ -520,6 +532,7 @@ module ex {
           }
        }
     }
+
     /**
      * Add an event listener. You can listen for a variety of
      * events off of the engine; see [[GameEvent]]
@@ -710,6 +723,18 @@ module ex {
        if (index !== -1) {
           this.collisionGroups.splice(index, 1);
        }
+    }
+
+    /**
+     * Calculates the unique collision hash between two actors
+     * @param other
+     */
+    public calculateCollisionHash(other: Actor): string {
+        if (this.id < other.id) {
+           return `#${this.id}+${other.id}`;
+        } else {
+           return `#${other.id}+${this.id}`;
+        }
     }
 
     /**
@@ -1231,6 +1256,7 @@ module ex {
      */
     public debugDraw(ctx: CanvasRenderingContext2D) {
        this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
+       /*
        // Draw actor bounding box
        var bb = this.getBounds();
        bb.debugDraw(ctx);
@@ -1244,7 +1270,12 @@ module ex {
        ctx.arc(this.getWorldX(), this.getWorldY(), 3, 0, Math.PI * 2);
        ctx.closePath();
        ctx.fill();
-
+       */
+       // Draw collision areas
+       this.collisionAreas.forEach((ca) => {
+          ca.debugDraw(ctx, null);
+       });
+       /*
        // Culling Box debug draw
        for (var j = 0; j < this.traits.length; j++) {
           if (this.traits[j] instanceof Traits.OffscreenCulling) {
@@ -1272,7 +1303,9 @@ module ex {
           ctx.fillText(tick, this.getWorldX() + Math.cos(ticks[tick]) * (radius + 10), 
                              this.getWorldY() + Math.sin(ticks[tick]) * (radius + 10));
        }
+       
        ctx.font = oldFont;
+       */
        // Draw child actors
        ctx.save();
        ctx.translate(this.pos.x, this.pos.y);
