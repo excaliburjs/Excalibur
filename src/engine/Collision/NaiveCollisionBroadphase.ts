@@ -3,7 +3,7 @@
 /// <reference path="ICollisionResolver.ts"/> 
 
 module ex {
-   export class NaiveCollisionResolver {
+   export class NaiveCollisionBroadphase {
       
       public register(target: Actor) {
          // pass

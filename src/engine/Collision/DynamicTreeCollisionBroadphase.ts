@@ -3,7 +3,7 @@
 
 module ex {
     
-   export class DynamicTreeCollisionResolver implements ICollisionResolver {
+   export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
       private _dynamicCollisionTree = new DynamicTree();
       private _collisionHash: { [key: string]: boolean; } = {};
       private _collisionContacts: CollisionContact[] = [];
@@ -16,7 +16,7 @@ module ex {
          this._dynamicCollisionTree.removeActor(target);
       }
 
-      public evaluate(targets: Actor[]): CollisionContact[] {
+      public resolve(targets: Actor[]): CollisionContact[] {
          // Retrieve the list of potential colliders, exclude killed, prevented, and self
          var potentialColliders = targets.filter((other) => {
             return !other.isKilled() && other.collisionType !== CollisionType.PreventCollision;
@@ -36,28 +36,40 @@ module ex {
                if (other.collisionType === CollisionType.PreventCollision || other.isKilled()) { return false; }
 
                // if the collision pair has been calculated already short circuit
-               var hash = actor.calculateCollisionHash(other);
+               var hash = actor.calculatePairHash(other);
                if (this._collisionHash[hash]) {
-                   return false; // pair exists easy exit
+                   return false; // pair exists easy exit return false
                }
 
                // generate all the collision contacts between the 2 sets of collision areas between both actors
                var contacts: CollisionContact[] = [];
+               var areaA = actor.collisionAreas[0];
+               var areaB = other.collisionAreas[0];
+               var contact = areaA.collide(areaB);
+               
+               if (contact) {
+                  contact.id = hash;
+                  contacts.push(contact);
+               }
+               /*
                for (var areaA of actor.collisionAreas) {
                   for (var areaB of actor.collisionAreas) {
-                     contacts.push(areaA.collide(areaB));
+                     var contact = areaA.collide(areaB);
+                     if (contact) {
+                        contacts.push(contact);
+                     }
                   }
-               }
+               }*/
 
                // if there were contacts keep track of them
                if (contacts.length) {
                   this._collisionHash[hash] = true;
-                  for (var contact of contacts) {
-                     this._collisionContacts.push(contact);
+                  for (var contactHash of contacts) {
+                     this._collisionContacts.push(contactHash);
                   }
                }
-               
-               return false;
+
+               return true;
             });
          }
 
@@ -65,6 +77,12 @@ module ex {
          for (i; i < len; i++) {
             this._collisionContacts[i].resolve(16); // todo NO!
          }
+         targets.forEach((a) => {
+            a.applyMtv();
+         });
+
+         this._collisionContacts.length = 0;
+         this._collisionHash = {};
 
          return this._collisionContacts;
       }

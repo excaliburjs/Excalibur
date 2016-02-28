@@ -95,6 +95,16 @@
             return null;
         }
 
+        /**
+         * Returns the moment of intertia of a circle given it's mass
+         * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
+         * @param mass
+         */
+        public getMomentOfInertia(): number {
+           var mass = this.actor ? this.actor.mass : Engine.physics.defaultMass;
+           return (mass * this.radius * this.radius) / 2;
+        }
+
         public testSeparatingAxisTheorem(polygon: PolygonArea): Vector {
 
             var axes = polygon.getAxes();

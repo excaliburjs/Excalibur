@@ -1,7 +1,7 @@
 /// <reference path="Class.ts" />
 /// <reference path="Timer.ts" />
-/// <reference path="Collision/NaiveCollisionResolver.ts"/>
-/// <reference path="Collision/DynamicTreeCollisionResolver.ts"/>
+/// <reference path="Collision/NaiveCollisionBroadphase.ts"/>
+/// <reference path="Collision/DynamicTreeCollisionBroadphase.ts"/>
 /// <reference path="Collision/CollisionPair.ts" />
 /// <reference path="Camera.ts" />
 /// <reference path="Group.ts"/>
@@ -171,7 +171,7 @@ module ex {
 
       private _sortedDrawingTree: SortedList<Actor> = new SortedList<Actor>(Actor.prototype.getZIndex);
 
-      private _collisionResolver: ICollisionResolver = new DynamicTreeCollisionResolver();
+      private _broadphase: ICollisionBroadphase = new DynamicTreeCollisionBroadphase();
 
       private _killQueue: Actor[] = [];
       private _timers: Timer[] = [];
@@ -224,26 +224,32 @@ module ex {
       public update(engine: Engine, delta: number) {
          this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
          var i: number, len: number;
+         var iter: number = Engine.physics.collisionPasses;
+         delta = delta / iter;
+         while (iter > 0) {
+            // Cycle through actors updating UI actors
+            for (i = 0, len = this.uiActors.length; i < len; i++) {
+               this.uiActors[i].update(engine, delta);
+            }
 
-         // Cycle through actors updating UI actors
-         for (i = 0, len = this.uiActors.length; i < len; i++) {
-            this.uiActors[i].update(engine, delta);
-         }
+            // Cycle through actors updating tile maps
+            for (i = 0, len = this.tileMaps.length; i < len; i++) {
+               this.tileMaps[i].update(engine, delta);
+            }
 
-         // Cycle through actors updating tile maps
-         for (i = 0, len = this.tileMaps.length; i < len; i++) {
-            this.tileMaps[i].update(engine, delta);
-         }
+            // Cycle through actors updating actors
+            for (i = 0, len = this.children.length; i < len; i++) {
+               this.children[i].update(engine, delta);
+            }
 
-         // Cycle through actors updating actors
-         for (i = 0, len = this.children.length; i < len; i++) {
-            this.children[i].update(engine, delta);
-         }
-
-         // Run collision resolution strategy
-         if (this._collisionResolver) {
-            this._collisionResolver.update(this.children);
-            this._collisionResolver.evaluate(this.children);
+            // todo: meh I don't like how this works... maybe find a way to make collisions
+            // a trait
+            // Run collision resolution strategy
+            if (this._broadphase) {
+               this._broadphase.update(this.children);
+               this._broadphase.resolve(this.children);
+            }
+            iter--;
          }
 
          // Remove actors from scene graph after being killed
@@ -342,7 +348,7 @@ module ex {
          }
 
          // todo possibly enable this with excalibur flags features?
-         //this._collisionResolver.debugDraw(ctx, 20);
+         this._broadphase.debugDraw(ctx, 20);
 
          this.camera.debugDraw(ctx);
          this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));
@@ -433,7 +439,7 @@ module ex {
             return;
          }
          if (entity instanceof Actor) {
-            this._collisionResolver.remove(entity);
+            this._broadphase.remove(entity);
             this.removeChild(entity);
          }
          if (entity instanceof Timer) {
@@ -472,7 +478,7 @@ module ex {
        * @obsolete Use [[add]] instead.
        */
       public addChild(actor: Actor) {
-         this._collisionResolver.register(actor);
+         this._broadphase.register(actor);
          actor.scene = this;
          this.children.push(actor);
          this._sortedDrawingTree.add(actor);
@@ -501,7 +507,7 @@ module ex {
        * Removes an actor from the scene, it will no longer be drawn or updated.
        */
       public removeChild(actor: Actor) {
-         this._collisionResolver.remove(actor);
+         this._broadphase.remove(actor);
          this._killQueue.push(actor);
          actor.parent = null;
       }

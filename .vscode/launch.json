@@ -1,0 +1,18 @@
+{
+    "version": "0.1.0",
+    "configurations": [
+        {
+            "name": "Attach index.html",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:8081/html/index.html",
+            "runtimeArgs": [
+               "--new-window",
+               "--remote-debugging-port=9222" // standard chrome debugging port
+            ],
+            "webRoot": "src",
+            "diagnosticLogging": true,
+            "sourceMaps": true
+        }
+    ]
+}

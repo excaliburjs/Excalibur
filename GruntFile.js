@@ -126,7 +126,7 @@ module.exports = function (grunt) {
          // TypeScript Compile sample game
          //
          sample: {
-            command: 'tsc ./sandbox/web/src/game.ts',
+            command: 'tsc --sourcemap ./sandbox/web/src/game.ts',
             options: {
                stdout: true,
                failOnError: true
@@ -139,7 +139,7 @@ module.exports = function (grunt) {
          visual: {
              command: function() {
                  var files = grunt.file.expand("./sandbox/web/tests/*/*.ts");
-                 return 'tsc ' + files.join(' ');
+                 return 'tsc --sourcemap ' + files.join(' ');
              },
              options: {
                stdout: true,
@@ -156,9 +156,11 @@ module.exports = function (grunt) {
          main: {
             files: [
                {src: './dist/<%= pkg.name %>-<%= pkg.version %>.js', dest: './dist/<%= pkg.name %>.js'},
-               {src: './dist/<%= pkg.name %>-<%= pkg.version %>.js', dest: './sandbox/web/<%= pkg.name %>.js'},
                {src: './dist/<%= pkg.name %>-<%= pkg.version %>.min.js', dest: './dist/<%= pkg.name %>.min.js'},
-               {src: './dist/<%= pkg.name %>-<%= pkg.version %>.d.ts', dest: './dist/<%= pkg.name %>.d.ts'}
+               {src: './dist/<%= pkg.name %>-<%= pkg.version %>.d.ts', dest: './dist/<%= pkg.name %>.d.ts'},
+               // Sample
+               {src: './dist/<%= pkg.name %>-<%= pkg.version %>.js.map', dest: './sandbox/web/<%= pkg.name %>.js.map'},
+               {src: './dist/<%= pkg.name %>-<%= pkg.version %>.js', dest: './sandbox/web/<%= pkg.name %>.js'}
             ]
          }
       },

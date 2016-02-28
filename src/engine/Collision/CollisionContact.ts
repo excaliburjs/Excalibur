@@ -169,7 +169,6 @@ module ex {
             bodyB.setAwake(true);
             bodyB.sleepCheck(delta);
          }
-      }
-      
+      }      
    }
 }

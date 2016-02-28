@@ -5,6 +5,10 @@ module ex {
        */
       acc: Vector;
       /**
+       * Default mass of new actors created in excalibur
+       */
+      defaultMass: number;
+      /**
        * Number of pos/vel integration steps
        */
       integrationSteps: number;
@@ -16,6 +20,16 @@ module ex {
        * Number of collision resultion passes 
        */
       collisionPasses: number;
+      
+      /**
+       * Broadphase strategy for identifying potential collisions
+       */
+      broadphaseStrategy: BroadphaseStrategy;
+      /**
+       *
+       */
+      enableSleeping: boolean;
+
       /**
        * The epsilon below which objects go to sleep
        */

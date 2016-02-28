@@ -2,10 +2,9 @@
 
 module ex {
 
-   export enum CollisionStrategy {
+   export enum BroadphaseStrategy {
       Naive,
-      DynamicAABBTree,
-      SeparatingAxis
+      DynamicAABBTree
    }
 
    /**

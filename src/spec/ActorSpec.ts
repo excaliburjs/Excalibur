@@ -24,6 +24,18 @@ describe('A game actor', () => {
    it('should be loaded', () => {
       expect(ex.Actor).toBeTruthy();
    });
+   
+   it('actors should generate pair hashes in the correct order', () => {
+      var actor = new ex.Actor();
+      actor.id = 20;
+      var actor2 = new ex.Actor();
+      actor2.id = 40;
+
+      var hash = actor.calculatePairHash(actor2);
+      var hash2 = actor2.calculatePairHash(actor);
+      expect(hash).toBe('#20+40');
+      expect(hash2).toBe('#20+40');
+   });
 
    //it('can have animation', () => {
    //   expect(actor.frames).toEqual({});

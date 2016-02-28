@@ -13,6 +13,7 @@ module ex {
       getFurthestPoint(direction: Vector): Vector;
       getBounds(): BoundingBox;
       getAxes(): Vector[];
+      getMomentOfInertia(): number;
       
       // All new ICollisionAreas need to do the following
       // Create a new collision function in the CollisionJumpTable against all the primitives 

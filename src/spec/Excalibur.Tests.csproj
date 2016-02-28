@@ -70,6 +70,7 @@
     <TypeScriptCompile Include="ActorSpec.ts" />
     <TypeScriptCompile Include="AlgebraSpec.ts" />
     <TypeScriptCompile Include="BoundingBoxSpec.ts" />
+    <TypeScriptCompile Include="CollisionAreaSpec.ts" />
     <TypeScriptCompile Include="GamepadSpec.ts" />
     <TypeScriptCompile Include="KeyInputSpec.ts" />
     <TypeScriptCompile Include="LabelSpec.ts" />

@@ -82,8 +82,8 @@
     <TypeScriptCompile Include="Class.ts" />
     <TypeScriptCompile Include="Collision\CollisionPair.ts" />
     <TypeScriptCompile Include="Collision\BoundingBox.ts" />
-    <TypeScriptCompile Include="Collision\DynamicTreeCollisionResolver.ts" />
-    <TypeScriptCompile Include="Collision\NaiveCollisionResolver.ts" />
+    <TypeScriptCompile Include="Collision\DynamicTreeCollisionBroadphase.ts" />
+    <TypeScriptCompile Include="Collision\NaiveCollisionBroadphase.ts" />
     <TypeScriptCompile Include="Drawing\Color.ts" />
     <TypeScriptCompile Include="Collision\DynamicTree.ts" />
     <TypeScriptCompile Include="Util\EasingFunctions.ts" />

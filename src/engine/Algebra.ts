@@ -194,6 +194,13 @@ module ex {
          return new Vector(this.x, this.y);
       }
 
+      /**
+       * Returns a string repesentation of the vector.
+       */
+      public toString(): string {
+         return `(${this.x}, ${this.y})`;
+      }
+
    }
 
 

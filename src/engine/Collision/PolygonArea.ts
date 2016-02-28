@@ -19,12 +19,12 @@ module ex {
         public actor: Actor;
 
         private _transformedPoints: Vector[] = [];
-                
+
         constructor(options: IPolygonAreaOptions) {
             this.pos = options.pos || Vector.Zero.clone();
             var winding = !!options.clockwiseWinding;
             this.points = (winding ? options.points.reverse() : options.points) || [];
-            this.actor = options.actor || null;
+            this.actor = options.actor || null;            
 
             // calculate initial transformation
             this._calculateTransformation();
@@ -44,16 +44,13 @@ module ex {
          * Calculates the underlying transformation from actor relative space to world space
          */
         private _calculateTransformation() {
-            if (this.actor) {
-                var len = this.points.length;
-                this._transformedPoints.length = 0; // clear out old transform
-                var pos = this.actor.pos;
-                var angle = this.actor.rotation;
-                for (var i = 0; i < len; i++) {
-                    this._transformedPoints[i] = this.points[i].rotate(angle).add(pos);
-                }
-            } else {
-                this._transformedPoints = this.points.concat([]);
+            var pos = this.actor ? this.actor.pos.add(this.pos) : this.pos;
+            var angle = this.actor ? this.actor.rotation : 0;
+
+            var len = this.points.length;
+            this._transformedPoints.length = 0; // clear out old transform
+            for (var i = 0; i < len; i++) {
+                this._transformedPoints[i] = this.points[i].rotate(angle).add(pos);
             }
         }
 
@@ -61,6 +58,7 @@ module ex {
          * Gets the points that make up the polygon in world space, from actor relative space (if specified)
          */
         public getTransformedPoints(): Vector[] {
+            this._calculateTransformation(); // todo cache calculations
             return this._transformedPoints;
         }
 
@@ -97,7 +95,12 @@ module ex {
             }
             return true;
         }
-                
+
+        /**
+         * Returns a collision contact if the 2 collision areas collide, otherwise collide will
+         * return null.
+         * @param area
+         */
         public collide(area: ICollisionArea): CollisionContact {
             if (area instanceof CircleArea) {
                 return CollisionJumpTable.CollideCirclePolygon(area, this);
@@ -136,19 +139,38 @@ module ex {
 
             var minX = points.reduce(function (prev, curr) {
                 return Math.min(prev, curr.x);
-            }, Number.MAX_VALUE);
+            }, 999999999);
             var maxX = points.reduce(function (prev, curr) {
                 return Math.max(prev, curr.x);
-            }, -Number.MAX_VALUE);
+            }, -99999999);
 
             var minY = points.reduce(function (prev, curr) {
                 return Math.min(prev, curr.y);
-            }, Number.MAX_VALUE);
+            }, 9999999999);
             var maxY = points.reduce(function (prev, curr) {
                 return Math.max(prev, curr.y);
-            }, -Number.MAX_VALUE);
+            }, -9999999999);
 
-            return new BoundingBox(minX, minY, maxY, maxX);
+            return new BoundingBox(minX, minY, maxX, maxY);
+        }
+
+        /**
+         * Get the moment of inertia for an arbitrary polygon
+         * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
+         */
+        public getMomentOfInertia(): number {
+            var mass = this.actor ? this.actor.mass : Engine.physics.defaultMass;
+            var numerator = 0;
+            var denominator = 0;
+            for (var i = 0; i < this.points.length; i++) {
+                var iplusone = (i + 1) % this.points.length;
+                var crossTerm = this.points[iplusone].cross(this.points[i]);
+                numerator += crossTerm * (this.points[i].dot(this.points[i]) +
+                                          this.points[i].dot(this.points[iplusone]) +
+                                          this.points[iplusone].dot(this.points[iplusone]));
+                denominator += crossTerm;
+            }
+            return (mass / 6) * (numerator / denominator);
         }
 
         /**
@@ -242,18 +264,18 @@ module ex {
         }
 
         public debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags) {
-           ctx.beginPath();
-           ctx.lineWidth = 3;
-           ctx.strokeStyle = 'lime';
-           // Iterate through the supplied points and contruct a 'polygon'
-           var firstPoint = this.getTransformedPoints()[0];
-           ctx.moveTo(firstPoint.x, firstPoint.y);
-           this.getTransformedPoints().forEach(function (point, i) {
-              ctx.lineTo(point.x, point.y);
-           });
-           ctx.lineTo(firstPoint.x, firstPoint.y);
-           ctx.closePath();
-           ctx.stroke();
+            ctx.beginPath();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = 'lime';
+            // Iterate through the supplied points and contruct a 'polygon'
+            var firstPoint = this.getTransformedPoints()[0];
+            ctx.moveTo(firstPoint.x, firstPoint.y);
+            this.getTransformedPoints().forEach(function (point, i) {
+                ctx.lineTo(point.x, point.y);
+            });
+            ctx.lineTo(firstPoint.x, firstPoint.y);
+            ctx.closePath();
+            ctx.stroke();
         }
     }
 }

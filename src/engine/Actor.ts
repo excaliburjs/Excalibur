@@ -332,7 +332,7 @@ module ex {
     /**
      * The current momemnt of inertia, moi can be thought of as the resistance to rotation.
      */
-    public moi: number = 10;
+    public moi: number = 1000;
     
     /**
      * The current "motion" of the actor, used to calculated sleep in the physics simulation
@@ -510,9 +510,11 @@ module ex {
        // Initialize default collision area
        this.collisionAreas.push(new PolygonArea({
            actor: this,
-           points: this.getBounds().getPoints(),
+           points: this.getRelativeBounds().getPoints(),
            pos: Vector.Zero.clone() // position relative to actor
        }));
+
+       this.moi = this.collisionAreas[0].getMomentOfInertia();
     }
     /**
      * This is called before the first update of the actor. This method is meant to be
@@ -642,6 +644,11 @@ module ex {
         this._totalMtv.addEquals(mtv);
     }
 
+    public applyMtv(): void {
+       this.pos.addEquals(this._totalMtv);
+       this._totalMtv.setTo(0, 0);
+    }
+
     /**
      * Check if the current actor can go to sleep.
      */
@@ -726,10 +733,10 @@ module ex {
     }
 
     /**
-     * Calculates the unique collision hash between two actors
+     * Calculates the unique pair hash between two actors
      * @param other
      */
-    public calculateCollisionHash(other: Actor): string {
+    public calculatePairHash(other: Actor): string {
         if (this.id < other.id) {
            return `#${this.id}+${other.id}`;
         } else {
@@ -830,7 +837,7 @@ module ex {
        return new Vector(this.scale.x * parentScale.x, this.scale.y * parentScale.y);
      }
     /**
-     * Returns the actor's [[BoundingBox]] calculated for this instant.
+     * Returns the actor's [[BoundingBox]] calculated for this instant in world space.
      */
     public getBounds() {
        var anchor = this._getCalculatedAnchor();
@@ -839,6 +846,19 @@ module ex {
           this.getWorldX() + this.getWidth() - anchor.x,
           this.getWorldY() + this.getHeight() - anchor.y);
     }
+
+    /**
+     * Returns the actor's [[BoundingBox]] relative to the actors position.
+     */
+    public getRelativeBounds() {
+       var anchor = this._getCalculatedAnchor();
+       return new BoundingBox(-anchor.x,
+                              -anchor.y,
+                              this.getWidth() - anchor.x,
+                              this.getHeight() - anchor.y);
+    }
+
+
     /**
      * Tests whether the x/y specified are contained in the actor
      * @param x  X coordinate to test (in world coordinates)

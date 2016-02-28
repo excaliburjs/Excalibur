@@ -343,10 +343,13 @@ module ex {
        */
       public static physics: ex.IEnginePhysics = {
           acc: new ex.Vector(0, 0),
-          collisionPasses: 10,
+          collisionPasses: 1,
+          broadphaseStrategy: BroadphaseStrategy.DynamicAABBTree,
+          defaultMass: 10,
           integrator: 'euler',
           integrationSteps: 1,
           allowRotation: true,
+          enableSleeping: true,
           sleepEpsilon: 1,
           motionBias: .95
       };
@@ -354,7 +357,7 @@ module ex {
       /**
        * Gets or sets the [[CollisionStrategy]] for Excalibur actors
        */
-      public collisionStrategy: CollisionStrategy = CollisionStrategy.DynamicAABBTree;
+      public collisionStrategy: BroadphaseStrategy = BroadphaseStrategy.DynamicAABBTree;
 
       private _hasStarted: boolean = false;
 
