@@ -514,7 +514,8 @@ module ex {
            pos: Vector.Zero.clone() // position relative to actor
        }));
 
-       this.moi = this.collisionAreas[0].getMomentOfInertia();
+       // in case of a nan moi, collesce to a safe default
+       this.moi = this.collisionAreas[0].getMomentOfInertia() || this.moi;
     }
     /**
      * This is called before the first update of the actor. This method is meant to be
