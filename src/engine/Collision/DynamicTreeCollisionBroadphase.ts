@@ -16,7 +16,7 @@ module ex {
          this._dynamicCollisionTree.removeActor(target);
       }
 
-      public resolve(targets: Actor[]): CollisionContact[] {
+      public resolve(targets: Actor[], delta: number): CollisionContact[] {
          // Retrieve the list of potential colliders, exclude killed, prevented, and self
          var potentialColliders = targets.filter((other) => {
             return !other.isKilled() && other.collisionType !== CollisionType.PreventCollision;
@@ -28,19 +28,19 @@ module ex {
             actor = potentialColliders[j];
 
             this._dynamicCollisionTree.query(actor, (other: Actor) => {
+                // if the collision pair has been calculated already short circuit
+                var hash = actor.calculatePairHash(other);
+                if (this._collisionHash[hash]) {
+                    return false; // pair exists easy exit return false
+                }
+
                // if both are fixed short circuit
                if (actor.collisionType === CollisionType.Fixed && other.collisionType === CollisionType.Fixed) {
                    return false;
                }
                // if the other is prevent collision or is dead short circuit
                if (other.collisionType === CollisionType.PreventCollision || other.isKilled()) { return false; }
-
-               // if the collision pair has been calculated already short circuit
-               var hash = actor.calculatePairHash(other);
-               if (this._collisionHash[hash]) {
-                   return false; // pair exists easy exit return false
-               }
-
+               
                // generate all the collision contacts between the 2 sets of collision areas between both actors
                var contacts: CollisionContact[] = [];
                var areaA = actor.collisionAreas[0];
@@ -69,13 +69,24 @@ module ex {
                   }
                }
 
-               return true;
+               return false;
             });
          }
 
-         var i = 0, len = this._collisionContacts.length;
-         for (i; i < len; i++) {
-            this._collisionContacts[i].resolve(16); // todo NO!
+         if (Engine.physics.allowRotation) {
+             var i = 0, len = this._collisionContacts.length;
+             for (i; i < len; i++) {
+                 this._collisionContacts[i].resolve(delta);
+             }
+         } else {
+             var k = 0, len2 = this._collisionContacts.length;
+             for (k; k < len2; i++) {
+                 var mtv = this._collisionContacts[k].mtv;
+                 var bodyA = this._collisionContacts[k].bodyA;
+                 var bodyB = this._collisionContacts[k].bodyB;
+                 bodyA.pos.addEquals(mtv.negate());
+                 bodyB.pos.addEquals(mtv);                 
+             }
          }
          targets.forEach((a) => {
             a.applyMtv();
@@ -87,7 +98,7 @@ module ex {
          return this._collisionContacts;
       }
 
-      public update(targets: Actor[]): number {
+      public update(targets: Actor[], delta: number): number {
          var updated = 0, i = 0, len = targets.length;
 
          for (i; i < len; i++) {

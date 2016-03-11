@@ -147,6 +147,27 @@ module ex.Util {
 
       return ex.Side.None;
    }
+   
+   export function getSideFromVector(direction: Vector) {
+      var left = direction.dot(Vector.Left);
+      var right = direction.dot(Vector.Right);
+      var up = direction.dot(Vector.Up);
+      var down = direction.dot(Vector.Down);
+      
+      // a very fortran approach
+      var directions = [Vector.Left, Vector.Right, Vector.Up, Vector.Down];
+      var directionEnum = [Side.Left, Side.Right, Side.Top, Side.Bottom];
+      
+      var max = -Number.MAX_VALUE;
+      var maxIndex = -1;
+      for(var i = 0; i < directions.length; i++) {
+         if(directions[i].dot(direction) > max) {
+            max = directions[i].dot(direction);
+            maxIndex = i;
+         }
+      }
+      return directionEnum[maxIndex];
+   }
 
    /**
     * Excaliburs dynamically resizing collection

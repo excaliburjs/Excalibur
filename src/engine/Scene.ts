@@ -239,15 +239,16 @@ module ex {
 
             // Cycle through actors updating actors
             for (i = 0, len = this.children.length; i < len; i++) {
-               this.children[i].update(engine, delta);
+                this.children[i].update(engine, delta);
+                this.children[i].collisionAreas[0].recalc();
             }
 
-            // todo: meh I don't like how this works... maybe find a way to make collisions
+            // TODO meh I don't like how this works... maybe find a way to make collisions
             // a trait
             // Run collision resolution strategy
             if (this._broadphase) {
-               this._broadphase.update(this.children);
-               this._broadphase.resolve(this.children);
+               this._broadphase.update(this.children, delta);
+               this._broadphase.resolve(this.children, delta);
             }
             iter--;
          }

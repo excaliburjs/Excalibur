@@ -42,6 +42,7 @@ module ex {
       }
       
       resolve(delta: number) {
+                  
          // perform collison on bounding areas
          var bodyA: Actor = this.bodyA.actor;
          var bodyB: Actor = this.bodyB.actor;
@@ -83,9 +84,14 @@ module ex {
          
          
          // If objects are moving away ignore
-         if(rvNormal >=  0) {
+         if(rvNormal >  0) {
             return;   
          }
+         
+         // Publish collision events on both participants
+         var side = ex.Util.getSideFromVector(this.mtv);
+         this.bodyA.actor.emit('collision', new CollisionEvent(this.bodyA.actor, this.bodyB.actor, side, this.mtv));
+         this.bodyB.actor.emit('collision', new CollisionEvent(this.bodyB.actor, this.bodyA.actor, ex.Util.getOppositeSide(side), this.mtv.negate()));
          
          // Collision impulse formula from Chris Hecker
          // https://en.wikipedia.org/wiki/Collision_response
@@ -113,6 +119,7 @@ module ex {
             bodyA.addMtv(mtv.scale(-.5));
          }
          
+         // Friction portion of impulse
          if(coefFriction && rvTangent) {
             // Columb model of friction, formula for impulse due to friction from  
             // https://en.wikipedia.org/wiki/Collision_response
@@ -130,34 +137,22 @@ module ex {
                frictionImpulse = t.scale(-impulse * coefFriction);
             }
             
-                           
             if ( bodyA.collisionType === ex.CollisionType.Fixed ) {
-
                   // apply frictional impulse
                   bodyB.vel = bodyB.vel.add(frictionImpulse.scale(invMassB));
-                  
                   bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
-                  
-
             } else if ( bodyB.collisionType === ex.CollisionType.Fixed ) {
-
                   // apply frictional impulse
                   bodyA.vel = bodyA.vel.sub(frictionImpulse.scale(invMassA));
-                  
                   bodyA.rx -= frictionImpulse.dot(t) * invMoiA * ra.cross(t);
-                  
-
             } else {
-                  // apply frictional impulse
-                  bodyB.vel = bodyB.vel.add(frictionImpulse.scale(invMassB));
+                // apply frictional impulse
+                bodyB.vel = bodyB.vel.add(frictionImpulse.scale(invMassB));
+                bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
                   
-                  bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
-                  
-                  // apply frictional impulse
-                  bodyA.vel = bodyA.vel.sub(frictionImpulse.scale(invMassA));
-                  
-                  bodyA.rx -= frictionImpulse.dot(t) * invMoiA * ra.cross(t);
-                  
+                // apply frictional impulse
+                bodyA.vel = bodyA.vel.sub(frictionImpulse.scale(invMassA));
+                bodyA.rx -= frictionImpulse.dot(t) * invMoiA * ra.cross(t);
             }
          }
          
@@ -169,6 +164,8 @@ module ex {
             bodyB.setAwake(true);
             bodyB.sleepCheck(delta);
          }
+         
+         
       }      
    }
 }

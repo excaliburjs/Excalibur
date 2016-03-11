@@ -9,6 +9,22 @@ module ex {
        * A (0, 0) vector
        */
       public static Zero = new Vector(0, 0);
+      /**
+       * A unit vector pointing up (0, -1)
+       */
+      public static Up = new Vector(0, -1);
+      /**
+       * A unit vector pointing down (0, 1)
+       */
+      public static Down = new Vector(0, 1);
+      /**
+       * A unit vector pointing left (-1, 0)
+       */
+      public static Left = new Vector(-1, 0);
+      /**
+       * A unit vector pointing right (1, 0)
+       */
+      public static Right = new Vector(1, 0);
 
       /**
        * Returns a vector of unit length in the direction of the specified angle in Radians.

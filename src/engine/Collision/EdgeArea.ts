@@ -102,6 +102,10 @@
            return mass * length * length;
         }
 
+        public recalc(): void {
+            // edges don't have any cached data
+        }
+
         /**
          * Project the edge along a specified axis
          */

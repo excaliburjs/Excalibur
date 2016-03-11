@@ -24,6 +24,11 @@ module ex {
       castRay(ray: Ray): Vector;
       project(axis: Vector): Projection;
 
+      /**
+       * Recalculates internal caches
+       */
+      recalc(): void;
+
       debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags);
       
    } 

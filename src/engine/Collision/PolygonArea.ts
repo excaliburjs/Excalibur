@@ -19,6 +19,8 @@ module ex {
         public actor: Actor;
 
         private _transformedPoints: Vector[] = [];
+        private _axes: Vector[] = [];
+        private _sides: Line[] = [];
 
         constructor(options: IPolygonAreaOptions) {
             this.pos = options.pos || Vector.Zero.clone();
@@ -58,7 +60,7 @@ module ex {
          * Gets the points that make up the polygon in world space, from actor relative space (if specified)
          */
         public getTransformedPoints(): Vector[] {
-            this._calculateTransformation(); // todo cache calculations
+            if (!this._transformedPoints.length) { this._calculateTransformation(); };
             return this._transformedPoints;
         }
 
@@ -66,13 +68,26 @@ module ex {
          * Gets the sides of the polygon in world space
          */
         public getSides(): Line[] {
+            if (this._sides.length) {
+                return this._sides;
+            }
             var lines = [];
             var points = this.getTransformedPoints();
             var len = points.length;
             for (var i = 0; i < len; i++) {
                 lines.push(new Line(points[i], points[(i - 1 + len) % len]));
             }
-            return lines;
+            this._sides = lines;
+            return this._sides;
+        }
+
+        public recalc(): void {
+            this._sides.length = 0;
+            this._axes.length = 0;
+            this._transformedPoints.length = 0; 
+            this.getTransformedPoints();
+            this.getAxes();
+            this.getSides();
         }
 
         /**
@@ -204,13 +219,16 @@ module ex {
          * Get the axis associated with the edge
          */
         public getAxes(): Vector[] {
+            if (this._axes.length) { return this._axes; }
+
             var axes = [];
             var points = this.getTransformedPoints();
             var len = points.length;
             for (var i = 0; i < len; i++) {
                 axes.push(points[i].sub(points[(i + 1) % len]).normal());
             }
-            return axes;
+            this._axes = axes;
+            return this._axes;
         }
 
         /**

@@ -15,5 +15,13 @@
 	"isShellCommand": true,
 	"showOutput": "silent",
 	"args": [],
-	"problemMatcher": "$tsc"
+	"problemMatcher": "$tsc",
+   "tasks": [
+      {
+         "taskName": "compile",
+         "args": ["compile", "shell:specs"],
+         "isBuildCommand": true
+      }
+      
+   ]
 }

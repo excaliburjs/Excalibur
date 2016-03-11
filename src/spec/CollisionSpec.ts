@@ -2,9 +2,9 @@
 /// <reference path="Mocks.ts" />
 
 describe('A Collision', () => {
-   var actor1 = null;
-   var actor2 = null;
-   var scene = null;
+   var actor1: ex.Actor = null;
+   var actor2: ex.Actor = null;
+   var scene: ex.Scene = null;
    var engine = null;
    var mock = new Mocks.Mocker();
 
@@ -12,9 +12,9 @@ describe('A Collision', () => {
       engine = mock.engine(0, 0, scene);
       scene = new ex.Scene(engine);
       actor1 = new ex.Actor(0, 0, 10, 10);
-      actor2 = new ex.Actor(0, 0, 10, 10);
-      actor1.collisionType = ex.CollisionType.Fixed;
-      actor2.collisionType = ex.CollisionType.Fixed;
+      actor2 = new ex.Actor(5, 5, 10, 10);
+      actor1.collisionType = ex.CollisionType.Active;
+      actor2.collisionType = ex.CollisionType.Active;
       scene.add(actor1);
       scene.add(actor2);
    });

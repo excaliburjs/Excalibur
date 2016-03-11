@@ -1,5 +1,5 @@
 {
-    "version": "0.1.0",
+    "version": "0.2.0",
     "configurations": [
         {
             "name": "Attach index.html",
@@ -13,6 +13,18 @@
             "webRoot": "src",
             "diagnosticLogging": true,
             "sourceMaps": true
+        },
+        {
+            "name": "Attach to tests",
+            "type": "node",
+            "request": "launch",
+            "preLaunchTask": "compile",
+            "program": "${workspaceRoot}\\node_modules\\jasmine-node\\lib\\jasmine-node\\cli.js", // ${workspaceRoot}/src/spec/TestsSpec.js",
+            "args": ["TestsSpec.js"],
+            "cwd": "${workspaceRoot}\\src\\spec\\",
+            "outDir": "${workspaceRoot}\\src\\spec\\",
+            "sourceMaps": true
         }
+        
     ]
 }

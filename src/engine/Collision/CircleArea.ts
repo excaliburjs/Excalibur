@@ -136,6 +136,10 @@
             return minAxis.normalize().scale(minOverlap);
         }
 
+        public recalc(): void {
+            // circles don't cache
+        }
+
         /**
          * Project the circle along a specified axis
          */

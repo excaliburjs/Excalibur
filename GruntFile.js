@@ -114,7 +114,7 @@ module.exports = function (grunt) {
             command: function () {
             	var files = grunt.file.expand("./src/spec/*.ts");
 
-            	return 'tsc ' + files.join(' ') + ' --out ./src/spec/TestsSpec.js'
+            	return 'tsc --sourcemap ' + files.join(' ') + ' --out ./src/spec/TestsSpec.js'
             },
             options: {
                stdout: true,
