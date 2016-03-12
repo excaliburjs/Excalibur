@@ -15,7 +15,7 @@
 	"isShellCommand": true,
 	"showOutput": "silent",
 	"args": [],
-	"problemMatcher": "$tsc",
+	
    "tasks": [
       {
          "taskName": "compile",

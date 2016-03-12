@@ -1,9 +1,18 @@
 module ex {
+   export enum CollisionResolutionStrategy {
+      AABB,
+      RigidBody      
+   }
+   
    export interface IEnginePhysics {
       /**
        * Global engine acceleration, useful for defining consitent gravity on all actors
        */
       acc: Vector;
+      /**
+       * Global to switch physics on or off (switching physics off will improve performance)
+       */
+      on: boolean;
       /**
        * Default mass of new actors created in excalibur
        */
@@ -22,9 +31,15 @@ module ex {
       collisionPasses: number;
       
       /**
-       * Broadphase strategy for identifying potential collisions
+       * Broadphase strategy for identifying potential collision contacts
        */
       broadphaseStrategy: BroadphaseStrategy;
+      
+      /**
+       * Collision resolution strategy for handling collision contacts
+       */
+      collisionResolutionStrategy: CollisionResolutionStrategy;
+      
       /**
        *
        */

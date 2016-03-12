@@ -224,19 +224,20 @@ module ex {
       public update(engine: Engine, delta: number) {
          this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
          var i: number, len: number;
+         
+         // Cycle through actors updating UI actors
+         for (i = 0, len = this.uiActors.length; i < len; i++) {
+            this.uiActors[i].update(engine, delta);
+         }
+
+         // Cycle through actors updating tile maps
+         for (i = 0, len = this.tileMaps.length; i < len; i++) {
+            this.tileMaps[i].update(engine, delta);
+         }
+         
          var iter: number = Engine.physics.collisionPasses;
          delta = delta / iter;
          while (iter > 0) {
-            // Cycle through actors updating UI actors
-            for (i = 0, len = this.uiActors.length; i < len; i++) {
-               this.uiActors[i].update(engine, delta);
-            }
-
-            // Cycle through actors updating tile maps
-            for (i = 0, len = this.tileMaps.length; i < len; i++) {
-               this.tileMaps[i].update(engine, delta);
-            }
-
             // Cycle through actors updating actors
             for (i = 0, len = this.children.length; i < len; i++) {
                 this.children[i].update(engine, delta);
@@ -246,7 +247,7 @@ module ex {
             // TODO meh I don't like how this works... maybe find a way to make collisions
             // a trait
             // Run collision resolution strategy
-            if (this._broadphase) {
+            if (this._broadphase && Engine.physics.on) {
                this._broadphase.update(this.children, delta);
                this._broadphase.resolve(this.children, delta);
             }
@@ -328,7 +329,7 @@ module ex {
                this.uiActors[i].debugDraw(ctx);
             }
          }
-         this.emit('postdraw', new PreDrawEvent(ctx, delta, this));
+         this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
       }
 
       /**
@@ -349,7 +350,7 @@ module ex {
          }
 
          // todo possibly enable this with excalibur flags features?
-         this._broadphase.debugDraw(ctx, 20);
+         //this._broadphase.debugDraw(ctx, 20);
 
          this.camera.debugDraw(ctx);
          this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));

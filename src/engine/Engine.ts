@@ -343,8 +343,10 @@ module ex {
        */
       public static physics: ex.IEnginePhysics = {
           acc: new ex.Vector(0, 0),
-          collisionPasses: 1,
+          on: true,
+          collisionPasses: 5,
           broadphaseStrategy: BroadphaseStrategy.DynamicAABBTree,
+          collisionResolutionStrategy: CollisionResolutionStrategy.RigidBody,
           defaultMass: 10,
           integrator: 'euler',
           integrationSteps: 1,
@@ -994,7 +996,7 @@ module ex {
 
          // Publish update event
          this.eventDispatcher.emit('update', new UpdateEvent(delta));
-         this.emit('postupdate', new PreUpdateEvent(this, delta, this));
+         this.emit('postupdate', new PostUpdateEvent(this, delta, this));
       }
 
       /**
@@ -1044,7 +1046,7 @@ module ex {
             this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.width, this.height), this.ctx);
          }
 
-         this.emit('postdraw', new PreDrawEvent(ctx, delta, this));
+         this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
       }
 
       /**

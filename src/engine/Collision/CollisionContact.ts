@@ -31,6 +31,10 @@ module ex {
        * The collision normal, pointing away from bodyA
        */
       normal: Vector;
+      /**
+       * Indicates wether the collision contact is active
+       */
+      active: boolean = true;
       
       
       constructor(bodyA: ICollisionArea, bodyB: ICollisionArea, mtv: Vector, point: Vector, normal: Vector) {
@@ -41,7 +45,118 @@ module ex {
          this.normal = normal;
       }
       
-      resolve(delta: number) {
+      resolve(delta: number, strategy: CollisionResolutionStrategy){
+         if(strategy === CollisionResolutionStrategy.RigidBody){
+            this._resolveRigidBody(delta);
+         }else if (strategy === CollisionResolutionStrategy.AABB){
+            this._resolveAABB(delta);   
+         }else {
+            throw new Error("Unknown collision resolution strategy");
+         }
+      }
+      
+      private _resolveAABB(delta: number){
+         var bodyA = this.bodyA.actor;
+         var bodyB = this.bodyB.actor;
+         var side = ex.Util.getSideFromVector(this.mtv);
+         var mtv = this.mtv.negate();
+         // Publish collision events on both participants
+         bodyA.eventDispatcher.emit('collision', new CollisionEvent(bodyA, bodyB, side, mtv));
+         bodyB.eventDispatcher.emit('collision', 
+            new CollisionEvent(bodyB, bodyA, ex.Util.getOppositeSide(side), mtv.scale(-1.0)));
+
+         // If the actor is active push the actor out if its not passive
+         var leftSide = side;
+         if ((bodyA.collisionType === CollisionType.Active || 
+            bodyA.collisionType === CollisionType.Elastic) && 
+            bodyB.collisionType !== CollisionType.Passive) {
+            bodyA.pos.y += mtv.y;
+            bodyA.pos.x += mtv.x;
+            
+            // Naive elastic bounce
+            if (bodyA.collisionType === CollisionType.Elastic) {
+               if (leftSide === Side.Left) {
+                  bodyA.vel.x = Math.abs(bodyA.vel.x);
+               } else if(leftSide === Side.Right) {
+                  bodyA.vel.x = -Math.abs(bodyA.vel.x);
+               } else if(leftSide === Side.Top) {
+                  bodyA.vel.y = Math.abs(bodyA.vel.y);
+               } else if(leftSide === Side.Bottom) {
+                  bodyA.vel.y = -Math.abs(bodyA.vel.y);
+               }
+            } else {
+               // Cancel velocities along intersection
+               if (this.mtv.x !== 0) {
+                  
+                  if (bodyA.vel.x <= 0 && bodyB.vel.x <= 0) {
+                     bodyA.vel.x = Math.max(bodyA.vel.x, bodyB.vel.x);
+                  } else if (bodyA.vel.x >= 0 && bodyB.vel.x >= 0) {
+                     bodyA.vel.x = Math.min(bodyA.vel.x, bodyB.vel.x);
+                  }else {
+                     bodyA.vel.x = 0;
+                  }
+                  
+               }
+               
+               if (this.mtv.y !== 0) {
+                  
+                  if (bodyA.vel.y <= 0 && bodyB.vel.y <= 0) {
+                     bodyA.vel.y = Math.max(bodyA.vel.y, bodyB.vel.y);
+                  } else if (bodyA.vel.y >= 0 && bodyB.vel.y >= 0) {
+                     bodyA.vel.y = Math.min(bodyA.vel.y, bodyB.vel.y);
+                  } else {
+                     bodyA.vel.y = 0;
+                  }
+                  
+               }
+            }                 
+         }
+
+         var rightSide = ex.Util.getOppositeSide(side);
+         var rightIntersect = mtv.scale(-1.0);
+         if ((bodyB.collisionType === CollisionType.Active || 
+            bodyB.collisionType === CollisionType.Elastic) && 
+            bodyA.collisionType !== CollisionType.Passive) {
+            bodyB.pos.y += rightIntersect.y;
+            bodyB.pos.x += rightIntersect.x;
+           
+            // Naive elastic bounce
+            if (bodyB.collisionType === CollisionType.Elastic) {
+               if (rightSide === Side.Left) {
+                  bodyB.vel.x = Math.abs(bodyB.vel.x);
+               } else if(rightSide === Side.Right) {
+                  bodyB.vel.x = -Math.abs(bodyB.vel.x);
+               } else if(rightSide === Side.Top) {
+                  bodyB.vel.y = Math.abs(bodyB.vel.y);
+               } else if(rightSide === Side.Bottom) {
+                  bodyB.vel.y = -Math.abs(bodyB.vel.y);
+               }
+            } else {
+                // Cancel velocities along intersection
+               if(rightIntersect.x !== 0) {
+                  if (bodyB.vel.x <= 0 && bodyA.vel.x <= 0) {
+                     bodyB.vel.x = Math.max(bodyA.vel.x, bodyB.vel.x);
+                  } else if (bodyA.vel.x >= 0 && bodyB.vel.x >= 0) {
+                     bodyB.vel.x = Math.min(bodyA.vel.x, bodyB.vel.x);
+                  }else {
+                     bodyB.vel.x = 0;
+                  }
+               }
+               
+               if(rightIntersect.y !== 0) {
+                  if (bodyB.vel.y <= 0 && bodyA.vel.y <= 0) {
+                     bodyB.vel.y = Math.max(bodyA.vel.y, bodyB.vel.y);
+                  } else if (bodyA.vel.y >= 0 && bodyB.vel.y >= 0) {
+                     bodyB.vel.y = Math.min(bodyA.vel.y, bodyB.vel.y);
+                  }else {
+                     bodyB.vel.y = 0;
+                  }
+               }
+            }
+         }
+      }
+      
+      private _resolveRigidBody(delta: number) {
                   
          // perform collison on bounding areas
          var bodyA: Actor = this.bodyA.actor;
@@ -101,18 +216,25 @@ module ex {
          
          if(bodyA.collisionType === ex.CollisionType.Fixed) {
             bodyB.vel = bodyB.vel.add(normal.scale(impulse * invMassB));
-            bodyB.rx -= impulse * invMoiB * -rb.cross(normal);
+            if(Engine.physics.allowRotation) {
+               bodyB.rx -= impulse * invMoiB * -rb.cross(normal);
+            }
             bodyB.addMtv(mtv);
          }else if (bodyB.collisionType === ex.CollisionType.Fixed) {
             bodyA.vel = bodyA.vel.sub(normal.scale(impulse * invMassA));
-            bodyA.rx += impulse * invMoiA * -ra.cross(normal);
+            if(Engine.physics.allowRotation) {
+               bodyA.rx += impulse * invMoiA * -ra.cross(normal);
+            }
             bodyA.addMtv(mtv.negate());
          }else {
-            bodyB.vel = bodyB.vel.add(normal.scale(impulse * invMassB));      
-            bodyB.rx -= impulse * invMoiB * -rb.cross(normal);
-            
+            bodyB.vel = bodyB.vel.add(normal.scale(impulse * invMassB));
             bodyA.vel = bodyA.vel.sub(normal.scale(impulse * invMassA));
-            bodyA.rx += impulse * invMoiA * -ra.cross(normal);
+            
+            if(Engine.physics.allowRotation) {      
+               bodyB.rx -= impulse * invMoiB * -rb.cross(normal);
+               bodyA.rx += impulse * invMoiA * -ra.cross(normal);
+            }
+            
             
             // Split the mtv in half for the two bodies, potentially we could do something smarter here
             bodyB.addMtv(mtv.scale(.5));
@@ -140,19 +262,25 @@ module ex {
             if ( bodyA.collisionType === ex.CollisionType.Fixed ) {
                   // apply frictional impulse
                   bodyB.vel = bodyB.vel.add(frictionImpulse.scale(invMassB));
-                  bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
+                  if(Engine.physics.allowRotation) {      
+                     bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
+                  }
             } else if ( bodyB.collisionType === ex.CollisionType.Fixed ) {
                   // apply frictional impulse
                   bodyA.vel = bodyA.vel.sub(frictionImpulse.scale(invMassA));
-                  bodyA.rx -= frictionImpulse.dot(t) * invMoiA * ra.cross(t);
+                  if(Engine.physics.allowRotation) {      
+                     bodyA.rx -= frictionImpulse.dot(t) * invMoiA * ra.cross(t);
+                  }
             } else {
                 // apply frictional impulse
                 bodyB.vel = bodyB.vel.add(frictionImpulse.scale(invMassB));
-                bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
-                  
-                // apply frictional impulse
                 bodyA.vel = bodyA.vel.sub(frictionImpulse.scale(invMassA));
-                bodyA.rx -= frictionImpulse.dot(t) * invMoiA * ra.cross(t);
+                
+                // apply frictional impulse
+                if(Engine.physics.allowRotation) {      
+                  bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
+                  bodyA.rx -= frictionImpulse.dot(t) * invMoiA * ra.cross(t);
+                }                
             }
          }
          

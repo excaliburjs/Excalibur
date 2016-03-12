@@ -885,7 +885,7 @@ describe('A game actor', () => {
       active.vel.y = 10;
       active.acc.y = 1000;
 	  
-      var fixed = new ex.Actor(0, 50, 100, 100);
+      var fixed = new ex.Actor(-100, 50, 1000, 100);
       fixed.collisionType = ex.CollisionType.Fixed;
 	  
       scene.add(active);
@@ -894,7 +894,7 @@ describe('A game actor', () => {
       expect(active.pos.x).toBe(0);
       expect(active.pos.y).toBe(-50);
 	  
-      expect(fixed.pos.x).toBe(0);
+      expect(fixed.pos.x).toBe(-100);
       expect(fixed.pos.y).toBe(50);
 	  
       // update many times for safety
@@ -905,7 +905,7 @@ describe('A game actor', () => {
       expect(active.pos.x).toBe(0);
       expect(active.pos.y).toBe(-50);
 	  
-      expect(fixed.pos.x).toBe(0);
+      expect(fixed.pos.x).toBe(-100);
       expect(fixed.pos.y).toBe(50);
    });
    

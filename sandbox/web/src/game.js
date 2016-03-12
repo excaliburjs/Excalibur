@@ -73,7 +73,7 @@ tileMap.data.forEach(function (cell) {
     cell.solid = true;
     cell.pushSprite(new ex.TileSprite("default", 0));
 });
-game.add(tileMap);
+//game.add(tileMap);
 // Create spriteFont
 var spriteFont = new ex.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
 var label = new ex.Label('Hello World', 100, 100, null, spriteFont);
@@ -234,7 +234,7 @@ game.input.keyboard.on('down', function (keyDown) {
         var a = new ex.Actor(player.pos.x + 10, player.pos.y - 50, 10, 10, new ex.Color(222, 222, 222));
         a.vel.x = 200 * direction;
         a.vel.y = 0;
-        a.collisionType = ex.CollisionType.Elastic;
+        a.collisionType = ex.CollisionType.Active;
         var inAir = true;
         a.on('collision', function (data) {
             inAir = false;
@@ -270,12 +270,12 @@ player.on('collision', function (data) {
         }
         inAir = false;
         if (data.other && !(game.input.keyboard.isHeld(ex.Input.Keys.Left) || game.input.keyboard.isHeld(ex.Input.Keys.Right) || game.input.keyboard.isHeld(ex.Input.Keys.Up) || game.input.keyboard.isHeld(ex.Input.Keys.Down))) {
-            player.vel.x = data.other.vel.x;
-            player.vel.y = data.other.vel.y;
+            //player.vel.x = data.other.vel.x;
+            //player.vel.y = data.other.vel.y;
         }
         if (!data.other) {
-            player.vel.x = 0;
-            player.vel.y = 0;
+            //player.vel.x = 0;
+            //player.vel.y = 0;
         }
     }
     if (data.side === ex.Side.Top) {
@@ -291,10 +291,10 @@ player.on('update', function (data) {
     // apply gravity if player is in the air
     // only apply gravity when not colliding
     if (!isColliding) {
-        data.target.ay = 800; // * data.delta/1000;
+        data.target.acc.setTo(0, 800); // * data.delta/1000;
     }
     else {
-        data.target.ay = 0;
+        data.target.acc.setTo(0, 0);
     }
     // Reset values because we don't know until we check the next update
     // inAir = true;
@@ -407,3 +407,4 @@ game.start(loader).then(function () {
     //binding = new ex.Binding("container", template, emitter);
     //binding.listen(emitter, ["update"]);
 });
+//# sourceMappingURL=game.js.map

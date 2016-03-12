@@ -6,7 +6,7 @@ module ex {
    export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
       private _dynamicCollisionTree = new DynamicTree();
       private _collisionHash: { [key: string]: boolean; } = {};
-      private _collisionContacts: CollisionContact[] = [];
+      private collisionContactCache: CollisionContact[] = [];
 
       public register(target: Actor): void {
          this._dynamicCollisionTree.registerActor(target);
@@ -23,6 +23,18 @@ module ex {
          });
 
          var actor: Actor;
+         
+         // Check collison cache and re-add pairs that still are in collision
+         var newPairs = [];
+         this.collisionContactCache.forEach(c => {
+            var contact = c.bodyA.collide(c.bodyB);
+            if (contact) {
+               this._collisionHash[c.id] = true;
+               contact.id = c.id;
+               newPairs.push(contact)
+            }
+         });
+         this.collisionContactCache = newPairs;
 
          for (var j = 0, l = potentialColliders.length; j < l; j++) {
             actor = potentialColliders[j];
@@ -65,7 +77,7 @@ module ex {
                if (contacts.length) {
                   this._collisionHash[hash] = true;
                   for (var contactHash of contacts) {
-                     this._collisionContacts.push(contactHash);
+                     this.collisionContactCache.push(contactHash);
                   }
                }
 
@@ -73,29 +85,23 @@ module ex {
             });
          }
 
-         if (Engine.physics.allowRotation) {
-             var i = 0, len = this._collisionContacts.length;
-             for (i; i < len; i++) {
-                 this._collisionContacts[i].resolve(delta);
-             }
-         } else {
-             var k = 0, len2 = this._collisionContacts.length;
-             for (k; k < len2; i++) {
-                 var mtv = this._collisionContacts[k].mtv;
-                 var bodyA = this._collisionContacts[k].bodyA;
-                 var bodyB = this._collisionContacts[k].bodyB;
-                 bodyA.pos.addEquals(mtv.negate());
-                 bodyB.pos.addEquals(mtv);                 
-             }
+         // evaluate collision pairs
+         var i = 0, len = this.collisionContactCache.length;
+         for (i; i < len; i++) {
+            this.collisionContactCache[i].resolve(delta, Engine.physics.collisionResolutionStrategy);
          }
+    
+         // apply total mtv
          targets.forEach((a) => {
             a.applyMtv();
          });
 
-         this._collisionContacts.length = 0;
+         // todo don't clear this right away, we can use this as a contact cache
+         // check these first then look for pairs
+         //this.collisionContactCache.length = 0;
          this._collisionHash = {};
 
-         return this._collisionContacts;
+         return this.collisionContactCache;
       }
 
       public update(targets: Actor[], delta: number): number {

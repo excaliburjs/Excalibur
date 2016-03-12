@@ -321,13 +321,13 @@ player.on('collision', (data?: ex.CollisionEvent) => {
       }
       inAir = false;
       if (data.other && !(game.input.keyboard.isHeld(ex.Input.Keys.Left) || game.input.keyboard.isHeld(ex.Input.Keys.Right) || game.input.keyboard.isHeld(ex.Input.Keys.Up) || game.input.keyboard.isHeld(ex.Input.Keys.Down))) {
-         player.vel.x = data.other.vel.x;
-         player.vel.y = data.other.vel.y;
+         //player.vel.x = data.other.vel.x;
+         //player.vel.y = data.other.vel.y;
       }
 
       if (!data.other) {
-         player.vel.x = 0;
-         player.vel.y = 0;
+         //player.vel.x = 0;
+         //player.vel.y = 0;
       }
 
    }
