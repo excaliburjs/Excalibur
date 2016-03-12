@@ -239,7 +239,7 @@ describe('A game actor', () => {
    it('can be rotated to an angle at a speed via ShortestPath (default)', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateTo(Math.PI / 2, Math.PI / 2);
+      actor.actions.rotateTo(Math.PI / 2, Math.PI / 2);
 
       actor.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 4);
@@ -254,7 +254,7 @@ describe('A game actor', () => {
    it('can be rotated to an angle at a speed via LongestPath', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateTo(Math.PI / 2, Math.PI / 2, ex.RotationType.LongestPath);
+      actor.actions.rotateTo(Math.PI / 2, Math.PI / 2, ex.RotationType.LongestPath);
 
       actor.update(engine, 1000);
       //rotation is currently incremented by rx delta ,so will be negative while moving counterclockwise
@@ -271,7 +271,7 @@ describe('A game actor', () => {
    it('can be rotated to an angle at a speed via Clockwise', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateTo(3 * Math.PI / 2, Math.PI / 2, ex.RotationType.Clockwise);
+      actor.actions.rotateTo(3 * Math.PI / 2, Math.PI / 2, ex.RotationType.Clockwise);
 
       actor.update(engine, 2000);
       expect(actor.rotation).toBe(Math.PI);
@@ -287,7 +287,7 @@ describe('A game actor', () => {
    it('can be rotated to an angle at a speed via CounterClockwise', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateTo(Math.PI / 2, Math.PI / 2, ex.RotationType.CounterClockwise);
+      actor.actions.rotateTo(Math.PI / 2, Math.PI / 2, ex.RotationType.CounterClockwise);
       actor.update(engine, 2000);
       expect(actor.rotation).toBe(-Math.PI);
 
@@ -323,7 +323,7 @@ describe('A game actor', () => {
    it('can be rotated to an angle by a certain time via ShortestPath (default)', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateBy(Math.PI / 2, 2000);
+      actor.actions.rotateBy(Math.PI / 2, 2000);
 
       actor.update(engine, 1000);
       expect(actor.rotation).toBe(Math.PI / 4);
@@ -338,7 +338,7 @@ describe('A game actor', () => {
    it('can be rotated to an angle by a certain time via LongestPath', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateBy(Math.PI / 2, 3000, ex.RotationType.LongestPath);
+      actor.actions.rotateBy(Math.PI / 2, 3000, ex.RotationType.LongestPath);
 
       actor.update(engine, 1000);
       expect(actor.rotation).toBe(-1 * Math.PI / 2);
@@ -354,7 +354,7 @@ describe('A game actor', () => {
    it('can be rotated to an angle by a certain time via Clockwise', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateBy(Math.PI / 2, 1000, ex.RotationType.Clockwise);
+      actor.actions.rotateBy(Math.PI / 2, 1000, ex.RotationType.Clockwise);
 
       actor.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 4);
@@ -370,7 +370,7 @@ describe('A game actor', () => {
    it('can be rotated to an angle by a certain time via CounterClockwise', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateBy(Math.PI / 2, 3000, ex.RotationType.LongestPath);
+      actor.actions.rotateBy(Math.PI / 2, 3000, ex.RotationType.LongestPath);
 
       actor.update(engine, 1000);
       expect(actor.rotation).toBe(-1 * Math.PI / 2);
