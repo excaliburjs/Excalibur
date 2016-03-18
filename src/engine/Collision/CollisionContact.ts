@@ -31,11 +31,7 @@ module ex {
        * The collision normal, pointing away from bodyA
        */
       normal: Vector;
-      /**
-       * Indicates wether the collision contact is active
-       */
-      active: boolean = true;
-      
+           
       
       constructor(bodyA: ICollisionArea, bodyB: ICollisionArea, mtv: Vector, point: Vector, normal: Vector) {
          this.bodyA = bodyA;
@@ -285,15 +281,11 @@ module ex {
          }
          
          if(bodyA.sleeping && bodyA.collisionType !== ex.CollisionType.Fixed) {
-            bodyA.setAwake(true);
-            bodyA.sleepCheck(delta);
+            bodyA.setSleep(false);
          }
          if(bodyB.sleeping && bodyB.collisionType !== ex.CollisionType.Fixed) {
-            bodyB.setAwake(true);
-            bodyB.sleepCheck(delta);
+            bodyB.setSleep(false);
          }
-         
-         
       }      
    }
 }

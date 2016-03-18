@@ -5,6 +5,7 @@
 /// <reference path="Traits/OffscreenCulling.ts" />
 /// <reference path="Traits/CapturePointer.ts" />
 /// <reference path="Traits/TileMapCollisionDetection.ts" />
+/// <reference path="Traits/Sleeping.ts" />
 /// <reference path="Collision/Side.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util/Util.ts" />
@@ -499,9 +500,12 @@ module ex {
        }         
        // Build default pipeline
        this.traits.push(new ex.Traits.EulerMovement());
+       this.traits.push(new ex.Traits.Sleeping());
        this.traits.push(new ex.Traits.TileMapCollisionDetection());
        this.traits.push(new ex.Traits.OffscreenCulling());         
        this.traits.push(new ex.Traits.CapturePointer());
+       
+       // Build the action queue
        this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
        
        // default anchor is in the middle
@@ -625,16 +629,17 @@ module ex {
     /**
      * Set whether the actor is awake
      */
-    public setAwake(wake: boolean): void {
+    public setSleep(sleep: boolean): void {
         // todo add some "motion" to the actor so it doesn't fall back asleep
         // multiple of the sleep epsilon
-        if (wake) {
-            this.sleeping = false;
-            this.motion += ex.Engine.physics.sleepEpsilon * 10; // maybe this is reasonable
+        if (sleep) {
+           this.sleeping = true;
+           this.rx = 0;
+           this.vel.setTo(0, 0);
+           this.motion = 0;
         } else {
-            this.sleeping = true;
-            this.rx = 0;
-            this.vel = Vector.Zero.clone();
+           this.sleeping = false;
+           //this.motion += ex.Engine.physics.sleepEpsilon * 10; // maybe this is reasonable    
         }
     }
      
@@ -655,7 +660,7 @@ module ex {
      */
     public sleepCheck(delta: number): boolean {
         if (this.motion < ex.Engine.physics.sleepEpsilon) {
-            this.setAwake(false);
+            this.setSleep(false);
         }
 
         return this.sleeping;
@@ -841,6 +846,7 @@ module ex {
      * Returns the actor's [[BoundingBox]] calculated for this instant in world space.
      */
     public getBounds() {
+       // todo cache bounding box
        var anchor = this._getCalculatedAnchor();
        return new BoundingBox(this.getWorldX() - anchor.x,
           this.getWorldY() - anchor.y,
@@ -852,6 +858,7 @@ module ex {
      * Returns the actor's [[BoundingBox]] relative to the actors position.
      */
     public getRelativeBounds() {
+       // todo cache bounding box
        var anchor = this._getCalculatedAnchor();
        return new BoundingBox(-anchor.x,
                               -anchor.y,
@@ -1218,6 +1225,9 @@ module ex {
           this.traits[i].update(this, engine, delta);
        }
        
+       // Update actor sleep or waking
+       
+       
        eventDispatcher.emit('update', new UpdateEvent(delta));
        this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
     }
@@ -1294,6 +1304,7 @@ module ex {
        */
        // Draw collision areas
        this.collisionAreas.forEach((ca) => {
+          ctx.strokeStyle = (this.sleeping ? "gray" : "lime").toString();
           ca.debugDraw(ctx, null);
        });
        /*

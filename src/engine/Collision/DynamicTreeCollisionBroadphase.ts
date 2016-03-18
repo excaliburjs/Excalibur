@@ -19,7 +19,7 @@ module ex {
       public resolve(targets: Actor[], delta: number): CollisionContact[] {
          // Retrieve the list of potential colliders, exclude killed, prevented, and self
          var potentialColliders = targets.filter((other) => {
-            return !other.isKilled() && other.collisionType !== CollisionType.PreventCollision;
+            return !other.isKilled() && other.collisionType !== CollisionType.PreventCollision && !other.sleeping;
          });
 
          var actor: Actor;
@@ -28,8 +28,10 @@ module ex {
          var newPairs = [];
          this.collisionContactCache.forEach(c => {
             var contact = c.bodyA.collide(c.bodyB);
-            if (contact) {
-               this._collisionHash[c.id] = true;
+            // we always add this id back to the hash so we can quickly short circuit since we already checked collision
+            this._collisionHash[c.id] = true;
+            
+            if (contact) {               
                contact.id = c.id;
                newPairs.push(contact)
             }
@@ -40,12 +42,13 @@ module ex {
             actor = potentialColliders[j];
 
             this._dynamicCollisionTree.query(actor, (other: Actor) => {
+                
                 // if the collision pair has been calculated already short circuit
                 var hash = actor.calculatePairHash(other);
                 if (this._collisionHash[hash]) {
                     return false; // pair exists easy exit return false
-                }
-
+                }                
+                
                // if both are fixed short circuit
                if (actor.collisionType === CollisionType.Fixed && other.collisionType === CollisionType.Fixed) {
                    return false;
@@ -53,6 +56,7 @@ module ex {
                // if the other is prevent collision or is dead short circuit
                if (other.collisionType === CollisionType.PreventCollision || other.isKilled()) { return false; }
                
+               // todo doesn't support multiple collision areas yet
                // generate all the collision contacts between the 2 sets of collision areas between both actors
                var contacts: CollisionContact[] = [];
                var areaA = actor.collisionAreas[0];
@@ -62,6 +66,9 @@ module ex {
                if (contact) {
                   contact.id = hash;
                   contacts.push(contact);
+                  if(other.sleeping && other.collisionType !== ex.CollisionType.Fixed){
+                     other.setSleep(false);
+                  }
                }
                /*
                for (var areaA of actor.collisionAreas) {
@@ -95,12 +102,11 @@ module ex {
          targets.forEach((a) => {
             a.applyMtv();
          });
-
-         // todo don't clear this right away, we can use this as a contact cache
-         // check these first then look for pairs
-         //this.collisionContactCache.length = 0;
+         
+         // clear lookup table
          this._collisionHash = {};
 
+         // return cache
          return this.collisionContactCache;
       }
 

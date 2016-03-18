@@ -352,7 +352,7 @@ module ex {
           integrationSteps: 1,
           allowRotation: true,
           enableSleeping: true,
-          sleepEpsilon: 1,
+          sleepEpsilon: .05,
           motionBias: .95
       };
 

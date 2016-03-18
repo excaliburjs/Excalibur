@@ -289,7 +289,6 @@ module ex {
         public debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags) {
             ctx.beginPath();
             ctx.lineWidth = 3;
-            ctx.strokeStyle = 'lime';
             // Iterate through the supplied points and contruct a 'polygon'
             var firstPoint = this.getTransformedPoints()[0];
             ctx.moveTo(firstPoint.x, firstPoint.y);
