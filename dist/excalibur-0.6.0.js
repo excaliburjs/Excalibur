@@ -6378,6 +6378,7 @@ var ex;
          */
         Actor.prototype.kill = function () {
             if (this.scene) {
+                this.emit('kill', new ex.KillEvent(this));
                 this.scene.remove(this);
                 this._isKilled = true;
             }
@@ -7353,6 +7354,18 @@ var ex;
         return GameEvent;
     })();
     ex.GameEvent = GameEvent;
+    /**
+     * The 'kill' event is emitted on actors when it is killed. The target is the actor that was killed.
+     */
+    var KillEvent = (function (_super) {
+        __extends(KillEvent, _super);
+        function KillEvent(target) {
+            _super.call(this);
+            this.target = target;
+        }
+        return KillEvent;
+    })(GameEvent);
+    ex.KillEvent = KillEvent;
     /**
      * The 'predraw' event is emitted on actors, scenes, and engine before drawing starts. Actors' predraw happens inside their graphics
      * transform so that all drawing takes place with the actor as the origin.

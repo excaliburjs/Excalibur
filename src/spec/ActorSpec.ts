@@ -939,4 +939,16 @@ describe('A game actor', () => {
       expect(childActor.draw).not.toHaveBeenCalled();
    });
    
+   it('fires a killed event when killed', () => {
+      var actor = new ex.Actor();
+      scene.add(actor);
+      var killed = false;
+      actor.on('kill', (evt: ex.KillEvent) => {
+         killed = true;
+      });
+      actor.kill();
+      
+      expect(killed).toBeTruthy();
+   });
+   
 });
