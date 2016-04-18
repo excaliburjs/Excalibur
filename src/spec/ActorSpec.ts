@@ -951,4 +951,15 @@ describe('A game actor', () => {
       expect(killed).toBe(true);
    });
    
+   it('is no longer killed when re-added to the game', () => {
+      var actor = new ex.Actor();
+      scene.add(actor);
+      expect(actor.isKilled()).toBeFalsy();
+      actor.kill();
+      scene.update(engine, 100);
+      expect(actor.isKilled()).toBeTruthy();
+      scene.add(actor);
+      expect(actor.isKilled()).toBeFalsy();
+   });
+   
 });

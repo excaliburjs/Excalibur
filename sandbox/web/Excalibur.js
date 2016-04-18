@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-05-16
+/*! excalibur - v0.6.0 - 2016-05-25
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 if (typeof window === 'undefined') {
@@ -5650,6 +5650,9 @@ var ex;
             return this.children.indexOf(actor) > -1;
         };
         Scene.prototype.add = function (entity) {
+            if (entity instanceof ex.Actor) {
+                entity._isKilled = false;
+            }
             if (entity instanceof ex.UIActor) {
                 if (!ex.Util.contains(this.uiActors, entity)) {
                     this.addUIActor(entity);
