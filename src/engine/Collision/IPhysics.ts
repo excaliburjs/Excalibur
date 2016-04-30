@@ -1,6 +1,6 @@
 module ex {
    export enum CollisionResolutionStrategy {
-      AABB,
+      Box,
       RigidBody      
    }
    

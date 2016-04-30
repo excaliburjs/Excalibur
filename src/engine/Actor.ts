@@ -369,6 +369,10 @@ module ex {
     private _height: number = 0;
     private _width: number = 0;
     
+    /**
+     * Collision maintenance 
+     */
+    private _collisionContacts: CollisionContact[] = [];
     private _totalMtv: Vector = Vector.Zero.clone();
 
     /** 
