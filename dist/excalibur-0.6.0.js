@@ -9555,7 +9555,7 @@ var ex;
      * var loader = new ex.Loader(resLevel1);
      *
      * // attach a handler to process once loaded
-     * resLevel1.processDownload = function (data) {
+     * resLevel1.processData = function (data) {
      *
      *   // process JSON
      *   var json = JSON.parse(data);
@@ -9570,7 +9570,8 @@ var ex;
      * game.start(loader);
      * ```
      */
-    var Resource = (function () {
+    var Resource = (function (_super) {
+        __extends(Resource, _super);
         /**
          * @param path          Path to the remote resource
          * @param responseType  The Content-Type to expect (e.g. `application/json`)
@@ -9578,6 +9579,7 @@ var ex;
          */
         function Resource(path, responseType, bustCache) {
             if (bustCache === void 0) { bustCache = true; }
+            _super.call(this);
             this.path = path;
             this.responseType = responseType;
             this.bustCache = bustCache;
@@ -9664,7 +9666,7 @@ var ex;
             return URL.createObjectURL(data);
         };
         return Resource;
-    })();
+    })(ex.Class);
     ex.Resource = Resource;
 })(ex || (ex = {}));
 /// <reference path="Sound.ts" />

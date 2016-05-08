@@ -20,7 +20,7 @@ module ex {
     * var loader = new ex.Loader(resLevel1);
     *
     * // attach a handler to process once loaded
-    * resLevel1.processDownload = function (data) {
+    * resLevel1.processData = function (data) {
     *
     *   // process JSON
     *   var json = JSON.parse(data);
@@ -35,7 +35,7 @@ module ex {
     * game.start(loader);
     * ```
     */
-   export class Resource<T> implements ILoadable {
+   export class Resource<T> extends Class implements ILoadable {
       public data: T = null;
       public logger: Logger = Logger.getInstance();
       private _engine: Engine;
@@ -45,7 +45,9 @@ module ex {
        * @param responseType  The Content-Type to expect (e.g. `application/json`)
        * @param bustCache     Whether or not to cache-bust requests
        */
-      constructor(public path: string, public responseType: string, public bustCache: boolean = true) {}
+      constructor(public path: string, public responseType: string, public bustCache: boolean = true) {
+          super();
+      }
 
       /**
        * Returns true if the Resource is completely loaded and is ready

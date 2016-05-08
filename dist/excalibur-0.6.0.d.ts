@@ -5014,7 +5014,7 @@ declare module ex {
      * var loader = new ex.Loader(resLevel1);
      *
      * // attach a handler to process once loaded
-     * resLevel1.processDownload = function (data) {
+     * resLevel1.processData = function (data) {
      *
      *   // process JSON
      *   var json = JSON.parse(data);
@@ -5029,7 +5029,7 @@ declare module ex {
      * game.start(loader);
      * ```
      */
-    class Resource<T> implements ILoadable {
+    class Resource<T> extends Class implements ILoadable {
         path: string;
         responseType: string;
         bustCache: boolean;
