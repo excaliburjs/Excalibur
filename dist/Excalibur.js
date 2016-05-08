@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-02-18
+/*! excalibur - v0.6.0 - 2016-05-08
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 if (typeof window === 'undefined') {
@@ -9092,8 +9092,7 @@ var ex;
             };
             AudioTag.prototype.load = function () {
                 var _this = this;
-                if (this._isLoaded) {
-                    this.onload(null);
+                if (!!this._loadedAudio) {
                     return;
                 }
                 var request = new XMLHttpRequest();
@@ -9197,6 +9196,10 @@ var ex;
             };
             WebAudio.prototype.load = function () {
                 var _this = this;
+                // Exit early if we already have data
+                if (!!this._data) {
+                    return;
+                }
                 var request = new XMLHttpRequest();
                 request.open('GET', this._path);
                 request.responseType = 'arraybuffer';

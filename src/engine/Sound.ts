@@ -140,8 +140,7 @@ module ex.Internal {
 
       public load() {
          
-         if (this._isLoaded) {
-            this.onload(null);
+         if (!!this._loadedAudio) {
             return;
          }
          
@@ -264,6 +263,11 @@ module ex.Internal {
       public onerror: (e: any) => void = () => { return; };
 
       public load() {
+         // Exit early if we already have data
+         if (!!this._data) {
+             return;
+         }
+         
          var request = new XMLHttpRequest();
          request.open('GET', this._path);
          request.responseType = 'arraybuffer';
