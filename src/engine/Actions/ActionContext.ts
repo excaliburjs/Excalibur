@@ -213,11 +213,12 @@ module ex {
        * method is part of the actor 'Action' fluent API allowing action chaining.
        * @param angleRadians  The angle to rotate to in radians
        * @param speed         The angular velocity of the rotation specified in radians per second
+       * @param rotationType  The [[RotationType]] to use for this rotation
        */
-      public rotateTo(angleRadians: number, speed: number): ActionContext {
+      public rotateTo(angleRadians: number, speed: number, rotationType?: RotationType): ActionContext {
          var i = 0, len = this._queues.length;
          for (i; i < len; i++) {
-            this._queues[i].add(new ex.Internal.Actions.RotateTo(this._actors[i], angleRadians, speed));
+             this._queues[i].add(new ex.Internal.Actions.RotateTo(this._actors[i], angleRadians, speed, rotationType));
          }
          return this;
       }
@@ -228,11 +229,12 @@ module ex {
        * of the actor 'Action' fluent API allowing action chaining.
        * @param angleRadians  The angle to rotate to in radians
        * @param time          The time it should take the actor to complete the rotation in milliseconds
+       * @param rotationType  The [[RotationType]] to use for this rotation
        */
-      public rotateBy(angleRadians: number, time: number): ActionContext {
+      public rotateBy(angleRadians: number, time: number, rotationType?: RotationType): ActionContext {
          var i = 0, len = this._queues.length;
          for (i; i < len; i++) {
-            this._queues[i].add(new ex.Internal.Actions.RotateBy(this._actors[i], angleRadians, time));
+             this._queues[i].add(new ex.Internal.Actions.RotateBy(this._actors[i], angleRadians, time, rotationType));
          }
          return this;
       }
