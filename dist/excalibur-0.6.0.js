@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-05-08
+/*! excalibur - v0.6.0 - 2016-05-10
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 if (typeof window === 'undefined') {
@@ -9594,7 +9594,7 @@ var ex;
          * to be drawn.
          */
         Resource.prototype.isLoaded = function () {
-            return !!this.data;
+            return this.data !== null;
         };
         Resource.prototype.wireEngine = function (engine) {
             this._engine = engine;
@@ -9619,7 +9619,8 @@ var ex;
             var _this = this;
             var complete = new ex.Promise();
             // Exit early if we already have data
-            if (!!this.data) {
+            if (this.data !== null) {
+                this.logger.debug('Already have data for resource', this.path);
                 complete.resolve(this.data);
                 this.oncomplete();
                 return complete;
@@ -9920,6 +9921,11 @@ var ex;
         Sound.prototype.load = function () {
             var _this = this;
             var complete = new ex.Promise();
+            if (this.sound.getData() !== null) {
+                this._logger.debug('Already have data for sound', this.path);
+                complete.resolve(this.sound);
+                return complete;
+            }
             this._logger.debug('Started loading sound', this.path);
             this.sound.onprogress = this.onprogress;
             this.sound.onload = function () {

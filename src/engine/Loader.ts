@@ -284,6 +284,13 @@ module ex {
        */
       public load(): Promise<ex.Internal.FallbackAudio> {
          var complete = new Promise<ex.Internal.FallbackAudio>();
+         
+         if (this.sound.getData() !== null) {
+            this._logger.debug('Already have data for resource', this.path);
+            complete.resolve(this.sound);
+            return complete;
+         }
+         
          this._logger.debug('Started loading sound', this.path);
          this.sound.onprogress = this.onprogress;
          this.sound.onload = () => {

@@ -54,7 +54,7 @@ module ex {
        * to be drawn.
        */
       public isLoaded(): boolean {
-         return !!this.data;
+         return this.data !== null;
       }
 
       public wireEngine(engine: Engine) {
@@ -82,10 +82,11 @@ module ex {
          var complete = new Promise<T>();
          
          // Exit early if we already have data
-         if (!!this.data) {
-             complete.resolve(this.data);
-             this.oncomplete();
-             return complete;
+         if (this.data !== null) {
+            this.logger.debug('Already have data for resource', this.path);
+            complete.resolve(this.data);
+            this.oncomplete();
+            return complete;
          }
          
          var request = new XMLHttpRequest();
