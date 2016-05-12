@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-05-10
+/*! excalibur - v0.6.0 - 2016-05-11
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 if (typeof window === 'undefined') {
@@ -4768,11 +4768,12 @@ var ex;
          * method is part of the actor 'Action' fluent API allowing action chaining.
          * @param angleRadians  The angle to rotate to in radians
          * @param speed         The angular velocity of the rotation specified in radians per second
+         * @param rotationType  The [[RotationType]] to use for this rotation
          */
-        ActionContext.prototype.rotateTo = function (angleRadians, speed) {
+        ActionContext.prototype.rotateTo = function (angleRadians, speed, rotationType) {
             var i = 0, len = this._queues.length;
             for (i; i < len; i++) {
-                this._queues[i].add(new ex.Internal.Actions.RotateTo(this._actors[i], angleRadians, speed));
+                this._queues[i].add(new ex.Internal.Actions.RotateTo(this._actors[i], angleRadians, speed, rotationType));
             }
             return this;
         };
@@ -4782,11 +4783,12 @@ var ex;
          * of the actor 'Action' fluent API allowing action chaining.
          * @param angleRadians  The angle to rotate to in radians
          * @param time          The time it should take the actor to complete the rotation in milliseconds
+         * @param rotationType  The [[RotationType]] to use for this rotation
          */
-        ActionContext.prototype.rotateBy = function (angleRadians, time) {
+        ActionContext.prototype.rotateBy = function (angleRadians, time, rotationType) {
             var i = 0, len = this._queues.length;
             for (i; i < len; i++) {
-                this._queues[i].add(new ex.Internal.Actions.RotateBy(this._actors[i], angleRadians, time));
+                this._queues[i].add(new ex.Internal.Actions.RotateBy(this._actors[i], angleRadians, time, rotationType));
             }
             return this;
         };
@@ -9173,7 +9175,6 @@ var ex;
                 this._volume = this._context.createGain();
                 this._buffer = null;
                 this._sound = null;
-                this._path = '';
                 this._isLoaded = false;
                 this._loop = false;
                 this._isPlaying = false;
@@ -9183,7 +9184,6 @@ var ex;
                 this.onload = function () { return; };
                 this.onprogress = function () { return; };
                 this.onerror = function () { return; };
-                this._path = path;
                 if (volume) {
                     this._volume.gain.value = ex.Util.clamp(volume, 0, 1.0);
                 }
@@ -9197,17 +9197,17 @@ var ex;
             WebAudio.prototype.load = function () {
                 var _this = this;
                 // Exit early if we already have data
-                if (!!this._data) {
+                if (this._data !== null) {
                     return;
                 }
                 var request = new XMLHttpRequest();
-                request.open('GET', this._path);
+                request.open('GET', this.path);
                 request.responseType = 'arraybuffer';
                 request.onprogress = this.onprogress;
                 request.onerror = this.onerror;
                 request.onload = function () {
                     if (request.status !== 200) {
-                        _this._logger.error('Failed to load audio resource ', _this._path, ' server responded with error code', request.status);
+                        _this._logger.error('Failed to load audio resource ', _this.path, ' server responded with error code', request.status);
                         _this.onerror(request.response);
                         _this._isLoaded = false;
                         return;
@@ -9234,7 +9234,7 @@ var ex;
                     _this._isLoaded = true;
                     _this.onload(_this);
                 }, function (e) {
-                    _this._logger.error('Unable to decode ' + _this._path +
+                    _this._logger.error('Unable to decode ' + _this.path +
                         ' this browser may not fully support this format, or the file may be corrupt, ' +
                         'if this is an mp3 try removing id3 tags and album art from the file.');
                     _this._isLoaded = false;
@@ -9292,7 +9292,7 @@ var ex;
                         this._isPaused = true;
                     }
                     catch (e) {
-                        this._logger.warn('The sound clip', this._path, 'has already been paused!');
+                        this._logger.warn('The sound clip', this.path, 'has already been paused!');
                     }
                 }
             };
@@ -9306,7 +9306,7 @@ var ex;
                         this._isPaused = false;
                     }
                     catch (e) {
-                        this._logger.warn('The sound clip', this._path, 'has already been stopped!');
+                        this._logger.warn('The sound clip', this.path, 'has already been stopped!');
                     }
                 }
             };
@@ -9922,7 +9922,7 @@ var ex;
             var _this = this;
             var complete = new ex.Promise();
             if (this.sound.getData() !== null) {
-                this._logger.debug('Already have data for sound', this.path);
+                this._logger.debug('Already have data for resource', this.path);
                 complete.resolve(this.sound);
                 return complete;
             }

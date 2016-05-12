@@ -232,7 +232,6 @@ module ex.Internal {
       private _volume = this._context.createGain();
       private _buffer = null;
       private _sound = null;
-      private _path = '';
       private _isLoaded = false;
       private _loop = false;
       private _isPlaying = false;
@@ -245,7 +244,7 @@ module ex.Internal {
       private _data: any;
 
       constructor(public path: string, volume?: number) {
-         this._path = path;
+
          if (volume) {
             this._volume.gain.value = Util.clamp(volume, 0, 1.0);
          } else {
@@ -264,18 +263,18 @@ module ex.Internal {
 
       public load() {
          // Exit early if we already have data
-         if (!!this._data) {
+         if (this._data !== null) {
              return;
          }
          
          var request = new XMLHttpRequest();
-         request.open('GET', this._path);
+         request.open('GET', this.path);
          request.responseType = 'arraybuffer';
          request.onprogress = this.onprogress;
          request.onerror = this.onerror;
          request.onload = () => {
             if(request.status !== 200) {
-               this._logger.error('Failed to load audio resource ', this._path, ' server responded with error code', request.status);
+               this._logger.error('Failed to load audio resource ', this.path, ' server responded with error code', request.status);
                this.onerror(request.response);
                this._isLoaded = false;
                return;
@@ -306,7 +305,7 @@ module ex.Internal {
                this.onload(this);
             },
             (e) => {
-               this._logger.error('Unable to decode ' + this._path +
+               this._logger.error('Unable to decode ' + this.path +
                   ' this browser may not fully support this format, or the file may be corrupt, ' +
                   'if this is an mp3 try removing id3 tags and album art from the file.');
                this._isLoaded = false;
@@ -369,7 +368,7 @@ module ex.Internal {
                this._isPlaying = false;
                this._isPaused = true;
             } catch (e) {
-               this._logger.warn('The sound clip', this._path, 'has already been paused!');
+               this._logger.warn('The sound clip', this.path, 'has already been paused!');
             }
          }
       }
@@ -383,7 +382,7 @@ module ex.Internal {
                this._isPlaying = false;
                this._isPaused = false;
             } catch(e) {
-               this._logger.warn('The sound clip', this._path, 'has already been stopped!');
+               this._logger.warn('The sound clip', this.path, 'has already been stopped!');
             }
          }
       }

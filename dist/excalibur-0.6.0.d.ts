@@ -2210,16 +2210,18 @@ declare module ex {
          * method is part of the actor 'Action' fluent API allowing action chaining.
          * @param angleRadians  The angle to rotate to in radians
          * @param speed         The angular velocity of the rotation specified in radians per second
+         * @param rotationType  The [[RotationType]] to use for this rotation
          */
-        rotateTo(angleRadians: number, speed: number): ActionContext;
+        rotateTo(angleRadians: number, speed: number, rotationType?: RotationType): ActionContext;
         /**
          * This method will rotate an actor to the specified angle by a certain
          * time (in milliseconds) and return back the actor. This method is part
          * of the actor 'Action' fluent API allowing action chaining.
          * @param angleRadians  The angle to rotate to in radians
          * @param time          The time it should take the actor to complete the rotation in milliseconds
+         * @param rotationType  The [[RotationType]] to use for this rotation
          */
-        rotateBy(angleRadians: number, time: number): ActionContext;
+        rotateBy(angleRadians: number, time: number, rotationType?: RotationType): ActionContext;
         /**
          * This method will scale an actor to the specified size at the speed
          * specified (in magnitude increase per second) and return back the
@@ -4812,7 +4814,6 @@ declare module ex.Internal {
         private _volume;
         private _buffer;
         private _sound;
-        private _path;
         private _isLoaded;
         private _loop;
         private _isPlaying;
