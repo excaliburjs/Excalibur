@@ -107,9 +107,9 @@ module Mocks {
       URL() {
          return {
             createObjectURL(data: any) {
-               return "blob://" + data;
+               return 'blob://' + data;
             }
-         }
+         };
       }
       
    }
