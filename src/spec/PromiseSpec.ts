@@ -4,7 +4,8 @@
 /// <reference path="../engine/Promises.ts" />
 
 describe('A promise', () => {
-   var promise;
+   var promise: ex.Promise<any>;
+   
    beforeEach(() => {
       promise = new ex.Promise();
    });
@@ -29,100 +30,72 @@ describe('A promise', () => {
       expect(promise.state()).toBe(ex.PromiseState.Rejected);
    });
 
-   it('can be resolved with a callback async', () => {
+   it('can be resolved with a callback async', (done) => {
       var value = false;
-      runs(() => {
-         promise.then((v) => {
-            value = v;
-         });
-         setTimeout(() => {
-            promise.resolve(true);
-         }, 300);
+      
+      promise.then((v) => {
+         value = v;         
       });
-
-      waitsFor(() => {
-         return value;
-      }, 'The value should be true', 500);
-
-      runs(() => {
+                  
+      setTimeout(() => {
+         promise.resolve(true);
          expect(value).toBe(true);
-      });
+         done();
+      }, 300);
    });
 
-   it('can be rejected with a callback async', () => {
+   it('can be rejected with a callback async', (done) => {
       var value = false;
-      runs(() => {
-         promise.then(() => { /*do nothing*/ }, (v) => {
-            value = v;
-         });
-         setTimeout(() => {
-            promise.reject(true);
-         }, 300);
+
+      promise.then(() => { /*do nothing*/ }, (v) => {
+         value = v;         
       });
-
-      waitsFor(() => {
-         return value;
-      }, 'The value should be true', 500);
-
-      runs(() => {
+                        
+      setTimeout(() => {
+         promise.reject(true);
          expect(value).toBe(true);
-      });
+         done();
+      }, 300);
    });
 
-   it('can be resolved with multiple callbacks in order', () => {
+   it('can be resolved with multiple callbacks in order', (done) => {
       var val1 = 0;
       var val2 = 0;
       var val3 = 0;
       var isResolved = false;
 
-      runs(() => {
-         // Test that they are added in the right order
-         promise.then(() => {
-            val1 = 1;
-         }).then(() => {
-            val2 = val1 + 1;
-         }).then(() => {
-            val3 = val2 + 1;
-         });
-
-         setTimeout(() => {
-            promise.resolve();
-            isResolved = true;
-         }, 300);
-      });
-      waitsFor(() => {
-         return isResolved;
-      }, 'the promise was never resolved', 500);
-
-      runs(() => {
+      // Test that they are added in the right order
+      promise.then(() => {
+         val1 = 1;
+      }).then(() => {
+         val2 = val1 + 1;
+      }).then(() => {
+         val3 = val2 + 1;
+      });           
+      
+      setTimeout(() => {
+         promise.resolve();
          expect(val1).toBe(1);
          expect(val2).toBe(2);
          expect(val3).toBe(3);
-      });
+         done();
+      }, 300);
    });
 
-   it('can catch errors in callbacks', () => {
-      var isResolved = false;
+   it('can catch errors in callbacks', (done) => {
       var caughtError = false;
-      runs(() => {
-         promise.then((v) => {
-            throw new Error('Catch!');
-         }).error(() => {
-            caughtError = true;
-         });
-         setTimeout(() => {
-            promise.resolve(true);
-            isResolved = true;
-         }, 300);
+      
+      promise.then((v) => {
+         throw new Error('Catch!');
+      }).error(() => {
+         caughtError = true;
       });
-
-      waitsFor(() => {
-         return isResolved;
-      }, 'the promise was never resolved', 500);
-
-      runs(() => {
+      setTimeout(() => {
+         promise.resolve(true);         
          expect(caughtError).toBe(true);
-      });
+         done();
+      }, 300);
+                  
    });
 
    it('should throw an error if resolved when not in a pending state', () => {
@@ -141,25 +114,19 @@ describe('A promise', () => {
       expect(() => { promise.resolve(); }).toThrow();
    });
 
-   it('should be able to wrap a value in a promise', () => {
+   it('should be able to wrap a value in a promise', (done) => {
       var p;
       var value : number;
-      runs(() => {
-         p = ex.Promise.wrap<number>(12);
-         expect(p.state()).toBe(ex.PromiseState.Resolved);
+      
+      p = ex.Promise.wrap<number>(12);
+      
+      expect(p.state()).toBe(ex.PromiseState.Resolved);
 
-         p.then((v) => {
-            value = v;
-         });
-      });
-
-      waitsFor(() => {
-         return !!p;
-      }, 'the promise was never created', 500);
-
-      runs(() => {
+      p.then((v) => {
+         value = v;
          expect(value).toBe(12);
-      });
+         done();         
+      });         
    });
 
    it('can join promises and resovle when all resolve', () => {

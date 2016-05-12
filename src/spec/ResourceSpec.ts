@@ -13,7 +13,7 @@ describe('A generic Resource', () => {
       
       URL = <any>mocker.URL();
       
-      spyOn(URL, 'createObjectURL').andCallThrough();
+      spyOn(URL, 'createObjectURL').and.callThrough();
    });
    
    it('should not be loaded by default', () => {
@@ -36,23 +36,15 @@ describe('A generic Resource', () => {
          expect(resource.getData()).toBe('blob://data');
       });
       
-      it('should not trigger an XHR when load is called', () => {
-         
-         var done = false;
+      it('should not trigger an XHR when load is called', (done) => {
          var data;
          
-         runs(() => {
-            resource.load().then((data) => {
-               done = true;
-               data = data;
-            });
-         });
-         
-         waitsFor(() => done, 'promise never resolved', 10);
-         
-         runs(() => {            
-            expect(data).not.toBeNull();
-         });
+         resource.load().then((data) => {
+            data = data;
+            done();
+         });        
+                   
+         expect(data).not.toBeNull();         
       });
       
       it('should call processData handler', () => {

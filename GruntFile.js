@@ -13,26 +13,11 @@ module.exports = function (grunt) {
       pkg: grunt.file.readJSON('package.json'),
       version: process.env.APPVEYOR_BUILD_VERSION || '<%= pkg.version %>',
       tscCmd: path.join('node_modules', '.bin', 'tsc'),
+      jasmineCmd: path.join('node_modules', '.bin', 'jasmine'),
+      jasmineConfig: path.join('src', 'spec', 'support', 'jasmine.json'),
+      istanbulCmd: path.join('node_modules', '.bin', 'istanbul'),
+      jasmineJs: path.join('node_modules', 'jasmine', 'bin', 'jasmine.js'),
       
-      //
-      // Configure jasmine-node to run Jasmine specs
-      //
-      jasmine_node: {
-         options: {
-            specNameMatcher: "Spec", // load only specs containing specNameMatcher
-            specFolders: ["./src/spec"],
-            forceExit: true,
-            showColors: true,
-            junitreport: {
-               report: false,
-               savePath: "./dist/reports/jasmine/",
-               useDotNotation: true,
-               consolidate: true
-            }
-         },
-         src: ["**/*.js"]
-      },
-
       //
       // Concatenate build files
       // Add banner to files
@@ -126,6 +111,28 @@ module.exports = function (grunt) {
                failOnError: true
             }
          },
+         
+         //
+         // Jasmine NPM command
+         //
+         tests: {
+             command: '<%= jasmineCmd %> JASMINE_CONFIG_PATH=<%= jasmineConfig %>',
+             options: {
+                 stdout: true,
+                 failOnError: true
+             }
+         },
+         
+         //
+         // Istanbul command that generates code coverage
+         //
+         istanbul: {
+             command: '<%= istanbulCmd %> cover <%= jasmineJs %> JASMINE_CONFIG_PATH=<%= jasmineConfig %>',
+             options: {
+                 stdout: true,
+                 failOnError: true
+             }
+         },
 
          //
          // TypeScript Compile sample game
@@ -213,7 +220,6 @@ module.exports = function (grunt) {
    grunt.loadNpmTasks('grunt-minified');
    grunt.loadNpmTasks('grunt-contrib-concat');
    grunt.loadNpmTasks('grunt-contrib-copy');
-   grunt.loadNpmTasks('grunt-jasmine-node-coverage');
    grunt.loadNpmTasks('grunt-tslint');
    grunt.loadNpmTasks('grunt-contrib-watch');
    grunt.loadNpmTasks('grunt-coveralls');
@@ -222,17 +228,15 @@ module.exports = function (grunt) {
    // Register available Grunt tasks
    //
 
-   // Run tests
-   grunt.registerTask('tests', ['shell:specs', 'jasmine_node']);
+   // Run tests quickly
+   grunt.registerTask('tests', ['shell:specs', 'shell:tests']);
 
    // Compile sample game
    grunt.registerTask('sample', ['shell:sample']);
    
+   // Compile visual tests
    grunt.registerTask('visual', ['shell:visual']);
-
-   // Default task - compile, test, build dists
-   grunt.registerTask('default', ['tslint:src', 'tests', 'coveralls', 'shell:tsc', 'minified', 'concat', 'copy', 'sample', 'visual', 'shell:nuget']);
-
+   
    grunt.registerTask('compile', ['shell:tsc', 'minified', 'concat', 'copy', 'shell:nuget'])
 
    grunt.registerTask('server', [])
@@ -240,4 +244,7 @@ module.exports = function (grunt) {
    // Travis task - for Travis CI
    grunt.registerTask('travis', 'default');
    
+   // Default task - compile, test, build dists
+   grunt.registerTask('default', ['tslint:src', 'shell:specs', 'shell:istanbul', 'coveralls', 'shell:tsc', 'minified', 'concat', 'copy', 'sample', 'visual', 'shell:nuget']);
+
 };
