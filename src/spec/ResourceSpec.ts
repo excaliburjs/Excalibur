@@ -32,6 +32,10 @@ describe('A generic Resource', () => {
          expect(resource.isLoaded()).toBe(true);
       });           
       
+      it('should return the processed data', () => {
+         expect(resource.getData()).toBe('blob://data');
+      });
+      
       it('should not trigger an XHR when load is called', () => {
          
          var done = false;
