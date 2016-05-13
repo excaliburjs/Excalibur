@@ -3744,6 +3744,13 @@ declare module ex {
         target: any;
     }
     /**
+     * The 'kill' event is emitted on actors when it is killed. The target is the actor that was killed.
+     */
+    class KillEvent extends GameEvent {
+        target: any;
+        constructor(target: any);
+    }
+    /**
      * The 'predraw' event is emitted on actors, scenes, and engine before drawing starts. Actors' predraw happens inside their graphics
      * transform so that all drawing takes place with the actor as the origin.
      *
