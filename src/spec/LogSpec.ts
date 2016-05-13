@@ -25,7 +25,7 @@ module ex.Tests {
             logger = Logger.getInstance();
             logger.addAppender(appender);
             spiedAppender = spyOn(appender, 'log');
-            spiedAppender.andCallThrough();
+            spiedAppender.and.callThrough();
 
             logger.defaultLevel = LogLevel.Debug;
 

@@ -15,7 +15,7 @@ describe('A game actor', () => {
       actor.collisionType = ex.CollisionType.Active;
       scene = new ex.Scene(engine);
 
-      spyOn(scene, 'draw').andCallThrough();
+      spyOn(scene, 'draw').and.callThrough();
       spyOn(actor, 'draw');
 
       engine = mock.engine(100, 100, scene);
