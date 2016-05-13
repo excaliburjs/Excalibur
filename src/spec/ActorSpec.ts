@@ -948,7 +948,7 @@ describe('A game actor', () => {
       });
       actor.kill();
       
-      expect(killed).toBeTruthy();
+      expect(killed).toBe(true);
    });
    
 });
