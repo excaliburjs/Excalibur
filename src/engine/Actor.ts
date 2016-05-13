@@ -365,7 +365,11 @@ module ex {
      * Direct access to the actor's [[ActionQueue]]. Useful if you are building custom actions.
      */
     public actionQueue: ex.Internal.Actions.ActionQueue;
-    public actions: ActionContext = new ActionContext(this);
+    
+    /**
+     * [[ActionContext|Action context]] of the actor. Useful for scripting actor behavior.
+     */
+    public actions: ActionContext;
     /**
      * Convenience reference to the global logger
      */
@@ -456,6 +460,7 @@ module ex {
        this.traits.push(new ex.Traits.OffscreenCulling());         
        this.traits.push(new ex.Traits.CapturePointer());
        this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
+       this.actions = new ActionContext(this);
        
        this.anchor = new Point(.5, .5);
     }
@@ -678,25 +683,25 @@ module ex {
      * Gets the left edge of the actor
      */
     public getLeft() {
-       return this.x;
+       return this.getBounds().left;
     }
     /**
      * Gets the right edge of the actor
      */
     public getRight() {
-       return this.x + this.getWidth();
+       return this.getBounds().right;
     }
     /**
      * Gets the top edge of the actor
      */
     public getTop() {
-       return this.y;
+       return this.getBounds().top;
     }
     /**
      * Gets the bottom edge of the actor
      */
     public getBottom() {
-       return this.y + this.getHeight();
+       return this.getBounds().bottom;
     }
     /**
      * Gets the x value of the Actor in global coordinates

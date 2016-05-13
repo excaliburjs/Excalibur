@@ -1,6 +1,7 @@
 /*********************************
 /* Excalibur.js Grunt Build File
 /*********************************/
+var path = require('path');
 
 /*global module:false*/
 module.exports = function (grunt) {
@@ -10,7 +11,9 @@ module.exports = function (grunt) {
    //
    grunt.initConfig({
       pkg: grunt.file.readJSON('package.json'),
-
+      version: process.env.APPVEYOR_BUILD_VERSION || '<%= pkg.version %>',
+      tscCmd: path.join('node_modules', '.bin', 'tsc'),
+      
       //
       // Configure jasmine-node to run Jasmine specs
       //
@@ -36,20 +39,20 @@ module.exports = function (grunt) {
       //
       concat: {
          main: {
-            src: ['dist/<%= pkg.name %>-<%= pkg.version %>.js', 'src/engine/Exports.js'],
-            dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js'
+            src: ['dist/<%= pkg.name %>-<%= version %>.js', 'src/engine/Exports.js'],
+            dest: 'dist/<%= pkg.name %>-<%= version %>.js'
          },
          minified: {
-            src: ['dist/<%= pkg.name %>-<%= pkg.version %>.min.js', 'src/engine/Exports.js'],
-            dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.min.js'
+            src: ['dist/<%= pkg.name %>-<%= version %>.min.js', 'src/engine/Exports.js'],
+            dest: 'dist/<%= pkg.name %>-<%= version %>.min.js'
          },
          options: {
             separator: '\n;\n',
-            banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
+            banner: '/*! <%= pkg.title || pkg.name %> - v<%= version %> - ' +
                     '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
                     '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
-                    '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
-                    ' Licensed <%= pkg.license.type%>*/\n'
+                    '* Copyright (c) <%= grunt.template.today("yyyy") %> Excalibur.js <<%= pkg.author %>>;' +
+                    ' Licensed <%= pkg.license %>*/\n'
          }
       },
 
@@ -58,8 +61,8 @@ module.exports = function (grunt) {
       //
       minified: {
          files: {
-            src: 'dist/<%= pkg.name %>-<%= pkg.version %>.js',
-            dest: 'dist/<%= pkg.name %>-<%= pkg.version %>'
+            src: 'dist/<%= pkg.name %>-<%= version %>.js',
+            dest: 'dist/<%= pkg.name %>-<%= version %>'
          },
          options: {
             sourcemap: false,
@@ -90,23 +93,25 @@ module.exports = function (grunt) {
          // Execute TypeScript compiler against Excalibur core
          //
          tsc: {
-            command: 'tsc --sourcemap --declaration "./src/engine/Engine.ts" --out "./dist/<%= pkg.name %>-<%= pkg.version %>.js"',               
+            command: '<%= tscCmd %> --sourcemap --declaration "./src/engine/Engine.ts" --out "./dist/<%= pkg.name %>-<%= version %>.js"',               
             options: {
                stdout: true,
                failOnError: true
             }
          },
 
+         
+
          //
          // Package up Nuget (Windows only)
          //
          nuget: {
-            command: 'src\\tools\\nuget pack Excalibur.nuspec -version <%= pkg.version %> -OutputDirectory ./dist',
+            command: 'src\\tools\\nuget pack Excalibur.nuspec -version <%= version %> -OutputDirectory ./dist',
             options: {
                stdout: true
             }
-         },         
-
+         },
+         
          //
          // TypeScript Compile Jasmine specs
          //
@@ -114,7 +119,7 @@ module.exports = function (grunt) {
             command: function () {
             	var files = grunt.file.expand("./src/spec/*.ts");
 
-            	return 'tsc ' + files.join(' ') + ' --out ./src/spec/TestsSpec.js'
+            	return '<%= tscCmd %> ' + files.join(' ') + ' --out ./src/spec/TestsSpec.js'
             },
             options: {
                stdout: true,
@@ -126,7 +131,7 @@ module.exports = function (grunt) {
          // TypeScript Compile sample game
          //
          sample: {
-            command: 'tsc ./sandbox/web/src/game.ts',
+            command: '<%= tscCmd %> ./sandbox/web/src/game.ts',
             options: {
                stdout: true,
                failOnError: true
@@ -139,7 +144,7 @@ module.exports = function (grunt) {
          visual: {
              command: function() {
                  var files = grunt.file.expand("./sandbox/web/tests/*/*.ts");
-                 return 'tsc ' + files.join(' ');
+                 return '<%= tscCmd %> ' + files.join(' ');
              },
              options: {
                stdout: true,
@@ -155,10 +160,10 @@ module.exports = function (grunt) {
       copy: {
          main: {
             files: [
-               {src: './dist/<%= pkg.name %>-<%= pkg.version %>.js', dest: './dist/<%= pkg.name %>.js'},
-               {src: './dist/<%= pkg.name %>-<%= pkg.version %>.js', dest: './sandbox/web/<%= pkg.name %>.js'},
-               {src: './dist/<%= pkg.name %>-<%= pkg.version %>.min.js', dest: './dist/<%= pkg.name %>.min.js'},
-               {src: './dist/<%= pkg.name %>-<%= pkg.version %>.d.ts', dest: './dist/<%= pkg.name %>.d.ts'}
+               {src: './dist/<%= pkg.name %>-<%= version %>.js', dest: './dist/<%= pkg.name %>.js'},
+               {src: './dist/<%= pkg.name %>-<%= version %>.js', dest: './sandbox/web/<%= pkg.name %>.js'},
+               {src: './dist/<%= pkg.name %>-<%= version %>.min.js', dest: './dist/<%= pkg.name %>.min.js'},
+               {src: './dist/<%= pkg.name %>-<%= version %>.d.ts', dest: './dist/<%= pkg.name %>.d.ts'}
             ]
          }
       },
@@ -234,4 +239,5 @@ module.exports = function (grunt) {
 
    // Travis task - for Travis CI
    grunt.registerTask('travis', 'default');
+   
 };

@@ -16,6 +16,11 @@ There are several ways you can download Excalibur.
     
 You can also download the raw Javascript files from the `Releases <https://github.com/excaliburjs/Excalibur/releases>`_ page.
 
+Unstable Builds
+---------------
+
+If you want to live on the edge and get unstable builds, you can add the Excalibur Appveyor Nuget feed to your project, see :doc:`unstable`.
+
 Referencing Excalibur in your project
 -------------------------------------
 
