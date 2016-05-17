@@ -9194,6 +9194,7 @@ var ex;
                 this._isPaused = false;
                 this._currentOffset = 0;
                 this._logger = ex.Logger.getInstance();
+                this._data = null;
                 this.onload = function () { return; };
                 this.onprogress = function () { return; };
                 this.onerror = function () { return; };
