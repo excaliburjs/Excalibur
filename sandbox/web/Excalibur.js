@@ -10110,7 +10110,6 @@ var ex;
                 r.oncomplete = r.onerror = function () {
                     me._numLoaded++;
                     if (me._numLoaded === me._resourceCount) {
-                        me.onprogress.call(me, { loaded: 100, total: 100 });
                         me.oncomplete.call(me);
                         complete.resolve();
                     }
