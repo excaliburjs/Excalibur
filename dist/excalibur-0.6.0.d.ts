@@ -5081,6 +5081,12 @@ declare module ex {
     }
 }
 declare module ex {
+    interface ILoader extends ILoadable {
+        draw(ctx: CanvasRenderingContext2D, delta: number): any;
+        update(engine: Engine, delta: number): any;
+    }
+}
+declare module ex {
     /**
      * Textures
      *
@@ -5271,7 +5277,7 @@ declare module ex {
      * });
      * ```
      */
-    class Loader implements ILoadable {
+    class Loader extends Class implements ILoader {
         private _resourceList;
         private _index;
         private _resourceCount;
@@ -5304,6 +5310,15 @@ declare module ex {
          * that resolves when loading of all is complete
          */
         load(): Promise<any>;
+        /**
+         * Loader draw function. Draws the default Excalibur loading screen. Override to customize the drawing.
+         */
+        draw(ctx: CanvasRenderingContext2D, delta: number): void;
+        /**
+         * Perform any calculations or logic in the `update` method. The default `Loader` does not
+         * do anything in this method so it is safe to override.
+         */
+        update(engine: ex.Engine, delta: number): void;
         getData: () => any;
         setData: (data: any) => any;
         processData: (data: any) => any;
@@ -6824,9 +6839,6 @@ declare module ex {
         private _compatible;
         private _loader;
         private _isLoading;
-        private _progress;
-        private _total;
-        private _loadingDraw;
         /**
          * Creates a new game using the given [[IEngineOptions]]
          */
@@ -7032,10 +7044,10 @@ declare module ex {
         /**
          * Starts the internal game loop for Excalibur after loading
          * any provided assets.
-         * @param loader  Optional resources to load before starting the main loop. Some [[ILoadable]] such as a [[Loader]] collection,
-         * [[Sound]], or [[Texture]].
+         * @param loader  Optional [[ILoader]] to use to load resources. The default loader is [[Loader]], override to provide your own
+         * custom loader.
          */
-        start(loader?: ILoadable): Promise<any>;
+        start(loader?: ILoader): Promise<any>;
         /**
          * Stops Excalibur's main loop, useful for pausing the game.
          */
@@ -7045,19 +7057,6 @@ declare module ex {
          * HTML Image Element.
          */
         screenshot(): HTMLImageElement;
-        /**
-         * Draws the Excalibur loading bar
-         * @param ctx     The canvas rendering context
-         * @param loaded  Number of bytes loaded
-         * @param total   Total number of bytes to load
-         */
-        private _drawLoadingBar(ctx, loaded, total);
-        /**
-         * Sets the loading screen draw function if you want to customize the draw
-         * @param fcn  Callback to draw the loading screen which is passed a rendering context, the number of bytes loaded, and the total
-         * number of bytes to load.
-         */
-        setLoadingDrawFunction(fcn: (ctx: CanvasRenderingContext2D, loaded: number, total: number) => void): void;
         /**
          * Another option available to you to load resources into the game.
          * Immediately after calling this the game will pause and the loading screen

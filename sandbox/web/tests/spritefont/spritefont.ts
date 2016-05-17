@@ -10,8 +10,9 @@ var game = new ex.Engine({
 
 var spriteFontTex = new ex.Texture('spritefont.png');
 var label : ex.Label = null;
+var loader = new ex.Loader([spriteFontTex]);
 
-game.start(spriteFontTex).then(() => {
+game.start(loader).then(() => {
    
    var spriteFont = new ex.SpriteFont(spriteFontTex, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
 
