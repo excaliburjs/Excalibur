@@ -8204,6 +8204,651 @@ var ex;
         return HSLColor;
     })();
 })(ex || (ex = {}));
+/// <reference path="../Interfaces/ILoadable.ts" />
+var ex;
+(function (ex) {
+    /**
+     * Generic Resources
+     *
+     * The [[Resource]] type allows games built in Excalibur to load generic resources.
+     * For any type of remote resource it is recommended to use [[Resource]] for preloading.
+     *
+     * [[Resource]] is an [[ILoadable]] so it can be passed to a [[Loader]] to pre-load before
+     * a level or game.
+     *
+     * Example usages: JSON, compressed files, blobs.
+     *
+     * ## Pre-loading generic resources
+     *
+     * ```js
+     * var resLevel1 = new ex.Resource("/assets/levels/1.json", "application/json");
+     * var loader = new ex.Loader(resLevel1);
+     *
+     * // attach a handler to process once loaded
+     * resLevel1.processData = function (data) {
+     *
+     *   // process JSON
+     *   var json = JSON.parse(data);
+     *
+     *   // create a new level (inherits Scene) with the JSON configuration
+     *   var level = new Level(json);
+     *
+     *   // add a new scene
+     *   game.add(level.name, level);
+     * }
+     *
+     * game.start(loader);
+     * ```
+     */
+    var Resource = (function (_super) {
+        __extends(Resource, _super);
+        /**
+         * @param path          Path to the remote resource
+         * @param responseType  The Content-Type to expect (e.g. `application/json`)
+         * @param bustCache     Whether or not to cache-bust requests
+         */
+        function Resource(path, responseType, bustCache) {
+            if (bustCache === void 0) { bustCache = true; }
+            _super.call(this);
+            this.path = path;
+            this.responseType = responseType;
+            this.bustCache = bustCache;
+            this.data = null;
+            this.logger = ex.Logger.getInstance();
+            this.onprogress = function () { return; };
+            this.oncomplete = function () { return; };
+            this.onerror = function () { return; };
+        }
+        /**
+         * Returns true if the Resource is completely loaded and is ready
+         * to be drawn.
+         */
+        Resource.prototype.isLoaded = function () {
+            return this.data !== null;
+        };
+        Resource.prototype.wireEngine = function (engine) {
+            this._engine = engine;
+        };
+        Resource.prototype._cacheBust = function (uri) {
+            var query = /\?\w*=\w*/;
+            if (query.test(uri)) {
+                uri += ('&__=' + Date.now());
+            }
+            else {
+                uri += ('?__=' + Date.now());
+            }
+            return uri;
+        };
+        Resource.prototype._start = function (e) {
+            this.logger.debug('Started loading resource ' + this.path);
+        };
+        /**
+         * Begin loading the resource and returns a promise to be resolved on completion
+         */
+        Resource.prototype.load = function () {
+            var _this = this;
+            var complete = new ex.Promise();
+            // Exit early if we already have data
+            if (this.data !== null) {
+                this.logger.debug('Already have data for resource', this.path);
+                complete.resolve(this.data);
+                this.oncomplete();
+                return complete;
+            }
+            var request = new XMLHttpRequest();
+            request.open('GET', this.bustCache ? this._cacheBust(this.path) : this.path, true);
+            request.responseType = this.responseType;
+            request.onloadstart = function (e) { _this._start(e); };
+            request.onprogress = this.onprogress;
+            request.onerror = this.onerror;
+            request.onload = function (e) {
+                if (request.status !== 200) {
+                    _this.logger.error('Failed to load resource ', _this.path, ' server responded with error code', request.status);
+                    _this.onerror(request.response);
+                    complete.resolve(request.response);
+                    return;
+                }
+                _this.data = _this.processData(request.response);
+                _this.oncomplete();
+                _this.logger.debug('Completed loading resource', _this.path);
+                complete.resolve(_this.data);
+            };
+            request.send();
+            return complete;
+        };
+        /**
+         * Returns the loaded data once the resource is loaded
+         */
+        Resource.prototype.getData = function () {
+            return this.data;
+        };
+        /**
+         * Sets the data for this resource directly
+         */
+        Resource.prototype.setData = function (data) {
+            this.data = this.processData(data);
+        };
+        /**
+         * This method is meant to be overriden to handle any additional
+         * processing. Such as decoding downloaded audio bits.
+         */
+        Resource.prototype.processData = function (data) {
+            // Handle any additional loading after the xhr has completed.
+            return URL.createObjectURL(data);
+        };
+        return Resource;
+    })(ex.Class);
+    ex.Resource = Resource;
+})(ex || (ex = {}));
+/// <reference path="Util/Log.ts" />
+// Promises/A+ Spec http://promises-aplus.github.io/promises-spec/
+var ex;
+(function (ex) {
+    /**
+     * Valid states for a promise to be in
+     */
+    (function (PromiseState) {
+        PromiseState[PromiseState["Resolved"] = 0] = "Resolved";
+        PromiseState[PromiseState["Rejected"] = 1] = "Rejected";
+        PromiseState[PromiseState["Pending"] = 2] = "Pending";
+    })(ex.PromiseState || (ex.PromiseState = {}));
+    var PromiseState = ex.PromiseState;
+    /**
+     * Promises/A+ spec implementation of promises
+     *
+     * Promises are used to do asynchronous work and they are useful for
+     * creating a chain of actions. In Excalibur they are used for loading,
+     * sounds, animation, actions, and more.
+     *
+     * ## A Promise Chain
+     *
+     * Promises can be chained together and can be useful for creating a queue
+     * of functions to be called when something is done.
+     *
+     * The first [[Promise]] you will encounter is probably [[Engine.start]]
+     * which resolves when the game has finished loading.
+     *
+     * ```js
+     * var game = new ex.Engine();
+     *
+     * // perform start-up logic once game is ready
+     * game.start().then(function () {
+     *
+     *   // start-up & initialization logic
+     *
+     * });
+     * ```
+     *
+     * ## Handling errors
+     *
+     * You can optionally pass an error handler to [[Promise.then]] which will handle
+     * any errors that occur during Promise execution.
+     *
+     * ```js
+     * var game = new ex.Engine();
+     *
+     * game.start().then(
+     *   // success handler
+     *   function () {
+     *   },
+     *
+     *   // error handler
+     *   function (err) {
+     *   }
+     * );
+     * ```
+     *
+     * Any errors that go unhandled will be bubbled up to the browser.
+     */
+    var Promise = (function () {
+        function Promise() {
+            this._state = PromiseState.Pending;
+            this._successCallbacks = [];
+            this._rejectCallback = function () { return; };
+            this._logger = ex.Logger.getInstance();
+        }
+        /**
+         * Wrap a value in a resolved promise
+         * @param value  An optional value to wrap in a resolved promise
+         */
+        Promise.wrap = function (value) {
+            var promise = (new Promise()).resolve(value);
+            return promise;
+        };
+        /**
+         * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
+         * when at least 1 promise rejects.
+         */
+        Promise.join = function () {
+            var promises = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                promises[_i - 0] = arguments[_i];
+            }
+            var joinedPromise = new Promise();
+            if (!promises || !promises.length) {
+                return joinedPromise.resolve();
+            }
+            var total = promises.length;
+            var successes = 0;
+            var rejects = 0;
+            var errors = [];
+            promises.forEach(function (p) {
+                p.then(function () {
+                    successes += 1;
+                    if (successes === total) {
+                        joinedPromise.resolve();
+                    }
+                    else if (successes + rejects + errors.length === total) {
+                        joinedPromise.reject(errors);
+                    }
+                }, function () {
+                    rejects += 1;
+                    if (successes + rejects + errors.length === total) {
+                        joinedPromise.reject(errors);
+                    }
+                }).error(function (e) {
+                    errors.push(e);
+                    if ((errors.length + successes + rejects) === total) {
+                        joinedPromise.reject(errors);
+                    }
+                });
+            });
+            return joinedPromise;
+        };
+        /**
+         * Chain success and reject callbacks after the promise is resovled
+         * @param successCallback  Call on resolution of promise
+         * @param rejectCallback   Call on rejection of promise
+         */
+        Promise.prototype.then = function (successCallback, rejectCallback) {
+            if (successCallback) {
+                this._successCallbacks.push(successCallback);
+                // If the promise is already resovled call immediately
+                if (this.state() === PromiseState.Resolved) {
+                    try {
+                        successCallback.call(this, this._value);
+                    }
+                    catch (e) {
+                        this._handleError(e);
+                    }
+                }
+            }
+            if (rejectCallback) {
+                this._rejectCallback = rejectCallback;
+                // If the promise is already rejected call immediately
+                if (this.state() === PromiseState.Rejected) {
+                    try {
+                        rejectCallback.call(this, this._value);
+                    }
+                    catch (e) {
+                        this._handleError(e);
+                    }
+                }
+            }
+            return this;
+        };
+        /**
+         * Add an error callback to the promise
+         * @param errorCallback  Call if there was an error in a callback
+         */
+        Promise.prototype.error = function (errorCallback) {
+            if (errorCallback) {
+                this._errorCallback = errorCallback;
+            }
+            return this;
+        };
+        /**
+         * Resolve the promise and pass an option value to the success callbacks
+         * @param value  Value to pass to the success callbacks
+         */
+        Promise.prototype.resolve = function (value) {
+            var _this = this;
+            if (this._state === PromiseState.Pending) {
+                this._value = value;
+                try {
+                    this._state = PromiseState.Resolved;
+                    this._successCallbacks.forEach(function (cb) {
+                        cb.call(_this, _this._value);
+                    });
+                }
+                catch (e) {
+                    this._handleError(e);
+                }
+            }
+            else {
+                throw new Error('Cannot resolve a promise that is not in a pending state!');
+            }
+            return this;
+        };
+        /**
+         * Reject the promise and pass an option value to the reject callbacks
+         * @param value  Value to pass to the reject callbacks
+         */
+        Promise.prototype.reject = function (value) {
+            if (this._state === PromiseState.Pending) {
+                this._value = value;
+                try {
+                    this._state = PromiseState.Rejected;
+                    this._rejectCallback.call(this, this._value);
+                }
+                catch (e) {
+                    this._handleError(e);
+                }
+            }
+            else {
+                throw new Error('Cannot reject a promise that is not in a pending state!');
+            }
+            return this;
+        };
+        /**
+         * Inpect the current state of a promise
+         */
+        Promise.prototype.state = function () {
+            return this._state;
+        };
+        Promise.prototype._handleError = function (e) {
+            if (this._errorCallback) {
+                this._errorCallback.call(this, e);
+            }
+            else {
+                // rethrow error
+                throw e;
+            }
+        };
+        return Promise;
+    })();
+    ex.Promise = Promise;
+})(ex || (ex = {}));
+/// <reference path="../Util/Util.ts" />
+/// <reference path="../Promises.ts" />
+/// <reference path="Resource.ts" />
+/// <reference path="../Interfaces/ILoadable.ts" />
+var ex;
+(function (ex) {
+    /**
+     * Textures
+     *
+     * The [[Texture]] object allows games built in Excalibur to load image resources.
+     * [[Texture]] is an [[ILoadable]] which means it can be passed to a [[Loader]]
+     * to pre-load before starting a level or game.
+     *
+     * Textures are the raw image so to add a drawing to a game, you must create
+     * a [[Sprite]]. You can use [[Texture.asSprite]] to quickly generate a Sprite
+     * instance.
+     *
+     * ## Pre-loading textures
+     *
+     * Pass the [[Texture]] to a [[Loader]] to pre-load the asset. Once a [[Texture]]
+     * is loaded, you can generate a [[Sprite]] with it.
+     *
+     * ```js
+     * var txPlayer = new ex.Texture("/assets/tx/player.png");
+     *
+     * var loader = new ex.Loader(txPlayer);
+     *
+     * game.start(loader).then(function () {
+     *
+     *   var player = new ex.Actor();
+     *
+     *   player.addDrawing(txPlayer);
+     *
+     *   game.add(player);
+     * });
+     * ```
+     */
+    var Texture = (function (_super) {
+        __extends(Texture, _super);
+        /**
+         * @param path       Path to the image resource
+         * @param bustCache  Optionally load texture with cache busting
+         */
+        function Texture(path, bustCache) {
+            if (bustCache === void 0) { bustCache = true; }
+            _super.call(this, path, 'blob', bustCache);
+            this.path = path;
+            this.bustCache = bustCache;
+            /**
+             * A [[Promise]] that resolves when the Texture is loaded.
+             */
+            this.loaded = new ex.Promise();
+            this._isLoaded = false;
+            this._sprite = null;
+            this._sprite = new ex.Sprite(this, 0, 0, 0, 0);
+        }
+        /**
+         * Returns true if the Texture is completely loaded and is ready
+         * to be drawn.
+         */
+        Texture.prototype.isLoaded = function () {
+            return this._isLoaded;
+        };
+        /**
+         * Begins loading the texture and returns a promise to be resolved on completion
+         */
+        Texture.prototype.load = function () {
+            var _this = this;
+            var complete = new ex.Promise();
+            var loaded = _super.prototype.load.call(this);
+            loaded.then(function () {
+                _this.image = new Image();
+                _this.image.addEventListener('load', function () {
+                    _this._isLoaded = true;
+                    _this.width = _this._sprite.swidth = _this._sprite.naturalWidth = _this._sprite.width = _this.image.naturalWidth;
+                    _this.height = _this._sprite.sheight = _this._sprite.naturalHeight = _this._sprite.height = _this.image.naturalHeight;
+                    _this.loaded.resolve(_this.image);
+                    complete.resolve(_this.image);
+                });
+                _this.image.src = _super.prototype.getData.call(_this);
+            }, function () {
+                complete.reject('Error loading texture.');
+            });
+            return complete;
+        };
+        Texture.prototype.asSprite = function () {
+            return this._sprite;
+        };
+        return Texture;
+    })(ex.Resource);
+    ex.Texture = Texture;
+})(ex || (ex = {}));
+/// <reference path="../Util/Util.ts" />
+/// <reference path="../Promises.ts" />
+/// <reference path="Resource.ts" />
+/// <reference path="../Interfaces/ILoadable.ts" />
+var ex;
+(function (ex) {
+    /**
+     * Sounds
+     *
+     * The [[Sound]] object allows games built in Excalibur to load audio
+     * components, from soundtracks to sound effects. [[Sound]] is an [[ILoadable]]
+     * which means it can be passed to a [[Loader]] to pre-load before a game or level.
+     *
+     * ## Pre-loading sounds
+     *
+     * Pass the [[Sound]] to a [[Loader]] to pre-load the asset. Once a [[Sound]]
+     * is loaded, you can [[Sound.play|play]] it.
+     *
+     * ```js
+     * // define multiple sources (such as mp3/wav/ogg) as a browser fallback
+     * var sndPlayerDeath = new ex.Sound("/assets/snd/player-death.mp3", "/assets/snd/player-death.wav");
+     *
+     * var loader = new ex.Loader(sndPlayerDeath);
+     *
+     * game.start(loader).then(function () {
+     *
+     *   sndPlayerDeath.play();
+     * });
+     * ```
+     */
+    var Sound = (function () {
+        /**
+         * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
+         */
+        function Sound() {
+            var paths = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                paths[_i - 0] = arguments[_i];
+            }
+            this._logger = ex.Logger.getInstance();
+            this.onprogress = function () { return; };
+            this.oncomplete = function () { return; };
+            this.onerror = function () { return; };
+            this.onload = function () { return; };
+            this._isLoaded = false;
+            this._wasPlayingOnHidden = false;
+            /* Chrome : MP3, WAV, Ogg
+             * Firefox : WAV, Ogg,
+             * IE : MP3, WAV coming soon
+             * Safari MP3, WAV, Ogg
+             */
+            this.path = '';
+            for (var i = 0; i < paths.length; i++) {
+                if (Sound.canPlayFile(paths[i])) {
+                    this.path = paths[i];
+                    break;
+                }
+            }
+            if (!this.path) {
+                this._logger.warn('This browser does not support any of the audio files specified:', paths.join(', '));
+                this._logger.warn('Attempting to use', paths[0]);
+                this.path = paths[0]; // select the first specified
+            }
+            this.sound = new ex.Internal.FallbackAudio(this.path, 1.0);
+        }
+        /**
+         * Whether or not the browser can play this file as HTML5 Audio
+         */
+        Sound.canPlayFile = function (file) {
+            try {
+                var a = new Audio();
+                var filetype = /.*\.([A-Za-z0-9]+)$/;
+                var type = file.match(filetype)[1];
+                if (a.canPlayType('audio/' + type)) {
+                    return true;
+                }
+                {
+                    return false;
+                }
+            }
+            catch (e) {
+                ex.Logger.getInstance().warn('Cannot determine audio support, assuming no support for the Audio Tag', e);
+                return false;
+            }
+        };
+        Sound.prototype.wireEngine = function (engine) {
+            var _this = this;
+            if (engine) {
+                this._engine = engine;
+                this._engine.on('hidden', function () {
+                    if (engine.pauseAudioWhenHidden && _this.isPlaying()) {
+                        _this._wasPlayingOnHidden = true;
+                        _this.pause();
+                    }
+                });
+                this._engine.on('visible', function () {
+                    if (engine.pauseAudioWhenHidden && _this._wasPlayingOnHidden) {
+                        _this.play();
+                        _this._wasPlayingOnHidden = false;
+                    }
+                });
+            }
+        };
+        /**
+         * Sets the volume of the sound clip
+         * @param volume  A volume value between 0-1.0
+         */
+        Sound.prototype.setVolume = function (volume) {
+            if (this.sound) {
+                this.sound.setVolume(volume);
+            }
+        };
+        /**
+         * Indicates whether the clip should loop when complete
+         * @param loop  Set the looping flag
+         */
+        Sound.prototype.setLoop = function (loop) {
+            if (this.sound) {
+                this.sound.setLoop(loop);
+            }
+        };
+        /**
+         * Whether or not the sound is playing right now
+         */
+        Sound.prototype.isPlaying = function () {
+            if (this.sound) {
+                return this.sound.isPlaying();
+            }
+        };
+        /**
+         * Play the sound, returns a promise that resolves when the sound is done playing
+         */
+        Sound.prototype.play = function () {
+            if (this.sound) {
+                return this.sound.play();
+            }
+        };
+        /**
+         * Stop the sound, and do not rewind
+         */
+        Sound.prototype.pause = function () {
+            if (this.sound) {
+                this.sound.pause();
+            }
+        };
+        /**
+         * Stop the sound and rewind
+         */
+        Sound.prototype.stop = function () {
+            if (this.sound) {
+                this.sound.stop();
+            }
+        };
+        /**
+         * Returns true if the sound is loaded
+         */
+        Sound.prototype.isLoaded = function () {
+            return this._isLoaded;
+        };
+        /**
+         * Begins loading the sound and returns a promise to be resolved on completion
+         */
+        Sound.prototype.load = function () {
+            var _this = this;
+            var complete = new ex.Promise();
+            if (this.sound.getData() !== null) {
+                this._logger.debug('Already have data for resource', this.path);
+                complete.resolve(this.sound);
+                return complete;
+            }
+            this._logger.debug('Started loading sound', this.path);
+            this.sound.onprogress = this.onprogress;
+            this.sound.onload = function () {
+                _this.oncomplete();
+                _this._isLoaded = true;
+                _this._logger.debug('Completed loading sound', _this.path);
+                complete.resolve(_this.sound);
+            };
+            this.sound.onerror = function (e) {
+                _this.onerror(e);
+                complete.resolve(e);
+            };
+            this.sound.load();
+            return complete;
+        };
+        Sound.prototype.getData = function () {
+            return this.sound.getData();
+        };
+        Sound.prototype.setData = function (data) {
+            this.sound.setData(data);
+        };
+        Sound.prototype.processData = function (data) {
+            return this.sound.processData(data);
+        };
+        return Sound;
+    })();
+    ex.Sound = Sound;
+})(ex || (ex = {}));
 /// <reference path="Actor.ts" />
 var ex;
 (function (ex) {
@@ -9329,646 +9974,14 @@ var ex;
         Internal.WebAudio = WebAudio;
     })(Internal = ex.Internal || (ex.Internal = {}));
 })(ex || (ex = {}));
-/// <reference path="Util/Log.ts" />
-// Promises/A+ Spec http://promises-aplus.github.io/promises-spec/
-var ex;
-(function (ex) {
-    /**
-     * Valid states for a promise to be in
-     */
-    (function (PromiseState) {
-        PromiseState[PromiseState["Resolved"] = 0] = "Resolved";
-        PromiseState[PromiseState["Rejected"] = 1] = "Rejected";
-        PromiseState[PromiseState["Pending"] = 2] = "Pending";
-    })(ex.PromiseState || (ex.PromiseState = {}));
-    var PromiseState = ex.PromiseState;
-    /**
-     * Promises/A+ spec implementation of promises
-     *
-     * Promises are used to do asynchronous work and they are useful for
-     * creating a chain of actions. In Excalibur they are used for loading,
-     * sounds, animation, actions, and more.
-     *
-     * ## A Promise Chain
-     *
-     * Promises can be chained together and can be useful for creating a queue
-     * of functions to be called when something is done.
-     *
-     * The first [[Promise]] you will encounter is probably [[Engine.start]]
-     * which resolves when the game has finished loading.
-     *
-     * ```js
-     * var game = new ex.Engine();
-     *
-     * // perform start-up logic once game is ready
-     * game.start().then(function () {
-     *
-     *   // start-up & initialization logic
-     *
-     * });
-     * ```
-     *
-     * ## Handling errors
-     *
-     * You can optionally pass an error handler to [[Promise.then]] which will handle
-     * any errors that occur during Promise execution.
-     *
-     * ```js
-     * var game = new ex.Engine();
-     *
-     * game.start().then(
-     *   // success handler
-     *   function () {
-     *   },
-     *
-     *   // error handler
-     *   function (err) {
-     *   }
-     * );
-     * ```
-     *
-     * Any errors that go unhandled will be bubbled up to the browser.
-     */
-    var Promise = (function () {
-        function Promise() {
-            this._state = PromiseState.Pending;
-            this._successCallbacks = [];
-            this._rejectCallback = function () { return; };
-            this._logger = ex.Logger.getInstance();
-        }
-        /**
-         * Wrap a value in a resolved promise
-         * @param value  An optional value to wrap in a resolved promise
-         */
-        Promise.wrap = function (value) {
-            var promise = (new Promise()).resolve(value);
-            return promise;
-        };
-        /**
-         * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
-         * when at least 1 promise rejects.
-         */
-        Promise.join = function () {
-            var promises = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                promises[_i - 0] = arguments[_i];
-            }
-            var joinedPromise = new Promise();
-            if (!promises || !promises.length) {
-                return joinedPromise.resolve();
-            }
-            var total = promises.length;
-            var successes = 0;
-            var rejects = 0;
-            var errors = [];
-            promises.forEach(function (p) {
-                p.then(function () {
-                    successes += 1;
-                    if (successes === total) {
-                        joinedPromise.resolve();
-                    }
-                    else if (successes + rejects + errors.length === total) {
-                        joinedPromise.reject(errors);
-                    }
-                }, function () {
-                    rejects += 1;
-                    if (successes + rejects + errors.length === total) {
-                        joinedPromise.reject(errors);
-                    }
-                }).error(function (e) {
-                    errors.push(e);
-                    if ((errors.length + successes + rejects) === total) {
-                        joinedPromise.reject(errors);
-                    }
-                });
-            });
-            return joinedPromise;
-        };
-        /**
-         * Chain success and reject callbacks after the promise is resovled
-         * @param successCallback  Call on resolution of promise
-         * @param rejectCallback   Call on rejection of promise
-         */
-        Promise.prototype.then = function (successCallback, rejectCallback) {
-            if (successCallback) {
-                this._successCallbacks.push(successCallback);
-                // If the promise is already resovled call immediately
-                if (this.state() === PromiseState.Resolved) {
-                    try {
-                        successCallback.call(this, this._value);
-                    }
-                    catch (e) {
-                        this._handleError(e);
-                    }
-                }
-            }
-            if (rejectCallback) {
-                this._rejectCallback = rejectCallback;
-                // If the promise is already rejected call immediately
-                if (this.state() === PromiseState.Rejected) {
-                    try {
-                        rejectCallback.call(this, this._value);
-                    }
-                    catch (e) {
-                        this._handleError(e);
-                    }
-                }
-            }
-            return this;
-        };
-        /**
-         * Add an error callback to the promise
-         * @param errorCallback  Call if there was an error in a callback
-         */
-        Promise.prototype.error = function (errorCallback) {
-            if (errorCallback) {
-                this._errorCallback = errorCallback;
-            }
-            return this;
-        };
-        /**
-         * Resolve the promise and pass an option value to the success callbacks
-         * @param value  Value to pass to the success callbacks
-         */
-        Promise.prototype.resolve = function (value) {
-            var _this = this;
-            if (this._state === PromiseState.Pending) {
-                this._value = value;
-                try {
-                    this._state = PromiseState.Resolved;
-                    this._successCallbacks.forEach(function (cb) {
-                        cb.call(_this, _this._value);
-                    });
-                }
-                catch (e) {
-                    this._handleError(e);
-                }
-            }
-            else {
-                throw new Error('Cannot resolve a promise that is not in a pending state!');
-            }
-            return this;
-        };
-        /**
-         * Reject the promise and pass an option value to the reject callbacks
-         * @param value  Value to pass to the reject callbacks
-         */
-        Promise.prototype.reject = function (value) {
-            if (this._state === PromiseState.Pending) {
-                this._value = value;
-                try {
-                    this._state = PromiseState.Rejected;
-                    this._rejectCallback.call(this, this._value);
-                }
-                catch (e) {
-                    this._handleError(e);
-                }
-            }
-            else {
-                throw new Error('Cannot reject a promise that is not in a pending state!');
-            }
-            return this;
-        };
-        /**
-         * Inpect the current state of a promise
-         */
-        Promise.prototype.state = function () {
-            return this._state;
-        };
-        Promise.prototype._handleError = function (e) {
-            if (this._errorCallback) {
-                this._errorCallback.call(this, e);
-            }
-            else {
-                // rethrow error
-                throw e;
-            }
-        };
-        return Promise;
-    })();
-    ex.Promise = Promise;
-})(ex || (ex = {}));
-/// <reference path="Interfaces/ILoadable.ts" />
-var ex;
-(function (ex) {
-    /**
-     * Generic Resources
-     *
-     * The [[Resource]] type allows games built in Excalibur to load generic resources.
-     * For any type of remote resource it is recommended to use [[Resource]] for preloading.
-     *
-     * [[Resource]] is an [[ILoadable]] so it can be passed to a [[Loader]] to pre-load before
-     * a level or game.
-     *
-     * Example usages: JSON, compressed files, blobs.
-     *
-     * ## Pre-loading generic resources
-     *
-     * ```js
-     * var resLevel1 = new ex.Resource("/assets/levels/1.json", "application/json");
-     * var loader = new ex.Loader(resLevel1);
-     *
-     * // attach a handler to process once loaded
-     * resLevel1.processData = function (data) {
-     *
-     *   // process JSON
-     *   var json = JSON.parse(data);
-     *
-     *   // create a new level (inherits Scene) with the JSON configuration
-     *   var level = new Level(json);
-     *
-     *   // add a new scene
-     *   game.add(level.name, level);
-     * }
-     *
-     * game.start(loader);
-     * ```
-     */
-    var Resource = (function (_super) {
-        __extends(Resource, _super);
-        /**
-         * @param path          Path to the remote resource
-         * @param responseType  The Content-Type to expect (e.g. `application/json`)
-         * @param bustCache     Whether or not to cache-bust requests
-         */
-        function Resource(path, responseType, bustCache) {
-            if (bustCache === void 0) { bustCache = true; }
-            _super.call(this);
-            this.path = path;
-            this.responseType = responseType;
-            this.bustCache = bustCache;
-            this.data = null;
-            this.logger = ex.Logger.getInstance();
-            this.onprogress = function () { return; };
-            this.oncomplete = function () { return; };
-            this.onerror = function () { return; };
-        }
-        /**
-         * Returns true if the Resource is completely loaded and is ready
-         * to be drawn.
-         */
-        Resource.prototype.isLoaded = function () {
-            return this.data !== null;
-        };
-        Resource.prototype.wireEngine = function (engine) {
-            this._engine = engine;
-        };
-        Resource.prototype._cacheBust = function (uri) {
-            var query = /\?\w*=\w*/;
-            if (query.test(uri)) {
-                uri += ('&__=' + Date.now());
-            }
-            else {
-                uri += ('?__=' + Date.now());
-            }
-            return uri;
-        };
-        Resource.prototype._start = function (e) {
-            this.logger.debug('Started loading resource ' + this.path);
-        };
-        /**
-         * Begin loading the resource and returns a promise to be resolved on completion
-         */
-        Resource.prototype.load = function () {
-            var _this = this;
-            var complete = new ex.Promise();
-            // Exit early if we already have data
-            if (this.data !== null) {
-                this.logger.debug('Already have data for resource', this.path);
-                complete.resolve(this.data);
-                this.oncomplete();
-                return complete;
-            }
-            var request = new XMLHttpRequest();
-            request.open('GET', this.bustCache ? this._cacheBust(this.path) : this.path, true);
-            request.responseType = this.responseType;
-            request.onloadstart = function (e) { _this._start(e); };
-            request.onprogress = this.onprogress;
-            request.onerror = this.onerror;
-            request.onload = function (e) {
-                if (request.status !== 200) {
-                    _this.logger.error('Failed to load resource ', _this.path, ' server responded with error code', request.status);
-                    _this.onerror(request.response);
-                    complete.resolve(request.response);
-                    return;
-                }
-                _this.data = _this.processData(request.response);
-                _this.oncomplete();
-                _this.logger.debug('Completed loading resource', _this.path);
-                complete.resolve(_this.data);
-            };
-            request.send();
-            return complete;
-        };
-        /**
-         * Returns the loaded data once the resource is loaded
-         */
-        Resource.prototype.getData = function () {
-            return this.data;
-        };
-        /**
-         * Sets the data for this resource directly
-         */
-        Resource.prototype.setData = function (data) {
-            this.data = this.processData(data);
-        };
-        /**
-         * This method is meant to be overriden to handle any additional
-         * processing. Such as decoding downloaded audio bits.
-         */
-        Resource.prototype.processData = function (data) {
-            // Handle any additional loading after the xhr has completed.
-            return URL.createObjectURL(data);
-        };
-        return Resource;
-    })(ex.Class);
-    ex.Resource = Resource;
-})(ex || (ex = {}));
 /// <reference path="ILoadable.ts" />
-/// <reference path="Sound.ts" />
 /// <reference path="Util/Util.ts" />
 /// <reference path="Promises.ts" />
-/// <reference path="Resource.ts" />
+/// <reference path="Resources/Resource.ts" />
 /// <reference path="Interfaces/ILoadable.ts" />
 /// <reference path="Interfaces/ILoader.ts" />
 var ex;
 (function (ex) {
-    /**
-     * Textures
-     *
-     * The [[Texture]] object allows games built in Excalibur to load image resources.
-     * [[Texture]] is an [[ILoadable]] which means it can be passed to a [[Loader]]
-     * to pre-load before starting a level or game.
-     *
-     * Textures are the raw image so to add a drawing to a game, you must create
-     * a [[Sprite]]. You can use [[Texture.asSprite]] to quickly generate a Sprite
-     * instance.
-     *
-     * ## Pre-loading textures
-     *
-     * Pass the [[Texture]] to a [[Loader]] to pre-load the asset. Once a [[Texture]]
-     * is loaded, you can generate a [[Sprite]] with it.
-     *
-     * ```js
-     * var txPlayer = new ex.Texture("/assets/tx/player.png");
-     *
-     * var loader = new ex.Loader(txPlayer);
-     *
-     * game.start(loader).then(function () {
-     *
-     *   var player = new ex.Actor();
-     *
-     *   player.addDrawing(txPlayer);
-     *
-     *   game.add(player);
-     * });
-     * ```
-     */
-    var Texture = (function (_super) {
-        __extends(Texture, _super);
-        /**
-         * @param path       Path to the image resource
-         * @param bustCache  Optionally load texture with cache busting
-         */
-        function Texture(path, bustCache) {
-            if (bustCache === void 0) { bustCache = true; }
-            _super.call(this, path, 'blob', bustCache);
-            this.path = path;
-            this.bustCache = bustCache;
-            /**
-             * A [[Promise]] that resolves when the Texture is loaded.
-             */
-            this.loaded = new ex.Promise();
-            this._isLoaded = false;
-            this._sprite = null;
-            this._sprite = new ex.Sprite(this, 0, 0, 0, 0);
-        }
-        /**
-         * Returns true if the Texture is completely loaded and is ready
-         * to be drawn.
-         */
-        Texture.prototype.isLoaded = function () {
-            return this._isLoaded;
-        };
-        /**
-         * Begins loading the texture and returns a promise to be resolved on completion
-         */
-        Texture.prototype.load = function () {
-            var _this = this;
-            var complete = new ex.Promise();
-            var loaded = _super.prototype.load.call(this);
-            loaded.then(function () {
-                _this.image = new Image();
-                _this.image.addEventListener('load', function () {
-                    _this._isLoaded = true;
-                    _this.width = _this._sprite.swidth = _this._sprite.naturalWidth = _this._sprite.width = _this.image.naturalWidth;
-                    _this.height = _this._sprite.sheight = _this._sprite.naturalHeight = _this._sprite.height = _this.image.naturalHeight;
-                    _this.loaded.resolve(_this.image);
-                    complete.resolve(_this.image);
-                });
-                _this.image.src = _super.prototype.getData.call(_this);
-            }, function () {
-                complete.reject('Error loading texture.');
-            });
-            return complete;
-        };
-        Texture.prototype.asSprite = function () {
-            return this._sprite;
-        };
-        return Texture;
-    })(ex.Resource);
-    ex.Texture = Texture;
-    /**
-     * Sounds
-     *
-     * The [[Sound]] object allows games built in Excalibur to load audio
-     * components, from soundtracks to sound effects. [[Sound]] is an [[ILoadable]]
-     * which means it can be passed to a [[Loader]] to pre-load before a game or level.
-     *
-     * ## Pre-loading sounds
-     *
-     * Pass the [[Sound]] to a [[Loader]] to pre-load the asset. Once a [[Sound]]
-     * is loaded, you can [[Sound.play|play]] it.
-     *
-     * ```js
-     * // define multiple sources (such as mp3/wav/ogg) as a browser fallback
-     * var sndPlayerDeath = new ex.Sound("/assets/snd/player-death.mp3", "/assets/snd/player-death.wav");
-     *
-     * var loader = new ex.Loader(sndPlayerDeath);
-     *
-     * game.start(loader).then(function () {
-     *
-     *   sndPlayerDeath.play();
-     * });
-     * ```
-     */
-    var Sound = (function () {
-        /**
-         * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
-         */
-        function Sound() {
-            var paths = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                paths[_i - 0] = arguments[_i];
-            }
-            this._logger = ex.Logger.getInstance();
-            this.onprogress = function () { return; };
-            this.oncomplete = function () { return; };
-            this.onerror = function () { return; };
-            this.onload = function () { return; };
-            this._isLoaded = false;
-            this._wasPlayingOnHidden = false;
-            /* Chrome : MP3, WAV, Ogg
-             * Firefox : WAV, Ogg,
-             * IE : MP3, WAV coming soon
-             * Safari MP3, WAV, Ogg
-             */
-            this.path = '';
-            for (var i = 0; i < paths.length; i++) {
-                if (Sound.canPlayFile(paths[i])) {
-                    this.path = paths[i];
-                    break;
-                }
-            }
-            if (!this.path) {
-                this._logger.warn('This browser does not support any of the audio files specified:', paths.join(', '));
-                this._logger.warn('Attempting to use', paths[0]);
-                this.path = paths[0]; // select the first specified
-            }
-            this.sound = new ex.Internal.FallbackAudio(this.path, 1.0);
-        }
-        /**
-         * Whether or not the browser can play this file as HTML5 Audio
-         */
-        Sound.canPlayFile = function (file) {
-            try {
-                var a = new Audio();
-                var filetype = /.*\.([A-Za-z0-9]+)$/;
-                var type = file.match(filetype)[1];
-                if (a.canPlayType('audio/' + type)) {
-                    return true;
-                }
-                {
-                    return false;
-                }
-            }
-            catch (e) {
-                ex.Logger.getInstance().warn('Cannot determine audio support, assuming no support for the Audio Tag', e);
-                return false;
-            }
-        };
-        Sound.prototype.wireEngine = function (engine) {
-            var _this = this;
-            if (engine) {
-                this._engine = engine;
-                this._engine.on('hidden', function () {
-                    if (engine.pauseAudioWhenHidden && _this.isPlaying()) {
-                        _this._wasPlayingOnHidden = true;
-                        _this.pause();
-                    }
-                });
-                this._engine.on('visible', function () {
-                    if (engine.pauseAudioWhenHidden && _this._wasPlayingOnHidden) {
-                        _this.play();
-                        _this._wasPlayingOnHidden = false;
-                    }
-                });
-            }
-        };
-        /**
-         * Sets the volume of the sound clip
-         * @param volume  A volume value between 0-1.0
-         */
-        Sound.prototype.setVolume = function (volume) {
-            if (this.sound) {
-                this.sound.setVolume(volume);
-            }
-        };
-        /**
-         * Indicates whether the clip should loop when complete
-         * @param loop  Set the looping flag
-         */
-        Sound.prototype.setLoop = function (loop) {
-            if (this.sound) {
-                this.sound.setLoop(loop);
-            }
-        };
-        /**
-         * Whether or not the sound is playing right now
-         */
-        Sound.prototype.isPlaying = function () {
-            if (this.sound) {
-                return this.sound.isPlaying();
-            }
-        };
-        /**
-         * Play the sound, returns a promise that resolves when the sound is done playing
-         */
-        Sound.prototype.play = function () {
-            if (this.sound) {
-                return this.sound.play();
-            }
-        };
-        /**
-         * Stop the sound, and do not rewind
-         */
-        Sound.prototype.pause = function () {
-            if (this.sound) {
-                this.sound.pause();
-            }
-        };
-        /**
-         * Stop the sound and rewind
-         */
-        Sound.prototype.stop = function () {
-            if (this.sound) {
-                this.sound.stop();
-            }
-        };
-        /**
-         * Returns true if the sound is loaded
-         */
-        Sound.prototype.isLoaded = function () {
-            return this._isLoaded;
-        };
-        /**
-         * Begins loading the sound and returns a promise to be resolved on completion
-         */
-        Sound.prototype.load = function () {
-            var _this = this;
-            var complete = new ex.Promise();
-            if (this.sound.getData() !== null) {
-                this._logger.debug('Already have data for resource', this.path);
-                complete.resolve(this.sound);
-                return complete;
-            }
-            this._logger.debug('Started loading sound', this.path);
-            this.sound.onprogress = this.onprogress;
-            this.sound.onload = function () {
-                _this.oncomplete();
-                _this._isLoaded = true;
-                _this._logger.debug('Completed loading sound', _this.path);
-                complete.resolve(_this.sound);
-            };
-            this.sound.onerror = function (e) {
-                _this.onerror(e);
-                complete.resolve(e);
-            };
-            this.sound.load();
-            return complete;
-        };
-        Sound.prototype.getData = function () {
-            return this.sound.getData();
-        };
-        Sound.prototype.setData = function (data) {
-            this.sound.setData(data);
-        };
-        Sound.prototype.processData = function (data) {
-            return this.sound.processData(data);
-        };
-        return Sound;
-    })();
-    ex.Sound = Sound;
     /**
      * Pre-loading assets
      *
@@ -11972,6 +11985,9 @@ var ex;
 /// <reference path="Class.ts" />
 /// <reference path="Drawing/Color.ts" />
 /// <reference path="Util/Log.ts" />
+/// <reference path="Resources/Resource.ts" />
+/// <reference path="Resources/Texture.ts" />
+/// <reference path="Resources/Sound.ts" />
 /// <reference path="Collision/Side.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actor.ts" />

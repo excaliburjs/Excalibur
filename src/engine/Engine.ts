@@ -4,6 +4,9 @@
 /// <reference path="Class.ts" />
 /// <reference path="Drawing/Color.ts" />
 /// <reference path="Util/Log.ts" />
+/// <reference path="Resources/Resource.ts" />
+/// <reference path="Resources/Texture.ts" />
+/// <reference path="Resources/Sound.ts" />
 /// <reference path="Collision/Side.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actor.ts" />
@@ -25,6 +28,7 @@
 /// <reference path="Input/Pointer.ts"/>
 /// <reference path="Input/Keyboard.ts"/>
 /// <reference path="Input/Gamepad.ts"/>
+
 
 /**
  * # Welcome to the Excalibur API
