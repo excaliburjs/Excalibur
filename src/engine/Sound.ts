@@ -241,7 +241,7 @@ module ex.Internal {
       private _playPromise: ex.Promise<any>;
 
       private _logger: Logger = Logger.getInstance();
-      private _data: any;
+      private _data: any = null;
 
       constructor(public path: string, volume?: number) {
 

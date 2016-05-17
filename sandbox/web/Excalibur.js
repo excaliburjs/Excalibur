@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-05-12
+/*! excalibur - v0.6.0 - 2016-05-16
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 if (typeof window === 'undefined') {
@@ -9194,6 +9194,7 @@ var ex;
                 this._isPaused = false;
                 this._currentOffset = 0;
                 this._logger = ex.Logger.getInstance();
+                this._data = null;
                 this.onload = function () { return; };
                 this.onprogress = function () { return; };
                 this.onerror = function () { return; };
