@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-05-16
+/*! excalibur - v0.6.0 - 2016-05-24
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 if (typeof window === 'undefined') {
@@ -10167,6 +10167,118 @@ var ex;
         return Loader;
     })(ex.Class);
     ex.Loader = Loader;
+    /**
+     * A [[Loader]] that pauses after loading to allow user
+     * to proceed to play the game. Typically you will
+     * want to use this loader for iOS to allow sounds
+     * to play after loading (Apple Safari requires user
+     * interaction to allow sounds, even for games)
+     *
+     * **Note:** Because Loader is not part of a Scene, you must
+     * call `update` and `draw` manually on "child" objects.
+     *
+     * ## Custom trigger
+     *
+     * The `PauseAfterLoader` by default uses the [[PlayTrigger]]
+     * which extends [[UIActor]] to act as a trigger. You can pass in your
+     * own custom [[Actor]] to act as a trigger, whenever the user
+     * taps the bounding box the game will start.
+     *
+     * ```ts
+     * var customTrigger = new ex.UIActor();
+     * var loader = new ex.PauseAfterLoader([...], customTrigger);
+     * ```
+     *
+     * Reference the internal [[PlayTrigger]] implementation for a starting
+     * point.
+     *
+     * ## Use PauseAfterLoader for iOS
+     *
+     * The primary use case for pausing before starting the game is to
+     * pass Apple's requirement of user interaction.
+     *
+     * Therefore, you can use this snippet to only use PauseAfterLoader when
+     * iOS is detected (see [this thread](http://stackoverflow.com/questions/9038625/detect-if-device-is-ios)
+     * for more techniques).
+     *
+     * ```ts
+     * var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(<any>window).MSStream;
+     * var loader: ex.Loader = iOS ? new ex.PauseAfterLoader() : new ex.Loader();
+     *
+     * loader.addResource(...);
+     * ```
+     */
+    var PauseAfterLoader = (function (_super) {
+        __extends(PauseAfterLoader, _super);
+        function PauseAfterLoader(loadables, trigger) {
+            _super.call(this, loadables);
+            this._playTrigger = trigger || new PlayTrigger();
+            this._playTrigger.on('pointerup', this._handleOnTrigger.bind(this));
+        }
+        PauseAfterLoader.prototype.load = function () {
+            var _this = this;
+            this._waitPromise = new ex.Promise();
+            // wait until user indicates to proceed before finishing load
+            var superLoad = _super.prototype.load.call(this).then(function (value) {
+                _this._loaded = true;
+                _this._loadedValue = value;
+            }, function (value) {
+                _this._waitPromise.reject(value);
+            });
+            return this._waitPromise;
+        };
+        PauseAfterLoader.prototype.draw = function (ctx, delta) {
+            _super.prototype.draw.call(this, ctx, delta);
+            if (this._loaded) {
+                this._playTrigger.draw(ctx, delta);
+            }
+        };
+        PauseAfterLoader.prototype.update = function (engine, delta) {
+            if (this._loaded) {
+                this._playTrigger.update(engine, delta);
+            }
+        };
+        PauseAfterLoader.prototype._handleOnTrigger = function (e) {
+            // continue to play game
+            this._waitPromise.resolve(this._loadedValue);
+        };
+        return PauseAfterLoader;
+    })(Loader);
+    ex.PauseAfterLoader = PauseAfterLoader;
+    /**
+     * Internal trigger button for [[PauseAfterLoader]] usage.
+     * Does not follow typical Scene-based actor pipeline because
+     * right now [[Loader]] is not part of a [[Scene]].
+     */
+    var PlayTrigger = (function (_super) {
+        __extends(PlayTrigger, _super);
+        function PlayTrigger() {
+            _super.call(this, 0, 0, 200, 50);
+            this._lbl = new ex.Label('Tap to Play', 0, 0, 'sans-serif');
+            this._lbl.color = ex.Color.White;
+            this._lbl.fontSize = 24;
+            this._lbl.fontUnit = ex.FontUnit.Px;
+            this._lbl.textAlign = ex.TextAlign.Center;
+            this._lbl.baseAlign = ex.BaseAlign.Middle;
+        }
+        PlayTrigger.prototype.update = function (engine, delta) {
+            _super.prototype.update.call(this, engine, delta);
+            // center under progress bar
+            this.x = engine.getWidth() / 2 - this.getWidth() / 2;
+            this.y = engine.getHeight() - this.getHeight() * 2;
+            this._lbl.x = this.getCenter().x;
+            this._lbl.y = this.getCenter().y;
+            this._lbl.update(engine, delta);
+        };
+        PlayTrigger.prototype.draw = function (ctx, delta) {
+            _super.prototype.draw.call(this, ctx, delta);
+            ctx.strokeStyle = ex.Color.White.toString();
+            ctx.lineWidth = 4;
+            ctx.strokeRect(this.x, this.y, this.getWidth(), this.getHeight());
+            this._lbl.draw(ctx, delta);
+        };
+        return PlayTrigger;
+    })(ex.UIActor);
 })(ex || (ex = {}));
 /// <reference path="Log.ts" />
 var ex;
@@ -12701,6 +12813,10 @@ var ex;
             if (this._isLoading) {
                 // suspend updates untill loading is finished
                 this._loader.update(this, delta);
+                // Update input listeners
+                this.input.keyboard.update(delta);
+                this.input.pointers.update(delta);
+                this.input.gamepads.update(delta);
                 return;
             }
             this.emit('preupdate', new ex.PreUpdateEvent(this, delta, this));
@@ -12843,13 +12959,12 @@ var ex;
             var _this = this;
             var complete = new ex.Promise();
             this._isLoading = true;
-            loader.oncomplete = function () {
+            loader.load().then(function () {
                 setTimeout(function () {
                     _this._isLoading = false;
                     complete.resolve();
                 }, 500);
-            };
-            loader.load();
+            });
             return complete;
         };
         return Engine;

@@ -219,4 +219,139 @@ module ex {
       public onerror: () => void = () => { return; };
 
    }
+   
+   /**
+    * A [[Loader]] that pauses after loading to allow user
+    * to proceed to play the game. Typically you will
+    * want to use this loader for iOS to allow sounds
+    * to play after loading (Apple Safari requires user
+    * interaction to allow sounds, even for games)
+    *
+    * **Note:** Because Loader is not part of a Scene, you must
+    * call `update` and `draw` manually on "child" objects.
+    *
+    * ## Custom trigger
+    * 
+    * The `PauseAfterLoader` by default uses the [[PlayTrigger]]
+    * which extends [[UIActor]] to act as a trigger. You can pass in your
+    * own custom [[Actor]] to act as a trigger, whenever the user
+    * taps the bounding box the game will start.
+    *
+    * ```ts
+    * var customTrigger = new ex.UIActor();
+    * var loader = new ex.PauseAfterLoader([...], customTrigger);
+    * ```
+    *
+    * Reference the internal [[PlayTrigger]] implementation for a starting
+    * point.
+    *
+    * ## Use PauseAfterLoader for iOS
+    *
+    * The primary use case for pausing before starting the game is to
+    * pass Apple's requirement of user interaction.
+    *
+    * Therefore, you can use this snippet to only use PauseAfterLoader when
+    * iOS is detected (see [this thread](http://stackoverflow.com/questions/9038625/detect-if-device-is-ios) 
+    * for more techniques).
+    *
+    * ```ts
+    * var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(<any>window).MSStream;
+    * var loader: ex.Loader = iOS ? new ex.PauseAfterLoader() : new ex.Loader();
+    *
+    * loader.addResource(...);
+    * ```
+    */
+   export class PauseAfterLoader extends Loader {
+      
+      private _loaded: boolean;
+      private _loadedValue: any;
+      private _waitPromise: Promise<any>;
+      private _playTrigger: Actor;
+      
+      constructor(loadables?: ILoadable[], trigger?: Actor) {
+         super(loadables);
+         
+         this._playTrigger = trigger || new PlayTrigger();
+         this._playTrigger.on('pointerup', this._handleOnTrigger.bind(this));
+      }
+      
+      public load(): Promise<any> {
+         this._waitPromise = new ex.Promise<any>();
+         
+         // wait until user indicates to proceed before finishing load
+         var superLoad = super.load().then((value?) => {
+            this._loaded = true;
+            this._loadedValue = value;
+         }, (value?) => {
+            this._waitPromise.reject(value);
+         });
+         
+         return this._waitPromise;
+      }
+      
+      public draw(ctx: CanvasRenderingContext2D, delta: number) {
+         super.draw(ctx, delta);
+         
+         if (this._loaded) {
+            this._playTrigger.draw(ctx, delta);
+         }
+      }
+      
+      public update(engine: Engine, delta: number) {
+         
+         if (this._loaded) {            
+            this._playTrigger.update(engine, delta);
+         }
+         
+      }
+      
+      private _handleOnTrigger(e: Input.PointerEvent) {
+         
+         // continue to play game
+         this._waitPromise.resolve(this._loadedValue);
+      }
+   }
+   
+   /**
+    * Internal trigger button for [[PauseAfterLoader]] usage.
+    * Does not follow typical Scene-based actor pipeline because
+    * right now [[Loader]] is not part of a [[Scene]].
+    */
+   class PlayTrigger extends UIActor {
+      private _lbl: Label;
+      
+      constructor() {
+         super(0, 0, 200, 50);   
+         
+         this._lbl = new Label('Tap to Play', 0, 0, 'sans-serif');
+         this._lbl.color = ex.Color.White;
+         this._lbl.fontSize = 24;
+         this._lbl.fontUnit = FontUnit.Px;    
+         this._lbl.textAlign = TextAlign.Center; 
+         this._lbl.baseAlign = BaseAlign.Middle;         
+      }
+      
+      update(engine: Engine, delta: number) {
+         super.update(engine, delta);
+         
+         // center under progress bar
+         this.x = engine.getWidth() / 2 - this.getWidth() / 2;
+         this.y = engine.getHeight() - this.getHeight() * 2;
+         
+         this._lbl.x = this.getCenter().x;
+         this._lbl.y = this.getCenter().y;
+         
+         this._lbl.update(engine, delta);
+      }
+      
+      draw(ctx: CanvasRenderingContext2D, delta: number) {
+         super.draw(ctx, delta);
+         
+         ctx.strokeStyle = ex.Color.White.toString();
+         ctx.lineWidth = 4;
+         ctx.strokeRect(this.x, this.y, this.getWidth(), this.getHeight());
+         
+         this._lbl.draw(ctx, delta);
+      }
+   }
 }

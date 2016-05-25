@@ -973,6 +973,10 @@ module ex {
          if (this._isLoading) {
             // suspend updates untill loading is finished
             this._loader.update(this, delta);
+            // Update input listeners
+            this.input.keyboard.update(delta);
+            this.input.pointers.update(delta);
+            this.input.gamepads.update(delta);
             return;
          }
          this.emit('preupdate', new PreUpdateEvent(this, delta, this));
@@ -1139,13 +1143,12 @@ module ex {
 
          this._isLoading = true;
 
-         loader.oncomplete = () => {
+         loader.load().then(() => {
             setTimeout(() => {
                this._isLoading = false;
                complete.resolve();
             }, 500);
-         };
-         loader.load();
+         });
          
          return complete;
       }
