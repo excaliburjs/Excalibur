@@ -5330,6 +5330,58 @@ declare module ex {
         oncomplete: () => void;
         onerror: () => void;
     }
+    /**
+     * A [[Loader]] that pauses after loading to allow user
+     * to proceed to play the game. Typically you will
+     * want to use this loader for iOS to allow sounds
+     * to play after loading (Apple Safari requires user
+     * interaction to allow sounds, even for games)
+     *
+     * **Note:** Because Loader is not part of a Scene, you must
+     * call `update` and `draw` manually on "child" objects.
+     *
+     * ## Custom trigger
+     *
+     * The `PauseAfterLoader` by default uses the [[PlayTrigger]]
+     * which extends [[UIActor]] to act as a trigger. You can pass in your
+     * own custom [[Actor]] to act as a trigger, whenever the user
+     * taps the bounding box the game will start.
+     *
+     * ```ts
+     * var customTrigger = new ex.UIActor();
+     * var loader = new ex.PauseAfterLoader([...], customTrigger);
+     * ```
+     *
+     * Reference the internal [[PlayTrigger]] implementation for a starting
+     * point.
+     *
+     * ## Use PauseAfterLoader for iOS
+     *
+     * The primary use case for pausing before starting the game is to
+     * pass Apple's requirement of user interaction.
+     *
+     * Therefore, you can use this snippet to only use PauseAfterLoader when
+     * iOS is detected (see [this thread](http://stackoverflow.com/questions/9038625/detect-if-device-is-ios)
+     * for more techniques).
+     *
+     * ```ts
+     * var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(<any>window).MSStream;
+     * var loader: ex.Loader = iOS ? new ex.PauseAfterLoader() : new ex.Loader();
+     *
+     * loader.addResource(...);
+     * ```
+     */
+    class PauseAfterLoader extends Loader {
+        private _loaded;
+        private _loadedValue;
+        private _waitPromise;
+        private _playTrigger;
+        constructor(loadables?: ILoadable[], trigger?: Actor);
+        load(): Promise<any>;
+        draw(ctx: CanvasRenderingContext2D, delta: number): void;
+        update(engine: Engine, delta: number): void;
+        private _handleOnTrigger(e);
+    }
 }
 declare module ex {
     class Detector {
