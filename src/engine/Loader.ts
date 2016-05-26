@@ -278,8 +278,7 @@ module ex {
          super(loadables);
          
          this._playTrigger = document.getElementById(triggerElementId);         
-         this._playTrigger.addEventListener('mouseup', this._handleOnTrigger);
-         this._playTrigger.addEventListener('touchend', this._handleOnTrigger);
+         this._playTrigger.addEventListener('click', this._handleOnTrigger);
       }
       
       public load(): Promise<any> {
@@ -305,6 +304,9 @@ module ex {
          if (this._waitPromise.state() !== PromiseState.Pending) {
             return false;
          }
+         
+         // unlock Safari WebAudio context
+         Internal.WebAudio.unlock();
          
          // continue to play game
          this._waitPromise.resolve(this._loadedValue);
