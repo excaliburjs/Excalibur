@@ -6,7 +6,7 @@ var game = new ex.Engine({
 var jump = new ex.Sound('../../../sounds/jump.mp3', '../../../sounds/jump.wav');
 // if iOS, use PauseAfterLoader
 var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-var loader = iOS ? new ex.PauseAfterLoader() : new ex.Loader();
+var loader = iOS ? new ex.PauseAfterLoader('tap-to-play') : new ex.Loader();
 loader.addResource(jump);
 var lbl = new ex.Label('Game started, you should hear a sound every 2 seconds', 20, 100, 'sans-serif');
 lbl.fontSize = 10;

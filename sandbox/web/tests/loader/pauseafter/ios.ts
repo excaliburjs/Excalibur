@@ -9,7 +9,7 @@ var jump = new ex.Sound('../../../sounds/jump.mp3', '../../../sounds/jump.wav');
 
 // if iOS, use PauseAfterLoader
 var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(<any>window).MSStream;
-var loader: ex.Loader = iOS ? new ex.PauseAfterLoader() : new ex.Loader();
+var loader: ex.Loader = iOS ? new ex.PauseAfterLoader('tap-to-play') : new ex.Loader();
 
 loader.addResource(jump);
 

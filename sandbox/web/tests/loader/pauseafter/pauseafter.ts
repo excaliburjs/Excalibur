@@ -7,7 +7,7 @@ var game = new ex.Engine({
 });
 
 var jump = new ex.Sound('../../../sounds/jump.mp3', '../../../sounds/jump.wav'); 
-var loader: ex.Loader = new ex.PauseAfterLoader([jump]);
+var loader: ex.Loader = new ex.PauseAfterLoader('tap-to-play', [jump]);
 
 var lbl = new ex.Label('Game started, you should hear a sound', 20, 100, 'sans-serif');
 lbl.fontSize = 10;
