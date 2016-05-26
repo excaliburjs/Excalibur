@@ -233,16 +233,16 @@ module ex {
     * ## Custom trigger
     * 
     * The `PauseAfterLoader` by default uses the [[PlayTrigger]]
-    * which extends [[UIActor]] to act as a trigger. You can pass in your
-    * own custom [[Actor]] to act as a trigger, whenever the user
-    * taps the bounding box the game will start.
+    * which wraps an HTML `<a>` element to act as a trigger. You can pass in your
+    * own [[IPauseAfterLoaderTrigger]] implementation to act as a trigger, whenever the user
+    * taps the element the game will start.
     *
     * ```ts
-    * var customTrigger = new ex.UIActor();
+    * var customTrigger = document.createElement('a');
     * var loader = new ex.PauseAfterLoader([...], customTrigger);
     * ```
     *
-    * Reference the internal [[PlayTrigger]] implementation for a starting
+    * Reference [[IPauseAfterLoaderTrigger]] and the internal [[PlayTrigger]] implementation for a starting
     * point.
     *
     * ## Use PauseAfterLoader for iOS
@@ -266,9 +266,9 @@ module ex {
       private _loaded: boolean;
       private _loadedValue: any;
       private _waitPromise: Promise<any>;
-      private _playTrigger: PauseAfterLoaderTrigger;
+      private _playTrigger: IPauseAfterLoaderTrigger;
       
-      constructor(loadables?: ILoadable[], trigger?: PauseAfterLoaderTrigger) {
+      constructor(loadables?: ILoadable[], trigger?: IPauseAfterLoaderTrigger) {
          super(loadables);
          
          this._playTrigger = trigger || new PlayTrigger();         
@@ -315,7 +315,7 @@ module ex {
          document.body.removeChild(this._playTrigger.getElement());
          
          return false;
-      }
+      };
    }
    
    /**
@@ -323,7 +323,7 @@ module ex {
     * The default implementation [[PlayTrigger]] wraps an HTML anchor element
     * with some default styles.
     */
-   export interface PauseAfterLoaderTrigger {
+   export interface IPauseAfterLoaderTrigger {
       getElement(): HTMLElement;
       update(engine: Engine, delta: number);
    }
@@ -333,10 +333,10 @@ module ex {
     * Does not follow typical Scene-based actor pipeline because
     * right now [[Loader]] is not part of a [[Scene]].
     *
-    * To build your own custom trigger, implement [[PauseAfterLoaderTrigger]]
+    * To build your own custom trigger, implement [[IPauseAfterLoaderTrigger]]
     * and pass it into [[PauseAfterLoader]]
     */
-   class PlayTrigger implements PauseAfterLoaderTrigger {
+   class PlayTrigger implements IPauseAfterLoaderTrigger {
       
       private _el: HTMLAnchorElement;
       
