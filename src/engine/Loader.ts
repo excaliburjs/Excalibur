@@ -266,35 +266,31 @@ module ex {
       private _loaded: boolean;
       private _loadedValue: any;
       private _waitPromise: Promise<any>;
-      private _playTrigger: Actor;
+      private _playTrigger: PauseAfterLoaderTrigger;
       
-      constructor(loadables?: ILoadable[], trigger?: Actor) {
+      constructor(loadables?: ILoadable[], trigger?: PauseAfterLoaderTrigger) {
          super(loadables);
          
-         this._playTrigger = trigger || new PlayTrigger();
-         this._playTrigger.on('pointerup', this._handleOnTrigger.bind(this));
+         this._playTrigger = trigger || new PlayTrigger();         
+         this._playTrigger.getElement().addEventListener('mouseup', this._handleOnTrigger);
       }
       
       public load(): Promise<any> {
          this._waitPromise = new ex.Promise<any>();
-         
+                  
          // wait until user indicates to proceed before finishing load
          var superLoad = super.load().then((value?) => {
             this._loaded = true;
             this._loadedValue = value;
+            
+            // append shadow DOM element
+            document.body.appendChild(this._playTrigger.getElement());
+            
          }, (value?) => {
             this._waitPromise.reject(value);
          });
          
          return this._waitPromise;
-      }
-      
-      public draw(ctx: CanvasRenderingContext2D, delta: number) {
-         super.draw(ctx, delta);
-         
-         if (this._loaded) {
-            this._playTrigger.draw(ctx, delta);
-         }
       }
       
       public update(engine: Engine, delta: number) {
@@ -305,53 +301,70 @@ module ex {
          
       }
       
-      private _handleOnTrigger(e: Input.PointerEvent) {
+      private _handleOnTrigger = (e: MouseEvent) => {
          
          // continue to play game
          this._waitPromise.resolve(this._loadedValue);
+         
+         // remove shadow DOM element
+         document.body.removeChild(this._playTrigger.getElement());
       }
+   }
+   
+   /**
+    * Simple interface that describes a [[PauseAfterLoader]] trigger wrapper.
+    * The default implementation [[PlayTrigger]] wraps an HTML anchor element
+    * with some default styles.
+    */
+   export interface PauseAfterLoaderTrigger {
+      getElement(): HTMLElement;
+      update(engine: Engine, delta: number);
    }
    
    /**
     * Internal trigger button for [[PauseAfterLoader]] usage.
     * Does not follow typical Scene-based actor pipeline because
     * right now [[Loader]] is not part of a [[Scene]].
+    *
+    * To build your own custom trigger, implement [[PauseAfterLoaderTrigger]]
+    * and pass it into [[PauseAfterLoader]]
     */
-   class PlayTrigger extends UIActor {
-      private _lbl: Label;
+   class PlayTrigger implements PauseAfterLoaderTrigger {
       
+      private _el: HTMLAnchorElement;
+      
+      /**
+       *
+       */
       constructor() {
-         super(0, 0, 200, 50);   
          
-         this._lbl = new Label('Tap to Play', 0, 0, 'sans-serif');
-         this._lbl.color = ex.Color.White;
-         this._lbl.fontSize = 24;
-         this._lbl.fontUnit = FontUnit.Px;    
-         this._lbl.textAlign = TextAlign.Center; 
-         this._lbl.baseAlign = BaseAlign.Middle;         
+         this._el = document.createElement('a');
+         this._el.href = '#';
+         this._el.innerText = 'Tap to Play';
+         this._el.style.fontSize = '24px';
+         this._el.style.fontFamily = 'sans-serif';
+         this._el.style.textAlign = 'center';
+         this._el.style.border = '3px solid white';
+         this._el.style.position = 'absolute';       
+         this._el.style.color = 'white';
+         this._el.style.width = '200px';
+         this._el.style.height = '50px';  
+         this._el.style.lineHeight = '50px';
+         this._el.style.textDecoration = 'none';
+         
+      }
+      
+      getElement(): HTMLElement {
+        return this._el;
       }
       
       update(engine: Engine, delta: number) {
-         super.update(engine, delta);
          
-         // center under progress bar
-         this.x = engine.getWidth() / 2 - this.getWidth() / 2;
-         this.y = engine.getHeight() - this.getHeight() * 2;
+         // position relative to engine canvas
+         var canvas = engine.canvas;
          
-         this._lbl.x = this.getCenter().x;
-         this._lbl.y = this.getCenter().y;
-         
-         this._lbl.update(engine, delta);
-      }
-      
-      draw(ctx: CanvasRenderingContext2D, delta: number) {
-         super.draw(ctx, delta);
-         
-         ctx.strokeStyle = ex.Color.White.toString();
-         ctx.lineWidth = 4;
-         ctx.strokeRect(this.x, this.y, this.getWidth(), this.getHeight());
-         
-         this._lbl.draw(ctx, delta);
-      }
+         this._el.style.left = (canvas.offsetLeft + canvas.offsetWidth / 2 - this._el.offsetWidth / 2).toString() + 'px';
+         this._el.style.top = (canvas.offsetTop + canvas.offsetHeight - this._el.offsetHeight * 2).toString() + 'px';
+      }      
    }
 }
