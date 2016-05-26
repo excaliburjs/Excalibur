@@ -5242,6 +5242,13 @@ declare module ex.Internal {
         play(): Promise<any>;
         pause(): void;
         stop(): void;
+        private static _unlocked;
+        /**
+         * Play an empty sound to unlock Safari WebAudio context. Call this function
+         * right after a user interaction event. Typically used by [[PauseAfterLoader]]
+         */
+        static unlock(): void;
+        static isUnlocked(): boolean;
     }
 }
 declare module ex {

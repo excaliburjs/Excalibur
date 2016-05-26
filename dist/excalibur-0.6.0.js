@@ -9978,6 +9978,36 @@ var ex;
                     }
                 }
             };
+            /**
+             * Play an empty sound to unlock Safari WebAudio context. Call this function
+             * right after a user interaction event. Typically used by [[PauseAfterLoader]]
+             */
+            WebAudio.unlock = function () {
+                if (this._unlocked || !audioContext) {
+                    return;
+                }
+                // create empty buffer and play it
+                var buffer = audioContext.createBuffer(1, 1, 22050);
+                var source = audioContext.createBufferSource();
+                source.buffer = buffer;
+                source.connect(audioContext.destination);
+                if (source.noteOn) {
+                    source.noteOn(0);
+                }
+                else {
+                    source.start(0);
+                }
+                // by checking the play state after some time, we know if we're really unlocked
+                setTimeout(function () {
+                    if ((source.playbackState === source.PLAYING_STATE || source.playbackState === source.FINISHED_STATE)) {
+                        this._unlocked = true;
+                    }
+                }, 0);
+            };
+            WebAudio.isUnlocked = function () {
+                return this._unlocked;
+            };
+            WebAudio._unlocked = false;
             return WebAudio;
         })();
         Internal.WebAudio = WebAudio;
@@ -10232,6 +10262,8 @@ var ex;
                 if (_this._waitPromise.state() !== ex.PromiseState.Pending) {
                     return false;
                 }
+                // unlock Safari WebAudio context
+                ex.Internal.WebAudio.unlock();
                 // continue to play game
                 _this._waitPromise.resolve(_this._loadedValue);
                 // remove shadow DOM element
@@ -10239,8 +10271,7 @@ var ex;
                 return false;
             };
             this._playTrigger = document.getElementById(triggerElementId);
-            this._playTrigger.addEventListener('mouseup', this._handleOnTrigger);
-            this._playTrigger.addEventListener('touchend', this._handleOnTrigger);
+            this._playTrigger.addEventListener('click', this._handleOnTrigger);
         }
         PauseAfterLoader.prototype.load = function () {
             var _this = this;
