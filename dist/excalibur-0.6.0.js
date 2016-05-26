@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-05-16
+/*! excalibur - v0.6.0 - 2016-05-25
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 if (typeof window === 'undefined') {
@@ -10622,7 +10622,7 @@ var ex;
             this.color = ex.Color.Black.clone();
             this.spriteFont = spriteFont;
             this.collisionType = ex.CollisionType.PreventCollision;
-            this.fontFamily = fontFamily || '10px sans-serif'; // coallesce to default canvas font
+            this.fontFamily = fontFamily || 'sans-serif'; // coallesce to default canvas font
             if (spriteFont) {
             }
         }
