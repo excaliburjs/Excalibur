@@ -10180,16 +10180,16 @@ var ex;
      * ## Custom trigger
      *
      * The `PauseAfterLoader` by default uses the [[PlayTrigger]]
-     * which extends [[UIActor]] to act as a trigger. You can pass in your
-     * own custom [[Actor]] to act as a trigger, whenever the user
-     * taps the bounding box the game will start.
+     * which wraps an HTML `<a>` element to act as a trigger. You can pass in your
+     * own [[IPauseAfterLoaderTrigger]] implementation to act as a trigger, whenever the user
+     * taps the element the game will start.
      *
      * ```ts
-     * var customTrigger = new ex.UIActor();
+     * var customTrigger = document.createElement('a');
      * var loader = new ex.PauseAfterLoader([...], customTrigger);
      * ```
      *
-     * Reference the internal [[PlayTrigger]] implementation for a starting
+     * Reference [[IPauseAfterLoaderTrigger]] and the internal [[PlayTrigger]] implementation for a starting
      * point.
      *
      * ## Use PauseAfterLoader for iOS
@@ -10213,7 +10213,7 @@ var ex;
         function PauseAfterLoader(loadables, trigger) {
             var _this = this;
             _super.call(this, loadables);
-            this._handleOnTrigger = function (e) {
+            this._handleOnTrigger = function () {
                 if (_this._waitPromise.state() !== ex.PromiseState.Pending) {
                     return false;
                 }
@@ -10254,7 +10254,7 @@ var ex;
      * Does not follow typical Scene-based actor pipeline because
      * right now [[Loader]] is not part of a [[Scene]].
      *
-     * To build your own custom trigger, implement [[PauseAfterLoaderTrigger]]
+     * To build your own custom trigger, implement [[IPauseAfterLoaderTrigger]]
      * and pass it into [[PauseAfterLoader]]
      */
     var PlayTrigger = (function () {

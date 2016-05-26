@@ -5343,16 +5343,16 @@ declare module ex {
      * ## Custom trigger
      *
      * The `PauseAfterLoader` by default uses the [[PlayTrigger]]
-     * which extends [[UIActor]] to act as a trigger. You can pass in your
-     * own custom [[Actor]] to act as a trigger, whenever the user
-     * taps the bounding box the game will start.
+     * which wraps an HTML `<a>` element to act as a trigger. You can pass in your
+     * own [[IPauseAfterLoaderTrigger]] implementation to act as a trigger, whenever the user
+     * taps the element the game will start.
      *
      * ```ts
-     * var customTrigger = new ex.UIActor();
+     * var customTrigger = document.createElement('a');
      * var loader = new ex.PauseAfterLoader([...], customTrigger);
      * ```
      *
-     * Reference the internal [[PlayTrigger]] implementation for a starting
+     * Reference [[IPauseAfterLoaderTrigger]] and the internal [[PlayTrigger]] implementation for a starting
      * point.
      *
      * ## Use PauseAfterLoader for iOS
@@ -5376,7 +5376,7 @@ declare module ex {
         private _loadedValue;
         private _waitPromise;
         private _playTrigger;
-        constructor(loadables?: ILoadable[], trigger?: PauseAfterLoaderTrigger);
+        constructor(loadables?: ILoadable[], trigger?: IPauseAfterLoaderTrigger);
         load(): Promise<any>;
         update(engine: Engine, delta: number): void;
         private _handleOnTrigger;
@@ -5386,7 +5386,7 @@ declare module ex {
      * The default implementation [[PlayTrigger]] wraps an HTML anchor element
      * with some default styles.
      */
-    interface PauseAfterLoaderTrigger {
+    interface IPauseAfterLoaderTrigger {
         getElement(): HTMLElement;
         update(engine: Engine, delta: number): any;
     }
