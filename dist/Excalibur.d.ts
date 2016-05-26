@@ -3207,6 +3207,10 @@ declare module ex {
          */
         kill(): void;
         /**
+         * If the current actor is killed, it will now not be killed.
+         */
+        unkill(): void;
+        /**
          * Indicates wether the actor has been killed.
          */
         isKilled(): boolean;
