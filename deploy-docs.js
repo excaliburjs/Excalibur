@@ -4,7 +4,7 @@ var repo = "excaliburjs/excaliburjs.github.io";
 var travis = new Travis({
 	version: '2.0.0',
    headers: {
-     'User-Agent': 'Oghliner'
+     'User-Agent': 'Travis/1.0'
    }
 });
 
