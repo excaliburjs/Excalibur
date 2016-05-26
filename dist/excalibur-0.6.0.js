@@ -5650,6 +5650,9 @@ var ex;
             return this.children.indexOf(actor) > -1;
         };
         Scene.prototype.add = function (entity) {
+            if (entity instanceof ex.Actor) {
+                entity.unkill();
+            }
             if (entity instanceof ex.UIActor) {
                 if (!ex.Util.contains(this.uiActors, entity)) {
                     this.addUIActor(entity);
@@ -6385,6 +6388,12 @@ var ex;
             else {
                 this.logger.warn('Cannot kill actor, it was never added to the Scene');
             }
+        };
+        /**
+         * If the current actor is killed, it will now not be killed.
+         */
+        Actor.prototype.unkill = function () {
+            this._isKilled = false;
         };
         /**
          * Indicates wether the actor has been killed.
