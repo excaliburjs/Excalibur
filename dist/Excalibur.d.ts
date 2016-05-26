@@ -5246,6 +5246,7 @@ declare module ex.Internal {
         /**
          * Play an empty sound to unlock Safari WebAudio context. Call this function
          * right after a user interaction event. Typically used by [[PauseAfterLoader]]
+         * @source https://paulbakaus.com/tutorials/html5/web-audio-on-ios/
          */
         static unlock(): void;
         static isUnlocked(): boolean;
@@ -5351,31 +5352,60 @@ declare module ex {
      * **Note:** Because Loader is not part of a Scene, you must
      * call `update` and `draw` manually on "child" objects.
      *
-     * ## Custom trigger
+     * ## Implementing a Trigger
      *
-     * The `PauseAfterLoader` by default uses the [[PlayTrigger]]
-     * which wraps an HTML `<a>` element to act as a trigger. You can pass in your
-     * own [[IPauseAfterLoaderTrigger]] implementation to act as a trigger, whenever the user
-     * taps the element the game will start.
+     * The `PauseAfterLoader` requires an element to act as the trigger button
+     * to start the game.
      *
-     * ```ts
-     * var loader = new ex.PauseAfterLoader([...], 'tap-to-play');
-     * ```
-     *
-     * And then in your HTML file:
+     * For example, let's create an `<a>` tag to be our trigger and call it `tap-to-play`.
      *
      * ```html
-     * <canvas id='game'></canvas>
-     * <a id='tap-to-play' href='#'>Tap to Play</a>
+     * <div id="wrapper">
+     *    <canvas id="game"></canvas>
+     *    <a id="tap-to-play" href='javascript:void(0);'>Tap to Play</a>
+     * </div>
      * ```
      *
-     * You will have to style the trigger button as you see fit. Reference `sandbox/tests/loader/pauseafter.html` for
-     * an example CSS style.
+     * We've put it inside a wrapper to position it properly over the game canvas.
+     *
+     * Now let's add some CSS to style it (insert into `<head>`):
+     *
+     * ```html
+     * <style>
+     *     #wrapper {
+     *         position: relative;
+     *         width: 500px;
+     *         height: 500px;
+     *     }
+     *     #tap-to-play {
+     *         display: none;
+     *         font-size: 24px;
+     *         font-family: sans-serif;
+     *         text-align: center;
+     *         border: 3px solid white;
+     *         position: absolute;
+     *         color: white;
+     *         width: 200px;
+     *         height: 50px;
+     *         line-height: 50px;
+     *         text-decoration: none;
+     *         left: 147px;
+     *         top: 80%;
+     *     }
+     * </style>
+     * ```
+     *
+     * Now we can create a `PauseAfterLoader` with a reference to our trigger button:
+     *
+     * ```ts
+     * var loader = new ex.PauseAfterLoader('tap-to-play', [...]);
+     * ```
      *
      * ## Use PauseAfterLoader for iOS
      *
      * The primary use case for pausing before starting the game is to
-     * pass Apple's requirement of user interaction.
+     * pass Apple's requirement of user interaction. The Web Audio context
+     * in Safari is disabled by default until user interaction.
      *
      * Therefore, you can use this snippet to only use PauseAfterLoader when
      * iOS is detected (see [this thread](http://stackoverflow.com/questions/9038625/detect-if-device-is-ios)
@@ -5383,7 +5413,7 @@ declare module ex {
      *
      * ```ts
      * var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(<any>window).MSStream;
-     * var loader: ex.Loader = iOS ? new ex.PauseAfterLoader() : new ex.Loader();
+     * var loader: ex.Loader = iOS ? new ex.PauseAfterLoader('tap-to-play') : new ex.Loader();
      *
      * loader.addResource(...);
      * ```
