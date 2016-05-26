@@ -5376,11 +5376,19 @@ declare module ex {
         private _loadedValue;
         private _waitPromise;
         private _playTrigger;
-        constructor(loadables?: ILoadable[], trigger?: Actor);
+        constructor(loadables?: ILoadable[], trigger?: PauseAfterLoaderTrigger);
         load(): Promise<any>;
-        draw(ctx: CanvasRenderingContext2D, delta: number): void;
         update(engine: Engine, delta: number): void;
-        private _handleOnTrigger(e);
+        private _handleOnTrigger;
+    }
+    /**
+     * Simple interface that describes a [[PauseAfterLoader]] trigger wrapper.
+     * The default implementation [[PlayTrigger]] wraps an HTML anchor element
+     * with some default styles.
+     */
+    interface PauseAfterLoaderTrigger {
+        getElement(): HTMLElement;
+        update(engine: Engine, delta: number): any;
     }
 }
 declare module ex {

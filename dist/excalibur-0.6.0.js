@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-05-24
+/*! excalibur - v0.6.0 - 2016-05-25
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 if (typeof window === 'undefined') {
@@ -10211,9 +10211,21 @@ var ex;
     var PauseAfterLoader = (function (_super) {
         __extends(PauseAfterLoader, _super);
         function PauseAfterLoader(loadables, trigger) {
+            var _this = this;
             _super.call(this, loadables);
+            this._handleOnTrigger = function (e) {
+                if (_this._waitPromise.state() !== ex.PromiseState.Pending) {
+                    return false;
+                }
+                // continue to play game
+                _this._waitPromise.resolve(_this._loadedValue);
+                // remove shadow DOM element
+                document.body.removeChild(_this._playTrigger.getElement());
+                return false;
+            };
             this._playTrigger = trigger || new PlayTrigger();
-            this._playTrigger.on('pointerup', this._handleOnTrigger.bind(this));
+            this._playTrigger.getElement().addEventListener('mouseup', this._handleOnTrigger);
+            this._playTrigger.getElement().addEventListener('touchend', this._handleOnTrigger);
         }
         PauseAfterLoader.prototype.load = function () {
             var _this = this;
@@ -10222,25 +10234,17 @@ var ex;
             var superLoad = _super.prototype.load.call(this).then(function (value) {
                 _this._loaded = true;
                 _this._loadedValue = value;
+                // append shadow DOM element
+                document.body.appendChild(_this._playTrigger.getElement());
             }, function (value) {
                 _this._waitPromise.reject(value);
             });
             return this._waitPromise;
         };
-        PauseAfterLoader.prototype.draw = function (ctx, delta) {
-            _super.prototype.draw.call(this, ctx, delta);
-            if (this._loaded) {
-                this._playTrigger.draw(ctx, delta);
-            }
-        };
         PauseAfterLoader.prototype.update = function (engine, delta) {
             if (this._loaded) {
                 this._playTrigger.update(engine, delta);
             }
-        };
-        PauseAfterLoader.prototype._handleOnTrigger = function (e) {
-            // continue to play game
-            this._waitPromise.resolve(this._loadedValue);
         };
         return PauseAfterLoader;
     })(Loader);
@@ -10249,36 +10253,40 @@ var ex;
      * Internal trigger button for [[PauseAfterLoader]] usage.
      * Does not follow typical Scene-based actor pipeline because
      * right now [[Loader]] is not part of a [[Scene]].
+     *
+     * To build your own custom trigger, implement [[PauseAfterLoaderTrigger]]
+     * and pass it into [[PauseAfterLoader]]
      */
-    var PlayTrigger = (function (_super) {
-        __extends(PlayTrigger, _super);
+    var PlayTrigger = (function () {
+        /**
+         *
+         */
         function PlayTrigger() {
-            _super.call(this, 0, 0, 200, 50);
-            this._lbl = new ex.Label('Tap to Play', 0, 0, 'sans-serif');
-            this._lbl.color = ex.Color.White;
-            this._lbl.fontSize = 24;
-            this._lbl.fontUnit = ex.FontUnit.Px;
-            this._lbl.textAlign = ex.TextAlign.Center;
-            this._lbl.baseAlign = ex.BaseAlign.Middle;
+            this._el = document.createElement('a');
+            this._el.href = '#';
+            this._el.innerText = 'Tap to Play';
+            this._el.style.fontSize = '24px';
+            this._el.style.fontFamily = 'sans-serif';
+            this._el.style.textAlign = 'center';
+            this._el.style.border = '3px solid white';
+            this._el.style.position = 'absolute';
+            this._el.style.color = 'white';
+            this._el.style.width = '200px';
+            this._el.style.height = '50px';
+            this._el.style.lineHeight = '50px';
+            this._el.style.textDecoration = 'none';
         }
-        PlayTrigger.prototype.update = function (engine, delta) {
-            _super.prototype.update.call(this, engine, delta);
-            // center under progress bar
-            this.x = engine.getWidth() / 2 - this.getWidth() / 2;
-            this.y = engine.getHeight() - this.getHeight() * 2;
-            this._lbl.x = this.getCenter().x;
-            this._lbl.y = this.getCenter().y;
-            this._lbl.update(engine, delta);
+        PlayTrigger.prototype.getElement = function () {
+            return this._el;
         };
-        PlayTrigger.prototype.draw = function (ctx, delta) {
-            _super.prototype.draw.call(this, ctx, delta);
-            ctx.strokeStyle = ex.Color.White.toString();
-            ctx.lineWidth = 4;
-            ctx.strokeRect(this.x, this.y, this.getWidth(), this.getHeight());
-            this._lbl.draw(ctx, delta);
+        PlayTrigger.prototype.update = function (engine, delta) {
+            // position relative to engine canvas
+            var canvas = engine.canvas;
+            this._el.style.left = (canvas.offsetLeft + canvas.offsetWidth / 2 - this._el.offsetWidth / 2).toString() + 'px';
+            this._el.style.top = (canvas.offsetTop + canvas.offsetHeight - this._el.offsetHeight * 2).toString() + 'px';
         };
         return PlayTrigger;
-    })(ex.UIActor);
+    })();
 })(ex || (ex = {}));
 /// <reference path="Log.ts" />
 var ex;

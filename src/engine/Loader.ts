@@ -273,6 +273,7 @@ module ex {
          
          this._playTrigger = trigger || new PlayTrigger();         
          this._playTrigger.getElement().addEventListener('mouseup', this._handleOnTrigger);
+         this._playTrigger.getElement().addEventListener('touchend', this._handleOnTrigger);
       }
       
       public load(): Promise<any> {
@@ -301,13 +302,19 @@ module ex {
          
       }
       
-      private _handleOnTrigger = (e: MouseEvent) => {
+      private _handleOnTrigger = () => {
+         
+         if (this._waitPromise.state() !== PromiseState.Pending) {
+            return false;
+         }
          
          // continue to play game
          this._waitPromise.resolve(this._loadedValue);
          
          // remove shadow DOM element
          document.body.removeChild(this._playTrigger.getElement());
+         
+         return false;
       }
    }
    
