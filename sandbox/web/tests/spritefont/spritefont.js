@@ -7,7 +7,8 @@ var game = new ex.Engine({
 });
 var spriteFontTex = new ex.Texture('spritefont.png');
 var label = null;
-game.start(spriteFontTex).then(function () {
+var loader = new ex.Loader([spriteFontTex]);
+game.start(loader).then(function () {
     var spriteFont = new ex.SpriteFont(spriteFontTex, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
     label = new ex.Label("This is a sprite Font test", game.width / 2, game.height / 2, null, spriteFont);
     label.color = ex.Color.Azure.clone();

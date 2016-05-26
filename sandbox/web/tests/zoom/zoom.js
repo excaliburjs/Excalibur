@@ -44,4 +44,5 @@ game.input.keyboard.on('down', function (ev) {
         game.currentScene.camera.setFocus(currentFocus.x, currentFocus.y + 10);
     }
 });
-game.start(raptorTex);
+var loader = new ex.Loader([raptorTex]);
+game.start(loader);
