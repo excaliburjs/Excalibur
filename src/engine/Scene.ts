@@ -379,7 +379,7 @@ module ex {
       public add(uiActor: UIActor): void;
       public add(entity: any): void {
          if(entity instanceof Actor) {
-            (<any>entity)._isKilled = false;
+            (<Actor>entity).unkill();
          }
          if (entity instanceof UIActor) {
             if (!Util.contains(this.uiActors, entity)) {

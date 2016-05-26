@@ -518,6 +518,14 @@ module ex {
           this.logger.warn('Cannot kill actor, it was never added to the Scene');
        }
     }
+    
+    /**
+     * If the current actor is killed, it will now not be killed. 
+     */
+    public unkill() {
+       this._isKilled = false;
+    }
+    
     /**
      * Indicates wether the actor has been killed.
      */
