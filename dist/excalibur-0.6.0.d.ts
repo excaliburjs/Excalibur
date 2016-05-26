@@ -5352,12 +5352,18 @@ declare module ex {
      * taps the element the game will start.
      *
      * ```ts
-     * var customTrigger = document.createElement('a');
-     * var loader = new ex.PauseAfterLoader([...], customTrigger);
+     * var loader = new ex.PauseAfterLoader([...], 'tap-to-play');
      * ```
      *
-     * Reference [[IPauseAfterLoaderTrigger]] and the internal [[PlayTrigger]] implementation for a starting
-     * point.
+     * And then in your HTML file:
+     *
+     * ```html
+     * <canvas id='game'></canvas>
+     * <a id='tap-to-play' href='#'>Tap to Play</a>
+     * ```
+     *
+     * You will have to style the trigger button as you see fit. Reference `sandbox/tests/loader/pauseafter.html` for
+     * an example CSS style.
      *
      * ## Use PauseAfterLoader for iOS
      *
@@ -5380,19 +5386,9 @@ declare module ex {
         private _loadedValue;
         private _waitPromise;
         private _playTrigger;
-        constructor(loadables?: ILoadable[], trigger?: IPauseAfterLoaderTrigger);
+        constructor(triggerElementId: string, loadables?: ILoadable[]);
         load(): Promise<any>;
-        update(engine: Engine, delta: number): void;
         private _handleOnTrigger;
-    }
-    /**
-     * Simple interface that describes a [[PauseAfterLoader]] trigger wrapper.
-     * The default implementation [[PlayTrigger]] wraps an HTML anchor element
-     * with some default styles.
-     */
-    interface IPauseAfterLoaderTrigger {
-        getElement(): HTMLElement;
-        update(engine: Engine, delta: number): any;
     }
 }
 declare module ex {

@@ -10194,12 +10194,18 @@ var ex;
      * taps the element the game will start.
      *
      * ```ts
-     * var customTrigger = document.createElement('a');
-     * var loader = new ex.PauseAfterLoader([...], customTrigger);
+     * var loader = new ex.PauseAfterLoader([...], 'tap-to-play');
      * ```
      *
-     * Reference [[IPauseAfterLoaderTrigger]] and the internal [[PlayTrigger]] implementation for a starting
-     * point.
+     * And then in your HTML file:
+     *
+     * ```html
+     * <canvas id='game'></canvas>
+     * <a id='tap-to-play' href='#'>Tap to Play</a>
+     * ```
+     *
+     * You will have to style the trigger button as you see fit. Reference `sandbox/tests/loader/pauseafter.html` for
+     * an example CSS style.
      *
      * ## Use PauseAfterLoader for iOS
      *
@@ -10219,7 +10225,7 @@ var ex;
      */
     var PauseAfterLoader = (function (_super) {
         __extends(PauseAfterLoader, _super);
-        function PauseAfterLoader(loadables, trigger) {
+        function PauseAfterLoader(triggerElementId, loadables) {
             var _this = this;
             _super.call(this, loadables);
             this._handleOnTrigger = function () {
@@ -10229,12 +10235,12 @@ var ex;
                 // continue to play game
                 _this._waitPromise.resolve(_this._loadedValue);
                 // remove shadow DOM element
-                document.body.removeChild(_this._playTrigger.getElement());
+                _this._playTrigger.style.display = 'none';
                 return false;
             };
-            this._playTrigger = trigger || new PlayTrigger();
-            this._playTrigger.getElement().addEventListener('mouseup', this._handleOnTrigger);
-            this._playTrigger.getElement().addEventListener('touchend', this._handleOnTrigger);
+            this._playTrigger = document.getElementById(triggerElementId);
+            this._playTrigger.addEventListener('mouseup', this._handleOnTrigger);
+            this._playTrigger.addEventListener('touchend', this._handleOnTrigger);
         }
         PauseAfterLoader.prototype.load = function () {
             var _this = this;
@@ -10243,59 +10249,16 @@ var ex;
             var superLoad = _super.prototype.load.call(this).then(function (value) {
                 _this._loaded = true;
                 _this._loadedValue = value;
-                // append shadow DOM element
-                document.body.appendChild(_this._playTrigger.getElement());
+                // show element
+                _this._playTrigger.style.display = 'block';
             }, function (value) {
                 _this._waitPromise.reject(value);
             });
             return this._waitPromise;
         };
-        PauseAfterLoader.prototype.update = function (engine, delta) {
-            if (this._loaded) {
-                this._playTrigger.update(engine, delta);
-            }
-        };
         return PauseAfterLoader;
     })(Loader);
     ex.PauseAfterLoader = PauseAfterLoader;
-    /**
-     * Internal trigger button for [[PauseAfterLoader]] usage.
-     * Does not follow typical Scene-based actor pipeline because
-     * right now [[Loader]] is not part of a [[Scene]].
-     *
-     * To build your own custom trigger, implement [[IPauseAfterLoaderTrigger]]
-     * and pass it into [[PauseAfterLoader]]
-     */
-    var PlayTrigger = (function () {
-        /**
-         *
-         */
-        function PlayTrigger() {
-            this._el = document.createElement('a');
-            this._el.href = '#';
-            this._el.innerText = 'Tap to Play';
-            this._el.style.fontSize = '24px';
-            this._el.style.fontFamily = 'sans-serif';
-            this._el.style.textAlign = 'center';
-            this._el.style.border = '3px solid white';
-            this._el.style.position = 'absolute';
-            this._el.style.color = 'white';
-            this._el.style.width = '200px';
-            this._el.style.height = '50px';
-            this._el.style.lineHeight = '50px';
-            this._el.style.textDecoration = 'none';
-        }
-        PlayTrigger.prototype.getElement = function () {
-            return this._el;
-        };
-        PlayTrigger.prototype.update = function (engine, delta) {
-            // position relative to engine canvas
-            var canvas = engine.canvas;
-            this._el.style.left = (canvas.offsetLeft + canvas.offsetWidth / 2 - this._el.offsetWidth / 2).toString() + 'px';
-            this._el.style.top = (canvas.offsetTop + canvas.offsetHeight - this._el.offsetHeight * 2).toString() + 'px';
-        };
-        return PlayTrigger;
-    })();
 })(ex || (ex = {}));
 /// <reference path="Log.ts" />
 var ex;
