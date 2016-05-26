@@ -150,7 +150,7 @@ module.exports = function (grunt) {
          //
          visual: {
              command: function() {
-                 var files = grunt.file.expand("./sandbox/web/tests/*/*.ts");
+                 var files = grunt.file.expand("./sandbox/web/tests/**/*.ts");
                  return '<%= tscCmd %> ' + files.join(' ');
              },
              options: {
