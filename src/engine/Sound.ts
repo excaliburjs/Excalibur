@@ -392,6 +392,7 @@ module ex.Internal {
       /**
        * Play an empty sound to unlock Safari WebAudio context. Call this function
        * right after a user interaction event. Typically used by [[PauseAfterLoader]]
+       * @source https://paulbakaus.com/tutorials/html5/web-audio-on-ios/
        */
       static unlock() {
 			
@@ -413,7 +414,8 @@ module ex.Internal {
 
         // by checking the play state after some time, we know if we're really unlocked
         setTimeout(function() {
-            if((source.playbackState === source.PLAYING_STATE || source.playbackState === source.FINISHED_STATE)) {
+            if (source.playbackState === source.PLAYING_STATE || 
+                source.playbackState === source.FINISHED_STATE) {
                 this._unlocked = true;
             }
         }, 0);
