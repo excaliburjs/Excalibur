@@ -10833,7 +10833,7 @@ var ex;
             this.color = ex.Color.Black.clone();
             this.spriteFont = spriteFont;
             this.collisionType = ex.CollisionType.PreventCollision;
-            this.fontFamily = fontFamily || '10px sans-serif'; // coallesce to default canvas font
+            this.fontFamily = fontFamily || 'sans-serif'; // coallesce to default canvas font
             if (spriteFont) {
             }
         }
