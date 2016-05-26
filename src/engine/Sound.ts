@@ -395,8 +395,8 @@ module ex.Internal {
        */
       static unlock() {
 			
-	    if (this._unlocked || !audioContext) {
-		    return;
+        if (this._unlocked || !audioContext) {
+            return;
         }
 
         // create empty buffer and play it
