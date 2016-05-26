@@ -255,8 +255,8 @@ module ex {
          this.text = text || '';
          this.color = Color.Black.clone();
          this.spriteFont = spriteFont;
-         this.collisionType = CollisionType.PreventCollision;
-         this.fontFamily = fontFamily || '10px sans-serif'; // coallesce to default canvas font
+         this.collisionType = CollisionType.PreventCollision;                  
+         this.fontFamily = fontFamily || 'sans-serif'; // coallesce to default canvas font
          if (spriteFont) {
             //this._textSprites = spriteFont.getTextSprites();
          }
