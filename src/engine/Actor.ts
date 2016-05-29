@@ -11,6 +11,7 @@
 /// <reference path="Util/Util.ts" />
 /// <reference path="TileMap.ts" />
 /// <reference path="Collision/BoundingBox.ts" />
+/// <reference path="Collision/Body.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actions/IActionable.ts"/>
 /// <reference path="Actions/Action.ts" />
@@ -292,68 +293,112 @@ module ex {
      * The unique identifier for the actor
      */
     public id: number = Actor.maxId++;
-        
-    /**
-     * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default. If
-     * you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0). 
-     */
-    public pos: Vector = new ex.Vector(0, 0);
     
-    /**
-     * The position of the actor last frame (x, y) in pixels
-     */
-    public oldPos: Vector = new ex.Vector(0, 0);    
+    public body: Body = new Body();
+
+    public get pos(): Vector {
+       return this.body.pos;
+    }    
+    public set pos(thePos: Vector) {
+       this.body.pos = thePos;
+    }
+       
+    public get vel(): Vector {
+       return this.body.vel;
+    }
     
-    /**
-     * The current velocity vector (vx, vy) of the actor in pixels/second
-     */
-    public vel: Vector = new ex.Vector(0, 0);
-    
-    /**
-     * The velocity of the actor last frame (vx, vy) in pixels/second
-     */
-    public oldVel: Vector = new ex.Vector(0, 0);
+    public set vel(theVel: Vector) {
+       this.body.vel = theVel;
+    }
     
     /**
      * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be 
      * useful to simulate a gravitational effect.  
      */
-    public acc: Vector = new ex.Vector(0, 0);    
+    public get acc(): Vector {
+       return this.body.acc;
+    }
+    
+    public set acc(theAcc: Vector) {
+       this.body.acc = theAcc;
+    }
     
     /**
      * The current torque applied to the actor
      */
-    public torque: number = 0;
+    public get torque() {
+       return this.body.torque;   
+    }
+    
+    public set torque(theTorque: number) {
+       this.body.torque = theTorque;
+    }
     
     /**
      * The current mass of the actor, mass can be thought of as the resistance to acceleration.
      */
-    public mass: number = 1.0;
+    public get mass(){
+       return this.body.mass;   
+    }
+    
+    public set mass(theMass: number) {
+       this.body.mass = theMass;
+    }
     
     /**
      * The current momemnt of inertia, moi can be thought of as the resistance to rotation.
      */
-    public moi: number = 1000;
+    public get moi() {
+       return this.body.moi;
+    }
+    
+    public set moi(theMoi: number) {
+       this.body.moi = theMoi;
+    }
     
     /**
      * The current "motion" of the actor, used to calculated sleep in the physics simulation
      */
-    public motion: number = 10;
+    public get motion() {
+       return this.body.motion;   
+    }
+    
+    public set motion(theMotion: number) {
+       this.body.motion = theMotion;
+    }
 
     /**
      * This idicates whether the current actor is asleep in the physics simulation
      */
-    public sleeping: boolean = false;
+    public get sleeping() {
+       return this.body.sleeping;   
+    }
     
+    public set sleeping(isSleeping: boolean){
+       this.body.sleeping = isSleeping;
+    }
+        
     /**
      * The coefficient of friction on this actor
      */
-    public friction: number = .99;
+    public get friction() {
+       return this.body.friction;   
+    }
+    
+    public set friction(theFriction: number) {
+       this.body.friction = theFriction;
+    }
     
     /**
      * The coefficient of restitution of this actor, represents the amount of energy preserved after collision
      */
-    public restitution: number = .2;
+    public get restitution() {
+       return this.body.restitution;
+    }
+    
+    public set restitution(theRestitution: number){
+       this.body.restitution = theRestitution;
+    }
     
     /**
      * The anchor to apply all actor related transformations like rotation,
@@ -699,6 +744,16 @@ module ex {
           }
        }
     }
+    
+    
+    public get z(): number {
+        return this.getZIndex();
+    }
+    
+    public set z(newZ:  number){
+        this.setZIndex(newZ);
+    }
+    
     /**
      * Gets the z-index of an actor. The z-index determines the relative order an actor is drawn in.
      * Actors with a higher z-index are drawn on top of actors with a lower z-index

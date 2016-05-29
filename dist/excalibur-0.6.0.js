@@ -1,6 +1,8 @@
-/*! excalibur - v0.6.0 - 2016-02-13
-* https://github.com/excaliburjs/Excalibur
-* Copyright (c) 2016 ; Licensed */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 if (typeof window === 'undefined') {
     window = { audioContext: function () { return; } };
 }
@@ -139,7 +141,7 @@ var ex;
                 pixel[firstPixel + 2] = avg;
             };
             return Grayscale;
-        })();
+        }());
         Effects.Grayscale = Grayscale;
         /**
          * Applies the "Invert" effect to a sprite, inverting the pixel colors.
@@ -155,7 +157,7 @@ var ex;
                 pixel[firstPixel + 2] = 255 - pixel[firstPixel + 2];
             };
             return Invert;
-        })();
+        }());
         Effects.Invert = Invert;
         /**
          * Applies the "Opacity" effect to a sprite, setting the alpha of all pixels to a given value.
@@ -175,7 +177,7 @@ var ex;
                 }
             };
             return Opacity;
-        })();
+        }());
         Effects.Opacity = Opacity;
         /**
          * Applies the "Colorize" effect to a sprite, changing the color channels of all the pixels to an
@@ -198,7 +200,7 @@ var ex;
                 }
             };
             return Colorize;
-        })();
+        }());
         Effects.Colorize = Colorize;
         /**
          * Applies the "Lighten" effect to a sprite, changes the lightness of the color according to HSL
@@ -221,7 +223,7 @@ var ex;
                 pixel[firstPixel + 3] = color.a;
             };
             return Lighten;
-        })();
+        }());
         Effects.Lighten = Lighten;
         /**
          * Applies the "Darken" effect to a sprite, changes the darkness of the color according to HSL
@@ -244,7 +246,7 @@ var ex;
                 pixel[firstPixel + 3] = color.a;
             };
             return Darken;
-        })();
+        }());
         Effects.Darken = Darken;
         /**
          * Applies the "Saturate" effect to a sprite, saturates the color acccording to HSL
@@ -267,7 +269,7 @@ var ex;
                 pixel[firstPixel + 3] = color.a;
             };
             return Saturate;
-        })();
+        }());
         Effects.Saturate = Saturate;
         /**
          * Applies the "Desaturate" effect to a sprite, desaturates the color acccording to HSL
@@ -290,7 +292,7 @@ var ex;
                 pixel[firstPixel + 3] = color.a;
             };
             return Desaturate;
-        })();
+        }());
         Effects.Desaturate = Desaturate;
         /**
          * Applies the "Fill" effect to a sprite, changing the color channels of all non-transparent pixels to match
@@ -313,11 +315,1238 @@ var ex;
                 }
             };
             return Fill;
-        })();
+        }());
         Effects.Fill = Fill;
     })(Effects = ex.Effects || (ex.Effects = {}));
 })(ex || (ex = {}));
 /// <reference path="../Drawing/SpriteEffects.ts" />
+var ex;
+(function (ex) {
+    /**
+     * A 2D vector on a plane.
+     */
+    var Vector = (function () {
+        /**
+         * @param x  X component of the Vector
+         * @param y  Y component of the Vector
+         */
+        function Vector(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+        /**
+         * Returns a vector of unit length in the direction of the specified angle in Radians.
+         * @param angle The angle to generate the vector
+         */
+        Vector.fromAngle = function (angle) {
+            return new Vector(Math.cos(angle), Math.sin(angle));
+        };
+        /**
+         * Sets the x and y components at once
+         */
+        Vector.prototype.setTo = function (x, y) {
+            this.x = x;
+            this.y = y;
+        };
+        /**
+         * Compares this point against another and tests for equality
+         * @param point  The other point to compare to
+         */
+        Vector.prototype.equals = function (vector, tolerance) {
+            if (tolerance === void 0) { tolerance = .001; }
+            return Math.abs(this.x - vector.x) <= tolerance && Math.abs(this.y - vector.y) <= tolerance;
+        };
+        /**
+         * The distance to another vector
+         * @param v  The other vector
+         */
+        Vector.prototype.distance = function (v) {
+            if (!v) {
+                v = new Vector(0.0, 0.0);
+            }
+            return Math.sqrt(Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2));
+        };
+        /**
+         * Normalizes a vector to have a magnitude of 1.
+         */
+        Vector.prototype.normalize = function () {
+            var d = this.distance();
+            if (d > 0) {
+                return new Vector(this.x / d, this.y / d);
+            }
+            else {
+                return new Vector(0, 1);
+            }
+        };
+        /**
+         * Scales a vector's by a factor of size
+         * @param size  The factor to scale the magnitude by
+         */
+        Vector.prototype.scale = function (size) {
+            return new Vector(this.x * size, this.y * size);
+        };
+        /**
+         * Adds one vector to another
+         * @param v The vector to add
+         */
+        Vector.prototype.add = function (v) {
+            return new Vector(this.x + v.x, this.y + v.y);
+        };
+        /**
+         * Subtracts a vector from another, if you subract vector `B.sub(A)` the resulting vector points from A -> B
+         * @param v The vector to subtract
+         */
+        Vector.prototype.sub = function (v) {
+            return new Vector(this.x - v.x, this.y - v.y);
+        };
+        /**
+         * Adds one vector to this one modifying the original
+         * @param v The vector to add
+         */
+        Vector.prototype.addEquals = function (v) {
+            this.x += v.x;
+            this.y += v.y;
+            return this;
+        };
+        /**
+         * Subtracts a vector from this one modifying the original
+         * @parallel v The vector to subtract
+         */
+        Vector.prototype.subEquals = function (v) {
+            this.x -= v.x;
+            this.y -= v.y;
+            return this;
+        };
+        /**
+         * Scales this vector by a factor of size and modifies the original
+         */
+        Vector.prototype.scaleEquals = function (size) {
+            this.x *= size;
+            this.y *= size;
+            return this;
+        };
+        /**
+         * Performs a dot product with another vector
+         * @param v  The vector to dot
+         */
+        Vector.prototype.dot = function (v) {
+            return this.x * v.x + this.y * v.y;
+        };
+        Vector.prototype.cross = function (v) {
+            if (v instanceof Vector) {
+                return this.x * v.y - this.y * v.x;
+            }
+            else if (typeof v === 'number') {
+                return new Vector(v * this.y, -v * this.x);
+            }
+        };
+        /**
+         * Returns the perpendicular vector to this one
+         */
+        Vector.prototype.perpendicular = function () {
+            return new Vector(this.y, -this.x);
+        };
+        /**
+         * Returns the normal vector to this one, same as the perpendicular of length 1
+         */
+        Vector.prototype.normal = function () {
+            return this.perpendicular().normalize();
+        };
+        /**
+         * Negate the current vector
+         */
+        Vector.prototype.negate = function () {
+            return this.scale(-1);
+        };
+        /**
+         * Returns the angle of this vector.
+         */
+        Vector.prototype.toAngle = function () {
+            return Math.atan2(this.y, this.x);
+        };
+        /**
+         * Rotates the current vector around a point by a certain number of
+         * degrees in radians
+         */
+        Vector.prototype.rotate = function (angle, anchor) {
+            if (!anchor) {
+                anchor = new ex.Vector(0, 0);
+            }
+            var sinAngle = Math.sin(angle);
+            var cosAngle = Math.cos(angle);
+            var x = cosAngle * (this.x - anchor.x) - sinAngle * (this.y - anchor.y) + anchor.x;
+            var y = sinAngle * (this.x - anchor.x) + cosAngle * (this.y - anchor.y) + anchor.y;
+            return new Vector(x, y);
+        };
+        /**
+         * Creates new vector that has the same values as the previous.
+         */
+        Vector.prototype.clone = function () {
+            return new Vector(this.x, this.y);
+        };
+        /**
+         * Returns a string repesentation of the vector.
+         */
+        Vector.prototype.toString = function () {
+            return "(" + this.x + ", " + this.y + ")";
+        };
+        /**
+         * A (0, 0) vector
+         */
+        Vector.Zero = new Vector(0, 0);
+        /**
+         * A unit vector pointing up (0, -1)
+         */
+        Vector.Up = new Vector(0, -1);
+        /**
+         * A unit vector pointing down (0, 1)
+         */
+        Vector.Down = new Vector(0, 1);
+        /**
+         * A unit vector pointing left (-1, 0)
+         */
+        Vector.Left = new Vector(-1, 0);
+        /**
+         * A unit vector pointing right (1, 0)
+         */
+        Vector.Right = new Vector(1, 0);
+        return Vector;
+    }());
+    ex.Vector = Vector;
+    /**
+     * A 2D ray that can be cast into the scene to do collision detection
+     */
+    var Ray = (function () {
+        /**
+         * @param pos The starting position for the ray
+         * @param dir The vector indicating the direction of the ray
+         */
+        function Ray(pos, dir) {
+            this.pos = pos;
+            this.dir = dir.normalize();
+        }
+        /**
+         * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
+         * This number indicates the mathematical intersection time.
+         * @param line  The line to test
+         */
+        Ray.prototype.intersect = function (line) {
+            var numerator = line.begin.sub(this.pos);
+            // Test is line and ray are parallel and non intersecting
+            if (this.dir.cross(line.getSlope()) === 0 && numerator.cross(this.dir) !== 0) {
+                return -1;
+            }
+            // Lines are parallel
+            var divisor = (this.dir.cross(line.getSlope()));
+            if (divisor === 0) {
+                return -1;
+            }
+            var t = numerator.cross(line.getSlope()) / divisor;
+            if (t >= 0) {
+                var u = (numerator.cross(this.dir) / divisor) / line.getLength();
+                if (u >= 0 && u <= 1) {
+                    return t;
+                }
+            }
+            return -1;
+        };
+        /**
+         * Returns the point of intersection given the intersection time
+         */
+        Ray.prototype.getPoint = function (time) {
+            return this.pos.add(this.dir.scale(time));
+        };
+        return Ray;
+    }());
+    ex.Ray = Ray;
+    /**
+     * A 2D line segment
+     */
+    var Line = (function () {
+        /**
+         * @param begin  The starting point of the line segment
+         * @param end  The ending point of the line segment
+         */
+        function Line(begin, end) {
+            this.begin = begin;
+            this.end = end;
+        }
+        /**
+         * Returns the slope of the line in the form of a vector
+         */
+        Line.prototype.getSlope = function () {
+            var begin = this.begin;
+            var end = this.end;
+            var distance = begin.distance(end);
+            return end.sub(begin).scale(1 / distance);
+        };
+        /**
+         * Returns the length of the line segment in pixels
+         */
+        Line.prototype.getLength = function () {
+            var begin = this.begin;
+            var end = this.end;
+            var distance = begin.distance(end);
+            return distance;
+        };
+        return Line;
+    }());
+    ex.Line = Line;
+    /**
+     * A 1 dimensional projection on an axis, used to test overlaps
+     */
+    var Projection = (function () {
+        function Projection(min, max) {
+            this.min = min;
+            this.max = max;
+        }
+        Projection.prototype.overlaps = function (projection) {
+            return this.max > projection.min && projection.max > this.min;
+        };
+        Projection.prototype.overlap = function (projection) {
+            if (this.overlaps(projection)) {
+                if (this.max > projection.max) {
+                    return projection.max - this.min;
+                }
+                else {
+                    return this.max - projection.min;
+                }
+            }
+            return 0;
+        };
+        return Projection;
+    }());
+    ex.Projection = Projection;
+})(ex || (ex = {}));
+/// <reference path="../Algebra.ts" />
+/// <reference path="../Actor.ts" />
+/// <reference path="ICollisionArea.ts" />
+var ex;
+(function (ex) {
+    /**
+     * Collision contacts are used internally by Excalibur to resolve collision between actors. This
+     * Pair prevents collisions from being evaluated more than one time
+     */
+    var CollisionContact = (function () {
+        function CollisionContact(bodyA, bodyB, mtv, point, normal) {
+            this.bodyA = bodyA;
+            this.bodyB = bodyB;
+            this.mtv = mtv;
+            this.point = point;
+            this.normal = normal;
+        }
+        CollisionContact.prototype.resolve = function (delta, strategy) {
+            if (strategy === ex.CollisionResolutionStrategy.RigidBody) {
+                this._resolveRigidBody(delta);
+            }
+            else if (strategy === ex.CollisionResolutionStrategy.AABB) {
+                this._resolveAABB(delta);
+            }
+            else {
+                throw new Error("Unknown collision resolution strategy");
+            }
+        };
+        CollisionContact.prototype._resolveAABB = function (delta) {
+            var bodyA = this.bodyA.actor;
+            var bodyB = this.bodyB.actor;
+            var side = ex.Util.getSideFromVector(this.mtv);
+            var mtv = this.mtv.negate();
+            // Publish collision events on both participants
+            bodyA.eventDispatcher.emit('collision', new ex.CollisionEvent(bodyA, bodyB, side, mtv));
+            bodyB.eventDispatcher.emit('collision', new ex.CollisionEvent(bodyB, bodyA, ex.Util.getOppositeSide(side), mtv.scale(-1.0)));
+            // If the actor is active push the actor out if its not passive
+            var leftSide = side;
+            if ((bodyA.collisionType === ex.CollisionType.Active ||
+                bodyA.collisionType === ex.CollisionType.Elastic) &&
+                bodyB.collisionType !== ex.CollisionType.Passive) {
+                bodyA.pos.y += mtv.y;
+                bodyA.pos.x += mtv.x;
+                // Naive elastic bounce
+                if (bodyA.collisionType === ex.CollisionType.Elastic) {
+                    if (leftSide === ex.Side.Left) {
+                        bodyA.vel.x = Math.abs(bodyA.vel.x);
+                    }
+                    else if (leftSide === ex.Side.Right) {
+                        bodyA.vel.x = -Math.abs(bodyA.vel.x);
+                    }
+                    else if (leftSide === ex.Side.Top) {
+                        bodyA.vel.y = Math.abs(bodyA.vel.y);
+                    }
+                    else if (leftSide === ex.Side.Bottom) {
+                        bodyA.vel.y = -Math.abs(bodyA.vel.y);
+                    }
+                }
+                else {
+                    // Cancel velocities along intersection
+                    if (this.mtv.x !== 0) {
+                        if (bodyA.vel.x <= 0 && bodyB.vel.x <= 0) {
+                            bodyA.vel.x = Math.max(bodyA.vel.x, bodyB.vel.x);
+                        }
+                        else if (bodyA.vel.x >= 0 && bodyB.vel.x >= 0) {
+                            bodyA.vel.x = Math.min(bodyA.vel.x, bodyB.vel.x);
+                        }
+                        else {
+                            bodyA.vel.x = 0;
+                        }
+                    }
+                    if (this.mtv.y !== 0) {
+                        if (bodyA.vel.y <= 0 && bodyB.vel.y <= 0) {
+                            bodyA.vel.y = Math.max(bodyA.vel.y, bodyB.vel.y);
+                        }
+                        else if (bodyA.vel.y >= 0 && bodyB.vel.y >= 0) {
+                            bodyA.vel.y = Math.min(bodyA.vel.y, bodyB.vel.y);
+                        }
+                        else {
+                            bodyA.vel.y = 0;
+                        }
+                    }
+                }
+            }
+            var rightSide = ex.Util.getOppositeSide(side);
+            var rightIntersect = mtv.scale(-1.0);
+            if ((bodyB.collisionType === ex.CollisionType.Active ||
+                bodyB.collisionType === ex.CollisionType.Elastic) &&
+                bodyA.collisionType !== ex.CollisionType.Passive) {
+                bodyB.pos.y += rightIntersect.y;
+                bodyB.pos.x += rightIntersect.x;
+                // Naive elastic bounce
+                if (bodyB.collisionType === ex.CollisionType.Elastic) {
+                    if (rightSide === ex.Side.Left) {
+                        bodyB.vel.x = Math.abs(bodyB.vel.x);
+                    }
+                    else if (rightSide === ex.Side.Right) {
+                        bodyB.vel.x = -Math.abs(bodyB.vel.x);
+                    }
+                    else if (rightSide === ex.Side.Top) {
+                        bodyB.vel.y = Math.abs(bodyB.vel.y);
+                    }
+                    else if (rightSide === ex.Side.Bottom) {
+                        bodyB.vel.y = -Math.abs(bodyB.vel.y);
+                    }
+                }
+                else {
+                    // Cancel velocities along intersection
+                    if (rightIntersect.x !== 0) {
+                        if (bodyB.vel.x <= 0 && bodyA.vel.x <= 0) {
+                            bodyB.vel.x = Math.max(bodyA.vel.x, bodyB.vel.x);
+                        }
+                        else if (bodyA.vel.x >= 0 && bodyB.vel.x >= 0) {
+                            bodyB.vel.x = Math.min(bodyA.vel.x, bodyB.vel.x);
+                        }
+                        else {
+                            bodyB.vel.x = 0;
+                        }
+                    }
+                    if (rightIntersect.y !== 0) {
+                        if (bodyB.vel.y <= 0 && bodyA.vel.y <= 0) {
+                            bodyB.vel.y = Math.max(bodyA.vel.y, bodyB.vel.y);
+                        }
+                        else if (bodyA.vel.y >= 0 && bodyB.vel.y >= 0) {
+                            bodyB.vel.y = Math.min(bodyA.vel.y, bodyB.vel.y);
+                        }
+                        else {
+                            bodyB.vel.y = 0;
+                        }
+                    }
+                }
+            }
+        };
+        CollisionContact.prototype._resolveRigidBody = function (delta) {
+            // perform collison on bounding areas
+            var bodyA = this.bodyA.actor;
+            var bodyB = this.bodyB.actor;
+            var mtv = this.mtv; // normal pointing away from bodyA
+            var point = this.point; // world space collision point
+            var normal = this.normal; // normal pointing away from bodyA
+            if (bodyA === bodyB) {
+                return;
+            }
+            var invMassA = bodyA.collisionType === ex.CollisionType.Fixed ? 0 : 1 / bodyA.mass;
+            var invMassB = bodyB.collisionType === ex.CollisionType.Fixed ? 0 : 1 / bodyB.mass;
+            var invMoiA = bodyA.collisionType === ex.CollisionType.Fixed ? 0 : 1 / bodyA.moi;
+            var invMoiB = bodyB.collisionType === ex.CollisionType.Fixed ? 0 : 1 / bodyB.moi;
+            // average restitution more relistic
+            var coefRestitution = Math.min(bodyA.restitution, bodyB.restitution);
+            var coefFriction = Math.min(bodyA.friction, bodyB.friction);
+            normal = normal.normalize();
+            var tangent = normal.normal().normalize();
+            var ra = this.point.sub(this.bodyA.getCenter()); // point relative to bodyA position
+            var rb = this.point.sub(this.bodyB.getCenter()); /// point relative to bodyB
+            // Relative velocity in linear terms
+            // Angular to linear velocity formula -> omega = v/r
+            var rv = bodyB.vel.add(rb.cross(-bodyB.rx)).sub(bodyA.vel.sub(ra.cross(bodyA.rx)));
+            var rvNormal = rv.dot(normal);
+            var rvTangent = rv.dot(tangent);
+            var raTangent = ra.dot(tangent);
+            var raNormal = ra.dot(normal);
+            var rbTangent = rb.dot(tangent);
+            var rbNormal = rb.dot(normal);
+            // If objects are moving away ignore
+            if (rvNormal > 0) {
+                return;
+            }
+            // Publish collision events on both participants
+            var side = ex.Util.getSideFromVector(this.mtv);
+            this.bodyA.actor.emit('collision', new ex.CollisionEvent(this.bodyA.actor, this.bodyB.actor, side, this.mtv));
+            this.bodyB.actor.emit('collision', new ex.CollisionEvent(this.bodyB.actor, this.bodyA.actor, ex.Util.getOppositeSide(side), this.mtv.negate()));
+            // Collision impulse formula from Chris Hecker
+            // https://en.wikipedia.org/wiki/Collision_response
+            var impulse = -((1 + coefRestitution) * rvNormal) /
+                ((invMassA + invMassB) + invMoiA * raTangent * raTangent + invMoiB * rbTangent * rbTangent);
+            if (bodyA.collisionType === ex.CollisionType.Fixed) {
+                bodyB.vel = bodyB.vel.add(normal.scale(impulse * invMassB));
+                if (ex.Engine.physics.allowRotation) {
+                    bodyB.rx -= impulse * invMoiB * -rb.cross(normal);
+                }
+                bodyB.addMtv(mtv);
+            }
+            else if (bodyB.collisionType === ex.CollisionType.Fixed) {
+                bodyA.vel = bodyA.vel.sub(normal.scale(impulse * invMassA));
+                if (ex.Engine.physics.allowRotation) {
+                    bodyA.rx += impulse * invMoiA * -ra.cross(normal);
+                }
+                bodyA.addMtv(mtv.negate());
+            }
+            else {
+                bodyB.vel = bodyB.vel.add(normal.scale(impulse * invMassB));
+                bodyA.vel = bodyA.vel.sub(normal.scale(impulse * invMassA));
+                if (ex.Engine.physics.allowRotation) {
+                    bodyB.rx -= impulse * invMoiB * -rb.cross(normal);
+                    bodyA.rx += impulse * invMoiA * -ra.cross(normal);
+                }
+                // Split the mtv in half for the two bodies, potentially we could do something smarter here
+                bodyB.addMtv(mtv.scale(.5));
+                bodyA.addMtv(mtv.scale(-.5));
+            }
+            // Friction portion of impulse
+            if (coefFriction && rvTangent) {
+                // Columb model of friction, formula for impulse due to friction from  
+                // https://en.wikipedia.org/wiki/Collision_response
+                // tangent force exerted by body on another in contact
+                var t = rv.sub(normal.scale(rv.dot(normal))).normalize();
+                // impulse in the direction of tangent force
+                var jt = rv.dot(t) / (invMassA + invMassB + raNormal * raNormal * invMoiA + rbNormal * rbNormal * invMoiB);
+                var frictionImpulse = new ex.Vector(0, 0);
+                if (Math.abs(jt) <= impulse * coefFriction) {
+                    frictionImpulse = t.scale(jt).negate();
+                }
+                else {
+                    frictionImpulse = t.scale(-impulse * coefFriction);
+                }
+                if (bodyA.collisionType === ex.CollisionType.Fixed) {
+                    // apply frictional impulse
+                    bodyB.vel = bodyB.vel.add(frictionImpulse.scale(invMassB));
+                    if (ex.Engine.physics.allowRotation) {
+                        bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
+                    }
+                }
+                else if (bodyB.collisionType === ex.CollisionType.Fixed) {
+                    // apply frictional impulse
+                    bodyA.vel = bodyA.vel.sub(frictionImpulse.scale(invMassA));
+                    if (ex.Engine.physics.allowRotation) {
+                        bodyA.rx -= frictionImpulse.dot(t) * invMoiA * ra.cross(t);
+                    }
+                }
+                else {
+                    // apply frictional impulse
+                    bodyB.vel = bodyB.vel.add(frictionImpulse.scale(invMassB));
+                    bodyA.vel = bodyA.vel.sub(frictionImpulse.scale(invMassA));
+                    // apply frictional impulse
+                    if (ex.Engine.physics.allowRotation) {
+                        bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
+                        bodyA.rx -= frictionImpulse.dot(t) * invMoiA * ra.cross(t);
+                    }
+                }
+            }
+            if (bodyA.sleeping && bodyA.collisionType !== ex.CollisionType.Fixed) {
+                bodyA.setSleep(false);
+            }
+            if (bodyB.sleeping && bodyB.collisionType !== ex.CollisionType.Fixed) {
+                bodyB.setSleep(false);
+            }
+        };
+        return CollisionContact;
+    }());
+    ex.CollisionContact = CollisionContact;
+})(ex || (ex = {}));
+/// <reference path="CollisionContact.ts" />
+/// <reference path="../DebugFlags.ts" />
+var ex;
+(function (ex) {
+    ex.CollisionJumpTable = {
+        CollideCircleCircle: function (circleA, circleB) {
+            var radius = circleA.radius + circleB.radius;
+            if (circleA.pos.distance(circleB.pos) > radius) {
+                return null;
+            }
+            var axisOfCollision = circleB.pos.sub(circleA.pos).normalize();
+            var mvt = axisOfCollision.scale(radius - circleB.pos.distance(circleA.pos));
+            var pointOfCollision = circleA.getFurthestPoint(axisOfCollision);
+            return new ex.CollisionContact(circleA, circleB, mvt, pointOfCollision, axisOfCollision);
+        },
+        CollideCirclePolygon: function (circle, polygon) {
+            var axes = polygon.getAxes();
+            var cc = circle.getCenter();
+            var pc = polygon.getCenter();
+            var minAxis = circle.testSeparatingAxisTheorem(polygon);
+            if (!minAxis) {
+                return null;
+            }
+            // make sure that the minAxis is pointing away from circle
+            var samedir = minAxis.dot(polygon.getCenter().sub(circle.getCenter()));
+            minAxis = samedir < 0 ? minAxis.negate() : minAxis;
+            var verts = [];
+            var point1 = polygon.getFurthestPoint(minAxis.negate());
+            var point2 = circle.getFurthestPoint(minAxis);
+            if (circle.contains(point1)) {
+                verts.push(point1);
+            }
+            if (polygon.contains(point2)) {
+                verts.push(point2);
+            }
+            if (verts.length === 0) {
+                verts.push(point2);
+            }
+            return new ex.CollisionContact(circle, polygon, minAxis, verts.length === 2 ? verts[0].average(verts[1]) : verts[0], minAxis.normalize());
+        },
+        CollideCircleEdge: function (circle, edge) {
+            // center of the circle
+            var cc = circle.pos;
+            // vector in the direction of the edge
+            var e = edge.end.sub(edge.begin);
+            // amount of overlap with the circle's center along the edge direction
+            var u = e.dot(edge.end.sub(cc));
+            var v = e.dot(cc.sub(edge.begin));
+            // Potential region A collision (circle is on the left side of the edge, before the beginning)
+            if (v <= 0) {
+                var da = cc.sub(edge.begin);
+                var dda = da.dot(da); // quick and dirty way of calc'n distance in r^2 terms saves some sqrts
+                // save some sqrts
+                if (dda > circle.radius * circle.radius) {
+                    return null; // no collision
+                }
+                return new ex.CollisionContact(circle, edge, da.normalize().scale(circle.radius - Math.sqrt(dda)), edge.begin, da.normalize());
+            }
+            // Potential region B collision (circle is on the right side of the edge, after the end)
+            if (u <= 0) {
+                var db = cc.sub(edge.end);
+                var ddb = db.dot(db);
+                if (ddb > circle.radius * circle.radius) {
+                    return null;
+                }
+                return new ex.CollisionContact(circle, edge, db.normalize().scale(circle.radius - Math.sqrt(ddb)), edge.begin, db.normalize());
+            }
+            // Otherwise potential region AB collision (circle is in the middle of the edge between the beginning and end)
+            var den = e.dot(e);
+            var pointOnEdge = (edge.begin.scale(u).add(edge.end.scale(v))).scale(1 / den);
+            var d = cc.sub(pointOnEdge);
+            var dd = d.dot(d);
+            if (dd > circle.radius * circle.radius) {
+                return null; // no collision
+            }
+            var n = e.perpendicular();
+            // flip correct direction
+            if (n.dot(cc.sub(edge.begin)) < 0) {
+                n.x = -n.x;
+                n.y = -n.y;
+            }
+            n = n.normalize();
+            var mvt = n.scale(Math.abs(circle.radius - Math.sqrt(dd)));
+            return new ex.CollisionContact(circle, edge, mvt.negate(), pointOnEdge, n.negate());
+        },
+        CollideEdgeEdge: function (edgeA, edgeB) {
+            // Edge-edge collision doesn't make sense
+            return null;
+        },
+        CollidePolygonEdge: function (polygon, edge) {
+            var center = polygon.getCenter();
+            var e = edge.end.sub(edge.begin);
+            var edgeNormal = e.normal();
+            var u = e.dot(edge.end.sub(center));
+            var v = e.dot(center.sub(edge.begin));
+            var den = e.dot(e);
+            var pointOnEdge = (edge.begin.scale(u).add(edge.end.scale(v))).scale(1 / den);
+            var d = center.sub(pointOnEdge);
+            // build a temporary polygon from the edge to use SAT
+            var pos = edge.getCenter();
+            var linePoly = new ex.PolygonArea({
+                points: [
+                    edge.begin.sub(pos),
+                    edge.end.sub(pos),
+                    edge.end.sub(edgeNormal.scale(10)),
+                    edge.begin.sub(edgeNormal.scale(10))]
+            });
+            var minAxis = polygon.testSeparatingAxisTheorem(linePoly);
+            // no minAxis, no overlap, no collision
+            if (!minAxis) {
+                return null;
+            }
+            return new ex.CollisionContact(polygon, edge, minAxis, polygon.getFurthestPoint(edgeNormal.negate()), edgeNormal.negate());
+        },
+        CollidePolygonPolygon: function (polyA, polyB) {
+            // get all axes from both polys
+            var axes = polyA.getAxes().concat(polyB.getAxes());
+            // get all points from both polys
+            var points = polyA.getTransformedPoints().concat(polyB.getTransformedPoints());
+            // do a SAT test to find a min axis if it exists
+            var minAxis = polyA.testSeparatingAxisTheorem(polyB);
+            // no overlap, no collision return null
+            if (!minAxis) {
+                return null;
+            }
+            // make sure that minAxis is pointing from A -> B
+            var sameDir = minAxis.dot(polyB.getCenter().sub(polyA.getCenter()));
+            minAxis = sameDir < 0 ? minAxis.negate() : minAxis;
+            // find rough point of collision
+            // todo this could be better
+            var verts = [];
+            var pointA = polyA.getFurthestPoint(minAxis);
+            var pointB = polyB.getFurthestPoint(minAxis.negate());
+            if (polyB.contains(pointA)) {
+                verts.push(pointA);
+            }
+            if (polyA.contains(pointB)) {
+                verts.push(pointB);
+            }
+            // no candidates, pick something
+            if (verts.length === 0) {
+                verts.push(pointB);
+            }
+            var contact = verts.length === 2 ? verts[0].add(verts[1]).scale(.5) : verts[0];
+            return new ex.CollisionContact(polyA, polyB, minAxis, contact, minAxis.normalize());
+        }
+    };
+})(ex || (ex = {}));
+var ex;
+(function (ex) {
+    /**
+     * This is a circle collision area for the excalibur rigid body physics simulation
+     */
+    var CircleArea = (function () {
+        function CircleArea() {
+            /**
+             * This is the center position of the circle, relative to the actor position
+             */
+            this.pos = ex.Vector.Zero.clone();
+        }
+        CircleArea.prototype.contructor = function (options) {
+            this.pos = options.pos || ex.Vector.Zero.clone();
+            this.radius = options.radius || 0;
+            this.actor = options.actor || null;
+        };
+        /**
+         * Get the center of the collision area in world coordinates
+         */
+        CircleArea.prototype.getCenter = function () {
+            if (this.actor) {
+                return this.pos.add(this.actor.pos);
+            }
+            return this.pos;
+        };
+        /**
+         * Tests if a point is contained in this collision area
+         */
+        CircleArea.prototype.contains = function (point) {
+            var distance = this.pos.distance(point);
+            if (distance <= this.radius) {
+                return true;
+            }
+            return false;
+        };
+        /**
+         * Casts a ray at the CircleArea and returns the nearest point of collision
+         * @param ray
+         */
+        CircleArea.prototype.castRay = function (ray) {
+            throw new Error('not implemented');
+        };
+        CircleArea.prototype.collide = function (area) {
+            if (area instanceof CircleArea) {
+                return ex.CollisionJumpTable.CollideCircleCircle(this, area);
+            }
+            else if (area instanceof ex.PolygonArea) {
+                return ex.CollisionJumpTable.CollideCirclePolygon(this, area);
+            }
+            else if (area instanceof ex.EdgeArea) {
+                return ex.CollisionJumpTable.CollideCircleEdge(this, area);
+            }
+            else {
+                throw new Error("Circle could not collide with unknown ICollisionArea " + typeof area);
+            }
+        };
+        /**
+         * Find the point on the shape furthest in the direction specified
+         */
+        CircleArea.prototype.getFurthestPoint = function (direction) {
+            return this.pos.add(direction.normalize().scale(this.radius));
+        };
+        /**
+         * Get the axis aligned bounding box for the circle area
+         */
+        CircleArea.prototype.getBounds = function () {
+            return new ex.BoundingBox(this.pos.x + this.actor.pos.x - this.radius, this.pos.y + this.actor.pos.y - this.radius, this.pos.y + this.actor.pos.y + this.radius, this.pos.x + this.actor.pos.x + this.radius);
+        };
+        /**
+         * Get axis not implemented on circles, since their are infinite axis
+         */
+        CircleArea.prototype.getAxes = function () {
+            return null;
+        };
+        /**
+         * Returns the moment of intertia of a circle given it's mass
+         * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
+         * @param mass
+         */
+        CircleArea.prototype.getMomentOfInertia = function () {
+            var mass = this.actor ? this.actor.mass : ex.Engine.physics.defaultMass;
+            return (mass * this.radius * this.radius) / 2;
+        };
+        CircleArea.prototype.testSeparatingAxisTheorem = function (polygon) {
+            var axes = polygon.getAxes();
+            var pc = polygon.getCenter();
+            // Special SAT with circles
+            var closestPointOnPoly = polygon.getFurthestPoint(this.pos.sub(pc));
+            axes.push(this.pos.sub(closestPointOnPoly).normalize());
+            var minOverlap = Number.MAX_VALUE;
+            var minAxis = null;
+            var minIndex = -1;
+            for (var i = 0; i < axes.length; i++) {
+                var proj1 = polygon.project(axes[i]);
+                var proj2 = this.project(axes[i]);
+                var overlap = proj1.overlap(proj2);
+                if (overlap <= 0) {
+                    return null;
+                }
+                else {
+                    if (overlap < minOverlap) {
+                        minOverlap = overlap;
+                        minAxis = axes[i];
+                        minIndex = i;
+                    }
+                }
+            }
+            if (minIndex < 0) {
+                return null;
+            }
+            return minAxis.normalize().scale(minOverlap);
+        };
+        CircleArea.prototype.recalc = function () {
+            // circles don't cache
+        };
+        /**
+         * Project the circle along a specified axis
+         */
+        CircleArea.prototype.project = function (axis) {
+            var scalars = [];
+            var point = this.getCenter();
+            var dotProduct = point.dot(axis);
+            scalars.push(dotProduct);
+            scalars.push(dotProduct + this.radius);
+            scalars.push(dotProduct - this.radius);
+            return new ex.Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
+        };
+        CircleArea.prototype.debugDraw = function (ctx, debugFlags) {
+            var pos = this.actor ? this.actor.pos.add(this.pos) : this.pos;
+            var rotation = this.actor ? this.actor.rotation : 0;
+            ctx.strokeStyle = 'lime';
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, this.radius, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+            ctx.lineTo(Math.cos(rotation) * this.radius + pos.x, Math.sin(rotation) * this.radius + pos.y);
+            ctx.closePath();
+            ctx.stroke();
+        };
+        return CircleArea;
+    }());
+    ex.CircleArea = CircleArea;
+})(ex || (ex = {}));
+var ex;
+(function (ex) {
+    var EdgeArea = (function () {
+        function EdgeArea(options) {
+            this.begin = options.begin || ex.Vector.Zero.clone();
+            this.end = options.end || ex.Vector.Zero.clone();
+            this.actor = options.actor || null;
+            this.pos = this.getCenter();
+        }
+        /**
+         * Get the center of the collision area in world coordinates
+         */
+        EdgeArea.prototype.getCenter = function () {
+            var pos = this.begin.add(this.end).scale(.5);
+            if (this.actor) {
+                return this.actor.pos.add(pos);
+            }
+            return pos;
+        };
+        /**
+         * Tests if a point is contained in this collision area
+         */
+        EdgeArea.prototype.contains = function (point) {
+            return false;
+        };
+        EdgeArea.prototype.castRay = function (ray) {
+            // todo 
+            throw new Error('not implemented');
+        };
+        EdgeArea.prototype.collide = function (area) {
+            if (area instanceof ex.CircleArea) {
+                return ex.CollisionJumpTable.CollideCircleEdge(area, this);
+            }
+            else if (area instanceof ex.PolygonArea) {
+                return ex.CollisionJumpTable.CollidePolygonEdge(area, this);
+            }
+            else if (area instanceof EdgeArea) {
+                return ex.CollisionJumpTable.CollideEdgeEdge(this, area);
+            }
+            else {
+                throw new Error("Circle could not collide with unknown ICollisionArea " + typeof area);
+            }
+        };
+        /**
+         * Find the point on the shape furthest in the direction specified
+         */
+        EdgeArea.prototype.getFurthestPoint = function (direction) {
+            if (direction.dot(this.begin) > 0) {
+                return this.begin;
+            }
+            else {
+                return this.end;
+            }
+        };
+        /**
+         * Get the axis aligned bounding box for the circle area
+         */
+        EdgeArea.prototype.getBounds = function () {
+            return new ex.BoundingBox(Math.min(this.begin.x, this.end.x), Math.min(this.begin.y, this.end.y), Math.max(this.begin.y, this.end.y), Math.max(this.begin.x, this.end.x));
+        };
+        /**
+         * Get the axis associated with the edge
+         */
+        EdgeArea.prototype.getAxes = function () {
+            var e = this.end.sub(this.begin);
+            var edgeNormal = e.normal();
+            var axes = [];
+            axes.push(edgeNormal);
+            axes.push(edgeNormal.negate());
+            axes.push(edgeNormal.normal());
+            axes.push(edgeNormal.normal().negate());
+            return axes;
+        };
+        /**
+         * Get the momemnt of inertia for an edge
+         * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
+         */
+        EdgeArea.prototype.getMomentOfInertia = function () {
+            var mass = this.actor ? this.actor.mass : ex.Engine.physics.defaultMass;
+            var length = this.end.sub(this.begin).distance() / 2;
+            return mass * length * length;
+        };
+        EdgeArea.prototype.recalc = function () {
+            // edges don't have any cached data
+        };
+        /**
+         * Project the edge along a specified axis
+         */
+        EdgeArea.prototype.project = function (axis) {
+            var scalars = [];
+            var points = [this.begin, this.end];
+            var len = points.length;
+            for (var i = 0; i < len; i++) {
+                scalars.push(points[i].dot(axis));
+            }
+            return new ex.Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
+        };
+        EdgeArea.prototype.debugDraw = function (ctx, debugFlags) {
+            ctx.strokeStyle = 'red';
+            var old = ctx.lineWidth;
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.moveTo(this.begin.x, this.begin.y);
+            ctx.lineTo(this.end.x, this.end.y);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.lineWidth = old;
+        };
+        return EdgeArea;
+    }());
+    ex.EdgeArea = EdgeArea;
+})(ex || (ex = {}));
+/// <reference path="CollisionJumpTable.ts" />
+/// <reference path="CircleArea.ts" />
+/// <reference path="EdgeArea.ts" />
+var ex;
+(function (ex) {
+    /**
+     * Polygon collision area for detecting collisions for actors, or independently
+     */
+    var PolygonArea = (function () {
+        function PolygonArea(options) {
+            this._transformedPoints = [];
+            this._axes = [];
+            this._sides = [];
+            this.pos = options.pos || ex.Vector.Zero.clone();
+            var winding = !!options.clockwiseWinding;
+            this.points = (winding ? options.points.reverse() : options.points) || [];
+            this.actor = options.actor || null;
+            // calculate initial transformation
+            this._calculateTransformation();
+        }
+        /**
+         * Get the center of the collision area in world coordinates
+         */
+        PolygonArea.prototype.getCenter = function () {
+            if (this.actor) {
+                return this.actor.pos.add(this.pos);
+            }
+            return this.pos;
+        };
+        /**
+         * Calculates the underlying transformation from actor relative space to world space
+         */
+        PolygonArea.prototype._calculateTransformation = function () {
+            var pos = this.actor ? this.actor.pos.add(this.pos) : this.pos;
+            var angle = this.actor ? this.actor.rotation : 0;
+            var len = this.points.length;
+            this._transformedPoints.length = 0; // clear out old transform
+            for (var i = 0; i < len; i++) {
+                this._transformedPoints[i] = this.points[i].rotate(angle).add(pos);
+            }
+        };
+        /**
+         * Gets the points that make up the polygon in world space, from actor relative space (if specified)
+         */
+        PolygonArea.prototype.getTransformedPoints = function () {
+            if (!this._transformedPoints.length) {
+                this._calculateTransformation();
+            }
+            ;
+            return this._transformedPoints;
+        };
+        /**
+         * Gets the sides of the polygon in world space
+         */
+        PolygonArea.prototype.getSides = function () {
+            if (this._sides.length) {
+                return this._sides;
+            }
+            var lines = [];
+            var points = this.getTransformedPoints();
+            var len = points.length;
+            for (var i = 0; i < len; i++) {
+                lines.push(new ex.Line(points[i], points[(i - 1 + len) % len]));
+            }
+            this._sides = lines;
+            return this._sides;
+        };
+        PolygonArea.prototype.recalc = function () {
+            this._sides.length = 0;
+            this._axes.length = 0;
+            this._transformedPoints.length = 0;
+            this.getTransformedPoints();
+            this.getAxes();
+            this.getSides();
+        };
+        /**
+         * Tests if a point is contained in this collision area in world space
+         */
+        PolygonArea.prototype.contains = function (point) {
+            // Always cast to the right, as long as we cast in a consitent fixed direction we
+            // will be fine
+            var testRay = new ex.Ray(point, new ex.Vector(1, 0));
+            var intersectCount = this.getSides().reduce(function (accum, side, i, arr) {
+                if (testRay.intersect(side) >= 0) {
+                    return accum + 1;
+                }
+                return accum;
+            }, 0);
+            if (intersectCount % 2 === 0) {
+                return false;
+            }
+            return true;
+        };
+        /**
+         * Returns a collision contact if the 2 collision areas collide, otherwise collide will
+         * return null.
+         * @param area
+         */
+        PolygonArea.prototype.collide = function (area) {
+            if (area instanceof ex.CircleArea) {
+                return ex.CollisionJumpTable.CollideCirclePolygon(area, this);
+            }
+            else if (area instanceof PolygonArea) {
+                return ex.CollisionJumpTable.CollidePolygonPolygon(this, area);
+            }
+            else if (area instanceof ex.EdgeArea) {
+                return ex.CollisionJumpTable.CollidePolygonEdge(this, area);
+            }
+            else {
+                throw new Error("Polygon could not collide with unknown ICollisionArea " + typeof area);
+            }
+        };
+        /**
+         * Find the point on the shape furthest in the direction specified
+         */
+        PolygonArea.prototype.getFurthestPoint = function (direction) {
+            var pts = this.getTransformedPoints();
+            var furthestPoint = null;
+            var maxDistance = -Number.MAX_VALUE;
+            for (var i = 0; i < pts.length; i++) {
+                var distance = direction.dot(pts[i]);
+                if (distance > maxDistance) {
+                    maxDistance = distance;
+                    furthestPoint = pts[i];
+                }
+            }
+            return furthestPoint;
+        };
+        /**
+         * Get the axis aligned bounding box for the circle area
+         */
+        PolygonArea.prototype.getBounds = function () {
+            // todo there is a faster way to do this
+            var points = this.getTransformedPoints();
+            var minX = points.reduce(function (prev, curr) {
+                return Math.min(prev, curr.x);
+            }, 999999999);
+            var maxX = points.reduce(function (prev, curr) {
+                return Math.max(prev, curr.x);
+            }, -99999999);
+            var minY = points.reduce(function (prev, curr) {
+                return Math.min(prev, curr.y);
+            }, 9999999999);
+            var maxY = points.reduce(function (prev, curr) {
+                return Math.max(prev, curr.y);
+            }, -9999999999);
+            return new ex.BoundingBox(minX, minY, maxX, maxY);
+        };
+        /**
+         * Get the moment of inertia for an arbitrary polygon
+         * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
+         */
+        PolygonArea.prototype.getMomentOfInertia = function () {
+            var mass = this.actor ? this.actor.mass : ex.Engine.physics.defaultMass;
+            var numerator = 0;
+            var denominator = 0;
+            for (var i = 0; i < this.points.length; i++) {
+                var iplusone = (i + 1) % this.points.length;
+                var crossTerm = this.points[iplusone].cross(this.points[i]);
+                numerator += crossTerm * (this.points[i].dot(this.points[i]) +
+                    this.points[i].dot(this.points[iplusone]) +
+                    this.points[iplusone].dot(this.points[iplusone]));
+                denominator += crossTerm;
+            }
+            return (mass / 6) * (numerator / denominator);
+        };
+        /**
+         * Casts a ray into the polygon and returns a vector representing the point of contact (in world space) or null if no collision.
+         */
+        PolygonArea.prototype.castRay = function (ray) {
+            // find the minimum contact time greater than 0
+            // contact times less than 0 are behind the ray and we don't want those
+            var sides = this.getSides();
+            var len = sides.length;
+            var minContactTime = Number.MAX_VALUE;
+            var contactIndex = -1;
+            for (var i = 0; i < len; i++) {
+                var contactTime = ray.intersect(sides[i]);
+                if (contactTime >= 0 && contactTime < minContactTime) {
+                    minContactTime = contactTime;
+                    contactIndex = i;
+                }
+            }
+            // contact was found
+            if (i >= 0) {
+                return ray.getPoint(minContactTime);
+            }
+            // no contact found
+            return null;
+        };
+        /**
+         * Get the axis associated with the edge
+         */
+        PolygonArea.prototype.getAxes = function () {
+            if (this._axes.length) {
+                return this._axes;
+            }
+            var axes = [];
+            var points = this.getTransformedPoints();
+            var len = points.length;
+            for (var i = 0; i < len; i++) {
+                axes.push(points[i].sub(points[(i + 1) % len]).normal());
+            }
+            this._axes = axes;
+            return this._axes;
+        };
+        /**
+         * Perform Separating Axis test against another polygon, returns null if no overlap in polys
+         * Reference http://www.dyn4j.org/2010/01/sat/
+         */
+        PolygonArea.prototype.testSeparatingAxisTheorem = function (other) {
+            var poly1 = this;
+            var poly2 = other;
+            var axes = poly1.getAxes().concat(poly2.getAxes());
+            var minOverlap = Number.MAX_VALUE;
+            var minAxis = null;
+            var minIndex = -1;
+            for (var i = 0; i < axes.length; i++) {
+                var proj1 = poly1.project(axes[i]);
+                var proj2 = poly2.project(axes[i]);
+                var overlap = proj1.overlap(proj2);
+                if (overlap <= 0) {
+                    return null;
+                }
+                else {
+                    if (overlap < minOverlap) {
+                        minOverlap = overlap;
+                        minAxis = axes[i];
+                        minIndex = i;
+                    }
+                }
+            }
+            // Sanity check
+            if (minIndex === -1) {
+                return null;
+            }
+            return minAxis.normalize().scale(minOverlap);
+        };
+        /**
+         * Project the edges of the polygon along a specified axis
+         */
+        PolygonArea.prototype.project = function (axis) {
+            var scalars = [];
+            var points = this.getTransformedPoints();
+            var len = points.length;
+            var min = Number.MAX_VALUE;
+            var max = -Number.MAX_VALUE;
+            for (var i = 0; i < len; i++) {
+                //scalars.push(points[i].dot(axis));
+                var scalar = points[i].dot(axis);
+                min = Math.min(min, scalar);
+                max = Math.max(max, scalar);
+            }
+            return new ex.Projection(min, max);
+        };
+        PolygonArea.prototype.debugDraw = function (ctx, debugFlags) {
+            ctx.beginPath();
+            ctx.lineWidth = 3;
+            // Iterate through the supplied points and contruct a 'polygon'
+            var firstPoint = this.getTransformedPoints()[0];
+            ctx.moveTo(firstPoint.x, firstPoint.y);
+            this.getTransformedPoints().forEach(function (point, i) {
+                ctx.lineTo(point.x, point.y);
+            });
+            ctx.lineTo(firstPoint.x, firstPoint.y);
+            ctx.closePath();
+            ctx.stroke();
+        };
+        return PolygonArea;
+    }());
+    ex.PolygonArea = PolygonArea;
+})(ex || (ex = {}));
 /// <reference path="../Interfaces/IActorTrait.ts" />
 var ex;
 (function (ex) {
@@ -327,6 +1556,8 @@ var ex;
             function EulerMovement() {
             }
             EulerMovement.prototype.update = function (actor, engine, delta) {
+                if (actor.sleeping)
+                    return;
                 // Update placements based on linear algebra
                 var seconds = delta / 1000;
                 actor.oldVel = actor.vel;
@@ -347,7 +1578,7 @@ var ex;
                 actor.scale.y += actor.sy * delta / 1000;
             };
             return EulerMovement;
-        })();
+        }());
         Traits.EulerMovement = EulerMovement;
     })(Traits = ex.Traits || (ex.Traits = {}));
 })(ex || (ex = {}));
@@ -436,7 +1667,7 @@ var ex;
             ctx.fill();
         };
         return CullingBox;
-    })();
+    }());
     ex.CullingBox = CullingBox;
 })(ex || (ex = {}));
 /// <reference path="../Interfaces/IActorTrait.ts" />
@@ -486,7 +1717,7 @@ var ex;
                 }
             };
             return OffscreenCulling;
-        })();
+        }());
         Traits.OffscreenCulling = OffscreenCulling;
     })(Traits = ex.Traits || (ex.Traits = {}));
 })(ex || (ex = {}));
@@ -511,7 +1742,7 @@ var ex;
                 engine.input.pointers.propogate(actor);
             };
             return CapturePointer;
-        })();
+        }());
         Traits.CapturePointer = CapturePointer;
     })(Traits = ex.Traits || (ex.Traits = {}));
 })(ex || (ex = {}));
@@ -563,8 +1794,35 @@ var ex;
                 }
             };
             return TileMapCollisionDetection;
-        })();
+        }());
         Traits.TileMapCollisionDetection = TileMapCollisionDetection;
+    })(Traits = ex.Traits || (ex.Traits = {}));
+})(ex || (ex = {}));
+/// <reference path="../Interfaces/IActorTrait.ts" />
+var ex;
+(function (ex) {
+    var Traits;
+    (function (Traits) {
+        var Sleeping = (function () {
+            function Sleeping() {
+            }
+            Sleeping.prototype.update = function (actor, engine, delta) {
+                var vel = actor.vel;
+                var rx = actor.rx;
+                var motion = (vel.dot(vel) + rx * rx) * (delta / 1000);
+                actor.motion = ex.Engine.physics.motionBias * actor.motion + (1 - ex.Engine.physics.motionBias) * motion;
+                if (actor.motion < (ex.Engine.physics.sleepEpsilon * delta)) {
+                    actor.setSleep(true);
+                }
+                else {
+                    // do nothing
+                    // todo toss event maybe?
+                    actor.setSleep(false);
+                }
+            };
+            return Sleeping;
+        }());
+        Traits.Sleeping = Sleeping;
     })(Traits = ex.Traits || (ex.Traits = {}));
 })(ex || (ex = {}));
 var ex;
@@ -580,282 +1838,6 @@ var ex;
         Side[Side["Right"] = 4] = "Right";
     })(ex.Side || (ex.Side = {}));
     var Side = ex.Side;
-})(ex || (ex = {}));
-var ex;
-(function (ex) {
-    /**
-     * A 2D vector on a plane.
-     */
-    var Vector = (function () {
-        /**
-         * @param x  X component of the Vector
-         * @param y  Y component of the Vector
-         */
-        function Vector(x, y) {
-            this.x = x;
-            this.y = y;
-        }
-        /**
-         * Returns a vector of unit length in the direction of the specified angle in Radians.
-         * @param angle The angle to generate the vector
-         */
-        Vector.fromAngle = function (angle) {
-            return new Vector(Math.cos(angle), Math.sin(angle));
-        };
-        /**
-         * Sets the x and y components at once
-         */
-        Vector.prototype.setTo = function (x, y) {
-            this.x = x;
-            this.y = y;
-        };
-        /**
-         * Compares this point against another and tests for equality
-         * @param point  The other point to compare to
-         */
-        Vector.prototype.equals = function (vector, tolerance) {
-            if (tolerance === void 0) { tolerance = .001; }
-            return Math.abs(this.x - vector.x) <= tolerance && Math.abs(this.y - vector.y) <= tolerance;
-        };
-        /**
-         * The distance to another vector
-         * @param v  The other vector
-         */
-        Vector.prototype.distance = function (v) {
-            if (!v) {
-                v = new Vector(0.0, 0.0);
-            }
-            return Math.sqrt(Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2));
-        };
-        /**
-         * Normalizes a vector to have a magnitude of 1.
-         */
-        Vector.prototype.normalize = function () {
-            var d = this.distance();
-            if (d > 0) {
-                return new Vector(this.x / d, this.y / d);
-            }
-            else {
-                return new Vector(0, 1);
-            }
-        };
-        /**
-         * Scales a vector's by a factor of size
-         * @param size  The factor to scale the magnitude by
-         */
-        Vector.prototype.scale = function (size) {
-            return new Vector(this.x * size, this.y * size);
-        };
-        /**
-         * Adds one vector to another
-         * @param v The vector to add
-         */
-        Vector.prototype.add = function (v) {
-            return new Vector(this.x + v.x, this.y + v.y);
-        };
-        /**
-         * Subtracts a vector from another, alias for minus
-         * @param v The vector to subtract
-         */
-        Vector.prototype.sub = function (v) {
-            return new Vector(this.x - v.x, this.y - v.y);
-        };
-        /**
-         * Adds one vector to this one modifying the original
-         * @param v The vector to add
-         */
-        Vector.prototype.addEquals = function (v) {
-            this.x += v.x;
-            this.y += v.y;
-            return this;
-        };
-        /**
-         * Subtracts a vector from this one modifying the original
-         * @parallel v The vector to subtract
-         */
-        Vector.prototype.subEquals = function (v) {
-            this.x -= v.x;
-            this.y -= v.y;
-            return this;
-        };
-        /**
-         * Scales this vector by a factor of size and modifies the original
-         */
-        Vector.prototype.scaleEquals = function (size) {
-            this.x *= size;
-            this.y *= size;
-            return this;
-        };
-        /**
-         * Performs a dot product with another vector
-         * @param v  The vector to dot
-         */
-        Vector.prototype.dot = function (v) {
-            return this.x * v.x + this.y * v.y;
-        };
-        Vector.prototype.cross = function (v) {
-            if (v instanceof Vector) {
-                return this.x * v.y - this.y * v.x;
-            }
-            else if (typeof v === 'number') {
-                return new Vector(v * this.y, -v * this.x);
-            }
-        };
-        /**
-         * Returns the perpendicular vector to this one
-         */
-        Vector.prototype.perpendicular = function () {
-            return new Vector(this.y, -this.x);
-        };
-        /**
-         * Returns the normal vector to this one
-         */
-        Vector.prototype.normal = function () {
-            return this.perpendicular().normalize();
-        };
-        /**
-         * Negate the current vector
-         */
-        Vector.prototype.negate = function () {
-            return this.scale(-1);
-        };
-        /**
-         * Returns the angle of this vector.
-         */
-        Vector.prototype.toAngle = function () {
-            return Math.atan2(this.y, this.x);
-        };
-        /**
-         * Rotates the current vector around a point by a certain number of
-         * degrees in radians
-         */
-        Vector.prototype.rotate = function (angle, anchor) {
-            if (!anchor) {
-                anchor = new ex.Vector(0, 0);
-            }
-            var sinAngle = Math.sin(angle);
-            var cosAngle = Math.cos(angle);
-            var x = cosAngle * (this.x - anchor.x) - sinAngle * (this.y - anchor.y) + anchor.x;
-            var y = sinAngle * (this.x - anchor.x) + cosAngle * (this.y - anchor.y) + anchor.y;
-            return new Vector(x, y);
-        };
-        /**
-         * Creates new vector that has the same values as the previous.
-         */
-        Vector.prototype.clone = function () {
-            return new Vector(this.x, this.y);
-        };
-        /**
-         * A (0, 0) vector
-         */
-        Vector.Zero = new Vector(0, 0);
-        return Vector;
-    })();
-    ex.Vector = Vector;
-    /**
-     * A 2D ray that can be cast into the scene to do collision detection
-     */
-    var Ray = (function () {
-        /**
-         * @param pos The starting position for the ray
-         * @param dir The vector indicating the direction of the ray
-         */
-        function Ray(pos, dir) {
-            this.pos = pos;
-            this.dir = dir.normalize();
-        }
-        /**
-         * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
-         * This number indicates the mathematical intersection time.
-         * @param line  The line to test
-         */
-        Ray.prototype.intersect = function (line) {
-            var numerator = line.begin.sub(this.pos);
-            // Test is line and ray are parallel and non intersecting
-            if (this.dir.cross(line.getSlope()) === 0 && numerator.cross(this.dir) !== 0) {
-                return -1;
-            }
-            // Lines are parallel
-            var divisor = (this.dir.cross(line.getSlope()));
-            if (divisor === 0) {
-                return -1;
-            }
-            var t = numerator.cross(line.getSlope()) / divisor;
-            if (t >= 0) {
-                var u = (numerator.cross(this.dir) / divisor) / line.getLength();
-                if (u >= 0 && u <= 1) {
-                    return t;
-                }
-            }
-            return -1;
-        };
-        /**
-         * Returns the point of intersection given the intersection time
-         */
-        Ray.prototype.getPoint = function (time) {
-            return this.pos.add(this.dir.scale(time));
-        };
-        return Ray;
-    })();
-    ex.Ray = Ray;
-    /**
-     * A 2D line segment
-     */
-    var Line = (function () {
-        /**
-         * @param begin  The starting point of the line segment
-         * @param end  The ending point of the line segment
-         */
-        function Line(begin, end) {
-            this.begin = begin;
-            this.end = end;
-        }
-        /**
-         * Returns the slope of the line in the form of a vector
-         */
-        Line.prototype.getSlope = function () {
-            var begin = this.begin;
-            var end = this.end;
-            var distance = begin.distance(end);
-            return end.sub(begin).scale(1 / distance);
-        };
-        /**
-         * Returns the length of the line segment in pixels
-         */
-        Line.prototype.getLength = function () {
-            var begin = this.begin;
-            var end = this.end;
-            var distance = begin.distance(end);
-            return distance;
-        };
-        return Line;
-    })();
-    ex.Line = Line;
-    /**
-     * A 1 dimensional projection on an axis, used to test overlaps
-     */
-    var Projection = (function () {
-        function Projection(min, max) {
-            this.min = min;
-            this.max = max;
-        }
-        Projection.prototype.overlaps = function (projection) {
-            return this.max > projection.min && projection.max > this.min;
-        };
-        Projection.prototype.getOverlap = function (projection) {
-            if (this.overlaps(projection)) {
-                if (this.max > projection.max) {
-                    return projection.max - this.min;
-                }
-                else {
-                    return this.max - projection.min;
-                }
-            }
-            return 0;
-        };
-        return Projection;
-    })();
-    ex.Projection = Projection;
 })(ex || (ex = {}));
 /// <reference path="../Algebra.ts"/>
 /// <reference path="../Events.ts"/>
@@ -1004,6 +1986,25 @@ var ex;
             return ex.Side.None;
         }
         Util.getOppositeSide = getOppositeSide;
+        function getSideFromVector(direction) {
+            var left = direction.dot(ex.Vector.Left);
+            var right = direction.dot(ex.Vector.Right);
+            var up = direction.dot(ex.Vector.Up);
+            var down = direction.dot(ex.Vector.Down);
+            // a very fortran approach
+            var directions = [ex.Vector.Left, ex.Vector.Right, ex.Vector.Up, ex.Vector.Down];
+            var directionEnum = [ex.Side.Left, ex.Side.Right, ex.Side.Top, ex.Side.Bottom];
+            var max = -Number.MAX_VALUE;
+            var maxIndex = -1;
+            for (var i = 0; i < directions.length; i++) {
+                if (directions[i].dot(direction) > max) {
+                    max = directions[i].dot(direction);
+                    maxIndex = i;
+                }
+            }
+            return directionEnum[maxIndex];
+        }
+        Util.getSideFromVector = getSideFromVector;
         /**
          * Excaliburs dynamically resizing collection
          */
@@ -1138,7 +2139,7 @@ var ex;
              */
             Collection.DefaultSize = 200;
             return Collection;
-        })();
+        }());
         Util.Collection = Collection;
     })(Util = ex.Util || (ex.Util = {}));
 })(ex || (ex = {}));
@@ -1476,15 +2477,10 @@ var ex;
             return result;
         };
         return Sprite;
-    })();
+    }());
     ex.Sprite = Sprite;
 })(ex || (ex = {}));
 /// <reference path="Sprite.ts" />
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var ex;
 (function (ex) {
     /**
@@ -1663,7 +2659,7 @@ var ex;
             }
         };
         return SpriteSheet;
-    })();
+    }());
     ex.SpriteSheet = SpriteSheet;
     /**
      * Sprite Fonts
@@ -1902,7 +2898,7 @@ var ex;
             };
         };
         return SpriteFont;
-    })(SpriteSheet);
+    }(SpriteSheet));
     ex.SpriteFont = SpriteFont;
 })(ex || (ex = {}));
 /// <reference path="Engine.ts" />
@@ -2236,7 +3232,7 @@ var ex;
             ctx.restore();
         };
         return TileMap;
-    })();
+    }());
     ex.TileMap = TileMap;
     /**
      * Tile sprites are used to render a specific sprite from a [[TileMap]]'s spritesheet(s)
@@ -2251,7 +3247,7 @@ var ex;
             this.spriteId = spriteId;
         }
         return TileSprite;
-    })();
+    }());
     ex.TileSprite = TileSprite;
     /**
      * TileMap Cell
@@ -2319,18 +3315,17 @@ var ex;
             this.sprites.length = 0;
         };
         return Cell;
-    })();
+    }());
     ex.Cell = Cell;
 })(ex || (ex = {}));
 /// <reference path="../Algebra.ts" />
 var ex;
 (function (ex) {
-    (function (CollisionStrategy) {
-        CollisionStrategy[CollisionStrategy["Naive"] = 0] = "Naive";
-        CollisionStrategy[CollisionStrategy["DynamicAABBTree"] = 1] = "DynamicAABBTree";
-        CollisionStrategy[CollisionStrategy["SeparatingAxis"] = 2] = "SeparatingAxis";
-    })(ex.CollisionStrategy || (ex.CollisionStrategy = {}));
-    var CollisionStrategy = ex.CollisionStrategy;
+    (function (BroadphaseStrategy) {
+        BroadphaseStrategy[BroadphaseStrategy["Naive"] = 0] = "Naive";
+        BroadphaseStrategy[BroadphaseStrategy["DynamicAABBTree"] = 1] = "DynamicAABBTree";
+    })(ex.BroadphaseStrategy || (ex.BroadphaseStrategy = {}));
+    var BroadphaseStrategy = ex.BroadphaseStrategy;
     /**
      * Axis Aligned collision primitive for Excalibur.
      */
@@ -2370,6 +3365,24 @@ var ex;
             var wx = this.getWidth();
             var wy = this.getHeight();
             return 2 * (wx + wy);
+        };
+        BoundingBox.prototype.getPoints = function () {
+            var results = [];
+            results.push(new ex.Vector(this.left, this.top));
+            results.push(new ex.Vector(this.right, this.top));
+            results.push(new ex.Vector(this.right, this.bottom));
+            results.push(new ex.Vector(this.left, this.bottom));
+            return results;
+        };
+        /**
+         * Creates a Polygon collision area from the points of the bounding box
+         */
+        BoundingBox.prototype.toPolygon = function (actor) {
+            return new ex.PolygonArea({
+                actor: actor,
+                points: this.getPoints(),
+                pos: ex.Vector.Zero.clone()
+            });
         };
         BoundingBox.prototype.contains = function (val) {
             if (val instanceof ex.Vector) {
@@ -2440,8 +3453,88 @@ var ex;
             ctx.strokeRect(this.left, this.top, this.getWidth(), this.getHeight());
         };
         return BoundingBox;
-    })();
+    }());
     ex.BoundingBox = BoundingBox;
+})(ex || (ex = {}));
+/// <reference path="../Algebra.ts" />
+var ex;
+(function (ex) {
+    var Body = (function () {
+        function Body() {
+            /**
+             * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default. If
+             * you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0).
+             */
+            this.pos = new ex.Vector(0, 0);
+            /**
+             * The position of the actor last frame (x, y) in pixels
+             */
+            this.oldPos = new ex.Vector(0, 0);
+            /**
+             * The current velocity vector (vx, vy) of the actor in pixels/second
+             */
+            this.vel = new ex.Vector(0, 0);
+            /**
+             * The velocity of the actor last frame (vx, vy) in pixels/second
+             */
+            this.oldVel = new ex.Vector(0, 0);
+            /**
+             * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be
+             * useful to simulate a gravitational effect.
+             */
+            this.acc = new ex.Vector(0, 0);
+            /**
+             * The current torque applied to the actor
+             */
+            this.torque = 0;
+            /**
+             * The current mass of the actor, mass can be thought of as the resistance to acceleration.
+             */
+            this.mass = 1.0;
+            /**
+             * The current momemnt of inertia, moi can be thought of as the resistance to rotation.
+             */
+            this.moi = 1000;
+            /**
+             * The current "motion" of the actor, used to calculated sleep in the physics simulation
+             */
+            this.motion = 10;
+            /**
+             * This idicates whether the current actor is asleep in the physics simulation
+             */
+            this.sleeping = false;
+            /**
+             * The coefficient of friction on this actor
+             */
+            this.friction = .99;
+            /**
+             * The coefficient of restitution of this actor, represents the amount of energy preserved after collision
+             */
+            this.restitution = .2;
+            /**
+             * The rotation of the actor in radians
+             */
+            this.rotation = 0; // radians
+            /**
+             * The rotational velocity of the actor in radians/second
+             */
+            this.rx = 0; //radions/sec
+            /**
+             * The scale vector of the actor
+             */
+            this.scale = new ex.Vector(1, 1);
+            /**
+             * The x scalar velocity of the actor in scale/second
+             */
+            this.sx = 0; //scale/sec
+            /**
+             * The y scalar velocity of the actor in scale/second
+             */
+            this.sy = 0; //scale/sec
+        }
+        return Body;
+    }());
+    ex.Body = Body;
 })(ex || (ex = {}));
 /// <reference path="Events.ts" />
 var ex;
@@ -2560,7 +3653,7 @@ var ex;
             return child;
         };
         return Class;
-    })();
+    }());
     ex.Class = Class;
 })(ex || (ex = {}));
 var ex;
@@ -2618,7 +3711,7 @@ var ex;
         };
         Timer.id = 0;
         return Timer;
-    })();
+    }());
     ex.Timer = Timer;
 })(ex || (ex = {}));
 /// <reference path="../Actor.ts"/>
@@ -2626,16 +3719,16 @@ var ex;
 /// <reference path="ICollisionResolver.ts"/> 
 var ex;
 (function (ex) {
-    var NaiveCollisionResolver = (function () {
-        function NaiveCollisionResolver() {
+    var NaiveCollisionBroadphase = (function () {
+        function NaiveCollisionBroadphase() {
         }
-        NaiveCollisionResolver.prototype.register = function (target) {
+        NaiveCollisionBroadphase.prototype.register = function (target) {
             // pass
         };
-        NaiveCollisionResolver.prototype.remove = function (tartet) {
+        NaiveCollisionBroadphase.prototype.remove = function (tartet) {
             // pass
         };
-        NaiveCollisionResolver.prototype.evaluate = function (targets) {
+        NaiveCollisionBroadphase.prototype.evaluate = function (targets) {
             // Retrieve the list of potential colliders, exclude killed, prevented, and self
             var potentialColliders = targets.filter(function (other) {
                 return !other.isKilled() && other.collisionType !== ex.CollisionType.PreventCollision;
@@ -2665,15 +3758,15 @@ var ex;
             }
             return collisionPairs;
         };
-        NaiveCollisionResolver.prototype.update = function (targets) {
+        NaiveCollisionBroadphase.prototype.update = function (targets) {
             return 0;
         };
-        NaiveCollisionResolver.prototype.debugDraw = function (ctx, delta) {
+        NaiveCollisionBroadphase.prototype.debugDraw = function (ctx, delta) {
             return;
         };
-        return NaiveCollisionResolver;
-    })();
-    ex.NaiveCollisionResolver = NaiveCollisionResolver;
+        return NaiveCollisionBroadphase;
+    }());
+    ex.NaiveCollisionBroadphase = NaiveCollisionBroadphase;
 })(ex || (ex = {}));
 /// <reference path="BoundingBox.ts"/>
 var ex;
@@ -2692,7 +3785,7 @@ var ex;
             return (!this.left && !this.right);
         };
         return TreeNode;
-    })();
+    }());
     ex.TreeNode = TreeNode;
     var DynamicTree = (function () {
         function DynamicTree() {
@@ -3045,57 +4138,108 @@ var ex;
             helper(this.root);
         };
         return DynamicTree;
-    })();
+    }());
     ex.DynamicTree = DynamicTree;
 })(ex || (ex = {}));
 /// <reference path="ICollisionResolver.ts"/>
 /// <reference path="DynamicTree.ts"/>
 var ex;
 (function (ex) {
-    var DynamicTreeCollisionResolver = (function () {
-        function DynamicTreeCollisionResolver() {
+    var DynamicTreeCollisionBroadphase = (function () {
+        function DynamicTreeCollisionBroadphase() {
             this._dynamicCollisionTree = new ex.DynamicTree();
+            this._collisionHash = {};
+            this.collisionContactCache = [];
         }
-        DynamicTreeCollisionResolver.prototype.register = function (target) {
+        DynamicTreeCollisionBroadphase.prototype.register = function (target) {
             this._dynamicCollisionTree.registerActor(target);
         };
-        DynamicTreeCollisionResolver.prototype.remove = function (target) {
+        DynamicTreeCollisionBroadphase.prototype.remove = function (target) {
             this._dynamicCollisionTree.removeActor(target);
         };
-        DynamicTreeCollisionResolver.prototype.evaluate = function (targets) {
+        DynamicTreeCollisionBroadphase.prototype.resolve = function (targets, delta) {
+            var _this = this;
             // Retrieve the list of potential colliders, exclude killed, prevented, and self
             var potentialColliders = targets.filter(function (other) {
-                return !other.isKilled() && other.collisionType !== ex.CollisionType.PreventCollision;
+                return !other.isKilled() && other.collisionType !== ex.CollisionType.PreventCollision && !other.sleeping;
             });
             var actor;
-            var collisionPairs = [];
+            // Check collison cache and re-add pairs that still are in collision
+            var newPairs = [];
+            this.collisionContactCache.forEach(function (c) {
+                var contact = c.bodyA.collide(c.bodyB);
+                // we always add this id back to the hash so we can quickly short circuit since we already checked collision
+                _this._collisionHash[c.id] = true;
+                if (contact) {
+                    contact.id = c.id;
+                    newPairs.push(contact);
+                }
+            });
+            this.collisionContactCache = newPairs;
             for (var j = 0, l = potentialColliders.length; j < l; j++) {
                 actor = potentialColliders[j];
                 this._dynamicCollisionTree.query(actor, function (other) {
+                    // if the collision pair has been calculated already short circuit
+                    var hash = actor.calculatePairHash(other);
+                    if (_this._collisionHash[hash]) {
+                        return false; // pair exists easy exit return false
+                    }
+                    // if both are fixed short circuit
+                    if (actor.collisionType === ex.CollisionType.Fixed && other.collisionType === ex.CollisionType.Fixed) {
+                        return false;
+                    }
+                    // if the other is prevent collision or is dead short circuit
                     if (other.collisionType === ex.CollisionType.PreventCollision || other.isKilled()) {
                         return false;
                     }
-                    var minimumTranslationVector;
-                    if (minimumTranslationVector = actor.collides(other)) {
-                        var side = actor.getSideFromIntersect(minimumTranslationVector);
-                        var collisionPair = new ex.CollisionPair(actor, other, minimumTranslationVector, side);
-                        if (!collisionPairs.some(function (cp) {
-                            return cp.equals(collisionPair);
-                        })) {
-                            collisionPairs.push(collisionPair);
+                    // todo doesn't support multiple collision areas yet
+                    // generate all the collision contacts between the 2 sets of collision areas between both actors
+                    var contacts = [];
+                    var areaA = actor.collisionAreas[0];
+                    var areaB = other.collisionAreas[0];
+                    var contact = areaA.collide(areaB);
+                    if (contact) {
+                        contact.id = hash;
+                        contacts.push(contact);
+                        if (other.sleeping && other.collisionType !== ex.CollisionType.Fixed) {
+                            other.setSleep(false);
                         }
-                        return true;
+                    }
+                    /*
+                    for (var areaA of actor.collisionAreas) {
+                       for (var areaB of actor.collisionAreas) {
+                          var contact = areaA.collide(areaB);
+                          if (contact) {
+                             contacts.push(contact);
+                          }
+                       }
+                    }*/
+                    // if there were contacts keep track of them
+                    if (contacts.length) {
+                        _this._collisionHash[hash] = true;
+                        for (var _i = 0, contacts_1 = contacts; _i < contacts_1.length; _i++) {
+                            var contactHash = contacts_1[_i];
+                            _this.collisionContactCache.push(contactHash);
+                        }
                     }
                     return false;
                 });
             }
-            var i = 0, len = collisionPairs.length;
+            // evaluate collision pairs
+            var i = 0, len = this.collisionContactCache.length;
             for (i; i < len; i++) {
-                collisionPairs[i].evaluate();
+                this.collisionContactCache[i].resolve(delta, ex.Engine.physics.collisionResolutionStrategy);
             }
-            return collisionPairs;
+            // apply total mtv
+            targets.forEach(function (a) {
+                a.applyMtv();
+            });
+            // clear lookup table
+            this._collisionHash = {};
+            // return cache
+            return this.collisionContactCache;
         };
-        DynamicTreeCollisionResolver.prototype.update = function (targets) {
+        DynamicTreeCollisionBroadphase.prototype.update = function (targets, delta) {
             var updated = 0, i = 0, len = targets.length;
             for (i; i < len; i++) {
                 if (this._dynamicCollisionTree.updateActor(targets[i])) {
@@ -3104,12 +4248,12 @@ var ex;
             }
             return updated;
         };
-        DynamicTreeCollisionResolver.prototype.debugDraw = function (ctx, delta) {
+        DynamicTreeCollisionBroadphase.prototype.debugDraw = function (ctx, delta) {
             this._dynamicCollisionTree.debugDraw(ctx, delta);
         };
-        return DynamicTreeCollisionResolver;
-    })();
-    ex.DynamicTreeCollisionResolver = DynamicTreeCollisionResolver;
+        return DynamicTreeCollisionBroadphase;
+    }());
+    ex.DynamicTreeCollisionBroadphase = DynamicTreeCollisionBroadphase;
 })(ex || (ex = {}));
 var ex;
 (function (ex) {
@@ -3244,7 +4388,7 @@ var ex;
             }
         };
         return CollisionPair;
-    })();
+    }());
     ex.CollisionPair = CollisionPair;
 })(ex || (ex = {}));
 /// <reference path="Engine.ts" />
@@ -3532,7 +4676,7 @@ var ex;
             }
         };
         return BaseCamera;
-    })();
+    }());
     ex.BaseCamera = BaseCamera;
     /**
      * An extension of [[BaseCamera]] that is locked vertically; it will only move side to side.
@@ -3553,7 +4697,7 @@ var ex;
             }
         };
         return SideCamera;
-    })(BaseCamera);
+    }(BaseCamera));
     ex.SideCamera = SideCamera;
     /**
      * An extension of [[BaseCamera]] that is locked to an [[Actor]] or
@@ -3576,7 +4720,7 @@ var ex;
             }
         };
         return LockedCamera;
-    })(BaseCamera);
+    }(BaseCamera));
     ex.LockedCamera = LockedCamera;
 })(ex || (ex = {}));
 var ex;
@@ -3679,7 +4823,7 @@ var ex;
                     this._stopped = true;
                 };
                 return EaseTo;
-            })();
+            }());
             Actions.EaseTo = EaseTo;
             var MoveTo = (function () {
                 function MoveTo(actor, destx, desty, speed) {
@@ -3718,7 +4862,7 @@ var ex;
                     this._started = false;
                 };
                 return MoveTo;
-            })();
+            }());
             Actions.MoveTo = MoveTo;
             var MoveBy = (function () {
                 function MoveBy(actor, destx, desty, time) {
@@ -3762,7 +4906,7 @@ var ex;
                     this._started = false;
                 };
                 return MoveBy;
-            })();
+            }());
             Actions.MoveBy = MoveBy;
             var Follow = (function () {
                 function Follow(actor, actorToFollow, followDistance) {
@@ -3821,7 +4965,7 @@ var ex;
                     this._started = false;
                 };
                 return Follow;
-            })();
+            }());
             Actions.Follow = Follow;
             var Meet = (function () {
                 function Meet(actor, actorToMeet, speed) {
@@ -3875,7 +5019,7 @@ var ex;
                     this._started = false;
                 };
                 return Meet;
-            })();
+            }());
             Actions.Meet = Meet;
             var RotateTo = (function () {
                 function RotateTo(actor, angleRadians, speed, rotationType) {
@@ -3959,7 +5103,7 @@ var ex;
                     this._started = false;
                 };
                 return RotateTo;
-            })();
+            }());
             Actions.RotateTo = RotateTo;
             var RotateBy = (function () {
                 function RotateBy(actor, angleRadians, time, rotationType) {
@@ -4044,7 +5188,7 @@ var ex;
                     this._started = false;
                 };
                 return RotateBy;
-            })();
+            }());
             Actions.RotateBy = RotateBy;
             var ScaleTo = (function () {
                 function ScaleTo(actor, scaleX, scaleY, speedX, speedY) {
@@ -4098,7 +5242,7 @@ var ex;
                     this._started = false;
                 };
                 return ScaleTo;
-            })();
+            }());
             Actions.ScaleTo = ScaleTo;
             var ScaleBy = (function () {
                 function ScaleBy(actor, scaleX, scaleY, time) {
@@ -4143,7 +5287,7 @@ var ex;
                     this._started = false;
                 };
                 return ScaleBy;
-            })();
+            }());
             Actions.ScaleBy = ScaleBy;
             var Delay = (function () {
                 function Delay(actor, delay) {
@@ -4172,7 +5316,7 @@ var ex;
                     this._started = false;
                 };
                 return Delay;
-            })();
+            }());
             Actions.Delay = Delay;
             var Blink = (function () {
                 function Blink(actor, timeVisible, timeNotVisible, numBlinks) {
@@ -4219,7 +5363,7 @@ var ex;
                     this._totalTime = 0;
                 };
                 return Blink;
-            })();
+            }());
             Actions.Blink = Blink;
             var Fade = (function () {
                 function Fade(actor, endOpacity, speed) {
@@ -4256,7 +5400,7 @@ var ex;
                     this._started = false;
                 };
                 return Fade;
-            })();
+            }());
             Actions.Fade = Fade;
             var Die = (function () {
                 function Die(actor) {
@@ -4275,7 +5419,7 @@ var ex;
                 Die.prototype.stop = function () { return; };
                 Die.prototype.reset = function () { return; };
                 return Die;
-            })();
+            }());
             Actions.Die = Die;
             var CallMethod = (function () {
                 function CallMethod(actor, method) {
@@ -4299,7 +5443,7 @@ var ex;
                     this._hasBeenCalled = true;
                 };
                 return CallMethod;
-            })();
+            }());
             Actions.CallMethod = CallMethod;
             var Repeat = (function () {
                 function Repeat(actor, repeat, actions) {
@@ -4334,7 +5478,7 @@ var ex;
                     this._repeat = this._originalRepeat;
                 };
                 return Repeat;
-            })();
+            }());
             Actions.Repeat = Repeat;
             var RepeatForever = (function () {
                 function RepeatForever(actor, actions) {
@@ -4368,7 +5512,7 @@ var ex;
                 };
                 RepeatForever.prototype.reset = function () { return; };
                 return RepeatForever;
-            })();
+            }());
             Actions.RepeatForever = RepeatForever;
             /**
              * Action Queues
@@ -4424,7 +5568,7 @@ var ex;
                     }
                 };
                 return ActionQueue;
-            })();
+            }());
             Actions.ActionQueue = ActionQueue;
         })(Actions = Internal.Actions || (Internal.Actions = {}));
     })(Internal = ex.Internal || (ex.Internal = {}));
@@ -4825,7 +5969,7 @@ var ex;
             return ex.Promise.join.apply(this, promises);
         };
         return ActionContext;
-    })();
+    }());
     ex.ActionContext = ActionContext;
 })(ex || (ex = {}));
 /// <reference path="Actions/IActionable.ts"/>
@@ -4958,7 +6102,7 @@ var ex;
             });
         };
         return Group;
-    })(ex.Class);
+    }(ex.Class));
     ex.Group = Group;
 })(ex || (ex = {}));
 var ex;
@@ -5151,7 +6295,7 @@ var ex;
             }
         };
         return SortedList;
-    })();
+    }());
     ex.SortedList = SortedList;
     var BinaryTreeNode = (function () {
         function BinaryTreeNode(key, data, left, right) {
@@ -5185,7 +6329,7 @@ var ex;
             this._right = right;
         };
         return BinaryTreeNode;
-    })();
+    }());
     ex.BinaryTreeNode = BinaryTreeNode;
     var MockedElement = (function () {
         function MockedElement(key) {
@@ -5199,13 +6343,13 @@ var ex;
             this._key = key;
         };
         return MockedElement;
-    })();
+    }());
     ex.MockedElement = MockedElement;
 })(ex || (ex = {}));
 /// <reference path="Class.ts" />
 /// <reference path="Timer.ts" />
-/// <reference path="Collision/NaiveCollisionResolver.ts"/>
-/// <reference path="Collision/DynamicTreeCollisionResolver.ts"/>
+/// <reference path="Collision/NaiveCollisionBroadphase.ts"/>
+/// <reference path="Collision/DynamicTreeCollisionBroadphase.ts"/>
 /// <reference path="Collision/CollisionPair.ts" />
 /// <reference path="Camera.ts" />
 /// <reference path="Group.ts"/>
@@ -5355,7 +6499,7 @@ var ex;
              */
             this.isInitialized = false;
             this._sortedDrawingTree = new ex.SortedList(ex.Actor.prototype.getZIndex);
-            this._collisionResolver = new ex.DynamicTreeCollisionResolver();
+            this._broadphase = new ex.DynamicTreeCollisionBroadphase();
             this._killQueue = [];
             this._timers = [];
             this._cancelQueue = [];
@@ -5408,14 +6552,22 @@ var ex;
             for (i = 0, len = this.tileMaps.length; i < len; i++) {
                 this.tileMaps[i].update(engine, delta);
             }
-            // Cycle through actors updating actors
-            for (i = 0, len = this.children.length; i < len; i++) {
-                this.children[i].update(engine, delta);
-            }
-            // Run collision resolution strategy
-            if (this._collisionResolver) {
-                this._collisionResolver.update(this.children);
-                this._collisionResolver.evaluate(this.children);
+            var iter = ex.Engine.physics.collisionPasses;
+            delta = delta / iter;
+            while (iter > 0) {
+                // Cycle through actors updating actors
+                for (i = 0, len = this.children.length; i < len; i++) {
+                    this.children[i].update(engine, delta);
+                    this.children[i].collisionAreas[0].recalc();
+                }
+                // TODO meh I don't like how this works... maybe find a way to make collisions
+                // a trait
+                // Run collision resolution strategy
+                if (this._broadphase && ex.Engine.physics.on) {
+                    this._broadphase.update(this.children, delta);
+                    this._broadphase.resolve(this.children, delta);
+                }
+                iter--;
             }
             // Remove actors from scene graph after being killed
             var actorIndex;
@@ -5477,7 +6629,7 @@ var ex;
                     this.uiActors[i].debugDraw(ctx);
                 }
             }
-            this.emit('postdraw', new ex.PreDrawEvent(ctx, delta, this));
+            this.emit('postdraw', new ex.PostDrawEvent(ctx, delta, this));
         };
         /**
          * Draws all the actors' debug information in the Scene. Called by the [[Engine]].
@@ -5493,7 +6645,7 @@ var ex;
                 this.children[i].debugDraw(ctx);
             }
             // todo possibly enable this with excalibur flags features?
-            //this._collisionResolver.debugDraw(ctx, 20);
+            //this._broadphase.debugDraw(ctx, 20);
             this.camera.debugDraw(ctx);
             this.emit('postdebugdraw', new ex.PostDebugDrawEvent(ctx, this));
         };
@@ -5535,7 +6687,7 @@ var ex;
                 return;
             }
             if (entity instanceof ex.Actor) {
-                this._collisionResolver.remove(entity);
+                this._broadphase.remove(entity);
                 this.removeChild(entity);
             }
             if (entity instanceof ex.Timer) {
@@ -5569,7 +6721,7 @@ var ex;
          * @obsolete Use [[add]] instead.
          */
         Scene.prototype.addChild = function (actor) {
-            this._collisionResolver.register(actor);
+            this._broadphase.register(actor);
             actor.scene = this;
             this.children.push(actor);
             this._sortedDrawingTree.add(actor);
@@ -5594,7 +6746,7 @@ var ex;
          * Removes an actor from the scene, it will no longer be drawn or updated.
          */
         Scene.prototype.removeChild = function (actor) {
-            this._collisionResolver.remove(actor);
+            this._broadphase.remove(actor);
             this._killQueue.push(actor);
             actor.parent = null;
         };
@@ -5669,7 +6821,7 @@ var ex;
             this._sortedDrawingTree.add(actor);
         };
         return Scene;
-    })(ex.Class);
+    }(ex.Class));
     ex.Scene = Scene;
 })(ex || (ex = {}));
 var ex;
@@ -5759,19 +6911,23 @@ var ex;
             return endValue / 2 * (currentTime * currentTime * currentTime + 2) + startValue;
         };
         return EasingFunctions;
-    })();
+    }());
     ex.EasingFunctions = EasingFunctions;
 })(ex || (ex = {}));
 /// <reference path="Interfaces/IDrawable.ts" />
+/// <reference path="Collision/ICollisionArea.ts" />
+/// <reference path="Collision/PolygonArea.ts" />
 /// <reference path="Traits/EulerMovement.ts" />
 /// <reference path="Traits/OffscreenCulling.ts" />
 /// <reference path="Traits/CapturePointer.ts" />
 /// <reference path="Traits/TileMapCollisionDetection.ts" />
+/// <reference path="Traits/Sleeping.ts" />
 /// <reference path="Collision/Side.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util/Util.ts" />
 /// <reference path="TileMap.ts" />
 /// <reference path="Collision/BoundingBox.ts" />
+/// <reference path="Collision/Body.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actions/IActionable.ts"/>
 /// <reference path="Actions/Action.ts" />
@@ -6059,44 +7215,23 @@ var ex;
              * The unique identifier for the actor
              */
             this.id = Actor.maxId++;
-            /**
-             * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default. If
-             * you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0).
-             */
-            this.pos = new ex.Vector(0, 0);
-            /**
-             * The position of the actor last frame (x, y) in pixels
-             */
-            this.oldPos = new ex.Vector(0, 0);
-            /**
-             * The current velocity vector (vx, vy) of the actor in pixels/second
-             */
-            this.vel = new ex.Vector(0, 0);
-            /**
-             * The velocity of the actor last frame (vx, vy) in pixels/second
-             */
-            this.oldVel = new ex.Vector(0, 0);
-            /**
-             * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be
-             * useful to simulate a gravitational effect.
-             */
-            this.acc = new ex.Vector(0, 0);
-            /**
-             * The current torque applied to the actor
-             */
-            this.torque = 0;
-            /**
-             * The current mass of the actor, mass can be thought of as the resistance to acceleration.
-             */
-            this.mass = 1.0;
+            this.body = new ex.Body();
             /**
              * The current momemnt of inertia, moi can be thought of as the resistance to rotation.
              */
-            this.moi = 10;
+            this.moi = 1000;
             /**
              * The current "motion" of the actor, used to calculated sleep in the physics simulation
              */
             this.motion = 10;
+            /**
+             * This idicates whether the current actor is asleep in the physics simulation
+             */
+            this.sleeping = false;
+            /**
+             * The coefficient of friction on this actor
+             */
+            this.friction = .99;
             /**
              * This idicates whether the current actor is asleep in the physics simulation
              */
@@ -6111,6 +7246,10 @@ var ex;
             this.restitution = .2;
             this._height = 0;
             this._width = 0;
+            /**
+             * Collision maintenance
+             */
+            this._collisionContacts = [];
             this._totalMtv = ex.Vector.Zero.clone();
             /**
              * The rotation of the actor in radians
@@ -6170,6 +7309,7 @@ var ex;
              */
             this.collisionType = CollisionType.PreventCollision;
             this.collisionGroups = [];
+            this.collisionAreas = [];
             this._collisionHandlers = {};
             this._isInitialized = false;
             this.frames = {};
@@ -6209,12 +7349,83 @@ var ex;
             }
             // Build default pipeline
             this.traits.push(new ex.Traits.EulerMovement());
+            this.traits.push(new ex.Traits.Sleeping());
             this.traits.push(new ex.Traits.TileMapCollisionDetection());
             this.traits.push(new ex.Traits.OffscreenCulling());
             this.traits.push(new ex.Traits.CapturePointer());
+            // Build the action queue
             this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
+            // default anchor is in the middle
             this.anchor = new ex.Vector(.5, .5);
+            // Initialize default collision area
+            this.collisionAreas.push(new ex.PolygonArea({
+                actor: this,
+                points: this.getRelativeBounds().getPoints(),
+                pos: ex.Vector.Zero.clone() // position relative to actor
+            }));
+            // in case of a nan moi, collesce to a safe default
+            this.moi = this.collisionAreas[0].getMomentOfInertia() || this.moi;
         }
+        Object.defineProperty(Actor.prototype, "pos", {
+            get: function () {
+                return this.body.pos;
+            },
+            set: function (thePos) {
+                this.body.pos = thePos;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Actor.prototype, "vel", {
+            get: function () {
+                return this.body.vel;
+            },
+            set: function (theVel) {
+                this.body.vel = theVel;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Actor.prototype, "acc", {
+            /**
+             * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be
+             * useful to simulate a gravitational effect.
+             */
+            get: function () {
+                return this.body.acc;
+            },
+            set: function (theAcc) {
+                this.body.acc = theAcc;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Actor.prototype, "torque", {
+            /**
+             * The current torque applied to the actor
+             */
+            get: function () {
+                return this.body.torque;
+            },
+            set: function (theTorque) {
+                this.body.torque = theTorque;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Actor.prototype, "mass", {
+            /**
+             * The current mass of the actor, mass can be thought of as the resistance to acceleration.
+             */
+            get: function () {
+                return this.body.mass;
+            },
+            set: function (theMass) {
+                this.body.mass = theMass;
+            },
+            enumerable: true,
+            configurable: true
+        });
         /**
          * This is called before the first update of the actor. This method is meant to be
          * overridden. This is where initialization of child actors should take place.
@@ -6308,17 +7519,17 @@ var ex;
         /**
          * Set whether the actor is awake
          */
-        Actor.prototype.setAwake = function (wake) {
+        Actor.prototype.setSleep = function (sleep) {
             // todo add some "motion" to the actor so it doesn't fall back asleep
             // multiple of the sleep epsilon
-            if (wake) {
-                this.sleeping = false;
-                this.motion += ex.Engine.physics.sleepEpsilon * 10; // maybe this is reasonable
-            }
-            else {
+            if (sleep) {
                 this.sleeping = true;
                 this.rx = 0;
-                this.vel = ex.Vector.Zero.clone();
+                this.vel.setTo(0, 0);
+                this.motion = 0;
+            }
+            else {
+                this.sleeping = false;
             }
         };
         /**
@@ -6327,12 +7538,16 @@ var ex;
         Actor.prototype.addMtv = function (mtv) {
             this._totalMtv.addEquals(mtv);
         };
+        Actor.prototype.applyMtv = function () {
+            this.pos.addEquals(this._totalMtv);
+            this._totalMtv.setTo(0, 0);
+        };
         /**
          * Check if the current actor can go to sleep.
          */
         Actor.prototype.sleepCheck = function (delta) {
             if (this.motion < ex.Engine.physics.sleepEpsilon) {
-                this.setAwake(false);
+                this.setSleep(false);
             }
             return this.sleeping;
         };
@@ -6390,6 +7605,18 @@ var ex;
             var index = this.collisionGroups.indexOf(name);
             if (index !== -1) {
                 this.collisionGroups.splice(index, 1);
+            }
+        };
+        /**
+         * Calculates the unique pair hash between two actors
+         * @param other
+         */
+        Actor.prototype.calculatePairHash = function (other) {
+            if (this.id < other.id) {
+                return "#" + this.id + "+" + other.id;
+            }
+            else {
+                return "#" + other.id + "+" + this.id;
             }
         };
         /**
@@ -6483,11 +7710,20 @@ var ex;
             return new ex.Vector(this.scale.x * parentScale.x, this.scale.y * parentScale.y);
         };
         /**
-         * Returns the actor's [[BoundingBox]] calculated for this instant.
+         * Returns the actor's [[BoundingBox]] calculated for this instant in world space.
          */
         Actor.prototype.getBounds = function () {
+            // todo cache bounding box
             var anchor = this._getCalculatedAnchor();
             return new ex.BoundingBox(this.getWorldX() - anchor.x, this.getWorldY() - anchor.y, this.getWorldX() + this.getWidth() - anchor.x, this.getWorldY() + this.getHeight() - anchor.y);
+        };
+        /**
+         * Returns the actor's [[BoundingBox]] relative to the actors position.
+         */
+        Actor.prototype.getRelativeBounds = function () {
+            // todo cache bounding box
+            var anchor = this._getCalculatedAnchor();
+            return new ex.BoundingBox(-anchor.x, -anchor.y, this.getWidth() - anchor.x, this.getHeight() - anchor.y);
         };
         /**
          * Tests whether the x/y specified are contained in the actor
@@ -6847,6 +8083,7 @@ var ex;
             for (var i = 0; i < this.traits.length; i++) {
                 this.traits[i].update(this, engine, delta);
             }
+            // Update actor sleep or waking
             eventDispatcher.emit('update', new ex.UpdateEvent(delta));
             this.emit('postupdate', new ex.PostUpdateEvent(engine, delta, this));
         };
@@ -6902,43 +8139,59 @@ var ex;
          * @param ctx The rendering context
          */
         Actor.prototype.debugDraw = function (ctx) {
+            var _this = this;
             this.emit('predebugdraw', new ex.PreDebugDrawEvent(ctx, this));
+            /*
             // Draw actor bounding box
             var bb = this.getBounds();
             bb.debugDraw(ctx);
+            
             // Draw actor Id
             ctx.fillText('id: ' + this.id, bb.left + 3, bb.top + 10);
+            
             // Draw actor anchor Vector
-            ctx.fillStyle = ex.Color.Yellow.toString();
+            ctx.fillStyle = Color.Yellow.toString();
             ctx.beginPath();
             ctx.arc(this.getWorldX(), this.getWorldY(), 3, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fill();
+            */
+            // Draw collision areas
+            this.collisionAreas.forEach(function (ca) {
+                ctx.strokeStyle = (_this.sleeping ? "gray" : "lime").toString();
+                ca.debugDraw(ctx, null);
+            });
+            /*
             // Culling Box debug draw
             for (var j = 0; j < this.traits.length; j++) {
-                if (this.traits[j] instanceof ex.Traits.OffscreenCulling) {
-                    this.traits[j].cullingBox.debugDraw(ctx);
-                }
+               if (this.traits[j] instanceof Traits.OffscreenCulling) {
+                  (<Traits.OffscreenCulling>this.traits[j]).cullingBox.debugDraw(ctx);
+               }
             }
+            
             // Unit Circle debug draw
-            ctx.strokeStyle = ex.Color.Yellow.toString();
+            ctx.strokeStyle = Color.Yellow.toString();
             ctx.beginPath();
             var radius = Math.min(this.getWidth(), this.getHeight());
             ctx.arc(this.getWorldX(), this.getWorldY(), radius, 0, Math.PI * 2);
             ctx.closePath();
             ctx.stroke();
             var ticks = { '0 Pi': 0,
-                'Pi/2': Math.PI / 2,
-                'Pi': Math.PI,
-                '3/2 Pi': 3 * Math.PI / 2 };
+                          'Pi/2': Math.PI / 2,
+                          'Pi': Math.PI,
+                          '3/2 Pi': 3 * Math.PI / 2 };
+            
             var oldFont = ctx.font;
             for (var tick in ticks) {
-                ctx.fillStyle = ex.Color.Yellow.toString();
-                ctx.font = '14px';
-                ctx.textAlign = 'center';
-                ctx.fillText(tick, this.getWorldX() + Math.cos(ticks[tick]) * (radius + 10), this.getWorldY() + Math.sin(ticks[tick]) * (radius + 10));
+               ctx.fillStyle = Color.Yellow.toString();
+               ctx.font = '14px';
+               ctx.textAlign = 'center';
+               ctx.fillText(tick, this.getWorldX() + Math.cos(ticks[tick]) * (radius + 10),
+                                  this.getWorldY() + Math.sin(ticks[tick]) * (radius + 10));
             }
+            
             ctx.font = oldFont;
+            */
             // Draw child actors
             ctx.save();
             ctx.translate(this.pos.x, this.pos.y);
@@ -6955,7 +8208,7 @@ var ex;
          */
         Actor.maxId = 0;
         return Actor;
-    })(ex.Class);
+    }(ex.Class));
     ex.Actor = Actor;
     /**
      * An enum that describes the types of collisions actors can participate in
@@ -7140,7 +8393,7 @@ var ex;
         };
         Logger._instance = null;
         return Logger;
-    })();
+    }());
     ex.Logger = Logger;
     /**
      * Console appender for browsers (i.e. `console.log`)
@@ -7193,7 +8446,7 @@ var ex;
             }
         };
         return ConsoleAppender;
-    })();
+    }());
     ex.ConsoleAppender = ConsoleAppender;
     /**
      * On-screen (canvas) appender
@@ -7232,7 +8485,7 @@ var ex;
             }
         };
         return ScreenAppender;
-    })();
+    }());
     ex.ScreenAppender = ScreenAppender;
 })(ex || (ex = {}));
 /// <reference path="Engine.ts" />
@@ -7263,7 +8516,7 @@ var ex;
         function GameEvent() {
         }
         return GameEvent;
-    })();
+    }());
     ex.GameEvent = GameEvent;
     /**
      * The 'predraw' event is emitted on actors, scenes, and engine before drawing starts. Actors' predraw happens inside their graphics
@@ -7279,7 +8532,7 @@ var ex;
             this.target = target;
         }
         return PreDrawEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.PreDrawEvent = PreDrawEvent;
     /**
      * The 'postdraw' event is emitted on actors, scenes, and engine after drawing finishes. Actors' postdraw happens inside their graphics
@@ -7295,7 +8548,7 @@ var ex;
             this.target = target;
         }
         return PostDrawEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.PostDrawEvent = PostDrawEvent;
     /**
      * The 'predebugdraw' event is emitted on actors, scenes, and engine before debug drawing starts.
@@ -7308,7 +8561,7 @@ var ex;
             this.target = target;
         }
         return PreDebugDrawEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.PreDebugDrawEvent = PreDebugDrawEvent;
     /**
      * The 'postdebugdraw' event is emitted on actors, scenes, and engine after debug drawing starts.
@@ -7321,7 +8574,7 @@ var ex;
             this.target = target;
         }
         return PostDebugDrawEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.PostDebugDrawEvent = PostDebugDrawEvent;
     /**
      * The 'preupdate' event is emitted on actors, scenes, and engine before the update starts.
@@ -7335,7 +8588,7 @@ var ex;
             this.target = target;
         }
         return PreUpdateEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.PreUpdateEvent = PreUpdateEvent;
     /**
      * The 'postupdate' event is emitted on actors, scenes, and engine after the update ends. This is equivalent to the obsolete 'update'
@@ -7350,7 +8603,7 @@ var ex;
             this.target = target;
         }
         return PostUpdateEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.PostUpdateEvent = PostUpdateEvent;
     /**
      * Event received when a gamepad is connected to Excalibur. [[Input.Gamepads|engine.input.gamepads]] receives this event.
@@ -7363,7 +8616,7 @@ var ex;
             this.gamepad = gamepad;
         }
         return GamepadConnectEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.GamepadConnectEvent = GamepadConnectEvent;
     /**
      * Event received when a gamepad is disconnected from Excalibur. [[Input.Gamepads|engine.input.gamepads]] receives this event.
@@ -7375,7 +8628,7 @@ var ex;
             this.index = index;
         }
         return GamepadDisconnectEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.GamepadDisconnectEvent = GamepadDisconnectEvent;
     /**
      * Gamepad button event. See [[Gamepads]] for information on responding to controller input. [[Gamepad]] instances receive this event;
@@ -7392,7 +8645,7 @@ var ex;
             this.value = value;
         }
         return GamepadButtonEvent;
-    })(ex.GameEvent);
+    }(ex.GameEvent));
     ex.GamepadButtonEvent = GamepadButtonEvent;
     /**
      * Gamepad axis event. See [[Gamepads]] for information on responding to controller input. [[Gamepad]] instances receive this event;
@@ -7409,7 +8662,7 @@ var ex;
             this.value = value;
         }
         return GamepadAxisEvent;
-    })(ex.GameEvent);
+    }(ex.GameEvent));
     ex.GamepadAxisEvent = GamepadAxisEvent;
     /**
      * Subscribe event thrown when handlers for events other than subscribe are added. Meta event that is received by
@@ -7423,7 +8676,7 @@ var ex;
             this.handler = handler;
         }
         return SubscribeEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.SubscribeEvent = SubscribeEvent;
     /**
      * Unsubscribe event thrown when handlers for events other than unsubscribe are removed. Meta event that is received by
@@ -7437,7 +8690,7 @@ var ex;
             this.handler = handler;
         }
         return UnsubscribeEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.UnsubscribeEvent = UnsubscribeEvent;
     /**
      * Event received by the [[Engine]] when the browser window is visible on a screen.
@@ -7448,7 +8701,7 @@ var ex;
             _super.call(this);
         }
         return VisibleEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.VisibleEvent = VisibleEvent;
     /**
      * Event received by the [[Engine]] when the browser window is hidden from all screens.
@@ -7459,7 +8712,7 @@ var ex;
             _super.call(this);
         }
         return HiddenEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.HiddenEvent = HiddenEvent;
     /**
      * Event thrown on an [[Actor|actor]] when a collision has occured
@@ -7479,7 +8732,7 @@ var ex;
             this.intersection = intersection;
         }
         return CollisionEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.CollisionEvent = CollisionEvent;
     /**
      * Event thrown on a game object on Excalibur update, this is equivalent to postupdate.
@@ -7495,7 +8748,7 @@ var ex;
             this.delta = delta;
         }
         return UpdateEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.UpdateEvent = UpdateEvent;
     /**
      * Event thrown on an [[Actor]] only once before the first update call
@@ -7510,7 +8763,7 @@ var ex;
             this.engine = engine;
         }
         return InitializeEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.InitializeEvent = InitializeEvent;
     /**
      * Event thrown on a [[Scene]] on activation
@@ -7525,7 +8778,7 @@ var ex;
             this.oldScene = oldScene;
         }
         return ActivateEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.ActivateEvent = ActivateEvent;
     /**
      * Event thrown on a [[Scene]] on deactivation
@@ -7540,7 +8793,7 @@ var ex;
             this.newScene = newScene;
         }
         return DeactivateEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.DeactivateEvent = DeactivateEvent;
     /**
      * Event thrown on an [[Actor]] when it completely leaves the screen.
@@ -7551,7 +8804,7 @@ var ex;
             _super.call(this);
         }
         return ExitViewPortEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.ExitViewPortEvent = ExitViewPortEvent;
     /**
      * Event thrown on an [[Actor]] when it completely leaves the screen.
@@ -7562,7 +8815,7 @@ var ex;
             _super.call(this);
         }
         return EnterViewPortEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.EnterViewPortEvent = EnterViewPortEvent;
 })(ex || (ex = {}));
 /// <reference path="Events.ts" />
@@ -7747,7 +9000,7 @@ var ex;
             }
         };
         return EventDispatcher;
-    })();
+    }());
     ex.EventDispatcher = EventDispatcher;
 })(ex || (ex = {}));
 var ex;
@@ -8026,7 +9279,7 @@ var ex;
          */
         Color.Transparent = Color.fromHex('#FFFFFF00');
         return Color;
-    })();
+    }());
     ex.Color = Color;
     /**
      * Internal HSL Color representation
@@ -8101,7 +9354,15 @@ var ex;
             return new Color(r * 255, g * 255, b * 255, this.a);
         };
         return HSLColor;
-    })();
+    }());
+})(ex || (ex = {}));
+var ex;
+(function (ex) {
+    (function (CollisionResolutionStrategy) {
+        CollisionResolutionStrategy[CollisionResolutionStrategy["Box"] = 0] = "Box";
+        CollisionResolutionStrategy[CollisionResolutionStrategy["RigidBody"] = 1] = "RigidBody";
+    })(ex.CollisionResolutionStrategy || (ex.CollisionResolutionStrategy = {}));
+    var CollisionResolutionStrategy = ex.CollisionResolutionStrategy;
 })(ex || (ex = {}));
 /// <reference path="Actor.ts" />
 var ex;
@@ -8139,7 +9400,7 @@ var ex;
             return _super.prototype.contains.call(this, coords.x, coords.y);
         };
         return UIActor;
-    })(ex.Actor);
+    }(ex.Actor));
     ex.UIActor = UIActor;
 })(ex || (ex = {}));
 /// <reference path="Actor.ts" />
@@ -8258,7 +9519,7 @@ var ex;
             ctx.restore();
         };
         return Trigger;
-    })(ex.Actor);
+    }(ex.Actor));
     ex.Trigger = Trigger;
 })(ex || (ex = {}));
 /// <reference path="Engine.ts" />
@@ -8376,7 +9637,7 @@ var ex;
             ctx.closePath();
         };
         return Particle;
-    })();
+    }());
     ex.Particle = Particle;
     /**
      * Particle Emitters
@@ -8623,7 +9884,7 @@ var ex;
             }
         };
         return ParticleEmitter;
-    })(ex.Actor);
+    }(ex.Actor));
     ex.ParticleEmitter = ParticleEmitter;
 })(ex || (ex = {}));
 var ex;
@@ -8895,7 +10156,7 @@ var ex;
             this._engine.playAnimation(this, x, y);
         };
         return Animation;
-    })();
+    }());
     ex.Animation = Animation;
 })(ex || (ex = {}));
 /// <reference path="MonkeyPatch.ts" />
@@ -8945,7 +10206,7 @@ var ex;
                 this._soundImpl.stop();
             };
             return FallbackAudio;
-        })();
+        }());
         Internal.FallbackAudio = FallbackAudio;
         var AudioTag = (function () {
             function AudioTag(path, volume) {
@@ -9049,7 +10310,7 @@ var ex;
                 this._isPlaying = false;
             };
             return AudioTag;
-        })();
+        }());
         Internal.AudioTag = AudioTag;
         if (window.AudioContext) {
             var audioContext = new window.AudioContext();
@@ -9183,7 +10444,7 @@ var ex;
                 }
             };
             return WebAudio;
-        })();
+        }());
         Internal.WebAudio = WebAudio;
     })(Internal = ex.Internal || (ex.Internal = {}));
 })(ex || (ex = {}));
@@ -9403,7 +10664,7 @@ var ex;
             }
         };
         return Promise;
-    })();
+    }());
     ex.Promise = Promise;
 })(ex || (ex = {}));
 /// <reference path="Interfaces/ILoadable.ts" />
@@ -9524,7 +10785,7 @@ var ex;
             return URL.createObjectURL(data);
         };
         return Resource;
-    })();
+    }());
     ex.Resource = Resource;
 })(ex || (ex = {}));
 /// <reference path="Sound.ts" />
@@ -9617,7 +10878,7 @@ var ex;
             return this._sprite;
         };
         return Texture;
-    })(ex.Resource);
+    }(ex.Resource));
     ex.Texture = Texture;
     /**
      * Sounds
@@ -9795,7 +11056,7 @@ var ex;
             return complete;
         };
         return Sound;
-    })();
+    }());
     ex.Sound = Sound;
     /**
      * Pre-loading assets
@@ -9935,7 +11196,7 @@ var ex;
             return complete;
         };
         return Loader;
-    })();
+    }());
     ex.Loader = Loader;
 })(ex || (ex = {}));
 /// <reference path="Log.ts" />
@@ -10016,7 +11277,7 @@ var ex;
             return true;
         };
         return Detector;
-    })();
+    }());
     ex.Detector = Detector;
 })(ex || (ex = {}));
 /// <reference path="Promises.ts" />
@@ -10149,7 +11410,7 @@ var ex;
             return this._isLoaded;
         };
         return Template;
-    })();
+    }());
     ex.Template = Template;
     /**
      * Excalibur's binding library that allows you to bind an html
@@ -10209,7 +11470,7 @@ var ex;
             }
         };
         return Binding;
-    })();
+    }());
     ex.Binding = Binding;
 })(ex || (ex = {}));
 /// <reference path="Actor.ts" />
@@ -10602,7 +11863,7 @@ var ex;
             _super.prototype.debugDraw.call(this, ctx);
         };
         return Label;
-    })(ex.Actor);
+    }(ex.Actor));
     ex.Label = Label;
 })(ex || (ex = {}));
 /// <reference path="../Events.ts"/>
@@ -10673,7 +11934,7 @@ var ex;
                 this.ev = ev;
             }
             return PointerEvent;
-        })(ex.GameEvent);
+        }(ex.GameEvent));
         Input.PointerEvent = PointerEvent;
         ;
         /**
@@ -11023,7 +12284,7 @@ var ex;
                 }
             };
             return Pointers;
-        })(ex.Class);
+        }(ex.Class));
         Input.Pointers = Pointers;
         /**
          * Captures and dispatches PointerEvents
@@ -11034,7 +12295,7 @@ var ex;
                 _super.apply(this, arguments);
             }
             return Pointer;
-        })(ex.Class);
+        }(ex.Class));
         Input.Pointer = Pointer;
     })(Input = ex.Input || (ex.Input = {}));
 })(ex || (ex = {}));
@@ -11108,7 +12369,7 @@ var ex;
                 this.key = key;
             }
             return KeyEvent;
-        })(ex.GameEvent);
+        }(ex.GameEvent));
         Input.KeyEvent = KeyEvent;
         /**
          * Keyboard input
@@ -11234,7 +12495,7 @@ var ex;
                 return this._keysUp.indexOf(key) > -1;
             };
             return Keyboard;
-        })(ex.Class);
+        }(ex.Class));
         Input.Keyboard = Keyboard;
     })(Input = ex.Input || (ex.Input = {}));
 })(ex || (ex = {}));
@@ -11587,7 +12848,7 @@ var ex;
              */
             Gamepads.MinAxisMoveThreshold = 0.05;
             return Gamepads;
-        })(ex.Class);
+        }(ex.Class));
         Input.Gamepads = Gamepads;
         /**
          * Gamepad holds state information for a connected controller. See [[Gamepads]]
@@ -11643,7 +12904,7 @@ var ex;
                 this._axes[axesIndex] = value;
             };
             return Gamepad;
-        })(ex.Class);
+        }(ex.Class));
         Input.Gamepad = Gamepad;
         /**
          * Gamepad Buttons enumeration
@@ -12026,7 +13287,7 @@ var ex;
             /**
              * Gets or sets the [[CollisionStrategy]] for Excalibur actors
              */
-            this.collisionStrategy = ex.CollisionStrategy.DynamicAABBTree;
+            this.collisionStrategy = ex.BroadphaseStrategy.DynamicAABBTree;
             this._hasStarted = false;
             /**
              * Current FPS
@@ -12466,7 +13727,7 @@ var ex;
             this.input.gamepads.update(delta);
             // Publish update event
             this.eventDispatcher.emit('update', new ex.UpdateEvent(delta));
-            this.emit('postupdate', new ex.PreUpdateEvent(this, delta, this));
+            this.emit('postupdate', new ex.PostUpdateEvent(this, delta, this));
         };
         /**
          * Draws the entire game
@@ -12506,7 +13767,7 @@ var ex;
             for (var i = 0; i < this.postProcessors.length; i++) {
                 this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.width, this.height), this.ctx);
             }
-            this.emit('postdraw', new ex.PreDrawEvent(ctx, delta, this));
+            this.emit('postdraw', new ex.PostDrawEvent(ctx, delta, this));
         };
         /**
          * Starts the internal game loop for Excalibur after loading
@@ -12657,15 +13918,20 @@ var ex;
          */
         Engine.physics = {
             acc: new ex.Vector(0, 0),
-            collisionPasses: 10,
+            on: true,
+            collisionPasses: 5,
+            broadphaseStrategy: ex.BroadphaseStrategy.DynamicAABBTree,
+            collisionResolutionStrategy: ex.CollisionResolutionStrategy.RigidBody,
+            defaultMass: 10,
             integrator: 'euler',
             integrationSteps: 1,
             allowRotation: true,
-            sleepEpsilon: 1,
+            enableSleeping: true,
+            sleepEpsilon: .05,
             motionBias: .95
         };
         return Engine;
-    })(ex.Class);
+    }(ex.Class));
     ex.Engine = Engine;
     /**
      * Enum representing the different display modes available to Excalibur
@@ -12695,11 +13961,6 @@ var ex;
             this.y = y;
         }
         return AnimationNode;
-    })();
+    }());
 })(ex || (ex = {}));
 //# sourceMappingURL=excalibur-0.6.0.js.map
-;
-// Concatenated onto excalibur after build
-// Exports the excalibur module so it can be used with browserify
-// https://github.com/excaliburjs/Excalibur/issues/312
-if (typeof module !== 'undefined') {module.exports = ex;}
