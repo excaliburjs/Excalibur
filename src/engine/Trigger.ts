@@ -65,8 +65,8 @@ module ex {
          this.actionQueue.update(delta);
 
          // Update placements based on linear algebra
-         this.x += this.dx * delta / 1000;
-         this.y += this.dy * delta / 1000;
+         this.pos.x += this.vel.x * delta / 1000;
+         this.pos.y += this.vel.y * delta / 1000;
 
          this.rotation += this.rx * delta / 1000;
 
@@ -109,7 +109,7 @@ module ex {
          super.debugDraw(ctx);
           // Meant to draw debug information about actors
          ctx.save();
-         ctx.translate(this.x, this.y);
+         ctx.translate(this.pos.x, this.pos.y);
 
          var bb = this.getBounds();
          bb.left = bb.left - this.getWorldX();

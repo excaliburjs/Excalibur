@@ -1,7 +1,7 @@
 /// <reference path="../Interfaces/IActorTrait.ts" />
 
 module ex.Traits {
-   export class CollisionDetection implements IActorTrait { 
+   export class TileMapCollisionDetection implements IActorTrait { 
       public update(actor: Actor, engine: Engine, delta: number) {
          var eventDispatcher = actor.eventDispatcher;
          if (actor.collisionType !== CollisionType.PreventCollision && engine.currentScene && engine.currentScene.tileMaps) {            
@@ -19,20 +19,20 @@ module ex.Traits {
                   side = actor.getSideFromIntersect(intersectMap);
                   eventDispatcher.emit('collision', new CollisionEvent(actor, null, side, intersectMap));
                   if((actor.collisionType === CollisionType.Active || actor.collisionType === CollisionType.Elastic)) {
-                     actor.y += intersectMap.y;
-                     actor.x += intersectMap.x;
+                     actor.pos.y += intersectMap.y;
+                     actor.pos.x += intersectMap.x;
 
                      // Naive elastic bounce
                      if(actor.collisionType === CollisionType.Elastic && !hasBounced) {
                         hasBounced = true;
                         if (side === Side.Left) {
-                           actor.dx = Math.abs(actor.dx);
+                           actor.vel.x = Math.abs(actor.vel.x);
                         } else if (side === Side.Right) {
-                           actor.dx = -Math.abs(actor.dx);
+                           actor.vel.x = -Math.abs(actor.vel.x);
                         } else if (side === Side.Top) {
-                           actor.dy = Math.abs(actor.dy);
+                           actor.vel.y = Math.abs(actor.vel.y);
                         } else if (side === Side.Bottom) {
-                           actor.dy = -Math.abs(actor.dy);
+                           actor.vel.y = -Math.abs(actor.vel.y);
                         }
                      }                 
                   }

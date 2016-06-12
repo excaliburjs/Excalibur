@@ -20,8 +20,8 @@ module ex {
     * ## Focus
     *
     * Cameras have a [[BaseCamera.focus|focus]] which means they center around a specific
-    * [[Point]]. This can be an [[Actor]] ([[BaseCamera.setActorToFollow]]) or a specific
-    * [[Point]] ([[BaseCamera.setFocus]]).
+    * [[Vector|point]]. This can be an [[Actor]] ([[BaseCamera.setActorToFollow]]) or a specific
+    * [[Vector|point]] ([[BaseCamera.setFocus]]).
     *
     * If a camera is following an [[Actor]], it will ensure the [[Actor]] is always at the
     * center of the screen. You can use [[BaseCamera.setFocus]] instead if you wish to
@@ -58,7 +58,7 @@ module ex {
     */
    export class BaseCamera {
       protected _follow: Actor;
-      public focus: Point = new Point(0, 0);
+      public focus: Vector = new Vector(0, 0);
       public lerp: boolean = false;
 
       // camera physical quantities
@@ -82,8 +82,8 @@ module ex {
       private _currentLerpTime: number = 0;
       private _lerpDuration: number = 1 * 1000; // 5 seconds
       private _totalLerpTime: number = 0;
-      private _lerpStart: Point = null;
-      private _lerpEnd: Point = null;
+      private _lerpStart: Vector = null;
+      private _lerpEnd: Vector = null;
 
       //camera effects
       protected _isShaking: boolean = false;
@@ -122,7 +122,7 @@ module ex {
        * Returns the focal point of the camera, a new point giving the x and y position of the camera
        */
       public getFocus() {
-         return new ex.Point(this.x, this.y);
+         return new ex.Vector(this.x, this.y);
       }
 
       /**
@@ -139,7 +139,7 @@ module ex {
 
          if (this.lerp) {
             this._lerpStart = this.getFocus().clone();
-            this._lerpEnd = new Point(x, y);
+            this._lerpEnd = new Vector(x, y);
             this._currentLerpTime = 0;
             this._cameraMoving = true;
          }
@@ -326,9 +326,9 @@ module ex {
 
       public getFocus() {
          if (this._follow) {
-            return new Point(this._follow.x + this._follow.getWidth() / 2, this.focus.y);
+            return new Vector(this._follow.pos.x + this._follow.getWidth() / 2, super.getFocus().y);
          } else {
-            return this.focus;
+            return super.getFocus();
          }
       }
    }
@@ -344,9 +344,9 @@ module ex {
 
       public getFocus() {
          if (this._follow) {
-            return new Point(this._follow.x + this._follow.getWidth() / 2, this._follow.y + this._follow.getHeight() / 2);
+            return new Vector(this._follow.pos.x + this._follow.getWidth() / 2, this._follow.pos.y + this._follow.getHeight() / 2);
          } else {
-            return this.focus;
+            return super.getFocus();
          }
       }
    }

@@ -63,9 +63,9 @@ module ex {
 
       private _oldTime: number = Date.now();
       
-      public anchor = new Point(0.0, 0.0);
+      public anchor = new Vector(0.0, 0.0);
       public rotation: number = 0.0;
-      public scale = new Point(1, 1);
+      public scale = new Vector(1, 1);
 
       /**
        * Indicates whether the animation should loop after it is completed
@@ -223,7 +223,7 @@ module ex {
          }  
       }
 
-      private _setAnchor(point: Point) {
+      private _setAnchor(point: Vector) {
          //if (!this.anchor.equals(point)) {
             for (var i in this.sprites) {
                this.sprites[i].anchor.setTo(point.x, point.y);
@@ -239,7 +239,7 @@ module ex {
          //}
       }
       
-      private _setScale(scale: Point) {
+      private _setScale(scale: Vector) {
          //if (!this.scale.equals(scale)) {
             for (var i in this.sprites) {
                this.sprites[i].scale = scale;

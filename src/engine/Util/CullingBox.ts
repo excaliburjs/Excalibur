@@ -2,10 +2,10 @@
 module ex {
 
    export class CullingBox {
-      private _topLeft: Point = new Point(0, 0);
-      private _topRight: Point = new Point(0, 0);
-      private _bottomLeft: Point = new Point(0, 0);
-      private _bottomRight: Point = new Point(0, 0);
+      private _topLeft: Vector = new Vector(0, 0);
+      private _topRight: Vector = new Vector(0, 0);
+      private _bottomLeft: Vector = new Vector(0, 0);
+      private _bottomRight: Vector = new Vector(0, 0);
 
       private _xCoords: Array<number>;
       private _yCoords: Array<number>;
@@ -23,7 +23,7 @@ module ex {
          var drawingWidth = actor.currentDrawing.width * actor.currentDrawing.scale.x;
          var drawingHeight = actor.currentDrawing.height * actor.currentDrawing.scale.y;
          var rotation = actor.rotation;
-         var anchor = actor.getCenter().toPoint();
+         var anchor = actor.getCenter();
 
          this._topLeft.x = actor.getWorldX() - (drawingWidth / 2);
          this._topLeft.y = actor.getWorldY() - (drawingHeight / 2);
@@ -58,18 +58,18 @@ module ex {
          this._xMax = Math.max.apply(null, this._xCoords);
          this._yMax = Math.max.apply(null, this._yCoords);
 
-         var minWorld = engine.screenToWorldCoordinates(new ex.Point(this._xMin, this._yMin));
-         var maxWorld = engine.screenToWorldCoordinates(new ex.Point(this._xMax, this._yMax));
+         var minWorld = engine.screenToWorldCoordinates(new ex.Vector(this._xMin, this._yMin));
+         var maxWorld = engine.screenToWorldCoordinates(new ex.Vector(this._xMax, this._yMax));
          this._xMinWorld = minWorld.x;
          this._yMinWorld = minWorld.y;
          this._xMaxWorld = maxWorld.x;
          this._yMaxWorld = maxWorld.y;
 
-         var boundingPoints = new Array<Point>();
-         boundingPoints.push(new Point(this._xMin, this._yMin), 
-                             new Point(this._xMax, this._yMin), 
-                             new Point(this._xMin, this._yMax), 
-                             new Point(this._xMax, this._yMax));
+         var boundingPoints = new Array<Vector>();
+         boundingPoints.push(new Vector(this._xMin, this._yMin), 
+                             new Vector(this._xMax, this._yMin), 
+                             new Vector(this._xMin, this._yMax), 
+                             new Vector(this._xMax, this._yMax));
 
          for (var i = 0; i < boundingPoints.length; i++) {
             if (boundingPoints[i].x > 0 &&

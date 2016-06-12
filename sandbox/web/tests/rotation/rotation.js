@@ -28,7 +28,7 @@ shortestPath.on('pointerdown', function (e) {
     rotationType = ex.RotationType.ShortestPath;
 });
 engine.add(shortestPath);
-var labelShortestPath = new ex.Label("Shortest Path", shortestPath.x, 100);
+var labelShortestPath = new ex.Label("Shortest Path", shortestPath.pos.x, 100);
 labelShortestPath.color = ex.Color.White;
 labelShortestPath.textAlign = ex.TextAlign.Center;
 engine.add(labelShortestPath);
@@ -37,7 +37,7 @@ longestPath.on('pointerdown', function (e) {
     rotationType = ex.RotationType.LongestPath;
 });
 engine.add(longestPath);
-var labelLongestPath = new ex.Label("Longest Path", longestPath.x, 100);
+var labelLongestPath = new ex.Label("Longest Path", longestPath.pos.x, 100);
 labelLongestPath.color = ex.Color.White;
 labelLongestPath.textAlign = ex.TextAlign.Center;
 engine.add(labelLongestPath);
@@ -46,7 +46,7 @@ clockwise.on('pointerdown', function (e) {
     rotationType = ex.RotationType.Clockwise;
 });
 engine.add(clockwise);
-var labelClockwise = new ex.Label("Clockwise", clockwise.x, 100);
+var labelClockwise = new ex.Label("Clockwise", clockwise.pos.x, 100);
 labelClockwise.color = ex.Color.White;
 labelClockwise.textAlign = ex.TextAlign.Center;
 engine.add(labelClockwise);
@@ -55,7 +55,7 @@ counterclockwise.on('pointerdown', function (e) {
     rotationType = ex.RotationType.CounterClockwise;
 });
 engine.add(counterclockwise);
-var labelCounterClockwise = new ex.Label("CounterClockwise", counterclockwise.x, 100);
+var labelCounterClockwise = new ex.Label("CounterClockwise", counterclockwise.pos.x, 100);
 labelCounterClockwise.color = ex.Color.White;
 labelCounterClockwise.textAlign = ex.TextAlign.Center;
 engine.add(labelCounterClockwise);
@@ -64,7 +64,7 @@ engine.input.pointers.primary.on('down', function (e) {
         !longestPath.contains(e.x, e.y) &&
         !clockwise.contains(e.x, e.y) &&
         !counterclockwise.contains(e.x, e.y)) {
-        var vector = new ex.Vector(e.x - player.x, e.y - player.y);
+        var vector = new ex.Vector(e.x - player.pos.x, e.y - player.pos.y);
         var angle = vector.toAngle();
         player.rotateTo(angle, 1, rotationType);
     }

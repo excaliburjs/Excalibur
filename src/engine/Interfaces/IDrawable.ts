@@ -60,13 +60,13 @@ module ex {
        * Gets or sets the point about which to apply transformations to the drawing relative to the 
        * top left corner of the drawing.
        */
-      anchor: ex.Point;
+      anchor: ex.Vector;
 
 
       /**
        * Gets or sets the scale trasformation
        */
-      scale: ex.Point;
+      scale: ex.Vector;
 
       /**
        * Sets the current rotation transformation for the drawing.
