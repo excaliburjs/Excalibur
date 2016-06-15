@@ -1,6 +1,11 @@
-/*! excalibur - v0.6.0 - 2016-05-29
+/*! excalibur - v0.6.0 - 2016-06-15
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 if (typeof window === 'undefined') {
     window = { audioContext: function () { return; } };
 }
@@ -139,7 +144,7 @@ var ex;
                 pixel[firstPixel + 2] = avg;
             };
             return Grayscale;
-        })();
+        }());
         Effects.Grayscale = Grayscale;
         /**
          * Applies the "Invert" effect to a sprite, inverting the pixel colors.
@@ -155,7 +160,7 @@ var ex;
                 pixel[firstPixel + 2] = 255 - pixel[firstPixel + 2];
             };
             return Invert;
-        })();
+        }());
         Effects.Invert = Invert;
         /**
          * Applies the "Opacity" effect to a sprite, setting the alpha of all pixels to a given value.
@@ -175,7 +180,7 @@ var ex;
                 }
             };
             return Opacity;
-        })();
+        }());
         Effects.Opacity = Opacity;
         /**
          * Applies the "Colorize" effect to a sprite, changing the color channels of all the pixels to an
@@ -198,7 +203,7 @@ var ex;
                 }
             };
             return Colorize;
-        })();
+        }());
         Effects.Colorize = Colorize;
         /**
          * Applies the "Lighten" effect to a sprite, changes the lightness of the color according to HSL
@@ -221,7 +226,7 @@ var ex;
                 pixel[firstPixel + 3] = color.a;
             };
             return Lighten;
-        })();
+        }());
         Effects.Lighten = Lighten;
         /**
          * Applies the "Darken" effect to a sprite, changes the darkness of the color according to HSL
@@ -244,7 +249,7 @@ var ex;
                 pixel[firstPixel + 3] = color.a;
             };
             return Darken;
-        })();
+        }());
         Effects.Darken = Darken;
         /**
          * Applies the "Saturate" effect to a sprite, saturates the color acccording to HSL
@@ -267,7 +272,7 @@ var ex;
                 pixel[firstPixel + 3] = color.a;
             };
             return Saturate;
-        })();
+        }());
         Effects.Saturate = Saturate;
         /**
          * Applies the "Desaturate" effect to a sprite, desaturates the color acccording to HSL
@@ -290,7 +295,7 @@ var ex;
                 pixel[firstPixel + 3] = color.a;
             };
             return Desaturate;
-        })();
+        }());
         Effects.Desaturate = Desaturate;
         /**
          * Applies the "Fill" effect to a sprite, changing the color channels of all non-transparent pixels to match
@@ -313,7 +318,7 @@ var ex;
                 }
             };
             return Fill;
-        })();
+        }());
         Effects.Fill = Fill;
     })(Effects = ex.Effects || (ex.Effects = {}));
 })(ex || (ex = {}));
@@ -347,7 +352,7 @@ var ex;
                 actor.scale.y += actor.sy * delta / 1000;
             };
             return EulerMovement;
-        })();
+        }());
         Traits.EulerMovement = EulerMovement;
     })(Traits = ex.Traits || (ex.Traits = {}));
 })(ex || (ex = {}));
@@ -436,7 +441,7 @@ var ex;
             ctx.fill();
         };
         return CullingBox;
-    })();
+    }());
     ex.CullingBox = CullingBox;
 })(ex || (ex = {}));
 /// <reference path="../Interfaces/IActorTrait.ts" />
@@ -486,7 +491,7 @@ var ex;
                 }
             };
             return OffscreenCulling;
-        })();
+        }());
         Traits.OffscreenCulling = OffscreenCulling;
     })(Traits = ex.Traits || (ex.Traits = {}));
 })(ex || (ex = {}));
@@ -511,7 +516,7 @@ var ex;
                 engine.input.pointers.propogate(actor);
             };
             return CapturePointer;
-        })();
+        }());
         Traits.CapturePointer = CapturePointer;
     })(Traits = ex.Traits || (ex.Traits = {}));
 })(ex || (ex = {}));
@@ -563,7 +568,7 @@ var ex;
                 }
             };
             return TileMapCollisionDetection;
-        })();
+        }());
         Traits.TileMapCollisionDetection = TileMapCollisionDetection;
     })(Traits = ex.Traits || (ex.Traits = {}));
 })(ex || (ex = {}));
@@ -749,7 +754,7 @@ var ex;
          */
         Vector.Zero = new Vector(0, 0);
         return Vector;
-    })();
+    }());
     ex.Vector = Vector;
     /**
      * A 2D ray that can be cast into the scene to do collision detection
@@ -795,7 +800,7 @@ var ex;
             return this.pos.add(this.dir.scale(time));
         };
         return Ray;
-    })();
+    }());
     ex.Ray = Ray;
     /**
      * A 2D line segment
@@ -828,7 +833,7 @@ var ex;
             return distance;
         };
         return Line;
-    })();
+    }());
     ex.Line = Line;
     /**
      * A 1 dimensional projection on an axis, used to test overlaps
@@ -853,7 +858,7 @@ var ex;
             return 0;
         };
         return Projection;
-    })();
+    }());
     ex.Projection = Projection;
 })(ex || (ex = {}));
 /// <reference path="../Algebra.ts"/>
@@ -1137,7 +1142,7 @@ var ex;
              */
             Collection.DefaultSize = 200;
             return Collection;
-        })();
+        }());
         Util.Collection = Collection;
     })(Util = ex.Util || (ex.Util = {}));
 })(ex || (ex = {}));
@@ -1475,15 +1480,10 @@ var ex;
             return result;
         };
         return Sprite;
-    })();
+    }());
     ex.Sprite = Sprite;
 })(ex || (ex = {}));
 /// <reference path="Sprite.ts" />
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var ex;
 (function (ex) {
     /**
@@ -1662,7 +1662,7 @@ var ex;
             }
         };
         return SpriteSheet;
-    })();
+    }());
     ex.SpriteSheet = SpriteSheet;
     /**
      * Sprite Fonts
@@ -1901,7 +1901,7 @@ var ex;
             };
         };
         return SpriteFont;
-    })(SpriteSheet);
+    }(SpriteSheet));
     ex.SpriteFont = SpriteFont;
 })(ex || (ex = {}));
 /// <reference path="Engine.ts" />
@@ -2235,7 +2235,7 @@ var ex;
             ctx.restore();
         };
         return TileMap;
-    })();
+    }());
     ex.TileMap = TileMap;
     /**
      * Tile sprites are used to render a specific sprite from a [[TileMap]]'s spritesheet(s)
@@ -2250,7 +2250,7 @@ var ex;
             this.spriteId = spriteId;
         }
         return TileSprite;
-    })();
+    }());
     ex.TileSprite = TileSprite;
     /**
      * TileMap Cell
@@ -2318,7 +2318,7 @@ var ex;
             this.sprites.length = 0;
         };
         return Cell;
-    })();
+    }());
     ex.Cell = Cell;
 })(ex || (ex = {}));
 /// <reference path="../Algebra.ts" />
@@ -2439,7 +2439,7 @@ var ex;
             ctx.strokeRect(this.left, this.top, this.getWidth(), this.getHeight());
         };
         return BoundingBox;
-    })();
+    }());
     ex.BoundingBox = BoundingBox;
     var SATBoundingBox = (function () {
         function SATBoundingBox(points) {
@@ -2560,7 +2560,7 @@ var ex;
             ctx.stroke();
         };
         return SATBoundingBox;
-    })();
+    }());
     ex.SATBoundingBox = SATBoundingBox;
 })(ex || (ex = {}));
 /// <reference path="Events.ts" />
@@ -2680,7 +2680,7 @@ var ex;
             return child;
         };
         return Class;
-    })();
+    }());
     ex.Class = Class;
 })(ex || (ex = {}));
 var ex;
@@ -2738,7 +2738,7 @@ var ex;
         };
         Timer.id = 0;
         return Timer;
-    })();
+    }());
     ex.Timer = Timer;
 })(ex || (ex = {}));
 /// <reference path="../Actor.ts"/>
@@ -2792,7 +2792,7 @@ var ex;
             return;
         };
         return NaiveCollisionResolver;
-    })();
+    }());
     ex.NaiveCollisionResolver = NaiveCollisionResolver;
 })(ex || (ex = {}));
 /// <reference path="BoundingBox.ts"/>
@@ -2812,7 +2812,7 @@ var ex;
             return (!this.left && !this.right);
         };
         return TreeNode;
-    })();
+    }());
     ex.TreeNode = TreeNode;
     var DynamicTree = (function () {
         function DynamicTree() {
@@ -3165,7 +3165,7 @@ var ex;
             helper(this.root);
         };
         return DynamicTree;
-    })();
+    }());
     ex.DynamicTree = DynamicTree;
 })(ex || (ex = {}));
 /// <reference path="ICollisionResolver.ts"/>
@@ -3228,7 +3228,7 @@ var ex;
             this._dynamicCollisionTree.debugDraw(ctx, delta);
         };
         return DynamicTreeCollisionResolver;
-    })();
+    }());
     ex.DynamicTreeCollisionResolver = DynamicTreeCollisionResolver;
 })(ex || (ex = {}));
 var ex;
@@ -3364,7 +3364,7 @@ var ex;
             }
         };
         return CollisionPair;
-    })();
+    }());
     ex.CollisionPair = CollisionPair;
 })(ex || (ex = {}));
 /// <reference path="Engine.ts" />
@@ -3652,7 +3652,7 @@ var ex;
             }
         };
         return BaseCamera;
-    })();
+    }());
     ex.BaseCamera = BaseCamera;
     /**
      * An extension of [[BaseCamera]] that is locked vertically; it will only move side to side.
@@ -3673,7 +3673,7 @@ var ex;
             }
         };
         return SideCamera;
-    })(BaseCamera);
+    }(BaseCamera));
     ex.SideCamera = SideCamera;
     /**
      * An extension of [[BaseCamera]] that is locked to an [[Actor]] or
@@ -3696,7 +3696,7 @@ var ex;
             }
         };
         return LockedCamera;
-    })(BaseCamera);
+    }(BaseCamera));
     ex.LockedCamera = LockedCamera;
 })(ex || (ex = {}));
 var ex;
@@ -3799,7 +3799,7 @@ var ex;
                     this._stopped = true;
                 };
                 return EaseTo;
-            })();
+            }());
             Actions.EaseTo = EaseTo;
             var MoveTo = (function () {
                 function MoveTo(actor, destx, desty, speed) {
@@ -3838,7 +3838,7 @@ var ex;
                     this._started = false;
                 };
                 return MoveTo;
-            })();
+            }());
             Actions.MoveTo = MoveTo;
             var MoveBy = (function () {
                 function MoveBy(actor, destx, desty, time) {
@@ -3882,7 +3882,7 @@ var ex;
                     this._started = false;
                 };
                 return MoveBy;
-            })();
+            }());
             Actions.MoveBy = MoveBy;
             var Follow = (function () {
                 function Follow(actor, actorToFollow, followDistance) {
@@ -3941,7 +3941,7 @@ var ex;
                     this._started = false;
                 };
                 return Follow;
-            })();
+            }());
             Actions.Follow = Follow;
             var Meet = (function () {
                 function Meet(actor, actorToMeet, speed) {
@@ -3995,7 +3995,7 @@ var ex;
                     this._started = false;
                 };
                 return Meet;
-            })();
+            }());
             Actions.Meet = Meet;
             var RotateTo = (function () {
                 function RotateTo(actor, angleRadians, speed, rotationType) {
@@ -4079,7 +4079,7 @@ var ex;
                     this._started = false;
                 };
                 return RotateTo;
-            })();
+            }());
             Actions.RotateTo = RotateTo;
             var RotateBy = (function () {
                 function RotateBy(actor, angleRadians, time, rotationType) {
@@ -4164,7 +4164,7 @@ var ex;
                     this._started = false;
                 };
                 return RotateBy;
-            })();
+            }());
             Actions.RotateBy = RotateBy;
             var ScaleTo = (function () {
                 function ScaleTo(actor, scaleX, scaleY, speedX, speedY) {
@@ -4218,7 +4218,7 @@ var ex;
                     this._started = false;
                 };
                 return ScaleTo;
-            })();
+            }());
             Actions.ScaleTo = ScaleTo;
             var ScaleBy = (function () {
                 function ScaleBy(actor, scaleX, scaleY, time) {
@@ -4263,7 +4263,7 @@ var ex;
                     this._started = false;
                 };
                 return ScaleBy;
-            })();
+            }());
             Actions.ScaleBy = ScaleBy;
             var Delay = (function () {
                 function Delay(actor, delay) {
@@ -4292,7 +4292,7 @@ var ex;
                     this._started = false;
                 };
                 return Delay;
-            })();
+            }());
             Actions.Delay = Delay;
             var Blink = (function () {
                 function Blink(actor, timeVisible, timeNotVisible, numBlinks) {
@@ -4339,7 +4339,7 @@ var ex;
                     this._totalTime = 0;
                 };
                 return Blink;
-            })();
+            }());
             Actions.Blink = Blink;
             var Fade = (function () {
                 function Fade(actor, endOpacity, speed) {
@@ -4376,7 +4376,7 @@ var ex;
                     this._started = false;
                 };
                 return Fade;
-            })();
+            }());
             Actions.Fade = Fade;
             var Die = (function () {
                 function Die(actor) {
@@ -4395,7 +4395,7 @@ var ex;
                 Die.prototype.stop = function () { return; };
                 Die.prototype.reset = function () { return; };
                 return Die;
-            })();
+            }());
             Actions.Die = Die;
             var CallMethod = (function () {
                 function CallMethod(actor, method) {
@@ -4419,7 +4419,7 @@ var ex;
                     this._hasBeenCalled = true;
                 };
                 return CallMethod;
-            })();
+            }());
             Actions.CallMethod = CallMethod;
             var Repeat = (function () {
                 function Repeat(actor, repeat, actions) {
@@ -4454,7 +4454,7 @@ var ex;
                     this._repeat = this._originalRepeat;
                 };
                 return Repeat;
-            })();
+            }());
             Actions.Repeat = Repeat;
             var RepeatForever = (function () {
                 function RepeatForever(actor, actions) {
@@ -4488,7 +4488,7 @@ var ex;
                 };
                 RepeatForever.prototype.reset = function () { return; };
                 return RepeatForever;
-            })();
+            }());
             Actions.RepeatForever = RepeatForever;
             /**
              * Action Queues
@@ -4544,7 +4544,7 @@ var ex;
                     }
                 };
                 return ActionQueue;
-            })();
+            }());
             Actions.ActionQueue = ActionQueue;
         })(Actions = Internal.Actions || (Internal.Actions = {}));
     })(Internal = ex.Internal || (ex.Internal = {}));
@@ -4947,7 +4947,7 @@ var ex;
             return ex.Promise.join.apply(this, promises);
         };
         return ActionContext;
-    })();
+    }());
     ex.ActionContext = ActionContext;
 })(ex || (ex = {}));
 /// <reference path="Actions/IActionable.ts"/>
@@ -5080,7 +5080,7 @@ var ex;
             });
         };
         return Group;
-    })(ex.Class);
+    }(ex.Class));
     ex.Group = Group;
 })(ex || (ex = {}));
 var ex;
@@ -5138,7 +5138,6 @@ var ex;
             else {
                 return this._insert(this._root, element);
             }
-            return false;
         };
         SortedList.prototype._insert = function (node, element) {
             if (node != null) {
@@ -5273,7 +5272,7 @@ var ex;
             }
         };
         return SortedList;
-    })();
+    }());
     ex.SortedList = SortedList;
     var BinaryTreeNode = (function () {
         function BinaryTreeNode(key, data, left, right) {
@@ -5307,7 +5306,7 @@ var ex;
             this._right = right;
         };
         return BinaryTreeNode;
-    })();
+    }());
     ex.BinaryTreeNode = BinaryTreeNode;
     var MockedElement = (function () {
         function MockedElement(key) {
@@ -5321,7 +5320,7 @@ var ex;
             this._key = key;
         };
         return MockedElement;
-    })();
+    }());
     ex.MockedElement = MockedElement;
 })(ex || (ex = {}));
 /// <reference path="Class.ts" />
@@ -5794,7 +5793,7 @@ var ex;
             this._sortedDrawingTree.add(actor);
         };
         return Scene;
-    })(ex.Class);
+    }(ex.Class));
     ex.Scene = Scene;
 })(ex || (ex = {}));
 var ex;
@@ -5884,7 +5883,7 @@ var ex;
             return endValue / 2 * (currentTime * currentTime * currentTime + 2) + startValue;
         };
         return EasingFunctions;
-    })();
+    }());
     ex.EasingFunctions = EasingFunctions;
 })(ex || (ex = {}));
 /// <reference path="Interfaces/IDrawable.ts" />
@@ -6647,7 +6646,6 @@ var ex;
                     return ex.Side.Top;
                 }
             }
-            return ex.Side.None;
         };
         /**
          * Test whether the actor has collided with another actor, returns the intersection vector on collision. Returns
@@ -7051,7 +7049,7 @@ var ex;
          */
         Actor.maxId = 0;
         return Actor;
-    })(ex.Class);
+    }(ex.Class));
     ex.Actor = Actor;
     /**
      * An enum that describes the types of collisions actors can participate in
@@ -7236,7 +7234,7 @@ var ex;
         };
         Logger._instance = null;
         return Logger;
-    })();
+    }());
     ex.Logger = Logger;
     /**
      * Console appender for browsers (i.e. `console.log`)
@@ -7289,7 +7287,7 @@ var ex;
             }
         };
         return ConsoleAppender;
-    })();
+    }());
     ex.ConsoleAppender = ConsoleAppender;
     /**
      * On-screen (canvas) appender
@@ -7328,7 +7326,7 @@ var ex;
             }
         };
         return ScreenAppender;
-    })();
+    }());
     ex.ScreenAppender = ScreenAppender;
 })(ex || (ex = {}));
 /// <reference path="Engine.ts" />
@@ -7359,7 +7357,7 @@ var ex;
         function GameEvent() {
         }
         return GameEvent;
-    })();
+    }());
     ex.GameEvent = GameEvent;
     /**
      * The 'kill' event is emitted on actors when it is killed. The target is the actor that was killed.
@@ -7371,7 +7369,7 @@ var ex;
             this.target = target;
         }
         return KillEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.KillEvent = KillEvent;
     /**
      * The 'predraw' event is emitted on actors, scenes, and engine before drawing starts. Actors' predraw happens inside their graphics
@@ -7387,7 +7385,7 @@ var ex;
             this.target = target;
         }
         return PreDrawEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.PreDrawEvent = PreDrawEvent;
     /**
      * The 'postdraw' event is emitted on actors, scenes, and engine after drawing finishes. Actors' postdraw happens inside their graphics
@@ -7403,7 +7401,7 @@ var ex;
             this.target = target;
         }
         return PostDrawEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.PostDrawEvent = PostDrawEvent;
     /**
      * The 'predebugdraw' event is emitted on actors, scenes, and engine before debug drawing starts.
@@ -7416,7 +7414,7 @@ var ex;
             this.target = target;
         }
         return PreDebugDrawEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.PreDebugDrawEvent = PreDebugDrawEvent;
     /**
      * The 'postdebugdraw' event is emitted on actors, scenes, and engine after debug drawing starts.
@@ -7429,7 +7427,7 @@ var ex;
             this.target = target;
         }
         return PostDebugDrawEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.PostDebugDrawEvent = PostDebugDrawEvent;
     /**
      * The 'preupdate' event is emitted on actors, scenes, and engine before the update starts.
@@ -7443,7 +7441,7 @@ var ex;
             this.target = target;
         }
         return PreUpdateEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.PreUpdateEvent = PreUpdateEvent;
     /**
      * The 'postupdate' event is emitted on actors, scenes, and engine after the update ends. This is equivalent to the obsolete 'update'
@@ -7458,7 +7456,7 @@ var ex;
             this.target = target;
         }
         return PostUpdateEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.PostUpdateEvent = PostUpdateEvent;
     /**
      * Event received when a gamepad is connected to Excalibur. [[Input.Gamepads|engine.input.gamepads]] receives this event.
@@ -7471,7 +7469,7 @@ var ex;
             this.gamepad = gamepad;
         }
         return GamepadConnectEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.GamepadConnectEvent = GamepadConnectEvent;
     /**
      * Event received when a gamepad is disconnected from Excalibur. [[Input.Gamepads|engine.input.gamepads]] receives this event.
@@ -7483,7 +7481,7 @@ var ex;
             this.index = index;
         }
         return GamepadDisconnectEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.GamepadDisconnectEvent = GamepadDisconnectEvent;
     /**
      * Gamepad button event. See [[Gamepads]] for information on responding to controller input. [[Gamepad]] instances receive this event;
@@ -7500,7 +7498,7 @@ var ex;
             this.value = value;
         }
         return GamepadButtonEvent;
-    })(ex.GameEvent);
+    }(ex.GameEvent));
     ex.GamepadButtonEvent = GamepadButtonEvent;
     /**
      * Gamepad axis event. See [[Gamepads]] for information on responding to controller input. [[Gamepad]] instances receive this event;
@@ -7517,7 +7515,7 @@ var ex;
             this.value = value;
         }
         return GamepadAxisEvent;
-    })(ex.GameEvent);
+    }(ex.GameEvent));
     ex.GamepadAxisEvent = GamepadAxisEvent;
     /**
      * Subscribe event thrown when handlers for events other than subscribe are added. Meta event that is received by
@@ -7531,7 +7529,7 @@ var ex;
             this.handler = handler;
         }
         return SubscribeEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.SubscribeEvent = SubscribeEvent;
     /**
      * Unsubscribe event thrown when handlers for events other than unsubscribe are removed. Meta event that is received by
@@ -7545,7 +7543,7 @@ var ex;
             this.handler = handler;
         }
         return UnsubscribeEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.UnsubscribeEvent = UnsubscribeEvent;
     /**
      * Event received by the [[Engine]] when the browser window is visible on a screen.
@@ -7556,7 +7554,7 @@ var ex;
             _super.call(this);
         }
         return VisibleEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.VisibleEvent = VisibleEvent;
     /**
      * Event received by the [[Engine]] when the browser window is hidden from all screens.
@@ -7567,7 +7565,7 @@ var ex;
             _super.call(this);
         }
         return HiddenEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.HiddenEvent = HiddenEvent;
     /**
      * Event thrown on an [[Actor|actor]] when a collision has occured
@@ -7587,7 +7585,7 @@ var ex;
             this.intersection = intersection;
         }
         return CollisionEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.CollisionEvent = CollisionEvent;
     /**
      * Event thrown on a game object on Excalibur update, this is equivalent to postupdate.
@@ -7603,7 +7601,7 @@ var ex;
             this.delta = delta;
         }
         return UpdateEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.UpdateEvent = UpdateEvent;
     /**
      * Event thrown on an [[Actor]] only once before the first update call
@@ -7618,7 +7616,7 @@ var ex;
             this.engine = engine;
         }
         return InitializeEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.InitializeEvent = InitializeEvent;
     /**
      * Event thrown on a [[Scene]] on activation
@@ -7633,7 +7631,7 @@ var ex;
             this.oldScene = oldScene;
         }
         return ActivateEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.ActivateEvent = ActivateEvent;
     /**
      * Event thrown on a [[Scene]] on deactivation
@@ -7648,7 +7646,7 @@ var ex;
             this.newScene = newScene;
         }
         return DeactivateEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.DeactivateEvent = DeactivateEvent;
     /**
      * Event thrown on an [[Actor]] when it completely leaves the screen.
@@ -7659,7 +7657,7 @@ var ex;
             _super.call(this);
         }
         return ExitViewPortEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.ExitViewPortEvent = ExitViewPortEvent;
     /**
      * Event thrown on an [[Actor]] when it completely leaves the screen.
@@ -7670,7 +7668,7 @@ var ex;
             _super.call(this);
         }
         return EnterViewPortEvent;
-    })(GameEvent);
+    }(GameEvent));
     ex.EnterViewPortEvent = EnterViewPortEvent;
 })(ex || (ex = {}));
 /// <reference path="Events.ts" />
@@ -7855,7 +7853,7 @@ var ex;
             }
         };
         return EventDispatcher;
-    })();
+    }());
     ex.EventDispatcher = EventDispatcher;
 })(ex || (ex = {}));
 var ex;
@@ -8134,7 +8132,7 @@ var ex;
          */
         Color.Transparent = Color.fromHex('#FFFFFF00');
         return Color;
-    })();
+    }());
     ex.Color = Color;
     /**
      * Internal HSL Color representation
@@ -8209,7 +8207,7 @@ var ex;
             return new Color(r * 255, g * 255, b * 255, this.a);
         };
         return HSLColor;
-    })();
+    }());
 })(ex || (ex = {}));
 /// <reference path="../Interfaces/ILoadable.ts" />
 var ex;
@@ -8344,7 +8342,7 @@ var ex;
             return URL.createObjectURL(data);
         };
         return Resource;
-    })(ex.Class);
+    }(ex.Class));
     ex.Resource = Resource;
 })(ex || (ex = {}));
 /// <reference path="Util/Log.ts" />
@@ -8563,7 +8561,7 @@ var ex;
             }
         };
         return Promise;
-    })();
+    }());
     ex.Promise = Promise;
 })(ex || (ex = {}));
 /// <reference path="../Util/Util.ts" />
@@ -8655,7 +8653,7 @@ var ex;
             return this._sprite;
         };
         return Texture;
-    })(ex.Resource);
+    }(ex.Resource));
     ex.Texture = Texture;
 })(ex || (ex = {}));
 /// <reference path="../Util/Util.ts" />
@@ -8853,7 +8851,7 @@ var ex;
             return this.sound.processData(data);
         };
         return Sound;
-    })();
+    }());
     ex.Sound = Sound;
 })(ex || (ex = {}));
 /// <reference path="Actor.ts" />
@@ -8892,7 +8890,7 @@ var ex;
             return _super.prototype.contains.call(this, coords.x, coords.y);
         };
         return UIActor;
-    })(ex.Actor);
+    }(ex.Actor));
     ex.UIActor = UIActor;
 })(ex || (ex = {}));
 /// <reference path="Actor.ts" />
@@ -9011,7 +9009,7 @@ var ex;
             ctx.restore();
         };
         return Trigger;
-    })(ex.Actor);
+    }(ex.Actor));
     ex.Trigger = Trigger;
 })(ex || (ex = {}));
 /// <reference path="Engine.ts" />
@@ -9129,7 +9127,7 @@ var ex;
             ctx.closePath();
         };
         return Particle;
-    })();
+    }());
     ex.Particle = Particle;
     /**
      * Particle Emitters
@@ -9289,9 +9287,9 @@ var ex;
             this.particles = new ex.Util.Collection();
             this.deadParticles = new ex.Util.Collection();
             // Remove offscreen culling from particle emitters
-            for (var trait in this.traits) {
-                if (this.traits[trait] instanceof ex.Traits.OffscreenCulling) {
-                    this.traits.splice(trait, 1);
+            for (var i = 0; i < this.traits.length; i++) {
+                if (this.traits[i] instanceof ex.Traits.OffscreenCulling) {
+                    this.traits.splice(i, 1);
                 }
             }
         }
@@ -9376,7 +9374,7 @@ var ex;
             }
         };
         return ParticleEmitter;
-    })(ex.Actor);
+    }(ex.Actor));
     ex.ParticleEmitter = ParticleEmitter;
 })(ex || (ex = {}));
 var ex;
@@ -9648,7 +9646,7 @@ var ex;
             this._engine.playAnimation(this, x, y);
         };
         return Animation;
-    })();
+    }());
     ex.Animation = Animation;
 })(ex || (ex = {}));
 /// <reference path="MonkeyPatch.ts" />
@@ -9708,7 +9706,7 @@ var ex;
                 this._soundImpl.stop();
             };
             return FallbackAudio;
-        })();
+        }());
         Internal.FallbackAudio = FallbackAudio;
         var AudioTag = (function () {
             function AudioTag(path, volume) {
@@ -9828,7 +9826,7 @@ var ex;
                 this._isPlaying = false;
             };
             return AudioTag;
-        })();
+        }());
         Internal.AudioTag = AudioTag;
         if (window.AudioContext) {
             var audioContext = new window.AudioContext();
@@ -10009,7 +10007,7 @@ var ex;
             };
             WebAudio._unlocked = false;
             return WebAudio;
-        })();
+        }());
         Internal.WebAudio = WebAudio;
     })(Internal = ex.Internal || (ex.Internal = {}));
 })(ex || (ex = {}));
@@ -10204,7 +10202,7 @@ var ex;
             // overridable update
         };
         return Loader;
-    })(ex.Class);
+    }(ex.Class));
     ex.Loader = Loader;
     /**
      * A [[Loader]] that pauses after loading to allow user
@@ -10317,7 +10315,7 @@ var ex;
             return this._waitPromise;
         };
         return PauseAfterLoader;
-    })(Loader);
+    }(Loader));
     ex.PauseAfterLoader = PauseAfterLoader;
 })(ex || (ex = {}));
 /// <reference path="Log.ts" />
@@ -10398,7 +10396,7 @@ var ex;
             return true;
         };
         return Detector;
-    })();
+    }());
     ex.Detector = Detector;
 })(ex || (ex = {}));
 /// <reference path="Promises.ts" />
@@ -10540,7 +10538,7 @@ var ex;
             return this._isLoaded;
         };
         return Template;
-    })();
+    }());
     ex.Template = Template;
     /**
      * Excalibur's binding library that allows you to bind an html
@@ -10600,7 +10598,7 @@ var ex;
             }
         };
         return Binding;
-    })();
+    }());
     ex.Binding = Binding;
 })(ex || (ex = {}));
 /// <reference path="Actor.ts" />
@@ -10993,7 +10991,7 @@ var ex;
             _super.prototype.debugDraw.call(this, ctx);
         };
         return Label;
-    })(ex.Actor);
+    }(ex.Actor));
     ex.Label = Label;
 })(ex || (ex = {}));
 /// <reference path="../Events.ts"/>
@@ -11064,7 +11062,7 @@ var ex;
                 this.ev = ev;
             }
             return PointerEvent;
-        })(ex.GameEvent);
+        }(ex.GameEvent));
         Input.PointerEvent = PointerEvent;
         ;
         /**
@@ -11414,7 +11412,7 @@ var ex;
                 }
             };
             return Pointers;
-        })(ex.Class);
+        }(ex.Class));
         Input.Pointers = Pointers;
         /**
          * Captures and dispatches PointerEvents
@@ -11425,7 +11423,7 @@ var ex;
                 _super.apply(this, arguments);
             }
             return Pointer;
-        })(ex.Class);
+        }(ex.Class));
         Input.Pointer = Pointer;
     })(Input = ex.Input || (ex.Input = {}));
 })(ex || (ex = {}));
@@ -11499,7 +11497,7 @@ var ex;
                 this.key = key;
             }
             return KeyEvent;
-        })(ex.GameEvent);
+        }(ex.GameEvent));
         Input.KeyEvent = KeyEvent;
         /**
          * Keyboard input
@@ -11625,7 +11623,7 @@ var ex;
                 return this._keysUp.indexOf(key) > -1;
             };
             return Keyboard;
-        })(ex.Class);
+        }(ex.Class));
         Input.Keyboard = Keyboard;
     })(Input = ex.Input || (ex.Input = {}));
 })(ex || (ex = {}));
@@ -11880,35 +11878,33 @@ var ex;
                     // Add reference to navigator gamepad
                     this.at(i).navigatorGamepad = gamepads[i];
                     // Buttons
-                    var b, a, value, buttonIndex, axesIndex;
+                    var b, bi, a, ai, value;
                     for (b in Buttons) {
-                        if (typeof Buttons[b] !== 'number') {
-                            continue;
-                        }
-                        buttonIndex = Buttons[b];
-                        if (gamepads[i].buttons[buttonIndex]) {
-                            value = gamepads[i].buttons[buttonIndex].value;
-                            if (value !== this._oldPads[i].getButton(buttonIndex)) {
-                                if (gamepads[i].buttons[buttonIndex].pressed) {
-                                    this.at(i).updateButton(buttonIndex, value);
-                                    this.at(i).eventDispatcher.publish('button', new ex.GamepadButtonEvent(buttonIndex, value));
-                                }
-                                else {
-                                    this.at(i).updateButton(buttonIndex, 0);
+                        bi = Buttons[b];
+                        if (typeof bi === 'number') {
+                            if (gamepads[i].buttons[bi]) {
+                                value = gamepads[i].buttons[bi].value;
+                                if (value !== this._oldPads[i].getButton(bi)) {
+                                    if (gamepads[i].buttons[bi].pressed) {
+                                        this.at(i).updateButton(bi, value);
+                                        this.at(i).eventDispatcher.publish('button', new ex.GamepadButtonEvent(bi, value));
+                                    }
+                                    else {
+                                        this.at(i).updateButton(bi, 0);
+                                    }
                                 }
                             }
                         }
                     }
                     // Axes
                     for (a in Axes) {
-                        if (typeof Axes[a] !== 'number') {
-                            continue;
-                        }
-                        axesIndex = Axes[a];
-                        value = gamepads[i].axes[axesIndex];
-                        if (value !== this._oldPads[i].getAxes(axesIndex)) {
-                            this.at(i).updateAxes(axesIndex, value);
-                            this.at(i).eventDispatcher.emit('axis', new ex.GamepadAxisEvent(axesIndex, value));
+                        ai = Axes[a];
+                        if (typeof ai === 'number') {
+                            value = gamepads[i].axes[ai];
+                            if (value !== this._oldPads[i].getAxes(ai)) {
+                                this.at(i).updateAxes(ai, value);
+                                this.at(i).eventDispatcher.emit('axis', new ex.GamepadAxisEvent(ai, value));
+                            }
                         }
                     }
                     this._oldPads[i] = this._clonePad(gamepads[i]);
@@ -11978,7 +11974,7 @@ var ex;
              */
             Gamepads.MinAxisMoveThreshold = 0.05;
             return Gamepads;
-        })(ex.Class);
+        }(ex.Class));
         Input.Gamepads = Gamepads;
         /**
          * Gamepad holds state information for a connected controller. See [[Gamepads]]
@@ -12034,7 +12030,7 @@ var ex;
                 this._axes[axesIndex] = value;
             };
             return Gamepad;
-        })(ex.Class);
+        }(ex.Class));
         Input.Gamepad = Gamepad;
         /**
          * Gamepad Buttons enumeration
@@ -13007,7 +13003,7 @@ var ex;
             return complete;
         };
         return Engine;
-    })(ex.Class);
+    }(ex.Class));
     ex.Engine = Engine;
     /**
      * Enum representing the different display modes available to Excalibur
@@ -13037,7 +13033,7 @@ var ex;
             this.y = y;
         }
         return AnimationNode;
-    })();
+    }());
 })(ex || (ex = {}));
 //# sourceMappingURL=excalibur-0.6.0.js.map
 ;
