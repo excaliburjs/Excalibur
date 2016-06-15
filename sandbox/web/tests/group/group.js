@@ -17,24 +17,24 @@ for (var i = 0; i < numActors; i++) {
     actor.addDrawing("default", blockSprite);
     actor.collisionType = ex.CollisionType.Elastic;
     actor.on('update', function (e) {
-        if (this.x < 0) {
-            this.dx = Math.abs(this.dx);
+        if (this.pos.x < 0) {
+            this.vel.x = Math.abs(this.vel.x);
         }
-        if (this.y < 0) {
-            this.dy = Math.abs(this.dy);
+        if (this.pos.y < 0) {
+            this.vel.y = Math.abs(this.vel.y);
         }
-        if (this.x > width) {
-            this.dx = -1 * Math.abs(this.dx);
+        if (this.pos.x > width) {
+            this.vel.x = -1 * Math.abs(this.vel.x);
         }
-        if (this.y > height) {
-            this.dy = -1 * Math.abs(this.dy);
+        if (this.pos.y > height) {
+            this.vel.y = -1 * Math.abs(this.vel.y);
         }
     });
     actor.on('collision', function () {
         //console.log('inner collision');
     });
-    actor.dx = ex.Util.randomInRange(minVel, maxVel);
-    actor.dy = ex.Util.randomInRange(minVel, maxVel);
+    actor.vel.x = ex.Util.randomInRange(minVel, maxVel);
+    actor.vel.y = ex.Util.randomInRange(minVel, maxVel);
     blockGroup.add(actor);
 }
 blockGroup.on('collision', function (e) {

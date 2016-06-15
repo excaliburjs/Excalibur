@@ -346,7 +346,7 @@ module ex.Input {
             e.preventDefault();
             var x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
             var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
-            var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
+            var transformedPoint = this._engine.screenToWorldCoordinates(new Vector(x, y));
             var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, 0, PointerType.Mouse, e.button, e);
             eventArr.push(pe);
             this.at(0).eventDispatcher.emit(eventName, pe);
@@ -361,7 +361,7 @@ module ex.Input {
                if (index === -1) { continue; }
                var x: number = e.changedTouches[i].pageX - Util.getPosition(this._engine.canvas).x;
                var y: number = e.changedTouches[i].pageY - Util.getPosition(this._engine.canvas).y;
-               var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
+               var transformedPoint = this._engine.screenToWorldCoordinates(new Vector(x, y));
                var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, PointerType.Touch, PointerButton.Unknown, e);
                eventArr.push(pe);
                this.at(index).eventDispatcher.emit(eventName, pe);
@@ -390,7 +390,7 @@ module ex.Input {
             if (index === -1) { return; }
             var x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
             var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
-            var transformedPoint = this._engine.screenToWorldCoordinates(new Point(x, y));
+            var transformedPoint = this._engine.screenToWorldCoordinates(new Vector(x, y));
             var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, this._stringToPointerType(e.pointerType), e.button, e);
             eventArr.push(pe);
             this.at(index).eventDispatcher.emit(eventName, pe);

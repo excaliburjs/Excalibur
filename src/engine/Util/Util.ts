@@ -88,7 +88,7 @@ module ex.Util {
       return degrees / 180 * Math.PI;
    }
 
-   export function getPosition(el: HTMLElement): Point {
+   export function getPosition(el: HTMLElement): Vector {
       var oLeft: number = 0,
           oTop: number = 0;
 
@@ -109,7 +109,7 @@ module ex.Util {
       calcOffsetLeft(el);
       calcOffsetTop(el);
 
-      return new Point(oLeft, oTop);
+      return new Vector(oLeft, oTop);
    }
 
    export function addItemToArray<T>(item: T, array: T[]): boolean {

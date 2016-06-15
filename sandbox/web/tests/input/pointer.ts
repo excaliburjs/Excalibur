@@ -37,8 +37,8 @@ box.on("pointerup", (pe: ex.Input.PointerEvent) => {
 // Drag box around
 box.on("pointermove", (pe: ex.Input.PointerEvent) => {
    if (boxPointerDown) {
-      box.x = pe.x;
-      box.y = pe.y;
+      box.pos.x = pe.x;
+      box.pos.y = pe.y;
    }
 });
 
@@ -49,8 +49,8 @@ box.on("pointerdown", (pe: ex.Input.PointerEvent) => {
 
 // Follow cursor
 game.input.pointers.primary.on("move", (pe: ex.Input.PointerEvent) => {
-   cursor.x = pe.x;
-   cursor.y = pe.y;
+   cursor.pos.x = pe.x;
+   cursor.pos.y = pe.y;
 });
 
 // Button type

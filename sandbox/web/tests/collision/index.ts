@@ -3,8 +3,8 @@
 
 var active = new ex.Actor(0, -50, 100, 100, ex.Color.Cyan);
 active.collisionType = ex.CollisionType.Active;
-active.dy = 100;
-active.ay = 900;
+active.vel.y = 100;
+active.acc.y = 900;
 active.on('update',() => {
    //console.log('current dy', active.dy);
 });
@@ -20,7 +20,7 @@ engine.add(fixed);
 
 engine.input.keyboard.on('down',() => {
    console.log('jump');
-   active.dy = -300;
+   active.vel.y = -300;
 });
 
 engine.start().then(() => {
