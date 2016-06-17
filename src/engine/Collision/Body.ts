@@ -2,13 +2,10 @@
 
 module ex {
    export class Body {
-      constructor(){
-         
-      }
        
       /**
-       * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default. If
-       * you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0). 
+       * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default. 
+       * If you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0). 
        */
       public pos: Vector = new ex.Vector(0, 0);
       
@@ -28,8 +25,8 @@ module ex {
       public oldVel: Vector = new ex.Vector(0, 0);
       
       /**
-       * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be 
-       * useful to simulate a gravitational effect.  
+       * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may 
+       * be useful to simulate a gravitational effect.  
        */
       public acc: Vector = new ex.Vector(0, 0);    
       
@@ -77,20 +74,5 @@ module ex {
        * The rotational velocity of the actor in radians/second
        */
       public rx: number = 0; //radions/sec
-      
-      /**
-       * The scale vector of the actor
-       */
-      public scale: ex.Vector = new ex.Vector(1, 1);
-      
-      /** 
-       * The x scalar velocity of the actor in scale/second
-       */
-      public sx: number = 0; //scale/sec
-      
-      /** 
-       * The y scalar velocity of the actor in scale/second
-       */
-      public sy: number = 0; //scale/sec
    }   
 }

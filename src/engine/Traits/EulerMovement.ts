@@ -3,7 +3,6 @@
 module ex.Traits {
    export class EulerMovement implements IActorTrait { 
       public update(actor: Actor, engine: Engine, delta: number) {
-         if(actor.sleeping) return;
          
          // Update placements based on linear algebra
          var seconds = delta / 1000;

@@ -41,17 +41,17 @@ module ex {
          this.normal = normal;
       }
       
-      resolve(delta: number, strategy: CollisionResolutionStrategy){
-         if(strategy === CollisionResolutionStrategy.RigidBody){
+      resolve(delta: number, strategy: CollisionResolutionStrategy) {
+         if(strategy === CollisionResolutionStrategy.RigidBody) {
             this._resolveRigidBody(delta);
-         }else if (strategy === CollisionResolutionStrategy.AABB){
+         }else if (strategy === CollisionResolutionStrategy.Box) {
             this._resolveAABB(delta);   
          }else {
-            throw new Error("Unknown collision resolution strategy");
+            throw new Error('Unknown collision resolution strategy');
          }
       }
       
-      private _resolveAABB(delta: number){
+      private _resolveAABB(delta: number) {
          var bodyA = this.bodyA.actor;
          var bodyB = this.bodyB.actor;
          var side = ex.Util.getSideFromVector(this.mtv);
@@ -202,7 +202,10 @@ module ex {
          // Publish collision events on both participants
          var side = ex.Util.getSideFromVector(this.mtv);
          this.bodyA.actor.emit('collision', new CollisionEvent(this.bodyA.actor, this.bodyB.actor, side, this.mtv));
-         this.bodyB.actor.emit('collision', new CollisionEvent(this.bodyB.actor, this.bodyA.actor, ex.Util.getOppositeSide(side), this.mtv.negate()));
+         this.bodyB.actor.emit('collision', new CollisionEvent(this.bodyB.actor, 
+                                                               this.bodyA.actor, 
+                                                               ex.Util.getOppositeSide(side), 
+                                                               this.mtv.negate()));
          
          // Collision impulse formula from Chris Hecker
          // https://en.wikipedia.org/wiki/Collision_response
@@ -278,13 +281,6 @@ module ex {
                   bodyA.rx -= frictionImpulse.dot(t) * invMoiA * ra.cross(t);
                 }                
             }
-         }
-         
-         if(bodyA.sleeping && bodyA.collisionType !== ex.CollisionType.Fixed) {
-            bodyA.setSleep(false);
-         }
-         if(bodyB.sleeping && bodyB.collisionType !== ex.CollisionType.Fixed) {
-            bodyB.setSleep(false);
          }
       }      
    }

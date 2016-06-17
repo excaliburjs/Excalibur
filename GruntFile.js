@@ -90,7 +90,7 @@ module.exports = function (grunt) {
          // Execute TypeScript compiler against Excalibur core
          //
          tsc: {
-            command: 'tsc --sourcemap --declaration "./src/engine/Engine.ts" --out "./dist/<%= pkg.name %>-<%= pkg.version %>.js"',               
+            command: 'tsc -t ES5 --sourcemap --declaration "./src/engine/Engine.ts" --out "./dist/<%= pkg.name %>-<%= pkg.version %>.js"',               
             options: {
                stdout: true,
                failOnError: true
@@ -114,7 +114,7 @@ module.exports = function (grunt) {
             command: function () {
             	var files = grunt.file.expand("./src/spec/*.ts");
 
-            	return 'tsc --sourcemap ' + files.join(' ') + ' --out ./src/spec/TestsSpec.js'
+            	return 'tsc -t ES5 --sourcemap ' + files.join(' ') + ' --out ./src/spec/TestsSpec.js'
             },
             options: {
                stdout: true,
@@ -126,7 +126,7 @@ module.exports = function (grunt) {
          // TypeScript Compile sample game
          //
          sample: {
-            command: 'tsc --sourcemap ./sandbox/web/src/game.ts',
+            command: 'tsc -t ES5 --sourcemap ./sandbox/web/src/game.ts',
             options: {
                stdout: true,
                failOnError: true
@@ -139,7 +139,7 @@ module.exports = function (grunt) {
          visual: {
              command: function() {
                  var files = grunt.file.expand("./sandbox/web/tests/*/*.ts");
-                 return 'tsc --sourcemap ' + files.join(' ');
+                 return 'tsc -t ES5 --sourcemap ' + files.join(' ');
              },
              options: {
                stdout: true,

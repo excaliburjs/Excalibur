@@ -275,9 +275,8 @@ module ex {
             var points = this.getTransformedPoints();
             var len = points.length;
             var min = Number.MAX_VALUE;
-            var max = -Number.MAX_VALUE
+            var max = -Number.MAX_VALUE;
             for (var i = 0; i < len; i++) {
-                //scalars.push(points[i].dot(axis));
                 var scalar = points[i].dot(axis);
                 min = Math.min(min, scalar);
                 max = Math.max(max, scalar);

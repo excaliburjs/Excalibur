@@ -5,7 +5,6 @@
 /// <reference path="Traits/OffscreenCulling.ts" />
 /// <reference path="Traits/CapturePointer.ts" />
 /// <reference path="Traits/TileMapCollisionDetection.ts" />
-/// <reference path="Traits/Sleeping.ts" />
 /// <reference path="Collision/Side.ts" />
 /// <reference path="Algebra.ts" />
 /// <reference path="Util/Util.ts" />
@@ -295,12 +294,37 @@ module ex {
     public id: number = Actor.maxId++;
     
     public body: Body = new Body();
+    
+    public get x(): number {
+        return this.body.pos.x;
+    }
+    
+    public set x(theX: number) {
+        this.body.pos.x = theX;
+    }
+    
+    public get y(): number {
+        return this.body.pos.x;
+    }
+    
+    public set y(theY: number) {
+        this.body.pos.y = theY;
+    }
 
     public get pos(): Vector {
        return this.body.pos;
-    }    
+    }
+    
     public set pos(thePos: Vector) {
        this.body.pos = thePos;
+    }
+
+    public get oldPos(): Vector {
+       return this.body.oldPos;
+    }
+    
+    public set oldPos(thePos: Vector) {
+       this.body.oldPos = thePos;
     }
        
     public get vel(): Vector {
@@ -310,6 +334,14 @@ module ex {
     public set vel(theVel: Vector) {
        this.body.vel = theVel;
     }
+
+    public get oldVel(): Vector {
+       return this.body.oldVel;
+    }
+    
+    public set oldVel(theVel: Vector) {
+       this.body.oldVel = theVel;
+    }    
     
     /**
      * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be 
@@ -321,6 +353,28 @@ module ex {
     
     public set acc(theAcc: Vector) {
        this.body.acc = theAcc;
+    }
+
+    /** 
+     * The rotation of the actor in radians
+     */
+    public get rotation(): number {
+        return this.body.rotation;
+    }
+
+    public set rotation(theAngle: number) {
+        this.body.rotation = theAngle;
+    }
+
+    /** 
+     * The rotational velocity of the actor in radians/second
+     */
+    public get rx(): number {
+        return this.body.rx;
+    }
+
+    public set rx(angularVelocity: number){
+        this.body.rx = angularVelocity;
     }
     
     /**
@@ -420,14 +474,7 @@ module ex {
     private _collisionContacts: CollisionContact[] = [];
     private _totalMtv: Vector = Vector.Zero.clone();
 
-    /** 
-     * The rotation of the actor in radians
-     */
-    public rotation: number = 0; // radians
-    /** 
-     * The rotational velocity of the actor in radians/second
-     */
-    public rx: number = 0; //radions/sec
+    
     /**
      * The scale vector of the actor
      */
@@ -549,7 +596,6 @@ module ex {
        }         
        // Build default pipeline
        this.traits.push(new ex.Traits.EulerMovement());
-       this.traits.push(new ex.Traits.Sleeping());
        this.traits.push(new ex.Traits.TileMapCollisionDetection());
        this.traits.push(new ex.Traits.OffscreenCulling());         
        this.traits.push(new ex.Traits.CapturePointer());
@@ -987,7 +1033,6 @@ module ex {
              return ex.Side.Top;
           }
        }
-       return ex.Side.None;
     }
     /**
      * Test whether the actor has collided with another actor, returns the intersection vector on collision. Returns
@@ -1363,7 +1408,7 @@ module ex {
        */
        // Draw collision areas
        this.collisionAreas.forEach((ca) => {
-          ctx.strokeStyle = (this.sleeping ? "gray" : "lime").toString();
+          ctx.strokeStyle = (this.sleeping ? 'gray' : 'lime').toString();
           ca.debugDraw(ctx, null);
        });
        /*
