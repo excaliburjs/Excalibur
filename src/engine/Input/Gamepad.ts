@@ -260,19 +260,20 @@
             this.at(i).navigatorGamepad = gamepads[i];
 
             // Buttons
-            var b: string, a: string, value: number, buttonIndex: number, axesIndex: number;
+            var b: string, bi: string|number, a: string, ai: string|number, value: number;
+            
             for (b in Buttons) {
-               if (typeof Buttons[b] !== 'number') { continue; }
-
-               buttonIndex = Buttons[b];
-               if(gamepads[i].buttons[buttonIndex]) {
-                  value = gamepads[i].buttons[buttonIndex].value;
-                  if (value !== this._oldPads[i].getButton(buttonIndex)) {
-                     if (gamepads[i].buttons[buttonIndex].pressed) {
-                        this.at(i).updateButton(buttonIndex, value);
-                        this.at(i).eventDispatcher.publish('button', new GamepadButtonEvent(buttonIndex, value));
-                     } else {
-                        this.at(i).updateButton(buttonIndex, 0);
+               bi = Buttons[b];
+               if (typeof bi === 'number') {                                          
+                  if(gamepads[i].buttons[bi]) {
+                     value = gamepads[i].buttons[bi].value;
+                     if (value !== this._oldPads[i].getButton(bi)) {
+                        if (gamepads[i].buttons[bi].pressed) {
+                           this.at(i).updateButton(bi, value);
+                           this.at(i).eventDispatcher.publish('button', new GamepadButtonEvent(bi, value));
+                        } else {
+                           this.at(i).updateButton(bi, 0);
+                        }
                      }
                   }
                }
@@ -280,13 +281,13 @@
 
             // Axes
             for (a in Axes) {
-               if (typeof Axes[a] !== 'number') { continue; }
-
-               axesIndex = Axes[a];
-               value = gamepads[i].axes[axesIndex];
-               if (value !== this._oldPads[i].getAxes(axesIndex)) {
-                  this.at(i).updateAxes(axesIndex, value);
-                  this.at(i).eventDispatcher.emit('axis', new GamepadAxisEvent(axesIndex, value));
+               ai = Axes[a];
+               if (typeof ai === 'number') {
+                  value = gamepads[i].axes[ai];
+                  if (value !== this._oldPads[i].getAxes(ai)) {
+                     this.at(i).updateAxes(ai, value);
+                     this.at(i).eventDispatcher.emit('axis', new GamepadAxisEvent(ai, value));
+                  }
                }
             }                      
 

@@ -323,9 +323,9 @@ module ex {
          this.deadParticles = new Util.Collection<Particle>();
 
          // Remove offscreen culling from particle emitters
-         for (var trait in this.traits) {
-            if (this.traits[trait] instanceof ex.Traits.OffscreenCulling) {
-               this.traits.splice(trait, 1);
+         for (let i = 0; i < this.traits.length; i++) {
+            if (this.traits[i] instanceof ex.Traits.OffscreenCulling) {
+               this.traits.splice(i, 1);
             }
          }
 

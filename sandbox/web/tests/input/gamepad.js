@@ -112,4 +112,4 @@ var CircleActor = (function (_super) {
         ctx.restore();
     };
     return CircleActor;
-})(ex.Actor);
+}(ex.Actor));

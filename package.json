@@ -34,6 +34,6 @@
     "jasmine": "^2.4.1",
     "travis-ci": "^2.1.0",
     "tslint": "~2.3.0-beta",
-    "typescript": "1.6.2"
+    "typescript": "^1.8.10"
   }
 }

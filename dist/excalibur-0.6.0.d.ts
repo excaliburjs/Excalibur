@@ -2155,7 +2155,7 @@ declare module ex {
          * @param duration  The time it should take the actor to move to the new location in milliseconds
          * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
          */
-        easeTo(x: number, y: number, duration: number, easingFcn?: (currentTime: number, startValue: number, endValue: number, duration: number) => number): ActionContext;
+        easeTo(x: number, y: number, duration: number, easingFcn?: (currentTime: number, startValue: number, endValue: number, duration: number) => number): this;
         /**
          * This method will move an actor to the specified x and y position at the
          * speed specified (in pixels per second) and return back the actor. This
@@ -3388,7 +3388,7 @@ declare module ex {
          * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
          * @obsolete Use [[ActionContext.easeTo|Actor.actions.easeTo]]
          */
-        easeTo(x: number, y: number, duration: number, easingFcn?: (currentTime: number, startValue: number, endValue: number, duration: number) => number): Actor;
+        easeTo(x: number, y: number, duration: number, easingFcn?: (currentTime: number, startValue: number, endValue: number, duration: number) => number): this;
         /**
          * This method will move an actor to the specified `x` and `y` position at the
          * `speed` specified (in pixels per second) and return back the actor. This
@@ -4501,12 +4501,12 @@ declare module ex {
          * @param successCallback  Call on resolution of promise
          * @param rejectCallback   Call on rejection of promise
          */
-        then(successCallback?: (value?: T) => any, rejectCallback?: (value?: any) => any): Promise<T>;
+        then(successCallback?: (value?: T) => any, rejectCallback?: (value?: any) => any): this;
         /**
          * Add an error callback to the promise
          * @param errorCallback  Call if there was an error in a callback
          */
-        error(errorCallback?: (value?: any) => any): Promise<T>;
+        error(errorCallback?: (value?: any) => any): this;
         /**
          * Resolve the promise and pass an option value to the success callbacks
          * @param value  Value to pass to the success callbacks
@@ -4516,7 +4516,7 @@ declare module ex {
          * Reject the promise and pass an option value to the reject callbacks
          * @param value  Value to pass to the reject callbacks
          */
-        reject(value?: any): Promise<T>;
+        reject(value?: any): this;
         /**
          * Inpect the current state of a promise
          */

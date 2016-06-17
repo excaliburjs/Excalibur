@@ -848,7 +848,6 @@ module ex {
              return ex.Side.Top;
           }
        }
-       return ex.Side.None;
     }
     /**
      * Test whether the actor has collided with another actor, returns the intersection vector on collision. Returns
