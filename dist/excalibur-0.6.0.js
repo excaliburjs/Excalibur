@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-06-15
+/*! excalibur - v0.6.0 - 2016-06-17
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 var __extends = (this && this.__extends) || function (d, b) {
@@ -8209,6 +8209,108 @@ var ex;
         return HSLColor;
     }());
 })(ex || (ex = {}));
+/// <reference path="../Interfaces/IDrawable.ts" />
+/// <reference path="../Algebra.ts" />
+/// <reference path="Color.ts" />
+var ex;
+(function (ex) {
+    /**
+     * Creates a closed polygon drawing given a list of [[Point]]s.
+     *
+     * @warning Use sparingly as Polygons are performance intensive
+     */
+    var Polygon = (function () {
+        /**
+         * @param points  The vectors to use to build the polygon in order
+         */
+        function Polygon(points) {
+            /**
+             * The width of the lines of the polygon
+             */
+            this.lineWidth = 5;
+            /**
+             * Indicates whether the polygon is filled or not.
+             */
+            this.filled = false;
+            this._points = [];
+            this.anchor = new ex.Vector(0, 0);
+            this.rotation = 0;
+            this.scale = new ex.Vector(1, 1);
+            this._points = points;
+            var minX = this._points.reduce(function (prev, curr) {
+                return Math.min(prev, curr.x);
+            }, 0);
+            var maxX = this._points.reduce(function (prev, curr) {
+                return Math.max(prev, curr.x);
+            }, 0);
+            this.width = maxX - minX;
+            var minY = this._points.reduce(function (prev, curr) {
+                return Math.min(prev, curr.y);
+            }, 0);
+            var maxY = this._points.reduce(function (prev, curr) {
+                return Math.max(prev, curr.y);
+            }, 0);
+            this.height = maxY - minY;
+            this.naturalHeight = this.height;
+            this.naturalWidth = this.width;
+        }
+        /**
+         * @notimplemented Effects are not supported on `Polygon`
+         */
+        Polygon.prototype.addEffect = function (effect) {
+            // not supported on polygons
+        };
+        /**
+         * @notimplemented Effects are not supported on `Polygon`
+         */
+        Polygon.prototype.removeEffect = function (param) {
+            // not supported on polygons
+        };
+        /**
+         * @notimplemented Effects are not supported on `Polygon`
+         */
+        Polygon.prototype.clearEffects = function () {
+            // not supported on polygons
+        };
+        Polygon.prototype.reset = function () {
+            //pass
+        };
+        Polygon.prototype.draw = function (ctx, x, y) {
+            ctx.save();
+            ctx.translate(x + this.anchor.x, y + this.anchor.y);
+            ctx.scale(this.scale.x, this.scale.y);
+            ctx.rotate(this.rotation);
+            ctx.beginPath();
+            ctx.lineWidth = this.lineWidth;
+            // Iterate through the supplied points and contruct a 'polygon'
+            var firstPoint = this._points[0];
+            ctx.moveTo(firstPoint.x, firstPoint.y);
+            var i = 0, len = this._points.length;
+            for (i; i < len; i++) {
+                ctx.lineTo(this._points[i].x, this._points[i].y);
+            }
+            ctx.lineTo(firstPoint.x, firstPoint.y);
+            ctx.closePath();
+            if (this.filled) {
+                ctx.fillStyle = this.fillColor.toString();
+                ctx.fill();
+            }
+            ctx.strokeStyle = this.lineColor.toString();
+            if (this.flipHorizontal) {
+                ctx.translate(this.width, 0);
+                ctx.scale(-1, 1);
+            }
+            if (this.flipVertical) {
+                ctx.translate(0, this.height);
+                ctx.scale(1, -1);
+            }
+            ctx.stroke();
+            ctx.restore();
+        };
+        return Polygon;
+    }());
+    ex.Polygon = Polygon;
+})(ex || (ex = {}));
 /// <reference path="../Interfaces/ILoadable.ts" />
 var ex;
 (function (ex) {
@@ -12131,6 +12233,7 @@ var ex;
 /// <reference path="EventDispatcher.ts" />
 /// <reference path="Class.ts" />
 /// <reference path="Drawing/Color.ts" />
+/// <reference path="Drawing/Polygon.ts" />
 /// <reference path="Util/Log.ts" />
 /// <reference path="Resources/Resource.ts" />
 /// <reference path="Resources/Texture.ts" />

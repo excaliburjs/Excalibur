@@ -35,30 +35,30 @@ module ex {
        */
       public filled: boolean = false;
       
-      private _points: Point[] = [];
-      public anchor = new Point(0, 0);
+      private _points: Vector[] = [];
+      public anchor = new Vector(0, 0);
       public rotation: number = 0;
-      public scale = new Point(1, 1);
+      public scale = new Vector(1, 1);
 
       /**
-       * @param points  The points to use to build the polygon in order
+       * @param points  The vectors to use to build the polygon in order
        */
-      constructor(points: Point[]) {
+      constructor(points: Vector[]) {
          this._points = points;
 
-         var minX = this._points.reduce((prev: number, curr: Point) => {
+         var minX = this._points.reduce((prev: number, curr: Vector) => {
             return Math.min(prev, curr.x);
          }, 0);
-         var maxX = this._points.reduce((prev: number, curr: Point) => {
+         var maxX = this._points.reduce((prev: number, curr: Vector) => {
             return Math.max(prev, curr.x);
          }, 0);
 
          this.width = maxX - minX;
 
-         var minY = this._points.reduce((prev: number, curr: Point) => {
+         var minY = this._points.reduce((prev: number, curr: Vector) => {
             return Math.min(prev, curr.y);
          }, 0);
-         var maxY = this._points.reduce((prev: number, curr: Point) => {
+         var maxY = this._points.reduce((prev: number, curr: Vector) => {
             return Math.max(prev, curr.y);
          }, 0);
 

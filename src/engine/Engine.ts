@@ -3,6 +3,7 @@
 /// <reference path="EventDispatcher.ts" />
 /// <reference path="Class.ts" />
 /// <reference path="Drawing/Color.ts" />
+/// <reference path="Drawing/Polygon.ts" />
 /// <reference path="Util/Log.ts" />
 /// <reference path="Resources/Resource.ts" />
 /// <reference path="Resources/Texture.ts" />
