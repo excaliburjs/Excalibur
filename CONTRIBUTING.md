@@ -28,13 +28,14 @@ When you submit an issue, a markdown template will automatically populate the ed
 
 #### Getting Started
 Below is the general workflow for submitting changes:
+
 1. Create or discuss an issue you wish to contribute to
 2. Create a fork
 3. Commit to your fork with your changes
 4. Submit a pull request, making sure to reference the issue you're addressing
 5. Make sure it passes the CI build
 6. Wait for a project contributor to give you feedback
-7. Once you're merged, celebrate!
+7. Once you're changes are merged, celebrate!
 
 If you’re not sure where to start, take a look at the jump-in or help wanted issue labels.
 
