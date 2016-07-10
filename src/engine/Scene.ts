@@ -236,11 +236,11 @@ module ex {
          }
          
          var iter: number = Engine.physics.collisionPasses;
-         delta = delta / iter;
+         var collisionDelta = delta / iter;
          while (iter > 0) {
             // Cycle through actors updating actors
             for (i = 0, len = this.children.length; i < len; i++) {
-                this.children[i].update(engine, delta);
+                this.children[i].update(engine, collisionDelta);
                 this.children[i].collisionAreas[0].recalc();
             }
 
@@ -248,8 +248,8 @@ module ex {
             // a trait
             // Run collision resolution strategy
             if (this._broadphase && Engine.physics.on) {
-               this._broadphase.update(this.children, delta);
-               this._broadphase.resolve(this.children, delta);
+               this._broadphase.update(this.children, collisionDelta);
+               this._broadphase.resolve(this.children, collisionDelta);
             }
             iter--;
          }
@@ -386,6 +386,9 @@ module ex {
        */
       public add(uiActor: UIActor): void;
       public add(entity: any): void {
+         if(entity instanceof Actor) {
+            (<Actor>entity).unkill();
+         }
          if (entity instanceof UIActor) {
             if (!Util.contains(this.uiActors, entity)) {
                this.addUIActor(entity);

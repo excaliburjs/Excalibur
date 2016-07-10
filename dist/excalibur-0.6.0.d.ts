@@ -266,16 +266,16 @@ declare module ex {
          * Adds one vector to this one modifying the original
          * @param v The vector to add
          */
-        addEquals(v: Vector): Vector;
+        addEqual(v: Vector): Vector;
         /**
          * Subtracts a vector from this one modifying the original
          * @parallel v The vector to subtract
          */
-        subEquals(v: Vector): Vector;
+        subEqual(v: Vector): Vector;
         /**
          * Scales this vector by a factor of size and modifies the original
          */
-        scaleEquals(size: number): Vector;
+        scaleEqual(size: number): Vector;
         /**
          * Performs a dot product with another vector
          * @param v  The vector to dot
@@ -691,11 +691,6 @@ declare module ex.Traits {
 }
 declare module ex.Traits {
     class TileMapCollisionDetection implements IActorTrait {
-        update(actor: Actor, engine: Engine, delta: number): void;
-    }
-}
-declare module ex.Traits {
-    class Sleeping implements IActorTrait {
         update(actor: Actor, engine: Engine, delta: number): void;
     }
 }
@@ -1612,10 +1607,9 @@ declare module ex {
 }
 declare module ex {
     class Body {
-        constructor();
         /**
-         * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default. If
-         * you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0).
+         * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default.
+         * If you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0).
          */
         pos: Vector;
         /**
@@ -1631,8 +1625,8 @@ declare module ex {
          */
         oldVel: Vector;
         /**
-         * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be
-         * useful to simulate a gravitational effect.
+         * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may
+         * be useful to simulate a gravitational effect.
          */
         acc: Vector;
         /**
@@ -1671,18 +1665,6 @@ declare module ex {
          * The rotational velocity of the actor in radians/second
          */
         rx: number;
-        /**
-         * The scale vector of the actor
-         */
-        scale: ex.Vector;
-        /**
-         * The x scalar velocity of the actor in scale/second
-         */
-        sx: number;
-        /**
-         * The y scalar velocity of the actor in scale/second
-         */
-        sy: number;
     }
 }
 declare module ex {
@@ -1854,7 +1836,7 @@ declare module ex {
     class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
         private _dynamicCollisionTree;
         private _collisionHash;
-        private collisionContactCache;
+        private _collisionContactCache;
         register(target: Actor): void;
         remove(target: Actor): void;
         resolve(targets: Actor[], delta: number): CollisionContact[];
@@ -2531,16 +2513,18 @@ declare module ex {
          * method is part of the actor 'Action' fluent API allowing action chaining.
          * @param angleRadians  The angle to rotate to in radians
          * @param speed         The angular velocity of the rotation specified in radians per second
+         * @param rotationType  The [[RotationType]] to use for this rotation
          */
-        rotateTo(angleRadians: number, speed: number): ActionContext;
+        rotateTo(angleRadians: number, speed: number, rotationType?: RotationType): ActionContext;
         /**
          * This method will rotate an actor to the specified angle by a certain
          * time (in milliseconds) and return back the actor. This method is part
          * of the actor 'Action' fluent API allowing action chaining.
          * @param angleRadians  The angle to rotate to in radians
          * @param time          The time it should take the actor to complete the rotation in milliseconds
+         * @param rotationType  The [[RotationType]] to use for this rotation
          */
-        rotateBy(angleRadians: number, time: number): ActionContext;
+        rotateBy(angleRadians: number, time: number, rotationType?: RotationType): ActionContext;
         /**
          * This method will scale an actor to the specified size at the speed
          * specified (in magnitude increase per second) and return back the
@@ -3356,13 +3340,25 @@ declare module ex {
          */
         id: number;
         body: Body;
+        x: number;
+        y: number;
         pos: Vector;
+        oldPos: Vector;
         vel: Vector;
+        oldVel: Vector;
         /**
          * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be
          * useful to simulate a gravitational effect.
          */
         acc: Vector;
+        /**
+         * The rotation of the actor in radians
+         */
+        rotation: number;
+        /**
+         * The rotational velocity of the actor in radians/second
+         */
+        rx: number;
         /**
          * The current torque applied to the actor
          */
@@ -3379,14 +3375,6 @@ declare module ex {
          * The current "motion" of the actor, used to calculated sleep in the physics simulation
          */
         motion: number;
-        /**
-         * This idicates whether the current actor is asleep in the physics simulation
-         */
-        sleeping: boolean;
-        /**
-         * The coefficient of friction on this actor
-         */
-        friction: number;
         /**
          * This idicates whether the current actor is asleep in the physics simulation
          */
@@ -3417,14 +3405,6 @@ declare module ex {
         private _collisionContacts;
         private _totalMtv;
         /**
-         * The rotation of the actor in radians
-         */
-        rotation: number;
-        /**
-         * The rotational velocity of the actor in radians/second
-         */
-        rx: number;
-        /**
          * The scale vector of the actor
          */
         scale: ex.Vector;
@@ -3454,6 +3434,9 @@ declare module ex {
          * Direct access to the actor's [[ActionQueue]]. Useful if you are building custom actions.
          */
         actionQueue: ex.Internal.Actions.ActionQueue;
+        /**
+         * [[ActionContext|Action context]] of the actor. Useful for scripting actor behavior.
+         */
         actions: ActionContext;
         /**
          * Convenience reference to the global logger
@@ -3549,6 +3532,10 @@ declare module ex {
          */
         kill(): void;
         /**
+         * If the current actor is killed, it will now not be killed.
+         */
+        unkill(): void;
+        /**
          * Indicates wether the actor has been killed.
          */
         isKilled(): boolean;
@@ -3603,6 +3590,7 @@ declare module ex {
          * @param drawing This can be an [[Animation]], [[Sprite]], or [[Polygon]].
          */
         addDrawing(key: any, drawing: IDrawable): any;
+        z: number;
         /**
          * Gets the z-index of an actor. The z-index determines the relative order an actor is drawn in.
          * Actors with a higher z-index are drawn on top of actors with a lower z-index
@@ -4106,6 +4094,13 @@ declare module ex {
          * Target object for this event.
          */
         target: any;
+    }
+    /**
+     * The 'kill' event is emitted on actors when it is killed. The target is the actor that was killed.
+     */
+    class KillEvent extends GameEvent {
+        target: any;
+        constructor(target: any);
     }
     /**
      * The 'predraw' event is emitted on actors, scenes, and engine before drawing starts. Actors' predraw happens inside their graphics
@@ -4652,6 +4647,400 @@ declare module ex {
     }
 }
 declare module ex {
+    /**
+     * Loadables
+     *
+     * An interface describing loadable resources in Excalibur. Built-in loadable
+     * resources include [[Texture]], [[Sound]], and a generic [[Resource]].
+     *
+     * ## Advanced: Custom loadables
+     *
+     * You can implement the [[ILoadable]] interface to create your own custom loadables.
+     * This is an advanced feature, as the [[Resource]] class already wraps logic around
+     * blob/plain data for usages like JSON, configuration, levels, etc through XHR (Ajax).
+     *
+     * However, as long as you implement the facets of a loadable, you can create your
+     * own.
+     */
+    interface ILoadable {
+        /**
+         * Begins loading the resource and returns a promise to be resolved on completion
+         */
+        load(): Promise<any>;
+        getData(): any;
+        setData(data: any): void;
+        /**
+         * Processes the downloaded data. Meant to be overridden.
+         */
+        processData(data: any): any;
+        /**
+         * Wires engine into loadable to receive game level events
+         */
+        wireEngine(engine: Engine): void;
+        /**
+         * onprogress handler
+         */
+        onprogress: (e: any) => void;
+        /**
+         * oncomplete handler
+         */
+        oncomplete: () => void;
+        /**
+         * onerror handler
+         */
+        onerror: (e: any) => void;
+        /**
+         * Returns true if the loadable is loaded
+         */
+        isLoaded(): boolean;
+    }
+}
+declare module ex {
+    /**
+     * Generic Resources
+     *
+     * The [[Resource]] type allows games built in Excalibur to load generic resources.
+     * For any type of remote resource it is recommended to use [[Resource]] for preloading.
+     *
+     * [[Resource]] is an [[ILoadable]] so it can be passed to a [[Loader]] to pre-load before
+     * a level or game.
+     *
+     * Example usages: JSON, compressed files, blobs.
+     *
+     * ## Pre-loading generic resources
+     *
+     * ```js
+     * var resLevel1 = new ex.Resource("/assets/levels/1.json", "application/json");
+     * var loader = new ex.Loader(resLevel1);
+     *
+     * // attach a handler to process once loaded
+     * resLevel1.processData = function (data) {
+     *
+     *   // process JSON
+     *   var json = JSON.parse(data);
+     *
+     *   // create a new level (inherits Scene) with the JSON configuration
+     *   var level = new Level(json);
+     *
+     *   // add a new scene
+     *   game.add(level.name, level);
+     * }
+     *
+     * game.start(loader);
+     * ```
+     */
+    class Resource<T> extends Class implements ILoadable {
+        path: string;
+        responseType: string;
+        bustCache: boolean;
+        data: T;
+        logger: Logger;
+        private _engine;
+        /**
+         * @param path          Path to the remote resource
+         * @param responseType  The Content-Type to expect (e.g. `application/json`)
+         * @param bustCache     Whether or not to cache-bust requests
+         */
+        constructor(path: string, responseType: string, bustCache?: boolean);
+        /**
+         * Returns true if the Resource is completely loaded and is ready
+         * to be drawn.
+         */
+        isLoaded(): boolean;
+        wireEngine(engine: Engine): void;
+        private _cacheBust(uri);
+        private _start(e);
+        /**
+         * Begin loading the resource and returns a promise to be resolved on completion
+         */
+        load(): Promise<T>;
+        /**
+         * Returns the loaded data once the resource is loaded
+         */
+        getData(): any;
+        /**
+         * Sets the data for this resource directly
+         */
+        setData(data: any): void;
+        /**
+         * This method is meant to be overriden to handle any additional
+         * processing. Such as decoding downloaded audio bits.
+         */
+        processData(data: T): any;
+        onprogress: (e: any) => void;
+        oncomplete: () => void;
+        onerror: (e: any) => void;
+    }
+}
+declare module ex {
+    /**
+     * Valid states for a promise to be in
+     */
+    enum PromiseState {
+        Resolved = 0,
+        Rejected = 1,
+        Pending = 2,
+    }
+    interface IPromise<T> {
+        then(successCallback?: (value?: T) => any, rejectCallback?: (value?: T) => any): IPromise<T>;
+        error(rejectCallback?: (value?: any) => any): IPromise<T>;
+        resolve(value?: T): IPromise<T>;
+        reject(value?: any): IPromise<T>;
+        state(): PromiseState;
+    }
+    /**
+     * Promises/A+ spec implementation of promises
+     *
+     * Promises are used to do asynchronous work and they are useful for
+     * creating a chain of actions. In Excalibur they are used for loading,
+     * sounds, animation, actions, and more.
+     *
+     * ## A Promise Chain
+     *
+     * Promises can be chained together and can be useful for creating a queue
+     * of functions to be called when something is done.
+     *
+     * The first [[Promise]] you will encounter is probably [[Engine.start]]
+     * which resolves when the game has finished loading.
+     *
+     * ```js
+     * var game = new ex.Engine();
+     *
+     * // perform start-up logic once game is ready
+     * game.start().then(function () {
+     *
+     *   // start-up & initialization logic
+     *
+     * });
+     * ```
+     *
+     * ## Handling errors
+     *
+     * You can optionally pass an error handler to [[Promise.then]] which will handle
+     * any errors that occur during Promise execution.
+     *
+     * ```js
+     * var game = new ex.Engine();
+     *
+     * game.start().then(
+     *   // success handler
+     *   function () {
+     *   },
+     *
+     *   // error handler
+     *   function (err) {
+     *   }
+     * );
+     * ```
+     *
+     * Any errors that go unhandled will be bubbled up to the browser.
+     */
+    class Promise<T> implements IPromise<T> {
+        private _state;
+        private _value;
+        private _successCallbacks;
+        private _rejectCallback;
+        private _errorCallback;
+        private _logger;
+        /**
+         * Wrap a value in a resolved promise
+         * @param value  An optional value to wrap in a resolved promise
+         */
+        static wrap<T>(value?: T): Promise<T>;
+        /**
+         * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
+         * when at least 1 promise rejects.
+         */
+        static join<T>(...promises: Promise<T>[]): Promise<T>;
+        /**
+         * Chain success and reject callbacks after the promise is resovled
+         * @param successCallback  Call on resolution of promise
+         * @param rejectCallback   Call on rejection of promise
+         */
+        then(successCallback?: (value?: T) => any, rejectCallback?: (value?: any) => any): this;
+        /**
+         * Add an error callback to the promise
+         * @param errorCallback  Call if there was an error in a callback
+         */
+        error(errorCallback?: (value?: any) => any): this;
+        /**
+         * Resolve the promise and pass an option value to the success callbacks
+         * @param value  Value to pass to the success callbacks
+         */
+        resolve(value?: T): Promise<T>;
+        /**
+         * Reject the promise and pass an option value to the reject callbacks
+         * @param value  Value to pass to the reject callbacks
+         */
+        reject(value?: any): this;
+        /**
+         * Inpect the current state of a promise
+         */
+        state(): PromiseState;
+        private _handleError(e);
+    }
+}
+declare module ex {
+    /**
+     * Textures
+     *
+     * The [[Texture]] object allows games built in Excalibur to load image resources.
+     * [[Texture]] is an [[ILoadable]] which means it can be passed to a [[Loader]]
+     * to pre-load before starting a level or game.
+     *
+     * Textures are the raw image so to add a drawing to a game, you must create
+     * a [[Sprite]]. You can use [[Texture.asSprite]] to quickly generate a Sprite
+     * instance.
+     *
+     * ## Pre-loading textures
+     *
+     * Pass the [[Texture]] to a [[Loader]] to pre-load the asset. Once a [[Texture]]
+     * is loaded, you can generate a [[Sprite]] with it.
+     *
+     * ```js
+     * var txPlayer = new ex.Texture("/assets/tx/player.png");
+     *
+     * var loader = new ex.Loader(txPlayer);
+     *
+     * game.start(loader).then(function () {
+     *
+     *   var player = new ex.Actor();
+     *
+     *   player.addDrawing(txPlayer);
+     *
+     *   game.add(player);
+     * });
+     * ```
+     */
+    class Texture extends Resource<HTMLImageElement> {
+        path: string;
+        bustCache: boolean;
+        /**
+         * The width of the texture in pixels
+         */
+        width: number;
+        /**
+         * The height of the texture in pixels
+         */
+        height: number;
+        /**
+         * A [[Promise]] that resolves when the Texture is loaded.
+         */
+        loaded: Promise<any>;
+        private _isLoaded;
+        private _sprite;
+        /**
+         * Populated once loading is complete
+         */
+        image: HTMLImageElement;
+        private _progressCallback;
+        private _doneCallback;
+        private _errorCallback;
+        /**
+         * @param path       Path to the image resource
+         * @param bustCache  Optionally load texture with cache busting
+         */
+        constructor(path: string, bustCache?: boolean);
+        /**
+         * Returns true if the Texture is completely loaded and is ready
+         * to be drawn.
+         */
+        isLoaded(): boolean;
+        /**
+         * Begins loading the texture and returns a promise to be resolved on completion
+         */
+        load(): Promise<HTMLImageElement>;
+        asSprite(): Sprite;
+    }
+}
+declare module ex {
+    /**
+     * Sounds
+     *
+     * The [[Sound]] object allows games built in Excalibur to load audio
+     * components, from soundtracks to sound effects. [[Sound]] is an [[ILoadable]]
+     * which means it can be passed to a [[Loader]] to pre-load before a game or level.
+     *
+     * ## Pre-loading sounds
+     *
+     * Pass the [[Sound]] to a [[Loader]] to pre-load the asset. Once a [[Sound]]
+     * is loaded, you can [[Sound.play|play]] it.
+     *
+     * ```js
+     * // define multiple sources (such as mp3/wav/ogg) as a browser fallback
+     * var sndPlayerDeath = new ex.Sound("/assets/snd/player-death.mp3", "/assets/snd/player-death.wav");
+     *
+     * var loader = new ex.Loader(sndPlayerDeath);
+     *
+     * game.start(loader).then(function () {
+     *
+     *   sndPlayerDeath.play();
+     * });
+     * ```
+     */
+    class Sound implements ILoadable, ex.Internal.ISound {
+        private _logger;
+        path: string;
+        onprogress: (e: any) => void;
+        oncomplete: () => void;
+        onerror: (e: any) => void;
+        onload: (e: any) => void;
+        private _isLoaded;
+        private _engine;
+        private _wasPlayingOnHidden;
+        /**
+         * Populated once loading is complete
+         */
+        sound: ex.Internal.FallbackAudio;
+        /**
+         * Whether or not the browser can play this file as HTML5 Audio
+         */
+        static canPlayFile(file: string): boolean;
+        /**
+         * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
+         */
+        constructor(...paths: string[]);
+        wireEngine(engine: Engine): void;
+        /**
+         * Sets the volume of the sound clip
+         * @param volume  A volume value between 0-1.0
+         */
+        setVolume(volume: number): void;
+        /**
+         * Indicates whether the clip should loop when complete
+         * @param loop  Set the looping flag
+         */
+        setLoop(loop: boolean): void;
+        /**
+         * Whether or not the sound is playing right now
+         */
+        isPlaying(): boolean;
+        /**
+         * Play the sound, returns a promise that resolves when the sound is done playing
+         */
+        play(): ex.Promise<any>;
+        /**
+         * Stop the sound, and do not rewind
+         */
+        pause(): void;
+        /**
+         * Stop the sound and rewind
+         */
+        stop(): void;
+        /**
+         * Returns true if the sound is loaded
+         */
+        isLoaded(): boolean;
+        /**
+         * Begins loading the sound and returns a promise to be resolved on completion
+         */
+        load(): Promise<ex.Internal.FallbackAudio>;
+        getData(): any;
+        setData(data: any): void;
+        processData(data: any): any;
+    }
+}
+declare module ex {
     enum CollisionResolutionStrategy {
         Box = 0,
         RigidBody = 1,
@@ -5174,11 +5563,16 @@ declare module ex.Internal {
         pause(): any;
         stop(): any;
         load(): any;
+        setData(data: any): any;
+        getData(): any;
+        processData(data: any): any;
         onload: (e: any) => void;
         onprogress: (e: any) => void;
         onerror: (e: any) => void;
+        path: string;
     }
     class FallbackAudio implements ISound {
+        path: string;
         private _soundImpl;
         private _log;
         constructor(path: string, volume?: number);
@@ -5188,6 +5582,9 @@ declare module ex.Internal {
         onprogress: (e: any) => void;
         onerror: (e: any) => void;
         load(): void;
+        processData(data: any): any;
+        getData(): any;
+        setData(data: any): void;
         isPlaying(): boolean;
         play(): ex.Promise<any>;
         pause(): void;
@@ -5213,16 +5610,19 @@ declare module ex.Internal {
         onprogress: (e: any) => void;
         onerror: (e: any) => void;
         load(): void;
+        getData(): any;
+        setData(data: any): void;
+        processData(data: any): any;
         play(): Promise<any>;
         pause(): void;
         stop(): void;
     }
     class WebAudio implements ISound {
+        path: string;
         private _context;
         private _volume;
         private _buffer;
         private _sound;
-        private _path;
         private _isLoaded;
         private _loop;
         private _isPlaying;
@@ -5231,397 +5631,38 @@ declare module ex.Internal {
         private _currentOffset;
         private _playPromise;
         private _logger;
-        constructor(soundPath: string, volume?: number);
+        private _data;
+        constructor(path: string, volume?: number);
         setVolume(volume: number): void;
         onload: (e: any) => void;
         onprogress: (e: any) => void;
         onerror: (e: any) => void;
         load(): void;
+        getData(): any;
+        setData(data: any): void;
+        processData(data: any): any;
         setLoop(loop: boolean): void;
         isPlaying(): boolean;
         play(): Promise<any>;
         pause(): void;
         stop(): void;
+        private static _unlocked;
+        /**
+         * Play an empty sound to unlock Safari WebAudio context. Call this function
+         * right after a user interaction event. Typically used by [[PauseAfterLoader]]
+         * @source https://paulbakaus.com/tutorials/html5/web-audio-on-ios/
+         */
+        static unlock(): void;
+        static isUnlocked(): boolean;
     }
 }
 declare module ex {
-    /**
-     * Valid states for a promise to be in
-     */
-    enum PromiseState {
-        Resolved = 0,
-        Rejected = 1,
-        Pending = 2,
-    }
-    interface IPromise<T> {
-        then(successCallback?: (value?: T) => any, rejectCallback?: (value?: T) => any): IPromise<T>;
-        error(rejectCallback?: (value?: any) => any): IPromise<T>;
-        resolve(value?: T): IPromise<T>;
-        reject(value?: any): IPromise<T>;
-        state(): PromiseState;
-    }
-    /**
-     * Promises/A+ spec implementation of promises
-     *
-     * Promises are used to do asynchronous work and they are useful for
-     * creating a chain of actions. In Excalibur they are used for loading,
-     * sounds, animation, actions, and more.
-     *
-     * ## A Promise Chain
-     *
-     * Promises can be chained together and can be useful for creating a queue
-     * of functions to be called when something is done.
-     *
-     * The first [[Promise]] you will encounter is probably [[Engine.start]]
-     * which resolves when the game has finished loading.
-     *
-     * ```js
-     * var game = new ex.Engine();
-     *
-     * // perform start-up logic once game is ready
-     * game.start().then(function () {
-     *
-     *   // start-up & initialization logic
-     *
-     * });
-     * ```
-     *
-     * ## Handling errors
-     *
-     * You can optionally pass an error handler to [[Promise.then]] which will handle
-     * any errors that occur during Promise execution.
-     *
-     * ```js
-     * var game = new ex.Engine();
-     *
-     * game.start().then(
-     *   // success handler
-     *   function () {
-     *   },
-     *
-     *   // error handler
-     *   function (err) {
-     *   }
-     * );
-     * ```
-     *
-     * Any errors that go unhandled will be bubbled up to the browser.
-     */
-    class Promise<T> implements IPromise<T> {
-        private _state;
-        private _value;
-        private _successCallbacks;
-        private _rejectCallback;
-        private _errorCallback;
-        private _logger;
-        /**
-         * Wrap a value in a resolved promise
-         * @param value  An optional value to wrap in a resolved promise
-         */
-        static wrap<T>(value?: T): Promise<T>;
-        /**
-         * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
-         * when at least 1 promise rejects.
-         */
-        static join<T>(...promises: Promise<T>[]): Promise<T>;
-        /**
-         * Chain success and reject callbacks after the promise is resovled
-         * @param successCallback  Call on resolution of promise
-         * @param rejectCallback   Call on rejection of promise
-         */
-        then(successCallback?: (value?: T) => any, rejectCallback?: (value?: any) => any): this;
-        /**
-         * Add an error callback to the promise
-         * @param errorCallback  Call if there was an error in a callback
-         */
-        error(errorCallback?: (value?: any) => any): this;
-        /**
-         * Resolve the promise and pass an option value to the success callbacks
-         * @param value  Value to pass to the success callbacks
-         */
-        resolve(value?: T): Promise<T>;
-        /**
-         * Reject the promise and pass an option value to the reject callbacks
-         * @param value  Value to pass to the reject callbacks
-         */
-        reject(value?: any): this;
-        /**
-         * Inpect the current state of a promise
-         */
-        state(): PromiseState;
-        private _handleError(e);
+    interface ILoader extends ILoadable {
+        draw(ctx: CanvasRenderingContext2D, delta: number): any;
+        update(engine: Engine, delta: number): any;
     }
 }
 declare module ex {
-    /**
-     * Loadables
-     *
-     * An interface describing loadable resources in Excalibur. Built-in loadable
-     * resources include [[Texture]], [[Sound]], and a generic [[Resource]].
-     *
-     * ## Advanced: Custom loadables
-     *
-     * You can implement the [[ILoadable]] interface to create your own custom loadables.
-     * This is an advanced feature, as the [[Resource]] class already wraps logic around
-     * blob/plain data for usages like JSON, configuration, levels, etc through XHR (Ajax).
-     *
-     * However, as long as you implement the facets of a loadable, you can create your
-     * own.
-     */
-    interface ILoadable {
-        /**
-         * Begins loading the resource and returns a promise to be resolved on completion
-         */
-        load(): Promise<any>;
-        /**
-         * Wires engine into loadable to receive game level events
-         */
-        wireEngine(engine: Engine): void;
-        /**
-         * onprogress handler
-         */
-        onprogress: (e: any) => void;
-        /**
-         * oncomplete handler
-         */
-        oncomplete: () => void;
-        /**
-         * onerror handler
-         */
-        onerror: (e: any) => void;
-        /**
-         * Returns true if the loadable is loaded
-         */
-        isLoaded(): boolean;
-    }
-}
-declare module ex {
-    /**
-     * Generic Resources
-     *
-     * The [[Resource]] type allows games built in Excalibur to load generic resources.
-     * For any type of remote resource it is recommended to use [[Resource]] for preloading.
-     *
-     * [[Resource]] is an [[ILoadable]] so it can be passed to a [[Loader]] to pre-load before
-     * a level or game.
-     *
-     * Example usages: JSON, compressed files, blobs.
-     *
-     * ## Pre-loading generic resources
-     *
-     * ```js
-     * var resLevel1 = new ex.Resource("/assets/levels/1.json", "application/json");
-     * var loader = new ex.Loader(resLevel1);
-     *
-     * // attach a handler to process once loaded
-     * resLevel1.processDownload = function (data) {
-     *
-     *   // process JSON
-     *   var json = JSON.parse(data);
-     *
-     *   // create a new level (inherits Scene) with the JSON configuration
-     *   var level = new Level(json);
-     *
-     *   // add a new scene
-     *   game.add(level.name, level);
-     * }
-     *
-     * game.start(loader);
-     * ```
-     */
-    class Resource<T> implements ILoadable {
-        path: string;
-        responseType: string;
-        bustCache: boolean;
-        data: T;
-        logger: Logger;
-        private _engine;
-        /**
-         * @param path          Path to the remote resource
-         * @param responseType  The Content-Type to expect (e.g. `application/json`)
-         * @param bustCache     Whether or not to cache-bust requests
-         */
-        constructor(path: string, responseType: string, bustCache?: boolean);
-        /**
-         * Returns true if the Resource is completely loaded and is ready
-         * to be drawn.
-         */
-        isLoaded(): boolean;
-        wireEngine(engine: Engine): void;
-        private _cacheBust(uri);
-        private _start(e);
-        /**
-         * Begin loading the resource and returns a promise to be resolved on completion
-         */
-        load(): Promise<T>;
-        /**
-         * Returns the loaded data once the resource is loaded
-         */
-        getData(): any;
-        /**
-         * This method is meant to be overriden to handle any additional
-         * processing. Such as decoding downloaded audio bits.
-         */
-        processDownload(data: T): any;
-        onprogress: (e: any) => void;
-        oncomplete: () => void;
-        onerror: (e: any) => void;
-    }
-}
-declare module ex {
-    /**
-     * Textures
-     *
-     * The [[Texture]] object allows games built in Excalibur to load image resources.
-     * [[Texture]] is an [[ILoadable]] which means it can be passed to a [[Loader]]
-     * to pre-load before starting a level or game.
-     *
-     * Textures are the raw image so to add a drawing to a game, you must create
-     * a [[Sprite]]. You can use [[Texture.asSprite]] to quickly generate a Sprite
-     * instance.
-     *
-     * ## Pre-loading textures
-     *
-     * Pass the [[Texture]] to a [[Loader]] to pre-load the asset. Once a [[Texture]]
-     * is loaded, you can generate a [[Sprite]] with it.
-     *
-     * ```js
-     * var txPlayer = new ex.Texture("/assets/tx/player.png");
-     *
-     * var loader = new ex.Loader(txPlayer);
-     *
-     * game.start(loader).then(function () {
-     *
-     *   var player = new ex.Actor();
-     *
-     *   player.addDrawing(txPlayer);
-     *
-     *   game.add(player);
-     * });
-     * ```
-     */
-    class Texture extends Resource<HTMLImageElement> {
-        path: string;
-        bustCache: boolean;
-        /**
-         * The width of the texture in pixels
-         */
-        width: number;
-        /**
-         * The height of the texture in pixels
-         */
-        height: number;
-        /**
-         * A [[Promise]] that resolves when the Texture is loaded.
-         */
-        loaded: Promise<any>;
-        private _isLoaded;
-        private _sprite;
-        /**
-         * Populated once loading is complete
-         */
-        image: HTMLImageElement;
-        private _progressCallback;
-        private _doneCallback;
-        private _errorCallback;
-        /**
-         * @param path       Path to the image resource
-         * @param bustCache  Optionally load texture with cache busting
-         */
-        constructor(path: string, bustCache?: boolean);
-        /**
-         * Returns true if the Texture is completely loaded and is ready
-         * to be drawn.
-         */
-        isLoaded(): boolean;
-        /**
-         * Begins loading the texture and returns a promise to be resolved on completion
-         */
-        load(): Promise<HTMLImageElement>;
-        asSprite(): Sprite;
-    }
-    /**
-     * Sounds
-     *
-     * The [[Sound]] object allows games built in Excalibur to load audio
-     * components, from soundtracks to sound effects. [[Sound]] is an [[ILoadable]]
-     * which means it can be passed to a [[Loader]] to pre-load before a game or level.
-     *
-     * ## Pre-loading sounds
-     *
-     * Pass the [[Sound]] to a [[Loader]] to pre-load the asset. Once a [[Sound]]
-     * is loaded, you can [[Sound.play|play]] it.
-     *
-     * ```js
-     * // define multiple sources (such as mp3/wav/ogg) as a browser fallback
-     * var sndPlayerDeath = new ex.Sound("/assets/snd/player-death.mp3", "/assets/snd/player-death.wav");
-     *
-     * var loader = new ex.Loader(sndPlayerDeath);
-     *
-     * game.start(loader).then(function () {
-     *
-     *   sndPlayerDeath.play();
-     * });
-     * ```
-     */
-    class Sound implements ILoadable, ex.Internal.ISound {
-        private _logger;
-        onprogress: (e: any) => void;
-        oncomplete: () => void;
-        onerror: (e: any) => void;
-        onload: (e: any) => void;
-        private _isLoaded;
-        private _selectedFile;
-        private _engine;
-        private _wasPlayingOnHidden;
-        /**
-         * Populated once loading is complete
-         */
-        sound: ex.Internal.FallbackAudio;
-        /**
-         * Whether or not the browser can play this file as HTML5 Audio
-         */
-        static canPlayFile(file: string): boolean;
-        /**
-         * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
-         */
-        constructor(...paths: string[]);
-        wireEngine(engine: Engine): void;
-        /**
-         * Sets the volume of the sound clip
-         * @param volume  A volume value between 0-1.0
-         */
-        setVolume(volume: number): void;
-        /**
-         * Indicates whether the clip should loop when complete
-         * @param loop  Set the looping flag
-         */
-        setLoop(loop: boolean): void;
-        /**
-         * Whether or not the sound is playing right now
-         */
-        isPlaying(): boolean;
-        /**
-         * Play the sound, returns a promise that resolves when the sound is done playing
-         */
-        play(): ex.Promise<any>;
-        /**
-         * Stop the sound, and do not rewind
-         */
-        pause(): void;
-        /**
-         * Stop the sound and rewind
-         */
-        stop(): void;
-        /**
-         * Returns true if the sound is loaded
-         */
-        isLoaded(): boolean;
-        /**
-         * Begins loading the sound and returns a promise to be resolved on completion
-         */
-        load(): Promise<ex.Internal.FallbackAudio>;
-    }
     /**
      * Pre-loading assets
      *
@@ -5646,7 +5687,7 @@ declare module ex {
      * // loop through dictionary and add to loader
      * for (var loadable in resources) {
      *   if (resources.hasOwnProperty(loadable)) {
-     *     loader.addResource(loadable);
+     *     loader.addResource(resources[loadable]);
      *   }
      * }
      *
@@ -5656,7 +5697,7 @@ declare module ex {
      * });
      * ```
      */
-    class Loader implements ILoadable {
+    class Loader extends Class implements ILoader {
         private _resourceList;
         private _index;
         private _resourceCount;
@@ -5689,9 +5730,106 @@ declare module ex {
          * that resolves when loading of all is complete
          */
         load(): Promise<any>;
+        /**
+         * Loader draw function. Draws the default Excalibur loading screen. Override to customize the drawing.
+         */
+        draw(ctx: CanvasRenderingContext2D, delta: number): void;
+        /**
+         * Perform any calculations or logic in the `update` method. The default `Loader` does not
+         * do anything in this method so it is safe to override.
+         */
+        update(engine: ex.Engine, delta: number): void;
+        getData: () => any;
+        setData: (data: any) => any;
+        processData: (data: any) => any;
         onprogress: (e: any) => void;
         oncomplete: () => void;
         onerror: () => void;
+    }
+    /**
+     * A [[Loader]] that pauses after loading to allow user
+     * to proceed to play the game. Typically you will
+     * want to use this loader for iOS to allow sounds
+     * to play after loading (Apple Safari requires user
+     * interaction to allow sounds, even for games)
+     *
+     * **Note:** Because Loader is not part of a Scene, you must
+     * call `update` and `draw` manually on "child" objects.
+     *
+     * ## Implementing a Trigger
+     *
+     * The `PauseAfterLoader` requires an element to act as the trigger button
+     * to start the game.
+     *
+     * For example, let's create an `<a>` tag to be our trigger and call it `tap-to-play`.
+     *
+     * ```html
+     * <div id="wrapper">
+     *    <canvas id="game"></canvas>
+     *    <a id="tap-to-play" href='javascript:void(0);'>Tap to Play</a>
+     * </div>
+     * ```
+     *
+     * We've put it inside a wrapper to position it properly over the game canvas.
+     *
+     * Now let's add some CSS to style it (insert into `<head>`):
+     *
+     * ```html
+     * <style>
+     *     #wrapper {
+     *         position: relative;
+     *         width: 500px;
+     *         height: 500px;
+     *     }
+     *     #tap-to-play {
+     *         display: none;
+     *         font-size: 24px;
+     *         font-family: sans-serif;
+     *         text-align: center;
+     *         border: 3px solid white;
+     *         position: absolute;
+     *         color: white;
+     *         width: 200px;
+     *         height: 50px;
+     *         line-height: 50px;
+     *         text-decoration: none;
+     *         left: 147px;
+     *         top: 80%;
+     *     }
+     * </style>
+     * ```
+     *
+     * Now we can create a `PauseAfterLoader` with a reference to our trigger button:
+     *
+     * ```ts
+     * var loader = new ex.PauseAfterLoader('tap-to-play', [...]);
+     * ```
+     *
+     * ## Use PauseAfterLoader for iOS
+     *
+     * The primary use case for pausing before starting the game is to
+     * pass Apple's requirement of user interaction. The Web Audio context
+     * in Safari is disabled by default until user interaction.
+     *
+     * Therefore, you can use this snippet to only use PauseAfterLoader when
+     * iOS is detected (see [this thread](http://stackoverflow.com/questions/9038625/detect-if-device-is-ios)
+     * for more techniques).
+     *
+     * ```ts
+     * var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(<any>window).MSStream;
+     * var loader: ex.Loader = iOS ? new ex.PauseAfterLoader('tap-to-play') : new ex.Loader();
+     *
+     * loader.addResource(...);
+     * ```
+     */
+    class PauseAfterLoader extends Loader {
+        private _loaded;
+        private _loadedValue;
+        private _waitPromise;
+        private _playTrigger;
+        constructor(triggerElementId: string, loadables?: ILoadable[]);
+        load(): Promise<any>;
+        private _handleOnTrigger;
     }
 }
 declare module ex {
@@ -5741,6 +5879,9 @@ declare module ex {
          * Begins loading the template. Returns a promise that resolves with the template string when loaded.
          */
         load(): ex.Promise<string>;
+        getData(): string;
+        setData(data: any): void;
+        processData(data: any): any;
         /**
          * Indicates whether the template has been loaded
          */
@@ -7206,9 +7347,6 @@ declare module ex {
         private _compatible;
         private _loader;
         private _isLoading;
-        private _progress;
-        private _total;
-        private _loadingDraw;
         /**
          * Creates a new game using the given [[IEngineOptions]]
          */
@@ -7414,10 +7552,10 @@ declare module ex {
         /**
          * Starts the internal game loop for Excalibur after loading
          * any provided assets.
-         * @param loader  Optional resources to load before starting the main loop. Some [[ILoadable]] such as a [[Loader]] collection,
-         * [[Sound]], or [[Texture]].
+         * @param loader  Optional [[ILoader]] to use to load resources. The default loader is [[Loader]], override to provide your own
+         * custom loader.
          */
-        start(loader?: ILoadable): Promise<any>;
+        start(loader?: ILoader): Promise<any>;
         /**
          * Stops Excalibur's main loop, useful for pausing the game.
          */
@@ -7427,19 +7565,6 @@ declare module ex {
          * HTML Image Element.
          */
         screenshot(): HTMLImageElement;
-        /**
-         * Draws the Excalibur loading bar
-         * @param ctx     The canvas rendering context
-         * @param loaded  Number of bytes loaded
-         * @param total   Total number of bytes to load
-         */
-        private _drawLoadingBar(ctx, loaded, total);
-        /**
-         * Sets the loading screen draw function if you want to customize the draw
-         * @param fcn  Callback to draw the loading screen which is passed a rendering context, the number of bytes loaded, and the total
-         * number of bytes to load.
-         */
-        setLoadingDrawFunction(fcn: (ctx: CanvasRenderingContext2D, loaded: number, total: number) => void): void;
         /**
          * Another option available to you to load resources into the game.
          * Immediately after calling this the game will pause and the loading screen

@@ -21,21 +21,19 @@
     "javascript",
     "simple"
   ],
-  "scripts": {
-    "preinstall": "npm install -g typescript@1.6.2&&npm install -g istanbul"
-  },
   "devDependencies": {
     "grunt": "0.4.5",
     "grunt-contrib-concat": "0.1.2",
     "grunt-contrib-copy": "0.5.0",
     "grunt-contrib-watch": "0.6.1",
     "grunt-coveralls": "^1.0.0",
-    "grunt-jasmine-node-coverage": "^0.4.1",
     "grunt-minified": "0.0.6",
     "grunt-shell": "0.6.1",
     "grunt-tslint": "~2.3.0-beta",
+    "istanbul": "^0.4.3",
+    "jasmine": "^2.4.1",
+    "travis-ci": "^2.1.0",
     "tslint": "~2.3.0-beta",
-    "jasmine-node": "1.10.2",
-    "travis-ci": "2.0.3"
+    "typescript": "^1.8.10"
   }
 }

@@ -14,14 +14,12 @@
 	"command": "grunt",
 	"isShellCommand": true,
 	"showOutput": "silent",
-	"args": [],
-	
-   "tasks": [
-      {
-         "taskName": "compile",
-         "args": ["compile", "shell:specs"],
-         "isBuildCommand": true
-      }
-      
-   ]
+	"tasks": [
+            {
+                  "taskName": "compile",
+                  "args": [],
+                  "isBuildCommand": true,
+                  "problemMatcher": "$tsc"
+            }
+      ]	
 }

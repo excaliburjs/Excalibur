@@ -104,5 +104,13 @@ module Mocks {
          return mockWindow;
       };
       
+      URL() {
+         return {
+            createObjectURL(data: any) {
+               return 'blob://' + data;
+            }
+         };
+      }
+      
    }
 }

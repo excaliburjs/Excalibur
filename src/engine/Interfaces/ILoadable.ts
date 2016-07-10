@@ -20,6 +20,14 @@ module ex {
        * Begins loading the resource and returns a promise to be resolved on completion
        */
       load(): Promise<any>;
+      
+      getData(): any;
+      setData(data: any): void;
+      
+      /**
+       * Processes the downloaded data. Meant to be overridden.
+       */
+      processData(data: any): any;
 
       /**
        * Wires engine into loadable to receive game level events

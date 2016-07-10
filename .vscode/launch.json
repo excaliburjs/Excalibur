@@ -19,9 +19,9 @@
             "type": "node",
             "request": "launch",
             "preLaunchTask": "compile",            
-            "program": "${workspaceRoot}\\node_modules\\jasmine-node\\lib\\jasmine-node\\cli.js", // ${workspaceRoot}/src/spec/TestsSpec.js",
-            "args": ["TestsSpec.js"],
-            "cwd": "${workspaceRoot}\\src\\spec\\",
+            "program": "${workspaceRoot}\\node_modules\\jasmine\\bin\\jasmine.js", // ${workspaceRoot}/src/spec/TestsSpec.js",
+            "args": ["JASMINE_CONFIG_PATH=${workspaceRoot}\\src\\spec\\support\\jasmine.json"],
+            "cwd": "${workspaceRoot}\\src\\",
             "outDir": "${workspaceRoot}\\src\\spec\\",
             "sourceMaps": true
         }

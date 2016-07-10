@@ -507,7 +507,11 @@ module ex {
      * Direct access to the actor's [[ActionQueue]]. Useful if you are building custom actions.
      */
     public actionQueue: ex.Internal.Actions.ActionQueue;
-    public actions: ActionContext = new ActionContext(this);
+    
+    /**
+     * [[ActionContext|Action context]] of the actor. Useful for scripting actor behavior.
+     */
+    public actions: ActionContext;
     /**
      * Convenience reference to the global logger
      */
@@ -602,6 +606,7 @@ module ex {
        
        // Build the action queue
        this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
+       this.actions = new ActionContext(this);
        
        // default anchor is in the middle
        this.anchor = new Vector(.5, .5);
@@ -616,6 +621,7 @@ module ex {
        // in case of a nan moi, collesce to a safe default
        this.moi = this.collisionAreas[0].getMomentOfInertia() || this.moi;
     }
+
     /**
      * This is called before the first update of the actor. This method is meant to be
      * overridden. This is where initialization of child actors should take place.
@@ -664,12 +670,21 @@ module ex {
      */
     public kill() {
        if (this.scene) {
+          this.emit('kill', new ex.KillEvent(this));
           this.scene.remove(this);
           this._isKilled = true;
        } else {
           this.logger.warn('Cannot kill actor, it was never added to the Scene');
        }
     }
+    
+    /**
+     * If the current actor is killed, it will now not be killed. 
+     */
+    public unkill() {
+       this._isKilled = false;
+    }
+    
     /**
      * Indicates wether the actor has been killed.
      */
@@ -742,11 +757,11 @@ module ex {
      * Add minimum translation vectors accumulated during the current frame to resolve collisons.
      */ 
     public addMtv(mtv: Vector) {
-        this._totalMtv.addEquals(mtv);
+        this._totalMtv.addEqual(mtv);
     }
 
     public applyMtv(): void {
-       this.pos.addEquals(this._totalMtv);
+       this.pos.addEqual(this._totalMtv);
        this._totalMtv.setTo(0, 0);
     }
 
@@ -898,25 +913,25 @@ module ex {
      * Gets the left edge of the actor
      */
     public getLeft() {
-       return this.pos.x;
+       return this.getBounds().left;
     }
     /**
      * Gets the right edge of the actor
      */
     public getRight() {
-       return this.pos.x + this.getWidth();
+       return this.getBounds().right;
     }
     /**
      * Gets the top edge of the actor
      */
     public getTop() {
-       return this.pos.y;
+       return this.getBounds().top;
     }
     /**
      * Gets the bottom edge of the actor
      */
     public getBottom() {
-       return this.pos.y + this.getHeight();
+       return this.getBounds().bottom;
     }
     /**
      * Gets the x value of the Actor in global coordinates

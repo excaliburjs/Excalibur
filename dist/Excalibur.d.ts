@@ -194,6 +194,450 @@ declare module ex {
 }
 declare module ex {
     /**
+     * A 2D vector on a plane.
+     */
+    class Vector {
+        x: number;
+        y: number;
+        /**
+         * A (0, 0) vector
+         */
+        static Zero: Vector;
+        /**
+         * A unit vector pointing up (0, -1)
+         */
+        static Up: Vector;
+        /**
+         * A unit vector pointing down (0, 1)
+         */
+        static Down: Vector;
+        /**
+         * A unit vector pointing left (-1, 0)
+         */
+        static Left: Vector;
+        /**
+         * A unit vector pointing right (1, 0)
+         */
+        static Right: Vector;
+        /**
+         * Returns a vector of unit length in the direction of the specified angle in Radians.
+         * @param angle The angle to generate the vector
+         */
+        static fromAngle(angle: number): Vector;
+        /**
+         * @param x  X component of the Vector
+         * @param y  Y component of the Vector
+         */
+        constructor(x: number, y: number);
+        /**
+         * Sets the x and y components at once
+         */
+        setTo(x: number, y: number): void;
+        /**
+         * Compares this point against another and tests for equality
+         * @param point  The other point to compare to
+         */
+        equals(vector: Vector, tolerance?: number): boolean;
+        /**
+         * The distance to another vector
+         * @param v  The other vector
+         */
+        distance(v?: Vector): number;
+        /**
+         * Normalizes a vector to have a magnitude of 1.
+         */
+        normalize(): Vector;
+        /**
+         * Scales a vector's by a factor of size
+         * @param size  The factor to scale the magnitude by
+         */
+        scale(size: any): Vector;
+        /**
+         * Adds one vector to another
+         * @param v The vector to add
+         */
+        add(v: Vector): Vector;
+        /**
+         * Subtracts a vector from another, if you subract vector `B.sub(A)` the resulting vector points from A -> B
+         * @param v The vector to subtract
+         */
+        sub(v: Vector): Vector;
+        /**
+         * Adds one vector to this one modifying the original
+         * @param v The vector to add
+         */
+        addEqual(v: Vector): Vector;
+        /**
+         * Subtracts a vector from this one modifying the original
+         * @parallel v The vector to subtract
+         */
+        subEqual(v: Vector): Vector;
+        /**
+         * Scales this vector by a factor of size and modifies the original
+         */
+        scaleEqual(size: number): Vector;
+        /**
+         * Performs a dot product with another vector
+         * @param v  The vector to dot
+         */
+        dot(v: Vector): number;
+        /**
+         * Performs a 2D cross product with scalar. 2D cross products with a scalar return a vector.
+         * @param v  The vector to cross
+         */
+        cross(v: number): Vector;
+        /**
+         * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
+         * @param v  The vector to cross
+         */
+        cross(v: Vector): number;
+        /**
+         * Returns the perpendicular vector to this one
+         */
+        perpendicular(): Vector;
+        /**
+         * Returns the normal vector to this one, same as the perpendicular of length 1
+         */
+        normal(): Vector;
+        /**
+         * Negate the current vector
+         */
+        negate(): Vector;
+        /**
+         * Returns the angle of this vector.
+         */
+        toAngle(): number;
+        /**
+         * Rotates the current vector around a point by a certain number of
+         * degrees in radians
+         */
+        rotate(angle: number, anchor?: Vector): Vector;
+        /**
+         * Creates new vector that has the same values as the previous.
+         */
+        clone(): Vector;
+        /**
+         * Returns a string repesentation of the vector.
+         */
+        toString(): string;
+    }
+    /**
+     * A 2D ray that can be cast into the scene to do collision detection
+     */
+    class Ray {
+        pos: Vector;
+        dir: Vector;
+        /**
+         * @param pos The starting position for the ray
+         * @param dir The vector indicating the direction of the ray
+         */
+        constructor(pos: Vector, dir: Vector);
+        /**
+         * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
+         * This number indicates the mathematical intersection time.
+         * @param line  The line to test
+         */
+        intersect(line: Line): number;
+        /**
+         * Returns the point of intersection given the intersection time
+         */
+        getPoint(time: number): Vector;
+    }
+    /**
+     * A 2D line segment
+     */
+    class Line {
+        begin: Vector;
+        end: Vector;
+        /**
+         * @param begin  The starting point of the line segment
+         * @param end  The ending point of the line segment
+         */
+        constructor(begin: Vector, end: Vector);
+        /**
+         * Returns the slope of the line in the form of a vector
+         */
+        getSlope(): Vector;
+        /**
+         * Returns the length of the line segment in pixels
+         */
+        getLength(): number;
+    }
+    /**
+     * A 1 dimensional projection on an axis, used to test overlaps
+     */
+    class Projection {
+        min: number;
+        max: number;
+        constructor(min: number, max: number);
+        overlaps(projection: Projection): boolean;
+        overlap(projection: Projection): number;
+    }
+}
+declare module ex {
+    /**
+     * Collision contacts are used internally by Excalibur to resolve collision between actors. This
+     * Pair prevents collisions from being evaluated more than one time
+     */
+    class CollisionContact {
+        /**
+         * The id of this collision contact
+         */
+        id: string;
+        /**
+         * The first rigid body in the collision
+         */
+        bodyA: ICollisionArea;
+        /**
+         * The second rigid body in the collision
+         */
+        bodyB: ICollisionArea;
+        /**
+         * The minimum translation vector to resolve penetration, pointing away from bodyA
+         */
+        mtv: Vector;
+        /**
+         * The point of collision shared between bodyA and bodyB
+         */
+        point: Vector;
+        /**
+         * The collision normal, pointing away from bodyA
+         */
+        normal: Vector;
+        constructor(bodyA: ICollisionArea, bodyB: ICollisionArea, mtv: Vector, point: Vector, normal: Vector);
+        resolve(delta: number, strategy: CollisionResolutionStrategy): void;
+        private _resolveAABB(delta);
+        private _resolveRigidBody(delta);
+    }
+}
+declare module ex {
+    interface IDebugFlags {
+    }
+}
+declare module ex {
+    interface ICollisionArea {
+        /**
+         * Position of the collision area relative to the actor if it exists
+         */
+        pos: Vector;
+        actor: Actor;
+        getCenter(): Vector;
+        getFurthestPoint(direction: Vector): Vector;
+        getBounds(): BoundingBox;
+        getAxes(): Vector[];
+        getMomentOfInertia(): number;
+        collide(area: ICollisionArea): CollisionContact;
+        contains(point: Vector): boolean;
+        castRay(ray: Ray): Vector;
+        project(axis: Vector): Projection;
+        /**
+         * Recalculates internal caches
+         */
+        recalc(): void;
+        debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags): any;
+    }
+}
+declare module ex {
+    var CollisionJumpTable: {
+        CollideCircleCircle(circleA: CircleArea, circleB: CircleArea): CollisionContact;
+        CollideCirclePolygon(circle: CircleArea, polygon: PolygonArea): CollisionContact;
+        CollideCircleEdge(circle: CircleArea, edge: EdgeArea): CollisionContact;
+        CollideEdgeEdge(edgeA: EdgeArea, edgeB: EdgeArea): CollisionContact;
+        CollidePolygonEdge(polygon: PolygonArea, edge: EdgeArea): CollisionContact;
+        CollidePolygonPolygon(polyA: PolygonArea, polyB: PolygonArea): CollisionContact;
+    };
+}
+declare module ex {
+    interface ICircleAreaOptions {
+        pos?: Vector;
+        radius?: number;
+        actor?: Actor;
+    }
+    /**
+     * This is a circle collision area for the excalibur rigid body physics simulation
+     */
+    class CircleArea implements ICollisionArea {
+        /**
+         * This is the center position of the circle, relative to the actor position
+         */
+        pos: Vector;
+        /**
+         * This is the radius of the circle
+         */
+        radius: number;
+        /**
+         * The actor associated with this collision area
+         */
+        actor: Actor;
+        contructor(options: ICircleAreaOptions): void;
+        /**
+         * Get the center of the collision area in world coordinates
+         */
+        getCenter(): Vector;
+        /**
+         * Tests if a point is contained in this collision area
+         */
+        contains(point: Vector): boolean;
+        /**
+         * Casts a ray at the CircleArea and returns the nearest point of collision
+         * @param ray
+         */
+        castRay(ray: Ray): Vector;
+        collide(area: ICollisionArea): CollisionContact;
+        /**
+         * Find the point on the shape furthest in the direction specified
+         */
+        getFurthestPoint(direction: Vector): Vector;
+        /**
+         * Get the axis aligned bounding box for the circle area
+         */
+        getBounds(): BoundingBox;
+        /**
+         * Get axis not implemented on circles, since their are infinite axis
+         */
+        getAxes(): Vector[];
+        /**
+         * Returns the moment of intertia of a circle given it's mass
+         * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
+         * @param mass
+         */
+        getMomentOfInertia(): number;
+        testSeparatingAxisTheorem(polygon: PolygonArea): Vector;
+        recalc(): void;
+        /**
+         * Project the circle along a specified axis
+         */
+        project(axis: Vector): Projection;
+        debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags): void;
+    }
+}
+declare module ex {
+    interface IEdgeAreaOptions {
+        begin?: Vector;
+        end?: Vector;
+        actor?: Actor;
+    }
+    class EdgeArea implements ICollisionArea {
+        actor: Actor;
+        pos: Vector;
+        begin: Vector;
+        end: Vector;
+        constructor(options: IEdgeAreaOptions);
+        /**
+         * Get the center of the collision area in world coordinates
+         */
+        getCenter(): Vector;
+        /**
+         * Tests if a point is contained in this collision area
+         */
+        contains(point: Vector): boolean;
+        castRay(ray: Ray): Vector;
+        collide(area: ICollisionArea): CollisionContact;
+        /**
+         * Find the point on the shape furthest in the direction specified
+         */
+        getFurthestPoint(direction: Vector): Vector;
+        /**
+         * Get the axis aligned bounding box for the circle area
+         */
+        getBounds(): BoundingBox;
+        /**
+         * Get the axis associated with the edge
+         */
+        getAxes(): Vector[];
+        /**
+         * Get the momemnt of inertia for an edge
+         * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
+         */
+        getMomentOfInertia(): number;
+        recalc(): void;
+        /**
+         * Project the edge along a specified axis
+         */
+        project(axis: Vector): Projection;
+        debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags): void;
+    }
+}
+declare module ex {
+    interface IPolygonAreaOptions {
+        pos?: Vector;
+        points?: Vector[];
+        clockwiseWinding?: boolean;
+        actor?: Actor;
+    }
+    /**
+     * Polygon collision area for detecting collisions for actors, or independently
+     */
+    class PolygonArea implements ICollisionArea {
+        pos: Vector;
+        points: Vector[];
+        actor: Actor;
+        private _transformedPoints;
+        private _axes;
+        private _sides;
+        constructor(options: IPolygonAreaOptions);
+        /**
+         * Get the center of the collision area in world coordinates
+         */
+        getCenter(): Vector;
+        /**
+         * Calculates the underlying transformation from actor relative space to world space
+         */
+        private _calculateTransformation();
+        /**
+         * Gets the points that make up the polygon in world space, from actor relative space (if specified)
+         */
+        getTransformedPoints(): Vector[];
+        /**
+         * Gets the sides of the polygon in world space
+         */
+        getSides(): Line[];
+        recalc(): void;
+        /**
+         * Tests if a point is contained in this collision area in world space
+         */
+        contains(point: Vector): boolean;
+        /**
+         * Returns a collision contact if the 2 collision areas collide, otherwise collide will
+         * return null.
+         * @param area
+         */
+        collide(area: ICollisionArea): CollisionContact;
+        /**
+         * Find the point on the shape furthest in the direction specified
+         */
+        getFurthestPoint(direction: Vector): Vector;
+        /**
+         * Get the axis aligned bounding box for the circle area
+         */
+        getBounds(): BoundingBox;
+        /**
+         * Get the moment of inertia for an arbitrary polygon
+         * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
+         */
+        getMomentOfInertia(): number;
+        /**
+         * Casts a ray into the polygon and returns a vector representing the point of contact (in world space) or null if no collision.
+         */
+        castRay(ray: Ray): Vector;
+        /**
+         * Get the axis associated with the edge
+         */
+        getAxes(): Vector[];
+        /**
+         * Perform Separating Axis test against another polygon, returns null if no overlap in polys
+         * Reference http://www.dyn4j.org/2010/01/sat/
+         */
+        testSeparatingAxisTheorem(other: PolygonArea): Vector;
+        /**
+         * Project the edges of the polygon along a specified axis
+         */
+        project(axis: Vector): Projection;
+        debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags): void;
+    }
+}
+declare module ex {
+    /**
      * An interface describing actor update pipeline traits
      */
     interface IActorTrait {
@@ -262,168 +706,6 @@ declare module ex {
         Right = 4,
     }
 }
-declare module ex {
-    /**
-     * A 2D vector on a plane.
-     */
-    class Vector {
-        x: number;
-        y: number;
-        /**
-         * A (0, 0) vector
-         */
-        static Zero: Vector;
-        /**
-         * Returns a vector of unit length in the direction of the specified angle in Radians.
-         * @param angle The angle to generate the vector
-         */
-        static fromAngle(angle: number): Vector;
-        /**
-         * @param x  X component of the Vector
-         * @param y  Y component of the Vector
-         */
-        constructor(x: number, y: number);
-        /**
-         * Sets the x and y components at once
-         */
-        setTo(x: number, y: number): void;
-        /**
-         * Compares this point against another and tests for equality
-         * @param point  The other point to compare to
-         */
-        equals(vector: Vector, tolerance?: number): boolean;
-        /**
-         * The distance to another vector
-         * @param v  The other vector
-         */
-        distance(v?: Vector): number;
-        /**
-         * Normalizes a vector to have a magnitude of 1.
-         */
-        normalize(): Vector;
-        /**
-         * Scales a vector's by a factor of size
-         * @param size  The factor to scale the magnitude by
-         */
-        scale(size: any): Vector;
-        /**
-         * Adds one vector to another
-         * @param v The vector to add
-         */
-        add(v: Vector): Vector;
-        /**
-         * Subtracts a vector from another, alias for minus
-         * @param v The vector to subtract
-         */
-        sub(v: Vector): Vector;
-        /**
-         * Adds one vector to this one modifying the original
-         * @param v The vector to add
-         */
-        addEquals(v: Vector): Vector;
-        /**
-         * Subtracts a vector from this one modifying the original
-         * @parallel v The vector to subtract
-         */
-        subEquals(v: Vector): Vector;
-        /**
-         * Scales this vector by a factor of size and modifies the original
-         */
-        scaleEquals(size: number): Vector;
-        /**
-         * Performs a dot product with another vector
-         * @param v  The vector to dot
-         */
-        dot(v: Vector): number;
-        /**
-         * Performs a 2D cross product with scalar. 2D cross products with a scalar return a vector.
-         * @param v  The vector to cross
-         */
-        cross(v: number): Vector;
-        /**
-         * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
-         * @param v  The vector to cross
-         */
-        cross(v: Vector): number;
-        /**
-         * Returns the perpendicular vector to this one
-         */
-        perpendicular(): Vector;
-        /**
-         * Returns the normal vector to this one
-         */
-        normal(): Vector;
-        /**
-         * Negate the current vector
-         */
-        negate(): Vector;
-        /**
-         * Returns the angle of this vector.
-         */
-        toAngle(): number;
-        /**
-         * Rotates the current vector around a point by a certain number of
-         * degrees in radians
-         */
-        rotate(angle: number, anchor?: Vector): Vector;
-        /**
-         * Creates new vector that has the same values as the previous.
-         */
-        clone(): Vector;
-    }
-    /**
-     * A 2D ray that can be cast into the scene to do collision detection
-     */
-    class Ray {
-        pos: Vector;
-        dir: Vector;
-        /**
-         * @param pos The starting position for the ray
-         * @param dir The vector indicating the direction of the ray
-         */
-        constructor(pos: Vector, dir: Vector);
-        /**
-         * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
-         * This number indicates the mathematical intersection time.
-         * @param line  The line to test
-         */
-        intersect(line: Line): number;
-        /**
-         * Returns the point of intersection given the intersection time
-         */
-        getPoint(time: number): Vector;
-    }
-    /**
-     * A 2D line segment
-     */
-    class Line {
-        begin: Vector;
-        end: Vector;
-        /**
-         * @param begin  The starting point of the line segment
-         * @param end  The ending point of the line segment
-         */
-        constructor(begin: Vector, end: Vector);
-        /**
-         * Returns the slope of the line in the form of a vector
-         */
-        getSlope(): Vector;
-        /**
-         * Returns the length of the line segment in pixels
-         */
-        getLength(): number;
-    }
-    /**
-     * A 1 dimensional projection on an axis, used to test overlaps
-     */
-    class Projection {
-        min: number;
-        max: number;
-        constructor(min: number, max: number);
-        overlaps(projection: Projection): boolean;
-        getOverlap(projection: Projection): number;
-    }
-}
 /**
  * Utilities
  *
@@ -444,6 +726,7 @@ declare module ex.Util {
     function removeItemToArray<T>(item: T, array: T[]): boolean;
     function contains(array: Array<any>, obj: any): boolean;
     function getOppositeSide(side: ex.Side): Side;
+    function getSideFromVector(direction: Vector): Side;
     /**
      * Excaliburs dynamically resizing collection
      */
@@ -1242,10 +1525,9 @@ declare module ex {
     }
 }
 declare module ex {
-    enum CollisionStrategy {
+    enum BroadphaseStrategy {
         Naive = 0,
         DynamicAABBTree = 1,
-        SeparatingAxis = 2,
     }
     /**
      * Interface all collidable objects must implement
@@ -1255,7 +1537,8 @@ declare module ex {
          * Test whether this bounding box collides with another one.
          *
          * @param collidable  Other collidable to test
-         * @returns           The intersection vector that can be used to resolve the collision. If there is no collision, `null` is returned.
+         * @returns Vector The intersection vector that can be used to resolve the collision.
+         * If there is no collision, `null` is returned.
          */
         collides(collidable: ICollidable): Vector;
         /**
@@ -1292,6 +1575,11 @@ declare module ex {
          * Returns the perimeter of the bounding box
          */
         getPerimeter(): number;
+        getPoints(): Vector[];
+        /**
+         * Creates a Polygon collision area from the points of the bounding box
+         */
+        toPolygon(actor?: Actor): PolygonArea;
         /**
          * Tests wether a point is contained within the bounding box
          * @param p  The point to test
@@ -1315,6 +1603,68 @@ declare module ex {
          */
         collides(collidable: ICollidable): Vector;
         debugDraw(ctx: CanvasRenderingContext2D): void;
+    }
+}
+declare module ex {
+    class Body {
+        /**
+         * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default.
+         * If you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0).
+         */
+        pos: Vector;
+        /**
+         * The position of the actor last frame (x, y) in pixels
+         */
+        oldPos: Vector;
+        /**
+         * The current velocity vector (vx, vy) of the actor in pixels/second
+         */
+        vel: Vector;
+        /**
+         * The velocity of the actor last frame (vx, vy) in pixels/second
+         */
+        oldVel: Vector;
+        /**
+         * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may
+         * be useful to simulate a gravitational effect.
+         */
+        acc: Vector;
+        /**
+         * The current torque applied to the actor
+         */
+        torque: number;
+        /**
+         * The current mass of the actor, mass can be thought of as the resistance to acceleration.
+         */
+        mass: number;
+        /**
+         * The current momemnt of inertia, moi can be thought of as the resistance to rotation.
+         */
+        moi: number;
+        /**
+         * The current "motion" of the actor, used to calculated sleep in the physics simulation
+         */
+        motion: number;
+        /**
+         * This idicates whether the current actor is asleep in the physics simulation
+         */
+        sleeping: boolean;
+        /**
+         * The coefficient of friction on this actor
+         */
+        friction: number;
+        /**
+         * The coefficient of restitution of this actor, represents the amount of energy preserved after collision
+         */
+        restitution: number;
+        /**
+         * The rotation of the actor in radians
+         */
+        rotation: number;
+        /**
+         * The rotational velocity of the actor in radians/second
+         */
+        rx: number;
     }
 }
 declare module ex {
@@ -1435,16 +1785,16 @@ declare module ex {
     }
 }
 declare module ex {
-    interface ICollisionResolver {
+    interface ICollisionBroadphase {
         register(target: Actor): any;
         remove(tartet: Actor): any;
-        evaluate(targets: Actor[]): CollisionPair[];
-        update(targets: Actor[]): number;
+        resolve(targets: Actor[], delta: number): CollisionContact[];
+        update(targets: Actor[], delta: number): number;
         debugDraw(ctx: any, delta: any): void;
     }
 }
 declare module ex {
-    class NaiveCollisionResolver implements ICollisionResolver {
+    class NaiveCollisionBroadphase {
         register(target: Actor): void;
         remove(tartet: Actor): void;
         evaluate(targets: Actor[]): CollisionPair[];
@@ -1483,12 +1833,14 @@ declare module ex {
     }
 }
 declare module ex {
-    class DynamicTreeCollisionResolver implements ICollisionResolver {
+    class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
         private _dynamicCollisionTree;
+        private _collisionHash;
+        private _collisionContactCache;
         register(target: Actor): void;
         remove(target: Actor): void;
-        evaluate(targets: Actor[]): CollisionPair[];
-        update(targets: Actor[]): number;
+        resolve(targets: Actor[], delta: number): CollisionContact[];
+        update(targets: Actor[], delta: number): number;
         debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
     }
 }
@@ -2136,7 +2488,7 @@ declare module ex {
          * @param duration  The time it should take the actor to move to the new location in milliseconds
          * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
          */
-        easeTo(x: number, y: number, duration: number, easingFcn?: (currentTime: number, startValue: number, endValue: number, duration: number) => number): ActionContext;
+        easeTo(x: number, y: number, duration: number, easingFcn?: (currentTime: number, startValue: number, endValue: number, duration: number) => number): this;
         /**
          * This method will move an actor to the specified x and y position at the
          * speed specified (in pixels per second) and return back the actor. This
@@ -2161,16 +2513,18 @@ declare module ex {
          * method is part of the actor 'Action' fluent API allowing action chaining.
          * @param angleRadians  The angle to rotate to in radians
          * @param speed         The angular velocity of the rotation specified in radians per second
+         * @param rotationType  The [[RotationType]] to use for this rotation
          */
-        rotateTo(angleRadians: number, speed: number): ActionContext;
+        rotateTo(angleRadians: number, speed: number, rotationType?: RotationType): ActionContext;
         /**
          * This method will rotate an actor to the specified angle by a certain
          * time (in milliseconds) and return back the actor. This method is part
          * of the actor 'Action' fluent API allowing action chaining.
          * @param angleRadians  The angle to rotate to in radians
          * @param time          The time it should take the actor to complete the rotation in milliseconds
+         * @param rotationType  The [[RotationType]] to use for this rotation
          */
-        rotateBy(angleRadians: number, time: number): ActionContext;
+        rotateBy(angleRadians: number, time: number, rotationType?: RotationType): ActionContext;
         /**
          * This method will scale an actor to the specified size at the speed
          * specified (in magnitude increase per second) and return back the
@@ -2505,7 +2859,7 @@ declare module ex {
          */
         isInitialized: boolean;
         private _sortedDrawingTree;
-        private _collisionResolver;
+        private _broadphase;
         private _killQueue;
         private _timers;
         private _cancelQueue;
@@ -2985,28 +3339,26 @@ declare module ex {
          * The unique identifier for the actor
          */
         id: number;
-        /**
-         * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default. If
-         * you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0).
-         */
+        body: Body;
+        x: number;
+        y: number;
         pos: Vector;
-        /**
-         * The position of the actor last frame (x, y) in pixels
-         */
         oldPos: Vector;
-        /**
-         * The current velocity vector (vx, vy) of the actor in pixels/second
-         */
         vel: Vector;
-        /**
-         * The velocity of the actor last frame (vx, vy) in pixels/second
-         */
         oldVel: Vector;
         /**
          * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be
          * useful to simulate a gravitational effect.
          */
         acc: Vector;
+        /**
+         * The rotation of the actor in radians
+         */
+        rotation: number;
+        /**
+         * The rotational velocity of the actor in radians/second
+         */
+        rx: number;
         /**
          * The current torque applied to the actor
          */
@@ -3047,15 +3399,11 @@ declare module ex {
         anchor: Vector;
         private _height;
         private _width;
+        /**
+         * Collision maintenance
+         */
+        private _collisionContacts;
         private _totalMtv;
-        /**
-         * The rotation of the actor in radians
-         */
-        rotation: number;
-        /**
-         * The rotational velocity of the actor in radians/second
-         */
-        rx: number;
         /**
          * The scale vector of the actor
          */
@@ -3086,6 +3434,9 @@ declare module ex {
          * Direct access to the actor's [[ActionQueue]]. Useful if you are building custom actions.
          */
         actionQueue: ex.Internal.Actions.ActionQueue;
+        /**
+         * [[ActionContext|Action context]] of the actor. Useful for scripting actor behavior.
+         */
         actions: ActionContext;
         /**
          * Convenience reference to the global logger
@@ -3109,6 +3460,7 @@ declare module ex {
          */
         collisionType: CollisionType;
         collisionGroups: string[];
+        collisionAreas: ICollisionArea[];
         private _collisionHandlers;
         private _isInitialized;
         frames: {
@@ -3180,6 +3532,10 @@ declare module ex {
          */
         kill(): void;
         /**
+         * If the current actor is killed, it will now not be killed.
+         */
+        unkill(): void;
+        /**
          * Indicates wether the actor has been killed.
          */
         isKilled(): boolean;
@@ -3210,11 +3566,12 @@ declare module ex {
         /**
          * Set whether the actor is awake
          */
-        setAwake(wake: boolean): void;
+        setSleep(sleep: boolean): void;
         /**
          * Add minimum translation vectors accumulated during the current frame to resolve collisons.
          */
         addMtv(mtv: Vector): void;
+        applyMtv(): void;
         /**
          * Check if the current actor can go to sleep.
          */
@@ -3233,6 +3590,7 @@ declare module ex {
          * @param drawing This can be an [[Animation]], [[Sprite]], or [[Polygon]].
          */
         addDrawing(key: any, drawing: IDrawable): any;
+        z: number;
         /**
          * Gets the z-index of an actor. The z-index determines the relative order an actor is drawn in.
          * Actors with a higher z-index are drawn on top of actors with a lower z-index
@@ -3260,6 +3618,11 @@ declare module ex {
          * @param name The name of the collision group
          */
         removeCollisionGroup(name: string): void;
+        /**
+         * Calculates the unique pair hash between two actors
+         * @param other
+         */
+        calculatePairHash(other: Actor): string;
         /**
          * Get the center point of an actor
          */
@@ -3314,9 +3677,13 @@ declare module ex {
          */
         getGlobalScale(): any;
         /**
-         * Returns the actor's [[BoundingBox]] calculated for this instant.
+         * Returns the actor's [[BoundingBox]] calculated for this instant in world space.
          */
         getBounds(): BoundingBox;
+        /**
+         * Returns the actor's [[BoundingBox]] relative to the actors position.
+         */
+        getRelativeBounds(): BoundingBox;
         /**
          * Tests whether the x/y specified are contained in the actor
          * @param x  X coordinate to test (in world coordinates)
@@ -3377,7 +3744,7 @@ declare module ex {
          * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
          * @obsolete Use [[ActionContext.easeTo|Actor.actions.easeTo]]
          */
-        easeTo(x: number, y: number, duration: number, easingFcn?: (currentTime: number, startValue: number, endValue: number, duration: number) => number): Actor;
+        easeTo(x: number, y: number, duration: number, easingFcn?: (currentTime: number, startValue: number, endValue: number, duration: number) => number): this;
         /**
          * This method will move an actor to the specified `x` and `y` position at the
          * `speed` specified (in pixels per second) and return back the actor. This
@@ -3727,6 +4094,13 @@ declare module ex {
          * Target object for this event.
          */
         target: any;
+    }
+    /**
+     * The 'kill' event is emitted on actors when it is killed. The target is the actor that was killed.
+     */
+    class KillEvent extends GameEvent {
+        target: any;
+        constructor(target: any);
     }
     /**
      * The 'predraw' event is emitted on actors, scenes, and engine before drawing starts. Actors' predraw happens inside their graphics
@@ -4273,11 +4647,417 @@ declare module ex {
     }
 }
 declare module ex {
+    /**
+     * Loadables
+     *
+     * An interface describing loadable resources in Excalibur. Built-in loadable
+     * resources include [[Texture]], [[Sound]], and a generic [[Resource]].
+     *
+     * ## Advanced: Custom loadables
+     *
+     * You can implement the [[ILoadable]] interface to create your own custom loadables.
+     * This is an advanced feature, as the [[Resource]] class already wraps logic around
+     * blob/plain data for usages like JSON, configuration, levels, etc through XHR (Ajax).
+     *
+     * However, as long as you implement the facets of a loadable, you can create your
+     * own.
+     */
+    interface ILoadable {
+        /**
+         * Begins loading the resource and returns a promise to be resolved on completion
+         */
+        load(): Promise<any>;
+        getData(): any;
+        setData(data: any): void;
+        /**
+         * Processes the downloaded data. Meant to be overridden.
+         */
+        processData(data: any): any;
+        /**
+         * Wires engine into loadable to receive game level events
+         */
+        wireEngine(engine: Engine): void;
+        /**
+         * onprogress handler
+         */
+        onprogress: (e: any) => void;
+        /**
+         * oncomplete handler
+         */
+        oncomplete: () => void;
+        /**
+         * onerror handler
+         */
+        onerror: (e: any) => void;
+        /**
+         * Returns true if the loadable is loaded
+         */
+        isLoaded(): boolean;
+    }
+}
+declare module ex {
+    /**
+     * Generic Resources
+     *
+     * The [[Resource]] type allows games built in Excalibur to load generic resources.
+     * For any type of remote resource it is recommended to use [[Resource]] for preloading.
+     *
+     * [[Resource]] is an [[ILoadable]] so it can be passed to a [[Loader]] to pre-load before
+     * a level or game.
+     *
+     * Example usages: JSON, compressed files, blobs.
+     *
+     * ## Pre-loading generic resources
+     *
+     * ```js
+     * var resLevel1 = new ex.Resource("/assets/levels/1.json", "application/json");
+     * var loader = new ex.Loader(resLevel1);
+     *
+     * // attach a handler to process once loaded
+     * resLevel1.processData = function (data) {
+     *
+     *   // process JSON
+     *   var json = JSON.parse(data);
+     *
+     *   // create a new level (inherits Scene) with the JSON configuration
+     *   var level = new Level(json);
+     *
+     *   // add a new scene
+     *   game.add(level.name, level);
+     * }
+     *
+     * game.start(loader);
+     * ```
+     */
+    class Resource<T> extends Class implements ILoadable {
+        path: string;
+        responseType: string;
+        bustCache: boolean;
+        data: T;
+        logger: Logger;
+        private _engine;
+        /**
+         * @param path          Path to the remote resource
+         * @param responseType  The Content-Type to expect (e.g. `application/json`)
+         * @param bustCache     Whether or not to cache-bust requests
+         */
+        constructor(path: string, responseType: string, bustCache?: boolean);
+        /**
+         * Returns true if the Resource is completely loaded and is ready
+         * to be drawn.
+         */
+        isLoaded(): boolean;
+        wireEngine(engine: Engine): void;
+        private _cacheBust(uri);
+        private _start(e);
+        /**
+         * Begin loading the resource and returns a promise to be resolved on completion
+         */
+        load(): Promise<T>;
+        /**
+         * Returns the loaded data once the resource is loaded
+         */
+        getData(): any;
+        /**
+         * Sets the data for this resource directly
+         */
+        setData(data: any): void;
+        /**
+         * This method is meant to be overriden to handle any additional
+         * processing. Such as decoding downloaded audio bits.
+         */
+        processData(data: T): any;
+        onprogress: (e: any) => void;
+        oncomplete: () => void;
+        onerror: (e: any) => void;
+    }
+}
+declare module ex {
+    /**
+     * Valid states for a promise to be in
+     */
+    enum PromiseState {
+        Resolved = 0,
+        Rejected = 1,
+        Pending = 2,
+    }
+    interface IPromise<T> {
+        then(successCallback?: (value?: T) => any, rejectCallback?: (value?: T) => any): IPromise<T>;
+        error(rejectCallback?: (value?: any) => any): IPromise<T>;
+        resolve(value?: T): IPromise<T>;
+        reject(value?: any): IPromise<T>;
+        state(): PromiseState;
+    }
+    /**
+     * Promises/A+ spec implementation of promises
+     *
+     * Promises are used to do asynchronous work and they are useful for
+     * creating a chain of actions. In Excalibur they are used for loading,
+     * sounds, animation, actions, and more.
+     *
+     * ## A Promise Chain
+     *
+     * Promises can be chained together and can be useful for creating a queue
+     * of functions to be called when something is done.
+     *
+     * The first [[Promise]] you will encounter is probably [[Engine.start]]
+     * which resolves when the game has finished loading.
+     *
+     * ```js
+     * var game = new ex.Engine();
+     *
+     * // perform start-up logic once game is ready
+     * game.start().then(function () {
+     *
+     *   // start-up & initialization logic
+     *
+     * });
+     * ```
+     *
+     * ## Handling errors
+     *
+     * You can optionally pass an error handler to [[Promise.then]] which will handle
+     * any errors that occur during Promise execution.
+     *
+     * ```js
+     * var game = new ex.Engine();
+     *
+     * game.start().then(
+     *   // success handler
+     *   function () {
+     *   },
+     *
+     *   // error handler
+     *   function (err) {
+     *   }
+     * );
+     * ```
+     *
+     * Any errors that go unhandled will be bubbled up to the browser.
+     */
+    class Promise<T> implements IPromise<T> {
+        private _state;
+        private _value;
+        private _successCallbacks;
+        private _rejectCallback;
+        private _errorCallback;
+        private _logger;
+        /**
+         * Wrap a value in a resolved promise
+         * @param value  An optional value to wrap in a resolved promise
+         */
+        static wrap<T>(value?: T): Promise<T>;
+        /**
+         * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
+         * when at least 1 promise rejects.
+         */
+        static join<T>(...promises: Promise<T>[]): Promise<T>;
+        /**
+         * Chain success and reject callbacks after the promise is resovled
+         * @param successCallback  Call on resolution of promise
+         * @param rejectCallback   Call on rejection of promise
+         */
+        then(successCallback?: (value?: T) => any, rejectCallback?: (value?: any) => any): this;
+        /**
+         * Add an error callback to the promise
+         * @param errorCallback  Call if there was an error in a callback
+         */
+        error(errorCallback?: (value?: any) => any): this;
+        /**
+         * Resolve the promise and pass an option value to the success callbacks
+         * @param value  Value to pass to the success callbacks
+         */
+        resolve(value?: T): Promise<T>;
+        /**
+         * Reject the promise and pass an option value to the reject callbacks
+         * @param value  Value to pass to the reject callbacks
+         */
+        reject(value?: any): this;
+        /**
+         * Inpect the current state of a promise
+         */
+        state(): PromiseState;
+        private _handleError(e);
+    }
+}
+declare module ex {
+    /**
+     * Textures
+     *
+     * The [[Texture]] object allows games built in Excalibur to load image resources.
+     * [[Texture]] is an [[ILoadable]] which means it can be passed to a [[Loader]]
+     * to pre-load before starting a level or game.
+     *
+     * Textures are the raw image so to add a drawing to a game, you must create
+     * a [[Sprite]]. You can use [[Texture.asSprite]] to quickly generate a Sprite
+     * instance.
+     *
+     * ## Pre-loading textures
+     *
+     * Pass the [[Texture]] to a [[Loader]] to pre-load the asset. Once a [[Texture]]
+     * is loaded, you can generate a [[Sprite]] with it.
+     *
+     * ```js
+     * var txPlayer = new ex.Texture("/assets/tx/player.png");
+     *
+     * var loader = new ex.Loader(txPlayer);
+     *
+     * game.start(loader).then(function () {
+     *
+     *   var player = new ex.Actor();
+     *
+     *   player.addDrawing(txPlayer);
+     *
+     *   game.add(player);
+     * });
+     * ```
+     */
+    class Texture extends Resource<HTMLImageElement> {
+        path: string;
+        bustCache: boolean;
+        /**
+         * The width of the texture in pixels
+         */
+        width: number;
+        /**
+         * The height of the texture in pixels
+         */
+        height: number;
+        /**
+         * A [[Promise]] that resolves when the Texture is loaded.
+         */
+        loaded: Promise<any>;
+        private _isLoaded;
+        private _sprite;
+        /**
+         * Populated once loading is complete
+         */
+        image: HTMLImageElement;
+        private _progressCallback;
+        private _doneCallback;
+        private _errorCallback;
+        /**
+         * @param path       Path to the image resource
+         * @param bustCache  Optionally load texture with cache busting
+         */
+        constructor(path: string, bustCache?: boolean);
+        /**
+         * Returns true if the Texture is completely loaded and is ready
+         * to be drawn.
+         */
+        isLoaded(): boolean;
+        /**
+         * Begins loading the texture and returns a promise to be resolved on completion
+         */
+        load(): Promise<HTMLImageElement>;
+        asSprite(): Sprite;
+    }
+}
+declare module ex {
+    /**
+     * Sounds
+     *
+     * The [[Sound]] object allows games built in Excalibur to load audio
+     * components, from soundtracks to sound effects. [[Sound]] is an [[ILoadable]]
+     * which means it can be passed to a [[Loader]] to pre-load before a game or level.
+     *
+     * ## Pre-loading sounds
+     *
+     * Pass the [[Sound]] to a [[Loader]] to pre-load the asset. Once a [[Sound]]
+     * is loaded, you can [[Sound.play|play]] it.
+     *
+     * ```js
+     * // define multiple sources (such as mp3/wav/ogg) as a browser fallback
+     * var sndPlayerDeath = new ex.Sound("/assets/snd/player-death.mp3", "/assets/snd/player-death.wav");
+     *
+     * var loader = new ex.Loader(sndPlayerDeath);
+     *
+     * game.start(loader).then(function () {
+     *
+     *   sndPlayerDeath.play();
+     * });
+     * ```
+     */
+    class Sound implements ILoadable, ex.Internal.ISound {
+        private _logger;
+        path: string;
+        onprogress: (e: any) => void;
+        oncomplete: () => void;
+        onerror: (e: any) => void;
+        onload: (e: any) => void;
+        private _isLoaded;
+        private _engine;
+        private _wasPlayingOnHidden;
+        /**
+         * Populated once loading is complete
+         */
+        sound: ex.Internal.FallbackAudio;
+        /**
+         * Whether or not the browser can play this file as HTML5 Audio
+         */
+        static canPlayFile(file: string): boolean;
+        /**
+         * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
+         */
+        constructor(...paths: string[]);
+        wireEngine(engine: Engine): void;
+        /**
+         * Sets the volume of the sound clip
+         * @param volume  A volume value between 0-1.0
+         */
+        setVolume(volume: number): void;
+        /**
+         * Indicates whether the clip should loop when complete
+         * @param loop  Set the looping flag
+         */
+        setLoop(loop: boolean): void;
+        /**
+         * Whether or not the sound is playing right now
+         */
+        isPlaying(): boolean;
+        /**
+         * Play the sound, returns a promise that resolves when the sound is done playing
+         */
+        play(): ex.Promise<any>;
+        /**
+         * Stop the sound, and do not rewind
+         */
+        pause(): void;
+        /**
+         * Stop the sound and rewind
+         */
+        stop(): void;
+        /**
+         * Returns true if the sound is loaded
+         */
+        isLoaded(): boolean;
+        /**
+         * Begins loading the sound and returns a promise to be resolved on completion
+         */
+        load(): Promise<ex.Internal.FallbackAudio>;
+        getData(): any;
+        setData(data: any): void;
+        processData(data: any): any;
+    }
+}
+declare module ex {
+    enum CollisionResolutionStrategy {
+        Box = 0,
+        RigidBody = 1,
+    }
     interface IEnginePhysics {
         /**
          * Global engine acceleration, useful for defining consitent gravity on all actors
          */
         acc: Vector;
+        /**
+         * Global to switch physics on or off (switching physics off will improve performance)
+         */
+        on: boolean;
+        /**
+         * Default mass of new actors created in excalibur
+         */
+        defaultMass: number;
         /**
          * Number of pos/vel integration steps
          */
@@ -4290,6 +5070,18 @@ declare module ex {
          * Number of collision resultion passes
          */
         collisionPasses: number;
+        /**
+         * Broadphase strategy for identifying potential collision contacts
+         */
+        broadphaseStrategy: BroadphaseStrategy;
+        /**
+         * Collision resolution strategy for handling collision contacts
+         */
+        collisionResolutionStrategy: CollisionResolutionStrategy;
+        /**
+         *
+         */
+        enableSleeping: boolean;
         /**
          * The epsilon below which objects go to sleep
          */
@@ -4771,11 +5563,16 @@ declare module ex.Internal {
         pause(): any;
         stop(): any;
         load(): any;
+        setData(data: any): any;
+        getData(): any;
+        processData(data: any): any;
         onload: (e: any) => void;
         onprogress: (e: any) => void;
         onerror: (e: any) => void;
+        path: string;
     }
     class FallbackAudio implements ISound {
+        path: string;
         private _soundImpl;
         private _log;
         constructor(path: string, volume?: number);
@@ -4785,6 +5582,9 @@ declare module ex.Internal {
         onprogress: (e: any) => void;
         onerror: (e: any) => void;
         load(): void;
+        processData(data: any): any;
+        getData(): any;
+        setData(data: any): void;
         isPlaying(): boolean;
         play(): ex.Promise<any>;
         pause(): void;
@@ -4810,16 +5610,19 @@ declare module ex.Internal {
         onprogress: (e: any) => void;
         onerror: (e: any) => void;
         load(): void;
+        getData(): any;
+        setData(data: any): void;
+        processData(data: any): any;
         play(): Promise<any>;
         pause(): void;
         stop(): void;
     }
     class WebAudio implements ISound {
+        path: string;
         private _context;
         private _volume;
         private _buffer;
         private _sound;
-        private _path;
         private _isLoaded;
         private _loop;
         private _isPlaying;
@@ -4828,397 +5631,38 @@ declare module ex.Internal {
         private _currentOffset;
         private _playPromise;
         private _logger;
-        constructor(soundPath: string, volume?: number);
+        private _data;
+        constructor(path: string, volume?: number);
         setVolume(volume: number): void;
         onload: (e: any) => void;
         onprogress: (e: any) => void;
         onerror: (e: any) => void;
         load(): void;
+        getData(): any;
+        setData(data: any): void;
+        processData(data: any): any;
         setLoop(loop: boolean): void;
         isPlaying(): boolean;
         play(): Promise<any>;
         pause(): void;
         stop(): void;
+        private static _unlocked;
+        /**
+         * Play an empty sound to unlock Safari WebAudio context. Call this function
+         * right after a user interaction event. Typically used by [[PauseAfterLoader]]
+         * @source https://paulbakaus.com/tutorials/html5/web-audio-on-ios/
+         */
+        static unlock(): void;
+        static isUnlocked(): boolean;
     }
 }
 declare module ex {
-    /**
-     * Valid states for a promise to be in
-     */
-    enum PromiseState {
-        Resolved = 0,
-        Rejected = 1,
-        Pending = 2,
-    }
-    interface IPromise<T> {
-        then(successCallback?: (value?: T) => any, rejectCallback?: (value?: T) => any): IPromise<T>;
-        error(rejectCallback?: (value?: any) => any): IPromise<T>;
-        resolve(value?: T): IPromise<T>;
-        reject(value?: any): IPromise<T>;
-        state(): PromiseState;
-    }
-    /**
-     * Promises/A+ spec implementation of promises
-     *
-     * Promises are used to do asynchronous work and they are useful for
-     * creating a chain of actions. In Excalibur they are used for loading,
-     * sounds, animation, actions, and more.
-     *
-     * ## A Promise Chain
-     *
-     * Promises can be chained together and can be useful for creating a queue
-     * of functions to be called when something is done.
-     *
-     * The first [[Promise]] you will encounter is probably [[Engine.start]]
-     * which resolves when the game has finished loading.
-     *
-     * ```js
-     * var game = new ex.Engine();
-     *
-     * // perform start-up logic once game is ready
-     * game.start().then(function () {
-     *
-     *   // start-up & initialization logic
-     *
-     * });
-     * ```
-     *
-     * ## Handling errors
-     *
-     * You can optionally pass an error handler to [[Promise.then]] which will handle
-     * any errors that occur during Promise execution.
-     *
-     * ```js
-     * var game = new ex.Engine();
-     *
-     * game.start().then(
-     *   // success handler
-     *   function () {
-     *   },
-     *
-     *   // error handler
-     *   function (err) {
-     *   }
-     * );
-     * ```
-     *
-     * Any errors that go unhandled will be bubbled up to the browser.
-     */
-    class Promise<T> implements IPromise<T> {
-        private _state;
-        private _value;
-        private _successCallbacks;
-        private _rejectCallback;
-        private _errorCallback;
-        private _logger;
-        /**
-         * Wrap a value in a resolved promise
-         * @param value  An optional value to wrap in a resolved promise
-         */
-        static wrap<T>(value?: T): Promise<T>;
-        /**
-         * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
-         * when at least 1 promise rejects.
-         */
-        static join<T>(...promises: Promise<T>[]): Promise<T>;
-        /**
-         * Chain success and reject callbacks after the promise is resovled
-         * @param successCallback  Call on resolution of promise
-         * @param rejectCallback   Call on rejection of promise
-         */
-        then(successCallback?: (value?: T) => any, rejectCallback?: (value?: any) => any): Promise<T>;
-        /**
-         * Add an error callback to the promise
-         * @param errorCallback  Call if there was an error in a callback
-         */
-        error(errorCallback?: (value?: any) => any): Promise<T>;
-        /**
-         * Resolve the promise and pass an option value to the success callbacks
-         * @param value  Value to pass to the success callbacks
-         */
-        resolve(value?: T): Promise<T>;
-        /**
-         * Reject the promise and pass an option value to the reject callbacks
-         * @param value  Value to pass to the reject callbacks
-         */
-        reject(value?: any): Promise<T>;
-        /**
-         * Inpect the current state of a promise
-         */
-        state(): PromiseState;
-        private _handleError(e);
+    interface ILoader extends ILoadable {
+        draw(ctx: CanvasRenderingContext2D, delta: number): any;
+        update(engine: Engine, delta: number): any;
     }
 }
 declare module ex {
-    /**
-     * Loadables
-     *
-     * An interface describing loadable resources in Excalibur. Built-in loadable
-     * resources include [[Texture]], [[Sound]], and a generic [[Resource]].
-     *
-     * ## Advanced: Custom loadables
-     *
-     * You can implement the [[ILoadable]] interface to create your own custom loadables.
-     * This is an advanced feature, as the [[Resource]] class already wraps logic around
-     * blob/plain data for usages like JSON, configuration, levels, etc through XHR (Ajax).
-     *
-     * However, as long as you implement the facets of a loadable, you can create your
-     * own.
-     */
-    interface ILoadable {
-        /**
-         * Begins loading the resource and returns a promise to be resolved on completion
-         */
-        load(): Promise<any>;
-        /**
-         * Wires engine into loadable to receive game level events
-         */
-        wireEngine(engine: Engine): void;
-        /**
-         * onprogress handler
-         */
-        onprogress: (e: any) => void;
-        /**
-         * oncomplete handler
-         */
-        oncomplete: () => void;
-        /**
-         * onerror handler
-         */
-        onerror: (e: any) => void;
-        /**
-         * Returns true if the loadable is loaded
-         */
-        isLoaded(): boolean;
-    }
-}
-declare module ex {
-    /**
-     * Generic Resources
-     *
-     * The [[Resource]] type allows games built in Excalibur to load generic resources.
-     * For any type of remote resource it is recommended to use [[Resource]] for preloading.
-     *
-     * [[Resource]] is an [[ILoadable]] so it can be passed to a [[Loader]] to pre-load before
-     * a level or game.
-     *
-     * Example usages: JSON, compressed files, blobs.
-     *
-     * ## Pre-loading generic resources
-     *
-     * ```js
-     * var resLevel1 = new ex.Resource("/assets/levels/1.json", "application/json");
-     * var loader = new ex.Loader(resLevel1);
-     *
-     * // attach a handler to process once loaded
-     * resLevel1.processDownload = function (data) {
-     *
-     *   // process JSON
-     *   var json = JSON.parse(data);
-     *
-     *   // create a new level (inherits Scene) with the JSON configuration
-     *   var level = new Level(json);
-     *
-     *   // add a new scene
-     *   game.add(level.name, level);
-     * }
-     *
-     * game.start(loader);
-     * ```
-     */
-    class Resource<T> implements ILoadable {
-        path: string;
-        responseType: string;
-        bustCache: boolean;
-        data: T;
-        logger: Logger;
-        private _engine;
-        /**
-         * @param path          Path to the remote resource
-         * @param responseType  The Content-Type to expect (e.g. `application/json`)
-         * @param bustCache     Whether or not to cache-bust requests
-         */
-        constructor(path: string, responseType: string, bustCache?: boolean);
-        /**
-         * Returns true if the Resource is completely loaded and is ready
-         * to be drawn.
-         */
-        isLoaded(): boolean;
-        wireEngine(engine: Engine): void;
-        private _cacheBust(uri);
-        private _start(e);
-        /**
-         * Begin loading the resource and returns a promise to be resolved on completion
-         */
-        load(): Promise<T>;
-        /**
-         * Returns the loaded data once the resource is loaded
-         */
-        getData(): any;
-        /**
-         * This method is meant to be overriden to handle any additional
-         * processing. Such as decoding downloaded audio bits.
-         */
-        processDownload(data: T): any;
-        onprogress: (e: any) => void;
-        oncomplete: () => void;
-        onerror: (e: any) => void;
-    }
-}
-declare module ex {
-    /**
-     * Textures
-     *
-     * The [[Texture]] object allows games built in Excalibur to load image resources.
-     * [[Texture]] is an [[ILoadable]] which means it can be passed to a [[Loader]]
-     * to pre-load before starting a level or game.
-     *
-     * Textures are the raw image so to add a drawing to a game, you must create
-     * a [[Sprite]]. You can use [[Texture.asSprite]] to quickly generate a Sprite
-     * instance.
-     *
-     * ## Pre-loading textures
-     *
-     * Pass the [[Texture]] to a [[Loader]] to pre-load the asset. Once a [[Texture]]
-     * is loaded, you can generate a [[Sprite]] with it.
-     *
-     * ```js
-     * var txPlayer = new ex.Texture("/assets/tx/player.png");
-     *
-     * var loader = new ex.Loader(txPlayer);
-     *
-     * game.start(loader).then(function () {
-     *
-     *   var player = new ex.Actor();
-     *
-     *   player.addDrawing(txPlayer);
-     *
-     *   game.add(player);
-     * });
-     * ```
-     */
-    class Texture extends Resource<HTMLImageElement> {
-        path: string;
-        bustCache: boolean;
-        /**
-         * The width of the texture in pixels
-         */
-        width: number;
-        /**
-         * The height of the texture in pixels
-         */
-        height: number;
-        /**
-         * A [[Promise]] that resolves when the Texture is loaded.
-         */
-        loaded: Promise<any>;
-        private _isLoaded;
-        private _sprite;
-        /**
-         * Populated once loading is complete
-         */
-        image: HTMLImageElement;
-        private _progressCallback;
-        private _doneCallback;
-        private _errorCallback;
-        /**
-         * @param path       Path to the image resource
-         * @param bustCache  Optionally load texture with cache busting
-         */
-        constructor(path: string, bustCache?: boolean);
-        /**
-         * Returns true if the Texture is completely loaded and is ready
-         * to be drawn.
-         */
-        isLoaded(): boolean;
-        /**
-         * Begins loading the texture and returns a promise to be resolved on completion
-         */
-        load(): Promise<HTMLImageElement>;
-        asSprite(): Sprite;
-    }
-    /**
-     * Sounds
-     *
-     * The [[Sound]] object allows games built in Excalibur to load audio
-     * components, from soundtracks to sound effects. [[Sound]] is an [[ILoadable]]
-     * which means it can be passed to a [[Loader]] to pre-load before a game or level.
-     *
-     * ## Pre-loading sounds
-     *
-     * Pass the [[Sound]] to a [[Loader]] to pre-load the asset. Once a [[Sound]]
-     * is loaded, you can [[Sound.play|play]] it.
-     *
-     * ```js
-     * // define multiple sources (such as mp3/wav/ogg) as a browser fallback
-     * var sndPlayerDeath = new ex.Sound("/assets/snd/player-death.mp3", "/assets/snd/player-death.wav");
-     *
-     * var loader = new ex.Loader(sndPlayerDeath);
-     *
-     * game.start(loader).then(function () {
-     *
-     *   sndPlayerDeath.play();
-     * });
-     * ```
-     */
-    class Sound implements ILoadable, ex.Internal.ISound {
-        private _logger;
-        onprogress: (e: any) => void;
-        oncomplete: () => void;
-        onerror: (e: any) => void;
-        onload: (e: any) => void;
-        private _isLoaded;
-        private _selectedFile;
-        private _engine;
-        private _wasPlayingOnHidden;
-        /**
-         * Populated once loading is complete
-         */
-        sound: ex.Internal.FallbackAudio;
-        /**
-         * Whether or not the browser can play this file as HTML5 Audio
-         */
-        static canPlayFile(file: string): boolean;
-        /**
-         * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
-         */
-        constructor(...paths: string[]);
-        wireEngine(engine: Engine): void;
-        /**
-         * Sets the volume of the sound clip
-         * @param volume  A volume value between 0-1.0
-         */
-        setVolume(volume: number): void;
-        /**
-         * Indicates whether the clip should loop when complete
-         * @param loop  Set the looping flag
-         */
-        setLoop(loop: boolean): void;
-        /**
-         * Whether or not the sound is playing right now
-         */
-        isPlaying(): boolean;
-        /**
-         * Play the sound, returns a promise that resolves when the sound is done playing
-         */
-        play(): ex.Promise<any>;
-        /**
-         * Stop the sound, and do not rewind
-         */
-        pause(): void;
-        /**
-         * Stop the sound and rewind
-         */
-        stop(): void;
-        /**
-         * Returns true if the sound is loaded
-         */
-        isLoaded(): boolean;
-        /**
-         * Begins loading the sound and returns a promise to be resolved on completion
-         */
-        load(): Promise<ex.Internal.FallbackAudio>;
-    }
     /**
      * Pre-loading assets
      *
@@ -5243,7 +5687,7 @@ declare module ex {
      * // loop through dictionary and add to loader
      * for (var loadable in resources) {
      *   if (resources.hasOwnProperty(loadable)) {
-     *     loader.addResource(loadable);
+     *     loader.addResource(resources[loadable]);
      *   }
      * }
      *
@@ -5253,7 +5697,7 @@ declare module ex {
      * });
      * ```
      */
-    class Loader implements ILoadable {
+    class Loader extends Class implements ILoader {
         private _resourceList;
         private _index;
         private _resourceCount;
@@ -5286,9 +5730,106 @@ declare module ex {
          * that resolves when loading of all is complete
          */
         load(): Promise<any>;
+        /**
+         * Loader draw function. Draws the default Excalibur loading screen. Override to customize the drawing.
+         */
+        draw(ctx: CanvasRenderingContext2D, delta: number): void;
+        /**
+         * Perform any calculations or logic in the `update` method. The default `Loader` does not
+         * do anything in this method so it is safe to override.
+         */
+        update(engine: ex.Engine, delta: number): void;
+        getData: () => any;
+        setData: (data: any) => any;
+        processData: (data: any) => any;
         onprogress: (e: any) => void;
         oncomplete: () => void;
         onerror: () => void;
+    }
+    /**
+     * A [[Loader]] that pauses after loading to allow user
+     * to proceed to play the game. Typically you will
+     * want to use this loader for iOS to allow sounds
+     * to play after loading (Apple Safari requires user
+     * interaction to allow sounds, even for games)
+     *
+     * **Note:** Because Loader is not part of a Scene, you must
+     * call `update` and `draw` manually on "child" objects.
+     *
+     * ## Implementing a Trigger
+     *
+     * The `PauseAfterLoader` requires an element to act as the trigger button
+     * to start the game.
+     *
+     * For example, let's create an `<a>` tag to be our trigger and call it `tap-to-play`.
+     *
+     * ```html
+     * <div id="wrapper">
+     *    <canvas id="game"></canvas>
+     *    <a id="tap-to-play" href='javascript:void(0);'>Tap to Play</a>
+     * </div>
+     * ```
+     *
+     * We've put it inside a wrapper to position it properly over the game canvas.
+     *
+     * Now let's add some CSS to style it (insert into `<head>`):
+     *
+     * ```html
+     * <style>
+     *     #wrapper {
+     *         position: relative;
+     *         width: 500px;
+     *         height: 500px;
+     *     }
+     *     #tap-to-play {
+     *         display: none;
+     *         font-size: 24px;
+     *         font-family: sans-serif;
+     *         text-align: center;
+     *         border: 3px solid white;
+     *         position: absolute;
+     *         color: white;
+     *         width: 200px;
+     *         height: 50px;
+     *         line-height: 50px;
+     *         text-decoration: none;
+     *         left: 147px;
+     *         top: 80%;
+     *     }
+     * </style>
+     * ```
+     *
+     * Now we can create a `PauseAfterLoader` with a reference to our trigger button:
+     *
+     * ```ts
+     * var loader = new ex.PauseAfterLoader('tap-to-play', [...]);
+     * ```
+     *
+     * ## Use PauseAfterLoader for iOS
+     *
+     * The primary use case for pausing before starting the game is to
+     * pass Apple's requirement of user interaction. The Web Audio context
+     * in Safari is disabled by default until user interaction.
+     *
+     * Therefore, you can use this snippet to only use PauseAfterLoader when
+     * iOS is detected (see [this thread](http://stackoverflow.com/questions/9038625/detect-if-device-is-ios)
+     * for more techniques).
+     *
+     * ```ts
+     * var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(<any>window).MSStream;
+     * var loader: ex.Loader = iOS ? new ex.PauseAfterLoader('tap-to-play') : new ex.Loader();
+     *
+     * loader.addResource(...);
+     * ```
+     */
+    class PauseAfterLoader extends Loader {
+        private _loaded;
+        private _loadedValue;
+        private _waitPromise;
+        private _playTrigger;
+        constructor(triggerElementId: string, loadables?: ILoadable[]);
+        load(): Promise<any>;
+        private _handleOnTrigger;
     }
 }
 declare module ex {
@@ -5338,6 +5879,9 @@ declare module ex {
          * Begins loading the template. Returns a promise that resolves with the template string when loaded.
          */
         load(): ex.Promise<string>;
+        getData(): string;
+        setData(data: any): void;
+        processData(data: any): any;
         /**
          * Indicates whether the template has been loaded
          */
@@ -6747,7 +7291,7 @@ declare module ex {
         /**
          * Gets or sets the [[CollisionStrategy]] for Excalibur actors
          */
-        collisionStrategy: CollisionStrategy;
+        collisionStrategy: BroadphaseStrategy;
         private _hasStarted;
         /**
          * Current FPS
@@ -6803,9 +7347,6 @@ declare module ex {
         private _compatible;
         private _loader;
         private _isLoading;
-        private _progress;
-        private _total;
-        private _loadingDraw;
         /**
          * Creates a new game using the given [[IEngineOptions]]
          */
@@ -7011,10 +7552,10 @@ declare module ex {
         /**
          * Starts the internal game loop for Excalibur after loading
          * any provided assets.
-         * @param loader  Optional resources to load before starting the main loop. Some [[ILoadable]] such as a [[Loader]] collection,
-         * [[Sound]], or [[Texture]].
+         * @param loader  Optional [[ILoader]] to use to load resources. The default loader is [[Loader]], override to provide your own
+         * custom loader.
          */
-        start(loader?: ILoadable): Promise<any>;
+        start(loader?: ILoader): Promise<any>;
         /**
          * Stops Excalibur's main loop, useful for pausing the game.
          */
@@ -7024,19 +7565,6 @@ declare module ex {
          * HTML Image Element.
          */
         screenshot(): HTMLImageElement;
-        /**
-         * Draws the Excalibur loading bar
-         * @param ctx     The canvas rendering context
-         * @param loaded  Number of bytes loaded
-         * @param total   Total number of bytes to load
-         */
-        private _drawLoadingBar(ctx, loaded, total);
-        /**
-         * Sets the loading screen draw function if you want to customize the draw
-         * @param fcn  Callback to draw the loading screen which is passed a rendering context, the number of bytes loaded, and the total
-         * number of bytes to load.
-         */
-        setLoadingDrawFunction(fcn: (ctx: CanvasRenderingContext2D, loaded: number, total: number) => void): void;
         /**
          * Another option available to you to load resources into the game.
          * Immediately after calling this the game will pause and the loading screen

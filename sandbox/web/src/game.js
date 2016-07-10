@@ -73,7 +73,7 @@ tileMap.data.forEach(function (cell) {
     cell.solid = true;
     cell.pushSprite(new ex.TileSprite("default", 0));
 });
-//game.add(tileMap);
+game.add(tileMap);
 // Create spriteFont
 var spriteFont = new ex.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
 var label = new ex.Label('Hello World', 100, 100, null, spriteFont);
@@ -270,12 +270,8 @@ player.on('collision', function (data) {
         }
         inAir = false;
         if (data.other && !(game.input.keyboard.isHeld(ex.Input.Keys.Left) || game.input.keyboard.isHeld(ex.Input.Keys.Right) || game.input.keyboard.isHeld(ex.Input.Keys.Up) || game.input.keyboard.isHeld(ex.Input.Keys.Down))) {
-            //player.vel.x = data.other.vel.x;
-            //player.vel.y = data.other.vel.y;
         }
         if (!data.other) {
-            //player.vel.x = 0;
-            //player.vel.y = 0;
         }
     }
     if (data.side === ex.Side.Top) {
@@ -407,4 +403,3 @@ game.start(loader).then(function () {
     //binding = new ex.Binding("container", template, emitter);
     //binding.listen(emitter, ["update"]);
 });
-//# sourceMappingURL=game.js.map

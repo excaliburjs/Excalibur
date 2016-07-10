@@ -12,16 +12,19 @@ module ex.Internal {
       pause();
       stop();
       load();
+      setData(data: any);
+      getData(): any;
+      processData(data: any): any;
       onload: (e: any) => void;
       onprogress: (e: any) => void;
       onerror: (e: any) => void;
-
+      path: string;
    }
 
    export class FallbackAudio implements ISound {
       private _soundImpl: ISound;
       private _log: Logger = Logger.getInstance();
-      constructor(path: string, volume?: number) {
+      constructor(public path: string, volume?: number) {
          if ((<any>window).AudioContext) {
             this._log.debug('Using new Web Audio Api for ' + path);
             this._soundImpl = new WebAudio(path, volume);
@@ -48,6 +51,18 @@ module ex.Internal {
          this._soundImpl.onprogress = this.onprogress;
          this._soundImpl.onerror = this.onerror;
          this._soundImpl.load();
+      }
+      
+      public processData(data: any): any {
+         return this._soundImpl.processData(data);
+      }
+      
+      public getData(): any {
+         return this._soundImpl.getData();
+      }
+      
+      public setData(data: any) {
+         this._soundImpl.setData(data);
       }
 
       public isPlaying(): boolean {
@@ -124,6 +139,11 @@ module ex.Internal {
       public onerror: (e: any) => void = () => { return; };
 
       public load() {
+         
+         if (!!this._loadedAudio) {
+            return;
+         }
+         
          var request = new XMLHttpRequest();
          request.open('GET', this.path, true);
          request.responseType = 'blob';
@@ -136,14 +156,31 @@ module ex.Internal {
                this._isLoaded = false;
                return;
             }
-
-            this._loadedAudio = URL.createObjectURL(request.response);
-            this._audioElements.forEach((a) => {
-               a.src = this._loadedAudio;
-            });
+            
+            this._isLoaded = true;
+            this.setData(request.response);            
             this.onload(e);
          };
          request.send();
+      }
+      
+      public getData(): any {
+         return this._loadedAudio;
+      }
+      
+      public setData(data: any) {
+         this._isLoaded = true;
+         this._loadedAudio = this.processData(data);
+      }
+      
+      public processData(data: any): any {
+         var blobUrl = URL.createObjectURL(data);
+         
+         this._audioElements.forEach((a) => {
+            a.src = blobUrl;
+         });
+         this._audioLoaded();
+         return blobUrl;
       }
 
       public play(): Promise<any> {
@@ -195,7 +232,6 @@ module ex.Internal {
       private _volume = this._context.createGain();
       private _buffer = null;
       private _sound = null;
-      private _path = '';
       private _isLoaded = false;
       private _loop = false;
       private _isPlaying = false;
@@ -205,11 +241,10 @@ module ex.Internal {
       private _playPromise: ex.Promise<any>;
 
       private _logger: Logger = Logger.getInstance();
+      private _data: any = null;
 
+      constructor(public path: string, volume?: number) {
 
-
-      constructor(soundPath: string, volume?: number) {
-         this._path = soundPath;
          if (volume) {
             this._volume.gain.value = Util.clamp(volume, 0, 1.0);
          } else {
@@ -227,38 +262,56 @@ module ex.Internal {
       public onerror: (e: any) => void = () => { return; };
 
       public load() {
+         // Exit early if we already have data
+         if (this._data !== null) {
+             return;
+         }
+         
          var request = new XMLHttpRequest();
-         request.open('GET', this._path);
+         request.open('GET', this.path);
          request.responseType = 'arraybuffer';
          request.onprogress = this.onprogress;
          request.onerror = this.onerror;
          request.onload = () => {
             if(request.status !== 200) {
-               this._logger.error('Failed to load audio resource ', this._path, ' server responded with error code', request.status);
+               this._logger.error('Failed to load audio resource ', this.path, ' server responded with error code', request.status);
                this.onerror(request.response);
                this._isLoaded = false;
                return;
             }
 
-            this._context.decodeAudioData(request.response,
-               (buffer) => {
-                  this._buffer = buffer;
-                  this._isLoaded = true;
-                  this.onload(this);
-               },
-               (e) => {
-                  this._logger.error('Unable to decode ' + this._path +
-                     ' this browser may not fully support this format, or the file may be corrupt, ' +
-                     'if this is an mp3 try removing id3 tags and album art from the file.');
-                  this._isLoaded = false;
-                  this.onload(this);
-               });
+            this.setData(request.response);
          };
          try {
             request.send();
          } catch (e) {
             console.error('Error loading sound! If this is a cross origin error, you must host your sound with your html and javascript.');
          }
+      }
+      
+      public getData() {
+         return this._data;
+      }
+      
+      public setData(data: any) {
+         this._data = this.processData(data);
+      }
+      
+      public processData(data: any): any {
+         this._context.decodeAudioData(data,
+            (buffer) => {
+               this._buffer = buffer;
+               this._isLoaded = true;
+               this.onload(this);
+            },
+            (e) => {
+               this._logger.error('Unable to decode ' + this.path +
+                  ' this browser may not fully support this format, or the file may be corrupt, ' +
+                  'if this is an mp3 try removing id3 tags and album art from the file.');
+               this._isLoaded = false;
+               this.onload(this);
+            });
+         return data;
       }
 
       public setLoop(loop: boolean) {
@@ -315,7 +368,7 @@ module ex.Internal {
                this._isPlaying = false;
                this._isPaused = true;
             } catch (e) {
-               this._logger.warn('The sound clip', this._path, 'has already been paused!');
+               this._logger.warn('The sound clip', this.path, 'has already been paused!');
             }
          }
       }
@@ -329,9 +382,48 @@ module ex.Internal {
                this._isPlaying = false;
                this._isPaused = false;
             } catch(e) {
-               this._logger.warn('The sound clip', this._path, 'has already been stopped!');
+               this._logger.warn('The sound clip', this.path, 'has already been stopped!');
             }
          }
+      }
+      
+      private static _unlocked: boolean = false;
+      
+      /**
+       * Play an empty sound to unlock Safari WebAudio context. Call this function
+       * right after a user interaction event. Typically used by [[PauseAfterLoader]]
+       * @source https://paulbakaus.com/tutorials/html5/web-audio-on-ios/
+       */
+      static unlock() {
+			
+        if (this._unlocked || !audioContext) {
+            return;
+        }
+
+        // create empty buffer and play it
+        var buffer = audioContext.createBuffer(1, 1, 22050);
+        var source = audioContext.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioContext.destination);
+        
+        if (source.noteOn) {
+            source.noteOn(0);
+        } else {
+            source.start(0);
+        }
+
+        // by checking the play state after some time, we know if we're really unlocked
+        setTimeout(function() {
+            if (source.playbackState === source.PLAYING_STATE || 
+                source.playbackState === source.FINISHED_STATE) {
+                this._unlocked = true;
+            }
+        }, 0);
+
+      }
+      
+      static isUnlocked() {
+          return this._unlocked;
       }
    }
 }

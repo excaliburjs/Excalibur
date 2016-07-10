@@ -99,7 +99,8 @@ describe('Vectors', () => {
       var v = new ex.Vector(10, 0);
       var v2 = new ex.Vector(0, 10);
       
-      v.addEquals(v2);
+
+      v.addEqual(v2);
       
       expect(v.x).toBe(10);
       expect(v.y).toBe(10);
@@ -109,7 +110,7 @@ describe('Vectors', () => {
       var v = new ex.Vector(10, 0);
       var v2 = new ex.Vector(0, 10);
       
-      v.subEquals(v2);
+      v.subEqual(v2);
       
       expect(v.x).toBe(10);
       expect(v.y).toBe(-10);
@@ -117,7 +118,9 @@ describe('Vectors', () => {
    
    it('can be scaled and set at the same time', () => {
       var v = new ex.Vector(10, 0);
-      v.scaleEquals(10);      
+
+      v.scaleEqual(10);
+
       expect(v.x).toBe(100);
    });
    

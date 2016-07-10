@@ -1,4 +1,4 @@
-/// <reference path="Interfaces/ILoadable.ts" />
+/// <reference path="../Interfaces/ILoadable.ts" />
 
 module ex {
 
@@ -20,7 +20,7 @@ module ex {
     * var loader = new ex.Loader(resLevel1);
     *
     * // attach a handler to process once loaded
-    * resLevel1.processDownload = function (data) {
+    * resLevel1.processData = function (data) {
     *
     *   // process JSON
     *   var json = JSON.parse(data);
@@ -35,7 +35,7 @@ module ex {
     * game.start(loader);
     * ```
     */
-   export class Resource<T> implements ILoadable {
+   export class Resource<T> extends Class implements ILoadable {
       public data: T = null;
       public logger: Logger = Logger.getInstance();
       private _engine: Engine;
@@ -45,14 +45,16 @@ module ex {
        * @param responseType  The Content-Type to expect (e.g. `application/json`)
        * @param bustCache     Whether or not to cache-bust requests
        */
-      constructor(public path: string, public responseType: string, public bustCache: boolean = true) {}
+      constructor(public path: string, public responseType: string, public bustCache: boolean = true) {
+          super();
+      }
 
       /**
        * Returns true if the Resource is completely loaded and is ready
        * to be drawn.
        */
       public isLoaded(): boolean {
-         return !!this.data;
+         return this.data !== null;
       }
 
       public wireEngine(engine: Engine) {
@@ -78,7 +80,15 @@ module ex {
        */
       public load(): Promise<T> {
          var complete = new Promise<T>();
-
+         
+         // Exit early if we already have data
+         if (this.data !== null) {
+            this.logger.debug('Already have data for resource', this.path);
+            complete.resolve(this.data);
+            this.oncomplete();
+            return complete;
+         }
+         
          var request = new XMLHttpRequest();
          request.open('GET', this.bustCache ? this._cacheBust(this.path) : this.path, true);
          request.responseType = this.responseType;
@@ -93,7 +103,7 @@ module ex {
                return;
             }
 
-            this.data = this.processDownload(request.response);
+            this.data = this.processData(request.response);
 
             this.oncomplete();
             this.logger.debug('Completed loading resource', this.path);
@@ -111,12 +121,19 @@ module ex {
       public getData(): any {
          return this.data;
       }
+      
+      /**
+       * Sets the data for this resource directly
+       */
+      public setData(data: any) {
+         this.data = this.processData(data);         
+      }
 
       /**
        * This method is meant to be overriden to handle any additional
        * processing. Such as decoding downloaded audio bits.
        */
-      public processDownload(data: T): any {
+      public processData(data: T): any {
          // Handle any additional loading after the xhr has completed.
          return URL.createObjectURL(data);
       }

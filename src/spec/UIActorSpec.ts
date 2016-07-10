@@ -13,7 +13,7 @@ describe('A UIActor', () => {
       uiActor.collisionType = ex.CollisionType.Active;
       scene = new ex.Scene(engine);
 
-      spyOn(scene, 'draw').andCallThrough();
+      spyOn(scene, 'draw').and.callThrough();
       spyOn(uiActor, 'draw');
 
       engine = mock.engine(100, 100, scene);

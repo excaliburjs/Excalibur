@@ -9,14 +9,17 @@ module ex {
        * A (0, 0) vector
        */
       public static Zero = new Vector(0, 0);
+      
       /**
        * A unit vector pointing up (0, -1)
        */
       public static Up = new Vector(0, -1);
+      
       /**
        * A unit vector pointing down (0, 1)
        */
       public static Down = new Vector(0, 1);
+
       /**
        * A unit vector pointing left (-1, 0)
        */
@@ -107,7 +110,7 @@ module ex {
        * Adds one vector to this one modifying the original
        * @param v The vector to add
        */
-      public addEquals(v: Vector): Vector {
+      public addEqual(v: Vector): Vector {
          this.x += v.x;
          this.y += v.y;
          return this;
@@ -117,7 +120,7 @@ module ex {
        * Subtracts a vector from this one modifying the original
        * @parallel v The vector to subtract
        */
-      public subEquals(v: Vector): Vector {
+      public subEqual(v: Vector): Vector {
          this.x -= v.x;
          this.y -= v.y;
          return this;
@@ -126,7 +129,7 @@ module ex {
       /**
        * Scales this vector by a factor of size and modifies the original
        */
-      public scaleEquals(size: number): Vector {
+      public scaleEqual(size: number): Vector {
          this.x *= size;
          this.y *= size;
          return this;

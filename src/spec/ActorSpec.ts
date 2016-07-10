@@ -15,7 +15,7 @@ describe('A game actor', () => {
       actor.collisionType = ex.CollisionType.Active;
       scene = new ex.Scene(engine);
 
-      spyOn(scene, 'draw').andCallThrough();
+      spyOn(scene, 'draw').and.callThrough();
       spyOn(actor, 'draw');
 
       engine = mock.engine(100, 100, scene);
@@ -119,13 +119,29 @@ describe('A game actor', () => {
    });
 
    it('has a left, right, top, and bottom', () => {
+      actor.pos.x = 0;
+      actor.pos.y = 0;
+      actor.anchor = new ex.Vector(0.5, 0.5);
       actor.setWidth(100);
       actor.setHeight(100);
 
-      expect(actor.getLeft()).toBe(0);
-      expect(actor.getRight()).toBe(100);
-      expect(actor.getTop()).toBe(0);
-      expect(actor.getBottom()).toBe(100);
+      expect(actor.getLeft()).toBe(-50);
+      expect(actor.getRight()).toBe(50);
+      expect(actor.getTop()).toBe(-50);
+      expect(actor.getBottom()).toBe(50);
+   });
+   
+   it('has a left, right, top, and bottom when the anchor is (0, 0)', () => {
+      actor.pos.x = 100;
+      actor.pos.y = 100;
+      actor.anchor = new ex.Vector(0.0, 0.0);
+      actor.setWidth(100);
+      actor.setHeight(100);
+
+      expect(actor.getLeft()).toBe(100);
+      expect(actor.getRight()).toBe(200);
+      expect(actor.getTop()).toBe(100);
+      expect(actor.getBottom()).toBe(200);
    });
 
    it('can contain points', () => {
@@ -235,7 +251,7 @@ describe('A game actor', () => {
    it('can be rotated to an angle at a speed via ShortestPath (default)', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateTo(Math.PI / 2, Math.PI / 2);
+      actor.actions.rotateTo(Math.PI / 2, Math.PI / 2);
 
       actor.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 4);
@@ -250,7 +266,7 @@ describe('A game actor', () => {
    it('can be rotated to an angle at a speed via LongestPath', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateTo(Math.PI / 2, Math.PI / 2, ex.RotationType.LongestPath);
+      actor.actions.rotateTo(Math.PI / 2, Math.PI / 2, ex.RotationType.LongestPath);
 
       actor.update(engine, 1000);
       //rotation is currently incremented by rx delta ,so will be negative while moving counterclockwise
@@ -267,7 +283,7 @@ describe('A game actor', () => {
    it('can be rotated to an angle at a speed via Clockwise', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateTo(3 * Math.PI / 2, Math.PI / 2, ex.RotationType.Clockwise);
+      actor.actions.rotateTo(3 * Math.PI / 2, Math.PI / 2, ex.RotationType.Clockwise);
 
       actor.update(engine, 2000);
       expect(actor.rotation).toBe(Math.PI);
@@ -283,7 +299,7 @@ describe('A game actor', () => {
    it('can be rotated to an angle at a speed via CounterClockwise', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateTo(Math.PI / 2, Math.PI / 2, ex.RotationType.CounterClockwise);
+      actor.actions.rotateTo(Math.PI / 2, Math.PI / 2, ex.RotationType.CounterClockwise);
       actor.update(engine, 2000);
       expect(actor.rotation).toBe(-Math.PI);
 
@@ -319,7 +335,7 @@ describe('A game actor', () => {
    it('can be rotated to an angle by a certain time via ShortestPath (default)', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateBy(Math.PI / 2, 2000);
+      actor.actions.rotateBy(Math.PI / 2, 2000);
 
       actor.update(engine, 1000);
       expect(actor.rotation).toBe(Math.PI / 4);
@@ -334,7 +350,7 @@ describe('A game actor', () => {
    it('can be rotated to an angle by a certain time via LongestPath', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateBy(Math.PI / 2, 3000, ex.RotationType.LongestPath);
+      actor.actions.rotateBy(Math.PI / 2, 3000, ex.RotationType.LongestPath);
 
       actor.update(engine, 1000);
       expect(actor.rotation).toBe(-1 * Math.PI / 2);
@@ -350,7 +366,7 @@ describe('A game actor', () => {
    it('can be rotated to an angle by a certain time via Clockwise', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateBy(Math.PI / 2, 1000, ex.RotationType.Clockwise);
+      actor.actions.rotateBy(Math.PI / 2, 1000, ex.RotationType.Clockwise);
 
       actor.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 4);
@@ -366,7 +382,7 @@ describe('A game actor', () => {
    it('can be rotated to an angle by a certain time via CounterClockwise', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateBy(Math.PI / 2, 3000, ex.RotationType.LongestPath);
+      actor.actions.rotateBy(Math.PI / 2, 3000, ex.RotationType.LongestPath);
 
       actor.update(engine, 1000);
       expect(actor.rotation).toBe(-1 * Math.PI / 2);
@@ -549,7 +565,7 @@ describe('A game actor', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.moveTo(20, 0, 10);
+      actor.actions.moveTo(20, 0, 10);
       actor.update(engine, 500);
 
       actor.clearActions();
@@ -566,7 +582,7 @@ describe('A game actor', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.moveBy(20, 0, 1000);
+      actor.actions.moveBy(20, 0, 1000);
       actor.update(engine, 500);
 
       actor.clearActions();
@@ -582,7 +598,7 @@ describe('A game actor', () => {
    it('can have its rotateTo action stopped', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateTo(Math.PI / 2, Math.PI / 2);
+      actor.actions.rotateTo(Math.PI / 2, Math.PI / 2);
 
       actor.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 4);
@@ -596,7 +612,7 @@ describe('A game actor', () => {
    it('can have its rotateBy action stopped', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.rotateBy(Math.PI / 2, 2000);
+      actor.actions.rotateBy(Math.PI / 2, 2000);
 		
       actor.update(engine, 1000);
       actor.clearActions();
@@ -610,7 +626,7 @@ describe('A game actor', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
 
-      actor.scaleTo(2, 2, .5, .5);
+      actor.actions.scaleTo(2, 2, .5, .5);
       actor.update(engine, 1000);
 
       actor.clearActions();
@@ -626,7 +642,7 @@ describe('A game actor', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
 
-      actor.scaleBy(4, 4, 1000);
+      actor.actions.scaleBy(4, 4, 1000);
 
       actor.update(engine, 500);
 
@@ -641,7 +657,7 @@ describe('A game actor', () => {
 
    it('can have its blink action stopped', () => {
       expect(actor.visible).toBe(true);
-      actor.blink(1, 3000);
+      actor.actions.blink(1, 3000);
 
       actor.update(engine, 500);
       expect(actor.visible).toBe(false);
@@ -657,7 +673,7 @@ describe('A game actor', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.delay(1000).moveTo(20, 0, 20);
+      actor.actions.delay(1000).moveTo(20, 0, 20);
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(0);
 
@@ -670,7 +686,7 @@ describe('A game actor', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.moveTo(20, 0, 10).moveTo(0, 0, 10).repeat();
+      actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeat();
 
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(10);
@@ -708,7 +724,7 @@ describe('A game actor', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.moveTo(20, 0, 10).moveTo(0, 0, 10).repeatForever();
+      actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeatForever();
 
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(10);
@@ -728,8 +744,8 @@ describe('A game actor', () => {
       expect(actor.pos.y).toBe(0);
 
       var actorToFollow = new ex.Actor(10, 0);
-      actorToFollow.moveTo(100, 0, 10);
-      actor.follow(actorToFollow);
+      actorToFollow.actions.moveTo(100, 0, 10);
+      actor.actions.follow(actorToFollow);
       // actor.update(engine, 1000);
       // expect(actor.pos.x).toBe(actorToFollow.x);
 
@@ -748,8 +764,8 @@ describe('A game actor', () => {
 
       // testing basic meet
       var actorToMeet = new ex.Actor(10, 0);
-      actorToMeet.moveTo(100, 0, 10);
-      actor.meet(actorToMeet);
+      actorToMeet.actions.moveTo(100, 0, 10);
+      actor.actions.meet(actorToMeet);
 
       for(var i = 0; i < 9; i++) {
          actorToMeet.update(engine, 1000);
@@ -877,7 +893,7 @@ describe('A game actor', () => {
       expect(parent.contains(250, 250, true)).toBeTruthy();	  
    });
 
-   it('with an active collision type can be placed on a fixed type', () => {
+   xit('with an active collision type can be placed on a fixed type', () => {
       var scene = new ex.Scene(engine); 
 	  
       var active = new ex.Actor(0, -50, 100, 100);
@@ -893,7 +909,7 @@ describe('A game actor', () => {
 	  
       expect(active.pos.x).toBe(0);
       expect(active.pos.y).toBe(-50);
-	  
+
       expect(fixed.pos.x).toBe(-100);
       expect(fixed.pos.y).toBe(50);
 	  
@@ -933,6 +949,29 @@ describe('A game actor', () => {
       childActor.visible = false;
       scene.draw(engine.ctx, 100);
       expect(childActor.draw).not.toHaveBeenCalled();
+   });
+   
+   it('fires a killed event when killed', () => {
+      var actor = new ex.Actor();
+      scene.add(actor);
+      var killed = false;
+      actor.on('kill', (evt: ex.KillEvent) => {
+         killed = true;
+      });
+      actor.kill();
+      
+      expect(killed).toBe(true);
+   });
+   
+   it('is no longer killed when re-added to the game', () => {
+      var actor = new ex.Actor();
+      scene.add(actor);
+      expect(actor.isKilled()).toBeFalsy();
+      actor.kill();
+      scene.update(engine, 100);
+      expect(actor.isKilled()).toBeTruthy();
+      scene.add(actor);
+      expect(actor.isKilled()).toBeFalsy();
    });
    
 });

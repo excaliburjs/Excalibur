@@ -60,5 +60,5 @@ game.input.keyboard.on('down', (ev: ex.Input.KeyEvent) => {
 
 });
 
-
-game.start(raptorTex);
+var loader = new ex.Loader([raptorTex]);
+game.start(loader);

@@ -13,7 +13,7 @@ describe('A scene', () => {
       actor = new ex.Actor();
       scene = new ex.Scene(engine);
 
-      spyOn(scene, 'draw').andCallThrough();
+      spyOn(scene, 'draw').and.callThrough();
       spyOn(actor, 'draw');
 
       engine = mock.engine(100, 100, scene);
