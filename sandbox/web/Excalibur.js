@@ -3414,12 +3414,6 @@ var ex;
      *
      * ## Known Issues
      *
-     * **Cameras do not support [[EasingFunctions]]**
-     * [Issue #320](https://github.com/excaliburjs/Excalibur/issues/320)
-     *
-     * Currently [[BaseCamera.lerp]] only supports `easeInOutCubic` but will support
-     * [[EasingFunctions|easing functions]] soon.
-     *
      * **Actors following a path will wobble when camera is moving**
      * [Issue #276](https://github.com/excaliburjs/Excalibur/issues/276)
      *
@@ -3518,8 +3512,8 @@ var ex;
          */
         BaseCamera.prototype.move = function (pos, duration, easingFn) {
             if (easingFn === void 0) { easingFn = ex.EasingFunctions.EaseInOutCubic; }
-            if (typeof easingFn !== "function") {
-                throw "Please specify an easing function";
+            if (typeof easingFn !== 'function') {
+                throw 'Please specify an easing function';
             }
             // cannot move when following an actor
             if (this._follow) {

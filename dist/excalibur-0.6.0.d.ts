@@ -1582,12 +1582,6 @@ declare module ex {
      *
      * ## Known Issues
      *
-     * **Cameras do not support [[EasingFunctions]]**
-     * [Issue #320](https://github.com/excaliburjs/Excalibur/issues/320)
-     *
-     * Currently [[BaseCamera.lerp]] only supports `easeInOutCubic` but will support
-     * [[EasingFunctions|easing functions]] soon.
-     *
      * **Actors following a path will wobble when camera is moving**
      * [Issue #276](https://github.com/excaliburjs/Excalibur/issues/276)
      *
@@ -2700,9 +2694,6 @@ declare module ex {
 declare module ex {
     /**
      * A definition of an EasingFunction. See [[ex.EasingFunctions]].
-     *
-     * @export
-     * @interface EasingFunction
      */
     interface EasingFunction {
         (currentTime: number, startValue: number, endValue: number, duration: number): number;
