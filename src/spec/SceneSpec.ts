@@ -13,7 +13,7 @@ describe('A scene', () => {
       actor = new ex.Actor();
       scene = new ex.Scene(engine);
 
-      spyOn(scene, 'draw').andCallThrough();
+      spyOn(scene, 'draw').and.callThrough();
       spyOn(actor, 'draw');
 
       engine = mock.engine(100, 100, scene);
@@ -53,8 +53,8 @@ describe('A scene', () => {
    it('draws onscreen Actors', () => {
       actor.traits.length = 0;
       actor.traits.push(new ex.Traits.OffscreenCulling());
-      actor.x = 0;
-      actor.y = 0;
+      actor.pos.x = 0;
+      actor.pos.y = 0;
       actor.setWidth(10);
       actor.setHeight(10);
 
@@ -67,13 +67,13 @@ describe('A scene', () => {
    });
 
    it('does not draw offscreen Actors', () => {
-      actor.x = 1000;
-      actor.y = 1000;
+      actor.pos.x = 1000;
+      actor.pos.y = 1000;
       scene.update(engine, 100);
       expect(actor.isOffScreen).toBeFalsy();
 
-      actor.x = 1010;
-      actor.y = 1010;
+      actor.pos.x = 1010;
+      actor.pos.y = 1010;
       actor.setWidth(5);
       actor.setHeight(5);
 
@@ -83,8 +83,8 @@ describe('A scene', () => {
 
       expect(scene.camera.getFocus().x).toBe(50);
       expect(scene.camera.getFocus().y).toBe(50);
-      expect(engine.worldToScreenCoordinates(new ex.Point(50, 50)).x).toBe(50);
-      expect(engine.worldToScreenCoordinates(new ex.Point(50, 50)).y).toBe(50);
+      expect(engine.worldToScreenCoordinates(new ex.Vector(50, 50)).x).toBe(50);
+      expect(engine.worldToScreenCoordinates(new ex.Vector(50, 50)).y).toBe(50);
       expect(engine.getWidth()).toBe(100);
       expect(engine.getHeight()).toBe(100);
 

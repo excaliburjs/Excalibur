@@ -38,7 +38,7 @@ so we can feature you in our online gallery.
    :maxdepth: 1
    :caption: API Documentation
    
-   edge (master) <http://excaliburjs.com/docs/api/edge/modules/ex.html>
+   edge (master) <http://excaliburjs.com/docs/api/edge/index.html>
    v0.6.0 (stable) <http://excaliburjs.com/docs/api/v0.6.0/modules/ex.html>
    
 .. toctree::

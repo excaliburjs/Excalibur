@@ -18,7 +18,7 @@ module ex {
       constructor(x?: number, y?: number, width?: number, height?: number) {
          super(x, y, width, height);
          this.traits = [];
-         this.traits.push(new Traits.Movement());
+         this.traits.push(new Traits.EulerMovement());
          this.traits.push(new Traits.CapturePointer());
          this.anchor.setTo(0, 0);
          this.collisionType = ex.CollisionType.PreventCollision;
@@ -32,7 +32,7 @@ module ex {
       public contains(x: number, y: number, useWorld: boolean = true) {
          if (useWorld) { return super.contains(x, y); }
 
-         var coords = this._engine.worldToScreenCoordinates(new ex.Point(x, y));
+         var coords = this._engine.worldToScreenCoordinates(new ex.Vector(x, y));
          return super.contains(coords.x, coords.y);
       }
    }

@@ -70,10 +70,10 @@ function start() {
             var leftAxisY = pad1.getAxes(ex.Input.Axes.LeftStickY);
             var rightAxisX = pad1.getAxes(ex.Input.Axes.RightStickX);
             var rightAxisY = pad1.getAxes(ex.Input.Axes.RightStickY);
-            leftStick.x = 330 + (leftAxisX * 20);
-            leftStick.y = 272 + (leftAxisY * 20);
-            rightStick.x = 470 + (rightAxisX * 20);
-            rightStick.y = 272 + (rightAxisY * 20);
+            leftStick.pos.x = 330 + (leftAxisX * 20);
+            leftStick.pos.y = 272 + (leftAxisY * 20);
+            rightStick.pos.x = 470 + (rightAxisX * 20);
+            rightStick.pos.y = 272 + (rightAxisY * 20);
             // buttons
             var btnIndex;
             for (var btn in buttons) {
@@ -100,7 +100,7 @@ var CircleActor = (function (_super) {
     }
     CircleActor.prototype.draw = function (ctx, delta) {
         ctx.save();
-        ctx.translate(this.x, this.y);
+        ctx.translate(this.pos.x, this.pos.y);
         ctx.beginPath();
         ctx.arc(0, 0, this.getWidth(), 0, 2 * Math.PI, true);
         ctx.fillStyle = this.color.toString();
@@ -112,4 +112,4 @@ var CircleActor = (function (_super) {
         ctx.restore();
     };
     return CircleActor;
-})(ex.Actor);
+}(ex.Actor));

@@ -13,7 +13,7 @@ describe('A label', () => {
       scene = new ex.Scene(engine);
 
       scene.add(label);
-      spyOn(scene, 'draw').andCallThrough();
+      spyOn(scene, 'draw').and.callThrough();
       spyOn(label, 'draw');
 		
       engine = mock.engine(100, 100, scene);

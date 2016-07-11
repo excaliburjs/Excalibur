@@ -14,7 +14,7 @@ var target = new ex.Actor(game.width / 2, game.height / 2, 64 * 2, 64 * 2, ex.Co
 target.addDrawing("default", raptorAnim);
 var currentZoom = 1.0;
 document.addEventListener('mousedown', function (ev) {
-    console.log(game.screenToWorldCoordinates(new ex.Point(ev.offsetX, ev.offsetY)));
+    console.log(game.screenToWorldCoordinates(new ex.Vector(ev.offsetX, ev.offsetY)));
 });
 target.on('pointerdown', function (ev) {
     target.color = ex.Color.Green.clone();
@@ -44,4 +44,5 @@ game.input.keyboard.on('down', function (ev) {
         game.currentScene.camera.setFocus(currentFocus.x, currentFocus.y + 10);
     }
 });
-game.start(raptorTex);
+var loader = new ex.Loader([raptorTex]);
+game.start(loader);

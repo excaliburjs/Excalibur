@@ -1,4 +1,4 @@
-/// <reference path="Interfaces/ILoadable.ts" />
+/// <reference path="../Interfaces/ILoadable.ts" />
 
 module ex {
 

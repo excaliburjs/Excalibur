@@ -38,42 +38,42 @@ module ex {
          if ((this.left.collisionType === CollisionType.Active || 
             this.left.collisionType === CollisionType.Elastic) && 
             this.right.collisionType !== CollisionType.Passive) {
-            this.left.y += this.intersect.y;
-            this.left.x += this.intersect.x;
+            this.left.pos.y += this.intersect.y;
+            this.left.pos.x += this.intersect.x;
             
             // Naive elastic bounce
             if (this.left.collisionType === CollisionType.Elastic) {
                if (leftSide === Side.Left) {
-                  this.left.dx = Math.abs(this.left.dx);
+                  this.left.vel.x = Math.abs(this.left.vel.x);
                } else if(leftSide === Side.Right) {
-                  this.left.dx = -Math.abs(this.left.dx);
+                  this.left.vel.x = -Math.abs(this.left.vel.x);
                } else if(leftSide === Side.Top) {
-                  this.left.dy = Math.abs(this.left.dy);
+                  this.left.vel.y = Math.abs(this.left.vel.y);
                } else if(leftSide === Side.Bottom) {
-                  this.left.dy = -Math.abs(this.left.dy);
+                  this.left.vel.y = -Math.abs(this.left.vel.y);
                }
             } else {
                // Cancel velocities along intersection
                if (this.intersect.x !== 0) {
                   
-                  if (this.left.dx <= 0 && this.right.dx <= 0) {
-                     this.left.dx = Math.max(this.left.dx, this.right.dx);
-                  } else if (this.left.dx >= 0 && this.right.dx >= 0) {
-                     this.left.dx = Math.min(this.left.dx, this.right.dx);
+                  if (this.left.vel.x <= 0 && this.right.vel.x <= 0) {
+                     this.left.vel.x = Math.max(this.left.vel.x, this.right.vel.x);
+                  } else if (this.left.vel.x >= 0 && this.right.vel.x >= 0) {
+                     this.left.vel.x = Math.min(this.left.vel.x, this.right.vel.x);
                   }else {
-                     this.left.dx = 0;
+                     this.left.vel.x = 0;
                   }
                   
                }
                
                if (this.intersect.y !== 0) {
                   
-                  if (this.left.dy <= 0 && this.right.dy <= 0) {
-                     this.left.dy = Math.max(this.left.dy, this.right.dy);
-                  } else if (this.left.dy >= 0 && this.right.dy >= 0) {
-                     this.left.dy = Math.min(this.left.dy, this.right.dy);
+                  if (this.left.vel.y <= 0 && this.right.vel.y <= 0) {
+                     this.left.vel.y = Math.max(this.left.vel.y, this.right.vel.y);
+                  } else if (this.left.vel.y >= 0 && this.right.vel.y >= 0) {
+                     this.left.vel.y = Math.min(this.left.vel.y, this.right.vel.y);
                   } else {
-                     this.left.dy = 0;
+                     this.left.vel.y = 0;
                   }
                   
                }
@@ -85,39 +85,39 @@ module ex {
          if ((this.right.collisionType === CollisionType.Active || 
             this.right.collisionType === CollisionType.Elastic) && 
             this.left.collisionType !== CollisionType.Passive) {
-            this.right.y += rightIntersect.y;
-            this.right.x += rightIntersect.x;
+            this.right.pos.y += rightIntersect.y;
+            this.right.pos.x += rightIntersect.x;
            
             // Naive elastic bounce
             if (this.right.collisionType === CollisionType.Elastic) {
                if (rightSide === Side.Left) {
-                  this.right.dx = Math.abs(this.right.dx);
+                  this.right.vel.x = Math.abs(this.right.vel.x);
                } else if(rightSide === Side.Right) {
-                  this.right.dx = -Math.abs(this.right.dx);
+                  this.right.vel.x = -Math.abs(this.right.vel.x);
                } else if(rightSide === Side.Top) {
-                  this.right.dy = Math.abs(this.right.dy);
+                  this.right.vel.y = Math.abs(this.right.vel.y);
                } else if(rightSide === Side.Bottom) {
-                  this.right.dy = -Math.abs(this.right.dy);
+                  this.right.vel.y = -Math.abs(this.right.vel.y);
                }
             } else {
                 // Cancel velocities along intersection
                if(rightIntersect.x !== 0) {
-                  if (this.right.dx <= 0 && this.left.dx <= 0) {
-                     this.right.dx = Math.max(this.left.dx, this.right.dx);
-                  } else if (this.left.dx >= 0 && this.right.dx >= 0) {
-                     this.right.dx = Math.min(this.left.dx, this.right.dx);
+                  if (this.right.vel.x <= 0 && this.left.vel.x <= 0) {
+                     this.right.vel.x = Math.max(this.left.vel.x, this.right.vel.x);
+                  } else if (this.left.vel.x >= 0 && this.right.vel.x >= 0) {
+                     this.right.vel.x = Math.min(this.left.vel.x, this.right.vel.x);
                   }else {
-                     this.right.dx = 0;
+                     this.right.vel.x = 0;
                   }
                }
                
                if(rightIntersect.y !== 0) {
-                  if (this.right.dy <= 0 && this.left.dy <= 0) {
-                     this.right.dy = Math.max(this.left.dy, this.right.dy);
-                  } else if (this.left.dy >= 0 && this.right.dy >= 0) {
-                     this.right.dy = Math.min(this.left.dy, this.right.dy);
+                  if (this.right.vel.y <= 0 && this.left.vel.y <= 0) {
+                     this.right.vel.y = Math.max(this.left.vel.y, this.right.vel.y);
+                  } else if (this.left.vel.y >= 0 && this.right.vel.y >= 0) {
+                     this.right.vel.y = Math.min(this.left.vel.y, this.right.vel.y);
                   }else {
-                     this.right.dy = 0;
+                     this.right.vel.y = 0;
                   }
                }
             }

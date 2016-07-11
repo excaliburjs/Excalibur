@@ -241,7 +241,7 @@ module ex.Internal {
       private _playPromise: ex.Promise<any>;
 
       private _logger: Logger = Logger.getInstance();
-      private _data: any;
+      private _data: any = null;
 
       constructor(public path: string, volume?: number) {
 
@@ -385,6 +385,45 @@ module ex.Internal {
                this._logger.warn('The sound clip', this.path, 'has already been stopped!');
             }
          }
+      }
+      
+      private static _unlocked: boolean = false;
+      
+      /**
+       * Play an empty sound to unlock Safari WebAudio context. Call this function
+       * right after a user interaction event. Typically used by [[PauseAfterLoader]]
+       * @source https://paulbakaus.com/tutorials/html5/web-audio-on-ios/
+       */
+      static unlock() {
+			
+        if (this._unlocked || !audioContext) {
+            return;
+        }
+
+        // create empty buffer and play it
+        var buffer = audioContext.createBuffer(1, 1, 22050);
+        var source = audioContext.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioContext.destination);
+        
+        if (source.noteOn) {
+            source.noteOn(0);
+        } else {
+            source.start(0);
+        }
+
+        // by checking the play state after some time, we know if we're really unlocked
+        setTimeout(function() {
+            if (source.playbackState === source.PLAYING_STATE || 
+                source.playbackState === source.FINISHED_STATE) {
+                this._unlocked = true;
+            }
+        }, 0);
+
+      }
+      
+      static isUnlocked() {
+          return this._unlocked;
       }
    }
 }

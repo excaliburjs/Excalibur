@@ -55,7 +55,6 @@ module ex {
          } else {
             return this._insert(this._root, element);
          }
-         return false;
       }
 
       private _insert(node: BinaryTreeNode, element: any): boolean {

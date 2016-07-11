@@ -255,8 +255,8 @@ module ex {
          this.text = text || '';
          this.color = Color.Black.clone();
          this.spriteFont = spriteFont;
-         this.collisionType = CollisionType.PreventCollision;
-         this.fontFamily = fontFamily || '10px sans-serif'; // coallesce to default canvas font
+         this.collisionType = CollisionType.PreventCollision;                  
+         this.fontFamily = fontFamily || 'sans-serif'; // coallesce to default canvas font
          if (spriteFont) {
             //this._textSprites = spriteFont.getTextSprites();
          }
@@ -383,7 +383,7 @@ module ex {
       public draw(ctx: CanvasRenderingContext2D, delta: number) {
 
          ctx.save();
-         ctx.translate(this.x, this.y);
+         ctx.translate(this.pos.x, this.pos.y);
          ctx.scale(this.scale.x, this.scale.y);
          ctx.rotate(this.rotation);
 
