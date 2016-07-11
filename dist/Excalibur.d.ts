@@ -1594,10 +1594,6 @@ declare module ex {
      */
     class BaseCamera {
         protected _follow: Actor;
-        focus: Vector;
-        lerp: boolean;
-        x: number;
-        y: number;
         z: number;
         dx: number;
         dy: number;
@@ -1607,6 +1603,8 @@ declare module ex {
         az: number;
         rotation: number;
         rx: number;
+        private _x;
+        private _y;
         private _cameraMoving;
         private _currentLerpTime;
         private _lerpDuration;
@@ -1618,13 +1616,29 @@ declare module ex {
         private _shakeMagnitudeY;
         private _shakeDuration;
         private _elapsedShakeTime;
+        private _xShake;
+        private _yShake;
         protected _isZooming: boolean;
         private _currentZoomScale;
         private _maxZoomScale;
         private _zoomDuration;
         private _elapsedZoomTime;
         private _zoomIncrement;
-        private _easeInOutCubic(currentTime, startValue, endValue, duration);
+        private _easing;
+        /**
+         * Get the camera's x position
+         */
+        /**
+         * Set the camera's x position (cannot be set when following an [[Actor]] or when moving)
+         */
+        x: number;
+        /**
+         * Get the camera's y position
+         */
+        /**
+         * Set the camera's y position (cannot be set when following an [[Actor]] or when moving)
+         */
+        y: number;
         /**
          * Sets the [[Actor]] to follow with the camera
          * @param actor  The actor to follow
@@ -1635,12 +1649,13 @@ declare module ex {
          */
         getFocus(): Vector;
         /**
-         * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
-         * @param x The x coordinate of the focal point
-         * @param y The y coordinate of the focal point
-         * @deprecated
+         * This moves the camera focal point to the specified position using specified easing function. Cannot move when following an Actor.
+         *
+         * @param pos The target position to move to
+         * @param duration The duration in millseconds the move should last
+         * @param [easingFn] An optional easing function ([[ex.EasingFunctions.EaseInOutCubic]] by default)
          */
-        setFocus(x: number, y: number): void;
+        move(pos: Vector, duration: number, easingFn?: EasingFunction): void;
         /**
          * Sets the camera to shake at the specified magnitudes for the specified duration
          * @param magnitudeX  The x magnitude of the shake
@@ -1660,11 +1675,12 @@ declare module ex {
          */
         getZoom(): number;
         private _setCurrentZoomScale(zoomScale);
+        update(engine: Engine, delta: number): void;
         /**
          * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
          * @param delta  The number of milliseconds since the last update
          */
-        update(ctx: CanvasRenderingContext2D, delta: number): void;
+        draw(ctx: CanvasRenderingContext2D, delta: number): void;
         debugDraw(ctx: CanvasRenderingContext2D): void;
         private _isDoneShaking();
         private _isDoneZooming();
@@ -2683,6 +2699,15 @@ declare module ex {
 }
 declare module ex {
     /**
+     * A definition of an EasingFunction. See [[ex.EasingFunctions]].
+     *
+     * @export
+     * @interface EasingFunction
+     */
+    interface EasingFunction {
+        (currentTime: number, startValue: number, endValue: number, duration: number): number;
+    }
+    /**
      * Standard easing functions for motion in Excalibur, defined on a domain of [0, duration] and a range from [+startValue,+endValue]
      * Given a time, the function will return a value from postive startValue to postive endValue.
      *
@@ -2723,13 +2748,13 @@ declare module ex {
      * ```
      */
     class EasingFunctions {
-        static Linear: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+        static Linear: EasingFunction;
         static EaseInQuad: (currentTime: number, startValue: number, endValue: number, duration: number) => void;
-        static EaseOutQuad: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
-        static EaseInOutQuad: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
-        static EaseInCubic: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
-        static EaseOutCubic: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
-        static EaseInOutCubic: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+        static EaseOutQuad: EasingFunction;
+        static EaseInOutQuad: EasingFunction;
+        static EaseInCubic: EasingFunction;
+        static EaseOutCubic: EasingFunction;
+        static EaseInOutCubic: EasingFunction;
     }
 }
 declare module ex {
