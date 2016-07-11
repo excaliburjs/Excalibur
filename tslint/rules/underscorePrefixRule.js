@@ -1,3 +1,6 @@
+"use strict";
+var Lint = require("tslint/lib/lint");
+
 function Rule() {
     Lint.Rules.AbstractRule.apply(this, arguments);
 }

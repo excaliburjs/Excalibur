@@ -182,7 +182,7 @@ module ex {
          super();
          this.camera = new BaseCamera();
          if(engine) {
-            this.camera.x = engine.width / 2
+            this.camera.x = engine.width / 2;
             this.camera.y = engine.height / 2;
          }
       }

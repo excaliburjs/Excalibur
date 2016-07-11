@@ -149,8 +149,8 @@ module ex {
        */
       public move(pos: Vector, duration: number, easingFn: EasingFunction = EasingFunctions.EaseInOutCubic) {
 
-         if (typeof easingFn !== "function") {
-            throw "Please specify an easing function";
+         if (typeof easingFn !== 'function') {
+            throw 'Please specify an easing function';
          }
 
          // cannot move when following an actor
