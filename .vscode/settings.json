@@ -2,6 +2,7 @@
 {
 	"editor.tabSize": 3,
 	"editor.insertSpaces": true,
+	"editor.detectIndentation": false,
 	"files.exclude": {
 		"**/.git": true,
 		"**/.DS_Store": true,

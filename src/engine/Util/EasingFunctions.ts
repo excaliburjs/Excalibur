@@ -1,6 +1,16 @@
 ﻿module ex {
    
    /**
+    * A definition of an EasingFunction. See [[ex.EasingFunctions]].
+    * 
+    * @export
+    * @interface EasingFunction
+    */
+   export interface EasingFunction {
+      (currentTime: number, startValue: number, endValue: number, duration: number): number;
+   }
+
+   /**
     * Standard easing functions for motion in Excalibur, defined on a domain of [0, duration] and a range from [+startValue,+endValue]
     * Given a time, the function will return a value from postive startValue to postive endValue.
     *
@@ -42,7 +52,7 @@
     */
    export class EasingFunctions {
 
-      public static Linear = (currentTime: number, startValue: number, endValue: number, duration: number)  => {
+      public static Linear: EasingFunction = (currentTime: number, startValue: number, endValue: number, duration: number)  => {
          endValue = (endValue - startValue);
          return endValue * currentTime / duration + startValue;
       };
@@ -50,16 +60,16 @@
       public static EaseInQuad = (currentTime: number, startValue: number, endValue: number, duration: number) => {
          //endValue = (endValue - startValue);
          currentTime /= duration;
-
+         // TODO implement
       };
       
-      public static EaseOutQuad = (currentTime: number, startValue: number, endValue: number, duration: number) => {
+      public static EaseOutQuad: EasingFunction = (currentTime: number, startValue: number, endValue: number, duration: number) => {
          //endValue = (endValue - startValue);
          currentTime /= duration;
          return -endValue * currentTime * (currentTime - 2) + startValue;
       };
 
-      public static EaseInOutQuad = (currentTime: number, startValue: number, endValue: number, duration: number) => {
+      public static EaseInOutQuad: EasingFunction = (currentTime: number, startValue: number, endValue: number, duration: number) => {
          endValue = (endValue - startValue);
          currentTime /= duration / 2;
 
@@ -69,19 +79,19 @@
          return -endValue / 2 * (currentTime * (currentTime - 2) - 1) + startValue;
       };
 
-      public static EaseInCubic = (currentTime: number, startValue: number, endValue: number, duration: number) => {
+      public static EaseInCubic: EasingFunction = (currentTime: number, startValue: number, endValue: number, duration: number) => {
          endValue = (endValue - startValue);
          currentTime /= duration;
          return endValue * currentTime * currentTime * currentTime + startValue;
       };
 
-      public static EaseOutCubic = (currentTime: number, startValue: number, endValue: number, duration: number) => {
+      public static EaseOutCubic: EasingFunction = (currentTime: number, startValue: number, endValue: number, duration: number) => {
          endValue = (endValue - startValue);
          currentTime /= duration;
          return endValue * (currentTime * currentTime * currentTime + 1) + startValue;
       };
 
-      public static EaseInOutCubic = (currentTime: number, startValue: number, endValue: number, duration: number) => {
+      public static EaseInOutCubic: EasingFunction = (currentTime: number, startValue: number, endValue: number, duration: number) => {
          endValue = (endValue - startValue);
          currentTime /= duration / 2;
          if (currentTime < 1) { return endValue / 2 * currentTime * currentTime * currentTime + startValue; }

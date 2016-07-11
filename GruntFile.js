@@ -78,7 +78,7 @@ module.exports = function (grunt) {
          // Execute TypeScript compiler against Excalibur core
          //
          tsc: {
-            command: '<%= tscCmd %> --sourcemap --declaration "./src/engine/Engine.ts" --out "./dist/<%= pkg.name %>-<%= version %>.js"',               
+            command: '<%= tscCmd %> --sourcemap --declaration --target ES5 "./src/engine/Engine.ts" --out "./dist/<%= pkg.name %>-<%= version %>.js"',               
             options: {
                stdout: true,
                failOnError: true
@@ -104,7 +104,7 @@ module.exports = function (grunt) {
             command: function () {
             	var files = grunt.file.expand("./src/spec/*.ts");
 
-            	return '<%= tscCmd %> ' + files.join(' ') + ' --out ./src/spec/TestsSpec.js'
+            	return '<%= tscCmd %> --target ES5 ' + files.join(' ') + ' --out ./src/spec/TestsSpec.js'
             },
             options: {
                stdout: true,
