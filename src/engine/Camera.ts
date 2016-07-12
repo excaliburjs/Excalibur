@@ -75,7 +75,7 @@ module ex {
       private _totalLerpTime: number = 0;
       private _lerpStart: Vector = null;
       private _lerpEnd: Vector = null;
-      private _lerpPromise: IPromise<any>;
+      private _lerpPromise: IPromise<Vector>;
 
       //camera effects
       protected _isShaking: boolean = false;
