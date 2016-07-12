@@ -55,13 +55,14 @@
       };
 
       public static EaseInQuad = (currentTime: number, startValue: number, endValue: number, duration: number) => {
-         //endValue = (endValue - startValue);
+         endValue = (endValue - startValue);
          currentTime /= duration;
-         // TODO implement
+
+         return endValue * currentTime * currentTime + startValue;
       };
       
       public static EaseOutQuad: EasingFunction = (currentTime: number, startValue: number, endValue: number, duration: number) => {
-         //endValue = (endValue - startValue);
+         endValue = (endValue - startValue);
          currentTime /= duration;
          return -endValue * currentTime * (currentTime - 2) + startValue;
       };
@@ -85,6 +86,7 @@
       public static EaseOutCubic: EasingFunction = (currentTime: number, startValue: number, endValue: number, duration: number) => {
          endValue = (endValue - startValue);
          currentTime /= duration;
+         currentTime--;
          return endValue * (currentTime * currentTime * currentTime + 1) + startValue;
       };
 

@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-07-10
+/*! excalibur - v0.6.0 - 2016-07-11
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 var __extends = (this && this.__extends) || function (d, b) {
@@ -5882,12 +5882,12 @@ var ex;
             return endValue * currentTime / duration + startValue;
         };
         EasingFunctions.EaseInQuad = function (currentTime, startValue, endValue, duration) {
-            //endValue = (endValue - startValue);
+            endValue = (endValue - startValue);
             currentTime /= duration;
-            // TODO implement
+            return endValue * currentTime * currentTime + startValue;
         };
         EasingFunctions.EaseOutQuad = function (currentTime, startValue, endValue, duration) {
-            //endValue = (endValue - startValue);
+            endValue = (endValue - startValue);
             currentTime /= duration;
             return -endValue * currentTime * (currentTime - 2) + startValue;
         };
@@ -5908,6 +5908,7 @@ var ex;
         EasingFunctions.EaseOutCubic = function (currentTime, startValue, endValue, duration) {
             endValue = (endValue - startValue);
             currentTime /= duration;
+            currentTime--;
             return endValue * (currentTime * currentTime * currentTime + 1) + startValue;
         };
         EasingFunctions.EaseInOutCubic = function (currentTime, startValue, endValue, duration) {

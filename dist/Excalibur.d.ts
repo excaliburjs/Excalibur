@@ -2740,7 +2740,7 @@ declare module ex {
      */
     class EasingFunctions {
         static Linear: EasingFunction;
-        static EaseInQuad: (currentTime: number, startValue: number, endValue: number, duration: number) => void;
+        static EaseInQuad: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
         static EaseOutQuad: EasingFunction;
         static EaseInOutQuad: EasingFunction;
         static EaseInCubic: EasingFunction;
