@@ -75,6 +75,7 @@ module ex {
       private _totalLerpTime: number = 0;
       private _lerpStart: Vector = null;
       private _lerpEnd: Vector = null;
+      private _lerpPromise: IPromise<any>;
 
       //camera effects
       protected _isShaking: boolean = false;
@@ -146,24 +147,34 @@ module ex {
        * @param pos The target position to move to
        * @param duration The duration in millseconds the move should last
        * @param [easingFn] An optional easing function ([[ex.EasingFunctions.EaseInOutCubic]] by default)
+       * @returns A [[Promise]] that resolves when movement is finished, including if it's interrupted. 
+       *          The [[Promise]] value is the [[Vector]] of the target position. It will be rejected if a move cannot be made.
        */
-      public move(pos: Vector, duration: number, easingFn: EasingFunction = EasingFunctions.EaseInOutCubic) {
+      public move(pos: Vector, duration: number, easingFn: EasingFunction = EasingFunctions.EaseInOutCubic) : IPromise<Vector> {
 
          if (typeof easingFn !== 'function') {
-            throw 'Please specify an easing function';
+            throw 'Please specify an EasingFunction';
          }
 
          // cannot move when following an actor
          if (this._follow) {
-            return;
+            return new Promise<Vector>().reject(pos);
          }
 
+         // resolve existing promise, if any
+         if (this._lerpPromise && this._lerpPromise.state() === PromiseState.Pending) {
+            this._lerpPromise.resolve(pos);            
+         }
+         
+         this._lerpPromise = new Promise<Vector>();         
          this._lerpStart = this.getFocus().clone();
          this._lerpDuration = duration;
          this._lerpEnd = pos;
          this._currentLerpTime = 0;
          this._cameraMoving = true;
          this._easing = easingFn;
+
+         return this._lerpPromise;
       }
 
       /**
@@ -253,10 +264,11 @@ module ex {
             } else {
                this._x = this._lerpEnd.x;
                this._y = this._lerpEnd.y;
+               this._lerpPromise.resolve(this._lerpEnd);
                this._lerpStart = null;
                this._lerpEnd = null;
                this._currentLerpTime = 0;
-               this._cameraMoving = false;               
+               this._cameraMoving = false;
             }
          }
 

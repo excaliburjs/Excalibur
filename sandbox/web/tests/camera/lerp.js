@@ -11,12 +11,14 @@ var sw = true;
 function moveCameraEase(easingFn) {
     var pos = new ex.Vector(sw ? 200 : 0, sw ? 200 : 0);
     if (sw) {
-        game.currentScene.camera.move(pos, 500, easingFn);
+        game.currentScene.camera.move(pos, 500, easingFn).then(onLerpEnd);
     }
     else {
-        game.currentScene.camera.move(pos, 500, easingFn);
+        game.currentScene.camera.move(pos, 500, easingFn).then(onLerpEnd);
     }
     sw = !sw;
+    document.getElementById('lerp-false').style.display = 'none';
+    document.getElementById('lerp-true').style.display = 'inline';
 }
 function moveCameraViaXY() {
     if (sw) {
@@ -28,4 +30,11 @@ function moveCameraViaXY() {
         game.currentScene.camera.y = 0;
     }
     sw = !sw;
+}
+function onLerpEnd(target) {
+    var interrupted = target.x !== game.currentScene.camera.x ||
+        target.y !== game.currentScene.camera.y;
+    ex.Logger.getInstance().info("Camera move ended, targeted pos", target, "interrupted?", interrupted);
+    document.getElementById('lerp-false').style.display = 'inline';
+    document.getElementById('lerp-true').style.display = 'none';
 }
