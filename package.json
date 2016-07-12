@@ -29,11 +29,11 @@
     "grunt-coveralls": "^1.0.0",
     "grunt-minified": "0.0.6",
     "grunt-shell": "0.6.1",
-    "grunt-tslint": "~2.3.0-beta",
+    "grunt-tslint": "^3.1.1",
     "istanbul": "^0.4.3",
     "jasmine": "^2.4.1",
     "travis-ci": "^2.1.0",
-    "tslint": "~2.3.0-beta",
+    "tslint": "^3.13.0",
     "typescript": "^1.8.10"
   }
 }

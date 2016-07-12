@@ -44,13 +44,7 @@ module ex {
     * To adjust the zoom for your game, use [[BaseCamera.zoom]] which will scale the
     * game accordingly. You can pass a duration to transition between zoom levels.
     *
-    * ## Known Issues
-    *
-    * **Cameras do not support [[EasingFunctions]]**
-    * [Issue #320](https://github.com/excaliburjs/Excalibur/issues/320)
-    *
-    * Currently [[BaseCamera.lerp]] only supports `easeInOutCubic` but will support
-    * [[EasingFunctions|easing functions]] soon.
+    * ## Known Issues    
     *
     * **Actors following a path will wobble when camera is moving**
     * [Issue #276](https://github.com/excaliburjs/Excalibur/issues/276)
@@ -58,12 +52,8 @@ module ex {
     */
    export class BaseCamera {
       protected _follow: Actor;
-      public focus: Vector = new Vector(0, 0);
-      public lerp: boolean = false;
 
       // camera physical quantities
-      public x: number = 0;
-      public y: number = 0;
       public z: number = 1;
 
       public dx: number = 0;
@@ -77,13 +67,15 @@ module ex {
       public rotation: number = 0;
       public rx: number = 0;
 
-
+      private _x: number = 0;
+      private _y: number = 0;
       private _cameraMoving: boolean = false;
       private _currentLerpTime: number = 0;
-      private _lerpDuration: number = 1 * 1000; // 5 seconds
+      private _lerpDuration: number = 1000; // 1 second
       private _totalLerpTime: number = 0;
       private _lerpStart: Vector = null;
       private _lerpEnd: Vector = null;
+      private _lerpPromise: IPromise<Vector>;
 
       //camera effects
       protected _isShaking: boolean = false;
@@ -91,6 +83,8 @@ module ex {
       private _shakeMagnitudeY: number = 0;
       private _shakeDuration: number = 0;
       private _elapsedShakeTime: number = 0;
+      private _xShake: number = 0;
+      private _yShake: number = 0;
 
       protected _isZooming: boolean = false;
       private _currentZoomScale: number = 1;
@@ -98,16 +92,38 @@ module ex {
       private _zoomDuration: number = 0;
       private _elapsedZoomTime: number = 0;
       private _zoomIncrement: number = 0.01;
+      private _easing: EasingFunction = EasingFunctions.EaseInOutCubic;
 
+      /**
+       * Get the camera's x position
+       */
+      public get x() {
+         return this._x;
+      }
 
+      /**
+       * Set the camera's x position (cannot be set when following an [[Actor]] or when moving)
+       */
+      public set x(value: number) {
+         if (!this._follow && !this._cameraMoving) {
+            this._x = value;
+         }
+      }
 
-      private _easeInOutCubic(currentTime: number, startValue: number, endValue: number, duration: number) {
+      /**
+       * Get the camera's y position 
+       */
+      public get y() {
+         return this._y;
+      }
 
-         endValue = (endValue - startValue);
-         currentTime /= duration / 2;
-         if (currentTime < 1) { return endValue / 2 * currentTime * currentTime * currentTime + startValue; }
-         currentTime -= 2;
-         return endValue / 2 * (currentTime * currentTime * currentTime + 2) + startValue;
+      /**
+       * Set the camera's y position (cannot be set when following an [[Actor]] or when moving)
+       */
+      public set y(value: number) {
+         if (!this._follow && !this._cameraMoving) {
+            this._y = value;
+         }
       }
 
       /**
@@ -126,23 +142,39 @@ module ex {
       }
 
       /**
-       * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
-       * @param x The x coordinate of the focal point
-       * @param y The y coordinate of the focal point
-       * @deprecated
+       * This moves the camera focal point to the specified position using specified easing function. Cannot move when following an Actor.
+       * 
+       * @param pos The target position to move to
+       * @param duration The duration in millseconds the move should last
+       * @param [easingFn] An optional easing function ([[ex.EasingFunctions.EaseInOutCubic]] by default)
+       * @returns A [[Promise]] that resolves when movement is finished, including if it's interrupted. 
+       *          The [[Promise]] value is the [[Vector]] of the target position. It will be rejected if a move cannot be made.
        */
-      public setFocus(x: number, y: number) {
-         if (!this._follow && !this.lerp) {
-            this.x = x;
-            this.y = y;
+      public move(pos: Vector, duration: number, easingFn: EasingFunction = EasingFunctions.EaseInOutCubic) : IPromise<Vector> {
+
+         if (typeof easingFn !== 'function') {
+            throw 'Please specify an EasingFunction';
          }
 
-         if (this.lerp) {
-            this._lerpStart = this.getFocus().clone();
-            this._lerpEnd = new Vector(x, y);
-            this._currentLerpTime = 0;
-            this._cameraMoving = true;
+         // cannot move when following an actor
+         if (this._follow) {
+            return new Promise<Vector>().reject(pos);
          }
+
+         // resolve existing promise, if any
+         if (this._lerpPromise && this._lerpPromise.state() === PromiseState.Pending) {
+            this._lerpPromise.resolve(pos);            
+         }
+         
+         this._lerpPromise = new Promise<Vector>();         
+         this._lerpStart = this.getFocus().clone();
+         this._lerpDuration = duration;
+         this._lerpEnd = pos;
+         this._currentLerpTime = 0;
+         this._cameraMoving = true;
+         this._easing = easingFn;
+
+         return this._lerpPromise;
       }
 
       /**
@@ -198,14 +230,10 @@ module ex {
          this.z = zoomScale;
       }
 
-      /**
-       * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
-       * @param delta  The number of milliseconds since the last update
-       */
-      public update(ctx: CanvasRenderingContext2D, delta: number) {
+      public update(engine: Engine, delta: number) {
          // Update placements based on linear algebra
-         this.x += this.dx * delta / 1000;
-         this.y += this.dy * delta / 1000;
+         this._x += this.dx * delta / 1000;
+         this._y += this.dy * delta / 1000;
          this.z += this.dz * delta / 1000;
 
          this.dx += this.ax * delta / 1000;
@@ -214,40 +242,29 @@ module ex {
 
          this.rotation += this.rx * delta / 1000;
          
-
-         var focus = this.getFocus();
-
-         var xShake = 0;
-         var yShake = 0;
-
-         var canvasWidth = ctx.canvas.width;
-         var canvasHeight = ctx.canvas.height;
-
-         // if zoom is 2x then canvas is 1/2 as high
-         // if zoom is .5x then canvas is 2x as high
-         var newCanvasWidth = canvasWidth / this.getZoom();
-         var newCanvasHeight = canvasHeight / this.getZoom();
-
-         if (this.lerp) {
-            if (this._currentLerpTime < this._lerpDuration && this._cameraMoving) {
-
+         if (this._cameraMoving) {
+            if (this._currentLerpTime < this._lerpDuration) {
+               
                if (this._lerpEnd.x < this._lerpStart.x) {
-                  this.x = this._lerpStart.x - (this._easeInOutCubic(this._currentLerpTime,
+                  this._x = this._lerpStart.x - (this._easing(this._currentLerpTime,
                      this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
                } else {
-                  this.x = this._easeInOutCubic(this._currentLerpTime,
+                  this._x = this._easing(this._currentLerpTime,
                      this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
                }
 
                if (this._lerpEnd.y < this._lerpStart.y) {
-                  this.y = this._lerpStart.y - (this._easeInOutCubic(this._currentLerpTime,
+                  this._y = this._lerpStart.y - (this._easing(this._currentLerpTime,
                      this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
                } else {
-                  this.y = this._easeInOutCubic(this._currentLerpTime,
+                  this._y = this._easing(this._currentLerpTime,
                      this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
                }
                this._currentLerpTime += delta;
             } else {
+               this._x = this._lerpEnd.x;
+               this._y = this._lerpEnd.y;
+               this._lerpPromise.resolve(this._lerpEnd);
                this._lerpStart = null;
                this._lerpEnd = null;
                this._currentLerpTime = 0;
@@ -261,11 +278,28 @@ module ex {
             this._shakeMagnitudeX = 0;
             this._shakeMagnitudeY = 0;
             this._shakeDuration = 0;
+            this._xShake = 0;
+            this._yShake = 0;
          } else {
             this._elapsedShakeTime += delta;
-            xShake = (Math.random() * this._shakeMagnitudeX | 0) + 1;
-            yShake = (Math.random() * this._shakeMagnitudeY | 0) + 1;
+            this._xShake = (Math.random() * this._shakeMagnitudeX | 0) + 1;
+            this._yShake = (Math.random() * this._shakeMagnitudeY | 0) + 1;
          }
+      }
+
+      /**
+       * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
+       * @param delta  The number of milliseconds since the last update
+       */
+      public draw(ctx: CanvasRenderingContext2D, delta: number) {
+         var focus = this.getFocus();
+         var canvasWidth = ctx.canvas.width;
+         var canvasHeight = ctx.canvas.height;
+
+         // if zoom is 2x then canvas is 1/2 as high
+         // if zoom is .5x then canvas is 2x as high
+         var newCanvasWidth = canvasWidth / this.getZoom();
+         var newCanvasHeight = canvasHeight / this.getZoom();
 
          /*if (this._isDoneZooming()) {
             this._isZooming = false;
@@ -280,8 +314,7 @@ module ex {
          }*/
 
          ctx.scale(this.getZoom(), this.getZoom());
-         ctx.translate(-focus.x + newCanvasWidth / 2 + xShake, -focus.y + newCanvasHeight / 2 + yShake);
-
+         ctx.translate(-focus.x + newCanvasWidth / 2 + this._xShake, -focus.y + newCanvasHeight / 2 + this._yShake);
       }
 
       public debugDraw(ctx: CanvasRenderingContext2D) {

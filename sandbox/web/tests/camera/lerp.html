@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Camera Lerp Test</title>
+    <style type="text/css">
+      #lerp-true { display: none; }
+      #lerp-true { color: green; }
+      #lerp-false { color: red; }
+    </style>
+</head>
+<body>
+    
+    <div>
+      <button id="move-ease-in-out-quad">Move camera with EaseInOutQuad</button>
+      <button id="move-ease-in-quad">Move camera with EaseInQuad</button>
+      <button id="move-ease-out-quad">Move camera with EaseOutQuad</button>
+      <button id="move-ease-in-out-cubic">Move camera with EaseInOutCubic</button>
+      <button id="move-ease-in-cubic">Move camera with EaseInCubic</button>
+      <button id="move-ease-out-cubic">Move camera with EaseOutCubic</button>
+
+      <button id="move-ease-linear">Move camera with Linear easing</button>
+      <button id="move-xy">Move camera via x and y</button>
+
+      <p>Both buttons should work as expected, moving with x, y should move immediately without easing</p>
+
+      <p>Easing: <span id="lerp-true">TRUE</span> <span id="lerp-false">FALSE</span></p>
+    </div>
+
+
+    <script src="../../Excalibur.js"></script>
+    <script src="lerp.js"></script>
+</body>
+</html>

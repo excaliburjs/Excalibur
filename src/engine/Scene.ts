@@ -182,7 +182,8 @@ module ex {
          super();
          this.camera = new BaseCamera();
          if(engine) {
-            this.camera.setFocus(engine.width / 2, engine.height / 2);
+            this.camera.x = engine.width / 2;
+            this.camera.y = engine.height / 2;
          }
       }
 
@@ -193,7 +194,8 @@ module ex {
       public onInitialize(engine: Engine): void {
          // will be overridden
          if (this.camera) {
-            this.camera.setFocus(engine.width / 2, engine.height / 2);
+            this.camera.x = engine.width / 2;
+            this.camera.y = engine.height / 2;
          }
          this._logger.debug('Scene.onInitialize', this, engine);
       }
@@ -224,6 +226,10 @@ module ex {
       public update(engine: Engine, delta: number) {
          this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
          var i: number, len: number;
+
+         if (this.camera) {
+            this.camera.update(engine, delta);
+         }
 
          // Cycle through actors updating UI actors
          for (i = 0, len = this.uiActors.length; i < len; i++) {
@@ -284,7 +290,7 @@ module ex {
          ctx.save();         
          
          if (this.camera) {
-            this.camera.update(ctx, delta);
+            this.camera.draw(ctx, delta);
          }
 
          var i: number, len: number;
