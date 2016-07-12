@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-06-17
+/*! excalibur - v0.6.0 - 2016-07-11
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 var __extends = (this && this.__extends) || function (d, b) {
@@ -1370,12 +1370,16 @@ var ex;
             }
         };
         Sprite.prototype.removeEffect = function (param) {
-            var indexToRemove = null;
+            var indexToRemove = -1;
             if (typeof param === 'number') {
                 indexToRemove = param;
             }
             else {
                 indexToRemove = this.effects.indexOf(param);
+            }
+            // bounds check
+            if (indexToRemove < 0 || indexToRemove >= this.effects.length) {
+                return;
             }
             this.effects.splice(indexToRemove, 1);
             // We must check if the texture and the backing sprite pixels are loaded as well before 
@@ -6291,6 +6295,7 @@ var ex;
             this._collisionHandlers = {};
             this._isInitialized = false;
             this.frames = {};
+            this._framesDirty = false;
             /**
              * Access to the current drawing for the actor, this can be
              * an [[Animation]], [[Sprite]], or [[Polygon]].
@@ -6316,6 +6321,7 @@ var ex;
             };
             this._zIndex = 0;
             this._isKilled = false;
+            this._opacityFx = new ex.Effects.Opacity(this.opacity);
             this.pos.x = x || 0;
             this.pos.y = y || 0;
             this._width = width || 0;
@@ -6437,6 +6443,7 @@ var ex;
                 if (!this.currentDrawing) {
                     this.currentDrawing = arguments[1];
                 }
+                this._framesDirty = true;
             }
             else {
                 if (arguments[0] instanceof ex.Sprite) {
@@ -6930,18 +6937,34 @@ var ex;
                 this._isInitialized = true;
             }
             this.emit('preupdate', new ex.PreUpdateEvent(engine, delta, this));
-            var eventDispatcher = this.eventDispatcher;
             // Update action queue
             this.actionQueue.update(delta);
             // Update color only opacity
             if (this.color) {
                 this.color.a = this.opacity;
             }
-            // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
-            for (var i = 0; i < this.traits.length; i++) {
-                this.traits[i].update(this, engine, delta);
+            // calculate changing opacity
+            if (this.previousOpacity !== this.opacity) {
+                this.previousOpacity = this.opacity;
+                this._opacityFx.opacity = this.opacity;
+                this._framesDirty = true;
             }
-            eventDispatcher.emit('update', new ex.UpdateEvent(delta));
+            // handle dirty frames and reapply any effects we are tracking
+            if (this._framesDirty) {
+                this._framesDirty = false;
+                // ensure we remove existing opacity effect we created
+                // and also ensure we do this everytime in case frames change
+                for (var drawing in this.frames) {
+                    this.frames[drawing].removeEffect(this._opacityFx);
+                    this.frames[drawing].addEffect(this._opacityFx);
+                }
+            }
+            // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
+            for (var _i = 0, _a = this.traits; _i < _a.length; _i++) {
+                var trait = _a[_i];
+                trait.update(this, engine, delta);
+            }
+            this.eventDispatcher.emit('update', new ex.UpdateEvent(delta));
             this.emit('postupdate', new ex.PostUpdateEvent(engine, delta, this));
         };
         /**
@@ -6956,13 +6979,6 @@ var ex;
             ctx.scale(this.scale.x, this.scale.y);
             ctx.rotate(this.rotation);
             this.emit('predraw', new ex.PreDrawEvent(ctx, delta, this));
-            // calculate changing opacity
-            if (this.previousOpacity !== this.opacity) {
-                for (var drawing in this.frames) {
-                    this.frames[drawing].addEffect(new ex.Effects.Opacity(this.opacity));
-                }
-                this.previousOpacity = this.opacity;
-            }
             if (this.currentDrawing) {
                 var xDiff = 0;
                 var yDiff = 0;
