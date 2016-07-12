@@ -383,6 +383,52 @@ describe('A game actor', () => {
       expect(actor.rx).toBe(0);
    });
 
+   it('is rotated along with its parent', () => {
+      var rotation = ex.Util.toRadians(90);
+
+      actor.pos.setTo(10, 10);
+      actor.rotation = rotation;
+
+      var child = new ex.Actor(10, 0, 10, 10); // (20, 10)
+
+      actor.add(child);
+      actor.update(engine, 100);
+
+      expect(child.getWorldX()).toBeCloseTo(10, 0.001);
+      expect(child.getWorldY()).toBeCloseTo(20, 0.001);
+   });
+
+   it('is rotated along with its grandparent', () => {
+      var rotation = ex.Util.toRadians(90);
+
+      actor.pos.setTo(10, 10);
+      actor.rotation = rotation;
+
+      var child = new ex.Actor(10, 0, 10, 10); // (20, 10)
+      var grandchild = new ex.Actor(10, 0, 10, 10); // (30, 10)
+
+      actor.add(child);
+      child.add(grandchild);
+      actor.update(engine, 100);
+
+      expect(grandchild.getWorldRotation()).toBe(rotation);
+      expect(grandchild.getWorldX()).toBeCloseTo(10, 0.001);
+      expect(grandchild.getWorldY()).toBeCloseTo(30, 0.001);
+   });
+
+   it('is scaled along with its parent', () => {
+      actor.anchor.setTo(0, 0);
+      actor.scale.setTo(2, 2);
+
+      var child = new ex.Actor(10, 10, 10, 10);
+
+      actor.add(child);
+      actor.update(engine, 100);
+
+      expect(child.getWorldX()).toBe(20);
+      expect(child.getWorldY()).toBe(20);
+   });
+
    it('can be scaled at a speed', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
@@ -785,6 +831,23 @@ describe('A game actor', () => {
 
       expect(childActor.getWorldX()).toBe(60);
       expect(childActor.getWorldY()).toBe(65);
+   });
+
+   it('can find its global coordinates if it has multiple parents', () => {
+      expect(actor.pos.x).toBe(0);
+      expect(actor.pos.y).toBe(0);
+
+      var childActor = new ex.Actor(50, 50);
+      var grandChildActor = new ex.Actor(10, 10);
+
+      actor.add(childActor);
+      childActor.add(grandChildActor);
+
+      actor.moveBy(10, 15, 1000);
+      actor.update(engine, 1000);
+
+      expect(grandChildActor.getWorldX()).toBe(70);
+      expect(grandChildActor.getWorldY()).toBe(75);
    });
 
    it('can find its global coordinates if it doesn\'t have a parent', () => {

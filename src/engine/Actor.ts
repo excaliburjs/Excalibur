@@ -751,23 +751,65 @@ module ex {
     public getBottom() {
        return this.getBounds().bottom;
     }
+
+    /**
+     * Gets this actor's rotation taking into account any parent relationships
+     * 
+     * @returns Rotation angle in radians
+     */
+    public getWorldRotation(): number {
+       if (!this.parent) {
+          return this.rotation;
+       }
+
+       return this.rotation + this.parent.getWorldRotation();
+    }
+
+    /**
+     * Gets an actor's world position taking into account parent relationships, scaling, rotation, and translation
+     * 
+     * @returns Position in world coordinates
+     */
+    public getWorldPos(): Vector {
+       if (!this.parent) {
+          return this.pos.clone();
+       }
+
+       // scale position
+       var sx = this.pos.x * this.parent.scale.x;
+       var sy = this.pos.y * this.parent.scale.y;
+              
+       var root = this.parent;
+       var px = root.pos.x;
+       var py = root.pos.y;
+
+       // reduce cummulative position of parents
+       while (root.parent) {          
+          root = root.parent;
+          px += root.pos.x;
+          py += root.pos.y;          
+       }
+
+       // rotate around root anchor
+       var ra = root.getWorldPos();
+       var r = this.getWorldRotation();
+
+       return new Vector(sx + px, sy + py).rotate(r, ra);
+    }    
+
     /**
      * Gets the x value of the Actor in global coordinates
+     * @obsolete Use [[getWorldPos]]
      */
     public getWorldX() {
-       if (!this.parent) {
-           return this.pos.x;
-       }
-       return this.pos.x * this.parent.scale.x + this.parent.getWorldX();
+       return this.getWorldPos().x;
     }
     /**
      * Gets the y value of the Actor in global coordinates
+     * @obsolete Use [[getWorldPos]]
      */
     public getWorldY() {
-      if (!this.parent) {
-          return this.pos.y;
-      }
-      return this.pos.y * this.parent.scale.y + this.parent.getWorldY();
+      return this.getWorldPos().y;
     }
     /**
      * Gets the global scale of the Actor
