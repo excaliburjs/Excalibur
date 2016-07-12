@@ -10,7 +10,9 @@ game.start().then(function () {
 });
 var easingFn = ex.EasingFunctions.EaseInOutQuad;
 game.input.pointers.primary.on('down', function (evt) {
-    game.currentScene.camera.move(new ex.Vector(evt.x, evt.y), 500, easingFn);
+    game.currentScene.camera.move(new ex.Vector(evt.x, evt.y), 500, easingFn).then(onLerpEnd);
+    document.getElementById('lerp-false').style.display = 'none';
+    document.getElementById('lerp-true').style.display = 'inline';
 });
 document.getElementById('move-ease-in-out-quad').addEventListener('click', moveCameraEase.bind(this, ex.EasingFunctions.EaseInOutQuad));
 document.getElementById('move-ease-in-quad').addEventListener('click', moveCameraEase.bind(this, ex.EasingFunctions.EaseInQuad));
@@ -23,15 +25,7 @@ document.getElementById('move-xy').addEventListener('click', moveCameraViaXY);
 var sw = true;
 function moveCameraEase(_easingFn) {
     easingFn = _easingFn;
-    /*
-    var pos = new ex.Vector(sw ? 200 : 0, sw ? 200 : 0);
-    if (sw) {
-       game.currentScene.camera.move(pos, 500, easingFn);
-    } else {
-       game.currentScene.camera.move(pos, 500, easingFn);
-    }
- 
-    sw = !sw;*/
+    sw = !sw;
 }
 function moveCameraViaXY() {
     if (sw) {
@@ -43,4 +37,11 @@ function moveCameraViaXY() {
         game.currentScene.camera.y = 0;
     }
     sw = !sw;
+}
+function onLerpEnd(target) {
+    var interrupted = target.x !== game.currentScene.camera.x ||
+        target.y !== game.currentScene.camera.y;
+    ex.Logger.getInstance().info("Camera move ended, targeted pos", target, "interrupted?", interrupted);
+    document.getElementById('lerp-false').style.display = 'inline';
+    document.getElementById('lerp-true').style.display = 'none';
 }

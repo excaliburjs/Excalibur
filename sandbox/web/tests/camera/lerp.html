@@ -2,6 +2,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Camera Lerp Test</title>
+    <style type="text/css">
+      #lerp-true { display: none; }
+      #lerp-true { color: green; }
+      #lerp-false { color: red; }
+    </style>
 </head>
 <body>
     
@@ -17,6 +22,8 @@
       <button id="move-xy">Move camera via x and y</button>
 
       <p>Both buttons should work as expected, moving with x, y should move immediately without easing</p>
+
+      <p>Easing: <span id="lerp-true">TRUE</span> <span id="lerp-false">FALSE</span></p>
     </div>
 
 
