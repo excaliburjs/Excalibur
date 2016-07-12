@@ -1605,6 +1605,7 @@ declare module ex {
         private _totalLerpTime;
         private _lerpStart;
         private _lerpEnd;
+        private _lerpPromise;
         protected _isShaking: boolean;
         private _shakeMagnitudeX;
         private _shakeMagnitudeY;
@@ -1648,8 +1649,10 @@ declare module ex {
          * @param pos The target position to move to
          * @param duration The duration in millseconds the move should last
          * @param [easingFn] An optional easing function ([[ex.EasingFunctions.EaseInOutCubic]] by default)
+         * @returns A [[Promise]] that resolves when movement is finished, including if it's interrupted.
+         *          The [[Promise]] value is the [[Vector]] of the target position. It will be rejected if a move cannot be made.
          */
-        move(pos: Vector, duration: number, easingFn?: EasingFunction): void;
+        move(pos: Vector, duration: number, easingFn?: EasingFunction): IPromise<Vector>;
         /**
          * Sets the camera to shake at the specified magnitudes for the specified duration
          * @param magnitudeX  The x magnitude of the shake

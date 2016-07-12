@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-07-10
+/*! excalibur - v0.6.0 - 2016-07-11
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 var __extends = (this && this.__extends) || function (d, b) {
@@ -3509,22 +3509,30 @@ var ex;
          * @param pos The target position to move to
          * @param duration The duration in millseconds the move should last
          * @param [easingFn] An optional easing function ([[ex.EasingFunctions.EaseInOutCubic]] by default)
+         * @returns A [[Promise]] that resolves when movement is finished, including if it's interrupted.
+         *          The [[Promise]] value is the [[Vector]] of the target position. It will be rejected if a move cannot be made.
          */
         BaseCamera.prototype.move = function (pos, duration, easingFn) {
             if (easingFn === void 0) { easingFn = ex.EasingFunctions.EaseInOutCubic; }
             if (typeof easingFn !== 'function') {
-                throw 'Please specify an easing function';
+                throw 'Please specify an EasingFunction';
             }
             // cannot move when following an actor
             if (this._follow) {
-                return;
+                return new ex.Promise().reject(pos);
             }
+            // resolve existing promise, if any
+            if (this._lerpPromise && this._lerpPromise.state() === ex.PromiseState.Pending) {
+                this._lerpPromise.resolve(pos);
+            }
+            this._lerpPromise = new ex.Promise();
             this._lerpStart = this.getFocus().clone();
             this._lerpDuration = duration;
             this._lerpEnd = pos;
             this._currentLerpTime = 0;
             this._cameraMoving = true;
             this._easing = easingFn;
+            return this._lerpPromise;
         };
         /**
          * Sets the camera to shake at the specified magnitudes for the specified duration
@@ -3605,6 +3613,7 @@ var ex;
                 else {
                     this._x = this._lerpEnd.x;
                     this._y = this._lerpEnd.y;
+                    this._lerpPromise.resolve(this._lerpEnd);
                     this._lerpStart = null;
                     this._lerpEnd = null;
                     this._currentLerpTime = 0;
