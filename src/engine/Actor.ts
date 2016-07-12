@@ -432,7 +432,8 @@ module ex {
     private _collisionHandlers: {[key: string]: {(actor: Actor): void}[]; } = {};
     private _isInitialized: boolean = false;
     public frames: { [key: string]: IDrawable; } = {};
-    
+    private _framesDirty: boolean = false;
+
     /**
      * Access to the current drawing for the actor, this can be 
      * an [[Animation]], [[Sprite]], or [[Polygon]]. 
@@ -470,6 +471,7 @@ module ex {
 
     private _zIndex: number = 0;
     private _isKilled: boolean = false;
+    private _opacityFx = new Effects.Opacity(this.opacity);
     
     /**
      * @param x       The starting x coordinate of the actor
@@ -633,6 +635,7 @@ module ex {
           if (!this.currentDrawing) {
              this.currentDrawing = arguments[1];
           }
+          this._framesDirty = true;
        } else {
           if (arguments[0] instanceof Sprite) {
              this.addDrawing('default', arguments[0]);   
@@ -1131,20 +1134,40 @@ module ex {
           this._isInitialized = true;
        }
        this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
-       
-       var eventDispatcher = this.eventDispatcher;
+              
        // Update action queue
        this.actionQueue.update(delta);
+
        // Update color only opacity
        if (this.color) {
           this.color.a = this.opacity;
-       }       
+       }     
+         
+       // calculate changing opacity
+       if (this.previousOpacity !== this.opacity) {
+          this.previousOpacity = this.opacity;
+          this._opacityFx.opacity = this.opacity;          
+          this._framesDirty = true;                    
+       }
+
+       // handle dirty frames and reapply any effects we are tracking
+       if (this._framesDirty) {
+          this._framesDirty = false;
+
+          // ensure we remove existing opacity effect we created
+          // and also ensure we do this everytime in case frames change
+          for (var drawing in this.frames) {
+             this.frames[drawing].removeEffect(this._opacityFx);
+             this.frames[drawing].addEffect(this._opacityFx);
+          }
+       }
+
        // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
-       for (var i = 0; i < this.traits.length; i++) {
-          this.traits[i].update(this, engine, delta);
+       for (var trait of this.traits) {
+          trait.update(this, engine, delta);
        }
        
-       eventDispatcher.emit('update', new UpdateEvent(delta));
+       this.eventDispatcher.emit('update', new UpdateEvent(delta));
        this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
     }
     /**
@@ -1159,15 +1182,7 @@ module ex {
        ctx.scale(this.scale.x, this.scale.y);
        ctx.rotate(this.rotation);
        this.emit('predraw', new PreDrawEvent(ctx, delta, this));
-       
-       
-       // calculate changing opacity
-       if (this.previousOpacity !== this.opacity) {
-          for (var drawing in this.frames) {
-             this.frames[drawing].addEffect(new ex.Effects.Opacity(this.opacity));
-          }
-          this.previousOpacity = this.opacity;
-       }
+                    
        if (this.currentDrawing) {
           var xDiff = 0;
           var yDiff = 0;
