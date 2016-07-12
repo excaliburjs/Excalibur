@@ -1,3 +1,4 @@
+/// <reference path="../../../../dist/Excalibur.d.ts" />
 var engine = new ex.Engine(600, 400);
 var active = new ex.Actor(0, -50, 100, 100, ex.Color.Cyan);
 active.collisionType = ex.CollisionType.Active;
@@ -17,5 +18,6 @@ engine.input.keyboard.on('down', function () {
 });
 engine.start().then(function () {
     console.log("loaded");
-    engine.currentScene.camera.setFocus(0, 0);
+    engine.currentScene.camera.x = 0;
+    engine.currentScene.camera.y = 0;
 });

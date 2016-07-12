@@ -1,3 +1,4 @@
+/// <reference path="../../../../dist/Excalibur.d.ts"/>
 var game = new ex.Engine({
     width: 600,
     height: 400,
@@ -32,16 +33,16 @@ game.input.keyboard.on('down', function (ev) {
     }
     var currentFocus = game.currentScene.camera.getFocus();
     if (ev.key == ex.Input.Keys.Left) {
-        game.currentScene.camera.setFocus(currentFocus.x - 10, currentFocus.y);
+        game.currentScene.camera.x = currentFocus.x - 10;
     }
     if (ev.key == ex.Input.Keys.Right) {
-        game.currentScene.camera.setFocus(currentFocus.x + 10, currentFocus.y);
+        game.currentScene.camera.x = currentFocus.x + 10;
     }
     if (ev.key == ex.Input.Keys.Up) {
-        game.currentScene.camera.setFocus(currentFocus.x, currentFocus.y - 10);
+        game.currentScene.camera.y = currentFocus.y - 10;
     }
     if (ev.key == ex.Input.Keys.Down) {
-        game.currentScene.camera.setFocus(currentFocus.x, currentFocus.y + 10);
+        game.currentScene.camera.y = currentFocus.y + 10;
     }
 });
 var loader = new ex.Loader([raptorTex]);
