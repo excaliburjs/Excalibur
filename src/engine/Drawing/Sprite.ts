@@ -256,14 +256,20 @@ module ex {
        */
       public removeEffect(index: number): void;
       public removeEffect(param: any) {
-         var indexToRemove = null;
+         var indexToRemove = -1;
          if (typeof param === 'number') {
             indexToRemove = param;
          } else {
             indexToRemove = this.effects.indexOf(param);
          }
 
+         // bounds check
+         if (indexToRemove < 0 || indexToRemove >= this.effects.length) {
+            return;
+         }
+
          this.effects.splice(indexToRemove, 1);
+
          // We must check if the texture and the backing sprite pixels are loaded as well before 
          // an effect can be applied
          if (!this._texture.isLoaded() || !this._pixelsLoaded) {

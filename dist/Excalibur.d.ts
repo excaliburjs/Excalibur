@@ -3152,6 +3152,7 @@ declare module ex {
         frames: {
             [key: string]: IDrawable;
         };
+        private _framesDirty;
         /**
          * Access to the current drawing for the actor, this can be
          * an [[Animation]], [[Sprite]], or [[Polygon]].
@@ -3182,6 +3183,7 @@ declare module ex {
         capturePointer: Traits.ICapturePointerConfig;
         private _zIndex;
         private _isKilled;
+        private _opacityFx;
         /**
          * @param x       The starting x coordinate of the actor
          * @param y       The starting y coordinate of the actor
