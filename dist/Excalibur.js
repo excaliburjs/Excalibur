@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-07-11
+/*! excalibur - v0.6.0 - 2016-07-12
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 var __extends = (this && this.__extends) || function (d, b) {
@@ -6604,22 +6604,55 @@ var ex;
             return this.getBounds().bottom;
         };
         /**
+         * Gets this actor's rotation taking into account any parent relationships
+         *
+         * @returns Rotation angle in radians
+         */
+        Actor.prototype.getWorldRotation = function () {
+            if (!this.parent) {
+                return this.rotation;
+            }
+            return this.rotation + this.parent.getWorldRotation();
+        };
+        /**
+         * Gets an actor's world position taking into account parent relationships, scaling, rotation, and translation
+         *
+         * @returns Position in world coordinates
+         */
+        Actor.prototype.getWorldPos = function () {
+            if (!this.parent) {
+                return this.pos.clone();
+            }
+            // scale position
+            var sx = this.pos.x * this.parent.scale.x;
+            var sy = this.pos.y * this.parent.scale.y;
+            var root = this.parent;
+            var px = root.pos.x;
+            var py = root.pos.y;
+            // reduce cummulative position of parents
+            while (root.parent) {
+                root = root.parent;
+                px += root.pos.x;
+                py += root.pos.y;
+            }
+            // rotate around root anchor
+            var ra = root.getWorldPos();
+            var r = this.getWorldRotation();
+            return new ex.Vector(sx + px, sy + py).rotate(r, ra);
+        };
+        /**
          * Gets the x value of the Actor in global coordinates
+         * @obsolete Use [[getWorldPos]]
          */
         Actor.prototype.getWorldX = function () {
-            if (!this.parent) {
-                return this.pos.x;
-            }
-            return this.pos.x * this.parent.scale.x + this.parent.getWorldX();
+            return this.getWorldPos().x;
         };
         /**
          * Gets the y value of the Actor in global coordinates
+         * @obsolete Use [[getWorldPos]]
          */
         Actor.prototype.getWorldY = function () {
-            if (!this.parent) {
-                return this.pos.y;
-            }
-            return this.pos.y * this.parent.scale.y + this.parent.getWorldY();
+            return this.getWorldPos().y;
         };
         /**
          * Gets the global scale of the Actor

@@ -776,22 +776,31 @@ module ex {
        }
 
        // scale position
-       var sx = this.pos.x * this.parent.scale.x;
-       var sy = this.pos.y * this.parent.scale.y;
+       var gs = this.parent.getGlobalScale(); // 2
+       var sx = this.pos.x * gs.x; // 20
+       var sy = this.pos.y * gs.y; // 0
               
        var root = this.parent;
-       var px = root.pos.x;
-       var py = root.pos.y;
+       var px = root.pos.x; // 10
+       var py = root.pos.y; // 0
 
        // reduce cummulative position of parents
-       while (root.parent) {          
+       while (root.parent) {
           root = root.parent;
-          px += root.pos.x;
-          py += root.pos.y;          
+          gs = root.getGlobalScale(); // 2
+
+          // reached the end of the tree?
+          if (root.parent) {
+             px += root.pos.x * gs.x; // 20 + 10
+             py += root.pos.y * gs.y; // 20 + 0
+          } else {
+             px += root.pos.x; // 10 + 10
+             py += root.pos.y; // 10
+          }
        }
 
        // rotate around root anchor
-       var ra = root.getWorldPos();
+       var ra = root.getWorldPos(); // 10, 10
        var r = this.getWorldRotation();
 
        return new Vector(sx + px, sy + py).rotate(r, ra);
@@ -814,7 +823,7 @@ module ex {
     /**
      * Gets the global scale of the Actor
      */
-     public getGlobalScale() {
+     public getGlobalScale(): Vector {
        if (!this.parent) {
           return new Vector(this.scale.x, this.scale.y);
        }

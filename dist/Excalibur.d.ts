@@ -3334,17 +3334,31 @@ declare module ex {
          */
         getBottom(): number;
         /**
-         * Gets the x value of the Actor in global coordinates
+         * Gets this actor's rotation taking into account any parent relationships
+         *
+         * @returns Rotation angle in radians
          */
-        getWorldX(): any;
+        getWorldRotation(): number;
+        /**
+         * Gets an actor's world position taking into account parent relationships, scaling, rotation, and translation
+         *
+         * @returns Position in world coordinates
+         */
+        getWorldPos(): Vector;
+        /**
+         * Gets the x value of the Actor in global coordinates
+         * @obsolete Use [[getWorldPos]]
+         */
+        getWorldX(): number;
         /**
          * Gets the y value of the Actor in global coordinates
+         * @obsolete Use [[getWorldPos]]
          */
-        getWorldY(): any;
+        getWorldY(): number;
         /**
          * Gets the global scale of the Actor
          */
-        getGlobalScale(): any;
+        getGlobalScale(): Vector;
         /**
          * Returns the actor's [[BoundingBox]] calculated for this instant.
          */
