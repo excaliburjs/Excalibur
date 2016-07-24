@@ -1,7 +1,7 @@
 Excalibur.js
 ============
 
-.. image:: assets/excalibur-title-dark.png
+.. image:: assets/logo.png
    :width: 300
 
 |
@@ -74,7 +74,7 @@ bug, report it on the `GitHub issues page <https://github.com/excaliburjs/Excali
 Samples
 -------
 
-Compiled examples can be found `in the Excalibur Showcase <http://excaliburjs.com/showcase/>`_.
+Compiled examples can be found `in the Excalibur Samples <http://excaliburjs.com/samples/>`_.
 
 Contributing
 ------------
