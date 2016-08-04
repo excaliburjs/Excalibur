@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-07-12
+/*! excalibur - v0.6.0 - 2016-08-03
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 var __extends = (this && this.__extends) || function (d, b) {
@@ -6624,19 +6624,28 @@ var ex;
                 return this.pos.clone();
             }
             // scale position
-            var sx = this.pos.x * this.parent.scale.x;
-            var sy = this.pos.y * this.parent.scale.y;
+            var gs = this.parent.getGlobalScale(); // 2
+            var sx = this.pos.x * gs.x; // 20
+            var sy = this.pos.y * gs.y; // 0
             var root = this.parent;
-            var px = root.pos.x;
-            var py = root.pos.y;
+            var px = root.pos.x; // 10
+            var py = root.pos.y; // 0
             // reduce cummulative position of parents
             while (root.parent) {
                 root = root.parent;
-                px += root.pos.x;
-                py += root.pos.y;
+                gs = root.getGlobalScale(); // 2
+                // reached the end of the tree?
+                if (root.parent) {
+                    px += root.pos.x * gs.x; // 20 + 10
+                    py += root.pos.y * gs.y; // 20 + 0
+                }
+                else {
+                    px += root.pos.x; // 10 + 10
+                    py += root.pos.y; // 10
+                }
             }
             // rotate around root anchor
-            var ra = root.getWorldPos();
+            var ra = root.getWorldPos(); // 10, 10
             var r = this.getWorldRotation();
             return new ex.Vector(sx + px, sy + py).rotate(r, ra);
         };
@@ -7043,6 +7052,10 @@ var ex;
             for (var _i = 0, _a = this.traits; _i < _a.length; _i++) {
                 var trait = _a[_i];
                 trait.update(this, engine, delta);
+            }
+            // Update child actors
+            for (var i = 0; i < this.children.length; i++) {
+                this.children[i].update(engine, delta);
             }
             this.eventDispatcher.emit('update', new ex.UpdateEvent(delta));
             this.emit('postupdate', new ex.PostUpdateEvent(engine, delta, this));
