@@ -1217,6 +1217,11 @@ module ex {
        for (var trait of this.traits) {
           trait.update(this, engine, delta);
        }
+
+       // Update child actors
+       for (var i = 0; i < this.children.length; i++) {          
+          this.children[i].update(engine, delta);          
+       }
        
        this.eventDispatcher.emit('update', new UpdateEvent(delta));
        this.emit('postupdate', new PostUpdateEvent(engine, delta, this));

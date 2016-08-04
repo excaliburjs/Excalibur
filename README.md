@@ -1,4 +1,4 @@
-![Logo](/assets/excalibur-title-dark.png?raw=true)
+![Logo](/assets/logo.png?raw=true)
 
 [![Build Status](https://travis-ci.org/excaliburjs/Excalibur.png?branch=master)](https://travis-ci.org/excaliburjs/Excalibur)
 [![Build status](https://ci.appveyor.com/api/projects/status/9i7s7dokx0uygu34?svg=true)](https://ci.appveyor.com/project/eonarheim/excalibur)
@@ -29,7 +29,7 @@ Ask us anything in the [Excalibur.js mailing list](https://groups.google.com/for
 
 # Samples
 
-Compiled examples can be found [in the Excalibur Showcase](http://excaliburjs.com/showcase/).
+Compiled examples can be found [in the Excalibur Samples](http://excaliburjs.com/samples/).
 
 # Contributing
 
