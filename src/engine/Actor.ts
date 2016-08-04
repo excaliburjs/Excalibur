@@ -1181,32 +1181,23 @@ module ex {
      * @param delta The time since the last draw in milliseconds
      */
     public draw(ctx: CanvasRenderingContext2D, delta: number) {
-       var anchorPoint = this._getCalculatedAnchor();
        ctx.save();
-       ctx.translate(this.pos.x, this.pos.y);
+       ctx.translate(this.pos.x, this.pos.y);       
        ctx.scale(this.scale.x, this.scale.y);
        ctx.rotate(this.rotation);
+       ctx.translate(-(this._width * this.anchor.x), -(this._height * this.anchor.y));
+
        this.emit('predraw', new PreDrawEvent(ctx, delta, this));
                     
        if (this.currentDrawing) {
-          var xDiff = 0;
-          var yDiff = 0;
-          
-          if (this.centerDrawingX) {
-             xDiff = (this.currentDrawing.naturalWidth * this.currentDrawing.scale.x - this.getWidth()) / 2 -
-             this.currentDrawing.naturalWidth * this.currentDrawing.scale.x * this.currentDrawing.anchor.x;
-          }
-          if (this.centerDrawingY) {
-             yDiff = (this.currentDrawing.naturalHeight * this.currentDrawing.scale.y - this.getHeight()) / 2 -
-             this.currentDrawing.naturalHeight * this.currentDrawing.scale.y * this.currentDrawing.anchor.y;
-          }
-          this.currentDrawing.draw(ctx, -anchorPoint.x - xDiff, -anchorPoint.y - yDiff);
+          this.currentDrawing.draw(ctx, 0, 0);
        } else {
           if (this.color) {
              ctx.fillStyle = this.color.toString();
-             ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this._width, this._height);
+             ctx.fillRect(0, 0, this._width, this._height);
           } 
        }
+       
        // Draw child actors
        for (var i = 0; i < this.children.length; i++) {
           if (this.children[i].visible) {
