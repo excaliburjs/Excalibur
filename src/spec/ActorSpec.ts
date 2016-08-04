@@ -912,6 +912,19 @@ describe('A game actor', () => {
       expect(fixed.pos.x).toBe(0);
       expect(fixed.pos.y).toBe(50);
    });
+
+   it('updates child actors', () => {
+      var parentActor = new ex.Actor();
+      var childActor = new ex.Actor();
+      scene.add(parentActor);
+      parentActor.add(childActor);
+      
+      spyOn(childActor, 'update');
+      
+      scene.update(engine, 100);
+      
+      expect(childActor.update).toHaveBeenCalled();
+   });
    
    it('draws visible child actors', () => {
       var parentActor = new ex.Actor();
