@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-07-11
+/*! excalibur - v0.6.0 - 2016-08-03
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 var __extends = (this && this.__extends) || function (d, b) {
@@ -7011,6 +7011,10 @@ var ex;
                 var trait = _a[_i];
                 trait.update(this, engine, delta);
             }
+            // Update child actors
+            //  for (var i = 0; i < this.children.length; i++) {          
+            //     this.children[i].update(engine, delta);          
+            //  }
             this.eventDispatcher.emit('update', new ex.UpdateEvent(delta));
             this.emit('postupdate', new ex.PostUpdateEvent(engine, delta, this));
         };
