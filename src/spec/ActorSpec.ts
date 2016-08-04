@@ -445,30 +445,12 @@ describe('A game actor', () => {
       // Logic:
       // p = (10, 10)
       // c = (10 * 2 + 10, 10 * 2 + 10) = (30, 30)
-      // gc = (10 + 30, 10 + 30) = (40, 40)
-      expect(grandchild.getWorldX()).toBe(40);
-      expect(grandchild.getWorldY()).toBe(40);
+      // gc = (10 * 2 + 30, 10 * 2 + 30) = (50, 50)
+      expect(grandchild.getWorldX()).toBe(50);
+      expect(grandchild.getWorldY()).toBe(50);
    });
 
    it('is rotated and scaled along with its parent', () => {
-      var rotation = ex.Util.toRadians(90);
-
-      actor.pos.setTo(10, 10);
-      actor.scale.setTo(2, 2);
-      actor.rotation = rotation;
-
-      var child = new ex.Actor(10, 0, 10, 10); // (30, 10)
-      var grandchild = new ex.Actor(10, 0, 10, 10); // (40, 10)
-
-      actor.add(child);
-      child.add(grandchild);
-      actor.update(engine, 100);
-
-      expect(grandchild.getWorldX()).toBeCloseTo(10, 0.001);
-      expect(grandchild.getWorldY()).toBeCloseTo(40, 0.001);
-   });
-
-   it('is rotated and scaled along with its grandparent', () => {
       var rotation = ex.Util.toRadians(90);
 
       actor.pos.setTo(10, 10);
@@ -483,6 +465,24 @@ describe('A game actor', () => {
       expect(child.getWorldX()).toBeCloseTo(10, 0.001);
       expect(child.getWorldY()).toBeCloseTo(30, 0.001);
    });
+
+   it('is rotated and scaled along with its grandparent', () => {
+      var rotation = ex.Util.toRadians(90);
+
+      actor.pos.setTo(10, 10);
+      actor.scale.setTo(2, 2);
+      actor.rotation = rotation;
+
+      var child = new ex.Actor(10, 0, 10, 10); // (30, 10)
+      var grandchild = new ex.Actor(10, 0, 10, 10); // (50, 10)
+
+      actor.add(child);
+      child.add(grandchild);
+      actor.update(engine, 100);
+
+      expect(grandchild.getWorldX()).toBeCloseTo(10, 0.001);
+      expect(grandchild.getWorldY()).toBeCloseTo(50, 0.001);
+   });  
 
    it('can be scaled at a speed', () => {
       expect(actor.scale.x).toBe(1);

@@ -775,35 +775,38 @@ module ex {
           return this.pos.clone();
        }
 
-       // scale position
-       var gs = this.parent.getGlobalScale(); // 2
-       var sx = this.pos.x * gs.x; // 20
-       var sy = this.pos.y * gs.y; // 0
-              
-       var root = this.parent;
-       var px = root.pos.x; // 10
-       var py = root.pos.y; // 0
+       // collect parents                  
+       var parents: Actor[] = [];
+       var root: Actor = this;
+       
+       parents.push(this);
 
-       // reduce cummulative position of parents
+       // find parents
        while (root.parent) {
           root = root.parent;
-          gs = root.getGlobalScale(); // 2
-
-          // reached the end of the tree?
-          if (root.parent) {
-             px += root.pos.x * gs.x; // 20 + 10
-             py += root.pos.y * gs.y; // 20 + 0
-          } else {
-             px += root.pos.x; // 10 + 10
-             py += root.pos.y; // 10
-          }
+          parents.push(root);
        }
+
+       // calculate position       
+       var x = parents.reduceRight((px, p, i, arr) => {
+          if (p.parent) {
+             return px + (p.pos.x * p.getGlobalScale().x);
+          }
+          return px + p.pos.x;
+       }, 0);
+
+       var y = parents.reduceRight((py, p, i, arr) => {
+          if (p.parent) {
+             return py + (p.pos.y * p.getGlobalScale().y);
+          }
+          return py + p.pos.y;
+       }, 0);
 
        // rotate around root anchor
        var ra = root.getWorldPos(); // 10, 10
-       var r = this.getWorldRotation();
+       var r = this.getWorldRotation();      
 
-       return new Vector(sx + px, sy + py).rotate(r, ra);
+       return new Vector(x, y).rotate(r, ra);
     }    
 
     /**

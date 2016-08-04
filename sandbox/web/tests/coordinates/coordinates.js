@@ -23,32 +23,56 @@ function addTestPoint(x, y, ax, ay, s, rd, parent) {
     else {
         game.add(p);
     }
+    var pl = new PointLabel(p);
+    game.add(pl);
     return p;
 }
 var Point = (function (_super) {
     __extends(Point, _super);
-    function Point(x, y, actualX, actualY) {
+    function Point(x, y, expectedX, expectedY) {
         _super.call(this, x, y, 3, 3, ex.Color.Red);
-        this.actualX = actualX;
-        this.actualY = actualY;
+        this.expectedX = expectedX;
+        this.expectedY = expectedY;
+    }
+    return Point;
+}(ex.Actor));
+var PointLabel = (function (_super) {
+    __extends(PointLabel, _super);
+    function PointLabel(point) {
+        _super.call(this, 0, 0, 0, 0);
+        this.point = point;
         this.anchor.setTo(0, 0);
     }
-    Point.prototype.onInitialize = function (engine) {
+    PointLabel.prototype.onInitialize = function (engine) {
         _super.prototype.onInitialize.call(this, engine);
         this._expectLabel = new ex.Label('', 5, 10);
-        this._expectLabel.color = ex.Color.Red;
+        this._expectLabel.color = ex.Color.fromHex("#249111");
         this.add(this._expectLabel);
         this._actualLabel = new ex.Label('', 5, 20);
         this._actualLabel.color = ex.Color.Blue;
         this.add(this._actualLabel);
     };
-    Point.prototype.update = function (engine, delta) {
+    PointLabel.prototype.update = function (engine, delta) {
         _super.prototype.update.call(this, engine, delta);
-        this._expectLabel.text = "(" + this.actualX + ", " + this.actualY + ")";
-        this._actualLabel.text = "(" + this.getWorldX() + ", " + this.getWorldY() + ")";
+        var xx = this.point.expectedX;
+        var xy = this.point.expectedY;
+        var ax = this.point.getWorldX();
+        var ay = this.point.getWorldY();
+        this._expectLabel.text = "(" + xx + ", " + xy + ")";
+        this._actualLabel.text = "(" + ax + ", " + ay + ")";
+        // actual !== expected
+        if (!isCloseEnough(xx, ax) || !isCloseEnough(xy, ay)) {
+            this._expectLabel.color = ex.Color.Red;
+        }
+        this.pos.setTo(ax, ay - 10);
     };
-    return Point;
+    return PointLabel;
 }(ex.Actor));
+function isCloseEnough(a, b, t) {
+    if (t === void 0) { t = 1; }
+    var diff = Math.abs(b - a);
+    return diff <= t;
+}
 var GridLine = (function (_super) {
     __extends(GridLine, _super);
     function GridLine(dir, pos, size) {
@@ -84,4 +108,17 @@ game.start().then(function () {
     // parent -> child translation
     var p1 = addTestPoint(100, 0, 100, 0);
     addTestPoint(50, 0, 150, 0, 1, 0, p1);
+    // parent -> child rotation (90deg)
+    var p2 = addTestPoint(100, 150, 100, 150, 1, 90);
+    addTestPoint(50, 0, 100, 200, 1, 0, p2);
+    // parent -> child scale (2x)
+    var p3 = addTestPoint(100, 100, 100, 100, 2);
+    var c1 = addTestPoint(50, 0, 200, 100, 1, 0, p3);
+    // grandchild -> scale (2x)
+    addTestPoint(10, 20, 220, 140, 1, 0, c1);
+    // parent -> child scale (2x) and rotation (45deg)
+    var p4 = addTestPoint(100, 250, 100, 250, 2, 45);
+    var c2 = addTestPoint(50, 0, 170, 320, 1, 0, p4);
+    // grandchild scale (2x) + rotation (45deg)
+    addTestPoint(0, 20, 142, 348, 1, 0, c2);
 });
