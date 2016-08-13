@@ -8,7 +8,7 @@
 /// <reference path="Resources/Texture.ts" />
 /// <reference path="Resources/Sound.ts" />
 /// <reference path="Collision/Side.ts" />
-/// <reference path="Collision/IPhysics.ts" />
+/// <reference path="Physics.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actor.ts" />
 /// <reference path="UIActor.ts" />
@@ -342,29 +342,7 @@ module ex {
        */
       public input: ex.Input.IEngineInput;
       
-      /**
-       * Static access engine global physics settings
-       */
-      public static physics: ex.IEnginePhysics = {
-          acc: new ex.Vector(0, 0),
-          on: true,
-          collisionPasses: 5,
-          broadphaseStrategy: BroadphaseStrategy.DynamicAABBTree,
-          collisionResolutionStrategy: CollisionResolutionStrategy.RigidBody,
-          defaultMass: 10,
-          integrator: 'euler',
-          integrationSteps: 1,
-          allowRotation: true,
-          enableSleeping: true,
-          sleepEpsilon: .05,
-          motionBias: .95
-      };
-
-      /**
-       * Gets or sets the [[CollisionStrategy]] for Excalibur actors
-       */
-      public collisionStrategy: BroadphaseStrategy = BroadphaseStrategy.DynamicAABBTree;
-
+      
       private _hasStarted: boolean = false;
 
       /**

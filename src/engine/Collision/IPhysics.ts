@@ -1,8 +1,4 @@
 module ex {
-   export enum CollisionResolutionStrategy {
-      Box,
-      RigidBody      
-   }
    
    export interface IEnginePhysics {
       /**
@@ -12,7 +8,7 @@ module ex {
       /**
        * Global to switch physics on or off (switching physics off will improve performance)
        */
-      on: boolean;
+      enabled: boolean;
       /**
        * Default mass of new actors created in excalibur
        */
@@ -39,16 +35,7 @@ module ex {
        * Collision resolution strategy for handling collision contacts
        */
       collisionResolutionStrategy: CollisionResolutionStrategy;
-      
-      /**
-       *
-       */
-      enableSleeping: boolean;
-
-      /**
-       * The epsilon below which objects go to sleep
-       */
-      sleepEpsilon: number;
+            
       /**
        * Bias motion calculation towards the current frame, or the last frame
        */

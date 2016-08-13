@@ -420,17 +420,6 @@ module ex {
     public set motion(theMotion: number) {
        this.body.motion = theMotion;
     }
-
-    /**
-     * This idicates whether the current actor is asleep in the physics simulation
-     */
-    public get sleeping() {
-       return this.body.sleeping;   
-    }
-    
-    public set sleeping(isSleeping: boolean){
-       this.body.sleeping = isSleeping;
-    }
         
     /**
      * The coefficient of friction on this actor
@@ -691,6 +680,7 @@ module ex {
     public isKilled(): boolean { 
        return this._isKilled;
     }
+
     /**
      * Adds a child actor to this actor. All movement of the child actor will be
      * relative to the parent actor. Meaning if the parent moves the child will
@@ -735,23 +725,6 @@ module ex {
           }
       }
     }
-
-    /**
-     * Set whether the actor is awake
-     */
-    public setSleep(sleep: boolean): void {
-        // todo add some "motion" to the actor so it doesn't fall back asleep
-        // multiple of the sleep epsilon
-        if (sleep) {
-           this.sleeping = true;
-           this.rx = 0;
-           this.vel.setTo(0, 0);
-           this.motion = 0;
-        } else {
-           this.sleeping = false;
-           //this.motion += ex.Engine.physics.sleepEpsilon * 10; // maybe this is reasonable    
-        }
-    }
      
     /**
      * Add minimum translation vectors accumulated during the current frame to resolve collisons.
@@ -760,22 +733,14 @@ module ex {
         this._totalMtv.addEqual(mtv);
     }
 
+    /**
+     * Applies the accumulated translation vectors to the actors position
+     */
     public applyMtv(): void {
        this.pos.addEqual(this._totalMtv);
        this._totalMtv.setTo(0, 0);
     }
-
-    /**
-     * Check if the current actor can go to sleep.
-     */
-    public sleepCheck(delta: number): boolean {
-        if (this.motion < ex.Engine.physics.sleepEpsilon) {
-            this.setSleep(false);
-        }
-
-        return this.sleeping;
-    }
-
+   
     /**
      * Adds a whole texture as the "default" drawing. Set a drawing using [[setDrawing]].
      */
@@ -1423,7 +1388,7 @@ module ex {
        */
        // Draw collision areas
        this.collisionAreas.forEach((ca) => {
-          ctx.strokeStyle = (this.sleeping ? 'gray' : 'lime').toString();
+          ctx.strokeStyle = 'lime';
           ca.debugDraw(ctx, null);
        });
        /*

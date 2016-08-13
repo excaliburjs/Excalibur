@@ -235,7 +235,7 @@ module ex {
             this.tileMaps[i].update(engine, delta);
          }
          
-         var iter: number = Engine.physics.collisionPasses;
+         var iter: number = Physics.collisionPasses;
          var collisionDelta = delta / iter;
          while (iter > 0) {
             // Cycle through actors updating actors
@@ -247,7 +247,7 @@ module ex {
             // TODO meh I don't like how this works... maybe find a way to make collisions
             // a trait
             // Run collision resolution strategy
-            if (this._broadphase && Engine.physics.on) {
+            if (this._broadphase && Physics.enabled) {
                this._broadphase.update(this.children, collisionDelta);
                this._broadphase.resolve(this.children, collisionDelta);
             }

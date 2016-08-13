@@ -1,5 +1,5 @@
 ﻿module ex {
-
+  
    export interface ICollisionBroadphase {
       register(target: Actor);
       remove(tartet: Actor);

@@ -174,7 +174,7 @@ module ex {
          * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
          */
         public getMomentOfInertia(): number {
-            var mass = this.actor ? this.actor.mass : Engine.physics.defaultMass;
+            var mass = this.actor ? this.actor.mass : Physics.defaultMass;
             var numerator = 0;
             var denominator = 0;
             for (var i = 0; i < this.points.length; i++) {

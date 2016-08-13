@@ -375,6 +375,75 @@ declare module ex {
     }
 }
 declare module ex {
+    interface IEnginePhysics {
+        /**
+         * Global engine acceleration, useful for defining consitent gravity on all actors
+         */
+        acc: Vector;
+        /**
+         * Global to switch physics on or off (switching physics off will improve performance)
+         */
+        enabled: boolean;
+        /**
+         * Default mass of new actors created in excalibur
+         */
+        defaultMass: number;
+        /**
+         * Number of pos/vel integration steps
+         */
+        integrationSteps: number;
+        /**
+         * The integration method
+         */
+        integrator: string;
+        /**
+         * Number of collision resultion passes
+         */
+        collisionPasses: number;
+        /**
+         * Broadphase strategy for identifying potential collision contacts
+         */
+        broadphaseStrategy: BroadphaseStrategy;
+        /**
+         * Collision resolution strategy for handling collision contacts
+         */
+        collisionResolutionStrategy: CollisionResolutionStrategy;
+        /**
+         * Bias motion calculation towards the current frame, or the last frame
+         */
+        motionBias: number;
+        /**
+         * Allow rotation in the physics simulation
+         */
+        allowRotation: boolean;
+    }
+}
+declare module ex {
+    enum CollisionResolutionStrategy {
+        Box = 0,
+        RigidBody = 1,
+    }
+    enum BroadphaseStrategy {
+        Naive = 0,
+        DynamicAABBTree = 1,
+    }
+    /**
+     * Static access engine global physics settings
+     */
+    class Physics {
+        static acc: Vector;
+        static enabled: boolean;
+        static collisionPasses: number;
+        static broadphaseStrategy: BroadphaseStrategy;
+        static collisionResolutionStrategy: CollisionResolutionStrategy;
+        static defaultMass: number;
+        static integrator: string;
+        static integrationSteps: number;
+        static allowRotation: boolean;
+        static motionBias: number;
+    }
+}
+declare module ex {
     /**
      * Collision contacts are used internally by Excalibur to resolve collision between actors. This
      * Pair prevents collisions from being evaluated more than one time
@@ -406,8 +475,8 @@ declare module ex {
         normal: Vector;
         constructor(bodyA: ICollisionArea, bodyB: ICollisionArea, mtv: Vector, point: Vector, normal: Vector);
         resolve(delta: number, strategy: CollisionResolutionStrategy): void;
-        private _resolveAABB(delta);
-        private _resolveRigidBody(delta);
+        private _resolveBoxCollision(delta);
+        private _resolveRigidBodyCollision(delta);
     }
 }
 declare module ex {
@@ -1525,10 +1594,6 @@ declare module ex {
     }
 }
 declare module ex {
-    enum BroadphaseStrategy {
-        Naive = 0,
-        DynamicAABBTree = 1,
-    }
     /**
      * Interface all collidable objects must implement
      */
@@ -1648,7 +1713,6 @@ declare module ex {
         /**
          * This idicates whether the current actor is asleep in the physics simulation
          */
-        sleeping: boolean;
         /**
          * The coefficient of friction on this actor
          */
@@ -1822,7 +1886,7 @@ declare module ex {
         insert(leaf: TreeNode): void;
         remove(leaf: TreeNode): void;
         registerActor(actor: Actor): void;
-        updateActor(actor: Actor): boolean;
+        updateBody(actor: Actor): boolean;
         removeActor(actor: Actor): void;
         balance(node: TreeNode): TreeNode;
         getHeight(): number;
@@ -3376,10 +3440,6 @@ declare module ex {
          */
         motion: number;
         /**
-         * This idicates whether the current actor is asleep in the physics simulation
-         */
-        sleeping: boolean;
-        /**
          * The coefficient of friction on this actor
          */
         friction: number;
@@ -3564,18 +3624,13 @@ declare module ex {
          */
         setDrawing(key: number): any;
         /**
-         * Set whether the actor is awake
-         */
-        setSleep(sleep: boolean): void;
-        /**
          * Add minimum translation vectors accumulated during the current frame to resolve collisons.
          */
         addMtv(mtv: Vector): void;
-        applyMtv(): void;
         /**
-         * Check if the current actor can go to sleep.
+         * Applies the accumulated translation vectors to the actors position
          */
-        sleepCheck(delta: number): boolean;
+        applyMtv(): void;
         /**
          * Adds a whole texture as the "default" drawing. Set a drawing using [[setDrawing]].
          */
@@ -5038,62 +5093,6 @@ declare module ex {
         getData(): any;
         setData(data: any): void;
         processData(data: any): any;
-    }
-}
-declare module ex {
-    enum CollisionResolutionStrategy {
-        Box = 0,
-        RigidBody = 1,
-    }
-    interface IEnginePhysics {
-        /**
-         * Global engine acceleration, useful for defining consitent gravity on all actors
-         */
-        acc: Vector;
-        /**
-         * Global to switch physics on or off (switching physics off will improve performance)
-         */
-        on: boolean;
-        /**
-         * Default mass of new actors created in excalibur
-         */
-        defaultMass: number;
-        /**
-         * Number of pos/vel integration steps
-         */
-        integrationSteps: number;
-        /**
-         * The integration method
-         */
-        integrator: string;
-        /**
-         * Number of collision resultion passes
-         */
-        collisionPasses: number;
-        /**
-         * Broadphase strategy for identifying potential collision contacts
-         */
-        broadphaseStrategy: BroadphaseStrategy;
-        /**
-         * Collision resolution strategy for handling collision contacts
-         */
-        collisionResolutionStrategy: CollisionResolutionStrategy;
-        /**
-         *
-         */
-        enableSleeping: boolean;
-        /**
-         * The epsilon below which objects go to sleep
-         */
-        sleepEpsilon: number;
-        /**
-         * Bias motion calculation towards the current frame, or the last frame
-         */
-        motionBias: number;
-        /**
-         * Allow rotation in the physics simulation
-         */
-        allowRotation: boolean;
     }
 }
 declare module ex {
@@ -7284,14 +7283,6 @@ declare module ex {
          * Access engine input like pointer, keyboard, or gamepad
          */
         input: ex.Input.IEngineInput;
-        /**
-         * Static access engine global physics settings
-         */
-        static physics: ex.IEnginePhysics;
-        /**
-         * Gets or sets the [[CollisionStrategy]] for Excalibur actors
-         */
-        collisionStrategy: BroadphaseStrategy;
         private _hasStarted;
         /**
          * Current FPS

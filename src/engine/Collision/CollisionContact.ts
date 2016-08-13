@@ -1,5 +1,6 @@
 /// <reference path="../Algebra.ts" />
 /// <reference path="../Actor.ts" />
+/// <reference path="../Physics.ts" />
 /// <reference path="ICollisionArea.ts" />
 module ex {
    /**
@@ -43,15 +44,15 @@ module ex {
       
       resolve(delta: number, strategy: CollisionResolutionStrategy) {
          if(strategy === CollisionResolutionStrategy.RigidBody) {
-            this._resolveRigidBody(delta);
+            this._resolveRigidBodyCollision(delta);
          }else if (strategy === CollisionResolutionStrategy.Box) {
-            this._resolveAABB(delta);   
+            this._resolveBoxCollision(delta);   
          }else {
             throw new Error('Unknown collision resolution strategy');
          }
       }
       
-      private _resolveAABB(delta: number) {
+      private _resolveBoxCollision(delta: number) {
          var bodyA = this.bodyA.actor;
          var bodyB = this.bodyB.actor;
          var side = ex.Util.getSideFromVector(this.mtv);
@@ -97,9 +98,9 @@ module ex {
                if (this.mtv.y !== 0) {
                   
                   if (bodyA.vel.y <= 0 && bodyB.vel.y <= 0) {
-                     bodyA.vel.y = Math.max(bodyA.vel.y, bodyB.vel.y);
+                     bodyA.vel.y = bodyA.vel.y + bodyB.vel.y;
                   } else if (bodyA.vel.y >= 0 && bodyB.vel.y >= 0) {
-                     bodyA.vel.y = Math.min(bodyA.vel.y, bodyB.vel.y);
+                     bodyA.vel.y = bodyA.vel.y + bodyB.vel.y;
                   } else {
                      bodyA.vel.y = 0;
                   }
@@ -141,9 +142,9 @@ module ex {
                
                if(rightIntersect.y !== 0) {
                   if (bodyB.vel.y <= 0 && bodyA.vel.y <= 0) {
-                     bodyB.vel.y = Math.max(bodyA.vel.y, bodyB.vel.y);
+                     bodyB.vel.y = bodyA.vel.y + bodyB.vel.y;
                   } else if (bodyA.vel.y >= 0 && bodyB.vel.y >= 0) {
-                     bodyB.vel.y = Math.min(bodyA.vel.y, bodyB.vel.y);
+                     bodyB.vel.y = bodyA.vel.y + bodyB.vel.y;
                   }else {
                      bodyB.vel.y = 0;
                   }
@@ -152,7 +153,7 @@ module ex {
          }
       }
       
-      private _resolveRigidBody(delta: number) {
+      private _resolveRigidBodyCollision(delta: number) {
                   
          // perform collison on bounding areas
          var bodyA: Actor = this.bodyA.actor;
@@ -215,13 +216,13 @@ module ex {
          
          if(bodyA.collisionType === ex.CollisionType.Fixed) {
             bodyB.vel = bodyB.vel.add(normal.scale(impulse * invMassB));
-            if(Engine.physics.allowRotation) {
+            if(Physics.allowRotation) {
                bodyB.rx -= impulse * invMoiB * -rb.cross(normal);
             }
             bodyB.addMtv(mtv);
          }else if (bodyB.collisionType === ex.CollisionType.Fixed) {
             bodyA.vel = bodyA.vel.sub(normal.scale(impulse * invMassA));
-            if(Engine.physics.allowRotation) {
+            if(Physics.allowRotation) {
                bodyA.rx += impulse * invMoiA * -ra.cross(normal);
             }
             bodyA.addMtv(mtv.negate());
@@ -229,7 +230,7 @@ module ex {
             bodyB.vel = bodyB.vel.add(normal.scale(impulse * invMassB));
             bodyA.vel = bodyA.vel.sub(normal.scale(impulse * invMassA));
             
-            if(Engine.physics.allowRotation) {      
+            if(Physics.allowRotation) {      
                bodyB.rx -= impulse * invMoiB * -rb.cross(normal);
                bodyA.rx += impulse * invMoiA * -ra.cross(normal);
             }
@@ -261,13 +262,13 @@ module ex {
             if ( bodyA.collisionType === ex.CollisionType.Fixed ) {
                   // apply frictional impulse
                   bodyB.vel = bodyB.vel.add(frictionImpulse.scale(invMassB));
-                  if(Engine.physics.allowRotation) {      
+                  if(Physics.allowRotation) {      
                      bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
                   }
             } else if ( bodyB.collisionType === ex.CollisionType.Fixed ) {
                   // apply frictional impulse
                   bodyA.vel = bodyA.vel.sub(frictionImpulse.scale(invMassA));
-                  if(Engine.physics.allowRotation) {      
+                  if(Physics.allowRotation) {      
                      bodyA.rx -= frictionImpulse.dot(t) * invMoiA * ra.cross(t);
                   }
             } else {
@@ -276,7 +277,7 @@ module ex {
                 bodyA.vel = bodyA.vel.sub(frictionImpulse.scale(invMassA));
                 
                 // apply frictional impulse
-                if(Engine.physics.allowRotation) {      
+                if(Physics.allowRotation) {      
                   bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
                   bodyA.rx -= frictionImpulse.dot(t) * invMoiA * ra.cross(t);
                 }                

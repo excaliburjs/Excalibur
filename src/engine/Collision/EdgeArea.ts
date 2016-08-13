@@ -97,7 +97,7 @@
          * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
          */
         public getMomentOfInertia(): number {
-           var mass = this.actor ? this.actor.mass : Engine.physics.defaultMass;
+           var mass = this.actor ? this.actor.mass : Physics.defaultMass;
            var length = this.end.sub(this.begin).distance() / 2;
            return mass * length * length;
         }

@@ -191,7 +191,7 @@ module ex {
          this.insert(node);
       }
 
-      public updateActor(actor: Actor) {
+      public updateBody(actor: Actor) {
          var node = this.nodes[actor.id];
          if (!node) { return; }
          var b = actor.getBounds();

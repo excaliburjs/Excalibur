@@ -101,7 +101,7 @@
          * @param mass
          */
         public getMomentOfInertia(): number {
-           var mass = this.actor ? this.actor.mass : Engine.physics.defaultMass;
+           var mass = this.actor ? this.actor.mass : Physics.defaultMass;
            return (mass * this.radius * this.radius) / 2;
         }
 

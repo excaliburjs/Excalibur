@@ -59,6 +59,9 @@ loader.addResource(jump);
 // Set background color
 game.backgroundColor = new ex.Color(114, 213, 224);
 
+// setup physics defaults
+ex.Physics.acc = new ex.Vector(0, 800); // global accel
+
 
 // Add some UI
 var heart = new ex.UIActor(0, 0, 20, 20);
@@ -320,14 +323,17 @@ player.on('collision', (data?: ex.CollisionEvent) => {
          player.setDrawing(Animations.Idle);
       }
       inAir = false;
-      if (data.other && !(game.input.keyboard.isHeld(ex.Input.Keys.Left) || game.input.keyboard.isHeld(ex.Input.Keys.Right) || game.input.keyboard.isHeld(ex.Input.Keys.Up) || game.input.keyboard.isHeld(ex.Input.Keys.Down))) {
-         //player.vel.x = data.other.vel.x;
-         //player.vel.y = data.other.vel.y;
+      if (data.other && !(game.input.keyboard.isHeld(ex.Input.Keys.Left) || 
+                          game.input.keyboard.isHeld(ex.Input.Keys.Right) || 
+                          game.input.keyboard.isHeld(ex.Input.Keys.Up) || 
+                          game.input.keyboard.isHeld(ex.Input.Keys.Down))) {
+         player.vel.x = data.other.vel.x;
+         player.vel.y = data.other.vel.y;
       }
 
       if (!data.other) {
-         //player.vel.x = 0;
-         //player.vel.y = 0;
+         player.vel.x = 0;
+         player.vel.y = 0;
       }
 
    }
@@ -346,9 +352,9 @@ player.on('update', (data?: ex.UpdateEvent) => {
    // apply gravity if player is in the air
    // only apply gravity when not colliding
    if (!isColliding) {
-      data.target.acc.setTo(0, 800);// * data.delta/1000;
+      //data.target.acc.setTo(0, 800);// * data.delta/1000;
    } else {
-      data.target.acc.setTo(0, 0);
+      //data.target.acc.setTo(0, 0);
    }
 
    // Reset values because we don't know until we check the next update

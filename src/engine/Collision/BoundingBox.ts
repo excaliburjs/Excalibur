@@ -2,11 +2,6 @@
 
 module ex {
 
-    export enum BroadphaseStrategy {
-        Naive,
-        DynamicAABBTree
-    }
-
     /**
      * Interface all collidable objects must implement
      */

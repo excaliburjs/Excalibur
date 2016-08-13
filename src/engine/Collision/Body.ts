@@ -53,7 +53,7 @@ module ex {
       /**
        * This idicates whether the current actor is asleep in the physics simulation
        */
-      public sleeping: boolean = false;
+      // TODO implement sleeping public sleeping: boolean = false;
       
       /**
        * The coefficient of friction on this actor

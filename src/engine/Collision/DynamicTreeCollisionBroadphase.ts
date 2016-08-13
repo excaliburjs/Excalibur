@@ -19,7 +19,7 @@ module ex {
       public resolve(targets: Actor[], delta: number): CollisionContact[] {
          // Retrieve the list of potential colliders, exclude killed, prevented, and self
          var potentialColliders = targets.filter((other) => {
-            return !other.isKilled() && other.collisionType !== CollisionType.PreventCollision && !other.sleeping;
+            return !other.isKilled() && other.collisionType !== CollisionType.PreventCollision;
          });
 
          var actor: Actor;
@@ -95,7 +95,7 @@ module ex {
          // evaluate collision pairs
          var i = 0, len = this._collisionContactCache.length;
          for (i; i < len; i++) {
-            this._collisionContactCache[i].resolve(delta, Engine.physics.collisionResolutionStrategy);
+            this._collisionContactCache[i].resolve(delta, Physics.collisionResolutionStrategy);
          }
     
          // apply total mtv
@@ -114,7 +114,7 @@ module ex {
          var updated = 0, i = 0, len = targets.length;
 
          for (i; i < len; i++) {
-            if (this._dynamicCollisionTree.updateActor(targets[i])) {
+            if (this._dynamicCollisionTree.updateBody(targets[i])) {
                updated++;
             }
          }
