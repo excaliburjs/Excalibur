@@ -159,7 +159,6 @@ player.addDrawing(Animations.JumpRight, jumpRight);
 player.addDrawing(Animations.JumpLeft, jumpLeft);
 // Set default animation
 player.setDrawing(Animations.Idle);
-player.setCenterDrawing(true);
 var jumpSound = jump.sound;
 var inAir = true;
 var groundSpeed = 150;

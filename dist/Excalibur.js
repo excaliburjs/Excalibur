@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-08-03
+/*! excalibur - v0.6.0 - 2016-08-04
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 var __extends = (this && this.__extends) || function (d, b) {
@@ -6349,8 +6349,6 @@ var ex;
              * Set drawings with [[setDrawing]].
              */
             this.currentDrawing = null;
-            this.centerDrawingX = true;
-            this.centerDrawingY = true;
             /**
              * Modify the current actor update pipeline.
              */
@@ -6570,14 +6568,6 @@ var ex;
          */
         Actor.prototype.setHeight = function (height) {
             this._height = height / this.scale.y;
-        };
-        /**
-         * Centers the actor's drawing around the center of the actor's bounding box
-         * @param center Indicates to center the drawing around the actor
-         */
-        Actor.prototype.setCenterDrawing = function (center) {
-            this.centerDrawingY = center;
-            this.centerDrawingX = center;
         };
         /**
          * Gets the left edge of the actor
@@ -7028,9 +7018,13 @@ var ex;
             ctx.translate(this.pos.x, this.pos.y);
             ctx.scale(this.scale.x, this.scale.y);
             ctx.rotate(this.rotation);
+            // translate canvas by anchor offset
             ctx.translate(-(this._width * this.anchor.x), -(this._height * this.anchor.y));
             this.emit('predraw', new ex.PreDrawEvent(ctx, delta, this));
             if (this.currentDrawing) {
+                // We want to center drawing around anchor in case drawing is > actor
+                // var cx = -(this.currentDrawing.naturalWidth * this.currentDrawing.scale.x  - this.getWidth())  * this.anchor.x;
+                // var cy = -(this.currentDrawing.naturalHeight * this.currentDrawing.scale.y - this.getHeight()) * this.anchor.y;
                 this.currentDrawing.draw(ctx, 0, 0);
             }
             else {

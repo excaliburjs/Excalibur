@@ -3159,8 +3159,6 @@ declare module ex {
          * Set drawings with [[setDrawing]].
          */
         currentDrawing: IDrawable;
-        centerDrawingX: boolean;
-        centerDrawingY: boolean;
         /**
          * Modify the current actor update pipeline.
          */
@@ -3312,11 +3310,6 @@ declare module ex {
          * Sets the height of an actor, factoring in the current scale
          */
         setHeight(height: any): void;
-        /**
-         * Centers the actor's drawing around the center of the actor's bounding box
-         * @param center Indicates to center the drawing around the actor
-         */
-        setCenterDrawing(center: boolean): void;
         /**
          * Gets the left edge of the actor
          */
