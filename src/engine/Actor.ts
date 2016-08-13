@@ -751,28 +751,82 @@ module ex {
     public getBottom() {
        return this.getBounds().bottom;
     }
+
+    /**
+     * Gets this actor's rotation taking into account any parent relationships
+     * 
+     * @returns Rotation angle in radians
+     */
+    public getWorldRotation(): number {
+       if (!this.parent) {
+          return this.rotation;
+       }
+
+       return this.rotation + this.parent.getWorldRotation();
+    }
+
+    /**
+     * Gets an actor's world position taking into account parent relationships, scaling, rotation, and translation
+     * 
+     * @returns Position in world coordinates
+     */
+    public getWorldPos(): Vector {
+       if (!this.parent) {
+          return this.pos.clone();
+       }
+
+       // collect parents                  
+       var parents: Actor[] = [];
+       var root: Actor = this;
+       
+       parents.push(this);
+
+       // find parents
+       while (root.parent) {
+          root = root.parent;
+          parents.push(root);
+       }
+
+       // calculate position       
+       var x = parents.reduceRight((px, p, i, arr) => {
+          if (p.parent) {
+             return px + (p.pos.x * p.getGlobalScale().x);
+          }
+          return px + p.pos.x;
+       }, 0);
+
+       var y = parents.reduceRight((py, p, i, arr) => {
+          if (p.parent) {
+             return py + (p.pos.y * p.getGlobalScale().y);
+          }
+          return py + p.pos.y;
+       }, 0);
+
+       // rotate around root anchor
+       var ra = root.getWorldPos(); // 10, 10
+       var r = this.getWorldRotation();      
+
+       return new Vector(x, y).rotate(r, ra);
+    }    
+
     /**
      * Gets the x value of the Actor in global coordinates
+     * @obsolete Use [[getWorldPos]]
      */
     public getWorldX() {
-       if (!this.parent) {
-           return this.pos.x;
-       }
-       return this.pos.x * this.parent.scale.x + this.parent.getWorldX();
+       return this.getWorldPos().x;
     }
     /**
      * Gets the y value of the Actor in global coordinates
+     * @obsolete Use [[getWorldPos]]
      */
     public getWorldY() {
-      if (!this.parent) {
-          return this.pos.y;
-      }
-      return this.pos.y * this.parent.scale.y + this.parent.getWorldY();
+      return this.getWorldPos().y;
     }
     /**
      * Gets the global scale of the Actor
      */
-     public getGlobalScale() {
+     public getGlobalScale(): Vector {
        if (!this.parent) {
           return new Vector(this.scale.x, this.scale.y);
        }
