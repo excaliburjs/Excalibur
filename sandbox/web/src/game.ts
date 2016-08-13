@@ -76,8 +76,6 @@ var tileBlockWidth = 64,
    tileBlockHeight = 48,
    spriteTiles = new ex.SpriteSheet(imageBlocks, 1, 1, tileBlockWidth, tileBlockHeight);
 
-
-
 // create a collision map
 var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
 tileMap.registerSpriteSheet("default", spriteTiles);
@@ -193,7 +191,6 @@ player.addDrawing(Animations.JumpLeft, jumpLeft);
 
 // Set default animation
 player.setDrawing(Animations.Idle);
-player.setCenterDrawing(true);
 
 var jumpSound = jump.sound;
 

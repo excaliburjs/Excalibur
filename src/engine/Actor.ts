@@ -440,8 +440,6 @@ module ex {
      * Set drawings with [[setDrawing]].
      */
     public currentDrawing: IDrawable = null;
-    public centerDrawingX = true;
-    public centerDrawingY = true;
 
     /**
      * Modify the current actor update pipeline. 
@@ -718,14 +716,6 @@ module ex {
      */
     public setHeight(height) {
        this._height = height / this.scale.y;
-    }
-    /**
-     * Centers the actor's drawing around the center of the actor's bounding box
-     * @param center Indicates to center the drawing around the actor
-     */       
-    public setCenterDrawing(center: boolean) {
-       this.centerDrawingY = center;
-       this.centerDrawingX = center;
     }
     /**
      * Gets the left edge of the actor
@@ -1185,11 +1175,18 @@ module ex {
        ctx.translate(this.pos.x, this.pos.y);       
        ctx.scale(this.scale.x, this.scale.y);
        ctx.rotate(this.rotation);
+
+       // translate canvas by anchor offset
        ctx.translate(-(this._width * this.anchor.x), -(this._height * this.anchor.y));
 
        this.emit('predraw', new PreDrawEvent(ctx, delta, this));
                     
        if (this.currentDrawing) {
+
+          // We want to center drawing around anchor in case drawing is > actor
+          // var cx = -(this.currentDrawing.naturalWidth * this.currentDrawing.scale.x  - this.getWidth())  * this.anchor.x;
+          // var cy = -(this.currentDrawing.naturalHeight * this.currentDrawing.scale.y - this.getHeight()) * this.anchor.y;
+
           this.currentDrawing.draw(ctx, 0, 0);
        } else {
           if (this.color) {

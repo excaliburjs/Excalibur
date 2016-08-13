@@ -46,7 +46,6 @@ ca4.anchor.setTo(0.5, 0.5);
 ca2.scale.setTo(2, 2);
 ca4.scale.setTo(2, 2);
 ca4.addDrawing(heartTx);
-ca4.setCenterDrawing(false);
 ca3.rotation = ex.Util.toRadians(45);
 
 game.add(ca4);
@@ -69,7 +68,6 @@ tla4.anchor.setTo(0, 0);
 tla2.scale.setTo(2, 2);
 tla4.scale.setTo(2, 2);
 tla4.addDrawing(heartTx);
-tla4.setCenterDrawing(false);
 tla3.rotation = ex.Util.toRadians(45);
 
 game.add(tla4);
@@ -92,7 +90,6 @@ tra4.anchor.setTo(1, 0);
 tra2.scale.setTo(2, 2);
 tra4.scale.setTo(2, 2);
 tra4.addDrawing(heartTx);
-tra4.setCenterDrawing(false);
 tra3.rotation = ex.Util.toRadians(45);
 
 game.add(tra4);
@@ -115,7 +112,6 @@ bla4.anchor.setTo(0, 1);
 bla2.scale.setTo(2, 2);
 bla4.scale.setTo(2, 2);
 bla4.addDrawing(heartTx);
-bla4.setCenterDrawing(false);
 bla3.rotation = ex.Util.toRadians(45);
 
 game.add(bla4);
@@ -138,7 +134,6 @@ bra4.anchor.setTo(1, 1);
 bra2.scale.setTo(2, 2);
 bra4.scale.setTo(2, 2);
 bra4.addDrawing(heartTx);
-bra4.setCenterDrawing(false);
 bra3.rotation = ex.Util.toRadians(45);
 
 game.add(bra4);
