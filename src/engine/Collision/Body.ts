@@ -2,6 +2,13 @@
 
 module ex {
    export class Body {
+
+      /**
+       * Constructs a new physics body
+       */
+      constructor(public actor: Actor) {
+         
+      }
        
       /**
        * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default. 
@@ -49,11 +56,6 @@ module ex {
        * The current "motion" of the actor, used to calculated sleep in the physics simulation
        */
       public motion: number = 10;
-
-      /**
-       * This idicates whether the current actor is asleep in the physics simulation
-       */
-      // TODO implement sleeping public sleeping: boolean = false;
       
       /**
        * The coefficient of friction on this actor
@@ -74,5 +76,7 @@ module ex {
        * The rotational velocity of the actor in radians/second
        */
       public rx: number = 0; //radions/sec
+
+
    }   
 }

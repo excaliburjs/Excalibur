@@ -3,7 +3,7 @@
 /// <reference path="ICollisionResolver.ts"/> 
 
 module ex {
-   export class NaiveCollisionBroadphase {
+   export class NaiveCollisionBroadphase implements ICollisionBroadphase {
       
       public register(target: Actor) {
          // pass
@@ -13,7 +13,7 @@ module ex {
          // pass
       }
 
-      public evaluate(targets: Actor[]): CollisionPair[] {
+      public resolve(targets: Actor[]): CollisionContact[] {
 
          // Retrieve the list of potential colliders, exclude killed, prevented, and self
          var potentialColliders = targets.filter((other) => {
@@ -35,7 +35,11 @@ module ex {
                var minimumTranslationVector;
                if (minimumTranslationVector = actor1.collides(actor2)) {
                   var side = actor1.getSideFromIntersect(minimumTranslationVector);
-                  var collisionPair = new CollisionPair(actor1, actor2, minimumTranslationVector, side);
+                  var collisionPair = new CollisionContact(actor1.collisionArea, 
+                                                           actor2.collisionArea, 
+                                                           minimumTranslationVector, 
+                                                           actor1.pos, 
+                                                           minimumTranslationVector);
                   if (!collisionPairs.some((cp) => {
                      return cp.equals(collisionPair);
                   })) {

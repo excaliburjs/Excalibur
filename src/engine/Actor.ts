@@ -293,152 +293,207 @@ module ex {
      */
     public id: number = Actor.maxId++;
     
-    public body: Body = new Body();
+    /**
+     * The physics body the is associated with this actor. The body is the container for all physical properties, like position, velocity,
+     * acceleration, mass, inertia, etc.
+     */
+    public body: Body = new Body(this);
     
+    /**
+     * Gets the x position of the actor relative to it's parent (if any)
+     */
     public get x(): number {
         return this.body.pos.x;
     }
     
+    /**
+     * Sets the x position of the actor relative to it's parent (if any)
+     */
     public set x(theX: number) {
         this.body.pos.x = theX;
     }
     
+    /**
+     * Gets the y position of the actor relative to it's parent (if any)
+     */
     public get y(): number {
         return this.body.pos.x;
     }
     
+    /**
+     * Sets the y position of the actor relative to it's parent (if any)
+     */
     public set y(theY: number) {
         this.body.pos.y = theY;
     }
 
+    /**
+     * Gets the position vector of the actor in pixels
+     */
     public get pos(): Vector {
        return this.body.pos;
     }
     
+    /**
+     * Sets the position vector of the actor in pixels
+     */
     public set pos(thePos: Vector) {
        this.body.pos = thePos;
     }
 
+    /**
+     * Gets the position vector of the actor from the last frame
+     */
     public get oldPos(): Vector {
        return this.body.oldPos;
     }
     
+    /**
+     * Sets the position vector of the actor in the last frame
+     */
     public set oldPos(thePos: Vector) {
        this.body.oldPos = thePos;
     }
-       
+
+    /**
+     * Gets the velocity vector of the actor in pixels/sec
+     */   
     public get vel(): Vector {
        return this.body.vel;
     }
     
+    /**
+     * Sets the velocity vector of the actor in pixels/sec
+     */
     public set vel(theVel: Vector) {
        this.body.vel = theVel;
     }
 
+    /**
+     * Gets the velocity vector of the actor from the last frame
+     */
     public get oldVel(): Vector {
        return this.body.oldVel;
     }
     
+    /**
+     * Sets the velocity vector of the actor from the last frame
+     */
     public set oldVel(theVel: Vector) {
        this.body.oldVel = theVel;
     }    
     
     /**
-     * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be 
+     * Gets the acceleration vector of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be 
      * useful to simulate a gravitational effect.  
      */
     public get acc(): Vector {
        return this.body.acc;
     }
     
+    /**
+     * Sets the acceleration vector of teh actor in pixels/second/second
+     */
     public set acc(theAcc: Vector) {
        this.body.acc = theAcc;
     }
 
     /** 
-     * The rotation of the actor in radians
+     * Gets the rotation of the actor in radians. 1 radian = 180/PI Degrees.
      */
     public get rotation(): number {
         return this.body.rotation;
     }
 
+    /**
+     * Sets the rotation of the actor in radians. 1 radian = 180/PI Degrees.
+     */
     public set rotation(theAngle: number) {
         this.body.rotation = theAngle;
     }
 
     /** 
-     * The rotational velocity of the actor in radians/second
+     * Gets the rotational velocity of the actor in radians/second
      */
     public get rx(): number {
         return this.body.rx;
     }
 
+    /**
+     * Sets the rotational velocity of the actor in radians/sec
+     */
     public set rx(angularVelocity: number){
         this.body.rx = angularVelocity;
     }
     
     /**
-     * The current torque applied to the actor
+     * Gets the current torque applied to the actor. Torque can be thought of as rotational force
      */
     public get torque() {
        return this.body.torque;   
     }
     
+    /**
+     * Sets the current torque applied to the actor. Torque can be thought of as rotational force
+     */
     public set torque(theTorque: number) {
        this.body.torque = theTorque;
     }
     
     /**
-     * The current mass of the actor, mass can be thought of as the resistance to acceleration.
+     * Get the current mass of the actor, mass can be thought of as the resistance to acceleration.
      */
     public get mass(){
        return this.body.mass;   
     }
     
+    /**
+     * Sets the mass of the actor, mass can be thought of as the resistance to acceleration.
+     */
     public set mass(theMass: number) {
        this.body.mass = theMass;
     }
     
     /**
-     * The current momemnt of inertia, moi can be thought of as the resistance to rotation.
+     * Gets the current momemnt of inertia, moi can be thought of as the resistance to rotation.
      */
     public get moi() {
        return this.body.moi;
     }
     
+    /**
+     * Sets the current momemnt of inertia, moi can be thought of as the resistance to rotation.
+     */
     public set moi(theMoi: number) {
        this.body.moi = theMoi;
     }
-    
+          
     /**
-     * The current "motion" of the actor, used to calculated sleep in the physics simulation
-     */
-    public get motion() {
-       return this.body.motion;   
-    }
-    
-    public set motion(theMotion: number) {
-       this.body.motion = theMotion;
-    }
-        
-    /**
-     * The coefficient of friction on this actor
+     * Gets the coefficient of friction on this actor, this can be thought of as how sticky or slippery an object is.
      */
     public get friction() {
        return this.body.friction;   
     }
     
+    /**
+     * Sets the coefficient of friction of this actor, this can ve thought of as how stick or slippery an object is.
+     */
     public set friction(theFriction: number) {
        this.body.friction = theFriction;
     }
     
     /**
-     * The coefficient of restitution of this actor, represents the amount of energy preserved after collision
+     * Gets the coefficient of restitution of this actor, represents the amount of energy preserved after collision. Think of this  
+     * as bounciness.
      */
     public get restitution() {
        return this.body.restitution;
     }
     
+    /**
+     * Sets the coefficient of restitution of this actor, represents the amount of energy preserved after collision. Think of this
+     * as bounciness.
+     */
     public set restitution(theRestitution: number){
        this.body.restitution = theRestitution;
     }
@@ -524,7 +579,7 @@ module ex {
      */
     public collisionType: CollisionType = CollisionType.PreventCollision;
     public collisionGroups: string[] = [];
-    public collisionAreas: ICollisionArea[] = [];
+    public collisionArea: ICollisionArea = null;
 
     private _collisionHandlers: {[key: string]: {(actor: Actor): void}[]; } = {};
     private _isInitialized: boolean = false;
@@ -589,6 +644,7 @@ module ex {
        }         
        // Build default pipeline
        this.traits.push(new ex.Traits.EulerMovement());
+       // TODO: TileMaps should be converted to a collision area
        this.traits.push(new ex.Traits.TileMapCollisionDetection());
        this.traits.push(new ex.Traits.OffscreenCulling());         
        this.traits.push(new ex.Traits.CapturePointer());
@@ -601,14 +657,14 @@ module ex {
        this.anchor = new Vector(.5, .5);
        
        // Initialize default collision area
-       this.collisionAreas.push(new PolygonArea({
-           actor: this,
+       this.collisionArea = new PolygonArea({
+           body: this.body,
            points: this.getRelativeBounds().getPoints(),
            pos: Vector.Zero.clone() // position relative to actor
-       }));
+       });
 
        // in case of a nan moi, collesce to a safe default
-       this.moi = this.collisionAreas[0].getMomentOfInertia() || this.moi;
+       this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
     }
 
     /**
@@ -1387,10 +1443,9 @@ module ex {
        ctx.fill();
        */
        // Draw collision areas
-       this.collisionAreas.forEach((ca) => {
-          ctx.strokeStyle = 'lime';
-          ca.debugDraw(ctx, null);
-       });
+       ctx.strokeStyle = 'lime';
+       this.collisionArea.debugDraw(ctx, null);
+
        /*
        // Culling Box debug draw
        for (var j = 0; j < this.traits.length; j++) {

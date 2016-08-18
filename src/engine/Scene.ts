@@ -2,7 +2,6 @@
 /// <reference path="Timer.ts" />
 /// <reference path="Collision/NaiveCollisionBroadphase.ts"/>
 /// <reference path="Collision/DynamicTreeCollisionBroadphase.ts"/>
-/// <reference path="Collision/CollisionPair.ts" />
 /// <reference path="Camera.ts" />
 /// <reference path="Group.ts"/>
 /// <reference path="Util/SortedList.ts"/>
@@ -241,7 +240,7 @@ module ex {
             // Cycle through actors updating actors
             for (i = 0, len = this.children.length; i < len; i++) {
                 this.children[i].update(engine, collisionDelta);
-                this.children[i].collisionAreas[0].recalc();
+                this.children[i].collisionArea.recalc();
             }
 
             // TODO meh I don't like how this works... maybe find a way to make collisions

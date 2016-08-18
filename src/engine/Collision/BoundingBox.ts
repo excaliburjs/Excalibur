@@ -73,7 +73,7 @@ module ex {
          */
         public toPolygon(actor?: Actor): PolygonArea {
             return new PolygonArea({
-                actor: actor,
+                body: actor.body,
                 points: this.getPoints(),
                 pos: Vector.Zero.clone()
             });

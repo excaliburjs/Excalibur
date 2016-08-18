@@ -295,6 +295,9 @@ game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
          //a.dx = data.other.dx;
          //a.dy = data.other.dy;
          //a.kill();
+         if (!data.other) {
+            a.vel.y = 0;
+         }
       });
       a.on('update', (data?: ex.UpdateEvent) => {
          if (inAir) {
@@ -349,19 +352,7 @@ player.on('collision', (data?: ex.CollisionEvent) => {
 });
 
 player.on('update', (data?: ex.UpdateEvent) => {
-   // apply gravity if player is in the air
-   // only apply gravity when not colliding
-   if (!isColliding) {
-      //data.target.acc.setTo(0, 800);// * data.delta/1000;
-   } else {
-      //data.target.acc.setTo(0, 0);
-   }
-
-   // Reset values because we don't know until we check the next update
-   // inAir = true;
    isColliding = false;
-
-   //console.log("Player Pos", player.x, player.y, player.getWidth(), player.getHeight());
 });
 
 player.on('initialize', (evt?: ex.InitializeEvent) => {

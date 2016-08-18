@@ -51,113 +51,85 @@ module ex {
             throw new Error('Unknown collision resolution strategy');
          }
       }
-      
+
+      private _applyBoxImpluse(bodyA: Actor, bodyB: Actor, mtv: Vector, side: Side) {
+         if ((bodyA.collisionType === CollisionType.Active || 
+              bodyA.collisionType === CollisionType.Elastic) && 
+              bodyB.collisionType !== CollisionType.Passive) {
+
+            // Resolve overlaps
+            bodyA.pos.y += mtv.y;
+            bodyA.pos.x += mtv.x;
+                        
+            // Naive elastic bounce
+            if (bodyA.collisionType === CollisionType.Elastic) {
+               if (side === Side.Left) {
+                  bodyA.vel.x = Math.abs(bodyA.vel.x);
+               } else if(side === Side.Right) {
+                  bodyA.vel.x = -Math.abs(bodyA.vel.x);
+               } else if(side === Side.Top) {
+                  bodyA.vel.y = Math.abs(bodyA.vel.y);
+               } else if(side === Side.Bottom) {
+                  bodyA.vel.y = -Math.abs(bodyA.vel.y);
+               }
+            } else {
+               
+
+               // non-zero intersection on the y axis
+               if (this.mtv.x !== 0) {
+                  var velX = 0;
+                  // both bodies are traveling in the same direction (negative or positve)
+                  if (bodyA.vel.x <= 0 && bodyB.vel.x <= 0) {
+                     velX = Math.min(bodyA.vel.x, bodyB.vel.x);
+                     velX = bodyA.vel.x + bodyA.vel.x;
+                  } else if (bodyA.vel.x >= 0 && bodyB.vel.x >= 0) {
+                     velX = Math.max(bodyA.vel.x, bodyB.vel.x);
+                     velX = bodyA.vel.x + bodyA.vel.x;
+                  }else {
+                     // bodies are traveling in opposite directions
+                     velX = 0;
+                  }
+                  bodyA.vel.x = velX;
+               }
+               
+               
+               if (this.mtv.y !== 0) {
+                  var velY = 0;
+                  // both bodies are traveling in the same direction (negative or positive)
+                  if (bodyA.vel.y <= 0 && bodyB.vel.y <= 0) {
+                     velY = Math.min(bodyA.vel.y, bodyB.vel.y);
+                  } else if (bodyA.vel.y >= 0 && bodyB.vel.y >= 0) {
+                     velY = Math.max(bodyA.vel.y, bodyB.vel.y);
+                  } else {
+                     // bodies are traveling in opposite directions
+                     velY = 0;
+                  }
+                  
+                  bodyA.vel.y = velY;
+               }
+            }                 
+         }
+      }
+
       private _resolveBoxCollision(delta: number) {
-         var bodyA = this.bodyA.actor;
-         var bodyB = this.bodyB.actor;
+         var bodyA = this.bodyA.body.actor;
+         var bodyB = this.bodyB.body.actor;
          var side = ex.Util.getSideFromVector(this.mtv);
          var mtv = this.mtv.negate();
          // Publish collision events on both participants
          bodyA.eventDispatcher.emit('collision', new CollisionEvent(bodyA, bodyB, side, mtv));
          bodyB.eventDispatcher.emit('collision', 
-            new CollisionEvent(bodyB, bodyA, ex.Util.getOppositeSide(side), mtv.scale(-1.0)));
+            new CollisionEvent(bodyB, bodyA, ex.Util.getOppositeSide(side), mtv.negate()));
 
-         // If the actor is active push the actor out if its not passive
-         var leftSide = side;
-         if ((bodyA.collisionType === CollisionType.Active || 
-            bodyA.collisionType === CollisionType.Elastic) && 
-            bodyB.collisionType !== CollisionType.Passive) {
-            bodyA.pos.y += mtv.y;
-            bodyA.pos.x += mtv.x;
-            
-            // Naive elastic bounce
-            if (bodyA.collisionType === CollisionType.Elastic) {
-               if (leftSide === Side.Left) {
-                  bodyA.vel.x = Math.abs(bodyA.vel.x);
-               } else if(leftSide === Side.Right) {
-                  bodyA.vel.x = -Math.abs(bodyA.vel.x);
-               } else if(leftSide === Side.Top) {
-                  bodyA.vel.y = Math.abs(bodyA.vel.y);
-               } else if(leftSide === Side.Bottom) {
-                  bodyA.vel.y = -Math.abs(bodyA.vel.y);
-               }
-            } else {
-               // Cancel velocities along intersection
-               if (this.mtv.x !== 0) {
-                  
-                  if (bodyA.vel.x <= 0 && bodyB.vel.x <= 0) {
-                     bodyA.vel.x = Math.max(bodyA.vel.x, bodyB.vel.x);
-                  } else if (bodyA.vel.x >= 0 && bodyB.vel.x >= 0) {
-                     bodyA.vel.x = Math.min(bodyA.vel.x, bodyB.vel.x);
-                  }else {
-                     bodyA.vel.x = 0;
-                  }
-                  
-               }
-               
-               if (this.mtv.y !== 0) {
-                  
-                  if (bodyA.vel.y <= 0 && bodyB.vel.y <= 0) {
-                     bodyA.vel.y = bodyA.vel.y + bodyB.vel.y;
-                  } else if (bodyA.vel.y >= 0 && bodyB.vel.y >= 0) {
-                     bodyA.vel.y = bodyA.vel.y + bodyB.vel.y;
-                  } else {
-                     bodyA.vel.y = 0;
-                  }
-                  
-               }
-            }                 
-         }
-
-         var rightSide = ex.Util.getOppositeSide(side);
-         var rightIntersect = mtv.scale(-1.0);
-         if ((bodyB.collisionType === CollisionType.Active || 
-            bodyB.collisionType === CollisionType.Elastic) && 
-            bodyA.collisionType !== CollisionType.Passive) {
-            bodyB.pos.y += rightIntersect.y;
-            bodyB.pos.x += rightIntersect.x;
-           
-            // Naive elastic bounce
-            if (bodyB.collisionType === CollisionType.Elastic) {
-               if (rightSide === Side.Left) {
-                  bodyB.vel.x = Math.abs(bodyB.vel.x);
-               } else if(rightSide === Side.Right) {
-                  bodyB.vel.x = -Math.abs(bodyB.vel.x);
-               } else if(rightSide === Side.Top) {
-                  bodyB.vel.y = Math.abs(bodyB.vel.y);
-               } else if(rightSide === Side.Bottom) {
-                  bodyB.vel.y = -Math.abs(bodyB.vel.y);
-               }
-            } else {
-                // Cancel velocities along intersection
-               if(rightIntersect.x !== 0) {
-                  if (bodyB.vel.x <= 0 && bodyA.vel.x <= 0) {
-                     bodyB.vel.x = Math.max(bodyA.vel.x, bodyB.vel.x);
-                  } else if (bodyA.vel.x >= 0 && bodyB.vel.x >= 0) {
-                     bodyB.vel.x = Math.min(bodyA.vel.x, bodyB.vel.x);
-                  }else {
-                     bodyB.vel.x = 0;
-                  }
-               }
-               
-               if(rightIntersect.y !== 0) {
-                  if (bodyB.vel.y <= 0 && bodyA.vel.y <= 0) {
-                     bodyB.vel.y = bodyA.vel.y + bodyB.vel.y;
-                  } else if (bodyA.vel.y >= 0 && bodyB.vel.y >= 0) {
-                     bodyB.vel.y = bodyA.vel.y + bodyB.vel.y;
-                  }else {
-                     bodyB.vel.y = 0;
-                  }
-               }
-            }
-         }
+         this._applyBoxImpluse(bodyA, bodyB, mtv, side);
+         this._applyBoxImpluse(bodyB, bodyA, mtv.negate(), ex.Util.getOppositeSide(side));
       }
       
       private _resolveRigidBodyCollision(delta: number) {
                   
          // perform collison on bounding areas
-         var bodyA: Actor = this.bodyA.actor;
-         var bodyB: Actor = this.bodyB.actor;
+         var bodyA: Actor = this.bodyA.body.actor;
+         var bodyB: Actor = this.bodyB.body.actor;
          var mtv = this.mtv; // normal pointing away from bodyA
          var point = this.point; // world space collision point
          var normal = this.normal; // normal pointing away from bodyA
@@ -202,11 +174,14 @@ module ex {
          
          // Publish collision events on both participants
          var side = ex.Util.getSideFromVector(this.mtv);
-         this.bodyA.actor.emit('collision', new CollisionEvent(this.bodyA.actor, this.bodyB.actor, side, this.mtv));
-         this.bodyB.actor.emit('collision', new CollisionEvent(this.bodyB.actor, 
-                                                               this.bodyA.actor, 
-                                                               ex.Util.getOppositeSide(side), 
-                                                               this.mtv.negate()));
+         this.bodyA.body.actor.emit('collision', new CollisionEvent(this.bodyA.body.actor, 
+                                                                    this.bodyB.body.actor, 
+                                                                    side, 
+                                                                    this.mtv));
+         this.bodyB.body.actor.emit('collision', new CollisionEvent(this.bodyB.body.actor, 
+                                                                    this.bodyA.body.actor, 
+                                                                    ex.Util.getOppositeSide(side), 
+                                                                    this.mtv.negate()));
          
          // Collision impulse formula from Chris Hecker
          // https://en.wikipedia.org/wiki/Collision_response

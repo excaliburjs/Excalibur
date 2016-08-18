@@ -3,11 +3,11 @@
     export interface IEdgeAreaOptions {
         begin?: Vector;
         end?: Vector;
-        actor?: Actor;
+        body?: Body;
     }
 
     export class EdgeArea implements ICollisionArea {
-        actor: Actor;
+        body: Body;
         pos: Vector;
         begin: Vector;
         end: Vector;
@@ -15,7 +15,7 @@
         constructor(options: IEdgeAreaOptions) {
             this.begin = options.begin || Vector.Zero.clone();
             this.end = options.end || Vector.Zero.clone();
-            this.actor = options.actor || null;
+            this.body = options.body || null;
 
             this.pos = this.getCenter();
         }
@@ -25,8 +25,8 @@
          */
         public getCenter(): Vector {
             var pos = this.begin.add(this.end).scale(.5);
-            if (this.actor) {
-                return this.actor.pos.add(pos);
+            if (this.body) {
+                return this.body.pos.add(pos);
             }
             return pos;
         }
@@ -97,7 +97,7 @@
          * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
          */
         public getMomentOfInertia(): number {
-           var mass = this.actor ? this.actor.mass : Physics.defaultMass;
+           var mass = this.body ? this.body.mass : Physics.defaultMass;
            var length = this.end.sub(this.begin).distance() / 2;
            return mass * length * length;
         }

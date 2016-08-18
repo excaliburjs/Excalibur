@@ -7,7 +7,7 @@ module ex {
         pos?: Vector;
         points?: Vector[];
         clockwiseWinding?: boolean;
-        actor?: Actor;
+        body?: Body;
     }
 
     /**
@@ -16,7 +16,7 @@ module ex {
     export class PolygonArea implements ICollisionArea {
         public pos: Vector;
         public points: Vector[];
-        public actor: Actor;
+        public body: Body;
 
         private _transformedPoints: Vector[] = [];
         private _axes: Vector[] = [];
@@ -26,7 +26,7 @@ module ex {
             this.pos = options.pos || Vector.Zero.clone();
             var winding = !!options.clockwiseWinding;
             this.points = (winding ? options.points.reverse() : options.points) || [];
-            this.actor = options.actor || null;            
+            this.body = options.body || null;            
 
             // calculate initial transformation
             this._calculateTransformation();
@@ -36,8 +36,8 @@ module ex {
          * Get the center of the collision area in world coordinates
          */
         public getCenter(): Vector {
-            if (this.actor) {
-                return this.actor.pos.add(this.pos);
+            if (this.body) {
+                return this.body.pos.add(this.pos);
             }
             return this.pos;
         }
@@ -46,8 +46,8 @@ module ex {
          * Calculates the underlying transformation from actor relative space to world space
          */
         private _calculateTransformation() {
-            var pos = this.actor ? this.actor.pos.add(this.pos) : this.pos;
-            var angle = this.actor ? this.actor.rotation : 0;
+            var pos = this.body ? this.body.pos.add(this.pos) : this.pos;
+            var angle = this.body ? this.body.rotation : 0;
 
             var len = this.points.length;
             this._transformedPoints.length = 0; // clear out old transform
@@ -174,7 +174,7 @@ module ex {
          * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
          */
         public getMomentOfInertia(): number {
-            var mass = this.actor ? this.actor.mass : Physics.defaultMass;
+            var mass = this.body ? this.body.mass : Physics.defaultMass;
             var numerator = 0;
             var denominator = 0;
             for (var i = 0; i < this.points.length; i++) {

@@ -36,6 +36,7 @@ module ex {
                newPairs.push(contact);
             }
          });
+         
          this._collisionContactCache = newPairs;
 
          for (var j = 0, l = potentialColliders.length; j < l; j++) {
@@ -59,26 +60,14 @@ module ex {
                               
                // generate all the collision contacts between the 2 sets of collision areas between both actors
                var contacts: CollisionContact[] = [];
-               var areaA = actor.collisionAreas[0];
-               var areaB = other.collisionAreas[0];
+               var areaA = actor.collisionArea;
+               var areaB = other.collisionArea;
                var contact = areaA.collide(areaB);
                
                if (contact) {
                   contact.id = hash;
                   contacts.push(contact);
-                  // TODO: implement sleeping
                }
-
-               // todo doesn't support multiple collision areas yet
-               /*
-               for (var areaA of actor.collisionAreas) {
-                  for (var areaB of actor.collisionAreas) {
-                     var contact = areaA.collide(areaB);
-                     if (contact) {
-                        contacts.push(contact);
-                     }
-                  }
-               }*/
 
                // if there were contacts keep track of them
                if (contacts.length) {

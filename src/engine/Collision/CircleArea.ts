@@ -3,7 +3,7 @@
     export interface ICircleAreaOptions {
         pos?: Vector;
         radius?: number;
-        actor?: Actor;
+        body?: Body;
     }
 
     /**
@@ -21,20 +21,20 @@
         /**
          * The actor associated with this collision area
          */
-        public actor: Actor;
+        public body: Body;
         
         contructor(options: ICircleAreaOptions) {
             this.pos = options.pos || ex.Vector.Zero.clone();
             this.radius = options.radius || 0;
-            this.actor = options.actor || null;
+            this.body = options.body || null;
         }
             
         /**
          * Get the center of the collision area in world coordinates
          */            
         public getCenter(): Vector {
-            if (this.actor) {
-                return this.pos.add(this.actor.pos);
+            if (this.body) {
+                return this.pos.add(this.body.pos);
             }
             return this.pos;
         }
@@ -82,10 +82,10 @@
          * Get the axis aligned bounding box for the circle area
          */
         public getBounds(): BoundingBox {
-            return new BoundingBox(this.pos.x + this.actor.pos.x - this.radius,
-                this.pos.y + this.actor.pos.y - this.radius,
-                this.pos.y + this.actor.pos.y + this.radius,
-                this.pos.x + this.actor.pos.x + this.radius);
+            return new BoundingBox(this.pos.x + this.body.pos.x - this.radius,
+                this.pos.y + this.body.pos.y - this.radius,
+                this.pos.y + this.body.pos.y + this.radius,
+                this.pos.x + this.body.pos.x + this.radius);
         }
 
         /**
@@ -101,7 +101,7 @@
          * @param mass
          */
         public getMomentOfInertia(): number {
-           var mass = this.actor ? this.actor.mass : Physics.defaultMass;
+           var mass = this.body ? this.body.mass : Physics.defaultMass;
            return (mass * this.radius * this.radius) / 2;
         }
 
@@ -154,8 +154,8 @@
         }
 
         public debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags) {
-           var pos = this.actor ? this.actor.pos.add(this.pos) : this.pos;
-           var rotation = this.actor ? this.actor.rotation : 0;
+           var pos = this.body ? this.body.pos.add(this.pos) : this.pos;
+           var rotation = this.body ? this.body.rotation : 0;
            ctx.strokeStyle = 'lime';
            ctx.beginPath();
            ctx.arc(pos.x, pos.y, this.radius, 0, Math.PI * 2);
