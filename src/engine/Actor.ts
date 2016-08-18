@@ -1233,6 +1233,7 @@ module ex {
        ctx.rotate(this.rotation);
 
        // translate canvas by anchor offset
+       ctx.save();
        ctx.translate(-(this._width * this.anchor.x), -(this._height * this.anchor.y));
 
        this.emit('predraw', new PreDrawEvent(ctx, delta, this));
@@ -1250,7 +1251,8 @@ module ex {
              ctx.fillRect(0, 0, this._width, this._height);
           } 
        }
-       
+       ctx.restore();
+
        // Draw child actors
        for (var i = 0; i < this.children.length; i++) {
           if (this.children[i].visible) {
