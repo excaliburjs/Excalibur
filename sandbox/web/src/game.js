@@ -144,6 +144,7 @@ var left = spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
 var right = spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
 right.flipHorizontal = true;
 var idle = spriteSheetRun.getAnimationByIndices(game, [0], 200);
+//idle.anchor.setTo(.5, .5);
 var jumpLeft = spriteSheetJump.getAnimationBetween(game, 0, 11, 100);
 var jumpRight = spriteSheetJump.getAnimationBetween(game, 11, 22, 100);
 left.loop = true;

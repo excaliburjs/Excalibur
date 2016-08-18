@@ -3074,7 +3074,9 @@ declare module ex {
         /**
          * The anchor to apply all actor related transformations like rotation,
          * translation, and rotation. By default the anchor is in the center of
-         * the actor.
+         * the actor. By default it is set to the center of the actor (.5, .5)
+         *
+         * An anchor of (.5, .5) will ensure that drawings are centered.
          *
          * Use `anchor.setTo` to set the anchor to a different point using
          * values between 0 and 1. For example, anchoring to the top-left would be

@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-08-04
+/*! excalibur - v0.6.0 - 2016-08-18
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 var __extends = (this && this.__extends) || function (d, b) {
@@ -7022,10 +7022,11 @@ var ex;
             ctx.translate(-(this._width * this.anchor.x), -(this._height * this.anchor.y));
             this.emit('predraw', new ex.PreDrawEvent(ctx, delta, this));
             if (this.currentDrawing) {
-                // We want to center drawing around anchor in case drawing is > actor
-                // var cx = -(this.currentDrawing.naturalWidth * this.currentDrawing.scale.x  - this.getWidth())  * this.anchor.x;
-                // var cy = -(this.currentDrawing.naturalHeight * this.currentDrawing.scale.y - this.getHeight()) * this.anchor.y;
-                this.currentDrawing.draw(ctx, 0, 0);
+                var drawing = this.currentDrawing;
+                // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula          
+                var offsetX = (this._width - drawing.naturalWidth * drawing.scale.x) * this.anchor.x;
+                var offsetY = (this._height - drawing.naturalHeight * drawing.scale.y) * this.anchor.y;
+                this.currentDrawing.draw(ctx, offsetX, offsetY);
             }
             else {
                 if (this.color) {

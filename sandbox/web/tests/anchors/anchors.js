@@ -31,6 +31,7 @@ var game = new ex.Engine({ width: 500, height: 500 });
 var heartTx = new ex.Texture('../../images/heart.png');
 var ldr = new ex.Loader([heartTx]);
 game.backgroundColor = ex.Color.White;
+game.setAntialiasing(false);
 // center anchored actors
 var cl = new ex.Label('Centered', 0, 30);
 cl.textAlign = ex.TextAlign.Center;
@@ -44,7 +45,10 @@ ca3.anchor.setTo(0.5, 0.5);
 ca4.anchor.setTo(0.5, 0.5);
 ca2.scale.setTo(2, 2);
 ca4.scale.setTo(2, 2);
-ca4.addDrawing(heartTx);
+var heartSprite = heartTx.asSprite();
+heartSprite.scale.setTo(3, 3);
+ca4.addDrawing(heartSprite);
+ca4.rx = .5;
 ca3.rotation = ex.Util.toRadians(45);
 game.add(ca4);
 game.add(ca2);
@@ -64,7 +68,9 @@ tla3.anchor.setTo(0, 0);
 tla4.anchor.setTo(0, 0);
 tla2.scale.setTo(2, 2);
 tla4.scale.setTo(2, 2);
-tla4.addDrawing(heartTx);
+var heartSprite2 = heartTx.asSprite();
+heartSprite2.scale.setTo(2, 2);
+tla4.addDrawing(heartSprite2);
 tla3.rotation = ex.Util.toRadians(45);
 game.add(tla4);
 game.add(tla2);
@@ -145,3 +151,17 @@ game.add(brc);
 game.currentScene.camera.x = 0;
 game.currentScene.camera.y = 0;
 game.start(ldr);
+game.input.keyboard.on('down', function (evt) {
+    if (evt.key === ex.Input.Keys.Up) {
+        heartSprite.scale.addEqual(new ex.Vector(.2, .2));
+    }
+    if (evt.key === ex.Input.Keys.Down) {
+        heartSprite.scale.addEqual(new ex.Vector(-.2, -.2));
+    }
+    if (evt.key === ex.Input.Keys.Left) {
+        ca4.setWidth(ca4.getWidth() - .2);
+    }
+    if (evt.key === ex.Input.Keys.Right) {
+        ca4.setWidth(ca4.getWidth() + .2);
+    }
+});

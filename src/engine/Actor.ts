@@ -351,7 +351,9 @@ module ex {
     /**
      * The anchor to apply all actor related transformations like rotation,
      * translation, and rotation. By default the anchor is in the center of
-     * the actor.
+     * the actor. By default it is set to the center of the actor (.5, .5)
+     * 
+     * An anchor of (.5, .5) will ensure that drawings are centered.
      *
      * Use `anchor.setTo` to set the anchor to a different point using
      * values between 0 and 1. For example, anchoring to the top-left would be
@@ -1182,12 +1184,12 @@ module ex {
        this.emit('predraw', new PreDrawEvent(ctx, delta, this));
                     
        if (this.currentDrawing) {
+          var drawing = this.currentDrawing;
+          // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula          
+          var offsetX = (this._width - drawing.naturalWidth * drawing.scale.x) * this.anchor.x;
+          var offsetY = (this._height - drawing.naturalHeight * drawing.scale.y) * this.anchor.y;
 
-          // We want to center drawing around anchor in case drawing is > actor
-          // var cx = -(this.currentDrawing.naturalWidth * this.currentDrawing.scale.x  - this.getWidth())  * this.anchor.x;
-          // var cy = -(this.currentDrawing.naturalHeight * this.currentDrawing.scale.y - this.getHeight()) * this.anchor.y;
-
-          this.currentDrawing.draw(ctx, 0, 0);
+          this.currentDrawing.draw(ctx, offsetX, offsetY);
        } else {
           if (this.color) {
              ctx.fillStyle = this.color.toString();
