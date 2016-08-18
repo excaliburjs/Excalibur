@@ -3074,7 +3074,9 @@ declare module ex {
         /**
          * The anchor to apply all actor related transformations like rotation,
          * translation, and rotation. By default the anchor is in the center of
-         * the actor.
+         * the actor. By default it is set to the center of the actor (.5, .5)
+         *
+         * An anchor of (.5, .5) will ensure that drawings are centered.
          *
          * Use `anchor.setTo` to set the anchor to a different point using
          * values between 0 and 1. For example, anchoring to the top-left would be
@@ -3159,8 +3161,6 @@ declare module ex {
          * Set drawings with [[setDrawing]].
          */
         currentDrawing: IDrawable;
-        centerDrawingX: boolean;
-        centerDrawingY: boolean;
         /**
          * Modify the current actor update pipeline.
          */
@@ -3312,11 +3312,6 @@ declare module ex {
          * Sets the height of an actor, factoring in the current scale
          */
         setHeight(height: any): void;
-        /**
-         * Centers the actor's drawing around the center of the actor's bounding box
-         * @param center Indicates to center the drawing around the actor
-         */
-        setCenterDrawing(center: boolean): void;
         /**
          * Gets the left edge of the actor
          */

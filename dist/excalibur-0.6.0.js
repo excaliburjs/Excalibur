@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-08-03
+/*! excalibur - v0.6.0 - 2016-08-18
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 var __extends = (this && this.__extends) || function (d, b) {
@@ -6349,8 +6349,6 @@ var ex;
              * Set drawings with [[setDrawing]].
              */
             this.currentDrawing = null;
-            this.centerDrawingX = true;
-            this.centerDrawingY = true;
             /**
              * Modify the current actor update pipeline.
              */
@@ -6570,14 +6568,6 @@ var ex;
          */
         Actor.prototype.setHeight = function (height) {
             this._height = height / this.scale.y;
-        };
-        /**
-         * Centers the actor's drawing around the center of the actor's bounding box
-         * @param center Indicates to center the drawing around the actor
-         */
-        Actor.prototype.setCenterDrawing = function (center) {
-            this.centerDrawingY = center;
-            this.centerDrawingX = center;
         };
         /**
          * Gets the left edge of the actor
@@ -7067,29 +7057,24 @@ var ex;
          * @param delta The time since the last draw in milliseconds
          */
         Actor.prototype.draw = function (ctx, delta) {
-            var anchorPoint = this._getCalculatedAnchor();
             ctx.save();
             ctx.translate(this.pos.x, this.pos.y);
             ctx.scale(this.scale.x, this.scale.y);
             ctx.rotate(this.rotation);
+            // translate canvas by anchor offset
+            ctx.translate(-(this._width * this.anchor.x), -(this._height * this.anchor.y));
             this.emit('predraw', new ex.PreDrawEvent(ctx, delta, this));
             if (this.currentDrawing) {
-                var xDiff = 0;
-                var yDiff = 0;
-                if (this.centerDrawingX) {
-                    xDiff = (this.currentDrawing.naturalWidth * this.currentDrawing.scale.x - this.getWidth()) / 2 -
-                        this.currentDrawing.naturalWidth * this.currentDrawing.scale.x * this.currentDrawing.anchor.x;
-                }
-                if (this.centerDrawingY) {
-                    yDiff = (this.currentDrawing.naturalHeight * this.currentDrawing.scale.y - this.getHeight()) / 2 -
-                        this.currentDrawing.naturalHeight * this.currentDrawing.scale.y * this.currentDrawing.anchor.y;
-                }
-                this.currentDrawing.draw(ctx, -anchorPoint.x - xDiff, -anchorPoint.y - yDiff);
+                var drawing = this.currentDrawing;
+                // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula          
+                var offsetX = (this._width - drawing.naturalWidth * drawing.scale.x) * this.anchor.x;
+                var offsetY = (this._height - drawing.naturalHeight * drawing.scale.y) * this.anchor.y;
+                this.currentDrawing.draw(ctx, offsetX, offsetY);
             }
             else {
                 if (this.color) {
                     ctx.fillStyle = this.color.toString();
-                    ctx.fillRect(-anchorPoint.x, -anchorPoint.y, this._width, this._height);
+                    ctx.fillRect(0, 0, this._width, this._height);
                 }
             }
             // Draw child actors

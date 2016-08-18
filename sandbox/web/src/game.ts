@@ -76,8 +76,6 @@ var tileBlockWidth = 64,
    tileBlockHeight = 48,
    spriteTiles = new ex.SpriteSheet(imageBlocks, 1, 1, tileBlockWidth, tileBlockHeight);
 
-
-
 // create a collision map
 var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
 tileMap.registerSpriteSheet("default", spriteTiles);
@@ -174,6 +172,7 @@ var left = spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
 var right = spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
 right.flipHorizontal = true;
 var idle = spriteSheetRun.getAnimationByIndices(game, [0], 200);
+//idle.anchor.setTo(.5, .5);
 var jumpLeft = spriteSheetJump.getAnimationBetween(game, 0, 11, 100);
 var jumpRight = spriteSheetJump.getAnimationBetween(game, 11, 22, 100);
 left.loop = true;
@@ -193,7 +192,6 @@ player.addDrawing(Animations.JumpLeft, jumpLeft);
 
 // Set default animation
 player.setDrawing(Animations.Idle);
-player.setCenterDrawing(true);
 
 var jumpSound = jump.sound;
 
