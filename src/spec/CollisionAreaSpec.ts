@@ -1,14 +1,230 @@
-﻿// <reference path="jasmine.d.ts" />
+/// <reference path="jasmine.d.ts" />
 /// <reference path="require.d.ts" />
+/// <reference path="Mocks.ts" />
 
-describe('Collision Areas', () => {
-   describe('Polygons ', () => {
-      it('exist', () => {
+
+
+describe('Collision areas', () => {
+   describe('A Circle shape', () => {
+      var circle: ex.CircleArea;
+      var actor: ex.Actor; 
+
+      beforeEach(() => {
+         actor = new ex.Actor(0, 0, 20, 20);
+         circle = new ex.CircleArea({
+            pos: ex.Vector.Zero.clone(),
+            radius: 10,
+            body: actor.body
+         });
+      });
+
+      it('exists', () => {
+         expect(ex.CircleArea).toBeDefined();
+      });
+
+      it('can be constructed with empty args', () => {
+         var circle = new ex.CircleArea({});
+         expect(circle).not.toBeNull();
+      });
+
+      it('can be constructed with points', () => {
+         var actor = new ex.Actor(0, 0, 10, 10);
+         var circle = new ex.CircleArea({
+            pos: ex.Vector.Zero.clone(),
+            radius: 10,
+            body: actor.body
+         });
+         expect(circle).not.toBeNull();
+      });
+
+      it('has a center', () => {
+         actor.pos.setTo(170, 300);
+         var center = circle.getCenter();
+         expect(center.x).toBe(170);
+         expect(center.y).toBe(300);
+      });
+
+      it('can contain points', () => {
+         var pointInside = new ex.Vector(0, 5);
+         var pointOnEdge = new ex.Vector(0, 10);
+         var pointJustOutside = new ex.Vector(0, 10.1);
+
+         expect(circle.contains(pointInside)).toBe(true);
+         expect(circle.contains(pointOnEdge)).toBe(true);
+         expect(circle.contains(pointJustOutside)).toBe(false);
+         
+      });
+
+      it('should collide with other circles when touching', () => {
+         var actor2 = new ex.Actor(20, 0, 10, 10);
+         var circle2 = new ex.CircleArea({
+            radius: 10,
+            body: actor2.body
+         });
+
+         var directionOfBodyB = circle2.getCenter().sub(circle.getCenter());
+         var contact = circle.collide(circle2);
+
+         // there should be a collision contact formed
+         expect(contact).not.toBe(null);
+
+         // the normal should always point away from bodyA
+         expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
+
+         // the nomral should always be length 1
+         expect(contact.normal.distance()).toBeCloseTo(1, .001);
+
+         expect(contact.point.x).toBe(10);
+         expect(contact.point.y).toBe(0);
+         
+      });
+
+
+      it('should not collide with other circles when touching', () => {
+         var actor2 = new ex.Actor(21, 0, 10, 10);
+         var circle2 = new ex.CircleArea({
+            radius: 10,
+            body: actor2.body
+         });
+
+         var contact = circle.collide(circle2);
+
+         // there should not be a collision contact formed, null indicates that
+         expect(contact).toBe(null);
+         
+      });
+
+      it('should collide with other polygons when touching', () => {
+         var actor2 = new ex.Actor(14.99, 0, 10, 10); // meh close enough
+         var poly = new ex.PolygonArea({
+            pos: ex.Vector.Zero.clone(),
+            points: actor2.getRelativeBounds().getPoints(),
+            body: actor2.body
+         });
+
+         var directionOfBodyB = poly.getCenter().sub(circle.getCenter());
+         var contact = circle.collide(poly);
+
+         // there should be a collision contact formed
+         expect(contact).not.toBe(null);
+
+         // the normal should always point away from bodyA
+         expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
+
+         // the nomral should always be length 1
+         expect(contact.normal.distance()).toBeCloseTo(1, .001);
+
+         expect(contact.point.x).toBe(10);
+         expect(contact.point.y).toBe(0);
+         
+      });
+
+      it('should not collide with other polygons when not touching', () => {
+         var actor2 = new ex.Actor(16, 0, 10, 10); 
+         var poly = new ex.PolygonArea({
+            pos: ex.Vector.Zero.clone(),
+            points: actor2.getRelativeBounds().getPoints(),
+            body: actor2.body
+         });
+
+         var contact = circle.collide(poly);
+
+         // there should not be a collision contact formed
+         expect(contact).toBe(null);      
+      });
+
+      it('should collide with other edges when touching the edge face', () => {
+         // position the circle actor in the middle of the edge
+         actor.pos.setTo(5, -9.99);
+         
+         var actor2 = new ex.Actor(5, 0, 10, 10);
+         var edge = new ex.EdgeArea({
+            begin: new ex.Vector(0, 0),
+            end: new ex.Vector(10, 0),         
+            body: actor2.body
+         });
+
+         var directionOfBodyB = edge.getCenter().sub(circle.getCenter());
+         var contact = circle.collide(edge);
+
+         // there should be a collision contact formed
+         expect(contact).not.toBe(null);
+
+         // the normal should always point away from bodyA
+         expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
+
+         // the nomral should always be length 1
+         expect(contact.normal.distance()).toBeCloseTo(1, .001);
+
+         expect(contact.point.x).toBe(5);
+         expect(contact.point.y).toBe(0);      
+      });
+
+      it('should collide with other edges when touching the edge end', () => {
+         // position the circle actor in the end of the edge
+         actor.pos.setTo(10, -9);
+         
+         
+         var actor2 = new ex.Actor(5, 0, 10, 10);
+         var edge = new ex.EdgeArea({
+            begin: new ex.Vector(0, 0),
+            end: new ex.Vector(10, 0),         
+            body: actor2.body
+         });
+
+         var directionOfBodyB = edge.getCenter().sub(circle.getCenter());
+         var contact = circle.collide(edge);
+
+         // there should be a collision contact formed
+         expect(contact).not.toBe(null);
+
+         // the normal should always point away from bodyA
+         expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
+
+         // the nomral should always be length 1
+         expect(contact.normal.distance()).toBeCloseTo(1, .001);
+
+         expect(contact.point.x).toBe(10);
+         expect(contact.point.y).toBe(0);
+      });
+
+      it('should collide with other edges when touching the edge beginning', () => {
+         // position the circle actor in the end of the edge
+         actor.pos.setTo(0, -9);      
+         
+         var actor2 = new ex.Actor(5, 0, 10, 10);
+         var edge = new ex.EdgeArea({
+            begin: new ex.Vector(0, 0),
+            end: new ex.Vector(10, 0),         
+            body: actor2.body
+         });
+
+         var directionOfBodyB = edge.getCenter().sub(circle.getCenter());
+         var contact = circle.collide(edge);
+
+         // there should be a collision contact formed
+         expect(contact).not.toBe(null);
+
+         // the normal should always point away from bodyA
+         expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
+
+         // the nomral should always be length 1
+         expect(contact.normal.distance()).toBeCloseTo(1, .001);
+
+         expect(contact.point.x).toBe(0);
+         expect(contact.point.y).toBe(0);
+      });
+
+   });
+
+   describe('A Polygon shape', () => {
+      it('exists', () => {
          expect(ex.PolygonArea).toBeDefined();
       });
 
       it('can be constructed with empty args', () => {
          var poly = new ex.PolygonArea({});
+         expect(poly).not.toBe(null);
       });
 
       it('can be constructed with points', () => {
@@ -16,6 +232,7 @@ describe('Collision Areas', () => {
             pos: ex.Vector.Zero.clone(),
             points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
          });
+         expect(poly).not.toBe(null);
       });
 
       it('can have be constructed with position', () => {
@@ -33,6 +250,7 @@ describe('Collision Areas', () => {
          expect(transformedPoints[1].x).toBe(20);
          expect(transformedPoints[2].x).toBe(20);
          expect(transformedPoints[3].x).toBe(0);
+         
       });
 
       it('can collide with other polygons', () => {
@@ -47,14 +265,24 @@ describe('Collision Areas', () => {
             points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
          });
 
+         var directionOfBodyB = polyB.getCenter().sub(polyA.getCenter());
+
          // should overlap by 10 pixels in x
          var contact = polyA.collide(polyB);
 
-         expect(contact).toBeTruthy();
+         // there should be a collision
+         expect(contact).not.toBe(null);
+
+         // normal and mtv should point away from bodyA
+         expect(directionOfBodyB.dot(contact.mtv)).toBeGreaterThan(0);
+         expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
+
+
          expect(contact.mtv.x).toBeCloseTo(10, 0.01);
          expect(contact.normal.x).toBeCloseTo(1, 0.01);
          expect(contact.mtv.y).toBeCloseTo(0, 0.01);
          expect(contact.normal.y).toBeCloseTo(0, 0.01);
       });
+
    });
 });

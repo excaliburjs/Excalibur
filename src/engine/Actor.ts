@@ -298,6 +298,12 @@ module ex {
      * acceleration, mass, inertia, etc.
      */
     public body: Body = new Body(this);
+
+    /**
+     * The collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and 
+     * [EdgeArea|edges]. 
+     */
+    public collisionArea: ICollisionArea = null;
     
     /**
      * Gets the x position of the actor relative to it's parent (if any)
@@ -579,7 +585,7 @@ module ex {
      */
     public collisionType: CollisionType = CollisionType.PreventCollision;
     public collisionGroups: string[] = [];
-    public collisionArea: ICollisionArea = null;
+    
 
     private _collisionHandlers: {[key: string]: {(actor: Actor): void}[]; } = {};
     private _isInitialized: boolean = false;

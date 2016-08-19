@@ -347,9 +347,10 @@ module ex {
          for (i = 0, len = this.children.length; i < len; i++) {
             this.children[i].debugDraw(ctx);
          }
-
-         // todo possibly enable this with excalibur flags features?
-         //this._broadphase.debugDraw(ctx, 20);
+         
+         if(ex.Physics.broadphaseDebug) {
+            this._broadphase.debugDraw(ctx, 20);
+         }
 
          this.camera.debugDraw(ctx);
          this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));

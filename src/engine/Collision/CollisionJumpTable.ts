@@ -64,7 +64,7 @@
 
             // Potential region A collision (circle is on the left side of the edge, before the beginning)
             if (v <= 0) {
-                var da = cc.sub(edge.begin);
+                var da = edge.begin.sub(cc);
                 var dda = da.dot(da); // quick and dirty way of calc'n distance in r^2 terms saves some sqrts
                 // save some sqrts
                 if (dda > circle.radius * circle.radius) {
@@ -75,12 +75,12 @@
 
             // Potential region B collision (circle is on the right side of the edge, after the end)
             if (u <= 0) {
-                var db = cc.sub(edge.end);
+                var db = edge.end.sub(cc);
                 var ddb = db.dot(db);
                 if (ddb > circle.radius * circle.radius) {
                     return null;
                 }
-                return new CollisionContact(circle, edge, db.normalize().scale(circle.radius - Math.sqrt(ddb)), edge.begin, db.normalize());
+                return new CollisionContact(circle, edge, db.normalize().scale(circle.radius - Math.sqrt(ddb)), edge.end, db.normalize());
             }
 
             // Otherwise potential region AB collision (circle is in the middle of the edge between the beginning and end)

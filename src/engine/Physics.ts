@@ -22,6 +22,9 @@ module ex {
       public static enabled = true;
       public static collisionPasses = 5;
       public static broadphaseStrategy: BroadphaseStrategy = BroadphaseStrategy.DynamicAABBTree;
+      public static broadphaseDebug: boolean = false;
+      public static showCollisionNormals: boolean = false;
+      public static showMotionVectors: boolean = false;
       public static collisionResolutionStrategy: CollisionResolutionStrategy = CollisionResolutionStrategy.Box;
       public static defaultMass: number = 10;
       public static integrator: Integrator = Integrator.Euler;

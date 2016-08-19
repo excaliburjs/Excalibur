@@ -43,7 +43,7 @@ module ex {
         }
 
         /**
-         * Calculates the underlying transformation from actor relative space to world space
+         * Calculates the underlying transformation from the body relative space to world space
          */
         private _calculateTransformation() {
             var pos = this.body ? this.body.pos.add(this.pos) : this.pos;

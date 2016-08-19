@@ -5,6 +5,7 @@ var game = new ex.Engine({
 });
 game.isDebug = true;
 ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
+ex.Physics.broadphaseDebug = true;
 ex.Physics.acc.setTo(0, 100);
 function spawnBlock(x, y) {
     var width = ex.Util.randomInRange(20, 100);
@@ -27,6 +28,14 @@ function spawnCircle(x, y) {
     circle.collisionType = ex.CollisionType.Active;
     game.add(circle);
 }
+var edge = new ex.Actor(300, 300, 400, 10, ex.Color.Blue.clone());
+edge.collisionType = ex.CollisionType.Fixed;
+edge.collisionArea = new ex.EdgeArea({
+    begin: new ex.Vector(100, 300),
+    end: new ex.Vector(500, 300),
+    body: edge.body
+});
+game.add(edge);
 var ground = new ex.Actor(300, 380, 600, 10, ex.Color.Black.clone());
 ground.collisionType = ex.CollisionType.Fixed;
 game.add(ground);

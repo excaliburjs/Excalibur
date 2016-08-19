@@ -24,11 +24,31 @@
          * Get the center of the collision area in world coordinates
          */
         public getCenter(): Vector {
-            var pos = this.begin.add(this.end).scale(.5);
+            var pos = this.begin.average(this.end);
             if (this.body) {
                 return this.body.pos.add(pos);
             }
             return pos;
+        }
+
+        /** 
+         * Returns the slope of the line in the form of a vector
+         */
+        public getSlope(): Vector {
+            var begin = this.begin;
+            var end = this.end;
+            var distance = begin.distance(end);
+            return end.sub(begin).scale(1 / distance);
+        }
+
+        /**
+         * Returns the length of the line segment in pixels
+         */
+        public getLength(): number {
+            var begin = this.begin;
+            var end = this.end;
+            var distance = begin.distance(end);
+            return distance;
         }
 
         /**
@@ -40,8 +60,29 @@
 
 
         public castRay(ray: Ray): Vector {
-            // todo 
-            throw new Error('not implemented');
+           var numerator = this.begin.sub(ray.pos);
+
+           // Test is line and ray are parallel and non intersecting
+           if(ray.dir.cross(this.getSlope()) === 0 && numerator.cross(ray.dir) !== 0) { 
+               return null;
+           }
+            
+           // Lines are parallel
+           var divisor = (ray.dir.cross(this.getSlope()));
+           if (divisor === 0 ) {
+              return null;
+           }
+
+           var t = numerator.cross(this.getSlope()) / divisor;
+
+           if (t >= 0) {
+              var u = (numerator.cross(ray.dir) / divisor) / this.getLength();
+              if (u >= 0 && u <= 1) {
+                 return ray.getPoint(t);
+              }
+           }
+
+           return null;
         }
 
         public collide(area: ICollisionArea): CollisionContact {

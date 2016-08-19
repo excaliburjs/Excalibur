@@ -11,7 +11,7 @@
      */
     export class CircleArea implements ICollisionArea {
         /**
-         * This is the center position of the circle, relative to the actor position
+         * This is the center position of the circle, relative to the body position
          */
         public pos: Vector = ex.Vector.Zero.clone();
         /**

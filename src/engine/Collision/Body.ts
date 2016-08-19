@@ -4,11 +4,13 @@ module ex {
    export class Body {
 
       /**
-       * Constructs a new physics body
+       * Constructs a new physics body associated with an actor
        */
       constructor(public actor: Actor) {
          
       }
+
+      // TODO Mayb collision area here and not off of actor
        
       /**
        * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default. 
@@ -78,5 +80,20 @@ module ex {
       public rx: number = 0; //radions/sec
 
 
+      public useBoxCollision(center: Vector = ex.Vector.Zero.clone()) {
+         // todo box
+      }
+
+      public usePolygonCollision(points: Vector[], center: Vector = ex.Vector.Zero.clone()) {
+         // todo polygon
+      } 
+
+      public useCircleCollision(radius: number, center: Vector = ex.Vector.Zero.clone()) {
+         // todo circle
+      }
+
+      public useEdgecCollision(start: Vector, end: Vector, center: Vector = ex.Vector.Zero.clone()) {
+         // todo edge
+      }
    }   
 }
