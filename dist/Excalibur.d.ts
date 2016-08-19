@@ -428,7 +428,6 @@ declare module ex.Util {
     var TwoPI: number;
     function base64Encode(inputStr: string): string;
     function clamp(val: any, min: any, max: any): any;
-    function drawLine(ctx: CanvasRenderingContext2D, color: string, startx: any, starty: any, endx: any, endy: any): void;
     function randomInRange(min: number, max: number): number;
     function randomIntInRange(min: number, max: number): number;
     function canonicalizeAngle(angle: number): number;
@@ -5331,6 +5330,53 @@ declare module ex.Internal {
         static isUnlocked(): boolean;
     }
 }
+declare module ex.Util.DrawUtil {
+    /**
+     * Draw a line on canvas context
+     *
+     * @param ctx The canvas context
+     * @param color The color of the line
+     * @param x1 The start x coordinate
+     * @param y1 The start y coordinate
+     * @param x2 The ending x coordinate
+     * @param y2 The ending y coordinate
+     */
+    function line(ctx: CanvasRenderingContext2D, color: ex.Color, x1: number, y1: number, x2: number, y2: number): void;
+    /**
+     * Represents border radius values
+     */
+    interface IBorderRadius {
+        /**
+         * Top-left
+         */
+        tl: number;
+        /**
+         * Top-right
+         */
+        tr: number;
+        /**
+         * Bottom-right
+         */
+        br: number;
+        /**
+         * Bottom-left
+         */
+        bl: number;
+    }
+    /**
+     * Draw a round rectange on a canvas context
+     *
+     * @param ctx The canvas context
+     * @param x The top-left x coordinate
+     * @param y The top-left y coordinate
+     * @param width The width of the rectangle
+     * @param height The height of the rectangle
+     * @param radius The border radius of the rectangle
+     * @param fill The [[ex.Color]] to fill rectangle with
+     * @param stroke The [[ex.Color]] to stroke rectangle with
+     */
+    function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius?: number | IBorderRadius, stroke?: Color, fill?: Color): void;
+}
 declare module ex {
     interface ILoader extends ILoadable {
         draw(ctx: CanvasRenderingContext2D, delta: number): any;
@@ -6660,6 +6706,7 @@ declare module ex.Input {
         buttons: number;
     }
 }
+declare var EX_VERSION: string;
 /**
  * # Welcome to the Excalibur API
  *
