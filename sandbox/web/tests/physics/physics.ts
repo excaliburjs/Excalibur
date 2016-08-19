@@ -11,16 +11,25 @@ ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBod
 ex.Physics.acc.setTo(0, 100);
 
 function spawnBlock(x: number, y: number){
-   var block = new ex.Actor(x, y, 20, 20, ex.Color.Azure.clone());
+   var width = ex.Util.randomInRange(20, 100)
+   var color = new ex.Color(ex.Util.randomIntInRange(0, 255),
+                           ex.Util.randomIntInRange(0, 255),
+                           ex.Util.randomIntInRange(0, 255));
+   var block = new ex.Actor(x, y, width, width, color);
    block.collisionType = ex.CollisionType.Active;
    game.add(block);
 }
 
 function spawnCircle(x: number, y: number){
-   var circle = new ex.Actor(x, y, 20, 20, ex.Color.Azure.clone());
+   var width = ex.Util.randomInRange(20, 100)
+   var color = new ex.Color(ex.Util.randomIntInRange(0, 255),
+                           ex.Util.randomIntInRange(0, 255),
+                           ex.Util.randomIntInRange(0, 255));
+   var circle = new ex.Actor(x, y, width, width, color);
+   circle.rx = ex.Util.randomInRange(-.5, .5);
    circle.collisionArea = new ex.CircleArea({
       body: circle.body,
-      radius: 20,
+      radius: width/2,
       pos: ex.Vector.Zero.clone()
    });
    circle.moi = circle.collisionArea.getMomentOfInertia()
@@ -43,7 +52,7 @@ circle.collisionType = ex.CollisionType.Fixed;
 //game.add(circle);
 
 
-spawnBlock(300, 0);
+//spawnBlock(300, 0);
 
 game.input.keyboard.on('down', (evt: ex.Input.KeyEvent) => {
    if(evt.key === ex.Input.Keys.B){
