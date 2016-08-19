@@ -1,7 +1,7 @@
 /*! excalibur - v0.6.0 - 2016-08-19
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
-var EX_VERSION = "0.6.0"
+var EX_VERSION = "0.6.0";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
