@@ -300,10 +300,20 @@ module ex {
     public body: Body = new Body(this);
 
     /**
-     * The collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and 
+     * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and 
      * [EdgeArea|edges]. 
      */
-    public collisionArea: ICollisionArea = null;
+    public get collisionArea(): ICollisionArea {
+        return this.body.collisionArea;
+    }
+
+    /**
+     * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and 
+     * [EdgeArea|edges]. 
+     */
+    public set collisionArea(area: ICollisionArea) {
+        this.body.collisionArea = area;
+    }
     
     /**
      * Gets the x position of the actor relative to it's parent (if any)
@@ -662,15 +672,8 @@ module ex {
        // default anchor is in the middle
        this.anchor = new Vector(.5, .5);
        
-       // Initialize default collision area
-       this.collisionArea = new PolygonArea({
-           body: this.body,
-           points: this.getRelativeBounds().getPoints(),
-           pos: Vector.Zero.clone() // position relative to actor
-       });
-
-       // in case of a nan moi, collesce to a safe default
-       this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
+       // Initialize default collision area to be box
+       this.body.useBoxCollision();
     }
 
     /**

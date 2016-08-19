@@ -10,7 +10,10 @@ module ex {
          
       }
 
-      // TODO Mayb collision area here and not off of actor
+      /**
+       * [ICollisionArea|Collision area] of this physics body, defines the shape for rigid body collision
+       */
+      public collisionArea: ICollisionArea = null;
        
       /**
        * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default. 
@@ -79,21 +82,62 @@ module ex {
        */
       public rx: number = 0; //radions/sec
 
+      /**
+       * Returns the body's [[BoundingBox]] calculated for this instant in world space.
+       */
+      public getBounds() {
+         return this.actor.getBounds();
+      }
+
+      /**
+       * Returns the actor's [[BoundingBox]] relative to the actors position.
+       */
+      public getRelativeBounds() {
+         return this.actor.getRelativeBounds();
+      }
+
 
       public useBoxCollision(center: Vector = ex.Vector.Zero.clone()) {
-         // todo box
+         
+         this.collisionArea = new PolygonArea({
+            body: this,
+            points: this.actor.getRelativeBounds().getPoints(),
+            pos: center // position relative to actor
+         });
+
+         // in case of a nan moi, collesce to a safe default
+         this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
+
       }
 
       public usePolygonCollision(points: Vector[], center: Vector = ex.Vector.Zero.clone()) {
-         // todo polygon
+         this.collisionArea = new PolygonArea({
+            body: this,
+            points: points,
+            pos: center // position relative to actor
+         });
+
+         // in case of a nan moi, collesce to a safe default
+         this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
       } 
 
       public useCircleCollision(radius: number, center: Vector = ex.Vector.Zero.clone()) {
-         // todo circle
+         this.collisionArea = new ex.CircleArea({
+            body: this,
+            radius: radius,
+            pos: center
+         });
+         this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
       }
 
-      public useEdgecCollision(start: Vector, end: Vector, center: Vector = ex.Vector.Zero.clone()) {
-         // todo edge
+      public useEdgecCollision(begin: Vector, end: Vector, center: Vector = ex.Vector.Zero.clone()) {
+         this.collisionArea = new ex.EdgeArea({
+            begin: begin,
+            end: end,
+            body: this
+         });
+
+         this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
       }
    }   
 }

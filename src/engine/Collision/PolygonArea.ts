@@ -146,7 +146,7 @@ module ex {
         }
 
         /**
-         * Get the axis aligned bounding box for the circle area
+         * Get the axis aligned bounding box for the polygon area
          */
         public getBounds(): BoundingBox {
             // todo there is a faster way to do this
@@ -284,7 +284,8 @@ module ex {
 
             return new Projection(min, max);
         }
-
+        
+        /* istanbul ignore next */
         public debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags) {
             ctx.beginPath();
             ctx.lineWidth = 3;

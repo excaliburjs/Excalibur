@@ -159,6 +159,7 @@
             return new Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
         }
 
+        /* istanbul ignore next */
         public debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags) {
            ctx.strokeStyle = 'red';
            var old = ctx.lineWidth;

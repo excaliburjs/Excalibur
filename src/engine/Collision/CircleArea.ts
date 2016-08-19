@@ -55,6 +55,7 @@
          * @param ray 
          */
         public castRay(ray: Ray): Vector {
+            
             throw new Error('not implemented');
         }
                 
@@ -136,6 +137,7 @@
             return minAxis.normalize().scale(minOverlap);
         }
 
+        /* istanbul ignore next */
         public recalc(): void {
             // circles don't cache
         }
@@ -153,6 +155,7 @@
             return new Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
         }
 
+        /* istanbul ignore next */
         public debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags) {
            var pos = this.body ? this.body.pos.add(this.pos) : this.pos;
            var rotation = this.body ? this.body.rotation : 0;

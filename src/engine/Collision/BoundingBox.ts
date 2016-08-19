@@ -160,6 +160,7 @@ module ex {
             return null;
         }
         
+        /* istanbul ignore next */
         public debugDraw(ctx: CanvasRenderingContext2D) {
             ctx.lineWidth = 2;
             ctx.strokeRect(this.left, this.top, this.getWidth(), this.getHeight());

@@ -17,6 +17,7 @@ module ex {
    /**
     * Static access engine global physics settings
     */
+   /* istanbul ignore next */
    export class Physics {
       public static acc = new ex.Vector(0, 0);
       public static enabled = true;

@@ -1,21 +1,22 @@
+/* istanbul ignore next */
 if (typeof window === 'undefined') {
    window = (<any>{ audioContext: function () { return; } });
 }
-
+/* istanbul ignore next */
 if (typeof window !== 'undefined' && !window.requestAnimationFrame) {
    (<any>window).requestAnimationFrame =
    (<any>window).webkitRequestAnimationFrame ||
    (<any>window).mozRequestAnimationFrame ||
    function (callback) { window.setInterval(callback, 1000 / 60); };
 }
-
+/* istanbul ignore next */
 if (typeof window !== 'undefined' && !window.cancelAnimationFrame) {
    (<any>window).cancelAnimationFrame =
    (<any>window).webkitCancelAnimationFrame ||
    (<any>window).mozCancelAnimationFrame ||
    function (callback) { return; };
 }
-
+/* istanbul ignore next */
 if (typeof window !== 'undefined' && !(<any>window).AudioContext) {
    (<any>window).AudioContext = (<any>window).AudioContext || 
                                 (<any>window).webkitAudioContext || 
@@ -27,6 +28,7 @@ if (typeof window !== 'undefined' && !(<any>window).AudioContext) {
 // Polyfill from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
 // Production steps of ECMA-262, Edition 5, 15.4.4.18
 // Reference: http://es5.github.io/#x15.4.4.18
+/* istanbul ignore next */
 if (!Array.prototype.forEach) {
 
    Array.prototype.forEach = function (callback, thisArg) {
@@ -85,6 +87,7 @@ if (!Array.prototype.forEach) {
 }
 
 // Polyfill from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
+/* istanbul ignore next */
 if (!Array.prototype.some) {
   Array.prototype.some = function(fun /*, thisArg */){
     'use strict';
@@ -111,7 +114,7 @@ if (!Array.prototype.some) {
 }
 
 // Polyfill from  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Polyfill
-
+/* istanbul ignore next */
 if (!Function.prototype.bind) {
    Function.prototype.bind = function (oThis) {
       if (typeof this !== 'function') {

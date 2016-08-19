@@ -55,6 +55,23 @@ describe('Collision areas', () => {
          
       });
 
+      it('can be raycast against', () => {
+        fail('todo');
+        
+      });
+
+      it('doesnt have axes', () => {
+        // technically circles have infinite axes
+        expect(circle.getAxes()).toBe(null);
+      });
+
+      it('has a moment of inertia', () => {
+        // following this formula
+        //https://en.wikipedia.org/wiki/List_of_moments_of_inertia
+        // I = m*r^2/2
+        expect(circle.getMomentOfInertia()).toBe((circle.body.mass * circle.radius * circle.radius) / 2);
+      });
+
       it('should collide with other circles when touching', () => {
          var actor2 = new ex.Actor(20, 0, 10, 10);
          var circle2 = new ex.CircleArea({
@@ -346,6 +363,46 @@ describe('Collision areas', () => {
 
       });
 
+      it('should detected contained points', () => {
+         var actor = new ex.Actor(0, 0, 20, 20);
+         var polyA = new ex.PolygonArea({
+            pos: ex.Vector.Zero.clone(),
+            // specified relative to the position
+            points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
+            body: actor.body
+         });
+         polyA.recalc();
+
+         var point = new ex.Vector(0, 0);
+         var pointOnEdge = new ex.Vector(0, 5);
+         var pointOutside = new ex.Vector(0, 5.1);
+
+         expect(polyA.contains(point)).toBe(true);
+         expect(polyA.contains(pointOnEdge)).toBe(true);
+         expect(polyA.contains(pointOutside)).toBe(false);
+      });
+
+      it('can have ray cast to detect if the ray hits the polygon', () => {
+         var actor = new ex.Actor(0, 0, 20, 20);
+         var polyA = new ex.PolygonArea({
+            pos: ex.Vector.Zero.clone(),
+            // specified relative to the position
+            points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
+            body: actor.body
+         });
+         polyA.recalc();
+
+         var rayTowards = new ex.Ray(new ex.Vector(-100, 0), ex.Vector.Right.clone());
+         var rayAway = new ex.Ray(new ex.Vector(-100, 0), ex.Vector.Left.clone());
+
+         var point = polyA.castRay(rayTowards);
+         var noHit = polyA.castRay(rayAway);
+
+         expect(point.x).toBeCloseTo(-5, .001);
+         expect(point.y).toBeCloseTo(0, .001);
+         expect(noHit).toBe(null);
+
+      });
    });
 
    describe('An Edge shape', () => {
@@ -379,5 +436,27 @@ describe('Collision areas', () => {
          expect(slope.y).toBe(0);
          expect(slope.x).toBe(1);
       });
+
+      it('can be ray cast against', () => {
+        fail('todo');
+      }); 
+
+      it('has axes', () => {
+        fail('todo');
+      });
+
+      it('has bounds', () => {
+        fail('todo');
+      });
+
+      it('has bounds', () => {
+        fail('todo');
+      });
+
+      it('has a moi', () => {
+        // following this formula https://en.wikipedia.org/wiki/List_of_moments_of_inertia
+        fail('todo');
+      });
+
    });
 });
