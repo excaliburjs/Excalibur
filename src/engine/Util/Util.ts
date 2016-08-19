@@ -47,15 +47,6 @@ module ex.Util {
       return val <= min ? min : (val >= max ? max : val);
    }
 
-   export function drawLine(ctx: CanvasRenderingContext2D, color: string, startx, starty, endx, endy) {
-      ctx.beginPath();
-      ctx.strokeStyle = color;
-      ctx.moveTo(startx, starty);
-      ctx.lineTo(endx, endy);
-      ctx.closePath();
-      ctx.stroke();  
-   }
-
    export function randomInRange(min: number, max: number) : number {
       return min + Math.random() * (max - min);
    }

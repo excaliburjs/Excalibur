@@ -30,6 +30,7 @@
 /// <reference path="Input/Keyboard.ts"/>
 /// <reference path="Input/Gamepad.ts"/>
 
+declare var EX_VERSION: string;
 
 /**
  * # Welcome to the Excalibur API
@@ -114,7 +115,6 @@
  * - [[Timer|Timers]]
  */
 module ex {
-
    /**
     * Defines the available options to configure the Excalibur engine at constructor time.
     */
@@ -480,11 +480,19 @@ module ex {
             
             return;
          }
-         
+                  
+         // Use native console API for color fun
+         if (console.log) {                 
+            console.log(`%cPowered by Excalibur.js (v${EX_VERSION})`, 
+               'background: #176BAA; color: white; border-radius: 5px; padding: 15px; font-size: 1.5em; line-height: 80px;');
+            console.log('\n\
+      /| ________________\n\
+O|===|* >________________>\n\
+      \\|');
+            console.log('Visit', 'http://excaliburjs.com', 'for more information');
+         }
+
          this._logger = Logger.getInstance();
-         
-         this._logger.info('Powered by Excalibur.js visit", "http://excaliburjs.com", "for more information.');
-         
          this._logger.debug('Building engine...');
 
          this.canvasElementId = canvasElementId;

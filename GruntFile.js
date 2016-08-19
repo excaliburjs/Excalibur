@@ -37,7 +37,8 @@ module.exports = function (grunt) {
                     '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
                     '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
                     '* Copyright (c) <%= grunt.template.today("yyyy") %> Excalibur.js <<%= pkg.author %>>;' +
-                    ' Licensed <%= pkg.license %>*/\n'
+                    ' Licensed <%= pkg.license %>*/\n' +
+                    'var EX_VERSION = "<%= version %>";\n'
          }
       },
 
