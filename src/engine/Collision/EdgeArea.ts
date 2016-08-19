@@ -25,9 +25,6 @@
          */
         public getCenter(): Vector {
             var pos = this.begin.average(this.end);
-            if (this.body) {
-                return this.body.pos.add(pos);
-            }
             return pos;
         }
 

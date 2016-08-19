@@ -284,5 +284,100 @@ describe('Collision areas', () => {
          expect(contact.normal.y).toBeCloseTo(0, 0.01);
       });
 
+      it('can collide with the middle of an edge', () => {
+         var actor = new ex.Actor(5, -6, 20, 20);
+         actor.rotation = Math.PI / 4;
+         var polyA = new ex.PolygonArea({
+            pos: ex.Vector.Zero.clone(),
+            // specified relative to the position
+            points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
+            body: actor.body
+         });
+         polyA.recalc();
+
+
+         var actor2 = new ex.Actor(5, 0, 10, 10);
+         var edge = new ex.EdgeArea({
+            begin: new ex.Vector(0, 0),
+            end: new ex.Vector(10, 0),         
+            body: actor2.body
+         });
+
+         var directionOfBodyB = edge.getCenter().sub(polyA.getCenter());
+
+         var contact = polyA.collide(edge);
+
+         // there should be a collision
+         expect(contact).not.toBe(null);
+
+         // the normal should be pointing away from bodyA
+         expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
+
+         // the mtv should be pointing away from bodyA
+         expect(directionOfBodyB.dot(contact.mtv)).toBeGreaterThan(0);
+
+      });
+
+       it('should not collide with the middle of an edge when not touching', () => {
+         var actor = new ex.Actor(5, 0, 20, 20);
+         actor.rotation = Math.PI / 4;
+         var polyA = new ex.PolygonArea({
+            pos: ex.Vector.Zero.clone(),
+            // specified relative to the position
+            points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
+            body: actor.body
+         });
+         polyA.recalc();
+
+
+         var actor2 = new ex.Actor(5, 100, 10, 10);
+         var edge = new ex.EdgeArea({
+            begin: new ex.Vector(0, 100),
+            end: new ex.Vector(10, 100),         
+            body: actor2.body
+         });
+
+         var directionOfBodyB = edge.getCenter().sub(polyA.getCenter());
+
+         var contact = polyA.collide(edge);
+
+         // there should not be a collision
+         expect(contact).toBe(null);
+
+      });
+
+   });
+
+   describe('An Edge shape', () => {
+      var actor: ex.Actor = null;
+      var edge: ex.EdgeArea = null;
+
+      beforeEach(() => {
+         actor = new ex.Actor(5, 0, 10, 10);
+         edge = new ex.EdgeArea({
+            begin: new ex.Vector(0, 0),
+            end: new ex.Vector(10, 0),         
+            body: actor.body
+         });
+      });
+
+      it('has a center', () => {         
+
+         var center = edge.getCenter();
+
+         expect(center.x).toBe(5);
+         expect(center.y).toBe(0);
+      });
+
+      it('has a length', () => {
+         var length = edge.getLength();
+         expect(length).toBe(10);
+      });
+
+      it('has a slope', () => {
+         var slope = edge.getSlope();
+         expect(slope.y).toBe(0);
+         expect(slope.x).toBe(1);
+      });
    });
 });

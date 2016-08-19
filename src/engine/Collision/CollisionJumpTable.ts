@@ -125,11 +125,10 @@
             var d = center.sub(pointOnEdge);
 
             // build a temporary polygon from the edge to use SAT
-            var pos = edge.getCenter();
             var linePoly = new PolygonArea({
                 points: [
-                    edge.begin.sub(pos),
-                    edge.end.sub(pos),
+                    edge.begin,
+                    edge.end,
                     edge.end.sub(edgeNormal.scale(10)),
                     edge.begin.sub(edgeNormal.scale(10))]
             });
