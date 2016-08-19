@@ -16,7 +16,27 @@ module ex {
          this._dynamicCollisionTree.removeActor(target);
       }
 
+      private _canCollide(actorA: Actor, actorB: Actor) {
+         // if the collision pair has been calculated already short circuit
+         var hash = actorA.calculatePairHash(actorB);
+         if (this._collisionHash[hash]) {
+            return false; // pair exists easy exit return false
+         }
+           
+         // if both are fixed short circuit
+         if (actorA.collisionType === CollisionType.Fixed && actorB.collisionType === CollisionType.Fixed) {
+            return false;
+         }
+
+         // if the other is prevent collision or is dead short circuit
+         if (actorB.collisionType === CollisionType.PreventCollision || actorB.isKilled()) { return false; }
+
+         // they can collide
+         return true;
+      }
+
       public resolve(targets: Actor[], delta: number): CollisionContact[] {
+         // TODO optimization use only the actors that are moving to start 
          // Retrieve the list of potential colliders, exclude killed, prevented, and self
          var potentialColliders = targets.filter((other) => {
             return !other.isKilled() && other.collisionType !== CollisionType.PreventCollision;
@@ -44,40 +64,28 @@ module ex {
 
             // Query the colllision tree for potential colliders
             this._dynamicCollisionTree.query(actor, (other: Actor) => {
-                
-                // if the collision pair has been calculated already short circuit
-                var hash = actor.calculatePairHash(other);
-                if (this._collisionHash[hash]) {
-                    return false; // pair exists easy exit return false
-                }                
-                
-               // if both are fixed short circuit
-               if (actor.collisionType === CollisionType.Fixed && other.collisionType === CollisionType.Fixed) {
+               if(this._canCollide(actor, other)) {
+                  // generate all the collision contacts between the 2 sets of collision areas between both actors
+                   var contacts: CollisionContact[] = [];
+                   var areaA = actor.collisionArea;
+                   var areaB = other.collisionArea;
+                   var contact = areaA.collide(areaB);
+
+                   if (contact) {
+                      contact.id = actor.calculatePairHash(other);
+                      contacts.push(contact);
+                   }
+
+                   // if there were contacts keep track of them
+                   if (contacts.length) {
+                      this._collisionHash[contact.id] = true;
+                      for (var contactHash of contacts) {
+                        this._collisionContactCache.push(contactHash);
+                      }
+                   }
+
                    return false;
                }
-               // if the other is prevent collision or is dead short circuit
-               if (other.collisionType === CollisionType.PreventCollision || other.isKilled()) { return false; }
-                              
-               // generate all the collision contacts between the 2 sets of collision areas between both actors
-               var contacts: CollisionContact[] = [];
-               var areaA = actor.collisionArea;
-               var areaB = other.collisionArea;
-               var contact = areaA.collide(areaB);
-               
-               if (contact) {
-                  contact.id = hash;
-                  contacts.push(contact);
-               }
-
-               // if there were contacts keep track of them
-               if (contacts.length) {
-                  this._collisionHash[hash] = true;
-                  for (var contactHash of contacts) {
-                     this._collisionContactCache.push(contactHash);
-                  }
-               }
-
-               return false;
             });
          }
 
@@ -92,7 +100,8 @@ module ex {
             a.applyMtv();
          });
          
-         // clear lookup table
+         // todo this should be cleared by checking first
+         // clear lookup table 
          this._collisionHash = {};
 
          // return cache

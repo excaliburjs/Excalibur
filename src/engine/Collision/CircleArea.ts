@@ -23,7 +23,7 @@
          */
         public body: Body;
         
-        contructor(options: ICircleAreaOptions) {
+        constructor(options: ICircleAreaOptions) {
             this.pos = options.pos || ex.Vector.Zero.clone();
             this.radius = options.radius || 0;
             this.body = options.body || null;
@@ -43,7 +43,7 @@
          * Tests if a point is contained in this collision area
          */
         public contains(point: Vector): boolean {
-            var distance = this.pos.distance(point);
+            var distance = this.body.pos.distance(point);
             if (distance <= this.radius) {
                 return true;
             }

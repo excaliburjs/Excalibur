@@ -4,14 +4,16 @@
         CollideCircleCircle(circleA: CircleArea, circleB: CircleArea): CollisionContact {
 
             var radius = circleA.radius + circleB.radius;
-            if (circleA.pos.distance(circleB.pos) > radius) {
+            var circleAPos = circleA.body.pos.add(circleA.pos);
+            var circleBPos = circleB.body.pos.add(circleB.pos);
+            if (circleAPos.distance(circleBPos) > radius) {
                 return null;
             }
 
-            var axisOfCollision = circleB.pos.sub(circleA.pos).normalize();
-            var mvt = axisOfCollision.scale(radius - circleB.pos.distance(circleA.pos));
+            var axisOfCollision = circleBPos.sub(circleAPos).normalize();
+            var mvt = axisOfCollision.scale(radius - circleBPos.distance(circleAPos));
 
-            var pointOfCollision = circleA.getFurthestPoint(axisOfCollision);
+            var pointOfCollision = circleA.getFurthestPoint(axisOfCollision).add(circleAPos);
 
             return new CollisionContact(circleA, circleB, mvt, pointOfCollision, axisOfCollision);
         },
@@ -32,10 +34,10 @@
             var samedir = minAxis.dot(polygon.getCenter().sub(circle.getCenter()));
             minAxis = samedir < 0 ? minAxis.negate() : minAxis;
 
-            var verts = [];
+            var verts: Vector[] = [];
 
             var point1 = polygon.getFurthestPoint(minAxis.negate());
-            var point2 = circle.getFurthestPoint(minAxis);
+            var point2 = circle.getFurthestPoint(minAxis).add(cc);
             if (circle.contains(point1)) {
                 verts.push(point1);
             }
@@ -52,7 +54,7 @@
 
         CollideCircleEdge(circle: CircleArea, edge: EdgeArea): CollisionContact {
             // center of the circle
-            var cc = circle.pos;
+            var cc = circle.body.pos;
             // vector in the direction of the edge
             var e = edge.end.sub(edge.begin);
 

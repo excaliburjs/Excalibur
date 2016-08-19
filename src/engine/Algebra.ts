@@ -83,6 +83,13 @@ module ex {
       }
 
       /**
+       * Returns the average (midpoint) between the current point and the specified
+       */
+      public average(vec: Vector): Vector {
+          return this.add(vec).scale(.5);
+      }
+
+      /**
        * Scales a vector's by a factor of size
        * @param size  The factor to scale the magnitude by
        */
