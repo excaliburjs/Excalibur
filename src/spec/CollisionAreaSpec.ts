@@ -56,8 +56,22 @@ describe('Collision areas', () => {
       });
 
       it('can be raycast against', () => {
-        fail('todo');
-        
+        var ray = new ex.Ray(new ex.Vector(-100, 0), ex.Vector.Right.clone());
+        var rayTangent = new ex.Ray(new ex.Vector(-100, 10), ex.Vector.Right.clone());
+        var rayNoHit = new ex.Ray(new ex.Vector(-100, 10), ex.Vector.Left.clone());
+
+        var point = circle.castRay(ray);
+        var pointTangent = circle.castRay(rayTangent);
+        var pointNoHit = circle.castRay(rayNoHit);
+
+        expect(point.x).toBe(-10);
+        expect(point.y).toBe(0);
+
+        expect(pointTangent.x).toBe(0);
+        expect(pointTangent.y).toBe(10);
+
+        expect(pointNoHit).toBe(null);
+
       });
 
       it('doesnt have axes', () => {

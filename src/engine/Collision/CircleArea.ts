@@ -55,8 +55,32 @@
          * @param ray 
          */
         public castRay(ray: Ray): Vector {
-            
-            throw new Error('not implemented');
+            //https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
+            var c = this.getCenter();
+            var dir = ray.dir;
+            var orig = ray.pos;
+
+            var discriminant = Math.sqrt( Math.pow(dir.dot(orig.sub(c)), 2) - 
+                                          Math.pow(orig.sub(c).distance(), 2) + 
+                                          Math.pow(this.radius, 2) );
+
+            if (discriminant < 0) {
+                // no intersection
+                return null;
+            } else {
+                var toi = 0;
+                if (discriminant === 0) {
+                    toi = -dir.dot(orig.sub(c));
+                    if (toi > 0) {
+                        return ray.getPoint(toi);
+                    }
+                    return null;
+                } else {
+                    var toi1 = -dir.dot(orig.sub(c)) + discriminant;
+                    var toi2 = -dir.dot(orig.sub(c)) - discriminant;
+                    return ray.getPoint(Math.min(toi1, toi2));
+                }
+            }
         }
                 
         public collide(area: ICollisionArea): CollisionContact {
