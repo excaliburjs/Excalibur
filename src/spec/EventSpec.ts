@@ -1,4 +1,6 @@
 ﻿/// <reference path="jasmine.d.ts" />
+/// <reference path="require.d.ts" />
+/// <reference path="Mocks.ts" />
 
 describe('An Event Dispatcher', () => {
    var pubsub: ex.EventDispatcher;
