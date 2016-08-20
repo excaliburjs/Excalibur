@@ -166,7 +166,7 @@
          // In Chrome, this will return 4 undefined items until a button is pressed
          // In FF, this will not return any items until a button is pressed
          this._oldPads = this._clonePads(this._navigator.getGamepads());
-         if(this._oldPads.length && this._oldPads[0]) {
+         if (this._oldPads.length && this._oldPads[0]) {
             this._initSuccess = true;
          }
       }
@@ -196,8 +196,8 @@
        * Checks a navigator gamepad against the minimum configuration if present.
        */
       private _isGamepadValid(pad: INavigatorGamepad) : boolean {
-         if(!this._minimumConfiguration) { return true; };
-         if(!pad) { return false; };
+         if (!this._minimumConfiguration) { return true; };
+         if (!pad) { return false; };
          var axesLength = pad.axes.filter((value, index, array) => {
             return (typeof value !== undefined);
          }).length;
@@ -242,7 +242,7 @@
                continue;
             } else {
 
-               if(!this.at(i).connected && this._isGamepadValid(gamepads[i])) {
+               if (!this.at(i).connected && this._isGamepadValid(gamepads[i])) {
                   this.eventDispatcher.emit('connect', new GamepadConnectEvent(i, this.at(i)));   
                } 
                // Set connection status
@@ -265,7 +265,7 @@
             for (b in Buttons) {
                bi = Buttons[b];
                if (typeof bi === 'number') {                                          
-                  if(gamepads[i].buttons[bi]) {
+                  if (gamepads[i].buttons[bi]) {
                      value = gamepads[i].buttons[bi].value;
                      if (value !== this._oldPads[i].getButton(bi)) {
                         if (gamepads[i].buttons[bi].pressed) {
@@ -351,7 +351,7 @@
          if (!pad) { return clonedPad; }
 
          for (i = 0, len = pad.buttons.length; i < len; i++) {
-            if(pad.buttons[i]) {
+            if (pad.buttons[i]) {
                clonedPad.updateButton(i, pad.buttons[i].value);
             }
          }

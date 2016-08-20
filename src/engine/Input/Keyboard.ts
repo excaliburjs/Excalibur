@@ -170,7 +170,7 @@
          this._keysUp.length = 0;
          
          // Emit synthetic "hold" event
-         for(var i = 0; i < this._keys.length; i++) {
+         for (var i = 0; i < this._keys.length; i++) {
             this.eventDispatcher.emit('hold', new KeyEvent(this._keys[i]));
          }
       }      

@@ -27,7 +27,7 @@ module ex.Traits {
          }
          
          if (!actor.isOffScreen) {
-            if((actorScreenCoords.x + width * zoom < 0 || 
+            if ((actorScreenCoords.x + width * zoom < 0 || 
                actorScreenCoords.y + height * zoom < 0 ||
                actorScreenCoords.x > engine.width ||
                actorScreenCoords.y > engine.height) &&
@@ -37,7 +37,7 @@ module ex.Traits {
                actor.isOffScreen = true;
             }
          } else {
-            if((actorScreenCoords.x + width * zoom > 0 &&
+            if ((actorScreenCoords.x + width * zoom > 0 &&
                actorScreenCoords.y + height * zoom > 0 &&
                actorScreenCoords.x < engine.width &&
                actorScreenCoords.y < engine.height) ||
