@@ -95,7 +95,7 @@ module ex {
        */
       public static join<T>(...promises: Promise<T>[]) {
          var joinedPromise = new Promise<T>();
-         if(!promises || !promises.length) {
+         if (!promises || !promises.length) {
             return joinedPromise.resolve();
          }
 
@@ -108,7 +108,7 @@ module ex {
             p.then(
                () => {
                   successes += 1;
-                  if(successes === total) {
+                  if (successes === total) {
                      joinedPromise.resolve();
                   } else if (successes + rejects + errors.length === total) {
                      joinedPromise.reject(errors);

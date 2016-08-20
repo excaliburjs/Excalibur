@@ -124,14 +124,14 @@ module ex {
          }
          this.position = this.position.add(this.velocity.scale(delta / 1000));
 
-         if(this.particleRotationalVelocity) {
+         if (this.particleRotationalVelocity) {
             this.currentRotation = (this.currentRotation + this.particleRotationalVelocity * delta / 1000) % (2 * Math.PI);
          }
       }
 
       public draw(ctx: CanvasRenderingContext2D) {
          
-         if(this.particleSprite) {
+         if (this.particleSprite) {
             this.particleSprite.rotation = this.currentRotation;
             this.particleSprite.scale.setTo(this.particleSize, this.particleSize);
             this.particleSprite.draw(ctx, this.position.x, this.position.y);

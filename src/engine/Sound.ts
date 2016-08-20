@@ -93,7 +93,7 @@ module ex.Internal {
       private _currentOffset: number = 0;
 
       constructor(public path: string, volume?: number) {
-         for(var i = 0; i < this._audioElements.length; i++) {
+         for (var i = 0; i < this._audioElements.length; i++) {
             ((i) => {
                this._audioElements[i] = new Audio();
             })(i);
@@ -150,7 +150,7 @@ module ex.Internal {
          request.onprogress = this.onprogress;
          request.onerror = this.onerror;
          request.onload = (e) => { 
-            if(request.status !== 200) {
+            if (request.status !== 200) {
                this._log.error('Failed to load audio resource ', this.path, ' server responded with error code', request.status);
                this.onerror(request.response);
                this._isLoaded = false;
@@ -273,7 +273,7 @@ module ex.Internal {
          request.onprogress = this.onprogress;
          request.onerror = this.onerror;
          request.onload = () => {
-            if(request.status !== 200) {
+            if (request.status !== 200) {
                this._logger.error('Failed to load audio resource ', this.path, ' server responded with error code', request.status);
                this.onerror(request.response);
                this._isLoaded = false;
@@ -381,7 +381,7 @@ module ex.Internal {
                this._sound.stop(0);
                this._isPlaying = false;
                this._isPaused = false;
-            } catch(e) {
+            } catch (e) {
                this._logger.warn('The sound clip', this.path, 'has already been stopped!');
             }
          }

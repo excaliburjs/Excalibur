@@ -1,5 +1,6 @@
 /// <reference path="jasmine.d.ts" />
 /// <reference path="require.d.ts" />
+/// <reference path="Mocks.ts" />
 
 describe('A collection', () => {
    var collection;
@@ -22,11 +23,11 @@ describe('A collection', () => {
 
    it('can resize when more items are a added than the internal array', () => {
       expect(collection.internalSize()).toBe(4);
-      for(var i = 0; i < 5; i++) {
+      for (var i = 0; i < 5; i++) {
          collection.push(1);
       }
       expect(collection.internalSize()).toBe(8);
-      for(var j = 0; j < 8; j++) {
+      for (var j = 0; j < 8; j++) {
          collection.push(1);
       }
       expect(collection.internalSize()).toBe(16);
@@ -61,7 +62,7 @@ describe('A collection', () => {
    });
 
    it('can have elements accessed at an index', () => {
-      for(var i = 0; i < 20; i++) {
+      for (var i = 0; i < 20; i++) {
          collection.push(i);
          //console.log(collection.elementAt(i));         
          expect(collection.count()).toBe(i + 1);
@@ -73,7 +74,7 @@ describe('A collection', () => {
    });
 
    it('can have elements removed at an index', () => {
-      for(var i = 0; i < 20; i++) {
+      for (var i = 0; i < 20; i++) {
          collection.push(i);
       }
       expect(collection.elementAt(7)).toBe(7);
@@ -84,7 +85,7 @@ describe('A collection', () => {
 
    it('can have the first instance of a value removed', () => {
       var collection = new ex.Util.Collection<string>();
-      for(var i = 0; i < 20; i++) {
+      for (var i = 0; i < 20; i++) {
          collection.push(i.toString());
       }
       expect(collection.elementAt(7)).toBe('7');
@@ -95,7 +96,7 @@ describe('A collection', () => {
    });
 
    it('can have elements interted into it', () => {
-      for(var i = 0; i < 20; i++) {
+      for (var i = 0; i < 20; i++) {
          collection.push(i);
       }
       expect(collection.elementAt(7)).toBe(7);
@@ -107,7 +108,7 @@ describe('A collection', () => {
    });
 
    it('can be cleared of all elements', () => {
-      for(var i = 0; i < 20; i++) {
+      for (var i = 0; i < 20; i++) {
          collection.push(i);       
       }
       expect(collection.count()).toBe(20);
@@ -116,14 +117,14 @@ describe('A collection', () => {
    });
 
    it('can be converted into an array', () => {
-      for(var i = 0; i < 20; i++) {
+      for (var i = 0; i < 20; i++) {
          collection.push(i);       
       }
       expect(collection.toArray().length).toBe(20);
    });
 
    it('has a forEach functionality', () => {
-      for(var i = 0; i < 4; i++) {
+      for (var i = 0; i < 4; i++) {
          collection.push(i);       
       }
       var sum = 0;
@@ -135,7 +136,7 @@ describe('A collection', () => {
    });
 
    it('has a map functionality', () => {
-      for(var i = 0; i < 4; i++) {
+      for (var i = 0; i < 4; i++) {
          collection.push(i);       
       }
       collection.map(function(element: number, index: number) {

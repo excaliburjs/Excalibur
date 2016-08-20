@@ -45,11 +45,11 @@ module ex {
             if (this.left.collisionType === CollisionType.Elastic) {
                if (leftSide === Side.Left) {
                   this.left.vel.x = Math.abs(this.left.vel.x);
-               } else if(leftSide === Side.Right) {
+               } else if (leftSide === Side.Right) {
                   this.left.vel.x = -Math.abs(this.left.vel.x);
-               } else if(leftSide === Side.Top) {
+               } else if (leftSide === Side.Top) {
                   this.left.vel.y = Math.abs(this.left.vel.y);
-               } else if(leftSide === Side.Bottom) {
+               } else if (leftSide === Side.Bottom) {
                   this.left.vel.y = -Math.abs(this.left.vel.y);
                }
             } else {
@@ -92,31 +92,31 @@ module ex {
             if (this.right.collisionType === CollisionType.Elastic) {
                if (rightSide === Side.Left) {
                   this.right.vel.x = Math.abs(this.right.vel.x);
-               } else if(rightSide === Side.Right) {
+               } else if (rightSide === Side.Right) {
                   this.right.vel.x = -Math.abs(this.right.vel.x);
-               } else if(rightSide === Side.Top) {
+               } else if (rightSide === Side.Top) {
                   this.right.vel.y = Math.abs(this.right.vel.y);
-               } else if(rightSide === Side.Bottom) {
+               } else if (rightSide === Side.Bottom) {
                   this.right.vel.y = -Math.abs(this.right.vel.y);
                }
             } else {
                 // Cancel velocities along intersection
-               if(rightIntersect.x !== 0) {
+               if (rightIntersect.x !== 0) {
                   if (this.right.vel.x <= 0 && this.left.vel.x <= 0) {
                      this.right.vel.x = Math.max(this.left.vel.x, this.right.vel.x);
                   } else if (this.left.vel.x >= 0 && this.right.vel.x >= 0) {
                      this.right.vel.x = Math.min(this.left.vel.x, this.right.vel.x);
-                  }else {
+                  } else {
                      this.right.vel.x = 0;
                   }
                }
                
-               if(rightIntersect.y !== 0) {
+               if (rightIntersect.y !== 0) {
                   if (this.right.vel.y <= 0 && this.left.vel.y <= 0) {
                      this.right.vel.y = Math.max(this.left.vel.y, this.right.vel.y);
                   } else if (this.left.vel.y >= 0 && this.right.vel.y >= 0) {
                      this.right.vel.y = Math.min(this.left.vel.y, this.right.vel.y);
-                  }else {
+                  } else {
                      this.right.vel.y = 0;
                   }
                }

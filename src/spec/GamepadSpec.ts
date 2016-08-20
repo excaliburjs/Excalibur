@@ -117,8 +117,8 @@ describe('A gamepad', () => {
       expect(currentButton).toBeNull();
       expect(currentValue).toBeNull();
                   
-      for(var button in ex.Input.Buttons) {
-         if(typeof button === 'number') {
+      for (var button in ex.Input.Buttons) {
+         if (typeof button === 'number') {
             
             engine.input.gamepads.update(100);
             (<any>navigator).setGamepadButton(0, button, 1.0);

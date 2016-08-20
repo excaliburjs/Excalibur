@@ -97,8 +97,8 @@ module ex {
           child.prototype = new Super;
 
           if (methods) {
-            for(var prop in methods) {
-               if(methods.hasOwnProperty(prop)) {
+            for (var prop in methods) {
+               if (methods.hasOwnProperty(prop)) {
                   child.prototype[prop] = methods[prop];
                }
             }

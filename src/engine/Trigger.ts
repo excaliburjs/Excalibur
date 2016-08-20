@@ -81,7 +81,7 @@ module ex {
          } else {
             for (var i = 0; i < engine.currentScene.children.length; i++) {
                var other = engine.currentScene.children[i];
-               if(other !== this && 
+               if (other !== this && 
                   other.collisionType !== CollisionType.PreventCollision && 
                   this.collides(other)) {
                   this._dispatchAction();
