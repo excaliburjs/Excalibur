@@ -714,7 +714,7 @@ O|===|* >________________>\n\
 
       /**
        * Adds an actor to the [[currentScene]] of the game. This is synonymous
-       * to calling `engine.currentScene.addChild(actor)`.
+       * to calling `engine.currentScene.add(actor)`.
        *
        * Actors can only be drawn if they are a member of a scene, and only
        * the [[currentScene]] may be drawn or updated.
@@ -722,18 +722,18 @@ O|===|* >________________>\n\
        * @param actor  The actor to add to the [[currentScene]]       
        */
       protected addChild(actor: Actor) {
-         this.currentScene.addChild(actor);
+         this.currentScene.add(actor);
       }
 
       /**
        * Removes an actor from the [[currentScene]] of the game. This is synonymous
-       * to calling `engine.currentScene.removeChild(actor)`.
+       * to calling `engine.currentScene.remove(actor)`.
        * Actors that are removed from a scene will no longer be drawn or updated.
        *
        * @param actor  The actor to remove from the [[currentScene]].      
        */
       protected removeChild(actor: Actor) {
-         this.currentScene.removeChild(actor);
+         this.currentScene.remove(actor);
       }
 
       /**
