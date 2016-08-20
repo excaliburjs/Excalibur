@@ -640,7 +640,7 @@ O|===|* >________________>\n\
             return;
          } 
          if (entity instanceof Actor) {
-            this.addChild(entity);
+            this._addChild(entity);
          }
          if (entity instanceof Timer) {
             this.addTimer(entity);
@@ -693,7 +693,7 @@ O|===|* >________________>\n\
             return;
          } 
          if (entity instanceof Actor) {
-            this.removeChild(entity);
+            this._removeChild(entity);
          }
          if (entity instanceof Timer) {
             this.removeTimer(entity);
@@ -721,7 +721,7 @@ O|===|* >________________>\n\
        *
        * @param actor  The actor to add to the [[currentScene]]       
        */
-      protected addChild(actor: Actor) {
+      protected _addChild(actor: Actor) {
          this.currentScene.add(actor);
       }
 
@@ -732,7 +732,7 @@ O|===|* >________________>\n\
        *
        * @param actor  The actor to remove from the [[currentScene]].      
        */
-      protected removeChild(actor: Actor) {
+      protected _removeChild(actor: Actor) {
          this.currentScene.remove(actor);
       }
 

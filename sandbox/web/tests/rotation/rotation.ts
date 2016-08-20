@@ -24,7 +24,7 @@ labelCurrentRotation.scale = new ex.Vector(2, 2);
 engine.add(labelCurrentRotation);
 
 
-engine.on('update', (ev: ex.UpdateEvent) => {
+engine.on('postupdate', (ev: ex.PostUpdateEvent) => {
    labelCurrentRotation.text = ex.RotationType[rotationType];
 });
 

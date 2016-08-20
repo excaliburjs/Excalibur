@@ -7,7 +7,7 @@ label.textAlign = ex.TextAlign.Center;
 
 game.add(label);
 
-game.on("update", (ue: ex.UpdateEvent) => {
+game.on("postupdate", (ue: ex.PostUpdateEvent) => {
 
    var keys = game.input.keyboard.getKeys().map((k) => {
       return (ex.Input.Keys[k] || "Unknown") + "(" + k.toString() + ")";

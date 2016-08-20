@@ -70,7 +70,7 @@ function start() {
    
 
    // Update global state on engine update
-   game.on("update", (ue: ex.UpdateEvent) => {
+   game.on("postupdate", (ue: ex.PostUpdateEvent) => {
 
       document.getElementById("gamepad-num").innerHTML = game.input.gamepads.getValidGamepads().length.toString();
 

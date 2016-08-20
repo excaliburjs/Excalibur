@@ -7,7 +7,7 @@ describe('A game actor', () => {
    var actor: ex.Actor;
    
    var engine;
-   var scene;
+   var scene: ex.Scene;
    var mock = new Mocks.Mocker();
 
    beforeEach(() => {
@@ -201,8 +201,8 @@ describe('A game actor', () => {
          otherCalled = 'other';
       });
 
-      scene.addChild(actor);
-      scene.addChild(other);
+      scene.add(actor);
+      scene.add(other);
       scene.update(engine, 20);
       scene.update(engine, 20);
 
@@ -557,7 +557,7 @@ describe('A game actor', () => {
    });
 
    it('can die', () => {
-      scene.addChild(actor);
+      scene.add(actor);
       expect(scene.children.length).toBe(1);
       actor.actions.die();
       scene.update(engine, 100);
@@ -565,7 +565,7 @@ describe('A game actor', () => {
    });
 
    it('can perform actions and then die', () => {
-      scene.addChild(actor);
+      scene.add(actor);
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
       expect(scene.children.length).toBe(1);
@@ -917,7 +917,7 @@ describe('A game actor', () => {
    });
 
    it('can be removed from the scene', () => {
-      scene.addChild(actor);
+      scene.add(actor);
       expect(scene.children.length).toBe(1);
       actor.kill();
       scene.update(engine, 100);
