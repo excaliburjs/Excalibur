@@ -915,17 +915,7 @@ module ex {
     public within(actor: Actor, distance: number): boolean {
        return Math.sqrt(Math.pow(this.pos.x - actor.pos.x, 2) + Math.pow(this.pos.y - actor.pos.y, 2)) <= distance;
     }      
-            
-    /**
-     * This method allows you to call an arbitrary method as the next action in the
-     * action queue. This is useful if you want to execute code in after a specific
-     * action, i.e An actor arrives at a destination after traversing a path
-     * @obsolete Use [[ActionContext.callMethod|Actor.actions.callMethod]]
-     */
-    public callMethod(method: () => any): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.CallMethod(this, method));
-       return this;
-    }
+                
     /**
      * This method will cause the actor to repeat all of the previously 
      * called actions a certain number of times. If the number of repeats 
