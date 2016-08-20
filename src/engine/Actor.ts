@@ -915,17 +915,7 @@ module ex {
     public within(actor: Actor, distance: number): boolean {
        return Math.sqrt(Math.pow(this.pos.x - actor.pos.x, 2) + Math.pow(this.pos.y - actor.pos.y, 2)) <= distance;
     }      
-        
-    /**
-     * This method will add an action to the queue that will remove the actor from the 
-     * scene once it has completed its previous actions. Any actions on the
-     * action queue after this action will not be executed.
-     * @obsolete Use [[ActionContext.die|Actor.actions.die]]
-     */
-    public die(): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.Die(this));
-       return this;
-    }
+            
     /**
      * This method allows you to call an arbitrary method as the next action in the
      * action queue. This is useful if you want to execute code in after a specific
