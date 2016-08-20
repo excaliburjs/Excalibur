@@ -521,33 +521,7 @@ O|===|* >________________>\n\
       public playAnimation(animation: Animation, x: number, y: number) {
          this._animations.push(new AnimationNode(animation, x, y));
       }
-
-      /**
-       * Adds an actor to the [[currentScene]] of the game. This is synonymous
-       * to calling `engine.currentScene.addChild(actor)`.
-       *
-       * Actors can only be drawn if they are a member of a scene, and only
-       * the [[currentScene]] may be drawn or updated.
-       *
-       * @param actor  The actor to add to the [[currentScene]]
-       * 
-       * @obsolete Use [[add]] instead.
-       */
-      public addChild(actor: Actor) {
-         this.currentScene.addChild(actor);
-      }
-
-      /**
-       * Removes an actor from the [[currentScene]] of the game. This is synonymous
-       * to calling `engine.currentScene.removeChild(actor)`.
-       * Actors that are removed from a scene will no longer be drawn or updated.
-       *
-       * @param actor  The actor to remove from the [[currentScene]].      
-       */
-      public removeChild(actor: Actor) {
-         this.currentScene.removeChild(actor);
-      }
-
+      
       /**
        * Adds a [[TileMap]] to the [[currentScene]], once this is done the TileMap 
        * will be drawn and updated.
@@ -738,6 +712,29 @@ O|===|* >________________>\n\
          }
       }
 
+      /**
+       * Adds an actor to the [[currentScene]] of the game. This is synonymous
+       * to calling `engine.currentScene.addChild(actor)`.
+       *
+       * Actors can only be drawn if they are a member of a scene, and only
+       * the [[currentScene]] may be drawn or updated.
+       *
+       * @param actor  The actor to add to the [[currentScene]]       
+       */
+      protected addChild(actor: Actor) {
+         this.currentScene.addChild(actor);
+      }
+
+      /**
+       * Removes an actor from the [[currentScene]] of the game. This is synonymous
+       * to calling `engine.currentScene.removeChild(actor)`.
+       * Actors that are removed from a scene will no longer be drawn or updated.
+       *
+       * @param actor  The actor to remove from the [[currentScene]].      
+       */
+      protected removeChild(actor: Actor) {
+         this.currentScene.removeChild(actor);
+      }
 
       /**
        * Changes the currently updating and drawing scene to a different,
