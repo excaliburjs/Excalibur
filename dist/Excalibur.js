@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-08-19
+/*! excalibur - v0.6.0 - 2016-08-20
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 var EX_VERSION = "0.6.0";
@@ -324,6 +324,7 @@ var ex;
     })(Effects = ex.Effects || (ex.Effects = {}));
 })(ex || (ex = {}));
 /// <reference path="../Drawing/SpriteEffects.ts" />
+/// <reference path="../Events.ts" />
 /// <reference path="../Interfaces/IActorTrait.ts" />
 var ex;
 (function (ex) {
@@ -371,17 +372,18 @@ var ex;
             var drawingHeight = actor.currentDrawing.height * actor.currentDrawing.scale.y;
             var rotation = actor.rotation;
             var anchor = actor.getCenter();
-            this._topLeft.x = actor.getWorldX() - (drawingWidth / 2);
-            this._topLeft.y = actor.getWorldY() - (drawingHeight / 2);
+            var worldPos = actor.getWorldPos();
+            this._topLeft.x = worldPos.x - (drawingWidth / 2);
+            this._topLeft.y = worldPos.y - (drawingHeight / 2);
             this._topLeft = this._topLeft.rotate(rotation, anchor);
-            this._topRight.x = actor.getWorldX() + (drawingWidth / 2);
-            this._topRight.y = actor.getWorldY() - (drawingHeight / 2);
+            this._topRight.x = worldPos.x + (drawingWidth / 2);
+            this._topRight.y = worldPos.y - (drawingHeight / 2);
             this._topRight = this._topRight.rotate(rotation, anchor);
-            this._bottomLeft.x = actor.getWorldX() - (drawingWidth / 2);
-            this._bottomLeft.y = actor.getWorldY() + (drawingHeight / 2);
+            this._bottomLeft.x = worldPos.x - (drawingWidth / 2);
+            this._bottomLeft.y = worldPos.y + (drawingHeight / 2);
             this._bottomLeft = this._bottomLeft.rotate(rotation, anchor);
-            this._bottomRight.x = actor.getWorldX() + (drawingWidth / 2);
-            this._bottomRight.y = actor.getWorldY() + (drawingHeight / 2);
+            this._bottomRight.x = worldPos.x + (drawingWidth / 2);
+            this._bottomRight.y = worldPos.y + (drawingHeight / 2);
             this._bottomRight = this._bottomRight.rotate(rotation, anchor);
             ///
             var topLeftScreen = engine.worldToScreenCoordinates(this._topLeft);
@@ -461,7 +463,8 @@ var ex;
                 var globalScale = actor.getGlobalScale();
                 var width = globalScale.x * actor.getWidth() / actor.scale.x;
                 var height = globalScale.y * actor.getHeight() / actor.scale.y;
-                var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Vector(actor.getWorldX() - anchor.x * width, actor.getWorldY() - anchor.y * height));
+                var worldPos = actor.getWorldPos();
+                var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Vector(worldPos.x - anchor.x * width, worldPos.y - anchor.y * height));
                 var zoom = 1.0;
                 if (actor.scene && actor.scene.camera) {
                     zoom = actor.scene.camera.getZoom();
@@ -874,6 +877,44 @@ var ex;
     var Util;
     (function (Util) {
         Util.TwoPI = Math.PI * 2;
+        /**
+         * Merges one or more objects into a single target object
+         *
+         * @returns Merged object with properties from other objects
+         * @credit https://gomakethings.com/vanilla-javascript-version-of-jquery-extend/
+         */
+        function extend() {
+            var extended = {};
+            var deep = false;
+            var i = 0;
+            var length = arguments.length;
+            // Check if a deep merge
+            if (Object.prototype.toString.call(arguments[0]) === '[object Boolean]') {
+                deep = arguments[0];
+                i++;
+            }
+            // Merge the object into the extended object
+            var merge = function (obj) {
+                for (var prop in obj) {
+                    if (Object.prototype.hasOwnProperty.call(obj, prop)) {
+                        // If deep merge and property is an object, merge properties
+                        if (deep && Object.prototype.toString.call(obj[prop]) === '[object Object]') {
+                            extended[prop] = extend(true, extended[prop], obj[prop]);
+                        }
+                        else {
+                            extended[prop] = obj[prop];
+                        }
+                    }
+                }
+            };
+            // Loop through each object and conduct a merge
+            for (; i < length; i++) {
+                var obj = arguments[i];
+                merge(obj);
+            }
+            return extended;
+        }
+        Util.extend = extend;
         function base64Encode(inputStr) {
             var b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
             var outputStr = '';
@@ -2560,6 +2601,7 @@ var ex;
     ex.SATBoundingBox = SATBoundingBox;
 })(ex || (ex = {}));
 /// <reference path="Events.ts" />
+/// <reference path="Interfaces/IEvented.ts" />
 var ex;
 (function (ex) {
     /**
@@ -2571,35 +2613,13 @@ var ex;
             this.eventDispatcher = new ex.EventDispatcher(this);
         }
         /**
-         * Add an event listener. You can listen for a variety of
-         * events off of the engine; see the events section below for a complete list.
-         * @param eventName  Name of the event to listen for
-         * @param handler    Event handler for the thrown event
-         * @obsolete Use [[Class.on]] instead
-         */
-        Class.prototype.addEventListener = function (eventName, handler) {
-            this.eventDispatcher.subscribe(eventName, handler);
-        };
-        /**
-         * Removes an event listener. If only the eventName is specified
-         * it will remove all handlers registered for that specific event. If the eventName
-         * and the handler instance are specified just that handler will be removed.
-         *
-         * @param eventName  Name of the event to listen for
-         * @param handler    Event handler for the thrown event
-         * @obsolete Use [[Class.off]] instead
-         */
-        Class.prototype.removeEventListener = function (eventName, handler) {
-            this.eventDispatcher.unsubscribe(eventName, handler);
-        };
-        /**
          * Alias for `addEventListener`. You can listen for a variety of
          * events off of the engine; see the events section below for a complete list.
          * @param eventName  Name of the event to listen for
          * @param handler    Event handler for the thrown event
          */
         Class.prototype.on = function (eventName, handler) {
-            this.eventDispatcher.subscribe(eventName, handler);
+            this.eventDispatcher.on(eventName, handler);
         };
         /**
          * Alias for `removeEventListener`. If only the eventName is specified
@@ -2610,7 +2630,7 @@ var ex;
          * @param handler    Event handler for the thrown event
          */
         Class.prototype.off = function (eventName, handler) {
-            this.eventDispatcher.unsubscribe(eventName, handler);
+            this.eventDispatcher.off(eventName, handler);
         };
         /**
          * Emits a new event
@@ -4989,6 +5009,7 @@ var ex;
 /// <reference path="Actions/IActionable.ts"/>
 /// <reference path="Actions/ActionContext.ts"/>
 /// <reference path="Collision/BoundingBox.ts"/>
+/// <reference path="Interfaces/IEvented.ts" />
 var ex;
 (function (ex) {
     /**
@@ -5093,10 +5114,10 @@ var ex;
             }
         };
         Group.prototype.on = function (eventName, handler) {
-            this.eventDispatcher.subscribe(eventName, handler);
+            this.eventDispatcher.on(eventName, handler);
         };
         Group.prototype.off = function (eventName, handler) {
-            this.eventDispatcher.unsubscribe(eventName, handler);
+            this.eventDispatcher.off(eventName, handler);
         };
         Group.prototype.emit = function (topic, event) {
             this.eventDispatcher.emit(topic, event);
@@ -5677,7 +5698,7 @@ var ex;
             }
             if (entity instanceof ex.Actor) {
                 if (!ex.Util.contains(this.children, entity)) {
-                    this.addChild(entity);
+                    this._addChild(entity);
                     this._sortedDrawingTree.add(entity);
                 }
                 return;
@@ -5701,7 +5722,7 @@ var ex;
             }
             if (entity instanceof ex.Actor) {
                 this._collisionResolver.remove(entity);
-                this.removeChild(entity);
+                this._removeChild(entity);
             }
             if (entity instanceof ex.Timer) {
                 this.removeTimer(entity);
@@ -5730,10 +5751,8 @@ var ex;
         };
         /**
          * Adds an actor to the scene, once this is done the actor will be drawn and updated.
-         *
-         * @obsolete Use [[add]] instead.
          */
-        Scene.prototype.addChild = function (actor) {
+        Scene.prototype._addChild = function (actor) {
             this._collisionResolver.register(actor);
             actor.scene = this;
             this.children.push(actor);
@@ -5758,7 +5777,7 @@ var ex;
         /**
          * Removes an actor from the scene, it will no longer be drawn or updated.
          */
-        Scene.prototype.removeChild = function (actor) {
+        Scene.prototype._removeChild = function (actor) {
             this._collisionResolver.remove(actor);
             this._killQueue.push(actor);
             actor.parent = null;
@@ -5930,6 +5949,7 @@ var ex;
     ex.EasingFunctions = EasingFunctions;
 })(ex || (ex = {}));
 /// <reference path="Interfaces/IDrawable.ts" />
+/// <reference path="Interfaces/IEvented.ts" />
 /// <reference path="Traits/EulerMovement.ts" />
 /// <reference path="Traits/OffscreenCulling.ts" />
 /// <reference path="Traits/CapturePointer.ts" />
@@ -6395,25 +6415,14 @@ var ex;
             }
         };
         /**
-         * Add an event listener. You can listen for a variety of
-         * events off of the engine; see [[GameEvent]]
-         * @param eventName  Name of the event to listen for
-         * @param handler    Event handler for the thrown event
-         * @obsolete Use [[on]] instead.
-         */
-        Actor.prototype.addEventListener = function (eventName, handler) {
-            this._checkForPointerOptIn(eventName);
-            _super.prototype.addEventListener.call(this, eventName, handler);
-        };
-        /**
-         * Alias for `addEventListener`. You can listen for a variety of
+         * You can listen for a variety of
          * events off of the engine; see [[GameEvent]]
          * @param eventName   Name of the event to listen for
          * @param handler     Event handler for the thrown event
          */
         Actor.prototype.on = function (eventName, handler) {
             this._checkForPointerOptIn(eventName);
-            this.eventDispatcher.subscribe(eventName, handler);
+            this.eventDispatcher.on(eventName, handler);
         };
         /**
          * If the current actor is a member of the scene, this will remove
@@ -6633,20 +6642,6 @@ var ex;
             return new ex.Vector(x, y).rotate(r, ra);
         };
         /**
-         * Gets the x value of the Actor in global coordinates
-         * @obsolete Use [[getWorldPos]]
-         */
-        Actor.prototype.getWorldX = function () {
-            return this.getWorldPos().x;
-        };
-        /**
-         * Gets the y value of the Actor in global coordinates
-         * @obsolete Use [[getWorldPos]]
-         */
-        Actor.prototype.getWorldY = function () {
-            return this.getWorldPos().y;
-        };
-        /**
          * Gets the global scale of the Actor
          */
         Actor.prototype.getGlobalScale = function () {
@@ -6661,7 +6656,8 @@ var ex;
          */
         Actor.prototype.getBounds = function () {
             var anchor = this._getCalculatedAnchor();
-            return new ex.BoundingBox(this.getWorldX() - anchor.x, this.getWorldY() - anchor.y, this.getWorldX() + this.getWidth() - anchor.x, this.getWorldY() + this.getHeight() - anchor.y);
+            var pos = this.getWorldPos();
+            return new ex.BoundingBox(pos.x - anchor.x, pos.y - anchor.y, pos.x + this.getWidth() - anchor.x, pos.y + this.getHeight() - anchor.y);
         };
         /**
          * Tests whether the x/y specified are contained in the actor
@@ -6766,234 +6762,6 @@ var ex;
         Actor.prototype.within = function (actor, distance) {
             return Math.sqrt(Math.pow(this.pos.x - actor.pos.x, 2) + Math.pow(this.pos.y - actor.pos.y, 2)) <= distance;
         };
-        /**
-         * Clears all queued actions from the Actor
-         * @obsolete Use [[ActionContext.clearActions|Actor.actions.clearActions]]
-         */
-        Actor.prototype.clearActions = function () {
-            this.actionQueue.clearActions();
-        };
-        /**
-         * This method will move an actor to the specified `x` and `y` position over the
-         * specified duration using a given [[EasingFunctions]] and return back the actor. This
-         * method is part of the actor 'Action' fluent API allowing action chaining.
-         * @param x         The x location to move the actor to
-         * @param y         The y location to move the actor to
-         * @param duration  The time it should take the actor to move to the new location in milliseconds
-         * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
-         * @obsolete Use [[ActionContext.easeTo|Actor.actions.easeTo]]
-         */
-        Actor.prototype.easeTo = function (x, y, duration, easingFcn) {
-            if (easingFcn === void 0) { easingFcn = ex.EasingFunctions.Linear; }
-            this.actionQueue.add(new ex.Internal.Actions.EaseTo(this, x, y, duration, easingFcn));
-            return this;
-        };
-        /**
-         * This method will move an actor to the specified `x` and `y` position at the
-         * `speed` specified (in pixels per second) and return back the actor. This
-         * method is part of the actor 'Action' fluent API allowing action chaining.
-         * @param x       The x location to move the actor to
-         * @param y       The y location to move the actor to
-         * @param speed   The speed in pixels per second to move
-         * @obsolete Use [[ActionContext.moveTo|Actor.actions.moveTo]]
-         */
-        Actor.prototype.moveTo = function (x, y, speed) {
-            this.actionQueue.add(new ex.Internal.Actions.MoveTo(this, x, y, speed));
-            return this;
-        };
-        /**
-         * This method will move an actor to the specified `x` and `y` position by a
-         * certain `duration` (in milliseconds). This method is part of the actor
-         * 'Action' fluent API allowing action chaining.
-         * @param x         The x location to move the actor to
-         * @param y         The y location to move the actor to
-         * @param duration  The time it should take the actor to move to the new location in milliseconds
-         * @obsolete Use [[ActionContext.moveBy|Actor.actions.moveBy]]
-         */
-        Actor.prototype.moveBy = function (x, y, duration) {
-            this.actionQueue.add(new ex.Internal.Actions.MoveBy(this, x, y, duration));
-            return this;
-        };
-        /**
-         * This method will rotate an actor to the specified angle (in radians) at the `speed`
-         * specified (in radians per second) and return back the actor. This
-         * method is part of the actor 'Action' fluent API allowing action chaining.
-         * @param angleRadians  The angle to rotate to in radians
-         * @param speed         The angular velocity of the rotation specified in radians per second
-         * @obsolete Use [[ActionContext.rotateTo|Actor.actions.rotateTo]]
-         */
-        Actor.prototype.rotateTo = function (angleRadians, speed, rotationType) {
-            this.actionQueue.add(new ex.Internal.Actions.RotateTo(this, angleRadians, speed, rotationType));
-            return this;
-        };
-        /**
-         * This method will rotate an actor to the specified angle by a certain
-         * `duration` (in milliseconds) and return back the actor. This method is part
-         * of the actor 'Action' fluent API allowing action chaining.
-         * @param angleRadians  The angle to rotate to in radians
-         * @param duration          The time it should take the actor to complete the rotation in milliseconds
-         * @obsolete Use [[ActionContext.rotateBy|ex.Actor.actions.rotateBy]]
-         */
-        Actor.prototype.rotateBy = function (angleRadians, duration, rotationType) {
-            this.actionQueue.add(new ex.Internal.Actions.RotateBy(this, angleRadians, duration, rotationType));
-            return this;
-        };
-        /**
-         * This method will scale an actor to the specified size at the speed
-         * specified (in magnitude increase per second) and return back the
-         * actor. This method is part of the actor 'Action' fluent API allowing
-         * action chaining.
-         * @param sizeX  The scaling factor in the x direction to apply
-         * @param sizeY  The scaling factor in the y direction to apply
-         * @param speedX The speed of scaling in the x direction specified in magnitude increase per second
-         * @param speedY The speed of scaling in the y direction specified in magnitude increase per second
-         * @obsolete Use [[ActionContext.scaleTo|Actor.actions.scaleTo]]
-         */
-        Actor.prototype.scaleTo = function (sizeX, sizeY, speedX, speedY) {
-            this.actionQueue.add(new ex.Internal.Actions.ScaleTo(this, sizeX, sizeY, speedX, speedY));
-            return this;
-        };
-        /**
-         * This method will scale an actor to the specified size by a certain duration
-         * (in milliseconds) and return back the actor. This method is part of the
-         * actor 'Action' fluent API allowing action chaining.
-         * @param sizeX     The scaling factor in the x direction to apply
-         * @param sizeY     The scaling factor in the y direction to apply
-         * @param duration  The time it should take to complete the scaling in milliseconds
-         * @obsolete Use [[ActionContext.scaleBy|Actor.actions.scaleBy]]
-         */
-        Actor.prototype.scaleBy = function (sizeX, sizeY, duration) {
-            this.actionQueue.add(new ex.Internal.Actions.ScaleBy(this, sizeX, sizeY, duration));
-            return this;
-        };
-        /**
-         * This method will cause an actor to blink (become visible and not
-         * visible). Optionally, you may specify the number of blinks. Specify the amount of time
-         * the actor should be visible per blink, and the amount of time not visible.
-         * This method is part of the actor 'Action' fluent API allowing action chaining.
-         * @param timeVisible     The amount of time to stay visible per blink in milliseconds
-         * @param timeNotVisible  The amount of time to stay not visible per blink in milliseconds
-         * @param numBlinks       The number of times to blink
-         * @obsolete Use [[ActionContext.blink|Actor.actions.blink]]
-         */
-        Actor.prototype.blink = function (timeVisible, timeNotVisible, numBlinks) {
-            if (numBlinks === void 0) { numBlinks = 1; }
-            this.actionQueue.add(new ex.Internal.Actions.Blink(this, timeVisible, timeNotVisible, numBlinks));
-            return this;
-        };
-        /**
-         * This method will cause an actor's opacity to change from its current value
-         * to the provided value by a specified `duration` (in milliseconds). This method is
-         * part of the actor 'Action' fluent API allowing action chaining.
-         * @param opacity   The ending opacity
-         * @param duration  The time it should take to fade the actor (in milliseconds)
-         * @obsolete Use [[ActionContext.fade|Actor.actions.fade]]
-         */
-        Actor.prototype.fade = function (opacity, duration) {
-            this.actionQueue.add(new ex.Internal.Actions.Fade(this, opacity, duration));
-            return this;
-        };
-        /**
-         * This method will delay the next action from executing for the specified
-         * `duration` (in milliseconds). This method is part of the actor
-         * 'Action' fluent API allowing action chaining.
-         * @param duration The amount of time to delay the next action in the queue from executing in milliseconds
-         * @obsolete Use [[ActionContext.delay|Actor.actions.delay]]
-         */
-        Actor.prototype.delay = function (duration) {
-            this.actionQueue.add(new ex.Internal.Actions.Delay(this, duration));
-            return this;
-        };
-        /**
-         * This method will add an action to the queue that will remove the actor from the
-         * scene once it has completed its previous actions. Any actions on the
-         * action queue after this action will not be executed.
-         * @obsolete Use [[ActionContext.die|Actor.actions.die]]
-         */
-        Actor.prototype.die = function () {
-            this.actionQueue.add(new ex.Internal.Actions.Die(this));
-            return this;
-        };
-        /**
-         * This method allows you to call an arbitrary method as the next action in the
-         * action queue. This is useful if you want to execute code in after a specific
-         * action, i.e An actor arrives at a destination after traversing a path
-         * @obsolete Use [[ActionContext.callMethod|Actor.actions.callMethod]]
-         */
-        Actor.prototype.callMethod = function (method) {
-            this.actionQueue.add(new ex.Internal.Actions.CallMethod(this, method));
-            return this;
-        };
-        /**
-         * This method will cause the actor to repeat all of the previously
-         * called actions a certain number of times. If the number of repeats
-         * is not specified it will repeat forever. This method is part of
-         * the actor 'Action' fluent API allowing action chaining
-         * @param times The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will
-         * repeat forever
-         * @obsolete Use [[ActionContext.repeat|Actor.actions.repeat]]
-         */
-        Actor.prototype.repeat = function (times) {
-            if (!times) {
-                this.repeatForever();
-                return this;
-            }
-            this.actionQueue.add(new ex.Internal.Actions.Repeat(this, times, this.actionQueue.getActions()));
-            return this;
-        };
-        /**
-         * This method will cause the actor to repeat all of the previously
-         * called actions forever. This method is part of the actor 'Action'
-         * fluent API allowing action chaining.
-         * @obsolete Use [[ActionContext.repeatForever|Actor.actions.repeatForever]]
-         */
-        Actor.prototype.repeatForever = function () {
-            this.actionQueue.add(new ex.Internal.Actions.RepeatForever(this, this.actionQueue.getActions()));
-            return this;
-        };
-        /**
-         * This method will cause the actor to follow another at a specified distance
-         * @param actor           The actor to follow
-         * @param followDistance  The distance to maintain when following, if not specified the actor will follow at the current distance.
-         * @obsolete Use [[ActionContext.follow|Actor.actions.follow]]
-         */
-        Actor.prototype.follow = function (actor, followDistance) {
-            if (typeof followDistance === 'undefined') {
-                this.actionQueue.add(new ex.Internal.Actions.Follow(this, actor));
-            }
-            else {
-                this.actionQueue.add(new ex.Internal.Actions.Follow(this, actor, followDistance));
-            }
-            return this;
-        };
-        /**
-         * This method will cause the actor to move towards another Actor until they
-         * collide ("meet") at a specified speed.
-         * @param actor  The actor to meet
-         * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
-         * @obsolete Use [[ActionContext.meet|Actor.actions.meet]]
-         */
-        Actor.prototype.meet = function (actor, speed) {
-            if (typeof speed === 'undefined') {
-                this.actionQueue.add(new ex.Internal.Actions.Meet(this, actor));
-            }
-            else {
-                this.actionQueue.add(new ex.Internal.Actions.Meet(this, actor, speed));
-            }
-            return this;
-        };
-        /**
-         * Returns a promise that resolves when the current action queue up to now
-         * is finished.
-         * @obsolete Use [[ActionContext.asPromise|Actor.actions.asPromise]]
-         */
-        Actor.prototype.asPromise = function () {
-            var complete = new ex.Promise();
-            this.callMethod(function () {
-                complete.resolve();
-            });
-            return complete;
-        };
         Actor.prototype._getCalculatedAnchor = function () {
             return new ex.Vector(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
         };
@@ -7040,7 +6808,8 @@ var ex;
             for (var i = 0; i < this.children.length; i++) {
                 this.children[i].update(engine, delta);
             }
-            this.eventDispatcher.emit('update', new ex.UpdateEvent(delta));
+            // TODO: Obsolete `update` event on Actor
+            this.eventDispatcher.emit('update', new ex.PostUpdateEvent(engine, delta, this));
             this.emit('postupdate', new ex.PostUpdateEvent(engine, delta, this));
         };
         /**
@@ -7094,7 +6863,7 @@ var ex;
             // Draw actor anchor Vector
             ctx.fillStyle = ex.Color.Yellow.toString();
             ctx.beginPath();
-            ctx.arc(this.getWorldX(), this.getWorldY(), 3, 0, Math.PI * 2);
+            ctx.arc(this.getWorldPos().x, this.getWorldPos().y, 3, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fill();
             // Culling Box debug draw
@@ -7107,7 +6876,7 @@ var ex;
             ctx.strokeStyle = ex.Color.Yellow.toString();
             ctx.beginPath();
             var radius = Math.min(this.getWidth(), this.getHeight());
-            ctx.arc(this.getWorldX(), this.getWorldY(), radius, 0, Math.PI * 2);
+            ctx.arc(this.getWorldPos().x, this.getWorldPos().y, radius, 0, Math.PI * 2);
             ctx.closePath();
             ctx.stroke();
             var ticks = { '0 Pi': 0,
@@ -7119,7 +6888,7 @@ var ex;
                 ctx.fillStyle = ex.Color.Yellow.toString();
                 ctx.font = '14px';
                 ctx.textAlign = 'center';
-                ctx.fillText(tick, this.getWorldX() + Math.cos(ticks[tick]) * (radius + 10), this.getWorldY() + Math.sin(ticks[tick]) * (radius + 10));
+                ctx.fillText(tick, this.getWorldPos().x + Math.cos(ticks[tick]) * (radius + 10), this.getWorldPos().y + Math.sin(ticks[tick]) * (radius + 10));
             }
             ctx.font = oldFont;
             // Draw child actors
@@ -7677,22 +7446,6 @@ var ex;
     }(GameEvent));
     ex.CollisionEvent = CollisionEvent;
     /**
-     * Event thrown on a game object on Excalibur update, this is equivalent to postupdate.
-     * @obsolete Please use [[PostUpdateEvent|postupdate]], or [[PreUpdateEvent|preupdate]].
-     */
-    var UpdateEvent = (function (_super) {
-        __extends(UpdateEvent, _super);
-        /**
-         * @param delta  The number of milliseconds since the last update
-         */
-        function UpdateEvent(delta) {
-            _super.call(this);
-            this.delta = delta;
-        }
-        return UpdateEvent;
-    }(GameEvent));
-    ex.UpdateEvent = UpdateEvent;
-    /**
      * Event thrown on an [[Actor]] only once before the first update call
      */
     var InitializeEvent = (function (_super) {
@@ -7761,6 +7514,7 @@ var ex;
     ex.EnterViewPortEvent = EnterViewPortEvent;
 })(ex || (ex = {}));
 /// <reference path="Events.ts" />
+/// <reference path="Interfaces/IEvented.ts" />
 var ex;
 (function (ex) {
     /**
@@ -7827,7 +7581,7 @@ var ex;
      * }
      *
      * // add a subscription
-     * vent.subscribe("someevent", subscription);
+     * vent.on("someevent", subscription);
      *
      * // publish an event somewhere in the game
      * vent.emit("someevent", new ex.GameEvent());
@@ -7844,13 +7598,11 @@ var ex;
             this._target = target;
         }
         /**
-         * Publish an event for target
+         * Emits an event for target
          * @param eventName  The name of the event to publish
          * @param event      Optionally pass an event data object to the handler
-         *
-         * @obsolete Use [[emit]] instead.
          */
-        EventDispatcher.prototype.publish = function (eventName, event) {
+        EventDispatcher.prototype.emit = function (eventName, event) {
             if (!eventName) {
                 // key not mapped
                 return;
@@ -7876,19 +7628,11 @@ var ex;
             }
         };
         /**
-         * Alias for [[publish]], publishes an event for target
-         * @param eventName  The name of the event to publish
-         * @param event      Optionally pass an event data object to the handler
-         */
-        EventDispatcher.prototype.emit = function (eventName, event) {
-            this.publish(eventName, event);
-        };
-        /**
          * Subscribe an event handler to a particular event name, multiple handlers per event name are allowed.
          * @param eventName  The name of the event to subscribe to
          * @param handler    The handler callback to fire on this event
          */
-        EventDispatcher.prototype.subscribe = function (eventName, handler) {
+        EventDispatcher.prototype.on = function (eventName, handler) {
             eventName = eventName.toLowerCase();
             if (!this._handlers[eventName]) {
                 this._handlers[eventName] = [];
@@ -7908,7 +7652,7 @@ var ex;
          * @param handler    Optionally the specific handler to unsubscribe
          *
          */
-        EventDispatcher.prototype.unsubscribe = function (eventName, handler) {
+        EventDispatcher.prototype.off = function (eventName, handler) {
             eventName = eventName.toLowerCase();
             var eventHandlers = this._handlers[eventName];
             if (eventHandlers) {
@@ -9187,10 +8931,11 @@ var ex;
             ctx.save();
             ctx.translate(this.pos.x, this.pos.y);
             var bb = this.getBounds();
-            bb.left = bb.left - this.getWorldX();
-            bb.right = bb.right - this.getWorldX();
-            bb.top = bb.top - this.getWorldY();
-            bb.bottom = bb.bottom - this.getWorldY();
+            var wp = this.getWorldPos();
+            bb.left = bb.left - wp.x;
+            bb.right = bb.right - wp.x;
+            bb.top = bb.top - wp.y;
+            bb.bottom = bb.bottom - wp.y;
             // Currently collision primitives cannot rotate 
             // ctx.rotate(this.rotation);
             ctx.fillStyle = ex.Color.Violet.toString();
@@ -11953,7 +11698,7 @@ var ex;
                                 if (value !== this._oldPads[i].getButton(bi)) {
                                     if (gamepads[i].buttons[bi].pressed) {
                                         this.at(i).updateButton(bi, value);
-                                        this.at(i).eventDispatcher.publish('button', new ex.GamepadButtonEvent(bi, value));
+                                        this.at(i).eventDispatcher.emit('button', new ex.GamepadButtonEvent(bi, value));
                                     }
                                     else {
                                         this.at(i).updateButton(bi, 0);
@@ -12474,9 +12219,9 @@ var ex;
     var Engine = (function (_super) {
         __extends(Engine, _super);
         /**
-         * @internal
+         * Creates a new game using the given [[IEngineOptions]]
          */
-        function Engine(args) {
+        function Engine(options) {
             _super.call(this);
             /**
              * Gets or sets the [[CollisionStrategy]] for Excalibur actors
@@ -12523,24 +12268,7 @@ var ex;
             this.onFatalException = function (e) { ex.Logger.getInstance().fatal(e); };
             this._isSmoothingEnabled = true;
             this._isLoading = false;
-            var width;
-            var height;
-            var canvasElementId;
-            var displayMode;
-            var options = null;
-            if (typeof arguments[0] === 'number') {
-                width = arguments[0];
-                height = arguments[1];
-                canvasElementId = arguments[2];
-                displayMode = arguments[3];
-            }
-            else {
-                options = arguments[0] || { width: 0, height: 0, canvasElementId: '', displayMode: DisplayMode.FullScreen };
-                width = options.width;
-                height = options.height;
-                canvasElementId = options.canvasElementId;
-                displayMode = options.displayMode;
-            }
+            options = ex.Util.extend({}, Engine._DefaultEngineOptions, options);
             // Check compatibility 
             var detector = new ex.Detector();
             if (!(this._compatible = detector.test())) {
@@ -12552,8 +12280,8 @@ var ex;
                     testMessage.innerText = 'Browser feature missing ' + test;
                     document.body.appendChild(testMessage);
                 });
-                if (canvasElementId) {
-                    var canvas = document.getElementById(canvasElementId);
+                if (options.canvasElementId) {
+                    var canvas = document.getElementById(options.canvasElementId);
                     if (canvas) {
                         canvas.parentElement.removeChild(canvas);
                     }
@@ -12571,26 +12299,26 @@ O|===|* >________________>\n\
             }
             this._logger = ex.Logger.getInstance();
             this._logger.debug('Building engine...');
-            this.canvasElementId = canvasElementId;
-            if (canvasElementId) {
-                this._logger.debug('Using Canvas element specified: ' + canvasElementId);
-                this.canvas = document.getElementById(canvasElementId);
+            this.canvasElementId = options.canvasElementId;
+            if (options.canvasElementId) {
+                this._logger.debug('Using Canvas element specified: ' + options.canvasElementId);
+                this.canvas = document.getElementById(options.canvasElementId);
             }
             else {
                 this._logger.debug('Using generated canvas element');
                 this.canvas = document.createElement('canvas');
             }
-            if (width && height) {
-                if (displayMode === undefined) {
+            if (options.width && options.height) {
+                if (options.displayMode === undefined) {
                     this.displayMode = DisplayMode.Fixed;
                 }
-                this._logger.debug('Engine viewport is size ' + width + ' x ' + height);
-                this.width = width;
-                this.canvas.width = width;
-                this.height = height;
-                this.canvas.height = height;
+                this._logger.debug('Engine viewport is size ' + options.width + ' x ' + options.height);
+                this.width = options.width;
+                this.canvas.width = options.width;
+                this.height = options.height;
+                this.canvas.height = options.height;
             }
-            else if (!displayMode) {
+            else if (!options.displayMode) {
                 this._logger.debug('Engine viewport is fullscreen');
                 this.displayMode = DisplayMode.FullScreen;
             }
@@ -12613,30 +12341,6 @@ O|===|* >________________>\n\
          */
         Engine.prototype.playAnimation = function (animation, x, y) {
             this._animations.push(new AnimationNode(animation, x, y));
-        };
-        /**
-         * Adds an actor to the [[currentScene]] of the game. This is synonymous
-         * to calling `engine.currentScene.addChild(actor)`.
-         *
-         * Actors can only be drawn if they are a member of a scene, and only
-         * the [[currentScene]] may be drawn or updated.
-         *
-         * @param actor  The actor to add to the [[currentScene]]
-         *
-         * @obsolete Use [[add]] instead.
-         */
-        Engine.prototype.addChild = function (actor) {
-            this.currentScene.addChild(actor);
-        };
-        /**
-         * Removes an actor from the [[currentScene]] of the game. This is synonymous
-         * to calling `engine.currentScene.removeChild(actor)`.
-         * Actors that are removed from a scene will no longer be drawn or updated.
-         *
-         * @param actor  The actor to remove from the [[currentScene]].
-         */
-        Engine.prototype.removeChild = function (actor) {
-            this.currentScene.removeChild(actor);
         };
         /**
          * Adds a [[TileMap]] to the [[currentScene]], once this is done the TileMap
@@ -12704,7 +12408,7 @@ O|===|* >________________>\n\
                 return;
             }
             if (entity instanceof ex.Actor) {
-                this.addChild(entity);
+                this._addChild(entity);
             }
             if (entity instanceof ex.Timer) {
                 this.addTimer(entity);
@@ -12722,7 +12426,7 @@ O|===|* >________________>\n\
                 return;
             }
             if (entity instanceof ex.Actor) {
-                this.removeChild(entity);
+                this._removeChild(entity);
             }
             if (entity instanceof ex.Timer) {
                 this.removeTimer(entity);
@@ -12736,6 +12440,28 @@ O|===|* >________________>\n\
             if (typeof entity === 'string') {
                 this.removeScene(entity);
             }
+        };
+        /**
+         * Adds an actor to the [[currentScene]] of the game. This is synonymous
+         * to calling `engine.currentScene.add(actor)`.
+         *
+         * Actors can only be drawn if they are a member of a scene, and only
+         * the [[currentScene]] may be drawn or updated.
+         *
+         * @param actor  The actor to add to the [[currentScene]]
+         */
+        Engine.prototype._addChild = function (actor) {
+            this.currentScene.add(actor);
+        };
+        /**
+         * Removes an actor from the [[currentScene]] of the game. This is synonymous
+         * to calling `engine.currentScene.remove(actor)`.
+         * Actors that are removed from a scene will no longer be drawn or updated.
+         *
+         * @param actor  The actor to remove from the [[currentScene]].
+         */
+        Engine.prototype._removeChild = function (actor) {
+            this.currentScene.remove(actor);
         };
         /**
          * Changes the currently updating and drawing scene to a different,
@@ -12940,8 +12666,9 @@ O|===|* >________________>\n\
             this.input.pointers.update(delta);
             this.input.gamepads.update(delta);
             // Publish update event
-            this.eventDispatcher.emit('update', new ex.UpdateEvent(delta));
-            this.emit('postupdate', new ex.PreUpdateEvent(this, delta, this));
+            // TODO: Obsolete `update` event on Engine
+            this.eventDispatcher.emit('update', new ex.PostUpdateEvent(this, delta, this));
+            this.emit('postupdate', new ex.PostUpdateEvent(this, delta, this));
         };
         /**
          * Draws the entire game
@@ -13075,6 +12802,14 @@ O|===|* >________________>\n\
                 }, 500);
             });
             return complete;
+        };
+        /**
+         * Default [[IEngineOptions]]
+         */
+        Engine._DefaultEngineOptions = {
+            width: 0,
+            height: 0,
+            canvasElementId: ''
         };
         return Engine;
     }(ex.Class));

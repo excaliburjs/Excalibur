@@ -1,4 +1,6 @@
 ﻿/// <reference path="jasmine.d.ts" />
+/// <reference path="require.d.ts" />
+/// <reference path="Mocks.ts" />
 
 describe('An Event Dispatcher', () => {
    var pubsub: ex.EventDispatcher;
@@ -16,7 +18,7 @@ describe('An Event Dispatcher', () => {
 
    it('can publish events', () => {
       var eventFired = false;
-      pubsub.subscribe('event', function () {
+      pubsub.on('event', function () {
          eventFired = true;
       });
       pubsub.emit('event');
@@ -28,7 +30,7 @@ describe('An Event Dispatcher', () => {
       var target = new ex.Actor();
 
       pubsub = new ex.EventDispatcher(target);
-      pubsub.subscribe('event', function () {
+      pubsub.on('event', function () {
          targetContext = this;
       });
       pubsub.emit('event');
@@ -38,7 +40,7 @@ describe('An Event Dispatcher', () => {
 
    it('has an emit alias for publish', () => {
       var eventFired = false;
-      pubsub.subscribe('event', function () {
+      pubsub.on('event', function () {
          eventFired = true;
       });
       pubsub.emit('event');
@@ -58,7 +60,7 @@ describe('An Event Dispatcher', () => {
       pubsub.wire(newPubSub);
 
       var eventFired = false;
-      pubsub.subscribe('someevent', () => {
+      pubsub.on('someevent', () => {
          eventFired = true;
       });
       
@@ -71,7 +73,7 @@ describe('An Event Dispatcher', () => {
       pubsub.wire(newPubSub);
 
       var eventFired = false;
-      pubsub.subscribe('someevent', () => {
+      pubsub.on('someevent', () => {
          eventFired = true;
       });
 
@@ -80,7 +82,7 @@ describe('An Event Dispatcher', () => {
       expect(eventFired).toBeTruthy();
 
       var otherEvent = false;
-      pubsub.subscribe('otherevent', () => {
+      pubsub.on('otherevent', () => {
          otherEvent = true;
       });
 

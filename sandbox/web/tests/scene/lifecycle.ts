@@ -1,6 +1,8 @@
-﻿ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
+﻿/// <reference path="../../../../dist/Excalibur.d.ts"/>
 
-var game = new ex.Engine(300, 300, "game");
+ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
+
+var game = new ex.Engine({ width: 300, height: 300, canvasElementId: "game" });
 
 var scene2 = new ex.Scene();
 

@@ -1,6 +1,6 @@
 /// <reference path="../../../../dist/Excalibur.d.ts" />
 
-var game = new ex.Engine(800, 300, "game");
+var game = new ex.Engine({ width: 800, height: 300, canvasElementId: "game" });
 
 var label = new ex.Label("Should be 72px Impact", 20, 100);
 label.fontSize = 72;

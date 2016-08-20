@@ -36,7 +36,7 @@ var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
 
 // Create an the game container
-var game = new ex.Engine(800, 600, 'game');
+var game = new ex.Engine({ width: 800, height: 600, canvasElementId: 'game' });
 game.setAntialiasing(false);
 
 var heartTex = new ex.Texture('../images/heart.png');
@@ -88,8 +88,8 @@ game.add(tileMap);
 // Create spriteFont
 var spriteFont = new ex.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
 var label = new ex.Label('Hello World', 100, 100, null, spriteFont);
-label.scaleTo(2, 2, .5, .5).scaleTo(1, 1, .5, .5).repeatForever();
-game.addChild(label);
+label.actions.scaleTo(2, 2, .5, .5).scaleTo(1, 1, .5, .5).repeatForever();
+game.add(label);
 
 // Retrieve animations for blocks from sprite sheet
 var blockAnimation = spriteTiles.getSprite(0).clone();
@@ -119,22 +119,22 @@ for (var i = 0; i < 36; i++) {
 
 var platform = new ex.Actor(400, 300, 200, 50, new ex.Color(0, 200, 0));
 platform.collisionType = ex.CollisionType.Fixed;
-platform.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100).repeatForever();
+platform.actions.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100).repeatForever();
 game.add(platform);
 
 var platform2 = new ex.Actor(800, 300, 200, 20, new ex.Color(0, 0, 140));
 platform2.collisionType = ex.CollisionType.Fixed;
-platform2.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).moveTo(800, 300, 100).repeatForever();
+platform2.actions.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).moveTo(800, 300, 100).repeatForever();
 game.add(platform2);
 
 var platform3 = new ex.Actor(-200, 400, 200, 20, new ex.Color(50, 0, 100));
 platform3.collisionType = ex.CollisionType.Fixed;
-platform3.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3000).moveTo(-200, 300, 800).moveTo(-200, 400, 800).repeatForever();
+platform3.actions.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3000).moveTo(-200, 300, 800).moveTo(-200, 400, 800).repeatForever();
 game.add(platform3);
 
 var platform4 = new ex.Actor(200, 200, 100, 50, ex.Color.Azure);
 platform4.collisionType = ex.CollisionType.Fixed;
-platform4.moveBy(75, 300, .20);
+platform4.actions.moveBy(75, 300, .20);
 game.add(platform4);
 
 // Test follow api
@@ -147,7 +147,7 @@ game.add(follower);
 var player = new ex.Actor(100, -200, 32, 96);
 player.enableCapturePointer = true;
 player.collisionType = ex.CollisionType.Active;
-follower.meet(player, 60).asPromise().then(() => {
+follower.actions.meet(player, 60).asPromise().then(() => {
    console.log("Player met!!");
 });
 
@@ -291,7 +291,7 @@ game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
          //a.dy = data.other.dy;
          //a.kill();
       });
-      a.on('update', (data?: ex.UpdateEvent) => {
+      a.on('postupdate', (data?: ex.PostUpdateEvent) => {
          if (inAir) {
             a.acc.y = 400;// * data.delta/1000;
          } else {
@@ -299,7 +299,7 @@ game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
          }
          inAir = true;
       });
-      game.addChild(a);
+      game.add(a);
    } else if (keyDown.key === ex.Input.Keys.U) {
       game.goToScene('label');
    } else if (keyDown.key === ex.Input.Keys.I) {
@@ -340,7 +340,7 @@ player.on('collision', (data?: ex.CollisionEvent) => {
    }
 });
 
-player.on('update', (data?: ex.UpdateEvent) => {
+player.on('postupdate', (data?: ex.PostUpdateEvent) => {
    // apply gravity if player is in the air
    // only apply gravity when not colliding
    if (!isColliding) {
@@ -365,7 +365,7 @@ game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
       var block = new ex.Actor(currentX, 350, 44, 50, color);
       currentX += 46;
       block.addDrawing(Animations.Block, blockAnimation);
-      game.addChild(block);
+      game.add(block);
    }
    if (keyDown.key === ex.Input.Keys.D) {
       game.isDebug = !game.isDebug;

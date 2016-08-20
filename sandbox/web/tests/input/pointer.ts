@@ -83,7 +83,7 @@ game.input.pointers.at(0).on("move", handleTouch(ex.Color.Azure));
 game.input.pointers.at(1).on("move", handleTouch(ex.Color.Chartreuse));
 game.input.pointers.at(2).on("move", handleTouch(ex.Color.Magenta));
 
-game.on("update", (ue: ex.UpdateEvent) => {
+game.on("postupdate", (ue: ex.PostUpdateEvent) => {
 
    document.getElementById('pointer-num').innerHTML = game.input.pointers.count().toString();
 
