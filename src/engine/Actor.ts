@@ -523,7 +523,7 @@ module ex {
     }
    
     /**
-     * Alias for `addEventListener`. You can listen for a variety of
+     * You can listen for a variety of
      * events off of the engine; see [[GameEvent]]
      * @param eventName   Name of the event to listen for
      * @param handler     Event handler for the thrown event
