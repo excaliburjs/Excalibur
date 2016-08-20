@@ -917,32 +917,6 @@ module ex {
     }      
         
     /**
-     * This method will move an actor to the specified `x` and `y` position at the 
-     * `speed` specified (in pixels per second) and return back the actor. This 
-     * method is part of the actor 'Action' fluent API allowing action chaining.
-     * @param x       The x location to move the actor to
-     * @param y       The y location to move the actor to
-     * @param speed   The speed in pixels per second to move
-     * @obsolete Use [[ActionContext.moveTo|Actor.actions.moveTo]]
-     */
-    public moveTo(x: number, y: number, speed: number): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.MoveTo(this, x, y, speed));
-       return this;
-    }
-    /**
-     * This method will move an actor to the specified `x` and `y` position by a 
-     * certain `duration` (in milliseconds). This method is part of the actor 
-     * 'Action' fluent API allowing action chaining.
-     * @param x         The x location to move the actor to
-     * @param y         The y location to move the actor to
-     * @param duration  The time it should take the actor to move to the new location in milliseconds
-     * @obsolete Use [[ActionContext.moveBy|Actor.actions.moveBy]]
-     */
-    public moveBy(x: number, y: number, duration: number): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.MoveBy(this, x, y, duration));
-       return this;
-    }
-    /**
      * This method will rotate an actor to the specified angle (in radians) at the `speed`
      * specified (in radians per second) and return back the actor. This 
      * method is part of the actor 'Action' fluent API allowing action chaining.
