@@ -21,7 +21,6 @@
 /// <reference path="Promises.ts" />
 /// <reference path="Util/Util.ts" />
 /// <reference path="Util/Detector.ts" />
-/// <reference path="Binding.ts" />
 /// <reference path="TileMap.ts" />
 /// <reference path="Label.ts" />
 /// <reference path="PostProcessing/IPostProcessor.ts"/>
