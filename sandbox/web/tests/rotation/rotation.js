@@ -16,7 +16,7 @@ labelCurrentRotation.color = ex.Color.White;
 labelCurrentRotation.textAlign = ex.TextAlign.Center;
 labelCurrentRotation.scale = new ex.Vector(2, 2);
 engine.add(labelCurrentRotation);
-engine.on('update', function (ev) {
+engine.on('postupdate', function (ev) {
     labelCurrentRotation.text = ex.RotationType[rotationType];
 });
 var player = new ex.Actor(width / 2, height / 2, 100, 30, ex.Color.Red);

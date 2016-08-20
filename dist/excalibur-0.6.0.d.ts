@@ -2657,7 +2657,7 @@ declare module ex {
         /**
          * Adds an actor to the scene, once this is done the actor will be drawn and updated.
          */
-        protected addChild(actor: Actor): void;
+        protected _addChild(actor: Actor): void;
         /**
          * Adds a [[TileMap]] to the scene, once this is done the TileMap will be drawn and updated.
          */
@@ -2669,7 +2669,7 @@ declare module ex {
         /**
          * Removes an actor from the scene, it will no longer be drawn or updated.
          */
-        protected removeChild(actor: Actor): void;
+        protected _removeChild(actor: Actor): void;
         /**
          * Adds a [[Timer]] to the scene
          * @param timer  The timer to add
@@ -6944,7 +6944,7 @@ declare module ex {
          *
          * @param actor  The actor to add to the [[currentScene]]
          */
-        protected addChild(actor: Actor): void;
+        protected _addChild(actor: Actor): void;
         /**
          * Removes an actor from the [[currentScene]] of the game. This is synonymous
          * to calling `engine.currentScene.remove(actor)`.
@@ -6952,7 +6952,7 @@ declare module ex {
          *
          * @param actor  The actor to remove from the [[currentScene]].
          */
-        protected removeChild(actor: Actor): void;
+        protected _removeChild(actor: Actor): void;
         /**
          * Changes the currently updating and drawing scene to a different,
          * named scene. Calls the [[Scene]] lifecycle events.

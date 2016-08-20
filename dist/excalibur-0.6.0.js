@@ -5698,7 +5698,7 @@ var ex;
             }
             if (entity instanceof ex.Actor) {
                 if (!ex.Util.contains(this.children, entity)) {
-                    this.addChild(entity);
+                    this._addChild(entity);
                     this._sortedDrawingTree.add(entity);
                 }
                 return;
@@ -5722,7 +5722,7 @@ var ex;
             }
             if (entity instanceof ex.Actor) {
                 this._collisionResolver.remove(entity);
-                this.removeChild(entity);
+                this._removeChild(entity);
             }
             if (entity instanceof ex.Timer) {
                 this.removeTimer(entity);
@@ -5752,7 +5752,7 @@ var ex;
         /**
          * Adds an actor to the scene, once this is done the actor will be drawn and updated.
          */
-        Scene.prototype.addChild = function (actor) {
+        Scene.prototype._addChild = function (actor) {
             this._collisionResolver.register(actor);
             actor.scene = this;
             this.children.push(actor);
@@ -5777,7 +5777,7 @@ var ex;
         /**
          * Removes an actor from the scene, it will no longer be drawn or updated.
          */
-        Scene.prototype.removeChild = function (actor) {
+        Scene.prototype._removeChild = function (actor) {
             this._collisionResolver.remove(actor);
             this._killQueue.push(actor);
             actor.parent = null;
@@ -12408,7 +12408,7 @@ O|===|* >________________>\n\
                 return;
             }
             if (entity instanceof ex.Actor) {
-                this.addChild(entity);
+                this._addChild(entity);
             }
             if (entity instanceof ex.Timer) {
                 this.addTimer(entity);
@@ -12426,7 +12426,7 @@ O|===|* >________________>\n\
                 return;
             }
             if (entity instanceof ex.Actor) {
-                this.removeChild(entity);
+                this._removeChild(entity);
             }
             if (entity instanceof ex.Timer) {
                 this.removeTimer(entity);
@@ -12450,7 +12450,7 @@ O|===|* >________________>\n\
          *
          * @param actor  The actor to add to the [[currentScene]]
          */
-        Engine.prototype.addChild = function (actor) {
+        Engine.prototype._addChild = function (actor) {
             this.currentScene.add(actor);
         };
         /**
@@ -12460,7 +12460,7 @@ O|===|* >________________>\n\
          *
          * @param actor  The actor to remove from the [[currentScene]].
          */
-        Engine.prototype.removeChild = function (actor) {
+        Engine.prototype._removeChild = function (actor) {
             this.currentScene.remove(actor);
         };
         /**

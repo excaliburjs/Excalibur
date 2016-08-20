@@ -4,7 +4,7 @@ var label = new ex.Label(null, 400, 300, "48px Arial");
 label.color = ex.Color.Chartreuse;
 label.textAlign = ex.TextAlign.Center;
 game.add(label);
-game.on("update", function (ue) {
+game.on("postupdate", function (ue) {
     var keys = game.input.keyboard.getKeys().map(function (k) {
         return (ex.Input.Keys[k] || "Unknown") + "(" + k.toString() + ")";
     }).join(", ");

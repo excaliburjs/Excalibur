@@ -68,7 +68,7 @@ function handleTouch(color) {
 game.input.pointers.at(0).on("move", handleTouch(ex.Color.Azure));
 game.input.pointers.at(1).on("move", handleTouch(ex.Color.Chartreuse));
 game.input.pointers.at(2).on("move", handleTouch(ex.Color.Magenta));
-game.on("update", function (ue) {
+game.on("postupdate", function (ue) {
     document.getElementById('pointer-num').innerHTML = game.input.pointers.count().toString();
 });
 game.currentScene.camera.x = 0;

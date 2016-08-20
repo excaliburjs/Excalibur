@@ -17,7 +17,7 @@ for (var i = 0; i < numActors; i++) {
     var actor = new ex.Actor(Math.random() * width, Math.random() * height, .2 * 64, .2 * 48);
     actor.addDrawing("default", blockSprite);
     actor.collisionType = ex.CollisionType.Elastic;
-    actor.on('update', function (e) {
+    actor.on('postupdate', function (e) {
         if (this.pos.x < 0) {
             this.vel.x = Math.abs(this.vel.x);
         }

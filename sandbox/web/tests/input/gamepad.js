@@ -61,7 +61,7 @@ function start() {
     game.add(leftStick);
     game.add(rightStick);
     // Update global state on engine update
-    game.on("update", function (ue) {
+    game.on("postupdate", function (ue) {
         document.getElementById("gamepad-num").innerHTML = game.input.gamepads.getValidGamepads().length.toString();
         var pad1 = game.input.gamepads.getValidGamepads()[0];
         if (pad1) {
