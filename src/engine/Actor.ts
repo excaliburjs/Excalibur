@@ -520,17 +520,6 @@ module ex {
           }
        }
     }
-    /**
-     * Add an event listener. You can listen for a variety of
-     * events off of the engine; see [[GameEvent]]
-     * @param eventName  Name of the event to listen for
-     * @param handler    Event handler for the thrown event
-     * @obsolete Use [[on]] instead.
-     */
-    public addEventListener(eventName: string, handler: (event?: GameEvent) => void) {
-       this._checkForPointerOptIn(eventName);
-       super.addEventListener(eventName, handler);
-    }
    
     /**
      * Alias for `addEventListener`. You can listen for a variety of
@@ -802,20 +791,6 @@ module ex {
     }    
 
     /**
-     * Gets the x value of the Actor in global coordinates
-     * @obsolete Use [[getWorldPos]]
-     */
-    public getWorldX() {
-       return this.getWorldPos().x;
-    }
-    /**
-     * Gets the y value of the Actor in global coordinates
-     * @obsolete Use [[getWorldPos]]
-     */
-    public getWorldY() {
-      return this.getWorldPos().y;
-    }
-    /**
      * Gets the global scale of the Actor
      */
      public getGlobalScale(): Vector {
@@ -831,10 +806,12 @@ module ex {
      */
     public getBounds() {
        var anchor = this._getCalculatedAnchor();
-       return new BoundingBox(this.getWorldX() - anchor.x,
-          this.getWorldY() - anchor.y,
-          this.getWorldX() + this.getWidth() - anchor.x,
-          this.getWorldY() + this.getHeight() - anchor.y);
+       var pos = this.getWorldPos();
+
+       return new BoundingBox(pos.x - anchor.x,
+          pos.y - anchor.y,
+          pos.x + this.getWidth() - anchor.x,
+          pos.y + this.getHeight() - anchor.y);
     }
     /**
      * Tests whether the x/y specified are contained in the actor
@@ -1279,7 +1256,7 @@ module ex {
        // Draw actor anchor Vector
        ctx.fillStyle = Color.Yellow.toString();
        ctx.beginPath();
-       ctx.arc(this.getWorldX(), this.getWorldY(), 3, 0, Math.PI * 2);
+       ctx.arc(this.getWorldPos().x, this.getWorldPos().y, 3, 0, Math.PI * 2);
        ctx.closePath();
        ctx.fill();
 
@@ -1294,7 +1271,7 @@ module ex {
        ctx.strokeStyle = Color.Yellow.toString();
        ctx.beginPath();
        var radius = Math.min(this.getWidth(), this.getHeight());
-       ctx.arc(this.getWorldX(), this.getWorldY(), radius, 0, Math.PI * 2);
+       ctx.arc(this.getWorldPos().x, this.getWorldPos().y, radius, 0, Math.PI * 2);
        ctx.closePath();
        ctx.stroke();
        var ticks = { '0 Pi': 0,
@@ -1307,8 +1284,8 @@ module ex {
           ctx.fillStyle = Color.Yellow.toString();
           ctx.font = '14px';
           ctx.textAlign = 'center';
-          ctx.fillText(tick, this.getWorldX() + Math.cos(ticks[tick]) * (radius + 10), 
-                             this.getWorldY() + Math.sin(ticks[tick]) * (radius + 10));
+          ctx.fillText(tick, this.getWorldPos().x + Math.cos(ticks[tick]) * (radius + 10), 
+                             this.getWorldPos().y + Math.sin(ticks[tick]) * (radius + 10));
        }
        ctx.font = oldFont;
        // Draw child actors
