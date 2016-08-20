@@ -419,44 +419,22 @@ module ex {
       private _isLoading: boolean = false;
 
       /**
+       * Default [[IEngineOptions]]
+       */
+      private static _DefaultEngineOptions: IEngineOptions = {
+         width: 0, 
+         height: 0, 
+         canvasElementId: ''
+      };
+
+      /**
        * Creates a new game using the given [[IEngineOptions]]
        */
-      constructor(options: IEngineOptions);
-      /**
-       * Creates a new game with the given options
-       * @param width            The width in pixels of the Excalibur game viewport
-       * @param height           The height in pixels of the Excalibur game viewport
-       * @param canvasElementId  If this is not specified, then a new canvas will be created and inserted into the body.
-       * @param displayMode      If this is not specified, then it will fall back to fixed if a height and width are specified, else the 
-       * display mode will be FullScreen.
-       * @obsolete Use [[Engine.constructor]] with [[IEngineOptions]]
-       */
-      constructor(width?: number, height?: number, canvasElementId?: string, displayMode?: DisplayMode);
-      /**
-       * @internal
-       */
-      constructor(args: any) {
-
+      constructor(options?: IEngineOptions) {
          super();
-         var width: number;
-         var height: number;
-         var canvasElementId: string;
-         var displayMode: DisplayMode;
-         var options: IEngineOptions = null;
-
-         if (typeof arguments[0] === 'number') {
-            width = <number>arguments[0];
-            height = <number>arguments[1];
-            canvasElementId = <string>arguments[2];
-            displayMode = <DisplayMode>arguments[3];
-         } else {
-            options = <IEngineOptions>arguments[0] || {width: 0, height: 0, canvasElementId: '', displayMode: DisplayMode.FullScreen};
-            width = options.width;
-            height = options.height;
-            canvasElementId = options.canvasElementId;
-            displayMode = options.displayMode;
-         }
          
+         options = Util.extend({}, Engine._DefaultEngineOptions, options);
+
          // Check compatibility 
          var detector = new ex.Detector();
          if(!(this._compatible = detector.test())) {
@@ -470,8 +448,8 @@ module ex {
                document.body.appendChild(testMessage);
             });
             
-            if(canvasElementId) {
-               var canvas = document.getElementById(canvasElementId);
+            if(options.canvasElementId) {
+               var canvas = document.getElementById(options.canvasElementId);
                if(canvas) {
                   canvas.parentElement.removeChild(canvas);
                }
@@ -494,26 +472,26 @@ O|===|* >________________>\n\
          this._logger = Logger.getInstance();
          this._logger.debug('Building engine...');
 
-         this.canvasElementId = canvasElementId;
+         this.canvasElementId = options.canvasElementId;
 
-         if (canvasElementId) {
-            this._logger.debug('Using Canvas element specified: ' + canvasElementId);
-            this.canvas = <HTMLCanvasElement>document.getElementById(canvasElementId);
+         if (options.canvasElementId) {
+            this._logger.debug('Using Canvas element specified: ' + options.canvasElementId);
+            this.canvas = <HTMLCanvasElement>document.getElementById(options.canvasElementId);
          } else {
             this._logger.debug('Using generated canvas element');
             this.canvas = <HTMLCanvasElement>document.createElement('canvas');
          }
-         if (width && height) {
-            if (displayMode === undefined) {
+         if (options.width && options.height) {
+            if (options.displayMode === undefined) {
                this.displayMode = DisplayMode.Fixed;
             }
-            this._logger.debug('Engine viewport is size ' + width + ' x ' + height);
-            this.width = width; 
-            this.canvas.width = width;
-            this.height = height; 
-            this.canvas.height = height;
+            this._logger.debug('Engine viewport is size ' + options.width + ' x ' + options.height);
+            this.width = options.width; 
+            this.canvas.width = options.width;
+            this.height = options.height; 
+            this.canvas.height = options.height;
 
-         } else if (!displayMode) {
+         } else if (!options.displayMode) {
             this._logger.debug('Engine viewport is fullscreen');
             this.displayMode = DisplayMode.FullScreen;
          }
