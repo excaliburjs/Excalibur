@@ -18,30 +18,6 @@ module ex {
       }
 
       /**
-       * Add an event listener. You can listen for a variety of
-       * events off of the engine; see the events section below for a complete list.
-       * @param eventName  Name of the event to listen for
-       * @param handler    Event handler for the thrown event
-       * @obsolete Use [[Class.on]] instead
-       */
-      public addEventListener(eventName: string, handler: (event?: GameEvent) => void) {
-         this.eventDispatcher.subscribe(eventName, handler);
-      }
-
-      /**
-       * Removes an event listener. If only the eventName is specified
-       * it will remove all handlers registered for that specific event. If the eventName
-       * and the handler instance are specified just that handler will be removed.
-       *
-       * @param eventName  Name of the event to listen for
-       * @param handler    Event handler for the thrown event
-       * @obsolete Use [[Class.off]] instead
-       */
-      public removeEventListener(eventName: string, handler?: (event?: GameEvent) => void) {
-         this.eventDispatcher.unsubscribe(eventName, handler);
-      }
-
-      /**
        * Alias for `addEventListener`. You can listen for a variety of
        * events off of the engine; see the events section below for a complete list.
        * @param eventName  Name of the event to listen for
