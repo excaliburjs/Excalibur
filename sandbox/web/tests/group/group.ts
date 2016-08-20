@@ -1,11 +1,12 @@
-﻿
+﻿/// <reference path="../../../../dist/Excalibur.d.ts" />
+
 var width = 600;
 var height = 400;
 var minVel = -200;
 var maxVel = 200;
 var numActors = 300;
 var blockTexture = new ex.Texture("block.png");
-var engine = new ex.Engine(width, height, 'game');
+var engine = new ex.Engine({ width: width, height: height, canvasElementId: 'game' });
 //engine.isDebug = true;
 
 var blockGroup = engine.currentScene.createGroup("blocks");
@@ -23,7 +24,7 @@ for (var i = 0; i < numActors; i++) {
    actor.addDrawing("default", blockSprite);
 
    actor.collisionType = ex.CollisionType.Elastic;
-   actor.on('update', function (e: ex.UpdateEvent) {
+   actor.on('postupdate', function (e: ex.PostUpdateEvent) {
       if (this.pos.x < 0) {
          this.vel.x = Math.abs(this.vel.x);
       }

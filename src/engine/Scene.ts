@@ -395,7 +395,7 @@ module ex {
          }
          if (entity instanceof Actor) {
             if (!Util.contains(this.children, entity)) {
-               this.addChild(entity);
+               this._addChild(entity);
                this._sortedDrawingTree.add(entity);
             }
             return;
@@ -443,7 +443,7 @@ module ex {
          }
          if (entity instanceof Actor) {
             this._collisionResolver.remove(entity);
-            this.removeChild(entity);
+            this._removeChild(entity);
          }
          if (entity instanceof Timer) {
             this.removeTimer(entity);
@@ -476,18 +476,15 @@ module ex {
       }
 
       /**
-       * Adds an actor to the scene, once this is done the actor will be drawn and updated.
-       * 
-       * @obsolete Use [[add]] instead.
+       * Adds an actor to the scene, once this is done the actor will be drawn and updated.       
        */
-      public addChild(actor: Actor) {
+      protected _addChild(actor: Actor) {
          this._collisionResolver.register(actor);
          actor.scene = this;
          this.children.push(actor);
          this._sortedDrawingTree.add(actor);
          actor.parent = this.actor;
       }
-
 
       /**
        * Adds a [[TileMap]] to the scene, once this is done the TileMap will be drawn and updated.
@@ -509,7 +506,7 @@ module ex {
       /**
        * Removes an actor from the scene, it will no longer be drawn or updated.
        */
-      public removeChild(actor: Actor) {
+      protected _removeChild(actor: Actor) {
          this._collisionResolver.remove(actor);
          this._killQueue.push(actor);
          actor.parent = null;

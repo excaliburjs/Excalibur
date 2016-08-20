@@ -1,4 +1,5 @@
 /// <reference path="Events.ts" />
+/// <reference path="Interfaces/IEvented.ts" />
 
 module ex {
 
@@ -6,7 +7,7 @@ module ex {
     * Excalibur base class that provides basic functionality such as [[EventDispatcher]]
     * and extending abilities for vanilla Javascript projects
     */
-   export class Class {
+   export class Class implements IEvented {
 
       /**
        * Direct access to the game object event dispatcher.
@@ -18,37 +19,13 @@ module ex {
       }
 
       /**
-       * Add an event listener. You can listen for a variety of
-       * events off of the engine; see the events section below for a complete list.
-       * @param eventName  Name of the event to listen for
-       * @param handler    Event handler for the thrown event
-       * @obsolete Use [[Class.on]] instead
-       */
-      public addEventListener(eventName: string, handler: (event?: GameEvent) => void) {
-         this.eventDispatcher.subscribe(eventName, handler);
-      }
-
-      /**
-       * Removes an event listener. If only the eventName is specified
-       * it will remove all handlers registered for that specific event. If the eventName
-       * and the handler instance are specified just that handler will be removed.
-       *
-       * @param eventName  Name of the event to listen for
-       * @param handler    Event handler for the thrown event
-       * @obsolete Use [[Class.off]] instead
-       */
-      public removeEventListener(eventName: string, handler?: (event?: GameEvent) => void) {
-         this.eventDispatcher.unsubscribe(eventName, handler);
-      }
-
-      /**
        * Alias for `addEventListener`. You can listen for a variety of
        * events off of the engine; see the events section below for a complete list.
        * @param eventName  Name of the event to listen for
        * @param handler    Event handler for the thrown event
        */
       public on(eventName: string, handler: (event?: GameEvent) => void) {
-         this.eventDispatcher.subscribe(eventName, handler);
+         this.eventDispatcher.on(eventName, handler);
       }
 
       /**
@@ -60,7 +37,7 @@ module ex {
        * @param handler    Event handler for the thrown event
        */
       public off(eventName: string, handler?: (event?: GameEvent) => void) {
-         this.eventDispatcher.unsubscribe(eventName, handler);
+         this.eventDispatcher.off(eventName, handler);
       }
       
       /**

@@ -112,10 +112,11 @@ module ex {
          ctx.translate(this.pos.x, this.pos.y);
 
          var bb = this.getBounds();
-         bb.left = bb.left - this.getWorldX();
-         bb.right = bb.right - this.getWorldX();
-         bb.top = bb.top - this.getWorldY();
-         bb.bottom = bb.bottom - this.getWorldY();
+         var wp = this.getWorldPos();
+         bb.left = bb.left - wp.x;
+         bb.right = bb.right - wp.x;
+         bb.top = bb.top - wp.y;
+         bb.bottom = bb.bottom - wp.y;
 
          // Currently collision primitives cannot rotate 
          // ctx.rotate(this.rotation);

@@ -1,6 +1,7 @@
 ﻿/// <reference path="Actions/IActionable.ts"/>
 /// <reference path="Actions/ActionContext.ts"/>
 /// <reference path="Collision/BoundingBox.ts"/>
+/// <reference path="Interfaces/IEvented.ts" />
 
 module ex {
 
@@ -31,7 +32,7 @@ module ex {
     *
     * ```
     */
-   export class Group extends Class implements IActionable {
+   export class Group extends Class implements IActionable, IEvented {
 
       private _logger: Logger = Logger.getInstance();
       private _members: Actor[] = [];
@@ -118,11 +119,11 @@ module ex {
 
 
       public on(eventName: string, handler: (event?: GameEvent) => void) {
-         this.eventDispatcher.subscribe(eventName, handler);
+         this.eventDispatcher.on(eventName, handler);
       }
 
       public off(eventName: string, handler?: (event?: GameEvent) => void) {
-         this.eventDispatcher.unsubscribe(eventName, handler);
+         this.eventDispatcher.off(eventName, handler);
       }
 
       public emit(topic: string, event?: GameEvent) {

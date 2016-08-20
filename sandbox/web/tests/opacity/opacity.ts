@@ -1,6 +1,6 @@
 /// <reference path="../../../../dist/Excalibur.d.ts"/>
 
-var game = new ex.Engine(400, 300);
+var game = new ex.Engine({ width: 400, height: 300 });
 var hrt = new ex.Texture('../../images/heart.png');
 var ldr = new ex.Loader([hrt]);
 
@@ -16,7 +16,7 @@ game.start(ldr).then(() => {
    game.add(a);
    game.add(b);
 
-   a.delay(1000).callMethod(() => {
+   a.actions.delay(1000).callMethod(() => {
       a.opacity = 1;
       b.opacity = 1;
    });

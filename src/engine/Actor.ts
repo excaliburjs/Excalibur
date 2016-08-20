@@ -1,4 +1,5 @@
 /// <reference path="Interfaces/IDrawable.ts" />
+/// <reference path="Interfaces/IEvented.ts" />
 /// <reference path="Traits/EulerMovement.ts" />
 /// <reference path="Traits/OffscreenCulling.ts" />
 /// <reference path="Traits/CapturePointer.ts" />
@@ -280,7 +281,7 @@ module ex {
    * [Issue #68](https://github.com/excaliburjs/Excalibur/issues/68)
    *
    */     
-  export class Actor extends ex.Class implements IActionable {
+  export class Actor extends ex.Class implements IActionable, IEvented {
     /**
      * Indicates the next id to be set
      */
@@ -520,27 +521,16 @@ module ex {
           }
        }
     }
-    /**
-     * Add an event listener. You can listen for a variety of
-     * events off of the engine; see [[GameEvent]]
-     * @param eventName  Name of the event to listen for
-     * @param handler    Event handler for the thrown event
-     * @obsolete Use [[on]] instead.
-     */
-    public addEventListener(eventName: string, handler: (event?: GameEvent) => void) {
-       this._checkForPointerOptIn(eventName);
-       super.addEventListener(eventName, handler);
-    }
    
     /**
-     * Alias for `addEventListener`. You can listen for a variety of
+     * You can listen for a variety of
      * events off of the engine; see [[GameEvent]]
      * @param eventName   Name of the event to listen for
      * @param handler     Event handler for the thrown event
      */
     public on(eventName: string, handler: (event?: GameEvent) => void) {
        this._checkForPointerOptIn(eventName);
-       this.eventDispatcher.subscribe(eventName, handler);
+       this.eventDispatcher.on(eventName, handler);
     }
    
     /**
@@ -802,20 +792,6 @@ module ex {
     }    
 
     /**
-     * Gets the x value of the Actor in global coordinates
-     * @obsolete Use [[getWorldPos]]
-     */
-    public getWorldX() {
-       return this.getWorldPos().x;
-    }
-    /**
-     * Gets the y value of the Actor in global coordinates
-     * @obsolete Use [[getWorldPos]]
-     */
-    public getWorldY() {
-      return this.getWorldPos().y;
-    }
-    /**
      * Gets the global scale of the Actor
      */
      public getGlobalScale(): Vector {
@@ -831,10 +807,12 @@ module ex {
      */
     public getBounds() {
        var anchor = this._getCalculatedAnchor();
-       return new BoundingBox(this.getWorldX() - anchor.x,
-          this.getWorldY() - anchor.y,
-          this.getWorldX() + this.getWidth() - anchor.x,
-          this.getWorldY() + this.getHeight() - anchor.y);
+       var pos = this.getWorldPos();
+
+       return new BoundingBox(pos.x - anchor.x,
+          pos.y - anchor.y,
+          pos.x + this.getWidth() - anchor.x,
+          pos.y + this.getHeight() - anchor.y);
     }
     /**
      * Tests whether the x/y specified are contained in the actor
@@ -938,233 +916,7 @@ module ex {
     public within(actor: Actor, distance: number): boolean {
        return Math.sqrt(Math.pow(this.pos.x - actor.pos.x, 2) + Math.pow(this.pos.y - actor.pos.y, 2)) <= distance;
     }      
-    /**
-     * Clears all queued actions from the Actor
-     * @obsolete Use [[ActionContext.clearActions|Actor.actions.clearActions]]
-     */
-    public clearActions(): void {
-       this.actionQueue.clearActions();
-    }
-    /**
-     * This method will move an actor to the specified `x` and `y` position over the 
-     * specified duration using a given [[EasingFunctions]] and return back the actor. This 
-     * method is part of the actor 'Action' fluent API allowing action chaining.
-     * @param x         The x location to move the actor to
-     * @param y         The y location to move the actor to
-     * @param duration  The time it should take the actor to move to the new location in milliseconds
-     * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
-     * @obsolete Use [[ActionContext.easeTo|Actor.actions.easeTo]]
-     */
-    public easeTo(x: number,
-       y: number,
-       duration: number,
-       easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number = ex.EasingFunctions.Linear) {
-       this.actionQueue.add(new ex.Internal.Actions.EaseTo(this, x, y, duration, easingFcn));
-       return this;
-    }
-    /**
-     * This method will move an actor to the specified `x` and `y` position at the 
-     * `speed` specified (in pixels per second) and return back the actor. This 
-     * method is part of the actor 'Action' fluent API allowing action chaining.
-     * @param x       The x location to move the actor to
-     * @param y       The y location to move the actor to
-     * @param speed   The speed in pixels per second to move
-     * @obsolete Use [[ActionContext.moveTo|Actor.actions.moveTo]]
-     */
-    public moveTo(x: number, y: number, speed: number): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.MoveTo(this, x, y, speed));
-       return this;
-    }
-    /**
-     * This method will move an actor to the specified `x` and `y` position by a 
-     * certain `duration` (in milliseconds). This method is part of the actor 
-     * 'Action' fluent API allowing action chaining.
-     * @param x         The x location to move the actor to
-     * @param y         The y location to move the actor to
-     * @param duration  The time it should take the actor to move to the new location in milliseconds
-     * @obsolete Use [[ActionContext.moveBy|Actor.actions.moveBy]]
-     */
-    public moveBy(x: number, y: number, duration: number): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.MoveBy(this, x, y, duration));
-       return this;
-    }
-    /**
-     * This method will rotate an actor to the specified angle (in radians) at the `speed`
-     * specified (in radians per second) and return back the actor. This 
-     * method is part of the actor 'Action' fluent API allowing action chaining.
-     * @param angleRadians  The angle to rotate to in radians
-     * @param speed         The angular velocity of the rotation specified in radians per second
-     * @obsolete Use [[ActionContext.rotateTo|Actor.actions.rotateTo]]
-     */
-    public rotateTo(angleRadians: number, speed: number, rotationType?: RotationType): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.RotateTo(this, angleRadians, speed, rotationType));
-       return this;
-    }
-    /**
-     * This method will rotate an actor to the specified angle by a certain
-     * `duration` (in milliseconds) and return back the actor. This method is part
-     * of the actor 'Action' fluent API allowing action chaining.
-     * @param angleRadians  The angle to rotate to in radians
-     * @param duration          The time it should take the actor to complete the rotation in milliseconds
-     * @obsolete Use [[ActionContext.rotateBy|ex.Actor.actions.rotateBy]]
-     */
-    public rotateBy(angleRadians: number, duration: number, rotationType?: RotationType): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.RotateBy(this, angleRadians, duration, rotationType));
-       return this;
-    }
-    /**
-     * This method will scale an actor to the specified size at the speed
-     * specified (in magnitude increase per second) and return back the 
-     * actor. This method is part of the actor 'Action' fluent API allowing 
-     * action chaining.
-     * @param sizeX  The scaling factor in the x direction to apply
-     * @param sizeY  The scaling factor in the y direction to apply
-     * @param speedX The speed of scaling in the x direction specified in magnitude increase per second
-     * @param speedY The speed of scaling in the y direction specified in magnitude increase per second
-     * @obsolete Use [[ActionContext.scaleTo|Actor.actions.scaleTo]]
-     */
-    public scaleTo(sizeX: number, sizeY: number, speedX: number, speedY: number): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.ScaleTo(this, sizeX, sizeY, speedX, speedY));
-       return this;
-    }
-    /**
-     * This method will scale an actor to the specified size by a certain duration
-     * (in milliseconds) and return back the actor. This method is part of the
-     * actor 'Action' fluent API allowing action chaining.
-     * @param sizeX     The scaling factor in the x direction to apply
-     * @param sizeY     The scaling factor in the y direction to apply
-     * @param duration  The time it should take to complete the scaling in milliseconds
-     * @obsolete Use [[ActionContext.scaleBy|Actor.actions.scaleBy]]
-     */
-    public scaleBy(sizeX: number, sizeY: number, duration: number): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.ScaleBy(this, sizeX, sizeY, duration));
-       return this;
-    }
-    /**
-     * This method will cause an actor to blink (become visible and not 
-     * visible). Optionally, you may specify the number of blinks. Specify the amount of time 
-     * the actor should be visible per blink, and the amount of time not visible.
-     * This method is part of the actor 'Action' fluent API allowing action chaining.
-     * @param timeVisible     The amount of time to stay visible per blink in milliseconds
-     * @param timeNotVisible  The amount of time to stay not visible per blink in milliseconds
-     * @param numBlinks       The number of times to blink
-     * @obsolete Use [[ActionContext.blink|Actor.actions.blink]]
-     */
-    public blink(timeVisible: number, timeNotVisible: number, numBlinks: number = 1): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.Blink(this, timeVisible, timeNotVisible, numBlinks));
-       return this;
-    }
-    /**
-     * This method will cause an actor's opacity to change from its current value
-     * to the provided value by a specified `duration` (in milliseconds). This method is
-     * part of the actor 'Action' fluent API allowing action chaining.
-     * @param opacity   The ending opacity
-     * @param duration  The time it should take to fade the actor (in milliseconds)
-     * @obsolete Use [[ActionContext.fade|Actor.actions.fade]]
-     */
-    public fade(opacity: number, duration: number): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.Fade(this, opacity, duration));
-       return this;
-    }
-    /**
-     * This method will delay the next action from executing for the specified
-     * `duration` (in milliseconds). This method is part of the actor 
-     * 'Action' fluent API allowing action chaining.
-     * @param duration The amount of time to delay the next action in the queue from executing in milliseconds
-     * @obsolete Use [[ActionContext.delay|Actor.actions.delay]]
-     */
-    public delay(duration: number): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.Delay(this, duration));
-       return this;
-    }
-    /**
-     * This method will add an action to the queue that will remove the actor from the 
-     * scene once it has completed its previous actions. Any actions on the
-     * action queue after this action will not be executed.
-     * @obsolete Use [[ActionContext.die|Actor.actions.die]]
-     */
-    public die(): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.Die(this));
-       return this;
-    }
-    /**
-     * This method allows you to call an arbitrary method as the next action in the
-     * action queue. This is useful if you want to execute code in after a specific
-     * action, i.e An actor arrives at a destination after traversing a path
-     * @obsolete Use [[ActionContext.callMethod|Actor.actions.callMethod]]
-     */
-    public callMethod(method: () => any): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.CallMethod(this, method));
-       return this;
-    }
-    /**
-     * This method will cause the actor to repeat all of the previously 
-     * called actions a certain number of times. If the number of repeats 
-     * is not specified it will repeat forever. This method is part of 
-     * the actor 'Action' fluent API allowing action chaining
-     * @param times The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will 
-     * repeat forever
-     * @obsolete Use [[ActionContext.repeat|Actor.actions.repeat]]
-     */
-    public repeat(times?: number): Actor {
-       if (!times) {
-          this.repeatForever();
-          return this;
-       }
-       this.actionQueue.add(new ex.Internal.Actions.Repeat(this, times, this.actionQueue.getActions()));
-       return this;
-    }
-    /**
-     * This method will cause the actor to repeat all of the previously 
-     * called actions forever. This method is part of the actor 'Action'
-     * fluent API allowing action chaining.
-     * @obsolete Use [[ActionContext.repeatForever|Actor.actions.repeatForever]]
-     */
-    public repeatForever(): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.RepeatForever(this, this.actionQueue.getActions()));
-       return this;
-    }
-    /**
-     * This method will cause the actor to follow another at a specified distance
-     * @param actor           The actor to follow
-     * @param followDistance  The distance to maintain when following, if not specified the actor will follow at the current distance.
-     * @obsolete Use [[ActionContext.follow|Actor.actions.follow]]
-     */
-    public follow(actor : Actor, followDistance? : number) : Actor {
-      if (typeof followDistance === 'undefined') {
-            this.actionQueue.add(new ex.Internal.Actions.Follow(this, actor));
-         } else {
-            this.actionQueue.add(new ex.Internal.Actions.Follow(this, actor, followDistance));
-         }
-      return this;
-    }
-    /**
-     * This method will cause the actor to move towards another Actor until they 
-     * collide ("meet") at a specified speed.
-     * @param actor  The actor to meet
-     * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
-     * @obsolete Use [[ActionContext.meet|Actor.actions.meet]]
-     */
-    public meet(actor: Actor, speed? : number) : Actor {
-       if (typeof speed === 'undefined') {
-             this.actionQueue.add(new ex.Internal.Actions.Meet(this, actor));
-          } else {
-             this.actionQueue.add(new ex.Internal.Actions.Meet(this, actor, speed));
-          }
-       return this;
-    }
-    /**
-     * Returns a promise that resolves when the current action queue up to now
-     * is finished.
-     * @obsolete Use [[ActionContext.asPromise|Actor.actions.asPromise]]
-     */
-    public asPromise<T>() : Promise<T> {
-       var complete = new Promise<T>();
-       this.callMethod(() => {
-          complete.resolve();
-       });
-       return complete;
-    }
+                
     private _getCalculatedAnchor(): Vector {
        return new ex.Vector(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
     }
@@ -1218,7 +970,8 @@ module ex {
           this.children[i].update(engine, delta);          
        }
        
-       this.eventDispatcher.emit('update', new UpdateEvent(delta));
+       // TODO: Obsolete `update` event on Actor
+       this.eventDispatcher.emit('update', new PostUpdateEvent(engine, delta, this));
        this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
     }
     /**
@@ -1279,7 +1032,7 @@ module ex {
        // Draw actor anchor Vector
        ctx.fillStyle = Color.Yellow.toString();
        ctx.beginPath();
-       ctx.arc(this.getWorldX(), this.getWorldY(), 3, 0, Math.PI * 2);
+       ctx.arc(this.getWorldPos().x, this.getWorldPos().y, 3, 0, Math.PI * 2);
        ctx.closePath();
        ctx.fill();
 
@@ -1294,7 +1047,7 @@ module ex {
        ctx.strokeStyle = Color.Yellow.toString();
        ctx.beginPath();
        var radius = Math.min(this.getWidth(), this.getHeight());
-       ctx.arc(this.getWorldX(), this.getWorldY(), radius, 0, Math.PI * 2);
+       ctx.arc(this.getWorldPos().x, this.getWorldPos().y, radius, 0, Math.PI * 2);
        ctx.closePath();
        ctx.stroke();
        var ticks = { '0 Pi': 0,
@@ -1307,8 +1060,8 @@ module ex {
           ctx.fillStyle = Color.Yellow.toString();
           ctx.font = '14px';
           ctx.textAlign = 'center';
-          ctx.fillText(tick, this.getWorldX() + Math.cos(ticks[tick]) * (radius + 10), 
-                             this.getWorldY() + Math.sin(ticks[tick]) * (radius + 10));
+          ctx.fillText(tick, this.getWorldPos().x + Math.cos(ticks[tick]) * (radius + 10), 
+                             this.getWorldPos().y + Math.sin(ticks[tick]) * (radius + 10));
        }
        ctx.font = oldFont;
        // Draw child actors
