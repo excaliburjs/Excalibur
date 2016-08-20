@@ -180,7 +180,7 @@ module ex {
       constructor(engine?: Engine) {
          super();
          this.camera = new BaseCamera();
-         if(engine) {
+         if (engine) {
             this.camera.x = engine.width / 2;
             this.camera.y = engine.height / 2;
          }
@@ -391,7 +391,7 @@ module ex {
        */
       public add(uiActor: UIActor): void;
       public add(entity: any): void {
-         if(entity instanceof Actor) {
+         if (entity instanceof Actor) {
             (<Actor>entity).unkill();
          }
          if (entity instanceof UIActor) {
@@ -477,7 +477,7 @@ module ex {
        */
       public removeUIActor(actor: Actor) {
          var index = this.uiActors.indexOf(actor);
-         if(index > -1) {
+         if (index > -1) {
             this.uiActors.splice(index, 1);
          }
       }

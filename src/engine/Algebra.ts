@@ -254,7 +254,7 @@ module ex {
          var numerator = line.begin.sub(this.pos);
 
          // Test is line and ray are parallel and non intersecting
-         if(this.dir.cross(line.getSlope()) === 0 && numerator.cross(this.dir) !== 0) { 
+         if (this.dir.cross(line.getSlope()) === 0 && numerator.cross(this.dir) !== 0) { 
             return -1;
          }
           
@@ -326,8 +326,8 @@ module ex {
          return this.max > projection.min && projection.max > this.min;      
       }
 
-      public overlap(projection: Projection): number {
-         if(this.overlaps(projection)) {
+      public getOverlap(projection: Projection): number {
+         if (this.overlaps(projection)) {
             if (this.max > projection.max) {
                return projection.max - this.min;
             } else {

@@ -168,8 +168,8 @@ module ex {
        public rows: number, 
        public cols: number) {
        this.data = new Array<Cell>(rows * cols);
-       for(var i = 0; i < cols; i++) {
-          for(var j = 0; j < rows; j++) {
+       for (var i = 0; i < cols; i++) {
+          for (var j = 0; j < rows; j++) {
              (() => {
                 var cd = new Cell(
                    i * cellWidth + x, 
@@ -216,10 +216,10 @@ module ex {
        var result = overlaps.reduce((accum, next) => {
           var x = accum.x;
           var y = accum.y;
-          if(Math.abs(accum.x) < Math.abs(next.x)) {               
+          if (Math.abs(accum.x) < Math.abs(next.x)) {               
              x = next.x;
           }
-          if(Math.abs(accum.y) < Math.abs(next.y)) {
+          if (Math.abs(accum.y) < Math.abs(next.y)) {
              y = next.y;
           }
           return new Vector(x, y);
@@ -321,13 +321,13 @@ module ex {
        var height = this.rows * this.cellHeight;
        ctx.save();
        ctx.strokeStyle = Color.Red.toString();
-       for(var x = 0; x < this.cols + 1; x++) {
+       for (var x = 0; x < this.cols + 1; x++) {
           ctx.beginPath();
           ctx.moveTo(this.x + x * this.cellWidth, this.y);
           ctx.lineTo(this.x + x * this.cellWidth, this.y + height);
           ctx.stroke();
        }  
-       for(var y = 0; y < this.rows + 1; y++) {
+       for (var y = 0; y < this.rows + 1; y++) {
           ctx.beginPath();
           ctx.moveTo(this.x, this.y + y * this.cellHeight);
           ctx.lineTo(this.x + width, this.y + y * this.cellHeight);
@@ -341,7 +341,7 @@ module ex {
           ctx.fillStyle = solid.toString();
           ctx.fillRect(cell.x, cell.y, cell.width, cell.height);
        });
-       if(this._collidingY > -1 && this._collidingX > -1) {
+       if (this._collidingY > -1 && this._collidingX > -1) {
           ctx.fillStyle = ex.Color.Cyan.toString();
           ctx.fillRect(this.x + this._collidingX * this.cellWidth, 
                        this.y + this._collidingY * this.cellHeight, 
@@ -419,7 +419,7 @@ module ex {
      */
     public removeSprite(tileSprite: TileSprite) {
        var index = -1;
-       if((index = this.sprites.indexOf(tileSprite)) > -1) {
+       if ((index = this.sprites.indexOf(tileSprite)) > -1) {
           this.sprites.splice(index, 1);
        }
     }

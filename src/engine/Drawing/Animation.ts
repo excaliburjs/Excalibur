@@ -112,7 +112,7 @@ module ex {
             this.loop = loop;
          }
          
-         if(images && images[0]) {
+         if (images && images[0]) {
             this.height = images[0] ? images[0].height : 0;
             this.width = images[0] ? images[0].width : 0;
             
@@ -192,7 +192,7 @@ module ex {
        * Add a [[ISpriteEffect]] manually
        */
       public addEffect(effect: Effects.ISpriteEffect) {
-         for(var i in this.sprites) {
+         for (var i in this.sprites) {
             this.sprites[i].addEffect(effect);
          }
       }
@@ -209,7 +209,7 @@ module ex {
        */
       public removeEffect(index: number): void;
       public removeEffect(param: any) {
-         for(var i in this.sprites) {
+         for (var i in this.sprites) {
             this.sprites[i].removeEffect(param);
          }
       }
@@ -218,7 +218,7 @@ module ex {
        * Clear all sprite effects
        */
       public clearEffects() {
-         for(var i in this.sprites) {
+         for (var i in this.sprites) {
             this.sprites[i].clearEffects();
          }  
       }
@@ -309,7 +309,7 @@ module ex {
          }
          
          // add the calculated width
-         if(currSprite) {
+         if (currSprite) {
             this.width = currSprite.width;
             this.height = currSprite.height;
          }

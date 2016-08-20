@@ -1,18 +1,22 @@
+/.vscode
 /.gitattributes
 /.travis.yml
+/appveyor.yml
 
 /node_modules
 /bower_components
 /assets
 /bin
-/Excalibur.Samples.Win8
-/particle-tester
-/sample-game
-/spec
+/docs
+/sandbox
+/src
 /tools
+/tslint
 /*.md
 /Gruntfile.js
+/deploy-docs.js
 /package.json
+/bower.json
 /*.csproj
 /*.sublime-*
 /*.sln

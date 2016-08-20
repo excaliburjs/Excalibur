@@ -82,8 +82,8 @@ play. Actors are the primary way to draw things to the screen.
     // Make sure the paddle can partipate in collisions, by default excalibur actors do not collide
     paddle.collisionType = ex.CollisionType.Active;
 
-    // `game.addChild` is the same as calling
-    // `game.currentScene.addChild`
+    // `game.add` is the same as calling
+    // `game.currentScene.add`
     game.add(paddle);
 
     // Start the engine to begin the game.

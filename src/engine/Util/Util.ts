@@ -117,14 +117,14 @@ module ex.Util {
 
    export function canonicalizeAngle(angle: number): number {
       var tmpAngle = angle;
-      if(angle > this.TwoPI) {
-         while(tmpAngle > this.TwoPI) {
+      if (angle > this.TwoPI) {
+         while (tmpAngle > this.TwoPI) {
             tmpAngle -= this.TwoPI;
          }
       }
 
-      if(angle < 0) {
-         while(tmpAngle < 0) {
+      if (angle < 0) {
+         while (tmpAngle < 0) {
             tmpAngle += this.TwoPI;
          }
       }
@@ -191,10 +191,10 @@ module ex.Util {
    }
 
    export function getOppositeSide(side: ex.Side) {
-      if(side === ex.Side.Top) { return ex.Side.Bottom; }
-      if(side === ex.Side.Bottom) { return ex.Side.Top; }
-      if(side === ex.Side.Left) { return ex.Side.Right; }
-      if(side === ex.Side.Right) { return ex.Side.Left; }
+      if (side === ex.Side.Top) { return ex.Side.Bottom; }
+      if (side === ex.Side.Bottom) { return ex.Side.Top; }
+      if (side === ex.Side.Left) { return ex.Side.Right; }
+      if (side === ex.Side.Right) { return ex.Side.Left; }
 
       return ex.Side.None;
    }

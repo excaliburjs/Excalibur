@@ -434,7 +434,7 @@ module ex {
 
          // Check compatibility 
          var detector = new ex.Detector();
-         if(!(this._compatible = detector.test())) {
+         if (!(this._compatible = detector.test())) {
             var message = document.createElement('div');
             message.innerText = 'Sorry, your browser does not support all the features needed for Excalibur';
             document.body.appendChild(message);
@@ -445,9 +445,9 @@ module ex {
                document.body.appendChild(testMessage);
             });
             
-            if(options.canvasElementId) {
+            if (options.canvasElementId) {
                var canvas = document.getElementById(options.canvasElementId);
-               if(canvas) {
+               if (canvas) {
                   canvas.parentElement.removeChild(canvas);
                }
             }
@@ -771,7 +771,7 @@ O|===|* >________________>\n\
        * Returns the width of the engine's drawing surface in pixels.
        */
       public getWidth(): number {
-         if(this.currentScene && this.currentScene.camera) {
+         if (this.currentScene && this.currentScene.camera) {
             return this.width / this.currentScene.camera.getZoom();
          }
          return this.width;
@@ -781,7 +781,7 @@ O|===|* >________________>\n\
        * Returns the height of the engine's drawing surface in pixels.
        */
       public getHeight(): number {
-         if(this.currentScene && this.currentScene.camera) {
+         if (this.currentScene && this.currentScene.camera) {
             return this.height / this.currentScene.camera.getZoom();
          }
          return this.height;
@@ -1022,7 +1022,7 @@ O|===|* >________________>\n\
        * custom loader.
        */
       public start(loader?: ILoader) : Promise<any> {
-         if(!this._compatible) {
+         if (!this._compatible) {
             var promise = new Promise();
             return promise.reject('Excalibur is incompatible with your browser');
          }
@@ -1057,7 +1057,7 @@ O|===|* >________________>\n\
                      // more than a 200 milliseconds, reset elapsed time to 1. This improves reliability 
                      // and provides more expected behavior when the engine comes back
                      // into focus
-                     if(elapsed > 200) {
+                     if (elapsed > 200) {
                         elapsed = 1;
                      }
                      game._update(elapsed);
