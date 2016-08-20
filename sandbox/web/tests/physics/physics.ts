@@ -5,11 +5,17 @@ var game = new ex.Engine({
    width: 600,
    height: 400
 });
+game.backgroundColor = ex.Color.Black;
 
 game.isDebug = true;
 
 ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
-ex.Physics.broadphaseDebug = true;
+ex.Physics.broadphaseDebug = false;
+ex.Physics.showArea = true;
+ex.Physics.showMotionVectors = true;
+ex.Physics.showBounds = true;
+ex.Physics.showContacts = true;
+ex.Physics.showNormals = true;
 ex.Physics.acc.setTo(0, 100);
 
 function spawnBlock(x: number, y: number){
@@ -39,7 +45,7 @@ function spawnCircle(x: number, y: number){
 var edge = new ex.Actor(300, 300, 400, 10, ex.Color.Blue.clone());
 edge.collisionType = ex.CollisionType.Fixed;
 edge.body.useEdgeCollision(new ex.Vector(-200, 0), new ex.Vector(200, 0));
-edge.rx = .4;
+// edge.rx = .4;
 game.add(edge);
 
 var ground = new ex.Actor(300, 380, 600, 10, ex.Color.Black.clone());

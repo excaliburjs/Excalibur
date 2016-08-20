@@ -26,6 +26,10 @@ module ex {
       public static broadphaseDebug: boolean = false;
       public static showCollisionNormals: boolean = false;
       public static showMotionVectors: boolean = false;
+      public static showBounds: boolean = false;
+      public static showArea: boolean = false;
+      public static showContacts: boolean = false;
+      public static showNormals: boolean = false;
       public static collisionResolutionStrategy: CollisionResolutionStrategy = CollisionResolutionStrategy.Box;
       public static defaultMass: number = 10;
       public static integrator: Integrator = Integrator.Euler;

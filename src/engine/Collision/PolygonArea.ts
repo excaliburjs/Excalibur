@@ -286,9 +286,9 @@ module ex {
         }
         
         /* istanbul ignore next */
-        public debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags) {
+        public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Red.clone()) {
             ctx.beginPath();
-            ctx.lineWidth = 3;
+            ctx.strokeStyle = color.toString();
             // Iterate through the supplied points and contruct a 'polygon'
             var firstPoint = this.getTransformedPoints()[0];
             ctx.moveTo(firstPoint.x, firstPoint.y);

@@ -341,6 +341,7 @@ module ex {
        * Draws all the actors' debug information in the Scene. Called by the [[Engine]].
        * @param ctx  The current rendering context
        */
+      /* istanbul ignore next */
       public debugDraw(ctx: CanvasRenderingContext2D) {
          this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
 
@@ -353,10 +354,8 @@ module ex {
          for (i = 0, len = this.children.length; i < len; i++) {
             this.children[i].debugDraw(ctx);
          }
-         
-         if(ex.Physics.broadphaseDebug) {
-            this._broadphase.debugDraw(ctx, 20);
-         }
+                  
+         this._broadphase.debugDraw(ctx, 20);         
 
          this.camera.debugDraw(ctx);
          this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));

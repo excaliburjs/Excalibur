@@ -445,6 +445,10 @@ declare module ex {
         static broadphaseDebug: boolean;
         static showCollisionNormals: boolean;
         static showMotionVectors: boolean;
+        static showBounds: boolean;
+        static showArea: boolean;
+        static showContacts: boolean;
+        static showNormals: boolean;
         static collisionResolutionStrategy: CollisionResolutionStrategy;
         static defaultMass: number;
         static integrator: Integrator;
@@ -545,7 +549,7 @@ declare module ex {
          * Recalculates internal caches and values
          */
         recalc(): void;
-        debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags): any;
+        debugDraw(ctx: CanvasRenderingContext2D, color: Color): any;
     }
 }
 declare module ex {
@@ -619,7 +623,7 @@ declare module ex {
          * Project the circle along a specified axis
          */
         project(axis: Vector): Projection;
-        debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags): void;
+        debugDraw(ctx: CanvasRenderingContext2D, color?: Color): void;
     }
 }
 declare module ex {
@@ -677,7 +681,7 @@ declare module ex {
          * Project the edge along a specified axis
          */
         project(axis: Vector): Projection;
-        debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags): void;
+        debugDraw(ctx: CanvasRenderingContext2D, color?: Color): void;
     }
 }
 declare module ex {
@@ -755,7 +759,7 @@ declare module ex {
          * Project the edges of the polygon along a specified axis
          */
         project(axis: Vector): Projection;
-        debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags): void;
+        debugDraw(ctx: CanvasRenderingContext2D, color?: Color): void;
     }
 }
 declare module ex {
@@ -1762,7 +1766,7 @@ declare module ex {
          * @param collidable  Other collidable to test
          */
         collides(collidable: ICollidable): Vector;
-        debugDraw(ctx: CanvasRenderingContext2D): void;
+        debugDraw(ctx: CanvasRenderingContext2D, color?: Color): void;
     }
 }
 declare module ex {
@@ -1842,6 +1846,7 @@ declare module ex {
         usePolygonCollision(points: Vector[], center?: Vector): void;
         useCircleCollision(radius: number, center?: Vector): void;
         useEdgeCollision(begin: Vector, end: Vector, center?: Vector): void;
+        debugDraw(ctx: CanvasRenderingContext2D): void;
     }
 }
 declare module ex {
@@ -5698,6 +5703,14 @@ declare module ex.Util.DrawUtil {
      * @param y2 The ending y coordinate
      */
     function line(ctx: CanvasRenderingContext2D, color: ex.Color, x1: number, y1: number, x2: number, y2: number): void;
+    /**
+     * Draw the vector as a point onto the canvas.
+     */
+    function point(ctx: CanvasRenderingContext2D, color: Color, point: Vector): void;
+    /**
+     * Draw the vector as a line onto the canvas starting a origin point.
+     */
+    function vector(ctx: CanvasRenderingContext2D, color: Color, origin: Vector, vector: Vector, scale?: number): void;
     /**
      * Represents border radius values
      */

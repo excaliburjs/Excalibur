@@ -161,10 +161,9 @@ module ex {
         }
         
         /* istanbul ignore next */
-        public debugDraw(ctx: CanvasRenderingContext2D) {
-            ctx.lineWidth = 2;
-            ctx.strokeRect(this.left, this.top, this.getWidth(), this.getHeight());
-
+        public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Yellow) {
+           ctx.strokeStyle = color.toString();
+           ctx.strokeRect(this.left, this.top, this.getWidth(), this.getHeight());
         }
     }
 }

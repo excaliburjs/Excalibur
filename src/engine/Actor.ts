@@ -1245,12 +1245,17 @@ module ex {
        this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
        ctx.restore();
     }
+    
     /**
      * Called by the Engine, draws the actors debugging to the screen
      * @param ctx The rendering context
      */
+    /* istanbul ignore next */
     public debugDraw(ctx: CanvasRenderingContext2D) {
        this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
+
+       this.body.debugDraw(ctx);
+
        /*
        // Draw actor bounding box
        var bb = this.getBounds();
@@ -1266,9 +1271,6 @@ module ex {
        ctx.closePath();
        ctx.fill();
        */
-       // Draw collision areas
-       ctx.strokeStyle = 'lime';
-       this.collisionArea.debugDraw(ctx, null);
 
        /*
        // Culling Box debug draw

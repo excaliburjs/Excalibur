@@ -182,16 +182,13 @@
         }
 
         /* istanbul ignore next */
-        public debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags) {
-           ctx.strokeStyle = 'red';
-           var old = ctx.lineWidth;
-           ctx.lineWidth = 5;
+        public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Red.clone()) {
+           ctx.strokeStyle = color.toString();
            ctx.beginPath();
            ctx.moveTo(this.begin.x, this.begin.y);
            ctx.lineTo(this.end.x, this.end.y);
            ctx.closePath();
            ctx.stroke();
-           ctx.lineWidth = old;
         }
     }
 }

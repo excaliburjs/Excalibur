@@ -67,7 +67,7 @@ module ex {
        */
       recalc(): void;
 
-      debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags);
+      debugDraw(ctx: CanvasRenderingContext2D, color: Color);
       
    } 
 }

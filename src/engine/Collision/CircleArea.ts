@@ -180,11 +180,12 @@
         }
 
         /* istanbul ignore next */
-        public debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags) {
+        public debugDraw(ctx: CanvasRenderingContext2D, color: Color = ex.Color.Green.clone()) {
            var pos = this.body ? this.body.pos.add(this.pos) : this.pos;
            var rotation = this.body ? this.body.rotation : 0;
-           ctx.strokeStyle = 'lime';
+           
            ctx.beginPath();
+           ctx.strokeStyle = color.toString();
            ctx.arc(pos.x, pos.y, this.radius, 0, Math.PI * 2);
            ctx.closePath();
            ctx.stroke();

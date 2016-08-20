@@ -12,7 +12,9 @@ module ex.Util.DrawUtil {
     * @param x2 The ending x coordinate
     * @param y2 The ending y coordinate
     */
-   export function line(ctx: CanvasRenderingContext2D, color: ex.Color, x1: number, y1: number, x2: number, y2: number) {
+    /* istanbul ignore next */
+   export function line(ctx: CanvasRenderingContext2D, color: ex.Color = Color.Red.clone(), 
+                        x1: number, y1: number, x2: number, y2: number) {
       ctx.beginPath();
       ctx.strokeStyle = color.toString();
       ctx.moveTo(x1, y1);
@@ -20,6 +22,34 @@ module ex.Util.DrawUtil {
       ctx.closePath();
       ctx.stroke();  
    }
+
+   /**
+    * Draw the vector as a point onto the canvas.
+    */
+    /* istanbul ignore next */
+   export function point(ctx: CanvasRenderingContext2D, color: Color = Color.Red.clone(), point: Vector): void {
+      ctx.beginPath();
+      ctx.strokeStyle = color.toString();
+      ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+      ctx.closePath();    
+      ctx.stroke();
+   }
+
+   /**
+    * Draw the vector as a line onto the canvas starting a origin point.
+    */
+    /* istanbul ignore next */
+   export function vector(ctx: CanvasRenderingContext2D, color: Color, origin: Vector, vector: Vector, scale: number = 1.0): void {
+      var c = color ? color.toString() : 'blue';
+      var v = vector.scale(scale); 
+      ctx.beginPath();
+      ctx.strokeStyle = c;
+      ctx.moveTo(origin.x, origin.y);
+      ctx.lineTo(origin.x + v.x, origin.y + v.y);
+      ctx.closePath();
+      ctx.stroke(); 
+   }
+
 
    /**
     * Represents border radius values

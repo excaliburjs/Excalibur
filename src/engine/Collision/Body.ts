@@ -6,9 +6,7 @@ module ex {
       /**
        * Constructs a new physics body associated with an actor
        */
-      constructor(public actor: Actor) {
-         
-      }
+      constructor(public actor: Actor) {}
 
       /**
        * [ICollisionArea|Collision area] of this physics body, defines the shape for rigid body collision
@@ -146,6 +144,25 @@ module ex {
          });
 
          this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
+      }
+
+      /* istanbul ignore next */
+      public debugDraw(ctx: CanvasRenderingContext2D) {
+         
+         // Draw motion vectors
+         if (ex.Physics.showMotionVectors) {
+            ex.Util.DrawUtil.vector(ctx, ex.Color.Yellow, this.pos, (this.acc.add(ex.Physics.acc)));
+            ex.Util.DrawUtil.vector(ctx, ex.Color.Red, this.pos, (this.vel));
+            ex.Util.DrawUtil.point(ctx, ex.Color.Red, this.pos);
+         }
+         
+         if (ex.Physics.showBounds) {
+            this.getBounds().debugDraw(ctx, Color.Yellow);
+         }
+
+         if (ex.Physics.showArea) {
+            this.collisionArea.debugDraw(ctx, ex.Color.Green);
+         }
       }
    }   
 }

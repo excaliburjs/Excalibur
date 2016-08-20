@@ -666,6 +666,10 @@ var ex;
         Physics.broadphaseDebug = false;
         Physics.showCollisionNormals = false;
         Physics.showMotionVectors = false;
+        Physics.showBounds = false;
+        Physics.showArea = false;
+        Physics.showContacts = false;
+        Physics.showNormals = false;
         Physics.collisionResolutionStrategy = CollisionResolutionStrategy.Box;
         Physics.defaultMass = 10;
         Physics.integrator = Integrator.Euler;
@@ -1196,11 +1200,12 @@ var ex;
             return new ex.Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
         };
         /* istanbul ignore next */
-        CircleArea.prototype.debugDraw = function (ctx, debugFlags) {
+        CircleArea.prototype.debugDraw = function (ctx, color) {
+            if (color === void 0) { color = ex.Color.Green.clone(); }
             var pos = this.body ? this.body.pos.add(this.pos) : this.pos;
             var rotation = this.body ? this.body.rotation : 0;
-            ctx.strokeStyle = 'lime';
             ctx.beginPath();
+            ctx.strokeStyle = color.toString();
             ctx.arc(pos.x, pos.y, this.radius, 0, Math.PI * 2);
             ctx.closePath();
             ctx.stroke();
@@ -1362,16 +1367,14 @@ var ex;
             return new ex.Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
         };
         /* istanbul ignore next */
-        EdgeArea.prototype.debugDraw = function (ctx, debugFlags) {
-            ctx.strokeStyle = 'red';
-            var old = ctx.lineWidth;
-            ctx.lineWidth = 5;
+        EdgeArea.prototype.debugDraw = function (ctx, color) {
+            if (color === void 0) { color = ex.Color.Red.clone(); }
+            ctx.strokeStyle = color.toString();
             ctx.beginPath();
             ctx.moveTo(this.begin.x, this.begin.y);
             ctx.lineTo(this.end.x, this.end.y);
             ctx.closePath();
             ctx.stroke();
-            ctx.lineWidth = old;
         };
         return EdgeArea;
     }());
@@ -1632,9 +1635,10 @@ var ex;
             return new ex.Projection(min, max);
         };
         /* istanbul ignore next */
-        PolygonArea.prototype.debugDraw = function (ctx, debugFlags) {
+        PolygonArea.prototype.debugDraw = function (ctx, color) {
+            if (color === void 0) { color = ex.Color.Red.clone(); }
             ctx.beginPath();
-            ctx.lineWidth = 3;
+            ctx.strokeStyle = color.toString();
             // Iterate through the supplied points and contruct a 'polygon'
             var firstPoint = this.getTransformedPoints()[0];
             ctx.moveTo(firstPoint.x, firstPoint.y);
@@ -3553,8 +3557,9 @@ var ex;
             return null;
         };
         /* istanbul ignore next */
-        BoundingBox.prototype.debugDraw = function (ctx) {
-            ctx.lineWidth = 2;
+        BoundingBox.prototype.debugDraw = function (ctx, color) {
+            if (color === void 0) { color = ex.Color.Yellow; }
+            ctx.strokeStyle = color.toString();
             ctx.strokeRect(this.left, this.top, this.getWidth(), this.getHeight());
         };
         return BoundingBox;
@@ -3688,6 +3693,21 @@ var ex;
                 body: this
             });
             this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
+        };
+        /* istanbul ignore next */
+        Body.prototype.debugDraw = function (ctx) {
+            // Draw motion vectors
+            if (ex.Physics.showMotionVectors) {
+                ex.Util.DrawUtil.vector(ctx, ex.Color.Yellow, this.pos, (this.acc.add(ex.Physics.acc)));
+                ex.Util.DrawUtil.vector(ctx, ex.Color.Red, this.pos, (this.vel));
+                ex.Util.DrawUtil.point(ctx, ex.Color.Red, this.pos);
+            }
+            if (ex.Physics.showBounds) {
+                this.getBounds().debugDraw(ctx, ex.Color.Yellow);
+            }
+            if (ex.Physics.showArea) {
+                this.collisionArea.debugDraw(ctx, ex.Color.Green);
+            }
         };
         return Body;
     }());
@@ -4381,8 +4401,21 @@ var ex;
             }
             return updated;
         };
+        /* istanbul ignore next */
         DynamicTreeCollisionBroadphase.prototype.debugDraw = function (ctx, delta) {
-            this._dynamicCollisionTree.debugDraw(ctx, delta);
+            if (ex.Physics.broadphaseDebug) {
+                this._dynamicCollisionTree.debugDraw(ctx, delta);
+            }
+            if (ex.Physics.showContacts || ex.Physics.showCollisionNormals) {
+                for (var i = 0; i < this._collisionContactCache.length; i++) {
+                    if (ex.Physics.showContacts) {
+                        ex.Util.DrawUtil.point(ctx, ex.Color.Red, this._collisionContactCache[i].point);
+                    }
+                    if (ex.Physics.showCollisionNormals) {
+                        ex.Util.DrawUtil.vector(ctx, ex.Color.Cyan, this._collisionContactCache[i].point, this._collisionContactCache[i].normal, 30);
+                    }
+                }
+            }
         };
         return DynamicTreeCollisionBroadphase;
     }());
@@ -6678,6 +6711,7 @@ var ex;
          * Draws all the actors' debug information in the Scene. Called by the [[Engine]].
          * @param ctx  The current rendering context
          */
+        /* istanbul ignore next */
         Scene.prototype.debugDraw = function (ctx) {
             this.emit('predebugdraw', new ex.PreDebugDrawEvent(ctx, this));
             var i, len;
@@ -6687,9 +6721,7 @@ var ex;
             for (i = 0, len = this.children.length; i < len; i++) {
                 this.children[i].debugDraw(ctx);
             }
-            if (ex.Physics.broadphaseDebug) {
-                this._broadphase.debugDraw(ctx, 20);
-            }
+            this._broadphase.debugDraw(ctx, 20);
             this.camera.debugDraw(ctx);
             this.emit('postdebugdraw', new ex.PostDebugDrawEvent(ctx, this));
         };
@@ -8119,8 +8151,10 @@ var ex;
          * Called by the Engine, draws the actors debugging to the screen
          * @param ctx The rendering context
          */
+        /* istanbul ignore next */
         Actor.prototype.debugDraw = function (ctx) {
             this.emit('predebugdraw', new ex.PreDebugDrawEvent(ctx, this));
+            this.body.debugDraw(ctx);
             /*
             // Draw actor bounding box
             var bb = this.getBounds();
@@ -8136,9 +8170,6 @@ var ex;
             ctx.closePath();
             ctx.fill();
             */
-            // Draw collision areas
-            ctx.strokeStyle = 'lime';
-            this.collisionArea.debugDraw(ctx, null);
             /*
             // Culling Box debug draw
             for (var j = 0; j < this.traits.length; j++) {
@@ -11243,7 +11274,9 @@ var ex;
              * @param x2 The ending x coordinate
              * @param y2 The ending y coordinate
              */
+            /* istanbul ignore next */
             function line(ctx, color, x1, y1, x2, y2) {
+                if (color === void 0) { color = ex.Color.Red.clone(); }
                 ctx.beginPath();
                 ctx.strokeStyle = color.toString();
                 ctx.moveTo(x1, y1);
@@ -11252,6 +11285,35 @@ var ex;
                 ctx.stroke();
             }
             DrawUtil.line = line;
+            /**
+             * Draw the vector as a point onto the canvas.
+             */
+            /* istanbul ignore next */
+            function point(ctx, color, point) {
+                if (color === void 0) { color = ex.Color.Red.clone(); }
+                ctx.beginPath();
+                ctx.strokeStyle = color.toString();
+                ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.stroke();
+            }
+            DrawUtil.point = point;
+            /**
+             * Draw the vector as a line onto the canvas starting a origin point.
+             */
+            /* istanbul ignore next */
+            function vector(ctx, color, origin, vector, scale) {
+                if (scale === void 0) { scale = 1.0; }
+                var c = color ? color.toString() : 'blue';
+                var v = vector.scale(scale);
+                ctx.beginPath();
+                ctx.strokeStyle = c;
+                ctx.moveTo(origin.x, origin.y);
+                ctx.lineTo(origin.x + v.x, origin.y + v.y);
+                ctx.closePath();
+                ctx.stroke();
+            }
+            DrawUtil.vector = vector;
             /**
              * Draw a round rectange on a canvas context
              *

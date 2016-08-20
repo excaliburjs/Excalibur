@@ -120,8 +120,22 @@ module ex {
          return updated;
       }
 
+      /* istanbul ignore next */
       public debugDraw(ctx: CanvasRenderingContext2D, delta: number) {
-         this._dynamicCollisionTree.debugDraw(ctx, delta);
+         if (ex.Physics.broadphaseDebug) {
+            this._dynamicCollisionTree.debugDraw(ctx, delta);
+         }         
+
+         if (ex.Physics.showContacts || ex.Physics.showCollisionNormals) {
+            for (var i = 0; i < this._collisionContactCache.length; i++) {
+               if (ex.Physics.showContacts) {
+                  ex.Util.DrawUtil.point(ctx, Color.Red, this._collisionContactCache[i].point);
+               }
+               if (ex.Physics.showCollisionNormals) {
+                  ex.Util.DrawUtil.vector(ctx, Color.Cyan, this._collisionContactCache[i].point, this._collisionContactCache[i].normal, 30);
+               }
+            }
+         }
       }
    }
  }
