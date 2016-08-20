@@ -64,7 +64,7 @@ npm install
 
 You can then run the grunt tasks for various purposes:
 
-```sh
+```bash
 # Run compilation, linting, and all unit & visual tests
 # Recommend to do this before finalizing pull requests
 grunt
