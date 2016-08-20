@@ -917,30 +917,6 @@ module ex {
     }      
         
     /**
-     * This method will rotate an actor to the specified angle (in radians) at the `speed`
-     * specified (in radians per second) and return back the actor. This 
-     * method is part of the actor 'Action' fluent API allowing action chaining.
-     * @param angleRadians  The angle to rotate to in radians
-     * @param speed         The angular velocity of the rotation specified in radians per second
-     * @obsolete Use [[ActionContext.rotateTo|Actor.actions.rotateTo]]
-     */
-    public rotateTo(angleRadians: number, speed: number, rotationType?: RotationType): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.RotateTo(this, angleRadians, speed, rotationType));
-       return this;
-    }
-    /**
-     * This method will rotate an actor to the specified angle by a certain
-     * `duration` (in milliseconds) and return back the actor. This method is part
-     * of the actor 'Action' fluent API allowing action chaining.
-     * @param angleRadians  The angle to rotate to in radians
-     * @param duration          The time it should take the actor to complete the rotation in milliseconds
-     * @obsolete Use [[ActionContext.rotateBy|ex.Actor.actions.rotateBy]]
-     */
-    public rotateBy(angleRadians: number, duration: number, rotationType?: RotationType): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.RotateBy(this, angleRadians, duration, rotationType));
-       return this;
-    }
-    /**
      * This method will scale an actor to the specified size at the speed
      * specified (in magnitude increase per second) and return back the 
      * actor. This method is part of the actor 'Action' fluent API allowing 
