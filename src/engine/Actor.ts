@@ -917,34 +917,6 @@ module ex {
     }      
         
     /**
-     * This method will scale an actor to the specified size at the speed
-     * specified (in magnitude increase per second) and return back the 
-     * actor. This method is part of the actor 'Action' fluent API allowing 
-     * action chaining.
-     * @param sizeX  The scaling factor in the x direction to apply
-     * @param sizeY  The scaling factor in the y direction to apply
-     * @param speedX The speed of scaling in the x direction specified in magnitude increase per second
-     * @param speedY The speed of scaling in the y direction specified in magnitude increase per second
-     * @obsolete Use [[ActionContext.scaleTo|Actor.actions.scaleTo]]
-     */
-    public scaleTo(sizeX: number, sizeY: number, speedX: number, speedY: number): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.ScaleTo(this, sizeX, sizeY, speedX, speedY));
-       return this;
-    }
-    /**
-     * This method will scale an actor to the specified size by a certain duration
-     * (in milliseconds) and return back the actor. This method is part of the
-     * actor 'Action' fluent API allowing action chaining.
-     * @param sizeX     The scaling factor in the x direction to apply
-     * @param sizeY     The scaling factor in the y direction to apply
-     * @param duration  The time it should take to complete the scaling in milliseconds
-     * @obsolete Use [[ActionContext.scaleBy|Actor.actions.scaleBy]]
-     */
-    public scaleBy(sizeX: number, sizeY: number, duration: number): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.ScaleBy(this, sizeX, sizeY, duration));
-       return this;
-    }
-    /**
      * This method will cause an actor to blink (become visible and not 
      * visible). Optionally, you may specify the number of blinks. Specify the amount of time 
      * the actor should be visible per blink, and the amount of time not visible.
