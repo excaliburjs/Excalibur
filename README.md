@@ -6,26 +6,35 @@
 [![NuGet version](https://badge.fury.io/nu/Excalibur.png)](http://badge.fury.io/nu/Excalibur)
 [![Docs status](https://readthedocs.org/projects/excaliburjs/badge/?version=latest)](http://excaliburjs.readthedocs.org/en/latest/?badge=latest)
 
+![Sweep Stacks](http://excaliburjs.com/assets/images/homepage-xp.png)
+
 Excalibur is a simple, **free** game engine written in TypeScript for making 2D games in HTML5 canvas. Our goal with Excalibur is to make it *incredibly simple* to create and write 2D HTML/JS games aimed at folks new to game development all the way up to more experienced game developers. We take care of all the boilerplate engine code, cross-platform targeting, and more so you don't have to. Use as much or as little as you need!
 
 Excalibur is an open source project licensed under the 2-clause BSD license (this means you can use it in commercial projects!). It's free and always will be. We welcome any feedback or contributions! If you make something with Excalbur, please [let us know](https://groups.google.com/forum/#!forum/excaliburjs) so we can feature you in our online gallery.
 
 # Get Started
 
-Our documentation is at http://docs.excaliburjs.com.
+Our user documentation is at http://docs.excaliburjs.com.
 
 - Follow our [Installation](http://docs.excaliburjs.com/en/latest/installation.html) guide to learn how to install Excalibur
 - Follow our [Getting Started](http://docs.excaliburjs.com/en/latest/quickstart.html) guide if you're looking to get started.
+- Learn what [Features](http://docs.excaliburjs.com/en/latest/features.html) are available for you to leverage in your games
+- View the [Release roadmap](https://github.com/excaliburjs/Excalibur/milestones) to see what's coming next
+
+Please note while we try to minimize API changes, we are still in 0.x which means breaking changes **will occur** in new
+released versions.
 
 # API Documentation
 
-Visit the [API Documentation](http://excaliburjs.com/docs) section for full annotated API documentation.
+Visit the [API Documentation](http://docs.excaliburjs.com/en/latest/index.html#api-documentation) section for full annotated API documentation.
 
 The `master` branch documentation is always available and up-to-date on our [Edge documentation site](http://excaliburjs.com/docs/api/edge).
 
 # Questions
 
-Ask us anything in the [Excalibur.js mailing list](https://groups.google.com/forum/#!forum/excaliburjs). If you find a bug, report it on the [GitHub issues page](https://github.com/excaliburjs/Excalibur/issues).
+Ask us anything in the [Excalibur.js mailing list](https://groups.google.com/forum/#!forum/excaliburjs). 
+If you find a bug, report it on the [GitHub issues page](https://github.com/excaliburjs/Excalibur/issues).
+You can also follow us on Twitter [@excaliburjs](http://twitter.com/excaliburjs) for updates or [read the blog](http://blog.excaliburjs.com).
 
 # Samples
 
@@ -48,30 +57,34 @@ allow the widest contributions possible. You can always use your own preferred e
 
 After cloning the repository, install the dependencies:
 
-    npm install grunt-cli -g
-    npm install
+```sh
+npm install grunt-cli -g
+npm install
+```
 
 You can then run the grunt tasks for various purposes:
 
-    # Run compilation, linting, and all unit & visual tests
-    # Recommend to do this before finalizing pull requests
-    grunt
+```sh
+# Run compilation, linting, and all unit & visual tests
+# Recommend to do this before finalizing pull requests
+grunt
 
-    # Run engine core compilation only
-    grunt compile
+# Run engine core compilation only
+grunt compile
 
-    # Run engine compilation & tests only
-    grunt tests    
+# Run engine compilation & tests only
+grunt tests    
 
-    # Run sandbox compilation only
-    grunt sample
+# Run sandbox compilation only
+grunt sample
 
-    # Run visual tests compilation only
-    grunt visual
+# Run visual tests compilation only
+grunt visual
+```
 
 # License
 
-Excalibur is open source and operates under the 2 clause BSD license:
+Excalibur is open source and operates under the 2-clause BSD license:
 
 	Copyright (c) 2014, Erik Onarheim
 	All rights reserved.
