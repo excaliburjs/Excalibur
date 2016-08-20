@@ -407,7 +407,7 @@ describe('Collision areas', () => {
          polyA.recalc();
 
          var rayTowards = new ex.Ray(new ex.Vector(-100, 0), ex.Vector.Right.clone());
-         var rayAway = new ex.Ray(new ex.Vector(-100, 0), ex.Vector.Left.clone());
+         var rayAway = new ex.Ray(new ex.Vector(-100, 0), new ex.Vector(-1, 0));
 
          var point = polyA.castRay(rayTowards);
          var noHit = polyA.castRay(rayAway);
@@ -452,24 +452,46 @@ describe('Collision areas', () => {
       });
 
       it('can be ray cast against', () => {
-        fail('todo');
+        var ray = new ex.Ray(new ex.Vector(5, -100), ex.Vector.Down.clone());
+        var rayLeftTangent = new ex.Ray(new ex.Vector(0, -100), ex.Vector.Down.clone());
+        var rayRightTangent = new ex.Ray(new ex.Vector(10, -100), ex.Vector.Down.clone());
+        var rayNoHit = new ex.Ray(new ex.Vector(5, -100), ex.Vector.Up.clone());
+
+        var midPoint = edge.castRay(ray);
+        var leftTan = edge.castRay(rayLeftTangent);
+        var rightTan = edge.castRay(rayRightTangent);
+        var noHit = edge.castRay(rayNoHit);
+
+        expect(midPoint.x).toBeCloseTo(5, .001);
+        expect(midPoint.y).toBeCloseTo(0, .001);
+
+        expect(leftTan.x).toBeCloseTo(0, .001);
+        expect(leftTan.y).toBeCloseTo(0, .001);
+
+        expect(rightTan.x).toBeCloseTo(10, .001);
+        expect(rightTan.y).toBeCloseTo(0, .001);
+
+
       }); 
 
-      it('has axes', () => {
-        fail('todo');
+      it('has 4 axes', () => {
+        var axes = edge.getAxes();
+        expect(axes.length).toBe(4);
       });
 
       it('has bounds', () => {
-        fail('todo');
-      });
+        var boundingBox = edge.getBounds();
 
-      it('has bounds', () => {
-        fail('todo');
+        expect(boundingBox.contains(edge.begin)).toBe(true);
+        expect(boundingBox.contains(edge.end)).toBe(true);
       });
 
       it('has a moi', () => {
         // following this formula https://en.wikipedia.org/wiki/List_of_moments_of_inertia
-        fail('todo');
+        // rotates from the middle treating the ends as a point mass
+        var moi = edge.getMomentOfInertia();
+        var length = edge.end.sub(edge.begin).distance() / 2;
+        expect(moi).toBeCloseTo(edge.body.mass * length * length, .001);
       });
 
    });

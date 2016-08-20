@@ -333,7 +333,7 @@ module ex {
      * Gets the y position of the actor relative to it's parent (if any)
      */
     public get y(): number {
-        return this.body.pos.x;
+        return this.body.pos.y;
     }
     
     /**

@@ -893,7 +893,7 @@ describe('A game actor', () => {
       expect(parent.contains(250, 250, true)).toBeTruthy();	  
    });
 
-   xit('with an active collision type can be placed on a fixed type', () => {
+   it('with an active collision type can be placed on a fixed type', () => {
       var scene = new ex.Scene(engine); 
 	  
       var active = new ex.Actor(0, -50, 100, 100);

@@ -196,7 +196,7 @@ module ex {
             // contact times less than 0 are behind the ray and we don't want those
             var sides = this.getSides();
             var len = sides.length;
-            var minContactTime = Number.MAX_VALUE;
+            var minContactTime = Number.MAX_VALUE; 
             var contactIndex = -1;
             for (var i = 0; i < len; i++) {
                 var contactTime = ray.intersect(sides[i]);
@@ -207,7 +207,7 @@ module ex {
             }
 
             // contact was found
-            if (i >= 0) {
+            if (contactIndex >= 0) {
                 return ray.getPoint(minContactTime);
             }
 

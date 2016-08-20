@@ -111,8 +111,8 @@
         public getBounds(): BoundingBox {
             return new BoundingBox(Math.min(this.begin.x, this.end.x),
                 Math.min(this.begin.y, this.end.y),
-                Math.max(this.begin.y, this.end.y),
-                Math.max(this.begin.x, this.end.x));
+                Math.max(this.begin.x, this.end.x),
+                Math.max(this.begin.y, this.end.y));
         }
 
         /**

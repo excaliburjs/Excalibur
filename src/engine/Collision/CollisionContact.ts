@@ -58,6 +58,12 @@ module ex {
               bodyB.collisionType !== CollisionType.Passive) {
 
             // Resolve overlaps
+            if(bodyA.collisionType === CollisionType.Active && 
+               bodyB.collisionType === CollisionType.Active) {
+               // split overlaps if both are Active
+               mtv = mtv.scale(.5);
+            }
+            // Apply mtv
             bodyA.pos.y += mtv.y;
             bodyA.pos.x += mtv.x;
                         
@@ -117,8 +123,8 @@ module ex {
          var side = ex.Util.getSideFromVector(this.mtv);
          var mtv = this.mtv.negate();
          // Publish collision events on both participants
-         bodyA.eventDispatcher.emit('collision', new CollisionEvent(bodyA, bodyB, side, mtv));
-         bodyB.eventDispatcher.emit('collision', 
+         bodyA.emit('collision', new CollisionEvent(bodyA, bodyB, side, mtv));
+         bodyB.emit('collision', 
             new CollisionEvent(bodyB, bodyA, ex.Util.getOppositeSide(side), mtv.negate()));
 
          this._applyBoxImpluse(bodyA, bodyB, mtv, side);
@@ -174,11 +180,11 @@ module ex {
          
          // Publish collision events on both participants
          var side = ex.Util.getSideFromVector(this.mtv);
-         this.bodyA.body.actor.emit('collision', new CollisionEvent(this.bodyA.body.actor, 
+         bodyA.emit('collision', new CollisionEvent(this.bodyA.body.actor, 
                                                                     this.bodyB.body.actor, 
                                                                     side, 
                                                                     this.mtv));
-         this.bodyB.body.actor.emit('collision', new CollisionEvent(this.bodyB.body.actor, 
+         bodyB.emit('collision', new CollisionEvent(this.bodyB.body.actor, 
                                                                     this.bodyA.body.actor, 
                                                                     ex.Util.getOppositeSide(side), 
                                                                     this.mtv.negate()));
