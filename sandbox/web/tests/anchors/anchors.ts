@@ -1,4 +1,4 @@
-/// <reference path="../../../../dist/Excalibur.d.ts" />
+/// <reference path="../../../../dist/excalibur.d.ts" />
 
 class Cross extends ex.Actor {
    constructor(x, y) {

@@ -1,4 +1,4 @@
-/// <reference path="../../../../dist/Excalibur.d.ts" />
+/// <reference path="../../../../dist/excalibur.d.ts" />
 
 var game = new ex.Engine({ width: 500, height: 500 });
 game.backgroundColor = ex.Color.fromHex("#eeeeee");

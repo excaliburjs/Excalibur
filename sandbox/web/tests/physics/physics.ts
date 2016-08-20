@@ -1,4 +1,5 @@
-/// <reference path='../../../../dist/excalibur.d.ts' />
+/// <reference path="../../../../dist/excalibur.d.ts"/>
+
 
 var game = new ex.Engine({
    width: 600,
