@@ -915,34 +915,7 @@ module ex {
     public within(actor: Actor, distance: number): boolean {
        return Math.sqrt(Math.pow(this.pos.x - actor.pos.x, 2) + Math.pow(this.pos.y - actor.pos.y, 2)) <= distance;
     }      
-                
-    /**
-     * This method will cause the actor to repeat all of the previously 
-     * called actions a certain number of times. If the number of repeats 
-     * is not specified it will repeat forever. This method is part of 
-     * the actor 'Action' fluent API allowing action chaining
-     * @param times The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will 
-     * repeat forever
-     * @obsolete Use [[ActionContext.repeat|Actor.actions.repeat]]
-     */
-    public repeat(times?: number): Actor {
-       if (!times) {
-          this.repeatForever();
-          return this;
-       }
-       this.actionQueue.add(new ex.Internal.Actions.Repeat(this, times, this.actionQueue.getActions()));
-       return this;
-    }
-    /**
-     * This method will cause the actor to repeat all of the previously 
-     * called actions forever. This method is part of the actor 'Action'
-     * fluent API allowing action chaining.
-     * @obsolete Use [[ActionContext.repeatForever|Actor.actions.repeatForever]]
-     */
-    public repeatForever(): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.RepeatForever(this, this.actionQueue.getActions()));
-       return this;
-    }
+                    
     /**
      * This method will cause the actor to follow another at a specified distance
      * @param actor           The actor to follow
@@ -972,18 +945,7 @@ module ex {
           }
        return this;
     }
-    /**
-     * Returns a promise that resolves when the current action queue up to now
-     * is finished.
-     * @obsolete Use [[ActionContext.asPromise|Actor.actions.asPromise]]
-     */
-    public asPromise<T>() : Promise<T> {
-       var complete = new Promise<T>();
-       this.callMethod(() => {
-          complete.resolve();
-       });
-       return complete;
-    }
+    
     private _getCalculatedAnchor(): Vector {
        return new ex.Vector(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
     }
