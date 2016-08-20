@@ -915,37 +915,7 @@ module ex {
     public within(actor: Actor, distance: number): boolean {
        return Math.sqrt(Math.pow(this.pos.x - actor.pos.x, 2) + Math.pow(this.pos.y - actor.pos.y, 2)) <= distance;
     }      
-                    
-    /**
-     * This method will cause the actor to follow another at a specified distance
-     * @param actor           The actor to follow
-     * @param followDistance  The distance to maintain when following, if not specified the actor will follow at the current distance.
-     * @obsolete Use [[ActionContext.follow|Actor.actions.follow]]
-     */
-    public follow(actor : Actor, followDistance? : number) : Actor {
-      if (typeof followDistance === 'undefined') {
-            this.actionQueue.add(new ex.Internal.Actions.Follow(this, actor));
-         } else {
-            this.actionQueue.add(new ex.Internal.Actions.Follow(this, actor, followDistance));
-         }
-      return this;
-    }
-    /**
-     * This method will cause the actor to move towards another Actor until they 
-     * collide ("meet") at a specified speed.
-     * @param actor  The actor to meet
-     * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
-     * @obsolete Use [[ActionContext.meet|Actor.actions.meet]]
-     */
-    public meet(actor: Actor, speed? : number) : Actor {
-       if (typeof speed === 'undefined') {
-             this.actionQueue.add(new ex.Internal.Actions.Meet(this, actor));
-          } else {
-             this.actionQueue.add(new ex.Internal.Actions.Meet(this, actor, speed));
-          }
-       return this;
-    }
-    
+                
     private _getCalculatedAnchor(): Vector {
        return new ex.Vector(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
     }
