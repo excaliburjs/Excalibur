@@ -193,6 +193,32 @@ declare module ex {
     }
 }
 declare module ex {
+    interface IEvented {
+        /**
+         * Emits an event for target
+         * @param eventName  The name of the event to publish
+         * @param event      Optionally pass an event data object to the handler
+         */
+        emit(eventName: string, event?: GameEvent): any;
+        /**
+         * Subscribe an event handler to a particular event name, multiple handlers per event name are allowed.
+         * @param eventName  The name of the event to subscribe to
+         * @param handler    The handler callback to fire on this event
+         */
+        on(eventName: string, handler: (event?: GameEvent) => void): any;
+        /**
+         * Unsubscribe an event handler(s) from an event. If a specific handler
+         * is specified for an event, only that handler will be unsubscribed.
+         * Otherwise all handlers will be unsubscribed for that event.
+         *
+         * @param eventName  The name of the event to unsubscribe
+         * @param handler    Optionally the specific handler to unsubscribe
+         *
+         */
+        off(eventName: string, handler: (event?: GameEvent) => void): any;
+    }
+}
+declare module ex {
     /**
      * An interface describing actor update pipeline traits
      */
@@ -425,7 +451,24 @@ declare module ex {
  * Excalibur utilities for math, string manipulation, etc.
  */
 declare module ex.Util {
-    var TwoPI: number;
+    const TwoPI: number;
+    /**
+     * Merges one or more objects into a single target object
+     *
+     * @param deep Whether or not to do a deep clone
+     * @param target The target object to attach properties on
+     * @param objects The objects whose properties to merge
+     * @returns Merged object with properties from other objects
+     */
+    function extend(deep: boolean, target: any, ...objects: any[]): any;
+    /**
+     * Merges one or more objects into a single target object
+     *
+     * @param target The target object to attach properties on
+     * @param objects The objects whose properties to merge
+     * @returns Merged object with properties from other objects
+     */
+    function extend(target: any, ...objects: any[]): any;
     function base64Encode(inputStr: string): string;
     function clamp(val: any, min: any, max: any): any;
     function randomInRange(min: number, max: number): number;
@@ -1340,30 +1383,12 @@ declare module ex {
      * Excalibur base class that provides basic functionality such as [[EventDispatcher]]
      * and extending abilities for vanilla Javascript projects
      */
-    class Class {
+    class Class implements IEvented {
         /**
          * Direct access to the game object event dispatcher.
          */
         eventDispatcher: EventDispatcher;
         constructor();
-        /**
-         * Add an event listener. You can listen for a variety of
-         * events off of the engine; see the events section below for a complete list.
-         * @param eventName  Name of the event to listen for
-         * @param handler    Event handler for the thrown event
-         * @obsolete Use [[Class.on]] instead
-         */
-        addEventListener(eventName: string, handler: (event?: GameEvent) => void): void;
-        /**
-         * Removes an event listener. If only the eventName is specified
-         * it will remove all handlers registered for that specific event. If the eventName
-         * and the handler instance are specified just that handler will be removed.
-         *
-         * @param eventName  Name of the event to listen for
-         * @param handler    Event handler for the thrown event
-         * @obsolete Use [[Class.off]] instead
-         */
-        removeEventListener(eventName: string, handler?: (event?: GameEvent) => void): void;
         /**
          * Alias for `addEventListener`. You can listen for a variety of
          * events off of the engine; see the events section below for a complete list.
@@ -2321,7 +2346,7 @@ declare module ex {
      *
      * ```
      */
-    class Group extends Class implements IActionable {
+    class Group extends Class implements IActionable, IEvented {
         name: string;
         scene: Scene;
         private _logger;
@@ -2631,10 +2656,8 @@ declare module ex {
         removeUIActor(actor: Actor): void;
         /**
          * Adds an actor to the scene, once this is done the actor will be drawn and updated.
-         *
-         * @obsolete Use [[add]] instead.
          */
-        addChild(actor: Actor): void;
+        protected addChild(actor: Actor): void;
         /**
          * Adds a [[TileMap]] to the scene, once this is done the TileMap will be drawn and updated.
          */
@@ -2646,7 +2669,7 @@ declare module ex {
         /**
          * Removes an actor from the scene, it will no longer be drawn or updated.
          */
-        removeChild(actor: Actor): void;
+        protected removeChild(actor: Actor): void;
         /**
          * Adds a [[Timer]] to the scene
          * @param timer  The timer to add
@@ -3015,7 +3038,7 @@ declare module ex {
      * [Issue #68](https://github.com/excaliburjs/Excalibur/issues/68)
      *
      */
-    class Actor extends ex.Class implements IActionable {
+    class Actor extends ex.Class implements IActionable, IEvented {
         /**
          * Indicates the next id to be set
          */
@@ -3199,14 +3222,6 @@ declare module ex {
         onInitialize(engine: Engine): void;
         private _checkForPointerOptIn(eventName);
         /**
-         * Add an event listener. You can listen for a variety of
-         * events off of the engine; see [[GameEvent]]
-         * @param eventName  Name of the event to listen for
-         * @param handler    Event handler for the thrown event
-         * @obsolete Use [[on]] instead.
-         */
-        addEventListener(eventName: string, handler: (event?: GameEvent) => void): void;
-        /**
          * Alias for `addEventListener`. You can listen for a variety of
          * events off of the engine; see [[GameEvent]]
          * @param eventName   Name of the event to listen for
@@ -3340,16 +3355,6 @@ declare module ex {
          */
         getWorldPos(): Vector;
         /**
-         * Gets the x value of the Actor in global coordinates
-         * @obsolete Use [[getWorldPos]]
-         */
-        getWorldX(): number;
-        /**
-         * Gets the y value of the Actor in global coordinates
-         * @obsolete Use [[getWorldPos]]
-         */
-        getWorldY(): number;
-        /**
          * Gets the global scale of the Actor
          */
         getGlobalScale(): Vector;
@@ -3402,162 +3407,6 @@ declare module ex {
          * @param distance  Distance in pixels to test
          */
         within(actor: Actor, distance: number): boolean;
-        /**
-         * Clears all queued actions from the Actor
-         * @obsolete Use [[ActionContext.clearActions|Actor.actions.clearActions]]
-         */
-        clearActions(): void;
-        /**
-         * This method will move an actor to the specified `x` and `y` position over the
-         * specified duration using a given [[EasingFunctions]] and return back the actor. This
-         * method is part of the actor 'Action' fluent API allowing action chaining.
-         * @param x         The x location to move the actor to
-         * @param y         The y location to move the actor to
-         * @param duration  The time it should take the actor to move to the new location in milliseconds
-         * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
-         * @obsolete Use [[ActionContext.easeTo|Actor.actions.easeTo]]
-         */
-        easeTo(x: number, y: number, duration: number, easingFcn?: (currentTime: number, startValue: number, endValue: number, duration: number) => number): this;
-        /**
-         * This method will move an actor to the specified `x` and `y` position at the
-         * `speed` specified (in pixels per second) and return back the actor. This
-         * method is part of the actor 'Action' fluent API allowing action chaining.
-         * @param x       The x location to move the actor to
-         * @param y       The y location to move the actor to
-         * @param speed   The speed in pixels per second to move
-         * @obsolete Use [[ActionContext.moveTo|Actor.actions.moveTo]]
-         */
-        moveTo(x: number, y: number, speed: number): Actor;
-        /**
-         * This method will move an actor to the specified `x` and `y` position by a
-         * certain `duration` (in milliseconds). This method is part of the actor
-         * 'Action' fluent API allowing action chaining.
-         * @param x         The x location to move the actor to
-         * @param y         The y location to move the actor to
-         * @param duration  The time it should take the actor to move to the new location in milliseconds
-         * @obsolete Use [[ActionContext.moveBy|Actor.actions.moveBy]]
-         */
-        moveBy(x: number, y: number, duration: number): Actor;
-        /**
-         * This method will rotate an actor to the specified angle (in radians) at the `speed`
-         * specified (in radians per second) and return back the actor. This
-         * method is part of the actor 'Action' fluent API allowing action chaining.
-         * @param angleRadians  The angle to rotate to in radians
-         * @param speed         The angular velocity of the rotation specified in radians per second
-         * @obsolete Use [[ActionContext.rotateTo|Actor.actions.rotateTo]]
-         */
-        rotateTo(angleRadians: number, speed: number, rotationType?: RotationType): Actor;
-        /**
-         * This method will rotate an actor to the specified angle by a certain
-         * `duration` (in milliseconds) and return back the actor. This method is part
-         * of the actor 'Action' fluent API allowing action chaining.
-         * @param angleRadians  The angle to rotate to in radians
-         * @param duration          The time it should take the actor to complete the rotation in milliseconds
-         * @obsolete Use [[ActionContext.rotateBy|ex.Actor.actions.rotateBy]]
-         */
-        rotateBy(angleRadians: number, duration: number, rotationType?: RotationType): Actor;
-        /**
-         * This method will scale an actor to the specified size at the speed
-         * specified (in magnitude increase per second) and return back the
-         * actor. This method is part of the actor 'Action' fluent API allowing
-         * action chaining.
-         * @param sizeX  The scaling factor in the x direction to apply
-         * @param sizeY  The scaling factor in the y direction to apply
-         * @param speedX The speed of scaling in the x direction specified in magnitude increase per second
-         * @param speedY The speed of scaling in the y direction specified in magnitude increase per second
-         * @obsolete Use [[ActionContext.scaleTo|Actor.actions.scaleTo]]
-         */
-        scaleTo(sizeX: number, sizeY: number, speedX: number, speedY: number): Actor;
-        /**
-         * This method will scale an actor to the specified size by a certain duration
-         * (in milliseconds) and return back the actor. This method is part of the
-         * actor 'Action' fluent API allowing action chaining.
-         * @param sizeX     The scaling factor in the x direction to apply
-         * @param sizeY     The scaling factor in the y direction to apply
-         * @param duration  The time it should take to complete the scaling in milliseconds
-         * @obsolete Use [[ActionContext.scaleBy|Actor.actions.scaleBy]]
-         */
-        scaleBy(sizeX: number, sizeY: number, duration: number): Actor;
-        /**
-         * This method will cause an actor to blink (become visible and not
-         * visible). Optionally, you may specify the number of blinks. Specify the amount of time
-         * the actor should be visible per blink, and the amount of time not visible.
-         * This method is part of the actor 'Action' fluent API allowing action chaining.
-         * @param timeVisible     The amount of time to stay visible per blink in milliseconds
-         * @param timeNotVisible  The amount of time to stay not visible per blink in milliseconds
-         * @param numBlinks       The number of times to blink
-         * @obsolete Use [[ActionContext.blink|Actor.actions.blink]]
-         */
-        blink(timeVisible: number, timeNotVisible: number, numBlinks?: number): Actor;
-        /**
-         * This method will cause an actor's opacity to change from its current value
-         * to the provided value by a specified `duration` (in milliseconds). This method is
-         * part of the actor 'Action' fluent API allowing action chaining.
-         * @param opacity   The ending opacity
-         * @param duration  The time it should take to fade the actor (in milliseconds)
-         * @obsolete Use [[ActionContext.fade|Actor.actions.fade]]
-         */
-        fade(opacity: number, duration: number): Actor;
-        /**
-         * This method will delay the next action from executing for the specified
-         * `duration` (in milliseconds). This method is part of the actor
-         * 'Action' fluent API allowing action chaining.
-         * @param duration The amount of time to delay the next action in the queue from executing in milliseconds
-         * @obsolete Use [[ActionContext.delay|Actor.actions.delay]]
-         */
-        delay(duration: number): Actor;
-        /**
-         * This method will add an action to the queue that will remove the actor from the
-         * scene once it has completed its previous actions. Any actions on the
-         * action queue after this action will not be executed.
-         * @obsolete Use [[ActionContext.die|Actor.actions.die]]
-         */
-        die(): Actor;
-        /**
-         * This method allows you to call an arbitrary method as the next action in the
-         * action queue. This is useful if you want to execute code in after a specific
-         * action, i.e An actor arrives at a destination after traversing a path
-         * @obsolete Use [[ActionContext.callMethod|Actor.actions.callMethod]]
-         */
-        callMethod(method: () => any): Actor;
-        /**
-         * This method will cause the actor to repeat all of the previously
-         * called actions a certain number of times. If the number of repeats
-         * is not specified it will repeat forever. This method is part of
-         * the actor 'Action' fluent API allowing action chaining
-         * @param times The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will
-         * repeat forever
-         * @obsolete Use [[ActionContext.repeat|Actor.actions.repeat]]
-         */
-        repeat(times?: number): Actor;
-        /**
-         * This method will cause the actor to repeat all of the previously
-         * called actions forever. This method is part of the actor 'Action'
-         * fluent API allowing action chaining.
-         * @obsolete Use [[ActionContext.repeatForever|Actor.actions.repeatForever]]
-         */
-        repeatForever(): Actor;
-        /**
-         * This method will cause the actor to follow another at a specified distance
-         * @param actor           The actor to follow
-         * @param followDistance  The distance to maintain when following, if not specified the actor will follow at the current distance.
-         * @obsolete Use [[ActionContext.follow|Actor.actions.follow]]
-         */
-        follow(actor: Actor, followDistance?: number): Actor;
-        /**
-         * This method will cause the actor to move towards another Actor until they
-         * collide ("meet") at a specified speed.
-         * @param actor  The actor to meet
-         * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
-         * @obsolete Use [[ActionContext.meet|Actor.actions.meet]]
-         */
-        meet(actor: Actor, speed?: number): Actor;
-        /**
-         * Returns a promise that resolves when the current action queue up to now
-         * is finished.
-         * @obsolete Use [[ActionContext.asPromise|Actor.actions.asPromise]]
-         */
-        asPromise<T>(): Promise<T>;
         private _getCalculatedAnchor();
         /**
          * Called by the Engine, updates the state of the actor
@@ -3917,17 +3766,6 @@ declare module ex {
         constructor(actor: Actor, other: Actor, side: Side, intersection: Vector);
     }
     /**
-     * Event thrown on a game object on Excalibur update, this is equivalent to postupdate.
-     * @obsolete Please use [[PostUpdateEvent|postupdate]], or [[PreUpdateEvent|preupdate]].
-     */
-    class UpdateEvent extends GameEvent {
-        delta: number;
-        /**
-         * @param delta  The number of milliseconds since the last update
-         */
-        constructor(delta: number);
-    }
-    /**
      * Event thrown on an [[Actor]] only once before the first update call
      */
     class InitializeEvent extends GameEvent {
@@ -4035,13 +3873,13 @@ declare module ex {
      * }
      *
      * // add a subscription
-     * vent.subscribe("someevent", subscription);
+     * vent.on("someevent", subscription);
      *
      * // publish an event somewhere in the game
      * vent.emit("someevent", new ex.GameEvent());
      * ```
      */
-    class EventDispatcher {
+    class EventDispatcher implements IEvented {
         private _handlers;
         private _wiredEventDispatchers;
         private _target;
@@ -4051,15 +3889,7 @@ declare module ex {
          */
         constructor(target: any);
         /**
-         * Publish an event for target
-         * @param eventName  The name of the event to publish
-         * @param event      Optionally pass an event data object to the handler
-         *
-         * @obsolete Use [[emit]] instead.
-         */
-        publish(eventName: string, event?: GameEvent): void;
-        /**
-         * Alias for [[publish]], publishes an event for target
+         * Emits an event for target
          * @param eventName  The name of the event to publish
          * @param event      Optionally pass an event data object to the handler
          */
@@ -4069,7 +3899,7 @@ declare module ex {
          * @param eventName  The name of the event to subscribe to
          * @param handler    The handler callback to fire on this event
          */
-        subscribe(eventName: string, handler: (event?: GameEvent) => void): void;
+        on(eventName: string, handler: (event?: GameEvent) => void): void;
         /**
          * Unsubscribe an event handler(s) from an event. If a specific handler
          * is specified for an event, only that handler will be unsubscribed.
@@ -4079,7 +3909,7 @@ declare module ex {
          * @param handler    Optionally the specific handler to unsubscribe
          *
          */
-        unsubscribe(eventName: string, handler?: (event?: GameEvent) => void): void;
+        off(eventName: string, handler?: (event?: GameEvent) => void): void;
         /**
          * Wires this event dispatcher to also recieve events from another
          */
@@ -6983,19 +6813,13 @@ declare module ex {
         private _loader;
         private _isLoading;
         /**
+         * Default [[IEngineOptions]]
+         */
+        private static _DefaultEngineOptions;
+        /**
          * Creates a new game using the given [[IEngineOptions]]
          */
-        constructor(options: IEngineOptions);
-        /**
-         * Creates a new game with the given options
-         * @param width            The width in pixels of the Excalibur game viewport
-         * @param height           The height in pixels of the Excalibur game viewport
-         * @param canvasElementId  If this is not specified, then a new canvas will be created and inserted into the body.
-         * @param displayMode      If this is not specified, then it will fall back to fixed if a height and width are specified, else the
-         * display mode will be FullScreen.
-         * @obsolete Use [[Engine.constructor]] with [[IEngineOptions]]
-         */
-        constructor(width?: number, height?: number, canvasElementId?: string, displayMode?: DisplayMode);
+        constructor(options?: IEngineOptions);
         /**
          * Plays a sprite animation on the screen at the specified `x` and `y`
          * (in game coordinates, not screen pixels). These animations play
@@ -7008,26 +6832,6 @@ declare module ex {
          * @param y          y game coordinate to play the animation
          */
         playAnimation(animation: Animation, x: number, y: number): void;
-        /**
-         * Adds an actor to the [[currentScene]] of the game. This is synonymous
-         * to calling `engine.currentScene.addChild(actor)`.
-         *
-         * Actors can only be drawn if they are a member of a scene, and only
-         * the [[currentScene]] may be drawn or updated.
-         *
-         * @param actor  The actor to add to the [[currentScene]]
-         *
-         * @obsolete Use [[add]] instead.
-         */
-        addChild(actor: Actor): void;
-        /**
-         * Removes an actor from the [[currentScene]] of the game. This is synonymous
-         * to calling `engine.currentScene.removeChild(actor)`.
-         * Actors that are removed from a scene will no longer be drawn or updated.
-         *
-         * @param actor  The actor to remove from the [[currentScene]].
-         */
-        removeChild(actor: Actor): void;
         /**
          * Adds a [[TileMap]] to the [[currentScene]], once this is done the TileMap
          * will be drawn and updated.
@@ -7131,6 +6935,24 @@ declare module ex {
          * @param uiActor  The UIActor to remove from the [[currentScene]]
          */
         remove(uiActor: UIActor): void;
+        /**
+         * Adds an actor to the [[currentScene]] of the game. This is synonymous
+         * to calling `engine.currentScene.add(actor)`.
+         *
+         * Actors can only be drawn if they are a member of a scene, and only
+         * the [[currentScene]] may be drawn or updated.
+         *
+         * @param actor  The actor to add to the [[currentScene]]
+         */
+        protected addChild(actor: Actor): void;
+        /**
+         * Removes an actor from the [[currentScene]] of the game. This is synonymous
+         * to calling `engine.currentScene.remove(actor)`.
+         * Actors that are removed from a scene will no longer be drawn or updated.
+         *
+         * @param actor  The actor to remove from the [[currentScene]].
+         */
+        protected removeChild(actor: Actor): void;
         /**
          * Changes the currently updating and drawing scene to a different,
          * named scene. Calls the [[Scene]] lifecycle events.

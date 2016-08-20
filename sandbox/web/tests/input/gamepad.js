@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var game = new ex.Engine(800, 503, "game");
+var game = new ex.Engine({ width: 800, height: 503, canvasElementId: "game" });
 var padTexture = new ex.Texture("gamepad.png");
 game.backgroundColor = ex.Color.White;
 game.start(new ex.Loader([padTexture])).then(start);

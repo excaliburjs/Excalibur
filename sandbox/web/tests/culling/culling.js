@@ -1,8 +1,9 @@
+/// <reference path="../../../../dist/Excalibur.d.ts" />
 var width = 600;
 var height = 400;
 var playerTexture = new ex.Texture("culling-sprite.png");
 var speed = 100;
-var engine = new ex.Engine(width, height, 'game');
+var engine = new ex.Engine({ width: width, height: height, canvasElementId: 'game' });
 engine.backgroundColor = ex.Color.Black;
 var player = new ex.Actor(width / 2, height / 2, 30, 30, ex.Color.Red);
 var playerSprite = playerTexture.asSprite();

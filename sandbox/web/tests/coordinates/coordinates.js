@@ -56,8 +56,8 @@ var PointLabel = (function (_super) {
         _super.prototype.update.call(this, engine, delta);
         var xx = this.point.expectedX;
         var xy = this.point.expectedY;
-        var ax = this.point.getWorldX();
-        var ay = this.point.getWorldY();
+        var ax = this.point.getWorldPos().x;
+        var ay = this.point.getWorldPos().y;
         this._expectLabel.text = "(" + xx + ", " + xy + ")";
         this._actualLabel.text = "(" + ax + ", " + ay + ")";
         // actual !== expected
