@@ -916,13 +916,6 @@ module ex {
        return Math.sqrt(Math.pow(this.pos.x - actor.pos.x, 2) + Math.pow(this.pos.y - actor.pos.y, 2)) <= distance;
     }      
     /**
-     * Clears all queued actions from the Actor
-     * @obsolete Use [[ActionContext.clearActions|Actor.actions.clearActions]]
-     */
-    public clearActions(): void {
-       this.actionQueue.clearActions();
-    }
-    /**
      * This method will move an actor to the specified `x` and `y` position over the 
      * specified duration using a given [[EasingFunctions]] and return back the actor. This 
      * method is part of the actor 'Action' fluent API allowing action chaining.
