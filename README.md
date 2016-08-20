@@ -33,7 +33,7 @@ Compiled examples can be found [in the Excalibur Samples](http://excaliburjs.com
 
 # Contributing
 
-Please view the [Contributing guidelines](CONTRIBUTING.md). If you spot a bug, have a question, or want to contribute, please open a GitHub issue!
+Please view the [Contributing guidelines](.github/CONTRIBUTING.md). If you spot a bug, have a question, or want to contribute, please open a GitHub issue!
 
 ## Environment Setup
 

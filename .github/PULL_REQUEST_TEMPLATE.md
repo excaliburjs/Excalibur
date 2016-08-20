@@ -1,5 +1,6 @@
 Closes #
 
-Proposed Changes:
+## Proposed Changes:
+
 - change 1
 - change 2
