@@ -35,6 +35,40 @@ Compiled examples can be found [in the Excalibur Samples](http://excaliburjs.com
 
 Please view the [Contributing guidelines](CONTRIBUTING.md). If you spot a bug, have a question, or want to contribute, please open a GitHub issue!
 
+## Environment Setup
+
+The Excalibur.js team primarily uses [Visual Studio Code](http://code.visualstudio.com) as a platform agnostic editor to
+allow the widest contributions possible. You can always use your own preferred editor of choice.
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (4.x+) & npm
+- [Grunt.js](http://gruntjs.com/)
+  - `npm install grunt-cli -g`
+
+After cloning the repository, install the dependencies:
+
+    npm install grunt-cli -g
+    npm install
+
+You can then run the grunt tasks for various purposes:
+
+    # Run compilation, linting, and all unit & visual tests
+    # Recommend to do this before finalizing pull requests
+    grunt
+
+    # Run engine core compilation only
+    grunt compile
+
+    # Run engine compilation & tests only
+    grunt tests    
+
+    # Run sandbox compilation only
+    grunt sample
+
+    # Run visual tests compilation only
+    grunt visual
+
 # License
 
 Excalibur is open source and operates under the 2 clause BSD license:
