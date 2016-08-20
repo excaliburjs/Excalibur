@@ -533,7 +533,7 @@ describe('A game actor', () => {
       expect(actor.visible).toBe(true);
       actor.actions.blink(200, 200).repeatForever();
 		
-      for(var i = 0; i < 2; i++) {
+      for (var i = 0; i < 2; i++) {
          actor.update(engine, 200);
          expect(actor.visible).toBe(false);
 
@@ -628,7 +628,7 @@ describe('A game actor', () => {
 
       actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeatForever();
 
-      for(var i = 0; i < 20; i++) {
+      for (var i = 0; i < 20; i++) {
          actor.update(engine, 1000);
          expect(actor.pos.x).toBe(10);
          expect(actor.pos.y).toBe(0);
@@ -821,7 +821,7 @@ describe('A game actor', () => {
 
       actor.actions.clearActions();
 
-      for(var i = 0; i < 20; i++) {
+      for (var i = 0; i < 20; i++) {
          actor.update(engine, 1000);
          expect(actor.pos.x).toBe(10);
          expect(actor.pos.y).toBe(0);
@@ -838,7 +838,7 @@ describe('A game actor', () => {
       // actor.update(engine, 1000);
       // expect(actor.pos.x).toBe(actorToFollow.x);
 
-      for(var i = 1; i < 10; i++) {
+      for (var i = 1; i < 10; i++) {
          // actor.follow(actorToFollow);
          actorToFollow.update(engine, 1000);
          actor.update(engine, 1000);
@@ -856,7 +856,7 @@ describe('A game actor', () => {
       actorToMeet.actions.moveTo(100, 0, 10);
       actor.actions.meet(actorToMeet);
 
-      for(var i = 0; i < 9; i++) {
+      for (var i = 0; i < 9; i++) {
          actorToMeet.update(engine, 1000);
          actor.update(engine, 1000);
          expect(actor.pos.x).toBe(actorToMeet.pos.x - 10);
@@ -1020,7 +1020,7 @@ describe('A game actor', () => {
       expect(fixed.pos.y).toBe(50);
 	  
       // update many times for safety
-      for(var i = 0; i < 40; i++) {
+      for (var i = 0; i < 40; i++) {
          scene.update(engine, 100);
       }
 	 	  

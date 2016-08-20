@@ -62,21 +62,21 @@ module ex {
       public test(): boolean {			
          // Critical test will for ex not to run
          var failedCritical = false;
-         for(var test in this._criticalTests) {
-            if(!this._criticalTests[test]()) {
+         for (var test in this._criticalTests) {
+            if (!this._criticalTests[test]()) {
                this.failedTests.push(test);
                ex.Logger.getInstance().error('Critical browser feature missing, Excalibur requires:', 
                   test);
                failedCritical = true;
             }
          }
-         if(failedCritical) {
+         if (failedCritical) {
             return false;
          }
          
          // Warning tests do not for ex to return false to compatibility
-         for(var warning in this._warningTest) {
-            if(!this._warningTest[warning]()) {
+         for (var warning in this._warningTest) {
+            if (!this._warningTest[warning]()) {
                ex.Logger.getInstance().warn('Warning browser feature missing, Excalibur will have reduced performance:', 
                   warning);
             }

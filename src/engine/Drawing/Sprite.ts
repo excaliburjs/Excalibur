@@ -113,7 +113,7 @@ module ex {
        * @param sheight The height of the sprite in pixels
        */
       constructor(image: Texture, public sx: number, public sy: number, public swidth: number, public sheight: number) {
-         if(sx < 0 || sy < 0 || swidth < 0 || sheight < 0) {
+         if (sx < 0 || sy < 0 || swidth < 0 || sheight < 0) {
             this.logger.error('Sprite cannot have any negative dimensions x:', 
                                sx, 'y:', sy, 'width:', swidth, 'height:', sheight);            
          }
@@ -139,16 +139,16 @@ module ex {
       }
 
       private _loadPixels() {
-         if(this._texture.isLoaded() && !this._pixelsLoaded) {
+         if (this._texture.isLoaded() && !this._pixelsLoaded) {
             var clamp = ex.Util.clamp;
             var naturalWidth = this._texture.image.naturalWidth || 0;
             var naturalHeight = this._texture.image.naturalHeight || 0;
 
-            if(this.swidth > naturalWidth) {
+            if (this.swidth > naturalWidth) {
                this.logger.warn('The sprite width', this.swidth, 'exceeds the width', 
                                 naturalWidth, 'of the backing texture', this._texture.path);
             }            
-            if(this.sheight > naturalHeight) {
+            if (this.sheight > naturalHeight) {
                this.logger.warn('The sprite height', this.sheight, 'exceeds the height', 
                                 naturalHeight, 'of the backing texture', this._texture.path);
             }
@@ -295,9 +295,9 @@ module ex {
          var i = 0, x = 0, y = 0, len = this.effects.length;
          for (i; i < len; i++) {
             y = 0;
-            for(y; y < this.sheight; y++) {
+            for (y; y < this.sheight; y++) {
                x = 0;
-               for(x; x < this.swidth; x++) {
+               for (x; x < this.swidth; x++) {
                   this.effects[i].updatePixel(x, y, this._pixelData);
                }
             }

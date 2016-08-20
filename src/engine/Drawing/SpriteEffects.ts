@@ -66,7 +66,7 @@ module ex {
         updatePixel(x: number, y: number, imageData: ImageData): void {
            var firstPixel = (x + y * imageData.width) * 4;
            var pixel = imageData.data;
-           if(pixel[firstPixel + 3] !== 0) {
+           if (pixel[firstPixel + 3] !== 0) {
               pixel[firstPixel + 3] = Math.round(this.opacity * 255);
            }
         }
@@ -84,7 +84,7 @@ module ex {
         updatePixel(x: number, y: number, imageData: ImageData): void {
            var firstPixel = (x + y * imageData.width) * 4;
            var pixel = imageData.data;
-           if(pixel[firstPixel + 3] !== 0) {
+           if (pixel[firstPixel + 3] !== 0) {
               pixel[firstPixel + 0] = (pixel[firstPixel + 0] + this.color.r) / 2;
               pixel[firstPixel + 1] = (pixel[firstPixel + 1] + this.color.g) / 2;
               pixel[firstPixel + 2] = (pixel[firstPixel + 2] + this.color.b) / 2;
@@ -194,7 +194,7 @@ module ex {
         updatePixel(x: number, y: number, imageData: ImageData): void {
            var firstPixel = (x + y * imageData.width) * 4;
            var pixel = imageData.data;
-           if(pixel[firstPixel + 3] !== 0) {
+           if (pixel[firstPixel + 3] !== 0) {
               pixel[firstPixel + 0] = this.color.r;
               pixel[firstPixel + 1] = this.color.g;
               pixel[firstPixel + 2] = this.color.b;

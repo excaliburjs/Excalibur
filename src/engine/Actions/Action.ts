@@ -229,23 +229,23 @@ module ex.Internal.Actions {
       }
 
       public update(delta : number) : void {
-         if(!this._started) {
+         if (!this._started) {
             this._started = true;
             this._distanceBetween = this._current.distance(this._end);
             this._dir = this._end.sub(this._current).normalize();
          }
-            
-            var actorToFollowSpeed = Math.sqrt(Math.pow(this._actorToFollow.vel.x, 2) + Math.pow(this._actorToFollow.vel.y, 2));
-            if (actorToFollowSpeed !== 0) {
-               this._speed = actorToFollowSpeed;
-            }
-            this._current.x = this._actor.pos.x;
-            this._current.y = this._actor.pos.y;
+         
+         var actorToFollowSpeed = Math.sqrt(Math.pow(this._actorToFollow.vel.x, 2) + Math.pow(this._actorToFollow.vel.y, 2));
+         if (actorToFollowSpeed !== 0) {
+            this._speed = actorToFollowSpeed;
+         }
+         this._current.x = this._actor.pos.x;
+         this._current.y = this._actor.pos.y;
 
-            this._end.x = this._actorToFollow.pos.x;
-            this._end.y = this._actorToFollow.pos.y;
-            this._distanceBetween = this._current.distance(this._end);
-            this._dir = this._end.sub(this._current).normalize();
+         this._end.x = this._actorToFollow.pos.x;
+         this._end.y = this._actorToFollow.pos.y;
+         this._distanceBetween = this._current.distance(this._end);
+         this._dir = this._end.sub(this._current).normalize();
 
          if (this._distanceBetween >= this._maximumDistance) {
             var m = this._dir.scale(this._speed);

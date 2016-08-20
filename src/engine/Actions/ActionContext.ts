@@ -162,13 +162,14 @@ module ex {
                     y: number,
                     duration: number,
                     easingFcn: EasingFunction = ex.EasingFunctions.Linear) {
-       var i = 0, len = this._queues.length;
-       for(i; i < len; i++) {
+
+         var i = 0, len = this._queues.length;
+         
+         for (i; i < len; i++) {
             this._queues[i].add(new ex.Internal.Actions.EaseTo(this._actors[i], x, y, duration, easingFcn));
-       }
-       
-       return this;
-       
+         }
+         
+         return this;       
       }
 
       /**

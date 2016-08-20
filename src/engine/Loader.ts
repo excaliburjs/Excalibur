@@ -147,7 +147,9 @@ module ex {
          });
 
          function loadNext(list, index) {
-            if(!list[index]) { return; }
+            if (!list[index]) { 
+               return; 
+            }
             list[index].load().then(function() {
                loadNext(list, index + 1);
             });
