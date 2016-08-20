@@ -37,7 +37,8 @@ module.exports = function (grunt) {
                     '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
                     '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
                     '* Copyright (c) <%= grunt.template.today("yyyy") %> Excalibur.js <<%= pkg.author %>>;' +
-                    ' Licensed <%= pkg.license %>*/\n'
+                    ' Licensed <%= pkg.license %>*/\n' +
+                    'var EX_VERSION = "<%= version %>";\n'
          }
       },
 
@@ -78,7 +79,7 @@ module.exports = function (grunt) {
          // Execute TypeScript compiler against Excalibur core
          //
          tsc: {
-            command: '<%= tscCmd %> -t ES5 --sourcemap --declaration "./src/engine/Engine.ts" --out "./dist/<%= pkg.name %>-<%= version %>.js"',
+            command: '<%= tscCmd %> --sourcemap --declaration --target ES5 "./src/engine/Engine.ts" --out "./dist/<%= pkg.name %>-<%= version %>.js"',               
             options: {
                stdout: true,
                failOnError: true
@@ -103,7 +104,8 @@ module.exports = function (grunt) {
          specs: {
             command: function () {
             	var files = grunt.file.expand("./src/spec/*.ts");
-            	return '<%= tscCmd %> -t ES5 --sourceMap ' + files.join(' ') + ' --out ./src/spec/TestsSpec.js'
+
+            	return '<%= tscCmd %> --target ES5 ' + files.join(' ') + ' --out ./src/spec/TestsSpec.js'
             },
             options: {
                stdout: true,

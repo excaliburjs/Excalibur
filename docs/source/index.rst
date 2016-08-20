@@ -1,7 +1,7 @@
 Excalibur.js
 ============
 
-.. image:: assets/excalibur-title-dark.png
+.. image:: assets/logo.png
    :width: 300
 
 |
@@ -38,7 +38,7 @@ so we can feature you in our online gallery.
    :maxdepth: 1
    :caption: API Documentation
    
-   edge (master) <http://excaliburjs.com/docs/api/edge/modules/ex.html>
+   edge (master) <http://excaliburjs.com/docs/api/edge/index.html>
    v0.6.0 (stable) <http://excaliburjs.com/docs/api/v0.6.0/modules/ex.html>
    
 .. toctree::
@@ -74,7 +74,7 @@ bug, report it on the `GitHub issues page <https://github.com/excaliburjs/Excali
 Samples
 -------
 
-Compiled examples can be found `in the Excalibur Showcase <http://excaliburjs.com/showcase/>`_.
+Compiled examples can be found `in the Excalibur Samples <http://excaliburjs.com/samples/>`_.
 
 Contributing
 ------------

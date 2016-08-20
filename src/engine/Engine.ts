@@ -3,6 +3,7 @@
 /// <reference path="EventDispatcher.ts" />
 /// <reference path="Class.ts" />
 /// <reference path="Drawing/Color.ts" />
+/// <reference path="Drawing/Polygon.ts" />
 /// <reference path="Util/Log.ts" />
 /// <reference path="Resources/Resource.ts" />
 /// <reference path="Resources/Texture.ts" />
@@ -21,7 +22,6 @@
 /// <reference path="Promises.ts" />
 /// <reference path="Util/Util.ts" />
 /// <reference path="Util/Detector.ts" />
-/// <reference path="Binding.ts" />
 /// <reference path="TileMap.ts" />
 /// <reference path="Label.ts" />
 /// <reference path="PostProcessing/IPostProcessor.ts"/>
@@ -30,6 +30,7 @@
 /// <reference path="Input/Keyboard.ts"/>
 /// <reference path="Input/Gamepad.ts"/>
 
+declare var EX_VERSION: string;
 
 /**
  * # Welcome to the Excalibur API
@@ -114,7 +115,6 @@
  * - [[Timer|Timers]]
  */
 module ex {
-
    /**
     * Defines the available options to configure the Excalibur engine at constructor time.
     */
@@ -416,44 +416,22 @@ module ex {
       private _isLoading: boolean = false;
 
       /**
+       * Default [[IEngineOptions]]
+       */
+      private static _DefaultEngineOptions: IEngineOptions = {
+         width: 0, 
+         height: 0, 
+         canvasElementId: ''
+      };
+
+      /**
        * Creates a new game using the given [[IEngineOptions]]
        */
-      constructor(options: IEngineOptions);
-      /**
-       * Creates a new game with the given options
-       * @param width            The width in pixels of the Excalibur game viewport
-       * @param height           The height in pixels of the Excalibur game viewport
-       * @param canvasElementId  If this is not specified, then a new canvas will be created and inserted into the body.
-       * @param displayMode      If this is not specified, then it will fall back to fixed if a height and width are specified, else the 
-       * display mode will be FullScreen.
-       * @obsolete Use [[Engine.constructor]] with [[IEngineOptions]]
-       */
-      constructor(width?: number, height?: number, canvasElementId?: string, displayMode?: DisplayMode);
-      /**
-       * @internal
-       */
-      constructor(args: any) {
-
+      constructor(options?: IEngineOptions) {
          super();
-         var width: number;
-         var height: number;
-         var canvasElementId: string;
-         var displayMode: DisplayMode;
-         var options: IEngineOptions = null;
-
-         if (typeof arguments[0] === 'number') {
-            width = <number>arguments[0];
-            height = <number>arguments[1];
-            canvasElementId = <string>arguments[2];
-            displayMode = <DisplayMode>arguments[3];
-         } else {
-            options = <IEngineOptions>arguments[0] || {width: 0, height: 0, canvasElementId: '', displayMode: DisplayMode.FullScreen};
-            width = options.width;
-            height = options.height;
-            canvasElementId = options.canvasElementId;
-            displayMode = options.displayMode;
-         }
          
+         options = Util.extend({}, Engine._DefaultEngineOptions, options);
+
          // Check compatibility 
          var detector = new ex.Detector();
          if(!(this._compatible = detector.test())) {
@@ -467,8 +445,8 @@ module ex {
                document.body.appendChild(testMessage);
             });
             
-            if(canvasElementId) {
-               var canvas = document.getElementById(canvasElementId);
+            if(options.canvasElementId) {
+               var canvas = document.getElementById(options.canvasElementId);
                if(canvas) {
                   canvas.parentElement.removeChild(canvas);
                }
@@ -476,33 +454,41 @@ module ex {
             
             return;
          }
-         
+                  
+         // Use native console API for color fun
+         if (console.log) {                 
+            console.log(`%cPowered by Excalibur.js (v${EX_VERSION})`, 
+               'background: #176BAA; color: white; border-radius: 5px; padding: 15px; font-size: 1.5em; line-height: 80px;');
+            console.log('\n\
+      /| ________________\n\
+O|===|* >________________>\n\
+      \\|');
+            console.log('Visit', 'http://excaliburjs.com', 'for more information');
+         }
+
          this._logger = Logger.getInstance();
-         
-         this._logger.info('Powered by Excalibur.js visit", "http://excaliburjs.com", "for more information.');
-         
          this._logger.debug('Building engine...');
 
-         this.canvasElementId = canvasElementId;
+         this.canvasElementId = options.canvasElementId;
 
-         if (canvasElementId) {
-            this._logger.debug('Using Canvas element specified: ' + canvasElementId);
-            this.canvas = <HTMLCanvasElement>document.getElementById(canvasElementId);
+         if (options.canvasElementId) {
+            this._logger.debug('Using Canvas element specified: ' + options.canvasElementId);
+            this.canvas = <HTMLCanvasElement>document.getElementById(options.canvasElementId);
          } else {
             this._logger.debug('Using generated canvas element');
             this.canvas = <HTMLCanvasElement>document.createElement('canvas');
          }
-         if (width && height) {
-            if (displayMode === undefined) {
+         if (options.width && options.height) {
+            if (options.displayMode === undefined) {
                this.displayMode = DisplayMode.Fixed;
             }
-            this._logger.debug('Engine viewport is size ' + width + ' x ' + height);
-            this.width = width; 
-            this.canvas.width = width;
-            this.height = height; 
-            this.canvas.height = height;
+            this._logger.debug('Engine viewport is size ' + options.width + ' x ' + options.height);
+            this.width = options.width; 
+            this.canvas.width = options.width;
+            this.height = options.height; 
+            this.canvas.height = options.height;
 
-         } else if (!displayMode) {
+         } else if (!options.displayMode) {
             this._logger.debug('Engine viewport is fullscreen');
             this.displayMode = DisplayMode.FullScreen;
          }
@@ -532,33 +518,7 @@ module ex {
       public playAnimation(animation: Animation, x: number, y: number) {
          this._animations.push(new AnimationNode(animation, x, y));
       }
-
-      /**
-       * Adds an actor to the [[currentScene]] of the game. This is synonymous
-       * to calling `engine.currentScene.addChild(actor)`.
-       *
-       * Actors can only be drawn if they are a member of a scene, and only
-       * the [[currentScene]] may be drawn or updated.
-       *
-       * @param actor  The actor to add to the [[currentScene]]
-       * 
-       * @obsolete Use [[add]] instead.
-       */
-      public addChild(actor: Actor) {
-         this.currentScene.addChild(actor);
-      }
-
-      /**
-       * Removes an actor from the [[currentScene]] of the game. This is synonymous
-       * to calling `engine.currentScene.removeChild(actor)`.
-       * Actors that are removed from a scene will no longer be drawn or updated.
-       *
-       * @param actor  The actor to remove from the [[currentScene]].      
-       */
-      public removeChild(actor: Actor) {
-         this.currentScene.removeChild(actor);
-      }
-
+      
       /**
        * Adds a [[TileMap]] to the [[currentScene]], once this is done the TileMap 
        * will be drawn and updated.
@@ -677,7 +637,7 @@ module ex {
             return;
          } 
          if (entity instanceof Actor) {
-            this.addChild(entity);
+            this._addChild(entity);
          }
          if (entity instanceof Timer) {
             this.addTimer(entity);
@@ -730,7 +690,7 @@ module ex {
             return;
          } 
          if (entity instanceof Actor) {
-            this.removeChild(entity);
+            this._removeChild(entity);
          }
          if (entity instanceof Timer) {
             this.removeTimer(entity);
@@ -749,6 +709,29 @@ module ex {
          }
       }
 
+      /**
+       * Adds an actor to the [[currentScene]] of the game. This is synonymous
+       * to calling `engine.currentScene.add(actor)`.
+       *
+       * Actors can only be drawn if they are a member of a scene, and only
+       * the [[currentScene]] may be drawn or updated.
+       *
+       * @param actor  The actor to add to the [[currentScene]]       
+       */
+      protected _addChild(actor: Actor) {
+         this.currentScene.add(actor);
+      }
+
+      /**
+       * Removes an actor from the [[currentScene]] of the game. This is synonymous
+       * to calling `engine.currentScene.remove(actor)`.
+       * Actors that are removed from a scene will no longer be drawn or updated.
+       *
+       * @param actor  The actor to remove from the [[currentScene]].      
+       */
+      protected _removeChild(actor: Actor) {
+         this.currentScene.remove(actor);
+      }
 
       /**
        * Changes the currently updating and drawing scene to a different,
@@ -979,7 +962,8 @@ module ex {
          this.input.gamepads.update(delta);
 
          // Publish update event
-         this.eventDispatcher.emit('update', new UpdateEvent(delta));
+         // TODO: Obsolete `update` event on Engine
+         this.eventDispatcher.emit('update', new PostUpdateEvent(this, delta, this));
          this.emit('postupdate', new PostUpdateEvent(this, delta, this));
       }
 

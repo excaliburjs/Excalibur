@@ -41,7 +41,7 @@ module ex {
       public scale = new Vector(1, 1);
 
       /**
-       * @param points  The points to use to build the polygon in order
+       * @param points  The vectors to use to build the polygon in order
        */
       constructor(points: Vector[]) {
          this._points = points;

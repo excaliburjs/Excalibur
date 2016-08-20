@@ -198,20 +198,6 @@ module ex {
    }
 
    /**
-    * Event thrown on a game object on Excalibur update, this is equivalent to postupdate.
-    * @obsolete Please use [[PostUpdateEvent|postupdate]], or [[PreUpdateEvent|preupdate]]. 
-    */
-   export class UpdateEvent extends GameEvent {
-
-      /**
-       * @param delta  The number of milliseconds since the last update
-       */
-      constructor(public delta: number) {
-         super();
-      }
-   }
-
-   /**
     * Event thrown on an [[Actor]] only once before the first update call
     */
    export class InitializeEvent extends GameEvent {

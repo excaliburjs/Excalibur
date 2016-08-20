@@ -7,7 +7,7 @@ describe('A game actor', () => {
    var actor: ex.Actor;
    
    var engine;
-   var scene;
+   var scene: ex.Scene;
    var mock = new Mocks.Mocker();
 
    beforeEach(() => {
@@ -213,8 +213,8 @@ describe('A game actor', () => {
          otherCalled = 'other';
       });
 
-      scene.addChild(actor);
-      scene.addChild(other);
+      scene.add(actor);
+      scene.add(other);
       scene.update(engine, 20);
       scene.update(engine, 20);
 
@@ -226,7 +226,7 @@ describe('A game actor', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.moveTo(100, 0, 100);
+      actor.actions.moveTo(100, 0, 100);
       actor.update(engine, 500);
 
       expect(actor.pos.x).toBe(50);
@@ -241,7 +241,7 @@ describe('A game actor', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.moveBy(100, 0,  2000);
+      actor.actions.moveBy(100, 0,  2000);
 
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(50);
@@ -311,7 +311,7 @@ describe('A game actor', () => {
       expect(actor.rx).toBe(0);
 
       // rotating back to 0, starting at PI / 2
-      actor.rotateTo(0, Math.PI / 2, ex.RotationType.CounterClockwise);
+      actor.actions.rotateTo(0, Math.PI / 2, ex.RotationType.CounterClockwise);
       actor.update(engine, 1000);
       expect(actor.rotation).toBe(0);
 
@@ -395,11 +395,112 @@ describe('A game actor', () => {
       expect(actor.rx).toBe(0);
    });
 
+   it('is rotated along with its parent', () => {
+      var rotation = ex.Util.toRadians(90);
+
+      actor.pos.setTo(10, 10);
+      actor.rotation = rotation;
+
+      var child = new ex.Actor(10, 0, 10, 10); // (20, 10)
+
+      actor.add(child);
+      actor.update(engine, 100);
+
+      expect(child.getWorldPos().x).toBeCloseTo(10, 0.001);
+      expect(child.getWorldPos().y).toBeCloseTo(20, 0.001);
+   });
+
+   it('is rotated along with its grandparent', () => {
+      var rotation = ex.Util.toRadians(90);
+
+      actor.pos.setTo(10, 10);
+      actor.rotation = rotation;
+
+      var child = new ex.Actor(10, 0, 10, 10); // (20, 10)
+      var grandchild = new ex.Actor(10, 0, 10, 10); // (30, 10)
+
+      actor.add(child);
+      child.add(grandchild);
+      actor.update(engine, 100);
+
+      expect(grandchild.getWorldRotation()).toBe(rotation);
+      expect(grandchild.getWorldPos().x).toBeCloseTo(10, 0.001);
+      expect(grandchild.getWorldPos().y).toBeCloseTo(30, 0.001);
+   });
+
+   it('is scaled along with its parent', () => {
+      actor.anchor.setTo(0, 0);
+      actor.pos.setTo(10, 10);
+      actor.scale.setTo(2, 2);
+
+      var child = new ex.Actor(10, 10, 10, 10);
+
+      actor.add(child);
+      actor.update(engine, 100);
+
+      expect(child.getWorldPos().x).toBe(30);
+      expect(child.getWorldPos().y).toBe(30);
+   });
+
+   it('is scaled along with its grandparent', () => {
+      actor.anchor.setTo(0, 0);
+      actor.pos.setTo(10, 10);
+      actor.scale.setTo(2, 2);
+
+      var child = new ex.Actor(10, 10, 10, 10);
+      var grandchild = new ex.Actor(10, 10, 10, 10);
+
+      actor.add(child);
+      child.add(grandchild);
+      actor.update(engine, 100);
+
+      // Logic:
+      // p = (10, 10)
+      // c = (10 * 2 + 10, 10 * 2 + 10) = (30, 30)
+      // gc = (10 * 2 + 30, 10 * 2 + 30) = (50, 50)
+      expect(grandchild.getWorldPos().x).toBe(50);
+      expect(grandchild.getWorldPos().y).toBe(50);
+   });
+
+   it('is rotated and scaled along with its parent', () => {
+      var rotation = ex.Util.toRadians(90);
+
+      actor.pos.setTo(10, 10);
+      actor.scale.setTo(2, 2);
+      actor.rotation = rotation;
+
+      var child = new ex.Actor(10, 0, 10, 10); // (30, 10)
+
+      actor.add(child);
+      actor.update(engine, 100);
+
+      expect(child.getWorldPos().x).toBeCloseTo(10, 0.001);
+      expect(child.getWorldPos().y).toBeCloseTo(30, 0.001);
+   });
+
+   it('is rotated and scaled along with its grandparent', () => {
+      var rotation = ex.Util.toRadians(90);
+
+      actor.pos.setTo(10, 10);
+      actor.scale.setTo(2, 2);
+      actor.rotation = rotation;
+
+      var child = new ex.Actor(10, 0, 10, 10); // (30, 10)
+      var grandchild = new ex.Actor(10, 0, 10, 10); // (50, 10)
+
+      actor.add(child);
+      child.add(grandchild);
+      actor.update(engine, 100);
+
+      expect(grandchild.getWorldPos().x).toBeCloseTo(10, 0.001);
+      expect(grandchild.getWorldPos().y).toBeCloseTo(50, 0.001);
+   });  
+
    it('can be scaled at a speed', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
 
-      actor.scaleTo(2, 4, .5, .5);
+      actor.actions.scaleTo(2, 4, .5, .5);
       actor.update(engine, 1000);
 
       expect(actor.scale.x).toBe(1.5);
@@ -418,7 +519,7 @@ describe('A game actor', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
 
-      actor.scaleBy(4, 5, 1000);
+      actor.actions.scaleBy(4, 5, 1000);
 
       actor.update(engine, 500);
       expect(actor.scale.x).toBe(2.5);
@@ -431,7 +532,7 @@ describe('A game actor', () => {
 
    it('can blink on and off', () => {
       expect(actor.visible).toBe(true);
-      actor.blink(200, 200);
+      actor.actions.blink(200, 200);
 
       actor.update(engine, 200);
       expect(actor.visible).toBe(false);
@@ -442,7 +543,7 @@ describe('A game actor', () => {
 
    it('can blink at a frequency forever', () => {
       expect(actor.visible).toBe(true);
-      actor.blink(200, 200).repeatForever();
+      actor.actions.blink(200, 200).repeatForever();
 		
       for(var i = 0; i < 2; i++) {
          actor.update(engine, 200);
@@ -459,7 +560,7 @@ describe('A game actor', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.delay(1000).moveTo(20, 0, 20);
+      actor.actions.delay(1000).moveTo(20, 0, 20);
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(0);
 
@@ -468,20 +569,20 @@ describe('A game actor', () => {
    });
 
    it('can die', () => {
-      scene.addChild(actor);
+      scene.add(actor);
       expect(scene.children.length).toBe(1);
-      actor.die();
+      actor.actions.die();
       scene.update(engine, 100);
       expect(scene.children.length).toBe(0);
    });
 
    it('can perform actions and then die', () => {
-      scene.addChild(actor);
+      scene.add(actor);
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
       expect(scene.children.length).toBe(1);
 
-      actor.moveTo(100, 0, 100).delay(1000).die();
+      actor.actions.moveTo(100, 0, 100).delay(1000).die();
       actor.update(engine, 1000);
 
       expect(actor.pos.x).toBe(100);
@@ -500,7 +601,7 @@ describe('A game actor', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.moveTo(20, 0, 10).moveTo(0, 0, 10).repeat();
+      actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeat();
 
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(10);
@@ -537,7 +638,7 @@ describe('A game actor', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.moveTo(20, 0, 10).moveTo(0, 0, 10).repeatForever();
+      actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeatForever();
 
       for(var i = 0; i < 20; i++) {
          actor.update(engine, 1000);
@@ -568,7 +669,7 @@ describe('A game actor', () => {
       actor.actions.moveTo(20, 0, 10);
       actor.update(engine, 500);
 
-      actor.clearActions();
+      actor.actions.clearActions();
       expect(actor.pos.x).toBe(5);
       expect(actor.pos.y).toBe(0);
 
@@ -585,7 +686,7 @@ describe('A game actor', () => {
       actor.actions.moveBy(20, 0, 1000);
       actor.update(engine, 500);
 
-      actor.clearActions();
+      actor.actions.clearActions();
       expect(actor.pos.x).toBe(10);
       expect(actor.pos.y).toBe(0);
 
@@ -603,7 +704,7 @@ describe('A game actor', () => {
       actor.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 4);
 
-      actor.clearActions();
+      actor.actions.clearActions();
 
       actor.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 4);
@@ -615,7 +716,7 @@ describe('A game actor', () => {
       actor.actions.rotateBy(Math.PI / 2, 2000);
 		
       actor.update(engine, 1000);
-      actor.clearActions();
+      actor.actions.clearActions();
       expect(actor.rotation).toBe(Math.PI / 4);
 
       actor.update(engine, 1000);
@@ -629,7 +730,7 @@ describe('A game actor', () => {
       actor.actions.scaleTo(2, 2, .5, .5);
       actor.update(engine, 1000);
 
-      actor.clearActions();
+      actor.actions.clearActions();
       expect(actor.scale.x).toBe(1.5);
       expect(actor.scale.y).toBe(1.5);
 
@@ -646,7 +747,7 @@ describe('A game actor', () => {
 
       actor.update(engine, 500);
 
-      actor.clearActions();
+      actor.actions.clearActions();
       expect(actor.scale.x).toBe(2.5);
       expect(actor.scale.y).toBe(2.5);
 
@@ -662,7 +763,7 @@ describe('A game actor', () => {
       actor.update(engine, 500);
       expect(actor.visible).toBe(false);
 
-      actor.clearActions();
+      actor.actions.clearActions();
 		
       actor.update(engine, 500);
       actor.update(engine, 500);
@@ -677,7 +778,7 @@ describe('A game actor', () => {
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(0);
 
-      actor.clearActions();
+      actor.actions.clearActions();
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(0);
    });
@@ -696,7 +797,7 @@ describe('A game actor', () => {
       expect(actor.pos.x).toBe(20);
       expect(actor.pos.y).toBe(0);
 
-      actor.clearActions();
+      actor.actions.clearActions();
       actor.update(engine, 1);
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(20);
@@ -730,7 +831,7 @@ describe('A game actor', () => {
       expect(actor.pos.x).toBe(10);
       expect(actor.pos.y).toBe(0);
 
-      actor.clearActions();
+      actor.actions.clearActions();
 
       for(var i = 0; i < 20; i++) {
          actor.update(engine, 1000);
@@ -792,26 +893,43 @@ describe('A game actor', () => {
 
       actor.add(childActor);
 
-      actor.moveBy(10, 15, 1000);
+      actor.actions.moveBy(10, 15, 1000);
       actor.update(engine, 1000);
 
-      expect(childActor.getWorldX()).toBe(60);
-      expect(childActor.getWorldY()).toBe(65);
+      expect(childActor.getWorldPos().x).toBe(60);
+      expect(childActor.getWorldPos().y).toBe(65);
+   });
+
+   it('can find its global coordinates if it has multiple parents', () => {
+      expect(actor.pos.x).toBe(0);
+      expect(actor.pos.y).toBe(0);
+
+      var childActor = new ex.Actor(50, 50);
+      var grandChildActor = new ex.Actor(10, 10);
+
+      actor.add(childActor);
+      childActor.add(grandChildActor);
+
+      actor.actions.moveBy(10, 15, 1000);
+      actor.update(engine, 1000);
+
+      expect(grandChildActor.getWorldPos().x).toBe(70);
+      expect(grandChildActor.getWorldPos().y).toBe(75);
    });
 
    it('can find its global coordinates if it doesn\'t have a parent', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.moveBy(10, 15, 1000);
+      actor.actions.moveBy(10, 15, 1000);
       actor.update(engine, 1000);
 
-      expect(actor.getWorldX()).toBe(10);
-      expect(actor.getWorldY()).toBe(15);
+      expect(actor.getWorldPos().x).toBe(10);
+      expect(actor.getWorldPos().y).toBe(15);
    });
 
    it('can be removed from the scene', () => {
-      scene.addChild(actor);
+      scene.add(actor);
       expect(scene.children.length).toBe(1);
       actor.kill();
       scene.update(engine, 100);
@@ -923,6 +1041,19 @@ describe('A game actor', () => {
 	  
       expect(fixed.pos.x).toBe(-100);
       expect(fixed.pos.y).toBe(50);
+   });
+
+   it('updates child actors', () => {
+      var parentActor = new ex.Actor();
+      var childActor = new ex.Actor();
+      scene.add(parentActor);
+      parentActor.add(childActor);
+      
+      spyOn(childActor, 'update');
+      
+      scene.update(engine, 100);
+      
+      expect(childActor.update).toHaveBeenCalled();
    });
    
    it('draws visible child actors', () => {

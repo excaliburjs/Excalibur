@@ -10,7 +10,8 @@ game.isDebug = true;
 ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
 ex.Physics.broadphaseDebug = true;
 
-game.currentScene.camera.setFocus(0, 0);
+game.currentScene.camera.x = 0; 
+game.currentScene.camera.y = 0;
 game.currentScene.camera.zoom(3); 
 
 function spawnCircle2(x: number, y: number, vx: number){

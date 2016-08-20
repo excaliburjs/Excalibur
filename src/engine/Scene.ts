@@ -181,7 +181,8 @@ module ex {
          super();
          this.camera = new BaseCamera();
          if(engine) {
-            this.camera.setFocus(engine.width / 2, engine.height / 2);
+            this.camera.x = engine.width / 2;
+            this.camera.y = engine.height / 2;
          }
       }
 
@@ -192,7 +193,8 @@ module ex {
       public onInitialize(engine: Engine): void {
          // will be overridden
          if (this.camera) {
-            this.camera.setFocus(engine.width / 2, engine.height / 2);
+            this.camera.x = engine.width / 2;
+            this.camera.y = engine.height / 2;
          }
          this._logger.debug('Scene.onInitialize', this, engine);
       }
@@ -223,7 +225,11 @@ module ex {
       public update(engine: Engine, delta: number) {
          this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
          var i: number, len: number;
-         
+
+         if (this.camera) {
+            this.camera.update(engine, delta);
+         }
+
          // Cycle through actors updating UI actors
          for (i = 0, len = this.uiActors.length; i < len; i++) {
             this.uiActors[i].update(engine, delta);
@@ -291,7 +297,7 @@ module ex {
          ctx.save();         
          
          if (this.camera) {
-            this.camera.update(ctx, delta);
+            this.camera.draw(ctx, delta);
          }
 
          var i: number, len: number;
@@ -397,7 +403,7 @@ module ex {
          }
          if (entity instanceof Actor) {
             if (!Util.contains(this.children, entity)) {
-               this.addChild(entity);
+               this._addChild(entity);
                this._sortedDrawingTree.add(entity);
             }
             return;
@@ -445,7 +451,7 @@ module ex {
          }
          if (entity instanceof Actor) {
             this._broadphase.remove(entity);
-            this.removeChild(entity);
+            this._removeChild(entity);
          }
          if (entity instanceof Timer) {
             this.removeTimer(entity);
@@ -478,18 +484,15 @@ module ex {
       }
 
       /**
-       * Adds an actor to the scene, once this is done the actor will be drawn and updated.
-       * 
-       * @obsolete Use [[add]] instead.
+       * Adds an actor to the scene, once this is done the actor will be drawn and updated.       
        */
-      public addChild(actor: Actor) {
+      protected _addChild(actor: Actor) {
          this._broadphase.register(actor);
          actor.scene = this;
          this.children.push(actor);
          this._sortedDrawingTree.add(actor);
          actor.parent = this.actor;
       }
-
 
       /**
        * Adds a [[TileMap]] to the scene, once this is done the TileMap will be drawn and updated.
@@ -511,7 +514,7 @@ module ex {
       /**
        * Removes an actor from the scene, it will no longer be drawn or updated.
        */
-      public removeChild(actor: Actor) {
+      protected _removeChild(actor: Actor) {
          this._broadphase.remove(actor);
          this._killQueue.push(actor);
          actor.parent = null;

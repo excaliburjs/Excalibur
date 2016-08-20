@@ -1,3 +1,4 @@
+/// <reference path="../../../../dist/Excalibur.d.ts"/>
 var width = 600;
 var height = 400;
 var playerTexture = new ex.Texture("rotation-sprite.png");
@@ -15,7 +16,7 @@ labelCurrentRotation.color = ex.Color.White;
 labelCurrentRotation.textAlign = ex.TextAlign.Center;
 labelCurrentRotation.scale = new ex.Vector(2, 2);
 engine.add(labelCurrentRotation);
-engine.on('update', function (ev) {
+engine.on('postupdate', function (ev) {
     labelCurrentRotation.text = ex.RotationType[rotationType];
 });
 var player = new ex.Actor(width / 2, height / 2, 100, 30, ex.Color.Red);
@@ -66,7 +67,7 @@ engine.input.pointers.primary.on('down', function (e) {
         !counterclockwise.contains(e.x, e.y)) {
         var vector = new ex.Vector(e.x - player.pos.x, e.y - player.pos.y);
         var angle = vector.toAngle();
-        player.rotateTo(angle, 1, rotationType);
+        player.actions.rotateTo(angle, 1, rotationType);
     }
 });
 function distance(x1, y1, x2, y2) {

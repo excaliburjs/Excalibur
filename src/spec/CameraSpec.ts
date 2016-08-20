@@ -84,12 +84,37 @@ describe('A camera', () => {
       expect(baseCamera.getFocus().x).toBe(10);
       expect(baseCamera.getFocus().y).toBe(20);
 
-      // set the focus with the legacy api
-      baseCamera.setFocus(20, 10);
+      baseCamera.x = 20;
+      baseCamera.y = 10;
 
       expect(baseCamera.getFocus().x).toBe(20);
       expect(baseCamera.getFocus().y).toBe(10);
 
+   });
+
+   it('can move to a point', () => {
+      baseCamera.x = 10;
+      baseCamera.y = 20;
+
+      // verify initial position
+      expect(baseCamera.getFocus().x).toBe(10);
+      expect(baseCamera.getFocus().y).toBe(20);
+
+      // move (1000ms)
+      baseCamera.move(new ex.Vector(20, 10), 1000);
+
+      // shouldn't have moved already
+      expect(baseCamera.getFocus().x).toBe(10);
+      expect(baseCamera.getFocus().y).toBe(20);
+
+      // wait 11 frames (1100ms)
+      for (let i = 0; i < 11; i++) {
+         baseCamera.update(engine, 100);
+      }
+
+      // should be at new position
+      expect(baseCamera.getFocus().x).toBe(20);
+      expect(baseCamera.getFocus().y).toBe(10);
    });
 
    it('cannot focus on a point if it has an actor to follow', () => {
@@ -97,7 +122,8 @@ describe('A camera', () => {
       // expect(true).toBe(false);
       engine.camera = lockedCamera;
       lockedCamera.setActorToFollow(actor);
-      lockedCamera.setFocus(100, 150);
+      lockedCamera.x = 100;
+      lockedCamera.y = 150;
 
       expect(lockedCamera.getFocus().x).toBe(255);
       expect(lockedCamera.getFocus().y).toBe(255);

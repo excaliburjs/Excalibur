@@ -8,7 +8,67 @@
  */
 module ex.Util {
    
-   export var TwoPI: number = Math.PI * 2;
+   export const TwoPI: number = Math.PI * 2;
+
+   /**
+    * Merges one or more objects into a single target object
+    * 
+    * @param deep Whether or not to do a deep clone
+    * @param target The target object to attach properties on
+    * @param objects The objects whose properties to merge
+    * @returns Merged object with properties from other objects
+    */
+   export function extend(deep: boolean, target, ...objects);
+
+   /**
+    * Merges one or more objects into a single target object
+    * 
+    * @param target The target object to attach properties on
+    * @param objects The objects whose properties to merge
+    * @returns Merged object with properties from other objects
+    */
+   export function extend(target, ...objects);
+
+   /**
+    * Merges one or more objects into a single target object
+    * 
+    * @returns Merged object with properties from other objects
+    * @credit https://gomakethings.com/vanilla-javascript-version-of-jquery-extend/
+    */   
+   export function extend() {      
+      var extended = {};
+      var deep = false;
+      var i = 0;
+      var length = arguments.length;
+
+      // Check if a deep merge
+      if (Object.prototype.toString.call(arguments[0]) === '[object Boolean]') {
+         deep = arguments[0];
+         i++;
+      }
+
+      // Merge the object into the extended object
+      var merge = function (obj) {
+         for (var prop in obj) {
+               if (Object.prototype.hasOwnProperty.call(obj, prop)) {
+                  // If deep merge and property is an object, merge properties
+                  if (deep && Object.prototype.toString.call(obj[prop]) === '[object Object]') {
+                     extended[prop] = extend(true, extended[prop], obj[prop]);
+                  } else {
+                     extended[prop] = obj[prop];
+                  }
+               }
+         }
+      };
+
+      // Loop through each object and conduct a merge
+      for (; i < length; i++ ) {
+         var obj = arguments[i];
+         merge(obj);
+      }
+
+      return extended;
+   }
 
    export function base64Encode(inputStr: string) {
       var b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
@@ -45,15 +105,6 @@ module ex.Util {
 
    export function clamp(val, min, max) {
       return val <= min ? min : (val >= max ? max : val);
-   }
-
-   export function drawLine(ctx: CanvasRenderingContext2D, color: string, startx, starty, endx, endy) {
-      ctx.beginPath();
-      ctx.strokeStyle = color;
-      ctx.moveTo(startx, starty);
-      ctx.lineTo(endx, endy);
-      ctx.closePath();
-      ctx.stroke();  
    }
 
    export function randomInRange(min: number, max: number) : number {

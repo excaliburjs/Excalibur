@@ -756,6 +756,32 @@ declare module ex {
     }
 }
 declare module ex {
+    interface IEvented {
+        /**
+         * Emits an event for target
+         * @param eventName  The name of the event to publish
+         * @param event      Optionally pass an event data object to the handler
+         */
+        emit(eventName: string, event?: GameEvent): any;
+        /**
+         * Subscribe an event handler to a particular event name, multiple handlers per event name are allowed.
+         * @param eventName  The name of the event to subscribe to
+         * @param handler    The handler callback to fire on this event
+         */
+        on(eventName: string, handler: (event?: GameEvent) => void): any;
+        /**
+         * Unsubscribe an event handler(s) from an event. If a specific handler
+         * is specified for an event, only that handler will be unsubscribed.
+         * Otherwise all handlers will be unsubscribed for that event.
+         *
+         * @param eventName  The name of the event to unsubscribe
+         * @param handler    Optionally the specific handler to unsubscribe
+         *
+         */
+        off(eventName: string, handler: (event?: GameEvent) => void): any;
+    }
+}
+declare module ex {
     /**
      * An interface describing actor update pipeline traits
      */
@@ -831,10 +857,26 @@ declare module ex {
  * Excalibur utilities for math, string manipulation, etc.
  */
 declare module ex.Util {
-    var TwoPI: number;
+    const TwoPI: number;
+    /**
+     * Merges one or more objects into a single target object
+     *
+     * @param deep Whether or not to do a deep clone
+     * @param target The target object to attach properties on
+     * @param objects The objects whose properties to merge
+     * @returns Merged object with properties from other objects
+     */
+    function extend(deep: boolean, target: any, ...objects: any[]): any;
+    /**
+     * Merges one or more objects into a single target object
+     *
+     * @param target The target object to attach properties on
+     * @param objects The objects whose properties to merge
+     * @returns Merged object with properties from other objects
+     */
+    function extend(target: any, ...objects: any[]): any;
     function base64Encode(inputStr: string): string;
     function clamp(val: any, min: any, max: any): any;
-    function drawLine(ctx: CanvasRenderingContext2D, color: string, startx: any, starty: any, endx: any, endy: any): void;
     function randomInRange(min: number, max: number): number;
     function randomIntInRange(min: number, max: number): number;
     function canonicalizeAngle(angle: number): number;
@@ -1804,30 +1846,12 @@ declare module ex {
      * Excalibur base class that provides basic functionality such as [[EventDispatcher]]
      * and extending abilities for vanilla Javascript projects
      */
-    class Class {
+    class Class implements IEvented {
         /**
          * Direct access to the game object event dispatcher.
          */
         eventDispatcher: EventDispatcher;
         constructor();
-        /**
-         * Add an event listener. You can listen for a variety of
-         * events off of the engine; see the events section below for a complete list.
-         * @param eventName  Name of the event to listen for
-         * @param handler    Event handler for the thrown event
-         * @obsolete Use [[Class.on]] instead
-         */
-        addEventListener(eventName: string, handler: (event?: GameEvent) => void): void;
-        /**
-         * Removes an event listener. If only the eventName is specified
-         * it will remove all handlers registered for that specific event. If the eventName
-         * and the handler instance are specified just that handler will be removed.
-         *
-         * @param eventName  Name of the event to listen for
-         * @param handler    Event handler for the thrown event
-         * @obsolete Use [[Class.off]] instead
-         */
-        removeEventListener(eventName: string, handler?: (event?: GameEvent) => void): void;
         /**
          * Alias for `addEventListener`. You can listen for a variety of
          * events off of the engine; see the events section below for a complete list.
@@ -1920,7 +1944,7 @@ declare module ex {
     interface ICollisionBroadphase {
         register(target: Actor): any;
         remove(tartet: Actor): any;
-        resolve(targets: Actor[], delta: number): CollisionContact[];
+        findCollisionContacts(targets: Actor[], delta: number): CollisionContact[];
         update(targets: Actor[], delta: number): number;
         debugDraw(ctx: any, delta: any): void;
     }
@@ -1929,7 +1953,7 @@ declare module ex {
     class NaiveCollisionBroadphase implements ICollisionBroadphase {
         register(target: Actor): void;
         remove(tartet: Actor): void;
-        resolve(targets: Actor[]): CollisionContact[];
+        findCollisionContacts(targets: Actor[], delta: number): CollisionContact[];
         update(targets: Actor[]): number;
         debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
     }
@@ -1972,7 +1996,7 @@ declare module ex {
         register(target: Actor): void;
         remove(target: Actor): void;
         private _canCollide(actorA, actorB);
-        resolve(targets: Actor[], delta: number): CollisionContact[];
+        findCollisionContacts(targets: Actor[], delta: number): CollisionContact[];
         update(targets: Actor[], delta: number): number;
         debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
     }
@@ -2021,22 +2045,12 @@ declare module ex {
      *
      * ## Known Issues
      *
-     * **Cameras do not support [[EasingFunctions]]**
-     * [Issue #320](https://github.com/excaliburjs/Excalibur/issues/320)
-     *
-     * Currently [[BaseCamera.lerp]] only supports `easeInOutCubic` but will support
-     * [[EasingFunctions|easing functions]] soon.
-     *
      * **Actors following a path will wobble when camera is moving**
      * [Issue #276](https://github.com/excaliburjs/Excalibur/issues/276)
      *
      */
     class BaseCamera {
         protected _follow: Actor;
-        focus: Vector;
-        lerp: boolean;
-        x: number;
-        y: number;
         z: number;
         dx: number;
         dy: number;
@@ -2046,24 +2060,43 @@ declare module ex {
         az: number;
         rotation: number;
         rx: number;
+        private _x;
+        private _y;
         private _cameraMoving;
         private _currentLerpTime;
         private _lerpDuration;
         private _totalLerpTime;
         private _lerpStart;
         private _lerpEnd;
+        private _lerpPromise;
         protected _isShaking: boolean;
         private _shakeMagnitudeX;
         private _shakeMagnitudeY;
         private _shakeDuration;
         private _elapsedShakeTime;
+        private _xShake;
+        private _yShake;
         protected _isZooming: boolean;
         private _currentZoomScale;
         private _maxZoomScale;
         private _zoomDuration;
         private _elapsedZoomTime;
         private _zoomIncrement;
-        private _easeInOutCubic(currentTime, startValue, endValue, duration);
+        private _easing;
+        /**
+         * Get the camera's x position
+         */
+        /**
+         * Set the camera's x position (cannot be set when following an [[Actor]] or when moving)
+         */
+        x: number;
+        /**
+         * Get the camera's y position
+         */
+        /**
+         * Set the camera's y position (cannot be set when following an [[Actor]] or when moving)
+         */
+        y: number;
         /**
          * Sets the [[Actor]] to follow with the camera
          * @param actor  The actor to follow
@@ -2074,12 +2107,15 @@ declare module ex {
          */
         getFocus(): Vector;
         /**
-         * Sets the focal point of the camera. This value can only be set if there is no actor to be followed.
-         * @param x The x coordinate of the focal point
-         * @param y The y coordinate of the focal point
-         * @deprecated
+         * This moves the camera focal point to the specified position using specified easing function. Cannot move when following an Actor.
+         *
+         * @param pos The target position to move to
+         * @param duration The duration in millseconds the move should last
+         * @param [easingFn] An optional easing function ([[ex.EasingFunctions.EaseInOutCubic]] by default)
+         * @returns A [[Promise]] that resolves when movement is finished, including if it's interrupted.
+         *          The [[Promise]] value is the [[Vector]] of the target position. It will be rejected if a move cannot be made.
          */
-        setFocus(x: number, y: number): void;
+        move(pos: Vector, duration: number, easingFn?: EasingFunction): IPromise<Vector>;
         /**
          * Sets the camera to shake at the specified magnitudes for the specified duration
          * @param magnitudeX  The x magnitude of the shake
@@ -2099,11 +2135,12 @@ declare module ex {
          */
         getZoom(): number;
         private _setCurrentZoomScale(zoomScale);
+        update(engine: Engine, delta: number): void;
         /**
          * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
          * @param delta  The number of milliseconds since the last update
          */
-        update(ctx: CanvasRenderingContext2D, delta: number): void;
+        draw(ctx: CanvasRenderingContext2D, delta: number): void;
         debugDraw(ctx: CanvasRenderingContext2D): void;
         private _isDoneShaking();
         private _isDoneZooming();
@@ -2594,7 +2631,7 @@ declare module ex {
          * @param duration  The time it should take the actor to move to the new location in milliseconds
          * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
          */
-        easeTo(x: number, y: number, duration: number, easingFcn?: (currentTime: number, startValue: number, endValue: number, duration: number) => number): this;
+        easeTo(x: number, y: number, duration: number, easingFcn?: EasingFunction): this;
         /**
          * This method will move an actor to the specified x and y position at the
          * speed specified (in pixels per second) and return back the actor. This
@@ -2748,7 +2785,7 @@ declare module ex {
      *
      * ```
      */
-    class Group extends Class implements IActionable {
+    class Group extends Class implements IActionable, IEvented {
         name: string;
         scene: Scene;
         private _logger;
@@ -3058,10 +3095,8 @@ declare module ex {
         removeUIActor(actor: Actor): void;
         /**
          * Adds an actor to the scene, once this is done the actor will be drawn and updated.
-         *
-         * @obsolete Use [[add]] instead.
          */
-        addChild(actor: Actor): void;
+        protected _addChild(actor: Actor): void;
         /**
          * Adds a [[TileMap]] to the scene, once this is done the TileMap will be drawn and updated.
          */
@@ -3073,7 +3108,7 @@ declare module ex {
         /**
          * Removes an actor from the scene, it will no longer be drawn or updated.
          */
-        removeChild(actor: Actor): void;
+        protected _removeChild(actor: Actor): void;
         /**
          * Adds a [[Timer]] to the scene
          * @param timer  The timer to add
@@ -3122,6 +3157,12 @@ declare module ex {
 }
 declare module ex {
     /**
+     * A definition of an EasingFunction. See [[ex.EasingFunctions]].
+     */
+    interface EasingFunction {
+        (currentTime: number, startValue: number, endValue: number, duration: number): number;
+    }
+    /**
      * Standard easing functions for motion in Excalibur, defined on a domain of [0, duration] and a range from [+startValue,+endValue]
      * Given a time, the function will return a value from postive startValue to postive endValue.
      *
@@ -3162,13 +3203,13 @@ declare module ex {
      * ```
      */
     class EasingFunctions {
-        static Linear: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
-        static EaseInQuad: (currentTime: number, startValue: number, endValue: number, duration: number) => void;
-        static EaseOutQuad: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
-        static EaseInOutQuad: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
-        static EaseInCubic: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
-        static EaseOutCubic: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
-        static EaseInOutCubic: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+        static Linear: EasingFunction;
+        static EaseInQuad: (currentTime: number, startValue: number, endValue: number, duration: number) => number;
+        static EaseOutQuad: EasingFunction;
+        static EaseInOutQuad: EasingFunction;
+        static EaseInCubic: EasingFunction;
+        static EaseOutCubic: EasingFunction;
+        static EaseInOutCubic: EasingFunction;
     }
 }
 declare module ex {
@@ -3436,7 +3477,7 @@ declare module ex {
      * [Issue #68](https://github.com/excaliburjs/Excalibur/issues/68)
      *
      */
-    class Actor extends ex.Class implements IActionable {
+    class Actor extends ex.Class implements IActionable, IEvented {
         /**
          * Indicates the next id to be set
          */
@@ -3563,7 +3604,9 @@ declare module ex {
         /**
          * The anchor to apply all actor related transformations like rotation,
          * translation, and rotation. By default the anchor is in the center of
-         * the actor.
+         * the actor. By default it is set to the center of the actor (.5, .5)
+         *
+         * An anchor of (.5, .5) will ensure that drawings are centered.
          *
          * Use `anchor.setTo` to set the anchor to a different point using
          * values between 0 and 1. For example, anchoring to the top-left would be
@@ -3638,14 +3681,13 @@ declare module ex {
         frames: {
             [key: string]: IDrawable;
         };
+        private _framesDirty;
         /**
          * Access to the current drawing for the actor, this can be
          * an [[Animation]], [[Sprite]], or [[Polygon]].
          * Set drawings with [[setDrawing]].
          */
         currentDrawing: IDrawable;
-        centerDrawingX: boolean;
-        centerDrawingY: boolean;
         /**
          * Modify the current actor update pipeline.
          */
@@ -3668,6 +3710,7 @@ declare module ex {
         capturePointer: Traits.ICapturePointerConfig;
         private _zIndex;
         private _isKilled;
+        private _opacityFx;
         /**
          * @param x       The starting x coordinate of the actor
          * @param y       The starting y coordinate of the actor
@@ -3684,15 +3727,7 @@ declare module ex {
         onInitialize(engine: Engine): void;
         private _checkForPointerOptIn(eventName);
         /**
-         * Add an event listener. You can listen for a variety of
-         * events off of the engine; see [[GameEvent]]
-         * @param eventName  Name of the event to listen for
-         * @param handler    Event handler for the thrown event
-         * @obsolete Use [[on]] instead.
-         */
-        addEventListener(eventName: string, handler: (event?: GameEvent) => void): void;
-        /**
-         * Alias for `addEventListener`. You can listen for a variety of
+         * You can listen for a variety of
          * events off of the engine; see [[GameEvent]]
          * @param eventName   Name of the event to listen for
          * @param handler     Event handler for the thrown event
@@ -3811,11 +3846,6 @@ declare module ex {
          */
         setHeight(height: any): void;
         /**
-         * Centers the actor's drawing around the center of the actor's bounding box
-         * @param center Indicates to center the drawing around the actor
-         */
-        setCenterDrawing(center: boolean): void;
-        /**
          * Gets the left edge of the actor
          */
         getLeft(): number;
@@ -3832,17 +3862,21 @@ declare module ex {
          */
         getBottom(): number;
         /**
-         * Gets the x value of the Actor in global coordinates
+         * Gets this actor's rotation taking into account any parent relationships
+         *
+         * @returns Rotation angle in radians
          */
-        getWorldX(): any;
+        getWorldRotation(): number;
         /**
-         * Gets the y value of the Actor in global coordinates
+         * Gets an actor's world position taking into account parent relationships, scaling, rotation, and translation
+         *
+         * @returns Position in world coordinates
          */
-        getWorldY(): any;
+        getWorldPos(): Vector;
         /**
          * Gets the global scale of the Actor
          */
-        getGlobalScale(): any;
+        getGlobalScale(): Vector;
         /**
          * Returns the actor's [[BoundingBox]] calculated for this instant in world space.
          */
@@ -3896,162 +3930,6 @@ declare module ex {
          * @param distance  Distance in pixels to test
          */
         within(actor: Actor, distance: number): boolean;
-        /**
-         * Clears all queued actions from the Actor
-         * @obsolete Use [[ActionContext.clearActions|Actor.actions.clearActions]]
-         */
-        clearActions(): void;
-        /**
-         * This method will move an actor to the specified `x` and `y` position over the
-         * specified duration using a given [[EasingFunctions]] and return back the actor. This
-         * method is part of the actor 'Action' fluent API allowing action chaining.
-         * @param x         The x location to move the actor to
-         * @param y         The y location to move the actor to
-         * @param duration  The time it should take the actor to move to the new location in milliseconds
-         * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
-         * @obsolete Use [[ActionContext.easeTo|Actor.actions.easeTo]]
-         */
-        easeTo(x: number, y: number, duration: number, easingFcn?: (currentTime: number, startValue: number, endValue: number, duration: number) => number): this;
-        /**
-         * This method will move an actor to the specified `x` and `y` position at the
-         * `speed` specified (in pixels per second) and return back the actor. This
-         * method is part of the actor 'Action' fluent API allowing action chaining.
-         * @param x       The x location to move the actor to
-         * @param y       The y location to move the actor to
-         * @param speed   The speed in pixels per second to move
-         * @obsolete Use [[ActionContext.moveTo|Actor.actions.moveTo]]
-         */
-        moveTo(x: number, y: number, speed: number): Actor;
-        /**
-         * This method will move an actor to the specified `x` and `y` position by a
-         * certain `duration` (in milliseconds). This method is part of the actor
-         * 'Action' fluent API allowing action chaining.
-         * @param x         The x location to move the actor to
-         * @param y         The y location to move the actor to
-         * @param duration  The time it should take the actor to move to the new location in milliseconds
-         * @obsolete Use [[ActionContext.moveBy|Actor.actions.moveBy]]
-         */
-        moveBy(x: number, y: number, duration: number): Actor;
-        /**
-         * This method will rotate an actor to the specified angle (in radians) at the `speed`
-         * specified (in radians per second) and return back the actor. This
-         * method is part of the actor 'Action' fluent API allowing action chaining.
-         * @param angleRadians  The angle to rotate to in radians
-         * @param speed         The angular velocity of the rotation specified in radians per second
-         * @obsolete Use [[ActionContext.rotateTo|Actor.actions.rotateTo]]
-         */
-        rotateTo(angleRadians: number, speed: number, rotationType?: RotationType): Actor;
-        /**
-         * This method will rotate an actor to the specified angle by a certain
-         * `duration` (in milliseconds) and return back the actor. This method is part
-         * of the actor 'Action' fluent API allowing action chaining.
-         * @param angleRadians  The angle to rotate to in radians
-         * @param duration          The time it should take the actor to complete the rotation in milliseconds
-         * @obsolete Use [[ActionContext.rotateBy|ex.Actor.actions.rotateBy]]
-         */
-        rotateBy(angleRadians: number, duration: number, rotationType?: RotationType): Actor;
-        /**
-         * This method will scale an actor to the specified size at the speed
-         * specified (in magnitude increase per second) and return back the
-         * actor. This method is part of the actor 'Action' fluent API allowing
-         * action chaining.
-         * @param sizeX  The scaling factor in the x direction to apply
-         * @param sizeY  The scaling factor in the y direction to apply
-         * @param speedX The speed of scaling in the x direction specified in magnitude increase per second
-         * @param speedY The speed of scaling in the y direction specified in magnitude increase per second
-         * @obsolete Use [[ActionContext.scaleTo|Actor.actions.scaleTo]]
-         */
-        scaleTo(sizeX: number, sizeY: number, speedX: number, speedY: number): Actor;
-        /**
-         * This method will scale an actor to the specified size by a certain duration
-         * (in milliseconds) and return back the actor. This method is part of the
-         * actor 'Action' fluent API allowing action chaining.
-         * @param sizeX     The scaling factor in the x direction to apply
-         * @param sizeY     The scaling factor in the y direction to apply
-         * @param duration  The time it should take to complete the scaling in milliseconds
-         * @obsolete Use [[ActionContext.scaleBy|Actor.actions.scaleBy]]
-         */
-        scaleBy(sizeX: number, sizeY: number, duration: number): Actor;
-        /**
-         * This method will cause an actor to blink (become visible and not
-         * visible). Optionally, you may specify the number of blinks. Specify the amount of time
-         * the actor should be visible per blink, and the amount of time not visible.
-         * This method is part of the actor 'Action' fluent API allowing action chaining.
-         * @param timeVisible     The amount of time to stay visible per blink in milliseconds
-         * @param timeNotVisible  The amount of time to stay not visible per blink in milliseconds
-         * @param numBlinks       The number of times to blink
-         * @obsolete Use [[ActionContext.blink|Actor.actions.blink]]
-         */
-        blink(timeVisible: number, timeNotVisible: number, numBlinks?: number): Actor;
-        /**
-         * This method will cause an actor's opacity to change from its current value
-         * to the provided value by a specified `duration` (in milliseconds). This method is
-         * part of the actor 'Action' fluent API allowing action chaining.
-         * @param opacity   The ending opacity
-         * @param duration  The time it should take to fade the actor (in milliseconds)
-         * @obsolete Use [[ActionContext.fade|Actor.actions.fade]]
-         */
-        fade(opacity: number, duration: number): Actor;
-        /**
-         * This method will delay the next action from executing for the specified
-         * `duration` (in milliseconds). This method is part of the actor
-         * 'Action' fluent API allowing action chaining.
-         * @param duration The amount of time to delay the next action in the queue from executing in milliseconds
-         * @obsolete Use [[ActionContext.delay|Actor.actions.delay]]
-         */
-        delay(duration: number): Actor;
-        /**
-         * This method will add an action to the queue that will remove the actor from the
-         * scene once it has completed its previous actions. Any actions on the
-         * action queue after this action will not be executed.
-         * @obsolete Use [[ActionContext.die|Actor.actions.die]]
-         */
-        die(): Actor;
-        /**
-         * This method allows you to call an arbitrary method as the next action in the
-         * action queue. This is useful if you want to execute code in after a specific
-         * action, i.e An actor arrives at a destination after traversing a path
-         * @obsolete Use [[ActionContext.callMethod|Actor.actions.callMethod]]
-         */
-        callMethod(method: () => any): Actor;
-        /**
-         * This method will cause the actor to repeat all of the previously
-         * called actions a certain number of times. If the number of repeats
-         * is not specified it will repeat forever. This method is part of
-         * the actor 'Action' fluent API allowing action chaining
-         * @param times The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions will
-         * repeat forever
-         * @obsolete Use [[ActionContext.repeat|Actor.actions.repeat]]
-         */
-        repeat(times?: number): Actor;
-        /**
-         * This method will cause the actor to repeat all of the previously
-         * called actions forever. This method is part of the actor 'Action'
-         * fluent API allowing action chaining.
-         * @obsolete Use [[ActionContext.repeatForever|Actor.actions.repeatForever]]
-         */
-        repeatForever(): Actor;
-        /**
-         * This method will cause the actor to follow another at a specified distance
-         * @param actor           The actor to follow
-         * @param followDistance  The distance to maintain when following, if not specified the actor will follow at the current distance.
-         * @obsolete Use [[ActionContext.follow|Actor.actions.follow]]
-         */
-        follow(actor: Actor, followDistance?: number): Actor;
-        /**
-         * This method will cause the actor to move towards another Actor until they
-         * collide ("meet") at a specified speed.
-         * @param actor  The actor to meet
-         * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
-         * @obsolete Use [[ActionContext.meet|Actor.actions.meet]]
-         */
-        meet(actor: Actor, speed?: number): Actor;
-        /**
-         * Returns a promise that resolves when the current action queue up to now
-         * is finished.
-         * @obsolete Use [[ActionContext.asPromise|Actor.actions.asPromise]]
-         */
-        asPromise<T>(): Promise<T>;
         private _getCalculatedAnchor();
         /**
          * Called by the Engine, updates the state of the actor
@@ -4411,17 +4289,6 @@ declare module ex {
         constructor(actor: Actor, other: Actor, side: Side, intersection: Vector);
     }
     /**
-     * Event thrown on a game object on Excalibur update, this is equivalent to postupdate.
-     * @obsolete Please use [[PostUpdateEvent|postupdate]], or [[PreUpdateEvent|preupdate]].
-     */
-    class UpdateEvent extends GameEvent {
-        delta: number;
-        /**
-         * @param delta  The number of milliseconds since the last update
-         */
-        constructor(delta: number);
-    }
-    /**
      * Event thrown on an [[Actor]] only once before the first update call
      */
     class InitializeEvent extends GameEvent {
@@ -4529,13 +4396,13 @@ declare module ex {
      * }
      *
      * // add a subscription
-     * vent.subscribe("someevent", subscription);
+     * vent.on("someevent", subscription);
      *
      * // publish an event somewhere in the game
      * vent.emit("someevent", new ex.GameEvent());
      * ```
      */
-    class EventDispatcher {
+    class EventDispatcher implements IEvented {
         private _handlers;
         private _wiredEventDispatchers;
         private _target;
@@ -4545,15 +4412,7 @@ declare module ex {
          */
         constructor(target: any);
         /**
-         * Publish an event for target
-         * @param eventName  The name of the event to publish
-         * @param event      Optionally pass an event data object to the handler
-         *
-         * @obsolete Use [[emit]] instead.
-         */
-        publish(eventName: string, event?: GameEvent): void;
-        /**
-         * Alias for [[publish]], publishes an event for target
+         * Emits an event for target
          * @param eventName  The name of the event to publish
          * @param event      Optionally pass an event data object to the handler
          */
@@ -4563,7 +4422,7 @@ declare module ex {
          * @param eventName  The name of the event to subscribe to
          * @param handler    The handler callback to fire on this event
          */
-        subscribe(eventName: string, handler: (event?: GameEvent) => void): void;
+        on(eventName: string, handler: (event?: GameEvent) => void): void;
         /**
          * Unsubscribe an event handler(s) from an event. If a specific handler
          * is specified for an event, only that handler will be unsubscribed.
@@ -4573,7 +4432,7 @@ declare module ex {
          * @param handler    Optionally the specific handler to unsubscribe
          *
          */
-        unsubscribe(eventName: string, handler?: (event?: GameEvent) => void): void;
+        off(eventName: string, handler?: (event?: GameEvent) => void): void;
         /**
          * Wires this event dispatcher to also recieve events from another
          */
@@ -4811,6 +4670,63 @@ declare module ex {
          * Returns a clone of the current color.
          */
         clone(): Color;
+    }
+}
+declare module ex {
+    /**
+     * Creates a closed polygon drawing given a list of [[Point]]s.
+     *
+     * @warning Use sparingly as Polygons are performance intensive
+     */
+    class Polygon implements IDrawable {
+        flipVertical: boolean;
+        flipHorizontal: boolean;
+        width: number;
+        height: number;
+        naturalWidth: number;
+        naturalHeight: number;
+        /**
+         * The color to use for the lines of the polygon
+         */
+        lineColor: Color;
+        /**
+         * The color to use for the interior of the polygon
+         */
+        fillColor: Color;
+        /**
+         * The width of the lines of the polygon
+         */
+        lineWidth: number;
+        /**
+         * Indicates whether the polygon is filled or not.
+         */
+        filled: boolean;
+        private _points;
+        anchor: Vector;
+        rotation: number;
+        scale: Vector;
+        /**
+         * @param points  The vectors to use to build the polygon in order
+         */
+        constructor(points: Vector[]);
+        /**
+         * @notimplemented Effects are not supported on `Polygon`
+         */
+        addEffect(effect: Effects.ISpriteEffect): void;
+        /**
+         * @notimplemented Effects are not supported on `Polygon`
+         */
+        removeEffect(index: number): any;
+        /**
+         * @notimplemented Effects are not supported on `Polygon`
+         */
+        removeEffect(effect: Effects.ISpriteEffect): any;
+        /**
+         * @notimplemented Effects are not supported on `Polygon`
+         */
+        clearEffects(): void;
+        reset(): void;
+        draw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
     }
 }
 declare module ex {
@@ -5767,6 +5683,53 @@ declare module ex.Internal {
         static isUnlocked(): boolean;
     }
 }
+declare module ex.Util.DrawUtil {
+    /**
+     * Draw a line on canvas context
+     *
+     * @param ctx The canvas context
+     * @param color The color of the line
+     * @param x1 The start x coordinate
+     * @param y1 The start y coordinate
+     * @param x2 The ending x coordinate
+     * @param y2 The ending y coordinate
+     */
+    function line(ctx: CanvasRenderingContext2D, color: ex.Color, x1: number, y1: number, x2: number, y2: number): void;
+    /**
+     * Represents border radius values
+     */
+    interface IBorderRadius {
+        /**
+         * Top-left
+         */
+        tl: number;
+        /**
+         * Top-right
+         */
+        tr: number;
+        /**
+         * Bottom-right
+         */
+        br: number;
+        /**
+         * Bottom-left
+         */
+        bl: number;
+    }
+    /**
+     * Draw a round rectange on a canvas context
+     *
+     * @param ctx The canvas context
+     * @param x The top-left x coordinate
+     * @param y The top-left y coordinate
+     * @param width The width of the rectangle
+     * @param height The height of the rectangle
+     * @param radius The border radius of the rectangle
+     * @param fill The [[ex.Color]] to fill rectangle with
+     * @param stroke The [[ex.Color]] to stroke rectangle with
+     */
+    function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius?: number | IBorderRadius, stroke?: Color, fill?: Color): void;
+}
 declare module ex {
     interface ILoader extends ILoadable {
         draw(ctx: CanvasRenderingContext2D, delta: number): any;
@@ -5949,89 +5912,6 @@ declare module ex {
         private _criticalTests;
         private _warningTest;
         test(): boolean;
-    }
-}
-declare module ex {
-    /**
-     * Excalibur's built in templating class, it is a loadable that will load
-     * and html fragment from a url. Excalibur templating is very basic only
-     * allowing bindings of the type `data-text="this.obj.someprop"`,
-     * `data-style="color:this.obj.color.toString()"`. Bindings allow all valid
-     * Javascript expressions.
-     */
-    class Template implements ILoadable {
-        path: string;
-        private _htmlString;
-        private _styleElements;
-        private _textElements;
-        private _innerElement;
-        private _isLoaded;
-        private _engine;
-        logger: Logger;
-        /**
-         * @param path  Location of the html template
-         */
-        constructor(path: string);
-        wireEngine(engine: Engine): void;
-        /**
-         * Returns the full html template string once loaded.
-         */
-        getTemplateString(): string;
-        private _compile();
-        private _evaluateExpresion(expression, ctx);
-        /**
-         * Applies any ctx object you wish and evaluates the template.
-         * Overload this method to include your favorite template library.
-         * You may return either an HTML string or a Dom node.
-         * @param ctx Any object you wish to apply to the template
-         */
-        apply(ctx: any): any;
-        /**
-         * Begins loading the template. Returns a promise that resolves with the template string when loaded.
-         */
-        load(): ex.Promise<string>;
-        getData(): string;
-        setData(data: any): void;
-        processData(data: any): any;
-        /**
-         * Indicates whether the template has been loaded
-         */
-        isLoaded(): boolean;
-        onprogress: (e: any) => void;
-        oncomplete: () => void;
-        onerror: (e: any) => void;
-    }
-    /**
-     * Excalibur's binding library that allows you to bind an html
-     * template to the dom given a certain context. Excalibur bindings are only updated
-     * when the update() method is called
-     */
-    class Binding {
-        parent: HTMLElement;
-        template: Template;
-        private _renderedTemplate;
-        private _ctx;
-        /**
-         * @param parentElementId  The id of the element in the dom to attach the template binding
-         * @param template         The template you wish to bind
-         * @param ctx              The context of the binding, which can be any object
-         */
-        constructor(parentElementId: string, template: Template, ctx: any);
-        /**
-         * Listen to any arbitrary object's events to update this binding
-         * @param obj     Any object that supports addEventListener
-         * @param events  A list of events to listen for
-         * @param handler A optional handler to fire on any event
-         */
-        listen(obj: {
-            addEventListener: any;
-        }, events: string[], handler?: (evt?: GameEvent) => void): void;
-        /**
-         * Update this template binding with the latest values from
-         * the ctx reference passed to the constructor
-         */
-        update(): void;
-        private _applyTemplate(template, ctx);
     }
 }
 declare module ex {
@@ -7096,6 +6976,7 @@ declare module ex.Input {
         buttons: number;
     }
 }
+declare var EX_VERSION: string;
 /**
  * # Welcome to the Excalibur API
  *
@@ -7451,19 +7332,13 @@ declare module ex {
         private _loader;
         private _isLoading;
         /**
+         * Default [[IEngineOptions]]
+         */
+        private static _DefaultEngineOptions;
+        /**
          * Creates a new game using the given [[IEngineOptions]]
          */
-        constructor(options: IEngineOptions);
-        /**
-         * Creates a new game with the given options
-         * @param width            The width in pixels of the Excalibur game viewport
-         * @param height           The height in pixels of the Excalibur game viewport
-         * @param canvasElementId  If this is not specified, then a new canvas will be created and inserted into the body.
-         * @param displayMode      If this is not specified, then it will fall back to fixed if a height and width are specified, else the
-         * display mode will be FullScreen.
-         * @obsolete Use [[Engine.constructor]] with [[IEngineOptions]]
-         */
-        constructor(width?: number, height?: number, canvasElementId?: string, displayMode?: DisplayMode);
+        constructor(options?: IEngineOptions);
         /**
          * Plays a sprite animation on the screen at the specified `x` and `y`
          * (in game coordinates, not screen pixels). These animations play
@@ -7476,26 +7351,6 @@ declare module ex {
          * @param y          y game coordinate to play the animation
          */
         playAnimation(animation: Animation, x: number, y: number): void;
-        /**
-         * Adds an actor to the [[currentScene]] of the game. This is synonymous
-         * to calling `engine.currentScene.addChild(actor)`.
-         *
-         * Actors can only be drawn if they are a member of a scene, and only
-         * the [[currentScene]] may be drawn or updated.
-         *
-         * @param actor  The actor to add to the [[currentScene]]
-         *
-         * @obsolete Use [[add]] instead.
-         */
-        addChild(actor: Actor): void;
-        /**
-         * Removes an actor from the [[currentScene]] of the game. This is synonymous
-         * to calling `engine.currentScene.removeChild(actor)`.
-         * Actors that are removed from a scene will no longer be drawn or updated.
-         *
-         * @param actor  The actor to remove from the [[currentScene]].
-         */
-        removeChild(actor: Actor): void;
         /**
          * Adds a [[TileMap]] to the [[currentScene]], once this is done the TileMap
          * will be drawn and updated.
@@ -7599,6 +7454,24 @@ declare module ex {
          * @param uiActor  The UIActor to remove from the [[currentScene]]
          */
         remove(uiActor: UIActor): void;
+        /**
+         * Adds an actor to the [[currentScene]] of the game. This is synonymous
+         * to calling `engine.currentScene.add(actor)`.
+         *
+         * Actors can only be drawn if they are a member of a scene, and only
+         * the [[currentScene]] may be drawn or updated.
+         *
+         * @param actor  The actor to add to the [[currentScene]]
+         */
+        protected _addChild(actor: Actor): void;
+        /**
+         * Removes an actor from the [[currentScene]] of the game. This is synonymous
+         * to calling `engine.currentScene.remove(actor)`.
+         * Actors that are removed from a scene will no longer be drawn or updated.
+         *
+         * @param actor  The actor to remove from the [[currentScene]].
+         */
+        protected _removeChild(actor: Actor): void;
         /**
          * Changes the currently updating and drawing scene to a different,
          * named scene. Calls the [[Scene]] lifecycle events.

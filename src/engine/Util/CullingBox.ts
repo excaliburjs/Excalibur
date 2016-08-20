@@ -24,21 +24,22 @@ module ex {
          var drawingHeight = actor.currentDrawing.height * actor.currentDrawing.scale.y;
          var rotation = actor.rotation;
          var anchor = actor.getCenter();
+         var worldPos = actor.getWorldPos();
 
-         this._topLeft.x = actor.getWorldX() - (drawingWidth / 2);
-         this._topLeft.y = actor.getWorldY() - (drawingHeight / 2);
+         this._topLeft.x = worldPos.x - (drawingWidth / 2);
+         this._topLeft.y = worldPos.y - (drawingHeight / 2);
          this._topLeft = this._topLeft.rotate(rotation, anchor);
 
-         this._topRight.x = actor.getWorldX() + (drawingWidth / 2);
-         this._topRight.y = actor.getWorldY() - (drawingHeight / 2);
+         this._topRight.x = worldPos.x + (drawingWidth / 2);
+         this._topRight.y = worldPos.y - (drawingHeight / 2);
          this._topRight = this._topRight.rotate(rotation, anchor);
 
-         this._bottomLeft.x = actor.getWorldX() - (drawingWidth / 2);
-         this._bottomLeft.y = actor.getWorldY() + (drawingHeight / 2);
+         this._bottomLeft.x = worldPos.x - (drawingWidth / 2);
+         this._bottomLeft.y = worldPos.y + (drawingHeight / 2);
          this._bottomLeft = this._bottomLeft.rotate(rotation, anchor);
 
-         this._bottomRight.x = actor.getWorldX() + (drawingWidth / 2);
-         this._bottomRight.y = actor.getWorldY() + (drawingHeight / 2);
+         this._bottomRight.x = worldPos.x + (drawingWidth / 2);
+         this._bottomRight.y = worldPos.y + (drawingHeight / 2);
          this._bottomRight = this._bottomRight.rotate(rotation, anchor);
 
          ///

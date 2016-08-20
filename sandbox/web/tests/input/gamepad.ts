@@ -1,6 +1,6 @@
 ﻿/// <reference path="../../../../dist/Excalibur.d.ts"/>
 
-var game = new ex.Engine(800, 503, "game");
+var game = new ex.Engine({ width: 800, height: 503, canvasElementId: "game" });
 var padTexture = new ex.Texture("gamepad.png");
 
 game.backgroundColor = ex.Color.White;
@@ -70,7 +70,7 @@ function start() {
    
 
    // Update global state on engine update
-   game.on("update", (ue: ex.UpdateEvent) => {
+   game.on("postupdate", (ue: ex.PostUpdateEvent) => {
 
       document.getElementById("gamepad-num").innerHTML = game.input.gamepads.getValidGamepads().length.toString();
 

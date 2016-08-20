@@ -270,7 +270,7 @@
                      if (value !== this._oldPads[i].getButton(bi)) {
                         if (gamepads[i].buttons[bi].pressed) {
                            this.at(i).updateButton(bi, value);
-                           this.at(i).eventDispatcher.publish('button', new GamepadButtonEvent(bi, value));
+                           this.at(i).eventDispatcher.emit('button', new GamepadButtonEvent(bi, value));
                         } else {
                            this.at(i).updateButton(bi, 0);
                         }

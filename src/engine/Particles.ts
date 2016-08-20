@@ -427,7 +427,11 @@ module ex {
 
          if (this.focus) {
             ctx.fillRect(this.focus.x + this.pos.x, this.focus.y + this.pos.y, 3, 3);
-            Util.drawLine(ctx, 'yellow', this.focus.x + this.pos.x, this.focus.y + this.pos.y, super.getCenter().x, super.getCenter().y);
+            Util.DrawUtil.line(ctx, ex.Color.Yellow, 
+               this.focus.x + this.pos.x, 
+               this.focus.y + this.pos.y, 
+               super.getCenter().x, 
+               super.getCenter().y);
             ctx.fillText('Focus', this.focus.x + this.pos.x, this.focus.y + this.pos.y);
          }
       }
