@@ -917,43 +917,6 @@ module ex {
     }      
         
     /**
-     * This method will cause an actor to blink (become visible and not 
-     * visible). Optionally, you may specify the number of blinks. Specify the amount of time 
-     * the actor should be visible per blink, and the amount of time not visible.
-     * This method is part of the actor 'Action' fluent API allowing action chaining.
-     * @param timeVisible     The amount of time to stay visible per blink in milliseconds
-     * @param timeNotVisible  The amount of time to stay not visible per blink in milliseconds
-     * @param numBlinks       The number of times to blink
-     * @obsolete Use [[ActionContext.blink|Actor.actions.blink]]
-     */
-    public blink(timeVisible: number, timeNotVisible: number, numBlinks: number = 1): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.Blink(this, timeVisible, timeNotVisible, numBlinks));
-       return this;
-    }
-    /**
-     * This method will cause an actor's opacity to change from its current value
-     * to the provided value by a specified `duration` (in milliseconds). This method is
-     * part of the actor 'Action' fluent API allowing action chaining.
-     * @param opacity   The ending opacity
-     * @param duration  The time it should take to fade the actor (in milliseconds)
-     * @obsolete Use [[ActionContext.fade|Actor.actions.fade]]
-     */
-    public fade(opacity: number, duration: number): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.Fade(this, opacity, duration));
-       return this;
-    }
-    /**
-     * This method will delay the next action from executing for the specified
-     * `duration` (in milliseconds). This method is part of the actor 
-     * 'Action' fluent API allowing action chaining.
-     * @param duration The amount of time to delay the next action in the queue from executing in milliseconds
-     * @obsolete Use [[ActionContext.delay|Actor.actions.delay]]
-     */
-    public delay(duration: number): Actor {
-       this.actionQueue.add(new ex.Internal.Actions.Delay(this, duration));
-       return this;
-    }
-    /**
      * This method will add an action to the queue that will remove the actor from the 
      * scene once it has completed its previous actions. Any actions on the
      * action queue after this action will not be executed.
