@@ -976,8 +976,9 @@ O|===|* >________________>\n\
          this.input.gamepads.update(delta);
 
          // Publish update event
-         this.eventDispatcher.emit('update', new UpdateEvent(delta));
-         this.emit('postupdate', new PreUpdateEvent(this, delta, this));
+         // TODO: Obsolete `update` event on Engine
+         this.eventDispatcher.emit('update', new PostUpdateEvent(this, delta, this));
+         this.emit('postupdate', new PostUpdateEvent(this, delta, this));
       }
 
       /**

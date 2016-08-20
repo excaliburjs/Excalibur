@@ -970,7 +970,8 @@ module ex {
           this.children[i].update(engine, delta);          
        }
        
-       this.eventDispatcher.emit('update', new UpdateEvent(delta));
+       // TODO: Obsolete `update` event on Actor
+       this.eventDispatcher.emit('update', new PostUpdateEvent(engine, delta, this));
        this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
     }
     /**
