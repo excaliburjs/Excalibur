@@ -1,4 +1,5 @@
 /// <reference path="Interfaces/IDrawable.ts" />
+/// <reference path="Interfaces/IEvented.ts" />
 /// <reference path="Traits/EulerMovement.ts" />
 /// <reference path="Traits/OffscreenCulling.ts" />
 /// <reference path="Traits/CapturePointer.ts" />
@@ -280,7 +281,7 @@ module ex {
    * [Issue #68](https://github.com/excaliburjs/Excalibur/issues/68)
    *
    */     
-  export class Actor extends ex.Class implements IActionable {
+  export class Actor extends ex.Class implements IActionable, IEvented {
     /**
      * Indicates the next id to be set
      */
@@ -529,7 +530,7 @@ module ex {
      */
     public on(eventName: string, handler: (event?: GameEvent) => void) {
        this._checkForPointerOptIn(eventName);
-       this.eventDispatcher.subscribe(eventName, handler);
+       this.eventDispatcher.on(eventName, handler);
     }
    
     /**

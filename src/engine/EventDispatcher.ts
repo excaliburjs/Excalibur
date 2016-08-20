@@ -1,4 +1,5 @@
 /// <reference path="Events.ts" />
+/// <reference path="Interfaces/IEvented.ts" />
 
 module ex {
 
@@ -66,13 +67,13 @@ module ex {
     * }
     *
     * // add a subscription
-    * vent.subscribe("someevent", subscription);
+    * vent.on("someevent", subscription);
     *
     * // publish an event somewhere in the game
     * vent.emit("someevent", new ex.GameEvent());
     * ```
     */
-   export class EventDispatcher {
+   export class EventDispatcher implements IEvented {
       private _handlers: { [key: string]: { (event?: GameEvent): void }[]; } = {};
       private _wiredEventDispatchers: EventDispatcher[] = [];
 
@@ -87,13 +88,11 @@ module ex {
       }
 
       /**
-       * Publish an event for target
+       * Emits an event for target
        * @param eventName  The name of the event to publish
        * @param event      Optionally pass an event data object to the handler
-       * 
-       * @obsolete Use [[emit]] instead.
        */
-      public publish(eventName: string, event?: GameEvent) {
+      public emit(eventName: string, event?: GameEvent) {
          if (!eventName) {
             // key not mapped
             return;
@@ -122,16 +121,6 @@ module ex {
          for (i; i < len; i++) {
             this._wiredEventDispatchers[i].emit(eventName, event);
          }
-
-      }
-
-      /**
-       * Alias for [[publish]], publishes an event for target
-       * @param eventName  The name of the event to publish
-       * @param event      Optionally pass an event data object to the handler
-       */
-      public emit(eventName: string, event?: GameEvent) {
-         this.publish(eventName, event);
       }
 
       /**
@@ -139,7 +128,7 @@ module ex {
        * @param eventName  The name of the event to subscribe to
        * @param handler    The handler callback to fire on this event
        */
-      public subscribe(eventName: string, handler: (event?: GameEvent) => void) {
+      public on(eventName: string, handler: (event?: GameEvent) => void) {
          eventName = eventName.toLowerCase();
          if (!this._handlers[eventName]) {
             this._handlers[eventName] = [];
@@ -161,7 +150,7 @@ module ex {
        * @param handler    Optionally the specific handler to unsubscribe
        *
        */
-      public unsubscribe(eventName: string, handler?: (event?: GameEvent) => void) {
+      public off(eventName: string, handler?: (event?: GameEvent) => void) {
          eventName = eventName.toLowerCase();
          var eventHandlers = this._handlers[eventName];
 
