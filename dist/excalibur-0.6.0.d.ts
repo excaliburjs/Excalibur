@@ -2192,7 +2192,7 @@ declare module ex {
          * @param duration  The time it should take the actor to move to the new location in milliseconds
          * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
          */
-        easeTo(x: number, y: number, duration: number, easingFcn?: (currentTime: number, startValue: number, endValue: number, duration: number) => number): this;
+        easeTo(x: number, y: number, duration: number, easingFcn?: EasingFunction): this;
         /**
          * This method will move an actor to the specified x and y position at the
          * speed specified (in pixels per second) and return back the actor. This
@@ -3222,7 +3222,7 @@ declare module ex {
         onInitialize(engine: Engine): void;
         private _checkForPointerOptIn(eventName);
         /**
-         * Alias for `addEventListener`. You can listen for a variety of
+         * You can listen for a variety of
          * events off of the engine; see [[GameEvent]]
          * @param eventName   Name of the event to listen for
          * @param handler     Event handler for the thrown event
