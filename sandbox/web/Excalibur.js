@@ -1,4 +1,4 @@
-/*! excalibur - v0.6.0 - 2016-08-19
+/*! excalibur - v0.6.0 - 2016-08-20
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 var __extends = (this && this.__extends) || function (d, b) {
@@ -654,6 +654,7 @@ var ex;
     /**
      * Static access engine global physics settings
      */
+    /* istanbul ignore next */
     var Physics = (function () {
         function Physics() {
         }
@@ -709,6 +710,12 @@ var ex;
                 bodyA.collisionType === ex.CollisionType.Elastic) &&
                 bodyB.collisionType !== ex.CollisionType.Passive) {
                 // Resolve overlaps
+                if (bodyA.collisionType === ex.CollisionType.Active &&
+                    bodyB.collisionType === ex.CollisionType.Active) {
+                    // split overlaps if both are Active
+                    mtv = mtv.scale(.5);
+                }
+                // Apply mtv
                 bodyA.pos.y += mtv.y;
                 bodyA.pos.x += mtv.x;
                 // Naive elastic bounce
@@ -769,8 +776,8 @@ var ex;
             var side = ex.Util.getSideFromVector(this.mtv);
             var mtv = this.mtv.negate();
             // Publish collision events on both participants
-            bodyA.eventDispatcher.emit('collision', new ex.CollisionEvent(bodyA, bodyB, side, mtv));
-            bodyB.eventDispatcher.emit('collision', new ex.CollisionEvent(bodyB, bodyA, ex.Util.getOppositeSide(side), mtv.negate()));
+            bodyA.emit('collision', new ex.CollisionEvent(bodyA, bodyB, side, mtv));
+            bodyB.emit('collision', new ex.CollisionEvent(bodyB, bodyA, ex.Util.getOppositeSide(side), mtv.negate()));
             this._applyBoxImpluse(bodyA, bodyB, mtv, side);
             this._applyBoxImpluse(bodyB, bodyA, mtv.negate(), ex.Util.getOppositeSide(side));
         };
@@ -810,8 +817,8 @@ var ex;
             }
             // Publish collision events on both participants
             var side = ex.Util.getSideFromVector(this.mtv);
-            this.bodyA.body.actor.emit('collision', new ex.CollisionEvent(this.bodyA.body.actor, this.bodyB.body.actor, side, this.mtv));
-            this.bodyB.body.actor.emit('collision', new ex.CollisionEvent(this.bodyB.body.actor, this.bodyA.body.actor, ex.Util.getOppositeSide(side), this.mtv.negate()));
+            bodyA.emit('collision', new ex.CollisionEvent(this.bodyA.body.actor, this.bodyB.body.actor, side, this.mtv));
+            bodyB.emit('collision', new ex.CollisionEvent(this.bodyB.body.actor, this.bodyA.body.actor, ex.Util.getOppositeSide(side), this.mtv.negate()));
             // Collision impulse formula from Chris Hecker
             // https://en.wikipedia.org/wiki/Collision_response
             var impulse = -((1 + coefRestitution) * rvNormal) /
@@ -1074,7 +1081,32 @@ var ex;
          * @param ray
          */
         CircleArea.prototype.castRay = function (ray) {
-            throw new Error('not implemented');
+            //https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
+            var c = this.getCenter();
+            var dir = ray.dir;
+            var orig = ray.pos;
+            var discriminant = Math.sqrt(Math.pow(dir.dot(orig.sub(c)), 2) -
+                Math.pow(orig.sub(c).distance(), 2) +
+                Math.pow(this.radius, 2));
+            if (discriminant < 0) {
+                // no intersection
+                return null;
+            }
+            else {
+                var toi = 0;
+                if (discriminant === 0) {
+                    toi = -dir.dot(orig.sub(c));
+                    if (toi > 0) {
+                        return ray.getPoint(toi);
+                    }
+                    return null;
+                }
+                else {
+                    var toi1 = -dir.dot(orig.sub(c)) + discriminant;
+                    var toi2 = -dir.dot(orig.sub(c)) - discriminant;
+                    return ray.getPoint(Math.min(toi1, toi2));
+                }
+            }
         };
         CircleArea.prototype.collide = function (area) {
             if (area instanceof CircleArea) {
@@ -1146,6 +1178,7 @@ var ex;
             }
             return minAxis.normalize().scale(minOverlap);
         };
+        /* istanbul ignore next */
         CircleArea.prototype.recalc = function () {
             // circles don't cache
         };
@@ -1161,6 +1194,7 @@ var ex;
             scalars.push(dotProduct - this.radius);
             return new ex.Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
         };
+        /* istanbul ignore next */
         CircleArea.prototype.debugDraw = function (ctx, debugFlags) {
             var pos = this.body ? this.body.pos.add(this.pos) : this.pos;
             var rotation = this.body ? this.body.rotation : 0;
@@ -1268,7 +1302,7 @@ var ex;
          * Get the axis aligned bounding box for the circle area
          */
         EdgeArea.prototype.getBounds = function () {
-            return new ex.BoundingBox(Math.min(this.begin.x, this.end.x), Math.min(this.begin.y, this.end.y), Math.max(this.begin.y, this.end.y), Math.max(this.begin.x, this.end.x));
+            return new ex.BoundingBox(Math.min(this.begin.x, this.end.x), Math.min(this.begin.y, this.end.y), Math.max(this.begin.x, this.end.x), Math.max(this.begin.y, this.end.y));
         };
         /**
          * Get the axis associated with the edge
@@ -1307,6 +1341,7 @@ var ex;
             }
             return new ex.Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
         };
+        /* istanbul ignore next */
         EdgeArea.prototype.debugDraw = function (ctx, debugFlags) {
             ctx.strokeStyle = 'red';
             var old = ctx.lineWidth;
@@ -1451,7 +1486,7 @@ var ex;
             return furthestPoint;
         };
         /**
-         * Get the axis aligned bounding box for the circle area
+         * Get the axis aligned bounding box for the polygon area
          */
         PolygonArea.prototype.getBounds = function () {
             // todo there is a faster way to do this
@@ -1506,7 +1541,7 @@ var ex;
                 }
             }
             // contact was found
-            if (i >= 0) {
+            if (contactIndex >= 0) {
                 return ray.getPoint(minContactTime);
             }
             // no contact found
@@ -1576,6 +1611,7 @@ var ex;
             }
             return new ex.Projection(min, max);
         };
+        /* istanbul ignore next */
         PolygonArea.prototype.debugDraw = function (ctx, debugFlags) {
             ctx.beginPath();
             ctx.lineWidth = 3;
@@ -3460,6 +3496,7 @@ var ex;
             }
             return null;
         };
+        /* istanbul ignore next */
         BoundingBox.prototype.debugDraw = function (ctx) {
             ctx.lineWidth = 2;
             ctx.strokeRect(this.left, this.top, this.getWidth(), this.getHeight());
@@ -7283,7 +7320,7 @@ var ex;
              * Gets the y position of the actor relative to it's parent (if any)
              */
             get: function () {
-                return this.body.pos.x;
+                return this.body.pos.y;
             },
             /**
              * Sets the y position of the actor relative to it's parent (if any)

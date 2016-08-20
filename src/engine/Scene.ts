@@ -248,7 +248,7 @@ module ex {
             // Run collision resolution strategy
             if (this._broadphase && Physics.enabled) {
                this._broadphase.update(this.children, collisionDelta);
-               this._broadphase.resolve(this.children, collisionDelta);
+               this._broadphase.findCollisionContacts(this.children, collisionDelta);
             }
             iter--;
          }

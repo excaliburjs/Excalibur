@@ -13,7 +13,7 @@ module ex {
          // pass
       }
 
-      public resolve(targets: Actor[]): CollisionContact[] {
+      public findCollisionContacts(targets: Actor[], delta: number): CollisionContact[] {
 
          // Retrieve the list of potential colliders, exclude killed, prevented, and self
          var potentialColliders = targets.filter((other) => {
@@ -22,7 +22,7 @@ module ex {
 
          var actor1: Actor;
          var actor2: Actor;
-         var collisionPairs = [];
+         var collisionPairs: CollisionContact[] = [];
 
          for (var j = 0, l = potentialColliders.length; j < l; j++) {
 
@@ -41,7 +41,7 @@ module ex {
                                                            actor1.pos, 
                                                            minimumTranslationVector);
                   if (!collisionPairs.some((cp) => {
-                     return cp.equals(collisionPair);
+                     return cp.id === collisionPair.id;
                   })) {
                      collisionPairs.push(collisionPair);
                   }
@@ -52,7 +52,7 @@ module ex {
 
          var k = 0, len = collisionPairs.length;
          for (k; k < len; k++) {
-            collisionPairs[k].evaluate();
+            collisionPairs[k].resolve(delta, ex.Physics.collisionResolutionStrategy);
          }
          
          return collisionPairs;

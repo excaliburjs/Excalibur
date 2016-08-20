@@ -248,6 +248,10 @@ declare module ex {
          */
         normalize(): Vector;
         /**
+         * Returns the average (midpoint) between the current point and the specified
+         */
+        average(vec: Vector): Vector;
+        /**
          * Scales a vector's by a factor of size
          * @param size  The factor to scale the magnitude by
          */
@@ -427,6 +431,9 @@ declare module ex {
         Naive = 0,
         DynamicAABBTree = 1,
     }
+    enum Integrator {
+        Euler = 0,
+    }
     /**
      * Static access engine global physics settings
      */
@@ -435,9 +442,12 @@ declare module ex {
         static enabled: boolean;
         static collisionPasses: number;
         static broadphaseStrategy: BroadphaseStrategy;
+        static broadphaseDebug: boolean;
+        static showCollisionNormals: boolean;
+        static showMotionVectors: boolean;
         static collisionResolutionStrategy: CollisionResolutionStrategy;
         static defaultMass: number;
-        static integrator: string;
+        static integrator: Integrator;
         static integrationSteps: number;
         static allowRotation: boolean;
         static motionBias: number;
@@ -475,6 +485,7 @@ declare module ex {
         normal: Vector;
         constructor(bodyA: ICollisionArea, bodyB: ICollisionArea, mtv: Vector, point: Vector, normal: Vector);
         resolve(delta: number, strategy: CollisionResolutionStrategy): void;
+        private _applyBoxImpluse(bodyA, bodyB, mtv, side);
         private _resolveBoxCollision(delta);
         private _resolveRigidBodyCollision(delta);
     }
@@ -484,23 +495,54 @@ declare module ex {
     }
 }
 declare module ex {
+    /**
+     * A collision area is a region of space that can detect when other collision areas intersect
+     * for the purposes of colliding 2 objects in excalibur.
+     */
     interface ICollisionArea {
         /**
          * Position of the collision area relative to the actor if it exists
          */
         pos: Vector;
-        actor: Actor;
+        /**
+         * Reference to the actor associated with this collision area
+         */
+        body: Body;
+        /**
+         * The center point of the collision area, for example if the area is a circle it would be the center.
+         */
         getCenter(): Vector;
+        /**
+         * Find the furthest point on the convex hull of this particular area in a certain direction.
+         */
         getFurthestPoint(direction: Vector): Vector;
+        /**
+         * Return the axis-aligned bounding box of the collision area
+         */
         getBounds(): BoundingBox;
+        /**
+         * Return the axes of this particular shape
+         */
         getAxes(): Vector[];
+        /**
+         * Return the calculated moment of intertia for this area
+         */
         getMomentOfInertia(): number;
         collide(area: ICollisionArea): CollisionContact;
+        /**
+         * Return wether the area contains a point inclusive to it's border
+         */
         contains(point: Vector): boolean;
+        /**
+         * Return the point on the border of the collision area that intersects with a ray (if any).
+         */
         castRay(ray: Ray): Vector;
+        /**
+         * Create a projection of this area along an axis. Think of this as casting a "shadow" along an axis
+         */
         project(axis: Vector): Projection;
         /**
-         * Recalculates internal caches
+         * Recalculates internal caches and values
          */
         recalc(): void;
         debugDraw(ctx: CanvasRenderingContext2D, debugFlags: IDebugFlags): any;
@@ -520,14 +562,14 @@ declare module ex {
     interface ICircleAreaOptions {
         pos?: Vector;
         radius?: number;
-        actor?: Actor;
+        body?: Body;
     }
     /**
      * This is a circle collision area for the excalibur rigid body physics simulation
      */
     class CircleArea implements ICollisionArea {
         /**
-         * This is the center position of the circle, relative to the actor position
+         * This is the center position of the circle, relative to the body position
          */
         pos: Vector;
         /**
@@ -537,8 +579,8 @@ declare module ex {
         /**
          * The actor associated with this collision area
          */
-        actor: Actor;
-        contructor(options: ICircleAreaOptions): void;
+        body: Body;
+        constructor(options: ICircleAreaOptions);
         /**
          * Get the center of the collision area in world coordinates
          */
@@ -584,10 +626,10 @@ declare module ex {
     interface IEdgeAreaOptions {
         begin?: Vector;
         end?: Vector;
-        actor?: Actor;
+        body?: Body;
     }
     class EdgeArea implements ICollisionArea {
-        actor: Actor;
+        body: Body;
         pos: Vector;
         begin: Vector;
         end: Vector;
@@ -596,6 +638,14 @@ declare module ex {
          * Get the center of the collision area in world coordinates
          */
         getCenter(): Vector;
+        /**
+         * Returns the slope of the line in the form of a vector
+         */
+        getSlope(): Vector;
+        /**
+         * Returns the length of the line segment in pixels
+         */
+        getLength(): number;
         /**
          * Tests if a point is contained in this collision area
          */
@@ -632,7 +682,7 @@ declare module ex {
         pos?: Vector;
         points?: Vector[];
         clockwiseWinding?: boolean;
-        actor?: Actor;
+        body?: Body;
     }
     /**
      * Polygon collision area for detecting collisions for actors, or independently
@@ -640,7 +690,7 @@ declare module ex {
     class PolygonArea implements ICollisionArea {
         pos: Vector;
         points: Vector[];
-        actor: Actor;
+        body: Body;
         private _transformedPoints;
         private _axes;
         private _sides;
@@ -650,7 +700,7 @@ declare module ex {
          */
         getCenter(): Vector;
         /**
-         * Calculates the underlying transformation from actor relative space to world space
+         * Calculates the underlying transformation from the body relative space to world space
          */
         private _calculateTransformation();
         /**
@@ -677,7 +727,7 @@ declare module ex {
          */
         getFurthestPoint(direction: Vector): Vector;
         /**
-         * Get the axis aligned bounding box for the circle area
+         * Get the axis aligned bounding box for the polygon area
          */
         getBounds(): BoundingBox;
         /**
@@ -1672,6 +1722,15 @@ declare module ex {
 }
 declare module ex {
     class Body {
+        actor: Actor;
+        /**
+         * Constructs a new physics body associated with an actor
+         */
+        constructor(actor: Actor);
+        /**
+         * [ICollisionArea|Collision area] of this physics body, defines the shape for rigid body collision
+         */
+        collisionArea: ICollisionArea;
         /**
          * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default.
          * If you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0).
@@ -1711,9 +1770,6 @@ declare module ex {
          */
         motion: number;
         /**
-         * This idicates whether the current actor is asleep in the physics simulation
-         */
-        /**
          * The coefficient of friction on this actor
          */
         friction: number;
@@ -1729,6 +1785,18 @@ declare module ex {
          * The rotational velocity of the actor in radians/second
          */
         rx: number;
+        /**
+         * Returns the body's [[BoundingBox]] calculated for this instant in world space.
+         */
+        getBounds(): BoundingBox;
+        /**
+         * Returns the actor's [[BoundingBox]] relative to the actors position.
+         */
+        getRelativeBounds(): BoundingBox;
+        useBoxCollision(center?: Vector): void;
+        usePolygonCollision(points: Vector[], center?: Vector): void;
+        useCircleCollision(radius: number, center?: Vector): void;
+        useEdgecCollision(begin: Vector, end: Vector, center?: Vector): void;
     }
 }
 declare module ex {
@@ -1858,10 +1926,10 @@ declare module ex {
     }
 }
 declare module ex {
-    class NaiveCollisionBroadphase {
+    class NaiveCollisionBroadphase implements ICollisionBroadphase {
         register(target: Actor): void;
         remove(tartet: Actor): void;
-        evaluate(targets: Actor[]): CollisionPair[];
+        resolve(targets: Actor[]): CollisionContact[];
         update(targets: Actor[]): number;
         debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
     }
@@ -1903,36 +1971,10 @@ declare module ex {
         private _collisionContactCache;
         register(target: Actor): void;
         remove(target: Actor): void;
+        private _canCollide(actorA, actorB);
         resolve(targets: Actor[], delta: number): CollisionContact[];
         update(targets: Actor[], delta: number): number;
         debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
-    }
-}
-declare module ex {
-    /**
-     * Collision pairs are used internally by Excalibur to resolve collision between actors. The
-     * Pair prevents collisions from being evaluated more than one time
-     */
-    class CollisionPair {
-        left: Actor;
-        right: Actor;
-        intersect: Vector;
-        side: Side;
-        /**
-         * @param left       The first actor in the collision pair
-         * @param right      The second actor in the collision pair
-         * @param intersect  The minimum translation vector to separate the actors from the perspective of the left actor
-         * @param side       The side on which the collision occured from the perspective of the left actor
-         */
-        constructor(left: Actor, right: Actor, intersect: Vector, side: Side);
-        /**
-         * Determines if this collision pair and another are equivalent.
-         */
-        equals(collisionPair: CollisionPair): boolean;
-        /**
-         * Evaluates the collision pair, performing collision resolution and event publishing appropriate to each collision type.
-         */
-        evaluate(): void;
     }
 }
 declare module ex {
@@ -3403,48 +3445,119 @@ declare module ex {
          * The unique identifier for the actor
          */
         id: number;
+        /**
+         * The physics body the is associated with this actor. The body is the container for all physical properties, like position, velocity,
+         * acceleration, mass, inertia, etc.
+         */
         body: Body;
+        /**
+         * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and
+         * [EdgeArea|edges].
+         */
+        /**
+         * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and
+         * [EdgeArea|edges].
+         */
+        collisionArea: ICollisionArea;
+        /**
+         * Gets the x position of the actor relative to it's parent (if any)
+         */
+        /**
+         * Sets the x position of the actor relative to it's parent (if any)
+         */
         x: number;
+        /**
+         * Gets the y position of the actor relative to it's parent (if any)
+         */
+        /**
+         * Sets the y position of the actor relative to it's parent (if any)
+         */
         y: number;
+        /**
+         * Gets the position vector of the actor in pixels
+         */
+        /**
+         * Sets the position vector of the actor in pixels
+         */
         pos: Vector;
+        /**
+         * Gets the position vector of the actor from the last frame
+         */
+        /**
+         * Sets the position vector of the actor in the last frame
+         */
         oldPos: Vector;
+        /**
+         * Gets the velocity vector of the actor in pixels/sec
+         */
+        /**
+         * Sets the velocity vector of the actor in pixels/sec
+         */
         vel: Vector;
+        /**
+         * Gets the velocity vector of the actor from the last frame
+         */
+        /**
+         * Sets the velocity vector of the actor from the last frame
+         */
         oldVel: Vector;
         /**
-         * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be
+         * Gets the acceleration vector of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be
          * useful to simulate a gravitational effect.
+         */
+        /**
+         * Sets the acceleration vector of teh actor in pixels/second/second
          */
         acc: Vector;
         /**
-         * The rotation of the actor in radians
+         * Gets the rotation of the actor in radians. 1 radian = 180/PI Degrees.
+         */
+        /**
+         * Sets the rotation of the actor in radians. 1 radian = 180/PI Degrees.
          */
         rotation: number;
         /**
-         * The rotational velocity of the actor in radians/second
+         * Gets the rotational velocity of the actor in radians/second
+         */
+        /**
+         * Sets the rotational velocity of the actor in radians/sec
          */
         rx: number;
         /**
-         * The current torque applied to the actor
+         * Gets the current torque applied to the actor. Torque can be thought of as rotational force
+         */
+        /**
+         * Sets the current torque applied to the actor. Torque can be thought of as rotational force
          */
         torque: number;
         /**
-         * The current mass of the actor, mass can be thought of as the resistance to acceleration.
+         * Get the current mass of the actor, mass can be thought of as the resistance to acceleration.
+         */
+        /**
+         * Sets the mass of the actor, mass can be thought of as the resistance to acceleration.
          */
         mass: number;
         /**
-         * The current momemnt of inertia, moi can be thought of as the resistance to rotation.
+         * Gets the current momemnt of inertia, moi can be thought of as the resistance to rotation.
+         */
+        /**
+         * Sets the current momemnt of inertia, moi can be thought of as the resistance to rotation.
          */
         moi: number;
         /**
-         * The current "motion" of the actor, used to calculated sleep in the physics simulation
+         * Gets the coefficient of friction on this actor, this can be thought of as how sticky or slippery an object is.
          */
-        motion: number;
         /**
-         * The coefficient of friction on this actor
+         * Sets the coefficient of friction of this actor, this can ve thought of as how stick or slippery an object is.
          */
         friction: number;
         /**
-         * The coefficient of restitution of this actor, represents the amount of energy preserved after collision
+         * Gets the coefficient of restitution of this actor, represents the amount of energy preserved after collision. Think of this
+         * as bounciness.
+         */
+        /**
+         * Sets the coefficient of restitution of this actor, represents the amount of energy preserved after collision. Think of this
+         * as bounciness.
          */
         restitution: number;
         /**
@@ -3520,7 +3633,6 @@ declare module ex {
          */
         collisionType: CollisionType;
         collisionGroups: string[];
-        collisionAreas: ICollisionArea[];
         private _collisionHandlers;
         private _isInitialized;
         frames: {
