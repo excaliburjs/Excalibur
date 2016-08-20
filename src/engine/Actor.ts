@@ -915,23 +915,7 @@ module ex {
     public within(actor: Actor, distance: number): boolean {
        return Math.sqrt(Math.pow(this.pos.x - actor.pos.x, 2) + Math.pow(this.pos.y - actor.pos.y, 2)) <= distance;
     }      
-    /**
-     * This method will move an actor to the specified `x` and `y` position over the 
-     * specified duration using a given [[EasingFunctions]] and return back the actor. This 
-     * method is part of the actor 'Action' fluent API allowing action chaining.
-     * @param x         The x location to move the actor to
-     * @param y         The y location to move the actor to
-     * @param duration  The time it should take the actor to move to the new location in milliseconds
-     * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
-     * @obsolete Use [[ActionContext.easeTo|Actor.actions.easeTo]]
-     */
-    public easeTo(x: number,
-       y: number,
-       duration: number,
-       easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number = ex.EasingFunctions.Linear) {
-       this.actionQueue.add(new ex.Internal.Actions.EaseTo(this, x, y, duration, easingFcn));
-       return this;
-    }
+        
     /**
      * This method will move an actor to the specified `x` and `y` position at the 
      * `speed` specified (in pixels per second) and return back the actor. This 
