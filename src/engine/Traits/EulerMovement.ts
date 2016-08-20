@@ -9,7 +9,7 @@ module ex.Traits {
          
          var totalAcc = actor.acc.clone();
          // Fixed actors are not affected by global acceleration
-         if(actor.collisionType !== ex.CollisionType.Fixed &&
+         if (actor.collisionType !== ex.CollisionType.Fixed &&
             actor.collisionType !== ex.CollisionType.PreventCollision &&
             !(actor instanceof UIActor) &&
             !(actor instanceof Trigger) &&

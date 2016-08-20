@@ -78,7 +78,7 @@
            var numerator = this._getTransformedBegin().sub(ray.pos);
 
            // Test is line and ray are parallel and non intersecting
-           if(ray.dir.cross(this.getSlope()) === 0 && numerator.cross(ray.dir) !== 0) { 
+           if (ray.dir.cross(this.getSlope()) === 0 && numerator.cross(ray.dir) !== 0) { 
                return null;
            }
             

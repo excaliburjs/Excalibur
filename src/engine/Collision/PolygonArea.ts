@@ -246,7 +246,7 @@ module ex {
             for (var i = 0; i < axes.length; i++) {
                 var proj1 = poly1.project(axes[i]);
                 var proj2 = poly2.project(axes[i]);
-                var overlap = proj1.overlap(proj2);
+                var overlap = proj1.getOverlap(proj2);
                 if (overlap <= 0) {
                     return null;
                 } else {

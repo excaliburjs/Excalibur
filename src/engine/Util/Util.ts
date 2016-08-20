@@ -211,8 +211,8 @@ module ex.Util {
       
       var max = -Number.MAX_VALUE;
       var maxIndex = -1;
-      for(var i = 0; i < directions.length; i++) {
-         if(directions[i].dot(direction) > max) {
+      for (var i = 0; i < directions.length; i++) {
+         if (directions[i].dot(direction) > max) {
             max = directions[i].dot(direction);
             maxIndex = i;
          }

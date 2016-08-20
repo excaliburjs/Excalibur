@@ -375,7 +375,7 @@ declare module ex {
         max: number;
         constructor(min: number, max: number);
         overlaps(projection: Projection): boolean;
-        overlap(projection: Projection): number;
+        getOverlap(projection: Projection): number;
     }
 }
 declare module ex {

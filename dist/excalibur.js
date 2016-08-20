@@ -620,7 +620,7 @@ var ex;
         Projection.prototype.overlaps = function (projection) {
             return this.max > projection.min && projection.max > this.min;
         };
-        Projection.prototype.overlap = function (projection) {
+        Projection.prototype.getOverlap = function (projection) {
             if (this.overlaps(projection)) {
                 if (this.max > projection.max) {
                     return projection.max - this.min;
@@ -1166,7 +1166,7 @@ var ex;
             for (var i = 0; i < axes.length; i++) {
                 var proj1 = polygon.project(axes[i]);
                 var proj2 = this.project(axes[i]);
-                var overlap = proj1.overlap(proj2);
+                var overlap = proj1.getOverlap(proj2);
                 if (overlap <= 0) {
                     return null;
                 }
@@ -1600,7 +1600,7 @@ var ex;
             for (var i = 0; i < axes.length; i++) {
                 var proj1 = poly1.project(axes[i]);
                 var proj2 = poly2.project(axes[i]);
-                var overlap = proj1.overlap(proj2);
+                var overlap = proj1.getOverlap(proj2);
                 if (overlap <= 0) {
                     return null;
                 }

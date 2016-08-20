@@ -64,7 +64,7 @@ module ex {
 
             // Query the colllision tree for potential colliders
             this._dynamicCollisionTree.query(actor.body, (other: Body) => {
-               if(this._canCollide(actor, other.actor)) {
+               if (this._canCollide(actor, other.actor)) {
                   // generate all the collision contacts between the 2 sets of collision areas between both actors
                    var contacts: CollisionContact[] = [];
                    var areaA = actor.collisionArea;

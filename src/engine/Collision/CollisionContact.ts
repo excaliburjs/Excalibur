@@ -43,11 +43,11 @@ module ex {
       }
       
       resolve(delta: number, strategy: CollisionResolutionStrategy) {
-         if(strategy === CollisionResolutionStrategy.RigidBody) {
+         if (strategy === CollisionResolutionStrategy.RigidBody) {
             this._resolveRigidBodyCollision(delta);
-         }else if (strategy === CollisionResolutionStrategy.Box) {
+         } else if (strategy === CollisionResolutionStrategy.Box) {
             this._resolveBoxCollision(delta);   
-         }else {
+         } else {
             throw new Error('Unknown collision resolution strategy');
          }
       }
@@ -58,7 +58,7 @@ module ex {
               bodyB.collisionType !== CollisionType.Passive) {
 
             // Resolve overlaps
-            if(bodyA.collisionType === CollisionType.Active && 
+            if (bodyA.collisionType === CollisionType.Active && 
                bodyB.collisionType === CollisionType.Active) {
                // split overlaps if both are Active
                mtv = mtv.scale(.5);
@@ -71,11 +71,11 @@ module ex {
             if (bodyA.collisionType === CollisionType.Elastic) {
                if (side === Side.Left) {
                   bodyA.vel.x = Math.abs(bodyA.vel.x);
-               } else if(side === Side.Right) {
+               } else if (side === Side.Right) {
                   bodyA.vel.x = -Math.abs(bodyA.vel.x);
-               } else if(side === Side.Top) {
+               } else if (side === Side.Top) {
                   bodyA.vel.y = Math.abs(bodyA.vel.y);
-               } else if(side === Side.Bottom) {
+               } else if (side === Side.Bottom) {
                   bodyA.vel.y = -Math.abs(bodyA.vel.y);
                }
             } else {
@@ -139,7 +139,7 @@ module ex {
          var mtv = this.mtv; // normal pointing away from bodyA
          var point = this.point; // world space collision point
          var normal = this.normal; // normal pointing away from bodyA
-         if(bodyA === bodyB) { // sanity check for existing pairs
+         if (bodyA === bodyB) { // sanity check for existing pairs
             return;
          }
          
@@ -174,7 +174,7 @@ module ex {
          
          
          // If objects are moving away ignore
-         if(rvNormal >  0) {
+         if (rvNormal >  0) {
             return;   
          }
          
@@ -195,23 +195,23 @@ module ex {
             ((invMassA + invMassB) + invMoiA * raTangent * raTangent + invMoiB * rbTangent * rbTangent); 
          
          
-         if(bodyA.collisionType === ex.CollisionType.Fixed) {
+         if (bodyA.collisionType === ex.CollisionType.Fixed) {
             bodyB.vel = bodyB.vel.add(normal.scale(impulse * invMassB));
-            if(Physics.allowRotation) {
+            if (Physics.allowRotation) {
                bodyB.rx -= impulse * invMoiB * -rb.cross(normal);
             }
             bodyB.addMtv(mtv);
-         }else if (bodyB.collisionType === ex.CollisionType.Fixed) {
+         } else if (bodyB.collisionType === ex.CollisionType.Fixed) {
             bodyA.vel = bodyA.vel.sub(normal.scale(impulse * invMassA));
-            if(Physics.allowRotation) {
+            if (Physics.allowRotation) {
                bodyA.rx += impulse * invMoiA * -ra.cross(normal);
             }
             bodyA.addMtv(mtv.negate());
-         }else {
+         } else {
             bodyB.vel = bodyB.vel.add(normal.scale(impulse * invMassB));
             bodyA.vel = bodyA.vel.sub(normal.scale(impulse * invMassA));
             
-            if(Physics.allowRotation) {      
+            if (Physics.allowRotation) {      
                bodyB.rx -= impulse * invMoiB * -rb.cross(normal);
                bodyA.rx += impulse * invMoiA * -ra.cross(normal);
             }
@@ -223,7 +223,7 @@ module ex {
          }
          
          // Friction portion of impulse
-         if(coefFriction && rvTangent) {
+         if (coefFriction && rvTangent) {
             // Columb model of friction, formula for impulse due to friction from  
             // https://en.wikipedia.org/wiki/Collision_response
             
@@ -234,7 +234,7 @@ module ex {
             var jt = rv.dot(t) / (invMassA + invMassB + raNormal * raNormal * invMoiA + rbNormal * rbNormal * invMoiB);
             
             var frictionImpulse = new Vector(0, 0);
-            if(Math.abs(jt) <= impulse * coefFriction) {
+            if (Math.abs(jt) <= impulse * coefFriction) {
                frictionImpulse = t.scale(jt).negate();
             } else {
                frictionImpulse = t.scale(-impulse * coefFriction);
@@ -243,13 +243,13 @@ module ex {
             if ( bodyA.collisionType === ex.CollisionType.Fixed ) {
                   // apply frictional impulse
                   bodyB.vel = bodyB.vel.add(frictionImpulse.scale(invMassB));
-                  if(Physics.allowRotation) {      
+                  if (Physics.allowRotation) {      
                      bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
                   }
             } else if ( bodyB.collisionType === ex.CollisionType.Fixed ) {
                   // apply frictional impulse
                   bodyA.vel = bodyA.vel.sub(frictionImpulse.scale(invMassA));
-                  if(Physics.allowRotation) {      
+                  if (Physics.allowRotation) {      
                      bodyA.rx -= frictionImpulse.dot(t) * invMoiA * ra.cross(t);
                   }
             } else {
@@ -258,7 +258,7 @@ module ex {
                 bodyA.vel = bodyA.vel.sub(frictionImpulse.scale(invMassA));
                 
                 // apply frictional impulse
-                if(Physics.allowRotation) {      
+                if (Physics.allowRotation) {      
                   bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
                   bodyA.rx -= frictionImpulse.dot(t) * invMoiA * ra.cross(t);
                 }                

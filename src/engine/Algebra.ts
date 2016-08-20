@@ -161,7 +161,7 @@ module ex {
        */
       public cross(v: Vector): number;
       public cross(v: any): any {
-         if(v instanceof Vector) {
+         if (v instanceof Vector) {
             return this.x * v.y - this.y * v.x;
          } else if (typeof v === 'number') {
             return new Vector(v * this.y, -v * this.x);
