@@ -24,16 +24,34 @@
          * Get the center of the collision area in world coordinates
          */
         public getCenter(): Vector {
-            var pos = this.begin.average(this.end);
-            return pos;
+           var pos = this.begin.average(this.end).add(this._getBodyPos());
+           return pos;
+        }
+
+        private _getBodyPos(): Vector {
+           var bodyPos = ex.Vector.Zero.clone();
+           if (this.body.pos) {
+              bodyPos = this.body.pos;
+           }
+           return bodyPos;
+        }
+
+        private _getTransformedBegin(): Vector {
+           var angle = this.body ? this.body.rotation : 0;
+           return this.begin.rotate(angle).add(this._getBodyPos());
+        }
+
+        private _getTransformedEnd(): Vector {
+           var angle = this.body ? this.body.rotation : 0;
+           return this.end.rotate(angle).add(this._getBodyPos());
         }
 
         /** 
          * Returns the slope of the line in the form of a vector
          */
         public getSlope(): Vector {
-            var begin = this.begin;
-            var end = this.end;
+            var begin = this._getTransformedBegin();
+            var end = this._getTransformedEnd();
             var distance = begin.distance(end);
             return end.sub(begin).scale(1 / distance);
         }
@@ -42,8 +60,8 @@
          * Returns the length of the line segment in pixels
          */
         public getLength(): number {
-            var begin = this.begin;
-            var end = this.end;
+            var begin = this._getTransformedBegin();
+            var end = this._getTransformedEnd();
             var distance = begin.distance(end);
             return distance;
         }
@@ -57,7 +75,7 @@
 
 
         public castRay(ray: Ray): Vector {
-           var numerator = this.begin.sub(ray.pos);
+           var numerator = this._getTransformedBegin().sub(ray.pos);
 
            // Test is line and ray are parallel and non intersecting
            if(ray.dir.cross(this.getSlope()) === 0 && numerator.cross(ray.dir) !== 0) { 
@@ -98,10 +116,12 @@
          * Find the point on the shape furthest in the direction specified
          */
         public getFurthestPoint(direction: Vector): Vector {
-            if (direction.dot(this.begin) > 0) {
-                return this.begin;
+           var transformedBegin = this._getTransformedBegin();
+           var transformedEnd = this._getTransformedEnd();
+            if (direction.dot(transformedBegin) > 0) {
+                return transformedBegin;
             } else {
-                return this.end;
+                return transformedEnd;
             }
         }
 
@@ -109,17 +129,19 @@
          * Get the axis aligned bounding box for the circle area
          */
         public getBounds(): BoundingBox {
-            return new BoundingBox(Math.min(this.begin.x, this.end.x),
-                Math.min(this.begin.y, this.end.y),
-                Math.max(this.begin.x, this.end.x),
-                Math.max(this.begin.y, this.end.y));
+           var transformedBegin = this._getTransformedBegin();
+           var transformedEnd = this._getTransformedEnd();
+            return new BoundingBox(Math.min(transformedBegin.x, transformedEnd.x),
+                Math.min(transformedBegin.y, transformedEnd.y),
+                Math.max(transformedBegin.x, transformedEnd.x),
+                Math.max(transformedBegin.y, transformedEnd.y));
         }
 
         /**
          * Get the axis associated with the edge
          */
         public getAxes(): Vector[] {
-            var e = this.end.sub(this.begin);
+            var e = this._getTransformedEnd().sub(this._getTransformedBegin());
             var edgeNormal = e.normal();
 
             var axes = [];
@@ -150,7 +172,7 @@
         public project(axis: Vector): Projection {
             var scalars = [];
 
-            var points = [this.begin, this.end];
+            var points = [this._getTransformedBegin(), this._getTransformedEnd()];
             var len = points.length;
             for (var i = 0; i < len; i++) {
                 scalars.push(points[i].dot(axis));

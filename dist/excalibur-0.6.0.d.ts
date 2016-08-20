@@ -638,6 +638,9 @@ declare module ex {
          * Get the center of the collision area in world coordinates
          */
         getCenter(): Vector;
+        private _getBodyPos();
+        private _getTransformedBegin();
+        private _getTransformedEnd();
         /**
          * Returns the slope of the line in the form of a vector
          */
@@ -1838,7 +1841,7 @@ declare module ex {
         useBoxCollision(center?: Vector): void;
         usePolygonCollision(points: Vector[], center?: Vector): void;
         useCircleCollision(radius: number, center?: Vector): void;
-        useEdgecCollision(begin: Vector, end: Vector, center?: Vector): void;
+        useEdgeCollision(begin: Vector, end: Vector, center?: Vector): void;
     }
 }
 declare module ex {
@@ -1965,7 +1968,7 @@ declare module ex {
         right: TreeNode;
         bounds: BoundingBox;
         height: number;
-        actor: Actor;
+        body: Body;
         constructor(parent?: any);
         isLeaf(): boolean;
     }
@@ -1977,12 +1980,12 @@ declare module ex {
         constructor();
         insert(leaf: TreeNode): void;
         remove(leaf: TreeNode): void;
-        registerActor(actor: Actor): void;
-        updateBody(actor: Actor): boolean;
-        removeActor(actor: Actor): void;
+        registerBody(body: Body): void;
+        updateBody(body: Body): boolean;
+        removeBody(body: Body): void;
         balance(node: TreeNode): TreeNode;
         getHeight(): number;
-        query(actor: Actor, callback: (other: Actor) => boolean): void;
+        query(body: Body, callback: (other: Body) => boolean): void;
         rayCast(ray: Ray, max: any): Actor;
         getNodes(): TreeNode[];
         debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;

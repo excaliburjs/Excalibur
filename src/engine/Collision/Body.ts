@@ -86,14 +86,22 @@ module ex {
        * Returns the body's [[BoundingBox]] calculated for this instant in world space.
        */
       public getBounds() {
-         return this.actor.getBounds();
+         if (ex.Physics.collisionResolutionStrategy === ex.CollisionResolutionStrategy.Box) {
+            return this.actor.getBounds();
+         } else {
+            return this.collisionArea.getBounds();
+         }
       }
 
       /**
        * Returns the actor's [[BoundingBox]] relative to the actors position.
        */
       public getRelativeBounds() {
-         return this.actor.getRelativeBounds();
+         if (ex.Physics.collisionResolutionStrategy === ex.CollisionResolutionStrategy.Box) {
+            return this.actor.getRelativeBounds();
+         } else {
+            return this.actor.getRelativeBounds();
+         }
       }
 
 
@@ -130,7 +138,7 @@ module ex {
          this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
       }
 
-      public useEdgecCollision(begin: Vector, end: Vector, center: Vector = ex.Vector.Zero.clone()) {
+      public useEdgeCollision(begin: Vector, end: Vector, center: Vector = ex.Vector.Zero.clone()) {
          this.collisionArea = new ex.EdgeArea({
             begin: begin,
             end: end,

@@ -1,4 +1,4 @@
-/// <reference path='../../../../dist/excalibur.d.ts' />
+/// <reference path="../../../../dist/excalibur.d.ts"/>
 var game = new ex.Engine({
     width: 600,
     height: 400
@@ -27,7 +27,8 @@ function spawnCircle(x, y) {
 }
 var edge = new ex.Actor(300, 300, 400, 10, ex.Color.Blue.clone());
 edge.collisionType = ex.CollisionType.Fixed;
-edge.body.useEdgecCollision(new ex.Vector(100, 300), new ex.Vector(500, 300));
+edge.body.useEdgeCollision(new ex.Vector(-200, 0), new ex.Vector(200, 0));
+edge.rx = .4;
 game.add(edge);
 var ground = new ex.Actor(300, 380, 600, 10, ex.Color.Black.clone());
 ground.collisionType = ex.CollisionType.Fixed;

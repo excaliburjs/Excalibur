@@ -1,4 +1,4 @@
-/// <reference path="../../../../dist/Excalibur.d.ts"/>
+/// <reference path="../../../../dist/excalibur.d.ts"/>
 ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
 var game = new ex.Engine({ width: 300, height: 300, canvasElementId: "game" });
 var scene2 = new ex.Scene();

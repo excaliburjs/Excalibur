@@ -44,6 +44,17 @@ describe('Collision areas', () => {
          expect(center.y).toBe(300);
       });
 
+      it('has bounds', () => {
+         actor.pos.setTo(400, 400);
+
+         var bounds = circle.getBounds();
+         expect(bounds.left).toBe(390);
+         expect(bounds.right).toBe(410);
+         expect(bounds.top).toBe(390);
+         expect(bounds.bottom).toBe(410);
+
+      });
+
       it('can contain points', () => {
          var pointInside = new ex.Vector(0, 5);
          var pointOnEdge = new ex.Vector(0, 10);
@@ -426,8 +437,8 @@ describe('Collision areas', () => {
       beforeEach(() => {
          actor = new ex.Actor(5, 0, 10, 10);
          edge = new ex.EdgeArea({
-            begin: new ex.Vector(0, 0),
-            end: new ex.Vector(10, 0),         
+            begin: new ex.Vector(-5, 0),
+            end: new ex.Vector(5, 0),         
             body: actor.body
          });
       });
@@ -480,11 +491,17 @@ describe('Collision areas', () => {
       });
 
       it('has bounds', () => {
+        actor.pos.setTo(400, 400);
         var boundingBox = edge.getBounds();
 
-        expect(boundingBox.contains(edge.begin)).toBe(true);
-        expect(boundingBox.contains(edge.end)).toBe(true);
+        var transformedBegin = new ex.Vector(395, 400);
+        var transformedEnd = new ex.Vector(405, 400);
+
+        expect(boundingBox.contains(transformedBegin)).toBe(true);
+        expect(boundingBox.contains(transformedEnd)).toBe(true);
       });
+
+
 
       it('has a moi', () => {
         // following this formula https://en.wikipedia.org/wiki/List_of_moments_of_inertia

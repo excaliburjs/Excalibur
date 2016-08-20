@@ -1,4 +1,4 @@
-/// <reference path="../../../../dist/Excalibur.d.ts" />
+/// <reference path="../../../../dist/excalibur.d.ts" />
 var engine = new ex.Engine({ width: 600, height: 400 });
 var active = new ex.Actor(0, -50, 100, 100, ex.Color.Cyan);
 active.collisionType = ex.CollisionType.Active;

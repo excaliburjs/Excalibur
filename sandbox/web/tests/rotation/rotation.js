@@ -1,4 +1,4 @@
-/// <reference path="../../../../dist/Excalibur.d.ts"/>
+/// <reference path="../../../../dist/excalibur.d.ts"/>
 var width = 600;
 var height = 400;
 var playerTexture = new ex.Texture("rotation-sprite.png");

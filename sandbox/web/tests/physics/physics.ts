@@ -18,7 +18,6 @@ function spawnBlock(x: number, y: number){
                            ex.Util.randomIntInRange(0, 255),
                            ex.Util.randomIntInRange(0, 255));
    var block = new ex.Actor(x, y, width, width, color);
-   
    block.rotation = Math.PI / 4;
    block.rx = .1;
    block.collisionType = ex.CollisionType.Active;
@@ -39,7 +38,8 @@ function spawnCircle(x: number, y: number){
 
 var edge = new ex.Actor(300, 300, 400, 10, ex.Color.Blue.clone());
 edge.collisionType = ex.CollisionType.Fixed;
-edge.body.useEdgecCollision(new ex.Vector(100, 300), new ex.Vector(500, 300));
+edge.body.useEdgeCollision(new ex.Vector(-200, 0), new ex.Vector(200, 0));
+edge.rx = .4;
 game.add(edge);
 
 var ground = new ex.Actor(300, 380, 600, 10, ex.Color.Black.clone());

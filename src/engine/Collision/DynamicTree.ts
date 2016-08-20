@@ -6,10 +6,10 @@ module ex {
       public right: TreeNode;
       public bounds: BoundingBox;
       public height: number;
-      public actor: Actor;
+      public body: Body;
       constructor(public parent?) {
          this.parent = parent || null;
-         this.actor = null;
+         this.body = null;
          this.bounds = new BoundingBox();
          this.left = null;
          this.right = null;
@@ -179,22 +179,22 @@ module ex {
 
       }
 
-      public registerActor(actor: Actor) {
+      public registerBody(body: Body) {
          var node = new TreeNode();
-         node.actor = actor;
-         node.bounds = actor.getBounds();
+         node.body = body;
+         node.bounds = body.getBounds();
          node.bounds.left -= 2;
          node.bounds.top -= 2;
          node.bounds.right += 2;
          node.bounds.bottom += 2;
-         this.nodes[actor.id] = node;
+         this.nodes[body.actor.id] = node;
          this.insert(node);
       }
 
-      public updateBody(actor: Actor) {
-         var node = this.nodes[actor.id];
+      public updateBody(body: Body) {
+         var node = this.nodes[body.actor.id];
          if (!node) { return; }
-         var b = actor.getBounds();
+         var b = body.getBounds();
          if (node.bounds.contains(b)) {
             return false;
          }
@@ -205,8 +205,9 @@ module ex {
          b.right += 5;
          b.bottom += 5;
 
-         var multdx = actor.vel.x * 2;
-         var multdy = actor.vel.y * 2;
+         // todo make configurable off ex.Physics
+         var multdx = body.vel.x * 2;
+         var multdy = body.vel.y * 2;
 
          if (multdx < 0) {
             b.left += multdx;
@@ -225,12 +226,12 @@ module ex {
          return true;
       }
 
-      public removeActor(actor: Actor) {
-         var node = this.nodes[actor.id];
+      public removeBody(body: Body) {
+         var node = this.nodes[body.actor.id];
          if (!node) { return; }
          this.remove(node);
-         this.nodes[actor.id] = null;
-         delete this.nodes[actor.id];
+         this.nodes[body.actor.id] = null;
+         delete this.nodes[body.actor.id];
       }
 
       public balance(node: TreeNode) {
@@ -357,12 +358,12 @@ module ex {
          return this.root.height;
       }
 
-      public query(actor: Actor, callback: (other: Actor) => boolean): void {
-         var bounds = actor.getBounds();
+      public query(body: Body, callback: (other: Body) => boolean): void {
+         var bounds = body.getBounds();
          var helper = currentNode => {
             if (currentNode && currentNode.bounds.collides(bounds)) {
-               if (currentNode.isLeaf() && currentNode.actor !== actor) {
-                  if (callback.call(actor, currentNode.actor)) {
+               if (currentNode.isLeaf() && currentNode.body !== body) {
+                  if (callback.call(body, currentNode.body)) {
                      return true;
                   }
                } else {

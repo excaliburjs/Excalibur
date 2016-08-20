@@ -1133,7 +1133,7 @@ var ex;
          * Get the axis aligned bounding box for the circle area
          */
         CircleArea.prototype.getBounds = function () {
-            return new ex.BoundingBox(this.pos.x + this.body.pos.x - this.radius, this.pos.y + this.body.pos.y - this.radius, this.pos.y + this.body.pos.y + this.radius, this.pos.x + this.body.pos.x + this.radius);
+            return new ex.BoundingBox(this.pos.x + this.body.pos.x - this.radius, this.pos.y + this.body.pos.y - this.radius, this.pos.x + this.body.pos.x + this.radius, this.pos.y + this.body.pos.y + this.radius);
         };
         /**
          * Get axis not implemented on circles, since their are infinite axis
@@ -1227,15 +1227,30 @@ var ex;
          * Get the center of the collision area in world coordinates
          */
         EdgeArea.prototype.getCenter = function () {
-            var pos = this.begin.average(this.end);
+            var pos = this.begin.average(this.end).add(this._getBodyPos());
             return pos;
+        };
+        EdgeArea.prototype._getBodyPos = function () {
+            var bodyPos = ex.Vector.Zero.clone();
+            if (this.body.pos) {
+                bodyPos = this.body.pos;
+            }
+            return bodyPos;
+        };
+        EdgeArea.prototype._getTransformedBegin = function () {
+            var angle = this.body ? this.body.rotation : 0;
+            return this.begin.rotate(angle).add(this._getBodyPos());
+        };
+        EdgeArea.prototype._getTransformedEnd = function () {
+            var angle = this.body ? this.body.rotation : 0;
+            return this.end.rotate(angle).add(this._getBodyPos());
         };
         /**
          * Returns the slope of the line in the form of a vector
          */
         EdgeArea.prototype.getSlope = function () {
-            var begin = this.begin;
-            var end = this.end;
+            var begin = this._getTransformedBegin();
+            var end = this._getTransformedEnd();
             var distance = begin.distance(end);
             return end.sub(begin).scale(1 / distance);
         };
@@ -1243,8 +1258,8 @@ var ex;
          * Returns the length of the line segment in pixels
          */
         EdgeArea.prototype.getLength = function () {
-            var begin = this.begin;
-            var end = this.end;
+            var begin = this._getTransformedBegin();
+            var end = this._getTransformedEnd();
             var distance = begin.distance(end);
             return distance;
         };
@@ -1255,7 +1270,7 @@ var ex;
             return false;
         };
         EdgeArea.prototype.castRay = function (ray) {
-            var numerator = this.begin.sub(ray.pos);
+            var numerator = this._getTransformedBegin().sub(ray.pos);
             // Test is line and ray are parallel and non intersecting
             if (ray.dir.cross(this.getSlope()) === 0 && numerator.cross(ray.dir) !== 0) {
                 return null;
@@ -1292,24 +1307,28 @@ var ex;
          * Find the point on the shape furthest in the direction specified
          */
         EdgeArea.prototype.getFurthestPoint = function (direction) {
-            if (direction.dot(this.begin) > 0) {
-                return this.begin;
+            var transformedBegin = this._getTransformedBegin();
+            var transformedEnd = this._getTransformedEnd();
+            if (direction.dot(transformedBegin) > 0) {
+                return transformedBegin;
             }
             else {
-                return this.end;
+                return transformedEnd;
             }
         };
         /**
          * Get the axis aligned bounding box for the circle area
          */
         EdgeArea.prototype.getBounds = function () {
-            return new ex.BoundingBox(Math.min(this.begin.x, this.end.x), Math.min(this.begin.y, this.end.y), Math.max(this.begin.x, this.end.x), Math.max(this.begin.y, this.end.y));
+            var transformedBegin = this._getTransformedBegin();
+            var transformedEnd = this._getTransformedEnd();
+            return new ex.BoundingBox(Math.min(transformedBegin.x, transformedEnd.x), Math.min(transformedBegin.y, transformedEnd.y), Math.max(transformedBegin.x, transformedEnd.x), Math.max(transformedBegin.y, transformedEnd.y));
         };
         /**
          * Get the axis associated with the edge
          */
         EdgeArea.prototype.getAxes = function () {
-            var e = this.end.sub(this.begin);
+            var e = this._getTransformedEnd().sub(this._getTransformedBegin());
             var edgeNormal = e.normal();
             var axes = [];
             axes.push(edgeNormal);
@@ -1335,7 +1354,7 @@ var ex;
          */
         EdgeArea.prototype.project = function (axis) {
             var scalars = [];
-            var points = [this.begin, this.end];
+            var points = [this._getTransformedBegin(), this._getTransformedEnd()];
             var len = points.length;
             for (var i = 0; i < len; i++) {
                 scalars.push(points[i].dot(axis));
@@ -3614,13 +3633,23 @@ var ex;
          * Returns the body's [[BoundingBox]] calculated for this instant in world space.
          */
         Body.prototype.getBounds = function () {
-            return this.actor.getBounds();
+            if (ex.Physics.collisionResolutionStrategy === ex.CollisionResolutionStrategy.Box) {
+                return this.actor.getBounds();
+            }
+            else {
+                return this.collisionArea.getBounds();
+            }
         };
         /**
          * Returns the actor's [[BoundingBox]] relative to the actors position.
          */
         Body.prototype.getRelativeBounds = function () {
-            return this.actor.getRelativeBounds();
+            if (ex.Physics.collisionResolutionStrategy === ex.CollisionResolutionStrategy.Box) {
+                return this.actor.getRelativeBounds();
+            }
+            else {
+                return this.actor.getRelativeBounds();
+            }
         };
         Body.prototype.useBoxCollision = function (center) {
             if (center === void 0) { center = ex.Vector.Zero.clone(); }
@@ -3651,7 +3680,7 @@ var ex;
             });
             this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
         };
-        Body.prototype.useEdgecCollision = function (begin, end, center) {
+        Body.prototype.useEdgeCollision = function (begin, end, center) {
             if (center === void 0) { center = ex.Vector.Zero.clone(); }
             this.collisionArea = new ex.EdgeArea({
                 begin: begin,
@@ -3882,7 +3911,7 @@ var ex;
         function TreeNode(parent) {
             this.parent = parent;
             this.parent = parent || null;
-            this.actor = null;
+            this.body = null;
             this.bounds = new ex.BoundingBox();
             this.left = null;
             this.right = null;
@@ -4030,23 +4059,23 @@ var ex;
                 sibling.parent = null;
             }
         };
-        DynamicTree.prototype.registerActor = function (actor) {
+        DynamicTree.prototype.registerBody = function (body) {
             var node = new TreeNode();
-            node.actor = actor;
-            node.bounds = actor.getBounds();
+            node.body = body;
+            node.bounds = body.getBounds();
             node.bounds.left -= 2;
             node.bounds.top -= 2;
             node.bounds.right += 2;
             node.bounds.bottom += 2;
-            this.nodes[actor.id] = node;
+            this.nodes[body.actor.id] = node;
             this.insert(node);
         };
-        DynamicTree.prototype.updateBody = function (actor) {
-            var node = this.nodes[actor.id];
+        DynamicTree.prototype.updateBody = function (body) {
+            var node = this.nodes[body.actor.id];
             if (!node) {
                 return;
             }
-            var b = actor.getBounds();
+            var b = body.getBounds();
             if (node.bounds.contains(b)) {
                 return false;
             }
@@ -4055,8 +4084,9 @@ var ex;
             b.top -= 5;
             b.right += 5;
             b.bottom += 5;
-            var multdx = actor.vel.x * 2;
-            var multdy = actor.vel.y * 2;
+            // todo make configurable off ex.Physics
+            var multdx = body.vel.x * 2;
+            var multdy = body.vel.y * 2;
             if (multdx < 0) {
                 b.left += multdx;
             }
@@ -4073,14 +4103,14 @@ var ex;
             this.insert(node);
             return true;
         };
-        DynamicTree.prototype.removeActor = function (actor) {
-            var node = this.nodes[actor.id];
+        DynamicTree.prototype.removeBody = function (body) {
+            var node = this.nodes[body.actor.id];
             if (!node) {
                 return;
             }
             this.remove(node);
-            this.nodes[actor.id] = null;
-            delete this.nodes[actor.id];
+            this.nodes[body.actor.id] = null;
+            delete this.nodes[body.actor.id];
         };
         DynamicTree.prototype.balance = function (node) {
             if (node === null) {
@@ -4189,12 +4219,12 @@ var ex;
             }
             return this.root.height;
         };
-        DynamicTree.prototype.query = function (actor, callback) {
-            var bounds = actor.getBounds();
+        DynamicTree.prototype.query = function (body, callback) {
+            var bounds = body.getBounds();
             var helper = function (currentNode) {
                 if (currentNode && currentNode.bounds.collides(bounds)) {
-                    if (currentNode.isLeaf() && currentNode.actor !== actor) {
-                        if (callback.call(actor, currentNode.actor)) {
+                    if (currentNode.isLeaf() && currentNode.body !== body) {
+                        if (callback.call(body, currentNode.body)) {
                             return true;
                         }
                     }
@@ -4259,10 +4289,10 @@ var ex;
             this._collisionContactCache = [];
         }
         DynamicTreeCollisionBroadphase.prototype.register = function (target) {
-            this._dynamicCollisionTree.registerActor(target);
+            this._dynamicCollisionTree.registerBody(target.body);
         };
         DynamicTreeCollisionBroadphase.prototype.remove = function (target) {
-            this._dynamicCollisionTree.removeActor(target);
+            this._dynamicCollisionTree.removeBody(target.body);
         };
         DynamicTreeCollisionBroadphase.prototype._canCollide = function (actorA, actorB) {
             // if the collision pair has been calculated already short circuit
@@ -4304,15 +4334,15 @@ var ex;
             for (var j = 0, l = potentialColliders.length; j < l; j++) {
                 actor = potentialColliders[j];
                 // Query the colllision tree for potential colliders
-                this._dynamicCollisionTree.query(actor, function (other) {
-                    if (_this._canCollide(actor, other)) {
+                this._dynamicCollisionTree.query(actor.body, function (other) {
+                    if (_this._canCollide(actor, other.actor)) {
                         // generate all the collision contacts between the 2 sets of collision areas between both actors
                         var contacts = [];
                         var areaA = actor.collisionArea;
                         var areaB = other.collisionArea;
                         var contact = areaA.collide(areaB);
                         if (contact) {
-                            contact.id = actor.calculatePairHash(other);
+                            contact.id = actor.calculatePairHash(other.actor);
                             contacts.push(contact);
                         }
                         // if there were contacts keep track of them
@@ -4345,7 +4375,7 @@ var ex;
         DynamicTreeCollisionBroadphase.prototype.update = function (targets, delta) {
             var updated = 0, i = 0, len = targets.length;
             for (i; i < len; i++) {
-                if (this._dynamicCollisionTree.updateBody(targets[i])) {
+                if (this._dynamicCollisionTree.updateBody(targets[i].body)) {
                     updated++;
                 }
             }

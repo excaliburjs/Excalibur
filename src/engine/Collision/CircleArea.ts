@@ -109,8 +109,8 @@
         public getBounds(): BoundingBox {
             return new BoundingBox(this.pos.x + this.body.pos.x - this.radius,
                 this.pos.y + this.body.pos.y - this.radius,
-                this.pos.y + this.body.pos.y + this.radius,
-                this.pos.x + this.body.pos.x + this.radius);
+                this.pos.x + this.body.pos.x + this.radius,
+                this.pos.y + this.body.pos.y + this.radius);
         }
 
         /**

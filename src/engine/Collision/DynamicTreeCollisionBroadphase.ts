@@ -9,11 +9,11 @@ module ex {
       private _collisionContactCache: CollisionContact[] = [];
 
       public register(target: Actor): void {
-         this._dynamicCollisionTree.registerActor(target);
+         this._dynamicCollisionTree.registerBody(target.body);
       }
 
       public remove(target: Actor): void {
-         this._dynamicCollisionTree.removeActor(target);
+         this._dynamicCollisionTree.removeBody(target.body);
       }
 
       private _canCollide(actorA: Actor, actorB: Actor) {
@@ -63,8 +63,8 @@ module ex {
             actor = potentialColliders[j];
 
             // Query the colllision tree for potential colliders
-            this._dynamicCollisionTree.query(actor, (other: Actor) => {
-               if(this._canCollide(actor, other)) {
+            this._dynamicCollisionTree.query(actor.body, (other: Body) => {
+               if(this._canCollide(actor, other.actor)) {
                   // generate all the collision contacts between the 2 sets of collision areas between both actors
                    var contacts: CollisionContact[] = [];
                    var areaA = actor.collisionArea;
@@ -72,7 +72,7 @@ module ex {
                    var contact = areaA.collide(areaB);
 
                    if (contact) {
-                      contact.id = actor.calculatePairHash(other);
+                      contact.id = actor.calculatePairHash(other.actor);
                       contacts.push(contact);
                    }
 
@@ -112,7 +112,7 @@ module ex {
          var updated = 0, i = 0, len = targets.length;
 
          for (i; i < len; i++) {
-            if (this._dynamicCollisionTree.updateBody(targets[i])) {
+            if (this._dynamicCollisionTree.updateBody(targets[i].body)) {
                updated++;
             }
          }
