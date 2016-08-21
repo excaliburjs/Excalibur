@@ -32,8 +32,8 @@ The `master` branch documentation is always available and up-to-date on our [Edg
 
 # Questions
 
-Ask us anything in the [Excalibur.js mailing list](https://groups.google.com/forum/#!forum/excaliburjs). 
-If you find a bug, report it on the [GitHub issues page](https://github.com/excaliburjs/Excalibur/issues).
+Ask us anything in the [Excalibur.js forum](https://groups.google.com/forum/#!forum/excaliburjs). 
+If you find a bug, report it on the [GitHub issues page](https://github.com/excaliburjs/Excalibur/issues) (please review our [guidelines for reporting bugs](https://github.com/excaliburjs/Excalibur/blob/master/.github/CONTRIBUTING.md#reporting-bugs)).
 You can also follow us on Twitter [@excaliburjs](http://twitter.com/excaliburjs) for updates or [read the blog](http://blog.excaliburjs.com).
 
 # Samples
@@ -42,7 +42,7 @@ Compiled examples can be found [in the Excalibur Samples](http://excaliburjs.com
 
 # Contributing
 
-Please view the [Contributing guidelines](.github/CONTRIBUTING.md). If you spot a bug, have a question, or want to contribute, please open a GitHub issue!
+Please view the [Contributing guidelines](.github/CONTRIBUTING.md). Whether you've spotted a bug, have a question, or think of a good feature, we thank you for your help!
 
 ## Environment Setup
 
