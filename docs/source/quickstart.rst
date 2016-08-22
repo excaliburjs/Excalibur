@@ -238,7 +238,7 @@ examples and an `API Reference <http://excaliburjs.com/docs>`__.
 
 .. raw:: html
 
-   <script async src="//jsfiddle.net/6Ay9S/25/embed/"></script>
+   <script async src="//jsfiddle.net/6Ay9S/25/embed/js,result/"></script>
 
 .. |Hello World Excalibur| image:: assets/quickstart/breakoutPartial.png
 .. |Breakout Example Excalibur| image:: assets/quickstart/breakoutFinal.png
