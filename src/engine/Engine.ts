@@ -119,22 +119,22 @@ module ex {
     */
    export interface IEngineOptions {
       /**
-       * Configures the width of the game optionlaly.
+       * Optionally configure the native canvas width of the game
        */
       width?: number;
 
       /**
-       * Configures the height of the game optionally.
+       * Optionally configure the native canvas height of the game
        */
       height?: number;
 
       /**
-       * Configures the canvas element Id to use optionally.
+       * Optionally specify the target canvas DOM element to render the game in
        */
       canvasElementId?: string;
 
       /**
-       * Configures the display mode.
+       * The [[DisplayMode]] of the game. Depending on this value, [[width]] and [[height]] may be ignored.
        */
       displayMode?: ex.DisplayMode;
 
@@ -167,7 +167,13 @@ module ex {
     * a [[Loader]] which you can use to pre-load assets.
     *
     * ```js
-    * var game = new ex.Engine({ width: 800, height: 600 });
+    * var game = new ex.Engine({ 
+    *   width: 800, // the width of the canvas
+    *   height: 600, // the height of the canvas
+    *   canvasElementId: '', // the DOM canvas element ID, if you are providing your own
+    *   displayMode: ex.DisplayMode.FullScreen, // the display mode
+    *   pointerScope: ex.Input.PointerScope.Document // the scope of capturing pointer (mouse/touch) events
+    * });
     *
     * // call game.start, which is a Promise
     * game.start().then(function () {
@@ -248,7 +254,16 @@ module ex {
     * ## Managing the Viewport
     *
     * Excalibur supports multiple [[DisplayMode|display modes]] for a game. Pass in a `displayMode`
-    * option when creating a game to customize the viewport.    
+    * option when creating a game to customize the viewport.  
+    *
+    * The [[width]] and [[height]] are still used to represent the native width and height 
+    * of the canvas, but you can leave them at 0 or `undefined` to ignore them. If width and height
+    * are not specified, the game won't be scaled and native resolution will be the physical screen
+    * width/height.
+    *
+    * If you use [[ex.DisplayMode.Container]], the canvas will automatically resize to fit inside of
+    * it's parent DOM element. This allows you maximum control over the game viewport, e.g. in case
+    * you want to provide HTML UI on top or as part of your game.
     *
     * ## Extending the Engine
     *
@@ -424,11 +439,32 @@ module ex {
       private static _DefaultEngineOptions: IEngineOptions = {
          width: 0, 
          height: 0, 
-         canvasElementId: ''
+         canvasElementId: '',
+         displayMode: ex.DisplayMode.FullScreen,
+         pointerScope: ex.Input.PointerScope.Document
       };
 
       /**
-       * Creates a new game using the given [[IEngineOptions]]
+       * Creates a new game using the given [[IEngineOptions]]. By default, if no options are provided,
+       * the game will be rendered full screen (taking up all available browser window space).
+       * You can customize the game rendering through [[IEngineOptions]].
+       * 
+       * Example:
+       * 
+       * ```js
+       * var game = new ex.Engine({ 
+       *   width: 0, // the width of the canvas
+       *   height: 0, // the height of the canvas
+       *   canvasElementId: '', // the DOM canvas element ID, if you are providing your own
+       *   displayMode: ex.DisplayMode.FullScreen, // the display mode
+       *   pointerScope: ex.Input.PointerScope.Document // the scope of capturing pointer (mouse/touch) events
+       * });
+       *
+       * // call game.start, which is a Promise
+       * game.start().then(function () {
+       *   // ready, set, go!
+       * });
+       * ```
        */
       constructor(options?: IEngineOptions) {
          super();
