@@ -23,6 +23,9 @@ When you submit an issue, a markdown template will automatically populate the ed
 
 
 ## Suggesting Improvements
+If you have an idea for a new feature, or an improvement to existing functionality, use the “Other Issues” Template. We’ve included helpful hints for filling out the issue in the template. 
+
+Please look through our [backlog][issues] to see if your improvement has already been suggested. If so, feel free to provide additional comments or thoughts on the existing issue.
 
 ## Submitting Changes
 
@@ -133,6 +136,7 @@ describe('a monkey', () => {
 
 [forum]: https://groups.google.com/forum/#!forum/excaliburjs
 [releases]: https://github.com/excaliburjs/Excalibur/releases
+[issues]: https://github.com/excaliburjs/Excalibur/issues
 
 [search-label-jump-in]: https://github.com/excaliburjs/Excalibur/labels/jump-in
 [search-label-help wanted]: https://github.com/excaliburjs/Excalibur/labels/help%20wanted
