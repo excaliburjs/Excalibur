@@ -13,6 +13,8 @@ module ex {
     * Actions can be chained together and can be set to repeat,
     * or can be interrupted to change.
     *
+    * Actor actions are available off of [[Actor.actions]].
+    *
     * ## Chaining Actions
     *
     * You can chain actions to create a script because the action
@@ -25,7 +27,7 @@ module ex {
     *   public patrol() {
     *
     *      // clear existing queue
-    *      this.clearActions();
+    *      this.actions.clearActions();
     *
     *      // guard a choke point
     *      // move to 100, 100 and take 1.2s
@@ -33,7 +35,7 @@ module ex {
     *      // move back to 0, 100 and take 1.2s
     *      // wait for 3s
     *      // repeat
-    *      this.moveTo(100, 100, 1200)
+    *      this.actions.moveTo(100, 100, 1200)
     *        .delay(3000)
     *        .moveTo(0, 100, 1200)
     *        .delay(3000)
@@ -44,7 +46,7 @@ module ex {
     *
     * ## Example: Follow a Path
     *
-    * You can use [[Actor.moveTo]] to move to a specific point,
+    * You can use [[Actor.actions.moveTo]] to move to a specific point,
     * allowing you to chain together actions to form a path.
     *
     * This example has a `Ship` follow a path that it guards by
@@ -70,16 +72,16 @@ module ex {
     *
     *     // forward path (skip first spawn point)
     *     for (var i = 1; i < path.length; i++) {
-    *       this.moveTo(path[i].x, path[i].y, 300);
+    *       this.actions.moveTo(path[i].x, path[i].y, 300);
     *     }
     *     
     *     // reverse path (skip last point)
     *     for (var j = path.length - 2; j >= 0; j--) {
-    *       this.moveTo(path[j].x, path[j].y, 300);
+    *       this.actions.moveTo(path[j].x, path[j].y, 300);
     *     }
     *
     *     // repeat
-    *     this.repeatForever();
+    *     this.actions.repeatForever();
     *   }
     * }
     * ```
