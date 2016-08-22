@@ -12875,7 +12875,6 @@ O|===|* >________________>\n\
             width: 0,
             height: 0,
             canvasElementId: '',
-            displayMode: DisplayMode.FullScreen,
             pointerScope: ex.Input.PointerScope.Document
         };
         return Engine;

@@ -459,7 +459,6 @@ module ex {
          width: 0, 
          height: 0, 
          canvasElementId: '',
-         displayMode: DisplayMode.FullScreen,
          pointerScope: Input.PointerScope.Document
       };
 
