@@ -114,6 +114,25 @@ declare var EX_VERSION: string;
  * - [[Timer|Timers]]
  */
 module ex {
+
+   /**
+    * Enum representing the different display modes available to Excalibur
+    */
+   export enum DisplayMode {
+      /** 
+       * Show the game as full screen 
+       */
+      FullScreen,
+      /** 
+       * Scale the game to the parent DOM container 
+       */
+      Container,
+      /** 
+       * Show the game as a fixed size 
+       */
+      Fixed
+   }
+
    /**
     * Defines the available options to configure the Excalibur engine at constructor time.
     */
@@ -440,8 +459,8 @@ module ex {
          width: 0, 
          height: 0, 
          canvasElementId: '',
-         displayMode: ex.DisplayMode.FullScreen,
-         pointerScope: ex.Input.PointerScope.Document
+         displayMode: DisplayMode.FullScreen,
+         pointerScope: Input.PointerScope.Document
       };
 
       /**
@@ -1172,25 +1191,7 @@ O|===|* >________________>\n\
          return complete;
       }
 
-   }
-
-   /**
-    * Enum representing the different display modes available to Excalibur
-    */
-   export enum DisplayMode {
-      /** 
-       * Show the game as full screen 
-       */
-      FullScreen,
-      /** 
-       * Scale the game to the parent DOM container 
-       */
-      Container,
-      /** 
-       * Show the game as a fixed size 
-       */
-      Fixed
-   }
+   }   
 
    /**
     * @internal

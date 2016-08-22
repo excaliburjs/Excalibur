@@ -1579,17 +1579,18 @@ declare module ex {
      *
      * ## Focus
      *
-     * Cameras have a [[BaseCamera.focus|focus]] which means they center around a specific
-     * [[Vector|point]]. This can be an [[Actor]] ([[BaseCamera.setActorToFollow]]) or a specific
-     * [[Vector|point]] ([[BaseCamera.setFocus]]).
+     * Cameras have a position ([[x]], [[y]]) which means they center around a specific
+     * [[Vector|point]]. This can also be an [[Actor]] ([[BaseCamera.setActorToFollow]]) which
+     * the camera will follow as the actor moves, which can be useful for cutscene scenarios (using
+     * invisible actors).
      *
      * If a camera is following an [[Actor]], it will ensure the [[Actor]] is always at the
-     * center of the screen. You can use [[BaseCamera.setFocus]] instead if you wish to
+     * center of the screen. You can use [[x]] and [[y]] instead if you wish to
      * offset the focal point.
      *
      * ## Camera Shake
      *
-     * To add some fun effects to your game, the [[BaseCamera.shake]] method
+     * To add some fun effects to your game, the [[shake]] method
      * will do a random shake. This is great for explosions, damage, and other
      * in-game effects.
      *
@@ -1597,11 +1598,11 @@ declare module ex {
      *
      * "Lerp" is short for [Linear Interpolation](http://en.wikipedia.org/wiki/Linear_interpolation)
      * and it enables the camera focus to move smoothly between two points using timing functions.
-     * Set [[BaseCamera.lerp]] to `true` to enable "lerping".
+     * Use [[move]] to ease to a specific point using a provided [[EasingFunction]].
      *
      * ## Camera Zooming
      *
-     * To adjust the zoom for your game, use [[BaseCamera.zoom]] which will scale the
+     * To adjust the zoom for your game, use [[zoom]] which will scale the
      * game accordingly. You can pass a duration to transition between zoom levels.
      *
      * ## Known Issues
@@ -2075,6 +2076,8 @@ declare module ex {
      * Actions can be chained together and can be set to repeat,
      * or can be interrupted to change.
      *
+     * Actor actions are available off of [[Actor.actions]].
+     *
      * ## Chaining Actions
      *
      * You can chain actions to create a script because the action
@@ -2087,7 +2090,7 @@ declare module ex {
      *   public patrol() {
      *
      *      // clear existing queue
-     *      this.clearActions();
+     *      this.actions.clearActions();
      *
      *      // guard a choke point
      *      // move to 100, 100 and take 1.2s
@@ -2095,7 +2098,7 @@ declare module ex {
      *      // move back to 0, 100 and take 1.2s
      *      // wait for 3s
      *      // repeat
-     *      this.moveTo(100, 100, 1200)
+     *      this.actions.moveTo(100, 100, 1200)
      *        .delay(3000)
      *        .moveTo(0, 100, 1200)
      *        .delay(3000)
@@ -2106,7 +2109,7 @@ declare module ex {
      *
      * ## Example: Follow a Path
      *
-     * You can use [[Actor.moveTo]] to move to a specific point,
+     * You can use [[Actor.actions.moveTo]] to move to a specific point,
      * allowing you to chain together actions to form a path.
      *
      * This example has a `Ship` follow a path that it guards by
@@ -2132,16 +2135,16 @@ declare module ex {
      *
      *     // forward path (skip first spawn point)
      *     for (var i = 1; i < path.length; i++) {
-     *       this.moveTo(path[i].x, path[i].y, 300);
+     *       this.actions.moveTo(path[i].x, path[i].y, 300);
      *     }
      *
      *     // reverse path (skip last point)
      *     for (var j = path.length - 2; j >= 0; j--) {
-     *       this.moveTo(path[j].x, path[j].y, 300);
+     *       this.actions.moveTo(path[j].x, path[j].y, 300);
      *     }
      *
      *     // repeat
-     *     this.repeatForever();
+     *     this.actions.repeatForever();
      *   }
      * }
      * ```
@@ -5518,6 +5521,14 @@ declare module ex {
      * game.start();
      * ```
      *
+     * ## Adjusting Fonts
+     *
+     * You can use the [[fontFamily]], [[fontSize]], [[fontUnit]], [[textAlign]], and [[baseAlign]]
+     * properties to customize how the label is drawn.
+     *
+     * You can also use [[getTextWidth]] to retrieve the measured width of the rendered text for
+     * helping in calculations.
+     *
      * ## Web Fonts
      *
      * The HTML5 Canvas API draws text using CSS syntax. Because of this, web fonts
@@ -5549,6 +5560,7 @@ declare module ex {
      * var label = new ex.Label();
      * label.fontFamily = "Foobar, Arial, Sans-Serif";
      * label.fontSize = 10;
+     * label.fontUnit = ex.FontUnit.Em;
      * label.text = "Hello World";
      *
      * game.add(label);
@@ -5627,7 +5639,7 @@ declare module ex {
         constructor(text?: string, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont);
         /**
          * Returns the width of the text in the label (in pixels);
-         * @param ctx  Rending context to measure the string with
+         * @param ctx  Rendering context to measure the string with
          */
         getTextWidth(ctx: CanvasRenderingContext2D): number;
         private _lookupFontUnit(fontUnit);
@@ -6130,8 +6142,9 @@ declare module ex.Input {
      * ## Gamepad Filtering
      *
      * Different browsers/devices are sometimes loose about the devices they consider Gamepads, you can set minimum device requirements with
-     * `engine.inpute.gamepads.setMinimumGamepadConfiguration` so that undesired devices are not reported to you (Touchpads, Mice, Web
+     * `engine.input.gamepads.setMinimumGamepadConfiguration` so that undesired devices are not reported to you (Touchpads, Mice, Web
      * Cameras, etc.).
+     *
      * ```js
      * // ensures that only gamepads with at least 4 axis and 8 buttons are reported for events
      * engine.input.gamepads.setMinimumGamepadConfiguration({
@@ -6542,19 +6555,19 @@ declare module ex {
      */
     interface IEngineOptions {
         /**
-         * Configures the width of the game optionlaly.
+         * Optionally configure the native canvas width of the game
          */
         width?: number;
         /**
-         * Configures the height of the game optionally.
+         * Optionally configure the native canvas height of the game
          */
         height?: number;
         /**
-         * Configures the canvas element Id to use optionally.
+         * Optionally specify the target canvas DOM element to render the game in
          */
         canvasElementId?: string;
         /**
-         * Configures the display mode.
+         * The [[DisplayMode]] of the game. Depending on this value, [[width]] and [[height]] may be ignored.
          */
         displayMode?: ex.DisplayMode;
         /**
@@ -6585,7 +6598,13 @@ declare module ex {
      * a [[Loader]] which you can use to pre-load assets.
      *
      * ```js
-     * var game = new ex.Engine({ width: 800, height: 600 });
+     * var game = new ex.Engine({
+     *   width: 800, // the width of the canvas
+     *   height: 600, // the height of the canvas
+     *   canvasElementId: '', // the DOM canvas element ID, if you are providing your own
+     *   displayMode: ex.DisplayMode.FullScreen, // the display mode
+     *   pointerScope: ex.Input.PointerScope.Document // the scope of capturing pointer (mouse/touch) events
+     * });
      *
      * // call game.start, which is a Promise
      * game.start().then(function () {
@@ -6667,6 +6686,15 @@ declare module ex {
      *
      * Excalibur supports multiple [[DisplayMode|display modes]] for a game. Pass in a `displayMode`
      * option when creating a game to customize the viewport.
+     *
+     * The [[width]] and [[height]] are still used to represent the native width and height
+     * of the canvas, but you can leave them at 0 or `undefined` to ignore them. If width and height
+     * are not specified, the game won't be scaled and native resolution will be the physical screen
+     * width/height.
+     *
+     * If you use [[ex.DisplayMode.Container]], the canvas will automatically resize to fit inside of
+     * it's parent DOM element. This allows you maximum control over the game viewport, e.g. in case
+     * you want to provide HTML UI on top or as part of your game.
      *
      * ## Extending the Engine
      *
@@ -6817,7 +6845,26 @@ declare module ex {
          */
         private static _DefaultEngineOptions;
         /**
-         * Creates a new game using the given [[IEngineOptions]]
+         * Creates a new game using the given [[IEngineOptions]]. By default, if no options are provided,
+         * the game will be rendered full screen (taking up all available browser window space).
+         * You can customize the game rendering through [[IEngineOptions]].
+         *
+         * Example:
+         *
+         * ```js
+         * var game = new ex.Engine({
+         *   width: 0, // the width of the canvas
+         *   height: 0, // the height of the canvas
+         *   canvasElementId: '', // the DOM canvas element ID, if you are providing your own
+         *   displayMode: ex.DisplayMode.FullScreen, // the display mode
+         *   pointerScope: ex.Input.PointerScope.Document // the scope of capturing pointer (mouse/touch) events
+         * });
+         *
+         * // call game.start, which is a Promise
+         * game.start().then(function () {
+         *   // ready, set, go!
+         * });
+         * ```
          */
         constructor(options?: IEngineOptions);
         /**
