@@ -12065,6 +12065,24 @@ var ex;
 var ex;
 (function (ex) {
     /**
+     * Enum representing the different display modes available to Excalibur
+     */
+    (function (DisplayMode) {
+        /**
+         * Show the game as full screen
+         */
+        DisplayMode[DisplayMode["FullScreen"] = 0] = "FullScreen";
+        /**
+         * Scale the game to the parent DOM container
+         */
+        DisplayMode[DisplayMode["Container"] = 1] = "Container";
+        /**
+         * Show the game as a fixed size
+         */
+        DisplayMode[DisplayMode["Fixed"] = 2] = "Fixed";
+    })(ex.DisplayMode || (ex.DisplayMode = {}));
+    var DisplayMode = ex.DisplayMode;
+    /**
      * The Excalibur Engine
      *
      * The [[Engine]] is the main driver for a game. It is responsible for
@@ -12863,24 +12881,6 @@ O|===|* >________________>\n\
         return Engine;
     }(ex.Class));
     ex.Engine = Engine;
-    /**
-     * Enum representing the different display modes available to Excalibur
-     */
-    (function (DisplayMode) {
-        /**
-         * Show the game as full screen
-         */
-        DisplayMode[DisplayMode["FullScreen"] = 0] = "FullScreen";
-        /**
-         * Scale the game to the parent DOM container
-         */
-        DisplayMode[DisplayMode["Container"] = 1] = "Container";
-        /**
-         * Show the game as a fixed size
-         */
-        DisplayMode[DisplayMode["Fixed"] = 2] = "Fixed";
-    })(ex.DisplayMode || (ex.DisplayMode = {}));
-    var DisplayMode = ex.DisplayMode;
     /**
      * @internal
      */

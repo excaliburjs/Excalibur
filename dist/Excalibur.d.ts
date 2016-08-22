@@ -6551,6 +6551,23 @@ declare var EX_VERSION: string;
  */
 declare module ex {
     /**
+     * Enum representing the different display modes available to Excalibur
+     */
+    enum DisplayMode {
+        /**
+         * Show the game as full screen
+         */
+        FullScreen = 0,
+        /**
+         * Scale the game to the parent DOM container
+         */
+        Container = 1,
+        /**
+         * Show the game as a fixed size
+         */
+        Fixed = 2,
+    }
+    /**
      * Defines the available options to configure the Excalibur engine at constructor time.
      */
     interface IEngineOptions {
@@ -7076,22 +7093,5 @@ declare module ex {
          * @param loader  Some [[ILoadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
          */
         load(loader: ILoadable): Promise<any>;
-    }
-    /**
-     * Enum representing the different display modes available to Excalibur
-     */
-    enum DisplayMode {
-        /**
-         * Show the game as full screen
-         */
-        FullScreen = 0,
-        /**
-         * Scale the game to the parent DOM container
-         */
-        Container = 1,
-        /**
-         * Show the game as a fixed size
-         */
-        Fixed = 2,
     }
 }
