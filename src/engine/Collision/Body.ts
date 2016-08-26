@@ -103,6 +103,11 @@ module ex {
       }
 
 
+      /**
+       * Sets up a box collision area based on the current bounds of the associated actor of this physics body.
+       * 
+       * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
+       */
       public useBoxCollision(center: Vector = ex.Vector.Zero.clone()) {
          
          this.collisionArea = new PolygonArea({
@@ -116,6 +121,13 @@ module ex {
 
       }
 
+      /**
+       * Sets up a polygon collision area based on a list of of points relative to the anchor of the associated actor of this physics body.
+       * 
+       * Only [convex polygon](https://en.wikipedia.org/wiki/Convex_polygon) definitions are supported. 
+       * 
+       * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
+       */
       public usePolygonCollision(points: Vector[], center: Vector = ex.Vector.Zero.clone()) {
          this.collisionArea = new PolygonArea({
             body: this,
@@ -127,6 +139,11 @@ module ex {
          this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
       } 
 
+      /**
+       * Sets up a [[CircleArea|circle collision area]] with a specified radius in pixels.
+       * 
+       * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
+       */
       public useCircleCollision(radius: number, center: Vector = ex.Vector.Zero.clone()) {
          this.collisionArea = new ex.CircleArea({
             body: this,
@@ -136,6 +153,12 @@ module ex {
          this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
       }
 
+      /**
+       * Sets up an [[EdgeArea|edge collision]] with a start point and an end point relative to the anchor of the associated actor 
+       * of this physics body. 
+       * 
+       * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
+       */
       public useEdgeCollision(begin: Vector, end: Vector, center: Vector = ex.Vector.Zero.clone()) {
          this.collisionArea = new ex.EdgeArea({
             begin: begin,

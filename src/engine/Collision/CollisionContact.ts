@@ -197,13 +197,13 @@ module ex {
          
          if (bodyA.collisionType === ex.CollisionType.Fixed) {
             bodyB.vel = bodyB.vel.add(normal.scale(impulse * invMassB));
-            if (Physics.allowRotation) {
+            if (Physics.allowRigidBodyRotation) {
                bodyB.rx -= impulse * invMoiB * -rb.cross(normal);
             }
             bodyB.addMtv(mtv);
          } else if (bodyB.collisionType === ex.CollisionType.Fixed) {
             bodyA.vel = bodyA.vel.sub(normal.scale(impulse * invMassA));
-            if (Physics.allowRotation) {
+            if (Physics.allowRigidBodyRotation) {
                bodyA.rx += impulse * invMoiA * -ra.cross(normal);
             }
             bodyA.addMtv(mtv.negate());
@@ -211,7 +211,7 @@ module ex {
             bodyB.vel = bodyB.vel.add(normal.scale(impulse * invMassB));
             bodyA.vel = bodyA.vel.sub(normal.scale(impulse * invMassA));
             
-            if (Physics.allowRotation) {      
+            if (Physics.allowRigidBodyRotation) {      
                bodyB.rx -= impulse * invMoiB * -rb.cross(normal);
                bodyA.rx += impulse * invMoiA * -ra.cross(normal);
             }
@@ -243,13 +243,13 @@ module ex {
             if ( bodyA.collisionType === ex.CollisionType.Fixed ) {
                   // apply frictional impulse
                   bodyB.vel = bodyB.vel.add(frictionImpulse.scale(invMassB));
-                  if (Physics.allowRotation) {      
+                  if (Physics.allowRigidBodyRotation) {      
                      bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
                   }
             } else if ( bodyB.collisionType === ex.CollisionType.Fixed ) {
                   // apply frictional impulse
                   bodyA.vel = bodyA.vel.sub(frictionImpulse.scale(invMassA));
-                  if (Physics.allowRotation) {      
+                  if (Physics.allowRigidBodyRotation) {      
                      bodyA.rx -= frictionImpulse.dot(t) * invMoiA * ra.cross(t);
                   }
             } else {
@@ -258,7 +258,7 @@ module ex {
                 bodyA.vel = bodyA.vel.sub(frictionImpulse.scale(invMassA));
                 
                 // apply frictional impulse
-                if (Physics.allowRotation) {      
+                if (Physics.allowRigidBodyRotation) {      
                   bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
                   bodyA.rx -= frictionImpulse.dot(t) * invMoiA * ra.cross(t);
                 }                

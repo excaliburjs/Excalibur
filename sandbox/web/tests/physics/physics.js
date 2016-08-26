@@ -17,6 +17,7 @@ function spawnBlock(x, y) {
     var width = ex.Util.randomInRange(20, 100);
     var color = new ex.Color(ex.Util.randomIntInRange(0, 255), ex.Util.randomIntInRange(0, 255), ex.Util.randomIntInRange(0, 255));
     var block = new ex.Actor(x, y, width, width, color);
+    block.body.useBoxCollision();
     block.rotation = Math.PI / 4;
     block.rx = .1;
     block.collisionType = ex.CollisionType.Active;
