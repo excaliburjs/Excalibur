@@ -68,6 +68,10 @@ module ex {
     * var block = new ex.Actor(300, 0, 20, 20, ex.Color.Blue.clone());
     * block.body.useBoxCollision(); // useBoxCollision is the default, technically optional
     * game.add(block);
+    *
+    * var circle = new ex.Actor(300, 100, 20, 20, ex.Color.Red.clone());
+    * circle.body.useCircleCollision(10); 
+    * game.add(circle);
     * 
     * var ground = new ex.Actor(300, 380, 600, 10, ex.Color.Black.clone());
     * ground.collisionType = ex.CollisionType.Fixed;
@@ -81,7 +85,7 @@ module ex {
    /* istanbul ignore next */
    export class Physics {
       /**
-       * Global acceleration that is applied to all vanilla actors (it wont effect [[Label|labels]], [[UIActors|ui actors]], or 
+       * Global acceleration that is applied to all vanilla actors (it wont effect [[Label|labels]], [[UIActor|ui actors]], or 
        * [[Trigger|triggers]]) in Excalibur that have an [[CollisionType.Active|active]] collison type.
        * 
        * 
