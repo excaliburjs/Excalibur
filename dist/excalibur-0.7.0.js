@@ -1,7 +1,7 @@
-/*! excalibur - v0.6.0 - 2016-08-20
+/*! excalibur - v0.7.0 - 2016-08-27
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
-var EX_VERSION = "0.6.0";
+var EX_VERSION = "0.7.0";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -638,44 +638,180 @@ var ex;
 /// <reference path="Collision/IPhysics.ts" />
 var ex;
 (function (ex) {
+    /**
+     * Possible collision resolution strategies
+     *
+     * The default is [[CollisionResolutionStrategy.Box]] which performs simple axis aligned arcade style physcs.
+     *
+     * More advanced rigid body physics are enabled by setting [[CollisionResolutionStrategy.RigidBody]] which allows for complicated
+     * simulated physical interactions.
+     */
     (function (CollisionResolutionStrategy) {
         CollisionResolutionStrategy[CollisionResolutionStrategy["Box"] = 0] = "Box";
         CollisionResolutionStrategy[CollisionResolutionStrategy["RigidBody"] = 1] = "RigidBody";
     })(ex.CollisionResolutionStrategy || (ex.CollisionResolutionStrategy = {}));
     var CollisionResolutionStrategy = ex.CollisionResolutionStrategy;
+    /**
+     * Possible broadphase collision pair identification strategies
+     *
+     * The default strategy is [[BroadphaseStrategy.DynamicAABBTree]] which uses a binary tree of axis-aligned bounding boxes to identify
+     * potential collision pairs which is O(nlog(n)) faster. The other possible strategy is the [[BroadphaseStrategy.Naive]] strategy
+     * which loops over every object for every object in the scene to identify collision pairs which is O(n^2) slower.
+     */
     (function (BroadphaseStrategy) {
         BroadphaseStrategy[BroadphaseStrategy["Naive"] = 0] = "Naive";
         BroadphaseStrategy[BroadphaseStrategy["DynamicAABBTree"] = 1] = "DynamicAABBTree";
     })(ex.BroadphaseStrategy || (ex.BroadphaseStrategy = {}));
     var BroadphaseStrategy = ex.BroadphaseStrategy;
+    /**
+     * Possible numerical integrators for position and velocity
+     */
     (function (Integrator) {
         Integrator[Integrator["Euler"] = 0] = "Euler";
     })(ex.Integrator || (ex.Integrator = {}));
     var Integrator = ex.Integrator;
     /**
-     * Static access engine global physics settings
+     *
+     * Excalibur Physics
+     *
+     * The [[Physics]] object is the global configuration object for all Excalibur physics.
+     *
+     * Excalibur comes built in with two physics systems. The first system is [[CollisionResolutionStrategy.Box|Box physics]], and is a
+     * simple axis-aligned way of doing basic collision detection for non-rotated rectangular areas, defined by an actor's
+     * [[BoundingBox|bounding box]].
+     *
+     * ## Enabling Excalibur physics
+     *
+     * To enable physics in your game it is as simple as setting [[Physics.enabled]] to true and picking your
+     * [[CollisionResolutionStrategy]]
+     *
+     * Excalibur supports 3 different types of collision area shapes in its physics simulation: [[PolygonArea|polygons]],
+     * [[CircleArea|circles]], and [[EdgeArea|edges]]. To use any one of these areas on an actor there are convenience methods off of
+     * the [[Actor|actor]] [[Body|physics body]]: [[Body.useBoxCollision|useBoxCollision]],
+     * [[Body.usePolygonCollision|usePolygonCollision]], [[Body.useCircleCollision|useCircleCollision]], and [[Body.useEdgeCollision]]
+     *
+     * ```ts
+     * // setup game
+     * var game = new ex.Engine({
+     *     width: 600,
+     *     height: 400
+     *  });
+     *
+     * // use rigid body
+     * ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
+     *
+     * // set global acceleration simulating gravity pointing down
+     * ex.Physics.acc.setTo(0, 700);
+     *
+     * var block = new ex.Actor(300, 0, 20, 20, ex.Color.Blue.clone());
+     * block.body.useBoxCollision(); // useBoxCollision is the default, technically optional
+     * game.add(block);
+     *
+     * var circle = new ex.Actor(300, 100, 20, 20, ex.Color.Red.clone());
+     * circle.body.useCircleCollision(10);
+     * game.add(circle);
+     *
+     * var ground = new ex.Actor(300, 380, 600, 10, ex.Color.Black.clone());
+     * ground.collisionType = ex.CollisionType.Fixed;
+     * edge.body.useBoxCollision(); // optional
+     * game.add(ground);
+     *
+     * // start the game
+     * game.start();
+     * ```
      */
     /* istanbul ignore next */
     var Physics = (function () {
         function Physics() {
         }
+        /**
+         * Global acceleration that is applied to all vanilla actors (it wont effect [[Label|labels]], [[UIActor|ui actors]], or
+         * [[Trigger|triggers]]) in Excalibur that have an [[CollisionType.Active|active]] collison type.
+         *
+         *
+         * This is a great way to globally simulate effects like gravity.
+         */
         Physics.acc = new ex.Vector(0, 0);
+        /**
+         * Globally switches all Excalibur physics behavior on or off.
+         */
         Physics.enabled = true;
+        /**
+         * Gets or sets the number of collision passes for Excalibur to perform on physics bodies.
+         *
+         * Reducing collision passes may cause things not to collide as expected in your game, but may increase performance.
+         *
+         * More passes can improve the visual quality of collisions when many objects are on the screen. This can reduce jitter, improve the
+         * collison resolution of fast move objects, or the stability of large numbers of objects stacked together.
+         *
+         * Fewer passes will improve the performance of the game at the cost of collision quality, more passes will improve quality at the
+         * cost of performance.
+         *
+         * The default is set to 5 passes which is a good start.
+         */
         Physics.collisionPasses = 5;
+        /**
+         * Gets or sets the broadphase pair identification strategy.
+         *
+         * The default strategy is [[BroadphaseStrategy.DynamicAABBTree]] which uses a binary tree of axis-aligned bounding boxes to identify
+         * potential collision pairs which is O(nlog(n)) faster. The other possible strategy is the [[BroadphaseStrategy.Naive]] strategy
+         * which loops over every object for every object in the scene to identify collision pairs which is O(n^2) slower.
+         */
         Physics.broadphaseStrategy = BroadphaseStrategy.DynamicAABBTree;
+        /**
+         * Globally switches the debug information for the broadphase strategy
+         */
         Physics.broadphaseDebug = false;
+        /**
+         * Show the normals as a result of collision on the screen.
+         */
         Physics.showCollisionNormals = false;
+        /**
+         * Show the position, velocity, and acceleration as graphical vectors.
+         */
         Physics.showMotionVectors = false;
+        /**
+         * Show the axis-aligned bounding boxes of the collision bodies on the screen.
+         */
         Physics.showBounds = false;
+        /**
+         * Show the bounding collision area shapes
+         */
         Physics.showArea = false;
+        /**
+         * Show points of collision interpreted by excalibur as a result of collision.
+         */
         Physics.showContacts = false;
+        /**
+         * Show the surface normals of the collision areas.
+         */
         Physics.showNormals = false;
+        /**
+         * Gets or sets the global collision resolution strategy (narrowphase).
+         *
+         * The default is [[CollisionResolutionStrategy.Box]] which performs simple axis aligned arcade style physcs.
+         *
+         * More advanced rigid body physics are enabled by setting [[CollisionResolutionStrategy.RigidBody]] which allows for complicated
+         * simulated physical interactions.
+         */
         Physics.collisionResolutionStrategy = CollisionResolutionStrategy.Box;
+        /**
+         * The default mass to use if none is specified
+         */
         Physics.defaultMass = 10;
+        /**
+         * Gets or sets the position and velocity positional integrator, currently only Euler is supported.
+         */
         Physics.integrator = Integrator.Euler;
+        /**
+         * Number of steps to use in integration. A higher number improves the positional accuracy over time. This can be useful to increase
+         * if you have fast moving objects in your simulation or you have a large number of objects and need to increase stability.
+         */
         Physics.integrationSteps = 1;
-        Physics.allowRotation = true;
-        Physics.motionBias = .9;
+        /**
+         * Gets or sets whether rotation is allowed in a RigidBody collision resolution
+         */
+        Physics.allowRigidBodyRotation = true;
         return Physics;
     }());
     ex.Physics = Physics;
@@ -830,14 +966,14 @@ var ex;
                 ((invMassA + invMassB) + invMoiA * raTangent * raTangent + invMoiB * rbTangent * rbTangent);
             if (bodyA.collisionType === ex.CollisionType.Fixed) {
                 bodyB.vel = bodyB.vel.add(normal.scale(impulse * invMassB));
-                if (ex.Physics.allowRotation) {
+                if (ex.Physics.allowRigidBodyRotation) {
                     bodyB.rx -= impulse * invMoiB * -rb.cross(normal);
                 }
                 bodyB.addMtv(mtv);
             }
             else if (bodyB.collisionType === ex.CollisionType.Fixed) {
                 bodyA.vel = bodyA.vel.sub(normal.scale(impulse * invMassA));
-                if (ex.Physics.allowRotation) {
+                if (ex.Physics.allowRigidBodyRotation) {
                     bodyA.rx += impulse * invMoiA * -ra.cross(normal);
                 }
                 bodyA.addMtv(mtv.negate());
@@ -845,7 +981,7 @@ var ex;
             else {
                 bodyB.vel = bodyB.vel.add(normal.scale(impulse * invMassB));
                 bodyA.vel = bodyA.vel.sub(normal.scale(impulse * invMassA));
-                if (ex.Physics.allowRotation) {
+                if (ex.Physics.allowRigidBodyRotation) {
                     bodyB.rx -= impulse * invMoiB * -rb.cross(normal);
                     bodyA.rx += impulse * invMoiA * -ra.cross(normal);
                 }
@@ -871,14 +1007,14 @@ var ex;
                 if (bodyA.collisionType === ex.CollisionType.Fixed) {
                     // apply frictional impulse
                     bodyB.vel = bodyB.vel.add(frictionImpulse.scale(invMassB));
-                    if (ex.Physics.allowRotation) {
+                    if (ex.Physics.allowRigidBodyRotation) {
                         bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
                     }
                 }
                 else if (bodyB.collisionType === ex.CollisionType.Fixed) {
                     // apply frictional impulse
                     bodyA.vel = bodyA.vel.sub(frictionImpulse.scale(invMassA));
-                    if (ex.Physics.allowRotation) {
+                    if (ex.Physics.allowRigidBodyRotation) {
                         bodyA.rx -= frictionImpulse.dot(t) * invMoiA * ra.cross(t);
                     }
                 }
@@ -887,7 +1023,7 @@ var ex;
                     bodyB.vel = bodyB.vel.add(frictionImpulse.scale(invMassB));
                     bodyA.vel = bodyA.vel.sub(frictionImpulse.scale(invMassA));
                     // apply frictional impulse
-                    if (ex.Physics.allowRotation) {
+                    if (ex.Physics.allowRigidBodyRotation) {
                         bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
                         bodyA.rx -= frictionImpulse.dot(t) * invMoiA * ra.cross(t);
                     }
@@ -1666,9 +1802,8 @@ var ex;
                 // Update placements based on linear algebra
                 var seconds = delta / 1000;
                 var totalAcc = actor.acc.clone();
-                // Fixed actors are not affected by global acceleration
-                if (actor.collisionType !== ex.CollisionType.Fixed &&
-                    actor.collisionType !== ex.CollisionType.PreventCollision &&
+                // Only active vanilla actors are affected by global acceleration
+                if (actor.collisionType === ex.CollisionType.Active &&
                     !(actor instanceof ex.UIActor) &&
                     !(actor instanceof ex.Trigger) &&
                     !(actor instanceof ex.Label)) {
@@ -3656,6 +3791,11 @@ var ex;
                 return this.actor.getRelativeBounds();
             }
         };
+        /**
+         * Sets up a box collision area based on the current bounds of the associated actor of this physics body.
+         *
+         * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
+         */
         Body.prototype.useBoxCollision = function (center) {
             if (center === void 0) { center = ex.Vector.Zero.clone(); }
             this.collisionArea = new ex.PolygonArea({
@@ -3666,6 +3806,13 @@ var ex;
             // in case of a nan moi, collesce to a safe default
             this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
         };
+        /**
+         * Sets up a polygon collision area based on a list of of points relative to the anchor of the associated actor of this physics body.
+         *
+         * Only [convex polygon](https://en.wikipedia.org/wiki/Convex_polygon) definitions are supported.
+         *
+         * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
+         */
         Body.prototype.usePolygonCollision = function (points, center) {
             if (center === void 0) { center = ex.Vector.Zero.clone(); }
             this.collisionArea = new ex.PolygonArea({
@@ -3676,6 +3823,11 @@ var ex;
             // in case of a nan moi, collesce to a safe default
             this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
         };
+        /**
+         * Sets up a [[CircleArea|circle collision area]] with a specified radius in pixels.
+         *
+         * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
+         */
         Body.prototype.useCircleCollision = function (radius, center) {
             if (center === void 0) { center = ex.Vector.Zero.clone(); }
             this.collisionArea = new ex.CircleArea({
@@ -3685,6 +3837,12 @@ var ex;
             });
             this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
         };
+        /**
+         * Sets up an [[EdgeArea|edge collision]] with a start point and an end point relative to the anchor of the associated actor
+         * of this physics body.
+         *
+         * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
+         */
         Body.prototype.useEdgeCollision = function (begin, end, center) {
             if (center === void 0) { center = ex.Vector.Zero.clone(); }
             this.collisionArea = new ex.EdgeArea({
@@ -4441,17 +4599,18 @@ var ex;
      *
      * ## Focus
      *
-     * Cameras have a [[BaseCamera.focus|focus]] which means they center around a specific
-     * [[Vector|point]]. This can be an [[Actor]] ([[BaseCamera.setActorToFollow]]) or a specific
-     * [[Vector|point]] ([[BaseCamera.setFocus]]).
+     * Cameras have a position ([[x]], [[y]]) which means they center around a specific
+     * [[Vector|point]]. This can also be an [[Actor]] ([[BaseCamera.setActorToFollow]]) which
+     * the camera will follow as the actor moves, which can be useful for cutscene scenarios (using
+     * invisible actors).
      *
      * If a camera is following an [[Actor]], it will ensure the [[Actor]] is always at the
-     * center of the screen. You can use [[BaseCamera.setFocus]] instead if you wish to
+     * center of the screen. You can use [[x]] and [[y]] instead if you wish to
      * offset the focal point.
      *
      * ## Camera Shake
      *
-     * To add some fun effects to your game, the [[BaseCamera.shake]] method
+     * To add some fun effects to your game, the [[shake]] method
      * will do a random shake. This is great for explosions, damage, and other
      * in-game effects.
      *
@@ -4459,11 +4618,11 @@ var ex;
      *
      * "Lerp" is short for [Linear Interpolation](http://en.wikipedia.org/wiki/Linear_interpolation)
      * and it enables the camera focus to move smoothly between two points using timing functions.
-     * Set [[BaseCamera.lerp]] to `true` to enable "lerping".
+     * Use [[move]] to ease to a specific point using a provided [[EasingFunction]].
      *
      * ## Camera Zooming
      *
-     * To adjust the zoom for your game, use [[BaseCamera.zoom]] which will scale the
+     * To adjust the zoom for your game, use [[zoom]] which will scale the
      * game accordingly. You can pass a duration to transition between zoom levels.
      *
      * ## Known Issues
@@ -5657,6 +5816,8 @@ var ex;
      * Actions can be chained together and can be set to repeat,
      * or can be interrupted to change.
      *
+     * Actor actions are available off of [[Actor.actions]].
+     *
      * ## Chaining Actions
      *
      * You can chain actions to create a script because the action
@@ -5669,7 +5830,7 @@ var ex;
      *   public patrol() {
      *
      *      // clear existing queue
-     *      this.clearActions();
+     *      this.actions.clearActions();
      *
      *      // guard a choke point
      *      // move to 100, 100 and take 1.2s
@@ -5677,7 +5838,7 @@ var ex;
      *      // move back to 0, 100 and take 1.2s
      *      // wait for 3s
      *      // repeat
-     *      this.moveTo(100, 100, 1200)
+     *      this.actions.moveTo(100, 100, 1200)
      *        .delay(3000)
      *        .moveTo(0, 100, 1200)
      *        .delay(3000)
@@ -5688,7 +5849,7 @@ var ex;
      *
      * ## Example: Follow a Path
      *
-     * You can use [[Actor.moveTo]] to move to a specific point,
+     * You can use [[Actor.actions.moveTo]] to move to a specific point,
      * allowing you to chain together actions to form a path.
      *
      * This example has a `Ship` follow a path that it guards by
@@ -5714,16 +5875,16 @@ var ex;
      *
      *     // forward path (skip first spawn point)
      *     for (var i = 1; i < path.length; i++) {
-     *       this.moveTo(path[i].x, path[i].y, 300);
+     *       this.actions.moveTo(path[i].x, path[i].y, 300);
      *     }
      *
      *     // reverse path (skip last point)
      *     for (var j = path.length - 2; j >= 0; j--) {
-     *       this.moveTo(path[j].x, path[j].y, 300);
+     *       this.actions.moveTo(path[j].x, path[j].y, 300);
      *     }
      *
      *     // repeat
-     *     this.repeatForever();
+     *     this.actions.repeatForever();
      *   }
      * }
      * ```
@@ -11885,6 +12046,14 @@ var ex;
      * game.start();
      * ```
      *
+     * ## Adjusting Fonts
+     *
+     * You can use the [[fontFamily]], [[fontSize]], [[fontUnit]], [[textAlign]], and [[baseAlign]]
+     * properties to customize how the label is drawn.
+     *
+     * You can also use [[getTextWidth]] to retrieve the measured width of the rendered text for
+     * helping in calculations.
+     *
      * ## Web Fonts
      *
      * The HTML5 Canvas API draws text using CSS syntax. Because of this, web fonts
@@ -11916,6 +12085,7 @@ var ex;
      * var label = new ex.Label();
      * label.fontFamily = "Foobar, Arial, Sans-Serif";
      * label.fontSize = 10;
+     * label.fontUnit = ex.FontUnit.Em;
      * label.text = "Hello World";
      *
      * game.add(label);
@@ -11987,7 +12157,7 @@ var ex;
         }
         /**
          * Returns the width of the text in the label (in pixels);
-         * @param ctx  Rending context to measure the string with
+         * @param ctx  Rendering context to measure the string with
          */
         Label.prototype.getTextWidth = function (ctx) {
             var oldFont = ctx.font;
@@ -12801,8 +12971,9 @@ var ex;
          * ## Gamepad Filtering
          *
          * Different browsers/devices are sometimes loose about the devices they consider Gamepads, you can set minimum device requirements with
-         * `engine.inpute.gamepads.setMinimumGamepadConfiguration` so that undesired devices are not reported to you (Touchpads, Mice, Web
+         * `engine.input.gamepads.setMinimumGamepadConfiguration` so that undesired devices are not reported to you (Touchpads, Mice, Web
          * Cameras, etc.).
+         *
          * ```js
          * // ensures that only gamepads with at least 4 axis and 8 buttons are reported for events
          * engine.input.gamepads.setMinimumGamepadConfiguration({
@@ -13337,6 +13508,7 @@ var ex;
  *   - [[UIActor|UI Actors (HUD)]]
  *   - [[ActionContext|Action API]]
  *   - [[Group|Groups]]
+ * - [[Physics|Working with Physics]]
  *
  * ## Working with Resources
  *
@@ -13394,6 +13566,24 @@ var ex;
 var ex;
 (function (ex) {
     /**
+     * Enum representing the different display modes available to Excalibur
+     */
+    (function (DisplayMode) {
+        /**
+         * Show the game as full screen
+         */
+        DisplayMode[DisplayMode["FullScreen"] = 0] = "FullScreen";
+        /**
+         * Scale the game to the parent DOM container
+         */
+        DisplayMode[DisplayMode["Container"] = 1] = "Container";
+        /**
+         * Show the game as a fixed size
+         */
+        DisplayMode[DisplayMode["Fixed"] = 2] = "Fixed";
+    })(ex.DisplayMode || (ex.DisplayMode = {}));
+    var DisplayMode = ex.DisplayMode;
+    /**
      * The Excalibur Engine
      *
      * The [[Engine]] is the main driver for a game. It is responsible for
@@ -13415,7 +13605,13 @@ var ex;
      * a [[Loader]] which you can use to pre-load assets.
      *
      * ```js
-     * var game = new ex.Engine({ width: 800, height: 600 });
+     * var game = new ex.Engine({
+     *   width: 800, // the width of the canvas
+     *   height: 600, // the height of the canvas
+     *   canvasElementId: '', // the DOM canvas element ID, if you are providing your own
+     *   displayMode: ex.DisplayMode.FullScreen, // the display mode
+     *   pointerScope: ex.Input.PointerScope.Document // the scope of capturing pointer (mouse/touch) events
+     * });
      *
      * // call game.start, which is a Promise
      * game.start().then(function () {
@@ -13498,6 +13694,15 @@ var ex;
      * Excalibur supports multiple [[DisplayMode|display modes]] for a game. Pass in a `displayMode`
      * option when creating a game to customize the viewport.
      *
+     * The [[width]] and [[height]] are still used to represent the native width and height
+     * of the canvas, but you can leave them at 0 or `undefined` to ignore them. If width and height
+     * are not specified, the game won't be scaled and native resolution will be the physical screen
+     * width/height.
+     *
+     * If you use [[ex.DisplayMode.Container]], the canvas will automatically resize to fit inside of
+     * it's parent DOM element. This allows you maximum control over the game viewport, e.g. in case
+     * you want to provide HTML UI on top or as part of your game.
+     *
      * ## Extending the Engine
      *
      * For complex games, any entity that inherits [[Class]] can be extended to override built-in
@@ -13561,7 +13766,26 @@ var ex;
     var Engine = (function (_super) {
         __extends(Engine, _super);
         /**
-         * Creates a new game using the given [[IEngineOptions]]
+         * Creates a new game using the given [[IEngineOptions]]. By default, if no options are provided,
+         * the game will be rendered full screen (taking up all available browser window space).
+         * You can customize the game rendering through [[IEngineOptions]].
+         *
+         * Example:
+         *
+         * ```js
+         * var game = new ex.Engine({
+         *   width: 0, // the width of the canvas
+         *   height: 0, // the height of the canvas
+         *   canvasElementId: '', // the DOM canvas element ID, if you are providing your own
+         *   displayMode: ex.DisplayMode.FullScreen, // the display mode
+         *   pointerScope: ex.Input.PointerScope.Document // the scope of capturing pointer (mouse/touch) events
+         * });
+         *
+         * // call game.start, which is a Promise
+         * game.start().then(function () {
+         *   // ready, set, go!
+         * });
+         * ```
          */
         function Engine(options) {
             _super.call(this);
@@ -14138,29 +14362,12 @@ O|===|* >________________>\n\
         Engine._DefaultEngineOptions = {
             width: 0,
             height: 0,
-            canvasElementId: ''
+            canvasElementId: '',
+            pointerScope: ex.Input.PointerScope.Document
         };
         return Engine;
     }(ex.Class));
     ex.Engine = Engine;
-    /**
-     * Enum representing the different display modes available to Excalibur
-     */
-    (function (DisplayMode) {
-        /**
-         * Show the game as full screen
-         */
-        DisplayMode[DisplayMode["FullScreen"] = 0] = "FullScreen";
-        /**
-         * Scale the game to the parent DOM container
-         */
-        DisplayMode[DisplayMode["Container"] = 1] = "Container";
-        /**
-         * Show the game as a fixed size
-         */
-        DisplayMode[DisplayMode["Fixed"] = 2] = "Fixed";
-    })(ex.DisplayMode || (ex.DisplayMode = {}));
-    var DisplayMode = ex.DisplayMode;
     /**
      * @internal
      */
@@ -14173,7 +14380,7 @@ O|===|* >________________>\n\
         return AnimationNode;
     }());
 })(ex || (ex = {}));
-//# sourceMappingURL=excalibur-0.6.0.js.map
+//# sourceMappingURL=excalibur-0.7.0.js.map
 ;
 // Concatenated onto excalibur after build
 // Exports the excalibur module so it can be used with browserify

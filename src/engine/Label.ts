@@ -130,6 +130,14 @@ module ex {
     * game.start();
     * ```
     *
+    * ## Adjusting Fonts
+    *
+    * You can use the [[fontFamily]], [[fontSize]], [[fontUnit]], [[textAlign]], and [[baseAlign]] 
+    * properties to customize how the label is drawn.
+    *
+    * You can also use [[getTextWidth]] to retrieve the measured width of the rendered text for
+    * helping in calculations.
+    *
     * ## Web Fonts
     *
     * The HTML5 Canvas API draws text using CSS syntax. Because of this, web fonts
@@ -161,6 +169,7 @@ module ex {
     * var label = new ex.Label();
     * label.fontFamily = "Foobar, Arial, Sans-Serif";
     * label.fontSize = 10;
+    * label.fontUnit = ex.FontUnit.Em;
     * label.text = "Hello World";
     *
     * game.add(label);
@@ -265,7 +274,7 @@ module ex {
 
       /**
        * Returns the width of the text in the label (in pixels);
-       * @param ctx  Rending context to measure the string with
+       * @param ctx  Rendering context to measure the string with
        */
       public getTextWidth(ctx: CanvasRenderingContext2D): number {
          var oldFont = ctx.font;

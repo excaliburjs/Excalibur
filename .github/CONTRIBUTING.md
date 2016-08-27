@@ -10,7 +10,7 @@ Have questions? Ask them in our [forum]!
 Before reporting a bug, please perform the following basic troubleshooting steps:
 
 1. Check to see if the problem has already been reported
-	- Take a look through the list of [current bugs][search-label-bug] to see if someone has already created an issue that describes the problem you’re experiencing. If an issue already exists, consider adding any additional context you have about the problem in a comment.
+	- Take a look through the list of [known bugs][search-label-bug] to see if someone has already created an issue that describes the problem you’re experiencing. If an issue already exists, consider adding any additional context you have about the problem in a comment.
 2. Try the latest stable version of Excalibur
 	- If you’re not using the latest [release][releases], your problem may already be fixed. Please upgrade to the latest stable version and see if you still experience the problem.
 	- Alternatively, if you’re using a new unstable release, try rolling back to the latest stable release.
@@ -23,6 +23,9 @@ When you submit an issue, a markdown template will automatically populate the ed
 
 
 ## Suggesting Improvements
+If you have an idea for a new feature, or an improvement to existing functionality, use the “Other Issues” Template. We’ve included helpful hints for filling out the issue in the template. 
+
+Please look through our [backlog][issues] to see if your improvement has already been suggested. If so, feel free to provide additional comments or thoughts on the existing issue.
 
 ## Submitting Changes
 
@@ -34,28 +37,28 @@ Below is the general workflow for submitting changes:
 3. Commit to your fork with your changes
 4. Submit a pull request, making sure to reference the issue you're addressing
 5. Make sure it passes the CI build
-6. Wait for a project contributor to give you feedback
-7. Once you're changes are merged, celebrate!
+6. Wait for a project contributor to give you feedback, and make changes if necessary
+7. Once your changes are merged, celebrate!
 
 If you’re not sure where to start, take a look at the jump-in or help wanted issue labels.
 
 #### Creating a Pull Request
 - Please do all of your work in a new git branch. Only include code in the branch for the single issue you are working on.
-- Include Jasmine tests for your changes, following our styleguide. Put them in the src/spec folder.
-- Document new public methods and properties based on the styleguide.
-- Squash your local commits into logical atomic changes. Please follow our styleguide for your commit messages.
+- Include Jasmine tests for your changes, following our [styleguide](#tests). Put them in the src/spec folder.
+- Document new public methods and properties based on the [styleguide](#documentation).
+- Squash your local commits into logical atomic changes. Please follow our [styleguide](#commit-messages) for your commit messages.
 - Send a pull request via Github.
 
 ## Styleguides
 
 #### Code
-A number of our code formatting rules are enforced via linting. When Excalibur is built, the linter will make sure that certain aspects of your code are formatted properly. Additionally:
+A number of our code formatting rules are enforced via linting. When you build Excalibur on your computer, the linter will make sure that certain aspects of your code are formatted properly. Additionally:
 - Use 3 spaces for indenting
-- All methods must explicitly spedcify their access modifier (public, private, etc.)
+- All methods must explicitly specify their access modifier (public, private, etc.)
 - Use the CamelCase naming convention, with a lowercase first letter for variables.
 
 #### Commit Messages
-Follow the guidelines below to help maintain a readable and informative git history.
+Follow the guidelines below to help maintain a readable and informative git history:
 - Use present tense verbs (“Fix bug where…” instead of “Fixed bug where…”)
 - Use imperative mood (“Add new feature” instead of “Adds new feature”)
 - Capitalize the first letter of the first line
@@ -133,6 +136,7 @@ describe('a monkey', () => {
 
 [forum]: https://groups.google.com/forum/#!forum/excaliburjs
 [releases]: https://github.com/excaliburjs/Excalibur/releases
+[issues]: https://github.com/excaliburjs/Excalibur/issues
 
 [search-label-jump-in]: https://github.com/excaliburjs/Excalibur/labels/jump-in
 [search-label-help wanted]: https://github.com/excaliburjs/Excalibur/labels/help%20wanted

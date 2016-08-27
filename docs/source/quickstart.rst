@@ -60,6 +60,9 @@ play. Actors are the primary way to draw things to the screen.
 .. note:: ProTip™ Actors must be added to a scene to be drawn or updated!
           ``game.add(actor)`` Will add an actor to the current scene.
 
+.. note:: Important! Actors have a default anchor of (0.5, 0.5) which means
+          their position is centered (not top-left) by default.
+
 .. code-block:: javascript
 
     // game.js
@@ -70,10 +73,10 @@ play. Actors are the primary way to draw things to the screen.
         height: 600
     });
 
-    // Create an actor with x position of 100px,
+    // Create an actor with x position of 150px,
     // y position of 40px from the bottom of the screen,
     // width of 200px, height and a height of 20px
-    var paddle = new ex.Actor(100, game.getHeight() - 40, 200, 20);
+    var paddle = new ex.Actor(150, game.getHeight() - 40, 200, 20);
 
     // Let's give it some color with one of the predefined
     // color constants
@@ -99,7 +102,7 @@ make the paddle follow the mouse around in the x direction.
 
     // Add a mouse move listener
     game.input.pointers.primary.on('move', function (evt) {
-        paddle.x = evt.x;
+        paddle.pos.x = evt.x;
     });
 
 What's breakout without the ball? To make the ball bounce, Excalibur
@@ -114,11 +117,8 @@ collisions, which is sufficient for breakout.
     // Set the color
     ball.color = ex.Color.Red;
 
-    // Set the x velocity in pixels per second
-    ball.dx = 100;
-
-    // Set the y velocity in pixels per second
-    ball.dy = 100;
+    // Set the velocity in pixels per second
+    ball.vel.setTo(100, 100);
 
     // Set the collision Type to elastic
     ball.collisionType = ex.CollisionType.Elastic;
@@ -136,24 +136,24 @@ event.
     ball.on('update', function () {
         // If the ball collides with the left side
         // of the screen reverse the x velocity
-        if (this.x < 0) {
-            this.dx *= -1;
+        if (this.pos.x < (this.getWidth() / 2)) {
+            this.vel.x *= -1;
         }
 
         // If the ball collides with the right side
         // of the screen reverse the x velocity
-        if (this.x + this.getWidth() > game.getWidth()) {
-            this.dx *= -1;
+        if (this.pos.x + (this.getWidth() / 2) > game.getWidth()) {
+            this.vel.x *= -1;
         }
 
         // If the ball collides with the top
         // of the screen reverse the y velocity
-        if (this.y < 0) {
-            this.dy *= -1;
+        if (this.pos.y < 0) {
+            this.vel.y *= -1;
         }
     });
 
-Don't like square balls? Me neither. You can create your own custom
+Don't like square balls? Neither do we. You can create your own custom
 drawing function like so:
 
 .. code-block:: javascript
@@ -166,7 +166,7 @@ drawing function like so:
         // Custom draw code
         ctx.fillStyle = this.color.toString();
         ctx.beginPath();
-        ctx.arc(this.x, this.y, 10, 0, Math.PI * 2);
+        ctx.arc(this.pos.x, this.pos.y, 10, 0, Math.PI * 2);
         ctx.closePath();
         ctx.fill();
     }
@@ -184,7 +184,8 @@ layout and add them to the current scene.
 
     // Padding between bricks
     var padding = 20; // px
-
+    var xoffset = 65; // x-offset
+    var yoffset = 20; // y-offset
     var columns = 5;
     var rows = 3;
 
@@ -196,7 +197,7 @@ layout and add them to the current scene.
     var bricks = [];
     for (var j = 0; j < rows; j++) {
         for (var i = 0; i < columns; i++) {
-            bricks.push(new ex.Actor(i * (brickWidth + padding) + padding, j * (brickHeight + padding) + padding, brickWidth, brickHeight, brickColor[j % brickColor.length]));
+            bricks.push(new ex.Actor(xoffset + i * (brickWidth + padding) + padding, yoffset + j * (brickHeight + padding) + padding, brickWidth, brickHeight, brickColor[j % brickColor.length]));
         }
     }
 
@@ -237,8 +238,7 @@ examples and an `API Reference <http://excaliburjs.com/docs>`__.
 
 .. raw:: html
 
-   <iframe width="100%" height="700" src="//jsfiddle.net/excaliburjs/6Ay9S/19/embedded/" allowfullscreen="allowfullscreen" frameborder="0">
-   </iframe>
+   <iframe width="100%" height="300" src="//jsfiddle.net/6Ay9S/25/embedded/js,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
 
 .. |Hello World Excalibur| image:: assets/quickstart/breakoutPartial.png
 .. |Breakout Example Excalibur| image:: assets/quickstart/breakoutFinal.png

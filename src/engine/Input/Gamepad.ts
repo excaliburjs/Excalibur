@@ -18,8 +18,9 @@
     * ## Gamepad Filtering
     * 
     * Different browsers/devices are sometimes loose about the devices they consider Gamepads, you can set minimum device requirements with
-    * `engine.inpute.gamepads.setMinimumGamepadConfiguration` so that undesired devices are not reported to you (Touchpads, Mice, Web 
+    * `engine.input.gamepads.setMinimumGamepadConfiguration` so that undesired devices are not reported to you (Touchpads, Mice, Web 
     * Cameras, etc.).
+    *
     * ```js
     * // ensures that only gamepads with at least 4 axis and 8 buttons are reported for events
     * engine.input.gamepads.setMinimumGamepadConfiguration({
