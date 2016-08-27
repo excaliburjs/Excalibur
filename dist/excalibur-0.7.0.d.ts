@@ -1997,7 +1997,7 @@ declare module ex {
          *
          * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
          */
-        useCircleCollision(radius: number, center?: Vector): void;
+        useCircleCollision(radius?: number, center?: Vector): void;
         /**
          * Sets up an [[EdgeArea|edge collision]] with a start point and an end point relative to the anchor of the associated actor
          * of this physics body.

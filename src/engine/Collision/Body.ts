@@ -144,7 +144,10 @@ module ex {
        * 
        * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
        */
-      public useCircleCollision(radius: number, center: Vector = ex.Vector.Zero.clone()) {
+      public useCircleCollision(radius?: number, center: Vector = ex.Vector.Zero.clone()) {
+         if (!radius) {
+            radius = this.actor.getWidth() / 2;
+         }
          this.collisionArea = new ex.CircleArea({
             body: this,
             radius: radius,

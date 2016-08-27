@@ -3830,6 +3830,9 @@ var ex;
          */
         Body.prototype.useCircleCollision = function (radius, center) {
             if (center === void 0) { center = ex.Vector.Zero.clone(); }
+            if (!radius) {
+                radius = this.actor.getWidth() / 2;
+            }
             this.collisionArea = new ex.CircleArea({
                 body: this,
                 radius: radius,
