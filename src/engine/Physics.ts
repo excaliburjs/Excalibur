@@ -81,12 +81,19 @@ module ex {
     * // start the game
     * game.start();
     * ```
+    *
+    * ## Limitations
+    *
+    * Currently Excalibur only supports single contact point collisions and non-sleeping physics bodies. This has some negative stability 
+    * and performance implications. Single contact point collisions can have odd oscilating behavior. Non-sleeping bodies will recalculate
+    * collisions whether they need to or not. We fully intend to add these features into Excalibur in future releases.
+    *
     */
    /* istanbul ignore next */
    export class Physics {
       /**
        * Global acceleration that is applied to all vanilla actors (it wont effect [[Label|labels]], [[UIActor|ui actors]], or 
-       * [[Trigger|triggers]]) in Excalibur that have an [[CollisionType.Active|active]] collison type.
+       * [[Trigger|triggers]] in Excalibur that have an [[CollisionType.Active|active]] collison type).
        * 
        * 
        * This is a great way to globally simulate effects like gravity.
@@ -121,6 +128,7 @@ module ex {
        * which loops over every object for every object in the scene to identify collision pairs which is O(n^2) slower.
        */
       public static broadphaseStrategy: BroadphaseStrategy = BroadphaseStrategy.DynamicAABBTree;
+      
       /**
        * Globally switches the debug information for the broadphase strategy
        */
@@ -152,7 +160,7 @@ module ex {
       /**
        * Gets or sets the global collision resolution strategy (narrowphase).
        * 
-       * The default is [[CollisionResolutionStrategy.Box]] which performs simple axis aligned arcade style physcs.
+       * The default is [[CollisionResolutionStrategy.Box]] which performs simple axis aligned arcade style physics.
        * 
        * More advanced rigid body physics are enabled by setting [[CollisionResolutionStrategy.RigidBody]] which allows for complicated
        * simulated physical interactions.
@@ -175,5 +183,20 @@ module ex {
        * Gets or sets whether rotation is allowed in a RigidBody collision resolution 
        */
       public static allowRigidBodyRotation = true;
+
+      /**
+       * Configures Excalibur to use box physics. Box physics which performs simple axis aligned arcade style physics.
+       */
+      public static useBoxPhysics(): void {
+         ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Box;
+      }
+
+      /**
+       * Configures Excalibur to use rigid body physics. Rigid body physics allows for complicated
+       * simulated physical interactions.
+       */
+      public static useRigidBodyPhysics(): void {
+         ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
+      }
    };
 }
