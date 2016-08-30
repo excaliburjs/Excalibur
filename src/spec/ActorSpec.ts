@@ -24,6 +24,18 @@ describe('A game actor', () => {
    it('should be loaded', () => {
       expect(ex.Actor).toBeTruthy();
    });
+   
+   it('actors should generate pair hashes in the correct order', () => {
+      var actor = new ex.Actor();
+      actor.id = 20;
+      var actor2 = new ex.Actor();
+      actor2.id = 40;
+
+      var hash = actor.calculatePairHash(actor2);
+      var hash2 = actor2.calculatePairHash(actor);
+      expect(hash).toBe('#20+40');
+      expect(hash2).toBe('#20+40');
+   });
 
    //it('can have animation', () => {
    //   expect(actor.frames).toEqual({});
@@ -1007,7 +1019,7 @@ describe('A game actor', () => {
       active.vel.y = 10;
       active.acc.y = 1000;
 	  
-      var fixed = new ex.Actor(0, 50, 100, 100);
+      var fixed = new ex.Actor(-100, 50, 1000, 100);
       fixed.collisionType = ex.CollisionType.Fixed;
 	  
       scene.add(active);
@@ -1015,8 +1027,8 @@ describe('A game actor', () => {
 	  
       expect(active.pos.x).toBe(0);
       expect(active.pos.y).toBe(-50);
-	  
-      expect(fixed.pos.x).toBe(0);
+
+      expect(fixed.pos.x).toBe(-100);
       expect(fixed.pos.y).toBe(50);
 	  
       // update many times for safety
@@ -1027,7 +1039,7 @@ describe('A game actor', () => {
       expect(active.pos.x).toBe(0);
       expect(active.pos.y).toBe(-50);
 	  
-      expect(fixed.pos.x).toBe(0);
+      expect(fixed.pos.x).toBe(-100);
       expect(fixed.pos.y).toBe(50);
    });
 

@@ -9,6 +9,25 @@ module ex {
        * A (0, 0) vector
        */
       public static Zero = new Vector(0, 0);
+      
+      /**
+       * A unit vector pointing up (0, -1)
+       */
+      public static Up = new Vector(0, -1);
+      
+      /**
+       * A unit vector pointing down (0, 1)
+       */
+      public static Down = new Vector(0, 1);
+
+      /**
+       * A unit vector pointing left (-1, 0)
+       */
+      public static Left = new Vector(-1, 0);
+      /**
+       * A unit vector pointing right (1, 0)
+       */
+      public static Right = new Vector(1, 0);
 
       /**
        * Returns a vector of unit length in the direction of the specified angle in Radians.
@@ -64,6 +83,13 @@ module ex {
       }
 
       /**
+       * Returns the average (midpoint) between the current point and the specified
+       */
+      public average(vec: Vector): Vector {
+          return this.add(vec).scale(.5);
+      }
+
+      /**
        * Scales a vector's by a factor of size
        * @param size  The factor to scale the magnitude by
        */
@@ -80,7 +106,7 @@ module ex {
       }
 
       /**
-       * Subtracts a vector from another, alias for minus
+       * Subtracts a vector from another, if you subract vector `B.sub(A)` the resulting vector points from A -> B
        * @param v The vector to subtract
        */
       public sub(v: Vector): Vector {
@@ -125,12 +151,24 @@ module ex {
       }
 
       /**
+       * Performs a 2D cross product with scalar. 2D cross products with a scalar return a vector.
+       * @param v  The vector to cross
+       */
+      public cross(v: number): Vector;
+      /**
        * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
        * @param v  The vector to cross
        */
-      public cross(v: Vector): number {
-         return this.x * v.y - this.y * v.x;
+      public cross(v: Vector): number;
+      public cross(v: any): any {
+         if (v instanceof Vector) {
+            return this.x * v.y - this.y * v.x;
+         } else if (typeof v === 'number') {
+            return new Vector(v * this.y, -v * this.x);
+         }
       }
+      
+      
 
       /**
        * Returns the perpendicular vector to this one
@@ -140,7 +178,7 @@ module ex {
       }
 
       /**
-       * Returns the normal vector to this one 
+       * Returns the normal vector to this one, same as the perpendicular of length 1
        */
       public normal(): Vector {
          return this.perpendicular().normalize();
@@ -182,6 +220,12 @@ module ex {
          return new Vector(this.x, this.y);
       }
 
+      /**
+       * Returns a string repesentation of the vector.
+       */
+      public toString(): string {
+         return `(${this.x}, ${this.y})`;
+      }
    }
 
 

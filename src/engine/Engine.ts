@@ -9,6 +9,7 @@
 /// <reference path="Resources/Texture.ts" />
 /// <reference path="Resources/Sound.ts" />
 /// <reference path="Collision/Side.ts" />
+/// <reference path="Physics.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actor.ts" />
 /// <reference path="UIActor.ts" />
@@ -59,6 +60,7 @@ declare var EX_VERSION: string;
  *   - [[UIActor|UI Actors (HUD)]]
  *   - [[ActionContext|Action API]]
  *   - [[Group|Groups]]
+ * - [[Physics|Working with Physics]]
  *
  * ## Working with Resources
  *
@@ -374,12 +376,8 @@ module ex {
        * Access engine input like pointer, keyboard, or gamepad
        */
       public input: ex.Input.IEngineInput;
-
-      /**
-       * Gets or sets the [[CollisionStrategy]] for Excalibur actors
-       */
-      public collisionStrategy: CollisionStrategy = CollisionStrategy.DynamicAABBTree;
-
+      
+      
       private _hasStarted: boolean = false;
 
       /**
@@ -945,8 +943,7 @@ O|===|* >________________>\n\
          this.input.keyboard.init();
          this.input.pointers.init(options ? options.pointerScope : ex.Input.PointerScope.Document);
          this.input.gamepads.init();
-         
-
+                  
          // Issue #385 make use of the visibility api
          // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
          document.addEventListener('visibilitychange', () => {
@@ -958,17 +955,7 @@ O|===|* >________________>\n\
                this._logger.debug('Window visible');
             }
          });
-
-         /*
-         // DEPRECATED in favor of visibility api
-         window.addEventListener('blur', () => {
-            this.eventDispatcher.publish(EventType[EventType.Blur], new BlurEvent());
-         });
-
-         window.addEventListener('focus', () => {
-            this.eventDispatcher.publish(EventType[EventType.Focus], new FocusEvent());
-         });*/
-         
+                  
          this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d');
          if (!this.canvasElementId) {
             document.body.appendChild(this.canvas);
@@ -1080,7 +1067,7 @@ O|===|* >________________>\n\
             this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.width, this.height), this.ctx);
          }
 
-         this.emit('postdraw', new PreDrawEvent(ctx, delta, this));
+         this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
       }
 
       /**

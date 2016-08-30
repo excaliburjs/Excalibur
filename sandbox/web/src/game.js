@@ -53,6 +53,8 @@ loader.addResource(spriteFontImage);
 loader.addResource(jump);
 // Set background color
 game.backgroundColor = new ex.Color(114, 213, 224);
+// setup physics defaults
+ex.Physics.acc = new ex.Vector(0, 800); // global accel
 // Add some UI
 var heart = new ex.UIActor(0, 0, 20, 20);
 heart.scale.setTo(2, 2);
@@ -233,13 +235,16 @@ game.input.keyboard.on('down', function (keyDown) {
         var a = new ex.Actor(player.pos.x + 10, player.pos.y - 50, 10, 10, new ex.Color(222, 222, 222));
         a.vel.x = 200 * direction;
         a.vel.y = 0;
-        a.collisionType = ex.CollisionType.Elastic;
+        a.collisionType = ex.CollisionType.Active;
         var inAir = true;
         a.on('collision', function (data) {
             inAir = false;
             //a.dx = data.other.dx;
             //a.dy = data.other.dy;
             //a.kill();
+            if (!data.other) {
+                a.vel.y = 0;
+            }
         });
         a.on('postupdate', function (data) {
             if (inAir) {
@@ -268,7 +273,10 @@ player.on('collision', function (data) {
             player.setDrawing(Animations.Idle);
         }
         inAir = false;
-        if (data.other && !(game.input.keyboard.isHeld(ex.Input.Keys.Left) || game.input.keyboard.isHeld(ex.Input.Keys.Right) || game.input.keyboard.isHeld(ex.Input.Keys.Up) || game.input.keyboard.isHeld(ex.Input.Keys.Down))) {
+        if (data.other && !(game.input.keyboard.isHeld(ex.Input.Keys.Left) ||
+            game.input.keyboard.isHeld(ex.Input.Keys.Right) ||
+            game.input.keyboard.isHeld(ex.Input.Keys.Up) ||
+            game.input.keyboard.isHeld(ex.Input.Keys.Down))) {
             player.vel.x = data.other.vel.x;
             player.vel.y = data.other.vel.y;
         }
@@ -298,7 +306,6 @@ player.on('postupdate', function (data) {
     // Reset values because we don't know until we check the next update
     // inAir = true;
     isColliding = false;
-    //console.log("Player Pos", player.x, player.y, player.getWidth(), player.getHeight());
 });
 player.on('initialize', function (evt) {
     console.log("Player initialized", evt.engine);

@@ -139,7 +139,7 @@ module.exports = function (grunt) {
          // TypeScript Compile sample game
          //
          sample: {
-            command: '<%= tscCmd %> ./sandbox/web/src/game.ts',
+            command: '<%= tscCmd %> -t ES5 ./sandbox/web/src/game.ts',
             options: {
                stdout: true,
                failOnError: true
@@ -152,7 +152,7 @@ module.exports = function (grunt) {
          visual: {
              command: function() {
                  var files = grunt.file.expand("./sandbox/web/tests/**/*.ts");
-                 return '<%= tscCmd %> ' + files.join(' ');
+                 return '<%= tscCmd %> -t ES5 ' + files.join(' ');
              },
              options: {
                stdout: true,

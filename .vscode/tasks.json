@@ -15,11 +15,11 @@
 	"isShellCommand": true,
 	"showOutput": "silent",
 	"tasks": [
-      {
-         "taskName": "compile",
-         "args": [],
-         "isBuildCommand": true,
-         "problemMatcher": "$tsc"
-      }
-   ]	
+            {
+                  "taskName": "compile",
+                  "args": [],
+                  "isBuildCommand": true,
+                  "problemMatcher": "$tsc"
+            }
+      ]	
 }

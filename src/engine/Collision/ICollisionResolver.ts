@@ -1,10 +1,12 @@
 ﻿module ex {
-
-   export interface ICollisionResolver {
+  
+   export interface ICollisionBroadphase {
       register(target: Actor);
       remove(tartet: Actor);
-      evaluate(targets: Actor[]): CollisionPair[];
-      update(targets: Actor[]): number;
+
+      findCollisionContacts(targets: Actor[], delta: number): CollisionContact[];
+      update(targets: Actor[], delta: number): number;
+
       debugDraw(ctx, delta): void;
    }
  }

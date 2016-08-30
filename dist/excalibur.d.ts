@@ -193,6 +193,728 @@ declare module ex {
     }
 }
 declare module ex {
+    /**
+     * A 2D vector on a plane.
+     */
+    class Vector {
+        x: number;
+        y: number;
+        /**
+         * A (0, 0) vector
+         */
+        static Zero: Vector;
+        /**
+         * A unit vector pointing up (0, -1)
+         */
+        static Up: Vector;
+        /**
+         * A unit vector pointing down (0, 1)
+         */
+        static Down: Vector;
+        /**
+         * A unit vector pointing left (-1, 0)
+         */
+        static Left: Vector;
+        /**
+         * A unit vector pointing right (1, 0)
+         */
+        static Right: Vector;
+        /**
+         * Returns a vector of unit length in the direction of the specified angle in Radians.
+         * @param angle The angle to generate the vector
+         */
+        static fromAngle(angle: number): Vector;
+        /**
+         * @param x  X component of the Vector
+         * @param y  Y component of the Vector
+         */
+        constructor(x: number, y: number);
+        /**
+         * Sets the x and y components at once
+         */
+        setTo(x: number, y: number): void;
+        /**
+         * Compares this point against another and tests for equality
+         * @param point  The other point to compare to
+         */
+        equals(vector: Vector, tolerance?: number): boolean;
+        /**
+         * The distance to another vector
+         * @param v  The other vector
+         */
+        distance(v?: Vector): number;
+        /**
+         * Normalizes a vector to have a magnitude of 1.
+         */
+        normalize(): Vector;
+        /**
+         * Returns the average (midpoint) between the current point and the specified
+         */
+        average(vec: Vector): Vector;
+        /**
+         * Scales a vector's by a factor of size
+         * @param size  The factor to scale the magnitude by
+         */
+        scale(size: any): Vector;
+        /**
+         * Adds one vector to another
+         * @param v The vector to add
+         */
+        add(v: Vector): Vector;
+        /**
+         * Subtracts a vector from another, if you subract vector `B.sub(A)` the resulting vector points from A -> B
+         * @param v The vector to subtract
+         */
+        sub(v: Vector): Vector;
+        /**
+         * Adds one vector to this one modifying the original
+         * @param v The vector to add
+         */
+        addEqual(v: Vector): Vector;
+        /**
+         * Subtracts a vector from this one modifying the original
+         * @parallel v The vector to subtract
+         */
+        subEqual(v: Vector): Vector;
+        /**
+         * Scales this vector by a factor of size and modifies the original
+         */
+        scaleEqual(size: number): Vector;
+        /**
+         * Performs a dot product with another vector
+         * @param v  The vector to dot
+         */
+        dot(v: Vector): number;
+        /**
+         * Performs a 2D cross product with scalar. 2D cross products with a scalar return a vector.
+         * @param v  The vector to cross
+         */
+        cross(v: number): Vector;
+        /**
+         * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
+         * @param v  The vector to cross
+         */
+        cross(v: Vector): number;
+        /**
+         * Returns the perpendicular vector to this one
+         */
+        perpendicular(): Vector;
+        /**
+         * Returns the normal vector to this one, same as the perpendicular of length 1
+         */
+        normal(): Vector;
+        /**
+         * Negate the current vector
+         */
+        negate(): Vector;
+        /**
+         * Returns the angle of this vector.
+         */
+        toAngle(): number;
+        /**
+         * Rotates the current vector around a point by a certain number of
+         * degrees in radians
+         */
+        rotate(angle: number, anchor?: Vector): Vector;
+        /**
+         * Creates new vector that has the same values as the previous.
+         */
+        clone(): Vector;
+        /**
+         * Returns a string repesentation of the vector.
+         */
+        toString(): string;
+    }
+    /**
+     * A 2D ray that can be cast into the scene to do collision detection
+     */
+    class Ray {
+        pos: Vector;
+        dir: Vector;
+        /**
+         * @param pos The starting position for the ray
+         * @param dir The vector indicating the direction of the ray
+         */
+        constructor(pos: Vector, dir: Vector);
+        /**
+         * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
+         * This number indicates the mathematical intersection time.
+         * @param line  The line to test
+         */
+        intersect(line: Line): number;
+        /**
+         * Returns the point of intersection given the intersection time
+         */
+        getPoint(time: number): Vector;
+    }
+    /**
+     * A 2D line segment
+     */
+    class Line {
+        begin: Vector;
+        end: Vector;
+        /**
+         * @param begin  The starting point of the line segment
+         * @param end  The ending point of the line segment
+         */
+        constructor(begin: Vector, end: Vector);
+        /**
+         * Returns the slope of the line in the form of a vector
+         */
+        getSlope(): Vector;
+        /**
+         * Returns the length of the line segment in pixels
+         */
+        getLength(): number;
+    }
+    /**
+     * A 1 dimensional projection on an axis, used to test overlaps
+     */
+    class Projection {
+        min: number;
+        max: number;
+        constructor(min: number, max: number);
+        overlaps(projection: Projection): boolean;
+        getOverlap(projection: Projection): number;
+    }
+}
+declare module ex {
+    interface IEnginePhysics {
+        /**
+         * Global engine acceleration, useful for defining consitent gravity on all actors
+         */
+        acc: Vector;
+        /**
+         * Global to switch physics on or off (switching physics off will improve performance)
+         */
+        enabled: boolean;
+        /**
+         * Default mass of new actors created in excalibur
+         */
+        defaultMass: number;
+        /**
+         * Number of pos/vel integration steps
+         */
+        integrationSteps: number;
+        /**
+         * The integration method
+         */
+        integrator: string;
+        /**
+         * Number of collision resultion passes
+         */
+        collisionPasses: number;
+        /**
+         * Broadphase strategy for identifying potential collision contacts
+         */
+        broadphaseStrategy: BroadphaseStrategy;
+        /**
+         * Collision resolution strategy for handling collision contacts
+         */
+        collisionResolutionStrategy: CollisionResolutionStrategy;
+        /**
+         * Bias motion calculation towards the current frame, or the last frame
+         */
+        motionBias: number;
+        /**
+         * Allow rotation in the physics simulation
+         */
+        allowRotation: boolean;
+    }
+}
+declare module ex {
+    /**
+     * Possible collision resolution strategies
+     *
+     * The default is [[CollisionResolutionStrategy.Box]] which performs simple axis aligned arcade style physcs.
+     *
+     * More advanced rigid body physics are enabled by setting [[CollisionResolutionStrategy.RigidBody]] which allows for complicated
+     * simulated physical interactions.
+     */
+    enum CollisionResolutionStrategy {
+        Box = 0,
+        RigidBody = 1,
+    }
+    /**
+     * Possible broadphase collision pair identification strategies
+     *
+     * The default strategy is [[BroadphaseStrategy.DynamicAABBTree]] which uses a binary tree of axis-aligned bounding boxes to identify
+     * potential collision pairs which is O(nlog(n)) faster. The other possible strategy is the [[BroadphaseStrategy.Naive]] strategy
+     * which loops over every object for every object in the scene to identify collision pairs which is O(n^2) slower.
+     */
+    enum BroadphaseStrategy {
+        Naive = 0,
+        DynamicAABBTree = 1,
+    }
+    /**
+     * Possible numerical integrators for position and velocity
+     */
+    enum Integrator {
+        Euler = 0,
+    }
+    /**
+     *
+     * Excalibur Physics
+     *
+     * The [[Physics]] object is the global configuration object for all Excalibur physics.
+     *
+     * Excalibur comes built in with two physics systems. The first system is [[CollisionResolutionStrategy.Box|Box physics]], and is a
+     * simple axis-aligned way of doing basic collision detection for non-rotated rectangular areas, defined by an actor's
+     * [[BoundingBox|bounding box]].
+     *
+     * ## Enabling Excalibur physics
+     *
+     * To enable physics in your game it is as simple as setting [[Physics.enabled]] to true and picking your
+     * [[CollisionResolutionStrategy]]
+     *
+     * Excalibur supports 3 different types of collision area shapes in its physics simulation: [[PolygonArea|polygons]],
+     * [[CircleArea|circles]], and [[EdgeArea|edges]]. To use any one of these areas on an actor there are convenience methods off of
+     * the [[Actor|actor]] [[Body|physics body]]: [[Body.useBoxCollision|useBoxCollision]],
+     * [[Body.usePolygonCollision|usePolygonCollision]], [[Body.useCircleCollision|useCircleCollision]], and [[Body.useEdgeCollision]]
+     *
+     * ```ts
+     * // setup game
+     * var game = new ex.Engine({
+     *     width: 600,
+     *     height: 400
+     *  });
+     *
+     * // use rigid body
+     * ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
+     *
+     * // set global acceleration simulating gravity pointing down
+     * ex.Physics.acc.setTo(0, 700);
+     *
+     * var block = new ex.Actor(300, 0, 20, 20, ex.Color.Blue.clone());
+     * block.body.useBoxCollision(); // useBoxCollision is the default, technically optional
+     * game.add(block);
+     *
+     * var circle = new ex.Actor(300, 100, 20, 20, ex.Color.Red.clone());
+     * circle.body.useCircleCollision(10);
+     * game.add(circle);
+     *
+     * var ground = new ex.Actor(300, 380, 600, 10, ex.Color.Black.clone());
+     * ground.collisionType = ex.CollisionType.Fixed;
+     * edge.body.useBoxCollision(); // optional
+     * game.add(ground);
+     *
+     * // start the game
+     * game.start();
+     * ```
+     *
+     * ## Limitations
+     *
+     * Currently Excalibur only supports single contact point collisions and non-sleeping physics bodies. This has some negative stability
+     * and performance implications. Single contact point collisions can have odd oscilating behavior. Non-sleeping bodies will recalculate
+     * collisions whether they need to or not. We fully intend to add these features into Excalibur in future releases.
+     *
+     */
+    class Physics {
+        /**
+         * Global acceleration that is applied to all vanilla actors (it wont effect [[Label|labels]], [[UIActor|ui actors]], or
+         * [[Trigger|triggers]] in Excalibur that have an [[CollisionType.Active|active]] collison type).
+         *
+         *
+         * This is a great way to globally simulate effects like gravity.
+         */
+        static acc: Vector;
+        /**
+         * Globally switches all Excalibur physics behavior on or off.
+         */
+        static enabled: boolean;
+        /**
+         * Gets or sets the number of collision passes for Excalibur to perform on physics bodies.
+         *
+         * Reducing collision passes may cause things not to collide as expected in your game, but may increase performance.
+         *
+         * More passes can improve the visual quality of collisions when many objects are on the screen. This can reduce jitter, improve the
+         * collison resolution of fast move objects, or the stability of large numbers of objects stacked together.
+         *
+         * Fewer passes will improve the performance of the game at the cost of collision quality, more passes will improve quality at the
+         * cost of performance.
+         *
+         * The default is set to 5 passes which is a good start.
+         */
+        static collisionPasses: number;
+        /**
+         * Gets or sets the broadphase pair identification strategy.
+         *
+         * The default strategy is [[BroadphaseStrategy.DynamicAABBTree]] which uses a binary tree of axis-aligned bounding boxes to identify
+         * potential collision pairs which is O(nlog(n)) faster. The other possible strategy is the [[BroadphaseStrategy.Naive]] strategy
+         * which loops over every object for every object in the scene to identify collision pairs which is O(n^2) slower.
+         */
+        static broadphaseStrategy: BroadphaseStrategy;
+        /**
+         * Globally switches the debug information for the broadphase strategy
+         */
+        static broadphaseDebug: boolean;
+        /**
+         * Show the normals as a result of collision on the screen.
+         */
+        static showCollisionNormals: boolean;
+        /**
+         * Show the position, velocity, and acceleration as graphical vectors.
+         */
+        static showMotionVectors: boolean;
+        /**
+         * Show the axis-aligned bounding boxes of the collision bodies on the screen.
+         */
+        static showBounds: boolean;
+        /**
+         * Show the bounding collision area shapes
+         */
+        static showArea: boolean;
+        /**
+         * Show points of collision interpreted by excalibur as a result of collision.
+         */
+        static showContacts: boolean;
+        /**
+         * Show the surface normals of the collision areas.
+         */
+        static showNormals: boolean;
+        /**
+         * Gets or sets the global collision resolution strategy (narrowphase).
+         *
+         * The default is [[CollisionResolutionStrategy.Box]] which performs simple axis aligned arcade style physics.
+         *
+         * More advanced rigid body physics are enabled by setting [[CollisionResolutionStrategy.RigidBody]] which allows for complicated
+         * simulated physical interactions.
+         */
+        static collisionResolutionStrategy: CollisionResolutionStrategy;
+        /**
+         * The default mass to use if none is specified
+         */
+        static defaultMass: number;
+        /**
+         * Gets or sets the position and velocity positional integrator, currently only Euler is supported.
+         */
+        static integrator: Integrator;
+        /**
+         * Number of steps to use in integration. A higher number improves the positional accuracy over time. This can be useful to increase
+         * if you have fast moving objects in your simulation or you have a large number of objects and need to increase stability.
+         */
+        static integrationSteps: number;
+        /**
+         * Gets or sets whether rotation is allowed in a RigidBody collision resolution
+         */
+        static allowRigidBodyRotation: boolean;
+        /**
+         * Configures Excalibur to use box physics. Box physics which performs simple axis aligned arcade style physics.
+         */
+        static useBoxPhysics(): void;
+        /**
+         * Configures Excalibur to use rigid body physics. Rigid body physics allows for complicated
+         * simulated physical interactions.
+         */
+        static useRigidBodyPhysics(): void;
+    }
+}
+declare module ex {
+    /**
+     * Collision contacts are used internally by Excalibur to resolve collision between actors. This
+     * Pair prevents collisions from being evaluated more than one time
+     */
+    class CollisionContact {
+        /**
+         * The id of this collision contact
+         */
+        id: string;
+        /**
+         * The first rigid body in the collision
+         */
+        bodyA: ICollisionArea;
+        /**
+         * The second rigid body in the collision
+         */
+        bodyB: ICollisionArea;
+        /**
+         * The minimum translation vector to resolve penetration, pointing away from bodyA
+         */
+        mtv: Vector;
+        /**
+         * The point of collision shared between bodyA and bodyB
+         */
+        point: Vector;
+        /**
+         * The collision normal, pointing away from bodyA
+         */
+        normal: Vector;
+        constructor(bodyA: ICollisionArea, bodyB: ICollisionArea, mtv: Vector, point: Vector, normal: Vector);
+        resolve(delta: number, strategy: CollisionResolutionStrategy): void;
+        private _applyBoxImpluse(bodyA, bodyB, mtv, side);
+        private _resolveBoxCollision(delta);
+        private _resolveRigidBodyCollision(delta);
+    }
+}
+declare module ex {
+    interface IDebugFlags {
+    }
+}
+declare module ex {
+    /**
+     * A collision area is a region of space that can detect when other collision areas intersect
+     * for the purposes of colliding 2 objects in excalibur.
+     */
+    interface ICollisionArea {
+        /**
+         * Position of the collision area relative to the actor if it exists
+         */
+        pos: Vector;
+        /**
+         * Reference to the actor associated with this collision area
+         */
+        body: Body;
+        /**
+         * The center point of the collision area, for example if the area is a circle it would be the center.
+         */
+        getCenter(): Vector;
+        /**
+         * Find the furthest point on the convex hull of this particular area in a certain direction.
+         */
+        getFurthestPoint(direction: Vector): Vector;
+        /**
+         * Return the axis-aligned bounding box of the collision area
+         */
+        getBounds(): BoundingBox;
+        /**
+         * Return the axes of this particular shape
+         */
+        getAxes(): Vector[];
+        /**
+         * Return the calculated moment of intertia for this area
+         */
+        getMomentOfInertia(): number;
+        collide(area: ICollisionArea): CollisionContact;
+        /**
+         * Return wether the area contains a point inclusive to it's border
+         */
+        contains(point: Vector): boolean;
+        /**
+         * Return the point on the border of the collision area that intersects with a ray (if any).
+         */
+        castRay(ray: Ray): Vector;
+        /**
+         * Create a projection of this area along an axis. Think of this as casting a "shadow" along an axis
+         */
+        project(axis: Vector): Projection;
+        /**
+         * Recalculates internal caches and values
+         */
+        recalc(): void;
+        debugDraw(ctx: CanvasRenderingContext2D, color: Color): any;
+    }
+}
+declare module ex {
+    var CollisionJumpTable: {
+        CollideCircleCircle(circleA: CircleArea, circleB: CircleArea): CollisionContact;
+        CollideCirclePolygon(circle: CircleArea, polygon: PolygonArea): CollisionContact;
+        CollideCircleEdge(circle: CircleArea, edge: EdgeArea): CollisionContact;
+        CollideEdgeEdge(edgeA: EdgeArea, edgeB: EdgeArea): CollisionContact;
+        CollidePolygonEdge(polygon: PolygonArea, edge: EdgeArea): CollisionContact;
+        CollidePolygonPolygon(polyA: PolygonArea, polyB: PolygonArea): CollisionContact;
+    };
+}
+declare module ex {
+    interface ICircleAreaOptions {
+        pos?: Vector;
+        radius?: number;
+        body?: Body;
+    }
+    /**
+     * This is a circle collision area for the excalibur rigid body physics simulation
+     */
+    class CircleArea implements ICollisionArea {
+        /**
+         * This is the center position of the circle, relative to the body position
+         */
+        pos: Vector;
+        /**
+         * This is the radius of the circle
+         */
+        radius: number;
+        /**
+         * The actor associated with this collision area
+         */
+        body: Body;
+        constructor(options: ICircleAreaOptions);
+        /**
+         * Get the center of the collision area in world coordinates
+         */
+        getCenter(): Vector;
+        /**
+         * Tests if a point is contained in this collision area
+         */
+        contains(point: Vector): boolean;
+        /**
+         * Casts a ray at the CircleArea and returns the nearest point of collision
+         * @param ray
+         */
+        castRay(ray: Ray): Vector;
+        collide(area: ICollisionArea): CollisionContact;
+        /**
+         * Find the point on the shape furthest in the direction specified
+         */
+        getFurthestPoint(direction: Vector): Vector;
+        /**
+         * Get the axis aligned bounding box for the circle area
+         */
+        getBounds(): BoundingBox;
+        /**
+         * Get axis not implemented on circles, since their are infinite axis
+         */
+        getAxes(): Vector[];
+        /**
+         * Returns the moment of intertia of a circle given it's mass
+         * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
+         * @param mass
+         */
+        getMomentOfInertia(): number;
+        testSeparatingAxisTheorem(polygon: PolygonArea): Vector;
+        recalc(): void;
+        /**
+         * Project the circle along a specified axis
+         */
+        project(axis: Vector): Projection;
+        debugDraw(ctx: CanvasRenderingContext2D, color?: Color): void;
+    }
+}
+declare module ex {
+    interface IEdgeAreaOptions {
+        begin?: Vector;
+        end?: Vector;
+        body?: Body;
+    }
+    class EdgeArea implements ICollisionArea {
+        body: Body;
+        pos: Vector;
+        begin: Vector;
+        end: Vector;
+        constructor(options: IEdgeAreaOptions);
+        /**
+         * Get the center of the collision area in world coordinates
+         */
+        getCenter(): Vector;
+        private _getBodyPos();
+        private _getTransformedBegin();
+        private _getTransformedEnd();
+        /**
+         * Returns the slope of the line in the form of a vector
+         */
+        getSlope(): Vector;
+        /**
+         * Returns the length of the line segment in pixels
+         */
+        getLength(): number;
+        /**
+         * Tests if a point is contained in this collision area
+         */
+        contains(point: Vector): boolean;
+        castRay(ray: Ray): Vector;
+        collide(area: ICollisionArea): CollisionContact;
+        /**
+         * Find the point on the shape furthest in the direction specified
+         */
+        getFurthestPoint(direction: Vector): Vector;
+        /**
+         * Get the axis aligned bounding box for the circle area
+         */
+        getBounds(): BoundingBox;
+        /**
+         * Get the axis associated with the edge
+         */
+        getAxes(): Vector[];
+        /**
+         * Get the momemnt of inertia for an edge
+         * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
+         */
+        getMomentOfInertia(): number;
+        recalc(): void;
+        /**
+         * Project the edge along a specified axis
+         */
+        project(axis: Vector): Projection;
+        debugDraw(ctx: CanvasRenderingContext2D, color?: Color): void;
+    }
+}
+declare module ex {
+    interface IPolygonAreaOptions {
+        pos?: Vector;
+        points?: Vector[];
+        clockwiseWinding?: boolean;
+        body?: Body;
+    }
+    /**
+     * Polygon collision area for detecting collisions for actors, or independently
+     */
+    class PolygonArea implements ICollisionArea {
+        pos: Vector;
+        points: Vector[];
+        body: Body;
+        private _transformedPoints;
+        private _axes;
+        private _sides;
+        constructor(options: IPolygonAreaOptions);
+        /**
+         * Get the center of the collision area in world coordinates
+         */
+        getCenter(): Vector;
+        /**
+         * Calculates the underlying transformation from the body relative space to world space
+         */
+        private _calculateTransformation();
+        /**
+         * Gets the points that make up the polygon in world space, from actor relative space (if specified)
+         */
+        getTransformedPoints(): Vector[];
+        /**
+         * Gets the sides of the polygon in world space
+         */
+        getSides(): Line[];
+        recalc(): void;
+        /**
+         * Tests if a point is contained in this collision area in world space
+         */
+        contains(point: Vector): boolean;
+        /**
+         * Returns a collision contact if the 2 collision areas collide, otherwise collide will
+         * return null.
+         * @param area
+         */
+        collide(area: ICollisionArea): CollisionContact;
+        /**
+         * Find the point on the shape furthest in the direction specified
+         */
+        getFurthestPoint(direction: Vector): Vector;
+        /**
+         * Get the axis aligned bounding box for the polygon area
+         */
+        getBounds(): BoundingBox;
+        /**
+         * Get the moment of inertia for an arbitrary polygon
+         * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
+         */
+        getMomentOfInertia(): number;
+        /**
+         * Casts a ray into the polygon and returns a vector representing the point of contact (in world space) or null if no collision.
+         */
+        castRay(ray: Ray): Vector;
+        /**
+         * Get the axis associated with the edge
+         */
+        getAxes(): Vector[];
+        /**
+         * Perform Separating Axis test against another polygon, returns null if no overlap in polys
+         * Reference http://www.dyn4j.org/2010/01/sat/
+         */
+        testSeparatingAxisTheorem(other: PolygonArea): Vector;
+        /**
+         * Project the edges of the polygon along a specified axis
+         */
+        project(axis: Vector): Projection;
+        debugDraw(ctx: CanvasRenderingContext2D, color?: Color): void;
+    }
+}
+declare module ex {
     interface IEvented {
         /**
          * Emits an event for target
@@ -288,163 +1010,6 @@ declare module ex {
         Right = 4,
     }
 }
-declare module ex {
-    /**
-     * A 2D vector on a plane.
-     */
-    class Vector {
-        x: number;
-        y: number;
-        /**
-         * A (0, 0) vector
-         */
-        static Zero: Vector;
-        /**
-         * Returns a vector of unit length in the direction of the specified angle in Radians.
-         * @param angle The angle to generate the vector
-         */
-        static fromAngle(angle: number): Vector;
-        /**
-         * @param x  X component of the Vector
-         * @param y  Y component of the Vector
-         */
-        constructor(x: number, y: number);
-        /**
-         * Sets the x and y components at once
-         */
-        setTo(x: number, y: number): void;
-        /**
-         * Compares this point against another and tests for equality
-         * @param point  The other point to compare to
-         */
-        equals(vector: Vector, tolerance?: number): boolean;
-        /**
-         * The distance to another vector
-         * @param v  The other vector
-         */
-        distance(v?: Vector): number;
-        /**
-         * Normalizes a vector to have a magnitude of 1.
-         */
-        normalize(): Vector;
-        /**
-         * Scales a vector's by a factor of size
-         * @param size  The factor to scale the magnitude by
-         */
-        scale(size: any): Vector;
-        /**
-         * Adds one vector to another
-         * @param v The vector to add
-         */
-        add(v: Vector): Vector;
-        /**
-         * Subtracts a vector from another, alias for minus
-         * @param v The vector to subtract
-         */
-        sub(v: Vector): Vector;
-        /**
-         * Adds one vector to this one modifying the original
-         * @param v The vector to add
-         */
-        addEqual(v: Vector): Vector;
-        /**
-         * Subtracts a vector from this one modifying the original
-         * @parallel v The vector to subtract
-         */
-        subEqual(v: Vector): Vector;
-        /**
-         * Scales this vector by a factor of size and modifies the original
-         */
-        scaleEqual(size: number): Vector;
-        /**
-         * Performs a dot product with another vector
-         * @param v  The vector to dot
-         */
-        dot(v: Vector): number;
-        /**
-         * Performs a 2D cross product with another vector. 2D cross products return a scalar value not a vector.
-         * @param v  The vector to cross
-         */
-        cross(v: Vector): number;
-        /**
-         * Returns the perpendicular vector to this one
-         */
-        perpendicular(): Vector;
-        /**
-         * Returns the normal vector to this one
-         */
-        normal(): Vector;
-        /**
-         * Negate the current vector
-         */
-        negate(): Vector;
-        /**
-         * Returns the angle of this vector.
-         */
-        toAngle(): number;
-        /**
-         * Rotates the current vector around a point by a certain number of
-         * degrees in radians
-         */
-        rotate(angle: number, anchor?: Vector): Vector;
-        /**
-         * Creates new vector that has the same values as the previous.
-         */
-        clone(): Vector;
-    }
-    /**
-     * A 2D ray that can be cast into the scene to do collision detection
-     */
-    class Ray {
-        pos: Vector;
-        dir: Vector;
-        /**
-         * @param pos The starting position for the ray
-         * @param dir The vector indicating the direction of the ray
-         */
-        constructor(pos: Vector, dir: Vector);
-        /**
-         * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
-         * This number indicates the mathematical intersection time.
-         * @param line  The line to test
-         */
-        intersect(line: Line): number;
-        /**
-         * Returns the point of intersection given the intersection time
-         */
-        getPoint(time: number): Vector;
-    }
-    /**
-     * A 2D line segment
-     */
-    class Line {
-        begin: Vector;
-        end: Vector;
-        /**
-         * @param begin  The starting point of the line segment
-         * @param end  The ending point of the line segment
-         */
-        constructor(begin: Vector, end: Vector);
-        /**
-         * Returns the slope of the line in the form of a vector
-         */
-        getSlope(): Vector;
-        /**
-         * Returns the length of the line segment in pixels
-         */
-        getLength(): number;
-    }
-    /**
-     * A 1 dimensional projection on an axis, used to test overlaps
-     */
-    class Projection {
-        min: number;
-        max: number;
-        constructor(min: number, max: number);
-        overlaps(projection: Projection): boolean;
-        getOverlap(projection: Projection): number;
-    }
-}
 /**
  * Utilities
  *
@@ -481,6 +1046,7 @@ declare module ex.Util {
     function removeItemToArray<T>(item: T, array: T[]): boolean;
     function contains(array: Array<any>, obj: any): boolean;
     function getOppositeSide(side: ex.Side): Side;
+    function getSideFromVector(direction: Vector): Side;
     /**
      * Excaliburs dynamically resizing collection
      */
@@ -1279,11 +1845,6 @@ declare module ex {
     }
 }
 declare module ex {
-    enum CollisionStrategy {
-        Naive = 0,
-        DynamicAABBTree = 1,
-        SeparatingAxis = 2,
-    }
     /**
      * Interface all collidable objects must implement
      */
@@ -1292,7 +1853,8 @@ declare module ex {
          * Test whether this bounding box collides with another one.
          *
          * @param collidable  Other collidable to test
-         * @returns           The intersection vector that can be used to resolve the collision. If there is no collision, `null` is returned.
+         * @returns Vector The intersection vector that can be used to resolve the collision.
+         * If there is no collision, `null` is returned.
          */
         collides(collidable: ICollidable): Vector;
         /**
@@ -1329,6 +1891,11 @@ declare module ex {
          * Returns the perimeter of the bounding box
          */
         getPerimeter(): number;
+        getPoints(): Vector[];
+        /**
+         * Creates a Polygon collision area from the points of the bounding box
+         */
+        toPolygon(actor?: Actor): PolygonArea;
         /**
          * Tests wether a point is contained within the bounding box
          * @param p  The point to test
@@ -1351,30 +1918,109 @@ declare module ex {
          * @param collidable  Other collidable to test
          */
         collides(collidable: ICollidable): Vector;
-        debugDraw(ctx: CanvasRenderingContext2D): void;
+        debugDraw(ctx: CanvasRenderingContext2D, color?: Color): void;
     }
-    class SATBoundingBox implements ICollidable {
-        private _points;
-        constructor(points: Vector[]);
-        getSides(): Line[];
-        getAxes(): Vector[];
-        project(axis: Vector): Projection;
+}
+declare module ex {
+    class Body {
+        actor: Actor;
         /**
-         * Returns the calculated width of the bounding box, by generating an axis aligned box around the current
+         * Constructs a new physics body associated with an actor
          */
-        getWidth(): number;
+        constructor(actor: Actor);
         /**
-         * Returns the calculated height of the bounding box, by generating an axis aligned box around the current
+         * [ICollisionArea|Collision area] of this physics body, defines the shape for rigid body collision
          */
-        getHeight(): number;
+        collisionArea: ICollisionArea;
         /**
-         * Tests wether a point is contained within the bounding box,
-         * using the [PIP algorithm](http://en.wikipedia.org/wiki/Point_in_polygon)
+         * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default.
+         * If you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0).
+         */
+        pos: Vector;
+        /**
+         * The position of the actor last frame (x, y) in pixels
+         */
+        oldPos: Vector;
+        /**
+         * The current velocity vector (vx, vy) of the actor in pixels/second
+         */
+        vel: Vector;
+        /**
+         * The velocity of the actor last frame (vx, vy) in pixels/second
+         */
+        oldVel: Vector;
+        /**
+         * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may
+         * be useful to simulate a gravitational effect.
+         */
+        acc: Vector;
+        /**
+         * The current torque applied to the actor
+         */
+        torque: number;
+        /**
+         * The current mass of the actor, mass can be thought of as the resistance to acceleration.
+         */
+        mass: number;
+        /**
+         * The current momemnt of inertia, moi can be thought of as the resistance to rotation.
+         */
+        moi: number;
+        /**
+         * The current "motion" of the actor, used to calculated sleep in the physics simulation
+         */
+        motion: number;
+        /**
+         * The coefficient of friction on this actor
+         */
+        friction: number;
+        /**
+         * The coefficient of restitution of this actor, represents the amount of energy preserved after collision
+         */
+        restitution: number;
+        /**
+         * The rotation of the actor in radians
+         */
+        rotation: number;
+        /**
+         * The rotational velocity of the actor in radians/second
+         */
+        rx: number;
+        /**
+         * Returns the body's [[BoundingBox]] calculated for this instant in world space.
+         */
+        getBounds(): BoundingBox;
+        /**
+         * Returns the actor's [[BoundingBox]] relative to the actors position.
+         */
+        getRelativeBounds(): BoundingBox;
+        /**
+         * Sets up a box collision area based on the current bounds of the associated actor of this physics body.
          *
-         * @param p  The point to test
+         * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
          */
-        contains(p: Vector): boolean;
-        collides(collidable: ICollidable): Vector;
+        useBoxCollision(center?: Vector): void;
+        /**
+         * Sets up a polygon collision area based on a list of of points relative to the anchor of the associated actor of this physics body.
+         *
+         * Only [convex polygon](https://en.wikipedia.org/wiki/Convex_polygon) definitions are supported.
+         *
+         * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
+         */
+        usePolygonCollision(points: Vector[], center?: Vector): void;
+        /**
+         * Sets up a [[CircleArea|circle collision area]] with a specified radius in pixels.
+         *
+         * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
+         */
+        useCircleCollision(radius?: number, center?: Vector): void;
+        /**
+         * Sets up an [[EdgeArea|edge collision]] with a start point and an end point relative to the anchor of the associated actor
+         * of this physics body.
+         *
+         * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
+         */
+        useEdgeCollision(begin: Vector, end: Vector, center?: Vector): void;
         debugDraw(ctx: CanvasRenderingContext2D): void;
     }
 }
@@ -1478,19 +2124,19 @@ declare module ex {
     }
 }
 declare module ex {
-    interface ICollisionResolver {
+    interface ICollisionBroadphase {
         register(target: Actor): any;
         remove(tartet: Actor): any;
-        evaluate(targets: Actor[]): CollisionPair[];
-        update(targets: Actor[]): number;
+        findCollisionContacts(targets: Actor[], delta: number): CollisionContact[];
+        update(targets: Actor[], delta: number): number;
         debugDraw(ctx: any, delta: any): void;
     }
 }
 declare module ex {
-    class NaiveCollisionResolver implements ICollisionResolver {
+    class NaiveCollisionBroadphase implements ICollisionBroadphase {
         register(target: Actor): void;
         remove(tartet: Actor): void;
-        evaluate(targets: Actor[]): CollisionPair[];
+        findCollisionContacts(targets: Actor[], delta: number): CollisionContact[];
         update(targets: Actor[]): number;
         debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
     }
@@ -1502,7 +2148,7 @@ declare module ex {
         right: TreeNode;
         bounds: BoundingBox;
         height: number;
-        actor: Actor;
+        body: Body;
         constructor(parent?: any);
         isLeaf(): boolean;
     }
@@ -1514,52 +2160,28 @@ declare module ex {
         constructor();
         insert(leaf: TreeNode): void;
         remove(leaf: TreeNode): void;
-        registerActor(actor: Actor): void;
-        updateActor(actor: Actor): boolean;
-        removeActor(actor: Actor): void;
+        registerBody(body: Body): void;
+        updateBody(body: Body): boolean;
+        removeBody(body: Body): void;
         balance(node: TreeNode): TreeNode;
         getHeight(): number;
-        query(actor: Actor, callback: (other: Actor) => boolean): void;
+        query(body: Body, callback: (other: Body) => boolean): void;
         rayCast(ray: Ray, max: any): Actor;
         getNodes(): TreeNode[];
         debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
     }
 }
 declare module ex {
-    class DynamicTreeCollisionResolver implements ICollisionResolver {
+    class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
         private _dynamicCollisionTree;
+        private _collisionHash;
+        private _collisionContactCache;
         register(target: Actor): void;
         remove(target: Actor): void;
-        evaluate(targets: Actor[]): CollisionPair[];
-        update(targets: Actor[]): number;
+        private _canCollide(actorA, actorB);
+        findCollisionContacts(targets: Actor[], delta: number): CollisionContact[];
+        update(targets: Actor[], delta: number): number;
         debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
-    }
-}
-declare module ex {
-    /**
-     * Collision pairs are used internally by Excalibur to resolve collision between actors. The
-     * Pair prevents collisions from being evaluated more than one time
-     */
-    class CollisionPair {
-        left: Actor;
-        right: Actor;
-        intersect: Vector;
-        side: Side;
-        /**
-         * @param left       The first actor in the collision pair
-         * @param right      The second actor in the collision pair
-         * @param intersect  The minimum translation vector to separate the actors from the perspective of the left actor
-         * @param side       The side on which the collision occured from the perspective of the left actor
-         */
-        constructor(left: Actor, right: Actor, intersect: Vector, side: Side);
-        /**
-         * Determines if this collision pair and another are equivalent.
-         */
-        equals(collisionPair: CollisionPair): boolean;
-        /**
-         * Evaluates the collision pair, performing collision resolution and event publishing appropriate to each collision type.
-         */
-        evaluate(): void;
     }
 }
 declare module ex {
@@ -2566,7 +3188,7 @@ declare module ex {
          */
         isInitialized: boolean;
         private _sortedDrawingTree;
-        private _collisionResolver;
+        private _broadphase;
         private _killQueue;
         private _timers;
         private _cancelQueue;
@@ -3051,49 +3673,118 @@ declare module ex {
          */
         id: number;
         /**
-         * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default. If
-         * you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0).
+         * The physics body the is associated with this actor. The body is the container for all physical properties, like position, velocity,
+         * acceleration, mass, inertia, etc.
+         */
+        body: Body;
+        /**
+         * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and
+         * [EdgeArea|edges].
+         */
+        /**
+         * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and
+         * [EdgeArea|edges].
+         */
+        collisionArea: ICollisionArea;
+        /**
+         * Gets the x position of the actor relative to it's parent (if any)
+         */
+        /**
+         * Sets the x position of the actor relative to it's parent (if any)
+         */
+        x: number;
+        /**
+         * Gets the y position of the actor relative to it's parent (if any)
+         */
+        /**
+         * Sets the y position of the actor relative to it's parent (if any)
+         */
+        y: number;
+        /**
+         * Gets the position vector of the actor in pixels
+         */
+        /**
+         * Sets the position vector of the actor in pixels
          */
         pos: Vector;
         /**
-         * The position of the actor last frame (x, y) in pixels
+         * Gets the position vector of the actor from the last frame
+         */
+        /**
+         * Sets the position vector of the actor in the last frame
          */
         oldPos: Vector;
         /**
-         * The current velocity vector (vx, vy) of the actor in pixels/second
+         * Gets the velocity vector of the actor in pixels/sec
+         */
+        /**
+         * Sets the velocity vector of the actor in pixels/sec
          */
         vel: Vector;
         /**
-         * The velocity of the actor last frame (vx, vy) in pixels/second
+         * Gets the velocity vector of the actor from the last frame
+         */
+        /**
+         * Sets the velocity vector of the actor from the last frame
          */
         oldVel: Vector;
         /**
-         * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be
+         * Gets the acceleration vector of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be
          * useful to simulate a gravitational effect.
+         */
+        /**
+         * Sets the acceleration vector of teh actor in pixels/second/second
          */
         acc: Vector;
         /**
-         * The current torque applied to the actor
+         * Gets the rotation of the actor in radians. 1 radian = 180/PI Degrees.
+         */
+        /**
+         * Sets the rotation of the actor in radians. 1 radian = 180/PI Degrees.
+         */
+        rotation: number;
+        /**
+         * Gets the rotational velocity of the actor in radians/second
+         */
+        /**
+         * Sets the rotational velocity of the actor in radians/sec
+         */
+        rx: number;
+        /**
+         * Gets the current torque applied to the actor. Torque can be thought of as rotational force
+         */
+        /**
+         * Sets the current torque applied to the actor. Torque can be thought of as rotational force
          */
         torque: number;
         /**
-         * The current mass of the actor, mass can be thought of as the resistance to acceleration.
+         * Get the current mass of the actor, mass can be thought of as the resistance to acceleration.
+         */
+        /**
+         * Sets the mass of the actor, mass can be thought of as the resistance to acceleration.
          */
         mass: number;
         /**
-         * The current momemnt of inertia, moi can be thought of as the resistance to rotation.
+         * Gets the current momemnt of inertia, moi can be thought of as the resistance to rotation.
+         */
+        /**
+         * Sets the current momemnt of inertia, moi can be thought of as the resistance to rotation.
          */
         moi: number;
         /**
-         * The current "motion" of the actor, used to calculated sleep in the physics simulation
+         * Gets the coefficient of friction on this actor, this can be thought of as how sticky or slippery an object is.
          */
-        motion: number;
         /**
-         * The coefficient of friction on this actor
+         * Sets the coefficient of friction of this actor, this can ve thought of as how stick or slippery an object is.
          */
         friction: number;
         /**
-         * The coefficient of restitution of this actor, represents the amount of energy preserved after collision
+         * Gets the coefficient of restitution of this actor, represents the amount of energy preserved after collision. Think of this
+         * as bounciness.
+         */
+        /**
+         * Sets the coefficient of restitution of this actor, represents the amount of energy preserved after collision. Think of this
+         * as bounciness.
          */
         restitution: number;
         /**
@@ -3111,13 +3802,10 @@ declare module ex {
         private _height;
         private _width;
         /**
-         * The rotation of the actor in radians
+         * Collision maintenance
          */
-        rotation: number;
-        /**
-         * The rotational velocity of the actor in radians/second
-         */
-        rx: number;
+        private _collisionContacts;
+        private _totalMtv;
         /**
          * The scale vector of the actor
          */
@@ -3269,6 +3957,14 @@ declare module ex {
          */
         setDrawing(key: number): any;
         /**
+         * Add minimum translation vectors accumulated during the current frame to resolve collisons.
+         */
+        addMtv(mtv: Vector): void;
+        /**
+         * Applies the accumulated translation vectors to the actors position
+         */
+        applyMtv(): void;
+        /**
          * Adds a whole texture as the "default" drawing. Set a drawing using [[setDrawing]].
          */
         addDrawing(texture: Texture): any;
@@ -3282,6 +3978,7 @@ declare module ex {
          * @param drawing This can be an [[Animation]], [[Sprite]], or [[Polygon]].
          */
         addDrawing(key: any, drawing: IDrawable): any;
+        z: number;
         /**
          * Gets the z-index of an actor. The z-index determines the relative order an actor is drawn in.
          * Actors with a higher z-index are drawn on top of actors with a lower z-index
@@ -3309,6 +4006,11 @@ declare module ex {
          * @param name The name of the collision group
          */
         removeCollisionGroup(name: string): void;
+        /**
+         * Calculates the unique pair hash between two actors
+         * @param other
+         */
+        calculatePairHash(other: Actor): string;
         /**
          * Get the center point of an actor
          */
@@ -3362,9 +4064,13 @@ declare module ex {
          */
         getGlobalScale(): Vector;
         /**
-         * Returns the actor's [[BoundingBox]] calculated for this instant.
+         * Returns the actor's [[BoundingBox]] calculated for this instant in world space.
          */
         getBounds(): BoundingBox;
+        /**
+         * Returns the actor's [[BoundingBox]] relative to the actors position.
+         */
+        getRelativeBounds(): BoundingBox;
         /**
          * Tests whether the x/y specified are contained in the actor
          * @param x  X coordinate to test (in world coordinates)
@@ -5176,6 +5882,14 @@ declare module ex.Util.DrawUtil {
      */
     function line(ctx: CanvasRenderingContext2D, color: ex.Color, x1: number, y1: number, x2: number, y2: number): void;
     /**
+     * Draw the vector as a point onto the canvas.
+     */
+    function point(ctx: CanvasRenderingContext2D, color: Color, point: Vector): void;
+    /**
+     * Draw the vector as a line onto the canvas starting a origin point.
+     */
+    function vector(ctx: CanvasRenderingContext2D, color: Color, origin: Vector, vector: Vector, scale?: number): void;
+    /**
      * Represents border radius values
      */
     interface IBorderRadius {
@@ -6495,6 +7209,7 @@ declare var EX_VERSION: string;
  *   - [[UIActor|UI Actors (HUD)]]
  *   - [[ActionContext|Action API]]
  *   - [[Group|Groups]]
+ * - [[Physics|Working with Physics]]
  *
  * ## Working with Resources
  *
@@ -6798,10 +7513,6 @@ declare module ex {
          * Access engine input like pointer, keyboard, or gamepad
          */
         input: ex.Input.IEngineInput;
-        /**
-         * Gets or sets the [[CollisionStrategy]] for Excalibur actors
-         */
-        collisionStrategy: CollisionStrategy;
         private _hasStarted;
         /**
          * Current FPS

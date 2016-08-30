@@ -1,4 +1,6 @@
 /// <reference path="Interfaces/IDrawable.ts" />
+/// <reference path="Collision/ICollisionArea.ts" />
+/// <reference path="Collision/PolygonArea.ts" />
 /// <reference path="Interfaces/IEvented.ts" />
 /// <reference path="Traits/EulerMovement.ts" />
 /// <reference path="Traits/OffscreenCulling.ts" />
@@ -9,6 +11,7 @@
 /// <reference path="Util/Util.ts" />
 /// <reference path="TileMap.ts" />
 /// <reference path="Collision/BoundingBox.ts" />
+/// <reference path="Collision/Body.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Actions/IActionable.ts"/>
 /// <reference path="Actions/Action.ts" />
@@ -290,64 +293,227 @@ module ex {
      * The unique identifier for the actor
      */
     public id: number = Actor.maxId++;
-        
-    /**
-     * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default. If
-     * you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0). 
-     */
-    public pos: Vector = new ex.Vector(0, 0);
     
     /**
-     * The position of the actor last frame (x, y) in pixels
+     * The physics body the is associated with this actor. The body is the container for all physical properties, like position, velocity,
+     * acceleration, mass, inertia, etc.
      */
-    public oldPos: Vector = new ex.Vector(0, 0);    
+    public body: Body = new Body(this);
+
+    /**
+     * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and 
+     * [EdgeArea|edges]. 
+     */
+    public get collisionArea(): ICollisionArea {
+        return this.body.collisionArea;
+    }
+
+    /**
+     * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and 
+     * [EdgeArea|edges]. 
+     */
+    public set collisionArea(area: ICollisionArea) {
+        this.body.collisionArea = area;
+    }
     
     /**
-     * The current velocity vector (vx, vy) of the actor in pixels/second
+     * Gets the x position of the actor relative to it's parent (if any)
      */
-    public vel: Vector = new ex.Vector(0, 0);
+    public get x(): number {
+        return this.body.pos.x;
+    }
     
     /**
-     * The velocity of the actor last frame (vx, vy) in pixels/second
+     * Sets the x position of the actor relative to it's parent (if any)
      */
-    public oldVel: Vector = new ex.Vector(0, 0);
+    public set x(theX: number) {
+        this.body.pos.x = theX;
+    }
     
     /**
-     * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be 
+     * Gets the y position of the actor relative to it's parent (if any)
+     */
+    public get y(): number {
+        return this.body.pos.y;
+    }
+    
+    /**
+     * Sets the y position of the actor relative to it's parent (if any)
+     */
+    public set y(theY: number) {
+        this.body.pos.y = theY;
+    }
+
+    /**
+     * Gets the position vector of the actor in pixels
+     */
+    public get pos(): Vector {
+       return this.body.pos;
+    }
+    
+    /**
+     * Sets the position vector of the actor in pixels
+     */
+    public set pos(thePos: Vector) {
+       this.body.pos = thePos;
+    }
+
+    /**
+     * Gets the position vector of the actor from the last frame
+     */
+    public get oldPos(): Vector {
+       return this.body.oldPos;
+    }
+    
+    /**
+     * Sets the position vector of the actor in the last frame
+     */
+    public set oldPos(thePos: Vector) {
+       this.body.oldPos = thePos;
+    }
+
+    /**
+     * Gets the velocity vector of the actor in pixels/sec
+     */   
+    public get vel(): Vector {
+       return this.body.vel;
+    }
+    
+    /**
+     * Sets the velocity vector of the actor in pixels/sec
+     */
+    public set vel(theVel: Vector) {
+       this.body.vel = theVel;
+    }
+
+    /**
+     * Gets the velocity vector of the actor from the last frame
+     */
+    public get oldVel(): Vector {
+       return this.body.oldVel;
+    }
+    
+    /**
+     * Sets the velocity vector of the actor from the last frame
+     */
+    public set oldVel(theVel: Vector) {
+       this.body.oldVel = theVel;
+    }    
+    
+    /**
+     * Gets the acceleration vector of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be 
      * useful to simulate a gravitational effect.  
      */
-    public acc: Vector = new ex.Vector(0, 0);
-    
-    
-    /**
-     * The current torque applied to the actor
-     */
-    public torque: number = 0;
+    public get acc(): Vector {
+       return this.body.acc;
+    }
     
     /**
-     * The current mass of the actor, mass can be thought of as the resistance to acceleration.
+     * Sets the acceleration vector of teh actor in pixels/second/second
      */
-    public mass: number = 1.0;
+    public set acc(theAcc: Vector) {
+       this.body.acc = theAcc;
+    }
+
+    /** 
+     * Gets the rotation of the actor in radians. 1 radian = 180/PI Degrees.
+     */
+    public get rotation(): number {
+        return this.body.rotation;
+    }
+
+    /**
+     * Sets the rotation of the actor in radians. 1 radian = 180/PI Degrees.
+     */
+    public set rotation(theAngle: number) {
+        this.body.rotation = theAngle;
+    }
+
+    /** 
+     * Gets the rotational velocity of the actor in radians/second
+     */
+    public get rx(): number {
+        return this.body.rx;
+    }
+
+    /**
+     * Sets the rotational velocity of the actor in radians/sec
+     */
+    public set rx(angularVelocity: number){
+        this.body.rx = angularVelocity;
+    }
     
     /**
-     * The current momemnt of inertia, moi can be thought of as the resistance to rotation.
+     * Gets the current torque applied to the actor. Torque can be thought of as rotational force
      */
-    public moi: number = 10;
+    public get torque() {
+       return this.body.torque;   
+    }
     
     /**
-     * The current "motion" of the actor, used to calculated sleep in the physics simulation
+     * Sets the current torque applied to the actor. Torque can be thought of as rotational force
      */
-    public motion: number = 10;
+    public set torque(theTorque: number) {
+       this.body.torque = theTorque;
+    }
     
     /**
-     * The coefficient of friction on this actor
+     * Get the current mass of the actor, mass can be thought of as the resistance to acceleration.
      */
-    public friction: number = .99;
+    public get mass(){
+       return this.body.mass;   
+    }
     
     /**
-     * The coefficient of restitution of this actor, represents the amount of energy preserved after collision
+     * Sets the mass of the actor, mass can be thought of as the resistance to acceleration.
      */
-    public restitution: number = .2;
+    public set mass(theMass: number) {
+       this.body.mass = theMass;
+    }
+    
+    /**
+     * Gets the current momemnt of inertia, moi can be thought of as the resistance to rotation.
+     */
+    public get moi() {
+       return this.body.moi;
+    }
+    
+    /**
+     * Sets the current momemnt of inertia, moi can be thought of as the resistance to rotation.
+     */
+    public set moi(theMoi: number) {
+       this.body.moi = theMoi;
+    }
+          
+    /**
+     * Gets the coefficient of friction on this actor, this can be thought of as how sticky or slippery an object is.
+     */
+    public get friction() {
+       return this.body.friction;   
+    }
+    
+    /**
+     * Sets the coefficient of friction of this actor, this can ve thought of as how stick or slippery an object is.
+     */
+    public set friction(theFriction: number) {
+       this.body.friction = theFriction;
+    }
+    
+    /**
+     * Gets the coefficient of restitution of this actor, represents the amount of energy preserved after collision. Think of this  
+     * as bounciness.
+     */
+    public get restitution() {
+       return this.body.restitution;
+    }
+    
+    /**
+     * Sets the coefficient of restitution of this actor, represents the amount of energy preserved after collision. Think of this
+     * as bounciness.
+     */
+    public set restitution(theRestitution: number){
+       this.body.restitution = theRestitution;
+    }
     
     /**
      * The anchor to apply all actor related transformations like rotation,
@@ -364,14 +530,14 @@ module ex {
     
     private _height: number = 0;
     private _width: number = 0;
-    /** 
-     * The rotation of the actor in radians
+    
+    /**
+     * Collision maintenance 
      */
-    public rotation: number = 0; // radians
-    /** 
-     * The rotational velocity of the actor in radians/second
-     */
-    public rx: number = 0; //radions/sec
+    private _collisionContacts: CollisionContact[] = [];
+    private _totalMtv: Vector = Vector.Zero.clone();
+
+    
     /**
      * The scale vector of the actor
      */
@@ -432,6 +598,8 @@ module ex {
      */
     public collisionType: CollisionType = CollisionType.PreventCollision;
     public collisionGroups: string[] = [];
+    
+
     private _collisionHandlers: {[key: string]: {(actor: Actor): void}[]; } = {};
     private _isInitialized: boolean = false;
     public frames: { [key: string]: IDrawable; } = {};
@@ -495,14 +663,22 @@ module ex {
        }         
        // Build default pipeline
        this.traits.push(new ex.Traits.EulerMovement());
+       // TODO: TileMaps should be converted to a collision area
        this.traits.push(new ex.Traits.TileMapCollisionDetection());
        this.traits.push(new ex.Traits.OffscreenCulling());         
        this.traits.push(new ex.Traits.CapturePointer());
+       
+       // Build the action queue
        this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
        this.actions = new ActionContext(this);
        
+       // default anchor is in the middle
        this.anchor = new Vector(.5, .5);
+       
+       // Initialize default collision area to be box
+       this.body.useBoxCollision();
     }
+
     /**
      * This is called before the first update of the actor. This method is meant to be
      * overridden. This is where initialization of child actors should take place.
@@ -560,6 +736,7 @@ module ex {
     public isKilled(): boolean { 
        return this._isKilled;
     }
+
     /**
      * Adds a child actor to this actor. All movement of the child actor will be
      * relative to the parent actor. Meaning if the parent moves the child will
@@ -604,7 +781,22 @@ module ex {
           }
       }
     }
+     
+    /**
+     * Add minimum translation vectors accumulated during the current frame to resolve collisons.
+     */ 
+    public addMtv(mtv: Vector) {
+        this._totalMtv.addEqual(mtv);
+    }
 
+    /**
+     * Applies the accumulated translation vectors to the actors position
+     */
+    public applyMtv(): void {
+       this.pos.addEqual(this._totalMtv);
+       this._totalMtv.setTo(0, 0);
+    }
+   
     /**
      * Adds a whole texture as the "default" drawing. Set a drawing using [[setDrawing]].
      */
@@ -635,6 +827,16 @@ module ex {
           }
        }
     }
+    
+    
+    public get z(): number {
+        return this.getZIndex();
+    }
+    
+    public set z(newZ:  number){
+        this.setZIndex(newZ);
+    }
+    
     /**
      * Gets the z-index of an actor. The z-index determines the relative order an actor is drawn in.
      * Actors with a higher z-index are drawn on top of actors with a lower z-index
@@ -676,6 +878,18 @@ module ex {
        if (index !== -1) {
           this.collisionGroups.splice(index, 1);
        }
+    }
+
+    /**
+     * Calculates the unique pair hash between two actors
+     * @param other
+     */
+    public calculatePairHash(other: Actor): string {
+        if (this.id < other.id) {
+           return `#${this.id}+${other.id}`;
+        } else {
+           return `#${other.id}+${this.id}`;
+        }
     }
 
     /**
@@ -803,9 +1017,10 @@ module ex {
        return new Vector(this.scale.x * parentScale.x, this.scale.y * parentScale.y);
      }
     /**
-     * Returns the actor's [[BoundingBox]] calculated for this instant.
+     * Returns the actor's [[BoundingBox]] calculated for this instant in world space.
      */
     public getBounds() {
+       // todo cache bounding box
        var anchor = this._getCalculatedAnchor();
        var pos = this.getWorldPos();
 
@@ -814,6 +1029,20 @@ module ex {
           pos.x + this.getWidth() - anchor.x,
           pos.y + this.getHeight() - anchor.y);
     }
+
+    /**
+     * Returns the actor's [[BoundingBox]] relative to the actors position.
+     */
+    public getRelativeBounds() {
+       // todo cache bounding box
+       var anchor = this._getCalculatedAnchor();
+       return new BoundingBox(-anchor.x,
+                              -anchor.y,
+                              this.getWidth() - anchor.x,
+                              this.getHeight() - anchor.y);
+    }
+
+
     /**
      * Tests whether the x/y specified are contained in the actor
      * @param x  X coordinate to test (in world coordinates)
@@ -1016,12 +1245,18 @@ module ex {
        this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
        ctx.restore();
     }
+    
     /**
      * Called by the Engine, draws the actors debugging to the screen
      * @param ctx The rendering context
      */
+    /* istanbul ignore next */
     public debugDraw(ctx: CanvasRenderingContext2D) {
        this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
+
+       this.body.debugDraw(ctx);
+
+       /*
        // Draw actor bounding box
        var bb = this.getBounds();
        bb.debugDraw(ctx);
@@ -1035,7 +1270,9 @@ module ex {
        ctx.arc(this.getWorldPos().x, this.getWorldPos().y, 3, 0, Math.PI * 2);
        ctx.closePath();
        ctx.fill();
+       */
 
+       /*
        // Culling Box debug draw
        for (var j = 0; j < this.traits.length; j++) {
           if (this.traits[j] instanceof Traits.OffscreenCulling) {
@@ -1063,7 +1300,9 @@ module ex {
           ctx.fillText(tick, this.getWorldPos().x + Math.cos(ticks[tick]) * (radius + 10), 
                              this.getWorldPos().y + Math.sin(ticks[tick]) * (radius + 10));
        }
+       
        ctx.font = oldFont;
+       */
        // Draw child actors
        ctx.save();
        ctx.translate(this.pos.x, this.pos.y);

@@ -14,6 +14,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -63,16 +64,26 @@
     <TypeScriptCompile Include="Actions\IActionable.ts" />
     <TypeScriptCompile Include="Actor.ts" />
     <TypeScriptCompile Include="Algebra.ts" />
+    <TypeScriptCompile Include="Collision\CircleArea.ts" />
+    <TypeScriptCompile Include="Collision\CollisionContact.ts" />
+    <TypeScriptCompile Include="Collision\CollisionJumpTable.ts" />
+    <TypeScriptCompile Include="Collision\EdgeArea.ts" />
+    <TypeScriptCompile Include="Collision\ICollisionArea.ts" />
+    <TypeScriptCompile Include="Collision\IPhysics.ts" />
+    <TypeScriptCompile Include="Collision\PolygonArea.ts" />
+    <TypeScriptCompile Include="DebugFlags.ts" />
     <TypeScriptCompile Include="Drawing\Animation.ts" />
     <TypeScriptCompile Include="Binding.ts" />
+    <TypeScriptCompile Include="Traits\EulerMovement.ts" />
+    <TypeScriptCompile Include="Traits\TileMapCollisionDetection.ts" />
     <TypeScriptCompile Include="Util\CullingBox.ts" />
     <TypeScriptCompile Include="Util\SortedList.ts" />
     <TypeScriptCompile Include="Camera.ts" />
     <TypeScriptCompile Include="Class.ts" />
     <TypeScriptCompile Include="Collision\CollisionPair.ts" />
     <TypeScriptCompile Include="Collision\BoundingBox.ts" />
-    <TypeScriptCompile Include="Collision\DynamicTreeCollisionResolver.ts" />
-    <TypeScriptCompile Include="Collision\NaiveCollisionResolver.ts" />
+    <TypeScriptCompile Include="Collision\DynamicTreeCollisionBroadphase.ts" />
+    <TypeScriptCompile Include="Collision\NaiveCollisionBroadphase.ts" />
     <TypeScriptCompile Include="Drawing\Color.ts" />
     <TypeScriptCompile Include="Collision\DynamicTree.ts" />
     <TypeScriptCompile Include="Util\EasingFunctions.ts" />
@@ -91,9 +102,7 @@
     <TypeScriptCompile Include="Label.ts" />
     <TypeScriptCompile Include="Loader.ts" />
     <TypeScriptCompile Include="Util\Log.ts" />
-    <TypeScriptCompile Include="Traits\CollisionDetection.ts" />
     <TypeScriptCompile Include="Traits\CapturePointer.ts" />
-    <TypeScriptCompile Include="Traits\Movement.ts" />
     <TypeScriptCompile Include="Traits\OffscreenCulling.ts" />
     <TypeScriptCompile Include="MonkeyPatch.ts" />
     <TypeScriptCompile Include="Particles.ts" />

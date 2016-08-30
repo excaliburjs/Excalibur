@@ -3,7 +3,7 @@
 /// <reference path="ICollisionResolver.ts"/> 
 
 module ex {
-   export class NaiveCollisionResolver implements ICollisionResolver {
+   export class NaiveCollisionBroadphase implements ICollisionBroadphase {
       
       public register(target: Actor) {
          // pass
@@ -13,7 +13,7 @@ module ex {
          // pass
       }
 
-      public evaluate(targets: Actor[]): CollisionPair[] {
+      public findCollisionContacts(targets: Actor[], delta: number): CollisionContact[] {
 
          // Retrieve the list of potential colliders, exclude killed, prevented, and self
          var potentialColliders = targets.filter((other) => {
@@ -22,7 +22,7 @@ module ex {
 
          var actor1: Actor;
          var actor2: Actor;
-         var collisionPairs = [];
+         var collisionPairs: CollisionContact[] = [];
 
          for (var j = 0, l = potentialColliders.length; j < l; j++) {
 
@@ -35,9 +35,13 @@ module ex {
                var minimumTranslationVector;
                if (minimumTranslationVector = actor1.collides(actor2)) {
                   var side = actor1.getSideFromIntersect(minimumTranslationVector);
-                  var collisionPair = new CollisionPair(actor1, actor2, minimumTranslationVector, side);
+                  var collisionPair = new CollisionContact(actor1.collisionArea, 
+                                                           actor2.collisionArea, 
+                                                           minimumTranslationVector, 
+                                                           actor1.pos, 
+                                                           minimumTranslationVector);
                   if (!collisionPairs.some((cp) => {
-                     return cp.equals(collisionPair);
+                     return cp.id === collisionPair.id;
                   })) {
                      collisionPairs.push(collisionPair);
                   }
@@ -48,7 +52,7 @@ module ex {
 
          var k = 0, len = collisionPairs.length;
          for (k; k < len; k++) {
-            collisionPairs[k].evaluate();
+            collisionPairs[k].resolve(delta, ex.Physics.collisionResolutionStrategy);
          }
          
          return collisionPairs;
