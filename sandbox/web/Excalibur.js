@@ -1,4 +1,4 @@
-/*! excalibur - v0.7.0 - 2016-08-27
+/*! excalibur - v0.7.0 - 2016-08-29
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 var EX_VERSION = "0.7.0";
@@ -719,14 +719,34 @@ var ex;
      * // start the game
      * game.start();
      * ```
+     *
+     * ## Limitations
+     *
+     * Currently Excalibur only supports single contact point collisions and non-sleeping physics bodies. This has some negative stability
+     * and performance implications. Single contact point collisions can have odd oscilating behavior. Non-sleeping bodies will recalculate
+     * collisions whether they need to or not. We fully intend to add these features into Excalibur in future releases.
+     *
      */
     /* istanbul ignore next */
     var Physics = (function () {
         function Physics() {
         }
         /**
+         * Configures Excalibur to use box physics. Box physics which performs simple axis aligned arcade style physics.
+         */
+        Physics.useBoxPhysics = function () {
+            ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Box;
+        };
+        /**
+         * Configures Excalibur to use rigid body physics. Rigid body physics allows for complicated
+         * simulated physical interactions.
+         */
+        Physics.useRigidBodyPhysics = function () {
+            ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
+        };
+        /**
          * Global acceleration that is applied to all vanilla actors (it wont effect [[Label|labels]], [[UIActor|ui actors]], or
-         * [[Trigger|triggers]]) in Excalibur that have an [[CollisionType.Active|active]] collison type.
+         * [[Trigger|triggers]] in Excalibur that have an [[CollisionType.Active|active]] collison type).
          *
          *
          * This is a great way to globally simulate effects like gravity.
@@ -789,7 +809,7 @@ var ex;
         /**
          * Gets or sets the global collision resolution strategy (narrowphase).
          *
-         * The default is [[CollisionResolutionStrategy.Box]] which performs simple axis aligned arcade style physcs.
+         * The default is [[CollisionResolutionStrategy.Box]] which performs simple axis aligned arcade style physics.
          *
          * More advanced rigid body physics are enabled by setting [[CollisionResolutionStrategy.RigidBody]] which allows for complicated
          * simulated physical interactions.

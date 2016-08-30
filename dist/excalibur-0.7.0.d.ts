@@ -501,11 +501,18 @@ declare module ex {
      * // start the game
      * game.start();
      * ```
+     *
+     * ## Limitations
+     *
+     * Currently Excalibur only supports single contact point collisions and non-sleeping physics bodies. This has some negative stability
+     * and performance implications. Single contact point collisions can have odd oscilating behavior. Non-sleeping bodies will recalculate
+     * collisions whether they need to or not. We fully intend to add these features into Excalibur in future releases.
+     *
      */
     class Physics {
         /**
          * Global acceleration that is applied to all vanilla actors (it wont effect [[Label|labels]], [[UIActor|ui actors]], or
-         * [[Trigger|triggers]]) in Excalibur that have an [[CollisionType.Active|active]] collison type.
+         * [[Trigger|triggers]] in Excalibur that have an [[CollisionType.Active|active]] collison type).
          *
          *
          * This is a great way to globally simulate effects like gravity.
@@ -568,7 +575,7 @@ declare module ex {
         /**
          * Gets or sets the global collision resolution strategy (narrowphase).
          *
-         * The default is [[CollisionResolutionStrategy.Box]] which performs simple axis aligned arcade style physcs.
+         * The default is [[CollisionResolutionStrategy.Box]] which performs simple axis aligned arcade style physics.
          *
          * More advanced rigid body physics are enabled by setting [[CollisionResolutionStrategy.RigidBody]] which allows for complicated
          * simulated physical interactions.
@@ -591,6 +598,15 @@ declare module ex {
          * Gets or sets whether rotation is allowed in a RigidBody collision resolution
          */
         static allowRigidBodyRotation: boolean;
+        /**
+         * Configures Excalibur to use box physics. Box physics which performs simple axis aligned arcade style physics.
+         */
+        static useBoxPhysics(): void;
+        /**
+         * Configures Excalibur to use rigid body physics. Rigid body physics allows for complicated
+         * simulated physical interactions.
+         */
+        static useRigidBodyPhysics(): void;
     }
 }
 declare module ex {
