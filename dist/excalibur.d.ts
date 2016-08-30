@@ -3194,6 +3194,16 @@ declare module ex {
         private _cancelQueue;
         private _logger;
         constructor(engine?: Engine);
+        on(eventName: ex.Events.initialize, handler: (event?: InitializeEvent) => void): any;
+        on(eventName: ex.Events.activate, handler: (event?: ActivateEvent) => void): any;
+        on(eventName: ex.Events.deactivate, handler: (event?: DeactivateEvent) => void): any;
+        on(eventName: ex.Events.preupdate, handler: (event?: PreUpdateEvent) => void): any;
+        on(eventName: ex.Events.postupdate, handler: (event?: PostUpdateEvent) => void): any;
+        on(eventName: ex.Events.predraw, handler: (event?: PreDrawEvent) => void): any;
+        on(eventName: ex.Events.postdraw, handler: (event?: PostDrawEvent) => void): any;
+        on(eventName: ex.Events.predebugdraw, handler: (event?: PreDebugDrawEvent) => void): any;
+        on(eventName: ex.Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void): any;
+        on(eventName: string, handler: (event?: GameEvent) => void): any;
         /**
          * This is called before the first update of the [[Scene]]. Initializes scene members like the camera. This method is meant to be
          * overridden. This is where initialization of child actors should take place.
@@ -3912,13 +3922,19 @@ declare module ex {
          */
         onInitialize(engine: Engine): void;
         private _checkForPointerOptIn(eventName);
-        /**
-         * You can listen for a variety of
-         * events off of the engine; see [[GameEvent]]
-         * @param eventName   Name of the event to listen for
-         * @param handler     Event handler for the thrown event
-         */
-        on(eventName: string, handler: (event?: GameEvent) => void): void;
+        on(eventName: ex.Events.kill, handler: (event?: KillEvent) => void): any;
+        on(eventName: ex.Events.initialize, handler: (event?: InitializeEvent) => void): any;
+        on(eventName: ex.Events.preupdate, handler: (event?: PreUpdateEvent) => void): any;
+        on(eventName: ex.Events.postupdate, handler: (event?: PostUpdateEvent) => void): any;
+        on(eventName: ex.Events.predraw, handler: (event?: PreDrawEvent) => void): any;
+        on(eventName: ex.Events.postdraw, handler: (event?: PostDrawEvent) => void): any;
+        on(eventName: ex.Events.predebugdraw, handler: (event?: PreDebugDrawEvent) => void): any;
+        on(eventName: ex.Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void): any;
+        on(eventName: ex.Events.pointerup, handler: (event?: PointerEvent) => void): any;
+        on(eventName: ex.Events.pointerdown, handler: (event?: PointerEvent) => void): any;
+        on(eventName: ex.Events.pointermove, handler: (event?: PointerEvent) => void): any;
+        on(eventName: ex.Events.pointercancel, handler: (event?: PointerEvent) => void): any;
+        on(eventName: string, handler: (event?: GameEvent) => void): any;
         /**
          * If the current actor is a member of the scene, this will remove
          * it from the scene graph. It will no longer be drawn or updated.
@@ -4300,6 +4316,42 @@ declare module ex {
         log(level: LogLevel, args: any[]): void;
     }
 }
+declare module ex.Events {
+    type kill = 'kill';
+    type predraw = 'predraw';
+    type postdraw = 'postdraw';
+    type predebugdraw = 'predebugdraw';
+    type postdebugdraw = 'postdebugdraw';
+    type preupdate = 'preupdate';
+    type postupdate = 'postupdate';
+    type collision = 'collision';
+    type initialize = 'initialize';
+    type activate = 'activate';
+    type deactivate = 'deactivate';
+    type exitviewport = 'exitviewport';
+    type enterviewport = 'enterviewport';
+    type connect = 'connect';
+    type disconnect = 'disconnect';
+    type button = 'button';
+    type axis = 'axis';
+    type subscribe = 'subscribe';
+    type unsubscribe = 'unsubscribe';
+    type visible = 'visible';
+    type hidden = 'hidden';
+    type start = 'start';
+    type stop = 'stop';
+    type pointerup = 'pointerup';
+    type pointerdown = 'pointerdown';
+    type pointermove = 'pointermove';
+    type pointercancel = 'pointercancel';
+    type up = 'up';
+    type down = 'down';
+    type move = 'move';
+    type cancel = 'cancel';
+    type press = 'press';
+    type release = 'release';
+    type hold = 'hold';
+}
 declare module ex {
     /**
      * Base event type in Excalibur that all other event types derive from. Not all event types are thrown on all Excalibur game objects,
@@ -4330,6 +4382,20 @@ declare module ex {
      * The 'kill' event is emitted on actors when it is killed. The target is the actor that was killed.
      */
     class KillEvent extends GameEvent {
+        target: any;
+        constructor(target: any);
+    }
+    /**
+     * The 'start' event is emitted on engine when has started and is ready for interaction.
+     */
+    class GameStartEvent extends GameEvent {
+        target: any;
+        constructor(target: any);
+    }
+    /**
+     * The 'stop' event is emitted on engine when has been stopped and will no longer take input, update or draw.
+     */
+    class GameStopEvent extends GameEvent {
         target: any;
         constructor(target: any);
     }
@@ -4475,7 +4541,7 @@ declare module ex {
         constructor(actor: Actor, other: Actor, side: Side, intersection: Vector);
     }
     /**
-     * Event thrown on an [[Actor]] only once before the first update call
+     * Event thrown on an [[Actor]] and a [[Scene]] only once before the first update call
      */
     class InitializeEvent extends GameEvent {
         engine: Engine;
@@ -6656,6 +6722,11 @@ declare module ex.Input {
         private _pointers;
         private _activePointers;
         constructor(engine: ex.Engine);
+        on(eventName: ex.Events.up, handler: (event?: PointerEvent) => void): any;
+        on(eventName: ex.Events.down, handler: (event?: PointerEvent) => void): any;
+        on(eventName: ex.Events.move, handler: (event?: PointerEvent) => void): any;
+        on(eventName: ex.Events.cancel, handler: (event?: PointerEvent) => void): any;
+        on(eventName: string, handler: (event?: GameEvent) => void): any;
         /**
          * Primary pointer (mouse, 1 finger, stylus, etc.)
          */
@@ -6800,9 +6871,9 @@ declare module ex.Input {
      * - `hold` - Whenever a key is in the down position
      *
      * ```ts
-     * engine.input.pointers.primary.on("press", (evt: KeyEvent) => {...});
-     * engine.input.pointers.primary.on("release", (evt: KeyEvent) => {...});
-     * engine.input.pointers.primary.on("hold", (evt: KeyEvent) => {...});
+     * engine.input.keyboard.on("press", (evt: KeyEvent) => {...});
+     * engine.input.keyboard.on("release", (evt: KeyEvent) => {...});
+     * engine.input.keyboard.on("hold", (evt: KeyEvent) => {...});
      * ```
      */
     class Keyboard extends ex.Class {
@@ -6811,6 +6882,10 @@ declare module ex.Input {
         private _keysDown;
         private _engine;
         constructor(engine: ex.Engine);
+        on(eventName: ex.Events.press, handler: (event?: KeyboardEvent) => void): any;
+        on(eventName: ex.Events.release, handler: (event?: KeyboardEvent) => void): any;
+        on(eventName: ex.Events.hold, handler: (event?: KeyboardEvent) => void): any;
+        on(eventName: string, handler: (event?: GameEvent) => void): any;
         /**
          * Initialize Keyboard event listeners
          */
@@ -7005,7 +7080,11 @@ declare module ex.Input {
          * Checks a navigator gamepad against the minimum configuration if present.
          */
         private _isGamepadValid(pad);
-        on(eventName: string, handler: (event?: GameEvent) => void): void;
+        on(eventName: ex.Events.connect, handler: (event?: GamepadConnectEvent) => void): any;
+        on(eventName: ex.Events.disconnect, handler: (event?: GamepadDisconnectEvent) => void): any;
+        on(eventName: ex.Events.button, handler: (event?: GamepadButtonEvent) => void): any;
+        on(eventName: ex.Events.axis, handler: (event?: GamepadAxisEvent) => void): any;
+        on(eventName: string, handler: (event?: GameEvent) => void): any;
         off(eventName: string, handler?: (event?: GameEvent) => void): void;
         /**
          * Updates Gamepad state and publishes Gamepad events
@@ -7568,6 +7647,11 @@ declare module ex {
         private _compatible;
         private _loader;
         private _isLoading;
+        on(eventName: ex.Events.visible, handler: (event?: VisibleEvent) => void): any;
+        on(eventName: ex.Events.hidden, handler: (event?: HiddenEvent) => void): any;
+        on(eventName: ex.Events.start, handler: (event?: GameStartEvent) => void): any;
+        on(eventName: ex.Events.stop, handler: (event?: GameStopEvent) => void): any;
+        on(eventName: string, handler: (event?: GameEvent) => void): any;
         /**
          * Default [[IEngineOptions]]
          */

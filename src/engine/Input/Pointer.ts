@@ -216,6 +216,15 @@ module ex.Input {
          this.primary = this._pointers[0];
       }
 
+      public on(eventName: ex.Events.up, handler: (event?: PointerEvent) => void);
+      public on(eventName: ex.Events.down, handler: (event?: PointerEvent) => void);
+      public on(eventName: ex.Events.move, handler: (event?: PointerEvent) => void);
+      public on(eventName: ex.Events.cancel, handler: (event?: PointerEvent) => void);
+      public on(eventName: string, handler: (event?: GameEvent) => void);
+      public on(eventName: string, handler: (event?: GameEvent) => void) {
+         super.on(eventName, handler);
+      }
+
       /**
        * Primary pointer (mouse, 1 finger, stylus, etc.)
        */

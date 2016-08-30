@@ -113,9 +113,9 @@
     * - `hold` - Whenever a key is in the down position 
     *
     * ```ts
-    * engine.input.pointers.primary.on("press", (evt: KeyEvent) => {...});
-    * engine.input.pointers.primary.on("release", (evt: KeyEvent) => {...});
-    * engine.input.pointers.primary.on("hold", (evt: KeyEvent) => {...});
+    * engine.input.keyboard.on("press", (evt: KeyEvent) => {...});
+    * engine.input.keyboard.on("release", (evt: KeyEvent) => {...});
+    * engine.input.keyboard.on("hold", (evt: KeyEvent) => {...});
     * ```
     */
    export class Keyboard extends ex.Class {
@@ -129,6 +129,14 @@
          super();
 
          this._engine = engine;
+      }
+
+      public on(eventName: ex.Events.press, handler: (event?: KeyboardEvent) => void);
+      public on(eventName: ex.Events.release, handler: (event?: KeyboardEvent) => void);
+      public on(eventName: ex.Events.hold, handler: (event?: KeyboardEvent) => void);
+      public on(eventName: string, handler: (event?: GameEvent) => void);
+      public on(eventName: string, handler: (event?: GameEvent) => void) {
+         super.on(eventName, handler);
       }
 
       /**
