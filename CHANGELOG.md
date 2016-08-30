@@ -31,6 +31,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - "Tap to Play" button for iOS to fulfill platform audio requirements (#262)
 - Generic lerp/easing functions (#320)
 - Whitespace checking for conditional statements (#634)
+- Initial support for [Yeoman generator](https://github.com/excaliburjs/generator-excalibur) (#578)
 
 ### Changed
 - Upgraded Jasmine testing framework to version 2.4 (#126)
