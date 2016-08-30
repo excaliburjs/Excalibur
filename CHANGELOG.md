@@ -4,14 +4,53 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+-
+
+## [0.7.0] - 2016-08-29
+### Breaking Changes
+- Code marked 'Obsolete' has been removed (#625)
+  - `Actor`
+    - `addEventListener`
+    - `getWorldX`, `getWorldY`
+    - `clearActions`, `easeTo`, `moveTo`, `moveBy`, `rotateTo`, `rotateBy`, `scaleTo`, `scaleBy`, `blink`, `fade`, `delay`, `die`, `callMethod`, `asPromise`, `repeat`, `repeatForever`, `follow`, `meet`
+  - `Class`
+    - `addEventListener`, `removeEventListener`
+  - `Engine`
+    - parameterized constructor
+    - `addChild`, `removeChild`
+  - `UpdateEvent` removed
+- `Scene.addChild` and `Scene.removeChild` are now protected
+- Removed ex.Template and ex.Binding (#627)
+  
 ### Added
+- New physics system, physical properties for Actors (#557, #472)
 - Read The Docs support for documentation (#558)
-- continuous integration builds unstable packages and publishes them (#567)
+- Continuous integration builds unstable packages and publishes them (#567)
+- Sound and Texture resources can now process data (#574)
+- Actors now throw an event when they are killed (#585)
+- "Tap to Play" button for iOS to fulfill platform audio requirements (#262)
+- Generic lerp/easing functions (#320)
+- Whitespace checking for conditional statements (#634)
+
+### Changed
+- Upgraded Jasmine testing framework to version 2.4 (#126)
+- Updated TypeScript to 1.8 (#596)
+- Improved contributing document (#560)
+- Improved local and global coordinate tracking for Actors (#60)
+- Updated loader image to match new logo and theme (#615)
+- Ignored additional files for Bower publishing (#614)
 
 ### Fixed
 - Actions on the action context threw an error (#564)
 - Actor `getLeft()`, `getTop()`, `getBottom()` and `getRight()` did not respect anchors (#568)
 - Actor.actions.rotateTo and rotateBy were missing RotationType (#575)
+- Actors didn't behave correctly when killed and re-added to game (#586)
+- Default fontFamily for Label didn't work with custom FontSize or FontUnit (#471)
+- Fixed issues with testing sandbox (#609)
+- Issue with camera lerp (#555)
+- Issue setting initial opacity on Actors (#511)
+- Children were not being updated by their parent Actors (#616)
+- Center-anchored Actors were not drawn at the correct canvas coordinates when scaled (#618)
 
 ## [0.6.0] - 2016-01-19
 ### Added
@@ -203,12 +242,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Promise implementation for managing asynchronous behavior
 - Resource loading with optional custom progress bars
 
-[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/excaliburjs/Excalibur/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/excaliburjs/Excalibur/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/excaliburjs/Excalibur/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/excaliburjs/Excalibur/compare/v0.2.2...v0.5.0
 [0.2.2]: https://github.com/excaliburjs/Excalibur/compare/v0.2.0...v0.2.2
 [0.2.0]: https://github.com/excaliburjs/Excalibur/compare/v0.1.1...v0.2.0
-[0.1.1]: https://github.com/excaliburjs/Excalibur/compare/v0.1.0...v0.1.1
+[0.1.1]: https://github.com/excaliburjs/Excalibur/compare/v0.1...v0.1.1
 
 [//]: # (https://github.com/olivierlacan/keep-a-changelog)
