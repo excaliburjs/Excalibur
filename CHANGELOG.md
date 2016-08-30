@@ -8,7 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.7.0] - 2016-08-29
 ### Breaking Changes
-- Code marked 'Obsolete' has been removed (#625)
+- Code marked 'Obsolete' has been removed (#625, #603)
   - `Actor`
     - `addEventListener`
     - `getWorldX`, `getWorldY`
