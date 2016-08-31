@@ -1,4 +1,4 @@
-/*! excalibur - v0.7.0 - 2016-08-29
+/*! excalibur - v0.7.0 - 2016-08-31
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 var EX_VERSION = "0.7.0";
@@ -9849,14 +9849,18 @@ var ex;
             var promise = (new Promise()).resolve(value);
             return promise;
         };
-        /**
-         * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
-         * when at least 1 promise rejects.
-         */
         Promise.join = function () {
             var promises = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                promises[_i - 0] = arguments[_i];
+            if (arguments.length > 1) {
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    promises[_i - 0] = arguments[_i];
+                }
+            }
+            else if (arguments.length === 1 && Array.isArray(arguments[0])) {
+                promises = arguments[0];
+            }
+            else {
+                throw "Promise.join can take an array of Promises or argument list of Promises";
             }
             var joinedPromise = new Promise();
             if (!promises || !promises.length) {
