@@ -610,7 +610,7 @@ describe('Action', () => {
          //TODO have actor to be followed traveling at a diagonal 'toward' the following actor
          // testing when actorToMeet is moving in a direction towards the following actor
       });
-   })
+   });
 
    describe('fade', () => {
       
