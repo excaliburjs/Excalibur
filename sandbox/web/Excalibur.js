@@ -9851,16 +9851,13 @@ var ex;
         };
         Promise.join = function () {
             var promises = [];
-            if (arguments.length > 1) {
+            if (arguments.length > 0 && !Array.isArray(arguments[0])) {
                 for (var _i = 0; _i < arguments.length; _i++) {
                     promises[_i - 0] = arguments[_i];
                 }
             }
             else if (arguments.length === 1 && Array.isArray(arguments[0])) {
                 promises = arguments[0];
-            }
-            else {
-                throw "Promise.join can take an array of Promises or argument list of Promises";
             }
             var joinedPromise = new Promise();
             if (!promises || !promises.length) {
