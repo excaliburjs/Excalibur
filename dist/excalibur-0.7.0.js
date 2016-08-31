@@ -5619,7 +5619,7 @@ var ex;
             Actions.Blink = Blink;
             var Fade = (function () {
                 function Fade(actor, endOpacity, speed) {
-                    this._multiplyer = 1;
+                    this._multiplier = 1;
                     this._started = false;
                     this._stopped = false;
                     this._actor = actor;
@@ -5631,14 +5631,14 @@ var ex;
                         this._started = true;
                         // determine direction when we start
                         if (this._endOpacity < this._actor.opacity) {
-                            this._multiplyer = -1;
+                            this._multiplier = -1;
                         }
                         else {
-                            this._multiplyer = 1;
+                            this._multiplier = 1;
                         }
                     }
                     if (this._speed > 0) {
-                        this._actor.opacity += this._multiplyer * (Math.abs(this._actor.opacity - this._endOpacity) * delta) / this._speed;
+                        this._actor.opacity += this._multiplier * (Math.abs(this._actor.opacity - this._endOpacity) * delta) / this._speed;
                     }
                     this._speed -= delta;
                     if (this.isComplete(this._actor)) {
