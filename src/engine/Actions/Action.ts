@@ -786,7 +786,7 @@ module ex.Internal.Actions {
       private _actor: Actor;
       private _endOpacity: number;
       private _speed: number;
-      private _multiplyer: number = 1;
+      private _multiplier: number = 1;
       private _started = false;
       private _stopped = false;
 
@@ -802,14 +802,14 @@ module ex.Internal.Actions {
 
             // determine direction when we start
             if (this._endOpacity < this._actor.opacity) {
-               this._multiplyer = -1;
+               this._multiplier = -1;
             } else {
-               this._multiplyer = 1;
+               this._multiplier = 1;
             }
          }
          
          if (this._speed > 0) {
-            this._actor.opacity += this._multiplyer * (Math.abs(this._actor.opacity - this._endOpacity) * delta) / this._speed;
+            this._actor.opacity += this._multiplier * (Math.abs(this._actor.opacity - this._endOpacity) * delta) / this._speed;
          }
 
          this._speed -= delta;
