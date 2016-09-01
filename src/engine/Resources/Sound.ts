@@ -29,7 +29,7 @@ module ex {
     * });
     * ```  
     */
-   export class Sound implements ILoadable, Internal.ISound {
+   export class Sound implements ILoadable, Internal.IAudioResource {
       private _logger: Logger = Logger.getInstance();
 
       public path: string;
@@ -50,7 +50,7 @@ module ex {
       /**
        * Populated once loading is complete
        */
-      public sound: ex.Internal.ISound;
+      public sound: ex.Internal.IAudioResource;
 
       /**
        * Whether or not the browser can play this file as HTML5 Audio
@@ -171,8 +171,8 @@ module ex {
       /**
        * Begins loading the sound and returns a promise to be resolved on completion
        */
-      public load(): Promise<Internal.ISound> {
-         var complete = new Promise<Internal.ISound>();
+      public load(): Promise<Internal.IAudioResource> {
+         var complete = new Promise<Internal.IAudioResource>();
          
          if (this.sound.getData() !== null) {
             this._logger.debug('Already have data for resource', this.path);

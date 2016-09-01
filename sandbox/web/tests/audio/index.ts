@@ -12,7 +12,7 @@ loader.addResource(testSound);
 
 var button = new ex.Actor(100, 100, 100, 100, ex.Color.Red);
 button.enableCapturePointer = true;
-button.on('pointerdown', () => {
+button.on('pointerup', () => {
    button.color = ex.Color.Green;
    testSound.play().then(() => {
       button.color = ex.Color.Red;
