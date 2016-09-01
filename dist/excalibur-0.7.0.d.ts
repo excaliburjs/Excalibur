@@ -5120,7 +5120,12 @@ declare module ex {
          * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
          * when at least 1 promise rejects.
          */
-        static join<T>(...promises: Promise<T>[]): Promise<T>;
+        static join<T>(promises: Promise<T>[]): any;
+        /**
+         * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
+         * when at least 1 promise rejects.
+         */
+        static join<T>(...promises: Promise<T>[]): any;
         /**
          * Chain success and reject callbacks after the promise is resovled
          * @param successCallback  Call on resolution of promise

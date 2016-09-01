@@ -9849,14 +9849,15 @@ var ex;
             var promise = (new Promise()).resolve(value);
             return promise;
         };
-        /**
-         * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
-         * when at least 1 promise rejects.
-         */
         Promise.join = function () {
             var promises = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                promises[_i - 0] = arguments[_i];
+            if (arguments.length > 0 && !Array.isArray(arguments[0])) {
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    promises[_i - 0] = arguments[_i];
+                }
+            }
+            else if (arguments.length === 1 && Array.isArray(arguments[0])) {
+                promises = arguments[0];
             }
             var joinedPromise = new Promise();
             if (!promises || !promises.length) {
