@@ -50,7 +50,7 @@ module ex.Internal {
       private _volume: number;
       private _dataLoaded = new ex.Promise();
 
-      protected logger = Logger.getInstance();
+      protected _logger = Logger.getInstance();
 
       constructor(public path: string, volume: number = 1.0, private _responseType: string) {
 
@@ -117,7 +117,7 @@ module ex.Internal {
          request.onerror = this.onerror;
          request.onload = (e) => {
             if (request.status !== 200) {
-               this.logger.error('Failed to load audio resource ', this.path, ' server responded with error code', request.status);
+               this._logger.error('Failed to load audio resource ', this.path, ' server responded with error code', request.status);
                this.onerror(request.response);
                this.loaded = false;
                return;
@@ -129,16 +129,17 @@ module ex.Internal {
          try {
             request.send();
          } catch (e) {
-            this.logger.error('Error loading sound! If this is a cross origin error, you must host your sound with your html and javascript.');
+            this._logger.error('Error loading sound! If this is a cross origin error, \
+               you must host your sound with your html and javascript.');
          }
       }      
       abstract processData(raw): any;
-      protected abstract createAudio(): IAudio;
+      protected abstract _createAudio(): IAudio;
 
       /**
        * Call to finish resolving data loaded and trigger onload event
        */
-      protected resolveData(data: any) {
+      protected _resolveData(data: any) {
          this._data = data;
          this._dataLoaded.resolve(true);
       }
@@ -146,7 +147,7 @@ module ex.Internal {
       /**
        * Call to reject resolving data loaded and trigger onload event
        */
-      protected rejectData() {
+      protected _rejectData() {
          this._isLoaded = false;
          this._dataLoaded.reject(false);
       }
@@ -165,7 +166,7 @@ module ex.Internal {
             }
 
             // push a new track
-            var newTrack = this.createAudio();
+            var newTrack = this._createAudio();
             newTrack.setLoop(this._loop);
             newTrack.setVolume(this._volume);
 
@@ -211,11 +212,11 @@ module ex.Internal {
 
       public processData(data: Blob): string {        
          var url = URL.createObjectURL(data);
-         this.resolveData(url);
+         this._resolveData(url);
          return url;
       }
 
-      protected createAudio(): IAudio {
+      protected _createAudio(): IAudio {
          return new AudioTagTrack(this.getData());
       }
 
@@ -346,18 +347,18 @@ module ex.Internal {
          audioContext.decodeAudioData(data,
             (buffer) => {
                this._buffer = buffer;
-               this.resolveData(buffer);
+               this._resolveData(buffer);
             },
             () => {
-               this.logger.error('Unable to decode ' + this.path +
+               this._logger.error('Unable to decode ' + this.path +
                   ' this browser may not fully support this format, or the file may be corrupt, ' +
                   'if this is an mp3 try removing id3 tags and album art from the file.');
-               this.rejectData();
+               this._rejectData();
             });
          return data;
       }
 
-      protected createAudio(): IAudio {
+      protected _createAudio(): IAudio {
          return new WebAudioTrack(this._buffer);
       }
 

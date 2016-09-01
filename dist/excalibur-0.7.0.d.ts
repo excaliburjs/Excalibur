@@ -5247,7 +5247,7 @@ declare module ex {
      * });
      * ```
      */
-    class Sound implements ILoadable, ex.Internal.ISound {
+    class Sound implements ILoadable, Internal.IAudioResource {
         private _logger;
         path: string;
         onprogress: (e: any) => void;
@@ -5260,7 +5260,7 @@ declare module ex {
         /**
          * Populated once loading is complete
          */
-        sound: ex.Internal.FallbackAudio;
+        sound: ex.Internal.IAudioResource;
         /**
          * Whether or not the browser can play this file as HTML5 Audio
          */
@@ -5303,7 +5303,7 @@ declare module ex {
         /**
          * Begins loading the sound and returns a promise to be resolved on completion
          */
-        load(): Promise<ex.Internal.FallbackAudio>;
+        load(): Promise<Internal.IAudioResource>;
         getData(): any;
         setData(data: any): void;
         processData(data: any): any;
@@ -5768,13 +5768,15 @@ declare module ex {
     }
 }
 declare module ex.Internal {
-    interface ISound {
+    interface IAudio {
         setVolume(volume: number): any;
         setLoop(loop: boolean): any;
         isPlaying(): boolean;
         play(): ex.Promise<any>;
         pause(): any;
         stop(): any;
+    }
+    interface IAudioResource extends IAudio {
         load(): any;
         setData(data: any): any;
         getData(): any;
@@ -5784,81 +5786,71 @@ declare module ex.Internal {
         onerror: (e: any) => void;
         path: string;
     }
-    class FallbackAudio implements ISound {
-        path: string;
-        private _soundImpl;
-        private _log;
-        constructor(path: string, volume?: number);
-        setVolume(volume: number): void;
-        setLoop(loop: boolean): void;
-        onload: (e: any) => void;
-        onprogress: (e: any) => void;
-        onerror: (e: any) => void;
-        load(): void;
-        processData(data: any): any;
-        getData(): any;
-        setData(data: any): void;
-        isPlaying(): boolean;
-        play(): ex.Promise<any>;
-        pause(): void;
-        stop(): void;
+    class FallbackAudioFactory {
+        static getAudioImplementation(path: string, volume?: number): IAudioResource;
     }
-    class AudioTag implements ISound {
+    /**
+     * An internal abstract base implementation of an audio resource, delegating specific implementation details
+     * to derived classes [[AudioTag]] and [[WebAudio]].
+     */
+    abstract class AbstractAudioResource implements IAudioResource {
         path: string;
-        private _audioElements;
-        private _loadedAudio;
-        private _isLoaded;
-        private _index;
-        private _log;
-        private _isPlaying;
-        private _playingTimer;
-        private _currentOffset;
-        constructor(path: string, volume?: number);
-        isPlaying(): boolean;
-        private _audioLoaded();
-        setVolume(volume: number): void;
-        setLoop(loop: boolean): void;
-        getLoop(): void;
-        onload: (e: any) => void;
-        onprogress: (e: any) => void;
-        onerror: (e: any) => void;
-        load(): void;
-        getData(): any;
-        setData(data: any): void;
-        processData(data: any): any;
-        play(): Promise<any>;
-        pause(): void;
-        stop(): void;
-    }
-    class WebAudio implements ISound {
-        path: string;
-        private _context;
-        private _volume;
-        private _buffer;
-        private _sound;
-        private _isLoaded;
-        private _loop;
-        private _isPlaying;
-        private _isPaused;
-        private _playingTimer;
-        private _currentOffset;
-        private _playPromise;
-        private _logger;
+        private _responseType;
         private _data;
-        constructor(path: string, volume?: number);
+        private _tracks;
+        private _isLoaded;
+        private _isPaused;
+        private _loop;
+        private _volume;
+        private _dataLoaded;
+        protected _logger: Logger;
+        constructor(path: string, volume: number, _responseType: string);
+        isPlaying(): boolean;
         setVolume(volume: number): void;
+        setLoop(loop: boolean): void;
         onload: (e: any) => void;
         onprogress: (e: any) => void;
         onerror: (e: any) => void;
-        load(): void;
+        protected loaded: boolean;
         getData(): any;
         setData(data: any): void;
-        processData(data: any): any;
-        setLoop(loop: boolean): void;
-        isPlaying(): boolean;
+        load(): void;
+        abstract processData(raw: any): any;
+        protected abstract _createAudio(): IAudio;
+        /**
+         * Call to finish resolving data loaded and trigger onload event
+         */
+        protected _resolveData(data: any): void;
+        /**
+         * Call to reject resolving data loaded and trigger onload event
+         */
+        protected _rejectData(): void;
         play(): Promise<any>;
         pause(): void;
         stop(): void;
+    }
+    /**
+     * An audio resource implementation for HTML5 audio.
+     */
+    class AudioTag extends AbstractAudioResource {
+        path: string;
+        constructor(path: string, volume?: number);
+        processData(data: Blob): string;
+        protected _createAudio(): IAudio;
+    }
+    /**
+     * An audio resource implementation for Web Audio API.
+     */
+    class WebAudio extends AbstractAudioResource {
+        path: string;
+        volume: number;
+        private _buffer;
+        constructor(path: string, volume?: number);
+        /**
+         * Processes raw arraybuffer data and decodes into WebAudio buffer (async).
+         */
+        processData(data: ArrayBuffer): any;
+        protected _createAudio(): IAudio;
         private static _unlocked;
         /**
          * Play an empty sound to unlock Safari WebAudio context. Call this function
