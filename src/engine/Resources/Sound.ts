@@ -29,7 +29,7 @@ module ex {
     * });
     * ```  
     */
-   export class Sound implements ILoadable, ex.Internal.ISound {
+   export class Sound implements ILoadable, Internal.ISound {
       private _logger: Logger = Logger.getInstance();
 
       public path: string;
@@ -50,7 +50,7 @@ module ex {
       /**
        * Populated once loading is complete
        */
-      public sound: ex.Internal.FallbackAudio;
+      public sound: ex.Internal.ISound;
 
       /**
        * Whether or not the browser can play this file as HTML5 Audio
@@ -95,7 +95,7 @@ module ex {
             this.path = paths[0]; // select the first specified
          }
 
-         this.sound = new ex.Internal.FallbackAudio(this.path, 1.0);
+         this.sound = Internal.FallbackAudioFactory.getAudioImplementation(this.path, 1.0);
       }
 
       public wireEngine(engine: Engine) {
@@ -171,8 +171,8 @@ module ex {
       /**
        * Begins loading the sound and returns a promise to be resolved on completion
        */
-      public load(): Promise<ex.Internal.FallbackAudio> {
-         var complete = new Promise<ex.Internal.FallbackAudio>();
+      public load(): Promise<Internal.ISound> {
+         var complete = new Promise<Internal.ISound>();
          
          if (this.sound.getData() !== null) {
             this._logger.debug('Already have data for resource', this.path);

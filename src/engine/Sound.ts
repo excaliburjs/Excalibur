@@ -4,13 +4,16 @@
 
 module ex.Internal {
    
-   export interface ISound {
-      setVolume(volume: number);
+   export interface ITrack {
       setLoop(loop: boolean);
       isPlaying(): boolean;
       play(): ex.Promise<any>;
       pause();
       stop();
+   }
+
+   export interface ISound extends ITrack {
+      setVolume(volume: number);
       load();
       setData(data: any);
       getData(): any;
@@ -21,117 +24,51 @@ module ex.Internal {
       path: string;
    }
 
-   export class FallbackAudio implements ISound {
-      private _soundImpl: ISound;
-      private _log: Logger = Logger.getInstance();
-      constructor(public path: string, volume?: number) {
+   export class FallbackAudioFactory {
+
+      public static getAudioImplementation(path: string, volume?: number): ISound {
          if ((<any>window).AudioContext) {
-            this._log.debug('Using new Web Audio Api for ' + path);
-            this._soundImpl = new WebAudio(path, volume);
+            Logger.getInstance().debug('Using new Web Audio Api for ' + path);
+            return new WebAudio(path, volume);
          } else {
-            this._log.debug('Falling back to Audio Element for ' + path);
-            this._soundImpl = new AudioTag(path, volume);
+            Logger.getInstance().debug('Falling back to Audio Element for ' + path);
+            return new AudioTag(path, volume);
          }
-      }
-
-      public setVolume(volume: number) {
-         this._soundImpl.setVolume(volume);
-      }
-
-      public setLoop(loop: boolean) {
-         this._soundImpl.setLoop(loop);
-      }
-
-      public onload: (e: any) => void = () => { return; };
-      public onprogress: (e: any) => void = () => { return; };
-      public onerror: (e: any) => void = () => { return; };
-
-      public load() {
-         this._soundImpl.onload = this.onload;
-         this._soundImpl.onprogress = this.onprogress;
-         this._soundImpl.onerror = this.onerror;
-         this._soundImpl.load();
-      }
-      
-      public processData(data: any): any {
-         return this._soundImpl.processData(data);
-      }
-      
-      public getData(): any {
-         return this._soundImpl.getData();
-      }
-      
-      public setData(data: any) {
-         this._soundImpl.setData(data);
-      }
-
-      public isPlaying(): boolean {
-         return this._soundImpl.isPlaying();
-      }
-
-      public play(): ex.Promise<any> {
-         return this._soundImpl.play();
-      }
-
-      public pause() {
-         this._soundImpl.pause();
-      }
-
-      public stop() {
-         this._soundImpl.stop();
       }
    }
 
    export class AudioTag implements ISound {
-      private _audioElements: HTMLAudioElement[] = new Array<HTMLAudioElement>(5);
+      private _tracks: AudioTagTrack[] = [];
       private _loadedAudio: string = null;
       private _isLoaded = false;
-      private _index = 0;
       private _log: Logger = Logger.getInstance();
-      private _isPlaying = false;
-      private _playingTimer: number;
-      private _currentOffset: number = 0;
+      private _isPaused = false;
+      private _loop = false;
+      private _volume: number;
 
-      constructor(public path: string, volume?: number) {
-         for (var i = 0; i < this._audioElements.length; i++) {
-            ((i) => {
-               this._audioElements[i] = new Audio();
-            })(i);
-         }
-         if (volume) {
-            this.setVolume(Util.clamp(volume, 0, 1.0));
-         } else {
-            this.setVolume(1.0);
-         }
+      constructor(public path: string, volume: number = 1.0) {
+         
+         this.setVolume(Util.clamp(volume, 0, 1.0));
+         this._volume = volume;
       }
 
       public isPlaying(): boolean {
-         return this._isPlaying;
-      }
-
-      private _audioLoaded() {
-         this._isLoaded = true;
+         return this._tracks.some(t => t.isPlaying());
       }
 
       public setVolume(volume: number) {
+         this._volume = volume;
 
-         var i = 0, len = this._audioElements.length;
-
-         for (i; i < len; i++) {
-            this._audioElements[i].volume = volume;
+         for (var track of this._tracks) {
+            track.setVolume(volume);
          }
       }
 
       public setLoop(loop: boolean) {
-         var i = 0, len = this._audioElements.length;
-
-         for (i; i < len; i++) {
-            this._audioElements[i].loop = loop;
-         }      
-      }
-
-      public getLoop() {
-         this._audioElements.some((a) => a.loop);
+         this._loop = loop;
+         for (var track of this._tracks) {
+            track.setLoop(loop);
+         }   
       }
 
       public onload: (e: any) => void = () => { return; };
@@ -157,7 +94,6 @@ module ex.Internal {
                return;
             }
             
-            this._isLoaded = true;
             this.setData(request.response);            
             this.onload(e);
          };
@@ -174,53 +110,160 @@ module ex.Internal {
       }
       
       public processData(data: any): any {
-         var blobUrl = URL.createObjectURL(data);
-         
-         this._audioElements.forEach((a) => {
-            a.src = blobUrl;
-         });
-         this._audioLoaded();
+         var blobUrl = URL.createObjectURL(data);         
          return blobUrl;
       }
 
       public play(): Promise<any> {
-         this._audioElements[this._index].load();
-         //this.audioElements[this.index].currentTime = this._currentOffset;
-         this._audioElements[this._index].play();
-         this._currentOffset = 0;
+         if (this._isLoaded) {
+            // ensure we resume *current* tracks (if paused)
+            for (var track of this._tracks) {
+               track.play();
+            }
 
+            // when paused, don't start playing new track
+            if (this._isPaused) {
+               this._isPaused = false;
+               return Promise.wrap(false);
+            }
 
-         var done = new ex.Promise();
-         this._isPlaying = true;
-         if (!this.getLoop()) {
-            this._audioElements[this._index].addEventListener('ended', () => {
-               this._isPlaying = false;
-               done.resolve(true);
-            });
+            // push a new track
+            var newTrack = new AudioTagTrack(this._loadedAudio, this._loop, this._volume);
+            
+            this._tracks.push(newTrack);
 
+            return newTrack.play().then(() => {
+
+               // when done, remove track
+               this._tracks.splice(this._tracks.indexOf(newTrack), 1);
+
+               return true;
+            });         
+         } else {
+            return Promise.wrap(true);
          }
-
-         this._index = (this._index + 1) % this._audioElements.length;
-         return done;
       }
 
       public pause() {
-         this._index = (this._index - 1 + this._audioElements.length) % this._audioElements.length;
-         this._currentOffset = this._audioElements[this._index].currentTime;
-         this._audioElements.forEach((a) => {
-            a.pause();
-         });
+         for (var track of this._tracks) {
+            track.pause();
+         }
+         this._isPaused = true;
+      }
+
+      public stop() {
+         this._isPaused = false;
+
+         var tracks = this._tracks.concat([]);
+         for (var track of tracks) {
+            track.stop();
+         }         
+      }
+
+   }
+
+   /**
+    * Internal class representing a playing audio track
+    * @internal
+    */
+   class AudioTagTrack implements ITrack {
+      private _audioElement: HTMLAudioElement;
+      private _playingPromise: ex.Promise<any>;
+      private _isPlaying = false;
+      private _isPaused = false;      
+
+      constructor(
+         private _src: string,
+         private _loop: boolean,
+         private _volume: number) {
+
+         this._audioElement = new Audio(_src);
+         this.setVolume(_volume);
+      }
+
+      public isPlaying() {
+         return this._isPlaying;
+      }
+
+      public get loop() {
+         return this._loop;
+      }
+
+      public setLoop(value: boolean) {
+         this._loop = value;
+         this._audioElement.loop = value;
+         this._wireUpOnEnded();
+      }
+
+      public setVolume(value: number) {
+         this._audioElement.volume = value;
+      }
+
+      public play() {
+         if (this._isPaused) {
+            this._resume();
+         } else if (!this._isPlaying) {
+            this._start();
+         }
+
+         return this._playingPromise;
+      }
+
+      private _start() { 
+         this._audioElement.load();
+         this._audioElement.loop = this._loop;
+         this._audioElement.play();
+         
+         this._isPlaying = true;
+         this._isPaused = false;
+
+         this._playingPromise = new ex.Promise();
+         this._wireUpOnEnded();
+      }
+
+      private _resume() {
+         if (!this._isPaused) {
+            return;
+         }
+         
+         this._audioElement.play();
+
+         this._isPaused = false;
+         this._isPlaying = true;
+         this._wireUpOnEnded();
+      }
+
+      public pause() {
+         if (!this._isPlaying) {
+            return;
+         }
+         
+         this._audioElement.pause();
+         this._isPaused = true;
          this._isPlaying = false;
       }
 
       public stop() {
-         this._audioElements.forEach((a) => {
-            a.pause();
-            //a.currentTime = 0;
-         });
-         this._isPlaying = false;
+         if (!this._isPlaying) {
+            return;
+         }
+
+         this._audioElement.pause();
+         this._audioElement.currentTime = 0;
+         this._handleOnEnded();
       }
 
+      private _wireUpOnEnded() {
+         if (!this._loop) {
+            this._audioElement.onended = () => this._handleOnEnded();
+         }
+      }
+
+      private _handleOnEnded() {         
+         this._isPlaying = false;
+         this._isPaused = false;
+         this._playingPromise.resolve(true);         
+      }
    }
 
    if ((<any>window).AudioContext) {
@@ -231,14 +274,11 @@ module ex.Internal {
       private _context = audioContext;
       private _volume = this._context.createGain();
       private _buffer = null;
-      private _sound = null;
+      private _tracks: WebAudioTrack[] = [];
       private _isLoaded = false;
-      private _loop = false;
-      private _isPlaying = false;
       private _isPaused = false;
-      private _playingTimer: number;
-      private _currentOffset: number = 0;
-      private _playPromise: ex.Promise<any>;
+      private _loop = false;
+
 
       private _logger: Logger = Logger.getInstance();
       private _data: any = null;
@@ -316,74 +356,63 @@ module ex.Internal {
 
       public setLoop(loop: boolean) {
          this._loop = loop;
+
+         // update existing tracks
+         for (var track of this._tracks) {
+            track.setLoop(loop);
+         }
       }
 
       public isPlaying(): boolean {
-         return this._isPlaying;
+         return this._tracks.filter(t => t.isPlaying()).length > 0;
       }
 
       public play(): Promise<any> {
 
          if (this._isLoaded) {
-            this._sound = this._context.createBufferSource();
-            this._sound.buffer = this._buffer;
-            this._sound.loop = this._loop;
-            this._sound.connect(this._volume);
             this._volume.connect(this._context.destination);
-            this._sound.start(0, this._currentOffset % this._buffer.duration);
             
-            this._currentOffset = 0;
-            var done;
-            if (!this._isPaused || !this._playPromise) {
-               done = new ex.Promise();
-            } else {
-               done = this._playPromise;
-            }
-            this._isPaused = false;
-            
-            this._isPlaying = true;
-            if (!this._loop) {
-
-               this._sound.onended = (() => {
-                  this._isPlaying = false;
-                  if (!this._isPaused) {
-                     done.resolve(true);
-                  }
-               }).bind(this);
+            // ensure we resume *current* tracks (if paused)
+            for (var track of this._tracks) {
+               track.play();
             }
 
-            this._playPromise = done;
-            return done;
+            // when paused, don't start playing new track
+            if (this._isPaused) {
+               this._isPaused = false;
+               return Promise.wrap(false);
+            }
+
+            // push a new track
+            var newTrack = new WebAudioTrack(this._context, this._buffer, this._loop, this._volume);
+            this._tracks.push(newTrack);
+
+            return newTrack.play().then(() => {
+
+               // when done, remove track
+               this._tracks.splice(this._tracks.indexOf(newTrack), 1);
+
+               return true;
+            });         
          } else {
             return Promise.wrap(true);
          }
       }
 
       public pause() {
-         if (this._isPlaying) {
-            try {
-               window.clearTimeout(this._playingTimer);
-               this._sound.stop(0);
-               this._currentOffset = this._context.currentTime;
-               this._isPlaying = false;
-               this._isPaused = true;
-            } catch (e) {
-               this._logger.warn('The sound clip', this.path, 'has already been paused!');
-            }
+         this._isPaused = true;
+
+         for (var track of this._tracks) {
+            track.pause();
          }
       }
 
       public stop() {
-         if (this._sound) {
-            try {
-               window.clearTimeout(this._playingTimer);
-               this._currentOffset = 0;
-               this._sound.stop(0);
-               this._isPlaying = false;
-               this._isPaused = false;
-            } catch (e) {
-               this._logger.warn('The sound clip', this.path, 'has already been stopped!');
-            }
+         this._isPaused = false;
+
+         var tracks = this._tracks.concat([]);
+         for (var track of tracks) {
+            track.stop();
          }
       }
       
@@ -424,6 +453,128 @@ module ex.Internal {
       
       static isUnlocked() {
           return this._unlocked;
+      }
+   }
+
+   /**
+    * Internal class representing a playing audio track
+    * @internal
+    */
+   class WebAudioTrack implements ITrack {
+      private _bufferSource;
+      private _playingPromise: ex.Promise<any>;
+      private _currentOffset = 0;
+      private _isPlaying = false;
+      private _isPaused = false;
+      private _startTime: number;
+
+      public isPlaying() {
+         return this._isPlaying;
+      }
+
+      constructor(
+         private _context, 
+         private _buffer, 
+         private _loop: boolean,
+         private _volume) {
+
+      }
+
+      public setLoop(value: boolean) {
+         this._loop = value;
+         this._bufferSource.loop = value;
+         this._wireUpOnEnded();
+      }
+
+      public play() {
+         if (this._isPaused) {
+            this._resume();
+         } else if (!this._isPlaying) {
+            this._start();
+         }
+
+         return this._playingPromise;
+      }
+
+      private _start() {
+         this._createBufferSource();         
+         this._bufferSource.start(0, 0);
+         
+         this._startTime = new Date().getTime();
+         this._currentOffset = 0;
+         this._isPlaying = true;
+         this._isPaused = false;
+
+         this._playingPromise = new ex.Promise();
+         this._wireUpOnEnded();
+      }
+
+      private _resume() {
+         if (!this._isPaused) {
+            return;
+         }
+         
+         // a buffer source can only be started once
+         // so we need to dispose of the previous instance before
+         // "resuming" the next one
+
+         this._bufferSource.onended = null; // dispose of any previous event handler
+         this._createBufferSource();
+         var duration = (1 / this._bufferSource.playbackRate.value) * this._buffer.duration;
+         this._bufferSource.start(0, this._currentOffset % duration);
+
+         this._isPaused = false;
+         this._isPlaying = true;
+         this._wireUpOnEnded();
+      }
+
+      private _createBufferSource() {
+         this._bufferSource = this._context.createBufferSource();
+         this._bufferSource.buffer = this._buffer;
+         this._bufferSource.loop = this._loop;
+         this._bufferSource.playbackRate.value = 1.0;
+         this._bufferSource.connect(this._volume);
+      }      
+
+      public pause() {
+         if (!this._isPlaying) {
+            return;
+         }
+         
+         this._bufferSource.stop(0);
+         // Playback rate will be a scale factor of how fast/slow the audio is being played
+         // default is 1.0
+         // we need to invert it to get the time scale
+         var pbRate = 1 / (this._bufferSource.playbackRate.value || 1.0);
+         this._currentOffset = (new Date().getTime() - this._startTime) * pbRate; 
+         this._isPaused = true;
+         this._isPlaying = false;
+      }
+
+      public stop() {
+         if (!this._isPlaying) {
+            return;
+         }
+
+         this._bufferSource.stop(0);
+         this._currentOffset = 0;
+         this._isPlaying = false;
+         this._isPaused = false;
+      }
+
+      private _wireUpOnEnded() {
+         if (!this._loop) {
+            this._bufferSource.onended = () => this._handleOnEnded();
+         }
+      }
+
+      private _handleOnEnded() {
+         // pausing calls stop(0) which triggers onended event
+         // so we don't "resolve" yet (when we resume we'll try again)
+         if (!this._isPaused) {
+            this._isPlaying = false;
+            this._playingPromise.resolve(true);
+         }
       }
    }
 }
