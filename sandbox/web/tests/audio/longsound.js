@@ -1,6 +1,6 @@
 /// <reference path="../../../../dist/excalibur.d.ts"/>
 // uncomment to hint fallback implementation
-window.AudioContext = null;
+// (<any>window).AudioContext = null;
 var game = new ex.Engine();
 var loader = new ex.Loader();
 var testSound = new ex.Sound("loop.mp3");
