@@ -122,7 +122,10 @@ module ex {
       }
    }
 
-   var getAudioImplementation = (): IAudioImplementation => {
+   /**
+    * Factory method that gets the audio implementation to use
+    */
+   export function getAudioImplementation(): IAudioImplementation {
       if ((<any>window).AudioContext) {            
          return new WebAudio();
       } else {            
@@ -220,7 +223,7 @@ module ex {
             this.path = paths[0]; // select the first specified
          }
 
-         this.sound = getAudioImplementation();
+         this.sound = ex.getAudioImplementation(); // reference namespaced function to allow mocks
       }
 
       public wireEngine(engine: Engine) {

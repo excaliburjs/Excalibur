@@ -21,7 +21,7 @@
             "preLaunchTask": "compile",            
             "program": "${workspaceRoot}\\node_modules\\jasmine\\bin\\jasmine.js", // ${workspaceRoot}/src/spec/TestsSpec.js",
             "args": ["JASMINE_CONFIG_PATH=${workspaceRoot}\\src\\spec\\support\\jasmine.json"],
-            "cwd": "${workspaceRoot}\\src\\",
+            "cwd": "${workspaceRoot}",
             "outDir": "${workspaceRoot}\\src\\spec\\",
             "sourceMaps": true
         }
