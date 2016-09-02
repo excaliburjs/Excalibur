@@ -440,6 +440,7 @@ module ex {
    /**
     * Internal class representing a HTML5 audio instance    
     */
+   /* istanbul ignore next */
    class AudioTagInstance implements IAudio {
       private _audioElement: HTMLAudioElement;
       private _playingPromise: ex.Promise<any>;
@@ -544,6 +545,7 @@ module ex {
     * Internal class representing a Web Audio AudioBufferSourceNode instance
     * @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API
     */
+   /* istanbul ignore next */
    class WebAudioInstance implements IAudio {
       private _bufferSource: AudioBufferSourceNode;
       private _volumeNode = audioContext.createGain();
