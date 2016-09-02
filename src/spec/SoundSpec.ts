@@ -46,6 +46,33 @@ describe('Sound resource', () => {
 
    });
 
+   it('should call oncomplete callback when loaded async on success', (done) => {
+      createFetchSpy(sut, true, mockData);
+      
+      sut.oncomplete = () => done();
+
+      sut.load();
+   });
+
+   it('should call onerror callback when loaded async on request error', (done) => {
+      createFetchSpy(sut, false, null);
+      
+      sut.onerror = () => done();
+
+      sut.load();
+   });
+
+   it('should call onerror callback when loaded async on general error', (done) => {
+      spyOn(sut, '_fetchResource').and.throwError('fatal');
+      
+      sut.onerror = (e: Error) => {
+         expect(e.message).toBe('fatal');
+         done();
+      };
+
+      sut.load();
+   });
+
    describe('with data', () => {
 
       beforeEach(() => {
