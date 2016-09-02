@@ -262,6 +262,8 @@ module ex {
          for (var track of this._tracks) {
             track.setVolume(volume);
          }
+
+         this._logger.debug("Set volume for all instances of sound", this.path, "to", volume);
       }
 
       /**
@@ -273,6 +275,8 @@ module ex {
          for (var track of this._tracks) {
             track.setLoop(loop);
          }
+
+         this._logger.debug("Set loop for all instances of sound", this.path, "to", loop);
       }
 
       /**
@@ -298,6 +302,8 @@ module ex {
             if (this._isPaused) {
                this._isPaused = false;
 
+               this._logger.debug("Resuming paused instances for sound", this.path, this._tracks);
+
                // resolve when resumed tracks are done
                return Promise.join(resumed);
             }
@@ -308,6 +314,8 @@ module ex {
             newTrack.setVolume(this._volume);
 
             this._tracks.push(newTrack);
+
+            this._logger.debug("Playing new instance for sound", this.path);
 
             return newTrack.play().then(() => {
 
@@ -329,6 +337,7 @@ module ex {
             track.pause();
          }
          this._isPaused = true;
+         this._logger.debug("Paused all instances of sound", this.path);
       }
 
       /**
@@ -341,6 +350,7 @@ module ex {
          for (var track of tracks) {
             track.stop();
          }
+         this._logger.debug("Stopped all instances of sound", this.path);
       }
 
       /**
@@ -357,7 +367,7 @@ module ex {
          var complete = new Promise<IAudioImplementation>();
          
          if (!!this.getData()) {
-            this._logger.debug('Already have data for resource', this.path);
+            this._logger.debug('Already have data for audio resource', this.path);
             complete.resolve(this.sound);
             this.oncomplete();
             return complete;
