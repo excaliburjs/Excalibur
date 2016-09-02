@@ -10486,6 +10486,7 @@ var ex;
     /**
      * Internal class representing a HTML5 audio instance
      */
+    /* istanbul ignore next */
     var AudioTagInstance = (function () {
         function AudioTagInstance(_src) {
             this._src = _src;
@@ -10574,6 +10575,7 @@ var ex;
      * Internal class representing a Web Audio AudioBufferSourceNode instance
      * @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API
      */
+    /* istanbul ignore next */
     var WebAudioInstance = (function () {
         function WebAudioInstance(_buffer) {
             this._buffer = _buffer;
