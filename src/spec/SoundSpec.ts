@@ -230,11 +230,11 @@ describe('Sound resource', () => {
       it('should not have any tracks when stopped', () => {
          sut.play();
 
-         expect(sut['_tracks'].length).toBe(1, 'should be one track');
+         expect(sut.instanceCount()).toBe(1, 'should be one track');
 
          sut.stop();
 
-         expect(sut['_tracks'].length).toBe(0, 'should be no tracks');
+         expect(sut.instanceCount()).toBe(0, 'should be no tracks');
       });
 
       it('should remove tracks as they are done when multiple are playing', (done) => {
@@ -242,7 +242,7 @@ describe('Sound resource', () => {
          // start playing first track
          sut.play().then(() => {
 
-            expect(sut['_tracks'].length).toBe(1, 'should be one track');
+            expect(sut.instanceCount()).toBe(1, 'should be one track');
 
          });
 
@@ -251,12 +251,12 @@ describe('Sound resource', () => {
 
             sut.play().then(() => {
 
-               expect(sut['_tracks'].length).toBe(0, 'should be one track');
+               expect(sut.instanceCount()).toBe(0, 'should be one track');
 
                done();
             });
 
-            expect(sut['_tracks'].length).toBe(2, 'should be two simultaneous tracks');
+            expect(sut.instanceCount()).toBe(2, 'should be two simultaneous tracks');
          }, 50);         
       });
 
@@ -275,7 +275,7 @@ describe('Sound resource', () => {
 
             sut.stop();
 
-            expect(sut['_tracks'].length).toBe(0, 'should be no tracks');
+            expect(sut.instanceCount()).toBe(0, 'should be no tracks');
 
             done();
          }, 60);

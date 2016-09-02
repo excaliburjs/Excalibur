@@ -246,6 +246,13 @@ module ex {
       }
 
       /**
+       * Returns how many instances of the sound are currently playing
+       */
+      public instanceCount(): number {
+         return this._tracks.length;
+      }
+
+      /**
        * Sets the volume of the sound clip
        * @param volume  A volume value between 0-1.0
        */
