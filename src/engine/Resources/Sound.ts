@@ -263,7 +263,7 @@ module ex {
             track.setVolume(volume);
          }
 
-         this._logger.debug("Set volume for all instances of sound", this.path, "to", volume);
+         this._logger.debug('Set volume for all instances of sound', this.path, 'to', volume);
       }
 
       /**
@@ -276,7 +276,7 @@ module ex {
             track.setLoop(loop);
          }
 
-         this._logger.debug("Set loop for all instances of sound", this.path, "to", loop);
+         this._logger.debug('Set loop for all instances of sound', this.path, 'to', loop);
       }
 
       /**
@@ -302,7 +302,7 @@ module ex {
             if (this._isPaused) {
                this._isPaused = false;
 
-               this._logger.debug("Resuming paused instances for sound", this.path, this._tracks);
+               this._logger.debug('Resuming paused instances for sound', this.path, this._tracks);
 
                // resolve when resumed tracks are done
                return Promise.join(resumed);
@@ -315,7 +315,7 @@ module ex {
 
             this._tracks.push(newTrack);
 
-            this._logger.debug("Playing new instance for sound", this.path);
+            this._logger.debug('Playing new instance for sound', this.path);
 
             return newTrack.play().then(() => {
 
@@ -337,7 +337,7 @@ module ex {
             track.pause();
          }
          this._isPaused = true;
-         this._logger.debug("Paused all instances of sound", this.path);
+         this._logger.debug('Paused all instances of sound', this.path);
       }
 
       /**
@@ -350,7 +350,7 @@ module ex {
          for (var track of tracks) {
             track.stop();
          }
-         this._logger.debug("Stopped all instances of sound", this.path);
+         this._logger.debug('Stopped all instances of sound', this.path);
       }
 
       /**
