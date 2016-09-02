@@ -1,4 +1,4 @@
-/*! excalibur - v0.7.0 - 2016-08-31
+/*! excalibur - v0.7.0 - 2016-09-02
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 var EX_VERSION = "0.7.0";
@@ -5619,28 +5619,32 @@ var ex;
             Actions.Blink = Blink;
             var Fade = (function () {
                 function Fade(actor, endOpacity, speed) {
-                    this._multiplyer = 1;
+                    this._multiplier = 1;
                     this._started = false;
                     this._stopped = false;
                     this._actor = actor;
                     this._endOpacity = endOpacity;
                     this._speed = speed;
-                    if (endOpacity < actor.opacity) {
-                        this._multiplyer = -1;
-                    }
                 }
                 Fade.prototype.update = function (delta) {
                     if (!this._started) {
                         this._started = true;
+                        // determine direction when we start
+                        if (this._endOpacity < this._actor.opacity) {
+                            this._multiplier = -1;
+                        }
+                        else {
+                            this._multiplier = 1;
+                        }
                     }
                     if (this._speed > 0) {
-                        this._actor.opacity += this._multiplyer * (Math.abs(this._actor.opacity - this._endOpacity) * delta) / this._speed;
+                        this._actor.opacity += this._multiplier * (Math.abs(this._actor.opacity - this._endOpacity) * delta) / this._speed;
                     }
                     this._speed -= delta;
-                    ex.Logger.getInstance().debug('actor opacity: ' + this._actor.opacity);
                     if (this.isComplete(this._actor)) {
                         this._actor.opacity = this._endOpacity;
                     }
+                    ex.Logger.getInstance().debug('[Action fade] Actor opacity:', this._actor.opacity);
                 };
                 Fade.prototype.isComplete = function (actor) {
                     return this._stopped || (Math.abs(this._actor.opacity - this._endOpacity) < 0.05);
