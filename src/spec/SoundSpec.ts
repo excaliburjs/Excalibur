@@ -87,7 +87,7 @@ describe('Sound resource', () => {
          expect(sut.getData()).toBe(mockData);
       });
 
-      it('should not trigger an XHR request when load is called', (done) => {
+      it('should not trigger an XHR request when loaded', (done) => {
 
          var fetchSpy = createFetchSpy(sut, true, mockData);
 
@@ -99,7 +99,13 @@ describe('Sound resource', () => {
 
             done();
          });
-      });      
+      });   
+
+      it('should call oncomplete callback when loaded', (done) => {
+         sut.oncomplete = () => done();
+
+         sut.load();
+      });  
 
       it('should create a new audio instance when played', (done) => {
          var audioInstance = new MockAudioInstance();
