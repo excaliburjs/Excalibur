@@ -2602,7 +2602,7 @@ declare module ex.Internal.Actions {
         private _actor;
         private _endOpacity;
         private _speed;
-        private _multiplyer;
+        private _multiplier;
         private _started;
         private _stopped;
         constructor(actor: Actor, endOpacity: number, speed: number);
