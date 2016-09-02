@@ -524,13 +524,17 @@ module ex {
    class WebAudioInstance implements IAudio {
       private _bufferSource: AudioBufferSourceNode;
       private _volumeNode = audioContext.createGain();
-      private _playingPromise: ex.Promise<any>;
-      private _currentOffset = 0;
+      private _playingPromise: ex.Promise<any>;      
       private _isPlaying = false;
       private _isPaused = false;
       private _startTime: number;
       private _loop: boolean = false;
       private _volume: number = 1.0;
+
+      /**
+       * Current playback offset (in seconds)
+       */
+      private _currentOffset = 0;
 
       public isPlaying() {
          return this._isPlaying;
@@ -614,7 +618,7 @@ module ex {
          // default is 1.0
          // we need to invert it to get the time scale
          var pbRate = 1 / (this._bufferSource.playbackRate.value || 1.0);
-         this._currentOffset = (new Date().getTime() - this._startTime) * pbRate;
+         this._currentOffset = ((new Date().getTime() - this._startTime) * pbRate) / 1000; // in seconds
          this._isPaused = true;
          this._isPlaying = false;
       }
