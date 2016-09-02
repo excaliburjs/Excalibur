@@ -10334,6 +10334,7 @@ var ex;
                 var track = _a[_i];
                 track.setVolume(volume);
             }
+            this._logger.debug('Set volume for all instances of sound', this.path, 'to', volume);
         };
         /**
          * Indicates whether the clip should loop when complete
@@ -10345,6 +10346,7 @@ var ex;
                 var track = _a[_i];
                 track.setLoop(loop);
             }
+            this._logger.debug('Set loop for all instances of sound', this.path, 'to', loop);
         };
         /**
          * Whether or not the sound is playing right now
@@ -10367,6 +10369,7 @@ var ex;
                 // when paused, don't start playing new track
                 if (this._isPaused) {
                     this._isPaused = false;
+                    this._logger.debug('Resuming paused instances for sound', this.path, this._tracks);
                     // resolve when resumed tracks are done
                     return ex.Promise.join(resumed);
                 }
@@ -10375,6 +10378,7 @@ var ex;
                 newTrack.setLoop(this._loop);
                 newTrack.setVolume(this._volume);
                 this._tracks.push(newTrack);
+                this._logger.debug('Playing new instance for sound', this.path);
                 return newTrack.play().then(function () {
                     // when done, remove track
                     _this._tracks.splice(_this._tracks.indexOf(newTrack), 1);
@@ -10394,6 +10398,7 @@ var ex;
                 track.pause();
             }
             this._isPaused = true;
+            this._logger.debug('Paused all instances of sound', this.path);
         };
         /**
          * Stop the sound and rewind
@@ -10405,6 +10410,7 @@ var ex;
                 var track = tracks_1[_i];
                 track.stop();
             }
+            this._logger.debug('Stopped all instances of sound', this.path);
         };
         /**
          * Returns true if the sound is loaded
@@ -10419,7 +10425,7 @@ var ex;
             var _this = this;
             var complete = new ex.Promise();
             if (!!this.getData()) {
-                this._logger.debug('Already have data for resource', this.path);
+                this._logger.debug('Already have data for audio resource', this.path);
                 complete.resolve(this.sound);
                 this.oncomplete();
                 return complete;
