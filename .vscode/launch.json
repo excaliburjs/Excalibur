@@ -18,7 +18,7 @@
             "name": "Attach to tests",
             "type": "node",
             "request": "launch",
-            "preLaunchTask": "compile",            
+            "preLaunchTask": "shell:specs",            
             "program": "${workspaceRoot}\\node_modules\\jasmine\\bin\\jasmine.js", // ${workspaceRoot}/src/spec/TestsSpec.js",
             "args": ["JASMINE_CONFIG_PATH=${workspaceRoot}\\src\\spec\\support\\jasmine.json"],
             "cwd": "${workspaceRoot}",

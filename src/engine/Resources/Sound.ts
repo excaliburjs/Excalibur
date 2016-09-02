@@ -280,15 +280,19 @@ module ex {
        */
       public play(): ex.Promise<boolean> {
          if (this._isLoaded) {
+            var resumed = [];
+
             // ensure we resume *current* tracks (if paused)
             for (var track of this._tracks) {
-               track.play();
+               resumed.push(track.play());
             }
 
             // when paused, don't start playing new track
             if (this._isPaused) {
                this._isPaused = false;
-               return Promise.wrap(false);
+
+               // resolve when resumed tracks are done
+               return Promise.join(resumed);
             }
 
             // push a new track
@@ -384,6 +388,7 @@ module ex {
          return complete;
       }
 
+      /* istanbul ignore next */
       private _fetchResource(onload: (XMLHttpRequest) => void) {
          var request = new XMLHttpRequest();
 
