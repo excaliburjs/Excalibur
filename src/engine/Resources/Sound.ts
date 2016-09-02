@@ -154,7 +154,7 @@ module ex {
     * });
     * ```  
     */
-   export class Sound implements ILoadable {
+   export class Sound implements ILoadable, IAudio {
       private _logger: Logger = Logger.getInstance();
       private _data: any = null;
       private _tracks: IAudio[] = [];
@@ -187,8 +187,7 @@ module ex {
             var type = file.match(filetype)[1];
             if (a.canPlayType('audio/' + type)) {
                return true;
-            }
-            {
+            } else {
                return false;
             }
          } catch (e) {
@@ -207,14 +206,15 @@ module ex {
           * Safari MP3, WAV, Ogg           
           */
          this.path = '';
-         for(var i = 0; i < paths.length; i++) {
-            if(Sound.canPlayFile(paths[i])) {
-               this.path = paths[i];
+
+         for (var path of paths) {
+            if (Sound.canPlayFile(path)) {
+               this.path = path;
                break;
             }               
          }
 
-         if(!this.path) {
+         if (!this.path) {
             this._logger.warn('This browser does not support any of the audio files specified:', paths.join(', '));
             this._logger.warn('Attempting to use', paths[0]);
             this.path = paths[0]; // select the first specified
@@ -349,41 +349,48 @@ module ex {
             return complete;
          }
          
-         this._logger.debug('Started loading sound', this.path);
-
-         var request = new XMLHttpRequest();
-         request.open('GET', this.path, true);
-         request.responseType = this.sound.responseType;
-         request.onprogress = this.onprogress;
-         request.onerror = this.onerror;
-         request.onload = (e) => {
-            if (request.status !== 200) {
-               this._logger.error('Failed to load audio resource ', this.path, ' server responded with error code', request.status);
-               this.onerror(request.response);
-               complete.resolve(null);
-               return;
-            }
-
-            // load sound
-            this.setData(request.response).then(() => {               
-               this._isLoaded = true;
-               this.oncomplete();
-               this._logger.debug('Completed loading sound', this.path);
-               
-               complete.resolve(this.sound);
-            }, (e) => complete.resolve(e));            
-         };
+         this._logger.debug('Started loading sound', this.path);        
 
          try {
-            request.send();
+            this._fetchResource(request => {
+
+               if (request.status !== 200) {
+                  this._logger.error('Failed to load audio resource ', this.path, ' server responded with error code', request.status);
+                  this.onerror(request.response);
+                  complete.resolve(null);
+                  return;
+               }
+
+               // load sound
+               this.setData(request.response).then(() => {                              
+                  this.oncomplete();
+                  this._logger.debug('Completed loading sound', this.path);
+                  
+                  complete.resolve(this.sound);
+               }, (e) => complete.resolve(e));            
+            });
+
          } catch (e) {
             this._logger.error('Error loading sound! If this is a cross origin error, \
                you must host your sound with your html and javascript.');
+
             this.onerror(e);
             complete.resolve(e);
          }
 
          return complete;
+      }
+
+      private _fetchResource(onload: (XMLHttpRequest) => void) {
+         var request = new XMLHttpRequest();
+
+         request.open('GET', this.path, true);
+         request.responseType = this.sound.responseType;
+         request.onprogress = this.onprogress;
+         request.onerror = this.onerror;
+         request.onload = (e) => onload(request);
+
+         request.send();
       }
       
       /**
@@ -400,6 +407,7 @@ module ex {
        */
       public setData(data: any): ex.Promise<any> {         
          return this.sound.processData(data).then(data => {
+            this._isLoaded = true;
             this._data = this.processData(data);
             return data;
          });
