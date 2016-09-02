@@ -1,4 +1,4 @@
-/*! excalibur - v0.7.0 - 2016-08-31
+/*! excalibur - v0.7.0 - 2016-09-02
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 var EX_VERSION = "0.7.0";
@@ -10086,12 +10086,127 @@ var ex;
     }(ex.Resource));
     ex.Texture = Texture;
 })(ex || (ex = {}));
+/// <reference path="../Promises.ts" />
 /// <reference path="../Util/Util.ts" />
 /// <reference path="../Promises.ts" />
 /// <reference path="Resource.ts" />
 /// <reference path="../Interfaces/ILoadable.ts" />
+/// <reference path="../Interfaces/IAudio.ts" />
+/// <reference path="../Interfaces/IAudioImplementation.ts" />
 var ex;
 (function (ex) {
+    // set up audio context reference
+    // when we introduce multi-tracking, we may need to move this to a factory method
+    if (window.AudioContext) {
+        var audioContext = new window.AudioContext();
+    }
+    /**
+     * An audio implementation for HTML5 audio.
+     */
+    var AudioTag = (function () {
+        function AudioTag() {
+            this.responseType = 'blob';
+        }
+        /**
+         * Transforms raw Blob data into a object URL for use in audio tag
+         */
+        AudioTag.prototype.processData = function (data) {
+            var url = URL.createObjectURL(data);
+            return ex.Promise.wrap(url);
+        };
+        /**
+         * Creates a new instance of an audio tag referencing the provided audio URL
+         */
+        AudioTag.prototype.createInstance = function (url) {
+            return new AudioTagInstance(url);
+        };
+        return AudioTag;
+    }());
+    ex.AudioTag = AudioTag;
+    /**
+     * An audio implementation for Web Audio API.
+     */
+    var WebAudio = (function () {
+        function WebAudio() {
+            this._logger = ex.Logger.getInstance();
+            this.responseType = 'arraybuffer';
+        }
+        /**
+         * Processes raw arraybuffer data and decodes into WebAudio buffer (async).
+         */
+        WebAudio.prototype.processData = function (data) {
+            var _this = this;
+            var complete = new ex.Promise();
+            audioContext.decodeAudioData(data, function (buffer) {
+                complete.resolve(buffer);
+            }, function () {
+                _this._logger.error('Unable to decode ' +
+                    ' this browser may not fully support this format, or the file may be corrupt, ' +
+                    'if this is an mp3 try removing id3 tags and album art from the file.');
+                complete.resolve(undefined);
+            });
+            return complete;
+        };
+        /**
+         * Creates a new WebAudio AudioBufferSourceNode to play a sound instance
+         */
+        WebAudio.prototype.createInstance = function (buffer) {
+            return new WebAudioInstance(buffer);
+        };
+        /**
+         * Play an empty sound to unlock Safari WebAudio context. Call this function
+         * right after a user interaction event. Typically used by [[PauseAfterLoader]]
+         * @source https://paulbakaus.com/tutorials/html5/web-audio-on-ios/
+         */
+        WebAudio.unlock = function () {
+            if (this._unlocked || !audioContext) {
+                return;
+            }
+            // create empty buffer and play it
+            var buffer = audioContext.createBuffer(1, 1, 22050);
+            var source = audioContext.createBufferSource();
+            var ended = false;
+            source.buffer = buffer;
+            source.connect(audioContext.destination);
+            source.onended = function () { return ended = true; };
+            if (source.noteOn) {
+                // deprecated
+                source.noteOn(0);
+            }
+            else {
+                source.start(0);
+            }
+            // by checking the play state after some time, we know if we're really unlocked
+            setTimeout(function () {
+                if (source.playbackState) {
+                    var legacySource = source;
+                    if (legacySource.playbackState === legacySource.PLAYING_STATE ||
+                        legacySource.playbackState === legacySource.FINISHED_STATE) {
+                        this._unlocked = true;
+                    }
+                }
+                else {
+                    if (audioContext.currentTime > 0 || ended) {
+                        this._unlocked = true;
+                    }
+                }
+            }, 0);
+        };
+        WebAudio.isUnlocked = function () {
+            return this._unlocked;
+        };
+        WebAudio._unlocked = false;
+        return WebAudio;
+    }());
+    ex.WebAudio = WebAudio;
+    var getAudioImplementation = function () {
+        if (window.AudioContext) {
+            return new WebAudio();
+        }
+        else {
+            return new AudioTag();
+        }
+    };
     /**
      * Sounds
      *
@@ -10126,11 +10241,15 @@ var ex;
                 paths[_i - 0] = arguments[_i];
             }
             this._logger = ex.Logger.getInstance();
+            this._data = null;
+            this._tracks = [];
+            this._isLoaded = false;
+            this._isPaused = false;
+            this._loop = false;
+            this._volume = 1.0;
             this.onprogress = function () { return; };
             this.oncomplete = function () { return; };
             this.onerror = function () { return; };
-            this.onload = function () { return; };
-            this._isLoaded = false;
             this._wasPlayingOnHidden = false;
             /* Chrome : MP3, WAV, Ogg
              * Firefox : WAV, Ogg,
@@ -10149,7 +10268,7 @@ var ex;
                 this._logger.warn('Attempting to use', paths[0]);
                 this.path = paths[0]; // select the first specified
             }
-            this.sound = ex.Internal.FallbackAudioFactory.getAudioImplementation(this.path, 1.0);
+            this.sound = getAudioImplementation();
         }
         /**
          * Whether or not the browser can play this file as HTML5 Audio
@@ -10194,8 +10313,10 @@ var ex;
          * @param volume  A volume value between 0-1.0
          */
         Sound.prototype.setVolume = function (volume) {
-            if (this.sound) {
-                this.sound.setVolume(volume);
+            this._volume = volume;
+            for (var _i = 0, _a = this._tracks; _i < _a.length; _i++) {
+                var track = _a[_i];
+                track.setVolume(volume);
             }
         };
         /**
@@ -10203,40 +10324,68 @@ var ex;
          * @param loop  Set the looping flag
          */
         Sound.prototype.setLoop = function (loop) {
-            if (this.sound) {
-                this.sound.setLoop(loop);
+            this._loop = loop;
+            for (var _i = 0, _a = this._tracks; _i < _a.length; _i++) {
+                var track = _a[_i];
+                track.setLoop(loop);
             }
         };
         /**
          * Whether or not the sound is playing right now
          */
         Sound.prototype.isPlaying = function () {
-            if (this.sound) {
-                return this.sound.isPlaying();
-            }
+            return this._tracks.some(function (t) { return t.isPlaying(); });
         };
         /**
          * Play the sound, returns a promise that resolves when the sound is done playing
          */
         Sound.prototype.play = function () {
-            if (this.sound) {
-                return this.sound.play();
+            var _this = this;
+            if (this._isLoaded) {
+                // ensure we resume *current* tracks (if paused)
+                for (var _i = 0, _a = this._tracks; _i < _a.length; _i++) {
+                    var track = _a[_i];
+                    track.play();
+                }
+                // when paused, don't start playing new track
+                if (this._isPaused) {
+                    this._isPaused = false;
+                    return ex.Promise.wrap(false);
+                }
+                // push a new track
+                var newTrack = this.sound.createInstance(this._data);
+                newTrack.setLoop(this._loop);
+                newTrack.setVolume(this._volume);
+                this._tracks.push(newTrack);
+                return newTrack.play().then(function () {
+                    // when done, remove track
+                    _this._tracks.splice(_this._tracks.indexOf(newTrack), 1);
+                    return true;
+                });
+            }
+            else {
+                return ex.Promise.wrap(true);
             }
         };
         /**
          * Stop the sound, and do not rewind
          */
         Sound.prototype.pause = function () {
-            if (this.sound) {
-                this.sound.pause();
+            for (var _i = 0, _a = this._tracks; _i < _a.length; _i++) {
+                var track = _a[_i];
+                track.pause();
             }
+            this._isPaused = true;
         };
         /**
          * Stop the sound and rewind
          */
         Sound.prototype.stop = function () {
-            if (this.sound) {
-                this.sound.stop();
+            this._isPaused = false;
+            var tracks = this._tracks.concat([]);
+            for (var _i = 0, tracks_1 = tracks; _i < tracks_1.length; _i++) {
+                var track = tracks_1[_i];
+                track.stop();
             }
         };
         /**
@@ -10251,38 +10400,273 @@ var ex;
         Sound.prototype.load = function () {
             var _this = this;
             var complete = new ex.Promise();
-            if (this.sound.getData() !== null) {
+            if (!!this.getData()) {
                 this._logger.debug('Already have data for resource', this.path);
                 complete.resolve(this.sound);
+                this.oncomplete();
                 return complete;
             }
             this._logger.debug('Started loading sound', this.path);
-            this.sound.onprogress = this.onprogress;
-            this.sound.onload = function () {
-                _this.oncomplete();
-                _this._isLoaded = true;
-                _this._logger.debug('Completed loading sound', _this.path);
-                complete.resolve(_this.sound);
+            var request = new XMLHttpRequest();
+            request.open('GET', this.path, true);
+            request.responseType = this.sound.responseType;
+            request.onprogress = this.onprogress;
+            request.onerror = this.onerror;
+            request.onload = function (e) {
+                if (request.status !== 200) {
+                    _this._logger.error('Failed to load audio resource ', _this.path, ' server responded with error code', request.status);
+                    _this.onerror(request.response);
+                    complete.resolve(null);
+                    return;
+                }
+                // load sound
+                _this.setData(request.response).then(function () {
+                    _this._isLoaded = true;
+                    _this.oncomplete();
+                    _this._logger.debug('Completed loading sound', _this.path);
+                    complete.resolve(_this.sound);
+                }, function (e) { return complete.resolve(e); });
             };
-            this.sound.onerror = function (e) {
-                _this.onerror(e);
+            try {
+                request.send();
+            }
+            catch (e) {
+                this._logger.error('Error loading sound! If this is a cross origin error, \
+               you must host your sound with your html and javascript.');
+                this.onerror(e);
                 complete.resolve(e);
-            };
-            this.sound.load();
+            }
             return complete;
         };
+        /**
+         * Gets the raw sound data (e.g. blob URL or AudioBuffer)
+         */
         Sound.prototype.getData = function () {
-            return this.sound.getData();
+            return this._data;
         };
+        /**
+         * Sets raw sound data and returns a Promise that is resolved when sound data is processed
+         *
+         * @param data The XHR data for the sound implementation to process (Blob or ArrayBuffer)
+         */
         Sound.prototype.setData = function (data) {
-            this.sound.setData(data);
+            var _this = this;
+            return this.sound.processData(data).then(function (data) {
+                _this._data = _this.processData(data);
+                return data;
+            });
         };
+        /**
+         * Set the raw sound data (e.g. blob URL or AudioBuffer)
+         */
         Sound.prototype.processData = function (data) {
-            return this.sound.processData(data);
+            return data;
         };
         return Sound;
     }());
     ex.Sound = Sound;
+    /**
+     * Internal class representing a HTML5 audio instance
+     */
+    var AudioTagInstance = (function () {
+        function AudioTagInstance(_src) {
+            this._src = _src;
+            this._isPlaying = false;
+            this._isPaused = false;
+            this._loop = false;
+            this._volume = 1.0;
+            this._audioElement = new Audio(_src);
+        }
+        AudioTagInstance.prototype.isPlaying = function () {
+            return this._isPlaying;
+        };
+        Object.defineProperty(AudioTagInstance.prototype, "loop", {
+            get: function () {
+                return this._loop;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        AudioTagInstance.prototype.setLoop = function (value) {
+            this._loop = value;
+            this._audioElement.loop = value;
+            this._wireUpOnEnded();
+        };
+        AudioTagInstance.prototype.setVolume = function (value) {
+            this._volume = value;
+            this._audioElement.volume = ex.Util.clamp(value, 0, 1.0);
+        };
+        AudioTagInstance.prototype.play = function () {
+            if (this._isPaused) {
+                this._resume();
+            }
+            else if (!this._isPlaying) {
+                this._start();
+            }
+            return this._playingPromise;
+        };
+        AudioTagInstance.prototype._start = function () {
+            this._audioElement.load();
+            this._audioElement.loop = this._loop;
+            this._audioElement.play();
+            this._isPlaying = true;
+            this._isPaused = false;
+            this._playingPromise = new ex.Promise();
+            this._wireUpOnEnded();
+        };
+        AudioTagInstance.prototype._resume = function () {
+            if (!this._isPaused) {
+                return;
+            }
+            this._audioElement.play();
+            this._isPaused = false;
+            this._isPlaying = true;
+            this._wireUpOnEnded();
+        };
+        AudioTagInstance.prototype.pause = function () {
+            if (!this._isPlaying) {
+                return;
+            }
+            this._audioElement.pause();
+            this._isPaused = true;
+            this._isPlaying = false;
+        };
+        AudioTagInstance.prototype.stop = function () {
+            if (!this._isPlaying) {
+                return;
+            }
+            this._audioElement.pause();
+            this._audioElement.currentTime = 0;
+            this._handleOnEnded();
+        };
+        AudioTagInstance.prototype._wireUpOnEnded = function () {
+            var _this = this;
+            if (!this._loop) {
+                this._audioElement.onended = function () { return _this._handleOnEnded(); };
+            }
+        };
+        AudioTagInstance.prototype._handleOnEnded = function () {
+            this._isPlaying = false;
+            this._isPaused = false;
+            this._playingPromise.resolve(true);
+        };
+        return AudioTagInstance;
+    }());
+    /**
+     * Internal class representing a Web Audio AudioBufferSourceNode instance
+     * @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API
+     */
+    var WebAudioInstance = (function () {
+        function WebAudioInstance(_buffer) {
+            this._buffer = _buffer;
+            this._volumeNode = audioContext.createGain();
+            this._isPlaying = false;
+            this._isPaused = false;
+            this._loop = false;
+            this._volume = 1.0;
+            /**
+             * Current playback offset (in seconds)
+             */
+            this._currentOffset = 0;
+        }
+        WebAudioInstance.prototype.isPlaying = function () {
+            return this._isPlaying;
+        };
+        WebAudioInstance.prototype.setVolume = function (value) {
+            this._volume = value;
+            this._volumeNode.gain.value = ex.Util.clamp(value, 0, 1.0);
+        };
+        WebAudioInstance.prototype.setLoop = function (value) {
+            this._loop = value;
+            if (this._bufferSource) {
+                this._bufferSource.loop = value;
+                this._wireUpOnEnded();
+            }
+        };
+        WebAudioInstance.prototype.play = function () {
+            if (this._isPaused) {
+                this._resume();
+            }
+            else if (!this._isPlaying) {
+                this._start();
+            }
+            return this._playingPromise;
+        };
+        WebAudioInstance.prototype._start = function () {
+            this._volumeNode.connect(audioContext.destination);
+            this._createBufferSource();
+            this._bufferSource.start(0, 0);
+            this._startTime = new Date().getTime();
+            this._currentOffset = 0;
+            this._isPlaying = true;
+            this._isPaused = false;
+            this._playingPromise = new ex.Promise();
+            this._wireUpOnEnded();
+        };
+        WebAudioInstance.prototype._resume = function () {
+            if (!this._isPaused) {
+                return;
+            }
+            // a buffer source can only be started once
+            // so we need to dispose of the previous instance before
+            // "resuming" the next one
+            this._bufferSource.onended = null; // dispose of any previous event handler
+            this._createBufferSource();
+            var duration = (1 / this._bufferSource.playbackRate.value) * this._buffer.duration;
+            this._bufferSource.start(0, this._currentOffset % duration);
+            this._isPaused = false;
+            this._isPlaying = true;
+            this._wireUpOnEnded();
+        };
+        WebAudioInstance.prototype._createBufferSource = function () {
+            this._bufferSource = audioContext.createBufferSource();
+            this._bufferSource.buffer = this._buffer;
+            this._bufferSource.loop = this._loop;
+            this._bufferSource.playbackRate.value = 1.0;
+            this._bufferSource.connect(this._volumeNode);
+        };
+        WebAudioInstance.prototype.pause = function () {
+            if (!this._isPlaying) {
+                return;
+            }
+            this._bufferSource.stop(0);
+            // Playback rate will be a scale factor of how fast/slow the audio is being played
+            // default is 1.0
+            // we need to invert it to get the time scale
+            var pbRate = 1 / (this._bufferSource.playbackRate.value || 1.0);
+            this._currentOffset = ((new Date().getTime() - this._startTime) * pbRate) / 1000; // in seconds
+            this._isPaused = true;
+            this._isPlaying = false;
+        };
+        WebAudioInstance.prototype.stop = function () {
+            if (!this._isPlaying) {
+                return;
+            }
+            this._bufferSource.stop(0);
+            // handler will not be wired up if we were looping
+            if (!this._bufferSource.onended) {
+                this._handleOnEnded();
+            }
+            this._currentOffset = 0;
+            this._isPlaying = false;
+            this._isPaused = false;
+        };
+        WebAudioInstance.prototype._wireUpOnEnded = function () {
+            var _this = this;
+            if (!this._loop) {
+                this._bufferSource.onended = function () { return _this._handleOnEnded(); };
+            }
+        };
+        WebAudioInstance.prototype._handleOnEnded = function () {
+            // pausing calls stop(0) which triggers onended event
+            // so we don't "resolve" yet (when we resume we'll try again)
+            if (!this._isPaused) {
+                this._isPlaying = false;
+                this._playingPromise.resolve(true);
+            }
+        };
+        return WebAudioInstance;
+    }());
 })(ex || (ex = {}));
 /// <reference path="Actor.ts" />
 var ex;
@@ -11080,480 +11464,6 @@ var ex;
     }());
     ex.Animation = Animation;
 })(ex || (ex = {}));
-/// <reference path="MonkeyPatch.ts" />
-/// <reference path="Util/Util.ts" />
-/// <reference path="Util/Log.ts" />
-var ex;
-(function (ex) {
-    var Internal;
-    (function (Internal) {
-        var FallbackAudioFactory = (function () {
-            function FallbackAudioFactory() {
-            }
-            FallbackAudioFactory.getAudioImplementation = function (path, volume) {
-                if (window.AudioContext) {
-                    ex.Logger.getInstance().debug('Using new Web Audio Api for ' + path);
-                    return new WebAudio(path, volume);
-                }
-                else {
-                    ex.Logger.getInstance().debug('Falling back to Audio Element for ' + path);
-                    return new AudioTag(path, volume);
-                }
-            };
-            return FallbackAudioFactory;
-        }());
-        Internal.FallbackAudioFactory = FallbackAudioFactory;
-        /**
-         * An internal abstract base implementation of an audio resource, delegating specific implementation details
-         * to derived classes [[AudioTag]] and [[WebAudio]].
-         */
-        var AbstractAudioResource = (function () {
-            function AbstractAudioResource(path, volume, _responseType) {
-                var _this = this;
-                if (volume === void 0) { volume = 1.0; }
-                this.path = path;
-                this._responseType = _responseType;
-                this._data = null;
-                this._tracks = [];
-                this._isLoaded = false;
-                this._isPaused = false;
-                this._loop = false;
-                this._dataLoaded = new ex.Promise();
-                this._logger = ex.Logger.getInstance();
-                this.onload = function () { return; };
-                this.onprogress = function () { return; };
-                this.onerror = function () { return; };
-                this.setVolume(ex.Util.clamp(volume, 0, 1.0));
-                this._volume = volume;
-                // this is resolved by derived resources
-                this._dataLoaded.then(function () {
-                    _this._isLoaded = true;
-                    _this.onload(_this);
-                });
-            }
-            AbstractAudioResource.prototype.isPlaying = function () {
-                return this._tracks.some(function (t) { return t.isPlaying(); });
-            };
-            AbstractAudioResource.prototype.setVolume = function (volume) {
-                this._volume = volume;
-                for (var _i = 0, _a = this._tracks; _i < _a.length; _i++) {
-                    var track = _a[_i];
-                    track.setVolume(volume);
-                }
-            };
-            AbstractAudioResource.prototype.setLoop = function (loop) {
-                this._loop = loop;
-                for (var _i = 0, _a = this._tracks; _i < _a.length; _i++) {
-                    var track = _a[_i];
-                    track.setLoop(loop);
-                }
-            };
-            Object.defineProperty(AbstractAudioResource.prototype, "loaded", {
-                get: function () {
-                    return this._isLoaded;
-                },
-                set: function (value) {
-                    this._isLoaded = value;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            AbstractAudioResource.prototype.getData = function () {
-                return this._data;
-            };
-            AbstractAudioResource.prototype.setData = function (data) {
-                this._data = this.processData(data);
-            };
-            AbstractAudioResource.prototype.load = function () {
-                var _this = this;
-                // Exit early if we already have data
-                if (!!this.getData()) {
-                    return;
-                }
-                var request = new XMLHttpRequest();
-                request.open('GET', this.path, true);
-                request.responseType = this._responseType;
-                request.onprogress = this.onprogress;
-                request.onerror = this.onerror;
-                request.onload = function (e) {
-                    if (request.status !== 200) {
-                        _this._logger.error('Failed to load audio resource ', _this.path, ' server responded with error code', request.status);
-                        _this.onerror(request.response);
-                        _this.loaded = false;
-                        return;
-                    }
-                    _this.setData(request.response);
-                };
-                try {
-                    request.send();
-                }
-                catch (e) {
-                    this._logger.error('Error loading sound! If this is a cross origin error, \
-               you must host your sound with your html and javascript.');
-                }
-            };
-            /**
-             * Call to finish resolving data loaded and trigger onload event
-             */
-            AbstractAudioResource.prototype._resolveData = function (data) {
-                this._data = data;
-                this._dataLoaded.resolve(true);
-            };
-            /**
-             * Call to reject resolving data loaded and trigger onload event
-             */
-            AbstractAudioResource.prototype._rejectData = function () {
-                this._isLoaded = false;
-                this._dataLoaded.reject(false);
-            };
-            AbstractAudioResource.prototype.play = function () {
-                var _this = this;
-                if (this._isLoaded) {
-                    // ensure we resume *current* tracks (if paused)
-                    for (var _i = 0, _a = this._tracks; _i < _a.length; _i++) {
-                        var track = _a[_i];
-                        track.play();
-                    }
-                    // when paused, don't start playing new track
-                    if (this._isPaused) {
-                        this._isPaused = false;
-                        return ex.Promise.wrap(false);
-                    }
-                    // push a new track
-                    var newTrack = this._createAudio();
-                    newTrack.setLoop(this._loop);
-                    newTrack.setVolume(this._volume);
-                    this._tracks.push(newTrack);
-                    return newTrack.play().then(function () {
-                        // when done, remove track
-                        _this._tracks.splice(_this._tracks.indexOf(newTrack), 1);
-                        return true;
-                    });
-                }
-                else {
-                    return ex.Promise.wrap(true);
-                }
-            };
-            AbstractAudioResource.prototype.pause = function () {
-                for (var _i = 0, _a = this._tracks; _i < _a.length; _i++) {
-                    var track = _a[_i];
-                    track.pause();
-                }
-                this._isPaused = true;
-            };
-            AbstractAudioResource.prototype.stop = function () {
-                this._isPaused = false;
-                var tracks = this._tracks.concat([]);
-                for (var _i = 0, tracks_1 = tracks; _i < tracks_1.length; _i++) {
-                    var track = tracks_1[_i];
-                    track.stop();
-                }
-            };
-            return AbstractAudioResource;
-        }());
-        Internal.AbstractAudioResource = AbstractAudioResource;
-        /**
-         * An audio resource implementation for HTML5 audio.
-         */
-        var AudioTag = (function (_super) {
-            __extends(AudioTag, _super);
-            function AudioTag(path, volume) {
-                if (volume === void 0) { volume = 1.0; }
-                _super.call(this, path, volume, 'blob');
-                this.path = path;
-            }
-            AudioTag.prototype.processData = function (data) {
-                var url = URL.createObjectURL(data);
-                this._resolveData(url);
-                return url;
-            };
-            AudioTag.prototype._createAudio = function () {
-                return new AudioTagTrack(this.getData());
-            };
-            return AudioTag;
-        }(AbstractAudioResource));
-        Internal.AudioTag = AudioTag;
-        /**
-         * Internal class representing a HTML5 audio track
-         */
-        var AudioTagTrack = (function () {
-            function AudioTagTrack(_src) {
-                this._src = _src;
-                this._isPlaying = false;
-                this._isPaused = false;
-                this._loop = false;
-                this._volume = 1.0;
-                this._audioElement = new Audio(_src);
-            }
-            AudioTagTrack.prototype.isPlaying = function () {
-                return this._isPlaying;
-            };
-            Object.defineProperty(AudioTagTrack.prototype, "loop", {
-                get: function () {
-                    return this._loop;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            AudioTagTrack.prototype.setLoop = function (value) {
-                this._loop = value;
-                this._audioElement.loop = value;
-                this._wireUpOnEnded();
-            };
-            AudioTagTrack.prototype.setVolume = function (value) {
-                this._volume = value;
-                this._audioElement.volume = ex.Util.clamp(value, 0, 1.0);
-            };
-            AudioTagTrack.prototype.play = function () {
-                if (this._isPaused) {
-                    this._resume();
-                }
-                else if (!this._isPlaying) {
-                    this._start();
-                }
-                return this._playingPromise;
-            };
-            AudioTagTrack.prototype._start = function () {
-                this._audioElement.load();
-                this._audioElement.loop = this._loop;
-                this._audioElement.play();
-                this._isPlaying = true;
-                this._isPaused = false;
-                this._playingPromise = new ex.Promise();
-                this._wireUpOnEnded();
-            };
-            AudioTagTrack.prototype._resume = function () {
-                if (!this._isPaused) {
-                    return;
-                }
-                this._audioElement.play();
-                this._isPaused = false;
-                this._isPlaying = true;
-                this._wireUpOnEnded();
-            };
-            AudioTagTrack.prototype.pause = function () {
-                if (!this._isPlaying) {
-                    return;
-                }
-                this._audioElement.pause();
-                this._isPaused = true;
-                this._isPlaying = false;
-            };
-            AudioTagTrack.prototype.stop = function () {
-                if (!this._isPlaying) {
-                    return;
-                }
-                this._audioElement.pause();
-                this._audioElement.currentTime = 0;
-                this._handleOnEnded();
-            };
-            AudioTagTrack.prototype._wireUpOnEnded = function () {
-                var _this = this;
-                if (!this._loop) {
-                    this._audioElement.onended = function () { return _this._handleOnEnded(); };
-                }
-            };
-            AudioTagTrack.prototype._handleOnEnded = function () {
-                this._isPlaying = false;
-                this._isPaused = false;
-                this._playingPromise.resolve(true);
-            };
-            return AudioTagTrack;
-        }());
-        if (window.AudioContext) {
-            var audioContext = new window.AudioContext();
-        }
-        /**
-         * An audio resource implementation for Web Audio API.
-         */
-        var WebAudio = (function (_super) {
-            __extends(WebAudio, _super);
-            function WebAudio(path, volume) {
-                if (volume === void 0) { volume = 1.0; }
-                _super.call(this, path, volume, 'arraybuffer');
-                this.path = path;
-                this.volume = volume;
-                this._buffer = null;
-            }
-            /**
-             * Processes raw arraybuffer data and decodes into WebAudio buffer (async).
-             */
-            WebAudio.prototype.processData = function (data) {
-                var _this = this;
-                audioContext.decodeAudioData(data, function (buffer) {
-                    _this._buffer = buffer;
-                    _this._resolveData(buffer);
-                }, function () {
-                    _this._logger.error('Unable to decode ' + _this.path +
-                        ' this browser may not fully support this format, or the file may be corrupt, ' +
-                        'if this is an mp3 try removing id3 tags and album art from the file.');
-                    _this._rejectData();
-                });
-                return data;
-            };
-            WebAudio.prototype._createAudio = function () {
-                return new WebAudioTrack(this._buffer);
-            };
-            /**
-             * Play an empty sound to unlock Safari WebAudio context. Call this function
-             * right after a user interaction event. Typically used by [[PauseAfterLoader]]
-             * @source https://paulbakaus.com/tutorials/html5/web-audio-on-ios/
-             */
-            WebAudio.unlock = function () {
-                if (this._unlocked || !audioContext) {
-                    return;
-                }
-                // create empty buffer and play it
-                var buffer = audioContext.createBuffer(1, 1, 22050);
-                var source = audioContext.createBufferSource();
-                var ended = false;
-                source.buffer = buffer;
-                source.connect(audioContext.destination);
-                source.onended = function () { return ended = true; };
-                if (source.noteOn) {
-                    // deprecated
-                    source.noteOn(0);
-                }
-                else {
-                    source.start(0);
-                }
-                // by checking the play state after some time, we know if we're really unlocked
-                setTimeout(function () {
-                    if (source.playbackState) {
-                        var legacySource = source;
-                        if (legacySource.playbackState === legacySource.PLAYING_STATE ||
-                            legacySource.playbackState === legacySource.FINISHED_STATE) {
-                            this._unlocked = true;
-                        }
-                    }
-                    else {
-                        if (audioContext.currentTime > 0 || ended) {
-                            this._unlocked = true;
-                        }
-                    }
-                }, 0);
-            };
-            WebAudio.isUnlocked = function () {
-                return this._unlocked;
-            };
-            WebAudio._unlocked = false;
-            return WebAudio;
-        }(AbstractAudioResource));
-        Internal.WebAudio = WebAudio;
-        /**
-         * Internal class representing a playing audio track
-         * @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API
-         */
-        var WebAudioTrack = (function () {
-            function WebAudioTrack(_buffer) {
-                this._buffer = _buffer;
-                this._volumeNode = audioContext.createGain();
-                this._currentOffset = 0;
-                this._isPlaying = false;
-                this._isPaused = false;
-                this._loop = false;
-                this._volume = 1.0;
-            }
-            WebAudioTrack.prototype.isPlaying = function () {
-                return this._isPlaying;
-            };
-            WebAudioTrack.prototype.setVolume = function (value) {
-                this._volume = value;
-                this._volumeNode.gain.value = ex.Util.clamp(value, 0, 1.0);
-            };
-            WebAudioTrack.prototype.setLoop = function (value) {
-                this._loop = value;
-                if (this._bufferSource) {
-                    this._bufferSource.loop = value;
-                    this._wireUpOnEnded();
-                }
-            };
-            WebAudioTrack.prototype.play = function () {
-                if (this._isPaused) {
-                    this._resume();
-                }
-                else if (!this._isPlaying) {
-                    this._start();
-                }
-                return this._playingPromise;
-            };
-            WebAudioTrack.prototype._start = function () {
-                this._volumeNode.connect(audioContext.destination);
-                this._createBufferSource();
-                this._bufferSource.start(0, 0);
-                this._startTime = new Date().getTime();
-                this._currentOffset = 0;
-                this._isPlaying = true;
-                this._isPaused = false;
-                this._playingPromise = new ex.Promise();
-                this._wireUpOnEnded();
-            };
-            WebAudioTrack.prototype._resume = function () {
-                if (!this._isPaused) {
-                    return;
-                }
-                // a buffer source can only be started once
-                // so we need to dispose of the previous instance before
-                // "resuming" the next one
-                this._bufferSource.onended = null; // dispose of any previous event handler
-                this._createBufferSource();
-                var duration = (1 / this._bufferSource.playbackRate.value) * this._buffer.duration;
-                this._bufferSource.start(0, this._currentOffset % duration);
-                this._isPaused = false;
-                this._isPlaying = true;
-                this._wireUpOnEnded();
-            };
-            WebAudioTrack.prototype._createBufferSource = function () {
-                this._bufferSource = audioContext.createBufferSource();
-                this._bufferSource.buffer = this._buffer;
-                this._bufferSource.loop = this._loop;
-                this._bufferSource.playbackRate.value = 1.0;
-                this._bufferSource.connect(this._volumeNode);
-            };
-            WebAudioTrack.prototype.pause = function () {
-                if (!this._isPlaying) {
-                    return;
-                }
-                this._bufferSource.stop(0);
-                // Playback rate will be a scale factor of how fast/slow the audio is being played
-                // default is 1.0
-                // we need to invert it to get the time scale
-                var pbRate = 1 / (this._bufferSource.playbackRate.value || 1.0);
-                this._currentOffset = (new Date().getTime() - this._startTime) * pbRate;
-                this._isPaused = true;
-                this._isPlaying = false;
-            };
-            WebAudioTrack.prototype.stop = function () {
-                if (!this._isPlaying) {
-                    return;
-                }
-                this._bufferSource.stop(0);
-                // handler will not be wired up if we were looping
-                if (!this._bufferSource.onended) {
-                    this._handleOnEnded();
-                }
-                this._currentOffset = 0;
-                this._isPlaying = false;
-                this._isPaused = false;
-            };
-            WebAudioTrack.prototype._wireUpOnEnded = function () {
-                var _this = this;
-                if (!this._loop) {
-                    this._bufferSource.onended = function () { return _this._handleOnEnded(); };
-                }
-            };
-            WebAudioTrack.prototype._handleOnEnded = function () {
-                // pausing calls stop(0) which triggers onended event
-                // so we don't "resolve" yet (when we resume we'll try again)
-                if (!this._isPaused) {
-                    this._isPlaying = false;
-                    this._playingPromise.resolve(true);
-                }
-            };
-            return WebAudioTrack;
-        }());
-    })(Internal = ex.Internal || (ex.Internal = {}));
-})(ex || (ex = {}));
 /// <reference path="../Drawing/Color.ts" />
 var ex;
 (function (ex) {
@@ -11666,6 +11576,7 @@ var ex;
 /// <reference path="Util/DrawUtil.ts" />
 /// <reference path="Promises.ts" />
 /// <reference path="Resources/Resource.ts" />
+/// <reference path="Resources/Sound.ts" />
 /// <reference path="Interfaces/ILoadable.ts" />
 /// <reference path="Interfaces/ILoader.ts" />
 var ex;
@@ -11941,7 +11852,7 @@ var ex;
                     return false;
                 }
                 // unlock Safari WebAudio context
-                ex.Internal.WebAudio.unlock();
+                ex.WebAudio.unlock();
                 // continue to play game
                 _this._waitPromise.resolve(_this._loadedValue);
                 // hide DOM element
@@ -13604,7 +13515,6 @@ var ex;
 /// <reference path="Particles.ts" />
 /// <reference path="Drawing/Animation.ts" />
 /// <reference path="Camera.ts" />
-/// <reference path="Sound.ts" />
 /// <reference path="Loader.ts" />
 /// <reference path="Promises.ts" />
 /// <reference path="Util/Util.ts" />
