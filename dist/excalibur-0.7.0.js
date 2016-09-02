@@ -10199,14 +10199,19 @@ var ex;
         return WebAudio;
     }());
     ex.WebAudio = WebAudio;
-    var getAudioImplementation = function () {
+    /**
+     * Factory method that gets the audio implementation to use
+     */
+    function getAudioImplementation() {
         if (window.AudioContext) {
             return new WebAudio();
         }
         else {
             return new AudioTag();
         }
-    };
+    }
+    ex.getAudioImplementation = getAudioImplementation;
+    ;
     /**
      * Sounds
      *
@@ -10257,9 +10262,10 @@ var ex;
              * Safari MP3, WAV, Ogg
              */
             this.path = '';
-            for (var i = 0; i < paths.length; i++) {
-                if (Sound.canPlayFile(paths[i])) {
-                    this.path = paths[i];
+            for (var _a = 0, paths_1 = paths; _a < paths_1.length; _a++) {
+                var path = paths_1[_a];
+                if (Sound.canPlayFile(path)) {
+                    this.path = path;
                     break;
                 }
             }
@@ -10268,7 +10274,7 @@ var ex;
                 this._logger.warn('Attempting to use', paths[0]);
                 this.path = paths[0]; // select the first specified
             }
-            this.sound = getAudioImplementation();
+            this.sound = ex.getAudioImplementation(); // reference namespaced function to allow mocks
         }
         /**
          * Whether or not the browser can play this file as HTML5 Audio
@@ -10281,7 +10287,7 @@ var ex;
                 if (a.canPlayType('audio/' + type)) {
                     return true;
                 }
-                {
+                else {
                     return false;
                 }
             }
@@ -10307,6 +10313,12 @@ var ex;
                     }
                 });
             }
+        };
+        /**
+         * Returns how many instances of the sound are currently playing
+         */
+        Sound.prototype.instanceCount = function () {
+            return this._tracks.length;
         };
         /**
          * Sets the volume of the sound clip
@@ -10342,15 +10354,17 @@ var ex;
         Sound.prototype.play = function () {
             var _this = this;
             if (this._isLoaded) {
+                var resumed = [];
                 // ensure we resume *current* tracks (if paused)
                 for (var _i = 0, _a = this._tracks; _i < _a.length; _i++) {
                     var track = _a[_i];
-                    track.play();
+                    resumed.push(track.play());
                 }
                 // when paused, don't start playing new track
                 if (this._isPaused) {
                     this._isPaused = false;
-                    return ex.Promise.wrap(false);
+                    // resolve when resumed tracks are done
+                    return ex.Promise.join(resumed);
                 }
                 // push a new track
                 var newTrack = this.sound.createInstance(this._data);
@@ -10407,28 +10421,21 @@ var ex;
                 return complete;
             }
             this._logger.debug('Started loading sound', this.path);
-            var request = new XMLHttpRequest();
-            request.open('GET', this.path, true);
-            request.responseType = this.sound.responseType;
-            request.onprogress = this.onprogress;
-            request.onerror = this.onerror;
-            request.onload = function (e) {
-                if (request.status !== 200) {
-                    _this._logger.error('Failed to load audio resource ', _this.path, ' server responded with error code', request.status);
-                    _this.onerror(request.response);
-                    complete.resolve(null);
-                    return;
-                }
-                // load sound
-                _this.setData(request.response).then(function () {
-                    _this._isLoaded = true;
-                    _this.oncomplete();
-                    _this._logger.debug('Completed loading sound', _this.path);
-                    complete.resolve(_this.sound);
-                }, function (e) { return complete.resolve(e); });
-            };
             try {
-                request.send();
+                this._fetchResource(function (request) {
+                    if (request.status !== 200) {
+                        _this._logger.error('Failed to load audio resource ', _this.path, ' server responded with error code', request.status);
+                        _this.onerror(request.response);
+                        complete.resolve(null);
+                        return;
+                    }
+                    // load sound
+                    _this.setData(request.response).then(function () {
+                        _this.oncomplete();
+                        _this._logger.debug('Completed loading sound', _this.path);
+                        complete.resolve(_this.sound);
+                    }, function (e) { return complete.resolve(e); });
+                });
             }
             catch (e) {
                 this._logger.error('Error loading sound! If this is a cross origin error, \
@@ -10437,6 +10444,16 @@ var ex;
                 complete.resolve(e);
             }
             return complete;
+        };
+        /* istanbul ignore next */
+        Sound.prototype._fetchResource = function (onload) {
+            var request = new XMLHttpRequest();
+            request.open('GET', this.path, true);
+            request.responseType = this.sound.responseType;
+            request.onprogress = this.onprogress;
+            request.onerror = this.onerror;
+            request.onload = function (e) { return onload(request); };
+            request.send();
         };
         /**
          * Gets the raw sound data (e.g. blob URL or AudioBuffer)
@@ -10452,6 +10469,7 @@ var ex;
         Sound.prototype.setData = function (data) {
             var _this = this;
             return this.sound.processData(data).then(function (data) {
+                _this._isLoaded = true;
                 _this._data = _this.processData(data);
                 return data;
             });
