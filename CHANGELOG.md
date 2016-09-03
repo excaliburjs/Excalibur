@@ -4,7 +4,18 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
--
+
+### API Changes
+
+- [#644] Refactored and modified Sound API to fix issues with offset tracking and muting while game is invisible
+  - `Sound.setData` now returns a Promise which differs from previous API
+  - Removed internal `FallbackAudio` and `Sound` classes and replaced with single `Sound` class
+  - Added `AudioTagInstance` and `WebAudioInstance` internal classes
+- [#642] Add new `ex.Promise.join(Promise[])` support (in addition to `...promises` support)
+
+### Fixes
+
+- [#640] Fixed `Actor.actions.fade` to properly support fading between 0 and 1 and vice versa
 
 ## [0.7.0] - 2016-08-29
 ### Breaking Changes
