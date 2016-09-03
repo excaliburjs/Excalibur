@@ -161,7 +161,6 @@ player.addDrawing(Animations.JumpRight, jumpRight);
 player.addDrawing(Animations.JumpLeft, jumpLeft);
 // Set default animation
 player.setDrawing(Animations.Idle);
-var jumpSound = jump.sound;
 var inAir = true;
 var groundSpeed = 150;
 var airSpeed = 130;
@@ -200,7 +199,7 @@ player.on('update', function () {
             else {
                 player.setDrawing(Animations.JumpLeft);
             }
-            jumpSound.play();
+            jump.play();
         }
     }
 });

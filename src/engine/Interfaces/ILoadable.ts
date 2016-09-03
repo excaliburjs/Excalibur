@@ -21,7 +21,14 @@ module ex {
        */
       load(): Promise<any>;
       
+      /**
+       * Gets the data that was loaded
+       */
       getData(): any;
+
+      /**
+       * Sets the data (can be populated from remote request or in-memory data)
+       */
       setData(data: any): void;
       
       /**
@@ -34,7 +41,6 @@ module ex {
        */
       wireEngine(engine: Engine): void;
       
-
       /**
        * onprogress handler
        */

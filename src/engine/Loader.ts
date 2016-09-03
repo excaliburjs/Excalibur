@@ -2,6 +2,7 @@
 /// <reference path="Util/DrawUtil.ts" />
 /// <reference path="Promises.ts" />
 /// <reference path="Resources/Resource.ts" />
+/// <reference path="Resources/Sound.ts" />
 /// <reference path="Interfaces/ILoadable.ts" />
 /// <reference path="Interfaces/ILoader.ts" />
 
@@ -339,7 +340,7 @@ module ex {
          }
          
          // unlock Safari WebAudio context
-         Internal.WebAudio.unlock();
+         WebAudio.unlock();
          
          // continue to play game
          this._waitPromise.resolve(this._loadedValue);
