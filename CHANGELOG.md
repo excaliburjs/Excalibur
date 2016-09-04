@@ -16,6 +16,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - `Actor.actions.fade` properly supporting fading between 0 and 1 and vice versa (#640)
 - issues with offset tracking and muting while game is invisible (#644)
+- Sprite culling was double scaling calculations (#646)
+- Negative zoom sprite culling (#539)
 
 ## [0.7.0] - 2016-08-29
 ### Breaking Changes
