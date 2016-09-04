@@ -1852,8 +1852,8 @@ var ex;
             this._bottomRight = new ex.Vector(0, 0);
         }
         CullingBox.prototype.isSpriteOffScreen = function (actor, engine) {
-            var drawingWidth = actor.currentDrawing.width * actor.currentDrawing.scale.x;
-            var drawingHeight = actor.currentDrawing.height * actor.currentDrawing.scale.y;
+            var drawingWidth = actor.currentDrawing.width;
+            var drawingHeight = actor.currentDrawing.height;
             var rotation = actor.rotation;
             var anchor = actor.getCenter();
             var worldPos = actor.getWorldPos();
