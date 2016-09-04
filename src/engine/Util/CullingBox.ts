@@ -66,12 +66,27 @@ module ex {
          this._xMaxWorld = maxWorld.x;
          this._yMaxWorld = maxWorld.y;
 
-         var boundingPoints = new Array<Vector>();
-         boundingPoints.push(new Vector(this._xMin, this._yMin), 
-                             new Vector(this._xMax, this._yMin), 
-                             new Vector(this._xMin, this._yMax), 
-                             new Vector(this._xMax, this._yMax));
+         var boundingPoints = [
+            new Vector(this._xMin, this._yMin), // topleft
+            new Vector(this._xMax, this._yMin), // topright
+            new Vector(this._xMin, this._yMax), // bottomleft
+            new Vector(this._xMax, this._yMax)]; // bottomright
 
+         // sprite can be wider than canvas screen (and still visible within canvas)
+         // top or bottom of sprite must be within canvas
+         if (boundingPoints[0].x < 0 && boundingPoints[1].x > engine.canvas.clientWidth &&
+            (boundingPoints[0].y > 0 || boundingPoints[2].y < engine.canvas.clientHeight)) {
+            return false;
+         }
+
+         // sprite can be taller than canvas screen (and still visible within canvas)
+         // left or right of sprite must be within canvas
+         if (boundingPoints[0].y < 0 && boundingPoints[2].y > engine.canvas.clientHeight &&
+            (boundingPoints[1].x > 0 || boundingPoints[0].x < engine.canvas.clientWidth)) {
+            return false;
+         }
+
+         // otherwise if any corner is visible, we're not offscreen
          for (var i = 0; i < boundingPoints.length; i++) {
             if (boundingPoints[i].x > 0 &&
                boundingPoints[i].y > 0 &&
@@ -80,6 +95,7 @@ module ex {
                return false;
             }
          }
+
          return true;
       }
 
