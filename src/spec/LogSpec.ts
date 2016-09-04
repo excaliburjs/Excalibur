@@ -31,7 +31,13 @@ module ex.Tests {
 
             spiedConsoleLog = spyOn(console, 'log');
             spiedConsoleWarn = spyOn(console, 'warn');
-            spiedConsoleError = spyOn(console, 'error');
+            spiedConsoleError = spyOn(console, 'error');            
+         });
+
+         afterEach(() => {
+
+            // reset
+            logger.defaultLevel = LogLevel.Info;
          });
 
          it('should log a message', () => {

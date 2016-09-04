@@ -96,7 +96,7 @@ module ex {
          request.onprogress = this.onprogress;
          request.onerror = this.onerror;
          request.onload = (e) => {
-            if(request.status !== 200) {
+            if (request.status !== 200) {
                this.logger.error('Failed to load resource ', this.path, ' server responded with error code', request.status);
                this.onerror(request.response);
                complete.resolve(request.response);
