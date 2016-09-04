@@ -20,8 +20,8 @@ module ex {
       private _yMaxWorld: number;
 
       public isSpriteOffScreen(actor: Actor, engine: Engine): boolean {
-         var drawingWidth = actor.currentDrawing.width * actor.currentDrawing.scale.x;
-         var drawingHeight = actor.currentDrawing.height * actor.currentDrawing.scale.y;
+         var drawingWidth = actor.currentDrawing.width;
+         var drawingHeight = actor.currentDrawing.height;
          var rotation = actor.rotation;
          var anchor = actor.getCenter();
          var worldPos = actor.getWorldPos();
