@@ -86,6 +86,22 @@ describe('A game actor', () => {
       expect(actor.getHeight()).toBe(2);
    });
 
+   it('can have its height and width scaled by parent', () => {
+      actor.scale.setTo(2, 2);
+
+      var child = new ex.Actor(0, 0, 50, 50);
+
+      actor.add(child);
+
+      expect(child.getWidth()).toBe(100);
+      expect(child.getHeight()).toBe(100);
+
+      actor.scale.setTo(0.5, 0.5);
+
+      expect(child.getWidth()).toBe(25);
+      expect(child.getHeight()).toBe(25);
+   });
+
    it('can have a center point', () => {
       actor.setHeight(100);
       actor.setWidth(50);
