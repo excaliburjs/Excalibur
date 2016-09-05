@@ -242,7 +242,7 @@ module.exports = function (grunt) {
    grunt.registerTask('travis', 'default');
 
    // CI task to deploy dists
-   grunt.registerTask('dists', ['buildcontrol:dist']);
+   grunt.registerTask('dists', ['buildcontrol']);
    
    // Default task - compile, test, build dists
    grunt.registerTask('default', ['tslint:src', 'shell:specs', 'shell:istanbul', 'coveralls', 'shell:tsc', 'minified', 'concat', 'copy', 'sample', 'visual', 'shell:nuget']);
