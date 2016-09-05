@@ -55,6 +55,7 @@ If you’re not sure where to start, take a look at the jump-in or help wanted i
   - `Fixed` for bug fixes
 - Squash your local commits into logical atomic changes. Please follow our [styleguide](#commit-messages) for your commit messages.
 - Send a pull request via Github.
+  - Format your pull request as: [#issue_number] Your commit message (where issue_number is the issue you're closing)
 
 ## Styleguides
 
