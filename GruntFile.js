@@ -24,12 +24,12 @@ module.exports = function (grunt) {
       //
       concat: {
          main: {
-            src: ['dist/<%= pkg.name %>-<%= version %>.js', 'src/engine/Exports.js'],
-            dest: 'dist/<%= pkg.name %>-<%= version %>.js'
+            src: ['.build/dist/<%= pkg.name %>.js', 'src/engine/Exports.js'],
+            dest: '.build/dist/<%= pkg.name %>.js'
          },
          minified: {
-            src: ['dist/<%= pkg.name %>-<%= version %>.min.js', 'src/engine/Exports.js'],
-            dest: 'dist/<%= pkg.name %>-<%= version %>.min.js'
+            src: ['.build/dist/<%= pkg.name %>.min.js', 'src/engine/Exports.js'],
+            dest: '.build/dist/<%= pkg.name %>.min.js'
          },
          options: {
             separator: '\n;\n',
@@ -47,26 +47,13 @@ module.exports = function (grunt) {
       //
       minified: {
          files: {
-            src: 'dist/<%= pkg.name %>-<%= version %>.js',
-            dest: 'dist/<%= pkg.name %>-<%= version %>'
+            src: '.build/dist/<%= pkg.name %>.js',
+            dest: '.build/dist/<%= pkg.name %>'
          },
          options: {
             sourcemap: false,
             allinone: true,
             dest_filename: '.min.js'
-         }
-      },
-
-      //
-      // Watch files
-      //
-      watch: {
-         scripts: {
-            files: ['src/engine/*.ts', 'src/engine/*/*.ts', 'src/spec/*.ts'],
-            tasks: ['tslint:src', 'shell:specs', 'jasmine_node'],
-            options: {
-               interrupt: true
-            }
          }
       },
 
@@ -79,20 +66,18 @@ module.exports = function (grunt) {
          // Execute TypeScript compiler against Excalibur core
          //
          tsc: {
-            command: '<%= tscCmd %> --sourcemap --declaration --target ES5 "./src/engine/Engine.ts" --out "./dist/<%= pkg.name %>-<%= version %>.js"',               
+            command: '<%= tscCmd %> --sourcemap --declaration --target ES5 "./src/engine/Engine.ts" --out "./.build/dist/<%= pkg.name %>.js"',               
             options: {
                stdout: true,
                failOnError: true
             }
-         },
-
-         
+         },         
 
          //
          // Package up Nuget (Windows only)
          //
          nuget: {
-            command: 'src\\tools\\nuget pack Excalibur.nuspec -version <%= version %> -OutputDirectory ./dist',
+            command: 'src\\tools\\nuget pack Excalibur.nuspec -version <%= version %> -OutputDirectory ./.build/dist',
             options: {
                stdout: true
             }
@@ -168,11 +153,30 @@ module.exports = function (grunt) {
       copy: {
          main: {
             files: [
-               {src: './dist/<%= pkg.name %>-<%= version %>.js', dest: './dist/<%= pkg.name %>.js'},
-               {src: './dist/<%= pkg.name %>-<%= version %>.js', dest: './sandbox/web/<%= pkg.name %>.js'},
-               {src: './dist/<%= pkg.name %>-<%= version %>.min.js', dest: './dist/<%= pkg.name %>.min.js'},
-               {src: './dist/<%= pkg.name %>-<%= version %>.d.ts', dest: './dist/<%= pkg.name %>.d.ts'}
+               {src: './.build/dist/<%= pkg.name %>.js', dest: './sandbox/web/<%= pkg.name %>.js'},
+               {src: './.build/dist/<%= pkg.name %>.d.ts', dest: './sandbox/web/<%= pkg.name %>.d.ts'}
             ]
+         }
+      },
+
+      //
+      // Dist build control
+      //
+      buildcontrol: {
+         options: {
+            dir: '.build',                     
+            commit: true,
+            push: true,
+            message: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%'
+         },
+
+         // continuous integration dists
+         dist: {
+            options: {
+               branch: 'master',
+               remote: 'https://github.com/excaliburjs/excalibur-dist',
+               fetchProgress: false
+            }
          }
       },
 
@@ -231,12 +235,14 @@ module.exports = function (grunt) {
    // Compile visual tests
    grunt.registerTask('visual', ['shell:visual']);
    
-   grunt.registerTask('compile', ['shell:tsc', 'minified', 'concat', 'copy', 'shell:nuget'])
-
-   grunt.registerTask('server', [])
+   // Compile core engine
+   grunt.registerTask('compile', ['shell:tsc', 'minified', 'concat', 'copy']);   
 
    // Travis task - for Travis CI
    grunt.registerTask('travis', 'default');
+
+   // CI task to deploy dists
+   grunt.registerTask('dists', ['buildcontrol:dist']);
    
    // Default task - compile, test, build dists
    grunt.registerTask('default', ['tslint:src', 'shell:specs', 'shell:istanbul', 'coveralls', 'shell:tsc', 'minified', 'concat', 'copy', 'sample', 'visual', 'shell:nuget']);
