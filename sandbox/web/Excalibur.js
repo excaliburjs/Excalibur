@@ -1,4 +1,4 @@
-/*! excalibur - v0.7.0 - 2016-09-04
+/*! excalibur - v0.7.0 - 2016-09-05
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 var EX_VERSION = "0.7.0";
@@ -14441,7 +14441,7 @@ O|===|* >________________>\n\
         return AnimationNode;
     }());
 })(ex || (ex = {}));
-//# sourceMappingURL=excalibur-0.7.0.js.map
+//# sourceMappingURL=excalibur.js.map
 ;
 // Concatenated onto excalibur after build
 // Exports the excalibur module so it can be used with browserify

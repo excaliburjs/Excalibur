@@ -1,4 +1,4 @@
-/// <reference path="../../../../dist/excalibur.d.ts"/>
+/// <reference path='../../excalibur.d.ts' />
 // uncomment to hint fallback implementation
 //(<any>window).AudioContext = null;
 ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;

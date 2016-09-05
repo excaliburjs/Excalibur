@@ -1,4 +1,4 @@
-﻿/// <reference path="../../../../dist/excalibur.d.ts"/>
+﻿/// <reference path='../../excalibur.d.ts' />
 
 var width = 600;
 var height = 400;

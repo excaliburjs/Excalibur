@@ -1,4 +1,4 @@
-/// <reference path="../../../../dist/excalibur.d.ts"/>
+/// <reference path='../../excalibur.d.ts' />
 var game = new ex.Engine({ width: 500, height: 500, canvasElementId: "game" });
 var box = new ex.Actor(250, 250, 100, 100, ex.Color.Red);
 // Enable Gamepad support
