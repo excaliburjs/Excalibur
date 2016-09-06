@@ -3,6 +3,8 @@
 /src/engine/*.js
 /src/engine/*.map
 /sandbox/src/*.js
+/sandbox/web/excalibur.js
+/sandbox/web/excalibur.d.ts
 /src/spec/*.js
 node_modules/
 /bower_components/
