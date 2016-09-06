@@ -192,7 +192,8 @@ module.exports = function (grunt) {
             options: {
                branch: 'test', // TODO change to master when tested
                remote: 'https://github.com/excaliburjs/excalibur-dist',
-               login: process.env.GH_DIST_TOKEN,
+               login: 'kamranayub',
+               token: process.env.GH_DIST_TOKEN,
                fetchProgress: false
             }
          }
