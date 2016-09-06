@@ -7,7 +7,7 @@
 node_modules/
 /bower_components/
 coverage/
-.build/
+/build/
 
 # Logs and databases #
 ######################
