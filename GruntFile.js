@@ -252,8 +252,11 @@ module.exports = function (grunt) {
    // Compile visual tests
    grunt.registerTask('visual', ['shell:visual']);   
 
-   // Travis task - for Travis CI
+   // Travis CI task
    grunt.registerTask('travis', 'default');
+
+   // Appveyor task
+   grunt.registerTask('appveyor', ['default', 'shell:nuget']);
 
    // CI task to deploy dists
    grunt.registerTask('dists', ['buildcontrol']);

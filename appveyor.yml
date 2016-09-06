@@ -13,7 +13,7 @@ install:
   - npm install grunt-cli -g
   - npm install
 build_script:
-  - grunt travis
+  - grunt appveyor
 artifacts:
   - path: build\dist\Excalibur.%APPVEYOR_BUILD_VERSION%.nupkg
     name: Nuget Package
