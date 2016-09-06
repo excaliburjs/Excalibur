@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - `ex.Promise.join(Promise[])` support (in addition to `...promises` support) (#642)
+- Moved build artifacts to separate [excalibur-dist](https://github.com/excaliburjs/excalibur-dist) repository (#648)
 
 ### Fixed
 - `Actor.actions.fade` properly supporting fading between 0 and 1 and vice versa (#640)
