@@ -1,0 +1,5 @@
+[submodule "excalibur-dist"]
+	path = build
+	url = https://github.com/excaliburjs/excalibur-dist
+	branch = master
+   ignore = dirty
