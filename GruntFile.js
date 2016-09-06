@@ -180,7 +180,11 @@ module.exports = function (grunt) {
             dir: 'build',                     
             commit: true,
             push: true,
-            message: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%'
+            message: ':shipit: Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%',
+            config: {
+               'user.name': 'Travis-CI',
+               'user.email': 'travis@excaliburjs.com'
+            }
          },
 
          // continuous integration dists
@@ -188,6 +192,7 @@ module.exports = function (grunt) {
             options: {
                branch: 'test', // TODO change to master when tested
                remote: 'https://github.com/excaliburjs/excalibur-dist',
+               login: process.env.GH_DIST_TOKEN,
                fetchProgress: false
             }
          }
