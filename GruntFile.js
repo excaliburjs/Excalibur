@@ -148,6 +148,14 @@ module.exports = function (grunt) {
                stdout: true,
                failOnError: true
             }            
+         },
+
+         gitBuild: {
+            command: 'git clone https://github.com/excaliburjs/excalibur-dist -b test build',
+            options: {
+               stdout: true,
+               failOnError: true
+            }
          }
 
       },
@@ -233,7 +241,7 @@ module.exports = function (grunt) {
    //
 
    // Compile core engine
-   grunt.registerTask('compile', ['clean', 'shell:tsc', 'uglify', 'concat', 'copy']);   
+   grunt.registerTask('compile', ['shell:gitBuild', 'clean', 'shell:tsc', 'uglify', 'concat', 'copy']);   
 
    // Run tests quickly
    grunt.registerTask('tests', ['shell:specs', 'shell:tests']);
@@ -251,6 +259,6 @@ module.exports = function (grunt) {
    grunt.registerTask('dists', ['buildcontrol']);
    
    // Default task - compile, test, build dists
-   grunt.registerTask('default', ['tslint:src', 'shell:specs', 'shell:istanbul', 'coveralls', 'compile', 'sample', 'visual', 'shell:nuget']);
+   grunt.registerTask('default', ['tslint:src', 'shell:specs', 'shell:istanbul', 'coveralls', 'compile', 'sample', 'visual']);
 
 };
