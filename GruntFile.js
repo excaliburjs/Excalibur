@@ -180,7 +180,7 @@ module.exports = function (grunt) {
             dir: 'build',                     
             commit: true,
             push: true,
-            message: ':shipit: Built `excaliburjs/Excalibur@%sourceCommit%` on branch `%sourceBranch%`',
+            message: ':shipit: Built excaliburjs/Excalibur@%sourceCommit% on branch %sourceBranch%',
             config: {
                'user.name': 'Travis-CI',
                'user.email': 'travis@excaliburjs.com'

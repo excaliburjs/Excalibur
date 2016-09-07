@@ -1,7 +1,8 @@
-﻿
-module ex {
+﻿module ex {
 
-   // NOTE: this implementation is not self-balancing
+   /**
+    * A sorted list implementation. NOTE: this implementation is not self-balancing
+    */
    export class SortedList<T> {
 
       private _getComparable: Function;
@@ -184,6 +185,9 @@ module ex {
 
    }
 
+   /**
+    * A tree node part of [[SortedList]]
+    */
    export class BinaryTreeNode {
       private _key: number;
       private _data: Array<any>;
@@ -230,6 +234,11 @@ module ex {
       }
    }
 
+   /**
+    * Mock element for testing
+    * 
+    * @internal
+    */
    export class MockedElement {
       private _key: number = 0;
 
