@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
 ### Breaking Changes
 - Refactored and modified Sound API (#644)
   - `Sound.setData` now returns a Promise which differs from previous API
@@ -15,9 +16,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 - `Actor.actions.fade` properly supporting fading between 0 and 1 and vice versa (#640)
-- issues with offset tracking and muting while game is invisible (#644)
+- Fix issues with audio offset tracking and muting while game is invisible (#644)
+- `Actor.getHeight()` and `Actor.getWidth()` now take into account parent scaling (#645)
+- `Actor.debugDraw` now works properly for child actors (#505, #645)
 - Sprite culling was double scaling calculations (#646)
-- Negative zoom sprite culling (#539)
+- Fix negative zoom sprite culling (#539)
 
 ## [0.7.0] - 2016-08-29
 ### Breaking Changes

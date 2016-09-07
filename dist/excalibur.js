@@ -1,4 +1,4 @@
-/*! excalibur - v0.7.0 - 2016-09-04
+/*! excalibur - v0.7.0 - 2016-09-07
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 var EX_VERSION = "0.7.0";
@@ -8044,7 +8044,7 @@ var ex;
          * Gets the calculated width of an actor, factoring in scale
          */
         Actor.prototype.getWidth = function () {
-            return this._width * this.scale.x;
+            return this._width * this.getGlobalScale().x;
         };
         /**
          * Sets the width of an actor, factoring in the current scale
@@ -8056,7 +8056,7 @@ var ex;
          * Gets the calculated height of an actor, factoring in scale
          */
         Actor.prototype.getHeight = function () {
-            return this._height * this.scale.y;
+            return this._height * this.getGlobalScale().y;
         };
         /**
          * Sets the height of an actor, factoring in the current scale
@@ -8360,61 +8360,46 @@ var ex;
         Actor.prototype.debugDraw = function (ctx) {
             this.emit('predebugdraw', new ex.PreDebugDrawEvent(ctx, this));
             this.body.debugDraw(ctx);
-            /*
             // Draw actor bounding box
             var bb = this.getBounds();
             bb.debugDraw(ctx);
-            
             // Draw actor Id
             ctx.fillText('id: ' + this.id, bb.left + 3, bb.top + 10);
-            
             // Draw actor anchor Vector
-            ctx.fillStyle = Color.Yellow.toString();
+            ctx.fillStyle = ex.Color.Yellow.toString();
             ctx.beginPath();
             ctx.arc(this.getWorldPos().x, this.getWorldPos().y, 3, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fill();
-            */
-            /*
             // Culling Box debug draw
             for (var j = 0; j < this.traits.length; j++) {
-               if (this.traits[j] instanceof Traits.OffscreenCulling) {
-                  (<Traits.OffscreenCulling>this.traits[j]).cullingBox.debugDraw(ctx);
-               }
+                if (this.traits[j] instanceof ex.Traits.OffscreenCulling) {
+                    this.traits[j].cullingBox.debugDraw(ctx);
+                }
             }
-            
             // Unit Circle debug draw
-            ctx.strokeStyle = Color.Yellow.toString();
+            ctx.strokeStyle = ex.Color.Yellow.toString();
             ctx.beginPath();
             var radius = Math.min(this.getWidth(), this.getHeight());
             ctx.arc(this.getWorldPos().x, this.getWorldPos().y, radius, 0, Math.PI * 2);
             ctx.closePath();
             ctx.stroke();
             var ticks = { '0 Pi': 0,
-                          'Pi/2': Math.PI / 2,
-                          'Pi': Math.PI,
-                          '3/2 Pi': 3 * Math.PI / 2 };
-            
+                'Pi/2': Math.PI / 2,
+                'Pi': Math.PI,
+                '3/2 Pi': 3 * Math.PI / 2 };
             var oldFont = ctx.font;
             for (var tick in ticks) {
-               ctx.fillStyle = Color.Yellow.toString();
-               ctx.font = '14px';
-               ctx.textAlign = 'center';
-               ctx.fillText(tick, this.getWorldPos().x + Math.cos(ticks[tick]) * (radius + 10),
-                                  this.getWorldPos().y + Math.sin(ticks[tick]) * (radius + 10));
+                ctx.fillStyle = ex.Color.Yellow.toString();
+                ctx.font = '14px';
+                ctx.textAlign = 'center';
+                ctx.fillText(tick, this.getWorldPos().x + Math.cos(ticks[tick]) * (radius + 10), this.getWorldPos().y + Math.sin(ticks[tick]) * (radius + 10));
             }
-            
             ctx.font = oldFont;
-            */
-            // Draw child actors
-            ctx.save();
-            ctx.translate(this.pos.x, this.pos.y);
-            ctx.rotate(this.rotation);
             // Draw child actors
             for (var i = 0; i < this.children.length; i++) {
                 this.children[i].debugDraw(ctx);
             }
-            ctx.restore();
             this.emit('postdebugdraw', new ex.PostDebugDrawEvent(ctx, this));
         };
         /**

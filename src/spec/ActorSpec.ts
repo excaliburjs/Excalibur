@@ -86,6 +86,22 @@ describe('A game actor', () => {
       expect(actor.getHeight()).toBe(2);
    });
 
+   it('can have its height and width scaled by parent', () => {
+      actor.scale.setTo(2, 2);
+
+      var child = new ex.Actor(0, 0, 50, 50);
+
+      actor.add(child);
+
+      expect(child.getWidth()).toBe(100);
+      expect(child.getHeight()).toBe(100);
+
+      actor.scale.setTo(0.5, 0.5);
+
+      expect(child.getWidth()).toBe(25);
+      expect(child.getHeight()).toBe(25);
+   });
+
    it('can have a center point', () => {
       actor.setHeight(100);
       actor.setWidth(50);
@@ -129,6 +145,37 @@ describe('A game actor', () => {
       expect(actor.getRight()).toBe(50);
       expect(actor.getTop()).toBe(-50);
       expect(actor.getBottom()).toBe(50);
+   });
+
+   it('should have correct bounds when scaled', () => {
+      actor.pos.x = 0;
+      actor.pos.y = 0;
+      actor.setWidth(100);
+      actor.setHeight(100);
+      actor.scale.setTo(2, 2);
+      actor.anchor = new ex.Vector(0.5, 0.5);
+      
+      expect(actor.getLeft()).toBe(-100);
+      expect(actor.getRight()).toBe(100);
+      expect(actor.getTop()).toBe(-100);
+      expect(actor.getBottom()).toBe(100);
+   });
+
+   it('should have correct bounds when parent is scaled', () => {
+      actor.pos.x = 0;
+      actor.pos.y = 0;
+      actor.setWidth(100);
+      actor.setHeight(100);
+      actor.scale.setTo(2, 2);
+      actor.anchor = new ex.Vector(0.5, 0.5);
+
+      var child = new ex.Actor(0, 0, 50, 50);
+      actor.add(child);
+      
+      expect(child.getLeft()).toBe(-50);
+      expect(child.getRight()).toBe(50);
+      expect(child.getTop()).toBe(-50);
+      expect(child.getBottom()).toBe(50);
    });
    
    it('has a left, right, top, and bottom when the anchor is (0, 0)', () => {
