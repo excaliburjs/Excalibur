@@ -14,6 +14,8 @@ describe('A generic Resource', () => {
       URL = <any>mocker.URL();
       
       spyOn(URL, 'createObjectURL').and.callThrough();
+
+      ex.Logger.getInstance().defaultLevel = ex.LogLevel.Error;
    });
    
    it('should not be loaded by default', () => {

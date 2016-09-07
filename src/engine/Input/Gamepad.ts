@@ -211,6 +211,11 @@
                 pad.connected;
       }
       
+      public on(eventName: ex.Events.connect, handler: (event?: GamepadConnectEvent) => void);
+      public on(eventName: ex.Events.disconnect, handler: (event?: GamepadDisconnectEvent) => void);
+      public on(eventName: ex.Events.button, handler: (event?: GamepadButtonEvent) => void);
+      public on(eventName: ex.Events.axis, handler: (event?: GamepadAxisEvent) => void);
+      public on(eventName: string, handler: (event?: GameEvent) => void);
       public on(eventName: string, handler: (event?: GameEvent) => void) {
          this._enableAndUpdate(); // implicitly enable
          super.on(eventName, handler);  

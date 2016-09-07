@@ -2,7 +2,58 @@
 /// <reference path="Actor.ts" />
 /// <reference path="Util/Log.ts" />
 
+/* istanbul ignore next */
+module ex.Events {
+   export type kill = 'kill';
+   
+   export type predraw = 'predraw';
+   export type postdraw = 'postdraw';
+
+   export type predebugdraw = 'predebugdraw';
+   export type postdebugdraw = 'postdebugdraw';
+
+   export type preupdate = 'preupdate';
+   export type postupdate = 'postupdate';
+
+   export type collision = 'collision';
+
+   export type initialize = 'initialize';
+   export type activate = 'activate';
+   export type deactivate = 'deactivate';
+
+   export type exitviewport = 'exitviewport';
+   export type enterviewport = 'enterviewport'; 
+
+   export type connect = 'connect';
+   export type disconnect = 'disconnect';
+   export type button = 'button';
+   export type axis = 'axis';
+
+   export type subscribe = 'subscribe';
+   export type unsubscribe = 'unsubscribe';
+
+   export type visible = 'visible';
+   export type hidden = 'hidden';
+   export type start = 'start';
+   export type stop = 'stop';
+
+   export type pointerup = 'pointerup';
+   export type pointerdown = 'pointerdown';
+   export type pointermove = 'pointermove';
+   export type pointercancel = 'pointercancel';
+
+   export type up = 'up';
+   export type down = 'down';
+   export type move = 'move';
+   export type cancel = 'cancel';
+
+   export type press = 'press';
+   export type release = 'release';
+   export type hold = 'hold';
+}
+
 module ex {
+  
   
    /**
     * Base event type in Excalibur that all other event types derive from. Not all event types are thrown on all Excalibur game objects, 
@@ -34,6 +85,24 @@ module ex {
     * The 'kill' event is emitted on actors when it is killed. The target is the actor that was killed. 
     */
    export class KillEvent extends GameEvent {
+      constructor(public target) {
+         super();
+      }
+   }
+
+   /**
+    * The 'start' event is emitted on engine when has started and is ready for interaction. 
+    */
+   export class GameStartEvent extends GameEvent {
+      constructor(public target) {
+         super();
+      }
+   }
+
+   /**
+    * The 'stop' event is emitted on engine when has been stopped and will no longer take input, update or draw. 
+    */
+   export class GameStopEvent extends GameEvent {
       constructor(public target) {
          super();
       }
@@ -198,7 +267,7 @@ module ex {
    }
 
    /**
-    * Event thrown on an [[Actor]] only once before the first update call
+    * Event thrown on an [[Actor]] and a [[Scene]] only once before the first update call
     */
    export class InitializeEvent extends GameEvent {
 

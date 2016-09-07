@@ -61,6 +61,13 @@ module Mocks {
             touchCancel: [],
             width: width,
             height: height,
+            scenes: {},
+            _logger : {
+               debug : function () { /* do nothing */ },
+               info : function () { /* do nothing */ },
+               warn : function () { /* do nothing */ },
+               error : function () { /* do nothing */ }
+            },
             canvas: {
                width: width,
                clientWidth: width,
@@ -84,7 +91,9 @@ module Mocks {
                getZoom: function () { return 1; }
             },
             worldToScreenCoordinates: ex.Engine.prototype.worldToScreenCoordinates,
-            screenToWorldCoordinates: ex.Engine.prototype.screenToWorldCoordinates
+            screenToWorldCoordinates: ex.Engine.prototype.screenToWorldCoordinates,
+            addScene: ex.Engine.prototype.addScene,
+            goToScene: ex.Engine.prototype.goToScene
          };
          return mockEngine;
       };

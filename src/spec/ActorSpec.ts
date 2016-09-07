@@ -16,7 +16,10 @@ describe('A game actor', () => {
       scene = new ex.Scene(engine);
 
       spyOn(scene, 'draw').and.callThrough();
+      spyOn(scene, 'debugDraw').and.callThrough();
+
       spyOn(actor, 'draw');
+      spyOn(actor, 'debugDraw');
 
       engine = mock.engine(100, 100, scene);
    });
@@ -591,5 +594,42 @@ describe('A game actor', () => {
       scene.add(actor);
       expect(actor.isKilled()).toBeFalsy();
    });
-   
+
+   it('fires intialize event when before the first update', (done) => {
+      var actor = new ex.Actor();
+      actor.on('initialize', () => { done(); });
+
+      scene.add(actor);
+      scene.update(engine, 100);
+      scene.update(engine, 100);
+   });
+
+   it('fires preupdate event before update then postupdate', (done) => {
+      var actor = new ex.Actor();
+      var preupdateFired = false;
+
+      actor.on('preupdate', () => { preupdateFired = true; });
+      actor.on('postupdate', () => { 
+         expect(preupdateFired).toBe(true);
+         done();
+      });
+      
+      scene.add(actor);
+      scene.update(engine, 100);
+   });
+
+   it('fires predraw event before draw then postdraw', (done) => {
+      var actor = new ex.Actor();
+      var predrawedFired = false;
+
+      actor.on('predraw', () => { predrawedFired = true; });
+      actor.on('postdraw', () => { 
+         expect(predrawedFired).toBe(true);
+         done();
+      });
+      
+      scene.add(actor);
+      scene.update(engine, 100);
+      scene.draw(engine.ctx, 100);
+   });
 });
