@@ -17,7 +17,6 @@
 /// <reference path="Particles.ts" />
 /// <reference path="Drawing/Animation.ts" />
 /// <reference path="Camera.ts" />
-/// <reference path="Sound.ts" />
 /// <reference path="Loader.ts" />
 /// <reference path="Promises.ts" />
 /// <reference path="Util/Util.ts" />

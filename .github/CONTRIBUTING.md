@@ -46,8 +46,16 @@ If you’re not sure where to start, take a look at the jump-in or help wanted i
 - Please do all of your work in a new git branch. Only include code in the branch for the single issue you are working on.
 - Include Jasmine tests for your changes, following our [styleguide](#tests). Put them in the src/spec folder.
 - Document new public methods and properties based on the [styleguide](#documentation).
+- Update CHANGELOG.md with your changes. The categories we use are adapted from [Keep a Changelog][keep-a-changelog]:
+  - `Breaking Changes` for changes to the existing API that are not backwards compatible
+  - `Added` for new features
+  - `Changed` for changes in existing functionality
+  - `Deprecated` for features that will be removed in an upcoming release
+  - `Removed` for deprecated features removed in this release
+  - `Fixed` for bug fixes
 - Squash your local commits into logical atomic changes. Please follow our [styleguide](#commit-messages) for your commit messages.
 - Send a pull request via Github.
+  - Format your pull request as: [#issue_number] Your commit message (where issue_number is the issue you're closing)
 
 ## Styleguides
 
@@ -116,7 +124,7 @@ describe('a monkey', () => {
 - Link to other classes using the TypeDoc double bracket notation.
 
 ## Issue Labels
-- [jump-in][search-label-jump-in]: fairly simple issues that are good starting points for new contributors
+- [jump-in][search-label-jump-in]: issues that are good starting points for new contributors
 - [help wanted][search-label-help wanted]: issues that are more in-depth and may require a certain platform or skillset to implement
 - [bug][search-label-bug]: a problem or an unexpected behavior
 - [api change][search-label-api change]: implementing an issue with this label will cause changes to the public API
@@ -137,6 +145,8 @@ describe('a monkey', () => {
 [forum]: https://groups.google.com/forum/#!forum/excaliburjs
 [releases]: https://github.com/excaliburjs/Excalibur/releases
 [issues]: https://github.com/excaliburjs/Excalibur/issues
+
+[keep-a-changelog]: http://keepachangelog.com/en/0.3.0/
 
 [search-label-jump-in]: https://github.com/excaliburjs/Excalibur/labels/jump-in
 [search-label-help wanted]: https://github.com/excaliburjs/Excalibur/labels/help%20wanted

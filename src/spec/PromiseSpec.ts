@@ -129,56 +129,81 @@ describe('A promise', () => {
       });         
    });
 
-   it('can join promises and resovle when all resolve', () => {
-      var p1 = new ex.Promise();
-      var p2 = new ex.Promise();
-      var p3 = new ex.Promise();
+   describe('with multiple promises', () => {
+      var p1: ex.Promise<any>;
+      var p2: ex.Promise<any>;
+      var p3: ex.Promise<any>;
 
-      var composite = ex.Promise.join(p1, p2, p3);
+      beforeEach(() => {
+         p1 = new ex.Promise();
+         p2 = new ex.Promise();
+         p3 = new ex.Promise();
+      });
 
-      expect(composite.state()).toBe(ex.PromiseState.Pending);
+      it('can join promise array and resolve', () => {
+         var composite = ex.Promise.join([p1, p2, p3]);
 
-      p1.resolve();
+         expect(composite.state()).toBe(ex.PromiseState.Pending);
 
-      expect(composite.state()).toBe(ex.PromiseState.Pending);
+         p1.resolve();
 
-      p2.resolve();
+         expect(composite.state()).toBe(ex.PromiseState.Pending);
 
-      expect(composite.state()).toBe(ex.PromiseState.Pending);
+         p2.resolve();
 
-      p3.resolve();
+         expect(composite.state()).toBe(ex.PromiseState.Pending);
 
-      expect(composite.state()).toBe(ex.PromiseState.Resolved);
-   });
+         p3.resolve();
 
-   it('can join promises and resovle when some reject', () => {
-      var p1 = new ex.Promise();
-      var p2 = new ex.Promise();
-      var p3 = new ex.Promise();
+         expect(composite.state()).toBe(ex.PromiseState.Resolved);
+      });
 
-      var composite = ex.Promise.join(p1, p2, p3);
+      it('can join promises and resovle when all resolve', () => {
+         
+         var composite = ex.Promise.join(p1, p2, p3);
 
-      expect(composite.state()).toBe(ex.PromiseState.Pending);
+         expect(composite.state()).toBe(ex.PromiseState.Pending);
 
-      p1.reject();
+         p1.resolve();
 
-      expect(composite.state()).toBe(ex.PromiseState.Pending);
+         expect(composite.state()).toBe(ex.PromiseState.Pending);
 
-      p2.resolve();
+         p2.resolve();
 
-      expect(composite.state()).toBe(ex.PromiseState.Pending);
+         expect(composite.state()).toBe(ex.PromiseState.Pending);
 
-      p3.resolve();
+         p3.resolve();
 
-      expect(composite.state()).toBe(ex.PromiseState.Rejected);
-   });
+         expect(composite.state()).toBe(ex.PromiseState.Resolved);
+      });
 
-   it('can join an empty array and the result will resolve', () => {
-      var result = ex.Promise.join.apply(null, []);
-      expect(result.state()).toBe(ex.PromiseState.Resolved);
+      it('can join promises and resovle when some reject', () => {
+         var composite = ex.Promise.join(p1, p2, p3);
 
-      var result2 = ex.Promise.join();
-      expect(result2.state()).toBe(ex.PromiseState.Resolved);
+         expect(composite.state()).toBe(ex.PromiseState.Pending);
+
+         p1.reject();
+
+         expect(composite.state()).toBe(ex.PromiseState.Pending);
+
+         p2.resolve();
+
+         expect(composite.state()).toBe(ex.PromiseState.Pending);
+
+         p3.resolve();
+
+         expect(composite.state()).toBe(ex.PromiseState.Rejected);
+      });
+
+      it('can join an empty array and the result will resolve', () => {
+         var result = ex.Promise.join([]);
+         
+         expect(result.state()).toBe(ex.PromiseState.Resolved);
+
+         var result2 = ex.Promise.join();
+         expect(result2.state()).toBe(ex.PromiseState.Resolved);
+      });
+
    });
 
    it('does not swallow errors if no error callback is supplied', () => {

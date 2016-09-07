@@ -89,6 +89,22 @@ describe('A game actor', () => {
       expect(actor.getHeight()).toBe(2);
    });
 
+   it('can have its height and width scaled by parent', () => {
+      actor.scale.setTo(2, 2);
+
+      var child = new ex.Actor(0, 0, 50, 50);
+
+      actor.add(child);
+
+      expect(child.getWidth()).toBe(100);
+      expect(child.getHeight()).toBe(100);
+
+      actor.scale.setTo(0.5, 0.5);
+
+      expect(child.getWidth()).toBe(25);
+      expect(child.getHeight()).toBe(25);
+   });
+
    it('can have a center point', () => {
       actor.setHeight(100);
       actor.setWidth(50);
@@ -132,6 +148,37 @@ describe('A game actor', () => {
       expect(actor.getRight()).toBe(50);
       expect(actor.getTop()).toBe(-50);
       expect(actor.getBottom()).toBe(50);
+   });
+
+   it('should have correct bounds when scaled', () => {
+      actor.pos.x = 0;
+      actor.pos.y = 0;
+      actor.setWidth(100);
+      actor.setHeight(100);
+      actor.scale.setTo(2, 2);
+      actor.anchor = new ex.Vector(0.5, 0.5);
+      
+      expect(actor.getLeft()).toBe(-100);
+      expect(actor.getRight()).toBe(100);
+      expect(actor.getTop()).toBe(-100);
+      expect(actor.getBottom()).toBe(100);
+   });
+
+   it('should have correct bounds when parent is scaled', () => {
+      actor.pos.x = 0;
+      actor.pos.y = 0;
+      actor.setWidth(100);
+      actor.setHeight(100);
+      actor.scale.setTo(2, 2);
+      actor.anchor = new ex.Vector(0.5, 0.5);
+
+      var child = new ex.Actor(0, 0, 50, 50);
+      actor.add(child);
+      
+      expect(child.getLeft()).toBe(-50);
+      expect(child.getRight()).toBe(50);
+      expect(child.getTop()).toBe(-50);
+      expect(child.getBottom()).toBe(50);
    });
    
    it('has a left, right, top, and bottom when the anchor is (0, 0)', () => {
@@ -223,180 +270,7 @@ describe('A game actor', () => {
 
       expect(actorCalled).toBe('actor');
       expect(otherCalled).toBe('other');
-   });
-
-   it('can be moved to a location at a speed', () => {
-      expect(actor.pos.x).toBe(0);
-      expect(actor.pos.y).toBe(0);
-
-      actor.actions.moveTo(100, 0, 100);
-      actor.update(engine, 500);
-
-      expect(actor.pos.x).toBe(50);
-      expect(actor.pos.y).toBe(0);
-
-      actor.update(engine, 500);
-      expect(actor.pos.x).toBe(100);
-      expect(actor.pos.y).toBe(0);
-   });
-
-   it('can be moved to a location by a certain time', () => {
-      expect(actor.pos.x).toBe(0);
-      expect(actor.pos.y).toBe(0);
-
-      actor.actions.moveBy(100, 0,  2000);
-
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe(50);
-      expect(actor.pos.y).toBe(0);
-   });
-
-   it('can be rotated to an angle at a speed via ShortestPath (default)', () => {
-      expect(actor.rotation).toBe(0);
-
-      actor.actions.rotateTo(Math.PI / 2, Math.PI / 2);
-
-      actor.update(engine, 500);
-      expect(actor.rotation).toBe(Math.PI / 4);
-
-      actor.update(engine, 500);
-      expect(actor.rotation).toBe(Math.PI / 2);
-
-      actor.update(engine, 500);
-      expect(actor.rx).toBe(0);
-   });
-
-   it('can be rotated to an angle at a speed via LongestPath', () => {
-      expect(actor.rotation).toBe(0);
-
-      actor.actions.rotateTo(Math.PI / 2, Math.PI / 2, ex.RotationType.LongestPath);
-
-      actor.update(engine, 1000);
-      //rotation is currently incremented by rx delta ,so will be negative while moving counterclockwise
-      expect(actor.rotation).toBe(-1 * Math.PI / 2);
-
-      actor.update(engine, 2000);
-      expect(actor.rotation).toBe(-3 * Math.PI / 2);
-
-      actor.update(engine, 500);
-      expect(actor.rotation).toBe(Math.PI / 2);
-      expect(actor.rx).toBe(0);
-   });
-
-   it('can be rotated to an angle at a speed via Clockwise', () => {
-      expect(actor.rotation).toBe(0);
-
-      actor.actions.rotateTo(3 * Math.PI / 2, Math.PI / 2, ex.RotationType.Clockwise);
-
-      actor.update(engine, 2000);
-      expect(actor.rotation).toBe(Math.PI);
-
-      actor.update(engine, 1000);
-      expect(actor.rotation).toBe(3 * Math.PI / 2);
-
-      actor.update(engine, 500);
-      expect(actor.rotation).toBe(3 * Math.PI / 2);
-      expect(actor.rx).toBe(0);
-   });
-
-   it('can be rotated to an angle at a speed via CounterClockwise', () => {
-      expect(actor.rotation).toBe(0);
-
-      actor.actions.rotateTo(Math.PI / 2, Math.PI / 2, ex.RotationType.CounterClockwise);
-      actor.update(engine, 2000);
-      expect(actor.rotation).toBe(-Math.PI);
-
-      actor.update(engine, 1000);
-      expect(actor.rotation).toBe(-3 * Math.PI / 2);
-
-      actor.update(engine, 500);
-      expect(actor.rotation).toBe(Math.PI / 2);
-      expect(actor.rx).toBe(0);
-
-      // rotating back to 0, starting at PI / 2
-      actor.actions.rotateTo(0, Math.PI / 2, ex.RotationType.CounterClockwise);
-      actor.update(engine, 1000);
-      expect(actor.rotation).toBe(0);
-
-      actor.update(engine, 1);
-      expect(actor.rx).toBe(0);
-
-   });
-
-   // it('can be rotated to an angle by a certain time', () => {
-   // 	expect(actor.rotation).toBe(0);
-
-   // 	actor.rotateBy(Math.PI/2, 2000);
-   // 	actor.update(engine, 1000);
-
-   // 	expect(actor.rotation).toBe(Math.PI/4);
-   // 	actor.update(engine, 1000);
-
-   // 	expect(actor.rotation).toBe(Math.PI/2);
-   //});
-
-   it('can be rotated to an angle by a certain time via ShortestPath (default)', () => {
-      expect(actor.rotation).toBe(0);
-
-      actor.actions.rotateBy(Math.PI / 2, 2000);
-
-      actor.update(engine, 1000);
-      expect(actor.rotation).toBe(Math.PI / 4);
-
-      actor.update(engine, 1000);
-      expect(actor.rotation).toBe(Math.PI / 2);
-
-      actor.update(engine, 500);
-      expect(actor.rx).toBe(0);
-   });
-
-   it('can be rotated to an angle by a certain time via LongestPath', () => {
-      expect(actor.rotation).toBe(0);
-
-      actor.actions.rotateBy(Math.PI / 2, 3000, ex.RotationType.LongestPath);
-
-      actor.update(engine, 1000);
-      expect(actor.rotation).toBe(-1 * Math.PI / 2);
-
-      actor.update(engine, 2000);
-      expect(actor.rotation).toBe(-3 * Math.PI / 2);
-
-      actor.update(engine, 500);
-      expect(actor.rotation).toBe(Math.PI / 2);
-      expect(actor.rx).toBe(0);
-   });
-
-   it('can be rotated to an angle by a certain time via Clockwise', () => {
-      expect(actor.rotation).toBe(0);
-
-      actor.actions.rotateBy(Math.PI / 2, 1000, ex.RotationType.Clockwise);
-
-      actor.update(engine, 500);
-      expect(actor.rotation).toBe(Math.PI / 4);
-
-      actor.update(engine, 500);
-      expect(actor.rotation).toBe(Math.PI / 2);
-
-      actor.update(engine, 500);
-      expect(actor.rotation).toBe(Math.PI / 2);
-      expect(actor.rx).toBe(0);
-   });
-
-   it('can be rotated to an angle by a certain time via CounterClockwise', () => {
-      expect(actor.rotation).toBe(0);
-
-      actor.actions.rotateBy(Math.PI / 2, 3000, ex.RotationType.LongestPath);
-
-      actor.update(engine, 1000);
-      expect(actor.rotation).toBe(-1 * Math.PI / 2);
-
-      actor.update(engine, 2000);
-      expect(actor.rotation).toBe(-3 * Math.PI / 2);
-
-      actor.update(engine, 500);
-      expect(actor.rotation).toBe(Math.PI / 2);
-      expect(actor.rx).toBe(0);
-   });
+   });   
 
    it('is rotated along with its parent', () => {
       var rotation = ex.Util.toRadians(90);
@@ -497,394 +371,7 @@ describe('A game actor', () => {
 
       expect(grandchild.getWorldPos().x).toBeCloseTo(10, 0.001);
       expect(grandchild.getWorldPos().y).toBeCloseTo(50, 0.001);
-   });  
-
-   it('can be scaled at a speed', () => {
-      expect(actor.scale.x).toBe(1);
-      expect(actor.scale.y).toBe(1);
-
-      actor.actions.scaleTo(2, 4, .5, .5);
-      actor.update(engine, 1000);
-
-      expect(actor.scale.x).toBe(1.5);
-      expect(actor.scale.y).toBe(1.5);
-      actor.update(engine, 1000);
-
-      expect(actor.scale.x).toBe(2);
-      expect(actor.scale.y).toBe(2);
-      actor.update(engine, 1000);
-
-      expect(actor.scale.x).toBe(2);
-      expect(actor.scale.y).toBe(2.5);
-   });
-
-   it('can be scaled by a certain time', () => {
-      expect(actor.scale.x).toBe(1);
-      expect(actor.scale.y).toBe(1);
-
-      actor.actions.scaleBy(4, 5, 1000);
-
-      actor.update(engine, 500);
-      expect(actor.scale.x).toBe(2.5);
-      expect(actor.scale.y).toBe(3);
-
-      actor.update(engine, 500);
-      expect(actor.scale.x).toBe(4);
-      expect(actor.scale.y).toBe(5);
-   });
-
-   it('can blink on and off', () => {
-      expect(actor.visible).toBe(true);
-      actor.actions.blink(200, 200);
-
-      actor.update(engine, 200);
-      expect(actor.visible).toBe(false);
-
-      actor.update(engine, 250);
-      expect(actor.visible).toBe(true);
-   });
-
-   it('can blink at a frequency forever', () => {
-      expect(actor.visible).toBe(true);
-      actor.actions.blink(200, 200).repeatForever();
-		
-      for (var i = 0; i < 2; i++) {
-         actor.update(engine, 200);
-         expect(actor.visible).toBe(false);
-
-         actor.update(engine, 200);
-         expect(actor.visible).toBe(true);
-
-         actor.update(engine, 200);
-      }
-   });
-
-   it('can be delayed by an amount off time', () => {
-      expect(actor.pos.x).toBe(0);
-      expect(actor.pos.y).toBe(0);
-
-      actor.actions.delay(1000).moveTo(20, 0, 20);
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe(0);
-
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe(20);
-   });
-
-   it('can die', () => {
-      scene.add(actor);
-      expect(scene.children.length).toBe(1);
-      actor.actions.die();
-      scene.update(engine, 100);
-      expect(scene.children.length).toBe(0);
-   });
-
-   it('can perform actions and then die', () => {
-      scene.add(actor);
-      expect(actor.pos.x).toBe(0);
-      expect(actor.pos.y).toBe(0);
-      expect(scene.children.length).toBe(1);
-
-      actor.actions.moveTo(100, 0, 100).delay(1000).die();
-      actor.update(engine, 1000);
-
-      expect(actor.pos.x).toBe(100);
-      expect(actor.pos.y).toBe(0);
-
-      actor.update(engine, 500);
-      expect(actor.pos.x).toBe(100);
-      expect(actor.pos.y).toBe(0);
-
-      actor.update(engine, 1000);
-      scene.update(engine, 100);
-      expect(scene.children.length).toBe(0);
-   });
-
-   it('can repeat previous actions', () => {
-      expect(actor.pos.x).toBe(0);
-      expect(actor.pos.y).toBe(0);
-
-      actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeat();
-
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe(10);
-      expect(actor.pos.y).toBe(0);
-
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe(20);
-      expect(actor.pos.y).toBe(0);
-
-      actor.update(engine, 1);
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe(10);
-      expect(actor.pos.y).toBe(0);
-
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe(0);
-      expect(actor.pos.y).toBe(0);
-
-      actor.update(engine, 1);
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe(10);
-      expect(actor.pos.y).toBe(0);
-
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe(20);
-      expect(actor.pos.y).toBe(0);
-
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe(20);
-      expect(actor.pos.y).toBe(0);
-   });
-
-   it('can repeat previous actions forever', () => {
-      expect(actor.pos.x).toBe(0);
-      expect(actor.pos.y).toBe(0);
-
-      actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeatForever();
-
-      for (var i = 0; i < 20; i++) {
-         actor.update(engine, 1000);
-         expect(actor.pos.x).toBe(10);
-         expect(actor.pos.y).toBe(0);
-
-         actor.update(engine, 1000);
-         expect(actor.pos.x).toBe(20);
-         expect(actor.pos.y).toBe(0);
-
-         actor.update(engine, 1);
-         actor.update(engine, 1000);
-         expect(actor.pos.x).toBe(10);
-         expect(actor.pos.y).toBe(0);
-
-         actor.update(engine, 1000);
-         expect(actor.pos.x).toBe(0);
-         expect(actor.pos.y).toBe(0);
-
-         actor.update(engine, 1);
-      }
-   });
-
-   it('can have its moveTo action stopped', () => {
-      expect(actor.pos.x).toBe(0);
-      expect(actor.pos.y).toBe(0);
-
-      actor.actions.moveTo(20, 0, 10);
-      actor.update(engine, 500);
-
-      actor.actions.clearActions();
-      expect(actor.pos.x).toBe(5);
-      expect(actor.pos.y).toBe(0);
-
-      // Actor should not move after stop
-      actor.update(engine, 500);
-      expect(actor.pos.x).toBe(5);
-      expect(actor.pos.y).toBe(0);
-   });
-
-   it('can have its moveBy action stopped', () => {
-      expect(actor.pos.x).toBe(0);
-      expect(actor.pos.y).toBe(0);
-
-      actor.actions.moveBy(20, 0, 1000);
-      actor.update(engine, 500);
-
-      actor.actions.clearActions();
-      expect(actor.pos.x).toBe(10);
-      expect(actor.pos.y).toBe(0);
-
-      // Actor should not move after stop
-      actor.update(engine, 500);
-      expect(actor.pos.x).toBe(10);
-      expect(actor.pos.y).toBe(0);
-   });
-
-   it('can have its rotateTo action stopped', () => {
-      expect(actor.rotation).toBe(0);
-
-      actor.actions.rotateTo(Math.PI / 2, Math.PI / 2);
-
-      actor.update(engine, 500);
-      expect(actor.rotation).toBe(Math.PI / 4);
-
-      actor.actions.clearActions();
-
-      actor.update(engine, 500);
-      expect(actor.rotation).toBe(Math.PI / 4);
-   });
-
-   it('can have its rotateBy action stopped', () => {
-      expect(actor.rotation).toBe(0);
-
-      actor.actions.rotateBy(Math.PI / 2, 2000);
-		
-      actor.update(engine, 1000);
-      actor.actions.clearActions();
-      expect(actor.rotation).toBe(Math.PI / 4);
-
-      actor.update(engine, 1000);
-      expect(actor.rotation).toBe(Math.PI / 4);
-   });
-
-   it('can have its scaleTo action stopped', () => {
-      expect(actor.scale.x).toBe(1);
-      expect(actor.scale.y).toBe(1);
-
-      actor.actions.scaleTo(2, 2, .5, .5);
-      actor.update(engine, 1000);
-
-      actor.actions.clearActions();
-      expect(actor.scale.x).toBe(1.5);
-      expect(actor.scale.y).toBe(1.5);
-
-      actor.update(engine, 1000);
-      expect(actor.scale.x).toBe(1.5);
-      expect(actor.scale.y).toBe(1.5);
-   });
-
-   it('can have its scaleBy action stopped', () => {
-      expect(actor.scale.x).toBe(1);
-      expect(actor.scale.y).toBe(1);
-
-      actor.actions.scaleBy(4, 4, 1000);
-
-      actor.update(engine, 500);
-
-      actor.actions.clearActions();
-      expect(actor.scale.x).toBe(2.5);
-      expect(actor.scale.y).toBe(2.5);
-
-      actor.update(engine, 500);
-      expect(actor.scale.x).toBe(2.5);
-      expect(actor.scale.y).toBe(2.5);
-   });
-
-   it('can have its blink action stopped', () => {
-      expect(actor.visible).toBe(true);
-      actor.actions.blink(1, 3000);
-
-      actor.update(engine, 500);
-      expect(actor.visible).toBe(false);
-
-      actor.actions.clearActions();
-		
-      actor.update(engine, 500);
-      actor.update(engine, 500);
-      expect(actor.visible).toBe(true);
-   });
-
-   it('can have its delay action stopped', () => {
-      expect(actor.pos.x).toBe(0);
-      expect(actor.pos.y).toBe(0);
-
-      actor.actions.delay(1000).moveTo(20, 0, 20);
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe(0);
-
-      actor.actions.clearActions();
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe(0);
-   });
-
-   it('can have its repeat action stopped', () => {
-      expect(actor.pos.x).toBe(0);
-      expect(actor.pos.y).toBe(0);
-
-      actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeat();
-
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe(10);
-      expect(actor.pos.y).toBe(0);
-
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe(20);
-      expect(actor.pos.y).toBe(0);
-
-      actor.actions.clearActions();
-      actor.update(engine, 1);
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe(20);
-      expect(actor.pos.y).toBe(0);
-
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe(20);
-      expect(actor.pos.y).toBe(0);
-
-      actor.update(engine, 1);
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe(20);
-      expect(actor.pos.y).toBe(0);
-
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe(20);
-      expect(actor.pos.y).toBe(0);
-
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe(20);
-      expect(actor.pos.y).toBe(0);
-   });
-
-   it('can have its repeatForever action stopped', () => {
-      expect(actor.pos.x).toBe(0);
-      expect(actor.pos.y).toBe(0);
-
-      actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeatForever();
-
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe(10);
-      expect(actor.pos.y).toBe(0);
-
-      actor.actions.clearActions();
-
-      for (var i = 0; i < 20; i++) {
-         actor.update(engine, 1000);
-         expect(actor.pos.x).toBe(10);
-         expect(actor.pos.y).toBe(0);
-      }
-   });
-
-   it('can follow another actor', () => {
-      expect(actor.pos.x).toBe(0);
-      expect(actor.pos.y).toBe(0);
-
-      var actorToFollow = new ex.Actor(10, 0);
-      actorToFollow.actions.moveTo(100, 0, 10);
-      actor.actions.follow(actorToFollow);
-      // actor.update(engine, 1000);
-      // expect(actor.pos.x).toBe(actorToFollow.x);
-
-      for (var i = 1; i < 10; i++) {
-         // actor.follow(actorToFollow);
-         actorToFollow.update(engine, 1000);
-         actor.update(engine, 1000);
-         expect(actor.pos.x).toBe(actorToFollow.pos.x - 10);
-      }
-      //TODO test different follow distances?
-   });
-
-   it('can meet another actor' , () => {
-      expect(actor.pos.x).toBe(0);
-      expect(actor.pos.y).toBe(0);
-
-      // testing basic meet
-      var actorToMeet = new ex.Actor(10, 0);
-      actorToMeet.actions.moveTo(100, 0, 10);
-      actor.actions.meet(actorToMeet);
-
-      for (var i = 0; i < 9; i++) {
-         actorToMeet.update(engine, 1000);
-         actor.update(engine, 1000);
-         expect(actor.pos.x).toBe(actorToMeet.pos.x - 10);
-      }
-
-      // actor should have caught up to actorToFollow since it stopped moving
-      actorToMeet.update(engine, 1000);
-      actor.update(engine, 1000);
-      expect(actor.pos.x).toBe (actorToMeet.pos.x);
-
-      //TODO have actor to be followed traveling at a diagonal 'toward' the following actor
-      // testing when actorToMeet is moving in a direction towards the following actor
-   });
+   });       
 
    it('can find its global coordinates if it has a parent', () => {
       expect(actor.pos.x).toBe(0);
@@ -1144,20 +631,5 @@ describe('A game actor', () => {
       scene.add(actor);
       scene.update(engine, 100);
       scene.draw(engine.ctx, 100);
-   });
-
-   it('fires predebugdraw event before draw then postdebugdraw', (done) => {
-      var actor = new ex.Actor();
-      var predebugdrawFired = false;
-
-      actor.on('predebugdraw', () => { predebugdrawFired = true; });
-      actor.on( 'postdebugdraw', () => { 
-         expect(predebugdrawFired).toBe(true);
-         done();
-      });
-      
-      scene.add(actor);
-      scene.update(engine, 100);
-      scene.debugDraw(engine.ctx);
    });
 });

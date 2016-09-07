@@ -911,7 +911,7 @@ module ex {
      * Gets the calculated width of an actor, factoring in scale
      */
     public getWidth() {
-       return this._width * this.scale.x;
+       return this._width * this.getGlobalScale().x;
     }
     /**
      * Sets the width of an actor, factoring in the current scale
@@ -923,7 +923,7 @@ module ex {
      * Gets the calculated height of an actor, factoring in scale
      */
     public getHeight() {
-       return this._height * this.scale.y;
+       return this._height * this.getGlobalScale().y;
     }
     /**
      * Sets the height of an actor, factoring in the current scale
@@ -1263,11 +1263,11 @@ module ex {
        this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
 
        this.body.debugDraw(ctx);
-
-       /*
+       
        // Draw actor bounding box
        var bb = this.getBounds();
        bb.debugDraw(ctx);
+       
        
        // Draw actor Id
        ctx.fillText('id: ' + this.id, bb.left + 3, bb.top + 10);
@@ -1278,9 +1278,7 @@ module ex {
        ctx.arc(this.getWorldPos().x, this.getWorldPos().y, 3, 0, Math.PI * 2);
        ctx.closePath();
        ctx.fill();
-       */
-
-       /*
+       
        // Culling Box debug draw
        for (var j = 0; j < this.traits.length; j++) {
           if (this.traits[j] instanceof Traits.OffscreenCulling) {
@@ -1310,16 +1308,12 @@ module ex {
        }
        
        ctx.font = oldFont;
-       */
-       // Draw child actors
-       ctx.save();
-       ctx.translate(this.pos.x, this.pos.y);
-       ctx.rotate(this.rotation);
+
        // Draw child actors
        for (var i = 0; i < this.children.length; i++) {
           this.children[i].debugDraw(ctx);
        }
-       ctx.restore();
+
        this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));
     }
   }

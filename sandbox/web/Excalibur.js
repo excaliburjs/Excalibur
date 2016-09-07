@@ -1,4 +1,4 @@
-/*! excalibur - v0.7.0 - 2016-09-03
+/*! excalibur - v0.7.0 - 2016-09-07
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 var EX_VERSION = "0.7.0";
@@ -1852,8 +1852,8 @@ var ex;
             this._bottomRight = new ex.Vector(0, 0);
         }
         CullingBox.prototype.isSpriteOffScreen = function (actor, engine) {
-            var drawingWidth = actor.currentDrawing.width * actor.currentDrawing.scale.x;
-            var drawingHeight = actor.currentDrawing.height * actor.currentDrawing.scale.y;
+            var drawingWidth = actor.currentDrawing.width;
+            var drawingHeight = actor.currentDrawing.height;
             var rotation = actor.rotation;
             var anchor = actor.getCenter();
             var worldPos = actor.getWorldPos();
@@ -1888,8 +1888,24 @@ var ex;
             this._yMinWorld = minWorld.y;
             this._xMaxWorld = maxWorld.x;
             this._yMaxWorld = maxWorld.y;
-            var boundingPoints = new Array();
-            boundingPoints.push(new ex.Vector(this._xMin, this._yMin), new ex.Vector(this._xMax, this._yMin), new ex.Vector(this._xMin, this._yMax), new ex.Vector(this._xMax, this._yMax));
+            var boundingPoints = [
+                new ex.Vector(this._xMin, this._yMin),
+                new ex.Vector(this._xMax, this._yMin),
+                new ex.Vector(this._xMin, this._yMax),
+                new ex.Vector(this._xMax, this._yMax)]; // bottomright
+            // sprite can be wider than canvas screen (and still visible within canvas)
+            // top or bottom of sprite must be within canvas
+            if (boundingPoints[0].x < 0 && boundingPoints[1].x > engine.canvas.clientWidth &&
+                (boundingPoints[0].y > 0 || boundingPoints[2].y < engine.canvas.clientHeight)) {
+                return false;
+            }
+            // sprite can be taller than canvas screen (and still visible within canvas)
+            // left or right of sprite must be within canvas
+            if (boundingPoints[0].y < 0 && boundingPoints[2].y > engine.canvas.clientHeight &&
+                (boundingPoints[1].x > 0 || boundingPoints[0].x < engine.canvas.clientWidth)) {
+                return false;
+            }
+            // otherwise if any corner is visible, we're not offscreen
             for (var i = 0; i < boundingPoints.length; i++) {
                 if (boundingPoints[i].x > 0 &&
                     boundingPoints[i].y > 0 &&
@@ -1933,6 +1949,7 @@ var ex;
 })(ex || (ex = {}));
 /// <reference path="../Interfaces/IActorTrait.ts" />
 /// <reference path="../Util/CullingBox.ts" />
+/// <reference path="../Actor.ts" />
 var ex;
 (function (ex) {
     var Traits;
@@ -1951,7 +1968,7 @@ var ex;
                 var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Vector(worldPos.x - anchor.x * width, worldPos.y - anchor.y * height));
                 var zoom = 1.0;
                 if (actor.scene && actor.scene.camera) {
-                    zoom = actor.scene.camera.getZoom();
+                    zoom = Math.abs(actor.scene.camera.getZoom());
                 }
                 var isSpriteOffScreen = true;
                 if (actor.currentDrawing != null) {
@@ -3642,7 +3659,7 @@ var ex;
          */
         BoundingBox.prototype.toPolygon = function (actor) {
             return new ex.PolygonArea({
-                body: actor.body,
+                body: actor ? actor.body : null,
                 points: this.getPoints(),
                 pos: ex.Vector.Zero.clone()
             });
@@ -5619,28 +5636,32 @@ var ex;
             Actions.Blink = Blink;
             var Fade = (function () {
                 function Fade(actor, endOpacity, speed) {
-                    this._multiplyer = 1;
+                    this._multiplier = 1;
                     this._started = false;
                     this._stopped = false;
                     this._actor = actor;
                     this._endOpacity = endOpacity;
                     this._speed = speed;
-                    if (endOpacity < actor.opacity) {
-                        this._multiplyer = -1;
-                    }
                 }
                 Fade.prototype.update = function (delta) {
                     if (!this._started) {
                         this._started = true;
+                        // determine direction when we start
+                        if (this._endOpacity < this._actor.opacity) {
+                            this._multiplier = -1;
+                        }
+                        else {
+                            this._multiplier = 1;
+                        }
                     }
                     if (this._speed > 0) {
-                        this._actor.opacity += this._multiplyer * (Math.abs(this._actor.opacity - this._endOpacity) * delta) / this._speed;
+                        this._actor.opacity += this._multiplier * (Math.abs(this._actor.opacity - this._endOpacity) * delta) / this._speed;
                     }
                     this._speed -= delta;
-                    ex.Logger.getInstance().debug('actor opacity: ' + this._actor.opacity);
                     if (this.isComplete(this._actor)) {
                         this._actor.opacity = this._endOpacity;
                     }
+                    ex.Logger.getInstance().debug('[Action fade] Actor opacity:', this._actor.opacity);
                 };
                 Fade.prototype.isComplete = function (actor) {
                     return this._stopped || (Math.abs(this._actor.opacity - this._endOpacity) < 0.05);
@@ -8020,7 +8041,7 @@ var ex;
          * Gets the calculated width of an actor, factoring in scale
          */
         Actor.prototype.getWidth = function () {
-            return this._width * this.scale.x;
+            return this._width * this.getGlobalScale().x;
         };
         /**
          * Sets the width of an actor, factoring in the current scale
@@ -8032,7 +8053,7 @@ var ex;
          * Gets the calculated height of an actor, factoring in scale
          */
         Actor.prototype.getHeight = function () {
-            return this._height * this.scale.y;
+            return this._height * this.getGlobalScale().y;
         };
         /**
          * Sets the height of an actor, factoring in the current scale
@@ -8336,61 +8357,46 @@ var ex;
         Actor.prototype.debugDraw = function (ctx) {
             this.emit('predebugdraw', new ex.PreDebugDrawEvent(ctx, this));
             this.body.debugDraw(ctx);
-            /*
             // Draw actor bounding box
             var bb = this.getBounds();
             bb.debugDraw(ctx);
-            
             // Draw actor Id
             ctx.fillText('id: ' + this.id, bb.left + 3, bb.top + 10);
-            
             // Draw actor anchor Vector
-            ctx.fillStyle = Color.Yellow.toString();
+            ctx.fillStyle = ex.Color.Yellow.toString();
             ctx.beginPath();
             ctx.arc(this.getWorldPos().x, this.getWorldPos().y, 3, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fill();
-            */
-            /*
             // Culling Box debug draw
             for (var j = 0; j < this.traits.length; j++) {
-               if (this.traits[j] instanceof Traits.OffscreenCulling) {
-                  (<Traits.OffscreenCulling>this.traits[j]).cullingBox.debugDraw(ctx);
-               }
+                if (this.traits[j] instanceof ex.Traits.OffscreenCulling) {
+                    this.traits[j].cullingBox.debugDraw(ctx);
+                }
             }
-            
             // Unit Circle debug draw
-            ctx.strokeStyle = Color.Yellow.toString();
+            ctx.strokeStyle = ex.Color.Yellow.toString();
             ctx.beginPath();
             var radius = Math.min(this.getWidth(), this.getHeight());
             ctx.arc(this.getWorldPos().x, this.getWorldPos().y, radius, 0, Math.PI * 2);
             ctx.closePath();
             ctx.stroke();
             var ticks = { '0 Pi': 0,
-                          'Pi/2': Math.PI / 2,
-                          'Pi': Math.PI,
-                          '3/2 Pi': 3 * Math.PI / 2 };
-            
+                'Pi/2': Math.PI / 2,
+                'Pi': Math.PI,
+                '3/2 Pi': 3 * Math.PI / 2 };
             var oldFont = ctx.font;
             for (var tick in ticks) {
-               ctx.fillStyle = Color.Yellow.toString();
-               ctx.font = '14px';
-               ctx.textAlign = 'center';
-               ctx.fillText(tick, this.getWorldPos().x + Math.cos(ticks[tick]) * (radius + 10),
-                                  this.getWorldPos().y + Math.sin(ticks[tick]) * (radius + 10));
+                ctx.fillStyle = ex.Color.Yellow.toString();
+                ctx.font = '14px';
+                ctx.textAlign = 'center';
+                ctx.fillText(tick, this.getWorldPos().x + Math.cos(ticks[tick]) * (radius + 10), this.getWorldPos().y + Math.sin(ticks[tick]) * (radius + 10));
             }
-            
             ctx.font = oldFont;
-            */
-            // Draw child actors
-            ctx.save();
-            ctx.translate(this.pos.x, this.pos.y);
-            ctx.rotate(this.rotation);
             // Draw child actors
             for (var i = 0; i < this.children.length; i++) {
                 this.children[i].debugDraw(ctx);
             }
-            ctx.restore();
             this.emit('postdebugdraw', new ex.PostDebugDrawEvent(ctx, this));
         };
         /**
@@ -9870,14 +9876,15 @@ var ex;
             var promise = (new Promise()).resolve(value);
             return promise;
         };
-        /**
-         * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
-         * when at least 1 promise rejects.
-         */
         Promise.join = function () {
             var promises = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                promises[_i - 0] = arguments[_i];
+            if (arguments.length > 0 && !Array.isArray(arguments[0])) {
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    promises[_i - 0] = arguments[_i];
+                }
+            }
+            else if (arguments.length === 1 && Array.isArray(arguments[0])) {
+                promises = arguments[0];
             }
             var joinedPromise = new Promise();
             if (!promises || !promises.length) {
@@ -10106,12 +10113,132 @@ var ex;
     }(ex.Resource));
     ex.Texture = Texture;
 })(ex || (ex = {}));
+/// <reference path="../Promises.ts" />
 /// <reference path="../Util/Util.ts" />
 /// <reference path="../Promises.ts" />
 /// <reference path="Resource.ts" />
 /// <reference path="../Interfaces/ILoadable.ts" />
+/// <reference path="../Interfaces/IAudio.ts" />
+/// <reference path="../Interfaces/IAudioImplementation.ts" />
 var ex;
 (function (ex) {
+    // set up audio context reference
+    // when we introduce multi-tracking, we may need to move this to a factory method
+    if (window.AudioContext) {
+        var audioContext = new window.AudioContext();
+    }
+    /**
+     * An audio implementation for HTML5 audio.
+     */
+    var AudioTag = (function () {
+        function AudioTag() {
+            this.responseType = 'blob';
+        }
+        /**
+         * Transforms raw Blob data into a object URL for use in audio tag
+         */
+        AudioTag.prototype.processData = function (data) {
+            var url = URL.createObjectURL(data);
+            return ex.Promise.wrap(url);
+        };
+        /**
+         * Creates a new instance of an audio tag referencing the provided audio URL
+         */
+        AudioTag.prototype.createInstance = function (url) {
+            return new AudioTagInstance(url);
+        };
+        return AudioTag;
+    }());
+    ex.AudioTag = AudioTag;
+    /**
+     * An audio implementation for Web Audio API.
+     */
+    var WebAudio = (function () {
+        function WebAudio() {
+            this._logger = ex.Logger.getInstance();
+            this.responseType = 'arraybuffer';
+        }
+        /**
+         * Processes raw arraybuffer data and decodes into WebAudio buffer (async).
+         */
+        WebAudio.prototype.processData = function (data) {
+            var _this = this;
+            var complete = new ex.Promise();
+            audioContext.decodeAudioData(data, function (buffer) {
+                complete.resolve(buffer);
+            }, function () {
+                _this._logger.error('Unable to decode ' +
+                    ' this browser may not fully support this format, or the file may be corrupt, ' +
+                    'if this is an mp3 try removing id3 tags and album art from the file.');
+                complete.resolve(undefined);
+            });
+            return complete;
+        };
+        /**
+         * Creates a new WebAudio AudioBufferSourceNode to play a sound instance
+         */
+        WebAudio.prototype.createInstance = function (buffer) {
+            return new WebAudioInstance(buffer);
+        };
+        /**
+         * Play an empty sound to unlock Safari WebAudio context. Call this function
+         * right after a user interaction event. Typically used by [[PauseAfterLoader]]
+         * @source https://paulbakaus.com/tutorials/html5/web-audio-on-ios/
+         */
+        WebAudio.unlock = function () {
+            if (this._unlocked || !audioContext) {
+                return;
+            }
+            // create empty buffer and play it
+            var buffer = audioContext.createBuffer(1, 1, 22050);
+            var source = audioContext.createBufferSource();
+            var ended = false;
+            source.buffer = buffer;
+            source.connect(audioContext.destination);
+            source.onended = function () { return ended = true; };
+            if (source.noteOn) {
+                // deprecated
+                source.noteOn(0);
+            }
+            else {
+                source.start(0);
+            }
+            // by checking the play state after some time, we know if we're really unlocked
+            setTimeout(function () {
+                if (source.playbackState) {
+                    var legacySource = source;
+                    if (legacySource.playbackState === legacySource.PLAYING_STATE ||
+                        legacySource.playbackState === legacySource.FINISHED_STATE) {
+                        this._unlocked = true;
+                    }
+                }
+                else {
+                    if (audioContext.currentTime > 0 || ended) {
+                        this._unlocked = true;
+                    }
+                }
+            }, 0);
+        };
+        WebAudio.isUnlocked = function () {
+            return this._unlocked;
+        };
+        WebAudio._unlocked = false;
+        return WebAudio;
+    }());
+    ex.WebAudio = WebAudio;
+    /**
+     * Factory method that gets the audio implementation to use
+     */
+    function getAudioImplementation() {
+        if (window.AudioContext) {
+            return new WebAudio();
+        }
+        else {
+            return new AudioTag();
+        }
+    }
+    ex.getAudioImplementation = getAudioImplementation;
+    ;
     /**
      * Sounds
      *
@@ -10146,11 +10273,15 @@ var ex;
                 paths[_i - 0] = arguments[_i];
             }
             this._logger = ex.Logger.getInstance();
+            this._data = null;
+            this._tracks = [];
+            this._isLoaded = false;
+            this._isPaused = false;
+            this._loop = false;
+            this._volume = 1.0;
             this.onprogress = function () { return; };
             this.oncomplete = function () { return; };
             this.onerror = function () { return; };
-            this.onload = function () { return; };
-            this._isLoaded = false;
             this._wasPlayingOnHidden = false;
             /* Chrome : MP3, WAV, Ogg
              * Firefox : WAV, Ogg,
@@ -10158,9 +10289,10 @@ var ex;
              * Safari MP3, WAV, Ogg
              */
             this.path = '';
-            for (var i = 0; i < paths.length; i++) {
-                if (Sound.canPlayFile(paths[i])) {
-                    this.path = paths[i];
+            for (var _a = 0, paths_1 = paths; _a < paths_1.length; _a++) {
+                var path = paths_1[_a];
+                if (Sound.canPlayFile(path)) {
+                    this.path = path;
                     break;
                 }
             }
@@ -10169,7 +10301,7 @@ var ex;
                 this._logger.warn('Attempting to use', paths[0]);
                 this.path = paths[0]; // select the first specified
             }
-            this.sound = new ex.Internal.FallbackAudio(this.path, 1.0);
+            this.sound = ex.getAudioImplementation(); // reference namespaced function to allow mocks
         }
         /**
          * Whether or not the browser can play this file as HTML5 Audio
@@ -10182,7 +10314,7 @@ var ex;
                 if (a.canPlayType('audio/' + type)) {
                     return true;
                 }
-                {
+                else {
                     return false;
                 }
             }
@@ -10210,54 +10342,98 @@ var ex;
             }
         };
         /**
+         * Returns how many instances of the sound are currently playing
+         */
+        Sound.prototype.instanceCount = function () {
+            return this._tracks.length;
+        };
+        /**
          * Sets the volume of the sound clip
          * @param volume  A volume value between 0-1.0
          */
         Sound.prototype.setVolume = function (volume) {
-            if (this.sound) {
-                this.sound.setVolume(volume);
+            this._volume = volume;
+            for (var _i = 0, _a = this._tracks; _i < _a.length; _i++) {
+                var track = _a[_i];
+                track.setVolume(volume);
             }
+            this._logger.debug('Set volume for all instances of sound', this.path, 'to', volume);
         };
         /**
          * Indicates whether the clip should loop when complete
          * @param loop  Set the looping flag
          */
         Sound.prototype.setLoop = function (loop) {
-            if (this.sound) {
-                this.sound.setLoop(loop);
+            this._loop = loop;
+            for (var _i = 0, _a = this._tracks; _i < _a.length; _i++) {
+                var track = _a[_i];
+                track.setLoop(loop);
             }
+            this._logger.debug('Set loop for all instances of sound', this.path, 'to', loop);
         };
         /**
          * Whether or not the sound is playing right now
          */
         Sound.prototype.isPlaying = function () {
-            if (this.sound) {
-                return this.sound.isPlaying();
-            }
+            return this._tracks.some(function (t) { return t.isPlaying(); });
         };
         /**
          * Play the sound, returns a promise that resolves when the sound is done playing
          */
         Sound.prototype.play = function () {
-            if (this.sound) {
-                return this.sound.play();
+            var _this = this;
+            if (this._isLoaded) {
+                var resumed = [];
+                // ensure we resume *current* tracks (if paused)
+                for (var _i = 0, _a = this._tracks; _i < _a.length; _i++) {
+                    var track = _a[_i];
+                    resumed.push(track.play());
+                }
+                // when paused, don't start playing new track
+                if (this._isPaused) {
+                    this._isPaused = false;
+                    this._logger.debug('Resuming paused instances for sound', this.path, this._tracks);
+                    // resolve when resumed tracks are done
+                    return ex.Promise.join(resumed);
+                }
+                // push a new track
+                var newTrack = this.sound.createInstance(this._data);
+                newTrack.setLoop(this._loop);
+                newTrack.setVolume(this._volume);
+                this._tracks.push(newTrack);
+                this._logger.debug('Playing new instance for sound', this.path);
+                return newTrack.play().then(function () {
+                    // when done, remove track
+                    _this._tracks.splice(_this._tracks.indexOf(newTrack), 1);
+                    return true;
+                });
+            }
+            else {
+                return ex.Promise.wrap(true);
             }
         };
         /**
          * Stop the sound, and do not rewind
          */
         Sound.prototype.pause = function () {
-            if (this.sound) {
-                this.sound.pause();
+            for (var _i = 0, _a = this._tracks; _i < _a.length; _i++) {
+                var track = _a[_i];
+                track.pause();
             }
+            this._isPaused = true;
+            this._logger.debug('Paused all instances of sound', this.path);
         };
         /**
          * Stop the sound and rewind
          */
         Sound.prototype.stop = function () {
-            if (this.sound) {
-                this.sound.stop();
+            this._isPaused = false;
+            var tracks = this._tracks.concat([]);
+            for (var _i = 0, tracks_1 = tracks; _i < tracks_1.length; _i++) {
+                var track = tracks_1[_i];
+                track.stop();
             }
+            this._logger.debug('Stopped all instances of sound', this.path);
         };
         /**
          * Returns true if the sound is loaded
@@ -10271,38 +10447,279 @@ var ex;
         Sound.prototype.load = function () {
             var _this = this;
             var complete = new ex.Promise();
-            if (this.sound.getData() !== null) {
-                this._logger.debug('Already have data for resource', this.path);
+            if (!!this.getData()) {
+                this._logger.debug('Already have data for audio resource', this.path);
                 complete.resolve(this.sound);
+                this.oncomplete();
                 return complete;
             }
             this._logger.debug('Started loading sound', this.path);
-            this.sound.onprogress = this.onprogress;
-            this.sound.onload = function () {
-                _this.oncomplete();
-                _this._isLoaded = true;
-                _this._logger.debug('Completed loading sound', _this.path);
-                complete.resolve(_this.sound);
-            };
-            this.sound.onerror = function (e) {
-                _this.onerror(e);
+            try {
+                this._fetchResource(function (request) {
+                    if (request.status !== 200) {
+                        _this._logger.error('Failed to load audio resource ', _this.path, ' server responded with error code', request.status);
+                        _this.onerror(request.response);
+                        complete.resolve(null);
+                        return;
+                    }
+                    // load sound
+                    _this.setData(request.response).then(function () {
+                        _this.oncomplete();
+                        _this._logger.debug('Completed loading sound', _this.path);
+                        complete.resolve(_this.sound);
+                    }, function (e) { return complete.resolve(e); });
+                });
+            }
+            catch (e) {
+                this._logger.error('Error loading sound! If this is a cross origin error, \
+               you must host your sound with your html and javascript.');
+                this.onerror(e);
                 complete.resolve(e);
-            };
-            this.sound.load();
+            }
             return complete;
         };
+        /* istanbul ignore next */
+        Sound.prototype._fetchResource = function (onload) {
+            var request = new XMLHttpRequest();
+            request.open('GET', this.path, true);
+            request.responseType = this.sound.responseType;
+            request.onprogress = this.onprogress;
+            request.onerror = this.onerror;
+            request.onload = function (e) { return onload(request); };
+            request.send();
+        };
+        /**
+         * Gets the raw sound data (e.g. blob URL or AudioBuffer)
+         */
         Sound.prototype.getData = function () {
-            return this.sound.getData();
+            return this._data;
         };
+        /**
+         * Sets raw sound data and returns a Promise that is resolved when sound data is processed
+         *
+         * @param data The XHR data for the sound implementation to process (Blob or ArrayBuffer)
+         */
         Sound.prototype.setData = function (data) {
-            this.sound.setData(data);
+            var _this = this;
+            return this.sound.processData(data).then(function (data) {
+                _this._isLoaded = true;
+                _this._data = _this.processData(data);
+                return data;
+            });
         };
+        /**
+         * Set the raw sound data (e.g. blob URL or AudioBuffer)
+         */
         Sound.prototype.processData = function (data) {
-            return this.sound.processData(data);
+            return data;
         };
         return Sound;
     }());
     ex.Sound = Sound;
+    /**
+     * Internal class representing a HTML5 audio instance
+     */
+    /* istanbul ignore next */
+    var AudioTagInstance = (function () {
+        function AudioTagInstance(_src) {
+            this._src = _src;
+            this._isPlaying = false;
+            this._isPaused = false;
+            this._loop = false;
+            this._volume = 1.0;
+            this._audioElement = new Audio(_src);
+        }
+        AudioTagInstance.prototype.isPlaying = function () {
+            return this._isPlaying;
+        };
+        Object.defineProperty(AudioTagInstance.prototype, "loop", {
+            get: function () {
+                return this._loop;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        AudioTagInstance.prototype.setLoop = function (value) {
+            this._loop = value;
+            this._audioElement.loop = value;
+            this._wireUpOnEnded();
+        };
+        AudioTagInstance.prototype.setVolume = function (value) {
+            this._volume = value;
+            this._audioElement.volume = ex.Util.clamp(value, 0, 1.0);
+        };
+        AudioTagInstance.prototype.play = function () {
+            if (this._isPaused) {
+                this._resume();
+            }
+            else if (!this._isPlaying) {
+                this._start();
+            }
+            return this._playingPromise;
+        };
+        AudioTagInstance.prototype._start = function () {
+            this._audioElement.load();
+            this._audioElement.loop = this._loop;
+            this._audioElement.play();
+            this._isPlaying = true;
+            this._isPaused = false;
+            this._playingPromise = new ex.Promise();
+            this._wireUpOnEnded();
+        };
+        AudioTagInstance.prototype._resume = function () {
+            if (!this._isPaused) {
+                return;
+            }
+            this._audioElement.play();
+            this._isPaused = false;
+            this._isPlaying = true;
+            this._wireUpOnEnded();
+        };
+        AudioTagInstance.prototype.pause = function () {
+            if (!this._isPlaying) {
+                return;
+            }
+            this._audioElement.pause();
+            this._isPaused = true;
+            this._isPlaying = false;
+        };
+        AudioTagInstance.prototype.stop = function () {
+            if (!this._isPlaying) {
+                return;
+            }
+            this._audioElement.pause();
+            this._audioElement.currentTime = 0;
+            this._handleOnEnded();
+        };
+        AudioTagInstance.prototype._wireUpOnEnded = function () {
+            var _this = this;
+            if (!this._loop) {
+                this._audioElement.onended = function () { return _this._handleOnEnded(); };
+            }
+        };
+        AudioTagInstance.prototype._handleOnEnded = function () {
+            this._isPlaying = false;
+            this._isPaused = false;
+            this._playingPromise.resolve(true);
+        };
+        return AudioTagInstance;
+    }());
+    /**
+     * Internal class representing a Web Audio AudioBufferSourceNode instance
+     * @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API
+     */
+    /* istanbul ignore next */
+    var WebAudioInstance = (function () {
+        function WebAudioInstance(_buffer) {
+            this._buffer = _buffer;
+            this._volumeNode = audioContext.createGain();
+            this._isPlaying = false;
+            this._isPaused = false;
+            this._loop = false;
+            this._volume = 1.0;
+            /**
+             * Current playback offset (in seconds)
+             */
+            this._currentOffset = 0;
+        }
+        WebAudioInstance.prototype.isPlaying = function () {
+            return this._isPlaying;
+        };
+        WebAudioInstance.prototype.setVolume = function (value) {
+            this._volume = value;
+            this._volumeNode.gain.value = ex.Util.clamp(value, 0, 1.0);
+        };
+        WebAudioInstance.prototype.setLoop = function (value) {
+            this._loop = value;
+            if (this._bufferSource) {
+                this._bufferSource.loop = value;
+                this._wireUpOnEnded();
+            }
+        };
+        WebAudioInstance.prototype.play = function () {
+            if (this._isPaused) {
+                this._resume();
+            }
+            else if (!this._isPlaying) {
+                this._start();
+            }
+            return this._playingPromise;
+        };
+        WebAudioInstance.prototype._start = function () {
+            this._volumeNode.connect(audioContext.destination);
+            this._createBufferSource();
+            this._bufferSource.start(0, 0);
+            this._startTime = new Date().getTime();
+            this._currentOffset = 0;
+            this._isPlaying = true;
+            this._isPaused = false;
+            this._playingPromise = new ex.Promise();
+            this._wireUpOnEnded();
+        };
+        WebAudioInstance.prototype._resume = function () {
+            if (!this._isPaused) {
+                return;
+            }
+            // a buffer source can only be started once
+            // so we need to dispose of the previous instance before
+            // "resuming" the next one
+            this._bufferSource.onended = null; // dispose of any previous event handler
+            this._createBufferSource();
+            var duration = (1 / this._bufferSource.playbackRate.value) * this._buffer.duration;
+            this._bufferSource.start(0, this._currentOffset % duration);
+            this._isPaused = false;
+            this._isPlaying = true;
+            this._wireUpOnEnded();
+        };
+        WebAudioInstance.prototype._createBufferSource = function () {
+            this._bufferSource = audioContext.createBufferSource();
+            this._bufferSource.buffer = this._buffer;
+            this._bufferSource.loop = this._loop;
+            this._bufferSource.playbackRate.value = 1.0;
+            this._bufferSource.connect(this._volumeNode);
+        };
+        WebAudioInstance.prototype.pause = function () {
+            if (!this._isPlaying) {
+                return;
+            }
+            this._bufferSource.stop(0);
+            // Playback rate will be a scale factor of how fast/slow the audio is being played
+            // default is 1.0
+            // we need to invert it to get the time scale
+            var pbRate = 1 / (this._bufferSource.playbackRate.value || 1.0);
+            this._currentOffset = ((new Date().getTime() - this._startTime) * pbRate) / 1000; // in seconds
+            this._isPaused = true;
+            this._isPlaying = false;
+        };
+        WebAudioInstance.prototype.stop = function () {
+            if (!this._isPlaying) {
+                return;
+            }
+            this._bufferSource.stop(0);
+            // handler will not be wired up if we were looping
+            if (!this._bufferSource.onended) {
+                this._handleOnEnded();
+            }
+            this._currentOffset = 0;
+            this._isPlaying = false;
+            this._isPaused = false;
+        };
+        WebAudioInstance.prototype._wireUpOnEnded = function () {
+            var _this = this;
+            if (!this._loop) {
+                this._bufferSource.onended = function () { return _this._handleOnEnded(); };
+            }
+        };
+        WebAudioInstance.prototype._handleOnEnded = function () {
+            // pausing calls stop(0) which triggers onended event
+            // so we don't "resolve" yet (when we resume we'll try again)
+            if (!this._isPaused) {
+                this._isPlaying = false;
+                this._playingPromise.resolve(true);
+            }
+        };
+        return WebAudioInstance;
+    }());
 })(ex || (ex = {}));
 /// <reference path="Actor.ts" />
 var ex;
@@ -11100,368 +11517,6 @@ var ex;
     }());
     ex.Animation = Animation;
 })(ex || (ex = {}));
-/// <reference path="MonkeyPatch.ts" />
-/// <reference path="Util/Util.ts" />
-/// <reference path="Util/Log.ts" />
-var ex;
-(function (ex) {
-    var Internal;
-    (function (Internal) {
-        var FallbackAudio = (function () {
-            function FallbackAudio(path, volume) {
-                this.path = path;
-                this._log = ex.Logger.getInstance();
-                this.onload = function () { return; };
-                this.onprogress = function () { return; };
-                this.onerror = function () { return; };
-                if (window.AudioContext) {
-                    this._log.debug('Using new Web Audio Api for ' + path);
-                    this._soundImpl = new WebAudio(path, volume);
-                }
-                else {
-                    this._log.debug('Falling back to Audio Element for ' + path);
-                    this._soundImpl = new AudioTag(path, volume);
-                }
-            }
-            FallbackAudio.prototype.setVolume = function (volume) {
-                this._soundImpl.setVolume(volume);
-            };
-            FallbackAudio.prototype.setLoop = function (loop) {
-                this._soundImpl.setLoop(loop);
-            };
-            FallbackAudio.prototype.load = function () {
-                this._soundImpl.onload = this.onload;
-                this._soundImpl.onprogress = this.onprogress;
-                this._soundImpl.onerror = this.onerror;
-                this._soundImpl.load();
-            };
-            FallbackAudio.prototype.processData = function (data) {
-                return this._soundImpl.processData(data);
-            };
-            FallbackAudio.prototype.getData = function () {
-                return this._soundImpl.getData();
-            };
-            FallbackAudio.prototype.setData = function (data) {
-                this._soundImpl.setData(data);
-            };
-            FallbackAudio.prototype.isPlaying = function () {
-                return this._soundImpl.isPlaying();
-            };
-            FallbackAudio.prototype.play = function () {
-                return this._soundImpl.play();
-            };
-            FallbackAudio.prototype.pause = function () {
-                this._soundImpl.pause();
-            };
-            FallbackAudio.prototype.stop = function () {
-                this._soundImpl.stop();
-            };
-            return FallbackAudio;
-        }());
-        Internal.FallbackAudio = FallbackAudio;
-        var AudioTag = (function () {
-            function AudioTag(path, volume) {
-                var _this = this;
-                this.path = path;
-                this._audioElements = new Array(5);
-                this._loadedAudio = null;
-                this._isLoaded = false;
-                this._index = 0;
-                this._log = ex.Logger.getInstance();
-                this._isPlaying = false;
-                this._currentOffset = 0;
-                this.onload = function () { return; };
-                this.onprogress = function () { return; };
-                this.onerror = function () { return; };
-                for (var i = 0; i < this._audioElements.length; i++) {
-                    (function (i) {
-                        _this._audioElements[i] = new Audio();
-                    })(i);
-                }
-                if (volume) {
-                    this.setVolume(ex.Util.clamp(volume, 0, 1.0));
-                }
-                else {
-                    this.setVolume(1.0);
-                }
-            }
-            AudioTag.prototype.isPlaying = function () {
-                return this._isPlaying;
-            };
-            AudioTag.prototype._audioLoaded = function () {
-                this._isLoaded = true;
-            };
-            AudioTag.prototype.setVolume = function (volume) {
-                var i = 0, len = this._audioElements.length;
-                for (i; i < len; i++) {
-                    this._audioElements[i].volume = volume;
-                }
-            };
-            AudioTag.prototype.setLoop = function (loop) {
-                var i = 0, len = this._audioElements.length;
-                for (i; i < len; i++) {
-                    this._audioElements[i].loop = loop;
-                }
-            };
-            AudioTag.prototype.getLoop = function () {
-                this._audioElements.some(function (a) { return a.loop; });
-            };
-            AudioTag.prototype.load = function () {
-                var _this = this;
-                if (!!this._loadedAudio) {
-                    return;
-                }
-                var request = new XMLHttpRequest();
-                request.open('GET', this.path, true);
-                request.responseType = 'blob';
-                request.onprogress = this.onprogress;
-                request.onerror = this.onerror;
-                request.onload = function (e) {
-                    if (request.status !== 200) {
-                        _this._log.error('Failed to load audio resource ', _this.path, ' server responded with error code', request.status);
-                        _this.onerror(request.response);
-                        _this._isLoaded = false;
-                        return;
-                    }
-                    _this._isLoaded = true;
-                    _this.setData(request.response);
-                    _this.onload(e);
-                };
-                request.send();
-            };
-            AudioTag.prototype.getData = function () {
-                return this._loadedAudio;
-            };
-            AudioTag.prototype.setData = function (data) {
-                this._isLoaded = true;
-                this._loadedAudio = this.processData(data);
-            };
-            AudioTag.prototype.processData = function (data) {
-                var blobUrl = URL.createObjectURL(data);
-                this._audioElements.forEach(function (a) {
-                    a.src = blobUrl;
-                });
-                this._audioLoaded();
-                return blobUrl;
-            };
-            AudioTag.prototype.play = function () {
-                var _this = this;
-                this._audioElements[this._index].load();
-                //this.audioElements[this.index].currentTime = this._currentOffset;
-                this._audioElements[this._index].play();
-                this._currentOffset = 0;
-                var done = new ex.Promise();
-                this._isPlaying = true;
-                if (!this.getLoop()) {
-                    this._audioElements[this._index].addEventListener('ended', function () {
-                        _this._isPlaying = false;
-                        done.resolve(true);
-                    });
-                }
-                this._index = (this._index + 1) % this._audioElements.length;
-                return done;
-            };
-            AudioTag.prototype.pause = function () {
-                this._index = (this._index - 1 + this._audioElements.length) % this._audioElements.length;
-                this._currentOffset = this._audioElements[this._index].currentTime;
-                this._audioElements.forEach(function (a) {
-                    a.pause();
-                });
-                this._isPlaying = false;
-            };
-            AudioTag.prototype.stop = function () {
-                this._audioElements.forEach(function (a) {
-                    a.pause();
-                    //a.currentTime = 0;
-                });
-                this._isPlaying = false;
-            };
-            return AudioTag;
-        }());
-        Internal.AudioTag = AudioTag;
-        if (window.AudioContext) {
-            var audioContext = new window.AudioContext();
-        }
-        var WebAudio = (function () {
-            function WebAudio(path, volume) {
-                this.path = path;
-                this._context = audioContext;
-                this._volume = this._context.createGain();
-                this._buffer = null;
-                this._sound = null;
-                this._isLoaded = false;
-                this._loop = false;
-                this._isPlaying = false;
-                this._isPaused = false;
-                this._currentOffset = 0;
-                this._logger = ex.Logger.getInstance();
-                this._data = null;
-                this.onload = function () { return; };
-                this.onprogress = function () { return; };
-                this.onerror = function () { return; };
-                if (volume) {
-                    this._volume.gain.value = ex.Util.clamp(volume, 0, 1.0);
-                }
-                else {
-                    this._volume.gain.value = 1.0; // max volume
-                }
-            }
-            WebAudio.prototype.setVolume = function (volume) {
-                this._volume.gain.value = volume;
-            };
-            WebAudio.prototype.load = function () {
-                var _this = this;
-                // Exit early if we already have data
-                if (this._data !== null) {
-                    return;
-                }
-                var request = new XMLHttpRequest();
-                request.open('GET', this.path);
-                request.responseType = 'arraybuffer';
-                request.onprogress = this.onprogress;
-                request.onerror = this.onerror;
-                request.onload = function () {
-                    if (request.status !== 200) {
-                        _this._logger.error('Failed to load audio resource ', _this.path, ' server responded with error code', request.status);
-                        _this.onerror(request.response);
-                        _this._isLoaded = false;
-                        return;
-                    }
-                    _this.setData(request.response);
-                };
-                try {
-                    request.send();
-                }
-                catch (e) {
-                    console.error('Error loading sound! If this is a cross origin error, you must host your sound with your html and javascript.');
-                }
-            };
-            WebAudio.prototype.getData = function () {
-                return this._data;
-            };
-            WebAudio.prototype.setData = function (data) {
-                this._data = this.processData(data);
-            };
-            WebAudio.prototype.processData = function (data) {
-                var _this = this;
-                this._context.decodeAudioData(data, function (buffer) {
-                    _this._buffer = buffer;
-                    _this._isLoaded = true;
-                    _this.onload(_this);
-                }, function (e) {
-                    _this._logger.error('Unable to decode ' + _this.path +
-                        ' this browser may not fully support this format, or the file may be corrupt, ' +
-                        'if this is an mp3 try removing id3 tags and album art from the file.');
-                    _this._isLoaded = false;
-                    _this.onload(_this);
-                });
-                return data;
-            };
-            WebAudio.prototype.setLoop = function (loop) {
-                this._loop = loop;
-            };
-            WebAudio.prototype.isPlaying = function () {
-                return this._isPlaying;
-            };
-            WebAudio.prototype.play = function () {
-                var _this = this;
-                if (this._isLoaded) {
-                    this._sound = this._context.createBufferSource();
-                    this._sound.buffer = this._buffer;
-                    this._sound.loop = this._loop;
-                    this._sound.connect(this._volume);
-                    this._volume.connect(this._context.destination);
-                    this._sound.start(0, this._currentOffset % this._buffer.duration);
-                    this._currentOffset = 0;
-                    var done;
-                    if (!this._isPaused || !this._playPromise) {
-                        done = new ex.Promise();
-                    }
-                    else {
-                        done = this._playPromise;
-                    }
-                    this._isPaused = false;
-                    this._isPlaying = true;
-                    if (!this._loop) {
-                        this._sound.onended = (function () {
-                            _this._isPlaying = false;
-                            if (!_this._isPaused) {
-                                done.resolve(true);
-                            }
-                        }).bind(this);
-                    }
-                    this._playPromise = done;
-                    return done;
-                }
-                else {
-                    return ex.Promise.wrap(true);
-                }
-            };
-            WebAudio.prototype.pause = function () {
-                if (this._isPlaying) {
-                    try {
-                        window.clearTimeout(this._playingTimer);
-                        this._sound.stop(0);
-                        this._currentOffset = this._context.currentTime;
-                        this._isPlaying = false;
-                        this._isPaused = true;
-                    }
-                    catch (e) {
-                        this._logger.warn('The sound clip', this.path, 'has already been paused!');
-                    }
-                }
-            };
-            WebAudio.prototype.stop = function () {
-                if (this._sound) {
-                    try {
-                        window.clearTimeout(this._playingTimer);
-                        this._currentOffset = 0;
-                        this._sound.stop(0);
-                        this._isPlaying = false;
-                        this._isPaused = false;
-                    }
-                    catch (e) {
-                        this._logger.warn('The sound clip', this.path, 'has already been stopped!');
-                    }
-                }
-            };
-            /**
-             * Play an empty sound to unlock Safari WebAudio context. Call this function
-             * right after a user interaction event. Typically used by [[PauseAfterLoader]]
-             * @source https://paulbakaus.com/tutorials/html5/web-audio-on-ios/
-             */
-            WebAudio.unlock = function () {
-                if (this._unlocked || !audioContext) {
-                    return;
-                }
-                // create empty buffer and play it
-                var buffer = audioContext.createBuffer(1, 1, 22050);
-                var source = audioContext.createBufferSource();
-                source.buffer = buffer;
-                source.connect(audioContext.destination);
-                if (source.noteOn) {
-                    source.noteOn(0);
-                }
-                else {
-                    source.start(0);
-                }
-                // by checking the play state after some time, we know if we're really unlocked
-                setTimeout(function () {
-                    if (source.playbackState === source.PLAYING_STATE ||
-                        source.playbackState === source.FINISHED_STATE) {
-                        this._unlocked = true;
-                    }
-                }, 0);
-            };
-            WebAudio.isUnlocked = function () {
-                return this._unlocked;
-            };
-            WebAudio._unlocked = false;
-            return WebAudio;
-        }());
-        Internal.WebAudio = WebAudio;
-    })(Internal = ex.Internal || (ex.Internal = {}));
-})(ex || (ex = {}));
 /// <reference path="../Drawing/Color.ts" />
 var ex;
 (function (ex) {
@@ -11574,6 +11629,7 @@ var ex;
 /// <reference path="Util/DrawUtil.ts" />
 /// <reference path="Promises.ts" />
 /// <reference path="Resources/Resource.ts" />
+/// <reference path="Resources/Sound.ts" />
 /// <reference path="Interfaces/ILoadable.ts" />
 /// <reference path="Interfaces/ILoader.ts" />
 var ex;
@@ -11849,7 +11905,7 @@ var ex;
                     return false;
                 }
                 // unlock Safari WebAudio context
-                ex.Internal.WebAudio.unlock();
+                ex.WebAudio.unlock();
                 // continue to play game
                 _this._waitPromise.resolve(_this._loadedValue);
                 // hide DOM element
@@ -13518,7 +13574,6 @@ var ex;
 /// <reference path="Particles.ts" />
 /// <reference path="Drawing/Animation.ts" />
 /// <reference path="Camera.ts" />
-/// <reference path="Sound.ts" />
 /// <reference path="Loader.ts" />
 /// <reference path="Promises.ts" />
 /// <reference path="Util/Util.ts" />

@@ -105,7 +105,7 @@ module.exports = function (grunt) {
             command: function () {
             	var files = grunt.file.expand("./src/spec/*.ts");
 
-            	return '<%= tscCmd %> --target ES5 ' + files.join(' ') + ' --out ./src/spec/TestsSpec.js'
+            	return '<%= tscCmd %> --target ES5 --sourceMap ' + files.join(' ') + ' --out ./src/spec/TestsSpec.js'
             },
             options: {
                stdout: true,
@@ -186,17 +186,9 @@ module.exports = function (grunt) {
             configuration: grunt.file.readJSON('./tslint/tslint.json')            
          },
          src: [
-            "src/engine/*.ts",
-            "src/engine/Actions/*.ts",
-            "src/engine/Collision/*.ts",
-            "src/engine/Drawing/*.ts",
-            "src/engine/Input/*.ts",
-            "src/engine/Interfaces/*.ts",
-            "src/engine/PostProcessing/*.ts",
-            "src/engine/Traits/*.ts",
-            "src/engine/Util/*.ts",
-            "src/sandbox/web/*.ts",
-            "src/spec/*.ts",
+            "src/engine/**/*.ts",
+            "src/sandbox/web/**/*.ts",
+            "src/spec/**/*.ts",
             
             // exclusions
             "!src/spec/jasmine.d.ts",
