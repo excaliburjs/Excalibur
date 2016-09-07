@@ -1,5 +1,6 @@
 /// <reference path="../Interfaces/IActorTrait.ts" />
 /// <reference path="../Util/CullingBox.ts" />
+/// <reference path="../Actor.ts" />
 
 module ex.Traits {
    export class OffscreenCulling implements IActorTrait {
@@ -18,7 +19,7 @@ module ex.Traits {
 
          var zoom = 1.0;
          if (actor.scene && actor.scene.camera) {
-            zoom = actor.scene.camera.getZoom();   
+            zoom = Math.abs(actor.scene.camera.getZoom());   
          }
          
          var isSpriteOffScreen = true;
