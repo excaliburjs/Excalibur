@@ -19,6 +19,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix issues with audio offset tracking and muting while game is invisible (#644)
 - `Actor.getHeight()` and `Actor.getWidth()` now take into account parent scaling (#645)
 - `Actor.debugDraw` now works properly for child actors (#505, #645)
+- Sprite culling was double scaling calculations (#646)
+- Fix negative zoom sprite culling (#539)
 
 ## [0.7.0] - 2016-08-29
 ### Breaking Changes

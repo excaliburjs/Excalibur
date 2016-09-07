@@ -1,4 +1,4 @@
-/*! excalibur - v0.7.0 - 2016-09-04
+/*! excalibur - v0.7.0 - 2016-09-07
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2016 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause*/
 var EX_VERSION = "0.7.0";
@@ -1852,8 +1852,8 @@ var ex;
             this._bottomRight = new ex.Vector(0, 0);
         }
         CullingBox.prototype.isSpriteOffScreen = function (actor, engine) {
-            var drawingWidth = actor.currentDrawing.width * actor.currentDrawing.scale.x;
-            var drawingHeight = actor.currentDrawing.height * actor.currentDrawing.scale.y;
+            var drawingWidth = actor.currentDrawing.width;
+            var drawingHeight = actor.currentDrawing.height;
             var rotation = actor.rotation;
             var anchor = actor.getCenter();
             var worldPos = actor.getWorldPos();
@@ -1888,8 +1888,24 @@ var ex;
             this._yMinWorld = minWorld.y;
             this._xMaxWorld = maxWorld.x;
             this._yMaxWorld = maxWorld.y;
-            var boundingPoints = new Array();
-            boundingPoints.push(new ex.Vector(this._xMin, this._yMin), new ex.Vector(this._xMax, this._yMin), new ex.Vector(this._xMin, this._yMax), new ex.Vector(this._xMax, this._yMax));
+            var boundingPoints = [
+                new ex.Vector(this._xMin, this._yMin),
+                new ex.Vector(this._xMax, this._yMin),
+                new ex.Vector(this._xMin, this._yMax),
+                new ex.Vector(this._xMax, this._yMax)]; // bottomright
+            // sprite can be wider than canvas screen (and still visible within canvas)
+            // top or bottom of sprite must be within canvas
+            if (boundingPoints[0].x < 0 && boundingPoints[1].x > engine.canvas.clientWidth &&
+                (boundingPoints[0].y > 0 || boundingPoints[2].y < engine.canvas.clientHeight)) {
+                return false;
+            }
+            // sprite can be taller than canvas screen (and still visible within canvas)
+            // left or right of sprite must be within canvas
+            if (boundingPoints[0].y < 0 && boundingPoints[2].y > engine.canvas.clientHeight &&
+                (boundingPoints[1].x > 0 || boundingPoints[0].x < engine.canvas.clientWidth)) {
+                return false;
+            }
+            // otherwise if any corner is visible, we're not offscreen
             for (var i = 0; i < boundingPoints.length; i++) {
                 if (boundingPoints[i].x > 0 &&
                     boundingPoints[i].y > 0 &&
@@ -1933,6 +1949,7 @@ var ex;
 })(ex || (ex = {}));
 /// <reference path="../Interfaces/IActorTrait.ts" />
 /// <reference path="../Util/CullingBox.ts" />
+/// <reference path="../Actor.ts" />
 var ex;
 (function (ex) {
     var Traits;
@@ -1951,7 +1968,7 @@ var ex;
                 var actorScreenCoords = engine.worldToScreenCoordinates(new ex.Vector(worldPos.x - anchor.x * width, worldPos.y - anchor.y * height));
                 var zoom = 1.0;
                 if (actor.scene && actor.scene.camera) {
-                    zoom = actor.scene.camera.getZoom();
+                    zoom = Math.abs(actor.scene.camera.getZoom());
                 }
                 var isSpriteOffScreen = true;
                 if (actor.currentDrawing != null) {
@@ -3642,7 +3659,7 @@ var ex;
          */
         BoundingBox.prototype.toPolygon = function (actor) {
             return new ex.PolygonArea({
-                body: actor.body,
+                body: actor ? actor.body : null,
                 points: this.getPoints(),
                 pos: ex.Vector.Zero.clone()
             });
