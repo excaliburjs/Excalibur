@@ -6,7 +6,7 @@ describe('A scene', () => {
 
    var actor: ex.Actor;
    var engine;
-   var scene;
+   var scene: ex.Scene;
    var mock = new Mocks.Mocker();
 
    beforeEach(() => {
@@ -17,6 +17,10 @@ describe('A scene', () => {
       spyOn(actor, 'draw');
 
       engine = mock.engine(100, 100, scene);
+      engine.addScene('root', scene);
+      
+      ex.Logger.getInstance().defaultLevel = ex.LogLevel.Error;
+
    });
 
    it('should be loaded', () => {
@@ -108,6 +112,18 @@ describe('A scene', () => {
       scene.draw(engine.ctx, 100);
 
       expect(actor.draw).not.toHaveBeenCalled();
+   });
+
+   it('fires initialize before activate', (done) => {
+      var initialized = false;
+      scene.on('initialize', (evt: ex.InitializeEvent) => { initialized = true; });
+      scene.on('activate', (evt: ex.ActivateEvent) => { 
+         expect(initialized).toBe(true, 'Initilization should happen before activation');
+         done();
+      });
+      
+      engine.goToScene('root');
+      
    });
 
 });

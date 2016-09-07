@@ -186,6 +186,21 @@ module ex {
          }
       }
 
+      public on(eventName: ex.Events.initialize, handler: (event?: InitializeEvent) => void);
+      public on(eventName: ex.Events.activate, handler: (event?: ActivateEvent) => void);
+      public on(eventName: ex.Events.deactivate, handler: (event?: DeactivateEvent) => void);
+      public on(eventName: ex.Events.preupdate, handler: (event?: PreUpdateEvent) => void);
+      public on(eventName: ex.Events.postupdate, handler: (event?: PostUpdateEvent) => void);
+      public on(eventName: ex.Events.predraw, handler: (event?: PreDrawEvent) => void);
+      public on(eventName: ex.Events.postdraw, handler: (event?: PostDrawEvent) => void);
+      public on(eventName: ex.Events.predebugdraw, handler: (event?: PreDebugDrawEvent) => void);
+      public on(eventName: ex.Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void);
+      public on(eventName: string, handler: (event?: GameEvent) => void);
+      public on(eventName: string, handler: (event?: GameEvent) => void) {
+         super.on(eventName, handler);
+      }
+
+
       /**
        * This is called before the first update of the [[Scene]]. Initializes scene members like the camera. This method is meant to be
        * overridden. This is where initialization of child actors should take place.

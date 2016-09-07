@@ -449,6 +449,15 @@ module ex {
       private _loader: ILoader;
       private _isLoading: boolean = false;
 
+      public on(eventName: ex.Events.visible, handler: (event?: VisibleEvent) => void);
+      public on(eventName: ex.Events.hidden, handler: (event?: HiddenEvent) => void);
+      public on(eventName: ex.Events.start, handler: (event?: GameStartEvent) => void);
+      public on(eventName: ex.Events.stop, handler: (event?: GameStopEvent) => void);
+      public on(eventName: string, handler: (event?: GameEvent) => void);
+      public on(eventName: string, handler: (event?: GameEvent) => void) {
+         super.on(eventName, handler);
+      }
+
       /**
        * Default [[IEngineOptions]]
        */
@@ -1090,6 +1099,10 @@ O|===|* >________________>\n\
             loadingComplete = Promise.wrap();
          }
 
+         loadingComplete.then(() => {
+            this.emit('start', new GameStartEvent(this));
+         });
+
          if (!this._hasStarted) {
             this._hasStarted = true;
             this._logger.debug('Starting game...');
@@ -1139,6 +1152,7 @@ O|===|* >________________>\n\
        */
       public stop() {
          if (this._hasStarted) {
+            this.emit('stop', new GameStopEvent(this));
             this._hasStarted = false;
             this._logger.debug('Game stopped');
          }

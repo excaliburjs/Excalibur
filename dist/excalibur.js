@@ -6786,6 +6786,9 @@ var ex;
                 this.camera.y = engine.height / 2;
             }
         }
+        Scene.prototype.on = function (eventName, handler) {
+            _super.prototype.on.call(this, eventName, handler);
+        };
         /**
          * This is called before the first update of the [[Scene]]. Initializes scene members like the camera. This method is meant to be
          * overridden. This is where initialization of child actors should take place.
@@ -7873,12 +7876,6 @@ var ex;
                 }
             }
         };
-        /**
-         * You can listen for a variety of
-         * events off of the engine; see [[GameEvent]]
-         * @param eventName   Name of the event to listen for
-         * @param handler     Event handler for the thrown event
-         */
         Actor.prototype.on = function (eventName, handler) {
             this._checkForPointerOptIn(eventName);
             this.eventDispatcher.on(eventName, handler);
@@ -8730,6 +8727,30 @@ var ex;
     }(GameEvent));
     ex.KillEvent = KillEvent;
     /**
+     * The 'start' event is emitted on engine when has started and is ready for interaction.
+     */
+    var GameStartEvent = (function (_super) {
+        __extends(GameStartEvent, _super);
+        function GameStartEvent(target) {
+            _super.call(this);
+            this.target = target;
+        }
+        return GameStartEvent;
+    }(GameEvent));
+    ex.GameStartEvent = GameStartEvent;
+    /**
+     * The 'stop' event is emitted on engine when has been stopped and will no longer take input, update or draw.
+     */
+    var GameStopEvent = (function (_super) {
+        __extends(GameStopEvent, _super);
+        function GameStopEvent(target) {
+            _super.call(this);
+            this.target = target;
+        }
+        return GameStopEvent;
+    }(GameEvent));
+    ex.GameStopEvent = GameStopEvent;
+    /**
      * The 'predraw' event is emitted on actors, scenes, and engine before drawing starts. Actors' predraw happens inside their graphics
      * transform so that all drawing takes place with the actor as the origin.
      *
@@ -8946,7 +8967,7 @@ var ex;
     }(GameEvent));
     ex.CollisionEvent = CollisionEvent;
     /**
-     * Event thrown on an [[Actor]] only once before the first update call
+     * Event thrown on an [[Actor]] and a [[Scene]] only once before the first update call
      */
     var InitializeEvent = (function (_super) {
         __extends(InitializeEvent, _super);
@@ -12611,6 +12632,9 @@ var ex;
                 this._activePointers = [-1];
                 this.primary = this._pointers[0];
             }
+            Pointers.prototype.on = function (eventName, handler) {
+                _super.prototype.on.call(this, eventName, handler);
+            };
             /**
              * Initializes pointer event listeners
              */
@@ -12944,9 +12968,9 @@ var ex;
          * - `hold` - Whenever a key is in the down position
          *
          * ```ts
-         * engine.input.pointers.primary.on("press", (evt: KeyEvent) => {...});
-         * engine.input.pointers.primary.on("release", (evt: KeyEvent) => {...});
-         * engine.input.pointers.primary.on("hold", (evt: KeyEvent) => {...});
+         * engine.input.keyboard.on("press", (evt: KeyEvent) => {...});
+         * engine.input.keyboard.on("release", (evt: KeyEvent) => {...});
+         * engine.input.keyboard.on("hold", (evt: KeyEvent) => {...});
          * ```
          */
         var Keyboard = (function (_super) {
@@ -12958,6 +12982,9 @@ var ex;
                 this._keysDown = [];
                 this._engine = engine;
             }
+            Keyboard.prototype.on = function (eventName, handler) {
+                _super.prototype.on.call(this, eventName, handler);
+            };
             /**
              * Initialize Keyboard event listeners
              */
@@ -13968,6 +13995,9 @@ O|===|* >________________>\n\
             this.addScene('root', this.rootScene);
             this.goToScene('root');
         }
+        Engine.prototype.on = function (eventName, handler) {
+            _super.prototype.on.call(this, eventName, handler);
+        };
         /**
          * Plays a sprite animation on the screen at the specified `x` and `y`
          * (in game coordinates, not screen pixels). These animations play
@@ -14346,6 +14376,7 @@ O|===|* >________________>\n\
          * custom loader.
          */
         Engine.prototype.start = function (loader) {
+            var _this = this;
             if (!this._compatible) {
                 var promise = new ex.Promise();
                 return promise.reject('Excalibur is incompatible with your browser');
@@ -14359,6 +14390,9 @@ O|===|* >________________>\n\
             else {
                 loadingComplete = ex.Promise.wrap();
             }
+            loadingComplete.then(function () {
+                _this.emit('start', new ex.GameStartEvent(_this));
+            });
             if (!this._hasStarted) {
                 this._hasStarted = true;
                 this._logger.debug('Starting game...');
@@ -14402,6 +14436,7 @@ O|===|* >________________>\n\
          */
         Engine.prototype.stop = function () {
             if (this._hasStarted) {
+                this.emit('stop', new ex.GameStopEvent(this));
                 this._hasStarted = false;
                 this._logger.debug('Game stopped');
             }

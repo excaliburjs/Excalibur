@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - `ex.Promise.join(Promise[])` support (in addition to `...promises` support) (#642)
+- `ex.Events` namespace and typed event handler `.on(...)` overloads for default events on core excalibur objects (##639)
 
 ### Fixed
 - `Actor.actions.fade` properly supporting fading between 0 and 1 and vice versa (#640)

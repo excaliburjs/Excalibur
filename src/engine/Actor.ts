@@ -18,6 +18,7 @@
 /// <reference path="Actions/ActionContext.ts"/>
 /// <reference path="Util/EasingFunctions.ts"/>
 
+
 module ex {
  
   /**
@@ -641,7 +642,7 @@ module ex {
     private _zIndex: number = 0;
     private _isKilled: boolean = false;
     private _opacityFx = new Effects.Opacity(this.opacity);
-    
+
     /**
      * @param x       The starting x coordinate of the actor
      * @param y       The starting y coordinate of the actor
@@ -698,12 +699,19 @@ module ex {
        }
     }
    
-    /**
-     * You can listen for a variety of
-     * events off of the engine; see [[GameEvent]]
-     * @param eventName   Name of the event to listen for
-     * @param handler     Event handler for the thrown event
-     */
+    public on(eventName: ex.Events.kill, handler: (event?: KillEvent) => void);
+    public on(eventName: ex.Events.initialize, handler: (event?: InitializeEvent) => void);
+    public on(eventName: ex.Events.preupdate, handler: (event?: PreUpdateEvent) => void);
+    public on(eventName: ex.Events.postupdate, handler: (event?: PostUpdateEvent) => void);
+    public on(eventName: ex.Events.predraw, handler: (event?: PreDrawEvent) => void);
+    public on(eventName: ex.Events.postdraw, handler: (event?: PostDrawEvent) => void);
+    public on(eventName: ex.Events.predebugdraw, handler: (event?: PreDebugDrawEvent) => void);
+    public on(eventName: ex.Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void);
+    public on(eventName: ex.Events.pointerup, handler: (event?: PointerEvent) => void);
+    public on(eventName: ex.Events.pointerdown, handler: (event?: PointerEvent) => void);
+    public on(eventName: ex.Events.pointermove, handler: (event?: PointerEvent) => void);
+    public on(eventName: ex.Events.pointercancel, handler: (event?: PointerEvent) => void);
+    public on(eventName: string, handler: (event?: GameEvent) => void);
     public on(eventName: string, handler: (event?: GameEvent) => void) {
        this._checkForPointerOptIn(eventName);
        this.eventDispatcher.on(eventName, handler);
