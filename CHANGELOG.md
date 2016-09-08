@@ -6,23 +6,23 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Breaking Changes
-- Refactored and modified Sound API ([https://github.com/excaliburjs/Excalibur/issues/644](#644))
+- Refactored and modified Sound API ([#644](https://github.com/excaliburjs/Excalibur/issues/644))
   - `Sound.setData` now returns a Promise which differs from previous API
   - Removed internal `FallbackAudio` and `Sound` classes and replaced with single `Sound` class
   - Added `AudioTagInstance` and `WebAudioInstance` internal classes
 
 ### Added
-- `ex.Promise.join(Promise[])` support (in addition to `...promises` support) ([https://github.com/excaliburjs/Excalibur/issues/642](#642))
-- Moved build artifacts to separate [excalibur-dist](https://github.com/excaliburjs/excalibur-dist) repository ([https://github.com/excaliburjs/Excalibur/issues/648](#648))
-- `ex.Events` namespace and typed event handler `.on(...)` overloads for default events on core excalibur objects ([https://github.com/excaliburjs/Excalibur/issues/639](#639))
+- `ex.Promise.join(Promise[])` support (in addition to `...promises` support) ([#642](https://github.com/excaliburjs/Excalibur/issues/642))
+- Moved build artifacts to separate [excalibur-dist](https://github.com/excaliburjs/excalibur-dist) repository ([#648](https://github.com/excaliburjs/Excalibur/issues/648))
+- `ex.Events` namespace and typed event handler `.on(...)` overloads for default events on core excalibur objects ([#639](https://github.com/excaliburjs/Excalibur/issues/639))
 
 ### Fixed
-- `Actor.actions.fade` properly supporting fading between 0 and 1 and vice versa ([https://github.com/excaliburjs/Excalibur/issues/640](#640))
-- Fix issues with audio offset tracking and muting while game is invisible ([https://github.com/excaliburjs/Excalibur/issues/644](#644))
-- `Actor.getHeight()` and `Actor.getWidth()` now take into account parent scaling ([https://github.com/excaliburjs/Excalibur/issues/645](#645))
-- `Actor.debugDraw` now works properly for child actors ([https://github.com/excaliburjs/Excalibur/issues/505](#505), [https://github.com/excaliburjs/Excalibur/issues/645](#645))
-- Sprite culling was double scaling calculations ([https://github.com/excaliburjs/Excalibur/issues/646](#646))
-- Fix negative zoom sprite culling ([https://github.com/excaliburjs/Excalibur/issues/539](#539))
+- `Actor.actions.fade` properly supporting fading between 0 and 1 and vice versa ([#640](https://github.com/excaliburjs/Excalibur/issues/640))
+- Fix issues with audio offset tracking and muting while game is invisible ([#644](https://github.com/excaliburjs/Excalibur/issues/644))
+- `Actor.getHeight()` and `Actor.getWidth()` now take into account parent scaling ([#645](https://github.com/excaliburjs/Excalibur/issues/645))
+- `Actor.debugDraw` now works properly for child actors ([#505](https://github.com/excaliburjs/Excalibur/issues/505), [#645](https://github.com/excaliburjs/Excalibur/issues/645))
+- Sprite culling was double scaling calculations ([#646](https://github.com/excaliburjs/Excalibur/issues/646))
+- Fix negative zoom sprite culling ([#539](https://github.com/excaliburjs/Excalibur/issues/539))
 
 ## [0.7.0] - 2016-08-29
 ### Breaking Changes
