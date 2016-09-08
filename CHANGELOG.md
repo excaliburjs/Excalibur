@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - `ex.Promise.join(Promise[])` support (in addition to `...promises` support) (#642)
+- Moved build artifacts to separate [excalibur-dist](https://github.com/excaliburjs/excalibur-dist) repository (#648)
 - `ex.Events` namespace and typed event handler `.on(...)` overloads for default events on core excalibur objects (##639)
 
 ### Fixed

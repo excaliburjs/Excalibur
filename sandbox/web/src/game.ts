@@ -1,4 +1,5 @@
-/// <reference path='../../../dist/excalibur.d.ts' />
+/// <reference path='../excalibur.d.ts' />
+
 /*********************
  *                  uuuuuuuuuuuuuuuuuuuu                                    
  *                u" uuuuuuuuuuuuuuuuuu "u                                  

@@ -1,4 +1,6 @@
-﻿var engine = new ex.Engine({
+﻿/// <reference path='../../excalibur.d.ts' />
+
+var engine = new ex.Engine({
    canvasElementId: 'game',
    width: 600,
    height: 400

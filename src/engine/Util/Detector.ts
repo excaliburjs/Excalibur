@@ -1,6 +1,9 @@
 /// <reference path="Log.ts" />
 module ex {
 
+   /**
+    * Excalibur internal feature detection helper class
+    */
    export class Detector {
       
       public failedTests: string[] = [];
