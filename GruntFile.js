@@ -190,7 +190,7 @@ module.exports = function (grunt) {
          // continuous integration dists
          dist: {
             options: {
-               branch: 'test', // TODO change to master when tested
+               branch: 'master',
                remote: 'https://github.com/excaliburjs/excalibur-dist',
                login: 'kamranayub',
                token: process.env.GH_DIST_TOKEN,
