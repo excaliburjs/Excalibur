@@ -6,7 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Breaking Changes
-- Refactored and modified Sound API (#644)
+- Refactored and modified Sound API (excaliburjs/Excalibur#644)
   - `Sound.setData` now returns a Promise which differs from previous API
   - Removed internal `FallbackAudio` and `Sound` classes and replaced with single `Sound` class
   - Added `AudioTagInstance` and `WebAudioInstance` internal classes
