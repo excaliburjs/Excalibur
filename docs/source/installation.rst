@@ -13,8 +13,8 @@ There are several ways you can download Excalibur.
 **Nuget**::
 
     Install-Package Excalibur
-    
-You can also download the raw Javascript files from the `Releases <https://github.com/excaliburjs/Excalibur/releases>`_ page.
+
+You can also download the raw Javascript files from the `Excalibur Distribution repository <https://github.com/excaliburjs/excalibur-dist/releases>`_.
 
 Unstable Builds
 ---------------
@@ -24,9 +24,9 @@ If you want to live on the edge and get unstable builds, you can add the Excalib
 Referencing Excalibur in your project
 -------------------------------------
 
-Just include the ``excalibur-{version}.min.js`` file on your page and you'll be set.
+Just include the ``excalibur.min.js`` file on your page and you'll be set.
 
-If you're using TypeScript, be sure to reference the declaration file ``excalibur-{version}.d.ts`` file.
+If you're using TypeScript, be sure to reference the declaration file ``excalibur.d.ts`` file.
 
 .. code-block:: html
 
@@ -35,7 +35,7 @@ If you're using TypeScript, be sure to reference the declaration file ``excalibu
         <head>
         </head>
         <body>
-            <script src="excalibur-version.min.js"></script>
+            <script src="excalibur.min.js"></script>
         </body>
     </html>
 

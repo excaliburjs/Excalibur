@@ -1,6 +1,9 @@
 Unstable Builds
 ===============
 
+Nuget Feed
+----------
+
 To get unstable builds of Excalibur for your project and live on the edge, you can set add the Appveyor Nuget feed for Excalibur to your project.
 
    https://ci.appveyor.com/nuget/excalibur/
@@ -26,3 +29,27 @@ This will add the Excalibur package feed into your list of package sources. Then
 the command line.
 
 .. image:: assets/unstable/vs-nuget-feed.png
+
+Git Submodule
+-------------
+
+Sometimes it's easier to just include Excalibur directly into your Git source control repository. In that case,
+you can run the following commands:
+
+.. code-block:: bash
+
+   git submodule add https://github.com/excaliburjs/excalibur-dist excalibur
+   git submodule init
+
+This adds a Git submodule reference to the `excalibur-dist repository <https://github.com/excaliburjs/excalibur-dist>`_.
+
+From there, you can specifically checkout a versioned release tag (or don't and live on the edge):
+
+.. code-block:: bash
+
+   cd excalibur
+   git checkout v0.7.0
+   cd ..
+   git commit -am "Reference excalibur 0.7.0 release"
+
+For more information on working with Git submodules, see the `Git SCM guide on submodules <https://git-scm.com/book/en/v2/Git-Tools-Submodules>`_
