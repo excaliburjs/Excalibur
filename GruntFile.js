@@ -154,7 +154,7 @@ module.exports = function (grunt) {
             command: 'git clone https://github.com/excaliburjs/excalibur-dist build',
             options: {
                stdout: true,
-               failOnError: true
+               failOnError: false
             }
          }
 
