@@ -83,7 +83,7 @@ play. Actors are the primary way to draw things to the screen.
     paddle.color = ex.Color.Chartreuse;
 
     // Make sure the paddle can partipate in collisions, by default excalibur actors do not collide
-    paddle.collisionType = ex.CollisionType.Active;
+    paddle.collisionType = ex.CollisionType.Fixed;
 
     // `game.add` is the same as calling
     // `game.currentScene.add`
