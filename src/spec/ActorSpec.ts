@@ -22,6 +22,9 @@ describe('A game actor', () => {
       spyOn(actor, 'debugDraw');
 
       engine = mock.engine(100, 100, scene);
+
+      ex.Physics.useBoxPhysics();
+      ex.Physics.acc.setTo(0, 0);
    });
 
    it('should be loaded', () => {
@@ -502,8 +505,9 @@ describe('A game actor', () => {
    });
 
    it('with an active collision type can be placed on a fixed type', () => {
+      ex.Physics.useBoxPhysics();
       var scene = new ex.Scene(engine); 
-	  
+      	  
       var active = new ex.Actor(0, -50, 100, 100);
       active.collisionType = ex.CollisionType.Active;
       active.vel.y = 10;
@@ -526,8 +530,42 @@ describe('A game actor', () => {
          scene.update(engine, 100);
       }
 	 	  
+      expect(active.pos.x).toBeCloseTo(0, .0001);
+      expect(active.pos.y).toBeCloseTo(-50, .0001);
+	  
+      expect(fixed.pos.x).toBe(-100);
+      expect(fixed.pos.y).toBe(50);
+   });
+
+    it('with an active collision type can jump on a fixed type', () => {
+      var scene = new ex.Scene(engine);
+      var active = new ex.Actor(0, -50, 100, 100);
+      active.collisionType = ex.CollisionType.Active;
+      active.vel.y = -100;
+      //active.acc.y = 1000;
+	  
+      var fixed = new ex.Actor(-100, 50, 1000, 100);
+      fixed.collisionType = ex.CollisionType.Fixed;
+	  
+      scene.add(active);
+      scene.add(fixed);
+	  
       expect(active.pos.x).toBe(0);
       expect(active.pos.y).toBe(-50);
+
+      expect(fixed.pos.x).toBe(-100);
+      expect(fixed.pos.y).toBe(50);
+	  
+      var iterations = 50;
+      // update many times for safety
+      for (var i = 0; i < iterations; i++) {
+         scene.update(engine, 100);
+      }
+	 	
+      var seconds = 100 / 1000;
+
+      expect(active.pos.x).toBeCloseTo(0, .0001);
+      expect(active.pos.y).toBeCloseTo(-100 * seconds * iterations, .0001);
 	  
       expect(fixed.pos.x).toBe(-100);
       expect(fixed.pos.y).toBe(50);

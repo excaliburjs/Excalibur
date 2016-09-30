@@ -5,15 +5,15 @@
 module ex {
    export class NaiveCollisionBroadphase implements ICollisionBroadphase {
       
-      public register(target: Actor) {
+      public track(target: Body) {
          // pass
       }
 
-      public remove(tartet: Actor) {
+      public untrack(tartet: Body) {
          // pass
       }
 
-      public findCollisionContacts(targets: Actor[], delta: number): CollisionContact[] {
+      public detect(targets: Actor[], delta: number): CollisionContact[] {
 
          // Retrieve the list of potential colliders, exclude killed, prevented, and self
          var potentialColliders = targets.filter((other) => {

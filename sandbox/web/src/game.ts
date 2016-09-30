@@ -231,7 +231,7 @@ player.on('update', () => {
       // TODO: When platform is moving in same direction, add its dx
    }
 
-   if (game.input.keyboard.isHeld(ex.Input.Keys.Up)) {
+   if (game.input.keyboard.wasPressed(ex.Input.Keys.Up)) {
       if (!inAir) {
          player.vel.y = -jumpSpeed;
          inAir = true;

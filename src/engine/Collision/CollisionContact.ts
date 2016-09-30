@@ -103,9 +103,9 @@ module ex {
                   var velY = 0;
                   // both bodies are traveling in the same direction (negative or positive)
                   if (bodyA.vel.y <= 0 && bodyB.vel.y <= 0) {
-                     velY = Math.min(bodyA.vel.y, bodyB.vel.y);
-                  } else if (bodyA.vel.y >= 0 && bodyB.vel.y >= 0) {
                      velY = Math.max(bodyA.vel.y, bodyB.vel.y);
+                  } else if (bodyA.vel.y >= 0 && bodyB.vel.y >= 0) {
+                     velY = Math.min(bodyA.vel.y, bodyB.vel.y);
                   } else {
                      // bodies are traveling in opposite directions
                      velY = 0;

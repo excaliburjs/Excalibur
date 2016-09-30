@@ -254,25 +254,32 @@ module ex {
          for (i = 0, len = this.tileMaps.length; i < len; i++) {
             this.tileMaps[i].update(engine, delta);
          }
-         
-         var iter: number = Physics.collisionPasses;
-         var collisionDelta = delta / iter;
-         while (iter > 0) {
-            // Cycle through actors updating actors
-            for (i = 0, len = this.children.length; i < len; i++) {
-                this.children[i].update(engine, collisionDelta);
-                this.children[i].collisionArea.recalc();
-            }
 
-            // TODO meh I don't like how this works... maybe find a way to make collisions
-            // a trait
+         for (i = 0, len = this.children.length; i < len; i++) {
+            //this.children[i].integrate(delta);
+         }
+
+         // Cycle through actors updating actors
+         for (i = 0, len = this.children.length; i < len; i++) {
+               this.children[i].update(engine, delta);
+         }
+         this._broadphase.update(this.children, delta);
+
+         var iter: number = 20; //Physics.collisionPasses;
+         var collisionDelta = delta / iter;
+
+         while (iter > 0) { 
             // Run collision resolution strategy
-            if (this._broadphase && Physics.enabled) {
-               this._broadphase.update(this.children, collisionDelta);
-               this._broadphase.findCollisionContacts(this.children, collisionDelta);
+            if (this._broadphase && Physics.enabled) {               
+               this._broadphase.detect(this.children, collisionDelta);
+               for (i = 0, len = this.children.length; i < len; i++) {
+                     this.children[i].integrate(collisionDelta * .01);
+               }
             }
             iter--;
          }
+
+         
 
          // Remove actors from scene graph after being killed
          var actorIndex: number;
@@ -464,7 +471,7 @@ module ex {
             return;
          }
          if (entity instanceof Actor) {
-            this._broadphase.remove(entity);
+            this._broadphase.untrack(entity.body);
             this._removeChild(entity);
          }
          if (entity instanceof Timer) {
@@ -501,7 +508,7 @@ module ex {
        * Adds an actor to the scene, once this is done the actor will be drawn and updated.       
        */
       protected _addChild(actor: Actor) {
-         this._broadphase.register(actor);
+         this._broadphase.track(actor.body);
          actor.scene = this;
          this.children.push(actor);
          this._sortedDrawingTree.add(actor);
@@ -529,7 +536,7 @@ module ex {
        * Removes an actor from the scene, it will no longer be drawn or updated.
        */
       protected _removeChild(actor: Actor) {
-         this._broadphase.remove(actor);
+         this._broadphase.untrack(actor.body);
          this._killQueue.push(actor);
          actor.parent = null;
       }

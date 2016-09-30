@@ -663,7 +663,7 @@ module ex {
           this.opacity = color.a;  
        }         
        // Build default pipeline
-       this.traits.push(new ex.Traits.EulerMovement());
+       //this.traits.push(new ex.Traits.EulerMovement());
        // TODO: TileMaps should be converted to a collision area
        this.traits.push(new ex.Traits.TileMapCollisionDetection());
        this.traits.push(new ex.Traits.OffscreenCulling());         
@@ -1157,6 +1157,38 @@ module ex {
     private _getCalculatedAnchor(): Vector {
        return new ex.Vector(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
     }
+
+    /**
+     * Perform euler integration at the specified time step
+     */
+    public integrate(delta: number) {
+       // Update placements based on linear algebra
+       var seconds = delta / 1000;
+
+       var totalAcc = this.acc.clone();
+       // Only active vanilla actors are affected by global acceleration
+       if (this.collisionType === ex.CollisionType.Active &&
+          !(this instanceof UIActor) &&
+          !(this instanceof Trigger) &&
+          !(this instanceof Label)) {
+          totalAcc.addEqual(ex.Physics.acc);
+       }
+
+       this.oldVel = this.vel;
+       this.vel.addEqual(totalAcc.scale(seconds));
+
+       this.pos.addEqual(this.vel.scale(seconds)).addEqual(totalAcc.scale(0.5 * seconds * seconds));
+
+       this.rx += this.torque * (1.0 / this.moi) * seconds;
+       this.rotation += this.rx * seconds;
+
+       this.scale.x += this.sx * delta / 1000;
+       this.scale.y += this.sy * delta / 1000;
+
+       // Update physics body
+       this.body.update();
+    }
+
     /**
      * Called by the Engine, updates the state of the actor
      * @param engine The reference to the current game engine
@@ -1196,6 +1228,8 @@ module ex {
              this.frames[drawing].addEffect(this._opacityFx);
           }
        }
+
+       this.integrate(delta);
 
        // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
        for (var trait of this.traits) {

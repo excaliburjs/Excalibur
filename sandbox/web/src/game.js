@@ -189,7 +189,7 @@ player.on('update', function () {
         }
         player.vel.x = groundSpeed;
     }
-    if (game.input.keyboard.isHeld(ex.Input.Keys.Up)) {
+    if (game.input.keyboard.wasPressed(ex.Input.Keys.Up)) {
         if (!inAir) {
             player.vel.y = -jumpSpeed;
             inAir = true;

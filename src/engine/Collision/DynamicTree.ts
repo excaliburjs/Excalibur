@@ -179,7 +179,7 @@ module ex {
 
       }
 
-      public registerBody(body: Body) {
+      public trackBody(body: Body) {
          var node = new TreeNode();
          node.body = body;
          node.bounds = body.getBounds();
@@ -226,7 +226,7 @@ module ex {
          return true;
       }
 
-      public removeBody(body: Body) {
+      public untrackBody(body: Body) {
          var node = this.nodes[body.actor.id];
          if (!node) { return; }
          this.remove(node);
@@ -360,7 +360,7 @@ module ex {
 
       public query(body: Body, callback: (other: Body) => boolean): void {
          var bounds = body.getBounds();
-         var helper = currentNode => {
+         var helper = (currentNode: TreeNode) => {
             if (currentNode && currentNode.bounds.collides(bounds)) {
                if (currentNode.isLeaf() && currentNode.body !== body) {
                   if (callback.call(body, currentNode.body)) {
