@@ -255,31 +255,29 @@ module ex {
             this.tileMaps[i].update(engine, delta);
          }
 
-         for (i = 0, len = this.children.length; i < len; i++) {
-            //this.children[i].integrate(delta);
-         }
-
          // Cycle through actors updating actors
          for (i = 0, len = this.children.length; i < len; i++) {
-               this.children[i].update(engine, delta);
+            this.children[i].update(engine, delta);
          }
-         this._broadphase.update(this.children, delta);
+         
+         // Run the broadphase
+         if (this._broadphase) {
+            this._broadphase.update(this.children, delta);
+         }
 
-         var iter: number = 20; //Physics.collisionPasses;
+         // Run the narrowphase
+         var iter: number = Physics.collisionPasses;
          var collisionDelta = delta / iter;
-
          while (iter > 0) { 
             // Run collision resolution strategy
             if (this._broadphase && Physics.enabled) {               
                this._broadphase.detect(this.children, collisionDelta);
                for (i = 0, len = this.children.length; i < len; i++) {
-                     this.children[i].integrate(collisionDelta * .01);
+                     this.children[i].integrate(collisionDelta * .001);
                }
             }
             iter--;
-         }
-
-         
+         }         
 
          // Remove actors from scene graph after being killed
          var actorIndex: number;

@@ -231,7 +231,7 @@ player.on('update', () => {
       // TODO: When platform is moving in same direction, add its dx
    }
 
-   if (game.input.keyboard.wasPressed(ex.Input.Keys.Up)) {
+   if (game.input.keyboard.isHeld(ex.Input.Keys.Up)) {
       if (!inAir) {
          player.vel.y = -jumpSpeed;
          inAir = true;
@@ -353,7 +353,7 @@ player.on('postupdate', (data?: ex.PostUpdateEvent) => {
    if (!isColliding) {
       data.target.acc.y = 800;// * data.delta/1000;
    } else {
-      data.target.acc.y = 0;
+      //data.target.acc.y = 0;
    }
 
    // Reset values because we don't know until we check the next update

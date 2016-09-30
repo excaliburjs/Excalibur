@@ -91,9 +91,9 @@ module ex {
                   } else if (bodyA.vel.x >= 0 && bodyB.vel.x >= 0) {
                      velX = Math.max(bodyA.vel.x, bodyB.vel.x);
                      velX = bodyA.vel.x + bodyA.vel.x;
-                  }else {
+                  } else if (bodyB.collisionType === ex.CollisionType.Fixed) {
                      // bodies are traveling in opposite directions
-                     velX = 0;
+                     velX = bodyB.vel.x;
                   }
                   bodyA.vel.x = velX;
                }
@@ -101,15 +101,17 @@ module ex {
                
                if (this.mtv.y !== 0) {
                   var velY = 0;
-                  // both bodies are traveling in the same direction (negative or positive)
-                  if (bodyA.vel.y <= 0 && bodyB.vel.y <= 0) {
-                     velY = Math.max(bodyA.vel.y, bodyB.vel.y);
-                  } else if (bodyA.vel.y >= 0 && bodyB.vel.y >= 0) {
-                     velY = Math.min(bodyA.vel.y, bodyB.vel.y);
-                  } else {
+                  if (bodyB.collisionType === ex.CollisionType.Fixed) {
                      // bodies are traveling in opposite directions
-                     velY = 0;
-                  }
+                     velY = bodyB.vel.y;
+                  } else {
+                     // both bodies are traveling in the same direction (negative or positive)
+                     if (bodyA.vel.y <= 0 && bodyB.vel.y <= 0) {
+                        velY = Math.min(bodyA.vel.y, bodyB.vel.y);
+                     } else if (bodyA.vel.y >= 0 && bodyB.vel.y >= 0) {
+                        velY = Math.max(bodyA.vel.y, bodyB.vel.y);
+                     } 
+                  }                  
                   
                   bodyA.vel.y = velY;
                }

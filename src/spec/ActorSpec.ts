@@ -542,7 +542,7 @@ describe('A game actor', () => {
       var active = new ex.Actor(0, -50, 100, 100);
       active.collisionType = ex.CollisionType.Active;
       active.vel.y = -100;
-      //active.acc.y = 1000;
+      ex.Physics.acc.setTo(0, 0);
 	  
       var fixed = new ex.Actor(-100, 50, 1000, 100);
       fixed.collisionType = ex.CollisionType.Fixed;
@@ -556,16 +556,15 @@ describe('A game actor', () => {
       expect(fixed.pos.x).toBe(-100);
       expect(fixed.pos.y).toBe(50);
 	  
-      var iterations = 50;
+      var iterations = 1;
       // update many times for safety
       for (var i = 0; i < iterations; i++) {
-         scene.update(engine, 100);
+         scene.update(engine, 1000);
       }
 	 	
-      var seconds = 100 / 1000;
-
+      expect(ex.Physics.acc.y).toBe(0);
       expect(active.pos.x).toBeCloseTo(0, .0001);
-      expect(active.pos.y).toBeCloseTo(-100 * seconds * iterations, .0001);
+      expect(active.pos.y).toBeCloseTo(-100 * iterations + (-50) /* original y is -50 */, .0001);
 	  
       expect(fixed.pos.x).toBe(-100);
       expect(fixed.pos.y).toBe(50);
