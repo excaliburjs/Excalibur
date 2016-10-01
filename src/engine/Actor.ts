@@ -690,7 +690,7 @@ module ex {
 
     private _checkForPointerOptIn(eventName: string) {
        if (eventName && (eventName.toLowerCase() === 'pointerdown' ||
-          eventName.toLowerCase() === 'pointerdown' ||
+          eventName.toLowerCase() === 'pointerup' ||
           eventName.toLowerCase() === 'pointermove')) {
           this.enableCapturePointer = true;
           if (eventName.toLowerCase() === 'pointermove') {

@@ -90,6 +90,11 @@ module Mocks {
             camera: {
                getZoom: function () { return 1; }
             },
+            input : {
+               keyboard: null,
+               pointers: new ex.Input.Pointers(<any>this),
+               gamepads: null
+            },
             worldToScreenCoordinates: ex.Engine.prototype.worldToScreenCoordinates,
             screenToWorldCoordinates: ex.Engine.prototype.screenToWorldCoordinates,
             addScene: ex.Engine.prototype.addScene,

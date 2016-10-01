@@ -669,4 +669,53 @@ describe('A game actor', () => {
       scene.update(engine, 100);
       scene.draw(engine.ctx, 100);
    });
+
+   it('opt into pointer capture when pointerup', () => {
+      var actor = new ex.Actor(0, 0, 100, 100);
+      expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer caputer enabled');
+      actor.on('pointerup', () => {
+         // doesn't matter;
+      });
+      expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer caputer enabled after pointerup');
+   });
+
+   it('opt into pointer capture when pointerdown', () => {
+      var actor = new ex.Actor(0, 0, 100, 100);
+      expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer caputer enabled');
+      actor.on('pointerdown', () => {
+         // doesn't matter;
+      });
+      expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer caputer enabled after pointerdown');
+   });
+
+   it('opt into pointer capture when pointermove', () => {
+      var actor = new ex.Actor(0, 0, 100, 100);
+      expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer caputer enabled');
+      actor.on('pointermove', () => {
+         // doesn't matter;
+      });
+      expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer caputer enabled after pointermove');
+      expect(actor.capturePointer.captureMoveEvents).toBe(true, 'Actor should capture move events after pointermove');
+
+   });
+
+   it('only has pointer events happen once per frame', () => {
+      var actor = new ex.Actor(0, 0, 100, 100);
+      //actor.enableCapturePointer = true;
+      var numPointerUps = 0;
+
+      spyOn(engine.input.pointers, 'propogate').and.callThrough();
+      (<any>engine.input.pointers)._pointerUp.push({x: 0, y: 0});
+
+      actor.on('pointerup', () => {
+         numPointerUps++;
+      });
+
+      scene.add(actor);
+      
+      scene.update(engine, 100);
+
+      expect(numPointerUps).toBe(1, 'Pointer up should be triggered once');
+      expect(engine.input.pointers.propogate.calls.count()).toEqual(1, 'Propogate should be called once');
+   });
 });

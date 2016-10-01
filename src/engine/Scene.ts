@@ -273,6 +273,8 @@ module ex {
             if (this._broadphase && Physics.enabled) {               
                this._broadphase.detect(this.children, collisionDelta);
                for (i = 0, len = this.children.length; i < len; i++) {
+                     // helps move settle collisions
+                     // todo there is a better way to do this
                      this.children[i].integrate(collisionDelta * .001);
                }
             }
