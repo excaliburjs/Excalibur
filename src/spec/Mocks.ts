@@ -115,9 +115,9 @@ module Mocks {
             screenToWorldCoordinates: ex.Engine.prototype.screenToWorldCoordinates,
             addScene: ex.Engine.prototype.addScene,
             goToScene: ex.Engine.prototype.goToScene,
-            emit: function () { },
+            emit: function () { /* do nothing */  },
             eventDispatcher: {
-               emit: function () { }
+               emit: function () { /* do nothing */  }
             },
             _hasStarted: true,
             _update: (<any>ex.Engine.prototype)._update,
@@ -140,7 +140,7 @@ module Mocks {
                   loop();
                }
             }
-         }
+         };
       }
 
       time(): ITime {
@@ -156,7 +156,7 @@ module Mocks {
             now: function () {
                return now;
             }
-         }
+         };
       }
       
       window() {         

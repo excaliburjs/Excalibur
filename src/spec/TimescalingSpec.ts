@@ -34,7 +34,7 @@ describe('The engine', () => {
       // actor moves twice as fast
       loop.advance(1100);
 
-      expect(actor.x).toBe(10, "actor did not move twice as fast");
+      expect(actor.x).toBe(10, 'actor did not move twice as fast');
 
    });
 
@@ -51,7 +51,7 @@ describe('The engine', () => {
       // actor moves twice as slow
       loop.advance(2000);
 
-      expect(actor.x).toBeCloseTo(5, 0.2, "actor did not move twice as slow");
+      expect(actor.x).toBeCloseTo(5, 0.2, 'actor did not move twice as slow');
 
    });
 

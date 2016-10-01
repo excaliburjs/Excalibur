@@ -1165,7 +1165,7 @@ O|===|* >________________>\n\
                game.stop();
                game.onFatalException(e);
             }
-         }
+         };
       }
 
       /**
