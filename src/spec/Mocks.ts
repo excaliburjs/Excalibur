@@ -2,6 +2,17 @@
 
 module Mocks {
 
+   export interface ITime {
+      now(): number;
+      add(value: number): void;
+      sub(value: number): void;
+   }
+
+   export interface IGameLoop {
+      advance(duration: number): void;
+      advance(duration: number, fps: number): void;
+   }
+
    export class Mocker {
       navigator() {
          var _internalGamePads = { 0: undefined, 
@@ -44,12 +55,13 @@ module Mocks {
          return mockNavigator;
       };
       
-      engine(width: number, height: number, scene: ex.Scene) {
+      engine(width: number, height: number) {
          var mockEngine;
 
          mockEngine = {
             collisionStrategy: 0,
-            currentScene: scene,
+            timescale: 1,
+            currentScene: null,
             keys: [],
             clicks: [],
             mouseDown: [],
@@ -62,11 +74,23 @@ module Mocks {
             width: width,
             height: height,
             scenes: {},
+            _animations: [],
             _logger : {
                debug : function () { /* do nothing */ },
                info : function () { /* do nothing */ },
                warn : function () { /* do nothing */ },
                error : function () { /* do nothing */ }
+            },
+            input: {
+               keyboard: {
+                  update: function () { /* do nothing */ }
+               },
+               pointers: {
+                  update: function () { /* do nothing */ }
+               },
+               gamepads: {
+                  update: function () { /* do nothing */ }
+               }
             },
             canvas: {
                width: width,
@@ -87,16 +111,53 @@ module Mocks {
             },
             getWidth: function () { return width; },
             getHeight: function () { return height; },
-            camera: {
-               getZoom: function () { return 1; }
-            },
             worldToScreenCoordinates: ex.Engine.prototype.worldToScreenCoordinates,
             screenToWorldCoordinates: ex.Engine.prototype.screenToWorldCoordinates,
             addScene: ex.Engine.prototype.addScene,
-            goToScene: ex.Engine.prototype.goToScene
+            goToScene: ex.Engine.prototype.goToScene,
+            emit: function () { },
+            eventDispatcher: {
+               emit: function () { }
+            },
+            _hasStarted: true,
+            _update: (<any>ex.Engine.prototype)._update,
+            _draw: function () { /* do nothing */ }
          };
          return mockEngine;
       };
+
+      loop(game: ex.Engine): IGameLoop {
+         var time = new Mocker().time();
+         var loop = ex.Engine.createMainLoop(game, () => 0, time.now);
+
+         return {
+            advance: function (duration: number, fps: number = 60) {
+               var times = Math.floor(duration / fps);
+               var delta = duration / times;
+
+               for (var i = 0; i < times; i++) {
+                  time.add(delta);
+                  loop();
+               }
+            }
+         }
+      }
+
+      time(): ITime {
+         var now = 0;
+
+         return {
+            add: function (value) {
+               now += value;
+            },
+            sub: function (value) {
+               now -= value;
+            },
+            now: function () {
+               return now;
+            }
+         }
+      }
       
       window() {         
          var _handlers = {};

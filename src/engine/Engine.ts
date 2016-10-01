@@ -445,6 +445,8 @@ module ex {
       // this determines whether excalibur is compatible with your browser
       private _compatible: boolean;
 
+      private _timescale: number = 1.0;
+
       // loading
       private _loader: ILoader;
       private _isLoading: boolean = false;
@@ -565,6 +567,21 @@ O|===|* >________________>\n\
 
          this.addScene('root', this.rootScene);
          this.goToScene('root');
+      }
+
+      /**
+       * Gets the current engine timescale factor (default is 1.0 which is 1:1 time)
+       */
+      public get timescale() {
+         return this._timescale;
+      }
+
+      /**
+       * Sets the current engine timescale factor. Useful for creating slow-motion effects or fast-forward effects
+       * when using time-based movement.
+       */
+      public set timescale(value: number) {
+         this._timescale = value;
       }
 
       /**
@@ -1107,37 +1124,8 @@ O|===|* >________________>\n\
             this._hasStarted = true;
             this._logger.debug('Starting game...');
             
-            // Mainloop
-            var lastTime = Date.now();
-            var game = this;
-            (function mainloop() {
-               if (!game._hasStarted) {
-                  return;
-               }
-               try {
-                     game._requestId = window.requestAnimationFrame(mainloop);
-   
-                     // Get the time to calculate time-elapsed
-                     var now = Date.now();
-                     var elapsed = Math.floor(now - lastTime) || 1;
-                     // Resolves issue #138 if the game has been paused, or blurred for 
-                     // more than a 200 milliseconds, reset elapsed time to 1. This improves reliability 
-                     // and provides more expected behavior when the engine comes back
-                     // into focus
-                     if (elapsed > 200) {
-                        elapsed = 1;
-                     }
-                     game._update(elapsed);
-                     game._draw(elapsed);
-   
-                     lastTime = now;
-               
-                  } catch (e) {
-                     window.cancelAnimationFrame(game._requestId);
-                     game.stop();
-                     game.onFatalException(e);
-                  }
-            })();
+            Engine.createMainLoop(this, window.requestAnimationFrame, Date.now)();
+
             this._logger.debug('Game started');
             
          } else {
@@ -1145,6 +1133,39 @@ O|===|* >________________>\n\
          }
          return loadingComplete;
 
+      }
+
+      public static createMainLoop(game: Engine, raf: (Function) => number, nowFn: () => number) {
+         var lastTime = nowFn();
+         
+         return function mainloop() {
+            if (!game._hasStarted) {
+               return;
+            }
+            try {
+               game._requestId = raf(mainloop);
+
+               // Get the time to calculate time-elapsed
+               var now = nowFn();
+               var elapsed = Math.floor(now - lastTime) || 1;
+               // Resolves issue #138 if the game has been paused, or blurred for 
+               // more than a 200 milliseconds, reset elapsed time to 1. This improves reliability 
+               // and provides more expected behavior when the engine comes back
+               // into focus
+               if (elapsed > 200) {
+                  elapsed = 1;
+               }
+               game._update(elapsed * game.timescale);
+               game._draw(elapsed * game.timescale);
+
+               lastTime = now;
+         
+            } catch (e) {
+               window.cancelAnimationFrame(game._requestId);
+               game.stop();
+               game.onFatalException(e);
+            }
+         }
       }
 
       /**
