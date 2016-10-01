@@ -8,7 +8,7 @@ describe('A gamepad', () => {
    var mock = new Mocks.Mocker();
    beforeEach(() => {
       navigator = <any>mock.navigator();
-      engine = mock.engine(600, 400, null);
+      engine = mock.engine(600, 400);
       engine.input = {};
       engine.input.gamepads = new ex.Input.Gamepads(engine);
    });

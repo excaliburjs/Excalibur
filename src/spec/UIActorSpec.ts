@@ -4,19 +4,19 @@
 
 describe('A UIActor', () => {
    var uiActor: ex.UIActor;
-   var engine;
-   var scene;
+   var engine: ex.Engine;
+   var scene: ex.Scene;
    var mock = new Mocks.Mocker();
    
    beforeEach(() => {
       uiActor = new ex.UIActor();
       uiActor.collisionType = ex.CollisionType.Active;
+      engine = mock.engine(100, 100);
       scene = new ex.Scene(engine);
+      engine.currentScene = scene;
 
       spyOn(scene, 'draw').and.callThrough();
-      spyOn(uiActor, 'draw');
-
-      engine = mock.engine(100, 100, scene);
+      spyOn(uiActor, 'draw');     
 		
    });
 	

@@ -4,19 +4,20 @@
 
 describe('A label', () => {
    var label: ex.Label;
-   var engine;
-   var scene;
+   var engine: ex.Engine;
+   var scene: ex.Scene;
    var mock = new Mocks.Mocker();
 
    beforeEach(() => {
+      engine = mock.engine(100, 100);
       label = new ex.Label('Test string', 10, 10);
       scene = new ex.Scene(engine);
+      engine.currentScene = scene;
 
       scene.add(label);
       spyOn(scene, 'draw').and.callThrough();
       spyOn(label, 'draw');
-		
-      engine = mock.engine(100, 100, scene);
+		        
    });
 
    it('should be loaded', () => {

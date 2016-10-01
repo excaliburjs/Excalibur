@@ -6,22 +6,23 @@ describe('A game actor', () => {
 	
    var actor: ex.Actor;
    
-   var engine;
+   var engine: ex.Engine;
    var scene: ex.Scene;
    var mock = new Mocks.Mocker();
 
    beforeEach(() => {
+      engine = mock.engine(100, 100);
       actor = new ex.Actor();
       actor.collisionType = ex.CollisionType.Active;
       scene = new ex.Scene(engine);
+      engine.currentScene = scene;
 
       spyOn(scene, 'draw').and.callThrough();
       spyOn(scene, 'debugDraw').and.callThrough();
 
       spyOn(actor, 'draw');
-      spyOn(actor, 'debugDraw');
+      spyOn(actor, 'debugDraw');     
 
-      engine = mock.engine(100, 100, scene);
    });
 
    it('should be loaded', () => {
