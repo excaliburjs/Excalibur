@@ -31,9 +31,10 @@
     "grunt-contrib-watch": "0.6.1",
     "grunt-coveralls": "^1.0.0",
     "grunt-shell": "0.6.1",
-    "grunt-tslint": "^3.1.1",
+    "grunt-tslint": "^3.2.1",
     "istanbul": "^0.4.3",
     "jasmine": "^2.4.1",
+    "source-map-support": "^0.4.3",
     "travis-ci": "^2.1.0",
     "tslint": "^3.13.0",
     "typescript": "^1.8.10"
