@@ -87,10 +87,8 @@ module ex {
                   // both bodies are traveling in the same direction (negative or positve)
                   if (bodyA.vel.x < 0 && bodyB.vel.x < 0) {
                      velX = Math.min(bodyA.vel.x, bodyB.vel.x);
-                     velX = bodyA.vel.x + bodyA.vel.x;
                   } else if (bodyA.vel.x > 0 && bodyB.vel.x > 0) {
                      velX = Math.max(bodyA.vel.x, bodyB.vel.x);
-                     velX = bodyA.vel.x + bodyA.vel.x;
                   } else if (bodyB.collisionType === ex.CollisionType.Fixed) {
                      // bodies are traveling in opposite directions
                      if (bodyA.pos.sub(bodyB.pos).dot(bodyA.vel) > 0) {
