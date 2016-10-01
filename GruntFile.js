@@ -94,8 +94,9 @@ module.exports = function (grunt) {
          specs: {
             command: function () {
             	var files = grunt.file.expand("./src/spec/*.ts");
+               files.push('src/spec/support/sourcemaps.js');
 
-            	return '<%= tscCmd %> --target ES5 --sourceMap ' + files.join(' ') + ' --out ./src/spec/TestsSpec.js'
+            	return '<%= tscCmd %> --target ES5 --allowJs --sourceMap ' + files.join(' ') + ' --out ./src/spec/TestsSpec.js'
             },
             options: {
                stdout: true,
@@ -204,9 +205,7 @@ module.exports = function (grunt) {
       //
       tslint: {
          options: {
-            formatter: 'prose',
-            rulesDirectory: './tslint/rules/',
-            configuration: grunt.file.readJSON('./tslint/tslint.json')            
+            configuration: './tslint/tslint.json'          
          },
          src: [
             "src/engine/**/*.ts",
