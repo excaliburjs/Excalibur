@@ -151,10 +151,10 @@ module.exports = function (grunt) {
          },
 
          gitBuild: {
-            command: 'git clone -q https://github.com/excaliburjs/excalibur-dist build',
+            command: 'git clone https://github.com/excaliburjs/excalibur-dist build',
             options: {
                stdout: true,
-               failOnError: false
+               failOnError: true
             }
          }
 
