@@ -6,22 +6,22 @@ describe('A game actor', () => {
 	
    var actor: ex.Actor;
    
-   var engine;
+   var engine: ex.Engine;
    var scene: ex.Scene;
    var mock = new Mocks.Mocker();
 
    beforeEach(() => {
+      engine = mock.engine(100, 100);
       actor = new ex.Actor();
       actor.collisionType = ex.CollisionType.Active;
       scene = new ex.Scene(engine);
+      engine.currentScene = scene;
 
       spyOn(scene, 'draw').and.callThrough();
       spyOn(scene, 'debugDraw').and.callThrough();
 
       spyOn(actor, 'draw');
-      spyOn(actor, 'debugDraw');
-
-      engine = mock.engine(100, 100, scene);
+      spyOn(actor, 'debugDraw');     
 
       ex.Physics.useBoxPhysics();
       ex.Physics.acc.setTo(0, 0);
@@ -704,7 +704,7 @@ describe('A game actor', () => {
       //actor.enableCapturePointer = true;
       var numPointerUps = 0;
 
-      spyOn(engine.input.pointers, 'propogate').and.callThrough();
+      var propSpy = spyOn(engine.input.pointers, 'propogate').and.callThrough();
       (<any>engine.input.pointers)._pointerUp.push({x: 0, y: 0});
 
       actor.on('pointerup', () => {
@@ -716,6 +716,6 @@ describe('A game actor', () => {
       scene.update(engine, 100);
 
       expect(numPointerUps).toBe(1, 'Pointer up should be triggered once');
-      expect(engine.input.pointers.propogate.calls.count()).toEqual(1, 'Propogate should be called once');
+      expect(propSpy.calls.count()).toEqual(1, 'Propogate should be called once');
    });
 });

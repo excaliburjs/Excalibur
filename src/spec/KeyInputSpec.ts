@@ -4,12 +4,13 @@
 
 describe('A keyboard', () => {
    window = null;
-   var engine = null;
+   var engine: ex.Engine = null;
    var keyboard: ex.Input.Keyboard = null;
    var mocker = new Mocks.Mocker();
+
    beforeEach(() => {
       window = <any>mocker.window();
-      engine = mocker.engine(600, 400, null);
+      engine = mocker.engine(600, 400);
       keyboard = new ex.Input.Keyboard(engine);
       keyboard.init();
    });

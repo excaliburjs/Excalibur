@@ -1,16 +1,18 @@
 ﻿/// <reference path="jasmine.d.ts" />
+/// <reference path="Mocks.ts" />
 
 describe('An Actor Group', () => {
    
-   var engine;
-   var scene;
-   var group;
+   var engine: ex.Engine;
+   var scene: ex.Scene;
+   var group: ex.Group;
    var mock = new Mocks.Mocker();
 
    beforeEach(() => {
       scene = new ex.Scene();
       group = new ex.Group('name', scene);
-      engine = mock.engine(100, 100, scene);
+      engine = mock.engine(100, 100);
+      engine.currentScene = scene;
    });
 
    it('exists', () => {

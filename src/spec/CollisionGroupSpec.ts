@@ -7,7 +7,7 @@ describe('A Collision Group', () => {
    var scene;
    var actor1;
    var actor2;
-   var engine;
+   var engine: ex.Engine;
    var mock = new Mocks.Mocker();
 
    beforeEach(() => {
@@ -19,8 +19,9 @@ describe('A Collision Group', () => {
       
       scene.add(actor1);
       scene.add(actor2);
-      engine = mock.engine(0, 0, scene);
+      engine = mock.engine(0, 0);
       scene = new ex.Scene(engine);
+      engine.currentScene = scene;
    });
 /*
    it("does not effect actors without collision groupings", ()=>{
