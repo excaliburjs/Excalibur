@@ -102,6 +102,15 @@ module ex {
          }
       }
 
+      /**
+       * Updates the collision area geometry and internal caches
+       */
+      public update() {
+         if (this.collisionArea) {
+            this.collisionArea.recalc();
+         }
+      }
+
 
       /**
        * Sets up a box collision area based on the current bounds of the associated actor of this physics body.

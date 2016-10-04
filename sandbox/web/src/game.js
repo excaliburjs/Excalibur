@@ -300,7 +300,6 @@ player.on('postupdate', function (data) {
         data.target.acc.y = 800; // * data.delta/1000;
     }
     else {
-        data.target.acc.y = 0;
     }
     // Reset values because we don't know until we check the next update
     // inAir = true;

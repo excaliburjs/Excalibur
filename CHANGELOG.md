@@ -23,6 +23,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `Actor.debugDraw` now works properly for child actors ([#505](https://github.com/excaliburjs/Excalibur/issues/505), [#645](https://github.com/excaliburjs/Excalibur/issues/645))
 - Sprite culling was double scaling calculations ([#646](https://github.com/excaliburjs/Excalibur/issues/646))
 - Fix negative zoom sprite culling ([#539](https://github.com/excaliburjs/Excalibur/issues/539))
+- Fix Actor updates happening more than once per frame, causing multiple pointer events to trigger ([#643](https://github.com/excaliburjs/Excalibur/issues/643))
+- Fix `Actor.on('pointerup')` capturePointer events opt-in on event handler. The opt-in was triggering correctly for handlers on 'pointerdown' and 'pointermove', but not 'pointerup'.
 
 ## [0.7.0] - 2016-08-29
 ### Breaking Changes
