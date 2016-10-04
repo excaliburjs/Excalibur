@@ -3,6 +3,12 @@
 module ex.Util.DrawUtil {
 
    /**
+    * A canvas linecap style. "butt" is the default flush style, "round" is a semi-circle cap with a radius half the width of
+    * the line, and "square" is a rectangle that is an equal width and half height cap.
+    */
+   export type LineCapStyle = "butt"|"round"|"square";
+
+   /**
     * Draw a line on canvas context
     * 
     * @param ctx The canvas context
@@ -11,11 +17,15 @@ module ex.Util.DrawUtil {
     * @param y1 The start y coordinate
     * @param x2 The ending x coordinate
     * @param y2 The ending y coordinate
+    * @param thickness The line thickness
+    * @param cap The [[LineCapStyle]] (butt, round, or square)
     */
     /* istanbul ignore next */
    export function line(ctx: CanvasRenderingContext2D, color: ex.Color = Color.Red.clone(), 
-                        x1: number, y1: number, x2: number, y2: number) {
+                        x1: number, y1: number, x2: number, y2: number, thickness: number = 1, cap: LineCapStyle = 'butt') {
       ctx.beginPath();
+      ctx.lineWidth = thickness;
+      ctx.lineCap = cap;   
       ctx.strokeStyle = color.toString();
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
