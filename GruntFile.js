@@ -225,7 +225,22 @@ module.exports = function (grunt) {
                force: true
             }
          }
-      }
+      },
+
+      bumpup: {
+        setters: {
+            // Overrides version setter 
+            version: function (old, releaseType, options) {
+               var version = grunt.file.readJSON('package.json').version;
+               var build = process.env.TRAVIS_BUILD_NUMBER || "localbuild";
+               var commit = process.env.TRAVIS_COMMIT || "localcommit";
+               var alphaVersion = version + '-alpha.' + build + "+" + commit.substring(0, 7);  
+               return alphaVersion;
+            },
+        },
+        files: ['build/package.json']
+    }
+
    });
 
    //
@@ -240,6 +255,8 @@ module.exports = function (grunt) {
    grunt.loadNpmTasks('grunt-contrib-watch');
    grunt.loadNpmTasks('grunt-coveralls');
    grunt.loadNpmTasks('grunt-build-control');
+   grunt.loadNpmTasks('grunt-bumpup');
+
    
    //
    // Register available Grunt tasks
