@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.7.1]
+
 ### Breaking Changes
 - Refactored and modified Sound API ([#644](https://github.com/excaliburjs/Excalibur/issues/644))
   - `Sound.setData` now returns a Promise which differs from previous API
@@ -265,7 +267,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Promise implementation for managing asynchronous behavior
 - Resource loading with optional custom progress bars
 
-[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.7.1...HEAD
+[0.7.1]: https://github.com/excaliburjs/Excalibur/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/excaliburjs/Excalibur/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/excaliburjs/Excalibur/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/excaliburjs/Excalibur/compare/v0.5.0...v0.5.1
