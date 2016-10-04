@@ -124,13 +124,22 @@ module Mocks {
          return mockEngine;
       };
 
+      /**
+       * Get a game loop mock that allows you to control the frame advancement
+       * of the main loop.
+       */
       loop(game: ex.Engine): IGameLoop {
          var time = new Mocker().time();
          var loop = ex.Engine.createMainLoop(game, () => 0, time.now);
 
          return {
+
+            /**
+             * Advance the engine update loop by the given duration (in milliseconds). 
+             * By default, the FPS is set to 60 which means ~16ms per frame for 1 second duration.
+             */
             advance: function (duration: number, fps: number = 60) {
-               var times = Math.floor(duration / fps);
+               var times = Math.floor((duration / 1000) * fps);
                var delta = duration / times;
 
                for (var i = 0; i < times; i++) {
@@ -141,6 +150,9 @@ module Mocks {
          };
       }
 
+      /**
+       * Get a time mock. Allows you to mock a now function and increment/decrement the value.
+       */
       time(): ITime {
          var now = 0;
 
