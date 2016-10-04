@@ -3,7 +3,8 @@
 module ex.Util.DrawUtil {
 
    /**
-    * A canvas linecap style. "butt" is the default flush style, "round" is a semi-circle cap with a radius half the width of the line, and "square" is a rectangle that is an equal width and half height cap.
+    * A canvas linecap style. "butt" is the default flush style, "round" is a semi-circle cap with a radius half the width of
+    * the line, and "square" is a rectangle that is an equal width and half height cap.
     */
    export type LineCapStyle = "butt"|"round"|"square";
 
@@ -21,7 +22,7 @@ module ex.Util.DrawUtil {
     */
     /* istanbul ignore next */
    export function line(ctx: CanvasRenderingContext2D, color: ex.Color = Color.Red.clone(), 
-                        x1: number, y1: number, x2: number, y2: number, thickness: number = 1, cap: LineCapStyle = "butt") {
+                        x1: number, y1: number, x2: number, y2: number, thickness: number = 1, cap: LineCapStyle = 'butt') {
       ctx.beginPath();
       ctx.lineWidth = thickness;
       ctx.lineCap = cap;   
