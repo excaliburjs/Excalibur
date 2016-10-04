@@ -4,14 +4,15 @@
 
 describe('A Timer', () => {
    var timer;
-   var scene;
-   var engine;
+   var scene: ex.Scene;
+   var engine: ex.Engine;
    var mock = new Mocks.Mocker();
 
    beforeEach(() => {
-      engine = mock.engine(0, 0, scene);
+      engine = mock.engine(0, 0);
       timer = new ex.Timer(function() { /*do nothing*/ }, 500);     
       scene = new ex.Scene(engine);
+      engine.currentScene = scene;
    });
 
    it('has a unique id', () => {

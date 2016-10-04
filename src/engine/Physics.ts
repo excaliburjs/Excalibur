@@ -198,5 +198,10 @@ module ex {
       public static useRigidBodyPhysics(): void {
          ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
       }
+
+      /**
+       * Small value to help collision passes settle themselves after the narrowphase. 
+       */
+      public static collisionShift = .001;
    };
 }

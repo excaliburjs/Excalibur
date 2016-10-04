@@ -6,23 +6,24 @@ describe('A camera', () => {
    
    var sideCamera;
    var lockedCamera;
-   var baseCamera;
+   var baseCamera;   
    var actor: ex.Actor;
-   var engine;
-   var scene;
+   var engine: ex.Engine;
+   var scene: ex.Scene;
    var mock = new Mocks.Mocker();
 
    beforeEach(() => {
       actor = new ex.Actor();
 
       // mock engine    
-      engine = mock.engine(500, 500, scene);
+      engine = mock.engine(500, 500);
 
       actor.pos.x = 250;
       actor.setWidth(10);
       actor.pos.y = 250;
       actor.setHeight(10);
       scene = new ex.Scene(engine);
+      engine.currentScene = scene;
 
       sideCamera = new ex.SideCamera();
       lockedCamera = new ex.LockedCamera();
@@ -30,7 +31,7 @@ describe('A camera', () => {
    });
 
    it('can follow an actor if it is a lockedCamera', () => {
-      engine.camera = lockedCamera;
+      engine.currentScene.camera = lockedCamera;
       lockedCamera.setActorToFollow(actor);
 
       expect(lockedCamera.getFocus().x).toBe(255);
@@ -46,7 +47,7 @@ describe('A camera', () => {
    });
 
    it('can follow an actor if it is a SideCamera', () => {
-      engine.camera = sideCamera;
+      engine.currentScene.camera = sideCamera;
       sideCamera.setActorToFollow(actor);
 
       expect(sideCamera.getFocus().x).toBe(255);
@@ -63,7 +64,7 @@ describe('A camera', () => {
    });
 
    it('should not move vertically if it is a SideCamera', () => {
-      engine.camera = sideCamera;
+      engine.currentScene.camera = sideCamera;
       sideCamera.setActorToFollow(actor);
    
       actor.vel.x = 10;
@@ -120,7 +121,7 @@ describe('A camera', () => {
    it('cannot focus on a point if it has an actor to follow', () => {
       //TODO
       // expect(true).toBe(false);
-      engine.camera = lockedCamera;
+      engine.currentScene.camera = lockedCamera;
       lockedCamera.setActorToFollow(actor);
       lockedCamera.x = 100;
       lockedCamera.y = 150;
@@ -130,7 +131,7 @@ describe('A camera', () => {
       });
 
    it('can shake', () => {
-      engine.camera = sideCamera;
+      engine.currentScene.camera = sideCamera;
       sideCamera.setActorToFollow(actor);
       sideCamera.shake(5, 5, 5000);
 
@@ -139,7 +140,7 @@ describe('A camera', () => {
    });
 
    it('can zoom', () => {
-      engine.camera = sideCamera;
+      engine.currentScene.camera = sideCamera;
       sideCamera.zoom(2, .1);
 
       expect(sideCamera._isZooming).toBe(true);

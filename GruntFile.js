@@ -94,8 +94,9 @@ module.exports = function (grunt) {
          specs: {
             command: function () {
             	var files = grunt.file.expand("./src/spec/*.ts");
+               files.push('src/spec/support/sourcemaps.js');
 
-            	return '<%= tscCmd %> --target ES5 --sourceMap ' + files.join(' ') + ' --out ./src/spec/TestsSpec.js'
+            	return '<%= tscCmd %> --target ES5 --allowJs --sourceMap ' + files.join(' ') + ' --out ./src/spec/TestsSpec.js'
             },
             options: {
                stdout: true,
@@ -204,9 +205,7 @@ module.exports = function (grunt) {
       //
       tslint: {
          options: {
-            formatter: 'prose',
-            rulesDirectory: './tslint/rules/',
-            configuration: grunt.file.readJSON('./tslint/tslint.json')            
+            configuration: './tslint/tslint.json'          
          },
          src: [
             "src/engine/**/*.ts",
@@ -226,7 +225,22 @@ module.exports = function (grunt) {
                force: true
             }
          }
-      }
+      },
+
+      bumpup: {
+        setters: {
+            // Overrides version setter 
+            version: function (old, releaseType, options) {
+               var version = grunt.file.readJSON('package.json').version;
+               var build = process.env.TRAVIS_BUILD_NUMBER || "localbuild";
+               var commit = process.env.TRAVIS_COMMIT || "localcommit";
+               var alphaVersion = version + '-alpha.' + build + "+" + commit.substring(0, 7);  
+               return alphaVersion;
+            },
+        },
+        files: ['build/package.json']
+    }
+
    });
 
    //
@@ -241,6 +255,8 @@ module.exports = function (grunt) {
    grunt.loadNpmTasks('grunt-contrib-watch');
    grunt.loadNpmTasks('grunt-coveralls');
    grunt.loadNpmTasks('grunt-build-control');
+   grunt.loadNpmTasks('grunt-bumpup');
+
    
    //
    // Register available Grunt tasks

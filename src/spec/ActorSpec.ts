@@ -6,22 +6,25 @@ describe('A game actor', () => {
 	
    var actor: ex.Actor;
    
-   var engine;
+   var engine: ex.Engine;
    var scene: ex.Scene;
    var mock = new Mocks.Mocker();
 
    beforeEach(() => {
+      engine = mock.engine(100, 100);
       actor = new ex.Actor();
       actor.collisionType = ex.CollisionType.Active;
       scene = new ex.Scene(engine);
+      engine.currentScene = scene;
 
       spyOn(scene, 'draw').and.callThrough();
       spyOn(scene, 'debugDraw').and.callThrough();
 
       spyOn(actor, 'draw');
-      spyOn(actor, 'debugDraw');
+      spyOn(actor, 'debugDraw');     
 
-      engine = mock.engine(100, 100, scene);
+      ex.Physics.useBoxPhysics();
+      ex.Physics.acc.setTo(0, 0);
    });
 
    it('should be loaded', () => {
@@ -502,8 +505,9 @@ describe('A game actor', () => {
    });
 
    it('with an active collision type can be placed on a fixed type', () => {
+      ex.Physics.useBoxPhysics();
       var scene = new ex.Scene(engine); 
-	  
+      	  
       var active = new ex.Actor(0, -50, 100, 100);
       active.collisionType = ex.CollisionType.Active;
       active.vel.y = 10;
@@ -526,8 +530,41 @@ describe('A game actor', () => {
          scene.update(engine, 100);
       }
 	 	  
+      expect(active.pos.x).toBeCloseTo(0, .0001);
+      expect(active.pos.y).toBeCloseTo(-50, .0001);
+	  
+      expect(fixed.pos.x).toBe(-100);
+      expect(fixed.pos.y).toBe(50);
+   });
+
+    it('with an active collision type can jump on a fixed type', () => {
+      var scene = new ex.Scene(engine);
+      var active = new ex.Actor(0, -50, 100, 100);
+      active.collisionType = ex.CollisionType.Active;
+      active.vel.y = -100;
+      ex.Physics.acc.setTo(0, 0);
+	  
+      var fixed = new ex.Actor(-100, 50, 1000, 100);
+      fixed.collisionType = ex.CollisionType.Fixed;
+	  
+      scene.add(active);
+      scene.add(fixed);
+	  
       expect(active.pos.x).toBe(0);
       expect(active.pos.y).toBe(-50);
+
+      expect(fixed.pos.x).toBe(-100);
+      expect(fixed.pos.y).toBe(50);
+	  
+      var iterations = 1;
+      // update many times for safety
+      for (var i = 0; i < iterations; i++) {
+         scene.update(engine, 1000);
+      }
+	 	
+      expect(ex.Physics.acc.y).toBe(0);
+      expect(active.pos.x).toBeCloseTo(0, .0001);
+      expect(active.pos.y).toBeCloseTo(-100 * iterations + (-50) /* original y is -50 */, .0001);
 	  
       expect(fixed.pos.x).toBe(-100);
       expect(fixed.pos.y).toBe(50);
@@ -631,5 +668,54 @@ describe('A game actor', () => {
       scene.add(actor);
       scene.update(engine, 100);
       scene.draw(engine.ctx, 100);
+   });
+
+   it('opt into pointer capture when pointerup', () => {
+      var actor = new ex.Actor(0, 0, 100, 100);
+      expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer caputer enabled');
+      actor.on('pointerup', () => {
+         // doesn't matter;
+      });
+      expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer caputer enabled after pointerup');
+   });
+
+   it('opt into pointer capture when pointerdown', () => {
+      var actor = new ex.Actor(0, 0, 100, 100);
+      expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer caputer enabled');
+      actor.on('pointerdown', () => {
+         // doesn't matter;
+      });
+      expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer caputer enabled after pointerdown');
+   });
+
+   it('opt into pointer capture when pointermove', () => {
+      var actor = new ex.Actor(0, 0, 100, 100);
+      expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer caputer enabled');
+      actor.on('pointermove', () => {
+         // doesn't matter;
+      });
+      expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer caputer enabled after pointermove');
+      expect(actor.capturePointer.captureMoveEvents).toBe(true, 'Actor should capture move events after pointermove');
+
+   });
+
+   it('only has pointer events happen once per frame', () => {
+      var actor = new ex.Actor(0, 0, 100, 100);
+      //actor.enableCapturePointer = true;
+      var numPointerUps = 0;
+
+      var propSpy = spyOn(engine.input.pointers, 'propogate').and.callThrough();
+      (<any>engine.input.pointers)._pointerUp.push({x: 0, y: 0});
+
+      actor.on('pointerup', () => {
+         numPointerUps++;
+      });
+
+      scene.add(actor);
+      
+      scene.update(engine, 100);
+
+      expect(numPointerUps).toBe(1, 'Pointer up should be triggered once');
+      expect(propSpy.calls.count()).toEqual(1, 'Propogate should be called once');
    });
 });

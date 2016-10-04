@@ -6,18 +6,21 @@ describe('Action', () => {
 	
    var actor: ex.Actor;
    
-   var engine;
+   var engine: ex.Engine;
    var scene: ex.Scene;
    var mock = new Mocks.Mocker();
 
    beforeEach(() => {
+      engine = mock.engine(100, 100);
+
       actor = new ex.Actor();
       scene = new ex.Scene(engine);
+      engine.currentScene = scene;
 
       spyOn(scene, 'draw').and.callThrough();
       spyOn(actor, 'draw');
 
-      engine = mock.engine(100, 100, scene);
+      
    });
 
    describe('blink', () => {
