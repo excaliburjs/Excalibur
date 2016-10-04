@@ -8,12 +8,26 @@ module ex {
       private _collisionHash: { [key: string]: boolean; } = {};
       private _collisionContactCache: CollisionContact[] = [];
 
-      public register(target: Actor): void {
-         this._dynamicCollisionTree.registerBody(target.body);
+      /**
+       * Tracks a physics body for collisions
+       */
+      public track(target: Body): void {
+         if (!target) {
+            ex.Logger.getInstance().warn('Cannot track null physics body');
+            return;
+         }
+         this._dynamicCollisionTree.trackBody(target);
       }
 
-      public remove(target: Actor): void {
-         this._dynamicCollisionTree.removeBody(target.body);
+      /**
+       * Untracks a physics body
+       */
+      public untrack(target: Body): void {
+         if (!target) {
+            ex.Logger.getInstance().warn('Cannot untrack a null physics body');
+            return;
+         }
+         this._dynamicCollisionTree.untrackBody(target);
       }
 
       private _canCollide(actorA: Actor, actorB: Actor) {
@@ -35,7 +49,7 @@ module ex {
          return true;
       }
 
-      public findCollisionContacts(targets: Actor[], delta: number): CollisionContact[] {
+      public detect(targets: Actor[], delta: number): CollisionContact[] {
          // TODO optimization use only the actors that are moving to start 
          // Retrieve the list of potential colliders, exclude killed, prevented, and self
          var potentialColliders = targets.filter((other) => {
@@ -108,6 +122,9 @@ module ex {
          return this._collisionContactCache;
       }
 
+      /**
+       * Update the dynamic tree positions
+       */
       public update(targets: Actor[], delta: number): number {
          var updated = 0, i = 0, len = targets.length;
 

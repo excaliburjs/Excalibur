@@ -85,9 +85,7 @@ module Mocks {
                keyboard: {
                   update: function () { /* do nothing */ }
                },
-               pointers: {
-                  update: function () { /* do nothing */ }
-               },
+               pointers: new ex.Input.Pointers(<any>this),
                gamepads: {
                   update: function () { /* do nothing */ }
                }
