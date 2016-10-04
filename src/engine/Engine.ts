@@ -581,6 +581,11 @@ O|===|* >________________>\n\
        * when using time-based movement.
        */
       public set timescale(value: number) {
+         if (value <= 0) {
+            Logger.getInstance().error('Cannot set engine.timescale to a value of 0 or less than 0.');
+            return;
+         }
+         
          this._timescale = value;
       }
 
