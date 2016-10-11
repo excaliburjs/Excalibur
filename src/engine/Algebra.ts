@@ -60,14 +60,21 @@ module ex {
       }
 
       /**
-       * The distance to another vector
-       * @param v  The other vector
+       * The distance to another vector. If no other Vector is specified, this will return the [[magnitude]].
+       * @param v  The other vector. Leave blank to use origin vector.
        */
       public distance(v?: Vector): number {
          if (!v) {
-            v = new Vector(0.0, 0.0);
+            v = Vector.Zero;
          }
          return Math.sqrt(Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2));
+      }
+
+      /**
+       * The magnitude (size) of the Vector
+       */
+      public magnitude(): number {
+         return this.distance();
       }
 
       /**
