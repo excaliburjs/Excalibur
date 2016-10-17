@@ -60,6 +60,14 @@ describe('Vectors', () => {
       expect(v.distance()).toBe(20);
       expect(v2.distance()).toBe(20);
    });
+
+   it('can have a magnitude', () =>  {
+      var v = new ex.Vector(20, 0);
+      var v2 = new ex.Vector(0, -20);
+      
+      expect(v.magnitude()).toBe(20);
+      expect(v2.magnitude()).toBe(20);
+   });
    
    it('can calculate the distance to another vector', () => {
      var v = new ex.Vector(-10, 0);
