@@ -215,16 +215,118 @@ describe('Lines', () => {
       expect(line).toBeTruthy();
    });
    
-   it('can have a slope', () => {
+   it('can have a slope Vector', () => {
       var line = new ex.Line(new ex.Vector(1, -1), new ex.Vector(1, 1));
       var slope = line.getSlope();
       
       expect(slope.equals(new ex.Vector(0, 1))).toBeTruthy();
    });
+
+   it('can have a slope value of infinity', () => {
+      var line = new ex.Line(new ex.Vector(1, 0), new ex.Vector(1, 1));
+      var slope = line.slope;
+      
+      expect(line.slope).toBe(Infinity);
+   });
+
+   it('can have a slope value of 0', () => {
+      var line = new ex.Line(new ex.Vector(1, 1), new ex.Vector(2, 1));
+      var slope = line.slope;
+      
+      expect(line.slope).toBe(0);
+   });
+
+   it('can have a positive slope value', () => {
+      var line = new ex.Line(new ex.Vector(0, 0), new ex.Vector(1, 1));
+            
+      expect(line.slope).toBe(1);
+   });
+
+   it('can have a negative slope value', () => {
+      var line = new ex.Line(new ex.Vector(0, 0), new ex.Vector(-1, 1));
+            
+      expect(line.slope).toBe(-1);
+   });
+
+   it('can have a y intercept of infinity', () => {
+      var line = new ex.Line(new ex.Vector(1, 0), new ex.Vector(1, 1));
+      
+      expect(line.intercept).toBe(-Infinity);
+   });
+
+   it('can have a positive y intercept', () => {
+      var line = new ex.Line(new ex.Vector(1, 2), new ex.Vector(2, 2));
+      
+      expect(line.intercept).toBe(2);
+   });
+
+   it('can have a negative y intercept', () => {
+      var line = new ex.Line(new ex.Vector(1, 1), new ex.Vector(2, 2));
+      
+      expect(line.intercept).toBe(0);
+   });
    
    it('can have a length', () => {
       var line = new ex.Line(new ex.Vector(1, -1), new ex.Vector(1, 1));
       expect(line.getLength()).toBe(2);
+   });
+
+   it('can find a point by X value', () => {
+
+      var line = new ex.Line(new ex.Vector(0, 0), new ex.Vector(2, 2));
+      var t = line.findPoint(1);
+
+      expect(t.y).toBe(1);
+   });
+
+   it('can find a point by Y value', () => {
+
+      var line = new ex.Line(new ex.Vector(0, 0), new ex.Vector(2, 2));
+      var t = line.findPoint(null, 1);
+
+      expect(t.x).toBe(1);
+   });
+
+   it('can determine if point lies on the line by x and y', () => {
+      var line = new ex.Line(new ex.Vector(0, 0), new ex.Vector(2, 2));
+      var t = line.hasPoint(1, 1);
+
+      expect(t).toBe(true);
+   });
+
+   it('can determine if point lies on the line by Vector', () => {
+      var line = new ex.Line(new ex.Vector(0, 0), new ex.Vector(2, 2));
+      var t = line.hasPoint(new ex.Vector(1, 1));
+
+      expect(t).toBe(true);
+   });
+
+   it('can determine if point lies on the line by x and y with absolute precision', () => {
+      var line = new ex.Line(new ex.Vector(0, 0), new ex.Vector(2, 2));
+      var t = line.hasPoint(1.005, 1);
+
+      expect(t).toBe(false);
+   });
+
+   it('can determine if point lies on the line by Vector with absolute precision', () => {
+      var line = new ex.Line(new ex.Vector(0, 0), new ex.Vector(2, 2));
+      var t = line.hasPoint(new ex.Vector(1.005, 1));
+
+      expect(t).toBe(false);
+   });
+
+   it('can determine if point lies on the line by x and y at a certain threshold', () => {
+      var line = new ex.Line(new ex.Vector(0, 0), new ex.Vector(2, 2));
+      var t = line.hasPoint(1.005, 1, 0.1);
+
+      expect(t).toBe(true);
+   });
+
+   it('can determine if point lies on the line by Vector at a certain threshold', () => {
+      var line = new ex.Line(new ex.Vector(0, 0), new ex.Vector(2, 2));
+      var t = line.hasPoint(new ex.Vector(1.005, 1), 0.1);
+
+      expect(t).toBe(true);
    });
 });
 
