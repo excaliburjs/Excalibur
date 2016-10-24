@@ -218,6 +218,15 @@ module.exports = function (grunt) {
          ]
       },
       
+      jasmine : {
+         src : 'js-imagediff.js',
+         options : {
+            vendor : '../support/js-imagediff.js',
+            specs : 'src/spec/TestsSpec.js',
+            keepRunner: true
+         }
+      },
+
       coveralls: {
          main: {
             src: './coverage/lcov.info',
@@ -256,6 +265,7 @@ module.exports = function (grunt) {
    grunt.loadNpmTasks('grunt-coveralls');
    grunt.loadNpmTasks('grunt-build-control');
    grunt.loadNpmTasks('grunt-bumpup');
+   grunt.loadNpmTasks('grunt-contrib-jasmine');
 
    
    //

@@ -34,6 +34,8 @@
     "grunt-shell": "0.6.1",
     "grunt-tslint": "^3.2.1",
     "istanbul": "^0.4.3",
+    "grunt-contrib-jasmine": "^1.0.3",
+    "phantomjs-prebuilt": "^2.1.13",
     "jasmine": "^2.4.1",
     "source-map-support": "^0.4.3",
     "travis-ci": "^2.1.0",

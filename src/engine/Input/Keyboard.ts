@@ -142,14 +142,14 @@
       /**
        * Initialize Keyboard event listeners
        */
-      init(): void {
-
-         window.addEventListener('blur', (ev: UIEvent) => {
+      init(global?: any): void {
+         global = global || window;
+         global.addEventListener('blur', (ev: UIEvent) => {
             this._keys.length = 0; // empties array efficiently
          });
 
          // key up is on window because canvas cannot have focus
-         window.addEventListener('keyup', (ev: KeyboardEvent) => {
+         global.addEventListener('keyup', (ev: KeyboardEvent) => {
             var key = this._keys.indexOf(ev.keyCode);
             this._keys.splice(key, 1);
             this._keysUp.push(ev.keyCode);
@@ -161,7 +161,7 @@
          });
 
          // key down is on window because canvas cannot have focus
-         window.addEventListener('keydown', (ev: KeyboardEvent) => {
+         global.addEventListener('keydown', (ev: KeyboardEvent) => {
             if (this._keys.indexOf(ev.keyCode) === -1) {
                this._keys.push(ev.keyCode);
                this._keysDown.push(ev.keyCode);
