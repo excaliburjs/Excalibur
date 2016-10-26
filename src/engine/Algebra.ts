@@ -11,6 +11,16 @@ module ex {
       public static Zero = new Vector(0, 0);
 
       /**
+      * A (1,1) vector
+       */
+      public static One = new Vector(1,1);
+
+      /**
+       * A (0.5, 0.5) vector
+       */
+      public static Half = new Vector(0.5,0.5);
+
+      /**
        * A unit vector pointing up (0, -1)
        */
       public static Up = new Vector(0, -1);
