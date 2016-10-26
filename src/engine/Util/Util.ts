@@ -104,7 +104,7 @@ module ex.Util {
    }
 
    export function clamp(val, min, max) {
-      return val <= min ? min : (val >= max ? max : val);
+      return Math.min(Math.max(min, val), max);
    }
 
    export function randomInRange(min: number, max: number) : number {
