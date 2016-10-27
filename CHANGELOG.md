@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - `ex.Line.intercept` for the Y intercept (b) value
   - `ex.Line.findPoint(x?, y?)` to find a point given an X or a Y value
   - `ex.Line.hasPoint(x, y, threshold)` to determine if given point lies on the line
+- new `Vector.One` and `Vector.Half` constants ([#649](https://github.com/excaliburjs/Excalibur/issues/649))
 
 ## [0.7.1]
 
