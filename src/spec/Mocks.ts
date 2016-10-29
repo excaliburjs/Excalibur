@@ -1,4 +1,4 @@
-﻿/// <reference path="../engine/Engine.ts" />
+﻿/// <reference path="../../build/dist/excalibur.d.ts" />
 
 module Mocks {
 

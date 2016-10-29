@@ -5,9 +5,11 @@
 /sandbox/web/**/*.js
 /sandbox/web/excalibur.d.ts
 /src/spec/*.js
+_SpecRunner.html
 node_modules/
 /bower_components/
 coverage/
+.grunt/
 
 # Logs and databases #
 ######################

@@ -315,19 +315,27 @@
                 context = can.getContext('2d');
                 context.putImageData(diff, 0, 0);
 
-                a.appendChild(toCanvas(actual));
-                b.appendChild(toCanvas(expected));
+                var actualCanvas = toCanvas(actual);
+                a.appendChild(actualCanvas);
+
+                var expectedCanvas = toCanvas(expected);
+                b.appendChild(expectedCanvas);
                 c.appendChild(can);
 
                 div.appendChild(a);
                 div.appendChild(b);
                 div.appendChild(c);
 
-                
+                var newline = '\r\n';
+                var doubleline = newline + newline;
                 if(result.pass) {
-                    result.message = can.toDataURL('image/png', 0); //div;
+                    result.message = "Expected: " + newline + actualCanvas.toDataURL('image/png', 0) + doubleline  + 
+                                     "To be: " + newline + expectedCanvas.toDataURL('image/png', 0) + doubleline +
+                                     "Diff: " + newline + can.toDataURL('image/png', 0); //div;
                 } else {
-                    result.message = can.toDataURL('image/png', 0); //div;
+                    result.message = "Expected: " + newline + actualCanvas.toDataURL('image/png', 0) + doubleline + 
+                                     "To be: " + newline + expectedCanvas.toDataURL('image/png', 0) + doubleline +
+                                     "Diff: " + newline + can.toDataURL('image/png', 0); //div;
                 }
                 return result;
             }

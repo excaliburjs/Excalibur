@@ -214,22 +214,46 @@ module.exports = function (grunt) {
             
             // exclusions
             "!src/spec/jasmine.d.ts",
-            "!src/spec/require.d.ts"
+            "!src/spec/require.d.ts",
+            "!src/spec/support/js-imagediff.d.ts"
          ]
       },
       
       jasmine : {
-         src : 'js-imagediff.js',
-         options : {
-            vendor : '../support/js-imagediff.js',
-            specs : 'src/spec/TestsSpec.js',
-            keepRunner: true
+         coverage : {
+            src : 'build/dist/excalibur.js',
+            options : {
+               vendor : ['src/spec/support/js-imagediff.js'/*, 'src/spec/support/sourcemaps.js'*/],
+               specs : 'src/spec/TestsSpec.js',
+               keepRunner: true,
+               template: require('grunt-template-jasmine-istanbul'),
+               templateOptions: {
+                  coverage: './coverage/coverage.json',
+                  report: [ 
+                     {
+                        type: 'html',
+                        options: {
+                           dir: './coverage'
+                        }
+                     },
+                     {
+								type: 'lcovonly',
+								options: {
+									dir: './coverage/lcov'
+								}
+							},
+                     {
+                        type: 'text-summary'
+                     }
+                  ]
+               }
+            }
          }
       },
 
       coveralls: {
          main: {
-            src: './coverage/lcov.info',
+            src: './coverage/lcov/lcov.info',
             options: {
                force: true
             }
@@ -294,6 +318,6 @@ module.exports = function (grunt) {
    grunt.registerTask('dists', ['buildcontrol']);
    
    // Default task - compile, test, build dists
-   grunt.registerTask('default', ['tslint:src', 'shell:specs', 'shell:istanbul', 'coveralls', 'compile', 'sample', 'visual']);
+   grunt.registerTask('default', ['tslint:src', 'compile', 'shell:specs', 'jasmine', 'coveralls', 'sample', 'visual']);
 
 };
