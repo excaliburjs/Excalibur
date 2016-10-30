@@ -5,6 +5,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- `ex.Vector.magnitude` alias that calls `ex.Vector.distance()` to get magnitude of Vector ([#663](https://github.com/excaliburjs/Excalibur/issues/663))
+- Added new `ex.Line` utilities ([#662](https://github.com/excaliburjs/Excalibur/issues/662)):
+  - `ex.Line.slope` for the raw slope (m) value
+  - `ex.Line.intercept` for the Y intercept (b) value
+  - `ex.Line.findPoint(x?, y?)` to find a point given an X or a Y value
+  - `ex.Line.hasPoint(x, y, threshold)` to determine if given point lies on the line
+- new `Vector.One` and `Vector.Half` constants ([#649](https://github.com/excaliburjs/Excalibur/issues/649))
+
 ## [0.7.1]
 
 ### Breaking Changes
