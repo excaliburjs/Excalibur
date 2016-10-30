@@ -14,6 +14,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - `ex.Line.hasPoint(x, y, threshold)` to determine if given point lies on the line
 - new `Vector.One` and `Vector.Half` constants ([#649](https://github.com/excaliburjs/Excalibur/issues/649))
 
+### Fixed
+
+- Fix `Actor.oldPos` and `Actor.oldVel` values on update ([#666](https://github.com/excaliburjs/Excalibur/issues/666))
+
 ## [0.7.1]
 
 ### Breaking Changes
