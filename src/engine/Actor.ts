@@ -1173,10 +1173,8 @@ module ex {
           !(this instanceof Label)) {
           totalAcc.addEqual(ex.Physics.acc);
        }
-
-       this.oldVel = this.vel;
-       this.vel.addEqual(totalAcc.scale(seconds));
-
+       
+       this.vel.addEqual(totalAcc.scale(seconds));       
        this.pos.addEqual(this.vel.scale(seconds)).addEqual(totalAcc.scale(0.5 * seconds * seconds));
 
        this.rx += this.torque * (1.0 / this.moi) * seconds;
@@ -1229,6 +1227,11 @@ module ex {
           }
        }
 
+       // Capture old values before integration step updates them
+       this.oldVel.setTo(this.vel.x, this.vel.y);
+       this.oldPos.setTo(this.pos.x, this.pos.y);
+
+       // Run Euler integration
        this.integrate(delta);
 
        // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
