@@ -151,7 +151,7 @@ module ex {
       }
 
       /**
-       * Chain success and reject callbacks after the promise is resovled
+       * Chain success and reject callbacks after the promise is resolved
        * @param successCallback  Call on resolution of promise
        * @param rejectCallback   Call on rejection of promise
        */
@@ -237,7 +237,7 @@ module ex {
       }
 
       /**
-       * Inpect the current state of a promise
+       * Inspect the current state of a promise
        */
       public state(): PromiseState {
          return this._state;

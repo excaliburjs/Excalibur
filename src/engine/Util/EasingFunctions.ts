@@ -9,7 +9,7 @@
 
    /**
     * Standard easing functions for motion in Excalibur, defined on a domain of [0, duration] and a range from [+startValue,+endValue]
-    * Given a time, the function will return a value from postive startValue to postive endValue.
+    * Given a time, the function will return a value from positive startValue to positive endValue.
     *
     * ```js
     * function Linear (t) {

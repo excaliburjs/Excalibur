@@ -58,7 +58,7 @@ module ex {
 
          var actor: Actor;
          
-         // Check collison cache and re-add pairs that still are in collision
+         // Check collision cache and re-add pairs that still are in collision
          var newPairs = [];
          this._collisionContactCache.forEach(c => {
             var contact = c.bodyA.collide(c.bodyB);
@@ -76,7 +76,7 @@ module ex {
          for (var j = 0, l = potentialColliders.length; j < l; j++) {
             actor = potentialColliders[j];
 
-            // Query the colllision tree for potential colliders
+            // Query the collision tree for potential colliders
             this._dynamicCollisionTree.query(actor.body, (other: Body) => {
                if (this._canCollide(actor, other.actor)) {
                   // generate all the collision contacts between the 2 sets of collision areas between both actors

@@ -244,8 +244,10 @@ module ex {
        * specified (in magnitude increase per second) and return back the 
        * actor. This method is part of the actor 'Action' fluent API allowing 
        * action chaining.
-       * @param size   The scaling factor to apply
-       * @param speed  The speed of scaling specified in magnitude increase per second
+       * @param sizeX   The scaling factor to apply on X axis
+       * @param sizeY   The scaling factor to apply on Y axis
+       * @param speedX  The speed of scaling specified in magnitude increase per second on X axis
+       * @param speedY  The speed of scaling specified in magnitude increase per second on Y axis
        */
       public scaleTo(sizeX: number, sizeY: number, speedX: number, speedY: number): ActionContext {
          var i = 0, len = this._queues.length;
@@ -259,8 +261,9 @@ module ex {
        * This method will scale an actor to the specified size by a certain time
        * (in milliseconds) and return back the actor. This method is part of the
        * actor 'Action' fluent API allowing action chaining.
-       * @param size   The scaling factor to apply
-       * @param time   The time it should take to complete the scaling in milliseconds
+       * @param sizeX   The scaling factor to apply on X axis
+       * @param sizeY   The scaling factor to apply on Y axis
+       * @param time    The time it should take to complete the scaling in milliseconds
        */
       public scaleBy(sizeX: number, sizeY: number, time: number): ActionContext {
          var i = 0, len = this._queues.length;
@@ -332,7 +335,7 @@ module ex {
       /**
        * This method allows you to call an arbitrary method as the next action in the
        * action queue. This is useful if you want to execute code in after a specific
-       * action, i.e An actor arrives at a destinatino after traversing a path
+       * action, i.e An actor arrives at a destination after traversing a path
        */
       public callMethod(method: () => any): ActionContext {
          var i = 0, len = this._queues.length;

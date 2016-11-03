@@ -64,7 +64,7 @@ module ex {
 
 
       /**
-       * Gets or sets the scale trasformation
+       * Gets or sets the scale transformation
        */
       scale: ex.Vector;
 

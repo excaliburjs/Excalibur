@@ -85,7 +85,7 @@ module ex.Util.DrawUtil {
    }
 
    /**
-    * Draw a round rectange on a canvas context
+    * Draw a round rectangle on a canvas context
     * 
     * @param ctx The canvas context
     * @param x The top-left x coordinate

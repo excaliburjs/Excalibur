@@ -53,7 +53,7 @@ module ex {
       /**
        * You may wish to extend native Excalibur functionality in vanilla Javascript. 
        * Any method on a class inheriting [[Class]] may be extended to support 
-       * additional functionaliy. In the example below we create a new type called `MyActor`.
+       * additional functionality. In the example below we create a new type called `MyActor`.
        * 
        *
        * ```js

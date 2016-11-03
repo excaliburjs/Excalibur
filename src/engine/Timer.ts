@@ -16,7 +16,8 @@ module ex {
     public scene: Scene = null;
 
     /**
-     * @param callback   The callback to be fired after the interval is complete.
+     * @param fcn        The callback to be fired after the interval is complete.
+     * @param interval   Interval length
      * @param repeats    Indicates whether this call back should be fired only once, or repeat after every interval as completed.    
      */      
     constructor(fcn: () => void, interval: number, repeats?: boolean) {

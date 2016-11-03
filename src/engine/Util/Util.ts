@@ -221,7 +221,7 @@ module ex.Util {
    }
 
    /**
-    * Excaliburs dynamically resizing collection
+    * Excalibur's dynamically resizing collection
     */
    export class Collection<T> {
       /**
@@ -291,7 +291,7 @@ module ex.Util {
 
       /**
        * Returns an element at a specific index
-       * @param index  Index of element to retreive
+       * @param index  Index of element to retrieve
        */
       public elementAt(index: number): T {
          if (index >= this.count()) {
@@ -303,6 +303,7 @@ module ex.Util {
       /**
        * Inserts an element at a specific index
        * @param index  Index to insert the element
+       * @param value  Element to insert
        */
       public insert(index: number, value: T): T {
          if (index >= this.count()) {
@@ -329,7 +330,7 @@ module ex.Util {
 
       /**
        * Removes an element by reference
-       * @param element  Element to retreive
+       * @param element  Element to retrieve
        */
       public removeElement(element: T) {
          var index = this._internalArray.indexOf(element);

@@ -80,7 +80,7 @@ module ex {
         }
 
         /**
-         * Tests wether a point is contained within the bounding box
+         * Tests whether a point is contained within the bounding box
          * @param p  The point to test
          */
         public contains(p: Vector): boolean;
@@ -119,7 +119,7 @@ module ex {
 
         /** 
          * Test wether this bounding box collides with another returning,
-         * the intersection vector that can be used to resovle the collision. If there
+         * the intersection vector that can be used to resolve the collision. If there
          * is no collision null is returned.
          * @param collidable  Other collidable to test
          */

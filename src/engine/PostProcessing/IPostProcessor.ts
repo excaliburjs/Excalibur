@@ -6,7 +6,7 @@
      * Sometimes it is necessary to apply an effect to the canvas after the engine has completed its drawing pass. A few reasons to do 
      * this might be creating a blur effect, adding a lighting effect, or changing how colors and pixels look.
      *
-     * ## Basic post procesors
+     * ## Basic post processors
      *
      * To create and use a post processor you just need to implement a class that implements [[IPostProcessor]], which has one method
      * [[IPostProcessor.process]]. Set the `out` canvas parameter to the final result, using the `image` pixel data.
@@ -41,7 +41,7 @@
      * Choosing colors that are friendly to players with color blindness is an important consideration when making a game. 
      * There is a significant portion of the population that has some form of color blindness, 
      * and choosing bad colors can make your game unplayable. We have built
-     * a post procesors that can shift your colors into as more visible range for the 3 most common types of 
+     * a post processors that can shift your colors into as more visible range for the 3 most common types of 
      * [[https://en.wikipedia.org/wiki/Color_blindness|color blindness]]. 
      * 
      *  - [[ColorBlindness.Protanope|Protanope]]

@@ -218,8 +218,8 @@ module ex {
     *     |_ Actor 1
     *       |_ Child Actor 1
     *     |_ Actor 2
-    *   |_ Scene 2 (deactiveated)
-    *   |_ Scene 3 (deactiveated)
+    *   |_ Scene 2 (deactivated)
+    *   |_ Scene 3 (deactivated)
     * ```
     *
     * The engine splits the game into two primary responsibilities: updating and drawing. This is
@@ -916,7 +916,7 @@ O|===|* >________________>\n\
             screenY -= focus.y;
          }
 
-         // transfrom back on zoom
+         // transform back on zoom
          screenX = screenX + this.getWidth() / 2;
          screenY = screenY + this.getHeight() / 2;
 
@@ -1054,7 +1054,7 @@ O|===|* >________________>\n\
 
       /**
        * Draws the entire game
-       * @param draw  Number of milliseconds elapsed since the last draw.
+       * @param delta  Number of milliseconds elapsed since the last draw.
        */
       private _draw(delta: number) {
          var ctx = this.ctx;

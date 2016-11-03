@@ -96,7 +96,7 @@ module ex {
     * Labels
     *
     * Labels are the way to draw small amounts of text to the screen. They are
-    * actors and inherit all of the benifits and capabilities.
+    * actors and inherit all of the benefits and capabilities.
     *
     * ## Creating a Label
     *
@@ -118,7 +118,7 @@ module ex {
     * label.y = 50;
     * label.fontFamily = "Arial";
     * label.fontSize = 10;
-    * lable.fontUnit = ex.FontUnit.Px // pixels are the default
+    * label.fontUnit = ex.FontUnit.Px // pixels are the default
     * label.text = "Foo";
     * label.color = ex.Color.White;
     * label.textAlign = ex.TextAlign.Center;
@@ -255,8 +255,8 @@ module ex {
        * @param text        The text of the label
        * @param x           The x position of the label
        * @param y           The y position of the label
-       * @param font        Use any valid CSS font string for the label's font. Web fonts are supported. Default is `10px sans-serif`.
-       * @param spriteFont  Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precendence 
+       * @param fontFamily  Use any valid CSS font string for the label's font. Web fonts are supported. Default is `10px sans-serif`.
+       * @param spriteFont  Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precedence 
        * over a css font.
        */
       constructor(text?: string, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
@@ -265,7 +265,7 @@ module ex {
          this.color = Color.Black.clone();
          this.spriteFont = spriteFont;
          this.collisionType = CollisionType.PreventCollision;                  
-         this.fontFamily = fontFamily || 'sans-serif'; // coallesce to default canvas font
+         this.fontFamily = fontFamily || 'sans-serif'; // coalesce to default canvas font
          if (spriteFont) {
             //this._textSprites = spriteFont.getTextSprites();
          }
@@ -341,7 +341,7 @@ module ex {
       /**
        * Sets the text shadow for sprite fonts
        * @param offsetX      The x offset in pixels to place the shadow
-       * @param offsetY      The y offset in pixles to place the shadow
+       * @param offsetY      The y offset in pixels to place the shadow
        * @param shadowColor  The color of the text shadow
        */
       public setTextShadow(offsetX: number, offsetY: number, shadowColor: Color) {

@@ -210,11 +210,11 @@ module ex {
       public deadParticles: Util.Collection<Particle> = null;
 
       /**
-       * Gets or sets the minimum partical velocity
+       * Gets or sets the minimum particle velocity
        */
       public minVel: number = 0;
       /**
-       * Gets or sets the maximum partical velocity
+       * Gets or sets the maximum particle velocity
        */
       public maxVel: number = 0;
 
@@ -349,9 +349,9 @@ module ex {
          this.particles.clear();
       }
 
-      // Creates a new particle given the contraints of the emitter
+      // Creates a new particle given the constraints of the emitter
       private _createParticle(): Particle {
-         // todo implement emitter contraints;
+         // todo implement emitter constraints;
          var ranX = 0;
          var ranY = 0;
 

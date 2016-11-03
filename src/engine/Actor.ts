@@ -51,7 +51,7 @@ module ex {
    * 
    * ## Actor Lifecycle
    * 
-   * An [[Actor|actor]] has a basic lifecycle that dictacts how it is initialized, updated, and drawn. Once an actor is part of a 
+   * An [[Actor|actor]] has a basic lifecycle that dictates how it is initialized, updated, and drawn. Once an actor is part of a 
    * [[Scene|scene]], it will follow this lifecycle.
    * 
    * ![Actor Lifecycle](/assets/images/docs/ActorLifecycle.png)
@@ -473,14 +473,14 @@ module ex {
     }
     
     /**
-     * Gets the current momemnt of inertia, moi can be thought of as the resistance to rotation.
+     * Gets the current moment of inertia, moi can be thought of as the resistance to rotation.
      */
     public get moi() {
        return this.body.moi;
     }
     
     /**
-     * Sets the current momemnt of inertia, moi can be thought of as the resistance to rotation.
+     * Sets the current moment of inertia, moi can be thought of as the resistance to rotation.
      */
     public set moi(theMoi: number) {
        this.body.moi = theMoi;
@@ -627,7 +627,7 @@ module ex {
     public color: Color;
 
     /**
-     * Whether or not to enable the [[CapturePointer]] trait that propogates 
+     * Whether or not to enable the [[CapturePointer]] trait that propagates 
      * pointer events to this actor
      */
     public enableCapturePointer: boolean = false;
@@ -792,7 +792,7 @@ module ex {
     }
      
     /**
-     * Add minimum translation vectors accumulated during the current frame to resolve collisons.
+     * Add minimum translation vectors accumulated during the current frame to resolve collisions.
      */ 
     public addMtv(mtv: Vector) {
         this._totalMtv.addEqual(mtv);
@@ -858,7 +858,7 @@ module ex {
      * Sets the z-index of an actor and updates it in the drawing list for the scene. 
      * The z-index determines the relative order an actor is drawn in.
      * Actors with a higher z-index are drawn on top of actors with a lower z-index
-     * @param actor The child actor to remove
+     * @param newIndex new z-index to assign
      */
      public setZIndex(newIndex: number) {
        this.scene.cleanupDrawTree(this);
