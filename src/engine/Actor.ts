@@ -689,14 +689,15 @@ module ex {
     }
 
     private _checkForPointerOptIn(eventName: string) {
-       if (eventName && (eventName.toLowerCase() === 'pointerdown' ||
-          eventName.toLowerCase() === 'pointerup' ||
-          eventName.toLowerCase() === 'pointermove')) {
+      if (eventName) {
+        const normalized = eventName.toLowerCase();
+        if (normalized === 'pointerup' || normalized === 'pointerdown' || normalized === 'pointermove') {
           this.enableCapturePointer = true;
-          if (eventName.toLowerCase() === 'pointermove') {
-             this.capturePointer.captureMoveEvents = true;
+          if (normalized === 'pointermove') {
+            this.capturePointer.captureMoveEvents = true;
           }
-       }
+        }
+      }
     }
    
     public on(eventName: ex.Events.kill, handler: (event?: KillEvent) => void);
