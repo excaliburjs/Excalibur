@@ -108,7 +108,7 @@ module ex {
          ctx.beginPath();
          ctx.lineWidth = this.lineWidth;
 
-         // Iterate through the supplied points and contruct a 'polygon'
+         // Iterate through the supplied points and construct a 'polygon'
          var firstPoint = this._points[0];
          ctx.moveTo(firstPoint.x, firstPoint.y);
 

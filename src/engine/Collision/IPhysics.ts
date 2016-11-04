@@ -2,7 +2,7 @@ module ex {
    
    export interface IEnginePhysics {
       /**
-       * Global engine acceleration, useful for defining consitent gravity on all actors
+       * Global engine acceleration, useful for defining consistent gravity on all actors
        */
       acc: Vector;
       /**
@@ -22,7 +22,7 @@ module ex {
        */
       integrator: string;
       /**
-       * Number of collision resultion passes 
+       * Number of collision resolution passes 
        */
       collisionPasses: number;
       

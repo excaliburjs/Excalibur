@@ -3,7 +3,7 @@ module ex {
    /**
     * Possible collision resolution strategies
     *
-    * The default is [[CollisionResolutionStrategy.Box]] which performs simple axis aligned arcade style physcs.
+    * The default is [[CollisionResolutionStrategy.Box]] which performs simple axis aligned arcade style physics.
     * 
     * More advanced rigid body physics are enabled by setting [[CollisionResolutionStrategy.RigidBody]] which allows for complicated
     * simulated physical interactions.
@@ -85,7 +85,7 @@ module ex {
     * ## Limitations
     *
     * Currently Excalibur only supports single contact point collisions and non-sleeping physics bodies. This has some negative stability 
-    * and performance implications. Single contact point collisions can have odd oscilating behavior. Non-sleeping bodies will recalculate
+    * and performance implications. Single contact point collisions can have odd oscillating behavior. Non-sleeping bodies will recalculate
     * collisions whether they need to or not. We fully intend to add these features into Excalibur in future releases.
     *
     */
@@ -93,7 +93,7 @@ module ex {
    export class Physics {
       /**
        * Global acceleration that is applied to all vanilla actors (it wont effect [[Label|labels]], [[UIActor|ui actors]], or 
-       * [[Trigger|triggers]] in Excalibur that have an [[CollisionType.Active|active]] collison type).
+       * [[Trigger|triggers]] in Excalibur that have an [[CollisionType.Active|active]] collision type).
        * 
        * 
        * This is a great way to globally simulate effects like gravity.
@@ -111,7 +111,7 @@ module ex {
        * Reducing collision passes may cause things not to collide as expected in your game, but may increase performance.
        * 
        * More passes can improve the visual quality of collisions when many objects are on the screen. This can reduce jitter, improve the
-       * collison resolution of fast move objects, or the stability of large numbers of objects stacked together.
+       * collision resolution of fast move objects, or the stability of large numbers of objects stacked together.
        * 
        * Fewer passes will improve the performance of the game at the cost of collision quality, more passes will improve quality at the 
        * cost of performance. 

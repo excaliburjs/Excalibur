@@ -84,7 +84,7 @@ module ex {
                // non-zero intersection on the y axis
                if (this.mtv.x !== 0) {
                   var velX = 0;
-                  // both bodies are traveling in the same direction (negative or positve)
+                  // both bodies are traveling in the same direction (negative or positive)
                   if (bodyA.vel.x < 0 && bodyB.vel.x < 0) {
                      velX = Math.min(bodyA.vel.x, bodyB.vel.x);
                   } else if (bodyA.vel.x > 0 && bodyB.vel.x > 0) {

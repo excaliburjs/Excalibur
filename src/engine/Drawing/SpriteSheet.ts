@@ -285,10 +285,10 @@ module ex {
       /**
        * @param image           The backing image texture to build the SpriteFont
        * @param alphabet        A string representing all the characters in the image, in row major order.
-       * @param caseInsensitve  Indicate whether this font takes case into account 
+       * @param caseInsensitive  Indicate whether this font takes case into account 
        * @param columns         The number of columns of characters in the image
        * @param rows            The number of rows of characters in the image
-       * @param spWdith         The width of each character in pixels
+       * @param spWidth         The width of each character in pixels
        * @param spHeight        The height of each character in pixels
        */
       constructor(public image: Texture,
@@ -320,7 +320,7 @@ module ex {
       /**
        * Sets the text shadow for sprite fonts
        * @param offsetX      The x offset in pixels to place the shadow
-       * @param offsetY      The y offset in pixles to place the shadow
+       * @param offsetY      The y offset in pixels to place the shadow
        * @param shadowColor  The color of the text shadow
        */
       public setTextShadow(offsetX: number, offsetY: number, shadowColor: Color) {

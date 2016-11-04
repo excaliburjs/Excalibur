@@ -153,7 +153,7 @@
         }
 
         /**
-         * Get the momemnt of inertia for an edge
+         * Get the moment of inertia for an edge
          * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
          */
         public getMomentOfInertia(): number {
