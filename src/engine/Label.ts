@@ -278,7 +278,7 @@ module ex {
        */
       public getTextWidth(ctx: CanvasRenderingContext2D): number {
          var oldFont = ctx.font;
-         ctx.font = this.fontFamily;
+         ctx.font = this._fontString;
          var width = ctx.measureText(this.text).width;
          ctx.font = oldFont;
          return width;
@@ -429,7 +429,7 @@ module ex {
                this.color.a = this.opacity;
             }
             ctx.fillStyle = this.color.toString();
-            ctx.font = `${this.fontSize}${this._lookupFontUnit(this.fontUnit)} ${this.fontFamily}`;
+            ctx.font = this._fontString;
             if (this.maxWidth) {
                ctx.fillText(this.text, 0, 0, this.maxWidth);
             } else {
@@ -439,6 +439,10 @@ module ex {
             ctx.textAlign = oldAlign;
             ctx.textBaseline = oldTextBaseline;
          }
+      }
+
+      protected get _fontString() {
+          return `${this.fontSize}${this._lookupFontUnit(this.fontUnit)} ${this.fontFamily}`;
       }
 
       public debugDraw(ctx: CanvasRenderingContext2D) {
