@@ -146,7 +146,7 @@ module ex {
        * This moves the camera focal point to the specified position using specified easing function. Cannot move when following an Actor.
        * 
        * @param pos The target position to move to
-       * @param duration The duration in millseconds the move should last
+       * @param duration The duration in milliseconds the move should last
        * @param [easingFn] An optional easing function ([[ex.EasingFunctions.EaseInOutCubic]] by default)
        * @returns A [[Promise]] that resolves when movement is finished, including if it's interrupted. 
        *          The [[Promise]] value is the [[Vector]] of the target position. It will be rejected if a move cannot be made.
@@ -290,6 +290,7 @@ module ex {
 
       /**
        * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
+       * @param ctx    Canvas context to apply transformations
        * @param delta  The number of milliseconds since the last update
        */
       public draw(ctx: CanvasRenderingContext2D, delta: number) {

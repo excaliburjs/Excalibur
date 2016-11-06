@@ -9,12 +9,24 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - `ex.Vector.magnitude` alias that calls `ex.Vector.distance()` to get magnitude of Vector ([#663](https://github.com/excaliburjs/Excalibur/issues/663))
+- Added new `ex.Line` utilities ([#662](https://github.com/excaliburjs/Excalibur/issues/662)):
+  - `ex.Line.slope` for the raw slope (m) value
+  - `ex.Line.intercept` for the Y intercept (b) value
+  - `ex.Line.findPoint(x?, y?)` to find a point given an X or a Y value
+  - `ex.Line.hasPoint(x, y, threshold)` to determine if given point lies on the line
+- new `Vector.One` and `Vector.Half` constants ([#649](https://github.com/excaliburjs/Excalibur/issues/649))
 - PhantomJS based testing infrastructure to accurately test browser features such as image diffs on canvas drawing ([#521](https://github.com/excaliburjs/Excalibur/issues/521))
+
+
+### Fixed
+
+- Fix `Actor.oldPos` and `Actor.oldVel` values on update ([#666](https://github.com/excaliburjs/Excalibur/issues/666))
+- Fix `Label.getTextWidth` returns incorrect result ([#679](https://github.com/excaliburjs/Excalibur/issues/679))
+- Fix incorrect code coverage metrics, previously our test process was reporting higher than actual code coverage ([#521](https://github.com/excaliburjs/Excalibur/issues/521))
 
 ### Changed
 
-### Fixed
-- Fix incorrect code coverage metrics, previously our test process was reporting higher than actual code coverage ([#521](https://github.com/excaliburjs/Excalibur/issues/521))
+
 
 ## [0.7.1]
 

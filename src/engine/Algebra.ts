@@ -1,5 +1,5 @@
 module ex {
-   
+
    /**
     * A 2D vector on a plane. 
     */
@@ -9,12 +9,22 @@ module ex {
        * A (0, 0) vector
        */
       public static Zero = new Vector(0, 0);
-      
+
+      /**
+       * A (1, 1) vector
+       */
+      public static One = new Vector(1, 1);
+
+      /**
+       * A (0.5, 0.5) vector
+       */
+      public static Half = new Vector(0.5, 0.5);
+
       /**
        * A unit vector pointing up (0, -1)
        */
       public static Up = new Vector(0, -1);
-      
+
       /**
        * A unit vector pointing down (0, 1)
        */
@@ -42,7 +52,7 @@ module ex {
        * @param y  Y component of the Vector
        */
       constructor(public x: number, public y: number) { }
-      
+
       /**
        * Sets the x and y components at once
        */
@@ -50,7 +60,7 @@ module ex {
          this.x = x;
          this.y = y;
       }
-      
+
       /**
        * Compares this point against another and tests for equality
        * @param point  The other point to compare to
@@ -93,7 +103,7 @@ module ex {
        * Returns the average (midpoint) between the current point and the specified
        */
       public average(vec: Vector): Vector {
-          return this.add(vec).scale(.5);
+         return this.add(vec).scale(.5);
       }
 
       /**
@@ -119,7 +129,7 @@ module ex {
       public sub(v: Vector): Vector {
          return new Vector(this.x - v.x, this.y - v.y);
       }
-      
+
       /**
        * Adds one vector to this one modifying the original
        * @param v The vector to add
@@ -129,7 +139,7 @@ module ex {
          this.y += v.y;
          return this;
       }
-      
+
       /**
        * Subtracts a vector from this one modifying the original
        * @parallel v The vector to subtract
@@ -139,7 +149,7 @@ module ex {
          this.y -= v.y;
          return this;
       }
-      
+
       /**
        * Scales this vector by a factor of size and modifies the original
        */
@@ -174,8 +184,8 @@ module ex {
             return new Vector(v * this.y, -v * this.x);
          }
       }
-      
-      
+
+
 
       /**
        * Returns the perpendicular vector to this one
@@ -190,7 +200,7 @@ module ex {
       public normal(): Vector {
          return this.perpendicular().normalize();
       }
-      
+
       /**
        * Negate the current vector
        */
@@ -210,7 +220,7 @@ module ex {
        * degrees in radians
        */
       public rotate(angle: number, anchor?: Vector): Vector {
-          if (!anchor) {
+         if (!anchor) {
             anchor = new ex.Vector(0, 0);
          }
          var sinAngle = Math.sin(angle);
@@ -257,18 +267,18 @@ module ex {
        * This number indicates the mathematical intersection time.
        * @param line  The line to test
        */
-       public intersect(line: Line): number {
+      public intersect(line: Line): number {
          var numerator = line.begin.sub(this.pos);
 
          // Test is line and ray are parallel and non intersecting
-         if (this.dir.cross(line.getSlope()) === 0 && numerator.cross(this.dir) !== 0) { 
+         if (this.dir.cross(line.getSlope()) === 0 && numerator.cross(this.dir) !== 0) {
             return -1;
          }
-          
+
          // Lines are parallel
          var divisor = (this.dir.cross(line.getSlope()));
-         if (divisor === 0 ) {
-             return -1;
+         if (divisor === 0) {
+            return -1;
          }
 
          var t = numerator.cross(line.getSlope()) / divisor;
@@ -278,7 +288,7 @@ module ex {
             if (u >= 0 && u <= 1) {
                return t;
             }
-         }         
+         }
          return -1;
       }
 
@@ -302,6 +312,20 @@ module ex {
       constructor(public begin: Vector, public end: Vector) {
       }
 
+      /**
+       * Gets the raw slope (m) of the line. Will return (+/-)Infinity for vertical lines.
+       */
+      public get slope() {
+         return (this.end.y - this.begin.y) / (this.end.x - this.begin.x);
+      }
+
+      /**
+       * Gets the Y-intercept (b) of the line. Will return (+/-)Infinity if there is no intercept.
+       */
+      public get intercept() {
+         return this.begin.y - (this.slope * this.begin.x);
+      }
+
       /** 
        * Returns the slope of the line in the form of a vector
        */
@@ -322,15 +346,90 @@ module ex {
          return distance;
       }
 
+      /**
+       * Finds a point on the line given only an X or a Y value. Given an X value, the function returns
+       * a new point with the calculated Y value and vice-versa.
+       * 
+       * @param x The known X value of the target point 
+       * @param y The known Y value of the target point
+       * @returns A new point with the other calculated axis value       
+       */
+      public findPoint(x: number = null, y: number = null): Vector {
+         var m = this.slope;
+         var b = this.intercept;
+
+         if (x !== null) {
+            return new ex.Vector(x, (m * x) + b);
+         } else if (y !== null) {
+            return new ex.Vector((y - b) / m, y);
+         }
+      }
+
+      /**
+       * Whether or not the given point lies on this line. This method is precise by default
+       * meaning the point must lie exactly on the line. Adjust threshold to 
+       * loosen the strictness of the check for floating-point calculations.
+       */
+      public hasPoint(x: number, y: number, threshold?: number): boolean;
+
+      /**
+       * Whether or not the given point lies on this line. This method is precise by default
+       * meaning the point must lie exactly on the line. Adjust threshold to 
+       * loosen the strictness of the check for floating-point calculations.
+       */
+      public hasPoint(v: Vector, threshold?: number): boolean;
+
+      /**
+       * @see http://stackoverflow.com/a/11908158/109458
+       */
+      public hasPoint(): boolean {
+         var currPoint: Vector;
+         var threshold = 0;
+
+         if (typeof arguments[0] === 'number' && 
+             typeof arguments[1] === 'number') {
+            currPoint = new Vector(arguments[0], arguments[1]);
+            threshold = arguments[2] || 0;
+         } else if (arguments[0] instanceof Vector) {
+            currPoint = arguments[0];
+            threshold = arguments[1] || 0;
+         } else {
+            throw 'Could not determine the arguments for Vector.hasPoint';
+         }
+
+         var dxc = currPoint.x - this.begin.x;
+         var dyc = currPoint.y - this.begin.y;
+
+         var dx1 = this.end.x - this.begin.x;
+         var dy1 = this.end.y - this.begin.y;
+
+         var cross = dxc * dy1 - dyc * dx1;
+
+         // check whether point lines on the line
+         if (Math.abs(cross) > threshold) {
+            return false;
+         }
+
+         // check whether point lies in-between start and end
+         if (Math.abs(dx1) >= Math.abs(dy1)) {
+            return dx1 > 0
+               ? this.begin.x <= currPoint.x && currPoint.x <= this.end.x
+               : this.end.x <= currPoint.x && currPoint.x <= this.begin.x;
+         } else {
+            return dy1 > 0
+               ? this.begin.y <= currPoint.y && currPoint.y <= this.end.y
+               : this.end.y <= currPoint.y && currPoint.y <= this.begin.y;
+         }
+      }
    }
 
    /**
     * A 1 dimensional projection on an axis, used to test overlaps
     */
    export class Projection {
-      constructor(public min: number, public max: number) {}
+      constructor(public min: number, public max: number) { }
       public overlaps(projection: Projection): boolean {
-         return this.max > projection.min && projection.max > this.min;      
+         return this.max > projection.min && projection.max > this.min;
       }
 
       public getOverlap(projection: Projection): number {

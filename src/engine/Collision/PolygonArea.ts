@@ -289,7 +289,7 @@ module ex {
         public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Red.clone()) {
             ctx.beginPath();
             ctx.strokeStyle = color.toString();
-            // Iterate through the supplied points and contruct a 'polygon'
+            // Iterate through the supplied points and construct a 'polygon'
             var firstPoint = this.getTransformedPoints()[0];
             ctx.moveTo(firstPoint.x, firstPoint.y);
             this.getTransformedPoints().forEach(function (point, i) {

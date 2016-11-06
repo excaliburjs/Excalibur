@@ -51,7 +51,7 @@ module ex {
       public mass: number = 1.0;
       
       /**
-       * The current momemnt of inertia, moi can be thought of as the resistance to rotation.
+       * The current moment of inertia, moi can be thought of as the resistance to rotation.
        */
       public moi: number = 1000;
       
@@ -78,7 +78,7 @@ module ex {
       /** 
        * The rotational velocity of the actor in radians/second
        */
-      public rx: number = 0; //radions/sec
+      public rx: number = 0; //radians/sec
 
       /**
        * Returns the body's [[BoundingBox]] calculated for this instant in world space.
@@ -125,7 +125,7 @@ module ex {
             pos: center // position relative to actor
          });
 
-         // in case of a nan moi, collesce to a safe default
+         // in case of a nan moi, coalesce to a safe default
          this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
 
       }

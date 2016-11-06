@@ -252,14 +252,15 @@ module ex {
    }
 
    /**
-    * Event thrown on an [[Actor|actor]] when a collision has occured
+    * Event thrown on an [[Actor|actor]] when a collision has occurred
     */
    export class CollisionEvent extends GameEvent {
 
       /**
-       * @param actor  The actor the event was thrown on
-       * @param other  The actor that was collided with
-       * @param side   The side that was collided with
+       * @param actor         The actor the event was thrown on
+       * @param other         The actor that was collided with
+       * @param side          The side that was collided with
+       * @param intersection  Intersection vector
        */
       constructor(public actor: Actor, public other: Actor, public side: Side, public intersection: Vector) {
          super();

@@ -185,7 +185,7 @@ module ex.Input {
     * ```js
     * var player = new ex.Actor();
     *
-    * // enable propogating pointer events
+    * // enable propagating pointer events
     * player.enableCapturePointer = true;
     *
     * // enable move events, warning: performance intensive!

@@ -64,7 +64,7 @@ module ex {
     * 
     * ## Scene Lifecycle
     *
-    * A [[Scene|scene]] has a basic lifecycle that dictacts how it is initialized, updated, and drawn. Once a [[Scene|scene]] is added to 
+    * A [[Scene|scene]] has a basic lifecycle that dictates how it is initialized, updated, and drawn. Once a [[Scene|scene]] is added to 
     * the [[Engine|engine]] it will follow this lifecycle.
     * 
     * ![Scene Lifecycle](/assets/images/docs/SceneLifecycle.png)

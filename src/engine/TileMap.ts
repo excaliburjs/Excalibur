@@ -22,7 +22,7 @@ module ex {
    *
    * ## Creating a tile map
    *
-   * A [[TileMap]] is meant to be used in conjuction with a map editor. Creating
+   * A [[TileMap]] is meant to be used in conjunction with a map editor. Creating
    * a tile map is fairly straightforward.
    *
    * You need a tile sheet (see [[SpriteSheet]]) that holds all the available tiles to
@@ -158,7 +158,6 @@ module ex {
      * @param cellHeight    The individual height of each cell (in pixels) (should not be changed once set)
      * @param rows          The number of rows in the TileMap (should not be changed once set)
      * @param cols          The number of cols in the TileMap (should not be changed once set)
-     * @param spriteSheet   The spriteSheet to use for drawing
      */
     constructor(
        public x: number, 

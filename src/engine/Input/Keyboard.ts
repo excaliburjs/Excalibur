@@ -192,7 +192,7 @@
 
       /**
        * Tests if a certain key was just pressed this frame. This is cleared at the end of the update frame.
-       * @param key Test wether a key was just pressed
+       * @param key Test whether a key was just pressed
        */
       public wasPressed(key: Keys): boolean {
          return this._keysDown.indexOf(key) > -1;
@@ -200,7 +200,7 @@
 
       /**
        * Tests if a certain key is held down. This is persisted between frames.
-       * @param key  Test wether a key is held down
+       * @param key  Test whether a key is held down
        */
       public isHeld(key: Keys): boolean {
          return this._keys.indexOf(key) > -1;
@@ -208,7 +208,7 @@
 
       /**
        * Tests if a certain key was just released this frame. This is cleared at the end of the update frame.
-       * @param key  Test wether a key was just released
+       * @param key  Test whether a key was just released
        */
       public wasReleased(key: Keys): boolean {
          return this._keysUp.indexOf(key) > -1;

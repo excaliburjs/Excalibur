@@ -179,12 +179,12 @@
        * configuration is set all pads are valid.
        */
       public setMinimumGamepadConfiguration(config: IGamepadConfiguration) : void {
-         this._enableAndUpdate(); // if config is used, implicitely enable
+         this._enableAndUpdate(); // if config is used, implicitly enable
          this._minimumConfiguration = config;
       }
       
       /** 
-       * When implicitely enabled, set the enabled flag and run an update so information is updated
+       * When implicitly enabled, set the enabled flag and run an update so information is updated
        */
       private _enableAndUpdate() {
          if (!this.enabled) {
@@ -319,7 +319,7 @@
       }
       
       /**
-       * Returns a list of all valid gamepads that meet the minimum configuration requirment.
+       * Returns a list of all valid gamepads that meet the minimum configuration requirement.
        */
       public getValidGamepads(): Gamepad[] {
          this._enableAndUpdate();
@@ -564,4 +564,4 @@
       axis: number;
       buttons: number;
    }
-}  
+}

@@ -30,6 +30,27 @@ describe('A game actor', () => {
    it('should be loaded', () => {
       expect(ex.Actor).toBeTruthy();
    });
+
+   it('should have a position', () => {
+
+      actor.pos.setTo(10, 10);
+
+      expect(actor.pos.x).toBe(10);
+      expect(actor.pos.y).toBe(10);
+   });
+
+   it('should have an old position after an update', () => {
+
+      actor.pos.setTo(10, 10);
+      actor.vel.setTo(10, 10);
+
+      actor.update(engine, 1000);
+
+      expect(actor.oldPos.x).toBe(10);
+      expect(actor.oldPos.y).toBe(10);
+      expect(actor.pos.x).toBe(20);
+      expect(actor.pos.y).toBe(20);
+   });
    
    it('actors should generate pair hashes in the correct order', () => {
       var actor = new ex.Actor();
@@ -67,6 +88,20 @@ describe('A game actor', () => {
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(-20);
       expect(actor.pos.y).toBe(20);
+   });
+
+   it('should have an old velocity after an update', () => {
+
+      actor.pos.setTo(0, 0);
+      actor.vel.setTo(10, 10);
+      actor.acc.setTo(10, 10);
+
+      actor.update(engine, 1000);
+
+      expect(actor.oldVel.x).toBe(10);
+      expect(actor.oldVel.y).toBe(10);
+      expect(actor.vel.x).toBe(20);
+      expect(actor.vel.y).toBe(20);
    });
 
    it('can have its height and width scaled', () => {

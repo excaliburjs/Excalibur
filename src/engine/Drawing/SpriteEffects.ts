@@ -138,7 +138,7 @@ module ex {
       }
 
       /**
-       * Applies the "Saturate" effect to a sprite, saturates the color acccording to HSL
+       * Applies the "Saturate" effect to a sprite, saturates the color according to HSL
        */
       export class Saturate implements ISpriteEffect {
         /**
@@ -160,7 +160,7 @@ module ex {
       }
 
       /**
-       * Applies the "Desaturate" effect to a sprite, desaturates the color acccording to HSL
+       * Applies the "Desaturate" effect to a sprite, desaturates the color according to HSL
        */
       export class Desaturate implements ISpriteEffect {
         /**

@@ -153,7 +153,7 @@ module ex {
       }
 
       /**
-       * Applies the colorize effect to a sprite, changing the color channels of all pixesl to be the average of the original color and the
+       * Applies the colorize effect to a sprite, changing the color channels of all pixels to be the average of the original color and the
        * provided color.
        */
       public colorize(color: Color) {
@@ -175,14 +175,14 @@ module ex {
       }
 
       /**
-       * Applies the saturate effect to a sprite, saturates the color acccording to hsl
+       * Applies the saturate effect to a sprite, saturates the color according to hsl
        */
       public saturate(factor: number = 0.1) {
          this.addEffect(new Effects.Saturate(factor));
       }
 
       /**
-       * Applies the desaturate effect to a sprite, desaturates the color acccording to hsl
+       * Applies the desaturate effect to a sprite, desaturates the color according to hsl
        */
       public desaturate(factor: number = 0.1) {
          this.addEffect(new Effects.Desaturate(factor));

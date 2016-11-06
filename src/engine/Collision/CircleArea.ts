@@ -121,9 +121,8 @@
         }
 
         /**
-         * Returns the moment of intertia of a circle given it's mass
+         * Returns the moment of inertia of a circle given it's mass
          * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
-         * @param mass
          */
         public getMomentOfInertia(): number {
            var mass = this.body ? this.body.mass : Physics.defaultMass;
