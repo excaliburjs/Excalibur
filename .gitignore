@@ -6,6 +6,8 @@
 /sandbox/web/excalibur.d.ts
 /src/spec/*.js
 _SpecRunner.html
+TestsSpec.js
+TestsSpec.js.map
 node_modules/
 /bower_components/
 coverage/

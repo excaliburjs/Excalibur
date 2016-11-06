@@ -70,7 +70,7 @@ module.exports = function (grunt) {
          // Execute TypeScript compiler against Excalibur core
          //
          tsc: {
-            command: '<%= tscCmd %> --declaration --target ES5 "./src/engine/Engine.ts" --out "./build/dist/<%= pkg.name %>.js"',               
+            command: '<%= tscCmd %> --declaration --sourceMap --target ES5 "./src/engine/Engine.ts" --out "./build/dist/<%= pkg.name %>.js"',               
             options: {
                stdout: true,
                failOnError: true
@@ -94,9 +94,28 @@ module.exports = function (grunt) {
          specs: {
             command: function () {
             	var files = grunt.file.expand("./src/spec/*.ts");
-               files.push('src/spec/support/sourcemaps.js');
 
             	return '<%= tscCmd %> --target ES5 --allowJs --sourceMap ' + files.join(' ') + ' --out ./src/spec/TestsSpec.js'
+            },
+            options: {
+               stdout: true,
+               failOnError: true
+            }
+         },
+
+         //
+         // TypeScript Compile Jasmine specs for phantom debugging
+         //
+         debugspecs: {
+            command: function () {
+               var jasmine = ['src/spec/support/phantom-jasmine-invoker.js', 'src/spec/support/js-imagediff.js'];
+               var excalibur = ["./build/dist/excalibur.js"];
+            	var files = grunt.file.expand("./src/spec/*.ts");
+               var help = ['node_modules/source-map-support/browser-source-map-support.js', 'src/spec/support/start-tests.js']
+
+               var allfiles = jasmine.concat(excalibur).concat(files).concat(help)
+
+            	return '<%= tscCmd %> --target ES5 --allowJs --sourceMap ' + allfiles.join(' ') + ' --out ./TestsSpec.js'
             },
             options: {
                stdout: true,
@@ -316,6 +335,9 @@ module.exports = function (grunt) {
 
    // CI task to deploy dists
    grunt.registerTask('dists', ['buildcontrol']);
+
+   // Compile enough for debug
+   grunt.registerTask('compiledebug', ['tslint:src', 'compile', 'shell:debugspecs'])
    
    // Default task - compile, test, build dists
    grunt.registerTask('default', ['tslint:src', 'compile', 'shell:specs', 'jasmine', 'coveralls', 'sample', 'visual']);
