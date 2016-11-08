@@ -101,7 +101,7 @@ module ex {
 
       /**
        * Create and reject a Promise with an optional value
-       * @param value  An optional value to wrap in a resolved promise
+       * @param value  An optional value to wrap in a rejected promise
        */
       public static reject<T>(value?: T): Promise<T> {
          var promise = (new Promise<T>()).reject(value);
