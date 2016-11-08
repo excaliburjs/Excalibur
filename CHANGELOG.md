@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Breaking Changes
+
 ### Added
 - `ex.Vector.magnitude` alias that calls `ex.Vector.distance()` to get magnitude of Vector ([#663](https://github.com/excaliburjs/Excalibur/issues/663))
 - Added new `ex.Line` utilities ([#662](https://github.com/excaliburjs/Excalibur/issues/662)):
@@ -13,12 +15,20 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - `ex.Line.findPoint(x?, y?)` to find a point given an X or a Y value
   - `ex.Line.hasPoint(x, y, threshold)` to determine if given point lies on the line
 - new `Vector.One` and `Vector.Half` constants ([#649](https://github.com/excaliburjs/Excalibur/issues/649))
-- Added `ex.Promise.resolve` and `ex.Promise.reject` static methods, deprecated `ex.Promise.wrap` ([#501](https://github.com/excaliburjs/Excalibur/issues/501))
+- Added `ex.Promise.resolve` and `ex.Promise.reject` static methods ([#501](https://github.com/excaliburjs/Excalibur/issues/501))
+
+### Changed
+
+### Deprecated
+- `ex.Promise.wrap` ([#501](https://github.com/excaliburjs/Excalibur/issues/501))
+
+### Removed
 
 ### Fixed
 
 - Fix `Actor.oldPos` and `Actor.oldVel` values on update ([#666](https://github.com/excaliburjs/Excalibur/issues/666))
 - Fix `Label.getTextWidth` returns incorrect result ([#679](https://github.com/excaliburjs/Excalibur/issues/679))
+- Fix `Actor.on('pointerup')` capturePointer events opt-in on event handler. The opt-in was triggering correctly for handlers on 'pointerdown' and 'pointermove', but not 'pointerup'.
 
 ## [0.7.1]
 
@@ -43,7 +53,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Sprite culling was double scaling calculations ([#646](https://github.com/excaliburjs/Excalibur/issues/646))
 - Fix negative zoom sprite culling ([#539](https://github.com/excaliburjs/Excalibur/issues/539))
 - Fix Actor updates happening more than once per frame, causing multiple pointer events to trigger ([#643](https://github.com/excaliburjs/Excalibur/issues/643))
-- Fix `Actor.on('pointerup')` capturePointer events opt-in on event handler. The opt-in was triggering correctly for handlers on 'pointerdown' and 'pointermove', but not 'pointerup'.
 
 ## [0.7.0] - 2016-08-29
 ### Breaking Changes
