@@ -15,7 +15,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - `ex.Line.findPoint(x?, y?)` to find a point given an X or a Y value
   - `ex.Line.hasPoint(x, y, threshold)` to determine if given point lies on the line
 - new `Vector.One` and `Vector.Half` constants ([#649](https://github.com/excaliburjs/Excalibur/issues/649))
+- Added `ex.Promise.resolve` and `ex.Promise.reject` static methods ([#501](https://github.com/excaliburjs/Excalibur/issues/501))
 - PhantomJS based testing infrastructure to accurately test browser features such as image diffs on canvas drawing ([#521](https://github.com/excaliburjs/Excalibur/issues/521))
+
+### Changed
+
+### Deprecated
+- `ex.Promise.wrap` ([#501](https://github.com/excaliburjs/Excalibur/issues/501))
+
+### Removed
+
 
 
 ### Fixed
