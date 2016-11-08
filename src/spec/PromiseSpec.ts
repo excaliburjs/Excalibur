@@ -114,11 +114,11 @@ describe('A promise', () => {
       expect(() => { promise.resolve(); }).toThrow();
    });
 
-   it('should be able to wrap a value in a promise', (done) => {
+   it('should be able to resolve a value in a promise', (done) => {
       var p;
       var value : number;
       
-      p = ex.Promise.wrap<number>(12);
+      p = ex.Promise.resolve<number>(12);
       
       expect(p.state()).toBe(ex.PromiseState.Resolved);
 
@@ -127,6 +127,23 @@ describe('A promise', () => {
          expect(value).toBe(12);
          done();         
       });         
+   });
+
+   it('should be able to reject a value in a promise', (done) => {
+      var p;
+      var value : number;
+      
+      p = ex.Promise.reject<number>(12);
+      
+      expect(p.state()).toBe(ex.PromiseState.Rejected);
+
+      done();
+      // TODO Test onRejected callback
+      // p.then((v) => {
+      //    value = v;
+      //    expect(value).toBe(12);
+      //    done();         
+      // });         
    });
 
    describe('with multiple promises', () => {
@@ -177,7 +194,7 @@ describe('A promise', () => {
          expect(composite.state()).toBe(ex.PromiseState.Resolved);
       });
 
-      it('can join promises and resovle when some reject', () => {
+      it('can join promises and resvlve when some reject', () => {
          var composite = ex.Promise.join(p1, p2, p3);
 
          expect(composite.state()).toBe(ex.PromiseState.Pending);
