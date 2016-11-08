@@ -1,4 +1,5 @@
 /// <reference path="MonkeyPatch.ts" />
+/// <reference path="Debug.ts" />
 /// <reference path="Events.ts" />
 /// <reference path="EventDispatcher.ts" />
 /// <reference path="Class.ts" />
@@ -381,8 +382,26 @@ module ex {
 
       /**
        * Current FPS
+       * @obsolete Use [[debug.fps]] or [[currentFrameStats.fps]]. Will be deprecated in future versions.
        */
-      public fps: number = 0;
+      public get fps(): number {
+         return this.currentFrameStats.fps;
+      }
+
+      /**
+       * Access Excalibur debugging functionality.
+       */
+      public debug: Debug = new Debug(this);
+
+      /**
+       * Current frame statistics
+       */
+      public currentFrameStats = new FrameStats();
+
+      /**
+       * Previous frame statistics
+       */
+      public prevFrameStats = new FrameStats();
       
       /**
        * Gets or sets the list of post processors to apply at the end of drawing a frame (such as [[ColorBlindCorrector]])
@@ -1075,9 +1094,7 @@ O|===|* >________________>\n\
          var a = 0, len = this._animations.length;
          for (a; a < len; a++) {
             this._animations[a].animation.draw(ctx, this._animations[a].x, this._animations[a].y);
-         }
-
-         this.fps = 1.0 / (delta / 1000);
+         }         
 
          // Draw debug information
          if (this.isDebug) {
@@ -1160,8 +1177,22 @@ O|===|* >________________>\n\
                if (elapsed > 200) {
                   elapsed = 1;
                }
-               game._update(elapsed * game.timescale);
-               game._draw(elapsed * game.timescale);
+               var delta = elapsed * game.timescale;
+
+               // reset frame stats (reuse existing instances)
+               game.prevFrameStats.reset(game.currentFrameStats);
+               game.currentFrameStats.reset();
+               game.currentFrameStats.delta = delta;
+               game.currentFrameStats.fps = 1.0 / (delta / 1000);
+
+               var beforeUpdate = nowFn();
+               game._update(delta);               
+               var afterUpdate = nowFn();
+               game._draw(delta);
+               var afterDraw = nowFn();
+
+               game.currentFrameStats.duration.update = Math.floor(afterUpdate - beforeUpdate);
+               game.currentFrameStats.duration.draw = Math.floor(afterDraw - afterUpdate);
 
                lastTime = now;
          

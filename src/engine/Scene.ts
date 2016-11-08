@@ -247,6 +247,7 @@ module ex {
 
          // Cycle through actors updating UI actors
          for (i = 0, len = this.uiActors.length; i < len; i++) {
+            engine.currentFrameStats.actors.ui++;
             this.uiActors[i].update(engine, delta);
          }
 
@@ -257,6 +258,7 @@ module ex {
 
          // Cycle through actors updating actors
          for (i = 0, len = this.children.length; i < len; i++) {
+            engine.currentFrameStats.actors.alive++;
             this.children[i].update(engine, delta);
          }
          
@@ -288,9 +290,9 @@ module ex {
             if (actorIndex > -1) {
                this._sortedDrawingTree.removeByComparable(this._killQueue[i]);
                this.children.splice(actorIndex, 1);
-               
             }
          }
+         engine.currentFrameStats.actors.killed = this._killQueue.length;
          this._killQueue.length = 0;
 
          // Remove timers in the cancel queue before updating them

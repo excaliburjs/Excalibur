@@ -1241,7 +1241,12 @@ module ex {
        }
 
        // Update child actors
-       for (var i = 0; i < this.children.length; i++) {          
+       for (var i = 0; i < this.children.length; i++) {   
+          if (this.children[i] instanceof UIActor) {
+             engine.currentFrameStats.actors.ui++;
+          } else {
+             engine.currentFrameStats.actors.alive++;
+          }
           this.children[i].update(engine, delta);          
        }
        
