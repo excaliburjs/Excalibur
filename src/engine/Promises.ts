@@ -82,12 +82,32 @@ module ex {
       /**
        * Wrap a value in a resolved promise
        * @param value  An optional value to wrap in a resolved promise
+       * @obsolete Use [[resolve]] instead. This will be deprecated in future versions.
        */
       public static wrap<T>(value?: T): Promise<T> {
+         ex.Logger.getInstance().warn('[obsolete] Promise.wrap is obsolete. Use Promise.resolve/reject instead.');
+         return Promise.resolve(value);
+      }
+
+      /**
+       * Create and resolve a Promise with an optional value
+       * @param value  An optional value to wrap in a resolved promise
+       */
+      public static resolve<T>(value?: T): Promise<T> {
          var promise = (new Promise<T>()).resolve(value);
 
          return promise;
-      }
+      }     
+
+      /**
+       * Create and reject a Promise with an optional value
+       * @param value  An optional value to wrap in a rejected promise
+       */
+      public static reject<T>(value?: T): Promise<T> {
+         var promise = (new Promise<T>()).reject(value);
+
+         return promise;
+      }  
 
       /**
        * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
