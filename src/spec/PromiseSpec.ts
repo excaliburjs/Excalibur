@@ -175,7 +175,7 @@ describe('A promise', () => {
          expect(composite.state()).toBe(ex.PromiseState.Resolved);
       });
 
-      it('can join promises and resovle when all resolve', () => {
+      it('can join promises and resolve when all resolve', () => {
          
          var composite = ex.Promise.join(p1, p2, p3);
 
@@ -194,7 +194,7 @@ describe('A promise', () => {
          expect(composite.state()).toBe(ex.PromiseState.Resolved);
       });
 
-      it('can join promises and resvlve when some reject', () => {
+      it('can join promises and resolve when some reject', () => {
          var composite = ex.Promise.join(p1, p2, p3);
 
          expect(composite.state()).toBe(ex.PromiseState.Pending);
