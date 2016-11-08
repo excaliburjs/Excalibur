@@ -440,6 +440,15 @@
 
     jasmine : jasmine,
 
+    expectCanvasImageMatches : function(src, canvas, done) {
+      var a = new Image();
+      a.src = './src/spec/images/' + src;
+      a.addEventListener('load', function() {
+         expect(canvas).toImageEqual(a);
+         done();
+      });
+    },
+
     // Compatibility
     noConflict : function () {
       root[name] = previous;

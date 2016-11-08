@@ -3,7 +3,6 @@
 /// <reference path="require.d.ts" />
 /// <reference path="Mocks.ts" />
 
-declare var imagediff;
 describe('A UIActor', () => {
    var uiActor: ex.UIActor;
    var engine: ex.Engine;
@@ -11,7 +10,7 @@ describe('A UIActor', () => {
    var mock = new Mocks.Mocker();
    
    beforeEach(() => {
-      jasmine.addMatchers((<any>imagediff).jasmine);
+      jasmine.addMatchers(imagediff.jasmine);
 
       uiActor = new ex.UIActor(50, 50, 100, 50);
       uiActor.color = ex.Color.Blue;
@@ -55,13 +54,7 @@ describe('A UIActor', () => {
         scene.add(uiActor);
         scene.draw(engine.ctx, 100);
 
-
-        var a = new Image();
-        a.src = './src/spec/images/UIActorSpec/actordraws.png';
-        a.addEventListener('load', () => {
-           expect(engine.canvas).toImageEqual(a);
-           done();
-        });
+        imagediff.expectCanvasImageMatches('UIActorSpec/actordraws.png', engine.canvas, done);
    });
 
    it('is not drawn on the screen when not visible', (done) => {
@@ -69,13 +62,7 @@ describe('A UIActor', () => {
       scene.add(uiActor);
       scene.draw(engine.ctx, 100);
       
-
-       var a = new Image();
-       a.src = './src/spec/images/UIActorSpec/actordoesnotdraw.png';
-       a.addEventListener('load', () => {
-          expect(engine.canvas).toImageEqual(a);
-          done();
-       });
+      imagediff.expectCanvasImageMatches('UIActorSpec/actordoesnotdraw.png', engine.canvas, done);
    });
 
 });
