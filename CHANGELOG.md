@@ -16,6 +16,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - `ex.Line.hasPoint(x, y, threshold)` to determine if given point lies on the line
 - new `Vector.One` and `Vector.Half` constants ([#649](https://github.com/excaliburjs/Excalibur/issues/649))
 - Added `ex.Promise.resolve` and `ex.Promise.reject` static methods ([#501](https://github.com/excaliburjs/Excalibur/issues/501))
+- PhantomJS based testing infrastructure to accurately test browser features such as image diffs on canvas drawing ([#521](https://github.com/excaliburjs/Excalibur/issues/521))
 
 ### Changed
 
@@ -24,11 +25,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Removed
 
+
+
 ### Fixed
 
 - Fix `Actor.oldPos` and `Actor.oldVel` values on update ([#666](https://github.com/excaliburjs/Excalibur/issues/666))
 - Fix `Label.getTextWidth` returns incorrect result ([#679](https://github.com/excaliburjs/Excalibur/issues/679))
 - Fix semi-transparent PNGs appear garbled ([#687](https://github.com/excaliburjs/Excalibur/issues/687))
+- Fix incorrect code coverage metrics, previously our test process was reporting higher than actual code coverage ([#521](https://github.com/excaliburjs/Excalibur/issues/521))
 
 ## [0.7.1]
 

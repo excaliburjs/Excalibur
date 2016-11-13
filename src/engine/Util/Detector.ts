@@ -36,7 +36,7 @@ module ex {
          
          // Test object url support for loading
          objectUrlSupport: function() {
-            return 'URL' in window && 'revokeObjectURL' in URL && 'createObjectURL' in URL;
+            return ('URL' in window) && ('revokeObjectURL' in URL) && ('createObjectURL' in URL);
          },
          
          // RGBA support for colors
@@ -66,7 +66,7 @@ module ex {
          // Critical test will for ex not to run
          var failedCritical = false;
          for (var test in this._criticalTests) {
-            if (!this._criticalTests[test]()) {
+            if (!this._criticalTests[test].call(this)) {
                this.failedTests.push(test);
                ex.Logger.getInstance().error('Critical browser feature missing, Excalibur requires:', 
                   test);

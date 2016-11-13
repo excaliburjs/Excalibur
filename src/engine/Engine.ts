@@ -163,6 +163,18 @@ module ex {
        * (default) scoped will fire anywhere on the page.
        */
       pointerScope?: ex.Input.PointerScope;
+
+      /**
+       * Suppress boot up console message, which contains the "powered by Excalibur message"
+       */
+      suppressConsoleBootMessage?: boolean;
+
+      /**
+       * Suppress minimum browser feature detection, it is not recommended users of excalibur switch this off. This feature ensures that 
+       * the currently running browser meets the minimum requirements for running excalibur. This can be useful if running on non-standard
+       * browsers or if there is a bug in excalibur preventing execution.
+       */
+      suppressMinimumBrowserFeatureDetection?: boolean;
    }
 
    /**
@@ -467,7 +479,9 @@ module ex {
          width: 0, 
          height: 0, 
          canvasElementId: '',
-         pointerScope: Input.PointerScope.Document
+         pointerScope: Input.PointerScope.Document,
+         suppressConsoleBootMessage: null,
+         suppressMinimumBrowserFeatureDetection: null
       };
 
       /**
@@ -499,7 +513,7 @@ module ex {
 
          // Check compatibility 
          var detector = new ex.Detector();
-         if (!(this._compatible = detector.test())) {
+         if (!options.suppressMinimumBrowserFeatureDetection && !(this._compatible = detector.test())) {
             var message = document.createElement('div');
             message.innerText = 'Sorry, your browser does not support all the features needed for Excalibur';
             document.body.appendChild(message);
@@ -521,7 +535,7 @@ module ex {
          }
                   
          // Use native console API for color fun
-         if (console.log) {                 
+         if (console.log && !options.suppressConsoleBootMessage) {                 
             console.log(`%cPowered by Excalibur.js (v${EX_VERSION})`, 
                'background: #176BAA; color: white; border-radius: 5px; padding: 15px; font-size: 1.5em; line-height: 80px;');
             console.log('\n\

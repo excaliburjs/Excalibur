@@ -52,7 +52,7 @@ allow the widest contributions possible. You can always use your own preferred e
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (4.x+) & npm
+- [Node.js](https://nodejs.org/) (4.x+) & npm (tools like currently only support node 4.x+)
 - [Grunt.js](http://gruntjs.com/)
   - `npm install grunt-cli -g`
 
@@ -82,6 +82,11 @@ grunt sample
 # Run visual tests compilation only
 grunt visual
 ```
+
+Local debugging is supported in vscode by installing the PhantomJS Debugger extension `iradul.debugger-for-phantomjs`
+
+
+
 
 # License
 
