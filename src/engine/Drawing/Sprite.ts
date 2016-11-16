@@ -1,5 +1,7 @@
 module ex {
 
+   var clamp = Util.clamp;
+   
    /**
     * Sprites
     *
@@ -140,7 +142,6 @@ module ex {
 
       private _loadPixels() {
          if (this._texture.isLoaded() && !this._pixelsLoaded) {
-            var clamp = ex.Util.clamp;
             var naturalWidth = this._texture.image.naturalWidth || 0;
             var naturalHeight = this._texture.image.naturalHeight || 0;
 
@@ -280,7 +281,6 @@ module ex {
       }
 
       private _applyEffects() {
-         var clamp = ex.Util.clamp;
          var naturalWidth = this._texture.image.naturalWidth || 0;
          var naturalHeight = this._texture.image.naturalHeight || 0;
 
@@ -305,6 +305,8 @@ module ex {
          this._spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
          this._spriteCtx.putImageData(this._pixelData, 0, 0);
          this.internalImage.src = this._spriteCanvas.toDataURL('image/png');
+         
+         this._dirtyEffect = false;
       }
 
       /**
@@ -326,11 +328,13 @@ module ex {
          ctx.save();
          ctx.translate(x, y);
          ctx.rotate(this.rotation);
-         var xpoint = (this.width * this.scale.x) * this.anchor.x;
-         var ypoint = (this.height * this.scale.y) * this.anchor.y;
+         const scaledSWidth = this.width * this.scale.x;
+         const scaledSHeight = this.height * this.scale.y;
+         var xpoint = (scaledSWidth) * this.anchor.x;
+         var ypoint = (scaledSHeight) * this.anchor.y;
 
          ctx.strokeStyle = Color.Black;
-         ctx.strokeRect(-xpoint, -ypoint, this.width * this.scale.x, this.height * this.scale.y);
+         ctx.strokeRect(-xpoint, -ypoint, scaledSWidth, scaledSHeight);
          ctx.restore();
       }
 
@@ -343,7 +347,6 @@ module ex {
       public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
          if (this._dirtyEffect) {
             this._applyEffects();
-            this._dirtyEffect = false;
          }
          
          // calculating current dimensions
@@ -355,30 +358,29 @@ module ex {
          var ypoint = this.height * this.anchor.y;
          ctx.translate(x, y);
          ctx.rotate(this.rotation);
+
+         var scaledSWidth = this.swidth * this.scale.x;
+         var scaledSHeight = this.sheight * this.scale.y;
          
          // todo cache flipped sprites
          if (this.flipHorizontal) {
-            ctx.translate(this.swidth * this.scale.x, 0);
+            ctx.translate(scaledSWidth, 0);
             ctx.scale(-1, 1);
          }
 
          if (this.flipVertical) {
-            ctx.translate(0, this.sheight * this.scale.y);
+            ctx.translate(0, scaledSHeight);
             ctx.scale(1, -1);
          }
 
          if (this.internalImage) {
-            
             ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, 
                -xpoint, 
                -ypoint, 
-               this.swidth * this.scale.x, 
-               this.sheight * this.scale.y);
+               scaledSWidth,
+               scaledSHeight);
          }
          ctx.restore();
-
-         
-
       }
 
       /**
