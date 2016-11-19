@@ -37,8 +37,11 @@ function spawnCircle(x: number, y: number){
                            ex.Util.randomIntInRange(0, 255));
    var circle = new ex.Actor(x, y, width, width, color);   
    circle.rx = ex.Util.randomInRange(-.5, .5);
-   circle.body.useCircleCollision(width/2);
+   circle.body.useCircleCollision(width / 2);
    circle.collisionType = ex.CollisionType.Active;
+   circle.draw = (ctx: CanvasRenderingContext2D) => {
+      ex.Util.DrawUtil.circle(ctx, circle.x, circle.y, width / 2, color, color);
+   };
    game.add(circle);
 }
 

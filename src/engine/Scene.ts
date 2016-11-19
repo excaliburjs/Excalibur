@@ -261,21 +261,24 @@ module ex {
          }
          
          // Run the broadphase
-         if (this._broadphase) {
+         if (this._broadphase && Physics.enabled) {
             this._broadphase.update(this.children, delta);
+            var pairs = this._broadphase.broadphase(this.children, delta);
          }
 
-         // Run the narrowphase
+
          var iter: number = Physics.collisionPasses;
          var collisionDelta = delta / iter;
          while (iter > 0) { 
             // Run collision resolution strategy
-            if (this._broadphase && Physics.enabled) {               
-               this._broadphase.detect(this.children, collisionDelta);
-               for (i = 0, len = this.children.length; i < len; i++) {
+            if (this._broadphase && Physics.enabled) {
+               // Run the narrowphase
+               this._broadphase.narrowphase(pairs);
+               this._broadphase.resolve(collisionDelta, Physics.collisionResolutionStrategy);
+               /*for (i = 0, len = this.children.length; i < len; i++) {
                      // helps move settle collisions, really there is a better way to do this
                      this.children[i].integrate(collisionDelta * ex.Physics.collisionShift);
-               }
+               }*/
             }
             iter--;
          }         

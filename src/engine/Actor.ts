@@ -536,8 +536,6 @@ module ex {
      * Collision maintenance 
      */
     private _collisionContacts: CollisionContact[] = [];
-    private _totalMtv: Vector = Vector.Zero.clone();
-
     
     /**
      * The scale vector of the actor
@@ -790,22 +788,7 @@ module ex {
           }
       }
     }
-     
-    /**
-     * Add minimum translation vectors accumulated during the current frame to resolve collisions.
-     */ 
-    public addMtv(mtv: Vector) {
-        this._totalMtv.addEqual(mtv);
-    }
-
-    /**
-     * Applies the accumulated translation vectors to the actors position
-     */
-    public applyMtv(): void {
-       this.pos.addEqual(this._totalMtv);
-       this._totalMtv.setTo(0, 0);
-    }
-   
+    
     /**
      * Adds a whole texture as the "default" drawing. Set a drawing using [[setDrawing]].
      */
