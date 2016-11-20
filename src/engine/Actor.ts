@@ -604,7 +604,7 @@ module ex {
     private _collisionHandlers: {[key: string]: {(actor: Actor): void}[]; } = {};
     private _isInitialized: boolean = false;
     public frames: { [key: string]: IDrawable; } = {};
-    private _framesDirty: boolean = false;
+    private _effectsDirty: boolean = false;
 
     /**
      * Access to the current drawing for the actor, this can be 
@@ -826,7 +826,7 @@ module ex {
           if (!this.currentDrawing) {
              this.currentDrawing = arguments[1];
           }
-          this._framesDirty = true;
+          this._effectsDirty = true;
        } else {
           if (arguments[0] instanceof Sprite) {
              this.addDrawing('default', arguments[0]);   
@@ -1159,6 +1159,11 @@ module ex {
        return new ex.Vector(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
     }
 
+    protected _reapplyEffects(drawing: IDrawable) {
+      drawing.removeEffect(this._opacityFx);
+      drawing.addEffect(this._opacityFx);
+    }
+    
     /**
      * Perform euler integration at the specified time step
      */
@@ -1213,19 +1218,7 @@ module ex {
        if (this.previousOpacity !== this.opacity) {
           this.previousOpacity = this.opacity;
           this._opacityFx.opacity = this.opacity;          
-          this._framesDirty = true;                    
-       }
-
-       // handle dirty frames and reapply any effects we are tracking
-       if (this._framesDirty) {
-          this._framesDirty = false;
-
-          // ensure we remove existing opacity effect we created
-          // and also ensure we do this everytime in case frames change
-          for (var drawing in this.frames) {
-             this.frames[drawing].removeEffect(this._opacityFx);
-             this.frames[drawing].addEffect(this._opacityFx);
-          }
+          this._effectsDirty = true;
        }
 
        // Capture old values before integration step updates them
@@ -1277,6 +1270,11 @@ module ex {
           var offsetX = (this._width - drawing.naturalWidth * drawing.scale.x) * this.anchor.x;
           var offsetY = (this._height - drawing.naturalHeight * drawing.scale.y) * this.anchor.y;
 
+          if (this._effectsDirty) {
+            this._reapplyEffects(this.currentDrawing);
+            this._effectsDirty = false;
+          }
+         
           this.currentDrawing.draw(ctx, offsetX, offsetY);
        } else {
           if (this.color) {

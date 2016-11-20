@@ -67,7 +67,7 @@ module ex {
            var firstPixel = (x + y * imageData.width) * 4;
            var pixel = imageData.data;
            if (pixel[firstPixel + 3] !== 0) {
-              pixel[firstPixel + 3] = Math.round(this.opacity * 255);
+              pixel[firstPixel + 3] = Math.round(this.opacity * pixel[firstPixel + 3]);
            }
         }
       }

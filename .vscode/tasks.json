@@ -24,6 +24,12 @@
          "args": [],
          "isBuildCommand": false,
          "problemMatcher": "$tsc"
+      },
+      {
+         "taskName": "compiledebug",
+         "args": [],
+         "isBuildCommand": false,
+         "problemMatcher": "$tsc"
       }
    ]
 }
