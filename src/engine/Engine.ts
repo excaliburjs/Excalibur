@@ -1166,6 +1166,7 @@ O|===|* >________________>\n\
             }
             try {
                game._requestId = raf(mainloop);
+               game.emit('preframe', new PreFrameEvent(game, game.prevFrameStats, game));
 
                // Get the time to calculate time-elapsed
                var now = nowFn();
@@ -1180,8 +1181,10 @@ O|===|* >________________>\n\
                var delta = elapsed * game.timescale;
 
                // reset frame stats (reuse existing instances)
+               var frameId = game.prevFrameStats.id + 1;
                game.prevFrameStats.reset(game.currentFrameStats);
                game.currentFrameStats.reset();
+               game.currentFrameStats.id = frameId;
                game.currentFrameStats.delta = delta;
                game.currentFrameStats.fps = 1.0 / (delta / 1000);
 
@@ -1191,11 +1194,12 @@ O|===|* >________________>\n\
                game._draw(delta);
                var afterDraw = nowFn();
 
-               game.currentFrameStats.duration.update = Math.floor(afterUpdate - beforeUpdate);
-               game.currentFrameStats.duration.draw = Math.floor(afterDraw - afterUpdate);
+               game.currentFrameStats.duration.update = afterUpdate - beforeUpdate;
+               game.currentFrameStats.duration.draw = afterDraw - afterUpdate;
 
                lastTime = now;
          
+               game.emit('postframe', new PostFrameEvent(game, game.currentFrameStats, game));
             } catch (e) {
                window.cancelAnimationFrame(game._requestId);
                game.stop();

@@ -166,6 +166,24 @@ module ex {
          super();
       }
    }
+
+   /**
+    * The 'preframe' event is emitted on the engine, before the frame begins.
+    */
+   export class PreFrameEvent extends GameEvent {
+      constructor(public engine: Engine, public prevStats: IFrameStats, public target) {
+         super();
+      }
+   }
+   
+   /**
+    * The 'postframe' event is emitted on the engine, after a frame ends.
+    */
+   export class PostFrameEvent extends GameEvent {
+      constructor(public engine: Engine, public stats: IFrameStats, public target) {
+         super();
+      }
+   }
    
    /**
     * Event received when a gamepad is connected to Excalibur. [[Input.Gamepads|engine.input.gamepads]] receives this event.

@@ -8,6 +8,11 @@ module ex {
    export interface IFrameStats {
 
       /**
+       * The number of the frame
+       */
+      id: number;
+
+      /**
        * Gets the frame's delta (time since last frame scaled by [[Engine.timescale]]) (in ms)
        */
       delta: number;
@@ -28,6 +33,9 @@ module ex {
       actors: IFrameActorStats;
    }
 
+   /**
+    * Represents actor stats for a frame
+    */
    export interface IFrameActorStats {
 
       /**
@@ -56,6 +64,9 @@ module ex {
       total: number;
    }
 
+   /**
+    * Represents duration stats for a frame
+    */
    export interface IFrameDurationStats {
 
       /**
@@ -82,6 +93,13 @@ module ex {
    export class Debug implements IDebugFlags, IFrameStats {
 
       constructor(private _engine: ex.Engine) { }
+
+      /**
+       * Gets the current frame's id
+       */
+      public get id() {
+         return this._engine.currentFrameStats.id;
+      }
 
       /**
        * Gets the current frame delta (time since last frame)
@@ -117,6 +135,7 @@ module ex {
     * creating instances of this every frame.
     */
    export class FrameStats implements IFrameStats {
+      private _id: number = 0;
       private _delta: number = 0;
       private _fps: number = 0;
       private _actorStats: IFrameActorStats = {
@@ -150,10 +169,24 @@ module ex {
             this.actors = otherStats.actors;
             this.duration = otherStats.duration;            
          } else {
-            this.delta = this.fps = 0;
+            this.id = this.delta = this.fps = 0;
             this.actors.alive = this.actors.killed = this.actors.ui = 0;
             this.duration.update = this.duration.draw = 0;
          }
+      }
+
+      /**
+       * Gets the frame's id
+       */
+      public get id() {
+         return this._id;
+      }
+
+      /**
+       * Sets the frame's id
+       */
+      public set id(value: number) {
+         this._id = value;
       }
 
       /**
