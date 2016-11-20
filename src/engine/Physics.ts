@@ -203,5 +203,15 @@ module ex {
        * Small value to help collision passes settle themselves after the narrowphase. 
        */
       public static collisionShift = .001;
+
+      /**
+       * Factor to add to the RigidBody BoundingBox, bounding box (dimensions += vel * dynamicTreeVelocityMultiplyer); 
+       */
+      public static dynamicTreeVelocityMultiplyer = 2;
+
+      /**
+       * Pad RigidBody BoundingBox by a constant amount
+       */
+      public static boundsPadding = 5;
    };
 }

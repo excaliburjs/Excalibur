@@ -12,7 +12,7 @@ module ex {
       public collision: CollisionContact = null;
 
       constructor(public bodyA: Body, public bodyB: Body) {
-         this.id = this.calculatePairHash();
+         this.id = Pair.calculatePairHash(bodyA, bodyB);
       }
 
       /**
@@ -28,19 +28,17 @@ module ex {
       public resolve(delta: number, strategy: CollisionResolutionStrategy) {
          if (this.collision) {
             this.collision.resolve(delta, strategy);
-            this.bodyA.applyMtv();
-            this.bodyB.applyMtv();
          }
       }
 
       /**
        * Calculates the unique pair hash id for this collision pair
        */
-      public calculatePairHash(): string {
-         if (this.bodyA.actor.id < this.bodyB.actor.id) {
-            return `#${this.bodyA.actor.id}+${this.bodyB.actor.id}`;
+      public static calculatePairHash(bodyA: Body, bodyB: Body): string {
+         if (bodyA.actor.id < bodyB.actor.id) {
+            return `#${bodyA.actor.id}+${bodyB.actor.id}`;
          } else {
-            return `#${this.bodyB.actor.id}+${this.bodyA.actor.id}`;
+            return `#${bodyB.actor.id}+${bodyA.actor.id}`;
          }
       }
 

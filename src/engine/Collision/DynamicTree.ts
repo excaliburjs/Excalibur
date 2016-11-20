@@ -200,14 +200,13 @@ module ex {
          }
 
          this.remove(node);
-         b.left -= 5;
-         b.top -= 5;
-         b.right += 5;
-         b.bottom += 5;
+         b.left -= ex.Physics.boundsPadding;
+         b.top -= ex.Physics.boundsPadding;
+         b.right += ex.Physics.boundsPadding;
+         b.bottom += ex.Physics.boundsPadding;
 
-         // todo make configurable off ex.Physics
-         var multdx = body.vel.x * 2;
-         var multdy = body.vel.y * 2;
+         var multdx = body.vel.x * ex.Physics.dynamicTreeVelocityMultiplyer;
+         var multdy = body.vel.y * ex.Physics.dynamicTreeVelocityMultiplyer;
 
          if (multdx < 0) {
             b.left += multdx;
@@ -397,10 +396,13 @@ module ex {
       public debugDraw(ctx: CanvasRenderingContext2D, delta: number) {
          // draw all the nodes in the Dynamic Tree
          var helper = currentNode => {
+            
             if (currentNode) {
                if (currentNode.isLeaf()) {
+                  ctx.lineWidth = 1;
                   ctx.strokeStyle = 'green';
                } else {
+                  ctx.lineWidth = 1;
                   ctx.strokeStyle = 'white';
                }
                currentNode.bounds.debugDraw(ctx);

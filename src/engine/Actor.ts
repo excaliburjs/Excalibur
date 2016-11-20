@@ -533,11 +533,6 @@ module ex {
     private _width: number = 0;
     
     /**
-     * Collision maintenance 
-     */
-    private _collisionContacts: CollisionContact[] = [];
-    
-    /**
      * The scale vector of the actor
      */
     public scale: ex.Vector = new ex.Vector(1, 1);
@@ -870,18 +865,6 @@ module ex {
        if (index !== -1) {
           this.collisionGroups.splice(index, 1);
        }
-    }
-
-    /**
-     * Calculates the unique pair hash between two actors
-     * @param other
-     */
-    public calculatePairHash(other: Actor): string {
-        if (this.id < other.id) {
-           return `#${this.id}+${other.id}`;
-        } else {
-           return `#${other.id}+${this.id}`;
-        }
     }
 
     /**

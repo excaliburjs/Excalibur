@@ -39,7 +39,7 @@ module ex {
 
       private _canCollide(actorA: Actor, actorB: Actor) {
          // if the collision pair has been calculated already short circuit
-         var hash = actorA.calculatePairHash(actorB);
+         var hash = Pair.calculatePairHash(actorA.body, actorB.body);
          if (this._collisionHash[hash]) {
             return false; // pair exists easy exit return false
          }
@@ -65,26 +65,12 @@ module ex {
          var potentialColliders = targets.filter((other) => {
             return !other.isKilled() && other.collisionType !== CollisionType.PreventCollision;
          });
-
+         
+         // clear old list of collision pairs
+         this._collisionPairCache = [];
+         this._collisionHash = {};
+        
          var actor: Actor;
-         
-         // Check collision cache and re-add pairs that still are in collision
-         /*
-         var newPairs = [];
-         this._collisionPairCache.forEach(c => {
-            var contact = c.bodyA.collide(c.bodyB);
-            // we always add this id back to the hash so we can quickly short circuit since we already checked collision
-            this._collisionHash[c.id] = true;
-            
-            if (contact) {               
-               contact.id = c.id;
-               newPairs.push(contact);
-            }
-         });
-         
-         this._collisionPairCache = newPairs;
-         */
-
          for (var j = 0, l = potentialColliders.length; j < l; j++) {
             actor = potentialColliders[j];
 
@@ -94,8 +80,9 @@ module ex {
                   var pair = new Pair(actor.body, other);
                   this._collisionHash[pair.id] = true;
                   this._collisionPairCache.push(pair);
-                  return false;
                }
+               // Always return false, to query whole tree. Returning true in the query method stops searching
+               return false;
             });
          }         
          
@@ -115,8 +102,16 @@ module ex {
       public resolve(delta: number, strategy: CollisionResolutionStrategy) {
          // resolve collision pairs
          var i = 0, len = this._collisionPairCache.length;
-         for (i; i < len; i++) {
+         for (i = 0; i < len; i++) {
             this._collisionPairCache[i].resolve(delta, strategy);
+         }
+
+         // We must apply mtv after all pairs have been resolved for more accuracy
+         for (i = 0; i < len; i++) {
+            if (this._collisionPairCache[i].collision) {
+               this._collisionPairCache[i].bodyA.applyMtv();
+               this._collisionPairCache[i].bodyB.applyMtv();
+            }
          }
       }
 

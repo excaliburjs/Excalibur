@@ -31,12 +31,13 @@ function spawnBlock(x: number, y: number){
 }
 
 function spawnCircle(x: number, y: number){
-   var width = ex.Util.randomInRange(20, 100)
+   var width = 3; // ex.Util.randomInRange(20, 100)
    var color = new ex.Color(ex.Util.randomIntInRange(0, 255),
                            ex.Util.randomIntInRange(0, 255),
                            ex.Util.randomIntInRange(0, 255));
    var circle = new ex.Actor(x, y, width, width, color);   
    circle.rx = ex.Util.randomInRange(-.5, .5);
+   circle.vel.setTo(0, 300);
    circle.body.useCircleCollision(width / 2);
    circle.collisionType = ex.CollisionType.Active;
    circle.draw = (ctx: CanvasRenderingContext2D) => {
