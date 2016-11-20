@@ -81,6 +81,11 @@ module Mocks {
                warn : function () { /* do nothing */ },
                error : function () { /* do nothing */ }
             },
+            debug: {
+               
+            },
+            currentFrameStats: new ex.FrameStats(),
+            prevFrameStats: new ex.FrameStats(),
             input: {
                keyboard: {
                   update: function () { /* do nothing */ }
