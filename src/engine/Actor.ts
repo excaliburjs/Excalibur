@@ -1036,7 +1036,7 @@ module ex {
        return new BoundingBox(pos.x - anchor.x,
           pos.y - anchor.y,
           pos.x + this.getWidth() - anchor.x,
-          pos.y + this.getHeight() - anchor.y);
+          pos.y + this.getHeight() - anchor.y).rotate(this.rotation, pos);
     }
 
     /**
@@ -1048,7 +1048,7 @@ module ex {
        return new BoundingBox(-anchor.x,
                               -anchor.y,
                               this.getWidth() - anchor.x,
-                              this.getHeight() - anchor.y);
+                              this.getHeight() - anchor.y).rotate(this.rotation);
     }
 
 
