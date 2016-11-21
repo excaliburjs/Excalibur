@@ -97,7 +97,7 @@ module Mocks {
             debug: {
                
             },
-            currentFrameStats: new ex.FrameStats(),
+            currFrameStats: new ex.FrameStats(),
             prevFrameStats: new ex.FrameStats(),
             input: {
                keyboard: {
