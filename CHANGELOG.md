@@ -17,6 +17,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - new `Vector.One` and `Vector.Half` constants ([#649](https://github.com/excaliburjs/Excalibur/issues/649))
 - Added `ex.Promise.resolve` and `ex.Promise.reject` static methods ([#501](https://github.com/excaliburjs/Excalibur/issues/501))
 - PhantomJS based testing infrastructure to accurately test browser features such as image diffs on canvas drawing ([#521](https://github.com/excaliburjs/Excalibur/issues/521))
+- Added some basic debug stat collection to Excalibur ([#97](https://github.com/excaliburjs/Excalibur/issues/97)):
+  - Added `ex.Engine.currentFrameStats` and `ex.Engine.prevFrameStats` to hold frame statistic information
+  - Added `ex.Engine.debug` to hold debug flags and current frame stats
+  - Added `preframe` and `postframe` events to `Engine` as hooks
 
 ### Changed
 

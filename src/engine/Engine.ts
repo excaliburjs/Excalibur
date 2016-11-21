@@ -486,6 +486,10 @@ module ex {
       public on(eventName: ex.Events.hidden, handler: (event?: HiddenEvent) => void);
       public on(eventName: ex.Events.start, handler: (event?: GameStartEvent) => void);
       public on(eventName: ex.Events.stop, handler: (event?: GameStopEvent) => void);
+      public on(eventName: ex.Events.preupdate, handler: (event?: PreUpdateEvent) => void);
+      public on(eventName: ex.Events.postupdate, handler: (event?: PostUpdateEvent) => void);
+      public on(eventName: ex.Events.preframe, handler: (event?: PreFrameEvent) => void);
+      public on(eventName: ex.Events.postframe, handler: (event?: PostFrameEvent) => void);
       public on(eventName: string, handler: (event?: GameEvent) => void);
       public on(eventName: string, handler: (event?: GameEvent) => void) {
          super.on(eventName, handler);

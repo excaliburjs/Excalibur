@@ -15,6 +15,9 @@ module ex.Events {
    export type preupdate = 'preupdate';
    export type postupdate = 'postupdate';
 
+   export type preframe = 'preframe';
+   export type postframe = 'postframe';
+
    export type collision = 'collision';
 
    export type initialize = 'initialize';
