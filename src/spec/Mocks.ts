@@ -54,7 +54,16 @@ module Mocks {
          
          return mockNavigator;
       };
-      
+
+      realengine() {
+         return new ex.Engine({
+            width: 500,
+            height: 500,
+            suppressConsoleBootMessage: true,
+            suppressMinimumBrowserFeatureDetection: true
+         });
+      }
+            
       engine(width: number, height: number) {
          var mockEngine;
 
