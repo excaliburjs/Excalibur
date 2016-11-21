@@ -29,7 +29,8 @@ var timer = 1000;
 game.on('postframe', (ev: ex.PostFrameEvent) => {
 
    // set historic stats
-   historicFrameStats[ev.stats.id % 11] = ev.stats;
+   // clone since engine reuses instances
+   historicFrameStats[ev.stats.id % 11] = ev.stats.clone();
 
    timer -= ev.stats.delta;
 

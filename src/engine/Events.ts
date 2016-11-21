@@ -174,7 +174,7 @@ module ex {
     * The 'preframe' event is emitted on the engine, before the frame begins.
     */
    export class PreFrameEvent extends GameEvent {
-      constructor(public engine: Engine, public prevStats: IFrameStats, public target) {
+      constructor(public engine: Engine, public prevStats: FrameStats, public target) {
          super();
       }
    }
@@ -183,7 +183,7 @@ module ex {
     * The 'postframe' event is emitted on the engine, after a frame ends.
     */
    export class PostFrameEvent extends GameEvent {
-      constructor(public engine: Engine, public stats: IFrameStats, public target) {
+      constructor(public engine: Engine, public stats: FrameStats, public target) {
          super();
       }
    }

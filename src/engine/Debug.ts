@@ -98,35 +98,35 @@ module ex {
        * Gets the current frame's id
        */
       public get id() {
-         return this._engine.currentFrameStats.id;
+         return this._engine.currFrameStats.id;
       }
 
       /**
        * Gets the current frame delta (time since last frame)
        */
       public get delta() {
-         return this._engine.currentFrameStats.delta;
+         return this._engine.currFrameStats.delta;
       }
 
       /**
        * Gets the current frames-per-second (FPS)
        */
       public get fps() {
-         return this._engine.currentFrameStats.fps;
+         return this._engine.currFrameStats.fps;
       }
 
       /**
        * Gets the current actor statistics
        */
       public get actors() {
-         return this._engine.currentFrameStats.actors;
+         return this._engine.currFrameStats.actors;
       }
 
       /**
        * Gets the current duration statistics
        */
       public get duration() {
-         return this._engine.currentFrameStats.duration;
+         return this._engine.currFrameStats.duration;
       }
    }
 
@@ -173,6 +173,17 @@ module ex {
             this.actors.alive = this.actors.killed = this.actors.ui = 0;
             this.duration.update = this.duration.draw = 0;
          }
+      }
+
+      /**
+       * Provides a clone of this instance.
+       */
+      public clone(): FrameStats {
+         var fs = new FrameStats();
+
+         fs.reset(this);
+
+         return fs;
       }
 
       /**

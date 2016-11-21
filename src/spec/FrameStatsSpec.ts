@@ -22,7 +22,7 @@ describe('The engine', () => {
    it('should have current and previous frame stats defined', () => {
 
       expect(engine.prevFrameStats).toBeDefined();
-      expect(engine.currentFrameStats).toBeDefined();
+      expect(engine.currFrameStats).toBeDefined();
    });
 
    describe('after frame is ended', () => {
@@ -32,7 +32,7 @@ describe('The engine', () => {
       beforeAll(() => {
          loop.advance(100);
 
-         stats = engine.currentFrameStats;
+         stats = engine.currFrameStats;
       });
 
       it('should collect frame delta', () => {

@@ -247,7 +247,7 @@ module ex {
 
          // Cycle through actors updating UI actors
          for (i = 0, len = this.uiActors.length; i < len; i++) {
-            engine.currentFrameStats.actors.ui++;
+            engine.currFrameStats.actors.ui++;
             this.uiActors[i].update(engine, delta);
          }
 
@@ -258,7 +258,7 @@ module ex {
 
          // Cycle through actors updating actors
          for (i = 0, len = this.children.length; i < len; i++) {
-            engine.currentFrameStats.actors.alive++;
+            engine.currFrameStats.actors.alive++;
             this.children[i].update(engine, delta);
          }
          
@@ -292,7 +292,7 @@ module ex {
                this.children.splice(actorIndex, 1);
             }
          }
-         engine.currentFrameStats.actors.killed = this._killQueue.length;
+         engine.currFrameStats.actors.killed = this._killQueue.length;
          this._killQueue.length = 0;
 
          // Remove timers in the cancel queue before updating them

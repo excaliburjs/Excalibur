@@ -397,7 +397,7 @@ module ex {
        * @obsolete Use [[debug.fps]] or [[currentFrameStats.fps]]. Will be deprecated in future versions.
        */
       public get fps(): number {
-         return this.currentFrameStats.fps;
+         return this.currFrameStats.fps;
       }
 
       /**
@@ -406,12 +406,14 @@ module ex {
       public debug: Debug = new Debug(this);
 
       /**
-       * Current frame statistics
+       * Current frame statistics. Engine reuses this instance, use [[FrameStats.clone]] to copy frame stats. 
+       * Best accessed on [Events.postframe] event.
        */
-      public currentFrameStats = new FrameStats();
+      public currFrameStats = new FrameStats();
 
       /**
-       * Previous frame statistics
+       * Previous frame statistics. Engine reuses this instance, use [[FrameStats.clone]] to copy frame stats.
+       * Best accessed on [Events.preframe] event.
        */
       public prevFrameStats = new FrameStats();
       
@@ -1202,11 +1204,11 @@ O|===|* >________________>\n\
 
                // reset frame stats (reuse existing instances)
                var frameId = game.prevFrameStats.id + 1;
-               game.prevFrameStats.reset(game.currentFrameStats);
-               game.currentFrameStats.reset();
-               game.currentFrameStats.id = frameId;
-               game.currentFrameStats.delta = delta;
-               game.currentFrameStats.fps = 1.0 / (delta / 1000);
+               game.prevFrameStats.reset(game.currFrameStats);
+               game.currFrameStats.reset();
+               game.currFrameStats.id = frameId;
+               game.currFrameStats.delta = delta;
+               game.currFrameStats.fps = 1.0 / (delta / 1000);
 
                var beforeUpdate = nowFn();
                game._update(delta);               
@@ -1214,12 +1216,12 @@ O|===|* >________________>\n\
                game._draw(delta);
                var afterDraw = nowFn();
 
-               game.currentFrameStats.duration.update = afterUpdate - beforeUpdate;
-               game.currentFrameStats.duration.draw = afterDraw - afterUpdate;
+               game.currFrameStats.duration.update = afterUpdate - beforeUpdate;
+               game.currFrameStats.duration.draw = afterDraw - afterUpdate;
 
                lastTime = now;
          
-               game.emit('postframe', new PostFrameEvent(game, game.currentFrameStats, game));
+               game.emit('postframe', new PostFrameEvent(game, game.currFrameStats, game));
             } catch (e) {
                window.cancelAnimationFrame(game._requestId);
                game.stop();
