@@ -105,7 +105,7 @@
          * Find the point on the shape furthest in the direction specified
          */
         public getFurthestPoint(direction: Vector): Vector {
-            return this.pos.add(direction.normalize().scale(this.radius));
+            return this.getCenter().add(direction.normalize().scale(this.radius));
         }
 
         /**
@@ -119,7 +119,7 @@
         }
 
         /**
-         * Get axis not implemented on circles, since their are infinite axis
+         * Get axis not implemented on circles, since there are infinite axis in a circle
          */
         public getAxes(): Vector[] {
             return null;
