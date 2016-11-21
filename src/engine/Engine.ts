@@ -551,6 +551,8 @@ module ex {
             }
             
             return;
+         } else {
+            this._compatible = true;
          }
                   
          // Use native console API for color fun

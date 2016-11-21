@@ -18,12 +18,44 @@ describe('The engine', () => {
       scene = new ex.Scene(engine);
       engine.currentScene = scene;
       loop = mock.loop(engine);
+
+      engine.start();
    });
 
-   it('should emit a preframe event', (done) => {
-      // engine.on('preframe', done);
+   it('should emit a preframe event', () => {
+      var fired = false;
+      engine.on('preframe', () => fired = true);
 
-      // loop.advance(100);
+      loop.advance(100);
+
+      expect(fired).toBe(true);
+   });
+
+   it('should emit a postframe event', () => {
+      var fired = false;
+      engine.on('postframe', () => fired = true);
+
+      loop.advance(100);
+
+      expect(fired).toBe(true);
+   });
+
+   it('should emit a preupdate event', () => {
+      var fired = false;
+      engine.on('preupdate', () => fired = true);
+
+      loop.advance(100);
+
+      expect(fired).toBe(true);
+   });
+
+   it('should emit a postupdate event', () => {
+      var fired = false;
+      engine.on('postupdate', () => fired = true);
+
+      loop.advance(100);
+
+      expect(fired).toBe(true);
    });
 
 });
