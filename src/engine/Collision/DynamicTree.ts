@@ -1,6 +1,9 @@
 /// <reference path="BoundingBox.ts"/>
 
 module ex {
+   /**
+    * Dynamic Tree Node used for tracking bounds within the tree
+    */
    export class TreeNode {
       public left: TreeNode;
       public right: TreeNode;
@@ -21,16 +24,29 @@ module ex {
       }
    }
 
+   /**
+    * The DynamicTrees provides a spatial partiioning data structure for quickly querying for overlapping bounding boxes for 
+    * all tracked bodies. The worst case performance of this is O(n*log(n)) where n is the number of bodies in the tree.
+    *
+    * Internally the bounding boxes are organized as a balanced binary tree of bounding boxes, where the leaf nodes are tracked bodies.
+    * Every non-leaf node is a bounding box that contains child bounding boxes. 
+    */
    export class DynamicTree {
 
       public root: TreeNode;
       public nodes: {[key: number]: TreeNode};
-      constructor() {
+      constructor(public worldBounds: BoundingBox = new ex.BoundingBox(-Number.MAX_VALUE, 
+                                                                       -Number.MAX_VALUE, 
+                                                                        Number.MAX_VALUE, 
+                                                                        Number.MAX_VALUE)) {
          this.root = null;
          this.nodes = {};
       }
 
-      public insert(leaf: TreeNode): void {
+      /**
+       * Inserts a node into the dynamic tree
+       */
+      private _insert(leaf: TreeNode): void {
 
          // If there are no nodes in the tree, make this the root leaf
          if (this.root === null) {
@@ -124,7 +140,7 @@ module ex {
          // Walk up the tree fixing heights and AABBs
          var currentNode = leaf.parent;
          while (currentNode) {
-            currentNode = this.balance(currentNode);
+            currentNode = this._balance(currentNode);
 
             if (!currentNode.left) {
                throw new Error('Parent of current leaf cannot have a null left child' + currentNode);
@@ -140,7 +156,10 @@ module ex {
          }
       }
 
-      public remove(leaf: TreeNode) {
+      /**
+       * Removes a node from the dynamic tree
+       */
+      private _remove(leaf: TreeNode) {
          if (leaf === this.root) {
             this.root = null;
             return;
@@ -165,7 +184,7 @@ module ex {
 
             var currentNode = grandParent;
             while (currentNode) {
-               currentNode = this.balance(currentNode);
+               currentNode = this._balance(currentNode);
                currentNode.bounds = currentNode.left.bounds.combine(currentNode.right.bounds);
                currentNode.height = 1 + Math.max(currentNode.left.height, currentNode.right.height);
 
@@ -179,6 +198,9 @@ module ex {
 
       }
 
+      /**
+       * Tracks a body in the dynamic tree
+       */
       public trackBody(body: Body) {
          var node = new TreeNode();
          node.body = body;
@@ -188,18 +210,30 @@ module ex {
          node.bounds.right += 2;
          node.bounds.bottom += 2;
          this.nodes[body.actor.id] = node;
-         this.insert(node);
+         this._insert(node);
       }
 
+      /**
+       * Updates the dynamic tree given the current bounds of each body being tracked
+       */
       public updateBody(body: Body) {
          var node = this.nodes[body.actor.id];
          if (!node) { return; }
          var b = body.getBounds();
+
+         // if the body is outside the world no longer update it
+         if (!this.worldBounds.contains(b)) {
+            ex.Logger.getInstance().warn('Actor with id ' + body.actor.id + 
+            ' is outside the world bounds and will no longer be tracked for physics');
+            this.untrackBody(body);
+            return false;
+         }
+
          if (node.bounds.contains(b)) {
             return false;
          }
 
-         this.remove(node);
+         this._remove(node);
          b.left -= ex.Physics.boundsPadding;
          b.top -= ex.Physics.boundsPadding;
          b.right += ex.Physics.boundsPadding;
@@ -221,19 +255,25 @@ module ex {
          }
 
          node.bounds = b;
-         this.insert(node);
+         this._insert(node);
          return true;
       }
 
+      /**
+       * Untracks a body from the dynamic tree
+       */
       public untrackBody(body: Body) {
          var node = this.nodes[body.actor.id];
          if (!node) { return; }
-         this.remove(node);
+         this._remove(node);
          this.nodes[body.actor.id] = null;
          delete this.nodes[body.actor.id];
       }
 
-      public balance(node: TreeNode) {
+      /**
+       * Balances the tree about a node
+       */
+      private _balance(node: TreeNode) {
          if (node === null) {
             throw new Error('Cannot balance at null node');
          }
@@ -350,6 +390,9 @@ module ex {
          return node;
       }
 
+      /**
+       * Returns the internal height of the tree, shorter trees are better. Performance drops as the tree grows
+       */
       public getHeight(): number {
          if (this.root === null) {
             return 0;
@@ -357,6 +400,13 @@ module ex {
          return this.root.height;
       }
 
+      /**
+       * Queries the Dynamic Axis Aligned Tree for bodies that could be colliding with the provided body. 
+       * 
+       * In the query callback, it will be passed a potential collider. Returning true from this callback indicates
+       * that you are complete with your query and you do not want to continue. Returning false will continue searching
+       * the tree until all possible colliders have been returned.
+       */
       public query(body: Body, callback: (other: Body) => boolean): void {
          var bounds = body.getBounds();
          var helper = (currentNode: TreeNode) => {
@@ -375,12 +425,26 @@ module ex {
          return helper(this.root);
       }
 
-      public rayCast(ray: Ray, max): Actor {
-         // todo implement
-         return null;
+      public rayCastQuery(ray: Ray, max: number = Infinity, callback: (other: Body) => boolean): void {
+         var helper = (currentNode: TreeNode) => {
+            if (currentNode && currentNode.bounds.castRay(ray, max)) {
+               if (currentNode.isLeaf()) {
+                  if (callback.call(ray, currentNode.body)) {
+                     // ray hit a leaf! return the body
+                     return true;
+                  }                  
+               } else {
+                  // ray hit but not at a leaf, recurse deeper
+                  return helper(currentNode.left) || helper(currentNode.right); 
+               }
+            } else {
+               return null; // ray missed
+            }
+         };
+         return helper(this.root);
       }
 
-      
+        
       public getNodes(): TreeNode[] {
          var helper = currentNode => {
             if (currentNode) {

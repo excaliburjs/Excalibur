@@ -213,5 +213,10 @@ module ex {
        * Pad RigidBody BoundingBox by a constant amount
        */
       public static boundsPadding = 5;
+
+      /**
+       * Surface epsilon is used to help deal with surface penatration
+       */
+      public static surfaceEpsilon = .1;
    };
 }

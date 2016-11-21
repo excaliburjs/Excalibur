@@ -117,4 +117,20 @@ describe('A Bounding Box', () => {
 
       expect(bb.castRay(ray)).toBe(true);
    });
+
+   it('ray cast in the correct direction but that are not long enough dont hit', () => {
+      var bb = new ex.BoundingBox(0, 0, 10, 10);
+
+      var ray = new ex.Ray(new ex.Vector(-10, 5), ex.Vector.Right);
+
+      expect(bb.castRay(ray, ray.dir.magnitude())).toBe(false);
+   });
+
+   it('ray cast when the origin is on the boundary', () => {
+      var bb = new ex.BoundingBox(0, 0, 10, 10);
+
+      var ray = new ex.Ray(new ex.Vector(0, 5), ex.Vector.Right);
+
+      expect(bb.castRay(ray)).toBe(true);
+   });
 });

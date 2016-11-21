@@ -60,6 +60,7 @@ module ex {
        * Detects potential collision pairs in a broadphase approach with the dynamic aabb tree strategy
        */
       public broadphase(targets: Actor[], delta: number): Pair[] {
+         var seconds = delta / 1000;
          // TODO optimization use only the actors that are moving to start 
          // Retrieve the list of potential colliders, exclude killed, prevented, and self
          var potentialColliders = targets.filter((other) => {
@@ -70,6 +71,7 @@ module ex {
          this._collisionPairCache = [];
          this._collisionHash = {};
         
+         // check for normal collision pairs
          var actor: Actor;
          for (var j = 0, l = potentialColliders.length; j < l; j++) {
             actor = potentialColliders[j];
@@ -84,8 +86,58 @@ module ex {
                // Always return false, to query whole tree. Returning true in the query method stops searching
                return false;
             });
+         }
+
+         // Check dynamic tree for fast moving objects
+         // Fast moving objects are those moving at least there smallest bound per frame
+         for (var j = 0; j < l; j++) {            
+            actor = potentialColliders[j];
+            // Skip non-active objects. Does not make sense on other collison types
+            if (actor.collisionType !== ex.CollisionType.Active) { continue; };
+
+            // Maximum travel distance next frame
+            var updateDistance = (actor.vel.magnitude() * seconds) + // velocity term 
+                                 (actor.acc.magnitude() + ex.Physics.acc.magnitude() * .5 * seconds * seconds); // acc term
+            
+            // Find the minimum dimension
+            var minDimension = Math.min(actor.body.getBounds().getHeight(), actor.body.getBounds().getWidth());
+            if (updateDistance > minDimension) {
+               
+               // start with the oldPos because the integration for actors has already happened
+               // objects resting on a surface may be slightly penatrating in the current position
+               var origin: Vector = actor.body.collisionArea.getFurthestPoint(actor.vel).add(actor.oldPos);
+               var ray: Ray = new Ray(origin, actor.vel);
+
+               // back the ray up by -2x surfaceEpsilon to account for fast moving objects starting on the surface 
+               ray.pos = ray.pos.add(ray.dir.scale(-2 * ex.Physics.surfaceEpsilon)); 
+               var minBody: Body;
+               var minTranslate: Vector = new Vector(Infinity, Infinity);
+               this._dynamicCollisionTree.rayCastQuery(ray, updateDistance, (other: Body) => {
+                  if (actor.body !== other && other.collisionArea) {
+                     var hitPoint = other.collisionArea.rayCast(ray, updateDistance);
+                     if (hitPoint) {
+                        var translate = hitPoint.sub(origin);
+                        if (translate.magnitude() < minTranslate.magnitude()) {
+                           minTranslate = translate;
+                           minBody = other;
+                        }
+                     }
+                  }
+                  return false;
+               });
+
+               if (minBody) {
+                  var pair = new Pair(actor.body, minBody);
+                  if (!this._collisionHash[pair.id]) { 
+                     this._collisionHash[pair.id] = true;
+                     this._collisionPairCache.push(pair);
+                  }
+                  // move the fast moving object to the other body
+                  // need to push into the surface by ex.Physics.surfaceEpsilon
+                  actor.pos = actor.oldPos.add(minTranslate).add(ray.dir.scale(ex.Physics.surfaceEpsilon));
+               }
+            }
          }         
-         
          // return cache
          return this._collisionPairCache;
       }
@@ -112,7 +164,7 @@ module ex {
             if (this._collisionPairCache[i].collision) {
                this._collisionPairCache[i].bodyA.applyMtv();
                this._collisionPairCache[i].bodyB.applyMtv();
-               // todo still don't like this
+               // todo still don't like this, this is a small integration step to resolve narrowphase collisions
                this._collisionPairCache[i].bodyA.actor.integrate(delta * ex.Physics.collisionShift);
                this._collisionPairCache[i].bodyB.actor.integrate(delta * ex.Physics.collisionShift);
             }

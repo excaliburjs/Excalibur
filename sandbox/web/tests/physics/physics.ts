@@ -46,17 +46,26 @@ function spawnCircle(x: number, y: number) {
    game.add(circle);
 }
 
-var edge = new ex.Actor(300, 300, 400, 10, ex.Color.Blue.clone());
+var edge = new ex.Actor(0, 0, 5, 5, ex.Color.Blue.clone());
 edge.collisionType = ex.CollisionType.Fixed;
-edge.body.useEdgeCollision(new ex.Vector(-200, 0), new ex.Vector(200, 0));
+edge.body.useEdgeCollision(new ex.Vector(200, 300), new ex.Vector(400, 300));
 // edge.rx = .4;
 game.add(edge);
 
-var ground = new ex.Actor(300, 380, 600, 10, ex.Color.Black.clone());
+var ground = new ex.Actor(300, 380, 600, 10, ex.Color.Azure.clone());
 ground.collisionType = ex.CollisionType.Fixed;
-edge.body.useBoxCollision(); // optional 
+ground.body.useBoxCollision(); // optional 
 game.add(ground);
 
+var leftWall = new ex.Actor(0, 300, 10, 400, ex.Color.Azure.clone());
+leftWall.collisionType = ex.CollisionType.Fixed;
+leftWall.body.useBoxCollision();
+game.add(leftWall);
+
+var rightWall = new ex.Actor(600, 300, 10, 400, ex.Color.Azure.clone());
+rightWall.collisionType = ex.CollisionType.Fixed;
+rightWall.body.useBoxCollision();
+game.add(rightWall);
 
 game.input.keyboard.on('down', (evt: ex.Input.KeyEvent) => {
    if(evt.key === ex.Input.Keys.B){

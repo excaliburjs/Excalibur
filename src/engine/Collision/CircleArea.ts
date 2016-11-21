@@ -54,7 +54,7 @@
          * Casts a ray at the CircleArea and returns the nearest point of collision
          * @param ray 
          */
-        public castRay(ray: Ray): Vector {
+        public rayCast(ray: Ray, max: number = Infinity): Vector {
             //https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
             var c = this.getCenter();
             var dir = ray.dir;
@@ -71,14 +71,19 @@
                 var toi = 0;
                 if (discriminant === 0) {
                     toi = -dir.dot(orig.sub(c));
-                    if (toi > 0) {
+                    if (toi > 0 && toi < max) {
                         return ray.getPoint(toi);
                     }
                     return null;
                 } else {
                     var toi1 = -dir.dot(orig.sub(c)) + discriminant;
                     var toi2 = -dir.dot(orig.sub(c)) - discriminant;
-                    return ray.getPoint(Math.min(toi1, toi2));
+
+                    var mintoi = Math.min(toi1, toi2);
+                    if (mintoi <= max) {
+                       return ray.getPoint(mintoi);
+                    }
+                    return null;
                 }
             }
         }
