@@ -107,12 +107,17 @@ module ex {
          }
 
          // We must apply mtv after all pairs have been resolved for more accuracy
+         // apply integration of collision pairs
          for (i = 0; i < len; i++) {
             if (this._collisionPairCache[i].collision) {
                this._collisionPairCache[i].bodyA.applyMtv();
                this._collisionPairCache[i].bodyB.applyMtv();
+               // todo still don't like this
+               this._collisionPairCache[i].bodyA.actor.integrate(delta * ex.Physics.collisionShift);
+               this._collisionPairCache[i].bodyB.actor.integrate(delta * ex.Physics.collisionShift);
             }
          }
+
       }
 
       /**

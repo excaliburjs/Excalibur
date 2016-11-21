@@ -17,8 +17,8 @@ ex.Physics.showContacts = true;
 ex.Physics.showNormals = true;
 ex.Physics.acc.setTo(0, 100);
 
-function spawnBlock(x: number, y: number){
-   var width = ex.Util.randomInRange(20, 100)
+function spawnBlock(x: number, y: number) {
+   var width = ex.Util.randomInRange(20, 100);
    var color = new ex.Color(ex.Util.randomIntInRange(0, 255),
                            ex.Util.randomIntInRange(0, 255),
                            ex.Util.randomIntInRange(0, 255));
@@ -30,8 +30,8 @@ function spawnBlock(x: number, y: number){
    game.add(block);
 }
 
-function spawnCircle(x: number, y: number){
-   var width = 3; // ex.Util.randomInRange(20, 100)
+function spawnCircle(x: number, y: number) {
+   var width = ex.Util.randomInRange(20, 100);
    var color = new ex.Color(ex.Util.randomIntInRange(0, 255),
                            ex.Util.randomIntInRange(0, 255),
                            ex.Util.randomIntInRange(0, 255));

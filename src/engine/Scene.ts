@@ -264,13 +264,14 @@ module ex {
          if (this._broadphase && Physics.enabled) {
             this._broadphase.update(this.children, delta);
             var pairs = this._broadphase.broadphase(this.children, delta);
-            // Run the narrowphase
-            this._broadphase.narrowphase(pairs);
+            
             var iter: number = Physics.collisionPasses;
             var collisionDelta = delta / iter;
-            while (iter > 0) { 
+            while (iter > 0) {
+               // Run the narrowphase
+               this._broadphase.narrowphase(pairs); 
                // Run collision resolution strategy
-               this._broadphase.resolve(collisionDelta, Physics.collisionResolutionStrategy);               
+               this._broadphase.resolve(collisionDelta, Physics.collisionResolutionStrategy);
                iter--;
             }
          }        
