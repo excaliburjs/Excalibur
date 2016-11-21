@@ -80,6 +80,31 @@ module ex {
         }
 
         /**
+         * Determines whether a ray intersects with a bounding box
+         */
+        public castRay(ray: Ray, farClipDistance = Infinity): boolean {
+           // algorithm from https://tavianator.com/fast-branchless-raybounding-box-intersections/ 
+           var tmin = -Infinity;
+           var tmax = +Infinity;           
+
+           if (ray.dir.x !== 0) {
+              var tx1 = (this.left - ray.pos.x) / ray.dir.x;
+              var tx2 = (this.right - ray.pos.x) / ray.dir.x;
+              tmin = Math.max(tmin, Math.min(tx1, tx2));
+              tmax = Math.min(tmax, Math.max(tx1, tx2));
+           }
+
+           if (ray.dir.y !== 0) {
+              var ty1 = (this.top - ray.pos.y) / ray.dir.y;
+              var ty2 = (this.bottom - ray.pos.y) / ray.dir.y;
+              tmin = Math.max(tmin, Math.min(ty1, ty2));
+              tmax = Math.min(tmax, Math.max(ty1, ty2));
+           }
+
+           return tmax >= Math.max(0, tmin) && tmin < farClipDistance;
+        }
+
+        /**
          * Tests whether a point is contained within the bounding box
          * @param p  The point to test
          */
