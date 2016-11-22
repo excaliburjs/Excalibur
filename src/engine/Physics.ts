@@ -218,5 +218,11 @@ module ex {
        * Surface epsilon is used to help deal with surface penatration
        */
       public static surfaceEpsilon = .1;
+
+      /**
+       * Enable fast moving body checking, this enables checking for collision pairs via raycast for fast moving objects to prevent
+       * bodies from tunneling through one another.
+       */
+      public static checkForFastBodies = true;
    };
 }

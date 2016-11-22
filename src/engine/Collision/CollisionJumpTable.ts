@@ -54,7 +54,7 @@
 
         CollideCircleEdge(circle: CircleArea, edge: EdgeArea): CollisionContact {
             // center of the circle
-            var cc = circle.body.pos;
+            var cc = circle.getCenter();
             // vector in the direction of the edge
             var e = edge.end.sub(edge.begin);
 

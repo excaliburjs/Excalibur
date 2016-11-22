@@ -14,18 +14,45 @@ ex.Physics.showBounds = true;
 ex.Physics.showContacts = true;
 ex.Physics.showNormals = true;
 ex.Physics.acc.setTo(0, 800);
+ex.Physics.dynamicTreeVelocityMultiplyer = 1;
+game.currentScene.camera.z = .5;
 var rocketTex = new ex.Texture('missile.png');
 var loader = new ex.Loader([rocketTex]);
 
-function spawnRocket(x: number, y: number) {
-   var rocket = new ex.Actor(x, y, 48, 16);
+function spawnRocket(direction) {
+   var rocket = new ex.Actor(300, 200, 48, 16);
+
+   rocket.on('preupdate', () => {
+      if (rocket.isOffScreen) {
+         rocket.kill();
+         console.log("Rocket offscreen killed");
+      }
+   });
    
    rocket.collisionType = ex.CollisionType.Active;
    rocket.addDrawing(rocketTex);
    rocket.body.useBoxCollision();
    //rocket.rotation = Math.PI / 4;
    //block.rx = .1;
-   rocket.vel.setTo(6000, -200);
+   if (direction === 'up'){
+      rocket.vel.setTo(0, -6000);
+      rocket.rotation = -Math.PI / 2;
+   }
+
+   if (direction === 'down') {
+      rocket.vel.setTo(0, 6000);
+      rocket.rotation = Math.PI / 2;
+   }
+
+   if (direction === 'right') {
+      rocket.vel.setTo(6000, 0);
+   }
+
+   if (direction === 'left') {
+      rocket.vel.setTo(-6000, 0);
+      rocket.rotation = Math.PI;
+   }
+
    game.add(rocket);
 }
 
@@ -50,8 +77,20 @@ ceiling.body.useBoxCollision(); // optional
 game.add(ceiling); 
 
 game.input.keyboard.on('down', (evt: ex.Input.KeyEvent) => {
-   if(evt.key === ex.Input.Keys.L){
-      spawnRocket(40, 100);
+   if (evt.key === ex.Input.Keys.Up){
+      spawnRocket('up');
+   }
+
+   if (evt.key === ex.Input.Keys.Down){
+      spawnRocket('down');
+   }
+
+   if (evt.key === ex.Input.Keys.Left){
+      spawnRocket('left');
+   }
+
+   if (evt.key === ex.Input.Keys.Right){
+      spawnRocket('right');
    }
 });
 

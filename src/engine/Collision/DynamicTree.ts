@@ -427,7 +427,7 @@ module ex {
 
       public rayCastQuery(ray: Ray, max: number = Infinity, callback: (other: Body) => boolean): void {
          var helper = (currentNode: TreeNode) => {
-            if (currentNode && currentNode.bounds.castRay(ray, max)) {
+            if (currentNode && currentNode.bounds.rayCast(ray, max)) {
                if (currentNode.isLeaf()) {
                   if (callback.call(ray, currentNode.body)) {
                      // ray hit a leaf! return the body

@@ -82,7 +82,7 @@ module ex {
         /**
          * Determines whether a ray intersects with a bounding box
          */
-        public castRay(ray: Ray, farClipDistance = Infinity): boolean {
+        public rayCast(ray: Ray, farClipDistance = Infinity): boolean {
            // algorithm from https://tavianator.com/fast-branchless-raybounding-box-intersections/ 
            var tmin = -Infinity;
            var tmax = +Infinity;           
