@@ -14,7 +14,7 @@ ex.Physics.showBounds = true;
 ex.Physics.showContacts = true;
 ex.Physics.showNormals = true;
 ex.Physics.acc.setTo(0, 800);
-ex.Physics.dynamicTreeVelocityMultiplyer = 1;
+//ex.Physics.dynamicTreeVelocityMultiplyer = 1;
 game.currentScene.camera.z = .5;
 var rocketTex = new ex.Texture('missile.png');
 var loader = new ex.Loader([rocketTex]);
@@ -56,9 +56,9 @@ function spawnRocket(direction) {
    game.add(rocket);
 }
 
-var ground = new ex.Actor(300, 380, 600, 10, ex.Color.Green.clone());
+var ground = new ex.Actor(0, 0, 5, 5, ex.Color.Black.clone());
 ground.collisionType = ex.CollisionType.Fixed;
-ground.body.useBoxCollision(); // optional 
+ground.body.useEdgeCollision(new ex.Vector(0, 400), new ex.Vector(600, 400)); 
 game.add(ground);
 
 var rightWall = new ex.Actor(600, 200, 10, 400, ex.Color.Black.clone());
@@ -71,7 +71,7 @@ leftWall.collisionType = ex.CollisionType.Fixed;
 leftWall.body.useBoxCollision();
 game.add(leftWall);
 
-var ceiling = new ex.Actor(300, 10, 600, 10, ex.Color.Green.clone());
+var ceiling = new ex.Actor(300, 10, 600, 10, ex.Color.Blue.clone());
 ceiling.collisionType = ex.CollisionType.Fixed;
 ceiling.body.useBoxCollision(); // optional 
 game.add(ceiling); 

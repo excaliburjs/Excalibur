@@ -9,7 +9,7 @@ module ex {
     */
    export class Pair {
       public id: string = null;
-      public collision: CollisionContact = null;      
+      public collision: CollisionContact = null;
 
       constructor(public bodyA: Body, public bodyB: Body) {
          this.id = Pair.calculatePairHash(bodyA, bodyB);

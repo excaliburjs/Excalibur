@@ -102,7 +102,7 @@ module ex {
                
                // Find the minimum dimension
                var minDimension = Math.min(actor.body.getBounds().getHeight(), actor.body.getBounds().getWidth());
-               if (updateDistance > minDimension) {
+               if (updateDistance > (minDimension / 2)) {
                   console.log('Possible Fast body');
                   
                   // start with the oldPos because the integration for actors has already happened
@@ -118,9 +118,9 @@ module ex {
                   ray.pos = ray.pos.add(ray.dir.scale(-2 * ex.Physics.surfaceEpsilon)); 
                   var minBody: Body;
                   var minTranslate: Vector = new Vector(Infinity, Infinity);
-                  this._dynamicCollisionTree.rayCastQuery(ray, updateDistance, (other: Body) => {
+                  this._dynamicCollisionTree.rayCastQuery(ray, updateDistance + ex.Physics.surfaceEpsilon * 2, (other: Body) => {
                      if (actor.body !== other && other.collisionArea) {
-                        var hitPoint = other.collisionArea.rayCast(ray, updateDistance);
+                        var hitPoint = other.collisionArea.rayCast(ray, updateDistance + ex.Physics.surfaceEpsilon * 10);
                         if (hitPoint) {
                            var translate = hitPoint.sub(origin);
                            if (translate.magnitude() < minTranslate.magnitude()) {
