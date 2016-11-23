@@ -218,6 +218,40 @@ describe('A game actor', () => {
       expect(child.getTop()).toBe(-50);
       expect(child.getBottom()).toBe(50);
    });
+
+   it('should have the correct bounds when scaled and rotated', () => {
+      
+      var actor = new ex.Actor(50, 50, 10, 10);
+      // actor is now 20 high
+      actor.scale.setTo(1, 2);
+      // rotating the actor 90 degrees should make the actor 20 wide
+      actor.rotation = Math.PI / 2;
+      var bounds = actor.getBounds();
+      expect(bounds.getWidth()).toBeCloseTo(20, .001);
+      expect(bounds.getHeight()).toBeCloseTo(10, .001);
+
+      expect(bounds.left).toBeCloseTo(40, .001);
+      expect(bounds.right).toBeCloseTo(60, .001);
+      expect(bounds.top).toBeCloseTo(45, .001);
+      expect(bounds.bottom).toBeCloseTo(55, .001);
+   });
+
+   it('should have the correct relative bounds when scaled and rotated', () => {
+      
+      var actor = new ex.Actor(50, 50, 10, 10);
+      // actor is now 20 high
+      actor.scale.setTo(1, 2);
+      // rotating the actor 90 degrees should make the actor 20 wide
+      actor.rotation = Math.PI / 2;
+      var bounds = actor.getRelativeBounds();
+      expect(bounds.getWidth()).toBeCloseTo(20, .001);
+      expect(bounds.getHeight()).toBeCloseTo(10, .001);
+
+      expect(bounds.left).toBeCloseTo(-10, .001);
+      expect(bounds.right).toBeCloseTo(10, .001);
+      expect(bounds.top).toBeCloseTo(-5, .001);
+      expect(bounds.bottom).toBeCloseTo(5, .001);
+   });
    
    it('has a left, right, top, and bottom when the anchor is (0, 0)', () => {
       actor.pos.x = 100;
