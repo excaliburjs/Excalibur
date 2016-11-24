@@ -74,6 +74,7 @@ describe('FrameStats', () => {
 
    it('can be cloned', () => {
 
+      sut.id = 10;
       sut.fps = 10;
       sut.delta = 10;
       sut.actors.alive = 3;
