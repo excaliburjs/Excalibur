@@ -148,6 +148,7 @@ module ex {
        */
       public reset(otherStats?: IFrameStats) {
          if (otherStats) {
+            this.id = otherStats.id;
             this.delta = otherStats.delta;
             this.fps = otherStats.fps;
             this.actors.alive = otherStats.actors.alive;
