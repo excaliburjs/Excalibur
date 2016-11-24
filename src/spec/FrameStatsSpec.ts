@@ -63,3 +63,28 @@ describe('The engine', () => {
    
 
 });
+
+describe('FrameStats', () => {
+
+   var sut: ex.FrameStats;
+
+   beforeEach(() => {
+      sut = new ex.FrameStats();
+   });
+
+   it('can be cloned', () => {
+
+      sut.fps = 10;
+      sut.delta = 10;
+      sut.actors.alive = 3;
+      sut.actors.killed = 1;
+      sut.actors.ui = 1;
+      sut.duration.update = 10;
+      sut.duration.draw = 10;
+
+      var clone = sut.clone();
+
+      expect(sut).toEqual(clone);
+   });
+
+});

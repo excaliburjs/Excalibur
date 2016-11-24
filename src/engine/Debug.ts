@@ -150,8 +150,11 @@ module ex {
          if (otherStats) {
             this.delta = otherStats.delta;
             this.fps = otherStats.fps;
-            this.actors = otherStats.actors;
-            this.duration = otherStats.duration;            
+            this.actors.alive = otherStats.actors.alive;
+            this.actors.killed = otherStats.actors.killed;
+            this.actors.ui = otherStats.actors.ui;
+            this.duration.update = otherStats.duration.update;
+            this.duration.draw = otherStats.duration.draw;            
          } else {
             this.id = this.delta = this.fps = 0;
             this.actors.alive = this.actors.killed = this.actors.ui = 0;
