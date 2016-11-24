@@ -97,8 +97,10 @@ module Mocks {
             debug: {
                
             },
-            currFrameStats: new ex.FrameStats(),
-            prevFrameStats: new ex.FrameStats(),
+            stats: {
+               currFrame: new ex.FrameStats(),
+               prevFrame: new ex.FrameStats()
+            },
             input: {
                keyboard: {
                   update: function () { /* do nothing */ }

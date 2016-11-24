@@ -394,28 +394,23 @@ module ex {
 
       /**
        * Current FPS
-       * @obsolete Use [[debug.fps]] or [[currentFrameStats.fps]]. Will be deprecated in future versions.
+       * @obsolete Use [[stats.currFrame.fps]]. Will be deprecated in future versions.
        */
       public get fps(): number {
-         return this.currFrameStats.fps;
+         return this.stats.currFrame.fps;
       }
 
       /**
        * Access Excalibur debugging functionality.
        */
-      public debug: Debug = new Debug(this);
+      public debug = new Debug(this);
 
       /**
-       * Current frame statistics. Engine reuses this instance, use [[FrameStats.clone]] to copy frame stats. 
-       * Best accessed on [Events.postframe] event.
+       * Access [[debug.stats]] that holds frame statistics.
        */
-      public currFrameStats = new FrameStats();
-
-      /**
-       * Previous frame statistics. Engine reuses this instance, use [[FrameStats.clone]] to copy frame stats.
-       * Best accessed on [Events.preframe] event.
-       */
-      public prevFrameStats = new FrameStats();
+      public get stats() {
+         return this.debug.stats;
+      }
       
       /**
        * Gets or sets the list of post processors to apply at the end of drawing a frame (such as [[ColorBlindCorrector]])
@@ -1188,7 +1183,7 @@ O|===|* >________________>\n\
             }
             try {
                game._requestId = raf(mainloop);
-               game.emit('preframe', new PreFrameEvent(game, game.prevFrameStats, game));
+               game.emit('preframe', new PreFrameEvent(game, game.stats.prevFrame, game));
 
                // Get the time to calculate time-elapsed
                var now = nowFn();
@@ -1203,12 +1198,12 @@ O|===|* >________________>\n\
                var delta = elapsed * game.timescale;
 
                // reset frame stats (reuse existing instances)
-               var frameId = game.prevFrameStats.id + 1;
-               game.prevFrameStats.reset(game.currFrameStats);
-               game.currFrameStats.reset();
-               game.currFrameStats.id = frameId;
-               game.currFrameStats.delta = delta;
-               game.currFrameStats.fps = 1.0 / (delta / 1000);
+               var frameId = game.stats.prevFrame.id + 1;
+               game.stats.prevFrame.reset(game.stats.currFrame);
+               game.stats.currFrame.reset();
+               game.stats.currFrame.id = frameId;
+               game.stats.currFrame.delta = delta;
+               game.stats.currFrame.fps = 1.0 / (delta / 1000);
 
                var beforeUpdate = nowFn();
                game._update(delta);               
@@ -1216,12 +1211,12 @@ O|===|* >________________>\n\
                game._draw(delta);
                var afterDraw = nowFn();
 
-               game.currFrameStats.duration.update = afterUpdate - beforeUpdate;
-               game.currFrameStats.duration.draw = afterDraw - afterUpdate;
+               game.stats.currFrame.duration.update = afterUpdate - beforeUpdate;
+               game.stats.currFrame.duration.draw = afterDraw - afterUpdate;
 
                lastTime = now;
          
-               game.emit('postframe', new PostFrameEvent(game, game.currFrameStats, game));
+               game.emit('postframe', new PostFrameEvent(game, game.stats.currFrame, game));
             } catch (e) {
                window.cancelAnimationFrame(game._requestId);
                game.stop();

@@ -1236,9 +1236,9 @@ module ex {
        // Update child actors
        for (var i = 0; i < this.children.length; i++) {   
           if (this.children[i] instanceof UIActor) {
-             engine.currFrameStats.actors.ui++;
+             engine.stats.currFrame.actors.ui++;
           } else {
-             engine.currFrameStats.actors.alive++;
+             engine.stats.currFrame.actors.alive++;
           }
           this.children[i].update(engine, delta);          
        }

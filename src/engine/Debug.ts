@@ -90,44 +90,28 @@ module ex {
     * best to do so on the `postupdate` event for [[Engine]], after all values have been
     * updated during a frame.
     */
-   export class Debug implements IDebugFlags, IFrameStats {
+   export class Debug implements IDebugFlags {
 
       constructor(private _engine: ex.Engine) { }
 
       /**
-       * Gets the current frame's id
+       * Performance statistics
        */
-      public get id() {
-         return this._engine.currFrameStats.id;
-      }
+      public stats = {
 
-      /**
-       * Gets the current frame delta (time since last frame)
-       */
-      public get delta() {
-         return this._engine.currFrameStats.delta;
-      }
+         /**
+          * Current frame statistics. Engine reuses this instance, use [[FrameStats.clone]] to copy frame stats. 
+          * Best accessed on [Events.postframe] event. See [[IFrameStats]]
+          */
+         currFrame: new FrameStats(),
 
-      /**
-       * Gets the current frames-per-second (FPS)
-       */
-      public get fps() {
-         return this._engine.currFrameStats.fps;
-      }
+         /**
+          * Previous frame statistics. Engine reuses this instance, use [[FrameStats.clone]] to copy frame stats. 
+          * Best accessed on [Events.preframe] event. Best inspected on engine event `preframe`. See [[IFrameStats]]
+          */
+         prevFrame: new FrameStats()
+      };
 
-      /**
-       * Gets the current actor statistics
-       */
-      public get actors() {
-         return this._engine.currFrameStats.actors;
-      }
-
-      /**
-       * Gets the current duration statistics
-       */
-      public get duration() {
-         return this._engine.currFrameStats.duration;
-      }
    }
 
    /**
