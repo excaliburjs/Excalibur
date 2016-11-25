@@ -1,5 +1,3 @@
-# Excalibur Engine
-
 Excalibur uses the HTML5 Canvas API for drawing your game to the screen.
 The canvas is available to all `draw` functions for raw manipulation,
 but Excalibur is meant to simplify or completely remove the need to use
