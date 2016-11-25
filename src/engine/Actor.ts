@@ -22,8 +22,6 @@
 module ex {
  
   /**
-   * Actors
-   *
    * The most important primitive in Excalibur is an `Actor`. Anything that
    * can move on the screen, collide with another `Actor`, respond to events, 
    * or interact with the current scene, must be an actor. An `Actor` **must**
