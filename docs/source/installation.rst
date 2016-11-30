@@ -25,9 +25,16 @@ up a blank, ready-to-go Excalibur game:
 
 .. code-block:: bash
 
-    npm install -g yo
-    npm install -g generator-excalibur
-    yo excalibur
+   # Install Yeoman globally
+   npm install -g yo
+   # Install the Excalibur generator globally
+   npm install -g generator-excalibur
+   # Create the folder you want your game to be in
+   mkdir my-game
+   # Go into the folder
+   cd my-game
+   # Run the excalibur generator
+   yo excalibur
 
 The Yeoman generator will automatically create the appropriate package.json and bower.json files and install
 the needed dependencies for your project.
