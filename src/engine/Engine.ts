@@ -1,4 +1,5 @@
 /// <reference path="MonkeyPatch.ts" />
+/// <reference path="Debug.ts" />
 /// <reference path="Events.ts" />
 /// <reference path="EventDispatcher.ts" />
 /// <reference path="Class.ts" />
@@ -393,8 +394,23 @@ module ex {
 
       /**
        * Current FPS
+       * @obsolete Use [[stats.currFrame.fps]]. Will be deprecated in future versions.
        */
-      public fps: number = 0;
+      public get fps(): number {
+         return this.stats.currFrame.fps;
+      }
+
+      /**
+       * Access Excalibur debugging functionality.
+       */
+      public debug = new Debug(this);
+
+      /**
+       * Access [[debug.stats]] that holds frame statistics.
+       */
+      public get stats() {
+         return this.debug.stats;
+      }
       
       /**
        * Gets or sets the list of post processors to apply at the end of drawing a frame (such as [[ColorBlindCorrector]])
@@ -467,6 +483,10 @@ module ex {
       public on(eventName: ex.Events.hidden, handler: (event?: HiddenEvent) => void);
       public on(eventName: ex.Events.start, handler: (event?: GameStartEvent) => void);
       public on(eventName: ex.Events.stop, handler: (event?: GameStopEvent) => void);
+      public on(eventName: ex.Events.preupdate, handler: (event?: PreUpdateEvent) => void);
+      public on(eventName: ex.Events.postupdate, handler: (event?: PostUpdateEvent) => void);
+      public on(eventName: ex.Events.preframe, handler: (event?: PreFrameEvent) => void);
+      public on(eventName: ex.Events.postframe, handler: (event?: PostFrameEvent) => void);
       public on(eventName: string, handler: (event?: GameEvent) => void);
       public on(eventName: string, handler: (event?: GameEvent) => void) {
          super.on(eventName, handler);
@@ -532,6 +552,8 @@ module ex {
             }
             
             return;
+         } else {
+            this._compatible = true;
          }
                   
          // Use native console API for color fun
@@ -1089,9 +1111,7 @@ O|===|* >________________>\n\
          var a = 0, len = this._animations.length;
          for (a; a < len; a++) {
             this._animations[a].animation.draw(ctx, this._animations[a].x, this._animations[a].y);
-         }
-
-         this.fps = 1.0 / (delta / 1000);
+         }         
 
          // Draw debug information
          if (this.isDebug) {
@@ -1163,6 +1183,7 @@ O|===|* >________________>\n\
             }
             try {
                game._requestId = raf(mainloop);
+               game.emit('preframe', new PreFrameEvent(game, game.stats.prevFrame, game));
 
                // Get the time to calculate time-elapsed
                var now = nowFn();
@@ -1174,11 +1195,28 @@ O|===|* >________________>\n\
                if (elapsed > 200) {
                   elapsed = 1;
                }
-               game._update(elapsed * game.timescale);
-               game._draw(elapsed * game.timescale);
+               var delta = elapsed * game.timescale;
+
+               // reset frame stats (reuse existing instances)
+               var frameId = game.stats.prevFrame.id + 1;
+               game.stats.prevFrame.reset(game.stats.currFrame);
+               game.stats.currFrame.reset();
+               game.stats.currFrame.id = frameId;
+               game.stats.currFrame.delta = delta;
+               game.stats.currFrame.fps = 1.0 / (delta / 1000);
+
+               var beforeUpdate = nowFn();
+               game._update(delta);               
+               var afterUpdate = nowFn();
+               game._draw(delta);
+               var afterDraw = nowFn();
+
+               game.stats.currFrame.duration.update = afterUpdate - beforeUpdate;
+               game.stats.currFrame.duration.draw = afterDraw - afterUpdate;
 
                lastTime = now;
          
+               game.emit('postframe', new PostFrameEvent(game, game.stats.currFrame, game));
             } catch (e) {
                window.cancelAnimationFrame(game._requestId);
                game.stop();

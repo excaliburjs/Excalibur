@@ -15,6 +15,9 @@ module ex.Events {
    export type preupdate = 'preupdate';
    export type postupdate = 'postupdate';
 
+   export type preframe = 'preframe';
+   export type postframe = 'postframe';
+
    export type collision = 'collision';
 
    export type initialize = 'initialize';
@@ -163,6 +166,24 @@ module ex {
     */
    export class PostUpdateEvent extends GameEvent {
       constructor(public engine: Engine, public delta, public target) {
+         super();
+      }
+   }
+
+   /**
+    * The 'preframe' event is emitted on the engine, before the frame begins.
+    */
+   export class PreFrameEvent extends GameEvent {
+      constructor(public engine: Engine, public prevStats: FrameStats, public target) {
+         super();
+      }
+   }
+   
+   /**
+    * The 'postframe' event is emitted on the engine, after a frame ends.
+    */
+   export class PostFrameEvent extends GameEvent {
+      constructor(public engine: Engine, public stats: FrameStats, public target) {
          super();
       }
    }
