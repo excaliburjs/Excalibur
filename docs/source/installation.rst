@@ -56,14 +56,15 @@ Modify your local copy of the distributed ``excalibur.d.ts`` file and add the fo
 
 .. code-block:: typescript
 
-   export = ex;
-   export as namespace ex;
+   export default ex;
 
 This will allow you to reference Excalibur using TypeScript with the import style syntax:
 
 .. code-block:: typescript
 
-   import { ex } from 'excalibur'
+   import ex from 'excalibur'
+
+You can read more about specific module syntax in the `TypeScript Handbook <http://www.typescriptlang.org/docs/handbook/modules.html>`_.
 
 For Windows 8 & 10 projects
 ---------------------------
