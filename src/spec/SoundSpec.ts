@@ -287,7 +287,7 @@ describe('Sound resource', () => {
 class MockAudioImplementation implements ex.IAudioImplementation {
    public responseType = 'test';
    public processData(data: any) {
-      return ex.Promise.wrap(data);
+      return ex.Promise.resolve(data);
    }
    public createInstance(): ex.IAudio {
       return new MockAudioInstance();
