@@ -9,6 +9,10 @@ describe('Sound resource', () => {
    var sut: ex.Sound;
    var audioMock: MockAudioImplementation;   
 
+   beforeAll(() => {
+      ex.Logger.getInstance().clearAppenders();
+   });
+
    beforeEach(() => {
 
       // set up Mocks
