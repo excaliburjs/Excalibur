@@ -103,7 +103,7 @@ module ex {
                // Find the minimum dimension
                var minDimension = Math.min(actor.body.getBounds().getHeight(), actor.body.getBounds().getWidth());
                if (updateDistance > (minDimension / 2)) {
-                  console.log('Possible Fast body');
+                  // TODO: console.log('Possible Fast body');
                   
                   // start with the oldPos because the integration for actors has already happened
                   // objects resting on a surface may be slightly penatrating in the current position
@@ -126,7 +126,7 @@ module ex {
                            if (translate.magnitude() < minTranslate.magnitude()) {
                               minTranslate = translate;
                               minBody = other;
-                              console.log('Fast body resolution detected');
+                              // TODO: console.log('Fast body resolution detected');
                            }
                         }
                      }

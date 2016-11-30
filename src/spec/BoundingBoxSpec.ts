@@ -91,7 +91,7 @@ describe('A Bounding Box', () => {
 
       var ray = new ex.Ray(new ex.Vector(-10, 5), ex.Vector.Right);
 
-      expect(bb.castRay(ray)).toBe(true);
+      expect(bb.rayCast(ray)).toBe(true);
    });
 
    it('ray cast can miss a bounding box', () => {
@@ -99,7 +99,7 @@ describe('A Bounding Box', () => {
 
       var ray = new ex.Ray(new ex.Vector(-10, 5), ex.Vector.Left);
 
-      expect(bb.castRay(ray)).toBe(false);
+      expect(bb.rayCast(ray)).toBe(false);
    });
 
    it('ray cast can hit bounding box on the edge', () => {
@@ -107,7 +107,7 @@ describe('A Bounding Box', () => {
 
       var ray = new ex.Ray(new ex.Vector(0, -5), ex.Vector.Down);
 
-      expect(bb.castRay(ray)).toBe(true);
+      expect(bb.rayCast(ray)).toBe(true);
    });
 
    it('ray cast can originate from inside the box', () => {
@@ -115,7 +115,7 @@ describe('A Bounding Box', () => {
 
       var ray = new ex.Ray(new ex.Vector(5, 5), ex.Vector.Down);
 
-      expect(bb.castRay(ray)).toBe(true);
+      expect(bb.rayCast(ray)).toBe(true);
    });
 
    it('ray cast in the correct direction but that are not long enough dont hit', () => {
@@ -123,7 +123,7 @@ describe('A Bounding Box', () => {
 
       var ray = new ex.Ray(new ex.Vector(-10, 5), ex.Vector.Right);
 
-      expect(bb.castRay(ray, ray.dir.magnitude())).toBe(false);
+      expect(bb.rayCast(ray, ray.dir.magnitude())).toBe(false);
    });
 
    it('ray cast when the origin is on the boundary', () => {
@@ -131,6 +131,6 @@ describe('A Bounding Box', () => {
 
       var ray = new ex.Ray(new ex.Vector(0, 5), ex.Vector.Right);
 
-      expect(bb.castRay(ray)).toBe(true);
+      expect(bb.rayCast(ray)).toBe(true);
    });
 });
