@@ -85,7 +85,21 @@ grunt visual
 
 Local debugging is supported in vscode by installing the PhantomJS Debugger extension `iradul.debugger-for-phantomjs`
 
+### Updating npm dependencies
 
+When you update npm dependencies, we use [shrinkpack](https://github.com/JamieMason/shrinkpack) to pack up
+and cache all npm packages.
+
+Run the following to update the shrinkwrap when packages are updated:
+
+```sh
+# Install shrinkpack globally
+npm install -g shrinkpack
+# Run npm shrinkwrap and update npm_shrinkwrap.json
+npm shrinkwrap --dev
+# Run shrinkpack and download/update dependencies locally
+shrinkpack .
+```
 
 
 # License
