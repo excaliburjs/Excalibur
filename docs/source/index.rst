@@ -50,6 +50,7 @@ so we can feature you in our online gallery.
    :maxdepth: 1
    :caption: Extensions
    
+   Yeoman generator <https://github.com/excaliburjs/generator-excalibur>
    Tiled map editor integration <https://github.com/excaliburjs/excalibur-tiled>
 
 ============
