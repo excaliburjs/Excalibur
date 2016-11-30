@@ -25,7 +25,7 @@ module ex {
        */
       public processData(data: Blob): ex.Promise<string> {        
          var url = URL.createObjectURL(data);         
-         return ex.Promise.wrap(url);
+         return ex.Promise.resolve(url);
       }
 
       /**
@@ -308,7 +308,7 @@ module ex {
                return true;
             });
          } else {
-            return Promise.wrap(true);
+            return Promise.resolve(true);
          }
       }
 

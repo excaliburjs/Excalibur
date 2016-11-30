@@ -903,7 +903,7 @@ O|===|* >________________>\n\
             this._loader.wireEngine(this);
             loadingComplete = this.load(this._loader);
          } else {
-            loadingComplete = Promise.wrap();
+            loadingComplete = Promise.resolve();
          }
 
          loadingComplete.then(() => {
