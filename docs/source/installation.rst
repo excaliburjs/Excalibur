@@ -18,6 +18,29 @@ There are several ways you can download Excalibur.
 
     Install-Package Excalibur
 
+**Yeoman Generator**
+
+You can use the `Excalibur Yeoman generator <https://github.com/excaliburjs/generator-excalibur>`_ to spin
+up a blank, ready-to-go Excalibur game:
+
+.. code-block:: bash
+
+   # Install Yeoman globally
+   npm install -g yo
+   # Install the Excalibur generator globally
+   npm install -g generator-excalibur
+   # Create the folder you want your game to be in
+   mkdir my-game
+   # Go into the folder
+   cd my-game
+   # Run the excalibur generator
+   yo excalibur
+
+The Yeoman generator will automatically create the appropriate package.json and bower.json files and install
+the needed dependencies for your project.
+
+**Raw Script Files**
+
 You can also download the raw Javascript files from the `Excalibur Distribution repository <https://github.com/excaliburjs/excalibur-dist/releases>`_.
 
 .. note:: Remember, Excalibur is a client-side library and cannot be used in a server-side
