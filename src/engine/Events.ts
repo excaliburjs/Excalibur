@@ -3,6 +3,7 @@
 /// <reference path="Util/Log.ts" />
 
 /* istanbul ignore next */
+/* compiler only: these are internal to lib */
 module ex.Events {
    export type kill = 'kill';
    
@@ -60,21 +61,7 @@ module ex {
   
    /**
     * Base event type in Excalibur that all other event types derive from. Not all event types are thrown on all Excalibur game objects, 
-    * some events are unique to a type, others are not. 
-    *
-    * Excalibur events follow the convention that the name of the thrown event for listening will be the same as the Event object in all 
-    * lower case with the 'Event' suffix removed.    
-    * 
-    * For example:
-    * - PreDrawEvent event object and "predraw" as the event name
-    *
-    * ```typescript
-    * 
-    * actor.on('predraw', (evtObj: PreDrawEvent) => {
-    *    // do some pre drawing
-    * })
-    *
-    * ```
+    * some events are unique to a type, others are not.
     *  
     */
    export class GameEvent {
