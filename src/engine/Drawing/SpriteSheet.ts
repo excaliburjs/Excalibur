@@ -3,94 +3,11 @@
 module ex {
 
    /**
-    * Sprite Sheets
-    *
     * Sprite sheets are a useful mechanism for slicing up image resources into
     * separate sprites or for generating in game animations. [[Sprite|Sprites]] are organized
     * in row major order in the [[SpriteSheet]].
     *
-    * You can also use a [[SpriteFont]] which is special kind of [[SpriteSheet]] for use
-    * with [[Label|Labels]].
-    *
-    * ## Creating a SpriteSheet
-    *
-    * To create a [[SpriteSheet]] you need a loaded [[Texture]] resource.
-    *
-    * ```js
-    * var game = new ex.Engine();
-    * var txAnimPlayerIdle = new ex.Texture("/assets/tx/anim-player-idle.png");
-    *
-    * // load assets
-    * var loader = new ex.Loader(txAnimPlayerIdle);
-    * 
-    * // start game
-    * game.start(loader).then(function () {
-    *   var player = new ex.Actor();
-    *  
-    *   // create sprite sheet with 5 columns, 1 row, 80x80 frames
-    *   var playerIdleSheet = new ex.SpriteSheet(txAnimPlayerIdle, 5, 1, 80, 80);
-    *   
-    *   // create animation (125ms frame speed)
-    *   var playerIdleAnimation = playerIdleSheet.getAnimationForAll(game, 125);
-    *  
-    *   // add drawing to player as "idle"
-    *   player.addDrawing("idle", playerIdleAnimation);
-    *
-    *   // add player to game
-    *   game.add(player);
-    * });
-    * ```
-    *
-    * ## Creating animations
-    *
-    * [[SpriteSheets]] provide a quick way to generate a new [[Animation]] instance.
-    * You can use *all* the frames of a [[Texture]] ([[SpriteSheet.getAnimationForAll]])
-    * or you can use a range of frames ([[SpriteSheet.getAnimationBetween]]) or you
-    * can use specific frames ([[SpriteSheet.getAnimationByIndices]]).
-    *
-    * To create an [[Animation]] these methods must be passed an instance of [[Engine]].
-    * It's recommended to generate animations for an [[Actor]] in their [[Actor.onInitialize]]
-    * event because the [[Engine]] is passed to the initialization function. However, if your
-    * [[Engine]] instance is in the global scope, you can create an [[Animation]] at any time
-    * provided the [[Texture]] has been [[Loader|loaded]].
-    *
-    * ```js
-    *   // create sprite sheet with 5 columns, 1 row, 80x80 frames
-    *   var playerIdleSheet = new ex.SpriteSheet(txAnimPlayerIdle, 5, 1, 80, 80);
-    *   
-    *   // create animation for all frames (125ms frame speed)
-    *   var playerIdleAnimation = playerIdleSheet.getAnimationForAll(game, 125);
-    *
-    *   // create animation for a range of frames (2-4) (125ms frame speed)
-    *   var playerIdleAnimation = playerIdleSheet.getAnimationBetween(game, 1, 3, 125);
-    *
-    *   // create animation for specific frames 2, 4, 5 (125ms frame speed)
-    *   var playerIdleAnimation = playerIdleSheet.getAnimationByIndices(game, [1, 3, 4], 125);
-    *
-    *   // create a repeating animation (ping-pong)
-    *   var playerIdleAnimation = playerIdleSheet.getAnimationByIndices(game, [1, 3, 4, 3, 1], 125);
-    * ```
-    *
-    * ## Multiple rows
-    *
-    * Sheets are organized in "row major order" which means left-to-right, top-to-bottom.
-    * Indexes are zero-based, so while you might think to yourself the first column is
-    * column "1", to the engine it is column "0". You can easily calculate an index 
-    * of a frame using this formula:
-    *
-    *     Given: col = 5, row = 3, columns = 10
-    *
-    *     index = col + row * columns
-    *     index = 4 + 2 * 10 // zero-based, subtract 1 from col & row
-    *     index = 24
-    *
-    * You can also simply count the frames of the image visually starting from the top left
-    * and beginning with zero.
-    *
-    * ```js
-    * // get a sprite for column 3, row 6
-    * var sprite = animation.getSprite(2 + 5 * 10)
-    * ```
+    * [[include:SpriteSheets.md]]
     */
    export class SpriteSheet {
       public sprites: Sprite[] = [];
@@ -185,85 +102,11 @@ module ex {
    }
 
    /**
-    * Sprite Fonts
-    *
     * Sprite fonts are a used in conjunction with a [[Label]] to specify
     * a particular bitmap as a font. Note that some font features are not 
     * supported by Sprite fonts.
     *
-    * ## Generating the font sheet
-    *
-    * You can use tools such as [Bitmap Font Builder](http://www.lmnopc.com/bitmapfontbuilder/) to
-    * generate a sprite sheet for you to load into Excalibur.
-    *
-    * ## Creating a sprite font
-    *
-    * Start with an image with a grid containing all the letters you want to support.
-    * Once you load it into Excalibur using a [[Texture]] resource, you can create
-    * a [[SpriteFont]] using the constructor.
-    *
-    * For example, here is a representation of a font sprite sheet for an uppercase alphabet
-    * with 4 columns and 7 rows:
-    *
-    * ```
-    * ABCD
-    * EFGH
-    * IJKL
-    * MNOP
-    * QRST
-    * UVWX
-    * YZ
-    * ```
-    *
-    * Each letter is 30x30 and after Z is a blank one to represent a space.
-    *
-    * Then to create the [[SpriteFont]]:
-    *
-    * ```js
-    * var game = new ex.Engine();
-    * var txFont = new ex.Texture("/assets/tx/font.png");
-    *
-    * // load assets
-    * var loader = new ex.Loader(txFont);
-    * 
-    * // start game
-    * game.start(loader).then(function () {
-    * 
-    *   // create a font
-    *   var font = new ex.SpriteFont(txFont, "ABCDEFGHIJKLMNOPQRSTUVWXYZ ", true, 4, 7, 30, 30);
-    *
-    *   // create a label using this font
-    *   var label = new ex.Label("Hello World", 0, 0, null, font);
-    *
-    *   // display in-game
-    *   game.add(label);
-    *
-    * });
-    * ```
-    *
-    * If you want to use a lowercase representation in the font, you can pass `false` for [[caseInsensitive]]
-    * and the matching will be case-sensitive. In our example, you would need another 7 rows of 
-    * lowercase characters.
-    *
-    * ## Font colors
-    *    
-    * When using sprite fonts with a [[Label]], you can set the [[Label.color]] property
-    * to use different colors.
-    *
-    * ## Known Issues
-    *
-    * **One font per Label**
-    * [Issue #172](https://github.com/excaliburjs/Excalibur/issues/172)
-    *
-    * If you intend on changing colors or applying opacity effects, you have to use
-    * a new [[SpriteFont]] instance per [[Label]].
-    *
-    * **Using opacity removes other effects**
-    * [Issue #148](https://github.com/excaliburjs/Excalibur/issues/148)
-    *
-    * If you apply any custom effects to the sprites in a SpriteFont, including trying to
-    * use [[Label.color]], they will be removed when modifying [[Label.opacity]].
-    *
+    * [[include:SpriteFonts.md]]
     */
    export class SpriteFont extends SpriteSheet {
       private _spriteLookup: { [key: string]: number; } = {};

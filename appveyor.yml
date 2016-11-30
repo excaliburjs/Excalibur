@@ -26,3 +26,5 @@ cache:
   - C:\Users\appveyor\AppData\Roaming\npm\node_modules -> package.json  # global npm modules
   - C:\Users\appveyor\AppData\Roaming\npm-cache -> package.json         # npm cache
   - node_modules -> package.json                                        # local npm modules
+  - node_cache -> package.json                                          # local npm cache
+  - node_shrinkwrap -> package.json                                     # local shrinkwrap cache

@@ -7,6 +7,8 @@ install: true
 cache:
   directories:
   - node_modules
+  - node_cache
+  - node_shrinkwrap
   - $HOME/.npm
 script:
 - npm install grunt-cli -g

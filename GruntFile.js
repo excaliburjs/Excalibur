@@ -319,7 +319,7 @@ module.exports = function (grunt) {
    grunt.registerTask('compile', ['shell:gitBuild', 'clean', 'shell:tsc', 'uglify', 'concat', 'copy']);   
 
    // Run tests quickly
-   grunt.registerTask('tests', ['shell:specs', 'shell:tests']);
+   grunt.registerTask('tests', ['shell:specs', 'jasmine']);
 
    // Compile sample game
    grunt.registerTask('sample', ['shell:sample']);

@@ -36,6 +36,29 @@ module ex {
          * @param bottom  y coordinate of the bottom edge
          */
         constructor(public left: number = 0, public top: number = 0, public right: number = 0, public bottom: number = 0) { }
+
+        public static fromPoints(points: Vector[]): BoundingBox {
+           var minX = Infinity;
+           var minY = Infinity;
+           var maxX = -Infinity;
+           var maxY = -Infinity;
+           for (var i = 0; i < points.length; i++) {
+              if (points[i].x < minX) {
+                 minX = points[i].x;
+              }
+              if (points[i].x > maxX) {
+                 maxX = points[i].x;
+              }
+              if (points[i].y < minY) {
+                 minY = points[i].y;
+              }
+              if (points[i].y > maxY) {
+                 maxY = points[i].y;
+              }
+           }
+           return new BoundingBox(minX, minY, maxX, maxY);
+        }
+
         /**
          * Returns the calculated width of the bounding box
          */
@@ -48,6 +71,14 @@ module ex {
          */
         public getHeight() {
             return this.bottom - this.top;
+        }
+
+        /**
+         * Rotates a bounding box by and angle and around a point, if no point is specified (0, 0) is used by default
+         */
+        public rotate(angle: number, point: Vector = ex.Vector.Zero.clone()): BoundingBox {
+           var points = this.getPoints().map((p) => p.rotate(angle, point));
+           return BoundingBox.fromPoints(points);
         }
 
         /**

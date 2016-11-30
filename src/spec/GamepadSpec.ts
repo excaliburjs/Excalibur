@@ -3,11 +3,9 @@
 /// <reference path="Mocks.ts" />
 
 describe('A gamepad', () => {
-   navigator = null;
    var engine;
    var mock = new Mocks.Mocker();
-   beforeEach(() => {
-      navigator = <any>mock.navigator();
+   beforeEach(() => {      
       engine = mock.engine(600, 400);
       engine.input = {};
       engine.input.gamepads = new ex.Input.Gamepads(engine);
