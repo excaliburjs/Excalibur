@@ -10,7 +10,7 @@ and updated on-screen.
 var player = new ex.Actor();
 
 // move the player
-player.dx = 5;
+player.vel.x = 5;
 
 // add player to the current scene
 game.add(player);
