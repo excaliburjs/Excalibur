@@ -9,6 +9,7 @@ _SpecRunner.html
 TestsSpec.js
 TestsSpec.js.map
 node_modules/
+node_cache/
 /bower_components/
 coverage/
 .grunt/
