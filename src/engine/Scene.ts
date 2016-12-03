@@ -155,18 +155,24 @@ module ex {
          
          // Run the broadphase and narrowphase
          if (this._broadphase && Physics.enabled) {
+            var beforeBroadphase = Date.now();            
             this._broadphase.update(this.children, delta);
-            var pairs = this._broadphase.broadphase(this.children, delta);
-            
+            var pairs = this._broadphase.broadphase(this.children, delta, engine.stats.currFrame);
+            var afterBroadphase = Date.now();
+
+            var beforeNarrowphase = Date.now();
             var iter: number = Physics.collisionPasses;
             var collisionDelta = delta / iter;
             while (iter > 0) {
                // Run the narrowphase
-               this._broadphase.narrowphase(pairs); 
+               this._broadphase.narrowphase(pairs, engine.stats.currFrame); 
                // Run collision resolution strategy
                this._broadphase.resolve(collisionDelta, Physics.collisionResolutionStrategy);
                iter--;
             }
+            var afterNarrowphase = Date.now();
+            engine.stats.currFrame.physics.broadphase = afterBroadphase - beforeBroadphase;
+            engine.stats.currFrame.physics.narrowphase = afterNarrowphase - beforeNarrowphase;
          }        
 
          // Remove actors from scene graph after being killed

@@ -17,12 +17,12 @@
       /**
        * Detect potential collision pairs
        */
-      broadphase(targets: Actor[], delta: number): Pair[];
+      broadphase(targets: Actor[], delta: number, stats?: FrameStats): Pair[];
       
       /**
        * Identify actual collisions from those pairs, and calculate collision impulse
        */
-      narrowphase(pairs: Pair[]);
+      narrowphase(pairs: Pair[], stats?: FrameStats);
       
       /**
        * Resolve the position and velocity of the physics bodies

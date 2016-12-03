@@ -10,7 +10,6 @@ module ex {
       private _collisionHash: { [key: string]: boolean; } = {};
       private _collisionPairCache: Pair[] = [];
       
-
       public get collisionContacts() {
          return this._collisionPairCache;
       }
@@ -59,7 +58,7 @@ module ex {
       /**
        * Detects potential collision pairs in a broadphase approach with the dynamic aabb tree strategy
        */
-      public broadphase(targets: Actor[], delta: number): Pair[] {
+      public broadphase(targets: Actor[], delta: number, stats?: FrameStats): Pair[] {
          var seconds = delta / 1000;
          // TODO optimization use only the actors that are moving to start 
          // Retrieve the list of potential colliders, exclude killed, prevented, and self
@@ -87,6 +86,9 @@ module ex {
                return false;
             });
          }
+         if (stats) {
+            stats.physics.pairs = this._collisionPairCache.length;
+         }
 
          // Check dynamic tree for fast moving objects
          // Fast moving objects are those moving at least there smallest bound per frame
@@ -103,8 +105,10 @@ module ex {
                // Find the minimum dimension
                var minDimension = Math.min(actor.body.getBounds().getHeight(), actor.body.getBounds().getWidth());
                if (updateDistance > (minDimension / 2)) {
-                  // TODO: console.log('Possible Fast body');
-                  
+                  if (stats) {
+                     stats.physics.fastBodies++;
+                  }
+
                   // start with the oldPos because the integration for actors has already happened
                   // objects resting on a surface may be slightly penatrating in the current position
                   var updateVec = actor.pos.sub(actor.oldPos);
@@ -144,6 +148,10 @@ module ex {
                      var shift = centerPoint.sub(furthestPoint);
                      actor.pos = origin.add(shift).add(minTranslate).add(ray.dir.scale(2 * ex.Physics.surfaceEpsilon));
                      actor.body.collisionArea.recalc();
+
+                     if (stats) {
+                        stats.physics.fastBodyCollisions++;
+                     }
                   }
                }
             }
@@ -155,9 +163,12 @@ module ex {
       /**
        * Applies narrow phase on collision pairs to find actual area intersections
        */
-      public narrowphase(pairs: Pair[]) {
+      public narrowphase(pairs: Pair[], stats?: FrameStats) {
          for (var i = 0; i < pairs.length; i++) {
             pairs[i].collide(); 
+            if (stats && pairs[i].collision) {
+               stats.physics.collisions++;
+            }
          }
       }
 

@@ -1,6 +1,9 @@
 /// <reference path='../../excalibur.d.ts' />
 
 var game = new ex.Engine({ width: 500, height: 500 });
+ex.Physics.useRigidBodyPhysics();
+ex.Physics.acc.setTo(0, 500);
+
 var historicFrameStats = new Array(10);
 
 var updateStat = function (id, stat) {
@@ -51,9 +54,35 @@ game.on('postframe', (ev: ex.PostFrameEvent) => {
    updateStat('debug-frame-actors-killed', ev.stats.actors.killed);
    updateStat('debug-frame-actors-remaining', ev.stats.actors.remaining);
    updateStat('debug-frame-actors-ui', ev.stats.actors.ui);
+
+   updateStat('debug-frame-pairs', ev.stats.physics.pairs);
+   updateStat('debug-frame-collisions', ev.stats.physics.collisions);
+   updateStat('debug-frame-fastbodies', ev.stats.physics.fastBodies);
+   updateStat('debug-frame-fastbodycollisions', ev.stats.physics.fastBodyCollisions);
+   updateStat('debug-frame-broadphase', ev.stats.physics.broadphase);
+   updateStat('debug-frame-narrowphase', ev.stats.physics.narrowphase);
 });
 
-game.add(new ex.Actor(50, 50, 50, 50, ex.Color.Red));
 game.add(new ex.UIActor(0, 0, 50, 50));
+
+function spawnBox(){
+   var box = new ex.Actor(250, 50, 50, 50, ex.Color.Red);
+   box.collisionType = ex.CollisionType.Active;
+   box.body.useBoxCollision();
+   game.add(box);
+}
+
+spawnBox();
+
+var floor = new ex.Actor(250, 500, 500, 10, ex.Color.Green);
+floor.collisionType = ex.CollisionType.Fixed;
+floor.body.useBoxCollision();
+game.add(floor);
+
+game.input.keyboard.on('press', (evt) => {
+   if (evt.key === ex.Input.Keys.B) {
+      spawnBox();
+   }
+});
 
 game.start();
