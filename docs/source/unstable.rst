@@ -29,7 +29,7 @@ For bower projects, just reference the `excalibur-dist repository <https://githu
 
 .. code-block:: bash
 
-   npm install excaliburjs/excalibur-dist
+   bower install excaliburjs/excalibur-dist
 
 Nuget Feed
 ----------
