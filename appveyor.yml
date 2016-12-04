@@ -1,3 +1,4 @@
+version: '{build}'
 # Fix line endings on Windows
 init:
   - git config --global core.autocrlf true
@@ -16,11 +17,10 @@ install:
 build_script:
   - grunt appveyor
 artifacts:
-  - path: build\dist\Excalibur.%APPVEYOR_BUILD_VERSION%.nupkg
+  - path: build\dist\**\*.nupkg
     name: Nuget Package
 after_build:
-  - appveyor PushArtifact build\dist\Excalibur.%APPVEYOR_BUILD_VERSION%.nupkg
-#build: off
+  - ps: Get-ChildItem build\dist\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
 matrix:
   fast_finish: true
 cache:
