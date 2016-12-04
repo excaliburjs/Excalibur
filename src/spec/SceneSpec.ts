@@ -124,4 +124,29 @@ describe('A scene', () => {
       
    });
 
+   it('fires initialize before actor initialize before activate', (done) => {
+      var sceneInitialized = false;
+      var sceneActivated = false;
+      var actorInitialized = false;
+      var actorActivated = false;
+      scene.on('initialize', (evt) => { sceneInitialized = true; });
+      scene.on('activate', (evt) => { sceneActivated = true; });
+      
+      var actor = new ex.Actor();
+      actor.on('initialize', (evt) => {
+         actorInitialized = true; 
+         expect(sceneInitialized).toBe(true, 'Scene should be initialized before actor initilization');
+      });
+
+      scene.on('activate', (evt) => { 
+         expect(actorInitialized).toBe(true, 'Actor should be initialized before scene is activated');
+         done();
+      });
+
+      scene.add(actor);
+      engine.goToScene('root');
+      scene.update(engine, 100);
+      scene.update(engine, 100);
+   });
+
 });

@@ -629,6 +629,7 @@ O|===|* >________________>\n\
             if (!this.currentScene.isInitialized) {
                this.currentScene.onInitialize.call(this.currentScene, this);
                this.currentScene.eventDispatcher.emit('initialize', new InitializeEvent(this));
+               this.currentScene.initializeChildren();
                this.currentScene.isInitialized = true;
             }
 

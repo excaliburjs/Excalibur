@@ -433,6 +433,20 @@ module ex {
        // Override me
     }
 
+    /**
+     * Gets wether the actor is Initialized 
+     */
+    public get isInitialized(): boolean {
+       return this._isInitialized;
+    }
+
+    /**
+     * Sets wether the actor is Initialized 
+     */
+    public set isInitialized(value: boolean) {
+       this._isInitialized = value;
+    }
+
     private _checkForPointerOptIn(eventName: string) {
       if (eventName) {
         const normalized = eventName.toLowerCase();
@@ -944,11 +958,11 @@ module ex {
      * @param delta  The time elapsed since the last update in milliseconds
      */
     public update(engine: Engine, delta: number) {
-       if (!this._isInitialized) {
+       /*if (!this._isInitialized) {
           this.onInitialize(engine);
           this.eventDispatcher.emit('initialize', new InitializeEvent(engine));
           this._isInitialized = true;
-       }
+       }*/
        this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
               
        // Update action queue

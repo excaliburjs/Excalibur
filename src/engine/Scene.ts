@@ -122,6 +122,19 @@ module ex {
          // will be overridden
          this._logger.debug('Scene.onDeactivate', this);
       }
+
+      /**
+       * Initializes actors in the scene
+       */
+      public initializeChildren(): void {
+         for (var i = 0; i < this.children.length; i++) {
+            if (!this.children[i].isInitialized) {
+               this.children[i].onInitialize.call(this.children[i], this.engine);
+               this.children[i].emit('initialize', new InitializeEvent(this.engine));
+               this.children[i].isInitialized = true;
+            }
+         }
+      }
      
       /**
        * Updates all the actors and timers in the scene. Called by the [[Engine]].
