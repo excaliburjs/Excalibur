@@ -5,7 +5,7 @@ var path = require('path');
 var appveyorBuild = process.env.APPVEYOR_BUILD_NUMBER || '';
 
 if (appveyorBuild) {
-   appveyorBuild = '-alpha.' + appveyorBuild;
+   appveyorBuild = '.' + appveyorBuild + '-alpha';
 }
 
 /*global module:false*/
