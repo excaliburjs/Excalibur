@@ -13,6 +13,9 @@ module ex {
          // pass
       }
 
+      /**
+       * Detects potential collision pairs in a broadphase approach with the dynamic aabb tree strategy
+       */
       public broadphase(targets: Actor[], delta: number): Pair[] {
 
          // Retrieve the list of potential colliders, exclude killed, prevented, and self

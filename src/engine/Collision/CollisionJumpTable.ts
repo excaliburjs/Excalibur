@@ -13,7 +13,7 @@
             var axisOfCollision = circleBPos.sub(circleAPos).normalize();
             var mvt = axisOfCollision.scale(radius - circleBPos.distance(circleAPos));
 
-            var pointOfCollision = circleA.getFurthestPoint(axisOfCollision); //.add(circleAPos);
+            var pointOfCollision = circleA.getFurthestPoint(axisOfCollision);
 
             return new CollisionContact(circleA, circleB, mvt, pointOfCollision, axisOfCollision);
         },

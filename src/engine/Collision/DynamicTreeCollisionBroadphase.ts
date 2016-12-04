@@ -10,10 +10,6 @@ module ex {
       private _collisionHash: { [key: string]: boolean; } = {};
       private _collisionPairCache: Pair[] = [];
       
-      public get collisionContacts() {
-         return this._collisionPairCache;
-      }
-
       /**
        * Tracks a physics body for collisions
        */
@@ -93,8 +89,7 @@ module ex {
          // Check dynamic tree for fast moving objects
          // Fast moving objects are those moving at least there smallest bound per frame
          if (ex.Physics.checkForFastBodies) {
-            for (var j = 0; j < l; j++) {            
-               actor = potentialColliders[j];
+            for (var actor of potentialColliders) {
                // Skip non-active objects. Does not make sense on other collison types
                if (actor.collisionType !== ex.CollisionType.Active) { continue; };
 
@@ -130,7 +125,6 @@ module ex {
                            if (translate.magnitude() < minTranslate.magnitude()) {
                               minTranslate = translate;
                               minBody = other;
-                              // TODO: console.log('Fast body resolution detected');
                            }
                         }
                      }
@@ -172,6 +166,9 @@ module ex {
          }
       }
 
+      /**
+       * Perform collision resolution given a strategy (rigid body or box) and move objects out of intersect. 
+       */
       public resolve(delta: number, strategy: CollisionResolutionStrategy) {
          // resolve collision pairs
          var i = 0, len = this._collisionPairCache.length;

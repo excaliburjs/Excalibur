@@ -425,6 +425,14 @@ module ex {
          return helper(this.root);
       }
 
+      /**
+       * Queries the Dynamic Axis Aligned Tree for bodies that could be intersecting. By default the raycast query uses an infinitely
+       * long ray to test the tree specified by `max`.
+       * 
+       * In the query callback, it will be passed a potential body that intersects with the racast. Returning true from this
+       * callback indicates that your are complete with your query and do not want to continue. Return false will continue searching
+       * the tree until all possible bodies that would intersect with the ray have been returned. 
+       */
       public rayCastQuery(ray: Ray, max: number = Infinity, callback: (other: Body) => boolean): void {
          var helper = (currentNode: TreeNode) => {
             if (currentNode && currentNode.bounds.rayCast(ray, max)) {

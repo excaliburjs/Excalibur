@@ -87,7 +87,10 @@
                 }
             }
         }
-                
+
+        /**
+         * @inheritdoc
+         */
         public collide(area: ICollisionArea): CollisionContact {
             if (area instanceof CircleArea) {
                 return CollisionJumpTable.CollideCircleCircle(this, area);
@@ -134,6 +137,9 @@
            return (mass * this.radius * this.radius) / 2;
         }
 
+        /**
+         * Tests the separating axis theorem for circles against polygons
+         */
         public testSeparatingAxisTheorem(polygon: PolygonArea): Vector {
 
             var axes = polygon.getAxes();

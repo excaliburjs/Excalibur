@@ -74,6 +74,9 @@
         }
 
 
+        /**
+         * @inheritdoc
+         */
         public rayCast(ray: Ray, max: number = Infinity): Vector {
            var numerator = this._getTransformedBegin().sub(ray.pos);
 
@@ -100,6 +103,9 @@
            return null;
         }
 
+        /**
+         * @inheritdoc
+         */
         public collide(area: ICollisionArea): CollisionContact {
             if (area instanceof CircleArea) {
                 return CollisionJumpTable.CollideCircleEdge(area, this);
@@ -162,6 +168,9 @@
            return mass * length * length;
         }
 
+        /**
+         * @inheritdoc
+         */
         public recalc(): void {
             // edges don't have any cached data
         }
