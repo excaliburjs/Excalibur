@@ -104,7 +104,7 @@ module ex {
                
                // Find the minimum dimension
                var minDimension = Math.min(actor.body.getBounds().getHeight(), actor.body.getBounds().getWidth());
-               if (updateDistance > (minDimension / 2)) {
+               if (ex.Physics.disableMinimumSpeedForFastBody || updateDistance > (minDimension / 2)) {
                   if (stats) {
                      stats.physics.fastBodies++;
                   }
@@ -137,7 +137,7 @@ module ex {
                      return false;
                   });
 
-                  if (minBody) {
+                  if (minBody && ex.Vector.isValid(minTranslate)) {
                      var pair = new Pair(actor.body, minBody);
                      if (!this._collisionHash[pair.id]) { 
                         this._collisionHash[pair.id] = true;

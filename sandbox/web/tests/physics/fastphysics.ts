@@ -13,7 +13,7 @@ ex.Physics.showMotionVectors = true;
 ex.Physics.showBounds = true;
 ex.Physics.showContacts = true;
 ex.Physics.showNormals = true;
-ex.Physics.acc.setTo(0, 800);
+ex.Physics.acc.setTo(0, 300);
 //ex.Physics.dynamicTreeVelocityMultiplyer = 1;
 game.currentScene.camera.z = .5;
 var rocketTex = new ex.Texture('missile.png');

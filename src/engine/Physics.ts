@@ -173,5 +173,12 @@ module ex {
        * bodies from tunneling through one another.
        */
       public static checkForFastBodies = true;
+
+      /**
+       * Disable minimum fast moving body raycast, by default if ex.Physics.checkForFastBodies = true Excalibur will only check if the 
+       * body is moving at least half of its minimum diminension in an update. If ex.Physics.disableMinimumSpeedForFastBody is set to true,
+       * Excalibur will always perform the fast body raycast regardless of speed. 
+       */
+      public static disableMinimumSpeedForFastBody = false;
    };
 }
