@@ -95,7 +95,7 @@ module ex {
 
                // Maximum travel distance next frame
                var updateDistance = (actor.vel.magnitude() * seconds) + // velocity term 
-                                    (actor.acc.magnitude() + ex.Physics.acc.magnitude() * .5 * seconds * seconds); // acc term
+                                    (actor.acc.magnitude() * .5 * seconds * seconds); // acc term
                
                // Find the minimum dimension
                var minDimension = Math.min(actor.body.getBounds().getHeight(), actor.body.getBounds().getWidth());
@@ -211,8 +211,8 @@ module ex {
          }         
 
          if (ex.Physics.showContacts || ex.Physics.showCollisionNormals) {
-            for (var i = 0; i < this._collisionPairCache.length; i++) {
-               this._collisionPairCache[i].debugDraw(ctx);
+            for (var pair of this._collisionPairCache) {
+               pair.debugDraw(ctx);
             }
          }
       }
