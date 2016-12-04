@@ -152,5 +152,33 @@ module ex {
        * Small value to help collision passes settle themselves after the narrowphase. 
        */
       public static collisionShift = .001;
+
+      /**
+       * Factor to add to the RigidBody BoundingBox, bounding box (dimensions += vel * dynamicTreeVelocityMultiplyer); 
+       */
+      public static dynamicTreeVelocityMultiplyer = 2;
+
+      /**
+       * Pad RigidBody BoundingBox by a constant amount
+       */
+      public static boundsPadding = 5;
+
+      /**
+       * Surface epsilon is used to help deal with surface penatration
+       */
+      public static surfaceEpsilon = .1;
+
+      /**
+       * Enable fast moving body checking, this enables checking for collision pairs via raycast for fast moving objects to prevent
+       * bodies from tunneling through one another.
+       */
+      public static checkForFastBodies = true;
+
+      /**
+       * Disable minimum fast moving body raycast, by default if ex.Physics.checkForFastBodies = true Excalibur will only check if the 
+       * body is moving at least half of its minimum diminension in an update. If ex.Physics.disableMinimumSpeedForFastBody is set to true,
+       * Excalibur will always perform the fast body raycast regardless of speed. 
+       */
+      public static disableMinimumSpeedForFastBody = false;
    };
 }

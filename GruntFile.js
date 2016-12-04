@@ -2,6 +2,11 @@
 /* Excalibur.js Grunt Build File
 /*********************************/
 var path = require('path');
+var appveyorBuild = process.env.APPVEYOR_BUILD_NUMBER || '';
+
+if (appveyorBuild) {
+   appveyorBuild = '.' + appveyorBuild + '-alpha';
+}
 
 /*global module:false*/
 module.exports = function (grunt) {
@@ -11,7 +16,7 @@ module.exports = function (grunt) {
    //
    grunt.initConfig({
       pkg: grunt.file.readJSON('package.json'),
-      version: process.env.APPVEYOR_BUILD_VERSION || '<%= pkg.version %>',
+      version: '<%= pkg.version %>' + appveyorBuild,
       tscCmd: path.join('node_modules', '.bin', 'tsc'),
       jasmineCmd: path.join('node_modules', '.bin', 'jasmine'),
       jasmineConfig: path.join('src', 'spec', 'support', 'jasmine.json'),

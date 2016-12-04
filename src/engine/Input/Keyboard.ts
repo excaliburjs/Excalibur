@@ -87,9 +87,9 @@
          this._engine = engine;
       }
 
-      public on(eventName: ex.Events.press, handler: (event?: KeyboardEvent) => void);
-      public on(eventName: ex.Events.release, handler: (event?: KeyboardEvent) => void);
-      public on(eventName: ex.Events.hold, handler: (event?: KeyboardEvent) => void);
+      public on(eventName: ex.Events.press, handler: (event?: KeyEvent) => void);
+      public on(eventName: ex.Events.release, handler: (event?: KeyEvent) => void);
+      public on(eventName: ex.Events.hold, handler: (event?: KeyEvent) => void);
       public on(eventName: string, handler: (event?: GameEvent) => void);
       public on(eventName: string, handler: (event?: GameEvent) => void) {
          super.on(eventName, handler);

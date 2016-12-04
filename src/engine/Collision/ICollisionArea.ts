@@ -55,7 +55,7 @@ module ex {
       /**
        * Return the point on the border of the collision area that intersects with a ray (if any).
        */
-      castRay(ray: Ray): Vector;
+      rayCast(ray: Ray, max?: number): Vector;
 
       /**
        * Create a projection of this area along an axis. Think of this as casting a "shadow" along an axis

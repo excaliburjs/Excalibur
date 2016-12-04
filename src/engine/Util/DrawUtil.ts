@@ -133,4 +133,26 @@ module ex.Util.DrawUtil {
       }
    }
 
+   export function circle(ctx: CanvasRenderingContext2D, 
+                          x: number, 
+                          y: number, 
+                          radius: number, 
+                          stroke: Color = ex.Color.White, 
+                          fill: Color = null) {
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.closePath();
+
+      if (fill) {
+         ctx.fillStyle = fill.toString();
+         ctx.fill();
+      }
+
+      if (stroke) {
+         ctx.strokeStyle = stroke.toString();
+         ctx.stroke();
+      }
+
+   }
+
 }
