@@ -1,3 +1,4 @@
+version: '0.8.0-{build}-unstable'
 # Fix line endings on Windows
 init:
   - git config --global core.autocrlf true
