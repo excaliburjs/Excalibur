@@ -153,25 +153,27 @@ module ex {
             this.children[i].update(engine, delta);
          }
          
-         // Run the broadphase
-         if (this._broadphase) {
+         // Run the broadphase and narrowphase
+         if (this._broadphase && Physics.enabled) {
+            var beforeBroadphase = Date.now();            
             this._broadphase.update(this.children, delta);
-         }
+            var pairs = this._broadphase.broadphase(this.children, delta, engine.stats.currFrame);
+            var afterBroadphase = Date.now();
 
-         // Run the narrowphase
-         var iter: number = Physics.collisionPasses;
-         var collisionDelta = delta / iter;
-         while (iter > 0) { 
-            // Run collision resolution strategy
-            if (this._broadphase && Physics.enabled) {               
-               this._broadphase.detect(this.children, collisionDelta);
-               for (i = 0, len = this.children.length; i < len; i++) {
-                     // helps move settle collisions, really there is a better way to do this
-                     this.children[i].integrate(collisionDelta * ex.Physics.collisionShift);
-               }
+            var beforeNarrowphase = Date.now();
+            var iter: number = Physics.collisionPasses;
+            var collisionDelta = delta / iter;
+            while (iter > 0) {
+               // Run the narrowphase
+               this._broadphase.narrowphase(pairs, engine.stats.currFrame); 
+               // Run collision resolution strategy
+               this._broadphase.resolve(collisionDelta, Physics.collisionResolutionStrategy);
+               iter--;
             }
-            iter--;
-         }         
+            var afterNarrowphase = Date.now();
+            engine.stats.currFrame.physics.broadphase = afterBroadphase - beforeBroadphase;
+            engine.stats.currFrame.physics.narrowphase = afterNarrowphase - beforeNarrowphase;
+         }        
 
          // Remove actors from scene graph after being killed
          var actorIndex: number;

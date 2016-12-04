@@ -14,15 +14,21 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - `ex.Line.intercept` for the Y intercept (b) value
   - `ex.Line.findPoint(x?, y?)` to find a point given an X or a Y value
   - `ex.Line.hasPoint(x, y, threshold)` to determine if given point lies on the line
-- new `Vector.One` and `Vector.Half` constants ([#649](https://github.com/excaliburjs/Excalibur/issues/649))
+- Added `Vector.One` and `Vector.Half` constants ([#649](https://github.com/excaliburjs/Excalibur/issues/649))
+- Added `Vector.isValid` to check for null, undefined, Infinity, or NaN vectors method as part of ([#665](https://github.com/excaliburjs/Excalibur/issues/665))
 - Added `ex.Promise.resolve` and `ex.Promise.reject` static methods ([#501](https://github.com/excaliburjs/Excalibur/issues/501))
 - PhantomJS based testing infrastructure to accurately test browser features such as image diffs on canvas drawing ([#521](https://github.com/excaliburjs/Excalibur/issues/521))
 - Added some basic debug stat collection to Excalibur ([#97](https://github.com/excaliburjs/Excalibur/issues/97)):
   - Added `ex.Engine.stats` to hold frame statistic information
   - Added `ex.Engine.debug` to hold debug flags and current frame stats
   - Added `preframe` and `postframe` events to `Engine` as hooks
+  - Added ex.Physics statistics to the Excalibur statistics collection 
+- Added new fast body collision detection to Excalibur to prevent fast moving objects from tunneling through other objects ([#665](https://github.com/excaliburjs/Excalibur/issues/665))
+  - Added DynamicTree raycast to query the scene for bounds that intersect a ray
+  - Added fast BoundingBox raycast test
 
 ### Changed
+- Internal physics names refactored to be more readable and to use names more in line with game engine terminology (explicit broadphase and narrowphase called out)
 
 ### Deprecated
 - `ex.Promise.wrap` ([#501](https://github.com/excaliburjs/Excalibur/issues/501))

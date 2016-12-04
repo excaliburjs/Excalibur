@@ -48,6 +48,27 @@ module ex {
       }
 
       /**
+       * Checks if vector is not null, undefined, or if any of its components are NaN or Infinity.
+       */
+      public static isValid(vec: Vector) {
+         if (vec === null || vec === undefined) {
+            return false;
+         }
+         if (isNaN(vec.x) || isNaN(vec.y)) {
+            return false;
+         }
+
+         if (vec.x === Infinity || 
+             vec.y === Infinity ||
+             vec.x === -Infinity ||
+             vec.y === Infinity) {
+            return false;
+         }
+
+         return true;
+      }
+
+      /**
        * @param x  X component of the Vector
        * @param y  Y component of the Vector
        */

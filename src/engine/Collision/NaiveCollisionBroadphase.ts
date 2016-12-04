@@ -13,7 +13,10 @@ module ex {
          // pass
       }
 
-      public detect(targets: Actor[], delta: number): CollisionContact[] {
+      /**
+       * Detects potential collision pairs in a broadphase approach with the dynamic aabb tree strategy
+       */
+      public broadphase(targets: Actor[], delta: number): Pair[] {
 
          // Retrieve the list of potential colliders, exclude killed, prevented, and self
          var potentialColliders = targets.filter((other) => {
@@ -22,7 +25,7 @@ module ex {
 
          var actor1: Actor;
          var actor2: Actor;
-         var collisionPairs: CollisionContact[] = [];
+         var collisionPairs: Pair[] = [];
 
          for (var j = 0, l = potentialColliders.length; j < l; j++) {
 
@@ -34,16 +37,17 @@ module ex {
 
                var minimumTranslationVector;
                if (minimumTranslationVector = actor1.collides(actor2)) {
+                  var pair = new Pair(actor1.body, actor2.body);
                   var side = actor1.getSideFromIntersect(minimumTranslationVector);
-                  var collisionPair = new CollisionContact(actor1.collisionArea, 
+                  pair.collision = new CollisionContact(actor1.collisionArea, 
                                                            actor2.collisionArea, 
                                                            minimumTranslationVector, 
                                                            actor1.pos, 
                                                            minimumTranslationVector);
                   if (!collisionPairs.some((cp) => {
-                     return cp.id === collisionPair.id;
+                     return cp.id === pair.id;
                   })) {
-                     collisionPairs.push(collisionPair);
+                     collisionPairs.push(pair);
                   }
                }
             }
@@ -56,6 +60,20 @@ module ex {
          }
          
          return collisionPairs;
+      }
+
+      /**
+       * Identify actual collisions from those pairs, and calculate collision impulse
+       */
+      narrowphase(pairs: Pair[]) {
+         // pass
+      }
+      
+      /**
+       * Resolve the position and velocity of the physics bodies
+       */
+      resolve(delta: number, strategy: CollisionResolutionStrategy) {
+         // pass
       }
 
       public update(targets: Actor[]): number {

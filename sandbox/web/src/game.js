@@ -54,6 +54,7 @@ loader.addResource(jump);
 // Set background color
 game.backgroundColor = new ex.Color(114, 213, 224);
 // setup physics defaults
+ex.Physics.checkForFastBodies = true;
 ex.Physics.acc = new ex.Vector(0, 800); // global accel
 // Add some UI
 var heart = new ex.UIActor(0, 0, 20, 20);
