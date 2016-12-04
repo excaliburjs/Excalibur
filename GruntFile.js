@@ -5,7 +5,7 @@ var path = require('path');
 var appveyorBuild = process.env.APPVEYOR_BUILD_NUMBER || '';
 
 if (appveyorBuild) {
-   appveyorBuild = '-alpha.' + appveyorBuild + '+' + process.env.APPVEYOR_REPO_COMMIT.substring(0, 7);
+   appveyorBuild = '-alpha.' + appveyorBuild;
 }
 
 /*global module:false*/
