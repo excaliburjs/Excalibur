@@ -10,6 +10,7 @@ platform:
   - x64
 install:
   - ps: Install-Product node $env:nodejs_version
+  - npm install npm -g
   - npm install grunt-cli -g
   - npm install
 build_script:
