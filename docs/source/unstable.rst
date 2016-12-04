@@ -1,10 +1,40 @@
 Unstable Builds
 ===============
 
+There are 4 easy ways to reference the latest unstable version of Excalibur depending on your tech stack of choice:
+
+npm
+---
+
+Each Excalibur build is published to the public NPM registry. 
+
+You can install the latest alpha version using the tag ``next``: 
+
+.. code-block:: bash
+
+   npm install excalibur@next
+
+Or reference the `excalibur-dist repository <https://github.com/excaliburjs/excalibur-dist>`_: 
+
+.. code-block:: bash
+
+   npm install excaliburjs/excalibur-dist
+
+Either way will work.
+
+bower
+-----
+
+For bower projects, just reference the `excalibur-dist repository <https://github.com/excaliburjs/excalibur-dist>`_:
+
+.. code-block:: bash
+
+   npm install excaliburjs/excalibur-dist
+
 Nuget Feed
 ----------
 
-To get unstable builds of Excalibur for your project and live on the edge, you can set add the Appveyor Nuget feed for Excalibur to your project.
+For a Windows project or Visual Studio Solution, you can add the Appveyor Nuget feed for Excalibur to your project:
 
    https://ci.appveyor.com/nuget/excalibur/
 
