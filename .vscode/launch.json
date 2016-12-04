@@ -1,6 +1,21 @@
 {
     "version": "0.2.0",
     "configurations": [
+       {
+            "name": "Attach to  test",
+            "type": "phantomjs",
+            "request": "launch",
+            "preLaunchTask": "compiledebug",
+            //"verboseDiagnosticLogging": true,
+            "port": 8888,
+            "file": "${workspaceRoot}\\TestsSpec.js",
+            "webRoot": "${workspaceRoot}",
+            "runtimeExecutable": "${workspaceRoot}\\node_modules\\phantomjs-prebuilt\\lib\\phantom\\bin\\phantomjs.exe",
+            "runtimeArgs": [],
+            "scriptArgs": [],
+            //"sourceMapPathOverrides": ["${workspaceRoot}\\src\\spec\\TestsSpec.js"],
+            "sourceMaps": true
+        },
         {
             "name": "Attach index.html",
             "type": "chrome",
@@ -13,18 +28,6 @@
             "webRoot": "src",
             "diagnosticLogging": true,
             "sourceMaps": true
-        },
-        {
-            "name": "Attach to tests",
-            "type": "node",
-            "request": "launch",
-            "preLaunchTask": "shell:specs",            
-            "program": "${workspaceRoot}\\node_modules\\jasmine\\bin\\jasmine.js", // ${workspaceRoot}/src/spec/TestsSpec.js",
-            "args": ["JASMINE_CONFIG_PATH=${workspaceRoot}\\src\\spec\\support\\jasmine.json"],
-            "cwd": "${workspaceRoot}",
-            "outDir": "${workspaceRoot}\\src\\spec\\",
-            "sourceMaps": true
         }
-        
     ]
 }

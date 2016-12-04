@@ -52,7 +52,7 @@ allow the widest contributions possible. You can always use your own preferred e
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (4.x+) & npm
+- [Node.js](https://nodejs.org/) (4.x+) & npm (tools like currently only support node 4.x+)
 - [Grunt.js](http://gruntjs.com/)
   - `npm install grunt-cli -g`
 
@@ -81,6 +81,34 @@ grunt sample
 
 # Run visual tests compilation only
 grunt visual
+```
+
+Local debugging is supported in vscode by installing the PhantomJS Debugger extension `iradul.debugger-for-phantomjs`
+
+### Updating npm dependencies
+
+When you update npm dependencies, we use [shrinkpack](https://github.com/JamieMason/shrinkpack) to pack up
+and cache all npm packages.
+
+Run the following to update the shrinkwrap when packages are updated:
+
+```sh
+# Install shrinkpack globally
+npm install -g shrinkpack
+# Run npm shrinkwrap and update npm_shrinkwrap.json
+npm shrinkwrap --dev
+# Run shrinkpack and download/update dependencies locally
+shrinkpack .
+```
+
+If you run into errors with `npm shrinkwrap --dev` command, run the following:
+
+```
+npm install
+npm prune
+npm dedupe
+npm install
+npm shrinkwrap --dev
 ```
 
 # License

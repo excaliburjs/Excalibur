@@ -98,8 +98,8 @@ describe('A CollisionContact', () => {
       cc.resolve(100, ex.CollisionResolutionStrategy.RigidBody);
 
       // mtv's are cached and not applied until all pairs are resolved, so we need to call it manually here
-      actorA.applyMtv();
-      actorB.applyMtv();
+      actorA.body.applyMtv();
+      actorB.body.applyMtv();
       
       expect(actorA.x).toBe(-.5);
       expect(actorA.y).toBe(0);

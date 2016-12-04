@@ -1,14 +1,17 @@
 sudo: false
 language: node_js
 node_js:
-- '0.12'
+- '4'
 before_script: 
 install: true
 cache:
   directories:
   - node_modules
+  - node_cache
+  - node_shrinkwrap
   - $HOME/.npm
 script:
+- npm install npm -g
 - npm install grunt-cli -g
 - npm install
 - grunt travis

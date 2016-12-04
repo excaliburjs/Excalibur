@@ -1,5 +1,5 @@
 /// <reference path="jasmine.d.ts" />
-/// <reference path="../engine/Collision/BoundingBox.ts" />
+/// <reference path="Mocks.ts" />
 
 describe('A Bounding Box', () => {
    // left, top, right, bottom
@@ -84,5 +84,53 @@ describe('A Bounding Box', () => {
       expect(newBB.right).toBe(28);
       expect(newBB.top).toBe(0);
       expect(newBB.bottom).toBe(10);
+   });
+
+   it('ray cast can hit a bounding box', () => {
+      var bb = new ex.BoundingBox(0, 0, 10, 10);
+
+      var ray = new ex.Ray(new ex.Vector(-10, 5), ex.Vector.Right);
+
+      expect(bb.rayCast(ray)).toBe(true);
+   });
+
+   it('ray cast can miss a bounding box', () => {
+      var bb = new ex.BoundingBox(0, 0, 10, 10);
+
+      var ray = new ex.Ray(new ex.Vector(-10, 5), ex.Vector.Left);
+
+      expect(bb.rayCast(ray)).toBe(false);
+   });
+
+   it('ray cast can hit bounding box on the edge', () => {
+      var bb = new ex.BoundingBox(0, 0, 10, 10);
+
+      var ray = new ex.Ray(new ex.Vector(0, -5), ex.Vector.Down);
+
+      expect(bb.rayCast(ray)).toBe(true);
+   });
+
+   it('ray cast can originate from inside the box', () => {
+      var bb = new ex.BoundingBox(0, 0, 10, 10);
+
+      var ray = new ex.Ray(new ex.Vector(5, 5), ex.Vector.Down);
+
+      expect(bb.rayCast(ray)).toBe(true);
+   });
+
+   it('ray cast in the correct direction but that are not long enough dont hit', () => {
+      var bb = new ex.BoundingBox(0, 0, 10, 10);
+
+      var ray = new ex.Ray(new ex.Vector(-10, 5), ex.Vector.Right);
+
+      expect(bb.rayCast(ray, ray.dir.magnitude())).toBe(false);
+   });
+
+   it('ray cast when the origin is on the boundary', () => {
+      var bb = new ex.BoundingBox(0, 0, 10, 10);
+
+      var ray = new ex.Ray(new ex.Vector(0, 5), ex.Vector.Right);
+
+      expect(bb.rayCast(ray)).toBe(true);
    });
 });

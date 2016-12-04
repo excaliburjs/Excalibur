@@ -40,8 +40,9 @@ so we can feature you in our online gallery.
    :caption: API Documentation
    
    edge (master) <http://excaliburjs.com/docs/api/edge/index.html>
-   v0.7.1 (stable) <http://excaliburjs.com/docs/api/v0.7.0/>
-   v0.7.0 <http://excaliburjs.com/docs/api/v0.7.1/>
+   v0.8.0 (stable) <http://excaliburjs.com/docs/api/v0.8.0/>
+   v0.7.1 <http://excaliburjs.com/docs/api/v0.7.1/>
+   v0.7.0 <http://excaliburjs.com/docs/api/v0.7.0/>
    v0.6.0 <http://excaliburjs.com/docs/api/v0.6.0/modules/ex.html>
    v0.5.1 <http://excaliburjs.com/docs/api/v0.5.1/modules/ex.html>
    v0.5.0 <http://excaliburjs.com/docs/api/v0.5.0/modules/ex.html>
@@ -50,6 +51,7 @@ so we can feature you in our online gallery.
    :maxdepth: 1
    :caption: Extensions
    
+   Yeoman generator <https://github.com/excaliburjs/generator-excalibur>
    Tiled map editor integration <https://github.com/excaliburjs/excalibur-tiled>
 
 ============

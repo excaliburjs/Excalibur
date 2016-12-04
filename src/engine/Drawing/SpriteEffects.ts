@@ -1,16 +1,10 @@
 module ex {
 
    /**
-    * Effects
-    *
     * These effects can be applied to any bitmap image but are mainly used
     * for [[Sprite]] effects or [[Animation]] effects.
     *
-    * Because these manipulate raw pixels, there is a performance impact to applying
-    * too many effects. Excalibur tries its best to by using caching to mitigate
-    * performance issues.
-    *
-    * Create your own effects by implementing [[ISpriteEffect]].
+    * [[include:SpriteEffects.md]]
     */
    export module Effects {
 
@@ -67,7 +61,7 @@ module ex {
            var firstPixel = (x + y * imageData.width) * 4;
            var pixel = imageData.data;
            if (pixel[firstPixel + 3] !== 0) {
-              pixel[firstPixel + 3] = Math.round(this.opacity * 255);
+              pixel[firstPixel + 3] = Math.round(this.opacity * pixel[firstPixel + 3]);
            }
         }
       }
@@ -138,7 +132,7 @@ module ex {
       }
 
       /**
-       * Applies the "Saturate" effect to a sprite, saturates the color acccording to HSL
+       * Applies the "Saturate" effect to a sprite, saturates the color according to HSL
        */
       export class Saturate implements ISpriteEffect {
         /**
@@ -160,7 +154,7 @@ module ex {
       }
 
       /**
-       * Applies the "Desaturate" effect to a sprite, desaturates the color acccording to HSL
+       * Applies the "Desaturate" effect to a sprite, desaturates the color according to HSL
        */
       export class Desaturate implements ISpriteEffect {
         /**

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Debug - Stats Visual Test</title>
+    <style type="text/css">
+      canvas { float: left; margin: 1em; }
+      #stats { float: right; margin: 1em; width: 300px; }
+    </style>
+</head>
+<body>
+    
+    <div id="stats">
+            
+      <p>Stats:</p>
+
+      <ul>
+         <li>Delta: <span id="debug-frame-delta"></span> (avg: <span id="debug-frame-delta-avg"></span>)</li>
+         <li>FPS: <span id="debug-frame-fps"></span> (avg: <span id="debug-frame-fps-avg"></span>)</li>
+
+         <li>Duration - Total (ms): <span id="debug-frame-duration-total"></span></li>
+         <li>Duration - Draw (ms): <span id="debug-frame-duration-draw"></span></li>
+         <li>Duration - Update (ms): <span id="debug-frame-duration-update"></span></li>
+
+         <li>Actors - Total: <span id="debug-frame-actors-total"></span></li>
+         <li>Actors - Alive: <span id="debug-frame-actors-alive"></span></li>
+         <li>Actors - Killed: <span id="debug-frame-actors-killed"></span></li>
+         <li>Actors - Remaining: <span id="debug-frame-actors-remaining"></span></li>
+         <li>Actors - UI: <span id="debug-frame-actors-ui"></span></li>
+
+         <li>Physics - Pairs: <span id="debug-frame-pairs"></span></li>
+         <li>Physics - Collisions: <span id="debug-frame-collisions"></span></li>
+         <li>Physics - Fast Bodies: <span id="debug-frame-fastbodies"></span></li>
+         <li>Physics - Fast Body Collisions: <span id="debug-frame-fastbodycollisions"></span></li>
+         <li>Physics - Broadphase (ms): <span id="debug-frame-broadphase"></span></li>
+         <li>Physics - Narrowphase (ms): <span id="debug-frame-narrowphase"></span></li>
+      </ul>
+
+    </div>
+
+    <script src="../../Excalibur.js"></script>
+    <script src="stats.js"></script>
+</body>
+</html>

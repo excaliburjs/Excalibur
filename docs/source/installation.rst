@@ -9,12 +9,42 @@ There are several ways you can download Excalibur.
 **Bower**::
 
     bower install excalibur
+
+**npm**::
+
+    npm install excalibur
     
 **Nuget**::
 
     Install-Package Excalibur
 
+**Yeoman Generator**
+
+You can use the `Excalibur Yeoman generator <https://github.com/excaliburjs/generator-excalibur>`_ to spin
+up a blank, ready-to-go Excalibur game:
+
+.. code-block:: bash
+
+   # Install Yeoman globally
+   npm install -g yo
+   # Install the Excalibur generator globally
+   npm install -g generator-excalibur
+   # Create the folder you want your game to be in
+   mkdir my-game
+   # Go into the folder
+   cd my-game
+   # Run the excalibur generator
+   yo excalibur
+
+The Yeoman generator will automatically create the appropriate package.json and bower.json files and install
+the needed dependencies for your project.
+
+**Raw Script Files**
+
 You can also download the raw Javascript files from the `Excalibur Distribution repository <https://github.com/excaliburjs/excalibur-dist/releases>`_.
+
+.. note:: Remember, Excalibur is a client-side library and cannot be used in a server-side
+          Node.js project.
 
 Unstable Builds
 ---------------
@@ -38,6 +68,26 @@ If you're using TypeScript, be sure to reference the declaration file ``excalibu
             <script src="excalibur.min.js"></script>
         </body>
     </html>
+
+Referencing Excalibur via Imports
+---------------------------------
+
+Excalibur does not yet come with out-of-the-box support for ``import`` intellisense in TypeScript. 
+However, until it's natively supported, you can add support yourself with a slight modification.
+
+Modify your local copy of the distributed ``excalibur.d.ts`` file and add the following to the end:
+
+.. code-block:: typescript
+
+   export default ex;
+
+This will allow you to reference Excalibur using TypeScript with the import style syntax:
+
+.. code-block:: typescript
+
+   import ex from 'excalibur'
+
+You can read more about specific module syntax in the `TypeScript Handbook <http://www.typescriptlang.org/docs/handbook/modules.html>`_.
 
 For Windows 8 & 10 projects
 ---------------------------

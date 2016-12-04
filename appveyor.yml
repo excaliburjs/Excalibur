@@ -1,28 +1,31 @@
+version: '{build}'
 # Fix line endings on Windows
 init:
   - git config --global core.autocrlf true
 # What combinations to test
 environment:
   matrix:
-    - nodejs_version: "0.12"
+    - nodejs_version: "4"
 platform:
   - x86
   - x64
 install:
   - ps: Install-Product node $env:nodejs_version
+  - npm install npm -g
   - npm install grunt-cli -g
   - npm install
 build_script:
   - grunt appveyor
 artifacts:
-  - path: build\dist\Excalibur.%APPVEYOR_BUILD_VERSION%.nupkg
+  - path: build\dist\**\*.nupkg
     name: Nuget Package
 after_build:
-  - appveyor PushArtifact build\dist\Excalibur.%APPVEYOR_BUILD_VERSION%.nupkg
-#build: off
+  - ps: Get-ChildItem build\dist\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
 matrix:
   fast_finish: true
 cache:
   - C:\Users\appveyor\AppData\Roaming\npm\node_modules -> package.json  # global npm modules
   - C:\Users\appveyor\AppData\Roaming\npm-cache -> package.json         # npm cache
   - node_modules -> package.json                                        # local npm modules
+  - node_cache -> package.json                                          # local npm cache
+  - node_shrinkwrap -> package.json                                     # local shrinkwrap cache

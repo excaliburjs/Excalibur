@@ -191,7 +191,7 @@ module ex {
         /**
          * Casts a ray into the polygon and returns a vector representing the point of contact (in world space) or null if no collision.
          */
-        public castRay(ray: Ray) {
+        public rayCast(ray: Ray, max: number = Infinity) {
             // find the minimum contact time greater than 0
             // contact times less than 0 are behind the ray and we don't want those
             var sides = this.getSides();
@@ -200,7 +200,7 @@ module ex {
             var contactIndex = -1;
             for (var i = 0; i < len; i++) {
                 var contactTime = ray.intersect(sides[i]);
-                if (contactTime >= 0 && contactTime < minContactTime) {
+                if (contactTime >= 0 && contactTime < minContactTime && contactTime <= max) {
                     minContactTime = contactTime;
                     contactIndex = i;
                 }
@@ -289,7 +289,7 @@ module ex {
         public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Red.clone()) {
             ctx.beginPath();
             ctx.strokeStyle = color.toString();
-            // Iterate through the supplied points and contruct a 'polygon'
+            // Iterate through the supplied points and construct a 'polygon'
             var firstPoint = this.getTransformedPoints()[0];
             ctx.moveTo(firstPoint.x, firstPoint.y);
             this.getTransformedPoints().forEach(function (point, i) {

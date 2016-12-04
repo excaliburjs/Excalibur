@@ -9,8 +9,10 @@
    "tslint.configFile": "./tslint/tslint.json",
    "files.exclude": {
       "**/.git": true,
+      ".grunt/": true,
       "**/.DS_Store": true,
 	    "**/node_modules": true,
+       "**/node_shrinkwrap": true,
 	    "**/bin": true,
 	    "**/obj": true,
 	    "src/engine/*.js": true

@@ -54,7 +54,7 @@
          * Casts a ray at the CircleArea and returns the nearest point of collision
          * @param ray 
          */
-        public castRay(ray: Ray): Vector {
+        public rayCast(ray: Ray, max: number = Infinity): Vector {
             //https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
             var c = this.getCenter();
             var dir = ray.dir;
@@ -71,18 +71,26 @@
                 var toi = 0;
                 if (discriminant === 0) {
                     toi = -dir.dot(orig.sub(c));
-                    if (toi > 0) {
+                    if (toi > 0 && toi < max) {
                         return ray.getPoint(toi);
                     }
                     return null;
                 } else {
                     var toi1 = -dir.dot(orig.sub(c)) + discriminant;
                     var toi2 = -dir.dot(orig.sub(c)) - discriminant;
-                    return ray.getPoint(Math.min(toi1, toi2));
+
+                    var mintoi = Math.min(toi1, toi2);
+                    if (mintoi <= max) {
+                       return ray.getPoint(mintoi);
+                    }
+                    return null;
                 }
             }
         }
-                
+
+        /**
+         * @inheritdoc
+         */
         public collide(area: ICollisionArea): CollisionContact {
             if (area instanceof CircleArea) {
                 return CollisionJumpTable.CollideCircleCircle(this, area);
@@ -100,7 +108,7 @@
          * Find the point on the shape furthest in the direction specified
          */
         public getFurthestPoint(direction: Vector): Vector {
-            return this.pos.add(direction.normalize().scale(this.radius));
+            return this.getCenter().add(direction.normalize().scale(this.radius));
         }
 
         /**
@@ -114,22 +122,24 @@
         }
 
         /**
-         * Get axis not implemented on circles, since their are infinite axis
+         * Get axis not implemented on circles, since there are infinite axis in a circle
          */
         public getAxes(): Vector[] {
             return null;
         }
 
         /**
-         * Returns the moment of intertia of a circle given it's mass
+         * Returns the moment of inertia of a circle given it's mass
          * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
-         * @param mass
          */
         public getMomentOfInertia(): number {
            var mass = this.body ? this.body.mass : Physics.defaultMass;
            return (mass * this.radius * this.radius) / 2;
         }
 
+        /**
+         * Tests the separating axis theorem for circles against polygons
+         */
         public testSeparatingAxisTheorem(polygon: PolygonArea): Vector {
 
             var axes = polygon.getAxes();

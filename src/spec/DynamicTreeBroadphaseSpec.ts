@@ -49,7 +49,7 @@ describe('A DynamicTree Broadphase', () => {
       dt.track(actorC.body);
 
       // only should be 1 pair since C is very far away
-      var pairs = dt.detect([actorA, actorB, actorC], 100);
+      var pairs = dt.broadphase([actorA, actorB, actorC], 100);
 
       expect(pairs.length).toBe(1);
 

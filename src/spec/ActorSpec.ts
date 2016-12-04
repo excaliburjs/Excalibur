@@ -30,6 +30,27 @@ describe('A game actor', () => {
    it('should be loaded', () => {
       expect(ex.Actor).toBeTruthy();
    });
+
+   it('should have a position', () => {
+
+      actor.pos.setTo(10, 10);
+
+      expect(actor.pos.x).toBe(10);
+      expect(actor.pos.y).toBe(10);
+   });
+
+   it('should have an old position after an update', () => {
+
+      actor.pos.setTo(10, 10);
+      actor.vel.setTo(10, 10);
+
+      actor.update(engine, 1000);
+
+      expect(actor.oldPos.x).toBe(10);
+      expect(actor.oldPos.y).toBe(10);
+      expect(actor.pos.x).toBe(20);
+      expect(actor.pos.y).toBe(20);
+   });
    
    it('actors should generate pair hashes in the correct order', () => {
       var actor = new ex.Actor();
@@ -37,8 +58,8 @@ describe('A game actor', () => {
       var actor2 = new ex.Actor();
       actor2.id = 40;
 
-      var hash = actor.calculatePairHash(actor2);
-      var hash2 = actor2.calculatePairHash(actor);
+      var hash = ex.Pair.calculatePairHash(actor.body, actor2.body);
+      var hash2 = ex.Pair.calculatePairHash(actor2.body, actor.body);
       expect(hash).toBe('#20+40');
       expect(hash2).toBe('#20+40');
    });
@@ -67,6 +88,20 @@ describe('A game actor', () => {
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(-20);
       expect(actor.pos.y).toBe(20);
+   });
+
+   it('should have an old velocity after an update', () => {
+
+      actor.pos.setTo(0, 0);
+      actor.vel.setTo(10, 10);
+      actor.acc.setTo(10, 10);
+
+      actor.update(engine, 1000);
+
+      expect(actor.oldVel.x).toBe(10);
+      expect(actor.oldVel.y).toBe(10);
+      expect(actor.vel.x).toBe(20);
+      expect(actor.vel.y).toBe(20);
    });
 
    it('can have its height and width scaled', () => {
@@ -182,6 +217,40 @@ describe('A game actor', () => {
       expect(child.getRight()).toBe(50);
       expect(child.getTop()).toBe(-50);
       expect(child.getBottom()).toBe(50);
+   });
+
+   it('should have the correct bounds when scaled and rotated', () => {
+      
+      var actor = new ex.Actor(50, 50, 10, 10);
+      // actor is now 20 high
+      actor.scale.setTo(1, 2);
+      // rotating the actor 90 degrees should make the actor 20 wide
+      actor.rotation = Math.PI / 2;
+      var bounds = actor.getBounds();
+      expect(bounds.getWidth()).toBeCloseTo(20, .001);
+      expect(bounds.getHeight()).toBeCloseTo(10, .001);
+
+      expect(bounds.left).toBeCloseTo(40, .001);
+      expect(bounds.right).toBeCloseTo(60, .001);
+      expect(bounds.top).toBeCloseTo(45, .001);
+      expect(bounds.bottom).toBeCloseTo(55, .001);
+   });
+
+   it('should have the correct relative bounds when scaled and rotated', () => {
+      
+      var actor = new ex.Actor(50, 50, 10, 10);
+      // actor is now 20 high
+      actor.scale.setTo(1, 2);
+      // rotating the actor 90 degrees should make the actor 20 wide
+      actor.rotation = Math.PI / 2;
+      var bounds = actor.getRelativeBounds();
+      expect(bounds.getWidth()).toBeCloseTo(20, .001);
+      expect(bounds.getHeight()).toBeCloseTo(10, .001);
+
+      expect(bounds.left).toBeCloseTo(-10, .001);
+      expect(bounds.right).toBeCloseTo(10, .001);
+      expect(bounds.top).toBeCloseTo(-5, .001);
+      expect(bounds.bottom).toBeCloseTo(5, .001);
    });
    
    it('has a left, right, top, and bottom when the anchor is (0, 0)', () => {
