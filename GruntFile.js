@@ -5,7 +5,7 @@ var path = require('path');
 var appveyorBuild = process.env.APPVEYOR_BUILD_VERSION || '';
 
 if (appveyorBuild) {
-   appveyorBuild = '.' + appveyorBuild + '-unstable';
+   appveyorBuild = '-unstable+' + appveyorBuild;
 }
 
 /*global module:false*/
