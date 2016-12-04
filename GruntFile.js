@@ -2,10 +2,10 @@
 /* Excalibur.js Grunt Build File
 /*********************************/
 var path = require('path');
-var appveyorBuild = process.env.APPVEYOR_BUILD_VERSION || '';
+var appveyorBuild = process.env.APPVEYOR_BUILD_NUMBER || '';
 
 if (appveyorBuild) {
-   appveyorBuild = '-unstable+' + appveyorBuild;
+   appveyorBuild = '-alpha.' + appveyorBuild + '+' + process.env.APPVEYOR_REPO_COMMIT.substring(0, 7);
 }
 
 /*global module:false*/
