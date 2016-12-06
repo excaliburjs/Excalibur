@@ -103,8 +103,11 @@ module ex.Util {
       return outputStr;
    }
 
-   export function clamp(val, min, max) {
-      return val <= min ? min : (val >= max ? max : val);
+   /**
+    * Clamps a value between a min and max inclusive
+    */
+   export function clamp(val: number, min: number, max: number) {
+      return Math.min(Math.max(min, val), max);
    }
 
    export function randomInRange(min: number, max: number) : number {
