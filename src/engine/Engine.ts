@@ -791,11 +791,11 @@ O|===|* >________________>\n\
 
          var ctx: any = this.ctx;
          ctx.imageSmoothingEnabled = isSmooth;
-         ['webkitImageSmoothingEnabled', 'mozImageSmoothingEnabled', 'msImageSmoothingEnabled'].forEach((smoothing) => {
+         for (var smoothing of ['webkitImageSmoothingEnabled', 'mozImageSmoothingEnabled', 'msImageSmoothingEnabled']) {
             if (smoothing in ctx) {
                ctx[smoothing] = isSmooth;
             }
-         });
+         };
       }
 
       /**
