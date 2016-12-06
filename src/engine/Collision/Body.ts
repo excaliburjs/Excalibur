@@ -51,7 +51,7 @@ module ex {
       public mass: number = 1.0;
       
       /**
-       * The current momemnt of inertia, moi can be thought of as the resistance to rotation.
+       * The current moment of inertia, moi can be thought of as the resistance to rotation.
        */
       public moi: number = 1000;
       
@@ -78,7 +78,26 @@ module ex {
       /** 
        * The rotational velocity of the actor in radians/second
        */
-      public rx: number = 0; //radions/sec
+      public rx: number = 0; //radians/sec
+
+      
+      private _totalMtv: Vector = Vector.Zero.clone();
+
+      /**
+       * Add minimum translation vectors accumulated during the current frame to resolve collisions.
+       */ 
+      public addMtv(mtv: Vector) {
+         this._totalMtv.addEqual(mtv);
+      }
+
+      /**
+       * Applies the accumulated translation vectors to the actors position
+       */
+      public applyMtv(): void {
+         this.pos.addEqual(this._totalMtv);
+         this._totalMtv.setTo(0, 0);
+      }
+
 
       /**
        * Returns the body's [[BoundingBox]] calculated for this instant in world space.
@@ -125,7 +144,7 @@ module ex {
             pos: center // position relative to actor
          });
 
-         // in case of a nan moi, collesce to a safe default
+         // in case of a nan moi, coalesce to a safe default
          this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
 
       }

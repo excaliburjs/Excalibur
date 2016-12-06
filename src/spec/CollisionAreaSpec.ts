@@ -71,9 +71,10 @@ describe('Collision areas', () => {
         var rayTangent = new ex.Ray(new ex.Vector(-100, 10), ex.Vector.Right.clone());
         var rayNoHit = new ex.Ray(new ex.Vector(-100, 10), ex.Vector.Left.clone());
 
-        var point = circle.castRay(ray);
-        var pointTangent = circle.castRay(rayTangent);
-        var pointNoHit = circle.castRay(rayNoHit);
+        var point = circle.rayCast(ray);
+        var pointTangent = circle.rayCast(rayTangent);
+        var pointNoHit = circle.rayCast(rayNoHit);
+        var pointTooFar = circle.rayCast(ray, 1);
 
         expect(point.x).toBe(-10);
         expect(point.y).toBe(0);
@@ -82,6 +83,7 @@ describe('Collision areas', () => {
         expect(pointTangent.y).toBe(10);
 
         expect(pointNoHit).toBe(null);
+        expect(pointTooFar).toBe(null, 'The circle should be too far away for a hit');
 
       });
 
@@ -420,12 +422,14 @@ describe('Collision areas', () => {
          var rayTowards = new ex.Ray(new ex.Vector(-100, 0), ex.Vector.Right.clone());
          var rayAway = new ex.Ray(new ex.Vector(-100, 0), new ex.Vector(-1, 0));
 
-         var point = polyA.castRay(rayTowards);
-         var noHit = polyA.castRay(rayAway);
+         var point = polyA.rayCast(rayTowards);
+         var noHit = polyA.rayCast(rayAway);
+         var tooFar = polyA.rayCast(rayTowards, 1);
 
          expect(point.x).toBeCloseTo(-5, .001);
          expect(point.y).toBeCloseTo(0, .001);
          expect(noHit).toBe(null);
+         expect(tooFar).toBe(null, 'The polygon should be too far away for a hit');
 
       });
    });
@@ -468,10 +472,11 @@ describe('Collision areas', () => {
         var rayRightTangent = new ex.Ray(new ex.Vector(10, -100), ex.Vector.Down.clone());
         var rayNoHit = new ex.Ray(new ex.Vector(5, -100), ex.Vector.Up.clone());
 
-        var midPoint = edge.castRay(ray);
-        var leftTan = edge.castRay(rayLeftTangent);
-        var rightTan = edge.castRay(rayRightTangent);
-        var noHit = edge.castRay(rayNoHit);
+        var midPoint = edge.rayCast(ray);
+        var leftTan = edge.rayCast(rayLeftTangent);
+        var rightTan = edge.rayCast(rayRightTangent);
+        var noHit = edge.rayCast(rayNoHit);
+        var tooFar = edge.rayCast(ray, 1);
 
         expect(midPoint.x).toBeCloseTo(5, .001);
         expect(midPoint.y).toBeCloseTo(0, .001);
@@ -482,7 +487,7 @@ describe('Collision areas', () => {
         expect(rightTan.x).toBeCloseTo(10, .001);
         expect(rightTan.y).toBeCloseTo(0, .001);
 
-
+        expect(tooFar).toBe(null, 'Ray should be too far for a hit');
       }); 
 
       it('has 4 axes', () => {

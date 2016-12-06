@@ -70,53 +70,9 @@
    }
    
    /**
-    * Keyboard input
+    * Provides keyboard support for Excalibur.
     *
-    * Working with the keyboard is easy in Excalibur. You can inspect
-    * whether a button was just [[Keyboard.wasPressed|pressed]] or [[Keyboard.wasReleased|released]] this frame, or
-    * if the key is currently being [[Keyboard.isHeld|held]] down. Common keys are held in the [[Input.Keys]]
-    * enumeration but you can pass any character code to the methods.
-    *
-    * Excalibur subscribes to the browser events and keeps track of
-    * what keys are currently held, released, or pressed. A key can be held
-    * for multiple frames, but a key cannot be pressed or released for more than one subsequent
-    * update frame.
-    *
-    * ## Inspecting the keyboard
-    *
-    * You can inspect [[Engine.input]] to see what the state of the keyboard
-    * is during an update.
-    *
-    * It is recommended that keyboard actions that directly effect actors be handled like so to improve code quality:
-    * ```ts
-    * class Player extends ex.Actor {
-    *   public update(engine, delta) {
-    *     
-    *     if (engine.input.keyboard.isHeld(ex.Input.Keys.W) ||
-    *         engine.input.keyboard.isHeld(ex.Input.Keys.Up)) {
-    *       
-    *       player._moveForward();
-    *     }
-    *      
-    *     if (engine.input.keyboard.wasPressed(ex.Input.Keys.Right)) {
-    *       player._fire();
-    *     }
-    *   }
-    * }
-    * ```
-    * ## Events
-    * You can subscribe to keyboard events through `engine.input.keyboard.on`. A [[KeyEvent]] object is
-    * passed to your handler which offers information about the key that was part of the event.
-    *
-    * - `press` - When a key was just pressed this frame
-    * - `release` - When a key was just released this frame
-    * - `hold` - Whenever a key is in the down position 
-    *
-    * ```ts
-    * engine.input.keyboard.on("press", (evt: KeyEvent) => {...});
-    * engine.input.keyboard.on("release", (evt: KeyEvent) => {...});
-    * engine.input.keyboard.on("hold", (evt: KeyEvent) => {...});
-    * ```
+    * [[include:Keyboard.md]]
     */
    export class Keyboard extends ex.Class {
 
@@ -131,9 +87,9 @@
          this._engine = engine;
       }
 
-      public on(eventName: ex.Events.press, handler: (event?: KeyboardEvent) => void);
-      public on(eventName: ex.Events.release, handler: (event?: KeyboardEvent) => void);
-      public on(eventName: ex.Events.hold, handler: (event?: KeyboardEvent) => void);
+      public on(eventName: ex.Events.press, handler: (event?: KeyEvent) => void);
+      public on(eventName: ex.Events.release, handler: (event?: KeyEvent) => void);
+      public on(eventName: ex.Events.hold, handler: (event?: KeyEvent) => void);
       public on(eventName: string, handler: (event?: GameEvent) => void);
       public on(eventName: string, handler: (event?: GameEvent) => void) {
          super.on(eventName, handler);
@@ -142,14 +98,14 @@
       /**
        * Initialize Keyboard event listeners
        */
-      init(): void {
-
-         window.addEventListener('blur', (ev: UIEvent) => {
+      init(global?: any): void {
+         global = global || window;
+         global.addEventListener('blur', (ev: UIEvent) => {
             this._keys.length = 0; // empties array efficiently
          });
 
          // key up is on window because canvas cannot have focus
-         window.addEventListener('keyup', (ev: KeyboardEvent) => {
+         global.addEventListener('keyup', (ev: KeyboardEvent) => {
             var key = this._keys.indexOf(ev.keyCode);
             this._keys.splice(key, 1);
             this._keysUp.push(ev.keyCode);
@@ -161,7 +117,7 @@
          });
 
          // key down is on window because canvas cannot have focus
-         window.addEventListener('keydown', (ev: KeyboardEvent) => {
+         global.addEventListener('keydown', (ev: KeyboardEvent) => {
             if (this._keys.indexOf(ev.keyCode) === -1) {
                this._keys.push(ev.keyCode);
                this._keysDown.push(ev.keyCode);
@@ -192,7 +148,7 @@
 
       /**
        * Tests if a certain key was just pressed this frame. This is cleared at the end of the update frame.
-       * @param key Test wether a key was just pressed
+       * @param key Test whether a key was just pressed
        */
       public wasPressed(key: Keys): boolean {
          return this._keysDown.indexOf(key) > -1;
@@ -200,7 +156,7 @@
 
       /**
        * Tests if a certain key is held down. This is persisted between frames.
-       * @param key  Test wether a key is held down
+       * @param key  Test whether a key is held down
        */
       public isHeld(key: Keys): boolean {
          return this._keys.indexOf(key) > -1;
@@ -208,7 +164,7 @@
 
       /**
        * Tests if a certain key was just released this frame. This is cleared at the end of the update frame.
-       * @param key  Test wether a key was just released
+       * @param key  Test whether a key was just released
        */
       public wasReleased(key: Keys): boolean {
          return this._keysUp.indexOf(key) > -1;

@@ -36,6 +36,29 @@ module ex {
          * @param bottom  y coordinate of the bottom edge
          */
         constructor(public left: number = 0, public top: number = 0, public right: number = 0, public bottom: number = 0) { }
+
+        public static fromPoints(points: Vector[]): BoundingBox {
+           var minX = Infinity;
+           var minY = Infinity;
+           var maxX = -Infinity;
+           var maxY = -Infinity;
+           for (var i = 0; i < points.length; i++) {
+              if (points[i].x < minX) {
+                 minX = points[i].x;
+              }
+              if (points[i].x > maxX) {
+                 maxX = points[i].x;
+              }
+              if (points[i].y < minY) {
+                 minY = points[i].y;
+              }
+              if (points[i].y > maxY) {
+                 maxY = points[i].y;
+              }
+           }
+           return new BoundingBox(minX, minY, maxX, maxY);
+        }
+
         /**
          * Returns the calculated width of the bounding box
          */
@@ -48,6 +71,14 @@ module ex {
          */
         public getHeight() {
             return this.bottom - this.top;
+        }
+
+        /**
+         * Rotates a bounding box by and angle and around a point, if no point is specified (0, 0) is used by default
+         */
+        public rotate(angle: number, point: Vector = ex.Vector.Zero.clone()): BoundingBox {
+           var points = this.getPoints().map((p) => p.rotate(angle, point));
+           return BoundingBox.fromPoints(points);
         }
 
         /**
@@ -80,7 +111,32 @@ module ex {
         }
 
         /**
-         * Tests wether a point is contained within the bounding box
+         * Determines whether a ray intersects with a bounding box
+         */
+        public rayCast(ray: Ray, farClipDistance = Infinity): boolean {
+           // algorithm from https://tavianator.com/fast-branchless-raybounding-box-intersections/ 
+           var tmin = -Infinity;
+           var tmax = +Infinity;           
+
+           if (ray.dir.x !== 0) {
+              var tx1 = (this.left - ray.pos.x) / ray.dir.x;
+              var tx2 = (this.right - ray.pos.x) / ray.dir.x;
+              tmin = Math.max(tmin, Math.min(tx1, tx2));
+              tmax = Math.min(tmax, Math.max(tx1, tx2));
+           }
+
+           if (ray.dir.y !== 0) {
+              var ty1 = (this.top - ray.pos.y) / ray.dir.y;
+              var ty2 = (this.bottom - ray.pos.y) / ray.dir.y;
+              tmin = Math.max(tmin, Math.min(ty1, ty2));
+              tmax = Math.min(tmax, Math.max(ty1, ty2));
+           }
+
+           return tmax >= Math.max(0, tmin) && tmin < farClipDistance;
+        }
+
+        /**
+         * Tests whether a point is contained within the bounding box
          * @param p  The point to test
          */
         public contains(p: Vector): boolean;
@@ -119,7 +175,7 @@ module ex {
 
         /** 
          * Test wether this bounding box collides with another returning,
-         * the intersection vector that can be used to resovle the collision. If there
+         * the intersection vector that can be used to resolve the collision. If there
          * is no collision null is returned.
          * @param collidable  Other collidable to test
          */

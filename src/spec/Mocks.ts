@@ -1,4 +1,4 @@
-﻿/// <reference path="../engine/Engine.ts" />
+﻿/// <reference path="../../build/dist/excalibur.d.ts" />
 
 module Mocks {
 
@@ -54,9 +54,22 @@ module Mocks {
          
          return mockNavigator;
       };
-      
+
+      realengine() {
+         navigator = <any>this.navigator();
+         
+         return new ex.Engine({
+            width: 500,
+            height: 500,
+            suppressConsoleBootMessage: true,
+            suppressMinimumBrowserFeatureDetection: true
+         });
+      }
+            
       engine(width: number, height: number) {
          var mockEngine;
+
+         navigator = <any>this.navigator();
 
          mockEngine = {
             collisionStrategy: 0,
@@ -80,6 +93,13 @@ module Mocks {
                info : function () { /* do nothing */ },
                warn : function () { /* do nothing */ },
                error : function () { /* do nothing */ }
+            },
+            debug: {
+               
+            },
+            stats: {
+               currFrame: new ex.FrameStats(),
+               prevFrame: new ex.FrameStats()
             },
             input: {
                keyboard: {

@@ -20,7 +20,7 @@ module ex.Internal.Actions {
    
    export class EaseTo implements IAction {
       private _currentLerpTime: number = 0;
-      private _lerpDuration: number = 1 * 1000; // 5 seconds
+      private _lerpDuration: number = 1 * 1000; // 1 second
       private _lerpStart: Vector = new ex.Vector(0, 0);
       private _lerpEnd: Vector = new ex.Vector(0, 0);
       private _initialized: boolean = false;

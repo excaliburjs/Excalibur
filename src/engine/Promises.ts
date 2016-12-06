@@ -25,51 +25,11 @@ module ex {
    }
 
    /**
-    * Promises/A+ spec implementation of promises
-    *
     * Promises are used to do asynchronous work and they are useful for
     * creating a chain of actions. In Excalibur they are used for loading,
     * sounds, animation, actions, and more.
     *
-    * ## A Promise Chain
-    *
-    * Promises can be chained together and can be useful for creating a queue
-    * of functions to be called when something is done.
-    *
-    * The first [[Promise]] you will encounter is probably [[Engine.start]]
-    * which resolves when the game has finished loading.
-    *
-    * ```js
-    * var game = new ex.Engine();
-    *
-    * // perform start-up logic once game is ready
-    * game.start().then(function () {
-    *
-    *   // start-up & initialization logic
-    *
-    * });
-    * ```
-    *
-    * ## Handling errors
-    *
-    * You can optionally pass an error handler to [[Promise.then]] which will handle
-    * any errors that occur during Promise execution.
-    *
-    * ```js
-    * var game = new ex.Engine();
-    *
-    * game.start().then(
-    *   // success handler
-    *   function () {
-    *   },
-    *
-    *   // error handler
-    *   function (err) {
-    *   }
-    * );
-    * ```
-    *
-    * Any errors that go unhandled will be bubbled up to the browser.
+    * [[include:Promises.md]]
     */
    export class Promise<T> implements IPromise<T> {
       private _state: PromiseState = PromiseState.Pending;
@@ -82,12 +42,32 @@ module ex {
       /**
        * Wrap a value in a resolved promise
        * @param value  An optional value to wrap in a resolved promise
+       * @obsolete Use [[resolve]] instead. This will be deprecated in future versions.
        */
       public static wrap<T>(value?: T): Promise<T> {
+         ex.Logger.getInstance().warn('[obsolete] Promise.wrap is obsolete. Use Promise.resolve/reject instead.');
+         return Promise.resolve(value);
+      }
+
+      /**
+       * Create and resolve a Promise with an optional value
+       * @param value  An optional value to wrap in a resolved promise
+       */
+      public static resolve<T>(value?: T): Promise<T> {
          var promise = (new Promise<T>()).resolve(value);
 
          return promise;
-      }
+      }     
+
+      /**
+       * Create and reject a Promise with an optional value
+       * @param value  An optional value to wrap in a rejected promise
+       */
+      public static reject<T>(value?: T): Promise<T> {
+         var promise = (new Promise<T>()).reject(value);
+
+         return promise;
+      }  
 
       /**
        * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
@@ -151,7 +131,7 @@ module ex {
       }
 
       /**
-       * Chain success and reject callbacks after the promise is resovled
+       * Chain success and reject callbacks after the promise is resolved
        * @param successCallback  Call on resolution of promise
        * @param rejectCallback   Call on rejection of promise
        */
@@ -237,7 +217,7 @@ module ex {
       }
 
       /**
-       * Inpect the current state of a promise
+       * Inspect the current state of a promise
        */
       public state(): PromiseState {
          return this._state;

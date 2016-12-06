@@ -85,7 +85,7 @@ module ex.Util.DrawUtil {
    }
 
    /**
-    * Draw a round rectange on a canvas context
+    * Draw a round rectangle on a canvas context
     * 
     * @param ctx The canvas context
     * @param x The top-left x coordinate
@@ -131,6 +131,28 @@ module ex.Util.DrawUtil {
          ctx.strokeStyle = stroke.toString();
          ctx.stroke();
       }
+   }
+
+   export function circle(ctx: CanvasRenderingContext2D, 
+                          x: number, 
+                          y: number, 
+                          radius: number, 
+                          stroke: Color = ex.Color.White, 
+                          fill: Color = null) {
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.closePath();
+
+      if (fill) {
+         ctx.fillStyle = fill.toString();
+         ctx.fill();
+      }
+
+      if (stroke) {
+         ctx.strokeStyle = stroke.toString();
+         ctx.stroke();
+      }
+
    }
 
 }

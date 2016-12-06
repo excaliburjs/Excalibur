@@ -1,9 +1,10 @@
 /// <reference path="Collision/IPhysics.ts" />
 module ex {
+
    /**
     * Possible collision resolution strategies
     *
-    * The default is [[CollisionResolutionStrategy.Box]] which performs simple axis aligned arcade style physcs.
+    * The default is [[CollisionResolutionStrategy.Box]] which performs simple axis aligned arcade style physics.
     * 
     * More advanced rigid body physics are enabled by setting [[CollisionResolutionStrategy.RigidBody]] which allows for complicated
     * simulated physical interactions.
@@ -33,67 +34,15 @@ module ex {
    }
 
    /**
-    * 
-    * Excalibur Physics
-    *
     * The [[Physics]] object is the global configuration object for all Excalibur physics. 
     *
-    * Excalibur comes built in with two physics systems. The first system is [[CollisionResolutionStrategy.Box|Box physics]], and is a 
-    * simple axis-aligned way of doing basic collision detection for non-rotated rectangular areas, defined by an actor's 
-    * [[BoundingBox|bounding box]].
-    *
-    * ## Enabling Excalibur physics
-    *
-    * To enable physics in your game it is as simple as setting [[Physics.enabled]] to true and picking your 
-    * [[CollisionResolutionStrategy]]
-    *
-    * Excalibur supports 3 different types of collision area shapes in its physics simulation: [[PolygonArea|polygons]], 
-    * [[CircleArea|circles]], and [[EdgeArea|edges]]. To use any one of these areas on an actor there are convenience methods off of 
-    * the [[Actor|actor]] [[Body|physics body]]: [[Body.useBoxCollision|useBoxCollision]], 
-    * [[Body.usePolygonCollision|usePolygonCollision]], [[Body.useCircleCollision|useCircleCollision]], and [[Body.useEdgeCollision]]
-    *
-    * ```ts
-    * // setup game
-    * var game = new ex.Engine({
-    *     width: 600,
-    *     height: 400
-    *  });
-    *
-    * // use rigid body
-    * ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
-    *
-    * // set global acceleration simulating gravity pointing down
-    * ex.Physics.acc.setTo(0, 700);
-    *
-    * var block = new ex.Actor(300, 0, 20, 20, ex.Color.Blue.clone());
-    * block.body.useBoxCollision(); // useBoxCollision is the default, technically optional
-    * game.add(block);
-    *
-    * var circle = new ex.Actor(300, 100, 20, 20, ex.Color.Red.clone());
-    * circle.body.useCircleCollision(10); 
-    * game.add(circle);
-    * 
-    * var ground = new ex.Actor(300, 380, 600, 10, ex.Color.Black.clone());
-    * ground.collisionType = ex.CollisionType.Fixed;
-    * edge.body.useBoxCollision(); // optional 
-    * game.add(ground);
-    *
-    * // start the game
-    * game.start();
-    * ```
-    *
-    * ## Limitations
-    *
-    * Currently Excalibur only supports single contact point collisions and non-sleeping physics bodies. This has some negative stability 
-    * and performance implications. Single contact point collisions can have odd oscilating behavior. Non-sleeping bodies will recalculate
-    * collisions whether they need to or not. We fully intend to add these features into Excalibur in future releases.
-    *
+    * [[include:Physics.md]]
     */
    /* istanbul ignore next */
    export class Physics {
       /**
        * Global acceleration that is applied to all vanilla actors (it wont effect [[Label|labels]], [[UIActor|ui actors]], or 
-       * [[Trigger|triggers]] in Excalibur that have an [[CollisionType.Active|active]] collison type).
+       * [[Trigger|triggers]] in Excalibur that have an [[CollisionType.Active|active]] collision type).
        * 
        * 
        * This is a great way to globally simulate effects like gravity.
@@ -111,7 +60,7 @@ module ex {
        * Reducing collision passes may cause things not to collide as expected in your game, but may increase performance.
        * 
        * More passes can improve the visual quality of collisions when many objects are on the screen. This can reduce jitter, improve the
-       * collison resolution of fast move objects, or the stability of large numbers of objects stacked together.
+       * collision resolution of fast move objects, or the stability of large numbers of objects stacked together.
        * 
        * Fewer passes will improve the performance of the game at the cost of collision quality, more passes will improve quality at the 
        * cost of performance. 
@@ -203,5 +152,33 @@ module ex {
        * Small value to help collision passes settle themselves after the narrowphase. 
        */
       public static collisionShift = .001;
+
+      /**
+       * Factor to add to the RigidBody BoundingBox, bounding box (dimensions += vel * dynamicTreeVelocityMultiplyer); 
+       */
+      public static dynamicTreeVelocityMultiplyer = 2;
+
+      /**
+       * Pad RigidBody BoundingBox by a constant amount
+       */
+      public static boundsPadding = 5;
+
+      /**
+       * Surface epsilon is used to help deal with surface penatration
+       */
+      public static surfaceEpsilon = .1;
+
+      /**
+       * Enable fast moving body checking, this enables checking for collision pairs via raycast for fast moving objects to prevent
+       * bodies from tunneling through one another.
+       */
+      public static checkForFastBodies = true;
+
+      /**
+       * Disable minimum fast moving body raycast, by default if ex.Physics.checkForFastBodies = true Excalibur will only check if the 
+       * body is moving at least half of its minimum diminension in an update. If ex.Physics.disableMinimumSpeedForFastBody is set to true,
+       * Excalibur will always perform the fast body raycast regardless of speed. 
+       */
+      public static disableMinimumSpeedForFastBody = false;
    };
 }

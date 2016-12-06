@@ -1,76 +1,12 @@
 module ex {
 
+   var clamp = Util.clamp;
+   
    /**
-    * Sprites
-    *
     * A [[Sprite]] is one of the main drawing primitives. It is responsible for drawing
     * images or parts of images from a [[Texture]] resource to the screen.
     *
-    * ## Creating a sprite
-    *
-    * To create a [[Sprite]] you need to have a loaded [[Texture]] resource. You can
-    * then use [[Texture.asSprite]] to quickly create a [[Sprite]] or you can create
-    * a new instance of [[Sprite]] using the constructor. This is useful if you
-    * want to "slice" out a portion of an image or if you want to change the dimensions.
-    *
-    * ```js
-    * var game = new ex.Engine();
-    * var txPlayer = new ex.Texture("/assets/tx/player.png");
-    *
-    * // load assets
-    * var loader = new ex.Loader(txPlayer);
-    * 
-    * // start game
-    * game.start(loader).then(function () {
-    * 
-    *   // create a sprite (quick)
-    *   var playerSprite = txPlayer.asSprite();
-    *
-    *   // create a sprite (custom)
-    *   var playerSprite = new ex.Sprite(txPlayer, 0, 0, 80, 80);
-    *
-    * });
-    * ```
-    *
-    * You can then assign an [[Actor]] a sprite through [[Actor.addDrawing]] and
-    * [[Actor.setDrawing]].
-    *
-    * ## Sprite Effects
-    *
-    * Excalibur offers many sprite effects such as [[Effects.Colorize]] to let you manipulate
-    * sprites. Keep in mind, more effects requires more power and can lead to memory or CPU
-    * constraints and hurt performance. Each effect must be reprocessed every frame for each sprite.
-    *
-    * It's still recommended to create an [[Animation]] or build in your effects to the sprites
-    * for optimal performance.
-    *
-    * There are a number of convenience methods available to perform sprite effects. Sprite effects are
-    * side-effecting.
-    * 
-    * ```typescript
-    *
-    * var playerSprite = new ex.Sprite(txPlayer, 0, 0, 80, 80);
-    * 
-    * // darken a sprite by a percentage   
-    * playerSprite.darken(.2); // 20%
-    * 
-    * // lighten a sprite by a percentage
-    * playerSprite.lighten(.2); // 20%
-    *
-    * // saturate a sprite by a percentage
-    * playerSprite.saturate(.2); // 20%
-    *
-    * // implement a custom effect
-    * class CustomEffect implements ex.EffectsISpriteEffect {
-    *
-    *   updatePixel(x: number, y: number, imageData: ImageData) {
-    *       // modify ImageData  
-    *   }  
-    * }
-    *
-    * playerSprite.addEffect(new CustomEffect());
-    * 
-    * ```   
+    * [[include:Sprites.md]]
     */
    export class Sprite implements IDrawable {
       private _texture: Texture;
@@ -140,7 +76,6 @@ module ex {
 
       private _loadPixels() {
          if (this._texture.isLoaded() && !this._pixelsLoaded) {
-            var clamp = ex.Util.clamp;
             var naturalWidth = this._texture.image.naturalWidth || 0;
             var naturalHeight = this._texture.image.naturalHeight || 0;
 
@@ -194,7 +129,7 @@ module ex {
       }
 
       /**
-       * Applies the [[Effects.Colorize]] to a sprite, changing the color channels of all pixesl to be the average of the original color
+       * Applies the [[Effects.Colorize]] to a sprite, changing the color channels of all pixels to be the average of the original color
        * and the provided color.
        */
       public colorize(color: Color) {
@@ -216,14 +151,14 @@ module ex {
       }
 
       /**
-       * Applies the [[Effects.Saturate]] to a sprite, saturates the color acccording to HSL
+       * Applies the [[Effects.Saturate]] to a sprite, saturates the color according to HSL
        */
       public saturate(factor: number = 0.1) {
          this.addEffect(new Effects.Saturate(factor));
       }
 
       /**
-       * Applies the [[Effects.Desaturate]] to a sprite, desaturates the color acccording to HSL
+       * Applies the [[Effects.Desaturate]] to a sprite, desaturates the color according to HSL
        */
       public desaturate(factor: number = 0.1) {
          this.addEffect(new Effects.Desaturate(factor));
@@ -280,7 +215,6 @@ module ex {
       }
 
       private _applyEffects() {
-         var clamp = ex.Util.clamp;
          var naturalWidth = this._texture.image.naturalWidth || 0;
          var naturalHeight = this._texture.image.naturalHeight || 0;
 
@@ -305,6 +239,8 @@ module ex {
          this._spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
          this._spriteCtx.putImageData(this._pixelData, 0, 0);
          this.internalImage.src = this._spriteCanvas.toDataURL('image/png');
+         
+         this._dirtyEffect = false;
       }
 
       /**
@@ -326,11 +262,13 @@ module ex {
          ctx.save();
          ctx.translate(x, y);
          ctx.rotate(this.rotation);
-         var xpoint = (this.width * this.scale.x) * this.anchor.x;
-         var ypoint = (this.height * this.scale.y) * this.anchor.y;
+         const scaledSWidth = this.width * this.scale.x;
+         const scaledSHeight = this.height * this.scale.y;
+         var xpoint = (scaledSWidth) * this.anchor.x;
+         var ypoint = (scaledSHeight) * this.anchor.y;
 
          ctx.strokeStyle = Color.Black;
-         ctx.strokeRect(-xpoint, -ypoint, this.width * this.scale.x, this.height * this.scale.y);
+         ctx.strokeRect(-xpoint, -ypoint, scaledSWidth, scaledSHeight);
          ctx.restore();
       }
 
@@ -343,7 +281,6 @@ module ex {
       public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
          if (this._dirtyEffect) {
             this._applyEffects();
-            this._dirtyEffect = false;
          }
          
          // calculating current dimensions
@@ -355,30 +292,29 @@ module ex {
          var ypoint = this.height * this.anchor.y;
          ctx.translate(x, y);
          ctx.rotate(this.rotation);
+
+         var scaledSWidth = this.swidth * this.scale.x;
+         var scaledSHeight = this.sheight * this.scale.y;
          
          // todo cache flipped sprites
          if (this.flipHorizontal) {
-            ctx.translate(this.swidth * this.scale.x, 0);
+            ctx.translate(scaledSWidth, 0);
             ctx.scale(-1, 1);
          }
 
          if (this.flipVertical) {
-            ctx.translate(0, this.sheight * this.scale.y);
+            ctx.translate(0, scaledSHeight);
             ctx.scale(1, -1);
          }
 
          if (this.internalImage) {
-            
             ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, 
                -xpoint, 
                -ypoint, 
-               this.swidth * this.scale.x, 
-               this.sheight * this.scale.y);
+               scaledSWidth,
+               scaledSHeight);
          }
          ctx.restore();
-
-         
-
       }
 
       /**

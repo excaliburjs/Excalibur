@@ -84,7 +84,7 @@ module ex {
                // non-zero intersection on the y axis
                if (this.mtv.x !== 0) {
                   var velX = 0;
-                  // both bodies are traveling in the same direction (negative or positve)
+                  // both bodies are traveling in the same direction (negative or positive)
                   if (bodyA.vel.x < 0 && bodyB.vel.x < 0) {
                      velX = Math.min(bodyA.vel.x, bodyB.vel.x);
                   } else if (bodyA.vel.x > 0 && bodyB.vel.x > 0) {
@@ -143,20 +143,20 @@ module ex {
       private _resolveRigidBodyCollision(delta: number) {
                   
          // perform collison on bounding areas
-         var bodyA: Actor = this.bodyA.body.actor;
-         var bodyB: Actor = this.bodyB.body.actor;
+         var bodyA: Body = this.bodyA.body;
+         var bodyB: Body = this.bodyB.body;
          var mtv = this.mtv; // normal pointing away from bodyA
          var point = this.point; // world space collision point
          var normal = this.normal; // normal pointing away from bodyA
-         if (bodyA === bodyB) { // sanity check for existing pairs
+         if (bodyA.actor === bodyB.actor) { // sanity check for existing pairs
             return;
          }
          
-         var invMassA = bodyA.collisionType === ex.CollisionType.Fixed ? 0 : 1 / bodyA.mass;
-         var invMassB = bodyB.collisionType === ex.CollisionType.Fixed ? 0 : 1 / bodyB.mass;
+         var invMassA = bodyA.actor.collisionType === ex.CollisionType.Fixed ? 0 : 1 / bodyA.mass;
+         var invMassB = bodyB.actor.collisionType === ex.CollisionType.Fixed ? 0 : 1 / bodyB.mass;
          
-         var invMoiA = bodyA.collisionType === ex.CollisionType.Fixed ? 0 : 1 / bodyA.moi;
-         var invMoiB = bodyB.collisionType === ex.CollisionType.Fixed ? 0 : 1 / bodyB.moi;
+         var invMoiA = bodyA.actor.collisionType === ex.CollisionType.Fixed ? 0 : 1 / bodyA.moi;
+         var invMoiB = bodyB.actor.collisionType === ex.CollisionType.Fixed ? 0 : 1 / bodyB.moi;
          
          // average restitution more relistic
          var coefRestitution = Math.min(bodyA.restitution, bodyB.restitution);
@@ -189,11 +189,11 @@ module ex {
          
          // Publish collision events on both participants
          var side = ex.Util.getSideFromVector(this.mtv);
-         bodyA.emit('collision', new CollisionEvent(this.bodyA.body.actor, 
+         bodyA.actor.emit('collision', new CollisionEvent(this.bodyA.body.actor, 
                                                                     this.bodyB.body.actor, 
                                                                     side, 
                                                                     this.mtv));
-         bodyB.emit('collision', new CollisionEvent(this.bodyB.body.actor, 
+         bodyB.actor.emit('collision', new CollisionEvent(this.bodyB.body.actor, 
                                                                     this.bodyA.body.actor, 
                                                                     ex.Util.getOppositeSide(side), 
                                                                     this.mtv.negate()));
@@ -204,13 +204,13 @@ module ex {
             ((invMassA + invMassB) + invMoiA * raTangent * raTangent + invMoiB * rbTangent * rbTangent); 
          
          
-         if (bodyA.collisionType === ex.CollisionType.Fixed) {
+         if (bodyA.actor.collisionType === ex.CollisionType.Fixed) {
             bodyB.vel = bodyB.vel.add(normal.scale(impulse * invMassB));
             if (Physics.allowRigidBodyRotation) {
                bodyB.rx -= impulse * invMoiB * -rb.cross(normal);
             }
             bodyB.addMtv(mtv);
-         } else if (bodyB.collisionType === ex.CollisionType.Fixed) {
+         } else if (bodyB.actor.collisionType === ex.CollisionType.Fixed) {
             bodyA.vel = bodyA.vel.sub(normal.scale(impulse * invMassA));
             if (Physics.allowRigidBodyRotation) {
                bodyA.rx += impulse * invMoiA * -ra.cross(normal);
@@ -249,13 +249,13 @@ module ex {
                frictionImpulse = t.scale(-impulse * coefFriction);
             }
             
-            if ( bodyA.collisionType === ex.CollisionType.Fixed ) {
+            if ( bodyA.actor.collisionType === ex.CollisionType.Fixed ) {
                   // apply frictional impulse
                   bodyB.vel = bodyB.vel.add(frictionImpulse.scale(invMassB));
                   if (Physics.allowRigidBodyRotation) {      
                      bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
                   }
-            } else if ( bodyB.collisionType === ex.CollisionType.Fixed ) {
+            } else if ( bodyB.actor.collisionType === ex.CollisionType.Fixed ) {
                   // apply frictional impulse
                   bodyA.vel = bodyA.vel.sub(frictionImpulse.scale(invMassA));
                   if (Physics.allowRigidBodyRotation) {      
