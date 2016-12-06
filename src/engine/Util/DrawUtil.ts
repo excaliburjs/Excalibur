@@ -6,7 +6,7 @@ module ex.Util.DrawUtil {
     * A canvas linecap style. "butt" is the default flush style, "round" is a semi-circle cap with a radius half the width of
     * the line, and "square" is a rectangle that is an equal width and half height cap.
     */
-   export type LineCapStyle = "butt"|"round"|"square";
+   export type LineCapStyle = 'butt'|'round'|'square';
 
    /**
     * Draw a line on canvas context
