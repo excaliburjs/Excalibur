@@ -7,8 +7,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Breaking Changes
 
 ### Added
+- Unit tests for Util.clamp
 
 ### Changed
+- Changed Util.clamp to use math libraries. 
 
 ### Deprecated
 
