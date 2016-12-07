@@ -1,12 +1,37 @@
 /// <reference path="Log.ts" />
+
+/**
+ * This is the list of features that will be used to log the supported
+ * features to the console when Detector.logBrowserFeatures() is called.
+ */
+const REPORTED_FEATURES: Object = {
+   webgl: 'WebGL',
+   webaudio: 'WebAudio',
+   gamepadapi: 'Gamepad API'
+};
+
 module ex {
+
+   /**
+    * Interface for detected browser features matrix
+    */
+   export interface DetectedFeatures {
+      canvas: boolean;
+      arraybuffer: boolean;
+      dataurl: boolean;
+      objecturl: boolean;
+      rgba: boolean;
+      webaudio: boolean;
+      webgl: boolean;
+      gamepadapi: boolean;
+   }
 
    /**
     * Excalibur internal feature detection helper class
     */
    export class Detector {
 
-      private _features: Object = null;
+      private _features: DetectedFeatures = null;
 
       public failedTests: string[] = [];
 
@@ -18,8 +43,6 @@ module ex {
        * Returns a map of currently supported browser features. This method
        * treats the features as a singleton and will only calculate feature
        * support if it has not previously been done.
-       * 
-       * @return {Object} the list of supported features
        */
       public getBrowserFeatures(): Object {
          if (this._features === null) {
@@ -31,16 +54,8 @@ module ex {
       /**
        * Report on non-critical browser support for debugging purposes.
        * Use native browser console colors for visibility.
-       * 
-       * @return {void}
        */
       public logBrowserFeatures(): void {
-         let features = {
-            webgl: 'WebGL',
-            webaudio: 'WebAudio',
-            gamepadapi: 'Gamepad API'
-         };
-
          let msg = '%cSUPPORTED BROWSER FEATURES\n==========================%c\n';
          let args = [
             'font-weight: bold; color: navy',
@@ -48,18 +63,18 @@ module ex {
          ];
 
          let supported = this.getBrowserFeatures();
-         for (let feature of Object.keys(features)) {
+         for (let feature of Object.keys(REPORTED_FEATURES)) {
             if (supported[feature]) {
-               msg += '(%c\u2713%c)';
+               msg += '(%c\u2713%c)'; // (✓)
                args.push('font-weight: bold; color: green');
                args.push('font-weight: normal; color: inherit');
             } else {
-               msg += '(%c\u2717%c)';
+               msg += '(%c\u2717%c)'; // (✗)
                args.push('font-weight: bold; color: red');
                args.push('font-weight: normal; color: inherit'); 
             };
 
-            msg += ' ' + features[feature] + '\n';
+            msg += ' ' + REPORTED_FEATURES[feature] + '\n';
          }         
 
          args.unshift(msg);
@@ -69,10 +84,8 @@ module ex {
       /**
        * Executes several IIFE's to get a constant reference to supported
        * features within the current execution context.
-       * 
-       * @return {Object} a map of features
        */
-      private _loadBrowserFeatures(): Object {
+      private _loadBrowserFeatures(): DetectedFeatures {
          return {
             // IIFE to check canvas support
             canvas: (() => {
