@@ -49,8 +49,9 @@ describe('Vectors', () => {
    });
    
    it('can be transformed to an angle', () => {
-      var v = ex.Vector.fromAngle(Math.PI / 4);
-      expect(v.toAngle()).toBe(Math.PI / 4);
+      var target = Math.PI / 4;
+      var v = ex.Vector.fromAngle(target);
+      expect(v.toAngle()).toBeCloseTo(target, 4);
    });
    
    it('can calculate distance to origin', () =>  {

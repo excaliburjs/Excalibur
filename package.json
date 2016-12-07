@@ -40,6 +40,6 @@
     "source-map-support": "^0.4.3",
     "travis-ci": "^2.1.0",
     "tslint": "^3.13.0",
-    "typescript": "^1.8.10"
+    "typescript": "^2.0.10"
   }
 }
