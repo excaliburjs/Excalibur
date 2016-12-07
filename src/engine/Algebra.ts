@@ -6,8 +6,8 @@ module ex {
     * A 2D vector on a plane. 
     */
    export class Vector implements IVectorOptions {
-      public x: number;
-      public y: number;
+      public x: number = 0;
+      public y: number = 0;
       /**
        * A (0, 0) vector
        */

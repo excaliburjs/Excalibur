@@ -11,10 +11,18 @@ describe('Vectors', () => {
       var v = new ex.Vector(20, 200);
       expect(v).not.toBeNull();
    });
-   
+
    it('can have values set', () => {
       var v = new ex.Vector(20, 200);
       
+      expect(v.x).toEqual(20);
+      expect(v.y).toEqual(200);
+
+      var v2 = new ex.Vector({x: 20, y: 200});
+      expect(v2.x).toEqual(20);
+      expect(v2.y).toEqual(200);
+
+      v = new ex.Vector(v2);
       expect(v.x).toEqual(20);
       expect(v.y).toEqual(200);
       
@@ -28,6 +36,11 @@ describe('Vectors', () => {
       
       expect(v.x).toEqual(0);
       expect(v.y).toEqual(0);
+
+      v = new ex.Vector();
+      expect(v.x).toEqual(0);
+      expect(v.y).toEqual(0);
+
    });
    
    it('has a Zero constant', () => {
