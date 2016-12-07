@@ -54,7 +54,7 @@ module ex {
                args.push('font-weight: bold; color: green');
                args.push('font-weight: normal; color: inherit');
             } else {
-               msg += '(%c\u2717%c)'
+               msg += '(%c\u2717%c)';
                args.push('font-weight: bold; color: red');
                args.push('font-weight: normal; color: inherit'); 
             };
