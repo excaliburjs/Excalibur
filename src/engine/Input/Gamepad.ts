@@ -142,10 +142,10 @@
             this.at(i).navigatorGamepad = gamepads[i];
 
             // Buttons
-            var b: string, bi: string|number, a: string, ai: string|number, value: number;
+            var b: string, bi: number, a: string, ai: number, value: number;
             
             for (b in Buttons) {
-               bi = Buttons[b];
+               bi = <any>Buttons[b];
                if (typeof bi === 'number') {                                          
                   if (gamepads[i].buttons[bi]) {
                      value = gamepads[i].buttons[bi].value;
@@ -163,7 +163,7 @@
 
             // Axes
             for (a in Axes) {
-               ai = Axes[a];
+               ai = <any>Axes[a];
                if (typeof ai === 'number') {
                   value = gamepads[i].axes[ai];
                   if (value !== this._oldPads[i].getAxes(ai)) {

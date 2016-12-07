@@ -760,11 +760,25 @@ O|===|* >________________>\n\
          this.input.keyboard.init();
          this.input.pointers.init(options ? options.pointerScope : ex.Input.PointerScope.Document);
          this.input.gamepads.init();
-                  
+
          // Issue #385 make use of the visibility api
          // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
-         document.addEventListener('visibilitychange', () => {
-            if (document.hidden || document.msHidden) {
+
+         var hidden, visibilityChange;
+         if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and later support 
+            hidden = 'hidden';
+            visibilityChange = 'visibilitychange';
+         } else if ('msHidden' in document) {
+            hidden = 'msHidden';
+            visibilityChange = 'msvisibilitychange';
+         } else if ('webkitHidden' in document) {
+            hidden = 'webkitHidden';
+            visibilityChange = 'webkitvisibilitychange';
+         }                 
+         
+         document.addEventListener(visibilityChange, () => {
+            
+            if (document[hidden]) {
                this.eventDispatcher.emit('hidden', new HiddenEvent());
                this._logger.debug('Window hidden');
             } else {
