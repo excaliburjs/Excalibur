@@ -5,7 +5,7 @@ module ex {
    /**
     * A 2D vector on a plane. 
     */
-   export class Vector {
+   export class Vector implements IVectorOptions {
       public x: number;
       public y: number;
       /**
@@ -81,7 +81,7 @@ module ex {
        * @param y  Y component of the Vector
        */
       constructor(x: number, y: number);
-      constructor(optionsOrX?: number | IVectorOptions | any, y?: number) {
+      constructor(optionsOrX?: number | IVectorOptions, y?: number) {
             if (typeof optionsOrX === 'number') {
                this.x = optionsOrX;
                this.y = y || 0;
