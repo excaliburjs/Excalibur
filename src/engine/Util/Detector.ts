@@ -15,7 +15,7 @@ module ex {
    /**
     * Interface for detected browser features matrix
     */
-   export interface DetectedFeatures {
+   export interface IDetectedFeatures {
       canvas: boolean;
       arraybuffer: boolean;
       dataurl: boolean;
@@ -31,7 +31,7 @@ module ex {
     */
    export class Detector {
 
-      private _features: DetectedFeatures = null;
+      private _features: IDetectedFeatures = null;
 
       public failedTests: string[] = [];
 
@@ -85,7 +85,7 @@ module ex {
        * Executes several IIFE's to get a constant reference to supported
        * features within the current execution context.
        */
-      private _loadBrowserFeatures(): DetectedFeatures {
+      private _loadBrowserFeatures(): IDetectedFeatures {
          return {
             // IIFE to check canvas support
             canvas: (() => {
