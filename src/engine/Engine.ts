@@ -802,10 +802,14 @@ O|===|* >________________>\n\
        */
       public setAntialiasing(isSmooth: boolean) {
          this._isSmoothingEnabled = isSmooth;
-         (<any>this.ctx).imageSmoothingEnabled = isSmooth;
-         (<any>this.ctx).webkitImageSmoothingEnabled = isSmooth;
-         (<any>this.ctx).mozImageSmoothingEnabled = isSmooth;
-         (<any>this.ctx).msImageSmoothingEnabled = isSmooth;
+
+         var ctx: any = this.ctx;
+         ctx.imageSmoothingEnabled = isSmooth;
+         for (var smoothing of ['webkitImageSmoothingEnabled', 'mozImageSmoothingEnabled', 'msImageSmoothingEnabled']) {
+            if (smoothing in ctx) {
+               ctx[smoothing] = isSmooth;
+            }
+         };
       }
 
       /**
