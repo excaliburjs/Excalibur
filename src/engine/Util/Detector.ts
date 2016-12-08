@@ -44,7 +44,7 @@ module ex {
        * treats the features as a singleton and will only calculate feature
        * support if it has not previously been done.
        */
-      public getBrowserFeatures(): Object {
+      public getBrowserFeatures(): IDetectedFeatures {
          if (this._features === null) {
             this._features = this._loadBrowserFeatures();
          }
