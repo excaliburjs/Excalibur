@@ -54,10 +54,8 @@ module ex {
        */
       public uiActors: Actor[] = [];
 
-      /**
-       * Whether or the [[Scene]] has been initialized
-       */
-      public isInitialized: boolean = false;
+      
+      private _isInitialized: boolean = false;
 
       private _sortedDrawingTree: SortedList<Actor> = new SortedList<Actor>(Actor.prototype.getZIndex);
 
@@ -127,12 +125,27 @@ module ex {
        * Initializes actors in the scene
        */
       public initializeChildren(): void {
-         for (var i = 0; i < this.children.length; i++) {
-            if (!this.children[i].isInitialized) {
-               this.children[i].onInitialize.call(this.children[i], this.engine);
-               this.children[i].emit('initialize', new InitializeEvent(this.engine));
-               this.children[i].isInitialized = true;
-            }
+         for (var child of this.children) {
+            child.initialize(this.engine);
+         }
+      }
+
+      /**
+       * Gets whether or not the [[Scene]] has been initialized
+       */
+      public get isInitialized(): boolean {
+         return this._isInitialized;
+      }
+
+      /**
+       * Initializes the scene before the first update, meant to be called by engine
+       */
+      public initialize(engine: Engine) {
+         if (!this.isInitialized) {
+            this.onInitialize.call(this, engine);
+            this.eventDispatcher.emit('initialize', new InitializeEvent(engine));
+            this.initializeChildren();
+            this._isInitialized = true;
          }
       }
      

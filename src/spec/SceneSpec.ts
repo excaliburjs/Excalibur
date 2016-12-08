@@ -128,10 +128,7 @@ describe('A scene', () => {
       var sceneInitialized = false;
       var sceneActivated = false;
       var actorInitialized = false;
-      var actorActivated = false;
-      scene.on('initialize', (evt) => { sceneInitialized = true; });
-      scene.on('activate', (evt) => { sceneActivated = true; });
-      
+      scene.on('initialize', (evt) => { sceneInitialized = true; });      
       var actor = new ex.Actor();
       actor.on('initialize', (evt) => {
          actorInitialized = true; 
@@ -145,8 +142,22 @@ describe('A scene', () => {
 
       scene.add(actor);
       engine.goToScene('root');
+      //scene.update(engine, 100);
+      //scene.update(engine, 100);
+   });
+
+   it('can only be initialized once', () => {
+      var initializeCount = 0;
+      scene.on('initialize', (evt) => { initializeCount++; });
+
+      engine.goToScene('root');
       scene.update(engine, 100);
       scene.update(engine, 100);
+      scene.initialize(engine);
+      scene.initialize(engine);
+      scene.initialize(engine);
+
+      expect(initializeCount).toBe(1, 'Scenes can only be initialized once');
    });
 
 });

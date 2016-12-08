@@ -703,7 +703,7 @@ describe('A game actor', () => {
 
    it('fires intialize event when before the first update', (done) => {
       var actor = new ex.Actor();
-      actor.on('initialize', () => { done(); });
+      actor.on('initialize', () => { expect(true).toBe(true); done(); });
 
       scene.add(actor);
       scene.update(engine, 100);
@@ -722,6 +722,35 @@ describe('A game actor', () => {
       
       scene.add(actor);
       scene.update(engine, 100);
+   });
+
+   it('can only be initialized once', () => {
+      var actor = new ex.Actor();
+      var initializeCount = 0;
+
+      actor.on('initialize', () => { initializeCount++; });
+      actor.initialize(engine);
+      actor.initialize(engine);
+      actor.initialize(engine);
+
+      expect(initializeCount).toBe(1, 'Actors can only be initialized once');
+   });
+
+   it('can initialize child actors', () => {
+      var actor = new ex.Actor();
+      var child = new ex.Actor();
+      var grandchild = new ex.Actor();
+      var initializeCount = 0;
+      actor.add(child);
+      child.add(grandchild);
+      actor.on('initialize', () => { initializeCount++; });
+      child.on('initialize', () => { initializeCount++; });
+      grandchild.on('initialize', () => { initializeCount++; });
+
+      actor.initialize(engine);
+      actor.initialize(engine);
+
+      expect(initializeCount).toBe(3, 'All child actors should be initialized');
    });
 
    it('fires predraw event before draw then postdraw', (done) => {

@@ -441,10 +441,17 @@ module ex {
     }
 
     /**
-     * Sets wether the actor is Initialized 
+     * Initializes this actor and all it's child actors, meant to be called by the Scene before first update.
      */
-    public set isInitialized(value: boolean) {
-       this._isInitialized = value;
+    public initialize(engine: Engine) {
+       if (!this.isInitialized) {
+          this.onInitialize(engine);
+          this.eventDispatcher.emit('initialize', new InitializeEvent(engine));
+          this._isInitialized = true;
+       }
+       for (var child of this.children) {
+          child.initialize(engine);
+       }
     }
 
     private _checkForPointerOptIn(eventName: string) {
@@ -958,11 +965,7 @@ module ex {
      * @param delta  The time elapsed since the last update in milliseconds
      */
     public update(engine: Engine, delta: number) {
-       /*if (!this._isInitialized) {
-          this.onInitialize(engine);
-          this.eventDispatcher.emit('initialize', new InitializeEvent(engine));
-          this._isInitialized = true;
-       }*/
+       this.initialize(engine);
        this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
               
        // Update action queue
