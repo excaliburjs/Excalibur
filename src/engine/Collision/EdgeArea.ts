@@ -74,7 +74,10 @@
         }
 
 
-        public castRay(ray: Ray): Vector {
+        /**
+         * @inheritdoc
+         */
+        public rayCast(ray: Ray, max: number = Infinity): Vector {
            var numerator = this._getTransformedBegin().sub(ray.pos);
 
            // Test is line and ray are parallel and non intersecting
@@ -90,7 +93,7 @@
 
            var t = numerator.cross(this.getSlope()) / divisor;
 
-           if (t >= 0) {
+           if (t >= 0 && t <= max) {
               var u = (numerator.cross(ray.dir) / divisor) / this.getLength();
               if (u >= 0 && u <= 1) {
                  return ray.getPoint(t);
@@ -100,6 +103,9 @@
            return null;
         }
 
+        /**
+         * @inheritdoc
+         */
         public collide(area: ICollisionArea): CollisionContact {
             if (area instanceof CircleArea) {
                 return CollisionJumpTable.CollideCircleEdge(area, this);
@@ -108,7 +114,7 @@
             } else if (area instanceof EdgeArea) {
                 return CollisionJumpTable.CollideEdgeEdge(this, area);
             } else {
-                throw new Error(`Circle could not collide with unknown ICollisionArea ${typeof area}`);
+                throw new Error(`Edge could not collide with unknown ICollisionArea ${typeof area}`);
             }
         }
 
@@ -162,6 +168,9 @@
            return mass * length * length;
         }
 
+        /**
+         * @inheritdoc
+         */
         public recalc(): void {
             // edges don't have any cached data
         }

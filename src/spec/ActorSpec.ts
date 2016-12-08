@@ -58,8 +58,8 @@ describe('A game actor', () => {
       var actor2 = new ex.Actor();
       actor2.id = 40;
 
-      var hash = actor.calculatePairHash(actor2);
-      var hash2 = actor2.calculatePairHash(actor);
+      var hash = ex.Pair.calculatePairHash(actor.body, actor2.body);
+      var hash2 = ex.Pair.calculatePairHash(actor2.body, actor.body);
       expect(hash).toBe('#20+40');
       expect(hash2).toBe('#20+40');
    });

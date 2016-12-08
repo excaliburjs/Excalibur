@@ -13,7 +13,7 @@
             var axisOfCollision = circleBPos.sub(circleAPos).normalize();
             var mvt = axisOfCollision.scale(radius - circleBPos.distance(circleAPos));
 
-            var pointOfCollision = circleA.getFurthestPoint(axisOfCollision).add(circleAPos);
+            var pointOfCollision = circleA.getFurthestPoint(axisOfCollision);
 
             return new CollisionContact(circleA, circleB, mvt, pointOfCollision, axisOfCollision);
         },
@@ -37,7 +37,7 @@
             var verts: Vector[] = [];
 
             var point1 = polygon.getFurthestPoint(minAxis.negate());
-            var point2 = circle.getFurthestPoint(minAxis).add(cc);
+            var point2 = circle.getFurthestPoint(minAxis); //.add(cc);
             if (circle.contains(point1)) {
                 verts.push(point1);
             }
@@ -54,7 +54,7 @@
 
         CollideCircleEdge(circle: CircleArea, edge: EdgeArea): CollisionContact {
             // center of the circle
-            var cc = circle.body.pos;
+            var cc = circle.getCenter();
             // vector in the direction of the edge
             var e = edge.end.sub(edge.begin);
 

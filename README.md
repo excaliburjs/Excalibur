@@ -101,6 +101,15 @@ npm shrinkwrap --dev
 shrinkpack .
 ```
 
+If you run into errors with `npm shrinkwrap --dev` command, run the following:
+
+```
+npm install
+npm prune
+npm dedupe
+npm install
+npm shrinkwrap --dev
+```
 
 # License
 

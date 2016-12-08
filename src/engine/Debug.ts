@@ -31,6 +31,11 @@ module ex {
        * Actor statistics
        */
       actors: IFrameActorStats;
+
+      /**
+       * Physics statistics
+       */
+      physics: IPhysicsStats;
    }
 
    /**
@@ -86,6 +91,41 @@ module ex {
    }
 
    /**
+    * Represents physics stats for the current frame
+    */
+   export interface IPhysicsStats {
+      /**
+       * Gets the number of broadphase collision pairs which 
+       */
+      pairs: number;
+
+      /**
+       * Gets the number of actural collisons 
+       */
+      collisions: number;
+
+      /**
+       * Gets the number of fast moving bodies using raycast continuous collisions in the scene 
+       */
+      fastBodies: number;
+
+      /**
+       * Gets the number of bodies that had a fast body collision resolution
+       */
+      fastBodyCollisions: number;
+
+      /**
+       * Gets the time it took to calculate the broadphase pairs
+       */
+      broadphase: number;
+
+      /**
+       * Gets the time it took to calculate the narrowphase 
+       */
+      narrowphase: number;
+   }
+
+   /**
     * Debug statistics and flags for Excalibur. If polling these values, it would be
     * best to do so on the `postupdate` event for [[Engine]], after all values have been
     * updated during a frame.
@@ -110,6 +150,7 @@ module ex {
           * Best accessed on [Events.preframe] event. Best inspected on engine event `preframe`. See [[IFrameStats]]
           */
          prevFrame: new FrameStats()
+         
       };
 
    }
@@ -141,6 +182,8 @@ module ex {
          }
       };
 
+      private _physicsStats: PhysicsStats = new PhysicsStats();
+
       /**
        * Zero out values or clone other IFrameStat stats. Allows instance reuse.
        *  
@@ -155,11 +198,13 @@ module ex {
             this.actors.killed = otherStats.actors.killed;
             this.actors.ui = otherStats.actors.ui;
             this.duration.update = otherStats.duration.update;
-            this.duration.draw = otherStats.duration.draw;            
+            this.duration.draw = otherStats.duration.draw;
+            this._physicsStats.reset(otherStats.physics);
          } else {
             this.id = this.delta = this.fps = 0;
             this.actors.alive = this.actors.killed = this.actors.ui = 0;
             this.duration.update = this.duration.draw = 0;
+            this._physicsStats.reset();
          }
       }
 
@@ -231,5 +276,100 @@ module ex {
       public get duration() {
          return this._durationStats;
       }
+
+      /**
+       * Gets the frame's physics statistics
+       */
+      public get physics() {
+         return this._physicsStats;
+      }
    }
+
+   export class PhysicsStats implements IPhysicsStats {
+      private _pairs: number = 0;
+      private _collisions: number = 0;
+      private _fastBodies: number = 0;
+      private _fastBodyCollisions: number = 0;
+      private _broadphase: number = 0;
+      private _narrowphase: number = 0;
+
+      /**
+       * Zero out values or clone other IPhysicsStats stats. Allows instance reuse.
+       *  
+       * @param [otherStats] Optional stats to clone
+       */
+      public reset(otherStats?: IPhysicsStats) {
+         if (otherStats) {
+            this.pairs = otherStats.pairs;
+            this.collisions = otherStats.collisions;
+            this.fastBodies = otherStats.fastBodies;
+            this.fastBodyCollisions = otherStats.fastBodyCollisions;
+            this.broadphase = otherStats.broadphase;
+            this.narrowphase = otherStats.narrowphase;   
+         } else {
+            this.pairs = this.collisions = this.fastBodies = 0;
+            this.fastBodyCollisions = this.broadphase = this.narrowphase = 0;
+         }
+      }
+
+      /**
+       * Provides a clone of this instance.
+       */
+      public clone(): IPhysicsStats {
+         var ps = new  PhysicsStats();
+
+         ps.reset(this);
+
+         return ps;
+      }
+
+      public get pairs(): number {
+         return this._pairs;
+      }
+
+      public set pairs(value: number) {
+         this._pairs = value;
+      }
+
+      public get collisions(): number {
+         return this._collisions;
+      }
+
+      public set collisions(value: number) {
+         this._collisions = value;
+      }
+
+      public get fastBodies(): number {
+         return this._fastBodies;
+      }
+
+      public set fastBodies(value: number) {
+         this._fastBodies = value;
+      }
+
+      public get fastBodyCollisions(): number {
+         return this._fastBodyCollisions;
+      }
+
+      public set fastBodyCollisions(value: number) {
+         this._fastBodyCollisions = value;
+      }
+
+      public get broadphase(): number {
+         return this._broadphase;
+      }
+
+      public set broadphase(value: number) {
+         this._broadphase = value;
+      }
+
+      public get narrowphase(): number {
+         return this._narrowphase;
+      }
+
+      public set narrowphase(value: number) {
+         this._narrowphase = value;
+      }
+   }
+
 }

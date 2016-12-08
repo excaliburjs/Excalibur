@@ -278,13 +278,6 @@ module ex {
     private _width: number = 0;
     
     /**
-     * Collision maintenance 
-     */
-    private _collisionContacts: CollisionContact[] = [];
-    private _totalMtv: Vector = Vector.Zero.clone();
-
-    
-    /**
      * The scale vector of the actor
      */
     public scale: ex.Vector = new ex.Vector(1, 1);
@@ -556,22 +549,7 @@ module ex {
           }
       }
     }
-     
-    /**
-     * Add minimum translation vectors accumulated during the current frame to resolve collisions.
-     */ 
-    public addMtv(mtv: Vector) {
-        this._totalMtv.addEqual(mtv);
-    }
-
-    /**
-     * Applies the accumulated translation vectors to the actors position
-     */
-    public applyMtv(): void {
-       this.pos.addEqual(this._totalMtv);
-       this._totalMtv.setTo(0, 0);
-    }
-   
+    
     /**
      * Adds a whole texture as the "default" drawing. Set a drawing using [[setDrawing]].
      */
@@ -653,18 +631,6 @@ module ex {
        if (index !== -1) {
           this.collisionGroups.splice(index, 1);
        }
-    }
-
-    /**
-     * Calculates the unique pair hash between two actors
-     * @param other
-     */
-    public calculatePairHash(other: Actor): string {
-        if (this.id < other.id) {
-           return `#${this.id}+${other.id}`;
-        } else {
-           return `#${other.id}+${this.id}`;
-        }
     }
 
     /**

@@ -49,8 +49,9 @@ describe('Vectors', () => {
    });
    
    it('can be transformed to an angle', () => {
-      var v = ex.Vector.fromAngle(Math.PI / 4);
-      expect(v.toAngle()).toBe(Math.PI / 4);
+      var target = Math.PI / 4;
+      var v = ex.Vector.fromAngle(target);
+      expect(v.toAngle()).toBeCloseTo(target, 4);
    });
    
    it('can calculate distance to origin', () =>  {
@@ -163,6 +164,30 @@ describe('Vectors', () => {
       var v = new ex.Vector(1, 0);
       var rotate = v.rotate(Math.PI, new ex.Vector(2, 0));
       expect(rotate.equals(new ex.Vector(3, 0))).toBeTruthy();
+   });
+
+   it('can be checked for validity on infinity vectors', () => {
+      var invalid = new ex.Vector(Infinity, Infinity);
+      var oneComponentInvalid = new ex.Vector(Infinity, 2);
+
+      expect(ex.Vector.isValid(invalid)).toBe(false, 'Infinity vectors should be invalid');
+      expect(ex.Vector.isValid(oneComponentInvalid)).toBe(false, 'Infinity vectors with one component should be invalid');
+   });
+
+   it('can be checked for validity on NaN vectors', () => {
+      var invalid = new ex.Vector(NaN, NaN);
+      var oneComponentInvalid = new ex.Vector(NaN, 2);
+
+      expect(ex.Vector.isValid(invalid)).toBe(false, 'NaN vectors should be invalid');
+      expect(ex.Vector.isValid(oneComponentInvalid)).toBe(false, 'NaN vectors with one component should be invalid');
+   });
+
+   it('can be checked for validity on null or undefined vectors', () => {
+      var invalidNull: ex.Vector = null;
+      var invalidUndef: ex.Vector = undefined;
+
+      expect(ex.Vector.isValid(invalidNull)).toBe(false, 'Null vectors should be invalid');
+      expect(ex.Vector.isValid(invalidUndef)).toBe(false, 'undefined vectors should be invalid');
    });
    
    it('can be cloned', () => {

@@ -80,6 +80,25 @@ module ex {
        */
       public rx: number = 0; //radians/sec
 
+      
+      private _totalMtv: Vector = Vector.Zero.clone();
+
+      /**
+       * Add minimum translation vectors accumulated during the current frame to resolve collisions.
+       */ 
+      public addMtv(mtv: Vector) {
+         this._totalMtv.addEqual(mtv);
+      }
+
+      /**
+       * Applies the accumulated translation vectors to the actors position
+       */
+      public applyMtv(): void {
+         this.pos.addEqual(this._totalMtv);
+         this._totalMtv.setTo(0, 0);
+      }
+
+
       /**
        * Returns the body's [[BoundingBox]] calculated for this instant in world space.
        */

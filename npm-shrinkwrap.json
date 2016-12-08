@@ -1,6 +1,6 @@
 {
   "name": "excalibur",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "dependencies": {
     "abbrev": {
       "version": "1.0.9",
@@ -1723,9 +1723,9 @@
       "dev": true
     },
     "typescript": {
-      "version": "1.8.10",
-      "from": "typescript@>=1.8.10 <2.0.0",
-      "resolved": "./node_shrinkwrap/typescript-1.8.10.tar",
+      "version": "2.0.10",
+      "from": "typescript@latest",
+      "resolved": "./node_shrinkwrap/typescript-2.0.10.tar",
       "dev": true
     },
     "uglify-js": {
