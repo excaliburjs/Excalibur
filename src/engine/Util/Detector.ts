@@ -16,14 +16,14 @@ module ex {
     * Interface for detected browser features matrix
     */
    export interface IDetectedFeatures {
-      canvas: boolean;
-      arraybuffer: boolean;
-      dataurl: boolean;
-      objecturl: boolean;
-      rgba: boolean;
-      webaudio: boolean;
-      webgl: boolean;
-      gamepadapi: boolean;
+      readonly canvas: boolean;
+      readonly arraybuffer: boolean;
+      readonly dataurl: boolean;
+      readonly objecturl: boolean;
+      readonly rgba: boolean;
+      readonly webaudio: boolean;
+      readonly webgl: boolean;
+      readonly gamepadapi: boolean;
    }
 
    /**
