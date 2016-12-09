@@ -434,16 +434,17 @@ module ex {
     }
 
     /**
-     * Initializes this actor and all it's child actors, meant to be called by the Scene before first update.
+     * Initializes this actor and all it's child actors, meant to be called by the Scene before first update not by users of Excalibur.
+     * @internal
      */
-    public initialize(engine: Engine) {
+    public _initialize(engine: Engine) {
        if (!this.isInitialized) {
           this.onInitialize(engine);
           this.eventDispatcher.emit('initialize', new InitializeEvent(engine));
           this._isInitialized = true;
        }
        for (var child of this.children) {
-          child.initialize(engine);
+          child._initialize(engine);
        }
     }
 
@@ -931,7 +932,7 @@ module ex {
      * @param delta  The time elapsed since the last update in milliseconds
      */
     public update(engine: Engine, delta: number) {
-       this.initialize(engine);
+       this._initialize(engine);
        this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
               
        // Update action queue

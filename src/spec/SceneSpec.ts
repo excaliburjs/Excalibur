@@ -153,9 +153,9 @@ describe('A scene', () => {
       engine.goToScene('root');
       scene.update(engine, 100);
       scene.update(engine, 100);
-      scene.initialize(engine);
-      scene.initialize(engine);
-      scene.initialize(engine);
+      scene._initialize(engine);
+      scene._initialize(engine);
+      scene._initialize(engine);
 
       expect(initializeCount).toBe(1, 'Scenes can only be initialized once');
    });

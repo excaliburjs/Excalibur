@@ -124,9 +124,9 @@ module ex {
       /**
        * Initializes actors in the scene
        */
-      public initializeChildren(): void {
+      private _initializeChildren(): void {
          for (var child of this.children) {
-            child.initialize(this.engine);
+            child._initialize(this.engine);
          }
       }
 
@@ -138,13 +138,15 @@ module ex {
       }
 
       /**
-       * Initializes the scene before the first update, meant to be called by engine
+       * Initializes the scene before the first update, meant to be called by engine not by users of 
+       * Excalibur
+       * @internal
        */
-      public initialize(engine: Engine) {
+      public _initialize(engine: Engine) {
          if (!this.isInitialized) {
             this.onInitialize.call(this, engine);
             this.eventDispatcher.emit('initialize', new InitializeEvent(engine));
-            this.initializeChildren();
+            this._initializeChildren();
             this._isInitialized = true;
          }
       }

@@ -729,9 +729,9 @@ describe('A game actor', () => {
       var initializeCount = 0;
 
       actor.on('initialize', () => { initializeCount++; });
-      actor.initialize(engine);
-      actor.initialize(engine);
-      actor.initialize(engine);
+      actor._initialize(engine);
+      actor._initialize(engine);
+      actor._initialize(engine);
 
       expect(initializeCount).toBe(1, 'Actors can only be initialized once');
    });
@@ -747,8 +747,8 @@ describe('A game actor', () => {
       child.on('initialize', () => { initializeCount++; });
       grandchild.on('initialize', () => { initializeCount++; });
 
-      actor.initialize(engine);
-      actor.initialize(engine);
+      actor._initialize(engine);
+      actor._initialize(engine);
 
       expect(initializeCount).toBe(3, 'All child actors should be initialized');
    });
