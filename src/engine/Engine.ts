@@ -319,6 +319,12 @@ O|===|* >________________>\n\
          }
 
          this._logger = Logger.getInstance();
+
+         // If debug is enabled, let's log browser features to the console.
+         if (this._logger.defaultLevel === LogLevel.Debug) {
+            detector.logBrowserFeatures();
+         }
+         
          this._logger.debug('Building engine...');
 
          this.canvasElementId = options.canvasElementId;
