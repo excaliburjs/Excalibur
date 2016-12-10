@@ -18,6 +18,11 @@ module ex {
       options = Util.extend({}, {message: 'This method will be removed in future versions of Excalibur.', alternateMethod: null}, options);
 
       return function (target: any, property: string, descriptor: PropertyDescriptor): any {
+         if (!(typeof descriptor.value === 'function' || 
+               typeof descriptor.get   === 'function' ||
+               typeof descriptor.get   === 'function')) {
+            throw new SyntaxError('Only functions/getters/setters can be marked as obsolete');
+         }
          const methodSignature = `${target.name || ''}${target.name ? '.' : ''}${property}`;
 
          var message = `${methodSignature} is marked obsolete: ${options.message} ` + 
