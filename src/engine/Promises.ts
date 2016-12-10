@@ -44,8 +44,8 @@ module ex {
        * @param value  An optional value to wrap in a resolved promise
        * @obsolete Use [[resolve]] instead. This will be deprecated in future versions.
        */
+      @obsolete({alternateMethod: 'ex.Promise.resolve/reject'})
       public static wrap<T>(value?: T): Promise<T> {
-         ex.Logger.getInstance().warn('[obsolete] Promise.wrap is obsolete. Use Promise.resolve/reject instead.');
          return Promise.resolve(value);
       }
 

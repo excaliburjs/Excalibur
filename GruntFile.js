@@ -75,7 +75,7 @@ module.exports = function (grunt) {
          // Execute TypeScript compiler against Excalibur core
          //
          tsc: {
-            command: '<%= tscCmd %> --declaration --sourceMap --target ES5 "./src/engine/Engine.ts" --out "./build/dist/<%= pkg.name %>.js"',               
+            command: '<%= tscCmd %> --declaration --sourceMap --target ES5 --experimentalDecorators "./src/engine/Engine.ts" --out "./build/dist/<%= pkg.name %>.js"',               
             options: {
                stdout: true,
                failOnError: true

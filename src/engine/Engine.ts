@@ -22,6 +22,7 @@
 /// <reference path="Promises.ts" />
 /// <reference path="Util/Util.ts" />
 /// <reference path="Util/Detector.ts" />
+/// <reference path="Util/Decorators.ts" />
 /// <reference path="TileMap.ts" />
 /// <reference path="Label.ts" />
 /// <reference path="PostProcessing/IPostProcessor.ts"/>
@@ -147,6 +148,7 @@ module ex {
        * Current FPS
        * @obsolete Use [[stats.currFrame.fps]]. Will be deprecated in future versions.
        */
+      @obsolete({alternateMethod: 'ex.Engine.stats.currFrame.fps'})
       public get fps(): number {
          return this.stats.currFrame.fps;
       }

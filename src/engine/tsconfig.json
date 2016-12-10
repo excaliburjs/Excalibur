@@ -2,6 +2,7 @@
     "compilerOptions": {
         "out": "../dist/Excalibur.js", 
         "sourceMap": true, 
+        "experimentalDecorators": true,
         "target": "es5"
     }, 
     "files": [
