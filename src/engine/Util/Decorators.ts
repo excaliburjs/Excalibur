@@ -1,23 +1,52 @@
 module ex {
+   /**
+    * Obsolete decorator options
+    */
    export interface IObsoleteOptions {
+      // Optionally specify a custom message
       message?: string;
+      // Optionally indicate that an alternate method to the obsolete one exists
       alternateMethod?: string;
    } 
 
    /**
-    * Obsolete decorator for marking Excalibur methods obsolete. Inspired by https://github.com/jayphelps/core-decorators.js
+    * Obsolete decorator for marking Excalibur methods obsolete, you can optionally specify a custom message and/or alternate replacement
+    * method do the deprecated one. Inspired by https://github.com/jayphelps/core-decorators.js
     */
    export function obsolete(options?: IObsoleteOptions) {
 
       options = Util.extend({}, {message: 'This method will be removed in future versions of Excalibur.', alternateMethod: null}, options);
 
-      return function (target: any, property: string, descriptor: PropertyDescriptor) {
+      return function (target: any, property: string, descriptor: PropertyDescriptor): any {
+         const methodSignature = `${target.name || ''}${target.name ? '.' : ''}${property}`;
 
-         const methodSignature = `${target.constructor.name}.${property}`;
+         var message = `${methodSignature} is marked obsolete: ${options.message} ` + 
+                        (options.alternateMethod ? `Use ${options.alternateMethod} instead` : '');
+         
+         let method = Util.extend({}, descriptor);
 
-         var message = `${methodSignature} is marked obsolete: ${options.message} \n\n` + 
-                        options.alternateMethod ? `Use ${options.alternateMethod} instead` : '';
-         ex.Logger.getInstance().warn(message);
+         if (descriptor.value) {
+            method.value = function() {
+               ex.Logger.getInstance().warn(message);
+               return descriptor.value.apply(this, arguments);
+            };             
+            return method;
+         }
+
+         if (descriptor.get) {
+            method.get = function() {
+               ex.Logger.getInstance().warn(message);
+               return descriptor.get.apply(this, arguments);
+            };
+         }
+
+         if (descriptor.set) {
+            method.set = function() {
+               ex.Logger.getInstance().warn(message);
+               return descriptor.set.apply(this, arguments);
+            };            
+         }
+         return method;
       };
    }
 
