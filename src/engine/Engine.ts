@@ -1,5 +1,6 @@
 /// <reference path="MonkeyPatch.ts" />
 /// <reference path="Debug.ts" />
+/// <reference path="Util/Decorators.ts" />
 /// <reference path="Events.ts" />
 /// <reference path="EventDispatcher.ts" />
 /// <reference path="Class.ts" />
@@ -22,7 +23,6 @@
 /// <reference path="Promises.ts" />
 /// <reference path="Util/Util.ts" />
 /// <reference path="Util/Detector.ts" />
-/// <reference path="Util/Decorators.ts" />
 /// <reference path="TileMap.ts" />
 /// <reference path="Label.ts" />
 /// <reference path="PostProcessing/IPostProcessor.ts"/>

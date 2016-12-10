@@ -1,6 +1,3 @@
-/// <reference path="Log.ts" />
-/// <reference path="Util.ts" />
-
 module ex {
    export interface IObsoleteOptions {
       message?: string;
