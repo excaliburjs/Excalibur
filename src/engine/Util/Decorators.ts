@@ -20,13 +20,13 @@ module ex {
       return function (target: any, property: string, descriptor: PropertyDescriptor): any {
          if (!(typeof descriptor.value === 'function' || 
                typeof descriptor.get   === 'function' ||
-               typeof descriptor.get   === 'function')) {
+               typeof descriptor.set   === 'function')) {
             throw new SyntaxError('Only functions/getters/setters can be marked as obsolete');
          }
          const methodSignature = `${target.name || ''}${target.name ? '.' : ''}${property}`;
 
-         var message = `${methodSignature} is marked obsolete: ${options.message} ` + 
-                        (options.alternateMethod ? `Use ${options.alternateMethod} instead` : '');
+         var message = `${methodSignature} is marked obsolete: ${options.message}` + 
+                        (options.alternateMethod ? ` Use ${options.alternateMethod} instead` : '');
          
          let method = Util.extend({}, descriptor);
 
