@@ -107,7 +107,7 @@ module ex {
       public text: string;
 
       /**
-       * The [[SpriteFont]] to use, if any. Overrides [[font]] if present.
+       * The [[SpriteFont]] to use, if any. Overrides [[fontFamily]] if present.
        */
       public spriteFont: SpriteFont;
 

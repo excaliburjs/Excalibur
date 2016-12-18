@@ -146,7 +146,7 @@ module ex {
 
       /**
        * Current FPS
-       * @obsolete Use [[stats.currFrame.fps]]. Will be deprecated in future versions.
+       * @obsolete Use [[ex.FrameStats.fps|ex.Engine.stats.fps]]. Will be deprecated in future versions.
        */
       @obsolete({alternateMethod: 'ex.Engine.stats.currFrame.fps'})
       public get fps(): number {
@@ -159,7 +159,7 @@ module ex {
       public debug = new Debug(this);
 
       /**
-       * Access [[debug.stats]] that holds frame statistics.
+       * Access [[stats]] that holds frame statistics.
        */
       public get stats() {
          return this.debug.stats;

@@ -38,7 +38,7 @@ helping in calculations.
 The HTML5 Canvas API draws text using CSS syntax. Because of this, web fonts
 are fully supported. To draw a web font, follow the same procedure you use
 for CSS. Then simply pass in the font string to the [[Label]] constructor
-or set [[Label.font]].
+or set [[Label.fontFamily]].
 
 **index.html**
 
