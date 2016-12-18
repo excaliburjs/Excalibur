@@ -54,10 +54,8 @@ module ex {
        */
       public uiActors: Actor[] = [];
 
-      /**
-       * Whether or the [[Scene]] has been initialized
-       */
-      public isInitialized: boolean = false;
+      
+      private _isInitialized: boolean = false;
 
       private _sortedDrawingTree: SortedList<Actor> = new SortedList<Actor>(Actor.prototype.getZIndex);
 
@@ -121,6 +119,36 @@ module ex {
       public onDeactivate(): void {
          // will be overridden
          this._logger.debug('Scene.onDeactivate', this);
+      }
+
+      /**
+       * Initializes actors in the scene
+       */
+      private _initializeChildren(): void {
+         for (var child of this.children) {
+            child._initialize(this.engine);
+         }
+      }
+
+      /**
+       * Gets whether or not the [[Scene]] has been initialized
+       */
+      public get isInitialized(): boolean {
+         return this._isInitialized;
+      }
+
+      /**
+       * Initializes the scene before the first update, meant to be called by engine not by users of 
+       * Excalibur
+       * @internal
+       */
+      public _initialize(engine: Engine) {
+         if (!this.isInitialized) {
+            this.onInitialize.call(this, engine);
+            this.eventDispatcher.emit('initialize', new InitializeEvent(engine));
+            this._initializeChildren();
+            this._isInitialized = true;
+         }
       }
      
       /**

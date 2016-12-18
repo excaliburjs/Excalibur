@@ -632,11 +632,8 @@ O|===|* >________________>\n\
             // set current scene to new one
             this.currentScene = newScene;
 
-            if (!this.currentScene.isInitialized) {
-               this.currentScene.onInitialize.call(this.currentScene, this);
-               this.currentScene.eventDispatcher.emit('initialize', new InitializeEvent(this));
-               this.currentScene.isInitialized = true;
-            }
+            // initialize the current scene if has not been already
+            this.currentScene._initialize(this);
 
             this.currentScene.onActivate.call(this.currentScene);
             this.currentScene.eventDispatcher.emit('activate', new ActivateEvent(oldScene));

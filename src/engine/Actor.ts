@@ -426,6 +426,28 @@ module ex {
        // Override me
     }
 
+    /**
+     * Gets wether the actor is Initialized 
+     */
+    public get isInitialized(): boolean {
+       return this._isInitialized;
+    }
+
+    /**
+     * Initializes this actor and all it's child actors, meant to be called by the Scene before first update not by users of Excalibur.
+     * @internal
+     */
+    public _initialize(engine: Engine) {
+       if (!this.isInitialized) {
+          this.onInitialize(engine);
+          this.eventDispatcher.emit('initialize', new InitializeEvent(engine));
+          this._isInitialized = true;
+       }
+       for (var child of this.children) {
+          child._initialize(engine);
+       }
+    }
+
     private _checkForPointerOptIn(eventName: string) {
       if (eventName) {
         const normalized = eventName.toLowerCase();
@@ -910,11 +932,7 @@ module ex {
      * @param delta  The time elapsed since the last update in milliseconds
      */
     public update(engine: Engine, delta: number) {
-       if (!this._isInitialized) {
-          this.onInitialize(engine);
-          this.eventDispatcher.emit('initialize', new InitializeEvent(engine));
-          this._isInitialized = true;
-       }
+       this._initialize(engine);
        this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
               
        // Update action queue
