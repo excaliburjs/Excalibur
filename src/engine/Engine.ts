@@ -1,5 +1,6 @@
 /// <reference path="MonkeyPatch.ts" />
 /// <reference path="Debug.ts" />
+/// <reference path="Util/Decorators.ts" />
 /// <reference path="Events.ts" />
 /// <reference path="EventDispatcher.ts" />
 /// <reference path="Class.ts" />
@@ -145,8 +146,9 @@ module ex {
 
       /**
        * Current FPS
-       * @obsolete Use [[stats.currFrame.fps]]. Will be deprecated in future versions.
+       * @obsolete Use [[ex.FrameStats.fps|ex.Engine.stats.fps]]. Will be deprecated in future versions.
        */
+      @obsolete({alternateMethod: 'ex.Engine.stats.currFrame.fps'})
       public get fps(): number {
          return this.stats.currFrame.fps;
       }
@@ -157,7 +159,7 @@ module ex {
       public debug = new Debug(this);
 
       /**
-       * Access [[debug.stats]] that holds frame statistics.
+       * Access [[stats]] that holds frame statistics.
        */
       public get stats() {
          return this.debug.stats;
