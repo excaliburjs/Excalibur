@@ -1,6 +1,8 @@
 /// <reference path="jasmine.d.ts" />
 /// <reference path="require.d.ts" />
 /// <reference path="Mocks.ts" />
+/// <reference path="TestUtils.ts" />
+
 
 describe('A generic Resource', () => {
    
@@ -27,12 +29,7 @@ describe('A generic Resource', () => {
    describe('without data', () => {
       it('should not fail on load', (done) => {
          var emptyLoader = new ex.Loader();
-         var game = new ex.Engine({
-            width: 500,
-            height: 500,
-            suppressConsoleBootMessage: true,
-            suppressMinimumBrowserFeatureDetection: true
-         });
+         var game = TestUtils.engine();
          game.start(emptyLoader).then(() => {            
             expect(emptyLoader.isLoaded()).toBe(true);
             done();
