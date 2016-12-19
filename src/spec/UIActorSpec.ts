@@ -1,6 +1,7 @@
 /// <reference path="jasmine.d.ts" />
 /// <reference path="support/js-imagediff.d.ts" />
 /// <reference path="require.d.ts" />
+/// <reference path="TestUtils.ts" />
 /// <reference path="Mocks.ts" />
 
 describe('A UIActor', () => {
@@ -15,12 +16,7 @@ describe('A UIActor', () => {
       uiActor = new ex.UIActor(50, 50, 100, 50);
       uiActor.color = ex.Color.Blue;
       uiActor.collisionType = ex.CollisionType.Active;
-      engine = new ex.Engine({
-         width: 500,
-         height: 500,
-         suppressConsoleBootMessage: true,
-         suppressMinimumBrowserFeatureDetection: true
-      }); //  mock.engine(100, 100);
+      engine = TestUtils.engine();
 
       
       scene = new ex.Scene(engine);

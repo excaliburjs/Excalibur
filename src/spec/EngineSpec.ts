@@ -9,12 +9,7 @@ describe('The engine', () => {
    var loop: Mocks.IGameLoop;
 
    beforeEach(() => {
-      engine = new ex.Engine({
-            width: 500,
-            height: 500,
-            suppressConsoleBootMessage: true,
-            suppressMinimumBrowserFeatureDetection: true
-         });   
+      engine = TestUtils.engine();
       scene = new ex.Scene(engine);
       engine.currentScene = scene;
       loop = mock.loop(engine);

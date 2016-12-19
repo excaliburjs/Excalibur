@@ -137,7 +137,7 @@ module ex {
          var me = this;
          if (this._resourceList.length === 0) {
             me.oncomplete.call(me);
-            return complete;
+            return complete.resolve();
          }
 
          var progressArray = new Array<any>(this._resourceList.length);
