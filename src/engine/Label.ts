@@ -94,6 +94,16 @@ module ex {
    }
 
    /**
+    * Enum representing the different possible font styles
+    */
+   export enum FontStyle {
+      Normal,
+      Italic,
+      Oblique,
+      Bold
+   }
+
+   /**
     * Labels are the way to draw small amounts of text to the screen. They are
     * actors and inherit all of the benefits and capabilities.
     *
@@ -121,6 +131,11 @@ module ex {
        * The font size in the selected units, default is 10 (default units is pixel)
        */
       public fontSize: number = 10;
+
+      /**
+       * The font style for this label, the default is [[FontStyle.Normal]]
+       */
+      public fontStyle: FontStyle = FontStyle.Normal;
 
       /**
        * The css units for a font size such as px, pt, em (SpriteFont only support px), by default is 'px';
@@ -250,6 +265,19 @@ module ex {
          }
       }
 
+      private _lookupFontStyle(fontStyle: FontStyle): string {
+         switch (fontStyle) {
+            case FontStyle.Italic:
+               return 'italic';
+            case FontStyle.Normal:
+               return 'normal';
+            case FontStyle.Oblique:
+               return 'oblique';
+            default:
+               return 'normal';
+         }
+      }
+
       /**
        * Sets the text shadow for sprite fonts
        * @param offsetX      The x offset in pixels to place the shadow
@@ -334,7 +362,7 @@ module ex {
          } else {
             var oldAlign = ctx.textAlign;
             var oldTextBaseline = ctx.textBaseline;
-
+            
             ctx.textAlign = this._lookupTextAlign(this.textAlign);
             ctx.textBaseline = this._lookupBaseAlign(this.baseAlign);
             if (this.color) {
@@ -354,7 +382,7 @@ module ex {
       }
 
       protected get _fontString() {
-          return `${this.fontSize}${this._lookupFontUnit(this.fontUnit)} ${this.fontFamily}`;
+          return `${this._lookupFontStyle(this.fontStyle)} ${this.fontSize}${this._lookupFontUnit(this.fontUnit)} ${this.fontFamily}`;
       }
 
       public debugDraw(ctx: CanvasRenderingContext2D) {

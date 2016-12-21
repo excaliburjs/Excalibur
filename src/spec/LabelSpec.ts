@@ -1,4 +1,5 @@
 ﻿/// <reference path="jasmine.d.ts" />
+/// <reference path="support/js-imagediff.d.ts" />
 /// <reference path="require.d.ts" />
 /// <reference path="Mocks.ts" />
 
@@ -6,18 +7,21 @@ describe('A label', () => {
    var label: ex.Label;
    var engine: ex.Engine;
    var scene: ex.Scene;
-   var mock = new Mocks.Mocker();
 
    beforeEach(() => {
-      engine = mock.engine(100, 100);
-      label = new ex.Label('Test string', 10, 10);
+      jasmine.addMatchers(imagediff.jasmine);
+      engine = new ex.Engine({
+         width: 500,
+         height: 500,
+         suppressConsoleBootMessage: true,
+         suppressMinimumBrowserFeatureDetection: true
+      });
+
+      label = new ex.Label('Test string', 100, 100);
       scene = new ex.Scene(engine);
       engine.currentScene = scene;
 
-      scene.add(label);
-      spyOn(scene, 'draw').and.callThrough();
-      spyOn(label, 'draw');
-		        
+      scene.add(label);		        
    });
 
    it('should be loaded', () => {
@@ -44,6 +48,26 @@ describe('A label', () => {
       label.update(engine, 100);
       label.draw(engine.ctx, 100);
       expect(label.color.toString()).toBe(ex.Color.Blue.toString());
+   });
 
+   it('to enable italic fontStyle', (done) => {
+      label.text = 'some italic text';
+      label.fontSize = 30;
+      label.color = ex.Color.Black;
+      label.fontStyle = ex.FontStyle.Italic;
+      label.draw(engine.ctx, 100);
+
+      imagediff.expectCanvasImageMatches('LabelSpec/italictext.png', engine.canvas, done);
+   });
+
+   it('to enable bold fontStyle', (done) => {
+      label.text = 'some bold text';
+      label.fontFamily = 'Arial';
+      label.fontSize = 30;
+      label.color = ex.Color.Black;
+      label.fontStyle = ex.FontStyle.Bold;
+      label.draw(engine.ctx, 100);
+
+      imagediff.expectCanvasImageMatches('LabelSpec/italictext.png', engine.canvas, done);
    });
 });
