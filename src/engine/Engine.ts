@@ -1,5 +1,6 @@
 /// <reference path="MonkeyPatch.ts" />
 /// <reference path="Debug.ts" />
+/// <reference path="Math/Random.ts" />
 /// <reference path="Util/Decorators.ts" />
 /// <reference path="Events.ts" />
 /// <reference path="EventDispatcher.ts" />
