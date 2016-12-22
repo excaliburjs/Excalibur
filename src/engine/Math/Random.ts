@@ -6,7 +6,7 @@ module ex {
     * Pseudo-random number generator following the Mersenne_Twister algorithm. Given a seed this generator will produce the same sequence 
     * of numbers each time it is called.
     * See https://en.wikipedia.org/wiki/Mersenne_Twister for more details.
-    * Uses the MT19937-32 implementation
+    * Uses the MT19937-32 (2002) implementation documented here http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
     * 
     * Api inspired by http://chancejs.com/# https://github.com/chancejs/chancejs
     */
@@ -46,12 +46,36 @@ module ex {
        */
       constructor(public seed?: number) {
          this._mt = new Array<number>(this._n);
-         this._mt[0] = (seed || Date.now()) & BITMASK32;
+         // need to mask to support higher bit machines
+         this._mt[0] = (seed || Date.now()) >>> 0;
 
          for (var i = 1; i < this._n; i++) {
-            this._mt[i] = (this._f * (this._mt[i - 1] ^ (this._mt[i - 1] >> (this._w - 2))) + i) & BITMASK32;
+            var s = this._mt[i - 1] ^ (this._mt[i - 1] >>> (this._w - 2));
+            // numbers are bigger than the JS max safe int, add in 16-bit chunks to prevent IEEE rounding errors on high bits         
+            this._mt[i] = (((this._f * ((s & 0xFFFF0000) >>> 16 )) << 16)  + (this._f * (s & 0xFFFF)) + i) >>> 0;
          }
          this._index = this._n;
+      }
+
+      /**
+       * Apply the twist
+       */
+      private _twist(): void {
+        
+        var mag01 = [0x0, this._a];
+        var y = 0;
+        for (var i = 0; i < this._n - this._m; i++) {
+            y = (this._mt[i] & this._upperMask) | (this._mt[i + 1] & this._lowerMask);
+            this._mt[i] = this._mt[i + this._m] ^ (y >>> 1) ^ mag01[y & 0x1] & BITMASK32;
+        }
+        for (; i < this._n - 1; i++) {
+            y = (this._mt[i] & this._upperMask) | (this._mt[i + 1] & this._lowerMask);
+            this._mt[i] = this._mt[i + (this._m - this._n)] ^ (y >>> 1) ^ mag01[y & 0x1] & BITMASK32;
+        }
+        y = (this._mt[this._n - 1] & this._upperMask) | (this._mt[0] & this._lowerMask);
+        this._mt[this._n - 1] = this._mt[this._m - 1] ^ (y >>> 1) ^ mag01[y & 0x1] & BITMASK32;
+
+        this._index = 0;
       }
 
       /**
@@ -87,7 +111,8 @@ module ex {
       }
 
       /**
-       * Return a random integer in range [min, max] min is included, max is included
+       * Return a random integer in range [min, max] min is included, max is included.
+       * Implemented with rejection sampling, see https://medium.com/@betable/tifu-by-using-math-random-f1c308c4fd9d#.i13tdiu5a
        */
       public integer(min: number, max: number): number {
          return Math.floor((max - min + 1) * this.next() + min);
@@ -100,6 +125,37 @@ module ex {
        */
       public bool(likelihood: number = .5): boolean {
          return this.next() <= likelihood;
+      }
+
+      /**
+       * Returns one element from an array at random
+       */
+      public pickOne<T>(array: Array<T>): T {
+         return array[this.integer(0, array.length - 1)];
+      }
+
+      /**
+       * Returns a new array randomly picking elements in the original (not reused)
+       * @param numPicks must be less than or equal to the number of elements in the array.
+       */
+      public pickSet<T>(array: Array<T>, numPicks: number): Array<T> {
+         if (numPicks > array.length || numPicks < 0) {
+            throw new Error('Invalid number of elements to pick, must pick a value 0 < n <= length');
+         }
+         if (numPicks === array.length) {
+            return array;
+         }
+
+         var result: Array<T> = new Array<T>(numPicks);
+         var currentPick = 0;
+         var tempArray = array.slice(0);
+         while (currentPick < numPicks) {
+            var index = this.integer(0, tempArray.length - 1);
+            result[currentPick++] = tempArray[index];
+            tempArray.splice(index, 1);
+         }
+
+         return result;
       }
 
       /**
@@ -145,20 +201,7 @@ module ex {
       }
 
 
-      /**
-       * Apply the twist
-       */
-      private _twist(): void {
-         for (var i = 0; i < this._n; i++) {
-            let x = (this._mt[i] & this._upperMask) + (this._mt[(i + 1) % this._n] & this._lowerMask);
-            let xA = x >> 1;
-            if ( x & 0x1 ) {
-               xA ^= this._a;
-            }
-            this._mt[i] = this._mt[(i + this._m) % this._m] ^ xA;
-        }
-        this._index = 0;
-      }
+      
       
    }
 }

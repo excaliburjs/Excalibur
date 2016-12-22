@@ -24,11 +24,31 @@ describe('A random number', () => {
       }
    });
 
-   xit('produces the correct first number for a specific seed', () => {
-      var random = new ex.Random(10);
-      expect(random.seed).toBe(10);
-      expect(random.nextInt()).toBe(3312796937);
+   it('produces the correct first number for a specific seed according to original paper', () => {
+      // C implemenation output http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
+      var random = new ex.Random(19650218);
+      expect(random.seed).toBe(19650218);
+      expect(random.nextInt()).toBe(2325592414);
    });
+
+   it('produces the correct 1000th number for a specific seed according to original paper', () => {
+      var random = new ex.Random(19650218);
+
+      for (var i = 0; i < 999; i++) {
+         random.nextInt();
+      }
+      expect(random.nextInt()).toBe(1746987133);      
+   });
+
+   it('produces the correct 22000th number for a specific seed according to original paper', () => {
+      var random = new ex.Random(19650218);
+
+      for (var i = 0; i < 21999; i++) {
+         random.nextInt();
+      }
+      expect(random.nextInt()).toBe(3203887892);      
+   });
+   
 
    it('can be seeded to produce the different sequences', () => {
       var random1 = new ex.Random(10);
@@ -84,8 +104,144 @@ describe('A random number', () => {
       expect(ratio).toBeCloseTo(1.0, .1, `Bool did not appear to be 50/50 Ratio true/false [${ratio}]`);
    });
 
-   it('can do dice rolls', () => {
-      // pass      
+   it('can pick an element out of an array', () => {
+      var array = ['one', 'two', 'three', 'four'];
+
+      var random1 = new ex.Random(10);
+      
+      var one = 0;
+      var two = 0;
+      var three = 0;
+      var four = 0;
+
+      for (var i = 0; i < 1000; i++) {
+         let thing = random1.pickOne(array);
+         switch (thing) {
+            case 'one':
+               one++;
+               break;
+            case 'two':
+               two++;
+               break;
+            case 'three':
+               three++;
+               break;
+            case 'four':
+               four++;
+               break;
+            default:
+               throw Error('Invalid element!!!');
+         }
+      };
+
+      expect(one).toBeGreaterThan(0);
+      expect(two).toBeGreaterThan(0);
+      expect(three).toBeGreaterThan(0);
+      expect(four).toBeGreaterThan(0);
+
+      var ratio = (one / two) / (three / four);
+      expect(ratio).toBeCloseTo(1.0, .1, 'Should pick elements equally');
+
+   });
+
+   it('can pick a subset of an array', () => {
+      var random1 = new ex.Random(10);
+      var array = ['one', 'two', 'three', 'four'];
+
+      expect(() => random1.pickSet(array, 5)).toThrowError('Invalid number of elements to pick, must pick a value 0 < n <= length');
+      expect(() => random1.pickSet(array, -1)).toThrowError('Invalid number of elements to pick, must pick a value 0 < n <= length');
+      expect(random1.pickSet(array, 0).length).toBe(0);
+      expect(random1.pickSet(array, 2).length).toBe(2);
+   });
+
+   it('can do d4 dice rolls', () => {
+      var d4min = 900;
+      var d4max = -1;
+
+      var random1 = new ex.Random(10);
+      for (var i = 0; i < 2000; i++) {
+         let roll = random1.d4();
+         d4min = Math.min(roll, d4min);
+         d4max = Math.max(roll, d4max);
+      }
+
+      expect(d4min).toBeGreaterThan(0);
+      expect(d4max).toBeLessThan(5);
+   });
+
+   it('can do d6 dice rolls', () => {
+      var d6min = 900;
+      var d6max = -1;
+
+      var random1 = new ex.Random(10);
+      for (var i = 0; i < 2000; i++) {
+         let roll = random1.d6();
+         d6min = Math.min(roll, d6min);
+         d6max = Math.max(roll, d6max);
+      }
+
+      expect(d6min).toBeGreaterThan(0);
+      expect(d6max).toBeLessThan(7);
+   });
+
+   it('can do d8 dice rolls', () => {
+      var min = 900;
+      var max = -1;
+
+      var random1 = new ex.Random(10);
+      for (var i = 0; i < 2000; i++) {
+         let roll = random1.d8();
+         min = Math.min(roll, min);
+         max = Math.max(roll, max);
+      }
+
+      expect(min).toBeGreaterThan(0);
+      expect(max).toBeLessThan(9);
+   });
+
+   it('can do d10 dice rolls', () => {
+      var min = 900;
+      var max = -1;
+
+      var random1 = new ex.Random(10);
+      for (var i = 0; i < 2000; i++) {
+         let roll = random1.d10();
+         min = Math.min(roll, min);
+         max = Math.max(roll, max);
+      }
+
+      expect(min).toBeGreaterThan(0);
+      expect(max).toBeLessThan(11);
+   });
+
+   it('can do d12 dice rolls', () => {
+      var min = 900;
+      var max = -1;
+
+      var random1 = new ex.Random(10);
+      for (var i = 0; i < 2000; i++) {
+         let roll = random1.d12();
+         min = Math.min(roll, min);
+         max = Math.max(roll, max);
+      }
+
+      expect(min).toBeGreaterThan(0);
+      expect(max).toBeLessThan(13);
+   });
+
+    it('can do d20 dice rolls', () => {
+      var min = 900;
+      var max = -1;
+
+      var random1 = new ex.Random(10);
+      for (var i = 0; i < 2000; i++) {
+         let roll = random1.d20();
+         min = Math.min(roll, min);
+         max = Math.max(roll, max);
+      }
+
+      expect(min).toBeGreaterThan(0);
+      expect(max).toBeLessThan(21);
    });
 
 });
