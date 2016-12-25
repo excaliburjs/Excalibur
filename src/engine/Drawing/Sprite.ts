@@ -267,7 +267,7 @@ module ex {
          var xpoint = (scaledSWidth) * this.anchor.x;
          var ypoint = (scaledSHeight) * this.anchor.y;
 
-         ctx.strokeStyle = Color.Black;
+         ctx.strokeStyle = Color.Black.toString();
          ctx.strokeRect(-xpoint, -ypoint, scaledSWidth, scaledSHeight);
          ctx.restore();
       }
