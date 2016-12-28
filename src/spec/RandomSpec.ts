@@ -154,6 +154,78 @@ describe('A random number', () => {
       expect(random1.pickSet(array, 2).length).toBe(2);
    });
 
+   it('can pick a set of an array with dups', () => {
+      var array = ['one', 'two', 'three', 'four'];
+
+      var random1 = new ex.Random(10);
+      
+      var one = 0;
+      var two = 0;
+      var three = 0;
+      var four = 0;
+
+      var newSet = random1.pickSetWithDuplicates(array, 1000);
+
+      newSet.forEach((thing) => {
+         for (var i = 0; i < 1000; i++) {
+            switch (thing) {
+               case 'one':
+                  one++;
+                  break;
+               case 'two':
+                  two++;
+                  break;
+               case 'three':
+                  three++;
+                  break;
+               case 'four':
+                  four++;
+                  break;
+               default:
+                  throw Error('Invalid element!!!');
+            }
+         };
+      });
+      expect(one).toBeGreaterThan(0);
+      expect(two).toBeGreaterThan(0);
+      expect(three).toBeGreaterThan(0);
+      expect(four).toBeGreaterThan(0);
+
+      var ratio = (one / two) / (three / four);
+      expect(ratio).toBeCloseTo(1.0, .1, 'Should pick elements equally');
+
+   });
+
+   it('can shuffle arrays', () => {
+      var array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+
+      var random1 = new ex.Random(10);
+
+      var shuffled = random1.shuffle(array);
+
+      expect(array.length).toBe(shuffled.length);
+      // to be fair this won't necessarily be true all the time
+      // but for the seed it should be consistent
+      expect(array[0]).not.toBe(shuffled[0]);
+
+   });
+
+   it('can generate a random range', () => {
+      var random1 = new ex.Random(10);
+
+      var randomArray = random1.range(1000, 0, 4);
+
+      expect(randomArray.length).toBe(1000);
+
+      var expectedValue = (0 + 4) / 2;
+
+      var average = randomArray.reduce((acc, curr, i, arr) => {
+         return acc + curr;
+      }, 0) / 1000;
+
+      expect(average).toBeCloseTo(expectedValue, .01, 'Should pick elements equally');
+   });
+
    it('can do d4 dice rolls', () => {
       var d4min = 900;
       var d4max = -1;

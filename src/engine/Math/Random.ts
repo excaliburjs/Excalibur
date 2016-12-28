@@ -159,6 +159,52 @@ module ex {
       }
 
       /**
+       * Returns a new array random picking elements from the original allowing duplicates
+       * @param numPicks can be any positive number
+       */
+      public pickSetWithDuplicates<T>(array: Array<T>, numPicks): Array<T> {
+         if (numPicks < 0) {
+            throw new Error('Invalid number of elements to pick, must pick a value 0 <= n < MAX_INT');
+         }
+         var result = new Array<T>(numPicks);
+         for (var i = 0; i < numPicks; i++) {
+            result.push(this.pickOne(array));
+         }
+         return result;
+      }
+
+      /**
+       * Returns a new array that has it's elements shuffled. Using the Fisher/Yates method
+       * https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+       */
+      public shuffle<T>(array: Array<T>): Array<T> {
+         var tempArray = array.slice(0);
+         var swap: T = null;
+         for (var i = 0; i < tempArray.length - 2; i++) {
+            var randomIndex = this.integer(i, tempArray.length - 1);
+            swap = tempArray[i];
+            tempArray[i] = tempArray[randomIndex];
+            tempArray[randomIndex] = swap;
+         }
+
+         return tempArray;
+      }
+
+      /**
+       * Generate a list of random integer numbers
+       * @param length the length of the final array
+       * @param min the minimum integer number to generate inclusive
+       * @param max the maximum integer number to generate inclusive
+       */
+      public range(length: number, min: number, max: number): Array<number> {
+         var result: Array<number> = new Array(length);
+         for (var i = 0; i < length; i++) {
+            result[i] = this.integer(min, max);
+         }
+         return result;
+      }
+
+      /**
        * Returns the result of a d4 dice roll
        */
       public d4() {
