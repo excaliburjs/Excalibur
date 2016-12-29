@@ -1,5 +1,5 @@
-﻿module ex {
-   export interface IActionable {
-      actions: ActionContext;
-   }
-} 
+﻿import { ActionContext } from './ActionContext';
+
+export interface IActionable {
+   actions: ActionContext;
+}
