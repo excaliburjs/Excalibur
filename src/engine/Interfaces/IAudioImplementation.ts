@@ -1,23 +1,22 @@
-module ex {
+import { IAudio } from './IAudio';
+
+/**
+ * Represents an audio implementation like [[AudioTag]] or [[WebAudio]]
+ */
+export interface IAudioImplementation {
 
    /**
-    * Represents an audio implementation like [[AudioTag]] or [[WebAudio]]
+    * XHR response type
     */
-   export interface IAudioImplementation {
+   responseType: string;
 
-      /**
-       * XHR response type
-       */
-      responseType: string;
+   /**
+    * Processes raw data and transforms into sound data
+    */
+   processData(data: Blob|ArrayBuffer): ex.Promise<string|AudioBuffer>;
 
-      /**
-       * Processes raw data and transforms into sound data
-       */
-      processData(data: Blob|ArrayBuffer): ex.Promise<string|AudioBuffer>;
-
-      /**
-       * Factory method that returns an instance of a played audio track
-       */
-      createInstance(data: string|AudioBuffer): IAudio;
-   }
+   /**
+    * Factory method that returns an instance of a played audio track
+    */
+   createInstance(data: string|AudioBuffer): IAudio;
 }
