@@ -1723,9 +1723,9 @@
       "dev": true
     },
     "typescript": {
-      "version": "2.0.10",
-      "from": "typescript@latest",
-      "resolved": "./node_shrinkwrap/typescript-2.0.10.tar",
+      "version": "2.1.4",
+      "from": "typescript@2.1.4",
+      "resolved": "./node_shrinkwrap/typescript-2.1.4.tar",
       "dev": true
     },
     "uglify-js": {
