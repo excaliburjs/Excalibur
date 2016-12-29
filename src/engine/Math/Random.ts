@@ -135,10 +135,25 @@ module ex {
       }
 
       /**
+       * Returns a new array random picking elements from the original
+       * @param array Original array to pick from
+       * @param numPicks can be any positive number
+       * @param allowDuplicates indicates whether the returned set is allowed duplicates (it does not mean there will always be duplicates 
+       * just that it is possible)
+       */
+      public pickSet<T>(array: Array<T>, numPicks: number, allowDuplicates: boolean = false): Array<T> {
+         if (allowDuplicates) {
+            return this._pickSetWithDuplicates(array, numPicks);
+         } else {
+            return this._pickSetWithoutDuplicates(array, numPicks);
+         }
+      }
+
+      /**
        * Returns a new array randomly picking elements in the original (not reused)
        * @param numPicks must be less than or equal to the number of elements in the array.
        */
-      public pickSet<T>(array: Array<T>, numPicks: number): Array<T> {
+      private _pickSetWithoutDuplicates<T>(array: Array<T>, numPicks: number): Array<T> {
          if (numPicks > array.length || numPicks < 0) {
             throw new Error('Invalid number of elements to pick, must pick a value 0 < n <= length');
          }
@@ -162,7 +177,7 @@ module ex {
        * Returns a new array random picking elements from the original allowing duplicates
        * @param numPicks can be any positive number
        */
-      public pickSetWithDuplicates<T>(array: Array<T>, numPicks): Array<T> {
+      private _pickSetWithDuplicates<T>(array: Array<T>, numPicks): Array<T> {
          if (numPicks < 0) {
             throw new Error('Invalid number of elements to pick, must pick a value 0 <= n < MAX_INT');
          }

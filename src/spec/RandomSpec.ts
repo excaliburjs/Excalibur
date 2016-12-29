@@ -164,7 +164,7 @@ describe('A random number', () => {
       var three = 0;
       var four = 0;
 
-      var newSet = random1.pickSetWithDuplicates(array, 1000);
+      var newSet = random1.pickSet(array, 1000, true);
 
       newSet.forEach((thing) => {
          for (var i = 0; i < 1000; i++) {
