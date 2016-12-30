@@ -1,26 +1,29 @@
-/// <reference path="Interfaces/IDrawable.ts" />
-/// <reference path="Collision/ICollisionArea.ts" />
-/// <reference path="Collision/PolygonArea.ts" />
-/// <reference path="Interfaces/IEvented.ts" />
-/// <reference path="Traits/EulerMovement.ts" />
-/// <reference path="Traits/OffscreenCulling.ts" />
-/// <reference path="Traits/CapturePointer.ts" />
-/// <reference path="Traits/TileMapCollisionDetection.ts" />
-/// <reference path="Collision/Side.ts" />
-/// <reference path="Algebra.ts" />
-/// <reference path="Util/Util.ts" />
-/// <reference path="TileMap.ts" />
-/// <reference path="Collision/BoundingBox.ts" />
-/// <reference path="Collision/Body.ts" />
-/// <reference path="Scene.ts" />
-/// <reference path="Actions/IActionable.ts"/>
-/// <reference path="Actions/Action.ts" />
-/// <reference path="Actions/ActionContext.ts"/>
-/// <reference path="Util/EasingFunctions.ts"/>
+import { Label } from './Label';
+import { Trigger } from './Trigger';
+import { UIActor } from './UIActor';
+import { BoundingBox } from './Collision/BoundingBox';
+import { Texture } from './Resources/Texture';
+import { InitializeEvent, KillEvent, PreUpdateEvent, PostUpdateEvent, 
+   PreDrawEvent, PostDrawEvent, PreDebugDrawEvent, PostDebugDrawEvent, GameEvent } from './Events';
+import { Engine } from './Engine';
+import { Color } from './Drawing/Color';
+import { Sprite } from './Drawing/Sprite';
+import { IActorTrait } from './Interfaces/IActorTrait';
+import { IDrawable } from './Interfaces/IDrawable';
+import { Scene } from './Scene';
+import { Logger } from './Util/Log';
+import { ActionContext } from './Actions/ActionContext';
+import { ActionQueue } from './Actions/Action';
+import { Vector } from './Algebra';
+import { ICollisionArea } from './Collision/ICollisionArea';
+import { Body } from './Collision/Body';
+import { Side } from './Collision/Side';
+import { IEvented } from './Interfaces/IEvented';
+import { IActionable } from './Actions/IActionable';
+import * as Traits from './Traits/Index';
+import * as Effects from './Drawing/SpriteEffects';
+import * as Util from './Util/Util';
 
-
-module ex {
- 
   /**
    * The most important primitive in Excalibur is an `Actor`. Anything that
    * can move on the screen, collide with another `Actor`, respond to events, 
@@ -308,7 +311,7 @@ module ex {
     /** 
      * Direct access to the actor's [[ActionQueue]]. Useful if you are building custom actions.
      */
-    public actionQueue: ex.Internal.Actions.ActionQueue;
+    public actionQueue: ActionQueue;
     
     /**
      * [[ActionContext|Action context]] of the actor. Useful for scripting actor behavior.
@@ -403,12 +406,12 @@ module ex {
        // Build default pipeline
        //this.traits.push(new ex.Traits.EulerMovement());
        // TODO: TileMaps should be converted to a collision area
-       this.traits.push(new ex.Traits.TileMapCollisionDetection());
-       this.traits.push(new ex.Traits.OffscreenCulling());         
-       this.traits.push(new ex.Traits.CapturePointer());
+       this.traits.push(new Traits.TileMapCollisionDetection());
+       this.traits.push(new Traits.OffscreenCulling());         
+       this.traits.push(new Traits.CapturePointer());
        
        // Build the action queue
-       this.actionQueue = new ex.Internal.Actions.ActionQueue(this);
+       this.actionQueue = new ActionQueue(this);
        this.actions = new ActionContext(this);
        
        // default anchor is in the middle
@@ -514,7 +517,7 @@ module ex {
      */
     public add(actor: Actor) {
        actor.collisionType = CollisionType.PreventCollision;
-       if (ex.Util.addItemToArray(actor, this.children)) {
+       if (Util.addItemToArray(actor, this.children)) {
           actor.parent = this;
        }
     }
@@ -523,7 +526,7 @@ module ex {
      * @param actor The child actor to remove
      */
     public remove(actor: Actor) {
-       if (ex.Util.removeItemToArray(actor, this.children)) {
+       if (Util.removeItemToArray(actor, this.children)) {
           actor.parent = null;
        }
     }
@@ -546,7 +549,7 @@ module ex {
              this.frames[key].reset();
              this.currentDrawing = this.frames[key];
           } else {
-             ex.Logger.getInstance().error('the specified drawing key \'' + key + '\' does not exist');
+             Logger.getInstance().error('the specified drawing key \'' + key + '\' does not exist');
           }
       }
     }
@@ -831,19 +834,19 @@ module ex {
    public collidesWithSide(actor: Actor): Side {
        var separationVector = this.collides(actor);
        if (!separationVector) {
-          return ex.Side.None;
+          return Side.None;
        }
        if (Math.abs(separationVector.x) > Math.abs(separationVector.y)) {
           if (this.pos.x < actor.pos.x) {
-             return ex.Side.Right;
+             return Side.Right;
           } else {
-             return ex.Side.Left;
+             return Side.Left;
           }
        } else {
           if (this.pos.y < actor.pos.y) {
-             return ex.Side.Bottom;
+             return Side.Bottom;
           } else {
-             return ex.Side.Top;
+             return Side.Top;
           }
        }
     }
@@ -906,7 +909,7 @@ module ex {
 
        var totalAcc = this.acc.clone();
        // Only active vanilla actors are affected by global acceleration
-       if (this.collisionType === ex.CollisionType.Active &&
+       if (this.collisionType === CollisionType.Active &&
           !(this instanceof UIActor) &&
           !(this instanceof Trigger) &&
           !(this instanceof Label)) {
@@ -1125,4 +1128,3 @@ module ex {
      */
     Fixed
   }
-}
