@@ -23,6 +23,7 @@
   ],
   "devDependencies": {
     "grunt": "^1.0.1",
+    "grunt-browserify": "^5.0.0",
     "grunt-build-control": "^0.7.1",
     "grunt-bumpup": "^0.6.3",
     "grunt-contrib-clean": "^1.0.0",
