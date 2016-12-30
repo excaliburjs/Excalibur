@@ -1,3 +1,4 @@
+import { CullingBox } from './../Util/CullingBox';
 import { IActorTrait } from '../Interfaces/IActorTrait';
 import { Actor } from '../Actor';
 import { Engine } from '../Engine';
@@ -6,7 +7,7 @@ import { ExitViewPortEvent, EnterViewPortEvent } from '../Events';
 
 export class OffscreenCulling implements IActorTrait {
 
-   public cullingBox: ex.CullingBox = new ex.CullingBox();
+   public cullingBox: CullingBox = new CullingBox();
 
    public update(actor: Actor, engine: Engine, delta: number) {
       var eventDispatcher = actor.eventDispatcher;

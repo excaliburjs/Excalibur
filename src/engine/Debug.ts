@@ -1,3 +1,4 @@
+import { Engine } from './Engine';
 import { IDebugFlags } from './DebugFlags';
 
 
@@ -131,7 +132,7 @@ export interface IPhysicsStats {
  */
 export class Debug implements IDebugFlags {
 
-   constructor(private _engine: ex.Engine) { }
+   constructor(private _engine: Engine) { }
 
    /**
     * Performance statistics

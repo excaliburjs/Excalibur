@@ -1,3 +1,4 @@
+import { Physics } from './../Physics';
 import { BoundingBox } from './BoundingBox';
 import { Body } from './Body';
 
@@ -237,13 +238,13 @@ export class DynamicTree {
       }
 
       this._remove(node);
-      b.left -= ex.Physics.boundsPadding;
-      b.top -= ex.Physics.boundsPadding;
-      b.right += ex.Physics.boundsPadding;
-      b.bottom += ex.Physics.boundsPadding;
+      b.left -= Physics.boundsPadding;
+      b.top -= Physics.boundsPadding;
+      b.right += Physics.boundsPadding;
+      b.bottom += Physics.boundsPadding;
 
-      var multdx = body.vel.x * ex.Physics.dynamicTreeVelocityMultiplyer;
-      var multdy = body.vel.y * ex.Physics.dynamicTreeVelocityMultiplyer;
+      var multdx = body.vel.x * Physics.dynamicTreeVelocityMultiplyer;
+      var multdy = body.vel.y * Physics.dynamicTreeVelocityMultiplyer;
 
       if (multdx < 0) {
          b.left += multdx;

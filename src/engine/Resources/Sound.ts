@@ -22,9 +22,9 @@ export class AudioTag implements IAudioImplementation {
    /**
     * Transforms raw Blob data into a object URL for use in audio tag
     */
-   public processData(data: Blob): ex.Promise<string> {        
+   public processData(data: Blob): Promise<string> {        
       var url = URL.createObjectURL(data);         
-      return ex.Promise.resolve(url);
+      return Promise.resolve(url);
    }
 
    /**
@@ -47,8 +47,8 @@ export class WebAudio implements IAudioImplementation {
    /**
     * Processes raw arraybuffer data and decodes into WebAudio buffer (async).
     */
-   public processData(data: ArrayBuffer): ex.Promise<AudioBuffer> {
-      var complete = new ex.Promise<AudioBuffer>();
+   public processData(data: ArrayBuffer): Promise<AudioBuffer> {
+      var complete = new Promise<AudioBuffer>();
 
       audioContext.decodeAudioData(data,
          (buffer) => {
@@ -176,7 +176,7 @@ export class Sound implements ILoadable, IAudio {
             return false;
          }
       } catch (e) {
-         ex.Logger.getInstance().warn('Cannot determine audio support, assuming no support for the Audio Tag', e);
+         Logger.getInstance().warn('Cannot determine audio support, assuming no support for the Audio Tag', e);
          return false;
       }
    }
@@ -271,7 +271,7 @@ export class Sound implements ILoadable, IAudio {
    /**
     * Play the sound, returns a promise that resolves when the sound is done playing
     */
-   public play(): ex.Promise<boolean> {
+   public play(): Promise<boolean> {
       if (this._isLoaded) {
          var resumed = [];
 
@@ -412,7 +412,7 @@ export class Sound implements ILoadable, IAudio {
     * 
     * @param data The XHR data for the sound implementation to process (Blob or ArrayBuffer)
     */
-   public setData(data: any): ex.Promise<any> {         
+   public setData(data: any): Promise<any> {         
       return this.sound.processData(data).then(data => {
          this._isLoaded = true;
          this._data = this.processData(data);
@@ -435,7 +435,7 @@ export class Sound implements ILoadable, IAudio {
 /* istanbul ignore next */
 class AudioTagInstance implements IAudio {
    private _audioElement: HTMLAudioElement;
-   private _playingPromise: ex.Promise<any>;
+   private _playingPromise: Promise<any>;
    private _isPlaying = false;
    private _isPaused = false;
    private _loop = false;
@@ -484,7 +484,7 @@ class AudioTagInstance implements IAudio {
       this._isPlaying = true;
       this._isPaused = false;
 
-      this._playingPromise = new ex.Promise();
+      this._playingPromise = new Promise();
       this._wireUpOnEnded();
    }
 
@@ -541,7 +541,7 @@ class AudioTagInstance implements IAudio {
 class WebAudioInstance implements IAudio {
    private _bufferSource: AudioBufferSourceNode;
    private _volumeNode = audioContext.createGain();
-   private _playingPromise: ex.Promise<any>;      
+   private _playingPromise: Promise<any>;      
    private _isPlaying = false;
    private _isPaused = false;
    private _startTime: number;
@@ -594,7 +594,7 @@ class WebAudioInstance implements IAudio {
       this._isPlaying = true;
       this._isPaused = false;
 
-      this._playingPromise = new ex.Promise();
+      this._playingPromise = new Promise();
       this._wireUpOnEnded();
    }
 

@@ -1,4 +1,7 @@
-﻿import { GameEvent, GamepadConnectEvent, GamepadDisconnectEvent, GamepadButtonEvent, GamepadAxisEvent } from '../Events';
+﻿import { Engine } from './../Engine';
+import { Class } from './../Class';
+import { GameEvent, GamepadConnectEvent, GamepadDisconnectEvent, GamepadButtonEvent, GamepadAxisEvent } from '../Events';
+import * as Events from '../Events';
 
 /**
  * Excalibur leverages the HTML5 Gamepad API [where it is supported](http://caniuse.com/#feat=gamepad)
@@ -6,7 +9,7 @@
  *
  * [[include:Gamepads.md]]
  */
-export class Gamepads extends ex.Class {
+export class Gamepads extends Class {
    
    /**
     * Whether or not to poll for Gamepad input (default: `false`)
@@ -27,11 +30,11 @@ export class Gamepads extends ex.Class {
    private _oldPads: Gamepad[] = [];
    private _pads: Gamepad[] = [];
    private _initSuccess: boolean = false;
-   private _engine: ex.Engine;
+   private _engine: Engine;
    private _navigator: INavigatorGamepads = <any>navigator;
    private _minimumConfiguration: IGamepadConfiguration = null;
 
-   constructor(engine: ex.Engine) {
+   constructor(engine: Engine) {
       super();
       this._engine = engine;
    }
@@ -87,10 +90,10 @@ export class Gamepads extends ex.Class {
                pad.connected;
    }
    
-   public on(eventName: ex.Events.connect, handler: (event?: GamepadConnectEvent) => void);
-   public on(eventName: ex.Events.disconnect, handler: (event?: GamepadDisconnectEvent) => void);
-   public on(eventName: ex.Events.button, handler: (event?: GamepadButtonEvent) => void);
-   public on(eventName: ex.Events.axis, handler: (event?: GamepadAxisEvent) => void);
+   public on(eventName: Events.connect, handler: (event?: GamepadConnectEvent) => void);
+   public on(eventName: Events.disconnect, handler: (event?: GamepadDisconnectEvent) => void);
+   public on(eventName: Events.button, handler: (event?: GamepadButtonEvent) => void);
+   public on(eventName: Events.axis, handler: (event?: GamepadAxisEvent) => void);
    public on(eventName: string, handler: (event?: GameEvent) => void);
    public on(eventName: string, handler: (event?: GameEvent) => void) {
       this._enableAndUpdate(); // implicitly enable
@@ -249,7 +252,7 @@ export class Gamepads extends ex.Class {
  * Gamepad holds state information for a connected controller. See [[Gamepads]]
  * for more information on handling controller input.
  */
-export class Gamepad extends ex.Class {
+export class Gamepad extends Class {
    public connected = false;
    public navigatorGamepad: INavigatorGamepad;
    private _buttons: number[] = new Array(16);

@@ -328,7 +328,7 @@ export class PauseAfterLoader extends Loader {
    }
 
    public load(): Promise<any> {
-      this._waitPromise = new ex.Promise<any>();
+      this._waitPromise = new Promise<any>();
 
       // wait until user indicates to proceed before finishing load
       var superLoad = super.load().then((value?) => {

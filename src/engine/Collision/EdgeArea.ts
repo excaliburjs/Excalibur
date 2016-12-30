@@ -39,7 +39,7 @@ export class EdgeArea implements ICollisionArea {
    }
 
    private _getBodyPos(): Vector {
-      var bodyPos = ex.Vector.Zero.clone();
+      var bodyPos = Vector.Zero.clone();
       if (this.body.pos) {
          bodyPos = this.body.pos;
       }

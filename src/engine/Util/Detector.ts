@@ -1,3 +1,4 @@
+import { Logger } from './Log';
 /**
  * This is the list of features that will be used to log the supported
  * features to the console when Detector.logBrowserFeatures() is called.
@@ -185,7 +186,7 @@ export class Detector {
       for (var test in this._criticalTests) {
          if (!this._criticalTests[test].call(this)) {
             this.failedTests.push(test);
-            ex.Logger.getInstance().error('Critical browser feature missing, Excalibur requires:', 
+            Logger.getInstance().error('Critical browser feature missing, Excalibur requires:', 
                test);
             failedCritical = true;
          }
@@ -197,7 +198,7 @@ export class Detector {
       // Warning tests do not for ex to return false to compatibility
       for (var warning in this._warningTest) {
          if (!this._warningTest[warning]()) {
-            ex.Logger.getInstance().warn('Warning browser feature missing, Excalibur will have reduced performance:', 
+            Logger.getInstance().warn('Warning browser feature missing, Excalibur will have reduced performance:', 
                warning);
          }
       }

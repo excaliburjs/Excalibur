@@ -61,8 +61,8 @@ export class CullingBox {
       this._xMax = Math.max.apply(null, this._xCoords);
       this._yMax = Math.max.apply(null, this._yCoords);
 
-      var minWorld = engine.screenToWorldCoordinates(new ex.Vector(this._xMin, this._yMin));
-      var maxWorld = engine.screenToWorldCoordinates(new ex.Vector(this._xMax, this._yMax));
+      var minWorld = engine.screenToWorldCoordinates(new Vector(this._xMin, this._yMin));
+      var maxWorld = engine.screenToWorldCoordinates(new Vector(this._xMax, this._yMax));
       this._xMinWorld = minWorld.x;
       this._yMinWorld = minWorld.y;
       this._xMaxWorld = maxWorld.x;

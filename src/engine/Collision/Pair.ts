@@ -1,3 +1,4 @@
+import { Physics } from './../Physics';
 import { Color } from './../Drawing/Color';
 import { Body } from './Body';
 import { CollisionContact } from './CollisionContact';
@@ -45,10 +46,10 @@ export class Pair {
    /* istanbul ignore next */
    public debugDraw(ctx: CanvasRenderingContext2D) {
       if (this.collision) {
-         if (ex.Physics.showContacts) {
+         if (Physics.showContacts) {
             DrawUtil.point(ctx, Color.Red, this.collision.point);
          }
-         if (ex.Physics.showCollisionNormals) {
+         if (Physics.showCollisionNormals) {
             DrawUtil.vector(ctx, Color.Cyan, this.collision.point, this.collision.normal, 30);
          }
       }

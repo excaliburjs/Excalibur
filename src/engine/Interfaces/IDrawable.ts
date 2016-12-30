@@ -1,3 +1,4 @@
+import { Vector } from './../Algebra';
 import { ISpriteEffect } from '../Drawing/SpriteEffects';
 
 /**
@@ -59,13 +60,13 @@ export interface IDrawable {
     * Gets or sets the point about which to apply transformations to the drawing relative to the 
     * top left corner of the drawing.
     */
-   anchor: ex.Vector;
+   anchor: Vector;
 
 
    /**
     * Gets or sets the scale transformation
     */
-   scale: ex.Vector;
+   scale: Vector;
 
    /**
     * Sets the current rotation transformation for the drawing.

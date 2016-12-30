@@ -1,7 +1,9 @@
+import { Physics, CollisionResolutionStrategy } from './../Physics';
 import { EdgeArea } from './EdgeArea';
 import { CircleArea } from './CircleArea';
 import { ICollisionArea } from './ICollisionArea';
 import { PolygonArea } from './PolygonArea';
+import { BoundingBox } from './BoundingBox';
 
 import { Vector } from '../Algebra';
 import { Actor } from '../Actor';
@@ -24,28 +26,28 @@ export class Body {
     * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default. 
     * If you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0). 
     */
-   public pos: Vector = new ex.Vector(0, 0);
+   public pos: Vector = new Vector(0, 0);
 
    /**
     * The position of the actor last frame (x, y) in pixels
     */
-   public oldPos: Vector = new ex.Vector(0, 0);
+   public oldPos: Vector = new Vector(0, 0);
 
    /**
     * The current velocity vector (vx, vy) of the actor in pixels/second
     */
-   public vel: Vector = new ex.Vector(0, 0);
+   public vel: Vector = new Vector(0, 0);
 
    /**
     * The velocity of the actor last frame (vx, vy) in pixels/second
     */
-   public oldVel: Vector = new ex.Vector(0, 0);
+   public oldVel: Vector = new Vector(0, 0);
 
    /**
     * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may 
     * be useful to simulate a gravitational effect.  
     */
-   public acc: Vector = new ex.Vector(0, 0);
+   public acc: Vector = new Vector(0, 0);
 
    /**
     * The current torque applied to the actor
@@ -110,7 +112,7 @@ export class Body {
     * Returns the body's [[BoundingBox]] calculated for this instant in world space.
     */
    public getBounds() {
-      if (ex.Physics.collisionResolutionStrategy === ex.CollisionResolutionStrategy.Box) {
+      if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Box) {
          return this.actor.getBounds();
       } else {
          return this.collisionArea.getBounds();
@@ -121,7 +123,7 @@ export class Body {
     * Returns the actor's [[BoundingBox]] relative to the actors position.
     */
    public getRelativeBounds() {
-      if (ex.Physics.collisionResolutionStrategy === ex.CollisionResolutionStrategy.Box) {
+      if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Box) {
          return this.actor.getRelativeBounds();
       } else {
          return this.actor.getRelativeBounds();
@@ -143,7 +145,7 @@ export class Body {
     * 
     * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
     */
-   public useBoxCollision(center: Vector = ex.Vector.Zero.clone()) {
+   public useBoxCollision(center: Vector = Vector.Zero.clone()) {
 
       this.collisionArea = new PolygonArea({
          body: this,
@@ -163,7 +165,7 @@ export class Body {
     * 
     * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
     */
-   public usePolygonCollision(points: Vector[], center: Vector = ex.Vector.Zero.clone()) {
+   public usePolygonCollision(points: Vector[], center: Vector = Vector.Zero.clone()) {
       this.collisionArea = new PolygonArea({
          body: this,
          points: points,
@@ -179,7 +181,7 @@ export class Body {
     * 
     * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
     */
-   public useCircleCollision(radius?: number, center: Vector = ex.Vector.Zero.clone()) {
+   public useCircleCollision(radius?: number, center: Vector = Vector.Zero.clone()) {
       if (!radius) {
          radius = this.actor.getWidth() / 2;
       }
@@ -197,7 +199,7 @@ export class Body {
     * 
     * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
     */
-   public useEdgeCollision(begin: Vector, end: Vector, center: Vector = ex.Vector.Zero.clone()) {
+   public useEdgeCollision(begin: Vector, end: Vector, center: Vector = Vector.Zero.clone()) {
       this.collisionArea = new EdgeArea({
          begin: begin,
          end: end,
@@ -211,17 +213,17 @@ export class Body {
    public debugDraw(ctx: CanvasRenderingContext2D) {
 
       // Draw motion vectors
-      if (ex.Physics.showMotionVectors) {
-         DrawUtil.vector(ctx, Color.Yellow, this.pos, (this.acc.add(ex.Physics.acc)));
+      if (Physics.showMotionVectors) {
+         DrawUtil.vector(ctx, Color.Yellow, this.pos, (this.acc.add(Physics.acc)));
          DrawUtil.vector(ctx, Color.Red, this.pos, (this.vel));
          DrawUtil.point(ctx, Color.Red, this.pos);
       }
 
-      if (ex.Physics.showBounds) {
+      if (Physics.showBounds) {
          this.getBounds().debugDraw(ctx, Color.Yellow);
       }
 
-      if (ex.Physics.showArea) {
+      if (Physics.showArea) {
          this.collisionArea.debugDraw(ctx, Color.Green);
       }
    }

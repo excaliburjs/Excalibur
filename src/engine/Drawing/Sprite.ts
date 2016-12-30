@@ -18,7 +18,7 @@ export class Sprite implements IDrawable {
 
    public rotation: number = 0.0;
    public anchor: Vector = new Vector(0.0, 0.0);
-   public scale: Vector = new ex.Vector(1, 1);
+   public scale: Vector = new Vector(1, 1);
 
    public logger: Logger = Logger.getInstance();
 

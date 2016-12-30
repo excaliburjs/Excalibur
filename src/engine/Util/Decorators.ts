@@ -1,3 +1,4 @@
+import { Logger } from './Log';
 import * as Util from './Util';
 
 /**
@@ -33,7 +34,7 @@ export function obsolete(options?: IObsoleteOptions) {
 
       if (descriptor.value) {
          method.value = function() {
-            ex.Logger.getInstance().warn(message);
+            Logger.getInstance().warn(message);
             return descriptor.value.apply(this, arguments);
          };             
          return method;
@@ -41,14 +42,14 @@ export function obsolete(options?: IObsoleteOptions) {
 
       if (descriptor.get) {
          method.get = function() {
-            ex.Logger.getInstance().warn(message);
+            Logger.getInstance().warn(message);
             return descriptor.get.apply(this, arguments);
          };
       }
 
       if (descriptor.set) {
          method.set = function() {
-            ex.Logger.getInstance().warn(message);
+            Logger.getInstance().warn(message);
             return descriptor.set.apply(this, arguments);
          };            
       }

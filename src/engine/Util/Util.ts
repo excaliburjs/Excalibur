@@ -186,13 +186,13 @@ export function contains(array: Array<any>, obj: any): boolean {
    return false;
 }
 
-export function getOppositeSide(side: ex.Side) {
-   if (side === ex.Side.Top) { return ex.Side.Bottom; }
-   if (side === ex.Side.Bottom) { return ex.Side.Top; }
-   if (side === ex.Side.Left) { return ex.Side.Right; }
-   if (side === ex.Side.Right) { return ex.Side.Left; }
+export function getOppositeSide(side: Side) {
+   if (side === Side.Top) { return Side.Bottom; }
+   if (side === Side.Bottom) { return Side.Top; }
+   if (side === Side.Left) { return Side.Right; }
+   if (side === Side.Right) { return Side.Left; }
 
-   return ex.Side.None;
+   return Side.None;
 }
 
 export function getSideFromVector(direction: Vector) {

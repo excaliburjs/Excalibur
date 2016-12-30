@@ -1,8 +1,10 @@
-﻿import { GameEvent } from '../Events';
+﻿import { Engine } from './../Engine';
+import { GameEvent } from '../Events';
 import { UIActor } from '../UIActor';
 import { Vector } from '../Algebra';
 import { Class } from '../Class';
 import * as Util from '../Util/Util';
+import * as Events from '../Events';
 
 /**
  * The type of pointer for a [[PointerEvent]].
@@ -49,7 +51,7 @@ export enum PointerScope {
  *
  * For mouse-based events, you can inspect [[PointerEvent.button]] to see what button was pressed.
  */
-export class PointerEvent extends ex.GameEvent {
+export class PointerEvent extends GameEvent {
 
    /**
     * @param x            The `x` coordinate of the event (in world coordinates)
@@ -75,8 +77,8 @@ export class PointerEvent extends ex.GameEvent {
  *
  * [[include:Pointers.md]]
  */
-export class Pointers extends ex.Class {
-   private _engine: ex.Engine;
+export class Pointers extends Class {
+   private _engine: Engine;
 
    private _pointerDown: PointerEvent[] = [];
    private _pointerUp: PointerEvent[] = [];
@@ -85,7 +87,7 @@ export class Pointers extends ex.Class {
    private _pointers: Pointer[] = [];
    private _activePointers: number[] = [];
 
-   constructor(engine: ex.Engine) {
+   constructor(engine: Engine) {
       super();
 
       this._engine = engine;
@@ -94,10 +96,10 @@ export class Pointers extends ex.Class {
       this.primary = this._pointers[0];
    }
 
-   public on(eventName: ex.Events.up, handler: (event?: PointerEvent) => void);
-   public on(eventName: ex.Events.down, handler: (event?: PointerEvent) => void);
-   public on(eventName: ex.Events.move, handler: (event?: PointerEvent) => void);
-   public on(eventName: ex.Events.cancel, handler: (event?: PointerEvent) => void);
+   public on(eventName: Events.up, handler: (event?: PointerEvent) => void);
+   public on(eventName: Events.down, handler: (event?: PointerEvent) => void);
+   public on(eventName: Events.move, handler: (event?: PointerEvent) => void);
+   public on(eventName: Events.cancel, handler: (event?: PointerEvent) => void);
    public on(eventName: string, handler: (event?: GameEvent) => void);
    public on(eventName: string, handler: (event?: GameEvent) => void) {
       super.on(eventName, handler);

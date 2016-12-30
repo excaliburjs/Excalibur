@@ -1,4 +1,5 @@
-﻿import { CollisionContact } from './CollisionContact';
+﻿import { Physics } from './../Physics';
+import { CollisionContact } from './CollisionContact';
 import { Pair } from './Pair';
 import { Actor, CollisionType } from './../Actor';
 import { Body } from './Body';
@@ -58,7 +59,7 @@ export class NaiveCollisionBroadphase implements ICollisionBroadphase {
 
       var k = 0, len = collisionPairs.length;
       for (k; k < len; k++) {
-         collisionPairs[k].resolve(delta, ex.Physics.collisionResolutionStrategy);
+         collisionPairs[k].resolve(delta, Physics.collisionResolutionStrategy);
       }
 
       return collisionPairs;

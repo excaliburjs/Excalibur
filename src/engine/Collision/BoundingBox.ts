@@ -78,7 +78,7 @@ export class BoundingBox implements ICollidable {
    /**
     * Rotates a bounding box by and angle and around a point, if no point is specified (0, 0) is used by default
     */
-   public rotate(angle: number, point: Vector = ex.Vector.Zero.clone()): BoundingBox {
+   public rotate(angle: number, point: Vector = Vector.Zero.clone()): BoundingBox {
       var points = this.getPoints().map((p) => p.rotate(angle, point));
       return BoundingBox.fromPoints(points);
    }

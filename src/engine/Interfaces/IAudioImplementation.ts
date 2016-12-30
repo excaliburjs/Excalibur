@@ -1,3 +1,4 @@
+import { Promise } from './../Promises';
 import { IAudio } from './IAudio';
 
 /**
@@ -13,7 +14,7 @@ export interface IAudioImplementation {
    /**
     * Processes raw data and transforms into sound data
     */
-   processData(data: Blob|ArrayBuffer): ex.Promise<string|AudioBuffer>;
+   processData(data: Blob|ArrayBuffer): Promise<string|AudioBuffer>;
 
    /**
     * Factory method that returns an instance of a played audio track

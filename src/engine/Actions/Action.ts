@@ -3,6 +3,7 @@ import { RotationType } from './RotationType';
 import { Actor } from '../Actor';
 import { Vector } from '../Algebra';
 import { Logger } from '../Util/Log';
+import * as Util from '../Util/Util';
 
 /**
  * Used for implementing actions for the [[ActionContext|Action API]].
@@ -17,8 +18,8 @@ export interface IAction {
 export class EaseTo implements IAction {
    private _currentLerpTime: number = 0;
    private _lerpDuration: number = 1 * 1000; // 1 second
-   private _lerpStart: Vector = new ex.Vector(0, 0);
-   private _lerpEnd: Vector = new ex.Vector(0, 0);
+   private _lerpStart: Vector = new Vector(0, 0);
+   private _lerpEnd: Vector = new Vector(0, 0);
    private _initialized: boolean = false;
    private _stopped: boolean = false;
    private _distance: number = 0;
@@ -28,10 +29,10 @@ export class EaseTo implements IAction {
                duration: number, 
                public easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number) {
       this._lerpDuration = duration;
-      this._lerpEnd = new ex.Vector(x, y);
+      this._lerpEnd = new Vector(x, y);
    }
    private _initialize() {
-      this._lerpStart = new ex.Vector(this.actor.pos.x, this.actor.pos.y);
+      this._lerpStart = new Vector(this.actor.pos.x, this.actor.pos.y);
       this._currentLerpTime = 0;
       this._distance = this._lerpStart.distance(this._lerpEnd);
    }
@@ -377,7 +378,7 @@ export class RotateTo implements IAction {
          this._started = true;
          this._start = this._actor.rotation;
          var distance1 = Math.abs(this._end - this._start);
-         var distance2 = ex.Util.TwoPI - distance1;
+         var distance2 = Util.TwoPI - distance1;
          if (distance1 > distance2) {
             this._shortDistance = distance2;
             this._longDistance = distance1;
@@ -386,7 +387,7 @@ export class RotateTo implements IAction {
             this._longDistance = distance2;
          }
 
-         this._shortestPathIsPositive = (this._start - this._end + ex.Util.TwoPI) % ex.Util.TwoPI >= Math.PI;
+         this._shortestPathIsPositive = (this._start - this._end + Util.TwoPI) % Util.TwoPI >= Math.PI;
 
          switch (this._rotationType) {
             case RotationType.ShortestPath:
@@ -476,7 +477,7 @@ export class RotateBy implements IAction {
          this._started = true;
          this._start = this._actor.rotation;
          var distance1 = Math.abs(this._end - this._start);
-         var distance2 = ex.Util.TwoPI - distance1;
+         var distance2 = Util.TwoPI - distance1;
          if (distance1 > distance2) {
             this._shortDistance = distance2;
             this._longDistance = distance1;
@@ -485,7 +486,7 @@ export class RotateBy implements IAction {
             this._longDistance = distance2;
          }
 
-         this._shortestPathIsPositive = (this._start - this._end + ex.Util.TwoPI) % ex.Util.TwoPI >= Math.PI;
+         this._shortestPathIsPositive = (this._start - this._end + Util.TwoPI) % Util.TwoPI >= Math.PI;
 
          switch (this._rotationType) {
             case RotationType.ShortestPath:

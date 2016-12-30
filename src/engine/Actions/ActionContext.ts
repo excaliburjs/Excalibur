@@ -3,7 +3,7 @@ import { RotationType } from './RotationType';
 
 import { Actor } from '../Actor';
 import { Promise } from '../Promises';
-import { EasingFunction } from '../Util/EasingFunctions';
+import { EasingFunction, EasingFunctions } from '../Util/EasingFunctions';
 
 /**
  * The fluent Action API allows you to perform "actions" on
@@ -65,7 +65,7 @@ export class ActionContext {
    public easeTo(x: number,
                   y: number,
                   duration: number,
-                  easingFcn: EasingFunction = ex.EasingFunctions.Linear) {
+                  easingFcn: EasingFunction = EasingFunctions.Linear) {
 
       var i = 0, len = this._queues.length;
       

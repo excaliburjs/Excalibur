@@ -1,4 +1,5 @@
-﻿import { IPostProcessor } from './IPostProcessor';
+﻿import { Logger } from './../Util/Log';
+import { IPostProcessor } from './IPostProcessor';
 import { Engine } from '../Engine';
 
 declare var ImageData: {
@@ -129,7 +130,7 @@ export class ColorBlindCorrector implements IPostProcessor {
       this._gl.linkProgram(this._program);
 
       if (!this._gl.getProgramParameter(this._program, this._gl.LINK_STATUS)) {
-         ex.Logger.getInstance().error('Unable to link shader program!');
+         Logger.getInstance().error('Unable to link shader program!');
       }
 
       this._gl.useProgram(this._program);
@@ -185,7 +186,7 @@ export class ColorBlindCorrector implements IPostProcessor {
       }else if (type === 'Vertex') {
          shader = this._gl.createShader(this._gl.VERTEX_SHADER);
       } else {
-         ex.Logger.getInstance().error('Error unknown shader type', type);
+         Logger.getInstance().error('Error unknown shader type', type);
       }
 
 
@@ -193,7 +194,7 @@ export class ColorBlindCorrector implements IPostProcessor {
       this._gl.compileShader(shader);
 
       if (!this._gl.getShaderParameter(shader, this._gl.COMPILE_STATUS)) {
-         ex.Logger.getInstance().error('Unable to compile shader!', this._gl.getShaderInfoLog(shader));
+         Logger.getInstance().error('Unable to compile shader!', this._gl.getShaderInfoLog(shader));
          return null;
       }
 

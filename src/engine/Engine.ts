@@ -15,11 +15,12 @@ import { Logger, LogLevel } from './Util/Log';
 import { Color } from './Drawing/Color';
 import { Scene } from './Scene';
 import { IPostProcessor } from './PostProcessing/IPostProcessor';
-import { Debug } from './Debug';
+import { Debug, FrameStats } from './Debug';
 import { Class } from './Class';
 import * as Input from './Input/Index';
 import { obsolete } from './Util/Decorators';
 import * as Util from './Util/Util';
+import * as Events from './Events';
 
 declare var EX_VERSION: string;
 
@@ -215,14 +216,14 @@ export class Engine extends Class {
    private _loader: ILoader;
    private _isLoading: boolean = false;
 
-   public on(eventName: ex.Events.visible, handler: (event?: VisibleEvent) => void);
-   public on(eventName: ex.Events.hidden, handler: (event?: HiddenEvent) => void);
-   public on(eventName: ex.Events.start, handler: (event?: GameStartEvent) => void);
-   public on(eventName: ex.Events.stop, handler: (event?: GameStopEvent) => void);
-   public on(eventName: ex.Events.preupdate, handler: (event?: PreUpdateEvent) => void);
-   public on(eventName: ex.Events.postupdate, handler: (event?: PostUpdateEvent) => void);
-   public on(eventName: ex.Events.preframe, handler: (event?: PreFrameEvent) => void);
-   public on(eventName: ex.Events.postframe, handler: (event?: PostFrameEvent) => void);
+   public on(eventName: Events.visible, handler: (event?: VisibleEvent) => void);
+   public on(eventName: Events.hidden, handler: (event?: HiddenEvent) => void);
+   public on(eventName: Events.start, handler: (event?: GameStartEvent) => void);
+   public on(eventName: Events.stop, handler: (event?: GameStopEvent) => void);
+   public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void);
+   public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void);
+   public on(eventName: Events.preframe, handler: (event?: PreFrameEvent) => void);
+   public on(eventName: Events.postframe, handler: (event?: PostFrameEvent) => void);
    public on(eventName: string, handler: (event?: GameEvent) => void);
    public on(eventName: string, handler: (event?: GameEvent) => void) {
       super.on(eventName, handler);

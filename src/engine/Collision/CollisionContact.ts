@@ -94,7 +94,7 @@ export class CollisionContact {
                   velX = Math.min(bodyA.vel.x, bodyB.vel.x);
                } else if (bodyA.vel.x > 0 && bodyB.vel.x > 0) {
                   velX = Math.max(bodyA.vel.x, bodyB.vel.x);
-               } else if (bodyB.collisionType === ex.CollisionType.Fixed) {
+               } else if (bodyB.collisionType === CollisionType.Fixed) {
                   // bodies are traveling in opposite directions
                   if (bodyA.pos.sub(bodyB.pos).dot(bodyA.vel) > 0) {
                      velX = bodyA.vel.x;
@@ -115,7 +115,7 @@ export class CollisionContact {
                   velY = Math.min(bodyA.vel.y, bodyB.vel.y);
                } else if (bodyA.vel.y > 0 && bodyB.vel.y > 0) {
                   velY = Math.max(bodyA.vel.y, bodyB.vel.y);
-               } else if (bodyB.collisionType === ex.CollisionType.Fixed) {
+               } else if (bodyB.collisionType === CollisionType.Fixed) {
                   // bodies are traveling in opposite directions
                   if (bodyA.pos.sub(bodyB.pos).dot(bodyA.vel) > 0) {
                      velY = bodyA.vel.y;
@@ -157,11 +157,11 @@ export class CollisionContact {
          return;
       }
 
-      var invMassA = bodyA.actor.collisionType === ex.CollisionType.Fixed ? 0 : 1 / bodyA.mass;
-      var invMassB = bodyB.actor.collisionType === ex.CollisionType.Fixed ? 0 : 1 / bodyB.mass;
+      var invMassA = bodyA.actor.collisionType === CollisionType.Fixed ? 0 : 1 / bodyA.mass;
+      var invMassB = bodyB.actor.collisionType === CollisionType.Fixed ? 0 : 1 / bodyB.mass;
 
-      var invMoiA = bodyA.actor.collisionType === ex.CollisionType.Fixed ? 0 : 1 / bodyA.moi;
-      var invMoiB = bodyB.actor.collisionType === ex.CollisionType.Fixed ? 0 : 1 / bodyB.moi;
+      var invMoiA = bodyA.actor.collisionType === CollisionType.Fixed ? 0 : 1 / bodyA.moi;
+      var invMoiB = bodyB.actor.collisionType === CollisionType.Fixed ? 0 : 1 / bodyB.moi;
 
       // average restitution more relistic
       var coefRestitution = Math.min(bodyA.restitution, bodyB.restitution);
@@ -209,13 +209,13 @@ export class CollisionContact {
          ((invMassA + invMassB) + invMoiA * raTangent * raTangent + invMoiB * rbTangent * rbTangent);
 
 
-      if (bodyA.actor.collisionType === ex.CollisionType.Fixed) {
+      if (bodyA.actor.collisionType === CollisionType.Fixed) {
          bodyB.vel = bodyB.vel.add(normal.scale(impulse * invMassB));
          if (Physics.allowRigidBodyRotation) {
             bodyB.rx -= impulse * invMoiB * -rb.cross(normal);
          }
          bodyB.addMtv(mtv);
-      } else if (bodyB.actor.collisionType === ex.CollisionType.Fixed) {
+      } else if (bodyB.actor.collisionType === CollisionType.Fixed) {
          bodyA.vel = bodyA.vel.sub(normal.scale(impulse * invMassA));
          if (Physics.allowRigidBodyRotation) {
             bodyA.rx += impulse * invMoiA * -ra.cross(normal);
@@ -254,13 +254,13 @@ export class CollisionContact {
             frictionImpulse = t.scale(-impulse * coefFriction);
          }
 
-         if (bodyA.actor.collisionType === ex.CollisionType.Fixed) {
+         if (bodyA.actor.collisionType === CollisionType.Fixed) {
             // apply frictional impulse
             bodyB.vel = bodyB.vel.add(frictionImpulse.scale(invMassB));
             if (Physics.allowRigidBodyRotation) {
                bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
             }
-         } else if (bodyB.actor.collisionType === ex.CollisionType.Fixed) {
+         } else if (bodyB.actor.collisionType === CollisionType.Fixed) {
             // apply frictional impulse
             bodyA.vel = bodyA.vel.sub(frictionImpulse.scale(invMassA));
             if (Physics.allowRigidBodyRotation) {

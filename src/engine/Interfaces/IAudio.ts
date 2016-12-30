@@ -1,3 +1,5 @@
+import { Promise } from './../Promises';
+
 /**
  * Represents an audio control implementation
  */
@@ -21,7 +23,7 @@ export interface IAudio {
    /**
     * Will play the sound or resume if paused
     */
-   play(): ex.Promise<any>;
+   play(): Promise<any>;
 
    /**
     * Pause the sound
