@@ -1,4 +1,2 @@
-﻿module ex {
-   export interface IDebugFlags {
-   }
+﻿export interface IDebugFlags {
 }
