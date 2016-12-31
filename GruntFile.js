@@ -30,7 +30,10 @@ module.exports = function (grunt) {
 
          // Core engine
          core: {
-            tsconfig: 'src/engine'
+            tsconfig: 'src/engine',
+            options: {
+               removeComments: false
+            }
          },
 
          // Jasmine specs
