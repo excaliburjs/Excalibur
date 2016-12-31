@@ -21,10 +21,17 @@
     "javascript",
     "simple"
   ],
+  "scripts": {
+    "all": "node_modules/.bin/grunt",
+    "compile": "node_modules/.bin/grunt compile",
+    "tests": "node_modules/.bin/grunt tests",
+    "visual": "node_modules/.bin/grunt visual"
+  },
   "devDependencies": {
     "grunt": "^1.0.1",
     "grunt-build-control": "^0.7.1",
     "grunt-bumpup": "^0.6.3",
+    "grunt-cli": "^1.2.0",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-copy": "^1.0.0",

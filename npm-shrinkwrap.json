@@ -779,6 +779,12 @@
         }
       }
     },
+    "grunt-cli": {
+      "version": "1.2.0",
+      "from": "grunt-cli@latest",
+      "resolved": "./node_shrinkwrap/grunt-cli-1.2.0.tar",
+      "dev": true
+    },
     "grunt-contrib-clean": {
       "version": "1.0.0",
       "from": "grunt-contrib-clean@*",
