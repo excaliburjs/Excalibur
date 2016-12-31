@@ -697,12 +697,6 @@
         }
       }
     },
-    "grunt-contrib-requirejs": {
-      "version": "1.0.0",
-      "from": "grunt-contrib-requirejs@latest",
-      "resolved": "./node_shrinkwrap/grunt-contrib-requirejs-1.0.0.tar",
-      "dev": true
-    },
     "grunt-contrib-uglify": {
       "version": "2.0.0",
       "from": "grunt-contrib-uglify@*",
