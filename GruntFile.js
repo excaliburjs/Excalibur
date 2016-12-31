@@ -18,17 +18,59 @@ module.exports = function (grunt) {
       pkg: grunt.file.readJSON('package.json'),
       version: '<%= pkg.version %>' + appveyorBuild,
       tscCmd: path.join('node_modules', '.bin', 'tsc'),
-
       //
       // Clean dists
       //
       clean: ['build/dist'],
 
       //
-      // Concatenate build files
-      // Add banner to files
+      // Typescript compilation targets
+      //
+      ts: {
+
+         // Core engine
+         core: {
+            tsconfig: 'src/engine'
+         },
+
+         // Jasmine specs
+         specs: {
+            tsconfig: 'src/spec'
+         },
+
+         // HTML visual tests
+         visual: {
+            options: {
+               target: 'es5'
+            },
+            src: ['sandbox/web/**/*.ts']
+         },
+
+         // Jasmine debug specs (for VS Code)
+         debug: {
+            options: {
+               allowJs: true,
+               sourceMap: true,
+               experimentalDecorators: true
+            },
+            out: 'TestsSpec.js',
+            src: [
+               'src/spec/support/phantom-jasmine-invoker.js',
+               'src/spec/support/js-imagediff.js',
+               'build/dist/excalibur.js',
+               'src/spec/*.ts',
+               'node_modules/source-map-support/browser-source-map-support.js',
+               'src/spec/support/start-tests.js'
+            ]
+         }
+      },
+
+      //
+      // Concatenate build files and add banner copyright info
       //
       concat: {
+
+         // Create UMD self-loading bundle
          main: {
             src: ['src/browser/start.js', 'src/browser/almond.js', 'build/dist/<%= pkg.name %>.amd.js', 'src/browser/end.js'],
             dest: 'build/dist/<%= pkg.name %>.js',
@@ -39,16 +81,20 @@ module.exports = function (grunt) {
                }
             }
          },
+
+         // Concat banner to AMD declarations file
          dts_amd: {
             src: ['build/dist/<%= pkg.name %>.amd.d.ts'],
             dest: 'build/dist/<%= pkg.name %>.amd.d.ts'
          },
+
+         // Concat public API declarations file
          dts_global: {
             src: ['src/engine/Index.ts', 'src/browser/global.d.ts'],
             dest: 'build/dist/<%= pkg.name %>.d.ts',
             options: {
                process: function (src, filepath) {
-                  // strip relative file paths
+                  // strip relative file paths (./)
                   // and add reference path
                   return grunt.template.process('/// <reference path="<%= pkg.name %>.amd.d.ts" />\n') + 
                      src.replace(/\.\//g, '');
@@ -82,70 +128,23 @@ module.exports = function (grunt) {
       },
 
       //
+      // Copy dists for visual compilation/testing
+      //
+      copy: {
+         visual: {
+            files: [
+               { src: './build/dist/<%= pkg.name %>.js', dest: './sandbox/web/<%= pkg.name %>.js' },
+               { src: './build/dist/<%= pkg.name %>.js.map', dest: './sandbox/web/<%= pkg.name %>.js.map' },
+               { src: './build/dist/<%= pkg.name %>.amd.d.ts', dest: './sandbox/web/<%= pkg.name %>.amd.d.ts' },
+               { src: './build/dist/<%= pkg.name %>.d.ts', dest: './sandbox/web/<%= pkg.name %>.d.ts' }
+            ]
+         }
+      },
+
+      //
       // Shell Commands
       //
       shell: {
-
-         //
-         // Execute TypeScript compiler against Excalibur core
-         //
-         tsc: {
-            command: '<%= tscCmd %> -p src/engine',
-            options: {
-               stdout: true,
-               failOnError: true
-            }
-         },
-
-         //
-         // TypeScript Compile Jasmine specs
-         //
-         tscspecs: {
-            command: function () {
-               return '<%= tscCmd %> -p src/spec/tsconfig.json --outFile src/spec/TestsSpec.js'
-            },
-            options: {
-               stdout: true,
-               failOnError: true
-            }
-         },
-
-         //
-         // TypeScript Compile Jasmine specs for phantom debugging
-         //
-         tscspecsdebug: {
-            command: function () {
-               // tsconfig doesn't properly support ordering of includes :(
-                  
-               var jasmine = ['src/spec/support/phantom-jasmine-invoker.js', 'src/spec/support/js-imagediff.js'];
-               var excalibur = ["./build/dist/excalibur.js"];
-               var files = grunt.file.expand("./src/spec/*.ts");
-               var help = ['node_modules/source-map-support/browser-source-map-support.js', 'src/spec/support/start-tests.js']
-
-               var allfiles = jasmine.concat(excalibur).concat(files).concat(help)
-
-               return '<%= tscCmd %> --target ES5 --allowJs --sourceMap ' + allfiles.join(' ') + ' --out ./TestsSpec.js'
-            },
-            options: {
-               stdout: true,
-               failOnError: true
-            }
-         },
-
-         //
-         // Compile visual tests
-         //
-         tscvisual: {
-            command: function () {
-               var files = grunt.file.expand("./sandbox/web/**/*.ts");
-
-               return '<%= tscCmd %> -t ES5 ' + files.join(' ');
-            },
-            options: {
-               stdout: true,
-               failOnError: true
-            }
-         },
 
          //
          // Package up Nuget (Windows only)
@@ -158,6 +157,9 @@ module.exports = function (grunt) {
             }
          },    
 
+         //
+         // Clone distribution repository
+         //
          gitBuild: {
             command: 'git clone https://github.com/excaliburjs/excalibur-dist build',
             options: {
@@ -166,24 +168,10 @@ module.exports = function (grunt) {
             }
          }
 
-      },
+      },      
 
       //
-      // Copy Files for sample game
-      //
-      copy: {
-         main: {
-            files: [
-               { src: './build/dist/<%= pkg.name %>.js', dest: './sandbox/web/<%= pkg.name %>.js' },
-               { src: './build/dist/<%= pkg.name %>.js.map', dest: './sandbox/web/<%= pkg.name %>.js.map' },
-               { src: './build/dist/<%= pkg.name %>.amd.d.ts', dest: './sandbox/web/<%= pkg.name %>.amd.d.ts' },
-               { src: './build/dist/<%= pkg.name %>.d.ts', dest: './sandbox/web/<%= pkg.name %>.d.ts' }
-            ]
-         }
-      },
-
-      //
-      // Dist build control
+      // Distribution repository build control
       //
       buildcontrol: {
          options: {
@@ -235,8 +223,13 @@ module.exports = function (grunt) {
          coverage: {
             src: 'build/dist/excalibur.js',
             options: {
-               vendor: ['src/spec/support/js-imagediff.js'/*, 'src/spec/support/sourcemaps.js'*/],
-               specs: 'src/spec/TestsSpec.js',
+               vendor: [
+                  'src/spec/support/js-imagediff.js', 
+                  'src/spec/Mocks.js', 
+                  'src/spec/TestUtils.js'/*, 
+                  'src/spec/support/sourcemaps.js'*/
+               ],
+               specs: 'src/spec/*Spec.js',
                keepRunner: true,
                template: require('grunt-template-jasmine-istanbul'),
                templateOptions: {
@@ -297,6 +290,7 @@ module.exports = function (grunt) {
    //
    // Load NPM Grunt tasks as dependencies
    //
+   grunt.loadNpmTasks('grunt-ts');
    grunt.loadNpmTasks('grunt-shell');
    grunt.loadNpmTasks('grunt-contrib-uglify');
    grunt.loadNpmTasks('grunt-contrib-clean');
@@ -317,16 +311,16 @@ module.exports = function (grunt) {
    grunt.registerTask('default', ['tslint:src', 'compile', 'tests', 'visual']);
 
    // Core compile only
-   grunt.registerTask('compile', ['shell:gitBuild', 'clean', 'shell:tsc', 'concat', 'uglify', 'copy']);
+   grunt.registerTask('compile', ['shell:gitBuild', 'clean', 'ts:core', 'concat', 'uglify', 'copy']);
 
    // Run tests quickly
-   grunt.registerTask('tests', ['shell:tscspecs', 'jasmine']);
+   grunt.registerTask('tests', ['ts:specs', 'jasmine']);
 
    // Debug compile (for VS Code)
-   grunt.registerTask('debug', ['compile', 'shell:tscspecsdebug'])   
+   grunt.registerTask('debug', ['compile', 'ts:debug'])   
 
    // Compile visual tests
-   grunt.registerTask('visual', ['shell:tscvisual']);
+   grunt.registerTask('visual', ['ts:visual']);
 
    // Travis CI task
    grunt.registerTask('travis', ['default', 'coveralls']);

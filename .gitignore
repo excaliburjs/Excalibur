@@ -13,6 +13,7 @@ node_cache/
 /bower_components/
 coverage/
 .grunt/
+.tscache/
 
 # Logs and databases #
 ######################
