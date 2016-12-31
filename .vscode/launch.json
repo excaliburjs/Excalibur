@@ -6,15 +6,13 @@
             "type": "phantomjs",
             "request": "launch",
             "preLaunchTask": "compiledebug",
-            "verboseDiagnosticLogging": true,
+            //"verboseDiagnosticLogging": true,
             "port": 8888,
             "file": "${workspaceRoot}\\TestsSpec.js",
             "webRoot": "${workspaceRoot}",
             "runtimeExecutable": "${workspaceRoot}\\node_modules\\phantomjs-prebuilt\\lib\\phantom\\bin\\phantomjs.exe",
             "runtimeArgs": [],
             "scriptArgs": [],
-            //"sourceMapPathOverrides": ["${workspaceRoot}\\src\\spec\\TestsSpec.js"],
-            "trace": "sm",
             "sourceMaps": true
         },
         {
