@@ -18,10 +18,6 @@ module.exports = function (grunt) {
       pkg: grunt.file.readJSON('package.json'),
       version: '<%= pkg.version %>' + appveyorBuild,
       tscCmd: path.join('node_modules', '.bin', 'tsc'),
-      jasmineCmd: path.join('node_modules', '.bin', 'jasmine'),
-      jasmineConfig: path.join('src', 'spec', 'support', 'jasmine.json'),
-      istanbulCmd: path.join('node_modules', '.bin', 'istanbul'),
-      jasmineJs: path.join('node_modules', 'jasmine', 'bin', 'jasmine.js'),
 
       //
       // Clean dists
@@ -51,7 +47,6 @@ module.exports = function (grunt) {
             src: ['src/engine/Index.ts', 'src/browser/global.d.ts'],
             dest: 'build/dist/<%= pkg.name %>.d.ts',
             options: {
-               stripBanners: false,
                process: function (src, filepath) {
                   // strip relative file paths
                   // and add reference path
@@ -103,20 +98,9 @@ module.exports = function (grunt) {
          },
 
          //
-         // Package up Nuget (Windows only)
-         //
-         nuget: {
-            command: 'src\\tools\\nuget pack Excalibur.nuspec -version <%= version %> -OutputDirectory ./build/dist',
-            options: {
-               stdout: true,
-               failOnError: true
-            }
-         },
-
-         //
          // TypeScript Compile Jasmine specs
          //
-         specs: {
+         tscspecs: {
             command: function () {
                return '<%= tscCmd %> -p src/spec/tsconfig.json --outFile src/spec/TestsSpec.js'
             },
@@ -129,7 +113,7 @@ module.exports = function (grunt) {
          //
          // TypeScript Compile Jasmine specs for phantom debugging
          //
-         debugspecs: {
+         tscspecsdebug: {
             command: function () {
                // tsconfig doesn't properly support ordering of includes :(
                   
@@ -149,44 +133,12 @@ module.exports = function (grunt) {
          },
 
          //
-         // Jasmine NPM command
-         //
-         tests: {
-            command: '<%= jasmineCmd %> JASMINE_CONFIG_PATH=<%= jasmineConfig %>',
-            options: {
-               stdout: true,
-               failOnError: true
-            }
-         },
-
-         //
-         // Istanbul command that generates code coverage
-         //
-         istanbul: {
-            command: '<%= istanbulCmd %> cover <%= jasmineJs %> JASMINE_CONFIG_PATH=<%= jasmineConfig %>',
-            options: {
-               stdout: true,
-               failOnError: true
-            }
-         },
-
-         //
-         // TypeScript Compile sample game
-         //
-         sample: {
-            command: '<%= tscCmd %> -t ES5 ./sandbox/web/src/game.ts',
-            options: {
-               stdout: true,
-               failOnError: true
-            }
-         },
-
-         //
          // Compile visual tests
          //
-         visual: {
+         tscvisual: {
             command: function () {
-               var files = grunt.file.expand("./sandbox/web/tests/**/*.ts");
+               var files = grunt.file.expand("./sandbox/web/**/*.ts");
+
                return '<%= tscCmd %> -t ES5 ' + files.join(' ');
             },
             options: {
@@ -194,6 +146,17 @@ module.exports = function (grunt) {
                failOnError: true
             }
          },
+
+         //
+         // Package up Nuget (Windows only)
+         //
+         nuget: {
+            command: 'src\\tools\\nuget pack Excalibur.nuspec -version <%= version %> -OutputDirectory ./build/dist',
+            options: {
+               stdout: true,
+               failOnError: true
+            }
+         },    
 
          gitBuild: {
             command: 'git clone https://github.com/excaliburjs/excalibur-dist build',
@@ -265,6 +228,9 @@ module.exports = function (grunt) {
          ]
       },
 
+      //
+      // Jasmine configuration
+      //
       jasmine: {
          coverage: {
             src: 'build/dist/excalibur.js',
@@ -297,6 +263,9 @@ module.exports = function (grunt) {
          }
       },
 
+      //
+      // Code coverage configuration
+      //
       coveralls: {
          main: {
             src: './coverage/lcov/lcov.info',
@@ -306,6 +275,9 @@ module.exports = function (grunt) {
          }
       },
 
+      //
+      // Package.json version bumper
+      //
       bumpup: {
          setters: {
             // Overrides version setter 
@@ -337,36 +309,31 @@ module.exports = function (grunt) {
    grunt.loadNpmTasks('grunt-bumpup');
    grunt.loadNpmTasks('grunt-contrib-jasmine');
 
-
    //
    // Register available Grunt tasks
    //
 
-   // Compile core engine
+   // Default task - compile & test
+   grunt.registerTask('default', ['tslint:src', 'compile', 'tests', 'visual']);
+
+   // Core compile only
    grunt.registerTask('compile', ['shell:gitBuild', 'clean', 'shell:tsc', 'concat', 'uglify', 'copy']);
 
    // Run tests quickly
-   grunt.registerTask('tests', ['shell:specs', 'jasmine']);
+   grunt.registerTask('tests', ['shell:tscspecs', 'jasmine']);
 
-   // Compile sample game
-   grunt.registerTask('sample', ['shell:sample']);
+   // Debug compile (for VS Code)
+   grunt.registerTask('debug', ['compile', 'shell:tscspecsdebug'])   
 
    // Compile visual tests
-   grunt.registerTask('visual', ['shell:visual']);
+   grunt.registerTask('visual', ['shell:tscvisual']);
 
    // Travis CI task
-   grunt.registerTask('travis', 'default');
+   grunt.registerTask('travis', ['default', 'coveralls']);
 
    // Appveyor task
    grunt.registerTask('appveyor', ['default', 'shell:nuget']);
 
    // CI task to deploy dists
-   grunt.registerTask('dists', ['buildcontrol']);
-
-   // Compile enough for debug
-   grunt.registerTask('compiledebug', ['tslint:src', 'compile', 'shell:debugspecs'])
-
-   // Default task - compile, test, build dists
-   grunt.registerTask('default', ['tslint:src', 'compile', 'shell:specs', 'jasmine', 'coveralls', 'sample', 'visual']);
-
+   grunt.registerTask('dists', ['buildcontrol']);   
 };
