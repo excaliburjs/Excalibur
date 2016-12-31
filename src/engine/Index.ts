@@ -1,10 +1,8 @@
 /**
  * Excalibur.js Public API Declarations
  * 
- * This file used as the bundle entrypoint *and* as the global declaration file.
- * This file determines the exposed public API for Excalibur.
- * It MUST contain valid syntax for both a project file and declaration file.
- * The relative path prefix is removed from the output declarations.
+ * This file used as the bundle entrypoint and exports everything
+ * that will be exposed as the `ex` global variable.
  */
 export * from './Actor';
 export * from './Algebra';

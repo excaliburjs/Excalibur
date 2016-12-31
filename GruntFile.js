@@ -90,16 +90,8 @@ module.exports = function (grunt) {
 
          // Concat public API declarations file
          dts_global: {
-            src: ['src/engine/Index.ts', 'src/browser/global.d.ts'],
-            dest: 'build/dist/<%= pkg.name %>.d.ts',
-            options: {
-               process: function (src, filepath) {
-                  // strip relative file paths (./)
-                  // and add reference path
-                  return grunt.template.process('/// <reference path="<%= pkg.name %>.amd.d.ts" />\n') + 
-                     src.replace(/\.\//g, '');
-               }
-            }
+            src: ['src/browser/global.d.ts'],
+            dest: 'build/dist/<%= pkg.name %>.d.ts'            
          },
          options: {
             separator: '\n',
