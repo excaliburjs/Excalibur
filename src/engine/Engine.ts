@@ -1,3 +1,13 @@
+/**
+ * The Excalibur Engine
+ *
+ * The [[Engine]] is the main driver for a game. It is responsible for 
+ * starting/stopping the game, maintaining state, transmitting events, 
+ * loading resources, and managing the scene.
+ *
+ * [[include:Engine.md]]
+ */
+
 import { ILoadable } from './Interfaces/ILoadable';
 import { Promise } from './Promises';
 import { Vector } from './Algebra';
@@ -21,8 +31,6 @@ import * as Input from './Input/Index';
 import { obsolete } from './Util/Decorators';
 import * as Util from './Util/Util';
 import * as Events from './Events';
-
-export var EX_VERSION = '__EX_VERSION';
 
 /**
  * Enum representing the different display modes available to Excalibur
@@ -86,13 +94,7 @@ export interface IEngineOptions {
 }
 
 /**
- * The Excalibur Engine
- *
- * The [[Engine]] is the main driver for a game. It is responsible for 
- * starting/stopping the game, maintaining state, transmitting events, 
- * loading resources, and managing the scene.
- *
- * [[include:Engine.md]]
+ * Excalibur core engine
  */
 export class Engine extends Class {
 
