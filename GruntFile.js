@@ -34,8 +34,30 @@ module.exports = function (grunt) {
       //
       concat: {
          main: {
-            src: ['src/start.js', 'src/almond.js', 'build/dist/<%= pkg.name %>.amd.js', 'src/end.js'],
-            dest: 'build/dist/<%= pkg.name %>.js'
+            src: ['src/browser/start.js', 'src/browser/almond.js', 'build/dist/<%= pkg.name %>.amd.js', 'src/browser/end.js'],
+            dest: 'build/dist/<%= pkg.name %>.js',
+            options: {
+               process: function (src, filepath) {
+                  return src.replace(/__EX_VERSION/g, grunt.template.process('<%= pkg.version %>'));
+               }
+            }
+         },
+         dts_amd: {
+            src: ['build/dist/<%= pkg.name %>.amd.d.ts'],
+            dest: 'build/dist/<%= pkg.name %>.amd.d.ts'
+         },
+         dts_global: {
+            src: ['src/engine/Index.ts', 'src/browser/global.d.ts'],
+            dest: 'build/dist/<%= pkg.name %>.d.ts',
+            options: {
+               stripBanners: false,
+               process: function (src, filepath) {
+                  // strip relative file paths
+                  // and add reference path
+                  return grunt.template.process('/// <reference path="<%= pkg.name %>.amd.d.ts" />\n') + 
+                     src.replace(/\.\//g, '');
+               }
+            }
          },
          options: {
             separator: '\n',
@@ -44,8 +66,7 @@ module.exports = function (grunt) {
             '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
             '* Copyright (c) <%= grunt.template.today("yyyy") %> Excalibur.js <<%= pkg.author %>>;' +
             ' Licensed <%= pkg.license %>\n' +
-            '* @preserve */\n' +
-            'var EX_VERSION = "<%= version %>";\n'
+            '* @preserve */\n'
          }
       },
 
@@ -190,6 +211,7 @@ module.exports = function (grunt) {
          main: {
             files: [
                { src: './build/dist/<%= pkg.name %>.js', dest: './sandbox/web/<%= pkg.name %>.js' },
+               { src: './build/dist/<%= pkg.name %>.amd.d.ts', dest: './sandbox/web/<%= pkg.name %>.amd.d.ts' },
                { src: './build/dist/<%= pkg.name %>.d.ts', dest: './sandbox/web/<%= pkg.name %>.d.ts' }
             ]
          }
@@ -319,7 +341,7 @@ module.exports = function (grunt) {
    //
 
    // Compile core engine
-   grunt.registerTask('compile', ['shell:gitBuild', 'clean', 'shell:tsc', 'concat:main', 'uglify', 'copy']);
+   grunt.registerTask('compile', ['shell:gitBuild', 'clean', 'shell:tsc', 'concat', 'uglify', 'copy']);
 
    // Run tests quickly
    grunt.registerTask('tests', ['shell:specs', 'jasmine']);

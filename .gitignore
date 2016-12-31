@@ -3,7 +3,7 @@
 /src/engine/*.js
 /src/engine/*.map
 /sandbox/web/**/*.js
-/sandbox/web/excalibur.d.ts
+/sandbox/web/*.d.ts
 /src/spec/*.js
 _SpecRunner.html
 TestsSpec.js

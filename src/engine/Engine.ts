@@ -22,7 +22,7 @@ import { obsolete } from './Util/Decorators';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 
-declare var EX_VERSION: string;
+export var EX_VERSION = '__EX_VERSION';
 
 /**
  * Enum representing the different display modes available to Excalibur

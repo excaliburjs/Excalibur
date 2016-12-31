@@ -1,4 +1,11 @@
-/* Excalibur Public API Index */
+/**
+ * Excalibur.js Public API Declarations
+ * 
+ * This file used as the bundle entrypoint *and* as the global declaration file.
+ * This file determines the exposed public API for Excalibur.
+ * It MUST contain valid syntax for both a project file and declaration file.
+ * The relative path prefix is removed from the output declarations.
+ */
 export * from './Actor';
 export * from './Algebra';
 export * from './Camera';
@@ -38,11 +45,8 @@ export * from './Resources/Index';
 import * as traits from './Traits/Index';
 export { traits as Traits }
 
-// ex.Util and ex.Util.DrawUtil namespaces
-import * as util from './Util/Util';
-import * as drawUtil from './Util/DrawUtil';
-(<any>util).DrawUtil = drawUtil;
-
+// ex.Util namespaces
+import * as util from './Util/Index';
 export { util as Util }
 
 export * from './Util/CullingBox';
