@@ -19,7 +19,6 @@ export class UIActor extends Actor {
    constructor(x?: number, y?: number, width?: number, height?: number) {
       super(x, y, width, height);
       this.traits = [];
-      this.traits.push(new Traits.EulerMovement());
       this.traits.push(new Traits.CapturePointer());
       this.anchor.setTo(0, 0);
       this.collisionType = CollisionType.PreventCollision;

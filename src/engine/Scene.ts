@@ -15,6 +15,7 @@ import { Actor } from './Actor';
 import { Class } from './Class';
 import * as Util from './Util/Util';
 import * as Events from './Events';
+import * as ActorUtils from './Util/Actors';
 
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in 
@@ -174,7 +175,6 @@ export class Scene extends Class {
 
       // Cycle through actors updating UI actors
       for (i = 0, len = this.uiActors.length; i < len; i++) {
-         engine.stats.currFrame.actors.ui++;
          this.uiActors[i].update(engine, delta);
       }
 
@@ -184,10 +184,11 @@ export class Scene extends Class {
       }
 
       // Cycle through actors updating actors
-      for (i = 0, len = this.children.length; i < len; i++) {
-         engine.stats.currFrame.actors.alive++;
+      for (i = 0, len = this.children.length; i < len; i++) {         
          this.children[i].update(engine, delta);
       }
+
+      this._collectActorStats(engine);
 
       // Run the broadphase and narrowphase
       if (this._broadphase && Physics.enabled) {
@@ -557,4 +558,20 @@ export class Scene extends Class {
       this._sortedDrawingTree.add(actor);
    }
 
+   private _collectActorStats(engine: Engine) {
+      for (var ui of this.uiActors) {
+         engine.stats.currFrame.actors.ui++;
+      }
+
+      for (var actor of this.children) {
+         engine.stats.currFrame.actors.alive++;
+         for (var child of actor.children) {
+            if (ActorUtils.isUIActor(child)) {
+               engine.stats.currFrame.actors.ui++;
+            } else {
+               engine.stats.currFrame.actors.alive++;
+            }
+         }
+      }
+   }
 }

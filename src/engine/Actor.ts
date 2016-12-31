@@ -1,8 +1,5 @@
 import { Physics } from './Physics';
 import { Class } from './Class';
-import { Label } from './Label';
-import { Trigger } from './Trigger';
-import { UIActor } from './UIActor';
 import { BoundingBox } from './Collision/BoundingBox';
 import { Texture } from './Resources/Texture';
 import {
@@ -914,10 +911,7 @@ export class Actor extends Class implements IActionable, IEvented {
 
       var totalAcc = this.acc.clone();
       // Only active vanilla actors are affected by global acceleration
-      if (this.collisionType === CollisionType.Active &&
-         !(this instanceof UIActor) &&
-         !(this instanceof Trigger) &&
-         !(this instanceof Label)) {
+      if (this.collisionType === CollisionType.Active) {
          totalAcc.addEqual(Physics.acc);
       }
 
@@ -971,12 +965,7 @@ export class Actor extends Class implements IActionable, IEvented {
       }
 
       // Update child actors
-      for (var i = 0; i < this.children.length; i++) {
-         if (this.children[i] instanceof UIActor) {
-            engine.stats.currFrame.actors.ui++;
-         } else {
-            engine.stats.currFrame.actors.alive++;
-         }
+      for (var i = 0; i < this.children.length; i++) {         
          this.children[i].update(engine, delta);
       }
 

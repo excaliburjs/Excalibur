@@ -1,2 +1,4 @@
 /* Excalibur Public API Index */
-export { Actor } from './Actor';
+export * from './Actor';
+export * from './Algebra';
+export * from './Camera';

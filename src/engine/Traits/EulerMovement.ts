@@ -2,9 +2,7 @@ import { Physics } from './../Physics';
 import { IActorTrait } from '../Interfaces/IActorTrait';
 import { Actor, CollisionType } from '../Actor';
 import { Engine } from '../Engine';
-import { UIActor } from '../UIActor';
-import { Trigger} from '../Trigger';
-import { Label } from '../Label';
+import * as ActorUtils from '../Util/Actors';
 
 export class EulerMovement implements IActorTrait { 
    public update(actor: Actor, engine: Engine, delta: number) {
@@ -14,10 +12,7 @@ export class EulerMovement implements IActorTrait {
       
       var totalAcc = actor.acc.clone();
       // Only active vanilla actors are affected by global acceleration
-      if (actor.collisionType === CollisionType.Active &&
-         !(actor instanceof UIActor) &&
-         !(actor instanceof Trigger) &&
-         !(actor instanceof Label)) {
+      if (actor.collisionType === CollisionType.Active && ActorUtils.isVanillaActor(actor)) {
          totalAcc.addEqual(Physics.acc);
       }
       
