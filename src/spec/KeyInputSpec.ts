@@ -3,7 +3,7 @@
 /// <reference path="Mocks.ts" />
 
 describe('A keyboard', () => {
-   EX_VERSION = 'testversion';
+   
    var mockWindow = null;
    var engine: ex.Engine = null;
    var keyboard: ex.Input.Keyboard = null;

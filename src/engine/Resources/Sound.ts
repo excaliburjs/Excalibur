@@ -205,7 +205,7 @@ export class Sound implements ILoadable, IAudio {
          this.path = paths[0]; // select the first specified
       }
 
-      this.sound = getAudioImplementation(); // reference namespaced function to allow mocks
+      this.sound = getAudioImplementation();
    }
 
    public wireEngine(engine: Engine) {

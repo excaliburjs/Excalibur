@@ -30,6 +30,10 @@ export * from './Actions/Index';
 export * from './Collision/Index';
 export * from './Drawing/Index';
 
+// Interfaces
+export * from './Interfaces/IAudio';
+export * from './Interfaces/IAudioImplementation';
+
 // ex.Events namespace
 import * as events from './Events';
 export { events as Events }
@@ -49,6 +53,8 @@ export { traits as Traits }
 import * as util from './Util/Index';
 export { util as Util }
 
+export * from './Util/Decorators';
 export * from './Util/CullingBox';
 export * from './Util/EasingFunctions';
 export * from './Util/Log';
+export * from './Util/SortedList';
