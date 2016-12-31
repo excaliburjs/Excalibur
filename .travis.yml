@@ -2,8 +2,6 @@ sudo: false
 language: node_js
 node_js:
 - '6'
-before_script: 
-install: true
 cache:
   directories:
   - node_modules
@@ -11,12 +9,11 @@ cache:
   - node_shrinkwrap
   - $HOME/.npm
 script:
-- npm install npm -g
 - npm install
 - node_modules/.bin/grunt travis
 after_success:
 - node deploy-docs.js
-- if [ "$TRAVIS_BRANCH" = "master" ]; then grunt bumpup dists; fi
+- if [ "$TRAVIS_BRANCH" = "master" ]; then node_modules/.bin/grunt bumpup dists; fi
 notifications:
   slack:
     secure: aQXFk2/MxX5eR2JM90xWAA9YX03QArY1ejUmnP/NkFHbB4zzKZblACjEeDTDTDCThZpXhrganX2nDWrWFrrXbOG28wKrRhEZSULPAgyiWGpfkMoT44fKmgh+eZ5C/isMF2eeQCrYo3EQCMxfCKxNaBhyLc+jr/Sm232zU2LaXo8=
