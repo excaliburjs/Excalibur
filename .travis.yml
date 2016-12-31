@@ -9,7 +9,6 @@ cache:
   - node_shrinkwrap
   - $HOME/.npm
 script:
-- npm install
 - node_modules/.bin/grunt travis
 after_success:
 - node deploy-docs.js
