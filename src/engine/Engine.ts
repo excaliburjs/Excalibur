@@ -8,6 +8,7 @@
  * [[include:Engine.md]]
  */
 
+import { EX_VERSION } from './Index';
 import { ILoadable } from './Interfaces/ILoadable';
 import { Promise } from './Promises';
 import { Vector } from './Algebra';
