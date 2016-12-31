@@ -1,7 +1,7 @@
 sudo: false
 language: node_js
 node_js:
-- '4'
+- '6'
 before_script: 
 install: true
 cache:
@@ -12,9 +12,8 @@ cache:
   - $HOME/.npm
 script:
 - npm install npm -g
-- npm install grunt-cli -g
 - npm install
-- grunt travis
+- node_modules/.bin/grunt travis
 after_success:
 - node deploy-docs.js
 - if [ "$TRAVIS_BRANCH" = "master" ]; then grunt bumpup dists; fi
