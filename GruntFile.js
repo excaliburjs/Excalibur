@@ -94,7 +94,7 @@ module.exports = function (grunt) {
          // Execute TypeScript compiler against Excalibur core
          //
          tsc: {
-            command: '<%= tscCmd %> -p src/engine"',
+            command: '<%= tscCmd %> -p src/engine',
             options: {
                stdout: true,
                failOnError: true
