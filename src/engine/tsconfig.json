@@ -2,6 +2,7 @@
     "compilerOptions": {
         "outFile": "../../build/dist/excalibur.amd.js",
         "sourceMap": true,
+        "inlineSources": true,
         "experimentalDecorators": true,
         "target": "es5",
         "module": "amd",

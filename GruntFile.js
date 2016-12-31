@@ -37,6 +37,7 @@ module.exports = function (grunt) {
             src: ['src/browser/start.js', 'src/browser/almond.js', 'build/dist/<%= pkg.name %>.amd.js', 'src/browser/end.js'],
             dest: 'build/dist/<%= pkg.name %>.js',
             options: {
+               sourceMap: true,
                process: function (src, filepath) {
                   return src.replace(/__EX_VERSION/g, grunt.template.process('<%= pkg.version %>'));
                }
@@ -117,9 +118,7 @@ module.exports = function (grunt) {
          //
          specs: {
             command: function () {
-               var files = grunt.file.expand("./src/spec/*.ts");
-
-               return '<%= tscCmd %> --target ES5 --experimentalDecorators --allowJs --sourceMap ' + files.join(' ') + ' --out ./src/spec/TestsSpec.js'
+               return '<%= tscCmd %> -p src/spec/tsconfig.json --outFile src/spec/TestsSpec.js'
             },
             options: {
                stdout: true,
@@ -132,6 +131,8 @@ module.exports = function (grunt) {
          //
          debugspecs: {
             command: function () {
+               // tsconfig doesn't properly support ordering of includes :(
+                  
                var jasmine = ['src/spec/support/phantom-jasmine-invoker.js', 'src/spec/support/js-imagediff.js'];
                var excalibur = ["./build/dist/excalibur.js"];
                var files = grunt.file.expand("./src/spec/*.ts");
@@ -211,6 +212,7 @@ module.exports = function (grunt) {
          main: {
             files: [
                { src: './build/dist/<%= pkg.name %>.js', dest: './sandbox/web/<%= pkg.name %>.js' },
+               { src: './build/dist/<%= pkg.name %>.js.map', dest: './sandbox/web/<%= pkg.name %>.js.map' },
                { src: './build/dist/<%= pkg.name %>.amd.d.ts', dest: './sandbox/web/<%= pkg.name %>.amd.d.ts' },
                { src: './build/dist/<%= pkg.name %>.d.ts', dest: './sandbox/web/<%= pkg.name %>.d.ts' }
             ]

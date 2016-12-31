@@ -1,8 +1,8 @@
 {
-    "compilerOptions": {
-        "sourceMap": true, 
-        "experimentalDecorators": true,
-        "target": "es5",
-        "module": "commonjs"
-    }
+   "compilerOptions": {
+      "sourceMap": true,
+      "experimentalDecorators": true,
+      "target": "es5",
+      "module": "none"
+   }
 }

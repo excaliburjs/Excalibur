@@ -6,7 +6,7 @@
             "type": "phantomjs",
             "request": "launch",
             "preLaunchTask": "compiledebug",
-            //"verboseDiagnosticLogging": true,
+            "verboseDiagnosticLogging": true,
             "port": 8888,
             "file": "${workspaceRoot}\\TestsSpec.js",
             "webRoot": "${workspaceRoot}",
@@ -14,6 +14,7 @@
             "runtimeArgs": [],
             "scriptArgs": [],
             //"sourceMapPathOverrides": ["${workspaceRoot}\\src\\spec\\TestsSpec.js"],
+            "trace": "sm",
             "sourceMaps": true
         },
         {
