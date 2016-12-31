@@ -1,10 +1,10 @@
 {
     "compilerOptions": {
-        "outDir": "../../build/compiled/",
-        "sourceMap": true, 
+        "outFile": "../../build/dist/excalibur.amd.js",
+        "sourceMap": true,
         "experimentalDecorators": true,
         "target": "es5",
-        "module": "commonjs",
+        "module": "amd",
         "declaration": true        
     }
 }

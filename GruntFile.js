@@ -34,20 +34,17 @@ module.exports = function (grunt) {
       //
       concat: {
          main: {
-            src: ['build/dist/<%= pkg.name %>.js'],
+            src: ['src/start.js', 'src/almond.js', 'build/dist/<%= pkg.name %>.amd.js', 'src/end.js'],
             dest: 'build/dist/<%= pkg.name %>.js'
          },
-         minified: {
-            src: ['build/dist/<%= pkg.name %>.min.js'],
-            dest: 'build/dist/<%= pkg.name %>.min.js'
-         },
          options: {
-            separator: '\n;\n',
+            separator: '\n',
             banner: '/*! <%= pkg.title || pkg.name %> - v<%= version %> - ' +
             '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
             '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
             '* Copyright (c) <%= grunt.template.today("yyyy") %> Excalibur.js <<%= pkg.author %>>;' +
-            ' Licensed <%= pkg.license %>*/\n' +
+            ' Licensed <%= pkg.license %>\n' +
+            '* @preserve */\n' +
             'var EX_VERSION = "<%= version %>";\n'
          }
       },
@@ -57,7 +54,8 @@ module.exports = function (grunt) {
       //
       uglify: {
          options: {
-            sourceMap: true
+            sourceMap: true,
+            preserveComments: 'some'
          },
          main: {
             files: {
@@ -314,14 +312,14 @@ module.exports = function (grunt) {
    grunt.loadNpmTasks('grunt-build-control');
    grunt.loadNpmTasks('grunt-bumpup');
    grunt.loadNpmTasks('grunt-contrib-jasmine');
-   grunt.loadNpmTasks('grunt-browserify');
+
 
    //
    // Register available Grunt tasks
    //
 
    // Compile core engine
-   grunt.registerTask('compile', ['shell:gitBuild', 'clean', 'shell:tsc', 'uglify', 'concat', 'copy']);
+   grunt.registerTask('compile', ['shell:gitBuild', 'clean', 'shell:tsc', 'concat:main', 'uglify', 'copy']);
 
    // Run tests quickly
    grunt.registerTask('tests', ['shell:specs', 'jasmine']);
