@@ -1,6 +1,6 @@
 Working with the keyboard is easy in Excalibur. You can inspect
 whether a button was just [[Keyboard.wasPressed|pressed]] or [[Keyboard.wasReleased|released]] this frame, or
-if the key is currently being [[Keyboard.isHeld|held]] down. Common keys are held in the [[Input.Keys]]
+if the key is currently being [[Keyboard.isHeld|held]] down. Common keys are held in the [[Keys]]
 enumeration but you can pass any character code to the methods.
 
 Excalibur subscribes to the browser events and keeps track of

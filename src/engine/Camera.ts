@@ -333,7 +333,7 @@ export class SideCamera extends BaseCamera {
 
 /**
  * An extension of [[BaseCamera]] that is locked to an [[Actor]] or 
- * [[LockedCamera.focus|focal point]]; the actor will appear in the 
+ * [[LockedCamera.getFocus|focal point]]; the actor will appear in the 
  * center of the screen.
  *
  * Common usages: RPGs, adventure games, top-down games.

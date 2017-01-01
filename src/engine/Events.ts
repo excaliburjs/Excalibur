@@ -175,7 +175,7 @@ export class PostFrameEvent extends GameEvent {
 }
 
 /**
- * Event received when a gamepad is connected to Excalibur. [[Input.Gamepads|engine.input.gamepads]] receives this event.
+ * Event received when a gamepad is connected to Excalibur. [[Gamepads]] receives this event.
  */
 export class GamepadConnectEvent extends GameEvent {
    constructor(public index: number, public gamepad: Input.Gamepad) {
@@ -184,7 +184,7 @@ export class GamepadConnectEvent extends GameEvent {
 }
 
 /**
- * Event received when a gamepad is disconnected from Excalibur. [[Input.Gamepads|engine.input.gamepads]] receives this event.
+ * Event received when a gamepad is disconnected from Excalibur. [[Gamepads]] receives this event.
  */
 export class GamepadDisconnectEvent extends GameEvent {
    constructor(public index: number) {

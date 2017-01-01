@@ -1,6 +1,9 @@
 import { Vector } from '../Algebra';
 import { Side } from '../Collision/Side';
 
+/**
+ * Two PI constant
+ */
 export const TwoPI: number = Math.PI * 2;
 
 /**

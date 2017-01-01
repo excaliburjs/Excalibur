@@ -92,8 +92,8 @@ export interface IBorderRadius {
  * @param width The width of the rectangle
  * @param height The height of the rectangle
  * @param radius The border radius of the rectangle
- * @param fill The [[ex.Color]] to fill rectangle with
- * @param stroke The [[ex.Color]] to stroke rectangle with
+ * @param fill The [[Color]] to fill rectangle with
+ * @param stroke The [[Color]] to stroke rectangle with
  */
 export function roundRect(ctx: CanvasRenderingContext2D, 
    x: number, y: number, width: number, height: number, 

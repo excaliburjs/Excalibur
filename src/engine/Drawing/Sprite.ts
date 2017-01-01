@@ -106,35 +106,35 @@ export class Sprite implements IDrawable {
    }
 
    /**
-    * Applies the [[Effects.Opacity]] to a sprite, setting the alpha of all pixels to a given value
+    * Applies the [[Opacity]] effect to a sprite, setting the alpha of all pixels to a given value
     */
    public opacity(value: number) {
       this.addEffect(new Effects.Opacity(value));
    }
 
    /**
-    * Applies the [[Effects.Grayscale]] to a sprite, removing color information.
+    * Applies the [[Grayscale]] effect to a sprite, removing color information.
     */
    public grayscale() {
       this.addEffect(new Effects.Grayscale());
    }
 
    /**
-    * Applies the [[Effects.Invert]] to a sprite, inverting the pixel colors.
+    * Applies the [[Invert]] effect to a sprite, inverting the pixel colors.
     */
    public invert() {
       this.addEffect(new Effects.Invert());
    }
 
    /**
-    * Applies the [[Effects.Fill]] to a sprite, changing the color channels of all non-transparent pixels to match a given color
+    * Applies the [[Fill]] effect to a sprite, changing the color channels of all non-transparent pixels to match a given color
     */
    public fill(color: Color) {
       this.addEffect(new Effects.Fill(color));
    }
 
    /**
-    * Applies the [[Effects.Colorize]] to a sprite, changing the color channels of all pixels to be the average of the original color
+    * Applies the [[Colorize]] effect to a sprite, changing the color channels of all pixels to be the average of the original color
     * and the provided color.
     */
    public colorize(color: Color) {
@@ -142,35 +142,35 @@ export class Sprite implements IDrawable {
    }
 
    /**
-    * Applies the [[Effects.Lighten]] to a sprite, changes the lightness of the color according to HSL
+    * Applies the [[Lighten]] effect to a sprite, changes the lightness of the color according to HSL
     */
    public lighten(factor: number = 0.1) {
       this.addEffect(new Effects.Lighten(factor));
    }
 
    /**
-    * Applies the [[Effects.Darken]] to a sprite, changes the darkness of the color according to HSL
+    * Applies the [[Darken]] effect to a sprite, changes the darkness of the color according to HSL
     */
    public darken(factor: number = 0.1) {
       this.addEffect(new Effects.Darken(factor));
    }
 
    /**
-    * Applies the [[Effects.Saturate]] to a sprite, saturates the color according to HSL
+    * Applies the [[Saturate]] effect to a sprite, saturates the color according to HSL
     */
    public saturate(factor: number = 0.1) {
       this.addEffect(new Effects.Saturate(factor));
    }
 
    /**
-    * Applies the [[Effects.Desaturate]] to a sprite, desaturates the color according to HSL
+    * Applies the [[Desaturate]] effect to a sprite, desaturates the color according to HSL
     */
    public desaturate(factor: number = 0.1) {
       this.addEffect(new Effects.Desaturate(factor));
    }
 
    /**
-    * Adds a new [[Effects.ISpriteEffect]] to this drawing.
+    * Adds a new [[ISpriteEffect]] to this drawing.
     * @param effect  Effect to add to the this drawing
     */
    public addEffect(effect: Effects.ISpriteEffect) {
@@ -185,7 +185,7 @@ export class Sprite implements IDrawable {
    }
 
    /**
-    * Removes a [[Effects.ISpriteEffect]] from this sprite.
+    * Removes a [[ISpriteEffect]] from this sprite.
     * @param effect  Effect to remove from this sprite
     */
    public removeEffect(effect: Effects.ISpriteEffect): void;

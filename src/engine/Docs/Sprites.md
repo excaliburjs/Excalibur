@@ -26,7 +26,7 @@ You can then assign an [[Actor]] a sprite through [[Actor.addDrawing]] and
 
 ## Sprite Effects
 
-Excalibur offers many sprite effects such as [[Effects.Colorize]] to let you manipulate
+Excalibur offers many sprite effects such as [[Colorize]] to let you manipulate
 sprites. Keep in mind, more effects requires more power and can lead to memory or CPU
 constraints and hurt performance. Each effect must be reprocessed every frame for each sprite.
 

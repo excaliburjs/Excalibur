@@ -980,7 +980,7 @@ export class RepeatForever implements IAction {
  * Action queues are part of the [[ActionContext|Action API]] and
  * store the list of actions to be executed for an [[Actor]].
  *
- * Actors implement [[Action.actionQueue]] which can be manipulated by
+ * Actors implement [[Actor.actions]] which can be manipulated by
  * advanced users to adjust the actions currently being executed in the
  * queue.
  */

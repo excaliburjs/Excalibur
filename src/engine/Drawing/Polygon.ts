@@ -5,7 +5,7 @@ import { IDrawable } from '../Interfaces/IDrawable';
 import { Vector } from '../Algebra';
 
 /**
- * Creates a closed polygon drawing given a list of [[Point]]s.
+ * Creates a closed polygon drawing given a list of [[Vector]]s.
  *
  * @warning Use sparingly as Polygons are performance intensive
  */

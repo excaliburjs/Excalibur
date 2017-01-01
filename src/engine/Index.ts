@@ -1,8 +1,7 @@
 /**
- * Excalibur.js Public API
- * 
- * [[include:Index.md]]
+ * The current Excalibur version string
  */
+export var EX_VERSION = '__EX_VERSION';
 
 // This file is used as the bundle entrypoint and exports everything
 // that will be exposed as the `ex` global variable.
@@ -59,8 +58,3 @@ export * from './Util/CullingBox';
 export * from './Util/EasingFunctions';
 export * from './Util/Log';
 export * from './Util/SortedList';
-
-/**
- * The current Excalibur version string
- */
-export var EX_VERSION = '__EX_VERSION';

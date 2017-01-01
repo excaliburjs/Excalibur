@@ -1,13 +1,3 @@
-/**
- * The Excalibur Engine
- *
- * The [[Engine]] is the main driver for a game. It is responsible for 
- * starting/stopping the game, maintaining state, transmitting events, 
- * loading resources, and managing the scene.
- *
- * [[include:Engine.md]]
- */
-
 import { EX_VERSION } from './Index';
 import { ILoadable } from './Interfaces/ILoadable';
 import { Promise } from './Promises';
@@ -95,7 +85,13 @@ export interface IEngineOptions {
 }
 
 /**
- * Excalibur core engine
+ * The Excalibur Engine
+ *
+ * The [[Engine]] is the main driver for a game. It is responsible for 
+ * starting/stopping the game, maintaining state, transmitting events, 
+ * loading resources, and managing the scene.
+ *
+ * [[include:Engine.md]]
  */
 export class Engine extends Class {
 
@@ -133,7 +129,7 @@ export class Engine extends Class {
 
    /**
     * Current FPS
-    * @obsolete Use [[ex.FrameStats.fps|ex.Engine.stats.fps]]. Will be deprecated in future versions.
+    * @obsolete Use [[FrameStats.fps|Engine.stats.fps]]. Will be deprecated in future versions.
     */
    @obsolete({ alternateMethod: 'ex.Engine.stats.currFrame.fps' })
    public get fps(): number {

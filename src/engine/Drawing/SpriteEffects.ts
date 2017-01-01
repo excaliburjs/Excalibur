@@ -5,6 +5,10 @@
  * [[include:SpriteEffects.md]]
  */
 
+/**
+ * @typedoc
+ */
+
 import { Color } from './Color';
 
 /**

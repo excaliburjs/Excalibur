@@ -1,5 +1,5 @@
 ﻿/**
- * A definition of an EasingFunction. See [[ex.EasingFunctions]].    
+ * A definition of an EasingFunction. See [[EasingFunctions]].    
  */
 export interface EasingFunction { // tslint:disable-line
    (currentTime: number, startValue: number, endValue: number, duration: number): number;

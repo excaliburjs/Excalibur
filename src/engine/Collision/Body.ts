@@ -23,7 +23,7 @@ export class Body {
    public collisionArea: ICollisionArea = null;
 
    /**
-    * The (x, y) position of the actor this will be in the middle of the actor if the [[anchor]] is set to (0.5, 0.5) which is default. 
+    * The (x, y) position of the actor this will be in the middle of the actor if the [[Actor.anchor]] is set to (0.5, 0.5) which is default. 
     * If you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0). 
     */
    public pos: Vector = new Vector(0, 0);
