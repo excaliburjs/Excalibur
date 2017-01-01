@@ -29,6 +29,7 @@ export * from './UIActor';
 export * from './Actions/Index';
 export * from './Collision/Index';
 export * from './Drawing/Index';
+export * from './Math/Random';
 
 // Interfaces
 export * from './Interfaces/IAudio';
