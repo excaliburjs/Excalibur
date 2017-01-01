@@ -29,11 +29,10 @@ export * from './UIActor';
 export * from './Actions/Index';
 export * from './Collision/Index';
 export * from './Drawing/Index';
+export * from './Interfaces/Index';
 export * from './Math/Random';
-
-// Interfaces
-export * from './Interfaces/IAudio';
-export * from './Interfaces/IAudioImplementation';
+export * from './PostProcessing/Index';
+export * from './Resources/Index';
 
 // ex.Events namespace
 import * as events from './Events';
@@ -42,9 +41,6 @@ export { events as Events }
 // ex.Input namespace
 import * as input from './Input/Index';
 export { input as Input }
-
-export * from './PostProcessing/Index';
-export * from './Resources/Index';
 
 // ex.Traits namespace
 import * as traits from './Traits/Index';
@@ -55,6 +51,7 @@ import * as util from './Util/Index';
 export { util as Util }
 
 export * from './Util/Decorators';
+export * from './Util/Detector';
 export * from './Util/CullingBox';
 export * from './Util/EasingFunctions';
 export * from './Util/Log';
