@@ -6,13 +6,13 @@ Getting Excalibur
 
 There are several ways you can download Excalibur.
 
+**npm** (Best for TypeScript projects)::
+
+    npm install excalibur
+
 **Bower**::
 
     bower install excalibur
-
-**npm**::
-
-    npm install excalibur
     
 **Nuget**::
 
@@ -100,13 +100,15 @@ Referencing Excalibur as a Module
 
 Excalibur is built using the `AMD <https://github.com/amdjs/amdjs-api/blob/master/AMD.md>`_ module 
 system. The standalone files ``excalibur.js`` or ``excalibur.min.js`` use the 
-`UMD <https://github.com/umdjs/umd>`_ module syntax at runtime to support CommonJS (Node-like), AMD, and a global browser fallback.  has a self-bootstrapping AMD loader and Excalibur
-is loaded into the ``ex`` global namespace. These are the recommended files to use for production deployments.
+`UMD <https://github.com/umdjs/umd>`_ module syntax at runtime to support CommonJS (Node-like), AMD, 
+and a global browser fallback. It is auto-loaded into the ``ex`` global namespace. 
+These are the recommended files to use for production deployments.
 
 You can optionally use ``excalibur.amd.js`` and ``excalibur.amd.d.ts`` to load Excalibur using an
-AMD-compatible loader (such as `jspm <http://jspm.io/>`_).
+AMD-compatible loader (such as `jspm <http://jspm.io/>`_). Note that this method is harder to
+reference via TypeScript.
 
-To get started, first install Excalibur through npm:
+To get started, first install Excalibur through npm (TypeScript typings are best supported in npm):
 
 .. code-block:: bash
    
@@ -116,6 +118,7 @@ In a TypeScript project, you can reference Excalibur with the ES6 import style s
 
 .. code-block:: typescript
 
+   // Excalibur is loaded into the ex global namespace
    import * as ex from 'excalibur'
 
 At runtime, you should still include ``excalibur.min.js`` standalone. In a module loader system,
