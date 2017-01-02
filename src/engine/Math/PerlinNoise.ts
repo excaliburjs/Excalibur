@@ -39,6 +39,8 @@ export class PerlinNoise {
          this._random = new Random();
       }
       
+      this._perm = this._random.shuffle(this._perm);
+
       for (var i = 0; i < 512; i++) {
          this._p[i] = this._perm[i % 256] & 0xFF;
       }      
@@ -95,7 +97,7 @@ export class PerlinNoise {
    }
 
    private _noise1d(x: number) {
-      var intX = Math.floor(x) & 0xFF; // force 0-255 integers to lookup in permultation
+      var intX = Math.floor(x) & 0xFF; // force 0-255 integers to lookup in permutation
       x -= Math.floor(x);
       var fadeX = _fade(x);
       return _lerp(fadeX, this._gradient1d(this._p[intX], x), this._gradient1d(this._p[intX + 1], x - 1));
