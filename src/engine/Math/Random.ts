@@ -8,7 +8,9 @@
  * [[include:Random.md]]
  */
 
-/* 32-bit mask */
+/**
+ * 32-bit mask
+ */
 const BITMASK32: number = 0xFFFFFFFF;
 
 /**
