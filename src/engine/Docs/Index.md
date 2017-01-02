@@ -71,6 +71,7 @@ These classes provide the basics for math & algebra operations.
 - [[Ray]]
 - [[Line]]
 - [[Projection]]
+- [["Math/Random"|Random]]
 
 ## Utilities
 
