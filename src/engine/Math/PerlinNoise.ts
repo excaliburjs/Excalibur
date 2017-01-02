@@ -8,6 +8,14 @@ function _fade(t: number): number {
    return t * t * t * (t * (t * 6 - 15) + 10);
 }
 
+export interface IPerlinNoiseOptions {
+   seed?: number;
+   octaves?: number;
+   frequency?: number;
+   amplitude?: number;
+   persistance?: number;
+}
+
 /**
  * Generates perlin noise based on the 2002 Siggraph paper http://mrl.nyu.edu/~perlin/noise/ 
  * Also https://flafla2.github.io/2014/08/09/perlinnoise.html 
@@ -49,15 +57,15 @@ export class PerlinNoise {
    /**
     * 1-Dimensional perlin noise
     */
-   public noise(x: number);
+   public noise(x: number): number;
    /**
     * 2-Dimensional perlin noise
     */
-   public noise(x: number, y: number);
+   public noise(x: number, y: number): number;
    /**
     * 3-Dimensional perlin noise 
     */
-   public noise(x: number, y: number, z: number);
+   public noise(x: number, y: number, z: number): number;
    public noise(args: any): number {
       var amp = this.amplitude;
       var freq = this.frequency;
@@ -74,7 +82,7 @@ export class PerlinNoise {
                                            arguments[2] * freq) * amp; break;
             default: throw new Error('Invalid arguments for perlin noise');
          }
-         maxValue += this.amplitude;
+         maxValue += amp;
          amp *= this.persistance;
          freq *= 2;
       }
@@ -100,7 +108,7 @@ export class PerlinNoise {
       var intX = Math.floor(x) & 0xFF; // force 0-255 integers to lookup in permutation
       x -= Math.floor(x);
       var fadeX = _fade(x);
-      return _lerp(fadeX, this._gradient1d(this._p[intX], x), this._gradient1d(this._p[intX + 1], x - 1));
+      return (_lerp(fadeX, this._gradient1d(this._p[intX], x), this._gradient1d(this._p[intX + 1], x - 1)) + 1) / 2;
    }
 
    private _noise2d(x: number, y: number) {
@@ -114,9 +122,9 @@ export class PerlinNoise {
       var fadeY = _fade(y);
       var a = this._p[intX] + intY;
       var b = this._p[intX + 1] + intY;
-      return _lerp(fadeY, 
+      return (_lerp(fadeY, 
                   _lerp(fadeX, this._gradient2d(this._p[a] , x, y), this._gradient2d(this._p[b] , x - 1, y)),
-                  _lerp(fadeX, this._gradient2d(this._p[a + 1] , x, y - 1), this._gradient2d(this._p[b + 1], x - 1, y - 1)));
+                  _lerp(fadeX, this._gradient2d(this._p[a + 1] , x, y - 1), this._gradient2d(this._p[b + 1], x - 1, y - 1))) + 1) / 2;
    }
 
    private _noise3d(x: number, y: number, z: number) {
@@ -142,7 +150,7 @@ export class PerlinNoise {
       var bb = this._p[b + 1] + intZ;
 
 
-      return _lerp(fadeZ, 
+      return (_lerp(fadeZ, 
                   _lerp(fadeY, 
                        _lerp(fadeX, this._gradient3d(this._p[aa] , x, y, z), 
                                     this._gradient3d(this._p[ba] , x - 1, y, z)),
@@ -152,6 +160,6 @@ export class PerlinNoise {
                         _lerp(fadeX, this._gradient3d(this._p[aa + 1] , x, y, z - 1), 
                                      this._gradient3d(this._p[ba + 1] , x - 1, y, z - 1)),
                         _lerp(fadeX, this._gradient3d(this._p[ab + 1] , x, y - 1, z - 1), 
-                                     this._gradient3d(this._p[bb + 1], x - 1, y - 1, z - 1))));
+                                     this._gradient3d(this._p[bb + 1], x - 1, y - 1, z - 1)))) + 1) / 2;
    }
 }

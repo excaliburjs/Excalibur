@@ -1,4 +1,4 @@
-/*! excalibur - v0.8.0 - 2017-01-01
+/*! excalibur - v0.8.0 - 2017-01-02
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2017 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause
 * @preserve */
@@ -4520,6 +4520,51 @@ declare module "Math/Random" {
         d20(): number;
     }
 }
+declare module "Math/PerlinNoise" {
+    export interface IPerlinNoiseOptions {
+        seed?: number;
+        octaves?: number;
+        frequency?: number;
+        amplitude?: number;
+        persistance?: number;
+    }
+    /**
+     * Generates perlin noise based on the 2002 Siggraph paper http://mrl.nyu.edu/~perlin/noise/
+     * Also https://flafla2.github.io/2014/08/09/perlinnoise.html
+     */
+    export class PerlinNoise {
+        octaves: number;
+        frequency: number;
+        amplitude: number;
+        persistance: number;
+        private _perm;
+        private _p;
+        private _random;
+        constructor(seed?: number, octaves?: number, frequency?: number, amplitude?: number, persistance?: number);
+        /**
+         * 1-Dimensional perlin noise
+         */
+        noise(x: number): number;
+        /**
+         * 2-Dimensional perlin noise
+         */
+        noise(x: number, y: number): number;
+        /**
+         * 3-Dimensional perlin noise
+         */
+        noise(x: number, y: number, z: number): number;
+        private _gradient3d(hash, x, y, z);
+        private _gradient2d(hash, x, y);
+        private _gradient1d(hash, x);
+        private _noise1d(x);
+        private _noise2d(x, y);
+        private _noise3d(x, y, z);
+    }
+}
+declare module "Math/Index" {
+    export * from "Math/PerlinNoise";
+    export * from "Math/Random";
+}
 declare module "PostProcessing/IPostProcessor" {
     /**
      * Adds post processing support for the engine, can process raw pixel data and manipulate canvas directly.
@@ -5175,7 +5220,7 @@ declare module "Index" {
     export * from "Collision/Index";
     export * from "Drawing/Index";
     export * from "Interfaces/Index";
-    export * from "Math/Random";
+    export * from "Math/Index";
     export * from "PostProcessing/Index";
     export * from "Resources/Index";
     import * as events from "Events";
