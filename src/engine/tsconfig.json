@@ -1,11 +1,11 @@
 {
     "compilerOptions": {
-        "out": "../dist/Excalibur.js", 
-        "sourceMap": true, 
+        "outFile": "../../build/dist/excalibur.amd.js",
+        "sourceMap": true,
+        "inlineSources": true,
         "experimentalDecorators": true,
-        "target": "es5"
-    }, 
-    "files": [
-        "Engine.ts"
-    ]
+        "target": "es5",
+        "module": "amd",
+        "declaration": true        
+    }
 }

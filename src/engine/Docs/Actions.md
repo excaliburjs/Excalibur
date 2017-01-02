@@ -31,7 +31,7 @@ class Enemy extends ex.Actor {
 
 ## Example: Follow a Path
 
-You can use [[ex.ActionContext.moveTo|Actor.actions.moveTo]] to move to a specific point,
+You can use [[ActionContext.moveTo|Actor.actions.moveTo]] to move to a specific point,
 allowing you to chain together actions to form a path.
 
 This example has a `Ship` follow a path that it guards by

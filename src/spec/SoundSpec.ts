@@ -19,11 +19,9 @@ describe('Sound resource', () => {
       audioMock = new MockAudioImplementation();
 
       spyOn(ex.Sound, 'canPlayFile').and.returnValue(true);
-      spyOn(ex, 'getAudioImplementation').and.callFake(() => {         
-         return audioMock;
-      });
 
       sut = new ex.Sound('test/path.mp3');
+      sut.sound = audioMock;
 
       expect(sut.path).toBe('test/path.mp3');
    });

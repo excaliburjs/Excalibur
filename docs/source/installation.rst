@@ -6,13 +6,13 @@ Getting Excalibur
 
 There are several ways you can download Excalibur.
 
+**npm** (Best for TypeScript projects)::
+
+    npm install excalibur
+
 **Bower**::
 
     bower install excalibur
-
-**npm**::
-
-    npm install excalibur
     
 **Nuget**::
 
@@ -51,12 +51,10 @@ Unstable Builds
 
 If you want to live on the edge and get unstable builds, you can add the Excalibur Appveyor Nuget feed to your project, see :doc:`unstable`.
 
-Referencing Excalibur in your project
--------------------------------------
+Referencing Excalibur Standalone
+--------------------------------
 
 Just include the ``excalibur.min.js`` file on your page and you'll be set.
-
-If you're using TypeScript, be sure to reference the declaration file ``excalibur.d.ts`` file.
 
 .. code-block:: html
 
@@ -69,25 +67,96 @@ If you're using TypeScript, be sure to reference the declaration file ``excalibu
         </body>
     </html>
 
-Referencing Excalibur via Imports
+Referencing Excalibur via Triple-Slash Reference
+------------------------------------------------
+
+For a simple TypeScript-based game, using triple-slash references works great. It requires
+no extra module system or loaders.
+
+.. code-block:: typescript
+   
+   /// <reference path="node_modules/excalibur/dist/excalibur.d.ts" />
+
+   var game = new ex.Engine({ ... });
+
+Make sure the path is relative to the current TS file. You only need to include the reference
+on your "entrypoint" file. Then simply include ``excalibur.min.js`` as mentioned above in your 
+HTML page. 
+
+You can also reference Excalibur through the ``tsconfig.json``.
+
+.. code-block:: javascript
+
+   {
+      "compilerOptions": {
+         "target": "es5",
+         "outFile": "game.js",
+         "types": ["excalibur"]
+      }
+   }
+
+Referencing Excalibur as a Module
 ---------------------------------
 
-Excalibur does not yet come with out-of-the-box support for ``import`` intellisense in TypeScript. 
-However, until it's natively supported, you can add support yourself with a slight modification.
+Excalibur is built using the `AMD <https://github.com/amdjs/amdjs-api/blob/master/AMD.md>`_ module 
+system. The standalone files ``excalibur.js`` or ``excalibur.min.js`` use the 
+`UMD <https://github.com/umdjs/umd>`_ module syntax at runtime to support CommonJS (Node-like), AMD, 
+and a global browser fallback. It is auto-loaded into the ``ex`` global namespace. 
+These are the recommended files to use for production deployments.
 
-Modify your local copy of the distributed ``excalibur.d.ts`` file and add the following to the end:
+You can optionally use ``excalibur.amd.js`` and ``excalibur.amd.d.ts`` to load Excalibur using an
+AMD-compatible loader (such as `jspm <http://jspm.io/>`_). Note that this method is harder to
+reference via TypeScript.
+
+To get started, first install Excalibur through npm (TypeScript typings are best supported in npm):
+
+.. code-block:: bash
+   
+   npm install excalibur -D
+
+In a TypeScript project, you can reference Excalibur with the ES6 import style syntax:
 
 .. code-block:: typescript
 
-   export default ex;
+   // Excalibur is loaded into the ex global namespace
+   import * as ex from 'excalibur'
 
-This will allow you to reference Excalibur using TypeScript with the import style syntax:
+At runtime, you should still include ``excalibur.min.js`` standalone. In a module loader system,
+such as `SystemJS <https://github.com/systemjs/systemjs>`_, you must mark ``excalibur`` as an 
+external module.
 
-.. code-block:: typescript
+An example SystemJS configuration:
 
-   import ex from 'excalibur'
+.. code-block:: javascript
 
-You can read more about specific module syntax in the `TypeScript Handbook <http://www.typescriptlang.org/docs/handbook/modules.html>`_.
+   System.config({
+    paths: {
+      // paths serve as alias
+      'npm:': 'node_modules/'
+    },
+    // map tells the System loader where to look for things
+    map: {
+      // our app is within the app folder
+      app: 'app',
+      // excalibur in an npm module
+      'excalibur': 'npm:excalibur/dist/excalibur.js'
+    },
+    // packages tells the System loader how to load when no filename and/or no extension
+    packages: {
+      app: {
+        main: './main.js',
+        defaultExtension: 'js'
+      }
+    });
+
+Angular2, Webpack, and More
+---------------------------
+
+The `excaliburjs <https://github.com/excaliburjs>`_ organization on GitHub has several example projects:
+
+- `TypeScript, Angular2 & SystemJS <https://github.com/excaliburjs/example-ts-angular2>`_
+- `TypeScript & Webpack <https://github.com/excaliburjs/example-ts-webpack>`_
+- `TypeScript & Browserify <https://github.com/excaliburjs/example-ts-webpack>`_
 
 For Windows 8 & 10 projects
 ---------------------------

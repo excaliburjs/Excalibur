@@ -1,9 +1,0 @@
-{
-  "scripts":{
-    "preinstall": "npm install -g browserify"
-  },
-  "devDependencies": {    
-    "grunt": "0.4.2",
-    "grunt-shell": "0.6.1"
-   }
-}

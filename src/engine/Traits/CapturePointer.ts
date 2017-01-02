@@ -1,26 +1,25 @@
-/// <reference path="../Interfaces/IActorTrait.ts" />
+import { IActorTrait } from '../Interfaces/IActorTrait';
+import { Actor } from '../Actor';
+import { Engine } from '../Engine';
 
-module ex.Traits {
-
-   export interface ICapturePointerConfig {
-      
-      /**
-       * Capture PointerMove events (may be expensive!)
-       */
-      captureMoveEvents: boolean;
-
-   }
-
+export interface ICapturePointerConfig {
+   
    /**
-    * Propogates pointer events to the actor
+    * Capture PointerMove events (may be expensive!)
     */
-   export class CapturePointer implements IActorTrait {
+   captureMoveEvents: boolean;
 
-      public update(actor: Actor, engine: Engine, delta: number) {
-         if (!actor.enableCapturePointer) { return; }
-         if (actor.isKilled()) { return; }
-         
-         engine.input.pointers.propogate(actor);         
-      }
+}
+
+/**
+ * Propogates pointer events to the actor
+ */
+export class CapturePointer implements IActorTrait {
+
+   public update(actor: Actor, engine: Engine, delta: number) {
+      if (!actor.enableCapturePointer) { return; }
+      if (actor.isKilled()) { return; }
+      
+      engine.input.pointers.propogate(actor);         
    }
 }

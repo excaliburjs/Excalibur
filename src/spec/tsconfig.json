@@ -1,7 +1,8 @@
 {
-    "compilerOptions": {
-        "sourceMap": true, 
-        "experimentalDecorators": true,
-        "target": "es5"
-    }
+   "compilerOptions": {
+      "sourceMap": true,
+      "experimentalDecorators": true,
+      "target": "es5",
+      "module": "none"
+   }
 }

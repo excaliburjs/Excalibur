@@ -139,7 +139,7 @@ to manipulate the [[Sprite|sprites]]/[[Animation|animations]] that the actor is 
 ### Working with Textures & Sprites
 
 Think of a [[Texture|texture]] as the raw image file that will be loaded into Excalibur. In order for it to be drawn
-it must be converted to a [[Sprite.sprite]].
+it must be converted to a [[Sprite]].
 
 A common usage is to load a [[Texture]] and convert it to a [[Sprite]] for an actor. If you are using the [[Loader]] to
 pre-load assets, you can simply assign an actor a [[Sprite]] to draw. You can also create a 
@@ -243,9 +243,9 @@ plugging in an external collision detection library like [[https://github.com/kr
 [[http://wellcaffeinated.net/PhysicsJS/|PhysicsJS]] by wrapping it in a trait. Removing traits can also make your 
 actors more efficient.
 
-Default traits provided by Excalibur are [[Traits.CapturePointer|pointer capture]], 
-[[Traits.CollisionDetection|tile map collision]], [[Traits.Movement|Euler style movement]], 
-and [[Traits.OffscreenCulling|offscreen culling]].
+Default traits provided by Excalibur are [["Traits/CapturePointer"|pointer capture]], 
+[["Traits/TileMapCollisionDetection"|tile map collision]], 
+and [["Traits/OffscreenCulling"|offscreen culling]].
 
 ## Known Issues
 

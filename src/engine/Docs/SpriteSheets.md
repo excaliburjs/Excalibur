@@ -30,7 +30,7 @@ game.start(loader).then(function () {
 
 ## Creating animations
 
-[[SpriteSheets]] provide a quick way to generate a new [[Animation]] instance.
+[[SpriteSheet|SpriteSheets]] provide a quick way to generate a new [[Animation]] instance.
 
 You can use *all* the frames of a [[Texture]] ([[SpriteSheet.getAnimationForAll]])
 or you can use a range of frames ([[SpriteSheet.getAnimationBetween]]) or you

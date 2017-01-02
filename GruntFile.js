@@ -18,37 +18,105 @@ module.exports = function (grunt) {
       pkg: grunt.file.readJSON('package.json'),
       version: '<%= pkg.version %>' + appveyorBuild,
       tscCmd: path.join('node_modules', '.bin', 'tsc'),
-      jasmineCmd: path.join('node_modules', '.bin', 'jasmine'),
-      jasmineConfig: path.join('src', 'spec', 'support', 'jasmine.json'),
-      istanbulCmd: path.join('node_modules', '.bin', 'istanbul'),
-      jasmineJs: path.join('node_modules', 'jasmine', 'bin', 'jasmine.js'),
-      
       //
-      // Clean dists
+      // Clean dists and tests
       //
-      clean: ['build/dist'],
+      clean: ['build/dist', 'src/spec/*.js', 'src/spec/*.map'],
 
       //
-      // Concatenate build files
-      // Add banner to files
+      // Typescript compilation targets
+      //
+      ts: {
+
+         // Core engine
+         core: {
+            tsconfig: 'src/engine',
+            options: {
+               removeComments: false
+            }
+         },
+
+         // Jasmine specs
+         specs: {
+            tsconfig: 'src/spec'
+         },
+
+         // HTML visual tests
+         visual: {
+            options: {
+               target: 'es5'
+            },
+            src: ['sandbox/web/**/*.ts']
+         },
+
+         // Jasmine debug specs (for VS Code)
+         debug: {
+            options: {
+               allowJs: true,
+               sourceMap: true,
+               experimentalDecorators: true
+            },
+            out: 'TestsSpec.js',
+            src: [
+               'src/spec/support/phantom-jasmine-invoker.js',
+               'src/spec/support/js-imagediff.js',
+               'build/dist/excalibur.js',
+               'src/spec/*.ts',
+               'node_modules/source-map-support/browser-source-map-support.js',
+               'src/spec/support/start-tests.js'
+            ]
+         }
+      },
+
+      //
+      // Concatenate build files and add banner copyright info
       //
       concat: {
-         main: {
-            src: ['build/dist/<%= pkg.name %>.js', 'src/engine/Exports.js'],
-            dest: 'build/dist/<%= pkg.name %>.js'
+
+         // excalibur.amd.js
+         amd_js: {
+            src: ['build/dist/<%= pkg.name %>.amd.js'],
+            dest: 'build/dist/<%= pkg.name %>.amd.js',
+            options: {
+               sourceMap: true,
+               process: function (src, filepath) {
+                  return src.replace(/__EX_VERSION/g, grunt.template.process('<%= pkg.version %>'));
+               }
+            }
          },
-         minified: {
-            src: ['build/dist/<%= pkg.name %>.min.js', 'src/engine/Exports.js'],
-            dest: 'build/dist/<%= pkg.name %>.min.js'
+
+         // excalibur.js (UMD style)
+         dist_js: {
+            src: ['src/browser/start.js', 'src/browser/almond.js', 'build/dist/<%= pkg.name %>.amd.js', 'src/browser/end.js'],
+            dest: 'build/dist/<%= pkg.name %>.js',
+            options: {
+               sourceMap: true,
+               process: function (src, filepath) {
+                  return src.replace(/__EX_VERSION/g, grunt.template.process('<%= pkg.version %>'));
+               }
+            }
          },
+
+         // Concat banner to AMD declarations file
+         amd_dts: {
+            src: ['build/dist/<%= pkg.name %>.amd.d.ts'],
+            dest: 'build/dist/<%= pkg.name %>.amd.d.ts'
+         },
+
+         // Concat public API declarations file
+         dist_dts: {
+            src: ['src/browser/global.d.ts'],
+            dest: 'build/dist/<%= pkg.name %>.d.ts'            
+         },
+
          options: {
-            separator: '\n;\n',
+            separator: '\n',
             banner: '/*! <%= pkg.title || pkg.name %> - v<%= version %> - ' +
-                    '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
-                    '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
-                    '* Copyright (c) <%= grunt.template.today("yyyy") %> Excalibur.js <<%= pkg.author %>>;' +
-                    ' Licensed <%= pkg.license %>*/\n' +
-                    'var EX_VERSION = "<%= version %>";\n'
+            '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
+            '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
+            '* Copyright (c) <%= grunt.template.today("yyyy") %> Excalibur.js <<%= pkg.author %>>;' +
+            ' Licensed <%= pkg.license %>\n' +
+            '* @preserve */\n'
          }
       },
 
@@ -57,30 +125,34 @@ module.exports = function (grunt) {
       //
       uglify: {
          options: {
-            sourceMap: true
+            sourceMap: true,
+            preserveComments: 'some'
          },
          main: {
             files: {
                'build/dist/<%= pkg.name %>.min.js': 'build/dist/<%= pkg.name %>.js'
-            } 
-         }         
+            }
+         }
+      },
+
+      //
+      // Copy dists for visual compilation/testing
+      //
+      copy: {
+         visual: {
+            files: [
+               { src: './build/dist/<%= pkg.name %>.js', dest: './sandbox/web/<%= pkg.name %>.js' },
+               { src: './build/dist/<%= pkg.name %>.js.map', dest: './sandbox/web/<%= pkg.name %>.js.map' },
+               { src: './build/dist/<%= pkg.name %>.amd.d.ts', dest: './sandbox/web/<%= pkg.name %>.amd.d.ts' },
+               { src: './build/dist/<%= pkg.name %>.d.ts', dest: './sandbox/web/<%= pkg.name %>.d.ts' }
+            ]
+         }
       },
 
       //
       // Shell Commands
       //
       shell: {
-
-         //
-         // Execute TypeScript compiler against Excalibur core
-         //
-         tsc: {
-            command: '<%= tscCmd %> --declaration --sourceMap --target ES5 --experimentalDecorators "./src/engine/Engine.ts" --out "./build/dist/<%= pkg.name %>.js"',               
-            options: {
-               stdout: true,
-               failOnError: true
-            }
-         },         
 
          //
          // Package up Nuget (Windows only)
@@ -91,90 +163,11 @@ module.exports = function (grunt) {
                stdout: true,
                failOnError: true
             }
-         },
-         
-         //
-         // TypeScript Compile Jasmine specs
-         //
-         specs: {
-            command: function () {
-            	var files = grunt.file.expand("./src/spec/*.ts");
-
-            	return '<%= tscCmd %> --target ES5 --experimentalDecorators --allowJs --sourceMap ' + files.join(' ') + ' --out ./src/spec/TestsSpec.js'
-            },
-            options: {
-               stdout: true,
-               failOnError: true
-            }
-         },
+         },    
 
          //
-         // TypeScript Compile Jasmine specs for phantom debugging
+         // Clone distribution repository
          //
-         debugspecs: {
-            command: function () {
-               var jasmine = ['src/spec/support/phantom-jasmine-invoker.js', 'src/spec/support/js-imagediff.js'];
-               var excalibur = ["./build/dist/excalibur.js"];
-            	var files = grunt.file.expand("./src/spec/*.ts");
-               var help = ['node_modules/source-map-support/browser-source-map-support.js', 'src/spec/support/start-tests.js']
-
-               var allfiles = jasmine.concat(excalibur).concat(files).concat(help)
-
-            	return '<%= tscCmd %> --target ES5 --allowJs --sourceMap ' + allfiles.join(' ') + ' --out ./TestsSpec.js'
-            },
-            options: {
-               stdout: true,
-               failOnError: true
-            }
-         },
-         
-         //
-         // Jasmine NPM command
-         //
-         tests: {
-             command: '<%= jasmineCmd %> JASMINE_CONFIG_PATH=<%= jasmineConfig %>',
-             options: {
-                 stdout: true,
-                 failOnError: true
-             }
-         },
-         
-         //
-         // Istanbul command that generates code coverage
-         //
-         istanbul: {
-             command: '<%= istanbulCmd %> cover <%= jasmineJs %> JASMINE_CONFIG_PATH=<%= jasmineConfig %>',
-             options: {
-                 stdout: true,
-                 failOnError: true
-             }
-         },
-
-         //
-         // TypeScript Compile sample game
-         //
-         sample: {
-            command: '<%= tscCmd %> -t ES5 ./sandbox/web/src/game.ts',
-            options: {
-               stdout: true,
-               failOnError: true
-            }
-         },
-         
-         //
-         // Compile visual tests
-         //
-         visual: {
-             command: function() {
-                 var files = grunt.file.expand("./sandbox/web/tests/**/*.ts");
-                 return '<%= tscCmd %> -t ES5 ' + files.join(' ');
-             },
-             options: {
-               stdout: true,
-               failOnError: true
-            }            
-         },
-
          gitBuild: {
             command: 'git clone https://github.com/excaliburjs/excalibur-dist build',
             options: {
@@ -183,26 +176,14 @@ module.exports = function (grunt) {
             }
          }
 
-      },
+      },      
 
       //
-      // Copy Files for sample game
-      //
-      copy: {
-         main: {
-            files: [
-               {src: './build/dist/<%= pkg.name %>.js', dest: './sandbox/web/<%= pkg.name %>.js'},
-               {src: './build/dist/<%= pkg.name %>.d.ts', dest: './sandbox/web/<%= pkg.name %>.d.ts'}
-            ]
-         }
-      },
-
-      //
-      // Dist build control
+      // Distribution repository build control
       //
       buildcontrol: {
          options: {
-            dir: 'build',                     
+            dir: 'build',
             commit: true,
             push: true,
             message: ':shipit: Built excaliburjs/Excalibur@%sourceCommit% on branch %sourceBranch%',
@@ -229,31 +210,39 @@ module.exports = function (grunt) {
       //
       tslint: {
          options: {
-            configuration: './tslint/tslint.json'          
+            configuration: './tslint/tslint.json'
          },
          src: [
             "src/engine/**/*.ts",
             "src/sandbox/web/**/*.ts",
             "src/spec/**/*.ts",
-            
+
             // exclusions
             "!src/spec/jasmine.d.ts",
             "!src/spec/require.d.ts",
             "!src/spec/support/js-imagediff.d.ts"
          ]
       },
-      
-      jasmine : {
-         coverage : {
-            src : 'build/dist/excalibur.js',
-            options : {
-               vendor : ['src/spec/support/js-imagediff.js'/*, 'src/spec/support/sourcemaps.js'*/],
-               specs : 'src/spec/TestsSpec.js',
+
+      //
+      // Jasmine configuration
+      //
+      jasmine: {
+         coverage: {
+            src: 'build/dist/excalibur.js',
+            options: {
+               vendor: [
+                  'src/spec/support/js-imagediff.js', 
+                  'src/spec/Mocks.js', 
+                  'src/spec/TestUtils.js'/*, 
+                  'src/spec/support/sourcemaps.js'*/
+               ],
+               specs: 'src/spec/*Spec.js',
                keepRunner: true,
                template: require('grunt-template-jasmine-istanbul'),
                templateOptions: {
                   coverage: './coverage/coverage.json',
-                  report: [ 
+                  report: [
                      {
                         type: 'html',
                         options: {
@@ -261,11 +250,11 @@ module.exports = function (grunt) {
                         }
                      },
                      {
-								type: 'lcovonly',
-								options: {
-									dir: './coverage/lcov'
-								}
-							},
+                        type: 'lcovonly',
+                        options: {
+                           dir: './coverage/lcov'
+                        }
+                     },
                      {
                         type: 'text-summary'
                      }
@@ -275,6 +264,9 @@ module.exports = function (grunt) {
          }
       },
 
+      //
+      // Code coverage configuration
+      //
       coveralls: {
          main: {
             src: './coverage/lcov/lcov.info',
@@ -284,25 +276,29 @@ module.exports = function (grunt) {
          }
       },
 
+      //
+      // Package.json version bumper
+      //
       bumpup: {
-        setters: {
+         setters: {
             // Overrides version setter 
             version: function (old, releaseType, options) {
                var version = grunt.file.readJSON('package.json').version;
                var build = process.env.TRAVIS_BUILD_NUMBER || "localbuild";
                var commit = process.env.TRAVIS_COMMIT || "localcommit";
-               var alphaVersion = version + '-alpha.' + build + "+" + commit.substring(0, 7);  
+               var alphaVersion = version + '-alpha.' + build + "+" + commit.substring(0, 7);
                return alphaVersion;
             },
-        },
-        files: ['build/package.json']
-    }
+         },
+         files: ['build/package.json']
+      }
 
    });
 
    //
    // Load NPM Grunt tasks as dependencies
    //
+   grunt.loadNpmTasks('grunt-ts');
    grunt.loadNpmTasks('grunt-shell');
    grunt.loadNpmTasks('grunt-contrib-uglify');
    grunt.loadNpmTasks('grunt-contrib-clean');
@@ -315,36 +311,31 @@ module.exports = function (grunt) {
    grunt.loadNpmTasks('grunt-bumpup');
    grunt.loadNpmTasks('grunt-contrib-jasmine');
 
-   
    //
    // Register available Grunt tasks
    //
 
-   // Compile core engine
-   grunt.registerTask('compile', ['shell:gitBuild', 'clean', 'shell:tsc', 'uglify', 'concat', 'copy']);   
+   // Default task - compile & test
+   grunt.registerTask('default', ['tslint:src', 'compile', 'tests', 'visual']);
+
+   // Core compile only
+   grunt.registerTask('compile', ['shell:gitBuild', 'clean', 'ts:core', 'concat', 'uglify', 'copy']);
 
    // Run tests quickly
-   grunt.registerTask('tests', ['shell:specs', 'jasmine']);
+   grunt.registerTask('tests', ['ts:specs', 'jasmine']);
 
-   // Compile sample game
-   grunt.registerTask('sample', ['shell:sample']);
-   
+   // Debug compile (for VS Code)
+   grunt.registerTask('debug', ['compile', 'ts:debug'])   
+
    // Compile visual tests
-   grunt.registerTask('visual', ['shell:visual']);   
+   grunt.registerTask('visual', ['ts:visual']);
 
    // Travis CI task
-   grunt.registerTask('travis', 'default');
+   grunt.registerTask('travis', ['default', 'coveralls']);
 
    // Appveyor task
    grunt.registerTask('appveyor', ['default', 'shell:nuget']);
 
    // CI task to deploy dists
-   grunt.registerTask('dists', ['buildcontrol']);
-
-   // Compile enough for debug
-   grunt.registerTask('compiledebug', ['tslint:src', 'compile', 'shell:debugspecs'])
-   
-   // Default task - compile, test, build dists
-   grunt.registerTask('default', ['tslint:src', 'compile', 'shell:specs', 'jasmine', 'coveralls', 'sample', 'visual']);
-
+   grunt.registerTask('dists', ['buildcontrol']);   
 };

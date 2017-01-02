@@ -53,35 +53,31 @@ allow the widest contributions possible. You can always use your own preferred e
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) (4.x+) & npm (tools like currently only support node 4.x+)
-- [Grunt.js](http://gruntjs.com/)
-  - `npm install grunt-cli -g`
 
-After cloning the repository, install the dependencies:
+After cloning the repository, run:
 
 ```sh
-npm install grunt-cli -g
 npm install
 ```
 
-You can then run the grunt tasks for various purposes:
+You can then run the npm tasks for various purposes:
 
 ```bash
 # Run compilation, linting, and all unit & visual tests
 # Recommend to do this before finalizing pull requests
-grunt
+npm run all
 
 # Run engine core compilation only
-grunt compile
+npm run compile
 
-# Run engine compilation & tests only
-grunt tests    
+# Run engine tests only (does not run compile task)
+npm run tests
 
-# Run sandbox compilation only
-grunt sample
-
-# Run visual tests compilation only
-grunt visual
+# Compile HTML visual tests
+npm run visual
 ```
+
+Advanced users can optionally install `grunt-cli` and run the grunt tasks (same task names).
 
 Local debugging is supported in vscode by installing the PhantomJS Debugger extension `iradul.debugger-for-phantomjs`
 

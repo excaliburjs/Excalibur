@@ -45,7 +45,7 @@ game.start(loader).then(function () {
 });
 ```
 
-If you want to use a lowercase representation in the font, you can pass `false` for [[caseInsensitive]]
+If you want to use a lowercase representation in the font, you can pass `false` for `caseInsensitive`
 and the matching will be case-sensitive. In our example, you would need another 7 rows of 
 lowercase characters.
 

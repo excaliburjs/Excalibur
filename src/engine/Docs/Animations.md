@@ -28,6 +28,6 @@ game.start(loader).then(function () {
 
 ## Sprite effects
 
-You can add [[ex.Effects|sprite effects]] to an animation through methods
+You can add [["Drawing/SpriteEffects"|sprite effects]] to an animation through methods
 like [[Animation.invert]] or [[Animation.lighten]]. Keep in mind, since this
 manipulates the raw pixel values of a [[Sprite]], it can have a performance impact.
