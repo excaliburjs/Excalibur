@@ -13,7 +13,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - `ex.Detector.logBrowserFeatures()` to log the support matrix to the console (runs at startup when in Debug mode)
 - Added @obsolete decorator to help give greater visibility to deprecated methods ([#684](https://github.com/excaliburjs/Excalibur/issues/684))
 - Added better support for module loaders and TypeScript importing. See [Installation](http://docs.excaliburjs.com/en/latest/installation.html) docs for more info. ([#606](https://github.com/excaliburjs/Excalibur/issues/606))
-
+- Added new Excalibur example project templates ([#706](https://github.com/excaliburjs/Excalibur/issues/706), [#733](https://github.com/excaliburjs/Excalibur/issues/733)):
+  - [Browserify](https://github.com/excaliburjs/example-ts-browserify)
+  - [Webpack](https://github.com/excaliburjs/example-ts-webpack)
+  - [Angular2](https://github.com/excaliburjs/example-ts-angular2)
+  - [Universal Windows Platform (UWP)](https://github.com/excaliburjs/example-uwp)
+  - [Apache Cordova](https://github.com/excaliburjs/example-cordova)
+  
 ### Changed
 - Changed Util.clamp to use math libraries ([#536](https://github.com/excaliburjs/Excalibur/issues/536))
 - Upgraded to TypeScript 2.1.4 ([#726](https://github.com/excaliburjs/Excalibur/issues/726))

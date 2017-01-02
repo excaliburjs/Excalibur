@@ -46,7 +46,7 @@ module.exports = function (grunt) {
             options: {
                target: 'es5'
             },
-            src: ['sandbox/web/**/*.ts']
+            src: ['sandbox/**/*.ts']
          },
 
          // Jasmine debug specs (for VS Code)
@@ -141,10 +141,10 @@ module.exports = function (grunt) {
       copy: {
          visual: {
             files: [
-               { src: './build/dist/<%= pkg.name %>.js', dest: './sandbox/web/<%= pkg.name %>.js' },
-               { src: './build/dist/<%= pkg.name %>.js.map', dest: './sandbox/web/<%= pkg.name %>.js.map' },
-               { src: './build/dist/<%= pkg.name %>.amd.d.ts', dest: './sandbox/web/<%= pkg.name %>.amd.d.ts' },
-               { src: './build/dist/<%= pkg.name %>.d.ts', dest: './sandbox/web/<%= pkg.name %>.d.ts' }
+               { src: './build/dist/<%= pkg.name %>.js', dest: './sandbox/<%= pkg.name %>.js' },
+               { src: './build/dist/<%= pkg.name %>.js.map', dest: './sandbox/<%= pkg.name %>.js.map' },
+               { src: './build/dist/<%= pkg.name %>.amd.d.ts', dest: './sandbox/<%= pkg.name %>.amd.d.ts' },
+               { src: './build/dist/<%= pkg.name %>.d.ts', dest: './sandbox/<%= pkg.name %>.d.ts' }
             ]
          }
       },
@@ -214,7 +214,7 @@ module.exports = function (grunt) {
          },
          src: [
             "src/engine/**/*.ts",
-            "src/sandbox/web/**/*.ts",
+            "src/sandbox/**/*.ts",
             "src/spec/**/*.ts",
 
             // exclusions

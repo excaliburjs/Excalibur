@@ -149,20 +149,13 @@ An example SystemJS configuration:
       }
     });
 
-Angular2, Webpack, and More
----------------------------
+Example Project Templates
+-------------------------
 
 The `excaliburjs <https://github.com/excaliburjs>`_ organization on GitHub has several example projects:
 
 - `TypeScript, Angular2 & SystemJS <https://github.com/excaliburjs/example-ts-angular2>`_
 - `TypeScript & Webpack <https://github.com/excaliburjs/example-ts-webpack>`_
 - `TypeScript & Browserify <https://github.com/excaliburjs/example-ts-webpack>`_
-
-For Windows 8 & 10 projects
----------------------------
-
-Please reference the `GitHub repository <https://github.com/excaliburjs/Excalibur>`_ for an example of using VS2013 and a WinJS application to run Excalbur.
-
-1. Install the Excalibur Nuget package
-2. Include the JS file in your WinJS layout file (e.g. ``default.html``)
-3. Include a small script to new up your game (don't use ``default.js``)
+- `Universal Windows Platform (UWP) <https://github.com/excaliburjs/example-uwp>`_
+- `Apache Cordova <https://github.com/excaliburjs/example-cordova>`_
