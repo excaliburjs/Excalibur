@@ -158,3 +158,4 @@ The `excaliburjs <https://github.com/excaliburjs>`_ organization on GitHub has s
 - `TypeScript & Webpack <https://github.com/excaliburjs/example-ts-webpack>`_
 - `TypeScript & Browserify <https://github.com/excaliburjs/example-ts-webpack>`_
 - `Universal Windows Platform (UWP) <https://github.com/excaliburjs/example-uwp>`_
+- `Apache Cordova <https://github.com/excaliburjs/example-cordova>`_
