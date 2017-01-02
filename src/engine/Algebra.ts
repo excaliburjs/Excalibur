@@ -1,10 +1,13 @@
+/// <reference path="Interfaces/ConstructorBags/AlgebraOptions.ts" />
+
 module ex {
 
    /**
     * A 2D vector on a plane. 
     */
-   export class Vector {
-
+   export class Vector implements IVectorOptions {
+      public x: number = 0;
+      public y: number = 0;
       /**
        * A (0, 0) vector
        */
@@ -68,11 +71,25 @@ module ex {
          return true;
       }
 
+      constructor();
+      /**
+       * @param vectorOptions coordindates of the Vector
+       */
+      constructor(vectorOptions: IVectorOptions);
       /**
        * @param x  X component of the Vector
        * @param y  Y component of the Vector
        */
-      constructor(public x: number, public y: number) { }
+      constructor(x: number, y: number);
+      constructor(optionsOrX?: number | IVectorOptions, y?: number) {
+            if (typeof optionsOrX === 'number') {
+               this.x = optionsOrX;
+               this.y = y || 0;
+            }else if (typeof optionsOrX === 'object') {
+               this.x = optionsOrX.x || 0;
+               this.y = optionsOrX.y || 0;
+            }
+       }
 
       /**
        * Sets the x and y components at once
