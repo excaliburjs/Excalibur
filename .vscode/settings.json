@@ -15,7 +15,9 @@
        "**/node_shrinkwrap": true,
 	    "**/bin": true,
 	    "**/obj": true,
-	    "src/engine/*.js": true
+	    "src/engine/*.js": true,
+       "src/spec/*.js": true,
+       "src/spec/*.map": true
    },	
    "typescript.tsdk": "./node_modules/typescript/lib"
 }

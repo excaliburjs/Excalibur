@@ -19,9 +19,9 @@ module.exports = function (grunt) {
       version: '<%= pkg.version %>' + appveyorBuild,
       tscCmd: path.join('node_modules', '.bin', 'tsc'),
       //
-      // Clean dists
+      // Clean dists and tests
       //
-      clean: ['build/dist'],
+      clean: ['build/dist', 'src/spec/*.js', 'src/spec/*.map'],
 
       //
       // Typescript compilation targets
