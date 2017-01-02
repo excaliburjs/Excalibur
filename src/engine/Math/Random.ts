@@ -1,3 +1,14 @@
+/**
+ * Pseudo-Random Utility
+ * 
+ * A pseudo-random utility to add seeded random support for help in
+ * generating things like terrain or reproducible randomness. Uses the 
+ * [Mersenne Twister](https://en.wikipedia.org/wiki/Mersenne_Twister) algorithm.
+ * 
+ * [[include:Random.md]]
+ */
+
+/* 32-bit mask */
 const BITMASK32: number = 0xFFFFFFFF;
 
 /**
