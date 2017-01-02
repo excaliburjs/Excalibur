@@ -73,8 +73,20 @@ module.exports = function (grunt) {
       //
       concat: {
 
-         // Create UMD self-loading bundle
-         main: {
+         // excalibur.amd.js
+         amd_js: {
+            src: ['build/dist/<%= pkg.name %>.amd.js'],
+            dest: 'build/dist/<%= pkg.name %>.amd.js',
+            options: {
+               sourceMap: true,
+               process: function (src, filepath) {
+                  return src.replace(/__EX_VERSION/g, grunt.template.process('<%= pkg.version %>'));
+               }
+            }
+         },
+
+         // excalibur.js (UMD style)
+         dist_js: {
             src: ['src/browser/start.js', 'src/browser/almond.js', 'build/dist/<%= pkg.name %>.amd.js', 'src/browser/end.js'],
             dest: 'build/dist/<%= pkg.name %>.js',
             options: {
@@ -86,16 +98,17 @@ module.exports = function (grunt) {
          },
 
          // Concat banner to AMD declarations file
-         dts_amd: {
+         amd_dts: {
             src: ['build/dist/<%= pkg.name %>.amd.d.ts'],
             dest: 'build/dist/<%= pkg.name %>.amd.d.ts'
          },
 
          // Concat public API declarations file
-         dts_global: {
+         dist_dts: {
             src: ['src/browser/global.d.ts'],
             dest: 'build/dist/<%= pkg.name %>.d.ts'            
          },
+
          options: {
             separator: '\n',
             banner: '/*! <%= pkg.title || pkg.name %> - v<%= version %> - ' +
