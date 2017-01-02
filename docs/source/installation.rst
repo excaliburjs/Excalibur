@@ -156,6 +156,7 @@ The `excaliburjs <https://github.com/excaliburjs>`_ organization on GitHub has s
 
 - `TypeScript, Angular2 & SystemJS <https://github.com/excaliburjs/example-ts-angular2>`_
 - `TypeScript & Webpack <https://github.com/excaliburjs/example-ts-webpack>`_
+- `TypeScript & Browserify <https://github.com/excaliburjs/example-ts-webpack>`_
 
 For Windows 8 & 10 projects
 ---------------------------
