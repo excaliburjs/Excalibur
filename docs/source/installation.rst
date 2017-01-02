@@ -62,6 +62,7 @@ The `excaliburjs <https://github.com/excaliburjs>`_ organization on GitHub has s
 - `Universal Windows Platform (UWP) <https://github.com/excaliburjs/example-uwp>`_
 - `Apache Cordova <https://github.com/excaliburjs/example-cordova>`_
 - `Xamarin Forms <https://github.com/excaliburjs/example-xamarin>`_
+- `Electron <https://github.com/excaliburjs/example-electron>`_
 
 These examples allow you to simply clone and start building your game!
 
