@@ -9527,7 +9527,7 @@ define("Math/Random", ["require", "exports"], function (require, exports) {
     }());
     exports.Random = Random;
 });
-define("Math/PerlinNoise", ["require", "exports", "Math/Random"], function (require, exports, Random_1) {
+define("Math/PerlinNoise", ["require", "exports", "Math/Random", "Util/Util"], function (require, exports, Random_1, Util) {
     "use strict";
     function _lerp(time, a, b) {
         return a + time * (b - a);
@@ -9539,16 +9539,8 @@ define("Math/PerlinNoise", ["require", "exports", "Math/Random"], function (requ
      * Generates perlin noise based on the 2002 Siggraph paper http://mrl.nyu.edu/~perlin/noise/
      * Also https://flafla2.github.io/2014/08/09/perlinnoise.html
      */
-    var PerlinNoise = (function () {
-        function PerlinNoise(seed, octaves, frequency, amplitude, persistance) {
-            if (octaves === void 0) { octaves = 1; }
-            if (frequency === void 0) { frequency = 1; }
-            if (amplitude === void 0) { amplitude = 1; }
-            if (persistance === void 0) { persistance = 1; }
-            this.octaves = octaves;
-            this.frequency = frequency;
-            this.amplitude = amplitude;
-            this.persistance = persistance;
+    var PerlinGenerator = (function () {
+        function PerlinGenerator(options) {
             this._perm = [151, 160, 137, 91, 90, 15, 131, 13, 201, 95, 96, 53, 194, 233, 7, 225,
                 140, 36, 103, 30, 69, 142, 8, 99, 37, 240, 21, 10, 23, 190, 6, 148, 247, 120, 234, 75, 0, 26,
                 197, 62, 94, 252, 219, 203, 117, 35, 11, 32, 57, 177, 33, 88, 237, 149, 56, 87, 174, 20, 125, 136,
@@ -9563,8 +9555,19 @@ define("Math/PerlinNoise", ["require", "exports", "Math/Random"], function (requ
                 121, 50, 45, 127, 4, 150, 254, 138, 236, 205, 93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195,
                 78, 66, 215, 61, 156, 180];
             this._p = new Uint8Array(512);
-            if (seed) {
-                this._random = new Random_1.Random(seed);
+            this._defaultPerlinOptions = {
+                octaves: 1,
+                frequency: 1,
+                amplitude: 1,
+                persistance: .5
+            };
+            options = Util.extend({}, this._defaultPerlinOptions, options);
+            this.persistance = options.persistance;
+            this.amplitude = options.amplitude;
+            this.frequency = options.frequency;
+            this.octaves = options.octaves;
+            if (options.seed) {
+                this._random = new Random_1.Random(options.seed);
             }
             else {
                 this._random = new Random_1.Random();
@@ -9574,7 +9577,7 @@ define("Math/PerlinNoise", ["require", "exports", "Math/Random"], function (requ
                 this._p[i] = this._perm[i % 256] & 0xFF;
             }
         }
-        PerlinNoise.prototype.noise = function (args) {
+        PerlinGenerator.prototype.noise = function (args) {
             var amp = this.amplitude;
             var freq = this.frequency;
             var total = 0;
@@ -9598,26 +9601,26 @@ define("Math/PerlinNoise", ["require", "exports", "Math/Random"], function (requ
             }
             return total / maxValue;
         };
-        PerlinNoise.prototype._gradient3d = function (hash, x, y, z) {
+        PerlinGenerator.prototype._gradient3d = function (hash, x, y, z) {
             var h = hash & 0xF;
             var u = h < 8 ? x : y;
             var v = h < 4 ? y : ((h === 12 || h === 14) ? x : z);
             return ((h & 1) === 0 ? u : -u) + ((h & 2) === 0 ? v : -v);
         };
-        PerlinNoise.prototype._gradient2d = function (hash, x, y) {
+        PerlinGenerator.prototype._gradient2d = function (hash, x, y) {
             var value = (hash & 1) === 0 ? x : y;
             return (hash & 2) === 0 ? -value : value;
         };
-        PerlinNoise.prototype._gradient1d = function (hash, x) {
+        PerlinGenerator.prototype._gradient1d = function (hash, x) {
             return (hash & 1) === 0 ? -x : x;
         };
-        PerlinNoise.prototype._noise1d = function (x) {
+        PerlinGenerator.prototype._noise1d = function (x) {
             var intX = Math.floor(x) & 0xFF; // force 0-255 integers to lookup in permutation
             x -= Math.floor(x);
             var fadeX = _fade(x);
             return (_lerp(fadeX, this._gradient1d(this._p[intX], x), this._gradient1d(this._p[intX + 1], x - 1)) + 1) / 2;
         };
-        PerlinNoise.prototype._noise2d = function (x, y) {
+        PerlinGenerator.prototype._noise2d = function (x, y) {
             var intX = Math.floor(x) & 0xFF;
             var intY = Math.floor(y) & 0xFF;
             x -= Math.floor(x);
@@ -9628,7 +9631,7 @@ define("Math/PerlinNoise", ["require", "exports", "Math/Random"], function (requ
             var b = this._p[intX + 1] + intY;
             return (_lerp(fadeY, _lerp(fadeX, this._gradient2d(this._p[a], x, y), this._gradient2d(this._p[b], x - 1, y)), _lerp(fadeX, this._gradient2d(this._p[a + 1], x, y - 1), this._gradient2d(this._p[b + 1], x - 1, y - 1))) + 1) / 2;
         };
-        PerlinNoise.prototype._noise3d = function (x, y, z) {
+        PerlinGenerator.prototype._noise3d = function (x, y, z) {
             var intX = Math.floor(x) & 0xFF;
             var intY = Math.floor(y) & 0xFF;
             var intZ = Math.floor(z) & 0xFF;
@@ -9646,9 +9649,9 @@ define("Math/PerlinNoise", ["require", "exports", "Math/Random"], function (requ
             var bb = this._p[b + 1] + intZ;
             return (_lerp(fadeZ, _lerp(fadeY, _lerp(fadeX, this._gradient3d(this._p[aa], x, y, z), this._gradient3d(this._p[ba], x - 1, y, z)), _lerp(fadeX, this._gradient3d(this._p[ab], x, y - 1, z), this._gradient3d(this._p[bb], x - 1, y - 1, z))), _lerp(fadeY, _lerp(fadeX, this._gradient3d(this._p[aa + 1], x, y, z - 1), this._gradient3d(this._p[ba + 1], x - 1, y, z - 1)), _lerp(fadeX, this._gradient3d(this._p[ab + 1], x, y - 1, z - 1), this._gradient3d(this._p[bb + 1], x - 1, y - 1, z - 1)))) + 1) / 2;
         };
-        return PerlinNoise;
+        return PerlinGenerator;
     }());
-    exports.PerlinNoise = PerlinNoise;
+    exports.PerlinGenerator = PerlinGenerator;
 });
 define("Math/Index", ["require", "exports", "Math/PerlinNoise", "Math/Random"], function (require, exports, PerlinNoise_1, Random_2) {
     "use strict";

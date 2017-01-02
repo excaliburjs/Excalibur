@@ -4521,7 +4521,7 @@ declare module "Math/Random" {
     }
 }
 declare module "Math/PerlinNoise" {
-    export interface IPerlinNoiseOptions {
+    export interface IPerlinGeneratorOptions {
         seed?: number;
         octaves?: number;
         frequency?: number;
@@ -4532,25 +4532,26 @@ declare module "Math/PerlinNoise" {
      * Generates perlin noise based on the 2002 Siggraph paper http://mrl.nyu.edu/~perlin/noise/
      * Also https://flafla2.github.io/2014/08/09/perlinnoise.html
      */
-    export class PerlinNoise {
-        octaves: number;
-        frequency: number;
-        amplitude: number;
-        persistance: number;
+    export class PerlinGenerator {
         private _perm;
         private _p;
         private _random;
-        constructor(seed?: number, octaves?: number, frequency?: number, amplitude?: number, persistance?: number);
+        private _defaultPerlinOptions;
+        persistance: number;
+        amplitude: number;
+        frequency: number;
+        octaves: number;
+        constructor(options: IPerlinGeneratorOptions);
         /**
-         * 1-Dimensional perlin noise
+         * Generates 1-Dimensional perlin noise given an x and generates noises values between [0, 1].
          */
         noise(x: number): number;
         /**
-         * 2-Dimensional perlin noise
+         * Generates 2-Dimensional perlin noise given an (x, y) and generates noise values between [0, 1]
          */
         noise(x: number, y: number): number;
         /**
-         * 3-Dimensional perlin noise
+         * Generates 3-Dimensional perlin noise given an (x, y, z) and generates noise values between [0, 1]
          */
         noise(x: number, y: number, z: number): number;
         private _gradient3d(hash, x, y, z);

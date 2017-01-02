@@ -1,4 +1,5 @@
 import { Random } from 'Random';
+import * as Util from '../Util/Util';
 
 function _lerp(time: number, a: number, b: number): number {
    return a + time * (b - a);
@@ -8,7 +9,7 @@ function _fade(t: number): number {
    return t * t * t * (t * (t * 6 - 15) + 10);
 }
 
-export interface IPerlinNoiseOptions {
+export interface IPerlinGeneratorOptions {
    seed?: number;
    octaves?: number;
    frequency?: number;
@@ -20,7 +21,7 @@ export interface IPerlinNoiseOptions {
  * Generates perlin noise based on the 2002 Siggraph paper http://mrl.nyu.edu/~perlin/noise/ 
  * Also https://flafla2.github.io/2014/08/09/perlinnoise.html 
  */
-export class PerlinNoise {
+export class PerlinGenerator {
 
    private _perm: number[] = [151, 160, 137, 91, 90, 15, 131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 
     140, 36, 103, 30, 69, 142, 8, 99, 37, 240, 21, 10, 23, 190,  6, 148, 247, 120, 234, 75, 0, 26, 
@@ -38,11 +39,29 @@ export class PerlinNoise {
    private _p: Uint8Array = new Uint8Array(512);
    private _random: Random;
 
-   constructor(seed?: number, public octaves = 1, public frequency = 1, public amplitude = 1, public persistance = 1) {
-      
+   private _defaultPerlinOptions: IPerlinGeneratorOptions = {
+      octaves: 1,
+      frequency: 1,
+      amplitude: 1,
+      persistance: .5
+   };
 
-      if (seed) {
-         this._random = new Random(seed);
+   public persistance: number;
+   public amplitude: number;
+   public frequency: number;
+   public octaves: number;
+
+
+   constructor(options: IPerlinGeneratorOptions) {      
+      options = Util.extend({}, this._defaultPerlinOptions, options);
+
+      this.persistance = options.persistance;
+      this.amplitude = options.amplitude;
+      this.frequency = options.frequency;
+      this.octaves = options.octaves;
+
+      if (options.seed) {
+         this._random = new Random(options.seed);
       } else {
          this._random = new Random();
       }
@@ -55,15 +74,15 @@ export class PerlinNoise {
    }
 
    /**
-    * 1-Dimensional perlin noise
+    * Generates 1-Dimensional perlin noise given an x and generates noises values between [0, 1]. 
     */
    public noise(x: number): number;
    /**
-    * 2-Dimensional perlin noise
+    * Generates 2-Dimensional perlin noise given an (x, y) and generates noise values between [0, 1]
     */
    public noise(x: number, y: number): number;
    /**
-    * 3-Dimensional perlin noise 
+    * Generates 3-Dimensional perlin noise given an (x, y, z) and generates noise values between [0, 1]
     */
    public noise(x: number, y: number, z: number): number;
    public noise(args: any): number {
