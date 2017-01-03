@@ -19,6 +19,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - [Angular2](https://github.com/excaliburjs/example-ts-angular2)
   - [Universal Windows Platform (UWP)](https://github.com/excaliburjs/example-uwp)
   - [Apache Cordova](https://github.com/excaliburjs/example-cordova)
+  - [Xamarin Forms](https://github.com/excaliburjs/example-xamarin)
+  - [Electron](https://github.com/excaliburjs/example-electron)
   
 ### Changed
 - Changed Util.clamp to use math libraries ([#536](https://github.com/excaliburjs/Excalibur/issues/536))
