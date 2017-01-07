@@ -160,4 +160,30 @@ describe('A scene', () => {
       expect(initializeCount).toBe(1, 'Scenes can only be initialized once');
    });
 
+   it('should allow adding and removing an Actor in same frame', () => {
+      var removed = false;
+      scene.add(actor);
+      actor.on('postupdate', () => {
+         scene.remove(actor);
+         removed = true;
+      });      
+      scene.update(engine, 10);
+
+      expect(removed).toBe(true, 'Actor postupdate was not called');
+      expect(scene.children.indexOf(actor)).toBe(-1);
+   });
+
+   it('should allow adding and killing an Actor in same frame', () => {
+      var removed = false;
+      scene.add(actor);
+      actor.on('postupdate', () => {         
+         actor.kill();
+         removed = true;
+      });
+      scene.update(engine, 10);
+
+      expect(removed).toBe(true, 'Actor postupdate was not called');
+      expect(scene.children.indexOf(actor)).toBe(-1);
+   });
+
 });
