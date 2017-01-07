@@ -1,0 +1,16 @@
+var Resources = {
+    Background: new ex.Texture('../../images/Background.png')
+};
+var game = new ex.Engine({ width: 720, height: 480 });
+var loader = new ex.Loader();
+for (var key in Resources) {
+    if (Resources.hasOwnProperty(key)) {
+        loader.addResource(Resources[key]);
+    }
+}
+game.start(loader).then(function () {
+    var bg = new ex.UIActor();
+    bg.addDrawing(Resources.Background);
+    game.add(bg);
+});
+//# sourceMappingURL=index.js.map
