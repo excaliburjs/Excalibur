@@ -87,6 +87,13 @@ game.on("postupdate", (ue: ex.PostUpdateEvent) => {
 
    document.getElementById('pointer-num').innerHTML = game.input.pointers.count().toString();
 
+   let screenPos = game.input.pointers.primary.lastScreenPos;
+   let worldPos = game.input.pointers.primary.lastWorldPos;
+
+   if (screenPos && worldPos) {
+      document.getElementById('pointer-screen-pos').innerHTML = `(${screenPos.x}, ${screenPos.y})`;
+      document.getElementById('pointer-world-pos').innerHTML = `(${worldPos.x}, ${worldPos.y})`;
+   }
 });
 
 game.currentScene.camera.x = 0;
