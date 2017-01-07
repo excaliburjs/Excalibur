@@ -271,10 +271,12 @@ newScene.on('activate', (evt?: ex.ActivateEvent) => {
    console.log('activate newScene');
 });
 
-newScene.on('deactivate', (evt?: ex.ActivateEvent) => {
+newScene.on('deactivate', (evt?: ex.DeactivateEvent) => {
    console.log('deactivate newScene');
 });
+newScene.on('foo', (ev: ex.GameEvent) => {
 
+});
 
 
 
