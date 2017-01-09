@@ -22,7 +22,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - [Apache Cordova](https://github.com/excaliburjs/example-cordova)
   - [Xamarin Forms](https://github.com/excaliburjs/example-xamarin)
   - [Electron](https://github.com/excaliburjs/example-electron)
-- Added `Pointer.lastScreenPos` and `Pointer.lastWorldPos` that store the last pointer move coordinates ([#509](https://github.com/excaliburjs/Excalibur/issues/509))
+- Added `Pointer.lastPagePos`, `Pointer.lastScreenPos` and `Pointer.lastWorldPos` that store the last pointer move coordinates ([#509](https://github.com/excaliburjs/Excalibur/issues/509))
 
 ### Changed
 - Changed Util.clamp to use math libraries ([#536](https://github.com/excaliburjs/Excalibur/issues/536))

@@ -28,10 +28,11 @@ engine.input.pointers.primary.on("cancel", function (evt) { });
 
 ## Last position querying
 
-If you don't wish to subscribe to events, you can also access the [[Pointer.lastScreenPos]]
+If you don't wish to subscribe to events, you can also access the [[Pointer.lastPagePos]], [[Pointer.lastScreenPos]]
 or [[Pointer.lastWorldPos]] coordinates ([[Vector]]) on the pointer you're targeting.
 
 ```js
+engine.input.pointers.primary.lastPagePos
 engine.input.pointers.primary.lastScreenPos
 engine.input.pointers.primary.lastWorldPos
 ```
