@@ -89,8 +89,10 @@ game.on("postupdate", (ue: ex.PostUpdateEvent) => {
 
    let screenPos = game.input.pointers.primary.lastScreenPos;
    let worldPos = game.input.pointers.primary.lastWorldPos;
+   let pagePos = game.input.pointers.primary.lastPagePos;
 
-   if (screenPos && worldPos) {
+   if (screenPos && worldPos && pagePos) {
+      document.getElementById('pointer-page-pos').innerHTML = `(${pagePos.x}, ${pagePos.y})`;
       document.getElementById('pointer-screen-pos').innerHTML = `(${screenPos.x}, ${screenPos.y})`;
       document.getElementById('pointer-world-pos').innerHTML = `(${worldPos.x}, ${worldPos.y})`;
    }
