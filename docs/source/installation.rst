@@ -51,6 +51,21 @@ Unstable Builds
 
 If you want to live on the edge and get unstable builds, you can add the Excalibur Appveyor Nuget feed to your project, see :doc:`unstable`.
 
+Example Project Templates
+-------------------------
+
+The `excaliburjs <https://github.com/excaliburjs>`_ organization on GitHub has several example projects:
+
+- `TypeScript, Angular2 & SystemJS <https://github.com/excaliburjs/example-ts-angular2>`_
+- `TypeScript & Webpack <https://github.com/excaliburjs/example-ts-webpack>`_
+- `TypeScript & Browserify <https://github.com/excaliburjs/example-ts-webpack>`_
+- `Universal Windows Platform (UWP) <https://github.com/excaliburjs/example-uwp>`_
+- `Apache Cordova <https://github.com/excaliburjs/example-cordova>`_
+- `Xamarin Forms <https://github.com/excaliburjs/example-xamarin>`_
+- `Electron <https://github.com/excaliburjs/example-electron>`_
+
+These examples allow you to simply clone and start building your game!
+
 Referencing Excalibur Standalone
 --------------------------------
 
@@ -148,14 +163,3 @@ An example SystemJS configuration:
         defaultExtension: 'js'
       }
     });
-
-Example Project Templates
--------------------------
-
-The `excaliburjs <https://github.com/excaliburjs>`_ organization on GitHub has several example projects:
-
-- `TypeScript, Angular2 & SystemJS <https://github.com/excaliburjs/example-ts-angular2>`_
-- `TypeScript & Webpack <https://github.com/excaliburjs/example-ts-webpack>`_
-- `TypeScript & Browserify <https://github.com/excaliburjs/example-ts-webpack>`_
-- `Universal Windows Platform (UWP) <https://github.com/excaliburjs/example-uwp>`_
-- `Apache Cordova <https://github.com/excaliburjs/example-cordova>`_
