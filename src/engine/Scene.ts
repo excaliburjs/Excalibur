@@ -92,7 +92,7 @@ export class Scene extends Class {
    public on(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void);
    public on(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void);
    public on(eventName: Events.predebugdraw, handler: (event?: PreDebugDrawEvent) => void);
-   public on(eventName: Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void);
+   public on(eventName: Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void);   
    public on(eventName: string, handler: (event?: GameEvent) => void);
    public on(eventName: string, handler: (event?: GameEvent) => void) {
       super.on(eventName, handler);
@@ -173,6 +173,18 @@ export class Scene extends Class {
          this.camera.update(engine, delta);
       }
 
+      // Remove timers in the cancel queue before updating them
+      for (i = 0, len = this._cancelQueue.length; i < len; i++) {
+         this.removeTimer(this._cancelQueue[i]);
+      }
+      this._cancelQueue.length = 0;
+
+      // Cycle through timers updating timers
+      this._timers = this._timers.filter(timer => {
+         timer.update(delta);
+         return !timer.complete;
+      });
+
       // Cycle through actors updating UI actors
       for (i = 0, len = this.uiActors.length; i < len; i++) {
          this.uiActors[i].update(engine, delta);
@@ -223,19 +235,7 @@ export class Scene extends Class {
          }
       }
       engine.stats.currFrame.actors.killed = this._killQueue.length;
-      this._killQueue.length = 0;
-
-      // Remove timers in the cancel queue before updating them
-      for (i = 0, len = this._cancelQueue.length; i < len; i++) {
-         this.removeTimer(this._cancelQueue[i]);
-      }
-      this._cancelQueue.length = 0;
-
-      // Cycle through timers updating timers
-      this._timers = this._timers.filter(timer => {
-         timer.update(delta);
-         return !timer.complete;
-      });
+      this._killQueue.length = 0;      
 
       this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
    }

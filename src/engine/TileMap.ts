@@ -1,11 +1,12 @@
 import { BoundingBox } from './Collision/BoundingBox';
 import { Color } from './Drawing/Color';
+import { Class } from './Class';
 import { Engine } from './Engine';
 import { Vector } from './Algebra';
 import { Actor } from './Actor';
 import { Logger } from './Util/Log';
 import { SpriteSheet } from './Drawing/SpriteSheet';
-
+import * as Events from './Events';
 
 /**
  * The [[TileMap]] class provides a lightweight way to do large complex scenes with collision
@@ -13,7 +14,7 @@ import { SpriteSheet } from './Drawing/SpriteSheet';
  *
  * [[include:TileMaps.md]]
  */
-export class TileMap {
+export class TileMap extends Class {
    private _collidingX: number = -1;
    private _collidingY: number = -1;
    private _onScreenXStart: number = 0;
@@ -23,6 +24,15 @@ export class TileMap {
    private _spriteSheets: { [key: string]: SpriteSheet } = {};
    public logger: Logger = Logger.getInstance();
    public data: Cell[] = [];
+
+   public on(eventName: Events.preupdate, handler: (event?: Events.PreUpdateEvent) => void);
+   public on(eventName: Events.postupdate, handler: (event?: Events.PostUpdateEvent) => void);
+   public on(eventName: Events.predraw, handler: (event?: Events.PreDrawEvent) => void);
+   public on(eventName: Events.postdraw, handler: (event?: Events.PostDrawEvent) => void);
+   public on(eventName: string, handler: (event?: Events.GameEvent) => void);
+   public on(eventName: string, handler: (event?: Events.GameEvent) => void) {
+      super.on(eventName, handler);
+   }
 
    /**
     * @param x             The x coordinate to anchor the TileMap's upper left corner (should not be changed once set)
@@ -39,6 +49,7 @@ export class TileMap {
       public cellHeight: number,
       public rows: number,
       public cols: number) {
+      super();
       this.data = new Array<Cell>(rows * cols);
       for (var i = 0; i < cols; i++) {
          for (var j = 0; j < rows; j++) {
@@ -129,6 +140,8 @@ export class TileMap {
    }
 
    public update(engine: Engine, delta: number) {
+      this.emit('preupdate', new Events.PreUpdateEvent(engine, delta, this));
+
       var worldCoordsUpperLeft = engine.screenToWorldCoordinates(new Vector(0, 0));
       var worldCoordsLowerRight = engine.screenToWorldCoordinates(new Vector(engine.canvas.clientWidth, engine.canvas.clientHeight));
 
@@ -136,6 +149,8 @@ export class TileMap {
       this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);
       this._onScreenXEnd = Math.max(Math.floor(worldCoordsLowerRight.x / this.cellWidth) + 2, 0);
       this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0);
+
+      this.emit('postupdate', new Events.PostUpdateEvent(engine, delta, this));
    }
 
    /**
@@ -144,6 +159,8 @@ export class TileMap {
     * @param delta  The number of milliseconds since the last draw
     */
    public draw(ctx: CanvasRenderingContext2D, delta: number) {
+      this.emit('predraw', new Events.PreDrawEvent(ctx, delta, this));
+
       ctx.save();
       ctx.translate(this.x, this.y);
 
@@ -182,6 +199,8 @@ export class TileMap {
          y = this._onScreenYStart;
       }
       ctx.restore();
+
+      this.emit('postdraw', new Events.PostDrawEvent(ctx, delta, this));
    }
 
    /**
