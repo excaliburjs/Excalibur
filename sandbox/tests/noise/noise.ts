@@ -40,6 +40,5 @@ for (var j = 0; j < 800; j++) {
         }
         img.data[pixel + 3] = 255;
     }
-}
-ctx.putImageData(img, 0, 0);
+} 
 ctx.putImageData(img, 0, 0);
