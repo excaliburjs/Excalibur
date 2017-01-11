@@ -1,4 +1,4 @@
-/*! excalibur - v0.8.0 - 2017-01-02
+/*! excalibur - v0.8.0 - 2017-01-10
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2017 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause
 * @preserve */
@@ -453,7 +453,7 @@ var requirejs, require, define;
         jQuery: true
     };
 }());
-/*! excalibur - v0.8.0 - 2017-01-02
+/*! excalibur - v0.8.0 - 2017-01-10
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2017 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause
 * @preserve */
@@ -7933,7 +7933,7 @@ define("Particles", ["require", "exports", "Actor", "Drawing/Color", "Algebra", 
     }(Actor_6.Actor));
     exports.ParticleEmitter = ParticleEmitter;
 });
-define("TileMap", ["require", "exports", "Collision/BoundingBox", "Drawing/Color", "Algebra", "Util/Log"], function (require, exports, BoundingBox_4, Color_14, Algebra_16, Log_10) {
+define("TileMap", ["require", "exports", "Collision/BoundingBox", "Drawing/Color", "Class", "Algebra", "Util/Log", "Events"], function (require, exports, BoundingBox_4, Color_14, Class_4, Algebra_16, Log_10, Events) {
     "use strict";
     /**
      * The [[TileMap]] class provides a lightweight way to do large complex scenes with collision
@@ -7941,7 +7941,8 @@ define("TileMap", ["require", "exports", "Collision/BoundingBox", "Drawing/Color
      *
      * [[include:TileMaps.md]]
      */
-    var TileMap = (function () {
+    var TileMap = (function (_super) {
+        __extends(TileMap, _super);
         /**
          * @param x             The x coordinate to anchor the TileMap's upper left corner (should not be changed once set)
          * @param y             The y coordinate to anchor the TileMap's upper left corner (should not be changed once set)
@@ -7951,23 +7952,23 @@ define("TileMap", ["require", "exports", "Collision/BoundingBox", "Drawing/Color
          * @param cols          The number of cols in the TileMap (should not be changed once set)
          */
         function TileMap(x, y, cellWidth, cellHeight, rows, cols) {
-            var _this = this;
-            this.x = x;
-            this.y = y;
-            this.cellWidth = cellWidth;
-            this.cellHeight = cellHeight;
-            this.rows = rows;
-            this.cols = cols;
-            this._collidingX = -1;
-            this._collidingY = -1;
-            this._onScreenXStart = 0;
-            this._onScreenXEnd = 9999;
-            this._onScreenYStart = 0;
-            this._onScreenYEnd = 9999;
-            this._spriteSheets = {};
-            this.logger = Log_10.Logger.getInstance();
-            this.data = [];
-            this.data = new Array(rows * cols);
+            var _this = _super.call(this) || this;
+            _this.x = x;
+            _this.y = y;
+            _this.cellWidth = cellWidth;
+            _this.cellHeight = cellHeight;
+            _this.rows = rows;
+            _this.cols = cols;
+            _this._collidingX = -1;
+            _this._collidingY = -1;
+            _this._onScreenXStart = 0;
+            _this._onScreenXEnd = 9999;
+            _this._onScreenYStart = 0;
+            _this._onScreenYEnd = 9999;
+            _this._spriteSheets = {};
+            _this.logger = Log_10.Logger.getInstance();
+            _this.data = [];
+            _this.data = new Array(rows * cols);
             for (var i = 0; i < cols; i++) {
                 for (var j = 0; j < rows; j++) {
                     (function () {
@@ -7976,7 +7977,11 @@ define("TileMap", ["require", "exports", "Collision/BoundingBox", "Drawing/Color
                     })();
                 }
             }
+            return _this;
         }
+        TileMap.prototype.on = function (eventName, handler) {
+            _super.prototype.on.call(this, eventName, handler);
+        };
         TileMap.prototype.registerSpriteSheet = function (key, spriteSheet) {
             this._spriteSheets[key] = spriteSheet;
         };
@@ -8049,12 +8054,14 @@ define("TileMap", ["require", "exports", "Collision/BoundingBox", "Drawing/Color
             return null;
         };
         TileMap.prototype.update = function (engine, delta) {
+            this.emit('preupdate', new Events.PreUpdateEvent(engine, delta, this));
             var worldCoordsUpperLeft = engine.screenToWorldCoordinates(new Algebra_16.Vector(0, 0));
             var worldCoordsLowerRight = engine.screenToWorldCoordinates(new Algebra_16.Vector(engine.canvas.clientWidth, engine.canvas.clientHeight));
             this._onScreenXStart = Math.max(Math.floor(worldCoordsUpperLeft.x / this.cellWidth) - 2, 0);
             this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);
             this._onScreenXEnd = Math.max(Math.floor(worldCoordsLowerRight.x / this.cellWidth) + 2, 0);
             this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0);
+            this.emit('postupdate', new Events.PostUpdateEvent(engine, delta, this));
         };
         /**
          * Draws the tile map to the screen. Called by the [[Scene]].
@@ -8062,6 +8069,7 @@ define("TileMap", ["require", "exports", "Collision/BoundingBox", "Drawing/Color
          * @param delta  The number of milliseconds since the last draw
          */
         TileMap.prototype.draw = function (ctx, delta) {
+            this.emit('predraw', new Events.PreDrawEvent(ctx, delta, this));
             ctx.save();
             ctx.translate(this.x, this.y);
             var x = this._onScreenXStart, xEnd = Math.min(this._onScreenXEnd, this.cols);
@@ -8093,6 +8101,7 @@ define("TileMap", ["require", "exports", "Collision/BoundingBox", "Drawing/Color
                 y = this._onScreenYStart;
             }
             ctx.restore();
+            this.emit('postdraw', new Events.PostDrawEvent(ctx, delta, this));
         };
         /**
          * Draws all the tile map's debug info. Called by the [[Scene]].
@@ -8130,7 +8139,7 @@ define("TileMap", ["require", "exports", "Collision/BoundingBox", "Drawing/Color
             ctx.restore();
         };
         return TileMap;
-    }());
+    }(Class_4.Class));
     exports.TileMap = TileMap;
     /**
      * Tile sprites are used to render a specific sprite from a [[TileMap]]'s spritesheet(s)
@@ -9527,7 +9536,7 @@ define("Math/Random", ["require", "exports"], function (require, exports) {
     }());
     exports.Random = Random;
 });
-define("Math/PerlinNoise", ["require", "exports", "Math/Random", "Util/Util"], function (require, exports, Random_1, Util) {
+define("Math/PerlinNoise", ["require", "exports", "Math/Random", "Drawing/Color", "Util/Util"], function (require, exports, Random_1, Color_18, Util) {
     "use strict";
     function _lerp(time, a, b) {
         return a + time * (b - a);
@@ -9601,6 +9610,36 @@ define("Math/PerlinNoise", ["require", "exports", "Math/Random", "Util/Util"], f
             }
             return total / maxValue;
         };
+        /**
+         * Generates a list starting at 0 and ending at 1 of contious perlin noise, by default the step is 1/length;
+         *
+         */
+        PerlinGenerator.prototype.noiseSequence = function (length, step) {
+            if (!step) {
+                step = 1 / length;
+            }
+            var array = new Array(length);
+            for (var i = 0; i < length; i++) {
+                array[i] = this.noise(i * step);
+            }
+            return array;
+        };
+        /**
+         * Generates a 2D grid of perlin noise given a step value packed into a 1D array i = (x + y*width),
+         * by default the step will 1/(min(dimension))
+         */
+        PerlinGenerator.prototype.noiseGrid = function (width, height, step) {
+            if (!step) {
+                step = 1 / (Math.min(width, height));
+            }
+            var array = new Array(width * height);
+            for (var y = 0; y < height; y++) {
+                for (var x = 0; x < width; x++) {
+                    array[x + y * width] = this.noise(x * step, y * step);
+                }
+            }
+            return array;
+        };
         PerlinGenerator.prototype._gradient3d = function (hash, x, y, z) {
             var h = hash & 0xF;
             var u = h < 8 ? x : y;
@@ -9652,6 +9691,57 @@ define("Math/PerlinNoise", ["require", "exports", "Math/Random", "Util/Util"], f
         return PerlinGenerator;
     }());
     exports.PerlinGenerator = PerlinGenerator;
+    /**
+     * A helper to draw 2D perlin maps given a perlin generator and a function
+     */
+    var PerlinDrawer2D = (function () {
+        /**
+         * @param generator - An existing perlin generator
+         * @param colorFcn - A color function that takes a value between [0, 255] derived from the perlin generator, and returns a color
+         */
+        function PerlinDrawer2D(generator, colorFcn) {
+            this.generator = generator;
+            this.colorFcn = colorFcn;
+            if (!colorFcn) {
+                this.colorFcn = function (val) { return val < 125 ? Color_18.Color.Black : Color_18.Color.White; };
+            }
+        }
+        /**
+         * Returns an image of 2D perlin noise
+         */
+        PerlinDrawer2D.prototype.image = function (width, height) {
+            var image = document.createElement('img');
+            var canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            var ctx = canvas.getContext('2d');
+            this.draw(ctx, 0, 0, width, height);
+            image.src = canvas.toDataURL();
+            return image;
+        };
+        /**
+         * This draws a 2D perlin grid on a canvas context, not recommended to be called every frame due to performance
+         */
+        PerlinDrawer2D.prototype.draw = function (ctx, x, y, width, height) {
+            var grid = this.generator.noiseGrid(width, height);
+            var imageData = ctx.getImageData(x, y, width, height);
+            for (var j = 0; j < height; j++) {
+                for (var i = 0; i < width; i++) {
+                    var val = grid[i + width * j];
+                    var c = Math.floor(val * 255) & 0xff;
+                    var pixel = (i + j * imageData.width) * 4;
+                    var color = this.colorFcn(c);
+                    imageData.data[pixel] = color.r;
+                    imageData.data[pixel + 1] = color.g;
+                    imageData.data[pixel + 2] = color.b;
+                    imageData.data[pixel + 3] = Math.floor(color.a * 255);
+                }
+            }
+            ctx.putImageData(imageData, x, y);
+        };
+        return PerlinDrawer2D;
+    }());
+    exports.PerlinDrawer2D = PerlinDrawer2D;
 });
 define("Math/Index", ["require", "exports", "Math/PerlinNoise", "Math/Random"], function (require, exports, PerlinNoise_1, Random_2) {
     "use strict";
@@ -9891,7 +9981,7 @@ define("Resources/Index", ["require", "exports", "Resources/Resource", "Resource
     __export(Sound_2);
     __export(Texture_1);
 });
-define("Input/Gamepad", ["require", "exports", "Class", "Events"], function (require, exports, Class_4, Events_5) {
+define("Input/Gamepad", ["require", "exports", "Class", "Events"], function (require, exports, Class_5, Events_5) {
     "use strict";
     /**
      * Excalibur leverages the HTML5 Gamepad API [where it is supported](http://caniuse.com/#feat=gamepad)
@@ -10110,7 +10200,7 @@ define("Input/Gamepad", ["require", "exports", "Class", "Events"], function (req
             return clonedPad;
         };
         return Gamepads;
-    }(Class_4.Class));
+    }(Class_5.Class));
     /**
      * The minimum value an axis has to move before considering it a change
      */
@@ -10171,7 +10261,7 @@ define("Input/Gamepad", ["require", "exports", "Class", "Events"], function (req
             this._axes[axesIndex] = value;
         };
         return Gamepad;
-    }(Class_4.Class));
+    }(Class_5.Class));
     exports.Gamepad = Gamepad;
     /**
      * Gamepad Buttons enumeration
@@ -10266,7 +10356,7 @@ define("Input/Gamepad", ["require", "exports", "Class", "Events"], function (req
         Axes[Axes["RightStickY"] = 3] = "RightStickY";
     })(Axes = exports.Axes || (exports.Axes = {}));
 });
-define("Input/Pointer", ["require", "exports", "Events", "UIActor", "Algebra", "Class", "Util/Util"], function (require, exports, Events_6, UIActor_1, Algebra_19, Class_5, Util) {
+define("Input/Pointer", ["require", "exports", "Events", "UIActor", "Algebra", "Class", "Util/Util"], function (require, exports, Events_6, UIActor_1, Algebra_19, Class_6, Util) {
     "use strict";
     /**
      * The type of pointer for a [[PointerEvent]].
@@ -10562,7 +10652,7 @@ define("Input/Pointer", ["require", "exports", "Events", "UIActor", "Algebra", "
             }
         };
         return Pointers;
-    }(Class_5.Class));
+    }(Class_6.Class));
     exports.Pointers = Pointers;
     /**
      * Captures and dispatches PointerEvents
@@ -10573,10 +10663,10 @@ define("Input/Pointer", ["require", "exports", "Events", "UIActor", "Algebra", "
             return _super.apply(this, arguments) || this;
         }
         return Pointer;
-    }(Class_5.Class));
+    }(Class_6.Class));
     exports.Pointer = Pointer;
 });
-define("Input/Keyboard", ["require", "exports", "Class", "Events"], function (require, exports, Class_6, Events_7) {
+define("Input/Keyboard", ["require", "exports", "Class", "Events"], function (require, exports, Class_7, Events_7) {
     "use strict";
     /**
      * Enum representing input key codes
@@ -10732,7 +10822,7 @@ define("Input/Keyboard", ["require", "exports", "Class", "Events"], function (re
             return this._keysUp.indexOf(key) > -1;
         };
         return Keyboard;
-    }(Class_6.Class));
+    }(Class_7.Class));
     exports.Keyboard = Keyboard;
 });
 define("Input/IEngineInput", ["require", "exports"], function (require, exports) {
@@ -11188,7 +11278,7 @@ define("Util/SortedList", ["require", "exports"], function (require, exports) {
     }());
     exports.MockedElement = MockedElement;
 });
-define("Index", ["require", "exports", "Actor", "Algebra", "Camera", "Class", "Debug", "Engine", "EventDispatcher", "Events", "Group", "Label", "Loader", "Particles", "Physics", "Promises", "Scene", "TileMap", "Timer", "Trigger", "UIActor", "Actions/Index", "Collision/Index", "Drawing/Index", "Math/Index", "PostProcessing/Index", "Resources/Index", "Events", "Input/Index", "Traits/Index", "Util/Index", "Util/Decorators", "Util/Detector", "Util/CullingBox", "Util/EasingFunctions", "Util/Log", "Util/SortedList"], function (require, exports, Actor_10, Algebra_20, Camera_1, Class_7, Debug_1, Engine_1, EventDispatcher_2, Events_8, Group_1, Label_2, Loader_1, Particles_1, Physics_11, Promises_7, Scene_1, TileMap_1, Timer_1, Trigger_1, UIActor_2, Index_1, Index_2, Index_3, Index_4, Index_5, Index_6, events, input, traits, util, Decorators_2, Detector_1, CullingBox_2, EasingFunctions_3, Log_15, SortedList_1) {
+define("Index", ["require", "exports", "Actor", "Algebra", "Camera", "Class", "Debug", "Engine", "EventDispatcher", "Events", "Group", "Label", "Loader", "Particles", "Physics", "Promises", "Scene", "TileMap", "Timer", "Trigger", "UIActor", "Actions/Index", "Collision/Index", "Drawing/Index", "Math/Index", "PostProcessing/Index", "Resources/Index", "Events", "Input/Index", "Traits/Index", "Util/Index", "Util/Decorators", "Util/Detector", "Util/CullingBox", "Util/EasingFunctions", "Util/Log", "Util/SortedList"], function (require, exports, Actor_10, Algebra_20, Camera_1, Class_8, Debug_1, Engine_1, EventDispatcher_2, Events_8, Group_1, Label_2, Loader_1, Particles_1, Physics_11, Promises_7, Scene_1, TileMap_1, Timer_1, Trigger_1, UIActor_2, Index_1, Index_2, Index_3, Index_4, Index_5, Index_6, events, input, traits, util, Decorators_2, Detector_1, CullingBox_2, EasingFunctions_3, Log_15, SortedList_1) {
     "use strict";
     function __export(m) {
         for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
@@ -11202,7 +11292,7 @@ define("Index", ["require", "exports", "Actor", "Algebra", "Camera", "Class", "D
     __export(Actor_10);
     __export(Algebra_20);
     __export(Camera_1);
-    __export(Class_7);
+    __export(Class_8);
     __export(Debug_1);
     __export(Engine_1);
     __export(EventDispatcher_2);
@@ -11235,7 +11325,7 @@ define("Index", ["require", "exports", "Actor", "Algebra", "Camera", "Class", "D
     __export(Log_15);
     __export(SortedList_1);
 });
-define("Engine", ["require", "exports", "Index", "Promises", "Algebra", "UIActor", "Actor", "Timer", "TileMap", "Loader", "Util/Detector", "Events", "Util/Log", "Drawing/Color", "Scene", "Debug", "Class", "Input/Index", "Util/Decorators", "Util/Util"], function (require, exports, Index_7, Promises_8, Algebra_21, UIActor_3, Actor_11, Timer_2, TileMap_2, Loader_2, Detector_2, Events_9, Log_16, Color_18, Scene_2, Debug_2, Class_8, Input, Decorators_3, Util) {
+define("Engine", ["require", "exports", "Index", "Promises", "Algebra", "UIActor", "Actor", "Timer", "TileMap", "Loader", "Util/Detector", "Events", "Util/Log", "Drawing/Color", "Scene", "Debug", "Class", "Input/Index", "Util/Decorators", "Util/Util"], function (require, exports, Index_7, Promises_8, Algebra_21, UIActor_3, Actor_11, Timer_2, TileMap_2, Loader_2, Detector_2, Events_9, Log_16, Color_19, Scene_2, Debug_2, Class_9, Input, Decorators_3, Util) {
     "use strict";
     /**
      * Enum representing the different display modes available to Excalibur
@@ -11320,11 +11410,11 @@ define("Engine", ["require", "exports", "Index", "Promises", "Algebra", "UIActor
              * Indicates whether the engine should draw with debug information
              */
             _this.isDebug = false;
-            _this.debugColor = new Color_18.Color(255, 255, 255);
+            _this.debugColor = new Color_19.Color(255, 255, 255);
             /**
              * Sets the background color for the engine.
              */
-            _this.backgroundColor = new Color_18.Color(0, 0, 100);
+            _this.backgroundColor = new Color_19.Color(0, 0, 100);
             /**
              * The action to take when a fatal exception is thrown
              */
@@ -11947,7 +12037,7 @@ O|===|* >________________>\n\
             return complete;
         };
         return Engine;
-    }(Class_8.Class));
+    }(Class_9.Class));
     /**
      * Default [[IEngineOptions]]
      */
@@ -12026,7 +12116,7 @@ define("Util/Actors", ["require", "exports", "UIActor", "Label", "Trigger"], fun
     }
     exports.isUIActor = isUIActor;
 });
-define("Scene", ["require", "exports", "UIActor", "Physics", "Events", "Util/Log", "Timer", "Collision/DynamicTreeCollisionBroadphase", "Util/SortedList", "Group", "TileMap", "Camera", "Actor", "Class", "Util/Util", "Util/Actors"], function (require, exports, UIActor_5, Physics_12, Events_10, Log_17, Timer_3, DynamicTreeCollisionBroadphase_2, SortedList_2, Group_2, TileMap_3, Camera_2, Actor_13, Class_9, Util, ActorUtils) {
+define("Scene", ["require", "exports", "UIActor", "Physics", "Events", "Util/Log", "Timer", "Collision/DynamicTreeCollisionBroadphase", "Util/SortedList", "Group", "TileMap", "Camera", "Actor", "Class", "Util/Util", "Util/Actors"], function (require, exports, UIActor_5, Physics_12, Events_10, Log_17, Timer_3, DynamicTreeCollisionBroadphase_2, SortedList_2, Group_2, TileMap_3, Camera_2, Actor_13, Class_10, Util, ActorUtils) {
     "use strict";
     /**
      * [[Actor|Actors]] are composed together into groupings called Scenes in
@@ -12145,6 +12235,16 @@ define("Scene", ["require", "exports", "UIActor", "Physics", "Events", "Util/Log
             if (this.camera) {
                 this.camera.update(engine, delta);
             }
+            // Remove timers in the cancel queue before updating them
+            for (i = 0, len = this._cancelQueue.length; i < len; i++) {
+                this.removeTimer(this._cancelQueue[i]);
+            }
+            this._cancelQueue.length = 0;
+            // Cycle through timers updating timers
+            this._timers = this._timers.filter(function (timer) {
+                timer.update(delta);
+                return !timer.complete;
+            });
             // Cycle through actors updating UI actors
             for (i = 0, len = this.uiActors.length; i < len; i++) {
                 this.uiActors[i].update(engine, delta);
@@ -12189,16 +12289,6 @@ define("Scene", ["require", "exports", "UIActor", "Physics", "Events", "Util/Log
             }
             engine.stats.currFrame.actors.killed = this._killQueue.length;
             this._killQueue.length = 0;
-            // Remove timers in the cancel queue before updating them
-            for (i = 0, len = this._cancelQueue.length; i < len; i++) {
-                this.removeTimer(this._cancelQueue[i]);
-            }
-            this._cancelQueue.length = 0;
-            // Cycle through timers updating timers
-            this._timers = this._timers.filter(function (timer) {
-                timer.update(delta);
-                return !timer.complete;
-            });
             this.emit('postupdate', new Events_10.PostUpdateEvent(engine, delta, this));
         };
         /**
@@ -12451,7 +12541,7 @@ define("Scene", ["require", "exports", "UIActor", "Physics", "Events", "Util/Log
             }
         };
         return Scene;
-    }(Class_9.Class));
+    }(Class_10.Class));
     exports.Scene = Scene;
 });
 define("Events", ["require", "exports"], function (require, exports) {
@@ -12934,7 +13024,7 @@ define("Class", ["require", "exports", "EventDispatcher"], function (require, ex
     }());
     exports.Class = Class;
 });
-define("Actor", ["require", "exports", "Physics", "Class", "Collision/BoundingBox", "Resources/Texture", "Events", "Drawing/Color", "Drawing/Sprite", "Util/Log", "Actions/ActionContext", "Actions/Action", "Algebra", "Collision/Body", "Collision/Side", "Traits/Index", "Drawing/SpriteEffects", "Util/Util"], function (require, exports, Physics_13, Class_10, BoundingBox_7, Texture_2, Events_11, Color_19, Sprite_4, Log_18, ActionContext_3, Action_2, Algebra_23, Body_2, Side_5, Traits, Effects, Util) {
+define("Actor", ["require", "exports", "Physics", "Class", "Collision/BoundingBox", "Resources/Texture", "Events", "Drawing/Color", "Drawing/Sprite", "Util/Log", "Actions/ActionContext", "Actions/Action", "Algebra", "Collision/Body", "Collision/Side", "Traits/Index", "Drawing/SpriteEffects", "Util/Util"], function (require, exports, Physics_13, Class_11, BoundingBox_7, Texture_2, Events_11, Color_20, Sprite_4, Log_18, ActionContext_3, Action_2, Algebra_23, Body_2, Side_5, Traits, Effects, Util) {
     "use strict";
     /**
      * The most important primitive in Excalibur is an `Actor`. Anything that
@@ -13838,7 +13928,7 @@ define("Actor", ["require", "exports", "Physics", "Class", "Collision/BoundingBo
             // Draw actor Id
             ctx.fillText('id: ' + this.id, bb.left + 3, bb.top + 10);
             // Draw actor anchor Vector
-            ctx.fillStyle = Color_19.Color.Yellow.toString();
+            ctx.fillStyle = Color_20.Color.Yellow.toString();
             ctx.beginPath();
             ctx.arc(this.getWorldPos().x, this.getWorldPos().y, 3, 0, Math.PI * 2);
             ctx.closePath();
@@ -13850,7 +13940,7 @@ define("Actor", ["require", "exports", "Physics", "Class", "Collision/BoundingBo
                 }
             }
             // Unit Circle debug draw
-            ctx.strokeStyle = Color_19.Color.Yellow.toString();
+            ctx.strokeStyle = Color_20.Color.Yellow.toString();
             ctx.beginPath();
             var radius = Math.min(this.getWidth(), this.getHeight());
             ctx.arc(this.getWorldPos().x, this.getWorldPos().y, radius, 0, Math.PI * 2);
@@ -13864,7 +13954,7 @@ define("Actor", ["require", "exports", "Physics", "Class", "Collision/BoundingBo
             };
             var oldFont = ctx.font;
             for (var tick in ticks) {
-                ctx.fillStyle = Color_19.Color.Yellow.toString();
+                ctx.fillStyle = Color_20.Color.Yellow.toString();
                 ctx.font = '14px';
                 ctx.textAlign = 'center';
                 ctx.fillText(tick, this.getWorldPos().x + Math.cos(ticks[tick]) * (radius + 10), this.getWorldPos().y + Math.sin(ticks[tick]) * (radius + 10));
@@ -13877,7 +13967,7 @@ define("Actor", ["require", "exports", "Physics", "Class", "Collision/BoundingBo
             this.emit('postdebugdraw', new Events_11.PostDebugDrawEvent(ctx, this));
         };
         return Actor;
-    }(Class_10.Class));
+    }(Class_11.Class));
     /**
      * Indicates the next id to be set
      */

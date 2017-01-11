@@ -1,4 +1,5 @@
 import { Random } from 'Random';
+import { Color } from '../Drawing/Color';
 import * as Util from '../Util/Util';
 
 function _lerp(time: number, a: number, b: number): number {
@@ -107,6 +108,42 @@ export class PerlinGenerator {
       }
       return total / maxValue;
    }
+
+   /**
+    * Generates a list starting at 0 and ending at 1 of contious perlin noise, by default the step is 1/length;
+    *
+    */
+   public noiseSequence(length: number, step?: number): number[] {
+      if (!step) {
+         step = 1 / length;
+      }
+      var array: number[] = new Array(length);
+      for (var i = 0; i < length; i++) {
+         array[i] = this.noise(i * step);
+      }
+      return array;
+   }
+
+   /**
+    * Generates a 2D grid of perlin noise given a step value packed into a 1D array i = (x + y*width), 
+    * by default the step will 1/(min(dimension))
+    */
+   public noiseGrid(width: number, height: number, step?: number): number[] {
+      if (!step) {
+         step = 1 / (Math.min(width, height));
+      }
+
+      var array: number[] = new Array(width * height);
+
+      for (var y = 0; y < height; y++) {
+         for (var x = 0; x < width; x++) {
+            array[x + y * width] = this.noise(x * step, y * step);
+         }
+      }
+
+      return array;
+   }
+
    private _gradient3d(hash: number, x: number, y: number, z: number) {
       var h = hash & 0xF;
       var u = h < 8 ? x : y;
@@ -180,5 +217,57 @@ export class PerlinGenerator {
                                      this._gradient3d(this._p[ba + 1] , x - 1, y, z - 1)),
                         _lerp(fadeX, this._gradient3d(this._p[ab + 1] , x, y - 1, z - 1), 
                                      this._gradient3d(this._p[bb + 1], x - 1, y - 1, z - 1)))) + 1) / 2;
+   }
+}
+
+/**
+ * A helper to draw 2D perlin maps given a perlin generator and a function
+ */
+export class PerlinDrawer2D {
+   /**
+    * @param generator - An existing perlin generator
+    * @param colorFcn - A color function that takes a value between [0, 255] derived from the perlin generator, and returns a color
+    */
+   constructor(public generator: PerlinGenerator, public colorFcn?: (val: number) => Color) {
+      if (!colorFcn) {
+         this.colorFcn = (val: number) => { return val < 125 ? Color.Black : Color.White; };
+      }
+   }
+
+   /**
+    * Returns an image of 2D perlin noise
+    */
+   public image(width: number, height: number): HTMLImageElement {
+      var image = document.createElement('img');
+      var canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      var ctx = canvas.getContext('2d');
+      this.draw(ctx, 0, 0, width, height);
+      image.src = canvas.toDataURL();
+      return image;
+   }
+
+   /**
+    * This draws a 2D perlin grid on a canvas context, not recommended to be called every frame due to performance
+    */
+   public draw(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number) {
+      var grid = this.generator.noiseGrid(width, height);
+      var imageData = ctx.getImageData(x, y, width, height);
+      for (var j = 0; j < height; j++) {
+         for (var i = 0; i < width; i++) {
+            var val = grid[i + width * j];
+            var c = Math.floor(val * 255) & 0xff;
+            var pixel = (i + j * imageData.width) * 4;
+            var color = this.colorFcn(c);
+            
+            imageData.data[pixel] = color.r;
+            imageData.data[pixel + 1] = color.g;
+            imageData.data[pixel + 2] = color.b;
+            imageData.data[pixel + 3] = Math.floor(color.a * 255);
+         }
+      }
+
+      ctx.putImageData(imageData, x, y);
    }
 }

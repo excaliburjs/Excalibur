@@ -169,6 +169,8 @@ newScene.on('activate', function (evt) {
 newScene.on('deactivate', function (evt) {
     console.log('deactivate newScene');
 });
+newScene.on('foo', function (ev) {
+});
 game.addScene('label', newScene);
 game.input.keyboard.on('down', function (keyDown) {
     if (keyDown.key === ex.Input.Keys.F) {

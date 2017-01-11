@@ -1,4 +1,4 @@
-/*! excalibur - v0.8.0 - 2017-01-02
+/*! excalibur - v0.8.0 - 2017-01-10
 * https://github.com/excaliburjs/Excalibur
 * Copyright (c) 2017 Excalibur.js <https://github.com/excaliburjs/Excalibur/graphs/contributors>; Licensed BSD-2-Clause
 * @preserve */
@@ -3847,18 +3847,20 @@ declare module "Particles" {
 }
 declare module "TileMap" {
     import { BoundingBox } from "Collision/BoundingBox";
+    import { Class } from "Class";
     import { Engine } from "Engine";
     import { Vector } from "Algebra";
     import { Actor } from "Actor";
     import { Logger } from "Util/Log";
     import { SpriteSheet } from "Drawing/SpriteSheet";
+    import * as Events from "Events";
     /**
      * The [[TileMap]] class provides a lightweight way to do large complex scenes with collision
      * without the overhead of actors.
      *
      * [[include:TileMaps.md]]
      */
-    export class TileMap {
+    export class TileMap extends Class {
         x: number;
         y: number;
         cellWidth: number;
@@ -3874,6 +3876,11 @@ declare module "TileMap" {
         private _spriteSheets;
         logger: Logger;
         data: Cell[];
+        on(eventName: Events.preupdate, handler: (event?: Events.PreUpdateEvent) => void): any;
+        on(eventName: Events.postupdate, handler: (event?: Events.PostUpdateEvent) => void): any;
+        on(eventName: Events.predraw, handler: (event?: Events.PreDrawEvent) => void): any;
+        on(eventName: Events.postdraw, handler: (event?: Events.PostDrawEvent) => void): any;
+        on(eventName: string, handler: (event?: Events.GameEvent) => void): any;
         /**
          * @param x             The x coordinate to anchor the TileMap's upper left corner (should not be changed once set)
          * @param y             The y coordinate to anchor the TileMap's upper left corner (should not be changed once set)
@@ -4521,6 +4528,7 @@ declare module "Math/Random" {
     }
 }
 declare module "Math/PerlinNoise" {
+    import { Color } from "Drawing/Color";
     export interface IPerlinGeneratorOptions {
         seed?: number;
         octaves?: number;
@@ -4554,12 +4562,42 @@ declare module "Math/PerlinNoise" {
          * Generates 3-Dimensional perlin noise given an (x, y, z) and generates noise values between [0, 1]
          */
         noise(x: number, y: number, z: number): number;
+        /**
+         * Generates a list starting at 0 and ending at 1 of contious perlin noise, by default the step is 1/length;
+         *
+         */
+        noiseSequence(length: number, step?: number): number[];
+        /**
+         * Generates a 2D grid of perlin noise given a step value packed into a 1D array i = (x + y*width),
+         * by default the step will 1/(min(dimension))
+         */
+        noiseGrid(width: number, height: number, step?: number): number[];
         private _gradient3d(hash, x, y, z);
         private _gradient2d(hash, x, y);
         private _gradient1d(hash, x);
         private _noise1d(x);
         private _noise2d(x, y);
         private _noise3d(x, y, z);
+    }
+    /**
+     * A helper to draw 2D perlin maps given a perlin generator and a function
+     */
+    export class PerlinDrawer2D {
+        generator: PerlinGenerator;
+        colorFcn: (val: number) => Color;
+        /**
+         * @param generator - An existing perlin generator
+         * @param colorFcn - A color function that takes a value between [0, 255] derived from the perlin generator, and returns a color
+         */
+        constructor(generator: PerlinGenerator, colorFcn?: (val: number) => Color);
+        /**
+         * Returns an image of 2D perlin noise
+         */
+        image(width: number, height: number): HTMLImageElement;
+        /**
+         * This draws a 2D perlin grid on a canvas context, not recommended to be called every frame due to performance
+         */
+        draw(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number): void;
     }
 }
 declare module "Math/Index" {

@@ -11,6 +11,36 @@ var noise = new ex.PerlinGenerator({
    persistance: .5
 });
 
+var drawer = new ex.PerlinDrawer2D(noise, (val: number) => {
+   var color = new ex.Color(0, 0, 0, 0);
+   if (val < 135) {
+      color.r = 0;
+      color.g = 0;
+      color.b = 170;
+   } else if (val < 136 && val >= 135) {
+      color.r = 160;
+      color.g = 200;
+      color.b = 0;
+   } else if (val > 148) {
+      color.r = val;
+      color.g = val;
+      color.b = val;
+   } else if (val > 145) {
+      color.r = val - 130;
+      color.g = val - 130;
+      color.b = val - 130;
+   } else {
+      color.r = val - 90;
+      color.g = val;
+      color.b = val - 90;
+   }
+   color.a = 1;
+   return color;
+});
+
+drawer.draw(ctx, 0, 0, 800, 800);
+
+/*
 var img = ctx.getImageData(0, 0, 800, 800);
 for (var j = 0; j < 800; j++) {
     for (var i = 0; i < 800; i++) {
@@ -42,3 +72,4 @@ for (var j = 0; j < 800; j++) {
     }
 } 
 ctx.putImageData(img, 0, 0);
+*/
