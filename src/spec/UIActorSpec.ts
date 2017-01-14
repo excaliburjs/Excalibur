@@ -26,6 +26,10 @@ describe('A UIActor', () => {
       spyOn(uiActor, 'draw').and.callThrough();     
 		
    });
+
+   afterEach(() => {
+      engine.stop();
+   });
 	
    it('is drawn when visible', () => {
       uiActor.visible = true;
@@ -59,6 +63,22 @@ describe('A UIActor', () => {
       scene.draw(engine.ctx, 100);
       
       imagediff.expectCanvasImageMatches('UIActorSpec/actordoesnotdraw.png', engine.canvas, done);
+   });
+
+   it('is drawn on the top left with empty constructor', (done) => {
+            
+      let bg = new ex.Texture('src/spec/images/UIActorSpec/emptyctor.png', true);
+
+      engine.start(new ex.Loader([bg])).then(() => {
+         let uiActor = new ex.UIActor();
+         uiActor.addDrawing(bg);
+         engine.add(uiActor);
+         
+         uiActor.on('postdraw', () => {
+            imagediff.expectCanvasImageMatches('UIActorSpec/emptyctor.png', engine.canvas, done);
+         });
+      });
+      
    });
 
 });

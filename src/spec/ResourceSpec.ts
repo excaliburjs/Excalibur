@@ -32,6 +32,7 @@ describe('A generic Resource', () => {
          var game = TestUtils.engine();
          game.start(emptyLoader).then(() => {            
             expect(emptyLoader.isLoaded()).toBe(true);
+            game.stop();
             done();
          });
 
