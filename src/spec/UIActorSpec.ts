@@ -80,9 +80,9 @@ describe('A UIActor', () => {
          uiActor.addDrawing(bg);
          engine.add(uiActor);
 
-         engine.on('postframe', () => {
-            engine.stop();
+         engine.on('postframe', () => {            
             imagediff.expectCanvasImageMatches('UIActorSpec/emptyctor.png', engine.canvas, done);
+            engine.stop();
          });
       });     
       
