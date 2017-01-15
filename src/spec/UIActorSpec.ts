@@ -68,16 +68,23 @@ describe('A UIActor', () => {
    it('is drawn on the top left with empty constructor', (done) => {
             
       let bg = new ex.Texture('src/spec/images/UIActorSpec/emptyctor.png', true);
+      let loader = new ex.Loader();
 
-      engine.start(new ex.Loader([bg])).then(() => {
+      loader.addResource(bg);
+
+      engine.width = engine.canvas.width = 720;
+      engine.height = engine.canvas.height = 480;
+
+      engine.start(loader).then(() => {
          let uiActor = new ex.UIActor();
          uiActor.addDrawing(bg);
          engine.add(uiActor);
-         
-         uiActor.on('postdraw', () => {
+
+         engine.on('postdraw', () => {
+            engine.off('postdraw');
             imagediff.expectCanvasImageMatches('UIActorSpec/emptyctor.png', engine.canvas, done);
          });
-      });
+      });     
       
    });
 
