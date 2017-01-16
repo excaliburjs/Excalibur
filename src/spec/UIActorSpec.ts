@@ -80,9 +80,11 @@ describe('A UIActor', () => {
          uiActor.addDrawing(bg);
          engine.add(uiActor);
 
-         engine.on('postframe', () => {            
-            imagediff.expectCanvasImageMatches('UIActorSpec/emptyctor.png', engine.canvas, done);
-            //engine.stop();
+         engine.on('postframe', (ev) => {     
+            if (ev.stats.id > 20) {       
+               imagediff.expectCanvasImageMatches('UIActorSpec/emptyctor.png', engine.canvas, done);
+               engine.stop();
+            }
          });
       });     
       
