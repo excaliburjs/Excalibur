@@ -67,6 +67,8 @@ describe('A UIActor', () => {
 
    it('is drawn on the top left with empty constructor', (done) => {
             
+      ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
+
       let bg = new ex.Texture('src/spec/images/UIActorSpec/emptyctor.png', true);
       let loader = new ex.Loader();
 
@@ -80,11 +82,11 @@ describe('A UIActor', () => {
          uiActor.addDrawing(bg);
          engine.add(uiActor);
 
-         engine.on('postframe', (ev) => {     
-            if (ev.stats.id > 20) {       
-               imagediff.expectCanvasImageMatches('UIActorSpec/emptyctor.png', engine.canvas, done);
-               engine.stop();
-            }
+         console.log('uiactor test bg is loaded', bg.isLoaded());
+
+         engine.on('postframe', (ev) => {   
+            imagediff.expectCanvasImageMatches('UIActorSpec/emptyctor.png', engine.canvas, done);
+            engine.stop();            
          });
       });     
       

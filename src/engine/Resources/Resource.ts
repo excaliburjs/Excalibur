@@ -71,6 +71,8 @@ export class Resource<T> extends Class implements ILoadable {
       request.onprogress = this.onprogress;
       request.onerror = this.onerror;
       request.onload = (e) => {
+         // TESTING
+         console.log('Resource [onload]', request.status, request.response);
 
          // XHR on file:// success status is 0, such as with PhantomJS
          if (request.status !== 0 && request.status !== 200) {
