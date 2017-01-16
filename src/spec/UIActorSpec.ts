@@ -82,7 +82,7 @@ describe('A UIActor', () => {
 
          engine.on('postframe', () => {            
             imagediff.expectCanvasImageMatches('UIActorSpec/emptyctor.png', engine.canvas, done);
-            engine.stop();
+            //engine.stop();
          });
       });     
       
