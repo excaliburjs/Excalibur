@@ -82,8 +82,9 @@ describe('A UIActor', () => {
          uiActor.addDrawing(bg);
          engine.add(uiActor);
 
-         uiActor.on('postdraw', () => {
-            console.log('uiactor postdraw');
+         uiActor.on('postdraw', (ev: ex.PostDrawEvent) => {
+            var imgData = ev.ctx.getImageData(0, 0, 1, 1).data;
+            console.log('uiactor postdraw, rgba:', imgData[0], imgData[1], imgData[2], imgData[3]);
          });
          engine.on('postframe', (ev) => {   
             console.log('engine postframe');
