@@ -82,9 +82,11 @@ describe('A UIActor', () => {
          uiActor.addDrawing(bg);
          engine.add(uiActor);
 
-         console.log('uiactor test bg is loaded', bg.isLoaded());
-
+         uiActor.on('postdraw', () => {
+            console.log('uiactor postdraw');
+         });
          engine.on('postframe', (ev) => {   
+            console.log('engine postframe');
             imagediff.expectCanvasImageMatches('UIActorSpec/emptyctor.png', engine.canvas, done);
             engine.stop();            
          });

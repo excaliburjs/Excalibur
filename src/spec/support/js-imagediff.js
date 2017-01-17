@@ -448,14 +448,14 @@
       var copyCtx = copyCanvas.getContext('2d');
       copyCtx.drawImage(canvas, 0, 0);
 
-      var a = new Image();
-      a.src = './src/spec/images/' + src;
+      var a = new Image();     
       a.addEventListener('load', function () {
          expect(copyCanvas).toImageEqual(a);
          copyCanvas = null;
          copyCtx = null;
          done();
       });
+       a.src = './src/spec/images/' + src;
     },
 
     // Compatibility
