@@ -69,29 +69,32 @@ describe('A UIActor', () => {
             
       ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
 
+      let game = TestUtils.engine({ width: 720, height: 480 });
       let bg = new ex.Texture('src/spec/images/UIActorSpec/emptyctor.png', true);
       let loader = new ex.Loader();
 
       loader.addResource(bg);
 
-      engine.width = engine.canvas.width = 720;
-      engine.height = engine.canvas.height = 480;
+      let uiActor = new ex.UIActor();
+      uiActor.addDrawing(bg);
+      game.add(uiActor);
 
-      engine.start(loader).then(() => {
-         let uiActor = new ex.UIActor();
-         uiActor.addDrawing(bg);
-         engine.add(uiActor);
+      uiActor.on('postdraw', (ev: ex.PostDrawEvent) => {
+         var imgData = ev.ctx.getImageData(0, 0, 1, 1).data;
+         console.log('uiactor postdraw, rgba:', imgData[0], imgData[1], imgData[2], imgData[3]);
+      });
 
-         uiActor.on('postdraw', (ev: ex.PostDrawEvent) => {
-            var imgData = ev.ctx.getImageData(0, 0, 1, 1).data;
-            console.log('uiactor postdraw, rgba:', imgData[0], imgData[1], imgData[2], imgData[3]);
-         });
-         engine.on('postframe', (ev) => {   
-            console.log('engine postframe');
-            imagediff.expectCanvasImageMatches('UIActorSpec/emptyctor.png', engine.canvas, done);
-            engine.stop();            
-         });
-      });     
+      game.on('postframe', (ev) => {   
+         console.log('engine postframe', ev.stats.id);
+
+         if (ev.stats.id > 9) {
+            
+            imagediff.expectCanvasImageMatches('UIActorSpec/emptyctor.png', game.canvas, done);
+            game.stop();        
+         }    
+      });
+
+      game.start(loader);
       
    });
 
