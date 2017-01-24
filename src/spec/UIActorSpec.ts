@@ -82,16 +82,13 @@ describe('A UIActor', () => {
       uiActor.on('postdraw', (ev: ex.PostDrawEvent) => {
          var imgData = ev.ctx.getImageData(0, 0, 1, 1).data;
          console.log('uiactor postdraw, rgba:', imgData[0], imgData[1], imgData[2], imgData[3]);
+         
+         imagediff.expectCanvasImageMatches('UIActorSpec/emptyctor.png', game.canvas, done);
+         game.stop();
       });
 
       game.on('postframe', (ev) => {   
          console.log('engine postframe', ev.stats.id);
-
-         if (ev.stats.id > 9) {
-            
-            imagediff.expectCanvasImageMatches('UIActorSpec/emptyctor.png', game.canvas, done);
-            game.stop();        
-         }    
       });
 
       game.start(loader);
