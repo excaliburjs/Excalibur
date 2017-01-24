@@ -67,31 +67,19 @@ describe('A UIActor', () => {
 
    it('is drawn on the top left with empty constructor', (done) => {
             
-      ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
-
       let game = TestUtils.engine({ width: 720, height: 480 });
       let bg = new ex.Texture('src/spec/images/UIActorSpec/emptyctor.png', true);
-      let loader = new ex.Loader();
+      
+      game.start(new ex.Loader([bg])).then(() => {
+         let uiActor = new ex.UIActor();
+         uiActor.addDrawing(bg);
+         game.add(uiActor);
 
-      loader.addResource(bg);
-
-      let uiActor = new ex.UIActor();
-      uiActor.addDrawing(bg);
-      game.add(uiActor);
-
-      uiActor.on('postdraw', (ev: ex.PostDrawEvent) => {
-         var imgData = ev.ctx.getImageData(0, 0, 1, 1).data;
-         console.log('uiactor postdraw, rgba:', imgData[0], imgData[1], imgData[2], imgData[3]);
-         
-         imagediff.expectCanvasImageMatches('UIActorSpec/emptyctor.png', game.canvas, done);
-         game.stop();
+         uiActor.on('postdraw', (ev: ex.PostDrawEvent) => {
+            game.stop();
+            imagediff.expectCanvasImageMatches('UIActorSpec/emptyctor.png', game.canvas, done);            
+         });
       });
-
-      game.on('postframe', (ev) => {   
-         console.log('engine postframe', ev.stats.id);
-      });
-
-      game.start(loader);
       
    });
 
