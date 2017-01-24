@@ -36,6 +36,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed Scene/Actor activation and initialization order, actors were not being initialized before scene activation causing bugs ([#661](https://github.com/excaliburjs/Excalibur/issues/661))
 - Fixed bug with Excalibur where it would not load if a loader was provided without any resources ([#565](https://github.com/excaliburjs/Excalibur/issues/565))
 - Fixed bug where an Actor/UIActor/TileMap added during a Timer callback would not initialize before running `draw` loop. ([#584](https://github.com/excaliburjs/Excalibur/issues/584))
+- Fixed bug where on slower systems a Sprite may not be drawn on the first `draw` frame ([#748](https://github.com/excaliburjs/Excalibur/issues/748))
 
 ## [0.8.0] 2016-12-04
 

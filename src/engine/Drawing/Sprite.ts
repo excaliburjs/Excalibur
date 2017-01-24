@@ -36,7 +36,6 @@ export class Sprite implements IDrawable {
    public height: number = 0;
    public effects: Effects.ISpriteEffect[] = [];
 
-   public internalImage: HTMLImageElement = new Image();
    public naturalWidth: number = 0;
    public naturalHeight: number = 0;
 
@@ -98,9 +97,7 @@ export class Sprite implements IDrawable {
             clamp(this.swidth, 0, naturalWidth),
             clamp(this.sheight, 0, naturalHeight),
             0, 0, this.swidth, this.sheight);
-         //this.pixelData = this.spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
-         
-         this.internalImage.src = this._spriteCanvas.toDataURL('image/png');
+
          this._pixelsLoaded = true;
       }
    }
@@ -243,7 +240,6 @@ export class Sprite implements IDrawable {
       }
       this._spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
       this._spriteCtx.putImageData(this._pixelData, 0, 0);
-      this.internalImage.src = this._spriteCanvas.toDataURL('image/png');
       
       this._dirtyEffect = false;
    }
@@ -312,13 +308,12 @@ export class Sprite implements IDrawable {
          ctx.scale(1, -1);
       }
 
-      if (this.internalImage) {
-         ctx.drawImage(this.internalImage, 0, 0, this.swidth, this.sheight, 
-            -xpoint, 
-            -ypoint, 
-            scaledSWidth,
-            scaledSHeight);
-      }
+      ctx.drawImage(this._spriteCanvas, 0, 0, this.swidth, this.sheight, 
+         -xpoint, 
+         -ypoint, 
+         scaledSWidth,
+         scaledSHeight);
+      
       ctx.restore();
    }
 
