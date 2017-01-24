@@ -26,6 +26,19 @@ engine.input.pointers.primary.on("move", function (evt) { });
 engine.input.pointers.primary.on("cancel", function (evt) { });
 ```
 
+## Last position querying
+
+If you don't wish to subscribe to events, you can also access the [[Pointer.lastPagePos]], [[Pointer.lastScreenPos]]
+or [[Pointer.lastWorldPos]] coordinates ([[Vector]]) on the pointer you're targeting.
+
+```js
+engine.input.pointers.primary.lastPagePos
+engine.input.pointers.primary.lastScreenPos
+engine.input.pointers.primary.lastWorldPos
+```
+
+Note that the value may be `null` if the Pointer was not active the last frame.
+
 ## Pointer scope (window vs. canvas)
 
 You have the option to handle *all* pointer events in the browser by setting
