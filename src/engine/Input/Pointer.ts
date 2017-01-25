@@ -56,6 +56,10 @@ export class PointerEvent extends GameEvent {
    /**
     * @param x            The `x` coordinate of the event (in world coordinates)
     * @param y            The `y` coordinate of the event (in world coordinates)
+    * @param pageX        The `x` coordinate of the event (in document coordinates)
+    * @param pageY        The `y` coordinate of the event (in document coordinates)
+    * @param screenX      The `x` coordinate of the event (in screen coordinates)
+    * @param screenY      The `y` coordinate of the event (in screen coordinates)
     * @param index        The index of the pointer (zero-based)
     * @param pointerType  The type of pointer
     * @param button       The button pressed (if [[PointerType.Mouse]])
@@ -63,6 +67,10 @@ export class PointerEvent extends GameEvent {
     */
    constructor(public x: number, 
                public y: number, 
+               public pageX: number,
+               public pageY: number,
+               public screenX: number,
+               public screenY: number,
                public index: number, 
                public pointerType: PointerType, 
                public button: PointerButton, 
@@ -236,7 +244,7 @@ export class Pointers extends Class {
          var x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
          var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
          var transformedPoint = this._engine.screenToWorldCoordinates(new Vector(x, y));
-         var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, 0, PointerType.Mouse, e.button, e);
+         var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, e.pageX, e.pageY, x, y, 0, PointerType.Mouse, e.button, e);
          eventArr.push(pe);
          this.at(0).eventDispatcher.emit(eventName, pe);
       };
@@ -251,7 +259,8 @@ export class Pointers extends Class {
             var x: number = e.changedTouches[i].pageX - Util.getPosition(this._engine.canvas).x;
             var y: number = e.changedTouches[i].pageY - Util.getPosition(this._engine.canvas).y;
             var transformedPoint = this._engine.screenToWorldCoordinates(new Vector(x, y));
-            var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, PointerType.Touch, PointerButton.Unknown, e);
+            var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, 
+               e.changedTouches[i].pageX, e.changedTouches[i].pageY, x, y, index, PointerType.Touch, PointerButton.Unknown, e);
             eventArr.push(pe);
             this.at(index).eventDispatcher.emit(eventName, pe);
             // only with multi-pointer
@@ -280,7 +289,8 @@ export class Pointers extends Class {
          var x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
          var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
          var transformedPoint = this._engine.screenToWorldCoordinates(new Vector(x, y));
-         var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, index, this._stringToPointerType(e.pointerType), e.button, e);
+         var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, 
+            e.pageX, e.pageY, x, y, index, this._stringToPointerType(e.pointerType), e.button, e);
          eventArr.push(pe);
          this.at(index).eventDispatcher.emit(eventName, pe);
 
@@ -336,6 +346,32 @@ export class Pointers extends Class {
  */
 export class Pointer extends Class {
    
+   constructor() {
+      super();
+      
+      this.on('move', this._onPointerMove);
+   }
+
+   /**
+    * The last position on the document this pointer was at. Can be `null` if pointer was never active.
+    */
+   lastPagePos: Vector = null;
+
+   /**
+    * The last position on the screen this pointer was at. Can be `null` if pointer was never active.
+    */
+   lastScreenPos: Vector = null;
+
+   /**
+    * The last position in the game world coordinates this pointer was at. Can be `null` if pointer was never active.
+    */
+   lastWorldPos: Vector = null;   
+
+   private _onPointerMove(ev: PointerEvent) {
+      this.lastWorldPos = new Vector(ev.x, ev.y);
+      this.lastPagePos = new Vector(ev.pageX, ev.pageY);
+      this.lastScreenPos = new Vector(ev.screenX, ev.screenY);      
+   }
 }
 
 interface ITouchEvent extends Event {

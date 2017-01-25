@@ -441,12 +441,21 @@
     jasmine : jasmine,
 
     expectCanvasImageMatches : function(src, canvas, done) {
-      var a = new Image();
-      a.src = './src/spec/images/' + src;
-      a.addEventListener('load', function() {
-         expect(canvas).toImageEqual(a);
+      // copy canvas since we load the src image async
+      var copyCanvas = document.createElement('canvas');
+      copyCanvas.width = canvas.width;
+      copyCanvas.height = canvas.height;
+      var copyCtx = copyCanvas.getContext('2d');
+      copyCtx.drawImage(canvas, 0, 0);
+
+      var a = new Image();     
+      a.addEventListener('load', function () {
+         expect(copyCanvas).toImageEqual(a);
+         copyCanvas = null;
+         copyCtx = null;
          done();
       });
+       a.src = './src/spec/images/' + src;
     },
 
     // Compatibility

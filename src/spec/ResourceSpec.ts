@@ -8,15 +8,11 @@ describe('A generic Resource', () => {
    
    var resource: ex.Resource<any>;
    var mocker = new Mocks.Mocker();
-   
+
    beforeEach(() => {
       
       resource = new ex.Resource<any>('a/path/to/a/resource.png', 'image/png');
-      
-      URL = <any>mocker.URL();
-      
-      spyOn(URL, 'createObjectURL').and.callThrough();
-
+                  
       ex.Logger.getInstance().defaultLevel = ex.LogLevel.Error;
    });
    
@@ -32,6 +28,7 @@ describe('A generic Resource', () => {
          var game = TestUtils.engine();
          game.start(emptyLoader).then(() => {            
             expect(emptyLoader.isLoaded()).toBe(true);
+            game.stop();
             done();
          });
 
@@ -40,7 +37,12 @@ describe('A generic Resource', () => {
    
    describe('with some data', () => {
       
-      beforeEach(() => {               
+      beforeEach(() => {         
+
+         spyOn(URL, 'createObjectURL').and.callFake(data => {
+            return 'blob://' + data;
+         });
+
          resource.setData('data');  
       });           
       
@@ -53,14 +55,10 @@ describe('A generic Resource', () => {
       });
       
       it('should not trigger an XHR when load is called', (done) => {
-         var data;
-         
          resource.load().then((data) => {
-            data = data;
+            expect(data).not.toBeNull();  
             done();
-         });        
-                   
-         expect(data).not.toBeNull();         
+         });                                          
       });
       
       it('should call processData handler', () => {

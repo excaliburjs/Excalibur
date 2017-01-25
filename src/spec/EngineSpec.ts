@@ -17,6 +17,10 @@ describe('The engine', () => {
       engine.start();
    });
 
+   afterEach(() => {
+      engine.stop();
+   });
+
    it('should emit a preframe event', () => {
       var fired = false;
       engine.on('preframe', () => fired = true);

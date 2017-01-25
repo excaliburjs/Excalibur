@@ -5,17 +5,15 @@ init:
 # What combinations to test
 environment:
   matrix:
-    - nodejs_version: "4"
+    - nodejs_version: "6"
 platform:
   - x86
   - x64
 install:
   - ps: Install-Product node $env:nodejs_version
-  - npm install npm -g
-  - npm install grunt-cli -g
   - npm install
 build_script:
-  - grunt appveyor
+  - node_modules/.bin/grunt appveyor
 artifacts:
   - path: build\dist\**\*.nupkg
     name: Nuget Package
