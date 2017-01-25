@@ -10,11 +10,33 @@ function _fade(t: number): number {
    return t * t * t * (t * (t * 6 - 15) + 10);
 }
 
+/**
+ * Options for the perlin noise generator
+ */
 export interface IPerlinGeneratorOptions {
+   /**
+    * Random number seed for the Perlin noise generator
+    */
    seed?: number;
+   /**
+    * Number of octaves to use when generating the noise, the number of octaves is the number of times the perlin
+    * noise is generated and laid on top of itself. Using higher values can increase the curviness of the noise, and 
+    * make it look more natural.
+    */
    octaves?: number;
+   /**
+    * Frequency to use when generating the noise, the higher the number the more quickly the pattern will oscilate. Another way
+    * to think about this is that it is like "zooming" out from an infinite pattern determined by the seed.
+    */
    frequency?: number;
+   /**
+    * The amplitude determines the relative height of the peaks generated in the noise.
+    */
    amplitude?: number;
+   /**
+    * The persistance determines how quickly the amplitude will drop off, a high degree of persistance results in smoother patterns,
+    * a low degree of persistance generates spikey patterns.
+    */
    persistance?: number;
 }
 
@@ -47,13 +69,32 @@ export class PerlinGenerator {
       persistance: .5
    };
 
+   /**
+    * The persistance determines how quickly the amplitude will drop off, a high degree of persistance results in smoother patterns,
+    * a low degree of persistance generates spikey patterns.
+    */
    public persistance: number;
+
+   /**
+    * The amplitude determines the relative height of the peaks generated in the noise.
+    */
    public amplitude: number;
+
+   /**
+    * Frequency to use when generating the noise, the higher the number the more quickly the pattern will oscilate. Another way
+    * to think about this is that it is like "zooming" out from an infinite pattern determined by the seed.
+    */
    public frequency: number;
+   
+   /**
+    * Number of octaves to use when generating the noise, the number of octaves is the number of times the perlin
+    * noise is generated and laid on top of itself. Using higher values can increase the curviness of the noise, and 
+    * make it look more natural.
+    */
    public octaves: number;
 
 
-   constructor(options: IPerlinGeneratorOptions) {      
+   constructor(options?: IPerlinGeneratorOptions) {      
       options = Util.extend({}, this._defaultPerlinOptions, options);
 
       this.persistance = options.persistance;
