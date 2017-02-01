@@ -985,7 +985,7 @@ export class RepeatForever implements IAction {
  * queue.
  */
 export class ActionQueue {
-   private _actor;
+   private _actor: Actor;
    private _actions: IAction[] = [];
    private _currentAction: IAction;
    private _completedActions: IAction[] = [];

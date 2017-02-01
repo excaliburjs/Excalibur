@@ -655,7 +655,7 @@ export class Actor extends Class implements IActionable, IEvented {
    /**
     * Sets the width of an actor, factoring in the current scale
     */
-   public setWidth(width) {
+   public setWidth(width: number) {
       this._width = width / this.scale.x;
    }
    /**
@@ -667,7 +667,7 @@ export class Actor extends Class implements IActionable, IEvented {
    /**
     * Sets the height of an actor, factoring in the current scale
     */
-   public setHeight(height) {
+   public setHeight(height: number) {
       this._height = height / this.scale.y;
    }
    /**
@@ -1060,7 +1060,7 @@ export class Actor extends Class implements IActionable, IEvented {
       ctx.arc(this.getWorldPos().x, this.getWorldPos().y, radius, 0, Math.PI * 2);
       ctx.closePath();
       ctx.stroke();
-      var ticks = {
+      var ticks: { [key: string]: number } = {
          '0 Pi': 0,
          'Pi/2': Math.PI / 2,
          'Pi': Math.PI,
