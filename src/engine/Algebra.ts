@@ -131,7 +131,7 @@ export class Vector {
     * Scales a vector's by a factor of size
     * @param size  The factor to scale the magnitude by
     */
-   public scale(size): Vector {
+   public scale(size: number): Vector {
       return new Vector(this.x * size, this.y * size);
    }
 

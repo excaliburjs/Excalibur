@@ -198,7 +198,7 @@ export class Engine extends Class {
    /**
     * The action to take when a fatal exception is thrown
     */
-   public onFatalException = (e) => { Logger.getInstance().fatal(e); };
+   public onFatalException = (e: any) => { Logger.getInstance().fatal(e); };
 
    private _logger: Logger;
    private _isSmoothingEnabled: boolean = true;
@@ -752,7 +752,7 @@ O|===|* >________________>\n\
       // Issue #385 make use of the visibility api
       // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
 
-      var hidden, visibilityChange;
+      var hidden:string, visibilityChange;
       if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and later support 
          hidden = 'hidden';
          visibilityChange = 'visibilitychange';
@@ -931,7 +931,7 @@ O|===|* >________________>\n\
 
    }
 
-   public static createMainLoop(game: Engine, raf: (Function) => number, nowFn: () => number) {
+   public static createMainLoop(game: Engine, raf: (Function: any) => number, nowFn: () => number) {
       var lastTime = nowFn();
 
       return function mainloop() {

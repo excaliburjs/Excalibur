@@ -38,5 +38,5 @@ export interface ICollisionBroadphase {
     */
    update(targets: Actor[], delta: number): number;
 
-   debugDraw(ctx, delta): void;
+   debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
 }

@@ -14,7 +14,7 @@ export class TreeNode {
    public bounds: BoundingBox;
    public height: number;
    public body: Body;
-   constructor(public parent?) {
+   constructor(public parent?: TreeNode) {
       this.parent = parent || null;
       this.body = null;
       this.bounds = new BoundingBox();
@@ -458,7 +458,7 @@ export class DynamicTree {
 
 
    public getNodes(): TreeNode[] {
-      var helper = currentNode => {
+      var helper = (currentNode: TreeNode) => {
          if (currentNode) {
             return [currentNode].concat(helper(currentNode.left), helper(currentNode.right));
          } else {
@@ -471,7 +471,7 @@ export class DynamicTree {
 
    public debugDraw(ctx: CanvasRenderingContext2D, delta: number) {
       // draw all the nodes in the Dynamic Tree
-      var helper = currentNode => {
+      var helper = (currentNode: TreeNode) => {
 
          if (currentNode) {
             if (currentNode.isLeaf()) {
