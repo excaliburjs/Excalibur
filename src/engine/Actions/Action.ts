@@ -737,7 +737,7 @@ export class Blink implements IAction {
       this._duration = (timeVisible + timeNotVisible) * numBlinks;
    }
 
-   public update(delta): void {
+   public update(delta: number): void {
       if (!this._started) {
          this._started = true;
       }
@@ -906,7 +906,7 @@ export class Repeat implements IAction {
       };
    }
 
-   public update(delta): void {
+   public update(delta: number): void {
       this.x = this._actor.pos.x;
       this.y = this._actor.pos.y;
       if (!this._actionQueue.hasNext()) {
@@ -946,7 +946,7 @@ export class RepeatForever implements IAction {
       };
    }
 
-   public update(delta): void {
+   public update(delta: number): void {
       this.x = this._actor.pos.x;
       this.y = this._actor.pos.y;
       if (this._stopped) {
