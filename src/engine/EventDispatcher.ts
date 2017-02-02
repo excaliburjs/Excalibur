@@ -22,7 +22,7 @@ export class EventDispatcher implements IEvented {
    /**
     * @param target  The object that will be the recipient of events from this event dispatcher
     */
-   constructor(target) {
+   constructor(target: any) {
       this._target = target;
    }
 

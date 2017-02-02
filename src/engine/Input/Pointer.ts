@@ -74,7 +74,7 @@ export class PointerEvent extends GameEvent {
                public index: number, 
                public pointerType: PointerType, 
                public button: PointerButton, 
-               public ev) {
+               public ev: any) {
       super();
    }
 };
@@ -327,7 +327,7 @@ export class Pointers extends Class {
       return -1;
    }
 
-   private _stringToPointerType(s) {
+   private _stringToPointerType(s: string) {
       switch (s) {
          case 'touch':
             return PointerType.Touch;

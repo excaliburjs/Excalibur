@@ -101,7 +101,7 @@ export class Promise<T> implements IPromise<T> {
       var total = promises.length;
       var successes = 0;
       var rejects = 0;
-      var errors = [];
+      var errors: any = [];
 
       promises.forEach((p) => {
          p.then(

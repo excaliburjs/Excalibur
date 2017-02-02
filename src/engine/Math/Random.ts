@@ -1,4 +1,4 @@
-/**
+  /**
  * Pseudo-Random Utility
  * 
  * A pseudo-random utility to add seeded random support for help in
@@ -188,7 +188,8 @@ export class Random {
     * Returns a new array random picking elements from the original allowing duplicates
     * @param numPicks can be any positive number
     */
-   private _pickSetWithDuplicates<T>(array: Array<T>, numPicks): Array<T> {
+   private _pickSetWithDuplicates<T>(array: Array<T>, numPicks: number): Array<T> {
+    // Typescript numbers are all floating point, so do we add check for int? (or floor the input?)
       if (numPicks < 0) {
          throw new Error('Invalid number of elements to pick, must pick a value 0 <= n < MAX_INT');
       }

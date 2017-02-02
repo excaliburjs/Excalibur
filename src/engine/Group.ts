@@ -68,7 +68,7 @@ export class Group extends Class implements IActionable, IEvented {
 
    public move(vector: Vector): void;
    public move(dx: number, dy: number): void;
-   public move(args): void {
+   public move(args: Vector | number): void {
       var i = 0, members = this.getMembers(), len = members.length;
 
       if (arguments.length === 1 && args instanceof Vector) {
