@@ -14,7 +14,7 @@ export const TwoPI: number = Math.PI * 2;
  * @param objects The objects whose properties to merge
  * @returns Merged object with properties from other objects
  */
-export function extend(deep: boolean, target, ...objects);
+export function extend(deep: boolean, target: any, ...objects: any[] | Array<any>);
 
 /**
  * Merges one or more objects into a single target object
@@ -23,7 +23,7 @@ export function extend(deep: boolean, target, ...objects);
  * @param objects The objects whose properties to merge
  * @returns Merged object with properties from other objects
  */
-export function extend(target, ...objects);
+export function extend(target: any, ...objects: any[] | Array<any>);
 
 /**
  * Merges one or more objects into a single target object
@@ -32,7 +32,7 @@ export function extend(target, ...objects);
  * @credit https://gomakethings.com/vanilla-javascript-version-of-jquery-extend/
  */
 export function extend() {
-   var extended = {};
+   var extended: { [key:string]: any}= {};
    var deep = false;
    var i = 0;
    var length = arguments.length;
@@ -44,7 +44,7 @@ export function extend() {
    }
 
    // Merge the object into the extended object
-   var merge = function (obj) {
+   var merge = function (obj: any) {
       for (var prop in obj) {
          if (Object.prototype.hasOwnProperty.call(obj, prop)) {
             // If deep merge and property is an object, merge properties

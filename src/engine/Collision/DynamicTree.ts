@@ -38,7 +38,7 @@ export class TreeNode {
 export class DynamicTree {
 
    public root: TreeNode;
-   public nodes: { [key: number]: TreeNode };
+   public nodes: { [key: string]: TreeNode };
    constructor(public worldBounds: BoundingBox = new BoundingBox(-Number.MAX_VALUE,
       -Number.MAX_VALUE,
       Number.MAX_VALUE,
