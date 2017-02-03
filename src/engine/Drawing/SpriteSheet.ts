@@ -103,6 +103,8 @@ export class SpriteSheet {
    public getSprite(index: number): Sprite {
       if (index >= 0 && index < this.sprites.length) {
          return this.sprites[index];
+      } else {
+        throw new Error('Invalid index: ' + index);
       }
    }
 }

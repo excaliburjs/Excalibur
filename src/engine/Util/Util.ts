@@ -294,7 +294,8 @@ export class Collection<T> {
     */
    public elementAt(index: number): T {
       if (index >= this.count()) {
-         return;
+         //Logger.getInstance().error('Invalid parameter: ' + index);
+         throw new Error('Invalid index ' + index);
       }
       return this._internalArray[index];
    }
@@ -317,7 +318,10 @@ export class Collection<T> {
     */
    public remove(index: number): T {
       var count = this.count();
-      if (count === 0) { return; }
+      if (count === 0) {
+        //Logger.getInstance().error('Invalid parameter: ' + index);
+         throw new Error('Invalid parameter ' + index); 
+       }
       // O(n) Shift 
       var removed = this._internalArray[index];
       for (var i = index; i < count; i++) {
