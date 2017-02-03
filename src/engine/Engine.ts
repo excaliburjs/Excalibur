@@ -752,7 +752,7 @@ O|===|* >________________>\n\
       // Issue #385 make use of the visibility api
       // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
 
-      var hidden:string, visibilityChange;
+      var hidden: string, visibilityChange;
       if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and later support 
          hidden = 'hidden';
          visibilityChange = 'visibilitychange';

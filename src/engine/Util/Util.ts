@@ -32,7 +32,7 @@ export function extend(target: any, ...objects: any[] | Array<any>): any;
  * @credit https://gomakethings.com/vanilla-javascript-version-of-jquery-extend/
  */
 export function extend() {
-   var extended: { [key: string]: any }= {};
+   var extended: { [key: string]: any } = {};
    var deep = false;
    var i = 0;
    var length = arguments.length;
