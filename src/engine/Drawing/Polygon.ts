@@ -77,11 +77,11 @@ export class Polygon implements IDrawable {
    /**
     * @notimplemented Effects are not supported on `Polygon`
     */
-   public removeEffect(index: number);
+   public removeEffect(index: number): any;
    /**
     * @notimplemented Effects are not supported on `Polygon`
     */
-   public removeEffect(effect: Effects.ISpriteEffect);
+   public removeEffect(effect: Effects.ISpriteEffect): any;
    /**
     * @notimplemented Effects are not supported on `Polygon`
     */

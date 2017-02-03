@@ -8,12 +8,12 @@ export interface IAudio {
    /**
     * Set the volume (between 0 and 1)
     */
-   setVolume(volume: number);
+   setVolume(volume: number): any;
 
    /**
     * Set whether the audio should loop (repeat forever)
     */
-   setLoop(loop: boolean);
+   setLoop(loop: boolean): any;
 
    /**
     * Whether or not any audio is playing
@@ -28,10 +28,10 @@ export interface IAudio {
    /**
     * Pause the sound
     */
-   pause();
+   pause(): any;
 
    /**
     * Stop playing the sound and reset
     */
-   stop();
+   stop(): any;
 }

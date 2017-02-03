@@ -388,7 +388,7 @@ export class Sound implements ILoadable, IAudio {
    }
 
    /* istanbul ignore next */
-   private _fetchResource(onload: (XMLHttpRequest) => void) {
+   private _fetchResource(onload: (XMLHttpRequest: XMLHttpRequest) => void) {
       var request = new XMLHttpRequest();
 
       request.open('GET', this.path, true);

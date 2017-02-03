@@ -37,9 +37,9 @@ export class Group extends Class implements IActionable, IEvented {
       }
    }
 
-   public add(actor: Actor);
-   public add(actors: Actor[]);
-   public add(actorOrActors: any) {
+   public add(actor: Actor): any;
+   public add(actors: Actor[]): any;
+   public add(actorOrActors: any): any {
       if (actorOrActors instanceof Actor) {
          actorOrActors = [].concat(actorOrActors);
       }

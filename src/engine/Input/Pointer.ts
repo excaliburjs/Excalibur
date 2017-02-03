@@ -104,12 +104,12 @@ export class Pointers extends Class {
       this.primary = this._pointers[0];
    }
 
-   public on(eventName: Events.up, handler: (event?: PointerEvent) => void);
-   public on(eventName: Events.down, handler: (event?: PointerEvent) => void);
-   public on(eventName: Events.move, handler: (event?: PointerEvent) => void);
-   public on(eventName: Events.cancel, handler: (event?: PointerEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void) {
+   public on(eventName: Events.up, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.down, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.move, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.cancel, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent) => void): void {
       super.on(eventName, handler);
    }
 

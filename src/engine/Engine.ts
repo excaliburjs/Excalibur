@@ -215,16 +215,16 @@ export class Engine extends Class {
    private _loader: ILoader;
    private _isLoading: boolean = false;
 
-   public on(eventName: Events.visible, handler: (event?: VisibleEvent) => void);
-   public on(eventName: Events.hidden, handler: (event?: HiddenEvent) => void);
-   public on(eventName: Events.start, handler: (event?: GameStartEvent) => void);
-   public on(eventName: Events.stop, handler: (event?: GameStopEvent) => void);
-   public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void);
-   public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void);
-   public on(eventName: Events.preframe, handler: (event?: PreFrameEvent) => void);
-   public on(eventName: Events.postframe, handler: (event?: PostFrameEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void) {
+   public on(eventName: Events.visible, handler: (event?: VisibleEvent) => void): any;
+   public on(eventName: Events.hidden, handler: (event?: HiddenEvent) => void): any;
+   public on(eventName: Events.start, handler: (event?: GameStartEvent) => void): any;
+   public on(eventName: Events.stop, handler: (event?: GameStopEvent) => void): any;
+   public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): any;
+   public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): any;
+   public on(eventName: Events.preframe, handler: (event?: PreFrameEvent) => void): any;
+   public on(eventName: Events.postframe, handler: (event?: PostFrameEvent) => void): any;
+   public on(eventName: string, handler: (event?: GameEvent) => void): any;
+   public on(eventName: string, handler: (event?: GameEvent) => void): any{
       super.on(eventName, handler);
    }
 

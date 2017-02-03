@@ -90,12 +90,12 @@ export class Gamepads extends Class {
                pad.connected;
    }
    
-   public on(eventName: Events.connect, handler: (event?: GamepadConnectEvent) => void);
-   public on(eventName: Events.disconnect, handler: (event?: GamepadDisconnectEvent) => void);
-   public on(eventName: Events.button, handler: (event?: GamepadButtonEvent) => void);
-   public on(eventName: Events.axis, handler: (event?: GamepadAxisEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void) {
+   public on(eventName: Events.connect, handler: (event?: GamepadConnectEvent) => void): void;
+   public on(eventName: Events.disconnect, handler: (event?: GamepadDisconnectEvent) => void): void;
+   public on(eventName: Events.button, handler: (event?: GamepadButtonEvent) => void): void;
+   public on(eventName: Events.axis, handler: (event?: GamepadAxisEvent) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent) => void): void {
       this._enableAndUpdate(); // implicitly enable
       super.on(eventName, handler);  
    }

@@ -413,7 +413,7 @@ export class DynamicTree {
     */
    public query(body: Body, callback: (other: Body) => boolean): void {
       var bounds = body.getBounds();
-      var helper = (currentNode: TreeNode) => {
+      var helper = (currentNode: TreeNode): any => {
          if (currentNode && currentNode.bounds.collides(bounds)) {
             if (currentNode.isLeaf() && currentNode.body !== body) {
                if (callback.call(body, currentNode.body)) {
@@ -438,7 +438,7 @@ export class DynamicTree {
     * the tree until all possible bodies that would intersect with the ray have been returned. 
     */
    public rayCastQuery(ray: Ray, max: number = Infinity, callback: (other: Body) => boolean): void {
-      var helper = (currentNode: TreeNode) => {
+      var helper = (currentNode: TreeNode): any => {
          if (currentNode && currentNode.bounds.rayCast(ray, max)) {
             if (currentNode.isLeaf()) {
                if (callback.call(ray, currentNode.body)) {
@@ -458,7 +458,7 @@ export class DynamicTree {
 
 
    public getNodes(): TreeNode[] {
-      var helper = (currentNode: TreeNode) => {
+      var helper = (currentNode: TreeNode): any => {
          if (currentNode) {
             return [currentNode].concat(helper(currentNode.left), helper(currentNode.right));
          } else {
