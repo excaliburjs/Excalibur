@@ -224,7 +224,7 @@ export class Engine extends Class {
    public on(eventName: Events.preframe, handler: (event?: PreFrameEvent) => void): any;
    public on(eventName: Events.postframe, handler: (event?: PostFrameEvent) => void): any;
    public on(eventName: string, handler: (event?: GameEvent) => void): any;
-   public on(eventName: string, handler: (event?: GameEvent) => void): any{
+   public on(eventName: string, handler: (event?: GameEvent) => void): any {
       super.on(eventName, handler);
    }
 
