@@ -222,7 +222,7 @@ export class DynamicTree {
     */
    public updateBody(body: Body) {
       var node = this.nodes[body.actor.id];
-      if (!node) { return; }
+      if (!node) { return false; }
       var b = body.getBounds();
 
       // if the body is outside the world no longer update it

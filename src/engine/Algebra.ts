@@ -383,6 +383,8 @@ export class Line {
          return new Vector(x, (m * x) + b);
       } else if (y !== null) {
          return new Vector((y - b) / m, y);
+      } else {
+        return new Vector(0, 0);
       }
    }
 

@@ -44,7 +44,7 @@ export function extend() {
    }
 
    // Merge the object into the extended object
-   var merge = function (obj: any) {
+   var merge = function (obj: { [key: string]: any }) {
       for (var prop in obj) {
          if (Object.prototype.hasOwnProperty.call(obj, prop)) {
             // If deep merge and property is an object, merge properties
