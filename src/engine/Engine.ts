@@ -765,7 +765,6 @@ O|===|* >________________>\n\
       }
 
       document.addEventListener(visibilityChange, () => {
-
          if (document[hidden]) {
             this.eventDispatcher.emit('hidden', new HiddenEvent());
             this._logger.debug('Window hidden');

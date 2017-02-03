@@ -3,7 +3,14 @@ import { Logger } from './Log';
  * This is the list of features that will be used to log the supported
  * features to the console when Detector.logBrowserFeatures() is called.
  */
-const REPORTED_FEATURES: Object = {
+
+/*const REPORTED_FEATURES: Object = {
+   webgl: 'WebGL',
+   webaudio: 'WebAudio',
+   gamepadapi: 'Gamepad API'
+};*/
+
+const REPORTED_FEATURES: { [key: string]: any } = {
    webgl: 'WebGL',
    webaudio: 'WebAudio',
    gamepadapi: 'Gamepad API'
@@ -59,7 +66,7 @@ export class Detector {
          'font-weight: normal; color: inherit'
       ];
 
-      let supported = this.getBrowserFeatures();
+      let supported: any = this.getBrowserFeatures();
       for (let feature of Object.keys(REPORTED_FEATURES)) {
          if (supported[feature]) {
             msg += '(%c\u2713%c)'; // (✓)
