@@ -160,6 +160,69 @@ describe('A scene', () => {
       expect(initializeCount).toBe(1, 'Scenes can only be initialized once');
    });
 
+   it('should allow adding and removing an Actor in same frame', () => {
+      var removed = false;
+      scene.add(actor);
+      actor.on('postupdate', () => {
+         scene.remove(actor);
+         removed = true;
+      });      
+      scene.update(engine, 10);
+
+      expect(removed).toBe(true, 'Actor postupdate was not called');
+      expect(scene.children.indexOf(actor)).toBe(-1);
+   });
+
+   it('should allow adding and killing an Actor in same frame', () => {
+      var removed = false;
+      scene.add(actor);
+      actor.on('postupdate', () => {         
+         actor.kill();
+         removed = true;
+      });
+      scene.update(engine, 10);
+
+      expect(removed).toBe(true, 'Actor postupdate was not called');
+      expect(scene.children.indexOf(actor)).toBe(-1);
+   });
+
+   it('should allow another Actor to add and remove a different Actor in same frame', () => {
+      var removed = false;
+      var otherActor = new ex.Actor();
+      scene.add(otherActor);
+      
+      otherActor.on('initialize', () => {
+         scene.add(actor);
+      });   
+      otherActor.on('postupdate', () => {
+         scene.remove(actor);
+         removed = true;
+      });      
+      scene.update(engine, 10);
+
+      expect(removed).toBe(true, 'Actor postupdate was not called');
+      expect(scene.children.indexOf(actor)).toBe(-1);
+      expect(scene.children.length).toBe(1);
+   });
+
+   it('should allow another Actor to add and kill a different Actor in same frame', () => {
+      var removed = false;
+      var otherActor = new ex.Actor();
+      scene.add(otherActor);
+      otherActor.on('initialize', () => {
+         scene.add(actor);
+      });  
+      otherActor.on('postupdate', () => {
+         actor.kill();
+         removed = true;
+      });      
+      scene.update(engine, 10);
+
+      expect(removed).toBe(true, 'Actor postupdate was not called');
+      expect(scene.children.indexOf(actor)).toBe(-1);
+      expect(scene.children.length).toBe(1);
+   });
+
    it('will update Actors that were added in a Timer callback', () => {
       var updated = false;
       var initialized = false;
