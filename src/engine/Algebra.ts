@@ -1,10 +1,13 @@
-
+import { Defaultable } from './Interfaces/Defaultable';
 
 /**
  * A 2D vector on a plane. 
  */
-export class Vector {
+export class Vector extends Defaultable<Vector> {
 
+   public defaults = { x: 0, y: 0 };
+   public x : number;
+   public y : number;
    /**
     * A (0, 0) vector
     */
@@ -67,12 +70,26 @@ export class Vector {
 
       return true;
    }
-
+   constructor();
    /**
     * @param x  X component of the Vector
     * @param y  Y component of the Vector
     */
-   constructor(public x: number, public y: number) { }
+   constructor(x: number, y: number);
+   /**
+    * @param vectorOptions an object containing the starting x/y coordinates of the vector
+    */
+   constructor(vectorOptions: Partial<Vector>);
+   constructor(xOrVectorOptions?: number | Partial<Vector>, y?: number) {
+      super();
+      if (typeof xOrVectorOptions === 'number') {
+         this.setProperties(this, {x: xOrVectorOptions || this.defaults.x, y: y || this.defaults.y});
+      }else {
+         this.setProperties(this, xOrVectorOptions);
+      }
+   }
+
+
 
    /**
     * Sets the x and y components at once

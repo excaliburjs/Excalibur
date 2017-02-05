@@ -11,6 +11,13 @@ describe('Vectors', () => {
       var v = new ex.Vector(20, 200);
       expect(v).not.toBeNull();
    });
+
+   it('can be instantiated with defaults', () => {
+      var v = new ex.Vector();
+      expect(v).not.toBeNull();
+      expect(v.x).toBe(0);
+      expect(v.y).toBe(0);
+   });
    
    it('can have values set', () => {
       var v = new ex.Vector(20, 200);
@@ -26,6 +33,27 @@ describe('Vectors', () => {
       
       v.setTo(0, 0);
       
+      expect(v.x).toEqual(0);
+      expect(v.y).toEqual(0);
+
+      var v2 = new ex.Vector({x: 10, y: 100});
+      expect(v2.x).toEqual(10);
+      expect(v2.y).toEqual(100);
+
+   });
+
+   it('can have default values set when partial Vectors are supplied to the constructor', () => {
+      var v = new ex.Vector({x: 100});
+      expect(v.x).toEqual(100);
+      expect(v.y).toEqual(0);
+   });
+
+   it('can have its properties reset to their default values', () => {
+      var v = new ex.Vector({x: 100, y: 100});
+      expect(v.x).toEqual(100);
+      expect(v.y).toEqual(100);
+
+      v.resetProperties();
       expect(v.x).toEqual(0);
       expect(v.y).toEqual(0);
    });
@@ -175,8 +203,13 @@ describe('Vectors', () => {
    });
 
    it('can be checked for validity on NaN vectors', () => {
-      var invalid = new ex.Vector(NaN, NaN);
-      var oneComponentInvalid = new ex.Vector(NaN, 2);
+      var invalid = new ex.Vector();
+      invalid.x = NaN;
+      invalid.y = NaN;
+
+      var oneComponentInvalid = new ex.Vector();
+      oneComponentInvalid.x = NaN;
+      oneComponentInvalid.y = 2;
 
       expect(ex.Vector.isValid(invalid)).toBe(false, 'NaN vectors should be invalid');
       expect(ex.Vector.isValid(oneComponentInvalid)).toBe(false, 'NaN vectors with one component should be invalid');
