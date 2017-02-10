@@ -74,7 +74,7 @@ export class PointerEvent extends GameEvent {
                public index: number, 
                public pointerType: PointerType, 
                public button: PointerButton, 
-               public ev) {
+               public ev: any) {
       super();
    }
 };
@@ -104,12 +104,12 @@ export class Pointers extends Class {
       this.primary = this._pointers[0];
    }
 
-   public on(eventName: Events.up, handler: (event?: PointerEvent) => void);
-   public on(eventName: Events.down, handler: (event?: PointerEvent) => void);
-   public on(eventName: Events.move, handler: (event?: PointerEvent) => void);
-   public on(eventName: Events.cancel, handler: (event?: PointerEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void) {
+   public on(eventName: Events.up, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.down, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.move, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.cancel, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent) => void): void {
       super.on(eventName, handler);
    }
 
@@ -327,7 +327,7 @@ export class Pointers extends Class {
       return -1;
    }
 
-   private _stringToPointerType(s) {
+   private _stringToPointerType(s: string) {
       switch (s) {
          case 'touch':
             return PointerType.Touch;

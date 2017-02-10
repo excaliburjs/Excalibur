@@ -37,9 +37,9 @@ export class Group extends Class implements IActionable, IEvented {
       }
    }
 
-   public add(actor: Actor);
-   public add(actors: Actor[]);
-   public add(actorOrActors: any) {
+   public add(actor: Actor): any;
+   public add(actors: Actor[]): any;
+   public add(actorOrActors: any): any {
       if (actorOrActors instanceof Actor) {
          actorOrActors = [].concat(actorOrActors);
       }
@@ -68,7 +68,7 @@ export class Group extends Class implements IActionable, IEvented {
 
    public move(vector: Vector): void;
    public move(dx: number, dy: number): void;
-   public move(args): void {
+   public move(args: Vector | number): void {
       var i = 0, members = this.getMembers(), len = members.length;
 
       if (arguments.length === 1 && args instanceof Vector) {

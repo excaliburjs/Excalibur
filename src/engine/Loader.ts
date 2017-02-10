@@ -111,7 +111,7 @@ export class Loader extends Class implements ILoader {
       }
    }
 
-   private _sumCounts(obj): number {
+   private _sumCounts(obj: number[] | Array<number>): number {
       var sum = 0;
       var prev = 0;
       for (var i in obj) {
@@ -167,7 +167,7 @@ export class Loader extends Class implements ILoader {
          };
       });
 
-      function loadNext(list, index) {
+      function loadNext(list: any[] | Array<any>, index: number) {
          if (!list[index]) {
             return;
          }

@@ -74,13 +74,13 @@ export class Promise<T> implements IPromise<T> {
     * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
     * when at least 1 promise rejects.
     */
-   public static join<T>(promises: Promise<T>[]);
+   public static join<T>(promises: Promise<T>[]): any;
 
    /**
     * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
     * when at least 1 promise rejects.
     */
-   public static join<T>(...promises: Promise<T>[]);
+   public static join<T>(...promises: Promise<T>[]): any;
 
    public static join<T>() {
       var promises: Promise<T>[] = [];
@@ -101,7 +101,7 @@ export class Promise<T> implements IPromise<T> {
       var total = promises.length;
       var successes = 0;
       var rejects = 0;
-      var errors = [];
+      var errors: any = [];
 
       promises.forEach((p) => {
          p.then(

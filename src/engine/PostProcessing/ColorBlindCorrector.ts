@@ -165,7 +165,7 @@ export class ColorBlindCorrector implements IPostProcessor {
 
    }
 
-   private _setRectangle(gl, x, y, width, height) {
+   private _setRectangle(gl: any, x: number, y: number, width: number, height: number) {
       var x1 = x;
       var x2 = x + width;
       var y1 = y;

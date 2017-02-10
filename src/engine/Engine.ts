@@ -198,7 +198,7 @@ export class Engine extends Class {
    /**
     * The action to take when a fatal exception is thrown
     */
-   public onFatalException = (e) => { Logger.getInstance().fatal(e); };
+   public onFatalException = (e: any) => { Logger.getInstance().fatal(e); };
 
    private _logger: Logger;
    private _isSmoothingEnabled: boolean = true;
@@ -215,16 +215,16 @@ export class Engine extends Class {
    private _loader: ILoader;
    private _isLoading: boolean = false;
 
-   public on(eventName: Events.visible, handler: (event?: VisibleEvent) => void);
-   public on(eventName: Events.hidden, handler: (event?: HiddenEvent) => void);
-   public on(eventName: Events.start, handler: (event?: GameStartEvent) => void);
-   public on(eventName: Events.stop, handler: (event?: GameStopEvent) => void);
-   public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void);
-   public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void);
-   public on(eventName: Events.preframe, handler: (event?: PreFrameEvent) => void);
-   public on(eventName: Events.postframe, handler: (event?: PostFrameEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void) {
+   public on(eventName: Events.visible, handler: (event?: VisibleEvent) => void): any;
+   public on(eventName: Events.hidden, handler: (event?: HiddenEvent) => void): any;
+   public on(eventName: Events.start, handler: (event?: GameStartEvent) => void): any;
+   public on(eventName: Events.stop, handler: (event?: GameStopEvent) => void): any;
+   public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): any;
+   public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): any;
+   public on(eventName: Events.preframe, handler: (event?: PreFrameEvent) => void): any;
+   public on(eventName: Events.postframe, handler: (event?: PostFrameEvent) => void): any;
+   public on(eventName: string, handler: (event?: GameEvent) => void): any;
+   public on(eventName: string, handler: (event?: GameEvent) => void): any {
       super.on(eventName, handler);
    }
 
@@ -752,7 +752,7 @@ O|===|* >________________>\n\
       // Issue #385 make use of the visibility api
       // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
 
-      var hidden, visibilityChange;
+      var hidden: string, visibilityChange;
       if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and later support 
          hidden = 'hidden';
          visibilityChange = 'visibilitychange';
@@ -765,7 +765,6 @@ O|===|* >________________>\n\
       }
 
       document.addEventListener(visibilityChange, () => {
-
          if (document[hidden]) {
             this.eventDispatcher.emit('hidden', new HiddenEvent());
             this._logger.debug('Window hidden');
@@ -931,7 +930,7 @@ O|===|* >________________>\n\
 
    }
 
-   public static createMainLoop(game: Engine, raf: (Function) => number, nowFn: () => number) {
+   public static createMainLoop(game: Engine, raf: (Function: any) => number, nowFn: () => number) {
       var lastTime = nowFn();
 
       return function mainloop() {

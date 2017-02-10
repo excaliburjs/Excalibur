@@ -6,6 +6,12 @@
         "experimentalDecorators": true,
         "target": "es5",
         "module": "amd",
-        "declaration": true        
+        "declaration": true,
+        "noImplicitAny": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitReturns": true,
+		"noImplicitThis": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true      
     }
 }

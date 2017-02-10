@@ -7,14 +7,14 @@ if (typeof window !== 'undefined' && !window.requestAnimationFrame) {
    (<any>window).requestAnimationFrame =
    (<any>window).webkitRequestAnimationFrame ||
    (<any>window).mozRequestAnimationFrame ||
-   function (callback) { window.setInterval(callback, 1000 / 60); };
+   function (callback: Function) { window.setInterval(callback, 1000 / 60); };
 }
 /* istanbul ignore next */
 if (typeof window !== 'undefined' && !window.cancelAnimationFrame) {
    (<any>window).cancelAnimationFrame =
    (<any>window).webkitCancelAnimationFrame ||
    (<any>window).mozCancelAnimationFrame ||
-   function (callback) { return; };
+   function (callback: Function) { return; };
 }
 /* istanbul ignore next */
 if (typeof window !== 'undefined' && !(<any>window).AudioContext) {
