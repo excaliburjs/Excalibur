@@ -141,6 +141,7 @@ export class PerlinGenerator {
             case 3: total += this._noise3d(arguments[0] * freq, 
                                            arguments[1] * freq, 
                                            arguments[2] * freq) * amp; break;
+            /* istanbul ignore next */
             default: throw new Error('Invalid arguments for perlin noise');
          }
          maxValue += amp;
@@ -293,9 +294,9 @@ export class PerlinDrawer2D {
     * This draws a 2D perlin grid on a canvas context, not recommended to be called every frame due to performance
     */
    public draw(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number) {
-      var grid = this.generator.noiseGrid(width, height);
-      var imageData = ctx.getImageData(x, y, width, height);
-      for (var j = 0; j < height; j++) {
+     var grid = this.generator.noiseGrid(width, height);
+     var imageData = ctx.getImageData(x, y, width, height);
+     for (var j = 0; j < height; j++) {
          for (var i = 0; i < width; i++) {
             var val = grid[i + width * j];
             var c = Math.floor(val * 255) & 0xff;
@@ -308,7 +309,6 @@ export class PerlinDrawer2D {
             imageData.data[pixel + 3] = Math.floor(color.a * 255);
          }
       }
-
       ctx.putImageData(imageData, x, y);
    }
 }

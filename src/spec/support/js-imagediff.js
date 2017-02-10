@@ -440,6 +440,18 @@
 
     jasmine : jasmine,
 
+    expectImageMatches : function(src, image, done) {
+      var a = new Image();
+      expect.bind(this);
+      a.addEventListener('load', function () {
+         expect(image).toImageEqual(a);
+         copyCanvas = null;
+         copyCtx = null;
+         done();
+      });
+       a.src = './src/spec/images/' + src;
+    },
+
     expectCanvasImageMatches : function(src, canvas, done) {
       // copy canvas since we load the src image async
       var copyCanvas = document.createElement('canvas');
@@ -448,7 +460,8 @@
       var copyCtx = copyCanvas.getContext('2d');
       copyCtx.drawImage(canvas, 0, 0);
 
-      var a = new Image();     
+      var a = new Image();
+      expect.bind(this);
       a.addEventListener('load', function () {
          expect(copyCanvas).toImageEqual(a);
          copyCanvas = null;
