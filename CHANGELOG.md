@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+
+## [0.9.0] 2017-02-09
 ### Breaking Changes
 
 ### Added
@@ -27,10 +34,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Changed Util.clamp to use math libraries ([#536](https://github.com/excaliburjs/Excalibur/issues/536))
 - Upgraded to TypeScript 2.1.4 ([#726](https://github.com/excaliburjs/Excalibur/issues/726))
-
-### Deprecated
-
-### Removed
 
 ### Fixed
 - Fixed Scene/Actor activation and initialization order, actors were not being initialized before scene activation causing bugs ([#661](https://github.com/excaliburjs/Excalibur/issues/661))
@@ -344,7 +347,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Promise implementation for managing asynchronous behavior
 - Resource loading with optional custom progress bars
 
-[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/excaliburjs/Excalibur/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/excaliburjs/Excalibur/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/excaliburjs/Excalibur/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/excaliburjs/Excalibur/compare/v0.6.0...v0.7.0
