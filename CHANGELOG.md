@@ -11,7 +11,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 ## [0.9.0] 2017-02-09
-### Breaking Changes
 
 ### Added
 - Added `preupdate`, `postupdate`, `predraw`, `postdraw` events to TileMap
