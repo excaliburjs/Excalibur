@@ -200,7 +200,7 @@ export class Random {
    }
 
    /**
-    * Returns a new array that has it's elements shuffled. Using the Fisher/Yates method
+    * Returns a new array that has its elements shuffled. Using the Fisher/Yates method
     * https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
     */
    public shuffle<T>(array: Array<T>): Array<T> {
