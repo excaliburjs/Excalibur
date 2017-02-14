@@ -31,8 +31,7 @@ module.exports = function (grunt) {
          // Core engine
          core: {
             tsconfig: {
-               tsconfig: 'src/engine',
-               passThrough: true
+               tsconfig: 'src/engine/tsconfig.json'
             },
             options: {
                removeComments: false
