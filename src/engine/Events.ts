@@ -74,7 +74,7 @@ export class GameEvent {
  * The 'kill' event is emitted on actors when it is killed. The target is the actor that was killed. 
  */
 export class KillEvent extends GameEvent {
-   constructor(public target) {
+   constructor(public target: any) {
       super();
    }
 }
@@ -83,7 +83,7 @@ export class KillEvent extends GameEvent {
  * The 'start' event is emitted on engine when has started and is ready for interaction. 
  */
 export class GameStartEvent extends GameEvent {
-   constructor(public target) {
+   constructor(public target: any) {
       super();
    }
 }
@@ -92,7 +92,7 @@ export class GameStartEvent extends GameEvent {
  * The 'stop' event is emitted on engine when has been stopped and will no longer take input, update or draw. 
  */
 export class GameStopEvent extends GameEvent {
-   constructor(public target) {
+   constructor(public target: any) {
       super();
    }
 }
@@ -103,7 +103,7 @@ export class GameStopEvent extends GameEvent {
  *   
  */
 export class PreDrawEvent extends GameEvent {
-   constructor(public ctx: CanvasRenderingContext2D, public delta, public target) {
+   constructor(public ctx: CanvasRenderingContext2D, public delta: any, public target: any) {
       super();
    }
 }
@@ -114,7 +114,7 @@ export class PreDrawEvent extends GameEvent {
  *   
  */
 export class PostDrawEvent extends GameEvent {
-   constructor(public ctx: CanvasRenderingContext2D, public delta, public target) {
+   constructor(public ctx: CanvasRenderingContext2D, public delta: any, public target: any) {
       super();
    }
 }
@@ -123,7 +123,7 @@ export class PostDrawEvent extends GameEvent {
  * The 'predebugdraw' event is emitted on actors, scenes, and engine before debug drawing starts.
  */
 export class PreDebugDrawEvent extends GameEvent {
-   constructor(public ctx: CanvasRenderingContext2D, public target) {
+   constructor(public ctx: CanvasRenderingContext2D, public target: any) {
       super();
    }
 }
@@ -132,7 +132,7 @@ export class PreDebugDrawEvent extends GameEvent {
  * The 'postdebugdraw' event is emitted on actors, scenes, and engine after debug drawing starts.
  */
 export class PostDebugDrawEvent extends GameEvent {
-   constructor(public ctx: CanvasRenderingContext2D, public target) {
+   constructor(public ctx: CanvasRenderingContext2D, public target: any) {
       super();
    }
 }
@@ -141,7 +141,7 @@ export class PostDebugDrawEvent extends GameEvent {
  * The 'preupdate' event is emitted on actors, scenes, and engine before the update starts.
  */
 export class PreUpdateEvent extends GameEvent {
-   constructor(public engine: Engine, public delta, public target) {
+   constructor(public engine: Engine, public delta: any, public target: any) {
       super();
    }
 }
@@ -151,7 +151,7 @@ export class PreUpdateEvent extends GameEvent {
  * event.
  */
 export class PostUpdateEvent extends GameEvent {
-   constructor(public engine: Engine, public delta, public target) {
+   constructor(public engine: Engine, public delta: any, public target: any) {
       super();
    }
 }
@@ -160,7 +160,7 @@ export class PostUpdateEvent extends GameEvent {
  * The 'preframe' event is emitted on the engine, before the frame begins.
  */
 export class PreFrameEvent extends GameEvent {
-   constructor(public engine: Engine, public prevStats: FrameStats, public target) {
+   constructor(public engine: Engine, public prevStats: FrameStats, public target: any) {
       super();
    }
 }
@@ -169,7 +169,7 @@ export class PreFrameEvent extends GameEvent {
  * The 'postframe' event is emitted on the engine, after a frame ends.
  */
 export class PostFrameEvent extends GameEvent {
-   constructor(public engine: Engine, public stats: FrameStats, public target) {
+   constructor(public engine: Engine, public stats: FrameStats, public target: any) {
       super();
    }
 }

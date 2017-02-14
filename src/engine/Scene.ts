@@ -84,17 +84,17 @@ export class Scene extends Class {
       }
    }
 
-   public on(eventName: Events.initialize, handler: (event?: InitializeEvent) => void);
-   public on(eventName: Events.activate, handler: (event?: ActivateEvent) => void);
-   public on(eventName: Events.deactivate, handler: (event?: DeactivateEvent) => void);
-   public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void);
-   public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void);
-   public on(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void);
-   public on(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void);
-   public on(eventName: Events.predebugdraw, handler: (event?: PreDebugDrawEvent) => void);
-   public on(eventName: Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void);   
-   public on(eventName: string, handler: (event?: GameEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void) {
+   public on(eventName: Events.initialize, handler: (event?: InitializeEvent) => void): any;
+   public on(eventName: Events.activate, handler: (event?: ActivateEvent) => void): any;
+   public on(eventName: Events.deactivate, handler: (event?: DeactivateEvent) => void): any;
+   public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): any;
+   public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): any;
+   public on(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void): any;
+   public on(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void): any;
+   public on(eventName: Events.predebugdraw, handler: (event?: PreDebugDrawEvent) => void): any;
+   public on(eventName: Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void): any;   
+   public on(eventName: string, handler: (event?: GameEvent) => void): any;
+   public on(eventName: string, handler: (event?: GameEvent) => void): any {
       super.on(eventName, handler);
    }
 

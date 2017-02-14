@@ -90,11 +90,11 @@ export class Keyboard extends Class {
       this._engine = engine;
    }
 
-   public on(eventName: Events.press, handler: (event?: KeyEvent) => void);
-   public on(eventName: Events.release, handler: (event?: KeyEvent) => void);
-   public on(eventName: Events.hold, handler: (event?: KeyEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void) {
+   public on(eventName: Events.press, handler: (event?: KeyEvent) => void): any;
+   public on(eventName: Events.release, handler: (event?: KeyEvent) => void): any;
+   public on(eventName: Events.hold, handler: (event?: KeyEvent) => void): any;
+   public on(eventName: string, handler: (event?: GameEvent) => void): any;
+   public on(eventName: string, handler: (event?: GameEvent) => void): any {
       super.on(eventName, handler);
    }
 

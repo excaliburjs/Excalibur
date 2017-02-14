@@ -25,12 +25,12 @@ export class TileMap extends Class {
    public logger: Logger = Logger.getInstance();
    public data: Cell[] = [];
 
-   public on(eventName: Events.preupdate, handler: (event?: Events.PreUpdateEvent) => void);
-   public on(eventName: Events.postupdate, handler: (event?: Events.PostUpdateEvent) => void);
-   public on(eventName: Events.predraw, handler: (event?: Events.PreDrawEvent) => void);
-   public on(eventName: Events.postdraw, handler: (event?: Events.PostDrawEvent) => void);
-   public on(eventName: string, handler: (event?: Events.GameEvent) => void);
-   public on(eventName: string, handler: (event?: Events.GameEvent) => void) {
+   public on(eventName: Events.preupdate, handler: (event?: Events.PreUpdateEvent) => void): any;
+   public on(eventName: Events.postupdate, handler: (event?: Events.PostUpdateEvent) => void): any;
+   public on(eventName: Events.predraw, handler: (event?: Events.PreDrawEvent) => void): any;
+   public on(eventName: Events.postdraw, handler: (event?: Events.PostDrawEvent) => void): any;
+   public on(eventName: string, handler: (event?: Events.GameEvent) => void): any;
+   public on(eventName: string, handler: (event?: Events.GameEvent) => void): any {
       super.on(eventName, handler);
    }
 
