@@ -14,7 +14,7 @@ if (typeof window !== 'undefined' && !window.cancelAnimationFrame) {
    (<any>window).cancelAnimationFrame =
    (<any>window).webkitCancelAnimationFrame ||
    (<any>window).mozCancelAnimationFrame ||
-   function (callback: Function) { return; };
+   function () { return; };
 }
 /* istanbul ignore next */
 if (typeof window !== 'undefined' && !(<any>window).AudioContext) {
@@ -125,7 +125,7 @@ if (!Function.prototype.bind) {
 
       var aArgs = Array.prototype.slice.call(arguments, 1),
          fToBind = this,
-         fNOP = function () { return; },
+         fNOP: any = function () { return; },
          fBound = function () {
             return fToBind.apply(this instanceof fNOP && oThis
                ? this

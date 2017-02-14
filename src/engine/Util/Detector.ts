@@ -4,13 +4,7 @@ import { Logger } from './Log';
  * features to the console when Detector.logBrowserFeatures() is called.
  */
 
-/*const REPORTED_FEATURES: Object = {
-   webgl: 'WebGL',
-   webaudio: 'WebAudio',
-   gamepadapi: 'Gamepad API'
-};*/
-
-const REPORTED_FEATURES: { [key: string]: any } = {
+const REPORTED_FEATURES: { [key: string]: string } = {
    webgl: 'WebGL',
    webaudio: 'WebAudio',
    gamepadapi: 'Gamepad API'
@@ -28,6 +22,19 @@ export interface IDetectedFeatures {
    readonly webaudio: boolean;
    readonly webgl: boolean;
    readonly gamepadapi: boolean;
+}
+
+interface ICriticalTests {
+   canvasSupport(): boolean;
+   arrayBufferSupport(): boolean;
+   dataUrlSupport(): boolean;
+   objectUrlSupport(): boolean;
+   rgbaSupport(): boolean;   
+}
+
+interface IWarningTests {
+   webAudioSupport(): boolean;
+   webglSupport(): boolean;
 }
 
 /**
@@ -134,7 +141,7 @@ export class Detector {
    }
 
    // critical browser features required for ex to run
-   private _criticalTests = {
+   private _criticalTests: ICriticalTests = {
       // Test canvas/2d context support
       canvasSupport: function() {
          var elem = document.createElement('canvas');
@@ -173,7 +180,7 @@ export class Detector {
    };
    
    // warnings excalibur performance will be degraded
-   private _warningTest = {
+   private _warningTest: IWarningTests = {
       webAudioSupport: function() {
          return !!((<any>window).AudioContext || 
                   (<any>window).webkitAudioContext || 
@@ -191,7 +198,7 @@ export class Detector {
       // Critical test will for ex not to run
       var failedCritical = false;
       for (var test in this._criticalTests) {
-         if (!this._criticalTests[test].call(this)) {
+         if (!this._criticalTests[<keyof ICriticalTests>test].call(this)) {
             this.failedTests.push(test);
             Logger.getInstance().error('Critical browser feature missing, Excalibur requires:', 
                test);
@@ -204,7 +211,7 @@ export class Detector {
       
       // Warning tests do not for ex to return false to compatibility
       for (var warning in this._warningTest) {
-         if (!this._warningTest[warning]()) {
+         if (!this._warningTest[<keyof IWarningTests>warning]()) {
             Logger.getInstance().warn('Warning browser feature missing, Excalibur will have reduced performance:', 
                warning);
          }

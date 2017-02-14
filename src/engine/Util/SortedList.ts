@@ -125,6 +125,7 @@ export class SortedList<T> {
          node.setRight(this._remove(node.getRight(), element));
          return node;
       }
+      return null;
    }
 
    // called once we have successfully removed the element we wanted, recursively corrects the part of the tree below the removed node

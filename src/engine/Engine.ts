@@ -731,7 +731,7 @@ O|===|* >________________>\n\
 
          this._setHeightByDisplayMode(parent);
 
-         window.addEventListener('resize', (ev: UIEvent) => {
+         window.addEventListener('resize', () => {
             this._logger.debug('View port resized');
             this._setHeightByDisplayMode(parent);
             this._logger.info('parent.clientHeight ' + parent.clientHeight);
@@ -752,15 +752,15 @@ O|===|* >________________>\n\
       // Issue #385 make use of the visibility api
       // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
 
-      var hidden: string, visibilityChange;
+      var hidden: keyof HTMLDocument, visibilityChange: string;
       if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and later support 
          hidden = 'hidden';
          visibilityChange = 'visibilitychange';
       } else if ('msHidden' in document) {
-         hidden = 'msHidden';
+         hidden = <keyof HTMLDocument>'msHidden';
          visibilityChange = 'msvisibilitychange';
       } else if ('webkitHidden' in document) {
-         hidden = 'webkitHidden';
+         hidden = <keyof HTMLDocument>'webkitHidden';
          visibilityChange = 'webkitvisibilitychange';
       }
 

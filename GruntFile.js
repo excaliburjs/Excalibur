@@ -30,7 +30,10 @@ module.exports = function (grunt) {
 
          // Core engine
          core: {
-            tsconfig: 'src/engine',
+            tsconfig: {
+               tsconfig: 'src/engine',
+               passThrough: true
+            },
             options: {
                removeComments: false
             }
