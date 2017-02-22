@@ -931,7 +931,7 @@ O|===|* >________________>\n\
 
    }
 
-   public static createMainLoop(game: Engine, raf: (Function) => number, nowFn: () => number) {
+   public static createMainLoop(game: Engine, raf: (func: Function) => number, nowFn: () => number) {
       var lastTime = nowFn();
 
       return function mainloop() {
