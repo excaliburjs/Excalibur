@@ -1,6 +1,6 @@
 /// <reference path='../../excalibur.d.ts' />
 
-var game = new ex.Engine({ width: 400, height: 300 });
+var game = new ex.Engine({ canvasWidth: 400, canvasHeight: 300 });
 var hrt = new ex.Texture('../../images/heart.png');
 var ldr = new ex.Loader([hrt]);
 

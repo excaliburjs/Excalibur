@@ -5,7 +5,7 @@ var height = 400;
 var playerTexture = new ex.Texture("culling-sprite.png");
 var speed = 100;
 
-var engine = new ex.Engine({ width: width, height: height, canvasElementId: 'game' });
+var engine = new ex.Engine({ canvasWidth: width, canvasHeight: height, canvasElementId: 'game' });
 
 engine.backgroundColor = ex.Color.Black;
 

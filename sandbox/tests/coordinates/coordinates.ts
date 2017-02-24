@@ -1,6 +1,6 @@
 /// <reference path='../../excalibur.d.ts' />
 
-var game = new ex.Engine({ width: 500, height: 500 });
+var game = new ex.Engine({ canvasWidth: 500, canvasHeight: 500 });
 game.backgroundColor = ex.Color.fromHex("#eeeeee");
 
 function addTestPoint(x, y, ax, ay, s = 1, rd = 0, parent = null) {

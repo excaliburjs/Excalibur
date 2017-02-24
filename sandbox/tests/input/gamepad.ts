@@ -1,6 +1,6 @@
 ﻿/// <reference path='../../excalibur.d.ts' />
 
-var game = new ex.Engine({ width: 800, height: 503, canvasElementId: "game" });
+var game = new ex.Engine({ canvasWidth: 800, canvasHeight: 503, canvasElementId: "game" });
 var padTexture = new ex.Texture("gamepad.png");
 
 game.backgroundColor = ex.Color.White;

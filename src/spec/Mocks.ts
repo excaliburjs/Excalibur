@@ -59,8 +59,8 @@ module Mocks {
          navigator = <any>this.navigator();
          
          return new ex.Engine({
-            width: 500,
-            height: 500,
+            canvasWidth: 500,
+            canvasHeight: 500,
             suppressConsoleBootMessage: true,
             suppressMinimumBrowserFeatureDetection: true
          });
@@ -84,8 +84,8 @@ module Mocks {
             touchMove: [],
             touchEnd: [],
             touchCancel: [],
-            width: width,
-            height: height,
+            canvasWidth: width,
+            canvasHeight: height,
             scenes: {},
             _animations: [],
             _logger : {

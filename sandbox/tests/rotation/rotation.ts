@@ -9,8 +9,8 @@ var rotationType = ex.RotationType.ShortestPath;
 
 var engine = new ex.Engine(
    {
-      width: width,
-      height: height, 
+      canvasWidth: width,
+      canvasHeight: height, 
       canvasElementId: 'game',
       pointerScope: ex.Input.PointerScope.Canvas
    });

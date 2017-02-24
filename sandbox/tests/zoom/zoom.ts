@@ -1,8 +1,8 @@
 ﻿/// <reference path='../../excalibur.d.ts' />
 
 var game = new ex.Engine({
-   width: 600,
-   height: 400,
+   canvasWidth: 600,
+   canvasHeight: 400,
    canvasElementId: 'game'
 });
 game.setAntialiasing(false);
@@ -16,7 +16,7 @@ raptorAnim.loop = true;
 
 game.isDebug = true;
 
-var target = new ex.Actor(game.width / 2, game.height / 2, 64*2, 64*2, ex.Color.Red.clone());
+var target = new ex.Actor(game.canvasWidth / 2, game.canvasHeight / 2, 64*2, 64*2, ex.Color.Red.clone());
 target.addDrawing("default", raptorAnim);
 
 var currentZoom = 1.0;
