@@ -32,8 +32,8 @@ export class OffscreenCulling implements IActorTrait {
       if (!actor.isOffScreen) {
          if ((actorScreenCoords.x + width * zoom < 0 || 
             actorScreenCoords.y + height * zoom < 0 ||
-            actorScreenCoords.x > engine.width ||
-            actorScreenCoords.y > engine.height) &&
+            actorScreenCoords.x > engine.canvasWidth ||
+            actorScreenCoords.y > engine.canvasHeight) &&
             isSpriteOffScreen ) {
             
             eventDispatcher.emit('exitviewport', new ExitViewPortEvent());
@@ -42,8 +42,8 @@ export class OffscreenCulling implements IActorTrait {
       } else {
          if ((actorScreenCoords.x + width * zoom > 0 &&
             actorScreenCoords.y + height * zoom > 0 &&
-            actorScreenCoords.x < engine.width &&
-            actorScreenCoords.y < engine.height) ||
+            actorScreenCoords.x < engine.canvasWidth &&
+            actorScreenCoords.y < engine.canvasHeight) ||
             !isSpriteOffScreen) {
             
             eventDispatcher.emit('enterviewport', new EnterViewPortEvent());               

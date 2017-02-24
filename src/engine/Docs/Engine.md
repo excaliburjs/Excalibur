@@ -13,8 +13,8 @@ a [[Loader]] which you can use to pre-load assets.
 
 ```js
 var game = new ex.Engine({ 
-  width: 800, // the width of the canvas
-  height: 600, // the height of the canvas
+  canvasWidth: 800, // the width of the canvas
+  canvasHeight: 600, // the height of the canvas
   canvasElementId: '', // the DOM canvas element ID, if you are providing your own
   displayMode: ex.DisplayMode.FullScreen, // the display mode
   pointerScope: ex.Input.PointerScope.Document // the scope of capturing pointer (mouse/touch) events
@@ -114,7 +114,7 @@ You can customize the options or provide more for your game by extending [[Engin
 class Game extends ex.Engine {
 
   constructor() {
-    super({ width: 800, height: 600, displayMode: DisplayMode.FullScreen });
+    super({ canvasWidth: 800, canvasHeight: 600, displayMode: DisplayMode.FullScreen });
   }
 
   public start() {
@@ -136,7 +136,7 @@ game.start();
 var Game = ex.Engine.extend({
 
   constructor: function () {
-    Engine.call(this, { width: 800, height: 600, displayMode: DisplayMode.FullScreen });
+    Engine.call(this, { canvasWidth: 800, canvasHeight: 600, displayMode: DisplayMode.FullScreen });
   }
 
   start: function() {

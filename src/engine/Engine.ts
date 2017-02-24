@@ -48,12 +48,12 @@ export interface IEngineOptions {
    /**
     * Optionally configure the native canvas width of the game
     */
-   width?: number;
+   canvasWidth?: number;
 
    /**
     * Optionally configure the native canvas height of the game
     */
-   height?: number;
+   canvasHeight?: number;
 
    /**
     * Optionally specify the target canvas DOM element to render the game in
@@ -113,11 +113,11 @@ export class Engine extends Class {
    /**
     * The width of the game canvas in pixels
     */
-   public width: number;
+   public canvasWidth: number;
    /**
     * The height of the game canvas in pixels
     */
-   public height: number;
+   public canvasHeight: number;
 
    /**
     * Access engine input like pointer, keyboard, or gamepad
@@ -232,8 +232,8 @@ export class Engine extends Class {
     * Default [[IEngineOptions]]
     */
    private static _DefaultEngineOptions: IEngineOptions = {
-      width: 0,
-      height: 0,
+      canvasWidth: 0,
+      canvasHeight: 0,
       canvasElementId: '',
       pointerScope: Input.PointerScope.Document,
       suppressConsoleBootMessage: null,
@@ -321,15 +321,15 @@ O|===|* >________________>\n\
          this._logger.debug('Using generated canvas element');
          this.canvas = <HTMLCanvasElement>document.createElement('canvas');
       }
-      if (options.width && options.height) {
+      if (options.canvasWidth && options.canvasHeight) {
          if (options.displayMode === undefined) {
             this.displayMode = DisplayMode.Fixed;
          }
-         this._logger.debug('Engine viewport is size ' + options.width + ' x ' + options.height);
-         this.width = options.width;
-         this.canvas.width = options.width;
-         this.height = options.height;
-         this.canvas.height = options.height;
+         this._logger.debug('Engine viewport is size ' + options.canvasWidth + ' x ' + options.canvasHeight);
+         this.canvasWidth = options.canvasWidth;
+         this.canvas.width = options.canvasWidth;
+         this.canvasHeight = options.canvasHeight;
+         this.canvas.height = options.canvasHeight;
 
       } else if (!options.displayMode) {
          this._logger.debug('Engine viewport is fullscreen');
@@ -632,9 +632,9 @@ O|===|* >________________>\n\
     */
    public getWidth(): number {
       if (this.currentScene && this.currentScene.camera) {
-         return this.width / this.currentScene.camera.getZoom();
+         return this.canvasWidth / this.currentScene.camera.getZoom();
       }
-      return this.width;
+      return this.canvasWidth;
    }
 
    /**
@@ -642,9 +642,9 @@ O|===|* >________________>\n\
     */
    public getHeight(): number {
       if (this.currentScene && this.currentScene.camera) {
-         return this.height / this.currentScene.camera.getZoom();
+         return this.canvasHeight / this.currentScene.camera.getZoom();
       }
-      return this.height;
+      return this.canvasHeight;
    }
 
    /**
@@ -707,15 +707,15 @@ O|===|* >________________>\n\
     */
    private _setHeightByDisplayMode(parent: any) {
       if (this.displayMode === DisplayMode.Container) {
-         this.width = this.canvas.width = parent.clientWidth;
-         this.height = this.canvas.height = parent.clientHeight;
+         this.canvasWidth = this.canvas.width = parent.clientWidth;
+         this.canvasHeight = this.canvas.height = parent.clientHeight;
       }
 
       if (this.displayMode === DisplayMode.FullScreen) {
          document.body.style.margin = '0px';
          document.body.style.overflow = 'hidden';
-         this.width = this.canvas.width = parent.innerWidth;
-         this.height = this.canvas.height = parent.innerHeight;
+         this.canvasWidth = this.canvas.width = parent.innerWidth;
+         this.canvasHeight = this.canvas.height = parent.innerHeight;
       }
    }
 
@@ -858,9 +858,9 @@ O|===|* >________________>\n\
          return;
       }
 
-      ctx.clearRect(0, 0, this.width, this.height);
+      ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
       ctx.fillStyle = this.backgroundColor.toString();
-      ctx.fillRect(0, 0, this.width, this.height);
+      ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
 
       this.currentScene.draw(this.ctx, delta);
 
@@ -885,7 +885,7 @@ O|===|* >________________>\n\
 
       // Post processing
       for (var i = 0; i < this.postProcessors.length; i++) {
-         this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.width, this.height), this.ctx);
+         this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.canvasWidth, this.canvasHeight), this.ctx);
       }
 
       this.emit('postdraw', new PostDrawEvent(ctx, delta, this));

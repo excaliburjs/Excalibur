@@ -187,11 +187,11 @@ export class Loader extends Class implements ILoader {
     */
    public draw(ctx: CanvasRenderingContext2D, delta: number) {
       ctx.fillStyle = this.backgroundColor;
-      ctx.fillRect(0, 0, this._engine.width, this._engine.height);
+      ctx.fillRect(0, 0, this._engine.canvasWidth, this._engine.canvasHeight);
 
       var y = this._engine.canvas.height / 2;
       var width = Math.min(this.logoWidth, this._engine.canvas.width * 0.75);
-      var x = (this._engine.width / 2) - (width / 2);
+      var x = (this._engine.canvasWidth / 2) - (width / 2);
 
       var imageHeight = Math.floor(width * (this.logoHeight / this.logoWidth)); // OG height/width factor
       var oldAntialias = this._engine.getAntialiasing();
