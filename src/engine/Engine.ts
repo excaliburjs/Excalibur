@@ -994,6 +994,13 @@ O|===|* >________________>\n\
    }
 
    /**
+    * Returns the Engine's Running status, Useful for checking whether engine is running or paused.
+    */
+   public isPaused(): boolean {
+      return !(this._hasStarted);
+   }
+
+   /**
     * Takes a screen shot of the current viewport and returns it as an
     * HTML Image Element.
     */

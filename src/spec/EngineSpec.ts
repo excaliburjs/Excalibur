@@ -56,5 +56,22 @@ describe('The engine', () => {
 
       expect(fired).toBe(true);
    });
-
+   
+   it('should tell engine is running', () => {
+      var status = engine.isPaused();
+      expect(status).toBe(false);
+   });
+   
+   it('should tell engine is paused', () => {
+      engine.stop();
+      var status = engine.isPaused();
+      expect(status).toBe(true);
+   });
+   
+   it('should again tell engine is running', () => {
+      engine.start();
+      var status = engine.isPaused();
+      expect(status).toBe(false);
+   });
+   
 });
