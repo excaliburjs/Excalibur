@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.9.0] 2017-02-09
 
 ### Added
+- Added `Engine.isPaused` to retrieve the running status of Engine ([#750](https://github.com/excaliburjs/Excalibur/issues/750))
 - Added `preupdate`, `postupdate`, `predraw`, `postdraw` events to TileMap
 - Added `ex.Random` with seed support via Mersenne Twister algorithm ([#538](https://github.com/excaliburjs/Excalibur/issues/538))
 - Added extended feature detection and reporting to `ex.Detector` ([#707](https://github.com/excaliburjs/Excalibur/issues/707))
