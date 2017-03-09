@@ -48,12 +48,12 @@ export interface IEngineOptions {
    /**
     * Optionally configure the native canvas width of the game
     */
-   canvasWidth?: number;
+   width?: number;
 
    /**
     * Optionally configure the native canvas height of the game
     */
-   canvasHeight?: number;
+   height?: number;
 
    /**
     * Optionally specify the target canvas DOM element to render the game in
@@ -232,8 +232,8 @@ export class Engine extends Class {
     * Default [[IEngineOptions]]
     */
    private static _DefaultEngineOptions: IEngineOptions = {
-      canvasWidth: 0,
-      canvasHeight: 0,
+      width: 0,
+      height: 0,
       canvasElementId: '',
       pointerScope: Input.PointerScope.Document,
       suppressConsoleBootMessage: null,
@@ -321,15 +321,15 @@ O|===|* >________________>\n\
          this._logger.debug('Using generated canvas element');
          this.canvas = <HTMLCanvasElement>document.createElement('canvas');
       }
-      if (options.canvasWidth && options.canvasHeight) {
+      if (options.width && options.height) {
          if (options.displayMode === undefined) {
             this.displayMode = DisplayMode.Fixed;
          }
-         this._logger.debug('Engine viewport is size ' + options.canvasWidth + ' x ' + options.canvasHeight);
-         this.canvasWidth = options.canvasWidth;
-         this.canvas.width = options.canvasWidth;
-         this.canvasHeight = options.canvasHeight;
-         this.canvas.height = options.canvasHeight;
+         this._logger.debug('Engine viewport is size ' + options.width + ' x ' + options.height);
+         this.canvasWidth = options.width;
+         this.canvas.width = options.width;
+         this.canvasHeight = options.height;
+         this.canvas.height = options.height;
 
       } else if (!options.displayMode) {
          this._logger.debug('Engine viewport is fullscreen');
@@ -630,7 +630,7 @@ O|===|* >________________>\n\
    /**
     * Returns the width of the engine's drawing surface in pixels.
     */
-   public getWidth(): number {
+   public getDrawWidth(): number {
       if (this.currentScene && this.currentScene.camera) {
          return this.canvasWidth / this.currentScene.camera.getZoom();
       }
@@ -640,7 +640,7 @@ O|===|* >________________>\n\
    /**
     * Returns the height of the engine's drawing surface in pixels.
     */
-   public getHeight(): number {
+   public getDrawHeight(): number {
       if (this.currentScene && this.currentScene.camera) {
          return this.canvasHeight / this.currentScene.camera.getZoom();
       }
@@ -657,13 +657,13 @@ O|===|* >________________>\n\
       var newY = point.y;
 
       // transform back to world space
-      newX = (newX / this.canvas.clientWidth) * this.getWidth();
-      newY = (newY / this.canvas.clientHeight) * this.getHeight();
+      newX = (newX / this.canvas.clientWidth) * this.getDrawWidth();
+      newY = (newY / this.canvas.clientHeight) * this.getDrawHeight();
 
 
       // transform based on zoom
-      newX = newX - this.getWidth() / 2;
-      newY = newY - this.getHeight() / 2;
+      newX = newX - this.getDrawWidth() / 2;
+      newY = newY - this.getDrawHeight() / 2;
 
       // shift by focus
       if (this.currentScene && this.currentScene.camera) {
@@ -692,12 +692,12 @@ O|===|* >________________>\n\
       }
 
       // transform back on zoom
-      screenX = screenX + this.getWidth() / 2;
-      screenY = screenY + this.getHeight() / 2;
+      screenX = screenX + this.getDrawWidth() / 2;
+      screenY = screenY + this.getDrawHeight() / 2;
 
       // transform back to screen space
-      screenX = (screenX * this.canvas.clientWidth) / this.getWidth();
-      screenY = (screenY * this.canvas.clientHeight) / this.getHeight();
+      screenX = (screenX * this.canvas.clientWidth) / this.getDrawWidth();
+      screenY = (screenY * this.canvas.clientHeight) / this.getDrawHeight();
 
       return new Vector(Math.floor(screenX), Math.floor(screenY));
    }

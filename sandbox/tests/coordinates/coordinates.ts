@@ -98,8 +98,8 @@ function drawGrid() {
    var step = 10; // px step for lines
 
    var lines = [],
-      gw = game.getWidth(),
-      gh = game.getHeight();
+      gw = game.getDrawWidth(),
+      gh = game.getDrawHeight();
 
    for (var y = 0; y < gh; y += step) {
       lines.push(new GridLine("y", y, gw));
