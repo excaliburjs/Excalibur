@@ -2,8 +2,8 @@
 
 var engine = new ex.Engine({
    canvasElementId: 'game',
-   canvasWidth: 600,
-   canvasHeight: 400
+   width: 600,
+   height: 400
 });
 
 

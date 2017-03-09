@@ -26,7 +26,7 @@ class Cross extends ex.Actor {
    }
 }
 
-var game = new ex.Engine({ canvasWidth: 500, canvasHeight: 500 });
+var game = new ex.Engine({ width: 500, height: 500 });
 var heartTx = new ex.Texture('../../images/heart.png');
 var ldr = new ex.Loader([heartTx]);
 

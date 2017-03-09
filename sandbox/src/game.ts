@@ -37,7 +37,7 @@ var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
 
 // Create an the game container
-var game = new ex.Engine({ canvasWidth: 800, canvasHeight: 600, canvasElementId: 'game' });
+var game = new ex.Engine({ width: 800, height: 600, canvasElementId: 'game' });
 game.setAntialiasing(false);
 
 var heartTex = new ex.Texture('../images/heart.png');

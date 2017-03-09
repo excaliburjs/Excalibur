@@ -6,7 +6,7 @@ var minVel = -200;
 var maxVel = 200;
 var numActors = 300;
 var blockTexture = new ex.Texture("block.png");
-var engine = new ex.Engine({ canvasWidth: width, canvasHeight: height, canvasElementId: 'game' });
+var engine = new ex.Engine({ width: width, height: height, canvasElementId: 'game' });
 //engine.isDebug = true;
 
 var blockGroup = engine.currentScene.createGroup("blocks");

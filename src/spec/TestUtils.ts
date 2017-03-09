@@ -5,8 +5,8 @@ module TestUtils {
 
    export function engine(options: ex.IEngineOptions = {}): ex.Engine {
       options = ex.Util.extend(false, {
-         canvasWidth: 500,
-         canvasHeight: 500,
+         width: 500,
+         height: 500,
          suppressConsoleBootMessage: true,
          suppressMinimumBrowserFeatureDetection: true
       }, options);

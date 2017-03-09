@@ -1,8 +1,8 @@
 ﻿/// <reference path='../../excalibur.d.ts' />
 
 var game = new ex.Engine({
-   canvasWidth: 800,
-   canvasHeight: 600,
+   width: 800,
+   height: 600,
    canvasElementId: "game",
    pointerScope: ex.Input.PointerScope.Document
 });

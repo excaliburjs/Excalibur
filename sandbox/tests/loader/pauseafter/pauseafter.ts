@@ -2,8 +2,8 @@
 
 var game = new ex.Engine({
    canvasElementId: 'game',
-   canvasWidth: 500,
-   canvasHeight: 500
+   width: 500,
+   height: 500
 });
 
 var jump = new ex.Sound('../../../sounds/jump.mp3', '../../../sounds/jump.wav'); 

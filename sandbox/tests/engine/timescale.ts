@@ -1,7 +1,7 @@
 /// <reference path='../../excalibur.d.ts' />
 
 var game = new ex.Engine({
-   canvasWidth: 400, canvasHeight: 400
+   width: 400, height: 400
 });
 
 game.input.keyboard.on('up', (ev: ex.Input.KeyEvent) => {

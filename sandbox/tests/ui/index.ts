@@ -4,7 +4,7 @@ var Resources = {
   Background: new ex.Texture('../../images/Background.png')
 };
 
-var game = new ex.Engine({ canvasWidth: 720, canvasHeight: 480 });
+var game = new ex.Engine({ width: 720, height: 480 });
 var loader = new ex.Loader();
 
 for (var key in Resources) {

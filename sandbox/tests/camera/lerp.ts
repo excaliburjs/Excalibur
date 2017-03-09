@@ -1,8 +1,8 @@
 /// <reference path='../../excalibur.d.ts' />
 
 var game = new ex.Engine({
-   canvasWidth: 600,
-   canvasHeight: 400,
+   width: 600,
+   height: 400,
    pointerScope: ex.Input.PointerScope.Canvas
 });
 var actor = new ex.Actor(100, 100, 50, 50, ex.Color.Red);

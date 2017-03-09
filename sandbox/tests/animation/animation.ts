@@ -7,8 +7,8 @@ var playerTexture = new ex.Texture("animation.png");
 
 var engine = new ex.Engine(
    {
-      canvasWidth: width,
-      canvasHeight: height, 
+      width: width,
+      height: height, 
       canvasElementId: 'game',
       pointerScope: ex.Input.PointerScope.Canvas
    });

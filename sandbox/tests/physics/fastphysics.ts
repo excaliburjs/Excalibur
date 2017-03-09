@@ -1,8 +1,8 @@
 /// <reference path='../../excalibur.d.ts' />
 
 var game = new ex.Engine({
-   canvasWidth: 600,
-   canvasHeight: 400
+   width: 600,
+   height: 400
 });
 game.backgroundColor = ex.Color.Azure;
 ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
