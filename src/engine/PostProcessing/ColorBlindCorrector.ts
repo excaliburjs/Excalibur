@@ -116,8 +116,8 @@ export class ColorBlindCorrector implements IPostProcessor {
 
    constructor(public engine: Engine, public simulate: boolean = false, public colorMode: ColorBlindness = ColorBlindness.Protanope) {
       this._internalCanvas = document.createElement('canvas');
-      this._internalCanvas.width = engine.getWidth();
-      this._internalCanvas.height = engine.getHeight();
+      this._internalCanvas.width = engine.getDrawWidth();
+      this._internalCanvas.height = engine.getDrawHeight();
 
       this._gl = <WebGLRenderingContext>this._internalCanvas.getContext('webgl', { preserveDrawingBuffer: true });
 
