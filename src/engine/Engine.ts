@@ -113,11 +113,11 @@ export class Engine extends Class {
    /**
     * The width of the game canvas in pixels
     */
-   public width: number;
+   public canvasWidth: number;
    /**
     * The height of the game canvas in pixels
     */
-   public height: number;
+   public canvasHeight: number;
 
    /**
     * Access engine input like pointer, keyboard, or gamepad
@@ -326,9 +326,9 @@ O|===|* >________________>\n\
             this.displayMode = DisplayMode.Fixed;
          }
          this._logger.debug('Engine viewport is size ' + options.width + ' x ' + options.height);
-         this.width = options.width;
+         this.canvasWidth = options.width;
          this.canvas.width = options.width;
-         this.height = options.height;
+         this.canvasHeight = options.height;
          this.canvas.height = options.height;
 
       } else if (!options.displayMode) {
@@ -630,21 +630,21 @@ O|===|* >________________>\n\
    /**
     * Returns the width of the engine's drawing surface in pixels.
     */
-   public getWidth(): number {
+   public getDrawWidth(): number {
       if (this.currentScene && this.currentScene.camera) {
-         return this.width / this.currentScene.camera.getZoom();
+         return this.canvasWidth / this.currentScene.camera.getZoom();
       }
-      return this.width;
+      return this.canvasWidth;
    }
 
    /**
     * Returns the height of the engine's drawing surface in pixels.
     */
-   public getHeight(): number {
+   public getDrawHeight(): number {
       if (this.currentScene && this.currentScene.camera) {
-         return this.height / this.currentScene.camera.getZoom();
+         return this.canvasHeight / this.currentScene.camera.getZoom();
       }
-      return this.height;
+      return this.canvasHeight;
    }
 
    /**
@@ -657,13 +657,13 @@ O|===|* >________________>\n\
       var newY = point.y;
 
       // transform back to world space
-      newX = (newX / this.canvas.clientWidth) * this.getWidth();
-      newY = (newY / this.canvas.clientHeight) * this.getHeight();
+      newX = (newX / this.canvas.clientWidth) * this.getDrawWidth();
+      newY = (newY / this.canvas.clientHeight) * this.getDrawHeight();
 
 
       // transform based on zoom
-      newX = newX - this.getWidth() / 2;
-      newY = newY - this.getHeight() / 2;
+      newX = newX - this.getDrawWidth() / 2;
+      newY = newY - this.getDrawHeight() / 2;
 
       // shift by focus
       if (this.currentScene && this.currentScene.camera) {
@@ -692,12 +692,12 @@ O|===|* >________________>\n\
       }
 
       // transform back on zoom
-      screenX = screenX + this.getWidth() / 2;
-      screenY = screenY + this.getHeight() / 2;
+      screenX = screenX + this.getDrawWidth() / 2;
+      screenY = screenY + this.getDrawHeight() / 2;
 
       // transform back to screen space
-      screenX = (screenX * this.canvas.clientWidth) / this.getWidth();
-      screenY = (screenY * this.canvas.clientHeight) / this.getHeight();
+      screenX = (screenX * this.canvas.clientWidth) / this.getDrawWidth();
+      screenY = (screenY * this.canvas.clientHeight) / this.getDrawHeight();
 
       return new Vector(Math.floor(screenX), Math.floor(screenY));
    }
@@ -707,15 +707,15 @@ O|===|* >________________>\n\
     */
    private _setHeightByDisplayMode(parent: any) {
       if (this.displayMode === DisplayMode.Container) {
-         this.width = this.canvas.width = parent.clientWidth;
-         this.height = this.canvas.height = parent.clientHeight;
+         this.canvasWidth = this.canvas.width = parent.clientWidth;
+         this.canvasHeight = this.canvas.height = parent.clientHeight;
       }
 
       if (this.displayMode === DisplayMode.FullScreen) {
          document.body.style.margin = '0px';
          document.body.style.overflow = 'hidden';
-         this.width = this.canvas.width = parent.innerWidth;
-         this.height = this.canvas.height = parent.innerHeight;
+         this.canvasWidth = this.canvas.width = parent.innerWidth;
+         this.canvasHeight = this.canvas.height = parent.innerHeight;
       }
    }
 
@@ -858,9 +858,9 @@ O|===|* >________________>\n\
          return;
       }
 
-      ctx.clearRect(0, 0, this.width, this.height);
+      ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
       ctx.fillStyle = this.backgroundColor.toString();
-      ctx.fillRect(0, 0, this.width, this.height);
+      ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
 
       this.currentScene.draw(this.ctx, delta);
 
@@ -885,7 +885,7 @@ O|===|* >________________>\n\
 
       // Post processing
       for (var i = 0; i < this.postProcessors.length; i++) {
-         this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.width, this.height), this.ctx);
+         this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.canvasWidth, this.canvasHeight), this.ctx);
       }
 
       this.emit('postdraw', new PostDrawEvent(ctx, delta, this));

@@ -16,7 +16,7 @@ game.start(loader).then(() => {
    
    var spriteFont = new ex.SpriteFont(spriteFontTex, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
 
-   label = new ex.Label("This is a sprite Font test", game.width / 2, game.height / 2, null, spriteFont);
+   label = new ex.Label("This is a sprite Font test", game.canvasWidth / 2, game.canvasHeight / 2, null, spriteFont);
    label.color = ex.Color.Azure.clone();
    label.letterSpacing = -20;
    label.fontSize = 10;
