@@ -13,8 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 ### Added
-- Added `Engine.getWorldBounds`
-- Added test for `Engine.getWorldBounds`
+- Added `Engine.getWorldBounds`, this method provide the user with a quick way to get the top left corner and bottom right corner of the screen in a BoundingBox so the user does not have to caluclate it themselves. This resovles issue ([#729](https://github.com/excaliburjs/Excalibur/issues/729))
 
 ## [0.9.0] 2017-02-09
 
