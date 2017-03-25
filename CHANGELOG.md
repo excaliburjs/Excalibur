@@ -12,6 +12,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Removed
 ### Fixed
 
+### Changed
+- Changed `Util.extend` to include `Object.assign` functionality.
+
 ## [0.9.0] 2017-02-09
 
 ### Added
