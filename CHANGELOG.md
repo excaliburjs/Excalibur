@@ -13,7 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 ### Changed
-- Changed `Util.extend` to include `Object.assign` functionality.
+- Changed `Util.extend` to include `Object.assign` functionality. Resolves issue ([#763](https://github.com/excaliburjs/Excalibur/issues/763))
 
 ## [0.9.0] 2017-02-09
 
