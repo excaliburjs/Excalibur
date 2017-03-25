@@ -60,7 +60,7 @@ export function extend() {
          }
       };
    } else {
-      merge = (<any>Object).prototype.assign;
+      merge = (<any>Object).assign;
    }
 
    // Loop through each object and conduct a merge
