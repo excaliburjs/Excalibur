@@ -12,6 +12,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Removed
 ### Fixed
 
+### Added
+- Added `Engine.getWorldBounds`
+- Added test to `EngineSpec.ts`
+
 ## [0.9.0] 2017-02-09
 
 ### Added
