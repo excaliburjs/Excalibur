@@ -223,6 +223,8 @@ export class Engine extends Class {
    public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void);
    public on(eventName: Events.preframe, handler: (event?: PreFrameEvent) => void);
    public on(eventName: Events.postframe, handler: (event?: PostFrameEvent) => void);
+   public on(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void);
+   public on(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void);
    public on(eventName: string, handler: (event?: GameEvent) => void);
    public on(eventName: string, handler: (event?: GameEvent) => void) {
       super.on(eventName, handler);
