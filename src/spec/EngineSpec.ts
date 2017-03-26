@@ -56,6 +56,24 @@ describe('The engine', () => {
 
       expect(fired).toBe(true);
    });
+
+   it('should emit a predraw event', () => {
+      var fired = false;
+      engine.on('predraw', () => fired = true);
+
+      loop.advance(100);
+
+      expect(fired).toBe(true);
+   });
+
+   it ('should emit a postdraw event', () => {
+      var fired = false;
+      engine.on('postdraw', () => fired = true);
+
+      loop.advance(100);
+
+      expect(fired).toBe(true);
+   });
    
    it('should tell engine is running', () => {
       var status = engine.isPaused();
