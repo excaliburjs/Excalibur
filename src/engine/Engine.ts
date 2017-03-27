@@ -22,6 +22,7 @@ import * as Input from './Input/Index';
 import { obsolete } from './Util/Decorators';
 import * as Util from './Util/Util';
 import * as Events from './Events';
+import { BoundingBox } from './Collision/BoundingBox';
 
 /**
  * Enum representing the different display modes available to Excalibur
@@ -346,6 +347,20 @@ O|===|* >________________>\n\
       this.addScene('root', this.rootScene);
       this.goToScene('root');
    }
+
+   /**
+    * Returns a BoundingBox of the top left corner of the screen
+    * and the bottom right corner of the screen.
+    */
+   public getWorldBounds() {
+      var left = this.screenToWorldCoordinates(Vector.Zero).x;
+      var top = this.screenToWorldCoordinates(Vector.Zero).y;
+      var right = left + this.getDrawWidth();
+      var bottom = top + this.getDrawHeight();
+
+      return new BoundingBox(left, top, right, bottom);
+   }
+
 
    /**
     * Gets the current engine timescale factor (default is 1.0 which is 1:1 time)
