@@ -73,5 +73,15 @@ describe('The engine', () => {
       var status = engine.isPaused();
       expect(status).toBe(false);
    });
+
+   it('should return screen dimensions', () => {
+      engine.start();
+      var left = engine.screenToWorldCoordinates(ex.Vector.Zero).x;
+      var top = engine.screenToWorldCoordinates(ex.Vector.Zero).y;
+      var right = left + engine.getDrawWidth();
+      var bottom = top + engine.getDrawHeight();
+      var localBoundingBox = new ex.BoundingBox(left, top, right, bottom);
+      expect(engine.getWorldBounds()).toEqual(localBoundingBox);
+   });
    
 });
