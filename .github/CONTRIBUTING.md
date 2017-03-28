@@ -57,6 +57,10 @@ If you’re not sure where to start, take a look at the jump-in or help wanted i
 - Send a pull request via Github.
   - Format your pull request as: [#issue_number] Your commit message (where issue_number is the issue you're closing)
 
+#### Code Organization
+
+The Excalibur public API (i.e. `ex.*`) is defined in `src/engine/index.ts`. Any new classes or APIs that should be made available publicly should be exported there. The AMD bundler will then ensure the APIs or classes are exposed in the browser.
+
 ## Styleguides
 
 #### Code
