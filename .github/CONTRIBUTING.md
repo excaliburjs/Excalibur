@@ -59,7 +59,25 @@ If you’re not sure where to start, take a look at the jump-in or help wanted i
 
 #### Code Organization
 
+Excalibur uses an AMD bundler using TypeScript to generate a browser self-bootstrapping bundle.
+
 The Excalibur public API (i.e. `ex.*`) is defined in `src/engine/index.ts`. Any new classes or APIs that should be made available publicly should be exported there. The AMD bundler will then ensure the APIs or classes are exposed in the browser.
+
+An example of exporting all public members from a new `MyClass.ts` that contains a `MyClass` ES6 class:
+
+```ts
+export * from './MyClass'
+// ex.MyClass will be exposed
+```
+
+If the members should be aliased under a different name (namespaced) such as `ex.Feature.*`, you can import-export the members as a new name:
+
+```ts
+// ex.Feature namespace
+import * as feature from './MyClass';
+export { feature as Feature }
+// ex.Feature.MyClass will be exposed
+```
 
 ## Styleguides
 
