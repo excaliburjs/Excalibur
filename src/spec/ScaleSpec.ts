@@ -16,8 +16,8 @@ describe('A scaled and rotated actor', () => {
       actor = new ex.UIActor(50, 50, 100, 50);
       actor.color = ex.Color.Blue;
       actor.collisionType = ex.CollisionType.Active;
-      engine = TestUtils.engine();
-
+      engine = TestUtils.engine({ width: 800, height: 600 });
+      engine.setAntialiasing(false);
       
       scene = new ex.Scene(engine);
       engine.currentScene = scene;
@@ -32,24 +32,22 @@ describe('A scaled and rotated actor', () => {
    });
 	
    
-   it('is drawn coorectly scaled at 90 degrees', (done) => {            
-
-      let game: ex.Engine = TestUtils.engine({ width: 800, height: 600 });
-      game.setAntialiasing(false);
+   it('is drawn correctly scaled at 90 degrees', (done) => {                  
+      
       let bg = new ex.Texture('src/spec/images/ScaleSpec/logo.png', true);
       
-      game.start(new ex.Loader([bg])).then(() => {
-         let actor = new ex.Actor(game.getDrawWidth() / 2 , game.getDrawHeight() / 2, 100, 100, ex.Color.Black);
+      engine.start(new ex.Loader([bg])).then(() => {
+         let actor = new ex.Actor(engine.getDrawWidth() / 2 , engine.getDrawHeight() / 2, 100, 100, ex.Color.Black);
          actor.addDrawing(bg);
          actor.setHeight(10);
          actor.scale.setTo(1, .2);
-         game.add(actor);
+         engine.add(actor);
 
          actor.rotation = Math.PI / 2;
 
          actor.on('postdraw', (ev: ex.PostDrawEvent) => {
-            game.stop();
-            imagediff.expectCanvasImageMatches('ScaleSpec/scale.png', game.canvas, done);            
+            engine.stop();
+            imagediff.expectCanvasImageMatches('ScaleSpec/scale.png', engine.canvas, done);            
          });
       });
       
