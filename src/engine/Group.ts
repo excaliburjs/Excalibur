@@ -91,13 +91,13 @@ export class Group extends Class implements IActionable, IEvented {
    }
 
    public rotate(angle: number): void {
-      if (typeof arguments[0] === 'number') {
-         var r = arguments[0], i = 0, members = this.getMembers(), len = members.length;
-         for (i; i < len; i++) {
-            members[i].rotation += r;
-         }
-      } else {
+      if (typeof angle !== 'number') {
          this._logger.error('Invalid arguments passed to group rotate', this.name, 'args:', arguments);
+         return;
+      }
+
+      for (let member of this.getMembers()) {
+         member.rotation += angle;
       }
    }
 

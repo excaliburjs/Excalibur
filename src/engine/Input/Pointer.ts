@@ -162,7 +162,7 @@ export class Pointers extends Class {
       }
    }
 
-   public update(delta: number): void {
+   public update(): void {
       this._pointerUp.length = 0;
       this._pointerDown.length = 0;
       this._pointerMove.length = 0;

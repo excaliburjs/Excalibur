@@ -33,7 +33,7 @@ export function obsolete(options?: IObsoleteOptions) {
       let method = Util.extend({}, descriptor);
 
       if (descriptor.value) {
-         method.value = function() {
+         method.value = function(this: any) {
             Logger.getInstance().warn(message);
             return descriptor.value.apply(this, arguments);
          };             
@@ -41,14 +41,14 @@ export function obsolete(options?: IObsoleteOptions) {
       }
 
       if (descriptor.get) {
-         method.get = function() {
+         method.get = function(this: any) {
             Logger.getInstance().warn(message);
             return descriptor.get.apply(this, arguments);
          };
       }
 
       if (descriptor.set) {
-         method.set = function() {
+         method.set = function(this: any) {
             Logger.getInstance().warn(message);
             return descriptor.set.apply(this, arguments);
          };            

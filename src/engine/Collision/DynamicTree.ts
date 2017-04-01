@@ -469,7 +469,7 @@ export class DynamicTree {
 
    }
 
-   public debugDraw(ctx: CanvasRenderingContext2D, delta: number) {
+   public debugDraw(ctx: CanvasRenderingContext2D) {
       // draw all the nodes in the Dynamic Tree
       var helper = (currentNode: TreeNode) => {
 

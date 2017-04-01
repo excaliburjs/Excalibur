@@ -1,4 +1,3 @@
-import { Logger } from './Util/Log';
 import { GameEvent, SubscribeEvent, UnsubscribeEvent } from './Events';
 import { IEvented } from './Interfaces/IEvented';
 
@@ -17,7 +16,6 @@ export class EventDispatcher implements IEvented {
    private _wiredEventDispatchers: EventDispatcher[] = [];
 
    private _target: any;
-   private _log: Logger = Logger.getInstance();
 
    /**
     * @param target  The object that will be the recipient of events from this event dispatcher

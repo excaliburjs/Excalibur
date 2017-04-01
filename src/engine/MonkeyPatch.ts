@@ -31,12 +31,12 @@ if (typeof window !== 'undefined' && !(<any>window).AudioContext) {
 /* istanbul ignore next */
 if (!Array.prototype.forEach) {
 
-   Array.prototype.forEach = function (callback, thisArg) {
+   Array.prototype.forEach = function (this: Array<any>, callback, thisArg) {
 
       var T, k;
 
       if (this == null) {
-         throw new TypeError(' this is null or not defined');
+         throw new TypeError('this is null or not defined');
       }
 
       // 1. Let O be the result of calling ToObject passing the |this| value as the argument. 
@@ -89,7 +89,7 @@ if (!Array.prototype.forEach) {
 // Polyfill from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
 /* istanbul ignore next */
 if (!Array.prototype.some) {
-  Array.prototype.some = function(fun /*, thisArg */){
+  Array.prototype.some = function(this: Array<any>, fun /*, thisArg */){
     'use strict';
 
     if (this === void 0 || this === null) {
@@ -126,7 +126,7 @@ if (!Function.prototype.bind) {
       var aArgs = Array.prototype.slice.call(arguments, 1),
          fToBind = this,
          fNOP: any = function () { return; },
-         fBound = function () {
+         fBound = function (this: Function) {
             return fToBind.apply(this instanceof fNOP && oThis
                ? this
                : oThis,

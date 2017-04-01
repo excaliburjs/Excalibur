@@ -26,7 +26,7 @@ export class SpriteSheet {
     * @param spWidth   The width of each individual sprite in pixels
     * @param spHeight  The height of each individual sprite in pixels
     */
-   constructor(public image: Texture, private columns: number, private rows: number, spWidth: number, spHeight: number) {
+   constructor(public image: Texture, public columns: number, public rows: number, spWidth: number, spHeight: number) {
       this._internalImage = image.image;
       this.sprites = new Array(columns * rows);
 
@@ -117,8 +117,6 @@ export class SpriteSheet {
  * [[include:SpriteFonts.md]]
  */
 export class SpriteFont extends SpriteSheet {
-   private _spriteLookup: { [key: string]: number; } = {};
-   private _colorLookup: { [key: string]: Sprite[]; } = {};
    private _currentColor: Color = Color.Black.clone();
    private _currentOpacity: Number = 1.0;
    private _sprites: { [key: string]: Sprite; } = {};

@@ -250,7 +250,7 @@ export class Scene extends Class {
       ctx.save();
 
       if (this.camera) {
-         this.camera.draw(ctx, delta);
+         this.camera.draw(ctx);
       }
 
       var i: number, len: number;
@@ -559,7 +559,7 @@ export class Scene extends Class {
    }
 
    private _collectActorStats(engine: Engine) {
-      for (var ui of this.uiActors) {
+      for (var _ui of this.uiActors) {
          engine.stats.currFrame.actors.ui++;
       }
 

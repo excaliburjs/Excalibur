@@ -1,4 +1,3 @@
-import { Logger } from './Util/Log';
 import { obsolete } from './Util/Decorators';
 
 // Promises/A+ Spec http://promises-aplus.github.io/promises-spec/
@@ -38,7 +37,6 @@ export class Promise<T> implements IPromise<T> {
    private _successCallbacks: { (value?: T): any }[] = [];
    private _rejectCallback: (value?: any) => any = () => { return; };
    private _errorCallback: (value?: any) => any;
-   private _logger: Logger = Logger.getInstance();
 
    /**
     * Wrap a value in a resolved promise

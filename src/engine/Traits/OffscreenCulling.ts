@@ -9,7 +9,7 @@ export class OffscreenCulling implements IActorTrait {
 
    public cullingBox: CullingBox = new CullingBox();
 
-   public update(actor: Actor, engine: Engine, delta: number) {
+   public update(actor: Actor, engine: Engine) {
       var eventDispatcher = actor.eventDispatcher;
       var anchor = actor.anchor;
       var globalScale = actor.getGlobalScale();

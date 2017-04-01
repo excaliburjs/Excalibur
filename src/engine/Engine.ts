@@ -16,7 +16,7 @@ import { Logger, LogLevel } from './Util/Log';
 import { Color } from './Drawing/Color';
 import { Scene } from './Scene';
 import { IPostProcessor } from './PostProcessing/IPostProcessor';
-import { Debug, FrameStats } from './Debug';
+import { Debug, IDebugStats } from './Debug';
 import { Class } from './Class';
 import * as Input from './Input/Index';
 import { obsolete } from './Util/Decorators';
@@ -140,12 +140,12 @@ export class Engine extends Class {
    /**
     * Access Excalibur debugging functionality.
     */
-   public debug = new Debug(this);
+   public debug = new Debug();
 
    /**
     * Access [[stats]] that holds frame statistics.
     */
-   public get stats() {
+   public get stats(): IDebugStats {
       return this.debug.stats;
    }
 
@@ -838,9 +838,9 @@ O|===|* >________________>\n\
          // suspend updates untill loading is finished
          this._loader.update(this, delta);
          // Update input listeners
-         this.input.keyboard.update(delta);
-         this.input.pointers.update(delta);
-         this.input.gamepads.update(delta);
+         this.input.keyboard.update();
+         this.input.pointers.update();
+         this.input.gamepads.update();
          return;
       }
       this.emit('preupdate', new PreUpdateEvent(this, delta, this));
@@ -853,9 +853,9 @@ O|===|* >________________>\n\
       });
 
       // Update input listeners
-      this.input.keyboard.update(delta);
-      this.input.pointers.update(delta);
-      this.input.gamepads.update(delta);
+      this.input.keyboard.update();
+      this.input.pointers.update();
+      this.input.gamepads.update();
 
       // Publish update event
       // TODO: Obsolete `update` event on Engine

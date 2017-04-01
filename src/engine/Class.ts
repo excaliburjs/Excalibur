@@ -87,11 +87,11 @@ export class Class implements IEvented {
       if (methods && methods.hasOwnProperty('constructor')) {
          child = methods.constructor;
       } else {
-         child = function () { return parent.apply(this, arguments); };
+         child = function (this: any) { return parent.apply(this, arguments); };
       }
 
       // Using constructor allows JS to lazily instantiate super classes
-      var Super: any = function () { this.constructor = child; };
+      var Super: any = function (this: any) { this.constructor = child; };
       Super.prototype = parent.prototype;
       child.prototype = new Super;
 

@@ -107,7 +107,7 @@ export class MoveTo implements IAction {
       this._speed = speed;
    }
 
-   public update(delta: number): void {
+   public update(): void {
       if (!this._started) {
          this._started = true;
          this._start = new Vector(this._actor.pos.x, this._actor.pos.y);
@@ -165,7 +165,7 @@ export class MoveBy implements IAction {
 
    }
 
-   public update(delta: Number) {
+   public update() {
       if (!this._started) {
          this._started = true;
          this._start = new Vector(this._actor.pos.x, this._actor.pos.y);
@@ -225,7 +225,7 @@ export class Follow implements IAction {
       this._speed = 0;
    }
 
-   public update(delta : number) : void {
+   public update() : void {
       if (!this._started) {
          this._started = true;
          this._distanceBetween = this._current.distance(this._end);
@@ -253,7 +253,7 @@ export class Follow implements IAction {
          this._actor.vel.y = 0;
       }
 
-      if (this.isComplete(this._actor)) {
+      if (this.isComplete()) {
          // TODO this should never occur
          this._actor.pos.x = this._end.x;
          this._actor.pos.y = this._end.y;
@@ -268,7 +268,7 @@ export class Follow implements IAction {
          this._stopped = true;
    }
 
-   public isComplete(actor : Actor) : boolean {
+   public isComplete() : boolean {
       // the actor following should never stop unless specified to do so
       return this._stopped;
    }
@@ -304,7 +304,7 @@ export class Meet implements IAction {
       }
    }
 
-   public update(delta : number) : void {
+   public update() : void {
       if (!this._started) {
          this._started = true;
          this._distanceBetween = this._current.distance(this._end);
@@ -327,7 +327,7 @@ export class Meet implements IAction {
       this._actor.vel.x = m.x;
       this._actor.vel.y = m.y;
 
-      if (this.isComplete(this._actor)) {
+      if (this.isComplete()) {
          
          this._actor.pos.x = this._end.x;
          this._actor.pos.y = this._end.y;
@@ -336,7 +336,7 @@ export class Meet implements IAction {
       }
    }
 
-   public isComplete(actor : Actor) : boolean {
+   public isComplete() : boolean {
       return this._stopped || (this._distanceBetween <= 1);
    }
 
@@ -373,7 +373,7 @@ export class RotateTo implements IAction {
       this._rotationType = rotationType || RotationType.ShortestPath;
    }
 
-   public update(delta: number): void {
+   public update(): void {
       if (!this._started) {
          this._started = true;
          this._start = this._actor.rotation;
@@ -427,14 +427,14 @@ export class RotateTo implements IAction {
 
       this._actor.rx = this._direction * this._speed;
       
-      if (this.isComplete(this._actor)) {
+      if (this.isComplete()) {
          this._actor.rotation = this._end;
          this._actor.rx = 0;
          this._stopped = true;
       }
    }
 
-   public isComplete(actor: Actor): boolean {
+   public isComplete(): boolean {
       var distanceTravelled = Math.abs(this._actor.rotation - this._start);
       return this._stopped || (distanceTravelled >= Math.abs(this._distance));
    }
@@ -472,7 +472,7 @@ export class RotateBy implements IAction {
       this._rotationType = rotationType || RotationType.ShortestPath;
    }
 
-   public update(delta: number): void {
+   public update(): void {
       if (!this._started) {
          this._started = true;
          this._start = this._actor.rotation;
@@ -528,14 +528,14 @@ export class RotateBy implements IAction {
       this._actor.rx = this._direction * this._speed;
 
       
-      if (this.isComplete(this._actor)) {
+      if (this.isComplete()) {
          this._actor.rotation = this._end;
          this._actor.rx = 0;
          this._stopped = true;
       }
    }
 
-   public isComplete(actor: Actor): boolean {
+   public isComplete(): boolean {
       var distanceTravelled = Math.abs(this._actor.rotation - this._start);
       return this._stopped || (distanceTravelled >= Math.abs(this._distance));
    }
@@ -573,7 +573,7 @@ export class ScaleTo implements IAction {
 
    }
 
-   public update(delta: number): void {
+   public update(): void {
       if (!this._started) {
          this._started = true;
          this._startX = this._actor.scale.x;
@@ -597,7 +597,7 @@ export class ScaleTo implements IAction {
       }
 
       
-      if (this.isComplete(this._actor)) {
+      if (this.isComplete()) {
          this._actor.scale.x = this._endX;
          this._actor.scale.y = this._endY;
          this._actor.sx = 0;
@@ -605,7 +605,7 @@ export class ScaleTo implements IAction {
       }
    }
 
-   public isComplete(actor: Actor): boolean {
+   public isComplete(): boolean {
       return this._stopped || ((Math.abs(this._actor.scale.y - this._startX) >= this._distanceX) && 
                                  (Math.abs(this._actor.scale.y - this._startY) >= this._distanceY));
    }
@@ -645,7 +645,7 @@ export class ScaleBy implements IAction {
       this._speedY = (this._endY - this._actor.scale.y) / time * 1000;
    }
 
-   public update(delta: number): void {
+   public update(): void {
       if (!this._started) {
          this._started = true;
          this._startX = this._actor.scale.x;
@@ -659,7 +659,7 @@ export class ScaleBy implements IAction {
       this._actor.sy = this._speedY * directionY;
 
       
-      if (this.isComplete(this._actor)) {
+      if (this.isComplete()) {
          this._actor.scale.x = this._endX;
          this._actor.scale.y = this._endY;
          this._actor.sx = 0;
@@ -667,7 +667,7 @@ export class ScaleBy implements IAction {
       }
    }
 
-   public isComplete(actor: Actor): boolean {
+   public isComplete(): boolean {
       return this._stopped || ((Math.abs(this._actor.scale.x - this._startX) >= this._distanceX) && 
                                  (Math.abs(this._actor.scale.y - this._startY) >= this._distanceY));
    }
@@ -707,7 +707,7 @@ export class Delay implements IAction {
       this._elapsedTime += delta;
    }
 
-   isComplete(actor: Actor): boolean {
+   isComplete(): boolean {
       return this._stopped || (this._elapsedTime >= this._delay);
    }
 
@@ -754,13 +754,13 @@ export class Blink implements IAction {
          this._elapsedTime = 0;
       }
 
-      if (this.isComplete(this._actor)) {
+      if (this.isComplete()) {
          this._actor.visible = true;
       }
 
    }
 
-   public isComplete(actor: Actor): boolean {
+   public isComplete(): boolean {
       return this._stopped || (this._totalTime >= this._duration);
    }
 
@@ -811,14 +811,14 @@ export class Fade implements IAction {
 
       this._speed -= delta;
 
-      if (this.isComplete(this._actor)) {
+      if (this.isComplete()) {
          this._actor.opacity = this._endOpacity;
       }
 
       Logger.getInstance().debug('[Action fade] Actor opacity:', this._actor.opacity);
    }
 
-   public isComplete(actor: Actor): boolean {
+   public isComplete(): boolean {
       return this._stopped || (Math.abs(this._actor.opacity - this._endOpacity) < 0.05);
    }
 
@@ -836,15 +836,13 @@ export class Die implements IAction {
    public y: number;
 
    private _actor: Actor;
-
-   private _started = false;
    private _stopped = false;
 
    constructor(actor: Actor) {
       this._actor = actor;
    }
 
-   public update(delta: number): void {
+   public update(): void {
       this._actor.actionQueue.clearActions();
       this._actor.kill();
       this._stopped = true;
@@ -870,11 +868,11 @@ export class CallMethod implements IAction {
       this._method = method;
    }
 
-   public update(delta: number) {
+   public update() {
       this._method.call(this._actor);
       this._hasBeenCalled = true;
    }
-   public isComplete(actor: Actor) {
+   public isComplete() {
       return this._hasBeenCalled;
    }
    public reset() {

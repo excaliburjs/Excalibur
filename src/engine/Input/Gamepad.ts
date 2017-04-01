@@ -68,7 +68,7 @@ export class Gamepads extends Class {
    private _enableAndUpdate() {
       if (!this.enabled) {
          this.enabled = true;
-         this.update(100);
+         this.update();
       }
    }
    
@@ -78,11 +78,11 @@ export class Gamepads extends Class {
    private _isGamepadValid(pad: INavigatorGamepad) : boolean {
       if (!this._minimumConfiguration) { return true; };
       if (!pad) { return false; };
-      var axesLength = pad.axes.filter((value, index, array) => {
+      var axesLength = pad.axes.filter((value) => {
          return (typeof value !== undefined);
       }).length;
       
-      var buttonLength = pad.buttons.filter((value, index, array) => {
+      var buttonLength = pad.buttons.filter((value) => {
          return (typeof value !== undefined);
       }).length;
       return axesLength >= this._minimumConfiguration.axis && 
@@ -108,7 +108,7 @@ export class Gamepads extends Class {
    /**
     * Updates Gamepad state and publishes Gamepad events
     */
-   public update(delta: number) {
+   public update() {
       if (!this.enabled || !this.supported) { return; }
       this.init();
 

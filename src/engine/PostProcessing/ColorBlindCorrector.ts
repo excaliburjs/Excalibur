@@ -2,11 +2,6 @@
 import { IPostProcessor } from './IPostProcessor';
 import { Engine } from '../Engine';
 
-declare var ImageData: {
-   prototype: ImageData;
-   new (width: number, height: number): ImageData;
-};
-
 export enum ColorBlindness {
    Protanope,
    Deuteranope,
@@ -165,7 +160,7 @@ export class ColorBlindCorrector implements IPostProcessor {
 
    }
 
-   private _setRectangle(gl: any, x: number, y: number, width: number, height: number) {
+   private _setRectangle(x: number, y: number, width: number, height: number) {
       var x1 = x;
       var x2 = x + width;
       var y1 = y;
@@ -245,7 +240,7 @@ export class ColorBlindCorrector implements IPostProcessor {
       this._gl.vertexAttribPointer(positionLocation, 2, this._gl.FLOAT, false, 0, 0);
 
       // Set a rectangle the same size as the image.
-      this._setRectangle(this._gl, 0, 0, image.width, image.height);
+      this._setRectangle(0, 0, image.width, image.height);
 
       // Draw the rectangle.
       this._gl.drawArrays(this._gl.TRIANGLES, 0, 6);

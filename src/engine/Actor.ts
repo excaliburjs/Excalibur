@@ -427,7 +427,7 @@ export class Actor extends Class implements IActionable, IEvented {
     * This is called before the first update of the actor. This method is meant to be
     * overridden. This is where initialization of child actors should take place.
     */
-   public onInitialize(engine: Engine): void {
+   public onInitialize(_engine: Engine): void {
       // Override me
    }
 
@@ -570,7 +570,7 @@ export class Actor extends Class implements IActionable, IEvented {
     * @param drawing This can be an [[Animation]], [[Sprite]], or [[Polygon]]. 
     */
    public addDrawing(key: any, drawing: IDrawable): any;
-   public addDrawing(args: any): any {
+   public addDrawing(): any {
       if (arguments.length === 2) {
          this.frames[<string>arguments[0]] = arguments[1];
          if (!this.currentDrawing) {
@@ -731,14 +731,14 @@ export class Actor extends Class implements IActionable, IEvented {
       }
 
       // calculate position       
-      var x = parents.reduceRight((px, p, i, arr) => {
+      var x = parents.reduceRight((px, p) => {
          if (p.parent) {
             return px + (p.pos.x * p.getGlobalScale().x);
          }
          return px + p.pos.x;
       }, 0);
 
-      var y = parents.reduceRight((py, p, i, arr) => {
+      var y = parents.reduceRight((py, p) => {
          if (p.parent) {
             return py + (p.pos.y * p.getGlobalScale().y);
          }

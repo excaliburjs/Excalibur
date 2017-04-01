@@ -80,7 +80,7 @@ export class WebAudio implements IAudioImplementation {
     */
    static unlock() {
 
-      if (this._unlocked || !audioContext) {
+      if (WebAudio._unlocked || !audioContext) {
          return;
       }
 
@@ -105,11 +105,11 @@ export class WebAudio implements IAudioImplementation {
             var legacySource = (<any>source);
             if (legacySource.playbackState === legacySource.PLAYING_STATE ||
                legacySource.playbackState === legacySource.FINISHED_STATE) {
-               this._unlocked = true;
+               WebAudio._unlocked = true;
             }
          } else {               
             if (audioContext.currentTime > 0 || ended) {
-               this._unlocked = true;
+               WebAudio._unlocked = true;
             } 
          }
       }, 0);
@@ -395,7 +395,7 @@ export class Sound implements ILoadable, IAudio {
       request.responseType = this.sound.responseType;
       request.onprogress = this.onprogress;
       request.onerror = this.onerror;
-      request.onload = (e) => onload(request);
+      request.onload = () => onload(request);
 
       request.send();
    }
@@ -441,10 +441,9 @@ class AudioTagInstance implements IAudio {
    private _loop = false;
    private _volume = 1.0;
 
-   constructor(
-      private _src: string) {
+   constructor(src: string) {
 
-      this._audioElement = new Audio(_src);
+      this._audioElement = new Audio(src);
    }
 
    public isPlaying() {

@@ -23,6 +23,7 @@ const BITMASK32: number = 0xFFFFFFFF;
  */
 export class Random {
 
+   // Separation point of one one word, the number of bits in the lower bitmask 0 <= r <= w-1
    private _lowerMask: number = 0x7FFFFFFF; // 31 bits same as _r
    private _upperMask: number = 0x80000000; // 34 high bits
 
@@ -34,8 +35,6 @@ export class Random {
 
    // Middle word, an offset used in the recurrance defining the series x, 1<=m<n
    private _m: number = 397;
-   // Separation point of one one word, the number of bits in the lower bitmask 0 <= r <= w-1
-   private _r: number = 31;
    // coefficients of teh rational normal form twist matrix
    private _a: number = 0x9908B0DF;
 

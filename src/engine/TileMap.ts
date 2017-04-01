@@ -74,7 +74,6 @@ export class TileMap extends Class {
     * is no collision null is returned.
     */
    public collides(actor: Actor): Vector {
-      var points: Vector[] = [];
       var width = actor.pos.x + actor.getWidth();
       var height = actor.pos.y + actor.getHeight();
       var actorBounds = actor.getBounds();

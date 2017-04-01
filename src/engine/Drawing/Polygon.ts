@@ -71,7 +71,7 @@ export class Polygon implements IDrawable {
    /**
     * @notimplemented Effects are not supported on `Polygon`
     */
-   public addEffect(effect: Effects.ISpriteEffect) {
+   public addEffect() {
       // not supported on polygons
    }
    /**
@@ -85,7 +85,7 @@ export class Polygon implements IDrawable {
    /**
     * @notimplemented Effects are not supported on `Polygon`
     */
-   public removeEffect(param: any) {
+   public removeEffect() {
       // not supported on polygons
    }
 

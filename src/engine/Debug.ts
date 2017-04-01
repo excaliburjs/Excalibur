@@ -1,6 +1,12 @@
-import { Engine } from './Engine';
 import { IDebugFlags } from './DebugFlags';
 
+/**
+ * Debug stats containing current and previous frame statistics
+ */
+export interface IDebugStats {
+   currFrame: FrameStats;
+   prevFrame: FrameStats;
+}
 
 /**
  * Represents a frame's individual statistics
@@ -132,12 +138,10 @@ export interface IPhysicsStats {
  */
 export class Debug implements IDebugFlags {
 
-   constructor(private _engine: Engine) { }
-
    /**
     * Performance statistics
     */
-   public stats = {
+   public stats: IDebugStats = {
 
       /**
        * Current frame statistics. Engine reuses this instance, use [[FrameStats.clone]] to copy frame stats. 
@@ -167,17 +171,17 @@ export class FrameStats implements IFrameStats {
       alive: 0,
       killed: 0,
       ui: 0,
-      get remaining() {
+      get remaining(this: IFrameActorStats) {
          return this.alive - this.killed;
       },
-      get total() {
+      get total(this: IFrameActorStats) {
          return this.remaining + this.ui;
       }
    };
    private _durationStats: IFrameDurationStats = {
       update: 0,
       draw: 0,
-      get total() {
+      get total(this: IFrameDurationStats) {
          return this.update + this.draw;
       }
    };
