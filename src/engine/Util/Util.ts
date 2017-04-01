@@ -126,15 +126,15 @@ export function randomIntInRange(min: number, max: number): number {
 
 export function canonicalizeAngle(angle: number): number {
    var tmpAngle = angle;
-   if (angle > this.TwoPI) {
-      while (tmpAngle > this.TwoPI) {
-         tmpAngle -= this.TwoPI;
+   if (angle > TwoPI) {
+      while (tmpAngle > TwoPI) {
+         tmpAngle -= TwoPI;
       }
    }
 
    if (angle < 0) {
       while (tmpAngle < 0) {
-         tmpAngle += this.TwoPI;
+         tmpAngle += TwoPI;
       }
    }
    return tmpAngle;
@@ -209,12 +209,6 @@ export function getOppositeSide(side: Side) {
 }
 
 export function getSideFromVector(direction: Vector) {
-   var left = direction.dot(Vector.Left);
-   var right = direction.dot(Vector.Right);
-   var up = direction.dot(Vector.Up);
-   var down = direction.dot(Vector.Down);
-
-   // a very fortran approach
    var directions = [Vector.Left, Vector.Right, Vector.Up, Vector.Down];
    var directionEnum = [Side.Left, Side.Right, Side.Top, Side.Bottom];
 
