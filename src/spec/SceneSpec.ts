@@ -87,8 +87,8 @@ describe('A scene', () => {
       expect(scene.camera.getFocus().y).toBe(50);
       expect(engine.worldToScreenCoordinates(new ex.Vector(50, 50)).x).toBe(50);
       expect(engine.worldToScreenCoordinates(new ex.Vector(50, 50)).y).toBe(50);
-      expect(engine.getWidth()).toBe(100);
-      expect(engine.getHeight()).toBe(100);
+      expect(engine.getDrawWidth()).toBe(100);
+      expect(engine.getDrawHeight()).toBe(100);
 
       expect(actor.isOffScreen).toBeTruthy();
       expect(actor.draw).not.toHaveBeenCalled();
@@ -158,6 +158,69 @@ describe('A scene', () => {
       scene._initialize(engine);
 
       expect(initializeCount).toBe(1, 'Scenes can only be initialized once');
+   });
+
+   it('should allow adding and removing an Actor in same frame', () => {
+      var removed = false;
+      scene.add(actor);
+      actor.on('postupdate', () => {
+         scene.remove(actor);
+         removed = true;
+      });      
+      scene.update(engine, 10);
+
+      expect(removed).toBe(true, 'Actor postupdate was not called');
+      expect(scene.children.indexOf(actor)).toBe(-1);
+   });
+
+   it('should allow adding and killing an Actor in same frame', () => {
+      var removed = false;
+      scene.add(actor);
+      actor.on('postupdate', () => {         
+         actor.kill();
+         removed = true;
+      });
+      scene.update(engine, 10);
+
+      expect(removed).toBe(true, 'Actor postupdate was not called');
+      expect(scene.children.indexOf(actor)).toBe(-1);
+   });
+
+   it('should allow another Actor to add and remove a different Actor in same frame', () => {
+      var removed = false;
+      var otherActor = new ex.Actor();
+      scene.add(otherActor);
+      
+      otherActor.on('initialize', () => {
+         scene.add(actor);
+      });   
+      otherActor.on('postupdate', () => {
+         scene.remove(actor);
+         removed = true;
+      });      
+      scene.update(engine, 10);
+
+      expect(removed).toBe(true, 'Actor postupdate was not called');
+      expect(scene.children.indexOf(actor)).toBe(-1);
+      expect(scene.children.length).toBe(1);
+   });
+
+   it('should allow another Actor to add and kill a different Actor in same frame', () => {
+      var removed = false;
+      var otherActor = new ex.Actor();
+      scene.add(otherActor);
+      otherActor.on('initialize', () => {
+         scene.add(actor);
+      });  
+      otherActor.on('postupdate', () => {
+         actor.kill();
+         removed = true;
+      });      
+      scene.update(engine, 10);
+
+      expect(removed).toBe(true, 'Actor postupdate was not called');
+      expect(scene.children.indexOf(actor)).toBe(-1);
+      expect(scene.children.length).toBe(1);
    });
 
    it('will update Actors that were added in a Timer callback', () => {
