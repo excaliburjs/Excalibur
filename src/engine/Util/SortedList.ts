@@ -35,7 +35,7 @@ export class SortedList<T> {
       return this._get(this._root, key);
    }
 
-   private _get(node: BinaryTreeNode, key: number): Array<any> | any[] {
+   private _get(node: BinaryTreeNode, key: number): any[] {
       if (node == null) {
          return [];
       } else if (key === node.getKey()) {

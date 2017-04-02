@@ -62,7 +62,7 @@ export enum Keys {
 /**
  * Event thrown on a game object for a key event
  */
-export class KeyEvent extends GameEvent {
+export class KeyEvent extends GameEvent<any> {
 
    /**
     * @param key  The key responsible for throwing the event
@@ -90,11 +90,11 @@ export class Keyboard extends Class {
       this._engine = engine;
    }
 
-   public on(eventName: Events.press, handler: (event?: KeyEvent) => void): any;
-   public on(eventName: Events.release, handler: (event?: KeyEvent) => void): any;
-   public on(eventName: Events.hold, handler: (event?: KeyEvent) => void): any;
-   public on(eventName: string, handler: (event?: GameEvent) => void): any;
-   public on(eventName: string, handler: (event?: GameEvent) => void): any {
+   public on(eventName: Events.press, handler: (event?: KeyEvent) => void): void;
+   public on(eventName: Events.release, handler: (event?: KeyEvent) => void): void;
+   public on(eventName: Events.hold, handler: (event?: KeyEvent) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void {
       super.on(eventName, handler);
    }
 

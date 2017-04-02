@@ -445,7 +445,7 @@ export class Actor extends Class implements IActionable, IEvented {
    public _initialize(engine: Engine) {
       if (!this.isInitialized) {
          this.onInitialize(engine);
-         this.eventDispatcher.emit('initialize', new InitializeEvent(engine));
+         this.eventDispatcher.emit('initialize', new InitializeEvent(engine, this));
          this._isInitialized = true;
       }
       for (var child of this.children) {
@@ -465,20 +465,20 @@ export class Actor extends Class implements IActionable, IEvented {
       }
    }
 
-   public on(eventName: Events.kill, handler: (event?: KillEvent) => void): any;
-   public on(eventName: Events.initialize, handler: (event?: InitializeEvent) => void): any;
-   public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): any;
-   public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): any;
-   public on(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void): any;
-   public on(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void): any;
-   public on(eventName: Events.predebugdraw, handler: (event?: PreDebugDrawEvent) => void): any;
-   public on(eventName: Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void): any;
-   public on(eventName: Events.pointerup, handler: (event?: PointerEvent) => void): any;
-   public on(eventName: Events.pointerdown, handler: (event?: PointerEvent) => void): any;
-   public on(eventName: Events.pointermove, handler: (event?: PointerEvent) => void): any;
-   public on(eventName: Events.pointercancel, handler: (event?: PointerEvent) => void): any;
-   public on(eventName: string, handler: (event?: GameEvent) => void): any;
-   public on(eventName: string, handler: (event?: GameEvent) => void): any {
+   public on(eventName: Events.kill, handler: (event?: KillEvent) => void): void;
+   public on(eventName: Events.initialize, handler: (event?: InitializeEvent) => void): void;
+   public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
+   public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): void;
+   public on(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void): void;
+   public on(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void): void;
+   public on(eventName: Events.predebugdraw, handler: (event?: PreDebugDrawEvent) => void): void;
+   public on(eventName: Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void): void;
+   public on(eventName: Events.pointerup, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.pointerdown, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.pointermove, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.pointercancel, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void {
       this._checkForPointerOptIn(eventName);
       this.eventDispatcher.on(eventName, handler);
    }
@@ -537,14 +537,14 @@ export class Actor extends Class implements IActionable, IEvented {
     * the key.
     * @param key The key of the drawing
     */
-   public setDrawing(key: string): any;
+   public setDrawing(key: string): void;
    /**
     * Sets the current drawing of the actor to the drawing corresponding to
     * an `enum` key (e.g. `Animations.Left`)
     * @param key The `enum` key of the drawing
     */
-   public setDrawing(key: number): any;
-   public setDrawing(key: any): any {
+   public setDrawing(key: number): void;
+   public setDrawing(key: any): void {
       key = key.toString();
       if (this.currentDrawing !== this.frames[<string>key]) {
          if (this.frames[key] != null) {
@@ -559,18 +559,18 @@ export class Actor extends Class implements IActionable, IEvented {
    /**
     * Adds a whole texture as the "default" drawing. Set a drawing using [[setDrawing]].
     */
-   public addDrawing(texture: Texture): any;
+   public addDrawing(texture: Texture): void;
    /**
     * Adds a whole sprite as the "default" drawing. Set a drawing using [[setDrawing]].
     */
-   public addDrawing(sprite: Sprite): any;
+   public addDrawing(sprite: Sprite): void;
    /**
     * Adds a drawing to the list of available drawings for an actor. Set a drawing using [[setDrawing]].
     * @param key     The key to associate with a drawing for this actor
     * @param drawing This can be an [[Animation]], [[Sprite]], or [[Polygon]]. 
     */
-   public addDrawing(key: any, drawing: IDrawable): any;
-   public addDrawing(): any {
+   public addDrawing(key: any, drawing: IDrawable): void;
+   public addDrawing(): void {
       if (arguments.length === 2) {
          this.frames[<string>arguments[0]] = arguments[1];
          if (!this.currentDrawing) {

@@ -70,6 +70,8 @@ export interface ICollisionArea {
     */
    recalc(): void;
 
-   debugDraw(ctx: CanvasRenderingContext2D, color: Color): any;
-
+   /**
+    * Draw any debug information
+    */
+   debugDraw(ctx: CanvasRenderingContext2D, color: Color): void;
 } 

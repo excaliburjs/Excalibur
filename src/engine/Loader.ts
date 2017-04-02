@@ -158,7 +158,7 @@ export class Loader extends Class implements ILoader {
          };
       });
 
-      function loadNext(list: any[] | Array<any>, index: number) {
+      function loadNext(list: ILoadable[], index: number) {
          if (!list[index]) {
             return;
          }

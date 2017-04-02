@@ -37,9 +37,9 @@ export class Group extends Class implements IActionable, IEvented {
       }
    }
 
-   public add(actor: Actor): any;
-   public add(actors: Actor[]): any;
-   public add(actorOrActors: any): any {
+   public add(actor: Actor): void;
+   public add(actors: Actor[]): void;
+   public add(actorOrActors: any): void {
       if (actorOrActors instanceof Actor) {
          actorOrActors = [].concat(actorOrActors);
       }
@@ -102,15 +102,15 @@ export class Group extends Class implements IActionable, IEvented {
    }
 
 
-   public on(eventName: string, handler: (event?: GameEvent) => void) {
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void) {
       this.eventDispatcher.on(eventName, handler);
    }
 
-   public off(eventName: string, handler?: (event?: GameEvent) => void) {
+   public off(eventName: string, handler?: (event?: GameEvent<any>) => void) {
       this.eventDispatcher.off(eventName, handler);
    }
 
-   public emit(topic: string, event?: GameEvent) {
+   public emit(topic: string, event?: GameEvent<any>) {
       this.eventDispatcher.emit(topic, event);
    }
 

@@ -14,7 +14,26 @@ export const TwoPI: number = Math.PI * 2;
  * @param objects The objects whose properties to merge
  * @returns Merged object with properties from other objects
  */
-export function extend(deep: boolean, target: any, ...objects: any[] | Array<any>): any;
+export function extend(deep: boolean, target: any, ...objects: any[]): any;
+
+/**
+ * Merges one or more objects into a single target object
+ * 
+ * @param target The target object to attach properties on
+ * @param object2 The second object whose properties to merge
+ * @returns Merged object with properties from other objects
+ */
+export function extend<T1, T2>(target: T1, object2: T2): T1 & T2;
+
+/**
+ * Merges one or more objects into a single target object
+ * 
+ * @param target The target object to attach properties on
+ * @param object2 The second object whose properties to merge
+ * @param object3 The third object whose properties to merge
+ * @returns Merged object with properties from other objects
+ */
+export function extend<T1, T2, T3>(target: T1, object2: T2, object3: T3): T1 & T2 & T3;
 
 /**
  * Merges one or more objects into a single target object
@@ -23,7 +42,7 @@ export function extend(deep: boolean, target: any, ...objects: any[] | Array<any
  * @param objects The objects whose properties to merge
  * @returns Merged object with properties from other objects
  */
-export function extend(target: any, ...objects: any[] | Array<any>): any;
+export function extend(target: any, ...objects: any[]): any;
 
 /**
  * Merges one or more objects into a single target object

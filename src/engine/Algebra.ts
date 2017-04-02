@@ -384,7 +384,7 @@ export class Line {
       } else if (y !== null) {
          return new Vector((y - b) / m, y);
       } else {
-        return new Vector(0, 0);
+        throw new Error('You must provide an X or a Y value');
       }
    }
 

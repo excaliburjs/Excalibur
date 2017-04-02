@@ -12,7 +12,7 @@ import { IEvented } from './Interfaces/IEvented';
  * [[include:Events.md]]
  */
 export class EventDispatcher implements IEvented {
-   private _handlers: { [key: string]: { (event?: GameEvent): void }[]; } = {};
+   private _handlers: { [key: string]: { (event?: GameEvent<any>): void }[]; } = {};
    private _wiredEventDispatchers: EventDispatcher[] = [];
 
    private _target: any;
@@ -29,7 +29,7 @@ export class EventDispatcher implements IEvented {
     * @param eventName  The name of the event to publish
     * @param event      Optionally pass an event data object to the handler
     */
-   public emit(eventName: string, event?: GameEvent) {
+   public emit(eventName: string, event?: GameEvent<any>) {
       if (!eventName) {
          // key not mapped
          return;
@@ -65,7 +65,7 @@ export class EventDispatcher implements IEvented {
     * @param eventName  The name of the event to subscribe to
     * @param handler    The handler callback to fire on this event
     */
-   public on(eventName: string, handler: (event?: GameEvent) => void) {
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void) {
       eventName = eventName.toLowerCase();
       if (!this._handlers[eventName]) {
          this._handlers[eventName] = [];
@@ -87,7 +87,7 @@ export class EventDispatcher implements IEvented {
     * @param handler    Optionally the specific handler to unsubscribe
     *
     */
-   public off(eventName: string, handler?: (event?: GameEvent) => void) {
+   public off(eventName: string, handler?: (event?: GameEvent<any>) => void) {
       eventName = eventName.toLowerCase();
       var eventHandlers = this._handlers[eventName];
 

@@ -11,12 +11,12 @@ export interface ICollisionBroadphase {
    /**
     * Track a physics body
     */
-   track(target: Body): any;
+   track(target: Body): void;
 
    /**
     * Untrack a physics body
     */
-   untrack(tartet: Body): any;
+   untrack(tartet: Body): void;
 
    /**
     * Detect potential collision pairs
@@ -26,17 +26,20 @@ export interface ICollisionBroadphase {
    /**
     * Identify actual collisions from those pairs, and calculate collision impulse
     */
-   narrowphase(pairs: Pair[], stats?: FrameStats): any;
+   narrowphase(pairs: Pair[], stats?: FrameStats): void;
 
    /**
     * Resolve the position and velocity of the physics bodies
     */
-   resolve(delta: number, strategy: CollisionResolutionStrategy): any;
+   resolve(delta: number, strategy: CollisionResolutionStrategy): void;
 
    /**
     * Update the internal structures to track bodies
     */
    update(targets: Actor[], delta: number): number;
 
+   /**
+    * Draw any debug information
+    */
    debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
 }

@@ -3,6 +3,7 @@ import { Vector } from './Algebra';
 import { Actor } from './Actor';
 import { FrameStats } from './Debug';
 import { Engine } from './Engine';
+import { TileMap } from './TileMap';
 import { Side } from './Collision/Side';
 import * as Input from './Input/Index';
 
@@ -63,18 +64,18 @@ export type hold = 'hold';
  * some events are unique to a type, others are not.
  *  
  */
-export class GameEvent {
+export class GameEvent<T> {
    /**
     * Target object for this event.
     */
-   public target: any;
+   public target: T;
 }
 
 /**
  * The 'kill' event is emitted on actors when it is killed. The target is the actor that was killed. 
  */
-export class KillEvent extends GameEvent {
-   constructor(public target: any) {
+export class KillEvent extends GameEvent<Actor> {
+   constructor(public target: Actor) {
       super();
    }
 }
@@ -82,8 +83,8 @@ export class KillEvent extends GameEvent {
 /**
  * The 'start' event is emitted on engine when has started and is ready for interaction. 
  */
-export class GameStartEvent extends GameEvent {
-   constructor(public target: any) {
+export class GameStartEvent extends GameEvent<Engine> {
+   constructor(public target: Engine) {
       super();
    }
 }
@@ -91,8 +92,8 @@ export class GameStartEvent extends GameEvent {
 /**
  * The 'stop' event is emitted on engine when has been stopped and will no longer take input, update or draw. 
  */
-export class GameStopEvent extends GameEvent {
-   constructor(public target: any) {
+export class GameStopEvent extends GameEvent<Engine> {
+   constructor(public target: Engine) {
       super();
    }
 }
@@ -102,8 +103,8 @@ export class GameStopEvent extends GameEvent {
  * transform so that all drawing takes place with the actor as the origin.
  *   
  */
-export class PreDrawEvent extends GameEvent {
-   constructor(public ctx: CanvasRenderingContext2D, public delta: any, public target: any) {
+export class PreDrawEvent extends GameEvent<Actor | Scene | Engine | TileMap> {
+   constructor(public ctx: CanvasRenderingContext2D, public delta: number, public target: Actor | Scene | Engine | TileMap) {
       super();
    }
 }
@@ -113,8 +114,8 @@ export class PreDrawEvent extends GameEvent {
  * transform so that all drawing takes place with the actor as the origin.
  *   
  */
-export class PostDrawEvent extends GameEvent {
-   constructor(public ctx: CanvasRenderingContext2D, public delta: any, public target: any) {
+export class PostDrawEvent extends GameEvent<Actor | Scene | Engine | TileMap> {
+   constructor(public ctx: CanvasRenderingContext2D, public delta: number, public target: Actor | Scene | Engine | TileMap) {
       super();
    }
 }
@@ -122,8 +123,8 @@ export class PostDrawEvent extends GameEvent {
 /**
  * The 'predebugdraw' event is emitted on actors, scenes, and engine before debug drawing starts.
  */
-export class PreDebugDrawEvent extends GameEvent {
-   constructor(public ctx: CanvasRenderingContext2D, public target: any) {
+export class PreDebugDrawEvent extends GameEvent<Actor | Scene | Engine> {
+   constructor(public ctx: CanvasRenderingContext2D, public target: Actor | Scene | Engine) {
       super();
    }
 }
@@ -131,8 +132,8 @@ export class PreDebugDrawEvent extends GameEvent {
 /**
  * The 'postdebugdraw' event is emitted on actors, scenes, and engine after debug drawing starts.
  */
-export class PostDebugDrawEvent extends GameEvent {
-   constructor(public ctx: CanvasRenderingContext2D, public target: any) {
+export class PostDebugDrawEvent extends GameEvent<Actor | Scene | Engine> {
+   constructor(public ctx: CanvasRenderingContext2D, public target: Actor | Scene | Engine) {
       super();
    }
 }
@@ -140,8 +141,8 @@ export class PostDebugDrawEvent extends GameEvent {
 /**
  * The 'preupdate' event is emitted on actors, scenes, and engine before the update starts.
  */
-export class PreUpdateEvent extends GameEvent {
-   constructor(public engine: Engine, public delta: any, public target: any) {
+export class PreUpdateEvent extends GameEvent<Actor | Scene | Engine | TileMap> {
+   constructor(public engine: Engine, public delta: number, public target: Actor | Scene | Engine | TileMap) {
       super();
    }
 }
@@ -150,8 +151,8 @@ export class PreUpdateEvent extends GameEvent {
  * The 'postupdate' event is emitted on actors, scenes, and engine after the update ends. This is equivalent to the obsolete 'update'
  * event.
  */
-export class PostUpdateEvent extends GameEvent {
-   constructor(public engine: Engine, public delta: any, public target: any) {
+export class PostUpdateEvent extends GameEvent<Actor | Scene | Engine | TileMap> {
+   constructor(public engine: Engine, public delta: number, public target: Actor | Scene | Engine | TileMap) {
       super();
    }
 }
@@ -159,49 +160,53 @@ export class PostUpdateEvent extends GameEvent {
 /**
  * The 'preframe' event is emitted on the engine, before the frame begins.
  */
-export class PreFrameEvent extends GameEvent {
-   constructor(public engine: Engine, public prevStats: FrameStats, public target: any) {
+export class PreFrameEvent extends GameEvent<Engine> {
+   constructor(public engine: Engine, public prevStats: FrameStats) {
       super();
+      this.target = engine;
    }
 }
 
 /**
  * The 'postframe' event is emitted on the engine, after a frame ends.
  */
-export class PostFrameEvent extends GameEvent {
-   constructor(public engine: Engine, public stats: FrameStats, public target: any) {
+export class PostFrameEvent extends GameEvent<Engine> {
+   constructor(public engine: Engine, public stats: FrameStats) {
       super();
+      this.target = engine;
    }
 }
 
 /**
  * Event received when a gamepad is connected to Excalibur. [[Gamepads]] receives this event.
  */
-export class GamepadConnectEvent extends GameEvent {
+export class GamepadConnectEvent extends GameEvent<Input.Gamepad> {
    constructor(public index: number, public gamepad: Input.Gamepad) {
       super();
+      this.target = gamepad;
    }
 }
 
 /**
  * Event received when a gamepad is disconnected from Excalibur. [[Gamepads]] receives this event.
  */
-export class GamepadDisconnectEvent extends GameEvent {
-   constructor(public index: number) {
+export class GamepadDisconnectEvent extends GameEvent<Input.Gamepad> {
+   constructor(public index: number, public gamepad: Input.Gamepad) {
       super();
+      this.target = gamepad;
    }
 }
 
 /**
  * Gamepad button event. See [[Gamepads]] for information on responding to controller input. [[Gamepad]] instances receive this event;
  */
-export class GamepadButtonEvent extends GameEvent {
+export class GamepadButtonEvent extends GameEvent<Input.Gamepad> {
 
    /**
     * @param button  The Gamepad button
     * @param value   A numeric value between 0 and 1
     */
-   constructor(public button: Input.Buttons, public value: number) {
+   constructor(public button: Input.Buttons, public value: number, public target: Input.Gamepad) {
       super();
    }
 }
@@ -209,13 +214,13 @@ export class GamepadButtonEvent extends GameEvent {
 /**
  * Gamepad axis event. See [[Gamepads]] for information on responding to controller input. [[Gamepad]] instances receive this event;
  */
-export class GamepadAxisEvent extends GameEvent {
+export class GamepadAxisEvent extends GameEvent<Input.Gamepad> {
 
    /**
     * @param axis  The Gamepad axis
     * @param value A numeric value between -1 and 1
     */
-   constructor(public axis: Input.Axes, public value: number) {
+   constructor(public axis: Input.Axes, public value: number, public target: Input.Gamepad) {
       super();
    }
 }
@@ -224,8 +229,8 @@ export class GamepadAxisEvent extends GameEvent {
  * Subscribe event thrown when handlers for events other than subscribe are added. Meta event that is received by 
  * [[EventDispatcher|event dispatchers]].
  */
-export class SubscribeEvent extends GameEvent {
-   constructor(public topic: string, public handler: (event?: GameEvent) => void) {
+export class SubscribeEvent<T> extends GameEvent<T> {
+   constructor(public topic: string, public handler: (event?: GameEvent<T>) => void) {
       super();
    }
 }
@@ -234,8 +239,8 @@ export class SubscribeEvent extends GameEvent {
  * Unsubscribe event thrown when handlers for events other than unsubscribe are removed. Meta event that is received by 
  * [[EventDispatcher|event dispatchers]].
  */
-export class UnsubscribeEvent extends GameEvent {
-   constructor(public topic: string, public handler: (event?: GameEvent) => void) {
+export class UnsubscribeEvent<T> extends GameEvent<T> {
+   constructor(public topic: string, public handler: (event?: GameEvent<T>) => void) {
       super();
    }
 }
@@ -243,8 +248,8 @@ export class UnsubscribeEvent extends GameEvent {
 /**
  * Event received by the [[Engine]] when the browser window is visible on a screen.
  */
-export class VisibleEvent extends GameEvent {
-   constructor() {
+export class VisibleEvent extends GameEvent<Engine> {
+   constructor(public target: Engine) {
       super();
    }
 }
@@ -252,8 +257,8 @@ export class VisibleEvent extends GameEvent {
 /**
  * Event received by the [[Engine]] when the browser window is hidden from all screens.
  */
-export class HiddenEvent extends GameEvent {
-   constructor() {
+export class HiddenEvent extends GameEvent<Engine> {
+   constructor(public target: Engine) {
       super();
    }
 }
@@ -261,7 +266,7 @@ export class HiddenEvent extends GameEvent {
 /**
  * Event thrown on an [[Actor|actor]] when a collision has occurred
  */
-export class CollisionEvent extends GameEvent {
+export class CollisionEvent extends GameEvent<Actor> {
 
    /**
     * @param actor         The actor the event was thrown on
@@ -271,18 +276,19 @@ export class CollisionEvent extends GameEvent {
     */
    constructor(public actor: Actor, public other: Actor, public side: Side, public intersection: Vector) {
       super();
+      this.target = actor;
    }
 }
 
 /**
  * Event thrown on an [[Actor]] and a [[Scene]] only once before the first update call
  */
-export class InitializeEvent extends GameEvent {
+export class InitializeEvent extends GameEvent<Actor | Scene> {
 
    /**
     * @param engine  The reference to the current engine
     */
-   constructor(public engine: Engine) {
+   constructor(public engine: Engine, public target: Actor | Scene) {
       super();
    }
 }
@@ -290,12 +296,12 @@ export class InitializeEvent extends GameEvent {
 /**
  * Event thrown on a [[Scene]] on activation
  */
-export class ActivateEvent extends GameEvent {
+export class ActivateEvent extends GameEvent<Scene> {
 
    /**
     * @param oldScene  The reference to the old scene
     */
-   constructor(public oldScene: Scene) {
+   constructor(public oldScene: Scene, public target: Scene) {
       super();
    }
 }
@@ -303,12 +309,12 @@ export class ActivateEvent extends GameEvent {
 /**
  * Event thrown on a [[Scene]] on deactivation
  */
-export class DeactivateEvent extends GameEvent {
+export class DeactivateEvent extends GameEvent<Scene> {
 
    /**
     * @param newScene  The reference to the new scene
     */
-   constructor(public newScene: Scene) {
+   constructor(public newScene: Scene, public target: Scene) {
       super();
    }
 }
@@ -317,8 +323,8 @@ export class DeactivateEvent extends GameEvent {
 /**
  * Event thrown on an [[Actor]] when it completely leaves the screen.
  */
-export class ExitViewPortEvent extends GameEvent {
-   constructor() {
+export class ExitViewPortEvent extends GameEvent<Actor> {
+   constructor(public target: Actor) {
       super();
    }
 }
@@ -326,8 +332,8 @@ export class ExitViewPortEvent extends GameEvent {
 /**
  * Event thrown on an [[Actor]] when it completely leaves the screen.
  */
-export class EnterViewPortEvent extends GameEvent {
-   constructor() {
+export class EnterViewPortEvent extends GameEvent<Actor> {
+   constructor(public target: Actor) {
       super();
    }
 }

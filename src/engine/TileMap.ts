@@ -29,8 +29,8 @@ export class TileMap extends Class {
    public on(eventName: Events.postupdate, handler: (event?: Events.PostUpdateEvent) => void): any;
    public on(eventName: Events.predraw, handler: (event?: Events.PreDrawEvent) => void): any;
    public on(eventName: Events.postdraw, handler: (event?: Events.PostDrawEvent) => void): any;
-   public on(eventName: string, handler: (event?: Events.GameEvent) => void): any;
-   public on(eventName: string, handler: (event?: Events.GameEvent) => void): any {
+   public on(eventName: string, handler: (event?: Events.GameEvent<any>) => void): any;
+   public on(eventName: string, handler: (event?: Events.GameEvent<any>) => void): any {
       super.on(eventName, handler);
    }
 

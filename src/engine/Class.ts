@@ -23,7 +23,7 @@ export class Class implements IEvented {
     * @param eventName  Name of the event to listen for
     * @param handler    Event handler for the thrown event
     */
-   public on(eventName: string, handler: (event?: GameEvent) => void) {
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void) {
       this.eventDispatcher.on(eventName, handler);
    }
 
@@ -35,7 +35,7 @@ export class Class implements IEvented {
     * @param eventName  Name of the event to listen for
     * @param handler    Event handler for the thrown event
     */
-   public off(eventName: string, handler?: (event?: GameEvent) => void) {
+   public off(eventName: string, handler?: (event?: GameEvent<any>) => void) {
       this.eventDispatcher.off(eventName, handler);
    }
 
@@ -44,7 +44,7 @@ export class Class implements IEvented {
     * @param eventName   Name of the event to emit
     * @param eventObject Data associated with this event
     */
-   public emit(eventName: string, eventObject?: GameEvent) {
+   public emit(eventName: string, eventObject?: GameEvent<any>) {
       this.eventDispatcher.emit(eventName, eventObject);
    }
 

@@ -38,7 +38,7 @@ export class TreeNode {
 export class DynamicTree {
 
    public root: TreeNode;
-   public nodes: { [key: string]: TreeNode };
+   public nodes: { [key: number]: TreeNode };
    constructor(public worldBounds: BoundingBox = new BoundingBox(-Number.MAX_VALUE,
       -Number.MAX_VALUE,
       Number.MAX_VALUE,
@@ -413,7 +413,7 @@ export class DynamicTree {
     */
    public query(body: Body, callback: (other: Body) => boolean): void {
       var bounds = body.getBounds();
-      var helper = (currentNode: TreeNode): any => {
+      var helper = (currentNode: TreeNode): boolean => {
          if (currentNode && currentNode.bounds.collides(bounds)) {
             if (currentNode.isLeaf() && currentNode.body !== body) {
                if (callback.call(body, currentNode.body)) {
@@ -422,11 +422,10 @@ export class DynamicTree {
             } else {
                return helper(currentNode.left) || helper(currentNode.right);
             }
-         } else {
-            return null;
          }
+         return false;
       };
-      return helper(this.root);
+      helper(this.root);
    }
 
    /**
@@ -438,7 +437,7 @@ export class DynamicTree {
     * the tree until all possible bodies that would intersect with the ray have been returned. 
     */
    public rayCastQuery(ray: Ray, max: number = Infinity, callback: (other: Body) => boolean): void {
-      var helper = (currentNode: TreeNode): any => {
+      var helper = (currentNode: TreeNode): boolean => {
          if (currentNode && currentNode.bounds.rayCast(ray, max)) {
             if (currentNode.isLeaf()) {
                if (callback.call(ray, currentNode.body)) {
@@ -449,16 +448,15 @@ export class DynamicTree {
                // ray hit but not at a leaf, recurse deeper
                return helper(currentNode.left) || helper(currentNode.right);
             }
-         } else {
-            return null; // ray missed
          }
+         return false; // ray missed         
       };
-      return helper(this.root);
+      helper(this.root);
    }
 
 
    public getNodes(): TreeNode[] {
-      var helper = (currentNode: TreeNode): any => {
+      var helper = (currentNode: TreeNode): TreeNode[] => {
          if (currentNode) {
             return [currentNode].concat(helper(currentNode.left), helper(currentNode.right));
          } else {
@@ -466,7 +464,6 @@ export class DynamicTree {
          }
       };
       return helper(this.root);
-
    }
 
    public debugDraw(ctx: CanvasRenderingContext2D) {
