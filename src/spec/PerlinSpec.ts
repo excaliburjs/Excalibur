@@ -56,7 +56,7 @@ describe('Perlin Noise', () => {
    });
 
    it('can generate a sequence of numbers', () => {
-      var seq = generator.noiseSequence(10);
+      var seq = generator.sequence(10);
       expect(seq.length).toBe(10);
    });
 

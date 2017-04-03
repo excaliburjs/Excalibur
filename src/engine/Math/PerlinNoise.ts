@@ -155,7 +155,7 @@ export class PerlinGenerator {
     * Generates a list starting at 0 and ending at 1 of contious perlin noise, by default the step is 1/length;
     *
     */
-   public noiseSequence(length: number, step?: number): number[] {
+   public sequence(length: number, step?: number): number[] {
       if (!step) {
          step = 1 / length;
       }
@@ -170,7 +170,7 @@ export class PerlinGenerator {
     * Generates a 2D grid of perlin noise given a step value packed into a 1D array i = (x + y*width), 
     * by default the step will 1/(min(dimension))
     */
-   public noiseGrid(width: number, height: number, step?: number): number[] {
+   public grid(width: number, height: number, step?: number): number[] {
       if (!step) {
          step = 1 / (Math.min(width, height));
       }
@@ -294,7 +294,7 @@ export class PerlinDrawer2D {
     * This draws a 2D perlin grid on a canvas context, not recommended to be called every frame due to performance
     */
    public draw(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number) {
-     var grid = this.generator.noiseGrid(width, height);
+     var grid = this.generator.grid(width, height);
      var imageData = ctx.getImageData(x, y, width, height);
      for (var j = 0; j < height; j++) {
          for (var i = 0; i < width; i++) {
