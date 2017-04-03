@@ -390,7 +390,7 @@ export enum BaseAlign {
    }
 
    protected get _fontString() {
-         return `${this._lookupFontStyle(this.fontStyle)} ${this.fontSize}${this._lookupFontUnit(this.fontUnit)} ${this.fontFamily}`;
+      return `${this._lookupFontStyle(this.fontStyle)} ${this.fontSize}${this._lookupFontUnit(this.fontUnit)} ${this.fontFamily}`;
    }
 
    public debugDraw(ctx: CanvasRenderingContext2D) {
