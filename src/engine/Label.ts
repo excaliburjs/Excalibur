@@ -102,8 +102,7 @@ export enum BaseAlign {
    export enum FontStyle {
       Normal,
       Italic,
-      Oblique,
-      Bold
+      Oblique
    }
 
    /**
@@ -118,6 +117,11 @@ export enum BaseAlign {
     * The text to draw.
     */
    public text: string;
+
+   /**
+    * Sets or gets the bold property of the label's text, by default it's false
+    */
+   public bold: boolean = false;
 
    /**
     * The [[SpriteFont]] to use, if any. Overrides [[fontFamily]] if present.
@@ -135,15 +139,15 @@ export enum BaseAlign {
     */
    public fontSize: number = 10;
 
-      /**
-       * The font style for this label, the default is [[FontStyle.Normal]]
-       */
-      public fontStyle: FontStyle = FontStyle.Normal;
+   /**
+    * The font style for this label, the default is [[FontStyle.Normal]]
+    */
+   public fontStyle: FontStyle = FontStyle.Normal;
 
-      /**
-       * The css units for a font size such as px, pt, em (SpriteFont only support px), by default is 'px';
-       */ 
-      public fontUnit: FontUnit = FontUnit.Px;
+   /**
+    * The css units for a font size such as px, pt, em (SpriteFont only support px), by default is 'px';
+    */ 
+   public fontUnit: FontUnit = FontUnit.Px;
 
    /**
     * Gets or sets the horizontal text alignment property for the label. 
@@ -268,28 +272,29 @@ export enum BaseAlign {
       }
    }
 
-      private _lookupFontStyle(fontStyle: FontStyle): string {
-         switch (fontStyle) {
-            case FontStyle.Italic:
-               return 'italic';
-            case FontStyle.Normal:
-               return 'normal';
-            case FontStyle.Oblique:
-               return 'oblique';
-            default:
-               return 'normal';
-         }
+   private _lookupFontStyle(fontStyle: FontStyle): string {
+      var boldstring = this.bold ? ' bold' : '';
+      switch (fontStyle) {
+         case FontStyle.Italic:
+            return 'italic' + boldstring;
+         case FontStyle.Normal:
+            return 'normal' + boldstring;
+         case FontStyle.Oblique:
+            return 'oblique' + boldstring;
+         default:
+            return 'normal' + boldstring;
       }
+   }
 
-      /**
-       * Sets the text shadow for sprite fonts
-       * @param offsetX      The x offset in pixels to place the shadow
-       * @param offsetY      The y offset in pixels to place the shadow
-       * @param shadowColor  The color of the text shadow
-       */
-      public setTextShadow(offsetX: number, offsetY: number, shadowColor: Color) {
-         this.spriteFont.setTextShadow(offsetX, offsetY, shadowColor);
-      }
+   /**
+    * Sets the text shadow for sprite fonts
+    * @param offsetX      The x offset in pixels to place the shadow
+    * @param offsetY      The y offset in pixels to place the shadow
+    * @param shadowColor  The color of the text shadow
+    */
+   public setTextShadow(offsetX: number, offsetY: number, shadowColor: Color) {
+      this.spriteFont.setTextShadow(offsetX, offsetY, shadowColor);
+   }
 
    /**
     * Toggles text shadows on or off, only applies when using sprite fonts
@@ -384,9 +389,9 @@ export enum BaseAlign {
       }
    }
 
-      protected get _fontString() {
-          return `${this._lookupFontStyle(this.fontStyle)} ${this.fontSize}${this._lookupFontUnit(this.fontUnit)} ${this.fontFamily}`;
-      }
+   protected get _fontString() {
+         return `${this._lookupFontStyle(this.fontStyle)} ${this.fontSize}${this._lookupFontUnit(this.fontUnit)} ${this.fontFamily}`;
+   }
 
    public debugDraw(ctx: CanvasRenderingContext2D) {
       super.debugDraw(ctx);
