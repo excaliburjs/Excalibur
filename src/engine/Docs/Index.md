@@ -1,3 +1,5 @@
+# Excalibur.js Public API
+
 This documentation is automatically generated from the Excalibur
 source code on [GitHub](http://github.com/excaliburjs/Excalibur).
 
@@ -37,6 +39,7 @@ Excalibur provides easy ways of loading assets, from images to JSON files.
 
 Excalibur comes built-in with support for mouse, keyboard, touch, and controllers.
 
+- [["Input/Index"|Using Input in Excalibur]]
 - [[Pointers|Mouse and Touch]]
 - [[Keyboard]]
 - [[Gamepads|Controller Support]]
@@ -56,7 +59,7 @@ Add sounds, images, and animations to your game.
 Every game needs an explosion or two. Add sprite effects such as lighten,
 darken, and colorize.
 
-- [[Effects|Sprite Effects]]
+- [["Drawing/SpriteEffects"|Sprite Effects]]
 - [[ParticleEmitter|Particle Emitters]]
 - [[IPostProcessor|Post Processors]]
 
@@ -68,10 +71,11 @@ These classes provide the basics for math & algebra operations.
 - [[Ray]]
 - [[Line]]
 - [[Projection]]
+- [["Math/Random"|Random]]
 
 ## Utilities
 
-- [[Util|Utility Functions]] 
+- [["Util/Util"|Utility Functions]] 
 - [[Promise|Promises and Async]]
 - [[Logger|Logging]]
 - [[Color|Colors]]

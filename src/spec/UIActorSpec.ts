@@ -1,6 +1,7 @@
 /// <reference path="jasmine.d.ts" />
 /// <reference path="support/js-imagediff.d.ts" />
 /// <reference path="require.d.ts" />
+/// <reference path="TestUtils.ts" />
 /// <reference path="Mocks.ts" />
 
 describe('A UIActor', () => {
@@ -15,12 +16,7 @@ describe('A UIActor', () => {
       uiActor = new ex.UIActor(50, 50, 100, 50);
       uiActor.color = ex.Color.Blue;
       uiActor.collisionType = ex.CollisionType.Active;
-      engine = new ex.Engine({
-         width: 500,
-         height: 500,
-         suppressConsoleBootMessage: true,
-         suppressMinimumBrowserFeatureDetection: true
-      }); //  mock.engine(100, 100);
+      engine = TestUtils.engine();
 
       
       scene = new ex.Scene(engine);
@@ -29,6 +25,10 @@ describe('A UIActor', () => {
       spyOn(scene, 'draw').and.callThrough();
       spyOn(uiActor, 'draw').and.callThrough();     
 		
+   });
+
+   afterEach(() => {
+      engine.stop();
    });
 	
    it('is drawn when visible', () => {
@@ -63,6 +63,24 @@ describe('A UIActor', () => {
       scene.draw(engine.ctx, 100);
       
       imagediff.expectCanvasImageMatches('UIActorSpec/actordoesnotdraw.png', engine.canvas, done);
+   });
+
+   it('is drawn on the top left with empty constructor', (done) => {
+            
+      let game = TestUtils.engine({ width: 720, height: 480 });
+      let bg = new ex.Texture('src/spec/images/UIActorSpec/emptyctor.png', true);
+      
+      game.start(new ex.Loader([bg])).then(() => {
+         let uiActor = new ex.UIActor();
+         uiActor.addDrawing(bg);
+         game.add(uiActor);
+
+         uiActor.on('postdraw', (ev: ex.PostDrawEvent) => {
+            game.stop();
+            imagediff.expectCanvasImageMatches('UIActorSpec/emptyctor.png', game.canvas, done);            
+         });
+      });
+      
    });
 
 });

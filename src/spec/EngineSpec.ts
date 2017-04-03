@@ -9,17 +9,16 @@ describe('The engine', () => {
    var loop: Mocks.IGameLoop;
 
    beforeEach(() => {
-      engine = new ex.Engine({
-            width: 500,
-            height: 500,
-            suppressConsoleBootMessage: true,
-            suppressMinimumBrowserFeatureDetection: true
-         });   
+      engine = TestUtils.engine();
       scene = new ex.Scene(engine);
       engine.currentScene = scene;
       loop = mock.loop(engine);
 
       engine.start();
+   });
+
+   afterEach(() => {
+      engine.stop();
    });
 
    it('should emit a preframe event', () => {
@@ -58,4 +57,49 @@ describe('The engine', () => {
       expect(fired).toBe(true);
    });
 
+   it('should emit a predraw event', () => {
+      var fired = false;
+      engine.on('predraw', () => fired = true);
+
+      loop.advance(100);
+
+      expect(fired).toBe(true);
+   });
+
+   it ('should emit a postdraw event', () => {
+      var fired = false;
+      engine.on('postdraw', () => fired = true);
+
+      loop.advance(100);
+
+      expect(fired).toBe(true);
+   });
+   
+   it('should tell engine is running', () => {
+      var status = engine.isPaused();
+      expect(status).toBe(false);
+   });
+   
+   it('should tell engine is paused', () => {
+      engine.stop();
+      var status = engine.isPaused();
+      expect(status).toBe(true);
+   });
+   
+   it('should again tell engine is running', () => {
+      engine.start();
+      var status = engine.isPaused();
+      expect(status).toBe(false);
+   });
+
+   it('should return screen dimensions', () => {
+      engine.start();
+      var left = engine.screenToWorldCoordinates(ex.Vector.Zero).x;
+      var top = engine.screenToWorldCoordinates(ex.Vector.Zero).y;
+      var right = left + engine.getDrawWidth();
+      var bottom = top + engine.getDrawHeight();
+      var localBoundingBox = new ex.BoundingBox(left, top, right, bottom);
+      expect(engine.getWorldBounds()).toEqual(localBoundingBox);
+   });
+   
 });

@@ -50,13 +50,13 @@ logic or performing logic as you draw.
 
 ### Update Loop
 
-The first operation run is the [[Engine._update|update]] loop. [[Actor]] and [[Scene]] both implement
+The first operation run is the **Update** loop. [[Actor]] and [[Scene]] both implement
 an overridable/extendable `update` method. Use it to perform any logic-based operations
 in your game for a particular class.
 
 ### Draw Loop
 
-The next step is the [[Engine._draw|draw]] loop. A [[Scene]] loops through its child [[Actor|actors]] and
+The next step is the **Draw** loop. A [[Scene]] loops through its child [[Actor|actors]] and
 draws each one. You can override the `draw` method on an actor to customize its drawing.
 You should **not** perform any logic in a draw call, it should only relate to drawing.
 
@@ -98,7 +98,7 @@ of the canvas, but you can leave them at 0 or `undefined` to ignore them. If wid
 are not specified, the game won't be scaled and native resolution will be the physical screen
 width/height.
 
-If you use [[ex.DisplayMode.Container]], the canvas will automatically resize to fit inside of
+If you use [[DisplayMode.Container]], the canvas will automatically resize to fit inside of
 it's parent DOM element. This allows you maximum control over the game viewport, e.g. in case
 you want to provide HTML UI on top or as part of your game.
 

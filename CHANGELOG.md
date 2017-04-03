@@ -4,22 +4,47 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-### Breaking Changes
+### Added
+- Added `Engine.getWorldBounds`, this method provide the user with a quick way to get the top left corner and bottom right corner of the screen in a BoundingBox so the user does not have to caluclate it themselves. This resovles issue ([#729](https://github.com/excaliburjs/Excalibur/issues/729))
+- Added predraw and postdraw events to `Engine` class. These events happen when prior to and after a draw ([#744](https://github.com/excaliburjs/Excalibur/issues/744))
+### Changed
+- Rename `Engine.width` and `Engine.height` to be `Engine.canvasWidth` and `Engine.canvasHeight` ([#591](https://github.com/excaliburjs/Excalibur/issues/591))
+- Rename `Engine.getWidth` and `Engine.getHeight` to be `Engine.getDrawWidth` and `Engine.getDrawHeight` ([#591](https://github.com/excaliburjs/Excalibur/issues/591))
+- Changed `Util.extend` to include `Object.assign` functionality. Resolves issue ([#763](https://github.com/excaliburjs/Excalibur/issues/763))
+### Deprecated
+### Removed
+### Fixed
+
+## [0.9.0] 2017-02-09
 
 ### Added
+- Added `Engine.isPaused` to retrieve the running status of Engine ([#750](https://github.com/excaliburjs/Excalibur/issues/750))
+- Added `preupdate`, `postupdate`, `predraw`, `postdraw` events to TileMap
+- Added `ex.Random` with seed support via Mersenne Twister algorithm ([#538](https://github.com/excaliburjs/Excalibur/issues/538))
 - Added extended feature detection and reporting to `ex.Detector` ([#707](https://github.com/excaliburjs/Excalibur/issues/707))
   - `ex.Detector.getBrowserFeatures()` to retrieve the support matrix of the current browser
   - `ex.Detector.logBrowserFeatures()` to log the support matrix to the console (runs at startup when in Debug mode)
+- Added @obsolete decorator to help give greater visibility to deprecated methods ([#684](https://github.com/excaliburjs/Excalibur/issues/684))
+- Added better support for module loaders and TypeScript importing. See [Installation](http://docs.excaliburjs.com/en/latest/installation.html) docs for more info. ([#606](https://github.com/excaliburjs/Excalibur/issues/606))
+- Added new Excalibur example project templates ([#706](https://github.com/excaliburjs/Excalibur/issues/706), [#733](https://github.com/excaliburjs/Excalibur/issues/733)):
+  - [Browserify](https://github.com/excaliburjs/example-ts-browserify)
+  - [Webpack](https://github.com/excaliburjs/example-ts-webpack)
+  - [Angular2](https://github.com/excaliburjs/example-ts-angular2)
+  - [Universal Windows Platform (UWP)](https://github.com/excaliburjs/example-uwp)
+  - [Apache Cordova](https://github.com/excaliburjs/example-cordova)
+  - [Xamarin Forms](https://github.com/excaliburjs/example-xamarin)
+  - [Electron](https://github.com/excaliburjs/example-electron)
+- Added `Pointer.lastPagePos`, `Pointer.lastScreenPos` and `Pointer.lastWorldPos` that store the last pointer move coordinates ([#509](https://github.com/excaliburjs/Excalibur/issues/509))
 
 ### Changed
 - Changed Util.clamp to use math libraries ([#536](https://github.com/excaliburjs/Excalibur/issues/536))
-
-### Deprecated
-
-### Removed
+- Upgraded to TypeScript 2.1.4 ([#726](https://github.com/excaliburjs/Excalibur/issues/726))
 
 ### Fixed
 - Fixed Scene/Actor activation and initialization order, actors were not being initialized before scene activation causing bugs ([#661](https://github.com/excaliburjs/Excalibur/issues/661))
+- Fixed bug with Excalibur where it would not load if a loader was provided without any resources ([#565](https://github.com/excaliburjs/Excalibur/issues/565))
+- Fixed bug where an Actor/UIActor/TileMap added during a Timer callback would not initialize before running `draw` loop. ([#584](https://github.com/excaliburjs/Excalibur/issues/584))
+- Fixed bug where on slower systems a Sprite may not be drawn on the first `draw` frame ([#748](https://github.com/excaliburjs/Excalibur/issues/748))
 
 ## [0.8.0] 2016-12-04
 
@@ -327,7 +352,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Promise implementation for managing asynchronous behavior
 - Resource loading with optional custom progress bars
 
-[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/excaliburjs/Excalibur/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/excaliburjs/Excalibur/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/excaliburjs/Excalibur/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/excaliburjs/Excalibur/compare/v0.6.0...v0.7.0

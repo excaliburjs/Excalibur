@@ -1,187 +1,192 @@
-﻿module ex {
-    export var CollisionJumpTable = {
+﻿import { CircleArea } from './CircleArea';
+import { CollisionContact } from './CollisionContact';
+import { PolygonArea } from './PolygonArea';
+import { EdgeArea } from './EdgeArea';
 
-        CollideCircleCircle(circleA: CircleArea, circleB: CircleArea): CollisionContact {
+import { Vector } from '../Algebra';
 
-            var radius = circleA.radius + circleB.radius;
-            var circleAPos = circleA.body.pos.add(circleA.pos);
-            var circleBPos = circleB.body.pos.add(circleB.pos);
-            if (circleAPos.distance(circleBPos) > radius) {
-                return null;
-            }
+export var CollisionJumpTable = {
 
-            var axisOfCollision = circleBPos.sub(circleAPos).normalize();
-            var mvt = axisOfCollision.scale(radius - circleBPos.distance(circleAPos));
+   CollideCircleCircle(circleA: CircleArea, circleB: CircleArea): CollisionContact {
 
-            var pointOfCollision = circleA.getFurthestPoint(axisOfCollision);
+      var radius = circleA.radius + circleB.radius;
+      var circleAPos = circleA.body.pos.add(circleA.pos);
+      var circleBPos = circleB.body.pos.add(circleB.pos);
+      if (circleAPos.distance(circleBPos) > radius) {
+         return null;
+      }
 
-            return new CollisionContact(circleA, circleB, mvt, pointOfCollision, axisOfCollision);
-        },
+      var axisOfCollision = circleBPos.sub(circleAPos).normalize();
+      var mvt = axisOfCollision.scale(radius - circleBPos.distance(circleAPos));
 
-        CollideCirclePolygon(circle: CircleArea, polygon: PolygonArea): CollisionContact {
+      var pointOfCollision = circleA.getFurthestPoint(axisOfCollision);
 
-            var axes = polygon.getAxes();
-            var cc = circle.getCenter();
+      return new CollisionContact(circleA, circleB, mvt, pointOfCollision, axisOfCollision);
+   },
 
-            var pc = polygon.getCenter();
+   CollideCirclePolygon(circle: CircleArea, polygon: PolygonArea): CollisionContact {
 
-            var minAxis = circle.testSeparatingAxisTheorem(polygon);
-            if (!minAxis) {
-                return null;
-            }
-   
-            // make sure that the minAxis is pointing away from circle
-            var samedir = minAxis.dot(polygon.getCenter().sub(circle.getCenter()));
-            minAxis = samedir < 0 ? minAxis.negate() : minAxis;
+      var axes = polygon.getAxes();
+      var cc = circle.getCenter();
 
-            var verts: Vector[] = [];
+      var pc = polygon.getCenter();
 
-            var point1 = polygon.getFurthestPoint(minAxis.negate());
-            var point2 = circle.getFurthestPoint(minAxis); //.add(cc);
-            if (circle.contains(point1)) {
-                verts.push(point1);
-            }
-            if (polygon.contains(point2)) {
-                verts.push(point2);
-            }
-            if (verts.length === 0) {
-                verts.push(point2);
-            }
+      var minAxis = circle.testSeparatingAxisTheorem(polygon);
+      if (!minAxis) {
+         return null;
+      }
 
-            return new CollisionContact(circle, polygon, minAxis,
-                verts.length === 2 ? verts[0].average(verts[1]) : verts[0], minAxis.normalize());
-        },
+      // make sure that the minAxis is pointing away from circle
+      var samedir = minAxis.dot(polygon.getCenter().sub(circle.getCenter()));
+      minAxis = samedir < 0 ? minAxis.negate() : minAxis;
 
-        CollideCircleEdge(circle: CircleArea, edge: EdgeArea): CollisionContact {
-            // center of the circle
-            var cc = circle.getCenter();
-            // vector in the direction of the edge
-            var e = edge.end.sub(edge.begin);
+      var verts: Vector[] = [];
 
-            // amount of overlap with the circle's center along the edge direction
-            var u = e.dot(edge.end.sub(cc));
-            var v = e.dot(cc.sub(edge.begin));
+      var point1 = polygon.getFurthestPoint(minAxis.negate());
+      var point2 = circle.getFurthestPoint(minAxis); //.add(cc);
+      if (circle.contains(point1)) {
+         verts.push(point1);
+      }
+      if (polygon.contains(point2)) {
+         verts.push(point2);
+      }
+      if (verts.length === 0) {
+         verts.push(point2);
+      }
 
-            // Potential region A collision (circle is on the left side of the edge, before the beginning)
-            if (v <= 0) {
-                var da = edge.begin.sub(cc);
-                var dda = da.dot(da); // quick and dirty way of calc'n distance in r^2 terms saves some sqrts
-                // save some sqrts
-                if (dda > circle.radius * circle.radius) {
-                    return null; // no collision
-                }
-                return new CollisionContact(circle, edge, da.normalize().scale(circle.radius - Math.sqrt(dda)), edge.begin, da.normalize());
-            }
+      return new CollisionContact(circle, polygon, minAxis,
+         verts.length === 2 ? verts[0].average(verts[1]) : verts[0], minAxis.normalize());
+   },
 
-            // Potential region B collision (circle is on the right side of the edge, after the end)
-            if (u <= 0) {
-                var db = edge.end.sub(cc);
-                var ddb = db.dot(db);
-                if (ddb > circle.radius * circle.radius) {
-                    return null;
-                }
-                return new CollisionContact(circle, edge, db.normalize().scale(circle.radius - Math.sqrt(ddb)), edge.end, db.normalize());
-            }
+   CollideCircleEdge(circle: CircleArea, edge: EdgeArea): CollisionContact {
+      // center of the circle
+      var cc = circle.getCenter();
+      // vector in the direction of the edge
+      var e = edge.end.sub(edge.begin);
 
-            // Otherwise potential region AB collision (circle is in the middle of the edge between the beginning and end)
-            var den = e.dot(e);
-            var pointOnEdge = (edge.begin.scale(u).add(edge.end.scale(v))).scale(1 / den);
-            var d = cc.sub(pointOnEdge);
+      // amount of overlap with the circle's center along the edge direction
+      var u = e.dot(edge.end.sub(cc));
+      var v = e.dot(cc.sub(edge.begin));
 
-            var dd = d.dot(d);
-            if (dd > circle.radius * circle.radius) {
-                return null; // no collision
-            }
+      // Potential region A collision (circle is on the left side of the edge, before the beginning)
+      if (v <= 0) {
+         var da = edge.begin.sub(cc);
+         var dda = da.dot(da); // quick and dirty way of calc'n distance in r^2 terms saves some sqrts
+         // save some sqrts
+         if (dda > circle.radius * circle.radius) {
+            return null; // no collision
+         }
+         return new CollisionContact(circle, edge, da.normalize().scale(circle.radius - Math.sqrt(dda)), edge.begin, da.normalize());
+      }
 
-            var n = e.perpendicular();
-            // flip correct direction
-            if (n.dot(cc.sub(edge.begin)) < 0) {
-                n.x = -n.x;
-                n.y = -n.y;
-            }
-
-            n = n.normalize();
-
-            var mvt = n.scale(Math.abs(circle.radius - Math.sqrt(dd)));
-            return new CollisionContact(circle, edge, mvt.negate(), pointOnEdge, n.negate());
-
-        },
-
-        CollideEdgeEdge(edgeA: EdgeArea, edgeB: EdgeArea): CollisionContact {
-            // Edge-edge collision doesn't make sense
+      // Potential region B collision (circle is on the right side of the edge, after the end)
+      if (u <= 0) {
+         var db = edge.end.sub(cc);
+         var ddb = db.dot(db);
+         if (ddb > circle.radius * circle.radius) {
             return null;
-        },
+         }
+         return new CollisionContact(circle, edge, db.normalize().scale(circle.radius - Math.sqrt(ddb)), edge.end, db.normalize());
+      }
 
-        CollidePolygonEdge(polygon: PolygonArea, edge: EdgeArea): CollisionContact {
-            var center = polygon.getCenter();
-            var e = edge.end.sub(edge.begin);
-            var edgeNormal = e.normal();
+      // Otherwise potential region AB collision (circle is in the middle of the edge between the beginning and end)
+      var den = e.dot(e);
+      var pointOnEdge = (edge.begin.scale(u).add(edge.end.scale(v))).scale(1 / den);
+      var d = cc.sub(pointOnEdge);
 
-            var u = e.dot(edge.end.sub(center));
-            var v = e.dot(center.sub(edge.begin));
+      var dd = d.dot(d);
+      if (dd > circle.radius * circle.radius) {
+         return null; // no collision
+      }
 
-            var den = e.dot(e);
-            var pointOnEdge = (edge.begin.scale(u).add(edge.end.scale(v))).scale(1 / den);
-            var d = center.sub(pointOnEdge);
+      var n = e.perpendicular();
+      // flip correct direction
+      if (n.dot(cc.sub(edge.begin)) < 0) {
+         n.x = -n.x;
+         n.y = -n.y;
+      }
 
-            // build a temporary polygon from the edge to use SAT
-            var linePoly = new PolygonArea({
-                points: [
-                    edge.begin,
-                    edge.end,
-                    edge.end.sub(edgeNormal.scale(10)),
-                    edge.begin.sub(edgeNormal.scale(10))]
-            });
+      n = n.normalize();
 
-            var minAxis = polygon.testSeparatingAxisTheorem(linePoly);
+      var mvt = n.scale(Math.abs(circle.radius - Math.sqrt(dd)));
+      return new CollisionContact(circle, edge, mvt.negate(), pointOnEdge, n.negate());
 
-            // no minAxis, no overlap, no collision
-            if (!minAxis) {
-                return null;
-            }
+   },
 
-            return new CollisionContact(polygon, edge, minAxis, polygon.getFurthestPoint(edgeNormal.negate()), edgeNormal.negate());
-        },
+   CollideEdgeEdge(edgeA: EdgeArea, edgeB: EdgeArea): CollisionContact {
+      // Edge-edge collision doesn't make sense
+      return null;
+   },
 
-        CollidePolygonPolygon(polyA: PolygonArea, polyB: PolygonArea): CollisionContact {
-            // get all axes from both polys
-            var axes = polyA.getAxes().concat(polyB.getAxes());
-            // get all points from both polys
-            var points = polyA.getTransformedPoints().concat(polyB.getTransformedPoints());
-            
-            // do a SAT test to find a min axis if it exists
-            var minAxis = polyA.testSeparatingAxisTheorem(polyB);
+   CollidePolygonEdge(polygon: PolygonArea, edge: EdgeArea): CollisionContact {
+      var center = polygon.getCenter();
+      var e = edge.end.sub(edge.begin);
+      var edgeNormal = e.normal();
 
-            // no overlap, no collision return null
-            if (!minAxis) {
-                return null;
-            }
+      var u = e.dot(edge.end.sub(center));
+      var v = e.dot(center.sub(edge.begin));
 
-            // make sure that minAxis is pointing from A -> B
-            var sameDir = minAxis.dot(polyB.getCenter().sub(polyA.getCenter()));
-            minAxis = sameDir < 0 ? minAxis.negate() : minAxis;
+      var den = e.dot(e);
+      var pointOnEdge = (edge.begin.scale(u).add(edge.end.scale(v))).scale(1 / den);
+      var d = center.sub(pointOnEdge);
 
-            // find rough point of collision
-            // todo this could be better
-            var verts: Vector[] = [];
-            var pointA = polyA.getFurthestPoint(minAxis);
-            var pointB = polyB.getFurthestPoint(minAxis.negate());
+      // build a temporary polygon from the edge to use SAT
+      var linePoly = new PolygonArea({
+         points: [
+            edge.begin,
+            edge.end,
+            edge.end.sub(edgeNormal.scale(10)),
+            edge.begin.sub(edgeNormal.scale(10))]
+      });
 
-            if (polyB.contains(pointA)) {
-                verts.push(pointA);
-            }
+      var minAxis = polygon.testSeparatingAxisTheorem(linePoly);
 
-            if (polyA.contains(pointB)) {
-                verts.push(pointB);
-            }
-            // no candidates, pick something
-            if (verts.length === 0) {
-                verts.push(pointB);
-            }
+      // no minAxis, no overlap, no collision
+      if (!minAxis) {
+         return null;
+      }
 
-            var contact = verts.length === 2 ? verts[0].add(verts[1]).scale(.5) : verts[0];
+      return new CollisionContact(polygon, edge, minAxis, polygon.getFurthestPoint(edgeNormal.negate()), edgeNormal.negate());
+   },
 
-            return new CollisionContact(polyA, polyB, minAxis, contact, minAxis.normalize());
-        }
-    };
-}
+   CollidePolygonPolygon(polyA: PolygonArea, polyB: PolygonArea): CollisionContact {
+      // get all axes from both polys
+      var axes = polyA.getAxes().concat(polyB.getAxes());
+      // get all points from both polys
+      var points = polyA.getTransformedPoints().concat(polyB.getTransformedPoints());
+
+      // do a SAT test to find a min axis if it exists
+      var minAxis = polyA.testSeparatingAxisTheorem(polyB);
+
+      // no overlap, no collision return null
+      if (!minAxis) {
+         return null;
+      }
+
+      // make sure that minAxis is pointing from A -> B
+      var sameDir = minAxis.dot(polyB.getCenter().sub(polyA.getCenter()));
+      minAxis = sameDir < 0 ? minAxis.negate() : minAxis;
+
+      // find rough point of collision
+      // todo this could be better
+      var verts: Vector[] = [];
+      var pointA = polyA.getFurthestPoint(minAxis);
+      var pointB = polyB.getFurthestPoint(minAxis.negate());
+
+      if (polyB.contains(pointA)) {
+         verts.push(pointA);
+      }
+
+      if (polyA.contains(pointB)) {
+         verts.push(pointB);
+      }
+      // no candidates, pick something
+      if (verts.length === 0) {
+         verts.push(pointB);
+      }
+
+      var contact = verts.length === 2 ? verts[0].add(verts[1]).scale(.5) : verts[0];
+
+      return new CollisionContact(polyA, polyB, minAxis, contact, minAxis.normalize());
+   }
+};

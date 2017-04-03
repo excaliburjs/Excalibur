@@ -5,7 +5,7 @@
             "name": "Attach to  test",
             "type": "phantomjs",
             "request": "launch",
-            "preLaunchTask": "compiledebug",
+            "preLaunchTask": "debug",
             //"verboseDiagnosticLogging": true,
             "port": 8888,
             "file": "${workspaceRoot}\\TestsSpec.js",
@@ -13,7 +13,6 @@
             "runtimeExecutable": "${workspaceRoot}\\node_modules\\phantomjs-prebuilt\\lib\\phantom\\bin\\phantomjs.exe",
             "runtimeArgs": [],
             "scriptArgs": [],
-            //"sourceMapPathOverrides": ["${workspaceRoot}\\src\\spec\\TestsSpec.js"],
             "sourceMaps": true
         },
         {

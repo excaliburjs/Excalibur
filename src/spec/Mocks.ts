@@ -84,8 +84,8 @@ module Mocks {
             touchMove: [],
             touchEnd: [],
             touchCancel: [],
-            width: width,
-            height: height,
+            canvasWidth: width,
+            canvasHeight: height,
             scenes: {},
             _animations: [],
             _logger : {
@@ -127,8 +127,8 @@ module Mocks {
                rotate: function () { /* do nothing */ },
                scale: function () { /* do nothing */ }
             },
-            getWidth: function () { return width; },
-            getHeight: function () { return height; },
+            getDrawWidth: function () { return width; },
+            getDrawHeight: function () { return height; },
             worldToScreenCoordinates: ex.Engine.prototype.worldToScreenCoordinates,
             screenToWorldCoordinates: ex.Engine.prototype.screenToWorldCoordinates,
             addScene: ex.Engine.prototype.addScene,
@@ -202,15 +202,6 @@ module Mocks {
          };
          
          return mockWindow;
-      };
-      
-      URL() {
-         return {
-            createObjectURL(data: any) {
-               return 'blob://' + data;
-            }
-         };
-      }
-      
+      };            
    }
 }

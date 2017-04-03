@@ -1,87 +1,89 @@
-﻿/// <reference path="../Actor.ts"/>
-/// <reference path="Side.ts"/>
-/// <reference path="ICollisionResolver.ts"/> 
+﻿import { Physics } from './../Physics';
+import { CollisionContact } from './CollisionContact';
+import { Pair } from './Pair';
+import { Actor, CollisionType } from './../Actor';
+import { Body } from './Body';
+import { ICollisionBroadphase } from './ICollisionResolver';
+import { CollisionResolutionStrategy } from '../Physics';
 
-module ex {
-   export class NaiveCollisionBroadphase implements ICollisionBroadphase {
-      
-      public track(target: Body) {
-         // pass
-      }
+export class NaiveCollisionBroadphase implements ICollisionBroadphase {
 
-      public untrack(tartet: Body) {
-         // pass
-      }
+   public track(target: Body) {
+      // pass
+   }
 
-      /**
-       * Detects potential collision pairs in a broadphase approach with the dynamic aabb tree strategy
-       */
-      public broadphase(targets: Actor[], delta: number): Pair[] {
+   public untrack(tartet: Body) {
+      // pass
+   }
 
-         // Retrieve the list of potential colliders, exclude killed, prevented, and self
-         var potentialColliders = targets.filter((other) => {
-            return !other.isKilled() && other.collisionType !== CollisionType.PreventCollision;
-         });
+   /**
+    * Detects potential collision pairs in a broadphase approach with the dynamic aabb tree strategy
+    */
+   public broadphase(targets: Actor[], delta: number): Pair[] {
 
-         var actor1: Actor;
-         var actor2: Actor;
-         var collisionPairs: Pair[] = [];
+      // Retrieve the list of potential colliders, exclude killed, prevented, and self
+      var potentialColliders = targets.filter((other) => {
+         return !other.isKilled() && other.collisionType !== CollisionType.PreventCollision;
+      });
 
-         for (var j = 0, l = potentialColliders.length; j < l; j++) {
+      var actor1: Actor;
+      var actor2: Actor;
+      var collisionPairs: Pair[] = [];
 
-            actor1 = potentialColliders[j];
+      for (var j = 0, l = potentialColliders.length; j < l; j++) {
 
-            for (var i = j + 1; i < l; i++) {
+         actor1 = potentialColliders[j];
 
-               actor2 = potentialColliders[i];
+         for (var i = j + 1; i < l; i++) {
 
-               var minimumTranslationVector;
-               if (minimumTranslationVector = actor1.collides(actor2)) {
-                  var pair = new Pair(actor1.body, actor2.body);
-                  var side = actor1.getSideFromIntersect(minimumTranslationVector);
-                  pair.collision = new CollisionContact(actor1.collisionArea, 
-                                                           actor2.collisionArea, 
-                                                           minimumTranslationVector, 
-                                                           actor1.pos, 
-                                                           minimumTranslationVector);
-                  if (!collisionPairs.some((cp) => {
-                     return cp.id === pair.id;
-                  })) {
-                     collisionPairs.push(pair);
-                  }
+            actor2 = potentialColliders[i];
+
+            var minimumTranslationVector;
+            if (minimumTranslationVector = actor1.collides(actor2)) {
+               var pair = new Pair(actor1.body, actor2.body);
+               var side = actor1.getSideFromIntersect(minimumTranslationVector);
+               pair.collision = new CollisionContact(actor1.collisionArea,
+                  actor2.collisionArea,
+                  minimumTranslationVector,
+                  actor1.pos,
+                  minimumTranslationVector);
+               if (!collisionPairs.some((cp) => {
+                  return cp.id === pair.id;
+               })) {
+                  collisionPairs.push(pair);
                }
             }
-
          }
 
-         var k = 0, len = collisionPairs.length;
-         for (k; k < len; k++) {
-            collisionPairs[k].resolve(delta, ex.Physics.collisionResolutionStrategy);
-         }
-         
-         return collisionPairs;
       }
 
-      /**
-       * Identify actual collisions from those pairs, and calculate collision impulse
-       */
-      narrowphase(pairs: Pair[]) {
-         // pass
-      }
-      
-      /**
-       * Resolve the position and velocity of the physics bodies
-       */
-      resolve(delta: number, strategy: CollisionResolutionStrategy) {
-         // pass
+      var k = 0, len = collisionPairs.length;
+      for (k; k < len; k++) {
+         collisionPairs[k].resolve(delta, Physics.collisionResolutionStrategy);
       }
 
-      public update(targets: Actor[]): number {
-         return 0;
-      }
+      return collisionPairs;
+   }
 
-      public debugDraw(ctx: CanvasRenderingContext2D, delta: number) {
-         return;
-      }
+   /**
+    * Identify actual collisions from those pairs, and calculate collision impulse
+    */
+   narrowphase(pairs: Pair[]) {
+      // pass
+   }
+
+   /**
+    * Resolve the position and velocity of the physics bodies
+    */
+   resolve(delta: number, strategy: CollisionResolutionStrategy) {
+      // pass
+   }
+
+   public update(targets: Actor[]): number {
+      return 0;
+   }
+
+   public debugDraw(ctx: CanvasRenderingContext2D, delta: number) {
+      return;
    }
 }

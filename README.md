@@ -53,35 +53,31 @@ allow the widest contributions possible. You can always use your own preferred e
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) (4.x+) & npm (tools like currently only support node 4.x+)
-- [Grunt.js](http://gruntjs.com/)
-  - `npm install grunt-cli -g`
 
-After cloning the repository, install the dependencies:
+After cloning the repository, run:
 
 ```sh
-npm install grunt-cli -g
 npm install
 ```
 
-You can then run the grunt tasks for various purposes:
+You can then run the npm tasks for various purposes:
 
 ```bash
 # Run compilation, linting, and all unit & visual tests
 # Recommend to do this before finalizing pull requests
-grunt
+npm run all
 
 # Run engine core compilation only
-grunt compile
+npm run compile
 
-# Run engine compilation & tests only
-grunt tests    
+# Run engine tests only (does not run compile task)
+npm run tests
 
-# Run sandbox compilation only
-grunt sample
-
-# Run visual tests compilation only
-grunt visual
+# Compile HTML visual tests
+npm run visual
 ```
+
+Advanced users can optionally install `grunt-cli` and run the grunt tasks (same task names).
 
 Local debugging is supported in vscode by installing the PhantomJS Debugger extension `iradul.debugger-for-phantomjs`
 
@@ -115,29 +111,28 @@ npm shrinkwrap --dev
 
 Excalibur is open source and operates under the 2-clause BSD license:
 
+	BSD 2-Clause License
+
 	Copyright (c) 2014, Erik Onarheim
 	All rights reserved.
-	
+
 	Redistribution and use in source and binary forms, with or without
-	modification, are permitted provided that the following conditions are met: 
-	
-	1. Redistributions of source code must retain the above copyright notice, this
-	   list of conditions and the following disclaimer. 
-	2. Redistributions in binary form must reproduce the above copyright notice,
-	   this list of conditions and the following disclaimer in the documentation
-	   and/or other materials provided with the distribution. 
-	
-	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-	DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-	ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-	(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-	LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-	ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-	
-	The views and conclusions contained in the software and documentation are those
-	of the authors and should not be interpreted as representing official policies, 
-	either expressed or implied, of the FreeBSD Project.
+	modification, are permitted provided that the following conditions are met:
+
+	* Redistributions of source code must retain the above copyright notice, this
+	  list of conditions and the following disclaimer.
+
+	* Redistributions in binary form must reproduce the above copyright notice,
+	  this list of conditions and the following disclaimer in the documentation
+	  and/or other materials provided with the distribution.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+	AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+	IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+	DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+	FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+	DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+	SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+	CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

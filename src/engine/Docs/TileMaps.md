@@ -98,7 +98,7 @@ game.start();
 ```
 
 In a real game, you will want to ensure all the textures for the sprite sheets
-have been loaded. You could do this in the [[Resource.processDownload]] function
+have been loaded. You could do this in the [[Resource.processData]] function
 of the generic resource when loading your JSON, before creating your `Map` object.
 
 ## Off-screen culling
