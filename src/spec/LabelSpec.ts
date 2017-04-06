@@ -18,6 +18,7 @@ describe('A label', () => {
       });
 
       label = new ex.Label('Test string', 100, 100);
+      label.fontFamily = 'Helvetica';
       scene = new ex.Scene(engine);
       engine.currentScene = scene;
 
