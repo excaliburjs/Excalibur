@@ -18,7 +18,7 @@ describe('A label', () => {
       });
 
       label = new ex.Label('Test string', 100, 100);
-      label.fontFamily = 'Helvetica';
+      label.fontFamily = 'Courier New, monospace';
       scene = new ex.Scene(engine);
       engine.currentScene = scene;
 
@@ -138,6 +138,6 @@ describe('A label', () => {
       label.color = ex.Color.Blue;
       label.textAlign = ex.TextAlign.Center;
       label.draw(engine.ctx, 100);
-      expect(label.getTextWidth(engine.ctx)).toBe(281);
+      expect(label.getTextWidth(engine.ctx)).toBe(360);
    });
 });
