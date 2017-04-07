@@ -47,11 +47,11 @@ export class CollisionContact {
       this.normal = normal;
    }
 
-   resolve(delta: number, strategy: CollisionResolutionStrategy) {
+   resolve(strategy: CollisionResolutionStrategy) {
       if (strategy === CollisionResolutionStrategy.RigidBody) {
-         this._resolveRigidBodyCollision(delta);
+         this._resolveRigidBodyCollision();
       } else if (strategy === CollisionResolutionStrategy.Box) {
-         this._resolveBoxCollision(delta);
+         this._resolveBoxCollision();
       } else {
          throw new Error('Unknown collision resolution strategy');
       }
@@ -131,7 +131,7 @@ export class CollisionContact {
       }
    }
 
-   private _resolveBoxCollision(delta: number) {
+   private _resolveBoxCollision() {
       var bodyA = this.bodyA.body.actor;
       var bodyB = this.bodyB.body.actor;
       var side = Util.getSideFromVector(this.mtv);
@@ -145,13 +145,12 @@ export class CollisionContact {
       this._applyBoxImpluse(bodyB, bodyA, mtv.negate(), Util.getOppositeSide(side));
    }
 
-   private _resolveRigidBodyCollision(delta: number) {
+   private _resolveRigidBodyCollision() {
 
       // perform collison on bounding areas
       var bodyA: Body = this.bodyA.body;
       var bodyB: Body = this.bodyB.body;
       var mtv = this.mtv; // normal pointing away from bodyA
-      var point = this.point; // world space collision point
       var normal = this.normal; // normal pointing away from bodyA
       if (bodyA.actor === bodyB.actor) { // sanity check for existing pairs
          return;

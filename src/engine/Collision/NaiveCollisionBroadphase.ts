@@ -2,24 +2,22 @@
 import { CollisionContact } from './CollisionContact';
 import { Pair } from './Pair';
 import { Actor, CollisionType } from './../Actor';
-import { Body } from './Body';
 import { ICollisionBroadphase } from './ICollisionResolver';
-import { CollisionResolutionStrategy } from '../Physics';
 
 export class NaiveCollisionBroadphase implements ICollisionBroadphase {
 
-   public track(target: Body) {
+   public track() {
       // pass
    }
 
-   public untrack(tartet: Body) {
+   public untrack() {
       // pass
    }
 
    /**
     * Detects potential collision pairs in a broadphase approach with the dynamic aabb tree strategy
     */
-   public broadphase(targets: Actor[], delta: number): Pair[] {
+   public broadphase(targets: Actor[]): Pair[] {
 
       // Retrieve the list of potential colliders, exclude killed, prevented, and self
       var potentialColliders = targets.filter((other) => {
@@ -41,7 +39,6 @@ export class NaiveCollisionBroadphase implements ICollisionBroadphase {
             var minimumTranslationVector;
             if (minimumTranslationVector = actor1.collides(actor2)) {
                var pair = new Pair(actor1.body, actor2.body);
-               var side = actor1.getSideFromIntersect(minimumTranslationVector);
                pair.collision = new CollisionContact(actor1.collisionArea,
                   actor2.collisionArea,
                   minimumTranslationVector,
@@ -59,7 +56,7 @@ export class NaiveCollisionBroadphase implements ICollisionBroadphase {
 
       var k = 0, len = collisionPairs.length;
       for (k; k < len; k++) {
-         collisionPairs[k].resolve(delta, Physics.collisionResolutionStrategy);
+         collisionPairs[k].resolve(Physics.collisionResolutionStrategy);
       }
 
       return collisionPairs;
@@ -68,22 +65,22 @@ export class NaiveCollisionBroadphase implements ICollisionBroadphase {
    /**
     * Identify actual collisions from those pairs, and calculate collision impulse
     */
-   narrowphase(pairs: Pair[]) {
+   narrowphase() {
       // pass
    }
 
    /**
     * Resolve the position and velocity of the physics bodies
     */
-   resolve(delta: number, strategy: CollisionResolutionStrategy) {
+   resolve() {
       // pass
    }
 
-   public update(targets: Actor[]): number {
+   public update(): number {
       return 0;
    }
 
-   public debugDraw(ctx: CanvasRenderingContext2D, delta: number) {
+   public debugDraw() {
       return;
    }
 }

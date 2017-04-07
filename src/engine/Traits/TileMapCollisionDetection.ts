@@ -6,7 +6,7 @@ import { Side } from '../Collision/Side';
 import { CollisionEvent } from '../Events';
 
 export class TileMapCollisionDetection implements IActorTrait { 
-   public update(actor: Actor, engine: Engine, delta: number) {
+   public update(actor: Actor, engine: Engine) {
       var eventDispatcher = actor.eventDispatcher;
       if (actor.collisionType !== CollisionType.PreventCollision && engine.currentScene && engine.currentScene.tileMaps) {            
 

@@ -1,6 +1,6 @@
 {
   "name": "excalibur",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "dependencies": {
     "abbrev": {
       "version": "1.0.9",
@@ -332,15 +332,15 @@
       "dev": true
     },
     "csproj2ts": {
-      "version": "0.0.7",
-      "from": "csproj2ts@0.0.7",
-      "resolved": "./node_shrinkwrap/csproj2ts-0.0.7.tar",
+      "version": "0.0.8",
+      "from": "csproj2ts@>=0.0.8 <0.0.9",
+      "resolved": "./node_shrinkwrap/csproj2ts-0.0.8.tar",
       "dev": true,
       "dependencies": {
-        "es6-promise": {
-          "version": "2.3.0",
-          "from": "es6-promise@>=2.0.1 <3.0.0",
-          "resolved": "./node_shrinkwrap/es6-promise-2.3.0.tar",
+        "lodash": {
+          "version": "4.17.4",
+          "from": "lodash@^4.17.4",
+          "resolved": "./node_shrinkwrap/lodash-4.17.4.tar",
           "dev": true
         }
       }
@@ -910,9 +910,9 @@
       "dev": true
     },
     "grunt-ts": {
-      "version": "6.0.0-beta.3",
-      "from": "grunt-ts@latest",
-      "resolved": "./node_shrinkwrap/grunt-ts-6.0.0-beta.3.tar",
+      "version": "6.0.0-beta.10",
+      "from": "grunt-ts@6.0.0-beta.10",
+      "resolved": "./node_shrinkwrap/grunt-ts-6.0.0-beta.10.tar",
       "dev": true,
       "dependencies": {
         "es6-promise": {
@@ -922,9 +922,9 @@
           "dev": true
         },
         "lodash": {
-          "version": "4.17.3",
-          "from": "lodash@>=4.13.0 <5.0.0",
-          "resolved": "./node_shrinkwrap/lodash-4.17.3.tar",
+          "version": "4.17.4",
+          "from": "lodash@>=4.17.4 <5.0.0",
+          "resolved": "./node_shrinkwrap/lodash-4.17.4.tar",
           "dev": true
         },
         "rimraf": {
@@ -1772,9 +1772,9 @@
       "dev": true
     },
     "sax": {
-      "version": "1.2.1",
+      "version": "1.2.2",
       "from": "sax@>=0.6.0",
-      "resolved": "./node_shrinkwrap/sax-1.2.1.tar",
+      "resolved": "./node_shrinkwrap/sax-1.2.2.tar",
       "dev": true
     },
     "semver": {
@@ -2034,12 +2034,6 @@
       "resolved": "./node_shrinkwrap/uglify-to-browserify-1.0.2.tar",
       "dev": true
     },
-    "underscore": {
-      "version": "1.5.1",
-      "from": "underscore@1.5.1",
-      "resolved": "./node_shrinkwrap/underscore-1.5.1.tar",
-      "dev": true
-    },
     "underscore.string": {
       "version": "3.2.3",
       "from": "underscore.string@>=3.2.3 <3.3.0",
@@ -2125,9 +2119,9 @@
       "dev": true,
       "dependencies": {
         "lodash": {
-          "version": "4.17.3",
+          "version": "4.17.4",
           "from": "lodash@^4.0.0",
-          "resolved": "./node_shrinkwrap/lodash-4.17.3.tar",
+          "resolved": "./node_shrinkwrap/lodash-4.17.4.tar",
           "dev": true
         }
       }

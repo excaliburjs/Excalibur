@@ -14,7 +14,26 @@ export const TwoPI: number = Math.PI * 2;
  * @param objects The objects whose properties to merge
  * @returns Merged object with properties from other objects
  */
-export function extend(deep: boolean, target, ...objects);
+export function extend(deep: boolean, target: any, ...objects: any[]): any;
+
+/**
+ * Merges one or more objects into a single target object
+ * 
+ * @param target The target object to attach properties on
+ * @param object2 The second object whose properties to merge
+ * @returns Merged object with properties from other objects
+ */
+export function extend<T1, T2>(target: T1, object2: T2): T1 & T2;
+
+/**
+ * Merges one or more objects into a single target object
+ * 
+ * @param target The target object to attach properties on
+ * @param object2 The second object whose properties to merge
+ * @param object3 The third object whose properties to merge
+ * @returns Merged object with properties from other objects
+ */
+export function extend<T1, T2, T3>(target: T1, object2: T2, object3: T3): T1 & T2 & T3;
 
 /**
  * Merges one or more objects into a single target object
@@ -23,7 +42,7 @@ export function extend(deep: boolean, target, ...objects);
  * @param objects The objects whose properties to merge
  * @returns Merged object with properties from other objects
  */
-export function extend(target, ...objects);
+export function extend(target: any, ...objects: any[]): any;
 
 /**
  * Merges one or more objects into a single target object
@@ -32,7 +51,7 @@ export function extend(target, ...objects);
  * @credit https://gomakethings.com/vanilla-javascript-version-of-jquery-extend/
  */
 export function extend() {
-   var extended = {};
+   var extended: { [key: string]: any } = {};
    var deep = false;
    var i = 0;
    var length = arguments.length;
@@ -47,7 +66,7 @@ export function extend() {
    var assignExists = typeof (<any>Object).assign === 'function';
    var merge = null;
    if (!assignExists) {
-      merge = function (obj) {
+      merge = function (obj: any) {
          for (var prop in obj) {
             if (Object.prototype.hasOwnProperty.call(obj, prop)) {
                // If deep merge and property is an object, merge properties
@@ -126,15 +145,15 @@ export function randomIntInRange(min: number, max: number): number {
 
 export function canonicalizeAngle(angle: number): number {
    var tmpAngle = angle;
-   if (angle > this.TwoPI) {
-      while (tmpAngle > this.TwoPI) {
-         tmpAngle -= this.TwoPI;
+   if (angle > TwoPI) {
+      while (tmpAngle > TwoPI) {
+         tmpAngle -= TwoPI;
       }
    }
 
    if (angle < 0) {
       while (tmpAngle < 0) {
-         tmpAngle += this.TwoPI;
+         tmpAngle += TwoPI;
       }
    }
    return tmpAngle;
@@ -209,12 +228,6 @@ export function getOppositeSide(side: Side) {
 }
 
 export function getSideFromVector(direction: Vector) {
-   var left = direction.dot(Vector.Left);
-   var right = direction.dot(Vector.Right);
-   var up = direction.dot(Vector.Up);
-   var down = direction.dot(Vector.Down);
-
-   // a very fortran approach
    var directions = [Vector.Left, Vector.Right, Vector.Up, Vector.Down];
    var directionEnum = [Side.Left, Side.Right, Side.Top, Side.Bottom];
 
@@ -304,7 +317,8 @@ export class Collection<T> {
     */
    public elementAt(index: number): T {
       if (index >= this.count()) {
-         return;
+         //Logger.getInstance().error('Invalid parameter: ' + index);
+         throw new Error('Invalid index ' + index);
       }
       return this._internalArray[index];
    }
@@ -327,7 +341,10 @@ export class Collection<T> {
     */
    public remove(index: number): T {
       var count = this.count();
-      if (count === 0) { return; }
+      if (count === 0) {
+        //Logger.getInstance().error('Invalid parameter: ' + index);
+         throw new Error('Invalid parameter ' + index); 
+       }
       // O(n) Shift 
       var removed = this._internalArray[index];
       for (var i = index; i < count; i++) {

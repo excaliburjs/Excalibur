@@ -112,7 +112,7 @@ export class Body {
    /**
     * Returns the body's [[BoundingBox]] calculated for this instant in world space.
     */
-   public getBounds() {
+   public getBounds(): BoundingBox {
       if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Box) {
          return this.actor.getBounds();
       } else {
@@ -123,7 +123,7 @@ export class Body {
    /**
     * Returns the actor's [[BoundingBox]] relative to the actors position.
     */
-   public getRelativeBounds() {
+   public getRelativeBounds(): BoundingBox {
       if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Box) {
          return this.actor.getRelativeBounds();
       } else {
@@ -200,7 +200,7 @@ export class Body {
     * 
     * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
     */
-   public useEdgeCollision(begin: Vector, end: Vector, center: Vector = Vector.Zero.clone()) {
+   public useEdgeCollision(begin: Vector, end: Vector) {
       this.collisionArea = new EdgeArea({
          begin: begin,
          end: end,

@@ -103,7 +103,7 @@ export class PolygonArea implements ICollisionArea {
       // Always cast to the right, as long as we cast in a consitent fixed direction we
       // will be fine
       var testRay = new Ray(point, new Vector(1, 0));
-      var intersectCount = this.getSides().reduce(function (accum, side, i, arr) {
+      var intersectCount = this.getSides().reduce(function (accum, side) {
          if (testRay.intersect(side) >= 0) {
             return accum + 1;
          }
@@ -276,8 +276,6 @@ export class PolygonArea implements ICollisionArea {
     * Project the edges of the polygon along a specified axis
     */
    public project(axis: Vector): Projection {
-      var scalars = [];
-
       var points = this.getTransformedPoints();
       var len = points.length;
       var min = Number.MAX_VALUE;
@@ -298,7 +296,7 @@ export class PolygonArea implements ICollisionArea {
       // Iterate through the supplied points and construct a 'polygon'
       var firstPoint = this.getTransformedPoints()[0];
       ctx.moveTo(firstPoint.x, firstPoint.y);
-      this.getTransformedPoints().forEach(function (point, i) {
+      this.getTransformedPoints().forEach(function (point) {
          ctx.lineTo(point.x, point.y);
       });
       ctx.lineTo(firstPoint.x, firstPoint.y);
