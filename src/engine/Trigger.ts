@@ -74,7 +74,7 @@ export class Trigger extends Actor {
       this.repeats--;
    }
 
-   public draw() {
+   public draw(_ctx: CanvasRenderingContext2D, _delta: number) {
       // does not draw
       return;
    }
