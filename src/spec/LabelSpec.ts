@@ -18,7 +18,7 @@ describe('A label', () => {
       });
 
       label = new ex.Label('Test string', 100, 100);
-      label.fontFamily = 'Courier New, monospace';
+      label.fontFamily = 'Verdana';
       scene = new ex.Scene(engine);
       engine.currentScene = scene;
 
