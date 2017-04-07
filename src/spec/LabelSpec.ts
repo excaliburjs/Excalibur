@@ -1,5 +1,6 @@
 ﻿/// <reference path="jasmine.d.ts" />
 /// <reference path="support/js-imagediff.d.ts" />
+/// <reference path="support/platform.d.ts" />
 /// <reference path="require.d.ts" />
 /// <reference path="Mocks.ts" />
 
@@ -22,7 +23,9 @@ describe('A label', () => {
       scene = new ex.Scene(engine);
       engine.currentScene = scene;
 
-      scene.add(label);		        
+      scene.add(label);
+
+      console.log('============================\n OS:' + platform.os.family);
    });
 
    it('should be loaded', () => {
@@ -138,6 +141,6 @@ describe('A label', () => {
       label.color = ex.Color.Blue;
       label.textAlign = ex.TextAlign.Center;
       label.draw(engine.ctx, 100);
-      expect(label.getTextWidth(engine.ctx)).toBe(360);
+      expect(label.getTextWidth(engine.ctx)).toBe(335);
    });
 });

@@ -61,6 +61,7 @@ module.exports = function (grunt) {
                'src/spec/support/phantom-jasmine-invoker.js',
                'src/spec/support/js-imagediff.js',
                'build/dist/excalibur.js',
+               'src/spec/support/platform.js',
                'src/spec/*.ts',
                'node_modules/source-map-support/browser-source-map-support.js',
                'src/spec/support/start-tests.js'
@@ -233,6 +234,7 @@ module.exports = function (grunt) {
             options: {
                vendor: [
                   'src/spec/support/js-imagediff.js', 
+                  'src/spec/support/platform.js', 
                   'src/spec/Mocks.js', 
                   'src/spec/TestUtils.js'/*, 
                   'src/spec/support/sourcemaps.js'*/
