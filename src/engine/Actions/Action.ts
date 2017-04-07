@@ -107,7 +107,7 @@ export class MoveTo implements IAction {
       this._speed = speed;
    }
 
-   public update(): void {
+   public update(_delta: number): void {
       if (!this._started) {
          this._started = true;
          this._start = new Vector(this._actor.pos.x, this._actor.pos.y);
@@ -165,7 +165,7 @@ export class MoveBy implements IAction {
 
    }
 
-   public update() {
+   public update(_delta: number) {
       if (!this._started) {
          this._started = true;
          this._start = new Vector(this._actor.pos.x, this._actor.pos.y);
@@ -225,7 +225,7 @@ export class Follow implements IAction {
       this._speed = 0;
    }
 
-   public update() : void {
+   public update(_delta: number) : void {
       if (!this._started) {
          this._started = true;
          this._distanceBetween = this._current.distance(this._end);
@@ -304,7 +304,7 @@ export class Meet implements IAction {
       }
    }
 
-   public update() : void {
+   public update(_delta: number) : void {
       if (!this._started) {
          this._started = true;
          this._distanceBetween = this._current.distance(this._end);
@@ -373,7 +373,7 @@ export class RotateTo implements IAction {
       this._rotationType = rotationType || RotationType.ShortestPath;
    }
 
-   public update(): void {
+   public update(_delta: number): void {
       if (!this._started) {
          this._started = true;
          this._start = this._actor.rotation;
@@ -472,7 +472,7 @@ export class RotateBy implements IAction {
       this._rotationType = rotationType || RotationType.ShortestPath;
    }
 
-   public update(): void {
+   public update(_delta: number): void {
       if (!this._started) {
          this._started = true;
          this._start = this._actor.rotation;
@@ -573,7 +573,7 @@ export class ScaleTo implements IAction {
 
    }
 
-   public update(): void {
+   public update(_delta: number): void {
       if (!this._started) {
          this._started = true;
          this._startX = this._actor.scale.x;
@@ -645,7 +645,7 @@ export class ScaleBy implements IAction {
       this._speedY = (this._endY - this._actor.scale.y) / time * 1000;
    }
 
-   public update(): void {
+   public update(_delta: number): void {
       if (!this._started) {
          this._started = true;
          this._startX = this._actor.scale.x;
@@ -842,7 +842,7 @@ export class Die implements IAction {
       this._actor = actor;
    }
 
-   public update(): void {
+   public update(_delta: number): void {
       this._actor.actionQueue.clearActions();
       this._actor.kill();
       this._stopped = true;
@@ -868,7 +868,7 @@ export class CallMethod implements IAction {
       this._method = method;
    }
 
-   public update() {
+   public update(_delta: number) {
       this._method.call(this._actor);
       this._hasBeenCalled = true;
    }
