@@ -51,7 +51,7 @@ export enum PointerScope {
  *
  * For mouse-based events, you can inspect [[PointerEvent.button]] to see what button was pressed.
  */
-export class PointerEvent extends GameEvent {
+export class PointerEvent extends GameEvent<any> {
 
    /**
     * @param x            The `x` coordinate of the event (in world coordinates)
@@ -74,7 +74,7 @@ export class PointerEvent extends GameEvent {
                public index: number, 
                public pointerType: PointerType, 
                public button: PointerButton, 
-               public ev) {
+               public ev: any) {
       super();
    }
 };
@@ -104,12 +104,12 @@ export class Pointers extends Class {
       this.primary = this._pointers[0];
    }
 
-   public on(eventName: Events.up, handler: (event?: PointerEvent) => void);
-   public on(eventName: Events.down, handler: (event?: PointerEvent) => void);
-   public on(eventName: Events.move, handler: (event?: PointerEvent) => void);
-   public on(eventName: Events.cancel, handler: (event?: PointerEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void) {
+   public on(eventName: Events.up, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.down, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.move, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.cancel, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void {
       super.on(eventName, handler);
    }
 
@@ -162,7 +162,7 @@ export class Pointers extends Class {
       }
    }
 
-   public update(delta: number): void {
+   public update(): void {
       this._pointerUp.length = 0;
       this._pointerDown.length = 0;
       this._pointerMove.length = 0;
@@ -327,7 +327,7 @@ export class Pointers extends Class {
       return -1;
    }
 
-   private _stringToPointerType(s) {
+   private _stringToPointerType(s: string) {
       switch (s) {
          case 'touch':
             return PointerType.Touch;

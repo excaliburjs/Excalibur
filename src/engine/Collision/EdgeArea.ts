@@ -79,7 +79,7 @@ export class EdgeArea implements ICollisionArea {
    /**
     * Tests if a point is contained in this collision area
     */
-   public contains(point: Vector): boolean {
+   public contains(): boolean {
       return false;
    }
 
@@ -122,7 +122,7 @@ export class EdgeArea implements ICollisionArea {
       } else if (area instanceof PolygonArea) {
          return CollisionJumpTable.CollidePolygonEdge(area, this);
       } else if (area instanceof EdgeArea) {
-         return CollisionJumpTable.CollideEdgeEdge(this, area);
+         return CollisionJumpTable.CollideEdgeEdge();
       } else {
          throw new Error(`Edge could not collide with unknown ICollisionArea ${typeof area}`);
       }

@@ -427,7 +427,7 @@ export class Actor extends Class implements IActionable, IEvented {
     * This is called before the first update of the actor. This method is meant to be
     * overridden. This is where initialization of child actors should take place.
     */
-   public onInitialize(engine: Engine): void {
+   public onInitialize(_engine: Engine): void {
       // Override me
    }
 
@@ -445,7 +445,7 @@ export class Actor extends Class implements IActionable, IEvented {
    public _initialize(engine: Engine) {
       if (!this.isInitialized) {
          this.onInitialize(engine);
-         this.eventDispatcher.emit('initialize', new InitializeEvent(engine));
+         this.eventDispatcher.emit('initialize', new InitializeEvent(engine, this));
          this._isInitialized = true;
       }
       for (var child of this.children) {
@@ -465,20 +465,20 @@ export class Actor extends Class implements IActionable, IEvented {
       }
    }
 
-   public on(eventName: Events.kill, handler: (event?: KillEvent) => void);
-   public on(eventName: Events.initialize, handler: (event?: InitializeEvent) => void);
-   public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void);
-   public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void);
-   public on(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void);
-   public on(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void);
-   public on(eventName: Events.predebugdraw, handler: (event?: PreDebugDrawEvent) => void);
-   public on(eventName: Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void);
-   public on(eventName: Events.pointerup, handler: (event?: PointerEvent) => void);
-   public on(eventName: Events.pointerdown, handler: (event?: PointerEvent) => void);
-   public on(eventName: Events.pointermove, handler: (event?: PointerEvent) => void);
-   public on(eventName: Events.pointercancel, handler: (event?: PointerEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void) {
+   public on(eventName: Events.kill, handler: (event?: KillEvent) => void): void;
+   public on(eventName: Events.initialize, handler: (event?: InitializeEvent) => void): void;
+   public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
+   public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): void;
+   public on(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void): void;
+   public on(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void): void;
+   public on(eventName: Events.predebugdraw, handler: (event?: PreDebugDrawEvent) => void): void;
+   public on(eventName: Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void): void;
+   public on(eventName: Events.pointerup, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.pointerdown, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.pointermove, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.pointercancel, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void {
       this._checkForPointerOptIn(eventName);
       this.eventDispatcher.on(eventName, handler);
    }
@@ -537,14 +537,14 @@ export class Actor extends Class implements IActionable, IEvented {
     * the key.
     * @param key The key of the drawing
     */
-   public setDrawing(key: string);
+   public setDrawing(key: string): void;
    /**
     * Sets the current drawing of the actor to the drawing corresponding to
     * an `enum` key (e.g. `Animations.Left`)
     * @param key The `enum` key of the drawing
     */
-   public setDrawing(key: number);
-   public setDrawing(key: any) {
+   public setDrawing(key: number): void;
+   public setDrawing(key: any): void {
       key = key.toString();
       if (this.currentDrawing !== this.frames[<string>key]) {
          if (this.frames[key] != null) {
@@ -559,18 +559,18 @@ export class Actor extends Class implements IActionable, IEvented {
    /**
     * Adds a whole texture as the "default" drawing. Set a drawing using [[setDrawing]].
     */
-   public addDrawing(texture: Texture);
+   public addDrawing(texture: Texture): void;
    /**
     * Adds a whole sprite as the "default" drawing. Set a drawing using [[setDrawing]].
     */
-   public addDrawing(sprite: Sprite);
+   public addDrawing(sprite: Sprite): void;
    /**
     * Adds a drawing to the list of available drawings for an actor. Set a drawing using [[setDrawing]].
     * @param key     The key to associate with a drawing for this actor
     * @param drawing This can be an [[Animation]], [[Sprite]], or [[Polygon]]. 
     */
-   public addDrawing(key: any, drawing: IDrawable);
-   public addDrawing(args: any) {
+   public addDrawing(key: any, drawing: IDrawable): void;
+   public addDrawing(): void {
       if (arguments.length === 2) {
          this.frames[<string>arguments[0]] = arguments[1];
          if (!this.currentDrawing) {
@@ -655,7 +655,7 @@ export class Actor extends Class implements IActionable, IEvented {
    /**
     * Sets the width of an actor, factoring in the current scale
     */
-   public setWidth(width) {
+   public setWidth(width: number) {
       this._width = width / this.scale.x;
    }
    /**
@@ -667,7 +667,7 @@ export class Actor extends Class implements IActionable, IEvented {
    /**
     * Sets the height of an actor, factoring in the current scale
     */
-   public setHeight(height) {
+   public setHeight(height: number) {
       this._height = height / this.scale.y;
    }
    /**
@@ -731,14 +731,14 @@ export class Actor extends Class implements IActionable, IEvented {
       }
 
       // calculate position       
-      var x = parents.reduceRight((px, p, i, arr) => {
+      var x = parents.reduceRight((px, p) => {
          if (p.parent) {
             return px + (p.pos.x * p.getGlobalScale().x);
          }
          return px + p.pos.x;
       }, 0);
 
-      var y = parents.reduceRight((py, p, i, arr) => {
+      var y = parents.reduceRight((py, p) => {
          if (p.parent) {
             return py + (p.pos.y * p.getGlobalScale().y);
          }
@@ -1060,7 +1060,7 @@ export class Actor extends Class implements IActionable, IEvented {
       ctx.arc(this.getWorldPos().x, this.getWorldPos().y, radius, 0, Math.PI * 2);
       ctx.closePath();
       ctx.stroke();
-      var ticks = {
+      var ticks: { [key: string]: number } = {
          '0 Pi': 0,
          'Pi/2': Math.PI / 2,
          'Pi': Math.PI,

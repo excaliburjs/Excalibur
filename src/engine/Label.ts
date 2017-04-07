@@ -1,7 +1,6 @@
 import { Engine } from './Engine';
 import { Color } from './Drawing/Color';
 import { SpriteFont } from './Drawing/SpriteSheet';
-import { Sprite } from './Drawing/Sprite';
 import { Actor, CollisionType } from './Actor';
 
 
@@ -159,12 +158,6 @@ export class Label extends Actor {
    private _shadowOffsetX: number = 0;
    private _shadowOffsetY: number = 0;
    private _shadowColor: Color = Color.Black.clone();
-   private _shadowColorDirty: boolean = false;
-
-   private _textSprites: { [key: string]: Sprite; } = {};
-   private _shadowSprites: { [key: string]: Sprite; } = {};
-
-   private _color: Color = Color.Black.clone();
 
    /**
     * @param text        The text of the label
@@ -314,16 +307,16 @@ export class Label extends Actor {
       if (this._textShadowOn) {
          ctx.save();
          ctx.translate(this._shadowOffsetX, this._shadowOffsetY);
-         this._fontDraw(ctx, delta, this._shadowSprites);
+         this._fontDraw(ctx);
          ctx.restore();
       }
-      this._fontDraw(ctx, delta, this._textSprites);
+      this._fontDraw(ctx);
 
       super.draw(ctx, delta);
       ctx.restore();
    }
 
-   private _fontDraw(ctx: CanvasRenderingContext2D, delta: number, sprites: { [key: string]: Sprite; }) {
+   private _fontDraw(ctx: CanvasRenderingContext2D) {
 
       if (this.spriteFont) {
          this.spriteFont.draw(ctx, this.text, 0, 0, {

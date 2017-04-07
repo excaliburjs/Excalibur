@@ -16,7 +16,7 @@ export interface ICapturePointerConfig {
  */
 export class CapturePointer implements IActorTrait {
 
-   public update(actor: Actor, engine: Engine, delta: number) {
+   public update(actor: Actor, engine: Engine) {
       if (!actor.enableCapturePointer) { return; }
       if (actor.isKilled()) { return; }
       
