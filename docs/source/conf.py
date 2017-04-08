@@ -15,6 +15,51 @@
 import sys
 import os
 
+#
+# Custom API TOC injection
+#
+import cPickle as pickle
+import json
+import urllib2
+from sphinx import addnodes
+from docutils.parsers.rst.directives.html import MetaBody
+
+def do_env_update(app, env):
+
+    # Fetch latest GitHub release via API
+    gh_release = json.load(urllib2.urlopen("https://api.github.com/repos/excaliburjs/Excalibur/releases/latest"))
+    tag_name = gh_release["tag_name"]
+    toc_entry = (tag_name + " (latest stable)", "http://excaliburjs.com/docs/api/" + tag_name)
+
+    the_doctree = env.get_doctree("index") 
+    for toc in the_doctree.traverse(addnodes.toctree): 
+        if toc["caption"] == "API Documentation":
+            toc["entries"].append(toc_entry)
+
+    ## Need to write the pickle back to disk, so copied this 
+    ## from the topickle method. Possible API addition...? 
+    the_doctree.reporter = None 
+    the_doctree.transformer = None 
+    the_doctree.settings.warning_stream = None 
+    the_doctree.settings.env = None 
+    the_doctree.settings.record_dependencies = None 
+
+    for metanode in the_doctree.traverse(MetaBody.meta): 
+        # docutils' meta nodes aren't picklable because the class is nested 
+        metanode.__class__ = addnodes.meta 
+
+    file_name = env.doc2path("index", env.doctreedir, ".doctree")
+
+    with open(file_name, 'wb') as f: 
+        pickle.dump(the_doctree, f, pickle.HIGHEST_PROTOCOL)
+
+    for toc in env.tocs["index"].traverse(addnodes.toctree):  
+        if toc["caption"] == "API Documentation":
+            toc["entries"].append(toc_entry)
+
+def setup(app):    
+    app.connect('env-updated', do_env_update)
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
