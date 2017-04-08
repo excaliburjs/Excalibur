@@ -46,7 +46,7 @@ export class Resource<T> extends Class implements ILoadable {
       return uri;
    }
 
-   private _start(e: any) {
+   private _start() {
       this.logger.debug('Started loading resource ' + this.path);
    }
 
@@ -67,10 +67,10 @@ export class Resource<T> extends Class implements ILoadable {
       var request = new XMLHttpRequest();
       request.open('GET', this.bustCache ? this._cacheBust(this.path) : this.path, true);
       request.responseType = this.responseType;
-      request.onloadstart = (e) => { this._start(e); };
+      request.onloadstart = () => { this._start(); };
       request.onprogress = this.onprogress;
       request.onerror = this.onerror;
-      request.onload = (e) => {
+      request.onload = () => {
 
          // XHR on file:// success status is 0, such as with PhantomJS
          if (request.status !== 0 && request.status !== 200) {

@@ -68,7 +68,7 @@ export class Gamepads extends Class {
    private _enableAndUpdate() {
       if (!this.enabled) {
          this.enabled = true;
-         this.update(100);
+         this.update();
       }
    }
    
@@ -78,11 +78,11 @@ export class Gamepads extends Class {
    private _isGamepadValid(pad: INavigatorGamepad) : boolean {
       if (!this._minimumConfiguration) { return true; };
       if (!pad) { return false; };
-      var axesLength = pad.axes.filter((value, index, array) => {
+      var axesLength = pad.axes.filter((value) => {
          return (typeof value !== undefined);
       }).length;
       
-      var buttonLength = pad.buttons.filter((value, index, array) => {
+      var buttonLength = pad.buttons.filter((value) => {
          return (typeof value !== undefined);
       }).length;
       return axesLength >= this._minimumConfiguration.axis && 
@@ -90,17 +90,17 @@ export class Gamepads extends Class {
                pad.connected;
    }
    
-   public on(eventName: Events.connect, handler: (event?: GamepadConnectEvent) => void);
-   public on(eventName: Events.disconnect, handler: (event?: GamepadDisconnectEvent) => void);
-   public on(eventName: Events.button, handler: (event?: GamepadButtonEvent) => void);
-   public on(eventName: Events.axis, handler: (event?: GamepadAxisEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void) {
+   public on(eventName: Events.connect, handler: (event?: GamepadConnectEvent) => void): void;
+   public on(eventName: Events.disconnect, handler: (event?: GamepadDisconnectEvent) => void): void;
+   public on(eventName: Events.button, handler: (event?: GamepadButtonEvent) => void): void;
+   public on(eventName: Events.axis, handler: (event?: GamepadAxisEvent) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void {
       this._enableAndUpdate(); // implicitly enable
       super.on(eventName, handler);  
    }
    
-   public off(eventName: string, handler?: (event?: GameEvent) => void) {
+   public off(eventName: string, handler?: (event?: GameEvent<any>) => void) {
       this._enableAndUpdate(); // implicitly enable
       super.off(eventName, handler);  
    }
@@ -108,7 +108,7 @@ export class Gamepads extends Class {
    /**
     * Updates Gamepad state and publishes Gamepad events
     */
-   public update(delta: number) {
+   public update() {
       if (!this.enabled || !this.supported) { return; }
       this.init();
 
@@ -117,13 +117,13 @@ export class Gamepads extends Class {
       for (var i = 0; i < gamepads.length; i++) {
 
          if (!gamepads[i]) {
-
+            let gamepad = this.at(i);
             // If was connected, but now isn't emit the disconnect event
-            if (this.at(i).connected) {
-               this.eventDispatcher.emit('disconnect', new GamepadDisconnectEvent(i));
+            if (gamepad.connected) {
+               this.eventDispatcher.emit('disconnect', new GamepadDisconnectEvent(i, gamepad));
             }
             // Reset connection status
-            this.at(i).connected = false;
+            gamepad.connected = false;
             continue;
          } else {
 
@@ -155,7 +155,7 @@ export class Gamepads extends Class {
                   if (value !== this._oldPads[i].getButton(bi)) {
                      if (gamepads[i].buttons[bi].pressed) {
                         this.at(i).updateButton(bi, value);
-                        this.at(i).eventDispatcher.emit('button', new GamepadButtonEvent(bi, value));
+                        this.at(i).eventDispatcher.emit('button', new GamepadButtonEvent(bi, value, this.at(i)));
                      } else {
                         this.at(i).updateButton(bi, 0);
                      }
@@ -171,7 +171,7 @@ export class Gamepads extends Class {
                value = gamepads[i].axes[ai];
                if (value !== this._oldPads[i].getAxes(ai)) {
                   this.at(i).updateAxes(ai, value);
-                  this.at(i).eventDispatcher.emit('axis', new GamepadAxisEvent(ai, value));
+                  this.at(i).eventDispatcher.emit('axis', new GamepadAxisEvent(ai, value, this.at(i)));
                }
             }
          }                      

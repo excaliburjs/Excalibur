@@ -131,7 +131,7 @@ export class Vector {
     * Scales a vector's by a factor of size
     * @param size  The factor to scale the magnitude by
     */
-   public scale(size): Vector {
+   public scale(size: number): Vector {
       return new Vector(this.x * size, this.y * size);
    }
 
@@ -383,6 +383,8 @@ export class Line {
          return new Vector(x, (m * x) + b);
       } else if (y !== null) {
          return new Vector((y - b) / m, y);
+      } else {
+        throw new Error('You must provide an X or a Y value');
       }
    }
 

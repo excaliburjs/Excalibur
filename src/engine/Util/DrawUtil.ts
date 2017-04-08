@@ -103,9 +103,13 @@ export function roundRect(ctx: CanvasRenderingContext2D,
    if (typeof radius === 'number') {
       br = {tl: radius, tr: radius, br: radius, bl: radius};
    } else {
-      var defaultRadius: IBorderRadius = {tl: 0, tr: 0, br: 0, bl: 0};
-      for (var side in defaultRadius) {
-         br[side] = radius[side] || defaultRadius[side];
+      var defaultRadius: IBorderRadius = { tl: 0, tr: 0, br: 0, bl: 0 };
+      
+      for (var prop in defaultRadius) {
+         if (defaultRadius.hasOwnProperty(prop)) {
+            let side = <keyof IBorderRadius>prop;
+            br[side] = radius[side] || defaultRadius[side];
+         }
       }
    }
 

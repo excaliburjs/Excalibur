@@ -34,10 +34,6 @@ export class Texture extends Resource<HTMLImageElement> {
     */
    public image: HTMLImageElement;
 
-   private _progressCallback: (progress: number, total: number) => void;
-   private _doneCallback: () => void;
-   private _errorCallback: (e: string) => void;
-
    /**
     * @param path       Path to the image resource
     * @param bustCache  Optionally load texture with cache busting
