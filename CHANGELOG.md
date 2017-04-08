@@ -21,7 +21,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - Added `Engine.isPaused` to retrieve the running status of Engine ([#750](https://github.com/excaliburjs/Excalibur/issues/750))
-- Added `Engine.getWorldBounds`to provide a quick way to get the top left corner and bottom right corner of the screen ([#729](https://github.com/excaliburjs/Excalibur/issues/729))
+- Added `Engine.getWorldBounds` to provide a quick way to get the top left corner and bottom right corner of the screen ([#729](https://github.com/excaliburjs/Excalibur/issues/729))
 - Added predraw and postdraw events to `Engine` class. These events happen when prior to and after a draw ([#744](https://github.com/excaliburjs/Excalibur/issues/744))
 - Added Perlin noise generation helper `ex.PerlinGenerator` for 1d, 2d, and 3d noise, along with drawing utilities ([#491](https://github.com/excaliburjs/Excalibur/issues/491))
 - Added font styles support for normal, italic, and oblique in addition to bold text support ([#563](https://github.com/excaliburjs/Excalibur/issues/563))
