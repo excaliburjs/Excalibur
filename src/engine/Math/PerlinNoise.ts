@@ -127,7 +127,7 @@ export class PerlinGenerator {
     * Generates 3-Dimensional perlin noise given an (x, y, z) and generates noise values between [0, 1]
     */
    public noise(x: number, y: number, z: number): number;
-   public noise(args: any): number {
+   public noise(): number {
       var amp = this.amplitude;
       var freq = this.frequency;
 
