@@ -17,7 +17,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Breaking Changes
 - Rename `Engine.width` and `Engine.height` to be `Engine.canvasWidth` and `Engine.canvasHeight` ([#591](https://github.com/excaliburjs/Excalibur/issues/591))
 - Rename `Engine.getWidth` and `Engine.getHeight` to be `Engine.getDrawWidth` and `Engine.getDrawHeight` ([#591](https://github.com/excaliburjs/Excalibur/issues/591))
-- Changed `GameEvent` to be a generic type for TypeScript, allowing strongly typing the `target` property. ([#733](https://github.com/excaliburjs/Excalibur/pull/773))
+- Changed `GameEvent` to be a generic type for TypeScript, allowing strongly typing the `target` property. ([#724](https://github.com/excaliburjs/Excalibur/issue/724))
+- `Removed Body.useEdgeCollision()` parameter `center` ([#724](https://github.com/excaliburjs/Excalibur/issue/724))
 
 ### Added
 - Added `Engine.isPaused` to retrieve the running status of Engine ([#750](https://github.com/excaliburjs/Excalibur/issues/750))
