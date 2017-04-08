@@ -30,7 +30,7 @@ export * from './Actions/Index';
 export * from './Collision/Index';
 export * from './Drawing/Index';
 export * from './Interfaces/Index';
-export * from './Math/Random';
+export * from './Math/Index';
 export * from './PostProcessing/Index';
 export * from './Resources/Index';
 
