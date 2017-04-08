@@ -93,7 +93,7 @@ you can use [[Engine.currentScene]] to directly access the current scene.
 
 Excalibur supports multiple [[DisplayMode|display modes]] for a game. Pass in a `displayMode`
 option when creating a game to customize the viewport.  
-The [[width]] and [[height]] are still used to represent the native width and height 
+The [[canvasWidth]] and [[canvasHeight]] are still used to represent the native width and height 
 of the canvas, but you can leave them at 0 or `undefined` to ignore them. If width and height
 are not specified, the game won't be scaled and native resolution will be the physical screen
 width/height.
