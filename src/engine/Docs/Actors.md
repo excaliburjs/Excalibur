@@ -232,8 +232,6 @@ var actor = new ex.Actor();
 actor.collisionType = ex.CollisionType.Active;
 
 ```
-### Collision Groups
-TODO, needs more information.
 
 ## Traits
    
@@ -246,8 +244,3 @@ actors more efficient.
 Default traits provided by Excalibur are [["Traits/CapturePointer"|pointer capture]], 
 [["Traits/TileMapCollisionDetection"|tile map collision]], 
 and [["Traits/OffscreenCulling"|offscreen culling]].
-
-## Known Issues
-
-**Actor bounding boxes do not rotate**
-[Issue #68](https://github.com/excaliburjs/Excalibur/issues/68)
