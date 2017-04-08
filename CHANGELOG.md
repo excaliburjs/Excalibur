@@ -10,16 +10,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added predraw and postdraw events to `Engine` class. These events happen when prior to and after a draw ([#744](https://github.com/excaliburjs/Excalibur/issues/744))
 - Added Perlin noise generation helper `ex.PerlinGenerator` for 1d, 2d, and 3d noise, along with drawing utilities ([#491](https://github.com/excaliburjs/Excalibur/issues/491))
 - Added font styles support for normal, italic, and oblique in addition to bold text support ([#563](https://github.com/excaliburjs/Excalibur/issues/563))
+
 ### Changed
-- Update project to use TypeScript 2.2.2 ([#762](https://github.com/excaliburjs/Excalibur/issues/762))).
 - Rename `Engine.width` and `Engine.height` to be `Engine.canvasWidth` and `Engine.canvasHeight` ([#591](https://github.com/excaliburjs/Excalibur/issues/591))
 - Rename `Engine.getWidth` and `Engine.getHeight` to be `Engine.getDrawWidth` and `Engine.getDrawHeight` ([#591](https://github.com/excaliburjs/Excalibur/issues/591))
 - Changed `Util.extend` to include `Object.assign` functionality. Resolves issue ([#763](https://github.com/excaliburjs/Excalibur/issues/763))
-- Changed `GameEvent` to be a generic type for TypeScript, allowing strongly typing the `target` property. ([#733](https://github.com/excaliburjs/Excalibur/pull/773))
-### Deprecated
-### Removed
+- Changed `GameEvent` to be a generic type for TypeScript, allowing strongly typing the `target` property. ([#733](https://github.com/excaliburjs/Excalibur/issues/773)
+- Update project to use TypeScript 2.2.2 ([#762](https://github.com/excaliburjs/Excalibur/issues/762))
 ### Fixed
-
+- Updated the order of the affine transformations to fix issue when scaling and rotating an Actor ([#770](https://github.com/excaliburjs/Excalibur/issues/770))
 ## [0.9.0] 2017-02-09
 
 ### Added
