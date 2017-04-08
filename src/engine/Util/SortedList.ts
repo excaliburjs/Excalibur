@@ -35,7 +35,7 @@ export class SortedList<T> {
       return this._get(this._root, key);
    }
 
-   private _get(node: BinaryTreeNode, key: number) {
+   private _get(node: BinaryTreeNode, key: number): any[] {
       if (node == null) {
          return [];
       } else if (key === node.getKey()) {
@@ -125,6 +125,7 @@ export class SortedList<T> {
          node.setRight(this._remove(node.getRight(), element));
          return node;
       }
+      return null;
    }
 
    // called once we have successfully removed the element we wanted, recursively corrects the part of the tree below the removed node

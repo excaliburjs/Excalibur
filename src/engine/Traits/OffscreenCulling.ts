@@ -9,7 +9,7 @@ export class OffscreenCulling implements IActorTrait {
 
    public cullingBox: CullingBox = new CullingBox();
 
-   public update(actor: Actor, engine: Engine, delta: number) {
+   public update(actor: Actor, engine: Engine) {
       var eventDispatcher = actor.eventDispatcher;
       var anchor = actor.anchor;
       var globalScale = actor.getGlobalScale();
@@ -36,7 +36,7 @@ export class OffscreenCulling implements IActorTrait {
             actorScreenCoords.y > engine.canvasHeight) &&
             isSpriteOffScreen ) {
             
-            eventDispatcher.emit('exitviewport', new ExitViewPortEvent());
+            eventDispatcher.emit('exitviewport', new ExitViewPortEvent(actor));
             actor.isOffScreen = true;
          }
       } else {
@@ -46,7 +46,7 @@ export class OffscreenCulling implements IActorTrait {
             actorScreenCoords.y < engine.canvasHeight) ||
             !isSpriteOffScreen) {
             
-            eventDispatcher.emit('enterviewport', new EnterViewPortEvent());               
+            eventDispatcher.emit('enterviewport', new EnterViewPortEvent(actor));               
             actor.isOffScreen = false;
          }
       }

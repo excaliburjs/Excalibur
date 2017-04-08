@@ -37,9 +37,9 @@ export class Group extends Class implements IActionable, IEvented {
       }
    }
 
-   public add(actor: Actor);
-   public add(actors: Actor[]);
-   public add(actorOrActors: any) {
+   public add(actor: Actor): void;
+   public add(actors: Actor[]): void;
+   public add(actorOrActors: any): void {
       if (actorOrActors instanceof Actor) {
          actorOrActors = [].concat(actorOrActors);
       }
@@ -68,7 +68,7 @@ export class Group extends Class implements IActionable, IEvented {
 
    public move(vector: Vector): void;
    public move(dx: number, dy: number): void;
-   public move(args): void {
+   public move(args: Vector | number): void {
       var i = 0, members = this.getMembers(), len = members.length;
 
       if (arguments.length === 1 && args instanceof Vector) {
@@ -91,26 +91,26 @@ export class Group extends Class implements IActionable, IEvented {
    }
 
    public rotate(angle: number): void {
-      if (typeof arguments[0] === 'number') {
-         var r = arguments[0], i = 0, members = this.getMembers(), len = members.length;
-         for (i; i < len; i++) {
-            members[i].rotation += r;
-         }
-      } else {
+      if (typeof angle !== 'number') {
          this._logger.error('Invalid arguments passed to group rotate', this.name, 'args:', arguments);
+         return;
+      }
+
+      for (let member of this.getMembers()) {
+         member.rotation += angle;
       }
    }
 
 
-   public on(eventName: string, handler: (event?: GameEvent) => void) {
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void) {
       this.eventDispatcher.on(eventName, handler);
    }
 
-   public off(eventName: string, handler?: (event?: GameEvent) => void) {
+   public off(eventName: string, handler?: (event?: GameEvent<any>) => void) {
       this.eventDispatcher.off(eventName, handler);
    }
 
-   public emit(topic: string, event?: GameEvent) {
+   public emit(topic: string, event?: GameEvent<any>) {
       this.eventDispatcher.emit(topic, event);
    }
 

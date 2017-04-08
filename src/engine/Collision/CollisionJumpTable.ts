@@ -26,11 +26,6 @@ export var CollisionJumpTable = {
 
    CollideCirclePolygon(circle: CircleArea, polygon: PolygonArea): CollisionContact {
 
-      var axes = polygon.getAxes();
-      var cc = circle.getCenter();
-
-      var pc = polygon.getCenter();
-
       var minAxis = circle.testSeparatingAxisTheorem(polygon);
       if (!minAxis) {
          return null;
@@ -113,22 +108,14 @@ export var CollisionJumpTable = {
 
    },
 
-   CollideEdgeEdge(edgeA: EdgeArea, edgeB: EdgeArea): CollisionContact {
+   CollideEdgeEdge(): CollisionContact {
       // Edge-edge collision doesn't make sense
       return null;
    },
 
    CollidePolygonEdge(polygon: PolygonArea, edge: EdgeArea): CollisionContact {
-      var center = polygon.getCenter();
       var e = edge.end.sub(edge.begin);
       var edgeNormal = e.normal();
-
-      var u = e.dot(edge.end.sub(center));
-      var v = e.dot(center.sub(edge.begin));
-
-      var den = e.dot(e);
-      var pointOnEdge = (edge.begin.scale(u).add(edge.end.scale(v))).scale(1 / den);
-      var d = center.sub(pointOnEdge);
 
       // build a temporary polygon from the edge to use SAT
       var linePoly = new PolygonArea({
@@ -149,12 +136,7 @@ export var CollisionJumpTable = {
       return new CollisionContact(polygon, edge, minAxis, polygon.getFurthestPoint(edgeNormal.negate()), edgeNormal.negate());
    },
 
-   CollidePolygonPolygon(polyA: PolygonArea, polyB: PolygonArea): CollisionContact {
-      // get all axes from both polys
-      var axes = polyA.getAxes().concat(polyB.getAxes());
-      // get all points from both polys
-      var points = polyA.getTransformedPoints().concat(polyB.getTransformedPoints());
-
+   CollidePolygonPolygon(polyA: PolygonArea, polyB: PolygonArea): CollisionContact {      
       // do a SAT test to find a min axis if it exists
       var minAxis = polyA.testSeparatingAxisTheorem(polyB);
 

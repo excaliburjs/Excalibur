@@ -44,7 +44,7 @@ describe('A CollisionContact', () => {
                                        ex.Vector.Right.clone(), 
                                        new ex.Vector(10, 0), 
                                        ex.Vector.Right.clone());
-      cc.resolve(100, ex.CollisionResolutionStrategy.Box);      
+      cc.resolve(ex.CollisionResolutionStrategy.Box);      
 
       expect(actorA.x).toBe(-.5);
       expect(actorA.y).toBe(0);
@@ -71,7 +71,7 @@ describe('A CollisionContact', () => {
                                        ex.Vector.Right.clone(), 
                                        new ex.Vector(10, 0), 
                                        ex.Vector.Right.clone());
-      cc.resolve(100, ex.CollisionResolutionStrategy.Box);
+      cc.resolve(ex.CollisionResolutionStrategy.Box);
 
       expect(emittedA).toBe(true);
       expect(emittedB).toBe(true);
@@ -95,7 +95,7 @@ describe('A CollisionContact', () => {
                                        ex.Vector.Right.clone(), 
                                        new ex.Vector(10, 0), 
                                        ex.Vector.Right.clone());
-      cc.resolve(100, ex.CollisionResolutionStrategy.RigidBody);
+      cc.resolve(ex.CollisionResolutionStrategy.RigidBody);
 
       // mtv's are cached and not applied until all pairs are resolved, so we need to call it manually here
       actorA.body.applyMtv();
@@ -132,7 +132,7 @@ describe('A CollisionContact', () => {
                                        ex.Vector.Right.clone(), 
                                        new ex.Vector(10, 0), 
                                        ex.Vector.Right.clone());
-      cc.resolve(100, ex.CollisionResolutionStrategy.RigidBody);
+      cc.resolve(ex.CollisionResolutionStrategy.RigidBody);
 
       
 
