@@ -31,6 +31,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Update project to use TypeScript 2.2.2 ([#762](https://github.com/excaliburjs/Excalibur/issues/762))
 - Changed `Util.extend` to include `Object.assign` functionality ([#763](https://github.com/excaliburjs/Excalibur/issues/763))
 
+### Fixed
+- Update the order of the affine transformations to fix bug when scaling and rotating Actors ([#770](https://github.com/excaliburjs/Excalibur/issues/770))
+
 ## [0.9.0] 2017-02-09
 
 ### Added
