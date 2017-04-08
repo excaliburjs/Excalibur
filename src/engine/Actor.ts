@@ -981,8 +981,8 @@ export class Actor extends Class implements IActionable, IEvented {
    public draw(ctx: CanvasRenderingContext2D, delta: number) {
       ctx.save();
       ctx.translate(this.pos.x, this.pos.y);
-      ctx.scale(this.scale.x, this.scale.y);
       ctx.rotate(this.rotation);
+      ctx.scale(this.scale.x, this.scale.y);
 
       // translate canvas by anchor offset
       ctx.save();

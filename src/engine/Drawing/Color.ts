@@ -7,101 +7,6 @@
  */
 export class Color {
    /**
-    * Black (#000000)
-    */
-   public static Black: Color = Color.fromHex('#000000');
-
-   /**
-    * White (#FFFFFF)
-    */
-   public static White: Color = Color.fromHex('#FFFFFF');
-
-   /**
-    * Gray (#808080)
-    */
-   public static Gray: Color = Color.fromHex('#808080');
-
-   /**
-    * Light gray (#D3D3D3)
-    */
-   public static LightGray: Color = Color.fromHex('#D3D3D3');
-
-   /**
-    * Dark gray (#A9A9A9)
-    */
-   public static DarkGray: Color = Color.fromHex('#A9A9A9');
-
-   /**
-    * Yellow (#FFFF00)
-    */
-   public static Yellow: Color = Color.fromHex('#FFFF00');
-
-   /**
-    * Orange (#FFA500)
-    */
-   public static Orange: Color = Color.fromHex('#FFA500');
-
-   /**
-    * Red (#FF0000)
-    */
-   public static Red: Color = Color.fromHex('#FF0000');
-
-   /**
-    * Vermillion (#FF5B31)
-    */
-   public static Vermillion: Color = Color.fromHex('#FF5B31');
-
-   /**
-    * Rose (#FF007F)
-    */
-   public static Rose: Color = Color.fromHex('#FF007F');
-
-   /**
-    * Magenta (#FF00FF)
-    */
-   public static Magenta: Color = Color.fromHex('#FF00FF');
-
-   /**
-    * Violet (#7F00FF)
-    */
-   public static Violet: Color = Color.fromHex('#7F00FF');
-
-   /**
-    * Blue (#0000FF)
-    */
-   public static Blue: Color = Color.fromHex('#0000FF');
-
-   /**
-    * Azure (#007FFF)
-    */
-   public static Azure: Color = Color.fromHex('#007FFF');
-
-   /**
-    * Cyan (#00FFFF)
-    */
-   public static Cyan: Color = Color.fromHex('#00FFFF');
-
-   /**
-    * Viridian (#59978F)
-    */
-   public static Viridian: Color = Color.fromHex('#59978F');
-
-   /**
-    * Green (#00FF00)
-    */
-   public static Green: Color = Color.fromHex('#00FF00');
-
-   /**
-    * Chartreuse (#7FFF00)
-    */
-   public static Chartreuse: Color = Color.fromHex('#7FFF00');
-
-   /**
-    * Transparent (#FFFFFF00)
-    */
-   public static Transparent: Color = Color.fromHex('#FFFFFF00');
-
-   /**
     * Red channel
     */
    public r: number;
@@ -305,6 +210,103 @@ export class Color {
    public clone(): Color {
       return new Color(this.r, this.g, this.b, this.a);
    }
+
+   /**
+    * Black (#000000)
+    */
+   public static Black: Color = Color.fromHex('#000000');
+
+   /**
+    * White (#FFFFFF)
+    */
+   public static White: Color = Color.fromHex('#FFFFFF');
+
+   /**
+    * Gray (#808080)
+    */
+   public static Gray: Color = Color.fromHex('#808080');
+
+   /**
+    * Light gray (#D3D3D3)
+    */
+   public static LightGray: Color = Color.fromHex('#D3D3D3');
+
+   /**
+    * Dark gray (#A9A9A9)
+    */
+   public static DarkGray: Color = Color.fromHex('#A9A9A9');
+
+   /**
+    * Yellow (#FFFF00)
+    */
+   public static Yellow: Color = Color.fromHex('#FFFF00');
+
+   /**
+    * Orange (#FFA500)
+    */
+   public static Orange: Color = Color.fromHex('#FFA500');
+
+   /**
+    * Red (#FF0000)
+    */
+   public static Red: Color = Color.fromHex('#FF0000');
+
+   /**
+    * Vermillion (#FF5B31)
+    */
+   public static Vermillion: Color = Color.fromHex('#FF5B31');
+
+   /**
+    * Rose (#FF007F)
+    */
+   public static Rose: Color = Color.fromHex('#FF007F');
+
+   /**
+    * Magenta (#FF00FF)
+    */
+   public static Magenta: Color = Color.fromHex('#FF00FF');
+
+   /**
+    * Violet (#7F00FF)
+    */
+   public static Violet: Color = Color.fromHex('#7F00FF');
+
+   /**
+    * Blue (#0000FF)
+    */
+   public static Blue: Color = Color.fromHex('#0000FF');
+
+   /**
+    * Azure (#007FFF)
+    */
+   public static Azure: Color = Color.fromHex('#007FFF');
+
+   /**
+    * Cyan (#00FFFF)
+    */
+   public static Cyan: Color = Color.fromHex('#00FFFF');
+
+   /**
+    * Viridian (#59978F)
+    */
+   public static Viridian: Color = Color.fromHex('#59978F');
+
+   /**
+    * Green (#00FF00)
+    */
+   public static Green: Color = Color.fromHex('#00FF00');
+
+   /**
+    * Chartreuse (#7FFF00)
+    */
+   public static Chartreuse: Color = Color.fromHex('#7FFF00');
+
+   /**
+    * Transparent (#FFFFFF00)
+    */
+   public static Transparent: Color = Color.fromHex('#FFFFFF00');
+
+   
 }
 
 /**

@@ -95,18 +95,32 @@ export enum BaseAlign {
    Bottom
 }
 
-/**
- * Labels are the way to draw small amounts of text to the screen. They are
- * actors and inherit all of the benefits and capabilities.
- *
- * [[include:Labels.md]]
- */
-export class Label extends Actor {
+   /**
+    * Enum representing the different possible font styles
+    */
+   export enum FontStyle {
+      Normal,
+      Italic,
+      Oblique
+   }
+
+   /**
+    * Labels are the way to draw small amounts of text to the screen. They are
+    * actors and inherit all of the benefits and capabilities.
+    *
+    * [[include:Labels.md]]
+    */
+   export class Label extends Actor {
 
    /**
     * The text to draw.
     */
    public text: string;
+
+   /**
+    * Sets or gets the bold property of the label's text, by default it's false
+    */
+   public bold: boolean = false;
 
    /**
     * The [[SpriteFont]] to use, if any. Overrides [[fontFamily]] if present.
@@ -125,8 +139,13 @@ export class Label extends Actor {
    public fontSize: number = 10;
 
    /**
-    * The css units for a font size such as px, pt, em (SpriteFont only support px), by default is 'px';
+    * The font style for this label, the default is [[FontStyle.Normal]]
     */
+   public fontStyle: FontStyle = FontStyle.Normal;
+
+   /**
+    * The css units for a font size such as px, pt, em (SpriteFont only support px), by default is 'px';
+    */ 
    public fontUnit: FontUnit = FontUnit.Px;
 
    /**
@@ -246,6 +265,20 @@ export class Label extends Actor {
       }
    }
 
+   private _lookupFontStyle(fontStyle: FontStyle): string {
+      var boldstring = this.bold ? ' bold' : '';
+      switch (fontStyle) {
+         case FontStyle.Italic:
+            return 'italic' + boldstring;
+         case FontStyle.Normal:
+            return 'normal' + boldstring;
+         case FontStyle.Oblique:
+            return 'oblique' + boldstring;
+         default:
+            return 'normal' + boldstring;
+      }
+   }
+
    /**
     * Sets the text shadow for sprite fonts
     * @param offsetX      The x offset in pixels to place the shadow
@@ -318,31 +351,31 @@ export class Label extends Actor {
 
    private _fontDraw(ctx: CanvasRenderingContext2D) {
 
-      if (this.spriteFont) {
-         this.spriteFont.draw(ctx, this.text, 0, 0, {
-            color: this.color.clone(),
-            baseAlign: this.baseAlign,
-            textAlign: this.textAlign,
-            fontSize: this.fontSize,
-            letterSpacing: this.letterSpacing,
-            opacity: this.opacity
-         });
-      } else {
-         var oldAlign = ctx.textAlign;
-         var oldTextBaseline = ctx.textBaseline;
-
-         ctx.textAlign = this._lookupTextAlign(this.textAlign);
-         ctx.textBaseline = this._lookupBaseAlign(this.baseAlign);
-         if (this.color) {
-            this.color.a = this.opacity;
-         }
-         ctx.fillStyle = this.color.toString();
-         ctx.font = this._fontString;
-         if (this.maxWidth) {
-            ctx.fillText(this.text, 0, 0, this.maxWidth);
+         if (this.spriteFont) {
+            this.spriteFont.draw(ctx, this.text, 0, 0, {
+               color: this.color.clone(),
+               baseAlign: this.baseAlign,
+               textAlign: this.textAlign,
+               fontSize: this.fontSize,
+               letterSpacing: this.letterSpacing,
+               opacity: this.opacity
+            });
          } else {
-            ctx.fillText(this.text, 0, 0);
-         }
+            var oldAlign = ctx.textAlign;
+            var oldTextBaseline = ctx.textBaseline;
+            
+            ctx.textAlign = this._lookupTextAlign(this.textAlign);
+            ctx.textBaseline = this._lookupBaseAlign(this.baseAlign);
+            if (this.color) {
+               this.color.a = this.opacity;
+            }
+            ctx.fillStyle = this.color.toString();
+            ctx.font = this._fontString;
+            if (this.maxWidth) {
+               ctx.fillText(this.text, 0, 0, this.maxWidth);
+            } else {
+               ctx.fillText(this.text, 0, 0);
+            }
 
          ctx.textAlign = oldAlign;
          ctx.textBaseline = oldTextBaseline;
@@ -350,7 +383,7 @@ export class Label extends Actor {
    }
 
    protected get _fontString() {
-      return `${this.fontSize}${this._lookupFontUnit(this.fontUnit)} ${this.fontFamily}`;
+      return `${this._lookupFontStyle(this.fontStyle)} ${this.fontSize}${this._lookupFontUnit(this.fontUnit)} ${this.fontFamily}`;
    }
 
    public debugDraw(ctx: CanvasRenderingContext2D) {
