@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Rename `Engine.width` and `Engine.height` to be `Engine.canvasWidth` and `Engine.canvasHeight` ([#591](https://github.com/excaliburjs/Excalibur/issues/591))
 - Rename `Engine.getWidth` and `Engine.getHeight` to be `Engine.getDrawWidth` and `Engine.getDrawHeight` ([#591](https://github.com/excaliburjs/Excalibur/issues/591))
 - Changed `Util.extend` to include `Object.assign` functionality. Resolves issue ([#763](https://github.com/excaliburjs/Excalibur/issues/763))
+- Changed `GameEvent` to be a generic type for TypeScript, allowing strongly typing the `target` property. ([#733](https://github.com/excaliburjs/Excalibur/pull/773))
 ### Deprecated
 ### Removed
 ### Fixed

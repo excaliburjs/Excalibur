@@ -84,17 +84,17 @@ export class Scene extends Class {
       }
    }
 
-   public on(eventName: Events.initialize, handler: (event?: InitializeEvent) => void);
-   public on(eventName: Events.activate, handler: (event?: ActivateEvent) => void);
-   public on(eventName: Events.deactivate, handler: (event?: DeactivateEvent) => void);
-   public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void);
-   public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void);
-   public on(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void);
-   public on(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void);
-   public on(eventName: Events.predebugdraw, handler: (event?: PreDebugDrawEvent) => void);
-   public on(eventName: Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void);   
-   public on(eventName: string, handler: (event?: GameEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void) {
+   public on(eventName: Events.initialize, handler: (event?: InitializeEvent) => void): void;
+   public on(eventName: Events.activate, handler: (event?: ActivateEvent) => void): void;
+   public on(eventName: Events.deactivate, handler: (event?: DeactivateEvent) => void): void;
+   public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
+   public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): void;
+   public on(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void): void;
+   public on(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void): void;
+   public on(eventName: Events.predebugdraw, handler: (event?: PreDebugDrawEvent) => void): void;
+   public on(eventName: Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void): void;   
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void {
       super.on(eventName, handler);
    }
 
@@ -154,7 +154,7 @@ export class Scene extends Class {
    public _initialize(engine: Engine) {
       if (!this.isInitialized) {
          this.onInitialize.call(this, engine);
-         this.eventDispatcher.emit('initialize', new InitializeEvent(engine));
+         this.eventDispatcher.emit('initialize', new InitializeEvent(engine, this));
          this._initializeChildren();
          this._isInitialized = true;
       }
@@ -250,7 +250,7 @@ export class Scene extends Class {
       ctx.save();
 
       if (this.camera) {
-         this.camera.draw(ctx, delta);
+         this.camera.draw(ctx);
       }
 
       var i: number, len: number;
@@ -559,7 +559,7 @@ export class Scene extends Class {
    }
 
    private _collectActorStats(engine: Engine) {
-      for (var ui of this.uiActors) {
+      for (var _ui of this.uiActors) {
          engine.stats.currFrame.actors.ui++;
       }
 

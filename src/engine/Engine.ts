@@ -16,7 +16,7 @@ import { Logger, LogLevel } from './Util/Log';
 import { Color } from './Drawing/Color';
 import { Scene } from './Scene';
 import { IPostProcessor } from './PostProcessing/IPostProcessor';
-import { Debug, FrameStats } from './Debug';
+import { Debug, IDebugStats } from './Debug';
 import { Class } from './Class';
 import * as Input from './Input/Index';
 import { obsolete } from './Util/Decorators';
@@ -140,12 +140,12 @@ export class Engine extends Class {
    /**
     * Access Excalibur debugging functionality.
     */
-   public debug = new Debug(this);
+   public debug = new Debug();
 
    /**
     * Access [[stats]] that holds frame statistics.
     */
-   public get stats() {
+   public get stats(): IDebugStats {
       return this.debug.stats;
    }
 
@@ -199,7 +199,7 @@ export class Engine extends Class {
    /**
     * The action to take when a fatal exception is thrown
     */
-   public onFatalException = (e) => { Logger.getInstance().fatal(e); };
+   public onFatalException = (e: any) => { Logger.getInstance().fatal(e); };
 
    private _logger: Logger;
    private _isSmoothingEnabled: boolean = true;
@@ -216,18 +216,18 @@ export class Engine extends Class {
    private _loader: ILoader;
    private _isLoading: boolean = false;
 
-   public on(eventName: Events.visible, handler: (event?: VisibleEvent) => void);
-   public on(eventName: Events.hidden, handler: (event?: HiddenEvent) => void);
-   public on(eventName: Events.start, handler: (event?: GameStartEvent) => void);
-   public on(eventName: Events.stop, handler: (event?: GameStopEvent) => void);
-   public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void);
-   public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void);
-   public on(eventName: Events.preframe, handler: (event?: PreFrameEvent) => void);
-   public on(eventName: Events.postframe, handler: (event?: PostFrameEvent) => void);
-   public on(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void);
-   public on(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void) {
+   public on(eventName: Events.visible, handler: (event?: VisibleEvent) => void): void;
+   public on(eventName: Events.hidden, handler: (event?: HiddenEvent) => void): void;
+   public on(eventName: Events.start, handler: (event?: GameStartEvent) => void): void;
+   public on(eventName: Events.stop, handler: (event?: GameStopEvent) => void): void;
+   public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
+   public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): void;
+   public on(eventName: Events.preframe, handler: (event?: PreFrameEvent) => void): void;
+   public on(eventName: Events.postframe, handler: (event?: PostFrameEvent) => void): void;   
+   public on(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void): void;
+   public on(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void {
       super.on(eventName, handler);
    }
 
@@ -628,7 +628,7 @@ O|===|* >________________>\n\
          // only deactivate when initialized
          if (this.currentScene.isInitialized) {
             this.currentScene.onDeactivate.call(this.currentScene);
-            this.currentScene.eventDispatcher.emit('deactivate', new DeactivateEvent(newScene));
+            this.currentScene.eventDispatcher.emit('deactivate', new DeactivateEvent(newScene, this.currentScene));
          }
 
          // set current scene to new one
@@ -638,7 +638,7 @@ O|===|* >________________>\n\
          this.currentScene._initialize(this);
 
          this.currentScene.onActivate.call(this.currentScene);
-         this.currentScene.eventDispatcher.emit('activate', new ActivateEvent(oldScene));
+         this.currentScene.eventDispatcher.emit('activate', new ActivateEvent(oldScene, this.currentScene));
       } else {
          this._logger.error('Scene', key, 'does not exist!');
       }
@@ -722,17 +722,17 @@ O|===|* >________________>\n\
    /**
     * Sets the internal canvas height based on the selected display mode.
     */
-   private _setHeightByDisplayMode(parent: any) {
+   private _setHeightByDisplayMode(parent: HTMLElement | Window) {
       if (this.displayMode === DisplayMode.Container) {
-         this.canvasWidth = this.canvas.width = parent.clientWidth;
-         this.canvasHeight = this.canvas.height = parent.clientHeight;
+         this.canvasWidth = this.canvas.width = (<HTMLElement>parent).clientWidth;
+         this.canvasHeight = this.canvas.height = (<HTMLElement>parent).clientHeight;
       }
 
       if (this.displayMode === DisplayMode.FullScreen) {
          document.body.style.margin = '0px';
          document.body.style.overflow = 'hidden';
-         this.canvasWidth = this.canvas.width = parent.innerWidth;
-         this.canvasHeight = this.canvas.height = parent.innerHeight;
+         this.canvasWidth = this.canvas.width = (<Window>parent).innerWidth;
+         this.canvasHeight = this.canvas.height = (<Window>parent).innerHeight;
       }
    }
 
@@ -748,7 +748,7 @@ O|===|* >________________>\n\
 
          this._setHeightByDisplayMode(parent);
 
-         window.addEventListener('resize', (ev: UIEvent) => {
+         window.addEventListener('resize', () => {
             this._logger.debug('View port resized');
             this._setHeightByDisplayMode(parent);
             this._logger.info('parent.clientHeight ' + parent.clientHeight);
@@ -769,25 +769,24 @@ O|===|* >________________>\n\
       // Issue #385 make use of the visibility api
       // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
 
-      var hidden, visibilityChange;
+      var hidden: keyof HTMLDocument, visibilityChange: string;
       if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and later support 
          hidden = 'hidden';
          visibilityChange = 'visibilitychange';
       } else if ('msHidden' in document) {
-         hidden = 'msHidden';
+         hidden = <keyof HTMLDocument>'msHidden';
          visibilityChange = 'msvisibilitychange';
       } else if ('webkitHidden' in document) {
-         hidden = 'webkitHidden';
+         hidden = <keyof HTMLDocument>'webkitHidden';
          visibilityChange = 'webkitvisibilitychange';
       }
 
       document.addEventListener(visibilityChange, () => {
-
          if (document[hidden]) {
-            this.eventDispatcher.emit('hidden', new HiddenEvent());
+            this.eventDispatcher.emit('hidden', new HiddenEvent(this));
             this._logger.debug('Window hidden');
          } else {
-            this.eventDispatcher.emit('visible', new VisibleEvent());
+            this.eventDispatcher.emit('visible', new VisibleEvent(this));
             this._logger.debug('Window visible');
          }
       });
@@ -837,9 +836,9 @@ O|===|* >________________>\n\
          // suspend updates untill loading is finished
          this._loader.update(this, delta);
          // Update input listeners
-         this.input.keyboard.update(delta);
-         this.input.pointers.update(delta);
-         this.input.gamepads.update(delta);
+         this.input.keyboard.update();
+         this.input.pointers.update();
+         this.input.gamepads.update();
          return;
       }
       this.emit('preupdate', new PreUpdateEvent(this, delta, this));
@@ -852,9 +851,9 @@ O|===|* >________________>\n\
       });
 
       // Update input listeners
-      this.input.keyboard.update(delta);
-      this.input.pointers.update(delta);
-      this.input.gamepads.update(delta);
+      this.input.keyboard.update();
+      this.input.pointers.update();
+      this.input.gamepads.update();
 
       // Publish update event
       // TODO: Obsolete `update` event on Engine
@@ -957,7 +956,7 @@ O|===|* >________________>\n\
          }
          try {
             game._requestId = raf(mainloop);
-            game.emit('preframe', new PreFrameEvent(game, game.stats.prevFrame, game));
+            game.emit('preframe', new PreFrameEvent(game, game.stats.prevFrame));
 
             // Get the time to calculate time-elapsed
             var now = nowFn();
@@ -990,7 +989,7 @@ O|===|* >________________>\n\
 
             lastTime = now;
 
-            game.emit('postframe', new PostFrameEvent(game, game.stats.currFrame, game));
+            game.emit('postframe', new PostFrameEvent(game, game.stats.currFrame));
          } catch (e) {
             window.cancelAnimationFrame(game._requestId);
             game.stop();

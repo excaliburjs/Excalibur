@@ -25,12 +25,12 @@ export class TileMap extends Class {
    public logger: Logger = Logger.getInstance();
    public data: Cell[] = [];
 
-   public on(eventName: Events.preupdate, handler: (event?: Events.PreUpdateEvent) => void);
-   public on(eventName: Events.postupdate, handler: (event?: Events.PostUpdateEvent) => void);
-   public on(eventName: Events.predraw, handler: (event?: Events.PreDrawEvent) => void);
-   public on(eventName: Events.postdraw, handler: (event?: Events.PostDrawEvent) => void);
-   public on(eventName: string, handler: (event?: Events.GameEvent) => void);
-   public on(eventName: string, handler: (event?: Events.GameEvent) => void) {
+   public on(eventName: Events.preupdate, handler: (event?: Events.PreUpdateEvent) => void): void;
+   public on(eventName: Events.postupdate, handler: (event?: Events.PostUpdateEvent) => void): void;
+   public on(eventName: Events.predraw, handler: (event?: Events.PreDrawEvent) => void): void;
+   public on(eventName: Events.postdraw, handler: (event?: Events.PostDrawEvent) => void): void;
+   public on(eventName: string, handler: (event?: Events.GameEvent<any>) => void): void;
+   public on(eventName: string, handler: (event?: Events.GameEvent<any>) => void): void {
       super.on(eventName, handler);
    }
 
@@ -74,7 +74,6 @@ export class TileMap extends Class {
     * is no collision null is returned.
     */
    public collides(actor: Actor): Vector {
-      var points: Vector[] = [];
       var width = actor.pos.x + actor.getWidth();
       var height = actor.pos.y + actor.getHeight();
       var actorBounds = actor.getBounds();

@@ -178,7 +178,7 @@ export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
       // resolve collision pairs
       var i = 0, len = this._collisionPairCache.length;
       for (i = 0; i < len; i++) {
-         this._collisionPairCache[i].resolve(delta, strategy);
+         this._collisionPairCache[i].resolve(strategy);
       }
 
       // We must apply mtv after all pairs have been resolved for more accuracy
@@ -198,7 +198,7 @@ export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
    /**
     * Update the dynamic tree positions
     */
-   public update(targets: Actor[], delta: number): number {
+   public update(targets: Actor[]): number {
       var updated = 0, i = 0, len = targets.length;
 
       for (i; i < len; i++) {
@@ -210,9 +210,9 @@ export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
    }
 
    /* istanbul ignore next */
-   public debugDraw(ctx: CanvasRenderingContext2D, delta: number) {
+   public debugDraw(ctx: CanvasRenderingContext2D) {
       if (Physics.broadphaseDebug) {
-         this._dynamicCollisionTree.debugDraw(ctx, delta);
+         this._dynamicCollisionTree.debugDraw(ctx);
       }
 
       if (Physics.showContacts || Physics.showCollisionNormals) {

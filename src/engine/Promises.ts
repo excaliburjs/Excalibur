@@ -1,4 +1,3 @@
-import { Logger } from './Util/Log';
 import { obsolete } from './Util/Decorators';
 
 // Promises/A+ Spec http://promises-aplus.github.io/promises-spec/
@@ -38,7 +37,6 @@ export class Promise<T> implements IPromise<T> {
    private _successCallbacks: { (value?: T): any }[] = [];
    private _rejectCallback: (value?: any) => any = () => { return; };
    private _errorCallback: (value?: any) => any;
-   private _logger: Logger = Logger.getInstance();
 
    /**
     * Wrap a value in a resolved promise
@@ -74,13 +72,13 @@ export class Promise<T> implements IPromise<T> {
     * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
     * when at least 1 promise rejects.
     */
-   public static join<T>(promises: Promise<T>[]);
+   public static join<T>(promises: Promise<T>[]): Promise<T>;
 
    /**
     * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
     * when at least 1 promise rejects.
     */
-   public static join<T>(...promises: Promise<T>[]);
+   public static join<T>(...promises: Promise<T>[]): Promise<T>;
 
    public static join<T>() {
       var promises: Promise<T>[] = [];
@@ -101,7 +99,7 @@ export class Promise<T> implements IPromise<T> {
       var total = promises.length;
       var successes = 0;
       var rejects = 0;
-      var errors = [];
+      var errors: any = [];
 
       promises.forEach((p) => {
          p.then(

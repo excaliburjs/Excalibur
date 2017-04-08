@@ -23,7 +23,7 @@ export class Class implements IEvented {
     * @param eventName  Name of the event to listen for
     * @param handler    Event handler for the thrown event
     */
-   public on(eventName: string, handler: (event?: GameEvent) => void) {
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void) {
       this.eventDispatcher.on(eventName, handler);
    }
 
@@ -35,7 +35,7 @@ export class Class implements IEvented {
     * @param eventName  Name of the event to listen for
     * @param handler    Event handler for the thrown event
     */
-   public off(eventName: string, handler?: (event?: GameEvent) => void) {
+   public off(eventName: string, handler?: (event?: GameEvent<any>) => void) {
       this.eventDispatcher.off(eventName, handler);
    }
 
@@ -44,7 +44,7 @@ export class Class implements IEvented {
     * @param eventName   Name of the event to emit
     * @param eventObject Data associated with this event
     */
-   public emit(eventName: string, eventObject?: GameEvent) {
+   public emit(eventName: string, eventObject?: GameEvent<any>) {
       this.eventDispatcher.emit(eventName, eventObject);
    }
 
@@ -87,11 +87,11 @@ export class Class implements IEvented {
       if (methods && methods.hasOwnProperty('constructor')) {
          child = methods.constructor;
       } else {
-         child = function () { return parent.apply(this, arguments); };
+         child = function (this: any) { return parent.apply(this, arguments); };
       }
 
       // Using constructor allows JS to lazily instantiate super classes
-      var Super: any = function () { this.constructor = child; };
+      var Super: any = function (this: any) { this.constructor = child; };
       Super.prototype = parent.prototype;
       child.prototype = new Super;
 

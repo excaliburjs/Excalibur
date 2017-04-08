@@ -35,8 +35,7 @@ export class BaseCamera {
    private _y: number = 0;
    private _cameraMoving: boolean = false;
    private _currentLerpTime: number = 0;
-   private _lerpDuration: number = 1000; // 1 second
-   private _totalLerpTime: number = 0;
+   private _lerpDuration: number = 1000; // 1 second   
    private _lerpStart: Vector = null;
    private _lerpEnd: Vector = null;
    private _lerpPromise: IPromise<Vector>;
@@ -54,7 +53,6 @@ export class BaseCamera {
    private _currentZoomScale: number = 1;
    private _maxZoomScale: number = 1;
    private _zoomDuration: number = 0;
-   private _elapsedZoomTime: number = 0;
    private _zoomIncrement: number = 0.01;
    private _easing: EasingFunction = EasingFunctions.EaseInOutCubic;
 
@@ -194,7 +192,7 @@ export class BaseCamera {
       this.z = zoomScale;
    }
 
-   public update(engine: Engine, delta: number) {
+   public update(_engine: Engine, delta: number) {
       // Update placements based on linear algebra
       this._x += this.dx * delta / 1000;
       this._y += this.dy * delta / 1000;
@@ -256,7 +254,7 @@ export class BaseCamera {
     * @param ctx    Canvas context to apply transformations
     * @param delta  The number of milliseconds since the last update
     */
-   public draw(ctx: CanvasRenderingContext2D, delta: number) {
+   public draw(ctx: CanvasRenderingContext2D) {
       var focus = this.getFocus();
       var canvasWidth = ctx.canvas.width;
       var canvasHeight = ctx.canvas.height;
@@ -300,18 +298,6 @@ export class BaseCamera {
 
    private _isDoneShaking(): boolean {
       return !(this._isShaking) || (this._elapsedShakeTime >= this._shakeDuration);
-   }
-
-   private _isDoneZooming(): boolean {
-      if (this._zoomDuration !== 0) {
-         return (this._elapsedZoomTime >= this._zoomDuration);
-      } else {
-         if (this._maxZoomScale < 1) {
-            return (this._currentZoomScale <= this._maxZoomScale);
-         } else {
-            return (this._currentZoomScale >= this._maxZoomScale);
-         }
-      }
    }
 }
 

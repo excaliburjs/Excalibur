@@ -380,7 +380,7 @@ export class ParticleEmitter extends Actor {
       this.deadParticles.clear();
    }
 
-   public draw(ctx: CanvasRenderingContext2D, delta: number) {
+   public draw(ctx: CanvasRenderingContext2D) {
 
       // todo is there a more efficient to draw 
       // possibly use a webgl offscreen canvas and shaders to do particles?
