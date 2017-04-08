@@ -4,21 +4,35 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+### Breaking Changes
 ### Added
-- Added `Engine.isPaused` to retrieve the running status of Engine ([#750](https://github.com/excaliburjs/Excalibur/issues/750))
-- Added `Engine.getWorldBounds`, this method provide the user with a quick way to get the top left corner and bottom right corner of the screen in a BoundingBox so the user does not have to caluclate it themselves. This resovles issue ([#729](https://github.com/excaliburjs/Excalibur/issues/729))
-- Added predraw and postdraw events to `Engine` class. These events happen when prior to and after a draw ([#744](https://github.com/excaliburjs/Excalibur/issues/744))
-- Added Perlin noise generation helper `ex.PerlinGenerator` for 1d, 2d, and 3d noise, along with drawing utilities ([#491](https://github.com/excaliburjs/Excalibur/issues/491))
-- Added font styles support for normal, italic, and oblique in addition to bold text support ([#563](https://github.com/excaliburjs/Excalibur/issues/563))
 ### Changed
-- Update project to use TypeScript 2.2.2 ([#762](https://github.com/excaliburjs/Excalibur/issues/762))).
-- Rename `Engine.width` and `Engine.height` to be `Engine.canvasWidth` and `Engine.canvasHeight` ([#591](https://github.com/excaliburjs/Excalibur/issues/591))
-- Rename `Engine.getWidth` and `Engine.getHeight` to be `Engine.getDrawWidth` and `Engine.getDrawHeight` ([#591](https://github.com/excaliburjs/Excalibur/issues/591))
-- Changed `Util.extend` to include `Object.assign` functionality. Resolves issue ([#763](https://github.com/excaliburjs/Excalibur/issues/763))
-- Changed `GameEvent` to be a generic type for TypeScript, allowing strongly typing the `target` property. ([#733](https://github.com/excaliburjs/Excalibur/pull/773))
 ### Deprecated
 ### Removed
 ### Fixed
+
+## [0.10.0] 2017-04-07
+
+### Breaking Changes
+- Rename `Engine.width` and `Engine.height` to be `Engine.canvasWidth` and `Engine.canvasHeight` ([#591](https://github.com/excaliburjs/Excalibur/issues/591))
+- Rename `Engine.getWidth` and `Engine.getHeight` to be `Engine.getDrawWidth` and `Engine.getDrawHeight` ([#591](https://github.com/excaliburjs/Excalibur/issues/591))
+- Changed `GameEvent` to be a generic type for TypeScript, allowing strongly typing the `target` property. ([#724](https://github.com/excaliburjs/Excalibur/issue/724))
+- Removed `Body.useEdgeCollision()` parameter `center` ([#724](https://github.com/excaliburjs/Excalibur/issue/724))
+
+### Added
+- Added `Engine.isPaused` to retrieve the running status of Engine ([#750](https://github.com/excaliburjs/Excalibur/issues/750))
+- Added `Engine.getWorldBounds` to provide a quick way to get the top left corner and bottom right corner of the screen ([#729](https://github.com/excaliburjs/Excalibur/issues/729))
+- Added predraw and postdraw events to `Engine` class. These events happen when prior to and after a draw ([#744](https://github.com/excaliburjs/Excalibur/issues/744))
+- Added Perlin noise generation helper `ex.PerlinGenerator` for 1d, 2d, and 3d noise, along with drawing utilities ([#491](https://github.com/excaliburjs/Excalibur/issues/491))
+- Added font styles support for normal, italic, and oblique in addition to bold text support ([#563](https://github.com/excaliburjs/Excalibur/issues/563))
+
+### Changed
+- Update project to use TypeScript 2.2.2 ([#762](https://github.com/excaliburjs/Excalibur/issues/762))
+- Changed `Util.extend` to include `Object.assign` functionality ([#763](https://github.com/excaliburjs/Excalibur/issues/763))
+
+### Fixed
+- Update the order of the affine transformations to fix bug when scaling and rotating Actors ([#770](https://github.com/excaliburjs/Excalibur/issues/770))
 
 ## [0.9.0] 2017-02-09
 
@@ -356,7 +370,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Promise implementation for managing asynchronous behavior
 - Resource loading with optional custom progress bars
 
-[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/excaliburjs/Excalibur/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/excaliburjs/Excalibur/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/excaliburjs/Excalibur/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/excaliburjs/Excalibur/compare/v0.7.0...v0.7.1
