@@ -9,33 +9,41 @@ var travis = new Travis({
 });
 
 var branch = process.env.TRAVIS_BRANCH;
+var tag    = process.env.TRAVIS_TAG;
 
-if (branch !== "master") {
-   console.log("Current branch is `" + branch + "`, skipping docs deployment...");
+// build docs for tags and master only
+if (tag) {
+   console.log("Current tag is `" + tag + "`");
+} else if (branch == "master") {
+   console.log("Current branch is `" + branch + "`");
 } else {
-   console.log("Current branch is `" + branch + "`, triggering remote build of edge docs...");
-   
-   travis.authenticate({
-      github_token: process.env.GH_TOKEN
-   }, function (err, res) {
-      if (err) {
-      return console.error(err);
-      }
-   
-      travis.repos(repo.split('/')[0], repo.split('/')[1]).builds.get(
-      function (err, res) {
-         if (err) {
-            return console.error(err);
-         }
-   
-         travis.requests.post({
-            build_id: res.builds[0].id
-         }, function (err, res) {
-            if (err) {
-               return console.error(err);
-            }
-            console.log(res.flash[0].notice);
-         });
-      });
-   });
+  console.log("Current branch is `" + branch + "`, skipping docs deployment...");
+  return;	
+}
+
+console.log("Triggering remote build of edge docs...");
+
+travis.authenticate({
+  github_token: process.env.GH_TOKEN
+}, function (err, res) {
+  if (err) {
+    return console.error(err);
+  }
+
+  travis.repos(repo.split('/')[0], repo.split('/')[1]).builds.get(
+    function (err, res) {
+       if (err) {
+          return console.error(err);
+       }
+
+       travis.requests.post({
+          build_id: res.builds[0].id
+       }, function (err, res) {
+          if (err) {
+             return console.error(err);
+          }
+          console.log(res.flash[0].notice);
+       });
+    });
+ });
 }
