@@ -1,3 +1,4 @@
 [submodule "typedoc-default-themes"]
 	path = typedoc-default-themes
 	url = https://github.com/excaliburjs/typedoc-default-themes.git
+   ignore = dirty
