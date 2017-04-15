@@ -1,6 +1,6 @@
 /// <reference path="jasmine.d.ts" />
 /// <reference path="support/js-imagediff.d.ts" />
-/// <reference path="require.d.ts" />
+
 /// <reference path="TestUtils.ts" />
 /// <reference path="Mocks.ts" />
 

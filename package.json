@@ -25,7 +25,8 @@
     "all": "node_modules/.bin/grunt",
     "compile": "node_modules/.bin/grunt compile",
     "tests": "node_modules/.bin/grunt tests",
-    "visual": "node_modules/.bin/grunt visual"
+    "visual": "node_modules/.bin/grunt visual",
+    "apidocs": "node_modules/.bin/grunt apidocs"
   },
   "devDependencies": {
     "grunt": "^1.0.1",
@@ -41,13 +42,15 @@
     "grunt-coveralls": "^1.0.0",
     "grunt-shell": "2.1.0",
     "grunt-template-jasmine-istanbul": "^0.5.0",
-    "grunt-ts": "^6.0.0-beta.10",
+    "grunt-ts": "^6.0.0-beta.15",
     "grunt-tslint": "^3.2.1",
     "istanbul": "^0.4.3",
     "phantomjs-prebuilt": "^2.1.13",
+    "rimraf": "^2.6.1",
     "source-map-support": "^0.4.3",
     "travis-ci": "^2.1.0",
     "tslint": "^3.13.0",
+    "typedoc": "^0.5.10",
     "typescript": "^2.2.2"
   }
 }

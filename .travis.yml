@@ -12,7 +12,7 @@ script:
 - node_modules/.bin/grunt travis
 after_success:
 - node deploy-docs.js
-- if [ "$TRAVIS_BRANCH" = "master" ]; then node_modules/.bin/grunt bumpup dists; fi
+- if [ "$TRAVIS_BRANCH" = "master" ]; then node_modules/.bin/grunt dists; fi
 notifications:
   slack:
     secure: aQXFk2/MxX5eR2JM90xWAA9YX03QArY1ejUmnP/NkFHbB4zzKZblACjEeDTDTDCThZpXhrganX2nDWrWFrrXbOG28wKrRhEZSULPAgyiWGpfkMoT44fKmgh+eZ5C/isMF2eeQCrYo3EQCMxfCKxNaBhyLc+jr/Sm232zU2LaXo8=
