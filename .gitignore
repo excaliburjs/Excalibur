@@ -15,6 +15,7 @@ coverage/
 .grunt/
 .tscache/
 tscommand*
+/docs/api/
 
 # Logs and databases #
 ######################
