@@ -1,14 +1,12 @@
 const request       = require('request');
-const grunt         = require('grunt');
-const pkgVersion    = grunt.file.readJSON('package.json').version + '-local';
 const appveyorBuild = process.env.APPVEYOR_BUILD_NUMBER || '';
 const travisBuild   = process.env.TRAVIS_BUILD_NUMBER   || '';
 const commit        = process.env.TRAVIS_COMMIT         || '';
 
 // ignore local builds
 if (!appveyorBuild && !travisBuild) {
-   console.info('Local build, using package version', pkgVersion);
-   module.exports = pkgVersion;
+   console.info('Local build, using version "local"');
+   module.exports = 'local';
    return;
 }
 
