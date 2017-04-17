@@ -27,7 +27,7 @@ request({
  
    // Nuget doesn't yet support the + suffix in versions
    const appveyVersion = version + '.' + appveyorBuild + '-alpha';   
-   const travisVersion = version + '-alpha.' + build + '+' + commit.substring(0, 7);
+   const travisVersion = version + '-alpha.' + travisBuild + '+' + commit.substring(0, 7);
 
    if (appveyorBuild) {
       console.info('Using Appveyor build as version', appveyVersion);
