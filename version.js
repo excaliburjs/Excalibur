@@ -13,7 +13,10 @@ if (!appveyorBuild && !travisBuild) {
 // Fetch latest GH release tag version
 request({
    uri: 'https://api.github.com/repos/excaliburjs/Excalibur/releases/latest',
-   headers: { 'User-Agent': 'excaliburjs/0.1' }
+   headers: { 
+      'User-Agent': 'excaliburjs/0.1',
+      'Authorization': 'token ' + process.env.GH_TOKEN
+   }
 }, function (error, res, body) {
    const statusCode = res.statusCode;
 
