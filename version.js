@@ -26,11 +26,6 @@ request({
    const statusCode = res.statusCode;
 
    if (statusCode !== 200) {
-      var rateLimit = res.getHeader('X-RateLimit-Limit');
-      var rateLimitRemaining = res.getHeader('X-RateLimit-Remaining');
-
-      console.info('GH API rate limit:', rateLimit, 'Remaining:', rateLimitRemaining);
-
       throw Error('Fatal error fetching GH release version, status: ' + statusCode + ', ' + error);
    }
 
