@@ -331,7 +331,7 @@ module.exports = function (grunt) {
    grunt.registerTask('visual', ['ts:visual']);
 
    // Travis CI task
-   grunt.registerTask('travis', ['default', 'coveralls']);
+   grunt.registerTask('travis', ['default', 'coveralls', 'apidocs']);
 
    // Appveyor task
    grunt.registerTask('appveyor', ['default', 'shell:nuget']);
