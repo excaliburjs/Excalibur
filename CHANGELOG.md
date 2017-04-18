@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 ### Changed
 - Edge builds have more descriptive versions now containing build number and Git commit hash (e.g. `0.10.0-alpha.105#commit`) ([#777](https://github.com/excaliburjs/Excalibur/issues/777))
+- Corrected link to Browserify example in docs([#14](https://github.com/excaliburjs/excaliburjs.github.io/issues/14)
 ### Deprecated
 ### Removed
 ### Fixed
