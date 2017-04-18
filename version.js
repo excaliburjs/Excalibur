@@ -29,7 +29,7 @@ if (statusCode !== 200) {
    throw Error('Fatal error fetching GH release version, status: ' + statusCode);
 }
 
-const tag_name = JSON.parse(body).tag_name;
+const tag_name = JSON.parse(res.getBody()).tag_name;
 const version  = tag_name.match(/^v?([0-9\.]+)$/)[1]; // strip v prefix
 
 // Nuget doesn't yet support the + suffix in versions
