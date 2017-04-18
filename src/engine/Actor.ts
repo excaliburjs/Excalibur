@@ -11,6 +11,7 @@ import { Color } from './Drawing/Color';
 import { Sprite } from './Drawing/Sprite';
 import { IActorTrait } from './Interfaces/IActorTrait';
 import { IDrawable } from './Interfaces/IDrawable';
+import { ICanInitialize, ICanUpdate, ICanDraw } from './Interfaces/LifecycleEvents';
 import { Scene } from './Scene';
 import { Logger } from './Util/Log';
 import { ActionContext } from './Actions/ActionContext';
@@ -26,6 +27,7 @@ import * as Effects from './Drawing/SpriteEffects';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 
+
 /**
  * The most important primitive in Excalibur is an `Actor`. Anything that
  * can move on the screen, collide with another `Actor`, respond to events, 
@@ -35,7 +37,7 @@ import * as Events from './Events';
  * [[include:Actors.md]]
  *
  */
-export class Actor extends Class implements IActionable, IEvented {
+export class Actor extends Class implements IActionable, IEvented, ICanInitialize, ICanUpdate, ICanDraw {
    /**
     * Indicates the next id to be set
     */
@@ -422,7 +424,7 @@ export class Actor extends Class implements IActionable, IEvented {
       // Initialize default collision area to be box
       this.body.useBoxCollision();
    }
-
+  
    /**
     * This is called before the first update of the actor. This method is meant to be
     * overridden. This is where initialization of child actors should take place.

@@ -13,6 +13,7 @@ import { TileMap } from './TileMap';
 import { BaseCamera } from './Camera';
 import { Actor } from './Actor';
 import { Class } from './Class';
+import { ICanInitialize, ICanActivate, ICanDeactivate, ICanUpdate, ICanDraw } from './Interfaces/LifecycleEvents';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 import * as ActorUtils from './Util/Actors';
@@ -26,7 +27,7 @@ import * as ActorUtils from './Util/Actors';
  *
  * [[include:Scenes.md]]
  */
-export class Scene extends Class {
+export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDeactivate, ICanUpdate, ICanDraw {
 
    /**
     * The actor this scene is attached to, if any
@@ -130,6 +131,23 @@ export class Scene extends Class {
       this._logger.debug('Scene.onDeactivate', this);
    }
 
+   public onPreUpdate(_engine: Engine): void {
+      // will be overridden
+   }
+
+   public onPostUpdate(_engine: Engine): void {
+      // will be overridden
+   }
+
+   public onPreDraw(): void {
+      // will be overridden
+   }
+
+   public onPostDraw(): void {
+      // will be overridden
+   }
+
+
    /**
     * Initializes actors in the scene
     */
@@ -161,12 +179,44 @@ export class Scene extends Class {
    }
 
    /**
+    * Activates the scene with the base behavior, then calls the overridable `onActivate` implementation.
+    */
+   public _activate(): void {
+      this.onActivate.call(this);
+   }
+
+   /**
+    * Deactivates the scene with the base behavior, then calls the overridable `onDeactivate` implementation.
+    */
+   public _deactivate(): void {
+      this.onDeactivate.call(this);
+   }
+
+   public _preupdate(_engine: Engine): void {
+      this.onPreUpdate.call(this, _engine);
+   }
+
+   public _postupdate(_engine: Engine): void {
+      this.onPostUpdate.call(this, _engine);
+   }
+
+   public _predraw(_ctx: CanvasRenderingContext2D, delta: number): void {
+      this.onPreDraw.call(this, _ctx, delta);
+   }
+
+   public _postdraw(_ctx: CanvasRenderingContext2D, delta: number): void {
+      this.onPostDraw.call(this, _ctx, delta);
+   }
+
+
+   /**
     * Updates all the actors and timers in the scene. Called by the [[Engine]].
     * @param engine  Reference to the current Engine
     * @param delta   The number of milliseconds since the last update
     */
    public update(engine: Engine, delta: number) {
       this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
+      this._preupdate(engine);
       var i: number, len: number;
 
       if (this.camera) {
@@ -238,6 +288,7 @@ export class Scene extends Class {
       this._killQueue.length = 0;      
 
       this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
+      this._postupdate(engine);
    }
 
    /**
@@ -247,6 +298,7 @@ export class Scene extends Class {
     */
    public draw(ctx: CanvasRenderingContext2D, delta: number) {
       this.emit('predraw', new PreDrawEvent(ctx, delta, this));
+      this._predraw(ctx, delta);
       ctx.save();
 
       if (this.camera) {
@@ -288,6 +340,7 @@ export class Scene extends Class {
          }
       }
       this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
+      this._postdraw(ctx, delta);
    }
 
    /**
