@@ -896,7 +896,7 @@ O|===|* >________________>\n\
             this.ctx.fillText(keys[j].toString() + ' : ' + (Input.Keys[keys[j]] ? Input.Keys[keys[j]] : 'Not Mapped'), 100, 10 * j + 10);
          }
 
-         this.ctx.fillText('FPS:' + this.fps.toFixed(2).toString(), 10, 10);
+         this.ctx.fillText('FPS:' + this.stats.currFrame.fps.toFixed(2).toString(), 10, 10);
       }
 
       // Post processing
