@@ -10,6 +10,11 @@ if (!appveyorBuild && !travisBuild) {
    return;
 }
 
+// fail build if no GH_TOKEN present
+if (!process.env.GH_TOKEN) {
+   throw Error('Missing environment variable GH_TOKEN');
+}
+
 // Fetch latest GH release tag version
 request({
    uri: 'https://api.github.com/repos/excaliburjs/Excalibur/releases/latest',
@@ -21,11 +26,12 @@ request({
    const statusCode = res.statusCode;
 
    if (statusCode !== 200) {
-      var rateLimit = res.headers['X-RateLimit-Limit'];
-      var rateLimitRemaining = res.headers['X-RateLimit-Remaining'];
-      console.error('Error fetching GH release version:', statusCode, error);
-      console.error('API rate limit:', rateLimit, 'Remaining:', rateLimitRemaining);
-      throw Error('Fatal error fetching GH release version:' + error);
+      var rateLimit = res.getHeader('X-RateLimit-Limit');
+      var rateLimitRemaining = res.getHeader('X-RateLimit-Remaining');
+
+      console.info('GH API rate limit:', rateLimit, 'Remaining:', rateLimitRemaining);
+
+      throw Error('Fatal error fetching GH release version, status: ' + statusCode + ', ' + error);
    }
 
    const tag_name = JSON.parse(body).tag_name;
