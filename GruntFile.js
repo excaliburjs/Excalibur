@@ -2,16 +2,11 @@
 /* Excalibur.js Grunt Build File
 /*********************************/
 const path = require('path');
+const version = require('./version');
 const fs = require('fs');
 const child_process = require('child_process');
 const rimraf = require('rimraf');
 const TYPEDOC_CMD = path.join('node_modules', '.bin', 'typedoc');
-
-var appveyorBuild = process.env.APPVEYOR_BUILD_NUMBER || '';
-
-if (appveyorBuild) {
-   appveyorBuild = '.' + appveyorBuild + '-alpha';
-}
 
 /*global module:false*/
 module.exports = function (grunt) {
@@ -21,7 +16,7 @@ module.exports = function (grunt) {
    //
    grunt.initConfig({
       pkg: grunt.file.readJSON('package.json'),
-      version: '<%= pkg.version %>' + appveyorBuild,
+      version: version,
 
       //
       // Clean dists and tests
@@ -88,7 +83,7 @@ module.exports = function (grunt) {
             options: {
                sourceMap: true,
                process: function (src, filepath) {
-                  return src.replace(/__EX_VERSION/g, grunt.template.process('<%= pkg.version %>'));
+                  return src.replace(/__EX_VERSION/g, grunt.template.process('<%= version %>'));
                }
             }
          },
@@ -100,7 +95,7 @@ module.exports = function (grunt) {
             options: {
                sourceMap: true,
                process: function (src, filepath) {
-                  return src.replace(/__EX_VERSION/g, grunt.template.process('<%= pkg.version %>'));
+                  return src.replace(/__EX_VERSION/g, grunt.template.process('<%= version %>'));
                }
             }
          },
@@ -292,11 +287,7 @@ module.exports = function (grunt) {
          setters: {
             // Overrides version setter 
             version: function (old, releaseType, options) {
-               var version = grunt.file.readJSON('package.json').version;
-               var build = process.env.TRAVIS_BUILD_NUMBER || "localbuild";
-               var commit = process.env.TRAVIS_COMMIT || "localcommit";
-               var alphaVersion = version + '-alpha.' + build + "+" + commit.substring(0, 7);
-               return alphaVersion;
+               return version;
             },
          },
          files: ['build/package.json']
