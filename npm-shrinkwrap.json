@@ -121,6 +121,12 @@
       "resolved": "./node_shrinkwrap/arrify-1.0.1.tar",
       "dev": true
     },
+    "asap": {
+      "version": "2.0.5",
+      "from": "asap@>=2.0.3 <2.1.0",
+      "resolved": "./node_shrinkwrap/asap-2.0.5.tar",
+      "dev": true
+    },
     "asn1": {
       "version": "0.2.3",
       "from": "asn1@>=0.2.3 <0.3.0",
@@ -314,6 +320,12 @@
       "version": "1.0.5",
       "from": "combined-stream@>=1.0.5 <1.1.0",
       "resolved": "./node_shrinkwrap/combined-stream-1.0.5.tar",
+      "dev": true
+    },
+    "command-exists": {
+      "version": "1.2.2",
+      "from": "command-exists@>=1.2.2 <2.0.0",
+      "resolved": "./node_shrinkwrap/command-exists-1.2.2.tar",
       "dev": true
     },
     "commander": {
@@ -659,15 +671,15 @@
       "dev": true,
       "dependencies": {
         "async": {
-          "version": "2.1.4",
+          "version": "2.3.0",
           "from": "async@>=2.0.1 <3.0.0",
-          "resolved": "./node_shrinkwrap/async-2.1.4.tar",
+          "resolved": "./node_shrinkwrap/async-2.3.0.tar",
           "dev": true
         },
         "lodash": {
-          "version": "4.17.2",
+          "version": "4.17.4",
           "from": "lodash@>=4.14.0 <5.0.0",
-          "resolved": "./node_shrinkwrap/lodash-4.17.2.tar",
+          "resolved": "./node_shrinkwrap/lodash-4.17.4.tar",
           "dev": true
         }
       }
@@ -700,6 +712,12 @@
       "version": "1.2.0",
       "from": "generate-object-property@>=1.1.0 <2.0.0",
       "resolved": "./node_shrinkwrap/generate-object-property-1.2.0.tar",
+      "dev": true
+    },
+    "get-port": {
+      "version": "2.1.0",
+      "from": "get-port@>=2.1.0 <3.0.0",
+      "resolved": "./node_shrinkwrap/get-port-2.1.0.tar",
       "dev": true
     },
     "get-stdin": {
@@ -1068,10 +1086,22 @@
       "resolved": "./node_shrinkwrap/hosted-git-info-2.1.5.tar",
       "dev": true
     },
+    "http-basic": {
+      "version": "2.5.1",
+      "from": "http-basic@>=2.5.1 <3.0.0",
+      "resolved": "./node_shrinkwrap/http-basic-2.5.1.tar",
+      "dev": true
+    },
     "http-errors": {
       "version": "1.3.1",
       "from": "http-errors@>=1.3.1 <1.4.0",
       "resolved": "./node_shrinkwrap/http-errors-1.3.1.tar",
+      "dev": true
+    },
+    "http-response-object": {
+      "version": "1.1.0",
+      "from": "http-response-object@>=1.0.1 <2.0.0",
+      "resolved": "./node_shrinkwrap/http-response-object-1.1.0.tar",
       "dev": true
     },
     "http-signature": {
@@ -1726,6 +1756,12 @@
       "resolved": "./node_shrinkwrap/progress-1.1.8.tar",
       "dev": true
     },
+    "promise": {
+      "version": "7.1.1",
+      "from": "promise@>=7.1.1 <8.0.0",
+      "resolved": "./node_shrinkwrap/promise-7.1.1.tar",
+      "dev": true
+    },
     "punycode": {
       "version": "1.4.1",
       "from": "punycode@>=1.4.1 <2.0.0",
@@ -1988,10 +2024,22 @@
       "resolved": "./node_shrinkwrap/supports-color-2.0.0.tar",
       "dev": true
     },
+    "sync-request": {
+      "version": "4.0.2",
+      "from": "sync-request@latest",
+      "resolved": "./node_shrinkwrap/sync-request-4.0.2.tar",
+      "dev": true
+    },
     "temporary": {
       "version": "0.0.8",
       "from": "temporary@>=0.0.8 <0.0.9",
       "resolved": "./node_shrinkwrap/temporary-0.0.8.tar",
+      "dev": true
+    },
+    "then-request": {
+      "version": "2.2.0",
+      "from": "then-request@>=2.0.1 <3.0.0",
+      "resolved": "./node_shrinkwrap/then-request-2.2.0.tar",
       "dev": true
     },
     "throttleit": {
