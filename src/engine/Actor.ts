@@ -433,6 +433,22 @@ export class Actor extends Class implements IActionable, IEvented, ICanInitializ
       // Override me
    }
 
+   public onPreUpdate(_engine: Engine): void {
+      // Override me
+   }
+
+   public onPostUpdate(_engine: Engine): void {
+      // Override me
+   }
+
+   public onPreDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+      // Override me
+   }
+
+   public onPostDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+      // Override me
+   }
+
    /**
     * Gets wether the actor is Initialized 
     */
@@ -453,6 +469,22 @@ export class Actor extends Class implements IActionable, IEvented, ICanInitializ
       for (var child of this.children) {
          child._initialize(engine);
       }
+   }
+
+   public _preupdate(engine: Engine): void {
+      this.onPreUpdate(engine);
+   }
+
+   public _postupdate(engine: Engine): void {
+      this.onPostUpdate.call(engine);
+   }
+
+   public _predraw(ctx: CanvasRenderingContext2D, delta: number): void {
+      this.onPreDraw(ctx, delta);
+   }
+
+   public _postdraw(ctx: CanvasRenderingContext2D, delta: number): void {
+      this.onPostDraw(ctx, delta);
    }
 
    private _checkForPointerOptIn(eventName: string) {
@@ -938,6 +970,7 @@ export class Actor extends Class implements IActionable, IEvented, ICanInitializ
    public update(engine: Engine, delta: number) {
       this._initialize(engine);
       this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
+      this._preupdate(engine);
 
       // Update action queue
       this.actionQueue.update(delta);
@@ -974,6 +1007,7 @@ export class Actor extends Class implements IActionable, IEvented, ICanInitializ
       // TODO: Obsolete `update` event on Actor
       this.eventDispatcher.emit('update', new PostUpdateEvent(engine, delta, this));
       this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
+      this._postupdate(engine);
    }
    /**
     * Called by the Engine, draws the actor to the screen
@@ -991,6 +1025,7 @@ export class Actor extends Class implements IActionable, IEvented, ICanInitializ
       ctx.translate(-(this._width * this.anchor.x), -(this._height * this.anchor.y));
 
       this.emit('predraw', new PreDrawEvent(ctx, delta, this));
+      this._predraw(ctx, delta);
 
       if (this.currentDrawing) {
          var drawing = this.currentDrawing;
@@ -1020,6 +1055,7 @@ export class Actor extends Class implements IActionable, IEvented, ICanInitializ
       }
 
       this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
+      this._postdraw(ctx, delta);
       ctx.restore();
    }
 

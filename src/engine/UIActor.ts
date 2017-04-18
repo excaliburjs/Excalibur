@@ -25,8 +25,13 @@ export class UIActor extends Actor {
       this.enableCapturePointer = true;
    }
 
-   public onInitialize(engine: Engine) {
+   public _initialize(engine: Engine){
       this._engine = engine;
+      this.onInitialize(engine);
+   }
+
+   public onInitialize(_engine: Engine) {
+      // Override me
    }
 
    public contains(x: number, y: number, useWorld: boolean = true) {

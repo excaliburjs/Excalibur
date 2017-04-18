@@ -139,11 +139,11 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
       // will be overridden
    }
 
-   public onPreDraw(): void {
+   public onPreDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
       // will be overridden
    }
 
-   public onPostDraw(): void {
+   public onPostDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
       // will be overridden
    }
 
@@ -193,19 +193,19 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
    }
 
    public _preupdate(_engine: Engine): void {
-      this.onPreUpdate.call(this, _engine);
+      this.onPreUpdate(_engine);
    }
 
    public _postupdate(_engine: Engine): void {
-      this.onPostUpdate.call(this, _engine);
+      this.onPostUpdate(_engine);
    }
 
-   public _predraw(_ctx: CanvasRenderingContext2D, delta: number): void {
-      this.onPreDraw.call(this, _ctx, delta);
+   public _predraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+      this.onPreDraw(_ctx, _delta);
    }
 
-   public _postdraw(_ctx: CanvasRenderingContext2D, delta: number): void {
-      this.onPostDraw.call(this, _ctx, delta);
+   public _postdraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+      this.onPostDraw(_ctx, _delta);
    }
 
 
