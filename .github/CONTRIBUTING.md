@@ -46,7 +46,7 @@ If you’re not sure where to start, take a look at the jump-in or help wanted i
 - Please do all of your work in a new git branch. Only include code in the branch for the single issue you are working on.
 - Include Jasmine tests for your changes, following our [styleguide](#tests). Put them in the src/spec folder.
 - Document new public methods and properties based on the [styleguide](#documentation).
-- Update CHANGELOG.md with your changes. The categories we use are adapted from [Keep a Changelog][keep-a-changelog]:
+- Update CHANGELOG.md with your changes, adding them to the "Unreleased" section at the top of the file under the appropriate category. The categories we use are adapted from [Keep a Changelog][keep-a-changelog]:
   - `Breaking Changes` for changes to the existing API that are not backwards compatible
   - `Added` for new features
   - `Changed` for changes in existing functionality
