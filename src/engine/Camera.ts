@@ -50,9 +50,9 @@ export class BaseCamera {
    private _yShake: number = 0;
 
    protected _isZooming: boolean = false;
-   private _currentZoomScale: number = 1;
    private _maxZoomScale: number = 1;
    private _zoomDuration: number = 0;
+   private _zoomPromise: Promise<boolean>;
    private _zoomIncrement: number = 0.01;
    private _easing: EasingFunction = EasingFunctions.EaseInOutCubic;
 
@@ -158,27 +158,22 @@ export class BaseCamera {
     * @param scale    The scale of the zoom
     * @param duration The duration of the zoom in milliseconds
     */
-   public zoom(scale: number, duration: number = 0) {
-      this._isZooming = true;
-      this._maxZoomScale = scale;
-      this._zoomDuration = duration;
+   public zoom(scale: number, duration: number = 0): Promise<boolean> {
+      this._zoomPromise = new Promise<boolean>();
+      
       if (duration) {
-         this._zoomIncrement = Math.abs(this._maxZoomScale - this._currentZoomScale) / duration * 1000;
+         this._isZooming = true;
+         this._maxZoomScale = scale;
+         this._zoomDuration = duration;
+         this._zoomIncrement = (scale - this.z) / duration;
+      } else {
+         this._isZooming = false;
+         this.z = scale;
+         this._zoomPromise.resolve(true);
+         
       }
 
-      if (this._maxZoomScale < 1) {
-         if (duration) {
-            this._zoomIncrement = -1 * this._zoomIncrement;
-         } else {
-            this._isZooming = false;
-            this._setCurrentZoomScale(this._maxZoomScale);
-         }
-      } else {
-         if (!duration) {
-            this._isZooming = false;
-            this._setCurrentZoomScale(this._maxZoomScale);
-         }
-      }
+      return this._zoomPromise;
    }
 
    /**
@@ -186,10 +181,6 @@ export class BaseCamera {
     */
    public getZoom() {
       return this.z;
-   }
-
-   private _setCurrentZoomScale(zoomScale: number) {
-      this.z = zoomScale;
    }
 
    public update(_engine: Engine, delta: number) {
@@ -203,6 +194,25 @@ export class BaseCamera {
       this.dz += this.az * delta / 1000;
 
       this.rotation += this.rx * delta / 1000;
+
+      if (this._isZooming) {
+         var newZoom = this.z + this._zoomIncrement * delta;      
+         this.z = newZoom;
+         if (this._zoomIncrement > 0) {
+               
+            if (newZoom >= this._maxZoomScale) {
+               this._isZooming = false;
+               this.z = this._maxZoomScale;
+               this._zoomPromise.resolve(true);
+            }
+         } else {
+            if (newZoom <= this._maxZoomScale) {
+               this._isZooming = false;
+               this.z = this._maxZoomScale;
+               this._zoomPromise.resolve(true);
+            }
+         }         
+      }
 
       if (this._cameraMoving) {
          if (this._currentLerpTime < this._lerpDuration) {
