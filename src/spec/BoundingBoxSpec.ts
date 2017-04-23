@@ -102,6 +102,13 @@ describe('A Bounding Box', () => {
       expect(bb.rayCast(ray)).toBe(false);
    });
 
+   it('ray cast can miss a box far away', () => {
+      var bb = new ex.BoundingBox(1176, 48, 1200, 72);
+
+      var ray = new ex.Ray(new ex.Vector(48, 72), ex.Vector.Down);
+      expect(bb.rayCast(ray)).toBe(false);
+   });
+
    it('ray cast can hit bounding box on the edge', () => {
       var bb = new ex.BoundingBox(0, 0, 10, 10);
 
