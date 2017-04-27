@@ -2,7 +2,7 @@ const request       = require('sync-request');
 const appveyorBuild = process.env.APPVEYOR_BUILD_NUMBER || '';
 const travisBuild   = process.env.TRAVIS_BUILD_NUMBER   || '';
 const commit        = process.env.TRAVIS_COMMIT         || '';
-const travisPr      = process.env.TRAVIS_PULL_REQUEST   || false;
+const travisPr      = process.env.TRAVIS_PULL_REQUEST   || 'false';
 
 // ignore local builds
 if (!appveyorBuild && !travisBuild) {
@@ -12,7 +12,7 @@ if (!appveyorBuild && !travisBuild) {
 }
 
 // ignore community PR builds
-if (!process.env.GH_TOKEN && travisPr !== false) {
+if (!process.env.GH_TOKEN && travisPr !== 'false') {
    console.info('Travis PR build, using version', 'pr-' + travisPr);
    module.exports = 'pr-' + travisPr;
    return;
