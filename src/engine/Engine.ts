@@ -51,7 +51,7 @@ export enum DisplayMode {
 * Interface describing the absolute CSS position of the game window. For use when DisplayMode.Position
 * is specified and when the user wants to define exact pixel spacing of the window.
 */
-export interface AbsolutePosition{
+export interface IAbsolutePosition {
   
   top?: number | string;
   left?: number | string;
@@ -108,7 +108,7 @@ export interface IEngineOptions {
    *format of css style background-position. 
    */
    
-   position?: string | AbsolutePosition;
+   position?: string | IAbsolutePosition;
 }
 
 /**
@@ -210,7 +210,7 @@ export class Engine extends Class {
    /**
     * Indicates the current position of the engine. Valid only when DisplayMode is DisplayMode.Position
     */
-   public position: string | AbsolutePosition;
+   public position: string | IAbsolutePosition;
    /**
     * Indicates whether audio should be paused when the game is no longer visible.
     */
@@ -770,7 +770,7 @@ O|===|* >________________>\n\
     * Initializes the internal canvas, rendering context, displaymode, and native event listeners
     */
    private _initialize(options?: IEngineOptions) {
-      if (options.displayMode){
+      if (options.displayMode) {
         this.displayMode = options.displayMode;
       }
       
@@ -788,65 +788,73 @@ O|===|* >________________>\n\
             this._logger.info('parent.clientHeight ' + parent.clientHeight);
             this.setAntialiasing(this._isSmoothingEnabled);
          });
-      } else if(this.displayMode === DisplayMode.Position){
+      } else if (this.displayMode === DisplayMode.Position) {
           
-          if( !options.position ){
-            throw new Error("DisplayMode of Position was selected but no position option was given");
-          } else{
+          if ( !options.position ) {
+            throw new Error('DisplayMode of Position was selected but no position option was given');
+          } else {
               
               this.canvas.style.display = 'block';
               this.canvas.style.position = 'absolute';
               
-              if (typeof options.position === 'string'){
-                var specifiedPosition = options.position.split(" ");
+              if (typeof options.position === 'string') {
+                var specifiedPosition = options.position.split(' ');
                 
                 switch (specifiedPosition[0]) {
-                  case "top":
-                    this.canvas.style.top = "1%";
+                  case 'top':
+                    this.canvas.style.top = '1%';
                     break;
-                  case "bottom":
-                    this.canvas.style.bottom = "1%";
+                  case 'bottom':
+                    this.canvas.style.bottom = '1%';
                     break;
-                  case "middle":
+                  case 'middle':
                     this.canvas.style.top = '50%';
                     var offsetY = this.getDrawHeight() / -2;
                     this.canvas.style.marginTop = offsetY.toString();
                     break;
                   default:
-                    throw new Error("Invalid Position Given");                  
+                    throw new Error('Invalid Position Given');                  
                 }
                 
-                if (specifiedPosition[1]){
+                if (specifiedPosition[1]) {
                   
-                  switch (specifiedPosition[1]){
-                    case "left":
-                      this.canvas.style.left = "1%";
+                  switch (specifiedPosition[1]) {
+                    case 'left':
+                      this.canvas.style.left = '1%';
                       break;
-                    case "right":
-                      this.canvas.style.right = "1%";
+                    case 'right':
+                      this.canvas.style.right = '1%';
                       break;
-                    case "center":
+                    case 'center':
                       this.canvas.style.left = '50%';
                       var offsetX = this.getDrawWidth() / -2;
                       this.canvas.style.marginLeft = offsetX.toString();
                       break;
                     default:
-                      throw new Error("Invalid Position Given");
+                      throw new Error('Invalid Position Given');
                   }
                 }
               } else {
                   
-                  if (options.position.top){
-                    typeof options.position.top === 'number' ? this.canvas.style.top = options.position.top.toString() + "px" : this.canvas.style.top = options.position.top;
+                  if (options.position.top) {
+                    typeof options.position.top === 'number' ? 
+                    this.canvas.style.top = options.position.top.toString() + 'px' : 
+                    this.canvas.style.top = options.position.top;
                   }
-                  if (options.position.right){
-                    typeof options.position.right === 'number' ? this.canvas.style.right = options.position.right.toString() + "px" : this.canvas.style.right = options.position.right;
+                  if (options.position.right) {
+                    typeof options.position.right === 'number' ? 
+                    this.canvas.style.right = options.position.right.toString() + 'px' : 
+                    this.canvas.style.right = options.position.right;
                   }
-                  if (options.position.bottom){
-                    typeof options.position.bottom === 'number' ? this.canvas.style.bottom = options.position.bottom.toString() + "px" : this.canvas.style.bottom = options.position.bottom;
+                  if (options.position.bottom) {
+                    typeof options.position.bottom === 'number' ? 
+                    this.canvas.style.bottom = options.position.bottom.toString() + 'px' : 
+                    this.canvas.style.bottom = options.position.bottom;
                   }
-                  if (options.position.left){
-                    typeof options.position.left === 'number' ? this.canvas.style.left = options.position.left.toString() + "px" : this.canvas.style.left = options.position.left;
+                  if (options.position.left) {
+                    typeof options.position.left === 'number' ? 
+                    this.canvas.style.left = options.position.left.toString() + 'px' : 
+                    this.canvas.style.left = options.position.left;
                   }
                   
                   

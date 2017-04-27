@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Bloc Breaker</title>
+    <link rel="stylesheet" type="text/css" href="display-mode-position.css">
+  </head>
+  <body>
+    
+    <section class="buttons">
+      <div class ="btn top-left">Put game at top left</div>
+      <div class ="btn mid-right">Put game at middle right</div>
+      <div class ="btn mid-center">Put game at middle center</div>
+      <div class ="btn bottom-left">Put game at bottom left</div>
+      <div class ="btn top-right">Put game at top right</div>
+      <div class ="btn top-center">Put game at top center</div>
+    </section>
+    
+    <div class="absolute-input">
+      <p>You can set exactly where the game will be presented by giving absolute positioning in the boxes below</p>
+      <p> Use <strong>Strings</strong> like 4px and 50%</p>
+      <div>
+          Top: <input type="text" id="top" name="top">
+      </div>
+      <div>
+          Right: <input type="text" id="right" name="right">
+      </div>
+      <div>
+          Bottom: <input type="text" id="bottom" name="bottom">
+      </div>
+      <div>
+          Left: <input type="text" id="left" name="left">
+      </div>
+      <div class="button">
+        <button type="submit">Draw the game at these coordinates</button>
+      </div>
+    </div>
+    
+    
+    <script src="../../../build/dist/excalibur.min.js"></script>
+    <script src="display-mode-position.js"></script>
+  </body>
+</html>

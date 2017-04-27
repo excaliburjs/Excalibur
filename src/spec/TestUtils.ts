@@ -10,7 +10,7 @@ module TestUtils {
          suppressConsoleBootMessage: true,
          suppressMinimumBrowserFeatureDetection: true,
          displayMode: ex.DisplayMode.Position,
-         position: "top"
+         position: 'top'
       }, options);
       var game = new ex.Engine(options);
 
