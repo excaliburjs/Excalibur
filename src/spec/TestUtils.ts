@@ -8,7 +8,9 @@ module TestUtils {
          width: 500,
          height: 500,
          suppressConsoleBootMessage: true,
-         suppressMinimumBrowserFeatureDetection: true
+         suppressMinimumBrowserFeatureDetection: true,
+         displayMode: ex.DisplayMode.Position,
+         position: "top"
       }, options);
       var game = new ex.Engine(options);
 
