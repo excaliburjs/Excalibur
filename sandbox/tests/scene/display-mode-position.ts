@@ -1,4 +1,4 @@
-/// <reference path='../../../build/dist/excalibur.d.ts' />
+/// <reference path='../../excalibur.d.ts' />
 
 document.querySelector(".top-left").addEventListener("click", function(){
   buildWorld("top left");
