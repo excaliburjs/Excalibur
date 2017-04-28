@@ -50,6 +50,7 @@ export enum DisplayMode {
 /*
 * Interface describing the absolute CSS position of the game window. For use when DisplayMode.Position
 * is specified and when the user wants to define exact pixel spacing of the window.
+* When a number is given, the value is interpreted as pixels
 */
 export interface IAbsolutePosition {
   
@@ -105,7 +106,9 @@ export interface IEngineOptions {
    /*
    *Specify how the game window is to be positioned when the DisplayMode.Position is chosen. This option MUST be specified
    *if the DisplayMode is set as DisplayMode.Position. The position can be either a string or an AbsolutePosition. String must be in the
-   *format of css style background-position. 
+   *format of css style background-position. The vertical position must precede the horizontal position in Strings
+   *Valid String examples: "top left", "top", "bottom", "middle", "middle center", "bottom right"
+   *Valid IAbsolutePosition examples: {top: 5, right: 10%}, {bottom: 49em, left: 10px}, {left: 10, bottom: 40} 
    */
    
    position?: string | IAbsolutePosition;
@@ -802,10 +805,10 @@ O|===|* >________________>\n\
                 
                 switch (specifiedPosition[0]) {
                   case 'top':
-                    this.canvas.style.top = '1%';
+                    this.canvas.style.top = '0px';
                     break;
                   case 'bottom':
-                    this.canvas.style.bottom = '1%';
+                    this.canvas.style.bottom = '0px';
                     break;
                   case 'middle':
                     this.canvas.style.top = '50%';
@@ -820,10 +823,10 @@ O|===|* >________________>\n\
                   
                   switch (specifiedPosition[1]) {
                     case 'left':
-                      this.canvas.style.left = '1%';
+                      this.canvas.style.left = '0px';
                       break;
                     case 'right':
-                      this.canvas.style.right = '1%';
+                      this.canvas.style.right = '0px';
                       break;
                     case 'center':
                       this.canvas.style.left = '50%';

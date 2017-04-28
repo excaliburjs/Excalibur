@@ -107,7 +107,7 @@ describe('The engine', () => {
    });
    
    it('should accept strings to position the window', () => {
-     expect(engine.canvas.style.top).toEqual('1%');
+     expect(engine.canvas.style.top).toEqual('0px');
    });
    
    it('should accept AbsolutePosition Interfaces to position the window', () => {

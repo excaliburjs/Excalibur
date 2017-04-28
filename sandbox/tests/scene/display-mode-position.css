@@ -11,15 +11,11 @@ section{
   float: left;
   margin: 5px;
   border: 1px solid black;
-  z-index: 500;
 }
 
 .absolute-input{
-  z-index: 500;
   text-align: right;
 }
-
-
 
 button{
   position: relative;
