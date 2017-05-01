@@ -104,11 +104,11 @@ export interface IEngineOptions {
    suppressMinimumBrowserFeatureDetection?: boolean;
    
    /*
-   *Specify how the game window is to be positioned when the DisplayMode.Position is chosen. This option MUST be specified
-   *if the DisplayMode is set as DisplayMode.Position. The position can be either a string or an AbsolutePosition. String must be in the
-   *format of css style background-position. The vertical position must precede the horizontal position in Strings
-   *Valid String examples: "top left", "top", "bottom", "middle", "middle center", "bottom right"
-   *Valid IAbsolutePosition examples: {top: 5, right: 10%}, {bottom: 49em, left: 10px}, {left: 10, bottom: 40} 
+   * Specify how the game window is to be positioned when the DisplayMode.Position is chosen. This option MUST be specified
+   * if the DisplayMode is set as DisplayMode.Position. The position can be either a string or an AbsolutePosition. String must be in the
+   * format of css style background-position. The vertical position must precede the horizontal position in Strings
+   * Valid String examples: "top left", "top", "bottom", "middle", "middle center", "bottom right"
+   * Valid IAbsolutePosition examples: {top: 5, right: 10%}, {bottom: 49em, left: 10px}, {left: 10, bottom: 40} 
    */
    
    position?: string | IAbsolutePosition;
