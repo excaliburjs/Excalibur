@@ -81,7 +81,7 @@ export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
             if (this._canCollide(actor, other.actor)) {
                var pair = new Pair(actor.body, other);
                this._collisionHash[pair.id] = true;
-               this._collisionPairCache.push(pair);
+               this._collisionPairCache.push(pair);     
             }
             // Always return false, to query whole tree. Returning true in the query method stops searching
             return false;
@@ -167,6 +167,7 @@ export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
          pairs[i].collide();
          if (stats && pairs[i].collision) {
             stats.physics.collisions++;
+            stats.physics.colliders.push(pairs[i]);
          }
       }
    }
