@@ -10,6 +10,14 @@ export interface IDebugStats {
 }
 
 /**
+ * Hash containing the [[Pair.id]]s of pairs that collided in a frame
+ */
+export interface ICollidersHash {
+   [pairID: string]: Pair;
+}
+
+
+/**
  * Represents a frame's individual statistics
  */
 export interface IFrameStats {
@@ -112,9 +120,9 @@ export interface IPhysicsStats {
    collisions: number;
    
    /**
-    * An array storing the pairs of Body's that touched in the frame
+    * A Hash storing the [[Pair.ids]]s of [[Pairs]]s that collided in the frame
     */
-   colliders: Pair[];
+   collidersHash: ICollidersHash;
      
    /**
     * Gets the number of fast moving bodies using raycast continuous collisions in the scene 
@@ -298,7 +306,7 @@ export class FrameStats implements IFrameStats {
 export class PhysicsStats implements IPhysicsStats {
    private _pairs: number = 0;
    private _collisions: number = 0;
-   private _colliders: Pair[] = [];
+   private _collidersHash: ICollidersHash = {};
    private _fastBodies: number = 0;
    private _fastBodyCollisions: number = 0;
    private _broadphase: number = 0;
@@ -313,7 +321,7 @@ export class PhysicsStats implements IPhysicsStats {
       if (otherStats) {
          this.pairs = otherStats.pairs;
          this.collisions = otherStats.collisions;
-         this.colliders = otherStats.colliders;
+         this.collidersHash = otherStats.collidersHash;
          this.fastBodies = otherStats.fastBodies;
          this.fastBodyCollisions = otherStats.fastBodyCollisions;
          this.broadphase = otherStats.broadphase;
@@ -321,7 +329,7 @@ export class PhysicsStats implements IPhysicsStats {
       } else {
          this.pairs = this.collisions = this.fastBodies = 0;
          this.fastBodyCollisions = this.broadphase = this.narrowphase = 0;
-         this.colliders = [];
+         this.collidersHash = {};
       }
    }
 
@@ -352,12 +360,12 @@ export class PhysicsStats implements IPhysicsStats {
       this._collisions = value;
    }
    
-   public get colliders(): Pair[] {
-      return this._colliders;
+   public get collidersHash(): ICollidersHash {
+      return this._collidersHash;
    }
    
-   public set colliders(pairs: Pair[]) {
-      this._colliders = pairs;
+   public set collidersHash(colliders: ICollidersHash) {
+      this._collidersHash = colliders;
    }
 
    public get fastBodies(): number {

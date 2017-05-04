@@ -81,7 +81,7 @@ export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
             if (this._canCollide(actor, other.actor)) {
                var pair = new Pair(actor.body, other);
                this._collisionHash[pair.id] = true;
-               this._collisionPairCache.push(pair);     
+               this._collisionPairCache.push(pair);
             }
             // Always return false, to query whole tree. Returning true in the query method stops searching
             return false;
@@ -161,13 +161,14 @@ export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
 
    /**
     * Applies narrow phase on collision pairs to find actual area intersections
+    * Adds actual colliding pairs to stats' Frame data 
     */
    public narrowphase(pairs: Pair[], stats?: FrameStats) {
       for (var i = 0; i < pairs.length; i++) {
          pairs[i].collide();
          if (stats && pairs[i].collision) {
             stats.physics.collisions++;
-            stats.physics.colliders.push(pairs[i]);
+            stats.physics.collidersHash[pairs[i].id] = pairs[i];
          }
       }
    }

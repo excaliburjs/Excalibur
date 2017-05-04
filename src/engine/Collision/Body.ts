@@ -234,7 +234,8 @@ export class Body {
    
    /**
     * Returns a boolean indicating whether this body collided with 
-    * The body of the other [[Actor]]
+    * or was in stationary contact with
+    * the body of the other [[Actor]]
     */
    public touching(other: Actor): boolean {
      
@@ -249,7 +250,7 @@ export class Body {
    }
    
    /**
-    * Returns a boolean indicating true if this body collided with 
+    * Returns a boolean indicating true if this body COLLIDED with 
     * the body of the other Actor in the last frame, && they are no longer touching
     * in this frame 
     */
@@ -258,19 +259,11 @@ export class Body {
      var pair = new Pair(this, other.body);
      var wasTouchingLastFrame = false;
      
-     game.stats.prevFrame.physics.colliders.forEach(function(oldPair){
-       if ( oldPair.id == pair.id ) {
+     if (game.stats.prevFrame.physics.collidersHash[pair.id]){
          wasTouchingLastFrame = true;
-       }
-     });
+     };
      
-     var currentlyTouching = false;
-     
-     pair.collide();
-     
-     if (pair.collision) {
-       currentlyTouching = true;
-     }
+     var currentlyTouching = this.touching(other);
      
      return wasTouchingLastFrame && !currentlyTouching;
      
