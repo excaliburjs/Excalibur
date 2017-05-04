@@ -1,5 +1,5 @@
 import { IDebugFlags } from './DebugFlags';
-import { Pair } from './Collision/Pair'
+import { Pair } from './Collision/Pair';
 
 /**
  * Debug stats containing current and previous frame statistics

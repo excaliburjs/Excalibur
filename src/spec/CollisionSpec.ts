@@ -36,5 +36,19 @@ describe('A Collision', () => {
       scene.update(engine, 20);
       expect(numCollisions).toBe(2);
    });
+   
+   it('should recognize when actor bodies are touching', () => {
+     var touching = false;
+     actor1.on('update', function() {
+       if (actor1.body.touching(actor2)) {
+         touching = true;
+       }
+     });
+     
+     scene.update(engine, 20);
+     expect(touching).toBe(true);
+   });
+   
+
 
 });

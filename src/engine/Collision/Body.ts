@@ -259,7 +259,7 @@ export class Body {
      var pair = new Pair(this, other.body);
      var wasTouchingLastFrame = false;
      
-     if (game.stats.prevFrame.physics.collidersHash[pair.id]){
+     if (game.stats.prevFrame.physics.collidersHash[pair.id]) {
          wasTouchingLastFrame = true;
      };
      
