@@ -13,7 +13,7 @@ export interface IDebugStats {
  * Hash containing the [[Pair.id]]s of pairs that collided in a frame
  */
 export interface ICollidersHash {
-   [pairID: string]: Pair;
+   [pairId: string]: Pair;
 }
 
 
