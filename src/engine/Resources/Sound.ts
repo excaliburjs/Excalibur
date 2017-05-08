@@ -295,7 +295,7 @@ export class Sound implements ILoadable, IAudio {
          var newTrack = this.sound.createInstance(this._data);
          newTrack.setLoop(this._loop);
          if (volume) {
-           newTrack.setVolume(Util.clamp(volume, 0, 1.0));
+           newTrack.setVolume(Util.clamp(volume, 0.0, 1.0));
          } else {
            newTrack.setVolume(this._volume);
          }
