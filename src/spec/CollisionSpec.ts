@@ -51,37 +51,29 @@ describe('A Collision', () => {
    
    it('should recognize when bodies were touching last frame', () => {
      var wasTouching = 0;
+     var engine1 = TestUtils.engine({width: 200, height: 200});
      
-
      var actor3 = new ex.Actor(0, 0, 10, 10);
      var actor4 = new ex.Actor(30, 0, 10, 10);
      
-     actor3.vel.setTo(200, 0);
-     actor3.collisionType = ex.CollisionType.Elastic;
-     actor4.collisionType = ex.CollisionType.Elastic;
-     scene.add(actor3);
-     scene.add(actor4);
-     
-     actor3.on('update', function() {
+     engine1.start().then(() => {
+       actor3.vel.setTo(200, 0);
+       actor3.collisionType = ex.CollisionType.Elastic;
+       actor4.collisionType = ex.CollisionType.Elastic;
+       engine1.add(actor3);
+       engine1.add(actor4);
        
-       if (actor3.body.touching(actor4)) {
-         wasTouching++;
+       actor3.on('update', function() {
+         console.log(`current frame collisions: ${engine1.stats.currFrame.physics.collisions}`);
+         console.log(`previous frame collisions: ${engine1.stats.prevFrame.physics.collisions}`);
+         if (actor3.body.wasTouching(actor4, engine1)) {
+           wasTouching++;
+           engine1.stop();
+         }
          
-       }
-       if (actor3.body.wasTouching(actor4, engine)) {
-         wasTouching++;
-       }
+       });
        
      });
-     
-     var ms = 0;
-     while (wasTouching < 2) {
-       scene.update(engine, 10);
-       console.log(`current frame collisions: ${engine.stats.currFrame.physics.collisions}`);
-       console.log(`previous frame collisions: ${engine.stats.prevFrame.physics.collisions}`);
-     }
-     console.log(`milliseconds until wasTouching was true: ${ms}`);
-     
   
      expect(wasTouching).toBe(1);
      
