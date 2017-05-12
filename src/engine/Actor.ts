@@ -477,6 +477,7 @@ export class Actor extends Class implements IActionable, IEvented {
    public on(eventName: Events.pointerdown, handler: (event?: PointerEvent) => void): void;
    public on(eventName: Events.pointermove, handler: (event?: PointerEvent) => void): void;
    public on(eventName: Events.pointercancel, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.wheel, handler: (event?: WheelEvent) => void): void;
    public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
    public on(eventName: string, handler: (event?: GameEvent<any>) => void): void {
       this._checkForPointerOptIn(eventName);

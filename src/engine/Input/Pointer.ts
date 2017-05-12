@@ -225,6 +225,7 @@ export class Pointers extends Class {
       this._pointerDown.length = 0;
       this._pointerMove.length = 0;
       this._pointerCancel.length = 0;
+      this._wheel.length = 0;
    }
    
    /**
