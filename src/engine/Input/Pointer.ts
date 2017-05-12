@@ -208,7 +208,7 @@ export class Pointers extends Class {
       }
 
       // MDN MouseWheelEvent
-      if ('onwheel' in document.createElement("div")) {
+      if ('onwheel' in document.createElement('div')) {
          // Modern Browsers
          target.addEventListener('wheel', this._handleWheelEvent('wheel', this._wheel));
       } else if (document.onmousewheel !== undefined) {
