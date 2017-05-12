@@ -26,6 +26,12 @@ export enum PointerButton {
    Unknown
 }
 
+export enum WheelDeltaMode {
+   Pixel,
+   Line,
+   Page
+}
+
 /**
  * Determines the scope of handling mouse/touch events. See [[Pointers]] for more information.
  */
@@ -80,6 +86,44 @@ export class PointerEvent extends GameEvent<any> {
 };
 
 /**
+ * Wheel Events
+ *
+ * Represents a mouse wheel event. See [[Pointers]] for more information on
+ * handling point input.
+ */
+export class WheelEvent extends GameEvent<any> {
+
+   /**
+    * @param x            The `x` coordinate of the event (in world coordinates)
+    * @param y            The `y` coordinate of the event (in world coordinates)
+    * @param pageX        The `x` coordinate of the event (in document coordinates)
+    * @param pageY        The `y` coordinate of the event (in document coordinates)
+    * @param screenX      The `x` coordinate of the event (in screen coordinates)
+    * @param screenY      The `y` coordinate of the event (in screen coordinates)
+    * @param index        The index of the pointer (zero-based)
+    * @param deltaX       The type of pointer
+    * @param deltaY       The type of pointer
+    * @param deltaZ       The type of pointer
+    * @param deltaMode    The type of movement [[WheelDeltaMode]]
+    * @param ev           The raw DOM event being handled
+    */
+   constructor(public x: number,
+               public y: number,
+               public pageX: number,
+               public pageY: number,
+               public screenX: number,
+               public screenY: number,
+               public index: number,
+               public deltaX: number,
+               public deltaY: number,
+               public deltaZ: number,
+               public deltaMode: WheelDeltaMode,
+               public ev: any) {
+      super();
+   }
+};
+
+/**
  * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to 
  * [W3C Pointer Events](http://www.w3.org/TR/pointerevents/).
  *
@@ -92,6 +136,7 @@ export class Pointers extends Class {
    private _pointerUp: PointerEvent[] = [];
    private _pointerMove: PointerEvent[] = [];
    private _pointerCancel: PointerEvent[] = [];
+   private _wheel: WheelEvent[] = [];
    private _pointers: Pointer[] = [];
    private _activePointers: number[] = [];
 
@@ -108,6 +153,7 @@ export class Pointers extends Class {
    public on(eventName: Events.down, handler: (event?: PointerEvent) => void): void;
    public on(eventName: Events.move, handler: (event?: PointerEvent) => void): void;
    public on(eventName: Events.cancel, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.wheel, handler: (event?: WheelEvent) => void): void;
    public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
    public on(eventName: string, handler: (event?: GameEvent<any>) => void): void {
       super.on(eventName, handler);
@@ -159,6 +205,18 @@ export class Pointers extends Class {
          target.addEventListener('mousedown', this._handleMouseEvent('down', this._pointerDown));
          target.addEventListener('mouseup', this._handleMouseEvent('up', this._pointerUp));
          target.addEventListener('mousemove', this._handleMouseEvent('move', this._pointerMove));
+      }
+
+      // MDN MouseWheelEvent
+      if ('onwheel' in document.createElement("div")) {
+         // Modern Browsers
+         target.addEventListener('wheel', this._handleWheelEvent('wheel', this._wheel));
+      } else if (document.onmousewheel !== undefined) {
+         // Webkit and IE
+         target.addEventListener('mousewheel', this._handleWheelEvent('wheel', this._wheel));
+      } else {
+         // Remaining browser and older Firefox
+         target.addEventListener('MozMousePixelScroll', this._handleWheelEvent('wheel', this._wheel));
       }
    }
 
@@ -236,6 +294,14 @@ export class Pointers extends Class {
             actor.eventDispatcher.emit('pointercancel', this._pointerCancel[i]);
          }
       }
+
+      i = 0;
+      len = this._wheel.length;
+      for (i; i < len; i++) {
+         if (actor.contains(this._wheel[i].x, this._wheel[i].y, !isUIActor)) {
+            actor.eventDispatcher.emit('wheel', this._wheel[i]);
+         }
+      }
    }
 
    private _handleMouseEvent(eventName: string, eventArr: PointerEvent[]) {
@@ -306,6 +372,55 @@ export class Pointers extends Class {
                this._activePointers[index] = e.pointerId;
             }
          }
+      };
+   }
+
+   private _handleWheelEvent(eventName: string, eventArr: WheelEvent[]) {
+      return (e: MouseWheelEvent) => {
+         e.preventDefault(); // TODO make this optional
+
+         var x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
+         var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
+         var transformedPoint = this._engine.screenToWorldCoordinates(new Vector(x, y));
+
+         var deltaX = 0;
+         var deltaY = 0;
+         var deltaZ = 0;
+         var deltaMode = WheelDeltaMode.Pixel;
+
+         if (e.deltaX) {
+            deltaX = e.deltaX;
+         } else if (e.wheelDeltaX) {
+            deltaX = e.wheelDeltaX * (-1 / 40);
+         }
+
+         if (e.deltaY) {
+            deltaY = e.deltaY;
+         } else if (e.wheelDeltaY) {
+            deltaY = e.wheelDeltaY * (-1 / 40);
+         } else if (e.wheelDelta) {
+            deltaY = e.wheelDelta * (-1 / 40);
+         } else {
+            deltaY = e.detail;
+         }
+
+         if (e.deltaZ) {
+            deltaZ = e.deltaZ;
+         }
+
+         if (e.deltaMode) {
+            if (e.deltaMode === 1) {
+               deltaMode = WheelDeltaMode.Line;
+            } else if (e.deltaMode === 2) {
+               deltaMode = WheelDeltaMode.Page;
+            }
+         }
+
+         var we = new WheelEvent(transformedPoint.x, transformedPoint.y,
+            e.pageX, e.pageY, x, y, 0, deltaX, deltaY, deltaZ, deltaMode, e);
+
+         eventArr.push(we);
+         this.at(0).eventDispatcher.emit(eventName, we);
       };
    }
 

@@ -61,6 +61,17 @@ game.input.pointers.primary.on("up", (pe: ex.Input.PointerEvent) => {
    document.getElementById("pointer-btn").innerHTML = "";
 });
 
+// Wheel
+game.input.pointers.primary.on("wheel", (pe: ex.Input.WheelEvent) => {
+   var type: string;
+   switch (pe.deltaMode) {
+      case ex.Input.WheelDeltaMode.Pixel: type = "pixel"; break;
+      case ex.Input.WheelDeltaMode.Line: type = "line"; break;
+      case ex.Input.WheelDeltaMode.Page: type = "page"; break;
+   }
+   document.getElementById("pointer-wheel-deltas").innerHTML = pe.deltaX + ", " + pe.deltaY + ", " + pe.deltaZ + ", " + type;
+});
+
 var paintBrush = {
    paint: (x: number, y: number, color: ex.Color) => {
       var brush = new ex.Actor(x, y, 5, 5, color);

@@ -54,6 +54,7 @@ export type up = 'up';
 export type down = 'down';
 export type move = 'move';
 export type cancel = 'cancel';
+export type wheel = 'wheel';
 
 export type press = 'press';
 export type release = 'release';
