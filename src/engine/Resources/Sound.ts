@@ -267,11 +267,15 @@ export class Sound implements ILoadable, IAudio {
    public isPlaying(): boolean {
       return this._tracks.some(t => t.isPlaying());
    }
+   
+   public playWithProfile(): Promise<boolean> {
+     return Promise.resolve(true);
+   }
 
    /**
     * Play the sound, returns a promise that resolves when the sound is done playing
     */
-   public play(): Promise<boolean> {
+   public play(volume?: string): Promise<boolean> {
       if (this._isLoaded) {
          var resumed = [];
 
@@ -298,7 +302,15 @@ export class Sound implements ILoadable, IAudio {
          this._tracks.push(newTrack);
 
          this._logger.debug('Playing new instance for sound', this.path);
-
+         if (volume) {
+           return newTrack.playWithProfile().then(() => {
+  
+              // when done, remove track
+              this._tracks.splice(this._tracks.indexOf(newTrack), 1);
+  
+              return true;
+           });
+         } else {
          return newTrack.play().then(() => {
 
             // when done, remove track
@@ -306,6 +318,7 @@ export class Sound implements ILoadable, IAudio {
 
             return true;
          });
+       }
       } else {
          return Promise.resolve(true);
       }
@@ -474,6 +487,18 @@ class AudioTagInstance implements IAudio {
 
       return this._playingPromise;
    }
+   
+   public playWithProfile(){
+      if (this._isPaused) {
+        this._resume();
+      } else if (!this._isPlaying) {
+        this._start();
+      }
+      this._audioElement.ontimeupdate = function() {
+        console.log("Playing")
+      }
+      return this._playingPromise;
+   }
 
    private _start() {
       this._audioElement.load();
@@ -582,6 +607,25 @@ class WebAudioInstance implements IAudio {
 
       return this._playingPromise;
    }
+   
+   public playWithProfile(){
+     if (this._isPaused) {
+       this._resume();
+     } else if (!this._isPlaying) {
+       this._start();
+     }
+     var point1 = 0.8;
+     var point2 = 0.1;
+     var point3 = 0.1;
+     var point4 = 0.4;
+     
+     while (new Date().getTime() < this._startTime + this._buffer.duration*1000) {
+       var cpt = (new Date().getTime() - this._startTime) / (this._buffer.duration*1000) ;
+       this.setVolume(((1-cpt)**3)*point1 + 3*((1-cpt)**2)*cpt*point2 + 3*(1-cpt)*(cpt**2)*point3 + (cpt**3)*point4);
+     }
+     return this._playingPromise;
+   }
+ 
 
    private _start() {
       this._volumeNode.connect(audioContext.destination);
@@ -665,6 +709,7 @@ class WebAudioInstance implements IAudio {
    private _handleOnEnded() {
       // pausing calls stop(0) which triggers onended event
       // so we don't "resolve" yet (when we resume we'll try again)
+      
       if (!this._isPaused) {
          this._isPlaying = false;
          this._playingPromise.resolve(true);

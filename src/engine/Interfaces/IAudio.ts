@@ -24,6 +24,11 @@ export interface IAudio {
     * Will play the sound or resume if paused
     */
    play(): Promise<any>;
+   
+   /**
+    * Will play the sound with a Bezier-type volume profile
+    */
+   playWithProfile(): Promise<any>;
 
    /**
     * Pause the sound
