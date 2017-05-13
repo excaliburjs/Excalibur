@@ -39,7 +39,26 @@ export enum DisplayMode {
    /** 
     * Show the game as a fixed size 
     */
-   Fixed
+   Fixed,
+   
+   /*
+   * Allow the game to be positioned with the position option
+   */
+   Position
+}
+
+/*
+* Interface describing the absolute CSS position of the game window. For use when DisplayMode.Position
+* is specified and when the user wants to define exact pixel spacing of the window.
+* When a number is given, the value is interpreted as pixels
+*/
+export interface IAbsolutePosition {
+  
+  top?: number | string;
+  left?: number | string;
+  right?: number | string;
+  bottom?: number | string;
+  
 }
 
 /**
@@ -83,6 +102,16 @@ export interface IEngineOptions {
     * browsers or if there is a bug in excalibur preventing execution.
     */
    suppressMinimumBrowserFeatureDetection?: boolean;
+   
+   /*
+   * Specify how the game window is to be positioned when the DisplayMode.Position is chosen. This option MUST be specified
+   * if the DisplayMode is set as DisplayMode.Position. The position can be either a string or an AbsolutePosition. String must be in the
+   * format of css style background-position. The vertical position must precede the horizontal position in Strings
+   * Valid String examples: "top left", "top", "bottom", "middle", "middle center", "bottom right"
+   * Valid IAbsolutePosition examples: {top: 5, right: 10%}, {bottom: 49em, left: 10px}, {left: 10, bottom: 40} 
+   */
+   
+   position?: string | IAbsolutePosition;
 }
 
 /**
@@ -180,7 +209,11 @@ export class Engine extends Class {
     * Indicates the current [[DisplayMode]] of the engine.
     */
    public displayMode: DisplayMode = DisplayMode.FullScreen;
-
+   
+   /**
+    * Indicates the current position of the engine. Valid only when DisplayMode is DisplayMode.Position
+    */
+   public position: string | IAbsolutePosition;
    /**
     * Indicates whether audio should be paused when the game is no longer visible.
     */
@@ -740,6 +773,10 @@ O|===|* >________________>\n\
     * Initializes the internal canvas, rendering context, displaymode, and native event listeners
     */
    private _initialize(options?: IEngineOptions) {
+      if (options.displayMode) {
+        this.displayMode = options.displayMode;
+      }
+      
       if (this.displayMode === DisplayMode.FullScreen || this.displayMode === DisplayMode.Container) {
 
 
@@ -754,8 +791,80 @@ O|===|* >________________>\n\
             this._logger.info('parent.clientHeight ' + parent.clientHeight);
             this.setAntialiasing(this._isSmoothingEnabled);
          });
+      } else if (this.displayMode === DisplayMode.Position) {
+          
+          if ( !options.position ) {
+            throw new Error('DisplayMode of Position was selected but no position option was given');
+          } else {
+              
+              this.canvas.style.display = 'block';
+              this.canvas.style.position = 'absolute';
+              
+              if (typeof options.position === 'string') {
+                var specifiedPosition = options.position.split(' ');
+                
+                switch (specifiedPosition[0]) {
+                  case 'top':
+                    this.canvas.style.top = '0px';
+                    break;
+                  case 'bottom':
+                    this.canvas.style.bottom = '0px';
+                    break;
+                  case 'middle':
+                    this.canvas.style.top = '50%';
+                    var offsetY = this.getDrawHeight() / -2;
+                    this.canvas.style.marginTop = offsetY.toString();
+                    break;
+                  default:
+                    throw new Error('Invalid Position Given');                  
+                }
+                
+                if (specifiedPosition[1]) {
+                  
+                  switch (specifiedPosition[1]) {
+                    case 'left':
+                      this.canvas.style.left = '0px';
+                      break;
+                    case 'right':
+                      this.canvas.style.right = '0px';
+                      break;
+                    case 'center':
+                      this.canvas.style.left = '50%';
+                      var offsetX = this.getDrawWidth() / -2;
+                      this.canvas.style.marginLeft = offsetX.toString();
+                      break;
+                    default:
+                      throw new Error('Invalid Position Given');
+                  }
+                }
+              } else {
+                  
+                  if (options.position.top) {
+                    typeof options.position.top === 'number' ? 
+                    this.canvas.style.top = options.position.top.toString() + 'px' : 
+                    this.canvas.style.top = options.position.top;
+                  }
+                  if (options.position.right) {
+                    typeof options.position.right === 'number' ? 
+                    this.canvas.style.right = options.position.right.toString() + 'px' : 
+                    this.canvas.style.right = options.position.right;
+                  }
+                  if (options.position.bottom) {
+                    typeof options.position.bottom === 'number' ? 
+                    this.canvas.style.bottom = options.position.bottom.toString() + 'px' : 
+                    this.canvas.style.bottom = options.position.bottom;
+                  }
+                  if (options.position.left) {
+                    typeof options.position.left === 'number' ? 
+                    this.canvas.style.left = options.position.left.toString() + 'px' : 
+                    this.canvas.style.left = options.position.left;
+                  }
+                  
+                  
+              }
+          }
       }
-
+       
       // initialize inputs
       this.input = {
          keyboard: new Input.Keyboard(this),
