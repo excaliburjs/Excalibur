@@ -28,13 +28,13 @@ engine.input.pointers.primary.on("cancel", function (evt) { });
 
 ### Wheel Event
 
-You can also subscribe to the mouse wheel event through `engine.input.points.on`. A [[WheelEvent]]
+You can also subscribe to the mouse wheel event through `engine.input.pointers.on`. A [[WheelEvent]]
 object is passed to your handler which offers information about the wheel event being received.
 
 - `wheel` - When a mousewheel is activated (trackpad scroll or mouse wheel)
 
 ```js
-engine.input.pointers.primary.on("wheel", function (evt) { });
+engine.input.pointers.on("wheel", function (evt) { });
 ```
 
 ## Last position querying

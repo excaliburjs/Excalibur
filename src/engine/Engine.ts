@@ -47,6 +47,24 @@ export enum DisplayMode {
    Position
 }
 
+/**
+ * Enum representing the different mousewheel event bubble prevention
+ */
+export enum PageScrollPreventionMode {
+   /**
+    * Do not prevent any page scrolling
+    */
+   None,
+   /**
+    * Prevent page scroll if mouse is over the game canvas
+    */
+   Canvas,
+   /**
+    * Prevent all page scrolling via mouse wheel
+    */
+   Page
+}
+
 /*
 * Interface describing the absolute CSS position of the game window. For use when DisplayMode.Position
 * is specified and when the user wants to define exact pixel spacing of the window.
@@ -112,6 +130,11 @@ export interface IEngineOptions {
    */
    
    position?: string | IAbsolutePosition;
+
+   /**
+    * Scroll prevention method.
+    */
+   pageScrollPreventionMode?: PageScrollPreventionMode;
 }
 
 /**
@@ -234,6 +257,11 @@ export class Engine extends Class {
     */
    public onFatalException = (e: any) => { Logger.getInstance().fatal(e); };
 
+   /**
+    * The mouse wheel scroll prevention mode
+    */
+   public pageScrollPreventionMode: PageScrollPreventionMode;
+
    private _logger: Logger;
    private _isSmoothingEnabled: boolean = true;
 
@@ -273,7 +301,8 @@ export class Engine extends Class {
       canvasElementId: '',
       pointerScope: Input.PointerScope.Document,
       suppressConsoleBootMessage: null,
-      suppressMinimumBrowserFeatureDetection: null
+      suppressMinimumBrowserFeatureDetection: null,
+      pageScrollPreventionMode: PageScrollPreventionMode.Canvas
    };
 
    /**
@@ -874,6 +903,8 @@ O|===|* >________________>\n\
       this.input.keyboard.init();
       this.input.pointers.init(options ? options.pointerScope : Input.PointerScope.Document);
       this.input.gamepads.init();
+
+      this.pageScrollPreventionMode = options.pageScrollPreventionMode;
 
       // Issue #385 make use of the visibility api
       // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API

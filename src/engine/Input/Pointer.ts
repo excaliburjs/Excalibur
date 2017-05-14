@@ -1,4 +1,4 @@
-﻿import { Engine } from './../Engine';
+﻿import {Engine, PageScrollPreventionMode} from './../Engine';
 import { GameEvent } from '../Events';
 import { UIActor } from '../UIActor';
 import { Vector } from '../Algebra';
@@ -378,7 +378,11 @@ export class Pointers extends Class {
 
    private _handleWheelEvent(eventName: string, eventArr: WheelEvent[]) {
       return (e: MouseWheelEvent) => {
-         e.preventDefault(); // TODO make this optional
+         // Should we prevent page scroll because of this event
+         if (this._engine.pageScrollPreventionMode === PageScrollPreventionMode.Page ||
+             (this._engine.pageScrollPreventionMode === PageScrollPreventionMode.Canvas && e.target === this._engine.canvas)) {
+            e.preventDefault();
+         }
 
          var x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
          var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
