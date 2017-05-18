@@ -1,6 +1,16 @@
 import { Promise } from './../Promises';
 
 /**
+ * Defines the points which describe a cubic bezier curve for a sound profile
+ */
+export interface IBezierPoints {
+  point1: number;
+  point2: number;
+  point3: number;
+  point4: number;
+}
+
+/**
  * Represents an audio control implementation
  */
 export interface IAudio {
@@ -28,7 +38,7 @@ export interface IAudio {
    /**
     * Will play the sound with a Bezier-type volume profile
     */
-   playWithProfile(): Promise<any>;
+   playWithProfile(profile: string | IBezierPoints): Promise<any>;
 
    /**
     * Pause the sound

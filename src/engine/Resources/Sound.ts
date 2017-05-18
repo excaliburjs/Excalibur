@@ -1,6 +1,8 @@
 import { ILoadable } from '../Interfaces/ILoadable';
 import { IAudioImplementation } from '../Interfaces/IAudioImplementation';
 import { IAudio } from '../Interfaces/IAudio';
+import { IBezierPoints} from '../Interfaces/IAudio';
+import { EasingFunctions } from '../Util/EasingFunctions';
 import { Logger } from '../Util/Log';
 import * as Util from '../Util/Util';
 import { Engine } from '../Engine';
@@ -275,7 +277,7 @@ export class Sound implements ILoadable, IAudio {
    /**
     * Play the sound, returns a promise that resolves when the sound is done playing
     */
-   public play(volume?: string): Promise<boolean> {
+   public play(data?: string | number | IBezierPoints): Promise<boolean> {
       if (this._isLoaded) {
          var resumed = [];
 
@@ -302,8 +304,8 @@ export class Sound implements ILoadable, IAudio {
          this._tracks.push(newTrack);
 
          this._logger.debug('Playing new instance for sound', this.path);
-         if (volume) {
-           return newTrack.playWithProfile().then(() => {
+         if (data && typeof data !== 'number') {
+           return newTrack.playWithProfile(data).then(() => {
   
               // when done, remove track
               this._tracks.splice(this._tracks.indexOf(newTrack), 1);
@@ -488,14 +490,73 @@ class AudioTagInstance implements IAudio {
       return this._playingPromise;
    }
    
-   public playWithProfile(){
+   public playWithProfile(profile: string | IBezierPoints) {
       if (this._isPaused) {
         this._resume();
       } else if (!this._isPlaying) {
         this._start();
       }
-      this._audioElement.ontimeupdate = function() {
-        console.log("Playing")
+      
+      var point1;
+      var point2;
+      var point3;
+      var point4;
+      
+      if (typeof profile === 'string') {
+        switch (profile) {
+          case 'linearUp':
+            point1 = 0.0;
+            point2 = 0.33;
+            point3 = 0.67;
+            point4 = 1.0;
+            break;
+          case 'linearDown':
+            point1 = 1.0;
+            point2 = 0.67;
+            point3 = 0.33;
+            point4 = 0.0;
+            break;
+          case 'ease':
+            point1 = 0.0;
+            point2 = 0.1;
+            point3 = 0.9;
+            point4 = 1.0;
+            break;
+          case 'ease-in':
+            point1 = 0.0;
+            point2 = 0.0;
+            point3 = 0.75;
+            point4 = 1.0;
+            break;
+          case 'ease-out':
+            point1 = 0.0;
+            point2 = 0.33;
+            point3 = 0.9;
+            point4 = 1.0;
+            break;
+          case 'ease-in-out':
+            point1 = 0.0;
+            point2 = 0.0;
+            point3 = 1.0;
+            point4 = 1.0;
+            break;
+          default:
+            throw new Error('Invalid profile given');
+        }
+      } else {
+        point1 = profile.point1;
+        point2 = profile.point2;
+        point3 = profile.point3;
+        point4 = profile.point4;
+      }
+      
+      if (point1 > 1 || point1 < 0 || point2 > 1 || point2 < 0 || point3 > 1 || point3 < 0 || point4 < 0 || point4 > 1) {
+        throw new Error('All points for the play profile must be between 0 and 1');
+      }
+      
+      while (this._audioElement.currentTime < this._audioElement.duration) {
+        var currentPlaythroughTimePercentage = this._audioElement.currentTime / this._audioElement.duration;
+        this.setVolume(EasingFunctions.CubicBezier(currentPlaythroughTimePercentage, point1, point2, point3, point4));
       }
       return this._playingPromise;
    }
@@ -608,20 +669,75 @@ class WebAudioInstance implements IAudio {
       return this._playingPromise;
    }
    
-   public playWithProfile(){
+   public playWithProfile(profile: string | IBezierPoints) {
      if (this._isPaused) {
        this._resume();
      } else if (!this._isPlaying) {
        this._start();
      }
-     var point1 = 0.8;
-     var point2 = 0.1;
-     var point3 = 0.1;
-     var point4 = 0.4;
      
-     while (new Date().getTime() < this._startTime + this._buffer.duration*1000) {
-       var cpt = (new Date().getTime() - this._startTime) / (this._buffer.duration*1000) ;
-       this.setVolume(((1-cpt)**3)*point1 + 3*((1-cpt)**2)*cpt*point2 + 3*(1-cpt)*(cpt**2)*point3 + (cpt**3)*point4);
+     var point1;
+     var point2;
+     var point3;
+     var point4;
+     
+     if (typeof profile === 'string') {
+       switch (profile) {
+         case 'linearUp':
+           point1 = 0.0;
+           point2 = 0.33;
+           point3 = 0.67;
+           point4 = 1.0;
+           break;
+         case 'linearDown':
+           point1 = 1.0;
+           point2 = 0.67;
+           point3 = 0.33;
+           point4 = 0.0;
+           break;
+         case 'ease':
+           point1 = 0.0;
+           point2 = 0.1;
+           point3 = 0.9;
+           point4 = 1.0;
+           break;
+         case 'ease-in':
+           point1 = 0.0;
+           point2 = 0.0;
+           point3 = 0.75;
+           point4 = 1.0;
+           break;
+         case 'ease-out':
+           point1 = 0.0;
+           point2 = 0.33;
+           point3 = 0.9;
+           point4 = 1.0;
+           break;
+         case 'ease-in-out':
+           point1 = 0.0;
+           point2 = 0.0;
+           point3 = 1.0;
+           point4 = 1.0;
+           break;
+         default:
+           throw new Error('Invalid profile given');
+       }
+     } else {
+       point1 = profile.point1;
+       point2 = profile.point2;
+       point3 = profile.point3;
+       point4 = profile.point4;
+     }
+     
+     if (point1 > 1 || point1 < 0 || point2 > 1 || point2 < 0 || point3 > 1 || point3 < 0 || point4 < 0 || point4 > 1) {
+       throw new Error('All points for the play profile must be between 0 and 1');
+     }
+     
+     var absoluteStartTime = this._bufferSource.context.currentTime;
+     
+     while (this._bufferSource.context.currentTime < absoluteStartTime + this._buffer.duration) {
+       var currentPlaythroughTimePercentage = (this._bufferSource.context.currentTime - absoluteStartTime) / this._buffer.duration;
+       this.setVolume(EasingFunctions.CubicBezier(currentPlaythroughTimePercentage, point1, point2, point3, point4));
      }
      return this._playingPromise;
    }

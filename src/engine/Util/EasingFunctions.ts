@@ -6,6 +6,13 @@ export interface EasingFunction { // tslint:disable-line
 }
 
 /**
+ * A definition of the cubic Bezier curve. See [[EasingFunctions]].    
+ */
+export interface IBezierInput {
+   (currentTime: number, point1: number, point2: number, point3: number, point4: number): number;
+}
+
+/**
  * Standard easing functions for motion in Excalibur, defined on a domain of [0, duration] and a range from [+startValue,+endValue]
  * Given a time, the function will return a value from positive startValue to positive endValue.
  *
@@ -42,6 +49,11 @@ export interface EasingFunction { // tslint:disable-line
  * // acceleration until halfway, then deceleration 
  * function EaseInOutCubic (t) { 
  *    return t < .5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1; 
+ * }
+ *
+ * // the cubic bezier function, which draws a smooth curve according to the provided points
+ * function CubicBezier (t) {
+ *    return Math.pow(1-t, 3) * point1 + 3 * Math.pow(1-t, 2) * t * point2 + 3 * (1-t) * (t * t) * point3 + (t * t * t) * point4;
  * }
  * ```
  */
@@ -96,4 +108,8 @@ export class EasingFunctions {
       return endValue / 2 * (currentTime * currentTime * currentTime + 2) + startValue;
    };
    
+   public static CubicBezier: IBezierInput = (currentTime: number, point1: number, point2: number, point3: number, point4: number) => {
+      return Math.pow(1 - currentTime, 3) * point1 + 3 * Math.pow(1 - currentTime, 2) * currentTime * point2 + 
+             3 * (1 - currentTime) * (currentTime * currentTime) * point3 + (currentTime * currentTime * currentTime) * point4;
+   };
 }

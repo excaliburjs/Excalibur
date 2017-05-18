@@ -348,7 +348,36 @@ class MockAudioInstance implements ex.IAudio {
 
       return this._playComplete;
    }
+   
+   playWithProfile() {
+     
+     if (!this._isPlaying) {
+        this._isPlaying = true;
+        this._currentOffset = 0;
+        this._startTime = new Date().getTime();
 
+        this._playComplete = new ex.Promise<boolean>();
+
+        this._playing = setTimeout(() => {
+           this._isPlaying = false;
+           this._playComplete.resolve(true);
+        }, this._duration);
+
+     } else if (this._isPaused) {
+        this._isPlaying = true;
+        this._isPaused = false;
+        this._currentOffset = new Date().getTime() - this._startTime;
+
+        clearTimeout(this._playing);
+        this._playing = setTimeout(() => {
+           this._isPlaying = false;
+           this._playComplete.resolve(true);
+        }, this._duration - this._currentOffset);
+     }
+     return this._playComplete;
+     
+   }
+   
    pause() {
       this._isPlaying = false;
       clearTimeout(this._playing);
