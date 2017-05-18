@@ -49,7 +49,7 @@ describe('A Collision', () => {
      expect(touching).toBe(true);
    });
    
-   it('should recognize when bodies were touching last frame', () => {
+   it('should recognize when bodies were touching last frame', (done) => {
      var wasTouching = 0;
      var engine1 = TestUtils.engine({width: 200, height: 200});
      
@@ -64,18 +64,20 @@ describe('A Collision', () => {
        engine1.add(actor4);
        
        actor3.on('update', function() {
-         console.log(`current frame collisions: ${engine1.stats.currFrame.physics.collisions}`);
-         console.log(`previous frame collisions: ${engine1.stats.prevFrame.physics.collisions}`);
+        
          if (actor3.body.wasTouching(actor4, engine1)) {
            wasTouching++;
+           expect(wasTouching).toBe(1);
+           done();
            engine1.stop();
+           
          }
          
        });
        
      });
   
-     expect(wasTouching).toBe(1);
+  
      
    });
    
