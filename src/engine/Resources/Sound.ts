@@ -276,6 +276,13 @@ export class Sound implements ILoadable, IAudio {
 
    /**
     * Play the sound, returns a promise that resolves when the sound is done playing
+    * Valid string inputs include:
+    * -'linearUp'
+    * -'linearDown'
+    * -'ease'
+    * -'ease-in'
+    * -'ease-out'
+    * -'ease-in-out'
     */
    public play(data?: string | number | IBezierPoints): Promise<boolean> {
       if (this._isLoaded) {

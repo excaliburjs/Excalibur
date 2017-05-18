@@ -36,7 +36,7 @@ export interface IAudio {
    play(): Promise<any>;
    
    /**
-    * Will play the sound with a Bezier-type volume profile
+    * Will play the sound with a cubic Bezier-type volume profile
     */
    playWithProfile(profile: string | IBezierPoints): Promise<any>;
 
