@@ -230,6 +230,22 @@ export class Sound implements ILoadable, IAudio {
    }
 
    /**
+    * Updates volume of appropriate tracks when this._engine updates
+    */
+   public update()  {
+      if (this._tracks) {
+        for (var track of this._tracks) {
+          if (track instanceof WebAudioInstance) {
+            var currPlaythroughPercent = (track.bufferSource.context.currentTime - track.absoluteStartTime) / track.buffer.duration;
+          } else {
+            var currPlaythroughPercent = track.audioElement.currentTime / track.audioElement.duration; 
+          }
+          track.setVolume(EasingFunctions.CubicBezier(currPlaythroughPercent, track.point1, track.point2, track.point3, track.point4));
+        }
+      }
+   }
+
+   /**
     * Returns how many instances of the sound are currently playing
     */
    public instanceCount(): number {
@@ -312,10 +328,12 @@ export class Sound implements ILoadable, IAudio {
 
          this._logger.debug('Playing new instance for sound', this.path);
          if (data && typeof data !== 'number') {
+           this._engine.addProfiledSound(this);
            return newTrack.playWithProfile(data).then(() => {
   
               // when done, remove track
               this._tracks.splice(this._tracks.indexOf(newTrack), 1);
+              this._engine.deleteProfiledSound(this);
   
               return true;
            });
@@ -456,16 +474,22 @@ export class Sound implements ILoadable, IAudio {
  */
 /* istanbul ignore next */
 class AudioTagInstance implements IAudio {
-   private _audioElement: HTMLAudioElement;
    private _playingPromise: Promise<any>;
    private _isPlaying = false;
    private _isPaused = false;
    private _loop = false;
    private _volume = 1.0;
+   
+   public audioElement: HTMLAudioElement;
+   public point1: number;
+   public point2: number;
+   public point3: number;
+   public point4: number;
+   
 
    constructor(src: string) {
 
-      this._audioElement = new Audio(src);
+      this.audioElement = new Audio(src);
    }
 
    public isPlaying() {
@@ -478,13 +502,13 @@ class AudioTagInstance implements IAudio {
 
    public setLoop(value: boolean) {
       this._loop = value;
-      this._audioElement.loop = value;
+      this.audioElement.loop = value;
       this._wireUpOnEnded();
    }
 
    public setVolume(value: number) {
       this._volume = value;
-      this._audioElement.volume = Util.clamp(value, 0, 1.0);
+      this.audioElement.volume = Util.clamp(value, 0, 1.0);
    }
 
    public play() {
@@ -504,74 +528,69 @@ class AudioTagInstance implements IAudio {
         this._start();
       }
       
-      var point1;
-      var point2;
-      var point3;
-      var point4;
+      
       
       if (typeof profile === 'string') {
         switch (profile) {
           case 'linearUp':
-            point1 = 0.0;
-            point2 = 0.33;
-            point3 = 0.67;
-            point4 = 1.0;
+            this.point1 = 0.0;
+            this.point2 = 0.33;
+            this.point3 = 0.67;
+            this.point4 = 1.0;
             break;
           case 'linearDown':
-            point1 = 1.0;
-            point2 = 0.67;
-            point3 = 0.33;
-            point4 = 0.0;
+            this.point1 = 1.0;
+            this.point2 = 0.67;
+            this.point3 = 0.33;
+            this.point4 = 0.0;
             break;
           case 'ease':
-            point1 = 0.0;
-            point2 = 0.1;
-            point3 = 0.9;
-            point4 = 1.0;
+            this.point1 = 0.0;
+            this.point2 = 0.1;
+            this.point3 = 0.9;
+            this.point4 = 1.0;
             break;
           case 'ease-in':
-            point1 = 0.0;
-            point2 = 0.0;
-            point3 = 0.75;
-            point4 = 1.0;
+            this.point1 = 0.0;
+            this.point2 = 0.0;
+            this.point3 = 0.75;
+            this.point4 = 1.0;
             break;
           case 'ease-out':
-            point1 = 0.0;
-            point2 = 0.33;
-            point3 = 0.9;
-            point4 = 1.0;
+            this.point1 = 0.0;
+            this.point2 = 0.33;
+            this.point3 = 0.9;
+            this.point4 = 1.0;
             break;
           case 'ease-in-out':
-            point1 = 0.0;
-            point2 = 0.0;
-            point3 = 1.0;
-            point4 = 1.0;
+            this.point1 = 0.0;
+            this.point2 = 0.0;
+            this.point3 = 1.0;
+            this.point4 = 1.0;
             break;
           default:
             throw new Error('Invalid profile given');
         }
       } else {
-        point1 = profile.point1;
-        point2 = profile.point2;
-        point3 = profile.point3;
-        point4 = profile.point4;
+        this.point1 = profile.point1;
+        this.point2 = profile.point2;
+        this.point3 = profile.point3;
+        this.point4 = profile.point4;
       }
       
-      if (point1 > 1 || point1 < 0 || point2 > 1 || point2 < 0 || point3 > 1 || point3 < 0 || point4 < 0 || point4 > 1) {
+      if (this.point1 > 1 || this.point1 < 0 || this.point2 > 1 || this.point2 < 0 
+        || this.point3 > 1 || this.point3 < 0 || this.point4 < 0 || this.point4 > 1) {
         throw new Error('All points for the play profile must be between 0 and 1');
       }
       
-      while (this._audioElement.currentTime < this._audioElement.duration) {
-        var currentPlaythroughTimePercentage = this._audioElement.currentTime / this._audioElement.duration;
-        this.setVolume(EasingFunctions.CubicBezier(currentPlaythroughTimePercentage, point1, point2, point3, point4));
-      }
+      
       return this._playingPromise;
    }
 
    private _start() {
-      this._audioElement.load();
-      this._audioElement.loop = this._loop;
-      this._audioElement.play();
+      this.audioElement.load();
+      this.audioElement.loop = this._loop;
+      this.audioElement.play();
 
       this._isPlaying = true;
       this._isPaused = false;
@@ -585,7 +604,7 @@ class AudioTagInstance implements IAudio {
          return;
       }
 
-      this._audioElement.play();
+      this.audioElement.play();
 
       this._isPaused = false;
       this._isPlaying = true;
@@ -597,7 +616,7 @@ class AudioTagInstance implements IAudio {
          return;
       }
 
-      this._audioElement.pause();
+      this.audioElement.pause();
       this._isPaused = true;
       this._isPlaying = false;
    }
@@ -607,14 +626,14 @@ class AudioTagInstance implements IAudio {
          return;
       }
 
-      this._audioElement.pause();
-      this._audioElement.currentTime = 0;
+      this.audioElement.pause();
+      this.audioElement.currentTime = 0;
       this._handleOnEnded();
    }
 
    private _wireUpOnEnded() {
       if (!this._loop) {
-         this._audioElement.onended = () => this._handleOnEnded();
+         this.audioElement.onended = () => this._handleOnEnded();
       }
    }
 
@@ -631,7 +650,6 @@ class AudioTagInstance implements IAudio {
  */
 /* istanbul ignore next */
 class WebAudioInstance implements IAudio {
-   private _bufferSource: AudioBufferSourceNode;
    private _volumeNode = audioContext.createGain();
    private _playingPromise: Promise<any>;      
    private _isPlaying = false;
@@ -639,6 +657,13 @@ class WebAudioInstance implements IAudio {
    private _startTime: number;
    private _loop: boolean = false;
    private _volume: number = 1.0;
+   
+   public bufferSource: AudioBufferSourceNode;
+   public absoluteStartTime: number;
+   public point1: number;
+   public point2: number;
+   public point3: number;
+   public point4: number;
 
    /**
     * Current playback offset (in seconds)
@@ -649,7 +674,7 @@ class WebAudioInstance implements IAudio {
       return this._isPlaying;
    }
 
-   constructor(private _buffer: AudioBuffer) {
+   constructor(public buffer: AudioBuffer) {
    }
 
    public setVolume(value: number) {
@@ -660,8 +685,8 @@ class WebAudioInstance implements IAudio {
    public setLoop(value: boolean) {
       this._loop = value;
 
-      if (this._bufferSource) {
-         this._bufferSource.loop = value;
+      if (this.bufferSource) {
+         this.bufferSource.loop = value;
          this._wireUpOnEnded();
       }
    }
@@ -683,69 +708,64 @@ class WebAudioInstance implements IAudio {
        this._start();
      }
      
-     var point1;
-     var point2;
-     var point3;
-     var point4;
+     
      
      if (typeof profile === 'string') {
        switch (profile) {
          case 'linearUp':
-           point1 = 0.0;
-           point2 = 0.33;
-           point3 = 0.67;
-           point4 = 1.0;
+           this.point1 = 0.0;
+           this.point2 = 0.33;
+           this.point3 = 0.67;
+           this.point4 = 1.0;
            break;
          case 'linearDown':
-           point1 = 1.0;
-           point2 = 0.67;
-           point3 = 0.33;
-           point4 = 0.0;
+           this.point1 = 1.0;
+           this.point2 = 0.67;
+           this.point3 = 0.33;
+           this.point4 = 0.0;
            break;
          case 'ease':
-           point1 = 0.0;
-           point2 = 0.1;
-           point3 = 0.9;
-           point4 = 1.0;
+           this.point1 = 0.0;
+           this.point2 = 0.1;
+           this.point3 = 0.9;
+           this.point4 = 1.0;
            break;
          case 'ease-in':
-           point1 = 0.0;
-           point2 = 0.0;
-           point3 = 0.75;
-           point4 = 1.0;
+           this.point1 = 0.0;
+           this.point2 = 0.0;
+           this.point3 = 0.75;
+           this.point4 = 1.0;
            break;
          case 'ease-out':
-           point1 = 0.0;
-           point2 = 0.33;
-           point3 = 0.9;
-           point4 = 1.0;
+           this.point1 = 0.0;
+           this.point2 = 0.33;
+           this.point3 = 0.9;
+           this.point4 = 1.0;
            break;
          case 'ease-in-out':
-           point1 = 0.0;
-           point2 = 0.0;
-           point3 = 1.0;
-           point4 = 1.0;
+           this.point1 = 0.0;
+           this.point2 = 0.0;
+           this.point3 = 1.0;
+           this.point4 = 1.0;
            break;
          default:
            throw new Error('Invalid profile given');
        }
      } else {
-       point1 = profile.point1;
-       point2 = profile.point2;
-       point3 = profile.point3;
-       point4 = profile.point4;
+       this.point1 = profile.point1;
+       this.point2 = profile.point2;
+       this.point3 = profile.point3;
+       this.point4 = profile.point4;
      }
      
-     if (point1 > 1 || point1 < 0 || point2 > 1 || point2 < 0 || point3 > 1 || point3 < 0 || point4 < 0 || point4 > 1) {
+     if (this.point1 > 1 || this.point1 < 0 || this.point2 > 1 || this.point2 < 0 || 
+       this.point3 > 1 || this.point3 < 0 || this.point4 < 0 || this.point4 > 1) {
        throw new Error('All points for the play profile must be between 0 and 1');
      }
      
-     var absoluteStartTime = this._bufferSource.context.currentTime;
+     this.absoluteStartTime = this.bufferSource.context.currentTime;
      
-     while (this._bufferSource.context.currentTime < absoluteStartTime + this._buffer.duration) {
-       var currentPlaythroughTimePercentage = (this._bufferSource.context.currentTime - absoluteStartTime) / this._buffer.duration;
-       this.setVolume(EasingFunctions.CubicBezier(currentPlaythroughTimePercentage, point1, point2, point3, point4));
-     }
+     
      return this._playingPromise;
    }
  
@@ -753,7 +773,7 @@ class WebAudioInstance implements IAudio {
    private _start() {
       this._volumeNode.connect(audioContext.destination);
       this._createBufferSource();
-      this._bufferSource.start(0, 0);
+      this.bufferSource.start(0, 0);
 
       this._startTime = new Date().getTime();
       this._currentOffset = 0;
@@ -773,10 +793,10 @@ class WebAudioInstance implements IAudio {
       // so we need to dispose of the previous instance before
       // "resuming" the next one
 
-      this._bufferSource.onended = null; // dispose of any previous event handler
+      this.bufferSource.onended = null; // dispose of any previous event handler
       this._createBufferSource();
-      var duration = (1 / this._bufferSource.playbackRate.value) * this._buffer.duration;
-      this._bufferSource.start(0, this._currentOffset % duration);
+      var duration = (1 / this.bufferSource.playbackRate.value) * this.buffer.duration;
+      this.bufferSource.start(0, this._currentOffset % duration);
 
       this._isPaused = false;
       this._isPlaying = true;
@@ -784,11 +804,11 @@ class WebAudioInstance implements IAudio {
    }
 
    private _createBufferSource() {
-      this._bufferSource = audioContext.createBufferSource();
-      this._bufferSource.buffer = this._buffer;
-      this._bufferSource.loop = this._loop;
-      this._bufferSource.playbackRate.value = 1.0;
-      this._bufferSource.connect(this._volumeNode);
+      this.bufferSource = audioContext.createBufferSource();
+      this.bufferSource.buffer = this.buffer;
+      this.bufferSource.loop = this._loop;
+      this.bufferSource.playbackRate.value = 1.0;
+      this.bufferSource.connect(this._volumeNode);
    }
 
    public pause() {
@@ -796,11 +816,11 @@ class WebAudioInstance implements IAudio {
          return;
       }
 
-      this._bufferSource.stop(0);
+      this.bufferSource.stop(0);
       // Playback rate will be a scale factor of how fast/slow the audio is being played
       // default is 1.0
       // we need to invert it to get the time scale
-      var pbRate = 1 / (this._bufferSource.playbackRate.value || 1.0);
+      var pbRate = 1 / (this.bufferSource.playbackRate.value || 1.0);
       this._currentOffset = ((new Date().getTime() - this._startTime) * pbRate) / 1000; // in seconds
       this._isPaused = true;
       this._isPlaying = false;
@@ -811,10 +831,10 @@ class WebAudioInstance implements IAudio {
          return;
       }
 
-      this._bufferSource.stop(0);
+      this.bufferSource.stop(0);
       
       // handler will not be wired up if we were looping
-      if (!this._bufferSource.onended) {
+      if (!this.bufferSource.onended) {
          this._handleOnEnded();
       }
 
@@ -825,7 +845,7 @@ class WebAudioInstance implements IAudio {
 
    private _wireUpOnEnded() {
       if (!this._loop) {
-         this._bufferSource.onended = () => this._handleOnEnded();
+         this.bufferSource.onended = () => this._handleOnEnded();
       }
    }
 

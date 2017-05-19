@@ -23,6 +23,7 @@ import { obsolete } from './Util/Decorators';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 import { BoundingBox } from './Collision/BoundingBox';
+import { Sound } from './Resources/Sound';
 
 /**
  * Enum representing the different display modes available to Excalibur
@@ -124,6 +125,11 @@ export class Engine extends Class {
     * Access engine input like pointer, keyboard, or gamepad
     */
    public input: Input.IEngineInput;
+   
+   /**
+    * Access any sounds that have profiles for volume changes
+    */
+   public sounds: Sound[] = [];
 
 
    private _hasStarted: boolean = false;
@@ -397,6 +403,22 @@ O|===|* >________________>\n\
     */
    public playAnimation(animation: Animation, x: number, y: number) {
       this._animations.push(new AnimationNode(animation, x, y));
+   }
+   
+   /**
+    * Adds a [[Sound]] whose volume will be updated according to its profile
+    * when the engine updates
+    */
+   public addProfiledSound(sound: Sound) {
+      this.sounds.push(sound);
+   }
+   
+   /**
+    * Removes a [[Sound]] after it has finished playing
+    *
+    */
+   public deleteProfiledSound(sound: Sound) {
+      this.sounds.splice(this.sounds.indexOf(sound), 1);
    }
 
    /**
@@ -854,6 +876,13 @@ O|===|* >________________>\n\
       this.input.keyboard.update();
       this.input.pointers.update();
       this.input.gamepads.update();
+      
+      //update volume on profiled sounds
+      if (this.sounds.length > 0) {
+        this.sounds.forEach(function(sound){
+           sound.update();
+        });
+      }
 
       // Publish update event
       // TODO: Obsolete `update` event on Engine
