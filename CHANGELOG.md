@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added a new Interface `AbsolutePosition` which can described the `position` option. A `string` can also describe `position`
 ### Changed
 - Edge builds have more descriptive versions now containing build number and Git commit hash (e.g. `0.10.0-alpha.105#commit`) ([#777](https://github.com/excaliburjs/Excalibur/issues/777))
+- Changed Utils.removeItemToArray() to Utils.removeItemFromArray()
 ### Deprecated
 ### Removed
 ### Fixed
@@ -92,7 +93,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - Added `ex.Engine.stats` to hold frame statistic information
   - Added `ex.Engine.debug` to hold debug flags and current frame stats
   - Added `preframe` and `postframe` events to `Engine` as hooks
-  - Added ex.Physics statistics to the Excalibur statistics collection 
+  - Added ex.Physics statistics to the Excalibur statistics collection
 - Added new fast body collision detection to Excalibur to prevent fast moving objects from tunneling through other objects ([#665](https://github.com/excaliburjs/Excalibur/issues/665))
   - Added DynamicTree raycast to query the scene for bounds that intersect a ray
   - Added fast BoundingBox raycast test
@@ -154,7 +155,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - `UpdateEvent` removed
 - `Scene.addChild` and `Scene.removeChild` are now protected
 - Removed ex.Template and ex.Binding ([#627](https://github.com/excaliburjs/Excalibur/issues/627))
-  
+
 ### Added
 - New physics system, physical properties for Actors ([#557](https://github.com/excaliburjs/Excalibur/issues/557), [#472](https://github.com/excaliburjs/Excalibur/issues/472))
 - Read The Docs support for documentation ([#558](https://github.com/excaliburjs/Excalibur/issues/558))
@@ -370,7 +371,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Refactored Keys to be less confusing ([#115](https://github.com/excaliburjs/Excalibur/issues/115))
 - Refactored ActorEvent to be less confusing ([#113](https://github.com/excaliburjs/Excalibur/issues/113))
 
-### Fixed 
+### Fixed
 - 'update' event on the Engine now fires correctly ([#105](https://github.com/excaliburjs/Excalibur/issues/105))
 - Actor.extend works on subclasses now ([#103](https://github.com/excaliburjs/Excalibur/issues/103))
 

@@ -28,7 +28,7 @@ import * as Events from './Events';
 
 /**
  * The most important primitive in Excalibur is an `Actor`. Anything that
- * can move on the screen, collide with another `Actor`, respond to events, 
+ * can move on the screen, collide with another `Actor`, respond to events,
  * or interact with the current scene, must be an actor. An `Actor` **must**
  * be part of a [[Scene]] for it to be drawn to the screen.
  *
@@ -52,16 +52,16 @@ export class Actor extends Class implements IActionable, IEvented {
    public body: Body = new Body(this);
 
    /**
-    * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and 
-    * [EdgeArea|edges]. 
+    * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and
+    * [EdgeArea|edges].
     */
    public get collisionArea(): ICollisionArea {
       return this.body.collisionArea;
    }
 
    /**
-    * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and 
-    * [EdgeArea|edges]. 
+    * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and
+    * [EdgeArea|edges].
     */
    public set collisionArea(area: ICollisionArea) {
       this.body.collisionArea = area;
@@ -152,8 +152,8 @@ export class Actor extends Class implements IActionable, IEvented {
    }
 
    /**
-    * Gets the acceleration vector of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be 
-    * useful to simulate a gravitational effect.  
+    * Gets the acceleration vector of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be
+    * useful to simulate a gravitational effect.
     */
    public get acc(): Vector {
       return this.body.acc;
@@ -166,7 +166,7 @@ export class Actor extends Class implements IActionable, IEvented {
       this.body.acc = theAcc;
    }
 
-   /** 
+   /**
     * Gets the rotation of the actor in radians. 1 radian = 180/PI Degrees.
     */
    public get rotation(): number {
@@ -180,7 +180,7 @@ export class Actor extends Class implements IActionable, IEvented {
       this.body.rotation = theAngle;
    }
 
-   /** 
+   /**
     * Gets the rotational velocity of the actor in radians/second
     */
    public get rx(): number {
@@ -251,7 +251,7 @@ export class Actor extends Class implements IActionable, IEvented {
    }
 
    /**
-    * Gets the coefficient of restitution of this actor, represents the amount of energy preserved after collision. Think of this  
+    * Gets the coefficient of restitution of this actor, represents the amount of energy preserved after collision. Think of this
     * as bounciness.
     */
    public get restitution() {
@@ -270,7 +270,7 @@ export class Actor extends Class implements IActionable, IEvented {
     * The anchor to apply all actor related transformations like rotation,
     * translation, and rotation. By default the anchor is in the center of
     * the actor. By default it is set to the center of the actor (.5, .5)
-    * 
+    *
     * An anchor of (.5, .5) will ensure that drawings are centered.
     *
     * Use `anchor.setTo` to set the anchor to a different point using
@@ -286,11 +286,11 @@ export class Actor extends Class implements IActionable, IEvented {
     * The scale vector of the actor
     */
    public scale: Vector = new Vector(1, 1);
-   /** 
+   /**
     * The x scalar velocity of the actor in scale/second
     */
    public sx: number = 0; //scale/sec
-   /** 
+   /**
     * The y scalar velocity of the actor in scale/second
     */
    public sy: number = 0; //scale/sec
@@ -299,18 +299,18 @@ export class Actor extends Class implements IActionable, IEvented {
     * Indicates whether the actor is physically in the viewport
     */
    public isOffScreen = false;
-   /** 
+   /**
     * The visibility of an actor
     */
    public visible: boolean = true;
    /**
-    * The opacity of an actor. Passing in a color in the [[constructor]] will use the 
+    * The opacity of an actor. Passing in a color in the [[constructor]] will use the
     * color's opacity.
     */
    public opacity: number = 1;
    public previousOpacity: number = 1;
 
-   /** 
+   /**
     * Direct access to the actor's [[ActionQueue]]. Useful if you are building custom actions.
     */
    public actionQueue: ActionQueue;
@@ -337,7 +337,7 @@ export class Actor extends Class implements IActionable, IEvented {
     */
    public children: Actor[] = [];
    /**
-    * Gets or sets the current collision type of this actor. By 
+    * Gets or sets the current collision type of this actor. By
     * default it is ([[CollisionType.PreventCollision]]).
     */
    public collisionType: CollisionType = CollisionType.PreventCollision;
@@ -350,27 +350,27 @@ export class Actor extends Class implements IActionable, IEvented {
    private _effectsDirty: boolean = false;
 
    /**
-    * Access to the current drawing for the actor, this can be 
-    * an [[Animation]], [[Sprite]], or [[Polygon]]. 
+    * Access to the current drawing for the actor, this can be
+    * an [[Animation]], [[Sprite]], or [[Polygon]].
     * Set drawings with [[setDrawing]].
     */
    public currentDrawing: IDrawable = null;
 
    /**
-    * Modify the current actor update pipeline. 
+    * Modify the current actor update pipeline.
     */
    public traits: IActorTrait[] = [];
 
    /**
-    * Sets the color of the actor. A rectangle of this color will be 
+    * Sets the color of the actor. A rectangle of this color will be
     * drawn if no [[IDrawable]] is specified as the actors drawing.
-    * 
+    *
     * The default is `null` which prevents a rectangle from being drawn.
     */
    public color: Color;
 
    /**
-    * Whether or not to enable the [[CapturePointer]] trait that propagates 
+    * Whether or not to enable the [[CapturePointer]] trait that propagates
     * pointer events to this actor
     */
    public enableCapturePointer: boolean = false;
@@ -432,7 +432,7 @@ export class Actor extends Class implements IActionable, IEvented {
    }
 
    /**
-    * Gets wether the actor is Initialized 
+    * Gets wether the actor is Initialized
     */
    public get isInitialized(): boolean {
       return this._isInitialized;
@@ -498,7 +498,7 @@ export class Actor extends Class implements IActionable, IEvented {
    }
 
    /**
-    * If the current actor is killed, it will now not be killed. 
+    * If the current actor is killed, it will now not be killed.
     */
    public unkill() {
       this._isKilled = false;
@@ -524,11 +524,11 @@ export class Actor extends Class implements IActionable, IEvented {
       }
    }
    /**
-    * Removes a child actor from this actor. 
+    * Removes a child actor from this actor.
     * @param actor The child actor to remove
     */
    public remove(actor: Actor) {
-      if (Util.removeItemToArray(actor, this.children)) {
+      if (Util.removeItemFromArray(actor, this.children)) {
          actor.parent = null;
       }
    }
@@ -567,7 +567,7 @@ export class Actor extends Class implements IActionable, IEvented {
    /**
     * Adds a drawing to the list of available drawings for an actor. Set a drawing using [[setDrawing]].
     * @param key     The key to associate with a drawing for this actor
-    * @param drawing This can be an [[Animation]], [[Sprite]], or [[Polygon]]. 
+    * @param drawing This can be an [[Animation]], [[Sprite]], or [[Polygon]].
     */
    public addDrawing(key: any, drawing: IDrawable): void;
    public addDrawing(): void {
@@ -605,7 +605,7 @@ export class Actor extends Class implements IActionable, IEvented {
    }
 
    /**
-    * Sets the z-index of an actor and updates it in the drawing list for the scene. 
+    * Sets the z-index of an actor and updates it in the drawing list for the scene.
     * The z-index determines the relative order an actor is drawn in.
     * Actors with a higher z-index are drawn on top of actors with a lower z-index
     * @param newIndex new z-index to assign
@@ -616,11 +616,11 @@ export class Actor extends Class implements IActionable, IEvented {
       this.scene.updateDrawTree(this);
    }
 
-   /** 
+   /**
     * Adds an actor to a collision group. Actors with no named collision groups are
     * considered to be in every collision group.
     *
-    * Once in a collision group(s) actors will only collide with other actors in 
+    * Once in a collision group(s) actors will only collide with other actors in
     * that group.
     *
     * @param name The name of the collision group
@@ -697,7 +697,7 @@ export class Actor extends Class implements IActionable, IEvented {
 
    /**
     * Gets this actor's rotation taking into account any parent relationships
-    * 
+    *
     * @returns Rotation angle in radians
     */
    public getWorldRotation(): number {
@@ -710,7 +710,7 @@ export class Actor extends Class implements IActionable, IEvented {
 
    /**
     * Gets an actor's world position taking into account parent relationships, scaling, rotation, and translation
-    * 
+    *
     * @returns Position in world coordinates
     */
    public getWorldPos(): Vector {
@@ -718,7 +718,7 @@ export class Actor extends Class implements IActionable, IEvented {
          return this.pos.clone();
       }
 
-      // collect parents                  
+      // collect parents
       var parents: Actor[] = [];
       var root: Actor = this;
 
@@ -730,7 +730,7 @@ export class Actor extends Class implements IActionable, IEvented {
          parents.push(root);
       }
 
-      // calculate position       
+      // calculate position
       var x = parents.reduceRight((px, p) => {
          if (p.parent) {
             return px + (p.pos.x * p.getGlobalScale().x);
@@ -810,7 +810,7 @@ export class Actor extends Class implements IActionable, IEvented {
    }
 
    /**
-    * Returns the side of the collision based on the intersection 
+    * Returns the side of the collision based on the intersection
     * @param intersect The displacement vector returned by a collision
     */
    public getSideFromIntersect(intersect: Vector) {
@@ -965,7 +965,7 @@ export class Actor extends Class implements IActionable, IEvented {
       }
 
       // Update child actors
-      for (var i = 0; i < this.children.length; i++) {         
+      for (var i = 0; i < this.children.length; i++) {
          this.children[i].update(engine, delta);
       }
 
@@ -992,7 +992,7 @@ export class Actor extends Class implements IActionable, IEvented {
 
       if (this.currentDrawing) {
          var drawing = this.currentDrawing;
-         // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula          
+         // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
          var offsetX = (this._width - drawing.naturalWidth * drawing.scale.x) * this.anchor.x;
          var offsetY = (this._height - drawing.naturalHeight * drawing.scale.y) * this.anchor.y;
 
