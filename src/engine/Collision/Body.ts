@@ -251,7 +251,7 @@ export class Body {
    
    /**
     * Returns a boolean indicating true if this body COLLIDED with 
-    * the body of the other Actor in the last frame, && they are no longer touching
+    * the body of the other Actor in the last frame, and they are no longer touching
     * in this frame 
     */
    public wasTouching(other: Actor, game: Engine): boolean {
