@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Breaking Changes
++- PointerEvent now initiates `pos` property of type: `Vector` using `x` and `y` arguments from constructor. `x` & `y` are still public properties on Class `Vector` ([#612](https://github.com/excaliburjs/Excalibur/issues/612))
 ### Added
 - Added another DisplayMode option: `DisplayMode.Position`. When this is selected as the displayMode type, the user must specify a new `position` option
 - Added a new Interface `AbsolutePosition` which can described the `position` option. A `string` can also describe `position`
