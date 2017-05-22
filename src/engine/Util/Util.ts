@@ -199,7 +199,7 @@ export function addItemToArray<T>(item: T, array: T[]): boolean {
    return false;
 }
 
-export function removeItemFromArray<T>(item: T, array: T[]): boolean {
+export function removeItemToArray<T>(item: T, array: T[]): boolean {
    var index = -1;
    if ((index = array.indexOf(item)) > -1) {
       array.splice(index, 1);
