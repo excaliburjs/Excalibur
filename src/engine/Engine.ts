@@ -878,10 +878,10 @@ O|===|* >________________>\n\
       this.input.gamepads.update();
       
       //update volume on profiled sounds
-      if (this.sounds.length > 0) {
-        this.sounds.forEach(function(sound){
+      if (this.sounds.length > 0 && this.stats.currFrame.id % 10 === 0 ) {
+        for (var sound of this.sounds){
            sound.update();
-        });
+        };
       }
 
       // Publish update event
