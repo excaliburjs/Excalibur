@@ -189,7 +189,7 @@ Usually you should call `super.draw` to perform the base drawing logic, but othe
 you may want to take over the drawing completely.
 
 ```ts
-public draw(ctx: Canvas2DRenderingContext, delta: number) {
+public draw(ctx: CanvasRenderingContext2D, delta: number) {
 
    super.draw(ctx, delta); // perform base drawing logic
 
