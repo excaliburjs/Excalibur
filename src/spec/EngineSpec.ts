@@ -102,4 +102,23 @@ describe('The engine', () => {
       expect(engine.getWorldBounds()).toEqual(localBoundingBox);
    });
    
+   it('should accept a displayMode of Position', () => {
+     expect(engine.displayMode).toEqual(ex.DisplayMode.Position);
+   });
+   
+   it('should accept strings to position the window', () => {
+     expect(engine.canvas.style.top).toEqual('0px');
+   });
+   
+   it('should accept AbsolutePosition Interfaces to position the window', () => {
+     var game = new ex.Engine({
+       height: 600,
+       width: 800,
+       displayMode: ex.DisplayMode.Position,
+       position: {top: 1, left: '5em'}
+     });
+     
+     expect(game.canvas.style.top).toEqual('1px');
+   });
+   
 });

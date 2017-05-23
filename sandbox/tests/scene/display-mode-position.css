@@ -1,0 +1,23 @@
+section{
+  height: 100px;
+  position: absolute;
+  bottom: 0%;
+  right: 0%;
+  z-index: 500;
+}
+
+.btn{
+  height: 80%;
+  float: left;
+  margin: 5px;
+  border: 1px solid black;
+}
+
+.absolute-input{
+  text-align: right;
+}
+
+button{
+  position: relative;
+  top: 10px;
+}
