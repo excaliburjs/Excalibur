@@ -19,7 +19,7 @@ button.on('pointerup', function () {
             button.color = ex.Color.Red;
         });
         
-        //change colume of the sound after 800 ms to show that
+        //change volume of the sound after 2000 ms to show that
         //initial setting worked
         setTimeout(function(){
           testSound.setVolume(1);
