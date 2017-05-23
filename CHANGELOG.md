@@ -10,7 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Breaking Changes
 ### Added
 - Added optional volume argument to `Sound.play(volume?: number)`, which will play the Audio file
-at anywhere from mute (`volume` is 0.0) to full volume (`volume` is 1.0).
+at anywhere from mute (`volume` is 0.0) to full volume (`volume` is 1.0). ([#801](https://github.com/excaliburjs/Excalibur/issues/801))
 - Added another DisplayMode option: `DisplayMode.Position`. When this is selected as the displayMode type, the user must specify a new `position` option
 - Added a new Interface `AbsolutePosition` which can described the `position` option. A `string` can also describe `position`
 
