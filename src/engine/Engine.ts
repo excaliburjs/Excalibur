@@ -50,19 +50,19 @@ export enum DisplayMode {
 /**
  * Enum representing the different mousewheel event bubble prevention
  */
-export enum PageScrollPreventionMode {
+export enum ScrollPreventionMode {
    /**
     * Do not prevent any page scrolling
     */
    None,
-   /**
+       /**
     * Prevent page scroll if mouse is over the game canvas
     */
    Canvas,
-   /**
+       /**
     * Prevent all page scrolling via mouse wheel
     */
-   Page
+   All
 }
 
 /*
@@ -134,7 +134,7 @@ export interface IEngineOptions {
    /**
     * Scroll prevention method.
     */
-   pageScrollPreventionMode?: PageScrollPreventionMode;
+   scrollPreventionMode?: ScrollPreventionMode;
 }
 
 /**
@@ -260,7 +260,7 @@ export class Engine extends Class {
    /**
     * The mouse wheel scroll prevention mode
     */
-   public pageScrollPreventionMode: PageScrollPreventionMode;
+   public pageScrollPreventionMode: ScrollPreventionMode;
 
    private _logger: Logger;
    private _isSmoothingEnabled: boolean = true;
@@ -296,13 +296,13 @@ export class Engine extends Class {
     * Default [[IEngineOptions]]
     */
    private static _DefaultEngineOptions: IEngineOptions = {
-      width: 0,
-      height: 0,
-      canvasElementId: '',
-      pointerScope: Input.PointerScope.Document,
-      suppressConsoleBootMessage: null,
+      width:                                  0,
+      height:                                 0,
+      canvasElementId:                        '',
+      pointerScope:                           Input.PointerScope.Document,
+      suppressConsoleBootMessage:             null,
       suppressMinimumBrowserFeatureDetection: null,
-      pageScrollPreventionMode: PageScrollPreventionMode.Canvas
+      scrollPreventionMode:                   ScrollPreventionMode.Canvas
    };
 
    /**
@@ -904,7 +904,7 @@ O|===|* >________________>\n\
       this.input.pointers.init(options ? options.pointerScope : Input.PointerScope.Document);
       this.input.gamepads.init();
 
-      this.pageScrollPreventionMode = options.pageScrollPreventionMode;
+      this.pageScrollPreventionMode = options.scrollPreventionMode;
 
       // Issue #385 make use of the visibility api
       // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API

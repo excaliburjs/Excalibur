@@ -1,4 +1,4 @@
-﻿import {Engine, PageScrollPreventionMode} from './../Engine';
+﻿import {Engine, ScrollPreventionMode} from './../Engine';
 import { GameEvent } from '../Events';
 import { UIActor } from '../UIActor';
 import { Vector } from '../Algebra';
@@ -48,6 +48,12 @@ export enum PointerScope {
     */
    Document
 }
+
+/**
+ * A constant used to normal wheel events across different browsers
+ * @type {number}
+ */
+const ScrollWheelNormalizationFactor = -1 / 40;
 
 /**
  * Pointer events
@@ -379,8 +385,8 @@ export class Pointers extends Class {
    private _handleWheelEvent(eventName: string, eventArr: WheelEvent[]) {
       return (e: MouseWheelEvent) => {
          // Should we prevent page scroll because of this event
-         if (this._engine.pageScrollPreventionMode === PageScrollPreventionMode.Page ||
-             (this._engine.pageScrollPreventionMode === PageScrollPreventionMode.Canvas && e.target === this._engine.canvas)) {
+         if (this._engine.pageScrollPreventionMode === ScrollPreventionMode.All ||
+             (this._engine.pageScrollPreventionMode === ScrollPreventionMode.Canvas && e.target === this._engine.canvas)) {
             e.preventDefault();
          }
 
@@ -388,30 +394,12 @@ export class Pointers extends Class {
          var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
          var transformedPoint = this._engine.screenToWorldCoordinates(new Vector(x, y));
 
-         var deltaX = 0;
-         var deltaY = 0;
-         var deltaZ = 0;
+         // Support
+         var deltaX = e.deltaX || (e.wheelDeltaX * ScrollWheelNormalizationFactor) || 0;
+         var deltaY = e.deltaY || (e.wheelDeltaY * ScrollWheelNormalizationFactor) ||
+             (e.wheelDelta * ScrollWheelNormalizationFactor) || e.detail || 0;
+         var deltaZ = e.deltaZ || 0;
          var deltaMode = WheelDeltaMode.Pixel;
-
-         if (e.deltaX) {
-            deltaX = e.deltaX;
-         } else if (e.wheelDeltaX) {
-            deltaX = e.wheelDeltaX * (-1 / 40);
-         }
-
-         if (e.deltaY) {
-            deltaY = e.deltaY;
-         } else if (e.wheelDeltaY) {
-            deltaY = e.wheelDeltaY * (-1 / 40);
-         } else if (e.wheelDelta) {
-            deltaY = e.wheelDelta * (-1 / 40);
-         } else {
-            deltaY = e.detail;
-         }
-
-         if (e.deltaZ) {
-            deltaZ = e.deltaZ;
-         }
 
          if (e.deltaMode) {
             if (e.deltaMode === 1) {
