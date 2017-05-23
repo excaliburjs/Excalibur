@@ -36,5 +36,51 @@ describe('A Collision', () => {
       scene.update(engine, 20);
       expect(numCollisions).toBe(2);
    });
+   
+   it('should recognize when actor bodies are touching', () => {
+     var touching = false;
+     actor1.on('update', function() {
+       if (actor1.body.touching(actor2)) {
+         touching = true;
+       }
+     });
+     
+     scene.update(engine, 20);
+     expect(touching).toBe(true);
+   });
+   
+   it('should recognize when bodies were touching last frame', (done) => {
+     var wasTouching = 0;
+     var engine1 = TestUtils.engine({width: 200, height: 200});
+     
+     var actor3 = new ex.Actor(0, 0, 10, 10);
+     var actor4 = new ex.Actor(30, 0, 10, 10);
+     
+     engine1.start().then(() => {
+       actor3.vel.setTo(200, 0);
+       actor3.collisionType = ex.CollisionType.Elastic;
+       actor4.collisionType = ex.CollisionType.Elastic;
+       engine1.add(actor3);
+       engine1.add(actor4);
+       
+       actor3.on('update', function() {
+        
+         if (actor3.body.wasTouching(actor4, engine1)) {
+           wasTouching++;
+           expect(wasTouching).toBe(1);
+           done();
+           engine1.stop();
+           
+         }
+         
+       });
+       
+     });
+  
+  
+     
+   });
+   
+
 
 });
