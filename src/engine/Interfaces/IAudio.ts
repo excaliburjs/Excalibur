@@ -1,6 +1,16 @@
 import { Promise } from './../Promises';
 
 /**
+ * Defines the points which describe a cubic bezier curve for a sound profile
+ */
+export interface IBezierPoints {
+  point1: number;
+  point2: number;
+  point3: number;
+  point4: number;
+}
+
+/**
  * Represents an audio control implementation
  */
 export interface IAudio {
@@ -24,6 +34,11 @@ export interface IAudio {
     * Will play the sound or resume if paused
     */
    play(): Promise<any>;
+   
+   /**
+    * Will play the sound with a cubic Bezier-type volume profile
+    */
+   playWithProfile(profile: string | IBezierPoints): Promise<any>;
 
    /**
     * Pause the sound
@@ -34,4 +49,29 @@ export interface IAudio {
     * Stop playing the sound and reset
     */
    stop(): void;
+   
+   
+   /**
+    * File of the HTMLAudioElement
+    */
+    audioElement?: HTMLAudioElement;
+    
+   /**
+    * File of the WebAudio Element
+    */
+   bufferSource?: AudioBufferSourceNode;
+   
+   buffer?: AudioBuffer;
+   /**
+    * System time when the audio file begins playing
+    */
+   absoluteStartTime?: number;
+   
+   /**
+    * Bezier points for adjusting volume through the engine
+    */
+   point1?: number;
+   point2?: number;
+   point3?: number;
+   point4?: number;
 }

@@ -154,6 +154,16 @@ describe('Sound resource', () => {
 
          expect(sut.isPlaying()).toBe(true);
       });
+      
+      it('should change volume automatically with playWithProfile', (done) => {
+        var audioInstance = new MockAudioInstance();
+        
+        audioInstance.playWithProfile().then(() => {
+          expect(audioInstance.volume).toBe(0);
+          done();
+        });
+        
+      });
 
       it('should play more than once and should be playing until all are done', (done) => {
          var firstDone = false;
@@ -348,7 +358,26 @@ class MockAudioInstance implements ex.IAudio {
 
       return this._playComplete;
    }
+   
+   playWithProfile() {
+     
+     if (!this._isPlaying) {
+        this._isPlaying = true;
+        this._currentOffset = 0;
+        this._startTime = new Date().getTime();
 
+        this._playComplete = new ex.Promise<boolean>();
+        this.setVolume(0);
+
+        this._playing = setTimeout(() => {
+           this._isPlaying = false;
+           this._playComplete.resolve(true);
+        }, this._duration);
+     } 
+     return this._playComplete;
+     
+   }
+   
    pause() {
       this._isPlaying = false;
       clearTimeout(this._playing);
