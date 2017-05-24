@@ -8,7 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Breaking Changes
-+- Added `pos` property of type: `Vector` to `PointerEvent` using `x` and `y` arguments from constructor. `x` and `y` are still public properties of `PointerEvent` ([#612](https://github.com/excaliburjs/Excalibur/issues/612))
++- Added `pos` property of type: `Vector` to `PointerEvent` using `x` and `y` arguments from constructor. `x` and `y` are still public properties of `PointerEvent`, but are now marked as @deprecated ([#612](https://github.com/excaliburjs/Excalibur/issues/612))
 ### Added
 - Added another DisplayMode option: `DisplayMode.Position`. When this is selected as the displayMode type, the user must specify a new `position` option
 - Added a new Interface `AbsolutePosition` which can described the `position` option. A `string` can also describe `position`

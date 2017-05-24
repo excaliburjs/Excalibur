@@ -55,8 +55,8 @@ export class PointerEvent extends GameEvent<any> {
 
    public pos: Vector;
    /**
-    * @param x            The `x` coordinate of the event (in world coordinates)
-    * @param y            The `y` coordinate of the event (in world coordinates)
+    * @deprecated x            The `x` coordinate of the event (in world coordinates), now used to iniitate `pos` Vector property
+    * @deprecated y            The `y` coordinate of the event (in world coordinates), now used to iniitate `pos` Vector property
     * @param pageX        The `x` coordinate of the event (in document coordinates)
     * @param pageY        The `y` coordinate of the event (in document coordinates)
     * @param screenX      The `x` coordinate of the event (in screen coordinates)
