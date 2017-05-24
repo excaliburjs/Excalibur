@@ -270,8 +270,9 @@ export class Sound implements ILoadable, IAudio {
 
    /**
     * Play the sound, returns a promise that resolves when the sound is done playing
+    * An optional volume argument can be passed in to play the sound. Max volume is 1.0
     */
-   public play(): Promise<boolean> {
+   public play(volume?: number): Promise<boolean> {
       if (this._isLoaded) {
          var resumed = [];
 
@@ -293,7 +294,12 @@ export class Sound implements ILoadable, IAudio {
          // push a new track
          var newTrack = this.sound.createInstance(this._data);
          newTrack.setLoop(this._loop);
-         newTrack.setVolume(this._volume);
+         if (volume) {
+           newTrack.setVolume(Util.clamp(volume, 0.0, 1.0));
+         } else {
+           newTrack.setVolume(this._volume);
+         }
+         
 
          this._tracks.push(newTrack);
 
