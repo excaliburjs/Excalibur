@@ -55,13 +55,13 @@ export enum ScrollPreventionMode {
     * Do not prevent any page scrolling
     */
    None,
-       /**
-    * Prevent page scroll if mouse is over the game canvas
-    */
+    /**
+     * Prevent page scroll if mouse is over the game canvas
+     */
    Canvas,
-       /**
-    * Prevent all page scrolling via mouse wheel
-    */
+    /**
+     * Prevent all page scrolling via mouse wheel
+     */
    All
 }
 
