@@ -121,8 +121,8 @@ export class Pointers extends Class {
    /**
     * Initializes pointer event listeners
     */
-   public init(target?: any): void {
-      target = target || <any>this._engine.canvas;
+   public init(target?: GlobalEventHandlers): void {
+      target = target || this._engine.canvas;
 
       // Touch Events
       target.addEventListener('touchstart', this._handleTouchEvent('down', this._pointerDown));
