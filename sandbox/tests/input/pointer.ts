@@ -47,7 +47,7 @@ box.on("pointerdown", (pe: ex.Input.PointerEvent) => {
    boxPointerDown = true;
 });
 
-box.on("wheel", (pe: ex.Input.WheelEvent) => {
+box.on("pointerwheel", (pe: ex.Input.WheelEvent) => {
    box.rotation = box.rotation + (pe.deltaY > 0 ? 0.1 : -0.1);
 });
 

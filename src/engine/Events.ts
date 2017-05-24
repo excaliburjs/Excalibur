@@ -49,6 +49,7 @@ export type pointerup = 'pointerup';
 export type pointerdown = 'pointerdown';
 export type pointermove = 'pointermove';
 export type pointercancel = 'pointercancel';
+export type pointerwheel = 'pointerwheel';
 
 export type up = 'up';
 export type down = 'down';

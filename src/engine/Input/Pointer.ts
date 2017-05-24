@@ -307,7 +307,7 @@ export class Pointers extends Class {
       len = this._wheel.length;
       for (i; i < len; i++) {
          if (actor.contains(this._wheel[i].x, this._wheel[i].y, !isUIActor)) {
-            actor.eventDispatcher.emit('wheel', this._wheel[i]);
+            actor.eventDispatcher.emit('pointerwheel', this._wheel[i]);
          }
       }
    }
