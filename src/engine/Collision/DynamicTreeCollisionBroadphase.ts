@@ -161,12 +161,14 @@ export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
 
    /**
     * Applies narrow phase on collision pairs to find actual area intersections
+    * Adds actual colliding pairs to stats' Frame data 
     */
    public narrowphase(pairs: Pair[], stats?: FrameStats) {
       for (var i = 0; i < pairs.length; i++) {
          pairs[i].collide();
          if (stats && pairs[i].collision) {
             stats.physics.collisions++;
+            stats.physics.collidersHash[pairs[i].id] = pairs[i];
          }
       }
    }
