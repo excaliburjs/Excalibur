@@ -52,7 +52,7 @@ If you’re not sure where to start, take a look at the jump-in or help wanted i
   - `Changed` for changes in existing functionality
   - `Deprecated` for features that will be removed in an upcoming release
   - `Fixed` for bug fixes
-- Squash your local commits into logical atomic changes. Please follow our [styleguide](#commit-messages) for your commit messages.
+- Please follow our [styleguide](#commit-messages) for your commit messages.
 - Send a pull request via Github.
   - Format your pull request title as: [#issue_number] Your commit message (where issue_number is the issue you're closing), and fill out the pull request template that automatically populates the editor window. Please format your pull request title according to our [commit message styleguide](#commit-messages).
 
