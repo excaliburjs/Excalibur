@@ -2,6 +2,13 @@
 
 /// <reference path="TestUtils.ts" />
 
+function executeMouseEvent(type: string, button: ex.Input.PointerButton, x: number, y: number, target: HTMLElement) {
+   var mouseEvent = document.createEvent('MouseEvent');
+   mouseEvent.initMouseEvent(type, true, true, document.defaultView, button, x, y, x, y,
+       false, false, false, false, button, target);
+   target.dispatchEvent(mouseEvent);
+}
+
 describe('A pointer', () => {
 
    var engine: ex.Engine = null;
@@ -40,20 +47,9 @@ describe('A pointer', () => {
          }
       });
 
-      var mousedownEventLeft = document.createEvent('MouseEvent');
-      mousedownEventLeft.initMouseEvent('mousedown', true, true, document.defaultView, ex.Input.PointerButton.Left, 0, 0, 0, 0,
-          false, false, false, false, ex.Input.PointerButton.Left, engine.canvas);
-      var mousedownEventRight = document.createEvent('MouseEvent');
-      mousedownEventRight.initMouseEvent('mousedown', true, true, document.defaultView, ex.Input.PointerButton.Right, 0, 0, 0, 0,
-          false, false, false, false, ex.Input.PointerButton.Right, engine.canvas);
-      var mousedownEventMiddle = document.createEvent('MouseEvent');
-      mousedownEventMiddle.initMouseEvent('mousedown', true, true, document.defaultView, ex.Input.PointerButton.Middle, 0, 0, 0, 0,
-          false, false, false, false, ex.Input.PointerButton.Middle, engine.canvas);
-
-
-      engine.canvas.dispatchEvent(mousedownEventLeft);
-      engine.canvas.dispatchEvent(mousedownEventRight);
-      engine.canvas.dispatchEvent(mousedownEventMiddle);
+      executeMouseEvent('mousedown', ex.Input.PointerButton.Left, 0, 0, engine.canvas);
+      executeMouseEvent('mousedown', ex.Input.PointerButton.Right, 0, 0,  engine.canvas);
+      executeMouseEvent('mousedown', ex.Input.PointerButton.Middle, 0, 0, engine.canvas);
 
 
       expect(eventLeftFired).toBeTruthy();
@@ -78,20 +74,9 @@ describe('A pointer', () => {
          }
       });
 
-      var mouseupEventLeft = document.createEvent('MouseEvent');
-      mouseupEventLeft.initMouseEvent('mouseup', true, true, document.defaultView, ex.Input.PointerButton.Left, 0, 0, 0, 0,
-          false, false, false, false, ex.Input.PointerButton.Left, engine.canvas);
-      var mouseupEventRight = document.createEvent('MouseEvent');
-      mouseupEventRight.initMouseEvent('mouseup', true, true, document.defaultView, ex.Input.PointerButton.Right, 0, 0, 0, 0,
-          false, false, false, false, ex.Input.PointerButton.Right, engine.canvas);
-      var mouseupEventMiddle = document.createEvent('MouseEvent');
-      mouseupEventMiddle.initMouseEvent('mouseup', true, true, document.defaultView, ex.Input.PointerButton.Middle, 0, 0, 0, 0,
-          false, false, false, false, ex.Input.PointerButton.Middle, engine.canvas);
-
-
-      engine.canvas.dispatchEvent(mouseupEventLeft);
-      engine.canvas.dispatchEvent(mouseupEventRight);
-      engine.canvas.dispatchEvent(mouseupEventMiddle);
+      executeMouseEvent('mouseup', ex.Input.PointerButton.Left, 0, 0, engine.canvas);
+      executeMouseEvent('mouseup', ex.Input.PointerButton.Right, 0, 0,  engine.canvas);
+      executeMouseEvent('mouseup', ex.Input.PointerButton.Middle, 0, 0, engine.canvas);
 
       expect(eventLeftFired).toBeTruthy();
       expect(eventRightFired).toBeTruthy();
@@ -105,27 +90,18 @@ describe('A pointer', () => {
          eventMoveFired = true;
       });
 
-      var mousemoveEvent = document.createEvent('MouseEvent');
-      mousemoveEvent.initMouseEvent('mousemove', true, true, document.defaultView, null, 0, 0, 0, 0,
-          false, false, false, false, null, engine.canvas);
-      engine.canvas.dispatchEvent(mousemoveEvent);
+      executeMouseEvent('mousemove', null, 0, 0, engine.canvas);
 
       expect(eventMoveFired).toBeTruthy();
    });
 
    it('should update last position', () => {
-      var mousemoveEvent = document.createEvent('MouseEvent');
-      mousemoveEvent.initMouseEvent('mousemove', true, true, document.defaultView, null, 100, 200, 100, 200,
-          false, false, false, false, null, engine.canvas);
-      engine.canvas.dispatchEvent(mousemoveEvent);
+      executeMouseEvent('mousemove', null, 100, 200, engine.canvas);
 
       expect(pointers.primary.lastPagePos.x).toBe(100);
       expect(pointers.primary.lastPagePos.y).toBe(200);
 
-      mousemoveEvent = document.createEvent('MouseEvent');
-      mousemoveEvent.initMouseEvent('mousemove', true, true, document.defaultView, null, 300, 400, 300, 400,
-          false, false, false, false, null, engine.canvas);
-      engine.canvas.dispatchEvent(mousemoveEvent);
+      executeMouseEvent('mousemove', null, 300, 400, engine.canvas);
 
 
       expect(pointers.primary.lastPagePos.x).toBe(300);
