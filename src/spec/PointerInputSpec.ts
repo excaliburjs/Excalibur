@@ -1,20 +1,21 @@
 /// <reference path="jasmine.d.ts" />
 
-/// <reference path="Mocks.ts" />
+/// <reference path="TestUtils.ts" />
 
 describe('A pointer', () => {
-   
-   var mockWindow = null;
+
    var engine: ex.Engine = null;
    var pointers: ex.Input.Pointers = null;
-   var mocker = new Mocks.Mocker();
-   var noop = () => { return null; };
 
    beforeEach(() => {
-      mockWindow = <any>mocker.window();
-      engine = mocker.engine(600, 400);
+      engine = TestUtils.engine();
+      engine.start();
       pointers = new ex.Input.Pointers(engine);
-      pointers.init(mockWindow);
+      pointers.init();
+   });
+
+   afterEach(() => {
+      engine.stop();
    });
    
    it('should exist', () => {
@@ -39,9 +40,21 @@ describe('A pointer', () => {
          }
       });
 
-      (<any>mockWindow).emit('mousedown', {pageX: 0, pageY: 0, button: ex.Input.PointerButton.Left, preventDefault: noop});
-      (<any>mockWindow).emit('mousedown', {pageX: 0, pageY: 0, button: ex.Input.PointerButton.Right, preventDefault: noop});
-      (<any>mockWindow).emit('mousedown', {pageX: 0, pageY: 0, button: ex.Input.PointerButton.Middle, preventDefault: noop});
+      var mousedownEventLeft = document.createEvent('MouseEvent');
+      mousedownEventLeft.initMouseEvent('mousedown', true, true, document.defaultView, ex.Input.PointerButton.Left, 0, 0, 0, 0,
+          false, false, false, false, ex.Input.PointerButton.Left, engine.canvas);
+      var mousedownEventRight = document.createEvent('MouseEvent');
+      mousedownEventRight.initMouseEvent('mousedown', true, true, document.defaultView, ex.Input.PointerButton.Right, 0, 0, 0, 0,
+          false, false, false, false, ex.Input.PointerButton.Right, engine.canvas);
+      var mousedownEventMiddle = document.createEvent('MouseEvent');
+      mousedownEventMiddle.initMouseEvent('mousedown', true, true, document.defaultView, ex.Input.PointerButton.Middle, 0, 0, 0, 0,
+          false, false, false, false, ex.Input.PointerButton.Middle, engine.canvas);
+
+
+      engine.canvas.dispatchEvent(mousedownEventLeft);
+      engine.canvas.dispatchEvent(mousedownEventRight);
+      engine.canvas.dispatchEvent(mousedownEventMiddle);
+
 
       expect(eventLeftFired).toBeTruthy();
       expect(eventRightFired).toBeTruthy();
@@ -65,9 +78,20 @@ describe('A pointer', () => {
          }
       });
 
-      (<any>mockWindow).emit('mouseup', {pageX: 0, pageY: 0, button: ex.Input.PointerButton.Left, preventDefault: noop});
-      (<any>mockWindow).emit('mouseup', {pageX: 0, pageY: 0, button: ex.Input.PointerButton.Right, preventDefault: noop});
-      (<any>mockWindow).emit('mouseup', {pageX: 0, pageY: 0, button: ex.Input.PointerButton.Middle, preventDefault: noop});
+      var mouseupEventLeft = document.createEvent('MouseEvent');
+      mouseupEventLeft.initMouseEvent('mouseup', true, true, document.defaultView, ex.Input.PointerButton.Left, 0, 0, 0, 0,
+          false, false, false, false, ex.Input.PointerButton.Left, engine.canvas);
+      var mouseupEventRight = document.createEvent('MouseEvent');
+      mouseupEventRight.initMouseEvent('mouseup', true, true, document.defaultView, ex.Input.PointerButton.Right, 0, 0, 0, 0,
+          false, false, false, false, ex.Input.PointerButton.Right, engine.canvas);
+      var mouseupEventMiddle = document.createEvent('MouseEvent');
+      mouseupEventMiddle.initMouseEvent('mouseup', true, true, document.defaultView, ex.Input.PointerButton.Middle, 0, 0, 0, 0,
+          false, false, false, false, ex.Input.PointerButton.Middle, engine.canvas);
+
+
+      engine.canvas.dispatchEvent(mouseupEventLeft);
+      engine.canvas.dispatchEvent(mouseupEventRight);
+      engine.canvas.dispatchEvent(mouseupEventMiddle);
 
       expect(eventLeftFired).toBeTruthy();
       expect(eventRightFired).toBeTruthy();
@@ -81,18 +105,28 @@ describe('A pointer', () => {
          eventMoveFired = true;
       });
 
-      (<any>mockWindow).emit('mousemove', {pageX: 0, pageY: 0, preventDefault: noop});
+      var mousemoveEvent = document.createEvent('MouseEvent');
+      mousemoveEvent.initMouseEvent('mousemove', true, true, document.defaultView, null, 0, 0, 0, 0,
+          false, false, false, false, null, engine.canvas);
+      engine.canvas.dispatchEvent(mousemoveEvent);
 
       expect(eventMoveFired).toBeTruthy();
    });
 
    it('should update last position', () => {
-      (<any>mockWindow).emit('mousemove', {pageX: 100, pageY: 200, preventDefault: noop});
+      var mousemoveEvent = document.createEvent('MouseEvent');
+      mousemoveEvent.initMouseEvent('mousemove', true, true, document.defaultView, null, 100, 200, 100, 200,
+          false, false, false, false, null, engine.canvas);
+      engine.canvas.dispatchEvent(mousemoveEvent);
 
       expect(pointers.primary.lastPagePos.x).toBe(100);
       expect(pointers.primary.lastPagePos.y).toBe(200);
 
-      (<any>mockWindow).emit('mousemove', {pageX: 300, pageY: 400, preventDefault: noop});
+      mousemoveEvent = document.createEvent('MouseEvent');
+      mousemoveEvent.initMouseEvent('mousemove', true, true, document.defaultView, null, 300, 400, 300, 400,
+          false, false, false, false, null, engine.canvas);
+      engine.canvas.dispatchEvent(mousemoveEvent);
+
 
       expect(pointers.primary.lastPagePos.x).toBe(300);
       expect(pointers.primary.lastPagePos.y).toBe(400);
