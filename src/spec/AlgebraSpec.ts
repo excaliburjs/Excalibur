@@ -79,7 +79,7 @@ describe('Vectors', () => {
    it('can calculate the distance between two vectors', () => {
       var v1 = new ex.Vector(-10, 0);
       var v2 = new ex.Vector(10, 0);
-      expect(ex.Vector.distanceBetweenVectors(v1, v2)).toBe(20);
+      expect(ex.Vector.distance(v1, v2)).toBe(20);
     });
 
    it('can be normalized to a length of 1', () => {

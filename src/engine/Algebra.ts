@@ -68,14 +68,14 @@ export class Vector {
       return true;
    }
 
-  /**
-  * Calculates distance between two Vectors
-  * @param vec1
-  * @param vec2
-  */
-  public static distanceBetweenVectors(vec1: Vector, vec2: Vector) {
-     return Math.sqrt(Math.pow(vec1.x - vec2.x, 2) + Math.pow(vec1.y - vec2.y, 2));
-  }
+    /**
+    * Calculates distance between two Vectors
+    * @param vec1
+    * @param vec2
+    */
+    public static distance(vec1: Vector, vec2: Vector) {
+       return Math.sqrt(Math.pow(vec1.x - vec2.x, 2) + Math.pow(vec1.y - vec2.y, 2));
+    }
 
    /**
     * @param x  X component of the Vector
