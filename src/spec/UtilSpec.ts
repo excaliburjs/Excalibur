@@ -9,7 +9,7 @@ describe('Utility functions', () => {
       expect(ex.Util.getOppositeSide(ex.Side.Bottom)).toBe(ex.Side.Top);
       expect(ex.Util.getOppositeSide(ex.Side.Top)).toBe(ex.Side.Bottom);
    });
-   
+
    it('can determine the side from a vector', () => {
       expect(ex.Util.getSideFromVector(ex.Vector.Left)).toBe(ex.Side.Left);
       expect(ex.Util.getSideFromVector(ex.Vector.Right)).toBe(ex.Side.Right);
