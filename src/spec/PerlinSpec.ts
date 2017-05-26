@@ -60,7 +60,7 @@ describe('Perlin Noise', () => {
       expect(seq.length).toBe(10);
    });
 
-   xit('can draw a 2d canvas', (done) => {
+   it('can draw a 2d canvas', (done) => {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = 90000;
       var perlinCanvas = document.createElement('canvas');
       perlinCanvas.width = 150;
