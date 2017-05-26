@@ -53,6 +53,7 @@ export enum PointerScope {
  */
 export class PointerEvent extends GameEvent<any> {
 
+   public pos: Vector;
    /**
     * @param x            The `x` coordinate of the event (in world coordinates)
     * @param y            The `y` coordinate of the event (in world coordinates)
@@ -65,22 +66,23 @@ export class PointerEvent extends GameEvent<any> {
     * @param button       The button pressed (if [[PointerType.Mouse]])
     * @param ev           The raw DOM event being handled
     */
-   constructor(public x: number, 
-               public y: number, 
+   constructor(public x: number,
+               public y: number,
                public pageX: number,
                public pageY: number,
                public screenX: number,
                public screenY: number,
-               public index: number, 
-               public pointerType: PointerType, 
-               public button: PointerButton, 
+               public index: number,
+               public pointerType: PointerType,
+               public button: PointerButton,
                public ev: any) {
       super();
+      this.pos = new Vector(x, y);
    }
 };
 
 /**
- * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to 
+ * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to
  * [W3C Pointer Events](http://www.w3.org/TR/pointerevents/).
  *
  * [[include:Pointers.md]]
@@ -117,7 +119,7 @@ export class Pointers extends Class {
     * Primary pointer (mouse, 1 finger, stylus, etc.)
     */
    public primary: Pointer;
-   
+
    /**
     * Initializes pointer event listeners
     */
@@ -163,7 +165,7 @@ export class Pointers extends Class {
       this._pointerMove.length = 0;
       this._pointerCancel.length = 0;
    }
-   
+
    /**
     * Safely gets a Pointer at a specific index and initializes one if it doesn't yet exist
     * @param index  The pointer index to retrieve
@@ -193,7 +195,7 @@ export class Pointers extends Class {
     */
    public propogate(actor: any) {
       var isUIActor = actor instanceof UIActor;
-      var i: number = 0, 
+      var i: number = 0,
             len: number = this._pointerUp.length;
 
       for (i; i < len; i++) {
@@ -254,7 +256,7 @@ export class Pointers extends Class {
             var x: number = e.changedTouches[i].pageX - Util.getPosition(this._engine.canvas).x;
             var y: number = e.changedTouches[i].pageY - Util.getPosition(this._engine.canvas).y;
             var transformedPoint = this._engine.screenToWorldCoordinates(new Vector(x, y));
-            var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, 
+            var pe = new PointerEvent(transformedPoint.x, transformedPoint.y,
                e.changedTouches[i].pageX, e.changedTouches[i].pageY, x, y, index, PointerType.Touch, PointerButton.Unknown, e);
             eventArr.push(pe);
             this.at(index).eventDispatcher.emit(eventName, pe);
@@ -277,14 +279,14 @@ export class Pointers extends Class {
    private _handlePointerEvent(eventName: string, eventArr: PointerEvent[]) {
       return (e: MSPointerEvent) => {
          e.preventDefault();
-         
+
          // get the index for this pointer ID if multi-pointer is asked for
          var index = this._pointers.length > 1 ? this._getPointerIndex(e.pointerId) : 0;
          if (index === -1) { return; }
          var x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
          var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
          var transformedPoint = this._engine.screenToWorldCoordinates(new Vector(x, y));
-         var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, 
+         var pe = new PointerEvent(transformedPoint.x, transformedPoint.y,
             e.pageX, e.pageY, x, y, index, this._stringToPointerType(e.pointerType), e.button, e);
          eventArr.push(pe);
          this.at(index).eventDispatcher.emit(eventName, pe);
@@ -340,10 +342,10 @@ export class Pointers extends Class {
  * Captures and dispatches PointerEvents
  */
 export class Pointer extends Class {
-   
+
    constructor() {
       super();
-      
+
       this.on('move', this._onPointerMove);
    }
 
@@ -360,12 +362,12 @@ export class Pointer extends Class {
    /**
     * The last position in the game world coordinates this pointer was at. Can be `null` if pointer was never active.
     */
-   lastWorldPos: Vector = null;   
+   lastWorldPos: Vector = null;
 
    private _onPointerMove(ev: PointerEvent) {
       this.lastWorldPos = new Vector(ev.x, ev.y);
       this.lastPagePos = new Vector(ev.pageX, ev.pageY);
-      this.lastScreenPos = new Vector(ev.screenX, ev.screenY);      
+      this.lastScreenPos = new Vector(ev.screenX, ev.screenY);
    }
 }
 

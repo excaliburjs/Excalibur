@@ -9,7 +9,7 @@ describe('Utility functions', () => {
       expect(ex.Util.getOppositeSide(ex.Side.Bottom)).toBe(ex.Side.Top);
       expect(ex.Util.getOppositeSide(ex.Side.Top)).toBe(ex.Side.Bottom);
    });
-   
+
    it('can determine the side from a vector', () => {
       expect(ex.Util.getSideFromVector(ex.Vector.Left)).toBe(ex.Side.Left);
       expect(ex.Util.getSideFromVector(ex.Vector.Right)).toBe(ex.Side.Right);
@@ -27,4 +27,22 @@ describe('Utility functions', () => {
       expect(ex.Util.clamp(12, -Infinity, 100)).toBe(12);
       expect(ex.Util.clamp(12, -100, Infinity)).toBe(12);
    });
+
+   describe('removeItemFromArray function', () => {
+
+      it('should be a function', () => {
+         expect(typeof ex.Util.removeItemFromArray).toBe('function');
+      });
+
+      it('should return true when successfully removing an item', () => {
+         var arrayToRemove = ['Stark', 'Lannister', 'Targaryen'];
+         expect(ex.Util.removeItemFromArray('Lannister', arrayToRemove)).toBe(true);
+         expect(arrayToRemove.length).toBe(2);
+      });
+
+      it('should return false when item to delete is not present', () => {
+         var arrayToRemove = ['Godfrey', 'Crizzo', 'Fullstack'];
+         expect(ex.Util.removeItemFromArray('Lannister', arrayToRemove)).toBe(false);
+      });
+   })
 });
