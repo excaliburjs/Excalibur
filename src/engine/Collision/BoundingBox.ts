@@ -120,8 +120,8 @@ export class BoundingBox implements ICollidable {
       var tmin = -Infinity;
       var tmax = +Infinity;
 
-      var xinv = ray.dir.x === 0 ? 999999999999 : (1 / ray.dir.x);
-      var yinv = ray.dir.y === 0 ? 999999999999 : (1 / ray.dir.y);
+      var xinv = ray.dir.x === 0 ? Number.MAX_VALUE : (1 / ray.dir.x);
+      var yinv = ray.dir.y === 0 ? Number.MAX_VALUE : (1 / ray.dir.y);
       
       var tx1 = (this.left - ray.pos.x) * xinv;
       var tx2 = (this.right - ray.pos.x) * xinv;
@@ -141,8 +141,8 @@ export class BoundingBox implements ICollidable {
       var tmin = -Infinity;
       var tmax = +Infinity;
 
-      var xinv = ray.dir.x === 0 ? 999999999999 : (1 / ray.dir.x);
-      var yinv = ray.dir.y === 0 ? 999999999999 : (1 / ray.dir.y);
+      var xinv = ray.dir.x === 0 ? Number.MAX_VALUE : (1 / ray.dir.x);
+      var yinv = ray.dir.y === 0 ? Number.MAX_VALUE : (1 / ray.dir.y);
       
       var tx1 = (this.left - ray.pos.x) * xinv;
       var tx2 = (this.right - ray.pos.x) * xinv;
