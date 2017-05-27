@@ -13,21 +13,33 @@ describe('A camera', () => {
    var mock = new Mocks.Mocker();
 
    beforeEach(() => {
+      jasmine.addMatchers(imagediff.jasmine);
       actor = new ex.Actor();
 
       // mock engine    
-      engine = mock.engine(500, 500);
+      engine = TestUtils.engine({
+        width: 500,
+        height: 500 
+      });
+
+      engine.backgroundColor = ex.Color.Blue;
 
       actor.pos.x = 250;
       actor.setWidth(10);
       actor.pos.y = 250;
       actor.setHeight(10);
+      actor.color = ex.Color.Red;
       scene = new ex.Scene(engine);
+      scene.add(actor);
       engine.currentScene = scene;
 
       sideCamera = new ex.SideCamera();
       lockedCamera = new ex.LockedCamera();
       baseCamera = new ex.BaseCamera();
+   });
+   
+   afterEach(() => {
+      engine.stop();
    });
 
    it('can follow an actor if it is a lockedCamera', () => {
@@ -145,6 +157,22 @@ describe('A camera', () => {
 
       expect(sideCamera._isZooming).toBe(true);
    
+   });
+
+   it('can zoom in over time', (done) => {
+      engine.start().then(() => {
+         engine.currentScene.camera.zoom(5, 1000).then(() => {
+            imagediff.expectCanvasImageMatches('CameraSpec/zoomin.png', engine.canvas, done);
+         });
+      });
+   });
+
+   it('can zoom out over time', (done) => {
+      engine.start().then(() => {
+         engine.currentScene.camera.zoom(.2, 1000).then(() => {
+            imagediff.expectCanvasImageMatches('CameraSpec/zoomout.png', engine.canvas, done);
+         });
+      });
    });
 
 });
