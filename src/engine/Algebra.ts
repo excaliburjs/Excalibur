@@ -1,7 +1,7 @@
 
 
 /**
- * A 2D vector on a plane. 
+ * A 2D vector on a plane.
  */
 export class Vector {
 
@@ -66,6 +66,15 @@ export class Vector {
       }
 
       return true;
+   }
+
+   /**
+    * Calculates distance between two Vectors
+    * @param vec1
+    * @param vec2
+    */
+   public static distance(vec1: Vector, vec2: Vector) {
+      return Math.sqrt(Math.pow(vec1.x - vec2.x, 2) + Math.pow(vec1.y - vec2.y, 2));
    }
 
    /**
@@ -284,7 +293,7 @@ export class Ray {
    }
 
    /**
-    * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success. 
+    * Tests a whether this ray intersects with a line segment. Returns a number greater than or equal to 0 on success.
     * This number indicates the mathematical intersection time.
     * @param line  The line to test
     */
@@ -322,7 +331,7 @@ export class Ray {
 }
 
 /**
- * A 2D line segment 
+ * A 2D line segment
  */
 export class Line {
 
@@ -347,7 +356,7 @@ export class Line {
       return this.begin.y - (this.slope * this.begin.x);
    }
 
-   /** 
+   /**
     * Returns the slope of the line in the form of a vector
     */
    public getSlope(): Vector {
@@ -370,10 +379,10 @@ export class Line {
    /**
     * Finds a point on the line given only an X or a Y value. Given an X value, the function returns
     * a new point with the calculated Y value and vice-versa.
-    * 
-    * @param x The known X value of the target point 
+    *
+    * @param x The known X value of the target point
     * @param y The known Y value of the target point
-    * @returns A new point with the other calculated axis value       
+    * @returns A new point with the other calculated axis value
     */
    public findPoint(x: number = null, y: number = null): Vector {
       var m = this.slope;
@@ -390,14 +399,14 @@ export class Line {
 
    /**
     * Whether or not the given point lies on this line. This method is precise by default
-    * meaning the point must lie exactly on the line. Adjust threshold to 
+    * meaning the point must lie exactly on the line. Adjust threshold to
     * loosen the strictness of the check for floating-point calculations.
     */
    public hasPoint(x: number, y: number, threshold?: number): boolean;
 
    /**
     * Whether or not the given point lies on this line. This method is precise by default
-    * meaning the point must lie exactly on the line. Adjust threshold to 
+    * meaning the point must lie exactly on the line. Adjust threshold to
     * loosen the strictness of the check for floating-point calculations.
     */
    public hasPoint(v: Vector, threshold?: number): boolean;

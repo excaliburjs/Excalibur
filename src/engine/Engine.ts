@@ -901,7 +901,7 @@ O|===|* >________________>\n\
          gamepads: new Input.Gamepads(this)
       };
       this.input.keyboard.init();
-      this.input.pointers.init(options ? options.pointerScope : Input.PointerScope.Document);
+      this.input.pointers.init(options && options.pointerScope === Input.PointerScope.Document ? document : this.canvas);
       this.input.gamepads.init();
 
       this.pageScrollPreventionMode = options.scrollPreventionMode;
