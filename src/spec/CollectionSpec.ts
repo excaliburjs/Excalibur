@@ -1,5 +1,5 @@
 /// <reference path="jasmine.d.ts" />
-/// <reference path="require.d.ts" />
+
 /// <reference path="Mocks.ts" />
 
 describe('A collection', () => {
@@ -70,7 +70,7 @@ describe('A collection', () => {
       }
 
       expect(collection.count()).toBe(20);
-      expect(collection.elementAt(20)).toBeFalsy();
+      expect(() => collection.elementAt(20)).toThrowError('Invalid index 20');
    });
 
    it('can have elements removed at an index', () => {

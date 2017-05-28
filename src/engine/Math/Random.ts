@@ -23,6 +23,7 @@ const BITMASK32: number = 0xFFFFFFFF;
  */
 export class Random {
 
+   // Separation point of one one word, the number of bits in the lower bitmask 0 <= r <= w-1
    private _lowerMask: number = 0x7FFFFFFF; // 31 bits same as _r
    private _upperMask: number = 0x80000000; // 34 high bits
 
@@ -34,8 +35,6 @@ export class Random {
 
    // Middle word, an offset used in the recurrance defining the series x, 1<=m<n
    private _m: number = 397;
-   // Separation point of one one word, the number of bits in the lower bitmask 0 <= r <= w-1
-   private _r: number = 31;
    // coefficients of teh rational normal form twist matrix
    private _a: number = 0x9908B0DF;
 
@@ -188,7 +187,8 @@ export class Random {
     * Returns a new array random picking elements from the original allowing duplicates
     * @param numPicks can be any positive number
     */
-   private _pickSetWithDuplicates<T>(array: Array<T>, numPicks): Array<T> {
+   private _pickSetWithDuplicates<T>(array: Array<T>, numPicks: number): Array<T> {
+    // Typescript numbers are all floating point, so do we add check for int? (or floor the input?)
       if (numPicks < 0) {
          throw new Error('Invalid number of elements to pick, must pick a value 0 <= n < MAX_INT');
       }
@@ -200,7 +200,7 @@ export class Random {
    }
 
    /**
-    * Returns a new array that has it's elements shuffled. Using the Fisher/Yates method
+    * Returns a new array that has its elements shuffled. Using the Fisher/Yates method
     * https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
     */
    public shuffle<T>(array: Array<T>): Array<T> {

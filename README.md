@@ -75,6 +75,9 @@ npm run tests
 
 # Compile HTML visual tests
 npm run visual
+
+# Compile API docs
+npm run apidocs
 ```
 
 Advanced users can optionally install `grunt-cli` and run the grunt tasks (same task names).

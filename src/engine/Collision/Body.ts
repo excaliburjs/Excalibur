@@ -1,9 +1,12 @@
+import { Engine } from '../Engine';
+
 import { Physics, CollisionResolutionStrategy } from './../Physics';
 import { EdgeArea } from './EdgeArea';
 import { CircleArea } from './CircleArea';
 import { ICollisionArea } from './ICollisionArea';
 import { PolygonArea } from './PolygonArea';
 import { BoundingBox } from './BoundingBox';
+import { Pair } from './Pair';
 
 import { Vector } from '../Algebra';
 import { Actor } from '../Actor';
@@ -112,7 +115,7 @@ export class Body {
    /**
     * Returns the body's [[BoundingBox]] calculated for this instant in world space.
     */
-   public getBounds() {
+   public getBounds(): BoundingBox {
       if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Box) {
          return this.actor.getBounds();
       } else {
@@ -123,7 +126,7 @@ export class Body {
    /**
     * Returns the actor's [[BoundingBox]] relative to the actors position.
     */
-   public getRelativeBounds() {
+   public getRelativeBounds(): BoundingBox {
       if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Box) {
          return this.actor.getRelativeBounds();
       } else {
@@ -200,7 +203,7 @@ export class Body {
     * 
     * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
     */
-   public useEdgeCollision(begin: Vector, end: Vector, center: Vector = Vector.Zero.clone()) {
+   public useEdgeCollision(begin: Vector, end: Vector) {
       this.collisionArea = new EdgeArea({
          begin: begin,
          end: end,
@@ -228,4 +231,44 @@ export class Body {
          this.collisionArea.debugDraw(ctx, Color.Green);
       }
    }
+   
+   /**
+    * Returns a boolean indicating whether this body collided with 
+    * or was in stationary contact with
+    * the body of the other [[Actor]]
+    */
+   public touching(other: Actor): boolean {
+     
+     var pair = new Pair(this, other.body);
+     pair.collide();
+     
+     if (pair.collision) {
+       return true;
+     }
+     
+     return false;
+   }
+   
+   /**
+    * Returns a boolean indicating true if this body COLLIDED with 
+    * the body of the other Actor in the last frame, and they are no longer touching
+    * in this frame 
+    */
+   public wasTouching(other: Actor, game: Engine): boolean {
+     
+     var pair = new Pair(this, other.body);
+     var wasTouchingLastFrame = false;
+     
+     if (game.stats.prevFrame.physics.collidersHash[pair.id]) {
+         wasTouchingLastFrame = true;
+     };
+     
+     var currentlyTouching = this.touching(other);
+     
+     return wasTouchingLastFrame && !currentlyTouching;
+     
+   }
+   
+   
+   
 }   

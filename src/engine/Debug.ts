@@ -1,5 +1,20 @@
-import { Engine } from './Engine';
 import { IDebugFlags } from './DebugFlags';
+import { Pair } from './Collision/Pair';
+
+/**
+ * Debug stats containing current and previous frame statistics
+ */
+export interface IDebugStats {
+   currFrame: FrameStats;
+   prevFrame: FrameStats;
+}
+
+/**
+ * Hash containing the [[Pair.id]]s of pairs that collided in a frame
+ */
+export interface ICollidersHash {
+   [pairId: string]: Pair;
+}
 
 
 /**
@@ -100,10 +115,15 @@ export interface IPhysicsStats {
    pairs: number;
 
    /**
-    * Gets the number of actural collisons 
+    * Gets the number of actual collisons 
     */
    collisions: number;
-
+   
+   /**
+    * A Hash storing the [[Pair.ids]]s of [[Pairs]]s that collided in the frame
+    */
+   collidersHash: ICollidersHash;
+     
    /**
     * Gets the number of fast moving bodies using raycast continuous collisions in the scene 
     */
@@ -132,12 +152,10 @@ export interface IPhysicsStats {
  */
 export class Debug implements IDebugFlags {
 
-   constructor(private _engine: Engine) { }
-
    /**
     * Performance statistics
     */
-   public stats = {
+   public stats: IDebugStats = {
 
       /**
        * Current frame statistics. Engine reuses this instance, use [[FrameStats.clone]] to copy frame stats. 
@@ -167,17 +185,17 @@ export class FrameStats implements IFrameStats {
       alive: 0,
       killed: 0,
       ui: 0,
-      get remaining() {
+      get remaining(this: IFrameActorStats) {
          return this.alive - this.killed;
       },
-      get total() {
+      get total(this: IFrameActorStats) {
          return this.remaining + this.ui;
       }
    };
    private _durationStats: IFrameDurationStats = {
       update: 0,
       draw: 0,
-      get total() {
+      get total(this: IFrameDurationStats) {
          return this.update + this.draw;
       }
    };
@@ -288,6 +306,7 @@ export class FrameStats implements IFrameStats {
 export class PhysicsStats implements IPhysicsStats {
    private _pairs: number = 0;
    private _collisions: number = 0;
+   private _collidersHash: ICollidersHash = {};
    private _fastBodies: number = 0;
    private _fastBodyCollisions: number = 0;
    private _broadphase: number = 0;
@@ -302,6 +321,7 @@ export class PhysicsStats implements IPhysicsStats {
       if (otherStats) {
          this.pairs = otherStats.pairs;
          this.collisions = otherStats.collisions;
+         this.collidersHash = otherStats.collidersHash;
          this.fastBodies = otherStats.fastBodies;
          this.fastBodyCollisions = otherStats.fastBodyCollisions;
          this.broadphase = otherStats.broadphase;
@@ -309,6 +329,7 @@ export class PhysicsStats implements IPhysicsStats {
       } else {
          this.pairs = this.collisions = this.fastBodies = 0;
          this.fastBodyCollisions = this.broadphase = this.narrowphase = 0;
+         this.collidersHash = {};
       }
    }
 
@@ -337,6 +358,14 @@ export class PhysicsStats implements IPhysicsStats {
 
    public set collisions(value: number) {
       this._collisions = value;
+   }
+   
+   public get collidersHash(): ICollidersHash {
+      return this._collidersHash;
+   }
+   
+   public set collidersHash(colliders: ICollidersHash) {
+      this._collidersHash = colliders;
    }
 
    public get fastBodies(): number {

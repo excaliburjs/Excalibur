@@ -203,13 +203,8 @@ describe('Vectors', () => {
    });
 
    it('can be checked for validity on NaN vectors', () => {
-      var invalid = new ex.Vector();
-      invalid.x = NaN;
-      invalid.y = NaN;
-
-      var oneComponentInvalid = new ex.Vector();
-      oneComponentInvalid.x = NaN;
-      oneComponentInvalid.y = 2;
+      var invalid = new ex.Vector(NaN, NaN);
+      var oneComponentInvalid = new ex.Vector(NaN, 2);
 
       expect(ex.Vector.isValid(invalid)).toBe(false, 'NaN vectors should be invalid');
       expect(ex.Vector.isValid(oneComponentInvalid)).toBe(false, 'NaN vectors with one component should be invalid');

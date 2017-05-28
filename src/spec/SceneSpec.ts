@@ -1,5 +1,5 @@
 ﻿/// <reference path="jasmine.d.ts" />
-/// <reference path="require.d.ts" />
+
 /// <reference path="Mocks.ts" />
 
 describe('A scene', () => {
@@ -87,8 +87,8 @@ describe('A scene', () => {
       expect(scene.camera.getFocus().y).toBe(50);
       expect(engine.worldToScreenCoordinates(new ex.Vector(50, 50)).x).toBe(50);
       expect(engine.worldToScreenCoordinates(new ex.Vector(50, 50)).y).toBe(50);
-      expect(engine.getWidth()).toBe(100);
-      expect(engine.getHeight()).toBe(100);
+      expect(engine.getDrawWidth()).toBe(100);
+      expect(engine.getDrawHeight()).toBe(100);
 
       expect(actor.isOffScreen).toBeTruthy();
       expect(actor.draw).not.toHaveBeenCalled();

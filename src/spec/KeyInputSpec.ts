@@ -1,5 +1,5 @@
 /// <reference path="jasmine.d.ts" />
-/// <reference path="require.d.ts" />
+
 /// <reference path="Mocks.ts" />
 
 describe('A keyboard', () => {
@@ -70,7 +70,7 @@ describe('A keyboard', () => {
       (<any>mockWindow).emit('keydown', {keyCode: ex.Input.Keys.Up});
       (<any>mockWindow).emit('keydown', {keyCode: ex.Input.Keys.Down});
       
-      keyboard.update(200);
+      keyboard.update();
       
       // release key
       (<any>mockWindow).emit('keyup', {keyCode: ex.Input.Keys.Up});
@@ -78,7 +78,7 @@ describe('A keyboard', () => {
       expect(keyboard.wasReleased(ex.Input.Keys.Down)).toBeFalsy();
       expect(keyboard.isHeld(ex.Input.Keys.Up)).toBeFalsy();
       
-      keyboard.update(200);
+      keyboard.update();
       
       // release key
       (<any>mockWindow).emit('keyup', {keyCode: ex.Input.Keys.Down});

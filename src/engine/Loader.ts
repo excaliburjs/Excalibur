@@ -111,15 +111,6 @@ export class Loader extends Class implements ILoader {
       }
    }
 
-   private _sumCounts(obj): number {
-      var sum = 0;
-      var prev = 0;
-      for (var i in obj) {
-         sum += obj[i] | 0;
-      }
-      return sum;
-   }
-
    /**
     * Returns true if the loader has completely loaded all resources
     */
@@ -167,7 +158,7 @@ export class Loader extends Class implements ILoader {
          };
       });
 
-      function loadNext(list, index) {
+      function loadNext(list: ILoadable[], index: number) {
          if (!list[index]) {
             return;
          }
@@ -185,13 +176,13 @@ export class Loader extends Class implements ILoader {
     * Override `logo`, `logoWidth`, `logoHeight` and `backgroundColor` properties
     * to customize the drawing, or just override entire method.
     */
-   public draw(ctx: CanvasRenderingContext2D, delta: number) {
+   public draw(ctx: CanvasRenderingContext2D) {
       ctx.fillStyle = this.backgroundColor;
-      ctx.fillRect(0, 0, this._engine.width, this._engine.height);
+      ctx.fillRect(0, 0, this._engine.canvasWidth, this._engine.canvasHeight);
 
       var y = this._engine.canvas.height / 2;
       var width = Math.min(this.logoWidth, this._engine.canvas.width * 0.75);
-      var x = (this._engine.width / 2) - (width / 2);
+      var x = (this._engine.canvasWidth / 2) - (width / 2);
 
       var imageHeight = Math.floor(width * (this.logoHeight / this.logoWidth)); // OG height/width factor
       var oldAntialias = this._engine.getAntialiasing();
@@ -214,15 +205,15 @@ export class Loader extends Class implements ILoader {
     * Perform any calculations or logic in the `update` method. The default `Loader` does not
     * do anything in this method so it is safe to override.
     */
-   public update(engine: Engine, delta: number) {
+   public update(_engine: Engine, _delta: number) {
       // overridable update
    }
 
    public getData: () => any = () => { return; };
 
-   public setData: (data: any) => any = (data) => { return; };
+   public setData: (data: any) => any = () => { return; };
 
-   public processData: (data: any) => any = (data) => { return; };
+   public processData: (data: any) => any = () => { return; };
 
    public onprogress: (e: any) => void = (e: any) => {
 
@@ -331,7 +322,7 @@ export class PauseAfterLoader extends Loader {
       this._waitPromise = new Promise<any>();
 
       // wait until user indicates to proceed before finishing load
-      var superLoad = super.load().then((value?) => {
+      super.load().then((value?) => {
          this._loaded = true;
          this._loadedValue = value;
 

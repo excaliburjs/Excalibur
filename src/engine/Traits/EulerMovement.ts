@@ -4,7 +4,7 @@ import { Actor, CollisionType } from '../Actor';
 import { Engine } from '../Engine';
 
 export class EulerMovement implements IActorTrait { 
-   public update(actor: Actor, engine: Engine, delta: number) {
+   public update(actor: Actor, _engine: Engine, delta: number) {
       
       // Update placements based on linear algebra
       var seconds = delta / 1000;

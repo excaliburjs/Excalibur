@@ -1,6 +1,7 @@
 declare namespace imagediff {
    export var jasmine: jasmine.CustomMatcherFactories;
    function expectCanvasImageMatches(src: string, canvas: HTMLCanvasElement, done: DoneFn);
+   function expectImageMatches(src: string, image: HTMLImageElement, done: DoneFn);
 }
 
 declare function expect(actual: ImageData | CanvasRenderingContext2D | HTMLCanvasElement | HTMLImageElement): imageMatcher;

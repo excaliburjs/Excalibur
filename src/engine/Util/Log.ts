@@ -84,7 +84,7 @@ export class Logger {
     * Writes a log message at the [[LogLevel.Debug]] level
     * @param args  Accepts any number of arguments
     */
-   public debug(...args): void {
+   public debug(...args: any[]): void {
       this._log(LogLevel.Debug, args);
    }
 
@@ -92,7 +92,7 @@ export class Logger {
     * Writes a log message at the [[LogLevel.Info]] level
     * @param args  Accepts any number of arguments
     */
-   public info(...args): void {
+   public info(...args: any[]): void {
       this._log(LogLevel.Info, args);
    }
 
@@ -100,7 +100,7 @@ export class Logger {
     * Writes a log message at the [[LogLevel.Warn]] level
     * @param args  Accepts any number of arguments
     */
-   public warn(...args): void {
+   public warn(...args: any[]): void {
       this._log(LogLevel.Warn, args);
    }
 
@@ -108,7 +108,7 @@ export class Logger {
     * Writes a log message at the [[LogLevel.Error]] level
     * @param args  Accepts any number of arguments
     */
-   public error(...args): void {
+   public error(...args: any[]): void {
       this._log(LogLevel.Error, args);
    }
 
@@ -116,7 +116,7 @@ export class Logger {
     * Writes a log message at the [[LogLevel.Fatal]] level
     * @param args  Accepts any number of arguments
     */
-   public fatal(...args): void {
+   public fatal(...args: any[]): void {
       this._log(LogLevel.Fatal, args);
    }
 }
@@ -152,7 +152,7 @@ export class ConsoleAppender implements IAppender {
       }
 
       // Create a new console args array
-      var consoleArgs = [];
+      var consoleArgs: any[] = [];
       consoleArgs.unshift.apply(consoleArgs, args);
       consoleArgs.unshift('[' + LogLevel[level] + '] : ');
 

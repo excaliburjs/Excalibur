@@ -1,12 +1,12 @@
 /*********************************
 /* Excalibur.js Grunt Build File
 /*********************************/
-var path = require('path');
-var appveyorBuild = process.env.APPVEYOR_BUILD_NUMBER || '';
-
-if (appveyorBuild) {
-   appveyorBuild = '.' + appveyorBuild + '-alpha';
-}
+const path = require('path');
+const version = require('./version');
+const fs = require('fs');
+const child_process = require('child_process');
+const rimraf = require('rimraf');
+const TYPEDOC_CMD = path.join('node_modules', '.bin', 'typedoc');
 
 /*global module:false*/
 module.exports = function (grunt) {
@@ -16,8 +16,8 @@ module.exports = function (grunt) {
    //
    grunt.initConfig({
       pkg: grunt.file.readJSON('package.json'),
-      version: '<%= pkg.version %>' + appveyorBuild,
-      tscCmd: path.join('node_modules', '.bin', 'tsc'),
+      version: version,
+
       //
       // Clean dists and tests
       //
@@ -30,7 +30,9 @@ module.exports = function (grunt) {
 
          // Core engine
          core: {
-            tsconfig: 'src/engine',
+            tsconfig: {
+               tsconfig: 'src/engine/tsconfig.json'
+            },
             options: {
                removeComments: false
             }
@@ -61,6 +63,7 @@ module.exports = function (grunt) {
                'src/spec/support/phantom-jasmine-invoker.js',
                'src/spec/support/js-imagediff.js',
                'build/dist/excalibur.js',
+               'src/spec/support/platform.js',
                'src/spec/*.ts',
                'node_modules/source-map-support/browser-source-map-support.js',
                'src/spec/support/start-tests.js'
@@ -80,7 +83,7 @@ module.exports = function (grunt) {
             options: {
                sourceMap: true,
                process: function (src, filepath) {
-                  return src.replace(/__EX_VERSION/g, grunt.template.process('<%= pkg.version %>'));
+                  return src.replace(/__EX_VERSION/g, grunt.template.process('<%= version %>'));
                }
             }
          },
@@ -92,7 +95,7 @@ module.exports = function (grunt) {
             options: {
                sourceMap: true,
                process: function (src, filepath) {
-                  return src.replace(/__EX_VERSION/g, grunt.template.process('<%= pkg.version %>'));
+                  return src.replace(/__EX_VERSION/g, grunt.template.process('<%= version %>'));
                }
             }
          },
@@ -233,6 +236,7 @@ module.exports = function (grunt) {
             options: {
                vendor: [
                   'src/spec/support/js-imagediff.js', 
+                  'src/spec/support/platform.js', 
                   'src/spec/Mocks.js', 
                   'src/spec/TestUtils.js'/*, 
                   'src/spec/support/sourcemaps.js'*/
@@ -283,11 +287,7 @@ module.exports = function (grunt) {
          setters: {
             // Overrides version setter 
             version: function (old, releaseType, options) {
-               var version = grunt.file.readJSON('package.json').version;
-               var build = process.env.TRAVIS_BUILD_NUMBER || "localbuild";
-               var commit = process.env.TRAVIS_COMMIT || "localcommit";
-               var alphaVersion = version + '-alpha.' + build + "+" + commit.substring(0, 7);
-               return alphaVersion;
+               return version;
             },
          },
          files: ['build/package.json']
@@ -331,11 +331,49 @@ module.exports = function (grunt) {
    grunt.registerTask('visual', ['ts:visual']);
 
    // Travis CI task
-   grunt.registerTask('travis', ['default', 'coveralls']);
+   grunt.registerTask('travis', ['default', 'coveralls', 'apidocs']);
 
    // Appveyor task
    grunt.registerTask('appveyor', ['default', 'shell:nuget']);
 
    // CI task to deploy dists
-   grunt.registerTask('dists', ['buildcontrol']);   
+   grunt.registerTask('dists', ['bumpup', 'buildcontrol']);  
+
+   // CI task to build API docs
+   // Typically called by excaliburjs.github.io CI job to generate versioned docs
+   grunt.registerTask('apidocs', 'Build API documentation', function (version) {
+      version = version || "Edge";
+
+      console.log("Removing existing docs...");
+
+      rimraf.sync('docs/api/');
+
+      console.log("Compiling default template (default)...");
+      try {
+         if (!fs.existsSync('./typedoc-default-themes/node_modules')) {
+            child_process.execSync("npm install", { cwd: "./typedoc-default-themes", stdio: [0,1,2] });
+         }
+      } catch (e) {
+         // fails to execute Linux commands, OK
+      }
+
+      console.log("Executing typedoc...");
+
+      child_process.execSync(TYPEDOC_CMD + 
+         ' --name "Excalibur.js ' + version + ' API Documentation"' +
+         ' --mode modules' +
+         ' --readme src/engine/Docs/Index.md' +         
+         ' --includes src/engine/Docs' +
+         ' --out docs/api' +
+         ' --theme typedoc-default-themes/bin/default' +
+         ' --hideGenerator' +
+         ' --excludePrivate' +
+         ' --listInvalidSymbolLinks' +
+         ' --gaID UA-46390208-1' +
+         ' --gaSite excaliburjs.com' +
+         ' --tsconfig src/engine/tsconfig.json' +
+         ' src/engine', {
+         stdio: [0,1,2]
+      });
+   });
 };

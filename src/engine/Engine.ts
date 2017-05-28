@@ -16,12 +16,13 @@ import { Logger, LogLevel } from './Util/Log';
 import { Color } from './Drawing/Color';
 import { Scene } from './Scene';
 import { IPostProcessor } from './PostProcessing/IPostProcessor';
-import { Debug, FrameStats } from './Debug';
+import { Debug, IDebugStats } from './Debug';
 import { Class } from './Class';
 import * as Input from './Input/Index';
 import { obsolete } from './Util/Decorators';
 import * as Util from './Util/Util';
 import * as Events from './Events';
+import { BoundingBox } from './Collision/BoundingBox';
 
 /**
  * Enum representing the different display modes available to Excalibur
@@ -38,7 +39,26 @@ export enum DisplayMode {
    /** 
     * Show the game as a fixed size 
     */
-   Fixed
+   Fixed,
+   
+   /*
+   * Allow the game to be positioned with the position option
+   */
+   Position
+}
+
+/*
+* Interface describing the absolute CSS position of the game window. For use when DisplayMode.Position
+* is specified and when the user wants to define exact pixel spacing of the window.
+* When a number is given, the value is interpreted as pixels
+*/
+export interface IAbsolutePosition {
+  
+  top?: number | string;
+  left?: number | string;
+  right?: number | string;
+  bottom?: number | string;
+  
 }
 
 /**
@@ -82,6 +102,16 @@ export interface IEngineOptions {
     * browsers or if there is a bug in excalibur preventing execution.
     */
    suppressMinimumBrowserFeatureDetection?: boolean;
+   
+   /*
+   * Specify how the game window is to be positioned when the DisplayMode.Position is chosen. This option MUST be specified
+   * if the DisplayMode is set as DisplayMode.Position. The position can be either a string or an AbsolutePosition. String must be in the
+   * format of css style background-position. The vertical position must precede the horizontal position in Strings
+   * Valid String examples: "top left", "top", "bottom", "middle", "middle center", "bottom right"
+   * Valid IAbsolutePosition examples: {top: 5, right: 10%}, {bottom: 49em, left: 10px}, {left: 10, bottom: 40} 
+   */
+   
+   position?: string | IAbsolutePosition;
 }
 
 /**
@@ -113,11 +143,11 @@ export class Engine extends Class {
    /**
     * The width of the game canvas in pixels
     */
-   public width: number;
+   public canvasWidth: number;
    /**
     * The height of the game canvas in pixels
     */
-   public height: number;
+   public canvasHeight: number;
 
    /**
     * Access engine input like pointer, keyboard, or gamepad
@@ -139,12 +169,12 @@ export class Engine extends Class {
    /**
     * Access Excalibur debugging functionality.
     */
-   public debug = new Debug(this);
+   public debug = new Debug();
 
    /**
     * Access [[stats]] that holds frame statistics.
     */
-   public get stats() {
+   public get stats(): IDebugStats {
       return this.debug.stats;
    }
 
@@ -179,7 +209,11 @@ export class Engine extends Class {
     * Indicates the current [[DisplayMode]] of the engine.
     */
    public displayMode: DisplayMode = DisplayMode.FullScreen;
-
+   
+   /**
+    * Indicates the current position of the engine. Valid only when DisplayMode is DisplayMode.Position
+    */
+   public position: string | IAbsolutePosition;
    /**
     * Indicates whether audio should be paused when the game is no longer visible.
     */
@@ -198,7 +232,7 @@ export class Engine extends Class {
    /**
     * The action to take when a fatal exception is thrown
     */
-   public onFatalException = (e) => { Logger.getInstance().fatal(e); };
+   public onFatalException = (e: any) => { Logger.getInstance().fatal(e); };
 
    private _logger: Logger;
    private _isSmoothingEnabled: boolean = true;
@@ -215,16 +249,18 @@ export class Engine extends Class {
    private _loader: ILoader;
    private _isLoading: boolean = false;
 
-   public on(eventName: Events.visible, handler: (event?: VisibleEvent) => void);
-   public on(eventName: Events.hidden, handler: (event?: HiddenEvent) => void);
-   public on(eventName: Events.start, handler: (event?: GameStartEvent) => void);
-   public on(eventName: Events.stop, handler: (event?: GameStopEvent) => void);
-   public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void);
-   public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void);
-   public on(eventName: Events.preframe, handler: (event?: PreFrameEvent) => void);
-   public on(eventName: Events.postframe, handler: (event?: PostFrameEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void);
-   public on(eventName: string, handler: (event?: GameEvent) => void) {
+   public on(eventName: Events.visible, handler: (event?: VisibleEvent) => void): void;
+   public on(eventName: Events.hidden, handler: (event?: HiddenEvent) => void): void;
+   public on(eventName: Events.start, handler: (event?: GameStartEvent) => void): void;
+   public on(eventName: Events.stop, handler: (event?: GameStopEvent) => void): void;
+   public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
+   public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): void;
+   public on(eventName: Events.preframe, handler: (event?: PreFrameEvent) => void): void;
+   public on(eventName: Events.postframe, handler: (event?: PostFrameEvent) => void): void;   
+   public on(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void): void;
+   public on(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void {
       super.on(eventName, handler);
    }
 
@@ -326,9 +362,9 @@ O|===|* >________________>\n\
             this.displayMode = DisplayMode.Fixed;
          }
          this._logger.debug('Engine viewport is size ' + options.width + ' x ' + options.height);
-         this.width = options.width;
+         this.canvasWidth = options.width;
          this.canvas.width = options.width;
-         this.height = options.height;
+         this.canvasHeight = options.height;
          this.canvas.height = options.height;
 
       } else if (!options.displayMode) {
@@ -346,6 +382,20 @@ O|===|* >________________>\n\
       this.addScene('root', this.rootScene);
       this.goToScene('root');
    }
+
+   /**
+    * Returns a BoundingBox of the top left corner of the screen
+    * and the bottom right corner of the screen.
+    */
+   public getWorldBounds() {
+      var left = this.screenToWorldCoordinates(Vector.Zero).x;
+      var top = this.screenToWorldCoordinates(Vector.Zero).y;
+      var right = left + this.getDrawWidth();
+      var bottom = top + this.getDrawHeight();
+
+      return new BoundingBox(left, top, right, bottom);
+   }
+
 
    /**
     * Gets the current engine timescale factor (default is 1.0 which is 1:1 time)
@@ -611,7 +661,7 @@ O|===|* >________________>\n\
          // only deactivate when initialized
          if (this.currentScene.isInitialized) {
             this.currentScene.onDeactivate.call(this.currentScene);
-            this.currentScene.eventDispatcher.emit('deactivate', new DeactivateEvent(newScene));
+            this.currentScene.eventDispatcher.emit('deactivate', new DeactivateEvent(newScene, this.currentScene));
          }
 
          // set current scene to new one
@@ -621,7 +671,7 @@ O|===|* >________________>\n\
          this.currentScene._initialize(this);
 
          this.currentScene.onActivate.call(this.currentScene);
-         this.currentScene.eventDispatcher.emit('activate', new ActivateEvent(oldScene));
+         this.currentScene.eventDispatcher.emit('activate', new ActivateEvent(oldScene, this.currentScene));
       } else {
          this._logger.error('Scene', key, 'does not exist!');
       }
@@ -630,21 +680,21 @@ O|===|* >________________>\n\
    /**
     * Returns the width of the engine's drawing surface in pixels.
     */
-   public getWidth(): number {
+   public getDrawWidth(): number {
       if (this.currentScene && this.currentScene.camera) {
-         return this.width / this.currentScene.camera.getZoom();
+         return this.canvasWidth / this.currentScene.camera.getZoom();
       }
-      return this.width;
+      return this.canvasWidth;
    }
 
    /**
     * Returns the height of the engine's drawing surface in pixels.
     */
-   public getHeight(): number {
+   public getDrawHeight(): number {
       if (this.currentScene && this.currentScene.camera) {
-         return this.height / this.currentScene.camera.getZoom();
+         return this.canvasHeight / this.currentScene.camera.getZoom();
       }
-      return this.height;
+      return this.canvasHeight;
    }
 
    /**
@@ -657,13 +707,13 @@ O|===|* >________________>\n\
       var newY = point.y;
 
       // transform back to world space
-      newX = (newX / this.canvas.clientWidth) * this.getWidth();
-      newY = (newY / this.canvas.clientHeight) * this.getHeight();
+      newX = (newX / this.canvas.clientWidth) * this.getDrawWidth();
+      newY = (newY / this.canvas.clientHeight) * this.getDrawHeight();
 
 
       // transform based on zoom
-      newX = newX - this.getWidth() / 2;
-      newY = newY - this.getHeight() / 2;
+      newX = newX - this.getDrawWidth() / 2;
+      newY = newY - this.getDrawHeight() / 2;
 
       // shift by focus
       if (this.currentScene && this.currentScene.camera) {
@@ -692,12 +742,12 @@ O|===|* >________________>\n\
       }
 
       // transform back on zoom
-      screenX = screenX + this.getWidth() / 2;
-      screenY = screenY + this.getHeight() / 2;
+      screenX = screenX + this.getDrawWidth() / 2;
+      screenY = screenY + this.getDrawHeight() / 2;
 
       // transform back to screen space
-      screenX = (screenX * this.canvas.clientWidth) / this.getWidth();
-      screenY = (screenY * this.canvas.clientHeight) / this.getHeight();
+      screenX = (screenX * this.canvas.clientWidth) / this.getDrawWidth();
+      screenY = (screenY * this.canvas.clientHeight) / this.getDrawHeight();
 
       return new Vector(Math.floor(screenX), Math.floor(screenY));
    }
@@ -705,17 +755,17 @@ O|===|* >________________>\n\
    /**
     * Sets the internal canvas height based on the selected display mode.
     */
-   private _setHeightByDisplayMode(parent: any) {
+   private _setHeightByDisplayMode(parent: HTMLElement | Window) {
       if (this.displayMode === DisplayMode.Container) {
-         this.width = this.canvas.width = parent.clientWidth;
-         this.height = this.canvas.height = parent.clientHeight;
+         this.canvasWidth = this.canvas.width = (<HTMLElement>parent).clientWidth;
+         this.canvasHeight = this.canvas.height = (<HTMLElement>parent).clientHeight;
       }
 
       if (this.displayMode === DisplayMode.FullScreen) {
          document.body.style.margin = '0px';
          document.body.style.overflow = 'hidden';
-         this.width = this.canvas.width = parent.innerWidth;
-         this.height = this.canvas.height = parent.innerHeight;
+         this.canvasWidth = this.canvas.width = (<Window>parent).innerWidth;
+         this.canvasHeight = this.canvas.height = (<Window>parent).innerHeight;
       }
    }
 
@@ -723,6 +773,10 @@ O|===|* >________________>\n\
     * Initializes the internal canvas, rendering context, displaymode, and native event listeners
     */
    private _initialize(options?: IEngineOptions) {
+      if (options.displayMode) {
+        this.displayMode = options.displayMode;
+      }
+      
       if (this.displayMode === DisplayMode.FullScreen || this.displayMode === DisplayMode.Container) {
 
 
@@ -731,14 +785,86 @@ O|===|* >________________>\n\
 
          this._setHeightByDisplayMode(parent);
 
-         window.addEventListener('resize', (ev: UIEvent) => {
+         window.addEventListener('resize', () => {
             this._logger.debug('View port resized');
             this._setHeightByDisplayMode(parent);
             this._logger.info('parent.clientHeight ' + parent.clientHeight);
             this.setAntialiasing(this._isSmoothingEnabled);
          });
+      } else if (this.displayMode === DisplayMode.Position) {
+          
+          if ( !options.position ) {
+            throw new Error('DisplayMode of Position was selected but no position option was given');
+          } else {
+              
+              this.canvas.style.display = 'block';
+              this.canvas.style.position = 'absolute';
+              
+              if (typeof options.position === 'string') {
+                var specifiedPosition = options.position.split(' ');
+                
+                switch (specifiedPosition[0]) {
+                  case 'top':
+                    this.canvas.style.top = '0px';
+                    break;
+                  case 'bottom':
+                    this.canvas.style.bottom = '0px';
+                    break;
+                  case 'middle':
+                    this.canvas.style.top = '50%';
+                    var offsetY = this.getDrawHeight() / -2;
+                    this.canvas.style.marginTop = offsetY.toString();
+                    break;
+                  default:
+                    throw new Error('Invalid Position Given');                  
+                }
+                
+                if (specifiedPosition[1]) {
+                  
+                  switch (specifiedPosition[1]) {
+                    case 'left':
+                      this.canvas.style.left = '0px';
+                      break;
+                    case 'right':
+                      this.canvas.style.right = '0px';
+                      break;
+                    case 'center':
+                      this.canvas.style.left = '50%';
+                      var offsetX = this.getDrawWidth() / -2;
+                      this.canvas.style.marginLeft = offsetX.toString();
+                      break;
+                    default:
+                      throw new Error('Invalid Position Given');
+                  }
+                }
+              } else {
+                  
+                  if (options.position.top) {
+                    typeof options.position.top === 'number' ? 
+                    this.canvas.style.top = options.position.top.toString() + 'px' : 
+                    this.canvas.style.top = options.position.top;
+                  }
+                  if (options.position.right) {
+                    typeof options.position.right === 'number' ? 
+                    this.canvas.style.right = options.position.right.toString() + 'px' : 
+                    this.canvas.style.right = options.position.right;
+                  }
+                  if (options.position.bottom) {
+                    typeof options.position.bottom === 'number' ? 
+                    this.canvas.style.bottom = options.position.bottom.toString() + 'px' : 
+                    this.canvas.style.bottom = options.position.bottom;
+                  }
+                  if (options.position.left) {
+                    typeof options.position.left === 'number' ? 
+                    this.canvas.style.left = options.position.left.toString() + 'px' : 
+                    this.canvas.style.left = options.position.left;
+                  }
+                  
+                  
+              }
+          }
       }
-
+       
       // initialize inputs
       this.input = {
          keyboard: new Input.Keyboard(this),
@@ -746,31 +872,30 @@ O|===|* >________________>\n\
          gamepads: new Input.Gamepads(this)
       };
       this.input.keyboard.init();
-      this.input.pointers.init(options ? options.pointerScope : Input.PointerScope.Document);
+      this.input.pointers.init(options && options.pointerScope === Input.PointerScope.Document ? document : this.canvas);
       this.input.gamepads.init();
 
       // Issue #385 make use of the visibility api
       // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
 
-      var hidden, visibilityChange;
+      var hidden: keyof HTMLDocument, visibilityChange: string;
       if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and later support 
          hidden = 'hidden';
          visibilityChange = 'visibilitychange';
       } else if ('msHidden' in document) {
-         hidden = 'msHidden';
+         hidden = <keyof HTMLDocument>'msHidden';
          visibilityChange = 'msvisibilitychange';
       } else if ('webkitHidden' in document) {
-         hidden = 'webkitHidden';
+         hidden = <keyof HTMLDocument>'webkitHidden';
          visibilityChange = 'webkitvisibilitychange';
       }
 
       document.addEventListener(visibilityChange, () => {
-
          if (document[hidden]) {
-            this.eventDispatcher.emit('hidden', new HiddenEvent());
+            this.eventDispatcher.emit('hidden', new HiddenEvent(this));
             this._logger.debug('Window hidden');
          } else {
-            this.eventDispatcher.emit('visible', new VisibleEvent());
+            this.eventDispatcher.emit('visible', new VisibleEvent(this));
             this._logger.debug('Window visible');
          }
       });
@@ -820,9 +945,9 @@ O|===|* >________________>\n\
          // suspend updates untill loading is finished
          this._loader.update(this, delta);
          // Update input listeners
-         this.input.keyboard.update(delta);
-         this.input.pointers.update(delta);
-         this.input.gamepads.update(delta);
+         this.input.keyboard.update();
+         this.input.pointers.update();
+         this.input.gamepads.update();
          return;
       }
       this.emit('preupdate', new PreUpdateEvent(this, delta, this));
@@ -835,9 +960,9 @@ O|===|* >________________>\n\
       });
 
       // Update input listeners
-      this.input.keyboard.update(delta);
-      this.input.pointers.update(delta);
-      this.input.gamepads.update(delta);
+      this.input.keyboard.update();
+      this.input.pointers.update();
+      this.input.gamepads.update();
 
       // Publish update event
       // TODO: Obsolete `update` event on Engine
@@ -858,9 +983,9 @@ O|===|* >________________>\n\
          return;
       }
 
-      ctx.clearRect(0, 0, this.width, this.height);
+      ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
       ctx.fillStyle = this.backgroundColor.toString();
-      ctx.fillRect(0, 0, this.width, this.height);
+      ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
 
       this.currentScene.draw(this.ctx, delta);
 
@@ -880,12 +1005,12 @@ O|===|* >________________>\n\
             this.ctx.fillText(keys[j].toString() + ' : ' + (Input.Keys[keys[j]] ? Input.Keys[keys[j]] : 'Not Mapped'), 100, 10 * j + 10);
          }
 
-         this.ctx.fillText('FPS:' + this.fps.toFixed(2).toString(), 10, 10);
+         this.ctx.fillText('FPS:' + this.stats.currFrame.fps.toFixed(2).toString(), 10, 10);
       }
 
       // Post processing
       for (var i = 0; i < this.postProcessors.length; i++) {
-         this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.width, this.height), this.ctx);
+         this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.canvasWidth, this.canvasHeight), this.ctx);
       }
 
       this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
@@ -931,7 +1056,7 @@ O|===|* >________________>\n\
 
    }
 
-   public static createMainLoop(game: Engine, raf: (Function) => number, nowFn: () => number) {
+   public static createMainLoop(game: Engine, raf: (func: Function) => number, nowFn: () => number) {
       var lastTime = nowFn();
 
       return function mainloop() {
@@ -940,7 +1065,7 @@ O|===|* >________________>\n\
          }
          try {
             game._requestId = raf(mainloop);
-            game.emit('preframe', new PreFrameEvent(game, game.stats.prevFrame, game));
+            game.emit('preframe', new PreFrameEvent(game, game.stats.prevFrame));
 
             // Get the time to calculate time-elapsed
             var now = nowFn();
@@ -973,7 +1098,7 @@ O|===|* >________________>\n\
 
             lastTime = now;
 
-            game.emit('postframe', new PostFrameEvent(game, game.stats.currFrame, game));
+            game.emit('postframe', new PostFrameEvent(game, game.stats.currFrame));
          } catch (e) {
             window.cancelAnimationFrame(game._requestId);
             game.stop();
@@ -991,6 +1116,13 @@ O|===|* >________________>\n\
          this._hasStarted = false;
          this._logger.debug('Game stopped');
       }
+   }
+
+   /**
+    * Returns the Engine's Running status, Useful for checking whether engine is running or paused.
+    */
+   public isPaused(): boolean {
+      return !(this._hasStarted);
    }
 
    /**

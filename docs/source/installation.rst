@@ -58,7 +58,7 @@ The `excaliburjs <https://github.com/excaliburjs>`_ organization on GitHub has s
 
 - `TypeScript, Angular2 & SystemJS <https://github.com/excaliburjs/example-ts-angular2>`_
 - `TypeScript & Webpack <https://github.com/excaliburjs/example-ts-webpack>`_
-- `TypeScript & Browserify <https://github.com/excaliburjs/example-ts-webpack>`_
+- `TypeScript & Browserify <https://github.com/excaliburjs/example-ts-browserify>`_
 - `Universal Windows Platform (UWP) <https://github.com/excaliburjs/example-uwp>`_
 - `Apache Cordova <https://github.com/excaliburjs/example-cordova>`_
 - `Xamarin Forms <https://github.com/excaliburjs/example-xamarin>`_

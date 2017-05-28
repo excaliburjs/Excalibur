@@ -26,9 +26,9 @@ export class Pair {
    /**
     * Resovles the collision body position and velocity if a collision occured
     */
-   public resolve(delta: number, strategy: CollisionResolutionStrategy) {
+   public resolve(strategy: CollisionResolutionStrategy) {
       if (this.collision) {
-         this.collision.resolve(delta, strategy);
+         this.collision.resolve(strategy);
       }
    }
 

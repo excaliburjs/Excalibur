@@ -1,5 +1,5 @@
 /// <reference path="jasmine.d.ts" />
-/// <reference path="require.d.ts" />
+
 /// <reference path="Mocks.ts" />
 
 const mockData = 'testdata';
@@ -141,6 +141,16 @@ describe('Sound resource', () => {
 
          sut.setVolume(0.5);
          sut.play();
+         
+         expect(audioInstance.volume).toBe(0.5);
+      });
+      
+      it('should set volume with argument sent to play', () => {
+         var audioInstance = new MockAudioInstance();
+         
+         spyOn(audioMock, 'createInstance').and.returnValue(audioInstance);
+
+         sut.play(0.5);
          
          expect(audioInstance.volume).toBe(0.5);
       });
@@ -303,7 +313,7 @@ class MockAudioInstance implements ex.IAudio {
    private _startTime = 0;
    private _duration = 100;
    private _playComplete: ex.Promise<boolean>;
-   private _playing: number;
+   private _playing: NodeJS.Timer;
 
    public loop = false;
    public volume = 1.0;

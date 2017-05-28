@@ -274,7 +274,7 @@ newScene.on('activate', (evt?: ex.ActivateEvent) => {
 newScene.on('deactivate', (evt?: ex.DeactivateEvent) => {
    console.log('deactivate newScene');
 });
-newScene.on('foo', (ev: ex.GameEvent) => {
+newScene.on('foo', (ev: ex.GameEvent<any>) => {
 
 });
 
@@ -353,8 +353,8 @@ player.on('collision', (data?: ex.CollisionEvent) => {
 player.on('postupdate', (data?: ex.PostUpdateEvent) => {
    // apply gravity if player is in the air
    // only apply gravity when not colliding
-   if (!isColliding) {
-      data.target.acc.y = 800;// * data.delta/1000;
+   if (!isColliding && data.target instanceof ex.Actor) {
+      data.target.acc.y = 800; // * data.delta/1000;
    } else {
       //data.target.acc.y = 0;
    }
