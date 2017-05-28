@@ -1,13 +1,8 @@
-import { Defaultable } from './Interfaces/Defaultable';
-
 /**
  * A 2D vector on a plane.
  */
-export class Vector extends Defaultable<Vector> {
+export class Vector {
 
-   public defaults = { x: 0, y: 0 };
-   public x : number;
-   public y : number;
    /**
     * A (0, 0) vector
     */
@@ -70,7 +65,7 @@ export class Vector extends Defaultable<Vector> {
 
       return true;
    }
-   constructor();
+
    /**
     * Calculates distance between two Vectors
     * @param vec1
@@ -84,21 +79,7 @@ export class Vector extends Defaultable<Vector> {
     * @param x  X component of the Vector
     * @param y  Y component of the Vector
     */
-   constructor(x: number, y: number);
-   /**
-    * @param vectorOptions an object containing the starting x/y coordinates of the vector
-    */
-   constructor(vectorOptions: Partial<Vector>);
-   constructor(xOrVectorOptions?: number | Partial<Vector>, y?: number) {
-      super();
-      if (typeof xOrVectorOptions === 'number') {
-         this.setProperties(this, {x: xOrVectorOptions || this.defaults.x, y: y || this.defaults.y});
-      }else {
-         this.setProperties(this, xOrVectorOptions);
-      }
-   }
-
-
+   constructor(public x: number, public y: number) { }
 
    /**
     * Sets the x and y components at once
