@@ -2,17 +2,21 @@
 
 /// <reference path="TestUtils.ts" />
 
-function executeMouseEvent(type: string, button: ex.Input.PointerButton, x: number, y: number, target: HTMLElement) {
-   var mouseEvent = document.createEvent('MouseEvent');
-   mouseEvent.initMouseEvent(type, true, true, document.defaultView, button, x, y, x, y,
-       false, false, false, false, button, target);
-   target.dispatchEvent(mouseEvent);
-}
-
 describe('A pointer', () => {
 
    var engine: ex.Engine = null;
    var pointers: ex.Input.Pointers = null;
+
+   function executeMouseEvent(type: string,
+                              button: ex.Input.PointerButton = null,
+                              x: number = 0,
+                              y: number = 0,
+                              target: HTMLElement = engine.canvas) {
+      var mouseEvent = document.createEvent('MouseEvent');
+      mouseEvent.initMouseEvent(type, true, true, document.defaultView, button, x, y, x, y,
+          false, false, false, false, button, target);
+      target.dispatchEvent(mouseEvent);
+   }
 
    beforeEach(() => {
       engine = TestUtils.engine();
@@ -47,9 +51,9 @@ describe('A pointer', () => {
          }
       });
 
-      executeMouseEvent('mousedown', ex.Input.PointerButton.Left, 0, 0, engine.canvas);
-      executeMouseEvent('mousedown', ex.Input.PointerButton.Right, 0, 0,  engine.canvas);
-      executeMouseEvent('mousedown', ex.Input.PointerButton.Middle, 0, 0, engine.canvas);
+      executeMouseEvent('mousedown', ex.Input.PointerButton.Left);
+      executeMouseEvent('mousedown', ex.Input.PointerButton.Right);
+      executeMouseEvent('mousedown', ex.Input.PointerButton.Middle);
 
 
       expect(eventLeftFired).toBeTruthy();
@@ -74,9 +78,9 @@ describe('A pointer', () => {
          }
       });
 
-      executeMouseEvent('mouseup', ex.Input.PointerButton.Left, 0, 0, engine.canvas);
-      executeMouseEvent('mouseup', ex.Input.PointerButton.Right, 0, 0,  engine.canvas);
-      executeMouseEvent('mouseup', ex.Input.PointerButton.Middle, 0, 0, engine.canvas);
+      executeMouseEvent('mouseup', ex.Input.PointerButton.Left);
+      executeMouseEvent('mouseup', ex.Input.PointerButton.Right);
+      executeMouseEvent('mouseup', ex.Input.PointerButton.Middle);
 
       expect(eventLeftFired).toBeTruthy();
       expect(eventRightFired).toBeTruthy();
@@ -90,18 +94,18 @@ describe('A pointer', () => {
          eventMoveFired = true;
       });
 
-      executeMouseEvent('mousemove', null, 0, 0, engine.canvas);
+      executeMouseEvent('mousemove');
 
       expect(eventMoveFired).toBeTruthy();
    });
 
    it('should update last position', () => {
-      executeMouseEvent('mousemove', null, 100, 200, engine.canvas);
+      executeMouseEvent('mousemove', null, 100, 200);
 
       expect(pointers.primary.lastPagePos.x).toBe(100);
       expect(pointers.primary.lastPagePos.y).toBe(200);
 
-      executeMouseEvent('mousemove', null, 300, 400, engine.canvas);
+      executeMouseEvent('mousemove', null, 300, 400);
 
 
       expect(pointers.primary.lastPagePos.x).toBe(300);
