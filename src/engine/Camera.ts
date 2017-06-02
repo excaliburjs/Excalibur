@@ -18,19 +18,6 @@ import { Configurable } from './Interfaces/Configurable';
 export class BaseCamera extends Configurable<BaseCamera> {
    protected _follow: Actor;
 
-   defaults: Partial<BaseCamera> = {
-      x: 0,
-      y: 0,
-      z: 1,
-      dx: 0,
-      dy: 0,
-      dz: 0,
-      ax: 0,
-      ay: 0,
-      az: 0,
-      rotation: 0,
-      rx: 0
-   }
    // camera physical quantities
    public z: number;
 
@@ -44,6 +31,22 @@ export class BaseCamera extends Configurable<BaseCamera> {
 
    public rotation: number;
    public rx: number;
+
+   public getDefaults() : Partial<BaseCamera> {
+      return {
+               x: 0,
+               y: 0,
+               z: 1,
+               dx: 0,
+               dy: 0,
+               dz: 0,
+               ax: 0,
+               ay: 0,
+               az: 0,
+               rotation: 0,
+               rx: 0
+            };
+   };
 
    private _x: number;
    private _y: number;
