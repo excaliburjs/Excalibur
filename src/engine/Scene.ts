@@ -1,6 +1,6 @@
 import { UIActor } from './UIActor';
 import { Physics } from './Physics';
-import { InitializeEvent, ActivateEvent, DeactivateEvent, PreUpdateEvent, PostUpdateEvent, 
+import { InitializeEvent, ActivateEvent, DeactivateEvent, PreUpdateEvent, PostUpdateEvent,
    PreDrawEvent, PostDrawEvent, PreDebugDrawEvent, PostDebugDrawEvent, GameEvent } from './Events';
 import { Logger } from './Util/Log';
 import { Timer } from './Timer';
@@ -18,8 +18,8 @@ import * as Events from './Events';
 import * as ActorUtils from './Util/Actors';
 
 /**
- * [[Actor|Actors]] are composed together into groupings called Scenes in 
- * Excalibur. The metaphor models the same idea behind real world 
+ * [[Actor|Actors]] are composed together into groupings called Scenes in
+ * Excalibur. The metaphor models the same idea behind real world
  * actors in a scene. Only actors in scenes will be updated and drawn.
  *
  * Typical usages of a scene include: levels, menus, loading screens, etc.
@@ -41,7 +41,7 @@ export class Scene extends Class {
    /**
     * The actors in the current scene
     */
-   public children: Actor[] = [];
+   public actors: Actor[] = [];
 
    /**
     * The [[TileMap]]s in the scene, if any
@@ -92,7 +92,7 @@ export class Scene extends Class {
    public on(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void): void;
    public on(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void): void;
    public on(eventName: Events.predebugdraw, handler: (event?: PreDebugDrawEvent) => void): void;
-   public on(eventName: Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void): void;   
+   public on(eventName: Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void): void;
    public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
    public on(eventName: string, handler: (event?: GameEvent<any>) => void): void {
       super.on(eventName, handler);
@@ -147,7 +147,7 @@ export class Scene extends Class {
    }
 
    /**
-    * Initializes the scene before the first update, meant to be called by engine not by users of 
+    * Initializes the scene before the first update, meant to be called by engine not by users of
     * Excalibur
     * @internal
     */
@@ -196,7 +196,7 @@ export class Scene extends Class {
       }
 
       // Cycle through actors updating actors
-      for (i = 0, len = this.children.length; i < len; i++) {         
+      for (i = 0, len = this.children.length; i < len; i++) {
          this.children[i].update(engine, delta);
       }
 
@@ -235,7 +235,7 @@ export class Scene extends Class {
          }
       }
       engine.stats.currFrame.actors.killed = this._killQueue.length;
-      this._killQueue.length = 0;      
+      this._killQueue.length = 0;
 
       this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
    }
@@ -375,7 +375,7 @@ export class Scene extends Class {
 
    /**
     * Removes a [[Timer]] from the current scene, it will no longer be updated.
-    * @param timer  The timer to remove to the current scene.       
+    * @param timer  The timer to remove to the current scene.
     */
    public remove(timer: Timer): void;
 
@@ -387,7 +387,7 @@ export class Scene extends Class {
 
    /**
     * Removes an actor from the scene, it will no longer be drawn or updated.
-    * @param actor  The actor to remove from the current scene.      
+    * @param actor  The actor to remove from the current scene.
     */
    public remove(actor: Actor): void;
 
@@ -436,7 +436,7 @@ export class Scene extends Class {
    }
 
    /**
-    * Adds an actor to the scene, once this is done the actor will be drawn and updated.       
+    * Adds an actor to the scene, once this is done the actor will be drawn and updated.
     */
    protected _addChild(actor: Actor) {
       this._broadphase.track(actor.body);
@@ -483,7 +483,7 @@ export class Scene extends Class {
    }
 
    /**
-    * Removes a [[Timer]] from the scene. 
+    * Removes a [[Timer]] from the scene.
     * @warning Can be dangerous, use [[cancelTimer]] instead
     * @param timer  The timer to remove
     */
@@ -573,5 +573,14 @@ export class Scene extends Class {
             }
          }
       }
+   }
+
+   @obsolete({ alternateMethod: 'ex.Scene.actors' })
+   public set children(actors: Actor[]) {
+      this.actors = actors;
+   }
+
+   public get children() {
+      return this.actors;
    }
 }
