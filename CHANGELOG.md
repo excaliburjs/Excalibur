@@ -17,7 +17,7 @@ at anywhere from mute (`volume` is 0.0) to full volume (`volume` is 1.0). ([#801
 
 ### Changed
 - Edge builds have more descriptive versions now containing build number and Git commit hash (e.g. `0.10.0-alpha.105#commit`) ([#777](https://github.com/excaliburjs/Excalibur/issues/777))
-- Renamed Utils.removeItemToArray() to Utils.removeItemFromArray() (#798)
+- Renamed Utils.removeItemFromArray() to Utils.removeItemFromArray() (#798)
 ### Deprecated
 ### Removed
 ### Fixed
