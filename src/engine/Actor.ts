@@ -528,7 +528,7 @@ export class Actor extends Class implements IActionable, IEvented {
     * @param actor The child actor to remove
     */
    public remove(actor: Actor) {
-      if (Util.removeItemToArray(actor, this.children)) {
+      if (Util.removeItemFromArray(actor, this.children)) {
          actor.parent = null;
       }
    }
