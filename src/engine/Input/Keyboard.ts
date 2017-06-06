@@ -101,7 +101,7 @@ export class Keyboard extends Class {
    /**
     * Initialize Keyboard event listeners
     */
-   init(global?: any): void {
+   init(global?: GlobalEventHandlers): void {
       global = global || window;
       global.addEventListener('blur', () => {
          this._keys.length = 0; // empties array efficiently

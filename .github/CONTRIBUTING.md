@@ -21,7 +21,6 @@ Before reporting a bug, please perform the following basic troubleshooting steps
 
 When you submit an issue, a markdown template will automatically populate the editor window. Remove the “Other Issues Template” and fill out the “Bug Template”. We’ve included helpful hints for filling out the bug report in the template.
 
-
 ## Suggesting Improvements
 If you have an idea for a new feature, or an improvement to existing functionality, use the “Other Issues” Template. We’ve included helpful hints for filling out the issue in the template. 
 
@@ -33,29 +32,29 @@ Please look through our [backlog][issues] to see if your improvement has already
 Below is the general workflow for submitting changes:
 
 1. Create or discuss an issue you wish to contribute to
-2. Create a fork
+2. Create a fork of Excalibur
 3. Commit to your fork with your changes
 4. Submit a pull request, making sure to reference the issue you're addressing
-5. Make sure it passes the CI build
-6. Wait for a project contributor to give you feedback, and make changes if necessary
+5. Make sure your pull request passes the CI build
+6. Wait for a project core-contributor to give you feedback. Make changes if necessary.
 7. Once your changes are merged, celebrate!
 
 If you’re not sure where to start, take a look at the jump-in or help wanted issue labels.
 
 #### Creating a Pull Request
-- Please do all of your work in a new git branch. Only include code in the branch for the single issue you are working on.
+- Please ensure that there is an issue created for what you're working on. This helps prevent duplicate or unnecessary work.
+- Do all of your work in a new git branch. Only include code in the branch for the single issue you are working on.
 - Include Jasmine tests for your changes, following our [styleguide](#tests). Put them in the src/spec folder.
 - Document new public methods and properties based on the [styleguide](#documentation).
-- Update CHANGELOG.md with your changes, adding them to the "Unreleased" section at the top of the file under the appropriate category. The categories we use are adapted from [Keep a Changelog][keep-a-changelog]:
+- If you've modified Excalibur code (i.e. not just tests or documentation), update CHANGELOG.md with your changes. The categories we use are adapted from [Keep a Changelog][keep-a-changelog]:
   - `Breaking Changes` for changes to the existing API that are not backwards compatible
   - `Added` for new features
   - `Changed` for changes in existing functionality
   - `Deprecated` for features that will be removed in an upcoming release
-  - `Removed` for deprecated features removed in this release
   - `Fixed` for bug fixes
-- Squash your local commits into logical atomic changes. Please follow our [styleguide](#commit-messages) for your commit messages.
+- Please follow our [styleguide](#commit-messages) for your commit messages.
 - Send a pull request via Github.
-  - Format your pull request as: [#issue_number] Your commit message (where issue_number is the issue you're closing)
+  - Format your pull request title as: [#issue_number] Your commit message (where issue_number is the issue you're closing), and fill out the pull request template that automatically populates the editor window. Please format your pull request title according to our [commit message styleguide](#commit-messages).
 
 #### Code Organization
 

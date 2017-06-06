@@ -102,6 +102,15 @@ If you use [[DisplayMode.Container]], the canvas will automatically resize to fi
 it's parent DOM element. This allows you maximum control over the game viewport, e.g. in case
 you want to provide HTML UI on top or as part of your game.
 
+You can use [[DisplayMode.Position]] to specify where the game window will be displayed on screen. if
+this DisplayMode is selected, then a [[position]] option _must_ be provided to the Engine constructor. 
+The [[position]] option can be a String or an [[IAbsolutePosition]]. The first word in a String _must_
+be the desired vertical alignment of the window. The second (optional) word is the desired horizontal
+alignment.
+
+Valid String examples: "top left", "top", "bottom", "middle", "middle center", "bottom right"
+Valid IAbsolutePosition examples: {top: 5, right: 10%}, {bottom: 49em, left: 10px}, {left: 10, bottom: 40}
+
 ## Extending the Engine
 
 For complex games, any entity that inherits [[Class]] can be extended to override built-in
