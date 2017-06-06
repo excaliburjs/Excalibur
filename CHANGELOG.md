@@ -8,6 +8,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Breaking Changes
+
+- Added `pos` property of type: `Vector` to `PointerEvent` using `x` and `y` arguments from constructor. `x` and `y` are still public properties of `PointerEvent`, but are now marked as @deprecated ([#612](https://github.com/excaliburjs/Excalibur/issues/612))
 - Renamed Utils.removeItemFromArray() to Utils.removeItemFromArray() ([#798](https://github.com/excaliburjs/Excalibur/issues/798/)]
 
 ### Added
