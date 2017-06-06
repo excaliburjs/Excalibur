@@ -1,4 +1,4 @@
-﻿import { Engine } from './../Engine';
+﻿import {Engine, ScrollPreventionMode} from './../Engine';
 import { GameEvent } from '../Events';
 import { UIActor } from '../UIActor';
 import { Vector } from '../Algebra';
@@ -26,6 +26,12 @@ export enum PointerButton {
    Unknown
 }
 
+export enum WheelDeltaMode {
+   Pixel,
+   Line,
+   Page
+}
+
 /**
  * Determines the scope of handling mouse/touch events. See [[Pointers]] for more information.
  */
@@ -42,6 +48,13 @@ export enum PointerScope {
     */
    Document
 }
+
+/**
+ * A constant used to normalize wheel events across different browsers
+ *
+ * This normalization factor is pulled from https://developer.mozilla.org/en-US/docs/Web/Events/wheel#Listening_to_this_event_across_browser
+ */
+const ScrollWheelNormalizationFactor = -1 / 40;
 
 /**
  * Pointer events
@@ -65,22 +78,60 @@ export class PointerEvent extends GameEvent<any> {
     * @param button       The button pressed (if [[PointerType.Mouse]])
     * @param ev           The raw DOM event being handled
     */
-   constructor(public x: number, 
-               public y: number, 
+   constructor(public x: number,
+               public y: number,
                public pageX: number,
                public pageY: number,
                public screenX: number,
                public screenY: number,
-               public index: number, 
-               public pointerType: PointerType, 
-               public button: PointerButton, 
+               public index: number,
+               public pointerType: PointerType,
+               public button: PointerButton,
                public ev: any) {
       super();
    }
 };
 
 /**
- * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to 
+ * Wheel Events
+ *
+ * Represents a mouse wheel event. See [[Pointers]] for more information on
+ * handling point input.
+ */
+export class WheelEvent extends GameEvent<any> {
+
+   /**
+    * @param x            The `x` coordinate of the event (in world coordinates)
+    * @param y            The `y` coordinate of the event (in world coordinates)
+    * @param pageX        The `x` coordinate of the event (in document coordinates)
+    * @param pageY        The `y` coordinate of the event (in document coordinates)
+    * @param screenX      The `x` coordinate of the event (in screen coordinates)
+    * @param screenY      The `y` coordinate of the event (in screen coordinates)
+    * @param index        The index of the pointer (zero-based)
+    * @param deltaX       The type of pointer
+    * @param deltaY       The type of pointer
+    * @param deltaZ       The type of pointer
+    * @param deltaMode    The type of movement [[WheelDeltaMode]]
+    * @param ev           The raw DOM event being handled
+    */
+   constructor(public x: number,
+               public y: number,
+               public pageX: number,
+               public pageY: number,
+               public screenX: number,
+               public screenY: number,
+               public index: number,
+               public deltaX: number,
+               public deltaY: number,
+               public deltaZ: number,
+               public deltaMode: WheelDeltaMode,
+               public ev: any) {
+      super();
+   }
+};
+
+/**
+ * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to
  * [W3C Pointer Events](http://www.w3.org/TR/pointerevents/).
  *
  * [[include:Pointers.md]]
@@ -92,6 +143,7 @@ export class Pointers extends Class {
    private _pointerUp: PointerEvent[] = [];
    private _pointerMove: PointerEvent[] = [];
    private _pointerCancel: PointerEvent[] = [];
+   private _wheel: WheelEvent[] = [];
    private _pointers: Pointer[] = [];
    private _activePointers: number[] = [];
 
@@ -108,6 +160,7 @@ export class Pointers extends Class {
    public on(eventName: Events.down, handler: (event?: PointerEvent) => void): void;
    public on(eventName: Events.move, handler: (event?: PointerEvent) => void): void;
    public on(eventName: Events.cancel, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.wheel, handler: (event?: WheelEvent) => void): void;
    public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
    public on(eventName: string, handler: (event?: GameEvent<any>) => void): void {
       super.on(eventName, handler);
@@ -117,7 +170,7 @@ export class Pointers extends Class {
     * Primary pointer (mouse, 1 finger, stylus, etc.)
     */
    public primary: Pointer;
-   
+
    /**
     * Initializes pointer event listeners
     */
@@ -155,6 +208,18 @@ export class Pointers extends Class {
          target.addEventListener('mouseup', this._handleMouseEvent('up', this._pointerUp));
          target.addEventListener('mousemove', this._handleMouseEvent('move', this._pointerMove));
       }
+
+      // MDN MouseWheelEvent
+      if ('onwheel' in document.createElement('div')) {
+         // Modern Browsers
+         target.addEventListener('wheel', this._handleWheelEvent('wheel', this._wheel));
+      } else if (document.onmousewheel !== undefined) {
+         // Webkit and IE
+         target.addEventListener('mousewheel', this._handleWheelEvent('wheel', this._wheel));
+      } else {
+         // Remaining browser and older Firefox
+         target.addEventListener('MozMousePixelScroll', this._handleWheelEvent('wheel', this._wheel));
+      }
    }
 
    public update(): void {
@@ -162,8 +227,9 @@ export class Pointers extends Class {
       this._pointerDown.length = 0;
       this._pointerMove.length = 0;
       this._pointerCancel.length = 0;
+      this._wheel.length = 0;
    }
-   
+
    /**
     * Safely gets a Pointer at a specific index and initializes one if it doesn't yet exist
     * @param index  The pointer index to retrieve
@@ -193,7 +259,7 @@ export class Pointers extends Class {
     */
    public propogate(actor: any) {
       var isUIActor = actor instanceof UIActor;
-      var i: number = 0, 
+      var i: number = 0,
             len: number = this._pointerUp.length;
 
       for (i; i < len; i++) {
@@ -231,6 +297,14 @@ export class Pointers extends Class {
             actor.eventDispatcher.emit('pointercancel', this._pointerCancel[i]);
          }
       }
+
+      i = 0;
+      len = this._wheel.length;
+      for (i; i < len; i++) {
+         if (actor.contains(this._wheel[i].x, this._wheel[i].y, !isUIActor)) {
+            actor.eventDispatcher.emit('pointerwheel', this._wheel[i]);
+         }
+      }
    }
 
    private _handleMouseEvent(eventName: string, eventArr: PointerEvent[]) {
@@ -254,7 +328,7 @@ export class Pointers extends Class {
             var x: number = e.changedTouches[i].pageX - Util.getPosition(this._engine.canvas).x;
             var y: number = e.changedTouches[i].pageY - Util.getPosition(this._engine.canvas).y;
             var transformedPoint = this._engine.screenToWorldCoordinates(new Vector(x, y));
-            var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, 
+            var pe = new PointerEvent(transformedPoint.x, transformedPoint.y,
                e.changedTouches[i].pageX, e.changedTouches[i].pageY, x, y, index, PointerType.Touch, PointerButton.Unknown, e);
             eventArr.push(pe);
             this.at(index).eventDispatcher.emit(eventName, pe);
@@ -277,14 +351,14 @@ export class Pointers extends Class {
    private _handlePointerEvent(eventName: string, eventArr: PointerEvent[]) {
       return (e: MSPointerEvent) => {
          e.preventDefault();
-         
+
          // get the index for this pointer ID if multi-pointer is asked for
          var index = this._pointers.length > 1 ? this._getPointerIndex(e.pointerId) : 0;
          if (index === -1) { return; }
          var x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
          var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
          var transformedPoint = this._engine.screenToWorldCoordinates(new Vector(x, y));
-         var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, 
+         var pe = new PointerEvent(transformedPoint.x, transformedPoint.y,
             e.pageX, e.pageY, x, y, index, this._stringToPointerType(e.pointerType), e.button, e);
          eventArr.push(pe);
          this.at(index).eventDispatcher.emit(eventName, pe);
@@ -301,6 +375,49 @@ export class Pointers extends Class {
                this._activePointers[index] = e.pointerId;
             }
          }
+      };
+   }
+
+   private _handleWheelEvent(eventName: string, eventArr: WheelEvent[]) {
+      return (e: MouseWheelEvent) => {
+         // Should we prevent page scroll because of this event
+         if (this._engine.pageScrollPreventionMode === ScrollPreventionMode.All ||
+             (this._engine.pageScrollPreventionMode === ScrollPreventionMode.Canvas && e.target === this._engine.canvas)) {
+            e.preventDefault();
+         }
+
+         var x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
+         var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
+         var transformedPoint = this._engine.screenToWorldCoordinates(new Vector(x, y));
+
+         // deltaX, deltaY, and deltaZ are the standard modern properties
+         // wheelDeltaX, wheelDeltaY, are legacy properties in webkit browsers and older IE
+         // e.detail is only used in opera
+
+         var deltaX = e.deltaX ||
+                      (e.wheelDeltaX * ScrollWheelNormalizationFactor) ||
+                      0;
+         var deltaY = e.deltaY ||
+                      (e.wheelDeltaY * ScrollWheelNormalizationFactor) ||
+                      (e.wheelDelta * ScrollWheelNormalizationFactor) ||
+                      e.detail ||
+                      0;
+         var deltaZ = e.deltaZ || 0;
+         var deltaMode = WheelDeltaMode.Pixel;
+
+         if (e.deltaMode) {
+            if (e.deltaMode === 1) {
+               deltaMode = WheelDeltaMode.Line;
+            } else if (e.deltaMode === 2) {
+               deltaMode = WheelDeltaMode.Page;
+            }
+         }
+
+         var we = new WheelEvent(transformedPoint.x, transformedPoint.y,
+            e.pageX, e.pageY, x, y, 0, deltaX, deltaY, deltaZ, deltaMode, e);
+
+         eventArr.push(we);
+         this.at(0).eventDispatcher.emit(eventName, we);
       };
    }
 
@@ -340,10 +457,10 @@ export class Pointers extends Class {
  * Captures and dispatches PointerEvents
  */
 export class Pointer extends Class {
-   
+
    constructor() {
       super();
-      
+
       this.on('move', this._onPointerMove);
    }
 
@@ -360,12 +477,12 @@ export class Pointer extends Class {
    /**
     * The last position in the game world coordinates this pointer was at. Can be `null` if pointer was never active.
     */
-   lastWorldPos: Vector = null;   
+   lastWorldPos: Vector = null;
 
    private _onPointerMove(ev: PointerEvent) {
       this.lastWorldPos = new Vector(ev.x, ev.y);
       this.lastPagePos = new Vector(ev.pageX, ev.pageY);
-      this.lastScreenPos = new Vector(ev.screenX, ev.screenY);      
+      this.lastScreenPos = new Vector(ev.screenX, ev.screenY);
    }
 }
 
