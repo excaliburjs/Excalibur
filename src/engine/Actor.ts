@@ -106,7 +106,7 @@ export class Actor extends Class implements IActionable, IEvented {
     * Sets the position vector of the actor in pixels
     */
    public set pos(thePos: Vector) {
-      this.body.pos = thePos;
+      this.body.pos.setTo(thePos.x, thePos.y);
    }
 
    /**
@@ -120,7 +120,7 @@ export class Actor extends Class implements IActionable, IEvented {
     * Sets the position vector of the actor in the last frame
     */
    public set oldPos(thePos: Vector) {
-      this.body.oldPos = thePos;
+      this.body.oldPos.setTo(thePos.x, thePos.y);
    }
 
    /**
@@ -134,7 +134,7 @@ export class Actor extends Class implements IActionable, IEvented {
     * Sets the velocity vector of the actor in pixels/sec
     */
    public set vel(theVel: Vector) {
-      this.body.vel = theVel;
+      this.body.vel.setTo(theVel.x, theVel.y);
    }
 
    /**
@@ -148,7 +148,7 @@ export class Actor extends Class implements IActionable, IEvented {
     * Sets the velocity vector of the actor from the last frame
     */
    public set oldVel(theVel: Vector) {
-      this.body.oldVel = theVel;
+      this.body.oldVel.setTo(theVel.x, theVel.y);
    }
 
    /**
@@ -163,7 +163,7 @@ export class Actor extends Class implements IActionable, IEvented {
     * Sets the acceleration vector of teh actor in pixels/second/second
     */
    public set acc(theAcc: Vector) {
-      this.body.acc = theAcc;
+      this.body.acc.setTo(theAcc.x, theAcc.y);
    }
 
    /** 
@@ -528,7 +528,7 @@ export class Actor extends Class implements IActionable, IEvented {
     * @param actor The child actor to remove
     */
    public remove(actor: Actor) {
-      if (Util.removeItemToArray(actor, this.children)) {
+      if (Util.removeItemFromArray(actor, this.children)) {
          actor.parent = null;
       }
    }
