@@ -10,6 +10,7 @@ export * from './Actor';
 export * from './Algebra';
 export * from './Camera';
 export * from './Class';
+export * from './Configurable'
 export * from './Debug';
 export * from './Engine';
 export * from './EventDispatcher';
