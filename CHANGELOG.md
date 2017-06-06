@@ -23,6 +23,7 @@ at anywhere from mute (`volume` is 0.0) to full volume (`volume` is 1.0). ([#801
 ### Deprecated
 ### Removed
 ### Fixed
+- Fixed semi-colon key not being detected on Firefox and Opera. ([#789](https://github.com/excaliburjs/Excalibur/issues/789))
 
 <!----------------------------------------------------------------------------------------------->
 
