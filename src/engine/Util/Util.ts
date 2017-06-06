@@ -8,7 +8,7 @@ export const TwoPI: number = Math.PI * 2;
 
 /**
  * Merges one or more objects into a single target object
- * 
+ *
  * @param deep Whether or not to do a deep clone
  * @param target The target object to attach properties on
  * @param objects The objects whose properties to merge
@@ -18,7 +18,7 @@ export function extend(deep: boolean, target: any, ...objects: any[]): any;
 
 /**
  * Merges one or more objects into a single target object
- * 
+ *
  * @param target The target object to attach properties on
  * @param object2 The second object whose properties to merge
  * @returns Merged object with properties from other objects
@@ -27,7 +27,7 @@ export function extend<T1, T2>(target: T1, object2: T2): T1 & T2;
 
 /**
  * Merges one or more objects into a single target object
- * 
+ *
  * @param target The target object to attach properties on
  * @param object2 The second object whose properties to merge
  * @param object3 The third object whose properties to merge
@@ -37,7 +37,7 @@ export function extend<T1, T2, T3>(target: T1, object2: T2, object3: T3): T1 & T
 
 /**
  * Merges one or more objects into a single target object
- * 
+ *
  * @param target The target object to attach properties on
  * @param objects The objects whose properties to merge
  * @returns Merged object with properties from other objects
@@ -46,7 +46,7 @@ export function extend(target: any, ...objects: any[]): any;
 
 /**
  * Merges one or more objects into a single target object
- * 
+ *
  * @returns Merged object with properties from other objects
  * @credit https://gomakethings.com/vanilla-javascript-version-of-jquery-extend/
  */
@@ -101,7 +101,7 @@ export function base64Encode(inputStr: string) {
    var i = 0;
 
    while (i < inputStr.length) {
-      //all three "& 0xff" added below are there to fix a known bug 
+      //all three "& 0xff" added below are there to fix a known bug
       //with bytes returned by xhr.responseText
       var byte1 = inputStr.charCodeAt(i++) & 0xff;
       var byte2 = inputStr.charCodeAt(i++) & 0xff;
@@ -199,7 +199,7 @@ export function addItemToArray<T>(item: T, array: T[]): boolean {
    return false;
 }
 
-export function removeItemToArray<T>(item: T, array: T[]): boolean {
+export function removeItemFromArray<T>(item: T, array: T[]): boolean {
    var index = -1;
    if ((index = array.indexOf(item)) > -1) {
       array.splice(index, 1);
@@ -343,9 +343,9 @@ export class Collection<T> {
       var count = this.count();
       if (count === 0) {
         //Logger.getInstance().error('Invalid parameter: ' + index);
-         throw new Error('Invalid parameter ' + index); 
+         throw new Error('Invalid parameter ' + index);
        }
-      // O(n) Shift 
+      // O(n) Shift
       var removed = this._internalArray[index];
       for (var i = index; i < count; i++) {
          this._internalArray[i] = this._internalArray[i + 1];
@@ -383,7 +383,7 @@ export class Collection<T> {
 
    /**
     * Mutate every element in the collection
-    * @param func  Callback to call for each element passing a reference to the element and its index, any values returned mutate 
+    * @param func  Callback to call for each element passing a reference to the element and its index, any values returned mutate
     * the collection
     */
    public map(func: (element: T, index: number) => any) {
