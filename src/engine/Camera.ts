@@ -3,7 +3,6 @@ import { EasingFunction, EasingFunctions } from './Util/EasingFunctions';
 import { IPromise, Promise, PromiseState } from './Promises';
 import { Vector } from './Algebra';
 import { Actor } from './Actor';
-import { Configurable } from './Interfaces/Configurable';
 
 
 /**
@@ -15,41 +14,25 @@ import { Configurable } from './Interfaces/Configurable';
  *
  * [[include:Cameras.md]]
  */
-export class BaseCamera extends Configurable<BaseCamera> {
+export class BaseCamera {
    protected _follow: Actor;
 
    // camera physical quantities
-   public z: number;
+   public z: number = 1;
 
-   public dx: number;
-   public dy: number;
-   public dz: number;
+   public dx: number = 0;
+   public dy: number = 0;
+   public dz: number = 0;
 
-   public ax: number;
-   public ay: number;
-   public az: number;
+   public ax: number = 0;
+   public ay: number = 0;
+   public az: number = 0;
 
-   public rotation: number;
-   public rx: number;
+   public rotation: number = 0;
+   public rx: number = 0;
 
-   public getDefaults() : Partial<BaseCamera> {
-      return {
-               x: 0,
-               y: 0,
-               z: 1,
-               dx: 0,
-               dy: 0,
-               dz: 0,
-               ax: 0,
-               ay: 0,
-               az: 0,
-               rotation: 0,
-               rx: 0
-            };
-   };
-
-   private _x: number;
-   private _y: number;
+   private _x: number = 0;
+   private _y: number = 0;
    private _cameraMoving: boolean = false;
    private _currentLerpTime: number = 0;
    private _lerpDuration: number = 1000; // 1 second   
