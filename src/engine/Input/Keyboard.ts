@@ -20,7 +20,7 @@ export enum Keys {
    
    Numlock = 144,
    
-   Semicolon = 186,
+   Semicolon = 186, // 59 in some browsers
    
    A = 65,
    B = 66,
@@ -109,10 +109,11 @@ export class Keyboard extends Class {
 
       // key up is on window because canvas cannot have focus
       global.addEventListener('keyup', (ev: KeyboardEvent) => {
-         var key = this._keys.indexOf(ev.keyCode);
+         var code = this._normalizeKeyCode(ev.keyCode);
+         var key = this._keys.indexOf(code);
          this._keys.splice(key, 1);
-         this._keysUp.push(ev.keyCode);
-         var keyEvent = new KeyEvent(ev.keyCode);
+         this._keysUp.push(code);
+         var keyEvent = new KeyEvent(code);
          
          // alias the old api, we may want to deprecate this in the future
          this.eventDispatcher.emit('up', keyEvent);
@@ -121,10 +122,11 @@ export class Keyboard extends Class {
 
       // key down is on window because canvas cannot have focus
       global.addEventListener('keydown', (ev: KeyboardEvent) => {
-         if (this._keys.indexOf(ev.keyCode) === -1) {
-            this._keys.push(ev.keyCode);
-            this._keysDown.push(ev.keyCode);
-            var keyEvent = new KeyEvent(ev.keyCode);
+         var code = this._normalizeKeyCode(ev.keyCode);
+         if (this._keys.indexOf(code) === -1) {
+            this._keys.push(code);
+            this._keysDown.push(code);
+            var keyEvent = new KeyEvent(code);
             this.eventDispatcher.emit('down', keyEvent);
             this.eventDispatcher.emit('press', keyEvent);                 
          }
@@ -171,5 +173,19 @@ export class Keyboard extends Class {
     */
    public wasReleased(key: Keys): boolean {
       return this._keysUp.indexOf(key) > -1;
+   }
+
+   /**
+    * Normalizes some browser event key codes to map to standard Excalibur key codes
+    * @param code Event keyCode
+    * @see http://unixpapa.com/js/key.html
+    */
+   private _normalizeKeyCode(code: number) {
+      switch (code) {
+         case 59: // : ; in Firefox, Opera
+            return Keys.Semicolon;
+         default:
+            return code;
+      }
    }
 }
