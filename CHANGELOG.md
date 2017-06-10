@@ -18,7 +18,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.11.0] 2017-06-10
 
 ### Breaking Changes
-- Renamed Utils.removeItemFromArray() to Utils.removeItemFromArray() ([#798](https://github.com/excaliburjs/Excalibur/issues/798/))
+- Renamed Utils.removeItemToArray() to Utils.removeItemFromArray() ([#798](https://github.com/excaliburjs/Excalibur/issues/798/))
 
 ### Added
 - Added optional volume argument to `Sound.play(volume?: number)`, which will play the Audio file at anywhere from mute (`volume` is 0.0) to full volume (`volume` is 1.0). ([#801](https://github.com/excaliburjs/Excalibur/issues/801))
