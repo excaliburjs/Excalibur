@@ -47,6 +47,10 @@ box.on("pointerdown", (pe: ex.Input.PointerEvent) => {
    boxPointerDown = true;
 });
 
+box.on("pointerwheel", (pe: ex.Input.WheelEvent) => {
+   box.rotation = box.rotation + (pe.deltaY > 0 ? 0.1 : -0.1);
+});
+
 // Follow cursor
 game.input.pointers.primary.on("move", (pe: ex.Input.PointerEvent) => {
    cursor.pos.x = pe.x;
@@ -59,6 +63,17 @@ game.input.pointers.primary.on("down", (pe: ex.Input.PointerEvent) => {
 });
 game.input.pointers.primary.on("up", (pe: ex.Input.PointerEvent) => {
    document.getElementById("pointer-btn").innerHTML = "";
+});
+
+// Wheel
+game.input.pointers.primary.on("wheel", (pe: ex.Input.WheelEvent) => {
+   var type: string;
+   switch (pe.deltaMode) {
+      case ex.Input.WheelDeltaMode.Pixel: type = "pixel"; break;
+      case ex.Input.WheelDeltaMode.Line: type = "line"; break;
+      case ex.Input.WheelDeltaMode.Page: type = "page"; break;
+   }
+   document.getElementById("pointer-wheel-deltas").innerHTML = pe.deltaX + ", " + pe.deltaY + ", " + pe.deltaZ + ", " + type;
 });
 
 var paintBrush = {

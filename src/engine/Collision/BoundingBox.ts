@@ -120,21 +120,44 @@ export class BoundingBox implements ICollidable {
       var tmin = -Infinity;
       var tmax = +Infinity;
 
-      if (ray.dir.x !== 0) {
-         var tx1 = (this.left - ray.pos.x) / ray.dir.x;
-         var tx2 = (this.right - ray.pos.x) / ray.dir.x;
-         tmin = Math.max(tmin, Math.min(tx1, tx2));
-         tmax = Math.min(tmax, Math.max(tx1, tx2));
-      }
-
-      if (ray.dir.y !== 0) {
-         var ty1 = (this.top - ray.pos.y) / ray.dir.y;
-         var ty2 = (this.bottom - ray.pos.y) / ray.dir.y;
-         tmin = Math.max(tmin, Math.min(ty1, ty2));
-         tmax = Math.min(tmax, Math.max(ty1, ty2));
-      }
+      var xinv = ray.dir.x === 0 ? Number.MAX_VALUE : (1 / ray.dir.x);
+      var yinv = ray.dir.y === 0 ? Number.MAX_VALUE : (1 / ray.dir.y);
+      
+      var tx1 = (this.left - ray.pos.x) * xinv;
+      var tx2 = (this.right - ray.pos.x) * xinv;
+      tmin = Math.min(tx1, tx2);
+      tmax = Math.max(tx1, tx2);
+            
+      var ty1 = (this.top - ray.pos.y) * yinv; 
+      var ty2 = (this.bottom - ray.pos.y) * yinv;
+      tmin = Math.max(tmin, Math.min(ty1, ty2));
+      tmax = Math.min(tmax, Math.max(ty1, ty2));      
 
       return tmax >= Math.max(0, tmin) && tmin < farClipDistance;
+   }
+
+   public rayCastTime(ray: Ray, farClipDistance = Infinity): number {
+       // algorithm from https://tavianator.com/fast-branchless-raybounding-box-intersections/ 
+      var tmin = -Infinity;
+      var tmax = +Infinity;
+
+      var xinv = ray.dir.x === 0 ? Number.MAX_VALUE : (1 / ray.dir.x);
+      var yinv = ray.dir.y === 0 ? Number.MAX_VALUE : (1 / ray.dir.y);
+      
+      var tx1 = (this.left - ray.pos.x) * xinv;
+      var tx2 = (this.right - ray.pos.x) * xinv;
+      tmin = Math.min(tx1, tx2);
+      tmax = Math.max(tx1, tx2);
+            
+      var ty1 = (this.top - ray.pos.y) * yinv; 
+      var ty2 = (this.bottom - ray.pos.y) * yinv;
+      tmin = Math.max(tmin, Math.min(ty1, ty2));
+      tmax = Math.min(tmax, Math.max(ty1, ty2));
+
+      if (tmax >= Math.max(0, tmin) && tmin < farClipDistance) {
+         return tmin;
+      }
+      return -1;
    }
 
    /**
