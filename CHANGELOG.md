@@ -8,6 +8,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Breaking Changes
+### Added
+### Changed
+### Deprecated
+### Fixed
+
+<!----------------------------------------------------------------------------------------------->
+
+## [0.11.0] 2017-06-10
+
+### Breaking Changes
 - Renamed Utils.removeItemFromArray() to Utils.removeItemFromArray() ([#798](https://github.com/excaliburjs/Excalibur/issues/798/))
 
 ### Added
@@ -402,7 +412,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <!----------------------------------------------------------------------------------------------->
 
-[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/excaliburjs/Excalibur/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/excaliburjs/Excalibur/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/excaliburjs/Excalibur/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/excaliburjs/Excalibur/compare/v0.7.1...v0.8.0
