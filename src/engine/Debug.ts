@@ -120,7 +120,7 @@ export interface IPhysicsStats {
    collisions: number;
    
    /**
-    * A Hash storing the [[Pair.ids]]s of [[Pairs]]s that collided in the frame
+    * A Hash storing the [[Pair.id]]s of [[Pair]]s that collided in the frame
     */
    collidersHash: ICollidersHash;
      
