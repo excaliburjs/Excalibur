@@ -302,7 +302,7 @@
                 var result = {};
                 var diff = imagediff.diff(actual, expected);
 
-                result.pass = imagediff.equal(actual, expected, 0);
+                result.pass = imagediff.equal(actual, expected, 70);
 
                 can.height = diff.height;
                 can.width  = diff.width;
