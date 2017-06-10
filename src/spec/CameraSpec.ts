@@ -161,7 +161,7 @@ describe('A camera', () => {
    
    });
 
-   it('can zoom in over time', (done) => {
+   xit('can zoom in over time', (done) => {
       engine.start().then(() => {
          engine.currentScene.camera.zoom(5, 1000).then(() => {
             imagediff.expectCanvasImageMatches('CameraSpec/zoomin.png', engine.canvas, done);
@@ -169,7 +169,7 @@ describe('A camera', () => {
       });
    });
 
-   it('can zoom out over time', (done) => {
+   xit('can zoom out over time', (done) => {
       engine.start().then(() => {
          engine.currentScene.camera.zoom(.2, 1000).then(() => {
             imagediff.expectCanvasImageMatches('CameraSpec/zoomout.png', engine.canvas, done);
