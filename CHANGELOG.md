@@ -8,21 +8,28 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Breaking Changes
-- Renamed Utils.removeItemFromArray() to Utils.removeItemFromArray() ([#798](https://github.com/excaliburjs/Excalibur/issues/798/))
+### Added
+### Changed
+### Deprecated
+### Fixed
+
+<!----------------------------------------------------------------------------------------------->
+
+## [0.11.0] 2017-06-10
+
+### Breaking Changes
+- Renamed Utils.removeItemToArray() to Utils.removeItemFromArray() ([#798](https://github.com/excaliburjs/Excalibur/issues/798/))
 
 ### Added
 - Added optional volume argument to `Sound.play(volume?: number)`, which will play the Audio file at anywhere from mute (`volume` is 0.0) to full volume (`volume` is 1.0). ([#801](https://github.com/excaliburjs/Excalibur/issues/801))
-- Added another DisplayMode option: `DisplayMode.Position`. When this is selected as the displayMode type, the user must specify a new `position` option
-- Added a new Interface `AbsolutePosition` which can described the `position` option. A `string` can also describe `position`
-- Added a static method distanceBetweenVectors to the Vector class ([#517](https://github.com/excaliburjs/Excalibur/issues/517))
-- Added `PointerWheel` event type for the `wheel` browser event, Excalibur now supports scroll wheel ([#808](https://github.com/excaliburjs/Excalibur/issues/808/))
+- Added another DisplayMode option: `DisplayMode.Position`. When this is selected as the displayMode type, the user must specify a new `position` option ([#781](https://github.com/excaliburjs/Excalibur/issues/781))
+- Added a static method `distance` to the `Vector` class ([#517](https://github.com/excaliburjs/Excalibur/issues/517))
+- Added `WheelEvent` event type for the `wheel` browser event, Excalibur now supports scroll wheel ([#808](https://github.com/excaliburjs/Excalibur/issues/808/))
 
 ### Changed
 - Camera zoom over time now returns a promise that resolves on completion ([#800](https://github.com/excaliburjs/Excalibur/issues/800))
 - Edge builds have more descriptive versions now containing build number and Git commit hash (e.g. `0.10.0-alpha.105#commit`) ([#777](https://github.com/excaliburjs/Excalibur/issues/777))
 
-### Deprecated
-### Removed
 ### Fixed
 - Fixed camera zoom over time, before it did not work at all ([#800](https://github.com/excaliburjs/Excalibur/issues/800))
 - Fixed semi-colon key not being detected on Firefox and Opera. ([#789](https://github.com/excaliburjs/Excalibur/issues/789))
@@ -402,7 +409,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <!----------------------------------------------------------------------------------------------->
 
-[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/excaliburjs/Excalibur/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/excaliburjs/Excalibur/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/excaliburjs/Excalibur/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/excaliburjs/Excalibur/compare/v0.7.1...v0.8.0
