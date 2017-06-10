@@ -22,6 +22,8 @@ describe('A camera', () => {
         height: 500 
       });
 
+      engine.setAntialiasing(false);
+
       engine.backgroundColor = ex.Color.Blue;
 
       actor.pos.x = 250;
