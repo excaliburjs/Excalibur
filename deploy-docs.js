@@ -2,14 +2,14 @@ var Travis = require('travis-ci');
 var child_process = require('child_process');
 var repo = "excaliburjs/excaliburjs.github.io";
 var travis = new Travis({
-	version: '2.0.0',
+   version: '2.0.0',
    headers: {
-     'User-Agent': 'Travis/1.0'
+      'User-Agent': 'Travis/1.0'
    }
 });
 
 var branch = process.env.TRAVIS_BRANCH;
-var tag    = process.env.TRAVIS_TAG;
+var tag = process.env.TRAVIS_TAG;
 
 // build docs for tags and master only
 if (tag) {
@@ -17,33 +17,35 @@ if (tag) {
 } else if (branch == "master") {
    console.log("Current branch is `" + branch + "`");
 } else {
-  console.log("Current branch is `" + branch + "`, skipping docs deployment...");
-  return;	
+   console.log("Current branch is `" + branch + "`, skipping docs deployment...");
+   return;
 }
 
 console.log("Triggering remote build of edge docs...");
 
 travis.authenticate({
-  github_token: process.env.GH_TOKEN
-}, function (err, res) {
-  if (err) {
-    return console.error(err);
-  }
+   github_token: process.env.GH_TOKEN
+},
+   function (err, res) {
+      if (err) {
+         return console.error(err);
+      }
 
-  travis.repos(repo.split('/')[0], repo.split('/')[1]).builds.get(
-    function (err, res) {
-       if (err) {
-          return console.error(err);
-       }
+      travis.repos(repo.split('/')[0], repo.split('/')[1]).builds.get(
+         function (err, res) {
+            if (err) {
+               return console.error(err);
+            }
 
-       travis.requests.post({
-          build_id: res.builds[0].id
-       }, function (err, res) {
-          if (err) {
-             return console.error(err);
-          }
-          console.log(res.flash[0].notice);
-       });
-    });
- });
-}
+            travis.requests.post({
+               build_id: res.builds[0].id
+            }, function (err, res) {
+               if (err) {
+                  return console.error(err);
+               }
+               console.log(res.flash[0].notice);
+            });
+         }
+      );
+   }
+);
