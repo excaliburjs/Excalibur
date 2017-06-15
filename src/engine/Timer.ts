@@ -34,7 +34,7 @@ export class Timer {
    public update(delta: number) {
       this._totalTimeAlive += delta;
       this._elapsedTime += delta;
-      if (this._elapsedTime > this.interval) {
+      if (!this.complete && this._elapsedTime > this.interval) {
          this.fcn.call(this);
          if (this.repeats) {
             this._elapsedTime = 0;
@@ -42,6 +42,19 @@ export class Timer {
             this.complete = true;
          }
       }
+   }
+
+   /**
+    * Resets the timer so that it can be reused, and optionally reconfigure the timers interval.
+    * @param newInterval If specified, sets a new non-negative interval in milliseconds to refire the callback
+    */
+   public reset(newInterval?: number) {
+      if (!!newInterval && newInterval >= 0) {
+         this.interval = newInterval;
+      }
+      this.complete = false;
+      this._elapsedTime = 0;
+      
    }
 
    public getTimeRunning(): number {

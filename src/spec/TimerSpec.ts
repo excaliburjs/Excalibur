@@ -61,7 +61,7 @@ describe('A Timer', () => {
       expect(count).toBe(3);
    });
 
-   it('is removed from the scene when it is completed', () => {
+   it('is no longer active in the scene when it is completed', () => {
       scene.addTimer(timer);
 
       expect(scene.isTimerActive(timer)).toBeTruthy();
@@ -95,6 +95,69 @@ describe('A Timer', () => {
       expect(count).toBe(3);
       expect(timer.repeats).toBeTruthy();
       expect(timer.complete).toBeFalsy();
+   });
+
+   it('can be reset at the same interval', () => {
+      var count = 0;
+      // non-repeating timer
+      timer = new ex.Timer(function(){ count++; }, 500, false);
+      scene.add(timer);
+
+      // tick the timer
+      scene.update(engine, 501);
+      expect(count).toBe(1);
+
+      // tick the timer again, but it shouldn't fire until reset
+      scene.update(engine, 501);
+      expect(count).toBe(1);
+      expect(timer.complete).toBe(true);
+
+      // once reset the timer should fire again
+      timer.reset();
+      expect(timer.complete).toBe(false);
+      scene.update(engine, 501);
+      expect(count).toBe(2);
+   });
+
+   it('can be reset at a different interval', () => {
+      var count = 0;
+      // non-repeating timer
+      timer = new ex.Timer(function(){ count++; }, 500, false);
+      scene.add(timer);
+
+      // tick the timer
+      scene.update(engine, 501);
+      expect(count).toBe(1);
+
+      // tick the timer again, but it shouldn't fire until reset
+      scene.update(engine, 501);
+      expect(count).toBe(1);
+      expect(timer.complete).toBe(true);
+
+      // once reset at a larger the timer should fire again
+      timer.reset(900);
+      expect(timer.complete).toBe(false);
+      scene.update(engine, 901);
+      expect(count).toBe(2);
+   });
+
+   it('can be reset on a repeating timer', () => {
+      var count = 0;
+      // non-repeating timer
+      timer = new ex.Timer(function(){ count++; }, 500, true);
+      scene.add(timer);
+
+      // tick the timer
+      scene.update(engine, 501);
+      expect(count).toBe(1);
+
+      timer.reset(30);
+
+      for (var i = 0; i < 100; i++) {
+         scene.update(engine, 31);
+         expect(count).toBe(2 + i);
+         expect(timer.complete).toBe(false);
+      }
    });
 
 });
