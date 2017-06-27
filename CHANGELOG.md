@@ -8,9 +8,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Breaking Changes
-- Changed `ex.Scene.children` to be `ex.Scene.actors`, and updated unit test specs to reflect this change ((#796)[https://github.com/excaliburjs/Excalibur/issues/796])
 ### Added
 ### Changed
+- Changed `ex.Scene.children` to be `ex.Scene.actors`, and updated unit test specs to reflect this change ((#796)[https://github.com/excaliburjs/Excalibur/issues/796])
 ### Deprecated
 ### Fixed
 
