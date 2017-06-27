@@ -1,11 +1,14 @@
 ![Logo](/assets/logo.png?raw=true)
 
-[![Build Status](https://travis-ci.org/excaliburjs/Excalibur.png?branch=master)](https://travis-ci.org/excaliburjs/Excalibur)
-[![Build status](https://ci.appveyor.com/api/projects/status/9i7s7dokx0uygu34?svg=true)](https://ci.appveyor.com/project/eonarheim/excalibur)
-[![npm version](https://badge.fury.io/js/excalibur.png)](https://badge.fury.io/js/excalibur)
-[![Bower version](https://badge.fury.io/bo/excalibur.png)](http://badge.fury.io/bo/excalibur)
-[![NuGet version](https://badge.fury.io/nu/Excalibur.png)](http://badge.fury.io/nu/Excalibur)
+[![Build Status](https://img.shields.io/travis/excaliburjs/Excalibur/master.svg)](https://travis-ci.org/excaliburjs/Excalibur)
+[![Build status](https://img.shields.io/appveyor/ci/eonarheim/excalibur/master.svg)](https://ci.appveyor.com/project/eonarheim/excalibur)
+[![npm version](https://img.shields.io/npm/v/excalibur.svg)](https://www.npmjs.com/package/excalibur)
+[![npm downloads](https://img.shields.io/npm/dt/excalibur.svg)](https://www.npmjs.com/package/excalibur)
+[![Bower version](https://img.shields.io/bower/v/excalibur.svg)](https://github.com/excaliburjs/Excalibur)
+[![NuGet version](https://img.shields.io/nuget/v/Excalibur.svg)](https://www.nuget.org/packages/Excalibur/)
 [![Docs status](https://readthedocs.org/projects/excaliburjs/badge/?version=latest)](http://excaliburjs.readthedocs.org/en/latest/?badge=latest)
+
+
 
 ![Sweep Stacks](http://excaliburjs.com/assets/images/homepage-xp.png)
 

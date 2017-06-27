@@ -41,17 +41,35 @@ export enum DisplayMode {
     */
    Fixed,
    
-   /*
-   * Allow the game to be positioned with the position option
-   */
+   /**
+    * Allow the game to be positioned with the [[IEngineOptions.position]] option
+    */
    Position
 }
 
-/*
-* Interface describing the absolute CSS position of the game window. For use when DisplayMode.Position
-* is specified and when the user wants to define exact pixel spacing of the window.
-* When a number is given, the value is interpreted as pixels
-*/
+/**
+ * Enum representing the different mousewheel event bubble prevention
+ */
+export enum ScrollPreventionMode {
+   /**
+    * Do not prevent any page scrolling
+    */
+   None,
+    /**
+     * Prevent page scroll if mouse is over the game canvas
+     */
+   Canvas,
+    /**
+     * Prevent all page scrolling via mouse wheel
+     */
+   All
+}
+
+/**
+ * Interface describing the absolute CSS position of the game window. For use when [[DisplayMode.Position]]
+ * is specified and when the user wants to define exact pixel spacing of the window.
+ * When a number is given, the value is interpreted as pixels
+ */
 export interface IAbsolutePosition {
   
   top?: number | string;
@@ -103,15 +121,20 @@ export interface IEngineOptions {
     */
    suppressMinimumBrowserFeatureDetection?: boolean;
    
-   /*
-   * Specify how the game window is to be positioned when the DisplayMode.Position is chosen. This option MUST be specified
-   * if the DisplayMode is set as DisplayMode.Position. The position can be either a string or an AbsolutePosition. String must be in the
-   * format of css style background-position. The vertical position must precede the horizontal position in Strings
-   * Valid String examples: "top left", "top", "bottom", "middle", "middle center", "bottom right"
-   * Valid IAbsolutePosition examples: {top: 5, right: 10%}, {bottom: 49em, left: 10px}, {left: 10, bottom: 40} 
-   */
-   
+   /**
+    * Specify how the game window is to be positioned when the [[DisplayMode.Position]] is chosen. This option MUST be specified
+    * if the DisplayMode is set as [[DisplayMode.Position]]. The position can be either a string or an [[IAbsolutePosition]]. 
+    * String must be in the format of css style background-position. The vertical position must precede the horizontal position in strings.
+    *
+    * Valid String examples: "top left", "top", "bottom", "middle", "middle center", "bottom right"
+    * Valid [[IAbsolutePosition]] examples: `{top: 5, right: 10%}`, `{bottom: 49em, left: 10px}`, `{left: 10, bottom: 40}` 
+    */
    position?: string | IAbsolutePosition;
+
+   /**
+    * Scroll prevention method.
+    */
+   scrollPreventionMode?: ScrollPreventionMode;
 }
 
 /**
@@ -234,6 +257,11 @@ export class Engine extends Class {
     */
    public onFatalException = (e: any) => { Logger.getInstance().fatal(e); };
 
+   /**
+    * The mouse wheel scroll prevention mode
+    */
+   public pageScrollPreventionMode: ScrollPreventionMode;
+
    private _logger: Logger;
    private _isSmoothingEnabled: boolean = true;
 
@@ -268,12 +296,13 @@ export class Engine extends Class {
     * Default [[IEngineOptions]]
     */
    private static _DefaultEngineOptions: IEngineOptions = {
-      width: 0,
-      height: 0,
-      canvasElementId: '',
-      pointerScope: Input.PointerScope.Document,
-      suppressConsoleBootMessage: null,
-      suppressMinimumBrowserFeatureDetection: null
+      width:                                  0,
+      height:                                 0,
+      canvasElementId:                        '',
+      pointerScope:                           Input.PointerScope.Document,
+      suppressConsoleBootMessage:             null,
+      suppressMinimumBrowserFeatureDetection: null,
+      scrollPreventionMode:                   ScrollPreventionMode.Canvas
    };
 
    /**
@@ -874,6 +903,8 @@ O|===|* >________________>\n\
       this.input.keyboard.init();
       this.input.pointers.init(options && options.pointerScope === Input.PointerScope.Document ? document : this.canvas);
       this.input.gamepads.init();
+
+      this.pageScrollPreventionMode = options.scrollPreventionMode;
 
       // Issue #385 make use of the visibility api
       // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API

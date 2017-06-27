@@ -180,10 +180,9 @@ export class Scene extends Class {
       this._cancelQueue.length = 0;
 
       // Cycle through timers updating timers
-      this._timers = this._timers.filter(timer => {
+      for (var timer of this._timers) {
          timer.update(delta);
-         return !timer.complete;
-      });
+      };
 
       // Cycle through actors updating UI actors
       for (i = 0, len = this.uiActors.length; i < len; i++) {
@@ -508,7 +507,7 @@ export class Scene extends Class {
     * Tests whether a [[Timer]] is active in the scene
     */
    public isTimerActive(timer: Timer): boolean {
-      return (this._timers.indexOf(timer) > -1);
+      return (this._timers.indexOf(timer) > -1 && !timer.complete);
    }
 
    /**
