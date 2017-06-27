@@ -9,8 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 ### Added
- - Added `reset` to `ex.Timer` to reuse and change timer intervals safely. ([#566](https://github.com/excaliburjs/Excalibur/issues/))
 ### Changed
+- Changed `ex.Scene.children` to be `ex.Scene.actors`, and updated unit test specs to reflect this change ((#796)[https://github.com/excaliburjs/Excalibur/issues/796])
 ### Deprecated
 ### Fixed
 
