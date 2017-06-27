@@ -135,6 +135,11 @@ export interface IEngineOptions {
     * Scroll prevention method.
     */
    scrollPreventionMode?: ScrollPreventionMode;
+
+   /**
+    * Optionally set the background color
+    */
+   backgroundColor?: Color;
 }
 
 /**
@@ -250,7 +255,7 @@ export class Engine extends Class {
    /**
     * Sets the background color for the engine.
     */
-   public backgroundColor: Color = new Color(0, 0, 100);
+   public backgroundColor: Color;
 
    /**
     * The action to take when a fatal exception is thrown
@@ -302,7 +307,8 @@ export class Engine extends Class {
       pointerScope:                           Input.PointerScope.Document,
       suppressConsoleBootMessage:             null,
       suppressMinimumBrowserFeatureDetection: null,
-      scrollPreventionMode:                   ScrollPreventionMode.Canvas
+      scrollPreventionMode:                   ScrollPreventionMode.Canvas,
+      backgroundColor:                        new Color(0, 0, 100)
    };
 
    /**
@@ -318,7 +324,8 @@ export class Engine extends Class {
     *   height: 0, // the height of the canvas
     *   canvasElementId: '', // the DOM canvas element ID, if you are providing your own
     *   displayMode: ex.DisplayMode.FullScreen, // the display mode
-    *   pointerScope: ex.Input.PointerScope.Document // the scope of capturing pointer (mouse/touch) events
+    *   pointerScope: ex.Input.PointerScope.Document, // the scope of capturing pointer (mouse/touch) events
+    *   backgroundColor: ex.Color.Blue // background color of the engine
     * });
     *
     * // call game.start, which is a Promise
@@ -401,6 +408,9 @@ O|===|* >________________>\n\
          this.displayMode = DisplayMode.FullScreen;
       }
 
+      if (options.backgroundColor) {
+         this.backgroundColor = options.backgroundColor;
+      }
 
       this._loader = new Loader();
 

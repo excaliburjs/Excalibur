@@ -121,4 +121,14 @@ describe('The engine', () => {
      expect(game.canvas.style.top).toEqual('1px');
    });
    
+   it('should accept backgroundColor', () => {
+      var game = new ex.Engine({
+        height: 600,
+        width: 800,
+        backgroundColor: ex.Color.White
+      });
+
+      expect(game.backgroundColor).toEqual(ex.Color.White);
+   });
+
 });

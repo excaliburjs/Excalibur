@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 ### Added
+- Added `backgroundColor` `ex.Engine` constructor, with `ex.Color.Blue` as the default, and updated test specs ((#846) [https://github.com/excaliburjs/Excalibur/issues/846])
 ### Changed
 - Changed `ex.Scene.children` to be `ex.Scene.actors`, and updated unit test specs to reflect this change ((#796)[https://github.com/excaliburjs/Excalibur/issues/796])
 ### Deprecated
