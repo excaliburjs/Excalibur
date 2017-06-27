@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 ### Added
+ - Added `reset` to `ex.Timer` to reuse and change timer intervals safely. ([#566](https://github.com/excaliburjs/Excalibur/issues/))
 ### Changed
 ### Deprecated
 ### Fixed
