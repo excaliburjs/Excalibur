@@ -17,8 +17,8 @@ describe('A scene', () => {
 
       spyOn(scene, 'draw').and.callThrough();
       spyOn(actor, 'draw');
-      
-      engine.addScene('root', scene);      
+
+      engine.addScene('root', scene);
    });
 
    it('should be loaded', () => {
@@ -35,9 +35,9 @@ describe('A scene', () => {
 
    it('cannot have the same Actor added to it more than once', () => {
       scene.add(actor);
-      expect(scene.children.length).toBe(1);
+      expect(scene.actors.length).toBe(1);
       scene.add(actor);
-      expect(scene.children.length).toBe(1);
+      expect(scene.actors.length).toBe(1);
    });
 
    xit('cannot have the same Timer added to it more than once', () => {
@@ -102,7 +102,7 @@ describe('A scene', () => {
 
       expect(actor.draw).toHaveBeenCalled();
    });
-   
+
    it('does not draw invisible actors', () => {
       actor.visible = false;
 
@@ -115,27 +115,27 @@ describe('A scene', () => {
    it('fires initialize before activate', (done) => {
       var initialized = false;
       scene.on('initialize', (evt: ex.InitializeEvent) => { initialized = true; });
-      scene.on('activate', (evt: ex.ActivateEvent) => { 
+      scene.on('activate', (evt: ex.ActivateEvent) => {
          expect(initialized).toBe(true, 'Initilization should happen before activation');
          done();
       });
-      
+
       engine.goToScene('root');
-      
+
    });
 
    it('fires initialize before actor initialize before activate', (done) => {
       var sceneInitialized = false;
       var sceneActivated = false;
       var actorInitialized = false;
-      scene.on('initialize', (evt) => { sceneInitialized = true; });      
+      scene.on('initialize', (evt) => { sceneInitialized = true; });
       var actor = new ex.Actor();
       actor.on('initialize', (evt) => {
-         actorInitialized = true; 
+         actorInitialized = true;
          expect(sceneInitialized).toBe(true, 'Scene should be initialized before actor initilization');
       });
 
-      scene.on('activate', (evt) => { 
+      scene.on('activate', (evt) => {
          expect(actorInitialized).toBe(true, 'Actor should be initialized before scene is activated');
          done();
       });
@@ -166,43 +166,43 @@ describe('A scene', () => {
       actor.on('postupdate', () => {
          scene.remove(actor);
          removed = true;
-      });      
+      });
       scene.update(engine, 10);
 
       expect(removed).toBe(true, 'Actor postupdate was not called');
-      expect(scene.children.indexOf(actor)).toBe(-1);
+      expect(scene.actors.indexOf(actor)).toBe(-1);
    });
 
    it('should allow adding and killing an Actor in same frame', () => {
       var removed = false;
       scene.add(actor);
-      actor.on('postupdate', () => {         
+      actor.on('postupdate', () => {
          actor.kill();
          removed = true;
       });
       scene.update(engine, 10);
 
       expect(removed).toBe(true, 'Actor postupdate was not called');
-      expect(scene.children.indexOf(actor)).toBe(-1);
+      expect(scene.actors.indexOf(actor)).toBe(-1);
    });
 
    it('should allow another Actor to add and remove a different Actor in same frame', () => {
       var removed = false;
       var otherActor = new ex.Actor();
       scene.add(otherActor);
-      
+
       otherActor.on('initialize', () => {
          scene.add(actor);
-      });   
+      });
       otherActor.on('postupdate', () => {
          scene.remove(actor);
          removed = true;
-      });      
+      });
       scene.update(engine, 10);
 
       expect(removed).toBe(true, 'Actor postupdate was not called');
-      expect(scene.children.indexOf(actor)).toBe(-1);
-      expect(scene.children.length).toBe(1);
+      expect(scene.actors.indexOf(actor)).toBe(-1);
+      expect(scene.actors.length).toBe(1);
    });
 
    it('should allow another Actor to add and kill a different Actor in same frame', () => {
@@ -211,16 +211,16 @@ describe('A scene', () => {
       scene.add(otherActor);
       otherActor.on('initialize', () => {
          scene.add(actor);
-      });  
+      });
       otherActor.on('postupdate', () => {
          actor.kill();
          removed = true;
-      });      
+      });
       scene.update(engine, 10);
 
       expect(removed).toBe(true, 'Actor postupdate was not called');
-      expect(scene.children.indexOf(actor)).toBe(-1);
-      expect(scene.children.length).toBe(1);
+      expect(scene.actors.indexOf(actor)).toBe(-1);
+      expect(scene.actors.length).toBe(1);
    });
 
    it('will update Actors that were added in a Timer callback', () => {
@@ -249,7 +249,7 @@ describe('A scene', () => {
       scene.update(engine, 11);
       scene.draw(engine.ctx, 11);
 
-      expect(scene.children.indexOf(actor)).toBeGreaterThan(-1, 'Actor was not added to scene');
+      expect(scene.actors.indexOf(actor)).toBeGreaterThan(-1, 'Actor was not added to scene');
       expect(initialized).toBe(true, 'Actor was not initialized after timer callback');
       expect(updated).toBe(true, 'Actor was not updated after timer callback');
    });
