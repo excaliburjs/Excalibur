@@ -409,7 +409,7 @@ O|===|* >________________>\n\
       }
 
       if (options.backgroundColor) {
-         this.backgroundColor = options.backgroundColor;
+         this.backgroundColor = options.backgroundColor.clone();
       }
 
       this._loader = new Loader();

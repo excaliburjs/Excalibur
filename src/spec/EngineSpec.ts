@@ -128,7 +128,7 @@ describe('The engine', () => {
         backgroundColor: ex.Color.White
       });
 
-      expect(game.backgroundColor).toEqual(ex.Color.White);
+      expect(game.backgroundColor.toString()).toEqual(ex.Color.White.toString());
    });
 
    it('should accept default backgroundColor #2185d0', () => {
@@ -137,7 +137,7 @@ describe('The engine', () => {
          width: 800
       });
 
-      expect(game.backgroundColor).toEqual(ex.Color.fromHex('#2185d0'));
+      expect(game.backgroundColor.toString()).toEqual(ex.Color.fromHex('#2185d0').toString());
    });
 
 });
