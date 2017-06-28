@@ -121,4 +121,23 @@ describe('The engine', () => {
      expect(game.canvas.style.top).toEqual('1px');
    });
    
+   it('should accept backgroundColor', () => {
+      var game = new ex.Engine({
+        height: 600,
+        width: 800,
+        backgroundColor: ex.Color.White
+      });
+
+      expect(game.backgroundColor.toString()).toEqual(ex.Color.White.toString());
+   });
+
+   it('should accept default backgroundColor #2185d0', () => {
+      var game = new ex.Engine({
+         height: 600,
+         width: 800
+      });
+
+      expect(game.backgroundColor.toString()).toEqual(ex.Color.fromHex('#2185d0').toString());
+   });
+
 });
