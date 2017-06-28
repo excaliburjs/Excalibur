@@ -131,4 +131,13 @@ describe('The engine', () => {
       expect(game.backgroundColor).toEqual(ex.Color.White);
    });
 
+   it('should accept default backgroundColor #2185d0', () => {
+      var game = new ex.Engine({
+         height: 600,
+         width: 800
+      });
+
+      expect(game.backgroundColor).toEqual(ex.Color.fromHex('#2185d0'));
+   });
+
 });

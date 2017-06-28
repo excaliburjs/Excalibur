@@ -308,7 +308,7 @@ export class Engine extends Class {
       suppressConsoleBootMessage:             null,
       suppressMinimumBrowserFeatureDetection: null,
       scrollPreventionMode:                   ScrollPreventionMode.Canvas,
-      backgroundColor:                        new Color(0, 0, 100)
+      backgroundColor:                        Color.fromHex('#2185d0') // Excalibur blue
    };
 
    /**
@@ -325,7 +325,7 @@ export class Engine extends Class {
     *   canvasElementId: '', // the DOM canvas element ID, if you are providing your own
     *   displayMode: ex.DisplayMode.FullScreen, // the display mode
     *   pointerScope: ex.Input.PointerScope.Document, // the scope of capturing pointer (mouse/touch) events
-    *   backgroundColor: ex.Color.Blue // background color of the engine
+    *   backgroundColor: ex.Color.fromHex('#2185d0') // background color of the engine
     * });
     *
     * // call game.start, which is a Promise
