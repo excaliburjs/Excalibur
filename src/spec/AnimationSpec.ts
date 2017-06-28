@@ -8,6 +8,6 @@ describe('An animation', () => {
    });
 
    it('should have loop default to true', () => {
-      expect(animation.loop).toBeTruthy();
+      expect(animation.loop).toBe(true);
    });
 });

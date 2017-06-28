@@ -30,7 +30,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Camera zoom over time now returns a promise that resolves on completion ([#800](https://github.com/excaliburjs/Excalibur/issues/800))
 - Edge builds have more descriptive versions now containing build number and Git commit hash (e.g. `0.10.0-alpha.105#commit`) ([#777](https://github.com/excaliburjs/Excalibur/issues/777))
-- Animation loop now set to true by default ([#583] (https://github.com/excaliburjs/Excalibur/issues/583))
+- `Animation.loop` property now to set to `true` by default ([#583] (https://github.com/excaliburjs/Excalibur/issues/583))
 
 ### Fixed
 - Fixed camera zoom over time, before it did not work at all ([#800](https://github.com/excaliburjs/Excalibur/issues/800))

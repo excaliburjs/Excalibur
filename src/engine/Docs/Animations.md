@@ -31,4 +31,4 @@ game.start(loader).then(function () {
 You can add [["Drawing/SpriteEffects"|sprite effects]] to an animation through methods
 like [[Animation.invert]] or [[Animation.lighten]]. Keep in mind, since this
 manipulates the raw pixel values of a [[Sprite]], it can have a performance impact.
-[[Animetion.loop]] is now set to true by default.
+"Animations will loop by default. You can use [[Animation.loop]] to change this behavior.
