@@ -6,6 +6,22 @@ This project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md
 #### Questions
 Have questions? Ask them in our [forum]!
 
+#### Table of Contents
+- [Reporting Bugs](#reporting-bugs)
+- [Suggesting Improvements](#suggesting-improvements)
+- [Submitting Changes](#submitting-changes)
+  - [Getting Started](#getting-started)
+  - [Creating a Pull Request](#creating-a-pull-request)
+  - [Code Organization](#code-organization)
+- [Styleguides](#styleguides)
+  - [Code](#code)
+  - [Commit Messages](#commit-messages)
+  - [Tests](#tests)
+  - [Documentation](#documentation)
+- [Issue Labels](#issue-labels)
+  
+
+
 ## Reporting Bugs
 Before reporting a bug, please perform the following basic troubleshooting steps:
 
@@ -39,7 +55,7 @@ Below is the general workflow for submitting changes:
 6. Wait for a project core-contributor to give you feedback. Make changes if necessary.
 7. Once your changes are merged, celebrate!
 
-If you’re not sure where to start, take a look at the jump-in or help wanted issue labels.
+If you’re not sure where to start, take a look at the "jump-in" or "help wanted" [issue labels](#issue-labels).
 
 #### Creating a Pull Request
 - Please ensure that there is an issue created for what you're working on. This helps prevent duplicate or unnecessary work.
