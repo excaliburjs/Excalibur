@@ -148,7 +148,7 @@ describe('A label', () => {
       imagediff.expectCanvasImageMatches(isLinux() ? 'LabelSpec/centertext-linux.png' : 'LabelSpec/centertext.png', engine.canvas, done);
    });
 
-   it('can measure text width', () => {
+   xit('can measure text width', () => {
       label.x = 200;
       label.text = 'some text to measure';
       label.fontSize = 30;
