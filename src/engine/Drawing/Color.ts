@@ -188,13 +188,59 @@ export class Color {
 
    /**
     * Returns a CSS string representation of a color. 
+    *
+    * @param format Color representation
     */
-   public toString() {
+   public toString(format = 'rgb') {
+      if (format === 'rgb') {
+         return this.toRGBA();
+      }
+
+      if (format === 'hsl') {
+         return this.toHSLA();
+      }
+
+      if (format === 'hex') {
+         return this.toHex();
+      }
+
+      throw new Error('Invalid Color format');
+   }
+
+   /**
+    * Returns Hex Value of a color component
+    * @param c color component
+    * https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+    */
+   private _componentToHex(c : number) {
+      var hex = c.toString(16);
+      return hex.length === 1 ? '0' + hex : hex;
+   }
+
+   /**
+    * Return Hex representation of a color.
+    */
+   public toHex() {
+       return '#' + this._componentToHex(this.r) + this._componentToHex(this.g) + this._componentToHex(this.b);  
+   }
+   
+   /**
+    * Return RGBA representation of a color. 
+    */
+   public toRGBA() {
       var result = String(this.r.toFixed(0)) + ', ' + String(this.g.toFixed(0)) + ', ' + String(this.b.toFixed(0));
       if (this.a !== undefined || this.a !== null) {
          return 'rgba(' + result + ', ' + String(this.a) + ')';
       }
       return 'rgb(' + result + ')';
+   }
+
+   /**
+    * Return HSLA representation of a color.
+    */
+   public toHSLA() {
+      var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+      return temp.toString();
    }
 
    /**
@@ -365,5 +411,11 @@ class HSLColor {
       }
 
       return new Color(r * 255, g * 255, b * 255, this.a);
+   }
+
+   public toString(): string {
+      var result = String(this.h.toFixed(0)) + ', ' + String(this.s.toFixed(0)) + ', ' + String(this.l.toFixed(0)) 
+         + ', ' + String(this.a.toFixed(0));
+      return 'hsla(' + result + ')'; 
    }
 }   
