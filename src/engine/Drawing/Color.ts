@@ -189,30 +189,27 @@ export class Color {
    /**
     * Returns a CSS string representation of a color. 
     *
-    * @param format Color representation
+    * @param format Color representation, accepts: rgb, hsl, or hex
     */
-   public toString(format = 'rgb') {
-      if (format === 'rgb') {
-         return this.toRGBA();
+   public toString(format: 'rgb'|'hsl'|'hex' = 'rgb') {
+      switch (format) {
+         case 'rgb':
+            return this.toRGBA();
+         case 'hsl':
+            return this.toHSLA();
+         case 'hex':
+            return this.toHex();
+         default:
+            throw new Error('Invalid Color format');
       }
-
-      if (format === 'hsl') {
-         return this.toHSLA();
-      }
-
-      if (format === 'hex') {
-         return this.toHex();
-      }
-
-      throw new Error('Invalid Color format');
    }
 
    /**
     * Returns Hex Value of a color component
     * @param c color component
-    * https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+    * @see https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
     */
-   private _componentToHex(c : number) {
+   private _componentToHex(c: number) {
       var hex = c.toString(16);
       return hex.length === 1 ? '0' + hex : hex;
    }
@@ -239,8 +236,7 @@ export class Color {
     * Return HSLA representation of a color.
     */
    public toHSLA() {
-      var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
-      return temp.toString();
+      return HSLColor.fromRGBA(this.r, this.g, this.b, this.a).toString();
    }
 
    /**
@@ -414,8 +410,10 @@ class HSLColor {
    }
 
    public toString(): string {
-      var result = String(this.h.toFixed(0)) + ', ' + String(this.s.toFixed(0)) + ', ' + String(this.l.toFixed(0)) 
-         + ', ' + String(this.a.toFixed(0));
-      return 'hsla(' + result + ')'; 
+      let h = this.h.toFixed(0),
+          s = this.s.toFixed(0),
+          l = this.l.toFixed(0),
+          a = this.a.toFixed(0);
+      return `hsla(${h}, ${s}, ${l}, ${a})`;
    }
 }   

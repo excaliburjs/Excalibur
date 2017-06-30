@@ -26,7 +26,7 @@ describe('A color', () => {
    });
 
    it('should display an error message', () => {
-      expect(color.toString('invalid')).toThrow(new Error('Invalid Color format'));
+      expect(color.toString('invalid' as any)).toThrow(new Error('Invalid Color format'));
    });
 
    it('should handle alpha values of 0', () => {

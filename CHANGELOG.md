@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Changed `ex.Scene.children` to be `ex.Scene.actors`, and updated unit test specs to reflect this change ((#796)[https://github.com/excaliburjs/Excalibur/issues/796])
 - Added backgroundColor to engine options as part of Engine constructor ((#846)[https://github.com/excaliburjs/Excalibur/issues/846])
+- Added options for hsl,hex representation in Color.toString() method with rgb as default if none provided to maintain backward compatability((#852)[https://github.com/excaliburjs/Excalibur/issues/852])
 ### Deprecated
 ### Fixed
 
