@@ -40,7 +40,7 @@ export class Animation implements IDrawable {
    /**
     * Indicates whether the animation should loop after it is completed
     */
-   public loop: boolean = false;
+   public loop: boolean = true;
 
    /**
     * Indicates the frame index the animation should freeze on for a non-looping
