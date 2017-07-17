@@ -148,7 +148,7 @@ event.
 
         // If the ball collides with the top
         // of the screen reverse the y velocity
-        if (this.pos.y < 0) {
+        if (this.pos.y < (this.getHeight() / 2)) {
             this.vel.y *= -1;
         }
     });
