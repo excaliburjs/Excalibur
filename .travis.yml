@@ -9,7 +9,7 @@ cache:
   - node_shrinkwrap
   - $HOME/.npm
 before_install:
-- gem install sass
+- gem install sass -v 3.4.24
 script:
 - node_modules/.bin/grunt travis
 after_success:
