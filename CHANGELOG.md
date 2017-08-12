@@ -22,14 +22,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.12.0] 2017-08-12
 
 ### Breaking Changes
-- `CollsionType.Elastic` has been removed
+- `CollisionType.Elastic` has been removed
 - `Promises.wrap` has been replaced with `Promise.resolve`
 ### Added
 - Added new hsl and hex format options in Color.toString(format) using rgb as the default to maintain backwards compatibility ([#852](https://github.com/excaliburjs/Excalibur/issues/852))
 ### Changed
-- `Animation.loop` property now to set to `true` by default ([#583] (https://github.com/excaliburjs/Excalibur/issues/583))
-- Changed `ex.Scene.children` to be `ex.Scene.actors`, and updated unit test specs to reflect this change ([#796](https://github.com/excaliburjs/Excalibur/issues/796))
+- `Animation.loop` property now to set to `true` by default ([#583](https://github.com/excaliburjs/Excalibur/issues/583))
 - Added backgroundColor to engine options as part of Engine constructor ([#846](https://github.com/excaliburjs/Excalibur/issues/846))
+### Deprecated
+- `ex.Scene.children` is now `ex.Scene.actors` ([#796](https://github.com/excaliburjs/Excalibur/issues/796))
 
 <!----------------------------------------------------------------------------------------------->
 
