@@ -1,5 +1,4 @@
 import { ICollisionArea } from './ICollisionArea';
-import { Side } from './Side';
 import { Body } from './Body';
 
 import { Actor, CollisionType } from '../Actor';
@@ -57,9 +56,8 @@ export class CollisionContact {
       }
    }
 
-   private _applyBoxImpluse(bodyA: Actor, bodyB: Actor, mtv: Vector, side: Side) {
-      if ((bodyA.collisionType === CollisionType.Active ||
-         bodyA.collisionType === CollisionType.Elastic) &&
+   private _applyBoxImpluse(bodyA: Actor, bodyB: Actor, mtv: Vector) {
+      if (bodyA.collisionType === CollisionType.Active &&
          bodyB.collisionType !== CollisionType.Passive) {
 
          // Resolve overlaps
@@ -72,61 +70,45 @@ export class CollisionContact {
          bodyA.pos.y += mtv.y;
          bodyA.pos.x += mtv.x;
 
-         // Naive elastic bounce
-         if (bodyA.collisionType === CollisionType.Elastic) {
-            if (side === Side.Left) {
-               bodyA.vel.x = Math.abs(bodyA.vel.x);
-            } else if (side === Side.Right) {
-               bodyA.vel.x = -Math.abs(bodyA.vel.x);
-            } else if (side === Side.Top) {
-               bodyA.vel.y = Math.abs(bodyA.vel.y);
-            } else if (side === Side.Bottom) {
-               bodyA.vel.y = -Math.abs(bodyA.vel.y);
-            }
-         } else {
-
-
-            // non-zero intersection on the y axis
-            if (this.mtv.x !== 0) {
-               var velX = 0;
-               // both bodies are traveling in the same direction (negative or positive)
-               if (bodyA.vel.x < 0 && bodyB.vel.x < 0) {
-                  velX = Math.min(bodyA.vel.x, bodyB.vel.x);
-               } else if (bodyA.vel.x > 0 && bodyB.vel.x > 0) {
-                  velX = Math.max(bodyA.vel.x, bodyB.vel.x);
-               } else if (bodyB.collisionType === CollisionType.Fixed) {
-                  // bodies are traveling in opposite directions
-                  if (bodyA.pos.sub(bodyB.pos).dot(bodyA.vel) > 0) {
-                     velX = bodyA.vel.x;
-                  } else {
-                     // bodyA is heading towards b
-                     velX = bodyB.vel.x;
-                  }
+         // non-zero intersection on the y axis
+         if (this.mtv.x !== 0) {
+            var velX = 0;
+            // both bodies are traveling in the same direction (negative or positive)
+            if (bodyA.vel.x < 0 && bodyB.vel.x < 0) {
+               velX = Math.min(bodyA.vel.x, bodyB.vel.x);
+            } else if (bodyA.vel.x > 0 && bodyB.vel.x > 0) {
+               velX = Math.max(bodyA.vel.x, bodyB.vel.x);
+            } else if (bodyB.collisionType === CollisionType.Fixed) {
+               // bodies are traveling in opposite directions
+               if (bodyA.pos.sub(bodyB.pos).dot(bodyA.vel) > 0) {
+                  velX = bodyA.vel.x;
+               } else {
+                  // bodyA is heading towards b
+                  velX = bodyB.vel.x;
                }
-               bodyA.vel.x = velX;
             }
+            bodyA.vel.x = velX;
+         }
 
+         if (this.mtv.y !== 0) {
+            var velY = 0;
 
-            if (this.mtv.y !== 0) {
-               var velY = 0;
-
-               // both bodies are traveling in the same direction (negative or positive)
-               if (bodyA.vel.y < 0 && bodyB.vel.y < 0) {
-                  velY = Math.min(bodyA.vel.y, bodyB.vel.y);
-               } else if (bodyA.vel.y > 0 && bodyB.vel.y > 0) {
-                  velY = Math.max(bodyA.vel.y, bodyB.vel.y);
-               } else if (bodyB.collisionType === CollisionType.Fixed) {
-                  // bodies are traveling in opposite directions
-                  if (bodyA.pos.sub(bodyB.pos).dot(bodyA.vel) > 0) {
-                     velY = bodyA.vel.y;
-                  } else {
-                     // bodyA is heading towards b
-                     velY = bodyB.vel.y;
-                  }
+            // both bodies are traveling in the same direction (negative or positive)
+            if (bodyA.vel.y < 0 && bodyB.vel.y < 0) {
+               velY = Math.min(bodyA.vel.y, bodyB.vel.y);
+            } else if (bodyA.vel.y > 0 && bodyB.vel.y > 0) {
+               velY = Math.max(bodyA.vel.y, bodyB.vel.y);
+            } else if (bodyB.collisionType === CollisionType.Fixed) {
+               // bodies are traveling in opposite directions
+               if (bodyA.pos.sub(bodyB.pos).dot(bodyA.vel) > 0) {
+                  velY = bodyA.vel.y;
+               } else {
+                  // bodyA is heading towards b
+                  velY = bodyB.vel.y;
                }
-
-               bodyA.vel.y = velY;
             }
+
+            bodyA.vel.y = velY;
          }
       }
    }
@@ -141,8 +123,8 @@ export class CollisionContact {
       bodyB.emit('collision',
          new CollisionEvent(bodyB, bodyA, Util.getOppositeSide(side), mtv.negate()));
 
-      this._applyBoxImpluse(bodyA, bodyB, mtv, side);
-      this._applyBoxImpluse(bodyB, bodyA, mtv.negate(), Util.getOppositeSide(side));
+      this._applyBoxImpluse(bodyA, bodyB, mtv);
+      this._applyBoxImpluse(bodyB, bodyA, mtv.negate());
    }
 
    private _resolveRigidBodyCollision() {

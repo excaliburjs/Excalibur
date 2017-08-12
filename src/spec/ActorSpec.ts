@@ -491,10 +491,10 @@ describe('A game actor', () => {
 
    it('can be removed from the scene', () => {
       scene.add(actor);
-      expect(scene.children.length).toBe(1);
+      expect(scene.actors.length).toBe(1);
       actor.kill();
       scene.update(engine, 100);
-      expect(scene.children.length).toBe(0);
+      expect(scene.actors.length).toBe(0);
    });
 
    it('once killed is not drawn', () => {
