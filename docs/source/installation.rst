@@ -34,7 +34,7 @@ up a blank, ready-to-go Excalibur game:
    # Go into the folder
    cd my-game
    # Run the excalibur generator
-   yo excalibur
+   yo @excaliburjs/excalibur
 
 The Yeoman generator will automatically create the appropriate package.json and bower.json files and install
 the needed dependencies for your project.
