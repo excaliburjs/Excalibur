@@ -1,11 +1,14 @@
 ![Logo](/assets/logo.png?raw=true)
 
-[![Build Status](https://travis-ci.org/excaliburjs/Excalibur.png?branch=master)](https://travis-ci.org/excaliburjs/Excalibur)
-[![Build status](https://ci.appveyor.com/api/projects/status/9i7s7dokx0uygu34?svg=true)](https://ci.appveyor.com/project/eonarheim/excalibur)
-[![npm version](https://badge.fury.io/js/excalibur.png)](https://badge.fury.io/js/excalibur)
-[![Bower version](https://badge.fury.io/bo/excalibur.png)](http://badge.fury.io/bo/excalibur)
-[![NuGet version](https://badge.fury.io/nu/Excalibur.png)](http://badge.fury.io/nu/Excalibur)
+[![Build Status](https://img.shields.io/travis/excaliburjs/Excalibur/master.svg)](https://travis-ci.org/excaliburjs/Excalibur)
+[![Build status](https://img.shields.io/appveyor/ci/eonarheim/excalibur/master.svg)](https://ci.appveyor.com/project/eonarheim/excalibur)
+[![npm version](https://img.shields.io/npm/v/excalibur.svg)](https://www.npmjs.com/package/excalibur)
+[![npm downloads](https://img.shields.io/npm/dt/excalibur.svg)](https://www.npmjs.com/package/excalibur)
+[![Bower version](https://img.shields.io/bower/v/excalibur.svg)](https://github.com/excaliburjs/Excalibur)
+[![NuGet version](https://img.shields.io/nuget/v/Excalibur.svg)](https://www.nuget.org/packages/Excalibur/)
 [![Docs status](https://readthedocs.org/projects/excaliburjs/badge/?version=latest)](http://excaliburjs.readthedocs.org/en/latest/?badge=latest)
+
+
 
 ![Sweep Stacks](http://excaliburjs.com/assets/images/homepage-xp.png)
 
@@ -52,7 +55,10 @@ allow the widest contributions possible. You can always use your own preferred e
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (4.x+) & npm (tools like currently only support node 4.x+)
+- **Required:** [Node.js](https://nodejs.org/) & npm (latest LTS)
+- *Recommended:* [TSLint extension for VS Code](https://marketplace.visualstudio.com/items?itemName=eg2.tslint)
+- *Optional:* [PhantomJS Debugger for VS Code](https://github.com/iradul/vscode-phantomjs-debug)
+- *Optional:* Grunt CLI (`npm i -g grunt-cli`), same task names
 
 After cloning the repository, run:
 
@@ -68,21 +74,20 @@ You can then run the npm tasks for various purposes:
 npm run all
 
 # Run engine core compilation only
+# Useful for quick checks to ensure everything compiles
 npm run compile
 
 # Run engine tests only (does not run compile task)
+# Useful to run tests ad-hoc
 npm run tests
 
 # Compile HTML visual tests
+# Useful to ensure HTML sandbox compiles
 npm run visual
 
 # Compile API docs
 npm run apidocs
 ```
-
-Advanced users can optionally install `grunt-cli` and run the grunt tasks (same task names).
-
-Local debugging is supported in vscode by installing the PhantomJS Debugger extension `iradul.debugger-for-phantomjs`
 
 ### Updating npm dependencies
 

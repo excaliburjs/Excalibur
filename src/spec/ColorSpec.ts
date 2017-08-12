@@ -17,6 +17,19 @@ describe('A color', () => {
       expect(color.toString()).toBe('rgba(0, 0, 0, 1)');
    });
 
+   it('should display hex values #000000', () => {
+      expect(color.toString('hex')).toBe('#000000');
+   });
+
+   it('should display hsla(0,0,0,1)', () => {
+      expect(color.toString('hsl')).toBe('hsla(0, 0, 0, 1)');
+   });
+
+   it('should display an error message', () => {
+      var fn = () => color.toString('invalid' as any);
+      expect(fn).toThrowError('Invalid Color format');
+   });
+
    it('should handle alpha values of 0', () => {
       var color = new ex.Color(255, 255, 255, 0);
       expect(color.toString()).toBe('rgba(255, 255, 255, 0)');

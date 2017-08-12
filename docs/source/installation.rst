@@ -28,7 +28,7 @@ up a blank, ready-to-go Excalibur game:
    # Install Yeoman globally
    npm install -g yo
    # Install the Excalibur generator globally
-   npm install -g generator-excalibur
+   npm install -g @excaliburjs/generator-excalibur
    # Create the folder you want your game to be in
    mkdir my-game
    # Go into the folder

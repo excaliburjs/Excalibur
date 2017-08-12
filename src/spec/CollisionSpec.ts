@@ -58,8 +58,8 @@ describe('A Collision', () => {
      
      engine1.start().then(() => {
        actor3.vel.setTo(200, 0);
-       actor3.collisionType = ex.CollisionType.Elastic;
-       actor4.collisionType = ex.CollisionType.Elastic;
+       actor3.collisionType = ex.CollisionType.Active;
+       actor4.collisionType = ex.CollisionType.Active;
        engine1.add(actor3);
        engine1.add(actor4);
        

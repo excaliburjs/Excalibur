@@ -1109,13 +1109,6 @@ export enum CollisionType {
     */
    Active,
    /**
-    * Actors with the `Elastic` setting will behave the same as `Active`, except that they will
-    * "bounce" in the opposite direction given their velocity dx/dy. This is a naive implementation meant for
-    * prototyping, for a more robust elastic collision listen to the "collision" event and perform your custom logic.
-    * @obsolete This behavior will be handled by a future physics system
-    */
-   Elastic,
-   /**
     * Actors with the `Fixed` setting raise collision events and participate in
     * collisions with other actors. Actors with the `Fixed` setting will not be
     * pushed or moved by other actors sharing the `Fixed`. Think of Fixed

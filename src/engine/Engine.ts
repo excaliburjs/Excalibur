@@ -19,7 +19,6 @@ import { IPostProcessor } from './PostProcessing/IPostProcessor';
 import { Debug, IDebugStats } from './Debug';
 import { Class } from './Class';
 import * as Input from './Input/Index';
-import { obsolete } from './Util/Decorators';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 import { BoundingBox } from './Collision/BoundingBox';
@@ -135,6 +134,11 @@ export interface IEngineOptions {
     * Scroll prevention method.
     */
    scrollPreventionMode?: ScrollPreventionMode;
+
+   /**
+    * Optionally set the background color
+    */
+   backgroundColor?: Color;
 }
 
 /**
@@ -179,15 +183,6 @@ export class Engine extends Class {
 
 
    private _hasStarted: boolean = false;
-
-   /**
-    * Current FPS
-    * @obsolete Use [[FrameStats.fps|Engine.stats.fps]]. Will be deprecated in future versions.
-    */
-   @obsolete({ alternateMethod: 'ex.Engine.stats.currFrame.fps' })
-   public get fps(): number {
-      return this.stats.currFrame.fps;
-   }
 
    /**
     * Access Excalibur debugging functionality.
@@ -250,7 +245,7 @@ export class Engine extends Class {
    /**
     * Sets the background color for the engine.
     */
-   public backgroundColor: Color = new Color(0, 0, 100);
+   public backgroundColor: Color;
 
    /**
     * The action to take when a fatal exception is thrown
@@ -302,7 +297,8 @@ export class Engine extends Class {
       pointerScope:                           Input.PointerScope.Document,
       suppressConsoleBootMessage:             null,
       suppressMinimumBrowserFeatureDetection: null,
-      scrollPreventionMode:                   ScrollPreventionMode.Canvas
+      scrollPreventionMode:                   ScrollPreventionMode.Canvas,
+      backgroundColor:                        Color.fromHex('#2185d0') // Excalibur blue
    };
 
    /**
@@ -318,7 +314,8 @@ export class Engine extends Class {
     *   height: 0, // the height of the canvas
     *   canvasElementId: '', // the DOM canvas element ID, if you are providing your own
     *   displayMode: ex.DisplayMode.FullScreen, // the display mode
-    *   pointerScope: ex.Input.PointerScope.Document // the scope of capturing pointer (mouse/touch) events
+    *   pointerScope: ex.Input.PointerScope.Document, // the scope of capturing pointer (mouse/touch) events
+    *   backgroundColor: ex.Color.fromHex('#2185d0') // background color of the engine
     * });
     *
     * // call game.start, which is a Promise
@@ -401,6 +398,9 @@ O|===|* >________________>\n\
          this.displayMode = DisplayMode.FullScreen;
       }
 
+      if (options.backgroundColor) {
+         this.backgroundColor = options.backgroundColor.clone();
+      }
 
       this._loader = new Loader();
 
