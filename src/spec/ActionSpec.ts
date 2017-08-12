@@ -70,14 +70,14 @@ describe('Action', () => {
          expect(scene.children.length).toBe(1);
          actor.actions.die();
          scene.update(engine, 100);
-         expect(scene.children.length).toBe(0);
+         expect(scene.actors.length).toBe(0);
       });
 
       it('can perform actions and then die', () => {
          scene.add(actor);
          expect(actor.pos.x).toBe(0);
          expect(actor.pos.y).toBe(0);
-         expect(scene.children.length).toBe(1);
+         expect(scene.actors.length).toBe(1);
 
          actor.actions.moveTo(100, 0, 100).delay(1000).die();
          actor.update(engine, 1000);
@@ -91,7 +91,7 @@ describe('Action', () => {
 
          actor.update(engine, 1000);
          scene.update(engine, 100);
-         expect(scene.children.length).toBe(0);
+         expect(scene.actors.length).toBe(0);
       });   
    });
 

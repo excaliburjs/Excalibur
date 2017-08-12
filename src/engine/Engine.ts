@@ -19,7 +19,6 @@ import { IPostProcessor } from './PostProcessing/IPostProcessor';
 import { Debug, IDebugStats } from './Debug';
 import { Class } from './Class';
 import * as Input from './Input/Index';
-import { obsolete } from './Util/Decorators';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 import { BoundingBox } from './Collision/BoundingBox';
@@ -184,15 +183,6 @@ export class Engine extends Class {
 
 
    private _hasStarted: boolean = false;
-
-   /**
-    * Current FPS
-    * @obsolete Use [[FrameStats.fps|Engine.stats.fps]]. Will be deprecated in future versions.
-    */
-   @obsolete({ alternateMethod: 'ex.Engine.stats.currFrame.fps' })
-   public get fps(): number {
-      return this.stats.currFrame.fps;
-   }
 
    /**
     * Access Excalibur debugging functionality.

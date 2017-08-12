@@ -12,7 +12,7 @@ game.add(paddle);
 var ball = new ex.Actor(150, 50, 20, 20);
 ball.color = ex.Color.Red;
 ball.vel.setTo(0, 300);
-ball.collisionType = ex.CollisionType.Elastic;
+ball.collisionType = ex.CollisionType.Active;
 ball.on('update', function () {
     if (ball.body.touching(paddle)) {
         console.log("frame " + game.stats.prevFrame.id + ": touching!");
