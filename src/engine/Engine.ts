@@ -971,7 +971,7 @@ O|===|* >________________>\n\
          let oldHeight = this.canvas.height;
 
          this.canvas.width = oldWidth * this.pixelRatio;
-         this.canvas.height = oldHeight * this.pixelRatio;;
+         this.canvas.height = oldHeight * this.pixelRatio;
 
          this.canvas.style.width = oldWidth + 'px';
          this.canvas.style.height = oldHeight + 'px';
