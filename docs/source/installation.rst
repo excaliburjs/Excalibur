@@ -10,10 +10,6 @@ There are several ways you can download Excalibur.
 
     npm install excalibur
 
-**Bower**::
-
-    bower install excalibur
-    
 **Nuget**::
 
     Install-Package Excalibur
