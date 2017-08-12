@@ -16,7 +16,7 @@ import { Class } from './Class';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 import * as ActorUtils from './Util/Actors';
-import { obsolete } from './Util/Decorators';
+//import { obsolete } from './Util/Decorators';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world

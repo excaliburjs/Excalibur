@@ -176,11 +176,30 @@ export class Engine extends Class {
    /**
     * The width of the game canvas in pixels
     */
-   public canvasWidth: number;
+   public get canvasWidth(): number {
+      return this.canvas.width;
+   }
+
+   /**
+    * Returns half width of the game canvas in pixels
+    */
+   public get halfCanvasWidth(): number {
+      return this.canvas.width / 2;
+   }
+
    /**
     * The height of the game canvas in pixels
     */
-   public canvasHeight: number;
+   public get canvasHeight(): number {
+      return this.canvas.height;
+   }
+
+   /**
+    * Returns half height of the game canvas in pixels
+    */
+   public get halfCanvasHeight(): number {
+      return this.canvas.height / 2;
+   }
 
    /**
     * Access engine input like pointer, keyboard, or gamepad
@@ -410,10 +429,10 @@ O|===|* >________________>\n\
             this.displayMode = DisplayMode.Fixed;
          }
          this._logger.debug('Engine viewport is size ' + options.width + ' x ' + options.height);
-         this.canvasWidth = options.width;
-         this.canvas.width = options.width;
-         this.canvasHeight = options.height;
+         
+         this.canvas.width = options.width;         
          this.canvas.height = options.height;
+
 
       } else if (!options.displayMode) {
          this._logger.debug('Engine viewport is fullscreen');
@@ -729,23 +748,37 @@ O|===|* >________________>\n\
    }
 
    /**
-    * Returns the width of the engine's drawing surface in pixels.
+    * Returns the width of the engine's visible drawing surface in pixels including zoom.
     */
    public getDrawWidth(): number {
       if (this.currentScene && this.currentScene.camera) {
-         return this.canvasWidth / this.currentScene.camera.getZoom();
+         return (this.canvasWidth / this.currentScene.camera.getZoom());
       }
       return this.canvasWidth;
    }
 
    /**
-    * Returns the height of the engine's drawing surface in pixels.
+    * Returns half the width of the engine's visible drawing surface in pixels including zoom.
+    */
+   public getHalfDrawWidth(): number {
+      return this.getDrawWidth() / 2;
+   }
+
+   /**
+    * Returns the height of the engine's visible drawing surface in pixels.
     */
    public getDrawHeight(): number {
       if (this.currentScene && this.currentScene.camera) {
-         return this.canvasHeight / this.currentScene.camera.getZoom();
+         return (this.canvasHeight / this.currentScene.camera.getZoom()) ;
       }
       return this.canvasHeight;
+   }
+
+   /**
+    * Returns half the height of the engine's visible drawing surface in pixels including zoom.
+    */
+   public getHalfDrawHeight(): number {
+      return this.getDrawHeight() / 2;
    }
 
    /**
@@ -808,15 +841,15 @@ O|===|* >________________>\n\
     */
    private _setHeightByDisplayMode(parent: HTMLElement | Window) {
       if (this.displayMode === DisplayMode.Container) {
-         this.canvasWidth = this.canvas.width = (<HTMLElement>parent).clientWidth;
-         this.canvasHeight = this.canvas.height = (<HTMLElement>parent).clientHeight;
+         this.canvas.width = (<HTMLElement>parent).clientWidth;
+         this.canvas.height = (<HTMLElement>parent).clientHeight;
       }
 
       if (this.displayMode === DisplayMode.FullScreen) {
          document.body.style.margin = '0px';
          document.body.style.overflow = 'hidden';
-         this.canvasWidth = this.canvas.width = (<Window>parent).innerWidth;
-         this.canvasHeight = this.canvas.height = (<Window>parent).innerHeight;
+         this.canvas.width = (<Window>parent).innerWidth;
+         this.canvas.height = (<Window>parent).innerHeight;
       }
    }
 
@@ -966,17 +999,26 @@ O|===|* >________________>\n\
 
          this.pixelRatio = this.devicePixelRatio / this.backingStoreRatio;
 
-         // Scale the canvas
-         let oldWidth = this.canvas.width;
-         let oldHeight = this.canvas.height;
+         // Scale the canvas if needed
+         if (this.devicePixelRatio !== this.backingStoreRatio) {
+            
+            let oldWidth = this.canvas.width;
+            let oldHeight = this.canvas.height;
 
-         this.canvas.width = oldWidth * this.pixelRatio;
-         this.canvas.height = oldHeight * this.pixelRatio;
+            this.canvas.width = oldWidth * this.pixelRatio;
+            this.canvas.height = oldHeight * this.pixelRatio;
 
-         this.canvas.style.width = oldWidth + 'px';
-         this.canvas.style.height = oldHeight + 'px';
-         
-         this.ctx.scale(this.pixelRatio, this.pixelRatio);
+            this.canvas.style.width = oldWidth + 'px';
+            this.canvas.style.height = oldHeight + 'px';
+
+            this._logger.warn(`Hi DPI screen detected, resetting canvas resolution from 
+                              ${oldWidth}x${oldHeight} to ${this.canvas.width}x${this.canvas.height} 
+                              css size will remain ${oldWidth}x${oldHeight}`);
+            
+            this.ctx.translate(-this.halfCanvasWidth, -this.halfCanvasHeight);
+            this.ctx.scale(this.pixelRatio, this.pixelRatio);
+            this._logger.warn(`Canvas drawing context was scaled by ${this.pixelRatio}`);
+         }
       }
 
       if (!this.canvasElementId) {

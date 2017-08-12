@@ -274,17 +274,6 @@ export class BaseCamera {
       var newCanvasWidth = canvasWidth / this.getZoom();
       var newCanvasHeight = canvasHeight / this.getZoom();
 
-      /*if (this._isDoneZooming()) {
-         this._isZooming = false;
-         this._elapsedZoomTime = 0;
-         this._zoomDuration = 0;
-         this._setCurrentZoomScale(this._maxZoomScale);
-
-      } else {
-         this._elapsedZoomTime += delta;
-
-         this._setCurrentZoomScale(this.getZoom() + this._zoomIncrement * delta / 1000);
-      }*/
 
       ctx.scale(this.getZoom(), this.getZoom());
       ctx.translate(-focus.x + newCanvasWidth / 2 + this._xShake, -focus.y + newCanvasHeight / 2 + this._yShake);

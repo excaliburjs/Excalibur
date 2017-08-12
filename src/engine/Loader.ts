@@ -177,12 +177,19 @@ export class Loader extends Class implements ILoader {
     * to customize the drawing, or just override entire method.
     */
    public draw(ctx: CanvasRenderingContext2D) {
-      ctx.fillStyle = this.backgroundColor;
-      ctx.fillRect(0, 0, this._engine.canvasWidth, this._engine.canvasHeight);
+      let canvasHeight = this._engine.getDrawHeight();
+      let canvasWidth = this._engine.getDrawWidth();
 
-      var y = this._engine.canvas.height / 2;
-      var width = Math.min(this.logoWidth, this._engine.canvas.width * 0.75);
-      var x = (this._engine.canvasWidth / 2) - (width / 2);
+      Logger.getInstance().debug(`Loader dim ${canvasWidth}x${canvasHeight}`);
+      
+      ctx.fillStyle = this.backgroundColor;
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+      
+
+      var y = canvasHeight / 2;
+      var width = Math.min(this.logoWidth, canvasWidth * 0.75);
+      var x = (canvasWidth / 2) - (width / 2);
 
       var imageHeight = Math.floor(width * (this.logoHeight / this.logoWidth)); // OG height/width factor
       var oldAntialias = this._engine.getAntialiasing();
