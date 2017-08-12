@@ -119,6 +119,12 @@ export interface IEngineOptions {
     * browsers or if there is a bug in excalibur preventing execution.
     */
    suppressMinimumBrowserFeatureDetection?: boolean;
+
+   /**
+    * Suppress HiDPI auto detection and scaling, it is not recommeded users of excalibur switch off this feature. This feature detects
+    * and scales the drawing canvas appropriately to accomodate HiDPI screens.
+    */
+   suppressHiDPIScaling?: boolean;
    
    /**
     * Specify how the game window is to be positioned when the [[DisplayMode.Position]] is chosen. This option MUST be specified
@@ -227,6 +233,21 @@ export class Engine extends Class {
     * Indicates the current [[DisplayMode]] of the engine.
     */
    public displayMode: DisplayMode = DisplayMode.FullScreen;
+
+   /**
+    * Returns the device pixel ration of the current device when excalibur booted up
+    */
+   public devicePixelRatio: number = 1;
+
+   /**
+    * Returns the backing store ratio of the current canvas context when excalibur booted up
+    */
+   public backingStoreRatio: number = 1;
+
+   /**
+    * Returns the calculated pixel ration for use in rendering
+    */
+   public pixelRatio: number = 1;
    
    /**
     * Indicates the current position of the engine. Valid only when DisplayMode is DisplayMode.Position
@@ -279,7 +300,7 @@ export class Engine extends Class {
    public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
    public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): void;
    public on(eventName: Events.preframe, handler: (event?: PreFrameEvent) => void): void;
-   public on(eventName: Events.postframe, handler: (event?: PostFrameEvent) => void): void;   
+   public on(eventName: Events.postframe, handler: (event?: PostFrameEvent) => void): void;
    public on(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void): void;
    public on(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void): void;
    public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
@@ -297,6 +318,7 @@ export class Engine extends Class {
       pointerScope:                           Input.PointerScope.Document,
       suppressConsoleBootMessage:             null,
       suppressMinimumBrowserFeatureDetection: null,
+      suppressHiDPIScaling:                   null,
       scrollPreventionMode:                   ScrollPreventionMode.Canvas,
       backgroundColor:                        Color.fromHex('#2185d0') // Excalibur blue
    };
@@ -932,6 +954,31 @@ O|===|* >________________>\n\
       });
 
       this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d');
+
+      if (!options.suppressHiDPIScaling) {
+         // discover backing store pixel ratio
+         this.devicePixelRatio = window.devicePixelRatio || 1;
+         this.backingStoreRatio = (<any>this.ctx).webkitBackingStorePixelRatio ||
+                                 (<any>this.ctx).mozBackingStorePixelRatio ||
+                                 (<any>this.ctx).msBackingStorePixelRatio ||
+                                 (<any>this.ctx).oBackingStorePixelRatio ||
+                                 (<any>this.ctx).backingStorePixelRatio || 1;
+
+         this.pixelRatio = this.devicePixelRatio / this.backingStoreRatio;
+
+         // Scale the canvas
+         let oldWidth = this.canvas.width;
+         let oldHeight = this.canvas.height;
+
+         this.canvas.width = oldWidth * this.pixelRatio;
+         this.canvas.height = oldHeight * this.pixelRatio;;
+
+         this.canvas.style.width = oldWidth + 'px';
+         this.canvas.style.height = oldHeight + 'px';
+         
+         this.ctx.scale(this.pixelRatio, this.pixelRatio);
+      }
+
       if (!this.canvasElementId) {
          document.body.appendChild(this.canvas);
       }
