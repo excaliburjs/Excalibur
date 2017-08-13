@@ -183,7 +183,7 @@ export class Engine extends Class {
    /**
     * Returns half width of the game canvas in pixels
     */
-   public get halfCanvasWidth(): number {
+   public get canvasHalfWidth(): number {
       return this.canvas.width / 2;
    }
 
@@ -197,7 +197,7 @@ export class Engine extends Class {
    /**
     * Returns half height of the game canvas in pixels
     */
-   public get halfCanvasHeight(): number {
+   public get canvasHalfHeight(): number {
       return this.canvas.height / 2;
    }
 
@@ -1019,7 +1019,7 @@ O|===|* >________________>\n\
             let scaledHeight = this.canvasHeight / this.pixelRatio;
 
             this.ctx.scale(this.pixelRatio, this.pixelRatio);
-            this.ctx.translate(-this.halfCanvasWidth + scaledWidth / 2, -this.halfCanvasHeight +  scaledHeight / 2);
+            this.ctx.translate(-this.canvasHalfWidth + scaledWidth / 2, -this.canvasHalfHeight +  scaledHeight / 2);
             this._logger.warn(`Canvas drawing context was scaled by ${this.pixelRatio}`);
          }
       }
