@@ -3,6 +3,7 @@ const appveyorBuild = process.env.APPVEYOR_BUILD_NUMBER || '';
 const travisBuild   = process.env.TRAVIS_BUILD_NUMBER   || '';
 const commit        = process.env.TRAVIS_COMMIT         || '';
 const travisPr      = process.env.TRAVIS_PULL_REQUEST   || 'false';
+const travisTag     = process.env.TRAVIS_TAG            || '';
 
 // ignore local builds
 if (!appveyorBuild && !travisBuild) {
@@ -15,6 +16,14 @@ if (!appveyorBuild && !travisBuild) {
 if (!process.env.GH_TOKEN && travisPr !== 'false') {
    console.info('Travis PR build, using version', 'pr-' + travisPr);
    module.exports = 'pr-' + travisPr;
+   return;
+}
+
+// use release tag if given
+if (travisTag) {   
+   const version = travisTag.match(/^v?([0-9\.]+)$/)[1];
+   console.info("Using Travis tag version", travisTag, version);
+   module.exports = version;
    return;
 }
 
