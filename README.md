@@ -12,9 +12,9 @@
 
 ![Sweep Stacks](http://excaliburjs.com/assets/images/homepage-xp.png)
 
-Excalibur is a simple, **free** game engine written in TypeScript for making 2D games in HTML5 canvas. Our goal with Excalibur is to make it *incredibly simple* to create and write 2D HTML/JS games aimed at folks new to game development all the way up to more experienced game developers. We take care of all the boilerplate engine code, cross-platform targeting, and more so you don't have to. Use as much or as little as you need!
+Excalibur is a simple, **free** game engine written in TypeScript for making 2D games in HTML5 canvas. Our goal is to make it *incredibly simple* to create 2D HTML/JS games, for folks new to game development as well as experienced game developers. We take care of all of the boilerplate engine code, cross-platform targeting, and more so you don't have to. Use as much or as little as you need!
 
-Excalibur is an open source project licensed under the 2-clause BSD license (this means you can use it in commercial projects!). It's free and always will be. We welcome any feedback or contributions! If you make something with Excalbur, please [let us know](https://groups.google.com/forum/#!forum/excaliburjs) so we can feature you in our online gallery.
+Excalibur is an open source project licensed under the 2-clause BSD license (this means you can use it in commercial projects!). It's free and always will be. We welcome any feedback or contributions! If you make something with Excalbur, please [let us know](https://groups.google.com/forum/#!tags/excaliburjs/show-and-tell)!
 
 # Get Started
 
@@ -25,28 +25,27 @@ Our user documentation is at http://docs.excaliburjs.com.
 - Learn what [Features](http://docs.excaliburjs.com/en/latest/features.html) are available for you to leverage in your games
 - View the [Release roadmap](https://github.com/excaliburjs/Excalibur/milestones) to see what's coming next
 
-Please note while we try to minimize API changes, we are still in 0.x which means breaking changes **will occur** in new
-released versions.
+:exclamation: ***Note:*** We are still in version 0.x, which means this project may be a little rough around the edges. We try to minimize API changes, but breaking changes **will occur** in new released versions. Excalibur is a labor of love and the product of many hours of spare time. Thanks for checking it out!
 
 # API Documentation
 
-Visit the [API Documentation](http://docs.excaliburjs.com/en/latest/index.html#api-documentation) section for full annotated API documentation.
+Visit the [API Documentation](http://docs.excaliburjs.com/en/latest/index.html#api-documentation) section for fully-annotated documentation of the API.
 
 The `master` branch documentation is always available and up-to-date on our [Edge documentation site](http://excaliburjs.com/docs/api/edge).
 
 # Questions
 
-Ask us anything in the [Excalibur.js forum](https://groups.google.com/forum/#!forum/excaliburjs). 
-If you find a bug, report it on the [GitHub issues page](https://github.com/excaliburjs/Excalibur/issues) (please review our [guidelines for reporting bugs](https://github.com/excaliburjs/Excalibur/blob/master/.github/CONTRIBUTING.md#reporting-bugs)).
-You can also follow us on Twitter [@excaliburjs](http://twitter.com/excaliburjs) for updates or [read the blog](http://blog.excaliburjs.com).
+- :grey_question: Ask us anything in the [Excalibur.js forum](https://groups.google.com/forum/#!forum/excaliburjs)
+- :bug: If you find a bug, report it on the [GitHub issues page](https://github.com/excaliburjs/Excalibur/issues) (please review our [guidelines for reporting bugs](https://github.com/excaliburjs/Excalibur/blob/master/.github/CONTRIBUTING.md#reporting-bugs)).
+- :mega: You can also follow us on Twitter [@excaliburjs](http://twitter.com/excaliburjs) or [read the blog](http://blog.excaliburjs.com).
 
 # Samples
 
-Compiled examples can be found [in the Excalibur Samples](http://excaliburjs.com/samples/).
+Compiled examples can be found [in the Excalibur Samples collection](http://excaliburjs.com/samples/).
 
 # Contributing
 
-Please view the [Contributing guidelines](.github/CONTRIBUTING.md). Whether you've spotted a bug, have a question, or think of a good feature, we thank you for your help!
+Please read the [Contributing guidelines](.github/CONTRIBUTING.md). Whether you've spotted a bug, have a question, or think of a good feature, we thank you for your help!
 
 ## Environment Setup
 
