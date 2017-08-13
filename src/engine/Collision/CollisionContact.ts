@@ -57,7 +57,7 @@ export class CollisionContact {
       }
    }
 
-   private _applyBoxImpluse(bodyA: Actor, bodyB: Actor, mtv: Vector, side: Side) {
+   private _applyBoxImpulse(bodyA: Actor, bodyB: Actor, mtv: Vector, side: Side) {
       if ((bodyA.collisionType === CollisionType.Active ||
          bodyA.collisionType === CollisionType.Elastic) &&
          bodyB.collisionType !== CollisionType.Passive) {
@@ -141,8 +141,8 @@ export class CollisionContact {
       bodyB.emit('collision',
          new CollisionEvent(bodyB, bodyA, Util.getOppositeSide(side), mtv.negate()));
 
-      this._applyBoxImpluse(bodyA, bodyB, mtv, side);
-      this._applyBoxImpluse(bodyB, bodyA, mtv.negate(), Util.getOppositeSide(side));
+      this._applyBoxImpulse(bodyA, bodyB, mtv, side);
+      this._applyBoxImpulse(bodyB, bodyA, mtv.negate(), Util.getOppositeSide(side));
    }
 
    private _resolveRigidBodyCollision() {
