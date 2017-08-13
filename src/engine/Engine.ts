@@ -1015,8 +1015,11 @@ O|===|* >________________>\n\
                               ${oldWidth}x${oldHeight} to ${this.canvas.width}x${this.canvas.height} 
                               css size will remain ${oldWidth}x${oldHeight}`);
             
-            this.ctx.translate(-this.halfCanvasWidth, -this.halfCanvasHeight);
+            let scaledWidth = this.canvasWidth / this.pixelRatio;
+            let scaledHeight = this.canvasHeight / this.pixelRatio;
+
             this.ctx.scale(this.pixelRatio, this.pixelRatio);
+            this.ctx.translate(-this.halfCanvasWidth + scaledWidth / 2, -this.halfCanvasHeight +  scaledHeight / 2);
             this._logger.warn(`Canvas drawing context was scaled by ${this.pixelRatio}`);
          }
       }

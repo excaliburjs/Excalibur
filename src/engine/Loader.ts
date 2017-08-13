@@ -180,12 +180,8 @@ export class Loader extends Class implements ILoader {
       let canvasHeight = this._engine.getDrawHeight();
       let canvasWidth = this._engine.getDrawWidth();
 
-      Logger.getInstance().debug(`Loader dim ${canvasWidth}x${canvasHeight}`);
-      
       ctx.fillStyle = this.backgroundColor;
       ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-      
 
       var y = canvasHeight / 2;
       var width = Math.min(this.logoWidth, canvasWidth * 0.75);
