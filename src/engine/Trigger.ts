@@ -53,8 +53,8 @@ export class Trigger extends Actor {
             this._dispatchAction();
          }
       } else {
-         for (var i = 0; i < engine.currentScene.children.length; i++) {
-            var other = engine.currentScene.children[i];
+         for (var i = 0; i < engine.currentScene.actors.length; i++) {
+            var other = engine.currentScene.actors[i];
             if (other !== this &&
                other.collisionType !== CollisionType.PreventCollision &&
                this.collides(other)) {

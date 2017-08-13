@@ -8,13 +8,29 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Breaking Changes
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Fixed
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [0.12.0] 2017-08-12
+
+### Breaking Changes
+- `CollisionType.Elastic` has been removed
+- `Promises.wrap` has been replaced with `Promise.resolve`
 ### Added
 - Added new hsl and hex format options in Color.toString(format) using rgb as the default to maintain backwards compatibility ([#852](https://github.com/excaliburjs/Excalibur/issues/852))
 ### Changed
-- Changed `ex.Scene.children` to be `ex.Scene.actors`, and updated unit test specs to reflect this change ([#796](https://github.com/excaliburjs/Excalibur/issues/796))
+- `Animation.loop` property now to set to `true` by default ([#583](https://github.com/excaliburjs/Excalibur/issues/583))
 - Added backgroundColor to engine options as part of Engine constructor ([#846](https://github.com/excaliburjs/Excalibur/issues/846))
 ### Deprecated
-### Fixed
+- `ex.Scene.children` is now `ex.Scene.actors` ([#796](https://github.com/excaliburjs/Excalibur/issues/796))
 
 <!----------------------------------------------------------------------------------------------->
 
@@ -32,7 +48,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Camera zoom over time now returns a promise that resolves on completion ([#800](https://github.com/excaliburjs/Excalibur/issues/800))
 - Edge builds have more descriptive versions now containing build number and Git commit hash (e.g. `0.10.0-alpha.105#commit`) ([#777](https://github.com/excaliburjs/Excalibur/issues/777))
-- `Animation.loop` property now to set to `true` by default ([#583] (https://github.com/excaliburjs/Excalibur/issues/583))
 
 ### Fixed
 - Fixed camera zoom over time, before it did not work at all ([#800](https://github.com/excaliburjs/Excalibur/issues/800))
@@ -412,8 +427,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Resource loading with optional custom progress bars
 
 <!----------------------------------------------------------------------------------------------->
-
-[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/excaliburjs/Excalibur/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/excaliburjs/Excalibur/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/excaliburjs/Excalibur/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/excaliburjs/Excalibur/compare/v0.8.0...v0.9.0

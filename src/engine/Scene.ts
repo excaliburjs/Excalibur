@@ -134,7 +134,7 @@ export class Scene extends Class {
     * Initializes actors in the scene
     */
    private _initializeChildren(): void {
-      for (var child of this.children) {
+      for (var child of this.actors) {
          child._initialize(this.engine);
       }
    }
@@ -195,8 +195,8 @@ export class Scene extends Class {
       }
 
       // Cycle through actors updating actors
-      for (i = 0, len = this.children.length; i < len; i++) {
-         this.children[i].update(engine, delta);
+      for (i = 0, len = this.actors.length; i < len; i++) {
+         this.actors[i].update(engine, delta);
       }
 
       this._collectActorStats(engine);
@@ -204,8 +204,8 @@ export class Scene extends Class {
       // Run the broadphase and narrowphase
       if (this._broadphase && Physics.enabled) {
          var beforeBroadphase = Date.now();
-         this._broadphase.update(this.children, delta);
-         var pairs = this._broadphase.broadphase(this.children, delta, engine.stats.currFrame);
+         this._broadphase.update(this.actors, delta);
+         var pairs = this._broadphase.broadphase(this.actors, delta, engine.stats.currFrame);
          var afterBroadphase = Date.now();
 
          var beforeNarrowphase = Date.now();
@@ -227,10 +227,10 @@ export class Scene extends Class {
       var actorIndex: number;
 
       for (i = 0, len = this._killQueue.length; i < len; i++) {
-         actorIndex = this.children.indexOf(this._killQueue[i]);
+         actorIndex = this.actors.indexOf(this._killQueue[i]);
          if (actorIndex > -1) {
             this._sortedDrawingTree.removeByComparable(this._killQueue[i]);
-            this.children.splice(actorIndex, 1);
+            this.actors.splice(actorIndex, 1);
          }
       }
       engine.stats.currFrame.actors.killed = this._killQueue.length;
@@ -303,8 +303,8 @@ export class Scene extends Class {
          this.tileMaps[i].debugDraw(ctx);
       }
 
-      for (i = 0, len = this.children.length; i < len; i++) {
-         this.children[i].debugDraw(ctx);
+      for (i = 0, len = this.actors.length; i < len; i++) {
+         this.actors[i].debugDraw(ctx);
       }
 
       this._broadphase.debugDraw(ctx, 20);
@@ -317,7 +317,7 @@ export class Scene extends Class {
     * Checks whether an actor is contained in this scene or not
     */
    public contains(actor: Actor): boolean {
-      return this.children.indexOf(actor) > -1;
+      return this.actors.indexOf(actor) > -1;
    }
 
    /**
@@ -353,7 +353,7 @@ export class Scene extends Class {
          return;
       }
       if (entity instanceof Actor) {
-         if (!Util.contains(this.children, entity)) {
+         if (!Util.contains(this.actors, entity)) {
             this._addChild(entity);
             this._sortedDrawingTree.add(entity);
          }
@@ -440,7 +440,7 @@ export class Scene extends Class {
    protected _addChild(actor: Actor) {
       this._broadphase.track(actor.body);
       actor.scene = this;
-      this.children.push(actor);
+      this.actors.push(actor);
       this._sortedDrawingTree.add(actor);
       actor.parent = this.actor;
    }
@@ -562,7 +562,7 @@ export class Scene extends Class {
          engine.stats.currFrame.actors.ui++;
       }
 
-      for (var actor of this.children) {
+      for (var actor of this.actors) {
          engine.stats.currFrame.actors.alive++;
          for (var child of actor.children) {
             if (ActorUtils.isUIActor(child)) {
@@ -574,7 +574,7 @@ export class Scene extends Class {
       }
    }
 
-   @obsolete({ alternateMethod: 'ex.Scene.actors' })
+   @obsolete({ alternateMethod: 'ex.Scene.actors', message: 'This method will be removed in the 0.13.0 release. '})
    public set children(actors: Actor[]) {
       this.actors = actors;
    }

@@ -1,5 +1,3 @@
-import { obsolete } from './Util/Decorators';
-
 // Promises/A+ Spec http://promises-aplus.github.io/promises-spec/
 
 /**
@@ -37,16 +35,6 @@ export class Promise<T> implements IPromise<T> {
    private _successCallbacks: { (value?: T): any }[] = [];
    private _rejectCallback: (value?: any) => any = () => { return; };
    private _errorCallback: (value?: any) => any;
-
-   /**
-    * Wrap a value in a resolved promise
-    * @param value  An optional value to wrap in a resolved promise
-    * @obsolete Use [[resolve]] instead. This will be deprecated in future versions.
-    */
-   @obsolete({ alternateMethod: 'ex.Promise.resolve/reject' })
-   public static wrap<T>(value?: T): Promise<T> {
-      return Promise.resolve(value);
-   }
 
    /**
     * Create and resolve a Promise with an optional value
