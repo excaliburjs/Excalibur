@@ -20,8 +20,8 @@ export function Configurable<T extends Constructor<IDefaultable<T>>>(base: T) : 
 
                //set default property values only if they WEREN'T set
                //by either the passed in properties or the constructor
-               for (var i in this.getDefaultPropVals()){
-                  if (typeof (<any>this)[i] === 'undefined'){
+               for (var i in this.getDefaultPropVals()) {
+                  if (typeof (<any>this)[i] === 'undefined') {
                      (<any>this)[i] = (<any>props)[i];
                   }
                }
