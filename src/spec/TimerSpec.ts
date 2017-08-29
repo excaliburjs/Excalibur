@@ -45,6 +45,12 @@ describe('A Timer', () => {
       expect(count).toBe(3);
    });
 
+   it('can return how long it has been running', () => {
+      timer.update(372);
+
+      expect(timer.getTimeRunning()).toEqual(372);
+   });
+
    it('can be canceled', () => {
       var count = 0;
       timer = new ex.Timer(function(){ count++; }, 500, true);
