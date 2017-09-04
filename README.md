@@ -54,7 +54,7 @@ allow the widest contributions possible. You can always use your own preferred e
 
 ### Prerequisites
 
-- **Required:** [Node.js](https://nodejs.org/) & npm (latest LTS)
+- **Required:** [Node.js](https://nodejs.org/) & npm (8.x)
 - *Recommended:* [TSLint extension for VS Code](https://marketplace.visualstudio.com/items?itemName=eg2.tslint)
 - *Optional:* [PhantomJS Debugger for VS Code](https://github.com/iradul/vscode-phantomjs-debug)
 - *Optional:* Grunt CLI (`npm i -g grunt-cli`), same task names
