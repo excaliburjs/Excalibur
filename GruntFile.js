@@ -291,6 +291,17 @@ module.exports = function (grunt) {
             },
          },
          files: ['build/package.json']
+      },
+
+      connect: {
+         sandbox: {
+            options: {
+               port: '3001',
+               useAvailablePort: true,
+               keepalive: true,
+               base: './sandbox'
+            }
+         }
       }
 
    });
@@ -310,6 +321,7 @@ module.exports = function (grunt) {
    grunt.loadNpmTasks('grunt-build-control');
    grunt.loadNpmTasks('grunt-bumpup');
    grunt.loadNpmTasks('grunt-contrib-jasmine');
+   grunt.loadNpmTasks('grunt-contrib-connect');
 
    //
    // Register available Grunt tasks
@@ -329,6 +341,9 @@ module.exports = function (grunt) {
 
    // Compile visual tests
    grunt.registerTask('visual', ['ts:visual']);
+
+   // Serve sandbox
+   grunt.registerTask('sandbox', ['connect']);
 
    // Travis CI task
    grunt.registerTask('travis', ['default', 'coveralls', 'apidocs']);

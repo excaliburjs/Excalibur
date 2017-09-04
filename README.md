@@ -84,6 +84,10 @@ npm run tests
 # Useful to ensure HTML sandbox compiles
 npm run visual
 
+# Start sandbox dev server (long-running)
+# Run in separate terminal alongside `npm run visual`
+npm run sandbox
+
 # Compile API docs
 npm run apidocs
 ```
