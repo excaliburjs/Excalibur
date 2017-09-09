@@ -92,32 +92,6 @@ npm run sandbox
 npm run apidocs
 ```
 
-### Updating npm dependencies
-
-When you update npm dependencies, we use [shrinkpack](https://github.com/JamieMason/shrinkpack) to pack up
-and cache all npm packages.
-
-Run the following to update the shrinkwrap when packages are updated:
-
-```sh
-# Install shrinkpack globally
-npm install -g shrinkpack
-# Run npm shrinkwrap and update npm_shrinkwrap.json
-npm shrinkwrap --dev
-# Run shrinkpack and download/update dependencies locally
-shrinkpack .
-```
-
-If you run into errors with `npm shrinkwrap --dev` command, run the following:
-
-```
-npm install
-npm prune
-npm dedupe
-npm install
-npm shrinkwrap --dev
-```
-
 # License
 
 Excalibur is open source and operates under the 2-clause BSD license:
