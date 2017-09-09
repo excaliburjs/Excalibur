@@ -10,7 +10,7 @@ describe('The engine', () => {
 
    beforeEach(() => {  
       
-      initHiDpiSpy = spyOn(ex.Engine.prototype, '_initializeHiDpi').and.callThrough();
+      initHiDpiSpy = spyOn(ex.Engine.prototype, '_initializeHiDpi');
       
       engine = TestUtils.engine();
       scene = new ex.Scene(engine);
@@ -137,6 +137,8 @@ describe('The engine', () => {
      var game = new ex.Engine({
        height: 600,
        width: 800,
+       suppressConsoleBootMessage: true,
+       suppressMinimumBrowserFeatureDetection: true,
        displayMode: ex.DisplayMode.Position,
        position: {top: 1, left: '5em'},
        suppressConsoleBootMessage: true,
@@ -150,9 +152,9 @@ describe('The engine', () => {
       var game = new ex.Engine({
         height: 600,
         width: 800,
-        backgroundColor: ex.Color.White,
         suppressConsoleBootMessage: true,
-        suppressMinimumBrowserFeatureDetection: true
+        suppressMinimumBrowserFeatureDetection: true,
+        backgroundColor: ex.Color.White
       });
 
       expect(game.backgroundColor.toString()).toEqual(ex.Color.White.toString());
