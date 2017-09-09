@@ -14,6 +14,7 @@ var pr  = process.env.TRAVIS_PULL_REQUEST;
 
 if (pr !== "false") {
    console.log("Skipping docs deployment, detected pull request");
+   return;
 }
 
 // build docs for tags and master only
