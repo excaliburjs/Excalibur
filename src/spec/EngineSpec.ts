@@ -1,5 +1,4 @@
 /// <reference path="jasmine.d.ts" />
-
 /// <reference path="Mocks.ts" />
 
 describe('The engine', () => {
@@ -7,18 +6,26 @@ describe('The engine', () => {
    var scene: ex.Scene;   
    var mock = new Mocks.Mocker();
    var loop: Mocks.IGameLoop;
+   var initHiDpiSpy: jasmine.Spy;
 
-   beforeEach(() => {
+   beforeEach(() => {  
+      
+      initHiDpiSpy = spyOn(ex.Engine.prototype, '_initializeHiDpi').and.callThrough();
+      
       engine = TestUtils.engine();
       scene = new ex.Scene(engine);
       engine.currentScene = scene;
       loop = mock.loop(engine);
+      
 
       engine.start();
    });
 
    afterEach(() => {
+      initHiDpiSpy.calls.reset();
       engine.stop();
+      engine = null;
+      (<any>window).devicePixelRatio = 1;
    });
 
    it('should emit a preframe event', () => {
@@ -101,6 +108,22 @@ describe('The engine', () => {
       var localBoundingBox = new ex.BoundingBox(left, top, right, bottom);
       expect(engine.getWorldBounds()).toEqual(localBoundingBox);
    });
+
+   it('should return correct scren dimensions if zoomed in', () => {
+      engine.start();
+      engine.currentScene.camera.z = 2;
+
+      expect(engine.drawHeight).toBe(250);
+      expect(engine.drawWidth).toBe(250);
+      expect(engine.halfDrawHeight).toBe(125);
+      expect(engine.halfDrawWidth).toBe(125);
+
+      expect(engine.canvasHeight).toBe(500);
+      expect(engine.canvasWidth).toBe(500);
+      expect(engine.halfCanvasHeight).toBe(250);
+      expect(engine.halfCanvasWidth).toBe(250);
+
+   });
    
    it('should accept a displayMode of Position', () => {
      expect(engine.displayMode).toEqual(ex.DisplayMode.Position);
@@ -144,6 +167,76 @@ describe('The engine', () => {
       });
 
       expect(game.backgroundColor.toString()).toEqual(ex.Color.fromHex('#2185d0').toString());
+   });
+
+   it('should detect hidpi when the device pixel ratio is greater than 1', (done) => {
+      
+      // Arrange
+      var oldWidth = 100;
+      var oldHeight = 100;
+
+      (<any>window).devicePixelRatio = 2;
+      var newWidth = oldWidth * (<any>window).devicePixelRatio;
+      var newHeight = oldHeight * (<any>window).devicePixelRatio;
+      
+      engine = TestUtils.engine({width: 100, height: 100, suppressHiDPIScaling: false});
+      // Act
+      engine.start().then(() => {
+
+         // Assert
+         expect(engine.isHiDpi).toBe(true);
+         expect((<any>engine)._initializeHiDpi).toHaveBeenCalled();
+         (<any>window).devicePixelRatio = 1;
+         
+         done();
+      });
+
+      
+
+
+   });
+
+   it('should not detect hidpi with a device pixel ratio equal to 1', (done) => {
+      // Arrange
+      var oldWidth = 100;
+      var oldHeight = 100;
+
+      (<any>window).devicePixelRatio = 1;
+      var newWidth = oldWidth * (<any>window).devicePixelRatio;
+      var newHeight = oldHeight * (<any>window).devicePixelRatio;
+      
+      // Act
+      engine = TestUtils.engine({width: 100, height: 100, suppressHiDPIScaling: false});
+      
+      engine.start().then(() => {
+         // Assert
+         expect(engine.isHiDpi).toBe(false);
+         done();
+      });
+   });
+
+   it('should respect a hidpi suppression flag even if the pixel ratio is greater than 1', (done) => {
+      // Arrange
+      var oldWidth = 100;
+      var oldHeight = 100;
+
+      (<any>window).devicePixelRatio = 2;
+      var newWidth = oldWidth * (<any>window).devicePixelRatio;
+      var newHeight = oldHeight * (<any>window).devicePixelRatio;
+      // Act
+      
+      (<any>ex.Engine.prototype)._initializeHiDpi.calls.reset();
+      engine = TestUtils.engine({width: 100, height: 100, suppressHiDPIScaling: true});
+
+      engine.start().then(() => {
+         // Assert
+         expect(engine.isHiDpi).toBe(true);
+         expect((<any>engine)._initializeHiDpi).not.toHaveBeenCalled();
+         (<any>window).devicePixelRatio = 1;
+         done();
+      });
+
+      
    });
 
 });

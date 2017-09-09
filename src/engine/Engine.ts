@@ -184,7 +184,7 @@ export class Engine extends Class {
    /**
     * Returns half width of the game canvas in pixels (half physical width component)
     */
-   public get canvasHalfWidth(): number {
+   public get halfCanvasWidth(): number {
       return this.canvas.width / 2;
    }
 
@@ -199,7 +199,7 @@ export class Engine extends Class {
    /**
     * Returns half height of the game canvas in pixels (half physical height component)
     */
-   public get canvasHalfHeight(): number {
+   public get halfCanvasHeight(): number {
       return this.canvas.height / 2;
    }
 
@@ -235,6 +235,21 @@ export class Engine extends Class {
     */
    public get halfDrawHeight(): number {
       return this.drawHeight / 2;
+   }
+
+   /**
+    * Returns whether excalibur detects the current screen to be HiDPI
+    */
+   public get isHiDpi(): boolean {
+      let devicePixelRatio = window.devicePixelRatio || 1;
+      let backingStoreRatio = (<any>this.ctx).webkitBackingStorePixelRatio ||
+                              (<any>this.ctx).mozBackingStorePixelRatio ||
+                              (<any>this.ctx).msBackingStorePixelRatio ||
+                              (<any>this.ctx).oBackingStorePixelRatio ||
+                              (<any>this.ctx).backingStorePixelRatio || 1;
+
+      let pixelRatio = devicePixelRatio / backingStoreRatio;
+      return backingStoreRatio !== pixelRatio;
    }
 
    /**
@@ -288,16 +303,6 @@ export class Engine extends Class {
     * Indicates the current [[DisplayMode]] of the engine.
     */
    public displayMode: DisplayMode = DisplayMode.FullScreen;
-
-   /**
-    * Returns the device pixel ration of the current device when excalibur booted up
-    */
-   public devicePixelRatio: number = 1;
-
-   /**
-    * Returns the backing store ratio of the current canvas context when excalibur booted up
-    */
-   public backingStoreRatio: number = 1;
 
    /**
     * Returns the calculated pixel ration for use in rendering
@@ -878,77 +883,7 @@ O|===|* >________________>\n\
             this.setAntialiasing(this._isSmoothingEnabled);
          });
       } else if (this.displayMode === DisplayMode.Position) {
-          
-          if ( !options.position ) {
-            throw new Error('DisplayMode of Position was selected but no position option was given');
-          } else {
-              
-              this.canvas.style.display = 'block';
-              this.canvas.style.position = 'absolute';
-              
-              if (typeof options.position === 'string') {
-                var specifiedPosition = options.position.split(' ');
-                
-                switch (specifiedPosition[0]) {
-                  case 'top':
-                    this.canvas.style.top = '0px';
-                    break;
-                  case 'bottom':
-                    this.canvas.style.bottom = '0px';
-                    break;
-                  case 'middle':
-                    this.canvas.style.top = '50%';
-                    var offsetY = -this.halfDrawHeight;
-                    this.canvas.style.marginTop = offsetY.toString();
-                    break;
-                  default:
-                    throw new Error('Invalid Position Given');                  
-                }
-                
-                if (specifiedPosition[1]) {
-                  
-                  switch (specifiedPosition[1]) {
-                    case 'left':
-                      this.canvas.style.left = '0px';
-                      break;
-                    case 'right':
-                      this.canvas.style.right = '0px';
-                      break;
-                    case 'center':
-                      this.canvas.style.left = '50%';
-                      var offsetX = -this.halfDrawWidth;
-                      this.canvas.style.marginLeft = offsetX.toString();
-                      break;
-                    default:
-                      throw new Error('Invalid Position Given');
-                  }
-                }
-              } else {
-                  
-                  if (options.position.top) {
-                    typeof options.position.top === 'number' ? 
-                    this.canvas.style.top = options.position.top.toString() + 'px' : 
-                    this.canvas.style.top = options.position.top;
-                  }
-                  if (options.position.right) {
-                    typeof options.position.right === 'number' ? 
-                    this.canvas.style.right = options.position.right.toString() + 'px' : 
-                    this.canvas.style.right = options.position.right;
-                  }
-                  if (options.position.bottom) {
-                    typeof options.position.bottom === 'number' ? 
-                    this.canvas.style.bottom = options.position.bottom.toString() + 'px' : 
-                    this.canvas.style.bottom = options.position.bottom;
-                  }
-                  if (options.position.left) {
-                    typeof options.position.left === 'number' ? 
-                    this.canvas.style.left = options.position.left.toString() + 'px' : 
-                    this.canvas.style.left = options.position.left;
-                  }
-                  
-                  
-              }
-          }
+          this._intializeDisplayModePosition(options);
       }
        
       // initialize inputs
@@ -991,45 +926,113 @@ O|===|* >________________>\n\
       this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d');
 
       if (!options.suppressHiDPIScaling) {
-         // discover backing store pixel ratio
-         this.devicePixelRatio = window.devicePixelRatio || 1;
-         this.backingStoreRatio = (<any>this.ctx).webkitBackingStorePixelRatio ||
-                                 (<any>this.ctx).mozBackingStorePixelRatio ||
-                                 (<any>this.ctx).msBackingStorePixelRatio ||
-                                 (<any>this.ctx).oBackingStorePixelRatio ||
-                                 (<any>this.ctx).backingStorePixelRatio || 1;
-
-         this.pixelRatio = this.devicePixelRatio / this.backingStoreRatio;
-
-         // Scale the canvas if needed
-         if (this.devicePixelRatio !== this.backingStoreRatio) {
-            
-            let oldWidth = this.canvas.width;
-            let oldHeight = this.canvas.height;
-
-            this.canvas.width = oldWidth * this.pixelRatio;
-            this.canvas.height = oldHeight * this.pixelRatio;
-
-            this.canvas.style.width = oldWidth + 'px';
-            this.canvas.style.height = oldHeight + 'px';
-
-            this._logger.warn(`Hi DPI screen detected, resetting canvas resolution from 
-                              ${oldWidth}x${oldHeight} to ${this.canvas.width}x${this.canvas.height} 
-                              css size will remain ${oldWidth}x${oldHeight}`);
-            
-            let scaledWidth = this.canvasWidth / this.pixelRatio;
-            let scaledHeight = this.canvasHeight / this.pixelRatio;
-
-            this.ctx.scale(this.pixelRatio, this.pixelRatio);
-            this.ctx.translate(-this.canvasHalfWidth + scaledWidth / 2, -this.canvasHalfHeight +  scaledHeight / 2);
-            this._logger.warn(`Canvas drawing context was scaled by ${this.pixelRatio}`);
-         }
+         this._initializeHiDpi();
       }
 
       if (!this.canvasElementId) {
          document.body.appendChild(this.canvas);
       }
 
+   }
+
+   private _intializeDisplayModePosition(options: IEngineOptions) {
+      if ( !options.position ) {
+         throw new Error('DisplayMode of Position was selected but no position option was given');
+       } else {
+           
+           this.canvas.style.display = 'block';
+           this.canvas.style.position = 'absolute';
+           
+           if (typeof options.position === 'string') {
+             var specifiedPosition = options.position.split(' ');
+             
+             switch (specifiedPosition[0]) {
+               case 'top':
+                 this.canvas.style.top = '0px';
+                 break;
+               case 'bottom':
+                 this.canvas.style.bottom = '0px';
+                 break;
+               case 'middle':
+                 this.canvas.style.top = '50%';
+                 var offsetY = -this.halfDrawHeight;
+                 this.canvas.style.marginTop = offsetY.toString();
+                 break;
+               default:
+                 throw new Error('Invalid Position Given');                  
+             }
+             
+             if (specifiedPosition[1]) {
+               
+               switch (specifiedPosition[1]) {
+                 case 'left':
+                   this.canvas.style.left = '0px';
+                   break;
+                 case 'right':
+                   this.canvas.style.right = '0px';
+                   break;
+                 case 'center':
+                   this.canvas.style.left = '50%';
+                   var offsetX = -this.halfDrawWidth;
+                   this.canvas.style.marginLeft = offsetX.toString();
+                   break;
+                 default:
+                   throw new Error('Invalid Position Given');
+               }
+             }
+           } else {
+               
+               if (options.position.top) {
+                 typeof options.position.top === 'number' ? 
+                 this.canvas.style.top = options.position.top.toString() + 'px' : 
+                 this.canvas.style.top = options.position.top;
+               }
+               if (options.position.right) {
+                 typeof options.position.right === 'number' ? 
+                 this.canvas.style.right = options.position.right.toString() + 'px' : 
+                 this.canvas.style.right = options.position.right;
+               }
+               if (options.position.bottom) {
+                 typeof options.position.bottom === 'number' ? 
+                 this.canvas.style.bottom = options.position.bottom.toString() + 'px' : 
+                 this.canvas.style.bottom = options.position.bottom;
+               }
+               if (options.position.left) {
+                 typeof options.position.left === 'number' ? 
+                 this.canvas.style.left = options.position.left.toString() + 'px' : 
+                 this.canvas.style.left = options.position.left;
+               }
+               
+               
+           }
+       }
+   }
+
+   private _initializeHiDpi() {
+      
+      // Scale the canvas if needed
+      if (this.isHiDpi) {
+         
+         let oldWidth = this.canvas.width;
+         let oldHeight = this.canvas.height;
+
+         this.canvas.width = oldWidth * this.pixelRatio;
+         this.canvas.height = oldHeight * this.pixelRatio;
+
+         this.canvas.style.width = oldWidth + 'px';
+         this.canvas.style.height = oldHeight + 'px';
+
+         this._logger.warn(`Hi DPI screen detected, resetting canvas resolution from 
+                           ${oldWidth}x${oldHeight} to ${this.canvas.width}x${this.canvas.height} 
+                           css size will remain ${oldWidth}x${oldHeight}`);
+         
+         let scaledWidth = this.canvasWidth / this.pixelRatio;
+         let scaledHeight = this.canvasHeight / this.pixelRatio;
+
+         this.ctx.scale(this.pixelRatio, this.pixelRatio);
+         this.ctx.translate(-this.halfCanvasWidth + scaledWidth / 2, -this.halfCanvasHeight +  scaledHeight / 2);
+         this._logger.warn(`Canvas drawing context was scaled by ${this.pixelRatio}`);
+      }
    }
 
    /**
