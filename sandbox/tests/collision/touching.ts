@@ -4,7 +4,7 @@ var game = new ex.Engine({
     height: 200,
     width: 800
 });
-var paddle = new ex.Actor(150, game.getDrawHeight() - 40, 200, 20);
+var paddle = new ex.Actor(150, game.drawHeight - 40, 200, 20);
 paddle.color = ex.Color.Chartreuse;
 paddle.collisionType = ex.CollisionType.Fixed;
 game.add(paddle);
@@ -23,7 +23,7 @@ ball.on('update', function () {
     if (this.pos.x < (this.getWidth() / 2)) {
         this.vel.x *= -1;
     }
-    if (this.pos.x + (this.getWidth() / 2) > game.getDrawWidth()) {
+    if (this.pos.x + (this.getWidth() / 2) > game.drawWidth) {
         this.vel.x *= -1;
     }
     if (this.pos.y < this.getHeight() / 2 + 1) {

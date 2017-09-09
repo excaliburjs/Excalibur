@@ -96,8 +96,8 @@ describe('The engine', () => {
       engine.start();
       var left = engine.screenToWorldCoordinates(ex.Vector.Zero).x;
       var top = engine.screenToWorldCoordinates(ex.Vector.Zero).y;
-      var right = left + engine.getDrawWidth();
-      var bottom = top + engine.getDrawHeight();
+      var right = left + engine.drawWidth;
+      var bottom = top + engine.drawHeight;
       var localBoundingBox = new ex.BoundingBox(left, top, right, bottom);
       expect(engine.getWorldBounds()).toEqual(localBoundingBox);
    });

@@ -1,5 +1,5 @@
 ﻿/// <reference path="jasmine.d.ts" />
-
+/// <reference path="TestUtils.ts" />
 /// <reference path="Mocks.ts" />
 
 describe('A scene', () => {
@@ -7,11 +7,10 @@ describe('A scene', () => {
    var actor: ex.Actor;
    var engine: ex.Engine;
    var scene: ex.Scene;
-   var mock = new Mocks.Mocker();
 
    beforeEach(() => {
       actor = new ex.Actor();
-      engine = mock.engine(100, 100);
+      engine = TestUtils.engine({ width: 100, height: 100});
       scene = new ex.Scene(engine);
       engine.currentScene = scene;
 
@@ -87,8 +86,8 @@ describe('A scene', () => {
       expect(scene.camera.getFocus().y).toBe(50);
       expect(engine.worldToScreenCoordinates(new ex.Vector(50, 50)).x).toBe(50);
       expect(engine.worldToScreenCoordinates(new ex.Vector(50, 50)).y).toBe(50);
-      expect(engine.getDrawWidth()).toBe(100);
-      expect(engine.getDrawHeight()).toBe(100);
+      expect(engine.drawWidth).toBe(100);
+      expect(engine.drawHeight).toBe(100);
 
       expect(actor.isOffScreen).toBeTruthy();
       expect(actor.draw).not.toHaveBeenCalled();

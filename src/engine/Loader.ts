@@ -177,8 +177,8 @@ export class Loader extends Class implements ILoader {
     * to customize the drawing, or just override entire method.
     */
    public draw(ctx: CanvasRenderingContext2D) {
-      let canvasHeight = this._engine.getDrawHeight();
-      let canvasWidth = this._engine.getDrawWidth();
+      let canvasHeight = this._engine.canvasHeight;
+      let canvasWidth = this._engine.canvasWidth;
 
       ctx.fillStyle = this.backgroundColor;
       ctx.fillRect(0, 0, canvasWidth, canvasHeight);

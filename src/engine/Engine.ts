@@ -460,8 +460,8 @@ O|===|* >________________>\n\
    public getWorldBounds() {
       var left = this.screenToWorldCoordinates(Vector.Zero).x;
       var top = this.screenToWorldCoordinates(Vector.Zero).y;
-      var right = left + this.getDrawWidth();
-      var bottom = top + this.getDrawHeight();
+      var right = left + this.drawWidth;
+      var bottom = top + this.drawHeight;
 
       return new BoundingBox(left, top, right, bottom);
    }
@@ -750,7 +750,7 @@ O|===|* >________________>\n\
    /**
     * Returns the width of the engine's visible drawing surface in pixels including zoom.
     */
-   public getDrawWidth(): number {
+   public get drawWidth(): number {
       if (this.currentScene && this.currentScene.camera) {
          return (this.canvasWidth / this.currentScene.camera.getZoom());
       }
@@ -760,14 +760,14 @@ O|===|* >________________>\n\
    /**
     * Returns half the width of the engine's visible drawing surface in pixels including zoom.
     */
-   public getHalfDrawWidth(): number {
-      return this.getDrawWidth() / 2;
+   public get halfDrawWidth(): number {
+      return this.drawWidth / 2;
    }
 
    /**
     * Returns the height of the engine's visible drawing surface in pixels.
     */
-   public getDrawHeight(): number {
+   public get drawHeight(): number {
       if (this.currentScene && this.currentScene.camera) {
          return (this.canvasHeight / this.currentScene.camera.getZoom()) ;
       }
@@ -777,8 +777,8 @@ O|===|* >________________>\n\
    /**
     * Returns half the height of the engine's visible drawing surface in pixels including zoom.
     */
-   public getHalfDrawHeight(): number {
-      return this.getDrawHeight() / 2;
+   public get halfDrawHeight(): number {
+      return this.drawHeight / 2;
    }
 
    /**
@@ -791,13 +791,13 @@ O|===|* >________________>\n\
       var newY = point.y;
 
       // transform back to world space
-      newX = (newX / this.canvas.clientWidth) * this.getDrawWidth();
-      newY = (newY / this.canvas.clientHeight) * this.getDrawHeight();
+      newX = (newX / this.canvas.clientWidth) * this.drawWidth;
+      newY = (newY / this.canvas.clientHeight) * this.drawHeight;
 
 
       // transform based on zoom
-      newX = newX - this.getDrawWidth() / 2;
-      newY = newY - this.getDrawHeight() / 2;
+      newX = newX - this.halfDrawWidth;
+      newY = newY - this.halfDrawHeight;
 
       // shift by focus
       if (this.currentScene && this.currentScene.camera) {
@@ -826,12 +826,12 @@ O|===|* >________________>\n\
       }
 
       // transform back on zoom
-      screenX = screenX + this.getDrawWidth() / 2;
-      screenY = screenY + this.getDrawHeight() / 2;
+      screenX = screenX + this.halfDrawWidth;
+      screenY = screenY + this.halfDrawHeight;
 
       // transform back to screen space
-      screenX = (screenX * this.canvas.clientWidth) / this.getDrawWidth();
-      screenY = (screenY * this.canvas.clientHeight) / this.getDrawHeight();
+      screenX = (screenX * this.canvas.clientWidth) / this.drawWidth;
+      screenY = (screenY * this.canvas.clientHeight) / this.drawHeight;
 
       return new Vector(Math.floor(screenX), Math.floor(screenY));
    }
@@ -896,7 +896,7 @@ O|===|* >________________>\n\
                     break;
                   case 'middle':
                     this.canvas.style.top = '50%';
-                    var offsetY = this.getDrawHeight() / -2;
+                    var offsetY = -this.halfDrawHeight;
                     this.canvas.style.marginTop = offsetY.toString();
                     break;
                   default:
@@ -914,7 +914,7 @@ O|===|* >________________>\n\
                       break;
                     case 'center':
                       this.canvas.style.left = '50%';
-                      var offsetX = this.getDrawWidth() / -2;
+                      var offsetX = -this.halfDrawWidth;
                       this.canvas.style.marginLeft = offsetX.toString();
                       break;
                     default:
