@@ -121,8 +121,8 @@ export interface IEngineOptions {
    suppressMinimumBrowserFeatureDetection?: boolean;
 
    /**
-    * Suppress HiDPI auto detection and scaling, it is not recommeded users of excalibur switch off this feature. This feature detects
-    * and scales the drawing canvas appropriately to accomodate HiDPI screens.
+    * Suppress HiDPI auto detection and scaling, it is not recommended users of excalibur switch off this feature. This feature detects
+    * and scales the drawing canvas appropriately to accommodate HiDPI screens.
     */
    suppressHiDPIScaling?: boolean;
    
@@ -174,31 +174,67 @@ export class Engine extends Class {
    public canvasElementId: string;
 
    /**
-    * The width of the game canvas in pixels
+    * The width of the game canvas in pixels (physical width component of the
+    * resolution of the canvas element)
     */
    public get canvasWidth(): number {
       return this.canvas.width;
    }
 
    /**
-    * Returns half width of the game canvas in pixels
+    * Returns half width of the game canvas in pixels (half physical width component)
     */
    public get canvasHalfWidth(): number {
       return this.canvas.width / 2;
    }
 
    /**
-    * The height of the game canvas in pixels
+    * The height of the game canvas in pixels, (physical height component of
+    * the resolution of the canvas element)
     */
    public get canvasHeight(): number {
       return this.canvas.height;
    }
 
    /**
-    * Returns half height of the game canvas in pixels
+    * Returns half height of the game canvas in pixels (half physical height component)
     */
    public get canvasHalfHeight(): number {
       return this.canvas.height / 2;
+   }
+
+   /**
+    * Returns the width of the engine's visible drawing surface in pixels including zoom.
+    */
+    public get drawWidth(): number {
+      if (this.currentScene && this.currentScene.camera) {
+         return (this.canvasWidth / this.currentScene.camera.getZoom());
+      }
+      return this.canvasWidth;
+   }
+
+   /**
+    * Returns half the width of the engine's visible drawing surface in pixels including zoom.
+    */
+   public get halfDrawWidth(): number {
+      return this.drawWidth / 2;
+   }
+
+   /**
+    * Returns the height of the engine's visible drawing surface in pixels.
+    */
+   public get drawHeight(): number {
+      if (this.currentScene && this.currentScene.camera) {
+         return (this.canvasHeight / this.currentScene.camera.getZoom()) ;
+      }
+      return this.canvasHeight;
+   }
+
+   /**
+    * Returns half the height of the engine's visible drawing surface in pixels including zoom.
+    */
+   public get halfDrawHeight(): number {
+      return this.drawHeight / 2;
    }
 
    /**
@@ -719,7 +755,7 @@ O|===|* >________________>\n\
    /**
     * Changes the currently updating and drawing scene to a different,
     * named scene. Calls the [[Scene]] lifecycle events.
-    * @param key  The key of the scene to trasition to.       
+    * @param key  The key of the scene to transition to.       
     */
    public goToScene(key: string) {
       if (this.scenes[key]) {
@@ -745,40 +781,6 @@ O|===|* >________________>\n\
       } else {
          this._logger.error('Scene', key, 'does not exist!');
       }
-   }
-
-   /**
-    * Returns the width of the engine's visible drawing surface in pixels including zoom.
-    */
-   public get drawWidth(): number {
-      if (this.currentScene && this.currentScene.camera) {
-         return (this.canvasWidth / this.currentScene.camera.getZoom());
-      }
-      return this.canvasWidth;
-   }
-
-   /**
-    * Returns half the width of the engine's visible drawing surface in pixels including zoom.
-    */
-   public get halfDrawWidth(): number {
-      return this.drawWidth / 2;
-   }
-
-   /**
-    * Returns the height of the engine's visible drawing surface in pixels.
-    */
-   public get drawHeight(): number {
-      if (this.currentScene && this.currentScene.camera) {
-         return (this.canvasHeight / this.currentScene.camera.getZoom()) ;
-      }
-      return this.canvasHeight;
-   }
-
-   /**
-    * Returns half the height of the engine's visible drawing surface in pixels including zoom.
-    */
-   public get halfDrawHeight(): number {
-      return this.drawHeight / 2;
    }
 
    /**
