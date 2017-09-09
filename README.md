@@ -54,7 +54,7 @@ allow the widest contributions possible. You can always use your own preferred e
 
 ### Prerequisites
 
-- **Required:** [Node.js](https://nodejs.org/) & npm (latest LTS)
+- **Required:** [Node.js](https://nodejs.org/) & npm (8.x)
 - *Recommended:* [TSLint extension for VS Code](https://marketplace.visualstudio.com/items?itemName=eg2.tslint)
 - *Optional:* [PhantomJS Debugger for VS Code](https://github.com/iradul/vscode-phantomjs-debug)
 - *Optional:* Grunt CLI (`npm i -g grunt-cli`), same task names
@@ -84,34 +84,12 @@ npm run tests
 # Useful to ensure HTML sandbox compiles
 npm run visual
 
+# Start sandbox dev server (long-running)
+# Run in separate terminal alongside `npm run visual`
+npm run sandbox
+
 # Compile API docs
 npm run apidocs
-```
-
-### Updating npm dependencies
-
-When you update npm dependencies, we use [shrinkpack](https://github.com/JamieMason/shrinkpack) to pack up
-and cache all npm packages.
-
-Run the following to update the shrinkwrap when packages are updated:
-
-```sh
-# Install shrinkpack globally
-npm install -g shrinkpack
-# Run npm shrinkwrap and update npm_shrinkwrap.json
-npm shrinkwrap --dev
-# Run shrinkpack and download/update dependencies locally
-shrinkpack .
-```
-
-If you run into errors with `npm shrinkwrap --dev` command, run the following:
-
-```
-npm install
-npm prune
-npm dedupe
-npm install
-npm shrinkwrap --dev
 ```
 
 # License
