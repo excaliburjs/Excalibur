@@ -241,15 +241,13 @@ export class Engine extends Class {
     * Returns whether excalibur detects the current screen to be HiDPI
     */
    public get isHiDpi(): boolean {
-      let devicePixelRatio = window.devicePixelRatio || 1;
       let backingStoreRatio = (<any>this.ctx).webkitBackingStorePixelRatio ||
                               (<any>this.ctx).mozBackingStorePixelRatio ||
                               (<any>this.ctx).msBackingStorePixelRatio ||
                               (<any>this.ctx).oBackingStorePixelRatio ||
                               (<any>this.ctx).backingStorePixelRatio || 1;
-
-      let pixelRatio = devicePixelRatio / backingStoreRatio;
-      return backingStoreRatio !== pixelRatio;
+      
+      return backingStoreRatio !== this.pixelRatio;
    }
 
    /**
@@ -307,7 +305,18 @@ export class Engine extends Class {
    /**
     * Returns the calculated pixel ration for use in rendering
     */
-   public pixelRatio: number = 1;
+   public get pixelRatio(): number
+   {
+      let devicePixelRatio = window.devicePixelRatio || 1;
+      let backingStoreRatio = (<any>this.ctx).webkitBackingStorePixelRatio ||
+                              (<any>this.ctx).mozBackingStorePixelRatio ||
+                              (<any>this.ctx).msBackingStorePixelRatio ||
+                              (<any>this.ctx).oBackingStorePixelRatio ||
+                              (<any>this.ctx).backingStorePixelRatio || 1;
+
+      let pixelRatio = devicePixelRatio / backingStoreRatio;
+      return pixelRatio;
+   }
    
    /**
     * Indicates the current position of the engine. Valid only when DisplayMode is DisplayMode.Position
