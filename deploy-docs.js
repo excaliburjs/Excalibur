@@ -10,6 +10,11 @@ var travis = new Travis({
 
 var branch = process.env.TRAVIS_BRANCH;
 var tag = process.env.TRAVIS_TAG;
+var pr  = process.env.TRAVIS_PULL_REQUEST;
+
+if (pr !== "false") {
+   console.log("Skipping docs deployment, detected pull request");
+}
 
 // build docs for tags and master only
 if (tag) {
