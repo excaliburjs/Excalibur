@@ -41,11 +41,18 @@
     "grunt-contrib-uglify": "^2.0.0",
     "grunt-contrib-watch": "^1.0.0",
     "grunt-coveralls": "^1.0.0",
+    "grunt-karma": "^2.0.0",
     "grunt-shell": "2.1.0",
     "grunt-template-jasmine-istanbul": "^0.5.0",
     "grunt-ts": "^6.0.0-beta.15",
     "grunt-tslint": "^3.2.1",
     "istanbul": "^0.4.3",
+    "jasmine": "^2.8.0",
+    "karma": "^1.7.1",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-coverage": "^1.1.1",
+    "karma-jasmine": "^1.1.0",
+    "karma-typescript": "^3.0.5",
     "phantomjs-prebuilt": "^2.1.13",
     "rimraf": "^2.6.1",
     "source-map-support": "^0.4.3",
@@ -54,5 +61,6 @@
     "tslint": "^3.13.0",
     "typedoc": "^0.5.10",
     "typescript": "^2.2.2"
-  }
+  },
+  "dependencies": {}
 }
