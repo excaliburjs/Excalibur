@@ -16,6 +16,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Deprecated
 
 ### Fixed
+- Fixed same instance of color potentially being shared, and thus mutated, between instance actors ([#840](https://github.com/excaliburjs/Excalibur/issues/840))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
