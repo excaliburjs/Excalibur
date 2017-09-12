@@ -367,7 +367,13 @@ export class Actor extends Class implements IActionable, IEvented {
     * 
     * The default is `null` which prevents a rectangle from being drawn.
     */
-   public color: Color;
+   public get color() : Color {
+      return this._color;
+   }
+   public set color(v : Color) {
+      this._color = v.clone();
+   }
+   private _color : Color;
 
    /**
     * Whether or not to enable the [[CapturePointer]] trait that propagates 
@@ -401,7 +407,7 @@ export class Actor extends Class implements IActionable, IEvented {
       this._width = width || 0;
       this._height = height || 0;
       if (color) {
-         this.color = color.clone();
+         this.color = color;
          // set default opacity of an actor to the color
          this.opacity = color.a;
       }
