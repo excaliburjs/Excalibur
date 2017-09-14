@@ -64,6 +64,24 @@ describe('Action', () => {
       });   
    });
 
+   describe('color', () => {
+      it('is cloned from constructor', () => {
+         const color = ex.Color.Azure;
+         const sut = new ex.Actor(null, null, null, null, color);
+
+         expect(sut.color).not.toBe(color, 'Color is not expected to be same instance');
+      });
+
+      it('is cloned from property setter', () => {
+         const color = ex.Color.Azure;
+         const sut = new ex.Actor();
+
+         sut.color = color;
+
+         expect(sut.color).not.toBe(color, 'Color is not expected to be same instance');
+      });
+   });
+
    describe('die', () => {
       it('can remove actor from scene', () => {
          scene.add(actor);
