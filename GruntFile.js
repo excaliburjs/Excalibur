@@ -227,6 +227,12 @@ module.exports = function (grunt) {
          ]
       },
 
+      karma: {
+         unit: {
+            configFile: 'karma.conf.js'
+         }
+      },
+
       //
       // Jasmine configuration
       //
@@ -320,6 +326,7 @@ module.exports = function (grunt) {
    grunt.loadNpmTasks('grunt-coveralls');
    grunt.loadNpmTasks('grunt-build-control');
    grunt.loadNpmTasks('grunt-bumpup');
+   grunt.loadNpmTasks('grunt-karma');
    grunt.loadNpmTasks('grunt-contrib-jasmine');
    grunt.loadNpmTasks('grunt-contrib-connect');
 
@@ -334,10 +341,10 @@ module.exports = function (grunt) {
    grunt.registerTask('compile', ['shell:gitBuild', 'clean', 'ts:core', 'concat', 'uglify', 'copy']);
 
    // Run tests quickly
-   grunt.registerTask('tests', ['ts:specs', 'jasmine']);
+   grunt.registerTask('tests', ['compile', 'karma']);
 
    // Debug compile (for VS Code)
-   grunt.registerTask('debug', ['compile', 'ts:debug'])   
+   grunt.registerTask('debug', ['compile', 'ts:debug']);
 
    // Compile visual tests
    grunt.registerTask('visual', ['ts:visual']);

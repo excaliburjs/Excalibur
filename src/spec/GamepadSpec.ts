@@ -1,14 +1,21 @@
 /// <reference path="jasmine.d.ts" />
-
 /// <reference path="Mocks.ts" />
 
+
 describe('A gamepad', () => {
-   var engine;
+   var engine: ex.Engine;
    var mock = new Mocks.Mocker();
+   
+   var nav: any;
+
    beforeEach(() => {      
-      engine = mock.engine(600, 400);
-      engine.input = {};
-      engine.input.gamepads = new ex.Input.Gamepads(engine);
+      engine = TestUtils.engine({width: 600, height: 400});
+
+      nav = mock.navigator();
+
+      spyOn(navigator, 'getGamepads').and.callFake(function(): any[] {
+         return nav.getGamepads();
+      });
    });
    
    it('should fire an event on connect', () => {
@@ -19,19 +26,19 @@ describe('A gamepad', () => {
          fired = true;
       });
       
-      engine.input.gamepads.update(100);
+      engine.input.gamepads.update();
       
       expect(fired).toBe(false);
       
-      (<any>navigator).setGamepads(0, 4, 16);
+      nav.setGamepads(0, 4, 16);
       
-      engine.input.gamepads.update(100);
+      engine.input.gamepads.update();
       
       expect(fired).toBe(true); 
       
       // should happen only once per connect
       fired = false;
-      engine.input.gamepads.update(100);
+      engine.input.gamepads.update();
       expect(fired).toBe(false);     
       
    });
@@ -43,21 +50,21 @@ describe('A gamepad', () => {
          fired = true;
       });
       
-      (<any>navigator).setGamepads(0, 4, 16);
+      nav.setGamepads(0, 4, 16);
       
-      engine.input.gamepads.update(100);
+      engine.input.gamepads.update();
       
       expect(fired).toBe(false);      
       
-      (<any>navigator).deleteGamepad(0);
+      nav.deleteGamepad(0);
       
-      engine.input.gamepads.update(100);
+      engine.input.gamepads.update();
       
       expect(fired).toBe(true);
       
       // should happen only once per disconnect
       fired = false;
-      engine.input.gamepads.update(100);
+      engine.input.gamepads.update();
       expect(fired).toBe(false);
    });
    
@@ -88,10 +95,10 @@ describe('A gamepad', () => {
    });
    
    it('should be of a valid configuration', () => {
-      (<any>navigator).setGamepads(0, 4, 16); // valid 4 axis > 2 and 16 buttons > 4
-      (<any>navigator).setGamepads(1, 0, 16); // invalid 0 < 4 axis
-      (<any>navigator).setGamepads(2, 4, 2); // invalid 2 buttons < 4 buttons
-      (<any>navigator).setGamepads(3, 2, 4); // valid 2=2 axis and 4=4 axis
+      nav.setGamepads(0, 4, 16); // valid 4 axis > 2 and 16 buttons > 4
+      nav.setGamepads(1, 0, 16); // invalid 0 < 4 axis
+      nav.setGamepads(2, 4, 2); // invalid 2 buttons < 4 buttons
+      nav.setGamepads(3, 2, 4); // valid 2=2 axis and 4=4 axis
       engine.input.gamepads.setMinimumGamepadConfiguration({axis: 2, buttons: 4});
                   
       var validGamepads = engine.input.gamepads.getValidGamepads();
@@ -100,7 +107,7 @@ describe('A gamepad', () => {
    });
    
    it('should fire events on all predefined buttons', () => {
-      (<any>navigator).setGamepads(0, 4, 16); // valid 4 axis > 2 and 16 buttons > 4
+      nav.setGamepads(0, 4, 16); // valid 4 axis > 2 and 16 buttons > 4
       
       var gamepad = engine.input.gamepads.at(0);
       
@@ -118,9 +125,9 @@ describe('A gamepad', () => {
       for (var button in ex.Input.Buttons) {
          if (typeof button === 'number') {
             
-            engine.input.gamepads.update(100);
-            (<any>navigator).setGamepadButton(0, button, 1.0);
-            engine.input.gamepads.update(100);
+            engine.input.gamepads.update();
+            nav.setGamepadButton(0, button, 1.0);
+            engine.input.gamepads.update();
             expect(currentButton).toBe(button);
             expect(currentValue).toBe(1.0);
          }
@@ -128,7 +135,7 @@ describe('A gamepad', () => {
    });
    
    it('should fire events on all predefined axis', () => {
-      (<any>navigator).setGamepads(0, 4, 16); // valid 4 axis > 2 and 16 buttons > 4
+      nav.setGamepads(0, 4, 16); // valid 4 axis > 2 and 16 buttons > 4
       
       var gamepad = engine.input.gamepads.at(0);
       
@@ -142,30 +149,30 @@ describe('A gamepad', () => {
       expect(currentAxis).toBeNull();
       expect(currentValue).toBeNull();
       
-      engine.input.gamepads.update(100);
-      (<any>navigator).setGamepadAxis(0, 0,  .5);
-      engine.input.gamepads.update(100);
+      engine.input.gamepads.update();
+      nav.setGamepadAxis(0, 0,  .5);
+      engine.input.gamepads.update();
       
       expect(currentAxis).toBe(0);
       expect(currentValue).toBe(.5);
       
-      engine.input.gamepads.update(100);
-      (<any>navigator).setGamepadAxis(0, 1,  -.5);
-      engine.input.gamepads.update(100);
+      engine.input.gamepads.update();
+      nav.setGamepadAxis(0, 1,  -.5);
+      engine.input.gamepads.update();
       
       expect(currentAxis).toBe(1);
       expect(currentValue).toBe(-.5);
       
-      engine.input.gamepads.update(100);
-      (<any>navigator).setGamepadAxis(0, 2,  .5);
-      engine.input.gamepads.update(100);
+      engine.input.gamepads.update();
+      nav.setGamepadAxis(0, 2,  .5);
+      engine.input.gamepads.update();
       
       expect(currentAxis).toBe(2);
       expect(currentValue).toBe(.5);
       
-      engine.input.gamepads.update(100);
-      (<any>navigator).setGamepadAxis(0, 3,  -.5);
-      engine.input.gamepads.update(100);
+      engine.input.gamepads.update();
+      nav.setGamepadAxis(0, 3,  -.5);
+      engine.input.gamepads.update();
       
       expect(currentAxis).toBe(3);
       expect(currentValue).toBe(-.5);

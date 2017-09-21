@@ -17,49 +17,57 @@ module.exports = function(config) {
     files: [
       './build/dist/excalibur.js',
       './build/dist/excalibur.d.ts',
-      './src/spec/images/*/*.png',
+      './src/spec/images/**/*.png',
       './src/spec/support/js-imagediff.js',
       './src/spec/support/js-imagediff.d.ts',
-      './src/spec/!(*Spec).ts',
-      './src/spec/*Spec.ts',
-      
+      './src/spec/Mocks.ts',
+      './src/spec/TestUtils.ts',
+      './src/spec/*.ts',
     ],
 
 
     // list of files to exclude
     exclude: [
-       "node_modules",
-       "typedoc-default-themes"
+      //  "node_modules",
+      //  "typedoc-default-themes"
     ],
 
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
+      'src/spec/Mocks.ts': ['karma-typescript'],
+      'src/spec/TestUtils.ts': ['karma-typescript'],
       'src/spec/*.ts': ['karma-typescript'],
       //'build/dist/excalibur.js': ['coverage']
     },
 
-   //  karmaTypescriptConfig: {
-
-   //    compilerOptions: {
-   //       "sourceMap": true,
-   //       "experimentalDecorators": true,
-   //       "target": "es5",
-   //       "module": "none"
-   //    },
-   //    // transforming the filenames 
-   //    transformPath: function(path) {
-   //       return path.replace(/\.ts$/, '.js');
-   //    }
-
-   //  },
+    karmaTypescriptConfig: {
+      compilerOptions: {
+          noImplicitAny: false,
+          target: "ES5",
+          module: "none",
+          sourceMap: true,
+          removeComments: false,
+          declaration: true,
+          experimentalDecorators: true
+      },
+      include: [
+         './build/dist/excalibur.d.ts',
+         'src/spec/Mocks.ts',
+         'src/spec/TestUtils.ts',
+         'src/spec/*.ts'
+      ],
+      reports: {
+          "html": "coverage"
+      }
+  },
 
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],//, 'coverage'],
+    reporters: ['progress', 'karma-typescript'],//, 'coverage'],
 
 
     // web server port
@@ -81,7 +89,14 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['ChromeHeadless'],
+    browsers: ['ChromeHeadlessDebug'],
+
+    customLaunchers: {
+       ChromeHeadlessDebug: {
+          base: 'ChromeHeadless',
+          flags: [ '--remote-debugging-port=9333' ]
+       }
+    },
 
 
     // Continuous Integration mode
