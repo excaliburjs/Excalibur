@@ -17,6 +17,7 @@ module.exports = function(config) {
     files: [
       './build/dist/excalibur.js',
       './build/dist/excalibur.d.ts',
+      './src/engine/**/*.ts',
       './src/spec/images/**/*.png',
       './src/spec/support/js-imagediff.js',
       './src/spec/support/js-imagediff.d.ts',
@@ -39,7 +40,7 @@ module.exports = function(config) {
       'src/spec/Mocks.ts': ['karma-typescript'],
       'src/spec/TestUtils.ts': ['karma-typescript'],
       'src/spec/*.ts': ['karma-typescript'],
-      //'build/dist/excalibur.js': ['coverage']
+      'build/dist/excalibur.js': ['coverage']
     },
 
     karmaTypescriptConfig: {
@@ -57,18 +58,23 @@ module.exports = function(config) {
          'src/spec/Mocks.ts',
          'src/spec/TestUtils.ts',
          'src/spec/*.ts'
-      ],
-      reports: {
-          "html": "coverage"
-      }
-  },
+      ]
+   },
+  
 
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress', 'karma-typescript'],//, 'coverage'],
+    reporters: ['progress', 'karma-typescript', 'coverage'],
 
+    coverageReporter : {
+      reporters:[
+             {type: 'html', dir:'coverage/'},
+             {type: 'lcovonly', dir: 'coverage/', file: 'lcov'},
+             {type: 'text-summary'}
+         ],
+    },
 
     // web server port
     port: 9876,
@@ -84,7 +90,7 @@ module.exports = function(config) {
 
 
     // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: true,
+    autoWatch: false,
 
 
     // start these browsers
@@ -101,7 +107,7 @@ module.exports = function(config) {
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
-    singleRun: false,
+    singleRun: true,
 
     // Concurrency level
     // how many browser should be started simultaneous
