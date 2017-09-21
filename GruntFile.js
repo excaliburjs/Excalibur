@@ -149,6 +149,11 @@ module.exports = function (grunt) {
                { src: './build/dist/<%= pkg.name %>.amd.d.ts', dest: './sandbox/<%= pkg.name %>.amd.d.ts' },
                { src: './build/dist/<%= pkg.name %>.d.ts', dest: './sandbox/<%= pkg.name %>.d.ts' }
             ]
+         },
+         coveralls: {
+            files: [
+               { expand: true, flatten: true, src: ['coverage/**'], dest: 'coverage/', filter: 'isFile'}
+            ]
          }
       },
 
@@ -353,7 +358,7 @@ module.exports = function (grunt) {
    grunt.registerTask('sandbox', ['connect']);
 
    // Travis CI task
-   grunt.registerTask('travis', ['default', 'coveralls', 'apidocs']);
+   grunt.registerTask('travis', ['default', 'copy:coveralls', 'coveralls', 'apidocs']);
 
    // Appveyor task
    grunt.registerTask('appveyor', ['default', 'shell:nuget']);
