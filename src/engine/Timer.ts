@@ -12,6 +12,7 @@ export class Timer {
    public repeats: boolean = false;
    private _elapsedTime: number = 0;
    private _totalTimeAlive: number = 0;
+   private _paused: boolean = false;
    public complete: boolean = false;
    public scene: Scene = null;
 
@@ -32,14 +33,16 @@ export class Timer {
     * @param delta  Number of elapsed milliseconds since the last update.
     */
    public update(delta: number) {
-      this._totalTimeAlive += delta;
-      this._elapsedTime += delta;
-      if (!this.complete && this._elapsedTime > this.interval) {
-         this.fcn.call(this);
-         if (this.repeats) {
-            this._elapsedTime = 0;
-         } else {
-            this.complete = true;
+      if (!this._paused) {   
+         this._totalTimeAlive += delta;
+         this._elapsedTime += delta;
+         if (!this.complete && this._elapsedTime >= this.interval) {
+            this.fcn.call(this);
+            if (this.repeats) {
+               this._elapsedTime = 0;
+            } else {
+               this.complete = true;
+            }
          }
       }
    }
@@ -59,6 +62,20 @@ export class Timer {
 
    public getTimeRunning(): number {
       return this._totalTimeAlive;
+   }
+
+   /**
+    * Pauses the timer so that no more time will be incremented towards the next call
+    */
+   public pause() {
+      this._paused = true;
+   }
+
+   /**
+    * Unpauses the timer. Time will now increment towards the next call
+    */
+   public unpause() {
+      this._paused = false;
    }
 
    /**
