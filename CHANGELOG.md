@@ -8,7 +8,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Breaking Changes
-- `getDrawWidth()` and `getDrawHeight()` have been changed into the getters `drawWidth` and `drawHeight` respectively in order to progressively make getters/setters consistent
 
 ### Added
 - Automatic HiDPI screen detection and scaling in excalibur internals to correct blurry bitmap rendering on HiDPI screens. This feature can optionally be suppressed with `IEngineOptions.suppressHiDPIScaling`.
@@ -18,6 +17,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 ### Deprecated
+- `getDrawWidth()` and `getDrawHeight()` have been marked obsolete and changed into the getters `drawWidth` and `drawHeight` respectively in order to progressively make getters/setters consistent
 
 ### Fixed
 - Fixed same instance of color potentially being shared, and thus mutated, between instance actors ([#840](https://github.com/excaliburjs/Excalibur/issues/840))

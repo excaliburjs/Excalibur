@@ -22,6 +22,7 @@ import * as Input from './Input/Index';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 import { BoundingBox } from './Collision/BoundingBox';
+import { obsolete } from './Util/Decorators';
 
 /**
  * Enum representing the different display modes available to Excalibur
@@ -206,6 +207,16 @@ export class Engine extends Class {
    /**
     * Returns the width of the engine's visible drawing surface in pixels including zoom.
     */
+   @obsolete({ message: 'getDrawWidth() will be removed in the 0.14 release', 
+               alternateMethod: 'drawWidth property'
+   })
+   public getDrawWidth(): number {
+      return this.drawWidth;
+   }
+
+   /**
+    * Returns the width of the engine's visible drawing surface in pixels including zoom.
+    */
     public get drawWidth(): number {
       if (this.currentScene && this.currentScene.camera) {
          return (this.canvasWidth / this.currentScene.camera.getZoom());
@@ -218,6 +229,16 @@ export class Engine extends Class {
     */
    public get halfDrawWidth(): number {
       return this.drawWidth / 2;
+   }
+
+   /**
+    * Returns the height of the engine's visible drawing surface in pixels.
+    */
+    @obsolete({ message: 'getDrawHeight() will be removed in the 0.14 release', 
+                alternateMethod: 'drawHeight property'
+   })
+   public getDrawHeight(): number {
+      return this.drawHeight;
    }
 
    /**
