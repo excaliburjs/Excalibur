@@ -11,7 +11,7 @@ describe('A generic Resource', () => {
 
    beforeEach(() => {
       
-      resource = new ex.Resource<any>('a/path/to/a/resource.png', 'image/png');
+      resource = new ex.Resource<any>('a/path/to/a/resource.png', 'blob');
                   
       ex.Logger.getInstance().defaultLevel = ex.LogLevel.Error;
    });
@@ -69,6 +69,15 @@ describe('A generic Resource', () => {
          resource.setData('data');
          
          expect(spy).toHaveBeenCalledWith('data');
+      });
+
+      it('should load a text resource', (done) => {
+         var text = new ex.Resource('/base/src/spec/ResourceSpec.ts', 'text', true);
+         text.load().then((data) => {
+            console.log(data);
+            expect(data).not.toBeNull();
+            done();
+         });
       });
       
    });
