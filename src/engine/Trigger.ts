@@ -3,6 +3,21 @@ import { Engine } from './Engine';
 import { ActionQueue } from './Actions/Action';
 import { EventDispatcher } from './EventDispatcher';
 import { Actor, CollisionType } from './Actor';
+import { Vector } from 'Algebra';
+
+
+export interface ITriggerOptions {
+   pos?: Vector;
+   width?: number;
+   height?: number;
+   // action to take when triggered
+   trigger?: () => void;
+   // Returns true if the triggers should fire on the collided actor
+   filter?: (actor: Actor) => boolean;
+   // -1 if it should repeat forever
+   repeat?: number;
+}
+
 
 /**
  * Triggers are a method of firing arbitrary code on collision. These are useful
@@ -13,7 +28,7 @@ import { Actor, CollisionType } from './Actor';
  */
 export class Trigger extends Actor {
    private _action: () => void = () => { return; };
-   public repeats: number = 1;
+   public repeat: number = 1;
    public target: Actor = null;
 
    /**
@@ -24,10 +39,11 @@ export class Trigger extends Actor {
     * @param action  Callback to fire when trigger is activated, `this` will be bound to the Trigger instance
     * @param repeats The number of times that this trigger should fire, by default it is 1, if -1 is supplied it will fire indefinitely
     */
-   constructor(x?: number, y?: number, width?: number, height?: number, action?: () => void, repeats?: number) {
-      super(x, y, width, height);
-      this.repeats = repeats || this.repeats;
-      this._action = action || this._action;
+   constructor(opts?: ITriggerOptions) {
+      super(opts.pos.x, opts.pos.y, opts.width, opts.height);
+
+      this.repeat = opts.repeat || this.repeat;
+      this._action = opts.trigger || this._action;
       this.collisionType = CollisionType.PreventCollision;
       this.eventDispatcher = new EventDispatcher(this);
       this.actionQueue = new ActionQueue(this);
@@ -49,6 +65,7 @@ export class Trigger extends Actor {
 
       // check for trigger collisions
       if (this.target) {
+         this.body.touching(this.target)
          if (this.collides(this.target)) {
             this._dispatchAction();
          }
@@ -64,14 +81,14 @@ export class Trigger extends Actor {
       }
 
       // remove trigger if its done, -1 repeat forever
-      if (this.repeats === 0) {
+      if (this.repeat === 0) {
          this.kill();
       }
    }
 
    private _dispatchAction() {
       this._action.call(this);
-      this.repeats--;
+      this.repeat--;
    }
 
    public draw(_ctx: CanvasRenderingContext2D, _delta: number) {
