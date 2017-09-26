@@ -34,7 +34,7 @@ describe('A scaled and rotated actor', () => {
    
    it('is drawn correctly scaled at 90 degrees', (done) => {                  
       
-      let bg = new ex.Texture('src/spec/images/ScaleSpec/logo.png', true);
+      let bg = new ex.Texture('./base/src/spec/images/ScaleSpec/logo.png', true);
       
       engine.start(new ex.Loader([bg])).then(() => {
          let actor = new ex.Actor(engine.getDrawWidth() / 2 , engine.getDrawHeight() / 2, 100, 100, ex.Color.Black);

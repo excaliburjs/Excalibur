@@ -68,7 +68,7 @@ describe('A UIActor', () => {
    it('is drawn on the top left with empty constructor', (done) => {
             
       let game = TestUtils.engine({ width: 720, height: 480 });
-      let bg = new ex.Texture('src/spec/images/UIActorSpec/emptyctor.png', true);
+      let bg = new ex.Texture('base/src/spec/images/UIActorSpec/emptyctor.png', true);
       
       game.start(new ex.Loader([bg])).then(() => {
          let uiActor = new ex.UIActor();

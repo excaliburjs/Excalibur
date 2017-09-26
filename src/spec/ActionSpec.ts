@@ -85,7 +85,7 @@ describe('Action', () => {
    describe('die', () => {
       it('can remove actor from scene', () => {
          scene.add(actor);
-         expect(scene.children.length).toBe(1);
+         expect(scene.actors.length).toBe(1);
          actor.actions.die();
          scene.update(engine, 100);
          expect(scene.actors.length).toBe(0);

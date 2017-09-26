@@ -449,7 +449,7 @@
          copyCtx = null;
          done();
       });
-       a.src = './src/spec/images/' + src;
+       a.src = './base/src/spec/images/' + src + '?_=' + Math.random();
     },
 
     expectCanvasImageMatches : function(src, canvas, done) {
@@ -468,7 +468,7 @@
          copyCtx = null;
          done();
       });
-       a.src = './src/spec/images/' + src;
+       a.src = './base/src/spec/images/' + src + '?_=' + Math.random();
     },
 
     // Compatibility

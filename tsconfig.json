@@ -1,0 +1,17 @@
+{
+   "compilerOptions": {
+       "module": "system",
+       "noImplicitAny": true,
+       "removeComments": true,
+       "preserveConstEnums": true,
+       "outFile": "../../built/local/tsc.js",
+       "sourceMap": true
+   },
+   "include": [
+       "src/spec/**/*"
+   ],
+   "exclude": [
+       "node_modules",
+       "typedoc-default-themese"
+   ]
+}
