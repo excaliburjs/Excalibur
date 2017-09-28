@@ -55,7 +55,7 @@ export class BaseCamera {
    private _zoomPromise: Promise<boolean>;
    private _zoomIncrement: number = 0.01;
    private _easing: EasingFunction = EasingFunctions.EaseInOutCubic;
-
+ 
    /**
     * Get the camera's x position
     */
@@ -271,8 +271,8 @@ export class BaseCamera {
 
       // if zoom is 2x then canvas is 1/2 as high
       // if zoom is .5x then canvas is 2x as high
-      var newCanvasWidth = canvasWidth / this.getZoom();
-      var newCanvasHeight = canvasHeight / this.getZoom();
+      var newCanvasWidth = canvasWidth / this.getZoom() / window.devicePixelRatio;
+      var newCanvasHeight = canvasHeight / this.getZoom() / window.devicePixelRatio;
 
 
       ctx.scale(this.getZoom(), this.getZoom());
