@@ -53,27 +53,25 @@ export class NaiveCollisionBroadphase implements ICollisionBroadphase {
          }
 
       }
-
-      var k = 0, len = collisionPairs.length;
-      for (k; k < len; k++) {
-         collisionPairs[k].resolve(Physics.collisionResolutionStrategy);
-      }
-
       return collisionPairs;
    }
 
    /**
     * Identify actual collisions from those pairs, and calculate collision impulse
     */
-   narrowphase() {
-      // pass
+   public narrowphase(pairs: Pair[]): Pair[] {
+      return pairs;
    }
 
    /**
     * Resolve the position and velocity of the physics bodies
     */
-   resolve() {
-      // pass
+   public resolve(pairs: Pair[]): Pair[] {
+      for (var pair of pairs) {
+         pair.resolve(Physics.collisionResolutionStrategy);
+      }
+
+      return pairs.filter(p => p.canCollide);
    }
 
    public update(): number {

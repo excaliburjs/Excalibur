@@ -212,9 +212,9 @@ export class Scene extends Class {
          var collisionDelta = delta / iter;
          while (iter > 0) {
             // Run the narrowphase
-            this._broadphase.narrowphase(pairs, engine.stats.currFrame);
+            pairs = this._broadphase.narrowphase(pairs, engine.stats.currFrame);
             // Run collision resolution strategy
-            this._broadphase.resolve(collisionDelta, Physics.collisionResolutionStrategy);
+            pairs = this._broadphase.resolve(pairs, collisionDelta, Physics.collisionResolutionStrategy);
             iter--;
          }
          var afterNarrowphase = Date.now();

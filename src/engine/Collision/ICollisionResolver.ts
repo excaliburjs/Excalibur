@@ -26,12 +26,12 @@ export interface ICollisionBroadphase {
    /**
     * Identify actual collisions from those pairs, and calculate collision impulse
     */
-   narrowphase(pairs: Pair[], stats?: FrameStats): void;
+   narrowphase(pairs: Pair[], stats?: FrameStats): Pair[];
 
    /**
     * Resolve the position and velocity of the physics bodies
     */
-   resolve(delta: number, strategy: CollisionResolutionStrategy): void;
+   resolve(pairs: Pair[], delta: number, strategy: CollisionResolutionStrategy): Pair[];
 
    /**
     * Update the internal structures to track bodies

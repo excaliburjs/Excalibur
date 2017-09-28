@@ -2,6 +2,7 @@ import { Physics } from './../Physics';
 import { Color } from './../Drawing/Color';
 import { Body } from './Body';
 import { CollisionContact } from './CollisionContact';
+import { CollisionType } from '../Actor';
 import { CollisionResolutionStrategy } from '../Physics';
 import * as DrawUtil from '../Util/DrawUtil';
 
@@ -14,6 +15,24 @@ export class Pair {
 
    constructor(public bodyA: Body, public bodyB: Body) {
       this.id = Pair.calculatePairHash(bodyA, bodyB);
+   }
+   
+   /**
+    * Returns whether or not it is possible for the pairs to collide
+    */
+   public get canCollide(): boolean {
+      let actorA = this.bodyA.actor;
+      let actorB = this.bodyB.actor;
+      // if both are fixed short circuit
+      if (actorA.collisionType === CollisionType.Fixed && actorB.collisionType === CollisionType.Fixed) {
+         return false;
+      }
+
+      // if the other is prevent collision or is dead short circuit
+      if (actorB.collisionType === CollisionType.PreventCollision || actorB.isKilled()) { return false; }
+
+      return true;
+
    }
 
    /**

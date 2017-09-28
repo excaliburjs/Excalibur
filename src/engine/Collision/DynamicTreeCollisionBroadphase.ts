@@ -163,7 +163,7 @@ export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
     * Applies narrow phase on collision pairs to find actual area intersections
     * Adds actual colliding pairs to stats' Frame data 
     */
-   public narrowphase(pairs: Pair[], stats?: FrameStats) {
+   public narrowphase(pairs: Pair[], stats?: FrameStats): Pair[] {
       for (var i = 0; i < pairs.length; i++) {
          pairs[i].collide();
          if (stats && pairs[i].collision) {
@@ -171,29 +171,26 @@ export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
             stats.physics.collidersHash[pairs[i].id] = pairs[i];
          }
       }
+      return pairs.filter(p => p.collision);
    }
 
    /**
     * Perform collision resolution given a strategy (rigid body or box) and move objects out of intersect. 
     */
-   public resolve(delta: number, strategy: CollisionResolutionStrategy) {
-      // resolve collision pairs
-      var i = 0, len = this._collisionPairCache.length;
-      for (i = 0; i < len; i++) {
-         this._collisionPairCache[i].resolve(strategy);
-      }
+   public resolve(pairs: Pair[], delta: number, strategy: CollisionResolutionStrategy): Pair[] {
+      for (let pair of pairs) {
+         pair.resolve(strategy);
 
-      // We must apply mtv after all pairs have been resolved for more accuracy
-      // apply integration of collision pairs
-      for (i = 0; i < len; i++) {
-         if (this._collisionPairCache[i].collision) {
-            this._collisionPairCache[i].bodyA.applyMtv();
-            this._collisionPairCache[i].bodyB.applyMtv();
+         if (pair.collision) {
+            pair.bodyA.applyMtv();
+            pair.bodyB.applyMtv();
             // todo still don't like this, this is a small integration step to resolve narrowphase collisions
-            this._collisionPairCache[i].bodyA.actor.integrate(delta * Physics.collisionShift);
-            this._collisionPairCache[i].bodyB.actor.integrate(delta * Physics.collisionShift);
+            pair.bodyA.actor.integrate(delta * Physics.collisionShift);
+            pair.bodyB.actor.integrate(delta * Physics.collisionShift);
          }
       }
+
+      return pairs.filter(p => p.canCollide);
 
    }
 
