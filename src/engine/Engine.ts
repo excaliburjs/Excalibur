@@ -205,7 +205,7 @@ export class Engine extends Class {
    }
 
    /**
-    * Returns the width of the engine's visible drawing surface in pixels including zoom.
+    * Returns the width of the engine's visible drawing surface in pixels including zoom including device pixel ratio.
     */
    @obsolete({ message: 'getDrawWidth() will be removed in the 0.14 release', 
                alternateMethod: 'drawWidth property'
@@ -215,24 +215,24 @@ export class Engine extends Class {
    }
 
    /**
-    * Returns the width of the engine's visible drawing surface in pixels including zoom.
+    * Returns the width of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
     */
     public get drawWidth(): number {
       if (this.currentScene && this.currentScene.camera) {
-         return (this.canvasWidth / this.currentScene.camera.getZoom());
+         return (this.canvasWidth / this.currentScene.camera.getZoom()) / this.pixelRatio;
       }
-      return this.canvasWidth;
+      return this.canvasWidth / this.pixelRatio;
    }
 
    /**
-    * Returns half the width of the engine's visible drawing surface in pixels including zoom.
+    * Returns half the width of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
     */
    public get halfDrawWidth(): number {
       return this.drawWidth / 2;
    }
 
    /**
-    * Returns the height of the engine's visible drawing surface in pixels.
+    * Returns the height of the engine's visible drawing surface in pixels .
     */
     @obsolete({ message: 'getDrawHeight() will be removed in the 0.14 release', 
                 alternateMethod: 'drawHeight property'
@@ -242,17 +242,17 @@ export class Engine extends Class {
    }
 
    /**
-    * Returns the height of the engine's visible drawing surface in pixels.
+    * Returns the height of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
     */
    public get drawHeight(): number {
       if (this.currentScene && this.currentScene.camera) {
-         return (this.canvasHeight / this.currentScene.camera.getZoom()) ;
+         return (this.canvasHeight / this.currentScene.camera.getZoom()) / this.pixelRatio;
       }
-      return this.canvasHeight;
+      return this.canvasHeight / this.pixelRatio;
    }
 
    /**
-    * Returns half the height of the engine's visible drawing surface in pixels including zoom.
+    * Returns half the height of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
     */
    public get halfDrawHeight(): number {
       return this.drawHeight / 2;
@@ -262,13 +262,7 @@ export class Engine extends Class {
     * Returns whether excalibur detects the current screen to be HiDPI
     */
    public get isHiDpi(): boolean {
-      let backingStoreRatio = (<any>this.ctx).webkitBackingStorePixelRatio ||
-                              (<any>this.ctx).mozBackingStorePixelRatio ||
-                              (<any>this.ctx).msBackingStorePixelRatio ||
-                              (<any>this.ctx).oBackingStorePixelRatio ||
-                              (<any>this.ctx).backingStorePixelRatio || 1;
-      
-      return backingStoreRatio !== this.pixelRatio;
+      return this.pixelRatio !== 1;
    }
 
    /**
@@ -329,13 +323,8 @@ export class Engine extends Class {
    public get pixelRatio(): number
    {
       let devicePixelRatio = window.devicePixelRatio || 1;
-      let backingStoreRatio = (<any>this.ctx).webkitBackingStorePixelRatio ||
-                              (<any>this.ctx).mozBackingStorePixelRatio ||
-                              (<any>this.ctx).msBackingStorePixelRatio ||
-                              (<any>this.ctx).oBackingStorePixelRatio ||
-                              (<any>this.ctx).backingStorePixelRatio || 1;
 
-      let pixelRatio = devicePixelRatio / backingStoreRatio;
+      let pixelRatio = devicePixelRatio;
       return pixelRatio;
    }
    
@@ -1056,11 +1045,7 @@ O|===|* >________________>\n\
                            ${oldWidth}x${oldHeight} to ${this.canvas.width}x${this.canvas.height} 
                            css size will remain ${oldWidth}x${oldHeight}`);
          
-         let scaledWidth = this.canvasWidth / this.pixelRatio;
-         let scaledHeight = this.canvasHeight / this.pixelRatio;
-
          this.ctx.scale(this.pixelRatio, this.pixelRatio);
-         this.ctx.translate(-this.halfCanvasWidth + scaledWidth / 2, -this.halfCanvasHeight +  scaledHeight / 2);
          this._logger.warn(`Canvas drawing context was scaled by ${this.pixelRatio}`);
       }
    }

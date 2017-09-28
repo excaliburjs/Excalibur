@@ -15,6 +15,7 @@ var engine = new ex.Engine(
 engine.backgroundColor = ex.Color.Black;
 
 var player = new ex.Actor(width / 2, height / 2, 100, 30, ex.Color.Red);
+player.anchor.setTo(.5, .5);
 var spritesheet = new ex.SpriteSheet(playerTexture, 3, 1, 100, 100);
 var animation = spritesheet.getAnimationForAll(engine, 1500);
 animation.loop = false;
