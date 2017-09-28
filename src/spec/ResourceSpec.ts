@@ -72,7 +72,7 @@ describe('A generic Resource', () => {
       });
 
       it('should load a text resource', (done) => {
-         var text = new ex.Resource('/base/src/spec/ResourceSpec.ts', 'text', true);
+         var text = new ex.Resource('/base/src/spec/ResourceSpec.js', 'text', true);
          text.load().then((data) => {
             console.log(data);
             expect(data).not.toBeNull();
