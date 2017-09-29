@@ -69,8 +69,8 @@ export class PointerEvent extends GameEvent<any> {
    public pos: Vector;
 
    /**
-    * @param x            OBSOLETE: This property will be removed in the 0.14.0 release. Please use the pos vector (pos.x). The `x` coordinate of the event (in world coordinates).
-    * @param y            OBSOLETE: This property will be removed in the 0.14.0 release. Please use the pos vector (pos.y). The `y` coordinate of the event (in world coordinates)
+    * @param x OBSOLETE: Will be removed in the 0.14.0 release. Use pos.x. The `x` coordinate of the event (in world coordinates).
+    * @param y OBSOLETE: Will be removed in the 0.14.0 release. Use pos.y. The `y` coordinate of the event (in world coordinates).
     * @param pageX        The `x` coordinate of the event (in document coordinates)
     * @param pageY        The `y` coordinate of the event (in document coordinates)
     * @param screenX      The `x` coordinate of the event (in screen coordinates)
