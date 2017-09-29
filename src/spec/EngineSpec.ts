@@ -140,9 +140,7 @@ describe('The engine', () => {
        suppressConsoleBootMessage: true,
        suppressMinimumBrowserFeatureDetection: true,
        displayMode: ex.DisplayMode.Position,
-       position: {top: 1, left: '5em'},
-       suppressConsoleBootMessage: true,
-       suppressMinimumBrowserFeatureDetection: true
+       position: {top: 1, left: '5em'}
      });
      
      expect(game.canvas.style.top).toEqual('1px');
