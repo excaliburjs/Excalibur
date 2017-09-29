@@ -28,12 +28,14 @@ export class OffscreenCulling implements IActorTrait {
       if (actor.currentDrawing != null) {
          isSpriteOffScreen = this.cullingBox.isSpriteOffScreen(actor, engine);
       }
-      
+      let drawWidth = engine.drawWidth;
+      let drawHeight = engine.drawHeight;
+
       if (!actor.isOffScreen) {
          if ((actorScreenCoords.x + width * zoom < 0 || 
             actorScreenCoords.y + height * zoom < 0 ||
-            actorScreenCoords.x > engine.canvasWidth ||
-            actorScreenCoords.y > engine.canvasHeight) &&
+            actorScreenCoords.x > drawWidth ||
+            actorScreenCoords.y > drawHeight) &&
             isSpriteOffScreen ) {
             
             eventDispatcher.emit('exitviewport', new ExitViewPortEvent(actor));
@@ -42,8 +44,8 @@ export class OffscreenCulling implements IActorTrait {
       } else {
          if ((actorScreenCoords.x + width * zoom > 0 &&
             actorScreenCoords.y + height * zoom > 0 &&
-            actorScreenCoords.x < engine.canvasWidth &&
-            actorScreenCoords.y < engine.canvasHeight) ||
+            actorScreenCoords.x < drawWidth &&
+            actorScreenCoords.y < drawHeight) ||
             !isSpriteOffScreen) {
             
             eventDispatcher.emit('enterviewport', new EnterViewPortEvent(actor));               

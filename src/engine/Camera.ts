@@ -265,17 +265,16 @@ export class BaseCamera {
     * @param delta  The number of milliseconds since the last update
     */
    public draw(ctx: CanvasRenderingContext2D) {
-      var focus = this.getFocus();
-      var canvasWidth = ctx.canvas.width;
-      var canvasHeight = ctx.canvas.height;
+      let focus = this.getFocus();
+      let canvasWidth = ctx.canvas.width;
+      let canvasHeight = ctx.canvas.height;
+      let pixelRatio = window.devicePixelRatio;
+      let zoom = this.getZoom();
 
-      // if zoom is 2x then canvas is 1/2 as high
-      // if zoom is .5x then canvas is 2x as high
-      var newCanvasWidth = canvasWidth / this.getZoom() / window.devicePixelRatio;
-      var newCanvasHeight = canvasHeight / this.getZoom() / window.devicePixelRatio;
+      var newCanvasWidth = (canvasWidth / zoom) / pixelRatio;
+      var newCanvasHeight = (canvasHeight / zoom) / pixelRatio;
 
-
-      ctx.scale(this.getZoom(), this.getZoom());
+      ctx.scale(zoom, zoom);
       ctx.translate(-focus.x + newCanvasWidth / 2 + this._xShake, -focus.y + newCanvasHeight / 2 + this._yShake);
    }
 

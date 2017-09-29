@@ -79,8 +79,8 @@ export class Scene extends Class {
       super();
       this.camera = new BaseCamera();
       if (engine) {
-         this.camera.x = engine.canvasWidth / 2;
-         this.camera.y = engine.canvasHeight / 2;
+         this.camera.x = engine.halfDrawWidth;
+         this.camera.y = engine.halfDrawHeight;
       }
    }
 
@@ -106,8 +106,8 @@ export class Scene extends Class {
    public onInitialize(engine: Engine): void {
       // will be overridden
       if (this.camera) {
-         this.camera.x = engine.canvasWidth / 2;
-         this.camera.y = engine.canvasHeight / 2;
+         this.camera.x = engine.halfDrawWidth;
+         this.camera.y = engine.halfDrawHeight;
       }
       this._logger.debug('Scene.onInitialize', this, engine);
    }
