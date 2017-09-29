@@ -66,9 +66,11 @@ const ScrollWheelNormalizationFactor = -1 / 40;
  */
 export class PointerEvent extends GameEvent<any> {
 
+   public pos: Vector;
+
    /**
-    * @param x            The `x` coordinate of the event (in world coordinates)
-    * @param y            The `y` coordinate of the event (in world coordinates)
+    * @param x            OBSOLETE: This property will be removed in the 0.14.0 release. Please use the pos vector (pos.x). The `x` coordinate of the event (in world coordinates).
+    * @param y            OBSOLETE: This property will be removed in the 0.14.0 release. Please use the pos vector (pos.y). The `y` coordinate of the event (in world coordinates)
     * @param pageX        The `x` coordinate of the event (in document coordinates)
     * @param pageY        The `y` coordinate of the event (in document coordinates)
     * @param screenX      The `x` coordinate of the event (in screen coordinates)
@@ -77,6 +79,7 @@ export class PointerEvent extends GameEvent<any> {
     * @param pointerType  The type of pointer
     * @param button       The button pressed (if [[PointerType.Mouse]])
     * @param ev           The raw DOM event being handled
+    * @param pos          The position of the event (in world coordinates)
     */
    constructor(public x: number,
                public y: number,
@@ -89,6 +92,7 @@ export class PointerEvent extends GameEvent<any> {
                public button: PointerButton,
                public ev: any) {
       super();
+      this.pos = new Vector(x, y);
    }
 };
 
