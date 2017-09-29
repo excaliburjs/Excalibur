@@ -4,7 +4,6 @@ var game = new ex.Engine({
    width: 600,
    height: 400
 });
-game.backgroundColor = ex.Color.Azure;
 ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
 
 ex.Physics.broadphaseDebug = false;
