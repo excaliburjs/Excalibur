@@ -4,7 +4,7 @@ import { BoundingBox } from './Collision/BoundingBox';
 import { Texture } from './Resources/Texture';
 import {
    InitializeEvent, KillEvent, PreUpdateEvent, PostUpdateEvent,
-   PreDrawEvent, PostDrawEvent, PreDebugDrawEvent, PostDebugDrawEvent, GameEvent
+   PreDrawEvent, PostDrawEvent, PreDebugDrawEvent, PostDebugDrawEvent, GameEvent, CollisionEvent, PostCollisionEvent
 } from './Events';
 import { Engine } from './Engine';
 import { Color } from './Drawing/Color';
@@ -471,6 +471,8 @@ export class Actor extends Class implements IActionable, IEvented {
       }
    }
 
+   public on(eventName: Events.collision, handler: (event?: CollisionEvent) => void): void;
+   public on(eventName: Events.postcollision, handler: (event?: PostCollisionEvent) => void): void;
    public on(eventName: Events.kill, handler: (event?: KillEvent) => void): void;
    public on(eventName: Events.initialize, handler: (event?: InitializeEvent) => void): void;
    public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;

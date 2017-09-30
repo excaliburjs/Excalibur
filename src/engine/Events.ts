@@ -24,6 +24,7 @@ export type preframe = 'preframe';
 export type postframe = 'postframe';
 
 export type collision = 'collision';
+export type postcollision = 'postcollision';
 
 export type initialize = 'initialize';
 export type activate = 'activate';
@@ -266,7 +267,7 @@ export class HiddenEvent extends GameEvent<Engine> {
 }
 
 /**
- * Event thrown on an [[Actor|actor]] when a collision has occurred
+ * Event thrown on an [[Actor|actor]] when a collision will occur this frame
  */
 export class CollisionEvent extends GameEvent<Actor> {
 
@@ -279,6 +280,15 @@ export class CollisionEvent extends GameEvent<Actor> {
    constructor(public actor: Actor, public other: Actor, public side: Side, public intersection: Vector) {
       super();
       this.target = actor;
+   }
+}
+
+/**
+ * Event thrown on an [[Actor|actor]] when a collision has been resolved (body reacted) this frame
+ */
+export class PostCollisionEvent extends CollisionEvent {
+   constructor(public actor: Actor, public other: Actor, public side: Side, public intersection: Vector) {
+      super(actor, other, side, intersection);
    }
 }
 

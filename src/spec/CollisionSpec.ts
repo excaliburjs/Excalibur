@@ -6,10 +6,9 @@ describe('A Collision', () => {
    var actor2: ex.Actor = null;
    var scene: ex.Scene = null;
    var engine: ex.Engine = null;
-   var mock = new Mocks.Mocker();
 
    beforeEach(() => {
-      engine = mock.engine(0, 0);
+      engine = TestUtils.engine({ width: 600, height: 400});
       scene = new ex.Scene(engine);
       engine.currentScene = scene;
       actor1 = new ex.Actor(0, 0, 10, 10);
@@ -18,6 +17,12 @@ describe('A Collision', () => {
       actor2.collisionType = ex.CollisionType.Active;
       scene.add(actor1);
       scene.add(actor2);
+   });
+
+   afterEach(() => {
+      ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Box;
+      engine.stop();
+      engine = null;
    });
 
    it('should throw one event for each actor participating', () => {
@@ -74,13 +79,40 @@ describe('A Collision', () => {
          }
          
        });
-       
      });
-  
-  
-     
    });
    
+
+   it('should not collide when active and passive', (done) => {
+      engine = TestUtils.engine({width: 600, height: 400});
+      ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
+      
+      var activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
+      activeBlock.collisionType = ex.CollisionType.Active;
+      activeBlock.vel.x = 100;
+      engine.add(activeBlock);
+      
+      var passiveBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
+      passiveBlock.collisionType = ex.CollisionType.Passive;
+      passiveBlock.vel.x = -100;
+      engine.add(passiveBlock);
+
+
+      let collisionHandler = (ev: ex.CollisionEvent) => {
+         engine.add(new ex.Timer(() => {
+            expect(activeBlock.vel.x).toBeGreaterThan(0);
+            expect(passiveBlock.vel.x).toBeLessThan(0);
+            done();
+         }, 30, false));
+      };
+
+      activeBlock.once('collision', collisionHandler);
+      
+      engine.start();
+      
+      
+      
+   });
 
 
 });

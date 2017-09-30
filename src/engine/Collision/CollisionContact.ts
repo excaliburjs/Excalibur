@@ -4,7 +4,7 @@ import { Body } from './Body';
 import { Actor, CollisionType } from '../Actor';
 import { Vector } from '../Algebra';
 import { Physics, CollisionResolutionStrategy } from '../Physics';
-import { CollisionEvent } from '../Events';
+import { CollisionEvent, PostCollisionEvent } from '../Events';
 import * as Util from '../Util/Util';
 
 /**
@@ -110,6 +110,8 @@ export class CollisionContact {
 
             bodyA.vel.y = velY;
          }
+
+         bodyA.emit('postcollision', new PostCollisionEvent(bodyA, bodyB, Util.getSideFromVector(mtv), mtv));
       }
    }
 
@@ -128,7 +130,6 @@ export class CollisionContact {
    }
 
    private _resolveRigidBodyCollision() {
-
       // perform collison on bounding areas
       var bodyA: Body = this.bodyA.body;
       var bodyB: Body = this.bodyB.body;
@@ -138,6 +139,24 @@ export class CollisionContact {
          return;
       }
 
+      // Publish collision events on both participants
+      var side = Util.getSideFromVector(this.mtv);
+      bodyA.actor.emit('collision', new CollisionEvent(this.bodyA.body.actor,
+         this.bodyB.body.actor,
+         side,
+         this.mtv));
+      bodyB.actor.emit('collision', new CollisionEvent(this.bodyB.body.actor,
+         this.bodyA.body.actor,
+         Util.getOppositeSide(side),
+         this.mtv.negate()));
+
+
+      // If any of the participants are passive then short circuit
+      if (bodyA.actor.collisionType === CollisionType.Passive ||
+          bodyB.actor.collisionType === CollisionType.Passive) {
+             return;
+      }
+      
       var invMassA = bodyA.actor.collisionType === CollisionType.Fixed ? 0 : 1 / bodyA.mass;
       var invMassB = bodyB.actor.collisionType === CollisionType.Fixed ? 0 : 1 / bodyB.mass;
 
@@ -172,17 +191,6 @@ export class CollisionContact {
       if (rvNormal > 0) {
          return;
       }
-
-      // Publish collision events on both participants
-      var side = Util.getSideFromVector(this.mtv);
-      bodyA.actor.emit('collision', new CollisionEvent(this.bodyA.body.actor,
-         this.bodyB.body.actor,
-         side,
-         this.mtv));
-      bodyB.actor.emit('collision', new CollisionEvent(this.bodyB.body.actor,
-         this.bodyA.body.actor,
-         Util.getOppositeSide(side),
-         this.mtv.negate()));
 
       // Collision impulse formula from Chris Hecker
       // https://en.wikipedia.org/wiki/Collision_response
@@ -259,5 +267,14 @@ export class CollisionContact {
             }
          }
       }
+
+      bodyA.actor.emit('postcollision', new PostCollisionEvent(this.bodyA.body.actor,
+         this.bodyB.body.actor,
+         side,
+         this.mtv));
+      bodyB.actor.emit('postcollision', new PostCollisionEvent(this.bodyB.body.actor,
+         this.bodyA.body.actor,
+         Util.getOppositeSide(side),
+         this.mtv.negate()));
    }
 }
