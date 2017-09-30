@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - New pause/unpause feature for timers to help with more robust pausing ([#885](https://github.com/excaliburjs/Excalibur/issues/885))
+- New collision event `postcollision` to indicate if collision resolution occured ([#880](https://github.com/excaliburjs/Excalibur/issues/880))
 
 ### Changed
 
@@ -18,6 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 - Fixed same instance of color potentially being shared, and thus mutated, between instance actors ([#840](https://github.com/excaliburjs/Excalibur/issues/840))
+- Fixed bug where active and passive type collisions would resolve when they shouldn't when in rigid body mode ([#880]((https://github.com/excaliburjs/Excalibur/issues/880))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
