@@ -107,6 +107,25 @@ export class EventDispatcher implements IEvented {
    }
 
    /**
+    * Once listens to an event once then auto unsubscribes from that event
+    *
+    * @param eventName The name of the event to subscribe to once
+    * @param handler   The handler of the event that will be auto unsubscribed
+    */
+   public once(eventName: string, handler: (event?: GameEvent<any>) => void) {
+
+      let metaHandler = (event?: GameEvent<any>) => {
+         let ev = event || new GameEvent();
+         ev.target = ev.target || this._target;
+
+         this.off(eventName, handler);
+         handler.call(ev.target, ev);
+      };
+
+      this.on(eventName, metaHandler);
+   }
+
+   /**
     * Wires this event dispatcher to also recieve events from another
     */
    public wire(eventDispatcher: EventDispatcher): void {

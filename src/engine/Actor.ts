@@ -490,6 +490,25 @@ export class Actor extends Class implements IActionable, IEvented {
       this.eventDispatcher.on(eventName, handler);
    }
 
+   public once(eventName: Events.kill, handler: (event?: KillEvent) => void): void;
+   public once(eventName: Events.initialize, handler: (event?: InitializeEvent) => void): void;
+   public once(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
+   public once(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): void;
+   public once(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void): void;
+   public once(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void): void;
+   public once(eventName: Events.predebugdraw, handler: (event?: PreDebugDrawEvent) => void): void;
+   public once(eventName: Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void): void;
+   public once(eventName: Events.pointerup, handler: (event?: PointerEvent) => void): void;
+   public once(eventName: Events.pointerdown, handler: (event?: PointerEvent) => void): void;
+   public once(eventName: Events.pointermove, handler: (event?: PointerEvent) => void): void;
+   public once(eventName: Events.pointercancel, handler: (event?: PointerEvent) => void): void;
+   public once(eventName: Events.pointerwheel, handler: (event?: WheelEvent) => void): void;
+   public once(eventName: string, handler: (event?: GameEvent<any>) => void): void;
+   public once(eventName: string, handler: (event?: GameEvent<any>) => void): void {
+      this._checkForPointerOptIn(eventName);
+      this.eventDispatcher.once(eventName, handler);
+   }
+
    /**
     * If the current actor is a member of the scene, this will remove
     * it from the scene graph. It will no longer be drawn or updated.
