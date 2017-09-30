@@ -492,6 +492,8 @@ export class Actor extends Class implements IActionable, IEvented {
       this.eventDispatcher.on(eventName, handler);
    }
 
+   public once(eventName: Events.collision, handler: (event?: CollisionEvent) => void): void;
+   public once(eventName: Events.postcollision, handler: (event?: PostCollisionEvent) => void): void;
    public once(eventName: Events.kill, handler: (event?: KillEvent) => void): void;
    public once(eventName: Events.initialize, handler: (event?: InitializeEvent) => void): void;
    public once(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
