@@ -48,6 +48,16 @@ export class Class implements IEvented {
       this.eventDispatcher.emit(eventName, eventObject);
    }
 
+   /**
+    * Once listens to an event once then auto unsubscribes from that event
+    *
+    * @param eventName The name of the event to subscribe to once
+    * @param handler   The handler of the event that will be auto unsubscribed
+    */
+   public once(eventName: string, handler: (event?: GameEvent<any>) => void) {
+      this.eventDispatcher.once(eventName, handler);
+   }
+
 
    /**
     * You may wish to extend native Excalibur functionality in vanilla Javascript. 

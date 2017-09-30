@@ -26,4 +26,12 @@ export interface IEvented {
     *
     */
    off(eventName: string, handler: (event?: GameEvent<any>) => void): void;
+
+   /**
+    * Once listens to an event once then auto unsubscribes from that event
+    *
+    * @param eventName The name of the event to subscribe to once
+    * @param handler   The handler of the event that will be auto unsubscribed
+    */
+    once(eventName: string, handler: (event?: GameEvent<any>) => void): void;
 }
