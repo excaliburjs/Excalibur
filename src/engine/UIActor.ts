@@ -1,23 +1,26 @@
 import { Vector } from './Algebra';
 import { Engine } from './Engine';
-import { Actor, CollisionType } from './Actor';
+import { Actor, CollisionType, IActorArgs } from './Actor';
 import * as Traits from './Traits/Index';
-import { Configurable } from './Configurable';
+
 
 /**
  * Helper [[Actor]] primitive for drawing UI's, optimized for UI drawing. Does
  * not participate in collisions. Drawn on top of all other actors.
  */
-export class UIActorImpl extends Actor {
+export class UIActor extends Actor {
    protected _engine: Engine;
 
+   constructor();
+   constructor(xOrConfig?: number, y?: number, width?: number, height?: number)
+   constructor(config?: Partial<IActorArgs>);
    /**
     * @param x       The starting x coordinate of the actor
     * @param y       The starting y coordinate of the actor
     * @param width   The starting width of the actor
     * @param height  The starting height of the actor
     */
-   constructor(xOrConfig?: number | Partial<UIActorImpl>, y?: number, width?: number, height?: number) {
+   constructor(xOrConfig?: number | Partial<IActorArgs>, y?: number, width?: number, height?: number) {
       if (typeof(xOrConfig !== 'object')) {
          super(<number>xOrConfig, y, width, height);
       } else {
@@ -39,15 +42,5 @@ export class UIActorImpl extends Actor {
 
       var coords = this._engine.worldToScreenCoordinates(new Vector(x, y));
       return super.contains(coords.x, coords.y);
-   }
-}
-
-
-export class UIActor extends Configurable(UIActorImpl) {
-   constructor();
-   constructor(config?: Partial<UIActorImpl>);
-   constructor(x?: number, y?: number, width?: number, height?: number);
-   constructor(xOrConfig?: number | Partial<UIActorImpl>, y?: number, width?: number, height?: number) {
-      super(xOrConfig, y, width, height);
    }
 }
