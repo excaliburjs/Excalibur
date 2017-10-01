@@ -36,7 +36,7 @@ import { Configurable } from './Configurable';
  * [[include:Actors.md]]
  *
  */
-export class InternalActor extends Class implements IActionable, IEvented {
+export class ActorImpl extends Class implements IActionable, IEvented {
    /**
     * Indicates the next id to be set
     */
@@ -44,7 +44,7 @@ export class InternalActor extends Class implements IActionable, IEvented {
    /**
     * The unique identifier for the actor
     */
-   public id: number = InternalActor.maxId++;
+   public id: number = ActorImpl.maxId++;
 
    /**
     * The physics body the is associated with this actor. The body is the container for all physical properties, like position, velocity,
@@ -437,9 +437,8 @@ export class InternalActor extends Class implements IActionable, IEvented {
       this.body.useBoxCollision();
    }
 
-   public getDefaultPropVals(): Partial<InternalActor> {
+   public getDefaultPropVals(): Partial<ActorImpl> {
       return {
-          id: InternalActor.maxId++,
           body: new Body(this),
           scale: new Vector(1, 1),
           traits: [],
@@ -1160,14 +1159,14 @@ export enum CollisionType {
    Fixed
 }
 
-export interface IActorArgs extends InternalActor {
+export interface IActorArgs extends ActorImpl {
       width: number;
       height: number;
 } 
    
-export class Actor extends Configurable(InternalActor) {
-
-   constructor(config: Partial<IActorArgs>);
+export class Actor extends Configurable(ActorImpl) {
+   constructor();
+   constructor(config?: Partial<IActorArgs>);
    constructor(x?: number, y?: number, width?: number, height?: number, color?: Color);
    constructor(xOrConfig?: number | Partial<IActorArgs>, y?: number, width?: number, height?: number, color?: Color) {
       super(xOrConfig, y, width, height, color);
