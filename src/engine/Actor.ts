@@ -402,7 +402,7 @@ export class InternalActor extends Class implements IActionable, IEvented {
    constructor(xOrConfig?: number | Partial<IActorArgs>, y?: number, width?: number, height?: number, color?: Color) {
       super();
 
-      if (xOrConfig && typeof xOrConfig === 'object'){
+      if (xOrConfig && typeof xOrConfig === 'object') {
          var config = xOrConfig;
          xOrConfig = config.pos.x;
          y = config.pos.y;
