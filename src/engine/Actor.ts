@@ -368,7 +368,13 @@ export class InternalActor extends Class implements IActionable, IEvented {
     * 
     * The default is `null` which prevents a rectangle from being drawn.
     */
-   public color: Color;
+   public get color() : Color {
+      return this._color;
+   }
+   public set color(v : Color) {
+      this._color = v.clone();
+   }
+   private _color : Color;
 
    /**
     * Whether or not to enable the [[CapturePointer]] trait that propagates 
@@ -396,27 +402,23 @@ export class InternalActor extends Class implements IActionable, IEvented {
    constructor(xOrConfig?: number | Partial<IActorArgs>, y?: number, width?: number, height?: number, color?: Color) {
       super();
 
-      if (typeof xOrConfig !== 'object') {
-         this.pos.x = xOrConfig || 0;
+      if (xOrConfig && typeof xOrConfig === 'object'){
+         var config = xOrConfig;
+         xOrConfig = config.pos.x;
+         y = config.pos.y;
+         width = config.width;
+         height = config.height;
+      }
+         this.pos.x = <number>xOrConfig || 0;
          this.pos.y = y || 0;
          this._width = width || 0;
          this._height = height || 0;
          if (color) {
-            this.color = color.clone();
+            this.color = color;
             // set default opacity of an actor to the color
             this.opacity = color.a;
          }
-      } else {
-         this.pos.x = xOrConfig.pos.x || 0;
-         this.pos.y = xOrConfig.pos.y || 0;
-         this._width =  xOrConfig.width || 0;
-         this._height =  xOrConfig.height || 0;
-         if ( xOrConfig.color) {
-            this.color =  xOrConfig.color.clone();
-            // set default opacity of an actor to the color
-            this.opacity =  xOrConfig.color.a;
-         }
-      }
+       
       // Build default pipeline
       //this.traits.push(new ex.Traits.EulerMovement());
       // TODO: TileMaps should be converted to a collision area
@@ -1156,4 +1158,18 @@ export enum CollisionType {
     * collision events.
     */
    Fixed
+}
+
+export interface IActorArgs extends InternalActor {
+      width: number;
+      height: number;
+} 
+   
+export class Actor extends Configurable(InternalActor) {
+
+   constructor(config: Partial<IActorArgs>);
+   constructor(x?: number, y?: number, width?: number, height?: number, color?: Color);
+   constructor(xOrConfig?: number | Partial<IActorArgs>, y?: number, width?: number, height?: number, color?: Color) {
+      super(xOrConfig, y, width, height, color);
+   }
 }
