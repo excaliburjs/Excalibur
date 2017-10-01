@@ -14,7 +14,7 @@ module Mocks {
    }
 
    export class Mocker {
-      navigator() {
+      navigator(): any {
          var _internalGamePads = { 0: undefined, 
                                    1: undefined, 
                                    2: undefined, 
@@ -55,7 +55,7 @@ module Mocks {
          return mockNavigator;
       };
 
-      realengine() {
+      realengine(): ex.Engine {
          navigator = <any>this.navigator();
          
          return new ex.Engine({

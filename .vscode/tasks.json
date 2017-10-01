@@ -20,6 +20,11 @@
          "problemMatcher": "$tsc"
       },
       {
+         "taskName": "karma",
+         "isTestCommand": true,
+         "showOutput": "always"
+      },
+      {
          "taskName": "shell:specs",
          "args": [],
          "isBuildCommand": false,

@@ -5,10 +5,12 @@ describe('A Timer', () => {
    var timer;
    var scene: ex.Scene;
    var engine: ex.Engine;
-   var mock = new Mocks.Mocker();
 
    beforeEach(() => {
-      engine = mock.engine(0, 0);
+      engine = TestUtils.engine({
+         width: 600,
+         height: 400
+      });
       timer = new ex.Timer(function() { /*do nothing*/ }, 500);     
       scene = new ex.Scene(engine);
       engine.currentScene = scene;
@@ -43,6 +45,12 @@ describe('A Timer', () => {
       timer.update(501);
 
       expect(count).toBe(3);
+   });
+
+   it('can return how long it has been running', () => {
+      timer.update(372);
+
+      expect(timer.getTimeRunning()).toEqual(372);
    });
 
    it('can be canceled', () => {
@@ -158,6 +166,44 @@ describe('A Timer', () => {
          expect(count).toBe(2 + i);
          expect(timer.complete).toBe(false);
       }
+   });
+
+   it('can be paused', () => {
+
+      var count = 0;
+      // arrange
+      var timer = new ex.Timer(() => {
+         count++;
+      }, 100, true);
+      scene.add(timer);
+
+      // act
+      timer.pause();
+      scene.update(engine, 200);
+
+      // assert
+      expect(count).toBe(0);
+      expect(timer.complete).toBe(false);
+   });
+
+   it('can be unpaused', () => {
+      var count = 0;
+      // arrange
+      var timer = new ex.Timer(() => {
+         count++;
+      }, 100, true);
+      scene.add(timer);
+
+      // act
+      timer.pause();
+      scene.update(engine, 200);
+      timer.unpause();
+      scene.update(engine, 100);
+      scene.update(engine, 100); 
+
+      // assert
+      expect(count).toBe(2);
+      expect(timer.complete).toBe(false);
    });
 
 });

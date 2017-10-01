@@ -417,7 +417,6 @@ export class InternalActor extends Class implements IActionable, IEvented {
             this.opacity =  xOrConfig.color.a;
          }
       }
-
       // Build default pipeline
       //this.traits.push(new ex.Traits.EulerMovement());
       // TODO: TileMaps should be converted to a collision area
@@ -1157,19 +1156,4 @@ export enum CollisionType {
     * collision events.
     */
    Fixed
-}
-
-export interface IActorArgs extends InternalActor {
-   width: number;
-   height: number;
-} 
-
-export class Actor extends Configurable(InternalActor) {
-
-   constructor(config: Partial<IActorArgs>);
-   constructor(x?: number, y?: number, width?: number, height?: number, color?: Color);
-   constructor(xOrConfig?: number | Partial<IActorArgs>, y?: number, width?: number, height?: number, color?: Color) {
-      super(xOrConfig, y, width, height, color);
-   }
-
 }

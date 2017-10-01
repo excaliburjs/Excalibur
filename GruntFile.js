@@ -149,6 +149,11 @@ module.exports = function (grunt) {
                { src: './build/dist/<%= pkg.name %>.amd.d.ts', dest: './sandbox/<%= pkg.name %>.amd.d.ts' },
                { src: './build/dist/<%= pkg.name %>.d.ts', dest: './sandbox/<%= pkg.name %>.d.ts' }
             ]
+         },
+         coveralls: {
+            files: [
+               { expand: true, flatten: true, src: ['coverage/**'], dest: 'coverage/', filter: 'isFile'}
+            ]
          }
       },
 
@@ -227,6 +232,12 @@ module.exports = function (grunt) {
          ]
       },
 
+      karma: {
+         unit: {
+            configFile: 'karma.conf.js'
+         }
+      },
+
       //
       // Jasmine configuration
       //
@@ -273,7 +284,7 @@ module.exports = function (grunt) {
       //
       coveralls: {
          main: {
-            src: './coverage/lcov/lcov.info',
+            src: './coverage/lcov.info',
             options: {
                force: true
             }
@@ -291,6 +302,17 @@ module.exports = function (grunt) {
             },
          },
          files: ['build/package.json']
+      },
+
+      connect: {
+         sandbox: {
+            options: {
+               port: '3001',
+               useAvailablePort: true,
+               keepalive: true,
+               base: './sandbox'
+            }
+         }
       }
 
    });
@@ -309,7 +331,9 @@ module.exports = function (grunt) {
    grunt.loadNpmTasks('grunt-coveralls');
    grunt.loadNpmTasks('grunt-build-control');
    grunt.loadNpmTasks('grunt-bumpup');
+   grunt.loadNpmTasks('grunt-karma');
    grunt.loadNpmTasks('grunt-contrib-jasmine');
+   grunt.loadNpmTasks('grunt-contrib-connect');
 
    //
    // Register available Grunt tasks
@@ -322,16 +346,19 @@ module.exports = function (grunt) {
    grunt.registerTask('compile', ['shell:gitBuild', 'clean', 'ts:core', 'concat', 'uglify', 'copy']);
 
    // Run tests quickly
-   grunt.registerTask('tests', ['ts:specs', 'jasmine']);
+   grunt.registerTask('tests', ['compile', 'karma']);
 
    // Debug compile (for VS Code)
-   grunt.registerTask('debug', ['compile', 'ts:debug'])   
+   grunt.registerTask('debug', ['compile', 'ts:debug']);
 
    // Compile visual tests
    grunt.registerTask('visual', ['ts:visual']);
 
+   // Serve sandbox
+   grunt.registerTask('sandbox', ['connect']);
+
    // Travis CI task
-   grunt.registerTask('travis', ['default', 'coveralls', 'apidocs']);
+   grunt.registerTask('travis', ['default', 'copy:coveralls', 'coveralls', 'apidocs']);
 
    // Appveyor task
    grunt.registerTask('appveyor', ['default', 'shell:nuget']);

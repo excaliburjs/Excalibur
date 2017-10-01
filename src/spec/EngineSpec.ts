@@ -115,7 +115,9 @@ describe('The engine', () => {
        height: 600,
        width: 800,
        displayMode: ex.DisplayMode.Position,
-       position: {top: 1, left: '5em'}
+       position: {top: 1, left: '5em'},
+       suppressConsoleBootMessage: true,
+       suppressMinimumBrowserFeatureDetection: true
      });
      
      expect(game.canvas.style.top).toEqual('1px');
@@ -125,7 +127,9 @@ describe('The engine', () => {
       var game = new ex.Engine({
         height: 600,
         width: 800,
-        backgroundColor: ex.Color.White
+        backgroundColor: ex.Color.White,
+        suppressConsoleBootMessage: true,
+        suppressMinimumBrowserFeatureDetection: true
       });
 
       expect(game.backgroundColor.toString()).toEqual(ex.Color.White.toString());
@@ -134,7 +138,9 @@ describe('The engine', () => {
    it('should accept default backgroundColor #2185d0', () => {
       var game = new ex.Engine({
          height: 600,
-         width: 800
+         width: 800,
+         suppressConsoleBootMessage: true,
+         suppressMinimumBrowserFeatureDetection: true
       });
 
       expect(game.backgroundColor.toString()).toEqual(ex.Color.fromHex('#2185d0').toString());

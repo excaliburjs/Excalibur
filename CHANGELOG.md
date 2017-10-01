@@ -10,12 +10,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Breaking Changes
 
 ### Added
+- New pause/unpause feature for timers to help with more robust pausing ([#885](https://github.com/excaliburjs/Excalibur/issues/885))
 
 ### Changed
 
 ### Deprecated
+- `PointerEvent.x` and `PointerEvent.y`, in favor of `PointerEvent.pos` ([#612](https://github.com/excaliburjs/Excalibur/issues/612))
 
 ### Fixed
+- Fixed same instance of color potentially being shared, and thus mutated, between instance actors ([#840](https://github.com/excaliburjs/Excalibur/issues/840))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 

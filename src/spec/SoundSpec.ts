@@ -298,7 +298,7 @@ describe('Sound resource', () => {
 
 class MockAudioImplementation implements ex.IAudioImplementation {
    public responseType = 'test';
-   public processData(data: any) {
+   public processData(data: any): ex.Promise<any> {
       return ex.Promise.resolve(data);
    }
    public createInstance(): ex.IAudio {
@@ -330,7 +330,7 @@ class MockAudioInstance implements ex.IAudio {
       return this._isPlaying; 
    }
 
-   play() {
+   play(): ex.Promise<boolean> {
       
       if (!this._isPlaying) {
          this._isPlaying = true;

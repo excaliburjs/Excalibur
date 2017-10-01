@@ -120,8 +120,13 @@ collisions, which is sufficient for breakout.
     // Set the velocity in pixels per second
     ball.vel.setTo(100, 100);
 
-    // Set the collision Type to elastic
-    ball.collisionType = ex.CollisionType.Elastic;
+   // Set the collision Type to passive
+   // This means "tell me when I collide with an emitted event, but don't let excalibur do anything automatically"
+   ball.collisionType = ex.CollisionType.Passive;
+   // Other possible collision types:
+   // "ex.CollisionType.PreventCollision - this means do not participate in any collision notification at all"
+   // "ex.CollisionType.Active - this means participate and let excalibur resolve the positions/velocities of actors after collision"
+   // "ex.CollisionType.Fixed - this means participate, but this object is unmovable"
 
     // Add the ball to the current scene
     game.add(ball);
@@ -211,16 +216,30 @@ layout and add them to the current scene.
     });
 
 When the ball collides with bricks, we want to remove them from the
-scene.
+scene. Additionally, if the ball strikes a brick or the paddle we want to 
+reverse its course.
 
 .. code-block:: javascript
 
-    // On collision remove the brick
+    // On collision remove the brick, bounce the ball
     ball.on('collision', function (ev) {
         if (bricks.indexOf(ev.other) > -1) {
             // kill removes an actor from the current scene
             // therefore it will no longer be drawn or updated
             ev.other.kill();
+        }
+  
+        // reverse course after any collision
+        // intersections are the direction body A has to move to not be clipping body B
+        // `ev.intersection` is a vector `normalize()` will make the length of it 1
+        // `negate()` flips the direction of the vector
+        var intersection = ev.intersection.normalize();
+        
+        // The largest component of intersection is our axis to flip
+        if (Math.abs(intersection.x) > Math.abs(intersection.y)) {
+            ball.vel.x *= -1;
+        } else {
+            ball.vel.y *= -1;
         }
     });
 
