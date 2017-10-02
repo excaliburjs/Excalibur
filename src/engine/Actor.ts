@@ -25,7 +25,7 @@ import * as Traits from './Traits/Index';
 import * as Effects from './Drawing/SpriteEffects';
 import * as Util from './Util/Util';
 import * as Events from './Events';
-import { Configurable } from './Configurable';
+import { Configurable, IDefaultable } from './Configurable';
 
 /**
  * The most important primitive in Excalibur is an `Actor`. Anything that
@@ -36,7 +36,7 @@ import { Configurable } from './Configurable';
  * [[include:Actors.md]]
  *
  */
-export class ActorImpl extends Class implements IActionable, IEvented {
+export class ActorImpl extends Class implements IActionable, IEvented, IDefaultable<ActorImpl> {
    /**
     * Indicates the next id to be set
     */
@@ -404,8 +404,8 @@ export class ActorImpl extends Class implements IActionable, IEvented {
 
       if (xOrConfig && typeof xOrConfig === 'object') {
          var config = xOrConfig;
-         xOrConfig = config.pos.x;
-         y = config.pos.y;
+         xOrConfig = config.pos ? config.pos.x : config.x;
+         y = config.pos ? config.pos.y : config.y;
          width = config.width;
          height = config.height;
       }

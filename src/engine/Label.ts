@@ -2,6 +2,7 @@ import { Engine } from './Engine';
 import { Color } from './Drawing/Color';
 import { SpriteFont } from './Drawing/SpriteSheet';
 import { Actor, CollisionType } from './Actor';
+import { Configurable, IDefaultable } from './Configurable';
 
 
 /**
@@ -110,7 +111,7 @@ export enum BaseAlign {
     *
     * [[include:Labels.md]]
     */
-   export class Label extends Actor {
+   export class LabelImpl extends Actor implements IDefaultable<LabelImpl> {
 
    /**
     * The text to draw.
@@ -120,7 +121,7 @@ export enum BaseAlign {
    /**
     * Sets or gets the bold property of the label's text, by default it's false
     */
-   public bold: boolean = false;
+   public bold: boolean;
 
    /**
     * The [[SpriteFont]] to use, if any. Overrides [[fontFamily]] if present.
@@ -136,27 +137,27 @@ export enum BaseAlign {
    /**
     * The font size in the selected units, default is 10 (default units is pixel)
     */
-   public fontSize: number = 10;
+   public fontSize: number;
 
    /**
     * The font style for this label, the default is [[FontStyle.Normal]]
     */
-   public fontStyle: FontStyle = FontStyle.Normal;
+   public fontStyle: FontStyle;
 
    /**
     * The css units for a font size such as px, pt, em (SpriteFont only support px), by default is 'px';
     */ 
-   public fontUnit: FontUnit = FontUnit.Px;
+   public fontUnit: FontUnit;
 
    /**
     * Gets or sets the horizontal text alignment property for the label. 
     */
-   public textAlign: TextAlign = TextAlign.Left;
+   public textAlign: TextAlign;
 
    /**
     * Gets or sets the baseline alignment property for the label.
     */
-   public baseAlign: BaseAlign = BaseAlign.Bottom;
+   public baseAlign: BaseAlign;
 
    /**
     * Gets or sets the maximum width (in pixels) that the label should occupy
@@ -166,17 +167,17 @@ export enum BaseAlign {
    /**
     * Gets or sets the letter spacing on a Label. Only supported with Sprite Fonts.
     */
-   public letterSpacing: number = 0; //px
+   public letterSpacing: number; //px
 
    /**
     * Whether or not the [[SpriteFont]] will be case-sensitive when matching characters.
     */
-   public caseInsensitive: boolean = true;
+   public caseInsensitive: boolean;
 
-   private _textShadowOn: boolean = false;
-   private _shadowOffsetX: number = 0;
-   private _shadowOffsetY: number = 0;
-   private _shadowColor: Color = Color.Black.clone();
+   private _textShadowOn: boolean;
+   private _shadowOffsetX: number;
+   private _shadowOffsetY: number;
+   private _shadowColor: Color;
 
    /**
     * @param text        The text of the label
@@ -186,16 +187,47 @@ export enum BaseAlign {
     * @param spriteFont  Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precedence 
     * over a css font.
     */
-   constructor(text?: string, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
-      super(x, y);
-      this.text = text || '';
+   constructor(textOrConfig?: string | Partial<LabelImpl>, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
+      if (textOrConfig && typeof textOrConfig === 'object') {
+         super(textOrConfig);
+         var config = textOrConfig;
+         textOrConfig = config ? config.text : '';
+         x = config.x;
+         y = config.y;
+         fontFamily = config.fontFamily;
+         spriteFont = config.spriteFont;
+      } else {
+         super(x, y);
+      }
+
+      this.text = <string>textOrConfig || '';
       this.color = Color.Black.clone();
       this.spriteFont = spriteFont;
       this.collisionType = CollisionType.PreventCollision;
       this.fontFamily = fontFamily || 'sans-serif'; // coalesce to default canvas font
+
+      this._textShadowOn = false;
+      this._shadowOffsetX = 0;
+      this._shadowOffsetY = 0;
+      this._shadowColor = Color.Black.clone();
       if (spriteFont) {
          //this._textSprites = spriteFont.getTextSprites();
       }
+   }
+
+   public getDefaultPropVals(): Partial<LabelImpl> {
+
+      var labelDefaults: Partial<LabelImpl> = super.getDefaultPropVals();   
+      labelDefaults.bold = false;   
+      labelDefaults.fontSize = 10;
+      labelDefaults.fontStyle = FontStyle.Normal;
+      labelDefaults.fontUnit = FontUnit.Px;
+      labelDefaults.textAlign = TextAlign.Left;
+      labelDefaults.baseAlign = BaseAlign.Bottom;
+      labelDefaults.letterSpacing = 0; //px
+      labelDefaults.caseInsensitive = true;
+
+      return labelDefaults;
    }
 
 
@@ -390,4 +422,18 @@ export enum BaseAlign {
       super.debugDraw(ctx);
    }
 
+}
+
+// export interface IActorArgs extends ActorImpl {
+//    width: number;
+//    height: number;
+// } 
+
+export class Label extends Configurable(LabelImpl) {
+   constructor();
+   constructor(config?: Partial<LabelImpl>);
+   constructor(text?: string, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont);
+   constructor(textOrConfig?: string | Partial<LabelImpl>, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
+      super(textOrConfig, x, y, fontFamily, spriteFont);
+   }
 }

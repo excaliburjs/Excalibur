@@ -66,7 +66,8 @@ ex.Physics.acc = new ex.Vector(0, 800); // global accel
 
 
 // Add some UI
-var heart = new ex.UIActor(0, 0, 20, 20);
+//var heart = new ex.UIActor(0, 0, 20, 20);
+var heart = new ex.UIActor({x: 0, y: 0, width: 20, height: 20});
 heart.scale.setTo(2, 2);
 heart.addDrawing(heartTex.asSprite());
 game.add(heart);
@@ -92,7 +93,11 @@ game.add(tileMap);
 
 // Create spriteFont
 var spriteFont = new ex.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
-var label = new ex.Label('Hello World', 100, 100, null, spriteFont);
+//var label = new ex.Label('Hello World', 100, 100, null, spriteFont);
+var label = new ex.Label({text: 'Hello World',
+                             x: 100,
+                             y: 100,
+                             spriteFont: spriteFont});
 label.actions.scaleTo(2, 2, .5, .5).scaleTo(1, 1, .5, .5).repeatForever();
 game.add(label);
 
@@ -114,8 +119,14 @@ var currentX = 0;
 for (var i = 0; i < 36; i++) {
    currentX = tileBlockWidth * i + 10;
    var color = new ex.Color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
-   var block = new ex.Actor(currentX, 350 + Math.random() * 100, tileBlockWidth, tileBlockHeight, color);
-   block.collisionType = ex.CollisionType.Fixed;
+   var block = new ex.Actor({ x: currentX,
+                              y: 350 + Math.random() * 100,
+                              width: tileBlockWidth,
+                              height: tileBlockHeight,
+                              color: color,
+                              collisionType: ex.CollisionType.Fixed });
+   //var block = new ex.Actor(currentX, 350 + Math.random() * 100, tileBlockWidth, tileBlockHeight, color);
+   //block.collisionType = ex.CollisionType.Fixed;
    block.addCollisionGroup('ground');
    block.addDrawing(Animations.Block, blockAnimation);
 
@@ -149,9 +160,15 @@ game.add(follower);
 
 
 // Create the player
-var player = new ex.Actor(100, -200, 32, 96);
-player.enableCapturePointer = true;
-player.collisionType = ex.CollisionType.Active;
+// var player = new ex.Actor(100, -200, 32, 96);
+// player.enableCapturePointer = true;
+// player.collisionType = ex.CollisionType.Active;
+var player = new ex.Actor({x: 100,
+                           y: -200,
+                           width: 32,
+                           height: 96,
+                           enableCapturePointer: true,
+                           collisionType: ex.CollisionType.Active});
 follower.actions.meet(player, 60).asPromise().then(() => {
    console.log("Player met!!");
 });
