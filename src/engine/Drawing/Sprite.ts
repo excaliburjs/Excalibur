@@ -6,6 +6,7 @@ import { Texture } from '../Resources/Texture';
 import { Vector } from '../Algebra';
 import { Logger } from '../Util/Log';
 import { clamp } from '../Util/Util';
+import { Configurable, IDefaultable } from '../Configurable';
 
 /**
  * A [[Sprite]] is one of the main drawing primitives. It is responsible for drawing
@@ -13,14 +14,14 @@ import { clamp } from '../Util/Util';
  *
  * [[include:Sprites.md]]
  */
-export class Sprite implements IDrawable {
+export class SpriteImpl implements IDrawable, IDefaultable<SpriteImpl> {
    private _texture: Texture;
 
-   public rotation: number = 0.0;
-   public anchor: Vector = new Vector(0.0, 0.0);
-   public scale: Vector = new Vector(1, 1);
+   public rotation: number;
+   public anchor: Vector;
+   public scale: Vector;
 
-   public logger: Logger = Logger.getInstance();
+   public logger: Logger;
 
    /**
     * Draws the sprite flipped vertically
@@ -32,12 +33,17 @@ export class Sprite implements IDrawable {
     */
    public flipHorizontal: boolean = false;
 
-   public width: number = 0;
-   public height: number = 0;
-   public effects: Effects.ISpriteEffect[] = [];
+   public width: number;
+   public height: number;
+   public effects: Effects.ISpriteEffect[];
 
-   public naturalWidth: number = 0;
-   public naturalHeight: number = 0;
+   public sx: number;
+   public sy: number;
+   public swidth: number;
+   public sheight: number;
+
+   public naturalWidth: number;
+   public naturalHeight: number;
 
    private _spriteCanvas: HTMLCanvasElement = null;
    private _spriteCtx: CanvasRenderingContext2D = null;
@@ -52,13 +58,27 @@ export class Sprite implements IDrawable {
     * @param swidth  The width of the sprite in pixels
     * @param sheight The height of the sprite in pixels
     */
-   constructor(image: Texture, public sx: number, public sy: number, public swidth: number, public sheight: number) {
+   constructor(imageOrConfig: Texture | Partial<ISpriteArgs>, sx: number, sy: number, swidth: number, sheight: number) {
       if (sx < 0 || sy < 0 || swidth < 0 || sheight < 0) {
          this.logger.error('Sprite cannot have any negative dimensions x:', 
                               sx, 'y:', sy, 'width:', swidth, 'height:', sheight);            
       }
 
-      this._texture = image;
+      var image = imageOrConfig;
+      if (imageOrConfig && !(imageOrConfig instanceof Texture)) {
+         sx = imageOrConfig.sx;
+         sy = imageOrConfig.sy;
+         swidth = imageOrConfig.swidth;
+         sheight = imageOrConfig.sheight;
+         image = imageOrConfig.image;
+      }
+
+      this.sx = sx || 0;
+      this.sy = sy || 0;
+      this.swidth = swidth || 0;
+      this.sheight = sheight || 0;
+
+      this._texture = <Texture>image;
       this._spriteCanvas = document.createElement('canvas');
       this._spriteCanvas.width = swidth;
       this._spriteCanvas.height = sheight;
@@ -76,6 +96,26 @@ export class Sprite implements IDrawable {
       this.height = sheight;
       this.naturalWidth = swidth;
       this.naturalHeight = sheight;
+   }
+
+   public getDefaultPropVals(): Partial<SpriteImpl> {
+      return {
+         rotation: 0.0,
+         anchor: new Vector(0.0, 0.0),
+         scale:  new Vector(1, 1),
+         logger: Logger.getInstance(),
+         flipVertical: false,
+         flipHorizontal: false,
+         width: 0,
+         height: 0,
+         effects: [],     
+         naturalWidth: 0,
+         naturalHeight: 0,
+         sx: 0,
+         sy: 0,
+         swidth: 0,
+         sheight: 0
+      };
    }
 
    private _loadPixels() {
@@ -320,7 +360,7 @@ export class Sprite implements IDrawable {
    /**
     * Produces a copy of the current sprite
     */
-   public clone(): Sprite {
+   public clone(): SpriteImpl {
       var result = new Sprite(this._texture, this.sx, this.sy, this.swidth, this.sheight);
       result.scale = this.scale.clone();
       result.rotation = this.rotation;
@@ -334,4 +374,16 @@ export class Sprite implements IDrawable {
       return result;
    }
 
+}
+
+export interface ISpriteArgs extends SpriteImpl {
+   image: Texture;
+} 
+
+export class Sprite extends Configurable(SpriteImpl) {
+   constructor(config: Partial<ISpriteArgs>);
+   constructor(image: Texture, sx: number, sy: number, swidth: number, sheight: number)
+   constructor(imageOrConfig: Texture | Partial<ISpriteArgs>, sx?: number, sy?: number, swidth?: number, sheight?: number) {
+      super(imageOrConfig, sx, sy, swidth, sheight);
+   }
 }
