@@ -107,7 +107,7 @@ export class EventDispatcher implements IEvented {
    }
 
    /**
-    * Once listens to an event once then auto unsubscribes from that event
+    * Once listens to an event one time, then unsubscribes from that event
     *
     * @param eventName The name of the event to subscribe to once
     * @param handler   The handler of the event that will be auto unsubscribed
