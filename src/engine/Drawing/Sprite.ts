@@ -58,7 +58,7 @@ export class SpriteImpl implements IDrawable, IDefaultable<SpriteImpl> {
     * @param swidth  The width of the sprite in pixels
     * @param sheight The height of the sprite in pixels
     */
-   constructor(imageOrConfig: Texture | Partial<ISpriteArgs>, sx: number, sy: number, swidth: number, sheight: number) {
+   constructor(imageOrConfig: Texture | ISpriteArgs, sx: number, sy: number, swidth: number, sheight: number) {
       if (sx < 0 || sy < 0 || swidth < 0 || sheight < 0) {
          this.logger.error('Sprite cannot have any negative dimensions x:', 
                               sx, 'y:', sy, 'width:', swidth, 'height:', sheight);            
@@ -376,14 +376,14 @@ export class SpriteImpl implements IDrawable, IDefaultable<SpriteImpl> {
 
 }
 
-export interface ISpriteArgs extends SpriteImpl {
+export interface ISpriteArgs extends Partial<SpriteImpl> {
    image: Texture;
 } 
 
 export class Sprite extends Configurable(SpriteImpl) {
-   constructor(config: Partial<ISpriteArgs>);
+   constructor(config: ISpriteArgs);
    constructor(image: Texture, sx: number, sy: number, swidth: number, sheight: number)
-   constructor(imageOrConfig: Texture | Partial<ISpriteArgs>, sx?: number, sy?: number, swidth?: number, sheight?: number) {
+   constructor(imageOrConfig: Texture | ISpriteArgs, sx?: number, sy?: number, swidth?: number, sheight?: number) {
       super(imageOrConfig, sx, sy, swidth, sheight);
    }
 }
