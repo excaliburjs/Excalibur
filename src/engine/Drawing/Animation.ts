@@ -6,6 +6,7 @@ import { IDrawable } from '../Interfaces/IDrawable';
 import { Vector } from '../Algebra';
 import { Engine } from '../Engine';
 import * as Util from '../Util/Util';
+import { Configurable, IDefaultable } from '../Configurable';
 
 /**
  * Animations allow you to display a series of images one after another,
@@ -13,7 +14,7 @@ import * as Util from '../Util/Util';
  *
  * [[include:Animations.md]]
  */
-export class Animation implements IDrawable {
+export class AnimationImpl implements IDrawable, IDefaultable {
 
    /**
     * The sprite frames to play, in order. See [[SpriteSheet.getAnimationForAll]] to quickly
@@ -73,10 +74,20 @@ export class Animation implements IDrawable {
     * @param speed   The number in milliseconds to display each frame in the animation
     * @param loop    Indicates whether the animation should loop after it is completed
     */
-   constructor(engine: Engine, images: Sprite[], speed: number, loop?: boolean) {
+   constructor(engineOrConfig: Engine | IAnimationArgs, images: Sprite[], speed: number, loop?: boolean) {
+      
+      var engine = engineOrConfig;
+      if (engineOrConfig && !(engineOrConfig instanceof Engine)) {
+         var config = engineOrConfig;
+         engine = config.engine;
+         images = config.images;
+         speed = config.speed;
+         loop = config.loop;
+      }
+      
       this.sprites = images;
       this.speed = speed;
-      this._engine = engine;
+      this._engine = <Engine>engine;
       
       if (loop != null) {
          this.loop = loop;
@@ -92,6 +103,24 @@ export class Animation implements IDrawable {
          this.freezeFrame = images.length - 1;
       }
 
+   }
+
+   public getDefaultPropVals(): Partial<AnimationImpl> {
+      return {
+         sprites: [],
+         currentFrame: 0,            
+         anchor: new Vector(0.0, 0.0),
+         rotation: 0.0,
+         scale: new Vector(1, 1),
+         loop: true,
+         freezeFrame: -1,
+         flipVertical: false,
+         flipHorizontal: false,
+         width: 0,
+         height: 0,
+         naturalWidth: 0,
+         naturalHeight: 0
+      };
    }
 
    /**
@@ -294,4 +323,18 @@ export class Animation implements IDrawable {
       this.reset();
       this._engine.playAnimation(this, x, y);
    }
+}
+
+export interface IAnimationArgs extends Partial<AnimationImpl> {
+   engine: Engine;
+   images: Sprite[];
+   speed: number;
+} 
+
+export class Animation extends Configurable(AnimationImpl) {
+   constructor(config: IAnimationArgs);
+   constructor(engine: Engine, images: Sprite[], speed: number, loop?: boolean);
+   constructor(engineOrConfig: Engine | IAnimationArgs, images?: Sprite[], speed?: number, loop?: boolean) {
+      super(engineOrConfig, images, speed, loop);
    }
+}
