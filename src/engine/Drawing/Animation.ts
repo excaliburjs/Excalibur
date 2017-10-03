@@ -14,7 +14,7 @@ import { Configurable, IDefaultable } from '../Configurable';
  *
  * [[include:Animations.md]]
  */
-export class AnimationImpl implements IDrawable, IDefaultable {
+export class AnimationImpl implements IDrawable, IDefaultable<AnimationImpl> {
 
    /**
     * The sprite frames to play, in order. See [[SpriteSheet.getAnimationForAll]] to quickly
@@ -30,41 +30,41 @@ export class AnimationImpl implements IDrawable, IDefaultable {
    /**
     * Current frame index being shown
     */
-   public currentFrame: number = 0;
+   public currentFrame: number;
 
    private _oldTime: number = Date.now();
    
-   public anchor = new Vector(0.0, 0.0);
-   public rotation: number = 0.0;
-   public scale = new Vector(1, 1);
+   public anchor: Vector;
+   public rotation: number;
+   public scale: Vector;
 
    /**
     * Indicates whether the animation should loop after it is completed
     */
-   public loop: boolean = true;
+   public loop: boolean;
 
    /**
     * Indicates the frame index the animation should freeze on for a non-looping
     * animation. By default it is the last frame.
     */
-   public freezeFrame: number = -1;
+   public freezeFrame: number;
 
    private _engine: Engine;
 
    /**
     * Flip each frame vertically. Sets [[Sprite.flipVertical]].
     */
-   public flipVertical: boolean = false;
+   public flipVertical: boolean;
 
    /**
     * Flip each frame horizontally. Sets [[Sprite.flipHorizontal]].
     */
-   public flipHorizontal: boolean = false;
+   public flipHorizontal: boolean;
    
-   public width: number = 0;
-   public height: number = 0;
-   public naturalWidth: number = 0;
-   public naturalHeight: number = 0;
+   public width: number;
+   public height: number;
+   public naturalWidth: number;
+   public naturalHeight: number;
 
    /**
     * Typically you will use a [[SpriteSheet]] to generate an [[Animation]].
