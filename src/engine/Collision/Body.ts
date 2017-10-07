@@ -268,6 +268,24 @@ export class Body {
      return wasTouchingLastFrame && !currentlyTouching;
      
    }
+
+   /**
+    * Returns true if the body and another just started touching, where last frame they were not.
+    * @param other 
+    * @param game 
+    */
+   public justTouching(other: Actor, game: Engine): boolean {
+      var pair = new Pair(this, other.body);
+      var wasTouchingLastFrame = false;
+      
+      if (game.stats.prevFrame.physics.collidersHash[pair.id]) {
+          wasTouchingLastFrame = true;
+      };
+      
+      var currentlyTouching = this.touching(other);
+      
+      return !wasTouchingLastFrame && currentlyTouching; 
+   }
    
    
    

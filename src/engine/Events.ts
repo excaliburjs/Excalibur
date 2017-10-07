@@ -1,6 +1,7 @@
 import { Scene } from './Scene';
 import { Vector } from './Algebra';
 import { Actor } from './Actor';
+import { Trigger } from './Trigger';
 import { FrameStats } from './Debug';
 import { Engine } from './Engine';
 import { TileMap } from './TileMap';
@@ -34,6 +35,9 @@ export type deactivate = 'deactivate';
 
 export type exitviewport = 'exitviewport';
 export type enterviewport = 'enterviewport';
+
+export type exittrigger = 'exit';
+export type entertrigger = 'enter';
 
 export type connect = 'connect';
 export type disconnect = 'disconnect';
@@ -375,6 +379,19 @@ export class ExitViewPortEvent extends GameEvent<Actor> {
  */
 export class EnterViewPortEvent extends GameEvent<Actor> {
    constructor(public target: Actor) {
+      super();
+   }
+}
+
+
+export class EnterTriggerEvent extends GameEvent<Actor> {
+   constructor(public target: Actor, public trigger: Trigger) {
+      super();
+   }
+}
+
+export class ExitTriggerEvent extends GameEvent<Actor> {
+   constructor(public target: Actor, public trigger: Trigger) {
       super();
    }
 }

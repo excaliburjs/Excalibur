@@ -4,14 +4,16 @@ import { ActionQueue } from './Actions/Action';
 import { EventDispatcher } from './EventDispatcher';
 import { Actor, CollisionType } from './Actor';
 import { Vector } from 'Algebra';
+import { ExitTriggerEvent, EnterTriggerEvent } from './Events';
 
 
 export interface ITriggerOptions {
    pos?: Vector;
    width?: number;
    height?: number;
+   target?: Actor;
    // action to take when triggered
-   trigger?: () => void;
+   action?: () => void;
    // Returns true if the triggers should fire on the collided actor
    filter?: (actor: Actor) => boolean;
    // -1 if it should repeat forever
@@ -27,9 +29,11 @@ export interface ITriggerOptions {
  * [[include:Triggers.md]]
  */
 export class Trigger extends Actor {
-   private _action: () => void = () => { return; };
+   private _engine: Engine;
+   public action: () => void = () => { return; };
+   public filter: (actor: Actor) => boolean = () => true;
    public repeat: number = 1;
-   public target: Actor = null;
+   public target: Actor;
 
    /**
     * @param x       The x position of the trigger
@@ -42,11 +46,36 @@ export class Trigger extends Actor {
    constructor(opts?: ITriggerOptions) {
       super(opts.pos.x, opts.pos.y, opts.width, opts.height);
 
+      this.filter = opts.filter || this.filter;
       this.repeat = opts.repeat || this.repeat;
-      this._action = opts.trigger || this._action;
+      this.action = opts.action || this.action;
+      this.target = opts.target || this.target;
       this.collisionType = CollisionType.PreventCollision;
       this.eventDispatcher = new EventDispatcher(this);
       this.actionQueue = new ActionQueue(this);
+   }
+
+
+   public _initialize(engine: Engine) {
+      super._initialize(engine);
+      this._engine = engine;
+   }
+
+   public collides(other: Actor) {
+      if (this.filter(other)) {       
+         let wasTouching = this.body.wasTouching(other, this._engine);
+         let justTouching = this.body.justTouching(other, this._engine);
+
+         if (wasTouching) {
+            this.emit('exit', new ExitTriggerEvent(other, this));
+         }
+
+         if (justTouching) {
+            this.emit('enter', new EnterTriggerEvent(other, this));
+         }
+         return super.collides(other);
+      }
+      return null;
    }
 
    public update(engine: Engine, delta: number) {
@@ -65,7 +94,7 @@ export class Trigger extends Actor {
 
       // check for trigger collisions
       if (this.target) {
-         this.body.touching(this.target)
+         this.body.touching(this.target);
          if (this.collides(this.target)) {
             this._dispatchAction();
          }
@@ -87,7 +116,7 @@ export class Trigger extends Actor {
    }
 
    private _dispatchAction() {
-      this._action.call(this);
+      this.action.call(this);
       this.repeat--;
    }
 
