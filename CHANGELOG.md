@@ -3,9 +3,21 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-<!----------------------------------------------------------------------------------------------->
-
 ## [Unreleased]
+
+## Breaking Changes
+
+## Added
+
+## Changed
+
+## Deprecated
+
+## Fixed
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [0.13.0] - 2017-10-07
 
 ### Breaking Changes
 - `Scene.children` replaced with `Scene.actors`
@@ -15,17 +27,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - New event listening feature to listen to events only `.once(...)` then unsubscribe automatically ([#745](https://github.com/excaliburjs/Excalibur/issues/745))
 - New collision event `postcollision` to indicate if collision resolution occured ([#880](https://github.com/excaliburjs/Excalibur/issues/880))
 
-### Changed
-
 ### Deprecated
 - `PointerEvent.x` and `PointerEvent.y`, in favor of `PointerEvent.pos` ([#612](https://github.com/excaliburjs/Excalibur/issues/612))
 - `CollisionEvent` has been deprecated in favor of the more clear `PreCollisionEvent` ([#880](https://github.com/excaliburjs/Excalibur/issues/880))
 
 ### Fixed
 - Fixed same instance of color potentially being shared, and thus mutated, between instance actors ([#840](https://github.com/excaliburjs/Excalibur/issues/840))
-- Fixed bug where active and passive type collisions would resolve when they shouldn't when in rigid body mode ([#880]((https://github.com/excaliburjs/Excalibur/issues/880))
+- Fixed bug where active and passive type collisions would resolve when they shouldn't when in rigid body mode ([#880](https://github.com/excaliburjs/Excalibur/issues/880))
 
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!----------------------------------------------------------------------------------------------->
 
 ## [0.12.0] 2017-08-12
 
@@ -435,7 +445,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Resource loading with optional custom progress bars
 
 <!----------------------------------------------------------------------------------------------->
-[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.12.0...HEAD
+[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/excaliburjs/Excalibur/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/excaliburjs/Excalibur/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/excaliburjs/Excalibur/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/excaliburjs/Excalibur/compare/v0.9.0...v0.10.0
