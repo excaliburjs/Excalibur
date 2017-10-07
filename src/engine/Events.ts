@@ -23,6 +23,8 @@ export type postupdate = 'postupdate';
 export type preframe = 'preframe';
 export type postframe = 'postframe';
 
+export type precollision = 'precollision';
+// OBSOLETE in v0.14
 export type collision = 'collision';
 export type postcollision = 'postcollision';
 
@@ -267,7 +269,8 @@ export class HiddenEvent extends GameEvent<Engine> {
 }
 
 /**
- * Event thrown on an [[Actor|actor]] when a collision will occur this frame
+ * OBSOLETE: Event thrown on an [[Actor|actor]] when a collision will occur this frame
+ * @deprecated Will be removed in v0.14, please use PreCollisionEvent
  */
 export class CollisionEvent extends GameEvent<Actor> {
 
@@ -284,11 +287,37 @@ export class CollisionEvent extends GameEvent<Actor> {
 }
 
 /**
+ * Event thrown on an [[Actor|actor]] when a collision will occur this frame if it resolves
+ */
+export class PreCollisionEvent extends GameEvent<Actor> {
+   
+   /**
+    * @param actor         The actor the event was thrown on
+    * @param other         The actor that will collided with the current actor
+    * @param side          The side that will be collided with the current actor
+    * @param intersection  Intersection vector
+    */
+   constructor(public actor: Actor, public other: Actor, public side: Side, public intersection: Vector) {
+      super();
+      this.target = actor;
+   }
+}
+
+
+
+/**
  * Event thrown on an [[Actor|actor]] when a collision has been resolved (body reacted) this frame
  */
-export class PostCollisionEvent extends CollisionEvent {
+export class PostCollisionEvent extends GameEvent<Actor> {
+   /**
+    * @param actor         The actor the event was thrown on
+    * @param other         The actor that did collide with the current actor
+    * @param side          The side that did collide with the current actor
+    * @param intersection  Intersection vector
+    */
    constructor(public actor: Actor, public other: Actor, public side: Side, public intersection: Vector) {
-      super(actor, other, side, intersection);
+      super();
+      this.target = actor;
    }
 }
 

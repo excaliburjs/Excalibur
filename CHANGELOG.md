@@ -18,6 +18,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 - `PointerEvent.x` and `PointerEvent.y`, in favor of `PointerEvent.pos` ([#612](https://github.com/excaliburjs/Excalibur/issues/612))
+- `CollisionEvent` has been deprecated in favor of the more clear `PreCollisionEvent` ([#880](https://github.com/excaliburjs/Excalibur/issues/880))
 
 ### Fixed
 - Fixed same instance of color potentially being shared, and thus mutated, between instance actors ([#840](https://github.com/excaliburjs/Excalibur/issues/840))

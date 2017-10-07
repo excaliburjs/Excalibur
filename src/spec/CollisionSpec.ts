@@ -27,12 +27,12 @@ describe('A Collision', () => {
 
    it('should throw one event for each actor participating', () => {
       var numCollisions = 0;
-      actor1.on('collision', (e: ex.CollisionEvent) => {
+      actor1.on('precollision', (e: ex.PreCollisionEvent) => {
          e.other.kill();
          numCollisions++;
       });
 
-      actor2.on('collision', (e: ex.CollisionEvent) => {         
+      actor2.on('precollision', (e: ex.PreCollisionEvent) => {         
          numCollisions++;
       });
       scene.update(engine, 20);
@@ -98,7 +98,7 @@ describe('A Collision', () => {
       engine.add(passiveBlock);
 
 
-      let collisionHandler = (ev: ex.CollisionEvent) => {
+      let collisionHandler = (ev: ex.PreCollisionEvent) => {
          engine.add(new ex.Timer(() => {
             expect(activeBlock.vel.x).toBeGreaterThan(0);
             expect(passiveBlock.vel.x).toBeLessThan(0);
@@ -106,7 +106,7 @@ describe('A Collision', () => {
          }, 30, false));
       };
 
-      activeBlock.once('collision', collisionHandler);
+      activeBlock.once('precollision', collisionHandler);
       
       engine.start();
       

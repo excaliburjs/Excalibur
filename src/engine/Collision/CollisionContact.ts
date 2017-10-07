@@ -4,7 +4,7 @@ import { Body } from './Body';
 import { Actor, CollisionType } from '../Actor';
 import { Vector } from '../Algebra';
 import { Physics, CollisionResolutionStrategy } from '../Physics';
-import { CollisionEvent, PostCollisionEvent } from '../Events';
+import { CollisionEvent, PostCollisionEvent, PreCollisionEvent } from '../Events';
 import * as Util from '../Util/Util';
 
 /**
@@ -121,9 +121,13 @@ export class CollisionContact {
       var side = Util.getSideFromVector(this.mtv);
       var mtv = this.mtv.negate();
       // Publish collision events on both participants
+      // Obsolete: Collison will be removed in v0.14
       bodyA.emit('collision', new CollisionEvent(bodyA, bodyB, side, mtv));
+      bodyA.emit('precollision', new PreCollisionEvent(bodyA, bodyB, side, mtv));
       bodyB.emit('collision',
          new CollisionEvent(bodyB, bodyA, Util.getOppositeSide(side), mtv.negate()));
+      bodyB.emit('precollision', 
+         new PreCollisionEvent(bodyB, bodyA, Util.getOppositeSide(side), mtv.negate()));
 
       this._applyBoxImpulse(bodyA, bodyB, mtv);
       this._applyBoxImpulse(bodyB, bodyA, mtv.negate());
@@ -141,11 +145,20 @@ export class CollisionContact {
 
       // Publish collision events on both participants
       var side = Util.getSideFromVector(this.mtv);
+      // Obsolete: Collision will be removed in v0.14
       bodyA.actor.emit('collision', new CollisionEvent(this.bodyA.body.actor,
          this.bodyB.body.actor,
          side,
          this.mtv));
+      bodyA.actor.emit('precollision', new PreCollisionEvent(this.bodyA.body.actor,
+         this.bodyB.body.actor,
+         side,
+         this.mtv));
       bodyB.actor.emit('collision', new CollisionEvent(this.bodyB.body.actor,
+         this.bodyA.body.actor,
+         Util.getOppositeSide(side),
+         this.mtv.negate()));
+      bodyB.actor.emit('precollision', new PreCollisionEvent(this.bodyB.body.actor,
          this.bodyA.body.actor,
          Util.getOppositeSide(side),
          this.mtv.negate()));

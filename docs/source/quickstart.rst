@@ -222,7 +222,7 @@ reverse its course.
 .. code-block:: javascript
 
     // On collision remove the brick, bounce the ball
-    ball.on('collision', function (ev) {
+    ball.on('precollision', function (ev) {
         if (bricks.indexOf(ev.other) > -1) {
             // kill removes an actor from the current scene
             // therefore it will no longer be drawn or updated
