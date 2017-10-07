@@ -57,11 +57,11 @@ describe('A CollisionContact', () => {
       var emittedA = false;
       var emittedB = false;
 
-      actorA.on('collision', () => {
+      actorA.on('precollision', () => {
          emittedA = true;
       });
 
-      actorB.on('collision', () => {
+      actorB.on('precollision', () => {
          emittedB = true;
       });
 
@@ -118,11 +118,11 @@ describe('A CollisionContact', () => {
       var emittedB = false;
 
 
-      actorA.on('collision', () => {
+      actorA.on('precollision', () => {
          emittedA = true;
       });
 
-      actorB.on('collision', () => {
+      actorB.on('precollision', () => {
          emittedB = true;
       });
 
