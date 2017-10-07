@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Automatic HiDPI screen detection and scaling in excalibur internals to correct blurry bitmap rendering on HiDPI screens. This feature can optionally be suppressed with `IEngineOptions.suppressHiDPIScaling`.
 - Convenience getters implemented `halfDrawWidth`, `halfDrawHeight`, `halfCanvasWidth`, `halfCanvasHeight`, `canvasWidth`, and `canvasHeight`.
 - New pause/unpause feature for timers to help with more robust pausing ([#885](https://github.com/excaliburjs/Excalibur/issues/885))
+- New event listening feature to listen to events only `.once(...)` then unsubscribe automatically ([#745](https://github.com/excaliburjs/Excalibur/issues/745))
 
 ### Changed
 

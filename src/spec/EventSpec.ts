@@ -91,4 +91,20 @@ describe('An Event Dispatcher', () => {
       expect(otherEvent).toBeFalsy();
    });
 
+   it('can listen to a handler only once', () => {
+      let pubsub = new ex.EventDispatcher(null);
+      
+      let callCount = 0;
+      pubsub.once('onlyonce', () => {
+         callCount++;
+      });
+
+      pubsub.emit('onlyonce');
+      pubsub.emit('onlyonce');
+      pubsub.emit('onlyonce');
+
+      expect(callCount).toBe(1, 'There should only be one call to the handler with once.');
+
+   });
+
 }); 
