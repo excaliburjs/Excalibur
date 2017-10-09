@@ -77,8 +77,20 @@ game.isDebug = false;
 //var blockSprite = new ex.Sprite(imageBlocks, 0, 0, 65, 49);
 var blockSprite = new ex.Sprite({image: imageBlocks, swidth: 65, sheight: 49});
 // Create spritesheet
-var spriteSheetRun = new ex.SpriteSheet(imageRun, 21, 1, 96, 96);
-var spriteSheetJump = new ex.SpriteSheet(imageJump, 21, 1, 96, 96);
+//var spriteSheetRun = new ex.SpriteSheet(imageRun, 21, 1, 96, 96);
+var spriteSheetRun = new ex.SpriteSheet({ image: imageRun,
+   columns: 21,
+   rows: 1,
+   width: 96,
+   height: 96
+});
+//var spriteSheetJump = new ex.SpriteSheet(imageJump, 21, 1, 96, 96);
+var spriteSheetJump = new ex.SpriteSheet({ image: imageJump,
+   columns: 21,
+   rows: 1,
+   width: 96,
+   height: 96
+});
 var tileBlockWidth = 64,
    tileBlockHeight = 48,
    spriteTiles = new ex.SpriteSheet(imageBlocks, 1, 1, tileBlockWidth, tileBlockHeight);

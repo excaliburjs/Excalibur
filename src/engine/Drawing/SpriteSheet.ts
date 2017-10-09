@@ -7,6 +7,7 @@ import { Texture } from '../Resources/Texture';
 import { Engine } from '../Engine';
 import { Logger } from '../Util/Log';
 import { TextAlign, BaseAlign } from '../Label';
+import { Configurable, IDefaultable } from '../Configurable';
 
 /**
  * Sprite sheets are a useful mechanism for slicing up image resources into
@@ -15,9 +16,11 @@ import { TextAlign, BaseAlign } from '../Label';
  *
  * [[include:SpriteSheets.md]]
  */
-export class SpriteSheet {
-   public sprites: Sprite[] = [];
-   private _internalImage: HTMLImageElement;
+export class SpriteSheetImpl implements IDefaultable<SpriteSheetImpl> {
+   public sprites: Sprite[];
+   public image: Texture;
+   public columns: number;
+   public rows: number;
 
    /**
     * @param image     The backing image texture to build the SpriteSheet
@@ -26,9 +29,25 @@ export class SpriteSheet {
     * @param spWidth   The width of each individual sprite in pixels
     * @param spHeight  The height of each individual sprite in pixels
     */
-   constructor(public image: Texture, public columns: number, public rows: number, spWidth: number, spHeight: number) {
-      this._internalImage = image.image;
-      this.sprites = new Array(columns * rows);
+   constructor(imageOrConfigOrSprites: Texture | ISpriteSheetArgs | Sprite[],
+               columns?: number, rows?: number, spWidth?: number, spHeight?: number) {
+
+      var loadFromImage: boolean = false;
+      if (imageOrConfigOrSprites instanceof Array) {
+         this.sprites = imageOrConfigOrSprites;
+      } else {
+         if (imageOrConfigOrSprites && !(imageOrConfigOrSprites instanceof Texture)) {
+            columns = imageOrConfigOrSprites.columns;
+            rows = imageOrConfigOrSprites.rows;
+            spWidth = imageOrConfigOrSprites.width;
+            spHeight = imageOrConfigOrSprites.height;
+            this.image = imageOrConfigOrSprites.image;
+         } else {
+            this.image = <Texture> imageOrConfigOrSprites;
+         }
+         this.sprites = new Array(columns * rows);
+         loadFromImage = true;
+      }
 
       // TODO: Inspect actual image dimensions with preloading
       /*if(spWidth * columns > this.internalImage.naturalWidth){
@@ -39,13 +58,25 @@ export class SpriteSheet {
          throw new Error("SpriteSheet specified is higher than image height");
       }*/
 
-      var i = 0;
-      var j = 0;
-      for (i = 0; i < rows; i++) {
-         for (j = 0; j < columns; j++) {
-            this.sprites[j + i * columns] = new Sprite(this.image, j * spWidth, i * spHeight, spWidth, spHeight);
+      if (loadFromImage) {
+         var i = 0;
+         var j = 0;
+         for (i = 0; i < rows; i++) {
+            for (j = 0; j < columns; j++) {
+               this.sprites[j + i * columns] = new Sprite(this.image, j * spWidth, i * spHeight, spWidth, spHeight);
+            }
          }
       }
+   }
+
+
+   public getDefaultPropVals(): Partial<ISpriteSheetArgs> {
+      return {
+         sprites: [],
+         columns: 0,
+         rows: 0,
+         image: null
+      };
    }
 
    /**
@@ -108,6 +139,24 @@ export class SpriteSheet {
       }
    }
 }
+
+export interface ISpriteSheetArgs extends Partial<SpriteSheetImpl> {
+   image: Texture;
+   width: number;
+   height: number;
+   rows: number;
+   columns: number;
+} 
+
+export class SpriteSheet extends Configurable(SpriteSheetImpl) {
+   constructor(config: ISpriteSheetArgs);
+   constructor(sprites: Sprite[]);
+   constructor(image: Texture, columns: number, rows: number, spWidth: number, spHeight: number);
+   constructor(imageOrConfigOrSprites: Texture | ISpriteSheetArgs | Sprite[],
+               columns?: number, rows?: number, spWidth?: number, spHeight?: number) {
+         super(imageOrConfigOrSprites, columns, rows, spWidth, spHeight);
+      }
+   }
 
 /**
  * Sprite fonts are a used in conjunction with a [[Label]] to specify

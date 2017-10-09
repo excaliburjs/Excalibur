@@ -41,7 +41,7 @@ export function Configurable<T extends Constructor<IDefaultable<T>>>(base: T) : 
             //get the number of arguments that aren't undefined. TS passes a value to all parameters
             //of whatever ctor is the implementation, so args.length doesn't work here.
             var size = args.filter(function(value) { return value !== undefined; }).length;
-            if (size === 1 && args[0] && typeof args[0] === 'object') {
+            if (size === 1 && args[0] && typeof args[0] === 'object' && !(args[0] instanceof Array)) {
                   this._initWithOptions(args[0]);
             }else {
                   this._setDefaultsIfUndefined();
