@@ -9,7 +9,7 @@ var enemies = [...]; // Large array of enemies;
 enemyShips.add(enemies);
 var player = new Actor();
 engine.currentScene.add(player);
-enemyShips.on('collision', function(ev: CollisionEvent){
+enemyShips.on('precollision', function(ev: CollisionEvent){
   if (e.other === player) {
       //console.log("collision with player!");
   }       

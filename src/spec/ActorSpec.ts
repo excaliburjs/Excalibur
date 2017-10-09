@@ -326,11 +326,11 @@ describe('A game actor', () => {
       var actorCalled = 'false';
       var otherCalled = 'false';
 
-      actor.on('collision', function() {
+      actor.on('precollision', function() {
          actorCalled = 'actor';
       });
 
-      other.on('collision', function() {
+      other.on('precollision', function() {
          otherCalled = 'other';
       });
 
