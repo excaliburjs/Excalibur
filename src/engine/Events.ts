@@ -385,13 +385,13 @@ export class EnterViewPortEvent extends GameEvent<Actor> {
 
 
 export class EnterTriggerEvent extends GameEvent<Actor> {
-   constructor(public target: Actor, public trigger: Trigger) {
+   constructor(public target: Trigger, public actor: Actor) {
       super();
    }
 }
 
 export class ExitTriggerEvent extends GameEvent<Actor> {
-   constructor(public target: Actor, public trigger: Trigger) {
+   constructor(public target: Trigger, public actor: Actor) {
       super();
    }
 }

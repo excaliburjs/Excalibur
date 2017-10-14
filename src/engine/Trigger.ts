@@ -67,19 +67,21 @@ export class Trigger extends Actor {
          let justTouching = this.body.justTouching(other, this._engine);
 
          if (wasTouching) {
-            this.emit('exit', new ExitTriggerEvent(other, this));
+            this.emit('exit', new ExitTriggerEvent(this, other));
          }
 
          if (justTouching) {
-            this.emit('enter', new EnterTriggerEvent(other, this));
+            this.emit('enter', new EnterTriggerEvent(this, other));
          }
          return super.collides(other);
       }
       return null;
    }
 
-   public update(engine: Engine, delta: number) {
+   
 
+   public update(engine: Engine, delta: number) {
+      this._initialize(engine);
       // Update action queue
       this.actionQueue.update(delta);
 

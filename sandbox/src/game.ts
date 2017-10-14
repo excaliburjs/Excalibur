@@ -432,20 +432,38 @@ game.add(emitter);
 //emitter.follow(player, 20);
 
 var exploding = false;
-var trigger = new ex.Trigger(400, 200, 100, 100, () => {
-   if (!exploding) {
-      exploding = true;
-      emitter.isEmitting = true;
-      camera.shake(10, 10, 2000);
-      game.addTimer(new ex.Timer(() => {
-         emitter.isEmitting = false;
-         exploding = false;
-      }, 2000));
+// var trigger = new ex.Trigger(400, 200, 100, 100, () => {
+//    if (!exploding) {
+//       exploding = true;
+//       emitter.isEmitting = true;
+//       camera.shake(10, 10, 2000);
+//       game.addTimer(new ex.Timer(() => {
+//          emitter.isEmitting = false;
+//          exploding = false;
+//       }, 2000));
+//    }
+// });
+
+var trigger = new ex.Trigger({
+   width: 400,
+   height: 200,
+   repeat: -1,
+   target: player,
+   action: () => {
+      if (!exploding) {
+         exploding = true;
+         emitter.isEmitting = true;
+         camera.shake(10, 10, 2000);
+         game.addTimer(new ex.Timer(() => {
+            emitter.isEmitting = false;
+            exploding = false;
+         }, 2000));
+      }
    }
 });
 
-trigger.repeats = -1;
-trigger.target = player;
+// trigger.repeats = -1;
+// trigger.target = player;
 
 game.add(trigger);
 
