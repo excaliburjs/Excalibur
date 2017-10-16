@@ -11,8 +11,10 @@ var trigger = new ex.Trigger({
    width: 100,
    height: 100,
    pos: new ex.Vector(400, 200),
-   repeat: -1   
+   repeat: -1
 });
+
+//trigger.collisionType = ex.CollisionType.Passive;
 
 trigger.on('enter', (evt: ex.EnterTriggerEvent) => {
    evt.actor.color = ex.Color.Green;
