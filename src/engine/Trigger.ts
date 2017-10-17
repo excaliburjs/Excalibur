@@ -50,7 +50,7 @@ export class Trigger extends Actor {
       this.repeat = opts.repeat || this.repeat;
       this.action = opts.action || this.action;
       this.target = opts.target || this.target;
-      this.collisionType = CollisionType.PreventCollision;
+      this.collisionType = CollisionType.Passive;
       this.eventDispatcher = new EventDispatcher(this);
       this.actionQueue = new ActionQueue(this);
    }
@@ -62,6 +62,7 @@ export class Trigger extends Actor {
    }
 
    public collides(other: Actor) {
+      var superCollides = super.collides(other);
       if (this.filter(other)) {       
          let wasTouching = this.body.wasTouching(other, this._engine);
          let justTouching = this.body.justTouching(other, this._engine);
@@ -73,7 +74,7 @@ export class Trigger extends Actor {
          if (justTouching) {
             this.emit('enter', new EnterTriggerEvent(this, other));
          }
-         return super.collides(other);
+         return superCollides;
       }
       return null;
    }

@@ -16,6 +16,7 @@ import { Class } from './Class';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 import * as ActorUtils from './Util/Actors';
+import { Trigger } from './Trigger';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -440,6 +441,12 @@ export class Scene extends Class {
       this._broadphase.track(actor.body);
       actor.scene = this;
       this.actors.push(actor);
+      this.actors.sort((a, b) => {
+         if ((a instanceof Trigger) && !(b instanceof Trigger)) {
+            return 1; // triggers get sorted last
+         }
+         return 0;
+      });
       this._sortedDrawingTree.add(actor);
       actor.parent = this.actor;
    }
