@@ -55,7 +55,7 @@ Below is the general workflow for submitting changes:
 6. Wait for a project core-contributor to give you feedback. Make changes if necessary.
 7. Once your changes are merged, celebrate!
 
-If you’re not sure where to start, take a look at the "jump-in" or "help wanted" [issue labels](#issue-labels).
+If you’re not sure where to start, take a look at the "good first issue" or "help wanted" [issue labels](#issue-labels).
 
 #### Creating a Pull Request
 - Please ensure that there is an issue created for what you're working on. This helps prevent duplicate or unnecessary work.
@@ -161,7 +161,7 @@ describe('a monkey', () => {
 - Link to other classes using the TypeDoc double bracket notation.
 
 ## Issue Labels
-- [jump-in][search-label-jump-in]: issues that are good starting points for new contributors
+- [good first issue][search-label-good first issue]: issues that are good starting points for new contributors
 - [help wanted][search-label-help wanted]: issues that are more in-depth and may require a certain platform or skillset to implement
 - [bug][search-label-bug]: a problem or an unexpected behavior
 - [api change][search-label-api change]: implementing an issue with this label will cause changes to the public API
@@ -185,7 +185,7 @@ describe('a monkey', () => {
 
 [keep-a-changelog]: http://keepachangelog.com/en/0.3.0/
 
-[search-label-jump-in]: https://github.com/excaliburjs/Excalibur/labels/jump-in
+[search-label-good first issue]: https://github.com/excaliburjs/Excalibur/labels/good%20first%20issue
 [search-label-help wanted]: https://github.com/excaliburjs/Excalibur/labels/help%20wanted
 [search-label-bug]: https://github.com/excaliburjs/Excalibur/labels/bug
 [search-label-api change]: https://github.com/excaliburjs/Excalibur/labels/api%20change
