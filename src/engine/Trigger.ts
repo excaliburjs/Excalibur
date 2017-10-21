@@ -32,7 +32,7 @@ export class Trigger extends Actor {
    private _engine: Engine;
    public action: () => void = () => { return; };
    public filter: (actor: Actor) => boolean = () => true;
-   public repeat: number = 1;
+   public repeat: number = -1;
    public target: Actor;
 
    /**
@@ -79,10 +79,12 @@ export class Trigger extends Actor {
       return null;
    }
 
-   
+   // public on(eventName: Events.exittrigger, handler: (event?: ExitTriggerEvent) => void): void;
+   // public on(eventName: Events.entertrigger, handler: (event?: EnterTriggerEvent) => void): void;
 
    public update(engine: Engine, delta: number) {
-      this._initialize(engine);
+      super.update(engine, delta);
+
       // Update action queue
       this.actionQueue.update(delta);
 

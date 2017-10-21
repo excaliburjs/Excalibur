@@ -261,7 +261,7 @@ export class Body {
      
      if (game && game.stats.prevFrame && game.stats.prevFrame.physics.collidersHash[pair.id]) {
          wasTouchingLastFrame = true;
-     };
+     }
      
      var currentlyTouching = this.touching(other);
      
@@ -280,7 +280,7 @@ export class Body {
       
       if (game && game.stats.prevFrame && game.stats.prevFrame.physics.collidersHash[pair.id]) {
           wasTouchingLastFrame = true;
-      };
+      }
       
       var currentlyTouching = this.touching(other);
       

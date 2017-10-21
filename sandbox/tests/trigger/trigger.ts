@@ -5,16 +5,16 @@ var game = new ex.Engine({
    height: 400
 });
 
+ex.Physics.showArea = true;
+ex.Physics.showBounds = true;
+
 game.isDebug = true;
 
 var trigger = new ex.Trigger({
+   pos: new ex.Vector(100, 100),
    width: 100,
-   height: 100,
-   pos: new ex.Vector(400, 200),
-   repeat: -1
+   height: 100
 });
-
-trigger.collisionType = ex.CollisionType.Passive;
 
 trigger.on('enter', (evt: ex.EnterTriggerEvent) => {
    evt.actor.color = ex.Color.Green;
@@ -26,14 +26,15 @@ trigger.on('exit', (evt: ex.ExitTriggerEvent) => {
    console.log(evt);
 });
 
+// game.add(trigger);
 game.add(trigger);
 
-
-var actor = new ex.Actor(0, 0, 20, 20, ex.Color.Red);
+var actor = new ex.Actor(100, 0, 10, 10);
 actor.collisionType = ex.CollisionType.Active;
+actor.vel.y = 10;
+game.add(actor);
 
 var speed = 100;
-game.add(actor);
 
 game.input.keyboard.on('press', (evt) => {
    if (evt.key === ex.Input.Keys.Up) {
