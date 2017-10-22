@@ -34,6 +34,11 @@ export interface ICollisionBroadphase {
    resolve(pairs: Pair[], delta: number, strategy: CollisionResolutionStrategy): Pair[];
 
    /**
+    * Publish collision start/end events
+    */
+   runCollisionStartEnd(pairs: Pair[]): void;
+
+   /**
     * Update the internal structures to track bodies
     */
    update(targets: Actor[], delta: number): number;

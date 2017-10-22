@@ -114,7 +114,7 @@ describe('A Trigger', () => {
       actor.vel.y = 10;
 
 
-      trigger.on('enter', (evt: ex.EnterTriggerEvent) => {
+      trigger.on('collisionstart', (evt: ex.EnterTriggerEvent) => {
          fired++;
       });
 
@@ -148,7 +148,7 @@ describe('A Trigger', () => {
       engine.add(trigger);
       engine.add(actor);
 
-      trigger.on('exit', (evt: ex.ExitTriggerEvent) => {
+      trigger.on('collisionend', (evt: ex.ExitTriggerEvent) => {
          fired++;
       });
 

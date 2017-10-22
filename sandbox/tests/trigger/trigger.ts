@@ -16,12 +16,12 @@ var trigger = new ex.Trigger({
    height: 100
 });
 
-trigger.on('enter', (evt: ex.EnterTriggerEvent) => {
+trigger.on('collisionstart', (evt: ex.EnterTriggerEvent) => {
    evt.actor.color = ex.Color.Green;
    console.log(evt);
 });
 
-trigger.on('exit', (evt: ex.ExitTriggerEvent) => {
+trigger.on('collisionend', (evt: ex.ExitTriggerEvent) => {
    evt.actor.color = ex.Color.Red;
    console.log(evt);
 });

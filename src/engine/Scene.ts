@@ -222,8 +222,11 @@ export class Scene extends Class {
             pairs = this._broadphase.narrowphase(pairs, engine.stats.currFrame);
             // Run collision resolution strategy
             pairs = this._broadphase.resolve(pairs, collisionDelta, Physics.collisionResolutionStrategy);
+
+            
             iter--;
          }
+         this._broadphase.runCollisionStartEnd(pairs);
          var afterNarrowphase = Date.now();
          engine.stats.currFrame.physics.broadphase = afterBroadphase - beforeBroadphase;
          engine.stats.currFrame.physics.narrowphase = afterNarrowphase - beforeNarrowphase;

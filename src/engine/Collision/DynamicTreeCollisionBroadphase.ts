@@ -9,11 +9,14 @@ import { Actor, CollisionType } from '../Actor';
 import { FrameStats } from '../Debug';
 import { CollisionResolutionStrategy } from '../Physics';
 import { Logger } from '../Util/Log';
+import { CollisionStartEvent, CollisionEndEvent } from '../Events';
 
 export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
    private _dynamicCollisionTree = new DynamicTree();
    private _collisionHash: { [key: string]: boolean; } = {};
    private _collisionPairCache: Pair[] = [];
+   private _lastFramePairs: Pair[] = [];
+   private _lastFramePairsHash: { [pairId: string]: Pair; } = {};
 
    /**
     * Tracks a physics body for collisions
@@ -192,6 +195,38 @@ export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
 
       return pairs.filter(p => p.canCollide);
 
+   }
+
+   public runCollisionStartEnd(pairs: Pair[]) {
+      let currentFrameHash: { [pairId: string]: Pair; } = {};
+
+      
+      for (let p of pairs) {
+         // load currentFrameHash
+         currentFrameHash[p.id] = p;
+
+         // find all new collisions
+         if (!this._lastFramePairsHash[p.id]) {
+            let actor1 = p.bodyA.actor;
+            let actor2 = p.bodyB.actor;
+            actor1.emit('collisionstart', new CollisionStartEvent(actor1, actor2, p));
+            actor2.emit('collisionstart', new CollisionStartEvent(actor2, actor1, p));
+         }
+      }
+
+      // find all old collisions
+      for (let p of this._lastFramePairs) {
+         if (!currentFrameHash[p.id]) {
+            let actor1 = p.bodyA.actor;
+            let actor2 = p.bodyB.actor;
+            actor1.emit('collisionend', new CollisionEndEvent(actor1, actor2));
+            actor2.emit('collisionend', new CollisionEndEvent(actor2, actor1));
+         }
+      }
+
+      // reset the last frame cache
+      this._lastFramePairs = pairs;
+      this._lastFramePairsHash = currentFrameHash;
    }
 
    /**
