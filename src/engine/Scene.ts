@@ -16,7 +16,6 @@ import { Class } from './Class';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 import * as ActorUtils from './Util/Actors';
-import { obsolete } from './Util/Decorators';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -574,12 +573,4 @@ export class Scene extends Class {
       }
    }
 
-   @obsolete({ alternateMethod: 'ex.Scene.actors', message: 'This method will be removed in the 0.13.0 release. '})
-   public set children(actors: Actor[]) {
-      this.actors = actors;
-   }
-
-   public get children() {
-      return this.actors;
-   }
 }

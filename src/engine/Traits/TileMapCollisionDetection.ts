@@ -3,7 +3,7 @@ import { Actor, CollisionType } from '../Actor';
 import { Engine } from '../Engine';
 import { Vector } from '../Algebra';
 import { Side } from '../Collision/Side';
-import { CollisionEvent } from '../Events';
+import { PreCollisionEvent, PostCollisionEvent, CollisionEvent } from '../Events';
 
 export class TileMapCollisionDetection implements IActorTrait { 
    public update(actor: Actor, engine: Engine) {
@@ -20,10 +20,13 @@ export class TileMapCollisionDetection implements IActorTrait {
                   break;
                } 
                side = actor.getSideFromIntersect(intersectMap);
+               // OBSOLETE will be removed in v0.14
                eventDispatcher.emit('collision', new CollisionEvent(actor, null, side, intersectMap));
+               eventDispatcher.emit('precollision', new PreCollisionEvent(actor, null, side, intersectMap));
                if (actor.collisionType === CollisionType.Active) {
                   actor.pos.y += intersectMap.y;
                   actor.pos.x += intersectMap.x;
+                  eventDispatcher.emit('postcollision', new PostCollisionEvent(actor, null, side, intersectMap));
                }
             }
          }

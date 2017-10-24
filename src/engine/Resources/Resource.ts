@@ -17,10 +17,12 @@ export class Resource<T> extends Class implements ILoadable {
 
    /**
     * @param path          Path to the remote resource
-    * @param responseType  The Content-Type to expect (e.g. `application/json`)
+    * @param responseType  The type to expect as a response: "" | "arraybuffer" | "blob" | "document" | "json" | "text";
     * @param bustCache     Whether or not to cache-bust requests
     */
-   constructor(public path: string, public responseType: string, public bustCache: boolean = true) {
+   constructor(public path: string, 
+               public responseType: '' | 'arraybuffer' | 'blob' | 'document' | 'json' | 'text', 
+               public bustCache: boolean = true) {
          super();
    }
 
@@ -111,8 +113,13 @@ export class Resource<T> extends Class implements ILoadable {
     * processing. Such as decoding downloaded audio bits.
     */
    public processData(data: T): any {
-      // Handle any additional loading after the xhr has completed.
-      return URL.createObjectURL(data);
+
+      // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType
+      // Blob requires an object url
+      if (this.responseType === 'blob') {
+         return URL.createObjectURL(data);
+      }
+      return data;
    }
 
    public onprogress: (e: any) => void = () => { return; };

@@ -4,7 +4,8 @@ import { BoundingBox } from './Collision/BoundingBox';
 import { Texture } from './Resources/Texture';
 import {
    InitializeEvent, KillEvent, PreUpdateEvent, PostUpdateEvent,
-   PreDrawEvent, PostDrawEvent, PreDebugDrawEvent, PostDebugDrawEvent, GameEvent
+   PreDrawEvent, PostDrawEvent, PreDebugDrawEvent, PostDebugDrawEvent, 
+   GameEvent, CollisionEvent, PostCollisionEvent, PreCollisionEvent
 } from './Events';
 import { Engine } from './Engine';
 import { Color } from './Drawing/Color';
@@ -268,7 +269,7 @@ export class Actor extends Class implements IActionable, IEvented {
 
    /**
     * The anchor to apply all actor related transformations like rotation,
-    * translation, and rotation. By default the anchor is in the center of
+    * translation, and scaling. By default the anchor is in the center of
     * the actor. By default it is set to the center of the actor (.5, .5)
     * 
     * An anchor of (.5, .5) will ensure that drawings are centered.
@@ -471,6 +472,9 @@ export class Actor extends Class implements IActionable, IEvented {
       }
    }
 
+   public on(eventName: Events.precollision, handler: (event?: PreCollisionEvent) => void): void;
+   public on(eventName: Events.collision, handler: (event?: CollisionEvent) => void): void;
+   public on(eventName: Events.postcollision, handler: (event?: PostCollisionEvent) => void): void;
    public on(eventName: Events.kill, handler: (event?: KillEvent) => void): void;
    public on(eventName: Events.initialize, handler: (event?: InitializeEvent) => void): void;
    public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
@@ -490,6 +494,9 @@ export class Actor extends Class implements IActionable, IEvented {
       this.eventDispatcher.on(eventName, handler);
    }
 
+   public once(eventName: Events.precollision, handler: (event?: PreCollisionEvent) => void): void;
+   public once(eventName: Events.collision, handler: (event?: CollisionEvent) => void): void;
+   public once(eventName: Events.postcollision, handler: (event?: PostCollisionEvent) => void): void;
    public once(eventName: Events.kill, handler: (event?: KillEvent) => void): void;
    public once(eventName: Events.initialize, handler: (event?: InitializeEvent) => void): void;
    public once(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
