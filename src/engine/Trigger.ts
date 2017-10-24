@@ -53,6 +53,18 @@ export class Trigger extends Actor {
       this.collisionType = CollisionType.Passive;
       this.eventDispatcher = new EventDispatcher(this);
       this.actionQueue = new ActionQueue(this);
+
+      this.on('collisionstart', (evt) => {
+         if (this.filter(evt.other)) {  
+            this.emit('enter', new EnterTriggerEvent(this, evt.other));
+         }
+      });
+
+      this.on('collisionend', (evt) => {
+         if (this.filter(evt.other)) {
+            this.emit('exit', new ExitTriggerEvent(this, evt.other));
+         }
+      });
    }
 
 
@@ -61,23 +73,23 @@ export class Trigger extends Actor {
       this._engine = engine;
    }
 
-   public collides(other: Actor) {
-      var superCollides = super.collides(other);
-      if (this.filter(other)) {       
-         let wasTouching = this.body.wasTouching(other, this._engine);
-         let justTouching = this.body.justTouching(other, this._engine);
+   // public collides(other: Actor) {
+   //    var superCollides = super.collides(other);
+   //    if (this.filter(other)) {       
+   //       let wasTouching = this.body.wasTouching(other, this._engine);
+   //       let justTouching = this.body.justTouching(other, this._engine);
 
-         if (wasTouching) {
-            this.emit('exit', new ExitTriggerEvent(this, other));
-         }
+   //       if (wasTouching) {
+   //          this.emit('exit', new ExitTriggerEvent(this, other));
+   //       }
 
-         if (justTouching) {
-            this.emit('enter', new EnterTriggerEvent(this, other));
-         }
-         return superCollides;
-      }
-      return null;
-   }
+   //       if (justTouching) {
+   //          this.emit('enter', new EnterTriggerEvent(this, other));
+   //       }
+   //       return superCollides;
+   //    }
+   //    return null;
+   // }
 
    // public on(eventName: Events.exittrigger, handler: (event?: ExitTriggerEvent) => void): void;
    // public on(eventName: Events.entertrigger, handler: (event?: EnterTriggerEvent) => void): void;
