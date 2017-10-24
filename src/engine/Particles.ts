@@ -3,6 +3,7 @@ import { Actor, CollisionType } from './Actor';
 import { Sprite } from './Drawing/Sprite';
 import { Color } from './Drawing/Color';
 import { Vector } from './Algebra';
+import { Configurable, IDefaultable } from './Configurable';
 import * as Util from './Util/Util';
 import * as DrawUtil from './Util/DrawUtil';
 import * as Traits from './Traits/Index';
@@ -24,7 +25,7 @@ export enum EmitterType {
 /**
  * Particle is used in a [[ParticleEmitter]]
  */
-export class Particle {
+export class ParticleImpl implements IDefaultable<ParticleImpl> {
    public position: Vector = new Vector(0, 0);
    public velocity: Vector = new Vector(0, 0);
    public acceleration: Vector = new Vector(0, 0);
@@ -58,7 +59,7 @@ export class Particle {
    public sizeRate: number = 0;
    public elapsedMultiplier: number = 0;
 
-   constructor(emitter: ParticleEmitter,
+   constructor(emitterOrConfig: ParticleEmitter | IParticleArgs,
       life?: number,
       opacity?: number,
       beginColor?: Color,
@@ -68,7 +69,22 @@ export class Particle {
       acceleration?: Vector,
       startSize?: number,
       endSize?: number) {
-      this.emitter = emitter;
+         var emitter = emitterOrConfig;
+         if (emitter && ! (emitterOrConfig instanceof ParticleEmitter)) {
+            var  config = emitterOrConfig;
+            emitter = config.emitter;
+            life = config.life;
+            opacity = config.opacity;
+            endColor = config.endColor;
+            beginColor = config.beginColor;
+            position = config.position;
+            velocity = config.velocity;
+            acceleration = config.acceleration;
+            startSize = config.startSize;
+            endSize = config.endSize;
+
+         }
+      this.emitter = <ParticleEmitter> emitter;
       this.life = life || this.life;
       this.opacity = opacity || this.opacity;
       this.endColor = endColor || this.endColor.clone();
@@ -89,6 +105,12 @@ export class Particle {
          this.sizeRate = (this.endSize - this.startSize) / this.life;
          this.particleSize = this.startSize;
       }
+   }
+
+   public getDefaultPropVals() : Partial<ParticleImpl> {
+      return {
+
+      };
    }
 
    public kill() {
@@ -147,6 +169,36 @@ export class Particle {
       ctx.closePath();
 
    }
+}
+
+export interface IParticleArgs extends Partial<ParticleImpl> {
+
+} 
+
+export class Particle extends Configurable(ParticleImpl) {
+   constructor(config: IParticleArgs);
+   constructor(emitter: ParticleEmitter,
+      life?: number,
+      opacity?: number,
+      beginColor?: Color,
+      endColor?: Color,
+      position?: Vector,
+      velocity?: Vector,
+      acceleration?: Vector,
+      startSize?: number,
+      endSize?: number);
+   constructor(emitterOrConfig: ParticleEmitter | IParticleArgs,
+      life?: number,
+      opacity?: number,
+      beginColor?: Color,
+      endColor?: Color,
+      position?: Vector,
+      velocity?: Vector,
+      acceleration?: Vector,
+      startSize?: number,
+      endSize?: number) {
+         super(emitterOrConfig, life, opacity, beginColor, endColor, position, velocity, acceleration, startSize, endSize);
+      }
 }
 
 /**
