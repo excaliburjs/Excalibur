@@ -270,7 +270,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IDefaulta
 
    /**
     * The anchor to apply all actor related transformations like rotation,
-    * translation, and rotation. By default the anchor is in the center of
+    * translation, and scaling. By default the anchor is in the center of
     * the actor. By default it is set to the center of the actor (.5, .5)
     * 
     * An anchor of (.5, .5) will ensure that drawings are centered.
