@@ -12,6 +12,7 @@ import { Vector } from '../Algebra';
 import { Actor } from '../Actor';
 import { Color } from '../Drawing/Color';
 import * as DrawUtil from '../Util/DrawUtil';
+import { obsolete } from '../Index';
 
 export class Body {
 
@@ -237,6 +238,7 @@ export class Body {
     * or was in stationary contact with
     * the body of the other [[Actor]]
     */
+   @obsolete({message: 'touching is deprecated, use the collisionstart event instead'})
    public touching(other: Actor): boolean {
      
      var pair = new Pair(this, other.body);
@@ -254,6 +256,7 @@ export class Body {
     * the body of the other Actor in the last frame, and they are no longer touching
     * in this frame 
     */
+   @obsolete({message: 'wasTouching is deprecated, use the collisionend event instead'})
    public wasTouching(other: Actor, game: Engine): boolean {
      
      var pair = new Pair(this, other.body);
@@ -268,25 +271,4 @@ export class Body {
      return wasTouchingLastFrame && !currentlyTouching;
      
    }
-
-   /**
-    * Returns true if the body and another just started touching, where last frame they were not.
-    * @param other 
-    * @param game 
-    */
-   public justTouching(other: Actor, game: Engine): boolean {
-      var pair = new Pair(this, other.body);
-      var wasTouchingLastFrame = false;
-      
-      if (game && game.stats.prevFrame && game.stats.prevFrame.physics.collidersHash[pair.id]) {
-          wasTouchingLastFrame = true;
-      }
-      
-      var currentlyTouching = this.touching(other);
-      
-      return !wasTouchingLastFrame && currentlyTouching; 
-   }
-   
-   
-   
-}   
+}

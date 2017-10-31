@@ -183,5 +183,59 @@ describe('A Collision', () => {
 
    });
 
+   it('should have the actor as the handler context for collisionstart', (done) => {
+      ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
+      
+      var activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
+      activeBlock.collisionType = ex.CollisionType.Active;
+      activeBlock.vel.x = 100;
+      engine.add(activeBlock);
+      
+      var passiveBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
+      passiveBlock.collisionType = ex.CollisionType.Passive;
+      passiveBlock.vel.x = -100;
+      engine.add(passiveBlock);
+
+      
+      let collisionEnd = function() {
+         expect(this).toBe(activeBlock);
+         done();
+      };
+
+      activeBlock.on('collisionstart', collisionEnd);
+      
+      
+      for (let i = 0; i < 20; i++) {
+         loop.advance(1000);
+      }
+   });
+
+   it('should have the actor as the handler context for collisionend', (done) => {
+      ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
+      
+      var activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
+      activeBlock.collisionType = ex.CollisionType.Active;
+      activeBlock.vel.x = 100;
+      engine.add(activeBlock);
+      
+      var passiveBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
+      passiveBlock.collisionType = ex.CollisionType.Passive;
+      passiveBlock.vel.x = -100;
+      engine.add(passiveBlock);
+
+      
+      let collisionEnd = function() {
+         expect(this).toBe(activeBlock);
+         done();
+      };
+
+      activeBlock.on('collisionend', collisionEnd);
+      
+      
+      for (let i = 0; i < 20; i++) {
+         loop.advance(1000);
+      }
+   });
+
 
 });
