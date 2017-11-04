@@ -88,6 +88,11 @@ export class Trigger extends Actor {
       this.on('collisionstart', (evt) => {
          if (this.filter(evt.other)) {  
             this.emit('enter', new EnterTriggerEvent(this, evt.other));
+            this._dispatchAction();
+            // remove trigger if its done, -1 repeat forever
+            if (this.repeat === 0) {
+               this.kill();
+            }
          }
       });
 
@@ -110,26 +115,6 @@ export class Trigger extends Actor {
    public _initialize(engine: Engine) {
       super._initialize(engine);
       this._engine = engine;
-   }
-
-   public update(engine: Engine, delta: number) {
-      super.update(engine, delta);
-
-      // check for trigger collisions
-      for (var i = 0; i < engine.currentScene.actors.length; i++) {
-         var other = engine.currentScene.actors[i];
-         if (other !== this &&
-            other.collisionType !== CollisionType.PreventCollision &&
-            this.filter(other) &&
-            this.body.touching(other)) {
-            this._dispatchAction();
-         }
-      }
-
-      // remove trigger if its done, -1 repeat forever
-      if (this.repeat === 0) {
-         this.kill();
-      }
    }
 
    private _dispatchAction() {
