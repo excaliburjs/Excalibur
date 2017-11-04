@@ -445,8 +445,9 @@ var exploding = false;
 // });
 
 var trigger = new ex.Trigger({
-   width: 400,
-   height: 200,
+   width: 100,
+   height: 100,
+   pos: new ex.Vector(400, 200),
    repeat: -1,
    target: player,
    action: () => {

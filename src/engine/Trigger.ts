@@ -5,51 +5,82 @@ import { EventDispatcher } from './EventDispatcher';
 import { Actor, CollisionType } from './Actor';
 import { Vector } from 'Algebra';
 import { ExitTriggerEvent, EnterTriggerEvent } from './Events';
+import * as Util from './Util/Util';
 
 
+/**
+ * ITriggerOptions
+ */
 export interface ITriggerOptions {
-   pos?: Vector;
-   width?: number;
-   height?: number;
-   target?: Actor;
+   // position of the trigger
+   pos: Vector;
+   // width of the trigger
+   width: number;
+   // height of the trigger
+   height: number;
+   // whether the trigger is visible or not
+   visible: boolean;
    // action to take when triggered
-   action?: () => void;
+   action: () => void;
+   // if specified the trigger will only fire on a specific actor and overrides any filter
+   target: Actor;
    // Returns true if the triggers should fire on the collided actor
-   filter?: (actor: Actor) => boolean;
+   filter: (actor: Actor) => boolean;
    // -1 if it should repeat forever
-   repeat?: number;
+   repeat: number;
 }
+
+let triggerDefaults: Partial<ITriggerOptions> = {
+   pos: Vector.Zero.clone(),
+   width: 10,
+   height: 10,
+   visible: false,
+   action: () => { return; },
+   filter: () => true,
+   repeat: -1
+};
 
 
 /**
  * Triggers are a method of firing arbitrary code on collision. These are useful
  * as 'buttons', 'switches', or to trigger effects in a game. By default triggers
- * are invisible, and can only be seen when [[Engine.isDebug]] is set to `true`.
+ * are invisible, and can only be seen when [[Trigger.visible]] is set to `true`.
  * 
  * [[include:Triggers.md]]
  */
 export class Trigger extends Actor {
    private _engine: Engine;
+   private _target: Actor;
+   /**
+    * Action to fire when triggered by collision
+    */
    public action: () => void = () => { return; };
+   /**
+    * Filter to add additional granularity to action dispatch, if a filter is specified the action will only fire when
+    * filter return true for the collided actor.
+    */
    public filter: (actor: Actor) => boolean = () => true;
+   /**
+    * Number of times to repeat before killing the trigger, 
+    */
    public repeat: number = -1;
-   public target: Actor;
 
    /**
-    * @param x       The x position of the trigger
-    * @param y       The y position of the trigger
-    * @param width   The width of the trigger
-    * @param height  The height of the trigger
-    * @param action  Callback to fire when trigger is activated, `this` will be bound to the Trigger instance
-    * @param repeats The number of times that this trigger should fire, by default it is 1, if -1 is supplied it will fire indefinitely
+    * 
+    * @param opts Trigger options
     */
-   constructor(opts?: ITriggerOptions) {
+   constructor(opts: Partial<ITriggerOptions>) {
       super(opts.pos.x, opts.pos.y, opts.width, opts.height);
+      opts = Util.extend({}, triggerDefaults, opts);
 
       this.filter = opts.filter || this.filter;
       this.repeat = opts.repeat || this.repeat;
       this.action = opts.action || this.action;
-      this.target = opts.target || this.target;
+      if (opts.target) {
+         this.target = opts.target;
+      }
+
+      this.visible = opts.visible;
       this.collisionType = CollisionType.Passive;
       this.eventDispatcher = new EventDispatcher(this);
       this.actionQueue = new ActionQueue(this);
@@ -67,62 +98,31 @@ export class Trigger extends Actor {
       });
    }
 
+   public set target(target: Actor) {
+      this._target = target;
+      this.filter = (actor: Actor) => actor === target;
+   }
 
+   public get target() {
+      return this._target;
+   }
+   
    public _initialize(engine: Engine) {
       super._initialize(engine);
       this._engine = engine;
    }
 
-   // public collides(other: Actor) {
-   //    var superCollides = super.collides(other);
-   //    if (this.filter(other)) {       
-   //       let wasTouching = this.body.wasTouching(other, this._engine);
-   //       let justTouching = this.body.justTouching(other, this._engine);
-
-   //       if (wasTouching) {
-   //          this.emit('exit', new ExitTriggerEvent(this, other));
-   //       }
-
-   //       if (justTouching) {
-   //          this.emit('enter', new EnterTriggerEvent(this, other));
-   //       }
-   //       return superCollides;
-   //    }
-   //    return null;
-   // }
-
-   // public on(eventName: Events.exittrigger, handler: (event?: ExitTriggerEvent) => void): void;
-   // public on(eventName: Events.entertrigger, handler: (event?: EnterTriggerEvent) => void): void;
-
    public update(engine: Engine, delta: number) {
       super.update(engine, delta);
 
-      // Update action queue
-      this.actionQueue.update(delta);
-
-      // Update placements based on linear algebra
-      this.pos.x += this.vel.x * delta / 1000;
-      this.pos.y += this.vel.y * delta / 1000;
-
-      this.rotation += this.rx * delta / 1000;
-
-      this.scale.x += this.sx * delta / 1000;
-      this.scale.y += this.sy * delta / 1000;
-
       // check for trigger collisions
-      if (this.target) {
-         this.body.touching(this.target);
-         if (this.collides(this.target)) {
+      for (var i = 0; i < engine.currentScene.actors.length; i++) {
+         var other = engine.currentScene.actors[i];
+         if (other !== this &&
+            other.collisionType !== CollisionType.PreventCollision &&
+            this.filter(other) &&
+            this.body.touching(other)) {
             this._dispatchAction();
-         }
-      } else {
-         for (var i = 0; i < engine.currentScene.actors.length; i++) {
-            var other = engine.currentScene.actors[i];
-            if (other !== this &&
-               other.collisionType !== CollisionType.PreventCollision &&
-               this.collides(other)) {
-               this._dispatchAction();
-            }
          }
       }
 
@@ -137,11 +137,7 @@ export class Trigger extends Actor {
       this.repeat--;
    }
 
-   public draw(_ctx: CanvasRenderingContext2D, _delta: number) {
-      // does not draw
-      return;
-   }
-
+   /* istanbul ignore next */
    public debugDraw(ctx: CanvasRenderingContext2D) {
       super.debugDraw(ctx);
       // Meant to draw debug information about actors
