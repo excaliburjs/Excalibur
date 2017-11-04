@@ -20,7 +20,7 @@ for (var r in resources) {
 var target = new ex.Actor(500, 500, 20, 20, ex.Color.Red);
 game.add(target);
 
-var aim = new ex.Actor(game.getDrawWidth() / 2 , game.getDrawHeight() / 2, 100, 100, ex.Color.Black);
+var aim = new ex.Actor(game.halfDrawWidth, game.halfDrawHeight, 100, 100, ex.Color.Black);
 aim.addDrawing(resources.txPlayer);
 aim.setHeight(10);
 aim.scale.setTo(1, .2);

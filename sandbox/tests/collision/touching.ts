@@ -4,7 +4,7 @@ var game = new ex.Engine({
     height: 200,
     width: 800
 });
-var paddle = new ex.Actor(150, game.getDrawHeight() - 40, 200, 20);
+var paddle = new ex.Actor(150, game.drawHeight - 40, 200, 20);
 paddle.color = ex.Color.Chartreuse;
 paddle.collisionType = ex.CollisionType.Fixed;
 game.add(paddle);

@@ -22,6 +22,7 @@ import * as Input from './Input/Index';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 import { BoundingBox } from './Collision/BoundingBox';
+import { obsolete } from './Util/Decorators';
 
 /**
  * Enum representing the different display modes available to Excalibur
@@ -119,6 +120,12 @@ export interface IEngineOptions {
     * browsers or if there is a bug in excalibur preventing execution.
     */
    suppressMinimumBrowserFeatureDetection?: boolean;
+
+   /**
+    * Suppress HiDPI auto detection and scaling, it is not recommended users of excalibur switch off this feature. This feature detects
+    * and scales the drawing canvas appropriately to accommodate HiDPI screens.
+    */
+   suppressHiDPIScaling?: boolean;
    
    /**
     * Specify how the game window is to be positioned when the [[DisplayMode.Position]] is chosen. This option MUST be specified
@@ -168,13 +175,95 @@ export class Engine extends Class {
    public canvasElementId: string;
 
    /**
-    * The width of the game canvas in pixels
+    * The width of the game canvas in pixels (physical width component of the
+    * resolution of the canvas element)
     */
-   public canvasWidth: number;
+   public get canvasWidth(): number {
+      return this.canvas.width;
+   }
+
    /**
-    * The height of the game canvas in pixels
+    * Returns half width of the game canvas in pixels (half physical width component)
     */
-   public canvasHeight: number;
+   public get halfCanvasWidth(): number {
+      return this.canvas.width / 2;
+   }
+
+   /**
+    * The height of the game canvas in pixels, (physical height component of
+    * the resolution of the canvas element)
+    */
+   public get canvasHeight(): number {
+      return this.canvas.height;
+   }
+
+   /**
+    * Returns half height of the game canvas in pixels (half physical height component)
+    */
+   public get halfCanvasHeight(): number {
+      return this.canvas.height / 2;
+   }
+
+   /**
+    * Returns the width of the engine's visible drawing surface in pixels including zoom including device pixel ratio.
+    */
+   @obsolete({ message: 'getDrawWidth() will be removed in the 0.14 release', 
+               alternateMethod: 'drawWidth property'
+   })
+   public getDrawWidth(): number {
+      return this.drawWidth;
+   }
+
+   /**
+    * Returns the width of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
+    */
+    public get drawWidth(): number {
+      if (this.currentScene && this.currentScene.camera) {
+         return (this.canvasWidth / this.currentScene.camera.getZoom()) / this.pixelRatio;
+      }
+      return this.canvasWidth / this.pixelRatio;
+   }
+
+   /**
+    * Returns half the width of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
+    */
+   public get halfDrawWidth(): number {
+      return this.drawWidth / 2;
+   }
+
+   /**
+    * Returns the height of the engine's visible drawing surface in pixels .
+    */
+    @obsolete({ message: 'getDrawHeight() will be removed in the 0.14 release', 
+                alternateMethod: 'drawHeight property'
+   })
+   public getDrawHeight(): number {
+      return this.drawHeight;
+   }
+
+   /**
+    * Returns the height of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
+    */
+   public get drawHeight(): number {
+      if (this.currentScene && this.currentScene.camera) {
+         return (this.canvasHeight / this.currentScene.camera.getZoom()) / this.pixelRatio;
+      }
+      return this.canvasHeight / this.pixelRatio;
+   }
+
+   /**
+    * Returns half the height of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
+    */
+   public get halfDrawHeight(): number {
+      return this.drawHeight / 2;
+   }
+
+   /**
+    * Returns whether excalibur detects the current screen to be HiDPI
+    */
+   public get isHiDpi(): boolean {
+      return this.pixelRatio !== 1;
+   }
 
    /**
     * Access engine input like pointer, keyboard, or gamepad
@@ -227,6 +316,17 @@ export class Engine extends Class {
     * Indicates the current [[DisplayMode]] of the engine.
     */
    public displayMode: DisplayMode = DisplayMode.FullScreen;
+
+   /**
+    * Returns the calculated pixel ration for use in rendering
+    */
+   public get pixelRatio(): number
+   {
+      let devicePixelRatio = window.devicePixelRatio || 1;
+
+      let pixelRatio = devicePixelRatio;
+      return pixelRatio;
+   }
    
    /**
     * Indicates the current position of the engine. Valid only when DisplayMode is DisplayMode.Position
@@ -279,7 +379,7 @@ export class Engine extends Class {
    public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
    public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): void;
    public on(eventName: Events.preframe, handler: (event?: PreFrameEvent) => void): void;
-   public on(eventName: Events.postframe, handler: (event?: PostFrameEvent) => void): void;   
+   public on(eventName: Events.postframe, handler: (event?: PostFrameEvent) => void): void;
    public on(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void): void;
    public on(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void): void;
    public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
@@ -297,6 +397,7 @@ export class Engine extends Class {
       pointerScope:                           Input.PointerScope.Document,
       suppressConsoleBootMessage:             null,
       suppressMinimumBrowserFeatureDetection: null,
+      suppressHiDPIScaling:                   null,
       scrollPreventionMode:                   ScrollPreventionMode.Canvas,
       backgroundColor:                        Color.fromHex('#2185d0') // Excalibur blue
    };
@@ -388,10 +489,10 @@ O|===|* >________________>\n\
             this.displayMode = DisplayMode.Fixed;
          }
          this._logger.debug('Engine viewport is size ' + options.width + ' x ' + options.height);
-         this.canvasWidth = options.width;
-         this.canvas.width = options.width;
-         this.canvasHeight = options.height;
+         
+         this.canvas.width = options.width;         
          this.canvas.height = options.height;
+
 
       } else if (!options.displayMode) {
          this._logger.debug('Engine viewport is fullscreen');
@@ -419,8 +520,8 @@ O|===|* >________________>\n\
    public getWorldBounds() {
       var left = this.screenToWorldCoordinates(Vector.Zero).x;
       var top = this.screenToWorldCoordinates(Vector.Zero).y;
-      var right = left + this.getDrawWidth();
-      var bottom = top + this.getDrawHeight();
+      var right = left + this.drawWidth;
+      var bottom = top + this.drawHeight;
 
       return new BoundingBox(left, top, right, bottom);
    }
@@ -678,7 +779,7 @@ O|===|* >________________>\n\
    /**
     * Changes the currently updating and drawing scene to a different,
     * named scene. Calls the [[Scene]] lifecycle events.
-    * @param key  The key of the scene to trasition to.       
+    * @param key  The key of the scene to transition to.       
     */
    public goToScene(key: string) {
       if (this.scenes[key]) {
@@ -707,26 +808,6 @@ O|===|* >________________>\n\
    }
 
    /**
-    * Returns the width of the engine's drawing surface in pixels.
-    */
-   public getDrawWidth(): number {
-      if (this.currentScene && this.currentScene.camera) {
-         return this.canvasWidth / this.currentScene.camera.getZoom();
-      }
-      return this.canvasWidth;
-   }
-
-   /**
-    * Returns the height of the engine's drawing surface in pixels.
-    */
-   public getDrawHeight(): number {
-      if (this.currentScene && this.currentScene.camera) {
-         return this.canvasHeight / this.currentScene.camera.getZoom();
-      }
-      return this.canvasHeight;
-   }
-
-   /**
     * Transforms the current x, y from screen coordinates to world coordinates
     * @param point  Screen coordinate to convert
     */
@@ -736,13 +817,13 @@ O|===|* >________________>\n\
       var newY = point.y;
 
       // transform back to world space
-      newX = (newX / this.canvas.clientWidth) * this.getDrawWidth();
-      newY = (newY / this.canvas.clientHeight) * this.getDrawHeight();
+      newX = (newX / this.canvas.clientWidth) * this.drawWidth;
+      newY = (newY / this.canvas.clientHeight) * this.drawHeight;
 
 
       // transform based on zoom
-      newX = newX - this.getDrawWidth() / 2;
-      newY = newY - this.getDrawHeight() / 2;
+      newX = newX - this.halfDrawWidth;
+      newY = newY - this.halfDrawHeight;
 
       // shift by focus
       if (this.currentScene && this.currentScene.camera) {
@@ -771,12 +852,12 @@ O|===|* >________________>\n\
       }
 
       // transform back on zoom
-      screenX = screenX + this.getDrawWidth() / 2;
-      screenY = screenY + this.getDrawHeight() / 2;
+      screenX = screenX + this.halfDrawWidth;
+      screenY = screenY + this.halfDrawHeight;
 
       // transform back to screen space
-      screenX = (screenX * this.canvas.clientWidth) / this.getDrawWidth();
-      screenY = (screenY * this.canvas.clientHeight) / this.getDrawHeight();
+      screenX = (screenX * this.canvas.clientWidth) / this.drawWidth;
+      screenY = (screenY * this.canvas.clientHeight) / this.drawHeight;
 
       return new Vector(Math.floor(screenX), Math.floor(screenY));
    }
@@ -786,15 +867,15 @@ O|===|* >________________>\n\
     */
    private _setHeightByDisplayMode(parent: HTMLElement | Window) {
       if (this.displayMode === DisplayMode.Container) {
-         this.canvasWidth = this.canvas.width = (<HTMLElement>parent).clientWidth;
-         this.canvasHeight = this.canvas.height = (<HTMLElement>parent).clientHeight;
+         this.canvas.width = (<HTMLElement>parent).clientWidth;
+         this.canvas.height = (<HTMLElement>parent).clientHeight;
       }
 
       if (this.displayMode === DisplayMode.FullScreen) {
          document.body.style.margin = '0px';
          document.body.style.overflow = 'hidden';
-         this.canvasWidth = this.canvas.width = (<Window>parent).innerWidth;
-         this.canvasHeight = this.canvas.height = (<Window>parent).innerHeight;
+         this.canvas.width = (<Window>parent).innerWidth;
+         this.canvas.height = (<Window>parent).innerHeight;
       }
    }
 
@@ -821,77 +902,7 @@ O|===|* >________________>\n\
             this.setAntialiasing(this._isSmoothingEnabled);
          });
       } else if (this.displayMode === DisplayMode.Position) {
-          
-          if ( !options.position ) {
-            throw new Error('DisplayMode of Position was selected but no position option was given');
-          } else {
-              
-              this.canvas.style.display = 'block';
-              this.canvas.style.position = 'absolute';
-              
-              if (typeof options.position === 'string') {
-                var specifiedPosition = options.position.split(' ');
-                
-                switch (specifiedPosition[0]) {
-                  case 'top':
-                    this.canvas.style.top = '0px';
-                    break;
-                  case 'bottom':
-                    this.canvas.style.bottom = '0px';
-                    break;
-                  case 'middle':
-                    this.canvas.style.top = '50%';
-                    var offsetY = this.getDrawHeight() / -2;
-                    this.canvas.style.marginTop = offsetY.toString();
-                    break;
-                  default:
-                    throw new Error('Invalid Position Given');                  
-                }
-                
-                if (specifiedPosition[1]) {
-                  
-                  switch (specifiedPosition[1]) {
-                    case 'left':
-                      this.canvas.style.left = '0px';
-                      break;
-                    case 'right':
-                      this.canvas.style.right = '0px';
-                      break;
-                    case 'center':
-                      this.canvas.style.left = '50%';
-                      var offsetX = this.getDrawWidth() / -2;
-                      this.canvas.style.marginLeft = offsetX.toString();
-                      break;
-                    default:
-                      throw new Error('Invalid Position Given');
-                  }
-                }
-              } else {
-                  
-                  if (options.position.top) {
-                    typeof options.position.top === 'number' ? 
-                    this.canvas.style.top = options.position.top.toString() + 'px' : 
-                    this.canvas.style.top = options.position.top;
-                  }
-                  if (options.position.right) {
-                    typeof options.position.right === 'number' ? 
-                    this.canvas.style.right = options.position.right.toString() + 'px' : 
-                    this.canvas.style.right = options.position.right;
-                  }
-                  if (options.position.bottom) {
-                    typeof options.position.bottom === 'number' ? 
-                    this.canvas.style.bottom = options.position.bottom.toString() + 'px' : 
-                    this.canvas.style.bottom = options.position.bottom;
-                  }
-                  if (options.position.left) {
-                    typeof options.position.left === 'number' ? 
-                    this.canvas.style.left = options.position.left.toString() + 'px' : 
-                    this.canvas.style.left = options.position.left;
-                  }
-                  
-                  
-              }
-          }
+          this._intializeDisplayModePosition(options);
       }
        
       // initialize inputs
@@ -932,10 +943,111 @@ O|===|* >________________>\n\
       });
 
       this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d');
+
+      if (!options.suppressHiDPIScaling) {
+         this._initializeHiDpi();
+      }
+
       if (!this.canvasElementId) {
          document.body.appendChild(this.canvas);
       }
 
+   }
+
+   private _intializeDisplayModePosition(options: IEngineOptions) {
+      if ( !options.position ) {
+         throw new Error('DisplayMode of Position was selected but no position option was given');
+       } else {
+           
+           this.canvas.style.display = 'block';
+           this.canvas.style.position = 'absolute';
+           
+           if (typeof options.position === 'string') {
+             var specifiedPosition = options.position.split(' ');
+             
+             switch (specifiedPosition[0]) {
+               case 'top':
+                 this.canvas.style.top = '0px';
+                 break;
+               case 'bottom':
+                 this.canvas.style.bottom = '0px';
+                 break;
+               case 'middle':
+                 this.canvas.style.top = '50%';
+                 var offsetY = -this.halfDrawHeight;
+                 this.canvas.style.marginTop = offsetY.toString();
+                 break;
+               default:
+                 throw new Error('Invalid Position Given');                  
+             }
+             
+             if (specifiedPosition[1]) {
+               
+               switch (specifiedPosition[1]) {
+                 case 'left':
+                   this.canvas.style.left = '0px';
+                   break;
+                 case 'right':
+                   this.canvas.style.right = '0px';
+                   break;
+                 case 'center':
+                   this.canvas.style.left = '50%';
+                   var offsetX = -this.halfDrawWidth;
+                   this.canvas.style.marginLeft = offsetX.toString();
+                   break;
+                 default:
+                   throw new Error('Invalid Position Given');
+               }
+             }
+           } else {
+               
+               if (options.position.top) {
+                 typeof options.position.top === 'number' ? 
+                 this.canvas.style.top = options.position.top.toString() + 'px' : 
+                 this.canvas.style.top = options.position.top;
+               }
+               if (options.position.right) {
+                 typeof options.position.right === 'number' ? 
+                 this.canvas.style.right = options.position.right.toString() + 'px' : 
+                 this.canvas.style.right = options.position.right;
+               }
+               if (options.position.bottom) {
+                 typeof options.position.bottom === 'number' ? 
+                 this.canvas.style.bottom = options.position.bottom.toString() + 'px' : 
+                 this.canvas.style.bottom = options.position.bottom;
+               }
+               if (options.position.left) {
+                 typeof options.position.left === 'number' ? 
+                 this.canvas.style.left = options.position.left.toString() + 'px' : 
+                 this.canvas.style.left = options.position.left;
+               }
+               
+               
+           }
+       }
+   }
+
+   private _initializeHiDpi() {
+      
+      // Scale the canvas if needed
+      if (this.isHiDpi) {
+         
+         let oldWidth = this.canvas.width;
+         let oldHeight = this.canvas.height;
+
+         this.canvas.width = oldWidth * this.pixelRatio;
+         this.canvas.height = oldHeight * this.pixelRatio;
+
+         this.canvas.style.width = oldWidth + 'px';
+         this.canvas.style.height = oldHeight + 'px';
+
+         this._logger.warn(`Hi DPI screen detected, resetting canvas resolution from 
+                           ${oldWidth}x${oldHeight} to ${this.canvas.width}x${this.canvas.height} 
+                           css size will remain ${oldWidth}x${oldHeight}`);
+         
+         this.ctx.scale(this.pixelRatio, this.pixelRatio);
+         this._logger.warn(`Canvas drawing context was scaled by ${this.pixelRatio}`);
+      }
    }
 
    /**
