@@ -392,8 +392,8 @@ game.on('p', () => {
 });
 
 // Create a camera to track the player
-var camera = new ex.LockedCamera();
-camera.setActorToFollow(player);
+var camera = game.currentScene.camera;// new ex.LockedCamera();
+//camera.setActorToFollow(player);
 // camera.shake(5, 5, 1000);
 // camera.zoom(0.5);
 // camera.zoom(1.5, 10000);
@@ -477,7 +477,7 @@ game.input.keyboard.on('up', (evt?: ex.Input.KeyEvent) => {
 });
 
 // Add camera to game
-game.currentScene.camera = camera;
+game.currentScene.camera.strategy.circleAroundActor(player, 100);// .lockToActorAxis(player, ex.Axis.Y); //.elasticToActor(player, .02, .23); // = camera;
 
 // Run the mainloop
 game.start(loader).then(() => {

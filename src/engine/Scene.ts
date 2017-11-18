@@ -168,9 +168,7 @@ export class Scene extends Class {
       this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
       var i: number, len: number;
 
-      if (this.camera) {
-         this.camera.update(engine, delta);
-      }
+      
 
       // Remove timers in the cancel queue before updating them
       for (i = 0, len = this._cancelQueue.length; i < len; i++) {
@@ -234,6 +232,10 @@ export class Scene extends Class {
       }
       engine.stats.currFrame.actors.killed = this._killQueue.length;
       this._killQueue.length = 0;
+
+      if (this.camera) {
+         this.camera.update(engine, delta);
+      }
 
       this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
    }

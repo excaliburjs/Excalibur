@@ -8,10 +8,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Breaking Changes
 
 ## Added
+- New camera strategies implementation for following targets in a scene. Allows for custom strategies to be implemented on top of some prebuilt
+   - `LockCameraToActorStrategy` which behaves like `LockedCamera` and can be switched on with `Camera.strategy.lockToActor(actor)`.
+   - `LockCameraToActorAxisStrategy` which behaves like `SideCamera` and can be switched on with `Camera.strategy.lockToActorAxis(actor, ex.Axis.X)`
+   - `ElasticToActorStrategy` which is a new strategy that elastically moves the camera to an actor and can be switched on with `Camera.strategy.elasticToActor(actor, cameraElasticity, cameraFriction)`
+   - `CircleAroundActorStrategy` which is a new strategy that will follow an actor when a certain radius from the camera focus and can be switched on with `Camera.strategy.circleAroundActor(actor)`
 
 ## Changed
+- `BaseCamera` has been renamed to `Camera`
 
 ## Deprecated
+- `SideCamera` and `LockedCamera` have been deprecated in favor of camera strategies
 
 ## Fixed
 
