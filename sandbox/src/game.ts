@@ -262,12 +262,6 @@ player.on('pointerdown', (e?: ex.Input.PointerEvent) => {
 
 var newScene = new ex.Scene();
 newScene.add(new ex.Label("MAH LABEL!", 200, 100));
-//newScene.onActivate = function(){
-//   console.log('activated newScene');
-//};
-//newScene.onDeactivate = function(){
-//   console.log('deactivated newScene');
-//};
 newScene.on('activate', (evt?: ex.ActivateEvent) => {
    console.log('activate newScene');
 });
@@ -292,16 +286,13 @@ game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
       var inAir = true;
       a.on('collision', (data?: ex.CollisionEvent) => {
          inAir = false;
-         //a.dx = data.other.dx;
-         //a.dy = data.other.dy;
-         //a.kill();
          if (!data.other) {
             a.vel.y = 0;
          }
       });
       a.on('postupdate', (data?: ex.PostUpdateEvent) => {
          if (inAir) {
-            a.acc.y = 400;// * data.delta/1000;
+            a.acc.y = 400;
          } else {
             a.acc.y = 0;
          }
@@ -322,7 +313,6 @@ player.on('collision', (data?: ex.CollisionEvent) => {
       isColliding = true;
 
       if (inAir) {
-         //console.log("Collided on bottom with inAir", inAir);
          player.setDrawing(Animations.Idle);
       }
       inAir = false;
@@ -361,7 +351,6 @@ player.on('postupdate', (data?: ex.PostUpdateEvent) => {
    }
 
    // Reset values because we don't know until we check the next update
-   // inAir = true;
    isColliding = false;
 });
 
@@ -394,9 +383,6 @@ game.on('p', () => {
 // Create a camera to track the player
 var camera = new ex.LockedCamera();
 camera.setActorToFollow(player);
-// camera.shake(5, 5, 1000);
-// camera.zoom(0.5);
-// camera.zoom(1.5, 10000);
 
 // Add player to game is synonymous with adding a player to the current scene
 game.add(player);
@@ -423,28 +409,9 @@ emitter.particleRotationalVelocity = Math.PI / 10;
 emitter.randomRotation = true;
 emitter.particleSprite.addEffect(new ex.Effects.Grayscale());
 
-
-//emitter.acceleration = new ex.Vector(0, -400);
-//emitter.particleSprite = spriteTiles.getSprite(0);
-//emitter.focus = new ex.Vector(0, -100);
-//emitter.focusAccel = 800;
 game.add(emitter);
 
-//emitter.follow(player, 20);
-
 var exploding = false;
-// var trigger = new ex.Trigger(400, 200, 100, 100, () => {
-//    if (!exploding) {
-//       exploding = true;
-//       emitter.isEmitting = true;
-//       camera.shake(10, 10, 2000);
-//       game.addTimer(new ex.Timer(() => {
-//          emitter.isEmitting = false;
-//          exploding = false;
-//       }, 2000));
-//    }
-// });
-
 var trigger = new ex.Trigger({
    width: 100,
    height: 100,
@@ -464,8 +431,6 @@ var trigger = new ex.Trigger({
    }
 });
 
-// trigger.repeats = -1;
-// trigger.target = player;
 
 game.add(trigger);
 
@@ -480,10 +445,6 @@ game.input.pointers.primary.on('down', (evt?: ex.Input.PointerEvent) => {
          c.pushSprite(new ex.TileSprite("default", 0));
       }
    }
-
-
-   //logger.info("Collides", tileMap.collidesPoint(evt.x, evt.y));
-   //emitter.focus = new ex.Vector(evt.x - emitter.x, evt.y - emitter.y);
 });
 
 game.input.keyboard.on('up', (evt?: ex.Input.KeyEvent) => {
