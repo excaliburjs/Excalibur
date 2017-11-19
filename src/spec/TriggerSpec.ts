@@ -204,7 +204,7 @@ describe('A Trigger', () => {
       expect(trigger.draw).toHaveBeenCalled();
    });
 
-   it('will not only trigger if the filter is false', () => {
+   it('will only trigger if the filter is false', () => {
       // Arrange
       var trigger = new ex.Trigger({
          pos: new ex.Vector(0, 100),

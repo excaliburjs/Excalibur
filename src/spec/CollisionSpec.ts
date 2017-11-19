@@ -63,35 +63,7 @@ describe('A Collision', () => {
 
      expect(touching).toBe(true);
    });
-   
-   it('should recognize when bodies were touching last frame', (done) => {
-     var wasTouching = 0;
-     var engine1 = TestUtils.engine({width: 200, height: 200});
      
-     var actor3 = new ex.Actor(0, 0, 10, 10);
-     var actor4 = new ex.Actor(30, 0, 10, 10);
-     
-     engine1.start().then(() => {
-       actor3.vel.setTo(200, 0);
-       actor3.collisionType = ex.CollisionType.Active;
-       actor4.collisionType = ex.CollisionType.Active;
-       engine1.add(actor3);
-       engine1.add(actor4);
-       
-       actor3.on('update', function() {
-        
-         if (actor3.body.wasTouching(actor4, engine1)) {
-           wasTouching++;
-           expect(wasTouching).toBe(1);
-           done();
-           engine1.stop();
-           
-         }
-         
-       });
-     });
-   });
-   
 
    it('should not collide when active and passive', (done) => {
       ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
