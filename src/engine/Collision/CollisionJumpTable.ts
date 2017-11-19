@@ -3,7 +3,7 @@ import { CollisionContact } from './CollisionContact';
 import { PolygonArea } from './PolygonArea';
 import { EdgeArea } from './EdgeArea';
 
-import { Vector } from '../Algebra';
+import { Vector, Ray } from '../Algebra';
 
 export var CollisionJumpTable = {
 
@@ -114,8 +114,30 @@ export var CollisionJumpTable = {
    },
 
    CollidePolygonEdge(polygon: PolygonArea, edge: EdgeArea): CollisionContact {
-      var e = edge.end.sub(edge.begin);
-      var edgeNormal = e.normal();
+      let e = edge.end.sub(edge.begin);
+      let edgeNormal = e.normal();
+      // var cc = polygon.getCenter();
+
+      if (polygon.contains(edge.begin)) {
+         let {contact: intersectBegin, face} = polygon.rayCastFace(new Ray(edge.begin, e));
+         if (intersectBegin) {
+            return new CollisionContact(polygon, edge, 
+                                        intersectBegin.sub(edge.begin), 
+                                        intersectBegin, 
+                                        face.normal().negate());
+         }
+      }
+      
+      if (polygon.contains(edge.end)) {
+         let {contact: intersectEnd, face} = polygon.rayCastFace(new Ray(edge.end, e.negate()));
+         if (intersectEnd) {
+            return new CollisionContact(polygon, edge, 
+                                        intersectEnd.sub(edge.end), 
+                                        intersectEnd, 
+                                        face.normal().negate());
+         }
+      }
+    
 
       // build a temporary polygon from the edge to use SAT
       var linePoly = new PolygonArea({
@@ -132,6 +154,11 @@ export var CollisionJumpTable = {
       if (!minAxis) {
          return null;
       }
+
+      // 2 cases:
+      // (1) Polygon lands on the full face
+      // (2) Polygon lands on the right point
+      // (3) Polygon lands on the left point
 
       return new CollisionContact(polygon, edge, minAxis, polygon.getFurthestPoint(edgeNormal.negate()), edgeNormal.negate());
    },

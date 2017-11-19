@@ -222,6 +222,33 @@ export class PolygonArea implements ICollisionArea {
    }
 
    /**
+    * Casts a ray into the polygon and returns the line of the polygonface or null if no collision.
+    */
+    public rayCastFace(ray: Ray, max: number = Infinity): {contact: Vector, face: Line} {
+      // find the minimum contact time greater than 0
+      // contact times less than 0 are behind the ray and we don't want those
+      var sides = this.getSides();
+      var len = sides.length;
+      var minContactTime = Number.MAX_VALUE;
+      var contactIndex = -1;
+      for (var i = 0; i < len; i++) {
+         var contactTime = ray.intersect(sides[i]);
+         if (contactTime >= 0 && contactTime < minContactTime && contactTime <= max) {
+            minContactTime = contactTime;
+            contactIndex = i;
+         }
+      }
+
+      // contact was found
+      if (contactIndex >= 0) {
+         return { contact: ray.getPoint(minContactTime), face: sides[contactIndex] };
+      }
+
+      // no contact found
+      return null;
+   }
+
+   /**
     * Get the axis associated with the edge
     */
    public getAxes(): Vector[] {

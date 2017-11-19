@@ -357,6 +357,13 @@ export class Line {
    }
 
    /**
+    * Gets the normal of the line
+    */
+   public normal(): Vector {
+      return this.end.sub(this.begin).normal();
+   }
+
+   /**
     * Returns the slope of the line in the form of a vector
     */
    public getSlope(): Vector {
