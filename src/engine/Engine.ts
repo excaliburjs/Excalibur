@@ -383,7 +383,7 @@ export class Engine extends Class {
    public on(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void): void;
    public on(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void): void;
    public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
-   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void {
+   public on(eventName: string, handler: (event?: any) => void): void {
       super.on(eventName, handler);
    }
 
@@ -907,9 +907,9 @@ O|===|* >________________>\n\
        
       // initialize inputs
       this.input = {
-         keyboard: new Input.Keyboard(this),
+         keyboard: new Input.Keyboard(),
          pointers: new Input.Pointers(this),
-         gamepads: new Input.Gamepads(this)
+         gamepads: new Input.Gamepads()
       };
       this.input.keyboard.init();
       this.input.pointers.init(options && options.pointerScope === Input.PointerScope.Document ? document : this.canvas);

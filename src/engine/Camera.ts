@@ -51,7 +51,6 @@ export class BaseCamera {
 
    protected _isZooming: boolean = false;
    private _maxZoomScale: number = 1;
-   private _zoomDuration: number = 0;
    private _zoomPromise: Promise<boolean>;
    private _zoomIncrement: number = 0.01;
    private _easing: EasingFunction = EasingFunctions.EaseInOutCubic;
@@ -164,7 +163,6 @@ export class BaseCamera {
       if (duration) {
          this._isZooming = true;
          this._maxZoomScale = scale;
-         this._zoomDuration = duration;
          this._zoomIncrement = (scale - this.z) / duration;
       } else {
          this._isZooming = false;

@@ -489,7 +489,7 @@ export class Actor extends Class implements IActionable, IEvented {
    public on(eventName: Events.pointercancel, handler: (event?: PointerEvent) => void): void;
    public on(eventName: Events.pointerwheel, handler: (event?: WheelEvent) => void): void;
    public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
-   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void {
+   public on(eventName: string, handler: (event?: any) => void): void {
       this._checkForPointerOptIn(eventName);
       this.eventDispatcher.on(eventName, handler);
    }
@@ -511,7 +511,7 @@ export class Actor extends Class implements IActionable, IEvented {
    public once(eventName: Events.pointercancel, handler: (event?: PointerEvent) => void): void;
    public once(eventName: Events.pointerwheel, handler: (event?: WheelEvent) => void): void;
    public once(eventName: string, handler: (event?: GameEvent<any>) => void): void;
-   public once(eventName: string, handler: (event?: GameEvent<any>) => void): void {
+   public once(eventName: string, handler: (event?: any) => void): void {
       this._checkForPointerOptIn(eventName);
       this.eventDispatcher.once(eventName, handler);
    }

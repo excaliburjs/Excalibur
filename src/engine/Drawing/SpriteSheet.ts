@@ -17,7 +17,6 @@ import { TextAlign, BaseAlign } from '../Label';
  */
 export class SpriteSheet {
    public sprites: Sprite[] = [];
-   private _internalImage: HTMLImageElement;
 
    /**
     * @param image     The backing image texture to build the SpriteSheet
@@ -27,7 +26,6 @@ export class SpriteSheet {
     * @param spHeight  The height of each individual sprite in pixels
     */
    constructor(public image: Texture, public columns: number, public rows: number, spWidth: number, spHeight: number) {
-      this._internalImage = image.image;
       this.sprites = new Array(columns * rows);
 
       // TODO: Inspect actual image dimensions with preloading

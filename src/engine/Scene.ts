@@ -93,7 +93,7 @@ export class Scene extends Class {
    public on(eventName: Events.predebugdraw, handler: (event?: PreDebugDrawEvent) => void): void;
    public on(eventName: Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void): void;
    public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
-   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void {
+   public on(eventName: string, handler: (event?: any) => void): void {
       super.on(eventName, handler);
    }
 

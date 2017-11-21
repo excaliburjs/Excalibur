@@ -1,5 +1,4 @@
-﻿import { Engine } from './../Engine';
-import { Class } from './../Class';
+﻿import { Class } from './../Class';
 import { GameEvent } from '../Events';
 import * as Events from '../Events';
     
@@ -82,19 +81,16 @@ export class Keyboard extends Class {
    private _keys: number[] = [];
    private _keysUp: number[] = [];
    private _keysDown: number[] = [];
-   private _engine: Engine;
 
-   constructor(engine: Engine) {
+   constructor() {
       super();
-
-      this._engine = engine;
    }
 
    public on(eventName: Events.press, handler: (event?: KeyEvent) => void): void;
    public on(eventName: Events.release, handler: (event?: KeyEvent) => void): void;
    public on(eventName: Events.hold, handler: (event?: KeyEvent) => void): void;
    public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
-   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void {
+   public on(eventName: string, handler: (event?: any) => void): void {
       super.on(eventName, handler);
    }
 
