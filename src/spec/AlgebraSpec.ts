@@ -318,6 +318,18 @@ describe('Lines', () => {
       expect(t.x).toBe(1);
    });
 
+   it('can calculate the perpendicular distance from a point', () => {
+      let line = new ex.Line(new ex.Vector(0, 0), new ex.Vector(200, 0));
+      let point = new ex.Vector(100, 100);
+      expect(line.distanceToPoint(point)).toBe(100);
+   });
+
+   it('can calculate the perpendicular distance from a point not above the line', () => {
+      let line = new ex.Line(new ex.Vector(0, 0), new ex.Vector(200, 0));
+      let point = new ex.Vector(-100, 100);
+      expect(line.distanceToPoint(point)).toBe(100);
+   });
+
    it('can determine if point lies on the line by x and y', () => {
       var line = new ex.Line(new ex.Vector(0, 0), new ex.Vector(2, 2));
       var t = line.hasPoint(1, 1);

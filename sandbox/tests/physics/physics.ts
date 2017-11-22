@@ -48,7 +48,7 @@ function spawnCircle(x: number, y: number) {
 
 var edge = new ex.Actor(0, 0, 5, 5, ex.Color.Blue.clone());
 edge.collisionType = ex.CollisionType.Fixed;
-edge.body.useEdgeCollision(new ex.Vector(300, 200), new ex.Vector(300, 400));
+edge.body.useEdgeCollision(new ex.Vector(200, 300), new ex.Vector(400, 300));
 // edge.rx = .4;
 game.add(edge);
 

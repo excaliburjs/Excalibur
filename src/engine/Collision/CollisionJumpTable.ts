@@ -3,7 +3,7 @@ import { CollisionContact } from './CollisionContact';
 import { PolygonArea } from './PolygonArea';
 import { EdgeArea } from './EdgeArea';
 
-import { Vector, Ray } from '../Algebra';
+import { Vector } from '../Algebra';
 
 export var CollisionJumpTable = {
 
@@ -46,7 +46,7 @@ export var CollisionJumpTable = {
          verts.push(point2);
       }
       if (verts.length === 0) {
-         verts.push(point2);
+         return null;
       }
 
       return new CollisionContact(circle, polygon, minAxis,
@@ -114,29 +114,38 @@ export var CollisionJumpTable = {
    },
 
    CollidePolygonEdge(polygon: PolygonArea, edge: EdgeArea): CollisionContact {
+      // 3 cases:
+      // (1) Polygon lands on the full face
+      // (2) Polygon lands on the right point
+      // (3) Polygon lands on the left point
+
       let e = edge.end.sub(edge.begin);
       let edgeNormal = e.normal();
-      // var cc = polygon.getCenter();
+      
 
       if (polygon.contains(edge.begin)) {
-         let {contact: intersectBegin, face} = polygon.rayCastFace(new Ray(edge.begin, e));
-         if (intersectBegin) {
+         let {distance: mtv, face} = polygon.getClosestFace(edge.begin);
+         if (mtv) {
             return new CollisionContact(polygon, edge, 
-                                        intersectBegin.sub(edge.begin), 
-                                        intersectBegin, 
+                                        mtv.negate(), 
+                                        edge.begin.add(mtv.negate()), 
                                         face.normal().negate());
          }
       }
       
       if (polygon.contains(edge.end)) {
-         let {contact: intersectEnd, face} = polygon.rayCastFace(new Ray(edge.end, e.negate()));
-         if (intersectEnd) {
+         let {distance: mtv, face} = polygon.getClosestFace(edge.end);
+         if (mtv) {
             return new CollisionContact(polygon, edge, 
-                                        intersectEnd.sub(edge.end), 
-                                        intersectEnd, 
+                                        mtv.negate(), 
+                                        edge.end.add(mtv.negate()), 
                                         face.normal().negate());
          }
       }
+
+      let pc = polygon.getCenter();
+      let ec = edge.getCenter();
+      let dir =  ec.sub(pc).normalize();
     
 
       // build a temporary polygon from the edge to use SAT
@@ -144,8 +153,8 @@ export var CollisionJumpTable = {
          points: [
             edge.begin,
             edge.end,
-            edge.end.sub(edgeNormal.scale(10)),
-            edge.begin.sub(edgeNormal.scale(10))]
+            edge.end.add(dir.scale(30)),
+            edge.begin.add(dir.scale(30))]
       });
 
       var minAxis = polygon.testSeparatingAxisTheorem(linePoly);
@@ -155,12 +164,13 @@ export var CollisionJumpTable = {
          return null;
       }
 
-      // 2 cases:
-      // (1) Polygon lands on the full face
-      // (2) Polygon lands on the right point
-      // (3) Polygon lands on the left point
+      // flip the normal and axis to always have positive collisions
+      edgeNormal = edgeNormal.dot(dir) < 0 ? edgeNormal.negate() : edgeNormal;
+      minAxis = minAxis.dot(dir) < 0 ? minAxis.negate() : minAxis;
 
-      return new CollisionContact(polygon, edge, minAxis, polygon.getFurthestPoint(edgeNormal.negate()), edgeNormal.negate());
+      
+
+      return new CollisionContact(polygon, edge, minAxis, polygon.getFurthestPoint(edgeNormal), edgeNormal);
    },
 
    CollidePolygonPolygon(polyA: PolygonArea, polyB: PolygonArea): CollisionContact {      

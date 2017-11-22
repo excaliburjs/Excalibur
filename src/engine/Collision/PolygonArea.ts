@@ -152,6 +152,34 @@ export class PolygonArea implements ICollisionArea {
    }
 
    /**
+    * Finds the closes face to the point using perpendicular distance
+    * @param point point to test against polygon
+    */
+   public getClosestFace(point: Vector): {distance: Vector, face: Line } {
+      let sides = this.getSides();
+      let min = Number.POSITIVE_INFINITY;
+      let faceIndex = -1;
+      let distance = -1;
+      for (let i = 0; i < sides.length; i++) {
+         let dist = sides[i].distanceToPoint(point);
+         if (dist < min) {
+            min = dist;
+            faceIndex = i;
+            distance = dist;
+         }
+      }
+
+      if (faceIndex !== -1) {
+         return {
+            distance: sides[faceIndex].normal().scale(distance),
+            face: sides[faceIndex]
+         };
+      }
+
+      return null;
+   }
+
+   /**
     * Get the axis aligned bounding box for the polygon area
     */
    public getBounds(): BoundingBox {
@@ -221,32 +249,6 @@ export class PolygonArea implements ICollisionArea {
       return null;
    }
 
-   /**
-    * Casts a ray into the polygon and returns the line of the polygonface or null if no collision.
-    */
-    public rayCastFace(ray: Ray, max: number = Infinity): {contact: Vector, face: Line} {
-      // find the minimum contact time greater than 0
-      // contact times less than 0 are behind the ray and we don't want those
-      var sides = this.getSides();
-      var len = sides.length;
-      var minContactTime = Number.MAX_VALUE;
-      var contactIndex = -1;
-      for (var i = 0; i < len; i++) {
-         var contactTime = ray.intersect(sides[i]);
-         if (contactTime >= 0 && contactTime < minContactTime && contactTime <= max) {
-            minContactTime = contactTime;
-            contactIndex = i;
-         }
-      }
-
-      // contact was found
-      if (contactIndex >= 0) {
-         return { contact: ray.getPoint(minContactTime), face: sides[contactIndex] };
-      }
-
-      // no contact found
-      return null;
-   }
 
    /**
     * Get the axis associated with the edge

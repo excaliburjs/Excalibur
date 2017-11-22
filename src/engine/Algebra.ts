@@ -384,6 +384,23 @@ export class Line {
    }
 
    /**
+    * Find the perpendicular distance from the line to a point
+    * https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+    * @param point 
+    */
+   public distanceToPoint(point: Vector) {
+      let x0 = point.x;
+      let y0 = point.y;
+
+      let l = this.getLength();
+
+      let dy = this.end.y - this.begin.y;
+      let dx = this.end.x - this.begin.x;
+      let distance = Math.abs(dy * x0 - dx * y0 + this.end.x * this.begin.y - this.end.y * this.begin.x) / l;
+      return distance;
+   }
+
+   /**
     * Finds a point on the line given only an X or a Y value. Given an X value, the function returns
     * a new point with the calculated Y value and vice-versa.
     *
