@@ -297,6 +297,14 @@ describe('Lines', () => {
       expect(line.intercept).toBe(0);
    });
 
+   it('can have a normal', () => {
+      var line = new ex.Line(new ex.Vector(1, 1), new ex.Vector(2, 1));
+
+      var normal = line.normal();
+      expect(normal.x).toBe(0);
+      expect(normal.y).toBe(-1);
+   });
+
    it('can have a length', () => {
       var line = new ex.Line(new ex.Vector(1, -1), new ex.Vector(1, 1));
       expect(line.getLength()).toBe(2);
