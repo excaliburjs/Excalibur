@@ -6,13 +6,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ## Breaking Changes
+- Triggers now have a new option bag constructor using the `ITriggerOptions` interface. ([#863](https://github.com/excaliburjs/Excalibur/issues/863)).
 
 ## Added
+- Triggers now fire an `EnterTriggerEvent` when an actor enters the trigger, and an `ExitTriggerEvent` when an actor exits the trigger. ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
+- Actors have a new events `CollisionStart` which when 2 actors first start colliding and `CollisionEnd` when 2 actors are no longer colliding. ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
 
 ## Changed
-
+- Trigger have been rebuilt to provide a better experience. The trigger `action` only fires when an actor enters the designated area instead of every frame of collision. ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
+- Triggers can now draw like other Actors, but are still not visible by default ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
 ## Deprecated
-
+- `Body.wasTouching` has been deprecated in favor of a new event type `CollisionEnd` ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
 ## Fixed
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->

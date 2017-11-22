@@ -9,11 +9,14 @@ import { Actor, CollisionType } from '../Actor';
 import { FrameStats } from '../Debug';
 import { CollisionResolutionStrategy } from '../Physics';
 import { Logger } from '../Util/Log';
+import { CollisionStartEvent, CollisionEndEvent } from '../Events';
 
 export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
    private _dynamicCollisionTree = new DynamicTree();
    private _collisionHash: { [key: string]: boolean; } = {};
    private _collisionPairCache: Pair[] = [];
+   private _lastFramePairs: Pair[] = [];
+   private _lastFramePairsHash: { [pairId: string]: Pair; } = {};
 
    /**
     * Tracks a physics body for collisions
@@ -163,7 +166,7 @@ export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
     * Applies narrow phase on collision pairs to find actual area intersections
     * Adds actual colliding pairs to stats' Frame data 
     */
-   public narrowphase(pairs: Pair[], stats?: FrameStats) {
+   public narrowphase(pairs: Pair[], stats?: FrameStats): Pair[] {
       for (var i = 0; i < pairs.length; i++) {
          pairs[i].collide();
          if (stats && pairs[i].collision) {
@@ -171,30 +174,59 @@ export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
             stats.physics.collidersHash[pairs[i].id] = pairs[i];
          }
       }
+      return pairs.filter(p => p.collision);
    }
 
    /**
     * Perform collision resolution given a strategy (rigid body or box) and move objects out of intersect. 
     */
-   public resolve(delta: number, strategy: CollisionResolutionStrategy) {
-      // resolve collision pairs
-      var i = 0, len = this._collisionPairCache.length;
-      for (i = 0; i < len; i++) {
-         this._collisionPairCache[i].resolve(strategy);
-      }
+   public resolve(pairs: Pair[], delta: number, strategy: CollisionResolutionStrategy): Pair[] {
+      for (let pair of pairs) {
+         pair.resolve(strategy);
 
-      // We must apply mtv after all pairs have been resolved for more accuracy
-      // apply integration of collision pairs
-      for (i = 0; i < len; i++) {
-         if (this._collisionPairCache[i].collision) {
-            this._collisionPairCache[i].bodyA.applyMtv();
-            this._collisionPairCache[i].bodyB.applyMtv();
+         if (pair.collision) {
+            pair.bodyA.applyMtv();
+            pair.bodyB.applyMtv();
             // todo still don't like this, this is a small integration step to resolve narrowphase collisions
-            this._collisionPairCache[i].bodyA.actor.integrate(delta * Physics.collisionShift);
-            this._collisionPairCache[i].bodyB.actor.integrate(delta * Physics.collisionShift);
+            pair.bodyA.actor.integrate(delta * Physics.collisionShift);
+            pair.bodyB.actor.integrate(delta * Physics.collisionShift);
          }
       }
 
+      return pairs.filter(p => p.canCollide);
+
+   }
+
+   public runCollisionStartEnd(pairs: Pair[]) {
+      let currentFrameHash: { [pairId: string]: Pair; } = {};
+
+      
+      for (let p of pairs) {
+         // load currentFrameHash
+         currentFrameHash[p.id] = p;
+
+         // find all new collisions
+         if (!this._lastFramePairsHash[p.id]) {
+            let actor1 = p.bodyA.actor;
+            let actor2 = p.bodyB.actor;
+            actor1.emit('collisionstart', new CollisionStartEvent(actor1, actor2, p));
+            actor2.emit('collisionstart', new CollisionStartEvent(actor2, actor1, p));
+         }
+      }
+
+      // find all old collisions
+      for (let p of this._lastFramePairs) {
+         if (!currentFrameHash[p.id]) {
+            let actor1 = p.bodyA.actor;
+            let actor2 = p.bodyB.actor;
+            actor1.emit('collisionend', new CollisionEndEvent(actor1, actor2));
+            actor2.emit('collisionend', new CollisionEndEvent(actor2, actor1));
+         }
+      }
+
+      // reset the last frame cache
+      this._lastFramePairs = pairs;
+      this._lastFramePairsHash = currentFrameHash;
    }
 
    /**
