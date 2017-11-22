@@ -8,12 +8,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Breaking Changes
 
 ## Added
+- Added new line utility `Line.normal()` and `Line.distanceToPoint` ([#703](https://github.com/excaliburjs/Excalibur/issues/703))
+- Added new PolygonArea utility `PolygonArea.getClosestFace(point)` ([#703](https://github.com/excaliburjs/Excalibur/issues/703))
 
 ## Changed
 
 ## Deprecated
 
 ## Fixed
+- Fixed odd jumping behavior when polygons collided with the end of an edge ([#703](https://github.com/excaliburjs/Excalibur/issues/703))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
