@@ -1,11 +1,13 @@
 import { Scene } from './Scene';
 import { Vector } from './Algebra';
 import { Actor } from './Actor';
+import { Trigger } from './Trigger';
 import { FrameStats } from './Debug';
 import { Engine } from './Engine';
 import { TileMap } from './TileMap';
 import { Side } from './Collision/Side';
 import * as Input from './Input/Index';
+import { Pair } from './Index';
 
 /* istanbul ignore next */
 /* compiler only: these are internal to lib */
@@ -26,6 +28,8 @@ export type postframe = 'postframe';
 export type precollision = 'precollision';
 // OBSOLETE in v0.14
 export type collision = 'collision';
+export type collisionstart = 'collisionstart';
+export type collisionend = 'collisionend';
 export type postcollision = 'postcollision';
 
 export type initialize = 'initialize';
@@ -34,6 +38,9 @@ export type deactivate = 'deactivate';
 
 export type exitviewport = 'exitviewport';
 export type enterviewport = 'enterviewport';
+
+export type exittrigger = 'exit';
+export type entertrigger = 'enter';
 
 export type connect = 'connect';
 export type disconnect = 'disconnect';
@@ -322,6 +329,32 @@ export class PostCollisionEvent extends GameEvent<Actor> {
 }
 
 /**
+ * Event thrown the first time an [[Actor|actor]] collides with another, after an actor is in contact normal collision events are fired.
+ */
+export class CollisionStartEvent extends GameEvent<Actor> {
+   /**
+    *
+    */
+   constructor(public actor: Actor, public other: Actor, public pair: Pair) {
+      super();
+      this.target = actor;
+   }
+}
+
+/**
+ * Event thrown when the [[Actor|actor]] is no longer colliding with another
+ */
+export class CollisionEndEvent extends GameEvent<Actor> {
+   /**
+    *
+    */
+   constructor(public actor: Actor, public other: Actor) {
+      super();
+      this.target = actor;
+   }
+}
+
+/**
  * Event thrown on an [[Actor]] and a [[Scene]] only once before the first update call
  */
 export class InitializeEvent extends GameEvent<Actor | Scene> {
@@ -375,6 +408,19 @@ export class ExitViewPortEvent extends GameEvent<Actor> {
  */
 export class EnterViewPortEvent extends GameEvent<Actor> {
    constructor(public target: Actor) {
+      super();
+   }
+}
+
+
+export class EnterTriggerEvent extends GameEvent<Actor> {
+   constructor(public target: Trigger, public actor: Actor) {
+      super();
+   }
+}
+
+export class ExitTriggerEvent extends GameEvent<Actor> {
+   constructor(public target: Trigger, public actor: Actor) {
       super();
    }
 }

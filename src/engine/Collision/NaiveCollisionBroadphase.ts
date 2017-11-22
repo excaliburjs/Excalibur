@@ -3,8 +3,12 @@ import { CollisionContact } from './CollisionContact';
 import { Pair } from './Pair';
 import { Actor, CollisionType } from './../Actor';
 import { ICollisionBroadphase } from './ICollisionResolver';
+import { CollisionStartEvent, CollisionEndEvent } from '../Events';
 
 export class NaiveCollisionBroadphase implements ICollisionBroadphase {
+
+   private _lastFramePairs: Pair[] = [];
+   private _lastFramePairsHash: { [pairId: string]: Pair; } = {};
 
    public track() {
       // pass
@@ -53,27 +57,57 @@ export class NaiveCollisionBroadphase implements ICollisionBroadphase {
          }
 
       }
-
-      var k = 0, len = collisionPairs.length;
-      for (k; k < len; k++) {
-         collisionPairs[k].resolve(Physics.collisionResolutionStrategy);
-      }
-
       return collisionPairs;
    }
 
    /**
     * Identify actual collisions from those pairs, and calculate collision impulse
     */
-   narrowphase() {
-      // pass
+   public narrowphase(pairs: Pair[]): Pair[] {
+      return pairs;
+   }
+
+   public runCollisionStartEnd(pairs: Pair[]) {
+      let currentFrameHash: { [pairId: string]: Pair; } = {};
+
+      
+      for (let p of pairs) {
+         // load currentFrameHash
+         currentFrameHash[p.id] = p;
+
+         // find all new collisions
+         if (!this._lastFramePairsHash[p.id]) {
+            let actor1 = p.bodyA.actor;
+            let actor2 = p.bodyB.actor;
+            actor1.emit('collisionstart', new CollisionStartEvent(actor1, actor2, p));
+            actor2.emit('collisionstart', new CollisionStartEvent(actor2, actor1, p));
+         }
+      }
+
+      // find all old collisions
+      for (let p of this._lastFramePairs) {
+         if (!currentFrameHash[p.id]) {
+            let actor1 = p.bodyA.actor;
+            let actor2 = p.bodyB.actor;
+            actor1.emit('collisionend', new CollisionEndEvent(actor1, actor2));
+            actor2.emit('collisionend', new CollisionEndEvent(actor2, actor1));
+         }
+      }
+
+      // reset the last frame cache
+      this._lastFramePairs = pairs;
+      this._lastFramePairsHash = currentFrameHash;
    }
 
    /**
     * Resolve the position and velocity of the physics bodies
     */
-   resolve() {
-      // pass
+   public resolve(pairs: Pair[]): Pair[] {
+      for (var pair of pairs) {
+         pair.resolve(Physics.collisionResolutionStrategy);
+      }
+
+      return pairs.filter(p => p.canCollide);
    }
 
    public update(): number {
