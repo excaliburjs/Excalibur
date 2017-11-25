@@ -51,7 +51,6 @@ export class BaseCamera {
 
    protected _isZooming: boolean = false;
    private _maxZoomScale: number = 1;
-   private _zoomDuration: number = 0;
    private _zoomPromise: Promise<boolean>;
    private _zoomIncrement: number = 0.01;
    private _easing: EasingFunction = EasingFunctions.EaseInOutCubic;
@@ -86,14 +85,6 @@ export class BaseCamera {
       if (!this._follow && !this._cameraMoving) {
          this._y = value;
       }
-   }
-
-   /**
-    * Sets the [[Actor]] to follow with the camera
-    * @param actor  The actor to follow
-    */
-   public setActorToFollow(actor: Actor) {
-      this._follow = actor;
    }
 
    /**
@@ -164,7 +155,6 @@ export class BaseCamera {
       if (duration) {
          this._isZooming = true;
          this._maxZoomScale = scale;
-         this._zoomDuration = duration;
          this._zoomIncrement = (scale - this.z) / duration;
       } else {
          this._isZooming = false;
@@ -305,6 +295,13 @@ export class BaseCamera {
  * Common usages: platformers.
  */
 export class SideCamera extends BaseCamera {
+   /**
+    * Sets the [[Actor]] to follow with the camera
+    * @param actor  The actor to follow
+    */
+   public setActorToFollow(actor: Actor) {
+      this._follow = actor;
+   }
 
    public getFocus() {
       if (this._follow) {
@@ -323,6 +320,13 @@ export class SideCamera extends BaseCamera {
  * Common usages: RPGs, adventure games, top-down games.
  */
 export class LockedCamera extends BaseCamera {
+   /**
+    * Sets the [[Actor]] to follow with the camera
+    * @param actor  The actor to follow
+    */
+   public setActorToFollow(actor: Actor) {
+      this._follow = actor;
+   }
 
    public getFocus() {
       if (this._follow) {
