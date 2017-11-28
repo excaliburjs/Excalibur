@@ -1190,8 +1190,8 @@ export enum CollisionType {
 }
 
 export interface IActorArgs extends ActorImpl {
-      width: number;
-      height: number;
+      width?: number;
+      height?: number;
 } 
    
 export class Actor extends Configurable(ActorImpl) {

@@ -418,25 +418,50 @@ camera.setActorToFollow(player);
 game.add(player);
 
 // Add particle emitter
-var emitter = new ex.ParticleEmitter(100, 300, 2, 2);
-emitter.minVel = 417;
-emitter.maxVel = 589;
-emitter.minAngle = Math.PI;
-emitter.maxAngle = Math.PI * 2;
-emitter.isEmitting = false;
-emitter.emitRate = 494;
-emitter.opacity = 0.84;
-emitter.fadeFlag = true;
-emitter.particleLife = 2465;
-emitter.maxSize = 1.5;
-emitter.minSize = .1;
-emitter.acceleration = new ex.Vector(0, 460);
-emitter.beginColor = ex.Color.Red;
-emitter.endColor = ex.Color.Yellow;
-emitter.particleSprite = blockSprite.clone();
-emitter.particleSprite.anchor = new ex.Vector(.5, .5);
-emitter.particleRotationalVelocity = Math.PI / 10;
-emitter.randomRotation = true;
+var sprite = blockSprite.clone();
+sprite.anchor = new ex.Vector(.5, .5);
+var emitter = new ex.ParticleEmitter({
+   x: 100,
+   y: 300,
+   width: 2,
+   height: 2,
+   minVel: 417,
+   maxVel: 589,
+   minAngle: Math.PI,
+   maxAngle: Math.PI * 2,
+   isEmitting: false,
+   emitRate: 494,
+   opacity: 0.84,
+   fadeFlag: true,
+   particleLife: 2465,
+   maxSize: 1.5,
+   minSize: .1,
+   acceleration: new ex.Vector(0, 460),
+   beginColor: ex.Color.Red,
+   endColor: ex.Color.Yellow,
+   particleSprite: sprite,
+   particleRotationalVelocity: Math.PI / 10,
+   randomRotation: true
+});
+// var emitter = new ex.ParticleEmitter(100, 300, 2, 2);
+// emitter.minVel = 417;
+// emitter.maxVel = 589;
+// emitter.minAngle = Math.PI;
+// emitter.maxAngle = Math.PI * 2;
+// emitter.isEmitting = false;
+// emitter.emitRate = 494;
+// emitter.opacity = 0.84;
+// emitter.fadeFlag = true;
+// emitter.particleLife = 2465;
+// emitter.maxSize = 1.5;
+// emitter.minSize = .1;
+// emitter.acceleration = new ex.Vector(0, 460);
+// emitter.beginColor = ex.Color.Red;
+// emitter.endColor = ex.Color.Yellow;
+// emitter.particleSprite = blockSprite.clone();
+// emitter.particleSprite.anchor = new ex.Vector(.5, .5);
+// emitter.particleRotationalVelocity = Math.PI / 10;
+// emitter.randomRotation = true;
 emitter.particleSprite.addEffect(new ex.Effects.Grayscale());
 
 game.add(emitter);

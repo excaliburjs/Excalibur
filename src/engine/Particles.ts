@@ -26,21 +26,21 @@ export enum EmitterType {
  * Particle is used in a [[ParticleEmitter]]
  */
 export class ParticleImpl implements IDefaultable<ParticleImpl> {
-   public position: Vector = new Vector(0, 0);
-   public velocity: Vector = new Vector(0, 0);
-   public acceleration: Vector = new Vector(0, 0);
-   public particleRotationalVelocity: number = 0;
-   public currentRotation: number = 0;
+   public position: Vector;
+   public velocity: Vector;
+   public acceleration: Vector;
+   public particleRotationalVelocity: number;
+   public currentRotation: number;
 
-   public focus: Vector = null;
-   public focusAccel: number = 0;
-   public opacity: number = 1;
-   public beginColor: Color = Color.White.clone();
-   public endColor: Color = Color.White.clone();
+   public focus: Vector;
+   public focusAccel: number;
+   public opacity: number;
+   public beginColor: Color;
+   public endColor: Color;
 
    // Life is counted in ms
-   public life: number = 300;
-   public fadeFlag: boolean = false;
+   public life: number;
+   public fadeFlag: boolean;
 
    // Color transitions
    private _rRate: number = 1;
@@ -50,14 +50,14 @@ export class ParticleImpl implements IDefaultable<ParticleImpl> {
    private _currentColor: Color = Color.White.clone();
 
 
-   public emitter: ParticleEmitter = null;
-   public particleSize: number = 5;
-   public particleSprite: Sprite = null;
+   public emitter: ParticleEmitter;
+   public particleSize: number;
+   public particleSprite: Sprite;
 
    public startSize: number;
    public endSize: number;
-   public sizeRate: number = 0;
-   public elapsedMultiplier: number = 0;
+   public sizeRate: number;
+   public elapsedMultiplier: number;
 
    constructor(emitterOrConfig: ParticleEmitter | IParticleArgs,
       life?: number,
@@ -225,126 +225,126 @@ export class Particle extends Configurable(ParticleImpl) {
  *
  * [[include:Particles.md]]
  */
-export class ParticleEmitter extends Actor {
+export class ParticleEmitterImpl extends Actor implements IDefaultable<ParticleEmitterImpl> {
 
-   private _particlesToEmit: number = 0;
+   private _particlesToEmit: number;
 
-   public numParticles: number = 0;
+   public numParticles: number;
 
    /**
     * Gets or sets the isEmitting flag
     */
-   public isEmitting: boolean = true;
+   public isEmitting: boolean;
    /**
     * Gets or sets the backing particle collection
     */
-   public particles: Util.Collection<Particle> = null;
+   public particles: Util.Collection<Particle>;
 
    /**
     * Gets or sets the backing deadParticle collection
     */
-   public deadParticles: Util.Collection<Particle> = null;
+   public deadParticles: Util.Collection<Particle>;
 
    /**
     * Gets or sets the minimum particle velocity
     */
-   public minVel: number = 0;
+   public minVel: number;
    /**
     * Gets or sets the maximum particle velocity
     */
-   public maxVel: number = 0;
+   public maxVel: number;
 
    /**
     * Gets or sets the acceleration vector for all particles
     */
-   public acceleration: Vector = new Vector(0, 0);
+   public acceleration: Vector;
 
    /**
     * Gets or sets the minimum angle in radians
     */
-   public minAngle: number = 0;
+   public minAngle: number;
    /**
     * Gets or sets the maximum angle in radians
     */
-   public maxAngle: number = 0;
+   public maxAngle: number;
 
    /**
     * Gets or sets the emission rate for particles (particles/sec)
     */
-   public emitRate: number = 1; //particles/sec
+   public emitRate: number; //particles/sec
    /**
     * Gets or sets the life of each particle in milliseconds
     */
-   public particleLife: number = 2000;
+   public particleLife: number;
    /**
     * Gets or sets the opacity of each particle from 0 to 1.0
     */
-   public opacity: number = 1;
+   public opacity: number;
    /**
     * Gets or sets the fade flag which causes particles to gradually fade out over the course of their life.
     */
-   public fadeFlag: boolean = false;
+   public fadeFlag: boolean;
 
    /**
     * Gets or sets the optional focus where all particles should accelerate towards
     */
-   public focus: Vector = null;
+   public focus: Vector;
    /**
     * Gets or sets the acceleration for focusing particles if a focus has been specified
     */
-   public focusAccel: number = 1;
+   public focusAccel: number;
    /*
     * Gets or sets the optional starting size for the particles
     */
-   public startSize: number = null;
+   public startSize: number;
    /*
     * Gets or sets the optional ending size for the particles
     */
-   public endSize: number = null;
+   public endSize: number;
 
    /**
     * Gets or sets the minimum size of all particles
     */
-   public minSize: number = 5;
+   public minSize: number;
    /**
     * Gets or sets the maximum size of all particles
     */
-   public maxSize: number = 5;
+   public maxSize: number;
 
    /**
     * Gets or sets the beginning color of all particles
     */
-   public beginColor: Color = Color.White;
+   public beginColor: Color;
    /**
     * Gets or sets the ending color of all particles
     */
-   public endColor: Color = Color.White;
+   public endColor: Color;
 
    /**
     * Gets or sets the sprite that a particle should use
     * @warning Performance intensive
     */
-   public particleSprite: Sprite = null;
+   public particleSprite: Sprite;
 
    /**
     * Gets or sets the emitter type for the particle emitter
     */
-   public emitterType: EmitterType = EmitterType.Rectangle;
+   public emitterType: EmitterType;
 
    /**
     * Gets or sets the emitter radius, only takes effect when the [[emitterType]] is [[EmitterType.Circle]]
     */
-   public radius: number = 0;
+   public radius: number;
 
    /**
     * Gets or sets the particle rotational speed velocity 
     */
-   public particleRotationalVelocity: number = 0;
+   public particleRotationalVelocity: number;
 
    /**
     * Indicates whether particles should start with a random rotation
     */
-   public randomRotation: boolean = false;
+   public randomRotation: boolean;
 
    /**
     * @param x       The x position of the emitter
@@ -352,8 +352,13 @@ export class ParticleEmitter extends Actor {
     * @param width   The width of the emitter
     * @param height  The height of the emitter
     */
-   constructor(x?: number, y?: number, width?: number, height?: number) {
-      super(x, y, width, height, Color.White);
+   constructor(xOrConfig?: number | IParticleEmitterArgs, y?: number, width?: number, height?: number) {
+      if (typeof xOrConfig === 'number') {
+         super(xOrConfig, y, width, height, Color.White);
+      } else {
+         super(xOrConfig);
+      }
+      this._particlesToEmit = 0;
       this.collisionType = CollisionType.PreventCollision;
       this.particles = new Util.Collection<Particle>();
       this.deadParticles = new Util.Collection<Particle>();
@@ -365,6 +370,38 @@ export class ParticleEmitter extends Actor {
          }
       }
 
+   }
+
+   public getDefaultPropVals(): Partial<ParticleEmitterImpl> {
+      var defaultVals: (any) = super.getDefaultPropVals();
+      defaultVals.numParticles = 0;
+      defaultVals.isEmitting = true;
+      defaultVals.particles = null;
+      defaultVals.deadParticles = null;
+      defaultVals.minVel = 0;
+      defaultVals.maxVel = 0;
+      defaultVals.acceleration = new Vector(0, 0);
+      defaultVals.minAngle = 0;
+      defaultVals.maxAngle = 0;
+      defaultVals.emitRate = 1; //particles/sec
+      defaultVals.particleLife = 2000;
+      defaultVals.opacity = 1;
+      defaultVals.fadeFlag = false;
+      defaultVals.focus = null;
+      defaultVals.focusAccel = 1;
+      defaultVals.startSize = null;
+      defaultVals.endSize = null;
+      defaultVals.minSize = 5;
+      defaultVals.maxSize = 5;
+      defaultVals.beginColor = Color.White.clone();
+      defaultVals.endColor = Color.White.clone();
+      defaultVals.particleSprite = null;
+      defaultVals.emitterType = EmitterType.Rectangle;
+      defaultVals.radius = 0;
+      defaultVals.particleRotationalVelocity = 0;
+      defaultVals.randomRotation = false;
+
+      return defaultVals;
    }
 
    public removeParticle(particle: Particle) {
@@ -472,4 +509,17 @@ export class ParticleEmitter extends Actor {
       }
    }
 
+}
+
+export interface IParticleEmitterArgs extends Partial<ParticleEmitterImpl> {
+   width?: number;
+   height?: number;
+}
+
+export class ParticleEmitter extends Configurable(ParticleEmitterImpl) {
+   constructor(config?: IParticleEmitterArgs);
+   constructor(x?: number | IParticleEmitterArgs, y?: number, width?: number, height?: number);
+   constructor(xOrConfig?: number | IParticleEmitterArgs, y?: number, width?: number, height?: number) {
+      super(xOrConfig, y, width, height);
+   }
 }
