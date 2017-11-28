@@ -109,7 +109,24 @@ export class ParticleImpl implements IDefaultable<ParticleImpl> {
 
    public getDefaultPropVals() : Partial<ParticleImpl> {
       return {
-
+          position: new Vector(0, 0),
+          velocity: new Vector(0, 0),
+          acceleration: new Vector(0, 0),
+          particleRotationalVelocity: 0,
+          currentRotation: 0,     
+          focus: null,
+          focusAccel: 0,
+          opacity: 1,
+          beginColor: Color.White.clone(),
+          endColor: Color.White.clone(),
+         // Life is counted in ms
+          life: 300,
+          fadeFlag: false,
+          emitter: null,
+          particleSize: 5,
+          particleSprite: null,
+          sizeRate: 0,
+          elapsedMultiplier: 0
       };
    }
 
@@ -172,7 +189,7 @@ export class ParticleImpl implements IDefaultable<ParticleImpl> {
 }
 
 export interface IParticleArgs extends Partial<ParticleImpl> {
-
+   emitter: ParticleEmitter;
 } 
 
 export class Particle extends Configurable(ParticleImpl) {
