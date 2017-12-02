@@ -132,13 +132,13 @@ collisions, which is sufficient for breakout.
     game.add(ball);
 
 The ball will now bounce off of the paddle, but does not bounce with the
-side of the screen. To fix that, let's take advantage of the ``update``
+side of the screen. To fix that, let's take advantage of the ``postupdate``
 event.
 
 .. code-block:: javascript
 
-    // Wire up to the update event
-    ball.on('update', function () {
+    // Wire up to the postupdate event
+    ball.on('postupdate', function () {
         // If the ball collides with the left side
         // of the screen reverse the x velocity
         if (this.pos.x < (this.getWidth() / 2)) {
@@ -257,7 +257,7 @@ examples and an `API Reference <http://excaliburjs.com/docs>`__.
 
 .. raw:: html
 
-   <iframe width="100%" height="300" src="//jsfiddle.net/excaliburjs/6Ay9S/embedded/js,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+   <iframe width="100%" height="800" src="//jsfiddle.net/excaliburjs/6Ay9S/embedded/js,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
 
 .. |Hello World Excalibur| image:: assets/quickstart/breakoutPartial.png
 .. |Breakout Example Excalibur| image:: assets/quickstart/breakoutFinal.png
