@@ -12,7 +12,7 @@ activeBlock.collisionType = ex.CollisionType.Active;
 activeBlock.vel.x = 100;
 game.add(activeBlock);
 
-activeBlock.on('collision', () => {
+activeBlock.on('precollision', () => {
    console.log('Active block collision event');
 });
 
@@ -25,7 +25,7 @@ passiveBlock.collisionType = ex.CollisionType.Passive;
 passiveBlock.vel.x = -100;
 game.add(passiveBlock);
 
-passiveBlock.on('collision', () => {
+passiveBlock.on('precollision', () => {
    console.log('Passive block collision event');
 });
 

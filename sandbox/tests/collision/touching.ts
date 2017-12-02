@@ -24,7 +24,7 @@ ball.on('collisionend', (evt: ex.CollisionEndEvent) => {
    evt.actor.vel.setTo(0, speed);
    evt.actor.vel.y = -speed;
 });
-ball.on('update', function () {
+ball.on('postupdate', function () {
     if (this.pos.y < 0) {
         this.vel.y = speed;
     }
