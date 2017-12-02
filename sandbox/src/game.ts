@@ -477,7 +477,7 @@ game.input.keyboard.on('up', (evt?: ex.Input.KeyEvent) => {
 });
 
 // Add camera to game
-game.currentScene.camera.strategy.circleAroundActor(player, 100);// .lockToActorAxis(player, ex.Axis.Y); //.elasticToActor(player, .02, .23); // = camera;
+game.currentScene.camera.strategy.lockToActorAxis(player, ex.Axis.X);
 
 // Run the mainloop
 game.start(loader).then(() => {

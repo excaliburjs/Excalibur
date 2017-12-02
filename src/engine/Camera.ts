@@ -16,6 +16,10 @@ export interface ICameraStrategy<T> {
 
    /**
     * Camera strategies perform an action to calculate a new focus returned out of the strategy
+    * @param target The target object to apply this camera strategy (if any)
+    * @param camera The current camera implementation in excalibur running the game
+    * @param engine The current engine running the game
+    * @param delta The elapsed time in milliseconds since the last frame
     */
    action: (target: T, camera: BaseCamera, engine: Engine, delta: number) => Vector;
 }
@@ -46,7 +50,7 @@ export class StrategyContainer {
    }
 
    /**
-    * Creates and adds the [[ElasticAroundActorStrategy]] on the current camera
+    * Creates and adds the [[ElasticToActorStrategy]] on the current camera
     * If cameraElasticity < cameraFriction < 1.0, the behavior will be a dampened spring that will slowly end at the target without bouncing
     * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillationg spring that will over 
     * correct and bounce around the target
@@ -60,12 +64,12 @@ export class StrategyContainer {
    }
 
    /**
-    * Creates and adds the [[CircleAroundTargetStrategy]] on the current camera
+    * Creates and adds the [[RadiusAroundActorStrategy]] on the current camera
     * @param target Target actor to follow when it is "radius" pixels away
     * @param radius Number of pixels away before the camera will follow
     */
-   public circleAroundActor(actor: Actor, radius: number) {
-      this.camera.addStrategy(new CircleAroundActorStrategy(actor, radius));
+   public radiusAroundActor(actor: Actor, radius: number) {
+      this.camera.addStrategy(new RadiusAroundActorStrategy(actor, radius));
    }
 }
 
@@ -145,7 +149,7 @@ export class ElasticToActorStrategy implements ICameraStrategy<Actor> {
    }
 }
 
-export class CircleAroundActorStrategy implements ICameraStrategy<Actor> {
+export class RadiusAroundActorStrategy implements ICameraStrategy<Actor> {
    /**
     * 
     * @param target Target actor to follow when it is "radius" pixels away
