@@ -12,7 +12,7 @@ game.input.keyboard.on('up', (ev: ex.Input.KeyEvent) => {
    }
 });
 
-game.on('update', () => {
+game.on('postupdate', () => {
    document.getElementById('timescale').innerText = game.timescale.toString() + 'x';
 });
 

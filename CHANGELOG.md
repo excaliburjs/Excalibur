@@ -7,6 +7,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Breaking Changes
 - Triggers now have a new option bag constructor using the `ITriggerOptions` interface. ([#863](https://github.com/excaliburjs/Excalibur/issues/863)).
+- `update` event replaced with `postupdate` event
+- `CollisionEvent` replaced by `PreCollisionEvent`
+- `getDrawWidth()` and `getDrawHeight()` replaced with the getters `drawWidth` and `drawHeight`
+- `PointerEvent.x` and `PointerEvent.y` replaced with `PointerEvent.pos`
 
 ## Added
 - Added new line utility `Line.normal()` and `Line.distanceToPoint` ([#703](https://github.com/excaliburjs/Excalibur/issues/703))

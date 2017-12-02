@@ -255,7 +255,7 @@ export class Body {
     * the body of the other Actor in the last frame, and they are no longer touching
     * in this frame 
     */
-   @obsolete({message: 'will be removed in v0.14, use the collisionend event instead'})
+   @obsolete({message: 'will be removed in v0.15, use the collisionend event instead'})
    public wasTouching(other: Actor, game: Engine): boolean {
      
      var pair = new Pair(this, other.body);

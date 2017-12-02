@@ -26,8 +26,6 @@ export type preframe = 'preframe';
 export type postframe = 'postframe';
 
 export type precollision = 'precollision';
-// OBSOLETE in v0.14
-export type collision = 'collision';
 export type collisionstart = 'collisionstart';
 export type collisionend = 'collisionend';
 export type postcollision = 'postcollision';
@@ -160,8 +158,7 @@ export class PreUpdateEvent extends GameEvent<Actor | Scene | Engine | TileMap> 
 }
 
 /**
- * The 'postupdate' event is emitted on actors, scenes, and engine after the update ends. This is equivalent to the obsolete 'update'
- * event.
+ * The 'postupdate' event is emitted on actors, scenes, and engine after the update ends.
  */
 export class PostUpdateEvent extends GameEvent<Actor | Scene | Engine | TileMap> {
    constructor(public engine: Engine, public delta: number, public target: Actor | Scene | Engine | TileMap) {
@@ -276,24 +273,6 @@ export class HiddenEvent extends GameEvent<Engine> {
 }
 
 /**
- * OBSOLETE: Event thrown on an [[Actor|actor]] when a collision will occur this frame
- * @deprecated Will be removed in v0.14, please use PreCollisionEvent
- */
-export class CollisionEvent extends GameEvent<Actor> {
-
-   /**
-    * @param actor         The actor the event was thrown on
-    * @param other         The actor that was collided with
-    * @param side          The side that was collided with
-    * @param intersection  Intersection vector
-    */
-   constructor(public actor: Actor, public other: Actor, public side: Side, public intersection: Vector) {
-      super();
-      this.target = actor;
-   }
-}
-
-/**
  * Event thrown on an [[Actor|actor]] when a collision will occur this frame if it resolves
  */
 export class PreCollisionEvent extends GameEvent<Actor> {
@@ -309,8 +288,6 @@ export class PreCollisionEvent extends GameEvent<Actor> {
       this.target = actor;
    }
 }
-
-
 
 /**
  * Event thrown on an [[Actor|actor]] when a collision has been resolved (body reacted) this frame
