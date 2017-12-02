@@ -67,8 +67,6 @@ const ScrollWheelNormalizationFactor = -1 / 40;
 export class PointerEvent extends GameEvent<any> {
 
    /**
-    * @param x OBSOLETE: Will be removed in the 0.14.0 release. Use pos.x. The `x` coordinate of the event (in world coordinates).
-    * @param y OBSOLETE: Will be removed in the 0.14.0 release. Use pos.y. The `y` coordinate of the event (in world coordinates).
     * @param pageX        The `x` coordinate of the event (in document coordinates)
     * @param pageY        The `y` coordinate of the event (in document coordinates)
     * @param screenX      The `x` coordinate of the event (in screen coordinates)
