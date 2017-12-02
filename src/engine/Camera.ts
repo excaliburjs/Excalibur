@@ -521,7 +521,7 @@ export class BaseCamera {
  * An extension of [[BaseCamera]] that is locked vertically; it will only move side to side.
  * 
  * Common usages: platformers.
- * @deprecated Will be removed in v0.15, please use `BaseCamera.strategy.lockToActorAxis`
+ * @deprecated OBSOLETE: Will be removed in v0.15, please use `BaseCamera.strategy.lockToActorAxis`
  */
 export class SideCamera extends BaseCamera {
    /**
@@ -547,7 +547,7 @@ export class SideCamera extends BaseCamera {
  * center of the screen.
  *
  * Common usages: RPGs, adventure games, top-down games.
- * @deprecated Will be removed in v0.15, please use `BaseCamera.strategy.lockToActor`
+ * @deprecated OBSOLETE: Will be removed in v0.15, please use `BaseCamera.strategy.lockToActor`
  */
 export class LockedCamera extends BaseCamera {
    /**
