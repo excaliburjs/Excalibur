@@ -3,6 +3,172 @@ import { EasingFunction, EasingFunctions } from './Util/EasingFunctions';
 import { IPromise, Promise, PromiseState } from './Promises';
 import { Vector } from './Algebra';
 import { Actor } from './Actor';
+import { removeItemFromArray } from './Util/Util';
+
+/**
+ * Interface that describes a custom camera strategy for tracking targets
+ */
+export interface ICameraStrategy<T> {
+   /**
+    * Target of the camera strategy that will be passed to the action
+    */
+   target: T;
+
+   /**
+    * Camera strategies perform an action to calculate a new focus returned out of the strategy
+    * @param target The target object to apply this camera strategy (if any)
+    * @param camera The current camera implementation in excalibur running the game
+    * @param engine The current engine running the game
+    * @param delta The elapsed time in milliseconds since the last frame
+    */
+   action: (target: T, camera: BaseCamera, engine: Engine, delta: number) => Vector;
+}
+
+
+/**
+ * Container to house convenience strategy methods
+ * @internal
+ */
+export class StrategyContainer {
+   constructor(public camera: BaseCamera) {}
+   
+   /**
+    * Creates and adds the [[LockCameraToActorStrategy]] on the current camera.
+    * @param actor The actor to lock the camera to
+    */
+   public lockToActor(actor: Actor) {
+      this.camera.addStrategy(new LockCameraToActorStrategy(actor));
+   }
+
+   /**
+    * Creates and adds the [[LockCameraToActorAxisStrategy]] on the current camera
+    * @param actor The actor to lock the camera to
+    * @param axis The axis to follow the actor on
+    */
+   public lockToActorAxis(actor: Actor, axis: Axis) {
+      this.camera.addStrategy(new LockCameraToActorAxisStrategy(actor, axis));
+   }
+
+   /**
+    * Creates and adds the [[ElasticToActorStrategy]] on the current camera
+    * If cameraElasticity < cameraFriction < 1.0, the behavior will be a dampened spring that will slowly end at the target without bouncing
+    * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillationg spring that will over 
+    * correct and bounce around the target
+    * 
+    * @param target Target actor to elastically follow
+    * @param cameraElasticity [0 - 1.0] The higher the elasticity the more force that will drive the camera towards the target
+    * @param cameraFriction [0 - 1.0] The higher the friction the more that the camera will resist motion towards the target
+    */
+   public elasticToActor(actor: Actor, cameraElasticity: number, cameraFriction: number) {
+      this.camera.addStrategy(new ElasticToActorStrategy(actor, cameraElasticity, cameraFriction));
+   }
+
+   /**
+    * Creates and adds the [[RadiusAroundActorStrategy]] on the current camera
+    * @param target Target actor to follow when it is "radius" pixels away
+    * @param radius Number of pixels away before the camera will follow
+    */
+   public radiusAroundActor(actor: Actor, radius: number) {
+      this.camera.addStrategy(new RadiusAroundActorStrategy(actor, radius));
+   }
+}
+
+
+/**
+ * Camera axis enum
+ */
+export enum Axis {
+   X,
+   Y
+}
+
+/**
+ * Lock a camera to the exact x/y postition of an actor.
+ */
+export class LockCameraToActorStrategy implements ICameraStrategy<Actor> {
+   constructor(public target: Actor) {}
+   public action = (target: Actor, _cam: BaseCamera, _eng: Engine, _delta: number) => {
+      let center = target.getCenter();
+      return center;
+   }
+}
+
+/**
+ * Lock a camera to a specific axis around an actor.
+ */
+export class LockCameraToActorAxisStrategy implements ICameraStrategy<Actor> {
+   constructor(public target: Actor, public axis: Axis) {}
+   public action = (target: Actor, cam: BaseCamera, _eng: Engine, _delta: number) => {
+      let center = target.getCenter();
+      let currentFocus = cam.getFocus();
+      if (this.axis === Axis.X) {
+         return new Vector(center.x, currentFocus.y);
+      } else {
+         return new Vector(currentFocus.x, center.y);
+      }
+   }
+}
+
+
+
+/**
+ * Using [Hook's law](https://en.wikipedia.org/wiki/Hooke's_law), elastically move the camera towards the target actor.
+ */
+export class ElasticToActorStrategy implements ICameraStrategy<Actor> {
+   /**
+    * If cameraElasticity < cameraFriction < 1.0, the behavior will be a dampened spring that will slowly end at the target without bouncing
+    * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillationg spring that will over 
+    * correct and bounce around the target
+    * 
+    * @param target Target actor to elastically follow
+    * @param cameraElasticity [0 - 1.0] The higher the elasticity the more force that will drive the camera towards the target
+    * @param cameraFriction [0 - 1.0] The higher the friction the more that the camera will resist motion towards the target
+    */
+   constructor(public target: Actor, public cameraElasticity: number, public cameraFriction: number) {}
+   public action = (target: Actor, cam: BaseCamera, _eng: Engine, _delta: number) => {
+      let position = target.getCenter();
+      let focus = cam.getFocus();
+      let cameraVel = new Vector(cam.dx, cam.dy);
+
+      // Calculate the strech vector, using the spring equation
+      // F = kX
+      // https://en.wikipedia.org/wiki/Hooke's_law
+      // Apply to the current camera velocity
+      var stretch = position.sub(focus).scale(this.cameraElasticity); // stretch is X
+      cameraVel = cameraVel.add(stretch);
+      
+      // Calculate the friction (-1 to apply a force in the opposition of motion)
+      // Apply to the current camera velocity
+      var friction = cameraVel.scale(-1).scale(this.cameraFriction);
+      cameraVel = cameraVel.add(friction);
+      
+      // Update position by velocity deltas
+      focus = focus.add(cameraVel);
+
+      return focus;
+   }
+}
+
+export class RadiusAroundActorStrategy implements ICameraStrategy<Actor> {
+   /**
+    * 
+    * @param target Target actor to follow when it is "radius" pixels away
+    * @param radius Number of pixels away before the camera will follow
+    */
+   constructor(public target: Actor, public radius: number) {}
+   public action = (target: Actor, cam: BaseCamera, _eng: Engine, _delta: number) => {
+      let position = target.getCenter();
+      let focus = cam.getFocus();
+
+      let direction = position.sub(focus);
+      let distance = direction.magnitude();
+      if (distance >= this.radius) {
+         let offset = distance - this.radius;
+         return focus.add(direction.normalize().scale(offset));
+      }
+      return focus;
+   }
+}
 
 
 /**
@@ -16,6 +182,10 @@ import { Actor } from './Actor';
  */
 export class BaseCamera {
    protected _follow: Actor;
+
+   private _cameraStrategies: ICameraStrategy<any>[] = [];
+
+   public strategy: StrategyContainer = new StrategyContainer(this);
 
    // camera physical quantities
    public z: number = 1;
@@ -85,6 +255,36 @@ export class BaseCamera {
       if (!this._follow && !this._cameraMoving) {
          this._y = value;
       }
+   }
+
+   /**
+    * Get the camera's position as a vector
+    */
+   public get pos(): Vector {
+      return new Vector(this.x, this.y);
+   }
+
+   /**
+    * Set the cameras position
+    */
+   public set pos(value: Vector) {
+      this.x = value.x;
+      this.y = value.y;
+   }
+
+   /**
+    * Get the camera's velocity as a vector
+    */
+   public get vel() {
+      return new Vector(this.dx, this.dy);
+   }
+
+   /**
+    * Set the camera's velocity
+    */
+   public set vel(value: Vector) {
+      this.dx = value.x;
+      this.dy = value.y;
    }
 
    /**
@@ -173,7 +373,31 @@ export class BaseCamera {
       return this.z;
    }
 
+   /**
+    * Adds a new camera strategy to this camera
+    * @param cameraStrategy Instance of an [[ICameraStrategy]]
+    */
+   public addStrategy<T>(cameraStrategy: ICameraStrategy<T>) {
+      this._cameraStrategies.push(cameraStrategy);
+   }
+
+   /**
+    * Removes a camera strategy by reference
+    * @param cameraStrategy Instance of an [[ICameraStrategy]]
+    */
+   public removeStrategy<T>(cameraStrategy: ICameraStrategy<T>) {
+      removeItemFromArray(cameraStrategy, this._cameraStrategies);
+   }
+
+   /**
+    * Clears all camera strategies from the camera
+    */
+   public clearAllStrategies() {
+      this._cameraStrategies.length = 0;
+   }
+
    public update(_engine: Engine, delta: number) {
+
       // Update placements based on linear algebra
       this._x += this.dx * delta / 1000;
       this._y += this.dy * delta / 1000;
@@ -247,6 +471,10 @@ export class BaseCamera {
          this._xShake = (Math.random() * this._shakeMagnitudeX | 0) + 1;
          this._yShake = (Math.random() * this._shakeMagnitudeY | 0) + 1;
       }
+
+      for (let s of this._cameraStrategies) {
+         this.pos = s.action.call(s, s.target, this, _engine, delta);
+      }
    }
 
    /**
@@ -293,6 +521,7 @@ export class BaseCamera {
  * An extension of [[BaseCamera]] that is locked vertically; it will only move side to side.
  * 
  * Common usages: platformers.
+ * @deprecated OBSOLETE: Will be removed in v0.15, please use `BaseCamera.strategy.lockToActorAxis`
  */
 export class SideCamera extends BaseCamera {
    /**
@@ -318,6 +547,7 @@ export class SideCamera extends BaseCamera {
  * center of the screen.
  *
  * Common usages: RPGs, adventure games, top-down games.
+ * @deprecated OBSOLETE: Will be removed in v0.15, please use `BaseCamera.strategy.lockToActor`
  */
 export class LockedCamera extends BaseCamera {
    /**
@@ -327,7 +557,6 @@ export class LockedCamera extends BaseCamera {
    public setActorToFollow(actor: Actor) {
       this._follow = actor;
    }
-
    public getFocus() {
       if (this._follow) {
          return new Vector(this._follow.pos.x + this._follow.getWidth() / 2, this._follow.pos.y + this._follow.getHeight() / 2);

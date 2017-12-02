@@ -381,8 +381,7 @@ game.on('p', () => {
 });
 
 // Create a camera to track the player
-var camera = new ex.LockedCamera();
-camera.setActorToFollow(player);
+var camera = game.currentScene.camera;
 
 // Add player to game is synonymous with adding a player to the current scene
 game.add(player);
@@ -457,7 +456,7 @@ game.input.keyboard.on('up', (evt?: ex.Input.KeyEvent) => {
 });
 
 // Add camera to game
-game.currentScene.camera = camera;
+game.currentScene.camera.strategy.lockToActorAxis(player, ex.Axis.X);
 
 // Run the mainloop
 game.start(loader).then(() => {
