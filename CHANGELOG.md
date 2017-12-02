@@ -25,7 +25,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Triggers can now draw like other Actors, but are still not visible by default ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
 ## Deprecated
 - `Body.wasTouching` has been deprecated in favor of a new event type `CollisionEnd` ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
-- `SideCamera` and `LockedCamera` have been deprecated in favor of camera strategies
+- `SideCamera` and `LockedCamera` are deprecated in favor of camera strategies
 
 ## Fixed
 - Fixed odd jumping behavior when polygons collided with the end of an edge ([#703](https://github.com/excaliburjs/Excalibur/issues/703))
