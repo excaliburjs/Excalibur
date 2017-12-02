@@ -98,7 +98,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'excalibur'
-copyright = u'2016, Erik Onarheim, Josh Edeen, Kamran Ayub'
+copyright = u'2017, Erik Onarheim, Josh Edeen, Kamran Ayub'
 author = u'Erik Onarheim, Josh Edeen, Kamran Ayub'
 
 ################
