@@ -297,6 +297,14 @@ describe('Lines', () => {
       expect(line.intercept).toBe(0);
    });
 
+   it('can have a normal', () => {
+      var line = new ex.Line(new ex.Vector(1, 1), new ex.Vector(2, 1));
+
+      var normal = line.normal();
+      expect(normal.x).toBe(0);
+      expect(normal.y).toBe(-1);
+   });
+
    it('can have a length', () => {
       var line = new ex.Line(new ex.Vector(1, -1), new ex.Vector(1, 1));
       expect(line.getLength()).toBe(2);
@@ -316,6 +324,18 @@ describe('Lines', () => {
       var t = line.findPoint(null, 1);
 
       expect(t.x).toBe(1);
+   });
+
+   it('can calculate the perpendicular distance from a point', () => {
+      let line = new ex.Line(new ex.Vector(0, 0), new ex.Vector(200, 0));
+      let point = new ex.Vector(100, 100);
+      expect(line.distanceToPoint(point)).toBe(100);
+   });
+
+   it('can calculate the perpendicular distance from a point not above the line', () => {
+      let line = new ex.Line(new ex.Vector(0, 0), new ex.Vector(200, 0));
+      let point = new ex.Vector(-100, 100);
+      expect(line.distanceToPoint(point)).toBe(100);
    });
 
    it('can determine if point lies on the line by x and y', () => {

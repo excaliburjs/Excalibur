@@ -362,7 +362,69 @@ describe('Collision areas', () => {
 
       });
 
-       it('should not collide with the middle of an edge when not touching', () => {
+      it('can collide with the end of an edge', () => {
+         var actor = new ex.Actor(0, -4, 20, 20);
+         var polyA = new ex.PolygonArea({
+            pos: ex.Vector.Zero.clone(),
+            // specified relative to the position
+            points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
+            body: actor.body
+         });
+         polyA.recalc();
+
+
+         var actor2 = new ex.Actor(5, 0, 10, 10);
+         var edge = new ex.EdgeArea({
+            begin: new ex.Vector(0, 0),
+            end: new ex.Vector(0, 10),
+            body: actor2.body
+         });
+         edge.recalc();
+
+         var directionOfBodyB = edge.getCenter().sub(polyA.getCenter());
+         var contact = polyA.collide(edge);
+
+         expect(contact).not.toBe(null);
+          // the normal should be pointing away from bodyA
+         expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
+         // the mtv should be pointing away from bodyA
+         expect(directionOfBodyB.dot(contact.mtv)).toBeGreaterThan(0);
+
+
+      });
+
+      it('can collide with the end of an edge regardless of order', () => {
+         var actor = new ex.Actor(0, -4, 20, 20);
+         var polyA = new ex.PolygonArea({
+            pos: ex.Vector.Zero.clone(),
+            // specified relative to the position
+            points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
+            body: actor.body
+         });
+         polyA.recalc();
+
+
+         var actor2 = new ex.Actor(5, 0, 10, 10);
+         var edge = new ex.EdgeArea({
+            begin: new ex.Vector(0, 10),
+            end: new ex.Vector(0, 0),
+            body: actor2.body
+         });
+         edge.recalc();
+
+         var directionOfBodyB = edge.getCenter().sub(polyA.getCenter());
+         var contact = polyA.collide(edge);
+
+         expect(contact).not.toBe(null);
+          // the normal should be pointing away from bodyA
+         expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
+         // the mtv should be pointing away from bodyA
+         expect(directionOfBodyB.dot(contact.mtv)).toBeGreaterThan(0);
+
+
+      });
+
+      it('should not collide with the middle of an edge when not touching', () => {
          var actor = new ex.Actor(5, 0, 20, 20);
          actor.rotation = Math.PI / 4;
          var polyA = new ex.PolygonArea({
@@ -407,6 +469,47 @@ describe('Collision areas', () => {
          expect(polyA.contains(point)).toBe(true);
          expect(polyA.contains(pointOnEdge)).toBe(true);
          expect(polyA.contains(pointOutside)).toBe(false);
+      });
+
+      it('can calculate the closest face to a point', () => {
+         var polyA = new ex.PolygonArea({
+            pos: ex.Vector.Zero.clone(),
+            // specified relative to the position
+            points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)]
+         });
+         polyA.recalc();
+
+         let point1 = new ex.Vector(-5, 0);
+         let {face: face1} = polyA.getClosestFace(point1);
+
+         let point2 = new ex.Vector(0, -5);
+         let {face: face2} = polyA.getClosestFace(point2);
+
+         let point3 = new ex.Vector(5, 0);
+         let {face: face3} = polyA.getClosestFace(point3);
+
+         let point4 = new ex.Vector(0, 5);
+         let {face: face4} = polyA.getClosestFace(point4);
+
+         expect(face1.begin.x).toBe(-5);
+         expect(face1.begin.y).toBe(-5);
+         expect(face1.end.x).toBe(-5);
+         expect(face1.end.y).toBe(5);
+
+         expect(face2.begin.x).toBe(5);
+         expect(face2.begin.y).toBe(-5);
+         expect(face2.end.x).toBe(-5);
+         expect(face2.end.y).toBe(-5);
+
+         expect(face3.begin.x).toBe(5);
+         expect(face3.begin.y).toBe(5);
+         expect(face3.end.x).toBe(5);
+         expect(face3.end.y).toBe(-5);
+
+         expect(face4.begin.x).toBe(-5);
+         expect(face4.begin.y).toBe(5);
+         expect(face4.end.x).toBe(5);
+         expect(face4.end.y).toBe(5);
       });
 
       it('can have ray cast to detect if the ray hits the polygon', () => {

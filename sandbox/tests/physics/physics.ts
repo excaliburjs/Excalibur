@@ -24,8 +24,8 @@ function spawnBlock(x: number, y: number) {
                            ex.Util.randomIntInRange(0, 255));
    var block = new ex.Actor(x, y, width, width, color);
    block.body.useBoxCollision();
-   block.rotation = Math.PI / 4;
-   block.rx = .1;
+   //block.rotation = Math.PI / 4;
+   //block.rx = .1;
    block.collisionType = ex.CollisionType.Active;
    game.add(block);
 }
@@ -69,7 +69,7 @@ game.add(rightWall);
 
 game.input.keyboard.on('down', (evt: ex.Input.KeyEvent) => {
    if(evt.key === ex.Input.Keys.B){
-      spawnBlock(300, 0);
+      spawnBlock(280, 0);
    }
 
    if(evt.key === ex.Input.Keys.C){

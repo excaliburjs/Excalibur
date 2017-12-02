@@ -152,6 +152,34 @@ export class PolygonArea implements ICollisionArea {
    }
 
    /**
+    * Finds the closes face to the point using perpendicular distance
+    * @param point point to test against polygon
+    */
+   public getClosestFace(point: Vector): {distance: Vector, face: Line } {
+      let sides = this.getSides();
+      let min = Number.POSITIVE_INFINITY;
+      let faceIndex = -1;
+      let distance = -1;
+      for (let i = 0; i < sides.length; i++) {
+         let dist = sides[i].distanceToPoint(point);
+         if (dist < min) {
+            min = dist;
+            faceIndex = i;
+            distance = dist;
+         }
+      }
+
+      if (faceIndex !== -1) {
+         return {
+            distance: sides[faceIndex].normal().scale(distance),
+            face: sides[faceIndex]
+         };
+      }
+
+      return null;
+   }
+
+   /**
     * Get the axis aligned bounding box for the polygon area
     */
    public getBounds(): BoundingBox {
@@ -220,6 +248,7 @@ export class PolygonArea implements ICollisionArea {
       // no contact found
       return null;
    }
+
 
    /**
     * Get the axis associated with the edge
