@@ -6,6 +6,20 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ## Breaking Changes
+
+## Added
+
+## Changed
+
+## Deprecated
+
+## Fixed
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [0.14.0] - 2017-12-02
+
+## Breaking Changes
 - Triggers now have a new option bag constructor using the `ITriggerOptions` interface. ([#863](https://github.com/excaliburjs/Excalibur/issues/863)).
 - `update` event replaced with `postupdate` event
 - `CollisionEvent` replaced by `PreCollisionEvent`
@@ -13,6 +27,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `PointerEvent.x` and `PointerEvent.y` replaced with `PointerEvent.pos`
 
 ## Added
+- Automatic HiDPI screen detection and scaling in excalibur internals to correct blurry bitmap rendering on HiDPI screens. This feature can optionally be suppressed with `IEngineOptions.suppressHiDPIScaling`.
 - Added new line utility `Line.normal()` and `Line.distanceToPoint` ([#703](https://github.com/excaliburjs/Excalibur/issues/703))
 - Added new PolygonArea utility `PolygonArea.getClosestFace(point)` ([#703](https://github.com/excaliburjs/Excalibur/issues/703))
 - Triggers now fire an `EnterTriggerEvent` when an actor enters the trigger, and an `ExitTriggerEvent` when an actor exits the trigger. ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
@@ -23,10 +38,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
    - `ElasticToActorStrategy` which is a new strategy that elastically moves the camera to an actor and can be switched on with `Camera.strategy.elasticToActor(actor, cameraElasticity, cameraFriction)`
    - `CircleAroundActorStrategy` which is a new strategy that will follow an actor when a certain radius from the camera focus and can be switched on with `Camera.strategy.circleAroundActor(actor)`
 
-
 ## Changed
 - Trigger have been rebuilt to provide a better experience. The trigger `action` only fires when an actor enters the designated area instead of every frame of collision. ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
 - Triggers can now draw like other Actors, but are still not visible by default ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
+
 ## Deprecated
 - `Body.wasTouching` has been deprecated in favor of a new event type `CollisionEnd` ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
 - `SideCamera` and `LockedCamera` are deprecated in favor of camera strategies
@@ -34,7 +49,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Fixed
 - Fixed odd jumping behavior when polygons collided with the end of an edge ([#703](https://github.com/excaliburjs/Excalibur/issues/703))
 
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!----------------------------------------------------------------------------------------------->
 
 ## [0.13.0] - 2017-10-07
 
@@ -42,7 +57,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `Scene.children` replaced with `Scene.actors`
 
 ### Added
-- Automatic HiDPI screen detection and scaling in excalibur internals to correct blurry bitmap rendering on HiDPI screens. This feature can optionally be suppressed with `IEngineOptions.suppressHiDPIScaling`.
 - Convenience getters implemented `halfDrawWidth`, `halfDrawHeight`, `halfCanvasWidth`, `halfCanvasHeight`, `canvasWidth`, and `canvasHeight`.
 - New pause/unpause feature for timers to help with more robust pausing ([#885](https://github.com/excaliburjs/Excalibur/issues/885))
 - New event listening feature to listen to events only `.once(...)` then unsubscribe automatically ([#745](https://github.com/excaliburjs/Excalibur/issues/745))
@@ -468,7 +482,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Resource loading with optional custom progress bars
 
 <!----------------------------------------------------------------------------------------------->
-[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.13.0...HEAD
+[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.14.0...HEAD
+[0.14.0]: https://github.com/excaliburjs/Excalibur/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/excaliburjs/Excalibur/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/excaliburjs/Excalibur/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/excaliburjs/Excalibur/compare/v0.10.0...v0.11.0
