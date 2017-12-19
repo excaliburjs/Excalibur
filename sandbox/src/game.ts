@@ -234,7 +234,7 @@ var groundSpeed = 150;
 var airSpeed = 130;
 var jumpSpeed = 500;
 var direction = 1;
-player.on('update', () => {
+player.on('postupdate', () => {
 
    if (game.input.keyboard.isHeld(ex.Input.Keys.Left)) {
       direction = -1;
@@ -314,7 +314,7 @@ game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
       a.vel.y = 0;
       a.collisionType = ex.CollisionType.Active;
       var inAir = true;
-      a.on('collision', (data?: ex.CollisionEvent) => {
+      a.on('precollision', (data?: ex.PreCollisionEvent) => {
          inAir = false;
          if (!data.other) {
             a.vel.y = 0;
@@ -337,7 +337,7 @@ game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
 });
 
 var isColliding = false;
-player.on('collision', (data?: ex.CollisionEvent) => {
+player.on('precollision', (data?: ex.PreCollisionEvent) => {
 
    if (data.side === ex.Side.Bottom) {
       isColliding = true;
@@ -411,8 +411,7 @@ game.on('p', () => {
 });
 
 // Create a camera to track the player
-var camera = new ex.LockedCamera();
-camera.setActorToFollow(player);
+var camera = game.currentScene.camera;
 
 // Add player to game is synonymous with adding a player to the current scene
 game.add(player);
@@ -512,7 +511,7 @@ game.input.keyboard.on('up', (evt?: ex.Input.KeyEvent) => {
 });
 
 // Add camera to game
-game.currentScene.camera = camera;
+game.currentScene.camera.strategy.lockToActorAxis(player, ex.Axis.X);
 
 // Run the mainloop
 game.start(loader).then(() => {

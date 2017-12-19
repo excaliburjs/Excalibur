@@ -5,7 +5,7 @@ import { Texture } from './Resources/Texture';
 import {
    InitializeEvent, KillEvent, PreUpdateEvent, PostUpdateEvent,
    PreDrawEvent, PostDrawEvent, PreDebugDrawEvent, PostDebugDrawEvent, 
-   GameEvent, CollisionEvent, PostCollisionEvent, PreCollisionEvent, CollisionStartEvent, CollisionEndEvent
+   GameEvent, PostCollisionEvent, PreCollisionEvent, CollisionStartEvent, CollisionEndEvent
 } from './Events';
 import { Engine } from './Engine';
 import { Color } from './Drawing/Color';
@@ -509,7 +509,6 @@ export class ActorImpl extends Class implements IActionable, IEvented, IDefaulta
    public on(eventName: Events.collisionstart, handler: (event?: CollisionStartEvent) => void): void;
    public on(eventName: Events.collisionend, handler: (event?: CollisionEndEvent) => void): void;
    public on(eventName: Events.precollision, handler: (event?: PreCollisionEvent) => void): void;
-   public on(eventName: Events.collision, handler: (event?: CollisionEvent) => void): void;
    public on(eventName: Events.postcollision, handler: (event?: PostCollisionEvent) => void): void;
    public on(eventName: Events.kill, handler: (event?: KillEvent) => void): void;
    public on(eventName: Events.initialize, handler: (event?: InitializeEvent) => void): void;
@@ -533,7 +532,6 @@ export class ActorImpl extends Class implements IActionable, IEvented, IDefaulta
    public once(eventName: Events.collisionstart, handler: (event?: CollisionStartEvent) => void): void;
    public once(eventName: Events.collisionend, handler: (event?: CollisionEndEvent) => void): void;
    public once(eventName: Events.precollision, handler: (event?: PreCollisionEvent) => void): void;
-   public once(eventName: Events.collision, handler: (event?: CollisionEvent) => void): void;
    public once(eventName: Events.postcollision, handler: (event?: PostCollisionEvent) => void): void;
    public once(eventName: Events.kill, handler: (event?: KillEvent) => void): void;
    public once(eventName: Events.initialize, handler: (event?: InitializeEvent) => void): void;
@@ -1040,8 +1038,6 @@ export class ActorImpl extends Class implements IActionable, IEvented, IDefaulta
          this.children[i].update(engine, delta);
       }
 
-      // TODO: Obsolete `update` event on Actor
-      this.eventDispatcher.emit('update', new PostUpdateEvent(engine, delta, this));
       this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
    }
    /**

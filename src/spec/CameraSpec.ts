@@ -1,6 +1,8 @@
 /// <reference path="jasmine.d.ts" />
 
-/// <reference path="Mocks.ts" />
+/// <reference path="Mocks.ts" />import { BaseCamera } from "../../build/dist/excalibur";
+
+
 
 describe('A camera', () => {
    
@@ -159,6 +161,95 @@ describe('A camera', () => {
 
       expect(sideCamera._isZooming).toBe(true);
    
+   });
+
+   it('can use built-in locked camera strategy', () => {
+      engine.currentScene.camera = new ex.BaseCamera();
+      let actor = new ex.Actor(0, 0);
+
+      engine.currentScene.camera.strategy.lockToActor(actor);
+
+      engine.currentScene.camera.update(engine, 100);
+      expect(engine.currentScene.camera.x).toBe(0);
+      expect(engine.currentScene.camera.y).toBe(0);
+
+      actor.pos.setTo(100, 100);
+      engine.currentScene.camera.update(engine, 100);
+      expect(engine.currentScene.camera.x).toBe(100);
+      expect(engine.currentScene.camera.y).toBe(100);
+   });
+
+   it('can use built-in locked camera x axis strategy', () => {
+      engine.currentScene.camera = new ex.BaseCamera();
+      let actor = new ex.Actor(0, 0);
+
+      engine.currentScene.camera.strategy.lockToActorAxis(actor, ex.Axis.X);
+
+      engine.currentScene.camera.update(engine, 100);
+      expect(engine.currentScene.camera.x).toBe(0);
+      expect(engine.currentScene.camera.y).toBe(0);
+
+      actor.pos.setTo(100, 100);
+      engine.currentScene.camera.update(engine, 100);
+      expect(engine.currentScene.camera.x).toBe(100);
+      expect(engine.currentScene.camera.y).toBe(0);
+   });
+
+   it('can use built-in locked camera y axis strategy', () => {
+      engine.currentScene.camera = new ex.BaseCamera();
+      let actor = new ex.Actor(0, 0);
+
+      engine.currentScene.camera.strategy.lockToActorAxis(actor, ex.Axis.Y);
+
+      engine.currentScene.camera.update(engine, 100);
+      expect(engine.currentScene.camera.x).toBe(0);
+      expect(engine.currentScene.camera.y).toBe(0);
+
+      actor.pos.setTo(100, 100);
+      engine.currentScene.camera.update(engine, 100);
+      expect(engine.currentScene.camera.x).toBe(0);
+      expect(engine.currentScene.camera.y).toBe(100);
+   });
+
+   it('can use built-in radisu around actor strategy', () => {
+      engine.currentScene.camera = new ex.BaseCamera();
+      let actor = new ex.Actor(0, 0);
+
+      engine.currentScene.camera.strategy.radiusAroundActor(actor, 15);
+
+      engine.currentScene.camera.update(engine, 100);
+      expect(engine.currentScene.camera.x).toBe(0);
+      expect(engine.currentScene.camera.y).toBe(0);
+
+      actor.pos.setTo(100, 100);
+      engine.currentScene.camera.update(engine, 100);
+      let distance = engine.currentScene.camera.pos.distance(actor.pos);
+      expect(distance).toBeCloseTo(15, .01);
+   });
+
+   it('can use built-in elastic around actor strategy', () => {
+      engine.currentScene.camera = new ex.BaseCamera();
+      engine.currentScene.camera.pos.setTo(0, 0);
+      let actor = new ex.Actor(0, 0);
+
+      engine.currentScene.camera.strategy.elasticToActor(actor, .05, .1);
+
+      engine.currentScene.camera.update(engine, 100);
+      expect(engine.currentScene.camera.x).toBe(0);
+      expect(engine.currentScene.camera.y).toBe(0);
+
+      actor.pos.setTo(100, 100);
+      engine.currentScene.camera.update(engine, 100);
+      engine.currentScene.camera.update(engine, 100);
+      engine.currentScene.camera.update(engine, 100);
+      let distance = engine.currentScene.camera.pos.distance(actor.pos);
+      expect(distance).toBeLessThan((new ex.Vector(100, 100).distance()));
+
+      engine.currentScene.camera.update(engine, 100);
+      engine.currentScene.camera.update(engine, 100);
+      engine.currentScene.camera.update(engine, 100);
+      let distance2 = engine.currentScene.camera.pos.distance(actor.pos);
+      expect(distance2).toBeLessThan(distance);
    });
 
    xit('can zoom in over time', (done) => {

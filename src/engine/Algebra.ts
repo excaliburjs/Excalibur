@@ -355,6 +355,13 @@ export class Line {
    }
 
    /**
+    * Gets the normal of the line
+    */
+   public normal(): Vector {
+      return this.end.sub(this.begin).normal();
+   }
+
+   /**
     * Returns the slope of the line in the form of a vector
     */
    public getSlope(): Vector {
@@ -371,6 +378,23 @@ export class Line {
       var begin = this.begin;
       var end = this.end;
       var distance = begin.distance(end);
+      return distance;
+   }
+
+   /**
+    * Find the perpendicular distance from the line to a point
+    * https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+    * @param point 
+    */
+   public distanceToPoint(point: Vector) {
+      let x0 = point.x;
+      let y0 = point.y;
+
+      let l = this.getLength();
+
+      let dy = this.end.y - this.begin.y;
+      let dx = this.end.x - this.begin.x;
+      let distance = Math.abs(dy * x0 - dx * y0 + this.end.x * this.begin.y - this.end.y * this.begin.x) / l;
       return distance;
    }
 
