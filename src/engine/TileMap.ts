@@ -15,7 +15,7 @@ import * as Events from './Events';
  *
  * [[include:TileMaps.md]]
  */
-export class TileMap extends Class {
+export class TileMapImpl extends Class implements IDefaultable<TileMapImpl> {
    private _collidingX: number = -1;
    private _collidingY: number = -1;
    private _onScreenXStart: number = 0;
@@ -25,6 +25,12 @@ export class TileMap extends Class {
    private _spriteSheets: { [key: string]: SpriteSheet } = {};
    public logger: Logger = Logger.getInstance();
    public data: Cell[] = [];
+   public x: number;
+   public y: number;
+   public cellWidth: number;
+   public cellHeight: number;
+   public rows: number;
+   public cols: number;
 
    public on(eventName: Events.preupdate, handler: (event?: Events.PreUpdateEvent) => void): void;
    public on(eventName: Events.postupdate, handler: (event?: Events.PostUpdateEvent) => void): void;
@@ -44,19 +50,28 @@ export class TileMap extends Class {
     * @param cols          The number of cols in the TileMap (should not be changed once set)
     */
    constructor(
-      public x: number,
-      public y: number,
-      public cellWidth: number,
-      public cellHeight: number,
-      public rows: number,
-      public cols: number) {
+      xOrConfig: number | Partial<TileMap>,
+      y: number,
+      cellWidth: number,
+      cellHeight: number,
+      rows: number,
+      cols: number) {
       super();
+      if (xOrConfig && typeof xOrConfig === 'object') {
+         var config = xOrConfig;
+         xOrConfig = config.x;
+         y = config.y;
+         cellWidth = config.cellWidth;
+         cellHeight = config.cellHeight;
+         rows = config.rows;
+         cols = config.cols;
+      }
       this.data = new Array<Cell>(rows * cols);
       for (var i = 0; i < cols; i++) {
          for (var j = 0; j < rows; j++) {
             (() => {
                var cd = new Cell(
-                  i * cellWidth + x,
+                  i * cellWidth + <number>xOrConfig,
                   j * cellHeight + y,
                   cellWidth,
                   cellHeight,
@@ -65,6 +80,13 @@ export class TileMap extends Class {
             })();
          }
       }
+   }
+
+   public getDefaultPropVals(): Partial<TileMapImpl> {
+      return {
+         logger: Logger.getInstance(),
+         data: []
+      };
    }
 
    public registerSpriteSheet(key: string, spriteSheet: SpriteSheet) {
@@ -242,6 +264,27 @@ export class TileMap extends Class {
       ctx.restore();
    }
 }
+
+
+export class TileMap extends Configurable(TileMapImpl) {
+   constructor(config: Partial<TileMapImpl>);
+   constructor(
+      x: number,
+      y: number,
+      cellWidth: number,
+      cellHeight: number,
+      rows: number,
+      cols: number);
+      constructor(
+         xOrConfig: number | Partial<TileMapImpl>,
+         y?: number,
+         cellWidth?: number,
+         cellHeight?: number,
+         rows?: number,
+         cols?: number) {
+            super(xOrConfig, y, cellWidth, cellHeight, rows, cols);
+         }
+   }
 
 /**
  * Tile sprites are used to render a specific sprite from a [[TileMap]]'s spritesheet(s)
