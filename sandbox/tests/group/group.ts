@@ -41,7 +41,7 @@ for (var i = 0; i < numActors; i++) {
          this.vel.y = -1 * Math.abs(this.vel.y);
       }
    });
-   actor.on('collision', function () {
+   actor.on('precollision', function () {
       //console.log('inner collision');
    });
 
@@ -51,7 +51,7 @@ for (var i = 0; i < numActors; i++) {
    blockGroup.add(actor);
 }
 
-blockGroup.on('collision', function (e: ex.CollisionEvent) {
+blockGroup.on('precollision', function (e: ex.PreCollisionEvent) {
    if (e.other === player) {
       //console.log("collision with player!");
       player.color.r += 1;

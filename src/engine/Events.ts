@@ -1,11 +1,13 @@
 import { Scene } from './Scene';
 import { Vector } from './Algebra';
 import { Actor } from './Actor';
+import { Trigger } from './Trigger';
 import { FrameStats } from './Debug';
 import { Engine } from './Engine';
 import { TileMap } from './TileMap';
 import { Side } from './Collision/Side';
 import * as Input from './Input/Index';
+import { Pair } from './Index';
 
 /* istanbul ignore next */
 /* compiler only: these are internal to lib */
@@ -24,8 +26,8 @@ export type preframe = 'preframe';
 export type postframe = 'postframe';
 
 export type precollision = 'precollision';
-// OBSOLETE in v0.14
-export type collision = 'collision';
+export type collisionstart = 'collisionstart';
+export type collisionend = 'collisionend';
 export type postcollision = 'postcollision';
 
 export type initialize = 'initialize';
@@ -34,6 +36,9 @@ export type deactivate = 'deactivate';
 
 export type exitviewport = 'exitviewport';
 export type enterviewport = 'enterviewport';
+
+export type exittrigger = 'exit';
+export type entertrigger = 'enter';
 
 export type connect = 'connect';
 export type disconnect = 'disconnect';
@@ -153,8 +158,7 @@ export class PreUpdateEvent extends GameEvent<Actor | Scene | Engine | TileMap> 
 }
 
 /**
- * The 'postupdate' event is emitted on actors, scenes, and engine after the update ends. This is equivalent to the obsolete 'update'
- * event.
+ * The 'postupdate' event is emitted on actors, scenes, and engine after the update ends.
  */
 export class PostUpdateEvent extends GameEvent<Actor | Scene | Engine | TileMap> {
    constructor(public engine: Engine, public delta: number, public target: Actor | Scene | Engine | TileMap) {
@@ -269,24 +273,6 @@ export class HiddenEvent extends GameEvent<Engine> {
 }
 
 /**
- * OBSOLETE: Event thrown on an [[Actor|actor]] when a collision will occur this frame
- * @deprecated Will be removed in v0.14, please use PreCollisionEvent
- */
-export class CollisionEvent extends GameEvent<Actor> {
-
-   /**
-    * @param actor         The actor the event was thrown on
-    * @param other         The actor that was collided with
-    * @param side          The side that was collided with
-    * @param intersection  Intersection vector
-    */
-   constructor(public actor: Actor, public other: Actor, public side: Side, public intersection: Vector) {
-      super();
-      this.target = actor;
-   }
-}
-
-/**
  * Event thrown on an [[Actor|actor]] when a collision will occur this frame if it resolves
  */
 export class PreCollisionEvent extends GameEvent<Actor> {
@@ -303,8 +289,6 @@ export class PreCollisionEvent extends GameEvent<Actor> {
    }
 }
 
-
-
 /**
  * Event thrown on an [[Actor|actor]] when a collision has been resolved (body reacted) this frame
  */
@@ -316,6 +300,32 @@ export class PostCollisionEvent extends GameEvent<Actor> {
     * @param intersection  Intersection vector
     */
    constructor(public actor: Actor, public other: Actor, public side: Side, public intersection: Vector) {
+      super();
+      this.target = actor;
+   }
+}
+
+/**
+ * Event thrown the first time an [[Actor|actor]] collides with another, after an actor is in contact normal collision events are fired.
+ */
+export class CollisionStartEvent extends GameEvent<Actor> {
+   /**
+    *
+    */
+   constructor(public actor: Actor, public other: Actor, public pair: Pair) {
+      super();
+      this.target = actor;
+   }
+}
+
+/**
+ * Event thrown when the [[Actor|actor]] is no longer colliding with another
+ */
+export class CollisionEndEvent extends GameEvent<Actor> {
+   /**
+    *
+    */
+   constructor(public actor: Actor, public other: Actor) {
       super();
       this.target = actor;
    }
@@ -375,6 +385,19 @@ export class ExitViewPortEvent extends GameEvent<Actor> {
  */
 export class EnterViewPortEvent extends GameEvent<Actor> {
    constructor(public target: Actor) {
+      super();
+   }
+}
+
+
+export class EnterTriggerEvent extends GameEvent<Actor> {
+   constructor(public target: Trigger, public actor: Actor) {
+      super();
+   }
+}
+
+export class ExitTriggerEvent extends GameEvent<Actor> {
+   constructor(public target: Trigger, public actor: Actor) {
       super();
    }
 }

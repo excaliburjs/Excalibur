@@ -16,6 +16,7 @@ import { Class } from './Class';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 import * as ActorUtils from './Util/Actors';
+import { Trigger } from './Trigger';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -28,11 +29,6 @@ import * as ActorUtils from './Util/Actors';
 export class Scene extends Class {
 
    /**
-    * The actor this scene is attached to, if any
-    */
-   public actor: Actor;
-
-   /**
     * Gets or sets the current camera for the scene
     */
    public camera: BaseCamera;
@@ -41,6 +37,11 @@ export class Scene extends Class {
     * The actors in the current scene
     */
    public actors: Actor[] = [];
+
+   /**
+    * The triggers in the current scene
+    */
+   public triggers: Trigger[] = [];
 
    /**
     * The [[TileMap]]s in the scene, if any
@@ -70,6 +71,7 @@ export class Scene extends Class {
    private _broadphase: ICollisionBroadphase = new DynamicTreeCollisionBroadphase();
 
    private _killQueue: Actor[] = [];
+   private _triggerKillQueue: Trigger[] = [];
    private _timers: Timer[] = [];
    private _cancelQueue: Timer[] = [];
    private _logger: Logger = Logger.getInstance();
@@ -168,9 +170,7 @@ export class Scene extends Class {
       this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
       var i: number, len: number;
 
-      if (this.camera) {
-         this.camera.update(engine, delta);
-      }
+      
 
       // Remove timers in the cancel queue before updating them
       for (i = 0, len = this._cancelQueue.length; i < len; i++) {
@@ -198,6 +198,11 @@ export class Scene extends Class {
          this.actors[i].update(engine, delta);
       }
 
+      // Cycle through triggers updating
+      for (i = 0, len = this.triggers.length; i < len; i++) {
+         this.triggers[i].update(engine, delta);
+      }
+
       this._collectActorStats(engine);
 
       // Run the broadphase and narrowphase
@@ -212,31 +217,44 @@ export class Scene extends Class {
          var collisionDelta = delta / iter;
          while (iter > 0) {
             // Run the narrowphase
-            this._broadphase.narrowphase(pairs, engine.stats.currFrame);
+            pairs = this._broadphase.narrowphase(pairs, engine.stats.currFrame);
             // Run collision resolution strategy
-            this._broadphase.resolve(collisionDelta, Physics.collisionResolutionStrategy);
+            pairs = this._broadphase.resolve(pairs, collisionDelta, Physics.collisionResolutionStrategy);
+
+            this._broadphase.runCollisionStartEnd(pairs);
+            
             iter--;
          }
+         
          var afterNarrowphase = Date.now();
          engine.stats.currFrame.physics.broadphase = afterBroadphase - beforeBroadphase;
          engine.stats.currFrame.physics.narrowphase = afterNarrowphase - beforeNarrowphase;
       }
 
-      // Remove actors from scene graph after being killed
-      var actorIndex: number;
+      engine.stats.currFrame.actors.killed = this._killQueue.length + this._triggerKillQueue.length;
 
-      for (i = 0, len = this._killQueue.length; i < len; i++) {
-         actorIndex = this.actors.indexOf(this._killQueue[i]);
-         if (actorIndex > -1) {
-            this._sortedDrawingTree.removeByComparable(this._killQueue[i]);
-            this.actors.splice(actorIndex, 1);
-         }
+      this._processKillQueue(this._killQueue, this.actors);
+      this._processKillQueue(this._triggerKillQueue, this.triggers);
+
+      if (this.camera) {
+         this.camera.update(engine, delta);
       }
-      engine.stats.currFrame.actors.killed = this._killQueue.length;
-      this._killQueue.length = 0;
 
       this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
    }
+
+    private _processKillQueue(killQueue: Actor[], collection: Actor[]) {
+        // Remove actors from scene graph after being killed
+        var actorIndex: number;
+        for (let killed of killQueue) {
+            actorIndex = collection.indexOf(killed);
+            if (actorIndex > -1) {
+                this._sortedDrawingTree.removeByComparable(killed);
+                collection.splice(actorIndex, 1);
+            }
+        }
+        killQueue.length = 0;
+    }
 
    /**
     * Draws all the actors in the Scene. Called by the [[Engine]].
@@ -306,6 +324,10 @@ export class Scene extends Class {
          this.actors[i].debugDraw(ctx);
       }
 
+      for (i = 0, len = this.triggers.length; i < len; i++) {
+         this.triggers[i].debugDraw(ctx);
+      }
+
       this._broadphase.debugDraw(ctx, 20);
 
       this.camera.debugDraw(ctx);
@@ -320,15 +342,21 @@ export class Scene extends Class {
    }
 
    /**
-    * Adds a [[Timer]] to the current scene.
-    * @param timer  The timer to add to the current scene.
+    * Adds a [[Timer]] to the current [[Scene]].
+    * @param timer  The timer to add to the current [[Scene]].
     */
    public add(timer: Timer): void;
 
    /**
-    * Adds a [[TileMap]] to the Scene, once this is done the TileMap will be drawn and updated.
+    * Adds a [[TileMap]] to the [[Scene]], once this is done the [[TileMap]] will be drawn and updated.
     */
    public add(tileMap: TileMap): void;
+
+   /**
+    * Adds a [[Trigger]] to the [[Scene]], once this is done the [[Trigger]] will listen for interactions with other actors.
+    * @param trigger 
+    */
+   public add(trigger: Trigger): void;
 
    /**
     * Adds an actor to the scene, once this is done the [[Actor]] will be drawn and updated.
@@ -351,10 +379,10 @@ export class Scene extends Class {
          }
          return;
       }
+
       if (entity instanceof Actor) {
          if (!Util.contains(this.actors, entity)) {
             this._addChild(entity);
-            this._sortedDrawingTree.add(entity);
          }
          return;
       }
@@ -439,9 +467,13 @@ export class Scene extends Class {
    protected _addChild(actor: Actor) {
       this._broadphase.track(actor.body);
       actor.scene = this;
-      this.actors.push(actor);
+      if (actor instanceof Trigger) {
+         this.triggers.push(actor);
+      } else {
+         this.actors.push(actor);
+      }
+      
       this._sortedDrawingTree.add(actor);
-      actor.parent = this.actor;
    }
 
    /**
@@ -466,7 +498,12 @@ export class Scene extends Class {
     */
    protected _removeChild(actor: Actor) {
       this._broadphase.untrack(actor.body);
-      this._killQueue.push(actor);
+      if (actor instanceof Trigger) {
+         this._triggerKillQueue.push(actor);
+      } else {
+         this._killQueue.push(actor);
+      }
+      
       actor.parent = null;
    }
 

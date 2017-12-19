@@ -22,7 +22,6 @@ import * as Input from './Input/Index';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 import { BoundingBox } from './Collision/BoundingBox';
-import { obsolete } from './Util/Decorators';
 
 /**
  * Enum representing the different display modes available to Excalibur
@@ -205,16 +204,6 @@ export class Engine extends Class {
    }
 
    /**
-    * Returns the width of the engine's visible drawing surface in pixels including zoom including device pixel ratio.
-    */
-   @obsolete({ message: 'getDrawWidth() will be removed in the 0.14 release', 
-               alternateMethod: 'drawWidth property'
-   })
-   public getDrawWidth(): number {
-      return this.drawWidth;
-   }
-
-   /**
     * Returns the width of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
     */
     public get drawWidth(): number {
@@ -229,16 +218,6 @@ export class Engine extends Class {
     */
    public get halfDrawWidth(): number {
       return this.drawWidth / 2;
-   }
-
-   /**
-    * Returns the height of the engine's visible drawing surface in pixels .
-    */
-    @obsolete({ message: 'getDrawHeight() will be removed in the 0.14 release', 
-                alternateMethod: 'drawHeight property'
-   })
-   public getDrawHeight(): number {
-      return this.drawHeight;
    }
 
    /**
@@ -1108,8 +1087,6 @@ O|===|* >________________>\n\
       this.input.gamepads.update();
 
       // Publish update event
-      // TODO: Obsolete `update` event on Engine
-      this.eventDispatcher.emit('update', new PostUpdateEvent(this, delta, this));
       this.emit('postupdate', new PostUpdateEvent(this, delta, this));
    }
 

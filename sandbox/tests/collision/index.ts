@@ -7,7 +7,7 @@ var active = new ex.Actor(0, -50, 100, 100, ex.Color.Cyan);
 active.collisionType = ex.CollisionType.Active;
 active.vel.y = 100;
 active.acc.y = 900;
-active.on('update',() => {
+active.on('postupdate',() => {
    //console.log('current dy', active.dy);
 });
 

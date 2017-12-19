@@ -9,25 +9,24 @@ paddle.color = ex.Color.Chartreuse;
 paddle.collisionType = ex.CollisionType.Fixed;
 game.add(paddle);
 
+var speed = 300;
+
 var ball = new ex.Actor(150, 50, 20, 20);
 ball.color = ex.Color.Red;
-ball.vel.setTo(0, 300);
+ball.vel.setTo(0, speed);
 ball.collisionType = ex.CollisionType.Active;
-ball.on('update', function () {
-    if (ball.body.touching(paddle)) {
-        console.log("frame " + game.stats.prevFrame.id + ": touching!");
-    }
-    if (ball.body.wasTouching(paddle, game)) {
-        console.log("frame " + game.stats.prevFrame.id + ": ball was touched!");
-    }
-    if (this.pos.x < (this.getWidth() / 2)) {
-        this.vel.x *= -1;
-    }
-    if (this.pos.x + (this.getWidth() / 2) > game.drawWidth) {
-        this.vel.x *= -1;
-    }
-    if (this.pos.y < this.getHeight() / 2 + 1) {
-        this.vel.y *= -1;
+ball.on('collisionstart', (evt: ex.CollisionStartEvent) => {
+   console.log('Ball just started touching on frame:', game.stats.currFrame.id);
+});
+
+ball.on('collisionend', (evt: ex.CollisionEndEvent) => {
+   console.log('Ball was being touched on frame:', game.stats.currFrame.id);
+   evt.actor.vel.setTo(0, speed);
+   evt.actor.vel.y = -speed;
+});
+ball.on('postupdate', function () {
+    if (this.pos.y < 0) {
+        this.vel.y = speed;
     }
 });
 ball.draw = function (ctx, delta) {
@@ -38,8 +37,4 @@ ball.draw = function (ctx, delta) {
     ctx.fill();
 };
 game.add(ball);
-ball.on('exitviewport', function () {
-    game.stop();
-});
 game.start();
-//# sourceMappingURL=touching.js.map
