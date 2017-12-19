@@ -6,6 +6,7 @@ import { Vector } from './Algebra';
 import { Actor } from './Actor';
 import { Logger } from './Util/Log';
 import { SpriteSheet } from './Drawing/SpriteSheet';
+import { Configurable, IDefaultable } from './Configurable';
 import * as Events from './Events';
 
 /**
@@ -263,8 +264,15 @@ export class TileSprite {
  * of the sprites in the array so the last one will be drawn on top. You can
  * use transparency to create layers this way.
  */
-export class Cell {
+export class CellImpl implements IDefaultable<CellImpl> {
    private _bounds: BoundingBox;
+   public x: number;
+   public y: number;
+   public width: number;
+   public height: number;
+   public index: number;
+   public solid: boolean;
+   public sprites: TileSprite[];
 
    /**
     * @param x       Gets or sets x coordinate of the cell in world coordinates
@@ -276,14 +284,38 @@ export class Cell {
     * @param sprites The list of tile sprites to use to draw in this cell (in order)
     */
    constructor(
-      public x: number,
-      public y: number,
-      public width: number,
-      public height: number,
-      public index: number,
-      public solid: boolean = false,
-      public sprites: TileSprite[] = []) {
+      xOrConfig: number | Partial<CellImpl>,
+      y: number,
+      width: number,
+      height: number,
+      index: number,
+      solid: boolean = false,
+      sprites: TileSprite[] = []) {
+         if (xOrConfig && typeof xOrConfig === 'object') {
+            var config = xOrConfig;
+            xOrConfig = config.x;
+            y = config.y;
+            width = config.width;
+            height = config.height;
+            index = config.index;
+            solid = config.solid;
+            sprites = config.sprites;
+         }
+      this.x = <number>xOrConfig;
+      this.y = y;
+      this.width = width;
+      this.height = height;
+      this.index = index;
+      this.solid = solid;
+      this.sprites = sprites;
       this._bounds = new BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
+   }
+
+   public getDefaultPropVals(): Partial<CellImpl> {
+      return {
+         sprites: [],
+         solid: false
+      };
    }
 
    /**
@@ -320,3 +352,25 @@ export class Cell {
       this.sprites.length = 0;
    }
 }
+
+export class Cell extends Configurable(CellImpl) {
+   constructor(config: Partial<CellImpl>);
+   constructor(
+      x: number,
+      y: number,
+      width: number,
+      height: number,
+      index: number,
+      solid?: boolean,
+      sprites?: TileSprite[]); 
+      constructor(
+         xOrConfig: number | Partial<CellImpl>,
+         y?: number,
+         width?: number,
+         height?: number,
+         index?: number,
+         solid?: boolean,
+         sprites?: TileSprite[]) {
+            super(xOrConfig, y, width, height, index, solid, sprites);
+         }
+   }
