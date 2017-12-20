@@ -50,7 +50,7 @@ export class TileMapImpl extends Class {
     * @param cols          The number of cols in the TileMap (should not be changed once set)
     */
    constructor(
-      xOrConfig: number | Partial<TileMap>,
+      xOrConfig: number | ITileMapArgs,
       y: number,
       cellWidth: number,
       cellHeight: number,
@@ -258,9 +258,17 @@ export class TileMapImpl extends Class {
    }
 }
 
+export interface ITileMapArgs extends Partial<TileMapImpl> {
+   x: number;
+   y: number;
+   cellWidth: number;
+   cellHeight: number;
+   rows: number;
+   cols: number;
+}
 
 export class TileMap extends Configurable(TileMapImpl) {
-   constructor(config: Partial<TileMapImpl>);
+   constructor(config: ITileMapArgs);
    constructor(
       x: number,
       y: number,
@@ -269,7 +277,7 @@ export class TileMap extends Configurable(TileMapImpl) {
       rows: number,
       cols: number);
       constructor(
-         xOrConfig: number | Partial<TileMapImpl>,
+         xOrConfig: number | ITileMapArgs,
          y?: number,
          cellWidth?: number,
          cellHeight?: number,
@@ -320,7 +328,7 @@ export class CellImpl {
     * @param sprites The list of tile sprites to use to draw in this cell (in order)
     */
    constructor(
-      xOrConfig: number | Partial<CellImpl>,
+      xOrConfig: number | ICellArgs,
       y: number,
       width: number,
       height: number,
@@ -382,8 +390,16 @@ export class CellImpl {
    }
 }
 
+export interface ICellArgs extends Partial<CellImpl> {
+   x: number;
+   y: number;
+   width: number;
+   height: number;
+   index: number;
+}
+
 export class Cell extends Configurable(CellImpl) {
-   constructor(config: Partial<CellImpl>);
+   constructor(config: ICellArgs);
    constructor(
       x: number,
       y: number,
@@ -393,7 +409,7 @@ export class Cell extends Configurable(CellImpl) {
       solid?: boolean,
       sprites?: TileSprite[]); 
       constructor(
-         xOrConfig: number | Partial<CellImpl>,
+         xOrConfig: number | ICellArgs,
          y?: number,
          width?: number,
          height?: number,

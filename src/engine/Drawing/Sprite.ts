@@ -358,6 +358,10 @@ export class SpriteImpl implements IDrawable {
 
 export interface ISpriteArgs extends Partial<SpriteImpl> {
    image: Texture;
+   sx: number;
+   sy: number;
+   swidth: number;
+   sheight: number;
 } 
 
 export class Sprite extends Configurable(SpriteImpl) {

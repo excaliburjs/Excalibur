@@ -76,7 +76,7 @@ game.add(heart);
 // Turn on debug diagnostics
 game.isDebug = false;
 //var blockSprite = new ex.Sprite(imageBlocks, 0, 0, 65, 49);
-var blockSprite = new ex.Sprite({image: imageBlocks, swidth: 65, sheight: 49});
+var blockSprite = new ex.Sprite({image: imageBlocks, sx:0, sy: 0, swidth: 65, sheight: 49});
 // Create spritesheet
 //var spriteSheetRun = new ex.SpriteSheet(imageRun, 21, 1, 96, 96);
 var spriteSheetRun = new ex.SpriteSheet({ image: imageRun,
