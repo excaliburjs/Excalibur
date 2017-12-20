@@ -3,10 +3,10 @@ import { Actor, CollisionType } from './Actor';
 import { Sprite } from './Drawing/Sprite';
 import { Color } from './Drawing/Color';
 import { Vector } from './Algebra';
-import { Configurable } from './Configurable';
 import * as Util from './Util/Util';
 import * as DrawUtil from './Util/DrawUtil';
 import * as Traits from './Traits/Index';
+import { Configurable } from './Configurable';
 
 /**
  * An enum that represents the types of emitter nozzles

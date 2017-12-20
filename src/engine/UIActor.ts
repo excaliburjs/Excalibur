@@ -1,6 +1,6 @@
 import { Vector } from './Algebra';
 import { Engine } from './Engine';
-import { Actor, CollisionType, IActorArgs } from './Actor';
+import { Actor, IActorArgs, CollisionType } from './Actor';
 import * as Traits from './Traits/Index';
 
 
@@ -20,7 +20,7 @@ export class UIActor extends Actor {
     * @param width   The starting width of the actor
     * @param height  The starting height of the actor
     */
-   constructor(xOrConfig?: number | Partial<IActorArgs>, y?: number, width?: number, height?: number) {
+   constructor(xOrConfig?: number | IActorArgs, y?: number, width?: number, height?: number) {
       if (typeof(xOrConfig !== 'object')) {
          super(<number>xOrConfig, y, width, height);
       } else {

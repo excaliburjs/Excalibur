@@ -371,3 +371,4 @@ export class Sprite extends Configurable(SpriteImpl) {
       super(imageOrConfig, sx, sy, swidth, sheight);
    }
 }
+

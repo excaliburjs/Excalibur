@@ -22,11 +22,11 @@ import { Body } from './Collision/Body';
 import { Side } from './Collision/Side';
 import { IEvented } from './Interfaces/IEvented';
 import { IActionable } from './Actions/IActionable';
+import { Configurable } from './Configurable';
 import * as Traits from './Traits/Index';
 import * as Effects from './Drawing/SpriteEffects';
 import * as Util from './Util/Util';
 import * as Events from './Events';
-import { Configurable } from './Configurable';
 
 /**
  * The most important primitive in Excalibur is an `Actor`. Anything that
@@ -1130,6 +1130,20 @@ export class ActorImpl extends Class implements IActionable, IEvented {
    }
 }
 
+export interface IActorArgs extends Partial<ActorImpl> {
+   width?: number;
+   height?: number;
+} 
+
+export class Actor extends Configurable(ActorImpl) {
+   constructor();
+   constructor(config?: IActorArgs);
+   constructor(x?: number, y?: number, width?: number, height?: number, color?: Color);
+   constructor(xOrConfig?: number | Partial<IActorArgs>, y?: number, width?: number, height?: number, color?: Color) {
+      super(xOrConfig, y, width, height, color);
+   }
+}
+
 /**
  * An enum that describes the types of collisions actors can participate in
  */
@@ -1159,18 +1173,4 @@ export enum CollisionType {
     * collision events.
     */
    Fixed
-}
-
-export interface IActorArgs extends Partial<ActorImpl> {
-      width?: number;
-      height?: number;
-} 
-   
-export class Actor extends Configurable(ActorImpl) {
-   constructor();
-   constructor(config?: IActorArgs);
-   constructor(x?: number, y?: number, width?: number, height?: number, color?: Color);
-   constructor(xOrConfig?: number | Partial<IActorArgs>, y?: number, width?: number, height?: number, color?: Color) {
-      super(xOrConfig, y, width, height, color);
-   }
 }

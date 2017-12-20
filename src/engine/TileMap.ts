@@ -6,8 +6,8 @@ import { Vector } from './Algebra';
 import { Actor } from './Actor';
 import { Logger } from './Util/Log';
 import { SpriteSheet } from './Drawing/SpriteSheet';
-import { Configurable } from './Configurable';
 import * as Events from './Events';
+import { Configurable } from './Configurable';
 
 /**
  * The [[TileMap]] class provides a lightweight way to do large complex scenes with collision
@@ -285,7 +285,7 @@ export class TileMap extends Configurable(TileMapImpl) {
          cols?: number) {
             super(xOrConfig, y, cellWidth, cellHeight, rows, cols);
          }
-   }
+}
 
 /**
  * Tile sprites are used to render a specific sprite from a [[TileMap]]'s spritesheet(s)
@@ -389,7 +389,6 @@ export class CellImpl {
       this.sprites.length = 0;
    }
 }
-
 export interface ICellArgs extends Partial<CellImpl> {
    x: number;
    y: number;
@@ -418,4 +417,4 @@ export class Cell extends Configurable(CellImpl) {
          sprites?: TileSprite[]) {
             super(xOrConfig, y, width, height, index, solid, sprites);
          }
-   }
+}

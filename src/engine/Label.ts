@@ -3,8 +3,6 @@ import { Color } from './Drawing/Color';
 import { SpriteFont } from './Drawing/SpriteSheet';
 import { Actor, CollisionType } from './Actor';
 import { Configurable } from './Configurable';
-
-
 /**
  * Enum representing the different font size units
  * https://developer.mozilla.org/en-US/docs/Web/CSS/font-size
@@ -104,7 +102,6 @@ export enum BaseAlign {
       Italic,
       Oblique
    }
-
    /**
     * Labels are the way to draw small amounts of text to the screen. They are
     * actors and inherit all of the benefits and capabilities.
@@ -398,7 +395,6 @@ export enum BaseAlign {
    }
 
 }
-
 export class Label extends Configurable(LabelImpl) {
    constructor();
    constructor(config?: Partial<LabelImpl>);

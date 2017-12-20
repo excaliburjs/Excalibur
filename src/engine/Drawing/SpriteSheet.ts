@@ -1,5 +1,5 @@
 import { Sprite } from './Sprite';
-import { Animation } from './Animation';
+import { Animation } from '../Drawing/Animation';
 import { Color } from './Color';
 import * as Effects from './SpriteEffects';
 
@@ -154,7 +154,7 @@ export class SpriteSheet extends Configurable(SpriteSheetImpl) {
                columns?: number, rows?: number, spWidth?: number, spHeight?: number) {
          super(imageOrConfigOrSprites, columns, rows, spWidth, spHeight);
       }
-   }
+}
 
 /**
  * Sprite fonts are a used in conjunction with a [[Label]] to specify
@@ -345,6 +345,18 @@ export class SpriteFontImpl extends SpriteSheet {
    }
 }
 
+/**
+ * Specify various font attributes for sprite fonts 
+ */
+export interface ISpriteFontOptions {
+   color?: Color;
+   opacity?: number;
+   fontSize?: number;
+   letterSpacing?: number;
+   textAlign?: TextAlign;
+   baseAlign?: BaseAlign;
+   maxWidth?: number;
+}
 export interface ISpriteFontInitArgs extends ISpriteSheetArgs {
    alphabet: string;
    caseInsensitive: boolean;
@@ -368,17 +380,4 @@ export class SpriteFont extends Configurable(SpriteFontImpl) {
       spHeight?: number) {
          super(imageOrConfig, alphabet, caseInsensitive, columns, rows, spWidth, spHeight);
       }
-   }
-
-/**
- * Specify various font attributes for sprite fonts 
- */
-export interface ISpriteFontOptions {
-   color?: Color;
-   opacity?: number;
-   fontSize?: number;
-   letterSpacing?: number;
-   textAlign?: TextAlign;
-   baseAlign?: BaseAlign;
-   maxWidth?: number;
 }
