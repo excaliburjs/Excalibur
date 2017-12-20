@@ -41,8 +41,8 @@ export class SpriteSheetImpl implements IDefaultable<SpriteSheetImpl> {
          if (imageOrConfigOrSprites && !(imageOrConfigOrSprites instanceof Texture)) {
             this.columns = imageOrConfigOrSprites.columns;
             this.rows = imageOrConfigOrSprites.rows;
-            this.spWidth = imageOrConfigOrSprites.width;
-            this.spHeight = imageOrConfigOrSprites.height;
+            this.spWidth = imageOrConfigOrSprites.spWidth;
+            this.spHeight = imageOrConfigOrSprites.spHeight;
             this.image = imageOrConfigOrSprites.image;
          } else {
             this.image = <Texture> imageOrConfigOrSprites;
@@ -149,8 +149,8 @@ export class SpriteSheetImpl implements IDefaultable<SpriteSheetImpl> {
 
 export interface ISpriteSheetArgs extends Partial<SpriteSheetImpl> {
    image: Texture;
-   width: number;
-   height: number;
+   spWidth: number;
+   spHeight: number;
    rows: number;
    columns: number;
 } 
@@ -203,7 +203,17 @@ export class SpriteFontImpl extends SpriteSheet {
       rows: number,
       spWidth: number,
       spHeight: number) {
-      super(imageOrConfig instanceof Texture ? imageOrConfig : imageOrConfig.image, columns, rows, spWidth, spHeight);
+      super(imageOrConfig instanceof Texture ? imageOrConfig : imageOrConfig.image,
+         imageOrConfig instanceof Texture ? columns : imageOrConfig.columns,
+         imageOrConfig instanceof Texture ? rows : imageOrConfig.rows,
+         imageOrConfig instanceof Texture ? spWidth : imageOrConfig.spWidth,
+         imageOrConfig instanceof Texture ? spHeight : imageOrConfig.spHeight);
+
+         if (imageOrConfig && !(imageOrConfig instanceof Texture)) {
+            alphabet = imageOrConfig.alphabet;
+            caseInsensitive = imageOrConfig.caseInsensitive;
+         }
+
       this._alphabet = alphabet;
       this._caseInsensitive = caseInsensitive;
       this._sprites = this.getTextSprites();
@@ -354,7 +364,7 @@ export interface ISpriteFontInitArgs extends ISpriteSheetArgs {
 
 export class SpriteFont extends Configurable(SpriteFontImpl) {
    constructor(config: ISpriteFontInitArgs);
-   constructor(imageOrConfig: Texture,
+   constructor(image: Texture,
       alphabet: string,
       caseInsensitive: boolean,
       columns: number,

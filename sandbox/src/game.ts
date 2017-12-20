@@ -82,22 +82,23 @@ var blockSprite = new ex.Sprite({image: imageBlocks, swidth: 65, sheight: 49});
 var spriteSheetRun = new ex.SpriteSheet({ image: imageRun,
    columns: 21,
    rows: 1,
-   width: 96,
-   height: 96
+   spWidth: 96,
+   spHeight: 96
 });
 //var spriteSheetJump = new ex.SpriteSheet(imageJump, 21, 1, 96, 96);
 var spriteSheetJump = new ex.SpriteSheet({ image: imageJump,
    columns: 21,
    rows: 1,
-   width: 96,
-   height: 96
+   spWidth: 96,
+   spHeight: 96
 });
 var tileBlockWidth = 64,
    tileBlockHeight = 48,
    spriteTiles = new ex.SpriteSheet(imageBlocks, 1, 1, tileBlockWidth, tileBlockHeight);
 
 // create a collision map
-var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
+//var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
+var tileMap = new ex.TileMap({ x: 100, y: 300, cellWidth: tileBlockWidth, cellHeight: tileBlockHeight, rows: 4, cols: 500 });
 tileMap.registerSpriteSheet("default", spriteTiles);
 tileMap.data.forEach(function (cell: ex.Cell) {
    cell.solid = true;
@@ -106,7 +107,8 @@ tileMap.data.forEach(function (cell: ex.Cell) {
 game.add(tileMap);
 
 // Create spriteFont
-var spriteFont = new ex.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
+//var spriteFont = new ex.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
+var spriteFont = new ex.SpriteFont({image: spriteFontImage, alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', caseInsensitive: true, columns: 16, rows: 3, spWidth: 16, spHeight: 16 })
 //var label = new ex.Label('Hello World', 100, 100, null, spriteFont);
 var label = new ex.Label({text: 'Hello World',
                              x: 100,
