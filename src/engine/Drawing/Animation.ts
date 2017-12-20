@@ -9,12 +9,6 @@ import { Engine } from '../Engine';
 import * as Util from '../Util/Util';
 import { Configurable } from '../Configurable';
 
-/**
- * Animations allow you to display a series of images one after another,
- * creating the illusion of change. Generally these images will come from a [[SpriteSheet]] source.
- *
- * [[include:Animations.md]]
- */
 export class AnimationImpl implements IDrawable {
 
    /**
@@ -314,6 +308,12 @@ export interface IAnimationArgs extends Partial<AnimationImpl> {
    speed: number;
 } 
 
+/**
+ * Animations allow you to display a series of images one after another,
+ * creating the illusion of change. Generally these images will come from a [[SpriteSheet]] source.
+ *
+ * [[include:Animations.md]]
+ */
 export class Animation extends Configurable(AnimationImpl) {
    constructor(config: IAnimationArgs);
    constructor(engine: Engine, images: Sprite[], speed: number, loop?: boolean);

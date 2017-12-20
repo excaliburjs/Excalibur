@@ -102,12 +102,7 @@ export enum BaseAlign {
       Italic,
       Oblique
    }
-   /**
-    * Labels are the way to draw small amounts of text to the screen. They are
-    * actors and inherit all of the benefits and capabilities.
-    *
-    * [[include:Labels.md]]
-    */
+
    export class LabelImpl extends Actor {
 
    /**
@@ -395,6 +390,13 @@ export enum BaseAlign {
    }
 
 }
+
+   /**
+    * Labels are the way to draw small amounts of text to the screen. They are
+    * actors and inherit all of the benefits and capabilities.
+    *
+    * [[include:Labels.md]]
+    */
 export class Label extends Configurable(LabelImpl) {
    constructor();
    constructor(config?: Partial<LabelImpl>);

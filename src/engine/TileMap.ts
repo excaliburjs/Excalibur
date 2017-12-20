@@ -9,12 +9,6 @@ import { SpriteSheet } from './Drawing/SpriteSheet';
 import * as Events from './Events';
 import { Configurable } from './Configurable';
 
-/**
- * The [[TileMap]] class provides a lightweight way to do large complex scenes with collision
- * without the overhead of actors.
- *
- * [[include:TileMaps.md]]
- */
 export class TileMapImpl extends Class {
    private _collidingX: number = -1;
    private _collidingY: number = -1;
@@ -267,6 +261,12 @@ export interface ITileMapArgs extends Partial<TileMapImpl> {
    cols: number;
 }
 
+/**
+ * The [[TileMap]] class provides a lightweight way to do large complex scenes with collision
+ * without the overhead of actors.
+ *
+ * [[include:TileMaps.md]]
+ */
 export class TileMap extends Configurable(TileMapImpl) {
    constructor(config: ITileMapArgs);
    constructor(
@@ -298,16 +298,7 @@ export class TileSprite {
    constructor(public spriteSheetKey: string, public spriteId: number) { }
 }
 
-/**
- * TileMap Cell
- *
- * A light-weight object that occupies a space in a collision map. Generally
- * created by a [[TileMap]].
- *
- * Cells can draw multiple sprites. Note that the order of drawing is the order
- * of the sprites in the array so the last one will be drawn on top. You can
- * use transparency to create layers this way.
- */
+
 export class CellImpl {
    private _bounds: BoundingBox;
    public x: number;
@@ -397,6 +388,16 @@ export interface ICellArgs extends Partial<CellImpl> {
    index: number;
 }
 
+/**
+ * TileMap Cell
+ *
+ * A light-weight object that occupies a space in a collision map. Generally
+ * created by a [[TileMap]].
+ *
+ * Cells can draw multiple sprites. Note that the order of drawing is the order
+ * of the sprites in the array so the last one will be drawn on top. You can
+ * use transparency to create layers this way.
+ */
 export class Cell extends Configurable(CellImpl) {
    constructor(config: ICellArgs);
    constructor(

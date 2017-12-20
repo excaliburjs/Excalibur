@@ -9,13 +9,6 @@ import { Logger } from '../Util/Log';
 import { TextAlign, BaseAlign } from '../Label';
 import { Configurable } from '../Configurable';
 
-/**
- * Sprite sheets are a useful mechanism for slicing up image resources into
- * separate sprites or for generating in game animations. [[Sprite|Sprites]] are organized
- * in row major order in the [[SpriteSheet]].
- *
- * [[include:SpriteSheets.md]]
- */
 export class SpriteSheetImpl {
    public sprites: Sprite[] = [];
    public image: Texture = null;
@@ -146,6 +139,13 @@ export interface ISpriteSheetArgs extends Partial<SpriteSheetImpl> {
    columns: number;
 } 
 
+/**
+ * Sprite sheets are a useful mechanism for slicing up image resources into
+ * separate sprites or for generating in game animations. [[Sprite|Sprites]] are organized
+ * in row major order in the [[SpriteSheet]].
+ *
+ * [[include:SpriteSheets.md]]
+ */
 export class SpriteSheet extends Configurable(SpriteSheetImpl) {
    constructor(config: ISpriteSheetArgs);
    constructor(sprites: Sprite[]);
@@ -156,13 +156,6 @@ export class SpriteSheet extends Configurable(SpriteSheetImpl) {
       }
 }
 
-/**
- * Sprite fonts are a used in conjunction with a [[Label]] to specify
- * a particular bitmap as a font. Note that some font features are not 
- * supported by Sprite fonts.
- *
- * [[include:SpriteFonts.md]]
- */
 export class SpriteFontImpl extends SpriteSheet {
    private _currentColor: Color = Color.Black.clone();
    private _currentOpacity: Number = 1.0;
@@ -362,6 +355,13 @@ export interface ISpriteFontInitArgs extends ISpriteSheetArgs {
    caseInsensitive: boolean;
 } 
 
+/**
+ * Sprite fonts are a used in conjunction with a [[Label]] to specify
+ * a particular bitmap as a font. Note that some font features are not 
+ * supported by Sprite fonts.
+ *
+ * [[include:SpriteFonts.md]]
+ */
 export class SpriteFont extends Configurable(SpriteFontImpl) {
    constructor(config: ISpriteFontInitArgs);
    constructor(image: Texture,

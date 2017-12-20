@@ -21,10 +21,6 @@ export enum EmitterType {
     */
    Rectangle
 }
-
-/**
- * Particle is used in a [[ParticleEmitter]]
- */
 export class ParticleImpl {
    public position: Vector = new Vector(0, 0);
    public velocity: Vector = new Vector(0, 0);
@@ -169,6 +165,9 @@ export interface IParticleArgs extends Partial<ParticleImpl> {
    emitter: ParticleEmitter;
 } 
 
+/**
+ * Particle is used in a [[ParticleEmitter]]
+ */
 export class Particle extends Configurable(ParticleImpl) {
    constructor(config: IParticleArgs);
    constructor(emitter: ParticleEmitter,
@@ -195,13 +194,6 @@ export class Particle extends Configurable(ParticleImpl) {
       }
 }
 
-/**
- * Using a particle emitter is a great way to create interesting effects 
- * in your game, like smoke, fire, water, explosions, etc. `ParticleEmitter`
- * extend [[Actor]] allowing you to use all of the features that come with.
- *
- * [[include:Particles.md]]
- */
 export class ParticleEmitterImpl extends Actor {
 
    private _particlesToEmit: number;
@@ -457,6 +449,13 @@ export interface IParticleEmitterArgs extends Partial<ParticleEmitterImpl> {
    height?: number;
 }
 
+/**
+ * Using a particle emitter is a great way to create interesting effects 
+ * in your game, like smoke, fire, water, explosions, etc. `ParticleEmitter`
+ * extend [[Actor]] allowing you to use all of the features that come with.
+ *
+ * [[include:Particles.md]]
+ */
 export class ParticleEmitter extends Configurable(ParticleEmitterImpl) {
    constructor(config?: IParticleEmitterArgs);
    constructor(x?: number | IParticleEmitterArgs, y?: number, width?: number, height?: number);

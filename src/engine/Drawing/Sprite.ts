@@ -8,12 +8,6 @@ import { Logger } from '../Util/Log';
 import { clamp } from '../Util/Util';
 import { Configurable } from '../Configurable';
 
-/**
- * A [[Sprite]] is one of the main drawing primitives. It is responsible for drawing
- * images or parts of images from a [[Texture]] resource to the screen.
- *
- * [[include:Sprites.md]]
- */
 export class SpriteImpl implements IDrawable {
    private _texture: Texture;
 
@@ -364,6 +358,12 @@ export interface ISpriteArgs extends Partial<SpriteImpl> {
    sheight: number;
 } 
 
+/**
+ * A [[Sprite]] is one of the main drawing primitives. It is responsible for drawing
+ * images or parts of images from a [[Texture]] resource to the screen.
+ *
+ * [[include:Sprites.md]]
+ */
 export class Sprite extends Configurable(SpriteImpl) {
    constructor(config: ISpriteArgs);
    constructor(image: Texture, sx: number, sy: number, swidth: number, sheight: number)

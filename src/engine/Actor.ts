@@ -28,15 +28,6 @@ import * as Effects from './Drawing/SpriteEffects';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 
-/**
- * The most important primitive in Excalibur is an `Actor`. Anything that
- * can move on the screen, collide with another `Actor`, respond to events, 
- * or interact with the current scene, must be an actor. An `Actor` **must**
- * be part of a [[Scene]] for it to be drawn to the screen.
- *
- * [[include:Actors.md]]
- *
- */
 export class ActorImpl extends Class implements IActionable, IEvented {
    /**
     * Indicates the next id to be set
@@ -1135,6 +1126,15 @@ export interface IActorArgs extends Partial<ActorImpl> {
    height?: number;
 } 
 
+/**
+ * The most important primitive in Excalibur is an `Actor`. Anything that
+ * can move on the screen, collide with another `Actor`, respond to events, 
+ * or interact with the current scene, must be an actor. An `Actor` **must**
+ * be part of a [[Scene]] for it to be drawn to the screen.
+ *
+ * [[include:Actors.md]]
+ *
+ */
 export class Actor extends Configurable(ActorImpl) {
    constructor();
    constructor(config?: IActorArgs);
