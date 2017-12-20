@@ -21,6 +21,8 @@ export class SpriteSheetImpl implements IDefaultable<SpriteSheetImpl> {
    public image: Texture;
    public columns: number;
    public rows: number;
+   public spWidth: number;
+   public spHeight: number;
 
    /**
     * @param image     The backing image texture to build the SpriteSheet
@@ -37,15 +39,19 @@ export class SpriteSheetImpl implements IDefaultable<SpriteSheetImpl> {
          this.sprites = imageOrConfigOrSprites;
       } else {
          if (imageOrConfigOrSprites && !(imageOrConfigOrSprites instanceof Texture)) {
-            columns = imageOrConfigOrSprites.columns;
-            rows = imageOrConfigOrSprites.rows;
-            spWidth = imageOrConfigOrSprites.width;
-            spHeight = imageOrConfigOrSprites.height;
+            this.columns = imageOrConfigOrSprites.columns;
+            this.rows = imageOrConfigOrSprites.rows;
+            this.spWidth = imageOrConfigOrSprites.width;
+            this.spHeight = imageOrConfigOrSprites.height;
             this.image = imageOrConfigOrSprites.image;
          } else {
             this.image = <Texture> imageOrConfigOrSprites;
+            this.columns = columns;
+            this.rows = rows;
+            this.spWidth = spWidth;
+            this.spHeight = spHeight;
          }
-         this.sprites = new Array(columns * rows);
+         this.sprites = new Array(this.columns * this.rows);
          loadFromImage = true;
       }
 
@@ -61,9 +67,10 @@ export class SpriteSheetImpl implements IDefaultable<SpriteSheetImpl> {
       if (loadFromImage) {
          var i = 0;
          var j = 0;
-         for (i = 0; i < rows; i++) {
-            for (j = 0; j < columns; j++) {
-               this.sprites[j + i * columns] = new Sprite(this.image, j * spWidth, i * spHeight, spWidth, spHeight);
+         for (i = 0; i < this.rows; i++) {
+            for (j = 0; j < this.columns; j++) {
+               this.sprites[j + i * this.columns] = new Sprite(this.image,
+                                                               j * this.spWidth, i * this.spHeight, this.spWidth, this.spHeight);
             }
          }
       }
@@ -165,7 +172,7 @@ export class SpriteSheet extends Configurable(SpriteSheetImpl) {
  *
  * [[include:SpriteFonts.md]]
  */
-export class SpriteFont extends SpriteSheet {
+export class SpriteFontImpl extends SpriteSheet {
    private _currentColor: Color = Color.Black.clone();
    private _currentOpacity: Number = 1.0;
    private _sprites: { [key: string]: Sprite; } = {};
@@ -177,8 +184,8 @@ export class SpriteFont extends SpriteSheet {
    private _textShadowSprites: { [key: string]: Sprite; } = {};
    private _shadowOffsetX: number = 5;
    private _shadowOffsetY: number = 5;
-
-   
+   private _alphabet: string;
+   private _caseInsensitive: boolean;
 
    /**
     * @param image           The backing image texture to build the SpriteFont
@@ -189,14 +196,16 @@ export class SpriteFont extends SpriteSheet {
     * @param spWidth         The width of each character in pixels
     * @param spHeight        The height of each character in pixels
     */
-   constructor(public image: Texture,
-      private alphabet: string,
-      private caseInsensitive: boolean,
+   constructor(imageOrConfig: Texture | ISpriteFontInitArgs,
+      alphabet: string,
+      caseInsensitive: boolean,
       columns: number,
       rows: number,
-      public spWidth: number,
-      public spHeight: number) {
-      super(image, columns, rows, spWidth, spHeight);
+      spWidth: number,
+      spHeight: number) {
+      super(imageOrConfig instanceof Texture ? imageOrConfig : imageOrConfig.image, columns, rows, spWidth, spHeight);
+      this._alphabet = alphabet;
+      this._caseInsensitive = caseInsensitive;
       this._sprites = this.getTextSprites();
    }
 
@@ -205,9 +214,9 @@ export class SpriteFont extends SpriteSheet {
     */
    public getTextSprites(): { [key: string]: Sprite; } {
       var lookup: { [key: string]: Sprite; } = {};
-      for (var i = 0; i < this.alphabet.length; i++) {
-         var char = this.alphabet[i];
-         if (this.caseInsensitive) {
+      for (var i = 0; i < this._alphabet.length; i++) {
+         var char = this._alphabet[i];
+         if (this._caseInsensitive) {
             char = char.toLowerCase();
          }
          lookup[char] = this.sprites[i].clone();
@@ -302,7 +311,7 @@ export class SpriteFont extends SpriteSheet {
       
       for (var i = 0; i < text.length; i++) {
          var character = text[i];
-         if (this.caseInsensitive) {
+         if (this._caseInsensitive) {
             character = character.toLowerCase();
          }
          try {
@@ -337,6 +346,31 @@ export class SpriteFont extends SpriteSheet {
       };
    }
 }
+
+export interface ISpriteFontInitArgs extends ISpriteSheetArgs {
+   alphabet: string;
+   caseInsensitive: boolean;
+} 
+
+export class SpriteFont extends Configurable(SpriteFontImpl) {
+   constructor(config: ISpriteFontInitArgs);
+   constructor(imageOrConfig: Texture,
+      alphabet: string,
+      caseInsensitive: boolean,
+      columns: number,
+      rows: number,
+      spWidth: number,
+      spHeight: number)
+   constructor(imageOrConfig: Texture | ISpriteFontInitArgs,
+      alphabet?: string,
+      caseInsensitive?: boolean,
+      columns?: number,
+      rows?: number,
+      spWidth?: number,
+      spHeight?: number) {
+         super(imageOrConfig, alphabet, caseInsensitive, columns, rows, spWidth, spHeight);
+      }
+   }
 
 /**
  * Specify various font attributes for sprite fonts 
