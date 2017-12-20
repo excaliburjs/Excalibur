@@ -6,7 +6,7 @@ import { Vector } from './Algebra';
 import { Actor } from './Actor';
 import { Logger } from './Util/Log';
 import { SpriteSheet } from './Drawing/SpriteSheet';
-import { Configurable, IDefaultable } from './Configurable';
+import { Configurable } from './Configurable';
 import * as Events from './Events';
 
 /**
@@ -15,7 +15,7 @@ import * as Events from './Events';
  *
  * [[include:TileMaps.md]]
  */
-export class TileMapImpl extends Class implements IDefaultable<TileMapImpl> {
+export class TileMapImpl extends Class {
    private _collidingX: number = -1;
    private _collidingY: number = -1;
    private _onScreenXStart: number = 0;
@@ -80,13 +80,6 @@ export class TileMapImpl extends Class implements IDefaultable<TileMapImpl> {
             })();
          }
       }
-   }
-
-   public getDefaultPropVals(): Partial<TileMapImpl> {
-      return {
-         logger: Logger.getInstance(),
-         data: []
-      };
    }
 
    public registerSpriteSheet(key: string, spriteSheet: SpriteSheet) {
@@ -307,15 +300,15 @@ export class TileSprite {
  * of the sprites in the array so the last one will be drawn on top. You can
  * use transparency to create layers this way.
  */
-export class CellImpl implements IDefaultable<CellImpl> {
+export class CellImpl {
    private _bounds: BoundingBox;
    public x: number;
    public y: number;
    public width: number;
    public height: number;
    public index: number;
-   public solid: boolean;
-   public sprites: TileSprite[];
+   public solid: boolean = false;
+   public sprites: TileSprite[] = [];
 
    /**
     * @param x       Gets or sets x coordinate of the cell in world coordinates
@@ -352,13 +345,6 @@ export class CellImpl implements IDefaultable<CellImpl> {
       this.solid = solid;
       this.sprites = sprites;
       this._bounds = new BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
-   }
-
-   public getDefaultPropVals(): Partial<CellImpl> {
-      return {
-         sprites: [],
-         solid: false
-      };
    }
 
    /**

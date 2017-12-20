@@ -6,7 +6,7 @@ import { Texture } from '../Resources/Texture';
 import { Vector } from '../Algebra';
 import { Logger } from '../Util/Log';
 import { clamp } from '../Util/Util';
-import { Configurable, IDefaultable } from '../Configurable';
+import { Configurable } from '../Configurable';
 
 /**
  * A [[Sprite]] is one of the main drawing primitives. It is responsible for drawing
@@ -14,14 +14,14 @@ import { Configurable, IDefaultable } from '../Configurable';
  *
  * [[include:Sprites.md]]
  */
-export class SpriteImpl implements IDrawable, IDefaultable<SpriteImpl> {
+export class SpriteImpl implements IDrawable {
    private _texture: Texture;
 
-   public rotation: number;
-   public anchor: Vector;
-   public scale: Vector;
+   public rotation: number = 0.0;
+   public anchor: Vector = new Vector(0.0, 0.0);
+   public scale: Vector = new Vector(1, 1);
 
-   public logger: Logger;
+   public logger: Logger = Logger.getInstance();
 
    /**
     * Draws the sprite flipped vertically
@@ -33,17 +33,17 @@ export class SpriteImpl implements IDrawable, IDefaultable<SpriteImpl> {
     */
    public flipHorizontal: boolean = false;
 
-   public width: number;
-   public height: number;
-   public effects: Effects.ISpriteEffect[];
+   public width: number = 0;
+   public height: number = 0;
+   public effects: Effects.ISpriteEffect[] = [];
 
-   public sx: number;
-   public sy: number;
-   public swidth: number;
-   public sheight: number;
+   public sx: number = 0;
+   public sy: number = 0;
+   public swidth: number = 0;
+   public sheight: number = 0;
 
-   public naturalWidth: number;
-   public naturalHeight: number;
+   public naturalWidth: number = 0;
+   public naturalHeight: number = 0;
 
    private _spriteCanvas: HTMLCanvasElement = null;
    private _spriteCtx: CanvasRenderingContext2D = null;
@@ -96,26 +96,6 @@ export class SpriteImpl implements IDrawable, IDefaultable<SpriteImpl> {
       this.height = sheight;
       this.naturalWidth = swidth;
       this.naturalHeight = sheight;
-   }
-
-   public getDefaultPropVals(): Partial<SpriteImpl> {
-      return {
-         rotation: 0.0,
-         anchor: new Vector(0.0, 0.0),
-         scale:  new Vector(1, 1),
-         logger: Logger.getInstance(),
-         flipVertical: false,
-         flipHorizontal: false,
-         width: 0,
-         height: 0,
-         effects: [],     
-         naturalWidth: 0,
-         naturalHeight: 0,
-         sx: 0,
-         sy: 0,
-         swidth: 0,
-         sheight: 0
-      };
    }
 
    private _loadPixels() {

@@ -7,7 +7,7 @@ import { Texture } from '../Resources/Texture';
 import { Engine } from '../Engine';
 import { Logger } from '../Util/Log';
 import { TextAlign, BaseAlign } from '../Label';
-import { Configurable, IDefaultable } from '../Configurable';
+import { Configurable } from '../Configurable';
 
 /**
  * Sprite sheets are a useful mechanism for slicing up image resources into
@@ -16,11 +16,11 @@ import { Configurable, IDefaultable } from '../Configurable';
  *
  * [[include:SpriteSheets.md]]
  */
-export class SpriteSheetImpl implements IDefaultable<SpriteSheetImpl> {
-   public sprites: Sprite[];
-   public image: Texture;
-   public columns: number;
-   public rows: number;
+export class SpriteSheetImpl {
+   public sprites: Sprite[] = [];
+   public image: Texture = null;
+   public columns: number = 0;
+   public rows: number = 0;
    public spWidth: number;
    public spHeight: number;
 
@@ -76,15 +76,6 @@ export class SpriteSheetImpl implements IDefaultable<SpriteSheetImpl> {
       }
    }
 
-
-   public getDefaultPropVals(): Partial<ISpriteSheetArgs> {
-      return {
-         sprites: [],
-         columns: 0,
-         rows: 0,
-         image: null
-      };
-   }
 
    /**
     * Create an animation from the this SpriteSheet by listing out the
@@ -203,11 +194,8 @@ export class SpriteFontImpl extends SpriteSheet {
       rows: number,
       spWidth: number,
       spHeight: number) {
-      super(imageOrConfig instanceof Texture ? imageOrConfig : imageOrConfig.image,
-         imageOrConfig instanceof Texture ? columns : imageOrConfig.columns,
-         imageOrConfig instanceof Texture ? rows : imageOrConfig.rows,
-         imageOrConfig instanceof Texture ? spWidth : imageOrConfig.spWidth,
-         imageOrConfig instanceof Texture ? spHeight : imageOrConfig.spHeight);
+      super(imageOrConfig instanceof Texture ? {image: imageOrConfig, spWidth: spWidth,
+                                                spHeight: spHeight, rows: rows, columns: columns } : imageOrConfig);
 
          if (imageOrConfig && !(imageOrConfig instanceof Texture)) {
             alphabet = imageOrConfig.alphabet;

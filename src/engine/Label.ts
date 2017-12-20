@@ -2,7 +2,7 @@ import { Engine } from './Engine';
 import { Color } from './Drawing/Color';
 import { SpriteFont } from './Drawing/SpriteSheet';
 import { Actor, CollisionType } from './Actor';
-import { Configurable, IDefaultable } from './Configurable';
+import { Configurable } from './Configurable';
 
 
 /**
@@ -111,7 +111,7 @@ export enum BaseAlign {
     *
     * [[include:Labels.md]]
     */
-   export class LabelImpl extends Actor implements IDefaultable<LabelImpl> {
+   export class LabelImpl extends Actor {
 
    /**
     * The text to draw.
@@ -121,7 +121,7 @@ export enum BaseAlign {
    /**
     * Sets or gets the bold property of the label's text, by default it's false
     */
-   public bold: boolean;
+   public bold: boolean = false;
 
    /**
     * The [[SpriteFont]] to use, if any. Overrides [[fontFamily]] if present.
@@ -137,27 +137,27 @@ export enum BaseAlign {
    /**
     * The font size in the selected units, default is 10 (default units is pixel)
     */
-   public fontSize: number;
+   public fontSize: number = 10;
 
    /**
     * The font style for this label, the default is [[FontStyle.Normal]]
     */
-   public fontStyle: FontStyle;
+   public fontStyle: FontStyle = FontStyle.Normal;
 
    /**
     * The css units for a font size such as px, pt, em (SpriteFont only support px), by default is 'px';
     */ 
-   public fontUnit: FontUnit;
+   public fontUnit: FontUnit = FontUnit.Px;
 
    /**
     * Gets or sets the horizontal text alignment property for the label. 
     */
-   public textAlign: TextAlign;
+   public textAlign: TextAlign = TextAlign.Left;
 
    /**
     * Gets or sets the baseline alignment property for the label.
     */
-   public baseAlign: BaseAlign;
+   public baseAlign: BaseAlign = BaseAlign.Bottom;
 
    /**
     * Gets or sets the maximum width (in pixels) that the label should occupy
@@ -167,12 +167,12 @@ export enum BaseAlign {
    /**
     * Gets or sets the letter spacing on a Label. Only supported with Sprite Fonts.
     */
-   public letterSpacing: number; //px
+   public letterSpacing: number = 0; //px
 
    /**
     * Whether or not the [[SpriteFont]] will be case-sensitive when matching characters.
     */
-   public caseInsensitive: boolean;
+   public caseInsensitive: boolean = true;
 
    private _textShadowOn: boolean;
    private _shadowOffsetX: number;
@@ -188,17 +188,8 @@ export enum BaseAlign {
     * over a css font.
     */
    constructor(textOrConfig?: string | Partial<LabelImpl>, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
-      if (textOrConfig && typeof textOrConfig === 'object') {
-         super(textOrConfig);
-         var config = textOrConfig;
-         textOrConfig = config ? config.text : '';
-         x = config.x;
-         y = config.y;
-         fontFamily = config.fontFamily;
-         spriteFont = config.spriteFont;
-      } else {
-         super(x, y);
-      }
+      super(typeof textOrConfig === 'string' ? { text: textOrConfig, x: x, y: y,
+                                                fontFamily: fontFamily, spriteFont: spriteFont } : textOrConfig);
 
       this.text = <string>textOrConfig || '';
       this.color = Color.Black.clone();
@@ -214,22 +205,6 @@ export enum BaseAlign {
          //this._textSprites = spriteFont.getTextSprites();
       }
    }
-
-   public getDefaultPropVals(): Partial<LabelImpl> {
-
-      var labelDefaults: Partial<LabelImpl> = super.getDefaultPropVals();   
-      labelDefaults.bold = false;   
-      labelDefaults.fontSize = 10;
-      labelDefaults.fontStyle = FontStyle.Normal;
-      labelDefaults.fontUnit = FontUnit.Px;
-      labelDefaults.textAlign = TextAlign.Left;
-      labelDefaults.baseAlign = BaseAlign.Bottom;
-      labelDefaults.letterSpacing = 0; //px
-      labelDefaults.caseInsensitive = true;
-
-      return labelDefaults;
-   }
-
 
    /**
     * Returns the width of the text in the label (in pixels);
@@ -423,11 +398,6 @@ export enum BaseAlign {
    }
 
 }
-
-// export interface IActorArgs extends ActorImpl {
-//    width: number;
-//    height: number;
-// } 
 
 export class Label extends Configurable(LabelImpl) {
    constructor();

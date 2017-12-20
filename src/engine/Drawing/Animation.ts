@@ -6,7 +6,7 @@ import { IDrawable } from '../Interfaces/IDrawable';
 import { Vector } from '../Algebra';
 import { Engine } from '../Engine';
 import * as Util from '../Util/Util';
-import { Configurable, IDefaultable } from '../Configurable';
+import { Configurable } from '../Configurable';
 
 /**
  * Animations allow you to display a series of images one after another,
@@ -14,13 +14,13 @@ import { Configurable, IDefaultable } from '../Configurable';
  *
  * [[include:Animations.md]]
  */
-export class AnimationImpl implements IDrawable, IDefaultable<AnimationImpl> {
+export class AnimationImpl implements IDrawable {
 
    /**
     * The sprite frames to play, in order. See [[SpriteSheet.getAnimationForAll]] to quickly
     * generate an [[Animation]].
     */
-   public sprites: Sprite[];
+   public sprites: Sprite[] = [];
 
    /**
     * Duration to show each frame (in milliseconds)
@@ -30,41 +30,41 @@ export class AnimationImpl implements IDrawable, IDefaultable<AnimationImpl> {
    /**
     * Current frame index being shown
     */
-   public currentFrame: number;
+   public currentFrame: number = 0;
 
    private _oldTime: number = Date.now();
    
-   public anchor: Vector;
-   public rotation: number;
-   public scale: Vector;
+   public anchor: Vector = new Vector(0.0, 0.0);
+   public rotation: number = 0.0;
+   public scale: Vector = new Vector(1, 1);
 
    /**
     * Indicates whether the animation should loop after it is completed
     */
-   public loop: boolean;
+   public loop: boolean = true;
 
    /**
     * Indicates the frame index the animation should freeze on for a non-looping
     * animation. By default it is the last frame.
     */
-   public freezeFrame: number;
+   public freezeFrame: number = -1;
 
    private _engine: Engine;
 
    /**
     * Flip each frame vertically. Sets [[Sprite.flipVertical]].
     */
-   public flipVertical: boolean;
+   public flipVertical: boolean = false;
 
    /**
     * Flip each frame horizontally. Sets [[Sprite.flipHorizontal]].
     */
-   public flipHorizontal: boolean;
+   public flipHorizontal: boolean = false;
    
-   public width: number;
-   public height: number;
-   public naturalWidth: number;
-   public naturalHeight: number;
+   public width: number = 0;
+   public height: number= 0;
+   public naturalWidth: number = 0;
+   public naturalHeight: number = 0;
 
    /**
     * Typically you will use a [[SpriteSheet]] to generate an [[Animation]].
@@ -103,24 +103,6 @@ export class AnimationImpl implements IDrawable, IDefaultable<AnimationImpl> {
          this.freezeFrame = images.length - 1;
       }
 
-   }
-
-   public getDefaultPropVals(): Partial<AnimationImpl> {
-      return {
-         sprites: [],
-         currentFrame: 0,            
-         anchor: new Vector(0.0, 0.0),
-         rotation: 0.0,
-         scale: new Vector(1, 1),
-         loop: true,
-         freezeFrame: -1,
-         flipVertical: false,
-         flipHorizontal: false,
-         width: 0,
-         height: 0,
-         naturalWidth: 0,
-         naturalHeight: 0
-      };
    }
 
    /**

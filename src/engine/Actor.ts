@@ -26,7 +26,7 @@ import * as Traits from './Traits/Index';
 import * as Effects from './Drawing/SpriteEffects';
 import * as Util from './Util/Util';
 import * as Events from './Events';
-import { Configurable, IDefaultable } from './Configurable';
+import { Configurable } from './Configurable';
 
 /**
  * The most important primitive in Excalibur is an `Actor`. Anything that
@@ -37,7 +37,7 @@ import { Configurable, IDefaultable } from './Configurable';
  * [[include:Actors.md]]
  *
  */
-export class ActorImpl extends Class implements IActionable, IEvented, IDefaultable<ActorImpl> {
+export class ActorImpl extends Class implements IActionable, IEvented {
    /**
     * Indicates the next id to be set
     */
@@ -291,20 +291,20 @@ export class ActorImpl extends Class implements IActionable, IEvented, IDefaulta
    /** 
     * The x scalar velocity of the actor in scale/second
     */
-   public sx: number; //scale/sec
+   public sx: number = 0; //scale/sec
    /** 
     * The y scalar velocity of the actor in scale/second
     */
-   public sy: number; //scale/sec
+   public sy: number = 0; //scale/sec
 
    /**
     * Indicates whether the actor is physically in the viewport
     */
-   public isOffScreen: boolean;
+   public isOffScreen: boolean = false;
    /** 
     * The visibility of an actor
     */
-   public visible: boolean;
+   public visible: boolean = true;
    /**
     * The opacity of an actor. Passing in a color in the [[constructor]] will use the 
     * color's opacity.
@@ -324,31 +324,31 @@ export class ActorImpl extends Class implements IActionable, IEvented, IDefaulta
    /**
     * Convenience reference to the global logger
     */
-   public logger: Logger;
+   public logger: Logger = Logger.getInstance();
    /**
     * The scene that the actor is in
     */
-   public scene: Scene;
+   public scene: Scene = null;
    /**
     * The parent of this actor
     */
-   public parent: Actor;
+   public parent: Actor = null;
    // TODO: Replace this with the new actor collection once z-indexing is built
    /**
     * The children of this actor
     */
-   public children: Actor[];
+   public children: Actor[] = [];
    /**
     * Gets or sets the current collision type of this actor. By 
     * default it is ([[CollisionType.PreventCollision]]).
     */
-   public collisionType: CollisionType;
-   public collisionGroups: string[];
+   public collisionType: CollisionType = CollisionType.PreventCollision;
+   public collisionGroups: string[] = [];
 
 
    private _collisionHandlers: { [key: string]: { (actor: Actor): void }[]; } = {};
    private _isInitialized: boolean = false;
-   public frames: { [key: string]: IDrawable; };
+   public frames: { [key: string]: IDrawable; } = {};
    private _effectsDirty: boolean = false;
 
    /**
@@ -356,7 +356,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IDefaulta
     * an [[Animation]], [[Sprite]], or [[Polygon]]. 
     * Set drawings with [[setDrawing]].
     */
-   public currentDrawing: IDrawable;
+   public currentDrawing: IDrawable = null;
 
    /**
     * Modify the current actor update pipeline. 
@@ -381,12 +381,14 @@ export class ActorImpl extends Class implements IActionable, IEvented, IDefaulta
     * Whether or not to enable the [[CapturePointer]] trait that propagates 
     * pointer events to this actor
     */
-   public enableCapturePointer: boolean;
+   public enableCapturePointer: boolean = false;
 
    /**
     * Configuration for [[CapturePointer]] trait
     */
-   public capturePointer: Traits.ICapturePointerConfig;
+   public capturePointer: Traits.ICapturePointerConfig = {
+      captureMoveEvents: false		
+   };
 
    private _zIndex: number = 0;
    private _isKilled: boolean = false;
@@ -400,7 +402,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IDefaulta
     * @param color   The starting color of the actor. Leave null to draw a transparent actor. The opacity of the color will be used as the
     * initial [[opacity]].
     */
-   constructor(xOrConfig?: number | Partial<IActorArgs>, y?: number, width?: number, height?: number, color?: Color) {
+   constructor(xOrConfig?: number | IActorArgs, y?: number, width?: number, height?: number, color?: Color) {
       super();
 
       if (xOrConfig && typeof xOrConfig === 'object') {
@@ -436,32 +438,6 @@ export class ActorImpl extends Class implements IActionable, IEvented, IDefaulta
 
       // Initialize default collision area to be box
       this.body.useBoxCollision();
-   }
-
-   public getDefaultPropVals(): Partial<ActorImpl> {
-      return {
-          body: new Body(this),
-          scale: new Vector(1, 1),
-          traits: [],
-          sx: 0, //scale/sec
-          sy: 0, //scale/sec
-          isOffScreen: false,
-          visible: true,
-          opacity: 1,
-          previousOpacity: 1,
-          logger: Logger.getInstance(),
-          scene: null,
-          parent: null,
-          children: [],
-          collisionType: CollisionType.PreventCollision,
-          collisionGroups: [],
-          frames: {},
-          currentDrawing: null,
-          enableCapturePointer: false,
-          capturePointer: {
-               captureMoveEvents: false
-          }
-      };
    }
 
    /**
@@ -1185,14 +1161,14 @@ export enum CollisionType {
    Fixed
 }
 
-export interface IActorArgs extends ActorImpl {
+export interface IActorArgs extends Partial<ActorImpl> {
       width?: number;
       height?: number;
 } 
    
 export class Actor extends Configurable(ActorImpl) {
    constructor();
-   constructor(config?: Partial<IActorArgs>);
+   constructor(config?: IActorArgs);
    constructor(x?: number, y?: number, width?: number, height?: number, color?: Color);
    constructor(xOrConfig?: number | Partial<IActorArgs>, y?: number, width?: number, height?: number, color?: Color) {
       super(xOrConfig, y, width, height, color);

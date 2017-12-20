@@ -13,7 +13,7 @@ export class UIActor extends Actor {
 
    constructor();
    constructor(xOrConfig?: number, y?: number, width?: number, height?: number)
-   constructor(config?: Partial<IActorArgs>);
+   constructor(config?: IActorArgs);
    /**
     * @param x       The starting x coordinate of the actor
     * @param y       The starting y coordinate of the actor
