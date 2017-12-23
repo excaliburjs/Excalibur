@@ -563,7 +563,12 @@ class WebAudioInstance implements IAudio {
    }
 
    public setVolume(value: number) {
-      this._volumeNode.gain.value = Util.clamp(value, 0, 1.0);
+      this._volume = value;
+      if (this._volumeNode.gain.setTargetAtTime) {
+         this._volumeNode.gain.setTargetAtTime(Util.clamp(value, 0, 1.0), audioContext.currentTime, 0);
+      } else {
+         this._volumeNode.gain.value = Util.clamp(value, 0, 1.0);
+      }
    }
 
    public setLoop(value: boolean) {
