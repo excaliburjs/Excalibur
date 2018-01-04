@@ -7,6 +7,7 @@
 [![Bower version](https://img.shields.io/bower/v/excalibur.svg)](https://github.com/excaliburjs/Excalibur)
 [![NuGet version](https://img.shields.io/nuget/v/Excalibur.svg)](https://www.nuget.org/packages/Excalibur/)
 [![Docs status](https://readthedocs.org/projects/excaliburjs/badge/?version=latest)](http://excaliburjs.readthedocs.org/en/latest/?badge=latest)
+[![Help Contribute to Open Source](https://www.codetriage.com/excaliburjs/excalibur/badges/users.svg)](https://www.codetriage.com/excaliburjs/excalibur)
 
 
 
