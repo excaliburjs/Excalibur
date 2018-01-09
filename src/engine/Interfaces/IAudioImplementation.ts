@@ -9,7 +9,7 @@ export interface IAudioImplementation {
    /**
     * XHR response type
     */
-   responseType: string;
+   responseType: XMLHttpRequestResponseType;
 
    /**
     * Processes raw data and transforms into sound data

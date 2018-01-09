@@ -17,7 +17,7 @@ if ((<any>window).AudioContext) {
  */
 export class AudioTag implements IAudioImplementation {
 
-   public responseType = 'blob';
+   public responseType: XMLHttpRequestResponseType = 'blob';
 
    /**
     * Transforms raw Blob data into a object URL for use in audio tag
@@ -42,7 +42,7 @@ export class AudioTag implements IAudioImplementation {
 export class WebAudio implements IAudioImplementation {
    private _logger = Logger.getInstance();
 
-   public responseType = 'arraybuffer';
+   public responseType: XMLHttpRequestResponseType = 'arraybuffer';
 
    /**
     * Processes raw arraybuffer data and decodes into WebAudio buffer (async).
@@ -445,7 +445,6 @@ class AudioTagInstance implements IAudio {
    private _isPlaying = false;
    private _isPaused = false;
    private _loop = false;
-   private _volume = 1.0;
 
    constructor(src: string) {
 
@@ -467,7 +466,6 @@ class AudioTagInstance implements IAudio {
    }
 
    public setVolume(value: number) {
-      this._volume = value;
       this._audioElement.volume = Util.clamp(value, 0, 1.0);
    }
 
@@ -551,7 +549,6 @@ class WebAudioInstance implements IAudio {
    private _isPaused = false;
    private _startTime: number;
    private _loop: boolean = false;
-   private _volume: number = 1.0;
 
    /**
     * Current playback offset (in seconds)
@@ -566,7 +563,6 @@ class WebAudioInstance implements IAudio {
    }
 
    public setVolume(value: number) {
-      this._volume = value;
       if (this._volumeNode.gain.setTargetAtTime) {
          this._volumeNode.gain.setTargetAtTime(Util.clamp(value, 0, 1.0), audioContext.currentTime, 0);
       } else {

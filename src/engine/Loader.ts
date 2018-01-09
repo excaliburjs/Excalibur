@@ -309,7 +309,6 @@ export class Loader extends Class implements ILoader {
  */
 export class PauseAfterLoader extends Loader {
 
-   private _loaded: boolean;
    private _loadedValue: any;
    private _waitPromise: Promise<any>;
    private _playTrigger: HTMLElement;
@@ -326,7 +325,6 @@ export class PauseAfterLoader extends Loader {
 
       // wait until user indicates to proceed before finishing load
       super.load().then((value?) => {
-         this._loaded = true;
          this._loadedValue = value;
 
          // show element

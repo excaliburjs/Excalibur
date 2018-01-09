@@ -33,7 +33,7 @@ offset the focal point.
 ## Camera strategies
 
 Cameras can implement a number of strategies to track, follow, or exhibit custom behavior in relation to a target. A common reason to use a 
-strategy is to have the [[Camera]] follow an [[Actor]].
+strategy is to have the [[BaseCamera]] follow an [[Actor]].
 
 In order to user the different built-in strategies, you can access `Camera.strategy`
 

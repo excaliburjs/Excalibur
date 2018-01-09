@@ -49,7 +49,6 @@ let triggerDefaults: Partial<ITriggerOptions> = {
  * [[include:Triggers.md]]
  */
 export class Trigger extends Actor {
-   private _engine: Engine;
    private _target: Actor;
    /**
     * Action to fire when triggered by collision
@@ -114,7 +113,6 @@ export class Trigger extends Actor {
    
    public _initialize(engine: Engine) {
       super._initialize(engine);
-      this._engine = engine;
    }
 
    private _dispatchAction() {

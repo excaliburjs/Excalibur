@@ -629,7 +629,6 @@ export class ScaleBy implements IAction {
    private _startY: number;
    private _endX: number;
    private _endY: number;
-   private _time: number;
    private _distanceX: number;
    private _distanceY: number;
    private _started = false;
@@ -640,7 +639,6 @@ export class ScaleBy implements IAction {
       this._actor = actor;
       this._endX = scaleX;
       this._endY = scaleY;
-      this._time = time;
       this._speedX = (this._endX - this._actor.scale.x) / time * 1000;
       this._speedY = (this._endY - this._actor.scale.y) / time * 1000;
    }

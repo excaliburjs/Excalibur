@@ -165,7 +165,7 @@ export class Pointers extends Class {
    public on(eventName: Events.cancel, handler: (event?: PointerEvent) => void): void;
    public on(eventName: Events.wheel, handler: (event?: WheelEvent) => void): void;
    public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
-   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void {
+   public on(eventName: string, handler: (event?: any) => void): void {
       super.on(eventName, handler);
    }
 

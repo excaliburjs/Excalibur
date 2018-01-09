@@ -176,7 +176,6 @@ export enum BaseAlign {
    private _textShadowOn: boolean = false;
    private _shadowOffsetX: number = 0;
    private _shadowOffsetY: number = 0;
-   private _shadowColor: Color = Color.Black.clone();
 
    /**
     * @param text        The text of the label
@@ -303,31 +302,10 @@ export enum BaseAlign {
       this._textShadowOn = false;
       this._shadowOffsetX = 0;
       this._shadowOffsetY = 0;
-      this._shadowColor = Color.Black.clone();
    }
 
    public update(engine: Engine, delta: number) {
       super.update(engine, delta);
-
-      /*
-     if (this.spriteFont && (this._color !== this.color || this.previousOpacity !== this.opacity)) {
-        for (var character in this._textSprites) {
-           this._textSprites[character].clearEffects();
-           this._textSprites[character].fill(this.color.clone());
-           this._textSprites[character].opacity(this.opacity);
-           
-        }
-        this._color = this.color;
-        this.previousOpacity = this.opacity;
-     }
-
-     if (this.spriteFont && this._textShadowOn && this._shadowColorDirty && this._shadowColor) {
-        for (var characterShadow in this._shadowSprites) {
-           this._shadowSprites[characterShadow].clearEffects();
-           this._shadowSprites[characterShadow].addEffect(new Effects.Fill(this._shadowColor.clone()));
-        }
-        this._shadowColorDirty = false;
-     }*/
    }
 
    public draw(ctx: CanvasRenderingContext2D, delta: number) {
