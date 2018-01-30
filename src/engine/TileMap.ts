@@ -31,7 +31,7 @@ export class TileMapImpl extends Class {
    public on(eventName: Events.predraw, handler: (event?: Events.PreDrawEvent) => void): void;
    public on(eventName: Events.postdraw, handler: (event?: Events.PostDrawEvent) => void): void;
    public on(eventName: string, handler: (event?: Events.GameEvent<any>) => void): void;
-   public on(eventName: string, handler: (event?: Events.GameEvent<any>) => void): void {
+   public on(eventName: string, handler: (event?: any) => void): void {
       super.on(eventName, handler);
    }
 

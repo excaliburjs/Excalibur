@@ -11,6 +11,7 @@ cache:
   - node_shrinkwrap
   - $HOME/.npm
 before_install:
+- google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
 - gem install sass -v 3.4.24
 script:
 - node_modules/.bin/grunt travis

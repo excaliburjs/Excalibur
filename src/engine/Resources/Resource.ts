@@ -13,7 +13,6 @@ import { Logger } from '../Util/Log';
 export class Resource<T> extends Class implements ILoadable {
    public data: T = null;
    public logger: Logger = Logger.getInstance();
-   private _engine: Engine;
 
    /**
     * @param path          Path to the remote resource
@@ -34,8 +33,8 @@ export class Resource<T> extends Class implements ILoadable {
       return this.data !== null;
    }
 
-   public wireEngine(engine: Engine) {
-      this._engine = engine;
+   public wireEngine(_engine: Engine) { 
+      // override me
    }
 
    private _cacheBust(uri: string): string {

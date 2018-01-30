@@ -1,5 +1,4 @@
-﻿import { Engine } from './../Engine';
-import { Class } from './../Class';
+﻿import { Class } from './../Class';
 import { GameEvent, GamepadConnectEvent, GamepadDisconnectEvent, GamepadButtonEvent, GamepadAxisEvent } from '../Events';
 import * as Events from '../Events';
 
@@ -30,13 +29,11 @@ export class Gamepads extends Class {
    private _oldPads: Gamepad[] = [];
    private _pads: Gamepad[] = [];
    private _initSuccess: boolean = false;
-   private _engine: Engine;
    private _navigator: INavigatorGamepads = <any>navigator;
    private _minimumConfiguration: IGamepadConfiguration = null;
 
-   constructor(engine: Engine) {
+   constructor() {
       super();
-      this._engine = engine;
    }
 
    public init() {
@@ -95,7 +92,7 @@ export class Gamepads extends Class {
    public on(eventName: Events.button, handler: (event?: GamepadButtonEvent) => void): void;
    public on(eventName: Events.axis, handler: (event?: GamepadAxisEvent) => void): void;
    public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
-   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void {
+   public on(eventName: string, handler: (event?: any) => void): void {
       this._enableAndUpdate(); // implicitly enable
       super.on(eventName, handler);  
    }

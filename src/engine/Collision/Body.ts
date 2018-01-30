@@ -22,7 +22,7 @@ export class Body {
    constructor(public actor: Actor) { }
 
    /**
-    * [ICollisionArea|Collision area] of this physics body, defines the shape for rigid body collision
+    * [[ICollisionArea|Collision area]] of this physics body, defines the shape for rigid body collision
     */
    public collisionArea: ICollisionArea = null;
 
@@ -254,6 +254,7 @@ export class Body {
     * Returns a boolean indicating true if this body COLLIDED with 
     * the body of the other Actor in the last frame, and they are no longer touching
     * in this frame 
+    * @obsolete will be removed in v0.15, use the collisionend event instead
     */
    @obsolete({message: 'will be removed in v0.15, use the collisionend event instead'})
    public wasTouching(other: Actor, game: Engine): boolean {

@@ -388,6 +388,8 @@ module.exports = function (grunt) {
 
       child_process.execSync(TYPEDOC_CMD + 
          ' --name "Excalibur.js ' + version + ' API Documentation"' +
+         ' --target es5' +
+         ' --experimentalDecorators' +
          ' --mode modules' +
          ' --readme src/engine/Docs/Index.md' +         
          ' --includes src/engine/Docs' +

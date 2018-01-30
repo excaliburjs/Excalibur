@@ -24,7 +24,7 @@ export class UIActor extends Actor {
       if (typeof(xOrConfig !== 'object')) {
          super(<number>xOrConfig, y, width, height);
       } else {
-         super(xOrConfig);
+         super(<IActorArgs>xOrConfig);
       }
       this.traits = [];
       this.traits.push(new Traits.CapturePointer());
