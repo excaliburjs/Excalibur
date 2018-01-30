@@ -294,4 +294,4 @@ export class Animation implements IDrawable {
       this.reset();
       this._engine.playAnimation(this, x, y);
    }
-   }
+}

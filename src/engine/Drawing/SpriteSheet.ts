@@ -1,4 +1,4 @@
-import { Sprite } from './Sprite';
+import { Sprite, ISpriteCoordinate } from './Sprite';
 import { Animation } from './Animation';
 import { Color } from './Color';
 import * as Effects from './SpriteEffects';
@@ -104,6 +104,33 @@ export class SpriteSheet {
       } else {
         throw new Error('Invalid index: ' + index);
       }
+   }
+
+   /**
+    * Get an animation with bespoke sprite coordinates. This is useful if the SpriteSheet is
+    * packed and not a uniform width or height. The resulting [[Animation]] will have the height and width of the
+    * largest dimension (width, height) from among the sprite coordinates
+    * @param engine 
+    * @param spriteCoordinates 
+    * @param speed 
+    */
+   public getSpriteByCoords(engine: Engine, spriteCoordinates: ISpriteCoordinate[], speed: number): Animation {
+      
+      let maxWidth: number = 0;
+      let maxHeight: number = 0;
+      let sprites: Sprite[] = new Array(spriteCoordinates.length);
+      for (let i = 0; i < spriteCoordinates.length; i++) {
+         let coord = spriteCoordinates[i];
+         maxWidth = Math.max(maxWidth, coord.width);
+         maxHeight = Math.max(maxHeight, coord.height);
+         sprites[i] = new Sprite(this.image, coord);
+      }
+
+      let anim = new Animation(engine, sprites, speed);
+
+      anim.width = maxWidth;
+      anim.height = maxHeight;
+      return anim;
    }
 }
 
