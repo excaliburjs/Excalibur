@@ -9,6 +9,9 @@ import { SpriteSheet } from './Drawing/SpriteSheet';
 import * as Events from './Events';
 import { Configurable } from './Configurable';
 
+/**
+ * @hidden
+ */
 export class TileMapImpl extends Class {
    private _collidingX: number = -1;
    private _collidingY: number = -1;
@@ -298,7 +301,9 @@ export class TileSprite {
    constructor(public spriteSheetKey: string, public spriteId: number) { }
 }
 
-
+/**
+ * @hidden
+ */
 export class CellImpl {
    private _bounds: BoundingBox;
    public x: number;

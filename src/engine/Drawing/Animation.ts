@@ -9,6 +9,9 @@ import { Engine } from '../Engine';
 import * as Util from '../Util/Util';
 import { Configurable } from '../Configurable';
 
+/**
+ * @hidden
+ */
 export class AnimationImpl implements IDrawable {
 
    /**

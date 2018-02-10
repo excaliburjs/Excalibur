@@ -28,6 +28,28 @@ import * as Effects from './Drawing/SpriteEffects';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 
+export type PartialActor = {
+   [P in keyof ActorImpl]?: ActorImpl[P];   
+};
+
+export interface IActorArgs extends PartialActor {
+   width?: number;
+   height?: number;
+   pos?: Vector;
+   vel?: Vector;
+   acc?: Vector;
+   rotation?: number;
+   rx?: number;
+   z?: number;
+   color?: Color;
+   visible?: boolean;
+   body?: Body;
+   collisionType?: CollisionType;
+}
+
+/**
+ * @hidden
+ */
 export class ActorImpl extends Class implements IActionable, IEvented {
    /**
     * Indicates the next id to be set
@@ -403,15 +425,16 @@ export class ActorImpl extends Class implements IActionable, IEvented {
          width = config.width;
          height = config.height;
       }
-         this.pos.x = <number>xOrConfig || 0;
-         this.pos.y = y || 0;
-         this._width = width || 0;
-         this._height = height || 0;
-         if (color) {
-            this.color = color;
-            // set default opacity of an actor to the color
-            this.opacity = color.a;
-         }
+
+      this.pos.x = <number>xOrConfig || 0;
+      this.pos.y = y || 0;
+      this._width = width || 0;
+      this._height = height || 0;
+      if (color) {
+         this.color = color;
+         // set default opacity of an actor to the color
+         this.opacity = color.a;
+      }
        
       // Build default pipeline
       //this.traits.push(new ex.Traits.EulerMovement());
@@ -1121,10 +1144,6 @@ export class ActorImpl extends Class implements IActionable, IEvented {
    }
 }
 
-export interface IActorArgs extends Partial<ActorImpl> {
-   width?: number;
-   height?: number;
-} 
 
 /**
  * The most important primitive in Excalibur is an `Actor`. Anything that
@@ -1139,7 +1158,7 @@ export class Actor extends Configurable(ActorImpl) {
    constructor();
    constructor(config?: IActorArgs);
    constructor(x?: number, y?: number, width?: number, height?: number, color?: Color);
-   constructor(xOrConfig?: number | Partial<IActorArgs>, y?: number, width?: number, height?: number, color?: Color) {
+   constructor(xOrConfig?: number | IActorArgs, y?: number, width?: number, height?: number, color?: Color) {
       super(xOrConfig, y, width, height, color);
    }
 }

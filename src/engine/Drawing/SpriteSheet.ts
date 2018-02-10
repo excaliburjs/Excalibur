@@ -9,6 +9,9 @@ import { Logger } from '../Util/Log';
 import { TextAlign, BaseAlign } from '../Label';
 import { Configurable } from '../Configurable';
 
+/**
+ * @hidden
+ */
 export class SpriteSheetImpl {
    public sprites: Sprite[] = [];
    public image: Texture = null;

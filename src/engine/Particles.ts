@@ -21,6 +21,10 @@ export enum EmitterType {
     */
    Rectangle
 }
+
+/**
+ * @hidden
+ */
 export class ParticleImpl {
    public position: Vector = new Vector(0, 0);
    public velocity: Vector = new Vector(0, 0);
@@ -194,6 +198,9 @@ export class Particle extends Configurable(ParticleImpl) {
       }
 }
 
+/**
+ * @hidden
+ */
 export class ParticleEmitterImpl extends Actor {
 
    private _particlesToEmit: number;

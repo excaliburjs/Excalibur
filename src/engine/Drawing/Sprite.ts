@@ -8,6 +8,9 @@ import { Logger } from '../Util/Log';
 import { clamp } from '../Util/Util';
 import { Configurable } from '../Configurable';
 
+/**
+ * @hidden
+ */
 export class SpriteImpl implements IDrawable {
    private _texture: Texture;
 

@@ -94,16 +94,19 @@ export enum BaseAlign {
    Bottom
 }
 
-   /**
-    * Enum representing the different possible font styles
-    */
-   export enum FontStyle {
-      Normal,
-      Italic,
-      Oblique
-   }
+/**
+ * Enum representing the different possible font styles
+ */
+export enum FontStyle {
+   Normal,
+   Italic,
+   Oblique
+}
 
-   export class LabelImpl extends Actor {
+/**
+ * @hidden
+ */
+export class LabelImpl extends Actor {
 
    /**
     * The text to draw.
@@ -138,7 +141,7 @@ export enum BaseAlign {
 
    /**
     * The css units for a font size such as px, pt, em (SpriteFont only support px), by default is 'px';
-    */ 
+    */
    public fontUnit: FontUnit = FontUnit.Px;
 
    /**
@@ -179,8 +182,10 @@ export enum BaseAlign {
     * over a css font.
     */
    constructor(textOrConfig?: string | Partial<LabelImpl>, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
-      super(typeof textOrConfig === 'string' ? { text: textOrConfig, x: x, y: y,
-                                                fontFamily: fontFamily, spriteFont: spriteFont } : textOrConfig);
+      super(typeof textOrConfig === 'string' ? {
+         text: textOrConfig, x: x, y: y,
+         fontFamily: fontFamily, spriteFont: spriteFont
+      } : textOrConfig);
 
       this.text = <string>textOrConfig || '';
       this.color = Color.Black.clone();
@@ -327,31 +332,31 @@ export enum BaseAlign {
 
    private _fontDraw(ctx: CanvasRenderingContext2D) {
 
-         if (this.spriteFont) {
-            this.spriteFont.draw(ctx, this.text, 0, 0, {
-               color: this.color.clone(),
-               baseAlign: this.baseAlign,
-               textAlign: this.textAlign,
-               fontSize: this.fontSize,
-               letterSpacing: this.letterSpacing,
-               opacity: this.opacity
-            });
+      if (this.spriteFont) {
+         this.spriteFont.draw(ctx, this.text, 0, 0, {
+            color: this.color.clone(),
+            baseAlign: this.baseAlign,
+            textAlign: this.textAlign,
+            fontSize: this.fontSize,
+            letterSpacing: this.letterSpacing,
+            opacity: this.opacity
+         });
+      } else {
+         var oldAlign = ctx.textAlign;
+         var oldTextBaseline = ctx.textBaseline;
+
+         ctx.textAlign = this._lookupTextAlign(this.textAlign);
+         ctx.textBaseline = this._lookupBaseAlign(this.baseAlign);
+         if (this.color) {
+            this.color.a = this.opacity;
+         }
+         ctx.fillStyle = this.color.toString();
+         ctx.font = this._fontString;
+         if (this.maxWidth) {
+            ctx.fillText(this.text, 0, 0, this.maxWidth);
          } else {
-            var oldAlign = ctx.textAlign;
-            var oldTextBaseline = ctx.textBaseline;
-            
-            ctx.textAlign = this._lookupTextAlign(this.textAlign);
-            ctx.textBaseline = this._lookupBaseAlign(this.baseAlign);
-            if (this.color) {
-               this.color.a = this.opacity;
-            }
-            ctx.fillStyle = this.color.toString();
-            ctx.font = this._fontString;
-            if (this.maxWidth) {
-               ctx.fillText(this.text, 0, 0, this.maxWidth);
-            } else {
-               ctx.fillText(this.text, 0, 0);
-            }
+            ctx.fillText(this.text, 0, 0);
+         }
 
          ctx.textAlign = oldAlign;
          ctx.textBaseline = oldTextBaseline;
@@ -368,12 +373,12 @@ export enum BaseAlign {
 
 }
 
-   /**
-    * Labels are the way to draw small amounts of text to the screen. They are
-    * actors and inherit all of the benefits and capabilities.
-    *
-    * [[include:Labels.md]]
-    */
+/**
+ * Labels are the way to draw small amounts of text to the screen. They are
+ * actors and inherit all of the benefits and capabilities.
+ *
+ * [[include:Labels.md]]
+ */
 export class Label extends Configurable(LabelImpl) {
    constructor();
    constructor(config?: Partial<LabelImpl>);
