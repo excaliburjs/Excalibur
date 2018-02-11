@@ -309,6 +309,14 @@ export interface IAnimationArgs extends Partial<AnimationImpl> {
    engine: Engine;
    images: Sprite[];
    speed: number;
+   loop?: boolean;
+   anchor?: Vector;
+   rotation?: number;
+   scale?: Vector;
+   flipVertical?: boolean;
+   flipHorizontal?: boolean;
+   width?: number;
+   height?: number;
 } 
 
 /**

@@ -3,6 +3,7 @@ import { Color } from './Drawing/Color';
 import { SpriteFont } from './Drawing/SpriteSheet';
 import { Actor, CollisionType } from './Actor';
 import { Configurable } from './Configurable';
+import { Vector } from './Algebra';
 /**
  * Enum representing the different font size units
  * https://developer.mozilla.org/en-US/docs/Web/CSS/font-size
@@ -101,6 +102,19 @@ export enum FontStyle {
    Normal,
    Italic,
    Oblique
+}
+
+export interface ILabelArgs extends Partial<LabelImpl> {
+   text?: string;
+   bold?: boolean;
+   pos?: Vector;
+   spriteFont?: SpriteFont;
+   fontFamily?: string;
+   fontSize?: number;
+   fontStyle?: FontStyle;
+   fontUnit?: FontUnit;
+   textAlign?: TextAlign;
+   maxWidth?: number;
 }
 
 /**
@@ -381,9 +395,9 @@ export class LabelImpl extends Actor {
  */
 export class Label extends Configurable(LabelImpl) {
    constructor();
-   constructor(config?: Partial<LabelImpl>);
+   constructor(config?: ILabelArgs);
    constructor(text?: string, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont);
-   constructor(textOrConfig?: string | Partial<LabelImpl>, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
+   constructor(textOrConfig?: string | ILabelArgs, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
       super(textOrConfig, x, y, fontFamily, spriteFont);
    }
 }

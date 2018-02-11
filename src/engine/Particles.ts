@@ -167,6 +167,13 @@ export class ParticleImpl {
 
 export interface IParticleArgs extends Partial<ParticleImpl> {
    emitter: ParticleEmitter;
+   position?: Vector;
+   velocity?: Vector;
+   acceleration?: Vector;
+   particleRotationalVelocity?: number;
+   currentRotation?: number;
+   particleSize?: number;
+   particleSprite?: Sprite;
 } 
 
 /**
@@ -454,6 +461,29 @@ export class ParticleEmitterImpl extends Actor {
 export interface IParticleEmitterArgs extends Partial<ParticleEmitterImpl> {
    width?: number;
    height?: number;
+   isEmitting?: boolean;
+   minVel?: number;
+   maxVel?: number;
+   acceleration?: Vector;
+   minAngle?: number;
+   maxAngle?: number;
+   emitRate?: number;
+   particleLife?: number;
+   opacity?: number;
+   fadeFlag?: boolean;
+   focus?: Vector;
+   focusAccel?: number;
+   startSize?: number;
+   endSize?: number;
+   minSize?: number;
+   maxSize?: number;
+   beginColor?: Color;
+   endColor?: Color;
+   particleSprite?: Sprite;
+   emitterType?: EmitterType;
+   radius?: number;
+   particleRotationalVelocity?: number;
+   randomRotation?: boolean;
 }
 
 /**

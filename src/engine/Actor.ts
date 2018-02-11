@@ -28,11 +28,11 @@ import * as Effects from './Drawing/SpriteEffects';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 
-export type PartialActor = {
-   [P in keyof ActorImpl]?: ActorImpl[P];   
-};
 
-export interface IActorArgs extends PartialActor {
+/**
+ * [[include:Constructors.md]]
+ */
+export interface IActorArgs extends Partial<ActorImpl> {
    width?: number;
    height?: number;
    pos?: Vector;
@@ -1152,6 +1152,9 @@ export class ActorImpl extends Class implements IActionable, IEvented {
  * be part of a [[Scene]] for it to be drawn to the screen.
  *
  * [[include:Actors.md]]
+ * 
+ * 
+ * [[include:Constructors.md]]
  *
  */
 export class Actor extends Configurable(ActorImpl) {
@@ -1162,6 +1165,7 @@ export class Actor extends Configurable(ActorImpl) {
       super(xOrConfig, y, width, height, color);
    }
 }
+
 
 /**
  * An enum that describes the types of collisions actors can participate in

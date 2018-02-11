@@ -136,6 +136,7 @@ export class SpriteSheetImpl {
 
 export interface ISpriteSheetArgs extends Partial<SpriteSheetImpl> {
    image: Texture;
+   sprites?: Sprite[];
    spWidth: number;
    spHeight: number;
    rows: number;
@@ -354,9 +355,14 @@ export interface ISpriteFontOptions {
    maxWidth?: number;
 }
 export interface ISpriteFontInitArgs extends ISpriteSheetArgs {
+   image: Texture;
+   columns: number;
+   rows: number;
+   spWidth: number;
+   spHeight: number;
    alphabet: string;
    caseInsensitive: boolean;
-} 
+}
 
 /**
  * Sprite fonts are a used in conjunction with a [[Label]] to specify

@@ -108,7 +108,15 @@ game.add(tileMap);
 
 // Create spriteFont
 //var spriteFont = new ex.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
-var spriteFont = new ex.SpriteFont({image: spriteFontImage, alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', caseInsensitive: true, columns: 16, rows: 3, spWidth: 16, spHeight: 16 })
+var spriteFont = new ex.SpriteFont({
+   image: spriteFontImage, 
+   alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', 
+   caseInsensitive: true, 
+   columns: 16, 
+   rows: 3, 
+   spWidth: 16, 
+   spHeight: 16 
+});
 //var label = new ex.Label('Hello World', 100, 100, null, spriteFont);
 var label = new ex.Label({text: 'Hello World',
                              x: 100,

@@ -391,6 +391,8 @@ export interface ICellArgs extends Partial<CellImpl> {
    width: number;
    height: number;
    index: number;
+   solid?: boolean;
+   sprites?: TileSprite[];
 }
 
 /**
