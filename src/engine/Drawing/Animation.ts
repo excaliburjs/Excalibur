@@ -72,18 +72,18 @@ export class AnimationImpl implements IDrawable {
     * @param speed   The number in milliseconds to display each frame in the animation
     * @param loop    Indicates whether the animation should loop after it is completed
     */
-   constructor(engineOrConfig: Engine | IAnimationArgs, images: Sprite[], speed: number, loop?: boolean) {
+   constructor(engineOrConfig: Engine | IAnimationArgs, sprites: Sprite[], speed: number, loop?: boolean) {
       
       var engine = engineOrConfig;
       if (engineOrConfig && !(engineOrConfig instanceof Engine)) {
          var config = engineOrConfig;
          engine = config.engine;
-         images = config.images;
+         this.sprites = config.sprites;
          speed = config.speed;
          loop = config.loop;
       }
       
-      this.sprites = images;
+      this.sprites = sprites;
       this.speed = speed;
       this._engine = <Engine>engine;
       
@@ -91,14 +91,14 @@ export class AnimationImpl implements IDrawable {
          this.loop = loop;
       }
       
-      if (images && images[0]) {
-         this.height = images[0] ? images[0].height : 0;
-         this.width = images[0] ? images[0].width : 0;
+      if (sprites && sprites[0]) {
+         this.height = sprites[0] ? sprites[0].height : 0;
+         this.width = sprites[0] ? sprites[0].width : 0;
          
-         this.naturalWidth = images[0] ? images[0].naturalWidth : 0;
-         this.naturalHeight = images[0] ? images[0].naturalHeight : 0;
+         this.naturalWidth = sprites[0] ? sprites[0].naturalWidth : 0;
+         this.naturalHeight = sprites[0] ? sprites[0].naturalHeight : 0;
 
-         this.freezeFrame = images.length - 1;
+         this.freezeFrame = sprites.length - 1;
       }
 
    }
@@ -310,7 +310,7 @@ export class AnimationImpl implements IDrawable {
  */
 export interface IAnimationArgs extends Partial<AnimationImpl> {
    engine: Engine;
-   images: Sprite[];
+   sprites: Sprite[];
    speed: number;
    loop?: boolean;
    anchor?: Vector;

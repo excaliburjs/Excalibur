@@ -214,7 +214,12 @@ var playerLabel = new ex.Label('My Player', -70, -69, null, spriteFont);
 player.add(playerLabel);
 
 // Retrieve animations for player from sprite sheet
-var left = spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
+var left_sprites = spriteSheetRun.getAnimationBetween(game, 1, 11, 50).sprites;
+var left = new ex.Animation({
+   engine: game,
+   speed: 50,
+   sprites: left_sprites,
+});
 var right = spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
 right.flipHorizontal = true;
 var idle = spriteSheetRun.getAnimationByIndices(game, [0], 200);
