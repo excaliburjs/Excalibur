@@ -305,6 +305,9 @@ export class AnimationImpl implements IDrawable {
    }
 }
 
+/**
+ * [[include:Constructors.md]]
+ */
 export interface IAnimationArgs extends Partial<AnimationImpl> {
    engine: Engine;
    images: Sprite[];

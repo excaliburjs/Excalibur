@@ -353,6 +353,9 @@ export class SpriteImpl implements IDrawable {
 
 }
 
+/**
+ * [[include:Constructors.md]]
+ */
 export interface ISpriteArgs extends Partial<SpriteImpl> {
    image: Texture;
    sx: number;

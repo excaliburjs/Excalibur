@@ -255,6 +255,9 @@ export class TileMapImpl extends Class {
    }
 }
 
+/**
+ * [[include:Constructors.md]]
+ */
 export interface ITileMapArgs extends Partial<TileMapImpl> {
    x: number;
    y: number;
@@ -385,6 +388,10 @@ export class CellImpl {
       this.sprites.length = 0;
    }
 }
+
+/**
+ * [[include:Constructors.md]]
+ */
 export interface ICellArgs extends Partial<CellImpl> {
    x: number;
    y: number;

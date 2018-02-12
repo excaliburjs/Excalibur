@@ -134,6 +134,9 @@ export class SpriteSheetImpl {
    }
 }
 
+/**
+ * [[include:Constructors.md]]
+ */
 export interface ISpriteSheetArgs extends Partial<SpriteSheetImpl> {
    image: Texture;
    sprites?: Sprite[];
@@ -354,6 +357,10 @@ export interface ISpriteFontOptions {
    baseAlign?: BaseAlign;
    maxWidth?: number;
 }
+
+/**
+ * [[include:Constructors.md]]
+ */
 export interface ISpriteFontInitArgs extends ISpriteSheetArgs {
    image: Texture;
    columns: number;

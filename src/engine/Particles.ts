@@ -165,6 +165,9 @@ export class ParticleImpl {
    }
 }
 
+/**
+ * [[include:Constructors.md]]
+ */
 export interface IParticleArgs extends Partial<ParticleImpl> {
    emitter: ParticleEmitter;
    position?: Vector;
@@ -458,6 +461,9 @@ export class ParticleEmitterImpl extends Actor {
 
 }
 
+/**
+ * [[include:Constructors.md]]
+ */
 export interface IParticleEmitterArgs extends Partial<ParticleEmitterImpl> {
    width?: number;
    height?: number;

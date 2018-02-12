@@ -104,6 +104,9 @@ export enum FontStyle {
    Oblique
 }
 
+/**
+ * [[include:Constructors.md]]
+ */
 export interface ILabelArgs extends Partial<LabelImpl> {
    text?: string;
    bold?: boolean;
