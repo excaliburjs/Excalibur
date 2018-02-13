@@ -2,7 +2,7 @@
 /// <reference path="jasmine.d.ts" />
 /// <reference path="Mocks.ts" />
 
-describe('An animation', () => {
+describe('A sprite', () => {
    let engine: ex.Engine;
    let texture: ex.Texture;
    beforeEach(() => {
