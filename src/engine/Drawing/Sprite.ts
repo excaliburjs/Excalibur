@@ -367,8 +367,6 @@ export interface ISpriteArgs extends Partial<SpriteImpl> {
    scale?: Vector;
    flipVertical?: boolean;
    flipHorizontal?: boolean;
-   width?: number;
-   height?: number;
 } 
 
 /**
