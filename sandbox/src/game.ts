@@ -218,8 +218,9 @@ var left_sprites = spriteSheetRun.getAnimationBetween(game, 1, 11, 50).sprites;
 var left = new ex.Animation({
    engine: game,
    speed: 50,
-   sprites: left_sprites,
+   sprites: left_sprites
 });
+// var left = new ex.Animation(game, left_sprites, 50);
 var right = spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
 right.flipHorizontal = true;
 var idle = spriteSheetRun.getAnimationByIndices(game, [0], 200);

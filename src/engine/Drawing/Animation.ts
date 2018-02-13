@@ -78,7 +78,7 @@ export class AnimationImpl implements IDrawable {
       if (engineOrConfig && !(engineOrConfig instanceof Engine)) {
          var config = engineOrConfig;
          engine = config.engine;
-         this.sprites = config.sprites;
+         sprites = config.sprites;
          speed = config.speed;
          loop = config.loop;
       }
