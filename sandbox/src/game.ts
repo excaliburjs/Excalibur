@@ -1,35 +1,35 @@
 /// <reference path='../excalibur.d.ts' />
 
 /*********************
- *                  uuuuuuuuuuuuuuuuuuuu                                    
- *                u" uuuuuuuuuuuuuuuuuu "u                                  
- *              u" u$$$$$$$$$$$$$$$$$$$$u "u        
- *            u" u$$$$$$$$$$$$$$$$$$$$$$$$u "u                              
- *          u" u$$$$$$$$$$$$$$$$$$$$$$$$$$$$u "u                            
- *        u" u$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$u "u                          
- *      u" u$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$u "u                        
- *      $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $                        
- *      $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $                        
- *      $ $$$" ... "$...  ...$" ... "$$$  ... "$$$ $                        
- *      $ $$$u `"$$$$$$$  $$$  $$$$$  $$  $$$  $$$ $                        
- *      $ $$$$$$uu "$$$$  $$$  $$$$$  $$  """ u$$$ $                        
- *      $ $$$""$$$  $$$$  $$$u "$$$" u$$  $$$$$$$$ $                        
- *      $ $$$$....,$$$$$..$$$$$....,$$$$..$$$$$$$$ $                        
- *      $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $                        
- *      "u "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" u"                        
- *        "u "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" u"                          
- *          "u "$$$$$$$$$$$$$$$$$$$$$$$$$$$$" u"                            
- *            "u "$$$$$$$$$$$$$$$$$$$$$$$$" u"                              
- *              "u "$$$$$$$$$$$$$$$$$$$$" u"                                
- *                "u """""""""""""""""" u"                                  
+ *                  uuuuuuuuuuuuuuuuuuuu
+ *                u" uuuuuuuuuuuuuuuuuu "u
+ *              u" u$$$$$$$$$$$$$$$$$$$$u "u
+ *            u" u$$$$$$$$$$$$$$$$$$$$$$$$u "u
+ *          u" u$$$$$$$$$$$$$$$$$$$$$$$$$$$$u "u
+ *        u" u$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$u "u
+ *      u" u$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$u "u
+ *      $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $
+ *      $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $
+ *      $ $$$" ... "$...  ...$" ... "$$$  ... "$$$ $
+ *      $ $$$u `"$$$$$$$  $$$  $$$$$  $$  $$$  $$$ $
+ *      $ $$$$$$uu "$$$$  $$$  $$$$$  $$  """ u$$$ $
+ *      $ $$$""$$$  $$$$  $$$u "$$$" u$$  $$$$$$$$ $
+ *      $ $$$$....,$$$$$..$$$$$....,$$$$..$$$$$$$$ $
+ *      $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $
+ *      "u "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" u"
+ *        "u "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" u"
+ *          "u "$$$$$$$$$$$$$$$$$$$$$$$$$$$$" u"
+ *            "u "$$$$$$$$$$$$$$$$$$$$$$$$" u"
+ *              "u "$$$$$$$$$$$$$$$$$$$$" u"
+ *                "u """""""""""""""""" u"
  *                  """"""""""""""""""""
- *      
+ *
  * WARNING: Do not use this sandbox as a "sample" of how to use Excalibur *properly.*
  * This is a messy POS that we use to do crazy integration testing and is really
  * a terrible example.
- * 
+ *
  * Please don't reference this. Reference the official sample games!
- * 
+ *
  * Thank you,
  * Excalibur.js team
  */
@@ -109,13 +109,13 @@ game.add(tileMap);
 // Create spriteFont
 //var spriteFont = new ex.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
 var spriteFont = new ex.SpriteFont({
-   image: spriteFontImage, 
-   alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', 
-   caseInsensitive: true, 
-   columns: 16, 
-   rows: 3, 
-   spWidth: 16, 
-   spHeight: 16 
+   image: spriteFontImage,
+   alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+   caseInsensitive: true,
+   columns: 16,
+   rows: 3,
+   spWidth: 16,
+   spHeight: 16
 });
 //var label = new ex.Label('Hello World', 100, 100, null, spriteFont);
 var label = new ex.Label({text: 'Hello World',
@@ -209,7 +209,12 @@ var healthbar = new ex.Actor(0, -70, 140, 5, new ex.Color(0, 255, 0));
 player.add(healthbar);
 
 // Add Title above player
-var playerLabel = new ex.Label('My Player', -70, -69, null, spriteFont);
+var playerLabel = new ex.Label({
+   text: 'My Player',
+   pos: new ex.Vector(-70, -69),
+   fontFamily: 'Times New Roman'
+   // spriteFont: spriteFont
+});
 
 player.add(playerLabel);
 
@@ -362,9 +367,9 @@ player.on('precollision', (data?: ex.PreCollisionEvent) => {
          player.setDrawing(Animations.Idle);
       }
       inAir = false;
-      if (data.other && !(game.input.keyboard.isHeld(ex.Input.Keys.Left) || 
-                          game.input.keyboard.isHeld(ex.Input.Keys.Right) || 
-                          game.input.keyboard.isHeld(ex.Input.Keys.Up) || 
+      if (data.other && !(game.input.keyboard.isHeld(ex.Input.Keys.Left) ||
+                          game.input.keyboard.isHeld(ex.Input.Keys.Right) ||
+                          game.input.keyboard.isHeld(ex.Input.Keys.Up) ||
                           game.input.keyboard.isHeld(ex.Input.Keys.Down))) {
          player.vel.x = data.other.vel.x;
          player.vel.y = data.other.vel.y;

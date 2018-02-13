@@ -32,6 +32,33 @@ describe('A label', () => {
       //console.log('============================\n OS:' + platform.os.family);
    });
 
+   it('should have props set by constructor', () => {
+      let label = new ex.Label({
+         text: 'test text',
+         bold: true,
+         pos: new ex.Vector(1, 2),
+         spriteFont: null,
+         fontFamily: 'Verdana',
+         fontSize: 12,
+         fontStyle: ex.FontStyle.Normal,
+         fontUnit: ex.FontUnit.Px,
+         textAlign: ex.TextAlign.Left,
+         maxWidth: 200
+      });
+
+      expect(label.text).toBe('test text');
+      expect(label.bold).toBe(true);
+      expect(label.pos.x).toBe(1);
+      expect(label.pos.y).toBe(2);
+      expect(label.spriteFont).toBe(null);
+      expect(label.fontFamily).toBe('Verdana');
+      expect(label.fontSize).toBe(12);
+      expect(label.fontStyle).toBe(ex.FontStyle.Normal);
+      expect(label.fontUnit).toBe(ex.FontUnit.Px);
+      expect(label.textAlign).toBe(ex.TextAlign.Left);
+      expect(label.maxWidth).toBe(200);
+   });
+
    it('should be loaded', () => {
       expect(ex.Label).toBeTruthy();
    });
