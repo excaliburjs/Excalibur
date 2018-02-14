@@ -93,10 +93,11 @@ export class SpriteSheetImpl {
 
    /**
     * Create an animation from the this SpriteSheet by specifing the range of
-    * images with the beginning and ending index
+    * images with the beginning (inclusive) and ending (exclusive) index
+    * For example `getAnimationBetween(engine, 0, 5, 200)` returns an animation with 5 frames.
     * @param engine      Reference to the current game Engine
-    * @param beginIndex  The index to start taking frames
-    * @param endIndex    The index to stop taking frames
+    * @param beginIndex  The index to start taking frames (inclusive)
+    * @param endIndex    The index to stop taking frames (exclusive)
     * @param speed       The number in milliseconds to display each frame in the animation
     */
    public getAnimationBetween(engine: Engine, beginIndex: number, endIndex: number, speed: number) {
