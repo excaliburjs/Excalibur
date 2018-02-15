@@ -13,9 +13,14 @@ describe('A UIActor', () => {
    beforeEach(() => {
       jasmine.addMatchers(imagediff.jasmine);
 
-      uiActor = new ex.UIActor(50, 50, 100, 50);
-      uiActor.color = ex.Color.Blue;
-      uiActor.collisionType = ex.CollisionType.Active;
+      uiActor = new ex.UIActor({
+         x: 50,
+         y: 50,
+         width: 100,
+         height: 50,
+         color: ex.Color.Blue,
+         collisionType: ex.CollisionType.Active
+      });
       engine = TestUtils.engine();
 
       
