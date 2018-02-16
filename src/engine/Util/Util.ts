@@ -1,4 +1,5 @@
 import { Vector } from '../Algebra';
+import { Random } from '../Math/Random';
 import { Side } from '../Collision/Side';
 
 /**
@@ -135,12 +136,12 @@ export function clamp(val: number, min: number, max: number) {
    return Math.min(Math.max(min, val), max);
 }
 
-export function randomInRange(min: number, max: number): number {
-   return min + Math.random() * (max - min);
+export function randomInRange(min: number, max: number, random: Random = new Random()): number {
+   return random ? random.floating(min, max) : min + Math.random() * (max - min);
 }
 
-export function randomIntInRange(min: number, max: number): number {
-   return Math.round(randomInRange(min, max));
+export function randomIntInRange(min: number, max: number, random: Random = new Random()): number {
+   return random ? random.integer(min, max) : Math.round(randomInRange(min, max));
 }
 
 export function canonicalizeAngle(angle: number): number {

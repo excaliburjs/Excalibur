@@ -7,6 +7,7 @@ import * as Util from './Util/Util';
 import * as DrawUtil from './Util/DrawUtil';
 import * as Traits from './Traits/Index';
 import { Configurable } from './Configurable';
+import { Random } from './Math/Random';
 
 /**
  * An enum that represents the types of emitter nozzles
@@ -218,6 +219,11 @@ export class ParticleEmitterImpl extends Actor {
    public numParticles: number = 0;
 
    /**
+    * Random number generator
+    */
+   public random: Random;
+
+   /**
     * Gets or sets the isEmitting flag
     */
    public isEmitting: boolean = true;
@@ -344,6 +350,7 @@ export class ParticleEmitterImpl extends Actor {
       this.collisionType = CollisionType.PreventCollision;
       this.particles = new Util.Collection<Particle>();
       this.deadParticles = new Util.Collection<Particle>();
+      this.random = new Random();
 
       // Remove offscreen culling from particle emitters
       for (let i = 0; i < this.traits.length; i++) {
@@ -378,17 +385,17 @@ export class ParticleEmitterImpl extends Actor {
       var ranX = 0;
       var ranY = 0;
 
-      var angle = Util.randomInRange(this.minAngle, this.maxAngle);
-      var vel = Util.randomInRange(this.minVel, this.maxVel);
-      var size = this.startSize || Util.randomInRange(this.minSize, this.maxSize);
+      var angle = Util.randomInRange(this.minAngle, this.maxAngle, this.random);
+      var vel = Util.randomInRange(this.minVel, this.maxVel, this.random);
+      var size = this.startSize || Util.randomInRange(this.minSize, this.maxSize, this.random);
       var dx = vel * Math.cos(angle);
       var dy = vel * Math.sin(angle);
 
       if (this.emitterType === EmitterType.Rectangle) {
-         ranX = Util.randomInRange(this.pos.x, this.pos.x + this.getWidth());
-         ranY = Util.randomInRange(this.pos.y, this.pos.y + this.getHeight());
+         ranX = Util.randomInRange(this.pos.x, this.pos.x + this.getWidth(), this.random);
+         ranY = Util.randomInRange(this.pos.y, this.pos.y + this.getHeight(), this.random);
       } else if (this.emitterType === EmitterType.Circle) {
-         var radius = Util.randomInRange(0, this.radius);
+         var radius = Util.randomInRange(0, this.radius, this.random);
          ranX = radius * Math.cos(angle) + this.pos.x;
          ranY = radius * Math.sin(angle) + this.pos.y;
       }
@@ -410,7 +417,7 @@ export class ParticleEmitterImpl extends Actor {
       }
       p.particleRotationalVelocity = this.particleRotationalVelocity;
       if (this.randomRotation) {
-         p.currentRotation = Util.randomInRange(0, Math.PI * 2);
+         p.currentRotation = Util.randomInRange(0, Math.PI * 2, this.random);
       }
       if (this.focus) {
          p.focus = this.focus.add(new Vector(this.pos.x, this.pos.y));
@@ -490,6 +497,7 @@ export interface IParticleEmitterArgs extends Partial<ParticleEmitterImpl> {
    radius?: number;
    particleRotationalVelocity?: number;
    randomRotation?: boolean;
+   random?: Random;
 }
 
 /**
