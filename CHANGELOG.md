@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Breaking Changes
 
 ## Added
+- Option bag constructors have been added for commonly-used classes (see /src/engine/Docs/Constructors.md) ([#410])(https://github.com/excaliburjs/Excalibur/issues/410)
 
 ## Changed
 
