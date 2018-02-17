@@ -6,7 +6,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ## Breaking Changes
-
+- `LockedCamera` replaced with `BaseCamera.strategy.lockToActor`
+- `SideCamera` replaced with `BaseCamera.strategy.lockToActorAxis`
+- `Body.wasTouching` replaced with event type `CollisionEnd`
 ## Added
 - Option bag constructors have been added for commonly-used classes (see /src/engine/Docs/Constructors.md) ([#410])(https://github.com/excaliburjs/Excalibur/issues/410)
 
