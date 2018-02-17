@@ -257,7 +257,7 @@ examples and an `API Reference <http://excaliburjs.com/docs>`__.
 
 .. raw:: html
 
-   <iframe width="100%" height="800" src="//jsfiddle.net/excaliburjs/6Ay9S/embedded/js,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+   <iframe width="100%" height="800" src="//jsfiddle.net/excaliburjs/s33mLjn3/embedded/js,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
 
 .. |Hello World Excalibur| image:: assets/quickstart/breakoutPartial.png
 .. |Breakout Example Excalibur| image:: assets/quickstart/breakoutFinal.png
