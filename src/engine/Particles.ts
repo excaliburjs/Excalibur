@@ -6,6 +6,8 @@ import { Vector } from './Algebra';
 import * as Util from './Util/Util';
 import * as DrawUtil from './Util/DrawUtil';
 import * as Traits from './Traits/Index';
+import { Configurable } from './Configurable';
+import { Random } from './Math/Random';
 
 /**
  * An enum that represents the types of emitter nozzles
@@ -22,9 +24,9 @@ export enum EmitterType {
 }
 
 /**
- * Particle is used in a [[ParticleEmitter]]
+ * @hidden
  */
-export class Particle {
+export class ParticleImpl {
    public position: Vector = new Vector(0, 0);
    public velocity: Vector = new Vector(0, 0);
    public acceleration: Vector = new Vector(0, 0);
@@ -58,7 +60,7 @@ export class Particle {
    public sizeRate: number = 0;
    public elapsedMultiplier: number = 0;
 
-   constructor(emitter: ParticleEmitter,
+   constructor(emitterOrConfig: ParticleEmitter | IParticleArgs,
       life?: number,
       opacity?: number,
       beginColor?: Color,
@@ -68,7 +70,22 @@ export class Particle {
       acceleration?: Vector,
       startSize?: number,
       endSize?: number) {
-      this.emitter = emitter;
+         var emitter = emitterOrConfig;
+         if (emitter && ! (emitterOrConfig instanceof ParticleEmitter)) {
+            var  config = emitterOrConfig;
+            emitter = config.emitter;
+            life = config.life;
+            opacity = config.opacity;
+            endColor = config.endColor;
+            beginColor = config.beginColor;
+            position = config.position;
+            velocity = config.velocity;
+            acceleration = config.acceleration;
+            startSize = config.startSize;
+            endSize = config.endSize;
+
+         }
+      this.emitter = <ParticleEmitter> emitter;
       this.life = life || this.life;
       this.opacity = opacity || this.opacity;
       this.endColor = endColor || this.endColor.clone();
@@ -150,17 +167,61 @@ export class Particle {
 }
 
 /**
- * Using a particle emitter is a great way to create interesting effects 
- * in your game, like smoke, fire, water, explosions, etc. `ParticleEmitter`
- * extend [[Actor]] allowing you to use all of the features that come with.
- *
- * [[include:Particles.md]]
+ * [[include:Constructors.md]]
  */
-export class ParticleEmitter extends Actor {
+export interface IParticleArgs extends Partial<ParticleImpl> {
+   emitter: ParticleEmitter;
+   position?: Vector;
+   velocity?: Vector;
+   acceleration?: Vector;
+   particleRotationalVelocity?: number;
+   currentRotation?: number;
+   particleSize?: number;
+   particleSprite?: Sprite;
+} 
 
-   private _particlesToEmit: number = 0;
+/**
+ * Particle is used in a [[ParticleEmitter]]
+ */
+export class Particle extends Configurable(ParticleImpl) {
+   constructor(config: IParticleArgs);
+   constructor(emitter: ParticleEmitter,
+      life?: number,
+      opacity?: number,
+      beginColor?: Color,
+      endColor?: Color,
+      position?: Vector,
+      velocity?: Vector,
+      acceleration?: Vector,
+      startSize?: number,
+      endSize?: number);
+   constructor(emitterOrConfig: ParticleEmitter | IParticleArgs,
+      life?: number,
+      opacity?: number,
+      beginColor?: Color,
+      endColor?: Color,
+      position?: Vector,
+      velocity?: Vector,
+      acceleration?: Vector,
+      startSize?: number,
+      endSize?: number) {
+         super(emitterOrConfig, life, opacity, beginColor, endColor, position, velocity, acceleration, startSize, endSize);
+      }
+}
+
+/**
+ * @hidden
+ */
+export class ParticleEmitterImpl extends Actor {
+
+   private _particlesToEmit: number;
 
    public numParticles: number = 0;
+
+   /**
+    * Random number generator
+    */
+   public random: Random;
 
    /**
     * Gets or sets the isEmitting flag
@@ -245,11 +306,11 @@ export class ParticleEmitter extends Actor {
    /**
     * Gets or sets the beginning color of all particles
     */
-   public beginColor: Color = Color.White;
+   public beginColor: Color = Color.White.clone();
    /**
     * Gets or sets the ending color of all particles
     */
-   public endColor: Color = Color.White;
+   public endColor: Color = Color.White.clone();
 
    /**
     * Gets or sets the sprite that a particle should use
@@ -283,11 +344,13 @@ export class ParticleEmitter extends Actor {
     * @param width   The width of the emitter
     * @param height  The height of the emitter
     */
-   constructor(x?: number, y?: number, width?: number, height?: number) {
-      super(x, y, width, height, Color.White);
+   constructor(xOrConfig?: number | IParticleEmitterArgs, y?: number, width?: number, height?: number) {
+      super(typeof xOrConfig === 'number' ? { x: xOrConfig, y: y, width: width, height: height } : xOrConfig);
+      this._particlesToEmit = 0;
       this.collisionType = CollisionType.PreventCollision;
       this.particles = new Util.Collection<Particle>();
       this.deadParticles = new Util.Collection<Particle>();
+      this.random = new Random();
 
       // Remove offscreen culling from particle emitters
       for (let i = 0; i < this.traits.length; i++) {
@@ -322,17 +385,17 @@ export class ParticleEmitter extends Actor {
       var ranX = 0;
       var ranY = 0;
 
-      var angle = Util.randomInRange(this.minAngle, this.maxAngle);
-      var vel = Util.randomInRange(this.minVel, this.maxVel);
-      var size = this.startSize || Util.randomInRange(this.minSize, this.maxSize);
+      var angle = Util.randomInRange(this.minAngle, this.maxAngle, this.random);
+      var vel = Util.randomInRange(this.minVel, this.maxVel, this.random);
+      var size = this.startSize || Util.randomInRange(this.minSize, this.maxSize, this.random);
       var dx = vel * Math.cos(angle);
       var dy = vel * Math.sin(angle);
 
       if (this.emitterType === EmitterType.Rectangle) {
-         ranX = Util.randomInRange(this.pos.x, this.pos.x + this.getWidth());
-         ranY = Util.randomInRange(this.pos.y, this.pos.y + this.getHeight());
+         ranX = Util.randomInRange(this.pos.x, this.pos.x + this.getWidth(), this.random);
+         ranY = Util.randomInRange(this.pos.y, this.pos.y + this.getHeight(), this.random);
       } else if (this.emitterType === EmitterType.Circle) {
-         var radius = Util.randomInRange(0, this.radius);
+         var radius = Util.randomInRange(0, this.radius, this.random);
          ranX = radius * Math.cos(angle) + this.pos.x;
          ranY = radius * Math.sin(angle) + this.pos.y;
       }
@@ -354,7 +417,7 @@ export class ParticleEmitter extends Actor {
       }
       p.particleRotationalVelocity = this.particleRotationalVelocity;
       if (this.randomRotation) {
-         p.currentRotation = Util.randomInRange(0, Math.PI * 2);
+         p.currentRotation = Util.randomInRange(0, Math.PI * 2, this.random);
       }
       if (this.focus) {
          p.focus = this.focus.add(new Vector(this.pos.x, this.pos.y));
@@ -403,4 +466,51 @@ export class ParticleEmitter extends Actor {
       }
    }
 
+}
+
+/**
+ * [[include:Constructors.md]]
+ */
+export interface IParticleEmitterArgs extends Partial<ParticleEmitterImpl> {
+   width?: number;
+   height?: number;
+   isEmitting?: boolean;
+   minVel?: number;
+   maxVel?: number;
+   acceleration?: Vector;
+   minAngle?: number;
+   maxAngle?: number;
+   emitRate?: number;
+   particleLife?: number;
+   opacity?: number;
+   fadeFlag?: boolean;
+   focus?: Vector;
+   focusAccel?: number;
+   startSize?: number;
+   endSize?: number;
+   minSize?: number;
+   maxSize?: number;
+   beginColor?: Color;
+   endColor?: Color;
+   particleSprite?: Sprite;
+   emitterType?: EmitterType;
+   radius?: number;
+   particleRotationalVelocity?: number;
+   randomRotation?: boolean;
+   random?: Random;
+}
+
+/**
+ * Using a particle emitter is a great way to create interesting effects 
+ * in your game, like smoke, fire, water, explosions, etc. `ParticleEmitter`
+ * extend [[Actor]] allowing you to use all of the features that come with.
+ *
+ * [[include:Particles.md]]
+ */
+export class ParticleEmitter extends Configurable(ParticleEmitterImpl) {
+   constructor(config?: IParticleEmitterArgs);
+   constructor(x?: number | IParticleEmitterArgs, y?: number, width?: number, height?: number);
+   constructor(xOrConfig?: number | IParticleEmitterArgs, y?: number, width?: number, height?: number) {
+      super(xOrConfig, y, width, height);
+   }
 }

@@ -1,7 +1,8 @@
 import { Vector } from './Algebra';
 import { Engine } from './Engine';
-import { Actor, CollisionType } from './Actor';
+import { Actor, IActorArgs, CollisionType } from './Actor';
 import * as Traits from './Traits/Index';
+
 
 /**
  * Helper [[Actor]] primitive for drawing UI's, optimized for UI drawing. Does
@@ -10,14 +11,21 @@ import * as Traits from './Traits/Index';
 export class UIActor extends Actor {
    protected _engine: Engine;
 
+   constructor();
+   constructor(xOrConfig?: number, y?: number, width?: number, height?: number)
+   constructor(config?: IActorArgs);
    /**
     * @param x       The starting x coordinate of the actor
     * @param y       The starting y coordinate of the actor
     * @param width   The starting width of the actor
     * @param height  The starting height of the actor
     */
-   constructor(x?: number, y?: number, width?: number, height?: number) {
-      super(x, y, width, height);
+   constructor(xOrConfig?: number | IActorArgs, y?: number, width?: number, height?: number) {
+      if (typeof(xOrConfig !== 'object')) {
+         super(<number>xOrConfig, y, width, height);
+      } else {
+         super(<IActorArgs>xOrConfig);
+      }
       this.traits = [];
       this.traits.push(new Traits.CapturePointer());
       this.anchor.setTo(0, 0);

@@ -1,5 +1,5 @@
 import { ILoadable } from '../Interfaces/ILoadable';
-import { IAudioImplementation } from '../Interfaces/IAudioImplementation';
+import { IAudioImplementation, ExResponseType } from '../Interfaces/IAudioImplementation';
 import { IAudio } from '../Interfaces/IAudio';
 import { Logger } from '../Util/Log';
 import * as Util from '../Util/Util';
@@ -17,7 +17,7 @@ if ((<any>window).AudioContext) {
  */
 export class AudioTag implements IAudioImplementation {
 
-   public responseType: XMLHttpRequestResponseType = 'blob';
+   public responseType: ExResponseType = 'blob';
 
    /**
     * Transforms raw Blob data into a object URL for use in audio tag
@@ -42,7 +42,7 @@ export class AudioTag implements IAudioImplementation {
 export class WebAudio implements IAudioImplementation {
    private _logger = Logger.getInstance();
 
-   public responseType: XMLHttpRequestResponseType = 'arraybuffer';
+   public responseType: ExResponseType  = 'arraybuffer';
 
    /**
     * Processes raw arraybuffer data and decodes into WebAudio buffer (async).

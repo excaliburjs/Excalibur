@@ -22,21 +22,35 @@ import { Body } from './Collision/Body';
 import { Side } from './Collision/Side';
 import { IEvented } from './Interfaces/IEvented';
 import { IActionable } from './Actions/IActionable';
+import { Configurable } from './Configurable';
 import * as Traits from './Traits/Index';
 import * as Effects from './Drawing/SpriteEffects';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 
+
 /**
- * The most important primitive in Excalibur is an `Actor`. Anything that
- * can move on the screen, collide with another `Actor`, respond to events, 
- * or interact with the current scene, must be an actor. An `Actor` **must**
- * be part of a [[Scene]] for it to be drawn to the screen.
- *
- * [[include:Actors.md]]
- *
+ * [[include:Constructors.md]]
  */
-export class Actor extends Class implements IActionable, IEvented {
+export interface IActorArgs extends Partial<ActorImpl> {
+   width?: number;
+   height?: number;
+   pos?: Vector;
+   vel?: Vector;
+   acc?: Vector;
+   rotation?: number;
+   rx?: number;
+   z?: number;
+   color?: Color;
+   visible?: boolean;
+   body?: Body;
+   collisionType?: CollisionType;
+}
+
+/**
+ * @hidden
+ */
+export class ActorImpl extends Class implements IActionable, IEvented {
    /**
     * Indicates the next id to be set
     */
@@ -44,7 +58,7 @@ export class Actor extends Class implements IActionable, IEvented {
    /**
     * The unique identifier for the actor
     */
-   public id: number = Actor.maxId++;
+   public id: number = ActorImpl.maxId++;
 
    /**
     * The physics body the is associated with this actor. The body is the container for all physical properties, like position, velocity,
@@ -299,7 +313,7 @@ export class Actor extends Class implements IActionable, IEvented {
    /**
     * Indicates whether the actor is physically in the viewport
     */
-   public isOffScreen = false;
+   public isOffScreen: boolean = false;
    /** 
     * The visibility of an actor
     */
@@ -386,7 +400,7 @@ export class Actor extends Class implements IActionable, IEvented {
     * Configuration for [[CapturePointer]] trait
     */
    public capturePointer: Traits.ICapturePointerConfig = {
-      captureMoveEvents: false
+      captureMoveEvents: false		
    };
 
    private _zIndex: number = 0;
@@ -401,9 +415,18 @@ export class Actor extends Class implements IActionable, IEvented {
     * @param color   The starting color of the actor. Leave null to draw a transparent actor. The opacity of the color will be used as the
     * initial [[opacity]].
     */
-   constructor(x?: number, y?: number, width?: number, height?: number, color?: Color) {
+   constructor(xOrConfig?: number | IActorArgs, y?: number, width?: number, height?: number, color?: Color) {
       super();
-      this.pos.x = x || 0;
+
+      if (xOrConfig && typeof xOrConfig === 'object') {
+         var config = xOrConfig;
+         xOrConfig = config.pos ? config.pos.x : config.x;
+         y = config.pos ? config.pos.y : config.y;
+         width = config.width;
+         height = config.height;
+      }
+
+      this.pos.x = <number>xOrConfig || 0;
       this.pos.y = y || 0;
       this._width = width || 0;
       this._height = height || 0;
@@ -412,6 +435,7 @@ export class Actor extends Class implements IActionable, IEvented {
          // set default opacity of an actor to the color
          this.opacity = color.a;
       }
+       
       // Build default pipeline
       //this.traits.push(new ex.Traits.EulerMovement());
       // TODO: TileMaps should be converted to a collision area
@@ -1119,6 +1143,29 @@ export class Actor extends Class implements IActionable, IEvented {
       this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));
    }
 }
+
+
+/**
+ * The most important primitive in Excalibur is an `Actor`. Anything that
+ * can move on the screen, collide with another `Actor`, respond to events, 
+ * or interact with the current scene, must be an actor. An `Actor` **must**
+ * be part of a [[Scene]] for it to be drawn to the screen.
+ *
+ * [[include:Actors.md]]
+ * 
+ * 
+ * [[include:Constructors.md]]
+ *
+ */
+export class Actor extends Configurable(ActorImpl) {
+   constructor();
+   constructor(config?: IActorArgs);
+   constructor(x?: number, y?: number, width?: number, height?: number, color?: Color);
+   constructor(xOrConfig?: number | IActorArgs, y?: number, width?: number, height?: number, color?: Color) {
+      super(xOrConfig, y, width, height, color);
+   }
+}
+
 
 /**
  * An enum that describes the types of collisions actors can participate in

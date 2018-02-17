@@ -2,8 +2,8 @@ import { Engine } from './Engine';
 import { Color } from './Drawing/Color';
 import { SpriteFont } from './Drawing/SpriteSheet';
 import { Actor, CollisionType } from './Actor';
-
-
+import { Configurable } from './Configurable';
+import { Vector } from './Algebra';
 /**
  * Enum representing the different font size units
  * https://developer.mozilla.org/en-US/docs/Web/CSS/font-size
@@ -95,22 +95,35 @@ export enum BaseAlign {
    Bottom
 }
 
-   /**
-    * Enum representing the different possible font styles
-    */
-   export enum FontStyle {
-      Normal,
-      Italic,
-      Oblique
-   }
+/**
+ * Enum representing the different possible font styles
+ */
+export enum FontStyle {
+   Normal,
+   Italic,
+   Oblique
+}
 
-   /**
-    * Labels are the way to draw small amounts of text to the screen. They are
-    * actors and inherit all of the benefits and capabilities.
-    *
-    * [[include:Labels.md]]
-    */
-   export class Label extends Actor {
+/**
+ * [[include:Constructors.md]]
+ */
+export interface ILabelArgs extends Partial<LabelImpl> {
+   text?: string;
+   bold?: boolean;
+   pos?: Vector;
+   spriteFont?: SpriteFont;
+   fontFamily?: string;
+   fontSize?: number;
+   fontStyle?: FontStyle;
+   fontUnit?: FontUnit;
+   textAlign?: TextAlign;
+   maxWidth?: number;
+}
+
+/**
+ * @hidden
+ */
+export class LabelImpl extends Actor {
 
    /**
     * The text to draw.
@@ -145,7 +158,7 @@ export enum BaseAlign {
 
    /**
     * The css units for a font size such as px, pt, em (SpriteFont only support px), by default is 'px';
-    */ 
+    */
    public fontUnit: FontUnit = FontUnit.Px;
 
    /**
@@ -173,9 +186,9 @@ export enum BaseAlign {
     */
    public caseInsensitive: boolean = true;
 
-   private _textShadowOn: boolean = false;
-   private _shadowOffsetX: number = 0;
-   private _shadowOffsetY: number = 0;
+   private _textShadowOn: boolean;
+   private _shadowOffsetX: number;
+   private _shadowOffsetY: number;
 
    /**
     * @param text        The text of the label
@@ -185,18 +198,25 @@ export enum BaseAlign {
     * @param spriteFont  Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precedence 
     * over a css font.
     */
-   constructor(text?: string, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
-      super(x, y);
-      this.text = text || '';
+   constructor(textOrConfig?: string | Partial<LabelImpl>, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
+      super(typeof textOrConfig === 'string' ? {
+         text: textOrConfig, x: x, y: y,
+         fontFamily: fontFamily, spriteFont: spriteFont
+      } : textOrConfig);
+
+      this.text = <string>textOrConfig || '';
       this.color = Color.Black.clone();
       this.spriteFont = spriteFont;
       this.collisionType = CollisionType.PreventCollision;
       this.fontFamily = fontFamily || 'sans-serif'; // coalesce to default canvas font
+
+      this._textShadowOn = false;
+      this._shadowOffsetX = 0;
+      this._shadowOffsetY = 0;
       if (spriteFont) {
          //this._textSprites = spriteFont.getTextSprites();
       }
    }
-
 
    /**
     * Returns the width of the text in the label (in pixels);
@@ -329,31 +349,31 @@ export enum BaseAlign {
 
    private _fontDraw(ctx: CanvasRenderingContext2D) {
 
-         if (this.spriteFont) {
-            this.spriteFont.draw(ctx, this.text, 0, 0, {
-               color: this.color.clone(),
-               baseAlign: this.baseAlign,
-               textAlign: this.textAlign,
-               fontSize: this.fontSize,
-               letterSpacing: this.letterSpacing,
-               opacity: this.opacity
-            });
+      if (this.spriteFont) {
+         this.spriteFont.draw(ctx, this.text, 0, 0, {
+            color: this.color.clone(),
+            baseAlign: this.baseAlign,
+            textAlign: this.textAlign,
+            fontSize: this.fontSize,
+            letterSpacing: this.letterSpacing,
+            opacity: this.opacity
+         });
+      } else {
+         var oldAlign = ctx.textAlign;
+         var oldTextBaseline = ctx.textBaseline;
+
+         ctx.textAlign = this._lookupTextAlign(this.textAlign);
+         ctx.textBaseline = this._lookupBaseAlign(this.baseAlign);
+         if (this.color) {
+            this.color.a = this.opacity;
+         }
+         ctx.fillStyle = this.color.toString();
+         ctx.font = this._fontString;
+         if (this.maxWidth) {
+            ctx.fillText(this.text, 0, 0, this.maxWidth);
          } else {
-            var oldAlign = ctx.textAlign;
-            var oldTextBaseline = ctx.textBaseline;
-            
-            ctx.textAlign = this._lookupTextAlign(this.textAlign);
-            ctx.textBaseline = this._lookupBaseAlign(this.baseAlign);
-            if (this.color) {
-               this.color.a = this.opacity;
-            }
-            ctx.fillStyle = this.color.toString();
-            ctx.font = this._fontString;
-            if (this.maxWidth) {
-               ctx.fillText(this.text, 0, 0, this.maxWidth);
-            } else {
-               ctx.fillText(this.text, 0, 0);
-            }
+            ctx.fillText(this.text, 0, 0);
+         }
 
          ctx.textAlign = oldAlign;
          ctx.textBaseline = oldTextBaseline;
@@ -368,4 +388,19 @@ export enum BaseAlign {
       super.debugDraw(ctx);
    }
 
+}
+
+/**
+ * Labels are the way to draw small amounts of text to the screen. They are
+ * actors and inherit all of the benefits and capabilities.
+ *
+ * [[include:Labels.md]]
+ */
+export class Label extends Configurable(LabelImpl) {
+   constructor();
+   constructor(config?: ILabelArgs);
+   constructor(text?: string, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont);
+   constructor(textOrConfig?: string | ILabelArgs, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
+      super(textOrConfig, x, y, fontFamily, spriteFont);
+   }
 }

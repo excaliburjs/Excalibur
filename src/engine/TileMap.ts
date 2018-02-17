@@ -7,14 +7,12 @@ import { Actor } from './Actor';
 import { Logger } from './Util/Log';
 import { SpriteSheet } from './Drawing/SpriteSheet';
 import * as Events from './Events';
+import { Configurable } from './Configurable';
 
 /**
- * The [[TileMap]] class provides a lightweight way to do large complex scenes with collision
- * without the overhead of actors.
- *
- * [[include:TileMaps.md]]
+ * @hidden
  */
-export class TileMap extends Class {
+export class TileMapImpl extends Class {
    private _collidingX: number = -1;
    private _collidingY: number = -1;
    private _onScreenXStart: number = 0;
@@ -24,6 +22,12 @@ export class TileMap extends Class {
    private _spriteSheets: { [key: string]: SpriteSheet } = {};
    public logger: Logger = Logger.getInstance();
    public data: Cell[] = [];
+   public x: number;
+   public y: number;
+   public cellWidth: number;
+   public cellHeight: number;
+   public rows: number;
+   public cols: number;
 
    public on(eventName: Events.preupdate, handler: (event?: Events.PreUpdateEvent) => void): void;
    public on(eventName: Events.postupdate, handler: (event?: Events.PostUpdateEvent) => void): void;
@@ -43,19 +47,28 @@ export class TileMap extends Class {
     * @param cols          The number of cols in the TileMap (should not be changed once set)
     */
    constructor(
-      public x: number,
-      public y: number,
-      public cellWidth: number,
-      public cellHeight: number,
-      public rows: number,
-      public cols: number) {
+      xOrConfig: number | ITileMapArgs,
+      y: number,
+      cellWidth: number,
+      cellHeight: number,
+      rows: number,
+      cols: number) {
       super();
+      if (xOrConfig && typeof xOrConfig === 'object') {
+         var config = xOrConfig;
+         xOrConfig = config.x;
+         y = config.y;
+         cellWidth = config.cellWidth;
+         cellHeight = config.cellHeight;
+         rows = config.rows;
+         cols = config.cols;
+      }
       this.data = new Array<Cell>(rows * cols);
       for (var i = 0; i < cols; i++) {
          for (var j = 0; j < rows; j++) {
             (() => {
                var cd = new Cell(
-                  i * cellWidth + x,
+                  i * cellWidth + <number>xOrConfig,
                   j * cellHeight + y,
                   cellWidth,
                   cellHeight,
@@ -243,6 +256,44 @@ export class TileMap extends Class {
 }
 
 /**
+ * [[include:Constructors.md]]
+ */
+export interface ITileMapArgs extends Partial<TileMapImpl> {
+   x: number;
+   y: number;
+   cellWidth: number;
+   cellHeight: number;
+   rows: number;
+   cols: number;
+}
+
+/**
+ * The [[TileMap]] class provides a lightweight way to do large complex scenes with collision
+ * without the overhead of actors.
+ *
+ * [[include:TileMaps.md]]
+ */
+export class TileMap extends Configurable(TileMapImpl) {
+   constructor(config: ITileMapArgs);
+   constructor(
+      x: number,
+      y: number,
+      cellWidth: number,
+      cellHeight: number,
+      rows: number,
+      cols: number);
+      constructor(
+         xOrConfig: number | ITileMapArgs,
+         y?: number,
+         cellWidth?: number,
+         cellHeight?: number,
+         rows?: number,
+         cols?: number) {
+            super(xOrConfig, y, cellWidth, cellHeight, rows, cols);
+         }
+}
+
+/**
  * Tile sprites are used to render a specific sprite from a [[TileMap]]'s spritesheet(s)
  */
 export class TileSprite {
@@ -254,17 +305,17 @@ export class TileSprite {
 }
 
 /**
- * TileMap Cell
- *
- * A light-weight object that occupies a space in a collision map. Generally
- * created by a [[TileMap]].
- *
- * Cells can draw multiple sprites. Note that the order of drawing is the order
- * of the sprites in the array so the last one will be drawn on top. You can
- * use transparency to create layers this way.
+ * @hidden
  */
-export class Cell {
+export class CellImpl {
    private _bounds: BoundingBox;
+   public x: number;
+   public y: number;
+   public width: number;
+   public height: number;
+   public index: number;
+   public solid: boolean = false;
+   public sprites: TileSprite[] = [];
 
    /**
     * @param x       Gets or sets x coordinate of the cell in world coordinates
@@ -276,13 +327,30 @@ export class Cell {
     * @param sprites The list of tile sprites to use to draw in this cell (in order)
     */
    constructor(
-      public x: number,
-      public y: number,
-      public width: number,
-      public height: number,
-      public index: number,
-      public solid: boolean = false,
-      public sprites: TileSprite[] = []) {
+      xOrConfig: number | ICellArgs,
+      y: number,
+      width: number,
+      height: number,
+      index: number,
+      solid: boolean = false,
+      sprites: TileSprite[] = []) {
+         if (xOrConfig && typeof xOrConfig === 'object') {
+            var config = xOrConfig;
+            xOrConfig = config.x;
+            y = config.y;
+            width = config.width;
+            height = config.height;
+            index = config.index;
+            solid = config.solid;
+            sprites = config.sprites;
+         }
+      this.x = <number>xOrConfig;
+      this.y = y;
+      this.width = width;
+      this.height = height;
+      this.index = index;
+      this.solid = solid;
+      this.sprites = sprites;
       this._bounds = new BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
    }
 
@@ -319,4 +387,49 @@ export class Cell {
    public clearSprites() {
       this.sprites.length = 0;
    }
+}
+
+/**
+ * [[include:Constructors.md]]
+ */
+export interface ICellArgs extends Partial<CellImpl> {
+   x: number;
+   y: number;
+   width: number;
+   height: number;
+   index: number;
+   solid?: boolean;
+   sprites?: TileSprite[];
+}
+
+/**
+ * TileMap Cell
+ *
+ * A light-weight object that occupies a space in a collision map. Generally
+ * created by a [[TileMap]].
+ *
+ * Cells can draw multiple sprites. Note that the order of drawing is the order
+ * of the sprites in the array so the last one will be drawn on top. You can
+ * use transparency to create layers this way.
+ */
+export class Cell extends Configurable(CellImpl) {
+   constructor(config: ICellArgs);
+   constructor(
+      x: number,
+      y: number,
+      width: number,
+      height: number,
+      index: number,
+      solid?: boolean,
+      sprites?: TileSprite[]); 
+      constructor(
+         xOrConfig: number | ICellArgs,
+         y?: number,
+         width?: number,
+         height?: number,
+         index?: number,
+         solid?: boolean,
+         sprites?: TileSprite[]) {
+            super(xOrConfig, y, width, height, index, solid, sprites);
+         }
 }

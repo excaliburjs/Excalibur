@@ -1,35 +1,35 @@
 /// <reference path='../excalibur.d.ts' />
 
 /*********************
- *                  uuuuuuuuuuuuuuuuuuuu                                    
- *                u" uuuuuuuuuuuuuuuuuu "u                                  
- *              u" u$$$$$$$$$$$$$$$$$$$$u "u        
- *            u" u$$$$$$$$$$$$$$$$$$$$$$$$u "u                              
- *          u" u$$$$$$$$$$$$$$$$$$$$$$$$$$$$u "u                            
- *        u" u$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$u "u                          
- *      u" u$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$u "u                        
- *      $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $                        
- *      $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $                        
- *      $ $$$" ... "$...  ...$" ... "$$$  ... "$$$ $                        
- *      $ $$$u `"$$$$$$$  $$$  $$$$$  $$  $$$  $$$ $                        
- *      $ $$$$$$uu "$$$$  $$$  $$$$$  $$  """ u$$$ $                        
- *      $ $$$""$$$  $$$$  $$$u "$$$" u$$  $$$$$$$$ $                        
- *      $ $$$$....,$$$$$..$$$$$....,$$$$..$$$$$$$$ $                        
- *      $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $                        
- *      "u "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" u"                        
- *        "u "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" u"                          
- *          "u "$$$$$$$$$$$$$$$$$$$$$$$$$$$$" u"                            
- *            "u "$$$$$$$$$$$$$$$$$$$$$$$$" u"                              
- *              "u "$$$$$$$$$$$$$$$$$$$$" u"                                
- *                "u """""""""""""""""" u"                                  
+ *                  uuuuuuuuuuuuuuuuuuuu
+ *                u" uuuuuuuuuuuuuuuuuu "u
+ *              u" u$$$$$$$$$$$$$$$$$$$$u "u
+ *            u" u$$$$$$$$$$$$$$$$$$$$$$$$u "u
+ *          u" u$$$$$$$$$$$$$$$$$$$$$$$$$$$$u "u
+ *        u" u$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$u "u
+ *      u" u$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$u "u
+ *      $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $
+ *      $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $
+ *      $ $$$" ... "$...  ...$" ... "$$$  ... "$$$ $
+ *      $ $$$u `"$$$$$$$  $$$  $$$$$  $$  $$$  $$$ $
+ *      $ $$$$$$uu "$$$$  $$$  $$$$$  $$  """ u$$$ $
+ *      $ $$$""$$$  $$$$  $$$u "$$$" u$$  $$$$$$$$ $
+ *      $ $$$$....,$$$$$..$$$$$....,$$$$..$$$$$$$$ $
+ *      $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ $
+ *      "u "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" u"
+ *        "u "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" u"
+ *          "u "$$$$$$$$$$$$$$$$$$$$$$$$$$$$" u"
+ *            "u "$$$$$$$$$$$$$$$$$$$$$$$$" u"
+ *              "u "$$$$$$$$$$$$$$$$$$$$" u"
+ *                "u """""""""""""""""" u"
  *                  """"""""""""""""""""
- *      
+ *
  * WARNING: Do not use this sandbox as a "sample" of how to use Excalibur *properly.*
  * This is a messy POS that we use to do crazy integration testing and is really
  * a terrible example.
- * 
+ *
  * Please don't reference this. Reference the official sample games!
- * 
+ *
  * Thank you,
  * Excalibur.js team
  */
@@ -67,23 +67,38 @@ ex.Physics.acc = new ex.Vector(0, 800); // global accel
 
 
 // Add some UI
-var heart = new ex.UIActor(0, 0, 20, 20);
+//var heart = new ex.UIActor(0, 0, 20, 20);
+var heart = new ex.UIActor({x: 0, y: 0, width: 20, height: 20});
 heart.scale.setTo(2, 2);
 heart.addDrawing(heartTex.asSprite());
 game.add(heart);
 
 // Turn on debug diagnostics
 game.isDebug = false;
-var blockSprite = new ex.Sprite(imageBlocks, 0, 0, 65, 49);
+//var blockSprite = new ex.Sprite(imageBlocks, 0, 0, 65, 49);
+var blockSprite = new ex.Sprite({image: imageBlocks, sx:0, sy: 0, swidth: 65, sheight: 49});
 // Create spritesheet
-var spriteSheetRun = new ex.SpriteSheet(imageRun, 21, 1, 96, 96);
-var spriteSheetJump = new ex.SpriteSheet(imageJump, 21, 1, 96, 96);
+//var spriteSheetRun = new ex.SpriteSheet(imageRun, 21, 1, 96, 96);
+var spriteSheetRun = new ex.SpriteSheet({ image: imageRun,
+   columns: 21,
+   rows: 1,
+   spWidth: 96,
+   spHeight: 96
+});
+//var spriteSheetJump = new ex.SpriteSheet(imageJump, 21, 1, 96, 96);
+var spriteSheetJump = new ex.SpriteSheet({ image: imageJump,
+   columns: 21,
+   rows: 1,
+   spWidth: 96,
+   spHeight: 96
+});
 var tileBlockWidth = 64,
    tileBlockHeight = 48,
    spriteTiles = new ex.SpriteSheet(imageBlocks, 1, 1, tileBlockWidth, tileBlockHeight);
 
 // create a collision map
-var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
+//var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
+var tileMap = new ex.TileMap({ x: 100, y: 300, cellWidth: tileBlockWidth, cellHeight: tileBlockHeight, rows: 4, cols: 500 });
 tileMap.registerSpriteSheet("default", spriteTiles);
 tileMap.data.forEach(function (cell: ex.Cell) {
    cell.solid = true;
@@ -92,8 +107,21 @@ tileMap.data.forEach(function (cell: ex.Cell) {
 game.add(tileMap);
 
 // Create spriteFont
-var spriteFont = new ex.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
-var label = new ex.Label('Hello World', 100, 100, null, spriteFont);
+//var spriteFont = new ex.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
+var spriteFont = new ex.SpriteFont({
+   image: spriteFontImage,
+   alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+   caseInsensitive: true,
+   columns: 16,
+   rows: 3,
+   spWidth: 16,
+   spHeight: 16
+});
+//var label = new ex.Label('Hello World', 100, 100, null, spriteFont);
+var label = new ex.Label({text: 'Hello World',
+                             x: 100,
+                             y: 100,
+                             spriteFont: spriteFont});
 label.actions.scaleTo(2, 2, .5, .5).scaleTo(1, 1, .5, .5).repeatForever();
 game.add(label);
 
@@ -115,8 +143,14 @@ var currentX = 0;
 for (var i = 0; i < 36; i++) {
    currentX = tileBlockWidth * i + 10;
    var color = new ex.Color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
-   var block = new ex.Actor(currentX, 350 + Math.random() * 100, tileBlockWidth, tileBlockHeight, color);
-   block.collisionType = ex.CollisionType.Fixed;
+   var block = new ex.Actor({ x: currentX,
+                              y: 350 + Math.random() * 100,
+                              width: tileBlockWidth,
+                              height: tileBlockHeight,
+                              color: color,
+                              collisionType: ex.CollisionType.Fixed });
+   //var block = new ex.Actor(currentX, 350 + Math.random() * 100, tileBlockWidth, tileBlockHeight, color);
+   //block.collisionType = ex.CollisionType.Fixed;
    block.addCollisionGroup('ground');
    block.addDrawing(Animations.Block, blockAnimation);
 
@@ -150,9 +184,15 @@ game.add(follower);
 
 
 // Create the player
-var player = new ex.Actor(100, -200, 32, 96);
-player.enableCapturePointer = true;
-player.collisionType = ex.CollisionType.Active;
+// var player = new ex.Actor(100, -200, 32, 96);
+// player.enableCapturePointer = true;
+// player.collisionType = ex.CollisionType.Active;
+var player = new ex.Actor({x: 100,
+                           y: -200,
+                           width: 32,
+                           height: 96,
+                           enableCapturePointer: true,
+                           collisionType: ex.CollisionType.Active});
 follower.actions.meet(player, 60).asPromise().then(() => {
    console.log("Player met!!");
 });
@@ -169,12 +209,23 @@ var healthbar = new ex.Actor(0, -70, 140, 5, new ex.Color(0, 255, 0));
 player.add(healthbar);
 
 // Add Title above player
-var playerLabel = new ex.Label('My Player', -70, -69, null, spriteFont);
+var playerLabel = new ex.Label({
+   text: 'My Player',
+   pos: new ex.Vector(-70, -69),
+   fontFamily: 'Times New Roman'
+   // spriteFont: spriteFont
+});
 
 player.add(playerLabel);
 
 // Retrieve animations for player from sprite sheet
-var left = spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
+var left_sprites = spriteSheetRun.getAnimationBetween(game, 1, 11, 50).sprites;
+var left = new ex.Animation({
+   engine: game,
+   speed: 50,
+   sprites: left_sprites
+});
+// var left = new ex.Animation(game, left_sprites, 50);
 var right = spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
 right.flipHorizontal = true;
 var idle = spriteSheetRun.getAnimationByIndices(game, [0], 200);
@@ -316,9 +367,9 @@ player.on('precollision', (data?: ex.PreCollisionEvent) => {
          player.setDrawing(Animations.Idle);
       }
       inAir = false;
-      if (data.other && !(game.input.keyboard.isHeld(ex.Input.Keys.Left) || 
-                          game.input.keyboard.isHeld(ex.Input.Keys.Right) || 
-                          game.input.keyboard.isHeld(ex.Input.Keys.Up) || 
+      if (data.other && !(game.input.keyboard.isHeld(ex.Input.Keys.Left) ||
+                          game.input.keyboard.isHeld(ex.Input.Keys.Right) ||
+                          game.input.keyboard.isHeld(ex.Input.Keys.Up) ||
                           game.input.keyboard.isHeld(ex.Input.Keys.Down))) {
          player.vel.x = data.other.vel.x;
          player.vel.y = data.other.vel.y;
@@ -387,25 +438,50 @@ var camera = game.currentScene.camera;
 game.add(player);
 
 // Add particle emitter
-var emitter = new ex.ParticleEmitter(100, 300, 2, 2);
-emitter.minVel = 417;
-emitter.maxVel = 589;
-emitter.minAngle = Math.PI;
-emitter.maxAngle = Math.PI * 2;
-emitter.isEmitting = false;
-emitter.emitRate = 494;
-emitter.opacity = 0.84;
-emitter.fadeFlag = true;
-emitter.particleLife = 2465;
-emitter.maxSize = 1.5;
-emitter.minSize = .1;
-emitter.acceleration = new ex.Vector(0, 460);
-emitter.beginColor = ex.Color.Red;
-emitter.endColor = ex.Color.Yellow;
-emitter.particleSprite = blockSprite.clone();
-emitter.particleSprite.anchor = new ex.Vector(.5, .5);
-emitter.particleRotationalVelocity = Math.PI / 10;
-emitter.randomRotation = true;
+var sprite = blockSprite.clone();
+sprite.anchor = new ex.Vector(.5, .5);
+var emitter = new ex.ParticleEmitter({
+   x: 100,
+   y: 300,
+   width: 2,
+   height: 2,
+   minVel: 417,
+   maxVel: 589,
+   minAngle: Math.PI,
+   maxAngle: Math.PI * 2,
+   isEmitting: false,
+   emitRate: 494,
+   opacity: 0.84,
+   fadeFlag: true,
+   particleLife: 2465,
+   maxSize: 1.5,
+   minSize: .1,
+   acceleration: new ex.Vector(0, 460),
+   beginColor: ex.Color.Red,
+   endColor: ex.Color.Yellow,
+   particleSprite: sprite,
+   particleRotationalVelocity: Math.PI / 10,
+   randomRotation: true
+});
+// var emitter = new ex.ParticleEmitter(100, 300, 2, 2);
+// emitter.minVel = 417;
+// emitter.maxVel = 589;
+// emitter.minAngle = Math.PI;
+// emitter.maxAngle = Math.PI * 2;
+// emitter.isEmitting = false;
+// emitter.emitRate = 494;
+// emitter.opacity = 0.84;
+// emitter.fadeFlag = true;
+// emitter.particleLife = 2465;
+// emitter.maxSize = 1.5;
+// emitter.minSize = .1;
+// emitter.acceleration = new ex.Vector(0, 460);
+// emitter.beginColor = ex.Color.Red;
+// emitter.endColor = ex.Color.Yellow;
+// emitter.particleSprite = blockSprite.clone();
+// emitter.particleSprite.anchor = new ex.Vector(.5, .5);
+// emitter.particleRotationalVelocity = Math.PI / 10;
+// emitter.randomRotation = true;
 emitter.particleSprite.addEffect(new ex.Effects.Grayscale());
 
 game.add(emitter);

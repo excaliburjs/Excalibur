@@ -1,4 +1,5 @@
 import { Sprite } from './Sprite';
+import { IAnimationArgs } from '../Drawing/Animation';
 import * as Effects from './SpriteEffects';
 import { Color } from './Color';
 
@@ -6,20 +7,18 @@ import { IDrawable } from '../Interfaces/IDrawable';
 import { Vector } from '../Algebra';
 import { Engine } from '../Engine';
 import * as Util from '../Util/Util';
+import { Configurable } from '../Configurable';
 
 /**
- * Animations allow you to display a series of images one after another,
- * creating the illusion of change. Generally these images will come from a [[SpriteSheet]] source.
- *
- * [[include:Animations.md]]
+ * @hidden
  */
-export class Animation implements IDrawable {
+export class AnimationImpl implements IDrawable {
 
    /**
     * The sprite frames to play, in order. See [[SpriteSheet.getAnimationForAll]] to quickly
     * generate an [[Animation]].
     */
-   public sprites: Sprite[];
+   public sprites: Sprite[] = [];
 
    /**
     * Duration to show each frame (in milliseconds)
@@ -33,9 +32,9 @@ export class Animation implements IDrawable {
 
    private _oldTime: number = Date.now();
    
-   public anchor = new Vector(0.0, 0.0);
+   public anchor: Vector = new Vector(0.0, 0.0);
    public rotation: number = 0.0;
-   public scale = new Vector(1, 1);
+   public scale: Vector = new Vector(1, 1);
 
    /**
     * Indicates whether the animation should loop after it is completed
@@ -61,7 +60,7 @@ export class Animation implements IDrawable {
    public flipHorizontal: boolean = false;
    
    public width: number = 0;
-   public height: number = 0;
+   public height: number= 0;
    public naturalWidth: number = 0;
    public naturalHeight: number = 0;
 
@@ -73,23 +72,33 @@ export class Animation implements IDrawable {
     * @param speed   The number in milliseconds to display each frame in the animation
     * @param loop    Indicates whether the animation should loop after it is completed
     */
-   constructor(engine: Engine, images: Sprite[], speed: number, loop?: boolean) {
-      this.sprites = images;
+   constructor(engineOrConfig: Engine | IAnimationArgs, sprites: Sprite[], speed: number, loop?: boolean) {
+      
+      var engine = engineOrConfig;
+      if (engineOrConfig && !(engineOrConfig instanceof Engine)) {
+         var config = engineOrConfig;
+         engine = config.engine;
+         sprites = config.sprites;
+         speed = config.speed;
+         loop = config.loop;
+      }
+      
+      this.sprites = sprites;
       this.speed = speed;
-      this._engine = engine;
+      this._engine = <Engine>engine;
       
       if (loop != null) {
          this.loop = loop;
       }
       
-      if (images && images[0]) {
-         this.height = images[0] ? images[0].height : 0;
-         this.width = images[0] ? images[0].width : 0;
+      if (sprites && sprites[0]) {
+         this.height = sprites[0] ? sprites[0].height : 0;
+         this.width = sprites[0] ? sprites[0].width : 0;
          
-         this.naturalWidth = images[0] ? images[0].naturalWidth : 0;
-         this.naturalHeight = images[0] ? images[0].naturalHeight : 0;
+         this.naturalWidth = sprites[0] ? sprites[0].naturalWidth : 0;
+         this.naturalHeight = sprites[0] ? sprites[0].naturalHeight : 0;
 
-         this.freezeFrame = images.length - 1;
+         this.freezeFrame = sprites.length - 1;
       }
 
    }
@@ -294,4 +303,35 @@ export class Animation implements IDrawable {
       this.reset();
       this._engine.playAnimation(this, x, y);
    }
+}
+
+/**
+ * [[include:Constructors.md]]
+ */
+export interface IAnimationArgs extends Partial<AnimationImpl> {
+   engine: Engine;
+   sprites: Sprite[];
+   speed: number;
+   loop?: boolean;
+   anchor?: Vector;
+   rotation?: number;
+   scale?: Vector;
+   flipVertical?: boolean;
+   flipHorizontal?: boolean;
+   width?: number;
+   height?: number;
+} 
+
+/**
+ * Animations allow you to display a series of images one after another,
+ * creating the illusion of change. Generally these images will come from a [[SpriteSheet]] source.
+ *
+ * [[include:Animations.md]]
+ */
+export class Animation extends Configurable(AnimationImpl) {
+   constructor(config: IAnimationArgs);
+   constructor(engine: Engine, images: Sprite[], speed: number, loop?: boolean);
+   constructor(engineOrConfig: Engine | IAnimationArgs, images?: Sprite[], speed?: number, loop?: boolean) {
+      super(engineOrConfig, images, speed, loop);
    }
+}
