@@ -35,7 +35,7 @@ var actorClone = new ex.Actor(actor);
 expect(actor.pos).toBe(actorClone.pos); // true;
 ```
 
-Types that support option bags can be mass assigned.
+Types that support option bags can have their properties mass assigned using the assign method.
 
 ```typescript
 var actor = new ex.Actor(options);
