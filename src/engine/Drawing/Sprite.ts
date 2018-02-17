@@ -6,6 +6,7 @@ import { Texture } from '../Resources/Texture';
 import { Vector } from '../Algebra';
 import { Logger } from '../Util/Log';
 import { clamp } from '../Util/Util';
+import { Configurable } from '../Configurable';
 
 /**
  * A [[ISpriteCoordinate]] indicates a sprite location and size on a backing [[Texture]].
@@ -19,12 +20,9 @@ export interface ISpriteCoordinate {
 }
 
 /**
- * A [[Sprite]] is one of the main drawing primitives. It is responsible for drawing
- * images or parts of images from a [[Texture]] resource to the screen.
- *
- * [[include:Sprites.md]]
+ * @hidden
  */
-export class Sprite implements IDrawable {
+export class SpriteImpl implements IDrawable {
    private _texture: Texture;
 
    public sx: number;
@@ -52,6 +50,11 @@ export class Sprite implements IDrawable {
    public height: number = 0;
    public effects: Effects.ISpriteEffect[] = [];
 
+   public sx: number = 0;
+   public sy: number = 0;
+   public swidth: number = 0;
+   public sheight: number = 0;
+
    public naturalWidth: number = 0;
    public naturalHeight: number = 0;
 
@@ -68,31 +71,41 @@ export class Sprite implements IDrawable {
     * @param swidth  The width of the sprite in pixels
     * @param sheight The height of the sprite in pixels
     */
-   constructor(image: Texture, sx: number, sy: number, swidth: number, sheight: number);
-   constructor(image: Texture, spriteCoord: ISpriteCoordinate);
-   constructor() {
-      if (arguments.length !== 2 && arguments.length !== 5) {
-         this.logger.error('Invalid Sprite constructor arguments');
-      }
-      let image: Texture = arguments[0];
-      if (arguments.length === 2) {
-         var spriteCoord: ISpriteCoordinate = arguments[1];
-         this.anchor = spriteCoord.anchor || this.anchor;
-      }
-      if (arguments.length === 5) {
-         var sx: number = this.sx = spriteCoord ? spriteCoord.x : arguments[1];
-         var sy: number = this.sy = spriteCoord ? spriteCoord.y : arguments[2];
-         var swidth: number = this.swidth = spriteCoord ? spriteCoord.width : arguments[3];
-         var sheight: number = this.sheight = spriteCoord ? spriteCoord.height : arguments[4];
-      }
-      
-
+   constructor(imageOrConfig: Texture | ISpriteArgs, sx: number, sy: number, swidth: number, sheight: number) {
+       if (arguments.length !== 2 && arguments.length !== 5) {
+           this.logger.error('Invalid Sprite constructor arguments');
+       }
+       let image: Texture = arguments[0];
+       if (arguments.length === 2) {
+           var spriteCoord: ISpriteCoordinate = arguments[1];
+           this.anchor = spriteCoord.anchor || this.anchor;
+       }
+       if (arguments.length === 5) {
+           var sx: number = this.sx = spriteCoord ? spriteCoord.x : arguments[1];
+           var sy: number = this.sy = spriteCoord ? spriteCoord.y : arguments[2];
+           var swidth: number = this.swidth = spriteCoord ? spriteCoord.width : arguments[3];
+           var sheight: number = this.sheight = spriteCoord ? spriteCoord.height : arguments[4];
+       }
       if (sx < 0 || sy < 0 || swidth < 0 || sheight < 0) {
          this.logger.error('Sprite cannot have any negative dimensions x:', 
                               sx, 'y:', sy, 'width:', swidth, 'height:', sheight);            
       }
 
-      this._texture = image;
+      var image = imageOrConfig;
+      if (imageOrConfig && !(imageOrConfig instanceof Texture)) {
+         sx = imageOrConfig.sx;
+         sy = imageOrConfig.sy;
+         swidth = imageOrConfig.swidth;
+         sheight = imageOrConfig.sheight;
+         image = imageOrConfig.image;
+      }
+
+      this.sx = sx || 0;
+      this.sy = sy || 0;
+      this.swidth = swidth || 0;
+      this.sheight = sheight || 0;
+
+      this._texture = <Texture>image;
       this._spriteCanvas = document.createElement('canvas');
       this._spriteCanvas.width = swidth;
       this._spriteCanvas.height = sheight;
@@ -354,7 +367,7 @@ export class Sprite implements IDrawable {
    /**
     * Produces a copy of the current sprite
     */
-   public clone(): Sprite {
+   public clone(): SpriteImpl {
       var result = new Sprite(this._texture, this.sx, this.sy, this.swidth, this.sheight);
       result.scale = this.scale.clone();
       result.rotation = this.rotation;
@@ -369,3 +382,34 @@ export class Sprite implements IDrawable {
    }
 
 }
+
+/**
+ * [[include:Constructors.md]]
+ */
+export interface ISpriteArgs extends Partial<SpriteImpl> {
+   image: Texture;
+   sx: number;
+   sy: number;
+   swidth: number;
+   sheight: number;
+   rotation?: number;
+   anchor?: Vector;
+   scale?: Vector;
+   flipVertical?: boolean;
+   flipHorizontal?: boolean;
+} 
+
+/**
+ * A [[Sprite]] is one of the main drawing primitives. It is responsible for drawing
+ * images or parts of images from a [[Texture]] resource to the screen.
+ *
+ * [[include:Sprites.md]]
+ */
+export class Sprite extends Configurable(SpriteImpl) {
+   constructor(config: ISpriteArgs);
+   constructor(image: Texture, sx: number, sy: number, swidth: number, sheight: number)
+   constructor(imageOrConfig: Texture | ISpriteArgs, sx?: number, sy?: number, swidth?: number, sheight?: number) {
+      super(imageOrConfig, sx, sy, swidth, sheight);
+   }
+}
+

@@ -38,6 +38,47 @@ describe('A game actor', () => {
       expect(actor.pos.y).toBe(10);
    });
 
+   it('should have props set by constructor', () => {
+      let actor = new ex.Actor({
+         pos: new ex.Vector(2, 3),
+         scene: scene,
+         width: 100,
+         height: 200,
+         vel: new ex.Vector(30, 40),
+         acc: new ex.Vector(50, 60),
+         rotation: 2,
+         rx: .1,
+         z: 10,
+         restitution: 2,
+         color: ex.Color.Red,
+         visible: false,
+         collisionType: ex.CollisionType.Fixed
+      });
+
+      let actor2 = new ex.Actor({
+         x: 4,
+         y: 5
+      });
+
+      expect(actor.x).toBe(2);
+      expect(actor.y).toBe(3);
+      expect(actor.getWidth()).toBe(100);
+      expect(actor.getHeight()).toBe(200);
+      expect(actor.vel.x).toBe(30);
+      expect(actor.vel.y).toBe(40);
+      expect(actor.acc.x).toBe(50);
+      expect(actor.acc.y).toBe(60);
+      expect(actor.rotation).toBe(2);
+      expect(actor.rx).toBe(.1);
+      expect(actor.z).toBe(10);
+      expect(actor.color.toString()).toBe(ex.Color.Red.toString());
+      expect(actor.visible).toBe(false);
+      expect(actor.restitution).toBe(2);
+      expect(actor.collisionType).toBe(ex.CollisionType.Fixed);
+      expect(actor2.x).toBe(4);
+      expect(actor2.y).toBe(5);
+   });
+
    it('should have an old position after an update', () => {
 
       actor.pos.setTo(10, 10);
@@ -76,7 +117,6 @@ describe('A game actor', () => {
 
       actor.vel.y = 10;
       actor.vel.x = -10;
-
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 

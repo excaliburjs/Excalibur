@@ -17,6 +17,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
+## [0.15.0] - 2018-02-16
+
+## Breaking Changes
+- `LockedCamera` replaced with `BaseCamera.strategy.lockToActor`
+- `SideCamera` replaced with `BaseCamera.strategy.lockToActorAxis`
+- `Body.wasTouching` replaced with event type `CollisionEnd`
+## Added
+- Option bag constructors have been added for commonly-used classes (see [Constructors.md](https://github.com/excaliburjs/Excalibur/blob/master/src/engine/Docs/Constructors.md)) ([#410](https://github.com/excaliburjs/Excalibur/issues/410))
+
+<!----------------------------------------------------------------------------------------------->
+
 ## [0.14.0] - 2017-12-02
 
 ## Breaking Changes
@@ -482,7 +493,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Resource loading with optional custom progress bars
 
 <!----------------------------------------------------------------------------------------------->
-[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.14.0...HEAD
+[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.15.0...HEAD
+[0.15.0]: https://github.com/excaliburjs/Excalibur/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/excaliburjs/Excalibur/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/excaliburjs/Excalibur/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/excaliburjs/Excalibur/compare/v0.11.0...v0.12.0

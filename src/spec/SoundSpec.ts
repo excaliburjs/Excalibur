@@ -297,7 +297,7 @@ describe('Sound resource', () => {
 });
 
 class MockAudioImplementation implements ex.IAudioImplementation {
-   public responseType: XMLHttpRequestResponseType = 'arraybuffer';
+   public responseType: ex.ExResponseType = 'arraybuffer';
    public processData(data: any): ex.Promise<any> {
       return ex.Promise.resolve(data);
    }

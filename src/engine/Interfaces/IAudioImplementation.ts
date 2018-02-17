@@ -1,6 +1,9 @@
 import { Promise } from './../Promises';
 import { IAudio } from './IAudio';
 
+
+export type ExResponseType = '' | 'arraybuffer' | 'blob' | 'document' | 'json' | 'text';
+
 /**
  * Represents an audio implementation like [[AudioTag]] or [[WebAudio]]
  */
@@ -9,7 +12,7 @@ export interface IAudioImplementation {
    /**
     * XHR response type
     */
-   responseType: XMLHttpRequestResponseType;
+   responseType: ExResponseType;
 
    /**
     * Processes raw data and transforms into sound data

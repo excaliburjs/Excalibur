@@ -1,4 +1,4 @@
-import { Sprite, ISpriteCoordinate } from './Sprite';
+import { Sprite } from './Sprite';
 import { Animation } from './Animation';
 import { Color } from './Color';
 import * as Effects from './SpriteEffects';
@@ -7,16 +7,18 @@ import { Texture } from '../Resources/Texture';
 import { Engine } from '../Engine';
 import { Logger } from '../Util/Log';
 import { TextAlign, BaseAlign } from '../Label';
+import { Configurable } from '../Configurable';
 
 /**
- * Sprite sheets are a useful mechanism for slicing up image resources into
- * separate sprites or for generating in game animations. [[Sprite|Sprites]] are organized
- * in row major order in the [[SpriteSheet]].
- *
- * [[include:SpriteSheets.md]]
+ * @hidden
  */
-export class SpriteSheet {
+export class SpriteSheetImpl {
    public sprites: Sprite[] = [];
+   public image: Texture = null;
+   public columns: number = 0;
+   public rows: number = 0;
+   public spWidth: number;
+   public spHeight: number;
 
    /**
     * @param image     The backing image texture to build the SpriteSheet
@@ -25,8 +27,29 @@ export class SpriteSheet {
     * @param spWidth   The width of each individual sprite in pixels
     * @param spHeight  The height of each individual sprite in pixels
     */
-   constructor(public image: Texture, public columns: number, public rows: number, spWidth: number, spHeight: number) {
-      this.sprites = new Array(columns * rows);
+   constructor(imageOrConfigOrSprites: Texture | ISpriteSheetArgs | Sprite[],
+               columns?: number, rows?: number, spWidth?: number, spHeight?: number) {
+
+      var loadFromImage: boolean = false;
+      if (imageOrConfigOrSprites instanceof Array) {
+         this.sprites = imageOrConfigOrSprites;
+      } else {
+         if (imageOrConfigOrSprites && !(imageOrConfigOrSprites instanceof Texture)) {
+            this.columns = imageOrConfigOrSprites.columns;
+            this.rows = imageOrConfigOrSprites.rows;
+            this.spWidth = imageOrConfigOrSprites.spWidth;
+            this.spHeight = imageOrConfigOrSprites.spHeight;
+            this.image = imageOrConfigOrSprites.image;
+         } else {
+            this.image = <Texture> imageOrConfigOrSprites;
+            this.columns = columns;
+            this.rows = rows;
+            this.spWidth = spWidth;
+            this.spHeight = spHeight;
+         }
+         this.sprites = new Array(this.columns * this.rows);
+         loadFromImage = true;
+      }
 
       // TODO: Inspect actual image dimensions with preloading
       /*if(spWidth * columns > this.internalImage.naturalWidth){
@@ -37,14 +60,18 @@ export class SpriteSheet {
          throw new Error("SpriteSheet specified is higher than image height");
       }*/
 
-      var i = 0;
-      var j = 0;
-      for (i = 0; i < rows; i++) {
-         for (j = 0; j < columns; j++) {
-            this.sprites[j + i * columns] = new Sprite(this.image, j * spWidth, i * spHeight, spWidth, spHeight);
+      if (loadFromImage) {
+         var i = 0;
+         var j = 0;
+         for (i = 0; i < this.rows; i++) {
+            for (j = 0; j < this.columns; j++) {
+               this.sprites[j + i * this.columns] = new Sprite(this.image,
+                                                               j * this.spWidth, i * this.spHeight, this.spWidth, this.spHeight);
+            }
          }
       }
    }
+
 
    /**
     * Create an animation from the this SpriteSheet by listing out the
@@ -66,10 +93,11 @@ export class SpriteSheet {
 
    /**
     * Create an animation from the this SpriteSheet by specifing the range of
-    * images with the beginning and ending index
+    * images with the beginning (inclusive) and ending (exclusive) index
+    * For example `getAnimationBetween(engine, 0, 5, 200)` returns an animation with 5 frames.
     * @param engine      Reference to the current game Engine
-    * @param beginIndex  The index to start taking frames
-    * @param endIndex    The index to stop taking frames
+    * @param beginIndex  The index to start taking frames (inclusive)
+    * @param endIndex    The index to stop taking frames (exclusive)
     * @param speed       The number in milliseconds to display each frame in the animation
     */
    public getAnimationBetween(engine: Engine, beginIndex: number, endIndex: number, speed: number) {
@@ -135,13 +163,35 @@ export class SpriteSheet {
 }
 
 /**
- * Sprite fonts are a used in conjunction with a [[Label]] to specify
- * a particular bitmap as a font. Note that some font features are not 
- * supported by Sprite fonts.
- *
- * [[include:SpriteFonts.md]]
+ * [[include:Constructors.md]]
  */
-export class SpriteFont extends SpriteSheet {
+export interface ISpriteSheetArgs extends Partial<SpriteSheetImpl> {
+   image: Texture;
+   sprites?: Sprite[];
+   spWidth: number;
+   spHeight: number;
+   rows: number;
+   columns: number;
+} 
+
+/**
+ * Sprite sheets are a useful mechanism for slicing up image resources into
+ * separate sprites or for generating in game animations. [[Sprite|Sprites]] are organized
+ * in row major order in the [[SpriteSheet]].
+ *
+ * [[include:SpriteSheets.md]]
+ */
+export class SpriteSheet extends Configurable(SpriteSheetImpl) {
+   constructor(config: ISpriteSheetArgs);
+   constructor(sprites: Sprite[]);
+   constructor(image: Texture, columns: number, rows: number, spWidth: number, spHeight: number);
+   constructor(imageOrConfigOrSprites: Texture | ISpriteSheetArgs | Sprite[],
+               columns?: number, rows?: number, spWidth?: number, spHeight?: number) {
+         super(imageOrConfigOrSprites, columns, rows, spWidth, spHeight);
+      }
+}
+
+export class SpriteFontImpl extends SpriteSheet {
    private _currentColor: Color = Color.Black.clone();
    private _currentOpacity: Number = 1.0;
    private _sprites: { [key: string]: Sprite; } = {};
@@ -153,8 +203,8 @@ export class SpriteFont extends SpriteSheet {
    private _textShadowSprites: { [key: string]: Sprite; } = {};
    private _shadowOffsetX: number = 5;
    private _shadowOffsetY: number = 5;
-
-   
+   private _alphabet: string;
+   private _caseInsensitive: boolean;
 
    /**
     * @param image           The backing image texture to build the SpriteFont
@@ -165,14 +215,23 @@ export class SpriteFont extends SpriteSheet {
     * @param spWidth         The width of each character in pixels
     * @param spHeight        The height of each character in pixels
     */
-   constructor(public image: Texture,
-      private alphabet: string,
-      private caseInsensitive: boolean,
+   constructor(imageOrConfig: Texture | ISpriteFontInitArgs,
+      alphabet: string,
+      caseInsensitive: boolean,
       columns: number,
       rows: number,
-      public spWidth: number,
-      public spHeight: number) {
-      super(image, columns, rows, spWidth, spHeight);
+      spWidth: number,
+      spHeight: number) {
+      super(imageOrConfig instanceof Texture ? {image: imageOrConfig, spWidth: spWidth,
+                                                spHeight: spHeight, rows: rows, columns: columns } : imageOrConfig);
+
+         if (imageOrConfig && !(imageOrConfig instanceof Texture)) {
+            alphabet = imageOrConfig.alphabet;
+            caseInsensitive = imageOrConfig.caseInsensitive;
+         }
+
+      this._alphabet = alphabet;
+      this._caseInsensitive = caseInsensitive;
       this._sprites = this.getTextSprites();
    }
 
@@ -181,9 +240,9 @@ export class SpriteFont extends SpriteSheet {
     */
    public getTextSprites(): { [key: string]: Sprite; } {
       var lookup: { [key: string]: Sprite; } = {};
-      for (var i = 0; i < this.alphabet.length; i++) {
-         var char = this.alphabet[i];
-         if (this.caseInsensitive) {
+      for (var i = 0; i < this._alphabet.length; i++) {
+         var char = this._alphabet[i];
+         if (this._caseInsensitive) {
             char = char.toLowerCase();
          }
          lookup[char] = this.sprites[i].clone();
@@ -278,7 +337,7 @@ export class SpriteFont extends SpriteSheet {
       
       for (var i = 0; i < text.length; i++) {
          var character = text[i];
-         if (this.caseInsensitive) {
+         if (this._caseInsensitive) {
             character = character.toLowerCase();
          }
          try {
@@ -325,4 +384,44 @@ export interface ISpriteFontOptions {
    textAlign?: TextAlign;
    baseAlign?: BaseAlign;
    maxWidth?: number;
+}
+
+/**
+ * [[include:Constructors.md]]
+ */
+export interface ISpriteFontInitArgs extends ISpriteSheetArgs {
+   image: Texture;
+   columns: number;
+   rows: number;
+   spWidth: number;
+   spHeight: number;
+   alphabet: string;
+   caseInsensitive: boolean;
+}
+
+/**
+ * Sprite fonts are a used in conjunction with a [[Label]] to specify
+ * a particular bitmap as a font. Note that some font features are not 
+ * supported by Sprite fonts.
+ *
+ * [[include:SpriteFonts.md]]
+ */
+export class SpriteFont extends Configurable(SpriteFontImpl) {
+   constructor(config: ISpriteFontInitArgs);
+   constructor(image: Texture,
+      alphabet: string,
+      caseInsensitive: boolean,
+      columns: number,
+      rows: number,
+      spWidth: number,
+      spHeight: number)
+   constructor(imageOrConfig: Texture | ISpriteFontInitArgs,
+      alphabet?: string,
+      caseInsensitive?: boolean,
+      columns?: number,
+      rows?: number,
+      spWidth?: number,
+      spHeight?: number) {
+         super(imageOrConfig, alphabet, caseInsensitive, columns, rows, spWidth, spHeight);
+      }
 }

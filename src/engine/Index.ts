@@ -6,22 +6,23 @@ export var EX_VERSION = '__EX_VERSION';
 // This file is used as the bundle entrypoint and exports everything
 // that will be exposed as the `ex` global variable.
 
-export * from './Actor';
+export { Actor, IActorArgs, CollisionType } from './Actor';
 export * from './Algebra';
 export * from './Camera';
 export * from './Class';
+export * from './Configurable'
 export * from './Debug';
 export * from './Engine';
 export * from './EventDispatcher';
 export * from './Events';
 export * from './Group';
-export * from './Label';
+export { Label, FontStyle, FontUnit, TextAlign, BaseAlign } from './Label';
 export * from './Loader';
-export * from './Particles';
+export { Particle, ParticleEmitter, IParticleArgs, IParticleEmitterArgs, EmitterType } from './Particles';
 export * from './Physics';
 export * from './Promises';
 export * from './Scene';
-export * from './TileMap';
+export { TileMap, Cell, ITileMapArgs, ICellArgs, TileSprite } from './TileMap';
 export * from './Timer';
 export * from './Trigger';
 export * from './UIActor';

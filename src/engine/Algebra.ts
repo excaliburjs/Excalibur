@@ -1,5 +1,3 @@
-
-
 /**
  * A 2D vector on a plane.
  */
