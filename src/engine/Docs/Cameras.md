@@ -1,7 +1,4 @@
 
-Excalibur comes with a [[LockedCamera]] and a [[SideCamera]], depending on
-your game needs.
-
 Cameras are attached to [[Scene|Scenes]] and can be changed by 
 setting [[Scene.camera]]. By default, a [[Scene]] is initialized with a
 [[BaseCamera]] that doesn't move and is centered on the screen.
@@ -9,22 +6,7 @@ setting [[Scene.camera]]. By default, a [[Scene]] is initialized with a
 ## Focus
 
 Cameras have a position ([[x]], [[y]]) which means they center around a specific
-[[Vector|point]]. This can also be an [[Actor]] ([[LockedCamera.setActorToFollow]]) which
-the camera will follow as the actor moves on the x and y axis or [[SideCamera.setActorToFollow]] which the camera will follow on the x axis.
-
-In order to use these cameras replace the current scene's camera
-```typescript
-game.currentScene.camera = new ex.LockedCamera();
-game.currentScene.camera.setActorToFollow(actor);
-
-// or
-
-game.currentScene.camera = new ex.SideCamera();
-game.currentScene.camera.setActorToFollow(actor);
-```
-
-These different cameras can be useful for cutscene scenarios (using
-invisible actors).
+[[Vector|point]]. 
 
 If a camera is following an [[Actor]], it will ensure the [[Actor]] is always at the
 center of the screen. You can use [[x]] and [[y]] instead if you wish to
