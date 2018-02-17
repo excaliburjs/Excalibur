@@ -199,16 +199,26 @@ export class LabelImpl extends Actor {
     * over a css font.
     */
    constructor(textOrConfig?: string | Partial<LabelImpl>, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
-      super(typeof textOrConfig === 'string' ? {
-         text: textOrConfig, x: x, y: y,
-         fontFamily: fontFamily, spriteFont: spriteFont
-      } : textOrConfig);
+      super(textOrConfig && typeof textOrConfig === 'object' ?  { 
+            x: textOrConfig.x,
+            y: textOrConfig.y
+         } : { x: x, y: y} );
 
-      this.text = <string>textOrConfig || '';
+      let text = '';
+      if (textOrConfig && typeof textOrConfig === 'object') {
+         fontFamily = textOrConfig.fontFamily;
+         spriteFont = textOrConfig.spriteFont;
+         text = textOrConfig.text;
+      } else {
+         text = <string>textOrConfig;
+      }
+
+      this.text = text || '';
       this.color = Color.Black.clone();
       this.spriteFont = spriteFont;
       this.collisionType = CollisionType.PreventCollision;
       this.fontFamily = fontFamily || 'sans-serif'; // coalesce to default canvas font
+      
 
       this._textShadowOn = false;
       this._shadowOffsetX = 0;
