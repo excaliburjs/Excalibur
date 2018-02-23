@@ -1,4 +1,4 @@
-import { Sprite } from './Sprite';
+import { Sprite, ISpriteArgs } from './Sprite';
 import { Animation } from './Animation';
 import { Color } from './Color';
 import * as Effects from './SpriteEffects';
@@ -142,7 +142,7 @@ export class SpriteSheetImpl {
     * @param spriteCoordinates 
     * @param speed 
     */
-   public getSpriteByCoords(engine: Engine, spriteCoordinates: ISpriteCoordinate[], speed: number): Animation {
+   public getSpriteByCoords(engine: Engine, spriteCoordinates: ISpriteArgs[], speed: number): Animation {
       
       let maxWidth: number = 0;
       let maxHeight: number = 0;
@@ -151,7 +151,7 @@ export class SpriteSheetImpl {
          let coord = spriteCoordinates[i];
          maxWidth = Math.max(maxWidth, coord.width);
          maxHeight = Math.max(maxHeight, coord.height);
-         sprites[i] = new Sprite(this.image, coord);
+         sprites[i] = new Sprite(coord);
       }
 
       let anim = new Animation(engine, sprites, speed);

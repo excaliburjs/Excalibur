@@ -9,26 +9,47 @@ import { clamp } from '../Util/Util';
 import { Configurable } from '../Configurable';
 
 /**
- * A [[ISpriteCoordinate]] indicates a sprite location and size on a backing [[Texture]].
- */
-export interface ISpriteCoordinate {
-   x: number;
-   y: number;
-   width: number;
-   height: number;
-   anchor?: Vector;
-}
-
-/**
  * @hidden
  */
 export class SpriteImpl implements IDrawable {
    private _texture: Texture;
 
-   public sx: number;
-   public sy: number;
-   public swidth: number;
-   public sheight: number;
+   public sx: number = 0;
+   public sy: number = 0;
+   public swidth: number = 0;
+   public sheight: number = 0;
+
+   public get x() {
+      return this.sx;
+   }
+
+   public set x(value: number) {
+      this.sx = value;
+   }
+
+   public get y() {
+      return this.sy;
+   }
+
+   public set y(value: number) {
+      this.sy = value;
+   }
+
+   public get width() {
+      return this.swidth;
+   }
+
+   public set width(value: number) {
+      this.swidth = value;
+   }
+
+   public get height() {
+      return this.sheight;
+   }
+
+   public set height(value: number) {
+      this.sheight = value;
+   }
 
    public rotation: number = 0.0;
    public anchor: Vector = new Vector(0.0, 0.0);
@@ -46,14 +67,7 @@ export class SpriteImpl implements IDrawable {
     */
    public flipHorizontal: boolean = false;
 
-   public width: number = 0;
-   public height: number = 0;
    public effects: Effects.ISpriteEffect[] = [];
-
-   public sx: number = 0;
-   public sy: number = 0;
-   public swidth: number = 0;
-   public sheight: number = 0;
 
    public naturalWidth: number = 0;
    public naturalHeight: number = 0;
@@ -66,49 +80,30 @@ export class SpriteImpl implements IDrawable {
 
    /**
     * @param image   The backing image texture to build the Sprite
-    * @param sx      The x position of the sprite
-    * @param sy      The y position of the sprite
-    * @param swidth  The width of the sprite in pixels
-    * @param sheight The height of the sprite in pixels
+    * @param x      The x position of the sprite
+    * @param y      The y position of the sprite
+    * @param width  The width of the sprite in pixels
+    * @param height The height of the sprite in pixels
     */
-   constructor(imageOrConfig: Texture | ISpriteArgs, sx: number, sy: number, swidth: number, sheight: number) {
-       if (arguments.length !== 2 && arguments.length !== 5) {
-           this.logger.error('Invalid Sprite constructor arguments');
-       }
-       let image: Texture = arguments[0];
-       if (arguments.length === 2) {
-           var spriteCoord: ISpriteCoordinate = arguments[1];
-           this.anchor = spriteCoord.anchor || this.anchor;
-       }
-       if (arguments.length === 5) {
-           var sx: number = this.sx = spriteCoord ? spriteCoord.x : arguments[1];
-           var sy: number = this.sy = spriteCoord ? spriteCoord.y : arguments[2];
-           var swidth: number = this.swidth = spriteCoord ? spriteCoord.width : arguments[3];
-           var sheight: number = this.sheight = spriteCoord ? spriteCoord.height : arguments[4];
-       }
-      if (sx < 0 || sy < 0 || swidth < 0 || sheight < 0) {
-         this.logger.error('Sprite cannot have any negative dimensions x:', 
-                              sx, 'y:', sy, 'width:', swidth, 'height:', sheight);            
-      }
-
+   constructor(imageOrConfig: Texture | ISpriteArgs, x: number, y: number, width: number, height: number) {
       var image = imageOrConfig;
       if (imageOrConfig && !(imageOrConfig instanceof Texture)) {
-         sx = imageOrConfig.sx;
-         sy = imageOrConfig.sy;
-         swidth = imageOrConfig.swidth;
-         sheight = imageOrConfig.sheight;
+         x = imageOrConfig.sx;
+         y = imageOrConfig.sy;
+         width = imageOrConfig.swidth;
+         height = imageOrConfig.sheight;
          image = imageOrConfig.image;
       }
 
-      this.sx = sx || 0;
-      this.sy = sy || 0;
-      this.swidth = swidth || 0;
-      this.sheight = sheight || 0;
+      this.x = x || 0;
+      this.y = y || 0;
+      this.width = width || 0;
+      this.height = height || 0;
 
       this._texture = <Texture>image;
       this._spriteCanvas = document.createElement('canvas');
-      this._spriteCanvas.width = swidth;
-      this._spriteCanvas.height = sheight;
+      this._spriteCanvas.width = width;
+      this._spriteCanvas.height = height;
       this._spriteCtx = <CanvasRenderingContext2D>this._spriteCanvas.getContext('2d');
       this._texture.loaded.then(() => {
          this._spriteCanvas.width = this._spriteCanvas.width || this._texture.image.naturalWidth;
@@ -119,10 +114,8 @@ export class SpriteImpl implements IDrawable {
          this.logger.error('Error loading texture ', this._texture.path, e);
       });
       
-      this.width = swidth;
-      this.height = sheight;
-      this.naturalWidth = swidth;
-      this.naturalHeight = sheight;
+      this.naturalWidth = width;
+      this.naturalHeight = height;
    }
 
    private _loadPixels() {
@@ -407,9 +400,13 @@ export interface ISpriteArgs extends Partial<SpriteImpl> {
  */
 export class Sprite extends Configurable(SpriteImpl) {
    constructor(config: ISpriteArgs);
-   constructor(image: Texture, sx: number, sy: number, swidth: number, sheight: number)
-   constructor(imageOrConfig: Texture | ISpriteArgs, sx?: number, sy?: number, swidth?: number, sheight?: number) {
-      super(imageOrConfig, sx, sy, swidth, sheight);
+   constructor(image: Texture, x: number, y: number, width: number, height: number)
+   constructor(imageOrConfig: Texture | ISpriteArgs,
+               x?: number,
+               y?: number,
+               width?: number,
+               height?: number) {
+      super(imageOrConfig, x, y, width, height);
    }
 }
 
