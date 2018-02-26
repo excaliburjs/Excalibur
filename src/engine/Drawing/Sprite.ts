@@ -7,6 +7,7 @@ import { Vector } from '../Algebra';
 import { Logger } from '../Util/Log';
 import { clamp } from '../Util/Util';
 import { Configurable } from '../Configurable';
+import { obsolete } from '../Util/Decorators';
 
 /**
  * @hidden
@@ -14,41 +15,54 @@ import { Configurable } from '../Configurable';
 export class SpriteImpl implements IDrawable {
    private _texture: Texture;
 
-   public sx: number = 0;
-   public sy: number = 0;
-   public swidth: number = 0;
-   public sheight: number = 0;
+   
+   public x: number = 0;
+   public y: number = 0;
+   public width: number = 0;
+   public height: number = 0;
 
-   public get x() {
-      return this.sx;
+   /** @deprecated ex.[[Sprite.sx]] will be deprecated in 0.17.0 use ex.[[Sprite.x]] */
+   public get sx() {
+      return this.x;
    }
 
-   public set x(value: number) {
-      this.sx = value;
+   @obsolete({message: 'ex.Sprite.sx will be deprecated in 0.17.0', alternateMethod: 'x'})
+   /** @deprecated ex.[[Sprite.sx]] will be deprecated in 0.17.0 use ex.[[Sprite.x]] */
+   public set sx(value: number) {
+      this.x = value;
    }
 
-   public get y() {
-      return this.sy;
+   /** @deprecated ex.[[Sprite.sy]] will be deprecated in 0.17.0 use ex.[[Sprite.y]] */
+   public get sy() {
+      return this.y;
    }
 
-   public set y(value: number) {
-      this.sy = value;
+   @obsolete({message: 'ex.Sprite.sy will be deprecated in 0.17.0', alternateMethod: 'y'})
+   /** @deprecated ex.[[Sprite.sy]] will be deprecated in 0.17.0 use ex.[[Sprite.y]] */
+   public set sy(value: number) {
+      this.y = value;
    }
 
-   public get width() {
-      return this.swidth;
+   /** @deprecated ex.[[Sprite.swidth]] will be deprecated in 0.17.0 use ex.[[Sprite.width]] */
+   public get swidth() {
+      return this.width;
    }
 
-   public set width(value: number) {
-      this.swidth = value;
+   @obsolete({message: 'ex.Sprite.swidth will be deprecated in 0.17.0', alternateMethod: 'width'})
+   /** @deprecated ex.[[Sprite.swidth]] will be deprecated in 0.17.0 use ex.[[Sprite.width]] */
+   public set swidth(value: number) {
+      this.width = value;
    }
 
-   public get height() {
-      return this.sheight;
+   /** @deprecated ex.[[Sprite.sheight]] will be deprecated in 0.17.0 use [[Sprite.height]] */
+   public get sheight() {
+      return this.height;
    }
 
-   public set height(value: number) {
-      this.sheight = value;
+   @obsolete({message: 'ex.Sprite.sheight will be deprecated in 0.17.0', alternateMethod: 'height'})
+   /** @deprecated ex.[[Sprite.sheight]] will be deprecated in 0.17.0 use [[Sprite.height]] */
+   public set sheight(value: number) {
+      this.height = value;
    }
 
    public rotation: number = 0.0;
@@ -88,11 +102,15 @@ export class SpriteImpl implements IDrawable {
    constructor(imageOrConfig: Texture | ISpriteArgs, x: number, y: number, width: number, height: number) {
       var image = imageOrConfig;
       if (imageOrConfig && !(imageOrConfig instanceof Texture)) {
-         x = imageOrConfig.sx;
-         y = imageOrConfig.sy;
-         width = imageOrConfig.swidth;
-         height = imageOrConfig.sheight;
+         x = imageOrConfig.x || imageOrConfig.sx;
+         y = imageOrConfig.y || imageOrConfig.sy;
+         width = imageOrConfig.width || imageOrConfig.swidth;
+         height = imageOrConfig.height || imageOrConfig.sheight;
          image = imageOrConfig.image;
+         if (!image) {
+            const message = 'An image texture is required to contsruct a sprite';
+            throw new Error(message);
+         }
       }
 
       this.x = x || 0;
@@ -380,11 +398,19 @@ export class SpriteImpl implements IDrawable {
  * [[include:Constructors.md]]
  */
 export interface ISpriteArgs extends Partial<SpriteImpl> {
-   image: Texture;
-   sx: number;
-   sy: number;
-   swidth: number;
-   sheight: number;
+   image?: Texture;
+   x?: number;
+   /** @deprecated ex.[[Sprite.sx]] will be deprecated in 0.17.0 use ex.[[Sprite.x]] */
+   sx?: number;
+   y?: number;
+   /** @deprecated ex.[[Sprite.sy]] will be deprecated in 0.17.0 use ex.[[Sprite.y]] */
+   sy?: number;
+   width?: number;
+   /** @deprecated ex.[[Sprite.swidth]] will be deprecated in 0.17.0 use ex.[[Sprite.swidth]] */
+   swidth?: number;
+   height?: number;
+   /** @deprecated ex.[[Sprite.sheight]] will be deprecated in 0.17.0 use ex.[[Sprite.sheight]] */
+   sheight?: number;
    rotation?: number;
    anchor?: Vector;
    scale?: Vector;

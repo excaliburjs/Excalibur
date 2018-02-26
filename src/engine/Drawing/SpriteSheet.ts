@@ -17,8 +17,8 @@ export class SpriteSheetImpl {
    public image: Texture = null;
    public columns: number = 0;
    public rows: number = 0;
-   public spWidth: number;
-   public spHeight: number;
+   public spWidth: number = 0;
+   public spHeight: number = 0;
 
    /**
     * @param image     The backing image texture to build the SpriteSheet
@@ -149,6 +149,8 @@ export class SpriteSheetImpl {
       let sprites: Sprite[] = new Array(spriteCoordinates.length);
       for (let i = 0; i < spriteCoordinates.length; i++) {
          let coord = spriteCoordinates[i];
+         // no need to pass image again if using a spritesheet
+         coord.image = coord.image || this.image;
          maxWidth = Math.max(maxWidth, coord.width);
          maxHeight = Math.max(maxHeight, coord.height);
          sprites[i] = new Sprite(coord);
@@ -172,7 +174,7 @@ export interface ISpriteSheetArgs extends Partial<SpriteSheetImpl> {
    spHeight: number;
    rows: number;
    columns: number;
-} 
+}
 
 /**
  * Sprite sheets are a useful mechanism for slicing up image resources into
