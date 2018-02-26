@@ -35,11 +35,7 @@ export class UIActor extends Actor {
 
    public _initialize(engine: Engine) {
       this._engine = engine;
-      this.onInitialize(engine);
-   }
-
-   public onInitialize(_engine: Engine) {
-      // Override me
+      super._initialize(engine);
    }
 
    public contains(x: number, y: number, useWorld: boolean = true) {
