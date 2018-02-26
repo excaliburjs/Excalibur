@@ -9,9 +9,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Added
 
+- SpriteSheets can now produce animations from bespoke sprite coordinates `SpriteSheet.getSpriteByCoords(engine, coords[], speed)` ([#918](https://github.com/excaliburjs/Excalibur/issues/918))
+
 ## Changed
 
+
 ## Deprecated
+
+- `Sprite.sx`, `Sprite.sy`, `Sprite.swidth`, `Sprite.sheight` has be deprecated in favor of `Sprite.x`, `Sprite.y`, `Sprite.width`, `Sprite.height` ([#918](https://github.com/excaliburjs/Excalibur/issues/918))
 
 ## Fixed
 
