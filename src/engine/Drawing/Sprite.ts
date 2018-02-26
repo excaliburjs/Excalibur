@@ -21,46 +21,46 @@ export class SpriteImpl implements IDrawable {
    public width: number = 0;
    public height: number = 0;
 
-   /** @deprecated ex.[[Sprite.sx]] will be deprecated in 0.17.0 use ex.[[Sprite.x]] */
+   /** @obsolete ex.[[Sprite.sx]] will be deprecated in 0.17.0 use ex.[[Sprite.x]] */
    public get sx() {
       return this.x;
    }
 
    @obsolete({message: 'ex.Sprite.sx will be deprecated in 0.17.0', alternateMethod: 'x'})
-   /** @deprecated ex.[[Sprite.sx]] will be deprecated in 0.17.0 use ex.[[Sprite.x]] */
+   /** @obsolete ex.[[Sprite.sx]] will be deprecated in 0.17.0 use ex.[[Sprite.x]] */
    public set sx(value: number) {
       this.x = value;
    }
 
-   /** @deprecated ex.[[Sprite.sy]] will be deprecated in 0.17.0 use ex.[[Sprite.y]] */
+   /** @obsolete ex.[[Sprite.sy]] will be deprecated in 0.17.0 use ex.[[Sprite.y]] */
    public get sy() {
       return this.y;
    }
 
    @obsolete({message: 'ex.Sprite.sy will be deprecated in 0.17.0', alternateMethod: 'y'})
-   /** @deprecated ex.[[Sprite.sy]] will be deprecated in 0.17.0 use ex.[[Sprite.y]] */
+   /** @obsolete ex.[[Sprite.sy]] will be deprecated in 0.17.0 use ex.[[Sprite.y]] */
    public set sy(value: number) {
       this.y = value;
    }
 
-   /** @deprecated ex.[[Sprite.swidth]] will be deprecated in 0.17.0 use ex.[[Sprite.width]] */
+   /** @obsolete ex.[[Sprite.swidth]] will be deprecated in 0.17.0 use ex.[[Sprite.width]] */
    public get swidth() {
       return this.width;
    }
 
    @obsolete({message: 'ex.Sprite.swidth will be deprecated in 0.17.0', alternateMethod: 'width'})
-   /** @deprecated ex.[[Sprite.swidth]] will be deprecated in 0.17.0 use ex.[[Sprite.width]] */
+   /** @obsolete ex.[[Sprite.swidth]] will be deprecated in 0.17.0 use ex.[[Sprite.width]] */
    public set swidth(value: number) {
       this.width = value;
    }
 
-   /** @deprecated ex.[[Sprite.sheight]] will be deprecated in 0.17.0 use [[Sprite.height]] */
+   /** @obsolete ex.[[Sprite.sheight]] will be deprecated in 0.17.0 use [[Sprite.height]] */
    public get sheight() {
       return this.height;
    }
 
    @obsolete({message: 'ex.Sprite.sheight will be deprecated in 0.17.0', alternateMethod: 'height'})
-   /** @deprecated ex.[[Sprite.sheight]] will be deprecated in 0.17.0 use [[Sprite.height]] */
+   /** @obsolete ex.[[Sprite.sheight]] will be deprecated in 0.17.0 use [[Sprite.height]] */
    public set sheight(value: number) {
       this.height = value;
    }
@@ -400,16 +400,16 @@ export class SpriteImpl implements IDrawable {
 export interface ISpriteArgs extends Partial<SpriteImpl> {
    image?: Texture;
    x?: number;
-   /** @deprecated ex.[[Sprite.sx]] will be deprecated in 0.17.0 use ex.[[Sprite.x]] */
+   /** @obsolete ex.[[Sprite.sx]] will be deprecated in 0.17.0 use ex.[[Sprite.x]] */
    sx?: number;
    y?: number;
-   /** @deprecated ex.[[Sprite.sy]] will be deprecated in 0.17.0 use ex.[[Sprite.y]] */
+   /** @obsolete ex.[[Sprite.sy]] will be deprecated in 0.17.0 use ex.[[Sprite.y]] */
    sy?: number;
    width?: number;
-   /** @deprecated ex.[[Sprite.swidth]] will be deprecated in 0.17.0 use ex.[[Sprite.swidth]] */
+   /** @obsolete ex.[[Sprite.swidth]] will be deprecated in 0.17.0 use ex.[[Sprite.swidth]] */
    swidth?: number;
    height?: number;
-   /** @deprecated ex.[[Sprite.sheight]] will be deprecated in 0.17.0 use ex.[[Sprite.sheight]] */
+   /** @obsolete ex.[[Sprite.sheight]] will be deprecated in 0.17.0 use ex.[[Sprite.sheight]] */
    sheight?: number;
    rotation?: number;
    anchor?: Vector;
