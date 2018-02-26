@@ -141,20 +141,20 @@ export class SpriteImpl implements IDrawable {
          var naturalWidth = this._texture.image.naturalWidth || 0;
          var naturalHeight = this._texture.image.naturalHeight || 0;
 
-         if (this.swidth > naturalWidth) {
-            this.logger.warn('The sprite width', this.swidth, 'exceeds the width', 
+         if (this.width > naturalWidth) {
+            this.logger.warn('The sprite width', this.width, 'exceeds the width', 
                               naturalWidth, 'of the backing texture', this._texture.path);
          }            
-         if (this.sheight > naturalHeight) {
-            this.logger.warn('The sprite height', this.sheight, 'exceeds the height', 
+         if (this.height > naturalHeight) {
+            this.logger.warn('The sprite height', this.height, 'exceeds the height', 
                               naturalHeight, 'of the backing texture', this._texture.path);
          }
          this._spriteCtx.drawImage(this._texture.image, 
-            clamp(this.sx, 0, naturalWidth), 
-            clamp(this.sy, 0, naturalHeight),
-            clamp(this.swidth, 0, naturalWidth),
-            clamp(this.sheight, 0, naturalHeight),
-            0, 0, this.swidth, this.sheight);
+            clamp(this.x, 0, naturalWidth), 
+            clamp(this.y, 0, naturalHeight),
+            clamp(this.width, 0, naturalWidth),
+            clamp(this.height, 0, naturalHeight),
+            0, 0, this.width, this.height);
 
          this._pixelsLoaded = true;
       }
@@ -278,25 +278,25 @@ export class SpriteImpl implements IDrawable {
       var naturalWidth = this._texture.image.naturalWidth || 0;
       var naturalHeight = this._texture.image.naturalHeight || 0;
 
-      this._spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
-      this._spriteCtx.drawImage(this._texture.image, clamp(this.sx, 0, naturalWidth),
-         clamp(this.sy, 0, naturalHeight),
-         clamp(this.swidth, 0, naturalWidth),
-         clamp(this.sheight, 0, naturalHeight),
-         0, 0, this.swidth, this.sheight);
-      this._pixelData = this._spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
+      this._spriteCtx.clearRect(0, 0, this.width, this.height);
+      this._spriteCtx.drawImage(this._texture.image, clamp(this.x, 0, naturalWidth),
+         clamp(this.y, 0, naturalHeight),
+         clamp(this.width, 0, naturalWidth),
+         clamp(this.height, 0, naturalHeight),
+         0, 0, this.width, this.height);
+      this._pixelData = this._spriteCtx.getImageData(0, 0, this.width, this.height);
 
       var i = 0, x = 0, y = 0, len = this.effects.length;
       for (i; i < len; i++) {
          y = 0;
-         for (y; y < this.sheight; y++) {
+         for (y; y < this.height; y++) {
             x = 0;
-            for (x; x < this.swidth; x++) {
+            for (x; x < this.width; x++) {
                this.effects[i].updatePixel(x, y, this._pixelData);
             }
          }
       }
-      this._spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
+      this._spriteCtx.clearRect(0, 0, this.width, this.height);
       this._spriteCtx.putImageData(this._pixelData, 0, 0);
       
       this._dirtyEffect = false;
@@ -352,8 +352,8 @@ export class SpriteImpl implements IDrawable {
       ctx.translate(x, y);
       ctx.rotate(this.rotation);
 
-      var scaledSWidth = this.swidth * this.scale.x;
-      var scaledSHeight = this.sheight * this.scale.y;
+      var scaledSWidth = this.width * this.scale.x;
+      var scaledSHeight = this.height * this.scale.y;
       
       // todo cache flipped sprites
       if (this.flipHorizontal) {
@@ -366,7 +366,7 @@ export class SpriteImpl implements IDrawable {
          ctx.scale(1, -1);
       }
 
-      ctx.drawImage(this._spriteCanvas, 0, 0, this.swidth, this.sheight, 
+      ctx.drawImage(this._spriteCanvas, 0, 0, this.width, this.height, 
          -xpoint, 
          -ypoint, 
          scaledSWidth,
@@ -379,7 +379,7 @@ export class SpriteImpl implements IDrawable {
     * Produces a copy of the current sprite
     */
    public clone(): SpriteImpl {
-      var result = new Sprite(this._texture, this.sx, this.sy, this.swidth, this.sheight);
+      var result = new Sprite(this._texture, this.x, this.y, this.width, this.height);
       result.scale = this.scale.clone();
       result.rotation = this.rotation;
       result.flipHorizontal = this.flipHorizontal;

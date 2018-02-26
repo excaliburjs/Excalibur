@@ -308,12 +308,12 @@ export class SpriteFontImpl extends SpriteSheet {
       var sprite = this.sprites[0];
       
       // find the current height fo the text in pixels
-      var height = sprite.sheight;
+      var height = sprite.height;
       
       // calculate appropriate scale for font size
       var scale = options.fontSize / height;
       
-      var length = (text.length * sprite.swidth * scale) + (text.length * options.letterSpacing);
+      var length = (text.length * sprite.width * scale) + (text.length * options.letterSpacing);
 
       var currX = x;
       if (options.textAlign === TextAlign.Left || options.textAlign === TextAlign.Start) {
