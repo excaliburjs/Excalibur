@@ -769,7 +769,7 @@ O|===|* >________________>\n\
 
          // only deactivate when initialized
          if (this.currentScene.isInitialized) {
-            this.currentScene.onDeactivate.call(this.currentScene);
+            this.currentScene._deactivate.call(this.currentScene);
             this.currentScene.eventDispatcher.emit('deactivate', new DeactivateEvent(newScene, this.currentScene));
          }
 
@@ -779,7 +779,7 @@ O|===|* >________________>\n\
          // initialize the current scene if has not been already
          this.currentScene._initialize(this);
 
-         this.currentScene.onActivate.call(this.currentScene);
+         this.currentScene._activate.call(this.currentScene);
          this.currentScene.eventDispatcher.emit('activate', new ActivateEvent(oldScene, this.currentScene));
       } else {
          this._logger.error('Scene', key, 'does not exist!');

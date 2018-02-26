@@ -12,6 +12,7 @@ import { Color } from './Drawing/Color';
 import { Sprite } from './Drawing/Sprite';
 import { IActorTrait } from './Interfaces/IActorTrait';
 import { IDrawable } from './Interfaces/IDrawable';
+import { ICanInitialize, ICanUpdate, ICanDraw } from './Interfaces/LifecycleEvents';
 import { Scene } from './Scene';
 import { Logger } from './Util/Log';
 import { ActionContext } from './Actions/ActionContext';
@@ -50,7 +51,9 @@ export interface IActorArgs extends Partial<ActorImpl> {
 /**
  * @hidden
  */
-export class ActorImpl extends Class implements IActionable, IEvented {
+
+export class ActorImpl extends Class implements IActionable, IEvented, ICanInitialize, ICanUpdate, ICanDraw {
+
    /**
     * Indicates the next id to be set
     */
@@ -453,12 +456,28 @@ export class ActorImpl extends Class implements IActionable, IEvented {
       // Initialize default collision area to be box
       this.body.useBoxCollision();
    }
-
+  
    /**
     * This is called before the first update of the actor. This method is meant to be
     * overridden. This is where initialization of child actors should take place.
     */
    public onInitialize(_engine: Engine): void {
+      // Override me
+   }
+
+   public onPreUpdate(_engine: Engine): void {
+      // Override me
+   }
+
+   public onPostUpdate(_engine: Engine): void {
+      // Override me
+   }
+
+   public onPreDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+      // Override me
+   }
+
+   public onPostDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
       // Override me
    }
 
@@ -482,6 +501,22 @@ export class ActorImpl extends Class implements IActionable, IEvented {
       for (var child of this.children) {
          child._initialize(engine);
       }
+   }
+
+   public _preupdate(engine: Engine): void {
+      this.onPreUpdate(engine);
+   }
+
+   public _postupdate(engine: Engine): void {
+      this.onPostUpdate.call(engine);
+   }
+
+   public _predraw(ctx: CanvasRenderingContext2D, delta: number): void {
+      this.onPreDraw(ctx, delta);
+   }
+
+   public _postdraw(ctx: CanvasRenderingContext2D, delta: number): void {
+      this.onPostDraw(ctx, delta);
    }
 
    private _checkForPointerOptIn(eventName: string) {
@@ -995,6 +1030,7 @@ export class ActorImpl extends Class implements IActionable, IEvented {
    public update(engine: Engine, delta: number) {
       this._initialize(engine);
       this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
+      this._preupdate(engine);
 
       // Update action queue
       this.actionQueue.update(delta);
@@ -1029,6 +1065,7 @@ export class ActorImpl extends Class implements IActionable, IEvented {
       }
 
       this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
+      this._postupdate(engine);
    }
    /**
     * Called by the Engine, draws the actor to the screen
@@ -1046,6 +1083,7 @@ export class ActorImpl extends Class implements IActionable, IEvented {
       ctx.translate(-(this._width * this.anchor.x), -(this._height * this.anchor.y));
 
       this.emit('predraw', new PreDrawEvent(ctx, delta, this));
+      this._predraw(ctx, delta);
 
       if (this.currentDrawing) {
          var drawing = this.currentDrawing;
@@ -1075,6 +1113,7 @@ export class ActorImpl extends Class implements IActionable, IEvented {
       }
 
       this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
+      this._postdraw(ctx, delta);
       ctx.restore();
    }
 
