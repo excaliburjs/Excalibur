@@ -33,7 +33,7 @@ export class UIActor extends Actor {
       this.enableCapturePointer = true;
    }
 
-   public _initialize(engine: Engine){
+   public _initialize(engine: Engine) {
       this._engine = engine;
       this.onInitialize(engine);
    }
