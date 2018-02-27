@@ -142,7 +142,7 @@ export class SpriteSheetImpl {
     * @param spriteCoordinates 
     * @param speed 
     */
-   public getSpriteByCoords(engine: Engine, spriteCoordinates: ISpriteArgs[], speed: number): Animation {
+   public getAnimationByCoords(engine: Engine, spriteCoordinates: ISpriteArgs[], speed: number): Animation {
       
       let maxWidth: number = 0;
       let maxHeight: number = 0;

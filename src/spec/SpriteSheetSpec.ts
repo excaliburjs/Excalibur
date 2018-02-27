@@ -142,7 +142,7 @@ describe('A spritesheet', () => {
             spHeight: 96
          });
 
-         let anim = ss.getSpriteByCoords(engine, [
+         let anim = ss.getAnimationByCoords(engine, [
             {
                x: 0,
                y: 322,
