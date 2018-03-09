@@ -2,6 +2,31 @@ Excalibur comes built in with two physics systems. The first system is [[Collisi
 simple axis-aligned way of doing basic collision detection for non-rotated rectangular areas, defined by an actor's 
 [[BoundingBox|bounding box]].
 
+## Collision Types
+
+Actors have the default collision type of [[CollisionType.PreventCollision]], this is so actors don't accidentally opt into something computationally expensive. **In order for actors to participate in collisions** and the global physics system, actors **must** have an collision type of [[CollisionType.Active]] or [[CollisionType.Fixed]].
+
+### Prevent
+Actors with the [[CollisionType.PreventCollision]] setting do not participate in any
+collisions and do not raise collision events.
+
+### Passive
+Actors with the [[CollisionType.Passive]] setting only raise collision events, but are not
+influenced or moved by other actors and do not influence or move other actors.
+
+### Active
+Actors with the [[CollisionType.Active]] setting raise collision events and participate
+in collisions with other actors and will be push or moved by actors sharing
+the [[CollisionType.Active]] or [[CollisionType.Fixed]] setting.
+
+### Fixed 
+Actors with the [[CollisionType.Fixed]] setting raise collision events and participate in
+collisions with other actors. Actors with the [[CollisionType.Fixed]] setting will not be
+pushed or moved by other actors sharing the [[CollisionType.Fixed]]. Think of Fixed
+actors as "immovable/onstoppable" objects. If two [[CollisionType.Fixed]] actors meet they will
+not be pushed or moved by each other, they will not interact except to throw
+collision events.
+
 ## Enabling Excalibur physics
 
 To enable physics in your game it is as simple as setting [[Physics.enabled]] to true and picking your 
