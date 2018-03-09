@@ -4,7 +4,7 @@ simple axis-aligned way of doing basic collision detection for non-rotated recta
 
 ## Collision Types
 
-Actors have the default collision type of [[CollisionType.PreventCollision]], this is so actors don't accidentally opt into something computationally expensive. **In order for actors to participate in collisions** and the global physics system, actors **must** have an collision type of [[CollisionType.Active]] or [[CollisionType.Fixed]].
+Actors have the default collision type of [[CollisionType.PreventCollision]], this is so actors don't accidentally opt into something computationally expensive. **In order for actors to participate in collisions** and the global physics system, actors **must** have a collision type of [[CollisionType.Active]] or [[CollisionType.Fixed]].
 
 ### Prevent
 Actors with the [[CollisionType.PreventCollision]] setting do not participate in any
@@ -22,9 +22,10 @@ the [[CollisionType.Active]] or [[CollisionType.Fixed]] setting.
 ### Fixed 
 Actors with the [[CollisionType.Fixed]] setting raise collision events and participate in
 collisions with other actors. Actors with the [[CollisionType.Fixed]] setting will not be
-pushed or moved by other actors sharing the [[CollisionType.Fixed]]. Think of Fixed
-actors as "immovable/onstoppable" objects. If two [[CollisionType.Fixed]] actors meet they will
-not be pushed or moved by each other, they will not interact except to throw
+pushed or moved by other actors sharing the [[CollisionType.Fixed]]. 
+
+Think of `Fixed` actors as "immovable/onstoppable" objects. If two [[CollisionType.Fixed]] actors 
+meet they will not be pushed or moved by each other, they will not interact except to throw
 collision events.
 
 ## Enabling Excalibur physics
