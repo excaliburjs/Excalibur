@@ -22,18 +22,45 @@ var game = new ex.Engine({
 ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
 // set global acceleration simulating gravity pointing down
 ex.Physics.acc.setTo(0, 700);
-var block = new ex.Actor(300, 0, 20, 20, ex.Color.Blue.clone());
+
+var block = new ex.Actor({
+  x: 300,
+  y: 0,
+  width: 20, 
+  height: 20, 
+  color: ex.Color.Blue.clone(),
+  collisionType: ex.CollisionType.Active
+});
 block.body.useBoxCollision(); // useBoxCollision is the default, technically optional
 game.add(block);
-var circle = new ex.Actor(300, 100, 20, 20, ex.Color.Red.clone());
+
+
+var circle = new ex.Actor({
+  x: 301, 
+  y: 100, 
+  width: 20, 
+  height: 20, 
+  color: ex.Color.Red.clone(),
+  collisionType: ex.CollisionType.Active
+});
 circle.body.useCircleCollision(10); 
 game.add(circle);
 
-var ground = new ex.Actor(300, 380, 600, 10, ex.Color.Black.clone());
-ground.collisionType = ex.CollisionType.Fixed;
+var ground = new ex.Actor({
+  x: 300, 
+  y: 380, 
+  width: 600, 
+  height: 10, 
+  color: ex.Color.Black.clone(),
+  collisionType: ex.CollisionType.Fixed
+});
+
 ground.body.useBoxCollision(); // optional 
+
+
 game.add(ground);
 // start the game
+
 game.start();
 ```
 
