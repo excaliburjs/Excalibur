@@ -29,6 +29,11 @@ import * as Effects from './Drawing/SpriteEffects';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 
+export type PointerEventName = 'pointerdragstart'
+   | 'pointerdragend' | 'pointerdragmove' | 'pointerdragenter'
+   | 'pointerdragleave' | 'pointermove' | 'pointerenter'
+   | 'pointerleave' | 'pointerup' | 'pointerdown';
+
 
 /**
  * [[include:Constructors.md]]
@@ -486,23 +491,23 @@ export class ActorImpl extends Class implements IActionable, IEvented {
       }
    }
 
-   private _capturePointerEvents: string[] = [
+   private _capturePointerEvents: PointerEventName[] = [
       'pointerup', 'pointerdown', 'pointermove', 'pointerenter', 'pointerleave',
       'pointerdragstart', 'pointerdragend', 'pointerdragmove', 'pointerdragenter', 'pointerdragleave'
    ];
 
-   private _captureMoveEvents: string[] = [
+   private _captureMoveEvents: PointerEventName[] = [
       'pointermove', 'pointerenter', 'pointerleave',
       'pointerdragmove', 'pointerdragenter', 'pointerdragleave'
    ];
 
-   private _captureDragEvents: string[] = [
+   private _captureDragEvents: PointerEventName[] = [
       'pointerdragstart', 'pointerdragend', 'pointerdragmove', 'pointerdragenter', 'pointerdragleave'
    ];
 
    private _checkForPointerOptIn(eventName: string) {
       if (eventName) {
-         const normalized = eventName.toLowerCase();
+         const normalized = <PointerEventName>eventName.toLowerCase();
 
          if (this._capturePointerEvents.indexOf(normalized) !== -1) {
             this.enableCapturePointer = true;
