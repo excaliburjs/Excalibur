@@ -8,7 +8,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Breaking Changes
 
 ## Added
-
+ - New Event `enter`
+ - New Event `leave`
+ - New Event `pointerenter`
+ - New Event `pointerleave`
+ - New Event `pointerdragstart`
+ - New Event `pointerdragend`
+ - New Event `pointerdragmove`
+ - New Event `pointerdragenter`
+ - New Event `pointerdragleave`
+ - New Class `PointerDragEvent` which extends `PointerEvent`
+ - New Class `GlobalCoordinates` that contains Vectors for the world, the page, and the screen.
+ - Added property `ICapturePointerConfig.captureDragEvents` which controls whether to emit drag events to the actor
+ - Added property `PointerEvent.pointer` which equals the original pointer object
 ## Changed
 
 ## Deprecated

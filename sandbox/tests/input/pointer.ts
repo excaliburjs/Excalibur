@@ -8,25 +8,17 @@ var game = new ex.Engine({
 });
 var box = new ex.Actor(200, 200, 100, 100, ex.Color.Red);
 var cursor = new ex.Actor(0, 0, 10, 10, ex.Color.Chartreuse);
-var boxPointerDown = false;
+var boxPointerDragging = false;
 
 var uiElement = new ex.UIActor(200, 0, 200, 200);
-uiElement.color = ex.Color.Azure.clone();
+uiElement.color = ex.Color.Azure;
 uiElement.on('pointerdown', (p: ex.Input.PointerEvent) => {
    console.log(p);
-   uiElement.color = ex.Color.Red.clone();
+   uiElement.color = ex.Color.Red;
 });
 
-// Enable pointer input for box
-//box.enableCapturePointer = true;
-
-// Enable tracking mouse movement for box
-//box.capturePointer.captureMoveEvents = true;
-
 // Change color of box when clicked
-box.on("pointerup", (pe: ex.Input.PointerEvent) => {
-   boxPointerDown = false;
-
+box.on("pointerdown", (pe: ex.Input.PointerEvent) => {
    if (box.color == ex.Color.Red) {
       box.color = ex.Color.Blue;
    } else {
@@ -34,17 +26,28 @@ box.on("pointerup", (pe: ex.Input.PointerEvent) => {
    }
 });
 
+// Set drag flag
+box.on("pointerdragstart", (pe: ex.Input.PointerEvent) => {
+   boxPointerDragging = true;
+});
+
+// Set drag flag
+box.on("pointerdragend", (pe: ex.Input.PointerEvent) => {
+   boxPointerDragging = false;
+});
+
 // Drag box around
-box.on("pointermove", (pe: ex.Input.PointerEvent) => {
-   if (boxPointerDown) {
-      box.pos.x = pe.x;
-      box.pos.y = pe.y;
+box.on("pointerdragmove", (pe: ex.Input.PointerEvent) => {
+   if (boxPointerDragging) {
+      box.pos = pe.pointer.lastWorldPos;
    }
 });
 
-// Set pointer down flag
-box.on("pointerdown", (pe: ex.Input.PointerEvent) => {
-   boxPointerDown = true;
+// Drag box around
+box.on("pointerdragleave", (pe: ex.Input.PointerEvent) => {
+   if (boxPointerDragging) {
+      box.pos = pe.pointer.lastWorldPos;
+   }
 });
 
 box.on("pointerwheel", (pe: ex.Input.WheelEvent) => {
@@ -53,8 +56,7 @@ box.on("pointerwheel", (pe: ex.Input.WheelEvent) => {
 
 // Follow cursor
 game.input.pointers.primary.on("move", (pe: ex.Input.PointerEvent) => {
-   cursor.pos.x = pe.x;
-   cursor.pos.y = pe.y;
+   cursor.pos = pe.pointer.lastWorldPos;
 });
 
 // Button type
@@ -62,7 +64,7 @@ game.input.pointers.primary.on("down", (pe: ex.Input.PointerEvent) => {
    document.getElementById("pointer-btn").innerHTML = ex.Input.PointerButton[pe.button];
 });
 game.input.pointers.primary.on("up", (pe: ex.Input.PointerEvent) => {
-   document.getElementById("pointer-btn").innerHTML = "";
+   document.getElementById("pointer-btn").innerHTML = "None";
 });
 
 // Wheel

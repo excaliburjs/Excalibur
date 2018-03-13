@@ -2,9 +2,9 @@
 /// <reference path="Mocks.ts" />
 
 describe('A game actor', () => {
-	
+
    var actor: ex.Actor;
-   
+
    var engine: ex.Engine;
    var scene: ex.Scene;
    var mock = new Mocks.Mocker();
@@ -20,7 +20,7 @@ describe('A game actor', () => {
       spyOn(scene, 'debugDraw').and.callThrough();
 
       spyOn(actor, 'draw');
-      spyOn(actor, 'debugDraw');     
+      spyOn(actor, 'debugDraw');
 
       ex.Physics.useBoxPhysics();
       ex.Physics.acc.setTo(0, 0);
@@ -91,7 +91,7 @@ describe('A game actor', () => {
       expect(actor.pos.x).toBe(20);
       expect(actor.pos.y).toBe(20);
    });
-   
+
    it('actors should generate pair hashes in the correct order', () => {
       var actor = new ex.Actor();
       actor.id = 20;
@@ -234,7 +234,7 @@ describe('A game actor', () => {
       actor.setHeight(100);
       actor.scale.setTo(2, 2);
       actor.anchor = new ex.Vector(0.5, 0.5);
-      
+
       expect(actor.getLeft()).toBe(-100);
       expect(actor.getRight()).toBe(100);
       expect(actor.getTop()).toBe(-100);
@@ -251,7 +251,7 @@ describe('A game actor', () => {
 
       var child = new ex.Actor(0, 0, 50, 50);
       actor.add(child);
-      
+
       expect(child.getLeft()).toBe(-50);
       expect(child.getRight()).toBe(50);
       expect(child.getTop()).toBe(-50);
@@ -259,7 +259,7 @@ describe('A game actor', () => {
    });
 
    it('should have the correct bounds when scaled and rotated', () => {
-      
+
       var actor = new ex.Actor(50, 50, 10, 10);
       // actor is now 20 high
       actor.scale.setTo(1, 2);
@@ -276,7 +276,7 @@ describe('A game actor', () => {
    });
 
    it('should have the correct relative bounds when scaled and rotated', () => {
-      
+
       var actor = new ex.Actor(50, 50, 10, 10);
       // actor is now 20 high
       actor.scale.setTo(1, 2);
@@ -291,7 +291,7 @@ describe('A game actor', () => {
       expect(bounds.top).toBeCloseTo(-5, .001);
       expect(bounds.bottom).toBeCloseTo(5, .001);
    });
-   
+
    it('has a left, right, top, and bottom when the anchor is (0, 0)', () => {
       actor.pos.x = 100;
       actor.pos.y = 100;
@@ -320,7 +320,7 @@ describe('A game actor', () => {
 
       expect(actor.contains(21, 20)).toBe(false);
       expect(actor.contains(20, 21)).toBe(false);
-		
+
       expect(actor.contains(0, -1)).toBe(false);
       expect(actor.contains(-1, 0)).toBe(false);
    });
@@ -366,11 +366,11 @@ describe('A game actor', () => {
       var actorCalled = 'false';
       var otherCalled = 'false';
 
-      actor.on('precollision', function() {
+      actor.on('precollision', function () {
          actorCalled = 'actor';
       });
 
-      other.on('precollision', function() {
+      other.on('precollision', function () {
          otherCalled = 'other';
       });
 
@@ -381,7 +381,7 @@ describe('A game actor', () => {
 
       expect(actorCalled).toBe('actor');
       expect(otherCalled).toBe('other');
-   });   
+   });
 
    it('is rotated along with its parent', () => {
       var rotation = ex.Util.toRadians(90);
@@ -482,7 +482,7 @@ describe('A game actor', () => {
 
       expect(grandchild.getWorldPos().x).toBeCloseTo(10, 0.001);
       expect(grandchild.getWorldPos().y).toBeCloseTo(50, 0.001);
-   });       
+   });
 
    it('can find its global coordinates if it has a parent', () => {
       expect(actor.pos.x).toBe(0);
@@ -555,125 +555,125 @@ describe('A game actor', () => {
       expect(actor.capturePointer.captureMoveEvents).toBeTruthy();
       expect(actor.enableCapturePointer).toBeTruthy();
    });
-	
+
    it('changes opacity on color', () => {
       actor.color = ex.Color.Black.clone();
       expect(actor.color.a).toBe(1);
       expect(actor.color.r).toBe(0);
       expect(actor.color.g).toBe(0);
       expect(actor.color.b).toBe(0);
-		
+
       expect(actor.opacity).toBe(1.0);
       actor.opacity = .5;
-		
+
       actor.update(engine, 100);
       expect(actor.color.a).toBe(.5);
       expect(actor.color.r).toBe(0);
       expect(actor.color.g).toBe(0);
       expect(actor.color.b).toBe(0);
    });
-   
+
    it('can detect containment off of child actors', () => {
       var parent = new ex.Actor(600, 100, 100, 100);
       var child = new ex.Actor(0, 0, 100, 100);
       var child2 = new ex.Actor(-600, -100, 100, 100);
-	  
+
       parent.add(child);
       child.add(child2);
-	  
+
       // check reality
       expect(parent.contains(550, 50)).toBeTruthy();
       expect(parent.contains(650, 150)).toBeTruthy();
 
       // in world coordinates this should be false 
       expect(child.contains(50, 50)).toBeFalsy();
-	  
+
       // in world coordinates this should be true
       expect(child.contains(550, 50)).toBeTruthy();
       expect(child.contains(650, 150)).toBeTruthy();
-	  
+
       // second order child shifted to the origin
       expect(child2.contains(-50, -50)).toBeTruthy();
-      expect(child2.contains(50, 50)).toBeTruthy();	   
+      expect(child2.contains(50, 50)).toBeTruthy();
    });
-   
+
    it('can recursively check containment', () => {
-      var parent = new ex.Actor(0, 0, 100, 100); 
+      var parent = new ex.Actor(0, 0, 100, 100);
       var child = new ex.Actor(100, 100, 100, 100);
       var child2 = new ex.Actor(100, 100, 100, 100);
       parent.add(child);
-	  
+
       expect(parent.contains(150, 150)).toBeFalsy();
       expect(child.contains(150, 150)).toBeTruthy();
       expect(parent.contains(150, 150, true)).toBeTruthy();
       expect(parent.contains(200, 200, true)).toBeFalsy();
-	  
+
       child.add(child2);
-      expect(parent.contains(250, 250, true)).toBeTruthy();	  
+      expect(parent.contains(250, 250, true)).toBeTruthy();
    });
 
    it('with an active collision type can be placed on a fixed type', () => {
       ex.Physics.useBoxPhysics();
-      var scene = new ex.Scene(engine); 
-      	  
+      var scene = new ex.Scene(engine);
+
       var active = new ex.Actor(0, -50, 100, 100);
       active.collisionType = ex.CollisionType.Active;
       active.vel.y = 10;
       active.acc.y = 1000;
-	  
+
       var fixed = new ex.Actor(-100, 50, 1000, 100);
       fixed.collisionType = ex.CollisionType.Fixed;
-	  
+
       scene.add(active);
       scene.add(fixed);
-	  
+
       expect(active.pos.x).toBe(0);
       expect(active.pos.y).toBe(-50);
 
       expect(fixed.pos.x).toBe(-100);
       expect(fixed.pos.y).toBe(50);
-	  
+
       // update many times for safety
       for (var i = 0; i < 40; i++) {
          scene.update(engine, 100);
       }
-	 	  
+
       expect(active.pos.x).toBeCloseTo(0, .0001);
       expect(active.pos.y).toBeCloseTo(-50, .0001);
-	  
+
       expect(fixed.pos.x).toBe(-100);
       expect(fixed.pos.y).toBe(50);
    });
 
-    it('with an active collision type can jump on a fixed type', () => {
+   it('with an active collision type can jump on a fixed type', () => {
       var scene = new ex.Scene(engine);
       var active = new ex.Actor(0, -50, 100, 100);
       active.collisionType = ex.CollisionType.Active;
       active.vel.y = -100;
       ex.Physics.acc.setTo(0, 0);
-	  
+
       var fixed = new ex.Actor(-100, 50, 1000, 100);
       fixed.collisionType = ex.CollisionType.Fixed;
-	  
+
       scene.add(active);
       scene.add(fixed);
-	  
+
       expect(active.pos.x).toBe(0);
       expect(active.pos.y).toBe(-50);
 
       expect(fixed.pos.x).toBe(-100);
       expect(fixed.pos.y).toBe(50);
-	  
+
       var iterations = 1;
       // update many times for safety
       for (var i = 0; i < iterations; i++) {
          scene.update(engine, 1000);
       }
-	 	
+
       expect(ex.Physics.acc.y).toBe(0);
       expect(active.pos.x).toBeCloseTo(0, .0001);
       expect(active.pos.y).toBeCloseTo(-100 * iterations + (-50) /* original y is -50 */, .0001);
-	  
+
       expect(fixed.pos.x).toBe(-100);
       expect(fixed.pos.y).toBe(50);
    });
@@ -683,40 +683,40 @@ describe('A game actor', () => {
       var childActor = new ex.Actor();
       scene.add(parentActor);
       parentActor.add(childActor);
-      
+
       spyOn(childActor, 'update');
-      
+
       scene.update(engine, 100);
-      
+
       expect(childActor.update).toHaveBeenCalled();
    });
-   
+
    it('draws visible child actors', () => {
       var parentActor = new ex.Actor();
       var childActor = new ex.Actor();
       scene.add(parentActor);
       parentActor.add(childActor);
-      
+
       spyOn(childActor, 'draw');
-      
+
       childActor.visible = true;
       scene.draw(engine.ctx, 100);
       expect(childActor.draw).toHaveBeenCalled();
    });
-   
+
    it('does not draw invisible child actors', () => {
       var parentActor = new ex.Actor();
       var childActor = new ex.Actor();
       scene.add(parentActor);
       parentActor.add(childActor);
-      
+
       spyOn(childActor, 'draw');
-      
+
       childActor.visible = false;
       scene.draw(engine.ctx, 100);
       expect(childActor.draw).not.toHaveBeenCalled();
    });
-   
+
    it('fires a killed event when killed', () => {
       var actor = new ex.Actor();
       scene.add(actor);
@@ -725,10 +725,10 @@ describe('A game actor', () => {
          killed = true;
       });
       actor.kill();
-      
+
       expect(killed).toBe(true);
    });
-   
+
    it('is no longer killed when re-added to the game', () => {
       var actor = new ex.Actor();
       scene.add(actor);
@@ -754,11 +754,11 @@ describe('A game actor', () => {
       var preupdateFired = false;
 
       actor.on('preupdate', () => { preupdateFired = true; });
-      actor.on('postupdate', () => { 
+      actor.on('postupdate', () => {
          expect(preupdateFired).toBe(true);
          done();
       });
-      
+
       scene.add(actor);
       scene.update(engine, 100);
    });
@@ -797,43 +797,434 @@ describe('A game actor', () => {
       var predrawedFired = false;
 
       actor.on('predraw', () => { predrawedFired = true; });
-      actor.on('postdraw', () => { 
+      actor.on('postdraw', () => {
          expect(predrawedFired).toBe(true);
          done();
       });
-      
+
       scene.add(actor);
       scene.update(engine, 100);
       scene.draw(engine.ctx, 100);
    });
 
-   it('opt into pointer capture when pointerup', () => {
+   it('should opt into pointer capture when pointerdown', () => {
       var actor = new ex.Actor(0, 0, 100, 100);
-      expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer caputer enabled');
-      actor.on('pointerup', () => {
-         // doesn't matter;
-      });
-      expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer caputer enabled after pointerup');
+
+      expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
+      expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
+      expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not start with capturing drag events');
+
+      actor.on('pointerdown', () => { /* doesn't matter; */ });
+
+      expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer capture enabled after pointerdown');
+      expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not capture move events after pointerdown');
+      expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not capture drag events after pointerdown');
    });
 
-   it('opt into pointer capture when pointerdown', () => {
+   it('should opt into pointer capture when pointerup', () => {
       var actor = new ex.Actor(0, 0, 100, 100);
-      expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer caputer enabled');
-      actor.on('pointerdown', () => {
-         // doesn't matter;
-      });
-      expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer caputer enabled after pointerdown');
+
+      expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
+      expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
+      expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not start with capturing drag events');
+
+      actor.on('pointerup', () => { /* doesn't matter; */ });
+
+      expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer capture enabled after pointerup');
+      expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not capture move events after pointerdown');
+      expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not capture drag events after pointerdown');
    });
 
-   it('opt into pointer capture when pointermove', () => {
+   it('should opt into pointer capture when pointermove', () => {
       var actor = new ex.Actor(0, 0, 100, 100);
-      expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer caputer enabled');
-      actor.on('pointermove', () => {
-         // doesn't matter;
-      });
-      expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer caputer enabled after pointermove');
+
+      expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
+      expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
+      expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not start with capturing drag events');
+
+      actor.on('pointermove', () => { /* doesn't matter; */ });
+
+      expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer capture enabled after pointermove');
       expect(actor.capturePointer.captureMoveEvents).toBe(true, 'Actor should capture move events after pointermove');
+      expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not capture drag events after pointermove');
+   });
 
+   it('should opt into pointer capture when pointerenter', () => {
+      var actor = new ex.Actor(0, 0, 100, 100);
+
+      expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
+      expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
+      expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not start with capturing drag events');
+
+      actor.on('pointerenter', () => { /* doesn't matter; */ });
+
+      expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer capture enabled after pointerenter');
+      expect(actor.capturePointer.captureMoveEvents).toBe(true, 'Actor should capture move events after pointerenter');
+      expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not capture drag events after pointerenter');
+   });
+
+   it('should opt into pointer capture when pointerleave', () => {
+      var actor = new ex.Actor(0, 0, 100, 100);
+
+      expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
+      expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
+      expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not start with capturing drag events');
+
+      actor.on('pointerleave', () => { /* doesn't matter; */ });
+
+      expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer capture enabled after pointerleave');
+      expect(actor.capturePointer.captureMoveEvents).toBe(true, 'Actor should capture move events after pointerleave');
+      expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not capture drag events after pointerleave');
+   });
+
+   it('should opt into pointer capture when pointerdragstart', () => {
+      var actor = new ex.Actor(0, 0, 100, 100);
+
+      expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
+      expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
+      expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not start with capturing drag events');
+
+      actor.on('pointerdragstart', () => { /* doesn't matter; */ });
+
+      expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer capture enabled after pointerdragstart');
+      expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should capture move events after pointerdragstart');
+      expect(actor.capturePointer.captureDragEvents).toBe(true, 'Actors should capture drag events after pointerdragstart');
+   });
+
+   it('opt into pointer capture when pointerdragend', () => {
+      var actor = new ex.Actor(0, 0, 100, 100);
+
+      expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
+      expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
+      expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not start with capturing drag events');
+
+      actor.on('pointerdragend', () => { /* doesn't matter; */ });
+
+      expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer capture enabled after pointerdragend');
+      expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should capture move events after pointerdragend');
+      expect(actor.capturePointer.captureDragEvents).toBe(true, 'Actors should capture drag events after pointerdragend');
+   });
+
+   it('should opt into pointer capture when pointerdragmove', () => {
+      var actor = new ex.Actor(0, 0, 100, 100);
+
+      expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
+      expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
+      expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not start with capturing drag events');
+
+      actor.on('pointerdragmove', () => { /* doesn't matter; */ });
+
+      expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer capture enabled after pointerdragmove');
+      expect(actor.capturePointer.captureMoveEvents).toBe(true, 'Actors should capture move events after pointerdragmove');
+      expect(actor.capturePointer.captureDragEvents).toBe(true, 'Actors should capture drag events after pointerdragmove');
+   });
+
+   it('should opt into pointer capture when pointerdragenter', () => {
+      var actor = new ex.Actor(0, 0, 100, 100);
+
+      expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
+      expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
+      expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not start with capturing drag events');
+
+      actor.on('pointerdragenter', () => { /* doesn't matter; */ });
+
+      expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer capture enabled after pointerdragenter');
+      expect(actor.capturePointer.captureMoveEvents).toBe(true, 'Actors should capture move events after pointerdragenter');
+      expect(actor.capturePointer.captureDragEvents).toBe(true, 'Actors should capture drag events after pointerdragenter');
+   });
+
+   it('should opt into pointer capture when pointerdragleave', () => {
+      var actor = new ex.Actor(0, 0, 100, 100);
+
+      expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
+      expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
+      expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not start with capturing drag events');
+
+      actor.on('pointerdragleave', () => { /* doesn't matter; */ });
+
+      expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer capture enabled after pointerdragleave');
+      expect(actor.capturePointer.captureMoveEvents).toBe(true, 'Actors should capture move events after pointerdragleave');
+      expect(actor.capturePointer.captureDragEvents).toBe(true, 'Actors should capture drag events after pointerdragleave');
+   });
+
+   it('should capture pointer move event', () => {
+      var actor = new ex.Actor(0, 0, 20, 20);
+      var pointerEvent: any;
+      var callables = { move: (pe: any) => pointerEvent = pe };
+      var moveSpy = spyOn(callables, 'move').and.callThrough();
+
+      actor.on('pointermove', callables.move);
+
+      scene.add(actor);
+
+      (<any>engine.input.pointers)._pointerMove.push({
+         pointer: {
+            lastWorldPos: new ex.Vector(5, -5),
+            actorsUnderPointer: {}
+         }
+      });
+
+      scene.update(engine, 100);
+
+      expect(moveSpy).toHaveBeenCalledTimes(1);
+      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(5, 'pointer event should contain correct world position x');
+      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(-5, 'pointer event should contain correct world position y');
+   });
+
+   it('should capture pointer enter event', () => {
+      var actor = new ex.Actor(0, 0, 20, 20);
+      var pointerEvent: any;
+      var callables = { enter: (pe: any) => pointerEvent = pe };
+      var enterSpy = spyOn(callables, 'enter').and.callThrough();
+
+      actor.on('pointerenter', callables.enter);
+
+      scene.add(actor);
+
+      (<any>engine.input.pointers)._pointerMove.push({
+         pointer: {
+            lastWorldPos: new ex.Vector(5, -5),
+            actorsUnderPointer: {}
+         }
+      });
+
+      scene.update(engine, 100);
+
+      (<any>engine.input.pointers)._pointerMove.push({
+         pointer: {
+            lastWorldPos: new ex.Vector(5, -5),
+            actorsUnderPointer: (() => {
+               let obj = {};
+
+               obj[actor.id] = actor;
+
+               return obj;
+            })()
+         }
+      });
+
+      scene.update(engine, 100);
+
+      expect(enterSpy).toHaveBeenCalledTimes(1);
+      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(5, 'pointer event should contain correct world position x');
+      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(-5, 'pointer event should contain correct world position y');
+   });
+
+   it('should capture pointer leave event', () => {
+      var actor = new ex.Actor(0, 0, 20, 20);
+      var pointerEvent: any;
+      var callables = { leave: (pe: any) => pointerEvent = pe };
+      var leaveSpy = spyOn(callables, 'leave').and.callThrough();
+
+      actor.on('pointerleave', callables.leave);
+
+      scene.add(actor);
+
+      (<any>engine.input.pointers)._pointerMove.push({
+         pointer: {
+            lastWorldPos: new ex.Vector(5, -5),
+            actorsUnderPointer: {}
+         }
+      });
+
+      scene.update(engine, 100);
+
+      (<any>engine.input.pointers)._pointerMove.push({
+         pointer: {
+            lastWorldPos: new ex.Vector(15, -15),
+            actorsUnderPointer: (() => {
+               let obj = {};
+
+               obj[actor.id] = actor;
+
+               return obj;
+            })()
+         }
+      });
+
+      scene.update(engine, 100);
+      scene.update(engine, 100);
+
+      expect(leaveSpy).toHaveBeenCalledTimes(1);
+      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(15, 'pointer event should contain correct world position x');
+      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(-15, 'pointer event should contain correct world position y');
+   });
+
+   it('should capture pointer drag start event', () => {
+      var actor = new ex.Actor(0, 0, 20, 20);
+      var pointerEvent: any;
+      var callables = { dragStart: (pe: any) => pointerEvent = pe };
+      var dragStartSpy = spyOn(callables, 'dragStart').and.callThrough();
+
+      actor.on('pointerdragstart', callables.dragStart);
+
+      scene.add(actor);
+
+      (<any>engine.input.pointers)._pointerDown.push({
+         pointer: {
+            isDragStart: true,
+            lastWorldPos: new ex.Vector(5, -5),
+            actorsUnderPointer: {}
+         }
+      });
+
+      scene.update(engine, 100);
+
+      expect(dragStartSpy).toHaveBeenCalledTimes(1);
+      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(5, 'pointer event should contain correct world position x');
+      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(-5, 'pointer event should contain correct world position y');
+   });
+
+   it('should capture pointer drag end event', () => {
+      var actor = new ex.Actor(0, 0, 20, 20);
+      var pointerEvent: any;
+      var callables = { dragEnd: (pe: any) => pointerEvent = pe };
+      var dragEndSpy = spyOn(callables, 'dragEnd').and.callThrough();
+
+      actor.on('pointerdragend', callables.dragEnd);
+
+      scene.add(actor);
+
+      (<any>engine.input.pointers)._pointerDown.push({
+         pointer: {
+            isDragStart: true,
+            lastWorldPos: new ex.Vector(5, -5),
+            actorsUnderPointer: {}
+         }
+      });
+
+      scene.update(engine, 100);
+
+      (<any>engine.input.pointers)._pointerUp.push({
+         pointer: {
+            isDragEnd: true,
+            lastWorldPos: new ex.Vector(5, -5),
+            actorsUnderPointer: {}
+         }
+      });
+
+      scene.update(engine, 100);
+
+      expect(dragEndSpy).toHaveBeenCalledTimes(1);
+      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(5, 'pointer event should contain correct world position x');
+      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(-5, 'pointer event should contain correct world position y');
+   });
+
+   it('should capture pointer drag move event', () => {
+      var actor = new ex.Actor(0, 0, 20, 20);
+      var pointerEvent: any;
+      var callables = { dragMove: (pe: any) => pointerEvent = pe };
+      var dragMoveSpy = spyOn(callables, 'dragMove').and.callThrough();
+
+      actor.on('pointerdragmove', callables.dragMove);
+
+      scene.add(actor);
+
+      (<any>engine.input.pointers)._pointerMove.push({
+         pointer: {
+            isDragging: true,
+            lastWorldPos: new ex.Vector(5, -5),
+            actorsUnderPointer: {}
+         }
+      });
+
+      scene.update(engine, 100);
+
+      expect(dragMoveSpy).toHaveBeenCalledTimes(1);
+      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(5, 'pointer event should contain correct world position x');
+      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(-5, 'pointer event should contain correct world position y');
+   });
+
+   it('should capture pointer drag enter event', () => {
+      var actor = new ex.Actor(0, 0, 20, 20);
+      var pointerEvent: any;
+      var callables = { dragEnter: (pe: any) => pointerEvent = pe };
+      var dragEnterSpy = spyOn(callables, 'dragEnter').and.callThrough();
+
+      actor.on('pointerdragenter', callables.dragEnter);
+
+      scene.add(actor);
+
+      (<any>engine.input.pointers)._pointerMove.push({
+         pointer: {
+            isDragging: true,
+            lastWorldPos: new ex.Vector(5, -5),
+            actorsUnderPointer: {}
+         }
+      });
+
+      scene.update(engine, 100);
+
+      (<any>engine.input.pointers)._pointerMove.push({
+         pointer: {
+            isDragging: true,
+            lastWorldPos: new ex.Vector(5, -5),
+            actorsUnderPointer: (() => {
+               let obj = {};
+
+               obj[actor.id] = actor;
+
+               return obj;
+            })()
+         }
+      });
+
+      scene.update(engine, 100);
+
+      expect(dragEnterSpy).toHaveBeenCalledTimes(1);
+      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(5, 'pointer event should contain correct world position x');
+      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(-5, 'pointer event should contain correct world position y');
+   });
+
+   it('should capture pointer drag leave event', () => {
+      var actor = new ex.Actor(0, 0, 20, 20);
+      var pointerEvent: any;
+      var callables = { dragLeave: (pe: any) => pointerEvent = pe };
+      var dragLeaveSpy = spyOn(callables, 'dragLeave').and.callThrough();
+
+      actor.on('pointerdragleave', callables.dragLeave);
+
+      scene.add(actor);
+
+      (<any>engine.input.pointers)._pointerMove.push({
+         pointer: {
+            isDragging: true,
+            lastWorldPos: new ex.Vector(5, -5),
+            actorsUnderPointer: {}
+         }
+      });
+
+      scene.update(engine, 100);
+
+      (<any>engine.input.pointers)._pointerMove.push({
+         pointer: {
+            isDragging: true,
+            lastWorldPos: new ex.Vector(15, -15),
+            actorsUnderPointer: (() => {
+               let obj = {};
+
+               obj[actor.id] = actor;
+
+               return obj;
+            })()
+         }
+      });
+
+      scene.update(engine, 100);
+
+      (<any>engine.input.pointers)._pointerMove.push({
+         pointer: {
+            isDragging: true,
+            lastWorldPos: new ex.Vector(15, -15),
+            actorsUnderPointer: {}
+         }
+      });
+
+      scene.update(engine, 100);
+
+      expect(dragLeaveSpy).toHaveBeenCalledTimes(1);
+      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(15, 'pointer event should contain correct world position x');
+      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(-15, 'pointer event should contain correct world position y');
    });
 
    it('only has pointer events happen once per frame', () => {
@@ -842,17 +1233,21 @@ describe('A game actor', () => {
       var numPointerUps = 0;
 
       var propSpy = spyOn(engine.input.pointers, 'propogate').and.callThrough();
-      (<any>engine.input.pointers)._pointerUp.push({x: 0, y: 0});
+      (<any>engine.input.pointers)._pointerUp.push({
+         pointer: {
+            lastWorldPos: { x: 0, y: 0 }
+         }
+      });
 
       actor.on('pointerup', () => {
          numPointerUps++;
       });
 
       scene.add(actor);
-      
+
       scene.update(engine, 100);
 
       expect(numPointerUps).toBe(1, 'Pointer up should be triggered once');
-      expect(propSpy.calls.count()).toEqual(1, 'Propogate should be called once');
+      expect(propSpy).toHaveBeenCalledTimes(1);
    });
 });
