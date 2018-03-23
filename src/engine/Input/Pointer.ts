@@ -1,10 +1,12 @@
-﻿import {Engine, ScrollPreventionMode} from './../Engine';
+﻿import { Engine, ScrollPreventionMode } from './../Engine';
 import { GameEvent } from '../Events';
-import { UIActor } from '../UIActor';
-import { Vector } from '../Algebra';
+import { Actor } from '../Actor';
+import { Vector, GlobalCoordinates } from '../Algebra';
 import { Class } from '../Class';
+import * as Actors from '../Util/Actors';
 import * as Util from '../Util/Util';
 import * as Events from '../Events';
+import { obsolete } from '../Util/Decorators';
 
 /**
  * The type of pointer for a [[PointerEvent]].
@@ -65,35 +67,93 @@ const ScrollWheelNormalizationFactor = -1 / 40;
  * For mouse-based events, you can inspect [[PointerEvent.button]] to see what button was pressed.
  */
 export class PointerEvent extends GameEvent<any> {
+   /** @obsolete Use [[PointerEvent]].worldPos.x instead. */
+   @obsolete({ message: 'PointerEvent.x will be removed in the 0.17 release', alternateMethod: 'PointerEvent.worldPos.x' })
+   public get x(): number {
+      return this.coordinates.worldPos.x;
+   }
+
+   /** @obsolete Use [[PointerEvent]].worldPos.y instead. */
+   @obsolete({ message: 'PointerEvent.y will be removed in the 0.17 release', alternateMethod: 'PointerEvent.worldPos.y' })
+   public get y(): number {
+      return this.coordinates.worldPos.y;
+   }
+
+   /** @obsolete Use [[PointerEvent]].worldPos.x instead. */
+   @obsolete({ message: 'PointerEvent.worldX will be removed in the 0.17 release', alternateMethod: 'PointerEvent.worldPos.x' })
+   public get worldX(): number {
+      return this.coordinates.worldPos.x;
+   }
+
+   /** @obsolete Use [[PointerEvent]].worldPos.y instead. */
+   @obsolete({ message: 'PointerEvent.worldY will be removed in the 0.17 release', alternateMethod: 'PointerEvent.worldPos.y' })
+   public get worldY(): number {
+      return this.coordinates.worldPos.y;
+   }
+
+   /** @obsolete Use [[PointerEvent]].pagePos.x instead. */
+   @obsolete({ message: 'PointerEvent.pageX will be removed in the 0.17 release', alternateMethod: 'PointerEvent.pagePos.x' })
+   public get pageX(): number {
+      return this.coordinates.pagePos.x;
+   }
+
+   /** @obsolete Use [[PointerEvent]].pagePos.y instead. */
+   @obsolete({ message: 'PointerEvent.pageY will be removed in the 0.17 release', alternateMethod: 'PointerEvent.pagePos.y' })
+   public get pageY(): number {
+      return this.coordinates.pagePos.y;
+   }
+
+   /** @obsolete Use [[PointerEvent]].screenPos.x instead. */
+   @obsolete({ message: 'PointerEvent.screenX will be removed in the 0.17 release', alternateMethod: 'PointerEvent.screenPos.x' })
+   public get screenX(): number {
+      return this.coordinates.screenPos.x;
+   }
+
+   /** @obsolete Use [[PointerEvent]].screenPos.y instead. */
+   @obsolete({ message: 'PointerEvent.screenY will be removed in the 0.17 release', alternateMethod: 'PointerEvent.screenPos.y' })
+   public get screenY(): number {
+      return this.coordinates.screenPos.y;
+   }
+
+   /** The world coordinates of the event. */
+   public get worldPos(): Vector {
+      return this.coordinates.worldPos.clone();
+   }
+
+   /** The page coordinates of the event. */
+   public get pagePos(): Vector {
+      return this.coordinates.pagePos.clone();
+   }
+
+   /** The screen coordinates of the event. */
+   public get screenPos(): Vector {
+      return this.coordinates.screenPos.clone();
+   }
 
    /**
-    * @param pageX        The `x` coordinate of the event (in document coordinates)
-    * @param pageY        The `y` coordinate of the event (in document coordinates)
-    * @param screenX      The `x` coordinate of the event (in screen coordinates)
-    * @param screenY      The `y` coordinate of the event (in screen coordinates)
-    * @param index        The index of the pointer (zero-based)
-    * @param pointerType  The type of pointer
-    * @param button       The button pressed (if [[PointerType.Mouse]])
-    * @param ev           The raw DOM event being handled
-    * @param pos          (Will be added to signature in 0.14.0 release) The position of the event (in world coordinates)
+    * @param coordinates         The [[GlobalCoordinates]] of the event
+    * @param pointer             The [[Pointer]] of the event
+    * @param index               The index of the pointer (zero-based)
+    * @param pointerType         The type of pointer
+    * @param button              The button pressed (if [[PointerType.Mouse]])
+    * @param ev                  The raw DOM event being handled
+    * @param pos                 (Will be added to signature in 0.14.0 release) The position of the event (in world coordinates)
     */
-   constructor(public x: number,
-               public y: number,
-               public pageX: number,
-               public pageY: number,
-               public screenX: number,
-               public screenY: number,
-               public index: number,
-               public pointerType: PointerType,
-               public button: PointerButton,
-               public ev: any) {
+   constructor(private coordinates: GlobalCoordinates,
+      public pointer: Pointer,
+      public index: number,
+      public pointerType: PointerType,
+      public button: PointerButton,
+      public ev: any) {
       super();
    }
 
    public get pos(): Vector {
-      return new Vector(this.x, this.y);
+      return this.coordinates.worldPos.clone();
    }
 };
+
+export class PointerDragEvent extends PointerEvent { }
 
 /**
  * Wheel Events
@@ -118,17 +178,17 @@ export class WheelEvent extends GameEvent<any> {
     * @param ev           The raw DOM event being handled
     */
    constructor(public x: number,
-               public y: number,
-               public pageX: number,
-               public pageY: number,
-               public screenX: number,
-               public screenY: number,
-               public index: number,
-               public deltaX: number,
-               public deltaY: number,
-               public deltaZ: number,
-               public deltaMode: WheelDeltaMode,
-               public ev: any) {
+      public y: number,
+      public pageX: number,
+      public pageY: number,
+      public screenX: number,
+      public screenY: number,
+      public index: number,
+      public deltaX: number,
+      public deltaY: number,
+      public deltaZ: number,
+      public deltaMode: WheelDeltaMode,
+      public ev: any) {
       super();
    }
 };
@@ -162,6 +222,8 @@ export class Pointers extends Class {
    public on(eventName: Events.up, handler: (event?: PointerEvent) => void): void;
    public on(eventName: Events.down, handler: (event?: PointerEvent) => void): void;
    public on(eventName: Events.move, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.enter, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.leave, handler: (event?: PointerEvent) => void): void;
    public on(eventName: Events.cancel, handler: (event?: PointerEvent) => void): void;
    public on(eventName: Events.wheel, handler: (event?: WheelEvent) => void): void;
    public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
@@ -194,18 +256,15 @@ export class Pointers extends Class {
          target.addEventListener('pointerdown', this._handlePointerEvent('down', this._pointerDown));
          target.addEventListener('pointerup', this._handlePointerEvent('up', this._pointerUp));
          target.addEventListener('pointermove', this._handlePointerEvent('move', this._pointerMove));
-         target.addEventListener('pointercancel', this._handlePointerEvent('cancel', this._pointerMove));
-
+         target.addEventListener('pointercancel', this._handlePointerEvent('cancel', this._pointerCancel));
       } else if ((<any>window).MSPointerEvent) {
          // IE10
          this._engine.canvas.style.msTouchAction = 'none';
          target.addEventListener('MSPointerDown', this._handlePointerEvent('down', this._pointerDown));
          target.addEventListener('MSPointerUp', this._handlePointerEvent('up', this._pointerUp));
          target.addEventListener('MSPointerMove', this._handlePointerEvent('move', this._pointerMove));
-         target.addEventListener('MSPointerCancel', this._handlePointerEvent('cancel', this._pointerMove));
-
+         target.addEventListener('MSPointerCancel', this._handlePointerEvent('cancel', this._pointerCancel));
       } else {
-
          // Mouse Events
          target.addEventListener('mousedown', this._handleMouseEvent('down', this._pointerDown));
          target.addEventListener('mouseup', this._handleMouseEvent('up', this._pointerUp));
@@ -231,6 +290,10 @@ export class Pointers extends Class {
       this._pointerMove.length = 0;
       this._pointerCancel.length = 0;
       this._wheel.length = 0;
+
+      for (let i = 0; i < this._pointers.length; i++) {
+         this._pointers[i].update();
+      }
    }
 
    /**
@@ -260,34 +323,81 @@ export class Pointers extends Class {
    /**
     * Propogates events to actor if necessary
     */
-   public propogate(actor: any) {
-      var isUIActor = actor instanceof UIActor;
-      var i: number = 0,
-            len: number = this._pointerUp.length;
-
-      for (i; i < len; i++) {
-         if (actor.contains(this._pointerUp[i].x, this._pointerUp[i].y, !isUIActor)) {
-            actor.eventDispatcher.emit('pointerup', this._pointerUp[i]);
-         }
-      }
+   public propogate(actor: Actor) {
+      var isNotUIActor = !Actors.isUIActor(actor);
+      var i: number = 0;
+      var len: number = 0;
+      var pointerEvent: PointerEvent;
+      var pointer: Pointer;
 
       i = 0;
       len = this._pointerDown.length;
 
       for (i; i < len; i++) {
-         if (actor.contains(this._pointerDown[i].x, this._pointerDown[i].y, !isUIActor)) {
-            actor.eventDispatcher.emit('pointerdown', this._pointerDown[i]);
+         pointerEvent = this._pointerDown[i];
+         pointer = pointerEvent.pointer;
+
+         if (actor.contains(pointer.lastWorldPos.x, pointer.lastWorldPos.y, isNotUIActor)) {
+            actor.eventDispatcher.emit('pointerdown', pointerEvent);
+
+            if (pointer.isDragStart && actor.capturePointer.captureDragEvents) {
+               actor.eventDispatcher.emit('pointerdragstart', pointerEvent);
+            }
+         }
+      }
+
+      i = 0;
+      len = this._pointerUp.length;
+
+      for (i; i < len; i++) {
+         pointerEvent = this._pointerUp[i];
+         pointer = pointerEvent.pointer;
+
+         if (actor.contains(pointer.lastWorldPos.x, pointer.lastWorldPos.y, isNotUIActor)) {
+            actor.eventDispatcher.emit('pointerup', pointerEvent);
+
+            if (pointer.isDragEnd && actor.capturePointer.captureDragEvents) {
+               actor.eventDispatcher.emit('pointerdragend', pointerEvent);
+            }
          }
       }
 
       if (actor.capturePointer.captureMoveEvents) {
-
          i = 0;
          len = this._pointerMove.length;
 
          for (i; i < len; i++) {
-            if (actor.contains(this._pointerMove[i].x, this._pointerMove[i].y, !isUIActor)) {
-               actor.eventDispatcher.emit('pointermove', this._pointerMove[i]);
+            pointerEvent = this._pointerMove[i];
+            pointer = pointerEvent.pointer;
+
+            if (actor.contains(pointer.lastWorldPos.x, pointer.lastWorldPos.y, isNotUIActor)) {
+               if (!pointer.actorsUnderPointer[actor.id]) {
+                  pointer.actorsUnderPointer[actor.id] = actor;
+
+                  actor.eventDispatcher.emit('pointerenter', pointerEvent);
+
+                  if (pointer.isDragging && actor.capturePointer.captureDragEvents) {
+                     actor.eventDispatcher.emit('pointerdragenter', pointerEvent);
+                  }
+               }
+
+               actor.eventDispatcher.emit('pointermove', pointerEvent);
+
+               if (pointer.isDragging && actor.capturePointer.captureDragEvents) {
+                  actor.eventDispatcher.emit('pointerdragmove', pointerEvent);
+               }
+            }
+
+            if (!actor.contains(pointer.lastWorldPos.x, pointer.lastWorldPos.y, isNotUIActor)) {
+               if (pointer.actorsUnderPointer[actor.id]) {
+                  delete pointer.actorsUnderPointer[actor.id];
+
+                  actor.eventDispatcher.emit('pointerleave', pointerEvent);
+
+                  if (pointer.isDragging && actor.capturePointer.captureDragEvents) {
+                     actor.eventDispatcher.emit('pointerdragleave', pointerEvent);
+                  }
+               }
             }
          }
       }
@@ -296,15 +406,19 @@ export class Pointers extends Class {
       len = this._pointerCancel.length;
 
       for (i; i < len; i++) {
-         if (actor.contains(this._pointerCancel[i].x, this._pointerCancel[i].y, !isUIActor)) {
-            actor.eventDispatcher.emit('pointercancel', this._pointerCancel[i]);
+         pointerEvent = this._pointerCancel[i];
+         pointer = pointerEvent.pointer;
+
+         if (actor.contains(pointer.lastWorldPos.x, pointer.lastWorldPos.y, isNotUIActor)) {
+            actor.eventDispatcher.emit('pointercancel', pointerEvent);
          }
       }
 
       i = 0;
       len = this._wheel.length;
+
       for (i; i < len; i++) {
-         if (actor.contains(this._wheel[i].x, this._wheel[i].y, !isUIActor)) {
+         if (actor.contains(this._wheel[i].x, this._wheel[i].y, isNotUIActor)) {
             actor.eventDispatcher.emit('pointerwheel', this._wheel[i]);
          }
       }
@@ -313,12 +427,13 @@ export class Pointers extends Class {
    private _handleMouseEvent(eventName: string, eventArr: PointerEvent[]) {
       return (e: MouseEvent) => {
          e.preventDefault();
-         var x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
-         var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
-         var transformedPoint = this._engine.screenToWorldCoordinates(new Vector(x, y));
-         var pe = new PointerEvent(transformedPoint.x, transformedPoint.y, e.pageX, e.pageY, x, y, 0, PointerType.Mouse, e.button, e);
+
+         var pointer = this.at(0);
+         var coordinates = GlobalCoordinates.fromPagePosition(e.pageX, e.pageY, this._engine);
+         var pe = new PointerEvent(coordinates, pointer, 0, PointerType.Mouse, e.button, e);
+
          eventArr.push(pe);
-         this.at(0).eventDispatcher.emit(eventName, pe);
+         pointer.eventDispatcher.emit(eventName, pe);
       };
    }
 
@@ -328,13 +443,14 @@ export class Pointers extends Class {
          for (var i = 0, len = e.changedTouches.length; i < len; i++) {
             var index = this._pointers.length > 1 ? this._getPointerIndex(e.changedTouches[i].identifier) : 0;
             if (index === -1) { continue; }
-            var x: number = e.changedTouches[i].pageX - Util.getPosition(this._engine.canvas).x;
-            var y: number = e.changedTouches[i].pageY - Util.getPosition(this._engine.canvas).y;
-            var transformedPoint = this._engine.screenToWorldCoordinates(new Vector(x, y));
-            var pe = new PointerEvent(transformedPoint.x, transformedPoint.y,
-               e.changedTouches[i].pageX, e.changedTouches[i].pageY, x, y, index, PointerType.Touch, PointerButton.Unknown, e);
+
+            var pointer = this.at(index);
+            var coordinates = GlobalCoordinates.fromPagePosition(
+               e.changedTouches[i].pageX, e.changedTouches[i].pageY, this._engine);
+            var pe = new PointerEvent(coordinates, pointer, index, PointerType.Touch, PointerButton.Unknown, e);
+
             eventArr.push(pe);
-            this.at(index).eventDispatcher.emit(eventName, pe);
+            pointer.eventDispatcher.emit(eventName, pe);
             // only with multi-pointer
             if (this._pointers.length > 1) {
                if (eventName === 'up') {
@@ -358,13 +474,13 @@ export class Pointers extends Class {
          // get the index for this pointer ID if multi-pointer is asked for
          var index = this._pointers.length > 1 ? this._getPointerIndex(e.pointerId) : 0;
          if (index === -1) { return; }
-         var x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
-         var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
-         var transformedPoint = this._engine.screenToWorldCoordinates(new Vector(x, y));
-         var pe = new PointerEvent(transformedPoint.x, transformedPoint.y,
-            e.pageX, e.pageY, x, y, index, this._stringToPointerType(e.pointerType), e.button, e);
+
+         var pointer = this.at(index);
+         var coordinates = GlobalCoordinates.fromPagePosition(e.pageX, e.pageY, this._engine);
+         var pe = new PointerEvent(coordinates, pointer, index, this._stringToPointerType(e.pointerType), e.button, e);
+
          eventArr.push(pe);
-         this.at(index).eventDispatcher.emit(eventName, pe);
+         pointer.eventDispatcher.emit(eventName, pe);
 
          // only with multi-pointer
          if (this._pointers.length > 1) {
@@ -385,7 +501,7 @@ export class Pointers extends Class {
       return (e: MouseWheelEvent) => {
          // Should we prevent page scroll because of this event
          if (this._engine.pageScrollPreventionMode === ScrollPreventionMode.All ||
-             (this._engine.pageScrollPreventionMode === ScrollPreventionMode.Canvas && e.target === this._engine.canvas)) {
+            (this._engine.pageScrollPreventionMode === ScrollPreventionMode.Canvas && e.target === this._engine.canvas)) {
             e.preventDefault();
          }
 
@@ -398,13 +514,13 @@ export class Pointers extends Class {
          // e.detail is only used in opera
 
          var deltaX = e.deltaX ||
-                      (e.wheelDeltaX * ScrollWheelNormalizationFactor) ||
-                      0;
+            (e.wheelDeltaX * ScrollWheelNormalizationFactor) ||
+            0;
          var deltaY = e.deltaY ||
-                      (e.wheelDeltaY * ScrollWheelNormalizationFactor) ||
-                      (e.wheelDelta * ScrollWheelNormalizationFactor) ||
-                      e.detail ||
-                      0;
+            (e.wheelDeltaY * ScrollWheelNormalizationFactor) ||
+            (e.wheelDelta * ScrollWheelNormalizationFactor) ||
+            e.detail ||
+            0;
          var deltaZ = e.deltaZ || 0;
          var deltaMode = WheelDeltaMode.Pixel;
 
@@ -461,31 +577,76 @@ export class Pointers extends Class {
  */
 export class Pointer extends Class {
 
-   constructor() {
-      super();
+   private _isDown: boolean = false;
+   private _wasDown: boolean = false;
 
-      this.on('move', this._onPointerMove);
+   /**
+    * Whether the Pointer is currently dragging.
+    */
+   public get isDragging(): boolean {
+      return this._isDown;
+   }
+
+   /**
+    * Whether the Pointer just started dragging.
+    */
+   public get isDragStart(): boolean {
+      return !this._wasDown && this._isDown;
+   }
+
+
+   /**
+    * Whether the Pointer just ended dragging.
+    */
+   public get isDragEnd(): boolean {
+      return this._wasDown && !this._isDown;
    }
 
    /**
     * The last position on the document this pointer was at. Can be `null` if pointer was never active.
     */
-   lastPagePos: Vector = null;
+   public lastPagePos: Vector = null;
 
    /**
     * The last position on the screen this pointer was at. Can be `null` if pointer was never active.
     */
-   lastScreenPos: Vector = null;
+   public lastScreenPos: Vector = null;
 
    /**
     * The last position in the game world coordinates this pointer was at. Can be `null` if pointer was never active.
     */
-   lastWorldPos: Vector = null;
+   public lastWorldPos: Vector = null;
 
-   private _onPointerMove(ev: PointerEvent) {
-      this.lastWorldPos = new Vector(ev.x, ev.y);
+   public actorsUnderPointer: { [ActorId: number]: Actor; } = {};
+
+   constructor() {
+      super();
+
+      this.on('move', this._onPointerMove);
+      this.on('down', this._onPointerDown);
+      this.on('up', this._onPointerUp);
+   }
+
+   public update(): void {
+      if (this._wasDown && !this._isDown) {
+         this._wasDown = false;
+      } else if (!this._wasDown && this._isDown) {
+         this._wasDown = true;
+      }
+   }
+
+   private _onPointerMove(ev: PointerEvent): void {
       this.lastPagePos = new Vector(ev.pageX, ev.pageY);
       this.lastScreenPos = new Vector(ev.screenX, ev.screenY);
+      this.lastWorldPos = new Vector(ev.x, ev.y);
+   }
+
+   private _onPointerDown(): void {
+      this._isDown = true;
+   }
+
+   private _onPointerUp(): void {
+      this._isDown = false;
    }
 }
 

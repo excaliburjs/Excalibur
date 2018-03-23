@@ -40,9 +40,8 @@ export enum Integrator {
 /* istanbul ignore next */
 export class Physics {
    /**
-    * Global acceleration that is applied to all vanilla actors (it wont effect [[Label|labels]], [[UIActor|ui actors]], or 
-    * [[Trigger|triggers]] in Excalibur that have an [[CollisionType.Active|active]] collision type).
-    * 
+    * Global acceleration that is applied to all vanilla actors that have a [[CollisionType.Active|active]] collision type.
+    * Global acceleration won't effect [[Label|labels]], [[UIActor|ui actors]], or [[Trigger|triggers]] in Excalibur.
     * 
     * This is a great way to globally simulate effects like gravity.
     */
