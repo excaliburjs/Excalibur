@@ -9,14 +9,9 @@ export interface ICanInitialize {
    onInitialize(_engine: Engine): void;
 
    /**
-    * Base implementation
-    */
-   _initialize(_engine: Engine): void;
-
-   /**
     * Event signature
     */
-    on(eventName: Events.initialize, handler: (event?: Events.InitializeEvent) => void): void;
+   on(eventName: Events.initialize, handler: (event?: Events.InitializeEvent) => void): void;
 }
 
 export interface ICanActivate {
@@ -27,14 +22,9 @@ export interface ICanActivate {
    onActivate(_engine: Engine): void;
 
    /**
-    * Base implementation
-    */
-   _activate(_engine: Engine): void;
-
-   /**
     * Event signature
     */
-    on(eventName: Events.activate, handler: (event?: Events.ActivateEvent) => void): void;
+   on(eventName: Events.activate, handler: (event?: Events.ActivateEvent) => void): void;
 
 }
 
@@ -45,14 +35,9 @@ export interface ICanDeactivate {
    onDeactivate(_engine: Engine): void;
 
    /**
-    * Base implementation
-    */
-   _deactivate(_engine: Engine): void;
-
-   /**
     * Event signature
     */
-    on(eventName: Events.deactivate, handler: (event?: Events.DeactivateEvent) => void): void;
+   on(eventName: Events.deactivate, handler: (event?: Events.DeactivateEvent) => void): void;
 }
 
 export interface ICanUpdate {
@@ -62,14 +47,9 @@ export interface ICanUpdate {
    onPreUpdate(_engine: Engine): void;
 
    /**
-    * Base implementation
-    */
-   _preupdate(_engine: Engine): void;
-
-   /**
     * Event signature
     */
-    on(eventName: Events.preupdate, handler: (event?: Events.PreUpdateEvent) => void): void;
+   on(eventName: Events.preupdate, handler: (event?: Events.PreUpdateEvent) => void): void;
 
 
    /**
@@ -78,14 +58,9 @@ export interface ICanUpdate {
    onPostUpdate(_engine: Engine): void;
 
    /**
-    * Base implementation
-    */
-   _postupdate(_engine: Engine): void;
-
-   /**
     * Event signature
     */
-    on(eventName: Events.postupdate, handler: (event?: Events.PostUpdateEvent) => void): void;
+   on(eventName: Events.postupdate, handler: (event?: Events.PostUpdateEvent) => void): void;
 }
 
 export interface ICanDraw {
@@ -95,14 +70,9 @@ export interface ICanDraw {
    onPreDraw(_ctx: CanvasRenderingContext2D, delta: number): void;
 
    /**
-    * Base implementation
-    */
-   _predraw(_ctx: CanvasRenderingContext2D, delta: number): void;
-
-   /**
     * Event signature
     */
-    on(eventName: Events.predraw, handler: (event?: Events.PreDrawEvent) => void): void;
+   on(eventName: Events.predraw, handler: (event?: Events.PreDrawEvent) => void): void;
 
 
    /**
@@ -111,13 +81,8 @@ export interface ICanDraw {
    onPostDraw(_ctx: CanvasRenderingContext2D, delta: number): void;
 
    /**
-    * Base implementation
-    */
-   _postdraw(_ctx: CanvasRenderingContext2D, delta: number): void;
-
-   /**
     * Event signature
     */
-    on(eventName: Events.postdraw, handler: (event?: Events.PostDrawEvent) => void): void;
+   on(eventName: Events.postdraw, handler: (event?: Events.PostDrawEvent) => void): void;
 
 }

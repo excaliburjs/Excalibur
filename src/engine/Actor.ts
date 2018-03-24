@@ -403,7 +403,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
     * Configuration for [[CapturePointer]] trait
     */
    public capturePointer: Traits.ICapturePointerConfig = {
-      captureMoveEvents: false		
+      captureMoveEvents: false
    };
 
    private _zIndex: number = 0;
@@ -508,7 +508,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
    }
 
    public _postupdate(engine: Engine): void {
-      this.onPostUpdate.call(engine);
+      this.onPostUpdate(engine);
    }
 
    public _predraw(ctx: CanvasRenderingContext2D, delta: number): void {
