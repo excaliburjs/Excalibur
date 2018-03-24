@@ -510,18 +510,30 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
       }
    }
 
+   /**
+    * @internal
+    */
    public _preupdate(engine: Engine): void {
       this.onPreUpdate(engine);
    }
 
+   /**
+    * @internal
+    */
    public _postupdate(engine: Engine): void {
       this.onPostUpdate(engine);
    }
 
+   /**
+    * @internal
+    */
    public _predraw(ctx: CanvasRenderingContext2D, delta: number): void {
       this.onPreDraw(ctx, delta);
    }
 
+   /**
+    * @internal
+    */
    public _postdraw(ctx: CanvasRenderingContext2D, delta: number): void {
       this.onPostDraw(ctx, delta);
    }
