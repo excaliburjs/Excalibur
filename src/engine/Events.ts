@@ -56,18 +56,28 @@ export type stop = 'stop';
 export type pointerup = 'pointerup';
 export type pointerdown = 'pointerdown';
 export type pointermove = 'pointermove';
+export type pointerenter = 'pointerenter';
+export type pointerleave = 'pointerleave';
 export type pointercancel = 'pointercancel';
 export type pointerwheel = 'pointerwheel';
 
 export type up = 'up';
 export type down = 'down';
 export type move = 'move';
+export type enter = 'enter';
+export type leave = 'leave';
 export type cancel = 'cancel';
 export type wheel = 'wheel';
 
 export type press = 'press';
 export type release = 'release';
 export type hold = 'hold';
+
+export type pointerdragstart = 'pointerdragstart';
+export type pointerdragend = 'pointerdragend';
+export type pointerdragenter = 'pointerdragenter';
+export type pointerdragleave = 'pointerdragleave';
+export type pointerdragmove = 'pointerdragmove';
 
 /**
  * Base event type in Excalibur that all other event types derive from. Not all event types are thrown on all Excalibur game objects, 
@@ -276,7 +286,7 @@ export class HiddenEvent extends GameEvent<Engine> {
  * Event thrown on an [[Actor|actor]] when a collision will occur this frame if it resolves
  */
 export class PreCollisionEvent extends GameEvent<Actor> {
-   
+
    /**
     * @param actor         The actor the event was thrown on
     * @param other         The actor that will collided with the current actor
@@ -388,7 +398,6 @@ export class EnterViewPortEvent extends GameEvent<Actor> {
       super();
    }
 }
-
 
 export class EnterTriggerEvent extends GameEvent<Actor> {
    constructor(public target: Trigger, public actor: Actor) {

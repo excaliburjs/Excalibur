@@ -4,9 +4,10 @@ import { BoundingBox } from './Collision/BoundingBox';
 import { Texture } from './Resources/Texture';
 import {
    InitializeEvent, KillEvent, PreUpdateEvent, PostUpdateEvent,
-   PreDrawEvent, PostDrawEvent, PreDebugDrawEvent, PostDebugDrawEvent, 
+   PreDrawEvent, PostDrawEvent, PreDebugDrawEvent, PostDebugDrawEvent,
    GameEvent, PostCollisionEvent, PreCollisionEvent, CollisionStartEvent, CollisionEndEvent
 } from './Events';
+import { PointerEvent, PointerDragEvent } from './Input/Pointer';
 import { Engine } from './Engine';
 import { Color } from './Drawing/Color';
 import { Sprite } from './Drawing/Sprite';
@@ -28,6 +29,11 @@ import * as Traits from './Traits/Index';
 import * as Effects from './Drawing/SpriteEffects';
 import * as Util from './Util/Util';
 import * as Events from './Events';
+
+export type PointerEventName = 'pointerdragstart'
+   | 'pointerdragend' | 'pointerdragmove' | 'pointerdragenter'
+   | 'pointerdragleave' | 'pointermove' | 'pointerenter'
+   | 'pointerleave' | 'pointerup' | 'pointerdown';
 
 
 /**
@@ -385,13 +391,13 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
     * 
     * The default is `null` which prevents a rectangle from being drawn.
     */
-   public get color() : Color {
+   public get color(): Color {
       return this._color;
    }
-   public set color(v : Color) {
+   public set color(v: Color) {
       this._color = v.clone();
    }
-   private _color : Color;
+   private _color: Color;
 
    /**
     * Whether or not to enable the [[CapturePointer]] trait that propagates 
@@ -403,7 +409,8 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
     * Configuration for [[CapturePointer]] trait
     */
    public capturePointer: Traits.ICapturePointerConfig = {
-      captureMoveEvents: false
+      captureMoveEvents: false,
+      captureDragEvents: false
    };
 
    private _zIndex: number = 0;
@@ -438,7 +445,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
          // set default opacity of an actor to the color
          this.opacity = color.a;
       }
-       
+
       // Build default pipeline
       //this.traits.push(new ex.Traits.EulerMovement());
       // TODO: TileMaps should be converted to a collision area
@@ -519,13 +526,33 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
       this.onPostDraw(ctx, delta);
    }
 
+   private _capturePointerEvents: PointerEventName[] = [
+      'pointerup', 'pointerdown', 'pointermove', 'pointerenter', 'pointerleave',
+      'pointerdragstart', 'pointerdragend', 'pointerdragmove', 'pointerdragenter', 'pointerdragleave'
+   ];
+
+   private _captureMoveEvents: PointerEventName[] = [
+      'pointermove', 'pointerenter', 'pointerleave',
+      'pointerdragmove', 'pointerdragenter', 'pointerdragleave'
+   ];
+
+   private _captureDragEvents: PointerEventName[] = [
+      'pointerdragstart', 'pointerdragend', 'pointerdragmove', 'pointerdragenter', 'pointerdragleave'
+   ];
+
    private _checkForPointerOptIn(eventName: string) {
       if (eventName) {
-         const normalized = eventName.toLowerCase();
-         if (normalized === 'pointerup' || normalized === 'pointerdown' || normalized === 'pointermove') {
+         const normalized = <PointerEventName>eventName.toLowerCase();
+
+         if (this._capturePointerEvents.indexOf(normalized) !== -1) {
             this.enableCapturePointer = true;
-            if (normalized === 'pointermove') {
+
+            if (this._captureMoveEvents.indexOf(normalized) !== -1) {
                this.capturePointer.captureMoveEvents = true;
+            }
+
+            if (this._captureDragEvents.indexOf(normalized) !== -1) {
+               this.capturePointer.captureDragEvents = true;
             }
          }
       }
@@ -545,9 +572,16 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
    public on(eventName: Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void): void;
    public on(eventName: Events.pointerup, handler: (event?: PointerEvent) => void): void;
    public on(eventName: Events.pointerdown, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.pointerenter, handler: (event?: PointerEvent) => void): void;
+   public on(eventName: Events.pointerleave, handler: (event?: PointerEvent) => void): void;
    public on(eventName: Events.pointermove, handler: (event?: PointerEvent) => void): void;
    public on(eventName: Events.pointercancel, handler: (event?: PointerEvent) => void): void;
    public on(eventName: Events.pointerwheel, handler: (event?: WheelEvent) => void): void;
+   public on(eventName: Events.pointerdragstart, handler: (event?: PointerDragEvent) => void): void;
+   public on(eventName: Events.pointerdragend, handler: (event?: PointerDragEvent) => void): void;
+   public on(eventName: Events.pointerdragenter, handler: (event?: PointerDragEvent) => void): void;
+   public on(eventName: Events.pointerdragleave, handler: (event?: PointerDragEvent) => void): void;
+   public on(eventName: Events.pointerdragmove, handler: (event?: PointerDragEvent) => void): void;
    public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
    public on(eventName: string, handler: (event?: any) => void): void {
       this._checkForPointerOptIn(eventName);
@@ -568,9 +602,16 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
    public once(eventName: Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void): void;
    public once(eventName: Events.pointerup, handler: (event?: PointerEvent) => void): void;
    public once(eventName: Events.pointerdown, handler: (event?: PointerEvent) => void): void;
+   public once(eventName: Events.pointerenter, handler: (event?: PointerEvent) => void): void;
+   public once(eventName: Events.pointerleave, handler: (event?: PointerEvent) => void): void;
    public once(eventName: Events.pointermove, handler: (event?: PointerEvent) => void): void;
    public once(eventName: Events.pointercancel, handler: (event?: PointerEvent) => void): void;
    public once(eventName: Events.pointerwheel, handler: (event?: WheelEvent) => void): void;
+   public once(eventName: Events.pointerdragstart, handler: (event?: PointerDragEvent) => void): void;
+   public once(eventName: Events.pointerdragend, handler: (event?: PointerDragEvent) => void): void;
+   public once(eventName: Events.pointerdragenter, handler: (event?: PointerDragEvent) => void): void;
+   public once(eventName: Events.pointerdragleave, handler: (event?: PointerDragEvent) => void): void;
+   public once(eventName: Events.pointerdragmove, handler: (event?: PointerDragEvent) => void): void;
    public once(eventName: string, handler: (event?: GameEvent<any>) => void): void;
    public once(eventName: string, handler: (event?: any) => void): void {
       this._checkForPointerOptIn(eventName);
@@ -860,7 +901,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
    /**
     * Returns the actor's [[BoundingBox]] calculated for this instant in world space.
     */
-   public getBounds() {
+   public getBounds(): BoundingBox {
       // todo cache bounding box
       var anchor = this._getCalculatedAnchor();
       var pos = this.getWorldPos();
@@ -1060,7 +1101,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
       }
 
       // Update child actors
-      for (var i = 0; i < this.children.length; i++) {         
+      for (var i = 0; i < this.children.length; i++) {
          this.children[i].update(engine, delta);
       }
 
