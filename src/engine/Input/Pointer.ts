@@ -636,9 +636,9 @@ export class Pointer extends Class {
    }
 
    private _onPointerMove(ev: PointerEvent): void {
-      this.lastPagePos = new Vector(ev.pageX, ev.pageY);
-      this.lastScreenPos = new Vector(ev.screenX, ev.screenY);
-      this.lastWorldPos = new Vector(ev.x, ev.y);
+      this.lastPagePos = new Vector(ev.pagePos.x, ev.pagePos.y);
+      this.lastScreenPos = new Vector(ev.screenPos.x, ev.screenPos.y);
+      this.lastWorldPos = new Vector(ev.worldPos.x, ev.worldPos.y);
    }
 
    private _onPointerDown(): void {
