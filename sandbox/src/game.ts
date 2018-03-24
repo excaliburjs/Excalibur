@@ -510,7 +510,7 @@ var trigger = new ex.Trigger({
 game.add(trigger);
 
 game.input.pointers.primary.on('down', (evt?: ex.Input.PointerEvent) => {
-   var c = tileMap.getCellByPoint(evt.x, evt.y);
+   var c = tileMap.getCellByPoint(evt.worldPos.x, evt.worldPos.y);
    if (c) {
       if (c.solid) {
          c.solid = false;
