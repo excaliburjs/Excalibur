@@ -30,7 +30,7 @@ game.add(aim);
 game.start(loader).then(() => {
 
     game.input.pointers.primary.on('move', (ev: ex.Input.PointerEvent) => {
-        target.pos.setTo(ev.x, ev.y);
+        target.pos.setTo(ev.worldPos.x, ev.worldPos.y);
 
         var aimVec = target.pos.sub(aim.pos);
         aim.rotation =  aimVec.toAngle();
