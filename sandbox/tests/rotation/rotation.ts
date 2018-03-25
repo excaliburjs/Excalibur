@@ -82,11 +82,11 @@ engine.add(labelCounterClockwise);
 
 
 engine.input.pointers.primary.on('down', (e: ex.Input.PointerEvent) => {
-   if (!shortestPath.contains(e.x, e.y) &&
-      !longestPath.contains(e.x, e.y) &&
-      !clockwise.contains(e.x, e.y) &&
-      !counterclockwise.contains(e.x, e.y)) {
-      var vector = new ex.Vector(e.x - player.pos.x, e.y - player.pos.y);
+   if (!shortestPath.contains(e.worldPos.x, e.worldPos.y) &&
+      !longestPath.contains(e.worldPos.x, e.worldPos.y) &&
+      !clockwise.contains(e.worldPos.x, e.worldPos.y) &&
+      !counterclockwise.contains(e.worldPos.x, e.worldPos.y)) {
+      var vector = new ex.Vector(e.worldPos.x - player.pos.x, e.worldPos.y - player.pos.y);
       var angle = vector.toAngle();
 
       player.actions.rotateTo(angle, 1, rotationType);
