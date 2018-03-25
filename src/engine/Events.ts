@@ -107,7 +107,7 @@ export class KillEvent extends GameEvent<Actor> {
  */
 export class PreKillEvent extends GameEvent<Actor> {
    constructor(public target: Actor) {
-      super()
+      super();
    }
 }
 
