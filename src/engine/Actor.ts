@@ -5,7 +5,7 @@ import { Texture } from './Resources/Texture';
 import {
    InitializeEvent, KillEvent, PreUpdateEvent, PostUpdateEvent,
    PreDrawEvent, PostDrawEvent, PreDebugDrawEvent, PostDebugDrawEvent,
-   GameEvent, PostCollisionEvent, PreCollisionEvent, CollisionStartEvent, CollisionEndEvent
+   GameEvent, PostCollisionEvent, PreCollisionEvent, CollisionStartEvent, CollisionEndEvent, PostKillEvent, PreKillEvent
 } from './Events';
 import { PointerEvent, PointerDragEvent } from './Input/Pointer';
 import { Engine } from './Engine';
@@ -13,7 +13,7 @@ import { Color } from './Drawing/Color';
 import { Sprite } from './Drawing/Sprite';
 import { IActorTrait } from './Interfaces/IActorTrait';
 import { IDrawable } from './Interfaces/IDrawable';
-import { ICanInitialize, ICanUpdate, ICanDraw } from './Interfaces/LifecycleEvents';
+import { ICanInitialize, ICanUpdate, ICanDraw, ICanBeKilled } from './Interfaces/LifecycleEvents';
 import { Scene } from './Scene';
 import { Logger } from './Util/Log';
 import { ActionContext } from './Actions/ActionContext';
@@ -58,7 +58,8 @@ export interface IActorArgs extends Partial<ActorImpl> {
  * @hidden
  */
 
-export class ActorImpl extends Class implements IActionable, IEvented, ICanInitialize, ICanUpdate, ICanDraw {
+export class ActorImpl extends Class implements IActionable, IEvented, ICanInitialize, ICanUpdate, ICanDraw, ICanBeKilled {
+   // #region Properties
 
    /**
     * Indicates the next id to be set
@@ -417,6 +418,8 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
    private _isKilled: boolean = false;
    private _opacityFx = new Effects.Opacity(this.opacity);
 
+   // #endregion
+
    /**
     * @param x       The starting x coordinate of the actor
     * @param y       The starting y coordinate of the actor
@@ -472,22 +475,6 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
       // Override me
    }
 
-   public onPreUpdate(_engine: Engine): void {
-      // Override me
-   }
-
-   public onPostUpdate(_engine: Engine): void {
-      // Override me
-   }
-
-   public onPreDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
-      // Override me
-   }
-
-   public onPostDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
-      // Override me
-   }
-
    /**
     * Gets wether the actor is Initialized 
     */
@@ -502,7 +489,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
    public _initialize(engine: Engine) {
       if (!this.isInitialized) {
          this.onInitialize(engine);
-         this.eventDispatcher.emit('initialize', new InitializeEvent(engine, this));
+         super.emit('initialize', new InitializeEvent(engine, this));
          this._isInitialized = true;
       }
       for (var child of this.children) {
@@ -510,33 +497,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
       }
    }
 
-   /**
-    * @internal
-    */
-   public _preupdate(engine: Engine): void {
-      this.onPreUpdate(engine);
-   }
-
-   /**
-    * @internal
-    */
-   public _postupdate(engine: Engine): void {
-      this.onPostUpdate(engine);
-   }
-
-   /**
-    * @internal
-    */
-   public _predraw(ctx: CanvasRenderingContext2D, delta: number): void {
-      this.onPreDraw(ctx, delta);
-   }
-
-   /**
-    * @internal
-    */
-   public _postdraw(ctx: CanvasRenderingContext2D, delta: number): void {
-      this.onPostDraw(ctx, delta);
-   }
+   // #region Events
 
    private _capturePointerEvents: PointerEventName[] = [
       'pointerup', 'pointerdown', 'pointermove', 'pointerenter', 'pointerleave',
@@ -575,6 +536,8 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
    public on(eventName: Events.precollision, handler: (event?: PreCollisionEvent) => void): void;
    public on(eventName: Events.postcollision, handler: (event?: PostCollisionEvent) => void): void;
    public on(eventName: Events.kill, handler: (event?: KillEvent) => void): void;
+   public on(eventName: Events.prekill, handler: (event?: PreKillEvent) => void): void;
+   public on(eventName: Events.postkill, handler: (event?: PostKillEvent) => void): void;
    public on(eventName: Events.initialize, handler: (event?: InitializeEvent) => void): void;
    public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
    public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): void;
@@ -594,10 +557,9 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
    public on(eventName: Events.pointerdragenter, handler: (event?: PointerDragEvent) => void): void;
    public on(eventName: Events.pointerdragleave, handler: (event?: PointerDragEvent) => void): void;
    public on(eventName: Events.pointerdragmove, handler: (event?: PointerDragEvent) => void): void;
-   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
    public on(eventName: string, handler: (event?: any) => void): void {
       this._checkForPointerOptIn(eventName);
-      this.eventDispatcher.on(eventName, handler);
+      super.on(eventName, handler);
    }
 
    public once(eventName: Events.collisionstart, handler: (event?: CollisionStartEvent) => void): void;
@@ -605,6 +567,8 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
    public once(eventName: Events.precollision, handler: (event?: PreCollisionEvent) => void): void;
    public once(eventName: Events.postcollision, handler: (event?: PostCollisionEvent) => void): void;
    public once(eventName: Events.kill, handler: (event?: KillEvent) => void): void;
+   public once(eventName: Events.postkill, handler: (event?: PostKillEvent) => void): void;
+   public once(eventName: Events.prekill, handler: (event?: PreKillEvent) => void): void;
    public once(eventName: Events.initialize, handler: (event?: InitializeEvent) => void): void;
    public once(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
    public once(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): void;
@@ -624,10 +588,47 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
    public once(eventName: Events.pointerdragenter, handler: (event?: PointerDragEvent) => void): void;
    public once(eventName: Events.pointerdragleave, handler: (event?: PointerDragEvent) => void): void;
    public once(eventName: Events.pointerdragmove, handler: (event?: PointerDragEvent) => void): void;
-   public once(eventName: string, handler: (event?: GameEvent<any>) => void): void;
    public once(eventName: string, handler: (event?: any) => void): void {
       this._checkForPointerOptIn(eventName);
-      this.eventDispatcher.once(eventName, handler);
+      super.once(eventName, handler);
+   }
+
+   public off(eventName: Events.prekill, handler?: (event?: PreKillEvent) => void): void;
+   public off(eventName: Events.postkill, handler?: (event?: PostKillEvent) => void): void;
+   public off(eventName: Events.initialize, handler?: (event?: Events.InitializeEvent) => void): void;
+   public off(eventName: Events.postupdate, handler?: (event?: Events.PostUpdateEvent) => void): void;
+   public off(eventName: Events.preupdate, handler?: (event?: Events.PreUpdateEvent) => void): void;
+   public off(eventName: Events.postdraw, handler?: (event?: Events.PostDrawEvent) => void): void;
+   public off(eventName: Events.predraw, handler?: (event?: Events.PreDrawEvent) => void): void;
+   public off(eventName: string, handler?: (event?: any) => void): void {
+      super.off(eventName, handler);
+   }
+
+   // #endregion
+
+
+   /**
+    * @internal
+    */
+   public _prekill() {
+      super.emit('prekill', new PreKillEvent(this));
+      this.onPreKill();
+   }
+
+   public onPreKill() {
+      // Override me
+   }
+
+   /**
+    * @internal
+    */
+   public _postkill() {
+      super.emit('postkill', new PostKillEvent(this));
+      this.onPostKill();
+
+   }
+   public onPostKill() {
+      // Override me
    }
 
    /**
@@ -636,9 +637,11 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
     */
    public kill() {
       if (this.scene) {
+         this._prekill();
          this.emit('kill', new KillEvent(this));
          this.scene.remove(this);
          this._isKilled = true;
+         this._postkill();
       } else {
          this.logger.warn('Cannot kill actor, it was never added to the Scene');
       }
@@ -910,6 +913,9 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
       var parentScale = this.parent.getGlobalScale();
       return new Vector(this.scale.x * parentScale.x, this.scale.y * parentScale.y);
    }
+
+   // #region Collision
+
    /**
     * Returns the actor's [[BoundingBox]] calculated for this instant in world space.
     */
@@ -1040,6 +1046,8 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
       return Math.sqrt(Math.pow(this.pos.x - actor.pos.x, 2) + Math.pow(this.pos.y - actor.pos.y, 2)) <= distance;
    }
 
+   // #endregion
+
    private _getCalculatedAnchor(): Vector {
       return new Vector(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
    }
@@ -1049,6 +1057,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
       drawing.addEffect(this._opacityFx);
    }
 
+   // #region Update
    /**
     * Perform euler integration at the specified time step
     */
@@ -1082,8 +1091,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
     */
    public update(engine: Engine, delta: number) {
       this._initialize(engine);
-      this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
-      this._preupdate(engine);
+      this._preupdate(engine, delta);
 
       // Update action queue
       this.actionQueue.update(delta);
@@ -1117,9 +1125,37 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
          this.children[i].update(engine, delta);
       }
 
-      this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
-      this._postupdate(engine);
+      this._postupdate(engine, delta);
    }
+
+   
+   public onPreUpdate(_engine: Engine): void {
+      // Override me
+   }
+
+   public onPostUpdate(_engine: Engine): void {
+      // Override me
+   }
+   
+   /**
+    * @internal
+    */
+   public _preupdate(engine: Engine, delta: number): void {      
+      this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
+      this.onPreUpdate(engine);
+   }
+
+   /**
+    * @internal
+    */
+   public _postupdate(engine: Engine, delta: number): void {      
+      this.emit('postupdate', new PreUpdateEvent(engine, delta, this));
+      this.onPostUpdate(engine);
+   }
+
+   // endregion
+
+   // #region Drawing
    /**
     * Called by the Engine, draws the actor to the screen
     * @param ctx   The rendering context
@@ -1135,7 +1171,6 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
       ctx.save();
       ctx.translate(-(this._width * this.anchor.x), -(this._height * this.anchor.y));
 
-      this.emit('predraw', new PreDrawEvent(ctx, delta, this));
       this._predraw(ctx, delta);
 
       if (this.currentDrawing) {
@@ -1165,9 +1200,33 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
          }
       }
 
-      this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
+      
       this._postdraw(ctx, delta);
       ctx.restore();
+   }
+
+   public onPreDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+      // Override me
+   }
+
+   public onPostDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+      // Override me
+   }
+
+   /**
+    * @internal
+    */
+   public _predraw(ctx: CanvasRenderingContext2D, delta: number): void {      
+      this.emit('predraw', new PreDrawEvent(ctx, delta, this));
+      this.onPreDraw(ctx, delta);
+   }
+
+   /**
+    * @internal
+    */
+   public _postdraw(ctx: CanvasRenderingContext2D, delta: number): void {
+      this.emit('postdraw', new PreDrawEvent(ctx, delta, this));
+      this.onPostDraw(ctx, delta);
    }
 
    /**
@@ -1234,6 +1293,8 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
 
       this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));
    }
+
+   // #endregion
 }
 
 
