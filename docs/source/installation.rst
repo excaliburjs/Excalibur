@@ -14,9 +14,9 @@ With `Node installed <https://nodejs.org/en/download/>`_, run the following on t
 
 .. code-block::
 
-    npm install excalibur -S
+    npm install excalibur
 
-This will create a folder structure like:
+This will add excalibur to your package.json as a project dependency and will create a folder structure like:
 
 .. code-block::
 
