@@ -12,13 +12,13 @@ If you're using Node.js or intend to use Excalibur in a primarily JavaScript pro
 
 With `Node installed <https://nodejs.org/en/download/>`_, run the following on the command-line:
 
-.. code-block::
+.. code-block:: bash
 
     npm install excalibur
 
 This will add excalibur to your package.json as a project dependency and will create a folder structure like:
 
-.. code-block::
+.. code-block:: none
 
     /node_modules
         /excalibur
@@ -38,13 +38,13 @@ If you intend to use Excalibur in a primarily .NET-based project (like Xamarin, 
 
 With the `.NET SDK installed <https://docs.microsoft.com/en-us/dotnet/framework/install/>`_, run the following on the command-line:
 
-.. code-block::
+.. code-block:: none
 
     Install-Package Excalibur
     
 Nuget will automatically place the Excalibur files in the ``Content/Scripts`` folder of your project:
 
-.. code-block::
+.. code-block:: none
 
     /Content
         /Scripts
