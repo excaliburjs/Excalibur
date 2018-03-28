@@ -4,7 +4,7 @@ Installing Excalibur.js
 Getting Excalibur
 -----------------
 
-There are several ways you can download Excalibur, either as standalone packages, using a script generator, or as raw script files you can download.
+There are several ways you can get Excalibur: as standalone packages, using a script generator, or as raw script files you can download.
 
 **npm Package** (Best for JavaScript/TypeScript projects)
 
@@ -15,6 +15,20 @@ With `Node installed <https://nodejs.org/en/download/>`_, run the following on t
 .. code-block::
 
     npm install excalibur -S
+
+This will create a folder structure like:
+
+.. code-block::
+
+    /node_modules
+        /excalibur
+            /dist
+                excalibur.js
+                excalibur.min.js                
+                excalibur.d.ts
+                ...other files               
+                
+See below for how to reference these files in your project after Excalibur is installed.                
 
 View the `excalibur <https://www.npmjs.com/package/excalibur>`_ package on npm.
 
@@ -27,6 +41,19 @@ With the `.NET SDK installed <https://docs.microsoft.com/en-us/dotnet/framework/
 .. code-block::
 
     Install-Package Excalibur
+    
+Nuget will automatically place the Excalibur files in the ``Content/Scripts`` folder of your project:
+
+.. code-block::
+
+    /Content
+        /Scripts
+            excalibur.js
+            excalibur.min.js        
+            excalibur.d.ts
+            ...other files
+                
+See below for how to reference these files in your project after Excalibur is installed.
     
 View the `Excalibur <https://www.nuget.org/packages/Excalibur/>`_ package on Nuget.
 
@@ -53,10 +80,10 @@ the needed dependencies for your project.
 
 **Raw Script Files via CDN or Download**
 
-Excalibur is available via `unpkg <https://unpkg.com>`_ CDN, with the latest version at this URL:
+Excalibur is available via `unpkg <https://unpkg.com>`_ CDN, with the latest version at these URLs:
 
-- https://unpkg.com/excalibur@latest/dist/excalibur.js
-- https://unpkg.com/excalibur@latest/dist/excalibur.min.js
+- https://unpkg.com/excalibur@latest/dist/excalibur.js (Developer, Not Minified)
+- https://unpkg.com/excalibur@latest/dist/excalibur.min.js (Production, Minified)
 
 You can also download the raw Javascript files from the `Excalibur Distribution repository <https://github.com/excaliburjs/excalibur-dist/releases>`_.
 
