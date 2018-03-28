@@ -4,15 +4,58 @@ Installing Excalibur.js
 Getting Excalibur
 -----------------
 
-There are several ways you can download Excalibur.
+There are several ways you can get Excalibur: as standalone packages, using a script generator, or as raw script files you can download.
 
-**npm** (Best for TypeScript projects)::
+**npm Package** (Best for JavaScript/TypeScript projects)
+
+If you're using Node.js or intend to use Excalibur in a primarily JavaScript project, you can install it via `npm <https://docs.npmjs.com/getting-started/what-is-npm>`_.
+
+With `Node installed <https://nodejs.org/en/download/>`_, run the following on the command-line:
+
+.. code-block::
 
     npm install excalibur
 
-**Nuget**::
+This will add excalibur to your package.json as a project dependency and will create a folder structure like:
+
+.. code-block::
+
+    /node_modules
+        /excalibur
+            /dist
+                excalibur.js
+                excalibur.min.js                
+                excalibur.d.ts
+                ...other files               
+                
+See below for how to reference these files in your project after Excalibur is installed.                
+
+View the `excalibur <https://www.npmjs.com/package/excalibur>`_ package on npm.
+
+**Nuget Package** (Best for .NET)
+
+If you intend to use Excalibur in a primarily .NET-based project (like Xamarin, Windows 10, etc.), you can use `Nuget <https://www.nuget.org/>`_.
+
+With the `.NET SDK installed <https://docs.microsoft.com/en-us/dotnet/framework/install/>`_, run the following on the command-line:
+
+.. code-block::
 
     Install-Package Excalibur
+    
+Nuget will automatically place the Excalibur files in the ``Content/Scripts`` folder of your project:
+
+.. code-block::
+
+    /Content
+        /Scripts
+            excalibur.js
+            excalibur.min.js        
+            excalibur.d.ts
+            ...other files
+                
+See below for how to reference these files in your project after Excalibur is installed.
+    
+View the `Excalibur <https://www.nuget.org/packages/Excalibur/>`_ package on Nuget.
 
 **Yeoman Generator**
 
@@ -35,7 +78,12 @@ up a blank, ready-to-go Excalibur game:
 The Yeoman generator will automatically create the appropriate package.json and bower.json files and install
 the needed dependencies for your project.
 
-**Raw Script Files**
+**Raw Script Files via CDN or Download**
+
+Excalibur is available via `unpkg <https://unpkg.com>`_ CDN, with the latest version at these URLs:
+
+- https://unpkg.com/excalibur@latest/dist/excalibur.js (Developer, Not Minified)
+- https://unpkg.com/excalibur@latest/dist/excalibur.min.js (Production, Minified)
 
 You can also download the raw Javascript files from the `Excalibur Distribution repository <https://github.com/excaliburjs/excalibur-dist/releases>`_.
 
@@ -77,6 +125,9 @@ Just include the ``excalibur.min.js`` file on your page and you'll be set.
             <script src="excalibur.min.js"></script>
         </body>
     </html>
+    
+
+.. note:: If you used ``npm`` to install Excalibur, you can use the ``node_modules/excalibur/dist/excalibur.min.js`` path above in the HTML. We `recommend webpack <https://github.com/excaliburjs/example-ts-webpack>`_ for more sophisticated projects.
 
 Referencing Excalibur via Triple-Slash Reference
 ------------------------------------------------
