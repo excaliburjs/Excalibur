@@ -7,7 +7,7 @@ import {
    PreDrawEvent, PostDrawEvent, PreDebugDrawEvent, PostDebugDrawEvent,
    PostCollisionEvent, PreCollisionEvent, CollisionStartEvent, CollisionEndEvent, PostKillEvent, PreKillEvent, GameEvent
 } from './Events';
-import { PointerEvent, PointerDragEvent } from './Input/Pointer';
+import { PointerEvent, WheelEvent, PointerDragEvent } from './Input/Pointer';
 import { Engine } from './Engine';
 import { Color } from './Drawing/Color';
 import { Sprite } from './Drawing/Sprite';
@@ -29,6 +29,7 @@ import * as Traits from './Traits/Index';
 import * as Effects from './Drawing/SpriteEffects';
 import * as Util from './Util/Util';
 import * as Events from './Events';
+import { IPointerEvents } from './Interfaces/IPointerEvents';
 
 export type PointerEventName = 'pointerdragstart'
    | 'pointerdragend' | 'pointerdragmove' | 'pointerdragenter'
@@ -58,7 +59,7 @@ export interface IActorArgs extends Partial<ActorImpl> {
  * @hidden
  */
 
-export class ActorImpl extends Class implements IActionable, IEvented, ICanInitialize, ICanUpdate, ICanDraw, ICanBeKilled {
+export class ActorImpl extends Class implements IActionable, IEvented, IPointerEvents, ICanInitialize, ICanUpdate, ICanDraw, ICanBeKilled {
    // #region Properties
 
    /**
@@ -595,6 +596,18 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
       super.once(eventName, handler);
    }
 
+   public off(eventName: Events.pointerup, handler?: (event?: PointerEvent) => void): void;
+   public off(eventName: Events.pointerdown, handler?: (event?: PointerEvent) => void): void;
+   public off(eventName: Events.pointerenter, handler?: (event?: PointerEvent) => void): void;
+   public off(eventName: Events.pointerleave, handler?: (event?: PointerEvent) => void): void;
+   public off(eventName: Events.pointermove, handler?: (event?: PointerEvent) => void): void;
+   public off(eventName: Events.pointercancel, handler?: (event?: PointerEvent) => void): void;
+   public off(eventName: Events.pointerwheel, handler?: (event?: WheelEvent) => void): void;
+   public off(eventName: Events.pointerdragstart, handler?: (event?: PointerDragEvent) => void): void;
+   public off(eventName: Events.pointerdragend, handler?: (event?: PointerDragEvent) => void): void;
+   public off(eventName: Events.pointerdragenter, handler?: (event?: PointerDragEvent) => void): void;
+   public off(eventName: Events.pointerdragleave, handler?: (event?: PointerDragEvent) => void): void;
+   public off(eventName: Events.pointerdragmove, handler?: (event?: PointerDragEvent) => void): void;
    public off(eventName: Events.prekill, handler?: (event?: PreKillEvent) => void): void;
    public off(eventName: Events.postkill, handler?: (event?: PostKillEvent) => void): void;
    public off(eventName: Events.initialize, handler?: (event?: Events.InitializeEvent) => void): void;
