@@ -5,7 +5,9 @@ import { Texture } from './Resources/Texture';
 import {
    InitializeEvent, KillEvent, PreUpdateEvent, PostUpdateEvent,
    PreDrawEvent, PostDrawEvent, PreDebugDrawEvent, PostDebugDrawEvent,
-   PostCollisionEvent, PreCollisionEvent, CollisionStartEvent, CollisionEndEvent, PostKillEvent, PreKillEvent, GameEvent
+   PostCollisionEvent, PreCollisionEvent, CollisionStartEvent, 
+   CollisionEndEvent, PostKillEvent, PreKillEvent, GameEvent, 
+   ExitTriggerEvent, EnterTriggerEvent
 } from './Events';
 import { PointerEvent, WheelEvent, PointerDragEvent } from './Input/Pointer';
 import { Engine } from './Engine';
@@ -537,6 +539,8 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       }
    }
 
+   public on(eventName: Events.exittrigger, handler: (evt: ExitTriggerEvent) => void): void;
+   public on(eventName: Events.entertrigger, handler: (evt: EnterTriggerEvent) => void): void;
    public on(eventName: Events.collisionstart, handler: (event?: CollisionStartEvent) => void): void;
    public on(eventName: Events.collisionend, handler: (event?: CollisionEndEvent) => void): void;
    public on(eventName: Events.precollision, handler: (event?: PreCollisionEvent) => void): void;
@@ -569,6 +573,8 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       super.on(eventName, handler);
    }
 
+   public once(eventName: Events.exittrigger, handler: (evt: ExitTriggerEvent) => void): void;
+   public once(eventName: Events.entertrigger, handler: (evt: EnterTriggerEvent) => void): void;
    public once(eventName: Events.collisionstart, handler: (event?: CollisionStartEvent) => void): void;
    public once(eventName: Events.collisionend, handler: (event?: CollisionEndEvent) => void): void;
    public once(eventName: Events.precollision, handler: (event?: PreCollisionEvent) => void): void;
@@ -601,6 +607,8 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       super.once(eventName, handler);
    }
 
+   public off(eventName: Events.exittrigger, handler?: (evt: ExitTriggerEvent) => void): void;
+   public off(eventName: Events.entertrigger, handler?: (evt: EnterTriggerEvent) => void): void;
    public off(eventName: Events.pointerup, handler?: (event?: PointerEvent) => void): void;
    public off(eventName: Events.pointerdown, handler?: (event?: PointerEvent) => void): void;
    public off(eventName: Events.pointerenter, handler?: (event?: PointerEvent) => void): void;
