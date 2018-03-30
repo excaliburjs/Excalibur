@@ -626,24 +626,24 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    /**
     * @internal
     */
-   public _prekill() {
+   public _prekill(_scene: Scene) {
       super.emit('prekill', new PreKillEvent(this));
-      this.onPreKill();
+      this.onPreKill(_scene);
    }
 
-   public onPreKill() {
+   public onPreKill(_scene: Scene) {
       // Override me
    }
 
    /**
     * @internal
     */
-   public _postkill() {
+   public _postkill(_scene: Scene) {
       super.emit('postkill', new PostKillEvent(this));
-      this.onPostKill();
+      this.onPostKill(_scene);
 
    }
-   public onPostKill() {
+   public onPostKill(_scene: Scene) {
       // Override me
    }
 
@@ -653,11 +653,11 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
     */
    public kill() {
       if (this.scene) {
-         this._prekill();
+         this._prekill(this.scene);
          this.emit('kill', new KillEvent(this));
          this.scene.remove(this);
          this._isKilled = true;
-         this._postkill();
+         this._postkill(this.scene);
       } else {
          this.logger.warn('Cannot kill actor, it was never added to the Scene');
       }
@@ -1132,12 +1132,12 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       this.integrate(delta);
 
       // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
-      for (var trait of this.traits) {
+      for (let trait of this.traits) {
          trait.update(this, engine, delta);
       }
 
       // Update child actors
-      for (var i = 0; i < this.children.length; i++) {
+      for (let i = 0; i < this.children.length; i++) {
          this.children[i].update(engine, delta);
       }
 
@@ -1145,11 +1145,11 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    }
 
    
-   public onPreUpdate(_engine: Engine): void {
+   public onPreUpdate(_engine: Engine, _delta: number): void {
       // Override me
    }
 
-   public onPostUpdate(_engine: Engine): void {
+   public onPostUpdate(_engine: Engine, _delta: number): void {
       // Override me
    }
    
@@ -1158,7 +1158,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
     */
    public _preupdate(engine: Engine, delta: number): void {      
       this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
-      this.onPreUpdate(engine);
+      this.onPreUpdate(engine, delta);
    }
 
    /**
@@ -1166,7 +1166,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
     */
    public _postupdate(engine: Engine, delta: number): void {      
       this.emit('postupdate', new PreUpdateEvent(engine, delta, this));
-      this.onPostUpdate(engine);
+      this.onPostUpdate(engine, delta);
    }
 
    // endregion

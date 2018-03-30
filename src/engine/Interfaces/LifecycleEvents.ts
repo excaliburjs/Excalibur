@@ -1,5 +1,6 @@
 import { Engine } from './../Engine';
 import * as Events from './../Events';
+import { Scene } from '../Scene';
 
 export interface ICanInitialize {
 
@@ -105,7 +106,7 @@ export interface ICanBeKilled {
    /**
     * Overridable implementation
     */
-   onPreKill(): void;
+   onPreKill(_scene: Scene): void;
 
    /**
     * Event signatures
@@ -117,7 +118,7 @@ export interface ICanBeKilled {
    /**
     * Overridable implementation
     */
-   onPostKill(): void;
+   onPostKill(_scene: Scene): void;
 
    /**
     * Event signatures

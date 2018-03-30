@@ -10,7 +10,7 @@ describe('A game actor', () => {
    var mock = new Mocks.Mocker();
 
    beforeEach(() => {
-      engine = mock.engine(100, 100);
+      engine = TestUtils.engine({width: 100, height: 100});
       actor = new ex.Actor();
       actor.collisionType = ex.CollisionType.Active;
       scene = new ex.Scene(engine);
@@ -24,6 +24,11 @@ describe('A game actor', () => {
 
       ex.Physics.useBoxPhysics();
       ex.Physics.acc.setTo(0, 0);
+   });
+
+   afterEach(() => {
+      engine.stop();
+      engine = null;
    });
 
    it('should be loaded', () => {
@@ -1250,4 +1255,131 @@ describe('A game actor', () => {
       expect(numPointerUps).toBe(1, 'Pointer up should be triggered once');
       expect(propSpy).toHaveBeenCalledTimes(1);
    });
+
+   describe('lifecycle overrides', () => {
+
+      let actor: ex.Actor = null;
+      // let engine: ex.Engine = null;
+      beforeEach(() => {
+         actor = new ex.Actor({
+            pos: new ex.Vector(10, 10),
+            width: 200,
+            height: 200
+         });
+
+         // engine = TestUtils.engine({width: 400, height: 600});
+      });
+
+      // afterEach(() => {
+      //    engine.stop();
+      //    engine = null;
+      // });
+
+      it('can have onInitialize overriden safely', () => {
+         actor.onInitialize = (engine) => { 
+            expect(engine).not.toBe(null);
+         };
+
+         spyOn(actor, 'onInitialize').and.callThrough();
+         spyOn(actor, '_initialize').and.callThrough();
+
+         actor.update(engine, 100);
+         actor.update(engine, 100);
+         expect(actor._initialize).toHaveBeenCalledTimes(2);
+         expect(actor.onInitialize).toHaveBeenCalledTimes(1);
+         expect(actor.isInitialized).toBe(true);
+      });
+
+      it('can have onPostUpdate overriden safely', () => {
+         actor.onPostUpdate = (engine, delta) => {
+            expect(engine).not.toBe(null);
+            expect(delta).toBe(100);
+         };
+
+         spyOn(actor, 'onPostUpdate').and.callThrough();
+         spyOn(actor, '_postupdate').and.callThrough();
+
+         actor.update(engine, 100);
+         actor.update(engine, 100);
+         expect(actor._postupdate).toHaveBeenCalledTimes(2);
+         expect(actor.onPostUpdate).toHaveBeenCalledTimes(2);
+      });
+   
+      it('can have onPreUpdate overriden safely', () => {
+         actor.onPreUpdate = (engine, delta) => {
+            expect(engine).not.toBe(null);
+            expect(delta).toBe(100);
+         };
+
+         spyOn(actor, 'onPreUpdate').and.callThrough();
+         spyOn(actor, '_preupdate').and.callThrough();
+
+         actor.update(engine, 100);
+         actor.update(engine, 100);
+         expect(actor._preupdate).toHaveBeenCalledTimes(2);
+         expect(actor.onPreUpdate).toHaveBeenCalledTimes(2);
+      });
+
+
+      it('can have onPreDraw overriden safely', () => {
+         actor.onPreDraw = (ctx, delta) => {
+            expect(ctx).not.toBe(null);
+            expect(delta).toBe(100);
+         };
+
+         spyOn(actor, 'onPreDraw').and.callThrough();
+         spyOn(actor, '_predraw').and.callThrough();
+
+         actor.draw(engine.ctx, 100);
+         actor.draw(engine.ctx, 100);
+         expect(actor._predraw).toHaveBeenCalledTimes(2);
+         expect(actor.onPreDraw).toHaveBeenCalledTimes(2);
+      });
+
+      it('can have onPostDraw overriden safely', () => {
+         actor.onPostDraw = (ctx, delta) => {
+            expect(ctx).not.toBe(null);
+            expect(delta).toBe(100);
+         };
+
+         spyOn(actor, 'onPostDraw').and.callThrough();
+         spyOn(actor, '_postdraw').and.callThrough();
+
+         actor.draw(engine.ctx, 100);
+         actor.draw(engine.ctx, 100);
+         expect(actor._postdraw).toHaveBeenCalledTimes(2);
+         expect(actor.onPostDraw).toHaveBeenCalledTimes(2);
+      });
+
+      it('can have onPreKill overriden safely', () => {
+         engine.add(actor);
+         actor.onPreKill = (scene) => {
+            expect(scene).not.toBe(null);
+         };
+
+         spyOn(actor, '_prekill').and.callThrough();
+         spyOn(actor, 'onPreKill').and.callThrough();
+
+         actor.kill();
+         expect(actor._prekill).toHaveBeenCalledTimes(1);
+         expect(actor.onPreKill).toHaveBeenCalledTimes(1);
+
+      });
+
+      it('can have onPostKill overriden safely', () => {
+         engine.add(actor);
+         actor.onPreKill = (scene) => {
+            expect(scene).not.toBe(null);
+         };
+
+         spyOn(actor, '_postkill').and.callThrough();
+         spyOn(actor, 'onPostKill').and.callThrough();
+
+         actor.kill();
+         expect(actor._postkill).toHaveBeenCalledTimes(1);
+         expect(actor.onPostKill).toHaveBeenCalledTimes(1);
+      });
+
+   });
+ 
 });
