@@ -133,45 +133,58 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
     * This is called before the first update of the [[Scene]]. Initializes scene members like the camera. This method is meant to be
     * overridden. This is where initialization of child actors should take place.
     */
-   public onInitialize(engine: Engine): void {
+   public onInitialize(_engine: Engine): void {
       // will be overridden
-      if (this.camera) {
-         this.camera.x = engine.halfDrawWidth;
-         this.camera.y = engine.halfDrawHeight;
-      }
-      this._logger.debug('Scene.onInitialize', this, engine);
    }
 
    /**
     * This is called when the scene is made active and started. It is meant to be overriden,
     * this is where you should setup any DOM UI or event handlers needed for the scene.
     */
-   public onActivate(): void {
+   public onActivate(_oldScene: Scene, _newScene: Scene): void {
       // will be overridden
-      this._logger.debug('Scene.onActivate', this);
    }
 
    /**
     * This is called when the scene is made transitioned away from and stopped. It is meant to be overriden,
     * this is where you should cleanup any DOM UI or event handlers needed for the scene.
     */
-   public onDeactivate(): void {
-      // will be overridden
-      this._logger.debug('Scene.onDeactivate', this);
-   }
-
-   public onPreUpdate(_engine: Engine): void {
+   public onDeactivate(_oldScene: Scene, _newScene: Scene): void {
       // will be overridden
    }
 
-   public onPostUpdate(_engine: Engine): void {
+   /**
+    * Safe to override onPreUpdate lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
+    * 
+    * `onPreUpdate` is called directly before a scene is updated.
+    */
+   public onPreUpdate(_engine: Engine, _delta: number): void {
       // will be overridden
    }
 
+   /**
+    * Safe to override onPostUpdate lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
+    * 
+    * `onPostUpdate` is called directly after a scene is updated.
+    */
+   public onPostUpdate(_engine: Engine, _delta: number): void {
+      // will be overridden
+   }
+
+   /**
+    * Safe to override onPreDraw lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
+    * 
+    * `onPreDraw` is called directly before a scene is drawn.
+    */
    public onPreDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
       // will be overridden
    }
 
+   /**
+    * Safe to override onPostDraw lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
+    * 
+    * `onPostDraw` is called directly after a scene is drawn.
+    */
    public onPostDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
       // will be overridden
    }
@@ -194,46 +207,95 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
    }
 
    /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
     * Initializes the scene before the first update, meant to be called by engine not by users of
     * Excalibur
     * @internal
     */
    public _initialize(engine: Engine) {
       if (!this.isInitialized) {
-         this.onInitialize.call(this, engine);
-         this.eventDispatcher.emit('initialize', new InitializeEvent(engine, this));
+         if (this.camera) {
+            this.camera.x = engine.halfDrawWidth;
+            this.camera.y = engine.halfDrawHeight;
+         }
+
          this._initializeChildren();
+         
+         this._logger.debug('Scene.onInitialize', this, engine);
+
+         this.eventDispatcher.emit('initialize', new InitializeEvent(engine, this));
+         this.onInitialize.call(this, engine);
          this._isInitialized = true;
       }
    }
 
    /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
     * Activates the scene with the base behavior, then calls the overridable `onActivate` implementation.
+    * @internal
     */
-   public _activate(): void {
-      this.onActivate.call(this);
+   public _activate(oldScene: Scene, newScene: Scene): void {
+      
+      this._logger.debug('Scene.onActivate', this);
+      this.onActivate(oldScene, newScene);
    }
 
    /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
     * Deactivates the scene with the base behavior, then calls the overridable `onDeactivate` implementation.
+    * @internal
     */
-   public _deactivate(): void {
-      this.onDeactivate.call(this);
+   public _deactivate(oldScene: Scene, newScene: Scene): void {
+      this._logger.debug('Scene.onDectivate', this);
+      this.onDeactivate(oldScene, newScene);
    }
 
-   public _preupdate(_engine: Engine): void {
-      this.onPreUpdate(_engine);
+   /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
+    * @internal
+    */
+   public _preupdate(_engine: Engine, delta: number): void {      
+      this.emit('preupdate', new PreUpdateEvent(_engine, delta, this));
+      this.onPreUpdate(_engine, delta);
    }
 
-   public _postupdate(_engine: Engine): void {
-      this.onPostUpdate(_engine);
+   /**
+    *  It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
+    * @internal
+    */
+   public _postupdate(_engine: Engine, delta: number): void {      
+      this.emit('postupdate', new PostUpdateEvent(_engine, delta, this));
+      this.onPostUpdate(_engine, delta);
    }
 
+   /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _predraw handler for [[onPreDraw]] lifecycle event
+    * 
+    * @internal
+    */
    public _predraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+      this.emit('predraw', new PreDrawEvent(_ctx, _delta, this));
       this.onPreDraw(_ctx, _delta);
    }
 
+   /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _postdraw handler for [[onPostDraw]] lifecycle event
+    * 
+    * @internal
+    */
    public _postdraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+      this.emit('postdraw', new PostDrawEvent(_ctx, _delta, this));
       this.onPostDraw(_ctx, _delta);
    }
 
@@ -244,8 +306,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
     * @param delta   The number of milliseconds since the last update
     */
    public update(engine: Engine, delta: number) {
-      this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
-      this._preupdate(engine);
+      this._preupdate(engine, delta);
       var i: number, len: number;
 
       
@@ -318,8 +379,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
          this.camera.update(engine, delta);
       }
 
-      this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
-      this._postupdate(engine);
+      this._postupdate(engine, delta);
    }
 
     private _processKillQueue(killQueue: Actor[], collection: Actor[]) {
@@ -341,7 +401,6 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
     * @param delta  The number of milliseconds since the last draw
     */
    public draw(ctx: CanvasRenderingContext2D, delta: number) {
-      this.emit('predraw', new PreDrawEvent(ctx, delta, this));
       this._predraw(ctx, delta);
       ctx.save();
 
@@ -383,7 +442,6 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
             this.uiActors[i].debugDraw(ctx);
          }
       }
-      this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
       this._postdraw(ctx, delta);
    }
 

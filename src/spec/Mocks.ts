@@ -133,13 +133,23 @@ module Mocks {
             screenToWorldCoordinates: ex.Engine.prototype.screenToWorldCoordinates,
             addScene: ex.Engine.prototype.addScene,
             goToScene: ex.Engine.prototype.goToScene,
+            stop: function () { /* do nothing */ },
+            onFatalException: function() { /* do nothing */},
             emit: function () { /* do nothing */  },
             eventDispatcher: {
                emit: function () { /* do nothing */  }
             },
             _hasStarted: true,
             _update: (<any>ex.Engine.prototype)._update,
-            _draw: function () { /* do nothing */ }
+            _preupdate: ex.Engine.prototype._preupdate,
+            onPreUpdate: ex.Engine.prototype.onPreUpdate,
+            _postupdate: ex.Engine.prototype._postupdate,
+            onPostUpdate: ex.Engine.prototype.onPostUpdate,
+            _draw: function () { /* do nothing */ },
+            _predraw: ex.Engine.prototype._predraw,
+            onPreDraw: ex.Engine.prototype.onPreDraw,
+            _postdraw: ex.Engine.prototype._postdraw,
+            onPostDraw: ex.Engine.prototype.onPostDraw
          };
          return mockEngine;
       };

@@ -22,7 +22,7 @@ export interface ICanActivate {
    /**
     * Overridable implementation
     */
-   onActivate(_engine: Engine): void;
+   onActivate(oldScene: Scene, newScene: Scene): void;
 
    /**
     * Event signatures
@@ -37,7 +37,7 @@ export interface ICanDeactivate {
    /**
     * Overridable implementation
     */
-   onDeactivate(_engine: Engine): void;
+   onDeactivate(oldScene: Scene, newScene: Scene): void;
 
    /**
     * Event signature

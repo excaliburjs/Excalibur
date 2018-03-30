@@ -127,11 +127,13 @@ describe('A scene', () => {
       var sceneInitialized = false;
       var sceneActivated = false;
       var actorInitialized = false;
-      scene.on('initialize', (evt) => { sceneInitialized = true; });
+      scene.on('initialize', (evt) => { 
+         sceneInitialized = true; 
+         expect(actorInitialized).toBe(true, 'Actor should be initialized before scene initilization');
+      });
       var actor = new ex.Actor();
       actor.on('initialize', (evt) => {
          actorInitialized = true;
-         expect(sceneInitialized).toBe(true, 'Scene should be initialized before actor initilization');
       });
 
       scene.on('activate', (evt) => {
