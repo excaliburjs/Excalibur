@@ -1,5 +1,5 @@
-import { Sprite } from './Sprite';
-import { Animation } from '../Drawing/Animation';
+import { Sprite, ISpriteArgs } from './Sprite';
+import { Animation } from './Animation';
 import { Color } from './Color';
 import * as Effects from './SpriteEffects';
 
@@ -17,8 +17,8 @@ export class SpriteSheetImpl {
    public image: Texture = null;
    public columns: number = 0;
    public rows: number = 0;
-   public spWidth: number;
-   public spHeight: number;
+   public spWidth: number = 0;
+   public spHeight: number = 0;
 
    /**
     * @param image     The backing image texture to build the SpriteSheet
@@ -133,6 +133,35 @@ export class SpriteSheetImpl {
         throw new Error('Invalid index: ' + index);
       }
    }
+
+   /**
+    * Get an animation with bespoke sprite coordinates. This is useful if the SpriteSheet is
+    * packed and not a uniform width or height. The resulting [[Animation]] will have the height and width of the
+    * largest dimension (width, height) from among the sprite coordinates
+    * @param engine 
+    * @param spriteCoordinates 
+    * @param speed 
+    */
+   public getAnimationByCoords(engine: Engine, spriteCoordinates: ISpriteArgs[], speed: number): Animation {
+      
+      let maxWidth: number = 0;
+      let maxHeight: number = 0;
+      let sprites: Sprite[] = new Array(spriteCoordinates.length);
+      for (let i = 0; i < spriteCoordinates.length; i++) {
+         let coord = spriteCoordinates[i];
+         // no need to pass image again if using a spritesheet
+         coord.image = coord.image || this.image;
+         maxWidth = Math.max(maxWidth, coord.width);
+         maxHeight = Math.max(maxHeight, coord.height);
+         sprites[i] = new Sprite(coord);
+      }
+
+      let anim = new Animation(engine, sprites, speed);
+
+      anim.width = maxWidth;
+      anim.height = maxHeight;
+      return anim;
+   }
 }
 
 /**
@@ -145,7 +174,7 @@ export interface ISpriteSheetArgs extends Partial<SpriteSheetImpl> {
    spHeight: number;
    rows: number;
    columns: number;
-} 
+}
 
 /**
  * Sprite sheets are a useful mechanism for slicing up image resources into
@@ -279,12 +308,12 @@ export class SpriteFontImpl extends SpriteSheet {
       var sprite = this.sprites[0];
       
       // find the current height fo the text in pixels
-      var height = sprite.sheight;
+      var height = sprite.height;
       
       // calculate appropriate scale for font size
       var scale = options.fontSize / height;
       
-      var length = (text.length * sprite.swidth * scale) + (text.length * options.letterSpacing);
+      var length = (text.length * sprite.width * scale) + (text.length * options.letterSpacing);
 
       var currX = x;
       if (options.textAlign === TextAlign.Left || options.textAlign === TextAlign.Start) {

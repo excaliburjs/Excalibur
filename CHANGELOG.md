@@ -8,6 +8,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Breaking Changes
 
 ## Added
+
+ - SpriteSheets can now produce animations from bespoke sprite coordinates `SpriteSheet.getAnimationByCoords(engine, coords[], speed)` ([#918](https://github.com/excaliburjs/Excalibur/issues/918))
  - New Event `enter`
  - New Event `leave`
  - New Event `pointerenter`
@@ -21,9 +23,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
  - New Class `GlobalCoordinates` that contains Vectors for the world, the page, and the screen.
  - Added property `ICapturePointerConfig.captureDragEvents` which controls whether to emit drag events to the actor
  - Added property `PointerEvent.pointer` which equals the original pointer object
+ 
 ## Changed
 
+
 ## Deprecated
+
+- `Sprite.sx`, `Sprite.sy`, `Sprite.swidth`, `Sprite.sheight` has be deprecated in favor of `Sprite.x`, `Sprite.y`, `Sprite.width`, `Sprite.height` ([#918](https://github.com/excaliburjs/Excalibur/issues/918))
 
 ## Fixed
 
