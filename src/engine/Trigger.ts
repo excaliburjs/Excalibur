@@ -4,9 +4,8 @@ import { ActionQueue } from './Actions/Action';
 import { EventDispatcher } from './EventDispatcher';
 import { Actor, CollisionType } from './Actor';
 import { Vector } from 'Algebra';
-import { ExitTriggerEvent, EnterTriggerEvent } from './Events';
+import { ExitTriggerEvent, EnterTriggerEvent, CollisionEndEvent, CollisionStartEvent } from './Events';
 import * as Util from './Util/Util';
-
 
 /**
  * ITriggerOptions
@@ -84,7 +83,7 @@ export class Trigger extends Actor {
       this.eventDispatcher = new EventDispatcher(this);
       this.actionQueue = new ActionQueue(this);
 
-      this.on('collisionstart', (evt) => {
+      this.on('collisionstart', (evt: CollisionStartEvent) => {
          if (this.filter(evt.other)) {  
             this.emit('enter', new EnterTriggerEvent(this, evt.other));
             this._dispatchAction();
@@ -95,7 +94,7 @@ export class Trigger extends Actor {
          }
       });
 
-      this.on('collisionend', (evt) => {
+      this.on('collisionend', (evt: CollisionEndEvent) => {
          if (this.filter(evt.other)) {
             this.emit('exit', new ExitTriggerEvent(this, evt.other));
          }
