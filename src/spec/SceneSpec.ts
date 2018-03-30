@@ -316,6 +316,8 @@ describe('A scene', () => {
       beforeEach(() => {
          engine = TestUtils.engine({width: 100, height: 100});
          scene = new ex.Scene(engine);
+         engine.currentScene = scene;
+         engine.addScene('root', scene);
       });
 
       afterEach(() => {
@@ -332,7 +334,8 @@ describe('A scene', () => {
 
          spyOn(scene, 'onInitialize').and.callThrough();
 
-         scene.update(engine, 100);
+         engine.goToScene('root');
+         (<any>engine)._update(100);
             
          expect(initCalled).toBe(true);
          expect(scene.onInitialize).toHaveBeenCalledTimes(1);
