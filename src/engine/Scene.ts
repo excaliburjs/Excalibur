@@ -306,6 +306,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
     * @param delta   The number of milliseconds since the last update
     */
    public update(engine: Engine, delta: number) {
+      this._initialize(engine);
       this._preupdate(engine, delta);
       var i: number, len: number;
 
