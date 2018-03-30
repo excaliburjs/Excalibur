@@ -469,8 +469,10 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    }
   
    /**
-    * This is called before the first update of the actor. This method is meant to be
+    * `onInitialize` is called before the first update of the actor. This method is meant to be
     * overridden. This is where initialization of child actors should take place.
+    * 
+    * Synonymous with the event handler `.on('initialize', (evt) => {...})`
     */
    public onInitialize(_engine: Engine): void {
       // Override me
@@ -485,6 +487,9 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
 
    /**
     * Initializes this actor and all it's child actors, meant to be called by the Scene before first update not by users of Excalibur.
+    * 
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
     * @internal
     */
    public _initialize(engine: Engine) {
@@ -624,6 +629,9 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
 
 
    /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _prekill handler for [[onPreKill]] lifecycle event
     * @internal
     */
    public _prekill(_scene: Scene) {
@@ -631,11 +639,19 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       this.onPreKill(_scene);
    }
 
+   /**
+    * Safe to override onPreKill lifecycle event handler. Synonymous with `.on('prekill', (evt) =>{...})`
+    * 
+    * `onPreKill` is called directly before an actor is killed and removed from its current [[Scene]].
+    */
    public onPreKill(_scene: Scene) {
       // Override me
    }
 
    /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _prekill handler for [[onPostKill]] lifecycle event
     * @internal
     */
    public _postkill(_scene: Scene) {
@@ -643,6 +659,12 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       this.onPostKill(_scene);
 
    }
+
+   /**
+    * Safe to overrid onPostKill lifecycle event handler. Synonymous with `.on('postkill', (evt) => {...})`
+    * 
+    * `onPostKill` is called directly after an actor is killed and remove from its current [[Scene]].
+    */
    public onPostKill(_scene: Scene) {
       // Override me
    }
@@ -1144,16 +1166,28 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       this._postupdate(engine, delta);
    }
 
-   
+   /**
+    * Safe to override onPreUpdate lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
+    * 
+    * `onPreUpdate` is called directly before an actor is updated.
+    */
    public onPreUpdate(_engine: Engine, _delta: number): void {
       // Override me
    }
 
+   /**
+    * Safe to override onPostUpdate lifecycle event handler. Synonymous with `.on('postupdate', (evt) =>{...})`
+    * 
+    * `onPostUpdate` is called directly after an actor is updated.
+    */
    public onPostUpdate(_engine: Engine, _delta: number): void {
       // Override me
    }
    
    /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
     * @internal
     */
    public _preupdate(engine: Engine, delta: number): void {      
@@ -1162,6 +1196,9 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    }
 
    /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
     * @internal
     */
    public _postupdate(engine: Engine, delta: number): void {      
@@ -1221,15 +1258,28 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       ctx.restore();
    }
 
+   /**
+    * Safe to override onPreDraw lifecycle event handler. Synonymous with `.on('predraw', (evt) =>{...})`
+    * 
+    * `onPreDraw` is called directly before an actor is drawn, but after local transforms are made.
+    */
    public onPreDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
       // Override me
    }
 
+   /**
+    * Safe to override onPostDraw lifecycle event handler. Synonymous with `.on('postdraw', (evt) =>{...})`
+    * 
+    * `onPostDraw` is called directly after an actor is drawn, and before local transforms are removed.
+    */
    public onPostDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
       // Override me
    }
 
    /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _predraw handler for [[onPreDraw]] lifecycle event
     * @internal
     */
    public _predraw(ctx: CanvasRenderingContext2D, delta: number): void {      
@@ -1238,6 +1288,9 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    }
 
    /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _postdraw handler for [[onPostDraw]] lifecycle event
     * @internal
     */
    public _postdraw(ctx: CanvasRenderingContext2D, delta: number): void {
