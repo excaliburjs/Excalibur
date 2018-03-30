@@ -1162,7 +1162,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       this.integrate(delta);
 
       // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
-      for (let trait of this.traits) {
+      for (const trait of this.traits) {
          trait.update(this, engine, delta);
       }
 
