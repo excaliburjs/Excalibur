@@ -5,7 +5,7 @@ import { Texture } from './Resources/Texture';
 import {
    InitializeEvent, KillEvent, PreUpdateEvent, PostUpdateEvent,
    PreDrawEvent, PostDrawEvent, PreDebugDrawEvent, PostDebugDrawEvent,
-   PostCollisionEvent, PreCollisionEvent, CollisionStartEvent, CollisionEndEvent, PostKillEvent, PreKillEvent
+   PostCollisionEvent, PreCollisionEvent, CollisionStartEvent, CollisionEndEvent, PostKillEvent, PreKillEvent, GameEvent
 } from './Events';
 import { PointerEvent, PointerDragEvent } from './Input/Pointer';
 import { Engine } from './Engine';
@@ -557,6 +557,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
    public on(eventName: Events.pointerdragenter, handler: (event?: PointerDragEvent) => void): void;
    public on(eventName: Events.pointerdragleave, handler: (event?: PointerDragEvent) => void): void;
    public on(eventName: Events.pointerdragmove, handler: (event?: PointerDragEvent) => void): void;
+   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
    public on(eventName: string, handler: (event?: any) => void): void {
       this._checkForPointerOptIn(eventName);
       super.on(eventName, handler);
@@ -588,6 +589,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
    public once(eventName: Events.pointerdragenter, handler: (event?: PointerDragEvent) => void): void;
    public once(eventName: Events.pointerdragleave, handler: (event?: PointerDragEvent) => void): void;
    public once(eventName: Events.pointerdragmove, handler: (event?: PointerDragEvent) => void): void;
+   public once(eventName: string, handler: (event?: GameEvent<any>) => void): void;
    public once(eventName: string, handler: (event?: any) => void): void {
       this._checkForPointerOptIn(eventName);
       super.once(eventName, handler);
@@ -600,6 +602,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, ICanIniti
    public off(eventName: Events.preupdate, handler?: (event?: Events.PreUpdateEvent) => void): void;
    public off(eventName: Events.postdraw, handler?: (event?: Events.PostDrawEvent) => void): void;
    public off(eventName: Events.predraw, handler?: (event?: Events.PreDrawEvent) => void): void;
+   public off(eventName: string, handler?: (event?: GameEvent<any>) => void): void;
    public off(eventName: string, handler?: (event?: any) => void): void {
       super.off(eventName, handler);
    }
