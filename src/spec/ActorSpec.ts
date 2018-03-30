@@ -1269,6 +1269,8 @@ describe('A game actor', () => {
       });
 
       it('can have onInitialize overriden safely', () => {
+         let initCalled = false;
+         actor.on('initialize', () => { initCalled = true; });
          actor.onInitialize = (engine) => { 
             expect(engine).not.toBe(null);
          };
@@ -1280,7 +1282,9 @@ describe('A game actor', () => {
          actor.update(engine, 100);
          expect(actor._initialize).toHaveBeenCalledTimes(2);
          expect(actor.onInitialize).toHaveBeenCalledTimes(1);
+         expect(initCalled).toBe(true);
          expect(actor.isInitialized).toBe(true);
+         
       });
 
       it('can have onPostUpdate overriden safely', () => {

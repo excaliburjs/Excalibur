@@ -10,8 +10,13 @@ import { TileMap } from './TileMap';
 import { Animation } from './Drawing/Animation';
 import { Loader } from './Loader';
 import { Detector } from './Util/Detector';
-import { VisibleEvent, HiddenEvent, GameStartEvent, GameStopEvent, PreUpdateEvent, 
-   PostUpdateEvent, PreFrameEvent, PostFrameEvent, GameEvent, DeactivateEvent, ActivateEvent, PreDrawEvent, PostDrawEvent } from './Events';
+import { VisibleEvent, HiddenEvent, 
+         GameStartEvent, GameStopEvent, 
+         PreUpdateEvent, PostUpdateEvent, 
+         PreFrameEvent, PostFrameEvent, 
+         GameEvent, DeactivateEvent, 
+         ActivateEvent, PreDrawEvent, 
+         PostDrawEvent, InitializeEvent } from './Events';
 import { ILoader } from './Interfaces/ILoader';
 import { Logger, LogLevel } from './Util/Log';
 import { Color } from './Drawing/Color';
@@ -351,6 +356,8 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
    // loading
    private _loader: ILoader;
    private _isLoading: boolean = false;
+
+   private _isInitialized: boolean = false;
 
 
    public on(eventName: Events.initialize, handler: (event?: Events.InitializeEvent) => void): void;
@@ -965,8 +972,6 @@ O|===|* >________________>\n\
       if (!this.canvasElementId) {
          document.body.appendChild(this.canvas);
       }
-
-      this.onInitialize(this);
    }
 
    public onInitialize(_engine: Engine) {
@@ -1099,6 +1104,22 @@ O|===|* >________________>\n\
 
 
    /**
+    * Gets wether the actor is Initialized 
+    */
+   public get isInitialized(): boolean {
+      return this._isInitialized;
+   }
+
+   private _overrideInitialize(engine: Engine) {
+      if (!this.isInitialized) {
+         this.onInitialize(engine);
+         super.emit('initialize', new InitializeEvent(engine, this));
+         this._isInitialized = true;
+      }
+
+   }
+
+   /**
     * Updates the entire state of the game
     * @param delta  Number of milliseconds elapsed since the last update.
     */
@@ -1112,6 +1133,7 @@ O|===|* >________________>\n\
          this.input.gamepads.update();
          return;
       }
+      this._overrideInitialize(this);
       // Publish preupdate events
       this._preupdate(delta);
 

@@ -149,7 +149,9 @@ module Mocks {
             _predraw: ex.Engine.prototype._predraw,
             onPreDraw: ex.Engine.prototype.onPreDraw,
             _postdraw: ex.Engine.prototype._postdraw,
-            onPostDraw: ex.Engine.prototype.onPostDraw
+            onPostDraw: ex.Engine.prototype.onPostDraw,
+            _overrideInitialize: (<any>ex.Engine.prototype)._overrideInitialize,
+            onInitialize: ex.Engine.prototype.onInitialize
          };
          return mockEngine;
       };
