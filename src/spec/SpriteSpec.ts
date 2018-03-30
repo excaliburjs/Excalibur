@@ -25,10 +25,10 @@ describe('A sprite', () => {
       texture.load().then(() => {
          let sprite = new ex.Sprite({
             image: texture,
-            sx: 0,
-            sy: 0,
-            swidth: 62,
-            sheight: 64,
+            x: 0,
+            y: 0,
+            width: 62,
+            height: 64,
             rotation: 0,
             anchor: new ex.Vector(0.0, 0.0),
             scale: new ex.Vector(1, 1),
@@ -55,6 +55,73 @@ describe('A sprite', () => {
       });
       
       
+   });
+
+   it('should throw if no image texture is provided', () => {
+      let s: ex.Sprite = null;
+      try {
+         s = new ex.Sprite({
+            x: 1, y: 1, width: 1, height: 1
+         });
+      } catch (e) {
+         expect(e.message).toBe('An image texture is required to contsruct a sprite');
+      }
+   });
+
+   // @obsolete v0.17 delete test 
+   it('should allow the old constructor', (done) => {
+      texture.load().then(() => {
+         let s: ex.Sprite = null;
+         expect(() => s = new ex.Sprite({
+            image: texture,
+            sx: 0,
+            sy: 0,
+            swidth: 62,
+            sheight: 64
+         })).not.toThrow();
+
+         s.draw(engine.ctx, 0, 0);
+         
+         imagediff.expectCanvasImageMatches('SpriteSpec/icon.png', engine.canvas, done);
+      });
+   });
+
+   it('should scale about the anchor', (done) => {
+      texture.load().then(() => {
+         let sprite = new ex.Sprite({
+            image: texture,
+            x: 0,
+            y: 0,
+            width: 62,
+            height: 64,
+            scale: new ex.Vector(2, 2),
+            anchor: new ex.Vector(.5, .5)
+         });
+
+         sprite.draw(engine.ctx, 62 / 2, 64 / 2);
+
+         imagediff.expectCanvasImageMatches('SpriteSpec/iconscale.png', engine.canvas, done);
+
+      });
+   });
+
+   it('should rotate about the anchor', (done) => {
+      texture.load().then(() => {
+         let sprite = new ex.Sprite({
+            image: texture,
+            x: 0,
+            y: 0,
+            width: 62,
+            height: 64,
+            rotation: Math.PI / 4,
+            anchor: new ex.Vector(.5, .5)
+         });
+
+         sprite.draw(engine.ctx, 62 / 2, 64 / 2);
+
+         imagediff.expectCanvasImageMatches('SpriteSpec/iconrotate.png', engine.canvas, done);
+
+      });
    });
 
 

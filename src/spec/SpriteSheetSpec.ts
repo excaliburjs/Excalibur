@@ -127,4 +127,41 @@ describe('A spritesheet', () => {
       });
    });
 
+   it('should getAnimationByBespokeCoords', (done) => {
+      engine = TestUtils.engine({
+         width: 162 + 89,
+         height: 94
+       });
+      texture = new ex.Texture('base/src/spec/images/SpriteSheetSpec/genericItems_spritesheet_colored.png', true);
+      texture.load().then(() => {
+         let ss = new ex.SpriteSheet({
+            image: texture,
+            columns: 0,
+            rows: 0,
+            spWidth: 96,
+            spHeight: 96
+         });
+
+         let anim = ss.getAnimationByCoords(engine, [
+            {
+               x: 0,
+               y: 322,
+               width: 162,
+               height: 94
+            },
+            {
+               x: 130,
+               y: 1791,
+               width: 89,
+               height: 45
+            }
+         ], 20);
+
+         anim.sprites[0].draw(engine.ctx, 0, 0);
+         anim.sprites[1].draw(engine.ctx, 162, 0);
+
+         imagediff.expectCanvasImageMatches('SpriteSheetSpec/drillandcup.png', engine.canvas, done);
+      });
+   });
+
 });

@@ -7,12 +7,63 @@ import { Vector } from '../Algebra';
 import { Logger } from '../Util/Log';
 import { clamp } from '../Util/Util';
 import { Configurable } from '../Configurable';
+import { obsolete } from '../Util/Decorators';
 
 /**
  * @hidden
  */
 export class SpriteImpl implements IDrawable {
    private _texture: Texture;
+
+   
+   public x: number = 0;
+   public y: number = 0;
+   public width: number = 0;
+   public height: number = 0;
+
+   /** @obsolete ex.[[Sprite.sx]] will be deprecated in 0.17.0 use ex.[[Sprite.x]] */
+   public get sx() {
+      return this.x;
+   }
+
+   @obsolete({message: 'ex.Sprite.sx will be deprecated in 0.17.0', alternateMethod: 'x'})
+   /** @obsolete ex.[[Sprite.sx]] will be deprecated in 0.17.0 use ex.[[Sprite.x]] */
+   public set sx(value: number) {
+      this.x = value;
+   }
+
+   /** @obsolete ex.[[Sprite.sy]] will be deprecated in 0.17.0 use ex.[[Sprite.y]] */
+   public get sy() {
+      return this.y;
+   }
+
+   @obsolete({message: 'ex.Sprite.sy will be deprecated in 0.17.0', alternateMethod: 'y'})
+   /** @obsolete ex.[[Sprite.sy]] will be deprecated in 0.17.0 use ex.[[Sprite.y]] */
+   public set sy(value: number) {
+      this.y = value;
+   }
+
+   /** @obsolete ex.[[Sprite.swidth]] will be deprecated in 0.17.0 use ex.[[Sprite.width]] */
+   public get swidth() {
+      return this.width;
+   }
+
+   @obsolete({message: 'ex.Sprite.swidth will be deprecated in 0.17.0', alternateMethod: 'width'})
+   /** @obsolete ex.[[Sprite.swidth]] will be deprecated in 0.17.0 use ex.[[Sprite.width]] */
+   public set swidth(value: number) {
+      this.width = value;
+   }
+
+   /** @obsolete ex.[[Sprite.sheight]] will be deprecated in 0.17.0 use [[Sprite.height]] */
+   public get sheight() {
+      return this.height;
+   }
+
+   @obsolete({message: 'ex.Sprite.sheight will be deprecated in 0.17.0', alternateMethod: 'height'})
+   /** @obsolete ex.[[Sprite.sheight]] will be deprecated in 0.17.0 use [[Sprite.height]] */
+   public set sheight(value: number) {
+      this.height = value;
+   }
 
    public rotation: number = 0.0;
    public anchor: Vector = new Vector(0.0, 0.0);
@@ -30,14 +81,7 @@ export class SpriteImpl implements IDrawable {
     */
    public flipHorizontal: boolean = false;
 
-   public width: number = 0;
-   public height: number = 0;
    public effects: Effects.ISpriteEffect[] = [];
-
-   public sx: number = 0;
-   public sy: number = 0;
-   public swidth: number = 0;
-   public sheight: number = 0;
 
    public naturalWidth: number = 0;
    public naturalHeight: number = 0;
@@ -50,35 +94,34 @@ export class SpriteImpl implements IDrawable {
 
    /**
     * @param image   The backing image texture to build the Sprite
-    * @param sx      The x position of the sprite
-    * @param sy      The y position of the sprite
-    * @param swidth  The width of the sprite in pixels
-    * @param sheight The height of the sprite in pixels
+    * @param x      The x position of the sprite
+    * @param y      The y position of the sprite
+    * @param width  The width of the sprite in pixels
+    * @param height The height of the sprite in pixels
     */
-   constructor(imageOrConfig: Texture | ISpriteArgs, sx: number, sy: number, swidth: number, sheight: number) {
-      if (sx < 0 || sy < 0 || swidth < 0 || sheight < 0) {
-         this.logger.error('Sprite cannot have any negative dimensions x:', 
-                              sx, 'y:', sy, 'width:', swidth, 'height:', sheight);            
-      }
-
+   constructor(imageOrConfig: Texture | ISpriteArgs, x: number, y: number, width: number, height: number) {
       var image = imageOrConfig;
       if (imageOrConfig && !(imageOrConfig instanceof Texture)) {
-         sx = imageOrConfig.sx;
-         sy = imageOrConfig.sy;
-         swidth = imageOrConfig.swidth;
-         sheight = imageOrConfig.sheight;
+         x = imageOrConfig.x || imageOrConfig.sx;
+         y = imageOrConfig.y || imageOrConfig.sy;
+         width = imageOrConfig.width || imageOrConfig.swidth;
+         height = imageOrConfig.height || imageOrConfig.sheight;
          image = imageOrConfig.image;
+         if (!image) {
+            const message = 'An image texture is required to contsruct a sprite';
+            throw new Error(message);
+         }
       }
 
-      this.sx = sx || 0;
-      this.sy = sy || 0;
-      this.swidth = swidth || 0;
-      this.sheight = sheight || 0;
+      this.x = x || 0;
+      this.y = y || 0;
+      this.width = width || 0;
+      this.height = height || 0;
 
       this._texture = <Texture>image;
       this._spriteCanvas = document.createElement('canvas');
-      this._spriteCanvas.width = swidth;
-      this._spriteCanvas.height = sheight;
+      this._spriteCanvas.width = width;
+      this._spriteCanvas.height = height;
       this._spriteCtx = <CanvasRenderingContext2D>this._spriteCanvas.getContext('2d');
       this._texture.loaded.then(() => {
          this._spriteCanvas.width = this._spriteCanvas.width || this._texture.image.naturalWidth;
@@ -89,10 +132,8 @@ export class SpriteImpl implements IDrawable {
          this.logger.error('Error loading texture ', this._texture.path, e);
       });
       
-      this.width = swidth;
-      this.height = sheight;
-      this.naturalWidth = swidth;
-      this.naturalHeight = sheight;
+      this.naturalWidth = width;
+      this.naturalHeight = height;
    }
 
    private _loadPixels() {
@@ -100,20 +141,20 @@ export class SpriteImpl implements IDrawable {
          var naturalWidth = this._texture.image.naturalWidth || 0;
          var naturalHeight = this._texture.image.naturalHeight || 0;
 
-         if (this.swidth > naturalWidth) {
-            this.logger.warn('The sprite width', this.swidth, 'exceeds the width', 
+         if (this.width > naturalWidth) {
+            this.logger.warn('The sprite width', this.width, 'exceeds the width', 
                               naturalWidth, 'of the backing texture', this._texture.path);
          }            
-         if (this.sheight > naturalHeight) {
-            this.logger.warn('The sprite height', this.sheight, 'exceeds the height', 
+         if (this.height > naturalHeight) {
+            this.logger.warn('The sprite height', this.height, 'exceeds the height', 
                               naturalHeight, 'of the backing texture', this._texture.path);
          }
          this._spriteCtx.drawImage(this._texture.image, 
-            clamp(this.sx, 0, naturalWidth), 
-            clamp(this.sy, 0, naturalHeight),
-            clamp(this.swidth, 0, naturalWidth),
-            clamp(this.sheight, 0, naturalHeight),
-            0, 0, this.swidth, this.sheight);
+            clamp(this.x, 0, naturalWidth), 
+            clamp(this.y, 0, naturalHeight),
+            clamp(this.width, 0, naturalWidth),
+            clamp(this.height, 0, naturalHeight),
+            0, 0, this.width, this.height);
 
          this._pixelsLoaded = true;
       }
@@ -237,25 +278,25 @@ export class SpriteImpl implements IDrawable {
       var naturalWidth = this._texture.image.naturalWidth || 0;
       var naturalHeight = this._texture.image.naturalHeight || 0;
 
-      this._spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
-      this._spriteCtx.drawImage(this._texture.image, clamp(this.sx, 0, naturalWidth),
-         clamp(this.sy, 0, naturalHeight),
-         clamp(this.swidth, 0, naturalWidth),
-         clamp(this.sheight, 0, naturalHeight),
-         0, 0, this.swidth, this.sheight);
-      this._pixelData = this._spriteCtx.getImageData(0, 0, this.swidth, this.sheight);
+      this._spriteCtx.clearRect(0, 0, this.width, this.height);
+      this._spriteCtx.drawImage(this._texture.image, clamp(this.x, 0, naturalWidth),
+         clamp(this.y, 0, naturalHeight),
+         clamp(this.width, 0, naturalWidth),
+         clamp(this.height, 0, naturalHeight),
+         0, 0, this.width, this.height);
+      this._pixelData = this._spriteCtx.getImageData(0, 0, this.width, this.height);
 
       var i = 0, x = 0, y = 0, len = this.effects.length;
       for (i; i < len; i++) {
          y = 0;
-         for (y; y < this.sheight; y++) {
+         for (y; y < this.height; y++) {
             x = 0;
-            for (x; x < this.swidth; x++) {
+            for (x; x < this.width; x++) {
                this.effects[i].updatePixel(x, y, this._pixelData);
             }
          }
       }
-      this._spriteCtx.clearRect(0, 0, this.swidth, this.sheight);
+      this._spriteCtx.clearRect(0, 0, this.width, this.height);
       this._spriteCtx.putImageData(this._pixelData, 0, 0);
       
       this._dirtyEffect = false;
@@ -311,8 +352,8 @@ export class SpriteImpl implements IDrawable {
       ctx.translate(x, y);
       ctx.rotate(this.rotation);
 
-      var scaledSWidth = this.swidth * this.scale.x;
-      var scaledSHeight = this.sheight * this.scale.y;
+      var scaledSWidth = this.width * this.scale.x;
+      var scaledSHeight = this.height * this.scale.y;
       
       // todo cache flipped sprites
       if (this.flipHorizontal) {
@@ -325,7 +366,7 @@ export class SpriteImpl implements IDrawable {
          ctx.scale(1, -1);
       }
 
-      ctx.drawImage(this._spriteCanvas, 0, 0, this.swidth, this.sheight, 
+      ctx.drawImage(this._spriteCanvas, 0, 0, this.width, this.height, 
          -xpoint, 
          -ypoint, 
          scaledSWidth,
@@ -338,7 +379,7 @@ export class SpriteImpl implements IDrawable {
     * Produces a copy of the current sprite
     */
    public clone(): SpriteImpl {
-      var result = new Sprite(this._texture, this.sx, this.sy, this.swidth, this.sheight);
+      var result = new Sprite(this._texture, this.x, this.y, this.width, this.height);
       result.scale = this.scale.clone();
       result.rotation = this.rotation;
       result.flipHorizontal = this.flipHorizontal;
@@ -357,11 +398,19 @@ export class SpriteImpl implements IDrawable {
  * [[include:Constructors.md]]
  */
 export interface ISpriteArgs extends Partial<SpriteImpl> {
-   image: Texture;
-   sx: number;
-   sy: number;
-   swidth: number;
-   sheight: number;
+   image?: Texture;
+   x?: number;
+   /** @obsolete ex.[[Sprite.sx]] will be deprecated in 0.17.0 use ex.[[Sprite.x]] */
+   sx?: number;
+   y?: number;
+   /** @obsolete ex.[[Sprite.sy]] will be deprecated in 0.17.0 use ex.[[Sprite.y]] */
+   sy?: number;
+   width?: number;
+   /** @obsolete ex.[[Sprite.swidth]] will be deprecated in 0.17.0 use ex.[[Sprite.swidth]] */
+   swidth?: number;
+   height?: number;
+   /** @obsolete ex.[[Sprite.sheight]] will be deprecated in 0.17.0 use ex.[[Sprite.sheight]] */
+   sheight?: number;
    rotation?: number;
    anchor?: Vector;
    scale?: Vector;
@@ -377,9 +426,13 @@ export interface ISpriteArgs extends Partial<SpriteImpl> {
  */
 export class Sprite extends Configurable(SpriteImpl) {
    constructor(config: ISpriteArgs);
-   constructor(image: Texture, sx: number, sy: number, swidth: number, sheight: number)
-   constructor(imageOrConfig: Texture | ISpriteArgs, sx?: number, sy?: number, swidth?: number, sheight?: number) {
-      super(imageOrConfig, sx, sy, swidth, sheight);
+   constructor(image: Texture, x: number, y: number, width: number, height: number)
+   constructor(imageOrConfig: Texture | ISpriteArgs,
+               x?: number,
+               y?: number,
+               width?: number,
+               height?: number) {
+      super(imageOrConfig, x, y, width, height);
    }
 }
 
