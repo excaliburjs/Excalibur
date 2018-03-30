@@ -9,6 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Added
 
+ - New typesafe and override safe event lifecycle overriding, all `onEventName` handlers will no longer be dangerous to override ([#582](https://github.com/excaliburjs/Excalibur/issues/582))
+   * New lifecycle event `onPreKill` and `onPostKill`
  - SpriteSheets can now produce animations from bespoke sprite coordinates `SpriteSheet.getAnimationByCoords(engine, coords[], speed)` ([#918](https://github.com/excaliburjs/Excalibur/issues/918))
  - New Event `enter`
  - New Event `leave`
@@ -32,6 +34,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `Sprite.sx`, `Sprite.sy`, `Sprite.swidth`, `Sprite.sheight` has be deprecated in favor of `Sprite.x`, `Sprite.y`, `Sprite.width`, `Sprite.height` ([#918](https://github.com/excaliburjs/Excalibur/issues/918))
 
 ## Fixed
+
+- Added missing lifecycle event handlers on Actors, Triggers, Scenes, Engine, and Camera ([#582](https://github.com/excaliburjs/Excalibur/issues/582))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
