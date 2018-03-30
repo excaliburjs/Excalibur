@@ -364,12 +364,12 @@ export class CollisionEndEvent extends GameEvent<Actor> {
 /**
  * Event thrown on an [[Actor]] and a [[Scene]] only once before the first update call
  */
-export class InitializeEvent extends GameEvent<Actor | Scene | Engine> {
+export class InitializeEvent extends GameEvent<Actor | Scene | Engine | BaseCamera> {
 
    /**
     * @param engine  The reference to the current engine
     */
-   constructor(public engine: Engine, public target: Actor | Scene | Engine) {
+   constructor(public engine: Engine, public target: Actor | Scene | Engine | BaseCamera) {
       super();
    }
 }

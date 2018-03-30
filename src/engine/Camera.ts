@@ -4,8 +4,8 @@ import { IPromise, Promise, PromiseState } from './Promises';
 import { Vector } from './Algebra';
 import { Actor } from './Actor';
 import { removeItemFromArray } from './Util/Util';
-import { ICanUpdate } from './Interfaces/LifecycleEvents';
-import { PreUpdateEvent, PostUpdateEvent, GameEvent } from './Events';
+import { ICanUpdate, ICanInitialize } from './Interfaces/LifecycleEvents';
+import { PreUpdateEvent, PostUpdateEvent, GameEvent, InitializeEvent } from './Events';
 import { Class } from './Class';
 
 /**
@@ -183,7 +183,7 @@ export class RadiusAroundActorStrategy implements ICameraStrategy<Actor> {
  *
  * [[include:Cameras.md]]
  */
-export class BaseCamera extends Class implements ICanUpdate {
+export class BaseCamera extends Class implements ICanUpdate, ICanInitialize {
    protected _follow: Actor;
 
    private _cameraStrategies: ICameraStrategy<any>[] = [];
@@ -441,12 +441,36 @@ export class BaseCamera extends Class implements ICanUpdate {
       // Overridable
    }
 
+   private _isInitialized = false;
+   public get isInitialized() {
+      return this._isInitialized;
+   }
+
+   public _initialize(_engine: Engine) {
+      if (!this.isInitialized) {
+         this.onInitialize(_engine);
+         super.emit('initialize', new InitializeEvent(_engine, this));
+         this._isInitialized = true;
+      }
+   }
+
+   /**
+    * Safe to override onPostUpdate lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
+    * 
+    * `onPostUpdate` is called directly after a scene is updated.
+    */
+   public onInitialize(_engine: Engine) {
+      // Overridable
+   }
+
+   public on(eventName: 'initialize', handler: (event?: InitializeEvent) => void): void;
    public on(eventName: 'preupdate', handler: (event?: PreUpdateEvent) => void): void;
    public on(eventName: 'postupdate', handler: (event?: PostUpdateEvent) => void): void;
    public on(eventName: any, handler: any) {
       super.on(eventName, handler);
    }
 
+   public off(eventName: 'initialize', handler?: (event?: InitializeEvent) => void): void;
    public off(eventName: 'preupdate', handler?: (event?: PreUpdateEvent) => void): void;
    public off(eventName: 'postupdate', handler?: (event?: PostUpdateEvent) => void): void;
    public off(eventName: string, handler: (event?: GameEvent<any>) => void): void;
@@ -454,6 +478,7 @@ export class BaseCamera extends Class implements ICanUpdate {
       super.off(eventName, handler);
    }
 
+   public once(eventName: 'initialize', handler: (event?: InitializeEvent) => void): void;
    public once(eventName: 'preupdate', handler: (event?: PreUpdateEvent) => void): void;
    public once(eventName: 'postupdate', handler: (event?: PostUpdateEvent) => void): void;
    public once(eventName: string, handler: (event?: GameEvent<any>) => void): void;
@@ -462,6 +487,7 @@ export class BaseCamera extends Class implements ICanUpdate {
    }
 
    public update(_engine: Engine, delta: number) {
+      this._initialize(_engine);
       this._preupdate(_engine, delta);
 
       // Update placements based on linear algebra
