@@ -100,6 +100,34 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
       super.on(eventName, handler);
    }
 
+   public once(eventName: Events.initialize, handler: (event?: InitializeEvent) => void): void;
+   public once(eventName: Events.activate, handler: (event?: ActivateEvent) => void): void;
+   public once(eventName: Events.deactivate, handler: (event?: DeactivateEvent) => void): void;
+   public once(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
+   public once(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): void;
+   public once(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void): void;
+   public once(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void): void;
+   public once(eventName: Events.predebugdraw, handler: (event?: PreDebugDrawEvent) => void): void;
+   public once(eventName: Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void): void;
+   public once(eventName: string, handler: (event?: GameEvent<any>) => void): void;
+   public once(eventName: string, handler: (event?: any) => void): void {
+      super.once(eventName, handler);
+   }
+
+   public off(eventName: Events.initialize, handler?: (event?: InitializeEvent) => void): void;
+   public off(eventName: Events.activate, handler?: (event?: ActivateEvent) => void): void;
+   public off(eventName: Events.deactivate, handler?: (event?: DeactivateEvent) => void): void;
+   public off(eventName: Events.preupdate, handler?: (event?: PreUpdateEvent) => void): void;
+   public off(eventName: Events.postupdate, handler?: (event?: PostUpdateEvent) => void): void;
+   public off(eventName: Events.predraw, handler?: (event?: PreDrawEvent) => void): void;
+   public off(eventName: Events.postdraw, handler?: (event?: PostDrawEvent) => void): void;
+   public off(eventName: Events.predebugdraw, handler?: (event?: PreDebugDrawEvent) => void): void;
+   public off(eventName: Events.postdebugdraw, handler?: (event?: PostDebugDrawEvent) => void): void;
+   public off(eventName: string, handler?: (event?: GameEvent<any>) => void): void;
+   public off(eventName: string, handler?: (event?: any) => void): void {
+      super.off(eventName, handler);
+   }
+
 
    /**
     * This is called before the first update of the [[Scene]]. Initializes scene members like the camera. This method is meant to be
