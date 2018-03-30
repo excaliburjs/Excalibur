@@ -1259,21 +1259,14 @@ describe('A game actor', () => {
    describe('lifecycle overrides', () => {
 
       let actor: ex.Actor = null;
-      // let engine: ex.Engine = null;
+      
       beforeEach(() => {
          actor = new ex.Actor({
             pos: new ex.Vector(10, 10),
             width: 200,
             height: 200
          });
-
-         // engine = TestUtils.engine({width: 400, height: 600});
       });
-
-      // afterEach(() => {
-      //    engine.stop();
-      //    engine = null;
-      // });
 
       it('can have onInitialize overriden safely', () => {
          actor.onInitialize = (engine) => { 
@@ -1323,7 +1316,7 @@ describe('A game actor', () => {
 
       it('can have onPreDraw overriden safely', () => {
          actor.onPreDraw = (ctx, delta) => {
-            expect(ctx).not.toBe(null);
+            expect(<any>ctx).not.toBe(null);
             expect(delta).toBe(100);
          };
 
@@ -1338,7 +1331,7 @@ describe('A game actor', () => {
 
       it('can have onPostDraw overriden safely', () => {
          actor.onPostDraw = (ctx, delta) => {
-            expect(ctx).not.toBe(null);
+            expect(<any>ctx).not.toBe(null);
             expect(delta).toBe(100);
          };
 
