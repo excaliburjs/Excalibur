@@ -661,7 +661,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    }
 
    /**
-    * Safe to overrid onPostKill lifecycle event handler. Synonymous with `.on('postkill', (evt) => {...})`
+    * Safe to override onPostKill lifecycle event handler. Synonymous with `.on('postkill', (evt) => {...})`
     * 
     * `onPostKill` is called directly after an actor is killed and remove from its current [[Scene]].
     */
