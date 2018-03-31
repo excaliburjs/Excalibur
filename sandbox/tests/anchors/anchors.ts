@@ -4,11 +4,9 @@ class Cross extends ex.Actor {
    constructor(x, y) {
       super(x, y, 40, 40);
 
-      this.on('predraw', this.onPreDraw);
    }
 
-   onPreDraw(ev: ex.PreDrawEvent) {
-      var ctx = ev.ctx;
+   onPreDraw(ctx: CanvasRenderingContext2D, delta: number) {
       
       ctx.beginPath();
       ctx.lineTo(this.getWidth() / 2, 0);

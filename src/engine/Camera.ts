@@ -4,6 +4,9 @@ import { IPromise, Promise, PromiseState } from './Promises';
 import { Vector } from './Algebra';
 import { Actor } from './Actor';
 import { removeItemFromArray } from './Util/Util';
+import { ICanUpdate, ICanInitialize } from './Interfaces/LifecycleEvents';
+import { PreUpdateEvent, PostUpdateEvent, GameEvent, InitializeEvent } from './Events';
+import { Class } from './Class';
 
 /**
  * Interface that describes a custom camera strategy for tracking targets
@@ -180,7 +183,7 @@ export class RadiusAroundActorStrategy implements ICameraStrategy<Actor> {
  *
  * [[include:Cameras.md]]
  */
-export class BaseCamera {
+export class BaseCamera extends Class implements ICanUpdate, ICanInitialize {
    protected _follow: Actor;
 
    private _cameraStrategies: ICameraStrategy<any>[] = [];
@@ -224,6 +227,7 @@ export class BaseCamera {
    private _zoomPromise: Promise<boolean>;
    private _zoomIncrement: number = 0.01;
    private _easing: EasingFunction = EasingFunctions.EaseInOutCubic;
+   
  
    /**
     * Get the camera's x position
@@ -396,7 +400,95 @@ export class BaseCamera {
       this._cameraStrategies.length = 0;
    }
 
+   /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
+    * @internal
+    */
+   public _preupdate(engine: Engine, delta: number): void {
+      this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
+      this.onPreUpdate(engine, delta);
+   }
+
+
+   /**
+    * Safe to override onPreUpdate lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
+    * 
+    * `onPreUpdate` is called directly before a scene is updated.
+    */
+   public onPreUpdate(_engine: Engine, _delta: number): void {
+      // Overridable
+   }
+
+   /**
+    *  It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
+    * @internal
+    */
+   public _postupdate(engine: Engine, delta: number): void {
+      this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
+      this.onPostUpdate(engine, delta);
+   }
+   
+   /**
+    * Safe to override onPostUpdate lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
+    * 
+    * `onPostUpdate` is called directly after a scene is updated.
+    */
+   public onPostUpdate(_engine: Engine, _delta: number): void {
+      // Overridable
+   }
+
+   private _isInitialized = false;
+   public get isInitialized() {
+      return this._isInitialized;
+   }
+
+   public _initialize(_engine: Engine) {
+      if (!this.isInitialized) {
+         this.onInitialize(_engine);
+         super.emit('initialize', new InitializeEvent(_engine, this));
+         this._isInitialized = true;
+      }
+   }
+
+   /**
+    * Safe to override onPostUpdate lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
+    * 
+    * `onPostUpdate` is called directly after a scene is updated.
+    */
+   public onInitialize(_engine: Engine) {
+      // Overridable
+   }
+
+   public on(eventName: 'initialize', handler: (event?: InitializeEvent) => void): void;
+   public on(eventName: 'preupdate', handler: (event?: PreUpdateEvent) => void): void;
+   public on(eventName: 'postupdate', handler: (event?: PostUpdateEvent) => void): void;
+   public on(eventName: any, handler: any) {
+      super.on(eventName, handler);
+   }
+
+   public off(eventName: 'initialize', handler?: (event?: InitializeEvent) => void): void;
+   public off(eventName: 'preupdate', handler?: (event?: PreUpdateEvent) => void): void;
+   public off(eventName: 'postupdate', handler?: (event?: PostUpdateEvent) => void): void;
+   public off(eventName: string, handler: (event?: GameEvent<any>) => void): void;
+   public off(eventName: string, handler: (event?: any) => void): void {
+      super.off(eventName, handler);
+   }
+
+   public once(eventName: 'initialize', handler: (event?: InitializeEvent) => void): void;
+   public once(eventName: 'preupdate', handler: (event?: PreUpdateEvent) => void): void;
+   public once(eventName: 'postupdate', handler: (event?: PostUpdateEvent) => void): void;
+   public once(eventName: string, handler: (event?: GameEvent<any>) => void): void;
+   public once(eventName: string, handler: (event?: any) => void): void {
+      super.once(eventName, handler);
+   }
+
    public update(_engine: Engine, delta: number) {
+      this._initialize(_engine);
+      this._preupdate(_engine, delta);
 
       // Update placements based on linear algebra
       this._x += this.dx * delta / 1000;
@@ -475,6 +567,8 @@ export class BaseCamera {
       for (let s of this._cameraStrategies) {
          this.pos = s.action.call(s, s.target, this, _engine, delta);
       }
+
+      this._postupdate(_engine, delta);
    }
 
    /**

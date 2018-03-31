@@ -5,14 +5,17 @@ import { Texture } from './Resources/Texture';
 import {
    InitializeEvent, KillEvent, PreUpdateEvent, PostUpdateEvent,
    PreDrawEvent, PostDrawEvent, PreDebugDrawEvent, PostDebugDrawEvent,
-   GameEvent, PostCollisionEvent, PreCollisionEvent, CollisionStartEvent, CollisionEndEvent
+   PostCollisionEvent, PreCollisionEvent, CollisionStartEvent, 
+   CollisionEndEvent, PostKillEvent, PreKillEvent, GameEvent, 
+   ExitTriggerEvent, EnterTriggerEvent
 } from './Events';
-import { PointerEvent, PointerDragEvent } from './Input/Pointer';
+import { PointerEvent, WheelEvent, PointerDragEvent } from './Input/Pointer';
 import { Engine } from './Engine';
 import { Color } from './Drawing/Color';
 import { Sprite } from './Drawing/Sprite';
 import { IActorTrait } from './Interfaces/IActorTrait';
 import { IDrawable } from './Interfaces/IDrawable';
+import { ICanInitialize, ICanUpdate, ICanDraw, ICanBeKilled } from './Interfaces/LifecycleEvents';
 import { Scene } from './Scene';
 import { Logger } from './Util/Log';
 import { ActionContext } from './Actions/ActionContext';
@@ -28,6 +31,7 @@ import * as Traits from './Traits/Index';
 import * as Effects from './Drawing/SpriteEffects';
 import * as Util from './Util/Util';
 import * as Events from './Events';
+import { IPointerEvents } from './Interfaces/IPointerEvents';
 
 export type PointerEventName = 'pointerdragstart'
    | 'pointerdragend' | 'pointerdragmove' | 'pointerdragenter'
@@ -56,7 +60,10 @@ export interface IActorArgs extends Partial<ActorImpl> {
 /**
  * @hidden
  */
-export class ActorImpl extends Class implements IActionable, IEvented {
+
+export class ActorImpl extends Class implements IActionable, IEvented, IPointerEvents, ICanInitialize, ICanUpdate, ICanDraw, ICanBeKilled {
+   // #region Properties
+
    /**
     * Indicates the next id to be set
     */
@@ -414,6 +421,8 @@ export class ActorImpl extends Class implements IActionable, IEvented {
    private _isKilled: boolean = false;
    private _opacityFx = new Effects.Opacity(this.opacity);
 
+   // #endregion
+
    /**
     * @param x       The starting x coordinate of the actor
     * @param y       The starting y coordinate of the actor
@@ -460,10 +469,12 @@ export class ActorImpl extends Class implements IActionable, IEvented {
       // Initialize default collision area to be box
       this.body.useBoxCollision();
    }
-
+  
    /**
-    * This is called before the first update of the actor. This method is meant to be
+    * `onInitialize` is called before the first update of the actor. This method is meant to be
     * overridden. This is where initialization of child actors should take place.
+    * 
+    * Synonymous with the event handler `.on('initialize', (evt) => {...})`
     */
    public onInitialize(_engine: Engine): void {
       // Override me
@@ -478,18 +489,23 @@ export class ActorImpl extends Class implements IActionable, IEvented {
 
    /**
     * Initializes this actor and all it's child actors, meant to be called by the Scene before first update not by users of Excalibur.
+    * 
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
     * @internal
     */
    public _initialize(engine: Engine) {
       if (!this.isInitialized) {
          this.onInitialize(engine);
-         this.eventDispatcher.emit('initialize', new InitializeEvent(engine, this));
+         super.emit('initialize', new InitializeEvent(engine, this));
          this._isInitialized = true;
       }
       for (var child of this.children) {
          child._initialize(engine);
       }
    }
+
+   // #region Events
 
    private _capturePointerEvents: PointerEventName[] = [
       'pointerup', 'pointerdown', 'pointermove', 'pointerenter', 'pointerleave',
@@ -523,11 +539,15 @@ export class ActorImpl extends Class implements IActionable, IEvented {
       }
    }
 
+   public on(eventName: Events.exittrigger, handler: (evt: ExitTriggerEvent) => void): void;
+   public on(eventName: Events.entertrigger, handler: (evt: EnterTriggerEvent) => void): void;
    public on(eventName: Events.collisionstart, handler: (event?: CollisionStartEvent) => void): void;
    public on(eventName: Events.collisionend, handler: (event?: CollisionEndEvent) => void): void;
    public on(eventName: Events.precollision, handler: (event?: PreCollisionEvent) => void): void;
    public on(eventName: Events.postcollision, handler: (event?: PostCollisionEvent) => void): void;
    public on(eventName: Events.kill, handler: (event?: KillEvent) => void): void;
+   public on(eventName: Events.prekill, handler: (event?: PreKillEvent) => void): void;
+   public on(eventName: Events.postkill, handler: (event?: PostKillEvent) => void): void;
    public on(eventName: Events.initialize, handler: (event?: InitializeEvent) => void): void;
    public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
    public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): void;
@@ -550,14 +570,18 @@ export class ActorImpl extends Class implements IActionable, IEvented {
    public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
    public on(eventName: string, handler: (event?: any) => void): void {
       this._checkForPointerOptIn(eventName);
-      this.eventDispatcher.on(eventName, handler);
+      super.on(eventName, handler);
    }
 
+   public once(eventName: Events.exittrigger, handler: (evt: ExitTriggerEvent) => void): void;
+   public once(eventName: Events.entertrigger, handler: (evt: EnterTriggerEvent) => void): void;
    public once(eventName: Events.collisionstart, handler: (event?: CollisionStartEvent) => void): void;
    public once(eventName: Events.collisionend, handler: (event?: CollisionEndEvent) => void): void;
    public once(eventName: Events.precollision, handler: (event?: PreCollisionEvent) => void): void;
    public once(eventName: Events.postcollision, handler: (event?: PostCollisionEvent) => void): void;
    public once(eventName: Events.kill, handler: (event?: KillEvent) => void): void;
+   public once(eventName: Events.postkill, handler: (event?: PostKillEvent) => void): void;
+   public once(eventName: Events.prekill, handler: (event?: PreKillEvent) => void): void;
    public once(eventName: Events.initialize, handler: (event?: InitializeEvent) => void): void;
    public once(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
    public once(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): void;
@@ -580,7 +604,77 @@ export class ActorImpl extends Class implements IActionable, IEvented {
    public once(eventName: string, handler: (event?: GameEvent<any>) => void): void;
    public once(eventName: string, handler: (event?: any) => void): void {
       this._checkForPointerOptIn(eventName);
-      this.eventDispatcher.once(eventName, handler);
+      super.once(eventName, handler);
+   }
+
+   public off(eventName: Events.exittrigger, handler?: (evt: ExitTriggerEvent) => void): void;
+   public off(eventName: Events.entertrigger, handler?: (evt: EnterTriggerEvent) => void): void;
+   public off(eventName: Events.pointerup, handler?: (event?: PointerEvent) => void): void;
+   public off(eventName: Events.pointerdown, handler?: (event?: PointerEvent) => void): void;
+   public off(eventName: Events.pointerenter, handler?: (event?: PointerEvent) => void): void;
+   public off(eventName: Events.pointerleave, handler?: (event?: PointerEvent) => void): void;
+   public off(eventName: Events.pointermove, handler?: (event?: PointerEvent) => void): void;
+   public off(eventName: Events.pointercancel, handler?: (event?: PointerEvent) => void): void;
+   public off(eventName: Events.pointerwheel, handler?: (event?: WheelEvent) => void): void;
+   public off(eventName: Events.pointerdragstart, handler?: (event?: PointerDragEvent) => void): void;
+   public off(eventName: Events.pointerdragend, handler?: (event?: PointerDragEvent) => void): void;
+   public off(eventName: Events.pointerdragenter, handler?: (event?: PointerDragEvent) => void): void;
+   public off(eventName: Events.pointerdragleave, handler?: (event?: PointerDragEvent) => void): void;
+   public off(eventName: Events.pointerdragmove, handler?: (event?: PointerDragEvent) => void): void;
+   public off(eventName: Events.prekill, handler?: (event?: PreKillEvent) => void): void;
+   public off(eventName: Events.postkill, handler?: (event?: PostKillEvent) => void): void;
+   public off(eventName: Events.initialize, handler?: (event?: Events.InitializeEvent) => void): void;
+   public off(eventName: Events.postupdate, handler?: (event?: Events.PostUpdateEvent) => void): void;
+   public off(eventName: Events.preupdate, handler?: (event?: Events.PreUpdateEvent) => void): void;
+   public off(eventName: Events.postdraw, handler?: (event?: Events.PostDrawEvent) => void): void;
+   public off(eventName: Events.predraw, handler?: (event?: Events.PreDrawEvent) => void): void;
+   public off(eventName: string, handler?: (event?: GameEvent<any>) => void): void;
+   public off(eventName: string, handler?: (event?: any) => void): void {
+      super.off(eventName, handler);
+   }
+
+   // #endregion
+
+
+   /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _prekill handler for [[onPreKill]] lifecycle event
+    * @internal
+    */
+   public _prekill(_scene: Scene) {
+      super.emit('prekill', new PreKillEvent(this));
+      this.onPreKill(_scene);
+   }
+
+   /**
+    * Safe to override onPreKill lifecycle event handler. Synonymous with `.on('prekill', (evt) =>{...})`
+    * 
+    * `onPreKill` is called directly before an actor is killed and removed from its current [[Scene]].
+    */
+   public onPreKill(_scene: Scene) {
+      // Override me
+   }
+
+   /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _prekill handler for [[onPostKill]] lifecycle event
+    * @internal
+    */
+   public _postkill(_scene: Scene) {
+      super.emit('postkill', new PostKillEvent(this));
+      this.onPostKill(_scene);
+
+   }
+
+   /**
+    * Safe to override onPostKill lifecycle event handler. Synonymous with `.on('postkill', (evt) => {...})`
+    * 
+    * `onPostKill` is called directly after an actor is killed and remove from its current [[Scene]].
+    */
+   public onPostKill(_scene: Scene) {
+      // Override me
    }
 
    /**
@@ -589,9 +683,11 @@ export class ActorImpl extends Class implements IActionable, IEvented {
     */
    public kill() {
       if (this.scene) {
+         this._prekill(this.scene);
          this.emit('kill', new KillEvent(this));
          this.scene.remove(this);
          this._isKilled = true;
+         this._postkill(this.scene);
       } else {
          this.logger.warn('Cannot kill actor, it was never added to the Scene');
       }
@@ -863,6 +959,9 @@ export class ActorImpl extends Class implements IActionable, IEvented {
       var parentScale = this.parent.getGlobalScale();
       return new Vector(this.scale.x * parentScale.x, this.scale.y * parentScale.y);
    }
+
+   // #region Collision
+
    /**
     * Returns the actor's [[BoundingBox]] calculated for this instant in world space.
     */
@@ -993,6 +1092,8 @@ export class ActorImpl extends Class implements IActionable, IEvented {
       return Math.sqrt(Math.pow(this.pos.x - actor.pos.x, 2) + Math.pow(this.pos.y - actor.pos.y, 2)) <= distance;
    }
 
+   // #endregion
+
    private _getCalculatedAnchor(): Vector {
       return new Vector(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
    }
@@ -1002,6 +1103,7 @@ export class ActorImpl extends Class implements IActionable, IEvented {
       drawing.addEffect(this._opacityFx);
    }
 
+   // #region Update
    /**
     * Perform euler integration at the specified time step
     */
@@ -1035,7 +1137,7 @@ export class ActorImpl extends Class implements IActionable, IEvented {
     */
    public update(engine: Engine, delta: number) {
       this._initialize(engine);
-      this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
+      this._preupdate(engine, delta);
 
       // Update action queue
       this.actionQueue.update(delta);
@@ -1060,17 +1162,61 @@ export class ActorImpl extends Class implements IActionable, IEvented {
       this.integrate(delta);
 
       // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
-      for (var trait of this.traits) {
+      for (const trait of this.traits) {
          trait.update(this, engine, delta);
       }
 
       // Update child actors
-      for (var i = 0; i < this.children.length; i++) {
+      for (let i = 0; i < this.children.length; i++) {
          this.children[i].update(engine, delta);
       }
 
-      this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
+      this._postupdate(engine, delta);
    }
+
+   /**
+    * Safe to override onPreUpdate lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
+    * 
+    * `onPreUpdate` is called directly before an actor is updated.
+    */
+   public onPreUpdate(_engine: Engine, _delta: number): void {
+      // Override me
+   }
+
+   /**
+    * Safe to override onPostUpdate lifecycle event handler. Synonymous with `.on('postupdate', (evt) =>{...})`
+    * 
+    * `onPostUpdate` is called directly after an actor is updated.
+    */
+   public onPostUpdate(_engine: Engine, _delta: number): void {
+      // Override me
+   }
+   
+   /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
+    * @internal
+    */
+   public _preupdate(engine: Engine, delta: number): void {      
+      this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
+      this.onPreUpdate(engine, delta);
+   }
+
+   /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
+    * @internal
+    */
+   public _postupdate(engine: Engine, delta: number): void {      
+      this.emit('postupdate', new PreUpdateEvent(engine, delta, this));
+      this.onPostUpdate(engine, delta);
+   }
+
+   // endregion
+
+   // #region Drawing
    /**
     * Called by the Engine, draws the actor to the screen
     * @param ctx   The rendering context
@@ -1086,7 +1232,7 @@ export class ActorImpl extends Class implements IActionable, IEvented {
       ctx.save();
       ctx.translate(-(this._width * this.anchor.x), -(this._height * this.anchor.y));
 
-      this.emit('predraw', new PreDrawEvent(ctx, delta, this));
+      this._predraw(ctx, delta);
 
       if (this.currentDrawing) {
          var drawing = this.currentDrawing;
@@ -1115,8 +1261,49 @@ export class ActorImpl extends Class implements IActionable, IEvented {
          }
       }
 
-      this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
+      
+      this._postdraw(ctx, delta);
       ctx.restore();
+   }
+
+   /**
+    * Safe to override onPreDraw lifecycle event handler. Synonymous with `.on('predraw', (evt) =>{...})`
+    * 
+    * `onPreDraw` is called directly before an actor is drawn, but after local transforms are made.
+    */
+   public onPreDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+      // Override me
+   }
+
+   /**
+    * Safe to override onPostDraw lifecycle event handler. Synonymous with `.on('postdraw', (evt) =>{...})`
+    * 
+    * `onPostDraw` is called directly after an actor is drawn, and before local transforms are removed.
+    */
+   public onPostDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+      // Override me
+   }
+
+   /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _predraw handler for [[onPreDraw]] lifecycle event
+    * @internal
+    */
+   public _predraw(ctx: CanvasRenderingContext2D, delta: number): void {      
+      this.emit('predraw', new PreDrawEvent(ctx, delta, this));
+      this.onPreDraw(ctx, delta);
+   }
+
+   /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _postdraw handler for [[onPostDraw]] lifecycle event
+    * @internal
+    */
+   public _postdraw(ctx: CanvasRenderingContext2D, delta: number): void {
+      this.emit('postdraw', new PreDrawEvent(ctx, delta, this));
+      this.onPostDraw(ctx, delta);
    }
 
    /**
@@ -1183,6 +1370,8 @@ export class ActorImpl extends Class implements IActionable, IEvented {
 
       this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));
    }
+
+   // #endregion
 }
 
 

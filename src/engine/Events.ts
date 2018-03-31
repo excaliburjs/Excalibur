@@ -7,11 +7,13 @@ import { Engine } from './Engine';
 import { TileMap } from './TileMap';
 import { Side } from './Collision/Side';
 import * as Input from './Input/Index';
-import { Pair } from './Index';
+import { Pair, BaseCamera } from './Index';
 
 /* istanbul ignore next */
 /* compiler only: these are internal to lib */
 export type kill = 'kill';
+export type prekill = 'prekill';
+export type postkill = 'postkill';
 
 export type predraw = 'predraw';
 export type postdraw = 'postdraw';
@@ -101,6 +103,24 @@ export class KillEvent extends GameEvent<Actor> {
 }
 
 /**
+ * The 'prekill' event is emitted directly before an actor is killed.
+ */
+export class PreKillEvent extends GameEvent<Actor> {
+   constructor(public target: Actor) {
+      super();
+   }
+}
+
+/**
+ * The 'postkill' event is emitted directly after the actor is killed.
+ */
+export class PostKillEvent extends GameEvent<Actor> {
+   constructor(public target: Actor) {
+      super();
+   }
+}
+
+/**
  * The 'start' event is emitted on engine when has started and is ready for interaction. 
  */
 export class GameStartEvent extends GameEvent<Engine> {
@@ -159,19 +179,19 @@ export class PostDebugDrawEvent extends GameEvent<Actor | Scene | Engine> {
 }
 
 /**
- * The 'preupdate' event is emitted on actors, scenes, and engine before the update starts.
+ * The 'preupdate' event is emitted on actors, scenes, camera, and engine before the update starts.
  */
-export class PreUpdateEvent extends GameEvent<Actor | Scene | Engine | TileMap> {
-   constructor(public engine: Engine, public delta: number, public target: Actor | Scene | Engine | TileMap) {
+export class PreUpdateEvent extends GameEvent<Actor | Scene | Engine | TileMap | BaseCamera> {
+   constructor(public engine: Engine, public delta: number, public target: Actor | Scene | Engine | TileMap | BaseCamera) {
       super();
    }
 }
 
 /**
- * The 'postupdate' event is emitted on actors, scenes, and engine after the update ends.
+ * The 'postupdate' event is emitted on actors, scenes, camera, and engine after the update ends.
  */
-export class PostUpdateEvent extends GameEvent<Actor | Scene | Engine | TileMap> {
-   constructor(public engine: Engine, public delta: number, public target: Actor | Scene | Engine | TileMap) {
+export class PostUpdateEvent extends GameEvent<Actor | Scene | Engine | TileMap | BaseCamera> {
+   constructor(public engine: Engine, public delta: number, public target: Actor | Scene | Engine | TileMap | BaseCamera) {
       super();
    }
 }
@@ -344,12 +364,12 @@ export class CollisionEndEvent extends GameEvent<Actor> {
 /**
  * Event thrown on an [[Actor]] and a [[Scene]] only once before the first update call
  */
-export class InitializeEvent extends GameEvent<Actor | Scene> {
+export class InitializeEvent extends GameEvent<Actor | Scene | Engine | BaseCamera> {
 
    /**
     * @param engine  The reference to the current engine
     */
-   constructor(public engine: Engine, public target: Actor | Scene) {
+   constructor(public engine: Engine, public target: Actor | Scene | Engine | BaseCamera) {
       super();
    }
 }

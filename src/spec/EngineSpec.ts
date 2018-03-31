@@ -239,4 +239,99 @@ describe('The engine', () => {
       
    });
 
+
+   describe('lifecycle overrides', () => {
+      let engine: ex.Engine;
+      beforeEach(() => {
+         engine = TestUtils.engine({width: 400, height: 400});
+
+      });
+
+      afterEach(() => {
+         engine.stop();
+         engine = null;
+      });
+      
+      it('can have onInitialize overriden safely', () => {
+         let initCalled = false;
+         engine.onInitialize = (engine) => { expect(engine).not.toBe(null); };
+
+         engine.on('initialize', () => { initCalled = true; });
+
+         spyOn(engine, 'onInitialize').and.callThrough();
+
+         (<any>engine)._update(100);
+            
+         expect(initCalled).toBe(true);
+         expect(engine.onInitialize).toHaveBeenCalledTimes(1);
+      });
+
+      it('can have onPostUpdate overriden safely', () => {
+         engine.onPostUpdate = (engine, delta) => {
+            expect(engine).not.toBe(null);
+            expect(delta).toBe(100);
+         };
+
+         spyOn(engine, 'onPostUpdate').and.callThrough();
+         spyOn(engine, '_postupdate').and.callThrough();
+
+         (<any>engine)._update(100);
+         (<any>engine)._update(100);
+
+         expect(engine._postupdate).toHaveBeenCalledTimes(2);
+         expect(engine.onPostUpdate).toHaveBeenCalledTimes(2);
+      });
+   
+      it('can have onPreUpdate overriden safely', () => {
+         engine.onPreUpdate = (engine, delta) => {
+            expect(engine).not.toBe(null);
+            expect(delta).toBe(100);
+         };
+
+         spyOn(engine, 'onPreUpdate').and.callThrough();
+         spyOn(engine, '_preupdate').and.callThrough();
+
+         (<any>engine)._update(100);
+         (<any>engine)._update(100);
+         
+         expect(engine._preupdate).toHaveBeenCalledTimes(2);
+         expect(engine.onPreUpdate).toHaveBeenCalledTimes(2);
+      });
+
+
+      it('can have onPreDraw overriden safely', () => {
+         engine.onPreDraw = (ctx, delta) => {
+            expect(<any>ctx).not.toBe(null);
+            expect(delta).toBe(100);
+         };
+
+         spyOn(engine, 'onPreDraw').and.callThrough();
+         spyOn(engine, '_predraw').and.callThrough();
+
+         (<any>engine)._draw(100);
+         (<any>engine)._draw(100);
+
+         expect(engine._predraw).toHaveBeenCalledTimes(2);
+         expect(engine.onPreDraw).toHaveBeenCalledTimes(2);
+      });
+
+      it('can have onPostDraw overriden safely', () => {
+         engine.onPostDraw = (ctx, delta) => {
+            expect(<any>ctx).not.toBe(null);
+            expect(delta).toBe(100);
+         };
+
+         spyOn(engine, 'onPostDraw').and.callThrough();
+         spyOn(engine, '_postdraw').and.callThrough();
+
+         (<any>engine)._draw(100);
+         (<any>engine)._draw(100);
+
+         expect(engine._postdraw).toHaveBeenCalledTimes(2);
+         expect(engine.onPostDraw).toHaveBeenCalledTimes(2);
+      });
+
+
+   });
+
 });

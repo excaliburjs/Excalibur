@@ -5,3 +5,5 @@ export * from './IDrawable';
 export * from './IEvented';
 export * from './ILoadable';
 export * from './ILoader';
+export * from './LifecycleEvents';
+export * from './IPointerEvents';

@@ -127,11 +127,13 @@ describe('A scene', () => {
       var sceneInitialized = false;
       var sceneActivated = false;
       var actorInitialized = false;
-      scene.on('initialize', (evt) => { sceneInitialized = true; });
+      scene.on('initialize', (evt) => { 
+         sceneInitialized = true; 
+         expect(actorInitialized).toBe(true, 'Actor should be initialized before scene initilization');
+      });
       var actor = new ex.Actor();
       actor.on('initialize', (evt) => {
          actorInitialized = true;
-         expect(sceneInitialized).toBe(true, 'Scene should be initialized before actor initilization');
       });
 
       scene.on('activate', (evt) => {
@@ -305,6 +307,104 @@ describe('A scene', () => {
 
       expect(scene.tileMaps.indexOf(tilemap)).toBeGreaterThan(-1, 'TileMap was not added to scene');
       expect(updated).toBe(true, 'TileMap was not updated after timer callback');
+   });
+
+
+   describe('lifecycle overrides', () => {
+      let scene: ex.Scene;
+      let engine: ex.Engine;
+      beforeEach(() => {
+         engine = TestUtils.engine({width: 100, height: 100});
+         scene = new ex.Scene(engine);
+         engine.currentScene = scene;
+         engine.addScene('root', scene);
+      });
+
+      afterEach(() => {
+         engine.stop();
+         engine = null;
+         scene = null;
+      });
+
+      it('can have onInitialize overriden safely', () => {
+         let initCalled = false;
+         scene.onInitialize = (engine) => { expect(engine).not.toBe(null); };
+
+         scene.on('initialize', () => { initCalled = true; });
+
+         spyOn(scene, 'onInitialize').and.callThrough();
+
+         engine.goToScene('root');
+         (<any>engine)._update(100);
+            
+         expect(initCalled).toBe(true);
+         expect(scene.onInitialize).toHaveBeenCalledTimes(1);
+      });
+
+      it('can have onPostUpdate overriden safely', () => {
+         scene.onPostUpdate = (engine, delta) => {
+            expect(engine).not.toBe(null);
+            expect(delta).toBe(100);
+         };
+
+         spyOn(scene, 'onPostUpdate').and.callThrough();
+         spyOn(scene, '_postupdate').and.callThrough();
+
+         scene.update(engine, 100);
+         scene.update(engine, 100);
+
+         expect(scene._postupdate).toHaveBeenCalledTimes(2);
+         expect(scene.onPostUpdate).toHaveBeenCalledTimes(2);
+      });
+   
+      it('can have onPreUpdate overriden safely', () => {
+         scene.onPreUpdate = (engine, delta) => {
+            expect(engine).not.toBe(null);
+            expect(delta).toBe(100);
+         };
+
+         spyOn(scene, 'onPreUpdate').and.callThrough();
+         spyOn(scene, '_preupdate').and.callThrough();
+
+         scene.update(engine, 100);
+         scene.update(engine, 100);
+         
+         expect(scene._preupdate).toHaveBeenCalledTimes(2);
+         expect(scene.onPreUpdate).toHaveBeenCalledTimes(2);
+      });
+
+
+      it('can have onPreDraw overriden safely', () => {
+         scene.onPreDraw = (ctx, delta) => {
+            expect(<any>ctx).not.toBe(null);
+            expect(delta).toBe(100);
+         };
+
+         spyOn(scene, 'onPreDraw').and.callThrough();
+         spyOn(scene, '_predraw').and.callThrough();
+
+         scene.draw(engine.ctx, 100);
+         scene.draw(engine.ctx, 100);
+
+         expect(scene._predraw).toHaveBeenCalledTimes(2);
+         expect(scene.onPreDraw).toHaveBeenCalledTimes(2);
+      });
+
+      it('can have onPostDraw overriden safely', () => {
+         scene.onPostDraw = (ctx, delta) => {
+            expect(<any>ctx).not.toBe(null);
+            expect(delta).toBe(100);
+         };
+
+         spyOn(scene, 'onPostDraw').and.callThrough();
+         spyOn(scene, '_postdraw').and.callThrough();
+
+         scene.draw(engine.ctx, 100);
+         scene.draw(engine.ctx, 100);
+
+         expect(scene._postdraw).toHaveBeenCalledTimes(2);
+         expect(scene.onPostDraw).toHaveBeenCalledTimes(2);
+      });
    });
 
 });

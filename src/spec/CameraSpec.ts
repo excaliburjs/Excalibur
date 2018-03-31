@@ -205,4 +205,60 @@ describe('A camera', () => {
       });
    });
 
+
+   describe('lifecycle overrides', () => {
+      let camera: ex.BaseCamera;
+
+      beforeEach(() => {
+         camera = new ex.BaseCamera();
+      });
+
+      it('can have onInitialize overriden safely', () => {
+         let initCalled = false;
+         camera.onInitialize = (engine) => { expect(engine).not.toBe(null); };
+
+         camera.on('initialize', () => { initCalled = true; });
+
+         spyOn(camera, 'onInitialize').and.callThrough();
+
+         camera.update(engine, 100);
+            
+         expect(initCalled).toBe(true);
+         expect(camera.onInitialize).toHaveBeenCalledTimes(1);
+      });
+
+      it('can have onPostUpdate overriden safely', () => {
+         camera.onPostUpdate = (engine, delta) => {
+            expect(engine).not.toBe(null);
+            expect(delta).toBe(100);
+         };
+
+         spyOn(camera, 'onPostUpdate').and.callThrough();
+         spyOn(camera, '_postupdate').and.callThrough();
+
+         camera.update(engine, 100);
+         camera.update(engine, 100);
+
+
+         expect(camera._postupdate).toHaveBeenCalledTimes(2);
+         expect(camera.onPostUpdate).toHaveBeenCalledTimes(2);
+      });
+   
+      it('can have onPreUpdate overriden safely', () => {
+         camera.onPreUpdate = (engine, delta) => {
+            expect(engine).not.toBe(null);
+            expect(delta).toBe(100);
+         };
+
+         spyOn(camera, 'onPreUpdate').and.callThrough();
+         spyOn(camera, '_preupdate').and.callThrough();
+
+         camera.update(engine, 100);
+         camera.update(engine, 100);
+         
+         expect(camera._preupdate).toHaveBeenCalledTimes(2);
+         expect(camera.onPreUpdate).toHaveBeenCalledTimes(2);
+      });
+   });
+
 });

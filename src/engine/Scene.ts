@@ -13,6 +13,7 @@ import { TileMap } from './TileMap';
 import { BaseCamera } from './Camera';
 import { Actor } from './Actor';
 import { Class } from './Class';
+import { ICanInitialize, ICanActivate, ICanDeactivate, ICanUpdate, ICanDraw } from './Interfaces/LifecycleEvents';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 import * as ActorUtils from './Util/Actors';
@@ -26,7 +27,7 @@ import { Trigger } from './Trigger';
  *
  * [[include:Scenes.md]]
  */
-export class Scene extends Class {
+export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDeactivate, ICanUpdate, ICanDraw {
 
    /**
     * Gets or sets the current camera for the scene
@@ -99,37 +100,95 @@ export class Scene extends Class {
       super.on(eventName, handler);
    }
 
+   public once(eventName: Events.initialize, handler: (event?: InitializeEvent) => void): void;
+   public once(eventName: Events.activate, handler: (event?: ActivateEvent) => void): void;
+   public once(eventName: Events.deactivate, handler: (event?: DeactivateEvent) => void): void;
+   public once(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
+   public once(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): void;
+   public once(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void): void;
+   public once(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void): void;
+   public once(eventName: Events.predebugdraw, handler: (event?: PreDebugDrawEvent) => void): void;
+   public once(eventName: Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void): void;
+   public once(eventName: string, handler: (event?: GameEvent<any>) => void): void;
+   public once(eventName: string, handler: (event?: any) => void): void {
+      super.once(eventName, handler);
+   }
+
+   public off(eventName: Events.initialize, handler?: (event?: InitializeEvent) => void): void;
+   public off(eventName: Events.activate, handler?: (event?: ActivateEvent) => void): void;
+   public off(eventName: Events.deactivate, handler?: (event?: DeactivateEvent) => void): void;
+   public off(eventName: Events.preupdate, handler?: (event?: PreUpdateEvent) => void): void;
+   public off(eventName: Events.postupdate, handler?: (event?: PostUpdateEvent) => void): void;
+   public off(eventName: Events.predraw, handler?: (event?: PreDrawEvent) => void): void;
+   public off(eventName: Events.postdraw, handler?: (event?: PostDrawEvent) => void): void;
+   public off(eventName: Events.predebugdraw, handler?: (event?: PreDebugDrawEvent) => void): void;
+   public off(eventName: Events.postdebugdraw, handler?: (event?: PostDebugDrawEvent) => void): void;
+   public off(eventName: string, handler?: (event?: GameEvent<any>) => void): void;
+   public off(eventName: string, handler?: (event?: any) => void): void {
+      super.off(eventName, handler);
+   }
+
 
    /**
     * This is called before the first update of the [[Scene]]. Initializes scene members like the camera. This method is meant to be
     * overridden. This is where initialization of child actors should take place.
     */
-   public onInitialize(engine: Engine): void {
+   public onInitialize(_engine: Engine): void {
       // will be overridden
-      if (this.camera) {
-         this.camera.x = engine.halfDrawWidth;
-         this.camera.y = engine.halfDrawHeight;
-      }
-      this._logger.debug('Scene.onInitialize', this, engine);
    }
 
    /**
     * This is called when the scene is made active and started. It is meant to be overriden,
     * this is where you should setup any DOM UI or event handlers needed for the scene.
     */
-   public onActivate(): void {
+   public onActivate(_oldScene: Scene, _newScene: Scene): void {
       // will be overridden
-      this._logger.debug('Scene.onActivate', this);
    }
 
    /**
     * This is called when the scene is made transitioned away from and stopped. It is meant to be overriden,
     * this is where you should cleanup any DOM UI or event handlers needed for the scene.
     */
-   public onDeactivate(): void {
+   public onDeactivate(_oldScene: Scene, _newScene: Scene): void {
       // will be overridden
-      this._logger.debug('Scene.onDeactivate', this);
    }
+
+   /**
+    * Safe to override onPreUpdate lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
+    * 
+    * `onPreUpdate` is called directly before a scene is updated.
+    */
+   public onPreUpdate(_engine: Engine, _delta: number): void {
+      // will be overridden
+   }
+
+   /**
+    * Safe to override onPostUpdate lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
+    * 
+    * `onPostUpdate` is called directly after a scene is updated.
+    */
+   public onPostUpdate(_engine: Engine, _delta: number): void {
+      // will be overridden
+   }
+
+   /**
+    * Safe to override onPreDraw lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
+    * 
+    * `onPreDraw` is called directly before a scene is drawn.
+    */
+   public onPreDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+      // will be overridden
+   }
+
+   /**
+    * Safe to override onPostDraw lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
+    * 
+    * `onPostDraw` is called directly after a scene is drawn.
+    */
+   public onPostDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+      // will be overridden
+   }
+
 
    /**
     * Initializes actors in the scene
@@ -148,18 +207,98 @@ export class Scene extends Class {
    }
 
    /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
     * Initializes the scene before the first update, meant to be called by engine not by users of
     * Excalibur
     * @internal
     */
    public _initialize(engine: Engine) {
       if (!this.isInitialized) {
-         this.onInitialize.call(this, engine);
-         this.eventDispatcher.emit('initialize', new InitializeEvent(engine, this));
+         if (this.camera) {
+            this.camera.x = engine.halfDrawWidth;
+            this.camera.y = engine.halfDrawHeight;
+         }
+
          this._initializeChildren();
+         
+         this._logger.debug('Scene.onInitialize', this, engine);
+
+         this.eventDispatcher.emit('initialize', new InitializeEvent(engine, this));
+         this.onInitialize.call(this, engine);
          this._isInitialized = true;
       }
    }
+
+   /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Activates the scene with the base behavior, then calls the overridable `onActivate` implementation.
+    * @internal
+    */
+   public _activate(oldScene: Scene, newScene: Scene): void {
+      
+      this._logger.debug('Scene.onActivate', this);
+      this.onActivate(oldScene, newScene);
+   }
+
+   /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Deactivates the scene with the base behavior, then calls the overridable `onDeactivate` implementation.
+    * @internal
+    */
+   public _deactivate(oldScene: Scene, newScene: Scene): void {
+      this._logger.debug('Scene.onDectivate', this);
+      this.onDeactivate(oldScene, newScene);
+   }
+
+   /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
+    * @internal
+    */
+   public _preupdate(_engine: Engine, delta: number): void {      
+      this.emit('preupdate', new PreUpdateEvent(_engine, delta, this));
+      this.onPreUpdate(_engine, delta);
+   }
+
+   /**
+    *  It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
+    * @internal
+    */
+   public _postupdate(_engine: Engine, delta: number): void {      
+      this.emit('postupdate', new PostUpdateEvent(_engine, delta, this));
+      this.onPostUpdate(_engine, delta);
+   }
+
+   /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _predraw handler for [[onPreDraw]] lifecycle event
+    * 
+    * @internal
+    */
+   public _predraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+      this.emit('predraw', new PreDrawEvent(_ctx, _delta, this));
+      this.onPreDraw(_ctx, _delta);
+   }
+
+   /**
+    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+    * 
+    * Internal _postdraw handler for [[onPostDraw]] lifecycle event
+    * 
+    * @internal
+    */
+   public _postdraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+      this.emit('postdraw', new PostDrawEvent(_ctx, _delta, this));
+      this.onPostDraw(_ctx, _delta);
+   }
+
 
    /**
     * Updates all the actors and timers in the scene. Called by the [[Engine]].
@@ -167,7 +306,7 @@ export class Scene extends Class {
     * @param delta   The number of milliseconds since the last update
     */
    public update(engine: Engine, delta: number) {
-      this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
+      this._preupdate(engine, delta);
       var i: number, len: number;
 
       
@@ -240,7 +379,7 @@ export class Scene extends Class {
          this.camera.update(engine, delta);
       }
 
-      this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
+      this._postupdate(engine, delta);
    }
 
     private _processKillQueue(killQueue: Actor[], collection: Actor[]) {
@@ -262,7 +401,7 @@ export class Scene extends Class {
     * @param delta  The number of milliseconds since the last draw
     */
    public draw(ctx: CanvasRenderingContext2D, delta: number) {
-      this.emit('predraw', new PreDrawEvent(ctx, delta, this));
+      this._predraw(ctx, delta);
       ctx.save();
 
       if (this.camera) {
@@ -303,7 +442,7 @@ export class Scene extends Class {
             this.uiActors[i].debugDraw(ctx);
          }
       }
-      this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
+      this._postdraw(ctx, delta);
    }
 
    /**

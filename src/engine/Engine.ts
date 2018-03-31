@@ -1,4 +1,5 @@
 import { EX_VERSION } from './Index';
+import { ICanUpdate, ICanDraw, ICanInitialize } from './Interfaces/LifecycleEvents';
 import { ILoadable } from './Interfaces/ILoadable';
 import { Promise } from './Promises';
 import { Vector } from './Algebra';
@@ -9,8 +10,13 @@ import { TileMap } from './TileMap';
 import { Animation } from './Drawing/Animation';
 import { Loader } from './Loader';
 import { Detector } from './Util/Detector';
-import { VisibleEvent, HiddenEvent, GameStartEvent, GameStopEvent, PreUpdateEvent, 
-   PostUpdateEvent, PreFrameEvent, PostFrameEvent, GameEvent, DeactivateEvent, ActivateEvent, PreDrawEvent, PostDrawEvent } from './Events';
+import { VisibleEvent, HiddenEvent, 
+         GameStartEvent, GameStopEvent, 
+         PreUpdateEvent, PostUpdateEvent, 
+         PreFrameEvent, PostFrameEvent, 
+         GameEvent, DeactivateEvent, 
+         ActivateEvent, PreDrawEvent, 
+         PostDrawEvent, InitializeEvent } from './Events';
 import { ILoader } from './Interfaces/ILoader';
 import { Logger, LogLevel } from './Util/Log';
 import { Color } from './Drawing/Color';
@@ -156,7 +162,7 @@ export interface IEngineOptions {
  *
  * [[include:Engine.md]]
  */
-export class Engine extends Class {
+export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDraw  {
 
    /**
     * Direct access to the engine's canvas element
@@ -351,6 +357,10 @@ export class Engine extends Class {
    private _loader: ILoader;
    private _isLoading: boolean = false;
 
+   private _isInitialized: boolean = false;
+
+
+   public on(eventName: Events.initialize, handler: (event?: Events.InitializeEvent) => void): void;
    public on(eventName: Events.visible, handler: (event?: VisibleEvent) => void): void;
    public on(eventName: Events.hidden, handler: (event?: HiddenEvent) => void): void;
    public on(eventName: Events.start, handler: (event?: GameStartEvent) => void): void;
@@ -364,6 +374,38 @@ export class Engine extends Class {
    public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
    public on(eventName: string, handler: (event?: any) => void): void {
       super.on(eventName, handler);
+   }
+
+   public once(eventName: Events.initialize, handler: (event?: Events.InitializeEvent) => void): void;
+   public once(eventName: Events.visible, handler: (event?: VisibleEvent) => void): void;
+   public once(eventName: Events.hidden, handler: (event?: HiddenEvent) => void): void;
+   public once(eventName: Events.start, handler: (event?: GameStartEvent) => void): void;
+   public once(eventName: Events.stop, handler: (event?: GameStopEvent) => void): void;
+   public once(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
+   public once(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): void;
+   public once(eventName: Events.preframe, handler: (event?: PreFrameEvent) => void): void;
+   public once(eventName: Events.postframe, handler: (event?: PostFrameEvent) => void): void;
+   public once(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void): void;
+   public once(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void): void;
+   public once(eventName: string, handler: (event?: GameEvent<any>) => void): void;
+   public once(eventName: string, handler: (event?: any) => void): void {
+      super.once(eventName, handler);
+   }
+
+   public off(eventName: Events.initialize, handler?: (event?: Events.InitializeEvent) => void): void;
+   public off(eventName: Events.visible, handler?: (event?: VisibleEvent) => void): void;
+   public off(eventName: Events.hidden, handler?: (event?: HiddenEvent) => void): void;
+   public off(eventName: Events.start, handler?: (event?: GameStartEvent) => void): void;
+   public off(eventName: Events.stop, handler?: (event?: GameStopEvent) => void): void;
+   public off(eventName: Events.preupdate, handler?: (event?: PreUpdateEvent) => void): void;
+   public off(eventName: Events.postupdate, handler?: (event?: PostUpdateEvent) => void): void;
+   public off(eventName: Events.preframe, handler?: (event?: PreFrameEvent) => void): void;
+   public off(eventName: Events.postframe, handler?: (event?: PostFrameEvent) => void): void;
+   public off(eventName: Events.predraw, handler?: (event?: PreDrawEvent) => void): void;
+   public off(eventName: Events.postdraw, handler?: (event?: PostDrawEvent) => void): void;
+   public off(eventName: string, handler?: (event?: GameEvent<any>) => void): void;
+   public off(eventName: string, handler?: (event?: any) => void): void {
+      super.off(eventName, handler);
    }
 
    /**
@@ -769,7 +811,7 @@ O|===|* >________________>\n\
 
          // only deactivate when initialized
          if (this.currentScene.isInitialized) {
-            this.currentScene.onDeactivate.call(this.currentScene);
+            this.currentScene._deactivate.call(this.currentScene, [oldScene, newScene]);
             this.currentScene.eventDispatcher.emit('deactivate', new DeactivateEvent(newScene, this.currentScene));
          }
 
@@ -779,7 +821,7 @@ O|===|* >________________>\n\
          // initialize the current scene if has not been already
          this.currentScene._initialize(this);
 
-         this.currentScene.onActivate.call(this.currentScene);
+         this.currentScene._activate.call(this.currentScene, [oldScene, newScene]);
          this.currentScene.eventDispatcher.emit('activate', new ActivateEvent(oldScene, this.currentScene));
       } else {
          this._logger.error('Scene', key, 'does not exist!');
@@ -930,7 +972,10 @@ O|===|* >________________>\n\
       if (!this.canvasElementId) {
          document.body.appendChild(this.canvas);
       }
+   }
 
+   public onInitialize(_engine: Engine) {
+      // Override me
    }
 
    private _intializeDisplayModePosition(options: IEngineOptions) {
@@ -1059,6 +1104,22 @@ O|===|* >________________>\n\
 
 
    /**
+    * Gets whether the actor is Initialized 
+    */
+   public get isInitialized(): boolean {
+      return this._isInitialized;
+   }
+
+   private _overrideInitialize(engine: Engine) {
+      if (!this.isInitialized) {
+         this.onInitialize(engine);
+         super.emit('initialize', new InitializeEvent(engine, this));
+         this._isInitialized = true;
+      }
+
+   }
+
+   /**
     * Updates the entire state of the game
     * @param delta  Number of milliseconds elapsed since the last update.
     */
@@ -1072,7 +1133,10 @@ O|===|* >________________>\n\
          this.input.gamepads.update();
          return;
       }
-      this.emit('preupdate', new PreUpdateEvent(this, delta, this));
+      this._overrideInitialize(this);
+      // Publish preupdate events
+      this._preupdate(delta);
+
       // process engine level events
       this.currentScene.update(this, delta);
 
@@ -1087,7 +1151,31 @@ O|===|* >________________>\n\
       this.input.gamepads.update();
 
       // Publish update event
+      this._postupdate(delta);
+   }
+
+   /**
+    * @internal
+    */
+   public _preupdate(delta: number) {
+      this.emit('preupdate', new PreUpdateEvent(this, delta, this));
+      this.onPreUpdate(this, delta);
+   }
+
+   public onPreUpdate(_engine: Engine, _delta: number) {
+      // Override me
+   }
+
+   /**
+    * @internal
+    */
+   public _postupdate(delta: number) {
       this.emit('postupdate', new PostUpdateEvent(this, delta, this));
+      this.onPostUpdate(this, delta);
+   }
+
+   public onPostUpdate(_engine: Engine, _delta: number) {
+      // Override me
    }
 
    /**
@@ -1096,7 +1184,8 @@ O|===|* >________________>\n\
     */
    private _draw(delta: number) {
       var ctx = this.ctx;
-      this.emit('predraw', new PreDrawEvent(ctx, delta, this));
+      this._predraw(ctx, delta);
+
       if (this._isLoading) {
          this._loader.draw(ctx, delta);
          // Drawing nothing else while loading
@@ -1133,7 +1222,31 @@ O|===|* >________________>\n\
          this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.canvasWidth, this.canvasHeight), this.ctx);
       }
 
-      this.emit('postdraw', new PostDrawEvent(ctx, delta, this));
+      this._postdraw(ctx, delta);
+   }
+
+   /**
+    * @internal
+    */
+   public _predraw(_ctx: CanvasRenderingContext2D, delta: number) {
+      this.emit('predraw', new PreDrawEvent(_ctx, delta, this));
+      this.onPreDraw(_ctx, delta);
+   }
+
+   public onPreDraw(_ctx: CanvasRenderingContext2D, _delta: number) {
+      // Override me
+   }
+
+   /**
+    * @internal
+    */
+   public _postdraw(_ctx: CanvasRenderingContext2D, delta: number) {
+      this.emit('postdraw', new PostDrawEvent(_ctx, delta, this));
+      this.onPostDraw(_ctx, delta);
+   }
+
+   public onPostDraw(_ctx: CanvasRenderingContext2D, _delta: number) {
+      // Override me
    }
 
    /**
