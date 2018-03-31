@@ -19,8 +19,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.16.0] - 2018-03-31
 
-## Breaking Changes
-
 ## Added
 
  - New typesafe and override safe event lifecycle overriding, all `onEventName` handlers will no longer be dangerous to override ([#582](https://github.com/excaliburjs/Excalibur/issues/582))
