@@ -157,9 +157,9 @@ export class TileMapImpl extends Class {
       var worldCoordsUpperLeft = engine.screenToWorldCoordinates(new Vector(0, 0));
       var worldCoordsLowerRight = engine.screenToWorldCoordinates(new Vector(engine.canvas.clientWidth, engine.canvas.clientHeight));
 
-      this._onScreenXStart = Math.max(Math.floor(worldCoordsUpperLeft.x / this.cellWidth) - 2, 0);
+      this._onScreenXStart = Math.max(Math.floor((worldCoordsUpperLeft.x - this.x) / this.cellWidth) - 2, 0);
       this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);
-      this._onScreenXEnd = Math.max(Math.floor(worldCoordsLowerRight.x / this.cellWidth) + 2, 0);
+      this._onScreenXEnd = Math.max(Math.floor((worldCoordsLowerRight.x - this.x) / this.cellWidth) + 2, 0);
       this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0);
 
       this.emit('postupdate', new Events.PostUpdateEvent(engine, delta, this));
@@ -176,8 +176,10 @@ export class TileMapImpl extends Class {
       ctx.save();
       ctx.translate(this.x, this.y);
 
-      var x = this._onScreenXStart, xEnd = Math.min(this._onScreenXEnd, this.cols);
-      var y = this._onScreenYStart, yEnd = Math.min(this._onScreenYEnd, this.rows);
+      let x = this._onScreenXStart; 
+      let xEnd = Math.min(this._onScreenXEnd, this.cols);
+      let y = this._onScreenYStart;
+      let yEnd = Math.min(this._onScreenYEnd, this.rows);
 
       var cs: TileSprite[], csi: number, cslen: number;
 
