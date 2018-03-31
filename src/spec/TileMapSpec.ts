@@ -70,5 +70,33 @@ describe('A TileMap', () => {
       });
    });
 
+   it('should handle offscreen culling correctly with negative coords', (done) => {
+      texture.load().then(() => {
+
+      
+         let tm = new ex.TileMap({
+            x: -100,
+            y: -100,
+            cellWidth: 64,
+            cellHeight: 48,
+            rows: 20,
+            cols: 20
+         });
+         let spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
+         tm.registerSpriteSheet('default', spriteTiles);
+         tm.data.forEach(function (cell: ex.Cell) {
+            cell.solid = true;
+            cell.pushSprite(new ex.TileSprite('default', 0));
+         });
+
+         tm.update(engine, 100);
+         tm.draw(engine.ctx, 100);
+
+         imagediff.expectCanvasImageMatches('TileMapSpec/TileMapCulling.png', engine.canvas, done);
+
+      });
+
+   });
+
 
 });
