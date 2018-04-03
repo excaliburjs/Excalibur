@@ -76,7 +76,7 @@ play. Actors are the primary way to draw things to the screen.
     // Create an actor with x position of 150px,
     // y position of 40px from the bottom of the screen,
     // width of 200px, height and a height of 20px
-    var paddle = new ex.Actor(150, game.getDrawHeight() - 40, 200, 20);
+    var paddle = new ex.Actor(150, game.drawHeight - 40, 200, 20);
 
     // Let's give it some color with one of the predefined
     // color constants
@@ -147,7 +147,7 @@ event.
 
         // If the ball collides with the right side
         // of the screen reverse the x velocity
-        if (this.pos.x + (this.getWidth() / 2) > game.getDrawWidth()) {
+        if (this.pos.x + (this.getWidth() / 2) > game.drawWidth) {
             this.vel.x *= -1;
         }
 
@@ -197,7 +197,7 @@ layout and add them to the current scene.
     var brickColor = [ex.Color.Violet, ex.Color.Orange, ex.Color.Yellow];
 
     // Individual brick width with padding factored in
-    var brickWidth = game.getDrawWidth() / columns - padding - padding/columns; // px
+    var brickWidth = game.drawWidth / columns - padding - padding/columns; // px
     var brickHeight = 30; // px
     var bricks = [];
     for (var j = 0; j < rows; j++) {
