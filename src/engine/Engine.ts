@@ -302,11 +302,16 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
     */
    public displayMode: DisplayMode = DisplayMode.FullScreen;
 
+
+   private _suppressHiDPIScaling: boolean = false;
    /**
     * Returns the calculated pixel ration for use in rendering
     */
    public get pixelRatio(): number
    {
+      if (this._suppressHiDPIScaling) {
+         return 1;
+      }
       let devicePixelRatio = window.devicePixelRatio || 1;
 
       let pixelRatio = devicePixelRatio;
@@ -965,6 +970,7 @@ O|===|* >________________>\n\
 
       this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d');
 
+      this._suppressHiDPIScaling = !!options.suppressHiDPIScaling;
       if (!options.suppressHiDPIScaling) {
          this._initializeHiDpi();
       }
