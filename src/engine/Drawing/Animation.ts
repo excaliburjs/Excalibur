@@ -59,8 +59,8 @@ export class AnimationImpl implements IDrawable {
     */
    public flipHorizontal: boolean = false;
    
-   public scaledWidth: number = 0;
-   public scaledHeight: number= 0;
+   public drawWidth: number = 0;
+   public drawHeight: number= 0;
    public width: number = 0;
    public height: number = 0;
 
@@ -92,8 +92,8 @@ export class AnimationImpl implements IDrawable {
       }
       
       if (sprites && sprites[0]) {
-         this.scaledHeight = sprites[0] ? sprites[0].scaledHeight : 0;
-         this.scaledWidth = sprites[0] ? sprites[0].scaledWidth : 0;
+         this.drawHeight = sprites[0] ? sprites[0].drawHeight : 0;
+         this.drawWidth = sprites[0] ? sprites[0].drawWidth : 0;
          
          this.width = sprites[0] ? sprites[0].width : 0;
          this.height = sprites[0] ? sprites[0].height : 0;
@@ -289,8 +289,8 @@ export class AnimationImpl implements IDrawable {
       
       // add the calculated width
       if (currSprite) {
-         this.scaledWidth = currSprite.scaledWidth;
-         this.scaledHeight = currSprite.scaledHeight;
+         this.drawWidth = currSprite.drawWidth;
+         this.drawHeight = currSprite.drawHeight;
       }
    }
 

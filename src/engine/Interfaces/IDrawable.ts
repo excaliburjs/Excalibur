@@ -16,11 +16,11 @@ export interface IDrawable {
    /**
     * Indicates the current width of the drawing in pixels, factoring in the scale
     */
-   scaledWidth: number;
+   drawWidth: number;
    /**
     * Indicates the current height of the drawing in pixels, factoring in the scale
     */
-   scaledHeight: number;
+   drawHeight: number;
    
    /**
     * Indicates the natural width of the drawing in pixels, this is the original width of the source image

@@ -12,8 +12,8 @@ import { Vector } from '../Algebra';
 export class Polygon implements IDrawable {
    public flipVertical: boolean;
    public flipHorizontal: boolean;
-   public scaledWidth: number;
-   public scaledHeight: number;
+   public drawWidth: number;
+   public drawHeight: number;
    
    public width: number;
    public height: number;
@@ -53,7 +53,7 @@ export class Polygon implements IDrawable {
          return Math.max(prev, curr.x);
       }, 0);
 
-      this.scaledWidth = maxX - minX;
+      this.drawWidth = maxX - minX;
 
       var minY = this._points.reduce((prev: number, curr: Vector) => {
          return Math.min(prev, curr.y);
@@ -62,10 +62,10 @@ export class Polygon implements IDrawable {
          return Math.max(prev, curr.y);
       }, 0);
 
-      this.scaledHeight = maxY - minY;
+      this.drawHeight = maxY - minY;
       
-      this.height = this.scaledHeight;
-      this.width = this.scaledWidth;
+      this.height = this.drawHeight;
+      this.width = this.drawWidth;
    }
 
    /**
@@ -129,12 +129,12 @@ export class Polygon implements IDrawable {
       ctx.strokeStyle = this.lineColor.toString();
 
       if (this.flipHorizontal) {
-         ctx.translate(this.scaledWidth, 0);
+         ctx.translate(this.drawWidth, 0);
          ctx.scale(-1, 1);
       }
 
       if (this.flipVertical) {
-         ctx.translate(0, this.scaledHeight);
+         ctx.translate(0, this.drawHeight);
          ctx.scale(1, -1);
       }
 

@@ -20,11 +20,11 @@ export class SpriteImpl implements IDrawable {
    public y: number = 0;
 
 
-   public get scaledWidth(): number {
+   public get drawWidth(): number {
       return this.width * this.scale.x;
    }
 
-   public get scaledHeight(): number {
+   public get drawHeight(): number {
       return this.height * this.scale.y;
    }
 
@@ -112,8 +112,8 @@ export class SpriteImpl implements IDrawable {
       if (imageOrConfig && !(imageOrConfig instanceof Texture)) {
          x = imageOrConfig.x || imageOrConfig.sx;
          y = imageOrConfig.y || imageOrConfig.sy;
-         width = imageOrConfig.scaledWidth || imageOrConfig.swidth;
-         height = imageOrConfig.scaledHeight || imageOrConfig.sheight;
+         width = imageOrConfig.drawWidth || imageOrConfig.swidth;
+         height = imageOrConfig.drawHeight || imageOrConfig.sheight;
          image = imageOrConfig.image;
          if (!image) {
             const message = 'An image texture is required to contsruct a sprite';
@@ -147,19 +147,19 @@ export class SpriteImpl implements IDrawable {
          var naturalWidth = this._texture.image.naturalWidth || 0;
          var naturalHeight = this._texture.image.naturalHeight || 0;
 
-         if (this.scaledWidth > naturalWidth) {
-            this.logger.warn('The sprite width', this.scaledWidth, 'exceeds the width', 
+         if (this.width > naturalWidth) {
+            this.logger.warn('The sprite width', this.drawWidth, 'exceeds the width', 
                               naturalWidth, 'of the backing texture', this._texture.path);
          }            
-         if (this.scaledHeight > naturalHeight) {
-            this.logger.warn('The sprite height', this.scaledHeight, 'exceeds the height', 
+         if (this.height > naturalHeight) {
+            this.logger.warn('The sprite height', this.drawHeight, 'exceeds the height', 
                               naturalHeight, 'of the backing texture', this._texture.path);
          }
          this._spriteCtx.drawImage(this._texture.image, 
             clamp(this.x, 0, naturalWidth), 
             clamp(this.y, 0, naturalHeight),
-            clamp(this.scaledWidth, 0, naturalWidth),
-            clamp(this.scaledHeight, 0, naturalHeight),
+            clamp(this.width, 0, naturalWidth),
+            clamp(this.height, 0, naturalHeight),
             0, 0, this.width, this.height);
 
          this._pixelsLoaded = true;
@@ -285,19 +285,20 @@ export class SpriteImpl implements IDrawable {
       var naturalHeight = this._texture.image.naturalHeight || 0;
 
       this._spriteCtx.clearRect(0, 0, this.width, this.height);
-      this._spriteCtx.drawImage(this._texture.image, clamp(this.x, 0, naturalWidth),
+      this._spriteCtx.drawImage(this._texture.image, 
+         clamp(this.x, 0, naturalWidth),
          clamp(this.y, 0, naturalHeight),
-         clamp(this.scaledWidth, 0, naturalWidth),
-         clamp(this.scaledHeight, 0, naturalHeight),
+         clamp(this.width, 0, naturalWidth),
+         clamp(this.height, 0, naturalHeight),
          0, 0, this.width, this.height);
       this._pixelData = this._spriteCtx.getImageData(0, 0, this.width, this.height);
 
       var i = 0, x = 0, y = 0, len = this.effects.length;
       for (i; i < len; i++) {
          y = 0;
-         for (y; y < this.scaledHeight; y++) {
+         for (y; y < this.height; y++) {
             x = 0;
-            for (x; x < this.scaledWidth; x++) {
+            for (x; x < this.width; x++) {
                this.effects[i].updatePixel(x, y, this._pixelData);
             }
          }
@@ -327,11 +328,11 @@ export class SpriteImpl implements IDrawable {
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(this.rotation);
-      var xpoint = this.scaledWidth * this.anchor.x;
-      var ypoint = this.scaledHeight * this.anchor.y;
+      var xpoint = this.drawWidth * this.anchor.x;
+      var ypoint = this.drawHeight * this.anchor.y;
 
       ctx.strokeStyle = Color.Black.toString();
-      ctx.strokeRect(-xpoint, -ypoint, this.scaledWidth, this.scaledHeight);
+      ctx.strokeRect(-xpoint, -ypoint, this.drawWidth, this.drawHeight);
       ctx.restore();
    }
 
@@ -355,20 +356,20 @@ export class SpriteImpl implements IDrawable {
       
       // todo cache flipped sprites
       if (this.flipHorizontal) {
-         ctx.translate(this.scaledWidth, 0);
+         ctx.translate(this.drawWidth, 0);
          ctx.scale(-1, 1);
       }
 
       if (this.flipVertical) {
-         ctx.translate(0, this.scaledHeight);
+         ctx.translate(0, this.drawHeight);
          ctx.scale(1, -1);
       }
 
       ctx.drawImage(this._spriteCanvas, 0, 0, this.width, this.height, 
          -xpoint, 
          -ypoint, 
-         this.scaledWidth,
-         this.scaledHeight);
+         this.drawWidth,
+         this.drawHeight);
       
       ctx.restore();
    }
@@ -377,7 +378,7 @@ export class SpriteImpl implements IDrawable {
     * Produces a copy of the current sprite
     */
    public clone(): SpriteImpl {
-      var result = new Sprite(this._texture, this.x, this.y, this.width, this.scaledHeight);
+      var result = new Sprite(this._texture, this.x, this.y, this.width, this.height);
       result.scale = this.scale.clone();
       result.rotation = this.rotation;
       result.flipHorizontal = this.flipHorizontal;
@@ -403,10 +404,10 @@ export interface ISpriteArgs extends Partial<SpriteImpl> {
    y?: number;
    /** @obsolete ex.[[Sprite.sy]] will be deprecated in 0.17.0 use ex.[[Sprite.y]] */
    sy?: number;
-   scaledWidth?: number;
+   drawWidth?: number;
    /** @obsolete ex.[[Sprite.swidth]] will be deprecated in 0.17.0 use ex.[[Sprite.swidth]] */
    swidth?: number;
-   scaledHeight?: number;
+   drawHeight?: number;
    /** @obsolete ex.[[Sprite.sheight]] will be deprecated in 0.17.0 use ex.[[Sprite.sheight]] */
    sheight?: number;
    rotation?: number;

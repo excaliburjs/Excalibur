@@ -151,15 +151,15 @@ export class SpriteSheetImpl {
          let coord = spriteCoordinates[i];
          // no need to pass image again if using a spritesheet
          coord.image = coord.image || this.image;
-         maxWidth = Math.max(maxWidth, coord.scaledWidth);
-         maxHeight = Math.max(maxHeight, coord.scaledHeight);
+         maxWidth = Math.max(maxWidth, coord.drawWidth);
+         maxHeight = Math.max(maxHeight, coord.drawHeight);
          sprites[i] = new Sprite(coord);
       }
 
       let anim = new Animation(engine, sprites, speed);
 
-      anim.scaledWidth = maxWidth;
-      anim.scaledHeight = maxHeight;
+      anim.drawWidth = maxWidth;
+      anim.drawHeight = maxHeight;
       return anim;
    }
 }
@@ -308,12 +308,12 @@ export class SpriteFontImpl extends SpriteSheet {
       var sprite = this.sprites[0];
       
       // find the current height fo the text in pixels
-      var height = sprite.scaledHeight;
+      var height = sprite.drawHeight;
       
       // calculate appropriate scale for font size
       var scale = options.fontSize / height;
       
-      var length = (text.length * sprite.scaledWidth * scale) + (text.length * options.letterSpacing);
+      var length = (text.length * sprite.drawWidth * scale) + (text.length * options.letterSpacing);
 
       var currX = x;
       if (options.textAlign === TextAlign.Left || options.textAlign === TextAlign.Start) {
@@ -354,7 +354,7 @@ export class SpriteFontImpl extends SpriteSheet {
             charSprite.scale.x = scale;
             charSprite.scale.y = scale;
             charSprite.draw(ctx, currX, currY);
-            currX += (charSprite.scaledWidth + options.letterSpacing);
+            currX += (charSprite.drawWidth + options.letterSpacing);
          } catch (e) {
             Logger.getInstance().error(`SpriteFont Error drawing char ${character}`);
          }
