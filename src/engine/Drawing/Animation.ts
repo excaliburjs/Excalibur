@@ -59,10 +59,10 @@ export class AnimationImpl implements IDrawable {
     */
    public flipHorizontal: boolean = false;
    
+   public scaledWidth: number = 0;
+   public scaledHeight: number= 0;
    public width: number = 0;
-   public height: number= 0;
-   public naturalWidth: number = 0;
-   public naturalHeight: number = 0;
+   public height: number = 0;
 
    /**
     * Typically you will use a [[SpriteSheet]] to generate an [[Animation]].
@@ -92,11 +92,11 @@ export class AnimationImpl implements IDrawable {
       }
       
       if (sprites && sprites[0]) {
-         this.height = sprites[0] ? sprites[0].height : 0;
-         this.width = sprites[0] ? sprites[0].width : 0;
+         this.scaledHeight = sprites[0] ? sprites[0].scaledHeight : 0;
+         this.scaledWidth = sprites[0] ? sprites[0].scaledWidth : 0;
          
-         this.naturalWidth = sprites[0] ? sprites[0].naturalWidth : 0;
-         this.naturalHeight = sprites[0] ? sprites[0].naturalHeight : 0;
+         this.width = sprites[0] ? sprites[0].width : 0;
+         this.height = sprites[0] ? sprites[0].height : 0;
 
          this.freezeFrame = sprites.length - 1;
       }
@@ -289,8 +289,8 @@ export class AnimationImpl implements IDrawable {
       
       // add the calculated width
       if (currSprite) {
-         this.width = currSprite.width;
-         this.height = currSprite.height;
+         this.scaledWidth = currSprite.scaledWidth;
+         this.scaledHeight = currSprite.scaledHeight;
       }
    }
 
