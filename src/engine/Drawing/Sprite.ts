@@ -349,8 +349,8 @@ export class SpriteImpl implements IDrawable {
       
       // calculating current dimensions      
       ctx.save();
-      var xpoint = this.width * this.anchor.x;
-      var ypoint = this.height * this.anchor.y;
+      var xpoint = this.drawWidth * this.anchor.x;
+      var ypoint = this.drawHeight * this.anchor.y;
       ctx.translate(x, y);
       ctx.rotate(this.rotation);
       
