@@ -148,12 +148,12 @@ export class SpriteImpl implements IDrawable {
          var naturalHeight = this._texture.image.naturalHeight || 0;
 
          if (this.width > naturalWidth) {
-            this.logger.warn('The sprite width', this.drawWidth, 'exceeds the width', 
-                              naturalWidth, 'of the backing texture', this._texture.path);
+            this.logger.warn(`The sprite width ${this.width} exceeds the width 
+                              ${naturalWidth} of the backing texture ${this._texture.path}`);
          }            
          if (this.height > naturalHeight) {
-            this.logger.warn('The sprite height', this.drawHeight, 'exceeds the height', 
-                              naturalHeight, 'of the backing texture', this._texture.path);
+            this.logger.warn(`The sprite height ${this.height} exceeds the height 
+                              ${naturalHeight} of the backing texture ${this._texture.path}`);
          }
          this._spriteCtx.drawImage(this._texture.image, 
             clamp(this.x, 0, naturalWidth), 
@@ -404,11 +404,11 @@ export interface ISpriteArgs extends Partial<SpriteImpl> {
    y?: number;
    /** @obsolete ex.[[Sprite.sy]] will be deprecated in 0.17.0 use ex.[[Sprite.y]] */
    sy?: number;
-   drawWidth?: number;
-   /** @obsolete ex.[[Sprite.swidth]] will be deprecated in 0.17.0 use ex.[[Sprite.swidth]] */
+   width?: number;
+   /** @obsolete ex.[[Sprite.swidth]] will be deprecated in 0.17.0 use ex.[[Sprite.width]] */
    swidth?: number;
-   drawHeight?: number;
-   /** @obsolete ex.[[Sprite.sheight]] will be deprecated in 0.17.0 use ex.[[Sprite.sheight]] */
+   height?: number;
+   /** @obsolete ex.[[Sprite.sheight]] will be deprecated in 0.17.0 use ex.[[Sprite.height]] */
    sheight?: number;
    rotation?: number;
    anchor?: Vector;
