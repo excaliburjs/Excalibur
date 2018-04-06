@@ -1,3 +1,4 @@
+/// <reference path="support/js-imagediff.d.ts" />
 /// <reference path="jasmine.d.ts" />
 /// <reference path="Mocks.ts" />
 
@@ -10,6 +11,7 @@ describe('A game actor', () => {
    var mock = new Mocks.Mocker();
 
    beforeEach(() => {
+      jasmine.addMatchers(imagediff.jasmine);
       engine = TestUtils.engine({width: 100, height: 100});
       actor = new ex.Actor();
       actor.collisionType = ex.CollisionType.Active;
@@ -1312,7 +1314,7 @@ describe('A game actor', () => {
          a1.draw(engine.ctx, 100);
          a2.draw(engine.ctx, 100);
          
-         engine.ctx.fillRect(0, 0, 200, 200);
+         engine.ctx.clearRect(0, 0, 200, 200);
          actor.draw(engine.ctx, 100);
 
          imagediff.expectCanvasImageMatches('SpriteSpec/iconrotate.png', engine.canvas, done);
