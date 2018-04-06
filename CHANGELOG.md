@@ -24,7 +24,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
  - New typesafe and override safe event lifecycle overriding, all `onEventName` handlers will no longer be dangerous to override ([#582](https://github.com/excaliburjs/Excalibur/issues/582))
    * New lifecycle event `onPreKill` and `onPostKill`
  - SpriteSheets can now produce animations from bespoke sprite coordinates `SpriteSheet.getAnimationByCoords(engine, coords[], speed)` ([#918](https://github.com/excaliburjs/Excalibur/issues/918))
- - Added drag and drop suppor for Actors ([#134](https://github.com/excaliburjs/Excalibur/issues/134))
+ - Added drag and drop support for Actors ([#134](https://github.com/excaliburjs/Excalibur/issues/134))
    - New Event `enter`
    - New Event `leave`
    - New Event `pointerenter`
