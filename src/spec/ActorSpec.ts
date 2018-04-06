@@ -1256,6 +1256,71 @@ describe('A game actor', () => {
       expect(propSpy).toHaveBeenCalledTimes(1);
    });
 
+   it('should not corrupt shared sprite ctxs', (done) => {
+      engine = TestUtils.engine({
+         width: 62,
+         height: 64,
+         suppressHiDPIScaling: true
+       });
+
+      let texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+      texture.load().then(() => {
+         let sprite = new ex.Sprite({
+            image: texture,
+            x: 0,
+            y: 0,
+            width: 62,
+            height: 64,
+            scale: new ex.Vector(2, 2)
+            // rotation: Math.PI / 4,
+            // anchor: ex.Vector.Half.clone()
+         });
+
+         var actor = new ex.Actor({
+            x: engine.halfCanvasWidth,
+            y: engine.halfCanvasHeight,
+            width: 10,
+            height: 10,
+            rotation: Math.PI / 4
+         });
+
+         engine.add(actor);
+         let s = texture.asSprite();
+         s.scale.setTo(1, 1);
+         actor.addDrawing(s);
+         
+         let a1 = new ex.Actor({scale: new ex.Vector(3, 3)});
+         a1.scale.setTo(3, 3);
+         a1.addDrawing(texture);
+
+         let a2 = new ex.Actor({scale: new ex.Vector(3, 3)});
+         a1.scale.setTo(3, 3);
+         a2.addDrawing(texture);
+         
+
+         a1.draw(engine.ctx, 100);
+         a2.draw(engine.ctx, 100);
+         actor.draw(engine.ctx, 100);
+         engine.ctx.fillRect(0, 0, 200, 200);
+         
+         a1.draw(engine.ctx, 100);
+         a2.draw(engine.ctx, 100);
+         actor.draw(engine.ctx, 100);
+         engine.ctx.fillRect(0, 0, 200, 200);
+         
+
+         a1.draw(engine.ctx, 100);
+         a2.draw(engine.ctx, 100);
+         
+         engine.ctx.fillRect(0, 0, 200, 200);
+         actor.draw(engine.ctx, 100);
+
+         imagediff.expectCanvasImageMatches('SpriteSpec/iconrotate.png', engine.canvas, done);
+
+      });
+   });
+   
+
    describe('lifecycle overrides', () => {
 
       let actor: ex.Actor = null;
