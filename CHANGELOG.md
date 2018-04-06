@@ -3,32 +3,42 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## Unreleased
 
 ## Breaking Changes
+
+## Added
+
+## Changed
+
+## Deprecated
+
+## Fixed
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [0.16.0] - 2018-03-31
 
 ## Added
 
  - New typesafe and override safe event lifecycle overriding, all `onEventName` handlers will no longer be dangerous to override ([#582](https://github.com/excaliburjs/Excalibur/issues/582))
    * New lifecycle event `onPreKill` and `onPostKill`
  - SpriteSheets can now produce animations from bespoke sprite coordinates `SpriteSheet.getAnimationByCoords(engine, coords[], speed)` ([#918](https://github.com/excaliburjs/Excalibur/issues/918))
- - New Event `enter`
- - New Event `leave`
- - New Event `pointerenter`
- - New Event `pointerleave`
- - New Event `pointerdragstart`
- - New Event `pointerdragend`
- - New Event `pointerdragmove`
- - New Event `pointerdragenter`
- - New Event `pointerdragleave`
- - New Class `PointerDragEvent` which extends `PointerEvent`
- - New Class `GlobalCoordinates` that contains Vectors for the world, the page, and the screen.
- - Added property `ICapturePointerConfig.captureDragEvents` which controls whether to emit drag events to the actor
- - Added property `PointerEvent.pointer` which equals the original pointer object
+ - Added drag and drop suppor for Actors ([#134](https://github.com/excaliburjs/Excalibur/issues/134))
+   - New Event `enter`
+   - New Event `leave`
+   - New Event `pointerenter`
+   - New Event `pointerleave`
+   - New Event `pointerdragstart`
+   - New Event `pointerdragend`
+   - New Event `pointerdragmove`
+   - New Event `pointerdragenter`
+   - New Event `pointerdragleave`
+   - New Class `PointerDragEvent` which extends `PointerEvent`
+   - New Class `GlobalCoordinates` that contains Vectors for the world, the page, and the screen.
+   - Added property `ICapturePointerConfig.captureDragEvents` which controls whether to emit drag events to the actor
+   - Added property `PointerEvent.pointer` which equals the original pointer object
  
-## Changed
-
-
 ## Deprecated
 
 - `Sprite.sx`, `Sprite.sy`, `Sprite.swidth`, `Sprite.sheight` has be deprecated in favor of `Sprite.x`, `Sprite.y`, `Sprite.width`, `Sprite.height` ([#918](https://github.com/excaliburjs/Excalibur/issues/918))
@@ -36,12 +46,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Fixed
 
 - Added missing lifecycle event handlers on Actors, Triggers, Scenes, Engine, and Camera ([#582](https://github.com/excaliburjs/Excalibur/issues/582))
+- Tile Maps now correctly render negative x-axis coordinates ([#904](https://github.com/excaliburjs/Excalibur/issues/904))
 - Offscreen culling in HiDPI mode ([#949](https://github.com/excaliburjs/Excalibur/issues/949))
   - Correct bounds check to check drawWidth/drawHeight for HiDPI
   - suppressHiDPIScaling now also suppresses pixel ratio based scaling
-- Extract and separate Sprite width/height from drawWidth/drawHeight ([#951](https://github.com/excaliburjs/Excalibur/pull/951))
+- Extract and separate Sprite width/height from drawWidth/drawHeight to prevent context corruption ([#951](https://github.com/excaliburjs/Excalibur/pull/951))
 
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!----------------------------------------------------------------------------------------------->
 
 ## [0.15.0] - 2018-02-16
 
@@ -519,7 +530,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Resource loading with optional custom progress bars
 
 <!----------------------------------------------------------------------------------------------->
-[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.15.0...HEAD
+[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.16.0...HEAD
+[0.16.0]: https://github.com/excaliburjs/Excalibur/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/excaliburjs/Excalibur/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/excaliburjs/Excalibur/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/excaliburjs/Excalibur/compare/v0.12.0...v0.13.0
