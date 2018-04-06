@@ -22,8 +22,8 @@ export class CullingBox {
    private _yMaxWorld: number;
 
    public isSpriteOffScreen(actor: Actor, engine: Engine): boolean {
-      var drawingWidth = actor.currentDrawing.width;
-      var drawingHeight = actor.currentDrawing.height;
+      var drawingWidth = actor.currentDrawing.drawWidth;
+      var drawingHeight = actor.currentDrawing.drawHeight;
       var rotation = actor.rotation;
       var anchor = actor.getCenter();
       var worldPos = actor.getWorldPos();

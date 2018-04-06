@@ -16,20 +16,20 @@ export interface IDrawable {
    /**
     * Indicates the current width of the drawing in pixels, factoring in the scale
     */
-   width: number;
+   drawWidth: number;
    /**
     * Indicates the current height of the drawing in pixels, factoring in the scale
     */
-   height: number;
+   drawHeight: number;
    
    /**
     * Indicates the natural width of the drawing in pixels, this is the original width of the source image
     */
-   naturalWidth: number;
+   width: number;
    /**
     * Indicates the natural height of the drawing in pixels, this is the original height of the source image
     */
-   naturalHeight: number;
+   height: number;
 
    /**
     * Adds a new [[ISpriteEffect]] to this drawing.

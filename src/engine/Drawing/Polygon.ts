@@ -12,11 +12,11 @@ import { Vector } from '../Algebra';
 export class Polygon implements IDrawable {
    public flipVertical: boolean;
    public flipHorizontal: boolean;
+   public drawWidth: number;
+   public drawHeight: number;
+   
    public width: number;
    public height: number;
-   
-   public naturalWidth: number;
-   public naturalHeight: number;
 
    /**
     * The color to use for the lines of the polygon
@@ -53,7 +53,7 @@ export class Polygon implements IDrawable {
          return Math.max(prev, curr.x);
       }, 0);
 
-      this.width = maxX - minX;
+      this.drawWidth = maxX - minX;
 
       var minY = this._points.reduce((prev: number, curr: Vector) => {
          return Math.min(prev, curr.y);
@@ -62,10 +62,10 @@ export class Polygon implements IDrawable {
          return Math.max(prev, curr.y);
       }, 0);
 
-      this.height = maxY - minY;
+      this.drawHeight = maxY - minY;
       
-      this.naturalHeight = this.height;
-      this.naturalWidth = this.width;
+      this.height = this.drawHeight;
+      this.width = this.drawWidth;
    }
 
    /**
@@ -129,12 +129,12 @@ export class Polygon implements IDrawable {
       ctx.strokeStyle = this.lineColor.toString();
 
       if (this.flipHorizontal) {
-         ctx.translate(this.width, 0);
+         ctx.translate(this.drawWidth, 0);
          ctx.scale(-1, 1);
       }
 
       if (this.flipVertical) {
-         ctx.translate(0, this.height);
+         ctx.translate(0, this.drawHeight);
          ctx.scale(1, -1);
       }
 

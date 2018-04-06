@@ -39,6 +39,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Offscreen culling in HiDPI mode ([#949](https://github.com/excaliburjs/Excalibur/issues/949))
   - Correct bounds check to check drawWidth/drawHeight for HiDPI
   - suppressHiDPIScaling now also suppresses pixel ratio based scaling
+- Extract and separate Sprite width/height from drawWidth/drawHeight ([#951](https://github.com/excaliburjs/Excalibur/pull/951))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
