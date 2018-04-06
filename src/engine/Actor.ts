@@ -1237,8 +1237,8 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       if (this.currentDrawing) {
          var drawing = this.currentDrawing;
          // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula          
-         var offsetX = (this._width - drawing.naturalWidth * drawing.scale.x) * this.anchor.x;
-         var offsetY = (this._height - drawing.naturalHeight * drawing.scale.y) * this.anchor.y;
+         var offsetX = (this._width - drawing.width * drawing.scale.x) * this.anchor.x;
+         var offsetY = (this._height - drawing.height * drawing.scale.y) * this.anchor.y;
 
          if (this._effectsDirty) {
             this._reapplyEffects(this.currentDrawing);

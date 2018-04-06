@@ -47,6 +47,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Added missing lifecycle event handlers on Actors, Triggers, Scenes, Engine, and Camera ([#582](https://github.com/excaliburjs/Excalibur/issues/582))
 - Tile Maps now correctly render negative x-axis coordinates ([#904](https://github.com/excaliburjs/Excalibur/issues/904))
+- Offscreen culling in HiDPI mode ([#949](https://github.com/excaliburjs/Excalibur/issues/949))
+  - Correct bounds check to check drawWidth/drawHeight for HiDPI
+  - suppressHiDPIScaling now also suppresses pixel ratio based scaling
+- Extract and separate Sprite width/height from drawWidth/drawHeight to prevent context corruption ([#951](https://github.com/excaliburjs/Excalibur/pull/951))
 
 <!----------------------------------------------------------------------------------------------->
 

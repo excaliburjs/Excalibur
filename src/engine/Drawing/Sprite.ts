@@ -18,8 +18,16 @@ export class SpriteImpl implements IDrawable {
    
    public x: number = 0;
    public y: number = 0;
-   public width: number = 0;
-   public height: number = 0;
+
+
+   public get drawWidth(): number {
+      return this.width * this.scale.x;
+   }
+
+   public get drawHeight(): number {
+      return this.height * this.scale.y;
+   }
+
 
    /** @obsolete ex.[[Sprite.sx]] will be deprecated in 0.17.0 use ex.[[Sprite.x]] */
    public get sx() {
@@ -83,8 +91,8 @@ export class SpriteImpl implements IDrawable {
 
    public effects: Effects.ISpriteEffect[] = [];
 
-   public naturalWidth: number = 0;
-   public naturalHeight: number = 0;
+   public width: number = 0;
+   public height: number = 0;
 
    private _spriteCanvas: HTMLCanvasElement = null;
    private _spriteCtx: CanvasRenderingContext2D = null;
@@ -104,8 +112,8 @@ export class SpriteImpl implements IDrawable {
       if (imageOrConfig && !(imageOrConfig instanceof Texture)) {
          x = imageOrConfig.x || imageOrConfig.sx;
          y = imageOrConfig.y || imageOrConfig.sy;
-         width = imageOrConfig.width || imageOrConfig.swidth;
-         height = imageOrConfig.height || imageOrConfig.sheight;
+         width = imageOrConfig.drawWidth || imageOrConfig.swidth;
+         height = imageOrConfig.drawHeight || imageOrConfig.sheight;
          image = imageOrConfig.image;
          if (!image) {
             const message = 'An image texture is required to contsruct a sprite';
@@ -115,8 +123,6 @@ export class SpriteImpl implements IDrawable {
 
       this.x = x || 0;
       this.y = y || 0;
-      this.width = width || 0;
-      this.height = height || 0;
 
       this._texture = <Texture>image;
       this._spriteCanvas = document.createElement('canvas');
@@ -132,8 +138,8 @@ export class SpriteImpl implements IDrawable {
          this.logger.error('Error loading texture ', this._texture.path, e);
       });
       
-      this.naturalWidth = width;
-      this.naturalHeight = height;
+      this.width = width;
+      this.height = height;
    }
 
    private _loadPixels() {
@@ -142,12 +148,12 @@ export class SpriteImpl implements IDrawable {
          var naturalHeight = this._texture.image.naturalHeight || 0;
 
          if (this.width > naturalWidth) {
-            this.logger.warn('The sprite width', this.width, 'exceeds the width', 
-                              naturalWidth, 'of the backing texture', this._texture.path);
+            this.logger.warn(`The sprite width ${this.width} exceeds the width 
+                              ${naturalWidth} of the backing texture ${this._texture.path}`);
          }            
          if (this.height > naturalHeight) {
-            this.logger.warn('The sprite height', this.height, 'exceeds the height', 
-                              naturalHeight, 'of the backing texture', this._texture.path);
+            this.logger.warn(`The sprite height ${this.height} exceeds the height 
+                              ${naturalHeight} of the backing texture ${this._texture.path}`);
          }
          this._spriteCtx.drawImage(this._texture.image, 
             clamp(this.x, 0, naturalWidth), 
@@ -279,7 +285,8 @@ export class SpriteImpl implements IDrawable {
       var naturalHeight = this._texture.image.naturalHeight || 0;
 
       this._spriteCtx.clearRect(0, 0, this.width, this.height);
-      this._spriteCtx.drawImage(this._texture.image, clamp(this.x, 0, naturalWidth),
+      this._spriteCtx.drawImage(this._texture.image, 
+         clamp(this.x, 0, naturalWidth),
          clamp(this.y, 0, naturalHeight),
          clamp(this.width, 0, naturalWidth),
          clamp(this.height, 0, naturalHeight),
@@ -321,13 +328,11 @@ export class SpriteImpl implements IDrawable {
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(this.rotation);
-      const scaledSWidth = this.width * this.scale.x;
-      const scaledSHeight = this.height * this.scale.y;
-      var xpoint = (scaledSWidth) * this.anchor.x;
-      var ypoint = (scaledSHeight) * this.anchor.y;
+      var xpoint = this.drawWidth * this.anchor.x;
+      var ypoint = this.drawHeight * this.anchor.y;
 
       ctx.strokeStyle = Color.Black.toString();
-      ctx.strokeRect(-xpoint, -ypoint, scaledSWidth, scaledSHeight);
+      ctx.strokeRect(-xpoint, -ypoint, this.drawWidth, this.drawHeight);
       ctx.restore();
    }
 
@@ -342,35 +347,29 @@ export class SpriteImpl implements IDrawable {
          this._applyEffects();
       }
       
-      // calculating current dimensions
-      this.width = this.naturalWidth * this.scale.x;
-      this.height = this.naturalHeight * this.scale.y;
-      
+      // calculating current dimensions      
       ctx.save();
-      var xpoint = this.width * this.anchor.x;
-      var ypoint = this.height * this.anchor.y;
+      var xpoint = this.drawWidth * this.anchor.x;
+      var ypoint = this.drawHeight * this.anchor.y;
       ctx.translate(x, y);
       ctx.rotate(this.rotation);
-
-      var scaledSWidth = this.width * this.scale.x;
-      var scaledSHeight = this.height * this.scale.y;
       
       // todo cache flipped sprites
       if (this.flipHorizontal) {
-         ctx.translate(scaledSWidth, 0);
+         ctx.translate(this.drawWidth, 0);
          ctx.scale(-1, 1);
       }
 
       if (this.flipVertical) {
-         ctx.translate(0, scaledSHeight);
+         ctx.translate(0, this.drawHeight);
          ctx.scale(1, -1);
       }
 
       ctx.drawImage(this._spriteCanvas, 0, 0, this.width, this.height, 
          -xpoint, 
          -ypoint, 
-         scaledSWidth,
-         scaledSHeight);
+         this.drawWidth,
+         this.drawHeight);
       
       ctx.restore();
    }
@@ -406,10 +405,10 @@ export interface ISpriteArgs extends Partial<SpriteImpl> {
    /** @obsolete ex.[[Sprite.sy]] will be deprecated in 0.17.0 use ex.[[Sprite.y]] */
    sy?: number;
    width?: number;
-   /** @obsolete ex.[[Sprite.swidth]] will be deprecated in 0.17.0 use ex.[[Sprite.swidth]] */
+   /** @obsolete ex.[[Sprite.swidth]] will be deprecated in 0.17.0 use ex.[[Sprite.width]] */
    swidth?: number;
    height?: number;
-   /** @obsolete ex.[[Sprite.sheight]] will be deprecated in 0.17.0 use ex.[[Sprite.sheight]] */
+   /** @obsolete ex.[[Sprite.sheight]] will be deprecated in 0.17.0 use ex.[[Sprite.height]] */
    sheight?: number;
    rotation?: number;
    anchor?: Vector;
