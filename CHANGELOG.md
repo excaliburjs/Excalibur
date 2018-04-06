@@ -36,6 +36,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Fixed
 
 - Added missing lifecycle event handlers on Actors, Triggers, Scenes, Engine, and Camera ([#582](https://github.com/excaliburjs/Excalibur/issues/582))
+- Offscreen culling in HiDPI mode ([#949](https://github.com/excaliburjs/Excalibur/issues/949))
+  - Correct bounds check to check drawWidth/drawHeight for HiDPI
+  - suppressHiDPIScaling now also suppresses pixel ratio based scaling
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
