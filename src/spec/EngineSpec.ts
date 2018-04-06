@@ -230,7 +230,7 @@ describe('The engine', () => {
 
       engine.start().then(() => {
          // Assert
-         expect(engine.isHiDpi).toBe(true);
+         expect(engine.isHiDpi).toBe(false);
          expect((<any>engine)._initializeHiDpi).not.toHaveBeenCalled();
          (<any>window).devicePixelRatio = 1;
          done();
