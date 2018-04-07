@@ -180,6 +180,11 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    }
 
    /**
+    * Gets/sets the acceleration of the actor from the last frame. This does not include the global acc [[Physics.acc]].
+    */
+   public oldAcc: Vector = Vector.Zero.clone();
+
+   /**
     * Gets the acceleration vector of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be 
     * useful to simulate a gravitational effect.  
     */
@@ -313,7 +318,13 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    /**
     * The scale vector of the actor
     */
-   public scale: Vector = new Vector(1, 1);
+   public scale: Vector = Vector.One.clone();
+
+   /**
+    * The scale of the actor last frame
+    */
+   public oldScale: Vector = Vector.One.clone();
+
    /** 
     * The x scalar velocity of the actor in scale/second
     */
@@ -370,6 +381,12 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
     */
    public collisionType: CollisionType = CollisionType.PreventCollision;
    public collisionGroups: string[] = [];
+
+   /**
+    * Flag to be set when any property change would result in a geometry recalculation
+    * @internal
+    */
+   private _geometryDirty: boolean = false;
 
 
    private _collisionHandlers: { [key: string]: { (actor: Actor): void }[]; } = {};
@@ -853,6 +870,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
     */
    public setWidth(width: number) {
       this._width = width / this.scale.x;
+      this._geometryDirty = true;
    }
    /**
     * Gets the calculated height of an actor, factoring in scale
@@ -865,6 +883,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
     */
    public setHeight(height: number) {
       this._height = height / this.scale.y;
+      this._geometryDirty = true;
    }
    /**
     * Gets the left edge of the actor
@@ -986,6 +1005,13 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
          -anchor.y,
          this.getWidth() - anchor.x,
          this.getHeight() - anchor.y).rotate(this.rotation);
+   }
+
+   /**
+    * Indicates that the actor's collision geometry needs to be recalculated for accurate collisions
+    */
+   public get isGeometryDirty() {
+      return this._geometryDirty;
    }
 
 
@@ -1126,8 +1152,14 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       this.scale.x += this.sx * delta / 1000;
       this.scale.y += this.sy * delta / 1000;
 
+      if (!this.scale.equals(this.oldScale)) {
+         // change in scale effects the geometry
+         this._geometryDirty = true;
+      }
+
       // Update physics body
       this.body.update();
+      this._geometryDirty = false;
    }
 
    /**
@@ -1157,6 +1189,8 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       // Capture old values before integration step updates them
       this.oldVel.setTo(this.vel.x, this.vel.y);
       this.oldPos.setTo(this.pos.x, this.pos.y);
+      this.oldAcc.setTo(this.acc.x, this.acc.y);
+      this.oldScale.setTo(this.scale.x, this.scale.y);
 
       // Run Euler integration
       this.integrate(delta);
