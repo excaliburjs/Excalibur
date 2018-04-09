@@ -63,6 +63,12 @@ export class TileMapImpl extends Class {
          rows = config.rows;
          cols = config.cols;
       }
+      this.x = <number>xOrConfig;
+      this.y = y;
+      this.cellWidth = cellWidth;
+      this.cellHeight = cellHeight;
+      this.rows = rows;
+      this.cols = cols;
       this.data = new Array<Cell>(rows * cols);
       for (var i = 0; i < cols; i++) {
          for (var j = 0; j < rows; j++) {
