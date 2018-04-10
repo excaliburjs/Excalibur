@@ -1008,6 +1008,17 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    }
 
    /**
+    * Return the actor's unrotated geometry
+    */
+   public getRelativeGeometry() {
+      var anchor = this._getCalculatedAnchor();
+      return new BoundingBox(-anchor.x,
+         -anchor.y,
+         this.getWidth() - anchor.x,
+         this.getHeight() - anchor.y).getPoints();
+   }
+
+   /**
     * Indicates that the actor's collision geometry needs to be recalculated for accurate collisions
     */
    public get isGeometryDirty() {

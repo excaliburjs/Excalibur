@@ -22,11 +22,15 @@ function spawnBlock(x: number, y: number) {
    var color = new ex.Color(ex.Util.randomIntInRange(0, 255),
                            ex.Util.randomIntInRange(0, 255),
                            ex.Util.randomIntInRange(0, 255));
-   var block = new ex.Actor(x, y, width, width, color);
+   var block = new ex.Actor(x, y, width, width + 40, color);
+   block.rotation = Math.PI / 8;
    block.body.useBoxCollision();
-   //block.rotation = Math.PI / 4;
+   
    //block.rx = .1;
    block.collisionType = ex.CollisionType.Active;
+   block.on('postcollision', () => {
+      block.sy = .1;
+   });
    game.add(block);
 }
 
