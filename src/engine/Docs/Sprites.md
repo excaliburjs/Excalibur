@@ -9,7 +9,7 @@ want to "slice" out a portion of an image or if you want to change the dimension
 var game = new ex.Engine();
 var txPlayer = new ex.Texture("/assets/tx/player.png");
 // load assets
-var loader = new ex.Loader(txPlayer);
+var loader = new ex.Loader([txPlayer]);
 
 // start game
 game.start(loader).then(function () {
