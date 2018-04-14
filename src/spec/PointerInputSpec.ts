@@ -32,7 +32,7 @@ describe('A pointer', () => {
    afterEach(() => {
       engine.stop();
    });
-   
+
    it('should exist', () => {
       expect(ex.Input.Pointers).toBeDefined();
       expect(engine.input.pointers).toBeTruthy();
@@ -41,7 +41,7 @@ describe('A pointer', () => {
    it('should detect pointer event', () => {
       expect((<any>window).PointerEvent).toBeDefined();
    });
-   
+
    it('should fire pointerdown events', () => {
       var eventLeftFired = false;
       var eventRightFired = false;
@@ -67,7 +67,7 @@ describe('A pointer', () => {
       expect(eventRightFired).toBe(true);
       expect(eventMiddleFired).toBe(true);
    });
-   
+
    it('should fire pointerup events', () => {
       var eventLeftFired = false;
       var eventRightFired = false;

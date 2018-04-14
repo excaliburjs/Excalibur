@@ -25,6 +25,6 @@ export class CapturePointer implements IActorTrait {
       if (!actor.enableCapturePointer) { return; }
       if (actor.isKilled()) { return; }
 
-      engine.input.pointers.propogate(actor);
+      engine.input.pointers.verifyPointerEvents(actor);
    }
 }

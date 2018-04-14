@@ -3,20 +3,20 @@
 
 describe('The engine', () => {
    var engine: ex.Engine;
-   var scene: ex.Scene;   
+   var scene: ex.Scene;
    var mock = new Mocks.Mocker();
    var loop: Mocks.IGameLoop;
    var initHiDpiSpy: jasmine.Spy;
 
-   beforeEach(() => {  
-      
-      initHiDpiSpy = spyOn(ex.Engine.prototype, '_initializeHiDpi');
-      
+   beforeEach(() => {
+
+      initHiDpiSpy = spyOn<any>(ex.Engine.prototype, '_initializeHiDpi');
+
       engine = TestUtils.engine();
       scene = new ex.Scene(engine);
       engine.currentScene = scene;
       loop = mock.loop(engine);
-      
+
 
       engine.start();
    });
@@ -81,18 +81,18 @@ describe('The engine', () => {
 
       expect(fired).toBe(true);
    });
-   
+
    it('should tell engine is running', () => {
       var status = engine.isPaused();
       expect(status).toBe(false);
    });
-   
+
    it('should tell engine is paused', () => {
       engine.stop();
       var status = engine.isPaused();
       expect(status).toBe(true);
    });
-   
+
    it('should again tell engine is running', () => {
       engine.start();
       var status = engine.isPaused();
@@ -124,15 +124,15 @@ describe('The engine', () => {
       expect(engine.halfCanvasWidth).toBe(250);
 
    });
-   
+
    it('should accept a displayMode of Position', () => {
      expect(engine.displayMode).toEqual(ex.DisplayMode.Position);
    });
-   
+
    it('should accept strings to position the window', () => {
      expect(engine.canvas.style.top).toEqual('0px');
    });
-   
+
    it('should accept AbsolutePosition Interfaces to position the window', () => {
      var game = new ex.Engine({
        height: 600,
@@ -142,10 +142,10 @@ describe('The engine', () => {
        displayMode: ex.DisplayMode.Position,
        position: {top: 1, left: '5em'}
      });
-     
+
      expect(game.canvas.style.top).toEqual('1px');
    });
-   
+
    it('should accept backgroundColor', () => {
       var game = new ex.Engine({
         height: 600,
@@ -170,7 +170,7 @@ describe('The engine', () => {
    });
 
    it('should detect hidpi when the device pixel ratio is greater than 1', (done) => {
-      
+
       // Arrange
       var oldWidth = 100;
       var oldHeight = 100;
@@ -178,7 +178,7 @@ describe('The engine', () => {
       (<any>window).devicePixelRatio = 2;
       var newWidth = oldWidth * (<any>window).devicePixelRatio;
       var newHeight = oldHeight * (<any>window).devicePixelRatio;
-      
+
       engine = TestUtils.engine({width: 100, height: 100, suppressHiDPIScaling: false});
       // Act
       engine.start().then(() => {
@@ -187,11 +187,11 @@ describe('The engine', () => {
          expect(engine.isHiDpi).toBe(true);
          expect((<any>engine)._initializeHiDpi).toHaveBeenCalled();
          (<any>window).devicePixelRatio = 1;
-         
+
          done();
       });
 
-      
+
 
 
    });
@@ -204,10 +204,10 @@ describe('The engine', () => {
       (<any>window).devicePixelRatio = 1;
       var newWidth = oldWidth * (<any>window).devicePixelRatio;
       var newHeight = oldHeight * (<any>window).devicePixelRatio;
-      
+
       // Act
       engine = TestUtils.engine({width: 100, height: 100, suppressHiDPIScaling: false});
-      
+
       engine.start().then(() => {
          // Assert
          expect(engine.isHiDpi).toBe(false);
@@ -224,7 +224,7 @@ describe('The engine', () => {
       var newWidth = oldWidth * (<any>window).devicePixelRatio;
       var newHeight = oldHeight * (<any>window).devicePixelRatio;
       // Act
-      
+
       (<any>ex.Engine.prototype)._initializeHiDpi.calls.reset();
       engine = TestUtils.engine({width: 100, height: 100, suppressHiDPIScaling: true});
 
@@ -236,7 +236,7 @@ describe('The engine', () => {
          done();
       });
 
-      
+
    });
 
 
@@ -251,7 +251,7 @@ describe('The engine', () => {
          engine.stop();
          engine = null;
       });
-      
+
       it('can have onInitialize overriden safely', () => {
          let initCalled = false;
          engine.onInitialize = (engine) => { expect(engine).not.toBe(null); };
@@ -261,7 +261,7 @@ describe('The engine', () => {
          spyOn(engine, 'onInitialize').and.callThrough();
 
          (<any>engine)._update(100);
-            
+
          expect(initCalled).toBe(true);
          expect(engine.onInitialize).toHaveBeenCalledTimes(1);
       });
@@ -281,7 +281,7 @@ describe('The engine', () => {
          expect(engine._postupdate).toHaveBeenCalledTimes(2);
          expect(engine.onPostUpdate).toHaveBeenCalledTimes(2);
       });
-   
+
       it('can have onPreUpdate overriden safely', () => {
          engine.onPreUpdate = (engine, delta) => {
             expect(engine).not.toBe(null);
@@ -293,7 +293,7 @@ describe('The engine', () => {
 
          (<any>engine)._update(100);
          (<any>engine)._update(100);
-         
+
          expect(engine._preupdate).toHaveBeenCalledTimes(2);
          expect(engine.onPreUpdate).toHaveBeenCalledTimes(2);
       });
