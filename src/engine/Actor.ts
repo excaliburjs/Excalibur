@@ -984,38 +984,45 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    /**
     * Returns the actor's [[BoundingBox]] calculated for this instant in world space.
     */
-   public getBounds(): BoundingBox {
+   public getBounds(rotated: boolean = true): BoundingBox {
       // todo cache bounding box
-      var anchor = this._getCalculatedAnchor();
-      var pos = this.getWorldPos();
+      const anchor = this._getCalculatedAnchor();
+      const pos = this.getWorldPos();
 
-      return new BoundingBox(pos.x - anchor.x,
+      let bb = new BoundingBox(pos.x - anchor.x,
          pos.y - anchor.y,
          pos.x + this.getWidth() - anchor.x,
-         pos.y + this.getHeight() - anchor.y).rotate(this.rotation, pos);
+         pos.y + this.getHeight() - anchor.y); 
+         
+      return rotated ? bb.rotate(this.rotation, pos) : bb;
    }
 
    /**
-    * Returns the actor's [[BoundingBox]] relative to the actors position.
+    * Returns the actor's [[BoundingBox]] relative to the actor's position.
     */
-   public getRelativeBounds() {
+   public getRelativeBounds(rotated: boolean = true): BoundingBox {
       // todo cache bounding box
-      var anchor = this._getCalculatedAnchor();
-      return new BoundingBox(-anchor.x,
+      const anchor = this._getCalculatedAnchor();
+      let bb = new BoundingBox(-anchor.x,
          -anchor.y,
          this.getWidth() - anchor.x,
-         this.getHeight() - anchor.y).rotate(this.rotation);
+         this.getHeight() - anchor.y); 
+      
+      return rotated ? bb.rotate(this.rotation) : bb;
    }
 
    /**
-    * Return the actor's unrotated geometry
+    * Returns the actors unrotated geometry in world coordinates
     */
-   public getRelativeGeometry() {
-      var anchor = this._getCalculatedAnchor();
-      return new BoundingBox(-anchor.x,
-         -anchor.y,
-         this.getWidth() - anchor.x,
-         this.getHeight() - anchor.y).getPoints();
+   public getGeometry(): Vector[] {
+      return this.getBounds(false).getPoints();
+   }
+
+   /**
+    * Return the actor's unrotated geometry relative to the actor's position
+    */
+   public getRelativeGeometry(): Vector[] {
+      return this.getRelativeBounds(false).getPoints();
    }
 
    /**
