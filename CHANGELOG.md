@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Deprecated
 
 ## Fixed
+- Added missing variable assignments to TileMapImpl constructor ([#957](https://github.com/excaliburjs/Excalibur/pull/957))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
