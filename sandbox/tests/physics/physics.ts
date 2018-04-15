@@ -28,9 +28,6 @@ function spawnBlock(x: number, y: number) {
    
    //block.rx = .1;
    block.collisionType = ex.CollisionType.Active;
-   block.on('postcollision', () => {
-      block.sy = .1;
-   });
    game.add(block);
 }
 
