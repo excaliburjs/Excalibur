@@ -16,6 +16,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Fixed
 - Added missing variable assignments to TileMapImpl constructor ([#957](https://github.com/excaliburjs/Excalibur/pull/957))
 - Correct setting audio volume level from `value` to `setValueAtTime` to comply with deprecation warning in Chrome 59 ([#953](https://github.com/excaliburjs/Excalibur/pull/953))
+- Force HiDPI scaling to always be at least 1 to prevent visual artifacts in some browsers
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
