@@ -493,26 +493,6 @@ export class BaseCamera extends Class implements ICanUpdate, ICanInitialize {
       super.once(eventName, handler);
    }
 
-   // Wraps easing function so it works in either direction
-   private _normalizedEasing(easing: EasingFunction) {
-      return (time: number, start: number, end: number, duration: number) => {
-         if (end < start) {
-            return start - (easing(time, end, start, duration) - end);
-         } else {
-            return easing(time, start, end, duration);
-         }
-      };
-   }
-   
-   private _coordinate(easing: EasingFunction) {
-      return (time: number, start: Vector, end: Vector, duration: number) => {
-         return new Vector(
-            easing(time, start.x, end.x, duration),
-            easing(time, start.y, end.y, duration)
-         );
-      };
-   }
-
    public update(_engine: Engine, delta: number) {
       this._initialize(_engine);
       this._preupdate(_engine, delta);
@@ -530,7 +510,7 @@ export class BaseCamera extends Class implements ICanUpdate, ICanInitialize {
 
       if (this._isZooming) {
          if (this._currentZoomTime < this._zoomDuration) {
-            let zoomEasing = this._normalizedEasing(this._zoomEasing);
+            let zoomEasing = this._zoomEasing;
             let newZoom = zoomEasing(this._currentZoomTime, this._zoomStart, this._zoomEnd, this._zoomDuration);
 
             this.z = newZoom;
@@ -545,7 +525,7 @@ export class BaseCamera extends Class implements ICanUpdate, ICanInitialize {
 
       if (this._cameraMoving) {
          if (this._currentLerpTime < this._lerpDuration) {
-            let moveEasing = this._coordinate(this._normalizedEasing(this._easing));
+            let moveEasing = EasingFunctions.CreateVectorEasingFunction(this._easing);
 
             let lerpPoint = moveEasing(this._currentLerpTime,
                                  this._lerpStart,
