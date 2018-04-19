@@ -1,2 +1,2 @@
-export * from 'PerlinNoise';
-export * from 'Random';
+export * from './PerlinNoise';
+export * from './Random';

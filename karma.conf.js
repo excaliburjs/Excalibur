@@ -16,7 +16,7 @@ module.exports = function (config) {
       // list of files / patterns to load in the browser
       files: [
          './build/dist/excalibur.js',
-         './build/dist/excalibur.d.ts',
+         './build/dist/index.d.ts',
          './src/engine/**/*.ts',
          './src/spec/images/**/*.png',
          './src/spec/support/js-imagediff.js',
@@ -54,7 +54,7 @@ module.exports = function (config) {
             experimentalDecorators: true
          },
          include: [
-            './build/dist/excalibur.d.ts',
+            './build/dist/index.d.ts',
             'src/spec/Mocks.ts',
             'src/spec/TestUtils.ts',
             'src/spec/*.ts'

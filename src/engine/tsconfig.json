@@ -1,11 +1,11 @@
 {
    "compilerOptions": {
-      "outFile": "../../build/dist/excalibur.amd.js",
+      "outDir": "../../build/dist",
+      "moduleResolution": "node",
       "sourceMap": true,
-      "inlineSources": true,
       "experimentalDecorators": true,
       "target": "es5",
-      "module": "amd",
+      "module": "es2015",
       "declaration": true,
       "noImplicitAny": true,
       "noFallthroughCasesInSwitch": true,

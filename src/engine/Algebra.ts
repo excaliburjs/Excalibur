@@ -1,5 +1,5 @@
-import { Engine } from 'Engine';
-import * as Util from 'Util/Util';
+import { Engine } from './Engine';
+import * as Util from './Util/Util';
 
 /**
  * A 2D vector on a plane.

@@ -1,7 +1,7 @@
 /**
  * The current Excalibur version string
  */
-export var EX_VERSION = '__EX_VERSION';
+export var EX_VERSION = process.env.__EX_VERSION;
 
 // This file is used as the bundle entrypoint and exports everything
 // that will be exposed as the `ex` global variable.
