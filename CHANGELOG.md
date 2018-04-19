@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Fixed
 - Added missing variable assignments to TileMapImpl constructor ([#957](https://github.com/excaliburjs/Excalibur/pull/957))
+- Correct setting audio volume level from `value` to `setValueAtTime` to comply with deprecation warning in Chrome 59 ([#953](https://github.com/excaliburjs/Excalibur/pull/953))
 - Recalculate physics geometry when width/height change on Actor ([#948](https://github.com/excaliburjs/Excalibur/pull/948))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
