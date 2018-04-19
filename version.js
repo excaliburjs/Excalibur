@@ -1,3 +1,4 @@
+const { execSync }  = require('child_process');
 const request       = require('sync-request');
 const appveyorBuild = process.env.APPVEYOR_BUILD_NUMBER || '';
 const travisBuild   = process.env.TRAVIS_BUILD_NUMBER   || '';
@@ -7,8 +8,22 @@ const travisTag     = process.env.TRAVIS_TAG            || '';
 
 // ignore local builds
 if (!appveyorBuild && !travisBuild) {
-   console.info('Local build, using version "local"');
-   module.exports = 'local';
+   console.info('Attempting to find closest Git tag');
+   let version = 'local';
+   try {
+      execSync('git fetch');
+      const commit = execSync('git rev-parse HEAD').toString().trim();
+      const tag = execSync(`git describe --tags ${commit} --abbrev=0`).toString().trim();
+
+      if (tag) {
+         version = tag + '-' + commit.substring(0, 7);
+      }
+   } catch (err) {
+      console.error(err);
+   }
+
+   console.info(`Local build, using version "${version}"`);
+   module.exports = version;
    return;
 }
 
