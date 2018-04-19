@@ -10,11 +10,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Added
 
 ## Changed
+- Refactored Easing functions to be reversable ([#944](https://github.com/excaliburjs/Excalibur/pull/944))
 
 ## Deprecated
 
 ## Fixed
 - Added missing variable assignments to TileMapImpl constructor ([#957](https://github.com/excaliburjs/Excalibur/pull/957))
+- Fix camera move chaining ([#944](https://github.com/excaliburjs/Excalibur/pull/944))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
