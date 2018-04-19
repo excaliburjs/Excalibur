@@ -40,6 +40,8 @@ for (var i = 0; i < (tm.rows * tm.cols); i++) {
 game.add(tm);
 
 game.start(loader).then(() => {
-   game.currentScene.camera.move(ex.Vector.Zero.clone(), 2000, ex.EasingFunctions.EaseInOutCubic);
+   game.currentScene.camera.move(ex.Vector.Zero.clone(), 2000, ex.EasingFunctions.EaseInOutCubic).then(() => {
+      game.currentScene.camera.move(new ex.Vector(600, 600), 2000, ex.EasingFunctions.EaseInOutCubic);
+   });
    console.log('started');
 });
