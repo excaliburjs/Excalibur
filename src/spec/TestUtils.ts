@@ -9,7 +9,7 @@ namespace TestUtils {
         height: 500,
         suppressConsoleBootMessage: true,
         suppressMinimumBrowserFeatureDetection: true,
-        //suppressHiDPIScaling: true,
+        suppressHiDPIScaling: true,
         displayMode: ex.DisplayMode.Position,
         position: 'top'
       },
