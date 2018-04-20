@@ -80,10 +80,9 @@ the needed dependencies for your project.
 
 **Raw Script Files via CDN or Download**
 
-Excalibur is available via `unpkg <https://unpkg.com>`_ CDN, with the latest version at these URLs:
+Excalibur is available via `unpkg <https://unpkg.com>`_ CDN, with the latest version at the following URL:
 
-- https://unpkg.com/excalibur@latest/dist/excalibur.js (Developer, Not Minified)
-- https://unpkg.com/excalibur@latest/dist/excalibur.min.js (Production, Minified)
+- https://unpkg.com/excalibur@latest/dist/excalibur.js
 
 You can also download the raw Javascript files from the `Excalibur Distribution repository <https://github.com/excaliburjs/excalibur-dist/releases>`_.
 
