@@ -3,6 +3,7 @@
 /*********************************/
 const path = require('path');
 const version = require('./version');
+const webpackConfig = require("./webpack.config")(process.env.NODE_ENV, version)
 const fs = require('fs');
 const child_process = require('child_process');
 const rimraf = require('rimraf');
@@ -24,19 +25,17 @@ module.exports = function (grunt) {
       clean: ['build/dist', 'src/spec/*.js', 'src/spec/*.map'],
 
       //
+      // Webpack tasks
+      //
+      webpack: {
+         core: webpackConfig,
+         corewatch: Object.assign({ watch: true }, webpackConfig)
+      },
+
+      //
       // Typescript compilation targets
       //
       ts: {
-
-         // Core engine
-         core: {
-            tsconfig: {
-               tsconfig: 'src/engine/tsconfig.json'
-            },
-            options: {
-               removeComments: false
-            }
-         },
 
          // Jasmine specs
          specs: {
@@ -72,81 +71,18 @@ module.exports = function (grunt) {
       },
 
       //
-      // Concatenate build files and add banner copyright info
-      //
-      concat: {
-
-         // excalibur.amd.js
-         amd_js: {
-            src: ['build/dist/<%= pkg.name %>.amd.js'],
-            dest: 'build/dist/<%= pkg.name %>.amd.js',
-            options: {
-               sourceMap: true,
-               process: function (src, filepath) {
-                  return src.replace(/__EX_VERSION/g, grunt.template.process('<%= version %>'));
-               }
-            }
-         },
-
-         // excalibur.js (UMD style)
-         dist_js: {
-            src: ['src/browser/start.js', 'src/browser/almond.js', 'build/dist/<%= pkg.name %>.amd.js', 'src/browser/end.js'],
-            dest: 'build/dist/<%= pkg.name %>.js',
-            options: {
-               sourceMap: true,
-               process: function (src, filepath) {
-                  return src.replace(/__EX_VERSION/g, grunt.template.process('<%= version %>'));
-               }
-            }
-         },
-
-         // Concat banner to AMD declarations file
-         amd_dts: {
-            src: ['build/dist/<%= pkg.name %>.amd.d.ts'],
-            dest: 'build/dist/<%= pkg.name %>.amd.d.ts'
-         },
-
-         // Concat public API declarations file
-         dist_dts: {
-            src: ['src/browser/global.d.ts'],
-            dest: 'build/dist/<%= pkg.name %>.d.ts'            
-         },
-
-         options: {
-            separator: '\n',
-            banner: '/*! <%= pkg.title || pkg.name %> - v<%= version %> - ' +
-            '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
-            '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
-            '* Copyright (c) <%= grunt.template.today("yyyy") %> Excalibur.js <<%= pkg.author %>>;' +
-            ' Licensed <%= pkg.license %>\n' +
-            '* @preserve */\n'
-         }
-      },
-
-      //
-      // Minify files
-      //
-      uglify: {
-         options: {
-            sourceMap: true,
-            preserveComments: 'some'
-         },
-         main: {
-            files: {
-               'build/dist/<%= pkg.name %>.min.js': 'build/dist/<%= pkg.name %>.js'
-            }
-         }
-      },
-
-      //
       // Copy dists for visual compilation/testing
       //
       copy: {
+         core: {
+            files: [
+               { src: './src/engine/<%= pkg.name %>.d.ts', dest: './build/dist/<%= pkg.name %>.d.ts' }
+            ]
+         },
          visual: {
             files: [
                { src: './build/dist/<%= pkg.name %>.js', dest: './sandbox/<%= pkg.name %>.js' },
                { src: './build/dist/<%= pkg.name %>.js.map', dest: './sandbox/<%= pkg.name %>.js.map' },
-               { src: './build/dist/<%= pkg.name %>.amd.d.ts', dest: './sandbox/<%= pkg.name %>.amd.d.ts' },
                { src: './build/dist/<%= pkg.name %>.d.ts', dest: './sandbox/<%= pkg.name %>.d.ts' }
             ]
          },
@@ -239,47 +175,6 @@ module.exports = function (grunt) {
       },
 
       //
-      // Jasmine configuration
-      //
-      jasmine: {
-         coverage: {
-            src: 'build/dist/excalibur.js',
-            options: {
-               vendor: [
-                  'src/spec/support/js-imagediff.js', 
-                  'src/spec/support/platform.js', 
-                  'src/spec/Mocks.js', 
-                  'src/spec/TestUtils.js'/*, 
-                  'src/spec/support/sourcemaps.js'*/
-               ],
-               specs: 'src/spec/*Spec.js',
-               keepRunner: true,
-               template: require('grunt-template-jasmine-istanbul'),
-               templateOptions: {
-                  coverage: './coverage/coverage.json',
-                  report: [
-                     {
-                        type: 'html',
-                        options: {
-                           dir: './coverage'
-                        }
-                     },
-                     {
-                        type: 'lcovonly',
-                        options: {
-                           dir: './coverage/lcov'
-                        }
-                     },
-                     {
-                        type: 'text-summary'
-                     }
-                  ]
-               }
-            }
-         }
-      },
-
-      //
       // Code coverage configuration
       //
       coveralls: {
@@ -322,34 +217,34 @@ module.exports = function (grunt) {
    //
    grunt.loadNpmTasks('grunt-ts');
    grunt.loadNpmTasks('grunt-shell');
-   grunt.loadNpmTasks('grunt-contrib-uglify');
    grunt.loadNpmTasks('grunt-contrib-clean');
-   grunt.loadNpmTasks('grunt-contrib-concat');
    grunt.loadNpmTasks('grunt-contrib-copy');
    grunt.loadNpmTasks('grunt-tslint');
-   grunt.loadNpmTasks('grunt-contrib-watch');
    grunt.loadNpmTasks('grunt-coveralls');
    grunt.loadNpmTasks('grunt-build-control');
    grunt.loadNpmTasks('grunt-bumpup');
    grunt.loadNpmTasks('grunt-karma');
-   grunt.loadNpmTasks('grunt-contrib-jasmine');
    grunt.loadNpmTasks('grunt-contrib-connect');
+   grunt.loadNpmTasks('grunt-webpack');
 
    //
    // Register available Grunt tasks
    //
 
    // Default task - compile & test
-   grunt.registerTask('default', ['tslint:src', 'compile', 'tests', 'visual']);
+   grunt.registerTask('default', ['tslint:src', 'core', 'tests', 'visual']);
 
-   // Core compile only
-   grunt.registerTask('compile', ['shell:gitBuild', 'clean', 'ts:core', 'concat', 'uglify', 'copy']);
+   // Core only
+   grunt.registerTask('core', ['shell:gitBuild', 'clean', 'webpack:core', 'copy']);
+
+   // Core w/watch
+   grunt.registerTask('watch', ['shell:gitBuild', 'clean', 'webpack:corewatch', 'copy'])
 
    // Run tests quickly
-   grunt.registerTask('tests', ['compile', 'karma']);
+   grunt.registerTask('tests', ['core', 'karma']);
 
    // Debug compile (for VS Code)
-   grunt.registerTask('debug', ['compile', 'ts:debug']);
+   grunt.registerTask('debug', ['core', 'ts:debug']);
 
    // Compile visual tests
    grunt.registerTask('visual', ['ts:visual']);

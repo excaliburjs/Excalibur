@@ -11,7 +11,7 @@ namespace TestUtils {
         suppressMinimumBrowserFeatureDetection: true,
         //suppressHiDPIScaling: true,
         displayMode: ex.DisplayMode.Position,
-        position: "top"
+        position: 'top'
       },
       options
     );

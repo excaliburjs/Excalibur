@@ -1,8 +1,10 @@
 const path = require("path");
 const webpack = require("webpack");
-const version = require("./version");
+const pkg = require("./package.json");
+const now = new Date();
+const dt = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
 
-module.exports = env => ({
+module.exports = (env, version) => ({
   mode: env && env.production ? "production" : "development",
   devtool: env && env.production ? "source-map" : "inline-source-map",
   entry: "./index.ts",
@@ -29,6 +31,12 @@ module.exports = env => ({
   plugins: [
     new webpack.DefinePlugin({
       'process.env.__EX_VERSION': JSON.stringify(version)
-    })
+    }),
+    new webpack.BannerPlugin(
+`${pkg.name} - ${version} - ${dt}
+${pkg.homepage}
+Copyright (c) ${now.getFullYear()} Excalibur.js <${pkg.author}>
+Licensed ${pkg.license}
+@preserve`)
   ]
 });

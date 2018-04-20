@@ -7,7 +7,7 @@ import { Engine } from './Engine';
 import { TileMap } from './TileMap';
 import { Side } from './Collision/Side';
 import * as Input from './Input/Index';
-import { Pair, BaseCamera } from './';
+import { Pair, BaseCamera } from './index';
 
 /* istanbul ignore next */
 /* compiler only: these are internal to lib */
