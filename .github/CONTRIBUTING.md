@@ -21,7 +21,6 @@ Have questions? Ask them in our [forum]!
 - [Issue Labels](#issue-labels)
   
 
-
 ## Reporting Bugs
 Before reporting a bug, please perform the following basic troubleshooting steps:
 
@@ -44,21 +43,24 @@ Please look through our [backlog][issues] to see if your improvement has already
 
 ## Submitting Changes
 
-#### Getting Started
+### Getting Started
 Below is the general workflow for submitting changes:
 
-1. Create or discuss an issue you wish to contribute to
+1. [Discuss an issue you want to contribute to](#discussing-a-contribution)
 2. Create a fork of Excalibur
-3. Commit to your fork with your changes
-4. Submit a pull request, making sure to reference the issue you're addressing
-5. Make sure your pull request passes the CI build
-6. Wait for a project core-contributor to give you feedback. Make changes if necessary.
-7. Once your changes are merged, celebrate!
+3. Commit to your fork with your initial changes
+4. [Submit a work-in-progress pull request to discuss with the maintainers](#creating-a-pull-request)
+5. Make changes to your pull request as needed
+6. Once your changes are merged, celebrate!
 
 If you’re not sure where to start, take a look at the "good first issue" or "help wanted" [issue labels](#issue-labels).
 
+#### Discussing a Contribution
+It's helpful to let us know that you'd like to contribute for an issue, to prevent duplicate work. Ask us any questions you have about the issue, so that we can clarify the work you'll need to do.
+
 #### Creating a Pull Request
 - Please ensure that there is an issue created for what you're working on. This helps prevent duplicate or unnecessary work.
+- Open a pull request as soon as you feel you have the beginning of something workable, or if you have design considerations to discuss. Getting feedback from us early will help you with your work! We will flag the pull request as Work-In-Progress while we help you through the process.
 - Do all of your work in a new git branch. Only include code in the branch for the single issue you are working on.
 - Include Jasmine tests for your changes, following our [styleguide](#tests). Put them in the src/spec folder.
 - Document new public methods and properties based on the [styleguide](#documentation).
