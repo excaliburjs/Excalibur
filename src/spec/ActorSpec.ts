@@ -312,6 +312,33 @@ describe('A game actor', () => {
       expect(actor.getBottom()).toBe(200);
    });
 
+   it('should have the correct world geometry if rotated and scaled', () => {
+      let actor = new ex.Actor({pos: new ex.Vector(50, 50), width: 10, height: 10});
+      actor.scale.setTo(2, 2);
+      actor.rotation = Math.PI / 2;
+
+      let geom = actor.getGeometry();
+      expect(geom.length).toBe(4);
+      expect(geom[0].equals(new ex.Vector(40, 40))).toBe(true);
+      expect(geom[1].equals(new ex.Vector(60, 40))).toBe(true);
+      expect(geom[2].equals(new ex.Vector(60, 60))).toBe(true);
+      expect(geom[3].equals(new ex.Vector(40, 60))).toBe(true);
+
+   });
+
+   it('should have the correct relative geometry if rotated and scaled', () => {
+      let actor = new ex.Actor({pos: new ex.Vector(50, 50), width: 10, height: 10});
+      actor.scale.setTo(2, 2);
+      actor.rotation = Math.PI / 2;
+
+      let geom = actor.getRelativeGeometry();
+      expect(geom.length).toBe(4);
+      expect(geom[0].equals(new ex.Vector(-10, -10))).toBe(true);
+      expect(geom[1].equals(new ex.Vector(10, -10))).toBe(true);
+      expect(geom[2].equals(new ex.Vector(10, 10))).toBe(true);
+      expect(geom[3].equals(new ex.Vector(-10, 10))).toBe(true);
+   });
+
    it('can contain points', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
