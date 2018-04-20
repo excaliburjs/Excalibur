@@ -77,11 +77,12 @@ npm run all
 
 # Run engine core compilation only
 # Useful for quick checks to ensure everything compiles
-npm run compile
+npm run core
 
 # Run engine tests only (does not run compile task)
 # Useful to run tests ad-hoc
-npm run tests
+npm test
+npm run test
 
 # Compile HTML visual tests
 # Useful to ensure HTML sandbox compiles
