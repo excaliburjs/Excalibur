@@ -10,18 +10,27 @@ export class Timer {
    public interval: number = 10;
    public fcn: () => void = () => { return; };
    public repeats: boolean = false;
+   public maxNumberOfRepeats: number = -1;
    private _elapsedTime: number = 0;
    private _totalTimeAlive: number = 0;
    private _paused: boolean = false;
+   private _numberOfTicks: number = 0;
    public complete: boolean = false;
    public scene: Scene = null;
 
    /**
     * @param fcn        The callback to be fired after the interval is complete.
     * @param interval   Interval length
-    * @param repeats    Indicates whether this call back should be fired only once, or repeat after every interval as completed.    
+    * @param repeats    Indicates whether this call back should be fired only once, or repeat after every interval as completed.
+    * @param numberOfRepeats Specifies a maximum number of times that this timer will execute.   
     */
-   constructor(fcn: () => void, interval: number, repeats?: boolean) {
+   constructor(fcn: () => void, interval: number, repeats?: boolean, numberOfRepeats?: number) {
+      if (!!numberOfRepeats && numberOfRepeats >= 0) {
+         this.maxNumberOfRepeats = numberOfRepeats;
+         if (!repeats) {
+             throw new Error('repeats must be set to true if numberOfRepeats is set');
+         }
+      }
       this.id = Timer.id++;
       this.interval = interval || this.interval;
       this.fcn = fcn || this.fcn;
@@ -36,8 +45,14 @@ export class Timer {
       if (!this._paused) {   
          this._totalTimeAlive += delta;
          this._elapsedTime += delta;
+
+         if (this.maxNumberOfRepeats > -1 && this._numberOfTicks >= this.maxNumberOfRepeats) {
+            this.complete = true;
+         }
+
          if (!this.complete && this._elapsedTime >= this.interval) {
             this.fcn.call(this);
+            this._numberOfTicks++;
             if (this.repeats) {
                this._elapsedTime = 0;
             } else {
@@ -50,14 +65,27 @@ export class Timer {
    /**
     * Resets the timer so that it can be reused, and optionally reconfigure the timers interval.
     * @param newInterval If specified, sets a new non-negative interval in milliseconds to refire the callback
+    * @param newNumberOfRepeats If specified, sets a new non-negative upper limit to the number of time this timer executes
     */
-   public reset(newInterval?: number) {
+   public reset(newInterval?: number, newNumberOfRepeats?: number) {
       if (!!newInterval && newInterval >= 0) {
          this.interval = newInterval;
       }
+
+      if (!!this.maxNumberOfRepeats && this.maxNumberOfRepeats >= 0) {
+         this.maxNumberOfRepeats = newNumberOfRepeats;
+         if (!this.repeats) {
+            throw new Error('repeats must be set to true if numberOfRepeats is set');
+        }
+      }
+
       this.complete = false;
       this._elapsedTime = 0;
-      
+      this._numberOfTicks = 0;
+   }
+
+   public get timesRepeated(): number {
+      return this._numberOfTicks;
    }
 
    public getTimeRunning(): number {
