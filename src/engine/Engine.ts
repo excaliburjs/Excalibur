@@ -312,6 +312,11 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
       if (this._suppressHiDPIScaling) {
          return 1;
       }
+
+      if (window.devicePixelRatio < 1) {
+         return 1;
+      }
+
       let devicePixelRatio = window.devicePixelRatio || 1;
 
       let pixelRatio = devicePixelRatio;

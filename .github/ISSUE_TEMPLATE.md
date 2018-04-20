@@ -29,6 +29,10 @@ https://github.com/excaliburjs/Excalibur/blob/master/.github/CONTRIBUTING.md#sug
 - Excalibur versions: <!-- which version(s) of Excalibur contain the bug?-->
 - (anything else that may be relevant) <!-- Are there versions of Excalibur that don't contain the bug?, etc. -->
 
+### Current Workaround
+<!-- If you have determined a workaround for this issue, please detail it here -->
+
+
 <!---------------------------------------->
 
 <!-- OTHER ISSUES TEMPLATE -->

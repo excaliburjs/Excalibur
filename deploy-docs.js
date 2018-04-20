@@ -1,5 +1,4 @@
 var Travis = require('travis-ci');
-var child_process = require('child_process');
 var repo = "excaliburjs/excaliburjs.github.io";
 var travis = new Travis({
    version: '2.0.0',
