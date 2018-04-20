@@ -1,4 +1,4 @@
-/// <reference path="../../excalibur.d.ts" />
+/// <reference path="../../lib/excalibur.d.ts" />
 
 var Resources = {
   Background: new ex.Texture('../../images/Background.png')

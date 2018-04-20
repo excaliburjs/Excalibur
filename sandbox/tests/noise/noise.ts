@@ -1,4 +1,4 @@
-/// <reference path="../../excalibur.d.ts" />
+/// <reference path="../../lib/excalibur.d.ts" />
 
 var canvas = <HTMLCanvasElement>document.getElementById('game');
 var ctx = canvas.getContext('2d');

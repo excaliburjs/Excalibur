@@ -5,8 +5,8 @@ const now = new Date();
 const dt = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
 
 module.exports = (env, version) => ({
-  mode: env && env.production ? "production" : "development",
-  devtool: env && env.production ? "source-map" : "inline-source-map",
+  mode: env || "development",
+  devtool: env === "production" ? "source-map" : "inline-source-map",
   entry: "./index.ts",
   context: path.resolve(__dirname, "src/engine"),
   output: {

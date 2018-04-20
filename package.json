@@ -31,6 +31,7 @@
     "apidocs": "grunt apidocs"
   },
   "devDependencies": {
+    "cross-env": "^5.1.4",
     "grunt": "^1.0.1",
     "grunt-build-control": "^0.7.1",
     "grunt-bumpup": "^0.6.3",
@@ -51,7 +52,7 @@
     "karma-chrome-launcher": "^2.2.0",
     "karma-coverage": "^1.1.1",
     "karma-jasmine": "^1.1.0",
-    "karma-typescript": "^3.0.5",
+    "karma-typescript": "^3.0.12",
     "rimraf": "^2.6.1",
     "source-map-support": "^0.4.3",
     "sync-request": "^4.0.2",

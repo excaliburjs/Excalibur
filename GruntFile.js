@@ -81,9 +81,7 @@ module.exports = function (grunt) {
          },
          visual: {
             files: [
-               { src: './build/dist/<%= pkg.name %>.js', dest: './sandbox/<%= pkg.name %>.js' },
-               { src: './build/dist/<%= pkg.name %>.js.map', dest: './sandbox/<%= pkg.name %>.js.map' },
-               { src: './build/dist/<%= pkg.name %>.d.ts', dest: './sandbox/<%= pkg.name %>.d.ts' }
+               { expand: true, cwd: './build/dist/', src: ['**'], dest: './sandbox/lib/' }
             ]
          },
          coveralls: {

@@ -1,4 +1,4 @@
-﻿/// <reference path='../../excalibur.d.ts' />
+﻿/// <reference path='../../lib/excalibur.d.ts' />
 
 // uncomment to hint fallback implementation
 // (<any>window).AudioContext = null;
