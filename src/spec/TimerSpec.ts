@@ -35,7 +35,7 @@ describe('A Timer', () => {
       expect(timer.complete).toBeTruthy();
    });
 
-   it('can repeat itself multiple number of times', () => {
+   it('can repeat itself indefinitely at a specified interval', () => {
       // count the number of fires
       var count = 0;
       timer = new ex.Timer(function(){ count++; }, 500, true);
@@ -45,6 +45,17 @@ describe('A Timer', () => {
       timer.update(501);
 
       expect(count).toBe(3);
+   });
+
+   it('can repeat itself a finite number of times', () => {
+      // count the number of fires
+      timer = new ex.Timer(function(){ var dummy = 0; }, 500, true, 2);
+
+      timer.update(501);
+      timer.update(501);
+      timer.update(501);
+
+      expect(timer.timesRepeated).toBe(2);
    });
 
    it('can return how long it has been running', () => {
@@ -166,6 +177,32 @@ describe('A Timer', () => {
          expect(count).toBe(2 + i);
          expect(timer.complete).toBe(false);
       }
+   });
+
+   it('can be reset with a different number of maximum iterations', () => {
+      // non-repeating timer
+      timer = new ex.Timer(function(){ var dummy = 0; }, 500, true, 3);
+      scene.add(timer);
+
+      // tick the timer
+      scene.update(engine, 501);
+      scene.update(engine, 501);
+      scene.update(engine, 501);
+      expect(timer.timesRepeated).toBe(3);
+
+      // tick the timer again, but it shouldn't fire until reset
+      scene.update(engine, 501);
+      expect(timer.timesRepeated).toBe(3);
+      expect(timer.complete).toBe(true);
+
+      // once reset the timer should fire again
+      timer.reset(500, 4);
+      expect(timer.complete).toBe(false);
+      scene.update(engine, 501);
+      scene.update(engine, 501);
+      scene.update(engine, 501);
+      scene.update(engine, 501);
+      expect(timer.timesRepeated).toBe(4);
    });
 
    it('can be paused', () => {

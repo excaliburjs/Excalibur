@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   -Property scope `Pointer.actorsUnderPointer` changed to private;
 
 ## Added
+- Allow timers to limit repeats to a finite number of times ([#957](https://github.com/excaliburjs/Excalibur/pull/974))
 
   -New `PointerEvent.stopPropagation()` method added. Works the same way as    (`https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation`)
     ([#912](https://github.com/excaliburjs/Excalibur/issues/912))
