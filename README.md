@@ -38,7 +38,7 @@ The `master` branch documentation is always available and up-to-date on our [Edg
 
 # Questions
 
-- :grey_question: Ask us anything in the [Excalibur.js forum](https://groups.google.com/forum/#!forum/excaliburjs)
+- :question: Ask us anything in the [Excalibur.js forum](https://groups.google.com/forum/#!forum/excaliburjs)
 - :bug: If you find a bug, report it on the [GitHub issues page](https://github.com/excaliburjs/Excalibur/issues) (please review our [guidelines for reporting bugs](https://github.com/excaliburjs/Excalibur/blob/master/.github/CONTRIBUTING.md#reporting-bugs)).
 - :mega: You can also follow us on Twitter [@excaliburjs](http://twitter.com/excaliburjs) or [read the blog](http://blog.excaliburjs.com).
 
