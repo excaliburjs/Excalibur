@@ -4,8 +4,8 @@ const pkg = require("./package.json");
 const now = new Date();
 const dt = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
 
-module.exports = (env, version) => ({
-  mode: env || "development",
+module.exports = (version) => ({
+  mode: "development",
   devtool: "source-map",
   entry: "./index.ts",
   context: path.resolve(__dirname, "src/engine"),
