@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Breaking Changes
 
 ## Added
+- Allow timers to limit repeats to a finite number of times ([#957](https://github.com/excaliburjs/Excalibur/pull/974))
 
 ## Changed
 - Refactored Easing functions to be reversable ([#944](https://github.com/excaliburjs/Excalibur/pull/944))
