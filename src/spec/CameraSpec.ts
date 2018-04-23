@@ -83,6 +83,49 @@ describe('A camera', () => {
       expect(baseCamera.getFocus().y).toBe(10);
    });
 
+   it('can chain moves from various points', () => {
+      baseCamera.x = 10;
+      baseCamera.y = 20;
+
+      // verify initial position
+      expect(baseCamera.x).toBe(10);
+      expect(baseCamera.y).toBe(20);
+
+      baseCamera.move(new ex.Vector(20, 10), 1000).then(() => {
+         baseCamera.move(new ex.Vector(0, 0), 1000).then(() => {
+            baseCamera.move(new ex.Vector(100, 100), 1000);
+         });
+      });
+
+      // wait 11 frames (1100ms)
+      for (let i = 0; i < 11; i++) {
+         baseCamera.update(engine, 100);
+      }
+
+       // should be at new position
+       expect(baseCamera.x).toBe(20);
+       expect(baseCamera.y).toBe(10);
+
+
+       // wait 11 frames (1100ms)
+      for (let i = 0; i < 11; i++) {
+         baseCamera.update(engine, 100);
+      }
+
+       // should be at new position
+       expect(baseCamera.x).toBe(0);
+       expect(baseCamera.y).toBe(0);
+
+       // wait 11 frames (1100ms)
+      for (let i = 0; i < 11; i++) {
+         baseCamera.update(engine, 100);
+      }
+
+       // should be at new position
+       expect(baseCamera.x).toBe(100);
+       expect(baseCamera.y).toBe(100);
+   });
+
    it('can shake', () => {
       engine.currentScene.camera = baseCamera;
       engine.currentScene.camera.strategy.lockToActor(actor);
