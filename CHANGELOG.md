@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Added
 - Allow timers to limit repeats to a finite number of times ([#957](https://github.com/excaliburjs/Excalibur/pull/974))
+- Convenience method on Scene to determine whether it is the current scene. ([#982](https://github.com/excaliburjs/Excalibur/issues/982))
 
 ## Changed
 - Refactored Easing functions to be reversable ([#944](https://github.com/excaliburjs/Excalibur/pull/944))
