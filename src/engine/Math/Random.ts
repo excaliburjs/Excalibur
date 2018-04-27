@@ -194,7 +194,7 @@ export class Random {
       }
       var result = new Array<T>(numPicks);
       for (var i = 0; i < numPicks; i++) {
-         result.push(this.pickOne(array));
+         result[i] = this.pickOne(array);
       }
       return result;
    }
