@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Changed
 - Refactored Easing functions to be reversable ([#944](https://github.com/excaliburjs/Excalibur/pull/944))
+- Scene.Remove(Actor) now starts the Actor.Kill event cycle.([#981](https://github.com/excaliburjs/Excalibur/issues/981))
 
 ## Deprecated
 
