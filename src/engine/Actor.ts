@@ -702,8 +702,8 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       if (this.scene) {
          this._prekill(this.scene);
          this.emit('kill', new KillEvent(this));
-         this.scene.remove(this);
          this._isKilled = true;
+         this.scene.remove(this);
          this._postkill(this.scene);
       } else {
          this.logger.warn('Cannot kill actor, it was never added to the Scene');
