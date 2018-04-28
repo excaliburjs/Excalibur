@@ -77,6 +77,8 @@ It's helpful to let us know that you'd like to contribute for an issue, to preve
 #### Deprecating Code
 If you've replaced a piece of Excalibur's API, please mark it as `@obsolete` and provide the new preferred method of performing the same task. Don't forget to include which release it will be removed in! Deprecations are typically performed during the next release, so if your changes are made for the 0.1.0 release, they will be removed in 0.2.0.
 
+If the code you are deprecating is called anywhere else in Excalibur, or in any documentation, please update those places to use the new code you've written.
+
 example: 
 ```
 /** @obsolete use [[SomeClass]].someNewFunction instead **/
