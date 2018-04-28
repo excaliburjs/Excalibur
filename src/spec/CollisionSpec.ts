@@ -32,21 +32,66 @@ describe('A Collision', () => {
    });
 
    it('should throw one event for each actor participating', () => {
-      var numCollisions = 0;
+      var actor1Collision = 0;
+      var actor2Collision = 0;
       actor1.on('precollision', (e: ex.PreCollisionEvent) => {
          e.other.kill();
-         numCollisions++;
+         actor1Collision++;
       });
 
       actor2.on('precollision', (e: ex.PreCollisionEvent) => {         
-         numCollisions++;
+         actor2Collision++;
       });
 
       for (let i = 0; i < 50; i++) {
          loop.advance(100);
       }
 
-      expect(numCollisions).toBe(2);
+      expect(actor1Collision).toBe(1);
+      expect(actor2Collision).toBe(1);
+   });
+
+   it('should only trigger one collision event per actor when an Active and Passive collide', () => {
+      var actor1Collision = 0;
+      var actor2Collision = 0;
+      actor1.on('precollision', (e: ex.PreCollisionEvent) => {
+         e.other.kill();
+         actor1Collision++;
+      });
+
+      actor2.on('precollision', (e: ex.PreCollisionEvent) => {         
+         actor2Collision++;
+      });
+
+      actor2.collisionType = ex.CollisionType.Passive;
+
+      for (let i = 0; i < 50; i++) {
+         loop.advance(100);
+      }
+
+      expect(actor1Collision).toBe(1);
+      expect(actor2Collision).toBe(1);
+   });
+
+   it('should not trigger when an actor is killed', () => {
+      var actor1Collision = 0;
+      var actor2Collision = 0;
+      actor1.on('precollision', (e: ex.PreCollisionEvent) => {
+         actor1Collision++;
+      });
+
+      actor2.on('precollision', (e: ex.PreCollisionEvent) => {         
+         actor2Collision++;
+      });
+
+      actor2.kill();
+
+      for (let i = 0; i < 50; i++) {
+         loop.advance(100);
+      }
+
+      expect(actor1Collision).toBe(0);
+      expect(actor2Collision).toBe(0);
    });
    
    it('should recognize when actor bodies are touching', () => {
