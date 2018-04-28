@@ -59,8 +59,8 @@ If you’re not sure where to start, take a look at the "good first issue" or "h
 It's helpful to let us know that you'd like to contribute for an issue, to prevent duplicate work. Ask us any questions you have about the issue, so that we can clarify the work you'll need to do.
 
 #### Creating a Pull Request
-- Please ensure that there is an issue created for what you're working on. This helps prevent duplicate or unnecessary work.
-- Open a pull request as soon as you feel you have the beginning of something workable, or if you have design considerations to discuss. Getting feedback from us early will help you with your work! We will flag the pull request as Work-In-Progress while we help you through the process.
+- Please ensure that there is an issue created for what you're working on. This helps us track the work being done!
+- Open a pull request as soon as you feel you have the beginning of something workable, or if you have design ideas to discuss. Getting feedback from us early will help you with your work! We will flag the pull request as Work-In-Progress while we work with you on your contribution.
 - Do all of your work in a new git branch. Only include code in the branch for the single issue you are working on.
 - Include Jasmine tests for your changes, following our [styleguide](#tests). Put them in the src/spec folder.
 - Document new public methods and properties based on the [styleguide](#documentation).
@@ -68,11 +68,22 @@ It's helpful to let us know that you'd like to contribute for an issue, to preve
   - `Breaking Changes` for changes to the existing API that are not backwards compatible
   - `Added` for new features
   - `Changed` for changes in existing functionality
-  - `Deprecated` for features that will be removed in an upcoming release
+  - `Deprecated` for features that will be removed in an upcoming release (see also [deprecating code](#deprecating-code))
   - `Fixed` for bug fixes
 - Please follow our [styleguide](#commit-messages) for your commit messages.
 - Send a pull request via Github.
   - Format your pull request title as: [#issue_number] Your commit message (where issue_number is the issue you're closing), and fill out the pull request template that automatically populates the editor window. Please format your pull request title according to our [commit message styleguide](#commit-messages).
+
+#### Deprecating Code
+If you've replaced a piece of Excalibur's API, please mark it as `@obsolete` and provide the new preferred method of performing the same task. Don't forget to include which release it will be removed in! Deprecations are typically performed during the next release, so if your changes are made for the 0.1.0 release, they will be removed in 0.2.0.
+
+example: 
+```
+/** @obsolete use [[SomeClass]].someNewFunction instead **/
+@obsolete({message: 'ex.SomeClass.someFunction is deprecated, and will be removed in 0.2.0', 
+	alternateMethod: 'SomeClass.someNewFunction'})
+public someFunction() {...}
+```
 
 #### Code Organization
 
