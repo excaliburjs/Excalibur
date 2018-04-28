@@ -307,26 +307,39 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
     */
    public update(engine: Engine, delta: number) {
       this._preupdate(engine, delta);
+      let i: number;
+      let len: number;
 
       // Remove timers in the cancel queue before updating them
-      this._cancelQueue.forEach((timer) => this.removeTimer(timer));
-
+      for (i = 0, len = this._cancelQueue.length; i < len; i++) {
+         this.removeTimer(this._cancelQueue[i]);
+      }
       this._cancelQueue.length = 0;
 
       // Cycle through timers updating timers
-      this._timers.forEach((timer) => timer.update(delta));
+      for (const timer of this._timers) {
+         timer.update(delta);
+      };
 
       // Cycle through actors updating UI actors
-      this.uiActors.forEach((uiActor) => uiActor.update(engine, delta));
+      for (i = 0, len = this.uiActors.length; i < len; i++) {
+         this.uiActors[i].update(engine, delta);
+      }
 
       // Cycle through actors updating tile maps
-      this.tileMaps.forEach((tileMap) => tileMap.update(engine, delta));
+      for (i = 0, len = this.tileMaps.length; i < len; i++) {
+         this.tileMaps[i].update(engine, delta);
+      }
 
       // Cycle through actors updating actors
-      this.actors.forEach((actor) => actor.update(engine, delta));
+      for (i = 0, len = this.actors.length; i < len; i++) {
+         this.actors[i].update(engine, delta);
+      }
 
       // Cycle through triggers updating
-      this.triggers.forEach((trigger) => trigger.update(engine, delta));
+      for (i = 0, len = this.triggers.length; i < len; i++) {
+         this.triggers[i].update(engine, delta);
+      }
 
       this._collectActorStats(engine);
 

@@ -15,13 +15,13 @@ module Mocks {
 
    export class Mocker {
       navigator(): any {
-         var _internalGamePads = { 0: undefined, 
-                                   1: undefined, 
-                                   2: undefined, 
+         var _internalGamePads = { 0: undefined,
+                                   1: undefined,
+                                   2: undefined,
                                    3: undefined,
                                    length: 4 };
          var mockNavigator = {
-            
+
             setGamepads: function(index: number, numAxis: number, numButtons: number) {
                _internalGamePads[index] = {
                   axes: Array.apply(null, Array(numAxis).map(function() { return undefined; })),
@@ -33,31 +33,31 @@ module Mocks {
                   timing: 15335
                };
             },
-            
+
             deleteGamepad: function(index: number) {
                _internalGamePads[index] = undefined;
             },
-            
+
             setGamepadAxis: function(gamepadIndex: number, axisIndex: number, value: number) {
                _internalGamePads[gamepadIndex].axes[axisIndex] = value;
             },
-            
+
             setGamepadButton: function(gamepadIndex: number, buttonIndex: number, value: number){
                _internalGamePads[gamepadIndex].buttons[buttonIndex] = { pressed: value > 0 ? true : false, value: value };
             },
-            
+
             getGamepads: function() {
                return _internalGamePads;
             }
-            
+
          };
-         
+
          return mockNavigator;
       };
 
       realengine(): ex.Engine {
          navigator = <any>this.navigator();
-         
+
          return new ex.Engine({
             width: 500,
             height: 500,
@@ -65,7 +65,7 @@ module Mocks {
             suppressMinimumBrowserFeatureDetection: true
          });
       }
-            
+
       engine(width: number, height: number) {
          var mockEngine;
 
@@ -95,7 +95,7 @@ module Mocks {
                error : function () { /* do nothing */ }
             },
             debug: {
-               
+
             },
             stats: {
                currFrame: new ex.FrameStats(),
@@ -167,7 +167,7 @@ module Mocks {
          return {
 
             /**
-             * Advance the engine update loop by the given duration (in milliseconds). 
+             * Advance the engine update loop by the given duration (in milliseconds).
              * By default, the FPS is set to 60 which means ~16ms per frame for 1 second duration.
              */
             advance: function (duration: number, fps: number = 60) {
@@ -200,20 +200,20 @@ module Mocks {
             }
          };
       }
-      
-      window() {         
+
+      window() {
          var _handlers = {};
-         
+
          var mockWindow = {
             addEventListener: function(name, handler) {
                _handlers[name] = handler;
-            },            
+            },
             emit: function(name, eventObject) {
                _handlers[name](eventObject);
             }
          };
-         
+
          return mockWindow;
-      };            
+      };
    }
 }

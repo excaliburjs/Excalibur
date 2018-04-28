@@ -101,7 +101,12 @@ export abstract class BubblingEvent extends GameEvent<Actor> {
    /**
     * Holds the whole path from the Root to the event target
     */
-   public path: Actor[] = [];
+   public eventPath: Actor[] = [];
+   protected _name: string = '';
+
+   get name(): string {
+      return this._name;
+   }
 
    constructor() {
       super();
@@ -112,6 +117,40 @@ export abstract class BubblingEvent extends GameEvent<Actor> {
     */
    public stopPropagation() {
       this.bubbles = false;
+   }
+   /**
+    * Action, that calls when event happens
+    */
+   public action(): void {
+      const actor = this.eventPath.pop();
+
+      if (actor) {
+         this._onActionStart(actor);
+         actor.eventDispatcher.emit(this._name, this);
+         this._onActionEnd(actor);
+      }
+   }
+   /**
+    * Propagate event further through event path
+    */
+   public propagate(): void {
+      if (!this.eventPath.length) {
+         return;
+      }
+
+      this.action();
+
+      if (this.bubbles) {
+         this.propagate();
+      }
+   }
+
+   protected _onActionStart(_actor?: Actor) {
+      // to be rewritten
+   }
+
+   protected _onActionEnd(_actor?: Actor) {
+      // to be rewritten
    }
 }
 /**

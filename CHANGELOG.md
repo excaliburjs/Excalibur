@@ -13,22 +13,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     ([#912](https://github.com/excaliburjs/Excalibur/issues/912))
  - New `Engine.input.pointers.verifyPointerEvents(actor)` method, which checks if event can be fired on provided Actor
  - New abstract Class `BubblingEvent` which extends `GameEvent` and provides event with bubbling functionality
- - New `Actor.getPath()` method, which retreives full array of current Actors` ancestors
+ - New `Actor.getAncestors()` method, which retreives full array of current Actors` ancestors
  - Added better functionality for working with actors under pointer:
    - New method `addActorUnderPointer(actor)`
    - New method `removeActorUnderPointer(actor)`
    - New method `hasActorUnderPointer(actor)`
    - New property `hasActorsUnderPointer`
-   * New intreface `IActorUnderPointer` which adds `length` property to old untyped object
+   * New interface `IActorUnderPointer` which adds `length` property to old untyped object
 
 ## Changed
  - `CapturePointer.update()` method now doesn't propagate event to actor, just verifies pointer events for actor.
- - `Scene.update()` method. Now it calls `engine.input.pointers.propagate()` method for starting propagation of events accordingly to paths provided. Event propagation became less greedy.
- - Class `BubblingEvent` now extends `GameEvent`;
-
- ## Fixed
- - `jasmine.d.ts` type definitions are now for Jasmine 2.8.0. It equals to the version used in current development.
- - Added `jasmine-core` package from `v2.8.0` accorfingly to version it should use;
 
  <!----------------------------------------------------------------------------------------------->
 

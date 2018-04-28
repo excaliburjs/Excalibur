@@ -1374,7 +1374,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    /**
     * Returns the full array of ancestors
     */
-   public getPath(): Actor[] {
+   public getAncestors(): Actor[] {
       const path: Actor[] = [this];
       let currentActor: Actor = this;
       let parent: Actor;
