@@ -64,7 +64,7 @@ It's helpful to let us know that you'd like to contribute for an issue, to preve
 - Do all of your work in a new git branch. Only include code in the branch for the single issue you are working on.
 - Include Jasmine tests for your changes, following our [styleguide](#tests). Put them in the src/spec folder.
 - Document new public methods and properties based on the [styleguide](#documentation).
-- If you've modified Excalibur code (i.e. not just tests or documentation), update CHANGELOG.md with your changes. The changelog is reserved for concise consumer-facing changes; all other information should be included appropriately as code comments or additional documentation. The categories we use are adapted from [Keep a Changelog][keep-a-changelog]:
+- If you've modified Excalibur code (i.e. not just tests or documentation), update CHANGELOG.md with your changes. The changelog is reserved for concise consumer-centric changes; all other information should be included appropriately as code comments, API documentation, or additional documentation. The categories we use are adapted from [Keep a Changelog][keep-a-changelog]:
   - `Breaking Changes` for changes to the existing API that are not backwards compatible
   - `Added` for new features
   - `Changed` for changes in existing functionality
