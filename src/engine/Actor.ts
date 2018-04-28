@@ -562,7 +562,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
     * The **collisionstart** event is fired when a [[Body|physics body]], usually attached to an actor,
     *  first starts colliding with another [[Body|body]], and will not fire again while in contact until
     *  the the pair separates and collides again.
-    * Use cases for the **collisionstart** event may be detecting when an actor has touch a surface 
+    * Use cases for the **collisionstart** event may be detecting when an actor has touched a surface 
     * (like landing) or if a item has been touched and needs to be picked up.
     */
    public on(eventName: Events.collisionstart, handler: (event?: CollisionStartEvent) => void): void;
