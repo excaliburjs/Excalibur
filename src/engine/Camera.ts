@@ -223,9 +223,13 @@ export class BaseCamera extends Class implements ICanUpdate, ICanInitialize {
    private _yShake: number = 0;
 
    protected _isZooming: boolean = false;
-   private _maxZoomScale: number = 1;
+   private _zoomStart: number = 1;
+   private _zoomEnd: number = 1;
+   private _currentZoomTime: number = 0;
+   private _zoomDuration: number = 0;
+
    private _zoomPromise: Promise<boolean>;
-   private _zoomIncrement: number = 0.01;
+   private _zoomEasing: EasingFunction = EasingFunctions.EaseInOutCubic;
    private _easing: EasingFunction = EasingFunctions.EaseInOutCubic;
    
  
@@ -353,13 +357,16 @@ export class BaseCamera extends Class implements ICanUpdate, ICanInitialize {
     * @param scale    The scale of the zoom
     * @param duration The duration of the zoom in milliseconds
     */
-   public zoom(scale: number, duration: number = 0): Promise<boolean> {
+   public zoom(scale: number, duration: number = 0, easingFn: EasingFunction = EasingFunctions.EaseInOutCubic): Promise<boolean> {
       this._zoomPromise = new Promise<boolean>();
       
       if (duration) {
          this._isZooming = true;
-         this._maxZoomScale = scale;
-         this._zoomIncrement = (scale - this.z) / duration;
+         this._zoomEasing = easingFn;
+         this._currentZoomTime = 0;
+         this._zoomDuration = duration;
+         this._zoomStart = this.z;
+         this._zoomEnd = scale;
       } else {
          this._isZooming = false;
          this.z = scale;
@@ -502,51 +509,42 @@ export class BaseCamera extends Class implements ICanUpdate, ICanInitialize {
       this.rotation += this.rx * delta / 1000;
 
       if (this._isZooming) {
-         var newZoom = this.z + this._zoomIncrement * delta;      
-         this.z = newZoom;
-         if (this._zoomIncrement > 0) {
-               
-            if (newZoom >= this._maxZoomScale) {
-               this._isZooming = false;
-               this.z = this._maxZoomScale;
-               this._zoomPromise.resolve(true);
-            }
+         if (this._currentZoomTime < this._zoomDuration) {
+            let zoomEasing = this._zoomEasing;
+            let newZoom = zoomEasing(this._currentZoomTime, this._zoomStart, this._zoomEnd, this._zoomDuration);
+
+            this.z = newZoom;
+            this._currentZoomTime += delta;
          } else {
-            if (newZoom <= this._maxZoomScale) {
-               this._isZooming = false;
-               this.z = this._maxZoomScale;
-               this._zoomPromise.resolve(true);
-            }
-         }         
+            this._isZooming = false;
+            this.z = this._zoomEnd;
+            this._currentZoomTime = 0;
+            this._zoomPromise.resolve(true);
+         }
       }
 
       if (this._cameraMoving) {
          if (this._currentLerpTime < this._lerpDuration) {
+            let moveEasing = EasingFunctions.CreateVectorEasingFunction(this._easing);
 
-            if (this._lerpEnd.x < this._lerpStart.x) {
-               this._x = this._lerpStart.x - (this._easing(this._currentLerpTime,
-                  this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
-            } else {
-               this._x = this._easing(this._currentLerpTime,
-                  this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
-            }
+            let lerpPoint = moveEasing(this._currentLerpTime,
+                                 this._lerpStart,
+                                 this._lerpEnd,
+                                 this._lerpDuration);
 
-            if (this._lerpEnd.y < this._lerpStart.y) {
-               this._y = this._lerpStart.y - (this._easing(this._currentLerpTime,
-                  this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
-            } else {
-               this._y = this._easing(this._currentLerpTime,
-                  this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
-            }
+            this._x = lerpPoint.x;
+            this._y = lerpPoint.y;
+
             this._currentLerpTime += delta;
          } else {
             this._x = this._lerpEnd.x;
             this._y = this._lerpEnd.y;
-            this._lerpPromise.resolve(this._lerpEnd);
             this._lerpStart = null;
             this._lerpEnd = null;
             this._currentLerpTime = 0;
             this._cameraMoving = false;
+            // Order matters here, resolve should be last so any chain promises have a clean slate
+            this._lerpPromise.resolve(this._lerpEnd);
          }
       }
 

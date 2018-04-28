@@ -8,8 +8,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Breaking Changes
 
 ## Added
+- Allow timers to limit repeats to a finite number of times ([#957](https://github.com/excaliburjs/Excalibur/pull/974))
 
 ## Changed
+- Refactored Easing functions to be reversable ([#944](https://github.com/excaliburjs/Excalibur/pull/944))
 
 ## Deprecated
 
@@ -18,6 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Correct setting audio volume level from `value` to `setValueAtTime` to comply with deprecation warning in Chrome 59 ([#953](https://github.com/excaliburjs/Excalibur/pull/953))
 - Force HiDPI scaling to always be at least 1 to prevent visual artifacts in some browsers
 - Recalculate physics geometry when width/height change on Actor ([#948](https://github.com/excaliburjs/Excalibur/pull/948))
+- Fix camera move chaining ([#944](https://github.com/excaliburjs/Excalibur/pull/944))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
