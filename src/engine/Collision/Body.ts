@@ -137,6 +137,13 @@ export class Body {
     */
    public update() {
       if (this.collisionArea) {
+         // Update the geometry if needed
+         if (this.actor && 
+            this.actor.isGeometryDirty && 
+            this.collisionArea instanceof PolygonArea) {
+            this.collisionArea.points = this.actor.getRelativeGeometry();
+         }
+
          this.collisionArea.recalc();
       }
    }
@@ -151,7 +158,7 @@ export class Body {
 
       this.collisionArea = new PolygonArea({
          body: this,
-         points: this.actor.getRelativeBounds().getPoints(),
+         points: this.actor.getRelativeGeometry(),
          pos: center // position relative to actor
       });
 

@@ -626,7 +626,8 @@ class WebAudioInstance implements IAudio {
       this._bufferSource = audioContext.createBufferSource();
       this._bufferSource.buffer = this._buffer;
       this._bufferSource.loop = this._loop;
-      this._bufferSource.playbackRate.value = 1.0;
+      this._bufferSource.playbackRate.setValueAtTime(1.0, 0);
+      
       this._bufferSource.connect(this._volumeNode);
    }
 
