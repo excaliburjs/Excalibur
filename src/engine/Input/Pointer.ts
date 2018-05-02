@@ -158,6 +158,19 @@ export class PointerEvent extends BubblingEvent {
    public get pos(): Vector {
       return this.coordinates.worldPos.clone();
    }
+   /**
+    * Sets event path to actor, depending on actor provided.
+    * If actor is lower in hierarchy tree, previous path'll be kept.
+    * @param actor Actor, to lay path form.
+    */
+   public layPath(actor: Actor): void {
+      if (!this.pointer.isActorUnderPointer(actor)) {
+         return;
+      }
+
+      const actorPath = actor.getAncestors();
+      this._path = (actorPath.length > this._path.length) ? actorPath : this._path;
+   }
 };
 
 export class PointerEventFactory<T extends PointerEvent> {
@@ -187,7 +200,7 @@ export class PointerEventFactory<T extends PointerEvent> {
    }
 }
 
-export class PointerDragEvent extends PointerEvent { }
+export class PointerDragEvent extends PointerEvent {}
 
 export class PointerUpEvent extends PointerEvent {
    protected _name = 'pointerup';
@@ -213,7 +226,7 @@ export class PointerDownEvent extends PointerEvent {
    }
 }
 
-export class PointerMoveEvent extends PointerEvent {
+class PointerMoveEvent extends PointerEvent {
    protected _name = 'pointermove';
 
    public propagate(): void {
@@ -237,6 +250,26 @@ export class PointerMoveEvent extends PointerEvent {
       }
    }
 
+   /**
+    * Sets event path to actor, depending on actor provided.
+    * If actor is in a dragging state, current dragging target would be used.
+    * @param actor Actor, to lay path form.
+    */
+   public layPath(actor: Actor): void {
+      /**
+       *  double-check is preformed, because user could move pointer too fast and
+       *  in that case, pointer can appear out of boundings of the dragging element
+       */
+      if (this.pointer.isDragging && this.pointer.dragTarget) {
+         actor = this.pointer.dragTarget;
+      } else if (!this.pointer.isActorUnderPointer(actor)) {
+         return;
+      }
+
+      const actorPath = actor.getAncestors();
+      this._path = (actorPath.length > this._path.length) ? actorPath : this._path;
+   }
+
    protected _onActionStart(actor: Actor) {
       if (!actor.capturePointer.captureMoveEvents) {
          return;
@@ -245,12 +278,8 @@ export class PointerMoveEvent extends PointerEvent {
       if (this.pointer.isActorUnderPointer(actor) && !this.pointer.hasActorUnderPointerInList(actor)) {
          this._onActorEnter(actor);
       }
-   }
 
-   protected _onActionEnd(actor: Actor) {
-      const pointer = this.pointer;
-
-      if (pointer.isDragging && actor.capturePointer.captureDragEvents) {
+      if (this.pointer.isDragging && actor.capturePointer.captureDragEvents) {
          actor.eventDispatcher.emit('pointerdragmove', this);
       }
    }
@@ -265,9 +294,13 @@ export class PointerMoveEvent extends PointerEvent {
          this.button,
          this.ev
       );
-      pe.eventPath = actor.getAncestors();
+      pe.layPath(actor);
       pe.propagate();
       this.pointer.addActorUnderPointer(actor);
+
+      if (this.pointer.isDragging) {
+         this.pointer.dragTarget = actor;
+      }
    }
 
    private _onActorLeave(actor: Actor) {
@@ -280,13 +313,13 @@ export class PointerMoveEvent extends PointerEvent {
          this.button,
          this.ev
       );
-      pe.eventPath = actor.getAncestors();
+      pe.layPath(actor);
       pe.propagate();
       this.pointer.removeActorUnderPointer(actor);
    }
 }
 
-export class PointerEnterEvent extends PointerEvent {
+class PointerEnterEvent extends PointerEvent {
    protected _name = 'pointerenter';
 
    protected _onActionStart(actor: Actor) {
@@ -304,7 +337,7 @@ export class PointerEnterEvent extends PointerEvent {
    }
 }
 
-export class PointerLeaveEvent extends PointerEvent {
+class PointerLeaveEvent extends PointerEvent {
    protected _name = 'pointerleave';
 
    protected _onActionStart(actor: Actor) {
@@ -322,7 +355,7 @@ export class PointerLeaveEvent extends PointerEvent {
    }
 }
 
-export class PointerCancelEvent extends PointerEvent {
+class PointerCancelEvent extends PointerEvent {
    protected _name = 'pointercancel';
 }
 /**
@@ -537,14 +570,14 @@ export class Pointers extends Class {
    }
 
    /**
-    * Verifies Actor pointer events accordingly to actor provided
-    * @param actor  Actor to be verified
+    * Revises pointer events paths accordingly to actor provided
+    * @param actor  Actor to be revised
     */
-   public verifyPointerEvents(actor: Actor) {
-      this._verifyActorUnderPointers(actor, this._pointerDown);
-      this._verifyActorUnderPointers(actor, this._pointerUp);
-      this._verifyActorUnderPointers(actor, this._pointerMove);
-      this._verifyActorUnderPointers(actor, this._pointerCancel);
+   public revisePointerEventsPaths(actor: Actor) {
+      this._revisePointerEventPath(actor, this._pointerDown);
+      this._revisePointerEventPath(actor, this._pointerUp);
+      this._revisePointerEventPath(actor, this._pointerMove);
+      this._revisePointerEventPath(actor, this._pointerCancel);
       this._validateWheelEventPath(this._wheel, actor);
    }
 
@@ -556,21 +589,14 @@ export class Pointers extends Class {
       }
    }
 
-   private _verifyActorUnderPointers(actor: Actor, pointers: PointerEvent[]) {
+   private _revisePointerEventPath(actor: Actor, pointers: PointerEvent[]) {
       const len = pointers.length;
 
       for (let i = 0; i < len; i++) {
-         const pe = pointers[i];
+         const pointerEvent = pointers[i];
 
-         if (pe.pointer.isActorUnderPointer(actor)) {
-            this._validateEventPath(pe, actor);
-         }
+         pointerEvent.layPath(actor);
       }
-   }
-
-   private _validateEventPath(pointerEvent: PointerEvent, actor: Actor): void {
-      const actorPath = actor.getAncestors();
-      pointerEvent.eventPath = (actorPath.length > pointerEvent.eventPath.length) ? actorPath : pointerEvent.eventPath;
    }
 
    private _validateWheelEventPath(pointers: WheelEvent[], actor: Actor): void {
@@ -579,7 +605,7 @@ export class Pointers extends Class {
          const isNotUIActor = !Actors.isUIActor(actor);
 
          if (actor.contains(wheelEvent.x, wheelEvent.y, isNotUIActor)) {
-            wheelEvent.eventPath = actor.getAncestors();
+            wheelEvent.layPath(actor);
          }
       }
     }
@@ -812,6 +838,11 @@ export class Pointer extends Class {
     */
    public lastWorldPos: Vector = null;
 
+   /**
+    * Returns the currently dragging target or null if it isn't exist
+    */
+   public dragTarget: Actor = null;
+
    constructor() {
       super();
 
@@ -877,7 +908,7 @@ export class Pointer extends Class {
    }
 
    /**
-    * Checks if Pointer has a specific Actor under.
+    * Checks if Pointer has a specific Actor in ActrorsUnderPointer list.
     * @param actor An Actor for check;
     */
    public hasActorUnderPointerInList(actor: Actor): boolean {
@@ -896,6 +927,7 @@ export class Pointer extends Class {
 
    private _onPointerUp(): void {
       this._isDown = false;
+      this.dragTarget = null;
    }
 }
 
