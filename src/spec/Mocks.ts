@@ -215,5 +215,40 @@ module Mocks {
 
          return mockWindow;
       };
+
+      pointerEvent() {
+         const mockPointerEvent = {
+            name: '',
+            pointer: {
+               _actorsUnderPointer: {
+                  1: {
+                     emit: (name) => { /* do nothing */ }
+                  }
+               },
+               hasActorsUnderPointer: true
+            },
+            bubbles: true,
+            eventPath: [],
+            layPath: () => { /* do nothing */ },
+            action: () => {
+               const actor = mockPointerEvent.eventPath.pop();
+
+               if (actor) {
+                  actor.emit(mockPointerEvent.name);
+               } else {
+                  return;
+               }
+
+               if (mockPointerEvent.bubbles) {
+                  mockPointerEvent.propagate();
+               }
+            },
+            propagate: () => {
+               mockPointerEvent.action();
+            }
+         };
+
+         return mockPointerEvent;
+      }
    }
 }
