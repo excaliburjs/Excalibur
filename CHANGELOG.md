@@ -11,15 +11,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Added
  - New `PointerEvent.stopPropagation()` method added. Works the same way as    (https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation)
     ([#912](https://github.com/excaliburjs/Excalibur/issues/912))
- - New `Engine.input.pointers.verifyPointerEvents(actor)` method, which checks if event can be fired on provided Actor
  - New abstract Class `BubblingEvent` which extends `GameEvent` and provides event with bubbling functionality
  - New `Actor.getAncestors()` method, which retreives full array of current Actors` ancestors
- - Added better functionality for working with actors under pointer:
-   - New method `addActorUnderPointer(actor)`
-   - New method `removeActorUnderPointer(actor)`
-   - New method `hasActorUnderPointer(actor)`
-   - New property `hasActorsUnderPointer`
-   * New interface `IActorUnderPointer` which adds `length` property to old untyped object
 
 ## Changed
  - `CapturePointer.update()` method now doesn't propagate event to actor, just verifies pointer events for actor.
