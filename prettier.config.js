@@ -1,4 +1,7 @@
 // .prettierrc.js
 module.exports = {
-  extends: ["./tslint/tslint.json"]
+  printWidth: 140,
+  singleQuote: true,
+  trailingComma: 'none',
+  arrowParens: 'always'
 };
