@@ -128,6 +128,22 @@ collisions, which is sufficient for breakout.
    // "ex.CollisionType.Active - this means participate and let excalibur resolve the positions/velocities of actors after collision"
    // "ex.CollisionType.Fixed - this means participate, but this object is unmovable"
 
+    // On collision bounce the ball
+    ball.on('precollision', function (ev) {
+        // reverse course after any collision
+        // intersections are the direction body A has to move to not be clipping body B
+        // `ev.intersection` is a vector `normalize()` will make the length of it 1
+        // `negate()` flips the direction of the vector
+        var intersection = ev.intersection.normalize();
+
+        // The largest component of intersection is our axis to flip
+        if (Math.abs(intersection.x) > Math.abs(intersection.y)) {
+            ball.vel.x *= -1;
+        } else {
+            ball.vel.y *= -1;
+        }
+    });
+
     // Add the ball to the current scene
     game.add(ball);
 
@@ -216,8 +232,7 @@ layout and add them to the current scene.
     });
 
 When the ball collides with bricks, we want to remove them from the
-scene. Additionally, if the ball strikes a brick or the paddle we want to 
-reverse its course.
+scene. Update the 'precollision' handler we previously added:
 
 .. code-block:: javascript
 
@@ -234,7 +249,7 @@ reverse its course.
         // `ev.intersection` is a vector `normalize()` will make the length of it 1
         // `negate()` flips the direction of the vector
         var intersection = ev.intersection.normalize();
-        
+
         // The largest component of intersection is our axis to flip
         if (Math.abs(intersection.x) > Math.abs(intersection.y)) {
             ball.vel.x *= -1;
