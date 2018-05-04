@@ -109,7 +109,7 @@ module.exports = function (grunt) {
          // Concat public API declarations file
          dist_dts: {
             src: ['src/browser/global.d.ts'],
-            dest: 'build/dist/<%= pkg.name %>.d.ts'            
+            dest: 'build/dist/<%= pkg.name %>.d.ts'
          },
 
          options: {
@@ -171,7 +171,7 @@ module.exports = function (grunt) {
                stdout: true,
                failOnError: true
             }
-         },    
+         },
 
          //
          // Clone distribution repository
@@ -184,7 +184,7 @@ module.exports = function (grunt) {
             }
          }
 
-      },      
+      },
 
       //
       // Distribution repository build control
@@ -246,10 +246,10 @@ module.exports = function (grunt) {
             src: 'build/dist/excalibur.js',
             options: {
                vendor: [
-                  'src/spec/support/js-imagediff.js', 
-                  'src/spec/support/platform.js', 
-                  'src/spec/Mocks.js', 
-                  'src/spec/TestUtils.js'/*, 
+                  'src/spec/support/js-imagediff.js',
+                  'src/spec/support/platform.js',
+                  'src/spec/Mocks.js',
+                  'src/spec/TestUtils.js'/*,
                   'src/spec/support/sourcemaps.js'*/
                ],
                specs: 'src/spec/*Spec.js',
@@ -296,7 +296,7 @@ module.exports = function (grunt) {
       //
       bumpup: {
          setters: {
-            // Overrides version setter 
+            // Overrides version setter
             version: function (old, releaseType, options) {
                return version;
             },
@@ -326,7 +326,7 @@ module.exports = function (grunt) {
    grunt.loadNpmTasks('grunt-contrib-clean');
    grunt.loadNpmTasks('grunt-contrib-concat');
    grunt.loadNpmTasks('grunt-contrib-copy');
-   grunt.loadNpmTasks('grunt-tslint');
+   // grunt.loadNpmTasks('grunt-tslint');
    grunt.loadNpmTasks('grunt-contrib-watch');
    grunt.loadNpmTasks('grunt-coveralls');
    grunt.loadNpmTasks('grunt-build-control');
@@ -340,7 +340,7 @@ module.exports = function (grunt) {
    //
 
    // Default task - compile & test
-   grunt.registerTask('default', ['tslint:src', 'compile', 'tests', 'visual']);
+   grunt.registerTask('default', ['compile', 'tests', 'visual']);
 
    // Core compile only
    grunt.registerTask('compile', ['shell:gitBuild', 'clean', 'ts:core', 'concat', 'uglify', 'copy']);
@@ -364,7 +364,7 @@ module.exports = function (grunt) {
    grunt.registerTask('appveyor', ['default', 'shell:nuget']);
 
    // CI task to deploy dists
-   grunt.registerTask('dists', ['bumpup', 'buildcontrol']);  
+   grunt.registerTask('dists', ['bumpup', 'buildcontrol']);
 
    // CI task to build API docs
    // Typically called by excaliburjs.github.io CI job to generate versioned docs
@@ -386,12 +386,12 @@ module.exports = function (grunt) {
 
       console.log("Executing typedoc...");
 
-      child_process.execSync(TYPEDOC_CMD + 
+      child_process.execSync(TYPEDOC_CMD +
          ' --name "Excalibur.js ' + version + ' API Documentation"' +
          ' --target es5' +
          ' --experimentalDecorators' +
          ' --mode modules' +
-         ' --readme src/engine/Docs/Index.md' +         
+         ' --readme src/engine/Docs/Index.md' +
          ' --includes src/engine/Docs' +
          ' --out docs/api' +
          ' --theme typedoc-default-themes/bin/default' +
