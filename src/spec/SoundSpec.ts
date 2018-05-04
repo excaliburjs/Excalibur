@@ -2,9 +2,9 @@
 
 /// <reference path="Mocks.ts" />
 
-const mockData = "testdata";
+const mockData = 'testdata';
 
-describe("Sound resource", () => {
+describe('Sound resource', () => {
   var sut: ex.Sound;
   var audioMock: MockAudioImplementation;
 
@@ -16,24 +16,24 @@ describe("Sound resource", () => {
     // set up Mocks
     audioMock = new MockAudioImplementation();
 
-    spyOn(ex.Sound, "canPlayFile").and.returnValue(true);
+    spyOn(ex.Sound, 'canPlayFile').and.returnValue(true);
 
-    sut = new ex.Sound("test/path.mp3");
+    sut = new ex.Sound('test/path.mp3');
     sut.sound = audioMock;
 
-    expect(sut.path).toBe("test/path.mp3");
+    expect(sut.path).toBe('test/path.mp3');
   });
 
-  it("should be able to be constructed", () => {
+  it('should be able to be constructed', () => {
     expect(sut).toBeDefined();
   });
 
-  it("should be able to load audio implementation with data asynchronously", done => {
+  it('should be able to load audio implementation with data asynchronously', (done) => {
     createFetchSpy(sut, true, mockData);
 
-    spyOn(audioMock, "processData").and.callThrough();
+    spyOn(audioMock, 'processData').and.callThrough();
 
-    sut.load().then(sound => {
+    sut.load().then((sound) => {
       expect(audioMock.processData).toHaveBeenCalledWith(mockData);
 
       expect(sound).toBe(audioMock);
@@ -44,7 +44,7 @@ describe("Sound resource", () => {
     });
   });
 
-  it("should call oncomplete callback when loaded async on success", done => {
+  it('should call oncomplete callback when loaded async on success', (done) => {
     createFetchSpy(sut, true, mockData);
 
     sut.oncomplete = () => done();
@@ -52,7 +52,7 @@ describe("Sound resource", () => {
     sut.load();
   });
 
-  it("should call onerror callback when loaded async on request error", done => {
+  it('should call onerror callback when loaded async on request error', (done) => {
     createFetchSpy(sut, false, null);
 
     sut.onerror = () => done();
@@ -60,34 +60,34 @@ describe("Sound resource", () => {
     sut.load();
   });
 
-  it("should call onerror callback when loaded async on general error", done => {
-    spyOn(<any>sut, "_fetchResource").and.throwError("fatal");
+  it('should call onerror callback when loaded async on general error', (done) => {
+    spyOn(<any>sut, '_fetchResource').and.throwError('fatal');
 
     sut.onerror = (e: Error) => {
-      expect(e.message).toBe("fatal");
+      expect(e.message).toBe('fatal');
       done();
     };
 
     sut.load();
   });
 
-  describe("with data", () => {
+  describe('with data', () => {
     beforeEach(() => {
       sut.setData(mockData);
     });
 
-    it("should be loaded immediately", () => {
+    it('should be loaded immediately', () => {
       expect(sut.isLoaded()).toBe(true);
     });
 
-    it("should return the processed data", () => {
+    it('should return the processed data', () => {
       expect(sut.getData()).toBe(mockData);
     });
 
-    it("should not trigger an XHR request when loaded", done => {
+    it('should not trigger an XHR request when loaded', (done) => {
       var fetchSpy = createFetchSpy(sut, true, mockData);
 
-      sut.load().then(sound => {
+      sut.load().then((sound) => {
         expect(fetchSpy).not.toHaveBeenCalled();
 
         expect(sut.isLoaded()).toBe(true);
@@ -97,17 +97,17 @@ describe("Sound resource", () => {
       });
     });
 
-    it("should call oncomplete callback when loaded", done => {
+    it('should call oncomplete callback when loaded', (done) => {
       sut.oncomplete = () => done();
 
       sut.load();
     });
 
-    it("should create a new audio instance when played", done => {
+    it('should create a new audio instance when played', (done) => {
       var audioInstance = new MockAudioInstance();
 
-      spyOn(audioMock, "createInstance").and.returnValue(audioInstance);
-      spyOn(audioInstance, "play").and.callThrough();
+      spyOn(audioMock, 'createInstance').and.returnValue(audioInstance);
+      spyOn(audioInstance, 'play').and.callThrough();
 
       sut.play().then(() => {
         expect(audioMock.createInstance).toHaveBeenCalledTimes(1);
@@ -117,10 +117,10 @@ describe("Sound resource", () => {
       });
     });
 
-    it("should set tracks to loop", () => {
+    it('should set tracks to loop', () => {
       var audioInstance = new MockAudioInstance();
 
-      spyOn(audioMock, "createInstance").and.returnValue(audioInstance);
+      spyOn(audioMock, 'createInstance').and.returnValue(audioInstance);
 
       sut.setLoop(true);
       sut.play();
@@ -128,10 +128,10 @@ describe("Sound resource", () => {
       expect(audioInstance.loop).toBe(true);
     });
 
-    it("should set tracks volume", () => {
+    it('should set tracks volume', () => {
       var audioInstance = new MockAudioInstance();
 
-      spyOn(audioMock, "createInstance").and.returnValue(audioInstance);
+      spyOn(audioMock, 'createInstance').and.returnValue(audioInstance);
 
       sut.setVolume(0.5);
       sut.play();
@@ -139,17 +139,17 @@ describe("Sound resource", () => {
       expect(audioInstance.volume).toBe(0.5);
     });
 
-    it("should set volume with argument sent to play", () => {
+    it('should set volume with argument sent to play', () => {
       var audioInstance = new MockAudioInstance();
 
-      spyOn(audioMock, "createInstance").and.returnValue(audioInstance);
+      spyOn(audioMock, 'createInstance').and.returnValue(audioInstance);
 
       sut.play(0.5);
 
       expect(audioInstance.volume).toBe(0.5);
     });
 
-    it("should play once and then finish", done => {
+    it('should play once and then finish', (done) => {
       sut.play().then(() => {
         expect(sut.isPlaying()).toBe(false);
 
@@ -159,7 +159,7 @@ describe("Sound resource", () => {
       expect(sut.isPlaying()).toBe(true);
     });
 
-    it("should play more than once and should be playing until all are done", done => {
+    it('should play more than once and should be playing until all are done', (done) => {
       var firstDone = false;
 
       // play 1st track
@@ -168,22 +168,13 @@ describe("Sound resource", () => {
       });
 
       setTimeout(() => {
-        expect(firstDone).toBe(
-          false,
-          "first track should not be done when second starts"
-        );
-        expect(sut.isPlaying()).toBe(true, "first track should be playing");
+        expect(firstDone).toBe(false, 'first track should not be done when second starts');
+        expect(sut.isPlaying()).toBe(true, 'first track should be playing');
 
         // play 2nd track
         sut.play().then(() => {
-          expect(firstDone).toBe(
-            true,
-            "first track should be done when second finishes"
-          );
-          expect(sut.isPlaying()).toBe(
-            false,
-            "all tracks should be done playing"
-          );
+          expect(firstDone).toBe(true, 'first track should be done when second finishes');
+          expect(sut.isPlaying()).toBe(false, 'all tracks should be done playing');
 
           done();
         });
@@ -191,92 +182,83 @@ describe("Sound resource", () => {
 
       // second instance should still be playing after 150ms
       setTimeout(() => {
-        expect(firstDone).toBe(
-          true,
-          "first track should be done playing after 150ms"
-        );
-        expect(sut.isPlaying()).toBe(
-          true,
-          "second track should still be playing"
-        );
+        expect(firstDone).toBe(true, 'first track should be done playing after 150ms');
+        expect(sut.isPlaying()).toBe(true, 'second track should still be playing');
       }, 150);
 
-      expect(sut.isPlaying()).toBe(true, "first track should be playing");
+      expect(sut.isPlaying()).toBe(true, 'first track should be playing');
     });
 
-    it("should resume any paused tracks if played", done => {
+    it('should resume any paused tracks if played', (done) => {
       // start 2 tracks
       sut.play();
       sut.play();
 
-      expect(sut.isPlaying()).toBe(true, "tracks should be playing");
+      expect(sut.isPlaying()).toBe(true, 'tracks should be playing');
 
       setTimeout(() => {
         // pause both tracks
         sut.pause();
 
-        expect(sut.isPlaying()).toBe(false, "tracks should be paused");
+        expect(sut.isPlaying()).toBe(false, 'tracks should be paused');
 
         // resume
         // promise should be done when all tracks are done
         sut.play().then(() => {
-          expect(sut.isPlaying()).toBe(false, "resumed tracks are not done");
+          expect(sut.isPlaying()).toBe(false, 'resumed tracks are not done');
 
           done();
         });
 
-        expect(sut.isPlaying()).toBe(true, "tracks should resume playing");
+        expect(sut.isPlaying()).toBe(true, 'tracks should resume playing');
       }, 50);
     });
 
-    it("should stop all currently playing tracks", () => {
+    it('should stop all currently playing tracks', () => {
       sut.play();
 
-      expect(sut.isPlaying()).toBe(true, "track should be playing");
+      expect(sut.isPlaying()).toBe(true, 'track should be playing');
 
       sut.stop();
 
-      expect(sut.isPlaying()).toBe(false, "track should be stopped");
+      expect(sut.isPlaying()).toBe(false, 'track should be stopped');
     });
 
-    it("should do nothing if already stopped", () => {
-      expect(sut.isPlaying()).toBe(false, "nothing should be playing");
+    it('should do nothing if already stopped', () => {
+      expect(sut.isPlaying()).toBe(false, 'nothing should be playing');
 
       sut.stop();
     });
 
-    it("should not have any tracks when stopped", () => {
+    it('should not have any tracks when stopped', () => {
       sut.play();
 
-      expect(sut.instanceCount()).toBe(1, "should be one track");
+      expect(sut.instanceCount()).toBe(1, 'should be one track');
 
       sut.stop();
 
-      expect(sut.instanceCount()).toBe(0, "should be no tracks");
+      expect(sut.instanceCount()).toBe(0, 'should be no tracks');
     });
 
-    it("should remove tracks as they are done when multiple are playing", done => {
+    it('should remove tracks as they are done when multiple are playing', (done) => {
       // start playing first track
       sut.play().then(() => {
-        expect(sut.instanceCount()).toBe(1, "should be one track");
+        expect(sut.instanceCount()).toBe(1, 'should be one track');
       });
 
       // wait 50ms then play 2nd track
       setTimeout(() => {
         sut.play().then(() => {
-          expect(sut.instanceCount()).toBe(0, "should be one track");
+          expect(sut.instanceCount()).toBe(0, 'should be one track');
 
           done();
         });
 
-        expect(sut.instanceCount()).toBe(
-          2,
-          "should be two simultaneous tracks"
-        );
+        expect(sut.instanceCount()).toBe(2, 'should be two simultaneous tracks');
       }, 50);
     });
 
-    it("should remove multiple tracks when stopped", done => {
+    it('should remove multiple tracks when stopped', (done) => {
       // start playing first track
       sut.play();
 
@@ -289,7 +271,7 @@ describe("Sound resource", () => {
       setTimeout(() => {
         sut.stop();
 
-        expect(sut.instanceCount()).toBe(0, "should be no tracks");
+        expect(sut.instanceCount()).toBe(0, 'should be no tracks');
 
         done();
       }, 60);
@@ -298,7 +280,7 @@ describe("Sound resource", () => {
 });
 
 class MockAudioImplementation implements ex.IAudioImplementation {
-  public responseType: ex.ExResponseType = "arraybuffer";
+  public responseType: ex.ExResponseType = 'arraybuffer';
   public processData(data: any): ex.Promise<any> {
     return ex.Promise.resolve(data);
   }
@@ -377,12 +359,10 @@ class MockAudioInstance implements ex.IAudio {
 }
 
 function createFetchSpy(subject: ex.Sound, successful: boolean, data) {
-  return spyOn(<any>subject, "_fetchResource").and.callFake(
-    (onload: Function) => {
-      onload.bind(subject, {
-        status: successful ? 200 : 500,
-        response: data
-      })();
-    }
-  );
+  return spyOn(<any>subject, '_fetchResource').and.callFake((onload: Function) => {
+    onload.bind(subject, {
+      status: successful ? 200 : 500,
+      response: data
+    })();
+  });
 }
