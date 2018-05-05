@@ -21,7 +21,6 @@ Have questions? Ask them in our [forum]!
 - [Issue Labels](#issue-labels)
   
 
-
 ## Reporting Bugs
 Before reporting a bug, please perform the following basic troubleshooting steps:
 
@@ -44,33 +43,49 @@ Please look through our [backlog][issues] to see if your improvement has already
 
 ## Submitting Changes
 
-#### Getting Started
+### Getting Started
 Below is the general workflow for submitting changes:
 
-1. Create or discuss an issue you wish to contribute to
+1. [Discuss an issue you want to contribute to](#discussing-a-contribution)
 2. Create a fork of Excalibur
-3. Commit to your fork with your changes
-4. Submit a pull request, making sure to reference the issue you're addressing
-5. Make sure your pull request passes the CI build
-6. Wait for a project core-contributor to give you feedback. Make changes if necessary.
-7. Once your changes are merged, celebrate!
+3. Commit to your fork with your initial changes
+4. [Submit a work-in-progress pull request to discuss with the maintainers](#creating-a-pull-request)
+5. Make changes to your pull request as needed
+6. Once your changes are merged, celebrate!
 
 If you’re not sure where to start, take a look at the "good first issue" or "help wanted" [issue labels](#issue-labels).
 
+#### Discussing a Contribution
+It's helpful to let us know that you'd like to contribute for an issue, to prevent duplicate work. Ask us any questions you have about the issue, so that we can clarify the work you'll need to do.
+
 #### Creating a Pull Request
-- Please ensure that there is an issue created for what you're working on. This helps prevent duplicate or unnecessary work.
+- Please ensure that there is an issue created for what you're working on. This helps us track the work being done!
+- Open a pull request as soon as you feel you have the beginning of something workable, or if you have design ideas to discuss. Getting feedback from us early will help you with your work! We will flag the pull request as Work-In-Progress while we work with you on your contribution.
 - Do all of your work in a new git branch. Only include code in the branch for the single issue you are working on.
 - Include Jasmine tests for your changes, following our [styleguide](#tests). Put them in the src/spec folder.
 - Document new public methods and properties based on the [styleguide](#documentation).
-- If you've modified Excalibur code (i.e. not just tests or documentation), update CHANGELOG.md with your changes. The categories we use are adapted from [Keep a Changelog][keep-a-changelog]:
+- If you've modified Excalibur code (i.e. not just tests or documentation), update CHANGELOG.md with your changes. The changelog is reserved for concise consumer-centric changes; all other information should be included appropriately as code comments, API documentation, or additional documentation. The categories we use are adapted from [Keep a Changelog][keep-a-changelog]:
   - `Breaking Changes` for changes to the existing API that are not backwards compatible
   - `Added` for new features
   - `Changed` for changes in existing functionality
-  - `Deprecated` for features that will be removed in an upcoming release
+  - `Deprecated` for features that will be removed in an upcoming release (see also [deprecating code](#deprecating-code))
   - `Fixed` for bug fixes
 - Please follow our [styleguide](#commit-messages) for your commit messages.
 - Send a pull request via Github.
   - Format your pull request title as: [#issue_number] Your commit message (where issue_number is the issue you're closing), and fill out the pull request template that automatically populates the editor window. Please format your pull request title according to our [commit message styleguide](#commit-messages).
+
+#### Deprecating Code
+If you've replaced a piece of Excalibur's API, please mark it as `@obsolete` and provide the new preferred method of performing the same task. Don't forget to include which release it will be removed in! Deprecations are typically performed during the next release, so if your changes are made for the 0.1.0 release, they will be removed in 0.2.0.
+
+If the code you are deprecating is called anywhere else in Excalibur, or in any documentation, please update those places to use the new code you've written.
+
+example: 
+```
+/** @obsolete use [[SomeClass]].someNewFunction instead **/
+@obsolete({message: 'ex.SomeClass.someFunction is deprecated, and will be removed in 0.2.0', 
+	alternateMethod: 'SomeClass.someNewFunction'})
+public someFunction() {...}
+```
 
 #### Code Organization
 
