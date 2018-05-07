@@ -6,16 +6,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 
 ## Breaking Changes
- - Property scope `Pointer.actorsUnderPointer` changed to private;
+
+  -Property scope `Pointer.actorsUnderPointer` changed to private;
 
 ## Added
- - New `PointerEvent.stopPropagation()` method added. Works the same way as    (https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation)
+
+  -New `PointerEvent.stopPropagation()` method added. Works the same way as    (`https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation`)
     ([#912](https://github.com/excaliburjs/Excalibur/issues/912))
- - New abstract Class `BubblingEvent` which extends `GameEvent` and provides event with bubbling functionality
- - New `Actor.getAncestors()` method, which retreives full array of current Actors` ancestors
+  -New `Actor.getAncestors()` method, which retreives full array of current Actor ancestors
 
 ## Changed
- - `CapturePointer.update()` method now doesn't propagate event to actor, just verifies pointer events for actor.
+
+  -`CapturePointer.update()` method now doesn't propagate event to actor, just verifies pointer events for actor.
 
  <!----------------------------------------------------------------------------------------------->
 
