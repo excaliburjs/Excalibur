@@ -7,7 +7,7 @@ const mockData = 'testdata';
 describe('Sound resource', () => {
 
    var sut: ex.Sound;
-   var audioMock: MockAudioImplementation;
+   var audioMock: MockAudioImplementation;   
 
    beforeAll(() => {
       ex.Logger.getInstance().clearAppenders();
@@ -33,14 +33,14 @@ describe('Sound resource', () => {
    it('should be able to load audio implementation with data asynchronously', (done) => {
 
       createFetchSpy(sut, true, mockData);
-
+      
       spyOn(audioMock, 'processData').and.callThrough();
 
       sut.load().then(sound => {
          expect(audioMock.processData).toHaveBeenCalledWith(mockData);
 
          expect(sound).toBe(audioMock);
-         expect(sut.isLoaded()).toBe(true);
+         expect(sut.isLoaded()).toBe(true);         
          expect(sut.getData()).toBe(mockData);
 
          done();
@@ -50,7 +50,7 @@ describe('Sound resource', () => {
 
    it('should call oncomplete callback when loaded async on success', (done) => {
       createFetchSpy(sut, true, mockData);
-
+      
       sut.oncomplete = () => done();
 
       sut.load();
@@ -58,15 +58,15 @@ describe('Sound resource', () => {
 
    it('should call onerror callback when loaded async on request error', (done) => {
       createFetchSpy(sut, false, null);
-
+      
       sut.onerror = () => done();
 
       sut.load();
    });
 
    it('should call onerror callback when loaded async on general error', (done) => {
-      spyOn<any>(sut, '_fetchResource').and.throwError('fatal');
-
+      spyOn(sut, '_fetchResource').and.throwError('fatal');
+      
       sut.onerror = (e: Error) => {
          expect(e.message).toBe('fatal');
          done();
@@ -96,18 +96,18 @@ describe('Sound resource', () => {
          sut.load().then(sound => {
             expect(fetchSpy).not.toHaveBeenCalled();
 
-            expect(sut.isLoaded()).toBe(true);
+            expect(sut.isLoaded()).toBe(true);         
             expect(sut.getData()).toBe(mockData);
 
             done();
          });
-      });
+      });   
 
       it('should call oncomplete callback when loaded', (done) => {
          sut.oncomplete = () => done();
 
          sut.load();
-      });
+      });  
 
       it('should create a new audio instance when played', (done) => {
          var audioInstance = new MockAudioInstance();
@@ -118,45 +118,45 @@ describe('Sound resource', () => {
          sut.play().then(() => {
             expect(audioMock.createInstance).toHaveBeenCalledTimes(1);
             expect(audioInstance.play).toHaveBeenCalled();
-
+            
             done();
          });
       });
 
       it('should set tracks to loop', () => {
          var audioInstance = new MockAudioInstance();
-
+         
          spyOn(audioMock, 'createInstance').and.returnValue(audioInstance);
 
          sut.setLoop(true);
          sut.play();
-
+         
          expect(audioInstance.loop).toBe(true);
       });
 
       it('should set tracks volume', () => {
          var audioInstance = new MockAudioInstance();
-
+         
          spyOn(audioMock, 'createInstance').and.returnValue(audioInstance);
 
          sut.setVolume(0.5);
          sut.play();
-
+         
          expect(audioInstance.volume).toBe(0.5);
       });
-
+      
       it('should set volume with argument sent to play', () => {
          var audioInstance = new MockAudioInstance();
-
+         
          spyOn(audioMock, 'createInstance').and.returnValue(audioInstance);
 
          sut.play(0.5);
-
+         
          expect(audioInstance.volume).toBe(0.5);
       });
 
       it('should play once and then finish', (done) => {
-         sut.play().then(() => {
+         sut.play().then(() => {            
             expect(sut.isPlaying()).toBe(false);
 
             done();
@@ -171,15 +171,15 @@ describe('Sound resource', () => {
          // play 1st track
          sut.play().then(() => {
             firstDone = true;
-         });
+         });         
 
          setTimeout(() => {
             expect(firstDone).toBe(false, 'first track should not be done when second starts');
             expect(sut.isPlaying()).toBe(true, 'first track should be playing');
 
             // play 2nd track
-            sut.play().then(() => {
-               expect(firstDone).toBe(true, 'first track should be done when second finishes');
+            sut.play().then(() => {  
+               expect(firstDone).toBe(true, 'first track should be done when second finishes');          
                expect(sut.isPlaying()).toBe(false, 'all tracks should be done playing');
 
                done();
@@ -207,7 +207,7 @@ describe('Sound resource', () => {
 
             // pause both tracks
             sut.pause();
-
+            
             expect(sut.isPlaying()).toBe(false, 'tracks should be paused');
 
             // resume
@@ -220,7 +220,7 @@ describe('Sound resource', () => {
             });
 
             expect(sut.isPlaying()).toBe(true, 'tracks should resume playing');
-         }, 50);
+         }, 50);         
       });
 
       it('should stop all currently playing tracks', () => {
@@ -269,7 +269,7 @@ describe('Sound resource', () => {
             });
 
             expect(sut.instanceCount()).toBe(2, 'should be two simultaneous tracks');
-         }, 50);
+         }, 50);         
       });
 
       it('should remove multiple tracks when stopped', (done) => {
@@ -279,7 +279,7 @@ describe('Sound resource', () => {
 
          // wait 50ms then play 2nd track
          setTimeout(() => {
-            sut.play();
+            sut.play();            
          }, 50);
 
          // stop both playing tracks
@@ -325,13 +325,13 @@ class MockAudioInstance implements ex.IAudio {
    setLoop(value: boolean) {
       this.loop = value;
    }
-
-   isPlaying(): boolean {
-      return this._isPlaying;
+   
+   isPlaying(): boolean { 
+      return this._isPlaying; 
    }
 
    play(): ex.Promise<boolean> {
-
+      
       if (!this._isPlaying) {
          this._isPlaying = true;
          this._currentOffset = 0;
@@ -378,7 +378,7 @@ class MockAudioInstance implements ex.IAudio {
 }
 
 function createFetchSpy(subject: ex.Sound, successful: boolean, data) {
-   return spyOn<any>(subject, '_fetchResource').and.callFake((onload: Function) => {
+   return spyOn(subject, '_fetchResource').and.callFake((onload: Function) => {
       onload.bind(subject, { status: successful ? 200 : 500, response: data })();
    });
 }

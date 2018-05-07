@@ -1,4 +1,5 @@
 /// <reference path="jasmine.d.ts" />
+
 /// <reference path="TestUtils.ts" />
 
 describe('A pointer', () => {
@@ -31,7 +32,7 @@ describe('A pointer', () => {
    afterEach(() => {
       engine.stop();
    });
-
+   
    it('should exist', () => {
       expect(ex.Input.Pointers).toBeDefined();
       expect(engine.input.pointers).toBeTruthy();
@@ -40,14 +41,12 @@ describe('A pointer', () => {
    it('should detect pointer event', () => {
       expect((<any>window).PointerEvent).toBeDefined();
    });
-
+   
    it('should fire pointerdown events', () => {
       var eventLeftFired = false;
       var eventRightFired = false;
       var eventMiddleFired = false;
-
       engine.input.pointers.primary.on('down', (ev: ex.Input.PointerEvent) => {
-         console.log(ev);
          if (ev.button === ex.Input.PointerButton.Left) {
             eventLeftFired = true;
          }
@@ -63,11 +62,12 @@ describe('A pointer', () => {
       executeMouseEvent('pointerdown', <any>document, ex.Input.PointerButton.Right);
       executeMouseEvent('pointerdown', <any>document, ex.Input.PointerButton.Middle);
 
+
       expect(eventLeftFired).toBe(true);
       expect(eventRightFired).toBe(true);
       expect(eventMiddleFired).toBe(true);
    });
-
+   
    it('should fire pointerup events', () => {
       var eventLeftFired = false;
       var eventRightFired = false;
