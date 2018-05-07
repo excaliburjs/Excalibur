@@ -1,5 +1,5 @@
 ﻿import { Engine, ScrollPreventionMode } from './../Engine';
-import { BubblingEvent, GameEvent } from '../Events';
+import { GameEvent } from '../Events';
 import { Actor } from '../Actor';
 import { Vector, GlobalCoordinates } from '../Algebra';
 import { Class } from '../Class';
@@ -71,7 +71,7 @@ const ScrollWheelNormalizationFactor = -1 / 40;
  *
  * For mouse-based events, you can inspect [[PointerEvent.button]] to see what button was pressed.
  */
-export class PointerEvent extends BubblingEvent {
+export class PointerEvent extends GameEvent<Actor> {
    /** @obsolete Use [[PointerEvent]].worldPos.x instead. */
    @obsolete({ message: 'PointerEvent.x will be removed in the 0.17 release', alternateMethod: 'PointerEvent.worldPos.x' })
    public get x(): number {
@@ -364,7 +364,7 @@ class PointerCancelEvent extends PointerEvent {
  * Represents a mouse wheel event. See [[Pointers]] for more information on
  * handling point input.
  */
-export class WheelEvent extends BubblingEvent {
+export class WheelEvent extends GameEvent<Actor> {
 
    /**
     * @param x            The `x` coordinate of the event (in world coordinates)

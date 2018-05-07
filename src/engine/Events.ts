@@ -16,7 +16,7 @@ export type prekill = 'prekill';
 export type postkill = 'postkill';
 
 export type predraw = 'predraw';
-export type postdraw = 'postdraw';  
+export type postdraw = 'postdraw';
 
 export type predebugdraw = 'predebugdraw';
 export type postdebugdraw = 'postdebugdraw';
@@ -91,9 +91,6 @@ export class GameEvent<T> {
     * Target object for this event.
     */
    public target: T;
-}
-
-export abstract class BubblingEvent extends GameEvent<Actor> {
    /**
     * determines, if event bubbles to the target's ancestors
     */
@@ -103,6 +100,7 @@ export abstract class BubblingEvent extends GameEvent<Actor> {
     */
    protected _path: Actor[] = [];
    protected _name: string = '';
+
    /**
     * Returns Event path from root to active actor.
     */
@@ -114,10 +112,6 @@ export abstract class BubblingEvent extends GameEvent<Actor> {
     */
    get name(): string {
       return this._name;
-   }
-
-   constructor() {
-      super();
    }
 
    /**
@@ -166,6 +160,7 @@ export abstract class BubblingEvent extends GameEvent<Actor> {
       // to be rewritten
    }
 }
+
 /**
  * The 'kill' event is emitted on actors when it is killed. The target is the actor that was killed.
  */
