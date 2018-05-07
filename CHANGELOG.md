@@ -11,19 +11,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Added
 - Allow timers to limit repeats to a finite number of times ([#957](https://github.com/excaliburjs/Excalibur/pull/974))
-
-  -New `PointerEvent.stopPropagation()` method added. Works the same way as    (`https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation`)
+- New `PointerEvent.stopPropagation()` method added. Works the same way as    (`https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation`)
     ([#912](https://github.com/excaliburjs/Excalibur/issues/912))
-  -New `Actor.getAncestors()` method, which retreives full array of current Actor ancestors
+- New `Actor.getAncestors()` method, which retreives full array of current Actor ancestors
 
 ## Changed
 - Refactored Easing functions to be reversable ([#944](https://github.com/excaliburjs/Excalibur/pull/944))
-
-  -`CapturePointer.update()` method now doesn't propagate event to actor, just verifies pointer events for actor.
-
- <!----------------------------------------------------------------------------------------------->
-
-## Unreleased
+- `CapturePointer.update()` method now doesn't propagate event to actor, just verifies pointer events for actor.
 
 ## Fixed
 - Added missing variable assignments to TileMapImpl constructor ([#957](https://github.com/excaliburjs/Excalibur/pull/957))
