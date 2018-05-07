@@ -982,100 +982,78 @@ describe('A game actor', () => {
    });
 
    describe('should detect assigned events and', () => {
-      beforeEach(() => {
-         const pointer = new ex.Input.Pointer();
-         this.pointerEvent = mock.pointerEvent();
-         this.pointerEvent.pointer = pointer;
-      });
-
       it('should capture pointer move event', () => {
          const actor = new ex.Actor(0, 0, 20, 20);
          const callables = { move: (pe: any) => {  /* doesn't matter; */ } };
          const moveSpy = spyOn(callables, 'move').and.callThrough();
-         const eventName = 'pointermove';
 
-         actor.on(eventName, callables.move);
-
+         actor.on('pointermove', callables.move);
          scene.add(actor);
-         this.pointerEvent.name = eventName;
-         this.pointerEvent.eventPath = [actor];
-         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(5, -5);
-         this.pointerEvent.pointer.addActorUnderPointer(actor);
 
+         this.pointerEvent = mock.pointerEvent('move');
+         this.pointerEvent.eventPath = [actor];
          (<any>engine.input.pointers)._pointerMove.push(this.pointerEvent);
 
          scene.update(engine, 100);
 
          expect(moveSpy).toHaveBeenCalledTimes(1);
-         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(5, 'pointer event should contain correct world position x');
-         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(-5, 'pointer event should contain correct world position y');
+         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(0, 'pointer event should contain correct world position x');
+         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(0, 'pointer event should contain correct world position y');
       });
 
       it('should capture pointer enter event', () => {
          const actor = new ex.Actor(0, 0, 20, 20);
          const callables = { enter: (pe: any) => { /* doesn't matter */ }};
          const enterSpy = spyOn(callables, 'enter').and.callThrough();
-         const eventName = 'pointerenter';
 
-         actor.on(eventName, callables.enter);
+         actor.on('pointerenter', callables.enter);
          scene.add(actor);
 
-         this.pointerEvent.name = eventName;
+         this.pointerEvent = mock.pointerEvent('move');
          this.pointerEvent.eventPath = [actor];
-         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(5, -5);
-         this.pointerEvent.pointer.addActorUnderPointer(actor);
-
+         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
          (<any>engine.input.pointers)._pointerMove.push(this.pointerEvent);
 
          scene.update(engine, 100);
 
          expect(enterSpy).toHaveBeenCalledTimes(1);
-         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(5, 'pointer event should contain correct world position x');
-         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(-5, 'pointer event should contain correct world position y');
+         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(0, 'pointer event should contain correct world position x');
+         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(0, 'pointer event should contain correct world position y');
       });
 
       it('should capture pointer leave event', () => {
          const actor = new ex.Actor(0, 0, 20, 20);
          const callables = { leave: (pe: any) => { /* doesn't matter */ }};
          const leaveSpy = spyOn(callables, 'leave').and.callThrough();
-         const eventName = 'pointerleave';
 
-         actor.on(eventName, callables.leave);
+         actor.on('pointerleave', callables.leave);
+         scene.add(actor);
 
-         this.pointerEvent.name = eventName;
-         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 15);
+         this.pointerEvent = mock.pointerEvent('move');
+         this.pointerEvent.eventPath = [];
+         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(30, 30);
          this.pointerEvent.pointer.addActorUnderPointer(actor);
-
-         if (this.pointerEvent.pointer.hasActorsUnderPointer && !this.pointerEvent.eventPath.length) {
-            this.pointerEvent.eventPath = [actor];
-         }
-
          (<any>engine.input.pointers)._pointerMove.push(this.pointerEvent);
 
          scene.update(engine, 100);
 
          expect(leaveSpy).toHaveBeenCalledTimes(1);
-         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(0, 'pointer event should contain correct world position x');
-         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(15, 'pointer event should contain correct world position y');
+         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(30, 'pointer event should contain correct world position x');
+         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(30, 'pointer event should contain correct world position y');
       });
 
       it('should capture pointer drag start event', () => {
          const actor = new ex.Actor(0, 0, 20, 20);
          const callables = { dragStart: (pe: any) => { /* doesn't matter */ }};
          const dragStartSpy = spyOn(callables, 'dragStart').and.callThrough();
-         const eventName = 'pointerdragstart';
 
-         actor.on(eventName, callables.dragStart);
-
+         actor.on('pointerdragstart', callables.dragStart);
          scene.add(actor);
-         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
-         this.pointerEvent.pointer.addActorUnderPointer(actor);
-         spyOnProperty(this.pointerEvent.pointer, 'isDragStart', 'get').and.returnValue(true);
 
-         if (this.pointerEvent.pointer.isDragStart) {
-            this.pointerEvent.name = eventName;
-            this.pointerEvent.eventPath = [actor];
-         }
+         this.pointerEvent = mock.pointerEvent('down');
+         this.pointerEvent.eventPath = [actor];
+         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
+         spyOnProperty(this.pointerEvent.pointer, 'isDragStart', 'get').and.returnValue(true);
 
          (<any>engine.input.pointers)._pointerDown.push(this.pointerEvent);
 
@@ -1090,20 +1068,15 @@ describe('A game actor', () => {
          const actor = new ex.Actor(0, 0, 20, 20);
          const callables = { dragEnd: (pe: any) => { /* doesn't matter */ }};
          const dragEndSpy = spyOn(callables, 'dragEnd').and.callThrough();
-         const eventName = 'pointerdragend';
 
-         actor.on(eventName, callables.dragEnd);
-
+         actor.on('pointerdragend', callables.dragEnd);
          scene.add(actor);
+
+         this.pointerEvent = mock.pointerEvent('up');
+         this.pointerEvent.eventPath = [actor];
          this.pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
          this.pointerEvent.pointer.addActorUnderPointer(actor);
          spyOnProperty(this.pointerEvent.pointer, 'isDragEnd', 'get').and.returnValue(true);
-
-         if (this.pointerEvent.pointer.isDragEnd) {
-            this.pointerEvent.name = eventName;
-            this.pointerEvent.eventPath = [actor];
-         }
-
          (<any>engine.input.pointers)._pointerUp.push(this.pointerEvent);
 
          scene.update(engine, 100);
@@ -1117,90 +1090,65 @@ describe('A game actor', () => {
          const actor = new ex.Actor(0, 0, 20, 20);
          const callables = { dragMove: (pe: any) => { /* doesn't matter */ }};
          const dragMoveSpy = spyOn(callables, 'dragMove').and.callThrough();
-         const eventName = 'pointerdragmove';
 
-         actor.on(eventName, callables.dragMove);
-
+         actor.on('pointerdragmove', callables.dragMove);
          scene.add(actor);
-         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(5, -5);
+
+         this.pointerEvent = mock.pointerEvent('move');
+         this.pointerEvent.eventPath = [actor];
+         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
          this.pointerEvent.pointer.addActorUnderPointer(actor);
          spyOnProperty(this.pointerEvent.pointer, 'isDragging', 'get').and.returnValue(true);
-
-         if (this.pointerEvent.pointer.isDragging) {
-            this.pointerEvent.name = eventName;
-            this.pointerEvent.eventPath = [actor];
-         }
-
          (<any>engine.input.pointers)._pointerMove.push(this.pointerEvent);
 
          scene.update(engine, 100);
 
          expect(dragMoveSpy).toHaveBeenCalledTimes(1);
-         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(5, 'pointer event should contain correct world position x');
-         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(-5, 'pointer event should contain correct world position y');
+         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(0, 'pointer event should contain correct world position x');
+         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(0, 'pointer event should contain correct world position y');
       });
 
       it('should capture pointer drag enter event', () => {
          const actor = new ex.Actor(0, 0, 20, 20);
          const callables = { dragEnter: (pe: any) => { /* doesn't matter */ }};
          const dragEnterSpy = spyOn(callables, 'dragEnter').and.callThrough();
-         const eventName = 'pointerdragenter';
 
-         actor.on(eventName, callables.dragEnter);
-
+         actor.on('pointerdragenter', callables.dragEnter);
          scene.add(actor);
-         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(5, -5);
-         this.pointerEvent.pointer.addActorUnderPointer(actor);
+
+         this.pointerEvent = mock.pointerEvent('move');
          this.pointerEvent.eventPath = [actor];
+         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
          spyOnProperty(this.pointerEvent.pointer, 'isDragging', 'get').and.returnValue(true);
-
-         if (
-            this.pointerEvent.pointer.isDragging
-            && this.pointerEvent.pointer.hasActorsUnderPointer
-            && this.pointerEvent.eventPath.length
-         ) {
-            this.pointerEvent.name = eventName;
-         }
-
          (<any>engine.input.pointers)._pointerMove.push(this.pointerEvent);
 
          scene.update(engine, 100);
 
          expect(dragEnterSpy).toHaveBeenCalledTimes(1);
-         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(5, 'pointer event should contain correct world position x');
-         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(-5, 'pointer event should contain correct world position y');
+         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(0, 'pointer event should contain correct world position x');
+         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(0, 'pointer event should contain correct world position y');
       });
 
       it('should capture pointer drag leave event', () => {
          const actor = new ex.Actor(0, 0, 20, 20);
          const callables = { dragLeave: (pe: any) => { /* doesn't matter */ }};
          const dragLeaveSpy = spyOn(callables, 'dragLeave').and.callThrough();
-         const eventName = 'pointerdragleave';
 
-         actor.on(eventName, callables.dragLeave);
-
+         actor.on('pointerdragleave', callables.dragLeave);
          scene.add(actor);
-         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(40, -40);
-         this.pointerEvent.pointer.addActorUnderPointer(actor);
+
+         this.pointerEvent = mock.pointerEvent('move');
          this.pointerEvent.eventPath = [];
+         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(30, 30);
+         this.pointerEvent.pointer.addActorUnderPointer(actor);
          spyOnProperty(this.pointerEvent.pointer, 'isDragging', 'get').and.returnValue(true);
-
-         if (
-            this.pointerEvent.pointer.isDragging
-            && this.pointerEvent.pointer.hasActorsUnderPointer
-            && !this.pointerEvent.eventPath.length
-         ) {
-            this.pointerEvent.name = eventName;
-            this.pointerEvent.eventPath = [actor];
-         }
-
          (<any>engine.input.pointers)._pointerMove.push(this.pointerEvent);
 
          scene.update(engine, 100);
 
          expect(dragLeaveSpy).toHaveBeenCalledTimes(1);
-         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(40, 'pointer event should contain correct world position x');
-         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(-40, 'pointer event should contain correct world position y');
+         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(30, 'pointer event should contain correct world position x');
+         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(30, 'pointer event should contain correct world position y');
       });
 
       it('can prevent pointer events from bubbling',
@@ -1209,19 +1157,16 @@ describe('A game actor', () => {
          const child = new ex.Actor(0, 0, 100, 100);
          const callables = { pointerDown: (pe: any) => { /* doesn't matter */ }};
          const bubblingSpy = spyOn(callables, 'pointerDown').and.callThrough();
-         const eventName = 'pointerdown';
 
-         actor.on(eventName, callables.pointerDown);
-         child.on(eventName, callables.pointerDown);
+         actor.on('pointerdown', callables.pointerDown);
+         child.on('pointerdown', callables.pointerDown);
+         scene.add(actor);
 
-         this.pointerEvent.name = eventName;
-         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
-         this.pointerEvent.pointer.addActorUnderPointer(actor);
-         this.pointerEvent.pointer.addActorUnderPointer(child);
-         this.pointerEvent.eventPath = [actor, child];
+         this.pointerEvent = mock.pointerEvent('down');
          this.pointerEvent.bubbles = false;
-
-         (<any>engine.input.pointers)._pointerUp.push(this.pointerEvent);
+         this.pointerEvent.eventPath = [actor, child];
+         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
+         (<any>engine.input.pointers)._pointerDown.push(this.pointerEvent);
 
          scene.update(engine, 100);
 
@@ -1236,11 +1181,9 @@ describe('A game actor', () => {
          const eventName = 'pointerup';
          let numPointerUps = 0;
 
-         this.pointerEvent.name = eventName;
-         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
-         this.pointerEvent.pointer.addActorUnderPointer(actor);
+         this.pointerEvent = mock.pointerEvent('up');
          this.pointerEvent.eventPath = [actor];
-
+         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
          (<any>engine.input.pointers)._pointerUp.push(this.pointerEvent);
 
          actor.on('pointerup', () => {

@@ -218,15 +218,13 @@ export class PointerDownEvent extends PointerEvent {
    protected _name = 'pointerdown';
 
    protected _onActionEnd(actor: Actor) {
-      const pointer = this.pointer;
-
-      if (pointer.isDragStart && actor.capturePointer.captureDragEvents) {
+      if (this.pointer.isDragStart && actor.capturePointer.captureDragEvents) {
          actor.eventDispatcher.emit('pointerdragstart', this);
       }
    }
 }
 
-class PointerMoveEvent extends PointerEvent {
+export class PointerMoveEvent extends PointerEvent {
    protected _name = 'pointermove';
 
    public propagate(): void {
@@ -319,7 +317,7 @@ class PointerMoveEvent extends PointerEvent {
    }
 }
 
-class PointerEnterEvent extends PointerEvent {
+export class PointerEnterEvent extends PointerEvent {
    protected _name = 'pointerenter';
 
    protected _onActionStart(actor: Actor) {
@@ -337,8 +335,13 @@ class PointerEnterEvent extends PointerEvent {
    }
 }
 
-class PointerLeaveEvent extends PointerEvent {
+export class PointerLeaveEvent extends PointerEvent {
    protected _name = 'pointerleave';
+
+   public layPath(actor: Actor): void {
+      const actorPath = actor.getAncestors();
+      this._path = (actorPath.length > this._path.length) ? actorPath : this._path;
+   }
 
    protected _onActionStart(actor: Actor) {
       if (!actor.capturePointer.captureMoveEvents) {
@@ -355,7 +358,7 @@ class PointerLeaveEvent extends PointerEvent {
    }
 }
 
-class PointerCancelEvent extends PointerEvent {
+export class PointerCancelEvent extends PointerEvent {
    protected _name = 'pointercancel';
 }
 /**

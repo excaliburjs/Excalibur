@@ -2,6 +2,7 @@
 
 module Mocks {
 
+
    export interface ITime {
       now(): number;
       add(value: number): void;
@@ -216,39 +217,38 @@ module Mocks {
          return mockWindow;
       };
 
-      pointerEvent() {
-         const mockPointerEvent = {
-            name: '',
-            pointer: {
-               _actorsUnderPointer: {
-                  1: {
-                     emit: (name) => { /* do nothing */ }
-                  }
-               },
-               hasActorsUnderPointer: true
-            },
-            bubbles: true,
-            eventPath: [],
-            layPath: () => { /* do nothing */ },
-            action: () => {
-               const actor = mockPointerEvent.eventPath.pop();
+      pointerEvent(eventName) {
+         const coordinates = new ex.GlobalCoordinates(new ex.Vector(0, 0), new ex.Vector(0, 0), new ex.Vector(0, 0));
+         const pointer = new ex.Input.Pointer();
+         const pointerType = ex.Input.PointerType.Mouse;
+         const pointerButton = ex.Input.PointerButton.Unknown;
 
-               if (actor) {
-                  actor.emit(mockPointerEvent.name);
-               } else {
-                  return;
-               }
+         pointer.lastWorldPos = new ex.Vector(0, 0);
 
-               if (mockPointerEvent.bubbles) {
-                  mockPointerEvent.propagate();
-               }
-            },
-            propagate: () => {
-               mockPointerEvent.action();
-            }
-         };
+         let factory: ex.Input.PointerEventFactory<ex.Input.PointerEvent>;
 
-         return mockPointerEvent;
+         switch (eventName) {
+            case 'up':
+               factory = new ex.Input.PointerEventFactory(<any>ex.Input.PointerUpEvent);
+               break;
+            case 'down':
+               factory = new ex.Input.PointerEventFactory(<any>ex.Input.PointerDownEvent);
+               break;
+            case 'move':
+               factory = new ex.Input.PointerEventFactory(<any>ex.Input.PointerMoveEvent);
+               break;
+            case 'cancel':
+               factory = new ex.Input.PointerEventFactory(<any>ex.Input.PointerCancelEvent);
+               break;
+            case 'enter':
+               factory = new ex.Input.PointerEventFactory(<any>ex.Input.PointerEnterEvent);
+               break;
+            case 'leave':
+               factory = new ex.Input.PointerEventFactory(<any>ex.Input.PointerLeaveEvent);
+               break;
+         }
+
+         return factory.create(coordinates, pointer, 0, pointerType, pointerButton, {});
       }
    }
 }

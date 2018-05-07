@@ -307,8 +307,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
     */
    public update(engine: Engine, delta: number) {
       this._preupdate(engine, delta);
-      let i: number;
-      let len: number;
+      var i: number, len: number;
 
       // Remove timers in the cancel queue before updating them
       for (i = 0, len = this._cancelQueue.length; i < len; i++) {
