@@ -258,8 +258,8 @@ export class PointerMoveEvent extends PointerEvent {
        *  double-check is preformed, because user could move pointer too fast and
        *  in that case, pointer can appear out of boundings of the dragging element
        */
-      if (this.pointer.isDragging && this.pointer.dragTarget) {
-         actor = this.pointer.dragTarget;
+      if (this.pointer.isDragging) {
+         actor = this.pointer.dragTarget || actor;
       } else if (!this.pointer.isActorUnderPointer(actor)) {
          return;
       }

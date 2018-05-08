@@ -316,7 +316,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
       this._cancelQueue.length = 0;
 
       // Cycle through timers updating timers
-      for (const timer of this._timers) {
+      for (var timer of this._timers) {
          timer.update(delta);
       };
 

@@ -217,7 +217,7 @@ module Mocks {
          return mockWindow;
       };
 
-      pointerEvent(eventName) {
+      pointerEvent(eventName): ex.Input.PointerEvent {
          const coordinates = new ex.GlobalCoordinates(new ex.Vector(0, 0), new ex.Vector(0, 0), new ex.Vector(0, 0));
          const pointer = new ex.Input.Pointer();
          const pointerType = ex.Input.PointerType.Mouse;

@@ -63,7 +63,7 @@ describe('An Event Dispatcher', () => {
       pubsub.on('someevent', () => {
          eventFired = true;
       });
-
+      
       newPubSub.emit('someevent', null);
       expect(eventFired).toBeTruthy();
    });
@@ -93,7 +93,7 @@ describe('An Event Dispatcher', () => {
 
    it('can listen to a handler only once', () => {
       let pubsub = new ex.EventDispatcher(null);
-
+      
       let callCount = 0;
       pubsub.once('onlyonce', () => {
          callCount++;
@@ -107,4 +107,4 @@ describe('An Event Dispatcher', () => {
 
    });
 
-});
+}); 
