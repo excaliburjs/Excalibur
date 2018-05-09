@@ -31,6 +31,7 @@
     "apidocs": "grunt apidocs"
   },
   "devDependencies": {
+    "@types/node": "^8.0.0",
     "cross-env": "^5.1.4",
     "grunt": "^1.0.1",
     "grunt-build-control": "^0.7.1",
