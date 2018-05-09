@@ -4,11 +4,11 @@
 
 describe('A game actor', () => {
 
-   var actor: ex.Actor;
+   let actor: ex.Actor;
 
-   var engine: ex.Engine;
-   var scene: ex.Scene;
-   var mock = new Mocks.Mocker();
+   let engine: ex.Engine;
+   let scene: ex.Scene;
+   let mock = new Mocks.Mocker();
 
    beforeEach(() => {
       jasmine.addMatchers(imagediff.jasmine);
@@ -619,7 +619,7 @@ describe('A game actor', () => {
       expect(parent.contains(550, 50)).toBeTruthy();
       expect(parent.contains(650, 150)).toBeTruthy();
 
-      // in world coordinates this should be false 
+      // in world coordinates this should be false
       expect(child.contains(50, 50)).toBeFalsy();
 
       // in world coordinates this should be true
@@ -925,7 +925,7 @@ describe('A game actor', () => {
       expect(actor.capturePointer.captureDragEvents).toBe(true, 'Actors should capture drag events after pointerdragstart');
    });
 
-   it('opt into pointer capture when pointerdragend', () => {
+   it('should opt into pointer capture when pointerdragend', () => {
       var actor = new ex.Actor(0, 0, 100, 100);
 
       expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
@@ -981,308 +981,221 @@ describe('A game actor', () => {
       expect(actor.capturePointer.captureDragEvents).toBe(true, 'Actors should capture drag events after pointerdragleave');
    });
 
-   it('should capture pointer move event', () => {
-      var actor = new ex.Actor(0, 0, 20, 20);
-      var pointerEvent: any;
-      var callables = { move: (pe: any) => pointerEvent = pe };
-      var moveSpy = spyOn(callables, 'move').and.callThrough();
+   describe('should detect assigned events and', () => {
+      it('should capture pointer move event', () => {
+         const actor = new ex.Actor(0, 0, 20, 20);
+         const callables = { move: (pe: any) => {  /* doesn't matter; */ } };
+         const moveSpy = spyOn(callables, 'move').and.callThrough();
 
-      actor.on('pointermove', callables.move);
+         actor.on('pointermove', callables.move);
+         scene.add(actor);
 
-      scene.add(actor);
+         this.pointerEvent = mock.pointerEvent('move');
+         this.pointerEvent.eventPath = [actor];
+         (<any>engine.input.pointers)._pointerMove.push(this.pointerEvent);
 
-      (<any>engine.input.pointers)._pointerMove.push({
-         pointer: {
-            lastWorldPos: new ex.Vector(5, -5),
-            actorsUnderPointer: {}
-         }
+         scene.update(engine, 100);
+
+         expect(moveSpy).toHaveBeenCalledTimes(1);
+         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(0, 'pointer event should contain correct world position x');
+         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(0, 'pointer event should contain correct world position y');
       });
 
-      scene.update(engine, 100);
+      it('should capture pointer enter event', () => {
+         const actor = new ex.Actor(0, 0, 20, 20);
+         const callables = { enter: (pe: any) => { /* doesn't matter */ }};
+         const enterSpy = spyOn(callables, 'enter').and.callThrough();
 
-      expect(moveSpy).toHaveBeenCalledTimes(1);
-      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(5, 'pointer event should contain correct world position x');
-      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(-5, 'pointer event should contain correct world position y');
-   });
+         actor.on('pointerenter', callables.enter);
+         scene.add(actor);
 
-   it('should capture pointer enter event', () => {
-      var actor = new ex.Actor(0, 0, 20, 20);
-      var pointerEvent: any;
-      var callables = { enter: (pe: any) => pointerEvent = pe };
-      var enterSpy = spyOn(callables, 'enter').and.callThrough();
+         this.pointerEvent = mock.pointerEvent('move');
+         this.pointerEvent.eventPath = [actor];
+         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
+         (<any>engine.input.pointers)._pointerMove.push(this.pointerEvent);
 
-      actor.on('pointerenter', callables.enter);
+         scene.update(engine, 100);
 
-      scene.add(actor);
-
-      (<any>engine.input.pointers)._pointerMove.push({
-         pointer: {
-            lastWorldPos: new ex.Vector(5, -5),
-            actorsUnderPointer: {}
-         }
+         expect(enterSpy).toHaveBeenCalledTimes(1);
+         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(0, 'pointer event should contain correct world position x');
+         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(0, 'pointer event should contain correct world position y');
       });
 
-      scene.update(engine, 100);
+      it('should capture pointer leave event', () => {
+         const actor = new ex.Actor(0, 0, 20, 20);
+         const callables = { leave: (pe: any) => { /* doesn't matter */ }};
+         const leaveSpy = spyOn(callables, 'leave').and.callThrough();
 
-      (<any>engine.input.pointers)._pointerMove.push({
-         pointer: {
-            lastWorldPos: new ex.Vector(5, -5),
-            actorsUnderPointer: (() => {
-               let obj = {};
+         actor.on('pointerleave', callables.leave);
+         scene.add(actor);
 
-               obj[actor.id] = actor;
+         this.pointerEvent = mock.pointerEvent('move');
+         this.pointerEvent.eventPath = [];
+         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(30, 30);
+         this.pointerEvent.pointer.addActorUnderPointer(actor);
+         (<any>engine.input.pointers)._pointerMove.push(this.pointerEvent);
 
-               return obj;
-            })()
-         }
+         scene.update(engine, 100);
+
+         expect(leaveSpy).toHaveBeenCalledTimes(1);
+         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(30, 'pointer event should contain correct world position x');
+         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(30, 'pointer event should contain correct world position y');
       });
 
-      scene.update(engine, 100);
+      it('should capture pointer drag start event', () => {
+         const actor = new ex.Actor(0, 0, 20, 20);
+         const callables = { dragStart: (pe: any) => { /* doesn't matter */ }};
+         const dragStartSpy = spyOn(callables, 'dragStart').and.callThrough();
 
-      expect(enterSpy).toHaveBeenCalledTimes(1);
-      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(5, 'pointer event should contain correct world position x');
-      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(-5, 'pointer event should contain correct world position y');
-   });
+         actor.on('pointerdragstart', callables.dragStart);
+         scene.add(actor);
 
-   it('should capture pointer leave event', () => {
-      var actor = new ex.Actor(0, 0, 20, 20);
-      var pointerEvent: any;
-      var callables = { leave: (pe: any) => pointerEvent = pe };
-      var leaveSpy = spyOn(callables, 'leave').and.callThrough();
+         this.pointerEvent = mock.pointerEvent('down');
+         this.pointerEvent.eventPath = [actor];
+         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
+         spyOnProperty(this.pointerEvent.pointer, 'isDragStart', 'get').and.returnValue(true);
 
-      actor.on('pointerleave', callables.leave);
+         (<any>engine.input.pointers)._pointerDown.push(this.pointerEvent);
 
-      scene.add(actor);
+         scene.update(engine, 100);
 
-      (<any>engine.input.pointers)._pointerMove.push({
-         pointer: {
-            lastWorldPos: new ex.Vector(5, -5),
-            actorsUnderPointer: {}
-         }
+         expect(dragStartSpy).toHaveBeenCalledTimes(1);
+         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(0, 'pointer event should contain correct world position x');
+         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(0, 'pointer event should contain correct world position y');
       });
 
-      scene.update(engine, 100);
+      it('should capture pointer drag end event', () => {
+         const actor = new ex.Actor(0, 0, 20, 20);
+         const callables = { dragEnd: (pe: any) => { /* doesn't matter */ }};
+         const dragEndSpy = spyOn(callables, 'dragEnd').and.callThrough();
 
-      (<any>engine.input.pointers)._pointerMove.push({
-         pointer: {
-            lastWorldPos: new ex.Vector(15, -15),
-            actorsUnderPointer: (() => {
-               let obj = {};
+         actor.on('pointerdragend', callables.dragEnd);
+         scene.add(actor);
 
-               obj[actor.id] = actor;
+         this.pointerEvent = mock.pointerEvent('up');
+         this.pointerEvent.eventPath = [actor];
+         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
+         this.pointerEvent.pointer.addActorUnderPointer(actor);
+         spyOnProperty(this.pointerEvent.pointer, 'isDragEnd', 'get').and.returnValue(true);
+         (<any>engine.input.pointers)._pointerUp.push(this.pointerEvent);
 
-               return obj;
-            })()
-         }
+         scene.update(engine, 100);
+
+         expect(dragEndSpy).toHaveBeenCalledTimes(1);
+         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(0, 'pointer event should contain correct world position x');
+         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(0, 'pointer event should contain correct world position y');
       });
 
-      scene.update(engine, 100);
-      scene.update(engine, 100);
+      it('should capture pointer drag move event', () => {
+         const actor = new ex.Actor(0, 0, 20, 20);
+         const callables = { dragMove: (pe: any) => { /* doesn't matter */ }};
+         const dragMoveSpy = spyOn(callables, 'dragMove').and.callThrough();
 
-      expect(leaveSpy).toHaveBeenCalledTimes(1);
-      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(15, 'pointer event should contain correct world position x');
-      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(-15, 'pointer event should contain correct world position y');
-   });
+         actor.on('pointerdragmove', callables.dragMove);
+         scene.add(actor);
 
-   it('should capture pointer drag start event', () => {
-      var actor = new ex.Actor(0, 0, 20, 20);
-      var pointerEvent: any;
-      var callables = { dragStart: (pe: any) => pointerEvent = pe };
-      var dragStartSpy = spyOn(callables, 'dragStart').and.callThrough();
+         this.pointerEvent = mock.pointerEvent('move');
+         this.pointerEvent.eventPath = [actor];
+         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
+         this.pointerEvent.pointer.addActorUnderPointer(actor);
+         spyOnProperty(this.pointerEvent.pointer, 'isDragging', 'get').and.returnValue(true);
+         (<any>engine.input.pointers)._pointerMove.push(this.pointerEvent);
 
-      actor.on('pointerdragstart', callables.dragStart);
+         scene.update(engine, 100);
 
-      scene.add(actor);
-
-      (<any>engine.input.pointers)._pointerDown.push({
-         pointer: {
-            isDragStart: true,
-            lastWorldPos: new ex.Vector(5, -5),
-            actorsUnderPointer: {}
-         }
+         expect(dragMoveSpy).toHaveBeenCalledTimes(1);
+         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(0, 'pointer event should contain correct world position x');
+         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(0, 'pointer event should contain correct world position y');
       });
 
-      scene.update(engine, 100);
+      it('should capture pointer drag enter event', () => {
+         const actor = new ex.Actor(0, 0, 20, 20);
+         const callables = { dragEnter: (pe: any) => { /* doesn't matter */ }};
+         const dragEnterSpy = spyOn(callables, 'dragEnter').and.callThrough();
 
-      expect(dragStartSpy).toHaveBeenCalledTimes(1);
-      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(5, 'pointer event should contain correct world position x');
-      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(-5, 'pointer event should contain correct world position y');
-   });
+         actor.on('pointerdragenter', callables.dragEnter);
+         scene.add(actor);
 
-   it('should capture pointer drag end event', () => {
-      var actor = new ex.Actor(0, 0, 20, 20);
-      var pointerEvent: any;
-      var callables = { dragEnd: (pe: any) => pointerEvent = pe };
-      var dragEndSpy = spyOn(callables, 'dragEnd').and.callThrough();
+         this.pointerEvent = mock.pointerEvent('move');
+         this.pointerEvent.eventPath = [actor];
+         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
+         spyOnProperty(this.pointerEvent.pointer, 'isDragging', 'get').and.returnValue(true);
+         (<any>engine.input.pointers)._pointerMove.push(this.pointerEvent);
 
-      actor.on('pointerdragend', callables.dragEnd);
+         scene.update(engine, 100);
 
-      scene.add(actor);
-
-      (<any>engine.input.pointers)._pointerDown.push({
-         pointer: {
-            isDragStart: true,
-            lastWorldPos: new ex.Vector(5, -5),
-            actorsUnderPointer: {}
-         }
+         expect(dragEnterSpy).toHaveBeenCalledTimes(1);
+         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(0, 'pointer event should contain correct world position x');
+         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(0, 'pointer event should contain correct world position y');
       });
 
-      scene.update(engine, 100);
+      it('should capture pointer drag leave event', () => {
+         const actor = new ex.Actor(0, 0, 20, 20);
+         const callables = { dragLeave: (pe: any) => { /* doesn't matter */ }};
+         const dragLeaveSpy = spyOn(callables, 'dragLeave').and.callThrough();
 
-      (<any>engine.input.pointers)._pointerUp.push({
-         pointer: {
-            isDragEnd: true,
-            lastWorldPos: new ex.Vector(5, -5),
-            actorsUnderPointer: {}
-         }
+         actor.on('pointerdragleave', callables.dragLeave);
+         scene.add(actor);
+
+         this.pointerEvent = mock.pointerEvent('move');
+         this.pointerEvent.eventPath = [];
+         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(30, 30);
+         this.pointerEvent.pointer.addActorUnderPointer(actor);
+         spyOnProperty(this.pointerEvent.pointer, 'isDragging', 'get').and.returnValue(true);
+         (<any>engine.input.pointers)._pointerMove.push(this.pointerEvent);
+
+         scene.update(engine, 100);
+
+         expect(dragLeaveSpy).toHaveBeenCalledTimes(1);
+         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(30, 'pointer event should contain correct world position x');
+         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(30, 'pointer event should contain correct world position y');
       });
 
-      scene.update(engine, 100);
+      it('can prevent pointer events from bubbling',
+      () => {
+         const actor = new ex.Actor(0, 0, 100, 100);
+         const child = new ex.Actor(0, 0, 100, 100);
+         const callables = { pointerDown: (pe: any) => { /* doesn't matter */ }};
+         const bubblingSpy = spyOn(callables, 'pointerDown').and.callThrough();
 
-      expect(dragEndSpy).toHaveBeenCalledTimes(1);
-      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(5, 'pointer event should contain correct world position x');
-      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(-5, 'pointer event should contain correct world position y');
-   });
+         actor.on('pointerdown', callables.pointerDown);
+         child.on('pointerdown', callables.pointerDown);
+         scene.add(actor);
 
-   it('should capture pointer drag move event', () => {
-      var actor = new ex.Actor(0, 0, 20, 20);
-      var pointerEvent: any;
-      var callables = { dragMove: (pe: any) => pointerEvent = pe };
-      var dragMoveSpy = spyOn(callables, 'dragMove').and.callThrough();
+         this.pointerEvent = mock.pointerEvent('down');
+         this.pointerEvent.bubbles = false;
+         this.pointerEvent.eventPath = [actor, child];
+         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
+         (<any>engine.input.pointers)._pointerDown.push(this.pointerEvent);
 
-      actor.on('pointerdragmove', callables.dragMove);
+         scene.update(engine, 100);
 
-      scene.add(actor);
-
-      (<any>engine.input.pointers)._pointerMove.push({
-         pointer: {
-            isDragging: true,
-            lastWorldPos: new ex.Vector(5, -5),
-            actorsUnderPointer: {}
-         }
+         expect(bubblingSpy).toHaveBeenCalledTimes(1);
+         expect(this.pointerEvent.pointer.lastWorldPos.x).toEqual(0, 'pointer event should contain correct world position x');
+         expect(this.pointerEvent.pointer.lastWorldPos.y).toEqual(0, 'pointer event should contain correct world position y');
       });
 
-      scene.update(engine, 100);
+      it('only has pointer events happen once per frame', () => {
+         const actor = new ex.Actor(0, 0, 100, 100);
+         const propSpy = spyOn(engine.input.pointers, 'propagate').and.callThrough();
+         const eventName = 'pointerup';
+         let numPointerUps = 0;
 
-      expect(dragMoveSpy).toHaveBeenCalledTimes(1);
-      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(5, 'pointer event should contain correct world position x');
-      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(-5, 'pointer event should contain correct world position y');
-   });
+         this.pointerEvent = mock.pointerEvent('up');
+         this.pointerEvent.eventPath = [actor];
+         this.pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
+         (<any>engine.input.pointers)._pointerUp.push(this.pointerEvent);
 
-   it('should capture pointer drag enter event', () => {
-      var actor = new ex.Actor(0, 0, 20, 20);
-      var pointerEvent: any;
-      var callables = { dragEnter: (pe: any) => pointerEvent = pe };
-      var dragEnterSpy = spyOn(callables, 'dragEnter').and.callThrough();
+         actor.on('pointerup', () => {
+            numPointerUps++;
+         });
 
-      actor.on('pointerdragenter', callables.dragEnter);
+         scene.add(actor);
+         scene.update(engine, 100);
 
-      scene.add(actor);
-
-      (<any>engine.input.pointers)._pointerMove.push({
-         pointer: {
-            isDragging: true,
-            lastWorldPos: new ex.Vector(5, -5),
-            actorsUnderPointer: {}
-         }
+         expect(numPointerUps).toBe(1, 'Pointer up should be triggered once');
+         expect(propSpy).toHaveBeenCalledTimes(1);
       });
-
-      scene.update(engine, 100);
-
-      (<any>engine.input.pointers)._pointerMove.push({
-         pointer: {
-            isDragging: true,
-            lastWorldPos: new ex.Vector(5, -5),
-            actorsUnderPointer: (() => {
-               let obj = {};
-
-               obj[actor.id] = actor;
-
-               return obj;
-            })()
-         }
-      });
-
-      scene.update(engine, 100);
-
-      expect(dragEnterSpy).toHaveBeenCalledTimes(1);
-      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(5, 'pointer event should contain correct world position x');
-      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(-5, 'pointer event should contain correct world position y');
-   });
-
-   it('should capture pointer drag leave event', () => {
-      var actor = new ex.Actor(0, 0, 20, 20);
-      var pointerEvent: any;
-      var callables = { dragLeave: (pe: any) => pointerEvent = pe };
-      var dragLeaveSpy = spyOn(callables, 'dragLeave').and.callThrough();
-
-      actor.on('pointerdragleave', callables.dragLeave);
-
-      scene.add(actor);
-
-      (<any>engine.input.pointers)._pointerMove.push({
-         pointer: {
-            isDragging: true,
-            lastWorldPos: new ex.Vector(5, -5),
-            actorsUnderPointer: {}
-         }
-      });
-
-      scene.update(engine, 100);
-
-      (<any>engine.input.pointers)._pointerMove.push({
-         pointer: {
-            isDragging: true,
-            lastWorldPos: new ex.Vector(15, -15),
-            actorsUnderPointer: (() => {
-               let obj = {};
-
-               obj[actor.id] = actor;
-
-               return obj;
-            })()
-         }
-      });
-
-      scene.update(engine, 100);
-
-      (<any>engine.input.pointers)._pointerMove.push({
-         pointer: {
-            isDragging: true,
-            lastWorldPos: new ex.Vector(15, -15),
-            actorsUnderPointer: {}
-         }
-      });
-
-      scene.update(engine, 100);
-
-      expect(dragLeaveSpy).toHaveBeenCalledTimes(1);
-      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(15, 'pointer event should contain correct world position x');
-      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(-15, 'pointer event should contain correct world position y');
-   });
-
-   it('only has pointer events happen once per frame', () => {
-      var actor = new ex.Actor(0, 0, 100, 100);
-      //actor.enableCapturePointer = true;
-      var numPointerUps = 0;
-
-      var propSpy = spyOn(engine.input.pointers, 'propogate').and.callThrough();
-      (<any>engine.input.pointers)._pointerUp.push({
-         pointer: {
-            lastWorldPos: { x: 0, y: 0 }
-         }
-      });
-
-      actor.on('pointerup', () => {
-         numPointerUps++;
-      });
-
-      scene.add(actor);
-
-      scene.update(engine, 100);
-
-      expect(numPointerUps).toBe(1, 'Pointer up should be triggered once');
-      expect(propSpy).toHaveBeenCalledTimes(1);
    });
 
    it('should not corrupt shared sprite ctxs', (done) => {
@@ -1317,7 +1230,7 @@ describe('A game actor', () => {
          let s = texture.asSprite();
          s.scale.setTo(1, 1);
          actor.addDrawing(s);
-         
+
          let a1 = new ex.Actor({scale: new ex.Vector(3, 3)});
          a1.scale.setTo(3, 3);
          a1.addDrawing(texture);
@@ -1325,22 +1238,22 @@ describe('A game actor', () => {
          let a2 = new ex.Actor({scale: new ex.Vector(3, 3)});
          a1.scale.setTo(3, 3);
          a2.addDrawing(texture);
-         
+
 
          a1.draw(engine.ctx, 100);
          a2.draw(engine.ctx, 100);
          actor.draw(engine.ctx, 100);
          engine.ctx.fillRect(0, 0, 200, 200);
-         
+
          a1.draw(engine.ctx, 100);
          a2.draw(engine.ctx, 100);
          actor.draw(engine.ctx, 100);
          engine.ctx.fillRect(0, 0, 200, 200);
-         
+
 
          a1.draw(engine.ctx, 100);
          a2.draw(engine.ctx, 100);
-         
+
          engine.ctx.clearRect(0, 0, 200, 200);
          actor.draw(engine.ctx, 100);
 
@@ -1348,12 +1261,11 @@ describe('A game actor', () => {
 
       });
    });
-   
 
    describe('lifecycle overrides', () => {
 
       let actor: ex.Actor = null;
-      
+
       beforeEach(() => {
          actor = new ex.Actor({
             pos: new ex.Vector(10, 10),
@@ -1365,7 +1277,7 @@ describe('A game actor', () => {
       it('can have onInitialize overriden safely', () => {
          let initCalled = false;
          actor.on('initialize', () => { initCalled = true; });
-         actor.onInitialize = (engine) => { 
+         actor.onInitialize = (engine) => {
             expect(engine).not.toBe(null);
          };
 
@@ -1378,7 +1290,7 @@ describe('A game actor', () => {
          expect(actor.onInitialize).toHaveBeenCalledTimes(1);
          expect(initCalled).toBe(true);
          expect(actor.isInitialized).toBe(true);
-         
+
       });
 
       it('can have onPostUpdate overriden safely', () => {
@@ -1395,7 +1307,7 @@ describe('A game actor', () => {
          expect(actor._postupdate).toHaveBeenCalledTimes(2);
          expect(actor.onPostUpdate).toHaveBeenCalledTimes(2);
       });
-   
+
       it('can have onPreUpdate overriden safely', () => {
          actor.onPreUpdate = (engine, delta) => {
             expect(engine).not.toBe(null);
@@ -1472,5 +1384,5 @@ describe('A game actor', () => {
       });
 
    });
- 
+
 });

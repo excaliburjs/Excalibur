@@ -8,6 +8,11 @@ import * as Util from '../Util/Util';
 import * as Events from '../Events';
 import { obsolete } from '../Util/Decorators';
 
+export interface IActorsUnderPointer {
+   [ActorId: number]: Actor;
+   length: number;
+}
+
 /**
  * The type of pointer for a [[PointerEvent]].
  */
@@ -66,7 +71,7 @@ const ScrollWheelNormalizationFactor = -1 / 40;
  *
  * For mouse-based events, you can inspect [[PointerEvent.button]] to see what button was pressed.
  */
-export class PointerEvent extends GameEvent<any> {
+export class PointerEvent extends GameEvent<Actor> {
    /** @obsolete Use [[PointerEvent]].worldPos.x instead. */
    @obsolete({ message: 'PointerEvent.x will be removed in the 0.17 release', alternateMethod: 'PointerEvent.worldPos.x' })
    public get x(): number {
@@ -139,29 +144,230 @@ export class PointerEvent extends GameEvent<any> {
     * @param ev                  The raw DOM event being handled
     * @param pos                 (Will be added to signature in 0.14.0 release) The position of the event (in world coordinates)
     */
-   constructor(private coordinates: GlobalCoordinates,
+   constructor(
+      protected coordinates: GlobalCoordinates,
       public pointer: Pointer,
       public index: number,
       public pointerType: PointerType,
       public button: PointerButton,
-      public ev: any) {
+      public ev: any
+   ) {
       super();
    }
 
    public get pos(): Vector {
       return this.coordinates.worldPos.clone();
    }
+   /**
+    * Sets event path to actor, depending on actor provided.
+    * If actor is lower in hierarchy tree, previous path'll be kept.
+    * @param actor Actor, to lay path form.
+    */
+   public layPath(actor: Actor): void {
+      if (!this.pointer.isActorUnderPointer(actor)) {
+         return;
+      }
+
+      const actorPath = actor.getAncestors();
+      this._path = (actorPath.length > this._path.length) ? actorPath : this._path;
+   }
 };
 
-export class PointerDragEvent extends PointerEvent { }
+export class PointerEventFactory<T extends PointerEvent> {
+   constructor(
+      protected _pointerEventType: new (
+         coordinates: GlobalCoordinates,
+         pointer: Pointer,
+         index: number,
+         pointerType: PointerType,
+         button: PointerButton,
+         ev: any,
+      ) => T
+   ) {}
 
+   /**
+    * Create specific PointerEvent
+    */
+   public create(
+      coordinates: GlobalCoordinates,
+      pointer: Pointer,
+      index: number,
+      pointerType: PointerType,
+      button: PointerButton,
+      ev: any,
+   ): T {
+      return new this._pointerEventType(coordinates, pointer, index, pointerType, button, ev);
+   }
+}
+
+export class PointerDragEvent extends PointerEvent {}
+
+export class PointerUpEvent extends PointerEvent {
+   protected _name = 'pointerup';
+
+   protected _onActionEnd(actor: Actor) {
+      const pointer = this.pointer;
+
+      if (pointer.isDragEnd && actor.capturePointer.captureDragEvents) {
+         actor.eventDispatcher.emit('pointerdragend', this);
+      }
+   }
+}
+
+export class PointerDownEvent extends PointerEvent {
+   protected _name = 'pointerdown';
+
+   protected _onActionEnd(actor: Actor) {
+      if (this.pointer.isDragStart && actor.capturePointer.captureDragEvents) {
+         actor.eventDispatcher.emit('pointerdragstart', this);
+      }
+   }
+}
+
+export class PointerMoveEvent extends PointerEvent {
+   protected _name = 'pointermove';
+
+   public propagate(): void {
+      if (!this.eventPath.length) {
+         if (this.pointer.hasActorsUnderPointer) {
+            const actors = this.pointer.getActorsUnderPointer();
+            actors.forEach((actor) => {
+               if (!this.pointer.isActorUnderPointer(actor)) {
+                  this._onActorLeave(actor);
+               }
+            });
+         };
+
+         return;
+      }
+
+      this.action();
+
+      if (this.bubbles) {
+         this.propagate();
+      }
+   }
+
+   /**
+    * Sets event path to actor, depending on actor provided.
+    * If actor is in a dragging state, current dragging target would be used.
+    * @param actor Actor, to lay path form.
+    */
+   public layPath(actor: Actor): void {
+      /**
+       *  double-check is preformed, because user could move pointer too fast and
+       *  in that case, pointer can appear out of boundings of the dragging element
+       */
+      if (this.pointer.isDragging) {
+         actor = this.pointer.dragTarget || actor;
+      } else if (!this.pointer.isActorUnderPointer(actor)) {
+         return;
+      }
+
+      const actorPath = actor.getAncestors();
+      this._path = (actorPath.length > this._path.length) ? actorPath : this._path;
+   }
+
+   protected _onActionStart(actor: Actor) {
+      if (!actor.capturePointer.captureMoveEvents) {
+         return;
+      }
+
+      if (this.pointer.isActorUnderPointer(actor) && !this.pointer.hasActorUnderPointerInList(actor)) {
+         this._onActorEnter(actor);
+      }
+
+      if (this.pointer.isDragging && actor.capturePointer.captureDragEvents) {
+         actor.eventDispatcher.emit('pointerdragmove', this);
+      }
+   }
+
+   private _onActorEnter(actor: Actor) {
+      const pe = createPointerEventByName(
+         'enter',
+         this.coordinates,
+         this.pointer,
+         this.index,
+         this.pointerType,
+         this.button,
+         this.ev
+      );
+      pe.layPath(actor);
+      pe.propagate();
+      this.pointer.addActorUnderPointer(actor);
+
+      if (this.pointer.isDragging) {
+         this.pointer.dragTarget = actor;
+      }
+   }
+
+   private _onActorLeave(actor: Actor) {
+      const pe = createPointerEventByName(
+         'leave',
+         this.coordinates,
+         this.pointer,
+         this.index,
+         this.pointerType,
+         this.button,
+         this.ev
+      );
+      pe.layPath(actor);
+      pe.propagate();
+      this.pointer.removeActorUnderPointer(actor);
+   }
+}
+
+export class PointerEnterEvent extends PointerEvent {
+   protected _name = 'pointerenter';
+
+   protected _onActionStart(actor: Actor) {
+      if (!actor.capturePointer.captureMoveEvents) {
+         return;
+      }
+   }
+
+   protected _onActionEnd(actor: Actor) {
+      const pointer = this.pointer;
+
+      if (pointer.isDragging && actor.capturePointer.captureDragEvents) {
+         actor.eventDispatcher.emit('pointerdragenter', this);
+      }
+   }
+}
+
+export class PointerLeaveEvent extends PointerEvent {
+   protected _name = 'pointerleave';
+
+   public layPath(actor: Actor): void {
+      const actorPath = actor.getAncestors();
+      this._path = (actorPath.length > this._path.length) ? actorPath : this._path;
+   }
+
+   protected _onActionStart(actor: Actor) {
+      if (!actor.capturePointer.captureMoveEvents) {
+         return;
+      }
+   }
+
+   protected _onActionEnd(actor: Actor) {
+      const pointer = this.pointer;
+
+      if (pointer.isDragging && actor.capturePointer.captureDragEvents) {
+         actor.eventDispatcher.emit('pointerdragleave', this);
+      }
+   }
+}
+
+export class PointerCancelEvent extends PointerEvent {
+   protected _name = 'pointercancel';
+}
 /**
  * Wheel Events
  *
  * Represents a mouse wheel event. See [[Pointers]] for more information on
  * handling point input.
  */
-export class WheelEvent extends GameEvent<any> {
+export class WheelEvent extends GameEvent<Actor> {
 
    /**
     * @param x            The `x` coordinate of the event (in world coordinates)
@@ -192,6 +398,41 @@ export class WheelEvent extends GameEvent<any> {
       super();
    }
 };
+
+function createPointerEventByName(
+   eventName: string,
+   coordinates: GlobalCoordinates,
+   pointer: Pointer,
+   index: number,
+   pointerType: PointerType,
+   button: PointerButton,
+   ev: any,
+) {
+   let factory: PointerEventFactory<PointerEvent>;
+
+   switch (eventName) {
+      case 'up':
+         factory = new PointerEventFactory(<any>PointerUpEvent);
+         break;
+      case 'down':
+         factory = new PointerEventFactory(<any>PointerDownEvent);
+         break;
+      case 'move':
+         factory = new PointerEventFactory(<any>PointerMoveEvent);
+         break;
+      case 'cancel':
+         factory = new PointerEventFactory(<any>PointerCancelEvent);
+         break;
+      case 'enter':
+         factory = new PointerEventFactory(<any>PointerEnterEvent);
+         break;
+      case 'leave':
+         factory = new PointerEventFactory(<any>PointerLeaveEvent);
+         break;
+   }
+
+   return factory.create(coordinates, pointer, index, pointerType, button, ev);
+}
 
 /**
  * Handles pointer events (mouse, touch, stylus, etc.) and normalizes to
@@ -321,106 +562,82 @@ export class Pointers extends Class {
    }
 
    /**
-    * Propogates events to actor if necessary
+    * Propogates events through ancestors chain if necessary
     */
-   public propogate(actor: Actor) {
-      var isNotUIActor = !Actors.isUIActor(actor);
-      var i: number = 0;
-      var len: number = 0;
-      var pointerEvent: PointerEvent;
-      var pointer: Pointer;
+   public propagate() {
+      this._propagatePointerEvent(this._pointerDown);
+      this._propagatePointerEvent(this._pointerUp);
+      this._propagatePointerEvent(this._pointerMove);
+      this._propagatePointerEvent(this._pointerCancel);
+      this._propagateWheelEvent('pointerwheel', this._wheel);
+   }
 
-      i = 0;
-      len = this._pointerDown.length;
+   /**
+    * Revises pointer events paths accordingly to actor provided
+    * @param actor  Actor to be revised
+    */
+   public revisePointerEventsPaths(actor: Actor) {
+      this._revisePointerEventPath(actor, this._pointerDown);
+      this._revisePointerEventPath(actor, this._pointerUp);
+      this._revisePointerEventPath(actor, this._pointerMove);
+      this._revisePointerEventPath(actor, this._pointerCancel);
+      this._validateWheelEventPath(this._wheel, actor);
+   }
 
-      for (i; i < len; i++) {
-         pointerEvent = this._pointerDown[i];
-         pointer = pointerEvent.pointer;
+   private _propagatePointerEvent(pointers: PointerEvent[]) {
+      const len = pointers.length;
 
-         if (actor.contains(pointer.lastWorldPos.x, pointer.lastWorldPos.y, isNotUIActor)) {
-            actor.eventDispatcher.emit('pointerdown', pointerEvent);
+      for (let i = 0; i < len; i++) {
+         pointers[i].propagate();
+      }
+   }
 
-            if (pointer.isDragStart && actor.capturePointer.captureDragEvents) {
-               actor.eventDispatcher.emit('pointerdragstart', pointerEvent);
-            }
+   private _revisePointerEventPath(actor: Actor, pointers: PointerEvent[]) {
+      const len = pointers.length;
+
+      for (let i = 0; i < len; i++) {
+         const pointerEvent = pointers[i];
+
+         pointerEvent.layPath(actor);
+      }
+   }
+
+   private _validateWheelEventPath(pointers: WheelEvent[], actor: Actor): void {
+      for (let i = 0; i < pointers.length; i++) {
+         const wheelEvent = pointers[i];
+         const isNotUIActor = !Actors.isUIActor(actor);
+
+         if (actor.contains(wheelEvent.x, wheelEvent.y, isNotUIActor)) {
+            wheelEvent.layPath(actor);
          }
       }
+    }
 
-      i = 0;
-      len = this._pointerUp.length;
+   private _propagateWheelEvent(eventName: string, pointers: WheelEvent[]) {
+      const len = pointers.length;
+      let wheelEvent: WheelEvent;
 
-      for (i; i < len; i++) {
-         pointerEvent = this._pointerUp[i];
-         pointer = pointerEvent.pointer;
+      for (let i = 0; i < len; i++) {
+         wheelEvent = pointers[i];
 
-         if (actor.contains(pointer.lastWorldPos.x, pointer.lastWorldPos.y, isNotUIActor)) {
-            actor.eventDispatcher.emit('pointerup', pointerEvent);
-
-            if (pointer.isDragEnd && actor.capturePointer.captureDragEvents) {
-               actor.eventDispatcher.emit('pointerdragend', pointerEvent);
-            }
+         switch (eventName) {
+            case 'pointerwheel':
+               this._propagateWheelPointerEvent(wheelEvent);
+               break;
          }
       }
+   }
 
-      if (actor.capturePointer.captureMoveEvents) {
-         i = 0;
-         len = this._pointerMove.length;
-
-         for (i; i < len; i++) {
-            pointerEvent = this._pointerMove[i];
-            pointer = pointerEvent.pointer;
-
-            if (actor.contains(pointer.lastWorldPos.x, pointer.lastWorldPos.y, isNotUIActor)) {
-               if (!pointer.actorsUnderPointer[actor.id]) {
-                  pointer.actorsUnderPointer[actor.id] = actor;
-
-                  actor.eventDispatcher.emit('pointerenter', pointerEvent);
-
-                  if (pointer.isDragging && actor.capturePointer.captureDragEvents) {
-                     actor.eventDispatcher.emit('pointerdragenter', pointerEvent);
-                  }
-               }
-
-               actor.eventDispatcher.emit('pointermove', pointerEvent);
-
-               if (pointer.isDragging && actor.capturePointer.captureDragEvents) {
-                  actor.eventDispatcher.emit('pointerdragmove', pointerEvent);
-               }
-            }
-
-            if (!actor.contains(pointer.lastWorldPos.x, pointer.lastWorldPos.y, isNotUIActor)) {
-               if (pointer.actorsUnderPointer[actor.id]) {
-                  delete pointer.actorsUnderPointer[actor.id];
-
-                  actor.eventDispatcher.emit('pointerleave', pointerEvent);
-
-                  if (pointer.isDragging && actor.capturePointer.captureDragEvents) {
-                     actor.eventDispatcher.emit('pointerdragleave', pointerEvent);
-                  }
-               }
-            }
-         }
+   private _propagateWheelPointerEvent(wheelEvent: WheelEvent) {
+      if (!wheelEvent.eventPath.length) {
+         return;
       }
 
-      i = 0;
-      len = this._pointerCancel.length;
+      const actor = wheelEvent.eventPath.pop();
+      actor.eventDispatcher.emit('pointerwheel', wheelEvent);
 
-      for (i; i < len; i++) {
-         pointerEvent = this._pointerCancel[i];
-         pointer = pointerEvent.pointer;
-
-         if (actor.contains(pointer.lastWorldPos.x, pointer.lastWorldPos.y, isNotUIActor)) {
-            actor.eventDispatcher.emit('pointercancel', pointerEvent);
-         }
-      }
-
-      i = 0;
-      len = this._wheel.length;
-
-      for (i; i < len; i++) {
-         if (actor.contains(this._wheel[i].x, this._wheel[i].y, isNotUIActor)) {
-            actor.eventDispatcher.emit('pointerwheel', this._wheel[i]);
-         }
+      if (wheelEvent.bubbles) {
+         this._propagateWheelPointerEvent(wheelEvent);
       }
    }
 
@@ -428,9 +645,9 @@ export class Pointers extends Class {
       return (e: MouseEvent) => {
          e.preventDefault();
 
-         var pointer = this.at(0);
-         var coordinates = GlobalCoordinates.fromPagePosition(e.pageX, e.pageY, this._engine);
-         var pe = new PointerEvent(coordinates, pointer, 0, PointerType.Mouse, e.button, e);
+         const pointer = this.at(0);
+         const coordinates = GlobalCoordinates.fromPagePosition(e.pageX, e.pageY, this._engine);
+         const pe = createPointerEventByName(eventName, coordinates, pointer, 0, PointerType.Mouse, e.button, e);
 
          eventArr.push(pe);
          pointer.eventDispatcher.emit(eventName, pe);
@@ -441,13 +658,14 @@ export class Pointers extends Class {
       return (e: ITouchEvent) => {
          e.preventDefault();
          for (var i = 0, len = e.changedTouches.length; i < len; i++) {
-            var index = this._pointers.length > 1 ? this._getPointerIndex(e.changedTouches[i].identifier) : 0;
+            const index = this._pointers.length > 1 ? this._getPointerIndex(e.changedTouches[i].identifier) : 0;
             if (index === -1) { continue; }
 
-            var pointer = this.at(index);
-            var coordinates = GlobalCoordinates.fromPagePosition(
-               e.changedTouches[i].pageX, e.changedTouches[i].pageY, this._engine);
-            var pe = new PointerEvent(coordinates, pointer, index, PointerType.Touch, PointerButton.Unknown, e);
+            const pointer = this.at(index);
+            const coordinates = GlobalCoordinates.fromPagePosition(
+               e.changedTouches[i].pageX, e.changedTouches[i].pageY, this._engine
+            );
+            const pe = createPointerEventByName(eventName, coordinates, pointer, index, PointerType.Touch, PointerButton.Unknown, e);
 
             eventArr.push(pe);
             pointer.eventDispatcher.emit(eventName, pe);
@@ -472,12 +690,12 @@ export class Pointers extends Class {
          e.preventDefault();
 
          // get the index for this pointer ID if multi-pointer is asked for
-         var index = this._pointers.length > 1 ? this._getPointerIndex(e.pointerId) : 0;
+         const index = this._pointers.length > 1 ? this._getPointerIndex(e.pointerId) : 0;
          if (index === -1) { return; }
 
-         var pointer = this.at(index);
-         var coordinates = GlobalCoordinates.fromPagePosition(e.pageX, e.pageY, this._engine);
-         var pe = new PointerEvent(coordinates, pointer, index, this._stringToPointerType(e.pointerType), e.button, e);
+         const pointer = this.at(index);
+         const coordinates = GlobalCoordinates.fromPagePosition(e.pageX, e.pageY, this._engine);
+         const pe = createPointerEventByName(eventName, coordinates, pointer, index, this._stringToPointerType(e.pointerType), e.button, e);
 
          eventArr.push(pe);
          pointer.eventDispatcher.emit(eventName, pe);
@@ -576,9 +794,9 @@ export class Pointers extends Class {
  * Captures and dispatches PointerEvents
  */
 export class Pointer extends Class {
-
    private _isDown: boolean = false;
    private _wasDown: boolean = false;
+   private _actorsUnderPointer: IActorsUnderPointer = { length: 0 };
 
    /**
     * Whether the Pointer is currently dragging.
@@ -594,12 +812,18 @@ export class Pointer extends Class {
       return !this._wasDown && this._isDown;
    }
 
-
    /**
     * Whether the Pointer just ended dragging.
     */
    public get isDragEnd(): boolean {
       return this._wasDown && !this._isDown;
+   }
+
+   /**
+    * Returns true if pointer has any actors under
+    */
+   public get hasActorsUnderPointer(): boolean {
+      return !!this._actorsUnderPointer.length;
    }
 
    /**
@@ -617,7 +841,10 @@ export class Pointer extends Class {
     */
    public lastWorldPos: Vector = null;
 
-   public actorsUnderPointer: { [ActorId: number]: Actor; } = {};
+   /**
+    * Returns the currently dragging target or null if it isn't exist
+    */
+   public dragTarget: Actor = null;
 
    constructor() {
       super();
@@ -635,6 +862,62 @@ export class Pointer extends Class {
       }
    }
 
+   /**
+    * Adds an Actor to actorsUnderPointer object.
+    * @param actor An Actor to be added;
+    */
+   public addActorUnderPointer(actor: Actor): void {
+      if (!this.hasActorUnderPointerInList(actor)) {
+         this._actorsUnderPointer[actor.id] = actor;
+         this._actorsUnderPointer.length += 1;
+      }
+   }
+
+   /**
+    * Removes an Actor from actorsUnderPointer object.
+    * @param actor An Actor to be removed;
+    */
+   public removeActorUnderPointer(actor: Actor): void {
+      if (this.hasActorUnderPointerInList(actor)) {
+         delete this._actorsUnderPointer[actor.id];
+         this._actorsUnderPointer.length -= 1;
+      }
+   }
+
+   /**
+    * Returns an Actor from actorsUnderPointer object.
+    * @param actor An Actor to be ;
+    */
+   public getActorsUnderPointer(): Actor[] {
+      const actors: Actor[] = [];
+
+      for (const id in this._actorsUnderPointer) {
+         if (id === 'length') {
+            continue;
+         }
+         const actor = this._actorsUnderPointer[id];
+         actors.push(actor);
+      }
+
+      return actors;
+   }
+
+   /**
+    * Checks if Pointer has a specific Actor under.
+    * @param actor An Actor for check;
+    */
+   public isActorUnderPointer(actor: Actor): boolean {
+      return actor.contains(this.lastWorldPos.x, this.lastWorldPos.y, !Actors.isUIActor(actor));
+   }
+
+   /**
+    * Checks if Pointer has a specific Actor in ActrorsUnderPointer list.
+    * @param actor An Actor for check;
+    */
+   public hasActorUnderPointerInList(actor: Actor): boolean {
+      return this._actorsUnderPointer.hasOwnProperty(actor.id.toString());
+   }
+
    private _onPointerMove(ev: PointerEvent): void {
       this.lastPagePos = new Vector(ev.pagePos.x, ev.pagePos.y);
       this.lastScreenPos = new Vector(ev.screenPos.x, ev.screenPos.y);
@@ -647,6 +930,7 @@ export class Pointer extends Class {
 
    private _onPointerUp(): void {
       this._isDown = false;
+      this.dragTarget = null;
    }
 }
 

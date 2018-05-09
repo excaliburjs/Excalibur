@@ -2,6 +2,7 @@
 
 module Mocks {
 
+
    export interface ITime {
       now(): number;
       add(value: number): void;
@@ -15,13 +16,13 @@ module Mocks {
 
    export class Mocker {
       navigator(): any {
-         var _internalGamePads = { 0: undefined, 
-                                   1: undefined, 
-                                   2: undefined, 
+         var _internalGamePads = { 0: undefined,
+                                   1: undefined,
+                                   2: undefined,
                                    3: undefined,
                                    length: 4 };
          var mockNavigator = {
-            
+
             setGamepads: function(index: number, numAxis: number, numButtons: number) {
                _internalGamePads[index] = {
                   axes: Array.apply(null, Array(numAxis).map(function() { return undefined; })),
@@ -33,31 +34,31 @@ module Mocks {
                   timing: 15335
                };
             },
-            
+
             deleteGamepad: function(index: number) {
                _internalGamePads[index] = undefined;
             },
-            
+
             setGamepadAxis: function(gamepadIndex: number, axisIndex: number, value: number) {
                _internalGamePads[gamepadIndex].axes[axisIndex] = value;
             },
-            
+
             setGamepadButton: function(gamepadIndex: number, buttonIndex: number, value: number){
                _internalGamePads[gamepadIndex].buttons[buttonIndex] = { pressed: value > 0 ? true : false, value: value };
             },
-            
+
             getGamepads: function() {
                return _internalGamePads;
             }
-            
+
          };
-         
+
          return mockNavigator;
       };
 
       realengine(): ex.Engine {
          navigator = <any>this.navigator();
-         
+
          return new ex.Engine({
             width: 500,
             height: 500,
@@ -65,7 +66,7 @@ module Mocks {
             suppressMinimumBrowserFeatureDetection: true
          });
       }
-            
+
       engine(width: number, height: number) {
          var mockEngine;
 
@@ -95,7 +96,7 @@ module Mocks {
                error : function () { /* do nothing */ }
             },
             debug: {
-               
+
             },
             stats: {
                currFrame: new ex.FrameStats(),
@@ -167,7 +168,7 @@ module Mocks {
          return {
 
             /**
-             * Advance the engine update loop by the given duration (in milliseconds). 
+             * Advance the engine update loop by the given duration (in milliseconds).
              * By default, the FPS is set to 60 which means ~16ms per frame for 1 second duration.
              */
             advance: function (duration: number, fps: number = 60) {
@@ -200,20 +201,54 @@ module Mocks {
             }
          };
       }
-      
-      window() {         
+
+      window() {
          var _handlers = {};
-         
+
          var mockWindow = {
             addEventListener: function(name, handler) {
                _handlers[name] = handler;
-            },            
+            },
             emit: function(name, eventObject) {
                _handlers[name](eventObject);
             }
          };
-         
+
          return mockWindow;
-      };            
+      };
+
+      pointerEvent(eventName): ex.Input.PointerEvent {
+         const coordinates = new ex.GlobalCoordinates(new ex.Vector(0, 0), new ex.Vector(0, 0), new ex.Vector(0, 0));
+         const pointer = new ex.Input.Pointer();
+         const pointerType = ex.Input.PointerType.Mouse;
+         const pointerButton = ex.Input.PointerButton.Unknown;
+
+         pointer.lastWorldPos = new ex.Vector(0, 0);
+
+         let factory: ex.Input.PointerEventFactory<ex.Input.PointerEvent>;
+
+         switch (eventName) {
+            case 'up':
+               factory = new ex.Input.PointerEventFactory(<any>ex.Input.PointerUpEvent);
+               break;
+            case 'down':
+               factory = new ex.Input.PointerEventFactory(<any>ex.Input.PointerDownEvent);
+               break;
+            case 'move':
+               factory = new ex.Input.PointerEventFactory(<any>ex.Input.PointerMoveEvent);
+               break;
+            case 'cancel':
+               factory = new ex.Input.PointerEventFactory(<any>ex.Input.PointerCancelEvent);
+               break;
+            case 'enter':
+               factory = new ex.Input.PointerEventFactory(<any>ex.Input.PointerEnterEvent);
+               break;
+            case 'leave':
+               factory = new ex.Input.PointerEventFactory(<any>ex.Input.PointerLeaveEvent);
+               break;
+         }
+
+         return factory.create(coordinates, pointer, 0, pointerType, pointerButton, {});
+      }
    }
 }
